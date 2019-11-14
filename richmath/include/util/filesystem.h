@@ -5,8 +5,11 @@
 
 namespace richmath {
   struct FileSystem {
-    /// different from pmath_to_absolute_file_name(), this only succeeds for existing files, and not for directories
-    static String to_absolute_file_name(String filename);
+    static String to_existing_absolute_file_name(String filename);
+    static String to_possibly_nonexisting_absolute_file_name(String filename);
+    
+    static String file_name_join(String dir, String name);
+    static bool is_filename_without_directory(String filename);
 
     static String extract_directory_path(String *filename);
 

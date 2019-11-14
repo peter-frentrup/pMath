@@ -70,13 +70,30 @@ CommonDocumentWindow::~CommonDocumentWindow() {
   All.notify_all();
 }
 
-void CommonDocumentWindow::full_filename(String new_full_filename) {
-  _full_filename = new_full_filename;
-  if(new_full_filename.is_valid()) {
-    _default_title = new_full_filename;
-    FileSystem::extract_directory_path(&_default_title);
-  }
+void CommonDocumentWindow::directory(String new_directory) {
+  _directory = std::move(new_directory);
+}
+
+void CommonDocumentWindow::filename(String new_filename) {
+  _filename = new_filename;
+  _default_title = std::move(new_filename);
+  
   reset_title();
+}
+
+String CommonDocumentWindow::full_filename() {
+  return FileSystem::file_name_join(_directory, _filename);
+}
+
+void CommonDocumentWindow::full_filename(String new_full_filename) {
+  if(new_full_filename.is_null()) {
+    directory(String());
+    filename(String());
+  }
+  
+  String dir = FileSystem::extract_directory_path(&new_full_filename);
+  directory(std::move(dir));
+  filename(std::move(new_full_filename));
 }
 
 void CommonDocumentWindow::on_idle_after_edit() {

@@ -1805,10 +1805,18 @@ namespace {
           String initialfile = doc->native()->full_filename();
           
           if(initialfile.is_null()) {
-            String title = guess_best_title(doc);
-            if(title.length() == 0)
-              title = String("untitled");
-            initialfile = title + ".pmathdoc";
+            initialfile = doc->native()->filename();
+            
+            if(initialfile.is_null()) {
+              String title = guess_best_title(doc);
+              if(title.length() == 0)
+                title = String("untitled");
+              initialfile = std::move(title) + ".pmathdoc";
+              
+              String dir = doc->native()->directory();
+              if(!dir.is_null())
+                initialfile = FileSystem::file_name_join(std::move(dir), std::move(initialfile));
+            }
           }
           
           Expr filter = List(
@@ -1818,8 +1826,8 @@ namespace {
           filename = Application::run_filedialog(
                        Call(
                          Symbol(richmath_FE_FileSaveDialog),
-                         initialfile,
-                         filter));
+                         std::move(initialfile),
+                         std::move(filter)));
         }
         
         if(!filename.is_string())

@@ -72,6 +72,12 @@ class richmath::Win32WorkingArea: public Win32Widget {
         _parent->invalidate_options();
     }
     
+    virtual String directory() override { return _parent->directory(); }
+    virtual void directory(String new_directory) override { _parent->directory(new_directory); }
+    
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
+    
     virtual String full_filename() override { return _parent->full_filename(); }
     virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }
     
@@ -281,6 +287,12 @@ class richmath::Win32Dock: public Win32Widget {
       if(_parent)
         _parent->reset_title();
     }
+    
+    virtual String directory() override { return _parent->directory(); }
+    virtual void directory(String new_directory) override { _parent->directory(new_directory); }
+    
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
     virtual String full_filename() override { return _parent->full_filename(); }
     virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }

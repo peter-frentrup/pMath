@@ -134,7 +134,8 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section("Obtain a document\[HighNineQuote]s directory:", 
+            Section({"Obtain a document\[HighNineQuote]s directory (or ", 
+              TemplateBox({"None"}, "ReferenceHyperlink"), "):"}, 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
                  ComplexStringBox("\"DocumentDirectory\""), ")"}), "Input", 
@@ -142,27 +143,59 @@ Document({
               Section(BoxData(ComplexStringBox(
                  "\"D:\\\\User\\\\frentrup\\\\Programmieren\\\\pmath\\\\module\
                  s\\\\Documentation\\\\Files\\\\System\"")), "Output", 
-               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-            Section(
-             "Obtain a document\[HighNineQuote]s file name without directory \
-             path:", "ExampleText"), 
-            SectionGroup({
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({
+              "Obtain a document\[HighNineQuote]s file name without directory \
+              path (or ", TemplateBox({"None"}, "ReferenceHyperlink"), "):"}, 
+             "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
                  ComplexStringBox("\"DocumentFileName\""), ")"}), "Input", 
-               SectionLabel -> "in [2]:"), 
+               SectionLabel -> "in [1]:"), 
               Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
                "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All), 
+            Section(
+             "Change a document\[HighNineQuote]s file name without actually \
+             saving it to disk:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 {"CurrentValue", "(", ComplexStringBox(
+                   "\"DocumentFileName\""), ")"}, "\[Assign]", 
+                 ComplexStringBox("\"test.pmathdoc\"")}), "Input", 
+               SectionLabel -> "in [2]:"), 
+              Section(BoxData(ComplexStringBox("\"test.pmathdoc\"")), 
+               "Output", SectionGenerated -> True, 
                SectionLabel -> "out [2]:")}, All), 
-            Section("Obtain a document\[HighNineQuote]s full file path:", 
+            Section({
+              "Reset the file name (but not the directory) so that File \
+              \[Rule] Save (", TemplateBox({"S"}, "ControlKeyEvent"), 
+              ") would pop-up a save dialog:"}, "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 {"CurrentValue", "(", ComplexStringBox(
+                   "\"DocumentFileName\""), ")"}, "\[Assign]", "None"}), 
+               "Input", SectionLabel -> "in [3]:"), 
+              Section(BoxData("None"), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [3]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"Obtain a document\[HighNineQuote]s full file path (or ", 
+              TemplateBox({"None"}, "ReferenceHyperlink"), "):"}, 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
                  ComplexStringBox("\"DocumentFullFileName\""), ")"}), "Input", 
-               SectionLabel -> "in [3]:"), 
+               SectionLabel -> "in [1]:"), 
               Section(BoxData(ComplexStringBox(
                  "\"D:\\\\User\\\\frentrup\\\\Programmieren\\\\pmath\\\\module\
                  s\\\\Documentation\\\\Files\\\\System\\\\CurrentValue.pmathdo\
                  c\"")), "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [3]:")}, All)}, All), 
+               SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
@@ -194,7 +227,7 @@ Document({
                  ComplexStringBox("\"DocumentScreenDpi\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), Section(BoxData("96"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-           All)}, 1)}, All), Section("", "SectionFooterSpacer")}, All), 
+           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Options"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ControlActive"}, 

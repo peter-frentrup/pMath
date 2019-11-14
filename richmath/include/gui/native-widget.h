@@ -98,8 +98,15 @@ namespace richmath {
       
       virtual bool register_timed_event(SharedPtr<TimedEvent> event) = 0;
       
+      virtual String directory() = 0;
+      virtual void directory(String new_directory) = 0;
+      
+      virtual String filename() = 0;
+      virtual void filename(String new_filename) = 0;
+      
       virtual String full_filename() = 0;
       virtual void full_filename(String new_full_filename) = 0;
+      
       virtual String window_title() { return String(); }
       
       virtual void on_editing();

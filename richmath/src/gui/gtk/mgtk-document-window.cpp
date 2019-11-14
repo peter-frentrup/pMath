@@ -66,6 +66,12 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
       return h;
     }
     
+    virtual String directory() override { return _parent->directory(); }
+    virtual void directory(String new_directory) override { _parent->directory(new_directory); }
+    
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
+    
     virtual String full_filename() override { return _parent->full_filename(); }
     virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }
     
@@ -186,6 +192,12 @@ class richmath::MathGtkDock: public MathGtkWidget {
     virtual void running_state_changed() override {
       _parent->reset_title();
     }
+    
+    virtual String directory() override { return _parent->directory(); }
+    virtual void directory(String new_directory) override { _parent->directory(new_directory); }
+    
+    virtual String filename() override { return _parent->filename(); }
+    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
     
     virtual String full_filename() override { return _parent->full_filename(); }
     virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }

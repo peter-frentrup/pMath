@@ -23,8 +23,11 @@ namespace {
       static String s_DocumentFullFileName;
       
       static Expr get_DocumentDirectory(FrontEndObject *obj, Expr item);
+      static bool put_DocumentDirectory(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr get_DocumentFileName(FrontEndObject *obj, Expr item);
+      static bool put_DocumentFileName(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr get_DocumentFullFileName(FrontEndObject *obj, Expr item);
+      static bool put_DocumentFullFileName(FrontEndObject *obj, Expr item, Expr rhs);
   };
   
   class SelectDocumentMenuImpl {
@@ -125,7 +128,7 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
       return Symbol(PMATH_SYMBOL_FAILED);
   }
   
-  filename = FileSystem::to_absolute_file_name(filename);
+  filename = FileSystem::to_existing_absolute_file_name(filename);
   if(filename.is_null()) 
     return Symbol(PMATH_SYMBOL_FAILED);
   
@@ -296,9 +299,9 @@ void DocumentCurrentValueProvider::init() {
   s_DocumentFileName     = String("DocumentFileName");
   s_DocumentFullFileName = String("DocumentFullFileName");
   
-  Application::register_currentvalue_provider(s_DocumentDirectory,    get_DocumentDirectory);
-  Application::register_currentvalue_provider(s_DocumentFileName,     get_DocumentFileName);
-  Application::register_currentvalue_provider(s_DocumentFullFileName, get_DocumentFullFileName);
+  Application::register_currentvalue_provider(s_DocumentDirectory,    get_DocumentDirectory,    put_DocumentDirectory);
+  Application::register_currentvalue_provider(s_DocumentFileName,     get_DocumentFileName,     put_DocumentFileName);
+  Application::register_currentvalue_provider(s_DocumentFullFileName, get_DocumentFullFileName, put_DocumentFullFileName);
   
 }
 
@@ -314,10 +317,33 @@ Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Ex
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  String result = doc->native()->full_filename();
+  String result = doc->native()->directory();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  return FileSystem::get_directory_path(std::move(result));
+  return std::move(result);
+}
+
+bool DocumentCurrentValueProvider::put_DocumentDirectory(FrontEndObject *obj, Expr item, Expr rhs) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return false;
+    
+  if(rhs == PMATH_SYMBOL_NONE) {
+    doc->native()->directory(String{});
+    return true;
+  }
+  
+  if(!rhs.is_string())
+    return false;
+  
+  // TODO: do not require that the directory already exists.
+  String dir = FileSystem::to_possibly_nonexisting_absolute_file_name(String{rhs});
+  if(dir.is_null())
+    return false;
+  
+  doc->native()->directory(std::move(dir));
+  return true;
 }
 
 Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Expr item) {
@@ -326,11 +352,32 @@ Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Exp
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  String result = doc->native()->full_filename();
+  String result = doc->native()->filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  FileSystem::extract_directory_path(&result);
-  return result;
+  return std::move(result);
+}
+
+bool DocumentCurrentValueProvider::put_DocumentFileName(FrontEndObject *obj, Expr item, Expr rhs) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return false;
+    
+  if(rhs == PMATH_SYMBOL_NONE) {
+    doc->native()->filename(String{});
+    return true;
+  }
+  
+  if(!rhs.is_string())
+    return false;
+  
+  String name{std::move(rhs)};
+  if(!FileSystem::is_filename_without_directory(name))
+    return false;
+  
+  doc->native()->filename(std::move(name));
+  return true;
 }
 
 Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj, Expr item) {
@@ -342,7 +389,29 @@ Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj,
   String result = doc->native()->full_filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  return result;
+  return std::move(result);
+}
+
+bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj, Expr item, Expr rhs) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return false;
+    
+  if(rhs == PMATH_SYMBOL_NONE) {
+    doc->native()->full_filename(String{});
+    return true;
+  }
+  
+  if(!rhs.is_string())
+    return false;
+  
+  String path = FileSystem::to_possibly_nonexisting_absolute_file_name(String(std::move(rhs)));
+  if(path.is_null())
+    return false;
+  
+  doc->native()->full_filename(std::move(path));
+  return true;
 }
 
 //} ... class DocumentCurrentValueProvider

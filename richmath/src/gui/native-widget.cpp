@@ -113,6 +113,12 @@ namespace {
         return false;
       }
       
+      virtual String directory() override { return String(); }
+      virtual void directory(String new_directory) override {}
+      
+      virtual String filename() override { return String(); }
+      virtual void filename(String new_filename) override {}
+      
       virtual String full_filename() override { return String(); }
       virtual void full_filename(String new_full_filename) override {}
       
