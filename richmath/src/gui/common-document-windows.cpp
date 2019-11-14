@@ -70,10 +70,10 @@ CommonDocumentWindow::~CommonDocumentWindow() {
   All.notify_all();
 }
 
-void CommonDocumentWindow::filename(String new_filename) {
-  _filename = new_filename;
-  if(new_filename.is_valid()) {
-    _default_title = new_filename;
+void CommonDocumentWindow::full_filename(String new_full_filename) {
+  _full_filename = new_full_filename;
+  if(new_full_filename.is_valid()) {
+    _default_title = new_full_filename;
     FileSystem::extract_directory_path(&_default_title);
   }
   reset_title();

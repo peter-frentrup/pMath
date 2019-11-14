@@ -314,7 +314,7 @@ Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Ex
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  String result = doc->native()->filename();
+  String result = doc->native()->full_filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
   return FileSystem::get_directory_path(std::move(result));
@@ -326,7 +326,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Exp
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  String result = doc->native()->filename();
+  String result = doc->native()->full_filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
   FileSystem::extract_directory_path(&result);
@@ -339,7 +339,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj,
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  String result = doc->native()->filename();
+  String result = doc->native()->full_filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
   return result;

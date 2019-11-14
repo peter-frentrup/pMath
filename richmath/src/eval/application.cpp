@@ -1110,34 +1110,34 @@ Document *Application::create_document(Expr data) {
   return doc;
 }
 
-Document *Application::find_open_document(String filename) {
-  if(filename.is_null())
+Document *Application::find_open_document(String full_filename) {
+  if(full_filename.is_null())
     return nullptr;
   
   for(auto win : CommonDocumentWindow::All) {
     Document *doc = win->content();
     
-    if(doc->native()->filename() == filename)
+    if(doc->native()->full_filename() == full_filename)
       return doc;
   }
   
   return nullptr;
 }
 
-Document *Application::open_new_document(String filename) {
-  if(filename.is_null())
+Document *Application::open_new_document(String full_filename) {
+  if(full_filename.is_null())
     return nullptr;
   
   Document *doc = Application::create_document();
   if(!doc)
     return nullptr;
     
-  doc->native()->filename(filename);
+  doc->native()->full_filename(full_filename);
   
   do {
-    if(filename.part(filename.length() - 9).equals(".pmathdoc")) {
+    if(full_filename.part(full_filename.length() - 9).equals(".pmathdoc")) {
       Expr held_boxes = Application::interrupt_wait(
-                          Parse("Get(`1`, Head->HoldComplete)", filename),
+                          Parse("Get(`1`, Head->HoldComplete)", full_filename),
                           Application::button_timeout);
                           
                           
@@ -1149,7 +1149,7 @@ Document *Application::open_new_document(String filename) {
       }
     }
     
-    ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), filename)));
+    ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), full_filename)));
     String s;
     
     while(!pmath_aborting() && file.status() == PMATH_FILE_OK) {
@@ -1179,14 +1179,14 @@ Expr Application::run_filedialog(Expr data) {
 // FE`FileOpenDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
 // FE`FileSaveDialogSymbol("initialfile", {"filter1" -> {"*.ext1", ...}, ...}, WindowTitle -> ....)
   String title;
-  String filename;
+  String full_filename;
   Expr   filter;
   
   Expr head = data[0];
   
   size_t argi = 1;
   if(data[argi].is_string()) {
-    filename = String(data[argi]);
+    full_filename = String(data[argi]);
     ++argi;
   }
   
@@ -1222,7 +1222,7 @@ Expr Application::run_filedialog(Expr data) {
   dialog(head == richmath_FE_FileSaveDialog);
   
   dialog.set_title(title);
-  dialog.set_initial_file(filename);
+  dialog.set_initial_file(full_filename);
   dialog.set_filter(filter);
   result = dialog.show_dialog();
   
@@ -1799,10 +1799,10 @@ namespace {
         Expr filename = data[2];
         
         if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
-          filename = doc->native()->filename();
+          filename = doc->native()->full_filename();
           
         if(!filename.is_string()) {
-          String initialfile = doc->native()->filename();
+          String initialfile = doc->native()->full_filename();
           
           if(initialfile.is_null()) {
             String title = guess_best_title(doc);
@@ -1839,7 +1839,7 @@ namespace {
           PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
         
         file.close();
-        doc->native()->filename(filename);
+        doc->native()->full_filename(filename);
         doc->native()->on_saved();
         
         String stylesheet_name = Stylesheet::name_from_path(filename);

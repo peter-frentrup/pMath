@@ -26,8 +26,8 @@ namespace richmath {
       
       Document *content() { return _content; }
       
-      String filename() { return _filename; }
-      void filename(String new_filename);
+      String full_filename() { return _full_filename; }
+      void full_filename(String new_full_filename);
       String title() { return _title; }
       
       void on_idle_after_edit();
@@ -44,7 +44,7 @@ namespace richmath {
     
     protected:
       Document                *_content;
-      ObservableValue<String>  _filename;
+      ObservableValue<String>  _full_filename;
       String                   _default_title;
       ObservableValue<String>  _title;
       bool                     _has_unsaved_changes;
