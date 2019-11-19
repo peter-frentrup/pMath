@@ -1,0 +1,45 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("SectionPrint", "ObjectName"), 
+      Section(BoxData(TemplateBox({"SectionPrint"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"SectionPrint"}, "ReferenceHyperlink"), 
+          " outputs strings, ", TemplateBox({"Section"}, 
+           "ReferenceHyperlink"), 
+          " expressions, and lists thereof as-is, and effectively applies ", 
+          TemplateBox({"ToBoxes"}, "ReferenceHyperlink"), 
+          " to other expressions."}, "Notes"), 
+        Section({TemplateBox({"SectionPrint"}, "ReferenceHyperlink"), 
+          " uses the current ", TemplateBox({"DefaultNewSectionStyle"}, 
+           "ReferenceHyperlink"), 
+          " setting for the generated sections\[HighNineQuote] style."}, 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section({"By default, ", TemplateBox({"SectionPrint"}, 
+           "ReferenceHyperlink"), " uses the default style of the document:"}, 
+         "ExampleText"), 
+        Section(BoxData({"SectionPrint", "(", {"1", "+", "2"}, ")"}), "Input", 
+         SectionLabel -> "in [1]:"), Section(BoxData("3"), "Input"), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Print a raw ", TemplateBox({"Section"}, 
+             "ReferenceHyperlink"), ":"}, "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {ComplexStringBox("\"Some text section.\""), 
+               ",", ComplexStringBox("\"Text\""), ",", {
+                "FontColor", "\[Rule]", "Orange"}, ",", {
+                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section("Some text section.", "Text", 
+           FontColor -> RGBColor(1, 0.502`, 0), SectionGenerated -> True)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Print"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Echo"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Section"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
