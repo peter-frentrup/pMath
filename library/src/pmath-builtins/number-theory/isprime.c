@@ -72,6 +72,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_integer_is_prime(pmath_integer_t n) {
   
   if(mpz_sgn(PMATH_AS_MPZ(n)) <= 0)
     return FALSE;
+  
+  // builtin_nextprime() actually calls us with MPZ ints even for small integers.
+  if(mpz_cmp_ui(PMATH_AS_MPZ(n), GREATEST_SMALL_PRIME) <= 0) 
+    return is_small_prime((unsigned)mpz_get_ui(PMATH_AS_MPZ(n)));
     
   tmp = _pmath_create_mp_int(0);
   if(pmath_is_null(tmp))
