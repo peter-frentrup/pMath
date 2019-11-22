@@ -54,6 +54,12 @@ static Hashtable<Expr,  DWORD>  cmd_to_id;
 static Hashtable<DWORD, Expr>   id_to_cmd;
 static Hashtable<DWORD, String> id_to_shortcut_text;
 
+
+extern pmath_symbol_t richmath_FE_Delimiter;
+extern pmath_symbol_t richmath_FE_Menu;
+extern pmath_symbol_t richmath_FE_MenuItem;
+
+
 //{ class Win32Menu ...
 
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
@@ -407,7 +413,7 @@ bool MenuItemBuilder::init_info(MENUITEMINFOW *info, Expr item, String *buffer) 
   if(item == richmath_FE_Delimiter)
     return init_delimiter_info(info);
   
-  if(item[0] == richmath_FE_Item && item.expr_length() == 2)
+  if(item[0] == richmath_FE_MenuItem && item.expr_length() == 2)
     return init_item_info(info, std::move(item), buffer);
   
   if(item[0] == richmath_FE_Menu && item.expr_length() == 2)
@@ -727,7 +733,7 @@ static HACCEL create_accel(Expr expr) {
     Expr item(expr[i]);
     Expr cmd( item[2]);
     
-    if( item[0] == richmath_FE_Item &&
+    if( item[0] == richmath_FE_MenuItem &&
         item.expr_length() == 2          &&
         set_accel_key(item[1], &accel[j]))
     {

@@ -3,7 +3,7 @@ Begin("FE`")
 
 
 FE`Menu
-FE`Item
+FE`MenuItem
 FE`Delimiter
 FE`$MathShapers
 FE`ScopedCommand
@@ -14,77 +14,77 @@ Begin("FE`Private`")
 
 FE`Private`mainmenu:= Menu("pMath", {
 	Menu("&File", {
-		Item("&New",                                  "New"),
-		Item("&Open...",                              "Open"),
-		Item("&Save",                                 "Save"),
-		Item("Save &As...",                           "SaveAs"),
+		MenuItem("&New",                                  "New"),
+		MenuItem("&Open...",                              "Open"),
+		MenuItem("&Save",                                 "Save"),
+		MenuItem("Save &As...",                           "SaveAs"),
 		Delimiter,
 		Menu("recent documents",                      "MenuListRecentDocuments"),
 		Delimiter,
-		Item("&Close",                                "Close")
+		MenuItem("&Close",                                "Close")
 		}),
 	Menu("&Edit", {
-		Item("Cu&t",                                  "Cut"),
-		Item("&Copy",                                 "Copy"),
-		Item("&Paste",                                "Paste"),
+		MenuItem("Cu&t",                                  "Cut"),
+		MenuItem("&Copy",                                 "Copy"),
+		MenuItem("&Paste",                                "Paste"),
 		Menu("Cop&y As", {
-			Item("Plain &Text",                       CopySpecial("PlainText")),
-			Item("&Input Text",                       CopySpecial("InputText")),
-			Item("Boxes &Expression",                 CopySpecial("BoxesText")),
+			MenuItem("Plain &Text",                       CopySpecial("PlainText")),
+			MenuItem("&Input Text",                       CopySpecial("InputText")),
+			MenuItem("Boxes &Expression",                 CopySpecial("BoxesText")),
 			Delimiter,
-			Item("&Bitmap",                           CopySpecial("Bitmap")),
-			Item("&SVG",                              CopySpecial("image/svg+xml"))
+			MenuItem("&Bitmap",                           CopySpecial("Bitmap")),
+			MenuItem("&SVG",                              CopySpecial("image/svg+xml"))
 			}),
 		Delimiter,
-		Item("Di&vide Section",                       "SectionSplit"),
-		Item("&Merge Sections",                       "SectionMerge"),
+		MenuItem("Di&vide Section",                       "SectionSplit"),
+		MenuItem("&Merge Sections",                       "SectionMerge"),
 		Delimiter,
-		Item("&Edit Boxes",                           "EditBoxes"),
-		Item("Reset &Graphics Size",                  "GraphicsOriginalSize"),
-		Item("E&xpand Selection",                     "ExpandSelection"),
-		Item("Select &All",                           "SelectAll"),
-		Item("Find Matching &Bracket",                "FindMatchingFence"),
+		MenuItem("&Edit Boxes",                           "EditBoxes"),
+		MenuItem("Reset &Graphics Size",                  "GraphicsOriginalSize"),
+		MenuItem("E&xpand Selection",                     "ExpandSelection"),
+		MenuItem("Select &All",                           "SelectAll"),
+		MenuItem("Find Matching &Bracket",                "FindMatchingFence"),
 		Delimiter,
-		Item("&Open/Close Group",                     "OpenCloseGroup")
+		MenuItem("&Open/Close Group",                     "OpenCloseGroup")
 		}),
 	Menu("&Insert", {
-		Item("&Input from Above",                     "DuplicatePreviousInput"),
-		Item("&Output from Above",                    "DuplicatePreviousOutput"),
-		Item("Section with Same St&yle",              "SimilarSectionBelow"),
+		MenuItem("&Input from Above",                     "DuplicatePreviousInput"),
+		MenuItem("&Output from Above",                    "DuplicatePreviousOutput"),
+		MenuItem("Section with Same St&yle",              "SimilarSectionBelow"),
 		Delimiter,
-		Item("&Fraction",                             "InsertFraction"),
-		Item("R&adical",                              "InsertRadical"),
+		MenuItem("&Fraction",                             "InsertFraction"),
+		MenuItem("R&adical",                              "InsertRadical"),
 		Delimiter,
-		Item("Su&bscript",                            "InsertSubscript"),
-		Item("Su&perscript",                          "InsertSuperscript"),
-		Item("O&verscript",                           "InsertOverscript"),
-		Item("&Underscript",                          "InsertUnderscript"),
-		Item("&Opposite Position",                    "InsertOpposite"),
+		MenuItem("Su&bscript",                            "InsertSubscript"),
+		MenuItem("Su&perscript",                          "InsertSuperscript"),
+		MenuItem("O&verscript",                           "InsertOverscript"),
+		MenuItem("&Underscript",                          "InsertUnderscript"),
+		MenuItem("&Opposite Position",                    "InsertOpposite"),
 		Delimiter,
-		Item("Table &Column",                         "InsertColumn"),
-		Item("Table &Row",                            "InsertRow")
+		MenuItem("Table &Column",                         "InsertColumn"),
+		MenuItem("Table &Row",                            "InsertRow")
 		}),
 	Menu("Fo&rmat", {
 		Menu("&Style", {
 			% FIXME: The shortcut are actually ScopedCommand(..., Section), so they do not appear here automatically
-			Item("Title\tAlt+1",                       BaseStyle->"Title"),
-			Item("Section\tAlt+4",                     BaseStyle->"Section"),
-			Item("Subsection\tAlt+5",                  BaseStyle->"Subsection"),
-			Item("Subsubsection\tAlt+6",               BaseStyle->"Subsubsection"),
-			Item("Text\tAlt+7",                        BaseStyle->"Text"),
-			Item("Code\tAlt+8",                        BaseStyle->"Code"),
-			Item("Input\tAlt+9",                       BaseStyle->"Input"),
-			Item("Output",                             BaseStyle->"Output"),
-			Item("Item",                               BaseStyle->"Item"),
-			Item("DisplayFormula",                     BaseStyle->"DisplayFormula")
+			MenuItem("Title\tAlt+1",                       BaseStyle->"Title"),
+			MenuItem("Section\tAlt+4",                     BaseStyle->"Section"),
+			MenuItem("Subsection\tAlt+5",                  BaseStyle->"Subsection"),
+			MenuItem("Subsubsection\tAlt+6",               BaseStyle->"Subsubsection"),
+			MenuItem("Text\tAlt+7",                        BaseStyle->"Text"),
+			MenuItem("Code\tAlt+8",                        BaseStyle->"Code"),
+			MenuItem("Input\tAlt+9",                       BaseStyle->"Input"),
+			MenuItem("Output",                             BaseStyle->"Output"),
+			MenuItem("MenuItem",                               BaseStyle->"MenuItem"),
+			MenuItem("DisplayFormula",                     BaseStyle->"DisplayFormula")
 			}),
 		Menu("St&ylesheet", {
-			Item("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),
-			Item("InvertedColors",        ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
+			MenuItem("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),
+			MenuItem("InvertedColors",        ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
 			}),
-		Item("Edit Sty&lesheet ...",       "EditStyleDefinitions"),
+		MenuItem("Edit Sty&lesheet ...",       "EditStyleDefinitions"),
 		Menu("Math &Font", Join({
-				Item("Inherited", ScopedCommand(MathFontFamily -> Inherited, Document)),
+				MenuItem("Inherited", ScopedCommand(MathFontFamily -> Inherited, Document)),
 				Delimiter
 			},
 			$MathShapers.Join({
@@ -93,39 +93,39 @@ FE`Private`mainmenu:= Menu("pMath", {
 				"Mathematica 10 Sans",
 				"Mathematica Mono",
 				"Mathematica Serif"
-			}).Map(Item(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
+			}).Map(MenuItem(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
 			))
 		}),
 	Menu("E&valuation", {
-		Item("&Evaluate Sections",                    "EvaluateSections"),
-		Item("Evaluate in &Place",                    "EvaluateInPlace"),
-		Item("E&valuate in Subsession",               "SubsessionEvaluateSections"),
+		MenuItem("&Evaluate Sections",                    "EvaluateSections"),
+		MenuItem("Evaluate in &Place",                    "EvaluateInPlace"),
+		MenuItem("E&valuate in Subsession",               "SubsessionEvaluateSections"),
 		Delimiter,
-		Item("Enter &Subsession",                     "EvaluatorSubsession"),
-		Item("&Abort",                                "EvaluatorAbort"),
-		Item("&Remove from Evaluation Queue",         "RemoveFromEvaluationQueue"),
-		Item("&Find Currently Evaluating Section",    "FindEvaluatingSection"),
+		MenuItem("Enter &Subsession",                     "EvaluatorSubsession"),
+		MenuItem("&Abort",                                "EvaluatorAbort"),
+		MenuItem("&Remove from Evaluation Queue",         "RemoveFromEvaluationQueue"),
+		MenuItem("&Find Currently Evaluating Section",    "FindEvaluatingSection"),
 		Delimiter,
-		Item("&Convert Dynamic to Literal",           "DynamicToLiteral")
+		MenuItem("&Convert Dynamic to Literal",           "DynamicToLiteral")
 		}),
 	Menu("&Palettes", {
 		Menu("Installed Palettes", "MenuListPalettesMenu")
 		}),
 	Menu("&Window", {
 		Menu("&Magnification", {
-			Item("&50%",                                ScopedCommand(Magnification->0.5, Document)),
-			Item("&75%",                                ScopedCommand(Magnification->0.75, Document)),
-			Item("&100%",                               ScopedCommand(Magnification->Inherited, Document)),
-			Item("1&25%",                               ScopedCommand(Magnification->1.25, Document)),
-			Item("15&0%",                               ScopedCommand(Magnification->1.5, Document)),
-			Item("200&%",                               ScopedCommand(Magnification->2, Document)),
-			Item("&300%",                               ScopedCommand(Magnification->3, Document))
+			MenuItem("&50%",                                ScopedCommand(Magnification->0.5, Document)),
+			MenuItem("&75%",                                ScopedCommand(Magnification->0.75, Document)),
+			MenuItem("&100%",                               ScopedCommand(Magnification->Inherited, Document)),
+			MenuItem("1&25%",                               ScopedCommand(Magnification->1.25, Document)),
+			MenuItem("15&0%",                               ScopedCommand(Magnification->1.5, Document)),
+			MenuItem("200&%",                               ScopedCommand(Magnification->2, Document)),
+			MenuItem("&300%",                               ScopedCommand(Magnification->3, Document))
 			}),
 		Delimiter,
 		Menu("Opened Windows", "MenuListWindows")
 		}),
 	Menu("&Help", {
-		Item("&Find Selected Function", "OpenSelectionHelp")
+		MenuItem("&Find Selected Function", "OpenSelectionHelp")
 		})
 	});
 

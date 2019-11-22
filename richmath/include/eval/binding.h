@@ -5,10 +5,6 @@
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 
-extern pmath_symbol_t richmath_FE_Menu;
-extern pmath_symbol_t richmath_FE_Item;
-extern pmath_symbol_t richmath_FE_Delimiter;
-
 extern pmath_symbol_t richmath_FE_KeyEvent;
 extern pmath_symbol_t richmath_FE_KeyAlt;
 extern pmath_symbol_t richmath_FE_KeyControl;

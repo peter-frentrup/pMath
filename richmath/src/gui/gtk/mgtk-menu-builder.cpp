@@ -18,6 +18,9 @@
 using namespace richmath;
 
 
+extern pmath_symbol_t richmath_FE_Delimiter;
+extern pmath_symbol_t richmath_FE_Menu;
+extern pmath_symbol_t richmath_FE_MenuItem;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 static const char accel_path_prefix[] = "<Richmath>/";
@@ -310,7 +313,7 @@ bool MenuItemBuilder::is_valid(Expr item, MenuItemType *type) {
     return true;
   }
   
-  if(item[0] == richmath_FE_Item && item.expr_length() == 2) {
+  if(item[0] == richmath_FE_MenuItem && item.expr_length() == 2) {
     if(!item[1].is_string())
       return false;
     
@@ -664,7 +667,7 @@ void MathGtkAccelerators::load(Expr expr) {
     guint           accel_key = 0;
     GdkModifierType accel_mod = (GdkModifierType)0;
     
-    if( item[0] == richmath_FE_Item                    &&
+    if( item[0] == richmath_FE_MenuItem                &&
         item.expr_length() == 2                        &&
         set_accel_key(item[1], &accel_key, &accel_mod) &&
         gtk_accelerator_valid(accel_key, accel_mod))

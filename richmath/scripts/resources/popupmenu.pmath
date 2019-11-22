@@ -3,7 +3,7 @@ Begin("FE`")
 
 
 FE`Menu
-FE`Item
+FE`MenuItem
 FE`Delimiter
 FE`$MathShapers
 
@@ -15,19 +15,19 @@ If(HoldComplete(FE`Private`mainmenu) === HoldComplete @@ {FE`Private`mainmenu},
 	FE`Private`mainmenu:= Get(ToFileName(DirectoryName($Input), "mainmenu.pmath")))
 
 FE`Private`popupmenu:= Menu("Popup", {
-	Item("Cu&t",   "Cut"),
-	Item("&Copy",  "Copy"),
-	Item("&Paste", "Paste"),
+	MenuItem("Cu&t",   "Cut"),
+	MenuItem("&Copy",  "Copy"),
+	MenuItem("&Paste", "Paste"),
 	Menu("Cop&y As", {
-		Item("Plain &Text",        CopySpecial("PlainText")),
-		Item("&Input Text",        CopySpecial("InputText")),
-		Item("Boxes &Expression",  CopySpecial("BoxesText")),
+		MenuItem("Plain &Text",        CopySpecial("PlainText")),
+		MenuItem("&Input Text",        CopySpecial("InputText")),
+		MenuItem("Boxes &Expression",  CopySpecial("BoxesText")),
 		Delimiter,
-		Item("&Bitmap",            CopySpecial("Bitmap")),
-		Item("&SVG",               CopySpecial("image/svg+xml"))
+		MenuItem("&Bitmap",            CopySpecial("Bitmap")),
+		MenuItem("&SVG",               CopySpecial("image/svg+xml"))
 		}),
 	Delimiter,
-	Item("Reset &Graphics Size", "GraphicsOriginalSize"),
+	MenuItem("Reset &Graphics Size", "GraphicsOriginalSize"),
 	Delimiter,
 	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Commands", items))
 	});

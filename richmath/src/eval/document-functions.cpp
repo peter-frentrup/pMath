@@ -61,7 +61,7 @@ static ObservableValue<FrontEndReference> current_document_id { FrontEndReferenc
 
 
 extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
-
+extern pmath_symbol_t richmath_FE_MenuItem;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
@@ -464,7 +464,7 @@ Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
   for(auto win : CommonDocumentWindow::All) {
     g.emit(
       Call(
-        Symbol(richmath_FE_Item), 
+        Symbol(richmath_FE_MenuItem), 
         win->title(), 
         //List(name, i)
         Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
