@@ -154,7 +154,16 @@ Document({
            "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
         Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (ButtonBox(#1, 
-           ButtonFrame -> "TooltipWindow") &)}), 
+           ButtonFrame -> "TooltipWindow") &)}), Section(StyleData("Row")), 
+        Section(StyleData("RowDefault"), BaseStyle -> "Row", 
+         TemplateBoxOptions -> {DisplayFunction -> ({
+           TemplateSlotSequence(##1)} &), InterpretationFunction -> ({"Row", 
+           "(", {"{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &)}), 
+        Section(StyleData("RowWithSeparators"), BaseStyle -> "Row", 
+         TemplateBoxOptions -> {DisplayFunction -> ({
+           TemplateSlotSequence(##3, #1)} &), 
+          InterpretationFunction -> ({"Row", "(", {
+            {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, ")"} &)}), 
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("Hyperlink"), 
            TemplateBoxOptions -> {DisplayFunction -> (StyleBox(

@@ -147,6 +147,7 @@ extern pmath_symbol_t pmath_System_SuperscriptBox;
 extern pmath_symbol_t pmath_System_Superset;
 extern pmath_symbol_t pmath_System_SupersetEqual;
 extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_TemplateBox;
 extern pmath_symbol_t pmath_System_TildeEqual;
 extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
@@ -2533,6 +2534,9 @@ static pmath_t row_to_boxes(
     if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
       size_t i;
       
+      pmath_unref(expr); 
+      expr = PMATH_NULL;
+      
       pmath_gather_begin(PMATH_NULL);
       
       for(i = 1; i <= pmath_expr_length(list); ++i) {
@@ -2544,9 +2548,9 @@ static pmath_t row_to_boxes(
       pmath_unref(list);
       list = pmath_gather_end();
       list = pmath_expr_new_extended(
-               pmath_ref(pmath_System_InterpretationBox), 2,
+               pmath_ref(pmath_System_TemplateBox), 2,
                list,
-               expr);
+               PMATH_C_STRING("RowDefault"));
       return list;
     }
     
@@ -2557,22 +2561,31 @@ static pmath_t row_to_boxes(
     
     if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
       pmath_t delim = pmath_expr_get_item(expr, 2);
+      size_t i;
       
-      if(!pmath_is_string(delim))
-        delim = object_to_boxes(thread, delim);
-        
-      list = nary_to_boxes(
-               thread,
-               list,
-               delim,
-               PMATH_PREC_ANY,
-               PMATH_PREC_ANY,
-               TRUE);
-               
+      pmath_unref(expr); 
+      expr = PMATH_NULL;
+      
+      pmath_gather_begin(PMATH_NULL);
+      
+      if(pmath_is_string(delim))
+        pmath_emit(pmath_ref(delim), PMATH_NULL);
+      else
+        pmath_emit(object_to_boxes(thread, delim), PMATH_NULL);
+      
+      pmath_emit(delim, PMATH_NULL);
+      for(i = 1; i <= pmath_expr_length(list); ++i) {
+        pmath_t item = pmath_expr_get_item(list, i);
+        item = object_to_boxes(thread, item);
+        pmath_emit(item, PMATH_NULL);
+      }
+      
+      pmath_unref(list);
+      list = pmath_gather_end();
       list = pmath_expr_new_extended(
-               pmath_ref(pmath_System_InterpretationBox), 2,
+               pmath_ref(pmath_System_TemplateBox), 2,
                list,
-               expr);
+               PMATH_C_STRING("RowWithSeparators"));
       return list;
     }
     pmath_unref(list);
