@@ -10,19 +10,19 @@ Document({
          Section({"Private StyleDefinitions for \[HighSixDoubleQuote]", 
            DynamicBox(
             ToBoxes(
-             With({Global`owner:= CurrentValue("StyleDefinitionsOwner")}, 
+             With({FE`Private`owner:= CurrentValue("StyleDefinitionsOwner")}, 
               Button(
-               Style(With({Global`title:= CurrentValue(Global`owner, 
-                   WindowTitle)}, If(IsString(Global`title), Global`title, 
-                  Global`owner)), FontColor -> RGBColor(0, 0, 0.5`)), 
-               FE`CallFrontEnd(FrontEnd`SetSelectedDocument(Global`owner)), 
+               Style(With({FE`Private`title:= CurrentValue(FE`Private`owner, 
+                   WindowTitle)}, If(IsString(FE`Private`title), FE`Private`title, 
+                  FE`Private`owner)), FontColor -> RGBColor(0, 0, 0.5`)), 
+               FE`CallFrontEnd(FrontEnd`SetSelectedDocument(FE`Private`owner)), 
                ButtonFrame -> "Frameless")))), "\[HighNineDoubleQuote]"}, 
           "Docked", SectionFrame -> {Inherited, {Inherited, 0.75`}})}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
        Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> Dynamic(
         ToString(Row({"Private StyleDefinitions for ", 
-          With({Global`owner:= CurrentValue("StyleDefinitionsOwner")}, 
-           With({Global`title:= CurrentValue(Global`owner, WindowTitle)}, 
-            If(IsString(Global`title), Global`title, Global`owner)))}))))}, 
+          With({FE`Private`owner:= CurrentValue("StyleDefinitionsOwner")}, 
+           With({FE`Private`title:= CurrentValue(FE`Private`owner, WindowTitle)}, 
+            If(IsString(FE`Private`title), FE`Private`title, FE`Private`owner)))}))))}, 
      All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
