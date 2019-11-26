@@ -13,7 +13,7 @@ extern pmath_symbol_t richmath_System_TooltipBox;
 //{ class TooltipBox ...
 
 TooltipBox::TooltipBox()
-  : ExpandableAbstractStyleBox(0)
+  : AbstractStyleBox(0)
 {
 }
 

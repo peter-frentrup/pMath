@@ -12,7 +12,7 @@ using namespace richmath;
 //{ class ContainerWidgetBox ...
 
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
-  : ExpandableAbstractStyleBox(content),
+  : AbstractStyleBox(content),
     type(_type),
     old_state(Normal),
     mouse_inside(false),
@@ -47,7 +47,7 @@ ControlState ContainerWidgetBox::calc_state(Context *context) {
 }
 
 void ContainerWidgetBox::resize_default_baseline(Context *context) {
-  AbstractStyleBox::resize_default_baseline(context);
+  base::resize_default_baseline(context);
   
   ControlPainter::std->calc_container_size(
     this,
@@ -135,7 +135,7 @@ void ContainerWidgetBox::paint(Context *context) {
   }
   
   if(very_transparent || !context->canvas->show_only_text)
-    AbstractStyleBox::paint(context);
+    base::paint(context);
     
   if(type == FramelessButton && state == PressedHovered) {
     context->canvas->save();

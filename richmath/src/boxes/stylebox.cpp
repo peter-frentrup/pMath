@@ -15,7 +15,7 @@ extern pmath_symbol_t richmath_System_TagBox;
 //{ class AbstractStyleBox ...
 
 AbstractStyleBox::AbstractStyleBox(MathSequence *content)
-  : OwnerBox(content)
+  : ExpandableOwnerBox(content)
 {
 }
 
@@ -57,17 +57,17 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint)
       context->canvas->set_color(c);
       
       context->canvas->move_to(x, y);
-      OwnerBox::paint(context);
+      base::paint(context);
     }
     else 
-      OwnerBox::resize_default_baseline(context);
+      base::resize_default_baseline(context);
     
     cc.end();
   }
   else if(paint) 
-    OwnerBox::paint(context);
+    base::paint(context);
   else 
-    OwnerBox::resize_default_baseline(context);
+    base::resize_default_baseline(context);
 }
 
 void AbstractStyleBox::resize_default_baseline(Context *context) {
@@ -82,7 +82,7 @@ void AbstractStyleBox::colorize_scope(SyntaxState *state) {
   if(get_own_style(FontColor).is_valid()) 
     return;
     
-  OwnerBox::colorize_scope(state);
+  base::colorize_scope(state);
 }
 
 Box *AbstractStyleBox::move_logical(
@@ -101,7 +101,7 @@ Box *AbstractStyleBox::move_logical(
     }
   }
   
-  return OwnerBox::move_logical(direction, jumping, index);
+  return base::move_logical(direction, jumping, index);
 }
 
 Box *AbstractStyleBox::move_vertical(
@@ -121,7 +121,7 @@ Box *AbstractStyleBox::move_vertical(
     }
   }
   
-  return OwnerBox::move_vertical(direction, index_rel_x, index, called_from_child);
+  return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 Box *AbstractStyleBox::mouse_selection(
@@ -153,40 +153,15 @@ Box *AbstractStyleBox::mouse_selection(
     }
   }
   
-  return OwnerBox::mouse_selection(x, y, start, end, was_inside_start);
+  return base::mouse_selection(x, y, start, end, was_inside_start);
 }
 
 //} ... class AbstractStyleBox
 
-//{ class ExpandableAbstractStyleBox ...
-
-bool ExpandableAbstractStyleBox::expand(const BoxSize &size) {
-  BoxSize size2 = size;
-  float dw = _extents.width - _content->extents().width;
-  float t = _extents.ascent  - _content->extents().ascent;
-  float b = _extents.descent - _content->extents().descent;
-  size2.width -= dw;
-  size2.ascent -= t;
-  size2.descent -= b;
-  
-  if(_content->expand(size2)) {
-    _extents = _content->extents();
-    _extents.width += dw;
-    _extents.ascent += t;
-    _extents.descent += b;
-    
-    return true;
-  }
-  
-  return false;
-}
-
-//} ... class ExpandableAbstractStyleBox
-
 //{ class StyleBox ...
 
 StyleBox::StyleBox(MathSequence *content)
-  : ExpandableAbstractStyleBox(content)
+  : AbstractStyleBox(content)
 {
   style = new Style;
 }
@@ -275,13 +250,13 @@ Expr StyleBox::to_pmath(BoxOutputFlags flags) {
 //{ class TagBox ...
 
 TagBox::TagBox(MathSequence *content)
-  : ExpandableAbstractStyleBox(content)
+  : AbstractStyleBox(content)
 {
   style = new Style();
 }
 
 TagBox::TagBox(MathSequence *content, Expr _tag)
-  : ExpandableAbstractStyleBox(content),
+  : AbstractStyleBox(content),
   tag(_tag)
 {
   style = new Style();
@@ -326,7 +301,7 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 void TagBox::resize_default_baseline(Context *context) {
   style->set(BaseStyleName, String(tag));
-  ExpandableAbstractStyleBox::resize_default_baseline(context);
+  base::resize_default_baseline(context);
 }
 
 Expr TagBox::to_pmath_symbol() { 

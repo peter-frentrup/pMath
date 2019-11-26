@@ -5,8 +5,8 @@
 
 
 namespace richmath {
-  class InterpretationBox: public ExpandableAbstractStyleBox {
-      using base = ExpandableAbstractStyleBox;
+  class InterpretationBox: public AbstractStyleBox {
+      using base = AbstractStyleBox;
     public:
       InterpretationBox();
       InterpretationBox(MathSequence *content);

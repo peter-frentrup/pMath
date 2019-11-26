@@ -4,7 +4,8 @@
 #include <boxes/ownerbox.h>
 
 namespace richmath {
-  class AbstractStyleBox: public OwnerBox {
+  class AbstractStyleBox: public ExpandableOwnerBox {
+      using base = ExpandableOwnerBox;
     public:
       explicit AbstractStyleBox(MathSequence *content = nullptr);
       
@@ -35,17 +36,8 @@ namespace richmath {
       void paint_or_resize_no_baseline(Context *context, bool paint);
   };
   
-  class ExpandableAbstractStyleBox: public AbstractStyleBox {
-    public:
-      explicit ExpandableAbstractStyleBox(MathSequence *content = nullptr)
-        : AbstractStyleBox(content)
-      {
-      }
-      
-      virtual bool expand(const BoxSize &size) override;
-  };
-  
-  class StyleBox: public ExpandableAbstractStyleBox {
+  class StyleBox: public AbstractStyleBox {
+      using base = AbstractStyleBox;
     public:
       explicit StyleBox(MathSequence *content = nullptr);
       
@@ -58,7 +50,8 @@ namespace richmath {
       virtual bool changes_children_style() override { return true; }
   };
   
-  class TagBox: public ExpandableAbstractStyleBox {
+  class TagBox: public AbstractStyleBox {
+      using base = AbstractStyleBox;
     public:
       explicit TagBox(MathSequence *content = nullptr);
       TagBox(MathSequence *content, Expr _tag);

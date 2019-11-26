@@ -10,21 +10,21 @@ extern pmath_symbol_t richmath_System_InterpretationBox;
 //{ class InterpretationBox ...
 
 InterpretationBox::InterpretationBox()
-  : ExpandableAbstractStyleBox()
+  : AbstractStyleBox()
 {
   style = new Style;
   style->set(Editable, false);
 }
 
 InterpretationBox::InterpretationBox(MathSequence *content)
-  : ExpandableAbstractStyleBox(content)
+  : AbstractStyleBox(content)
 {
   style = new Style;
   style->set(Editable, false);
 }
 
 InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation)
-  : ExpandableAbstractStyleBox(content),
+  : AbstractStyleBox(content),
     interpretation(_interpretation)
 {
   reset_style();

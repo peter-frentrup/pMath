@@ -57,6 +57,16 @@ namespace richmath {
       float     cy;
   };
   
+  class ExpandableOwnerBox : public OwnerBox {
+    public:
+      explicit ExpandableOwnerBox(MathSequence *content = nullptr)
+        : OwnerBox(content)
+      {
+      }
+      
+      virtual bool expand(const BoxSize &size) override;
+  };
+  
   class InlineSequenceBox: public OwnerBox {
     public:
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
