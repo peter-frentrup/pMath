@@ -246,6 +246,7 @@ namespace richmath {
       /// The maximum selecion index.
       virtual int length() { return count(); }
       
+      virtual float fill_weight() { return 0.0f; }
       const BoxSize &extents() { return _extents; }
       
       virtual bool expand(const BoxSize &size) { return false; }

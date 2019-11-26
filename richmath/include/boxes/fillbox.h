@@ -36,7 +36,7 @@ namespace richmath {
         
       virtual bool request_repaint(float x, float y, float w, float h) override;
       
-      float weight() { return _weight; }
+      virtual float fill_weight() override { return _weight; }
     
     protected:
       virtual void resize_default_baseline(Context *context) override;

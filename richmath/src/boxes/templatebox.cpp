@@ -546,6 +546,10 @@ Box *TemplateBoxSlot::remove(int *index) {
   return owner->parent();
 }
 
+float TemplateBoxSlot::fill_weight() {
+  return content()->fill_weight();
+}
+
 void TemplateBoxSlot::invalidate() {
   base::invalidate();
   

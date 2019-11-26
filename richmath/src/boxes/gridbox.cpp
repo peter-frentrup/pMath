@@ -1,6 +1,5 @@
 #include <boxes/gridbox.h>
 
-#include <boxes/fillbox.h>
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
@@ -40,9 +39,6 @@ namespace richmath {
       float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
       void adjust_baseline(float em);
       
-      bool has_any_fillbox();
-      static FillBox *as_fillbox(GridItem *gi);
-    
     private:
       GridBox &self;
   };
@@ -61,6 +57,10 @@ GridItem::GridItem()
 }
 
 GridItem::~GridItem() {
+}
+
+float GridItem::fill_weight() {
+  return content()->fill_weight();
 }
 
 bool GridItem::expand(const BoxSize &size) {
@@ -300,9 +300,6 @@ bool GridBox::expand(const BoxSize &size) {
   if(!isfinite(size.width))
     return false;
   
-  if(!GridBoxImpl(*this).has_any_fillbox())
-    return false;
-  
   Array<float> col_weights;
   col_weights.length(cols(), 0.0f);
   
@@ -310,9 +307,8 @@ bool GridBox::expand(const BoxSize &size) {
   for(int x = cols() - 1; x >= 0; --x) {
     for(int y = rows() - 1; y >= 0; --y) {
       GridItem *gi = item(y, x);
-      if(FillBox *fillbox = GridBoxImpl::as_fillbox(gi)) {
-        float w = fillbox->weight() / (1.0f + gi->_span_right);
-        
+      float w = gi->fill_weight() / (1.0f + gi->_span_right);
+      if(w > 0) {
         for(int dx = 0; dx <= gi->_span_right; ++dx)
           col_weights[x + dx] = max(col_weights[x + dx], w);
       }
@@ -338,9 +334,10 @@ bool GridBox::expand(const BoxSize &size) {
   
   for(int i = count() - 1; i >= 0; --i) {
     GridItem *gi = items[i];
-    if(FillBox *fillbox = GridBoxImpl::as_fillbox(gi)) {
+    float w = gi->fill_weight();
+    if(w > 0) {
       BoxSize new_item_size = gi->extents();
-      float new_width = total_fill_width * fillbox->weight() / total_weight + gi->_span_right * colspacing;
+      float new_width = total_fill_width * w / total_weight + gi->_span_right * colspacing;
       if(new_item_size.width < new_width) {
         new_item_size.width = new_width;
         gi->expand(new_item_size);
@@ -1247,22 +1244,6 @@ void GridBoxImpl::adjust_baseline(float em) {
   float ascent = calculate_ascent_for_baseline_position(em, self.get_style(BaselinePosition));
   self._extents.ascent = ascent;
   self._extents.descent = height - ascent;
-}
-
-bool GridBoxImpl::has_any_fillbox() {
-  for(int i = self.count() - 1; i >= 0; --i) 
-    if(as_fillbox(self.items[i])) 
-      return true;
-  
-  return false;
-}
-
-FillBox *GridBoxImpl::as_fillbox(GridItem *gi) {
-  auto seq = gi->content();
-  if(seq->length() != 1 || seq->count() != 1)
-    return nullptr;
-  
-  return dynamic_cast<FillBox*>(seq->item(0));
 }
 
 //} ... class GridBoxImpl

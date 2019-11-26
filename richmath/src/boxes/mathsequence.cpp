@@ -1742,10 +1742,10 @@ namespace richmath {
               while(self.boxes[box]->index() < pos)
                 ++box;
                 
-              auto fillbox = dynamic_cast<FillBox*>(self.boxes[box]);
-              if(fillbox && fillbox->weight() > 0) {
-                total_fill_weight += fillbox->weight();
-                white += fillbox->extents().width;
+              float weight = self.boxes[box]->fill_weight();
+              if(weight > 0) {
+                total_fill_weight += weight;
+                white += self.boxes[box]->extents().width;
               }
             }
             
@@ -1770,17 +1770,18 @@ namespace richmath {
                   while(self.boxes[box]->index() < pos)
                     ++box;
                     
-                  auto fillbox = dynamic_cast<FillBox*>(self.boxes[box]);
-                  if(fillbox && fillbox->weight() > 0) {
-                    BoxSize size = fillbox->extents();
+                  Box *filler = self.boxes[box];
+                  float weight = filler->fill_weight();
+                  if(weight > 0) {
+                    BoxSize size = filler->extents();
                     dx -= size.width;
                     
-                    size.width = white * fillbox->weight() / total_fill_weight;
-                    fillbox->expand(size);
-                    dx += fillbox->extents().width;
+                    size.width = white * weight / total_fill_weight;
+                    filler->expand(size);
+                    dx += filler->extents().width;
                     
-                    auto fa = fillbox->extents().ascent;
-                    auto fd = fillbox->extents().descent;
+                    auto fa = filler->extents().ascent;
+                    auto fd = filler->extents().descent;
                     has_any_height_change = has_any_height_change || size.ascent != fa || size.descent != fd;
                     
                     if(self.lines[line].ascent < fa) 
@@ -2316,16 +2317,17 @@ namespace richmath {
             while(self.boxes[box]->index() < self.lines[line].end - 1)
               ++box;
               
-            if(auto fb = dynamic_cast<FillBox *>(self.boxes[box])) {
+            Box *filler = self.boxes[box];
+            if(filler->fill_weight() > 0) {
               if( buf[self.lines[line].end] == PMATH_CHAR_BOX &&
-                  dynamic_cast<FillBox *>(self.boxes[box + 1]))
+                  self.boxes[box + 1]->fill_weight() > 0)
               {
                 continue;
               }
               
               float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
               
-              if(fb->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
+              if(filler->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
                 self.lines[line].end--;
               }
             }
@@ -2486,6 +2488,13 @@ uint32_t MathSequence::char_at(int pos) {
   }
   
   return buf[pos];
+}
+
+float MathSequence::fill_weight() {
+  if(boxes.length() == 1 && str.length() == 1)
+    return boxes[0]->fill_weight();
+  
+  return 0.0f;
 }
 
 bool MathSequence::expand(const BoxSize &size) {

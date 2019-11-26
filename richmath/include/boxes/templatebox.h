@@ -6,8 +6,8 @@
 
 
 namespace richmath {
-  class TemplateBox: public Observable, public OwnerBox {
-      typedef OwnerBox base;
+  class TemplateBox: public Observable, public ExpandableOwnerBox {
+      using base = ExpandableOwnerBox;
       friend class TemplateBoxImpl;
       
     public:
@@ -62,8 +62,8 @@ namespace richmath {
       bool _is_content_loaded;
   };
   
-  class TemplateBoxSlot: public OwnerBox {
-      typedef OwnerBox base;
+  class TemplateBoxSlot: public ExpandableOwnerBox {
+      using base = ExpandableOwnerBox;
       friend class TemplateBoxSlotImpl;
       
     public:
@@ -89,8 +89,8 @@ namespace richmath {
       
       virtual Box *remove(int *index) override;
       
+      virtual float fill_weight() override;
       virtual void invalidate() override;
-      
       virtual void paint_content(Context *context) override;
       
       virtual void on_exit() override;

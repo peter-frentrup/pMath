@@ -37,6 +37,7 @@ namespace richmath {
       virtual String raw_substring(int start, int length) override;
       virtual uint32_t char_at(int pos) override; // return 0 on Out-Of-Range
       
+      virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context *context) override;
       virtual void colorize_scope(SyntaxState *state) override;

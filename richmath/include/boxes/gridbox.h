@@ -87,6 +87,7 @@ namespace richmath {
       
       GridBox *grid() { return (GridBox*)_parent; }
       
+      virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
