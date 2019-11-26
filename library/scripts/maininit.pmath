@@ -161,6 +161,8 @@ AutoLoad(Hold(UpTo),
 	ToFileName({$BaseDirectory, "auto", "core"}, "upto.pmath"))
 AutoLoad(Hold(Nothing), 
 	ToFileName({$BaseDirectory, "auto", "core"}, "nothing.pmath"))
+AutoLoad(Hold(SpanFromAbove, SpanFromLeft, SpanFromBoth), 
+	ToFileName({$BaseDirectory, "auto", "core", "format"}, "griditems.pmath"))
 
 AutoLoad(Hold(System`Util`latexToBoxes), 
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "latextoboxes.pmath"))

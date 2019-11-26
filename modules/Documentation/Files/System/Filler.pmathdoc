@@ -116,9 +116,9 @@ Document({
                    "None"}, ")"}, ",", {"Button", "(", {
                    ComplexStringBox("\"c\""), ",", "None"}, ")"}}, "}"}, ",", {
                 "{", {ComplexStringBox("\"A rather long item\""), ",", 
-                 "\[SpanFromAbove]"}, "}"}, ",", {
+                 "SpanFromAbove"}, "}"}, ",", {
                 "{", {{"Filler", "(", ComplexStringBox("\" + \""), ")"}, ",", 
-                 "\[SpanFromAbove]"}, "}"}}, "}"}, ")"}), "Input", 
+                 "SpanFromAbove"}, "}"}}, "}"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(
            BoxData(

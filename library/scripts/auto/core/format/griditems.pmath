@@ -1,0 +1,7 @@
+Begin("System`Private`")
+
+MakeBoxes(SpanFromAbove):= "\[SpanFromAbove]"
+MakeBoxes(SpanFromBoth):= "\[SpanFromBoth]"
+MakeBoxes(SpanFromLeft):= "\[SpanFromLeft]"
+
+End()
