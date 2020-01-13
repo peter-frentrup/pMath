@@ -65,7 +65,7 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size) {
       STRING_HEADER_SIZE + bytes));
   if(!result)
     return result;
-  
+
   result->debug_info        = NULL;
   result->buffer            = NULL;
   result->length            = len;
@@ -109,46 +109,46 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
 PMATH_PRIVATE
 pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, int *length) {
   struct _pmath_string_t *_str;
-  
+
   assert(str != NULL);
   assert(buffer != NULL);
-  
+
   *buffer = NULL;
-  if(length) 
+  if(length)
     *length = pmath_string_length(*str);
-  
-  if(pmath_is_null(*str)) 
+
+  if(pmath_is_null(*str))
     return FALSE;
-  
+
   if(pmath_is_ministr(*str)) {
     *buffer = &str->s.u.as_chars[0];
     return TRUE;
   }
-  
+
   assert(pmath_is_bigstr(*str));
-  
+
   _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
   if(pmath_refcount(*str) != 1 || _str->buffer != NULL) {
     pmath_string_t new_str = pmath_string_insert_ucs2(PMATH_NULL, 0, pmath_string_buffer(str), _str->length);
     if(pmath_is_null(new_str))
       return FALSE;
-    
+
     pmath_unref(*str);
-    *str = new_str; 
+    *str = new_str;
     if(pmath_is_ministr(*str)) {
       *buffer = &str->s.u.as_chars[0];
       return TRUE;
     }
     _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
   }
-  
+
   assert(_str->buffer == NULL);
-    
+
   if(_str->debug_info) {
     _pmath_unref_ptr(_str->debug_info);
     _str->debug_info = NULL;
   }
-  
+
   *buffer = AFTER_STRING(_str);
   _str->inherited.type_shift = PMATH_TYPE_SHIFT_PINNED_STRING;
   return TRUE;
@@ -157,23 +157,23 @@ pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, in
 PMATH_PRIVATE
 void pmath_string_end_write(pmath_string_t *str, uint16_t **buffer) {
   struct _pmath_string_t *_str;
-  
+
   assert(str != NULL);
   assert(buffer != NULL);
   assert(*buffer != NULL);
-  
+
   if(pmath_is_null(*str))
     return;
-  
+
   if(pmath_is_ministr(*str)) {
     assert(*buffer == &str->s.u.as_chars[0]);
     *buffer = NULL;
     return;
   }
-  
+
   assert(pmath_is_pointer(*str));
   assert(pmath_refcount(*str) == 1);
-  
+
   _str = (struct _pmath_string_t *)PMATH_AS_PTR(*str);
   assert(_str->inherited.type_shift == PMATH_TYPE_SHIFT_PINNED_STRING);
   assert(_str->buffer == NULL);
@@ -187,14 +187,14 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_string_get_debug_info(pmath_t str) {
   struct _pmath_string_t *_str;
-  
+
   if(pmath_is_null(str))
     return PMATH_NULL;
-  
+
   assert(pmath_is_string(str));
   if(!pmath_is_pointer(str))
     return PMATH_NULL;
-  
+
   _str = (struct _pmath_string_t *)PMATH_AS_PTR(str);
   return pmath_ref(PMATH_FROM_PTR(_str->debug_info));
 }
@@ -205,21 +205,21 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
   struct _pmath_string_t *str_ptr = NULL;
   struct _pmath_string_t *result = NULL;
   struct _pmath_t *info_ptr;
-  
+
   if(!pmath_is_pointer(info))
     return str;
-  
+
   info_ptr = PMATH_AS_PTR(info);
-  
+
   if(pmath_is_null(str)) {
     pmath_unref(info);
     return str;
   }
-  
+
   if(pmath_is_ministr(str)) {
     if(info_ptr == NULL)
       return str;
-    
+
     if(pmath_is_str0(str)) {
       result = _pmath_new_string_buffer(0);
     }
@@ -240,34 +240,34 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
       pmath_unref(info);
       return str;
     }
-    
+
     result->debug_info = info_ptr;
-    
+
     // no need to free str: it is a ministr
     return PMATH_FROM_PTR(result);
   }
-  
+
   assert(pmath_is_bigstr(str));
-  
+
   str_ptr = (void*)PMATH_AS_PTR(str);
   if(str_ptr->debug_info == info_ptr) {
     if(info_ptr)
       _pmath_unref_ptr(info_ptr);
-    
+
     return str;
   }
-  
+
   if(pmath_refcount(str) == 1) {
     if(str_ptr->debug_info)
       _pmath_unref_ptr(str_ptr->debug_info);
-    
+
     str_ptr->debug_info = info_ptr;
     return str;
   }
   else {
-    if( str_ptr->buffer && 
+    if( str_ptr->buffer &&
         str_ptr->buffer->debug_info == info_ptr &&
-        str_ptr->capacity_or_start == 0 && 
+        str_ptr->capacity_or_start == 0 &&
         str_ptr->length == str_ptr->buffer->length)
     {
       result = str_ptr->buffer;
@@ -276,13 +276,13 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
       pmath_unref(info);
       return PMATH_FROM_PTR(result);
     }
-  
+
     result = (void *)PMATH_AS_PTR(_pmath_create_stub(PMATH_TYPE_SHIFT_BIGSTRING, sizeof(struct _pmath_string_t)));
     if(!result) {
       pmath_unref(info);
       return str;
     }
-    
+
     result->debug_info = info_ptr;
     result->length     = str_ptr->length;
     if(str_ptr->buffer) {
@@ -460,7 +460,7 @@ struct _pmath_string_t *enlarge_string_2(
 
 static void destroy_string(pmath_t p) {
   struct _pmath_string_t *str = (void *)PMATH_AS_PTR(p);
-  
+
   if(str->debug_info)
     _pmath_unref_ptr(str->debug_info);
   if(str->buffer)
@@ -1141,7 +1141,7 @@ pmath_string_t pmath_string_new_raw(int length) {
   pmath_string_t str = PMATH_NULL;
 
   assert(length >= 0);
-  
+
   switch(length) {
     case 0:
       str.s.tag = PMATH_TAG_STR0;
@@ -1156,7 +1156,7 @@ pmath_string_t pmath_string_new_raw(int length) {
       str.s.u.as_int32 = 0;
       return str;
   }
-  
+
   return PMATH_FROM_PTR(_pmath_new_string_buffer(length));
 }
 
@@ -1356,10 +1356,17 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
   size_t outbytesleft = sizeof(buf) - 1;
 
   while(inbytesleft > 0) {
-    size_t ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    size_t ret;
+
+    errno = 0;
+    ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
 
     if(ret == (size_t) - 1) {
-//      if(errno == E2BIG){ // output buffer too small
+      int the_error = errno;
+      if(the_error == 0 && outbytesleft == 0) // win_iconv seems to sometimes fails setting errno to E2BIG.
+        the_error = E2BIG;
+
+//      if(the_error == E2BIG){ // output buffer too small
       *outbuf = '\0';
 
       write_with_nulls(info, buf, outbuf);
@@ -1368,7 +1375,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
       outbytesleft = sizeof(buf) - 1;
 //      }
 
-      if(errno == EILSEQ && ((size_t)inbuf & 1) == 0 && inbytesleft >= 2) { // 2-byte aligned
+      if(the_error == EILSEQ && ((size_t)inbuf & 1) == 0 && inbytesleft >= 2) { // 2-byte aligned
         const char *name;
         uint16_t *u16 = (void *)inbuf;
         uint32_t ch;
@@ -1404,7 +1411,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
             }
         }
       }
-      else if(errno != E2BIG) { // invalid input byte  or  incomplete input
+      else if(the_error != E2BIG) { // invalid input byte  or  incomplete input
         ++inbuf;
         --inbytesleft;
       }
@@ -1757,7 +1764,7 @@ pmath_string_t pmath_string_part(
       pmath_unref(string);
       return PMATH_NULL;
     }
-    
+
     result->debug_info        = NULL;
     result->buffer            = _str;
     result->length            = length;
