@@ -42,17 +42,50 @@ typedef pmath_t pmath_custom_t;
 
 /**\brief Create a custom object.
    \memberof pmath_custom_t
-   \param data An arbitrary pointer.
+   \param data       An arbitrary pointer.
    \param destructor A function that will be called on object destruction to
-          enable freeing of \a data.
+                     enable freeing of \a data.
    \return A custom object or PMATH_NULL on failure (in that case, \a destructor(data)
            is called immediately).
+
+   Note that you should not store a pmath_t inside your \a data, because those are invisible to the
+   garbage collector (cycle detector) and hence may cause memory leaks.
+   Instead, to attach pMath expressions to a custom object, use pmath_custom_new_with_object().
  */
-PMATH_API 
+PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_custom_t pmath_custom_new(
   void              *data,
   pmath_callback_t   destructor);
+
+/**\brief Create a custom object with an additional expression attached.
+   \memberof pmath_custom_t
+   \param data       An arbitrary pointer.
+   \param destructor A function that will be called on object destruction to
+                     enable freeing of \a data.
+   \param obj        An (optional) object to attach to the newly created custom object.
+                     It will be freed. You can access it with
+                     pmath_custom_get_attached_object() but cannot change it.
+   \return A custom object or PMATH_NULL on failure (in that case, \a destructor(data)
+           is called immediately).
+
+   Note that you should not store a pmath_t inside your \a data, because those are invisible to the
+   garbage collector (cycle detector) and hence may cause memory leaks.
+   Instead, use the \a obj argument.
+
+   If you want to change the pMath expression attached to your custom object, attach a temporary
+   symbol instead (see pmath_symbol_create_temporary()) and store the expression as that symbol's
+   value.
+
+   Directly changing the attached expression \a obj later on is not supported because that would
+   allow creating reference cycles of the kind which the garbage collector is not prepared to detect.
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_custom_t pmath_custom_new_with_object(
+  void              *data,
+  pmath_callback_t   destructor,
+  pmath_t            obj);
 
 /**\brief Get a custom object's data member.
    \memberof pmath_custom_t
@@ -71,8 +104,17 @@ pmath_custom_t pmath_custom_new(
    threads (See \ref threads), you must also store a synchronization object
    (e.g. symbol or threadlock) in the \a data member und use this.
  */
-PMATH_API 
+PMATH_API
 void *pmath_custom_get_data(pmath_custom_t custom);
+
+/**\brief Get a custom object's attached pMath object.
+   \memberof pmath_custom_t
+   \param custom A custom object.
+   \return The attached object specified in pmath_custom_new_with_object() or PMATH_NULL.
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_custom_get_attached_object(pmath_custom_t custom);
 
 /**\brief Check for a custom object's data type.
    \memberof pmath_custom_t
@@ -80,9 +122,9 @@ void *pmath_custom_get_data(pmath_custom_t custom);
    \param dtor A callback function.
    \return TRUE if the object's destructor is \a dtor.
  */
-PMATH_API 
+PMATH_API
 pmath_bool_t pmath_custom_has_destructor(
-  pmath_custom_t    custom, 
+  pmath_custom_t    custom,
   pmath_callback_t  dtor);
 
 /** @} */
