@@ -3,32 +3,35 @@
 
 /**\mainpage The pMath Computer Algebra System Library
    \author Peter Frentrup
-   \date 2017
+   \date 2020
 
    \par Introduction
-   
+
    pMath is a free CAS for Windows and Unix like systems. The whole CAS consists
    of three projects:
     - The pMath library documented here, which implements the parser,
       interpreter, mathematical functionality and OS binding.
     - The RichMath graphical front-end.
-    - Addon libraries/modules for the pMath library and Language (e.g. a Java 
+    - Addon libraries/modules for the pMath library and Language (e.g. a Java
       binding).
 
-   You as a user (front-end or module programmer) of the pMath library just have 
+   This document does not cover the pMath \em Language itself, but the underlying
+   C library.
+
+   You as a user (front-end or module programmer) of the pMath library just have
    to \#include <pmath.h> and link with the appropriate library file.
-   
-   This document does not cover the pMath \em Language itself.
-   
+   The main operations are \ref parsing_code and evaluating expressions via
+   pmath_evaluate(), see \ref objects.
+
    \par Links/Depencies
-   
+
    pMath is build on top of several open source libraries:
     - Arb (http://www.arblib.org)
     - FLINT (http://www.flintlib.org)
     - MPIR/GMP (http://www.mpir.org or http://www.gmplib.org)
     - MPFR (http://www.mpfr.org)
     - PCRE (http://www.pcre.org)
-   
+
  */
 
 #include <pmath-core/custom.h>
@@ -81,21 +84,21 @@
 
 /**\brief Initialize the pMath CAS library.
    \return TRUE, if the initialization was successfull, FALSE otherwise.
-   
-   Any thread must call pmath_init() before using any other pMath function 
+
+   Any thread must call pmath_init() before using any other pMath function
    (exception: \ref atomic_ops). If the initialization fails, the thread should
    stop. Otherwise, pmath_done() must be called before the thread ends.
-   
-   When this function is called for the first time, the <tt>maininit.pmath</tt> 
-   file is executed. This file is searched in the following directories in 
+
+   When this function is called for the first time, the <tt>maininit.pmath</tt>
+   file is executed. This file is searched in the following directories in
    order:
       -# The application directory
-      -# The directory specified in the \c PMATH_BASEDIRECTORY environment 
+      -# The directory specified in the \c PMATH_BASEDIRECTORY environment
          variable
       -# Some operating system specific directories:
-          - /etc/pmath, /etc/local/pmath, /usr/share/pmath, 
+          - /etc/pmath, /etc/local/pmath, /usr/share/pmath,
             /usr/share/local/pmath on Unix like systems
-          - The "pmath" subfolder in the "common program files" and 
+          - The "pmath" subfolder in the "common program files" and
             "program files" directories on Microsoft Windows, if existent.
  */
 PMATH_API

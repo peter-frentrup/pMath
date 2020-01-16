@@ -7,7 +7,7 @@
 #include <stdlib.h>
 
 
-/**\addtogroup parser
+/**\addtogroup parsing_code
 
    @{
  */
@@ -34,7 +34,7 @@ typedef enum {
   PMATH_TOK_LEFT = 18,
   PMATH_TOK_RIGHT = 19,
   PMATH_TOK_PRETEXT = 20,
-  
+
   PMATH_TOK_ASSIGNTAG = 21,
   PMATH_TOK_PLUSPLUS = 22,
   PMATH_TOK_COLON = 23,
@@ -84,7 +84,7 @@ enum {
   PMATH_PREC_REPEAT =  340,
   PMATH_PREC_TEST =    350,
   PMATH_PREC_INC =     360,
-  
+
   PMATH_PREC_CALL =    400,
   PMATH_PREC_DIFF =    410,
   PMATH_PREC_PRIM =   1000
@@ -186,10 +186,10 @@ static PMATH_INLINE pmath_bool_t pmath_token_maybe_rest(pmath_token_t tok) {
  */
 static PMATH_INLINE pmath_bool_t pmath_char_is_left(uint16_t ch) {
   pmath_token_t tok;
-  
+
   if(ch == PMATH_CHAR_PIECEWISE)
     return TRUE;
-    
+
   tok = pmath_token_analyse(&ch, 1, NULL);
   return tok == PMATH_TOK_LEFT || tok == PMATH_TOK_LEFTCALL;
 }
@@ -199,19 +199,19 @@ static PMATH_INLINE pmath_bool_t pmath_char_is_left(uint16_t ch) {
 static PMATH_INLINE uint16_t pmath_right_fence(uint16_t left) {
   int prec;
   pmath_token_t tok;
-  
+
   ++left;
   tok = pmath_token_analyse(&left, 1, &prec);
-  
+
   if(tok == PMATH_TOK_RIGHT && prec == -1)
     return left;
-    
+
   ++left;
   tok = pmath_token_analyse(&left, 1, &prec);
-  
+
   if(tok == PMATH_TOK_RIGHT && prec == -2)
     return left;
-    
+
   return 0;
 }
 

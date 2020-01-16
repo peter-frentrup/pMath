@@ -848,6 +848,7 @@
 		<Unit filename="include/pmath-util/files/filesystem.h" />
 		<Unit filename="include/pmath-util/files/mixed-buffer.h" />
 		<Unit filename="include/pmath-util/files/text-from-binary.h" />
+		<Unit filename="include/pmath-util/garbage-collection-private.h" />
 		<Unit filename="include/pmath-util/hashtables-private.h" />
 		<Unit filename="include/pmath-util/hashtables.h" />
 		<Unit filename="include/pmath-util/helpers.h" />
@@ -1644,6 +1645,9 @@
 		<Unit filename="src/pmath-util/files/text-from-binary.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-util/garbage-collection-private.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-util/hashtables-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -1696,15 +1700,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
-			<code_completion>
-				<search_path add="..\..\library\include" />
-			</code_completion>
-			<envvars />
-			<debugger>
-				<remote_debugging>
-					<options conn_type="0" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
-				</remote_debugging>
-			</debugger>
 			<AutoVersioning>
 				<Scheme minor_max="100" build_max="0" rev_max="0" rev_rand_max="1" build_times_to_increment_minor="999999999" />
 				<Settings autoincrement="0" date_declarations="1" use_define="0" update_manifest="1" do_auto_increment="1" ask_to_increment="0" language="C" svn="0" svn_directory=".." header_path="include/pmath-util/version-private.h" />
@@ -1713,13 +1708,21 @@
 			</AutoVersioning>
 			<DoxyBlocks>
 				<comment_style block="0" line="2" />
-				<doxyfile_project project_number="0.5.288" use_auto_version="1" />
+				<doxyfile_project project_number="0.5.771" use_auto_version="1" />
 				<doxyfile_build />
 				<doxyfile_warnings />
 				<doxyfile_output html_help="1" xml="1" />
 				<doxyfile_dot />
 				<general />
 			</DoxyBlocks>
+			<code_completion>
+				<search_path add="..\..\library\include" />
+			</code_completion>
+			<debugger>
+				<remote_debugging>
+					<options conn_type="0" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+				</remote_debugging>
+			</debugger>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

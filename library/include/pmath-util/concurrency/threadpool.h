@@ -54,7 +54,7 @@ for each deamon thread t:
    \endcode
 
    pmath_init() will be called automatically before callback() and pmath_done()
-   after callback returns. So the pMath thread (pmath_thread_get_current()) will 
+   after callback returns. So the pMath thread (pmath_thread_get_current()) will
    be already initialized and you must not call these two functions in the
    \a callback routine.
 
@@ -71,12 +71,12 @@ pmath_messages_t pmath_thread_fork_daemon(
 
 /**\brief Create a new system thread.
    \relates pmath_thread_t
-   \param init     An optional function to be called in the new thread before 
+   \param init     An optional function to be called in the new thread before
                    pmath_thread_fork_unmanaged() returns.
    \param callback The thread function.
    \param data A pointer to be passed to callback()
    \return TRUE if a new thead was created and init() returned TRUE there.
-   
+
    This function is just a wrapper around operating system functions. It can be
    used without initializing the pMath library.
  */
@@ -90,7 +90,7 @@ pmath_bool_t pmath_thread_fork_unmanaged(
 /**\brief Collect unused symbols with the Temporary attribute.
    \relates pmath_symbol_t
 
-   This function is called periodically by the garbage collector.
+   This function asynchronically schedules a garbage collection and returns immediately.
 
    \see pmath_symbol_attributes_t
  */
