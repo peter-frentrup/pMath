@@ -13,7 +13,7 @@
 struct _pmath_expr_t {
   struct _pmath_gc_t   inherited;
   size_t               length;
-  struct _pmath_t     *debug_ptr;
+  pmath_atomic_t       metadata; // shared, mutable, struct _pmath_t*
   pmath_t              items[1];
 };
 
@@ -38,7 +38,7 @@ pmath_expr_t _pmath_expr_sort_ex_context(
   pmath_expr_t   expr, // will be freed
   int          (*cmp)(void*, const pmath_t*, const pmath_t*),
   void          *context);
-  
+
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_map(
@@ -57,8 +57,8 @@ pmath_expr_t _pmath_expr_map_slow(
   pmath_t     (*func)(pmath_t, size_t, void*),
   void         *context);
 
-/* expr=f(args): thread f over any expression with given head in the range 
-                 start .. end 
+/* expr=f(args): thread f over any expression with given head in the range
+                 start .. end
  */
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
@@ -76,14 +76,14 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_expr_shrink_associative(
   pmath_expr_t  expr,
   pmath_t       magic_rem);
-  
-  
-PMATH_PRIVATE 
+
+
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr);
 
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info);
 
@@ -100,11 +100,11 @@ void _pmath_expr_update(pmath_expr_t expr);
 PMATH_PRIVATE
 int _pmath_compare_exprsym(pmath_t a, pmath_t b);
 
-PMATH_PRIVATE 
+PMATH_PRIVATE
 pmath_bool_t _pmath_expr_equal(
   pmath_expr_t exprA,
   pmath_expr_t exprB);
-  
+
 PMATH_PRIVATE
 void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr);
 

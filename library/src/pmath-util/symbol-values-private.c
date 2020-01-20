@@ -238,14 +238,15 @@ pmath_bool_t _pmath_symbol_value_visit(
       }
 
       expr_ptr = (void*)PMATH_AS_PTR(value);
-      if(expr_ptr->debug_ptr) {
-        pmath_t next = pmath_ref(PMATH_FROM_PTR(expr_ptr->debug_ptr));
+      if(pmath_atomic_read_aquire(&expr_ptr->metadata)) {
+        struct _pmath_t *metadata_ptr = _pmath_atomic_lock_ptr(&expr_ptr->metadata);
+        pmath_t next = pmath_ref(PMATH_FROM_PTR(metadata_ptr));
+        _pmath_atomic_unlock_ptr(&expr_ptr->metadata, metadata_ptr);
+
         pmath_unref(value);
         value = next;
         continue;
       }
-      else
-        break;
     }
 
     if(pmath_is_multirule(value)) {
