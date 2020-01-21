@@ -218,7 +218,7 @@
 				*(pmath.dll!_pmath_expr_t*)this,!
 			</Item>
 			<Item Name="length" ExcludeView="simple">length,d</Item>
-			<Item Name="debug_info" Condition="debug_ptr != 0">*debug_ptr</Item>
+			<Item Name="metadata" Condition="metadata._data != 0">*(pmath.dll!_pmath_t*)metadata._data</Item>
 			<Item Name="head">items[0]</Item>
 			<ArrayItems Condition="inherited.inherited.inherited.type_shift == 5">
 				<Size>length</Size>
@@ -235,7 +235,7 @@
 				*(pmath.dll!_pmath_expr_part_t*)this,!
 			</Item>
 			<Item Name="length" ExcludeView="simple">inherited.length,d</Item>
-			<Item Name="debug_info" Condition="inherited.debug_ptr != 0">*inherited.debug_ptr</Item>
+			<Item Name="metadata" Condition="inherited.metadata._data != 0">*(pmath.dll!_pmath_t*)inherited.metadata._data</Item>
 			<Item Name="head">inherited.items[0]</Item>
 			<ArrayItems>
 				<Size>inherited.length</Size>
