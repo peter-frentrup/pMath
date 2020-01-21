@@ -211,6 +211,8 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name) {
           pmath_unref(sym);
           return obj;
         }
+        
+        name = pmath_expr_set_item(name, 1, pmath_ref(sym));
       }
     }
     
