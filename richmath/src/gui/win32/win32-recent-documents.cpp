@@ -22,7 +22,7 @@ extern pmath_symbol_t richmath_System_DollarApplicationFileName;
 namespace {
   class FileAssociationRegistry {
       static const wchar_t *document_prog_id;
-      static const wchar_t *document_prog_id_curver;
+      
     public:
       static const wchar_t *app_user_model_id;
     
@@ -43,12 +43,12 @@ namespace {
       RegistryKey(HKEY key, bool owned) : _key(key), _owned(owned) {}
       
       ~RegistryKey() {
-        if(_owned && _key) 
+        if(_owned && _key)
           RegCloseKey(_key);
       }
       
       RegistryKey(const RegistryKey &other) = delete;
-      RegistryKey(RegistryKey &&other) 
+      RegistryKey(RegistryKey &&other)
         : _key(other._key),
           _owned(other._owned)
       {
@@ -118,7 +118,7 @@ static HRESULT shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *me
   HR(shell_link->GetPath(target, ARRAYSIZE(target), nullptr, 0));
   target[ARRAYSIZE(target) - 1] = L'\0';
   
-  if(!PathFileExistsW(target)) 
+  if(!PathFileExistsW(target))
     return E_FAIL;
   
   String path = String::FromUcs2((const uint16_t*)target);
@@ -127,15 +127,15 @@ static HRESULT shell_link_to_menu_item(ComBase<IShellLinkW> shell_link, Expr *me
   
   const uint16_t *buf = path.buffer();
   int i = path.length();
-  while(i > 0 && buf[i-1] != '\\')
+  while(i > 0 && buf[i - 1] != '\\')
     --i;
   
-  *menu_item = indexed_open_document_menu_item(index, path.part(i), std::move(path)); 
+  *menu_item = indexed_open_document_menu_item(index, path.part(i), std::move(path));
   return S_OK;
 }
 
 // From Microsoft's AutomaticJumpList example:
-// > For a document to appear in Jump Lists, the associated application must be registered to 
+// > For a document to appear in Jump Lists, the associated application must be registered to
 // > handle the document's file type (extension).
 static HRESULT jump_list_to_menu_list(Expr *result) {
   ComBase<IApplicationDocumentLists> app_doc_lists;
@@ -144,6 +144,8 @@ static HRESULT jump_list_to_menu_list(Expr *result) {
        CLSID_ApplicationDocumentLists, nullptr, CLSCTX_INPROC_SERVER,
        app_doc_lists.iid(),
        (void**)app_doc_lists.get_address_of()));
+  
+  HRreport(app_doc_lists->SetAppID(FileAssociationRegistry::app_user_model_id));
   
   ComBase<IObjectArray> items;
   HR(app_doc_lists->GetList(ADLT_RECENT, 0, items.iid(), (void**)items.get_address_of()));
@@ -197,7 +199,7 @@ static HRESULT jump_list_remove(String path) {
        app_dest.iid(),
        (void**)app_dest.get_address_of()));
   
-  path+= String::FromChar(0);
+  path += String::FromChar(0);
   const wchar_t *buf = (const wchar_t*)path.buffer();
   if(!buf)
     return E_OUTOFMEMORY;
@@ -237,14 +239,13 @@ void Win32RecentDocuments::done() {
 
 const wchar_t *FileAssociationRegistry::app_user_model_id = L"Frentrup.pMath.RichMath";
 const wchar_t *FileAssociationRegistry::document_prog_id = L"Frentrup.pMath.RichMath.Document";
-const wchar_t *FileAssociationRegistry::document_prog_id_curver = L"Frentrup.pMath.RichMath.Document.1";
 
 void FileAssociationRegistry::init_app_user_model_id() {
   HMODULE shell32 = LoadLibrary("shell32.dll");
   if(shell32) {
-    HRESULT (WINAPI *p_SetCurrentProcessExplicitAppUserModelID)(PCWSTR);
+    HRESULT (WINAPI * p_SetCurrentProcessExplicitAppUserModelID)(PCWSTR);
     p_SetCurrentProcessExplicitAppUserModelID = (HRESULT (WINAPI *)(PCWSTR))
-                                                GetProcAddress(shell32, "SetCurrentProcessExplicitAppUserModelID");
+        GetProcAddress(shell32, "SetCurrentProcessExplicitAppUserModelID");
     
     if(p_SetCurrentProcessExplicitAppUserModelID) {
       HRreport(p_SetCurrentProcessExplicitAppUserModelID(app_user_model_id));
@@ -275,16 +276,8 @@ HRESULT FileAssociationRegistry::register_application() {
 HRESULT FileAssociationRegistry::register_program_id() {
   RegistryKey hkcu_software_classes = RegistryKey::CurrentUser.open(L"Software\\Classes");
   
-  {
-    RegistryKey progid_unversioned = hkcu_software_classes.create(document_prog_id, KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
-    if(!progid_unversioned) 
-      return E_FAIL;
-    
-    HR(progid_unversioned.create(L"CurVer", KEY_SET_VALUE | KEY_CREATE_SUB_KEY).set_string_value(L"", document_prog_id_curver));
-  }
-  
-  RegistryKey progid = hkcu_software_classes.create(document_prog_id_curver, KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
-  if(!progid) 
+  RegistryKey progid = hkcu_software_classes.create(document_prog_id, KEY_SET_VALUE | KEY_CREATE_SUB_KEY);
+  if(!progid)
     return E_FAIL;
   
   HR(progid.set_string_value(L"",                 L"pMath Document"));
@@ -345,7 +338,7 @@ HRESULT RegistryKey::set_string_value(const wchar_t *name, const wchar_t *str) {
 }
 
 HRESULT RegistryKey::set_string_value(const wchar_t *name, String s) {
-  s+= String::FromChar(0);
+  s += String::FromChar(0);
   
   size_t len = (size_t)s.length();
   if(!len)
