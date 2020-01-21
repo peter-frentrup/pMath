@@ -116,8 +116,8 @@ namespace richmath {
       
       int snap_correction_x;
       int snap_correction_y;
-      int last_moving_x;
-      int last_moving_y;
+      int last_moving_cx;
+      int last_moving_cy;
       
     private:
       static BOOL CALLBACK find_snap_hwnd(HWND hwnd, LPARAM lParam);

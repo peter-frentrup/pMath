@@ -71,7 +71,8 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     next_item(0),
     hot_item(0),
     dpi(96),
-    focused(false)
+    focused(false),
+    _ignore_pressed_alt_key(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -762,6 +763,10 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
     case WM_MENUSELECT: {
         Win32Menu::on_menuselect(wParam, lParam);
       } break;
+    
+    case WM_ENTERSIZEMOVE:
+      _ignore_pressed_alt_key = true;
+      break;
       
     case WM_SYSKEYDOWN: {
         if(_appearence != MaNeverShow) {
@@ -780,6 +785,12 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       } break;
       
     case WM_SYSKEYUP: {
+        if(_ignore_pressed_alt_key) {
+          _ignore_pressed_alt_key = false;
+          if(wParam == VK_MENU)
+            break;
+        }
+        
         if(_appearence != MaNeverShow) {
           bool was_visible = visible();
           

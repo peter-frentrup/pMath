@@ -77,6 +77,7 @@ namespace richmath {
       
       bool focused : 1;
       bool menu_animation : 1;
+      bool _ignore_pressed_alt_key : 1;
   };
 }
 

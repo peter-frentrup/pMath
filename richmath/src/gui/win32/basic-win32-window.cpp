@@ -159,8 +159,8 @@ BasicWin32Window::BasicWin32Window(
   _mouse_over_caption_buttons(false),
   snap_correction_x(0),
   snap_correction_y(0),
-  last_moving_x(0),
-  last_moving_y(0)
+  last_moving_cx(0),
+  last_moving_cy(0)
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
 
@@ -705,10 +705,39 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   int maxh = max_client_height + margins.cyTopHeight + margins.cyBottomHeight;
   int minw = min_client_width  + margins.cxLeftWidth + margins.cxRightWidth;
   int maxw = max_client_width  + margins.cxLeftWidth + margins.cxRightWidth;
-
+  
+  bool change_left = false;
+  bool change_right = false;
+  bool change_top = false;
+  bool change_bottom = false;
+  switch(wParam) {
+    case WMSZ_LEFT:   change_left = true; break;
+    case WMSZ_RIGHT:  change_right = true; break;
+    case WMSZ_TOP:    change_top = true; break;
+    case WMSZ_BOTTOM: change_bottom = true; break;
+      
+    case WMSZ_TOPLEFT:     change_top = change_left = true; break;
+    case WMSZ_TOPRIGHT:    change_top = change_right = true; break;
+    case WMSZ_BOTTOMLEFT:  change_bottom = change_left = true; break;
+    case WMSZ_BOTTOMRIGHT: change_bottom = change_right = true; break;
+  }
+  
+  
+  if(GetKeyState(VK_MENU) & ~1) {
+    change_left = change_right = change_left || change_right;
+    change_top = change_bottom = change_top || change_bottom;
+  }
+  
+  //POINT center { lParam->left + (lParam->right - lParam->left)/2, lParam->top + (lParam->bottom - lParam->top)/2 };
+  POINT center { last_moving_cx, last_moving_cy };
+  
   bool minmax = false;
   if(lParam->bottom - lParam->top < minh) {
-    if(wParam == WMSZ_TOP || wParam == WMSZ_TOPLEFT || wParam == WMSZ_TOPRIGHT)
+    if(change_top && change_bottom) {
+      lParam->top = center.y - minh/2;
+      lParam->bottom = lParam->top + minh;
+    }
+    else if(change_top)
       lParam->top = lParam->bottom - minh;
     else
       lParam->bottom = lParam->top + minh;
@@ -717,7 +746,11 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
 
   if(lParam->bottom - lParam->top > maxh && max_client_height > 0) {
-    if(wParam == WMSZ_TOP || wParam == WMSZ_TOPLEFT || wParam == WMSZ_TOPRIGHT)
+    if(change_top && change_bottom) {
+      lParam->top = center.y - maxh/2;
+      lParam->bottom = lParam->top + maxh;
+    }
+    else if(change_top)
       lParam->top = lParam->bottom - maxh;
     else
       lParam->bottom = lParam->top + maxh;
@@ -726,7 +759,11 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
 
   if(lParam->right - lParam->left < minw) {
-    if(wParam == WMSZ_LEFT || wParam == WMSZ_TOPLEFT || wParam == WMSZ_BOTTOMLEFT)
+    if(change_left && change_right) {
+      lParam->left = center.x - minw/2;
+      lParam->right = lParam->left + minw;
+    }
+    else if(change_left)
       lParam->left = lParam->right - minw;
     else
       lParam->right = lParam->left + minw;
@@ -735,7 +772,11 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
 
   if(lParam->right - lParam->left > maxw && max_client_width > 0) {
-    if(wParam == WMSZ_LEFT || wParam == WMSZ_TOPLEFT || wParam == WMSZ_BOTTOMLEFT)
+    if(change_left && change_right) {
+      lParam->left = center.x - maxw/2;
+      lParam->right = lParam->left + maxw;
+    }
+    else if(change_left)
       lParam->left = lParam->right - maxw;
     else
       lParam->right = lParam->left + maxw;
@@ -801,7 +842,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   snap_correction_x = 0;
   snap_correction_y = 0;
   snap_rect_or_pt(&snapping_rect, &pt);
-
+  
   switch(wParam) {
     case WMSZ_BOTTOM:
       snap_correction_x = old_snap_dx;
@@ -843,6 +884,38 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->right = pt.x - snap_margins.cxRightWidth;
       break;
   }
+  
+  if(change_left && change_right) {
+    switch(wParam) {
+      case WMSZ_LEFT:
+      case WMSZ_BOTTOMLEFT:
+      case WMSZ_TOPLEFT:
+        lParam->right = center.x + (center.x - lParam->left);
+        break;
+      
+      case WMSZ_RIGHT:
+      case WMSZ_BOTTOMRIGHT:
+      case WMSZ_TOPRIGHT:
+        lParam->left = center.x - (lParam->right - center.x);
+        break;
+    }
+  }
+  
+  if(change_top && change_bottom) {
+    switch(wParam) {
+      case WMSZ_TOP:
+      case WMSZ_TOPLEFT:
+      case WMSZ_TOPRIGHT:
+        lParam->bottom = center.y + (center.y - lParam->top);
+        break;
+      
+      case WMSZ_BOTTOM:
+      case WMSZ_BOTTOMLEFT:
+      case WMSZ_BOTTOMRIGHT:
+        lParam->top = center.y - (lParam->bottom - center.y);
+        break;
+    }
+  }
 }
 
 void BasicWin32Window::on_moving(RECT *lParam) {
@@ -874,14 +947,16 @@ void BasicWin32Window::on_moving(RECT *lParam) {
   lParam->bottom = snapping_rect.bottom - snap_margins.cyBottomHeight;
 
   HDWP hdwp = BeginDeferWindowPos(all_snappers.size());
-
-  if(rect.left != last_moving_x || rect.top != last_moving_y)
+  
+  int cx = rect.left + (rect.right - rect.left)/2;
+  int cy = rect.top  + (rect.bottom - rect.top)/2;
+  if( cx != last_moving_cx || cy != last_moving_cy)
     hdwp = move_all_snappers(hdwp, rect);
-
+  
   EndDeferWindowPos(hdwp);
 
-  last_moving_x = rect.left;
-  last_moving_y = rect.top;
+  last_moving_cx = cx;
+  last_moving_cy = cy;
 }
 
 void BasicWin32Window::on_move(LPARAM lParam) {
@@ -910,13 +985,15 @@ void BasicWin32Window::on_move(LPARAM lParam) {
            1,
            SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 
-  if(rect.left != last_moving_x || rect.top != last_moving_y)
+  int cx = rect.left + (rect.right - rect.left)/2;
+  int cy = rect.top  + (rect.bottom - rect.top)/2;
+  if( cx != last_moving_cx || cy != last_moving_cy)
     hdwp = move_all_snappers(hdwp, rect);
 
   EndDeferWindowPos(hdwp);
 
-  last_moving_x = rect.left;
-  last_moving_y = rect.top;
+  last_moving_cx = cx;
+  last_moving_cy = cy;
 }
 
 //} ... snapping windows & alignment
@@ -1840,8 +1917,8 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_ENTERSIZEMOVE: {
           RECT rect;
           GetWindowRect(_hwnd, &rect);
-          last_moving_x = rect.left;
-          last_moving_y = rect.top;
+          last_moving_cx = rect.left + (rect.right - rect.left)/2;
+          last_moving_cy = rect.top  + (rect.bottom - rect.top)/2;
 
           find_all_snappers();
         } break;
