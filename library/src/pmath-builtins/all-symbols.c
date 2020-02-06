@@ -390,6 +390,7 @@ PMATH_PRIVATE pmath_t builtin_lengthwhile(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_level(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_linearsolve(                  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_listconvolve(                 pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_lookup(                       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ludecomposition(              pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_map(                          pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_mapindexed(                   pmath_expr_t expr);
@@ -1772,6 +1773,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_LOCAL,                       builtin_local)
   BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)
   BIND_DOWN(   PMATH_SYMBOL_LOGGAMMA,                    builtin_loggamma)
+  BIND_DOWN(   pmath_System_Lookup,                      builtin_lookup)
   BIND_DOWN(   PMATH_SYMBOL_LUDECOMPOSITION,             builtin_ludecomposition)
   BIND_DOWN(   PMATH_SYMBOL_MAP,                         builtin_map)
   BIND_DOWN(   PMATH_SYMBOL_MAPINDEXED,                  builtin_mapindexed)

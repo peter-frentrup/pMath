@@ -1,0 +1,131 @@
+#include <pmath-core/expressions.h>
+
+#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/helpers.h>
+#include <pmath-util/messages.h>
+
+#include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
+#include <pmath-builtins/lists-private.h>
+
+
+PMATH_PRIVATE pmath_t _pmath_object_missing_keyabsent;  /* readonly */
+
+extern pmath_symbol_t pmath_System_Key;
+
+// frees rules and key, but not default_value
+static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_bool_t *failure_flag) {
+  size_t i, len;
+  pmath_t obj;
+  
+  if(!pmath_is_expr_of(rules, PMATH_SYMBOL_LIST)) {
+    *failure_flag = TRUE;
+    pmath_unref(rules);
+    pmath_unref(key);
+    return PMATH_NULL;
+  }
+  
+  len = pmath_expr_length(rules);
+  if(len == 0) {
+    pmath_unref(rules);
+    if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
+      len = pmath_expr_length(key);
+      for(i = 1; i <= len; ++i)
+        key = pmath_expr_set_item(key, i, pmath_ref(default_value));
+        
+      return key;
+    }
+    
+    return pmath_ref(default_value);
+  }
+  
+  obj = pmath_expr_get_item(rules, 1);
+  if(_pmath_is_rule(obj)) {
+    pmath_dispatch_table_t disp;
+    pmath_unref(obj);
+    
+    disp = _pmath_rules_need_dispatch_table(rules);
+    if(pmath_is_null(disp)) { // not a list of rules
+      *failure_flag = TRUE;
+      pmath_unref(rules);
+      pmath_unref(key);
+      return PMATH_NULL;
+    }
+    
+    pmath_unref(disp); disp = PMATH_NULL;
+    
+    if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
+      len = pmath_expr_length(key);
+      for(i = 1; i <= len && !*failure_flag; ++i) {
+        obj = pmath_expr_extract_item(key, i);
+        obj = lookup(pmath_ref(rules), obj, default_value, failure_flag);
+        key = pmath_expr_set_item(key, i, obj);
+      }
+      pmath_unref(rules);
+      return key;
+    }
+    
+    if(pmath_is_expr_of_len(key, pmath_System_Key, 1)) {
+      obj = pmath_expr_get_item(key, 1);
+      pmath_unref(key);
+      key = obj; obj = PMATH_NULL;
+    }
+    
+    obj = pmath_ref(default_value);
+    _pmath_rules_lookup(rules, key, &obj);
+    pmath_unref(rules);
+    return obj;
+  }
+  else {
+    pmath_unref(obj);
+    
+    for(i = 1; i <= len && !*failure_flag; ++i) {
+      obj = pmath_expr_extract_item(rules, i);
+      obj = lookup(obj, pmath_ref(key), default_value, failure_flag);
+      rules = pmath_expr_set_item(rules, i, obj);
+    }
+    
+    pmath_unref(key);
+    return rules;
+  }
+}
+
+PMATH_PRIVATE pmath_t builtin_lookup(pmath_expr_t expr) {
+  /*  Lookup(rules, key)                 = Lookup(rules, key, Missing("KeyAbsent")
+      Lookup(rules, key, default_value)
+  
+      Lookup(rules, {key1, key2, ...})
+      Lookup(rules, Key(...))
+   */
+  size_t exprlen = pmath_expr_length(expr);
+  pmath_t rules;
+  pmath_t key;
+  pmath_t default_value;
+  pmath_t value;
+  pmath_bool_t failure_flag;
+  
+  if(exprlen < 2 || exprlen > 3) {
+    pmath_message_argxxx(exprlen, 2, 3);
+    return expr;
+  }
+  
+  rules = pmath_expr_get_item(expr, 1);
+  key = pmath_expr_get_item(expr, 2);
+  if(exprlen == 3)
+    default_value = pmath_expr_get_item(expr, 3);
+  else
+    default_value = pmath_ref(_pmath_object_missing_keyabsent);
+    
+  failure_flag = FALSE;
+  value = lookup(rules, key, default_value, &failure_flag);
+  pmath_unref(default_value);
+  
+  if(failure_flag) {
+    pmath_unref(value);
+    pmath_message(PMATH_NULL, "reps", 1, pmath_expr_get_item(expr, 1));
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  return value;
+}

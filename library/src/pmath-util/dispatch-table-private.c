@@ -124,6 +124,8 @@ static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t 
   
   tab = find_dispatch_table(keys);
   if(tab) {
+    //pmath_debug_print("[use cached dispatch table (%d refs) ", (int)_pmath_refcount_ptr(&tab->inherited));
+    //pmath_debug_print_object("for ", keys, "]\n");
     pmath_unref(keys);
     return tab;
   }
@@ -143,6 +145,8 @@ static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t 
   if(old)
     _pmath_unref_ptr((struct _pmath_t*)old);
   
+  //pmath_debug_print("[cache new dispatch table (%d refs) ", (int)_pmath_refcount_ptr(&tab->inherited));
+  //pmath_debug_print_object(" for ", tab->all_keys, "]\n");
   return tab;
 }
 
@@ -158,13 +162,20 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
   struct dispatch_lookup_info_t lookup_no_turn;
   struct _pmath_dispatch_entry_t *current_slice_start;
   
-  literal_entries = pmath_ht_create(&dispatch_entries_ht_class, num_keys);
+  if(num_keys > INT32_MAX/2) {
+    pmath_debug_print("[maximum number of dispatch table keys exceeded]\n");
+    pmath_unref(keys);
+    return NULL;
+  }
+  
+  //pmath_debug_print_object("[creating dispatch table for ", keys, "]\n");
+  literal_entries = pmath_ht_create(&dispatch_entries_ht_class, (unsigned)num_keys);
   if(!literal_entries) {
     pmath_unref(keys);
     return NULL;
   }
   
-  key_to_turn = pmath_ht_create(&dispatch_entries_ht_class, num_keys);
+  key_to_turn = pmath_ht_create(&dispatch_entries_ht_class, (unsigned)num_keys);
   if(!key_to_turn) {
     pmath_ht_destroy(literal_entries);
     pmath_unref(keys);
@@ -512,6 +523,8 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
   if(PMATH_LIKELY(_pmath_refcount_ptr(&tab->inherited) == 0)) {
     size_t i;
     
+    //pmath_debug_print_object("[free dispatch table for ", tab->all_keys, "]\n");
+    
     pmath_ht_destroy(tab->literal_entries);
     
     for(i = pmath_expr_length(tab->all_keys); i > 0; --i)
@@ -528,6 +541,8 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
 static void destroy_dispatch_table(pmath_t a) {
   struct _pmath_dispatch_table_t *tab = (void*)PMATH_AS_PTR(a);
   struct _pmath_dispatch_table_t *cached = NULL;
+  
+  //pmath_debug_print_object("[orphaned dispatch table for ", tab->all_keys, "]\n");
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
