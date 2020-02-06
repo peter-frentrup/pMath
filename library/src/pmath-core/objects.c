@@ -42,7 +42,8 @@ static char *type_names[PMATH_TYPE_SHIFT_COUNT] = {
   "custom",
   "memory blob",
   "packed array",
-  "string (pinned)"
+  "string (pinned)",
+  "dispatch table"
 };
 #endif
 

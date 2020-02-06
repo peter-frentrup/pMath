@@ -1602,7 +1602,34 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 
 /*----------------------------------------------------------------------------*/
 
-PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
+enum {
+  METADATA_KIND_DEBUG_INFO,
+  METADATA_KIND_DISPATCH_TABLE 
+};
+
+static pmath_bool_t find_metadata(pmath_t *metadata, int kind) {
+  assert(metadata);
+  
+  if(pmath_is_expr_of(*metadata, PMATH_MAGIC_METADATA_LIST)) {
+    size_t i;
+    for(i = pmath_expr_length(*metadata); i > 0; --i) {
+      pmath_t item = pmath_expr_get_item(*metadata, i);
+      if(find_metadata(&item, kind)) {
+        pmath_unref(*metadata);
+        *metadata = item;
+        return TRUE;
+      }
+    }
+    return FALSE;
+  }
+  
+  if(pmath_is_dispatch_table(*metadata)) 
+    return kind == METADATA_KIND_DISPATCH_TABLE;
+  
+  return kind == METADATA_KIND_DEBUG_INFO;
+}
+
+static pmath_t get_metadata(pmath_expr_t expr, int kind) {
   struct _pmath_expr_t *_expr;
   pmath_t metadata;
 
@@ -1621,8 +1648,73 @@ PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
     metadata = pmath_ref(PMATH_FROM_PTR(metadata_ptr));
     _pmath_atomic_unlock_ptr(&_expr->metadata, metadata_ptr);
   }
+  
+  if(find_metadata(&metadata, kind))
+    return metadata;
 
-  return metadata;
+  pmath_unref(metadata);
+  return PMATH_NULL;
+}
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_dispatch_table_t _pmath_expr_get_dispatch_table(pmath_expr_t expr) {
+  return get_metadata(expr, METADATA_KIND_DISPATCH_TABLE);
+}
+
+PMATH_PRIVATE
+void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t dispatch_table) {
+  struct _pmath_expr_t *_expr;
+  pmath_t metadata;
+  
+  if(pmath_is_null(expr)) {
+    pmath_unref(dispatch_table);
+    return;
+  }
+  
+  assert(pmath_is_expr(expr));
+  assert(pmath_is_dispatch_table(dispatch_table) || pmath_is_null(dispatch_table));
+  
+  _expr = (struct _pmath_expr_t*)PMATH_AS_PTR(expr);
+  {
+    struct _pmath_t *metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
+    
+    if(!metadata_ptr) {
+      _pmath_atomic_unlock_ptr(&_expr->metadata, PMATH_AS_PTR(dispatch_table));
+      metadata = PMATH_NULL;
+      dispatch_table = PMATH_NULL;
+    }
+    else {
+      metadata = pmath_ref(PMATH_FROM_PTR(metadata_ptr));
+      _pmath_atomic_unlock_ptr(&_expr->metadata, metadata_ptr);
+    }
+  }
+  
+  if(pmath_is_null(metadata))
+    return;
+  
+  if(find_metadata(&metadata, METADATA_KIND_DEBUG_INFO)) {
+    metadata = pmath_expr_new_extended(PMATH_MAGIC_METADATA_LIST, 2, metadata, dispatch_table);
+  }
+  else {
+    pmath_unref(metadata);
+    metadata = dispatch_table;
+  }
+  
+  if(pmath_is_null(metadata))
+    return;
+  
+  {
+    struct _pmath_t *old_metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
+    _pmath_atomic_unlock_ptr(&_expr->metadata, PMATH_AS_PTR(metadata));
+    
+    if(old_metadata_ptr)
+      _pmath_unref_ptr(old_metadata_ptr);
+  }
+}
+
+PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
+  return get_metadata(expr, METADATA_KIND_DEBUG_INFO);
 }
 
 PMATH_PRIVATE
@@ -1714,8 +1806,6 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
   pmath_unref(info);
   return expr;
 }
-
-
 
 /*----------------------------------------------------------------------------*/
 

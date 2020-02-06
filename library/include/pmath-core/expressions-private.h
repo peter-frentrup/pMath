@@ -10,6 +10,9 @@
 
 #define PMATH_EXPRESSION_FLATTEN_MAX_DEPTH   (8)
 
+
+typedef pmath_t pmath_dispatch_table_t;
+
 struct _pmath_expr_t {
   struct _pmath_gc_t   inherited;
   size_t               length;
@@ -82,10 +85,16 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr);
 
-
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_dispatch_table_t _pmath_expr_get_dispatch_table(pmath_expr_t expr);
+
+PMATH_PRIVATE
+void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t dispatch_table); // dispatch_table will be freeds
 
 
 PMATH_PRIVATE

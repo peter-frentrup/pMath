@@ -8,6 +8,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
+#include <pmath-util/dispatch-table-private.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -301,6 +302,25 @@ pmath_bool_t _pmath_symbol_value_visit(
       else
         break;
     }
+    
+    if(pmath_is_dispatch_table(value)) {
+      struct _pmath_dispatch_table_t *tab = (struct _pmath_dispatch_table_t *)PMATH_AS_PTR(value);
+      size_t i, len;
+      pmath_t next;
+      
+      len = pmath_expr_length(tab->all_keys);
+      for(i = 0; i < len; ++i) {
+        if(!_pmath_symbol_value_visit(pmath_ref(tab->entries[i].key), callback, closure)) {
+          pmath_unref(value);
+          return FALSE;
+        }
+      }
+      
+      next = pmath_ref(tab->all_keys);
+      pmath_unref(value);
+      value = next;
+      continue;
+    }
 
     if(pmath_is_custom(value)) {
       pmath_t next = pmath_custom_get_attached_object(value);
@@ -373,9 +393,6 @@ pmath_bool_t _pmath_symbol_rules_visit(
 ) {
   pmath_hashtable_t table;
   pmath_bool_t result;
-
-  if(!rules)
-    return FALSE;
 
   if(!_pmath_rulecache_visit(&rules->up_rules,      callback, closure)) return FALSE;
   if(!_pmath_rulecache_visit(&rules->down_rules,    callback, closure)) return FALSE;

@@ -839,6 +839,7 @@
 		<Unit filename="include/pmath-util/concurrency/threads-private.h" />
 		<Unit filename="include/pmath-util/concurrency/threads.h" />
 		<Unit filename="include/pmath-util/debug.h" />
+		<Unit filename="include/pmath-util/dispatch-table-private.h" />
 		<Unit filename="include/pmath-util/dlmalloc.h" />
 		<Unit filename="include/pmath-util/dynamic-private.h" />
 		<Unit filename="include/pmath-util/emit-and-gather.h" />
@@ -1616,6 +1617,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/debug.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/dispatch-table-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/dlmalloc.c">
