@@ -1078,8 +1078,6 @@ void BasicWin32Window::paint_themed(HDC hdc) {
 }
 
 static void get_system_button_bounds(HWND hwnd, RECT *rect) {
-  //DwmGetWindowAttribute(hwnd, DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT));
-
   TITLEBARINFOEX tbi;
   memset(&tbi, 0, sizeof(tbi));
   tbi.cbSize = sizeof(tbi);
@@ -1089,7 +1087,27 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
   memset(rect, 0, sizeof(RECT));
   for(int i = 2; i <= 5; ++i)
     UnionRect(rect, rect, &tbi.rgrect[i]);
-
+  
+  if(rect->left == 0 && rect->right == 0 && rect->top == 0 && rect->bottom == 0) {
+    /* Workaround for Windows 10 bug (probably since build 1809): 
+        Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
+        but works fine for only one monitor.
+     */
+    if(Win32Themes::DwmGetWindowAttribute) {
+      if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT)))) {
+        // DWMWA_CAPTION_BUTTON_BOUNDS are in window coordinates, not client coordinates.
+        RECT winrect = {0,0,0,0};
+        GetWindowRect(hwnd, &winrect);
+        // TODO: correctly adjust the rectangle to tightly fit the button bounds. 
+        // The value 6 does not seem exactly correct with 150 DPI
+        rect->right -= 6;
+        OffsetRect(rect, winrect.left + 6, winrect.top);
+        MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
+        return;
+      }
+    }
+  }
+  
   MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
 }
 
