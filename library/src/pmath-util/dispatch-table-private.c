@@ -396,15 +396,31 @@ PMATH_PRIVATE pmath_bool_t _pmath_rules_lookup(pmath_t rules, pmath_t key, pmath
   return FALSE;
 }
 
-static pmath_t replace_rule_rhs(pmath_t rules, pmath_dispatch_table_t tab, size_t i, pmath_t new_value) {
+static pmath_t replace_rule_rhs(
+    pmath_t                  rules, // will be freed
+    pmath_dispatch_table_t   tab,   // will be freed
+    size_t                   i, 
+    pmath_bool_t           (*callback)(pmath_t*, pmath_bool_t, void*), 
+    void                    *callback_context
+) {
   struct _pmath_dispatch_table_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
+  pmath_t rule = pmath_expr_extract_item(rules, i);
+  pmath_bool_t old_no_delay = pmath_is_expr_of(rule, PMATH_SYMBOL_RULE);
+  pmath_t value = pmath_expr_extract_item(rule, 2);
   
-  pmath_t rule = pmath_expr_new_extended(
-                   pmath_is_evaluated(new_value) ? pmath_ref(PMATH_SYMBOL_RULE) : pmath_ref(PMATH_SYMBOL_RULEDELAYED),
-                   2,
-                   pmath_ref(tab_ptr->entries[i - 1].key),
-                   new_value);
+  pmath_bool_t new_no_delay = callback(&value, old_no_delay, callback_context);
   
+  if(pmath_same(value, PMATH_UNDEFINED)) {
+    pmath_unref(rule);
+    pmath_unref(tab);
+    rules = pmath_expr_set_item(rules, i, PMATH_UNDEFINED);
+    return pmath_expr_remove_all(rules, PMATH_UNDEFINED);
+  }
+  
+  if(old_no_delay != new_no_delay) 
+    rule = pmath_expr_set_item(rule, 0, pmath_ref(new_no_delay ? PMATH_SYMBOL_RULE : PMATH_SYMBOL_RULEDELAYED));
+  
+  rule = pmath_expr_set_item(rule, 2, value);
   if(pmath_is_null(rule)) {
     pmath_unref(tab);
     pmath_unref(rules);
@@ -416,23 +432,35 @@ static pmath_t replace_rule_rhs(pmath_t rules, pmath_dispatch_table_t tab, size_
   return rules;
 }
 
-static pmath_t append_rule(pmath_t rules, pmath_t key, pmath_t new_value) {
+static pmath_t append_rule(
+    pmath_t        rules, // will be freed
+    pmath_t        key,   // will be freed
+    pmath_bool_t (*callback)(pmath_t*, pmath_bool_t, void*), 
+    void          *callback_context
+) {
+  pmath_t value = PMATH_UNDEFINED;
+  pmath_bool_t no_delay = callback(&value, TRUE, callback_context);
   pmath_t rule;
-  
-  if(pmath_same(new_value, PMATH_UNDEFINED)) {
+      
+  if(pmath_same(value, PMATH_UNDEFINED)) {
     pmath_unref(key);
     return rules;
   }
   
   rule = pmath_expr_new_extended(
-           pmath_is_evaluated(new_value) ? pmath_ref(PMATH_SYMBOL_RULE) : pmath_ref(PMATH_SYMBOL_RULEDELAYED),
+           pmath_ref(no_delay ? PMATH_SYMBOL_RULE : PMATH_SYMBOL_RULEDELAYED),
            2,
            key,
-           new_value);
+           value);
   return pmath_expr_append(rules, 1, rule);
 }
 
-PMATH_PRIVATE pmath_t _pmath_rules_assign(pmath_t rules, pmath_t key, pmath_t new_value) {
+PMATH_PRIVATE pmath_t _pmath_rules_modify(
+  pmath_t        rules, 
+  pmath_t        key, 
+  pmath_bool_t (*callback)(pmath_t*, pmath_bool_t, void*), 
+  void          *callback_context
+) {
   pmath_dispatch_table_t tab = _pmath_rules_need_dispatch_table(rules);
   struct _pmath_dispatch_table_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   size_t i, len;
@@ -440,7 +468,6 @@ PMATH_PRIVATE pmath_t _pmath_rules_assign(pmath_t rules, pmath_t key, pmath_t ne
   
   if(!tab_ptr) {
     pmath_unref(key);
-    pmath_unref(new_value);
     return rules;
   }
   
@@ -448,18 +475,11 @@ PMATH_PRIVATE pmath_t _pmath_rules_assign(pmath_t rules, pmath_t key, pmath_t ne
     i = dispatch_table_lookup(tab_ptr, key, NULL);
     if(i == 0) {
       pmath_unref(tab);
-      return append_rule(rules, key, new_value);
+      return append_rule(rules, key, callback, callback_context);
     }
     else {
-      if(pmath_same(new_value, PMATH_UNDEFINED)) {
-        pmath_unref(key);
-        pmath_unref(tab);
-        rules = pmath_expr_set_item(rules, i, PMATH_UNDEFINED);
-        return pmath_expr_remove_all(rules, PMATH_UNDEFINED);
-      }
-      
       pmath_unref(key);
-      return replace_rule_rhs(rules, tab, i, new_value);
+      return replace_rule_rhs(rules, tab, i, callback, callback_context);
     }
   }
 
@@ -471,22 +491,14 @@ PMATH_PRIVATE pmath_t _pmath_rules_assign(pmath_t rules, pmath_t key, pmath_t ne
     }
     else if(pmath_equals(entry->key, key)) {
       i = 1 + (entry - tab_ptr->entries);
-      
-      if(pmath_same(new_value, PMATH_UNDEFINED)) {
-        pmath_unref(tab);
-        pmath_unref(key);
-        rules = pmath_expr_set_item(rules, i, PMATH_UNDEFINED);
-        return pmath_expr_remove_all(rules, PMATH_UNDEFINED);
-      }
-      
       pmath_unref(key);
-      return replace_rule_rhs(rules, tab, i, new_value);
+      return replace_rule_rhs(rules, tab, i, callback, callback_context);
     }
     // TODO: compare patterns instead of just appending to the end?
   }
 
   pmath_unref(tab);
-  return append_rule(rules, key, new_value);
+  return append_rule(rules, key, callback, callback_context);
 }
 
 //{ module init/done ...

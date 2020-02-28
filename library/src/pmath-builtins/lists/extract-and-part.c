@@ -229,6 +229,15 @@ PMATH_PRIVATE pmath_t builtin_part(pmath_expr_t expr) {
   return list;
 }
 
+struct assign_part_context_t {
+  pmath_expr_t  position;
+  size_t        position_start;
+  pmath_t       new_value;
+  pmath_bool_t *error;
+};
+
+static pmath_bool_t modify_rule_rhs(pmath_t *rhs, pmath_bool_t was_no_delay, void *_context);
+
 static pmath_t assign_part(
   pmath_t       list,            // will be freed
   pmath_expr_t  position,        // wont be freed
@@ -251,8 +260,29 @@ static pmath_t assign_part(
     return list;
   }
   
-  listlen = pmath_expr_length(list);
   index = pmath_expr_get_item(position, position_start);
+  if(pmath_is_string(index) || pmath_is_expr_of_len(index, pmath_System_Key, 1)) {
+    struct assign_part_context_t context;
+    
+    if(!check_list_of_rules(list)) {
+      *error = TRUE;
+      return list;
+    }
+    
+    if(pmath_is_expr(index)) { // Key(k)
+      pmath_t key = pmath_expr_get_item(index, 1);
+      pmath_unref(index);
+      index = key;
+    }
+    
+    context.position = position;
+    context.position_start = position_start;
+    context.new_value = new_value;
+    context.error = error;
+    return _pmath_rules_modify(list, index, modify_rule_rhs, &context);
+  }
+  
+  listlen = pmath_expr_length(list);
   
   if(pmath_is_integer(index)) {
     size_t i = SIZE_MAX;
@@ -409,6 +439,17 @@ static pmath_t assign_part(
     pmath_message(PMATH_NULL, "pspec", 1, index);
     
   return list;
+}
+
+static pmath_bool_t modify_rule_rhs(pmath_t *rhs, pmath_bool_t was_no_delay, void *_context) {
+  struct assign_part_context_t *context = (struct assign_part_context_t*)_context;
+  
+  *rhs = assign_part(*rhs, context->position, context->position_start + 1, context->new_value, context->error);
+  
+  if(context->position_start == pmath_expr_length(context->position))
+    return pmath_is_evaluated(*rhs);
+  else
+    return was_no_delay;
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
