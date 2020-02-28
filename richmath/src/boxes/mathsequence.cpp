@@ -1393,8 +1393,22 @@ namespace richmath {
           }
           
         public:
+          void run_text_space_characters() {
+            int string_end = -1;
+            for(int i = 0; i < self.glyphs.length(); ++i) {
+              switch(buf[i]) {
+                case '\t':
+                  self.glyphs[i].index = 0;
+                  self.glyphs[i].right = 4 * context->canvas->get_font_size();
+                  break;
+              }
+            }
+          }
+          
           void run() {
-            if(context->script_indent > 0)
+            run_text_space_characters();
+            
+            if(context->script_indent > 0 || !context->math_spacing)
               return;
               
             int box = 0;
@@ -2606,9 +2620,8 @@ void MathSequence::resize(Context *context) {
       while(pos < glyphs.length())
         MathSequenceImpl(*this).stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
     }
-    
-    MathSequenceImpl(*this).enlarge_space(context);
   }
+  MathSequenceImpl(*this).enlarge_space(context);
   
   {
     _extents.width = 0;
