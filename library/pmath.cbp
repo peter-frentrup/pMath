@@ -1333,6 +1333,9 @@
 		<Unit filename="src/pmath-builtins/lists/join.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/lists/keys.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/lists/leafcount.c">
 			<Option compilerVar="CC" />
 		</Unit>

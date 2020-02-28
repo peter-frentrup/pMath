@@ -2,7 +2,7 @@
 #define __PMATH_UTIL__VERSION_PRIVATE_H__
 
 	//Date Version Types
-	static const char _PMATH_VERSION_DATE[] = "07";
+	static const char _PMATH_VERSION_DATE[] = "28";
 	static const char _PMATH_VERSION_MONTH[] = "02";
 	static const char _PMATH_VERSION_YEAR[] = "2020";
 	static const char _PMATH_VERSION_UBUNTU_VERSION_STYLE[] =  "20.02";
@@ -14,14 +14,14 @@
 	//Standard Version Type
 	static const long _PMATH_VERSION_MAJOR  = 0;
 	static const long _PMATH_VERSION_MINOR  = 5;
-	static const long _PMATH_VERSION_BUILD  = 826;
-	static const long _PMATH_VERSION_REVISION  = 1234;
+	static const long _PMATH_VERSION_BUILD  = 829;
+	static const long _PMATH_VERSION_REVISION  = 1237;
 	
 	//Miscellaneous Version Types
-	static const long _PMATH_VERSION_BUILDS_COUNT  = 1013;
-	#define _PMATH_VERSION_RC_FILEVERSION 0,5,826,1234
-	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 5, 826, 1234\0"
-	static const char _PMATH_VERSION_FULLVERSION_STRING [] = "0.5.826.1234";
+	static const long _PMATH_VERSION_BUILDS_COUNT  = 1015;
+	#define _PMATH_VERSION_RC_FILEVERSION 0,5,829,1237
+	#define _PMATH_VERSION_RC_FILEVERSION_STRING "0, 5, 829, 1237\0"
+	static const char _PMATH_VERSION_FULLVERSION_STRING [] = "0.5.829.1237";
 	
 	//These values are to keep track of your versioning state, don't modify them.
 	static const long _PMATH_VERSION_BUILD_HISTORY  = 0;

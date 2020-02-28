@@ -383,6 +383,7 @@ PMATH_PRIVATE pmath_t builtin_isordered(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_ismatrix(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_isvector(                     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_join(                         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_keys(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_last(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_leafcount(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_length(                       pmath_expr_t expr);
@@ -1757,6 +1758,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_ISVECTOR,                    builtin_isvector)
   BIND_DOWN(   PMATH_SYMBOL_JACOBISYMBOL,                builtin_jacobisymbol_and_kroneckersymbol)
   BIND_DOWN(   PMATH_SYMBOL_JOIN,                        builtin_join)
+  BIND_DOWN(   pmath_System_Keys,                        builtin_keys)
   BIND_DOWN(   PMATH_SYMBOL_KRONECKERSYMBOL,             builtin_jacobisymbol_and_kroneckersymbol)
   BIND_DOWN(   PMATH_SYMBOL_LABEL,                       general_builtin_onearg)
   BIND_DOWN(   PMATH_SYMBOL_LAST,                        builtin_last)
