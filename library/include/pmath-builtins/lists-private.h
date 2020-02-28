@@ -12,7 +12,7 @@
    src/pmath-builtins/lists/
  */
 
-extern PMATH_PRIVATE pmath_t _pmath_object_missing_keyabsent;
+extern PMATH_PRIVATE pmath_t _pmath_string_keyabsent;
 
 PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj); // obj wont be freed
 

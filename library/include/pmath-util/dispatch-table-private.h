@@ -51,8 +51,8 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
     \param key    A pMath object. It will be freed.
     \param result A pointer to a pMAth object. On success, the previous pointed-to object will 
                   be freed and replaced by the first matching rule's right-hand side.
+    \return If \a rules is not a list-of-rules or if no left-hand side matches, FALSE will be returned, otherwise TRUE.
     
-    If \a rules is not a list-of-rules or if no left-hand side matches, FALSE will be returned.
     On success, *result will be set to Replace(key, rules).
  */
 PMATH_PRIVATE pmath_bool_t _pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result);

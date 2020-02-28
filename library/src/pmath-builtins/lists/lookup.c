@@ -9,9 +9,48 @@
 #include <pmath-builtins/lists-private.h>
 
 
-PMATH_PRIVATE pmath_t _pmath_object_missing_keyabsent;  /* readonly */
+PMATH_PRIVATE pmath_t _pmath_string_keyabsent;  /* readonly */
 
 extern pmath_symbol_t pmath_System_Key;
+extern pmath_symbol_t pmath_System_Missing;
+
+static pmath_t peel_off_key_head(pmath_t key) {
+  if(pmath_is_expr_of_len(key, pmath_System_Key, 1)) {
+    pmath_t arg = pmath_expr_get_item(key, 1);
+    pmath_unref(key);
+    return arg;
+  }
+  
+  return key;
+}
+
+static pmath_t missing_key_result(
+  pmath_t key,          // will be freed
+  pmath_t default_value // won't be freed
+) {
+  if(!pmath_same(default_value, PMATH_UNDEFINED)) {
+    pmath_unref(key);
+    return pmath_ref(default_value);
+  }
+  
+  if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
+    size_t len = pmath_expr_length(key);
+    size_t i;
+    for(i = len; i > 0; --i) {
+      pmath_t obj = pmath_expr_extract_item(key, i);
+      obj = peel_off_key_head(obj);
+      obj = missing_key_result(obj, PMATH_UNDEFINED);
+      key = pmath_expr_set_item(key, i, obj);
+    }
+    return key;
+  }
+  
+  // The possible Key(...) kead was already peeled of by lookup(),
+  // so don't call peel_off_key_head() again.
+  
+  return pmath_expr_new_extended(
+           pmath_ref(pmath_System_Missing), 2, pmath_ref(_pmath_string_keyabsent), key);
+}
 
 // frees rules and key, but not default_value
 static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_bool_t *failure_flag) {
@@ -28,15 +67,7 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
   len = pmath_expr_length(rules);
   if(len == 0) {
     pmath_unref(rules);
-    if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
-      len = pmath_expr_length(key);
-      for(i = 1; i <= len; ++i)
-        key = pmath_expr_set_item(key, i, pmath_ref(default_value));
-        
-      return key;
-    }
-    
-    return pmath_ref(default_value);
+    return missing_key_result(key, default_value);
   }
   
   obj = pmath_expr_get_item(rules, 1);
@@ -65,14 +96,16 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
       return key;
     }
     
-    if(pmath_is_expr_of_len(key, pmath_System_Key, 1)) {
-      obj = pmath_expr_get_item(key, 1);
-      pmath_unref(key);
-      key = obj; obj = PMATH_NULL;
-    }
+    key = peel_off_key_head(key);
     
-    obj = pmath_ref(default_value);
-    _pmath_rules_lookup(rules, key, &obj);
+    obj = PMATH_UNDEFINED;
+    if(!_pmath_rules_lookup(rules, pmath_ref(key), &obj)) {
+      pmath_unref(obj);
+      obj = missing_key_result(key, default_value);
+    }
+    else
+      pmath_unref(key);
+    
     pmath_unref(rules);
     return obj;
   }
@@ -114,7 +147,7 @@ PMATH_PRIVATE pmath_t builtin_lookup(pmath_expr_t expr) {
   if(exprlen == 3)
     default_value = pmath_expr_get_item(expr, 3);
   else
-    default_value = pmath_ref(_pmath_object_missing_keyabsent);
+    default_value = PMATH_UNDEFINED;
     
   failure_flag = FALSE;
   value = lookup(rules, key, default_value, &failure_flag);

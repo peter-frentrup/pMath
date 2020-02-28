@@ -471,7 +471,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     _pmath_object_underflow                = PMATH_NULL;
     _pmath_object_zeromultimatch           = PMATH_NULL;
     _pmath_object_empty_pattern_sequence   = PMATH_NULL;
-    _pmath_object_missing_keyabsent        = PMATH_NULL;
+    _pmath_string_keyabsent                = PMATH_NULL;
     
     if(!_pmath_debug_library_init())          goto FAIL_DEBUG_LIBRARY;
     if(!_pmath_stacks_init())                 goto FAIL_STACKS_LIBRARY;
@@ -579,10 +579,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           PMATH_MAGIC_PATTERN_SEQUENCE, 0);
       _pmath_expr_update(_pmath_object_empty_pattern_sequence);
       
-      _pmath_object_missing_keyabsent = pmath_expr_new_extended(
-          pmath_ref(pmath_System_Missing), 1,
-          PMATH_C_STRING("KeyAbsent"));
-      _pmath_expr_update(_pmath_object_missing_keyabsent);
+      _pmath_string_keyabsent = PMATH_C_STRING("KeyAbsent");
       
       // List()
       _pmath_object_emptylist = pmath_expr_new(
@@ -633,7 +630,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           pmath_is_null(_pmath_object_underflow)                ||
           pmath_is_null(_pmath_object_zeromultimatch)           ||
           pmath_is_null(_pmath_object_empty_pattern_sequence)   ||
-          pmath_is_null(_pmath_object_missing_keyabsent))
+          pmath_is_null(_pmath_string_keyabsent))
       {
         goto FAIL_STATIC_OBJECTS;
       }
@@ -1000,7 +997,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     pmath_unref(_pmath_object_underflow);                _pmath_object_underflow =                PMATH_NULL;
     pmath_unref(_pmath_object_zeromultimatch);           _pmath_object_zeromultimatch =           PMATH_NULL;
     pmath_unref(_pmath_object_empty_pattern_sequence);   _pmath_object_empty_pattern_sequence =   PMATH_NULL;
-    pmath_unref(_pmath_object_missing_keyabsent);        _pmath_object_missing_keyabsent =        PMATH_NULL;
+    pmath_unref(_pmath_string_keyabsent);                _pmath_string_keyabsent =                PMATH_NULL;
     
     _pmath_thread_clean(TRUE);
     _pmath_symbols_almost_done();
@@ -1095,7 +1092,7 @@ PMATH_API void pmath_done(void) {
     pmath_unref(_pmath_object_underflow);                _pmath_object_underflow =                PMATH_NULL;
     pmath_unref(_pmath_object_zeromultimatch);           _pmath_object_zeromultimatch =           PMATH_NULL;
     pmath_unref(_pmath_object_empty_pattern_sequence);   _pmath_object_empty_pattern_sequence =   PMATH_NULL;
-    pmath_unref(_pmath_object_missing_keyabsent);        _pmath_object_missing_keyabsent =        PMATH_NULL;
+    pmath_unref(_pmath_string_keyabsent);                _pmath_string_keyabsent =                PMATH_NULL;
     
     _pmath_thread_clean(TRUE);
     _pmath_symbols_almost_done();
