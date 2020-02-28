@@ -348,7 +348,7 @@ PMATH_PRIVATE pmath_t builtin_internal_writerealball(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/lists/ ...
 PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_assign_part(  pmath_expr_t expr); // in replacepart.c
+PMATH_PRIVATE pmath_t builtin_assign_part(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replacepart(  pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr);

@@ -53,7 +53,7 @@ pmath_bool_t _pmath_assign(
   pmath_t        rhs);  // will be freed; PMATH_UNDEFINED = remove rule
 
 /* return value:
-    -1 = delayed assign (AssignDeleayed, TagAssignDeleayed, UnAssign, TagUnassign)
+    -1 = delayed assign (AssignDelayed, TagAssignDelayed, Unassign, TagUnassign)
      0 = no assignment
      1 = direct assignment (Assign, TagAssign)
 
