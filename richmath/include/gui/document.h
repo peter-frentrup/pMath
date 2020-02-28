@@ -150,7 +150,7 @@ namespace richmath {
       FrontEndReference clicked_box_id() {   return context.clicked_box_id; }
       FrontEndReference mouseover_box_id() { return context.mouseover_box_id; }
       void reset_mouse();
-      bool is_mouse_down() { return mouse_down_counter > 0; }
+      bool is_mouse_down();
       
       virtual SharedPtr<Stylesheet> stylesheet() override { return context.stylesheet; }
       void stylesheet(SharedPtr<Stylesheet> new_stylesheet);
@@ -188,14 +188,6 @@ namespace richmath {
       
     private:
       NativeWidget *_native;
-      
-      int mouse_down_counter;
-      double mouse_down_time;
-      float mouse_down_x;
-      float mouse_down_y;
-      
-      SelectionReference mouse_down_sel;
-      SelectionReference mouse_move_sel;
       
       /* When the selection changes, these ranges need to be repainted, too. */
       Array<SelectionReference> additional_selection;

@@ -45,8 +45,58 @@ static const double AutoCompleteHighlightAlpha = 0.5;
 static const Color DocumentCursorLineColor = Color::from_rgb24(0xC0C0C0);
 
 
-static double MaxFlashingCursorRadius = 9;  /* pixels */
-static double MaxFlashingCursorTime = 0.15; /* seconds */
+static const double MaxFlashingCursorRadius = 9;  /* points */
+static const double MaxFlashingCursorTime = 0.15; /* seconds */
+
+namespace {
+  static class MouseHistory {
+    public:
+      MouseHistory() 
+      : down_time(0.0), // -HUGE_VAL
+        down_pos(HUGE_VAL, HUGE_VAL),
+        _document(nullptr),
+        _num_buttons_pressed(0)
+      {
+      }
+      
+      int press_button(Document *document) {
+        if(_document == document) {
+          ++_num_buttons_pressed;
+        }
+        else {
+          _document = document;
+          _num_buttons_pressed = 1;
+        }
+        return _num_buttons_pressed;
+      }
+      
+      int release_button() {
+        if(--_num_buttons_pressed <= 0)
+          _num_buttons_pressed = 0;
+        
+        return _num_buttons_pressed;
+      }
+      
+      int is_mouse_down(Document *document) {
+        return _document == document && _num_buttons_pressed > 0;
+      }
+      
+      void reset() {
+        _document = nullptr;
+        _num_buttons_pressed = 0;
+      }
+    
+    public:
+      double             down_time; // left button only
+      Point              down_pos;
+      SelectionReference down_sel;
+      SelectionReference debug_move_sel;
+      
+    private:
+      Document *_document;
+      int _num_buttons_pressed;
+  } mouse_histroy;
+}
 
 Hashtable<String, Expr> richmath::global_immediate_macros;
 Hashtable<String, Expr> richmath::global_macros;
@@ -564,10 +614,6 @@ Document::Document()
     drag_status(DragStatusIdle),
     auto_scroll(false),
     _native(NativeWidget::dummy),
-    mouse_down_counter(0),
-    mouse_down_time(0),
-    mouse_down_x(0),
-    mouse_down_y(0),
     auto_completion(this)
 {
   context.selection.set(this, 0, 0);
@@ -702,7 +748,7 @@ void Document::mouse_exit() {
   }
   
   if(DebugFollowMouse) {
-    mouse_move_sel.reset();
+    mouse_histroy.debug_move_sel.reset();
     invalidate();
   }
 }
@@ -713,7 +759,7 @@ void Document::mouse_down(MouseEvent &event) {
   //Application::update_control_active(native()->is_mouse_down());
   
   Application::delay_dynamic_updates(true);
-  if(++mouse_down_counter == 1) {
+  if(mouse_histroy.press_button(this) == 1) {
     event.set_origin(this);
     
     bool was_inside_start;
@@ -744,10 +790,9 @@ void Document::mouse_up(MouseEvent &event) {
   auto next_clicked_box_id = context.clicked_box_id;
   Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
   
-  if(--mouse_down_counter <= 0) {
+  if(mouse_histroy.release_button() <= 0) {
     Application::delay_dynamic_updates(false);
     next_clicked_box_id = FrontEndReference::None;
-    mouse_down_counter = 0;
   }
   
   if(receiver)
@@ -810,8 +855,8 @@ void Document::mouse_move(MouseEvent &event) {
     bool was_inside_start;
     Box *receiver = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
     
-    if(DebugFollowMouse && !mouse_move_sel.equals(receiver, start, end)) {
-      mouse_move_sel.set(receiver, start, end);
+    if(DebugFollowMouse && !mouse_histroy.debug_move_sel.equals(receiver, start, end)) {
+      mouse_histroy.debug_move_sel.set(receiver, start, end);
       invalidate();
     }
     
@@ -946,11 +991,11 @@ void Document::on_mouse_down(MouseEvent &event) {
     native()->double_click_dist(&ddx, &ddy);
     
     bool double_click =
-      abs(mouse_down_time - native()->message_time()) <= native()->double_click_time() &&
-      fabs(event.x - mouse_down_x) <= ddx &&
-      fabs(event.y - mouse_down_y) <= ddy;
+      abs(mouse_histroy.down_time - native()->message_time()) <= native()->double_click_time() &&
+      fabs(event.x - mouse_histroy.down_pos.x) <= ddx &&
+      fabs(event.y - mouse_histroy.down_pos.y) <= ddy;
       
-    mouse_down_time = native()->message_time();
+    mouse_histroy.down_time = native()->message_time();
     
     bool was_inside_start;
     int start, end;
@@ -969,7 +1014,7 @@ void Document::on_mouse_down(MouseEvent &event) {
           context.clicked_box_id = FrontEndReference::None;
           
           // prevent "tripple-click"
-          mouse_down_time = 0;
+          mouse_histroy.down_time = 0;
         }
       }
       else if(selbox && selbox->selectable()) {
@@ -1018,9 +1063,8 @@ void Document::on_mouse_down(MouseEvent &event) {
     else if(box && box->selectable())
       select(box, start, end);
       
-    mouse_down_x   = event.x;
-    mouse_down_y   = event.y;
-    mouse_down_sel = sel_first;
+    mouse_histroy.down_pos = Point {event.x, event.y};
+    mouse_histroy.down_sel = sel_first;
   }
 }
 
@@ -1035,11 +1079,11 @@ void Document::on_mouse_move(MouseEvent &event) {
     float ddx, ddy;
     native()->double_click_dist(&ddx, &ddy);
     
-    if( fabs(event.x - mouse_down_x) > ddx ||
-        fabs(event.y - mouse_down_y) > ddy)
+    if( fabs(event.x - mouse_histroy.down_pos.x) > ddx ||
+        fabs(event.y - mouse_histroy.down_pos.y) > ddy)
     {
       drag_status = DragStatusCurrentlyDragging;
-      mouse_down_x = mouse_down_y = Infinity;
+      mouse_histroy.down_pos = Point(HUGE_VAL, HUGE_VAL);
       native()->do_drag_drop(selection_box(), selection_start(), selection_end(), event);
     }
     
@@ -1073,7 +1117,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     native()->set_cursor(DefaultCursor);
     
   if(event.left && context.clicked_box_id) {
-    if(Box *mouse_down_box = mouse_down_sel.get()) {
+    if(Box *mouse_down_box = mouse_histroy.down_sel.get()) {
       Section *sec1 = mouse_down_box->find_parent<Section>(true);
       Section *sec2 = box ? box->find_parent<Section>(true) : 0;
       
@@ -1083,7 +1127,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       }
       
       select_range(
-        mouse_down_box, mouse_down_sel.start, mouse_down_sel.end,
+        mouse_down_box, mouse_histroy.down_sel.start, mouse_histroy.down_sel.end,
         box, start, end);
     }
   }
@@ -1461,7 +1505,7 @@ void Document::select(Box *box, int start, int end) {
     
   sel_last.set(box, start, end);
   sel_first = sel_last;
-  auto_scroll = !native()->is_mouse_down();//(mouse_down_counter == 0);
+  auto_scroll = !mouse_histroy.is_mouse_down(this);
   
   DocumentImpl(*this).raw_select(box, start, end);
 }
@@ -1490,7 +1534,7 @@ void Document::select_range(
     
   sel_first.set(box1, start1, end1);
   sel_last.set( box2, start2, end2);
-  auto_scroll = (mouse_down_counter == 0);
+  auto_scroll = !is_mouse_down();
   
   if(end1 < start1) {
     int i = start1;
@@ -3711,11 +3755,15 @@ void Document::complete_box() {
 void Document::reset_mouse() {
   drag_status = DragStatusIdle;
   
-  mouse_down_counter = 0;
+  mouse_histroy.reset();
   Application::delay_dynamic_updates(false);
   
   Application::deactivated_all_controls();
   //Application::update_control_active(native()->is_mouse_down());
+}
+
+bool Document::is_mouse_down() {
+  return mouse_histroy.is_mouse_down(this);
 }
 
 void Document::stylesheet(SharedPtr<Stylesheet> new_stylesheet) {
@@ -3879,9 +3927,9 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
     
     if(DebugFollowMouse) {
-      if(Box *b = mouse_move_sel.get()) {
-        ::selection_path(canvas, b, mouse_move_sel.start, mouse_move_sel.end);
-        if(DocumentImpl::is_inside_string(b, mouse_move_sel.start))
+      if(Box *b = mouse_histroy.debug_move_sel.get()) {
+        ::selection_path(canvas, b, mouse_histroy.debug_move_sel.start, mouse_histroy.debug_move_sel.end);
+        if(DocumentImpl::is_inside_string(b, mouse_histroy.debug_move_sel.start))
           canvas->set_color(DebugFollowMouseInStringColor);
         else
           canvas->set_color(DebugFollowMouseColor);
