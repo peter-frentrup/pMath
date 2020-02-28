@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 
+#include <pmath-util/dispatch-table-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -10,15 +11,28 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_Key;
+extern pmath_symbol_t pmath_System_Missing;
+
 static pmath_bool_t part(
   pmath_expr_t  *list,
   pmath_expr_t   position,
   size_t         position_start);
 
+static pmath_bool_t check_list_of_rules(pmath_expr_t list) {
+  pmath_dispatch_table_t disp = _pmath_rules_need_dispatch_table(list);
+  if(pmath_is_null(disp)) { // not a list of rules
+    pmath_message(PMATH_NULL, "partw", 1, pmath_ref(list));
+    return FALSE;
+  }
+  
+  pmath_unref(disp);
+  return TRUE;
+}
 
 static pmath_bool_t part(
   pmath_expr_t  *list,
-  pmath_expr_t   position,
+  pmath_expr_t   position,       // won't be freed
   size_t         position_start
 ) {
   pmath_t pos;
@@ -26,7 +40,7 @@ static pmath_bool_t part(
   
   max_position_start = pmath_expr_length(position);
   
-  for(;;) {
+  for(;; ++position_start) {
     if(position_start > max_position_start)
       return TRUE;
       
@@ -38,28 +52,61 @@ static pmath_bool_t part(
     listlen = pmath_expr_length(*list);
     
     pos = pmath_expr_get_item(position, position_start);
-    if(!pmath_is_integer(pos))
-      break;
+    if(pmath_is_string(pos) || pmath_is_expr_of_len(pos, pmath_System_Key, 1)) {
+      pmath_t result;
       
-    i = SIZE_MAX;
-    if(!extract_number(pos, listlen, &i)) {
-      pmath_message(PMATH_NULL, "pspec", 1, pos);
-      return FALSE;
-    }
-    if(i > listlen) {
-      pmath_message(PMATH_NULL, "partw", 2, pmath_ref(*list), pos);
-      return FALSE;
+      if(!check_list_of_rules(*list)) {
+        pmath_unref(pos);
+        return FALSE;
+      }
+      
+      if(pmath_is_expr(pos)) { // Key(k)
+        pmath_t key = pmath_expr_get_item(pos, 1);
+        pmath_unref(pos);
+        pos = key;
+      }
+      
+      result = PMATH_UNDEFINED;
+      if(!_pmath_rules_lookup(*list, pmath_ref(pos), &result)) {
+        pmath_unref(result);
+        pmath_unref(*list);
+        *list = pmath_expr_new_extended(
+                  pmath_ref(pmath_System_Missing), 2,
+                  pmath_ref(_pmath_string_keyabsent),
+                  pos);
+        return TRUE;
+      }
+      else
+        pmath_unref(pos);
+      
+      pmath_unref(*list);
+      *list = result;
+      continue;
     }
     
-    pmath_unref(pos);
-    {
-      pmath_expr_t tmp = *list;
-      *list = pmath_expr_get_item(tmp, i);
-      pmath_unref(tmp);
+    if(pmath_is_integer(pos)) {
+      i = SIZE_MAX;
+      if(!extract_number(pos, listlen, &i)) {
+        pmath_message(PMATH_NULL, "pspec", 1, pos);
+        return FALSE;
+      }
+      if(i > listlen) {
+        pmath_message(PMATH_NULL, "partw", 2, pmath_ref(*list), pos);
+        return FALSE;
+      }
+      
+      pmath_unref(pos);
+      {
+        pmath_expr_t tmp = *list;
+        *list = pmath_expr_get_item(tmp, i);
+        pmath_unref(tmp);
+      }
+      
+      continue;
     }
     
+    break;
     // end-recursion: return part(list, position, position_start + 1);
-    ++position_start;
   }
   
   if(pmath_is_expr_of(pos, PMATH_SYMBOL_LIST)) {
