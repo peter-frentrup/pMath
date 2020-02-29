@@ -184,16 +184,9 @@ Expr ProgressIndicatorBox::to_pmath(BoxOutputFlags flags) {
            range);
 }
 
-Box *ProgressIndicatorBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection ProgressIndicatorBox::mouse_selection(float x, float y, bool *was_inside_start) {
   *was_inside_start = true;
-  *start = *end = 0;
-  return this;
+  return { this, 0, 0 };
 }
 
 void ProgressIndicatorBox::dynamic_updated() {

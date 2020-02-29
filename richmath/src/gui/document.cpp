@@ -494,11 +494,7 @@ void Document::mouse_down(MouseEvent &event) {
     event.set_origin(this);
     
     bool was_inside_start;
-    int start, end;
-    receiver = mouse_selection(
-                 event.x, event.y,
-                 &start, &end,
-                 &was_inside_start);
+    receiver = mouse_selection(event.x, event.y, &was_inside_start).box;
                  
     receiver = receiver ? receiver->mouse_sensitive() : this;
     assert(receiver != nullptr);
@@ -573,8 +569,7 @@ static void reverse_mouse_enter(Box *base, Box *child) {
 }
 
 void Document::mouse_move(MouseEvent &event) {
-  Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
-  if(receiver) {
+  if(Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id)) {
     native()->set_cursor(CurrentCursor);
     
     receiver->on_mouse_move(event);
@@ -582,33 +577,32 @@ void Document::mouse_move(MouseEvent &event) {
   else {
     event.set_origin(this);
     
-    int start, end;
     bool was_inside_start;
-    Box *receiver = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
+    VolatileSelection receiver_sel = mouse_selection(event.x, event.y, &was_inside_start);
     
-    if(DebugFollowMouse && !mouse_histroy.debug_move_sel.equals(receiver, start, end)) {
-      mouse_histroy.debug_move_sel.set(receiver, start, end);
+    if(DebugFollowMouse && !mouse_histroy.debug_move_sel.equals(receiver_sel)) {
+      mouse_histroy.debug_move_sel.set(receiver_sel);
       invalidate();
     }
     
-    //Box *new_over = receiver ? receiver->mouse_sensitive() : nullptr;
+    //Box *new_over = receiver_sel.box ? receiver_sel.box->mouse_sensitive() : nullptr;
     Box *old_over = FrontEndObject::find_cast<Box>(context.mouseover_box_id);
     
-    if(receiver) {
-      Box *base = Box::common_parent(receiver, old_over);
+    if(receiver_sel.box) {
+      Box *base = Box::common_parent(receiver_sel.box, old_over);
       Box *box = old_over;
       while(box != base) {
         box->on_mouse_exit();
         box = box->parent();
       }
       
-      reverse_mouse_enter(base, receiver);
+      reverse_mouse_enter(base, receiver_sel.box);
       
-      box = receiver->mouse_sensitive();
+      box = receiver_sel.box->mouse_sensitive();
       if(box)
         box->on_mouse_move(event);
         
-      context.mouseover_box_id = receiver->id();
+      context.mouseover_box_id = receiver_sel.box->id();
     }
     else
       context.mouseover_box_id = FrontEndReference::None;
@@ -729,7 +723,7 @@ void Document::on_mouse_down(MouseEvent &event) {
     mouse_histroy.down_time = native()->message_time();
     
     bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection_new(event.x, event.y, &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
                  
     if(double_click) {
       VolatileSelection sel = context.selection.get_all();
@@ -779,12 +773,14 @@ void Document::on_mouse_down(MouseEvent &event) {
         select(sel);
       }
     }
-    else if(DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
-      // maybe drag & drop
-      drag_status = DragStatusMayDrag;
+    else {
+      if(DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
+        // maybe drag & drop
+        drag_status = DragStatusMayDrag;
+      }
+      else if(mouse_sel.selectable())
+        select(mouse_sel);
     }
-    else if(mouse_sel.selectable())
-      select(mouse_sel);
     
     mouse_histroy.down_pos = { event.x, event.y };
     mouse_histroy.down_sel = sel_first;
@@ -795,7 +791,7 @@ void Document::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
   bool was_inside_start;
-  VolatileSelection mouse_sel = mouse_selection_new(event.x, event.y, &was_inside_start);
+  VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
   
   if(event.left && drag_status == DragStatusMayDrag) {
     float ddx, ddy;
@@ -848,7 +844,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       
       if(sec1 && sec1 != sec2) {
         event.set_origin(sec1);
-        mouse_sel = sec1->mouse_selection_new(event.x, event.y, &was_inside_start);
+        mouse_sel = sec1->mouse_selection(event.x, event.y, &was_inside_start);
       }
       
       select_range(mouse_down_sel, mouse_sel);
@@ -861,7 +857,7 @@ void Document::on_mouse_up(MouseEvent &event) {
   
   if(event.left && drag_status != DragStatusIdle) {
     bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection_new(event.x, event.y, &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
                  
     if( DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start) &&
         mouse_sel.selectable())

@@ -1106,26 +1106,19 @@ void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
     - ticks[AxisIndexLeft  ]->start_position);
 }
 
-Box *GraphicsBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection GraphicsBox::mouse_selection(float x, float y, bool *was_inside_start) {
   for(int axis = 0; axis < 6; ++axis) {
-    Box *tmp = ticks[axis]->mouse_selection(x, y, start, end, was_inside_start);
+    VolatileSelection tmp = ticks[axis]->mouse_selection(x, y, was_inside_start);
     
-    if(tmp != ticks[axis])
+    if(tmp.box != ticks[axis])
       return tmp;
   }
   
   //if(!selectable())
-  //  return Box::mouse_selection(x, y, start, end, was_inside_start);
+  //  return Box::mouse_selection(x, y, was_inside_start);
   
   *was_inside_start = false;
-  *start = *end = 0;
-  return this;
+  return { this, 0, 0 };
 }
 
 bool GraphicsBox::selectable(int i) {

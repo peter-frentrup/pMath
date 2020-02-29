@@ -113,16 +113,10 @@ Box *OwnerBox::move_vertical(
   return Box::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
-Box *OwnerBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection OwnerBox::mouse_selection(float x, float y, bool *was_inside_start) {
   x -= cx;
   y -= cy;
-  return _content->mouse_selection(x, y, start, end, was_inside_start);
+  return _content->mouse_selection(x, y, was_inside_start);
 }
 
 void OwnerBox::child_transformation(

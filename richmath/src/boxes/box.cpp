@@ -358,22 +358,12 @@ Box *Box::move_vertical(
   return this;
 }
 
-Box *Box::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection Box::mouse_selection(float x, float y, bool *was_inside_start) {
   *was_inside_start = true;
   if(_parent) {
-    *start = _index;
-    *end = *start + 1;
-    return _parent;
+    return { _parent, _index, _index + 1 };
   }
-  *start = 0;
-  *end = length();
-  return this;
+  return { this, 0, length() };
 }
 
 void Box::child_transformation(

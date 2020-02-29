@@ -11,12 +11,7 @@ namespace richmath {
       
       virtual void paint(Context *context) override;
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,

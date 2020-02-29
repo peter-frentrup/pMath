@@ -375,13 +375,7 @@ Box *SectionList::move_vertical(
   return _sections[s]->move_vertical(direction, index_rel_x, index, false);
 }
 
-Box *SectionList::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection SectionList::mouse_selection(float x, float y, bool *was_inside_start) {
   *was_inside_start = true;
   
   float right = _scrollx + _window_width - section_bracket_right_margin;
@@ -393,82 +387,75 @@ Box *SectionList::mouse_selection(
       border_level = 0;
   }
   
-  *start = 0;
-  while(*start < _sections.length()) {
-    if(_sections[*start]->visible) {
-      if(y <= _sections[*start]->y_offset + _sections[*start]->top_margin) {
+  int start = 0;
+  while(start < _sections.length()) {
+    if(_sections[start]->visible) {
+      if(y <= _sections[start]->y_offset + _sections[start]->top_margin) {
         int group_start = 0;
-        if(_group_info[*start].end > *start) { // this starts a group
-          group_start = *start;
+        if(_group_info[start].end > start) { // this starts a group
+          group_start = start;
         }
-        else if(_group_info[*start].first >= 0) {
-          group_start = _group_info[*start].first;
+        else if(_group_info[start].first >= 0) {
+          group_start = _group_info[start].first;
         }
         
-        int lastvis = *start - 1;
+        int lastvis = start - 1;
         while(lastvis >= group_start && !_sections[lastvis]->visible)
           --lastvis;
           
-        *end = *start = lastvis + 1;
+        int end = start = lastvis + 1;
         
-        if(border_level >= 0 && border_level < _group_info[*start].nesting) {
-          int d = _group_info[*start].nesting - border_level;
+        if(border_level >= 0 && border_level < _group_info[start].nesting) {
+          int d = _group_info[start].nesting - border_level;
           
-          if(_group_info[*start].end > *start)
+          if(_group_info[start].end > start)
             d -= 1;
-          while(d-- > 0 && *start >= 0)
-            *start = _group_info[*start].first;
+          
+          while(d-- > 0 && start >= 0)
+            start = _group_info[start].first;
             
-          if(*start >= 0) {
-            *end = _group_info[*start].end + 1;
+          if(start >= 0) {
+            end = _group_info[start].end + 1;
           }
           else {
-            *start = 0;
-            *end = _sections.length();
+            start = 0;
+            end = _sections.length();
           }
         }
         
-        return this;
+        return { this, start, end };
       }
       
-      if(y < _sections[*start]->y_offset + _sections[*start]->extents().height() - _sections[*start]->bottom_margin) {
-        if(border_level >= 0 && border_level <= _group_info[*start].nesting) {
-          int d = _group_info[*start].nesting - border_level;
+      if(y < _sections[start]->y_offset + _sections[start]->extents().height() - _sections[start]->bottom_margin) {
+        if(border_level >= 0 && border_level <= _group_info[start].nesting) {
+          int d = _group_info[start].nesting - border_level;
           
-          if(_group_info[*start].end > *start) {
-            if(d == 0) {
-              *end = *start + 1;
-              return this;
-            }
+          if(_group_info[start].end > start) {
+            if(d == 0) 
+              return { this, start, start + 1 };
             
             d -= 1;
           }
           
-          while(d-- > 0 && *start >= 0)
-            *start = _group_info[*start].first;
+          while(d-- > 0 && start >= 0)
+            start = _group_info[start].first;
             
-          if(*start >= 0) {
-            *end = _group_info[*start].end + 1;
-          }
-          else {
-            *start = 0;
-            *end = _sections.length();
-          }
-          
-          return this;
+          if(start >= 0) 
+            return { this, start, _group_info[start].end + 1 };
+          else
+            return { this, 0, _sections.length() };
         }
         
-        y -= _sections[*start]->y_offset;
-        x += get_content_scroll_correction_x(*start);
-        return _sections[*start]->mouse_selection(x, y, start, end, was_inside_start);
+        y -= _sections[start]->y_offset;
+        x += get_content_scroll_correction_x(start);
+        return _sections[start]->mouse_selection(x, y, was_inside_start);
       }
     }
     
-    ++*start;
+    ++start;
   }
   
-  *end = *start;
-  return this;
+  return { this, start, start };
 }
 
 void SectionList::child_transformation(

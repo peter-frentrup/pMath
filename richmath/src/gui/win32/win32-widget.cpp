@@ -1699,11 +1699,10 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
   float x = (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor();
   float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
   
-  int start, end;
   bool was_inside_start;
-  Box *dst = document()->mouse_selection(x, y, &start, &end, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(x, y, &was_inside_start);
   
-  if(!may_drop_into(dst, start, end, is_dragging))
+  if(!may_drop_into(dst.box, dst.start, dst.end, is_dragging))
     return DROPEFFECT_NONE;
     
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
@@ -1955,11 +1954,8 @@ void Win32Widget::position_drop_cursor(POINTL ptl) {
   float x = (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor();
   float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
   
-  int start, end;
   bool was_inside_start;
-  Box *box = document()->mouse_selection(x, y, &start, &end, &was_inside_start);
-  
-  document()->select(box, start, end);
+  document()->select(document()->mouse_selection(x, y, &was_inside_start));
 }
 
 //} ... class Win32Widget

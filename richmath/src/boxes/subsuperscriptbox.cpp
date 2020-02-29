@@ -336,33 +336,25 @@ Box *SubsuperscriptBox::move_vertical(
   *index = -1;
   return dst->move_vertical(direction, index_rel_x, index, false);
 }
-
-Box *SubsuperscriptBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
-  if(_subscript
-      && (!_superscript
-          || y >= sub_y - _subscript->extents().ascent + super_y + _superscript->extents().descent))
-    return _subscript->mouse_selection(
-             x - sub_x, // x - _base.width,
-             y - sub_y,
-             start, end, was_inside_start);
-             
-             
-  if(_superscript)
+VolatileSelection SubsuperscriptBox::mouse_selection(float x, float y, bool *was_inside_start) {
+  if(_subscript) {
+    if(!_superscript || y >= sub_y - _subscript->extents().ascent + super_y + _superscript->extents().descent) {
+      return _subscript->mouse_selection(
+               x - sub_x, // x - _base.width,
+               y - sub_y,
+               was_inside_start);
+    }
+  }
+          
+  if(_superscript) {
     return _superscript->mouse_selection(
              x - super_x,
              y - super_y,
-             start, end, was_inside_start);
-             
+             was_inside_start);
+  }
+  
   *was_inside_start = true;
-  *start = _index;
-  *end = _index + 1;
-  return _parent;
+  return { _parent, _index, _index + 1 };
 }
 
 void SubsuperscriptBox::child_transformation(

@@ -54,12 +54,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
       virtual bool selectable(int i = -1) override;
         

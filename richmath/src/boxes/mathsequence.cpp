@@ -3305,19 +3305,11 @@ Box *MathSequence::move_vertical(
   return this;
 }
 
-Box *MathSequence::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool   *was_inside_start
-) {
+VolatileSelection MathSequence::mouse_selection(float x, float y, bool *was_inside_start) {
   *was_inside_start = true;
   
-  if(lines.length() == 0) {
-    *start = *end = 0;
-    return this;
-  }
+  if(lines.length() == 0) 
+    return { this, 0, 0 };
   
   int line = 0;
   while(line < lines.length() - 1 && y > lines[line].descent + 0.1 * em) {
@@ -3325,10 +3317,11 @@ Box *MathSequence::mouse_selection(
     ++line;
   }
   
+  int start;
   if(line > 0)
-    *start = lines[line - 1].end;
+    start = lines[line - 1].end;
   else
-    *start = 0;
+    start = 0;
     
   const uint16_t *buf = str.buffer();
   
@@ -3338,84 +3331,71 @@ Box *MathSequence::mouse_selection(
 
   if(x < 0) {
     *was_inside_start = false;
-    *end = *start;
-//    if(is_placeholder(*start))
-//      ++*end;
-    return this;
+    return { this, start, start };
   }
   
   float line_start = 0;
-  if(*start > 0)
-    line_start += glyphs[*start - 1].right;
+  if(start > 0)
+    line_start += glyphs[start - 1].right;
     
-  while(*start < lines[line].end) {
-    if(x <= glyphs[*start].right - line_start) {
+  while(start < lines[line].end) {
+    if(x <= glyphs[start].right - line_start) {
       float prev = 0;
-      if(*start > 0)
-        prev = glyphs[*start - 1].right;
+      if(start > 0)
+        prev = glyphs[start - 1].right;
         
-      if(is_placeholder(*start)) {
+      if(is_placeholder(start)) {
         *was_inside_start = true;
-        *end = *start + 1;
-        return this;
+        return { this, start, start + 1 };
       }
       
-      if(buf[*start] == PMATH_CHAR_BOX) {
+      if(buf[start] == PMATH_CHAR_BOX) {
         ensure_boxes_valid();
         int b = 0;
-        while(b < boxes.length() && boxes[b]->index() < *start)
+        while(b < boxes.length() && boxes[b]->index() < start)
           ++b;
           
-        float xoff = glyphs[*start].x_offset;
+        float xoff = glyphs[start].x_offset;
         if(x > prev - line_start + xoff + boxes[b]->extents().width) {
           *was_inside_start = false;
-          ++*start;
-          *end = *start;
-          return this;
+          return { this, start + 1, start + 1 };
         }
         
         if(x < prev - line_start + xoff) {
           *was_inside_start = false;
-          *end = *start;
-          return this;
+          return { this, start, start };
         }
         
         return boxes[b]->mouse_selection(
                  x - (prev - line_start + xoff),
                  y,
-                 start,
-                 end,
                  was_inside_start);
       }
       
-      if(line_start + x > (prev + glyphs[*start].right) / 2) {
+      if(line_start + x > (prev + glyphs[start].right) / 2) {
         *was_inside_start = false;
-        ++*start;
-        *end = *start;
-        return this;
+        return { this, start + 1, start + 1 };
       }
       
-      *end = *start;
-      return this;
+      return { this, start, start };
     }
     
-    ++*start;
+    ++start;
   }
   
-  if(*start > 0) {
-    if(buf[*start - 1] == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
-      --*start;
+  if(start > 0) {
+    if(buf[start - 1] == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
+      --start;
     }
-    else if(buf[*start - 1] == ' ' && *start < glyphs.length())
-      --*start;
+    else if(buf[start - 1] == ' ' && start < glyphs.length())
+      --start;
   }
   
-  *end = *start;
 //  if(is_placeholder(*start - 1)){
-//    --*start;
 //    *was_inside_start = false;
+//    return { this, start - 1, start };
 //  }
-  return this;
+  return { this, start, start };
 }
 
 void MathSequence::child_transformation(

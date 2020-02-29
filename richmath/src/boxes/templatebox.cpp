@@ -124,32 +124,23 @@ Box *TemplateBox::normalize_selection(int *start, int *end) {
   return this;
 }
 
-Box *TemplateBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
-  Box *box = base::mouse_selection(x, y, start, end, was_inside_start);
-  if(!box)
-    return box;
+VolatileSelection TemplateBox::mouse_selection(float x, float y, bool *was_inside_start) {
+  auto sel = base::mouse_selection(x, y, was_inside_start);
+  if(!sel)
+    return sel;
   
-  for(Box *tmp = box->mouse_sensitive(); tmp; tmp = tmp->parent()) {
-    if(tmp == this)
-      return box; // a button etc. inside the template definition
-  }
+  if(is_parent_of(sel.box->mouse_sensitive()))
+    return sel; // a button etc. inside the template definition
   
-  for(Box *tmp = box; tmp && tmp != this; tmp = tmp->parent()) {
+  for(Box *tmp = sel.box; tmp && tmp != this; tmp = tmp->parent()) {
     if(auto slot = dynamic_cast<TemplateBoxSlot*>(tmp)) {
       if(slot->find_owner() == this)
-        return box; // inside a template slot
+        return sel; // inside a template slot
     }
   }
   
-  *start = *end = 0;
   *was_inside_start = true;
-  return this;
+  return { this, 0, 0 };
 }
 
 Box *TemplateBox::move_logical(

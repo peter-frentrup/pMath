@@ -279,13 +279,7 @@ Expr AxisTicks::to_pmath(BoxOutputFlags flags) {
   return g.end();
 }
 
-Box *AxisTicks::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection AxisTicks::mouse_selection(float x, float y, bool *was_inside_start) {
   for(int i = 0; i < count(); ++i) {
     float cx, cy;
     
@@ -298,13 +292,11 @@ Box *AxisTicks::mouse_selection(
     {
       x -= cx;
       y -= cy;
-      return label(i)->mouse_selection(x, y, start, end, was_inside_start);
+      return label(i)->mouse_selection(x, y, was_inside_start);
     }
   }
   
-  *start = 0;
-  *end = count();
-  return this;
+  return { this, 0, count() };
 }
 
 void AxisTicks::child_transformation(

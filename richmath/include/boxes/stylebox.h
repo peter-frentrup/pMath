@@ -24,12 +24,7 @@ namespace richmath {
         int              *index,
         bool              called_from_child) override;
         
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
     protected:
       virtual void resize_default_baseline(Context *context) override;

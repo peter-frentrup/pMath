@@ -1030,13 +1030,7 @@ Box *TextSequence::move_vertical(
   return this;
 }
 
-Box *TextSequence::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection TextSequence::mouse_selection(float x, float y, bool *was_inside_start) {
   BoxSize line_size;
   float line_x, line_y;
   
@@ -1073,7 +1067,7 @@ Box *TextSequence::mouse_selection(
     y -= line_y;
     x -= line_x + pango_units_to_double(pango_x);
     
-    return boxes[b]->mouse_selection(x, y, start, end, was_inside_start);
+    return boxes[b]->mouse_selection(x, y, was_inside_start);
   }
   
   int x_pos;
@@ -1086,11 +1080,9 @@ Box *TextSequence::mouse_selection(
     s = g_utf8_find_next_char(s, s_end);
     
   if(s)
-    *start = *end = (int)((size_t)s - (size_t)text.buffer());
+    return VolatileSelection(this, (int)((size_t)s - (size_t)text.buffer()));
   else
-    *start = *end = text.length();
-    
-  return this;
+    return VolatileSelection(this, text.length());
 }
 
 void TextSequence::child_transformation(

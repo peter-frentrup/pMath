@@ -307,26 +307,13 @@ namespace richmath {
       ///
       /// \param x The local x coordinate.
       /// \param y The local y coordinate.
-      /// \param start [out] Set to the start index relative to the returned box.
-      /// \param end [out] Set to the end index relative to the returned box.
       /// \param was_inside_start [out] Set to true if the returned [*start, *end] interval contains 
       ///                         the point and fals if it is only near the point.
-      /// \return The box that contains the point.
+      /// \return The box with and start and end index that contains the point.
       ///
       /// Note that further mouse event processing done by the result of ret->mouse_sensitive() where 
       /// ret is the returned box, but text selection is subject to ret->selectable()
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start);
-      
-      VolatileSelection mouse_selection_new(float x, float y, bool *was_inside_start) {
-        int start, end;
-        Box *box = mouse_selection(x, y, &start, &end, was_inside_start);
-        return VolatileSelection(box, start, end);
-      }
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start);
         
       /// Append the child-to-parent coordinate transformation to a matrix (multiply from right). 
       virtual void child_transformation(

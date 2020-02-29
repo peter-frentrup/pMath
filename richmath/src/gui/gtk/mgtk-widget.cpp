@@ -746,11 +746,10 @@ void MathGtkWidget::on_drag_data_received(
   
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
-  int start, end;
   bool was_inside_start;
-  Box *dst = document()->mouse_selection(fx, fy, &start, &end, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(fx, fy, &was_inside_start);
   
-  if(!may_drop_into(dst, start, end, source_widget == _widget)) {
+  if(!may_drop_into(dst.box, dst.start, dst.end, source_widget == _widget)) {
     gtk_drag_finish(context, FALSE, FALSE, time);
     return;
   }
@@ -764,27 +763,27 @@ void MathGtkWidget::on_drag_data_received(
   }
   String text = String::FromUtf8(raw_data, len);
   
-  document()->select(dst, start, end);
+  document()->select(dst);
   document()->paste_from_text(mimetype, text);
   
   Box *newbox = document()->selection_box();
   int newend  = document()->selection_start();
   
-  if(dst == newbox) {
-    document()->select(newbox, start, newend);
+  if(dst.box == newbox) {
+    document()->select(newbox, dst.start, newend);
     
-    Box *src = drag_source_reference().get();
-    if(src == dst) {
+    VolatileSelection src = drag_source_reference().get_all();
+    if(src.box == dst.box) {
       int s = drag_source_reference().start;
       int e = drag_source_reference().end;
       
-      if(s >= end)
-        s += newend - end;
-      if(e >= end)
-        e += newend - end;
+      if(src.start >= dst.end)
+        src.start += newend - dst.end;
+      if(src.end >= dst.end)
+        src.end += newend - dst.end;
         
-      drag_source_reference().start = s;
-      drag_source_reference().end   = e;
+      drag_source_reference().start = src.start;
+      drag_source_reference().end   = src.end;
     }
   }
   
@@ -827,13 +826,12 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
-  int start, end;
   bool was_inside_start;
-  Box *dst = document()->mouse_selection(me.x, me.y, &start, &end, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(me.x, me.y, &was_inside_start);
   
-  document()->select(dst, start, end);
+  document()->select(dst);
   bool self_is_source = source_widget == _widget;
-  if(!may_drop_into(dst, start, end, self_is_source))
+  if(!may_drop_into(dst.box, dst.start, dst.end, self_is_source))
     return false;
     
   int action = 0;
@@ -879,11 +877,10 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
-  int start, end;
   bool was_inside_start;
-  Box *dst = document()->mouse_selection(fx, fy, &start, &end, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(fx, fy, &was_inside_start);
   
-  if(!may_drop_into(dst, start, end, source_widget == _widget))
+  if(!may_drop_into(dst.box, dst.start, dst.end, source_widget == _widget))
     return false;
     
   GdkAtom target = gtk_drag_dest_find_target(_widget, context, nullptr);

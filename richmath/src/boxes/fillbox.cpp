@@ -106,20 +106,14 @@ Box *FillBox::move_vertical(
   return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
-Box *FillBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection FillBox::mouse_selection(float x, float y, bool *was_inside_start) {
   x -= cx;
   y -= cy;
   
   if(_content->extents().width > 0) {
     x = fmodf(x, _content->extents().width);
   }
-  return _content->mouse_selection(x, y, start, end, was_inside_start);
+  return _content->mouse_selection(x, y, was_inside_start);
 }
 
 bool FillBox::request_repaint(float x, float y, float w, float h) {

@@ -190,40 +190,32 @@ Box *FractionBox::move_vertical(
   return dst->move_vertical(direction, index_rel_x, index, false);
 }
 
-Box *FractionBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection FractionBox::mouse_selection(float x, float y, bool *was_inside_start) {
   if(_parent) {
     float cw = _numerator->extents().width;
     if(cw < _denominator->extents().width)
       cw = _denominator->extents().width;
       
     if(x < (_extents.width - cw) / 4) {
-      *start = *end = _index;
       *was_inside_start = false;
-      return _parent;
+      return { _parent, _index, _index };
     }
     
     if(x > (3 * _extents.width + cw) / 4) {
-      *start = *end = _index + 1;
       *was_inside_start = false;
-      return _parent;
+      return { _parent, _index + 1, _index + 1 };
     }
   }
   
   if(y < num_y + _numerator->extents().descent + den_y - _denominator->extents().ascent) {
     x -= (_extents.width - _numerator->extents().width) / 2;
     y -= num_y;
-    return _numerator->mouse_selection(x, y, start, end, was_inside_start);
+    return _numerator->mouse_selection(x, y, was_inside_start);
   }
   
   x -= (_extents.width - _denominator->extents().width) / 2;
   y -= den_y;
-  return _denominator->mouse_selection(x, y, start, end, was_inside_start);
+  return _denominator->mouse_selection(x, y, was_inside_start);
 }
 
 void FractionBox::child_transformation(

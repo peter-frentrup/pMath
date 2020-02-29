@@ -777,13 +777,7 @@ Box *GridBox::move_vertical(
   return item(row, col)->move_vertical(direction, index_rel_x, index, false);
 }
 
-Box *GridBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection GridBox::mouse_selection(float x, float y, bool *was_inside_start) {
   need_pos_vectors();
   
   int col = 0;
@@ -805,8 +799,6 @@ Box *GridBox::mouse_selection(
   return item(row, col)->mouse_selection(
            x - xpos[col],
            y - ypos[row] - item(row, col)->extents().ascent,
-           start,
-           end,
            was_inside_start);
 }
 

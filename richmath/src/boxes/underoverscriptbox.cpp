@@ -440,64 +440,30 @@ Box *UnderoverscriptBox::move_vertical(
   return dst->move_vertical(direction, index_rel_x, index, false);
 }
 
-Box *UnderoverscriptBox::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection UnderoverscriptBox::mouse_selection(float x, float y, bool *was_inside_start) {
   if(_underscript) {
     if(under_y - _underscript->extents().ascent > _base->extents().descent) {
       if(y > _base->extents().descent) {
-        return _underscript->mouse_selection(
-                 x - under_x,
-                 y - under_y,
-                 start,
-                 end,
-                 was_inside_start);
+        return _underscript->mouse_selection( x - under_x, y - under_y, was_inside_start);
       }
     }
     else if(x >= under_x) {
-      if(!_overscript
-          || y >= under_y - _underscript->extents().ascent + over_y + _overscript->extents().descent) {
-        return _underscript->mouse_selection(
-                 x - under_x,
-                 y - under_y,
-                 start,
-                 end,
-                 was_inside_start);
+      if(!_overscript || y >= under_y - _underscript->extents().ascent + over_y + _overscript->extents().descent) {
+        return _underscript->mouse_selection(x - under_x, y - under_y, was_inside_start);
       }
     }
   }
   
   if(_overscript) {
     if(-over_y - _overscript->extents().descent > _base->extents().ascent) {
-      if(y < -_base->extents().ascent) {
-        return _overscript->mouse_selection(
-                 x - over_x,
-                 y - over_y,
-                 start,
-                 end,
-                 was_inside_start);
-      }
+      if(y < -_base->extents().ascent) 
+        return _overscript->mouse_selection(x - over_x, y - over_y, was_inside_start);
     }
-    else if(x >= over_x) {
-      return _overscript->mouse_selection(
-               x - over_x,
-               y - over_y,
-               start,
-               end,
-               was_inside_start);
-    }
+    else if(x >= over_x) 
+      return _overscript->mouse_selection(x - over_x, y - over_y, was_inside_start);
   }
   
-  return _base->mouse_selection(
-           x - base_x,
-           y,
-           start,
-           end,
-           was_inside_start);
+  return _base->mouse_selection(x - base_x, y, was_inside_start);
 }
 
 void UnderoverscriptBox::child_transformation(

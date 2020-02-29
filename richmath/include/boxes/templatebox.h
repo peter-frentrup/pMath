@@ -21,12 +21,7 @@ namespace richmath {
       
       virtual Box *normalize_selection(int *start, int *end) override;
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,

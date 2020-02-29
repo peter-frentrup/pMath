@@ -35,12 +35,7 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) override;
       virtual Box *dynamic_to_literal(int *start, int *end) override;
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
       virtual void on_mouse_exit() override;
       virtual void on_mouse_down(MouseEvent &event) override;

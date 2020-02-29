@@ -292,16 +292,9 @@ void ErrorSection::paint(Context *context) {
     y + _extents.descent - get_style(SectionMarginBottom));
 }
 
-Box *ErrorSection::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection ErrorSection::mouse_selection(float x, float y, bool *was_inside_start) {
   *was_inside_start = true;
-  *start = *end = 0;
-  return this;
+  return { this, 0, 0 };
 }
 
 //} ... class ErrorSection
@@ -656,13 +649,7 @@ void AbstractSequenceSection::on_mouse_up(MouseEvent &event) {
   base::on_mouse_up(event);
 }
 
-Box *AbstractSequenceSection::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
+VolatileSelection AbstractSequenceSection::mouse_selection(float x, float y, bool *was_inside_start) {
   if(Box *dingbat = _dingbat.box_or_null()) {
     cairo_matrix_t mat;
     cairo_matrix_init_identity(&mat);
@@ -672,18 +659,18 @@ Box *AbstractSequenceSection::mouse_selection(
         mat.y0 - dingbat->extents().ascent <= y &&
         y <= mat.y0 + dingbat->extents().descent)
     {
-      if(Box *box = dingbat->mouse_selection(x - mat.x0, y - y - mat.y0, start, end, was_inside_start)) {
-        //Box *tmp = box->mouse_sensitive();
+      if(VolatileSelection sel = dingbat->mouse_selection(x - mat.x0, y - y - mat.y0, was_inside_start)) {
+        //Box *tmp = sel.box->mouse_sensitive();
         //while(tmp && tmp->parent() != this)
         //  tmp = tmp->parent();
         //
         //if(tmp)
-          return box;
+          return sel;
       }
     }
   }
   
-  return _content->mouse_selection(x - cx, y - cy, start, end, was_inside_start);
+  return _content->mouse_selection(x - cx, y - cy, was_inside_start);
 }
 
 void AbstractSequenceSection::child_transformation(
@@ -922,29 +909,17 @@ Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
   return e;
 }
 
-Box *StyleDataSection::mouse_selection(
-  float  x,
-  float  y,
-  int   *start,
-  int   *end,
-  bool  *was_inside_start
-) {
-  Box *box = AbstractSequenceSection::mouse_selection(x, y, start, end, was_inside_start);
-  if(box) {
-    Box *mouse = box->mouse_sensitive();
+VolatileSelection StyleDataSection::mouse_selection(float x, float y, bool *was_inside_start) {
+  if(auto sel = AbstractSequenceSection::mouse_selection(x, y, was_inside_start)) {
+    Box *mouse = sel.box->mouse_sensitive();
     if(mouse && !mouse->is_parent_of(this)) 
-      return box;
+      return sel;
   }
   
   *was_inside_start = true;
-//  if(_parent) {
-//    *start = _index;
-//    *end = *start + 1;
-//    return _parent;
-//  }
-  *start = 0;
-  *end = length();
-  return this;
+//  if(_parent) 
+//    return { _parent, _index, _index + 1 };
+  return { this, 0, length() };
 }
 
 

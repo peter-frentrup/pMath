@@ -73,12 +73,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override { return _object; }
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
     private:
       Expr _object;
@@ -117,12 +112,7 @@ namespace richmath {
       virtual Box *mouse_sensitive() override;
       virtual void on_mouse_up(MouseEvent &event) override;
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,
@@ -186,12 +176,7 @@ namespace richmath {
       virtual bool edit_selection(Context *context) override { return false; }
       virtual bool selectable(int i) override { return i < 0; }
       
-      virtual Box *mouse_selection(
-        float  x,
-        float  y,
-        int   *start,
-        int   *end,
-        bool  *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
     
     protected:
       virtual bool can_enter_content() override { return false; }
