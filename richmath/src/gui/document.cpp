@@ -101,253 +101,6 @@ namespace {
 Hashtable<String, Expr> richmath::global_immediate_macros;
 Hashtable<String, Expr> richmath::global_macros;
 
-static Box *expand_selection_default(Box *box, int *start, int *end) {
-  int index = box->index();
-  Box *box2 = box->parent();
-  while(box2) {
-    if(dynamic_cast<AbstractSequence *>(box2)) {
-      if(box2->selectable()) {
-        *start = index;
-        *end = index + 1;
-        return box2;
-      }
-    }
-    
-    index = box2->index();
-    box2 = box2->parent();
-  }
-  
-  return box;
-}
-
-Box *expand_selection_math(MathSequence *seq, int *start, int *end) {
-  for(int i = *start; i < *end; ++i) {
-    if(seq->span_array().is_token_end(i))
-      goto MULTIPLE_TOKENS;
-  }
-  
-  if( *start == *end &&
-      *start > 0 &&
-      !seq->span_array().is_operand_start(*start))
-  {
-    --*start;
-    --*end;
-  }
-  
-  while(*start > 0 && !seq->span_array().is_token_end(*start - 1))
-    --*start;
-    
-  while(*end < seq->length() && !seq->span_array().is_token_end(*end))
-    ++*end;
-    
-  if(*end < seq->length())
-    ++*end;
-  return seq;
-  
-MULTIPLE_TOKENS:
-  if(*start < seq->length()) {
-    if(Span s = seq->span_array()[*start]) {
-      int e = s.end();
-      while(s && s.end() >= *end) {
-        e = s.end();
-        s = s.next();
-      }
-      
-      if(e >= *end) {
-        *end = e + 1;
-        return seq;
-      }
-    }
-  }
-  
-  int orig_start = *start;
-  int orig_end = *end;
-  const uint16_t *buf = seq->text().buffer();
-  
-  int a = *start;
-  while(--a >= 0) {
-    if(Span s = seq->span_array()[a]) {
-      int e = s.end();
-      while(s && s.end() + 1 >= *end) {
-        e = s.end();
-        s = s.next();
-      }
-      
-      if(e + 1 >= *end) {
-        *start = a;
-        while(*start < orig_start && buf[*start] == '\n')
-          ++*start;
-        *end = e + 1;
-        if(*start == orig_start && *end == orig_end && orig_end < seq->length()) {
-          ++*end;
-          ++a;
-          continue;
-        }
-        return seq;
-      }
-    }
-  }
-  
-  if( *start > 0 ||
-      *end < seq->length())
-  {
-    *start = 0;
-    *end = seq->length();
-    return seq;
-  }
-  
-  return expand_selection_default(seq, start, end);
-}
-
-Box *expand_selection_text(TextSequence *seq, int *start, int *end) {
-  if(*start == 0 && *end == seq->length())
-    return expand_selection_default(seq, start, end);
-    
-  PangoLogAttr *attrs;
-  int n_attrs;
-  pango_layout_get_log_attrs(seq->get_layout(), &attrs, &n_attrs);
-  
-  const char *buf = seq->text_buffer().buffer();
-  const char *s              = buf;
-  const char *s_end          = buf + seq->length();
-  const char *word_start     = buf;
-  
-  int i = 0;
-  while(s && (size_t)s - (size_t)buf <= (size_t)*start) {
-    if(attrs[i].is_word_start)
-      word_start = s;
-      
-    ++i;
-    s = g_utf8_find_next_char(s, s_end);
-  }
-  
-  const char *word_end = nullptr;
-  
-  while(s && !word_end) {
-    if(attrs[i].is_word_boundary && word_end != word_start)
-      word_end = s;
-      
-    ++i;
-    s = g_utf8_find_next_char(s, s_end);
-  }
-  
-  g_free(attrs);
-  attrs = nullptr;
-  
-  if(!word_end)
-    word_end = s_end;
-    
-  if( (size_t)word_end - (size_t)buf       >= (size_t)*end &&
-      (size_t)word_end - (size_t)word_start > (size_t)*end - (size_t)*start)
-  {
-    *start = (int)((size_t)word_start - (size_t)buf);
-    *end   = (int)((size_t)word_end   - (size_t)buf);
-  }
-  else {
-    GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
-    
-    int prev_par_start = 0;
-    int paragraph_start = 0;
-    while(lines) {
-      PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-      
-      if(line->is_paragraph_start && line->start_index <= *start) {
-        prev_par_start = paragraph_start;
-        paragraph_start = line->start_index;
-      }
-      
-      if(line->start_index + line->length >= *end) {
-        if(line->start_index <= *start && *end - *start < line->length) {
-          *start = line->start_index;
-          *end = line->start_index + line->length;
-          break;
-        }
-        
-        int old_end = *end;
-        
-        lines = lines->next;
-        while(lines) {
-          PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-          if(line->is_paragraph_start && line->start_index >= *end) {
-            *end = line->start_index;
-            break;
-          }
-          
-          lines = lines->next;
-        }
-        
-        if(!lines)
-          *end = seq->length();
-          
-        if(old_end - *start < *end - paragraph_start)
-          *start = paragraph_start;
-        else
-          *start = prev_par_start;
-          
-        break;
-      }
-      
-      lines = lines->next;
-    }
-  }
-  
-  return seq;
-}
-
-Box *richmath::expand_selection(Box *box, int *start, int *end) {
-  if(!box)
-    return nullptr;
-    
-  if(auto seq = dynamic_cast<MathSequence *>(box)) {
-    return expand_selection_math(seq, start, end);
-  }
-  else if(auto seq = dynamic_cast<TextSequence *>(box)) {
-    return expand_selection_text(seq, start, end);
-  }
-  
-  return expand_selection_default(box, start, end);
-}
-
-int richmath::box_depth(Box *box) {
-  int result = 0;
-  while(box) {
-    ++result;
-    box = box->parent();
-  }
-  return result;
-}
-
-int richmath::box_order(Box *b1, int i1, Box *b2, int i2) {
-  int od1, od2, d1, d2;
-  od1 = d1 = box_depth(b1);
-  od2 = d2 = box_depth(b2);
-  
-  while(d1 > d2) {
-    i1 = b1->index();
-    b1 = b1->parent();
-    --d1;
-  }
-  
-  while(d2 > d1) {
-    i2 = b2->index();
-    b2 = b2->parent();
-    --d2;
-  }
-  
-  while(b1 != b2 && b1 && b2) {
-    i1 = b1->index();
-    b1 = b1->parent();
-    
-    i2 = b2->index();
-    b2 = b2->parent();
-  }
-  
-  if(i1 == i2)
-    return od1 - od2;
-    
-  return i1 - i2;
-}
-
 static int index_of_replacement(const String &s) {
   const uint16_t *buf = s.buffer();
   int             len = s.length();
@@ -364,28 +117,6 @@ static int index_of_replacement(const String &s) {
       return i;
       
   return -1;
-}
-
-static void selection_path(
-  Canvas  *canvas,
-  Box     *box,
-  int      start,
-  int      end
-) {
-  if(box) {
-    canvas->save();
-    
-    cairo_matrix_t mat;
-    cairo_matrix_init_identity(&mat);
-    box->transformation(0, &mat);
-    
-    canvas->transform(mat);
-    
-    canvas->move_to(0, 0);
-    box->selection_path(canvas, start, end);
-    
-    canvas->restore();
-  }
 }
 
 static MathSequence *search_string(
@@ -557,8 +288,8 @@ namespace richmath {
       bool is_inside_alias();
       
       // substart and subend may lie outside 0..subbox->length()
-      bool is_inside_selection(Box *subbox, int substart, int subend);
-      bool is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start);
+      bool is_inside_selection(const VolatileSelection &sub);
+      bool is_inside_selection(const VolatileSelection &sub, bool was_inside_start);
       
       void set_prev_sel_line();
       
@@ -729,8 +460,8 @@ void Document::scroll_to(float x, float y, float w, float h) {
   native()->scroll_to(_x, _y);
 }
 
-void Document::scroll_to(Canvas *canvas, Box *child, int start, int end) {
-  default_scroll_to(canvas, this, child, start, end);
+void Document::scroll_to(Canvas *canvas, const VolatileSelection &child_sel) {
+  default_scroll_to(canvas, this, child_sel);
 }
 
 //{ event invokers ...
@@ -998,17 +729,13 @@ void Document::on_mouse_down(MouseEvent &event) {
     mouse_histroy.down_time = native()->message_time();
     
     bool was_inside_start;
-    int start, end;
-    Box *box = mouse_selection(
-                 event.x, event.y,
-                 &start, &end,
-                 &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection_new(event.x, event.y, &was_inside_start);
                  
     if(double_click) {
-      Box *selbox = context.selection.get();
-      if(selbox == this) {
-        if(context.selection.start < context.selection.end) {
-          toggle_open_close_group(context.selection.start);
+      VolatileSelection sel = context.selection.get_all();
+      if(sel.box == this) {
+        if(sel.start < sel.end) {
+          toggle_open_close_group(sel.start);
           
           // prevent selection from changing in mouse_move():
           context.clicked_box_id = FrontEndReference::None;
@@ -1017,21 +744,18 @@ void Document::on_mouse_down(MouseEvent &event) {
           mouse_histroy.down_time = 0;
         }
       }
-      else if(selbox && selbox->selectable()) {
-        int start = context.selection.start;
-        int end   = context.selection.end;
-        
+      else if(sel.selectable()) {
         bool should_expand = true;
         
-        if(start == end) {
+        if(sel.start == sel.end) {
           if(was_inside_start) {
-            if(end + 1 <= selbox->length()) {
-              ++end;
+            if(sel.end + 1 <= sel.box->length()) {
+              ++sel.end;
               should_expand = false;
             }
           }
-          else if(start > 0) {
-            --start;
+          else if(sel.start > 0) {
+            --sel.start;
             should_expand = false;
           }
         }
@@ -1039,31 +763,30 @@ void Document::on_mouse_down(MouseEvent &event) {
         if(!should_expand) {
           should_expand = true;
           
-          if(auto seq = dynamic_cast<MathSequence *>(selbox)) {
+          if(auto seq = dynamic_cast<MathSequence *>(sel.box)) {
             should_expand = false;
-            while(start > 0 && !seq->span_array().is_token_end(start - 1))
-              --start;
+            while(sel.start > 0 && !seq->span_array().is_token_end(sel.start - 1))
+              --sel.start;
               
-            while(end < seq->length() && !seq->span_array().is_token_end(end - 1))
-              ++end;
+            while(sel.end < seq->length() && !seq->span_array().is_token_end(sel.end - 1))
+              ++sel.end;
           }
         }
         
         if(should_expand)
-          selbox = expand_selection(selbox, &start, &end);
+          sel.expand();
           
-        //select_range(selbox, start, start, selbox, end, end);
-        select(selbox, start, end);
+        select(sel);
       }
     }
-    else if(DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start)) {
+    else if(DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
       // maybe drag & drop
       drag_status = DragStatusMayDrag;
     }
-    else if(box && box->selectable())
-      select(box, start, end);
-      
-    mouse_histroy.down_pos = Point {event.x, event.y};
+    else if(mouse_sel.selectable())
+      select(mouse_sel);
+    
+    mouse_histroy.down_pos = { event.x, event.y };
     mouse_histroy.down_sel = sel_first;
   }
 }
@@ -1071,9 +794,8 @@ void Document::on_mouse_down(MouseEvent &event) {
 void Document::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
-  int start, end;
   bool was_inside_start;
-  Box *box = mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
+  VolatileSelection mouse_sel = mouse_selection_new(event.x, event.y, &was_inside_start);
   
   if(event.left && drag_status == DragStatusMayDrag) {
     float ddx, ddy;
@@ -1095,40 +817,41 @@ void Document::on_mouse_move(MouseEvent &event) {
     return;
   }
   
-  if(!event.left && DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start)) {
+  if(!mouse_sel)
+    return;
+  
+  if(!event.left && DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
     native()->set_cursor(DefaultCursor);
   }
-  else if(box->selectable()) {
-    if(box == this) {
+  else if(mouse_sel.selectable()) {
+    if(mouse_sel.box == this) {
       if(length() == 0)
         native()->set_cursor(TextNCursor);
-      else if(start == end)
+      else if(mouse_sel.is_empty())
         native()->set_cursor(DocumentCursor);
       else
         native()->set_cursor(SectionCursor);
     }
     else
-      native()->set_cursor(NativeWidget::text_cursor(box, start));
+      native()->set_cursor(NativeWidget::text_cursor(mouse_sel.box, mouse_sel.start));
   }
-  else if(dynamic_cast<Section *>(box) && selectable()) {
+  else if(dynamic_cast<Section *>(mouse_sel.box) && selectable()) {
     native()->set_cursor(NoSelectCursor);
   }
   else
     native()->set_cursor(DefaultCursor);
     
   if(event.left && context.clicked_box_id) {
-    if(Box *mouse_down_box = mouse_histroy.down_sel.get()) {
-      Section *sec1 = mouse_down_box->find_parent<Section>(true);
-      Section *sec2 = box ? box->find_parent<Section>(true) : 0;
+    if(VolatileSelection mouse_down_sel = mouse_histroy.down_sel.get_all()) {
+      Section *sec1 = mouse_down_sel.box->find_parent<Section>(true);
+      Section *sec2 = mouse_sel.box ? mouse_sel.box->find_parent<Section>(true) : nullptr;
       
       if(sec1 && sec1 != sec2) {
         event.set_origin(sec1);
-        box = sec1->mouse_selection(event.x, event.y, &start, &end, &was_inside_start);
+        mouse_sel = sec1->mouse_selection_new(event.x, event.y, &was_inside_start);
       }
       
-      select_range(
-        mouse_down_box, mouse_histroy.down_sel.start, mouse_histroy.down_sel.end,
-        box, start, end);
+      select_range(mouse_down_sel, mouse_sel);
     }
   }
 }
@@ -1138,17 +861,12 @@ void Document::on_mouse_up(MouseEvent &event) {
   
   if(event.left && drag_status != DragStatusIdle) {
     bool was_inside_start;
-    int start, end;
-    Box *box = mouse_selection(
-                 event.x, event.y,
-                 &start, &end,
-                 &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection_new(event.x, event.y, &was_inside_start);
                  
-    if( DocumentImpl(*this).is_inside_selection(box, start, end, was_inside_start) &&
-        box &&
-        box->selectable())
+    if( DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start) &&
+        mouse_sel.selectable())
     {
-      select(box, start, end);
+      select(mouse_sel);
     }
   }
   
@@ -1510,31 +1228,25 @@ void Document::select(Box *box, int start, int end) {
   DocumentImpl(*this).raw_select(box, start, end);
 }
 
-void Document::select_to(Box *box, int start, int end) {
-  if(box && !box->selectable())
+void Document::select_to(const VolatileSelection &sel) {
+  if(!sel.null_or_selectable())
     return;
-    
-  Box *first = sel_first.get();
   
-  select_range(
-    first,
-    sel_first.start,
-    sel_first.end,
-    box,
-    start,
-    end);
+  select_range(sel_first.get_all(), sel);
 }
 
-void Document::select_range(
-  Box *box1, int start1, int end1,
-  Box *box2, int start2, int end2
-) {
-  if((box1 && !box1->selectable()) || (box2 && !box2->selectable()))
+void Document::select_range(const VolatileSelection &sel1, const VolatileSelection &sel2) {
+  if(!sel1.null_or_selectable() || !sel2.null_or_selectable())
     return;
     
-  sel_first.set(box1, start1, end1);
-  sel_last.set( box2, start2, end2);
+  sel_first.set(sel1);
+  sel_last.set(sel2);
   auto_scroll = !is_mouse_down();
+  
+  int start1 = sel1.start;
+  int end1   = sel1.end;
+  int start2 = sel2.start;
+  int end2   = sel2.end;
   
   if(end1 < start1) {
     int i = start1;
@@ -1548,8 +1260,8 @@ void Document::select_range(
     end2 = i;
   }
   
-  Box *b1 = box1;
-  Box *b2 = box2;
+  Box *b1 = sel1.box;
+  Box *b2 = sel2.box;
   int s1  = start1;
   int s2  = start2;
   int e1  = end1;
@@ -1628,9 +1340,9 @@ void Document::select_range(
 
 void Document::move_to(Box *box, int index, bool selecting) {
   if(selecting)
-    select_to(box, index, index);
+    select_to(VolatileSelection(box, index));
   else
-    select(box, index, index);
+    select(VolatileSelection(box, index));
 }
 
 void Document::move_horizontal(
@@ -1676,7 +1388,7 @@ void Document::move_horizontal(
   }
   
   if(selecting) {
-    select_to(box, i, i);
+    select_to(VolatileSelection(box, i));
   }
   else {
     int j = i;
@@ -1698,70 +1410,60 @@ void Document::move_vertical(
   LogicalDirection direction,
   bool             selecting
 ) {
-  Box *box = sel_last.get();
-  if(!box) {
-    box = context.selection.get();
+  VolatileSelection new_sel = sel_last.get_all();
+  if(!new_sel) {
+    new_sel = context.selection.get_all();
     
     sel_last = context.selection;
-    if(!box)
+    if(!new_sel)
       return;
   }
   
-  if(box == this && sel_last.start < sel_last.end) {
+  if(new_sel.box == this && !new_sel.is_empty()) {
     if(selecting) {
-      int i = sel_last.start;
-      int j = sel_last.end;
-      
-      if(direction == LogicalDirection::Forward && j < length())
-        ++j;
-      else if(direction == LogicalDirection::Backward && i > 0)
-        --i;
+      if(direction == LogicalDirection::Forward && new_sel.end < length())
+        ++new_sel.end;
+      else if(direction == LogicalDirection::Backward && new_sel.start > 0)
+        --new_sel.start;
         
-      select(this, i, j);
+      select(new_sel);
       return;
     }
     
     if(direction == LogicalDirection::Forward)
-      move_to(this, sel_last.end);
+      move_to(this, new_sel.end);
     else
-      move_to(this, sel_last.start);
+      move_to(this, new_sel.start);
       
     return;
   }
   
-  int i, j;
-  if(direction == LogicalDirection::Forward && sel_last.start + 1 < sel_last.end) {
-    i = sel_last.end;
-    if( sel_last.start < sel_last.end &&
-        !dynamic_cast<MathSequence *>(box))
-    {
-      --i;
-    }
+  if(direction == LogicalDirection::Forward && new_sel.length() > 1) {
+    new_sel.start = new_sel.end;
+    if(!dynamic_cast<MathSequence *>(new_sel.box))
+      --new_sel.start;
   }
-  else
-    i = sel_last.start;
-    
-  box = box->move_vertical(direction, &best_index_rel_x, &i, false);
   
-  j = i;
-  if(auto seq = dynamic_cast<MathSequence *>(box)) {
-    if(seq->is_placeholder(i - 1)) {
-      --i;
-      best_index_rel_x += seq->glyph_array()[i].right;
-      if(i > 0)
-        best_index_rel_x -= seq->glyph_array()[i - 1].right;
+  new_sel.box = new_sel.box->move_vertical(direction, &best_index_rel_x, &new_sel.start, false);
+  new_sel.end = new_sel.start;
+  if(auto seq = dynamic_cast<MathSequence *>(new_sel.box)) {
+    if(seq->is_placeholder(new_sel.start - 1)) {
+      --new_sel.start;
+      best_index_rel_x += seq->glyph_array()[new_sel.start].right;
+      if(new_sel.start > 0)
+        best_index_rel_x -= seq->glyph_array()[new_sel.start - 1].right;
     }
-    else if(seq->is_placeholder(i))
-      ++j;
+    else if(seq->is_placeholder(new_sel.start))
+      ++new_sel.end;
   }
   
   float tmp = best_index_rel_x;
   if(selecting)
-    select_to(box, i, j);
+    select_to(new_sel);
   else
-    select(box, i, j);
+    select(new_sel);
     
-  if(context.selection.get() == box)
+  if(context.selection.get() == new_sel.box)
     best_index_rel_x = tmp;
 }
 
@@ -1860,9 +1562,9 @@ void Document::move_start_end(
   }
   
   if(selecting)
-    select_to(box, index, index);
+    select_to(VolatileSelection(box, index));
   else
-    select(box, index, index);
+    select(VolatileSelection(box, index));
 }
 
 void Document::move_tab(LogicalDirection direction) {
@@ -1986,39 +1688,28 @@ void Document::select_prev(bool operands_only) {
   }
 }
 
-Box *Document::prepare_copy(int *start, int *end) {
-  if(selection_length() > 0) {
-    *start = selection_start();
-    *end = selection_end();
-    return selection_box();
-  }
+VolatileSelection Document::prepare_copy() {
+  if(selection_length() > 0) 
+    return selection_now();
   
   Box *box = selection_box();
   if(box && !dynamic_cast<AbstractSequence *>(box)) {
     if(auto parent = dynamic_cast<AbstractSequence *>(box->parent())) {
-      *start = box->index();
-      *end   = *start + 1;
-      return parent->normalize_selection(start, end);
+      int i = box->index();
+      return VolatileSelection(parent, i, i+1).normalized();
     }
   }
   
-  *start = -1;
-  *end   = -1;
-  return 0;
+  return VolatileSelection(nullptr, -1, -1);
 }
 
 bool Document::can_copy() {
-  int start, end;
-  Box *box = prepare_copy(&start, &end);
-  
-  return box && start < end;
+  return !prepare_copy().is_empty();
 }
 
 String Document::copy_to_text(String mimetype) {
-  int start, end;
-  
-  Box *selbox = prepare_copy(&start, &end);
-  if(!selbox) {
+  VolatileSelection sel = prepare_copy();
+  if(!sel) {
     native()->beep();
     return String();
   }
@@ -2027,7 +1718,7 @@ String Document::copy_to_text(String mimetype) {
   if(mimetype.equals(Clipboard::PlainText))
     flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
-  Expr boxes = selbox->to_pmath(flags, start, end);
+  Expr boxes = sel.to_pmath(flags);
   if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
     
@@ -2058,13 +1749,13 @@ void Document::copy_to_binary(String mimetype, Expr file) {
   if(mimetype.equals(Clipboard::BoxesBinary)) {
     int start, end;
     
-    Box *selbox = prepare_copy(&start, &end);
-    if(!selbox) {
+    VolatileSelection sel = prepare_copy();
+    if(!sel) {
       native()->beep();
       return;
     }
     
-    Expr boxes = selbox->to_pmath(BoxOutputFlags::Default, start, end);
+    Expr boxes = sel.to_pmath(BoxOutputFlags::Default);
     file = Expr(pmath_file_create_compressor(file.release(), nullptr));
     pmath_serialize(file.get(), boxes.release(), 0);
     pmath_file_close(file.release());
@@ -2154,8 +1845,7 @@ void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::Rectangle *ou
     
     paint_resize(&canvas, true);
     
-    selbox = copysel.get();
-    ::selection_path(&canvas, selbox, copysel.start, copysel.end);
+    copysel.get_all().add_path(&canvas);
     
     cairo_matrix_t mat = canvas.get_matrix();
     canvas.reset_matrix();
@@ -2228,8 +1918,7 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     float sx, sy;
     native()->scroll_pos(&sx, &sy);
     canvas.translate(-sx, -sy);
-    selbox = copysel.get();
-    ::selection_path(&canvas, selbox, copysel.start, copysel.end);
+    copysel.get_all().add_path(&canvas);
     canvas.clip();
     canvas.translate(sx, sy);
     
@@ -2307,10 +1996,8 @@ void Document::copy_to_clipboard() {
 void Document::cut_to_clipboard() {
   copy_to_clipboard();
   
-  int start, end;
-  if(Box *box = prepare_copy(&start, &end)) {
-    select(box, start, end);
-    
+  if(VolatileSelection sel = prepare_copy()) {
+    select(sel);
     remove_selection(false);
   }
 }
@@ -3920,16 +3607,16 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     DocumentImpl(*this).paint_cursor_and_flash();
     
     if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
-      if(Box *drag_src = drag_source.get()) {
-        ::selection_path(canvas, drag_src, drag_source.start, drag_source.end);
+      if(VolatileSelection drag_src = drag_source.get_all()) {
+        drag_src.add_path(canvas);
         context.draw_selection_path();
       }
     }
     
     if(DebugFollowMouse) {
-      if(Box *b = mouse_histroy.debug_move_sel.get()) {
-        ::selection_path(canvas, b, mouse_histroy.debug_move_sel.start, mouse_histroy.debug_move_sel.end);
-        if(DocumentImpl::is_inside_string(b, mouse_histroy.debug_move_sel.start))
+      if(VolatileSelection ms = mouse_histroy.debug_move_sel.get_all()) {
+        ms.add_path(canvas);
+        if(DocumentImpl::is_inside_string(ms.box, ms.start))
           canvas->set_color(DebugFollowMouseInStringColor);
         else
           canvas->set_color(DebugFollowMouseColor);
@@ -3938,10 +3625,10 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     }
     
     if(DebugSelectionBounds) {
-      if(Box *b = selection_box()) {
+      if(VolatileSelection sel = selection_now()) {
         canvas->save();
         {
-          ::selection_path(canvas, b, selection_start(), selection_end());
+          sel.add_path(canvas);
           
           static const double dashes[] = {1.0, 2.0};
           
@@ -3985,8 +3672,8 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     
     if(auto_scroll) {
       auto_scroll = false;
-      if(Box *box = sel_last.get())
-        box->scroll_to(canvas, box, sel_last.start, sel_last.end);
+      if(VolatileSelection box_range = sel_last.get_all())
+        box_range.box->scroll_to(canvas, box_range);
     }
     
     if(selection_length() == 1 && best_index_rel_x == 0) {
@@ -4538,18 +4225,20 @@ bool DocumentImpl::is_inside_alias() {
   return result;
 }
 
-// substart and subend may lie outside 0..subbox->length()
-bool DocumentImpl::is_inside_selection(Box *subbox, int substart, int subend) {
+// sub.start and sub.end may lie outside 0..sub.box->length()
+bool DocumentImpl::is_inside_selection(const VolatileSelection &sub) {
   if(self.selection_box() && self.selection_length() > 0) {
     // section selections are only at the right margin, the section content is
     // not inside the selection-frame
-    if(self.selection_box() == &self && subbox != &self)
+    if(self.selection_box() == &self && sub.box != &self)
       return false;
       
-    if(substart == subend)
+    if(sub.start == sub.end)
       return false;
       
-    Box *b = subbox;
+    Box *b = sub.box;
+    int substart = sub.start;
+    int subend = sub.end;
     while(b && b != self.selection_box()) {
       substart = b->index();
       subend   = substart + 1;
@@ -4567,15 +4256,18 @@ bool DocumentImpl::is_inside_selection(Box *subbox, int substart, int subend) {
   return false;
 }
 
-bool DocumentImpl::is_inside_selection(Box *subbox, int substart, int subend, bool was_inside_start) {
-  if(subbox && subbox != &self && substart == subend) {
+bool DocumentImpl::is_inside_selection(const VolatileSelection &sub, bool was_inside_start) {
+  if(!self.selection_box())
+    return false;
+  
+  if(sub.box && sub.box != &self && sub.start == sub.end) {
     if(was_inside_start)
-      subend = substart + 1;
+      return is_inside_selection(VolatileSelection(sub.box, sub.start, sub.start + 1));
     else
-      --substart;
+      return is_inside_selection(VolatileSelection(sub.box, sub.start - 1, sub.start));
   }
   
-  return self.selection_box() && is_inside_selection(subbox, substart, subend);
+  return is_inside_selection(sub);
 }
 
 void DocumentImpl::set_prev_sel_line() {

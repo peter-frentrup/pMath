@@ -827,12 +827,10 @@ static bool edit_boxes_cmd(Expr cmd) {
     if(final_sel_1 && final_sel_2) {
       Box *box1 = final_sel_1->get();
       Box *box2 = final_sel_2->get();
-      doc->select_range(
-        box1, final_sel_1->start, final_sel_1->end, 
-        box2, final_sel_2->start, final_sel_2->end);
+      doc->select_range(final_sel_1->get_all(), final_sel_2->get_all());
     }
     else 
-      doc->select_range(doc, a, a, doc, b, b);
+      doc->select_range(VolatileSelection(doc, a), VolatileSelection(doc, b));
   }
   
   return true;
@@ -952,12 +950,9 @@ static bool expand_selection_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  Box *box  = doc->selection_box();
-  int start = doc->selection_start();
-  int end   = doc->selection_end();
-  
-  box = expand_selection(box, &start, &end);
-  doc->select_range(box, start, start, box, end, end);
+  VolatileSelection sel = doc->selection_now();
+  sel.expand();
+  doc->select_range(sel.start_only(), sel.end_only());
   doc->native()->invalidate();
   return true;
 }

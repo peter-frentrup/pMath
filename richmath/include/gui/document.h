@@ -40,7 +40,7 @@ namespace richmath {
       NativeWidget *native() { return _native; } // never nullptr
       
       virtual void scroll_to(float x, float y, float w, float h) override;
-      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end) override;
+      virtual void scroll_to(Canvas *canvas, const VolatileSelection &child_sel) override;
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
@@ -65,11 +65,10 @@ namespace richmath {
       virtual void on_key_up(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
       
+      void select(const VolatileSelection &sel) { select(sel.box, sel.start, sel.end); }
       void select(Box *box, int start, int end);
-      void select_to(Box *box, int start, int end);
-      void select_range(
-        Box *box1, int start1, int end1,
-        Box *box2, int start2, int end2);
+      void select_to(const VolatileSelection &sel);
+      void select_range(const VolatileSelection &sel1, const VolatileSelection &sel2);
         
       void move_to(Box *box, int index, bool selecting = false);
       
@@ -94,7 +93,7 @@ namespace richmath {
       virtual void insert(int pos, Section *section) override;
       virtual Section *swap(int pos, Section *sect) override;
       
-      Box *prepare_copy(int *start, int *end);
+      VolatileSelection prepare_copy();
       bool can_copy();
       String copy_to_text(String mimetype);
       void copy_to_binary(String mimetype, Expr file);
@@ -143,6 +142,7 @@ namespace richmath {
       int selection_start() {  return context.selection.start; }
       int selection_end() {    return context.selection.end;   }
       int selection_length() { return context.selection.end - context.selection.start; }
+      VolatileSelection selection_now() { return context.selection.get_all(); }
       const SelectionReference &selection() { return context.selection; }
 
       const Array<SelectionReference> &current_word_references() { return _current_word_references; }
@@ -216,10 +216,6 @@ namespace richmath {
   
   extern Hashtable<String, Expr> global_immediate_macros;
   extern Hashtable<String, Expr> global_macros;
-  
-  extern Box *expand_selection(Box *box, int *start, int *end);
-  extern int box_depth(Box *box);
-  extern int box_order(Box *b1, int i1, Box *b2, int i2);
 }
 
 #endif // RICHMATH__GUI__DOCUMENT_H__INCLUDED

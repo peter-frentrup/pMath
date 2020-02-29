@@ -250,8 +250,8 @@ void InputFieldBox::scroll_to(float x, float y, float w, float h) {
     request_repaint_all();
 }
 
-void InputFieldBox::scroll_to(Canvas *canvas, Box *child, int start, int end) {
-  default_scroll_to(canvas, _content, child, start, end);
+void InputFieldBox::scroll_to(Canvas *canvas, const VolatileSelection &child_sel) {
+  default_scroll_to(canvas, _content, child_sel);
 }
 
 Box *InputFieldBox::remove(int *index) {

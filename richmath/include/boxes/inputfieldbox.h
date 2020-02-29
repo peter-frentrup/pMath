@@ -22,7 +22,7 @@ namespace richmath {
       virtual void reset_style() override;
       
       virtual void scroll_to(float x, float y, float w, float h) override;
-      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end) override;
+      virtual void scroll_to(Canvas *canvas, const VolatileSelection &child_sel) override;
       
       virtual Box *remove(int *index) override;
       

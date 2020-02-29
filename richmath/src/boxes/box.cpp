@@ -264,26 +264,26 @@ void Box::selection_path(Canvas *canvas, int start, int end) {
 void Box::scroll_to(float x, float y, float w, float h) {
 }
 
-void Box::scroll_to(Canvas *canvas, Box *child, int start, int end) {
+void Box::scroll_to(Canvas *canvas, const VolatileSelection &child) {
   if(_parent)
-    _parent->scroll_to(canvas, child, start, end);
+    _parent->scroll_to(canvas, child);
 }
 
-void Box::default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, int end) {
+void Box::default_scroll_to(Canvas *canvas, Box *parent, const VolatileSelection &child_sel) {
   double x1, y1, x2, y2;
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
-  child->transformation(parent, &mat);
+  child_sel.box->transformation(parent, &mat);
   
   canvas->save();
   {
     canvas->transform(mat);
     canvas->move_to(0, 0);
     
-    child->selection_path(
+    child_sel.box->selection_path(
       canvas,
-      start,
-      end);
+      child_sel.start,
+      child_sel.end);
       
     // cairo 1.10.0 bug:
     // cairo_path_extents gives (0,0,0,0) for pixel aligned lines
@@ -301,7 +301,7 @@ void Box::default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, 
   scroll_to(x, y, w, h);
   
   if(_parent)
-    _parent->scroll_to(canvas, child, start, end);
+    _parent->scroll_to(canvas, child_sel);
 }
 
 Box *Box::move_logical(

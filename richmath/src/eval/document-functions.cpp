@@ -207,28 +207,24 @@ static bool open_selection_help_cmd(Expr cmd) {
   Document * const doc = get_current_document();
   if(!doc)
     return false;
-    
-  Box *box = doc->selection_box();
-  int start = doc->selection_start();
-  int end = doc->selection_end();
-  int word_start = start;
-  int word_end = word_start;
-  Box *word_box = box;
-  do {
-    word_box = expand_selection(word_box, &word_start, &word_end);
-  } while(word_box && !(word_start <= start && end <= word_end));
   
-  if(!word_box) {
+  VolatileSelection sel = doc->selection_now();
+  VolatileSelection word_src = sel.start_only();
+  do {
+    word_src.expand();
+  } while(word_src.box && !word_src.directly_contains(sel));
+  
+  if(!word_src.box) {
     doc->native()->beep();
     return false;
   }
   
-  doc->select(word_box, word_start, word_end);
+  doc->select(word_src);
   
   // TODO: give context-dependent help
   
-  if(auto seq = dynamic_cast<AbstractSequence *>(word_box)) {
-    String word = seq->raw_substring(word_start, word_end - word_start);
+  if(auto seq = dynamic_cast<AbstractSequence *>(word_src.box)) {
+    String word = seq->raw_substring(word_src.start, word_src.length());
     
     Expr helpfile = Call(
                       Symbol(richmath_Documentation_FindSymbolDocumentationByFullName), 

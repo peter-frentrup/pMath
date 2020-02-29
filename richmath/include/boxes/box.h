@@ -3,7 +3,7 @@
 
 #include <graphics/shapers.h>
 #include <eval/observable.h>
-#include <util/frontendobject.h>
+#include <util/selections.h>
 #include <util/sharedptr.h>
 #include <util/style.h>
 
@@ -257,8 +257,8 @@ namespace richmath {
       virtual Box *get_highlight_child(Box *src, int *start, int *end);
       virtual void selection_path(Canvas *canvas, int start, int end);
       virtual void scroll_to(float x, float y, float w, float h);
-      virtual void scroll_to(Canvas *canvas, Box *child, int start, int end);
-      void default_scroll_to(Canvas *canvas, Box *parent, Box *child, int start, int end);
+      virtual void scroll_to(Canvas *canvas, const VolatileSelection &child);
+      void default_scroll_to(Canvas *canvas, Box *parent, const VolatileSelection &child_sel);
       
       /// Remove a child box and get the new selection. May also delete this box itself.
       ///
@@ -321,6 +321,12 @@ namespace richmath {
         int   *start,
         int   *end,
         bool  *was_inside_start);
+      
+      VolatileSelection mouse_selection_new(float x, float y, bool *was_inside_start) {
+        int start, end;
+        Box *box = mouse_selection(x, y, &start, &end, was_inside_start);
+        return VolatileSelection(box, start, end);
+      }
         
       /// Append the child-to-parent coordinate transformation to a matrix (multiply from right). 
       virtual void child_transformation(
