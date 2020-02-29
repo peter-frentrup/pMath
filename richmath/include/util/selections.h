@@ -61,7 +61,8 @@ namespace richmath {
     
     explicit operator bool() const { return box != nullptr; }
     bool is_empty() const { return !box || start == end; }
-    bool directly_contains(const VolatileSelection &other) { return box == other.box && start <= other.start && other.end <= end; }
+    bool directly_contains(const VolatileSelection &other) const { return box == other.box && start <= other.start && other.end <= end; }
+    bool same_box_but_disjoint(const VolatileSelection &other) const { return box == other.box && (other.end <= start || end <= other.start); }
     
     bool null_or_selectable() const;
     bool selectable() const;
@@ -72,13 +73,29 @@ namespace richmath {
     
     void expand();
     void expand_to_parent();
-    void expand_up_to_sibling(const VolatileSelection &sibling);    
+    void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);    
     void normalize();
     
-    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded() const {                                               VolatileSelection ret = *this; ret.expand();                      return ret; }
-    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded_to_parent() const {                                     VolatileSelection ret = *this; ret.expand_to_parent();            return ret; }
-    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded_up_to_sibling(const VolatileSelection &sibling) const { VolatileSelection ret = *this; ret.expand_up_to_sibling(sibling); return ret; }
-    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection normalized() const {                                             VolatileSelection ret = *this; ret.normalize();                   return ret; }
+    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded() const {
+      VolatileSelection ret = *this;
+      ret.expand();
+      return ret; 
+    }
+    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded_to_parent() const {
+      VolatileSelection ret = *this;
+      ret.expand_to_parent();
+      return ret;
+    }
+    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX) const {
+      VolatileSelection ret = *this;
+      ret.expand_up_to_sibling(sibling, max_steps);
+      return ret;
+    }
+    PMATH_ATTRIBUTE_USE_RESULT VolatileSelection normalized() const {
+      VolatileSelection ret = *this;
+      ret.normalize();
+      return ret;
+    }
   };
   
   class SelectionReference {

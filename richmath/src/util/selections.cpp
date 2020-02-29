@@ -331,10 +331,10 @@ void VolatileSelection::expand_to_parent() {
   box = box->parent();
 }
 
-void VolatileSelection::expand_up_to_sibling(const VolatileSelection &sibling) {
+void VolatileSelection::expand_up_to_sibling(const VolatileSelection &sibling, int max_steps) {
   Box *stop = Box::common_parent(box, sibling.box);
   
-  while(true) {
+  while(max_steps-- > 0) {
     auto next = expanded();
     
     if(!next || box == stop && next.box != stop)

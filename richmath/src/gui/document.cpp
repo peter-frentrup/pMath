@@ -54,6 +54,7 @@ namespace {
       MouseHistory() 
       : down_time(0.0), // -HUGE_VAL
         down_pos(HUGE_VAL, HUGE_VAL),
+        click_repeat_count(0),
         _document(nullptr),
         _num_buttons_pressed(0)
       {
@@ -84,6 +85,7 @@ namespace {
       void reset() {
         _document = nullptr;
         _num_buttons_pressed = 0;
+        click_repeat_count = 0;
       }
     
     public:
@@ -91,6 +93,7 @@ namespace {
       Point              down_pos;
       SelectionReference down_sel;
       SelectionReference debug_move_sel;
+      int                click_repeat_count;
       
     private:
       Document *_document;
@@ -726,6 +729,8 @@ void Document::on_mouse_down(MouseEvent &event) {
     VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
                  
     if(double_click) {
+      ++mouse_histroy.click_repeat_count;
+      
       VolatileSelection sel = context.selection.get_all();
       if(sel.box == this) {
         if(sel.start < sel.end) {
@@ -774,6 +779,8 @@ void Document::on_mouse_down(MouseEvent &event) {
       }
     }
     else {
+      mouse_histroy.click_repeat_count = 1;
+      
       if(DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
         // maybe drag & drop
         drag_status = DragStatusMayDrag;
@@ -847,7 +854,24 @@ void Document::on_mouse_move(MouseEvent &event) {
         mouse_sel = sec1->mouse_selection(event.x, event.y, &was_inside_start);
       }
       
-      select_range(mouse_down_sel, mouse_sel);
+      VolatileSelection down_sel = mouse_down_sel;
+      if(mouse_histroy.click_repeat_count >= 2) {
+        bool in_text = DocumentImpl::is_inside_string(down_sel.box, down_sel.start);
+        
+        if(!in_text) {
+          VolatileSelection new_down_sel = down_sel.expanded_up_to_sibling(mouse_sel);
+          if(!new_down_sel.same_box_but_disjoint(down_sel))
+            down_sel = new_down_sel;
+        }
+        
+        VolatileSelection new_mouse_sel = mouse_sel.expanded_up_to_sibling(
+                                            mouse_down_sel, 
+                                            in_text ? mouse_histroy.click_repeat_count - 1 : INT_MAX);
+        if(!new_mouse_sel.same_box_but_disjoint(mouse_sel))
+          mouse_sel = new_mouse_sel;
+      }
+      
+      select_range(down_sel, mouse_sel);
     }
   }
 }
@@ -4192,10 +4216,12 @@ inline bool DocumentImpl::is_inside_string() {
 bool DocumentImpl::is_inside_string(Box *box, int index) {
   while(box) {
     if(auto seq = dynamic_cast<MathSequence *>(box)) {
-      if(seq->is_inside_string((index)))
+      if(seq->is_inside_string(index))
         return true;
-        
     }
+    else if(dynamic_cast<TextSequence *>(box))
+      return true;
+    
     index = box->index();
     box = box->parent();
   }
