@@ -236,12 +236,12 @@ void Win32Widget::double_click_dist(float *dx, float *dy) {
   *dy = GetSystemMetrics(SM_CYDOUBLECLK) / scale_factor();
 }
 
-void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) {
-  if(is_dragging || !src || start >= end)
+void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) {
+  if(is_dragging || src.is_empty())
     return;
     
   is_dragging = true;
-  drag_source_reference().set(src, start, end);
+  drag_source_reference().set(src);
   
   scrolling = false;
   
@@ -258,7 +258,7 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
   DropSource *drop_source = new DropSource;
   
   DWORD effect = DROPEFFECT_COPY;
-  if(src->get_style(Editable))
+  if(src.box->get_style(Editable))
     effect |= DROPEFFECT_MOVE;
   
   if(Win32Themes::is_app_themed()) { 
@@ -287,16 +287,15 @@ void Win32Widget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) 
   
   HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
   
-  Document *doc = src->find_parent<Document>(true);
+  // TODO: is it clear that src was not deleted dusing do_drag_drop?
+  Document *doc = src.box->find_parent<Document>(true);
   
   if(res == DRAGDROP_S_DROP) {
     if(effect & DROPEFFECT_MOVE) {
-      src   = drag_source_reference().get();
-      start = drag_source_reference().start;
-      end   = drag_source_reference().end;
+      VolatileSelection new_src = drag_source_reference().get_all();
       
-      if(src && end <= src->length() && doc) {
-        doc->select(src, start, end);
+      if(new_src && new_src.end <= new_src.box->length() && doc) {
+        doc->select(new_src);
         if(!doc->remove_selection())
           beep();
       }
@@ -1700,9 +1699,7 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
   float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(x, y, &was_inside_start);
-  
-  if(!may_drop_into(dst.box, dst.start, dst.end, is_dragging))
+  if(!may_drop_into(document()->mouse_selection(x, y, &was_inside_start), is_dragging))
     return DROPEFFECT_NONE;
     
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
@@ -1812,9 +1809,8 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     
     if(local_data_object) {
       pmath_debug_print("[local_data_object = %p]\n", local_data_object);
-      Box *source_box = local_data_object->source.get();
-      if(source_box) {
-        box_data = source_box->to_pmath(BoxOutputFlags::Default, local_data_object->source.start, local_data_object->source.end);
+      if(VolatileSelection src = local_data_object->source.get_all()) {
+        box_data = src.to_pmath(BoxOutputFlags::Default);
         break;
       }
     }

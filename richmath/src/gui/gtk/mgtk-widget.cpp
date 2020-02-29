@@ -350,7 +350,7 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy) {
   *dx = *dy = d / scale_factor();
 }
 
-void MathGtkWidget::do_drag_drop(Box *src, int start, int end, MouseEvent &event) {
+void MathGtkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) {
   GdkEvent *g_event = gtk_get_current_event();
   
   if(!src || !_widget)
@@ -402,11 +402,11 @@ void MathGtkWidget::do_drag_drop(Box *src, int start, int end, MouseEvent &event
     g_object_unref(pixbuf);
   }
   
-  drag_source_reference().set(src, start, end);
+  drag_source_reference().set(src);
   
   GdkDragContext *context;
   unsigned actions = GDK_ACTION_COPY;
-  if(src->get_style(Editable))
+  if(src.box->get_style(Editable))
     actions |= GDK_ACTION_MOVE;
     
   context = gtk_drag_begin(
@@ -749,7 +749,7 @@ void MathGtkWidget::on_drag_data_received(
   bool was_inside_start;
   VolatileSelection dst = document()->mouse_selection(fx, fy, &was_inside_start);
   
-  if(!may_drop_into(dst.box, dst.start, dst.end, source_widget == _widget)) {
+  if(!may_drop_into(dst, source_widget == _widget)) {
     gtk_drag_finish(context, FALSE, FALSE, time);
     return;
   }
@@ -831,7 +831,7 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   
   document()->select(dst);
   bool self_is_source = source_widget == _widget;
-  if(!may_drop_into(dst.box, dst.start, dst.end, self_is_source))
+  if(!may_drop_into(dst, self_is_source))
     return false;
     
   int action = 0;
@@ -880,15 +880,15 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   bool was_inside_start;
   VolatileSelection dst = document()->mouse_selection(fx, fy, &was_inside_start);
   
-  if(!may_drop_into(dst.box, dst.start, dst.end, source_widget == _widget))
+  if(!may_drop_into(dst, source_widget == _widget))
     return false;
     
   GdkAtom target = gtk_drag_dest_find_target(_widget, context, nullptr);
   if(target != GDK_NONE) {
     bool need_data = true;
     if(MathGtkWidget *wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(source_widget))) {
-      if(Box *source_box = wid->drag_source_reference().get()) {
-        Expr boxes = source_box->to_pmath(BoxOutputFlags::Default, wid->drag_source_reference().start, wid->drag_source_reference().end);
+      if(VolatileSelection src = wid->drag_source_reference().get_all()) {
+        Expr boxes = src.to_pmath(BoxOutputFlags::Default);
         
         document()->paste_from_boxes(boxes);
         need_data = false;

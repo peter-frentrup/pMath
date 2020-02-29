@@ -5,6 +5,7 @@
 
 #include <gui/document.h>
 
+
 using namespace richmath;
 
 namespace richmath {
@@ -84,8 +85,7 @@ namespace {
       virtual void double_click_dist(float *dx, float *dy) override {
         *dx = *dy = 0;
       }
-      virtual void do_drag_drop(Box *src, int start, int end, MouseEvent &event) override {
-      }
+      virtual void do_drag_drop(const VolatileSelection &src, MouseEvent &event) override {}
       virtual bool cursor_position(float *x, float *y) override {
         *x = *y = 0;
         return false;
@@ -197,46 +197,42 @@ void NativeWidget::set_custom_scale(float s) {
     _document->invalidate_all();
 }
 
-bool NativeWidget::may_drop_into(Box *dst, int start, int end, bool self_is_source) {
-  if(!dst || !dst->get_style(Editable) || !dst->selectable(start))
+bool NativeWidget::may_drop_into(const VolatileSelection &dst, bool self_is_source) {
+  if(!dst || !dst.box->get_style(Editable) || !dst.box->selectable(dst.start))
     return false;
     
   if(self_is_source) {
-    if(Box *src = drag_source_reference().get()) {
-      Box *box = Box::common_parent(src, dst);
-      if(box == src) {
-        int s = start;
-        int e = end;
-        box = dst;
+    if(VolatileSelection src = drag_source_reference().get_all()) {
+      Box *box = Box::common_parent(src.box, dst.box);
+      if(box == src.box) {
+        int s = dst.start;
+        int e = dst.end;
+        box = dst.box;
         
-        if( box == src &&
-            s <= drag_source_reference().end &&
-            e >= drag_source_reference().start)
-        {
+        if(box == src.box && s <= src.end && e >= src.start)
           return false;
-        }
         
-        while(box != src) {
+        while(box != src.box) {
           s = box->index();
           e = s + 1;
           box = box->parent();
         }
         
-        if(s < drag_source_reference().end && e > drag_source_reference().start)
+        if(s < src.end && e > src.start)
           return false;
       }
-      else if(box == dst) {
-        int s = drag_source_reference().start;
-        int e = drag_source_reference().end;
-        box = src;
+      else if(box == dst.box) {
+        int s = src.start;
+        int e = src.end;
+        box = src.box;
         
-        while(box != dst) {
+        while(box != dst.box) {
           s = box->index();
           e = s + 1;
           box = box->parent();
         }
         
-        if(s < end && e > start)
+        if(s < dst.end && e > dst.start)
           return false;
       }
     }

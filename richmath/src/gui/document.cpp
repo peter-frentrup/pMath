@@ -802,7 +802,7 @@ void Document::on_mouse_move(MouseEvent &event) {
     {
       drag_status = DragStatusCurrentlyDragging;
       mouse_histroy.down_pos = Point(HUGE_VAL, HUGE_VAL);
-      native()->do_drag_drop(selection_box(), selection_start(), selection_end(), event);
+      native()->do_drag_drop(selection_now(), event);
     }
     
     return;
