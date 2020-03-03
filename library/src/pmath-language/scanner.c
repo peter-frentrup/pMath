@@ -3230,8 +3230,11 @@ HAVE_STH_TO_EXPAND:
       
       if(pmath_expr_length(result) == 1) {
         s = pmath_expr_get_item(result, 1);
-        pmath_unref(result);
-        return s;
+        if(pmath_is_string(s)) {
+          pmath_unref(result);
+          return s;
+        }
+        pmath_unref(s);
       }
       
       result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_ComplexStringBox));
