@@ -108,22 +108,36 @@ Document({
             Section(BoxData("11"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
-        Section({TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
-          " is essentially equivalent to ", 
-          TemplateBox({"Replace"}, "ReferenceHyperlink"), ":"}, 
-         "ExampleText"), SectionGroup({
-          Section(BoxData({"Lookup", "(", {
-              {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}}, 
-               "}"}, ",", "b", ",", "$Failed"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), Section(BoxData("22"), "Output", 
+        Section({TemplateBox({"Part"}, "ReferenceHyperlink"), " uses ", 
+          TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+          " for part specifications that are strings of have head ", 
+          TemplateBox({"Key"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}}, 
+              "}"}, "[", {"Key", "(", "a", ")"}, "]"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("11"), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
-          Section(BoxData({"Replace", "(", {
-              "b", ",", {"{", {{"a", "\[Rule]", "11"}, ",", {
-                 "b", "\[Rule]", "22"}, ",", {"~", "\[Rule]", "$Failed"}}, 
-               "}"}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
-          Section(BoxData("22"), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [2]:")}, All)}, 1), 
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+            " is essentially equivalent to ", 
+            TemplateBox({"Replace"}, "ReferenceHyperlink"), ":"}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Lookup", "(", {
+                {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}}, 
+                 "}"}, ",", "b", ",", "$Failed"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), Section(BoxData("22"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"Replace", "(", {
+                "b", ",", {"{", {{"a", "\[Rule]", "11"}, ",", {
+                   "b", "\[Rule]", "22"}, ",", {"~", "\[Rule]", "$Failed"}}, 
+                 "}"}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("22"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
       SectionGroup({Section("Possible Issues", "ExampleSection"), 
         Section(
          "Threading over first and second arguments is done separately:", 
@@ -205,9 +219,10 @@ Document({
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Replace"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Missing"}, 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Part"}, 
          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Key"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Keys"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+        TemplateBox({"Missing"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Key"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Keys"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
