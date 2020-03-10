@@ -23,4 +23,6 @@ CUR_DOCUMENT CURSOR "document_beam.cur"
 CUR_NOSELECT CURSOR "no_select.cur"
 
 
-BMP_PIN BITMAP "pin.bmp"
+BMP_PIN16 BITMAP "pin16.bmp"
+BMP_PIN24 BITMAP "pin24.bmp"
+BMP_PIN32 BITMAP "pin32.bmp"

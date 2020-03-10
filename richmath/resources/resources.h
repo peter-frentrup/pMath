@@ -18,7 +18,9 @@
 #define CUR_NOSELECT    111
 
 
-#define BMP_PIN         201
+#define BMP_PIN16       201
+#define BMP_PIN24       202
+#define BMP_PIN32       203
 
 
 #endif // __RESOURCES_H__

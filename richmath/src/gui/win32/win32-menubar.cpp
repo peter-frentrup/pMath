@@ -167,12 +167,17 @@ void Win32Menubar::reload_image_list() {
   if(image_list)
     ImageList_Destroy(image_list);
   
-  // TODO: use resource compatible with current dpi
+  static const int sizes[] = {16, 24, 32};
+  int best_size = MulDiv(16, dpi, 96);
+  int index = 0;
+  while(index < sizeof(sizes)/sizeof(sizes[0]) && sizes[index] <= best_size) {
+    ++index;
+  }
+  --index;
   
-  int size = 16;//MulDiv(16, dpi, 96);
-  image_list = ImageList_Create(size, size, ILC_COLOR24 | ILC_MASK, 2, 0);
+  image_list = ImageList_Create(sizes[index], sizes[index], ILC_COLOR24 | ILC_MASK, 2, 0);
   
-  HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN));
+  HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN16 + index));
   ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
   DeleteObject(hbmp);
   
