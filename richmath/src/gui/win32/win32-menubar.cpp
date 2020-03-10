@@ -734,7 +734,8 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       
     case WM_MY_SHOWMENUITEM: {
         RECT rect;
-        SendMessageW(_hwnd, TB_GETRECT, (int)wParam, (LPARAM)&rect);
+        if(!SendMessageW(_hwnd, TB_GETRECT, (int)wParam, (LPARAM)&rect))
+          break;
         
         POINT pt = {(rect.left + rect.right) / 2, (rect.bottom + rect.top) / 2};
         
@@ -766,6 +767,10 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
     
     case WM_ENTERSIZEMOVE:
       _ignore_pressed_alt_key = true;
+      break;
+    
+    case WM_EXITSIZEMOVE:
+      _ignore_pressed_alt_key = false;
       break;
       
     case WM_SYSKEYDOWN: {
