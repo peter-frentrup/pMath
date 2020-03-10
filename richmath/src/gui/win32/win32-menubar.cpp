@@ -435,6 +435,7 @@ void Win32Menubar::on_dpi_changed(int new_dpi) {
   dpi = new_dpi;
   reload_image_list();
   theme_changed();
+  resized();
 }
 
 void Win32Menubar::theme_changed() {
@@ -482,12 +483,13 @@ void Win32Menubar::resized() {
   memset(&info, 0, sizeof(info));
   info.cbSize = sizeof(info);
   info.dwMask = TBIF_BYINDEX | TBIF_SIZE;
-  
   SendMessageW(_hwnd, TB_GETBUTTONINFOW, separator_index, (LPARAM)&info);
   
-  info.cx += rect.right - size.cx;
-  if(info.cx < 1)
-    info.cx = 1;
+  int new_sep_width = info.cx + rect.right - size.cx;
+  if(new_sep_width < 1)
+    new_sep_width = 1;
+    
+  info.cx = new_sep_width;
   SendMessageW(_hwnd, TB_SETBUTTONINFOW, separator_index, (LPARAM)&info);
 }
 
