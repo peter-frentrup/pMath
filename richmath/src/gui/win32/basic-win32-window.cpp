@@ -692,6 +692,8 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
 //  }
 }
 
+static RECT sizing_initial_rect {};
+
 void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   if(all_snappers.size() > 0) {
     all_snappers.clear();
@@ -729,7 +731,9 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
   }
   
   //POINT center { lParam->left + (lParam->right - lParam->left)/2, lParam->top + (lParam->bottom - lParam->top)/2 };
-  POINT center { last_moving_cx, last_moving_cy };
+  POINT center { 
+    sizing_initial_rect.left + (sizing_initial_rect.right - sizing_initial_rect.left) / 2, 
+    sizing_initial_rect.top + (sizing_initial_rect.bottom - sizing_initial_rect.top) / 2 };
   
   bool minmax = false;
   if(lParam->bottom - lParam->top < minh) {
@@ -737,11 +741,14 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->top = center.y - minh/2;
       lParam->bottom = lParam->top + minh;
     }
-    else if(change_top)
+    else if(change_top) {
+      lParam->bottom = sizing_initial_rect.bottom;
       lParam->top = lParam->bottom - minh;
-    else
+    }
+    else {
+      lParam->top = sizing_initial_rect.top;
       lParam->bottom = lParam->top + minh;
-
+    }
     minmax = true;
   }
 
@@ -750,11 +757,14 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->top = center.y - maxh/2;
       lParam->bottom = lParam->top + maxh;
     }
-    else if(change_top)
+    else if(change_top) {
+      lParam->bottom = sizing_initial_rect.bottom;
       lParam->top = lParam->bottom - maxh;
-    else
+    }
+    else {
+      lParam->top = sizing_initial_rect.top;
       lParam->bottom = lParam->top + maxh;
-
+    }
     minmax = true;
   }
 
@@ -763,11 +773,14 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->left = center.x - minw/2;
       lParam->right = lParam->left + minw;
     }
-    else if(change_left)
+    else if(change_left) {
+      lParam->right = sizing_initial_rect.right;
       lParam->left = lParam->right - minw;
-    else
+    }
+    else {
+      lParam->left = sizing_initial_rect.left;
       lParam->right = lParam->left + minw;
-
+    }
     minmax = true;
   }
 
@@ -776,11 +789,14 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->left = center.x - maxw/2;
       lParam->right = lParam->left + maxw;
     }
-    else if(change_left)
+    else if(change_left) {
+      lParam->right = sizing_initial_rect.right;
       lParam->left = lParam->right - maxw;
-    else
+    }
+    else {
+      lParam->left = sizing_initial_rect.left;
       lParam->right = lParam->left + maxw;
-
+    }
     minmax = true;
   }
 
@@ -916,6 +932,11 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
         break;
     }
   }
+  
+  if(!change_left)   lParam->left   = sizing_initial_rect.left;
+  if(!change_right)  lParam->right  = sizing_initial_rect.right;
+  if(!change_top)    lParam->top    = sizing_initial_rect.top;
+  if(!change_bottom) lParam->bottom = sizing_initial_rect.bottom;
 }
 
 void BasicWin32Window::on_moving(RECT *lParam) {
@@ -1933,10 +1954,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         break;
 
       case WM_ENTERSIZEMOVE: {
-          RECT rect;
-          GetWindowRect(_hwnd, &rect);
-          last_moving_cx = rect.left + (rect.right - rect.left)/2;
-          last_moving_cy = rect.top  + (rect.bottom - rect.top)/2;
+          GetWindowRect(_hwnd, &sizing_initial_rect);
+          last_moving_cx = sizing_initial_rect.left + (sizing_initial_rect.right - sizing_initial_rect.left)/2;
+          last_moving_cy = sizing_initial_rect.top  + (sizing_initial_rect.bottom - sizing_initial_rect.top)/2;
 
           find_all_snappers();
         } break;
