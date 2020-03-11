@@ -772,12 +772,8 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         Win32Menu::on_menuselect(wParam, lParam);
       } break;
     
-    case WM_ENTERSIZEMOVE:
-      _ignore_pressed_alt_key = true;
-      break;
-    
     case WM_EXITSIZEMOVE:
-      _ignore_pressed_alt_key = false;
+      _ignore_pressed_alt_key = (GetKeyState(VK_MENU) & ~1) != 0;
       break;
       
     case WM_SYSKEYDOWN: {
@@ -797,10 +793,9 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       } break;
       
     case WM_SYSKEYUP: {
-        if(_ignore_pressed_alt_key) {
+        if(wParam == VK_MENU && _ignore_pressed_alt_key) {
           _ignore_pressed_alt_key = false;
-          if(wParam == VK_MENU)
-            break;
+          break;
         }
         
         if(_appearence != MaNeverShow) {
