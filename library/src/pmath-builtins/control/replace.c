@@ -3,6 +3,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/dispatch-table-private.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
@@ -33,21 +34,8 @@ static pmath_t apply_rule_list(
     return obj;
 
   if(reldepth == 0) {
-    size_t i;
-
-    for(i = 1; i <= pmath_expr_length(rules); ++i) {
-      pmath_expr_t rule_i  = pmath_expr_get_item(rules, i);
-      pmath_t      pattern = pmath_expr_get_item(rule_i, 1);
-      pmath_t      rhs     = pmath_expr_get_item(rule_i, 2);
-      pmath_unref(rule_i);
-
-      if(_pmath_pattern_match(obj, pattern, &rhs)) {
-        pmath_unref(obj);
-        return rhs;
-      }
-
-      pmath_unref(rhs);
-    }
+    if(_pmath_rules_lookup(rules, pmath_ref(obj), &obj))
+      return obj;
   }
 
   if(pmath_is_expr(obj)) {
