@@ -69,26 +69,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule) {
   }
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules) {
-  if(pmath_is_expr(rules)) {
-    size_t i;
-    pmath_t head = pmath_expr_get_item(rules, 0);
-    pmath_unref(head);
-
-    if(!pmath_same(head, PMATH_SYMBOL_LIST))
-      return FALSE;
-
-    for(i = pmath_expr_length(rules); i >= 1; --i) {
-      pmath_t rule = pmath_expr_get_item(rules, i);
-      if(!_pmath_is_rule(rule)) {
-        pmath_unref(rule);
-        return FALSE;
-      }
-      pmath_unref(rule);
-    }
-    return TRUE;
-  }
-  return FALSE;
+PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules) { 
+  pmath_dispatch_table_t disp = _pmath_rules_need_dispatch_table(rules);
+  pmath_unref(disp);
+  return !pmath_same(disp, PMATH_NULL);
 }
 
 PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
