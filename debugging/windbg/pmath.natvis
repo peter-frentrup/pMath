@@ -54,6 +54,7 @@
 		<DisplayString Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
 		<DisplayString Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
 		<DisplayString Condition="type_shift == 11">pinned: {*(pmath.dll!_pmath_string_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift == 12">{*(pmath.dll!_pmath_dispatch_table_t*)this}</DisplayString>
 		<DisplayString>object tag {type_shift}</DisplayString>
 		<Expand HideRawView="true">
 			<ExpandedItem Condition="type_shift == 0">
@@ -98,6 +99,10 @@
 			
 			<ExpandedItem Condition="type_shift == 10">
 				*(pmath.dll!_pmath_packed_array_t*)this
+			</ExpandedItem>
+			
+			<ExpandedItem Condition="type_shift == 12">
+				*(pmath.dll!_pmath_dispatch_table_t*)this
 			</ExpandedItem>
 		</Expand>
 	</Type>
@@ -377,6 +382,13 @@
 				<ValuePointer Condition="element_type == 1">(double*)((char*)blob-&gt;data + offset)</ValuePointer>
 				<ValuePointer Condition="element_type == 2">(int*)((char*)blob-&gt;data + offset)</ValuePointer>
 			</ArrayItems>
+		</Expand>
+	</Type>
+	<Type Name ="_pmath_dispatch_table_t">
+		<DisplayString>dispatch table for {all_keys}</DisplayString>
+		<Expand>
+			<Item Name="all_keys">all_keys</Item>
+			<Item Name="Length">{((pmath.dll!_pmath_expr_t*)((all_keys.as_bits * 0x1000) / 0x1000))-&gt;length}</Item>
 		</Expand>
 	</Type>
 
