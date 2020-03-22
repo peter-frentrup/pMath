@@ -230,7 +230,8 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
     }
   }
   
-  current_slice_start->next_slice_or_slice_start = &tab->entries[num_keys];
+  if(current_slice_start < tab->entries + num_keys)
+    current_slice_start->next_slice_or_slice_start = &tab->entries[num_keys];
   
   pmath_ht_destroy(key_to_turn);
   return tab;
