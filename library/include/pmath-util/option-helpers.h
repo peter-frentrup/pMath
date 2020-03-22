@@ -5,7 +5,7 @@
 
 
 /**\addtogroup helpers Object Utility Functions
-   \brief Utility functuions for pMath Objects and Expressions.
+   \brief Utility functions for pMath Objects and Expressions.
 
    Here are some utility functions that simplify access to Expressions (or pMath
    Objects in general), but do not realy fit one of these topics.
@@ -17,8 +17,6 @@
    \relates pmath_expr_t
    \param expr An expression. It wont be freed.
    \return TRUE if Flatten({ \a expr }) is a list of rules.
-   
-   This is a shorthand for pmath_check_set_of_options(expr, PMATH_UNDEFINED, PMATH_NULL).
  */
 PMATH_API 
 pmath_bool_t pmath_is_set_of_options(pmath_t expr);

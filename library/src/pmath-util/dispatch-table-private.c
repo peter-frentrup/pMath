@@ -32,7 +32,8 @@ static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t 
 static size_t dispatch_table_lookup(
   struct _pmath_dispatch_table_t *table, // won't be freed
   pmath_t key,                           // won't be freed
-  pmath_t *rules_in_rhs_out);            // will be freed
+  pmath_t *rules_in_rhs_out,             // will be freed
+  pmath_bool_t literal);
 
 static void destroy_dispatch_table(pmath_t a);
 static unsigned int hash_dispatch_table(pmath_t a);
@@ -251,7 +252,8 @@ static struct _pmath_dispatch_entry_t *get_next_slice(struct _pmath_dispatch_ent
 static size_t dispatch_table_lookup(
   struct _pmath_dispatch_table_t *table, // won't be freed
   pmath_t key,                           // won't be freed
-  pmath_t *rules_in_rhs_out              // will be freed
+  pmath_t *rules_in_rhs_out,             // will be freed
+  pmath_bool_t literal
 ) {
   struct dispatch_lookup_info_t info;
   size_t last_index = 0;
@@ -290,9 +292,11 @@ static size_t dispatch_table_lookup(
       if(rules_in_rhs_out) {
         pmath_t rule = pmath_expr_get_item(*rules_in_rhs_out, last_index);
         pmath_t rhs = pmath_expr_get_item(rule, 2);
+        pmath_bool_t is_match;
         pmath_unref(rule);
         
-        if(_pmath_pattern_match(key, pmath_ref(entry->key), &rhs)) {
+        is_match = literal ? pmath_equals(key, entry->key) : _pmath_pattern_match(key, pmath_ref(entry->key), &rhs);
+        if(is_match) {
           pmath_unref(*rules_in_rhs_out);
           *rules_in_rhs_out = rhs;
           return last_index;
@@ -300,7 +304,8 @@ static size_t dispatch_table_lookup(
         pmath_unref(rhs);
       }
       else {
-        if(_pmath_pattern_match(key, pmath_ref(entry->key), NULL))
+        pmath_bool_t is_match = literal ? pmath_equals(key, entry->key) : _pmath_pattern_match(key, pmath_ref(entry->key), NULL);
+        if(is_match)
           return last_index;
       }
       
@@ -316,7 +321,7 @@ static size_t dispatch_table_lookup(
       pmath_t rhs = pmath_expr_get_item(rule, 2);
       pmath_unref(rule);
       
-      if(_pmath_pattern_match(PMATH_NULL, PMATH_NULL, &rhs)) {
+      if(literal || _pmath_pattern_match(PMATH_NULL, PMATH_NULL, &rhs)) {
         pmath_unref(*rules_in_rhs_out);
         *rules_in_rhs_out = rhs;
         return found_index;
@@ -383,7 +388,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_rules_lookup(pmath_t rules, pmath_t key, pmath
   }
   
   rules_in_rhs_out = pmath_ref(rules);
-  i = dispatch_table_lookup(tab_ptr, key, &rules_in_rhs_out);  
+  i = dispatch_table_lookup(tab_ptr, key, &rules_in_rhs_out, FALSE);
   pmath_unref(tab);
   
   pmath_unref(key);
@@ -395,6 +400,23 @@ PMATH_PRIVATE pmath_bool_t _pmath_rules_lookup(pmath_t rules, pmath_t key, pmath
   
   pmath_unref(rules_in_rhs_out);
   return FALSE;
+}
+
+PMATH_PRIVATE pmath_t _pmath_rules_find_rule(pmath_t rules, pmath_t lhs, pmath_bool_t literal) {
+  pmath_dispatch_table_t tab = _pmath_rules_need_dispatch_table(rules);
+  struct _pmath_dispatch_table_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
+  size_t i;
+  
+  if(!tab_ptr)
+    return PMATH_NULL;
+  
+  i = dispatch_table_lookup(tab_ptr, lhs, NULL, literal);  
+  pmath_unref(tab);
+  
+  if(i) 
+    return pmath_expr_get_item(rules, i);
+  
+  return PMATH_NULL;
 }
 
 static pmath_t replace_rule_rhs(
@@ -473,7 +495,7 @@ PMATH_PRIVATE pmath_t _pmath_rules_modify(
   }
   
   if(_pmath_pattern_is_const(key)) {
-    i = dispatch_table_lookup(tab_ptr, key, NULL);
+    i = dispatch_table_lookup(tab_ptr, key, NULL, FALSE);
     if(i == 0) {
       pmath_unref(tab);
       return append_rule(rules, key, callback, callback_context);

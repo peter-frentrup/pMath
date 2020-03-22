@@ -3,6 +3,7 @@
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/debug.h>
+#include <pmath-util/dispatch-table-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -46,6 +47,9 @@ pmath_expr_t _pmath_option_find_rule(pmath_t name, pmath_t option_set) {
     pmath_unref(lhs);
     return PMATH_NULL;
   }
+  
+  if(_pmath_is_list_of_rules(option_set)) 
+    return _pmath_rules_find_rule(option_set, name, TRUE);
   
   if(pmath_is_expr_of(option_set, PMATH_SYMBOL_LIST)) {
     size_t i;

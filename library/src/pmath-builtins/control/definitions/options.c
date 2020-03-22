@@ -120,6 +120,9 @@ pmath_bool_t check_set_of_options(pmath_t expr) {
   
   if(_pmath_is_rule(expr))
     return TRUE;
+  
+  if(_pmath_is_list_of_rules(expr))
+    return TRUE;
     
   if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
     pmath_message(PMATH_NULL, "rep", 1, pmath_ref(expr));
