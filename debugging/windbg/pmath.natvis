@@ -42,68 +42,74 @@
 		</Expand>
 	</Type>-->
 	<Type Name="_pmath_t">
-		<DisplayString Condition="type_shift ==  0">{*(pmath.dll!_pmath_mp_float_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  1">{*(pmath.dll!_pmath_mp_int_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  2">{*(pmath.dll!_pmath_quotient_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  3">{*(pmath.dll!_pmath_string_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  4">{*(pmath.dll!_pmath_symbol_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  5">{*(pmath.dll!_pmath_expr_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  6">{*(pmath.dll!_pmath_expr_part_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  7">{*(pmath.dll!_pmath_multirule_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  8">{*(pmath.dll!_pmath_custom_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift == 11">pinned: {*(pmath.dll!_pmath_string_t*)this}</DisplayString>
-		<DisplayString Condition="type_shift == 12">{*(pmath.dll!_pmath_dispatch_table_t*)this}</DisplayString>
-		<DisplayString>object tag {type_shift}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  0">{*(pmath.dll!_pmath_mp_float_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  1">{*(pmath.dll!_pmath_mp_int_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  2">{*(pmath.dll!_pmath_quotient_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  3">{*(pmath.dll!_pmath_string_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  4">{*(pmath.dll!_pmath_symbol_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  5">{*(pmath.dll!_pmath_expr_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  6">{*(pmath.dll!_pmath_expr_part_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  7">{*(pmath.dll!_pmath_multirule_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  8">{*(pmath.dll!_pmath_custom_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift == 11">pinned: {*(pmath.dll!_pmath_string_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast" Condition="type_shift == 12">{*(pmath.dll!_pmath_dispatch_table_t*)this}</DisplayString>
+		<DisplayString ExcludeView="nocast">object tag {type_shift}</DisplayString>
+		<DisplayString IncludeView="nocast">{{ refcount={refcount._data} }}</DisplayString>
 		<Expand HideRawView="true">
-			<ExpandedItem Condition="type_shift == 0">
+			<ExpandedItem Condition="type_shift == 0" ExcludeView="nocast">
 				*(pmath.dll!_pmath_mp_float_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 1">
+			<ExpandedItem Condition="type_shift == 1" ExcludeView="nocast">
 				*(pmath.dll!_pmath_mp_int_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 2">
+			<ExpandedItem Condition="type_shift == 2" ExcludeView="nocast">
 				*(pmath.dll!_pmath_quotient_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 3 || type_shift == 11">
+			<ExpandedItem Condition="type_shift == 3 || type_shift == 11" ExcludeView="nocast">
 				*(pmath.dll!_pmath_string_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 4">
+			<ExpandedItem Condition="type_shift == 4" ExcludeView="nocast">
 				*(pmath.dll!_pmath_symbol_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 5">
+			<ExpandedItem Condition="type_shift == 5" ExcludeView="nocast">
 				*(pmath.dll!_pmath_expr_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 6">
+			<ExpandedItem Condition="type_shift == 6" ExcludeView="nocast">
 				*(pmath.dll!_pmath_expr_part_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 7">
+			<ExpandedItem Condition="type_shift == 7" ExcludeView="nocast">
 				*(pmath.dll!_pmath_multirule_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 8">
+			<ExpandedItem Condition="type_shift == 8" ExcludeView="nocast">
 				*(pmath.dll!_pmath_custom_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 9">
+			<ExpandedItem Condition="type_shift == 9" ExcludeView="nocast">
 				*(pmath.dll!_pmath_blob_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 10">
+			<ExpandedItem Condition="type_shift == 10" ExcludeView="nocast">
 				*(pmath.dll!_pmath_packed_array_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 12">
+			<ExpandedItem Condition="type_shift == 12" ExcludeView="nocast">
 				*(pmath.dll!_pmath_dispatch_table_t*)this
 			</ExpandedItem>
+
+			<Item Name="refcount" IncludeView="nocast">refcount._data</Item>
+			<Item Name="flags8" IncludeView="nocast">flags8</Item>
+			<Item Name="flags16" IncludeView="nocast">flags16</Item>
+			<Item Name="flags32" Condition="sizeof(void*) > 4" IncludeView="nocast">padding_flags32</Item>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_mp_float_t">
@@ -112,10 +118,14 @@
 			<Item Name="mid">value_new-&gt;mid</Item>
 			<Item Name="radius">value_new-&gt;rad</Item>
 			<Item Name="prec">working_precision</Item>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_mp_int_t">
 		<DisplayString>mp int</DisplayString>
+		<Expand>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
+		</Expand>
 	</Type>
 	<Type Name="_pmath_quotient_t">
 		<DisplayString>quotient</DisplayString>
@@ -123,6 +133,7 @@
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_quotient_t*)this,!</Item>
 			<Item Name="numerator">numerator</Item>
 			<Item Name="denominator">denominator</Item>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_string_t">
@@ -143,12 +154,12 @@
 			<ExpandedItem Condition="buffer != 0">
 				(wchar_t*)((char*)buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + capacity_or_start,[length]na
 			</ExpandedItem>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_symbol_t">
 		<DisplayString>{name,sub}</DisplayString>
 		<Expand HideRawView="true">
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_symbol_t*)this,!</Item>
 			<Synthetic Name="attributes">
 				<!--<DisplayString>{attributes,b}</DisplayString>-->
 				<DisplayString>{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestProtected)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldFirst)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldRest)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSymmetric)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestAssociative)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldFirst)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNHoldRest)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestTemporary)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestListable)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDeepHoldAll)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestHoldAllComplete)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestOneIdentity)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestThreadLocal)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestNumericFunction)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestReadProtected)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestSequenceHold)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestRemoved)}{*(pmath.dll!_pmath_debug_symbol_attribute_t*)&amp;attributes,view(TestDefiniteFunction)}</DisplayString>
@@ -178,6 +189,8 @@
 			<Item Name="rules">(pmath.dll!_pmath_symbol_rules_t*)rules._data,na</Item>
 			<Item Name="prev">*prev</Item>
 			<Item Name="next">*next</Item>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_symbol_t*)this,!</Item>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_debug_symbol_attribute_t">
@@ -217,12 +230,12 @@
 		<DisplayString Condition="length==0">{items[0]}()</DisplayString>
 		<DisplayString>{items[0]}(&lt;&lt;{length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple" Condition="inherited.inherited.inherited.type_shift == 6">
+			<!--<Item Name="[&lt;Raw&gt;]" ExcludeView="simple" Condition="inherited.inherited.inherited.type_shift == 6">
 				*(pmath.dll!_pmath_expr_part_t*)this,!
 			</Item>
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
 				*(pmath.dll!_pmath_expr_t*)this,!
-			</Item>
+			</Item>-->
 			<Item Name="length" ExcludeView="simple">length,d</Item>
 			<Item Name="metadata" Condition="metadata._data != 0">*(pmath.dll!_pmath_t*)metadata._data</Item>
 			<Item Name="head">items[0]</Item>
@@ -231,15 +244,16 @@
 				<LowerBound>1</LowerBound>
 				<ValuePointer>&amp;items[1]</ValuePointer>
 			</ArrayItems>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_expr_part_t">
 		<DisplayString Condition="inherited.length==0">{inherited.items[0]}()</DisplayString>
 		<DisplayString>{inherited.items[0]}(&lt;&lt;{inherited.length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
+			<!--<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
 				*(pmath.dll!_pmath_expr_part_t*)this,!
-			</Item>
+			</Item>-->
 			<Item Name="length" ExcludeView="simple">inherited.length,d</Item>
 			<Item Name="metadata" Condition="inherited.metadata._data != 0">*(pmath.dll!_pmath_t*)inherited.metadata._data</Item>
 			<Item Name="head">inherited.items[0]</Item>
@@ -248,6 +262,7 @@
 				<LowerBound>1</LowerBound>
 				<ValuePointer>&amp;buffer-&gt;items[start]</ValuePointer>
 			</ArrayItems>
+			<ExpandedItem>inherited.inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_multirule_t">
@@ -267,6 +282,7 @@
 					<Exec>pBucket = (pmath.dll!_pmath_multirule_t*)((pBucket[0].next._data.as_bits * 0x1000) / 0x1000)</Exec>
 				</Loop>  
 			</CustomListItems>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_custom_t">
@@ -278,7 +294,7 @@
 		<DisplayString Condition="destructor == pmath.dll!destroy_msg_queue">message queue</DisplayString>
 		<DisplayString Condition="destructor == pmath.dll!_pmath_custom_task_destroy">task</DisplayString>
 		<DisplayString>custom object</DisplayString>
-		<Expand>
+		<Expand HideRawView="true">
 			<ExpandedItem Condition="destructor == pmath.dll!destroy_binary_file">
 				*(pmath.dll!_pmath_binary_file_t*)data
 			</ExpandedItem>
@@ -300,6 +316,7 @@
 			<ExpandedItem Condition="destructor == pmath.dll!_pmath_custom_task_destroy">
 				*(pmath.dll!pmath_task_t)data
 			</ExpandedItem>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_text_file_t">
@@ -316,6 +333,9 @@
 	</Type>
 	<Type Name="_pmath_blob_t">
 		<DisplayString>blob</DisplayString>
+		<Expand HideRawView="true">
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
+		</Expand>
 	</Type>
 	<Type Name="_pmath_packed_array_t">
 		<DisplayString Condition="element_type == 1 &amp;&amp; dimensions    == 1">packed double array [{sizes_and_steps[0],d}]</DisplayString>
@@ -329,10 +349,7 @@
 		<DisplayString Condition="element_type == 2 &amp;&amp; dimensions &gt;= 3">packed int32 array [{sizes_and_steps[0],d} x ... x {sizes_and_steps[dimensions-2],d} x {sizes_and_steps[dimensions-1],d}]</DisplayString>
 		<DisplayString Condition="element_type == 2"                              >packed int32 array</DisplayString>
 		<DisplayString>packed array</DisplayString>
-		<Expand>
-			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
-				*(pmath.dll!_pmath_packed_array_t*)this,!
-			</Item>
+		<Expand HideRawView="true">
 			<Item Name="element_type">(pmath.dll!pmath_packed_type_t)element_type</Item>
 			<Item Name="dimensions">dimensions,d</Item>
 			<Synthetic Name="sizes">
@@ -382,13 +399,19 @@
 				<ValuePointer Condition="element_type == 1">(double*)((char*)blob-&gt;data + offset)</ValuePointer>
 				<ValuePointer Condition="element_type == 2">(int*)((char*)blob-&gt;data + offset)</ValuePointer>
 			</ArrayItems>
+			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">
+				*(pmath.dll!_pmath_packed_array_t*)this,!
+			</Item>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 	<Type Name ="_pmath_dispatch_table_t">
 		<DisplayString>dispatch table for {all_keys}</DisplayString>
-		<Expand>
+		<Expand HideRawView="true">
 			<Item Name="all_keys">all_keys</Item>
-			<Item Name="Length">{((pmath.dll!_pmath_expr_t*)((all_keys.as_bits * 0x1000) / 0x1000))-&gt;length}</Item>
+			<Item Name="length">((pmath.dll!_pmath_expr_t*)((all_keys.as_bits * 0x1000) / 0x1000))-&gt;length</Item>
+			<Item Name="entries">entries,[((pmath.dll!_pmath_expr_t*)((all_keys.as_bits * 0x1000) / 0x1000))-&gt;length]</Item>
+			<ExpandedItem>inherited,view(nocast)</ExpandedItem>
 		</Expand>
 	</Type>
 
