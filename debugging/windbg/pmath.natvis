@@ -53,6 +53,7 @@
 		<DisplayString Condition="type_shift ==  8">{*(pmath.dll!_pmath_custom_t*)this}</DisplayString>
 		<DisplayString Condition="type_shift ==  9">{*(pmath.dll!_pmath_blob_t*)this}</DisplayString>
 		<DisplayString Condition="type_shift == 10">{*(pmath.dll!_pmath_packed_array_t*)this}</DisplayString>
+		<DisplayString Condition="type_shift == 11">pinned: {*(pmath.dll!_pmath_string_t*)this}</DisplayString>
 		<DisplayString>object tag {type_shift}</DisplayString>
 		<Expand HideRawView="true">
 			<ExpandedItem Condition="type_shift == 0">
@@ -67,7 +68,7 @@
 				*(pmath.dll!_pmath_quotient_t*)this
 			</ExpandedItem>
 			
-			<ExpandedItem Condition="type_shift == 3">
+			<ExpandedItem Condition="type_shift == 3 || type_shift == 11">
 				*(pmath.dll!_pmath_string_t*)this
 			</ExpandedItem>
 			
@@ -378,7 +379,7 @@
 			</ArrayItems>
 		</Expand>
 	</Type>
-	
+
 	<Type Name="pmath_locked_t">
 		<DisplayString>{_data}</DisplayString>
 		<Expand>
