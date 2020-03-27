@@ -263,6 +263,8 @@
 				<ValuePointer>&amp;buffer-&gt;items[start]</ValuePointer>
 			</ArrayItems>
 			<ExpandedItem>inherited.inherited,view(nocast)</ExpandedItem>
+			<Item Name="buffer">*buffer</Item>
+			<Item Name="start">start</Item>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_multirule_t">
