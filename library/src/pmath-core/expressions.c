@@ -8,6 +8,7 @@
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/dispatch-table-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/incremental-hash-private.h>
@@ -1604,29 +1605,76 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 
 enum {
   METADATA_KIND_DEBUG_INFO,
-  METADATA_KIND_DISPATCH_TABLE 
+  METADATA_KIND_DISPATCH_TABLE
 };
 
 static pmath_bool_t find_metadata(pmath_t *metadata, int kind) {
   assert(metadata);
   
-  if(pmath_is_expr_of(*metadata, PMATH_MAGIC_METADATA_LIST)) {
-    size_t i;
-    for(i = pmath_expr_length(*metadata); i > 0; --i) {
-      pmath_t item = pmath_expr_get_item(*metadata, i);
-      if(find_metadata(&item, kind)) {
-        pmath_unref(*metadata);
-        *metadata = item;
-        return TRUE;
+  if(pmath_is_expr(*metadata)) {
+    pmath_t head = pmath_expr_get_item(*metadata, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_MAGIC_METADATA_LIST)) {
+      size_t i;
+      for(i = pmath_expr_length(*metadata); i > 0; --i) {
+        pmath_t item = pmath_expr_get_item(*metadata, i);
+        if(find_metadata(&item, kind)) {
+          pmath_unref(*metadata);
+          *metadata = item;
+          return TRUE;
+        }
+        pmath_unref(item);
       }
+      return FALSE;
+    }
+  }
+  else if(pmath_is_dispatch_table(*metadata)) 
+    return kind == METADATA_KIND_DISPATCH_TABLE;
+  
+  return kind == METADATA_KIND_DEBUG_INFO;
+}
+
+static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_of_kind) {
+  assert(metadata);
+  
+  if(pmath_same(*metadata, PMATH_NULL)) {
+    *metadata = pmath_ref(new_of_kind);
+    return TRUE;
+  }
+  
+  if(pmath_is_expr(*metadata)) {
+    pmath_t head = pmath_expr_get_item(*metadata, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_MAGIC_METADATA_LIST)) {
+      size_t i;
+      for(i = pmath_expr_length(*metadata); i > 0; --i) {
+        pmath_t item = pmath_expr_get_item(*metadata, i);
+        if(try_merge_metadata(&item, kind, new_of_kind)) {
+          *metadata = pmath_expr_set_item(*metadata, i, item);
+          return TRUE;
+        }
+        pmath_unref(item);
+      }
+      return FALSE;
+    }
+  }
+  else if(pmath_is_dispatch_table(*metadata)) {
+    if(kind == METADATA_KIND_DISPATCH_TABLE) {
+      pmath_unref(*metadata);
+      *metadata = pmath_ref(new_of_kind);
+      return TRUE;
     }
     return FALSE;
   }
   
-  if(pmath_is_dispatch_table(*metadata)) 
-    return kind == METADATA_KIND_DISPATCH_TABLE;
-  
-  return kind == METADATA_KIND_DEBUG_INFO;
+  if(kind == METADATA_KIND_DEBUG_INFO) {
+    pmath_unref(*metadata);
+    *metadata = pmath_ref(new_of_kind);
+    return TRUE;
+  }
+  return FALSE;
 }
 
 static pmath_t get_metadata(pmath_expr_t expr, int kind) {
@@ -1656,33 +1704,25 @@ static pmath_t get_metadata(pmath_expr_t expr, int kind) {
   return PMATH_NULL;
 }
 
-PMATH_PRIVATE
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_dispatch_table_t _pmath_expr_get_dispatch_table(pmath_expr_t expr) {
-  return get_metadata(expr, METADATA_KIND_DISPATCH_TABLE);
-}
-
-PMATH_PRIVATE
-void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t dispatch_table) {
-  struct _pmath_expr_t *_expr;
-  pmath_t metadata;
-  
-  if(pmath_is_null(expr)) {
-    pmath_unref(dispatch_table);
-    return;
+static pmath_t merge_metadata(pmath_expr_t expr, int kind, pmath_t new_of_kind) {
+  if(try_merge_metadata(&expr, kind, new_of_kind)) {
+    pmath_unref(new_of_kind);
+    return expr;
   }
   
-  assert(pmath_is_expr(expr));
-  assert(pmath_is_dispatch_table(dispatch_table) || pmath_is_null(dispatch_table));
+  return pmath_expr_new_extended(PMATH_MAGIC_METADATA_LIST, 2, expr, new_of_kind);
+}
+
+static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_of_kind) {
+  pmath_t metadata;
   
-  _expr = (struct _pmath_expr_t*)PMATH_AS_PTR(expr);
   {
     struct _pmath_t *metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
     
     if(!metadata_ptr) {
-      _pmath_atomic_unlock_ptr(&_expr->metadata, PMATH_AS_PTR(dispatch_table));
+      _pmath_atomic_unlock_ptr(&_expr->metadata, PMATH_AS_PTR(new_of_kind));
       metadata = PMATH_NULL;
-      dispatch_table = PMATH_NULL;
+      new_of_kind = PMATH_NULL;
     }
     else {
       metadata = pmath_ref(PMATH_FROM_PTR(metadata_ptr));
@@ -1690,17 +1730,12 @@ void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t
     }
   }
   
-  if(pmath_is_null(metadata))
-    return;
-  
-  if(find_metadata(&metadata, METADATA_KIND_DEBUG_INFO)) {
-    metadata = pmath_expr_new_extended(PMATH_MAGIC_METADATA_LIST, 2, metadata, dispatch_table);
-  }
-  else {
+  if(pmath_is_null(new_of_kind)) {
     pmath_unref(metadata);
-    metadata = dispatch_table;
+    return;
   }
   
+  metadata = merge_metadata(metadata, METADATA_KIND_DEBUG_INFO, new_of_kind);
   if(pmath_is_null(metadata))
     return;
   
@@ -1711,6 +1746,30 @@ void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t
     if(old_metadata_ptr)
       _pmath_unref_ptr(old_metadata_ptr);
   }
+}
+
+PMATH_PRIVATE
+pmath_dispatch_table_t _pmath_expr_get_dispatch_table(pmath_expr_t expr) {
+  pmath_t result = get_metadata(expr, METADATA_KIND_DISPATCH_TABLE);
+  if(!pmath_is_null(result))
+    return result;
+  
+  return PMATH_NULL;
+}
+
+PMATH_PRIVATE
+void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t dispatch_table) {
+  struct _pmath_expr_t *_expr;
+  
+  assert(pmath_is_dispatch_table(dispatch_table) || pmath_is_null(dispatch_table));
+  
+  if(!pmath_is_pointer_of(expr, PMATH_TYPE_EXPRESSION_GENERAL | PMATH_TYPE_EXPRESSION_GENERAL_PART)) {
+    pmath_unref(dispatch_table);
+    return;
+  }
+  
+  _expr = (struct _pmath_expr_t*)PMATH_AS_PTR(expr);
+  attach_metadata(_expr, METADATA_KIND_DISPATCH_TABLE, dispatch_table);
 }
 
 PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {

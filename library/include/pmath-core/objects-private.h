@@ -18,6 +18,10 @@ enum { // private pmath_type_t ...
 #define pmath_is_multirule(obj)       (pmath_is_pointer_of(obj, PMATH_TYPE_MULTIRULE))
 #define pmath_is_dispatch_table(obj)  (pmath_is_pointer_of(obj, PMATH_TYPE_DISPATCH_TABLE))
 
+
+#define PMATH_MAGIC_METADATA_LIST     PMATH_FROM_TAG(PMATH_TAG_MAGIC, 3)
+
+
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_NONNULL(1)
 intptr_t _pmath_refcount_ptr(struct _pmath_t *obj) {
