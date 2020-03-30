@@ -25,6 +25,9 @@ typedef pmath_t pmath_dispatch_table_t;
 struct _pmath_dispatch_entry_t {
   pmath_t key;
   unsigned int literal_turn_or_zero;
+  /* TODO: on x64, here are 4 unused padding bytes. 
+      Either uses size_t above or use an int offset instead of a pointer below.
+  */
   struct _pmath_dispatch_entry_t *next_slice_or_slice_start;
 };
 
