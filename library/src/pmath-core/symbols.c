@@ -1130,7 +1130,7 @@ static void write_symbol(struct pmath_write_ex_t *info, pmath_t symbol) {
   
   if(pmath_symbol_get_attributes(symbol) & PMATH_SYMBOL_ATTRIBUTE_REMOVED) {
     _pmath_write_cstr("Removed(", info->write, info->user);
-    pmath_write_ex(info, name);
+    _pmath_write_impl(info, name);
     _pmath_write_cstr(")", info->write, info->user);
     pmath_unref(name);
     return;

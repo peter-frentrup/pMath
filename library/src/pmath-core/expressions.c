@@ -2388,12 +2388,12 @@ static void write_ex(
   {
     WRITE_CSTR("(");
 
-    pmath_write_ex(info, obj);
+    _pmath_write_impl(info, obj);
 
     WRITE_CSTR(")");
   }
   else
-    pmath_write_ex(info, obj);
+    _pmath_write_impl(info, obj);
 }
 
 struct _writer_hook_data_t {
@@ -2592,14 +2592,14 @@ static void write_expr_ex(
   }
   else if(pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY)) {
     if(exprlen == 0) {
-      pmath_write_ex(info, PMATH_SYMBOL_COMPLEXINFINITY);
+      _pmath_write_impl(info, PMATH_SYMBOL_COMPLEXINFINITY);
     }
     else if(exprlen == 1) {
       pmath_t direction;
 
       direction = pmath_expr_get_item(expr, 1);
       if(pmath_equals(direction, PMATH_FROM_INT32(1))) {
-        pmath_write_ex(info, PMATH_SYMBOL_INFINITY);
+        _pmath_write_impl(info, PMATH_SYMBOL_INFINITY);
       }
       else if(pmath_equals(direction, PMATH_FROM_INT32(-1))) {
         if(priority > PRIO_FACTOR)
@@ -2607,7 +2607,7 @@ static void write_expr_ex(
         else
           WRITE_CSTR("-");
 
-        pmath_write_ex(info, PMATH_SYMBOL_INFINITY);
+        _pmath_write_impl(info, PMATH_SYMBOL_INFINITY);
 
         if(priority > PRIO_FACTOR)
           WRITE_CSTR(")");
@@ -2630,7 +2630,7 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
     info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR;
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
   }
@@ -2643,7 +2643,7 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
     info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
   }
@@ -2670,7 +2670,7 @@ static void write_expr_ex(
 
     write_ex(info, PRIO_CALL, head);
     WRITE_CSTR("(");
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
 
     snprintf(s, sizeof(s), ", <<%u>>)", (int)(exprlen - 1));
     WRITE_CSTR(s);
@@ -2686,7 +2686,7 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
     info->options |= PMATH_WRITE_OPTIONS_FULLNAME;
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
   }
@@ -2699,7 +2699,7 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
     info->options |= PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);
   }
@@ -2775,23 +2775,23 @@ static void write_expr_ex(
 
       for(i = 1; i < listlen; ++i) {
         obj = pmath_expr_get_item(list, i);
-        pmath_write_ex(info, obj);
+        _pmath_write_impl(info, obj);
         pmath_unref(obj);
-        pmath_write_ex(info, seperator);
+        _pmath_write_impl(info, seperator);
       }
 
       pmath_unref(seperator);
 
       if(listlen > 0) {
         obj = pmath_expr_get_item(list, listlen);
-        pmath_write_ex(info, obj);
+        _pmath_write_impl(info, obj);
         pmath_unref(obj);
       }
     }
     else {
       for(i = 1; i <= listlen; ++i) {
         obj = pmath_expr_get_item(list, i);
-        pmath_write_ex(info, obj);
+        _pmath_write_impl(info, obj);
         pmath_unref(obj);
       }
     }
@@ -2857,7 +2857,7 @@ static void write_expr_ex(
     item = pmath_expr_get_item(expr, 1);
     item = _pmath_prepare_shallow(item, maxdepth, maxlength);
 
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
 
     pmath_unref(item);
   }
@@ -2909,7 +2909,7 @@ static void write_expr_ex(
     if(lines * pagewidth < INT_MAX / 4)
       _pmath_write_short(info, item, (int)(lines * pagewidth));
     else
-      pmath_write_ex(info, item);
+      _pmath_write_impl(info, item);
 
     pmath_unref(item);
   }
@@ -2922,7 +2922,7 @@ static void write_expr_ex(
     item = pmath_expr_get_item(expr, 1);
 
     WRITE_CSTR("<<");
-    pmath_write_ex(info, item);
+    _pmath_write_impl(info, item);
     WRITE_CSTR(">>");
 
     pmath_unref(item);
@@ -3058,7 +3058,7 @@ else INPUTFORM:
           write_spaced_operator2(info, FALSE, TRUE, ',', ",");
 
         item = pmath_expr_get_item(expr, i);
-        pmath_write_ex(info, item);
+        _pmath_write_impl(info, item);
         pmath_unref(item);
       }
 
@@ -3416,7 +3416,7 @@ else INPUTFORM:
 
       if(pmath_equals(exponent, _pmath_one_half)) {
         WRITE_CSTR("Sqrt(");
-        pmath_write_ex(info, base);
+        _pmath_write_impl(info, base);
         WRITE_CSTR(")");
       }
       else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))) {
@@ -3439,7 +3439,7 @@ else INPUTFORM:
 
         if(pmath_equals(exponent, minus_one_half)) {
           WRITE_CSTR("1/Sqrt(");
-          pmath_write_ex(info, base);
+          _pmath_write_impl(info, base);
           WRITE_CSTR(")");
         }
         else {
@@ -3508,7 +3508,7 @@ else INPUTFORM:
           write_spaced_operator2(info, FALSE, TRUE, ',', ",");
 
         item = pmath_expr_get_item(expr, i);
-        pmath_write_ex(info, item);
+        _pmath_write_impl(info, item);
         pmath_unref(item);
       }
       WRITE_CSTR("]");
@@ -3533,7 +3533,7 @@ else INPUTFORM:
 
       write_ex(info, PRIO_CALL, symbol);
       WRITE_CSTR("::");
-      pmath_write_ex(info, tag);
+      _pmath_write_impl(info, tag);
 
       pmath_unref(symbol);
       pmath_unref(tag);
@@ -3557,7 +3557,7 @@ else INPUTFORM:
           lparen = TRUE;
         }
 
-        pmath_write_ex(info, re);
+        _pmath_write_impl(info, re);
 
         if(pmath_number_sign(im) >= 0)
           write_spaced_operator(info, '+', "+");
@@ -3580,7 +3580,7 @@ else INPUTFORM:
           WRITE_CSTR("(");
           lparen = TRUE;
         }
-        pmath_write_ex(info, im);
+        _pmath_write_impl(info, im);
         WRITE_CSTR(" I");
       }
 
@@ -3605,15 +3605,15 @@ else INPUTFORM:
       pat = pmath_expr_get_item(expr, 2);
       if(pmath_equals(pat, _pmath_object_singlematch)) {
         WRITE_CSTR("~");
-        pmath_write_ex(info, sym);
+        _pmath_write_impl(info, sym);
       }
       else if(pmath_equals(pat, _pmath_object_multimatch)) {
         WRITE_CSTR("~~");
-        pmath_write_ex(info, sym);
+        _pmath_write_impl(info, sym);
       }
       else if(pmath_equals(pat, _pmath_object_zeromultimatch)) {
         WRITE_CSTR("~~~");
-        pmath_write_ex(info, sym);
+        _pmath_write_impl(info, sym);
       }
       else {
         pmath_bool_t default_pattern = TRUE;
@@ -3622,7 +3622,7 @@ else INPUTFORM:
           pmath_t type = pmath_expr_get_item(pat, 1);
 
           WRITE_CSTR("~");
-          pmath_write_ex(info, sym);
+          _pmath_write_impl(info, sym);
           WRITE_CSTR(":");
 
           write_ex(info, PRIO_SYMBOL, type);
@@ -3639,7 +3639,7 @@ else INPUTFORM:
 
             if(pmath_equals(range, _pmath_object_range_from_one)) {
               WRITE_CSTR("~~");
-              pmath_write_ex(info, sym);
+              _pmath_write_impl(info, sym);
               WRITE_CSTR(":");
 
               write_ex(info, PRIO_SYMBOL, type);
@@ -3647,7 +3647,7 @@ else INPUTFORM:
             }
             else if(pmath_equals(range, _pmath_object_range_from_zero)) {
               WRITE_CSTR("~~~");
-              pmath_write_ex(info, sym);
+              _pmath_write_impl(info, sym);
               WRITE_CSTR(":");
 
               write_ex(info, PRIO_SYMBOL, type);
@@ -3665,7 +3665,7 @@ else INPUTFORM:
           if(priority > PRIO_ALTERNATIVES)
             WRITE_CSTR("(");
 
-          pmath_write_ex(info, sym);
+          _pmath_write_impl(info, sym);
           write_spaced_operator(info, ':', ":");
           write_ex(info, PRIO_ALTERNATIVES, pat);
 
@@ -3838,7 +3838,7 @@ else INPUTFORM:
 //
 //      item = pmath_expr_get_item(expr, i);
 //      if(item || exprlen < 2)
-//        pmath_write_ex(info, item);
+//        _pmath_write_impl(info, item);
 //      pmath_unref(item);
 //    }
 //
@@ -3927,7 +3927,7 @@ else INPUTFORM:
       if(exprlen == 2 && priority > PRIO_TIMES)  WRITE_CSTR("(?");
       else                                       WRITE_CSTR("?");
 
-      pmath_write_ex(info, sub_item);
+      _pmath_write_impl(info, sub_item);
       pmath_unref(sub_item);
       pmath_unref(item);
 
@@ -3956,7 +3956,7 @@ else INPUTFORM:
 
         item = pmath_expr_get_item(expr, i);
         if(!pmath_is_null(item) || exprlen < 2)
-          pmath_write_ex(info, item);
+          _pmath_write_impl(info, item);
         pmath_unref(item);
       }
       WRITE_CSTR(")");

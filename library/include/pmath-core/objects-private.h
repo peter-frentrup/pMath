@@ -82,6 +82,10 @@ _pmath_timer_t _pmath_timer_get_next(void);
 typedef void (*_pmath_object_write_func_t)(struct pmath_write_ex_t *, pmath_t);
 
 PMATH_PRIVATE
+PMATH_ATTRIBUTE_NONNULL(1)
+void _pmath_write_impl(struct pmath_write_ex_t *info, pmath_t obj);
+
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_create_stub(unsigned int type_shift, size_t size);
 

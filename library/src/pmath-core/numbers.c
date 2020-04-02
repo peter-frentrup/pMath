@@ -1525,9 +1525,9 @@ static unsigned int hash_quotient(pmath_t quotient) {
 }
 
 static void write_quotient(struct pmath_write_ex_t *info, pmath_t quotient) {
-  pmath_write_ex(info, PMATH_QUOT_NUM(quotient));
+  _pmath_write_impl(info, PMATH_QUOT_NUM(quotient));
   _pmath_write_cstr("/", info->write, info->user);
-  pmath_write_ex(info, PMATH_QUOT_DEN(quotient));
+  _pmath_write_impl(info, PMATH_QUOT_DEN(quotient));
 }
 
 //} ============================================================================

@@ -915,7 +915,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     size_t i;
 
     part = pmath_expr_get_item(box, 0);
-    pmath_write_ex(info, part);
+    _pmath_write_impl(info, part);
     pmath_unref(part);
 
     _pmath_write_cstr("(", info->write, info->user);
@@ -933,7 +933,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  pmath_write_ex(info, box);
+  _pmath_write_impl(info, box);
 }
 
 PMATH_PRIVATE

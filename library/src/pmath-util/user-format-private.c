@@ -80,7 +80,7 @@ pmath_bool_t _pmath_write_user_format(struct pmath_write_ex_t *info, pmath_t obj
   if(me)
     me->evaldepth++;
     
-  pmath_write_ex(info, format);
+  _pmath_write_impl(info, format);
   
   if(me)
     me->evaldepth--;

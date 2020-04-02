@@ -1,4 +1,5 @@
 #include <pmath-core/strings.h>
+#include <pmath-core/objects-private.h>
 
 #include <pmath-language/scanner.h>
 #include <pmath-language/tokens.h>
@@ -236,13 +237,13 @@ pmath_bool_t _pmath_stringform_write(
   pmath_unref(data.formated_params);
   
   if(pmath_is_string(result)) {
-    pmath_write_ex(info, result);
+    _pmath_write_impl(info, result);
   }
   else if(pmath_is_expr(result)) {
     for(i = 1; i <= pmath_expr_length(result); ++i) {
       pmath_t item = pmath_expr_get_item(result, i);
       
-      pmath_write_ex(info, item);
+      _pmath_write_impl(info, item);
       
       pmath_unref(item);
     }

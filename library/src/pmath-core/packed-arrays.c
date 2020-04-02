@@ -578,7 +578,7 @@ static void write_packed_array(struct pmath_write_ex_t *info, pmath_t packed_arr
   {
     pmath_t tmp_expr = _pmath_packed_array_form(packed_array);
     
-    pmath_write_ex(info, tmp_expr);
+    _pmath_write_impl(info, tmp_expr);
     
     pmath_unref(tmp_expr);
     return;

@@ -1,5 +1,6 @@
 #include <pmath-util/line-writer.h>
 
+#include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 #include <pmath-core/strings-private.h>
 
@@ -652,7 +653,7 @@ static void fallback_write_ex(
   if(HAS_MEMBER(options, post_write))
     info.post_write = options->post_write;
     
-  pmath_write_ex(&info, obj);
+  _pmath_write_impl(&info, obj);
 }
 
 PMATH_API
@@ -726,7 +727,7 @@ void pmath_write_with_pagewidth_ex(
   info.pre_write  = linewriter_pre_write;
   info.post_write = linewriter_post_write;
   
-  pmath_write_ex(&info, obj);
+  _pmath_write_impl(&info, obj);
   
   do {
     flush_line(&lw);

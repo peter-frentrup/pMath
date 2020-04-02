@@ -280,7 +280,7 @@ PMATH_API void pmath_write(
   info.user    = user;
   info.write   = write;
   
-  pmath_write_ex(&info, obj);
+  _pmath_write_impl(&info, obj);
 }
 
 PMATH_API
@@ -296,9 +296,15 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
     memcpy(&info2, info, info->size);
     info2.size = sizeof(info2);
     
-    pmath_write_ex(&info2, obj);
+    _pmath_write_impl(&info2, obj);
     return;
   }
+  
+  _pmath_write_impl(info, obj);
+}
+
+PMATH_PRIVATE
+void _pmath_write_impl(struct pmath_write_ex_t *info, pmath_t obj) {
   
   if(info->pre_write)
     info->pre_write(info->user, obj, info->options);

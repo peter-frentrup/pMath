@@ -1,5 +1,6 @@
 #include <pmath-builtins/formating-private.h>
 
+#include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 
 #include <pmath-util/evaluation.h>
@@ -142,7 +143,7 @@ static void visit_spans(
   }
   
   if(span->is_skeleton) {
-    pmath_write_ex(info, span->item);
+    _pmath_write_impl(info, span->item);
     *pos = span->end;
     return;
   }
@@ -352,7 +353,7 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) 
   info->pre_write  = pre_write_short;
   info->post_write = post_write_short;
   
-  pmath_write_ex(info, obj);
+  _pmath_write_impl(info, obj);
   
   info->write      = ws.write;
   info->user       = ws.user;
@@ -360,7 +361,7 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) 
   info->post_write = ws.post_write;
   
   if(ws.have_error || ws.current_span != ws.all_spans) {
-    pmath_write_ex(info, obj);
+    _pmath_write_impl(info, obj);
   }
   else {
     int pos;
