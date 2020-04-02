@@ -73,6 +73,7 @@ pmath_bool_t _pmath_write_user_format(struct pmath_write_ex_t *info, pmath_t obj
       me->evaldepth = old_evaldepth;
     }
   
+    pmath_unref(format);
     return FALSE;
   }
     
