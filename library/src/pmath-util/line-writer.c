@@ -636,8 +636,8 @@ static void linewriter_post_write(void *user, pmath_t item, pmath_write_options_
 #define HAS_MEMBER(OPT, MEMBER_NAME)  ((OPT)->size >= ((char*)&((OPT)->MEMBER_NAME) - (char*)(OPT)) + sizeof((OPT)->MEMBER_NAME))
 
 static void fallback_write_ex(
-  struct line_writer_options_t *options,
-  pmath_t                       obj
+  struct pmath_line_writer_options_t *options,
+  pmath_t                             obj
 ) {
   struct pmath_write_ex_t info;
   memset(&info, 0, sizeof(info));
@@ -657,8 +657,8 @@ static void fallback_write_ex(
 
 PMATH_API
 void pmath_write_with_pagewidth_ex(
-  struct line_writer_options_t *options,
-  pmath_t                       obj
+  struct pmath_line_writer_options_t *options,
+  pmath_t                             obj
 ) {
   struct linewriter_t lw;
   struct pmath_write_ex_t info;
@@ -759,7 +759,7 @@ void pmath_write_with_pagewidth(
   int                     page_width,
   int                     indentation_width
 ) {
-  struct line_writer_options_t info;
+  struct pmath_line_writer_options_t info;
   
   memset(&info, 0, sizeof(info));
   info.size              = sizeof(info);

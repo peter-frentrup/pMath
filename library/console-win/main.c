@@ -941,7 +941,7 @@ struct write_output_t {
 };
 
 static void write_output_locked_callback(void *_context) {
-  struct line_writer_options_t options;
+  struct pmath_line_writer_options_t options;
   struct styled_writer_info_t info;
   struct write_output_t *context = _context;
   int indent_length;

@@ -12,7 +12,7 @@
    This should be inistialized with
    <tt>memset(&opts, 0, sizeof(opts)); opts.size = sizeof(opts); ... </tt>
  */
-struct line_writer_options_t {
+struct pmath_line_writer_options_t {
   /**\brief The structure's size in bytes.
      This must be initialized with sizeof(struct pmath_write_ex_t), for version 
      control.
@@ -64,8 +64,8 @@ struct line_writer_options_t {
  */
 PMATH_API
 void pmath_write_with_pagewidth_ex(
-  struct line_writer_options_t *options,
-  pmath_t                       obj);  
+  struct pmath_line_writer_options_t *options,
+  pmath_t                             obj);  
   
 /**\brief Write an object to a stream with a maximum line width.
    \memberof pmath_t
