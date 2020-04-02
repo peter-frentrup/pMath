@@ -112,6 +112,8 @@ static const pmath_ht_class_t dispatch_table_cache_class = {
 };
 
 static size_t unsafe_find_in_limbo(struct _pmath_dispatch_table_t *disp) {
+  // The limbo is small enough for a linear search. Otherwise we would have to introduce a 
+  // _pmath_dispatch_table_t::limbo_index member.
   size_t i;
   for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i)
     if(dispatch_table_limbo[i] == disp)
