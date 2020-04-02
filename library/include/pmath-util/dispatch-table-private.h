@@ -89,6 +89,7 @@ PMATH_PRIVATE pmath_t _pmath_rules_modify(
   pmath_bool_t (*callback)(pmath_t*, pmath_bool_t, void*), 
   void *callback_context);
 
+PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void);
 PMATH_PRIVATE void _pmath_dispatch_tables_done(void);
 

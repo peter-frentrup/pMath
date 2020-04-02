@@ -510,6 +510,7 @@ static void memory_panic(void) {
                     
   _pmath_regex_memory_panic();
   _pmath_numbers_memory_panic();
+  _pmath_dispatch_tables_memory_panic();
   _pmath_symbols_memory_panic();
   _pmath_threadlocks_memory_panic();
   

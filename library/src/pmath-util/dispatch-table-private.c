@@ -35,7 +35,7 @@ static size_t dispatch_table_lookup(
   pmath_t *rules_in_rhs_out,             // will be freed
   pmath_bool_t literal);
 
-static void destroy_dispatch_table(pmath_t a);
+static void disown_dispatch_table(pmath_t a);
 static unsigned int hash_dispatch_table(pmath_t a);
 static int cmp_dispatch_tables(pmath_t a, pmath_t b);
 static pmath_bool_t equal_dispatch_tables(pmath_t a, pmath_t b);
@@ -89,7 +89,13 @@ static const pmath_ht_class_t dispatch_entries_ht_class = {
 static pmath_atomic_t dispatch_table_cache_lock = PMATH_ATOMIC_STATIC_INIT;
 
 // Maps pmath_t* keys (note: not struct _pmath_t*) to struct _pmath_dispatch_table_t* entries:
-static pmath_hashtable_t dispatch_table_cache; 
+static pmath_hashtable_t dispatch_table_cache;
+
+#define DISPATCH_TABLE_LIMBO_SIZE       8   // Must be a power of two
+#define DISPATCH_TABLE_LIMBO_SIZE_MASK  (DISPATCH_TABLE_LIMBO_SIZE - 1)
+
+static struct _pmath_dispatch_table_t *dispatch_table_limbo[DISPATCH_TABLE_LIMBO_SIZE];
+static size_t dispatch_table_limbo_next = 0;
 
 static void         dispatch_table_cache_entry_destructor(void *entry);
 static unsigned int dispatch_table_cache_entry_hash(void *entry);
@@ -105,14 +111,36 @@ static const pmath_ht_class_t dispatch_table_cache_class = {
   dispatch_table_cache_entry_equals_key
 };
 
+static size_t unsafe_find_in_limbo(struct _pmath_dispatch_table_t *disp) {
+  size_t i;
+  for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i)
+    if(dispatch_table_limbo[i] == disp)
+      return i+1;
+  
+  return 0;
+}
+
 struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t keys) {
   struct _pmath_dispatch_table_t *result = NULL;
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
     result = pmath_ht_search(dispatch_table_cache, &keys);
-    if(result)
+    if(result) {
       _pmath_ref_ptr((struct _pmath_t*)result);
+      if(_pmath_refcount_ptr((struct _pmath_t*)result) == 1) {
+        size_t i = unsafe_find_in_limbo(result);
+        if(i--) {
+          size_t last = (dispatch_table_limbo_next-1) & DISPATCH_TABLE_LIMBO_SIZE_MASK;
+          dispatch_table_limbo[i] = dispatch_table_limbo[last];
+          dispatch_table_limbo[last] = NULL;
+          dispatch_table_limbo_next = last;
+        }
+        else {
+          pmath_debug_print_object("[zombie dispatch table not from limbo: ", keys, "]\n");
+        }
+      }
+    }
   }
   pmath_atomic_unlock(&dispatch_table_cache_lock);
   
@@ -278,9 +306,7 @@ static size_t dispatch_table_lookup(
     while(last_index < slice_start) {
       entry = &table->entries[last_index - 1];
       if(entry->literal_turn_or_zero > 0) { // literal pattern, cannot match
-        struct _pmath_dispatch_entry_t *next = entry->next_slice_or_slice_start;
-        if(next <= entry)
-          next = next->next_slice_or_slice_start;
+        struct _pmath_dispatch_entry_t *next = get_next_slice(entry);
         assert(next > entry);
         
         last_index = 1 + (next - table->entries);
@@ -526,8 +552,33 @@ PMATH_PRIVATE pmath_t _pmath_rules_modify(
 
 //{ module init/done ...
 
-PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void) {
+PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void) {
+  struct _pmath_dispatch_table_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
+    size_t i;
   
+  PMATH_STATIC_ASSERT(sizeof(dispatch_table_limbo) == sizeof(old_limbo));
+  
+  pmath_atomic_lock(&dispatch_table_cache_lock);
+  {
+    memcpy(old_limbo, dispatch_table_limbo, sizeof(dispatch_table_limbo));
+    memset(dispatch_table_limbo, 0, sizeof(dispatch_table_limbo));
+    dispatch_table_limbo_next = 0;
+    
+    for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i) {
+      if(old_limbo[i])
+        old_limbo[i] = pmath_ht_remove(dispatch_table_cache, &old_limbo[i]->all_keys);
+    }
+  }
+  pmath_atomic_unlock(&dispatch_table_cache_lock);
+  
+  for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i) {
+    if(old_limbo[i])
+      dispatch_table_cache_entry_destructor(old_limbo[i]);
+  }
+}
+
+PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void) {
+  memset(dispatch_table_limbo, 0, sizeof(dispatch_table_limbo));
   dispatch_table_cache = pmath_ht_create(&dispatch_table_cache_class, 10);
   if(!dispatch_table_cache) goto FAIL_CACHE;
   
@@ -535,7 +586,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void) {
     PMATH_TYPE_SHIFT_DISPATCH_TABLE,
     cmp_dispatch_tables,
     hash_dispatch_table,
-    destroy_dispatch_table,
+    disown_dispatch_table,
     equal_dispatch_tables,
     NULL);
 
@@ -558,7 +609,7 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
   if(PMATH_LIKELY(_pmath_refcount_ptr(&tab->inherited) == 0)) {
     size_t i;
     
-    //pmath_debug_print_object("[free dispatch table for ", tab->all_keys, "]\n");
+    pmath_debug_print_object("[free dispatch table for ", tab->all_keys, "]\n");
     
     pmath_ht_destroy(tab->literal_entries);
     
@@ -573,11 +624,11 @@ static void dispatch_table_cache_entry_destructor(void *entry) {
   }
 }
 
-static void destroy_dispatch_table(pmath_t a) {
+static void disown_dispatch_table(pmath_t a) {
   struct _pmath_dispatch_table_t *tab = (void*)PMATH_AS_PTR(a);
   struct _pmath_dispatch_table_t *cached = NULL;
   
-  //pmath_debug_print_object("[orphaned dispatch table for ", tab->all_keys, "]\n");
+  //pmath_debug_print_object("[disowned dispatch table for ", tab->all_keys, "]\n");
   
   pmath_atomic_lock(&dispatch_table_cache_lock);
   {
@@ -586,17 +637,24 @@ static void destroy_dispatch_table(pmath_t a) {
       tab = NULL; // do not free below
     }
     else {
-      cached = pmath_ht_remove(dispatch_table_cache, &tab->all_keys);
-      if(PMATH_LIKELY(tab == cached)) {
-        cached = NULL; // prevent double-free
-      }
-      else {
-        pmath_debug_print("[dispatch table cache contains %p instead of %p]", cached, tab);
-        if(cached) { // undo the removal
-          cached = pmath_ht_insert(dispatch_table_cache, cached);
-          // Now cached is NULL on success or remains unchanged on failure. 
-          // Technically, failure should not be possible, because the insertion should not 
-          // require a memory allocation.
+      size_t i = (dispatch_table_limbo_next++) & DISPATCH_TABLE_LIMBO_SIZE_MASK;
+      struct _pmath_dispatch_table_t *old_zombie = dispatch_table_limbo[i];
+      dispatch_table_limbo[i] = tab;
+      tab = old_zombie;
+      
+      if(tab) {
+        cached = pmath_ht_remove(dispatch_table_cache, &tab->all_keys);
+        if(PMATH_LIKELY(tab == cached)) {
+          cached = NULL; // prevent double-free
+        }
+        else {
+          pmath_debug_print("[dispatch table cache contains %p instead of %p]", cached, tab);
+          if(cached) { // undo the removal
+            cached = pmath_ht_insert(dispatch_table_cache, cached);
+            // Now cached is NULL on success or remains unchanged on failure. 
+            // Technically, failure should not be possible, because the insertion should not 
+            // require a memory allocation.
+          }
         }
       }
     } 
