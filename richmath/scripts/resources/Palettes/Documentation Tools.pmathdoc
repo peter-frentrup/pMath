@@ -29,7 +29,7 @@ Document({
              "ShiftKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
         Section(
          BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, 1), 
+             "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, All), 
       SectionGroup({Section("Other", "Subsubsection"), 
         Section(
          BoxData(FillBox(ButtonBox(ComplexStringBox("\"Math in Text\""), 
@@ -90,6 +90,7 @@ Document({
             FrameBox(ComplexStringBox({"\"", #1, "\""}), 
              BorderRadius -> 2.5`), "ControlStyle", 
             Background -> GrayLevel(0.96499999999999997`), 
+            FontSize -> Dynamic(0.80000000000000004`*CurrentValue(FontSize)), 
             FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
          Section(StyleData("KeyEventDelimiter"), 
           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(

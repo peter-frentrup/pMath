@@ -44,11 +44,11 @@ PrepareUsageSection(~text)::= ToString(text)
 Function PrepareUsageSection(~text:String) {
     Local(nesting:=0)
     With(reflown:= text.StringReplace(
-            tok:("\n"|"("|")"|" ") :> 
+            tok:("\n" | "(" | ")" | "{" | "}" | " ") :> 
             Switch(tok) {
                 Case("\n") { nesting:=0; tok }
-                Case("(") { ++nesting; tok }
-                Case(")") { --nesting; tok }
+                Case("(" | "{") { ++nesting; tok }
+                Case(")" | "}") { --nesting; tok }
                 Case(~) { If(nesting===0) { nesting:=Infinity; "\n\t" } Else { tok } }
             }
         ))
