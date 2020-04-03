@@ -1007,8 +1007,11 @@ Document *Application::create_document() {
         w = MulDiv(w, dpi, 96);
         h = MulDiv(h, dpi, 96);
         
-        int dx = 2 * Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi);
+        int dx = Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi) + 
+                 Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi) + 
+                 Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi);
         int dy = Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi) + 
+                 Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi) + 
                  Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi);
         
         RECT rect;
