@@ -25,7 +25,7 @@ namespace richmath {
       /* Note that this value may be out-of-date during WM_DPICHANGED
        */
       static int get_dpi_for_window(HWND hwnd);
-      
+      static int get_dpi_for_monitor(HMONITOR monitor);
       static int get_dpi_for_system();
       
       static bool adjust_window_rect(RECT *rect, DWORD style, bool has_menu, DWORD style_ex, int dpi);
@@ -33,6 +33,8 @@ namespace richmath {
       static int get_system_metrics_for_dpi(int index, int dpi);
       
       static bool get_nonclient_metrics_for_dpi(NONCLIENTMETRICSW *nonclient_metrics, int dpi);
+      
+      static HMONITOR get_startup_monitor();
       
     private:
       enum MONITOR_DPI_TYPE {

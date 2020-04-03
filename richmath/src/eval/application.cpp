@@ -1003,7 +1003,6 @@ Document *Application::create_document() {
           hwnd = GetParent(hwnd);
         
         int dpi = Win32HighDpi::get_dpi_for_window(hwnd); //doc->native()->dpi();
-        Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
         
         w = MulDiv(w, dpi, 96);
         h = MulDiv(h, dpi, 96);
@@ -1037,7 +1036,12 @@ Document *Application::create_document() {
       }
     }
     else {
-      // TODO: use default monitor DPI
+      HMONITOR mon = Win32HighDpi::get_startup_monitor();
+      int dpi = Win32HighDpi::get_dpi_for_monitor(mon);
+      Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
+      
+      w = MulDiv(w, dpi, 96);
+      h = MulDiv(h, dpi, 96);
     }
     
     Win32DocumentWindow *wnd = new Win32DocumentWindow(

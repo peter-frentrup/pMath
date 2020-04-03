@@ -4,6 +4,9 @@
 
 //#include <shellscalingapi.h>
 
+//http://www.catch22.net/tuts/undocumented-createprocess
+#define STARTF_MONITOR  0x400
+
 
 using namespace richmath;
 
@@ -72,6 +75,17 @@ int Win32HighDpi::get_dpi_for_window(HWND hwnd) {
   return get_dpi_for_system();
 }
 
+int Win32HighDpi::get_dpi_for_monitor(HMONITOR monitor) {
+  if(GetDpiForMonitor) {
+    UINT dpiX;
+    UINT dpiY;
+    if(HRbool(GetDpiForMonitor(monitor, MDT_EFFECTIVE_DPI, &dpiX, &dpiY))) 
+      return dpiY;
+  }
+  
+  return get_dpi_for_system();
+}
+
 int Win32HighDpi::get_dpi_for_system() {
   if(GetDpiForSystem) 
     return GetDpiForSystem();
@@ -113,6 +127,17 @@ bool Win32HighDpi::get_nonclient_metrics_for_dpi(NONCLIENTMETRICSW *nonclient_me
       &nonclient_metrics,
       FALSE);
   }
+}
+
+HMONITOR Win32HighDpi::get_startup_monitor() {
+  // http://www.catch22.net/tuts/undocumented-createprocess
+  STARTUPINFOW si = { sizeof(si) };
+  GetStartupInfoW(&si);
+  
+  if(si.dwFlags & STARTF_MONITOR)
+    return (HMONITOR)si.hStdOutput;
+  
+  return MonitorFromPoint(POINT{0, 0}, MONITOR_DEFAULTTOPRIMARY);
 }
 
 //} ... class Win32HighDpi
