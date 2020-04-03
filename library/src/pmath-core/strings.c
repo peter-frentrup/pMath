@@ -713,6 +713,12 @@ static void call_old_post_write(void *user, pmath_t obj, pmath_write_options_t o
   old_info->post_write(old_info->user, obj, options);
 }
 
+static pmath_bool_t call_old_custom_writer(void *user, pmath_t obj, struct pmath_write_ex_t *info) {
+  struct pmath_write_ex_t *old_info = user;
+
+  return old_info->custom_writer(old_info->user, obj, info);
+}
+
 static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   if(pmath_is_string(box)) {
     info->write(info->user, pmath_string_buffer(&box), pmath_string_length(box));
@@ -802,12 +808,13 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     if(hide_string_characters) {
       struct pmath_write_ex_t info2;
       memset(&info2, 0, sizeof(info2));
-      info2.size       = sizeof(info2);
-      info2.options    = info->options;
-      info2.user       = info;
-      info2.write      = write_and_skip_string_chars;
-      info2.pre_write  = call_old_pre_write;
-      info2.post_write = call_old_post_write;
+      info2.size          = sizeof(info2);
+      info2.options       = info->options;
+      info2.user          = info;
+      info2.write         = write_and_skip_string_chars;
+      info2.pre_write     = info->pre_write     ? call_old_pre_write     : NULL;
+      info2.post_write    = info->post_write    ? call_old_post_write    : NULL;
+      info2.custom_writer = info->custom_writer ? call_old_custom_writer : NULL;
 
       part = pmath_expr_get_item(box, 1);
       _pmath_write_boxes(&info2, part);
@@ -940,7 +947,16 @@ PMATH_PRIVATE
 void _pmath_write_boxes(struct pmath_write_ex_t *info, pmath_t box) {
   if(info->pre_write)
     info->pre_write(info->user, box, info->options);
-
+  
+  if(info->custom_writer) {
+    if(info->custom_writer(info->user, box, info)) {
+      if(info->post_write)
+        info->post_write(info->user, box, info->options);
+      
+      return;
+    }
+  }
+  
   write_boxes_impl(info, box);
 
   if(info->post_write)

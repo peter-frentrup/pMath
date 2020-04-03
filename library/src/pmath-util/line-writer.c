@@ -47,10 +47,11 @@ struct linewriter_t {
   /// Increased inside RawBoxes(...) and inside strings, because strings can contain embedded boxes.
   int  rawboxes_depth;
   
-  void  *user;
-  void (*write)(void *, const uint16_t *, int);
-  void (*pre_write)( void *, pmath_t, pmath_write_options_t);
-  void (*post_write)(void *, pmath_t, pmath_write_options_t);
+  void          *user;
+  void         (*write)(        void *, const uint16_t *, int);
+  void         (*pre_write)(    void *, pmath_t, pmath_write_options_t);
+  void         (*post_write)(   void *, pmath_t, pmath_write_options_t);
+  pmath_bool_t (*custom_writer)(void *, pmath_t, struct pmath_write_ex_t *);
 };
 
 static char HEX_DIGITS[] = "0123456789ABCDEF";
@@ -634,6 +635,12 @@ static void linewriter_post_write(void *user, pmath_t item, pmath_write_options_
   }
 }
 
+static pmath_bool_t linewriter_custom_formatter(void *user, pmath_t obj, struct pmath_write_ex_t *info) {
+  struct linewriter_t *lw = user;
+  
+  return lw->custom_writer(lw->user, obj, info);
+}
+
 #define HAS_MEMBER(OPT, MEMBER_NAME)  ((OPT)->size >= ((char*)&((OPT)->MEMBER_NAME) - (char*)(OPT)) + sizeof((OPT)->MEMBER_NAME))
 
 static void fallback_write_ex(
@@ -652,6 +659,9 @@ static void fallback_write_ex(
     
   if(HAS_MEMBER(options, post_write))
     info.post_write = options->post_write;
+    
+  if(HAS_MEMBER(options, custom_formatter))
+    info.custom_writer = options->custom_formatter;
     
   _pmath_write_impl(&info, obj);
 }
@@ -715,17 +725,20 @@ void pmath_write_with_pagewidth_ex(
   lw.write                = options->write;
   lw.user                 = options->user;
   if(HAS_MEMBER(options, pre_write))
-    lw.pre_write = options->pre_write;
+    lw.pre_write          = options->pre_write;
   if(HAS_MEMBER(options, post_write))
-    lw.post_write = options->post_write;
+    lw.post_write         = options->post_write;
+  if(HAS_MEMBER(options, custom_formatter))
+    lw.custom_writer      = options->custom_formatter;
     
   memset(&info, 0, sizeof(info));
-  info.size       = sizeof(info);
-  info.options    = options->flags;
-  info.user       = &lw;
-  info.write      = line_write;
-  info.pre_write  = linewriter_pre_write;
-  info.post_write = linewriter_post_write;
+  info.size          = sizeof(info);
+  info.options       = options->flags;
+  info.user          = &lw;
+  info.write         = line_write;
+  info.pre_write     = linewriter_pre_write;
+  info.post_write    = linewriter_post_write;
+  info.custom_writer = lw.custom_writer ? linewriter_custom_formatter : NULL;
   
   _pmath_write_impl(&info, obj);
   

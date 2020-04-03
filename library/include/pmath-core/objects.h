@@ -375,13 +375,19 @@ struct pmath_write_ex_t {
    */
   void *user;
 
-  /**\brief Optional, called before an object is written.
+  /**\brief Optional. Called before an object is written.
    */
   void (*pre_write)( void *user, pmath_t obj, pmath_write_options_t options);
 
-  /**\brief Optional, called after an object is written.
+  /**\brief Optional. Called after an object is written.
    */
   void (*post_write)(void *user, pmath_t obj, pmath_write_options_t options);
+  
+  /**\brief Optional. Called before an object is written to overwrite the default behavior.
+     
+     Return TRUE to suppress the default display and FALSE to continue with the default display for \a obj.
+   */
+  pmath_bool_t (*custom_writer)(void *user, pmath_t obj, struct pmath_write_ex_t *info);
 };
 
 /*============================================================================*/

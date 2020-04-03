@@ -2406,25 +2406,34 @@ struct _writer_hook_data_t {
 static void hook_pre_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct _writer_hook_data_t *hook = user;
 
-  if(hook->next->pre_write)
-    hook->next->pre_write(hook->next->user, obj, options);
+  assert(hook->next->pre_write);
+  hook->next->pre_write(hook->next->user, obj, options);
 }
 
 static void hook_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
   struct _writer_hook_data_t *hook = user;
 
-  if(hook->next->post_write)
-    hook->next->post_write(hook->next->user, obj, options);
+  assert(hook->next->post_write);
+  hook->next->post_write(hook->next->user, obj, options);
+}
+
+static pmath_bool_t hook_custom_writer(void *user, pmath_t obj, struct pmath_write_ex_t *info) {
+  struct _writer_hook_data_t *hook = user;
+
+  assert(hook->next->custom_writer);
+  return hook->next->custom_writer(hook->next->user, obj, info);
 }
 
 static void init_hook_info(struct pmath_write_ex_t *info, struct _writer_hook_data_t *user) {
   memset(info, 0, sizeof(struct pmath_write_ex_t));
   info->size = sizeof(struct pmath_write_ex_t);
 
-  info->options    = user->next->options;
-  info->user       = user;
-  info->pre_write  = hook_pre_write;
-  info->post_write = hook_post_write;
+  /* We are guaranteed that user->size == sizeof(struct pmath_write_ex_t), because pmath_write_ex() ensures this. */
+  info->options       = user->next->options;
+  info->user          = user;
+  info->pre_write     = user->next->pre_write     ? hook_pre_write    : NULL;
+  info->post_write    = user->next->post_write    ? hook_post_write   : NULL;
+  info->custom_writer = user->next->custom_writer ? hook_custom_writer: NULL;
 }
 
 /* Hook in the given writer function and insert a space before the first

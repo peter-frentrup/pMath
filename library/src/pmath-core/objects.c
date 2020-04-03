@@ -287,8 +287,14 @@ PMATH_API
 void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
   assert(info != NULL);
   
-  if(info->size > sizeof(struct pmath_write_ex_t))
+  if(info->size > sizeof(struct pmath_write_ex_t)) {
+    struct pmath_write_ex_t info2;
+    memcpy(&info2, info, sizeof(info2));
+    info2.size = sizeof(info2);
+    
+    _pmath_write_impl(&info2, obj);
     return;
+  }
     
   if(info->size < sizeof(struct pmath_write_ex_t)) {
     struct pmath_write_ex_t info2;
@@ -305,10 +311,18 @@ void pmath_write_ex(struct pmath_write_ex_t *info, pmath_t obj) {
 
 PMATH_PRIVATE
 void _pmath_write_impl(struct pmath_write_ex_t *info, pmath_t obj) {
-  
   if(info->pre_write)
     info->pre_write(info->user, obj, info->options);
-    
+  
+  if(info->custom_writer) {
+    if(info->custom_writer(info->user, obj, info)) {
+      if(info->post_write)
+        info->post_write(info->user, obj, info->options);
+      
+      return;
+    }
+  }
+  
   if(pmath_is_pointer(obj)) {
     if(PMATH_AS_PTR(obj) == NULL) {
       _pmath_write_cstr("/\\/", info->write, info->user);

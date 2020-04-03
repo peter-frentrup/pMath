@@ -636,10 +636,10 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
 
 struct styled_writer_info_t {
   pmath_t current_hyperlink_obj;
-  pmath_t current_hyperlink_label;
   
-  unsigned skipping_hyperlink_data: 1;
-  unsigned raw_boxes: 1;
+  unsigned raw_boxes_write_depth;
+  unsigned formatting_allow_raw_boxes : 1;
+  unsigned formatting_is_inside_string : 1;
 };
 
 static int bytes_since_last_abortcheck = 0;
@@ -649,9 +649,6 @@ static void styled_write(void *user, const uint16_t *data, int len) {
   struct styled_writer_info_t *info = user;
   int oldmode;
   
-  if(info->skipping_hyperlink_data)
-    return;
-    
   if(bytes_since_last_abortcheck + len >= ABORT_CHECK_BYTE_COUNT) {
     if(pmath_aborting()) {
       bytes_since_last_abortcheck = ABORT_CHECK_BYTE_COUNT;
@@ -762,10 +759,7 @@ static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pma
     pmath_string_t tooltip_str = PMATH_NULL;
     const uint16_t *tooltip_buf = action_buf;
     
-    pmath_unref(info->current_hyperlink_label);
-    info->current_hyperlink_label = pmath_ref(label);
     info->current_hyperlink_obj = pmath_ref(obj);
-    info->skipping_hyperlink_data = TRUE;
     
     if(pmath_is_expr_of(label, pmath_System_Tooltip) && pmath_expr_length(label) >= 2) {
       pmath_t tooltip_obj = pmath_expr_get_item(label, 2);
@@ -775,11 +769,7 @@ static void pre_write_button(struct styled_writer_info_t *info, pmath_t obj, pma
       
       tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
       tooltip_buf = pmath_string_buffer(&tooltip_str);
-      if(tooltip_buf) {
-        pmath_unref(info->current_hyperlink_label);
-        info->current_hyperlink_label = pmath_expr_get_item(label, 1);
-      }
-      else
+      if(!tooltip_buf)
         tooltip_buf = action_buf;
     }
     
@@ -834,7 +824,7 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
   pmath_t action;
   const uint16_t *action_buf;
   
-  if(!info->raw_boxes)
+  if(!info->raw_boxes_write_depth)
     return;
   
   label_box = pmath_expr_get_item(obj, 1);
@@ -848,10 +838,7 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
     pmath_string_t tooltip_str = PMATH_NULL;
     const uint16_t *tooltip_buf = action_buf;
     
-    pmath_unref(info->current_hyperlink_label);
-    info->current_hyperlink_label = pmath_ref(label_box);
     info->current_hyperlink_obj = pmath_ref(obj);
-    info->skipping_hyperlink_data = TRUE;
     
     if(pmath_is_expr_of(label_box, pmath_System_TooltipBox) && pmath_expr_length(label_box) >= 2) {
       pmath_t tooltip_obj = pmath_expr_get_item(label_box, 2);
@@ -862,11 +849,7 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
       
       tooltip_str = pmath_string_insert_latin1(tooltip_str, INT_MAX, "", 1); // zero-terminate
       tooltip_buf = pmath_string_buffer(&tooltip_str);
-      if(tooltip_buf) {
-        pmath_unref(info->current_hyperlink_label);
-        info->current_hyperlink_label = pmath_expr_get_item(label_box, 1);
-      }
-      else
+      if(!tooltip_buf)
         tooltip_buf = action_buf;
     }
     
@@ -886,9 +869,6 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
     
-  if(info->skipping_hyperlink_data && pmath_same(obj, info->current_hyperlink_label))
-    info->skipping_hyperlink_data = FALSE;
-    
   if(0 == (options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR))) {
     if(pmath_same(info->current_hyperlink_obj, PMATH_UNDEFINED)) {
       if(pmath_is_expr_of(obj, pmath_System_Button) && pmath_expr_length(obj) >= 2) 
@@ -900,8 +880,11 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
   
   if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
     if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
-      info->raw_boxes = TRUE;
+      info->raw_boxes_write_depth++;
   }
+  
+  if(pmath_is_string(obj))
+    info->raw_boxes_write_depth++;
 }
 
 static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t options) {
@@ -910,27 +893,100 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
   if(bytes_since_last_abortcheck >= ABORT_CHECK_BYTE_COUNT && pmath_aborting())
     return;
   
+  if(pmath_is_string(obj))
+    info->raw_boxes_write_depth--;
+  
   if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
     if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
-      info->raw_boxes = FALSE;
+      info->raw_boxes_write_depth--;
   }
   
   if(!pmath_same(info->current_hyperlink_obj,  PMATH_UNDEFINED)) {
     if(pmath_same(obj, info->current_hyperlink_obj)) {
       pmath_unref(info->current_hyperlink_obj);
-      pmath_unref(info->current_hyperlink_label);
       info->current_hyperlink_obj = PMATH_UNDEFINED;
-      info->current_hyperlink_label = PMATH_UNDEFINED;
-      info->skipping_hyperlink_data = FALSE;
       hyper_console_end_link();
     }
-    
-    if(!info->skipping_hyperlink_data && pmath_same(obj, info->current_hyperlink_label)) {
-      info->skipping_hyperlink_data = TRUE;
-      pmath_unref(info->current_hyperlink_label);
-      info->current_hyperlink_label = PMATH_UNDEFINED;
-    }
   }
+}
+
+static pmath_bool_t button_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
+  pmath_t label = pmath_expr_get_item(obj, 1);
+  
+  if(pmath_is_expr_of(label, pmath_System_Tooltip) && pmath_expr_length(label) >= 2) {
+    pmath_t tmp = pmath_expr_get_item(label, 1);
+    pmath_unref(label);
+    label = tmp;
+  }
+  
+  pmath_write_ex(info, label);
+  pmath_unref(label);
+  return TRUE;
+}
+
+static pmath_bool_t buttonbox_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
+  pmath_t label = pmath_expr_get_item(obj, 1);
+  
+  if(pmath_is_expr_of(label, pmath_System_TooltipBox) && pmath_expr_length(label) >= 2) {
+    pmath_t tmp = pmath_expr_get_item(label, 1);
+    pmath_unref(label);
+    label = tmp;
+  }
+  
+  pmath_write_ex(info, label);
+  pmath_unref(label);
+  return TRUE;
+}
+
+static pmath_bool_t rawboxes_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
+  pmath_t boxes = pmath_expr_get_item(obj, 1);
+  pmath_bool_t old_raw = sw->formatting_allow_raw_boxes;
+  sw->formatting_allow_raw_boxes = TRUE;
+  
+  pmath_write_ex(info, boxes);
+  
+  sw->formatting_allow_raw_boxes = old_raw;
+  pmath_unref(boxes);
+  return TRUE;
+}
+
+static pmath_bool_t string_formatter(struct styled_writer_info_t *sw, pmath_t obj, struct pmath_write_ex_t *info) {
+  pmath_bool_t old_raw = sw->formatting_allow_raw_boxes;
+  
+  if(sw->formatting_is_inside_string)
+    return FALSE;
+  
+  sw->formatting_is_inside_string = TRUE;
+  sw->formatting_allow_raw_boxes = TRUE;
+  
+  pmath_write_ex(info, obj);
+  
+  sw->formatting_allow_raw_boxes = old_raw;
+  sw->formatting_is_inside_string = FALSE;
+  return TRUE;
+}
+
+static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write_ex_t *info) {
+  struct styled_writer_info_t *sw = user;
+  
+  if(0 != (info->options & (PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_INPUTEXPR))) 
+    return FALSE;
+  
+  if(pmath_is_string(obj))
+    return string_formatter(sw, obj, info);
+  
+  if(pmath_is_expr_of(obj, pmath_System_Button) && pmath_expr_length(obj) >= 2) 
+    return button_formatter(sw, obj, info);
+  
+  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+    return rawboxes_formatter(sw, obj, info);
+  
+  if(sw->formatting_allow_raw_boxes) {
+    if(pmath_is_expr_of(obj, pmath_System_ButtonBox) && pmath_expr_length(obj) >= 2) 
+      return buttonbox_formatter(sw, obj, info);
+  }
+  
+  return FALSE;
 }
 
 static pmath_threadlock_t print_lock = NULL;
@@ -948,7 +1004,6 @@ static void write_output_locked_callback(void *_context) {
   
   memset(&info, 0, sizeof(info));
   info.current_hyperlink_obj = PMATH_UNDEFINED;
-  info.current_hyperlink_label = PMATH_UNDEFINED;
   
   indent_length = dialog_depth;
   while(indent_length-- > 0)
@@ -970,13 +1025,13 @@ static void write_output_locked_callback(void *_context) {
   options.user = &info;
   options.pre_write = styled_pre_write;
   options.post_write = styled_post_write;
+  options.custom_formatter = styled_formatter;
   
   pmath_write_with_pagewidth_ex(&options, context->object);
   
   if(!pmath_same(info.current_hyperlink_obj, PMATH_UNDEFINED))
     hyper_console_end_link();
   pmath_unref(info.current_hyperlink_obj);
-  pmath_unref(info.current_hyperlink_label);
   
   printf("\n");
   fflush(stdout);
