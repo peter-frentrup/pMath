@@ -40,6 +40,8 @@ namespace {
       static bool set_selected_document_cmd(Expr cmd);
       
       static Expr enum_windows_menu(Expr name);
+      
+      static bool remove_window(Expr submenu_cmd, Expr item_cmd);
   };
   
   class OpenDocumentMenuImpl {
@@ -417,7 +419,9 @@ bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj,
 void SelectDocumentMenuImpl::init() {
   Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
 
-  Application::register_dynamic_submenu(String("MenuListWindows"), enum_windows_menu);
+  String s_MenuListWindows {"MenuListWindows"};
+  Application::register_dynamic_submenu(               s_MenuListWindows,  enum_windows_menu);
+  Application::register_submenu_item_deleter(std::move(s_MenuListWindows), remove_window);
 }
 
 void SelectDocumentMenuImpl::done() {
@@ -470,16 +474,27 @@ Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
   return g.end();
 }
 
+bool SelectDocumentMenuImpl::remove_window(Expr submenu_cmd, Expr item_cmd) {  
+  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+    auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
+    if(doc) {
+      doc->native()->close();
+      return true;
+    }
+  }
+  return false;
+}
+
 //} ... class SelectDocumentMenuImpl
 
 //{ class OpenDocumentMenuImpl ...
 
 void OpenDocumentMenuImpl::init() {
-  String s_MenuListRecentDocuments {"MenuListRecentDocuments"};
-  
   Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen), document_open_cmd);
   
-  Application::register_dynamic_submenu(         String("MenuListPalettesMenu"),   enum_palettes_menu);
+  Application::register_dynamic_submenu(String("MenuListPalettesMenu"), enum_palettes_menu);
+  
+  String s_MenuListRecentDocuments {"MenuListRecentDocuments"};
   Application::register_dynamic_submenu(               s_MenuListRecentDocuments,  enum_recent_documents_menu);
   Application::register_submenu_item_deleter(std::move(s_MenuListRecentDocuments), remove_recent_document);
 }
