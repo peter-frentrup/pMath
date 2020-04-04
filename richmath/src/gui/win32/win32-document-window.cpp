@@ -5,8 +5,9 @@
 #include <cairo-win32.h>
 
 #include <boxes/section.h>
-#include <eval/binding.h>
 #include <eval/application.h>
+#include <eval/binding.h>
+#include <eval/dynamic.h>
 #include <gui/control-painter.h>
 #include <gui/messagebox.h>
 #include <gui/win32/win32-automenuhook.h>
@@ -486,7 +487,10 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     void set_textcolor() {
       if(!document()->style)
         document()->style = new Style();
-        
+      
+      AutoResetCurrentEvaluationBox auto_observer;
+      Dynamic::current_evaluation_box_id = document()->id();
+      
       COLORREF color = BasicWin32Window::title_font_color(
         _parent->glass_enabled(),
         Win32HighDpi::get_dpi_for_window(_hwnd), 
