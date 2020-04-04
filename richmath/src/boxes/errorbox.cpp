@@ -15,6 +15,9 @@ ErrorBox::~ErrorBox() {
 }
 
 bool ErrorBox::try_load_from_object(Expr expr, BoxInputFlags options) {
+  if(_object != expr)
+    return false;
+  
   _object = expr;
   finish_load_from_object(std::move(expr));
   return true;
