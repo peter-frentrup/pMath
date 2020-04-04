@@ -1522,12 +1522,10 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 KillTimer(_hwnd, TID_BLINKCURSOR);
                 
                 Context *ctx = document_context();
-                if( ctx->old_selection == ctx->selection ||
-                    _hwnd != GetFocus() ||
-                    is_mouse_down())
-                {
+                if(_hwnd != GetFocus())
+                  ctx->old_selection = ctx->selection;
+                else if(ctx->old_selection == ctx->selection || is_mouse_down())
                   ctx->old_selection.id = FrontEndReference::None;
-                }
                 else
                   ctx->old_selection = ctx->selection;
                   
@@ -1600,18 +1598,17 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_SETFOCUS: {
           _focused = true;
           
-          Box *box = document()->selection_box();
-          if(!box)
-            box = document();
-            
-          if(box->selectable()) 
+          if(document()->selectable())
             do_set_current_document();
-          
-          if( document()->selection_box() &&
-              document()->selection_length() == 0 &&
-              GetCaretBlinkTime() != INFINITE)
-          {
-            SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
+            
+          Box *sel_box = document()->selection_box();
+          if(sel_box && document()->selection_length() == 0) {
+            auto ctx = document_context();
+            ctx->old_selection.id = FrontEndReference::None;
+            sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
+            
+            if(GetCaretBlinkTime() != INFINITE)
+              SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
           }
         } return 0;
       

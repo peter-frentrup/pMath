@@ -931,10 +931,11 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
   
   document()->paint_resize(canvas, resize_only);
   
-  if(gtk_widget_has_focus(_widget)
-      && !is_blinking
-      && document()->selection_box()
-      && document()->selection_length() == 0) {
+  if( gtk_widget_has_focus(_widget) && 
+      !is_blinking && 
+      document()->selection_box() && 
+      document()->selection_length() == 0)
+  {
     GtkSettings *settings = gtk_widget_get_settings(_widget);
     gboolean may_blink;
     gint     blink_time;
@@ -1081,17 +1082,17 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   _focused = true;
   
-  Box *box = document()->selection_box();
-  if(!box)
-    box = document();
-    
-  if(box->selectable()) 
+  if(document()->selectable())
     do_set_current_document();
   
   gtk_im_context_focus_in(_im_context);
   
-  if(document()->selection_length() == 0) {
-    invalidate();
+  Box *sel_box = document()->selection_box();
+  if(sel_box && document()->selection_length() == 0) {
+    auto ctx = document_context();
+    ctx->old_selection.id = FrontEndReference::None;
+    
+    sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
   }
   
   return false;
@@ -1484,12 +1485,10 @@ gboolean MathGtkWidget::blink_caret(gpointer id_as_ptr) {
     if(auto wid = dynamic_cast<MathGtkWidget *>(doc->native())) {
       Context *ctx = wid->document_context();
       
-      if( ctx->old_selection == ctx->selection ||
-          !gtk_widget_is_focus(wid->widget()) ||
-          wid->is_mouse_down())
-      {
+      if(!gtk_widget_is_focus(wid->widget()))
+        ctx->old_selection = ctx->selection;
+      else if(ctx->old_selection == ctx->selection || wid->is_mouse_down())
         ctx->old_selection.id = FrontEndReference::None;
-      }
       else
         ctx->old_selection = ctx->selection;
         
