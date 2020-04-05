@@ -76,7 +76,27 @@ Expr MathGtkRecentDocuments::as_menu_list() {
 }
 
 bool MathGtkRecentDocuments::remove(String path) {
-  return false;
+  GtkRecentManager *manager = gtk_recent_manager_get_default();
+  bool success = false;
+  
+  int len;
+  char *str =
+#ifdef WIN32
+    pmath_string_to_utf8(path.get(), &len);
+#else
+    pmath_string_to_native(path.get(), &len);
+#endif
+  
+  if(str) {
+    char *uri = g_filename_to_uri(str, nullptr, nullptr);
+    if(uri) {
+      success = !!gtk_recent_manager_remove_item(manager, uri, nullptr);
+      g_free(uri);
+    }
+    pmath_mem_free(str);
+  }
+  
+  return success;
 }
 
 void MathGtkRecentDocuments::init() {

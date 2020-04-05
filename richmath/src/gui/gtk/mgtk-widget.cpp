@@ -560,9 +560,11 @@ GtkMenu *MathGtkWidget::popup_menu() {
     
     gtk_widget_add_events(GTK_WIDGET(_popup_menu), GDK_STRUCTURE_MASK);
     
-    g_signal_connect(GTK_WIDGET(_popup_menu), "map-event",   G_CALLBACK(MathGtkMenuBuilder::on_map_menu),   nullptr);
-    g_signal_connect(GTK_WIDGET(_popup_menu), "unmap-event", G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu), nullptr);
-    
+    void *doc_id_as_ptr = FrontEndReference::unsafe_cast_to_pointer(document()->id());
+    g_signal_connect(GTK_WIDGET(_popup_menu), "map-event",       G_CALLBACK(MathGtkMenuBuilder::on_map_menu),       doc_id_as_ptr);
+    g_signal_connect(GTK_WIDGET(_popup_menu), "unmap-event",     G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu),     doc_id_as_ptr);
+    g_signal_connect(GTK_WIDGET(_popup_menu), "key-press-event", G_CALLBACK(MathGtkMenuBuilder::on_menu_key_press), doc_id_as_ptr);
+  
   }
   
   return GTK_MENU(_popup_menu);

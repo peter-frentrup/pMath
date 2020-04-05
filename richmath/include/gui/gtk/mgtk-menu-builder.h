@@ -25,6 +25,7 @@ namespace richmath {
       
       static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr);
       static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr);
+      static gboolean on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *doc_id_as_ptr);
       static void expand_inline_lists(GtkMenu *menu, FrontEndReference id);
       
       static void done();

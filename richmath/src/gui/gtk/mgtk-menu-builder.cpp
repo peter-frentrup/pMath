@@ -173,6 +173,36 @@ gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, 
   return FALSE;
 }
 
+gboolean MathGtkMenuBuilder::on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *doc_id_as_ptr) {
+  GdkEventKey *event = &e->key;
+  
+  switch(event->keyval) {
+    case GDK_Delete: {
+      GtkMenuItem *menu_item = MenuItemBuilder::selected_item();//gtk_menu_get_active(GTK_MENU(menu));
+      if(!menu_item)
+        break;
+      
+      const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
+      if(!accel_path_str)
+        break;
+        
+      Expr cmd = accel_path_to_cmd[String(accel_path_str)];
+      if(cmd.is_null())
+        break;
+      
+      Expr inline_list_data = MenuItemBuilder::inline_menu_list_data(GTK_WIDGET(menu_item));
+      if(inline_list_data.is_null())
+        break;
+      
+      if(Application::remove_dynamic_submenu_item(inline_list_data, cmd)) {
+        MathGtkMenuBuilder::on_map_menu(menu, nullptr, doc_id_as_ptr);
+        return TRUE;
+      }
+    } break;
+  }
+  return FALSE;
+}
+
 void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id) {
   GtkAccelGroup *accel_group = gtk_menu_get_accel_group(menu);
   
@@ -483,8 +513,9 @@ void MenuItemBuilder::init_sub_menu(GtkMenuItem *menu_item, Expr item, GtkAccelG
   
   gtk_widget_add_events(GTK_WIDGET(submenu), GDK_STRUCTURE_MASK);
   
-  g_signal_connect(submenu, "map-event",   G_CALLBACK(MathGtkMenuBuilder::on_map_menu),   FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
-  g_signal_connect(submenu, "unmap-event", G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu), FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  g_signal_connect(submenu, "map-event",       G_CALLBACK(MathGtkMenuBuilder::on_map_menu),       FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  g_signal_connect(submenu, "unmap-event",     G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu),     FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  g_signal_connect(submenu, "key-press-event", G_CALLBACK(MathGtkMenuBuilder::on_menu_key_press), FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
   
   gtk_menu_set_accel_group(
     GTK_MENU(submenu),
