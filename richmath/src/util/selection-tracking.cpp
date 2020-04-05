@@ -30,7 +30,8 @@ namespace {
         : location{loc},
           token_output_start{-1},
           token_output_depth{-1},
-          output_pos{-1},
+          first_output_pos{-1},
+          last_output_pos{-1},
           token_source_start{-1},
           token_source_end{-1}
       {
@@ -88,7 +89,16 @@ namespace {
         int in_index = location.index;
         
         Box *selbox = location.get();
+        Box *box_at_source = find_box_at(source);
         if(source.id == location.id) {
+          if(box_at_source) {
+            if(source.start == location.index) 
+              add_output_pos(token_output_start);
+            else
+              add_output_pos(token_output_end);
+            return;
+          }
+
           if(auto mseq = dynamic_cast<MathSequence*>(selbox)) {
             in16 = mseq->text().buffer();
             in_length = mseq->length();
@@ -98,13 +108,11 @@ namespace {
             in_length = tseq->length();
           }
           else {
-            output_pos = token_output_start;
+            add_output_pos(token_output_start);
             return;
           }
         }
-        else if(pmath_is_string(obj)){
-          Box *box_at_source = find_box_at(source);
-          
+        else if(pmath_is_string(obj)) {
           if(NumberBox *num = dynamic_cast<NumberBox*>(box_at_source)) {
             PositionInRange pos = num->selection_to_string_index(String{pmath_ref(obj)}, selbox, location.index);
             if(pos.pos >= 0) {
@@ -119,7 +127,7 @@ namespace {
               in_index = pos.pos;
             }
             else if(num->is_number_part(selbox)) {
-              output_pos = token_output_start;
+              add_output_pos(token_output_start);
               return;
             }
           }
@@ -178,8 +186,15 @@ namespace {
               ++opos;
           }
           
-          output_pos = opos;
+          add_output_pos(opos);
         }
+      }
+      
+      void add_output_pos(int pos) {
+        if(first_output_pos < 0)
+          first_output_pos = pos;
+        
+        last_output_pos = pos;
       }
       
     private:
@@ -231,7 +246,8 @@ namespace {
       Expr  token;
       int   token_output_start;
       int   token_output_depth;
-      int   output_pos;
+      int   first_output_pos;
+      int   last_output_pos;
       int   token_source_start;
       int   token_source_end;
   };
@@ -654,8 +670,8 @@ static bool begin_edit_section(
   edit->original = parent->swap(index, edit);
   
   for(const auto &sel : pt.selections) {
-    if(sel.output_pos >= 0)
-      found_locations.set(sel.location, SelectionReference{edit->content(), sel.output_pos, sel.output_pos});
+    if(sel.first_output_pos >= 0)
+      found_locations.set(sel.location, SelectionReference{edit->content(), sel.first_output_pos, sel.last_output_pos});
   }
   
   return true;

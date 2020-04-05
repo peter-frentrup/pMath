@@ -812,6 +812,10 @@ static bool edit_boxes_cmd(Expr cmd) {
     old_loc.add(old_sel.start_reference());
     old_loc.add(old_sel.end_reference());
     
+    VolatileSelection tmp = old_sel.get_all();
+    tmp.expand();
+    bool is_at_word_start = tmp.start >= old_sel.start;
+    
     Hashtable<LocationReference, SelectionReference> found_loc;
     
     for(int i = a; i < b; ++i) {
@@ -825,8 +829,21 @@ static bool edit_boxes_cmd(Expr cmd) {
     SelectionReference *final_sel_2 = found_loc.search(old_sel.end_reference());
     
     if(final_sel_1 && final_sel_2) {
-      Box *box1 = final_sel_1->get();
-      Box *box2 = final_sel_2->get();
+      if(final_sel_1->id == final_sel_2->id && final_sel_1->end <= final_sel_2->start) {
+        Box *box = final_sel_1->get();
+        doc->select(box, final_sel_1->end, final_sel_2->start);
+        return true;
+      }
+      
+      if(old_sel.length() == 0 && *final_sel_1 == *final_sel_2) {
+        Box *box = final_sel_1->get();
+        if(is_at_word_start)
+          doc->select(box, final_sel_1->end, final_sel_1->end);
+        else
+          doc->select(box, final_sel_1->start, final_sel_1->start);
+        return true;
+      }
+      
       doc->select_range(final_sel_1->get_all(), final_sel_2->get_all());
     }
     else 
