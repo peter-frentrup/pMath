@@ -2,7 +2,8 @@
 
 Document({
   SectionGroup({
-    SectionGroup({Section("Sqrt", "ObjectName"), 
+    SectionGroup({Section({"Sqrt (", SqrtBox("\[Ellipsis]"), ")"}, 
+       "ObjectName"), 
       Section(BoxData(TemplateBox({"Sqrt"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
