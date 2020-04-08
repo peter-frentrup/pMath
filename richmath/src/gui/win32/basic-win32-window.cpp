@@ -722,6 +722,10 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
     case WMSZ_TOPRIGHT:    change_top = change_right = true; break;
     case WMSZ_BOTTOMLEFT:  change_bottom = change_left = true; break;
     case WMSZ_BOTTOMRIGHT: change_bottom = change_right = true; break;
+    
+    case 9: // drag away from window edge e.g from maximized state, change all edges
+    default: 
+      return;
   }
   
   
@@ -745,7 +749,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->bottom = sizing_initial_rect.bottom;
       lParam->top = lParam->bottom - minh;
     }
-    else {
+    else if(change_bottom) {
       lParam->top = sizing_initial_rect.top;
       lParam->bottom = lParam->top + minh;
     }
@@ -761,7 +765,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->bottom = sizing_initial_rect.bottom;
       lParam->top = lParam->bottom - maxh;
     }
-    else {
+    else if(change_bottom) {
       lParam->top = sizing_initial_rect.top;
       lParam->bottom = lParam->top + maxh;
     }
@@ -777,7 +781,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->right = sizing_initial_rect.right;
       lParam->left = lParam->right - minw;
     }
-    else {
+    else if(change_right) {
       lParam->left = sizing_initial_rect.left;
       lParam->right = lParam->left + minw;
     }
@@ -793,7 +797,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
       lParam->right = sizing_initial_rect.right;
       lParam->left = lParam->right - maxw;
     }
-    else {
+    else if(change_right) {
       lParam->left = sizing_initial_rect.left;
       lParam->right = lParam->left + maxw;
     }
