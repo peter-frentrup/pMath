@@ -11,14 +11,23 @@ Document({
        ButtonBox(SqrtBox("\[SelectionPlaceholder]")), "\[SpanFromLeft]", 
        "\[SpanFromLeft]", ButtonBox(RadicalBox("\[SelectionPlaceholder]", 
          "\[Placeholder]")), "\[SpanFromLeft]"}, {
-       ButtonBox({"\[Integral]", "\[SelectionPlaceholder]", 
-         "\[DifferentialD]", "\[Placeholder]"}), "\[SpanFromLeft]", 
+       TooltipBox(ButtonBox(RadicalBox("\[SelectionPlaceholder]", "3", 
+          SurdForm -> True)), "\[AliasDelimiter]cbrt\[AliasDelimiter]"), 
+       "\[SpanFromLeft]", "\[SpanFromLeft]", 
+       TooltipBox(ButtonBox(RadicalBox("\[SelectionPlaceholder]", 
+          "\[Placeholder]", SurdForm -> True)), 
+        "\[AliasDelimiter]surd\[AliasDelimiter]"), "\[SpanFromLeft]"}, {
+       TooltipBox(ButtonBox({"\[Integral]", "\[SelectionPlaceholder]", 
+          "\[DifferentialD]", "\[Placeholder]"}), 
+        "\[AliasDelimiter]intt\[AliasDelimiter]"), "\[SpanFromLeft]", 
        "\[SpanFromLeft]", 
        ButtonBox({"\[PartialD]", SubscriptBox("\[Placeholder]"), 
          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
-       ButtonBox({"\[Integral]", SubsuperscriptBox("\[SelectionPlaceholder]", 
-          "\[Placeholder]"), "\[Placeholder]", "\[DifferentialD]", 
-         "\[Placeholder]"}), "\[SpanFromLeft]", "\[SpanFromLeft]", 
+       TooltipBox(
+        ButtonBox({"\[Integral]", SubsuperscriptBox("\[SelectionPlaceholder]", 
+           "\[Placeholder]"), "\[Placeholder]", "\[DifferentialD]", 
+          "\[Placeholder]"}), "\[AliasDelimiter]dintt\[AliasDelimiter]"), 
+       "\[SpanFromLeft]", "\[SpanFromLeft]", 
        ButtonBox({"\[PartialD]", 
          SubscriptBox({"\[Placeholder]", ",", "\[Placeholder]"}), 
          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
