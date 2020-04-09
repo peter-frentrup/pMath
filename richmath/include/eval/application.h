@@ -80,6 +80,7 @@ namespace richmath {
       
       static void register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd));
       static void register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd));
+      static bool has_submenu_item_deleter(Expr submenu_cmd);
       
       static bool register_currentvalue_provider(
         Expr   item,

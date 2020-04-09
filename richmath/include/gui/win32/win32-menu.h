@@ -44,6 +44,7 @@ namespace richmath {
       virtual ~Win32AcceleratorTable();
       
       HACCEL haccel() { return _haccel; }
+      static String accel_text(BYTE fVirt, WORD key);
       
       bool translate_accelerator(HWND hwnd, MSG *msg);
       

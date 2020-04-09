@@ -459,7 +459,11 @@ void Application::register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(E
     dynamic_menu_list_item_deleter.set(std::move(submenu_cmd), func);
   else
     dynamic_menu_list_item_deleter.remove(std::move(submenu_cmd));
-}      
+}
+
+bool Application::has_submenu_item_deleter(Expr submenu_cmd) {
+  return dynamic_menu_list_item_deleter[std::move(submenu_cmd)] != nullptr;
+}
 
 bool Application::register_currentvalue_provider(
   Expr   item,

@@ -2170,9 +2170,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               pt.x = (short)LOWORD(lParam);
               pt.y = (short)HIWORD(lParam);
               
-              int cmd;
+              DWORD cmd;
               {
-                Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+                Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
                 
                 cmd = TrackPopupMenu(
                         menu,
@@ -2182,6 +2182,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                         0,
                         _hwnd,
                         nullptr);
+                
+                if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
+                  cmd = menu_hook.exit_cmd;
               }
 
               if(cmd)
@@ -2219,9 +2222,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 x = tpm.rcExclude.right;
               }
 
-              int cmd;
+              DWORD cmd;
               {
-                Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+                Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
                 
                 cmd = TrackPopupMenuEx(
                         menu,
@@ -2230,6 +2233,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                         tpm.rcExclude.bottom,
                         _hwnd,
                         &tpm);
+                        
+                if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
+                  cmd = menu_hook.exit_cmd;
               }
               
               if(cmd)

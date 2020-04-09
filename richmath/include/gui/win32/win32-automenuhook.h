@@ -12,13 +12,14 @@ namespace richmath {
   enum class MenuExitReason : char {
     Other,
     LeftKey,
-    RightKey
+    RightKey,
+    ExplicitCmd,
   };
   
   class Win32AutoMenuHook {
       friend class Win32AutoMenuHookImpl;
     public:
-      Win32AutoMenuHook(HMENU tracked_popup, HWND mouse_notifications, bool allow_leave_left, bool allow_leave_right);
+      Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse_notifications, bool allow_leave_left, bool allow_leave_right);
       ~Win32AutoMenuHook();
       
       Win32AutoMenuHook(const Win32AutoMenuHook &) = delete;
@@ -30,12 +31,15 @@ namespace richmath {
     private:
       Win32AutoMenuHook *_next;
       HMENU _current_popup;
+      HWND _owner;
       HWND _mouse_notifications;
       bool _allow_leave_left;
       bool _allow_leave_right;
+      bool _is_over_menu;
       
     public:
       MenuExitReason exit_reason; 
+      DWORD          exit_cmd;
   };
 }
 

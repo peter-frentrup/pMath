@@ -251,15 +251,14 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
   static HWND previous_aero_peak = nullptr;
   HWND aero_peak = nullptr;
   
-  pmath_debug_print("[WM_MENUSELECT %p %d (%x)]\n", menu, item_or_index, flags);
-  
-  //MenuItemBuilder::selected_menu_item_id = item_or_index;
+  //pmath_debug_print("[WM_MENUSELECT %p %d (%x)]\n", menu, item_or_index, flags);
   
   if(flags == 0xFFFF) {
     MenuItemBuilder::selected_menu_item_id = 0;
   }
   else if(!(flags & MF_POPUP)) {
     MenuItemBuilder::selected_menu_item_id = item_or_index;
+    
 //    Expr cmd = Win32Menu::id_to_command(item_or_index);
 //    pmath_debug_print_object("[WM_MENUSELECT ", cmd.get(), "]\n");
 //    
@@ -280,7 +279,26 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
     // popup item selected
     MenuItemBuilder::selected_menu_item_id = 0;
   }
-        
+  
+  if(flags & MF_MOUSESELECT) {
+    Expr cmd = Win32Menu::id_to_command(MenuItemBuilder::selected_menu_item_id);
+    Expr subitems_cmd;
+    
+    MENUITEMINFOW info = { sizeof(info) };
+    info.fMask = MIIM_DATA | MIIM_ID;
+    if(GetMenuItemInfoW(menu, item_or_index, 0 != (flags & MF_POPUP), &info)) {
+      subitems_cmd = Win32Menu::id_to_command((DWORD)info.dwItemData);      
+//      pmath_debug_print_object("[on_menuselect ", subitems_cmd.get(), ", ");
+//      pmath_debug_print_object("", cmd.get(), "]\n");
+    }
+    
+    if(subitems_cmd.is_null()) {
+      SetCursor(LoadCursor(0, IDC_ARROW));
+    }
+    else {
+      SetCursor(LoadCursor(0, IDC_HELP)); // TODO: reset when mouse leaves menu
+    }
+  }
 //  if(Win32Themes::has_areo_peak()) {
 //    if(aero_peak) {
 //      struct callback_data {
@@ -703,23 +721,7 @@ static String vk_name(UINT vk) {
 }
 
 static String accel_text(const ACCEL &accel) {
-  String s("");
-  
-  if(accel.fVirt & FCONTROL)
-    s += vk_name(VK_CONTROL) + "+";
-    
-  if(accel.fVirt & FALT)
-    s += vk_name(VK_MENU) + "+";
-    
-  if(accel.fVirt & FSHIFT)
-    s += vk_name(VK_SHIFT) + "+";
-    
-  if(accel.fVirt & FVIRTKEY)
-    s += vk_name(accel.key);
-  else // ASCII key code
-    s += (char)accel.key;
-    
-  return s;
+  return Win32AcceleratorTable::accel_text(accel.fVirt, accel.key);
 }
 
 static HACCEL create_accel(Expr expr) {
@@ -766,6 +768,26 @@ Win32AcceleratorTable::Win32AcceleratorTable(Expr expr)
 Win32AcceleratorTable::~Win32AcceleratorTable() {
   DestroyAcceleratorTable(_haccel);
   MenuItemBuilder::add_remove_menu(-1);
+}
+
+String Win32AcceleratorTable::accel_text(BYTE fVirt, WORD key) {
+  String s("");
+  
+  if(fVirt & FCONTROL)
+    s += vk_name(VK_CONTROL) + "+";
+    
+  if(fVirt & FALT)
+    s += vk_name(VK_MENU) + "+";
+    
+  if(fVirt & FSHIFT)
+    s += vk_name(VK_SHIFT) + "+";
+    
+  if(fVirt & FVIRTKEY)
+    s += vk_name(key);
+  else // ASCII key code
+    s += (char)key;
+    
+  return s;
 }
 
 bool Win32AcceleratorTable::translate_accelerator(HWND hwnd, MSG *msg) {

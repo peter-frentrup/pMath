@@ -1244,9 +1244,19 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         
       case WM_SYSCOMMAND:
         if((wParam & 0xFFF0) == SC_MOUSEMENU || (wParam & 0xFFF0) == SC_KEYMENU) {
-          Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), nullptr, false, false);
+          LRESULT res;
+          DWORD explicit_cmd = 0;
+          {
+            Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), hwnd(), nullptr, false, false);
+            
+            res = BasicWin32Window::callback(message, wParam, lParam);
+            
+            if(menu_hook.exit_reason == MenuExitReason::ExplicitCmd) 
+              explicit_cmd = menu_hook.exit_cmd;
+          }
           
-          LRESULT res = BasicWin32Window::callback(message, wParam, lParam);
+          if(explicit_cmd)
+            return SendMessageW(hwnd(), WM_COMMAND, explicit_cmd, 0);
           
           return res;
         }

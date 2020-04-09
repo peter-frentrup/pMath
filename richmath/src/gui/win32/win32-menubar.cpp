@@ -275,13 +275,13 @@ void Win32Menubar::show_menu(int item) {
   
   SetFocus(_hwnd);
   
-  int cmd = 0;
+  DWORD cmd = 0;
   if(!current_menubar || current_menubar == this) {
     current_popup = GetSubMenu(_menu->hmenu(), item - 1);
     current_item = item;
     current_menubar = this;
     
-    Win32AutoMenuHook menu_hook(current_popup, _hwnd, true, true);
+    Win32AutoMenuHook menu_hook(current_popup, parent, _hwnd, true, true);
     
     pt.y = tpm.rcExclude.bottom;
     UINT align;
@@ -320,6 +320,10 @@ void Win32Menubar::show_menu(int item) {
           next_item = 1;
         }
         break;
+      
+      case MenuExitReason::ExplicitCmd: 
+        cmd = menu_hook.exit_cmd;
+        break;
     }
     
     current_item = 0;
@@ -355,10 +359,10 @@ void Win32Menubar::show_sysmenu() {
   tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   
-  int cmd = 0;
+  DWORD cmd = 0;
   {
     HMENU menu = GetSystemMenu(parent, FALSE);
-    Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+    Win32AutoMenuHook menu_hook(menu, parent, nullptr, false, false);
     
     int x;
     UINT align;
@@ -382,6 +386,9 @@ void Win32Menubar::show_sysmenu() {
             tpm.rcExclude.bottom,
             parent,
             &tpm);
+    
+    if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
+      cmd = menu_hook.exit_cmd;
   }
   
   if(cmd) {

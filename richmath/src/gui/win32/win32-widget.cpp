@@ -1017,7 +1017,7 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
 }
 
 void Win32Widget::on_popupmenu(POINT screen_pt) {
-  UINT flags = 0;
+  UINT flags = TPM_RETURNCMD;
   
   if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
     flags |= TPM_LEFTALIGN;
@@ -1026,15 +1026,23 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
   
   HMENU menu = Win32Menu::popup_menu->hmenu();
   
-  Win32AutoMenuHook menu_hook(menu, nullptr, false, false);
+  DWORD cmd;
+  {
+    Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
+    cmd = TrackPopupMenuEx(
+            menu,
+            flags,
+            screen_pt.x,
+            screen_pt.y,
+            _hwnd,
+            nullptr);
   
-  TrackPopupMenuEx(
-    menu,
-    flags,
-    screen_pt.x,
-    screen_pt.y,
-    _hwnd,
-    nullptr);
+    if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
+      cmd = menu_hook.exit_cmd;
+  }
+  
+  if(cmd) 
+    callback(WM_COMMAND, cmd, 0);
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {

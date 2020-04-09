@@ -19,13 +19,30 @@ namespace richmath {
       static HHOOK the_hook;
       static Win32AutoMenuHook *current;
   };
+  
+  class Win32MenuItemPopupMenu {
+    public:
+      enum class CommandId : DWORD {
+        None = 0,
+        Select,
+        Remove
+      };
+      
+      static HMENU create_popup_for(Expr list_cmd, Expr cmd);
+      static void append(HMENU menu, CommandId id, String text, UINT flags = MF_ENABLED);
+      static CommandId show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd);
+  };
 }
 
 HHOOK              Win32AutoMenuHookImpl::the_hook = nullptr;
 Win32AutoMenuHook *Win32AutoMenuHookImpl::current = nullptr;
 
+extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
+
 
 static int find_hilite_menuitem(HMENU *menu);
+static int find_hilite_menuitem_cmd(HMENU *menu, DWORD *list_cmd, DWORD *cmd);
+static int find_hilite_menuitem_cmd(HMENU *menu, Expr *list_cmd, Expr *cmd);
 
 static POINT dword_to_point(DWORD dw) {
   POINT pt;
@@ -40,13 +57,16 @@ static DWORD point_to_dword(const POINT &pt) {
 
 //{ class Win32AutoMenuHook ...
 
-Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND mouse_notifications, bool allow_leave_left, bool allow_leave_right) 
+Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse_notifications, bool allow_leave_left, bool allow_leave_right) 
   : _next(nullptr),
     _current_popup(tracked_popup),
+    _owner(owner),
     _mouse_notifications(mouse_notifications),
     _allow_leave_left(allow_leave_left),
     _allow_leave_right(allow_leave_right),
-    exit_reason(MenuExitReason::Other)
+    _is_over_menu(false),
+    exit_reason(MenuExitReason::Other),
+    exit_cmd(0)
 {
   Win32AutoMenuHookImpl::push(this);
 }
@@ -59,35 +79,84 @@ bool Win32AutoMenuHook::handle(MSG *msg) {
   switch(msg->message) {
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
-    case WM_MOUSEMOVE: if(_mouse_notifications) {
+    case WM_MOUSEMOVE: {
         POINT pt = dword_to_point(msg->lParam);
+        // Strangely, lParam is in screen coordinates during the message hook.
         
-        ScreenToClient(_mouse_notifications, &pt);
+        const char MenuWindowClass[] = "#32768";
+        const int len = 20;
+        char hover_name[len];
+        HWND hover_wnd = WindowFromPoint(pt);
+        GetClassNameA(hover_wnd, hover_name, len);
+        hover_name[len-1] = '\0';
         
-        SendMessageW(_mouse_notifications, msg->message, msg->wParam, point_to_dword(pt));
+        bool is_over_menu = 0 == strcmp(hover_name, MenuWindowClass);
+        if(!is_over_menu) {
+          if(_is_over_menu) {
+            HMENU menu = _current_popup;
+            int item = find_hilite_menuitem(&menu);
+            
+            if(item < 0)
+              Win32Menu::on_menuselect(0xFFFF0000U, (LPARAM)_current_popup);
+          }
+          if(_mouse_notifications) {
+            ScreenToClient(_mouse_notifications, &pt);
+            SendMessageW(_mouse_notifications, msg->message, msg->wParam, point_to_dword(pt));
+          }
+        }
+        
+        _is_over_menu = is_over_menu;
         //return false;
       } break;
-      
-      case WM_KEYDOWN: {
+    
+    // WM_MENURBUTTONUP is not sent through the hook, so we handle WM_RBUTTONUP instead
+    case WM_RBUTTONUP: {
+        DWORD subitems_cmd_id;
+        DWORD cmd_id;
+        HMENU menu = _current_popup;
+        int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd_id, &cmd_id);
+        
+        if(menu && item >= 0) {
+          Expr subitems_cmd = Win32Menu::id_to_command(subitems_cmd_id);
+          Expr cmd          = Win32Menu::id_to_command(cmd_id);
+          auto id = Win32MenuItemPopupMenu::show_popup_for(
+                      _owner, 
+                      dword_to_point(msg->lParam), 
+                      subitems_cmd, 
+                      cmd);
+          switch(id) {
+            case Win32MenuItemPopupMenu::CommandId::None: break;
+            
+            case Win32MenuItemPopupMenu::CommandId::Select:
+              exit_cmd = cmd_id;
+              exit_reason = MenuExitReason::ExplicitCmd;
+              EndMenu();
+              return true;
+            
+            case Win32MenuItemPopupMenu::CommandId::Remove: 
+              if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) 
+                Win32Menu::init_popupmenu(menu);
+              break;
+          }
+          
+          Win32Menu::on_menuselect(MAKEWPARAM(cmd_id, MF_MOUSESELECT), (LPARAM)menu);
+          
+          return true;
+        }
+      } break;
+    
+    
+    case WM_KEYDOWN: {
           switch(msg->wParam) {
             case VK_DELETE: {
+                Expr cmd;
+                Expr subitems_cmd;
                 HMENU menu = _current_popup;
-                int item = find_hilite_menuitem(&menu);
+                int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd, &cmd);
                 
                 if(menu && item >= 0) {
-                  MENUITEMINFOW info;
-                  memset(&info, 0, sizeof(info));
-                  info.cbSize = sizeof(info);
-                  info.fMask = MIIM_DATA | MIIM_ID;
-                  if(GetMenuItemInfoW(menu, item, TRUE, &info)) {
-                    if(info.dwItemData != 0) {
-                      Expr subitems_cmd = Win32Menu::id_to_command((DWORD)info.dwItemData);
-                      Expr cmd = Win32Menu::id_to_command(info.wID);
-                      if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) {
-                        Win32Menu::init_popupmenu(menu);
-                      }
-                    }
-                  }
+                  if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) 
+                    Win32Menu::init_popupmenu(menu);
                 }
               } break;
             
@@ -164,6 +233,67 @@ LRESULT CALLBACK Win32AutoMenuHookImpl::menu_hook_proc(int code, WPARAM h_wParam
 
 //} ... class Win32AutoMenuHookImpl
 
+//{ class Win32MenuItemPopupMenu ...
+
+HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
+  if(list_cmd.is_null())
+    return nullptr;
+  
+  HMENU menu = CreatePopupMenu();
+  String select_label;
+  if(cmd[0] == richmath_FrontEnd_DocumentOpen)
+    select_label = "Open";
+  else
+    select_label = "Select";
+  
+  //select_label+= '\t';
+  //select_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_RETURN);
+  append(menu, CommandId::Select, std::move(select_label));
+  
+  //append(menu, CommandId::None, String("Go to Definition\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F12), MF_DISABLED | MF_GRAYED);
+  
+  if(Application::has_submenu_item_deleter(list_cmd)) {
+    append(menu, CommandId::Remove, String("Remove\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_DELETE));
+  }
+  
+  //append(menu, CommandId::None, String("Help\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F1), MF_DISABLED | MF_GRAYED);
+  
+  SetMenuDefaultItem(menu, (UINT)CommandId::Select, FALSE);
+  return menu;
+}
+
+void Win32MenuItemPopupMenu::append(HMENU menu, CommandId id, String text, UINT flags) {
+  text+= String::FromChar(0);
+  if(const uint16_t *buf = text.buffer()) {
+    AppendMenuW(menu, MF_STRING | flags, (UINT_PTR)id, (const wchar_t*)buf);
+  }
+}
+
+Win32MenuItemPopupMenu::CommandId Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd) {
+  HMENU popup = create_popup_for(std::move(list_cmd), std::move(cmd));
+  if(!popup)
+    return CommandId::None;
+  
+  UINT flags = TPM_RECURSE | TPM_RETURNCMD;
+  if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
+    flags |= TPM_LEFTALIGN;
+  else
+    flags |= TPM_RIGHTALIGN;
+  
+  DWORD id;
+  {
+    Win32AutoMenuHook menu_hook(popup, owner, nullptr, false, false);
+    id = TrackPopupMenuEx(popup, flags, pt.x, pt.y, owner, nullptr);
+    if(!id && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
+      id = menu_hook.exit_cmd;
+  }
+  
+  DestroyMenu(popup);
+  return (CommandId)id;
+}
+
+//} ... class Win32MenuItemPopupMenu
+
 static int find_hilite_menuitem(HMENU *menu) {
   for(int i = 0; i < GetMenuItemCount(*menu); ++i) {
     UINT state = GetMenuState(*menu, i, MF_BYPOSITION);
@@ -184,4 +314,35 @@ static int find_hilite_menuitem(HMENU *menu) {
   }
   
   return -1;
+}
+
+static int find_hilite_menuitem_cmd(HMENU *menu, DWORD *list_cmd, DWORD *cmd) {
+  int item = find_hilite_menuitem(menu);
+  
+  if(*menu && item >= 0) {
+    MENUITEMINFOW info;
+    memset(&info, 0, sizeof(info));
+    info.cbSize = sizeof(info);
+    info.fMask = MIIM_DATA | MIIM_ID;
+    if(GetMenuItemInfoW(*menu, item, TRUE, &info)) {
+      if(list_cmd) *list_cmd = (DWORD)info.dwItemData;
+      if(cmd)      *cmd      = info.wID;
+    }
+  }
+  
+  return item;
+}
+
+static int find_hilite_menuitem_cmd(HMENU *menu, Expr *list_cmd, Expr *cmd) {
+  DWORD list_cmd_id;
+  DWORD cmd_id;
+  
+  int item = find_hilite_menuitem_cmd(menu, list_cmd ? &list_cmd_id : nullptr, cmd ? &cmd_id : nullptr);
+  
+  if(*menu && item >= 0) {
+    if(list_cmd) *list_cmd = Win32Menu::id_to_command(list_cmd_id);
+    if(cmd)      *cmd      = Win32Menu::id_to_command(cmd_id);
+  }
+  
+  return item;
 }
