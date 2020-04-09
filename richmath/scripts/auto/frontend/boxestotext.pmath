@@ -44,7 +44,6 @@ innerBoxesToText(UnderoverscriptBox(~x,~y,~z), ~format)::= innerBoxesToText(Over
 
 innerBoxesToText(FrameBox(~x,~~~), ~format)::= "Framed(" ++ innerBoxesToText(x, format) ++ ")"
 innerBoxesToText((StyleBox|TagBox|InterpretationBox|TooltipBox)(~x,~~~), ~format)::= innerBoxesToText(x, format)
-innerBoxesToText(ButtonBox(~x,~~~), "PlainText")::= innerBoxesToText(x, "PlainText")
 
 innerBoxesToText(GridBox(~m,~~~), "InputText")::= "{" ++ m.Map(
 	Function({row}, 
@@ -62,5 +61,13 @@ innerBoxesToText(Section(~x,~~~), ~format)::= innerBoxesToText(x, format)
 innerBoxesToText(SectionGroup(~s:List,~~~), ~format)::= s.Map(innerBoxesToText(#, format)&).Row("\n\n").ToString
 
 innerBoxesToText(~x, ~format)::= x.RawBoxes.ToString /*"[$Failed : " ++ x.ToString ++ "]"*/
+
+
+innerBoxesToText(~b:ButtonBox, ~format)::= buttonBoxToText(b, format)
+buttonBoxToText(ButtonBox(~x,~~~), "PlainText")::= innerBoxesToText(x, "PlainText")
+buttonBoxToText(ButtonBox(~x,~~~, ~(ButtonFunction,~f), ~~~), "InputText")::= "Button(" ++ innerBoxesToText(x, "PlainText") ++ ", " ++ HoldForm(InputForm(f)).ToString ++ ")"
+buttonBoxToText(ButtonBox(~x,~~~), ~format)::= "Button(" ++ innerBoxesToText(x, "PlainText") ++ ")"
+buttonBoxToText(~,~)::= "Button(...)"
+
 
 End()
