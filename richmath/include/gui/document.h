@@ -8,6 +8,7 @@
 
 namespace richmath {
   class BoxRepaintEvent;
+  class Clipboard;
   class MouseEvent;
   class NativeWidget;
   class SpecialKeyEvent;
@@ -103,15 +104,15 @@ namespace richmath {
       void finish_copy_to_image(cairo_surface_t *target_surface, const Rectangle &pix_rect);
       void finish_copy_to_image(cairo_t         *target_cr,      const Rectangle &pix_rect);
       
-      void copy_to_clipboard(String mimetype);
-      void copy_to_clipboard();
-      void cut_to_clipboard();
+      void copy_to_clipboard(Clipboard *clipboard, String mimetype);
+      void copy_to_clipboard(Clipboard *clipboard);
+      void cut_to_clipboard(Clipboard *clipboard);
       
       void paste_from_boxes(Expr boxes);
       void paste_from_text(String mimetype, String data);
       void paste_from_binary(String mimetype, Expr file);
       void paste_from_filenames(Expr list_of_files, bool import_contents);
-      void paste_from_clipboard();
+      void paste_from_clipboard(Clipboard *clipboard);
       
       void set_selection_style(Expr options);
       

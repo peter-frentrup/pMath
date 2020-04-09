@@ -7,6 +7,7 @@
 #include <boxes/textsequence.h>
 #include <eval/application.h>
 #include <eval/job.h>
+#include <gui/clipboard.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 #include <gui/recent-documents.h>
@@ -639,7 +640,7 @@ static bool copy_cmd(Expr cmd) {
   if(!doc || !doc->can_copy())
     return false;
     
-  doc->copy_to_clipboard();
+  doc->copy_to_clipboard(Clipboard::std);
   return true;
 }
 
@@ -652,7 +653,7 @@ static bool copy_special_cmd(Expr cmd) {
   if(!format.is_valid())
     return false;
     
-  doc->copy_to_clipboard(format);
+  doc->copy_to_clipboard(Clipboard::std, format);
   return true;
 }
 
@@ -661,7 +662,7 @@ static bool cut_cmd(Expr cmd) {
   if(!doc || !doc->can_copy())
     return false;
     
-  doc->cut_to_clipboard();
+  doc->cut_to_clipboard(Clipboard::std);
   return true;
 }
 
@@ -1178,7 +1179,7 @@ static bool paste_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  doc->paste_from_clipboard();
+  doc->paste_from_clipboard(Clipboard::std);
   return true;
 }
 

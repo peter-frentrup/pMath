@@ -1941,9 +1941,9 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
   drag_status = old_drag_status;
 }
 
-void Document::copy_to_clipboard(String mimetype) {
+void Document::copy_to_clipboard(Clipboard *clipboard, String mimetype) {
   if(mimetype.equals(Clipboard::BoxesBinary)) {
-    SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+    SharedPtr<OpenedClipboard> cb = clipboard->open_write();
     if(!cb) {
       native()->beep();
       return;
@@ -1959,7 +1959,7 @@ void Document::copy_to_clipboard(String mimetype) {
       mimetype.equals(Clipboard::PlainText) ||
       mimetype.equals("PlainText"))
   {
-    SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+    SharedPtr<OpenedClipboard> cb = clipboard->open_write();
     if(!cb) {
       native()->beep();
       return;
@@ -1969,8 +1969,8 @@ void Document::copy_to_clipboard(String mimetype) {
     return;
   }
   
-  if(cairo_surface_t *image = Clipboard::std->create_image(mimetype, 1, 1)) {
-    SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+  if(cairo_surface_t *image = clipboard->create_image(mimetype, 1, 1)) {
+    SharedPtr<OpenedClipboard> cb = clipboard->open_write();
     if(!cb) {
       native()->beep();
       return;
@@ -1979,7 +1979,7 @@ void Document::copy_to_clipboard(String mimetype) {
     Rectangle rect;
     prepare_copy_to_image(image, &rect);
     cairo_surface_destroy(image);
-    image = Clipboard::std->create_image(mimetype, rect.width, rect.height);
+    image = clipboard->create_image(mimetype, rect.width, rect.height);
     if(image) {
       finish_copy_to_image(image, rect);
       cb->add_image(mimetype, image);
@@ -1988,8 +1988,8 @@ void Document::copy_to_clipboard(String mimetype) {
   }
 }
 
-void Document::copy_to_clipboard() {
-  SharedPtr<OpenedClipboard> cb = Clipboard::std->open_write();
+void Document::copy_to_clipboard(Clipboard *clipboard) {
+  SharedPtr<OpenedClipboard> cb = clipboard->open_write();
   if(!cb) {
     native()->beep();
     return;
@@ -2003,8 +2003,8 @@ void Document::copy_to_clipboard() {
   cb->add_text(Clipboard::PlainText, copy_to_text("InputText"/*Clipboard::PlainText*/));
 }
 
-void Document::cut_to_clipboard() {
-  copy_to_clipboard();
+void Document::cut_to_clipboard(Clipboard *clipboard) {
+  copy_to_clipboard(clipboard);
   
   if(VolatileSelection sel = prepare_copy()) {
     select(sel);
@@ -2226,30 +2226,30 @@ void Document::paste_from_filenames(Expr list_of_files, bool import_contents) {
   }
 }
 
-void Document::paste_from_clipboard() {
-  if(Clipboard::std->has_format(Clipboard::BoxesBinary)) {
+void Document::paste_from_clipboard(Clipboard *clipboard) {
+  if(clipboard->has_format(Clipboard::BoxesBinary)) {
     paste_from_binary(
       Clipboard::BoxesBinary,
-      Clipboard::std->read_as_binary_file(Clipboard::BoxesBinary));
+      clipboard->read_as_binary_file(Clipboard::BoxesBinary));
     return;
   }
   
-  if(Clipboard::std->has_format(Clipboard::BoxesText)) {
+  if(clipboard->has_format(Clipboard::BoxesText)) {
     paste_from_text(
       Clipboard::BoxesText,
-      Clipboard::std->read_as_text(Clipboard::BoxesText));
+      clipboard->read_as_text(Clipboard::BoxesText));
     return;
   }
   
-  if(Clipboard::std->has_format(Clipboard::PlainText)) {
+  if(clipboard->has_format(Clipboard::PlainText)) {
     paste_from_text(
       Clipboard::PlainText,
-      Clipboard::std->read_as_text(Clipboard::PlainText));
+      clipboard->read_as_text(Clipboard::PlainText));
     return;
   }
   
-  if(Clipboard::std->has_format(Clipboard::PlatformFilesOrUris)) {
-    paste_from_filenames(Clipboard::std->read_as_filenames(), false);
+  if(clipboard->has_format(Clipboard::PlatformFilesOrUris)) {
+    paste_from_filenames(clipboard->read_as_filenames(), false);
     return;
   }
   
