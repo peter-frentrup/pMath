@@ -83,7 +83,7 @@ namespace richmath {
   enum class BoxOutputFlags {
     Default       = 0,
     Parseable     = 1, ///< no StyleBox with StripOnInput->True, ...
-    Literal       = 2, ///< no DynamicBox
+    Literal       = 2, ///< no DynamicBox or TemplateBox
     ShortNumbers  = 4, ///< not the internal representation of NumberBox, but the content()
     WithDebugInfo = 8, ///< attach DebugInfoSource() metadata to strings and expressions
     NoNewSymbols  = 16 ///< do not generate new symbols by effectively using MakeExpression(..., ParseSymbols->False)

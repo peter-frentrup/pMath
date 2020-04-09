@@ -1735,17 +1735,15 @@ String Document::copy_to_text(String mimetype) {
   }
   
   BoxOutputFlags flags = BoxOutputFlags::Default;
-  if(mimetype.equals(Clipboard::PlainText))
+  bool is_plain_text = mimetype.equals(Clipboard::PlainText) || mimetype.equals("PlainText");
+  if(is_plain_text)
     flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
   Expr boxes = sel.to_pmath(flags);
   if(mimetype.equals(Clipboard::BoxesText))
     return boxes.to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
     
-  if( mimetype.equals("InputText"/*Clipboard::PlainText*/) ||
-      mimetype.equals(Clipboard::PlainText) ||
-      mimetype.equals("PlainText"))
-  {
+  if( is_plain_text || mimetype.equals("InputText")) {
     Expr text = Application::interrupt_wait(
                   Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
                   Application::edit_interrupt_timeout);
@@ -1753,14 +1751,6 @@ String Document::copy_to_text(String mimetype) {
     return text.to_string();
   }
   
-//  // plaintext:
-//  if( mimetype.equals(Clipboard::PlainText) ||
-//      mimetype.equals("PlainText"))
-//  {
-//    boxes = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
-//    return boxes.to_string(0);
-//  }
-
   native()->beep();
   return String();
 }

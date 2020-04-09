@@ -339,6 +339,9 @@ Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
         return boxes[1];
     }
   }
+  
+  if(has(flags, BoxOutputFlags::Literal))
+    return content()->to_pmath(flags);
 
   Gather g;
   
