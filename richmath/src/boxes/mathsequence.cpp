@@ -1394,7 +1394,6 @@ namespace richmath {
           
         public:
           void run_text_space_characters() {
-            int string_end = -1;
             for(int i = 0; i < self.glyphs.length(); ++i) {
               switch(buf[i]) {
                 case '\t':
