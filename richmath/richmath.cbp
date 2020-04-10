@@ -962,6 +962,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/gui/win32/ole/droptarget.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/ole/enumformatetc.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1423,6 +1432,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="src/gui/win32/ole/droptarget.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="src/gui/win32/ole/enumformatetc.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1606,16 +1624,6 @@
 		<Unit filename="src/util/style.cpp" />
 		<Unit filename="src/util/syntax-state.cpp" />
 		<Extensions>
-			<code_completion>
-				<search_path add="..\..\library\include" />
-			</code_completion>
-			<envvars />
-			<debugger>
-				<search_path add="../library/src" />
-				<remote_debugging>
-					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
-				</remote_debugging>
-			</debugger>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />
 				<doxyfile_project />
@@ -1625,6 +1633,15 @@
 				<doxyfile_dot />
 				<general />
 			</DoxyBlocks>
+			<code_completion>
+				<search_path add="..\..\library\include" />
+			</code_completion>
+			<debugger>
+				<search_path add="../library/src" />
+				<remote_debugging>
+					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+				</remote_debugging>
+			</debugger>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>

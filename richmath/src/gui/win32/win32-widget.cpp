@@ -1791,6 +1791,8 @@ void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL p
 }
 
 void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
+  SetFocus(_hwnd);
+  
   String mimetype;
   String text_data;
   Expr box_data;

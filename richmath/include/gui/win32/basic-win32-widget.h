@@ -9,17 +9,11 @@
 #  define _WIN32_WINNT 0x0600 /* DROPDESCRIPTION */
 #endif
 
-#include <gui/win32/ole/combase.h>
+#include <gui/win32/ole/droptarget.h>
 #include <gui/control-painter.h>
 
 #include <ole2.h>
 #include <rtscom.h>
-#include <shlobj.h>
-#include <shobjidl.h>
-
-namespace pmath {
-  class String;
-}
 
 namespace richmath {
 
@@ -30,7 +24,7 @@ namespace richmath {
   };
   
   // Must call init() immediately init after the construction of a derived object!
-  class BasicWin32Widget: public IDropTarget, public IStylusAsyncPlugin, public virtual Base {
+  class BasicWin32Widget: public virtual DropTarget, public IStylusAsyncPlugin, public virtual Base {
       struct InitData {
         DWORD style_ex;
         DWORD style;
@@ -75,14 +69,6 @@ namespace richmath {
       STDMETHODIMP_(ULONG) Release(void) override;
       
       //
-      // IDropTarget members
-      //
-      STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
-      STDMETHODIMP DragOver(DWORD key_state, POINTL pt, DWORD *effect) override;
-      STDMETHODIMP DragLeave(void) override;
-      STDMETHODIMP Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;
-      
-      //
       // IStylusSyncPlugin members
       //
       STDMETHODIMP RealTimeStylusEnabled(IRealTimeStylus*, ULONG, const TABLET_CONTEXT_ID*) override { return S_OK; }
@@ -108,7 +94,7 @@ namespace richmath {
       };
       
     public:
-      HWND &hwnd() { return _hwnd; }
+      virtual HWND &hwnd() override { return _hwnd; }
       
       BasicWin32Widget *parent();
       static BasicWin32Widget *from_hwnd(HWND hwnd);
@@ -130,28 +116,13 @@ namespace richmath {
       ComBase<IDragSourceHelper> drag_source_helper() { return _drag_source_helper; }
       
     protected:
-      ComBase<IDropTargetHelper> _drop_target_helper;
       ComBase<IDragSourceHelper> _drag_source_helper;
-      ComBase<IDataObject>       _dragging;
       HWND                       _hwnd;
-      DWORD                      _preferred_drop_effect;
-      CLIPFORMAT                 _preferred_drop_format;
-      bool                       _has_drag_image;
-      bool                       _can_have_drop_descriptions;
-      bool                       _did_set_drop_description;
       
     protected:
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);
       
       virtual void on_close();
-      
-      virtual DWORD preferred_drop_effect(IDataObject *data_object);
-      virtual DWORD drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects);
-      virtual void apply_drop_description(DWORD effect, DWORD key_state, POINTL pt);
-      virtual void do_drop_data(IDataObject *data_object, DWORD effect);
-      virtual void position_drop_cursor(POINTL pt);
-      void clear_drop_description();
-      void set_drop_description(DROPIMAGETYPE image, const pmath::String &insert, const pmath::String &message);
       
       static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
       

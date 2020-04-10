@@ -9,8 +9,6 @@
 
 #include <shobjidl.h>
 
-class IDragSourceHelper;
-
 namespace richmath {
   class DropSource: public IDropSource {
     public:
