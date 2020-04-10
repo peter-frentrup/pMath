@@ -8,6 +8,7 @@
 #include <gui/win32/win32-themes.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
+#include <gui/win32/ole/droptarget.h>
 
 #include <util/array.h>
 #include <util/hashtable.h>
@@ -53,8 +54,28 @@ namespace {
     public:
       static ObservableValue<DWORD> selected_menu_item_id;
   };
+  
+  class MenuDropTarget: public DropTarget {
+    public:
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
+    
+    public:
+      MenuDropTarget(HWND hwnd_menu, HMENU menu, UINT pos, DWORD _flags);
+    
+    public:
+      HWND  _hwnd_menu;
+      HMENU _menu;
+      UINT  _pos;
+      DWORD _flags;
+    
+    protected:
+      virtual HWND &hwnd() override { return _hwnd_menu; }
+      
+    private:
+      LONG refcount;
+  };
 }
-
 
 static Hashtable<Expr,  DWORD>  cmd_to_id;
 static Hashtable<DWORD, Expr>   id_to_cmd;
@@ -415,6 +436,18 @@ LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam, ComBase<IDragSource
   return MND_CONTINUE;
 }
 
+LRESULT Win32Menu::on_menugetobject(WPARAM wParam, LPARAM lParam) {
+  MENUGETOBJECTINFO *info = (MENUGETOBJECTINFO*)lParam;
+  
+  if(IDropTarget *dt = new MenuDropTarget(nullptr, info->hmenu, info->uPos, info->dwFlags)) {
+    HRESULT hr = dt->QueryInterface(*(IID*)info->riid, &info->pvObj);
+    dt->Release();
+    return HRbool(hr) ? MNGO_NOERROR : MNGO_NOINTERFACE;
+  }
+  
+  return MNGO_NOINTERFACE;
+}
+
 //} ... class Win32Menu
 
 //{ class MenuItemBuilder ...
@@ -574,6 +607,34 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
 }
 
 //} ... class MenuItemBuilder
+
+//{ class MenuDropTarget ...
+
+MenuDropTarget::MenuDropTarget(HWND hwnd_menu, HMENU menu, UINT pos, DWORD flags)
+: DropTarget(),
+  _hwnd_menu(hwnd_menu),
+  _menu(menu),
+  _pos(pos),
+  _flags(flags),
+  refcount(1)
+{
+}
+
+STDMETHODIMP_(ULONG) MenuDropTarget::AddRef(void) {
+  return InterlockedIncrement(&refcount);
+}
+
+STDMETHODIMP_(ULONG) MenuDropTarget::Release(void) {
+  LONG count = InterlockedDecrement(&refcount);
+  if(count == 0) {
+    delete this;
+    return 0;
+  }
+  
+  return count;
+}
+
+//} ... class MenuDropTarget
 
 //{ class Win32AcceleratorTable ...
 

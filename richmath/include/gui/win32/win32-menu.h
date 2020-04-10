@@ -32,6 +32,7 @@ namespace richmath {
       
       static void on_menuselect(WPARAM wParam, LPARAM lParam);
       static LRESULT on_menudrag(WPARAM wParam, LPARAM lParam, ComBase<IDragSourceHelper> drag_source_helper);
+      static LRESULT on_menugetobject(WPARAM wParam, LPARAM lParam);
       
     public:
       static SharedPtr<Win32Menu>  main_menu;

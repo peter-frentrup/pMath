@@ -25,28 +25,6 @@ DropTarget::DropTarget()
 DropTarget::~DropTarget() {
 }
 
-/*
-//
-//  IUnknown::AddRef
-//
-STDMETHODIMP_(ULONG) DropTarget::AddRef(void) {
-  return InterlockedIncrement(&refcount);
-}
-
-//
-//  IUnknown::Release
-//
-STDMETHODIMP_(ULONG) DropTarget::Release(void) {
-  LONG count = InterlockedDecrement(&refcount);
-  if(count == 0) {
-    delete this;
-    return 0;
-  }
-  
-  return count;
-}
-*/
-
 //
 //  IUnknown::QueryInterface
 //

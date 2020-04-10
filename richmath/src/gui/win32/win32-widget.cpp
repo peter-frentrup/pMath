@@ -1645,7 +1645,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           Application::run_menucommand(cmd);
         } return 0;
       
-      case WM_MENUDRAG: return Win32Menu::on_menudrag(wParam, lParam, drag_source_helper());
+      case WM_MENUDRAG:      return Win32Menu::on_menudrag(     wParam, lParam, drag_source_helper());
+      case WM_MENUGETOBJECT: return Win32Menu::on_menugetobject(wParam, lParam);
       
       case WM_MENUSELECT: {
           Win32Menu::on_menuselect(wParam, lParam);
