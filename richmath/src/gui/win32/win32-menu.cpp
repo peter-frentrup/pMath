@@ -3,10 +3,16 @@
 #include <eval/binding.h>
 #include <eval/application.h>
 #include <eval/observable.h>
-#include <resources.h>
+
+#include <gui/win32/win32-clipboard.h>
+#include <gui/win32/win32-themes.h>
+#include <gui/win32/ole/dataobject.h>
+#include <gui/win32/ole/dropsource.h>
 
 #include <util/array.h>
 #include <util/hashtable.h>
+
+#include <resources.h>
 
 
 using namespace richmath;
@@ -59,6 +65,8 @@ extern pmath_symbol_t richmath_FE_Delimiter;
 extern pmath_symbol_t richmath_FE_Menu;
 extern pmath_symbol_t richmath_FE_MenuItem;
 
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+
 
 //{ class Win32Menu ...
 
@@ -90,8 +98,7 @@ DWORD Win32Menu::command_to_id(Expr cmd) {
 void Win32Menu::init_popupmenu(HMENU sub) {
   int count = GetMenuItemCount(sub);
   for(int i = 0; i < count; ++i) {
-    MENUITEMINFOW mii = {0};
-    mii.cbSize = sizeof(mii);
+    MENUITEMINFOW mii = { sizeof(mii) };
     mii.fMask = MIIM_DATA | MIIM_ID | MIIM_SUBMENU;
     if(GetMenuItemInfoW(sub, i, TRUE, &mii)) {
       if(mii.dwItemData) {
@@ -354,6 +361,60 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
 //  }
 }
 
+LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam, ComBase<IDragSourceHelper> drag_source_helper) {
+  pmath_debug_print("[on_menudrag]\n");
+  
+  HMENU menu = (HMENU)lParam;
+  MENUITEMINFOW mii = { sizeof(mii) };
+  mii.fMask = MIIM_DATA | MIIM_ID; 
+  if(GetMenuItemInfoW(menu, wParam, TRUE, &mii)) {
+    Expr cmd = id_to_command(mii.wID);
+    
+    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+      DataObject *data_object = new DataObject;
+      data_object->source_content = cmd[1];
+      data_object->add_source_format(Win32Clipboard::AtomBoxesText);
+      data_object->add_source_format(CF_UNICODETEXT);
+      data_object->add_source_format(CF_TEXT);
+      
+      DropSource *drop_source = new DropSource();
+      
+      if(Win32Themes::is_app_themed()) { 
+        if(drag_source_helper) {
+          drop_source->description_data.copy(data_object);
+          if(auto helper2 = drag_source_helper.as<IDragSourceHelper2>()) {
+            helper2->SetFlags(DSH_ALLOWDROPDESCRIPTIONTEXT);
+          }
+        }
+      }
+      
+      bool have_image = false;
+      RECT rect;
+      POINT pt = {0,0};
+      GetCursorPos(&pt);
+      if(GetMenuItemRect(nullptr, menu, wParam, &rect)) {
+        have_image = HRbool(drop_source->set_drag_image_from_window_part(nullptr, &rect, &pt));
+      }
+      
+      if(!have_image)
+        drop_source->set_drag_image_from_window(nullptr);
+  
+      DWORD effect = DROPEFFECT_COPY;
+      HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
+      
+      data_object->Release();
+      drop_source->Release();
+      
+      if(res == DRAGDROP_S_DROP)
+        return MND_ENDMENU;
+      else
+        return MND_CONTINUE;
+    }
+  }
+  
+  return MND_CONTINUE;
+}
+
 //} ... class Win32Menu
 
 //{ class MenuItemBuilder ...
@@ -408,6 +469,11 @@ HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
   
   HMENU menu = is_popup ? CreatePopupMenu() : CreateMenu();
   if(menu) {
+    MENUINFO mi = { sizeof(mi) };
+    mi.fMask = MIM_STYLE;
+    mi.dwStyle = MNS_DRAGDROP;
+    SetMenuInfo(menu, &mi);
+    
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr item = expr[i];
       

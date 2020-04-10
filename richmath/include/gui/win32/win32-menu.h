@@ -9,7 +9,9 @@
 #include <util/base.h>
 #include <util/sharedptr.h>
 
-#include <windows.h>
+#include <gui/win32/ole/combase.h>
+
+#include <shlobj.h>
 
 
 namespace richmath {
@@ -29,6 +31,7 @@ namespace richmath {
       static Expr selected_item_command();
       
       static void on_menuselect(WPARAM wParam, LPARAM lParam);
+      static LRESULT on_menudrag(WPARAM wParam, LPARAM lParam, ComBase<IDragSourceHelper> drag_source_helper);
       
     public:
       static SharedPtr<Win32Menu>  main_menu;

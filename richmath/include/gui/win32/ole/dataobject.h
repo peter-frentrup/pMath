@@ -80,6 +80,7 @@ namespace richmath {
     
     public:
       SelectionReference  source;
+      Expr                source_content;
       
       static DataObject *as_current_data_object(IDataObject *obj);
       

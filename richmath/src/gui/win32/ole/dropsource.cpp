@@ -22,6 +22,53 @@ enum class DropDescriptionDefault {
   Link = 4
 };
 
+namespace {
+  // see https://www.codeproject.com/Articles/886711/Drag-Drop-Images-and-Drop-Descriptions-for-MFC-App
+  static HBITMAP replace_black(HBITMAP hBitmap) {
+    if(!hBitmap)
+      return hBitmap;
+      
+    DIBSECTION ds;
+    int nSize = GetObjectW(hBitmap, sizeof(ds), &ds);
+    if(nSize < (int)sizeof(BITMAP))
+      return hBitmap;
+      
+    if(ds.dsBm.bmBitsPixel < 24)
+      return hBitmap;
+      
+    if(nSize < (int)sizeof(ds)) {
+      // not a DIBSECTION
+      // Create a DIBSECTION copy and delete the original bitmap.
+      HBITMAP hCopy = (HBITMAP)CopyImage(
+                        hBitmap, IMAGE_BITMAP, 0, 0,
+                        LR_CREATEDIBSECTION | LR_COPYDELETEORG);
+      if(hCopy) {
+        hBitmap = hCopy;
+        nSize = GetObjectW(hBitmap, sizeof(ds), &ds);
+      }
+    }
+    
+    if(nSize != sizeof(ds))
+      return hBitmap;
+    
+    BYTE *pixel_row = (BYTE*)ds.dsBm.bmBits;
+    int bytes_per_pixel = ds.dsBm.bmBitsPixel / 8;
+    for(int i = 0; i < ds.dsBm.bmHeight; i++) {
+      BYTE *pixels = pixel_row;
+      for(int j = 0; j < ds.dsBm.bmWidth; j++) {
+        if(pixels[0] == 0 && pixels[1] == 0 && pixels[2] == 0) {
+          pixels[0] = 0x01;
+          pixels[1] = 0x01;
+          pixels[2] = 0x01;
+        }
+        pixels += bytes_per_pixel;
+      }
+      pixel_row += ds.dsBm.bmWidthBytes;
+    }
+    return hBitmap;
+  }
+}
+
 //{ class DropSource ...
 
 DropSource::DropSource()
@@ -137,7 +184,7 @@ STDMETHODIMP DropSource::GiveFeedback(DWORD dwEffect) {
   return DRAGDROP_S_USEDEFAULTCURSORS;
 }
 
-HRESULT DropSource::set_drag_image_from_window(HWND hwnd, POINT *point) {
+HRESULT DropSource::set_drag_image_from_window(HWND hwnd, const POINT *point) {
   if(!helper)
     return E_NOINTERFACE;
     
@@ -148,55 +195,62 @@ HRESULT DropSource::set_drag_image_from_window(HWND hwnd, POINT *point) {
   if(!point)
     point = &pt;
     
-  HR(helper->InitializeFromWindow(hwnd, point, description_data.get()));
+  HR(helper->InitializeFromWindow(hwnd, (POINT*)point, description_data.get()));
   return S_OK;
 }
 
-namespace {
-  // see https://www.codeproject.com/Articles/886711/Drag-Drop-Images-and-Drop-Descriptions-for-MFC-App
-  static HBITMAP replace_black(HBITMAP hBitmap) {
-    if(!hBitmap)
-      return hBitmap;
-      
-    DIBSECTION ds;
-    int nSize = GetObjectW(hBitmap, sizeof(ds), &ds);
-    if(nSize < (int)sizeof(BITMAP))
-      return hBitmap;
-      
-    if(ds.dsBm.bmBitsPixel < 24)
-      return hBitmap;
-      
-    if(nSize < (int)sizeof(ds)) {
-      // not a DIBSECTION
-      // Create a DIBSECTION copy and delete the original bitmap.
-      HBITMAP hCopy = (HBITMAP)CopyImage(
-                        hBitmap, IMAGE_BITMAP, 0, 0,
-                        LR_CREATEDIBSECTION | LR_COPYDELETEORG);
-      if(hCopy) {
-        hBitmap = hCopy;
-        nSize = GetObjectW(hBitmap, sizeof(ds), &ds);
-      }
-    }
+HRESULT DropSource::set_drag_image_from_window_part(HWND hwnd, const RECT *rect, const POINT *point) {
+  if(!helper)
+    return E_NOINTERFACE;
     
-    if(nSize != sizeof(ds))
-      return hBitmap;
+  if(!description_data)
+    return E_FAIL;
+  
+  if(!rect)
+    return E_INVALIDARG;
+  
+  SHDRAGIMAGE di = {0};
+  di.crColorKey = CLR_NONE;
+  di.sizeDragImage.cx = rect->right - rect->left;
+  di.sizeDragImage.cy = rect->bottom - rect->top;
+  //di.hbmpDragImage = nullptr;
+  if(point) {
+    di.ptOffset.x = point->x - rect->left;
+    di.ptOffset.y = point->y - rect->top;
     
-    BYTE *pixel_row = (BYTE*)ds.dsBm.bmBits;
-    int bytes_per_pixel = ds.dsBm.bmBitsPixel / 8;
-    for(int i = 0; i < ds.dsBm.bmHeight; i++) {
-      BYTE *pixels = pixel_row;
-      for(int j = 0; j < ds.dsBm.bmWidth; j++) {
-        if(pixels[0] == 0 && pixels[1] == 0 && pixels[2] == 0) {
-          pixels[0] = 0x01;
-          pixels[1] = 0x01;
-          pixels[2] = 0x01;
-        }
-        pixels += bytes_per_pixel;
-      }
-      pixel_row += ds.dsBm.bmWidthBytes;
-    }
-    return hBitmap;
+    if(di.ptOffset.x < 0)                   di.ptOffset.x = 0;
+    if(di.ptOffset.y < 0)                   di.ptOffset.y = 0;
+    if(di.ptOffset.x > di.sizeDragImage.cx) di.ptOffset.x = di.sizeDragImage.cx;
+    if(di.ptOffset.y > di.sizeDragImage.cy) di.ptOffset.y = di.sizeDragImage.cy;
   }
+  else {
+    di.ptOffset.x = di.sizeDragImage.cx / 2;
+    di.ptOffset.y = di.sizeDragImage.cy;
+  }
+  
+  HRESULT hr = E_OUTOFMEMORY;
+  if(HDC dc = GetDC(hwnd)) {
+    if(HDC memDC = CreateCompatibleDC(dc)) {
+      di.hbmpDragImage = CreateCompatibleBitmap(dc, di.sizeDragImage.cx, di.sizeDragImage.cy);
+      if(di.hbmpDragImage) {
+        SelectObject(memDC, di.hbmpDragImage);
+        BitBlt(memDC, 0, 0, di.sizeDragImage.cx, di.sizeDragImage.cy, dc, rect->left, rect->top, SRCCOPY);
+        
+        di.hbmpDragImage = replace_black(di.hbmpDragImage);
+        
+        hr = helper->InitializeFromBitmap(&di, description_data.get());
+        if(!HRbool(hr)) {
+          DeleteObject(di.hbmpDragImage); 
+          di.hbmpDragImage = nullptr;
+        }
+      }
+  
+      DeleteDC(memDC);
+    }
+    ReleaseDC(hwnd, dc);
+  }
+  
+  return hr;
 }
 
 HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionReference source) {

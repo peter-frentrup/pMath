@@ -450,12 +450,12 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
 }
 
 STDMETHODIMP Win32Widget::DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
-  if(!is_dragging) {
-    drag_source_reference().set(
-      document()->selection_box(),
-      document()->selection_start(),
-      document()->selection_end());
-  }
+//  if(!is_dragging) {
+//    drag_source_reference().set(
+//      document()->selection_box(),
+//      document()->selection_start(),
+//      document()->selection_end());
+//  }
   
   _latest_drop_effect = DROPEFFECT_NONE;
   _latest_drop_image = DROPIMAGE_INVALID;
@@ -467,12 +467,8 @@ STDMETHODIMP Win32Widget::DragEnter(IDataObject *data_object, DWORD key_state, P
 }
 
 STDMETHODIMP Win32Widget::DragLeave(void) {
-  if(drag_source_reference().get()) {
-    document()->select(
-      drag_source_reference().get(),
-      drag_source_reference().start,
-      drag_source_reference().end);
-  }
+  if(VolatileSelection src = drag_source_reference().get_all()) 
+    document()->select(src);
   
   if(!is_dragging)
     drag_source_reference().reset();
@@ -1648,7 +1644,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             
           Application::run_menucommand(cmd);
         } return 0;
-        
+      
+      case WM_MENUDRAG: return Win32Menu::on_menudrag(wParam, lParam, drag_source_helper());
+      
       case WM_MENUSELECT: {
           Win32Menu::on_menuselect(wParam, lParam);
         } break;
@@ -1813,9 +1811,13 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     DataObject *local_data_object = DataObject::as_current_data_object(data_object);
     
     if(local_data_object) {
-      pmath_debug_print("[local_data_object = %p]\n", local_data_object);
       if(VolatileSelection src = local_data_object->source.get_all()) {
         box_data = src.to_pmath(BoxOutputFlags::Default);
+        break;
+      }
+      
+      if(local_data_object->source_content[0] == PMATH_SYMBOL_RAWBOXES && local_data_object->source_content.expr_length() == 1) {
+        box_data = local_data_object->source_content[1];
         break;
       }
     }
@@ -1842,7 +1844,6 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
         break;
       }
     }
-    
     
     mimetype = Clipboard::PlainText;
     fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];

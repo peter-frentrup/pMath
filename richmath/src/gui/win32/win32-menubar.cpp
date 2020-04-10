@@ -775,6 +775,10 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
         Win32Menu::init_popupmenu(sub);
       } break;
     
+    case WM_MENUDRAG: {
+        *result = Win32Menu::on_menudrag(wParam, lParam, _window->drag_source_helper());
+      } return true;
+    
     case WM_MENUSELECT: {
         Win32Menu::on_menuselect(wParam, lParam);
       } break;

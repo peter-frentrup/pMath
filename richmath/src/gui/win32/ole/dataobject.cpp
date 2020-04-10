@@ -215,63 +215,104 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
     HR(add_ref_std_medium(&entry->stg_medium, pMedium, false));
     return S_OK;
   }
-    
-  Box *srcbox = source.get();
-  if(!srcbox)
-    return OLE_E_NOTRUNNING;
-    
-  Document *doc = srcbox->find_parent<Document>(true);
-  if(!doc)
-    return OLE_E_NOTRUNNING;
-    
-  if(!has_source_format(pFormatEtc)) 
-    return DV_E_FORMATETC;
   
-  AutoResetSelection auto_sel{ doc };
-  doc->select(srcbox, source.start, source.end);
-  
-  if(cairo_surface_t *image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, 1, 1)) {
-    Rectangle rect;
-    doc->prepare_copy_to_image(image, &rect);
-    cairo_surface_destroy(image);
+  if(Box *srcbox = source.get()) {
+    Document *doc = srcbox->find_parent<Document>(true);
+    if(!doc)
+      return OLE_E_NOTRUNNING;
+      
+    if(!has_source_format(pFormatEtc)) 
+      return DV_E_FORMATETC;
     
-    image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, rect.width, rect.height);
-    if(image) {
-      doc->finish_copy_to_image(image, rect);
-      HRESULT hr = HRreport(image_to_medium(pFormatEtc, pMedium, image));
+    AutoResetSelection auto_sel{ doc };
+    doc->select(srcbox, source.start, source.end);
+    
+    if(cairo_surface_t *image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, 1, 1)) {
+      Rectangle rect;
+      doc->prepare_copy_to_image(image, &rect);
       cairo_surface_destroy(image);
+      
+      image = try_create_image(pFormatEtc, CAIRO_FORMAT_RGB24, rect.width, rect.height);
+      if(image) {
+        doc->finish_copy_to_image(image, rect);
+        HRESULT hr = HRreport(image_to_medium(pFormatEtc, pMedium, image));
+        cairo_surface_destroy(image);
+        return hr;
+      }
+      
+      return E_UNEXPECTED;
+    }
+    
+    if(pFormatEtc->cfFormat == CF_TEXT) {
+      String text = doc->copy_to_text(Clipboard::PlainText);
+      int len;
+      char *ansi = pmath_string_to_native(text.get(), &len);
+      if(!ansi)
+        return E_OUTOFMEMORY;
+      
+      HRESULT hr = HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)ansi, len + 1));
+      pmath_mem_free(ansi);
       return hr;
     }
     
-    return E_UNEXPECTED;
+    if( pFormatEtc->cfFormat == CF_UNICODETEXT || 
+        pFormatEtc->cfFormat == Win32Clipboard::AtomBoxesText) 
+    {
+      String text = doc->copy_to_text(Win32Clipboard::win32cbformat_to_mime[pFormatEtc->cfFormat]);
+      
+      int len = text.length();
+      const uint16_t *buf = text.buffer();
+      if(!buf)
+        return E_OUTOFMEMORY;
+      
+      return HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)buf, len * sizeof(uint16_t)));
+    }
+    
+    return DV_E_TYMED;
   }
   
-  if(pFormatEtc->cfFormat == CF_TEXT) {
-    String text = doc->copy_to_text(Clipboard::PlainText);
-    int len;
-    char *ansi = pmath_string_to_native(text.get(), &len);
-    if(!ansi)
-      return E_OUTOFMEMORY;
+  if(!source_content.is_null()) {
+    if(pFormatEtc->cfFormat == Win32Clipboard::AtomBoxesText) {
+      String text = Application::interrupt_wait(
+                      Call(Symbol(PMATH_SYMBOL_MAKEBOXES), source_content),
+                      Application::edit_interrupt_timeout
+                    ).to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
+      
+      int len = text.length();
+      const uint16_t *buf = text.buffer();
+      if(!buf)
+        return E_OUTOFMEMORY;
+      
+      return HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)buf, len * sizeof(uint16_t)));
+    }
     
-    HRESULT hr = HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)ansi, len + 1));
-    pmath_mem_free(ansi);
-    return hr;
+    if(pFormatEtc->cfFormat == CF_UNICODETEXT || pFormatEtc->cfFormat == CF_TEXT) {
+      String text = source_content.to_string();
+      
+      if(pFormatEtc->cfFormat == CF_UNICODETEXT) {
+        int len = text.length();
+        const uint16_t *buf = text.buffer();
+        if(!buf)
+          return E_OUTOFMEMORY;
+        
+        return HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)buf, len * sizeof(uint16_t)));
+      }
+      else {
+        int len;
+        char *ansi = pmath_string_to_native(text.get(), &len);
+        if(!ansi)
+          return E_OUTOFMEMORY;
+        
+        HRESULT hr = HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)ansi, len + 1));
+        pmath_mem_free(ansi);
+        return hr;
+      }
+    }
+    
+    return DV_E_TYMED;
   }
   
-  if( pFormatEtc->cfFormat == CF_UNICODETEXT || 
-      pFormatEtc->cfFormat == Win32Clipboard::AtomBoxesText) 
-  {
-    String text = doc->copy_to_text(Win32Clipboard::win32cbformat_to_mime[pFormatEtc->cfFormat]);
-    
-    int len = text.length();
-    const uint16_t *buf = text.buffer();
-    if(!buf)
-      return E_OUTOFMEMORY;
-    
-    return HRreport(buffer_to_medium(pFormatEtc, pMedium, (const uint8_t*)buf, len * sizeof(uint16_t)));
-  }
-  
-  return DV_E_TYMED;
+  return OLE_E_NOTRUNNING;
 }
 
 //

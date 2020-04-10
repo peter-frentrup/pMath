@@ -127,6 +127,8 @@ namespace richmath {
         return nullptr;
       }
       
+      ComBase<IDragSourceHelper> drag_source_helper() { return _drag_source_helper; }
+      
     protected:
       ComBase<IDropTargetHelper> _drop_target_helper;
       ComBase<IDragSourceHelper> _drag_source_helper;
