@@ -266,12 +266,7 @@ void Win32Menubar::show_menu(int item) {
   tpm.cbSize = sizeof(tpm);
   SendMessageW(_hwnd, TB_GETRECT, item, (LPARAM)&tpm.rcExclude);
   
-  POINT pt = {0, 0};
-  ClientToScreen(_hwnd, &pt);
-  tpm.rcExclude.left  += pt.x;
-  tpm.rcExclude.right += pt.x;
-  tpm.rcExclude.top   += pt.y;
-  tpm.rcExclude.bottom += pt.y;
+  MapWindowPoints(_hwnd, nullptr, (POINT*)&tpm.rcExclude, 2);
   
   SetFocus(_hwnd);
   
@@ -283,16 +278,14 @@ void Win32Menubar::show_menu(int item) {
     
     Win32AutoMenuHook menu_hook(current_popup, parent, _hwnd, true, true);
     
+    POINT pt;
     pt.y = tpm.rcExclude.bottom;
-    UINT align;
-    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-      align = TPM_LEFTALIGN;
-      pt.x = tpm.rcExclude.left;
-    }
-    else {
-      align = TPM_RIGHTALIGN;
+    UINT align = TPM_LEFTALIGN;
+    DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
+    if(ex_style & WS_EX_LAYOUTRTL)
       pt.x = tpm.rcExclude.right;
-    }
+    else
+      pt.x = tpm.rcExclude.left;
     
     UINT flags = TPM_RETURNCMD | align;
     if(!menu_animation)
