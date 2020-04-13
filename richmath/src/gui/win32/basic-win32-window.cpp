@@ -1121,13 +1121,9 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
     if(Win32Themes::DwmGetWindowAttribute) {
       if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT)))) {
         // DWMWA_CAPTION_BUTTON_BOUNDS are in window coordinates, not client coordinates.
-        RECT winrect = {0,0,0,0};
-        GetWindowRect(hwnd, &winrect);
         // TODO: correctly adjust the rectangle to tightly fit the button bounds. 
         // The value 6 does not seem exactly correct with 150 DPI
         rect->right -= 6;
-        OffsetRect(rect, winrect.left + 6, winrect.top);
-        MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
         return;
       }
     }
