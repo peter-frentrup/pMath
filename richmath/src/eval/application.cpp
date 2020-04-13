@@ -285,7 +285,7 @@ void Application::notify(ClientNotification type, Expr data) {
     
   ClientNotificationData cn;
   cn.type = type;
-  cn.data = data;
+  cn.data = std::move(data);
   
   notifications.put(cn);
   pmath_thread_wakeup(main_message_queue.get());
@@ -314,7 +314,7 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
   cn.finished = &finished;
   cn.notify_queue = Expr(pmath_thread_get_queue());
   cn.type = type;
-  cn.data = data;
+  cn.data = std::move(data);
   cn.result_ptr = &result;
   
   notifications.put(cn);
@@ -338,7 +338,7 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
 }
 
 Expr Application::current_value(Expr item) {
-  return current_value(Application::get_evaluation_box(), item);
+  return current_value(Application::get_evaluation_box(), std::move(item));
 }
 
 Expr Application::current_value(FrontEndObject *obj, Expr item) {
@@ -349,7 +349,7 @@ Expr Application::current_value(FrontEndObject *obj, Expr item) {
   if(!func)
     return Symbol(PMATH_SYMBOL_FAILED);
     
-  return func(obj, item);
+  return func(obj, std::move(item));
 }
 
 bool Application::set_current_value(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -360,7 +360,7 @@ bool Application::set_current_value(FrontEndObject *obj, Expr item, Expr rhs) {
   if(!func)
     return false;
     
-  return func(obj, item, rhs);
+  return func(obj, std::move(item), std::move(rhs));
 }
 
 bool Application::run_recursive_menucommand(Expr cmd) {
@@ -371,7 +371,7 @@ bool Application::run_recursive_menucommand(Expr cmd) {
     return true;
     
   func = menu_commands[cmd[0]];
-  if(func && func(cmd))
+  if(func && func(std::move(cmd)))
     return true;
     
   return false;
