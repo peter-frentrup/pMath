@@ -34,52 +34,25 @@ using SnapPosition = BasicWin32Window::SnapPosition;
 #define MAX(a, b)  ((a) > (b) ? (a) : (b))
 
 
-static Hashtable<String, AutoCairoSurface> background_image_cache;
-
-static Hashtable<int, HANDLE> composition_window_theme_for_dpi;
-
-static AutoCairoSurface get_background_image() {
-  Expr expr = Evaluate(Parse("FE`$WindowFrameImage"));
-
-  String key(expr);
-  if(key.is_null())
-    key = Application::application_directory + "\\frame.png";
-
-  if(auto result = background_image_cache.search(key))
-    return *result;
-
-  int len;
-  if(char *imgname = pmath_string_to_utf8(key.get(), &len)) {
-    AutoCairoSurface img(cairo_image_surface_create_from_png(imgname));
-
-    pmath_mem_free(imgname);
-
-    background_image_cache.set(key, img);
-    return img;
-  }
-
-  return AutoCairoSurface();
-}
-
-static int _basic_window_count = 0;
-static void add_basic_window() {
-  ++_basic_window_count;
-}
-
-static void remove_basic_window() {
-  if(--_basic_window_count != 0)
-    return;
-
-  Win32TooltipWindow::delete_global_tooltip();
-
-  background_image_cache.clear();
-  
-  if(Win32Themes::CloseThemeData) {
-    for(auto &e : composition_window_theme_for_dpi.entries())
-      Win32Themes::CloseThemeData(e.value);
-    
-    composition_window_theme_for_dpi.clear();
-  }
+namespace {
+  static class StaticResources {
+    public:
+      StaticResources();
+      
+      void add_basic_window();
+      void remove_basic_window();
+      
+      AutoCairoSurface get_background_image();
+      
+      HANDLE composition_window_theme(int dpi);
+      void clear_theme_data();
+      
+    private:
+      Hashtable<String, AutoCairoSurface> background_image_cache;
+      Hashtable<int, HANDLE>              composition_window_theme_for_dpi;
+      int                                 window_count;
+      
+  } static_resources;
 }
 
 static bool is_left_right_bottom_frame_themed(BasicWin32Window *win) {
@@ -152,7 +125,7 @@ BasicWin32Window::BasicWin32Window(
   min_client_width(0),
   max_client_width(-1),
   _zorder_level(0),
-  background_image(get_background_image()),
+  background_image(static_resources.get_background_image()),
   _active(false),
   _glass_enabled(false),
   _themed_frame(false),
@@ -164,7 +137,7 @@ BasicWin32Window::BasicWin32Window(
 {
   memset(&_extra_glass, 0, sizeof(_extra_glass));
 
-  add_basic_window();
+  static_resources.add_basic_window();
 }
 
 void BasicWin32Window::after_construction() {
@@ -172,7 +145,7 @@ void BasicWin32Window::after_construction() {
 }
 
 BasicWin32Window::~BasicWin32Window() {
-  remove_basic_window();
+  static_resources.remove_basic_window();
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect) {
@@ -1035,13 +1008,7 @@ void BasicWin32Window::on_theme_changed() {
     _glass_enabled = Win32Themes::current_theme_is_aero();
   }
 
-  if(Win32Themes::CloseThemeData) {
-    for(auto &e : composition_window_theme_for_dpi.entries())
-      Win32Themes::CloseThemeData(e.value);
-  
-    composition_window_theme_for_dpi.clear();
-  }
-
+  static_resources.clear_theme_data();
   extend_glass(&_extra_glass);
 
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
@@ -2292,6 +2259,57 @@ HDWP BasicWin32Window::tryDeferWindowPos(
 }
 
 HANDLE BasicWin32Window::composition_window_theme(int dpi) {
+  return static_resources.composition_window_theme(dpi);
+}
+
+//} ... class BasicWin32Window
+
+//{ class StaticResources ...
+
+StaticResources::StaticResources()
+  : window_count(0)
+{
+}
+
+void StaticResources::add_basic_window() {
+  if(++window_count != 1)
+    return;
+}
+
+void StaticResources::remove_basic_window() {
+  if(--window_count != 0)
+    return;
+
+  Win32TooltipWindow::delete_global_tooltip();
+
+  background_image_cache.clear();
+  clear_theme_data();
+}
+
+AutoCairoSurface StaticResources::get_background_image() {
+  Expr expr = Evaluate(Parse("FE`$WindowFrameImage"));
+
+  String key(expr);
+  if(key.is_null())
+    key = Application::application_directory + "\\frame.png";
+
+  if(auto result = background_image_cache.search(key))
+    return *result;
+
+  int len;
+  if(char *imgname = pmath_string_to_utf8(key.get(), &len)) {
+    AutoCairoSurface img(cairo_image_surface_create_from_png(imgname));
+
+    pmath_mem_free(imgname);
+
+    background_image_cache.set(key, img);
+    return img;
+  }
+
+  return AutoCairoSurface();
+}
+
+HANDLE StaticResources::composition_window_theme(int dpi) {
   if(HANDLE *h = composition_window_theme_for_dpi.search(dpi)) 
     return *h;
   
@@ -2314,4 +2332,13 @@ HANDLE BasicWin32Window::composition_window_theme(int dpi) {
   return nullptr;
 }
 
-//} ... class BasicWin32Window
+void StaticResources::clear_theme_data() {
+  if(Win32Themes::CloseThemeData) {
+    for(auto &e : composition_window_theme_for_dpi.entries())
+      Win32Themes::CloseThemeData(e.value);
+    
+    composition_window_theme_for_dpi.clear();
+  }
+}
+
+//} ... class StaticResources
