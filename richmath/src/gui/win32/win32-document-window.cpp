@@ -39,7 +39,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
       int width,
       int height,
       Win32DocumentWindow *parent)
-      : Win32Widget(doc, style_ex, style, x, y, width, height, &parent->hwnd()),
+      : base(doc, style_ex, style, x, y, width, height, &parent->hwnd()),
         _parent(parent),
         _overlay(&parent->hwnd(), &hwnd()),
         auto_size(false),
@@ -233,7 +233,7 @@ class richmath::Win32Dock: public Win32Widget {
     
   public:
     Win32Dock(Win32DocumentWindow *parent)
-      : Win32Widget(
+      : base(
         new Document(),
         0,
         WS_CHILD | WS_VISIBLE,
@@ -259,7 +259,7 @@ class richmath::Win32Dock: public Win32Widget {
     }
     
     virtual void page_size(float *w, float *h) override {
-      Win32Widget::page_size(w, h);
+      base::page_size(w, h);
       *w = HUGE_VAL;
     }
     
@@ -455,8 +455,8 @@ class richmath::Win32Dock: public Win32Widget {
     Expr                 _content;
 };
 
-class richmath::Win32GlassDock: public richmath::Win32Dock {
-    using base = richmath::Win32Dock;
+class richmath::Win32GlassDock: public Win32Dock {
+    using base = Win32Dock;
   protected:
     virtual void after_construction() override {
       base::after_construction();
@@ -469,7 +469,7 @@ class richmath::Win32GlassDock: public richmath::Win32Dock {
     
   public:
     Win32GlassDock(Win32DocumentWindow *parent)
-      : Win32Dock(parent)
+      : base(parent)
     {
     }
     
@@ -633,7 +633,7 @@ Win32DocumentWindow::Win32DocumentWindow(
   int y,
   int width,
   int height)
-  : BasicWin32Window(
+  : base(
     style_ex,
     style | WS_CLIPCHILDREN,
     x,
@@ -665,7 +665,7 @@ Win32DocumentWindow::Win32DocumentWindow(
 }
 
 void Win32DocumentWindow::after_construction() {
-  BasicWin32Window::after_construction();
+  base::after_construction();
   
   _working_area->init();
   _top_glass_area->init();
@@ -1097,7 +1097,7 @@ bool Win32DocumentWindow::is_closed() {
   if(is_palette())
     return false;
     
-  return BasicWin32Window::is_closed();
+  return base::is_closed();
 }
 
 void Win32DocumentWindow::on_setting_changed() {
@@ -1126,11 +1126,11 @@ void Win32DocumentWindow::on_close() {
     }
   }
   
-  BasicWin32Window::on_close();
+  base::on_close();
 }
 
 void Win32DocumentWindow::on_theme_changed() {
-  BasicWin32Window::on_theme_changed();
+  base::on_theme_changed();
   
   if(window_frame() != WindowFrameNormal)
     menubar->appearence(MaNeverShow);
@@ -1249,7 +1249,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           {
             Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), hwnd(), nullptr, false, false);
             
-            res = BasicWin32Window::callback(message, wParam, lParam);
+            res = base::callback(message, wParam, lParam);
             
             if(menu_hook.exit_reason == MenuExitReason::ExplicitCmd) 
               explicit_cmd = menu_hook.exit_cmd;
@@ -1276,7 +1276,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
     }
   }
   
-  return BasicWin32Window::callback(message, wParam, lParam);
+  return base::callback(message, wParam, lParam);
 }
 
 //} ... class Win32DocumentWindow

@@ -18,6 +18,7 @@ namespace richmath {
   
   // Must call init() immediately after the construction of a derived object!
   class Win32DocumentWindow: public BasicWin32Window {
+      using base = BasicWin32Window;
     protected:
       virtual ~Win32DocumentWindow();
       virtual void after_construction() override;
