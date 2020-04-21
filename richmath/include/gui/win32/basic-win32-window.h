@@ -16,6 +16,7 @@
 namespace richmath {
   // Must call init() immediately after the construction of a derived object!
   class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext {
+      class Impl;
     public:
       struct SnapPosition {
         HWND src;
@@ -93,9 +94,6 @@ namespace richmath {
       virtual void on_move(LPARAM Param);
       
       virtual void on_theme_changed();
-      virtual void paint_themed(HDC hdc);
-      virtual void paint_themed_caption(HDC hdc);
-      virtual LRESULT nc_hit_test(WPARAM wParam, LPARAM lParam);
       void invalidate_non_child();
       void invalidate_caption();
       
@@ -127,16 +125,6 @@ namespace richmath {
       HDWP move_all_snappers(HDWP hdwp, const RECT &new_bounds);
     
     public:
-      static HDWP tryDeferWindowPos(
-        HDWP hWinPosInfo,
-        HWND hWnd,
-        HWND hWndInsertAfter,
-        int x,
-        int y,
-        int cx,
-        int cy,
-        UINT uFlags);
-      
       static HANDLE composition_window_theme(int dpi);
       static COLORREF title_font_color(bool glass_enabled, int dpi, bool active);
   };
