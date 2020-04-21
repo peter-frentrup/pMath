@@ -1638,8 +1638,9 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           GetClientRect(_hwnd, &rect);
           IntersectClipRect(hdc, 0, 0,
                             rect.right,
-                            Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) 
-                              + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi));
+                            Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + 
+                            Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi) + 
+                            Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi));
           Impl(*this).paint_themed(hdc);
 
           ReleaseDC(_hwnd, hdc);
