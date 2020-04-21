@@ -39,12 +39,16 @@ class BasicWin32Window::Impl {
     bool is_left_right_bottom_frame_themed();
     
     int nc_hit_test_no_system_buttons(POINT mouse_screen);
+    int nc_hit_test_system_buttons(POINT mouse_screen, int fallback = HTNOWHERE);
     
     void on_windowposchanging(WINDOWPOS *pos);
+    void on_windowposchanged(WINDOWPOS *pos);
+    bool on_nclbuttonup(LRESULT *result, WPARAM wParam, POINT pos);
     
     void paint_themed(HDC hdc);
   
   private:
+    void paint_themed_system_buttons(HDC hdc_bitmap);
     void paint_themed_caption(HDC hdc_bitmap);
     
   private:
@@ -70,6 +74,90 @@ namespace {
       int                                 window_count;
       
   } static_resources;
+}
+
+class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
+    using base = BasicWin32Widget;
+  protected:
+    virtual void after_construction() override {
+      base::after_construction();
+      // for debugging purposes:
+      SetWindowTextW(_hwnd, L"BlurBehind");
+      enable_blur();
+    }
+    
+    bool enable_blur() {
+      if(!Win32Themes::SetWindowCompositionAttribute)
+        return false;
+      
+      // TODO: check for right Windows 10 version
+      // Note that Acrylic Blur Behind is very slow (window lags when moving) because it uses a much larger blur radius.
+      Win32Themes::AccentPolicy accent_policy = {};
+      accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
+      accent_policy.flags = 2; // mix with gradient_color
+      accent_policy.gradient_color = 0x000000FF; // TODO: colorization color and alpha channel
+      accent_policy.animation_id = 0;
+      
+      Win32Themes::WINCOMPATTRDATA data = {};
+      data.attr = Win32Themes::DWMWA_UNDOCUMENTED_ACCENT_POLICY;
+      data.data = &accent_policy;
+      data.data_size = sizeof(accent_policy);
+      if(!Win32Themes::SetWindowCompositionAttribute(_hwnd, &data)) {
+        pmath_debug_print("[Win32BlurBehindWindow: SetWindowCompositionAttribute failed]\n");
+        return false;
+      }
+      
+      return true;
+    }
+    
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
+      switch(message) {
+        case WM_WINDOWPOSCHANGING: 
+          on_windowposchanging((WINDOWPOS*)lParam);
+          return 0;
+      }
+      
+      return base::callback(message, wParam, lParam);
+    }
+    
+    void on_windowposchanging(WINDOWPOS *lParam) {
+      if((lParam->flags & SWP_NOZORDER)) {
+        lParam->hwndInsertAfter = _owner->hwnd();
+      }
+    }
+    
+  public:
+    Win32BlurBehindWindow(BasicWin32Window *owner) 
+      : base(
+          WS_EX_NOACTIVATE,
+          WS_POPUP| WS_DISABLED,
+          0,
+          0,
+          1,
+          1,
+          nullptr),
+        _owner(owner)
+    {
+    }
+    
+    static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins) {
+      window_rect.left+=   margins.cxLeftWidth;
+      window_rect.right-=  margins.cxRightWidth;
+      window_rect.top+=    1;//margins.cyTopHeight;
+      window_rect.bottom-= margins.cyBottomHeight;
+      return window_rect;
+    }
+  
+  private:
+    BasicWin32Window *_owner;
+};
+
+static bool use_custom_system_buttons() {
+  return Win32Themes::is_windows_10_or_newer();
+}
+
+static bool hit_test_is_system_button(int ht) {
+  return ht == HTMINBUTTON || ht == HTMAXBUTTON || ht == HTCLOSE || ht == HTHELP;
 }
 
 static POINT point_from_lparam(LPARAM lParam) {
@@ -165,10 +253,12 @@ BasicWin32Window::BasicWin32Window(
   max_client_width(-1),
   _zorder_level(0),
   background_image(static_resources.get_background_image()),
+  _blur_behind_window(nullptr),
   _active(false),
   _glass_enabled(false),
   _themed_frame(false),
-  _mouse_over_caption_buttons(false),
+  _hit_test_mouse_over(HTNOWHERE),
+  _hit_test_mouse_down(HTNOWHERE),
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_cx(0),
@@ -177,14 +267,24 @@ BasicWin32Window::BasicWin32Window(
   memset(&_extra_glass, 0, sizeof(_extra_glass));
 
   static_resources.add_basic_window();
+  
+  if(use_custom_system_buttons()) // && Win32Themes::use_win10_transparency()
+    _blur_behind_window = new Win32BlurBehindWindow(this);
 }
 
 void BasicWin32Window::after_construction() {
   BasicWin32Widget::after_construction();
+  
+  if(_blur_behind_window)  _blur_behind_window->init();
 }
 
 BasicWin32Window::~BasicWin32Window() {
   static_resources.remove_basic_window();
+  
+  if(_blur_behind_window) {
+    _blur_behind_window->destroy(); 
+    _blur_behind_window = nullptr;
+  }
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect) {
@@ -394,6 +494,9 @@ static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct snap_info_t *info = (struct snap_info_t *)lParam;
 
   if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->contains(hwnd)) {
+    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
+      return TRUE;
+    
     RECT rect;
     get_snap_rect(hwnd, &rect);
     
@@ -529,11 +632,15 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct find_snap_info_t *info = (struct find_snap_info_t *)lParam;
 
   if(hwnd != info->dst && IsWindowVisible(hwnd)) {
-    auto win = dynamic_cast<BasicWin32Window*>(
-                              BasicWin32Widget::from_hwnd(hwnd));
-
-    if(win && win->zorder_level() <= info->min_level)
+    auto widget = BasicWin32Widget::from_hwnd(hwnd);
+    
+    if(dynamic_cast<Win32BlurBehindWindow*>(widget))
       return TRUE;
+    
+    if(auto win = dynamic_cast<BasicWin32Window*>(widget)) {
+      if(win->zorder_level() <= info->min_level)
+        return TRUE;
+    }
     
     RECT rect;
     get_snap_rect(hwnd, &rect);
@@ -651,6 +758,9 @@ static BOOL CALLBACK find_align_hwnd(HWND hwnd, LPARAM lParam) {
   struct find_align_info_t *info = (struct find_align_info_t *)lParam;
 
   if(hwnd != info->dst && IsWindowVisible(hwnd)) {
+    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
+      return TRUE;
+    
     RECT rect;
     get_snap_rect(hwnd, &rect);
 
@@ -983,12 +1093,14 @@ void BasicWin32Window::on_moving(RECT *lParam) {
   lParam->right  = snapping_rect.right  - snap_margins.cxRightWidth;
   lParam->bottom = snapping_rect.bottom - snap_margins.cyBottomHeight;
 
-  HDWP hdwp = BeginDeferWindowPos(all_snappers.size());
-  
+  int num_windows = all_snappers.size();
+  HDWP hdwp = BeginDeferWindowPos(num_windows);
+
   int cx = rect.left + (rect.right - rect.left)/2;
   int cy = rect.top  + (rect.bottom - rect.top)/2;
-  if( cx != last_moving_cx || cy != last_moving_cy)
+  if( cx != last_moving_cx || cy != last_moving_cy) {
     hdwp = move_all_snappers(hdwp, rect);
+  }
   
   EndDeferWindowPos(hdwp);
 
@@ -1010,7 +1122,11 @@ void BasicWin32Window::on_move(LPARAM lParam) {
   RECT rect;
   GetWindowRect(_hwnd, &rect);
 
-  HDWP hdwp = BeginDeferWindowPos(1 + all_snappers.size());
+  int num_windows = 1 + all_snappers.size();
+  if(_blur_behind_window)
+    ++num_windows;
+  
+  HDWP hdwp = BeginDeferWindowPos(num_windows);
 
   hdwp = tryDeferWindowPos(
            hdwp,
@@ -1022,6 +1138,18 @@ void BasicWin32Window::on_move(LPARAM lParam) {
            1,
            SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 
+  if(_blur_behind_window && IsWindowVisible(_blur_behind_window->hwnd())) {
+    Win32Themes::MARGINS margins = {};
+    get_nc_margins(&margins);
+    
+    hdwp = tryDeferWindowPos(
+             hdwp,
+             _blur_behind_window->hwnd(),
+             nullptr,
+             Win32BlurBehindWindow::blur_bounds(rect, margins),
+             SWP_NOACTIVATE | SWP_NOZORDER);
+  }
+  
   int cx = rect.left + (rect.right - rect.left)/2;
   int cy = rect.top  + (rect.bottom - rect.top)/2;
   if( cx != last_moving_cx || cy != last_moving_cy)
@@ -1048,10 +1176,85 @@ void BasicWin32Window::on_theme_changed() {
   }
 
   static_resources.clear_theme_data();
+  
+  if(_glass_enabled) {
+    if(Win32Themes::DwmEnableBlurBehindWindow) {
+      Win32Themes::DWM_BLURBEHIND bb = {};
+      bb.dwFlags = Win32Themes::DWM_BB_ENABLE;
+      bb.fEnable = TRUE;
+      bb.dwFlags |= Win32Themes::DWM_BB_BLURREGION;
+      bb.hRgnBlur = CreateRectRgn(0,0, 1, 1);
+      HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
+    }
+      
+  //  if(Win32Themes::SetWindowCompositionAttribute) {
+  //    Win32Themes::AccentPolicy accent_policy = {};
+  //    accent_policy.accent_state = Win32Themes::AccentState::EnableTransparentGradient;// Win32Themes::AccentState::EnableAcrylicBlurBehind;
+  //    accent_policy.flags = 2; 
+  //    accent_policy.gradient_color = 0x000000FF; // TODO: colorization color and alpha channel
+  //    accent_policy.animation_id = 0;
+  //    
+  //    Win32Themes::WINCOMPATTRDATA data = {};
+  //    data.attr = Win32Themes::DWMWA_UNDOCUMENTED_ACCENT_POLICY;
+  //    data.data = &accent_policy;
+  //    data.data_size = sizeof(accent_policy);
+  //    bool success = !!Win32Themes::SetWindowCompositionAttribute(_hwnd, &data);
+  //  }
+  }
+    
   extend_glass(&_extra_glass);
 
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
+static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, RECT *close) {
+  TITLEBARINFOEX tbi;
+  memset(&tbi, 0, sizeof(tbi));
+  tbi.cbSize = sizeof(tbi);
+
+  SendMessageW(hwnd, WM_GETTITLEBARINFOEX, 0, (LPARAM)&tbi);
+  
+  *minimize = tbi.rgrect[2];
+  *maximize = tbi.rgrect[3];
+  *close    = tbi.rgrect[5];
+  
+  if(IsRectEmpty(close)) {
+    /* Workaround for Windows 10 bug (probably since build 1809): 
+        Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
+        but works fine for only one monitor.
+     */
+    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+    
+    if(Win32Themes::DwmGetWindowAttribute) {
+      RECT rect = {};
+      if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, &rect, sizeof(RECT)))) {
+        // DWMWA_CAPTION_BUTTON_BOUNDS are in window coordinates, not client coordinates.
+        // TODO: correctly adjust the rectangle to tightly fit the button bounds. 
+        // The value 6 does not seem exactly correct with 150 DPI
+        rect.right -= 6;
+        
+        minimize->top    = maximize->top    = close->top    = rect.top;
+        minimize->bottom = maximize->bottom = close->bottom = rect.bottom;
+        
+        minimize->left = rect.left;
+        minimize->right = maximize->left = rect.left + (rect.right - rect.left) / 3;
+        maximize->right = close->left = maximize->left + (rect.right - rect.left) / 3;
+        close->right = rect.right;
+        
+        return;
+      }
+    }
+  }
+  else if(use_custom_system_buttons()) {
+    Win32Themes::MARGINS margins;
+    get_nc_margins(hwnd, &margins, Win32HighDpi::get_dpi_for_window(hwnd));
+    minimize->bottom = maximize->bottom = close->bottom = close->top + margins.cyTopHeight - 2;
+  }
+  
+  MapWindowPoints(nullptr, hwnd, (POINT*)minimize, 2);
+  MapWindowPoints(nullptr, hwnd, (POINT*)maximize, 2);
+  MapWindowPoints(nullptr, hwnd, (POINT*)close, 2);
 }
 
 static void get_system_button_bounds(HWND hwnd, RECT *rect) {
@@ -1070,6 +1273,8 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
+    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+    
     if(Win32Themes::DwmGetWindowAttribute) {
       if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT)))) {
         // DWMWA_CAPTION_BUTTON_BOUNDS are in window coordinates, not client coordinates.
@@ -1079,6 +1284,11 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
         return;
       }
     }
+  }
+  else if(use_custom_system_buttons()) { // is custom titlebar
+    Win32Themes::MARGINS margins;
+    get_nc_margins(hwnd, &margins, Win32HighDpi::get_dpi_for_window(hwnd));
+    rect->bottom = rect->top + margins.cyTopHeight - 2;
   }
   
   MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
@@ -1202,9 +1412,14 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
       
       nc.cxLeftWidth += margins->cxLeftWidth;
       nc.cxRightWidth += margins->cxRightWidth;
-      nc.cyTopHeight += margins->cyTopHeight;
-      nc.cyBottomHeight += margins->cyBottomHeight;
-
+      if(use_custom_system_buttons()) {
+        nc.cyTopHeight = 1;
+      }
+      else {
+        nc.cyTopHeight += margins->cyTopHeight;
+        nc.cyBottomHeight += margins->cyBottomHeight;
+      }
+      
       Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);
     }
 
@@ -1281,28 +1496,48 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
 //    glassfree.right  -= window_rect.left;
   glassfree.top    -= window_rect.top;
   glassfree.bottom -= window_rect.top;
-
+  
+  Color bg_color = Color::None;
   if(!wallpaper_only) {
     if( !Win32Themes::IsCompositionActive ||
         !Win32Themes::IsCompositionActive())
     {
       if(glass_enabled()) {
-        Color color;
-
         if(_active)
-          color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
+          bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
         else
-          color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+          bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
 
-        canvas->set_color(color);
+        canvas->set_color(bg_color);
         canvas->paint();
       }
       else {
-        Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+        bg_color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
         
-        canvas->set_color(color);
+        canvas->set_color(bg_color);
         canvas->paint();
       }
+    }
+    else if(use_custom_system_buttons()) {
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_SOURCE);
+      
+      Win32Themes::ColorizationInfo colorization;
+      if(Win32Themes::try_read_win10_colorization(&colorization)) {
+        if(_active && colorization.has_accent_color_in_active_titlebar) 
+          bg_color = Color::from_rgb24(colorization.accent_color);
+        else
+          bg_color = Color::White;
+      }
+      else if(_active)
+        bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
+      else
+        bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+        
+      //cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+      //canvas->set_color(Color::Black, 0.0);
+      canvas->set_color(bg_color, Win32Themes::use_win10_transparency() ? (_active ? 0.75 : 1.0) : 1.0);
+      canvas->paint();
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
     }
     else {
       cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
@@ -1315,21 +1550,20 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
       Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
       
       add_rect(canvas, glassfree);
-
+      
       canvas->set_color(color);
       canvas->fill();
     }
   }
-
+  
   paint_background(canvas);
-
+  
   if(_themed_frame) {
     LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
     RECT client_rect;
     GetClientRect(_hwnd, &client_rect);
     get_glassfree_rect(&glassfree);
     
-    CanvasAutoSave saved(canvas);
     if(style_ex & WS_EX_LAYOUTRTL) {
       /* RTL layout: Windows client coordinates are right-to-left (0,0) is at top right,
          but Cairo coordinates are left-to-right.
@@ -1348,7 +1582,7 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
     float buttons_alpha = 1.0f;
 
     bool is_win8_or_newer = Win32Themes::is_windows_8_or_newer();
-    if(_mouse_over_caption_buttons) {
+    if(hit_test_is_system_button(_hit_test_mouse_over)) {
       if(is_win8_or_newer)
         buttons_alpha = 0.8f;
       else
@@ -1379,7 +1613,7 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
       buttonradius = 5;
       frameradius  = 6; //Win32HighDpi::get_system_metrics_for_dpi(SM_CXFRAME)-2;
     }
-
+    
     if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
       cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 
@@ -1417,7 +1651,64 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
       cairo_reset_clip(canvas->cairo());
     }
 
-    { // small alpha value above the min/max/close buttons
+    if(use_custom_system_buttons()) {
+      if(hit_test_is_system_button(_hit_test_mouse_over)) {
+        RECT min_rect;
+        RECT max_rect;
+        RECT close_rect;
+        
+        get_system_button_bounds(_hwnd, &min_rect, &max_rect, &close_rect);
+        
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        Color fg_color = Color::from_bgr24(title_font_color(_glass_enabled, Win32HighDpi::get_dpi_for_window(_hwnd), _active));
+        
+        add_rect(canvas, min_rect);
+        canvas->set_color(bg_color, buttons_alpha);
+        if(_hit_test_mouse_over == HTMINBUTTON) {
+          canvas->fill_preserve();
+          canvas->set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
+        }
+        canvas->fill();
+        
+        add_rect(canvas, max_rect);
+        canvas->set_color(bg_color, buttons_alpha);
+        if(_hit_test_mouse_over == HTMAXBUTTON) {
+          canvas->fill_preserve();
+          canvas->set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
+        }
+        canvas->fill();
+        
+        add_rect(canvas, close_rect);
+        canvas->set_color(bg_color, buttons_alpha);
+        if(_hit_test_mouse_over == HTCLOSE) {
+          // TODO: obtain this color from Windows
+          static const Color CloseButtonRed = Color::from_rgb24(0xE81123);
+          
+          canvas->fill_preserve();
+          canvas->set_color(
+            CloseButtonRed, 
+            (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.6 : 1.0);
+        }
+        else
+          canvas->set_color(bg_color, buttons_alpha);
+        canvas->fill();
+      }
+      else {
+        RECT buttons;
+        get_system_button_bounds(_hwnd, &buttons);
+        
+        add_rect(canvas, buttons);
+
+//        canvas->set_color(Color::White, buttons_alpha);
+//        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+//        canvas->fill_preserve();
+        
+        canvas->set_color(bg_color, buttons_alpha);
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        canvas->fill();
+      }
+    } 
+    else { // small alpha value above the min/max/close buttons
       RECT buttons;
       get_system_button_bounds(_hwnd, &buttons);
 
@@ -1435,7 +1726,7 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
       canvas->set_color(Color::White, buttons_alpha);
       cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 
-//        if(_mouse_over_caption_buttons) {
+//        if(hit_test_is_system_button(_hit_test_mouse_over)) {
 //          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
 //        }
 //        else if(_active) {
@@ -1484,6 +1775,8 @@ void BasicWin32Window::paint_background(Canvas *canvas) {
     return;
   }
   
+  CanvasAutoSave saved(canvas);
+
   RECT rect, glassfree;
   GetClientRect(_hwnd, &rect);
   get_glassfree_rect(&glassfree);
@@ -1678,8 +1971,38 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         break;
 //} ... sizing & moving
 
+      case WM_SHOWWINDOW: {
+          bool will_be_visible = !!wParam;
+          if(_blur_behind_window) {
+            if(will_be_visible) {
+              Win32Themes::MARGINS margins = {};
+              get_nc_margins(&margins);
+              
+              RECT rect;
+              GetWindowRect(_hwnd, &rect);
+              rect = Win32BlurBehindWindow::blur_bounds(rect, margins);
+              
+              SetWindowPos(
+                _blur_behind_window->hwnd(),
+                _hwnd,
+                rect.left, 
+                rect.top,
+                rect.right - rect.left,
+                rect.bottom - rect.top,
+                SWP_NOACTIVATE | SWP_SHOWWINDOW);
+            }
+            else {
+              ShowWindow(_blur_behind_window->hwnd(), SW_HIDE);
+            }
+          }
+        } break;
+      
       case WM_WINDOWPOSCHANGING: {
           Impl(*this).on_windowposchanging((WINDOWPOS *)lParam);
+        } break;
+
+      case WM_WINDOWPOSCHANGED: {
+          Impl(*this).on_windowposchanged((WINDOWPOS *)lParam);
         } break;
 
       case WM_DPICHANGED: { // Windows 8.1 and above
@@ -1729,8 +2052,13 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(!calldwp)
             return dwm_result;
 
-          if(_themed_frame)
+          if(_themed_frame) {
+            if(use_custom_system_buttons()) {
+              if(Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam)))
+                return HTOBJECT;
+            }
             return Impl(*this).nc_hit_test_no_system_buttons(point_from_lparam(lParam));
+          }
         } break;
 
       case WM_NCCALCSIZE: {
@@ -1753,31 +2081,24 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
 
       case WM_NCMOUSEMOVE: {
-          if( wParam == HTMINBUTTON ||
-              wParam == HTMAXBUTTON ||
-              wParam == HTCLOSE     ||
-              wParam == HTHELP)
-          {
-            if(!_mouse_over_caption_buttons)
+          int8_t new_hit = Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam), wParam);
+          
+          if(_hit_test_mouse_over != new_hit) {
+            if(_hit_test_mouse_over != new_hit)
               invalidate_caption();
-            _mouse_over_caption_buttons = true;
-          }
-          else {
-            if(_mouse_over_caption_buttons)
-              invalidate_caption();
-            _mouse_over_caption_buttons = false;
+            _hit_test_mouse_over = new_hit;
           }
         } break;
 
       case WM_NCMOUSELEAVE: {
-          if(_mouse_over_caption_buttons)
+          if(hit_test_is_system_button(_hit_test_mouse_over))
             invalidate_caption();
-
-          _mouse_over_caption_buttons = false;
+            
+          _hit_test_mouse_over = HTNOWHERE;
         } break;
 
       case WM_NCRBUTTONUP: {
-          if(_themed_frame && (wParam == HTCAPTION || wParam == HTSYSMENU)) {
+          if(_themed_frame && (wParam == HTCAPTION || wParam == HTSYSMENU || wParam == HTOBJECT)) {
             if(HMENU menu = GetSystemMenu(_hwnd, FALSE)) {
               POINT pt;
               pt.x = (short)LOWORD(lParam);
@@ -1806,56 +2127,19 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             }
           }
         } break;
-
-      case WM_NCLBUTTONUP: {
-          if(_themed_frame && wParam == HTSYSMENU) {
-            if(HMENU menu = GetSystemMenu(_hwnd, FALSE)) {
-              TPMPARAMS tpm;
-              memset(&tpm, 0, sizeof(tpm));
-              tpm.cbSize = sizeof(tpm);
-              GetWindowRect(_hwnd, &tpm.rcExclude);
-
-              tpm.rcExclude.left +=  GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-              tpm.rcExclude.top +=   GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-              tpm.rcExclude.right -= GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-              tpm.rcExclude.bottom = tpm.rcExclude.top + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER);
-
-              //POINT pt;
-              //pt.x = (short)LOWORD(lParam);
-              //pt.y = (short)HIWORD(lParam);
-
-              int x;
-              UINT align;
-              if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-                align = TPM_LEFTALIGN;
-                x = tpm.rcExclude.left;
-              }
-              else {
-                align = TPM_RIGHTALIGN;
-                x = tpm.rcExclude.right;
-              }
-
-              DWORD cmd;
-              {
-                Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
-                
-                cmd = TrackPopupMenuEx(
-                        menu,
-                        align | TPM_RETURNCMD | TPM_NONOTIFY,
-                        x,
-                        tpm.rcExclude.bottom,
-                        _hwnd,
-                        &tpm);
-                        
-                if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
-                  cmd = menu_hook.exit_cmd;
-              }
-              
-              if(cmd)
-                SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
-              return 0;
-            }
+      
+      case WM_NCLBUTTONDOWN: {
+          _hit_test_mouse_down = Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam), wParam);
+          if(use_custom_system_buttons()) {
+            if(hit_test_is_system_button(_hit_test_mouse_down))
+              invalidate_caption();
           }
+        } break;
+        
+      case WM_NCLBUTTONUP: {
+        LRESULT res = 0;
+        if(Impl(*this).on_nclbuttonup(&res, wParam, point_from_lparam(lParam)))
+          return res;
         } break;
 
       case WM_SETICON:
@@ -1991,6 +2275,28 @@ int BasicWin32Window::Impl::nc_hit_test_no_system_buttons(POINT mouse_screen) {
   return result;
 }
 
+int BasicWin32Window::Impl::nc_hit_test_system_buttons(POINT mouse_screen, int fallback) {
+  POINT mouse_client = mouse_screen;
+  ScreenToClient(self._hwnd, &mouse_client);
+  
+  DWORD style = GetWindowLongW(self._hwnd, GWL_STYLE);
+  
+  RECT min_rect;
+  RECT max_rect;
+  RECT close_rect;
+  get_system_button_bounds(self._hwnd, &min_rect, &max_rect, &close_rect);
+  if(PtInRect(&close_rect, mouse_client))
+    return HTCLOSE;
+  
+  if((style & WS_MAXIMIZEBOX) && PtInRect(&max_rect, mouse_client))
+    return HTMAXBUTTON;
+  
+  if((style & WS_MINIMIZEBOX) && PtInRect(&min_rect, mouse_client))
+    return HTMINBUTTON;
+  
+  return fallback;
+}
+
 struct FindPopup {
   HWND popup;
   DWORD thread_id;
@@ -2120,6 +2426,111 @@ void BasicWin32Window::Impl::on_windowposchanging(WINDOWPOS *pos) {
   }
 }
 
+void BasicWin32Window::Impl::on_windowposchanged(WINDOWPOS *pos) {
+  if(self._blur_behind_window) {
+    if(IsWindowVisible(self._hwnd)) {
+      Win32Themes::MARGINS margins = {};
+      self.get_nc_margins(&margins);
+      
+      RECT rect { pos->x, pos->y, pos->x + pos->cx, pos->y + pos->cy };
+      rect = Win32BlurBehindWindow::blur_bounds(rect, margins);
+      SetWindowPos(
+        self._blur_behind_window->hwnd(),
+        self.hwnd(),
+        rect.left,
+        rect.top,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        SWP_NOACTIVATE | SWP_SHOWWINDOW);
+    }
+    else
+      ShowWindow(self._blur_behind_window->hwnd(), SW_HIDE);
+  }
+}
+
+bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POINT pos) {
+  if(use_custom_system_buttons()) {
+    if(hit_test_is_system_button(self._hit_test_mouse_down))
+      self.invalidate_caption();
+    
+    int8_t new_hit = Impl(*this).nc_hit_test_system_buttons(pos, wParam);
+    if(new_hit == self._hit_test_mouse_down) {
+      switch(self._hit_test_mouse_down) {
+        case HTMINBUTTON:
+          if(GetWindowLong(self._hwnd, GWL_STYLE) & WS_MINIMIZE)
+            SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
+          else
+            SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_MINIMIZE, 0);
+          *result = 0;
+          return true;
+          
+        case HTMAXBUTTON:
+          if(GetWindowLong(self._hwnd, GWL_STYLE) & WS_MAXIMIZE)
+            SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
+          else
+            SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_MAXIMIZE, 0);
+          *result = 0;
+          return true;
+          
+        case HTCLOSE:
+          SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_CLOSE, 0);
+          *result = 0;
+          return true;
+      }
+    }
+  }
+  
+  self._hit_test_mouse_down = HTNOWHERE;
+  
+  if(self._themed_frame && wParam == HTSYSMENU) {
+    if(HMENU menu = GetSystemMenu(self._hwnd, FALSE)) {
+      TPMPARAMS tpm;
+      memset(&tpm, 0, sizeof(tpm));
+      tpm.cbSize = sizeof(tpm);
+      GetWindowRect(self._hwnd, &tpm.rcExclude);
+
+      tpm.rcExclude.left +=  GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+      tpm.rcExclude.top +=   GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+      tpm.rcExclude.right -= GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
+      tpm.rcExclude.bottom = tpm.rcExclude.top + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER);
+
+      int x;
+      UINT align;
+      if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+        align = TPM_LEFTALIGN;
+        x = tpm.rcExclude.left;
+      }
+      else {
+        align = TPM_RIGHTALIGN;
+        x = tpm.rcExclude.right;
+      }
+
+      DWORD cmd;
+      {
+        Win32AutoMenuHook menu_hook(menu, self._hwnd, nullptr, false, false);
+        
+        cmd = TrackPopupMenuEx(
+                menu,
+                align | TPM_RETURNCMD | TPM_NONOTIFY,
+                x,
+                tpm.rcExclude.bottom,
+                self._hwnd,
+                &tpm);
+                
+        if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
+          cmd = menu_hook.exit_cmd;
+      }
+      
+      if(cmd)
+        SendMessageW(self._hwnd, WM_SYSCOMMAND, cmd, 0);
+      *result = 0;
+      return true;
+    }
+  }
+  
+  return false;
+}
+
 void BasicWin32Window::Impl::paint_themed(HDC hdc) {
   if(self._themed_frame) {
     RECT rect;
@@ -2154,6 +2565,9 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
 
     cairo_surface_flush(surface);
     
+    if(use_custom_system_buttons())
+      paint_themed_system_buttons(bmp_dc);
+    
     paint_themed_caption(bmp_dc);
     BitBlt(
       hdc,
@@ -2172,6 +2586,109 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
   }
   else {
   }
+}
+
+void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
+  if( !self._themed_frame            ||
+      !Win32Themes::OpenThemeData    ||
+      !Win32Themes::CloseThemeData   ||
+      !Win32Themes::GetThemeSysColor ||
+      !Win32Themes::GetThemeSysFont  ||
+      !Win32Themes::DrawThemeTextEx)
+  {
+    return;
+  }
+    
+  RECT min_rect;
+  RECT max_rect;
+  RECT close_rect;
+  
+  get_system_button_bounds(self._hwnd, &min_rect, &max_rect, &close_rect);
+  
+  int dpi = Win32HighDpi::get_dpi_for_window(self._hwnd);
+  if(HANDLE theme = composition_window_theme(dpi)) {
+    if(Win32Themes::is_windows_10_or_newer()) {
+      DWORD style = GetWindowLong(self._hwnd, GWL_STYLE);
+  
+      HFONT font = CreateFontW(
+                     (close_rect.bottom - close_rect.top) / 3,
+                     0,
+                     0,
+                     0,
+                     FW_NORMAL,
+                     FALSE,
+                     FALSE,
+                     FALSE,
+                     DEFAULT_CHARSET,
+                     OUT_DEFAULT_PRECIS,
+                     CLIP_DEFAULT_PRECIS,
+                     DEFAULT_QUALITY,
+                     DEFAULT_PITCH | FF_DONTCARE,
+                     L"Segoe MDL2 Assets");
+      HFONT old_font = (HFONT)SelectObject(hdc_bitmap, font);
+      
+      if(style & WS_MAXIMIZE) {
+        int dy = Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + 
+                 Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+        
+        min_rect.top+= dy;
+        max_rect.top+= dy;
+        close_rect.top+= dy;
+      }
+      
+      static const wchar_t CloseSymbol[] = L"\xE8BB";
+      static const wchar_t MinimizeSymbol[] = L"\xE921";
+      static const wchar_t MaximizeSymbol[] = L"\xE922";
+      static const wchar_t RestoreSymbol[] = L"\xE923";
+      
+      COLORREF col = title_font_color(true, dpi, self._active);
+      Win32Themes::DTTOPTS dtt_opts;
+      memset(&dtt_opts, 0, sizeof(dtt_opts));
+      dtt_opts.dwSize    = sizeof(dtt_opts);
+      dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR;
+      
+      dtt_opts.crText = (self._hit_test_mouse_over == HTCLOSE) ? 0xFFFFFF : col; 
+      Win32Themes::DrawThemeTextEx(
+        theme,
+        hdc_bitmap,
+        0, 0,
+        CloseSymbol, -1,
+        DT_VCENTER | DT_CENTER | DT_SINGLELINE,
+        &close_rect,
+        &dtt_opts);
+      
+      if(style & WS_MINIMIZEBOX) {
+        dtt_opts.crText = self._active ? col : (self._hit_test_mouse_over == HTMINBUTTON) ? 0x000000 : col; 
+        Win32Themes::DrawThemeTextEx(
+          theme,
+          hdc_bitmap,
+          0, 0,
+          (style & WS_MINIMIZE) ? RestoreSymbol : MinimizeSymbol, -1,
+          DT_VCENTER | DT_CENTER | DT_SINGLELINE,
+          &min_rect,
+          &dtt_opts);
+      }
+      
+      if(style & WS_MAXIMIZEBOX) {
+        dtt_opts.crText = self._active ? col : (self._hit_test_mouse_over == HTMAXBUTTON) ? 0x000000 : col; 
+        Win32Themes::DrawThemeTextEx(
+          theme,
+          hdc_bitmap,
+          0, 0,
+          (style & WS_MAXIMIZE) ? RestoreSymbol : MaximizeSymbol, -1,
+          DT_VCENTER | DT_CENTER | DT_SINGLELINE,
+          &max_rect,
+          &dtt_opts);
+      }
+      
+      SelectObject(hdc_bitmap, old_font);
+      DeleteObject(font);
+    }
+  }
+//  
+//  add_rect(canvas, close_rect);
+//  canvas->set_color(Color::from_rgb(1, 0, 0), 0.9);
+//  canvas->fill();
 }
 
 void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {

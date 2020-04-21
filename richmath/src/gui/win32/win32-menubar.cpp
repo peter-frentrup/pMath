@@ -83,9 +83,10 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   
   if(Win32Themes::BufferedPaintInit)
     Win32Themes::BufferedPaintInit();
-    
+  
+  bool layered = Win32Themes::is_windows_8_or_newer();
   _hwnd = CreateWindowExW(
-            0,
+            layered ? WS_EX_LAYERED : 0, // only supported for child windows on Windows 8 or later
             TOOLBARCLASSNAMEW,
             L"",
             WS_CHILD | CCS_NOMOVEY | CCS_NORESIZE | CCS_NODIVIDER | TBSTYLE_LIST | TBSTYLE_FLAT,
@@ -94,7 +95,10 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
             0/* id */,
             GetModuleHandle(0),
             nullptr);
-            
+  
+  if(layered)
+    SetLayeredWindowAttributes(_hwnd, CLR_NONE, 0xFF, LWA_ALPHA);
+  
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
   dpi = Win32HighDpi::get_dpi_for_window(_hwnd);

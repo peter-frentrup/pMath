@@ -655,6 +655,8 @@ Win32DocumentWindow::Win32DocumentWindow(
     WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
+  // TODO: alpha channel only necessary for win10 custom blur behind ...
+  _working_area->_image_format = CAIRO_FORMAT_ARGB32;
   
   _content = _working_area->document();
     
@@ -888,7 +890,7 @@ void Win32DocumentWindow::rearrange() {
       {
         mar.cxLeftWidth = mar.cxRightWidth = mar.cyTopHeight = mar.cyBottomHeight = -1;
         
-        SetWindowPos(_working_area->hwnd(), 0, 0, 0, 0, 0,
+        SetWindowPos(_working_area->hwnd(), nullptr, 0, 0, 0, 0,
                      SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
       }
     }

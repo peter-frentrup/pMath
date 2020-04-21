@@ -39,7 +39,7 @@ namespace richmath {
         UINT32 uiDenominator;
       } UNSIGNED_RATIO;
       
-      typedef enum _DWMWINDOWATTRIBUTE {
+      enum DWMWINDOWATTRIBUTE {
         DWMWA_NCRENDERING_ENABLED = 1,
         DWMWA_NCRENDERING_POLICY,
         DWMWA_TRANSITIONS_FORCEDISABLED,
@@ -57,9 +57,19 @@ namespace richmath {
         DWMWA_CLOAK,
         DWMWA_CLOAKED,
         DWMWA_FREEZE_REPRESENTATION,
-        
-        DWMWA_LAST
-      } DWMWINDOWATTRIBUTE;
+        //
+        DWMWA_Unknown16,
+        DWMWA_Unknown17,
+        DWMWA_Unknown18,
+        // https://withinrafael.com/2018/02/02/adding-acrylic-blur-to-your-windows-10-apps-redstone-4-desktop-apps/
+        DWMWA_UNDOCUMENTED_ACCENT_POLICY = 19,
+      };
+      
+      struct WINCOMPATTRDATA {
+        DWORD  attr; // generally DWMWINDOWATTRIBUTE, except some tweaks, see http://undoc.airesoft.co.uk/user32.dll/GetWindowCompositionAttribute.php
+        void  *data;
+        ULONG  data_size;
+      };
       
       typedef struct _DWM_TIMING_INFO {
         UINT32 cbSize;
@@ -197,7 +207,51 @@ namespace richmath {
         bool     has_accent_color_in_active_titlebar;
       } ColorizationInfo;
       
+      enum {
+        DWM_BB_ENABLE = 0x01,
+        DWM_BB_BLURREGION = 0x02,
+        DWM_BB_TRANSITIONONMAXIMIZED = 0x04,
+      };
+      
+      struct DWM_BLURBEHIND {
+        DWORD dwFlags;
+        BOOL  fEnable;
+        HRGN  hRgnBlur;
+        BOOL  fTransitionOnMaximized;
+      };
+      
+      // https://withinrafael.com/2018/02/02/adding-acrylic-blur-to-your-windows-10-apps-redstone-4-desktop-apps/
+      enum class AccentState: DWORD {
+        Disabled = 0,
+        EnableGradient = 1,
+        EnableTransparentGradient = 2,
+        EnableBlurBehind = 3,
+        EnableAcrylicBlurBehind = 4, // since Windows 10, Redstone 4 (April 2018, Build 17134)
+      };
+      
+      struct AccentPolicy {
+        // EnableGradient is like EnableTransparentGradient but treats gradient_color as an opaque BGR24 color
+        // flags for EnableTransparentGradient:
+        //   0x02 = mix with ABGR gradient_color
+        // Note: if flags = 0, EnableTransparentGradient will use colorization color (opaque) after each WM_ACTIVATE
+        //
+        // flags for EnableBlurBehind:
+        //   0x02 = mix with ABGR gradient_color
+        //   0x04 = ignore window size (but not location) and use full screen size instead
+        //   0x06 = mix all screens with gradient_color, blur rectangle of current screen size as with 0x04
+        //
+        // Note: the blur/colorization effect covers the whole window, also at the frame which should be fully transparent on Win10
+        
+        AccentState accent_state;
+        DWORD       flags;
+        COLORREF    gradient_color;
+        DWORD       animation_id;
+      };
+      
     public:
+      static BOOL(WINAPI *GetWindowCompositionAttribute)(HWND, WINCOMPATTRDATA*);
+      static BOOL(WINAPI *SetWindowCompositionAttribute)(HWND, const WINCOMPATTRDATA*);
+      
       static HRESULT(WINAPI *DwmEnableComposition)(UINT);
       static HRESULT(WINAPI *DwmExtendFrameIntoClientArea)(HWND, const MARGINS*);
       static HRESULT(WINAPI *DwmGetWindowAttribute)(HWND, DWORD, PVOID, DWORD);
@@ -205,6 +259,7 @@ namespace richmath {
       static HRESULT(WINAPI *DwmGetColorizationParameters)(DWM_COLORIZATION_PARAMS *params);
       static HRESULT(WINAPI *DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO*);
       static HRESULT(WINAPI *DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT*);
+      static HRESULT(WINAPI *DwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND*);
       
       static HRESULT(WINAPI *DwmpActivateLivePreview_win7)(BOOL fActivate, HWND hWndExclude, HWND hWndInsertBefore, LivePreviewTrigger trigger);
       static HRESULT(WINAPI *DwmpActivateLivePreview_win81)(BOOL fActivate, HWND hWndExclude, HWND hWndInsertBefore, LivePreviewTrigger trigger, RECT *prcFinalRect);
@@ -255,6 +310,7 @@ namespace richmath {
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
       static bool try_read_win10_colorization(ColorizationInfo *info);
+      static bool use_win10_transparency();
       
       static bool has_areo_peak() { return DwmpActivateLivePreview_win7 || DwmpActivateLivePreview_win81; }
       static bool activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger);
@@ -262,7 +318,7 @@ namespace richmath {
     private:
       static HMODULE dwmapi;
       static HMODULE uxtheme;
-      static HMODULE usp10dll;
+      static HMODULE user32;
       
     protected:
       Win32Themes();

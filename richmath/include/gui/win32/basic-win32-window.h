@@ -14,6 +14,8 @@
 
 
 namespace richmath {
+  class Win32BlurBehindWindow;
+  
   // Must call init() immediately after the construction of a derived object!
   class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext {
       class Impl;
@@ -86,8 +88,6 @@ namespace richmath {
       
       AutoCairoSurface background_image;
       
-      static bool during_pos_changing;
-      
     protected:
       virtual void on_sizing(WPARAM wParam, RECT *lParam);
       virtual void on_moving(RECT *lParam);
@@ -106,10 +106,12 @@ namespace richmath {
       Hashset<HWND> all_snappers;
       
     private:
+      Win32BlurBehindWindow *_blur_behind_window;
       ObservableValue<bool> _active;
       bool _glass_enabled;
       bool _themed_frame;
-      bool _mouse_over_caption_buttons;
+      int8_t _hit_test_mouse_over;
+      int8_t _hit_test_mouse_down;
       Win32Themes::MARGINS _extra_glass;
       
       int snap_correction_x;

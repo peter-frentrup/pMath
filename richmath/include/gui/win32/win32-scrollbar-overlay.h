@@ -22,6 +22,7 @@ namespace richmath {
   };
   
   class Win32ScrollBarOverlay: public BasicWin32Widget {
+      using base = BasicWin32Widget;
       friend class Win32ScrollBarOverlayImpl;
     public:
       Win32ScrollBarOverlay(HWND *parent_ptr, HWND *scrollbar_owner_ptr);
@@ -34,6 +35,7 @@ namespace richmath {
       void handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam);
       
     protected:
+      virtual void after_construction() override;
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
       
     private:

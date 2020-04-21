@@ -16,10 +16,14 @@ HRESULT(WINAPI * Win32Themes::DwmSetWindowAttribute)(HWND, DWORD, LPCVOID, DWORD
 HRESULT(WINAPI * Win32Themes::DwmGetCompositionTimingInfo)(HWND, DWM_TIMING_INFO *) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmGetColorizationParameters)(Win32Themes::DWM_COLORIZATION_PARAMS *) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmDefWindowProc)(HWND, UINT, WPARAM, LPARAM, LRESULT *) = nullptr;
+HRESULT(WINAPI * Win32Themes::DwmEnableBlurBehindWindow)(HWND, const DWM_BLURBEHIND*) = nullptr;
 
 HRESULT(WINAPI * Win32Themes::DwmpActivateLivePreview_win7)(BOOL, HWND, HWND, LivePreviewTrigger) = nullptr;
 HRESULT(WINAPI * Win32Themes::DwmpActivateLivePreview_win81)(BOOL, HWND, HWND, LivePreviewTrigger, RECT *) = nullptr;
 
+BOOL(WINAPI * Win32Themes::GetWindowCompositionAttribute)(HWND, WINCOMPATTRDATA*) = nullptr;
+BOOL(WINAPI * Win32Themes::SetWindowCompositionAttribute)(HWND, const WINCOMPATTRDATA*) = nullptr;
+      
 HANDLE(WINAPI * Win32Themes::OpenThemeData)(HWND, LPCWSTR) = nullptr;
 HANDLE(WINAPI * Win32Themes::OpenThemeDataForDpi)(HWND, LPCWSTR, UINT) = nullptr;
 HRESULT(WINAPI * Win32Themes::CloseThemeData)(HANDLE) = nullptr;
@@ -55,7 +59,7 @@ BOOL (WINAPI * Win32Themes::IsThemeActive)(void) = nullptr;
 
 HMODULE Win32Themes::dwmapi = nullptr;
 HMODULE Win32Themes::uxtheme = nullptr;
-HMODULE Win32Themes::usp10dll = nullptr;
+HMODULE Win32Themes::user32 = nullptr;
 
 void Win32Themes::init() {
   static Win32Themes w;
@@ -65,6 +69,18 @@ Win32Themes::Win32Themes()
   : Base()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
+  if(!user32) {
+    user32 = LoadLibrary("user32.dll");
+    if(user32) {
+      GetWindowCompositionAttribute = (BOOL(WINAPI *)(HWND, WINCOMPATTRDATA*))
+                                      GetProcAddress(user32, "GetWindowCompositionAttribute");
+      
+      SetWindowCompositionAttribute = (BOOL(WINAPI *)(HWND, const WINCOMPATTRDATA*))
+                                      GetProcAddress(user32, "SetWindowCompositionAttribute");
+                                     
+    }
+  }
   
   if(!dwmapi) {
     dwmapi = LoadLibrary("dwmapi.dll");
@@ -89,6 +105,9 @@ Win32Themes::Win32Themes()
                                     
       DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT *))
                          GetProcAddress(dwmapi, "DwmDefWindowProc");
+      
+      DwmEnableBlurBehindWindow = (HRESULT(WINAPI *)(HWND, const DWM_BLURBEHIND*))
+                                  GetProcAddress(dwmapi, "DwmEnableBlurBehindWindow");
       
       if(is_windows_8_1_or_newer()) {
         DwmpActivateLivePreview_win81 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger, RECT*))
@@ -209,9 +228,12 @@ Win32Themes::~Win32Themes() {
   if(BufferedPaintUnInit)
     BufferedPaintUnInit();
     
-  FreeLibrary(dwmapi);   dwmapi = nullptr;
-  FreeLibrary(uxtheme);  uxtheme = nullptr;
-  FreeLibrary(usp10dll); usp10dll = nullptr;
+  FreeLibrary(dwmapi);  dwmapi = nullptr;
+  FreeLibrary(uxtheme); uxtheme = nullptr;
+  FreeLibrary(user32);  user32 = nullptr;
+  
+  GetWindowCompositionAttribute = nullptr;
+  SetWindowCompositionAttribute = nullptr;
   
   DwmEnableComposition = nullptr;
   DwmExtendFrameIntoClientArea = nullptr;
@@ -220,6 +242,7 @@ Win32Themes::~Win32Themes() {
   DwmGetColorizationParameters = nullptr;
   DwmGetCompositionTimingInfo = nullptr;
   DwmDefWindowProc = nullptr;
+  DwmEnableBlurBehindWindow = nullptr;
   
   DwmpActivateLivePreview_win7 = nullptr;
   DwmpActivateLivePreview_win81 = nullptr;
@@ -334,9 +357,10 @@ DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *pa
 bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   if(!info || !is_windows_10_or_newer())
     return false;
-    
+  
+  // TODO: use WinRT API (Windows.UI.ViewManagement.IUISettings3), cf. https://github.com/res2k/Windows10Colors
   bool result = false;
-  HKEY key;
+  HKEY key = nullptr;
   LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\DWM", 0, KEY_READ, &key);
   if(status == ERROR_SUCCESS) {
     DWORD accent_color_bgr = 0;
@@ -362,9 +386,32 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
       info->has_accent_color_in_active_titlebar = color_prevalence == 1;
       result = true;
     }
+    RegCloseKey(key);
   }
   
-  RegCloseKey(key);
+  return result;
+}
+
+bool Win32Themes::use_win10_transparency() {
+  // https://superuser.com/questions/1245923/registry-keys-to-change-personalization-settings
+  if(!is_windows_10_or_newer())
+    return false;
+  
+  bool result = false;
+  HKEY key = nullptr;
+  LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"Software\\Microsoft\\Windows\\CurrentVersion\\Themes\\Personalize", 0, KEY_READ, &key);
+  if(status == ERROR_SUCCESS) {
+    
+    DWORD enable_transparency = 0;
+    DWORD size = sizeof(DWORD);
+    LONG status_et = RegGetValueW(key, nullptr, L"EnableTransparency", RRF_RT_REG_DWORD, nullptr, &enable_transparency, &size);
+    if(status_et == ERROR_SUCCESS) {
+      result = !!enable_transparency;
+    }
+  
+    RegCloseKey(key);
+  }
+  
   return result;
 }
 

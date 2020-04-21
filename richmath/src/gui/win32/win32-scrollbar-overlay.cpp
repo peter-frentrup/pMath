@@ -1,5 +1,6 @@
 #include <gui/win32/win32-scrollbar-overlay.h>
 
+#include <gui/win32/win32-themes.h>
 
 using namespace richmath;
 
@@ -190,10 +191,25 @@ namespace richmath {
 //{ class Win32ScrollbarOverlay ...
 
 Win32ScrollBarOverlay::Win32ScrollBarOverlay(HWND *parent_ptr, HWND *scrollbar_owner_ptr)
-  : BasicWin32Widget(0, WS_CHILD | WS_VISIBLE, 0, 0, 1, 1, parent_ptr),
+  : base(
+      Win32Themes::is_windows_8_or_newer() ? WS_EX_LAYERED : 0,
+      WS_CHILD | WS_VISIBLE, 
+      0, 
+      0, 
+      1, 
+      1, 
+      parent_ptr),
     scrollbar_owner_ptr(scrollbar_owner_ptr),
     scale(1.0f)
 {
+}
+
+void Win32ScrollBarOverlay::after_construction() {
+  base::after_construction();
+  
+  // only supported for child windows on Windows 8 or later:
+  if(GetWindowLong(_hwnd, GWL_EXSTYLE) & WS_EX_LAYERED)
+    SetLayeredWindowAttributes(_hwnd, CLR_NONE, 0xFF, LWA_ALPHA);
 }
 
 void Win32ScrollBarOverlay::set_scale(float _scale) {
@@ -238,7 +254,7 @@ LRESULT Win32ScrollBarOverlay::callback(UINT message, WPARAM wParam, LPARAM lPar
       return 0;
   }
   
-  return BasicWin32Widget::callback(message, wParam, lParam);
+  return base::callback(message, wParam, lParam);
 }
 
 //} ... class Win32ScrollbarOverlay

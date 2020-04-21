@@ -387,7 +387,7 @@ void Win32ControlPainter::calc_container_radii(
   HANDLE theme = get_control_theme(context, type, Normal, &theme_part, &theme_state);
   
   switch(type) {
-    case TooltipWindow: {;
+    case TooltipWindow: {
         if(!theme || Win32Themes::is_windows_8_or_newer()) {
           *radii = BoxRadius(0);
           return;
