@@ -90,11 +90,11 @@ Win32Themes::Win32Themes()
       DwmDefWindowProc = (HRESULT(WINAPI *)(HWND, UINT, WPARAM, LPARAM, LRESULT *))
                          GetProcAddress(dwmapi, "DwmDefWindowProc");
       
-      if(check_osversion(6, 3)) { // Windows 8.1 or newer
+      if(is_windows_8_1_or_newer()) {
         DwmpActivateLivePreview_win81 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger, RECT*))
                                         GetProcAddress(dwmapi, MAKEINTRESOURCEA(113));
       }
-      else if(check_osversion(6, 1)) { // Windows 7 or newer
+      else if(is_windows_7_or_newer()) {
         DwmpActivateLivePreview_win7 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger))
                                        GetProcAddress(dwmapi, MAKEINTRESOURCEA(113));
       }
@@ -332,7 +332,7 @@ DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *pa
 }
 
 bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
-  if(!info || !check_osversion(10, 0))
+  if(!info || !is_windows_10_or_newer())
     return false;
     
   bool result = false;

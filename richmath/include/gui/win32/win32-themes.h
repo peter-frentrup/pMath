@@ -246,6 +246,11 @@ namespace richmath {
       static bool is_app_themed() { return IsAppThemed && IsAppThemed(); }
       static bool current_theme_is_aero();
       static bool check_osversion(int min_major, int min_minor);
+      static bool is_windows_vista_or_newer() { return Win32Themes::check_osversion(6, 0); }
+      static bool is_windows_7_or_newer() {     return Win32Themes::check_osversion(6, 1); }
+      static bool is_windows_8_or_newer() {     return Win32Themes::check_osversion(6, 2); }
+      static bool is_windows_8_1_or_newer() {   return Win32Themes::check_osversion(6, 3); }
+      static bool is_windows_10_or_newer() {    return Win32Themes::check_osversion(10, 0); }
       
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       

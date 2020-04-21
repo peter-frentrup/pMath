@@ -249,7 +249,7 @@ void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
 static void get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
   memset(margins, 0, sizeof(Win32Themes::MARGINS));
   
-  if(Win32Themes::check_osversion(10, 0)) {
+  if(Win32Themes::is_windows_10_or_newer()) {
     ::get_nc_margins(hwnd, margins, Win32HighDpi::get_dpi_for_window(hwnd));
     margins->cyTopHeight    = 0;
     margins->cxLeftWidth    = 1 - margins->cxLeftWidth;
@@ -1110,7 +1110,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   
   if(ex_style & WS_EX_LAYOUTRTL) {
     rect->right-= -neg_margins.left + 1;
-    if(Win32Themes::check_osversion(10, 0) && (style & WS_MAXIMIZE) == 0) {
+    if(Win32Themes::is_windows_10_or_newer() && (style & WS_MAXIMIZE) == 0) {
       /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more when not maximized. */
       rect->right-= -neg_margins.left;
     }
@@ -1118,7 +1118,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   }
   else {
     rect->left += -neg_margins.left + 1;
-    if(Win32Themes::check_osversion(10, 0) && (style & WS_MAXIMIZE) == 0) {
+    if(Win32Themes::is_windows_10_or_newer() && (style & WS_MAXIMIZE) == 0) {
       /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more when not maximized. */
       rect->left+= -neg_margins.left;
     }
@@ -1135,7 +1135,7 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
   }
   
   if(HANDLE theme = composition_window_theme(dpi)) {
-//    if(Win32Themes::check_osversion(10, 0) && Win32Themes::DwmGetColorizationParameters) {
+//    if(Win32Themes::is_windows_10_or_newer() && Win32Themes::DwmGetColorizationParameters) {
 //      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
 //      Win32Themes::DwmGetColorizationParameters(&params);
 //      
@@ -1157,7 +1157,7 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
          blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
          Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
        */
-      if(Win32Themes::check_osversion(10, 0)) {
+      if(Win32Themes::is_windows_10_or_newer()) {
         return 0x999999;
       }
     }
@@ -1344,8 +1344,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       int frameradius;
       float buttons_alpha = 1.0f;
 
-      bool is_win8_or_newer = Win32Themes::check_osversion(6, 2);
-
+      bool is_win8_or_newer = Win32Themes::is_windows_8_or_newer();
       if(_mouse_over_caption_buttons) {
         if(is_win8_or_newer)
           buttons_alpha = 0.8f;
@@ -2215,9 +2214,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     }
 
     bool center_caption = false;
-
-    // center caption on Windows 8 or 8.1
-    if(Win32Themes::check_osversion(6, 2) && !Win32Themes::check_osversion(10, 0)) {
+    if(Win32Themes::is_windows_8_or_newer() && !Win32Themes::is_windows_10_or_newer()) {
       center_caption = true;
     }
 
