@@ -141,7 +141,7 @@ class richmath::Win32WorkingArea: public Win32Widget {
     
     virtual void paint_background(Canvas *canvas) override {
       if((auto_size && document()->count() == 0) || _parent->window_frame() != WindowFrameNormal) {
-        _parent->paint_background(canvas, _hwnd);
+        _parent->paint_background_at(canvas, _hwnd);
       }
       else {
         canvas->set_color(Color::White);
@@ -371,7 +371,7 @@ class richmath::Win32Dock: public Win32Widget {
     }
     
     virtual void paint_background(Canvas *canvas) override {
-      _parent->paint_background(canvas, _hwnd);
+      _parent->paint_background_at(canvas, _hwnd);
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) override {

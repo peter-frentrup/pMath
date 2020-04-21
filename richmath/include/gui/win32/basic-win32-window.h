@@ -60,10 +60,10 @@ namespace richmath {
       
       virtual bool is_closed();
       
-      void paint_background(Canvas *canvas, HWND child, bool wallpaper_only = false);
-      void paint_background(Canvas *canvas, int x, int y, bool wallpaper_only = false);
+      void paint_background_at(Canvas *canvas, HWND child, bool wallpaper_only = false);
+      void paint_background_at(Canvas *canvas, POINT pos, bool wallpaper_only = false);
       
-      virtual void on_paint_background(Canvas *canvas);
+      virtual void paint_background(Canvas *canvas);
       bool has_themed_frame() { return _themed_frame; }
       
       // All windows with zorder_level = i are always in front of all

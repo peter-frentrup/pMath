@@ -638,7 +638,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         {
                           Canvas canvas(cr);
                           
-                          _window->paint_background(&canvas, _hwnd, true);
+                          _window->paint_background_at(&canvas, _hwnd, true);
                         }
                         cairo_destroy(cr);
                         

@@ -1241,7 +1241,7 @@ bool BasicWin32Window::is_closed() {
   return !IsWindowVisible(_hwnd);
 }
 
-void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpaper_only) {
+void BasicWin32Window::paint_background_at(Canvas *canvas, HWND child, bool wallpaper_only) {
   RECT rect, child_rect;
   Win32Themes::MARGINS margins = {0};
 
@@ -1249,14 +1249,13 @@ void BasicWin32Window::paint_background(Canvas *canvas, HWND child, bool wallpap
   GetWindowRect(_hwnd, &rect);
   get_nc_margins(&margins);
 
-  paint_background(
+  paint_background_at(
     canvas,
-    child_rect.left - rect.left - margins.cxLeftWidth,
-    child_rect.top  - rect.top,
+    POINT { child_rect.left - rect.left - margins.cxLeftWidth, child_rect.top  - rect.top },
     wallpaper_only);
 }
 
-void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallpaper_only) {
+void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallpaper_only) {
   canvas->save();
   {
     canvas->reset_matrix();
@@ -1266,7 +1265,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
     GetWindowRect(_hwnd, &window_rect);
     MapWindowPoints(nullptr, _hwnd, (POINT *)&window_rect, 2);
 
-    canvas->translate(-x, -y);
+    canvas->translate(-pos.x, -pos.y);
 
     RECT glassfree;
     get_glassfree_rect(&glassfree);
@@ -1318,7 +1317,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
       }
     }
 
-    on_paint_background(canvas);
+    paint_background(canvas);
 
     if(_themed_frame) {
       LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
@@ -1479,7 +1478,7 @@ void BasicWin32Window::paint_background(Canvas *canvas, int x, int y, bool wallp
   canvas->restore();
 }
 
-void BasicWin32Window::on_paint_background(Canvas *canvas) {
+void BasicWin32Window::paint_background(Canvas *canvas) {
   if( !_themed_frame          ||
       !background_image.ptr() ||
       cairo_surface_status(background_image.ptr()) != CAIRO_STATUS_SUCCESS)
@@ -2151,7 +2150,7 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
     {
       Canvas canvas(cr);
 
-      self.paint_background(&canvas, 0, 0);
+      self.paint_background_at(&canvas, POINT{ 0, 0 });
     }
     cairo_destroy(cr);
 
