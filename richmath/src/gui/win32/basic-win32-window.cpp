@@ -1255,185 +1255,185 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, HWND child, bool wall
     wallpaper_only);
 }
 
+static void add_rect(Canvas *canvas, const RECT &rect) {
+  canvas->move_to(rect.left, rect.top);
+  canvas->line_to(rect.left, rect.bottom);
+  canvas->line_to(rect.right, rect.bottom);
+  canvas->line_to(rect.right, rect.top);
+  canvas->close_path();
+}
+
 void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallpaper_only) {
-  canvas->save();
-  {
-    canvas->reset_matrix();
-    cairo_reset_clip(canvas->cairo());
+  CanvasAutoSave saved(canvas);
+  
+  canvas->reset_matrix();
+  cairo_reset_clip(canvas->cairo());
 
-    RECT window_rect;
-    GetWindowRect(_hwnd, &window_rect);
-    MapWindowPoints(nullptr, _hwnd, (POINT *)&window_rect, 2);
+  RECT window_rect;
+  GetWindowRect(_hwnd, &window_rect);
+  MapWindowPoints(nullptr, _hwnd, (POINT *)&window_rect, 2);
 
-    canvas->translate(-pos.x, -pos.y);
+  canvas->translate(-pos.x, -pos.y);
 
-    RECT glassfree;
-    get_glassfree_rect(&glassfree);
+  RECT glassfree;
+  get_glassfree_rect(&glassfree);
 //    glassfree.left   -= window_rect.left;
 //    glassfree.right  -= window_rect.left;
-    glassfree.top    -= window_rect.top;
-    glassfree.bottom -= window_rect.top;
+  glassfree.top    -= window_rect.top;
+  glassfree.bottom -= window_rect.top;
 
-    if(!wallpaper_only) {
-      if( !Win32Themes::IsCompositionActive ||
-          !Win32Themes::IsCompositionActive())
-      {
-        if(glass_enabled()) {
-          Color color;
+  if(!wallpaper_only) {
+    if( !Win32Themes::IsCompositionActive ||
+        !Win32Themes::IsCompositionActive())
+    {
+      if(glass_enabled()) {
+        Color color;
 
-          if(_active)
-            color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
-          else
-            color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
-
-          canvas->set_color(color);
-          canvas->paint();
-        }
-        else {
-          Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
-          
-          canvas->set_color(color);
-          canvas->paint();
-        }
-      }
-      else {
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-        canvas->set_color(Color::Black, 0.0);
-        canvas->paint();
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
-      }
-
-      if(!IsRectEmpty(&glassfree)) {
-        Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
-        
-        canvas->move_to(glassfree.left,  glassfree.top);
-        canvas->line_to(glassfree.left,  glassfree.bottom);
-        canvas->line_to(glassfree.right, glassfree.bottom);
-        canvas->line_to(glassfree.right, glassfree.top);
-        canvas->close_path();
+        if(_active)
+          color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
+        else
+          color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
 
         canvas->set_color(color);
-        canvas->fill();
+        canvas->paint();
+      }
+      else {
+        Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+        
+        canvas->set_color(color);
+        canvas->paint();
       }
     }
+    else {
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+      canvas->set_color(Color::Black, 0.0);
+      canvas->paint();
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+    }
 
-    paint_background(canvas);
-
-    if(_themed_frame) {
-      LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-      RECT client_rect;
-      GetClientRect(_hwnd, &client_rect);
-      get_glassfree_rect(&glassfree);
+    if(!IsRectEmpty(&glassfree)) {
+      Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
       
-      CanvasAutoSave saved(canvas);
-      if(style_ex & WS_EX_LAYOUTRTL) {
-        /* RTL layout: Windows client coordinates are right-to-left (0,0) is at top right,
-           but Cairo coordinates are left-to-right.
-           Temporarily make Cairo use Windows client coordinates.
-         */
-        canvas->translate(
-          client_rect.right - client_rect.left,
-          0);
-        canvas->scale(-1, 1);
-      }
+      add_rect(canvas, glassfree);
+
+      canvas->set_color(color);
+      canvas->fill();
+    }
+  }
+
+  paint_background(canvas);
+
+  if(_themed_frame) {
+    LONG style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
+    RECT client_rect;
+    GetClientRect(_hwnd, &client_rect);
+    get_glassfree_rect(&glassfree);
+    
+    CanvasAutoSave saved(canvas);
+    if(style_ex & WS_EX_LAYOUTRTL) {
+      /* RTL layout: Windows client coordinates are right-to-left (0,0) is at top right,
+         but Cairo coordinates are left-to-right.
+         Temporarily make Cairo use Windows client coordinates.
+       */
+      canvas->translate(
+        client_rect.right - client_rect.left,
+        0);
+      canvas->scale(-1, 1);
+    }
+
+    cairo_reset_clip(canvas->cairo());
+
+    int buttonradius;
+    int frameradius;
+    float buttons_alpha = 1.0f;
+
+    bool is_win8_or_newer = Win32Themes::is_windows_8_or_newer();
+    if(_mouse_over_caption_buttons) {
+      if(is_win8_or_newer)
+        buttons_alpha = 0.8f;
+      else
+        buttons_alpha = 1.0f;
+    }
+    else if(_active) {
+      if(is_win8_or_newer)
+        buttons_alpha = 0.5f;
+      else
+        buttons_alpha = 0.8f;
+    }
+    else {
+      if(is_win8_or_newer)
+        buttons_alpha = 0.4f;
+      else
+        buttons_alpha = 0.4f;
+    }
+
+    if(is_win8_or_newer) { // Windows 8 or newer
+      buttonradius = 1;
+      frameradius  = 1;
+    }
+    else if(style_ex & WS_EX_TOOLWINDOW) {
+      buttonradius = 1;
+      frameradius  = 1;
+    }
+    else {
+      buttonradius = 5;
+      frameradius  = 6; //Win32HighDpi::get_system_metrics_for_dpi(SM_CXFRAME)-2;
+    }
+
+    if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+
+      canvas->move_to(client_rect.left,  client_rect.top);
+      canvas->line_to(client_rect.right, client_rect.top);
+      canvas->line_to(client_rect.right, client_rect.bottom);
+      canvas->line_to(client_rect.left,  client_rect.bottom);
+      canvas->close_path();
+
+      canvas->move_to(glassfree.left,  glassfree.top);
+      canvas->line_to(glassfree.left,  glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.top);
+      canvas->close_path();
+
+      canvas->clip();
+
+      cairo_set_line_width(canvas->cairo(), 3);
+
+      canvas->move_to(window_rect.left,  window_rect.top);
+      canvas->line_to(window_rect.right, window_rect.top);
+      canvas->line_to(window_rect.right, window_rect.bottom);
+      canvas->line_to(window_rect.left,  window_rect.bottom);
+      canvas->close_path();
+
+      canvas->move_to(glassfree.left,  glassfree.top);
+      canvas->line_to(glassfree.left,  glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.bottom);
+      canvas->line_to(glassfree.right, glassfree.top);
+      canvas->close_path();
+
+      canvas->set_color(Color::White, 1 - 0.1);
+      canvas->stroke();
 
       cairo_reset_clip(canvas->cairo());
+    }
 
-      int buttonradius;
-      int frameradius;
-      float buttons_alpha = 1.0f;
+    { // small alpha value above the min/max/close buttons
+      RECT buttons;
+      get_system_button_bounds(_hwnd, &buttons);
 
-      bool is_win8_or_newer = Win32Themes::is_windows_8_or_newer();
-      if(_mouse_over_caption_buttons) {
-        if(is_win8_or_newer)
-          buttons_alpha = 0.8f;
-        else
-          buttons_alpha = 1.0f;
-      }
-      else if(_active) {
-        if(is_win8_or_newer)
-          buttons_alpha = 0.5f;
-        else
-          buttons_alpha = 0.8f;
+      if(style_ex & WS_EX_TOOLWINDOW) {
+        add_rect(canvas, buttons);
       }
       else {
-        if(is_win8_or_newer)
-          buttons_alpha = 0.4f;
-        else
-          buttons_alpha = 0.4f;
-      }
-
-      if(is_win8_or_newer) { // Windows 8 or newer
-        buttonradius = 1;
-        frameradius  = 1;
-      }
-      else if(style_ex & WS_EX_TOOLWINDOW) {
-        buttonradius = 1;
-        frameradius  = 1;
-      }
-      else {
-        buttonradius = 5;
-        frameradius  = 6; //Win32HighDpi::get_system_metrics_for_dpi(SM_CXFRAME)-2;
-      }
-
-      if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
-
-        canvas->move_to(client_rect.left,  client_rect.top);
-        canvas->line_to(client_rect.right, client_rect.top);
-        canvas->line_to(client_rect.right, client_rect.bottom);
-        canvas->line_to(client_rect.left,  client_rect.bottom);
+        canvas->move_to(buttons.left + 0.5,   buttons.top);
+        canvas->arc(    buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
+        canvas->arc(    buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
+        canvas->line_to(buttons.right - 0.5,  buttons.top);
         canvas->close_path();
-
-        canvas->move_to(glassfree.left,  glassfree.top);
-        canvas->line_to(glassfree.left,  glassfree.bottom);
-        canvas->line_to(glassfree.right, glassfree.bottom);
-        canvas->line_to(glassfree.right, glassfree.top);
-        canvas->close_path();
-
-        canvas->clip();
-
-        cairo_set_line_width(canvas->cairo(), 3);
-
-        canvas->move_to(window_rect.left,  window_rect.top);
-        canvas->line_to(window_rect.right, window_rect.top);
-        canvas->line_to(window_rect.right, window_rect.bottom);
-        canvas->line_to(window_rect.left,  window_rect.bottom);
-        canvas->close_path();
-
-        canvas->move_to(glassfree.left,  glassfree.top);
-        canvas->line_to(glassfree.left,  glassfree.bottom);
-        canvas->line_to(glassfree.right, glassfree.bottom);
-        canvas->line_to(glassfree.right, glassfree.top);
-        canvas->close_path();
-
-        canvas->set_color(Color::White, 1 - 0.1);
-        canvas->stroke();
-
-        cairo_reset_clip(canvas->cairo());
       }
 
-      { // small alpha value above the min/max/close buttons
-        RECT buttons;
-        get_system_button_bounds(_hwnd, &buttons);
-
-        if(style_ex & WS_EX_TOOLWINDOW) {
-          canvas->move_to(buttons.left,  buttons.top);
-          canvas->line_to(buttons.right, buttons.top);
-          canvas->line_to(buttons.right, buttons.bottom);
-          canvas->line_to(buttons.left,  buttons.bottom);
-          canvas->close_path();
-        }
-        else {
-          canvas->move_to(buttons.left + 0.5,   buttons.top);
-          canvas->arc(    buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
-          canvas->arc(    buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
-          canvas->line_to(buttons.right - 0.5,  buttons.top);
-          canvas->close_path();
-        }
-
-        canvas->set_color(Color::White, buttons_alpha);
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+      canvas->set_color(Color::White, buttons_alpha);
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 
 //        if(_mouse_over_caption_buttons) {
 //          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
@@ -1447,35 +1447,33 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
 //          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 //        }
 
-        canvas->fill();
-      }
+      canvas->fill();
+    }
 
-      if( client_rect.left - window_rect.left > frameradius || 
-          window_rect.right - client_rect.right > frameradius)
-      { // make the edges round again
-        canvas->move_to(client_rect.left,  client_rect.top);
-        canvas->line_to(client_rect.left,  client_rect.bottom);
-        canvas->line_to(client_rect.right, client_rect.bottom);
-        canvas->line_to(client_rect.right, client_rect.top);
+    if( client_rect.left - window_rect.left > frameradius || 
+        window_rect.right - client_rect.right > frameradius)
+    { // make the edges round again
+      canvas->move_to(client_rect.left,  client_rect.top);
+      canvas->line_to(client_rect.left,  client_rect.bottom);
+      canvas->line_to(client_rect.right, client_rect.bottom);
+      canvas->line_to(client_rect.right, client_rect.top);
+      canvas->close_path();
+
+      {
+        window_rect.top+= 1;
+
+        canvas->move_to(window_rect.left, window_rect.top + frameradius);
+        canvas->arc(window_rect.left  + frameradius, window_rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
+        canvas->arc(window_rect.right - frameradius, window_rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
+        canvas->arc(window_rect.right - frameradius, window_rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
+        canvas->arc(window_rect.left  + frameradius, window_rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
         canvas->close_path();
-
-        {
-          window_rect.top+= 1;
-
-          canvas->move_to(window_rect.left, window_rect.top + frameradius);
-          canvas->arc(window_rect.left  + frameradius, window_rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
-          canvas->arc(window_rect.right - frameradius, window_rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
-          canvas->arc(window_rect.right - frameradius, window_rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
-          canvas->arc(window_rect.left  + frameradius, window_rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
-          canvas->close_path();
-        }
-
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-        canvas->fill();
       }
+
+      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+      canvas->fill();
     }
   }
-  canvas->restore();
 }
 
 void BasicWin32Window::paint_background(Canvas *canvas) {
