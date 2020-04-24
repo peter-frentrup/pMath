@@ -39,7 +39,10 @@
 #  define NOGDI
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
+#elif defined(PMATH_OS_UNIX)
+#  include <dlfcn.h>
 #endif
+
 
 #define round_up_int(x, r) ((((x) + (r) - 1) / (r)) * (r))
 
@@ -635,6 +638,46 @@ static void pmath_gmp_free(void *p, size_t size) {
   pmath_mem_free(p);
 }
 
+static void register_flint_memory_functions(void) {
+  void (*p__flint_set_memory_functions)(
+      void *(*alloc_func) (size_t),
+      void *(*calloc_func) (size_t, size_t),
+      void *(*realloc_func) (void *, size_t),
+      void (*free_func) (void *)) = NULL;
+  
+  //p__flint_set_memory_functions = __flint_set_memory_functions;
+  
+  #ifdef PMATH_OS_WIN32
+  {
+    HMODULE dll_flint = NULL;
+    if(GetModuleHandleExW(GET_MODULE_HANDLE_EX_FLAG_FROM_ADDRESS | GET_MODULE_HANDLE_EX_FLAG_UNCHANGED_REFCOUNT, (const wchar_t*)flint_cleanup, &dll_flint)) {
+      p__flint_set_memory_functions = (void*)GetProcAddress(dll_flint, "__flint_set_memory_functions");
+    }
+  }
+  #elif defined(PMATH_OS_UNIX)
+  {
+    Dl_info info_flint;
+    if(dladdr(flint_cleanup, &info_flint)) {
+      void *flint_lib_handle = dlopen(info_flint.dli_fname, RTLD_NOLOAD);
+      if(flint_lib_handle) {
+        p__flint_set_memory_functions = dlsym(flint_lib_handle, "__flint_set_memory_functions");
+      }
+    }
+  }
+  #endif
+  
+  if(p__flint_set_memory_functions) {
+    p__flint_set_memory_functions(
+      pmath_mem_alloc,
+      pmath_mem_calloc,
+      pmath_mem_realloc,
+      pmath_mem_free);
+  }
+  else {
+    pmath_debug_print("[__flint_set_memory_functions not available]\n");
+  }
+}
+
 PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void) {
   {
     pmath_atomic_write_release(&max_memory_used, 0);
@@ -668,11 +711,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_memory_manager_init(void) {
     pmath_gmp_realloc,
     pmath_gmp_free);
   
-  __flint_set_memory_functions(
-    pmath_mem_alloc,
-    pmath_mem_calloc,
-    pmath_mem_realloc,
-    pmath_mem_free);
+  register_flint_memory_functions();
   
   return TRUE;
 #ifdef PMATH_DEBUG_MEMORY
