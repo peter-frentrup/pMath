@@ -904,6 +904,23 @@ void pmath_thread_run_with_interrupt_notifier(
 
 /*============================================================================*/
 
+#ifdef PMATH_OS_UNIX
+static pmath_bool_t is_valid_cond_clock(clockid_t cid) {
+  pmath_bool_t result = FALSE;
+  
+  pthread_condattr_t condatt;
+  if(!pthread_condattr_init(&condatt)) {
+    if(!pthread_condattr_setclock(&condatt, cid)) {
+      result = TRUE;
+    }
+    
+    pthread_condattr_destroy(&condatt);
+  }
+  
+  return result;
+}
+#endif
+
 PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
 #ifdef PMATH_OS_WIN32
   {
@@ -933,8 +950,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_threadmsg_init(void) {
     }
 
 #  ifdef CLOCK_MONOTONIC_RAW
-    if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0) {
-      _pmath_tickcount_clockid = CLOCK_MONOTONIC_RAW;
+    if(clock_getres(CLOCK_MONOTONIC, &ts) == 0) {
+      if(clock_gettime(CLOCK_MONOTONIC_RAW, &ts) == 0) {
+        if(is_valid_cond_clock(CLOCK_MONOTONIC_RAW))
+          _pmath_tickcount_clockid = CLOCK_MONOTONIC_RAW;
+      }
     }
 #  endif
   }

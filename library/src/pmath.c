@@ -481,6 +481,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     PMATH_TEST_NEW_HASHTABLES();
     
     if(!_pmath_threads_init())                goto FAIL_THREADS;
+    if(!_pmath_threadmsg_init())              goto FAIL_THREADMSG;
     thread = _pmath_thread_new(NULL);
     _pmath_thread_set_current(thread);
     if(!thread)                               goto FAIL_THIS_THREAD;
@@ -498,7 +499,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
     if(!_pmath_security_init())               goto FAIL_SECURITY;
     if(!_pmath_symbol_builtins_init())        goto FAIL_BUILTINS;
     if(!_pmath_custom_objects_init())         goto FAIL_CUSTOM;
-    if(!_pmath_threadmsg_init())              goto FAIL_THREADMSG;
     if(!_pmath_threadpool_init())             goto FAIL_THREADPOOL;
     if(!_pmath_regex_init())                  goto FAIL_REGEX;
     if(!_pmath_modules_init())                goto FAIL_MODULES;
@@ -1006,8 +1006,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
   FAIL_DYNAMIC:           _pmath_modules_done();
   FAIL_MODULES:           _pmath_regex_done();
   FAIL_REGEX:             _pmath_threadpool_done();
-  FAIL_THREADPOOL:        _pmath_threadmsg_done();
-  FAIL_THREADMSG:         _pmath_custom_objects_done();
+  FAIL_THREADPOOL:        _pmath_custom_objects_done();
   FAIL_CUSTOM:            _pmath_symbol_builtins_done();
   FAIL_BUILTINS:          _pmath_security_done();
   FAIL_SECURITY:          _pmath_symbol_values_done();
@@ -1023,7 +1022,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
   FAIL_CHARNAMES:         _pmath_threadlocks_done();
   FAIL_THREADLOCKS:       _pmath_thread_set_current(NULL);
     _pmath_thread_free(thread);
-  FAIL_THIS_THREAD:       _pmath_threads_done();
+  FAIL_THIS_THREAD:       _pmath_threadmsg_done();
+  FAIL_THREADMSG:         _pmath_threads_done();
   FAIL_THREADS:           _pmath_memory_manager_done();
   FAIL_MEMORY_MANAGER:
   FAIL_STACKS_LIBRARY:    _pmath_debug_library_done();
@@ -1101,7 +1101,6 @@ PMATH_API void pmath_done(void) {
     _pmath_modules_done();
     _pmath_regex_done();
     _pmath_threadpool_done();
-    _pmath_threadmsg_done();
     _pmath_custom_objects_done();
     _pmath_symbol_builtins_done();
     _pmath_security_done();
@@ -1118,6 +1117,7 @@ PMATH_API void pmath_done(void) {
     _pmath_threadlocks_done();
     _pmath_thread_free(pmath_thread_get_current());
     _pmath_thread_set_current(NULL);
+    _pmath_threadmsg_done();
     _pmath_threads_done();
     _pmath_memory_manager_done();
     _pmath_debug_library_done();

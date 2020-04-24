@@ -59,7 +59,7 @@ pmath_bool_t _pmath_event_init(pmath_event_t *event) {
   
   ret = pthread_condattr_setclock(&condatt, _pmath_tickcount_clockid);
   if(ret) {
-    pmath_debug_print("[pthread_condattr_setclock returned error %d]\n", ret);
+    pmath_debug_print("[pthread_condattr_setclock(..., %d) returned error %d]\n", _pmath_tickcount_clockid, ret);
   }
   
   ret = pthread_condattr_getclock(&condatt, &event->cond_clock_id);
