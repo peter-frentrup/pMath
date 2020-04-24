@@ -90,8 +90,7 @@ static void init_platform_memory_manager(void) {
   if(!kernel32)
     return;
 
-  hsi = (heap_set_information_func_t)
-        GetProcAddress(kernel32, "HeapSetInformation");
+  hsi = (void*)GetProcAddress(kernel32, "HeapSetInformation");
   if(!hsi)
     return;
 
