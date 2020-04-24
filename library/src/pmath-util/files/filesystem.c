@@ -9,6 +9,7 @@
 #  include <Windows.h>
 #else
 #  include <errno.h>
+#  include <limits.h>
 #  include <pwd.h>
 #  include <string.h>
 #  include <sys/types.h>
