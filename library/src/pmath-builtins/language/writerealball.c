@@ -123,10 +123,9 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
     str = pmath_string_insert_latin1(str, INT_MAX, "-", 1);
     
   if(parts.base != 10) {
-    char buf[3];
-    itoa(parts.base, buf, 10);
+    char buf[5];
+    snprintf(buf, sizeof(buf), "%d^", parts.base);
     str = pmath_string_insert_latin1(str, INT_MAX, buf, -1);
-    str = pmath_string_insert_latin1(str, INT_MAX, "^^", 2);
   }
   
   str = pmath_string_concat(str, pmath_ref(parts.midpoint_fractional_mantissa_digits));

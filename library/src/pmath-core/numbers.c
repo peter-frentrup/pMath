@@ -141,7 +141,7 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_integer_t _pmath_integer_from_fmpz(const fmpz_t integer) {
   pmath_mpint_t result;
   
-  if(fmpz_cmp_si(integer, _I32_MAX) <= 0 && fmpz_cmp_si(integer, _I32_MIN) >= 0) {
+  if(fmpz_cmp_si(integer, INT32_MAX) <= 0 && fmpz_cmp_si(integer, INT32_MIN) >= 0) {
     slong value = fmpz_get_si(integer);
     return PMATH_FROM_INT32((int32_t)value);
   }
@@ -1881,10 +1881,9 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
     _pmath_write_cstr("-", info->write, info->user);
     
   if(parts.base != 10) {
-    char buf[3];
-    itoa(parts.base, buf, 10);
+    char buf[5];
+    snprintf(buf, sizeof(buf), "%d^^", parts.base);
     _pmath_write_cstr(buf, info->write, info->user);
-    _pmath_write_cstr("^^", info->write, info->user);
   }
   
   write_raw_string(info, parts.midpoint_fractional_mantissa_digits);
@@ -2410,9 +2409,12 @@ static void unload_flint(void) {
   }
   #elif defined(PMATH_OS_UNIX)
   {
-    DL_info info_flint;
+    Dl_info info_flint;
     if(dladdr(flint_cleanup, &info_flint)) {
-      cleanup_master_ptr = (void(*)(void))dlsym(info_flint.dli_base, "flint_cleanup_master");
+      void *flint_lib_handle = dlopen(info_flint.dli_fname, RTLD_NOLOAD);
+      if(flint_lib_handle) {
+        cleanup_master_ptr = (void(*)(void))dlsym(flint_lib_handle, "flint_cleanup_master");
+      }
     }
   }
   #endif
