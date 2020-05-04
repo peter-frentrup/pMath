@@ -35,12 +35,14 @@ extern pmath_symbol_t pmath_System_TooltipBox;
 extern pmath_symbol_t pmath_System_UnderoverscriptBox;
 extern pmath_symbol_t pmath_System_UnderscriptBox;
 
-static iconv_t to_utf8   = (iconv_t) - 1;
-static iconv_t from_utf8 = (iconv_t) - 1;
+static iconv_t create_to_utf8(void);
+static iconv_t create_from_utf8(void);
+static iconv_t create_to_native(void);
+static iconv_t create_from_native(void);
 
-static iconv_t to_native   = (iconv_t) - 1;
-static iconv_t from_native = (iconv_t) - 1;
 
+static pmath_string_t string_from_iconv(iconv_t cd, const char *str, int len);
+static char *string_to_iconv(iconv_t cd, pmath_string_t str, int *result_len);
 
 #define _pmath_ref_string_ptr(P)    _pmath_ref_ptr(&(P)->inherited)
 #define _pmath_unref_string_ptr(P)  _pmath_unref_ptr(&(P)->inherited)
@@ -1227,91 +1229,29 @@ pmath_string_t pmath_string_from_utf8(
     const char    *str,
     int            len
 ) {
-  struct _pmath_string_t *result;
-  size_t inbytesleft;
-  size_t outbytesleft;
-  char *inbuf;
-  char *outbuf;
-
-  if(len < 0)
-    len = strlen(str);
-
-  result = _pmath_new_string_buffer((3 * len) / 2);
-  if(!result)
+  pmath_string_t result;
+  iconv_t from_utf8 = create_from_utf8();
+  if(from_utf8 == (iconv_t)(-1))
     return PMATH_NULL;
-
-  inbytesleft = (size_t)len;
-  outbytesleft = sizeof(uint16_t) * result->length;
-  inbuf  = (char *)str;
-  outbuf = (char *)AFTER_STRING(result);
-
-  while(inbytesleft > 0) {
-    size_t ret = iconv(from_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-
-    if(ret == (size_t) - 1) {
-      if(errno == E2BIG) { // output buffer too small
-        size_t bytes_written = (size_t)outbuf - (size_t)AFTER_STRING(result);
-        result->length = (int)(bytes_written / sizeof(uint16_t));
-
-        result = enlarge_string(result, result->length, (3 * inbytesleft) / 2 + 1);
-
-        if(!result)
-          return PMATH_NULL;
-
-        outbuf = ((char *)AFTER_STRING(result)) + bytes_written;
-        outbytesleft = sizeof(uint16_t) * result->length - bytes_written;
-      }
-      else if(errno == EILSEQ) { // invalid input byte
-        ++inbuf;
-        --inbytesleft;
-      }
-      else if(errno == EINVAL) { // incomplete input
-        result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result)) / 2;
-        return _pmath_from_buffer(result);
-      }
-    }
-  }
-
-  result->length = ((size_t)outbuf - (size_t)AFTER_STRING(result)) / 2;
-  return _pmath_from_buffer(result);
+  
+  result = string_from_iconv(from_utf8, str, len);
+  iconv_close(from_utf8);
+  return result;
 }
 
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-char *pmath_string_to_utf8(
-    pmath_string_t  str,
-    int            *result_len
-) {
-  const uint16_t *buf = pmath_string_buffer(&str);
-  int             len = pmath_string_length(str);
-  size_t size         = 4 * ((size_t)len) + 1; // worst case: every character is 4 bytes in utf8
-  char *res           = pmath_mem_alloc(size);
-  char *inbuf         = (char *)buf;
-  char *outbuf        = res;
-  size_t inbytesleft  = sizeof(uint16_t) * (size_t)len;
-  size_t outbytesleft = size - 1;
-
-  if(!res) {
+char *pmath_string_to_utf8(pmath_string_t str, int *result_len) {
+  char *result;
+  iconv_t to_utf8 = create_to_utf8();
+  if(to_utf8 == (iconv_t)(-1)) {
     if(result_len)
       *result_len = 0;
     return NULL;
   }
-
-  while(inbytesleft > 0) {
-    size_t ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
-
-    if(ret == (size_t)(-1)) {
-      pmath_mem_free(res);
-      if(result_len)
-        *result_len = 0;
-      return NULL;
-    }
-  }
-
-  *outbuf = '\0';
-  if(result_len)
-    *result_len = (int)((size_t)outbuf - (size_t)res);
-  return res;
+  result = string_to_iconv(to_utf8, str, result_len);
+  iconv_close(to_utf8);
+  return result;
 }
 
 static void write_with_nulls(pmath_cstr_writer_info_t *info, const char *str, const char *end) {
@@ -1338,6 +1278,9 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
   char buf[100];
   char *outbuf = buf;
   size_t outbytesleft = sizeof(buf) - 1;
+  iconv_t to_utf8 = create_to_utf8();
+  if(to_utf8 == (iconv_t)(-1))
+    return;
 
   while(inbytesleft > 0) {
     size_t ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
@@ -1357,7 +1300,8 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
       }
     }
   }
-
+  
+  iconv_close(to_utf8);
   *outbuf = '\0';
   write_with_nulls(user, buf, outbuf);
 }
@@ -1370,6 +1314,9 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
   char buf[100];
   char *outbuf = buf;
   size_t outbytesleft = sizeof(buf) - 1;
+  iconv_t to_native = create_to_native();
+  if(to_native == (iconv_t)(-1))
+    return;
 
   while(inbytesleft > 0) {
     size_t ret;
@@ -1433,7 +1380,8 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
       }
     }
   }
-
+  
+  iconv_close(to_native);
   *outbuf = '\0';
   write_with_nulls(info, buf, outbuf);
 }
@@ -1855,6 +1803,31 @@ pmath_string_t pmath_string_from_native(
     const char  *str,
     int          len
 ) {
+  pmath_string_t result;
+  iconv_t from_native = create_from_native();
+  if(from_native == (iconv_t)(-1))
+    return PMATH_NULL;
+  
+  result = string_from_iconv(from_native, str, len);
+  iconv_close(from_native);
+  return result;
+}
+
+PMATH_API
+char *pmath_string_to_native(pmath_string_t str, int *result_len) {
+  char *result;
+  iconv_t to_native = create_to_native();
+  if(to_native == (iconv_t)(-1)) {
+    if(result_len)
+      *result_len = 0;
+    return NULL;
+  }
+  result = string_to_iconv(to_native, str, result_len);
+  iconv_close(to_native);
+  return result;
+}
+
+static pmath_string_t string_from_iconv(iconv_t cd, const char *str, int len) {
   struct _pmath_string_t *result;
   size_t inbytesleft;
   size_t outbytesleft;
@@ -1878,7 +1851,7 @@ pmath_string_t pmath_string_from_native(
     return PMATH_NULL;
 
   while(inbytesleft > 0) {
-    size_t ret = iconv(from_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    size_t ret = iconv(cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
 
     if(ret == (size_t)(-1)) {
       pmath_unref(PMATH_FROM_PTR(result));
@@ -1890,30 +1863,36 @@ pmath_string_t pmath_string_from_native(
   return _pmath_from_buffer(result);
 }
 
-PMATH_API
-char *pmath_string_to_native(pmath_string_t str, int *result_len) {
-  int len = pmath_string_length(str);
+static char *string_to_iconv(iconv_t cd, pmath_string_t str, int *result_len) {
   const uint16_t *buf = pmath_string_buffer(&str);
-
-  size_t s_size = 4 * ((size_t)len) + 1;
-  char *s = (char *)pmath_mem_alloc(s_size);
-
-  size_t inbytesleft = sizeof(uint16_t) * (size_t)len;
-  size_t outbytesleft = s_size - 1;
-  char *inbuf  = (char *)buf;
-  char *outbuf = s;
-
-  if(!s) {
+  int             len = pmath_string_length(str);
+  size_t size         = 4 * ((size_t)len) + 1; // worst case for UTF-8: every character is 4 bytes in utf8
+  char *res           = pmath_mem_alloc(size);
+  char *inbuf         = (char *)buf;
+  char *outbuf        = res;
+  size_t inbytesleft  = sizeof(uint16_t) * (size_t)len;
+  size_t outbytesleft = size - 1;
+  iconv_t to_utf8;
+  
+  if(!res) {
     if(result_len)
       *result_len = 0;
     return NULL;
   }
 
+  to_utf8 = create_to_utf8();
+  if(to_utf8 == (iconv_t)(-1)) {
+    pmath_mem_free(res);
+    if(result_len)
+      *result_len = 0;
+    return NULL;
+  }
+  
   while(inbytesleft > 0) {
-    size_t ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    size_t ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
 
     if(ret == (size_t)(-1)) {
-      pmath_mem_free(s);
+      pmath_mem_free(res);
       if(result_len)
         *result_len = 0;
       return NULL;
@@ -1922,8 +1901,10 @@ char *pmath_string_to_native(pmath_string_t str, int *result_len) {
 
   *outbuf = '\0';
   if(result_len)
-    *result_len = (int)((size_t)outbuf - (size_t)s);
-  return s;
+    *result_len = (int)((size_t)outbuf - (size_t)res);
+  
+  iconv_close(to_utf8);
+  return res;
 }
 
 /*============================================================================*/
@@ -1945,52 +1926,27 @@ pmath_bool_t _pmath_strings_init(void) {
       NULL,
       NULL);
 
-  to_utf8 = iconv_open(
-      "UTF-8",
-      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-
-  if(to_utf8 == (iconv_t) - 1)
-    return FALSE;
-
-  from_utf8 = iconv_open(
-      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
-      "UTF-8");
-
-  if(from_utf8 == (iconv_t) - 1) {
-    iconv_close(to_utf8);
-    return FALSE;
-  }
-
   _init_pmath_native_encoding();
-
-  to_native = iconv_open(
-      _pmath_native_encoding,
-      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
-
-  if(to_native == (iconv_t) - 1) {
-    iconv_close(to_utf8);
-    iconv_close(from_utf8);
-    return FALSE;
-  }
-
-  from_native = iconv_open(
-      PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE",
-      _pmath_native_encoding);
-
-  if(from_native == (iconv_t) - 1) {
-    iconv_close(to_utf8);
-    iconv_close(from_utf8);
-    iconv_close(to_native);
-    return FALSE;
-  }
 
   return TRUE;
 }
 
 PMATH_PRIVATE
 void _pmath_strings_done(void) {
-  iconv_close(to_utf8);
-  iconv_close(from_utf8);
-  iconv_close(to_native);
-  iconv_close(from_native);
+}
+
+static iconv_t create_to_utf8(void) {
+  return iconv_open("UTF-8", PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
+}
+
+static iconv_t create_from_utf8(void) {
+  return iconv_open(PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE", "UTF-8");
+}
+
+static iconv_t create_to_native(void) {
+  return iconv_open(_pmath_native_encoding, PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE");
+}
+
+static iconv_t create_from_native(void) {
+  return iconv_open(PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE", _pmath_native_encoding);
 }
