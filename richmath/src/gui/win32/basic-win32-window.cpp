@@ -27,6 +27,10 @@ using SnapPosition = BasicWin32Window::SnapPosition;
 #  define GW_ENABLEDPOPUP  6
 #endif
 
+#ifndef WS_EX_NOREDIRECTIONBITMAP
+#  define WS_EX_NOREDIRECTIONBITMAP   0x00200000L
+#endif
+
 
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))
 #define MAX(a, b)  ((a) > (b) ? (a) : (b))
@@ -129,7 +133,7 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
   public:
     Win32BlurBehindWindow(BasicWin32Window *owner) 
       : base(
-          WS_EX_NOACTIVATE,
+          WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
           WS_POPUP| WS_DISABLED,
           0,
           0,
@@ -138,6 +142,7 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
           nullptr),
         _owner(owner)
     {
+      assert(_owner != nullptr);
     }
     
     static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins) {
@@ -146,6 +151,32 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
       window_rect.top+=    1;//margins.cyTopHeight;
       window_rect.bottom-= margins.cyBottomHeight;
       return window_rect;
+    }
+    
+    void hide() {
+      ShowWindow(_hwnd, SW_HIDE);
+    }
+    
+    void show() {
+      RECT rect;
+      GetWindowRect(_hwnd, &rect);
+      show(rect);
+    }
+    
+    void show(const RECT &owner_rect) {
+      Win32Themes::MARGINS margins = {};
+      _owner->get_nc_margins(&margins);
+      
+      RECT rect = blur_bounds(owner_rect, margins);
+      
+      SetWindowPos(
+        _hwnd,
+        _owner->hwnd(),
+        rect.left, 
+        rect.top,
+        rect.right - rect.left,
+        rect.bottom - rect.top,
+        SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
   
   private:
@@ -1178,28 +1209,26 @@ void BasicWin32Window::on_theme_changed() {
   static_resources.clear_theme_data();
   
   if(_glass_enabled) {
-    if(Win32Themes::DwmEnableBlurBehindWindow) {
-      Win32Themes::DWM_BLURBEHIND bb = {};
-      bb.dwFlags = Win32Themes::DWM_BB_ENABLE;
-      bb.fEnable = TRUE;
-      bb.dwFlags |= Win32Themes::DWM_BB_BLURREGION;
-      bb.hRgnBlur = CreateRectRgn(0,0, 1, 1);
-      HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
-    }
+    if(Win32Themes::use_win10_transparency()) {
+      if(Win32Themes::DwmEnableBlurBehindWindow) {
+        Win32Themes::DWM_BLURBEHIND bb = {};
+        bb.dwFlags = Win32Themes::DWM_BB_ENABLE;
+        bb.fEnable = TRUE;
+        bb.dwFlags |= Win32Themes::DWM_BB_BLURREGION;
+        bb.hRgnBlur = CreateRectRgn(0,0, 1, 1);
+        HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
+      }
       
-  //  if(Win32Themes::SetWindowCompositionAttribute) {
-  //    Win32Themes::AccentPolicy accent_policy = {};
-  //    accent_policy.accent_state = Win32Themes::AccentState::EnableTransparentGradient;// Win32Themes::AccentState::EnableAcrylicBlurBehind;
-  //    accent_policy.flags = 2; 
-  //    accent_policy.gradient_color = 0x000000FF; // TODO: colorization color and alpha channel
-  //    accent_policy.animation_id = 0;
-  //    
-  //    Win32Themes::WINCOMPATTRDATA data = {};
-  //    data.attr = Win32Themes::DWMWA_UNDOCUMENTED_ACCENT_POLICY;
-  //    data.data = &accent_policy;
-  //    data.data_size = sizeof(accent_policy);
-  //    bool success = !!Win32Themes::SetWindowCompositionAttribute(_hwnd, &data);
-  //  }
+      if(!_blur_behind_window) {
+        _blur_behind_window = new Win32BlurBehindWindow(this);
+        _blur_behind_window->init();
+      }
+      
+      if(IsWindowVisible(_hwnd))
+        _blur_behind_window->show();
+      else
+        _blur_behind_window->hide();
+    }
   }
     
   extend_glass(&_extra_glass);
@@ -1974,26 +2003,10 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_SHOWWINDOW: {
           bool will_be_visible = !!wParam;
           if(_blur_behind_window) {
-            if(will_be_visible) {
-              Win32Themes::MARGINS margins = {};
-              get_nc_margins(&margins);
-              
-              RECT rect;
-              GetWindowRect(_hwnd, &rect);
-              rect = Win32BlurBehindWindow::blur_bounds(rect, margins);
-              
-              SetWindowPos(
-                _blur_behind_window->hwnd(),
-                _hwnd,
-                rect.left, 
-                rect.top,
-                rect.right - rect.left,
-                rect.bottom - rect.top,
-                SWP_NOACTIVATE | SWP_SHOWWINDOW);
-            }
-            else {
-              ShowWindow(_blur_behind_window->hwnd(), SW_HIDE);
-            }
+            if(will_be_visible && Win32Themes::use_win10_transparency()) 
+              _blur_behind_window->show();
+            else 
+              _blur_behind_window->hide();
           }
         } break;
       
@@ -2428,23 +2441,10 @@ void BasicWin32Window::Impl::on_windowposchanging(WINDOWPOS *pos) {
 
 void BasicWin32Window::Impl::on_windowposchanged(WINDOWPOS *pos) {
   if(self._blur_behind_window) {
-    if(IsWindowVisible(self._hwnd)) {
-      Win32Themes::MARGINS margins = {};
-      self.get_nc_margins(&margins);
-      
-      RECT rect { pos->x, pos->y, pos->x + pos->cx, pos->y + pos->cy };
-      rect = Win32BlurBehindWindow::blur_bounds(rect, margins);
-      SetWindowPos(
-        self._blur_behind_window->hwnd(),
-        self.hwnd(),
-        rect.left,
-        rect.top,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        SWP_NOACTIVATE | SWP_SHOWWINDOW);
-    }
-    else
-      ShowWindow(self._blur_behind_window->hwnd(), SW_HIDE);
+    if(IsWindowVisible(self._hwnd) && Win32Themes::use_win10_transparency()) 
+      self._blur_behind_window->show(RECT {pos->x, pos->y, pos->x + pos->cx, pos->y + pos->cy});
+    else 
+      self._blur_behind_window->hide();
   }
 }
 
