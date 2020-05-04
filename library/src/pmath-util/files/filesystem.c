@@ -159,8 +159,10 @@ pmath_string_t pmath_to_absolute_file_name(pmath_string_t relname) {
         else if(next != startname + 1 || obuf[startname] != '.') {
           memmove(obuf + enddir, obuf + startname, (next - startname) * sizeof(uint16_t));
           enddir += next - startname;
-          obuf[enddir] = '/';
-          ++enddir;
+          if(enddir < namelen) {
+            obuf[enddir] = '/';
+            ++enddir;
+          }
         }
 
         startname = next + 1;
