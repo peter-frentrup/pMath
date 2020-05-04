@@ -2,9 +2,11 @@
 #define RICHMATH__UTIL__HASHTABLE_H__INCLUDED
 
 #include <cassert>
+#include <cstdint>
 #include <cstdlib>
 #include <cstring>
 #include <utility>
+#include <type_traits>
 
 #include <util/base.h>
 
@@ -35,34 +37,43 @@ namespace richmath {
     return default_hash_impl<T>::hash(t);
   }
   
-  template<>
-  struct default_hash_impl<uint16_t> {
-    static unsigned int hash(uint16_t t) {
-      return (unsigned int)t;
-    }
-  };
-  
-  template<>
-  struct default_hash_impl<uint32_t> {
-    static unsigned int hash(uint32_t t) {
-      return (unsigned int)t;
-    }
-  };
-  
-  template<>
-  struct default_hash_impl<uint64_t> {
-    static unsigned int hash(uint64_t t) {
+  struct default_cast_hash_impl {
+    static unsigned int for_ui64(uint64_t t) {
       return (unsigned int)((t & 0xFFFFFFFFU) ^ (t >> 32));
     }
   };
   
   template<>
+  struct default_hash_impl<unsigned short> {
+    static unsigned int hash(unsigned short t) {
+      return (unsigned int)t;
+    }
+  };
+  
+  template<>
+  struct default_hash_impl<unsigned int> {
+    static unsigned int hash(unsigned int t) {
+      return (unsigned int)t;
+    }
+  };
+
+  template<>
   struct default_hash_impl<unsigned long> {
     static unsigned int hash(unsigned long t) {
-      if(sizeof(unsigned long) == sizeof(uint32_t))
+      if(sizeof(t) == sizeof(uint32_t))
         return default_hash((uint32_t)t);
       else
-        return default_hash((uint64_t)t);
+        return default_cast_hash_impl::for_ui64((uint64_t)t);
+    }
+  };
+  
+  template<>
+  struct default_hash_impl<unsigned long long> {
+    static unsigned int hash(unsigned long long t) {
+      if(sizeof(t) == sizeof(uint32_t))
+        return default_hash((uint32_t)t);
+      else
+        return default_cast_hash_impl::for_ui64((uint64_t)t);
     }
   };
   
