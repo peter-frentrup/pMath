@@ -582,9 +582,9 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-std=gnu++11" />
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
@@ -595,6 +595,7 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
+					<Add directory="$(#cairo_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config gtk+-2.0 --libs`" />
@@ -618,8 +619,8 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-Wall" />
-					<Add option="-g" />
 					<Add option="-std=gnu++11" />
+					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mcx16" />
 					<Add option="-Wno-unused-but-set-variable" />
@@ -631,6 +632,7 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config gtk+-2.0 --libs`" />
@@ -652,9 +654,9 @@
 				<Option type="1" />
 				<Option compiler="gcc" />
 				<Compiler>
-					<Add option="-std=gnu++11" />
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
@@ -665,6 +667,7 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
+					<Add directory="$(#cairo_32.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config gtk+-3.0 --libs`" />
@@ -690,8 +693,8 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-Wall" />
-					<Add option="-g" />
 					<Add option="-std=gnu++11" />
+					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mcx16" />
 					<Add option="-Wno-unused-but-set-variable" />
@@ -702,6 +705,7 @@
 					<Add directory="include" />
 					<Add directory="resources" />
 					<Add directory="../library/include" />
+					<Add directory="$(#cairo_64.include)" />
 				</Compiler>
 				<Linker>
 					<Add option="`pkg-config gtk+-3.0 --libs`" />
@@ -1356,6 +1360,8 @@
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 			<Option target="Linux-GCC-Debug-x86-Gtk3" />
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86" />
+			<Option target="Linux-GCC-Debug-x64" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-recent-documents.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1639,7 +1645,7 @@
 			<debugger>
 				<search_path add="../library/src" />
 				<remote_debugging>
-					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+					<options conn_type="-1" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
 				</remote_debugging>
 			</debugger>
 		</Extensions>
