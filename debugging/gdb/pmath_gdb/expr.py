@@ -1,12 +1,7 @@
 import sys
 import gdb
 import re
-from StringIO import StringIO
-
-class static:
-    "Creates a 'static' method"
-    def __init__(self, function):
-        self.__call__ = function
+from io import StringIO 
 
 # from pmath-core/objects.h and pmath-core/objects-private.h:
 PMATH_TAGMASK_BITCOUNT  = 12
@@ -74,12 +69,12 @@ class ExprVal:
     _known_symbol_indices = {
         'System`List': 1}
     
-    @static
+    @staticmethod
     def type_is_pmath(type):
         type = type.strip_typedefs()
         return type.code == gdb.TYPE_CODE_UNION and type.tag == 'pmath_t'
     
-    @static
+    @staticmethod
     def string_header_size():
         if ExprVal._string_header_size == None:
             _pmath_string_t = gdb.lookup_type('struct _pmath_string_t')
@@ -87,7 +82,7 @@ class ExprVal:
             ExprVal._string_header_size = ((_pmath_string_t.sizeof + size_t.sizeof - 1) // size_t.sizeof) * size_t.sizeof
         return ExprVal._string_header_size
     
-    @static
+    @staticmethod
     def from_pointer(ptrval):
         if ptrval.type.code != gdb.TYPE_CODE_PTR:
             return ExprVal(None)
@@ -101,7 +96,7 @@ class ExprVal:
         val = val.cast(pmath_t)
         return ExprVal(val)
     
-    @static
+    @staticmethod
     def get_builtin_symbol(indexOrKnownName):
         if isinstance(indexOrKnownName, str):
             if ExprVal._known_symbol_indices.has_key(indexOrKnownName):
@@ -181,7 +176,7 @@ class ExprVal:
         deref = self.dereference()
         if deref == None:
             return 0
-        return long(deref['refcount']['_data'])
+        return int(deref['refcount']['_data'])
 
     def get_pointer_type_shift(self):
         return self._type_shift
@@ -253,11 +248,11 @@ class ExprVal:
     
     def get_expr_length(self):
         if self.get_refcount() <= 0:
-            return 0L
+            return 0
 
         if self._type_shift in [PMATH_TYPE_SHIFT_EXPRESSION_GENERAL, PMATH_TYPE_SHIFT_EXPRESSION_GENERAL_PART]:
             expr_data = self.dereference().cast(gdb.lookup_type('struct _pmath_expr_t'))
-            return long(expr_data['length'])
+            return int(expr_data['length'])
         
         if self._type_shift == PMATH_TYPE_SHIFT_PACKED_ARRAY:
             return self.get_packed_array_sizes()[0]
@@ -272,7 +267,7 @@ class ExprVal:
         
         if self._type_shift == PMATH_TYPE_SHIFT_EXPRESSION_GENERAL:
             expr_data = self.dereference().cast(gdb.lookup_type('struct _pmath_expr_t'))
-            length = long(expr_data['length'])
+            length = int(expr_data['length'])
             if index > length:
                 return ExprVal(None)
             return ExprVal(expr_data['items'][index])
@@ -282,7 +277,7 @@ class ExprVal:
             if index == 0:
                 return ExprVal(part_data['inherited']['items'][0])
 
-            length = long(part_data['inherited']['length'])
+            length = int(part_data['inherited']['length'])
             if index > length:
                 return ExprVal(None)
 
@@ -291,8 +286,8 @@ class ExprVal:
             except:
                 return ExprVal(None)
             
-            start = long(part_data['start'])
-            buffer_length = long(buffer_data['length'])
+            start = int(part_data['start'])
+            buffer_length = int(buffer_data['length'])
             index = start + index - 1
             
             if index < 0 or index > buffer_length:
@@ -328,10 +323,10 @@ class ExprVal:
             return u''
 
         if self._tag == PMATH_TAG_STR1:
-            return unichr(self._val['s']['u']['as_chars'][0])
+            return chr(self._val['s']['u']['as_chars'][0])
 
         if self._tag == PMATH_TAG_STR2:
-            return unichr(self._val['s']['u']['as_chars'][0]) + unichr(self._val['s']['u']['as_chars'][1])
+            return chr(self._val['s']['u']['as_chars'][0]) + chr(self._val['s']['u']['as_chars'][1])
 
         if self._type_shift == PMATH_TYPE_SHIFT_BIGSTRING:
             if self.get_refcount() < 1:
@@ -366,7 +361,7 @@ class ExprVal:
                 chars_ptr = string_data['buffer'].cast(gdb.lookup_type('void').pointer()) + ExprVal.string_header_size()
                 chars_ptr = chars_ptr.cast(gdb.lookup_type('uint16_t').pointer())
                 chars_ptr = chars_ptr + cap_or_start
-            return u''.join([unichr(int(chars_ptr[i])) for i in range(length)])
+            return u''.join([chr(int(chars_ptr[i])) for i in range(length)])
 
         return errorval
     
@@ -384,7 +379,7 @@ class ExprVal:
         packed_array_data = self.dereference().cast(gdb.lookup_type('struct _pmath_packed_array_t'))
         length            = int(packed_array_data['dimensions'])
         sizes_and_steps   = packed_array_data['sizes_and_steps']
-        return [long(sizes_and_steps[i]) for i in range(length)]
+        return [int(sizes_and_steps[i]) for i in range(length)]
 
     def get_symbol_name(self):
         if not self.is_symbol():
@@ -550,7 +545,7 @@ class ExprVal:
         f.write('[{0} {1}]'.format(tagname, self._val['s']['u']['as_int32']))
     
 class ExprFormatting:
-    @static
+    @staticmethod
     def expr_to_file_location(r):
         if r.is_int32():
             return str(line.get_int32())
@@ -563,7 +558,7 @@ class ExprFormatting:
         
         return r.to_string()
         
-    @static
+    @staticmethod
     def range_to_file_location(r):
         if r.is_expr_of('System`Range', 2):
             start = r.get_expr_item(1)
@@ -574,7 +569,7 @@ class ExprFormatting:
                 ExprFormatting.expr_to_file_location(end))
         return r.expr_to_file_location()
     
-    @static
+    @staticmethod
     def debug_source_info_to_pair(src):
         if src.is_expr_of('Developer`DebugInfoSource', 2):
             name = src.get_expr_item(1)
@@ -593,7 +588,7 @@ class ExprFormatting:
             
         return (None, None)
         
-    @static
+    @staticmethod
     def debug_source_info_to_string(src):
         pair = ExprFormatting.debug_source_info_to_pair(src)
         if pair[1] == None:

@@ -2,11 +2,6 @@ import sys
 import gdb
 from pmath_gdb.expr import ExprVal, ExprFormatting
 
-class static:
-    "Creates a 'static' method"
-    def __init__(self, function):
-        self.__call__ = function
-
 class ManagedStackFrame:
     def __init__(self, stack_info, thread):
         self.stack_info = stack_info
@@ -32,7 +27,7 @@ class ManagedStack:
     def __init__(self):
         self.frames = []
         
-    @static
+    @staticmethod
     def search(max_count = 20):
         try:
             thread = gdb.parse_and_eval('pmath_thread_get_current()').dereference()

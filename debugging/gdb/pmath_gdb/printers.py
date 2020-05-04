@@ -3,11 +3,6 @@ import gdb
 import re
 from pmath_gdb.expr import ExprVal, ExprFormatting
 
-class static:
-    "Creates a 'static' method"
-    def __init__(self, function):
-        self.__call__ = function
-
             
 pmath_pretty_printers = []
 def register_pretty_printer(pretty_printer):
@@ -21,7 +16,7 @@ class ExprPrinter:
     max_recursion = 1
     max_arg_count = 10
     
-    @static
+    @staticmethod
     def supports(type):
         if ExprVal.type_is_pmath(type):
             return True
@@ -30,7 +25,7 @@ class ExprPrinter:
             return False
         return ExprPrinter._regex.search(type.tag)
     
-##    @static
+##    @staticmethod
 ##    def is_undefine(val):
 ##        return not ExprVal(val['_obj']).is_pmath()
 
@@ -42,10 +37,10 @@ class ExprPrinter:
 
     def to_string(self):
         #if self.expr.is_string():
-        #    return self.expr.get_string_data().encode('unicode-escape')
+        #    return self.expr.get_string_data().encode('unicode-escape').decode('latin1')
         string = self.expr.to_string(max_recursion=ExprPrinter.max_recursion, max_arg_count=ExprPrinter.max_arg_count)
         #string = string.replace('\\', '/')
-        string = string.encode('unicode-escape').replace('\\\\', '\\')
+        string = string.encode('unicode-escape').decode('latin1').replace('\\\\', '\\')
         return string
 
     def display_hint (self):
@@ -71,7 +66,7 @@ class ExprPrinter:
 class VoidPrinter:
     """print a richmath::Void"""
     
-    @static
+    @staticmethod
     def supports(type):
         return type.tag == 'richmath::Void'
 
@@ -87,7 +82,7 @@ class HashtablePrinter:
     """print a richmath::Hashtable<...>"""
     regex = re.compile('^richmath::Hashtable<.*>$')
 
-    @static
+    @staticmethod
     def supports(type):
         return type.tag != None and HashtablePrinter.regex.search(type.tag)
 
@@ -141,7 +136,7 @@ class ArrayPrinter:
     """print a richmath::Array<...>"""
     regex = re.compile('^richmath::Array<.*>$')
     
-    @static
+    @staticmethod
     def supports(type):
         return type.tag != None and ArrayPrinter.regex.search(type.tag)
 
