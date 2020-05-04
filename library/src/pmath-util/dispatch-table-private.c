@@ -12,6 +12,8 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 
+#include <string.h>
+
 
 struct dispatch_lookup_info_t {
   pmath_t key;
