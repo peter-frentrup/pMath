@@ -72,13 +72,24 @@ namespace {
       HANDLE composition_window_theme(int dpi);
       void clear_theme_data();
       
+      DWORD register_notifications(IVirtualDesktopNotification *handler);
+      void unregister_notifications(DWORD cookie);
+    
+    private:
+      void need_virtual_desktop_service();
+      
     private:
       Hashtable<String, AutoCairoSurface> background_image_cache;
       Hashtable<int, HANDLE>              composition_window_theme_for_dpi;
       int                                 window_count;
       
+      ComBase<IVirtualDesktopNotificationService> virtual_desktop_service;
+      
   } static_resources;
 }
+
+static bool is_window_cloaked(HWND hwnd);
+static bool is_window_visible_on_screen(HWND hwnd);
 
 class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
     using base = BasicWin32Widget;
@@ -134,7 +145,7 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
     Win32BlurBehindWindow(BasicWin32Window *owner) 
       : base(
           WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
-          WS_POPUP| WS_DISABLED,
+          WS_POPUP,// | WS_DISABLED,
           0,
           0,
           1,
@@ -178,6 +189,17 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
         rect.bottom - rect.top,
         SWP_NOACTIVATE | SWP_SHOWWINDOW);
     }
+    
+    void show_if_owner_visible_on_screen() {
+      if(is_window_visible_on_screen(_owner->hwnd())) {
+        if(!is_window_visible_on_screen(_hwnd))
+          show();
+      }
+      else {
+        if(is_window_visible_on_screen(_hwnd))
+          hide();
+      }
+    }
   
   private:
     BasicWin32Window *_owner;
@@ -189,6 +211,17 @@ static bool use_custom_system_buttons() {
 
 static bool hit_test_is_system_button(int ht) {
   return ht == HTMINBUTTON || ht == HTMAXBUTTON || ht == HTCLOSE || ht == HTHELP;
+}
+
+static bool is_window_cloaked(HWND hwnd) {
+  BOOL is_cloaked = FALSE;
+  return Win32Themes::DwmGetWindowAttribute &&
+         SUCCEEDED(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CLOAKED, &is_cloaked, sizeof(is_cloaked))) &&
+         is_cloaked;
+}
+
+static bool is_window_visible_on_screen(HWND hwnd) {
+  return IsWindowVisible(hwnd) & !is_window_cloaked(hwnd);
 }
 
 static POINT point_from_lparam(LPARAM lParam) {
@@ -290,6 +323,7 @@ BasicWin32Window::BasicWin32Window(
   _themed_frame(false),
   _hit_test_mouse_over(HTNOWHERE),
   _hit_test_mouse_down(HTNOWHERE),
+  _virtual_desktop_notification_cookie(0),
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_cx(0),
@@ -307,9 +341,12 @@ void BasicWin32Window::after_construction() {
   BasicWin32Widget::after_construction();
   
   if(_blur_behind_window)  _blur_behind_window->init();
+  
+  _virtual_desktop_notification_cookie = static_resources.register_notifications(this);
 }
 
 BasicWin32Window::~BasicWin32Window() {
+  static_resources.unregister_notifications(_virtual_desktop_notification_cookie);
   static_resources.remove_basic_window();
   
   if(_blur_behind_window) {
@@ -524,7 +561,7 @@ static BOOL CALLBACK snap_monitor(
 static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct snap_info_t *info = (struct snap_info_t *)lParam;
 
-  if(hwnd != info->src && IsWindowVisible(hwnd) && !info->dont_snap->contains(hwnd)) {
+  if(hwnd != info->src && is_window_visible_on_screen(hwnd) && !info->dont_snap->contains(hwnd)) {
     if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
       return TRUE;
     
@@ -662,7 +699,7 @@ static POINT to_absolute_point(const RECT &frame, const Point &point) {
 BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
   struct find_snap_info_t *info = (struct find_snap_info_t *)lParam;
 
-  if(hwnd != info->dst && IsWindowVisible(hwnd)) {
+  if(hwnd != info->dst && is_window_visible_on_screen(hwnd)) {
     auto widget = BasicWin32Widget::from_hwnd(hwnd);
     
     if(dynamic_cast<Win32BlurBehindWindow*>(widget))
@@ -788,7 +825,7 @@ struct find_align_info_t {
 static BOOL CALLBACK find_align_hwnd(HWND hwnd, LPARAM lParam) {
   struct find_align_info_t *info = (struct find_align_info_t *)lParam;
 
-  if(hwnd != info->dst && IsWindowVisible(hwnd)) {
+  if(hwnd != info->dst && is_window_visible_on_screen(hwnd)) {
     if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
       return TRUE;
     
@@ -1169,7 +1206,7 @@ void BasicWin32Window::on_move(LPARAM lParam) {
            1,
            SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE);
 
-  if(_blur_behind_window && IsWindowVisible(_blur_behind_window->hwnd())) {
+  if(_blur_behind_window && is_window_visible_on_screen(_blur_behind_window->hwnd())) {
     Win32Themes::MARGINS margins = {};
     get_nc_margins(&margins);
     
@@ -1224,7 +1261,7 @@ void BasicWin32Window::on_theme_changed() {
         _blur_behind_window->init();
       }
       
-      if(IsWindowVisible(_hwnd))
+      if(is_window_visible_on_screen(_hwnd))
         _blur_behind_window->show();
       else
         _blur_behind_window->hide();
@@ -1999,7 +2036,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         all_snapper_positions.length(0);
         break;
 //} ... sizing & moving
-
+      
       case WM_SHOWWINDOW: {
           bool will_be_visible = !!wParam;
           if(_blur_behind_window) {
@@ -2172,6 +2209,55 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
 HANDLE BasicWin32Window::composition_window_theme(int dpi) {
   return static_resources.composition_window_theme(dpi);
+}
+
+STDMETHODIMP BasicWin32Window::QueryInterface(REFIID iid, void **ppvObject) {
+  HRESULT hr = BasicWin32Widget::QueryInterface(iid, ppvObject);
+  if(SUCCEEDED(hr))
+    return hr;
+  
+  if(iid == IID_IVirtualDesktopNotification) {
+    auto res = static_cast<IVirtualDesktopNotification*>(this);
+    res->AddRef();
+    *ppvObject = res;
+    return S_OK;
+  }
+  
+  return hr;
+}
+
+STDMETHODIMP BasicWin32Window::VirtualDesktopCreated(IVirtualDesktop *pDesktop) {
+  pmath_debug_print("[VirtualDesktopCreated]\n");
+  return S_OK;
+}
+
+STDMETHODIMP BasicWin32Window::VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyBegin]\n");
+  return S_OK;
+}
+
+STDMETHODIMP BasicWin32Window::VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) { 
+  pmath_debug_print("[VirtualDesktopDestroyFailed]\n");
+  return S_OK;
+}
+
+STDMETHODIMP BasicWin32Window::VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyed]\n");
+  return S_OK;
+}
+
+STDMETHODIMP BasicWin32Window::ViewVirtualDesktopChanged(IApplicationView *pView) {
+  pmath_debug_print("[ViewVirtualDesktopChanged %p, cloaked=%s]\n", pView, is_window_cloaked(_hwnd) ? "yes" : "no");
+  
+  if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
+  return S_OK;
+}
+
+STDMETHODIMP BasicWin32Window::CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) {
+  pmath_debug_print("[CurrentVirtualDesktopChanged, cloaked=%s]\n", is_window_cloaked(_hwnd) ? "yes" : "no");
+  
+  if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
+  return S_OK;
 }
 
 //} ... class BasicWin32Window
@@ -2441,7 +2527,7 @@ void BasicWin32Window::Impl::on_windowposchanging(WINDOWPOS *pos) {
 
 void BasicWin32Window::Impl::on_windowposchanged(WINDOWPOS *pos) {
   if(self._blur_behind_window) {
-    if(IsWindowVisible(self._hwnd) && Win32Themes::use_win10_transparency()) 
+    if(is_window_visible_on_screen(self._hwnd) && Win32Themes::use_win10_transparency()) 
       self._blur_behind_window->show(RECT {pos->x, pos->y, pos->x + pos->cx, pos->y + pos->cy});
     else 
       self._blur_behind_window->hide();
@@ -2840,7 +2926,8 @@ void StaticResources::add_basic_window() {
 void StaticResources::remove_basic_window() {
   if(--window_count != 0)
     return;
-
+  
+  virtual_desktop_service.reset();
   Win32TooltipWindow::delete_global_tooltip();
 
   background_image_cache.clear();
@@ -2899,6 +2986,39 @@ void StaticResources::clear_theme_data() {
       Win32Themes::CloseThemeData(e.value);
     
     composition_window_theme_for_dpi.clear();
+  }
+}
+
+void StaticResources::need_virtual_desktop_service() {
+  if(virtual_desktop_service)
+    return;
+  
+  ComBase<IServiceProvider> service_provider;
+  if(HRbool(CoCreateInstance(
+      CLSID_ImmersiveShell, nullptr, CLSCTX_LOCAL_SERVER,
+      service_provider.iid(), (void**)service_provider.get_address_of()))) 
+  {
+    HRreport(service_provider->QueryService(CLSID_VirtualDesktopNotificationService, virtual_desktop_service.get_address_of()));
+  }
+}
+
+DWORD StaticResources::register_notifications(IVirtualDesktopNotification *handler) {
+  need_virtual_desktop_service();
+  
+  DWORD cookie = 0;
+  if(virtual_desktop_service) {
+    HRreport(virtual_desktop_service->Register(handler, &cookie));
+  }
+  return cookie;
+}
+
+void StaticResources::unregister_notifications(DWORD cookie) {
+  if(virtual_desktop_service) {
+    HRreport(virtual_desktop_service->Unregister(cookie));
+    return;
+  }
+  if(cookie) {
+    HRreport(E_UNEXPECTED);
   }
 }
 
