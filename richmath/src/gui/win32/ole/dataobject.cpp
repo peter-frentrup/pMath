@@ -105,7 +105,7 @@ STDMETHODIMP DataObject::QueryInterface(REFIID iid, void **ppvObject) {
     return S_OK;
   }
   
-  *ppvObject = 0;
+  *ppvObject = nullptr;
   return E_NOINTERFACE;
 }
 

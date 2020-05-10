@@ -22,8 +22,8 @@ namespace richmath {
       // IUnknown members
       //
       STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
-      STDMETHODIMP_(ULONG) AddRef(void) = 0;
-      STDMETHODIMP_(ULONG) Release(void) = 0;
+      STDMETHODIMP_(ULONG) AddRef(void) override = 0;
+      STDMETHODIMP_(ULONG) Release(void) override = 0;
       
       //
       // IDropTarget members

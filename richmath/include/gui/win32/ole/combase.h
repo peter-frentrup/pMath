@@ -13,13 +13,17 @@
 
 #include <windows.h>
 
+#ifdef NDEBUG
+#  define COM_ASSERT(a) ((void)0)
+#else
+#  define COM_ASSERT(a) \
+     do{if(!(a)){ \
+         assert_failed(); \
+         assert(a); \
+       }}while(0)
+#endif
+
 namespace richmath {
-  #define COM_ASSERT(a) \
-  do{if(!(a)){ \
-      assert_failed(); \
-      assert(a); \
-    }}while(0)
-  
   void assert_failed();
   
   /* See
@@ -167,15 +171,14 @@ namespace richmath {
       }
       
       void internal_release() noexcept {
-        Interface * temp = ptr;
-        if (temp) {
+        if(Interface *temp = ptr) {
           ptr = nullptr;
           temp->Release();
         }
       }
       
       void internal_copy(Interface *other) noexcept {
-        if (ptr != other) {
+        if(ptr != other) {
           internal_release();
           ptr = other;
           internal_add_reference();
@@ -184,7 +187,7 @@ namespace richmath {
       
       template <typename T>
       void internal_move(ComBase<T> &other) noexcept {
-        if (ptr != other.ptr) {
+        if(ptr != other.ptr) {
           internal_release();
           ptr = other.ptr;
           other.ptr = nullptr;

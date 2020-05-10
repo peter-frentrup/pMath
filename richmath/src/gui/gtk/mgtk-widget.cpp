@@ -20,6 +20,7 @@
 #  include <X11/XKBlib.h>
 #endif
 
+#undef None
 
 #if !GTK_CHECK_VERSION(2,22,0)
 static GdkDragAction gdk_drag_context_get_selected_action(GdkDragContext *context) {

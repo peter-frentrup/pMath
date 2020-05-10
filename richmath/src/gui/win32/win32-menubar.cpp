@@ -321,6 +321,9 @@ void Win32Menubar::show_menu(int item) {
       case MenuExitReason::ExplicitCmd: 
         cmd = menu_hook.exit_cmd;
         break;
+      
+      case MenuExitReason::Other:
+        break;
     }
     
     current_item = 0;
@@ -719,7 +722,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                           state = Pressed;
                         else if(draw->nmcd.uItemState & CDIS_CHECKED)
                           state = Pressed;
-                        else if(hot_tracking && draw->nmcd.dwItemSpec == hot_item)
+                        else if(hot_tracking && (int)draw->nmcd.dwItemSpec == hot_item)
                           state = Hovered; // Hot
                       }
                       else {
