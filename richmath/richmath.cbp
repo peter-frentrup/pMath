@@ -1172,6 +1172,18 @@
 		<Unit filename="include/util/spanexpr.h" />
 		<Unit filename="include/util/style.h" />
 		<Unit filename="include/util/syntax-state.h" />
+		<Unit filename="resources/Windows.manifest">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="resources/resources.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
