@@ -408,7 +408,9 @@ int main(int argc, char **argv) {
   }
   
 #ifdef PMATH_DEBUG_LOG
+#  ifdef PMATH_USE_WINDOWS_THREADS
   printf("main thread id %u\n", GetCurrentThreadId());
+#  endif
   printf("cairo version: %s\n", cairo_version_string());
   printf("pango version: %s\n", pango_version_string());
   
