@@ -1601,10 +1601,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         
       case WM_SETFOCUS: {
           _focused = true;
+          document()->focus_set();
           
           if(document()->selectable())
             do_set_current_document();
-            
+          
           Box *sel_box = document()->selection_box();
           if(sel_box && document()->selection_length() == 0) {
             auto ctx = document_context();
@@ -1618,6 +1619,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       
       case WM_KILLFOCUS: {
           _focused = false;
+          document()->focus_killed();
         } break;
       
       case WM_SYSKEYUP: {

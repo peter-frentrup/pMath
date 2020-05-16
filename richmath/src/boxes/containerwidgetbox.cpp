@@ -228,11 +228,17 @@ void ContainerWidgetBox::on_mouse_cancel() {
 }
 
 void ContainerWidgetBox::on_enter() {
+  if(!ControlPainter::is_static_background(type))
+    request_repaint_all();
+  
   selection_inside = true;
   base::on_enter();
 }
 
 void ContainerWidgetBox::on_exit() {
+  if(!ControlPainter::is_static_background(type))
+    request_repaint_all();
+  
   selection_inside = false;
   base::on_exit();
 }

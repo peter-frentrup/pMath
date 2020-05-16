@@ -1084,6 +1084,7 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
 
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   _focused = true;
+  document()->focus_set();
   
   if(document()->selectable())
     do_set_current_document();
@@ -1103,6 +1104,7 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
 
 bool MathGtkWidget::on_focus_out(GdkEvent *e) {
   _focused = false;
+  document()->focus_killed();
   
   if(_im_context)
     gtk_im_context_focus_out(_im_context);

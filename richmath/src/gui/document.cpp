@@ -631,11 +631,14 @@ void Document::mouse_move(MouseEvent &event) {
 void Document::focus_set() {
   context.active = true;
   
-  if(selection_box()) {
-    selection_box()->on_enter();
-    
+  if(Box *box = selection_box()) {
     if(selection_length() > 0)
-      selection_box()->request_repaint_range(selection_start(), selection_end());
+      box->request_repaint_range(selection_start(), selection_end());
+    
+    while(box) {
+      box->on_enter();
+      box = box->parent();
+    }
   }
 }
 
@@ -643,13 +646,16 @@ void Document::focus_killed() {
   context.active = false;
   reset_mouse();
   
-  if(Box *sel = selection_box()) {
-    sel->on_exit();
-    
-    if(!sel->selectable())
+  if(Box *box = selection_box()) {
+    if(!box->selectable())
       select(nullptr, 0, 0);
     else if(selection_length() > 0)
-      sel->request_repaint_range(selection_start(), selection_end());
+      box->request_repaint_range(selection_start(), selection_end());
+    
+    while(box) {
+      box->on_exit();
+      box = box->parent();
+    }
   }
 }
 

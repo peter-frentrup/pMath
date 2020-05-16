@@ -368,16 +368,10 @@ void InputFieldBox::on_mouse_up(MouseEvent &event) {
 }
 
 void InputFieldBox::on_enter() {
-  if(!ControlPainter::is_static_background(type))
-    request_repaint_all();
-  
   base::on_enter();
 }
 
 void InputFieldBox::on_exit() {
-  if(!ControlPainter::is_static_background(type))
-    request_repaint_all();
-  
   base::on_exit();
   
   if(invalidated)
