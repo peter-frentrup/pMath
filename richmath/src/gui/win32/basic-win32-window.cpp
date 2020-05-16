@@ -1380,6 +1380,10 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   int icon_h    = Win32HighDpi::get_system_metrics_for_dpi(SM_CYSMICON, dpi);
   
   int visible_top = -neg_margins.top - invisible_top;
+  if(style & WS_MAXIMIZE) {
+    visible_top+= Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + 
+                  Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+  }
   
   rect->top+= invisible_top + (visible_top - icon_h) / 2;
   rect->bottom = rect->top + icon_h;
@@ -1806,9 +1810,9 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
 
       canvas->fill();
     }
-
-    if( client_rect.left - window_rect.left > frameradius || 
-        window_rect.right - client_rect.right > frameradius)
+    
+    if( client_rect.left - window_rect.left < frameradius || 
+        window_rect.right - client_rect.right < frameradius)
     { // make the edges round again
       canvas->move_to(client_rect.left,  client_rect.top);
       canvas->line_to(client_rect.left,  client_rect.bottom);
@@ -1828,6 +1832,21 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
       }
 
       cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+      canvas->fill();
+    }
+    else if(use_custom_system_buttons()) {
+      canvas->move_to(client_rect.left, client_rect.top);
+      canvas->line_to(client_rect.right, client_rect.top);
+      canvas->line_to(client_rect.right, client_rect.top + 1);
+      canvas->line_to(client_rect.left, client_rect.top + 1);
+      if(_active) {
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+        canvas->set_color(Color::Black, 0.0);
+      }
+      else {
+        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        canvas->set_color(Color::from_rgb24(0x565656), 0.5);
+      }
       canvas->fill();
     }
   }
@@ -2851,8 +2870,6 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
 
       rect.left   = buttons.right - buttons.left;
       rect.right  = buttons.left;
-      rect.top    = MAX(0, buttons.top - 1); 
-      rect.bottom = nc.cyTopHeight;
 
       if(calc_rect.right + MulDiv(8, dpi, 96) > rect.right - rect.left) {
         rect.left = menu.right + MulDiv(4, dpi, 96);
@@ -2861,9 +2878,17 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     else {
       rect.right  = buttons.left;
       rect.left   = menu.right + MulDiv(4, dpi, 96);
-      rect.top    = MAX(0, buttons.top - 1); 
-      rect.bottom = nc.cyTopHeight;
     }
+    
+    DWORD style = GetWindowLongW(self._hwnd, GWL_STYLE);
+    if(style & WS_MAXIMIZE) {
+      rect.top = Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + 
+                 Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+    }
+    else {
+      rect.top = MAX(0, buttons.top - 1); 
+    }
+    rect.bottom = nc.cyTopHeight;
 
     Win32Themes::DrawThemeTextEx(
       theme,
