@@ -3,6 +3,7 @@
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-themes.h>
+#include <gui/win32/win32-touch.h>
 #include <boxes/box.h>
 #include <resources.h>
 
@@ -25,6 +26,13 @@ static void add_remove_window(int count) {
     if(ole_status != S_OK && ole_status != S_FALSE) {
       fprintf(stderr, "OleInitialize failed.\n");
     }
+    
+    Win32Touch::init();
+    
+    if(Win32Touch::EnableMouseInPointer)
+      Win32Touch::EnableMouseInPointer(TRUE);
+    else
+      fprintf(stderr, "[no EnableMouseInPointer]\n");
   }
   
   global_window_count += count;

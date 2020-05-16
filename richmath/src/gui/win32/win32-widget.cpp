@@ -1,3 +1,5 @@
+#define WINVER  0x603
+
 #include <gui/win32/win32-widget.h>
 #include <gui/win32/win32-themes.h>
 
@@ -154,8 +156,9 @@ void Win32Widget::after_construction() {
 //    };
 //    HRbool(stylus->SetDesiredPacketDescription(ARRAYSIZE(props), props));
 
-    /* RealTimeStylus disables single-finger WM_GESTURE */
-    HRbool(stylus->put_Enabled(TRUE));
+    /* RealTimeStylus disables single-finger WM_GESTURE on Windows 7 and all WM_GESTUREs on Windows 10.
+       RealTimeStylus also disables WM_POINTER */
+    //HRbool(stylus->put_Enabled(TRUE));
     
     HRbool(stylus->AddStylusAsyncPlugin(
              StylusUtil::get_stylus_sync_plugin_count(stylus),
@@ -163,9 +166,9 @@ void Win32Widget::after_construction() {
     fprintf(stderr, "[%lu RTS plugins]\n", StylusUtil::get_stylus_sync_plugin_count(stylus));
   }
   
-  /* Enabling WM_TOUCH disables WM_GESTURE */
+//  /* Enabling WM_TOUCH disables WM_GESTURE */
 //  if(Win32Touch::RegisterTouchWindow)
-//    Win32Touch::RegisterTouchWindow(_hwnd, 0);
+//    Win32Touch::RegisterTouchWindow(_hwnd, 0); // or TWF_FINETOUCH
 }
 
 Win32Widget::~Win32Widget() {
@@ -1275,13 +1278,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_MOUSEMOVE: {
           MouseEvent event;
           event.device = Win32Touch::get_mouse_message_source(&event.id);
-//          int cursorId;
-//          PointerEventSource source = Win32Touch::get_mouse_message_source(&cursorId);
-//          pmath_debug_print(
-//            "[WM_MOUSEMOVE: %s id %d]\n",
-//            source == PointerEventSource::Mouse ? "mouse" : (source == PointerEventSource::Pen ? "pen" : "touch"),
-//            cursorId);
-
+          
           event.left   = (wParam & MK_LBUTTON) != 0;
           event.middle = (wParam & MK_MBUTTON) != 0;
           event.right  = (wParam & MK_RBUTTON) != 0;
@@ -1335,7 +1332,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           }
         } break;
         
-      case WM_GESTURE:
+      case WM_GESTURE: pmath_debug_print("[WM_GESTURE]");
         if(Win32Touch::GetGestureInfo) {
           Win32Touch::GESTUREINFO gi;
           
@@ -1436,7 +1433,28 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 //          }
 //        }
 //        break;
-
+      
+      case WM_POINTERWHEEL: {
+          pmath_debug_print("[WM_POINTERWHEEL]");
+        } break;
+      case DM_POINTERHITTEST: {
+          pmath_debug_print("[DM_POINTERHITTEST]");
+        } break;
+      case WM_POINTERDOWN: {
+          if(Win32Touch::GetCurrentInputMessageSource) {
+            Win32Touch::INPUT_MESSAGE_SOURCE ims = {};
+            if(Win32Touch::GetCurrentInputMessageSource(&ims)) {
+              pmath_debug_print("[WM_POINTERDOWN device %x from %x]\n", ims.deviceType, ims.originId);
+              break;
+            }
+          }
+          
+          pmath_debug_print("[WM_POINTERDOWN]");
+        } break;
+      case WM_POINTERUP: {
+          pmath_debug_print("[WM_POINTERUP]");
+        } break;
+      
       case WM_TIMER: {
           switch(wParam) {
             case TID_SCROLL: {

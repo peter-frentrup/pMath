@@ -12,6 +12,8 @@ BOOL (WINAPI * Win32Touch::RegisterTouchWindow)(HWND, ULONG) = nullptr;
 BOOL (WINAPI * Win32Touch::UnregisterTouchWindow)(HWND) = nullptr;
 BOOL (WINAPI * Win32Touch::GetTouchInputInfo)(HANDLE, UINT, PTOUCHINPUT, int) = nullptr;
 BOOL (WINAPI * Win32Touch::CloseTouchInputHandle)(HANDLE) = nullptr;
+BOOL (WINAPI * Win32Touch::GetCurrentInputMessageSource)(INPUT_MESSAGE_SOURCE*) = nullptr;
+BOOL (WINAPI * Win32Touch::EnableMouseInPointer)(BOOL) = nullptr;
 
 HMODULE Win32Touch::user32 = nullptr;
 
@@ -35,7 +37,7 @@ Win32Touch::Win32Touch()
   : Base()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-  
+  fprintf(stderr, "Win32Touch init\n");
   if(user32)
     return;
   
@@ -64,6 +66,12 @@ Win32Touch::Win32Touch()
                         
     CloseTouchInputHandle = (BOOL (WINAPI *)(HANDLE))
                             GetProcAddress(user32, "CloseTouchInputHandle");
+    
+    GetCurrentInputMessageSource = (BOOL (WINAPI *)(INPUT_MESSAGE_SOURCE*))
+                                   GetProcAddress(user32, "GetCurrentInputMessageSource");
+    
+    EnableMouseInPointer = (BOOL (WINAPI *)(BOOL))
+                           GetProcAddress(user32, "EnableMouseInPointer");
   }
 }
 
@@ -78,4 +86,6 @@ Win32Touch::~Win32Touch() {
   UnregisterTouchWindow = nullptr;
   GetTouchInputInfo = nullptr;
   CloseTouchInputHandle = nullptr;
+  GetCurrentInputMessageSource = nullptr;
+  EnableMouseInPointer = nullptr;
 }
