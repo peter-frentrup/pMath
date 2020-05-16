@@ -83,6 +83,9 @@ static class Win32ControlPainterCache {
       // TODO: ABComposited::ADRESSBAND
       return get_theme_for_dpi(addressband_theme_for_dpi, L"AB::ADDRESSBAND", dpi);
     }
+    HANDLE addressband_edit_theme(int dpi) {
+      return get_theme_for_dpi(addressband_edit_theme_for_dpi, L"AddressComposited::Edit;Address::Edit;Edit", dpi);
+    }
     HANDLE button_theme(int dpi) {
       return get_theme_for_dpi(button_theme_for_dpi, L"BUTTON", dpi);
     }
@@ -123,6 +126,7 @@ static class Win32ControlPainterCache {
     
     void clear() {
       close_themes(addressband_theme_for_dpi);
+      close_themes(addressband_edit_theme_for_dpi);
       close_themes(button_theme_for_dpi);
       close_themes(edit_theme_for_dpi);
       close_themes(explorer_listview_theme_for_dpi);
@@ -172,6 +176,7 @@ static class Win32ControlPainterCache {
   
   private:
     Hashtable<int, HANDLE> addressband_theme_for_dpi;
+    Hashtable<int, HANDLE> addressband_edit_theme_for_dpi;
     Hashtable<int, HANDLE> button_theme_for_dpi;
     Hashtable<int, HANDLE> edit_theme_for_dpi;
     Hashtable<int, HANDLE> explorer_listview_theme_for_dpi;
@@ -246,7 +251,7 @@ void Win32ControlPainter::calc_container_size(
         extents->ascent +=  0.75;
         extents->descent += 0.75;
         return;
-      } 
+      }
       break;
       
     case ListViewItem:
@@ -427,7 +432,7 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
       return Color::from_bgr24(col);
     }
     
-    return Color::None;
+    //return Color::None;
   }
   
   switch(type) {
@@ -547,6 +552,11 @@ void Win32ControlPainter::draw_container(
         context, canvas, type, state, x, y, width, height);
       return;
       
+    case AddressBandInputField:
+      if(state == ControlState::Normal || state == ControlState::Hovered)
+        return;
+      break;
+    
     default: break;
   }
   
@@ -1733,6 +1743,10 @@ HANDLE Win32ControlPainter::get_control_theme(
       theme = w32cp_cache.addressband_theme(context->dpi());
       break;
       
+    case AddressBandInputField: 
+      theme = w32cp_cache.addressband_edit_theme(context->dpi());
+      break;
+      
     case AddressBandGoButton:
       theme = w32cp_cache.toolbar_go_theme(context->dpi());
       break;
@@ -1815,6 +1829,7 @@ HANDLE Win32ControlPainter::get_control_theme(
         }
       } break;
       
+    case AddressBandInputField:
     case InputField: {
         *theme_part = 6;//EP_EDITBORDER_NOSCROLL
         

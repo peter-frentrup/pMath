@@ -1,5 +1,5 @@
-#ifndef RICHMATH__GUI__WIN32__WIN32_GESTURES_H__INCLUDED
-#define RICHMATH__GUI__WIN32__WIN32_GESTURES_H__INCLUDED
+#ifndef RICHMATH__GUI__WIN32__WIN32_TOUCH_H__INCLUDED
+#define RICHMATH__GUI__WIN32__WIN32_TOUCH_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -52,7 +52,28 @@ namespace richmath {
         DWORD     cxContact;
         DWORD     cyContact;
       } TOUCHINPUT, *PTOUCHINPUT;
-    
+      
+      enum INPUT_MESSAGE_DEVICE_TYPE  {
+        IMDT_UNAVAILABLE        = 0x00000000,       // not specified
+        IMDT_KEYBOARD           = 0x00000001,       // from keyboard
+        IMDT_MOUSE              = 0x00000002,       // from mouse
+        IMDT_TOUCH              = 0x00000004,       // from touch
+        IMDT_PEN                = 0x00000008,       // from pen
+        IMDT_TOUCHPAD           = 0x00000010,       // from touchpad, since Windows 8.1, does not seem to work during WM_MOUSEMOVE
+     };
+      
+      enum INPUT_MESSAGE_ORIGIN_ID {
+        IMO_UNAVAILABLE = 0x00000000,  // not specified
+        IMO_HARDWARE    = 0x00000001,  // from a hardware device or injected by a UIAccess app
+        IMO_INJECTED    = 0x00000002,  // injected via SendInput() by a non-UIAccess app
+        IMO_SYSTEM      = 0x00000004,  // injected by the system
+      };
+      
+      struct INPUT_MESSAGE_SOURCE {
+        INPUT_MESSAGE_DEVICE_TYPE deviceType;
+        INPUT_MESSAGE_ORIGIN_ID   originId;
+      };
+      
     public:
       static BOOL (WINAPI *GetGestureInfo)(HANDLE, PGESTUREINFO);
       static BOOL (WINAPI *CloseGestureInfoHandle)(HANDLE);
@@ -63,6 +84,9 @@ namespace richmath {
       static BOOL (WINAPI *UnregisterTouchWindow)(HWND);
       static BOOL (WINAPI *GetTouchInputInfo)(HANDLE, UINT, PTOUCHINPUT, int);
       static BOOL (WINAPI *CloseTouchInputHandle)(HANDLE);
+      
+      static BOOL (WINAPI *GetCurrentInputMessageSource)(INPUT_MESSAGE_SOURCE*);
+      static BOOL (WINAPI *EnableMouseInPointer)(BOOL fEnable);
       
       static DeviceKind get_mouse_message_source(int *id) {
         return get_mouse_message_source(id, ::GetMessageExtraInfo());
@@ -149,4 +173,4 @@ namespace richmath {
 }
 
 
-#endif // RICHMATH__GUI__WIN32__WIN32_GESTURES_H__INCLUDED
+#endif // RICHMATH__GUI__WIN32__WIN32_TOUCH_H__INCLUDED

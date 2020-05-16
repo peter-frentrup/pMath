@@ -642,17 +642,22 @@ void ControlPainter::container_content_move(
 ) {
   switch(type) {
     case GenericButton:
-    case PaletteButton:
     case PushButton:
-    case DefaultPushButton:
-    case AddressBandGoButton: {
+    case DefaultPushButton: {
         if(state == PressedHovered) {
           *x += 0.75f;
           *y += 0.75f;
         }
       } break;
+    
+    case PaletteButton:
+    case AddressBandGoButton: {
+        if(state == PressedHovered) {
+          *x += 0.75f;
+        }
+      } break;
       
-    default: ;
+    default: break;
   }
 }
 

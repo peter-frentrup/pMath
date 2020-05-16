@@ -226,23 +226,23 @@ Document({
       Section(
        BoxData({"Panel", "(", {
           {"Grid", "(", {
-            "{", {
-             "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), ",", 
-                "String", ",", {"Appearance", "\[Rule]", 
-                 ComplexStringBox("\"AddressBand\"")}}, ")"}, ",", {
-               "Button", "(", {ComplexStringBox("\"Go\""), ",", "None", ",", {
-                 "ButtonFrame", "\[Rule]", 
-                 ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, "}"}, 
-           ")"}, ",", {"Appearance", "\[Rule]", 
-           ComplexStringBox("\"AddressBand\"")}}, ")"}), "Input", 
-       SectionLabel -> "in [1]:"), 
+            {"{", {
+              "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), ",", 
+                 "String", ",", {"Appearance", "\[Rule]", 
+                  ComplexStringBox("\"AddressBand\"")}}, ")"}, ",", {
+                "Button", "(", {ComplexStringBox("\"Go\""), ",", "None", ",", {
+                  "ButtonFrame", "\[Rule]", 
+                  ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, "}"}, 
+            ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+           "Appearance", "\[Rule]", ComplexStringBox("\"AddressBand\"")}}, 
+         ")"}), "Input", SectionLabel -> "in [18]:"), 
       Section(
        BoxData(
         PanelBox(
          TagBox(
           GridBox({{InputFieldBox("abc", String, Appearance -> "AddressBand"), 
              ButtonBox(ComplexStringBox("\"Go\""), 
-              ButtonFrame -> "AddressBandGo")}}), "Grid"), 
-         Appearance -> "AddressBand")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [1]:")}, All)}, All)}, 
+              ButtonFrame -> "AddressBandGo")}}, GridBoxColumnSpacing -> 0), 
+          "Grid"), Appearance -> "AddressBand")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [18]:")}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

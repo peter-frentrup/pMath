@@ -53,6 +53,9 @@ ControlState PanelBox::calc_state(Context *context) {
     return Pressed;
   }
   
+  if(mouse_inside)
+    return Hot;
+  
   return base::calc_state(context);
 }
 
