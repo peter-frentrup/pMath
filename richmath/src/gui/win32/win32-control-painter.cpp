@@ -587,8 +587,6 @@ void Win32ControlPainter::draw_container(
   canvas->align_point(&x, &y, false);
   
   HDC dc = safe_cairo_win32_surface_get_dc(canvas->target());
-  cairo_surface_t *surface = nullptr;
-  
   if(dc) {
     cairo_matrix_t ctm = canvas->get_matrix();
     
@@ -609,38 +607,7 @@ void Win32ControlPainter::draw_container(
     }
   }
   
-  if(!dc) {
-    if( Win32Themes::IsThemeActive       &&
-        Win32Themes::IsThemeActive()     &&
-        Win32Themes::IsCompositionActive && /* XP not enough */
-        Win32Themes::OpenThemeData       &&
-        Win32Themes::CloseThemeData      &&
-        Win32Themes::DrawThemeBackground)
-    {
-      surface = cairo_win32_surface_create_with_dib(
-                  CAIRO_FORMAT_ARGB32,
-                  w,
-                  h);
-    }
-    else {
-      surface = cairo_win32_surface_create_with_dib(
-                  CAIRO_FORMAT_RGB24,
-                  w,
-                  h);
-    }
-    
-    dc = safe_cairo_win32_surface_get_dc(surface);
-    if(!dc) {
-      ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
-      return;
-    }
-  }
-  
-  RECT rect;
-  rect.left   = dc_x;
-  rect.top    = dc_y;
-  rect.right  = dc_x + w;
-  rect.bottom = dc_y + h;
+  cairo_surface_t *surface = nullptr;
   
   bool need_vector_overlay = false;
   if( Win32Themes::OpenThemeData && 
@@ -651,7 +618,27 @@ void Win32ControlPainter::draw_container(
     HANDLE theme = get_control_theme(context, type, state, &_part, &_state);
     if(!theme)
       goto FALLBACK;
-      
+    
+    if(!dc) {
+      surface = cairo_win32_surface_create_with_dib(
+                  CAIRO_FORMAT_ARGB32,
+                  w,
+                  h);
+      dc = safe_cairo_win32_surface_get_dc(surface);
+      if(!dc) {
+        cairo_surface_destroy(surface);
+        surface = nullptr;
+        ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
+        return;
+      }
+    }
+    
+    RECT rect;
+    rect.left   = dc_x;
+    rect.top    = dc_y;
+    rect.right  = dc_x + w;
+    rect.bottom = dc_y + h;
+  
     bool two_times = false;
     if(canvas->glass_background) {
       switch(type) {
@@ -804,6 +791,34 @@ void Win32ControlPainter::draw_container(
   }
   else {
   FALLBACK: ;
+    if(dc) {
+      if(cairo_surface_get_content(canvas->target()) != CAIRO_CONTENT_COLOR) {
+        dc = nullptr;
+        dc_x = 0;
+        dc_y = 0;
+      }
+    }
+    
+    if(!dc) {
+      surface = cairo_win32_surface_create_with_dib(
+                  CAIRO_FORMAT_RGB24,
+                  w,
+                  h);
+      dc = safe_cairo_win32_surface_get_dc(surface);
+      if(!dc) {
+        cairo_surface_destroy(surface);
+        surface = nullptr;
+        ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
+        return;
+      }
+    }
+    
+    RECT rect;
+    rect.left   = dc_x;
+    rect.top    = dc_y;
+    rect.right  = dc_x + w;
+    rect.bottom = dc_y + h;
+    
     switch(type) {
       case NoContainerType:
       case FramelessButton:
