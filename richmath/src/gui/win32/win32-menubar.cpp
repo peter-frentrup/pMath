@@ -3,6 +3,7 @@
 
 #include <gui/win32/win32-menubar.h>
 
+#include <algorithm>
 #include <cstdio>
 #include <cctype>
 
@@ -28,6 +29,10 @@
 #endif
 
 #define WM_MY_SHOWMENUITEM   (WM_USER + 1)
+
+#ifdef max
+#  undef max
+#endif
 
 using namespace richmath;
 
@@ -104,8 +109,10 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
   reload_image_list();
   
+  _num_items = _menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0;
+  _visible_items = _num_items;
   
-  Array<TBBUTTON>  buttons(_menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0);
+  Array<TBBUTTON>  buttons(_num_items + 3);
   Array<wchar_t[100]> texts(buttons.length());
   
   for(int i = 0; i < buttons.length(); ++i) {
@@ -129,22 +136,26 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     buttons[i].iString = (INT_PTR)texts[i];
   }
   
-  separator_index = buttons.length();
-  buttons.length(separator_index + 2);
-  buttons[separator_index].iBitmap = I_IMAGENONE;
-  buttons[separator_index].idCommand = separator_index + 1;
-  buttons[separator_index].fsState = TBSTATE_ENABLED;
-  buttons[separator_index].fsStyle = BTNS_BUTTON;
-  buttons[separator_index].dwData = 0;
-  buttons[separator_index].iString = (INT_PTR)L"";
+  buttons[overflow_index()].iBitmap = I_IMAGENONE;
+  buttons[overflow_index()].idCommand = overflow_index() + 1;
+  buttons[overflow_index()].fsState = TBSTATE_ENABLED | TBSTATE_HIDDEN;
+  buttons[overflow_index()].fsStyle = BTNS_AUTOSIZE | BTNS_DROPDOWN;
+  buttons[overflow_index()].dwData = 0;
+  buttons[overflow_index()].iString = (INT_PTR)L"\xbb";
   
-  pin_index = separator_index + 1;
-  buttons[pin_index].iBitmap = 0;
-  buttons[pin_index].idCommand = pin_index + 1;
-  buttons[pin_index].fsState = TBSTATE_ENABLED;
-  buttons[pin_index].fsStyle = BTNS_AUTOSIZE | BTNS_BUTTON | BTNS_CHECK;
-  buttons[pin_index].dwData = 0;
-  buttons[pin_index].iString = (INT_PTR)L"";
+  buttons[separator_index()].iBitmap = I_IMAGENONE;
+  buttons[separator_index()].idCommand = separator_index() + 1;
+  buttons[separator_index()].fsState = TBSTATE_ENABLED;
+  buttons[separator_index()].fsStyle = BTNS_BUTTON;
+  buttons[separator_index()].dwData = 0;
+  buttons[separator_index()].iString = (INT_PTR)L"";
+  
+  buttons[pin_index()].iBitmap = 0;
+  buttons[pin_index()].idCommand = pin_index() + 1;
+  buttons[pin_index()].fsState = TBSTATE_ENABLED;
+  buttons[pin_index()].fsStyle = BTNS_AUTOSIZE | BTNS_BUTTON | BTNS_CHECK;
+  buttons[pin_index()].dwData = 0;
+  buttons[pin_index()].iString = (INT_PTR)L"";
   
   SendMessageW(_hwnd, TB_ADDBUTTONSW,
                (WPARAM)buttons.length(),
@@ -222,7 +233,7 @@ void Win32Menubar::appearence(MenuAppearence value) {
       break;
   }
   
-  for(int i = separator_index; i <= pin_index; ++i) {
+  for(int i = separator_index(); i <= pin_index(); ++i) {
     TBBUTTONINFOW info;
     info.cbSize = sizeof(info);
     info.dwMask = TBIF_BYINDEX | TBIF_STATE;
@@ -252,7 +263,7 @@ bool Win32Menubar::is_pinned() {
   info.cbSize = sizeof(info);
   info.dwMask = TBIF_BYINDEX | TBIF_STATE;
   
-  SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index, (LPARAM)&info);
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index(), (LPARAM)&info);
   
   return (info.fsState & TBSTATE_CHECKED) != 0;
 }
@@ -276,7 +287,26 @@ void Win32Menubar::show_menu(int item) {
   
   DWORD cmd = 0;
   if(!current_menubar || current_menubar == this) {
-    current_popup = GetSubMenu(_menu->hmenu(), item - 1);
+    HMENU tmp_menu = nullptr;
+    if(item == overflow_index() + 1) {
+      tmp_menu = CreatePopupMenu();
+      if(_visible_items < _num_items) {
+        for(int i = _visible_items; i < _num_items; ++i) {
+          wchar_t text[100];
+          GetMenuStringW(_menu->hmenu(), i, text, sizeof(text)/sizeof(text[0]), MF_BYPOSITION);
+          text[sizeof(text)/sizeof(text[0]) - 1] = L'\0';
+          AppendMenuW(tmp_menu, MF_POPUP, (UINT_PTR)GetSubMenu(_menu->hmenu(), i), text);
+        }
+      }
+      else {
+        AppendMenuW(tmp_menu, MF_DISABLED, 0, L"(empty)");
+      }
+      
+      current_popup = tmp_menu;
+    }
+    else
+      current_popup = GetSubMenu(_menu->hmenu(), item - 1);
+    
     current_item = item;
     current_menubar = this;
     
@@ -328,6 +358,12 @@ void Win32Menubar::show_menu(int item) {
     
     current_item = 0;
     current_popup = nullptr;
+    if(tmp_menu) {
+      for(int i = GetMenuItemCount(tmp_menu)-1; i >= 0; --i) {
+        RemoveMenu(tmp_menu, i, MF_BYPOSITION);
+      }
+      DestroyMenu(tmp_menu);
+    }
   }
   
   if(cmd) {
@@ -467,7 +503,7 @@ void Win32Menubar::theme_changed() {
   }
   
   // reset the texts to force recalulating button sizes
-  for(int i = 0; i < separator_index; ++i) {
+  for(int i = 0; i < separator_index(); ++i) {
     wchar_t text[100];
     TBBUTTONINFOW info = {0};
     info.cbSize = sizeof(info);
@@ -488,21 +524,80 @@ void Win32Menubar::resized() {
   RECT rect;
   GetClientRect(_hwnd, &rect);
   
-  SIZE size;
-  SendMessageW(_hwnd, TB_GETMAXSIZE, 0, (LPARAM)&size);
-  
   TBBUTTONINFOW info;
   memset(&info, 0, sizeof(info));
   info.cbSize = sizeof(info);
   info.dwMask = TBIF_BYINDEX | TBIF_SIZE;
-  SendMessageW(_hwnd, TB_GETBUTTONINFOW, separator_index, (LPARAM)&info);
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index(), (LPARAM)&info);
+  int max_width = rect.right - info.cx;
+  
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, overflow_index(), (LPARAM)&info);
+  max_width-= info.cx;
+  
+  int w = 0;
+  _visible_items = 0;
+  while(_visible_items < _num_items) {
+    info.cx = 0;
+    SendMessageW(_hwnd, TB_GETBUTTONINFOW, _visible_items, (LPARAM)&info);
+    if(w + info.cx > max_width) 
+      break;
+    
+    w+= info.cx;
+    ++_visible_items;
+  }
+  
+  info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+  for(int i = 0; i < _visible_items; ++i) {
+    SendMessageW(_hwnd, TB_GETBUTTONINFOW, i, (LPARAM)&info);
+    if(info.fsState & TBSTATE_HIDDEN) {
+      info.fsState &= ~TBSTATE_HIDDEN;
+      SendMessageW(_hwnd, TB_SETBUTTONINFOW, i, (LPARAM)&info);
+    }
+  }
+  
+  for(int i = _visible_items; i < _num_items; ++i) {
+    SendMessageW(_hwnd, TB_GETBUTTONINFOW, i, (LPARAM)&info);
+    if(!(info.fsState & TBSTATE_HIDDEN)) {
+      info.fsState |= TBSTATE_HIDDEN;
+      SendMessageW(_hwnd, TB_SETBUTTONINFOW, i, (LPARAM)&info);
+    }
+  }
+  
+  if(_visible_items < _num_items) {
+    SendMessageW(_hwnd, TB_GETBUTTONINFOW, overflow_index(), (LPARAM)&info);
+    if(info.fsState & TBSTATE_HIDDEN) {
+      info.fsState &= ~TBSTATE_HIDDEN;
+      SendMessageW(_hwnd, TB_SETBUTTONINFOW, overflow_index(), (LPARAM)&info);
+    }
+  }
+  else {
+    SendMessageW(_hwnd, TB_GETBUTTONINFOW, overflow_index(), (LPARAM)&info);
+    if(!(info.fsState & TBSTATE_HIDDEN)) {
+      info.fsState |= TBSTATE_HIDDEN;
+      SendMessageW(_hwnd, TB_SETBUTTONINFOW, overflow_index(), (LPARAM)&info);
+    }
+  }
+  
+//  info.dwMask = TBIF_BYINDEX | TBIF_SIZE;
+//  info.cx = std::max(0, max_width - w);
+//  SendMessageW(_hwnd, TB_SETBUTTONINFOW, separator_index(), (LPARAM)&info);
+
+
+  SIZE size;
+  SendMessageW(_hwnd, TB_GETMAXSIZE, 0, (LPARAM)&size);
+  
+  //TBBUTTONINFOW info;
+  //memset(&info, 0, sizeof(info));
+  //info.cbSize = sizeof(info);
+  info.dwMask = TBIF_BYINDEX | TBIF_SIZE;
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, separator_index(), (LPARAM)&info);
   
   int new_sep_width = info.cx + rect.right - size.cx;
   if(new_sep_width < 1)
     new_sep_width = 1;
     
   info.cx = new_sep_width;
-  SendMessageW(_hwnd, TB_SETBUTTONINFOW, separator_index, (LPARAM)&info);
+  SendMessageW(_hwnd, TB_SETBUTTONINFOW, separator_index(), (LPARAM)&info);
 }
 
 bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam) {
@@ -547,7 +642,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                     current_item != hi->idNew                   &&
                     hi->idNew)
                 {
-                  if(hi->idNew <= separator_index) {
+                  if(hi->idNew <= _num_items + 1) {
                     if(current_item)
                       next_item = hi->idNew;
                     
@@ -569,11 +664,11 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                 if(current_popup == nullptr) {
                   int index = SendMessageW(_hwnd, TB_HITTEST, 0, (LPARAM)&pt);
                   
-                  if(index == pin_index) {
+                  if(index == pin_index()) {
                     TBBUTTONINFOW info;
                     info.cbSize = sizeof(info);
                     info.dwMask = TBIF_BYINDEX | TBIF_STATE;
-                    SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index, (LPARAM)&info);
+                    SendMessageW(_hwnd, TB_GETBUTTONINFOW, index, (LPARAM)&info);
                     
                     info.dwMask = TBIF_BYINDEX | TBIF_IMAGE;
                     if(info.fsState & TBSTATE_CHECKED) {
@@ -585,9 +680,9 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                       set_focus(0);
                     }
                     
-                    SendMessageW(_hwnd, TB_SETBUTTONINFOW, pin_index, (LPARAM)&info);
+                    SendMessageW(_hwnd, TB_SETBUTTONINFOW, index, (LPARAM)&info);
                   }
-                  else if(index < 0 || index == separator_index) 
+                  else if(index < 0 || index == separator_index()) 
                     kill_focus();
                 }
                 
@@ -707,10 +802,10 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                           draw->clrText = GetSysColor(COLOR_GRAYTEXT);
                       }
                         
-                      if((int)draw->nmcd.dwItemSpec == separator_index + 1) {
+                      if((int)draw->nmcd.dwItemSpec == separator_index() + 1) {
                         *result = CDRF_SKIPDEFAULT;
                       }
-                      else if((int)draw->nmcd.dwItemSpec > separator_index) {
+                      else if((int)draw->nmcd.dwItemSpec == pin_index() + 1) {
                       
                         TBBUTTONINFOW info;
                         info.cbSize = sizeof(info);

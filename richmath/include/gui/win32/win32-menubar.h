@@ -70,8 +70,11 @@ namespace richmath {
       int next_item;
       int hot_item;
       
-      int separator_index;
-      int pin_index;
+      int _visible_items;
+      int _num_items;
+      int overflow_index() { return _num_items;}
+      int separator_index() { return _num_items + 1;}
+      int pin_index() { return _num_items + 2; };
       
       int dpi;
       
