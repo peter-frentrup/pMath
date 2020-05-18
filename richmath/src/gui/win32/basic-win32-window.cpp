@@ -88,6 +88,9 @@ namespace {
   } static_resources;
 }
 
+// Microsoft Calculator, Settings Pannel: 0xE6E6E6
+static Color CustomTitlebarColorization = Color::from_rgb24(0xE6E6E6);//Color::None;
+
 static bool is_window_cloaked(HWND hwnd);
 static bool is_window_visible_on_screen(HWND hwnd);
 
@@ -1237,7 +1240,10 @@ void BasicWin32Window::on_theme_changed() {
 
   if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive()) {
     _glass_enabled = true;
-    _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLongW(_hwnd, GWL_EXSTYLE));
+//    if(Win32Themes::use_win10_transparency())
+//      _themed_frame = true;
+//    else
+      _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLongW(_hwnd, GWL_EXSTYLE));
   }
   else if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
     _glass_enabled = Win32Themes::current_theme_is_aero();
@@ -1315,7 +1321,16 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
   else if(use_custom_system_buttons()) {
     Win32Themes::MARGINS margins;
     get_nc_margins(hwnd, &margins, Win32HighDpi::get_dpi_for_window(hwnd));
-    minimize->bottom = maximize->bottom = close->bottom = close->top + margins.cyTopHeight - 2;
+    if(WS_EX_TOOLWINDOW & GetWindowLongW(hwnd, GWL_EXSTYLE)) {
+      int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
+      close->bottom = close->top + margins.cyTopHeight - Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      close->top += Win32HighDpi::get_system_metrics_for_dpi(SM_CYFIXEDFRAME, dpi) +
+                    Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      close->right-= 1;
+    }
+    else {
+      minimize->bottom = maximize->bottom = close->bottom = close->top + margins.cyTopHeight - 2;
+    }
   }
   
   MapWindowPoints(nullptr, hwnd, (POINT*)minimize, 2);
@@ -1351,10 +1366,19 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
       }
     }
   }
-  else if(use_custom_system_buttons()) { // is custom titlebar
+  else if(use_custom_system_buttons()) {
     Win32Themes::MARGINS margins;
     get_nc_margins(hwnd, &margins, Win32HighDpi::get_dpi_for_window(hwnd));
-    rect->bottom = rect->top + margins.cyTopHeight - 2;
+    if(WS_EX_TOOLWINDOW & GetWindowLongW(hwnd, GWL_EXSTYLE)) {
+      int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
+      rect->bottom = rect->top + margins.cyTopHeight - Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      rect->top += Win32HighDpi::get_system_metrics_for_dpi(SM_CYFIXEDFRAME, dpi) +
+                    Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      rect->right-= 1;
+    }
+    else {
+      rect->bottom = rect->top + margins.cyTopHeight - 2;
+    }
   }
   
   MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
@@ -1422,23 +1446,32 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
 //      // TODO: only use text-on-accent-backgound color if HKCU\SOFTWARE\Microsoft\Windows\DWM\ColorPrevalence = 1
 //      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
 //    }
-    if(active) {
-      Win32Themes::ColorizationInfo colorization;
-      if(Win32Themes::try_read_win10_colorization(&colorization)) {
-        if(colorization.has_accent_color_in_active_titlebar)
-          return colorization.text_on_accent_color;
+    if(Win32Themes::is_windows_10_or_newer()) {
+      if(active) {
+        if(CustomTitlebarColorization.is_valid()) { //return GetSysColor(COLOR_BTNTEXT);
+          if(CustomTitlebarColorization.is_light())
+            return 0x000000;
+          else
+            return 0xFFFFFF;
+        }
+        
+        Win32Themes::ColorizationInfo colorization;
+        if(Win32Themes::try_read_win10_colorization(&colorization)) {
+          if(colorization.has_accent_color_in_active_titlebar)
+            return colorization.text_on_accent_color;
+        }
       }
-    }
-    else {
-      /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
-         What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
-         
-         https://github.com/res2k/Windows10Colors/blob/master/Windows10Colors/Windows10Colors.cpp#L544
-         blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
-         Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
-       */
-      if(Win32Themes::is_windows_10_or_newer()) {
+      else {
+        /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
+           What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
+           
+           https://github.com/res2k/Windows10Colors/blob/master/Windows10Colors/Windows10Colors.cpp#L544
+           blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
+           Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
+         */
         return 0x999999;
+        // Microsoft Calculator uses 0x7A7A7A when inactive (on 0xE6E6E6 background)
+        // Microsoft Edge       uses 0x7A7A7A when inactive (on 0xCCCCCC background)
       }
     }
     
@@ -1591,18 +1624,22 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
     else if(use_custom_system_buttons()) {
       cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_SOURCE);
       
-      Win32Themes::ColorizationInfo colorization;
-      if(Win32Themes::try_read_win10_colorization(&colorization)) {
-        if(_active && colorization.has_accent_color_in_active_titlebar) 
-          bg_color = Color::from_rgb24(colorization.accent_color);
-        else
-          bg_color = Color::White;
+      if(CustomTitlebarColorization.is_valid()) {
+        bg_color = CustomTitlebarColorization;
       }
-      else if(_active)
-        bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
-      else
-        bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
-        
+      else {
+        Win32Themes::ColorizationInfo colorization;
+        if(Win32Themes::try_read_win10_colorization(&colorization)) {
+          if(_active && colorization.has_accent_color_in_active_titlebar) 
+            bg_color = Color::from_rgb24(colorization.accent_color);
+          else
+            bg_color = Color::White;
+        }
+        else if(_active)
+          bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
+        else
+          bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
+      }
       //cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
       //canvas->set_color(Color::Black, 0.0);
       canvas->set_color(bg_color, Win32Themes::use_win10_transparency() ? (_active ? 0.75 : 1.0) : 1.0);

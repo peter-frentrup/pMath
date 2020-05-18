@@ -44,6 +44,20 @@ namespace richmath {
       bool is_valid() const { return _value >= 0; }
       bool is_none() const { return _value == -1; }
       
+      bool is_light() const { return is_valid() && gray() >= 0.5; }
+      bool is_dark() const {  return is_valid() && gray() < 0.5; }
+      double gray() const { 
+        if(!is_valid())
+          return 0.0;
+        
+        int rgb = to_rgb24();
+        int red   = (rgb & 0xFF0000) >> 16;
+        int green = (rgb & 0x00FF00) >> 8;
+        int blue  = (rgb & 0x0000FF);
+        
+        return (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
+      }
+      
       double red() const { 
         if(!is_valid())
           return 0.0;
