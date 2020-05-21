@@ -341,11 +341,11 @@ DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *pa
   if(!active)
     return 0x999999u;
     
-  DWORD accent_color = params->color & 0xFFFFFFu;
+  DWORD accent_color_rgb = params->color & 0xFFFFFFu;
   
-  int red   = (accent_color & 0xFF0000) >> 16;
-  int green = (accent_color & 0x00FF00) >> 8;
-  int blue  = (accent_color & 0x0000FF);
+  int red   = (accent_color_rgb & 0xFF0000) >> 16;
+  int green = (accent_color_rgb & 0x00FF00) >> 8;
+  int blue  = (accent_color_rgb & 0x0000FF);
   
   double gray = (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
   if(gray >= 0.5)
@@ -363,26 +363,26 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   HKEY key = nullptr;
   LONG status = RegOpenKeyExW(HKEY_CURRENT_USER, L"SOFTWARE\\Microsoft\\Windows\\DWM", 0, KEY_READ, &key);
   if(status == ERROR_SUCCESS) {
-    DWORD accent_color_bgr = 0;
+    info->accent_color = 0;
     DWORD size = sizeof(DWORD);
-    LONG status_ac = RegGetValueW(key, nullptr, L"AccentColor", RRF_RT_REG_DWORD, nullptr, &accent_color_bgr, &size);
+    LONG status_ac = RegGetValueW(key, nullptr, L"AccentColor", RRF_RT_REG_DWORD, nullptr, &info->accent_color, &size);
+    info->accent_color &= 0xFFFFFFu;
     
     DWORD color_prevalence = 0;
     size = sizeof(DWORD);
     LONG status_cp = RegGetValueW(key, nullptr, L"ColorPrevalence", RRF_RT_REG_DWORD, nullptr, &color_prevalence, &size);
     
     if(status_ac == ERROR_SUCCESS && status_cp == ERROR_SUCCESS) {
-      int blue  = (accent_color_bgr & 0xFF0000) >> 16;
-      int green = (accent_color_bgr & 0x00FF00) >> 8;
-      int red   = (accent_color_bgr & 0x0000FF);
+      int blue  = (info->accent_color & 0xFF0000) >> 16;
+      int green = (info->accent_color & 0x00FF00) >> 8;
+      int red   = (info->accent_color & 0x0000FF);
       
       double gray = (30.0 * red + 59.0 * green + 11.0 * blue) / 25500.0;
       if(gray >= 0.5)
         info->text_on_accent_color = 0x000000;
       else
         info->text_on_accent_color = 0xFFFFFF;
-        
-      info->accent_color = (red << 16) | (green << 8) | blue;
+      
       info->has_accent_color_in_active_titlebar = color_prevalence == 1;
       result = true;
     }

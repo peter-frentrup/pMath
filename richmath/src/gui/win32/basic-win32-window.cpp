@@ -89,7 +89,7 @@ namespace {
 }
 
 // Microsoft Calculator, Settings Pannel: 0xE6E6E6
-static Color CustomTitlebarColorization = Color::from_rgb24(0xE6E6E6);//Color::None;
+static Color CustomTitlebarColorization = Color::from_rgb24(0xE6E6E6);//Color::None;//
 
 static bool is_window_cloaked(HWND hwnd);
 static bool is_window_visible_on_screen(HWND hwnd);
@@ -101,10 +101,10 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
       base::after_construction();
       // for debugging purposes:
       SetWindowTextW(_hwnd, L"BlurBehind");
-      enable_blur();
+      enable_blur(0xff0000FFu);
     }
     
-    bool enable_blur() {
+    bool enable_blur(COLORREF abgr) {
       if(!Win32Themes::SetWindowCompositionAttribute)
         return false;
       
@@ -113,7 +113,7 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
       Win32Themes::AccentPolicy accent_policy = {};
       accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
       accent_policy.flags = 2; // mix with gradient_color
-      accent_policy.gradient_color = 0x000000FF; // TODO: colorization color and alpha channel
+      accent_policy.gradient_color = abgr;
       accent_policy.animation_id = 0;
       
       Win32Themes::WINCOMPATTRDATA data = {};
@@ -203,7 +203,34 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
           hide();
       }
     }
-  
+    
+    void colorize(bool active) {
+      DWORD alpha = 0xFFu;
+      if(Win32Themes::use_win10_transparency() && active) {
+        alpha = 0xBFu; // 0.75 * 0xFF
+      }
+      
+      COLORREF bgr;
+      if(CustomTitlebarColorization.is_valid()) {
+        bgr = CustomTitlebarColorization.to_bgr24();
+      }
+      else {
+        Win32Themes::ColorizationInfo colorization;
+        if(Win32Themes::try_read_win10_colorization(&colorization)) {
+          if(active && colorization.has_accent_color_in_active_titlebar) 
+            bgr = colorization.accent_color;
+          else
+            bgr = 0xFFFFFFu;
+        }
+        else if(active)
+          bgr = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+        else
+          bgr = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
+      }
+      
+      enable_blur((alpha << 24u) | bgr);
+    }
+    
   private:
     BasicWin32Window *_owner;
 };
@@ -1621,31 +1648,6 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         canvas->paint();
       }
     }
-    else if(use_custom_system_buttons()) {
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_SOURCE);
-      
-      if(CustomTitlebarColorization.is_valid()) {
-        bg_color = CustomTitlebarColorization;
-      }
-      else {
-        Win32Themes::ColorizationInfo colorization;
-        if(Win32Themes::try_read_win10_colorization(&colorization)) {
-          if(_active && colorization.has_accent_color_in_active_titlebar) 
-            bg_color = Color::from_rgb24(colorization.accent_color);
-          else
-            bg_color = Color::White;
-        }
-        else if(_active)
-          bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
-        else
-          bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
-      }
-      //cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-      //canvas->set_color(Color::Black, 0.0);
-      canvas->set_color(bg_color, Win32Themes::use_win10_transparency() ? (_active ? 0.75 : 1.0) : 1.0);
-      canvas->paint();
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
-    }
     else {
       cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
       canvas->set_color(Color::Black, 0.0);
@@ -1766,27 +1768,49 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         
         get_system_button_bounds(_hwnd, &min_rect, &max_rect, &close_rect);
         
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
         Color fg_color = Color::from_bgr24(title_font_color(_glass_enabled, Win32HighDpi::get_dpi_for_window(_hwnd), _active));
         
         add_rect(canvas, min_rect);
-        canvas->set_color(bg_color, buttons_alpha);
+        if(bg_color.is_valid()) {
+          canvas->set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        }
+        else{
+          canvas->set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        }
         if(_hit_test_mouse_over == HTMINBUTTON) {
           canvas->fill_preserve();
           canvas->set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
         }
         canvas->fill();
         
         add_rect(canvas, max_rect);
-        canvas->set_color(bg_color, buttons_alpha);
+        if(bg_color.is_valid()) {
+          canvas->set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        }
+        else{
+          canvas->set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        }
         if(_hit_test_mouse_over == HTMAXBUTTON) {
           canvas->fill_preserve();
           canvas->set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
         }
         canvas->fill();
         
         add_rect(canvas, close_rect);
-        canvas->set_color(bg_color, buttons_alpha);
+        if(bg_color.is_valid()) {
+          canvas->set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        }
+        else{
+          canvas->set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        }
         if(_hit_test_mouse_over == HTCLOSE) {
           // TODO: obtain this color from Windows
           static const Color CloseButtonRed = Color::from_rgb24(0xE81123);
@@ -1795,9 +1819,8 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
           canvas->set_color(
             CloseButtonRed, 
             (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.6 : 1.0);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
         }
-        else
-          canvas->set_color(bg_color, buttons_alpha);
         canvas->fill();
       }
       else {
@@ -1810,8 +1833,14 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
 //        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
 //        canvas->fill_preserve();
         
-        canvas->set_color(bg_color, buttons_alpha);
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        if(bg_color.is_valid()) {
+          canvas->set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+        }
+        else{
+          canvas->set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+        }
         canvas->fill();
       }
     } 
@@ -2030,10 +2059,11 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_NCACTIVATE: {
         _active = wParam;
-
-        if( !Win32Themes::IsCompositionActive ||
-            !Win32Themes::IsCompositionActive())
-        {
+        
+        if(_blur_behind_window) 
+          _blur_behind_window->colorize(wParam);
+        
+        if( !Win32Themes::IsCompositionActive || !Win32Themes::IsCompositionActive()) {
           struct redraw_glass_info_t info;
 
           get_glassfree_rect(&info.inner);
