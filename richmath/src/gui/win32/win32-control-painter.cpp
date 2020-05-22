@@ -341,6 +341,9 @@ void Win32ControlPainter::calc_container_size(
       }
       break;
       
+    case TabHeadBackground:
+      return;
+    
     default: break;
   }
   
@@ -350,14 +353,12 @@ void Win32ControlPainter::calc_container_size(
     // TMT_SIZINGMARGINS  = 3601
     // TMT_CONTENTMARGINS = 3602
     // TMT_CAPTIONMARGINS = 3603
-    if(theme
-        && SUCCEEDED(
-          Win32Themes::GetThemeMargins(
-            theme, nullptr, theme_part, theme_state, 3602, nullptr, &mar))
-        && (mar.cxLeftWidth > 0
-            || mar.cxRightWidth > 0
-            || mar.cyBottomHeight > 0
-            || mar.cyTopHeight > 0))
+    if( theme && 
+        SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, theme_part, theme_state, 3602, nullptr, &mar)) && 
+        ( mar.cxLeftWidth > 0 || 
+          mar.cxRightWidth > 0 || 
+          mar.cyBottomHeight > 0 || 
+          mar.cyTopHeight > 0))
     {
       extents->width +=   0.75f * (mar.cxLeftWidth + mar.cxRightWidth);
       extents->ascent +=  0.75f * mar.cyTopHeight;
@@ -374,6 +375,12 @@ void Win32ControlPainter::calc_container_size(
         
         extents->ascent  = size.cy * 0.75 / 2 + axis;
         extents->descent = size.cy * 0.75 - extents->ascent;
+      }
+      
+      if(type == TabBodyBackground) {
+        if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, theme_part, theme_state, 3601, nullptr, &mar))) {
+          extents->ascent-= 0.75f * mar.cyTopHeight;
+        }
       }
       
       return;
@@ -580,8 +587,18 @@ void Win32ControlPainter::draw_container(
           y+=      1.5f;
           height-= 1.5f;
           
-          if(y_scale > 0)
-            height-= 2 / y_scale;
+          if(y_scale > 0) {
+            int _part, _state;
+            if(HANDLE theme = get_control_theme(context, TabHeadBackground, Normal, &_part, &_state)) {
+              Win32Themes::MARGINS mar;
+              // 3601 = TMT_SIZINGMARGINS
+              if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
+                height-= mar.cyTopHeight / y_scale;
+              }
+            }
+            else
+              height-= 2 / y_scale;
+          }
         }
       } break;
     
@@ -589,8 +606,17 @@ void Win32ControlPainter::draw_container(
         y+= height;
         height = 0;
         
-        if(y_scale > 0) 
+        if(y_scale > 0) {
+          int _part, _state;
+          if(HANDLE theme = get_control_theme(context, TabHeadBackground, Normal, &_part, &_state)) {
+            Win32Themes::MARGINS mar;
+            // 3601 = TMT_SIZINGMARGINS
+            if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
+              height = mar.cyTopHeight / y_scale;
+            }
+          }
           height = 2 / y_scale;
+        }
         
         y-= height;
       } break;
@@ -609,8 +635,8 @@ void Win32ControlPainter::draw_container(
   int dc_x = 0;
   int dc_y = 0;
   
-  int w = (int)ceil(x_scale * width);
-  int h = (int)ceil(y_scale * height);
+  int w = (int)ceil(x_scale * width - 0.5);
+  int h = (int)ceil(y_scale * height - 0.5);
   
   if(w == 0 || h == 0)
     return;
@@ -643,7 +669,8 @@ void Win32ControlPainter::draw_container(
   bool need_vector_overlay = false;
   if( Win32Themes::OpenThemeData && 
       Win32Themes::CloseThemeData && 
-      Win32Themes::DrawThemeBackground) 
+      Win32Themes::DrawThemeBackground &&
+      Win32Themes::GetThemeMargins) 
   {
     int _part, _state;
     HANDLE theme = get_control_theme(context, type, state, &_part, &_state);
@@ -669,6 +696,8 @@ void Win32ControlPainter::draw_container(
     rect.top    = dc_y;
     rect.right  = dc_x + w;
     rect.bottom = dc_y + h;
+    
+    RECT clip = rect;
   
     bool two_times = false;
     if(canvas->glass_background) {
@@ -795,13 +824,30 @@ void Win32ControlPainter::draw_container(
       FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
     }
     
+    switch(type) {
+      case TabHeadBackground: {
+          Win32Themes::MARGINS mar;
+          // 3601 = TMT_SIZINGMARGINS
+          if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, dc, _part, _state, 3601, nullptr, &mar))) {
+            rect.top = rect.bottom - mar.cyTopHeight;
+            rect.bottom+= mar.cyBottomHeight;
+          }
+        } break;
+      case TabBodyBackground: {
+          Win32Themes::MARGINS mar;
+          // 3601 = TMT_SIZINGMARGINS
+          if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, dc, _part, _state, 3601, nullptr, &mar)))
+            rect.top-= mar.cyTopHeight;
+        } break;
+    }
+    
     Win32Themes::DrawThemeBackground(
       theme,
       dc,
       _part,
       _state,
       &rect,
-      0);
+      &clip);
       
     if(two_times) {
       Win32Themes::DrawThemeBackground(
@@ -810,14 +856,14 @@ void Win32ControlPainter::draw_container(
         _part,
         _state,
         &rect,
-        0);
+        &clip);
       Win32Themes::DrawThemeBackground(
         theme,
         dc,
         _part,
         _state,
         &rect,
-        0);
+        &clip);
     }
   }
   else {
@@ -1270,13 +1316,18 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   
   if(theme_state1 == theme_state2)
     return nullptr;
-    
-  if( type2 == PushButton        ||
-      type2 == DefaultPushButton ||
-      type2 == PaletteButton)
-  {
-    if(state2 == PressedHovered/* || state1 == Normal*/)
-      return nullptr;
+  
+  switch(type2) {
+    case PushButton:
+    case DefaultPushButton:
+    case PaletteButton:
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead: {
+        if(state2 == PressedHovered/* || state1 == Normal*/)
+          return nullptr;
+      } break;
   }
   
   DWORD duration = 0;
@@ -1855,7 +1906,13 @@ HANDLE Win32ControlPainter::get_control_theme(
       theme = w32cp_cache.explorer_treeview_theme(context->dpi());
       break;
       
-    case PanelControl: 
+    case PanelControl:
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead:
+    case TabHeadBackground:
+    case TabBodyBackground:
       theme = w32cp_cache.tab_theme(context->dpi());
       break;
     
@@ -1877,20 +1934,30 @@ HANDLE Win32ControlPainter::get_control_theme(
     case NavigationForward: 
       theme = w32cp_cache.navigation_theme(context->dpi());
       break;
-      
+    
     default: return nullptr;
   }
   
   if(!theme)
     return nullptr;
   
-  if(state == Pressed) {
-    if(!context->is_focused_widget())
-      state = Normal;
-  }
-  else if(state == PressedHovered) {
-    if(!context->is_focused_widget())
-      state = Hovered;
+  switch(type) {
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead:
+      break;
+    
+    default:
+      if(state == Pressed) {
+        if(!context->is_focused_widget())
+          state = Normal;
+      }
+      else if(state == PressedHovered) {
+        if(!context->is_focused_widget())
+          state = Hovered;
+      }
+      break;
   }
   
   switch(type) {
@@ -2119,7 +2186,43 @@ HANDLE Win32ControlPainter::get_control_theme(
         }
     } break;
     
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead: {
+        *theme_state = 1; // TIS_NORMAL
+        switch(state) {
+          case Disabled:       *theme_state = 4; break; // TIS_DISABLED
+          case Normal:         *theme_state = 1; break; // TIS_NORMAL
+          case Hot:            *theme_state = 1; break; // TIS_NORMAL
+          case Hovered:        *theme_state = 2; break; // TIS_HOT
+          case Pressed:        *theme_state = 3; break; // TIS_SELECTED
+          case PressedHovered: *theme_state = 3; break; // TIS_SELECTED
+        }
+    } break;
+    
+    case TabHeadBackground: 
+    case TabBodyBackground: {
+        *theme_part = 9; // TABP_PANE  // TODO: combine with TABP_BODY ....
+        *theme_state = 0;
+    } break;
+    
     default: break;
+  }
+  
+  switch(type) {
+    case TabHead: // Windows 10: TABP_TABITEM has no line on the left, looks exactly like TABP_TABITEMBOTHEDGE
+      //*theme_part = 1; // TABP_TABITEM
+      //break;
+    case TabHeadAbuttingRight: 
+      *theme_part = 2; // TABP_TABITEMLEFTEDGE
+      break;
+    case TabHeadAbuttingLeft:
+      *theme_part = 3; // TABP_TABITEMRIGHTEDGE
+      break;
+    case TabHeadAbuttingLeftRight:
+      *theme_part = 4; // TABP_TABITEMBOTHEDGE
+      break;
   }
   
   return theme;

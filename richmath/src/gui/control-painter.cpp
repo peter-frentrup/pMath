@@ -25,6 +25,7 @@ namespace {
   static const Color ButtonHoverColor = Color::from_rgb24(0xE6E6E6);
   static const Color Button3DLightColor = Color::from_rgb24(0xF0F0F0);
   static const Color Button3DDarkColor = Color::from_rgb24(0x787878); // 0xB4B4B4
+  static const Color GrayTextColor = Color::from_rgb24(0x808080);
 }
 
 
@@ -221,7 +222,10 @@ void ControlPainter::calc_container_radii(
 Color ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
   if(is_very_transparent(context, type, state))
     return Color::None;
-    
+  
+  if(state == Disabled)
+    return GrayTextColor;
+  
   if(type == ListViewItemSelected)
     return Color::White;
     
