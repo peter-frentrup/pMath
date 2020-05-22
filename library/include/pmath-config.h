@@ -186,7 +186,7 @@
 
 #  define PMATH_API        PMATH_EXTERN_C __attribute__((__visibility__("default")))
 
-#  define PMATH_PRIVATE    PMATH_EXTERN_C __attribute__((__visibility__("hidden")))
+#  define PMATH_PRIVATE    __attribute__((__visibility__("hidden")))
 #endif
 
 /* architecture     PMATH_X86  PMATH_AMD64  PMATH_SPARC32  PMATH_SPARC64
