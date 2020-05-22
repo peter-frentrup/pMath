@@ -344,6 +344,9 @@ void ControlPainter::draw_container(
   float           width,
   float           height
 ) {
+  if(width <= 0 || height <= 0)
+    return;
+  
   canvas->save();
   
   if(canvas->pixel_device) {
@@ -791,7 +794,7 @@ void ControlPainter::container_content_move(
     case TabHeadAbuttingLeft:
     case TabHead: {
         if(state == Pressed || state == PressedHovered)
-          *y-= 0.75f;
+          *y-= 1.5f;
       } break;
     
     default: break;

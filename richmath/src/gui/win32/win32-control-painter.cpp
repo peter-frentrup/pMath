@@ -541,19 +541,10 @@ void Win32ControlPainter::draw_container(
   float           width,
   float           height
 ) {
-  if(width <= 0 || height <= 0)
-    return;
-    
   switch(type) {
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead:
-    case TabHeadBackground:
-    case TabBodyBackground:
       ControlPainter::generic_painter.draw_container(
         context, canvas, type, state, x, y, width, height);
       return;
@@ -566,6 +557,48 @@ void Win32ControlPainter::draw_container(
     default: break;
   }
   
+  double x_scale;
+  double y_scale;
+  {
+    double a = 1;
+    double b = 0;
+    canvas->user_to_device_dist(&a, &b);
+    x_scale = sqrt(a * a + b * b);
+    
+    a = 0;
+    b = 1;
+    canvas->user_to_device_dist(&a, &b);
+    y_scale = sqrt(a * a + b * b);
+  }
+  
+  switch(type) {
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead: {
+        if(state != Pressed && state != PressedHovered) {
+          y+=      1.5f;
+          height-= 1.5f;
+          
+          if(y_scale > 0)
+            height-= 2 / y_scale;
+        }
+      } break;
+    
+    case TabHeadBackground: {
+        y+= height;
+        height = 0;
+        
+        if(y_scale > 0) 
+          height = 2 / y_scale;
+        
+        y-= height;
+      } break;
+  }
+  
+  if(width <= 0 || height <= 0)
+    return;
+  
   if(canvas->pixel_device) {
     canvas->user_to_device_dist(&width, &height);
     width  = floor(width  + 0.5);
@@ -576,16 +609,8 @@ void Win32ControlPainter::draw_container(
   int dc_x = 0;
   int dc_y = 0;
   
-  float uw, uh, a, b;
-  a = width; b = 0;
-  canvas->user_to_device_dist(&a, &b);
-  uw = sqrt(a * a + b * b);
-  int w = (int)ceil(uw);
-  
-  a = 0; b = height;
-  canvas->user_to_device_dist(&a, &b);
-  uh = sqrt(a * a + b * b);
-  int h = (int)ceil(uh);
+  int w = (int)ceil(x_scale * width);
+  int h = (int)ceil(y_scale * height);
   
   if(w == 0 || h == 0)
     return;
@@ -1055,6 +1080,54 @@ void Win32ControlPainter::draw_container(
             DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
           
           need_vector_overlay = true;
+        } break;
+      
+      case TabHeadAbuttingRight:
+      case TabHeadAbuttingLeftRight:
+      case TabHeadAbuttingLeft:
+      case TabHead: {
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          DWORD flags = 0;
+          if(state == Disabled)
+            flags |= BF_MONO;
+          
+          RECT edge = rect;
+          edge.bottom = edge.top + 3;
+          
+          rect.top+= 2;
+          DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_LEFT | BF_RIGHT);
+          
+          edge.right = rect.left + 3;
+          DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_TOP | BF_RIGHT);
+          
+          edge.right = rect.right;
+          edge.left = edge.right - 3;
+          DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
+          
+          rect.top = edge.top;
+          rect.left+= 2;
+          rect.right-= 2;
+          DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_TOP);
+          
+        } break;
+      
+      case TabHeadBackground: {
+          if(state == Disabled)
+            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT | BF_MONO);
+          else
+            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT);
+          
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+        } break;
+      
+      case TabBodyBackground: {
+          if(state == Disabled)
+            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT | BF_MONO);
+          else
+            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT);
+          
+          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
         } break;
     }
   }
