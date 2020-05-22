@@ -1,0 +1,76 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section({"Tabbed document ", DynamicBox(ToBoxes(Global`idx))}, 
+     "Title"), 
+    Section(
+     BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
+          "DockedSections", "\[Rule]", {
+           "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
+             "Section", "(", {
+              {"BoxData", "@", {"ToBoxes", "@", {
+                 "Filler", "@", {"Panel", "(", {
+                   {"\n", {"Row", "@", {
+                      "{", {ComplexStringBox("\" \""), ",", {
+                        "Grid", "(", {
+                         {"{", {
+                           "\n", {
+                            "{", {
+                             {"Setter", "(", {{"Dynamic", "(", "idx", ")"}, 
+                               ",", "1", ",", ComplexStringBox("\"Tab 1\""), 
+                               ",", {"\n", {"ButtonFrame", "\[Rule]", 
+                                 ComplexStringBox(
+                                  "\"TabHeadAbuttingRight\"")}}}, ")"}, ",", {
+                              "\n", {"Setter", "(", {
+                                {"Dynamic", "(", "idx", ")"}, ",", "2", ",", 
+                                ComplexStringBox("\"Tab 2\""), ",", {
+                                 "\n", {"ButtonFrame", "\[Rule]", 
+                                  ComplexStringBox(
+                                   "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
+                             ",", {"\n", {"Setter", "(", {
+                                {"Dynamic", "(", "idx", ")"}, ",", "3", ",", 
+                                ComplexStringBox("\"Tab 3\""), ",", {
+                                 "\n", {"ButtonFrame", "\[Rule]", 
+                                  ComplexStringBox(
+                                   "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
+                             ",", {"\n", {"Setter", "(", {
+                                {"Dynamic", "(", "idx", ")"}, ",", "4", ",", 
+                                ComplexStringBox("\"Tab 4\""), ",", {
+                                 "\n", {"ButtonFrame", "\[Rule]", 
+                                  ComplexStringBox(
+                                   "\"TabHeadAbuttingLeft\"")}}}, ")"}}, ",", {
+                              "\n", ComplexStringBox("\"  \"")}, ",", {
+                              "\n", {"Button", "(", {
+                                ComplexStringBox("\"+\""), ",", ",", {
+                                 "ButtonFrame", "\[Rule]", 
+                                 ComplexStringBox("\"TabHead\"")}}, ")"}}, 
+                             ",", {"\n", ComplexStringBox("\" \"")}}, "}"}}, 
+                          "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}, 
+                       ",", {"Filler", "(", ")"}}, "}"}}}, ",", {
+                    "\n", {"Appearance", "\[Rule]", 
+                     ComplexStringBox("\"TabHead\"")}}}, ")"}}}}, ",", 
+              ComplexStringBox("\"Docked\""), ",", {
+               "SectionFrameMargins", "\[Rule]", {
+                "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
+                  "{", {"Inherited", ",", "0"}, "}"}}, "}"}}}, ")"}}, "}"}}}, 
+        ")"}, ";"}), "Input", SectionLabel -> "in [5]:")}, All)}, 
+ DockedSections :> {"TopGlass" -> Section(
+   BoxData(
+    FillBox(
+     PanelBox(TemplateBox({ComplexStringBox("\" \""), 
+        TagBox(
+         GridBox({
+           {SetterBox(Dynamic(Global`idx), 1, ComplexStringBox("\"Tab 1\""), 
+             ButtonFrame -> "TabHeadAbuttingRight"), 
+            SetterBox(Dynamic(Global`idx), 2, ComplexStringBox("\"Tab 2\""), 
+             ButtonFrame -> "TabHeadAbuttingLeftRight"), 
+            SetterBox(Dynamic(Global`idx), 3, ComplexStringBox("\"Tab 3\""), 
+             ButtonFrame -> "TabHeadAbuttingLeftRight"), 
+            SetterBox(Dynamic(Global`idx), 4, ComplexStringBox("\"Tab 4\""), 
+             ButtonFrame -> "TabHeadAbuttingLeft"), 
+            ComplexStringBox("\"  \""), ButtonBox(ComplexStringBox("\"+\""), 
+             ButtonFunction -> (/\/ &), ButtonFrame -> "TabHead"), 
+            ComplexStringBox("\" \"")}}, GridBoxColumnSpacing -> 0), "Grid"), 
+        FillBox("")}, "RowDefault"), Appearance -> "TabHead"), 
+     StripOnInput -> False)), "Docked", SectionFrameMargins -> {{0, 0}, {
+     Inherited, 0}})}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
