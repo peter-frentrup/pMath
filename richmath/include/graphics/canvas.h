@@ -3,6 +3,7 @@
 
 #include <graphics/color.h>
 #include <graphics/fonts.h>
+#include <graphics/rectangle.h>
 
 namespace richmath {
   class Base;
@@ -59,8 +60,10 @@ namespace richmath {
       void set_font_size(float size);
       float get_font_size() { return _font_size; }
       
+      void move_to(Point pt) { move_to(pt.x, pt.y); }
       void move_to(double x, double y);
       void rel_move_to(double x, double y);
+      void line_to(Point pt) { line_to(pt.x, pt.y); }
       void line_to(double x, double y);
       void rel_line_to(double x, double y);
       

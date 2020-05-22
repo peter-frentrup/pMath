@@ -10,7 +10,7 @@ namespace richmath {
   class Canvas;
   class BoxRadius;
   
-  class Point {
+  class Point final {
     public:
       Point(): x(0), y(0) {}
       Point(float _x, float _y): x(_x), y(_y) {}
@@ -47,7 +47,7 @@ namespace richmath {
       float y;
   };
   
-  class Rectangle {
+  class Rectangle final {
     public:
       Rectangle()
         : x(0), y(0), width(0), height(0)
@@ -67,6 +67,16 @@ namespace richmath {
       
       bool is_positive() const { return width > 0 && height > 0; }
       bool is_empty() const { return width == 0 || height == 0; }
+      
+      float left()   const { return x; }
+      float right()  const { return x + width; }
+      float top()    const { return y; }
+      float bottom() const { return y + height; }
+      
+      Point top_left()     const { return Point(left(),  top()); }
+      Point top_right()    const { return Point(right(), top()); }
+      Point bottom_left()  const { return Point(left(),  bottom()); }
+      Point bottom_right() const { return Point(right(), bottom()); }
       
       bool contains(const Rectangle &other) const {
         return x <= other.x &&
@@ -100,7 +110,7 @@ namespace richmath {
   };
   
   /// A CSS3 Border Radius
-  class BoxRadius {
+  class BoxRadius final {
     public:
       BoxRadius(float all = 0);
       BoxRadius(float all_x, float all_y);

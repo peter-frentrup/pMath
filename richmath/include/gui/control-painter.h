@@ -27,6 +27,12 @@ namespace richmath {
     ListViewItem,
     ListViewItemSelected,
     PanelControl,
+    TabHeadAbuttingRight,
+    TabHeadAbuttingLeftRight,
+    TabHeadAbuttingLeft,
+    TabHead,
+    TabHeadBackground,
+    TabBodyBackground,
     
     // not really a container:
     SliderHorzChannel,

@@ -17,10 +17,12 @@
 #endif
 
 
+#define Rectangle richmath::Rectangle
 using namespace richmath;
 
 namespace {
   static const Color ButtonColor = Color::from_rgb24(0xDCDCDC);
+  static const Color ButtonHoverColor = Color::from_rgb24(0xE6E6E6);
   static const Color Button3DLightColor = Color::from_rgb24(0xF0F0F0);
   static const Color Button3DDarkColor = Color::from_rgb24(0x787878); // 0xB4B4B4
 }
@@ -73,7 +75,8 @@ void ControlPainter::calc_container_size(
 ) {
   switch(type) {
     case NoContainerType:
-    case FramelessButton: break;
+    case FramelessButton: 
+    case TabHeadBackground: break;
     
     case GenericButton:
     case PushButton:
@@ -182,6 +185,27 @@ void ControlPainter::calc_container_size(
         extents->ascent  = std::max(20 * 0.75 * 0.75, (double)extents->ascent);
         extents->descent = std::max(20 * 0.75 * 0.25, (double)extents->descent);
       } break;
+      
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead: {
+        if(extents->ascent < canvas->get_font_size() * 0.75f)
+          extents->ascent = canvas->get_font_size() * 0.75f;// - extents->ascent;
+          
+        if(extents->descent < canvas->get_font_size() * 0.25f)
+          extents->descent = canvas->get_font_size() * 0.25f;// - extents->descent;
+          
+        extents->width +=   6.0;
+        extents->ascent +=  4.5;
+        extents->descent += 1.5;
+      } break;
+    
+    case TabBodyBackground: {
+        extents->width +=   12.0;
+        extents->ascent +=  4.5;
+        extents->descent += 6.0;
+      } break;
   }
 }
 
@@ -212,6 +236,62 @@ bool ControlPainter::is_very_transparent(ControlContext *context, ContainerType 
          type == OpenerTriangleOpened;
 }
 
+static void paint_edge(
+  Canvas          *canvas,
+  const Rectangle &outer_rect,
+  const Rectangle &inner_rect,
+  Color           top_left_color,
+  Color           bottom_right_color
+) {
+  Color c = canvas->get_color();
+  
+  bool has_top_left = false;
+  if(outer_rect.top() != inner_rect.top()) {
+    has_top_left = true;
+    canvas->move_to(outer_rect.top_left());
+    canvas->line_to(outer_rect.top_right());
+    canvas->line_to(inner_rect.top_right());
+    canvas->line_to(inner_rect.top_left());
+    canvas->close_path();
+  }
+  if(outer_rect.left() != inner_rect.left()) {
+    has_top_left = true;
+    canvas->move_to(outer_rect.top_left());
+    canvas->line_to(inner_rect.top_left());
+    canvas->line_to(inner_rect.bottom_left());
+    canvas->line_to(outer_rect.bottom_left());
+    canvas->close_path();
+  }
+  if(has_top_left) {
+    canvas->set_color(top_left_color);
+    canvas->fill();
+  }
+  
+  bool has_bottom_right = false;
+  if(outer_rect.bottom() != inner_rect.bottom()) {
+    has_bottom_right = true;
+    canvas->move_to(outer_rect.bottom_left());
+    canvas->line_to(inner_rect.bottom_left());
+    canvas->line_to(inner_rect.bottom_right());
+    canvas->line_to(outer_rect.bottom_right());
+    canvas->close_path();
+  }
+  if(outer_rect.right() != inner_rect.right()) {
+    has_bottom_right = true;
+    canvas->move_to(outer_rect.top_right());
+    canvas->line_to(outer_rect.bottom_right());
+    canvas->line_to(inner_rect.bottom_right());
+    canvas->line_to(inner_rect.top_right());
+    canvas->close_path();
+  }
+  if(has_bottom_right) {
+    canvas->set_color(bottom_right_color);
+    canvas->fill();
+  }
+  
+  canvas->set_color(c);
+}
+
 static void paint_frame(
   Canvas *canvas,
   float   x,
@@ -238,42 +318,18 @@ static void paint_frame(
     c1 = Button3DDarkColor;
   }
   
+  Rectangle rect{x, y, width, height};
+  rect.pixel_align(*canvas, 0);
+  Rectangle inner = rect;
+  inner.grow(-d);
   
-  float x2 = x + width;
-  float y2 = y + height;
-  canvas->align_point(&x,  &y,  false);
-  canvas->align_point(&x2, &y2, false);
+  paint_edge(canvas, rect, inner, c1, c3);
   
-  canvas->move_to(x,      y);
-  canvas->line_to(x2,     y);
-  canvas->line_to(x2 - d, y + d);
-  canvas->line_to(x + d,  y + d);
-  canvas->line_to(x + d,  y2 - d);
-  canvas->line_to(x,      y2);
-  canvas->close_path();
-  
-  canvas->set_color(c1);
-  canvas->fill();
-  
-  canvas->move_to(x2,     y2);
-  canvas->line_to(x2,     y);
-  canvas->line_to(x2 - d, y + d);
-  canvas->line_to(x2 - d, y2 - d);
-  canvas->line_to(x + d,  y2 - d);
-  canvas->line_to(x,      y2);
-  canvas->close_path();
-  
-  canvas->set_color(c3);
-  canvas->fill();
-  
-  canvas->move_to(x + d,  y + d);
-  canvas->line_to(x2 - d, y + d);
-  canvas->line_to(x2 - d, y2 - d);
-  canvas->line_to(x + d, y2 - d);
-  canvas->close_path();
-  
-  canvas->set_color(background_color);
-  canvas->fill();
+  if(background_color.is_valid()) {
+    inner.add_rect_path(*canvas);
+    canvas->set_color(background_color);
+    canvas->fill();
+  }
   
   canvas->set_color(c);
 }
@@ -614,6 +670,79 @@ void ControlPainter::draw_container(
         
         canvas->set_color(old_col);
       } break;
+    
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead: {
+        Rectangle rect {x, y, width, height};
+        
+        if(state != Pressed && state != PressedHovered) {
+          rect.y+=      1.5f;
+          rect.height-= 3.0f;
+        }
+        
+        Rectangle inner = rect;
+        inner.y+=      1.5f;
+        inner.height-= 1.5f;
+        
+        float dxleft;
+        float dxright;
+        if(state == Pressed || state == PressedHovered) {
+          dxleft = 1.5f;
+          dxright = 1.5f;
+        }
+        else {
+          dxleft  = (type == TabHeadAbuttingLeft  || type == TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+          dxright = (type == TabHeadAbuttingRight || type == TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+        }
+        
+        inner.x+= dxleft;
+        inner.width-= dxleft + dxright;
+        
+        Color old_color = canvas->get_color();
+        paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+        if(state == Hovered)
+          canvas->set_color(ButtonHoverColor);
+        else
+          canvas->set_color(ButtonColor);
+        
+        inner.add_rect_path(*canvas);
+        canvas->fill();
+        
+        canvas->set_color(old_color);
+      } break;
+    
+    case TabHeadBackground: {
+        Rectangle rect {x, y, width, height};
+        
+        rect.y+= rect.height - 1.5f;
+        rect.height = 1.5f;
+        
+        Rectangle inner = rect;
+        inner.y+= inner.height;
+        inner.height = 0.0f;
+        inner.x+= 1.5f;
+        inner.width-= 3.0f;
+        paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+      } break;
+    
+    case TabBodyBackground: {
+        Rectangle rect {x, y, width, height};
+        Rectangle inner = rect;
+        inner.x+= 1.5f;
+        inner.width-= 3.0f;
+        inner.height-= 1.5f;
+        
+        Color old_color = canvas->get_color();
+        paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
+        
+        canvas->set_color(ButtonColor);
+        inner.add_rect_path(*canvas);
+        canvas->fill();
+        
+        canvas->set_color(old_color);
+      } break;
   }
   
   canvas->restore();
@@ -656,13 +785,30 @@ void ControlPainter::container_content_move(
           *x += 0.75f;
         }
       } break;
-      
+    
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead: {
+        if(state == Pressed || state == PressedHovered)
+          *y-= 0.75f;
+      } break;
+    
     default: break;
   }
 }
 
 bool ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
-  return false;
+  switch(type) {
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead:
+      return true;
+    
+    default:
+      return false;
+  }
 }
 
 void ControlPainter::paint_scroll_indicator(

@@ -27,6 +27,10 @@
 
 #include <resources.h>
 
+#ifndef DM_POINTERHITTEST
+#  define DM_POINTERHITTEST   0x0250
+#endif
+
 #ifndef WM_MOUSEHWHEEL
 #  define WM_MOUSEHWHEEL  0x020E
 #endif

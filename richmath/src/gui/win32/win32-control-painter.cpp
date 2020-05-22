@@ -548,6 +548,12 @@ void Win32ControlPainter::draw_container(
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead:
+    case TabHeadBackground:
+    case TabBodyBackground:
       ControlPainter::generic_painter.draw_container(
         context, canvas, type, state, x, y, width, height);
       return;

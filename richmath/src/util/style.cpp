@@ -214,6 +214,11 @@ namespace {
         
         add(NavigationBack,       String("NavigationBack"));
         add(NavigationForward,    String("NavigationForward"));
+        
+        add(TabHeadAbuttingRight,     String("TabHeadAbuttingRight"));
+        add(TabHeadAbuttingLeftRight, String("TabHeadAbuttingLeftRight"));
+        add(TabHeadAbuttingLeft,      String("TabHeadAbuttingLeft"));
+        add(TabHead,                  String("TabHead"));
       }
   };
   
