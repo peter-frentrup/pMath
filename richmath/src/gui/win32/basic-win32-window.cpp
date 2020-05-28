@@ -88,8 +88,13 @@ namespace {
   } static_resources;
 }
 
-// Microsoft Calculator, Settings Pannel: 0xE6E6E6
-static Color CustomTitlebarColorization = Color::from_rgb24(0xE6E6E6);//Color::None;//
+// Microsoft Calculator, Settings Pannel: 0xE6E6E6 (light mode) and(?) 0x1F1F1F (dark mode)
+static Color CustomTitlebarColorizationLight = Color::from_rgb24(0xE6E6E6);//Color::None;//
+static Color CustomTitlebarColorizationDark  = Color::from_rgb24(0x1F1F1F);//Color::None;//
+
+// TODO: do not hardcode dark-mode COLOR_BTNFACE but get it from the system somehow
+// dark mode Popup menu background: 0x2B2B2B
+static Color DarkModeButtonFaceColor = Color::from_rgb24(0x2B2B2B);
 
 static bool is_window_cloaked(HWND hwnd);
 static bool is_window_visible_on_screen(HWND hwnd);
@@ -204,21 +209,24 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
       }
     }
     
-    void colorize(bool active) {
+    void colorize(bool active, bool dark_mode = false) {
       DWORD alpha = 0xFFu;
       if(Win32Themes::use_win10_transparency() && active) {
         alpha = 0xBFu; // 0.75 * 0xFF
       }
       
+      Color custom = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight;
       COLORREF bgr;
-      if(CustomTitlebarColorization.is_valid()) {
-        bgr = CustomTitlebarColorization.to_bgr24();
+      if(custom.is_valid()) {
+        bgr = custom.to_bgr24();
       }
       else {
         Win32Themes::ColorizationInfo colorization;
         if(Win32Themes::try_read_win10_colorization(&colorization)) {
           if(active && colorization.has_accent_color_in_active_titlebar) 
             bgr = colorization.accent_color;
+          else if(dark_mode)
+            bgr = 0x000000u;
           else
             bgr = 0xFFFFFFu;
         }
@@ -349,10 +357,11 @@ BasicWin32Window::BasicWin32Window(
   background_image(static_resources.get_background_image()),
   _blur_behind_window(nullptr),
   _active(false),
-  _glass_enabled(false),
-  _themed_frame(false),
   _hit_test_mouse_over(HTNOWHERE),
   _hit_test_mouse_down(HTNOWHERE),
+  _glass_enabled(false),
+  _themed_frame(false),
+  _use_dark_mode(false),
   _virtual_desktop_notification_cookie(0),
   snap_correction_x(0),
   snap_correction_y(0),
@@ -1294,6 +1303,8 @@ void BasicWin32Window::on_theme_changed() {
         _blur_behind_window->init();
       }
       
+      _blur_behind_window->colorize(_active, _use_dark_mode);
+      
       if(is_window_visible_on_screen(_hwnd))
         _blur_behind_window->show();
       else
@@ -1305,6 +1316,17 @@ void BasicWin32Window::on_theme_changed() {
 
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
+}
+
+void BasicWin32Window::use_dark_mode(bool dark_mode) {
+  if(_use_dark_mode == dark_mode)
+    return;
+  
+  _use_dark_mode = dark_mode;
+  if(_blur_behind_window)
+    _blur_behind_window->colorize(_active, _use_dark_mode);
+  
+  invalidate_caption();
 }
 
 static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, RECT *close) {
@@ -1459,7 +1481,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
 }
 
-COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool active) {
+COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool active, bool dark_mode) {
   if(!glass_enabled) {
     //return GetSysColor(active ? COLOR_BTNTEXT : COLOR_GRAYTEXT);
     return GetSysColor(COLOR_BTNTEXT);
@@ -1475,8 +1497,8 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
 //    }
     if(Win32Themes::is_windows_10_or_newer()) {
       if(active) {
-        if(CustomTitlebarColorization.is_valid()) { //return GetSysColor(COLOR_BTNTEXT);
-          if(CustomTitlebarColorization.is_light())
+        if(Color custom_color = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight) {
+          if(custom_color.is_light())
             return 0x000000;
           else
             return 0xFFFFFF;
@@ -1489,16 +1511,16 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
         }
       }
       else {
-        /* Inactive titlebar text color seems to be 0x999999u on Windows 10.
+        /* On Windows 10, Inactive titlebar text color seems to be 0x999999u (light mode) or 0xAAAAAA (dark mode).
            What does COLOR_INACTIVECAPTIONTEXT give? Should we hard-code 0x999999u?
            
            https://github.com/res2k/Windows10Colors/blob/master/Windows10Colors/Windows10Colors.cpp#L544
            blends 40% COLOR_INACTIVECAPTIONTEXT with 60% COLOR_INACTIVECAPTION
            Note that 0.4 * 0x00 + 0.6 * 0xFF = 0x99.
          */
-        return 0x999999;
-        // Microsoft Calculator uses 0x7A7A7A when inactive (on 0xE6E6E6 background)
-        // Microsoft Edge       uses 0x7A7A7A when inactive (on 0xCCCCCC background)
+        return dark_mode ? 0xAAAAAAu : 0x999999u;
+        // Microsoft Calculator uses 0x7A7A7A when inactive (on 0xE6E6E6 background, light mode)
+        // Microsoft Edge       uses 0x7A7A7A when inactive (on 0xCCCCCC background, light mode)
       }
     }
     
@@ -1629,9 +1651,7 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
   
   Color bg_color = Color::None;
   if(!wallpaper_only) {
-    if( !Win32Themes::IsCompositionActive ||
-        !Win32Themes::IsCompositionActive())
-    {
+    if( !Win32Themes::IsCompositionActive || !Win32Themes::IsCompositionActive()) {
       if(glass_enabled()) {
         if(_active)
           bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTACTIVECAPTION));
@@ -1656,7 +1676,7 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
     }
 
     if(!IsRectEmpty(&glassfree)) {
-      Color color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+      Color color = _use_dark_mode ? DarkModeButtonFaceColor : Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
       
       add_rect(canvas, glassfree);
       
@@ -1768,7 +1788,7 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         
         get_system_button_bounds(_hwnd, &min_rect, &max_rect, &close_rect);
         
-        Color fg_color = Color::from_bgr24(title_font_color(_glass_enabled, Win32HighDpi::get_dpi_for_window(_hwnd), _active));
+        Color fg_color = Color::from_bgr24(title_font_color(_glass_enabled, Win32HighDpi::get_dpi_for_window(_hwnd), _active, _use_dark_mode));
         
         add_rect(canvas, min_rect);
         if(bg_color.is_valid()) {
@@ -2061,7 +2081,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         _active = wParam;
         
         if(_blur_behind_window) 
-          _blur_behind_window->colorize(wParam);
+          _blur_behind_window->colorize(wParam, _use_dark_mode);
         
         if( !Win32Themes::IsCompositionActive || !Win32Themes::IsCompositionActive()) {
           struct redraw_glass_info_t info;
@@ -2813,7 +2833,8 @@ void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
       static const wchar_t MaximizeSymbol[] = L"\xE922";
       static const wchar_t RestoreSymbol[] = L"\xE923";
       
-      COLORREF col = title_font_color(true, dpi, self._active);
+      COLORREF col        = title_font_color(true, dpi, self._active, self._use_dark_mode);
+      COLORREF active_col = self._active ? col : title_font_color(true, dpi, true, self._use_dark_mode);
       Win32Themes::DTTOPTS dtt_opts;
       memset(&dtt_opts, 0, sizeof(dtt_opts));
       dtt_opts.dwSize    = sizeof(dtt_opts);
@@ -2830,7 +2851,7 @@ void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
         &dtt_opts);
       
       if(style & WS_MINIMIZEBOX) {
-        dtt_opts.crText = self._active ? col : (self._hit_test_mouse_over == HTMINBUTTON) ? 0x000000 : col; 
+        dtt_opts.crText = self._active ? col : (self._hit_test_mouse_over == HTMINBUTTON) ? active_col : col; 
         Win32Themes::DrawThemeTextEx(
           theme,
           hdc_bitmap,
@@ -2842,7 +2863,7 @@ void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
       }
       
       if(style & WS_MAXIMIZEBOX) {
-        dtt_opts.crText = self._active ? col : (self._hit_test_mouse_over == HTMAXBUTTON) ? 0x000000 : col; 
+        dtt_opts.crText = self._active ? col : (self._hit_test_mouse_over == HTMAXBUTTON) ? active_col : col; 
         Win32Themes::DrawThemeTextEx(
           theme,
           hdc_bitmap,
@@ -2882,7 +2903,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     dtt_opts.dwSize    = sizeof(dtt_opts);
     dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_GLOWSIZE | DTT_TEXTCOLOR;
     dtt_opts.iGlowSize = MulDiv(10, dpi, 96);
-    dtt_opts.crText    = title_font_color(true, dpi, self._active);
+    dtt_opts.crText    = title_font_color(true, dpi, self._active, self._use_dark_mode);
     
 #define MAX_STR_LEN 1024
     WCHAR str[MAX_STR_LEN];

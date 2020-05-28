@@ -79,6 +79,8 @@ namespace richmath {
       virtual bool is_focused_widget() override { return _active; }
       virtual int dpi() override;
       
+      bool is_using_dark_mode() { return _use_dark_mode; }
+      
     protected:
       int min_client_height;
       int max_client_height;
@@ -90,6 +92,8 @@ namespace richmath {
       AutoCairoSurface background_image;
       
     protected:
+      void use_dark_mode(bool dark_mode);
+      
       virtual void on_sizing(WPARAM wParam, RECT *lParam);
       virtual void on_moving(RECT *lParam);
       virtual void on_move(LPARAM Param);
@@ -109,10 +113,11 @@ namespace richmath {
     private:
       Win32BlurBehindWindow *_blur_behind_window;
       ObservableValue<bool> _active;
-      bool _glass_enabled;
-      bool _themed_frame;
       int8_t _hit_test_mouse_over;
       int8_t _hit_test_mouse_down;
+      bool _glass_enabled : 1;
+      bool _themed_frame : 1;
+      bool _use_dark_mode : 1;
       Win32Themes::MARGINS _extra_glass;
       DWORD _virtual_desktop_notification_cookie;
       
@@ -130,7 +135,7 @@ namespace richmath {
     
     public:
       static HANDLE composition_window_theme(int dpi);
-      static COLORREF title_font_color(bool glass_enabled, int dpi, bool active);
+      static COLORREF title_font_color(bool glass_enabled, int dpi, bool active, bool dark_mode);
       
     public:
       STDMETHODIMP QueryInterface(REFIID iid, void **ppvObject) override;

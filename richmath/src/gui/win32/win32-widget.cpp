@@ -105,6 +105,7 @@ Win32Widget::Win32Widget(
     is_painting(false),
     scrolling(false),
     already_scrolled(false),
+    _has_dark_background(false),
     _focused(false),
     _width(0),
     _height(0),
@@ -565,6 +566,13 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
     }
     else
       paint_background(canvas);
+    
+    if(Win32Themes::SetWindowTheme) {
+      bool old_has_dark_background = _has_dark_background;
+      _has_dark_background = color.is_dark();
+      if(old_has_dark_background != _has_dark_background)
+        on_changed_dark_mode();
+    }
   }
   
   canvas->scale(scale_factor(), scale_factor());
@@ -644,6 +652,13 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
     SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
     ShowScrollBar(_hwnd, SB_HORZ, (int)si.nPage < si.nMax);
   }
+}
+
+void Win32Widget::on_changed_dark_mode() {
+  if(has_dark_background())
+    Win32Themes::SetWindowTheme(_hwnd, L"DarkMode_Explorer", nullptr);
+  else
+    Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
 }
 
 static bool image_diff(

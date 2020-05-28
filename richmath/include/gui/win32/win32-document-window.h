@@ -41,6 +41,7 @@ namespace richmath {
       
       bool is_all_glass();
       
+      void update_dark_mode();
       void rearrange();
       void invalidate_options();
       virtual void reset_title() override;

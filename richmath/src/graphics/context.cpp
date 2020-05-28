@@ -249,9 +249,7 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
           shadow.expr_length() >= 3 &&
           shadow.expr_length() <= 4)
       {
-        Color col = Color::from_pmath(shadow[3]);
-        
-        if(col.is_valid()) {
+        if(Color col = Color::from_pmath(shadow[3])) {
           draw_text_shadow(
             box,
             col,

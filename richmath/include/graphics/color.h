@@ -41,6 +41,7 @@ namespace richmath {
       static Color from_pmath(Expr pmath);
       Expr to_pmath() const;
       
+      explicit operator bool() const { return is_valid(); }
       bool is_valid() const { return _value >= 0; }
       bool is_none() const { return _value == -1; }
       

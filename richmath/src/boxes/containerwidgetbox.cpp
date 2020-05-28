@@ -128,8 +128,7 @@ void ContainerWidgetBox::paint(Context *context) {
   
   Color old_cursor_color = context->cursor_color;
   Color old_color        = context->canvas->get_color();
-  Color c = ControlPainter::std->control_font_color(this, type, state);
-  if(c.is_valid()) {
+  if(Color c = ControlPainter::std->control_font_color(this, type, state)) {
     context->canvas->set_color(c);
     context->cursor_color = c;
   }

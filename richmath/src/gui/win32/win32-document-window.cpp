@@ -191,6 +191,11 @@ class richmath::Win32WorkingArea: public Win32Widget {
         best_width = best_height = 1;
     }
     
+    virtual void on_changed_dark_mode() override {
+      _parent->update_dark_mode();
+      base::on_changed_dark_mode();
+    }
+    
     void add_overlay(Canvas *canvas, Box *box, int start, int end, unsigned color, IndicatorLane lane) {
       cairo_matrix_t mat;
       cairo_matrix_init_identity(&mat);
@@ -241,6 +246,7 @@ class richmath::Win32Dock: public Win32Widget {
         &parent->hwnd()),
       _parent(parent)
     {
+      Style::reset(document()->style, "Docked");
     }
     
     void reload(Expr content, bool *change_flag) {
@@ -370,7 +376,19 @@ class richmath::Win32Dock: public Win32Widget {
       }
     }
     
+    virtual Color get_textcolor() {
+      //return Color::None;
+      return _parent->is_using_dark_mode() ? Color::White : Color::Black;
+    }
+    
     virtual void paint_background(Canvas *canvas) override {
+      if(Color color = get_textcolor()) {
+        if(!document()->style)
+          document()->style = new Style();
+        
+        document()->style->set(FontColor, color);
+      }
+      
       _parent->paint_background_at(canvas, _hwnd);
     }
     
@@ -484,19 +502,17 @@ class richmath::Win32GlassDock: public Win32Dock {
       document()->style->set(TextShadow, shadows);
     }
     
-    void set_textcolor() {
-      if(!document()->style)
-        document()->style = new Style();
-      
+    virtual Color get_textcolor() override {
       AutoResetCurrentEvaluationBox auto_observer;
       Dynamic::current_evaluation_box_id = document()->id();
       
       COLORREF color = BasicWin32Window::title_font_color(
         _parent->glass_enabled(),
         Win32HighDpi::get_dpi_for_window(_hwnd), 
-        _parent->is_foreground_window());
+        _parent->is_foreground_window(),
+        _parent->is_using_dark_mode());
       
-      document()->style->set(FontColor, Color::from_bgr24(color));
+      return Color::from_bgr24(color);
     }
     
     void remove_textshadows() {
@@ -544,7 +560,6 @@ class richmath::Win32GlassDock: public Win32Dock {
           canvas->glass_background = true;
       }
       
-      set_textcolor();
       base::paint_background(canvas);
     }
     
@@ -655,8 +670,6 @@ Win32DocumentWindow::Win32DocumentWindow(
     WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
-  // TODO: alpha channel only necessary for win10 custom blur behind ...
-  _working_area->_image_format = CAIRO_FORMAT_ARGB32;
   
   _content = _working_area->document();
     
@@ -664,6 +677,13 @@ Win32DocumentWindow::Win32DocumentWindow(
   _top_area          = new Win32Dock(this);
   _bottom_area       = new Win32Dock(this);
   _bottom_glass_area = new Win32GlassDock(this);
+  
+  if(Win32Themes::is_windows_10_or_newer()) {
+    // alpha channel only necessary for win10 custom blur behind ...
+    _working_area->_image_format = CAIRO_FORMAT_ARGB32;
+    _top_area->_image_format     = CAIRO_FORMAT_ARGB32;
+    _bottom_area->_image_format  = CAIRO_FORMAT_ARGB32;
+  }
 }
 
 void Win32DocumentWindow::after_construction() {
@@ -772,6 +792,12 @@ bool Win32DocumentWindow::is_all_glass() {
   return _top_area->document()->count()     == 0 &&
          _working_area->document()->count() == 0 &&
          _bottom_area->document()->count()  == 0;
+}
+
+void Win32DocumentWindow::update_dark_mode() {
+  bool dark_mode = _working_area->has_dark_background();
+  use_dark_mode(dark_mode);
+  menubar->use_dark_mode(dark_mode);
 }
 
 void Win32DocumentWindow::rearrange() {

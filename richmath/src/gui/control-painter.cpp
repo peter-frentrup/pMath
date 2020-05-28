@@ -237,7 +237,8 @@ bool ControlPainter::is_very_transparent(ControlContext *context, ContainerType 
          type == FramelessButton || 
          type == AddressBandInputField || 
          type == OpenerTriangleClosed ||
-         type == OpenerTriangleOpened;
+         type == OpenerTriangleOpened ||
+         type == TabHeadBackground;
 }
 
 static void paint_edge(
@@ -329,7 +330,7 @@ static void paint_frame(
   
   paint_edge(canvas, rect, inner, c1, c3);
   
-  if(background_color.is_valid()) {
+  if(background_color) {
     inner.add_rect_path(*canvas);
     canvas->set_color(background_color);
     canvas->fill();
@@ -367,16 +368,16 @@ void ControlPainter::draw_container(
     case GenericButton:
     case PushButton:
     case PaletteButton:
-      paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
+      paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
     
     case AddressBandGoButton:
-      paint_frame(canvas, x, y + 0.75, width, height - 1.5, state == PressedHovered, state != Disabled);
+      paint_frame(canvas, x, y + 0.75, width, height - 1.5, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
       
     case DefaultPushButton: {
     
-        paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
+        paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
         
         float x2 = x + width;
         float y2 = y + height;
@@ -438,7 +439,7 @@ void ControlPainter::draw_container(
       break;
       
     case SliderHorzThumb:
-      paint_frame(canvas, x, y, width, height, false, state != Disabled);
+      paint_frame(canvas, x, y, width, height, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
       
     case ProgressIndicatorBackground:
@@ -630,7 +631,7 @@ void ControlPainter::draw_container(
         x = cx - width/2;
         y = cy - height/2;
         
-        paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled);
+        paint_frame(canvas, x, y, width, height, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
         
         if(state == PressedHovered) {
           x+= 0.75;
@@ -807,6 +808,13 @@ void ControlPainter::container_content_move(
 
 bool ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
   switch(type) {
+    case GenericButton:
+    case PushButton:
+    case PaletteButton:
+    case DefaultPushButton:
+    case SliderHorzThumb:
+    case NavigationBack:
+    case NavigationForward:
     case TabHeadAbuttingRight:
     case TabHeadAbuttingLeftRight:
     case TabHeadAbuttingLeft:

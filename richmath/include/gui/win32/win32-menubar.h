@@ -40,6 +40,7 @@ namespace richmath {
       void appearence(MenuAppearence value);
       bool is_pinned();
       
+      void use_dark_mode(bool dark_mode);
       void theme_changed();
       void resized();
       bool callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam);
@@ -81,6 +82,7 @@ namespace richmath {
       bool focused : 1;
       bool menu_animation : 1;
       bool _ignore_pressed_alt_key : 1;
+      bool _use_dark_mode : 1;
   };
 }
 

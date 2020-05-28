@@ -77,7 +77,9 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
     hot_item(0),
     dpi(96),
     focused(false),
-    _ignore_pressed_alt_key(false)
+    menu_animation(false),
+    _ignore_pressed_alt_key(false),
+    _use_dark_mode(false)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
@@ -266,6 +268,14 @@ bool Win32Menubar::is_pinned() {
   SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index(), (LPARAM)&info);
   
   return (info.fsState & TBSTATE_CHECKED) != 0;
+}
+
+void Win32Menubar::use_dark_mode(bool dark_mode) {
+  if(_use_dark_mode == dark_mode)
+    return;
+  
+  _use_dark_mode = dark_mode;
+  InvalidateRect(_hwnd, nullptr, FALSE);
 }
 
 void Win32Menubar::show_menu(int item) {
@@ -646,7 +656,6 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                     if(current_item)
                       next_item = hi->idNew;
                     
-                    pmath_debug_print("[TBN_HOTITEMCHANGE -> EndMenu]\n");
                     EndMenu();
                     *result = 0;
                     return true;
@@ -723,9 +732,6 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                   case CDDS_PREPAINT: {
                       RECT rect;
                       GetClientRect(_hwnd, &rect);
-//                Win32ControlPainter::win32_painter.draw_menubar(
-//                  draw->nmcd.hdc,
-//                  &rect/*&draw->nmcd.rc*/);
 
                       cairo_surface_t *surface = cairo_win32_surface_create_with_dib(
                                                    CAIRO_FORMAT_RGB24,
@@ -733,7 +739,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                                                    rect.bottom - rect.top);
                       if(cairo_surface_status(surface) == CAIRO_STATUS_SUCCESS) {
                         HDC bmp_dc = cairo_win32_surface_get_dc(surface);
-                        Win32ControlPainter::win32_painter.draw_menubar(bmp_dc, &rect);
+                        Win32ControlPainter::win32_painter.draw_menubar(bmp_dc, &rect, _use_dark_mode);
                         
                         cairo_surface_mark_dirty(surface);
                         cairo_t *cr = cairo_create(surface);
@@ -756,7 +762,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                           SRCCOPY);
                       }
                       else
-                        Win32ControlPainter::win32_painter.draw_menubar(draw->nmcd.hdc, &rect);
+                        Win32ControlPainter::win32_painter.draw_menubar(draw->nmcd.hdc, &rect, _use_dark_mode);
                         
                       cairo_surface_destroy(surface);
                       
@@ -833,7 +839,12 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                       Win32ControlPainter::win32_painter.draw_menubar_itembg(
                         draw->nmcd.hdc,
                         &draw->nmcd.rc,
-                        state);
+                        state,
+                        _use_dark_mode);
+                      
+                      if(_use_dark_mode) {
+                        draw->clrText = 0xFFFFFFu & (~draw->clrText);
+                      }
                     } return true;
                 }
               } break;

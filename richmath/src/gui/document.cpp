@@ -1920,8 +1920,7 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     canvas.translate(-pix_rect.x / sf, -pix_rect.y / sf);
     
     if(0 == (CAIRO_CONTENT_ALPHA & cairo_surface_get_content(cairo_get_target(target_cr)))) {
-      Color color = get_style(Background);
-      if(color.is_valid()) {
+      if(Color color = get_style(Background)) {
         canvas.set_color(color);
         canvas.paint();
       }
@@ -3605,12 +3604,16 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
   if(!resize_only) {
     DocumentImpl(*this).add_selection_highlights(0, length());
 //    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);
-
+    
     {
       float y = 0;
       if(first_visible_section < length())
         y += section(first_visible_section)->y_offset;
       canvas->move_to(0, y);
+    }
+    
+    if(Color bg = get_style(Background)) {
+      context.cursor_color = bg.is_dark() ? Color::White : Color::Black;
     }
     
     for(i = first_visible_section; i <= last_visible_section; ++i) {

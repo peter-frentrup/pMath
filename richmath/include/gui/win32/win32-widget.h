@@ -93,6 +93,8 @@ namespace richmath {
       bool _autohide_vertical_scrollbar;
       cairo_format_t _image_format;
       
+      bool has_dark_background() { return _has_dark_background; }
+      
     private:
       cairo_surface_t *_old_pixels;
       CursorType cursor;
@@ -100,6 +102,7 @@ namespace richmath {
       bool is_painting : 1;
       bool scrolling : 1;
       bool already_scrolled : 1;
+      bool _has_dark_background : 1;
       ObservableValue<bool> _focused;
       MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling adjustment)
       
@@ -123,6 +126,7 @@ namespace richmath {
     protected:
       virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
+      virtual void on_changed_dark_mode();
       
       virtual void on_paint(HDC dc, bool from_wmpaint);
       virtual void on_hscroll(WORD kind, WORD thumbPos);

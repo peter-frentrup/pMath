@@ -313,7 +313,7 @@ bool Win32Themes::current_theme_is_aero() {
   return len == namelen || filebuf[len - namelen - 1] == '\\';
 }
 
-bool Win32Themes::check_osversion(int min_major, int min_minor) {
+bool Win32Themes::check_osversion(int min_major, int min_minor, int min_build) {
   OSVERSIONINFO osvi;
   memset(&osvi, 0, sizeof(osvi));
   osvi.dwOSVersionInfoSize = sizeof(osvi);
@@ -322,7 +322,16 @@ bool Win32Themes::check_osversion(int min_major, int min_minor) {
   if((int)osvi.dwMajorVersion > min_major)
     return true;
     
-  return (int)osvi.dwMajorVersion == min_major && (int)osvi.dwMinorVersion >= min_minor;
+  if((int)osvi.dwMajorVersion < min_major)
+    return false;
+    
+  if((int)osvi.dwMinorVersion > min_minor)
+    return true;
+    
+  if((int)osvi.dwMinorVersion < min_minor)
+    return false;
+    
+  return (int)osvi.dwBuildNumber >= min_build;
 }
 
 DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active) {

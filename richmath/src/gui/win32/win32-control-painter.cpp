@@ -453,6 +453,11 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
     case DefaultPushButton:
     case PaletteButton:
     case PanelControl:
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead:
+    case TabBodyBackground:
       return get_sys_color(COLOR_BTNTEXT);
       
     case AddressBandBackground:
@@ -1770,20 +1775,38 @@ void Win32ControlPainter::paint_scrollbar_part(
   }
 }
 
-void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect) {
+void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect, bool dark_mode) {
   if( Win32Themes::OpenThemeData  &&
       Win32Themes::CloseThemeData &&
       Win32Themes::DrawThemeBackground)
   {
-    HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
+    HANDLE theme;
+    if(dark_mode) {
+      // Windows 10, 1903 (Build 18362): DarkMode::MENU exists but only gives dark colors for popup menu parts
+      theme = Win32Themes::OpenThemeData(0, L"DarkMode::MENU");
+      if(theme) {  
+        Win32Themes::DrawThemeBackground(
+          theme,
+          dc,
+          9, // MENU_POPUPBACKGROUND
+          0,
+          rect,
+          0);
+        
+        Win32Themes::CloseThemeData(theme);
+        return;
+      }
+    }
+    
+    theme = Win32Themes::OpenThemeData(0, L"MENU");
     if(!theme)
       goto FALLBACK;
       
     Win32Themes::DrawThemeBackground(
       theme,
       dc,
-      7,
-      0,
+      7,  // MENU_BARBACKGROUND
+      0,  // MB_ACTIVE
       rect,
       0);
       
@@ -1793,13 +1816,18 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect) {
   FALLBACK: 
     FillRect(dc, rect, GetSysColorBrush(COLOR_BTNFACE));
   }
+  
+  if(dark_mode) {
+    BitBlt(dc, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, nullptr, 0, 0, DSTINVERT);
+  }
 }
 
-void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state) {
+void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState state, bool dark_mode) {
   if( Win32Themes::OpenThemeData  && 
       Win32Themes::CloseThemeData && 
       Win32Themes::DrawThemeBackground) 
   {
+    // Windows 10, 1903 (Build 18362): DarkMode::MENU exists but only gives dark colors for popup menu parts
     HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
     
     if(!theme)
@@ -1825,17 +1853,22 @@ void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
   }
   
 FALLBACK:
-  if(state != Normal) {
-    UINT edge;
-    switch(state) {
-      case Hovered: edge = BDR_RAISEDINNER; break;
-      case Pressed: edge = BDR_SUNKENOUTER; break;
-      default:      edge = 0; break;
-    }
-    RECT edge_rect = *rect;
-    edge_rect.bottom-= 1;
-    edge_rect.right-= 1;
-    DrawEdge(dc, &edge_rect, edge, BF_RECT);
+  if(state == Normal) 
+    return;
+  
+  UINT edge;
+  switch(state) {
+    case Hovered: edge = BDR_RAISEDINNER; break;
+    case Pressed: edge = BDR_SUNKENOUTER; break;
+    default:      edge = 0; break;
+  }
+  RECT edge_rect = *rect;
+  edge_rect.bottom-= 1;
+  edge_rect.right-= 1;
+  DrawEdge(dc, &edge_rect, edge, BF_RECT);
+
+  if(dark_mode) {
+    BitBlt(dc, rect->left, rect->top, rect->right - rect->left, rect->bottom - rect->top, nullptr, 0, 0, DSTINVERT);
   }
 }
 
