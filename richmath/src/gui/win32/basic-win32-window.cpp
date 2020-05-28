@@ -507,7 +507,7 @@ static bool snap_inside(
     }
     
     if(abs(dx_left) < *max_dx) {
-      if(abs(dx_left) < abs(dx_right)) {
+      if(dx_left == dx_right || abs(dx_left) < abs(dx_right)) {
         *dx = *max_dx = dx_left;
         have_snapped_x = true;
       }
@@ -537,7 +537,7 @@ static bool snap_inside(
     }
     
     if(abs(dy_top) < *max_dy) {
-      if(abs(dy_top) < abs(dy_bottom)) {
+      if(dy_top == dy_bottom || abs(dy_top) < abs(dy_bottom)) {
         *dy = *max_dy = dy_top;
         have_snapped_y = true;
       }
@@ -557,7 +557,7 @@ static bool snap_inside(
     int dx_bottom = outer.bottom - orig.top;
     
     if(abs(dx_top) < *max_dy) {
-      if(abs(dx_top) < abs(dx_bottom)) {
+      if(dx_top == dx_bottom || abs(dx_top) < abs(dx_bottom)) {
         *dy = *max_dy = dx_top;
         have_snapped_y = true;
       }
@@ -572,11 +572,11 @@ static bool snap_inside(
     }
   }
   else if(have_snapped_y && !have_snapped_x) {
-    int dx_left  = outer.left  - orig.left;
-    int dx_right = outer.right - orig.right;
+    int dx_left  = outer.left  - orig.right;
+    int dx_right = outer.right - orig.left;
     
     if(abs(dx_left) < *max_dx) {
-      if(abs(dx_left) < abs(dx_right)) {
+      if(dx_left == dx_right || abs(dx_left) < abs(dx_right)) {
         *dx = *max_dx = dx_left;
         have_snapped_x = true;
       }
