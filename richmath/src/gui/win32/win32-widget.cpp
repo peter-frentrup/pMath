@@ -1047,6 +1047,7 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
   DWORD cmd;
   {
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
+    Win32Menu::use_dark_mode = has_dark_background();
     cmd = TrackPopupMenuEx(
             menu,
             flags,

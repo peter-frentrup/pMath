@@ -75,6 +75,45 @@ namespace {
     private:
       LONG refcount;
   };
+  
+  class StaticMenuOverride {
+    public:
+      static void ensure_init() {
+        if(singleton.default_wnd_proc)
+          return;
+        
+        WNDCLASSW wc;
+        
+        if(GetClassInfoW(nullptr, L"#32768", &wc)) {
+          singleton.default_wnd_proc = wc.lpfnWndProc;
+          wc.lpfnWndProc = wnd_proc;
+          RegisterClassW(&wc);
+        }
+      }
+    
+    public:
+      static StaticMenuOverride singleton;
+    
+    private:
+      StaticMenuOverride() 
+        : default_wnd_proc(nullptr)
+      {
+      }
+    
+    private:
+      LRESULT (CALLBACK * default_wnd_proc)(HWND, UINT, WPARAM, LPARAM);
+      
+    private:
+      static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+        switch(msg) {
+          case WM_CREATE: {
+              if(Win32Menu::use_dark_mode)
+                Win32Themes::SetWindowTheme(hwnd, L"DarkMode", nullptr);
+            } break;
+        }
+        return singleton.default_wnd_proc(hwnd, msg, wParam, lParam);
+      }
+  };
 }
 
 static Hashtable<Expr,  DWORD>  cmd_to_id;
@@ -88,15 +127,19 @@ extern pmath_symbol_t richmath_FE_MenuItem;
 
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
+StaticMenuOverride StaticMenuOverride::singleton;
 
 //{ class Win32Menu ...
 
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
 SharedPtr<Win32Menu>  Win32Menu::popup_menu;
+bool                  Win32Menu::use_dark_mode = false;
 
 Win32Menu::Win32Menu(Expr expr, bool is_popup)
   : Shareable()
 {
+  StaticMenuOverride::ensure_init();
+  
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
   MenuItemBuilder::add_remove_menu(1);
@@ -349,7 +392,6 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
 //            return TRUE;
 //          
 //          char class_name[20];
-//          const char MenuWindowClass[] = "#32768";
 //          if(GetClassNameA(wnd, class_name, sizeof(class_name)) > 0 && strcmp(MenuWindowClass, class_name) == 0) {
 //            BOOL disallow_peak = FALSE;
 //            BOOL excluded_from_peak = FALSE;

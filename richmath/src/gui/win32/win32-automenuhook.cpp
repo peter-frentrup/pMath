@@ -39,6 +39,7 @@ Win32AutoMenuHook *Win32AutoMenuHookImpl::current = nullptr;
 
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
+static const char MenuWindowClass[] = "#32768";
 
 static int find_hilite_menuitem(HMENU *menu);
 static int find_hilite_menuitem_cmd(HMENU *menu, DWORD *list_cmd, DWORD *cmd);
@@ -76,6 +77,15 @@ Win32AutoMenuHook::~Win32AutoMenuHook() {
 }
 
 bool Win32AutoMenuHook::handle(MSG *msg) {
+  {
+    const int len = 20;
+    char clsname[len];
+    GetClassNameA(msg->hwnd, clsname, len);
+    clsname[len-1] = '\0';
+    if(0 == strcmp(clsname, MenuWindowClass))
+      pmath_debug_print("[Win32AutoMenuHook msg 0x%x for menu window %p]\n", msg->message, msg->hwnd);
+  }
+  
   switch(msg->message) {
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
@@ -83,7 +93,6 @@ bool Win32AutoMenuHook::handle(MSG *msg) {
         POINT pt = dword_to_point(msg->lParam);
         // Strangely, lParam is in screen coordinates during the message hook.
         
-        const char MenuWindowClass[] = "#32768";
         const int len = 20;
         char hover_name[len];
         HWND hover_wnd = WindowFromPoint(pt);

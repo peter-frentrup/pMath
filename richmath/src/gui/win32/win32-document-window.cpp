@@ -1276,6 +1276,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           DWORD explicit_cmd = 0;
           {
             Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), hwnd(), nullptr, false, false);
+            Win32Menu::use_dark_mode = is_using_dark_mode();
             
             res = base::callback(message, wParam, lParam);
             

@@ -7,6 +7,7 @@
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-highdpi.h>
+#include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-widget.h>
 
@@ -1323,6 +1324,11 @@ void BasicWin32Window::use_dark_mode(bool dark_mode) {
     return;
   
   _use_dark_mode = dark_mode;
+  if(_use_dark_mode)
+    Win32Themes::SetWindowTheme(_hwnd, L"DarkMode_Explorer", nullptr);
+  else
+    Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
+    
   if(_blur_behind_window)
     _blur_behind_window->colorize(_active, _use_dark_mode);
   
@@ -2263,6 +2269,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               DWORD cmd;
               {
                 Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
+                Win32Menu::use_dark_mode = is_using_dark_mode();
                 
                 cmd = TrackPopupMenu(
                         menu,
@@ -2675,6 +2682,7 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
   self._hit_test_mouse_down = HTNOWHERE;
   
   if(self._themed_frame && wParam == HTSYSMENU) {
+    Win32Menu::use_dark_mode = self.is_using_dark_mode();
     if(HMENU menu = GetSystemMenu(self._hwnd, FALSE)) {
       TPMPARAMS tpm;
       memset(&tpm, 0, sizeof(tpm));

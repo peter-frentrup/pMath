@@ -335,6 +335,7 @@ void Win32Menubar::show_menu(int item) {
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
     
+    Win32Menu::use_dark_mode = _use_dark_mode;
     cmd = TrackPopupMenuEx(
             current_popup,
             flags,
@@ -425,6 +426,7 @@ void Win32Menubar::show_sysmenu() {
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
     
+    Win32Menu::use_dark_mode = _use_dark_mode;
     cmd = TrackPopupMenuEx(
             menu,
             flags,
