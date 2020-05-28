@@ -655,6 +655,9 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
 }
 
 void Win32Widget::on_changed_dark_mode() {
+  if(!Win32Themes::SetWindowTheme)
+    return;
+  
   if(has_dark_background())
     Win32Themes::SetWindowTheme(_hwnd, L"DarkMode_Explorer", nullptr);
   else

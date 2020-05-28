@@ -107,7 +107,7 @@ namespace {
       static LRESULT CALLBACK wnd_proc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
         switch(msg) {
           case WM_CREATE: {
-              if(Win32Menu::use_dark_mode)
+              if(Win32Themes::SetWindowTheme && Win32Menu::use_dark_mode)
                 Win32Themes::SetWindowTheme(hwnd, L"DarkMode", nullptr);
             } break;
         }

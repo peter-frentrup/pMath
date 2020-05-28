@@ -1324,10 +1324,12 @@ void BasicWin32Window::use_dark_mode(bool dark_mode) {
     return;
   
   _use_dark_mode = dark_mode;
-  if(_use_dark_mode)
-    Win32Themes::SetWindowTheme(_hwnd, L"DarkMode_Explorer", nullptr);
-  else
-    Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
+  if(Win32Themes::SetWindowTheme) {
+    if(_use_dark_mode)
+      Win32Themes::SetWindowTheme(_hwnd, L"DarkMode_Explorer", nullptr);
+    else
+      Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
+  }
     
   if(_blur_behind_window)
     _blur_behind_window->colorize(_active, _use_dark_mode);
