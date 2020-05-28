@@ -495,22 +495,29 @@ static bool snap_inside(
   if( (outer.bottom >= orig.top && outer.top    <= orig.bottom) ||
       (outer.top    >= orig.top && outer.bottom <= orig.bottom))
   {
+    int dx_left;
+    int dx_right;
     if(pt) {
-      if(abs(outer.left - pt->x) < *max_dx) {
-        *dx = *max_dx = outer.left - pt->x;
+      dx_left  = outer.left - pt->x;
+      dx_right = outer.right - pt->x;
+    }
+    else {
+      dx_left  = outer.left - orig.left;
+      dx_right = outer.right - orig.right;
+    }
+    
+    if(abs(dx_left) < *max_dx) {
+      if(abs(dx_left) < abs(dx_right)) {
+        *dx = *max_dx = dx_left;
         have_snapped_x = true;
       }
-      else if(abs(outer.right - pt->x) < *max_dx) {
-        *dx = *max_dx = outer.right - pt->x;
+      else if(abs(dx_right) < abs(dx_left)){
+        *dx = *max_dx = dx_right;
         have_snapped_x = true;
       }
     }
-    else if(abs(outer.left - orig.left) < *max_dx) {
-      *dx = *max_dx = outer.left - orig.left;
-      have_snapped_x = true;
-    }
-    else if(abs(outer.right - orig.right) < *max_dx) {
-      *dx = *max_dx = outer.right - orig.right;
+    else if(abs(dx_right) < *max_dx) {
+      *dx = *max_dx = dx_right;
       have_snapped_x = true;
     }
   }
@@ -518,43 +525,68 @@ static bool snap_inside(
   if( (outer.right >= orig.left && outer.left  <= orig.right) ||
       (outer.left  >= orig.left && outer.right <= orig.right))
   {
+    int dy_top;
+    int dy_bottom;
     if(pt) {
-      if(abs(outer.top - pt->y) < *max_dy) {
-        *dy = *max_dy = outer.top - pt->y;
+      dy_top    = outer.top    - pt->y;
+      dy_bottom = outer.bottom - pt->y;
+    }
+    else {
+      dy_top    = outer.top    - orig.top;
+      dy_bottom = outer.bottom - orig.bottom;
+    }
+    
+    if(abs(dy_top) < *max_dy) {
+      if(abs(dy_top) < abs(dy_bottom)) {
+        *dy = *max_dy = dy_top;
         have_snapped_y = true;
       }
-      else if(abs(outer.bottom - pt->y) < *max_dy) {
-        *dy = *max_dy = outer.bottom - pt->y;
+      else if(abs(dy_bottom) < abs(dy_top)) {
+        *dy = *max_dy = dy_bottom;
         have_snapped_y = true;
       }
     }
-    else if(abs(outer.top - orig.top) < *max_dy) {
-      *dy = *max_dy = outer.top - orig.top;
-      have_snapped_y = true;
-    }
-    else if(abs(outer.bottom - orig.bottom) < *max_dy) {
-      *dy = *max_dy = outer.bottom - orig.bottom;
+    else if(abs(dy_bottom) < *max_dy) {
+      *dy = *max_dy = dy_bottom;
       have_snapped_y = true;
     }
   }
 
   if(have_snapped_x && !have_snapped_y) {
-    if(abs(outer.top - orig.bottom) < *max_dy) {
-      *dy = *max_dy = outer.top - orig.bottom;
-      have_snapped_y = true;
+    int dx_top    = outer.top - orig.bottom;
+    int dx_bottom = outer.bottom - orig.top;
+    
+    if(abs(dx_top) < *max_dy) {
+      if(abs(dx_top) < abs(dx_bottom)) {
+        *dy = *max_dy = dx_top;
+        have_snapped_y = true;
+      }
+      else if(abs(dx_bottom) < abs(dx_top)) {
+        *dy = *max_dy = dx_bottom;
+        have_snapped_y = true;
+      }
     }
-    else if(abs(outer.bottom - orig.top) < *max_dy) {
-      *dy = *max_dy = outer.bottom - orig.top;
+    else if(abs(dx_bottom) < *max_dy) {
+      *dy = *max_dy = dx_bottom;
       have_snapped_y = true;
     }
   }
   else if(have_snapped_y && !have_snapped_x) {
-    if(abs(outer.left - orig.left) < *max_dx) {
-      *dx = *max_dx = outer.left - orig.left;
-      have_snapped_x = true;
+    int dx_left  = outer.left  - orig.left;
+    int dx_right = outer.right - orig.right;
+    
+    if(abs(dx_left) < *max_dx) {
+      if(abs(dx_left) < abs(dx_right)) {
+        *dx = *max_dx = dx_left;
+        have_snapped_x = true;
+      }
+      else if(abs(dx_right) < abs(dx_left)) {
+        *dx = *max_dx = dx_right;
+        have_snapped_x = true;
+      }
     }
-    else if(abs(outer.right - orig.right) < *max_dx) {
-      *dx = *max_dx = outer.right - orig.right;
+    else if(abs(dx_right) < *max_dx) {
+      *dx = *max_dx = dx_right;
       have_snapped_x = true;
     }
   }
