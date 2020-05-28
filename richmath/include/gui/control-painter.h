@@ -134,10 +134,11 @@ namespace richmath {
         float              height);
         
       virtual void container_content_move(
-        ContainerType  type,
-        ControlState   state,
-        float         *x,
-        float         *y);
+        ControlContext *context, 
+        ContainerType   type,
+        ControlState    state,
+        float          *x,
+        float          *y);
         
       virtual bool container_hover_repaint(ControlContext *context, ContainerType type);
       

@@ -40,10 +40,11 @@ namespace richmath {
         float           height) override;
     
       virtual void container_content_move(
-        ContainerType  type,
-        ControlState   state,
-        float         *x,
-        float         *y) override;
+        ControlContext *context, 
+        ContainerType   type,
+        ControlState    state,
+        float          *x,
+        float          *y) override;
         
       virtual bool container_hover_repaint(ControlContext *context, ContainerType type) override;
       

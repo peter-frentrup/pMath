@@ -121,8 +121,7 @@ void ContainerWidgetBox::paint(Context *context) {
   
   float x2 = x;
   float y2 = y;
-  ControlPainter::std->container_content_move(
-    type, state, &x2, &y2);
+  ControlPainter::std->container_content_move(this, type, state, &x2, &y2);
     
   context->canvas->move_to(x2, y2);
   

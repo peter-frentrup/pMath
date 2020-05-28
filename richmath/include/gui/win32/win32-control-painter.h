@@ -56,6 +56,7 @@ namespace richmath {
         float              height) override;
         
       virtual void container_content_move(
+        ControlContext *context, 
         ContainerType   type,
         ControlState    state,
         float          *x,

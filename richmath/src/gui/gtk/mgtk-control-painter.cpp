@@ -377,10 +377,11 @@ void MathGtkControlPainter::draw_container(
 }
  
 void MathGtkControlPainter::container_content_move(
-  ContainerType  type,
-  ControlState   state,
-  float         *x,
-  float         *y)
+  ControlContext *context, 
+  ContainerType   type,
+  ControlState    state,
+  float          *x,
+  float          *y)
 {
   switch(type) {
     case PushButton:
@@ -406,7 +407,7 @@ void MathGtkControlPainter::container_content_move(
     default: break;
   }
   
-  ControlPainter::container_content_move(type, state, x, y);
+  ControlPainter::container_content_move(context, type, state, x, y);
 }
  
 bool MathGtkControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {

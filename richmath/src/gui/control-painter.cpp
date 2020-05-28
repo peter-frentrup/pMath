@@ -772,10 +772,11 @@ SharedPtr<BoxAnimation> ControlPainter::control_transition(
 }
 
 void ControlPainter::container_content_move(
-  ContainerType  type,
-  ControlState   state,
-  float         *x,
-  float         *y
+  ControlContext *context, 
+  ContainerType   type,
+  ControlState    state,
+  float          *x,
+  float          *y
 ) {
   switch(type) {
     case GenericButton:
@@ -985,7 +986,7 @@ void ControlPainter::paint_scrollbar_part(
   float mx = x + width / 2;
   float my = y + height / 2;
   
-  container_content_move(PushButton, state, &mx, &my);
+  container_content_move(context, PushButton, state, &mx, &my);
   
   canvas->set_color(Color::Black);
   

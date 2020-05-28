@@ -1414,14 +1414,15 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
 }
 
 void Win32ControlPainter::container_content_move(
-  ContainerType  type,
-  ControlState   state,
-  float         *x,
-  float         *y
+  ControlContext *context, 
+  ContainerType   type,
+  ControlState    state,
+  float          *x,
+  float          *y
 ) {
 //  if(Win32Themes::GetThemePosition){
 //    int theme_part, theme_state;
-//    HANDLE theme = get_control_theme(???, type, state, &theme_part, &theme_state);
+//    HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
 //
 //    POINT off;
 //    // TMT_OFFSET  = 3401
@@ -1437,8 +1438,17 @@ void Win32ControlPainter::container_content_move(
 //    if(theme)
 //      return;
 //  }
-
-  ControlPainter::container_content_move(type, state, x, y);
+  
+  float old_x = *x;
+  float old_y = *y;
+  ControlPainter::container_content_move(context, type, state, x, y);
+  if(*x != old_x || *y != old_y) {
+    double scale = context->dpi() / 72.0;
+    if(*x != old_x)
+      *x = old_x + floor(0.5 + (*x - old_x) * scale) / scale;
+    if(*y != old_y)
+      *y = old_y + floor(0.5 + (*y - old_y) * scale) / scale;
+  }
 }
 
 bool Win32ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {

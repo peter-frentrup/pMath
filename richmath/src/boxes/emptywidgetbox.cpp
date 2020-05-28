@@ -120,8 +120,7 @@ void EmptyWidgetBox::paint(Context *context) {
       _extents.height());
   }
   
-  ControlPainter::std->container_content_move(
-    type, state, &x, &y);
+  ControlPainter::std->container_content_move(this, type, state, &x, &y);
     
   context->canvas->move_to(x, y);
   
