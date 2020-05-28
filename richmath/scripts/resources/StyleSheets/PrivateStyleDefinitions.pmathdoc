@@ -13,16 +13,19 @@ Document({
              With({FE`Private`owner:= CurrentValue("StyleDefinitionsOwner")}, 
               Button(
                Style(With({FE`Private`title:= CurrentValue(FE`Private`owner, 
-                   WindowTitle)}, If(IsString(FE`Private`title), FE`Private`title, 
-                  FE`Private`owner)), FontColor -> RGBColor(0, 0, 0.5`)), 
-               FE`CallFrontEnd(FrontEnd`SetSelectedDocument(FE`Private`owner)), 
-               ButtonFrame -> "Frameless")))), "\[HighNineDoubleQuote]"}, 
-          "Docked", SectionFrame -> {Inherited, {Inherited, 0.75`}})}}, 
+                   WindowTitle)}, If(IsString(FE`Private`title), 
+                  FE`Private`title, FE`Private`owner)), 
+                FontColor -> RGBColor(0, 0, 0.5`)), 
+               FE`CallFrontEnd(FrontEnd`SetSelectedDocument(
+                 FE`Private`owner)), ButtonFrame -> "Frameless")))), 
+           "\[HighNineDoubleQuote]"}, "Docked", 
+          SectionFrame -> {Inherited, {Inherited, 0.5`}})}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
        Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> Dynamic(
         ToString(Row({"Private StyleDefinitions for ", 
           With({FE`Private`owner:= CurrentValue("StyleDefinitionsOwner")}, 
-           With({FE`Private`title:= CurrentValue(FE`Private`owner, WindowTitle)}, 
-            If(IsString(FE`Private`title), FE`Private`title, FE`Private`owner)))}))))}, 
-     All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
+           With({FE`Private`title:= CurrentValue(FE`Private`owner, 
+              WindowTitle)}, If(IsString(FE`Private`title), FE`Private`title, 
+             FE`Private`owner)))}))))}, All)}, All)}, 
+ StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
