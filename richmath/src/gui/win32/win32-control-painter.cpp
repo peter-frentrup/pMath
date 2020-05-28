@@ -675,12 +675,28 @@ void Win32ControlPainter::draw_container(
   if( Win32Themes::OpenThemeData && 
       Win32Themes::CloseThemeData && 
       Win32Themes::DrawThemeBackground &&
-      Win32Themes::GetThemeMargins) 
+      Win32Themes::GetThemeMargins &&
+      Win32Themes::GetThemePartSize) 
   {
     int _part, _state;
     HANDLE theme = get_control_theme(context, type, state, &_part, &_state);
     if(!theme)
       goto FALLBACK;
+    
+    SIZE size = {0,0};
+    if( SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, _part, _state, nullptr, Win32Themes::TS_DRAW, &size)) && 
+        size.cx > 0 && 
+        size.cy > 0) 
+    {
+      if(size.cx <= w && size.cy <= h) {
+        if(dc) {
+          dc_x+= (w - size.cx) / 2;
+          dc_y+= (h - size.cy) / 2;
+        }
+        w = size.cx;
+        h = size.cy;
+      }
+    }
     
     if(!dc) {
       surface = cairo_win32_surface_create_with_dib(
