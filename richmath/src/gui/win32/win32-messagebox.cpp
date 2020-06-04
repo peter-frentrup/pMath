@@ -1,9 +1,29 @@
 #include <gui/win32/win32-messagebox.h>
 
+#include <gui/win32/win32-themes.h>
 #include <gui/win32/win32-widget.h>
 
 
 using namespace richmath;
+
+
+namespace {
+  class TaskDialogConfig: public TASKDIALOGCONFIG {
+    public:
+      bool dark_mode;
+      
+    public:
+      TaskDialogConfig();
+    
+    protected:
+      HRESULT callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
+      void on_created(HWND hwnd);
+      void on_dialog_created(HWND hwnd);
+      
+    private:
+      static HRESULT CALLBACK static_callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData);
+  };
+}
 
 
 HRESULT try_TaskDialogIndirect(const TASKDIALOGCONFIG *pTaskConfig, int *pnButton, int *pnRadioButton, BOOL *pfVerificationFlagChecked) {
@@ -26,17 +46,6 @@ HRESULT try_TaskDialogIndirect(const TASKDIALOGCONFIG *pTaskConfig, int *pnButto
 }
 
 YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
-  HWND owner_window = nullptr;
-  
-  if(doc) {
-    Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
-    if(wid) {
-      owner_window = wid->hwnd();
-      while(auto parent = GetParent(owner_window))
-        owner_window = parent;
-    }
-  }
-  
   question+= String::FromChar(0);
   const wchar_t *str = (const wchar_t*)question.buffer();
   if(!str)
@@ -49,10 +58,7 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
     { IDNO,     L"Do&n't save" },
     { IDCANCEL, L"&Cancel" }
   };
-  TASKDIALOGCONFIG config = {0};
-  
-  config.cbSize = sizeof(config);
-  config.hwndParent = owner_window;
+  TaskDialogConfig config;
   config.hInstance = GetModuleHandleW(nullptr);
   config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW;
   config.pszWindowTitle = title;
@@ -61,9 +67,20 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
   config.pButtons = buttons;
   config.nDefaultButton = IDYES;
   
+  if(doc) {
+    Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
+    if(wid) {
+      config.dark_mode = wid->has_dark_background();
+      config.hwndParent = wid->hwnd();
+      while(auto parent = GetParent(config.hwndParent))
+        config.hwndParent = parent;
+    }
+  }
+  
+  
   int result = 0;
   if(!HRbool(try_TaskDialogIndirect(&config, &result, nullptr, nullptr))) {
-    result = MessageBoxW(owner_window, str, title, MB_YESNOCANCEL | MB_TASKMODAL);
+    result = MessageBoxW(config.hwndParent, str, title, MB_YESNOCANCEL | MB_TASKMODAL);
   }
   
   switch(result) {
@@ -72,3 +89,66 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
     default:    return YesNoCancel::Cancel;
   }
 }
+
+//{ class TaskDialogConfig ...
+
+TaskDialogConfig::TaskDialogConfig()
+: TASKDIALOGCONFIG{0},
+  dark_mode{false}
+{
+  cbSize = sizeof(TASKDIALOGCONFIG);
+  pfCallback = static_callback;
+  lpCallbackData = (LONG_PTR)this;
+}
+
+HRESULT TaskDialogConfig::callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+  switch(msg) {
+    case TDN_DIALOG_CONSTRUCTED: on_dialog_created(hwnd); break;
+    case TDN_CREATED:            on_created(hwnd);        break;
+    default: break;
+  }
+  return S_OK;
+}
+
+void TaskDialogConfig::on_created(HWND hwnd) {
+  Win32Themes::try_set_dark_mode_frame(hwnd, dark_mode);
+  
+  // does not work (there is only one (light) TaskDialog theme in Windows 10, 1903):
+//  if(Win32Themes::SetWindowTheme) {
+//    if(dark_mode) {
+//      Win32Themes::SetWindowTheme(hwnd, L"DarkMode_Explorer", nullptr);
+//      //Win32Themes::SetWindowTheme(hwnd, L"DarkMode", nullptr);
+//    }
+//    else {
+//      Win32Themes::SetWindowTheme(hwnd, L"Explorer", nullptr);
+//    }
+//    pmath_debug_print("[enum for %p]\n", hwnd);
+//    struct Data {
+//      bool dark_mode;
+//    } data { dark_mode };
+//    EnumChildWindows(
+//      hwnd, 
+//      [](HWND wnd, LPARAM lParam) -> BOOL {
+//        Data *data = (Data*)lParam;
+//        pmath_debug_print("[  child %p]\n", wnd);
+//        if(data->dark_mode) {
+//          Win32Themes::SetWindowTheme(wnd, L"DarkMode_Explorer", nullptr);
+//        }
+//        else{
+//          Win32Themes::SetWindowTheme(wnd, L"Explorer", nullptr);
+//        }
+//        return TRUE; 
+//      }, 
+//      (LPARAM)&data);
+//  }
+}
+
+void TaskDialogConfig::on_dialog_created(HWND hwnd) {
+}
+
+HRESULT CALLBACK TaskDialogConfig::static_callback(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam, LONG_PTR lpRefData) {
+  TaskDialogConfig *config = (TaskDialogConfig*)lpRefData;
+  return config->callback(hwnd, msg, wParam, lParam);
+}
+
+//} ... class TaskDialogConfig

@@ -41,32 +41,72 @@ namespace richmath {
       
       enum DWMWINDOWATTRIBUTE {
         DWMWA_NCRENDERING_ENABLED = 1,
-        DWMWA_NCRENDERING_POLICY,
-        DWMWA_TRANSITIONS_FORCEDISABLED,
-        DWMWA_ALLOW_NCPAINT,
-        DWMWA_CAPTION_BUTTON_BOUNDS,
-        DWMWA_NONCLIENT_RTL_LAYOUT,
-        DWMWA_FORCE_ICONIC_REPRESENTATION,
-        DWMWA_FLIP3D_POLICY,
-        DWMWA_EXTENDED_FRAME_BOUNDS,
+        DWMWA_NCRENDERING_POLICY = 2,
+        DWMWA_TRANSITIONS_FORCEDISABLED = 3,
+        DWMWA_ALLOW_NCPAINT = 4,
+        DWMWA_CAPTION_BUTTON_BOUNDS = 5,
+        DWMWA_NONCLIENT_RTL_LAYOUT = 6,
+        DWMWA_FORCE_ICONIC_REPRESENTATION = 7,
+        DWMWA_FLIP3D_POLICY = 8,
+        DWMWA_EXTENDED_FRAME_BOUNDS = 9,
         // Windows 7 and newer:
-        DWMWA_HAS_ICONIC_BITMAP,
-        DWMWA_DISALLOW_PEEK,
-        DWMWA_EXCLUDED_FROM_PEEK,
+        DWMWA_HAS_ICONIC_BITMAP = 10,
+        DWMWA_DISALLOW_PEEK = 11,
+        DWMWA_EXCLUDED_FROM_PEEK = 12,
         // Windows 8 and newer:
-        DWMWA_CLOAK,
-        DWMWA_CLOAKED,
-        DWMWA_FREEZE_REPRESENTATION,
-        //
-        DWMWA_Unknown16,
-        DWMWA_Unknown17,
-        DWMWA_Unknown18,
+        DWMWA_CLOAK = 13,
+        DWMWA_CLOAKED = 14,
+        DWMWA_FREEZE_REPRESENTATION = 15,
+        DWMWA_PASSIVE_UPDATE_MODE = 16,
+        
+        // undocumented, since Windows 10, Redstone 5 (1809, November 2018, Build 17763):
+        DWMWA_USE_IMMERSIVE_DARK_MODE_old = 19,
+        
+        // undocumented, since 1909 (build 18363) (? net checked, but not yet available in 1903, i.e. build 18362):
+        DWMWA_USE_IMMERSIVE_DARK_MODE_new = 20,
+      };
+      
+      // like DWMWINDOWATTRIBUTE, except some tweaks, see http://undoc.airesoft.co.uk/user32.dll/GetWindowCompositionAttribute.php
+      // and https://gist.github.com/ysc3839/b08d2bff1c7dacde529bed1d37e85ccf
+      enum class UndocumentedWindowCompositionAttribute: DWORD {
+        // Vista and newer:
+        Undefined = 0,
+        NCRenderingEnabled = 1,
+        NCRenderingPolicy = 2,
+        TransitionsForceDisabled = 3,
+        AllowNCPaint = 4,
+        CaptionButtonBounds = 5,
+        NonClientRTLLayout = 6,
+        ForceIconicRepresentation = 7,
+        ExtendedFrameBounds = 8,
+        // Windows 7 and newer:
+        HasIconicBitmap = 9,
+        ThemeAttributes = 10,
+        NCRenderingExiled = 11,
+        NCAdornmentInfo = 12,
+        ExcludedFromLivePreview = 13,
+        VideoOverlayActive = 14,
+        ForceActiveWindowAppearance = 15,
+        DisallowPeek = 16,
+        // Windows 8 and newer:
+        Cloak = 17,
+        Cloaked = 18,
+        
+        // Since when ?:
+        
         // https://withinrafael.com/2018/02/02/adding-acrylic-blur-to-your-windows-10-apps-redstone-4-desktop-apps/
-        DWMWA_UNDOCUMENTED_ACCENT_POLICY = 19,
+        AccentPolicy = 19,
+        FreezeRepresentation = 20,
+        EverUncloaked = 21,
+        VisualOwner = 22,
+        Holographic = 23,
+        ExcludeFromDDA = 24,
+        PassiveUpdateMode = 25,
+        UseDarkModeColors = 26,
       };
       
       struct WINCOMPATTRDATA {
-        DWORD  attr; // generally DWMWINDOWATTRIBUTE, except some tweaks, see http://undoc.airesoft.co.uk/user32.dll/GetWindowCompositionAttribute.php
+        UndocumentedWindowCompositionAttribute  attr;
         void  *data;
         ULONG  data_size;
       };
@@ -226,7 +266,19 @@ namespace richmath {
         EnableGradient = 1,
         EnableTransparentGradient = 2,
         EnableBlurBehind = 3,
-        EnableAcrylicBlurBehind = 4, // since Windows 10, Redstone 4 (April 2018, Build 17134)
+        EnableAcrylicBlurBehind = 4,   // since Windows 10, Redstone 4 (1803, April 2018,    Build 17134)
+        EnableHostBackdrop = 5,        // since Windows 10, Redstone 5 (1809, November 2018, Build 17763)
+      };
+      
+      enum AccentFlags {
+        AccentFlagMixWithGradientColor = 0x02,
+        
+        // https://github.com/melak47/BorderlessWindow/issues/13#issuecomment-309273007
+        AccentFlagDrawLeftBorder = 0x20,
+        AccentFlagDrawTopBorder = 0x40,
+        AccentFlagDrawRightBorder = 0x80,
+        AccentFlagDrawBottomBorder = 0x100,
+        AccentFlagDrawAllBorders = AccentFlagDrawLeftBorder | AccentFlagDrawTopBorder | AccentFlagDrawRightBorder | AccentFlagDrawBottomBorder,
       };
       
       struct AccentPolicy {
@@ -306,12 +358,16 @@ namespace richmath {
       static bool is_windows_8_or_newer() {     return Win32Themes::check_osversion(6, 2); }
       static bool is_windows_8_1_or_newer() {   return Win32Themes::check_osversion(6, 3); }
       static bool is_windows_10_or_newer() {    return Win32Themes::check_osversion(10, 0); }
+      static bool is_windows_10_1803_or_newer() { return Win32Themes::check_osversion(10, 0, 17134); }
       static bool is_windows_10_1809_or_newer() { return Win32Themes::check_osversion(10, 0, 17763); }
+      static bool is_windows_10_1903_or_newer() { return Win32Themes::check_osversion(10, 0, 18362); }
+      static bool is_windows_10_1909_or_newer() { return Win32Themes::check_osversion(10, 0, 18363); }
       
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
       static bool try_read_win10_colorization(ColorizationInfo *info);
       static bool use_win10_transparency();
+      static void try_set_dark_mode_frame(HWND hwnd, bool dark_mode);
       
       static bool has_areo_peak() { return DwmpActivateLivePreview_win7 || DwmpActivateLivePreview_win81; }
       static bool activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger);

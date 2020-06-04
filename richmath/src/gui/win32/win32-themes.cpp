@@ -424,6 +424,29 @@ bool Win32Themes::use_win10_transparency() {
   return result;
 }
 
+void Win32Themes::try_set_dark_mode_frame(HWND hwnd, bool dark_mode) {
+//  // Before 1903, we should SetPropW(hwnd, L"UseImmersiveDarkModeColors", dark_mode), see https://github.com/ysc3839/win32-darkmode
+//  if(is_windows_10_1903_or_newer()) {
+//    if(SetWindowCompositionAttribute) {
+//      WINCOMPATTRDATA data {};
+//      data.attr = UndocumentedWindowCompositionAttribute::UseDarkModeColors;
+//      BOOL value = dark_mode;
+//      data.data = &value;
+//      data.data_size = sizeof(value);
+//      SetWindowCompositionAttribute(hwnd, &data);
+//    }
+//  }
+  if(DwmSetWindowAttribute) { // See https://github.com/microsoft/Terminal/issues/299
+    BOOL value = dark_mode;
+    if(is_windows_10_1909_or_newer()) {
+      HRreport(DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_new, &value, sizeof(value)));
+    }
+    else if(is_windows_10_1809_or_newer()) {
+      HRreport(DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_old, &value, sizeof(value)));
+    }
+  }
+}
+
 bool Win32Themes::activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger) {
   if(DwmpActivateLivePreview_win81) 
     return HRbool(DwmpActivateLivePreview_win81(activate, exclude, insert_before, trigger, nullptr));

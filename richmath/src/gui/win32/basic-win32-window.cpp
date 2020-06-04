@@ -118,12 +118,12 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
       // Note that Acrylic Blur Behind is very slow (window lags when moving) because it uses a much larger blur radius.
       Win32Themes::AccentPolicy accent_policy = {};
       accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
-      accent_policy.flags = 2; // mix with gradient_color
+      accent_policy.flags = Win32Themes::AccentFlagMixWithGradientColor | Win32Themes::AccentFlagDrawTopBorder;
       accent_policy.gradient_color = abgr;
       accent_policy.animation_id = 0;
       
       Win32Themes::WINCOMPATTRDATA data = {};
-      data.attr = Win32Themes::DWMWA_UNDOCUMENTED_ACCENT_POLICY;
+      data.attr = Win32Themes::UndocumentedWindowCompositionAttribute::AccentPolicy;
       data.data = &accent_policy;
       data.data_size = sizeof(accent_policy);
       if(!Win32Themes::SetWindowCompositionAttribute(_hwnd, &data)) {
@@ -1355,6 +1355,8 @@ void BasicWin32Window::use_dark_mode(bool dark_mode) {
   if(_use_dark_mode == dark_mode)
     return;
   
+  // TODO: when was dark mode and DarkMode_Explorer theme introduced? Maybe Windows 10 (1809) build 17763 ?
+  
   _use_dark_mode = dark_mode;
   if(Win32Themes::SetWindowTheme) {
     if(_use_dark_mode)
@@ -1362,6 +1364,9 @@ void BasicWin32Window::use_dark_mode(bool dark_mode) {
     else
       Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
   }
+  
+  // Only needed for palettes, because their titlebar is drawn by Windows and not by us:
+  Win32Themes::try_set_dark_mode_frame(_hwnd, dark_mode);
     
   if(_blur_behind_window)
     _blur_behind_window->colorize(_active, _use_dark_mode);
