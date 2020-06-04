@@ -575,12 +575,12 @@ void Win32ControlPainter::draw_container(
     double a = 1;
     double b = 0;
     canvas->user_to_device_dist(&a, &b);
-    x_scale = sqrt(a * a + b * b);
+    x_scale = hypot(a, b);
     
     a = 0;
     b = 1;
     canvas->user_to_device_dist(&a, &b);
-    y_scale = sqrt(a * a + b * b);
+    y_scale = hypot(a, b);
   }
   
   switch(type) {

@@ -336,12 +336,11 @@ void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
   if(length == 0)
     return;
     
-  float factor = label_direction_x * label_direction_x + label_direction_y * label_direction_y;
-  
+  float factor = hypot(label_direction_x, label_direction_y);
   if(factor == 0)
     return;
     
-  factor = 1 / sqrt(factor);
+  factor = 1 / factor;
   
   float x1 = x;
   float y1 = y;

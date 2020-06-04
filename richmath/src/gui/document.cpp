@@ -4174,7 +4174,7 @@ void DocumentImpl::paint_flashing_cursor_if_needed() {
         
         double dx = x2 - x1;
         double dy = y2 - y1;
-        double h = sqrt(dx * dx + dy * dy);
+        double h = hypot(dx, dy);
         double c = dx / h;
         double s = dy / h;
         double x = (x1 + x2) / 2;

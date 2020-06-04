@@ -418,11 +418,11 @@ void Canvas::show_blur_line(float x1, float y1, float x2, float y2, float radius
   float dx = x2 - x1;
   float dy = y2 - y1;
   
-  float d2 = dx * dx + dy * dy;
-  if(d2 <= 0)
+  float d2 = hypot(dx, dy);
+  if(!(d2 > 0))
     return;
     
-  d2 = radius / sqrt(d2);
+  d2 = radius / d2;
   dx *= d2;
   dy *= d2;
   

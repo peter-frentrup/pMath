@@ -5,6 +5,7 @@
 #include <boxes/section.h>
 #include <graphics/context.h>
 
+
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_SectionGroup;
@@ -839,7 +840,7 @@ void SectionList::init_section_bracket_sizes(Context *context) {
   float dy = 0;
   
   context->canvas->user_to_device_dist(&dx, &dy);
-  float pix = 1 / sqrt(dx * dx + dy * dy);
+  float pix = 1 / hypot(dx, dy);
   
   section_bracket_width        = 8 * pix;
   section_bracket_right_margin = 2 * pix;
@@ -1138,11 +1139,11 @@ void SectionList::paint_single_section_bracket(
     
     float picy = 1;
     
-    float hyp = sqrt(pdxx * pdxx + pdxy * pdxy);
+    float hyp = hypot(pdxx, pdxy);
     pdxx /= hyp;
     pdxy /= hyp;
     
-    hyp = sqrt(pdyx * pdyx + pdyy * pdyy);
+    hyp = hypot(pdyx, pdyy);
     pdyx /= hyp;
     pdyy /= hyp;
     
