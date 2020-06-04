@@ -24,7 +24,6 @@ Document({
              ComplexStringBox("\"Defaulted\""), ",", 
              ComplexStringBox("\"Palette\""), ",", 
              ComplexStringBox("\"Generic\""), ",", 
-             ComplexStringBox("\"TooltipWindow\""), ",", 
              ComplexStringBox("\"ListViewItem\""), ",", 
              ComplexStringBox("\"ListViewItemSelected\""), ",", 
              ComplexStringBox("\"NavigationBack\""), ",", 
@@ -43,8 +42,6 @@ Document({
            ButtonFunction -> (/\/ &)), ",", 
           ButtonBox(ComplexStringBox("\"Generic\""), ButtonFrame -> "Generic", 
            ButtonFunction -> (/\/ &)), ",", 
-          ButtonBox(ComplexStringBox("\"TooltipWindow\""), 
-           ButtonFrame -> "TooltipWindow", ButtonFunction -> (/\/ &)), ",", 
           ButtonBox(ComplexStringBox("\"ListViewItem\""), 
            ButtonFrame -> "ListViewItem", ButtonFunction -> (/\/ &)), ",", 
           ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
@@ -65,7 +62,6 @@ Document({
              ComplexStringBox("\"Defaulted\""), ",", 
              ComplexStringBox("\"Palette\""), ",", 
              ComplexStringBox("\"Generic\""), ",", 
-             ComplexStringBox("\"TooltipWindow\""), ",", 
              ComplexStringBox("\"ListViewItem\""), ",", 
              ComplexStringBox("\"ListViewItemSelected\""), ",", 
              ComplexStringBox("\"NavigationBack\""), ",", 
@@ -85,9 +81,6 @@ Document({
            ButtonFrame -> "Palette", ButtonFunction -> (/\/ &), 
            Enabled -> False), ",", ButtonBox(ComplexStringBox("\"Generic\""), 
            ButtonFrame -> "Generic", ButtonFunction -> (/\/ &), 
-           Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"TooltipWindow\""), 
-           ButtonFrame -> "TooltipWindow", ButtonFunction -> (/\/ &), 
            Enabled -> False), ",", 
           ButtonBox(ComplexStringBox("\"ListViewItem\""), 
            ButtonFrame -> "ListViewItem", ButtonFunction -> (/\/ &), 
@@ -209,20 +202,27 @@ Document({
       Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"abc\""), 
           Enabled -> False), ComplexStringBox("\"Tip\""))), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [15]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
+           "Appearance", "\[Rule]", ComplexStringBox("\"Tooltip\"")}}, ")"}), 
+       "Input", SectionLabel -> "in [16]:"), 
+      Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 
+         Appearance -> "Tooltip")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [16]:")}, All), 
     SectionGroup({Section("Input Field", "Subsection"), 
       SectionGroup({
         Section(BoxData({"InputField", "(", {
             ComplexStringBox("\"Hallo\""), ",", "String"}, ")"}), "Input", 
-         SectionLabel -> "in [16]:"), 
+         SectionLabel -> "in [17]:"), 
         Section(BoxData(InputFieldBox("Hallo", String)), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [16]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
       SectionGroup({
         Section(BoxData({"InputField", "(", {
             ComplexStringBox("\"Hallo\""), ",", "String", ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
-         SectionLabel -> "in [17]:"), 
+         SectionLabel -> "in [18]:"), 
         Section(BoxData(InputFieldBox("Hallo", String, Enabled -> False)), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [17]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [18]:")}, 
        All), SectionGroup({
         Section(
          BoxData({"Panel", "(", {
@@ -236,7 +236,7 @@ Document({
                     ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, 
                "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
              "Appearance", "\[Rule]", ComplexStringBox("\"AddressBand\"")}}, 
-           ")"}), "Input", SectionLabel -> "in [18]:"), 
+           ")"}), "Input", SectionLabel -> "in [19]:"), 
         Section(
          BoxData(
           PanelBox(
@@ -246,7 +246,7 @@ Document({
                ButtonBox(ComplexStringBox("\"Go\""), 
                 ButtonFrame -> "AddressBandGo")}}, GridBoxColumnSpacing -> 0), 
             "Grid"), Appearance -> "AddressBand")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [18]:")}, All)}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [19]:")}, All)}, All), 
     SectionGroup({Section("Tab view", "Subsection"), 
       SectionGroup({
         Section(BoxData({"DynamicLocal", "(", {
@@ -306,7 +306,7 @@ Document({
                       "\n", {"Appearance", "\[Rule]", 
                        ComplexStringBox("\"TabBody\"")}}}, ")"}, "}"}}}, "}"}, 
                ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input", 
-         SectionLabel -> "in [19]:"), 
+         SectionLabel -> "in [20]:"), 
         Section(BoxData(DynamicLocalBox({Global`idx}, 
            TagBox(
             GridBox({
@@ -340,6 +340,6 @@ Document({
            Deinitialization :> None, UnsavedVariables :> {}, 
            DynamicLocalValues :> {{
              OwnRules(Global`idx):= {HoldPattern(Global`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [19]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [20]:")}, 
        All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
  Visible -> True)

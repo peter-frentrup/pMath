@@ -205,7 +205,6 @@ namespace {
         add(DefaultPushButton,    String("Defaulted"));
         add(PaletteButton,        String("Palette"));
         add(AddressBandGoButton,  String("AddressBandGo"));
-        add(TooltipWindow,        String("TooltipWindow"));
         add(ListViewItemSelected, String("ListViewItemSelected"));
         add(ListViewItem,         String("ListViewItem"));
         

@@ -107,20 +107,24 @@ Document({
            SelectedDocument(), #1) &)})}, All), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 
         Section(StyleData("Binomial"), TemplateBoxOptions -> {
-          DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
-          Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
+          Tooltip -> Automatic, DisplayFunction -> ({"(", 
+           GridBox({{#1}, {#2}}), ")"} &)}), 
+        Section(StyleData("Hypergeometric0F1"), 
+         TemplateBoxOptions -> {Tooltip -> Automatic, 
+          DisplayFunction -> ({
            StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
-          Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
+            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &)}), 
+        Section(StyleData("Hypergeometric1F1"), 
+         TemplateBoxOptions -> {Tooltip -> Automatic, 
+          DisplayFunction -> ({
            StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &), 
-          Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
+            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &)}), 
+        Section(StyleData("Hypergeometric2F1"), 
+         TemplateBoxOptions -> {Tooltip -> Automatic, 
+          DisplayFunction -> ({
            StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
             ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", #4}, 
-           ")"} &), Tooltip -> Automatic}), Section(StyleData("OpenerView"), 
+           ")"} &)}), Section(StyleData("OpenerView"), 
          TemplateBoxOptions -> {DisplayFunction -> ({
            GridBox({{OpenerBox(#3), {#1}}, {
               "", PaneSelectorBox({
@@ -149,12 +153,11 @@ Document({
                 ButtonFrame -> "Frameless"))))), ")"} &), 
           InterpretationFunction -> ({"DocumentObject", "(", 
            InterpretationBox("", #1), ")"} &)}), 
-        Section(StyleData("Det"), TemplateBoxOptions -> {
+        Section(StyleData("Det"), TemplateBoxOptions -> {Tooltip -> Automatic, 
           DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
-           "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
-        Section(StyleData("TooltipContent"), 
-         TemplateBoxOptions -> {DisplayFunction -> (ButtonBox(#1, 
-           ButtonFrame -> "TooltipWindow") &)}), Section(StyleData("Row")), 
+           "\[RightBracketingBar]"} &)}), Section(StyleData("TooltipContent"), 
+         TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
+           Appearance -> "Tooltip") &)}), Section(StyleData("Row")), 
         Section(StyleData("RowDefault"), BaseStyle -> "Row", 
          TemplateBoxOptions -> {DisplayFunction -> ({
            TemplateSlotSequence(##1)} &), InterpretationFunction -> ({"Row", 
