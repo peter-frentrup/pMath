@@ -118,7 +118,7 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
       // Note that Acrylic Blur Behind is very slow (window lags when moving) because it uses a much larger blur radius.
       Win32Themes::AccentPolicy accent_policy = {};
       accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
-      accent_policy.flags = Win32Themes::AccentFlagMixWithGradientColor | Win32Themes::AccentFlagDrawTopBorder;
+      accent_policy.flags = Win32Themes::AccentFlagMixWithGradientColor;
       accent_policy.gradient_color = abgr;
       accent_policy.animation_id = 0;
       
