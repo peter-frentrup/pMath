@@ -17,24 +17,24 @@ Document({
          "\"Complex \({\"n\"}\)\(SuperscriptBox(\"th\")\) root\""}), 
        "\[SpanFromLeft]"}, {
        TooltipBox(ButtonBox(RadicalBox("\[SelectionPlaceholder]", "3", 
-          SurdForm -> True)), {"\[AliasIndicator]cbrt\[AliasIndicator]", "\n", 
-         "\"Real 3\(SuperscriptBox(\"rd\")\) root\""}), "\[SpanFromLeft]", 
-       "\[SpanFromLeft]", 
+          SurdForm -> True)), {"\"\[AliasIndicator]cbrt\[AliasIndicator]\"", 
+         "\n", "\"Real 3\(SuperscriptBox(\"rd\")\) root\""}), 
+       "\[SpanFromLeft]", "\[SpanFromLeft]", 
        TooltipBox(ButtonBox(RadicalBox("\[SelectionPlaceholder]", 
           "\[Placeholder]", SurdForm -> True)), {
-         "\[AliasIndicator]surd\[AliasIndicator]", "\n", 
+         "\"\[AliasIndicator]surd\[AliasIndicator]\"", "\n", 
          "\"Real \({\"n\"}\)\(SuperscriptBox(\"th\")\) root\""}), 
        "\[SpanFromLeft]"}, {
        TooltipBox(ButtonBox({"\[Integral]", "\[SelectionPlaceholder]", 
           "\[DifferentialD]", "\[Placeholder]"}), 
-        "\[AliasIndicator]intt\[AliasIndicator]"), "\[SpanFromLeft]", 
+        "\"\[AliasIndicator]intt\[AliasIndicator]\""), "\[SpanFromLeft]", 
        "\[SpanFromLeft]", 
        ButtonBox({"\[PartialD]", SubscriptBox("\[Placeholder]"), 
          "\[SelectionPlaceholder]"}), "\[SpanFromLeft]"}, {
        TooltipBox(
         ButtonBox({"\[Integral]", SubsuperscriptBox("\[SelectionPlaceholder]", 
            "\[Placeholder]"), "\[Placeholder]", "\[DifferentialD]", 
-          "\[Placeholder]"}), "\[AliasIndicator]dintt\[AliasIndicator]"), 
+          "\[Placeholder]"}), "\"\[AliasIndicator]dintt\[AliasIndicator]\""), 
        "\[SpanFromLeft]", "\[SpanFromLeft]", 
        ButtonBox({"\[PartialD]", 
          SubscriptBox({"\[Placeholder]", ",", "\[Placeholder]"}), 
@@ -43,13 +43,13 @@ Document({
         ButtonBox({UnderoverscriptBox("\[Sum]", {
             "\[SelectionPlaceholder]", "=", "\[Placeholder]"}, 
            "\[Placeholder]"), "\[Placeholder]"}), 
-        "\[AliasIndicator]sumt\[AliasIndicator]"), "\[SpanFromLeft]", 
+        "\"\[AliasIndicator]sumt\[AliasIndicator]\""), "\[SpanFromLeft]", 
        "\[SpanFromLeft]", 
        TooltipBox(
         ButtonBox({UnderoverscriptBox("\[Product]", {
             "\[SelectionPlaceholder]", "=", "\[Placeholder]"}, 
            "\[Placeholder]"), "\[Placeholder]"}), 
-        "\[AliasIndicator]prodt\[AliasIndicator]"), "\[SpanFromLeft]"}, {
+        "\"\[AliasIndicator]prodt\[AliasIndicator]\""), "\[SpanFromLeft]"}, {
        StyleBox(
         ButtonBox({
           "(", GridBox({{"\[Placeholder]", "\[Placeholder]"}, {
@@ -199,6 +199,7 @@ Document({
      SelectedDocument(), #1) &), ButtonFrame -> "Palette"}, FontSize -> 9, 
    GridBoxColumnSpacing -> 0.10000000149011612`, 
    GridBoxRowSpacing -> 0.10000000149011612`, 
-   SectionMargins -> {0, 0, 0, 0})}, Editable -> False, Selectable -> False, 
- ShowSectionBracket -> False, StyleDefinitions -> "Default.pmathdoc", 
- Visible -> True, WindowFrame -> "Palette", WindowTitle -> "Math Input")
+   SectionMargins -> {0, 0, 0, 0})}, Editable -> False, Saveable -> True, 
+ Selectable -> False, ShowSectionBracket -> False, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True, 
+ WindowFrame -> "Palette", WindowTitle -> "Math Input")
