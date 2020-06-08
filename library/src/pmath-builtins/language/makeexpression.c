@@ -1223,11 +1223,14 @@ static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
     pmath_t over = pmath_expr_get_item(box, 2);
     
     if(parse(&base) && parse(&over)) {
-      pmath_t result = pmath_expr_new_extended(
-                         pmath_ref(pmath_System_Overscript), 2,
-                         base,
-                         over);
-                         
+      pmath_t result;
+      if(pmath_is_expr_of_len(over, PMATH_SYMBOL_SEQUENCE, 0)) {
+        pmath_unref(over);
+        result = base;
+      }
+      else 
+        result = pmath_expr_new_extended(pmath_ref(pmath_System_Overscript), 2, base, over);
+      
       return wrap_hold_with_debuginfo_from(box, result);
     }
     
@@ -1604,11 +1607,14 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
     pmath_t under = pmath_expr_get_item(box, 2);
     
     if(parse(&base) && parse(&under)) {
-      pmath_t result = pmath_expr_new_extended(
-                         pmath_ref(pmath_System_Underscript), 2,
-                         base,
-                         under);
-                         
+      pmath_t result;
+      if(pmath_is_expr_of_len(under, PMATH_SYMBOL_SEQUENCE, 0)) {
+        pmath_unref(under);
+        result = base;
+      }
+      else 
+        result = pmath_expr_new_extended(pmath_ref(pmath_System_Underscript), 2, base, under);
+      
       return wrap_hold_with_debuginfo_from(box, result);
     }
     
@@ -1629,12 +1635,26 @@ static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
     pmath_t over  = pmath_expr_get_item(box, 3);
     
     if(parse(&base) && parse(&under) && parse(&over)) {
-      pmath_t result = pmath_expr_new_extended(
-                         pmath_ref(pmath_System_Underoverscript), 3,
-                         base,
-                         under,
-                         over);
-                         
+      pmath_t result;
+      if(pmath_is_expr_of_len(under, PMATH_SYMBOL_SEQUENCE, 0)) {
+        pmath_unref(under);
+        if(pmath_is_expr_of_len(over, PMATH_SYMBOL_SEQUENCE, 0)) {
+          pmath_unref(over);
+          result = base;
+        }
+        else
+          result = pmath_expr_new_extended(pmath_ref(pmath_System_Overscript), 2, base, over);
+      }
+      else if(pmath_is_expr_of_len(over, PMATH_SYMBOL_SEQUENCE, 0)) {
+        pmath_unref(over);
+        result = pmath_expr_new_extended(pmath_ref(pmath_System_Underscript), 2, base, under);
+      }
+      else {
+        result = pmath_expr_new_extended(
+                   pmath_ref(pmath_System_Underoverscript), 3,
+                   base, under, over);
+      }
+      
       return wrap_hold_with_debuginfo_from(box, result);
     }
     

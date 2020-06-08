@@ -241,6 +241,7 @@ namespace {
       
     public:
       static Expr get_current_style_value(FrontEndObject *obj, Expr item);
+      static bool put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs);
       
     private:
       static int _num_styles;
@@ -2609,7 +2610,7 @@ void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name
   _key_to_name.set(key, name);
   _name_to_key.set(name, key);
   
-  Application::register_currentvalue_provider(name, get_current_style_value);
+  Application::register_currentvalue_provider(name, get_current_style_value, put_current_style_value);
   
   add_to_ruleset(key, name);
 }
@@ -2664,6 +2665,50 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
     return box->get_pmath_style(key);
     
   return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+static bool rules_contain_key(Expr rules, Expr key) {
+  if(rules[0] != PMATH_SYMBOL_LIST)
+    return false;
+  
+  for(auto &&rule : rules.items()) {
+    if(!rule.is_rule())
+      continue;
+    
+    if(rule[1] == key)
+      return true;
+  }
+  
+  return false;
+}
+
+bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
+  Box *box = dynamic_cast<Box*>(obj);
+  if(!box)
+    return false;
+  
+  Expr head = box->to_pmath_symbol();
+  if(!head.is_symbol())
+    return false;
+  
+  StyleOptionName key = Style::get_key(item);
+  if(!key.is_valid())
+    return false;
+  
+  Expr opts = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(head));
+  opts = Application::interrupt_wait_cached(std::move(opts));
+  if(!rules_contain_key(std::move(opts), std::move(item)))
+    return false;
+  
+  if(!box->style) {
+    if(rhs == PMATH_SYMBOL_INHERITED)
+      return true;
+    
+    box->style = new Style();
+  }
+  
+  box->style->set_pmath(key, std::move(rhs));
+  return true;
 }
 
 //} ... class StyleInformation
