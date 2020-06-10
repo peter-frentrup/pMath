@@ -337,7 +337,7 @@ void VolatileSelection::expand_up_to_sibling(const VolatileSelection &sibling, i
   while(max_steps-- > 0) {
     auto next = expanded();
     
-    if(!next || box == stop && next.box != stop)
+    if(!next || (box == stop && next.box != stop) || next == *this)
       return;
     
     if( box_order(next.box, next.start, sibling.box, sibling.start) <= 0 &&

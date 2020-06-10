@@ -66,6 +66,15 @@ namespace richmath {
     
     bool null_or_selectable() const;
     bool selectable() const;
+        
+    bool operator==(const VolatileSelection &other) const {
+      return other.box == box && other.start == start && other.end == end;
+    }
+    
+    bool operator!=(const VolatileSelection &other) const {
+      return !(*this == other);
+    }
+    
     
     pmath::Expr to_pmath(BoxOutputFlags flags) const;
     
