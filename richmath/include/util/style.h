@@ -356,7 +356,7 @@ namespace richmath {
       
       unsigned int count() const;
       
-      void set_pmath(StyleOptionName n, Expr obj);
+      bool set_pmath(StyleOptionName n, Expr obj);
       void set_pmath_by_unknown_key(Expr lhs, Expr rhs);
       
       Expr get_pmath(StyleOptionName n) const;

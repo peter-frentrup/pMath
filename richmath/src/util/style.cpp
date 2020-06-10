@@ -1856,9 +1856,12 @@ void Style::set_pmath_by_unknown_key(Expr lhs, Expr rhs) {
   set_pmath(key, rhs);
 }
 
-void Style::set_pmath(StyleOptionName n, Expr obj) {
-  if(StyleImpl::of(*this).set_pmath(n, obj)) 
+bool Style::set_pmath(StyleOptionName n, Expr obj) {
+  if(StyleImpl::of(*this).set_pmath(n, obj)) {
     notify_all();
+    return true;
+  }
+  return false;
 }
 
 Expr Style::get_pmath(StyleOptionName key) const {
@@ -2707,7 +2710,9 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
     box->style = new Style();
   }
   
-  box->style->set_pmath(key, std::move(rhs));
+  if(box->style->set_pmath(key, std::move(rhs)))
+    box->invalidate_options();
+  
   return true;
 }
 
