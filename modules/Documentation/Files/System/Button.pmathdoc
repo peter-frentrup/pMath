@@ -1,0 +1,240 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Button", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Button"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"Button"}, "ReferenceHyperlink"), 
+          " has attribute ", TemplateBox({"HoldRest"}, "ReferenceHyperlink"), 
+          " to prevent premature evaluation of ", StyleBox("action", "Arg"), 
+          ", but it evaluates all remaining arguments immediately (as \
+          options)."}, "Notes"), 
+        Section({"With the default setting ", 
+          TemplateBox({"Method"}, "ReferenceHyperlink"), 
+          " \[Rule] \"Preemptive\", clicking the button will preempt any \
+          running evaluation to execute ", StyleBox("action", "TI"), 
+          " and wait for the result. After a time-out, ", 
+          StyleBox("action", "Arg"), " is aborted."}, "Notes"), 
+        Section({"Use ", TemplateBox({"Method"}, "ReferenceHyperlink"), 
+          " \[Rule] \"Queued\" to facilitate longer-running actions without \
+          freezing the front-end. "}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A simple button:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Button", "(", {ComplexStringBox("\"Click me!\""), 
+              ",", {"Print", "(", ComplexStringBox("\"Thank you.\""), ")"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(ButtonBox(ComplexStringBox("\"Click me!\""), 
+             ButtonFunction -> (Print("Thank you.") &))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Preempt a long-running task:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData(
+              /\/({
+                {"Print", "(", {"Button", "(", {
+                   ComplexStringBox("\"Stop\""), ",", {"Abort", "(", ")"}}, 
+                  ")"}, ")"}, ";"}, "\n", {
+                "Do", "(", {{{"Pause", "(", "1", ")"}, ";", {
+                   "Print", "(", "i", ")"}}, ",", {"i", "\[Rule]", "10"}}, 
+                ")"})), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                ButtonBox(ComplexStringBox("\"Stop\""), 
+                 ButtonFunction -> (Abort() &))}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"1"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"2"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"3"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), Section(BoxData("$Aborted"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
+          Section("Vertically align buttons:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Row", "(", {
+                {"Table", "(", {
+                  {"Button", "(", {"p", ",", "None", ",", {
+                     "BaselinePosition", "\[Rule]", "p"}}, ")"}, ",", {
+                   "p", "\[Rule]", {"{", {"Automatic", ",", "Top", ",", 
+                     "Center", ",", "Baseline", ",", "Bottom"}, "}"}}}, ")"}, 
+                ",", ComplexStringBox("\"x\"")}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "x", "x", ButtonBox("Automatic", 
+                 BaselinePosition -> Automatic), 
+                ButtonBox("Top", BaselinePosition -> Top), 
+                ButtonBox("Center", BaselinePosition -> Center), 
+                ButtonBox("Baseline", BaselinePosition -> Baseline), 
+                ButtonBox("Bottom", BaselinePosition -> Bottom)}, 
+               "RowWithSeparators")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, 1), 
+        SectionGroup({Section("BaseStyle", "ExampleSubsection"), 
+          Section("Specify appearance and behavior via a stylesheet:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Button", "(", {
+                ComplexStringBox("\"Paste me!\""), ",", "None", ",", {
+                 "BaseStyle", "\[Rule]", ComplexStringBox("\"Paste\"")}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(ComplexStringBox("\"Paste me!\""), 
+               BaseStyle -> "Paste")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, 1), 
+        SectionGroup({Section("ButtonFrame", "ExampleSubsection"), 
+          Section("Hyperlinks are buttons without a frame:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Button", "(", {
+                {"Style", "(", {ComplexStringBox("\"More ...\""), ",", {
+                   "FontColor", "\[Rule]", {"Dynamic", "(", {
+                     "If", "(", {
+                      {"CurrentValue", "(", ComplexStringBox("\"MouseOver\""), 
+                       ")"}, ",", "Red", ",", "Blue"}, ")"}, ")"}}}, ")"}, 
+                ",", {"Print", "(", ComplexStringBox("\"... possiblities\""), 
+                 ")"}, ",", {"ButtonFrame", "\[Rule]", 
+                 ComplexStringBox("\"Frameless\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(ButtonBox(StyleBox(ComplexStringBox("\"More ...\""), 
+                FontColor -> Dynamic(If(CurrentValue("MouseOver"), Red, 
+                  Blue)), StripOnInput -> False), ButtonFrame -> "Frameless", 
+               ButtonFunction -> (Print("... possiblities") &))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("A collection of useful appearances is available:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Table", "(", {
+                  {"Button", "(", {"bf", ",", ",", {
+                     "ButtonFrame", "\[Rule]", "bf"}}, ")"}, ",", {
+                   "bf", "\[Rule]", {
+                    "{", {"None", ",", "Automatic", ",", 
+                     ComplexStringBox("\"Frameless\""), ",", 
+                     ComplexStringBox("\"DialogBox\""), ",", 
+                     ComplexStringBox("\"Defaulted\""), ",", 
+                     ComplexStringBox("\"Palette\""), ",", 
+                     ComplexStringBox("\"Generic\""), ",", 
+                     ComplexStringBox("\"ListViewItem\""), ",", 
+                     ComplexStringBox("\"ListViewItemSelected\"")}, "}"}}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {ButtonBox("None", ButtonFrame -> None, 
+                   ButtonFunction -> (/\/ &)), ",", 
+                  ButtonBox("Automatic", ButtonFunction -> (/\/ &)), ",", 
+                  ButtonBox(ComplexStringBox("\"Frameless\""), 
+                   ButtonFrame -> "Frameless", ButtonFunction -> (/\/ &)), 
+                  ",", ButtonBox(ComplexStringBox("\"DialogBox\""), 
+                   ButtonFrame -> "DialogBox", ButtonFunction -> (/\/ &)), 
+                  ",", ButtonBox(ComplexStringBox("\"Defaulted\""), 
+                   ButtonFrame -> "Defaulted", ButtonFunction -> (/\/ &)), 
+                  ",", ButtonBox(ComplexStringBox("\"Palette\""), 
+                   ButtonFrame -> "Palette", ButtonFunction -> (/\/ &)), ",", 
+                  ButtonBox(ComplexStringBox("\"Generic\""), 
+                   ButtonFrame -> "Generic", ButtonFunction -> (/\/ &)), ",", 
+                  ButtonBox(ComplexStringBox("\"ListViewItem\""), 
+                   ButtonFrame -> "ListViewItem", ButtonFunction -> (/\/ &)), 
+                  ",", ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
+                   ButtonFrame -> "ListViewItemSelected", 
+                   ButtonFunction -> (/\/ &))}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section({"By default, a ", TemplateBox({"Button"}, 
+             "ReferenceHyperlink"), 
+            " is enabled, when placed in an enabled environment:"}, 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Grid", "@", {
+                "Table", "(", {
+                 {"{", {"outer", ",", {"Panel", "(", {
+                     {"Row", "@", {"Table", "(", {
+                        {"Button", "(", {"inner", ",", {
+                           "Print", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+                           "Enabled", "\[Rule]", "inner"}}, ")"}, ",", {
+                         "inner", "\[Rule]", {
+                          "{", {"Automatic", ",", "True", ",", "False"}, 
+                          "}"}}}, ")"}}, ",", {"Enabled", "\[Rule]", 
+                      "outer"}}, ")"}}, "}"}, ",", {
+                  "outer", "\[Rule]", {"{", {"True", ",", "False"}, "}"}}}, 
+                ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              TagBox(
+               GridBox({
+                 {"True", 
+                  PanelBox(TemplateBox({
+                     ButtonBox("Automatic", ButtonFunction -> (Print(
+                       RandomReal()) &), Enabled -> Automatic), 
+                     ButtonBox("True", ButtonFunction -> (Print(
+                       RandomReal()) &), Enabled -> True), 
+                     ButtonBox("False", ButtonFunction -> (Print(
+                       RandomReal()) &), Enabled -> False)}, "RowDefault"), 
+                   Enabled -> True)}, {
+                  "False", 
+                  PanelBox(TemplateBox({
+                     ButtonBox("Automatic", ButtonFunction -> (Print(
+                       RandomReal()) &), Enabled -> Automatic), 
+                     ButtonBox("True", ButtonFunction -> (Print(
+                       RandomReal()) &), Enabled -> True), 
+                     ButtonBox("False", ButtonFunction -> (Print(
+                       RandomReal()) &), Enabled -> False)}, "RowDefault"), 
+                   Enabled -> False)}}), "Grid")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("Method", "ExampleSubsection"), 
+          Section({"The default setting ", 
+            TemplateBox({"Method"}, "ReferenceHyperlink"), 
+            " \[Rule] \"Preemptive\" only allows short actions and blocks \
+            updating the front-end:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Button", "(", {ComplexStringBox("\"Too long\""), 
+                ",", {{"Print", "(", ComplexStringBox("\"Start\""), ")"}, ";", 
+                 {"Pause", "(", "10", ")"}, ";", {
+                  "Print", "(", ComplexStringBox("\"Stop\""), ")"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(ComplexStringBox("\"Too long\""), 
+               ButtonFunction -> ((Print("Start"); Pause(10); Print(
+                "Stop")) &))), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"Use ", TemplateBox({"Method"}, "ReferenceHyperlink"), 
+              " \[Rule] \"Queued\" for long-running operations:"}, 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({
+                 "{", {{"Button", "(", {ComplexStringBox("\"Start\""), ",", {
+                     "Do", "(", {{{"Print", "(", "i", ")"}, ";", {
+                        "Pause", "(", "1", ")"}}, ",", {
+                       "i", "\[Rule]", "10"}}, ")"}, ",", {
+                     "Method", "\[Rule]", ComplexStringBox("\"Queued\"")}}, 
+                   ")"}, ",", {"Button", "(", {ComplexStringBox("\"Stop\""), 
+                    ",", {"Abort", "(", ")"}, ",", {
+                     "Method", "\[Rule]", ComplexStringBox(
+                      "\"Preemptive\"")}}, ")"}}, "}"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {ButtonBox(ComplexStringBox("\"Start\""), 
+                   ButtonFunction -> (Do(Print(Global`i); Pause(1), 
+                    Global`i -> 10) &), Method -> "Queued"), ",", 
+                  ButtonBox(ComplexStringBox("\"Stop\""), 
+                   ButtonFunction -> (Abort() &), Method -> "Preemptive")}, 
+                 "}"}), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Setter"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFrame"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
