@@ -34,7 +34,7 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({"In contrast, ", TemplateBox({"\[SelectionPlaceholder]"}, 
+          Section({"In contrast, ", TemplateBox({"Sqrt"}, 
              "ReferenceHyperlink"), " gives the first complex root:"}, 
            "ExampleText"), SectionGroup({
             Section(

@@ -80,9 +80,9 @@ Document({
                 "Is ", 5, " prime? ", True}), Editable -> False)), "Print", 
              SectionGenerated -> True)}, All)}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
-        Section({TemplateBox({"\[SelectionPlaceholder]"}, 
-           "ReferenceHyperlink"), " can output complex expressions:"}, 
-         "ExampleText"), SectionGroup({
+        Section({TemplateBox({"Print"}, "ReferenceHyperlink"), 
+          " can output complex expressions:"}, "ExampleText"), 
+        SectionGroup({
           Section(
            BoxData({"Print", "(", {
               {"(", {SqrtBox({"1", "+", SqrtBox("x")}), "-", 
@@ -96,8 +96,8 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ReferenceHyperlink"), " can output graphics:"}, "ExampleText"), 
+          Section({TemplateBox({"Print"}, "ReferenceHyperlink"), 
+            " can output graphics:"}, "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Print", "(", {
                 "Graphics", "(", {"Line", "(", {
@@ -124,8 +124,7 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ReferenceHyperlink"), 
+          Section({TemplateBox({"Print"}, "ReferenceHyperlink"), 
             " prints and returns the given expression:"}, "ExampleText"), 
           SectionGroup({
             Section(BoxData({{"Echo", "(", {"1", "+", "2"}, ")"}, 
