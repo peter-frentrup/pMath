@@ -18,6 +18,7 @@ namespace richmath {
       Expr operator=(Expr expr);
       
       bool has_pre_or_post_assignment();
+      bool has_temporary_assignment();
       
       void assign(Expr value) { assign(std::move(value), true, true, true); }
       void assign(Expr value, bool pre, bool middle, bool post);

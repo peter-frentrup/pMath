@@ -28,6 +28,7 @@ namespace richmath {
       static void get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post);
       
       bool has_pre_or_post_assignment();
+      bool has_temporary_assignment();
     
     public:
       void assign(Expr value, bool pre, bool middle, bool post);
@@ -134,6 +135,10 @@ bool Dynamic::has_pre_or_post_assignment() {
   return DynamicImpl(*this).has_pre_or_post_assignment();
 }
 
+bool Dynamic::has_temporary_assignment() {
+  return DynamicImpl(*this).has_temporary_assignment();
+}
+
 void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
   return DynamicImpl(*this).assign(value, pre, middle, post);
 }
@@ -228,6 +233,8 @@ void DynamicImpl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle, E
   Expr fun = expr[2];
   if(fun[0] != PMATH_SYMBOL_LIST) {
     *middle = std::move(fun);
+    if(*middle == PMATH_SYMBOL_TEMPORARY)
+      *post = Symbol(PMATH_SYMBOL_AUTOMATIC);
     return;
   }
   
@@ -267,10 +274,37 @@ bool DynamicImpl::has_pre_or_post_assignment() {
     return false;
   
   Expr fun = self._expr[2];
+  if(fun == PMATH_SYMBOL_TEMPORARY)
+    return true;
+  
   if(fun[0] != PMATH_SYMBOL_LIST)
     return false;
   
   return fun.expr_length() > 1;
+}
+
+bool DynamicImpl::has_temporary_assignment() {
+  int i;
+  if(is_template_slot(&i)) {
+    Expr         source;
+    TemplateBox *source_template;
+    if(find_template_box_dynamic(&source, &source_template, nullptr)) {
+      Dynamic dyn{ source_template, source };
+      return dyn.has_temporary_assignment();
+    }
+  }
+  
+  if(self._expr[0] != richmath_System_Dynamic)
+    return false;
+
+  if(self._expr.expr_length() < 2)
+    return false;
+  
+  Expr pre;
+  Expr middle;
+  Expr post;
+  get_assignment_functions(self._expr, &pre, &middle, &post);
+  return middle == PMATH_SYMBOL_TEMPORARY;
 }
 
 static Expr make_assignment_call(Expr func, Expr name, Expr value) {

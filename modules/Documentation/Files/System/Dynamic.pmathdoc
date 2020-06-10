@@ -9,7 +9,14 @@ Document({
         Section({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
           " has attribute ", TemplateBox({"HoldFirst"}, "ReferenceHyperlink"), 
           " and only evaluates its first argument when needed for display."}, 
-         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+         "Notes"), Section({"The update function specifications ", 
+          StyleBox("f", "Arg"), ", ", StyleBox({"f", SubscriptBox("pre")}, 
+           "Arg"), " and ", StyleBox({"f", SubscriptBox("post")}, "Arg"), 
+          " may also take special values such as ", 
+          TemplateBox({"Automatic"}, "ReferenceHyperlink"), ", ", 
+          TemplateBox({"None"}, "ReferenceHyperlink"), " or ", 
+          TemplateBox({"Temporary"}, "ReferenceHyperlink"), "."}, "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
@@ -29,30 +36,44 @@ Document({
           Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1)), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
        All), SectionGroup({Section("Scope", "ExampleSection"), 
-        Section("Assignments can be split into three stages:", "ExampleText"), 
-        SectionGroup({
+        Section("Only update a value upon release of the mouse:", 
+         "ExampleText"), SectionGroup({
           Section(
            BoxData({
-             "{", {
-              {"Slider", "(", {"Dynamic", "(", {
-                 "x", ",", {
-                  "{", {
-                   {"Function", "(", {
-                     {"Print", "(", ComplexStringBox("\"pre\""), ")"}, ";", {
-                      "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", ",", {
-                    "Function", "(", {
-                     {"Print", "(", ComplexStringBox("\"post\""), ")"}, ";", {
-                      "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ")"}, ",", {
-               "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             "{", {{"Slider", "(", {"Dynamic", "(", {"x", ",", "Temporary"}, 
+                ")"}, ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(
-           BoxData({
-             "{", {
-              SliderBox(Dynamic(Global`x, {(Print("pre"); Global`x:= #1) &, 
-                 Automatic, (Print("post"); Global`x:= #1) &}), 0 .. 1), ",", 
-              DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
-      SectionGroup({Section("Options", "ExampleSection"), 
+           BoxData({"{", {SliderBox(Dynamic(Global`x, Temporary), 0 .. 1), 
+              ",", DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Assignments can be split into three stages:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Slider", "(", {"Dynamic", "(", {
+                   "x", ",", {
+                    "{", {
+                     {"Function", "(", {
+                       {"Print", "(", ComplexStringBox("\"pre\""), ")"}, ";", {
+                        "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", ",", {
+                      "Function", "(", {
+                       {"Print", "(", ComplexStringBox("\"post\""), ")"}, ";", 
+                       {"x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ")"}, 
+                ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {
+                SliderBox(Dynamic(Global`x, {(Print("pre"); Global`x:= #1) &, 
+                   Automatic, (Print("post"); Global`x:= #1) &}), 0 .. 1), 
+                ",", DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("SynchronousUpdating", "ExampleSubsection"), 
           Section({"With the default setting ", 
             TemplateBox({"SynchronousUpdating"}, "ReferenceHyperlink"), 

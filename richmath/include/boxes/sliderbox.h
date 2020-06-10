@@ -41,7 +41,7 @@ namespace richmath {
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;
       virtual void on_mouse_up(MouseEvent &event) override;
-      //virtual void on_mouse_cancel() override;
+      virtual void on_mouse_cancel() override;
       
     private:
       Expr to_literal();

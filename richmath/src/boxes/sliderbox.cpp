@@ -536,8 +536,11 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
       double val = SliderBoxImpl(*this).mouse_to_val(event.x);
       
       if(!SliderBoxImpl(*this).approximately_equals(val, range_value)) {
-        if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) 
+        if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) {
           SliderBoxImpl(*this).assign_dynamic_value(val, false, true, false);
+          if(dynamic.has_temporary_assignment())
+            range_value = val;
+        }
         else
           range_value = val;
           
@@ -575,11 +578,13 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
   base::on_mouse_up(event);
 }
 
-/*void SliderBox::on_mouse_cancel() {
-  if(dynamic.has_pre_or_post_assignment())
-    SliderBoxImpl(*this).assign_dynamic_value(range_value, false, false, true);
-
-  EmptyWidgetBox::on_mouse_cancel();
-}*/
+void SliderBox::on_mouse_cancel() {
+  if(dynamic.has_temporary_assignment()) {
+    must_update = true;
+    request_repaint_all();
+  }
+  
+  base::on_mouse_cancel();
+}
 
 //} ... class SliderBox
