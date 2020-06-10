@@ -697,6 +697,7 @@ void Application::deactivated_all_controls() {
   update_control_active(false);
 }
 
+static Expr get_current_value_of_CurrentValueProviders(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
@@ -706,12 +707,13 @@ static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr i
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
-static const char s_MouseOver[] = "MouseOver";
-static const char s_DocumentScreenDpi[] = "DocumentScreenDpi";
 static const char s_ControlsFontFamily[] = "ControlsFontFamily";
+static const char s_ControlsFontSize[] = "ControlsFontSize";
 static const char s_ControlsFontSlant[] = "ControlsFontSlant";
 static const char s_ControlsFontWeight[] = "ControlsFontWeight";
-static const char s_ControlsFontSize[] = "ControlsFontSize";
+static const char s_CurrentValueProviders[] = "CurrentValueProviders";
+static const char s_DocumentScreenDpi[] = "DocumentScreenDpi";
+static const char s_MouseOver[] = "MouseOver";
 static const char s_SectionGroupOpen[] = "SectionGroupOpen";
 static const char s_SelectedMenuCommand[] = "SelectedMenuCommand";
 static const char s_StyleDefinitionsOwner[] = "StyleDefinitionsOwner";
@@ -736,6 +738,7 @@ void Application::init() {
   register_currentvalue_provider(String(s_ControlsFontSlant),         get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontWeight),        get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSize),          get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_CurrentValueProviders),     get_current_value_of_CurrentValueProviders);
   register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
   register_currentvalue_provider(String(s_SelectedMenuCommand),       get_current_value_of_SelectedMenuCommand);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
@@ -2001,6 +2004,14 @@ static void execute(ClientNotificationData &cn) {
   }
   
   cn.done();
+}
+
+static Expr get_current_value_of_CurrentValueProviders(FrontEndObject *obj, Expr item) {
+  Gather g;
+  for(auto &&key : currentvalue_providers.keys())
+    Gather::emit(std::move(key));
+  
+  return g.end();
 }
 
 static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item) {
