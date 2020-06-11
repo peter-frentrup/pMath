@@ -59,11 +59,11 @@ STDMETHODIMP DropTarget::DragEnter(IDataObject *data_object, DWORD key_state, PO
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     position_drop_cursor(pt);
-    apply_drop_description(*effect, key_state, pt);
+    if(*effect != DROPEFFECT_NONE)
+      apply_drop_description(*effect, key_state, pt);
   }
-  else {
+  else
     *effect = DROPEFFECT_NONE;
-  }
   
   if(*effect == DROPEFFECT_NONE || !_did_set_drop_description)
     clear_drop_description();
@@ -85,11 +85,11 @@ STDMETHODIMP DropTarget::DragOver(DWORD key_state, POINTL pt, DWORD *effect) {
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     position_drop_cursor(pt);
-    apply_drop_description(*effect, key_state, pt);
+    if(*effect != DROPEFFECT_NONE)
+      apply_drop_description(*effect, key_state, pt);
   }
-  else {
+  else
     *effect = DROPEFFECT_NONE;
-  }
   
   if(_can_have_drop_descriptions) {
     if(*effect == DROPEFFECT_NONE || !_did_set_drop_description)
