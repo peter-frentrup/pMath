@@ -137,6 +137,8 @@ namespace richmath {
       static HANDLE composition_window_theme(int dpi);
       static COLORREF title_font_color(bool glass_enabled, int dpi, bool active, bool dark_mode);
       
+      void lost_blur_behind_window(Win32BlurBehindWindow *bb);
+      
     public:
       STDMETHODIMP QueryInterface(REFIID iid, void **ppvObject) override;
       STDMETHODIMP_(ULONG) AddRef(void) override {  return BasicWin32Widget::AddRef(); }

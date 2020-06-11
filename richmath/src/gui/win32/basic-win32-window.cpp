@@ -51,7 +51,7 @@ class BasicWin32Window::Impl {
     bool on_nclbuttonup(LRESULT *result, WPARAM wParam, POINT pos);
     
     void paint_themed(HDC hdc);
-  
+    
   private:
     void paint_themed_system_buttons(HDC hdc_bitmap);
     void paint_themed_caption(HDC hdc_bitmap);
@@ -163,6 +163,10 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
         _owner(owner)
     {
       assert(_owner != nullptr);
+    }
+    
+    ~Win32BlurBehindWindow() {
+      _owner->lost_blur_behind_window(this);
     }
     
     static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins) {
@@ -1576,6 +1580,19 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
   }
   
   return GetSysColor(active ? COLOR_CAPTIONTEXT : COLOR_INACTIVECAPTIONTEXT);
+}
+
+void BasicWin32Window::lost_blur_behind_window(Win32BlurBehindWindow *bb) {
+  if(bb == _blur_behind_window) {
+    _blur_behind_window = nullptr;
+    
+    if(Win32Themes::DwmEnableBlurBehindWindow) {
+      Win32Themes::DWM_BLURBEHIND bb = {};
+      bb.dwFlags = Win32Themes::DWM_BB_ENABLE | Win32Themes::DWM_BB_BLURREGION;
+      bb.fEnable = TRUE;
+      HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
+    }
+  }
 }
 
 void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
