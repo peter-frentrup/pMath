@@ -247,7 +247,8 @@ static void interrupt_daemon(void *dummy) {
     
     if(quitting)
       break;
-      
+    
+    fprintf(stderr, "i");
     mq = get_main_mq();
     pmath_thread_send(
       mq,
@@ -808,6 +809,9 @@ int main(int argc, const char **argv) {
   }
   
   signal(SIGINT, signal_handler);
+  #ifdef SIGBREAK
+  signal(SIGBREAK, signal_handler);
+  #endif
   signal(SIGTERM, signal_term);
   
   if(!pmath_init() || !init_pmath_bindings()) {
@@ -861,6 +865,9 @@ int main(int argc, const char **argv) {
   }
   
   signal(SIGINT, signal_dummy);
+  #ifdef SIGBREAK
+  signal(SIGBREAK, signal_dummy);
+  #endif
   sem_destroy(&interrupt_semaphore);
   
   return quit_result;

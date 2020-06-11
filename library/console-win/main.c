@@ -1740,6 +1740,9 @@ int main(int argc, const char **argv) {
   }
   
   signal(SIGINT, signal_handler);
+  #ifdef SIGBREAK
+  signal(SIGBREAK, signal_handler);
+  #endif
   signal(SIGTERM, signal_term);
   
   if(!pmath_init()) {
@@ -1792,7 +1795,10 @@ int main(int argc, const char **argv) {
     pmath_unref(mq);
   }
   
-  signal(SIGINT, signal_dummy);
+  signal(SIGINT,   signal_dummy);
+  #ifdef SIGBREAK
+  signal(SIGBREAK, signal_dummy);
+  #endif
   
   hyper_console_done_hyperlink_system();
   hyper_console_history_free(history);
