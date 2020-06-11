@@ -3,6 +3,9 @@
 #include <gui/win32/win32-themes.h>
 #include <gui/win32/win32-widget.h>
 
+#include <eval/binding.h>
+#include <resources.h>
+
 
 using namespace richmath;
 
@@ -61,6 +64,7 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
   TaskDialogConfig config;
   config.hInstance = GetModuleHandleW(nullptr);
   config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW;
+  config.pszMainIcon = MAKEINTRESOURCEW(ICO_APP_MAIN);
   config.pszWindowTitle = title;
   config.pszMainInstruction = str;
   config.cButtons = sizeof(buttons) / sizeof(buttons[0]);
@@ -68,8 +72,7 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
   config.nDefaultButton = IDYES;
   
   if(doc) {
-    Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native());
-    if(wid) {
+    if(Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native())) {
       config.dark_mode = wid->has_dark_background();
       config.hwndParent = wid->hwnd();
       while(auto parent = GetParent(config.hwndParent))
@@ -88,6 +91,69 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
     case IDNO:  return YesNoCancel::No;
     default:    return YesNoCancel::Cancel;
   }
+}
+
+Expr richmath::win32_ask_interrupt() {
+  
+  TASKDIALOG_BUTTON buttons[] = {
+    { IDABORT,  L"&Abort current evaluation" },
+    { IDRETRY,  L"&Enter subsession\n"
+                L"You can exit the subsession with Return() to continue the current evaluation or Return(Abort()) to abort it."},
+    { IDIGNORE, L"&Continue evaluation" }
+  };
+  TaskDialogConfig config;
+  config.hInstance = GetModuleHandleW(nullptr);
+  config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_USE_COMMAND_LINKS;
+  config.pszMainIcon = MAKEINTRESOURCEW(ICO_APP_MAIN); // TD_WARNING_ICON
+  config.pszWindowTitle = L"Richmath";
+  config.pszMainInstruction = L"An interrupt occurred.";
+  //config.pszContent = L"...";
+  config.cButtons = sizeof(buttons) / sizeof(buttons[0]);
+  config.pButtons = buttons;
+  config.nDefaultButton = IDIGNORE;
+  
+  Document *doc = nullptr;
+  Box *box = Application::find_current_job();
+  if(box)
+    doc = box->find_parent<Document>(true);
+  
+  if(!doc)
+    doc = get_current_document();
+  
+  if(Win32Widget *wid = doc ? dynamic_cast<Win32Widget*>(doc->native()) : nullptr) {
+    config.dark_mode = wid->has_dark_background();
+    config.hwndParent = wid->hwnd();
+    while(auto parent = GetParent(config.hwndParent))
+      config.hwndParent = parent;
+  }
+  
+  int result = 0;
+  if(!HRbool(try_TaskDialogIndirect(&config, &result, nullptr, nullptr))) {
+    result = MessageBoxW(
+      config.hwndParent, 
+      L"An interrupt occurred. Choose:\r\n"
+      L"Abort \t to abort the evaluation,\r\n"
+      L"Retry \t to enter an interactive dialog,\r\n"
+      L"Ignore \t to continue normally.", 
+      config.pszWindowTitle, 
+      MB_ABORTRETRYIGNORE | MB_DEFBUTTON3 | MB_ICONWARNING);
+  }
+  
+  switch(result) {
+    case IDIGNORE:
+    case IDCANCEL:
+    case IDCONTINUE:
+      return Expr();
+    
+    case IDABORT:
+      return Call(Symbol(PMATH_SYMBOL_ABORT));
+    
+    case IDRETRY:
+    case IDTRYAGAIN:
+      return Call(Symbol(PMATH_SYMBOL_DIALOG));
+  }
+  
+  return Expr();
 }
 
 //{ class TaskDialogConfig ...

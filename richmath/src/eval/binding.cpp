@@ -9,6 +9,7 @@
 #include <eval/job.h>
 #include <gui/clipboard.h>
 #include <gui/document.h>
+#include <gui/messagebox.h>
 #include <gui/native-widget.h>
 #include <gui/recent-documents.h>
 #include <util/spanexpr.h>
@@ -267,6 +268,31 @@ static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
   return Application::notify_wait(ClientNotification::GetEvaluationDocument, Expr()).release();
 }
 
+static pmath_t builtin_interrupt(pmath_expr_t expr) {
+  if(pmath_expr_length(expr) != 0) {
+    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
+    return expr;
+  }
+  
+  pmath_unref(expr); 
+  expr = PMATH_NULL;
+  
+  if(Application::is_running_on_gui_thread()) 
+    expr = ask_interrupt().release();
+  else
+    expr = Application::notify_wait(ClientNotification::AskInterrupt, Expr()).release();
+  
+  pmath_t ex = pmath_catch();
+  if(!pmath_same(ex, PMATH_UNDEFINED)) {
+    // e.g. a System`Pause`stop$xxx exception used internally by Pause()
+    
+    expr = pmath_evaluate(expr);
+    pmath_throw(ex);
+  }
+  
+  return expr;
+}
+
 //} ... pmath functions
 
 //{ menu command availability checkers ...
@@ -283,7 +309,7 @@ static MenuCommandStatus can_save(Expr cmd) {
   return MenuCommandStatus(true);
 }
 
-static MenuCommandStatus can_abort(Expr cmd) {
+static MenuCommandStatus can_abort_or_interrupt(Expr cmd) {
   return MenuCommandStatus(!Application::is_idle());
 }
 
@@ -597,7 +623,7 @@ static MenuCommandStatus can_similar_section_below(Expr cmd) {
 }
 
 static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd) {
-  return MenuCommandStatus(!can_abort(Expr()).enabled && can_evaluate_sections(Expr()).enabled);
+  return MenuCommandStatus(!can_abort_or_interrupt(Expr()).enabled && can_evaluate_sections(Expr()).enabled);
 }
 
 //} ... menu command availability checkers
@@ -1116,6 +1142,11 @@ static bool insert_underscript_cmd(Expr cmd) {
   return true;
 }
 
+static bool interrupt_cmd(Expr cmd) {
+  Application::async_interrupt(Call(Symbol(PMATH_SYMBOL_INTERRUPT)));
+  return true;
+}
+
 static bool new_cmd(Expr cmd) {
 //  Application::notify(
 //    ClientNotification::CreateDocument,
@@ -1399,11 +1430,12 @@ bool richmath::init_bindings() {
   
   
   Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,          can_convert_dynamic_to_literal);
-  Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                           can_abort);
+  Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                           can_abort_or_interrupt);
+  Application::register_menucommand(String("EvaluatorInterrupt"),         interrupt_cmd,                       can_abort_or_interrupt);
   Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,               can_evaluate_in_place);
   Application::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,               can_evaluate_sections);
   Application::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
-  Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,            can_abort);
+  Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,            can_abort_or_interrupt);
   Application::register_menucommand(String("FindEvaluatingSection"),      find_evaluating_section,             can_find_evaluating_section);
   Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
   Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
@@ -1438,6 +1470,7 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
   BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument)
   BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)
+  BIND_DOWN(PMATH_SYMBOL_INTERRUPT,                builtin_interrupt)
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
   
   BIND_UP(PMATH_SYMBOL_CURRENTVALUE,               builtin_assign_currentvalue)

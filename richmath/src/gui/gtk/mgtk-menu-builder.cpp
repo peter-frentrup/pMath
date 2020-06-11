@@ -654,6 +654,7 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
   else if(key.equals("Enter"))              *accel_key = GDK_Return;
   else if(key.equals("Tab"))                *accel_key = GDK_Tab;
   else if(key.equals("Esc"))                *accel_key = GDK_Escape;
+  else if(key.equals("Pause"))              *accel_key = GDK_Pause;
   else if(key.equals("PageUp"))             *accel_key = GDK_Page_Up;
   else if(key.equals("PageDown"))           *accel_key = GDK_Page_Down;
   else if(key.equals("End"))                *accel_key = GDK_End;

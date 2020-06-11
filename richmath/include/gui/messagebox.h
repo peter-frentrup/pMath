@@ -11,6 +11,7 @@ namespace richmath {
   };
   
   YesNoCancel ask_save(Document *doc);
+  Expr ask_interrupt();
 }
 
 #endif // RICHMATH__GUI__MESSAGEBOX_H__INCLUDED

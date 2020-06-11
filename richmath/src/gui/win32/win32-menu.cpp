@@ -757,6 +757,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
   else if(key.equals("Enter"))              accel->key = VK_RETURN;
   else if(key.equals("Tab"))                accel->key = VK_TAB;
   else if(key.equals("Esc"))                accel->key = VK_ESCAPE;
+  else if(key.equals("Pause"))              accel->key = (accel->fVirt & FCONTROL) ? VK_CANCEL : VK_PAUSE;
   else if(key.equals("PageUp"))             accel->key = VK_PRIOR;
   else if(key.equals("PageDown"))           accel->key = VK_NEXT;
   else if(key.equals("End"))                accel->key = VK_END;
@@ -865,6 +866,8 @@ static String vk_name(UINT vk) {
       sc = 0x100 | MapVirtualKeyW(VK_RETURN, MAPVK_VK_TO_VSC);
       break;
     
+    case VK_CANCEL:
+    case VK_PAUSE:
     case VK_INSERT:
     case VK_DELETE:
     case VK_HOME:

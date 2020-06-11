@@ -13,6 +13,8 @@
 
 #include <graphics/config-shaper.h>
 
+#include <gui/messagebox.h>
+
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/basic-win32-widget.h>
 #  include <gui/win32/win32-document-window.h>
@@ -2000,6 +2002,11 @@ static void execute(ClientNotificationData &cn) {
         *cn.result_ptr = SaveOperation::do_save(cn.data).release();
       else
         SaveOperation::do_save(cn.data);
+      break;
+    
+    case ClientNotification::AskInterrupt:
+      if(cn.result_ptr)
+        *cn.result_ptr = ask_interrupt().release();
       break;
   }
   

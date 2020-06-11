@@ -10,6 +10,7 @@
 
 namespace richmath {
   YesNoCancel win32_ask_save(Document *doc, String question);
+  Expr win32_ask_interrupt();
 }
 
 #endif // RICHMATH__GUI__WIN32__WIN32_MESSAGEBOX_H__INCLUDED

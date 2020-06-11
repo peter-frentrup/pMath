@@ -10,6 +10,7 @@
 
 namespace richmath {
   YesNoCancel mgtk_ask_save(Document *doc, String question);
+  Expr mgtk_ask_interrupt();
 }
 
 #endif // RICHMATH__GUI__GTK__MGTK_MESSAGEBOX_H__INCLUDED

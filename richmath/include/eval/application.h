@@ -26,6 +26,7 @@ namespace richmath {
     DocumentRead,
     FileDialog,
     Save,
+    AskInterrupt,
   };
   
   class MenuCommandStatus {

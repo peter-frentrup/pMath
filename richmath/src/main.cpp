@@ -501,7 +501,6 @@ int main(int argc, char **argv) {
       write_text_section(main_doc, "Title", "Welcome");
       write_text_section(main_doc, "Section", "Todo-List");
       todo(main_doc, "CTRL-9 to insert inline text/math section into math/text sequence.");
-      todo(main_doc, "Implement Interrupt().");
       todo(main_doc, "Leave caret at end of line at automatic line breaks.");
       todo(main_doc, "Navigation: ALT-left/right: previous/next span/sentence.");
       todo(main_doc, "Resize every section, not only the visible ones.");
