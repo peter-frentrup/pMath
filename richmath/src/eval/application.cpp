@@ -1937,19 +1937,19 @@ static void execute(ClientNotificationData &cn) {
       break;
       
     case ClientNotification::End:
-      cnt_end(cn.data);
+      cnt_end(std::move(cn.data));
       break;
       
     case ClientNotification::Return:
-      cnt_return(cn.data);
+      cnt_return(std::move(cn.data));
       break;
       
     case ClientNotification::ReturnBox:
-      cnt_returnbox(cn.data);
+      cnt_returnbox(std::move(cn.data));
       break;
       
     case ClientNotification::PrintSection:
-      cnt_printsection(cn.data);
+      cnt_printsection(std::move(cn.data));
       break;
     
     case ClientNotification::CallFrontEnd:
@@ -1960,53 +1960,53 @@ static void execute(ClientNotificationData &cn) {
       break;
       
     case ClientNotification::MenuCommand:
-      cnt_menucommand(cn.data);
+      cnt_menucommand(std::move(cn.data));
       break;
       
     case ClientNotification::DynamicUpdate:
-      cnt_dynamicupate(cn.data);
+      cnt_dynamicupate(std::move(cn.data));
       break;
       
     case ClientNotification::CurrentValue:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_currentvalue(cn.data).release();
+        *cn.result_ptr = cnt_currentvalue(std::move(cn.data)).release();
       break;
       
     case ClientNotification::SetCurrentValue:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_setcurrentvalue(cn.data).release();
+        *cn.result_ptr = cnt_setcurrentvalue(std::move(cn.data)).release();
       break;
       
     case ClientNotification::GetEvaluationDocument:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_getevaluationdocument(cn.data).release();
+        *cn.result_ptr = cnt_getevaluationdocument(std::move(cn.data)).release();
       break;
       
     case ClientNotification::DocumentGet:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_documentget(cn.data).release();
+        *cn.result_ptr = cnt_documentget(std::move(cn.data)).release();
       break;
       
     case ClientNotification::DocumentRead:
       if(cn.result_ptr)
-        *cn.result_ptr = cnt_documentread(cn.data).release();
+        *cn.result_ptr = cnt_documentread(std::move(cn.data)).release();
       break;
       
     case ClientNotification::FileDialog:
       if(cn.result_ptr)
-        *cn.result_ptr = Application::run_filedialog(cn.data).release();
+        *cn.result_ptr = Application::run_filedialog(std::move(cn.data)).release();
       break;
       
     case ClientNotification::Save:
       if(cn.result_ptr)
-        *cn.result_ptr = SaveOperation::do_save(cn.data).release();
+        *cn.result_ptr = SaveOperation::do_save(std::move(cn.data)).release();
       else
-        SaveOperation::do_save(cn.data);
+        SaveOperation::do_save(std::move(cn.data));
       break;
     
     case ClientNotification::AskInterrupt:
       if(cn.result_ptr)
-        *cn.result_ptr = ask_interrupt().release();
+        *cn.result_ptr = ask_interrupt(std::move(cn.data)).release();
       break;
   }
   
