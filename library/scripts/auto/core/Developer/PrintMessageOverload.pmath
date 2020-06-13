@@ -55,11 +55,11 @@ Function stackEntryForm(OptionsPattern()) {
 }
 
 Unprotect(DebugInfoSource)
-Format(~di:DebugInfoSource)::= DescribeLocation(di)
+Format(~di:DebugInfoSource)::= With({fmt:= DescribeLocation(di)}, fmt /? fmt =!= $Failed )
 Protect(DebugInfoSource)
 
 
-DescribeLocation(~expr)::= expr
+DescribeLocation(~expr)::= $Failed
 Function DescribeLocation(
 	DebugInfoSource(
 		~filename:String, 
