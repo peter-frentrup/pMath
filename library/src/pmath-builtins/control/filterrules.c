@@ -1,5 +1,6 @@
 #include <pmath-language/patterns-private.h>
 
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -59,7 +60,7 @@ PMATH_PRIVATE pmath_t builtin_filterrules(pmath_expr_t expr){
   if(_pmath_is_rule(rules)){
     rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
   }
-  else if(!_pmath_is_list_of_rules(rules)){
+  else if(!pmath_is_list_of_rules(rules)){
     pmath_message(PMATH_NULL, "reps", 1, rules);
     return expr;
   }

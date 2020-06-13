@@ -1,6 +1,6 @@
 #include <pmath-core/expressions.h>
 
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 

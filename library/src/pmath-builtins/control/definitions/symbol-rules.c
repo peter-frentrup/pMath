@@ -1,6 +1,7 @@
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/helpers.h>
@@ -112,7 +113,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
     return pmath_gather_end();
   }
   
-  if(_pmath_is_list_of_rules(rhs)) {
+  if(pmath_is_list_of_rules(rhs)) {
     pmath_locked_t value;
     size_t i;
     
@@ -266,7 +267,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
     return pmath_gather_end();
   }
   
-  if(_pmath_is_list_of_rules(rhs)) {
+  if(pmath_is_list_of_rules(rhs)) {
     size_t i;
     
     pmath_unref(lhs);

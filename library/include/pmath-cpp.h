@@ -256,6 +256,10 @@ namespace pmath {
           
         return false;
       }
+
+      bool is_list_of_rules() const throw() {
+        return pmath_is_list_of_rules(_obj);
+      }
       
       /**\brief Get a hash value. */
       unsigned int hash() const throw() {
@@ -335,6 +339,15 @@ namespace pmath {
         if(!is_expr())
           return Expr();
         return Expr(pmath_expr_get_item(_obj, (size_t)i));
+      }
+
+      bool try_lookup(Expr key, Expr &result) const throw() {
+        return pmath_rules_lookup(_obj, key.release(), &result._obj);
+      }
+
+      Expr lookup(Expr key, Expr default_value) const throw() {
+        pmath_rules_lookup(_obj, key.release(), &default_value._obj);
+        return default_value;
       }
       
       /**\brief Enumerate all items [1..length()] with C++ range based for loops

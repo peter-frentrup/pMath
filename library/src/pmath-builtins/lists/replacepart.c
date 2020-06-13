@@ -4,6 +4,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/incremental-hash-private.h>
@@ -586,7 +587,7 @@ static pmath_expr_t prepare_repl_rules(pmath_t rules) {
   }
 
   // {... -> rhs1, ... -> rhs2, ...}
-  if(_pmath_is_list_of_rules(rules)) {
+  if(pmath_is_list_of_rules(rules)) {
     size_t i;
 
     for(i = pmath_expr_length(rules); i > 0; --i) {

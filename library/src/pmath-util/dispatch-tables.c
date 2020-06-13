@@ -1,4 +1,4 @@
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control-private.h>
@@ -367,6 +367,12 @@ static size_t dispatch_table_lookup(
   return 0;
 }
 
+PMATH_API pmath_bool_t pmath_is_list_of_rules(pmath_t obj) {
+  pmath_dispatch_table_t disp = _pmath_rules_need_dispatch_table(obj);
+  pmath_unref(disp);
+  return !pmath_same(disp, PMATH_NULL);
+}
+
 PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t expr) {
   pmath_dispatch_table_t tab;
   pmath_t keys;
@@ -404,7 +410,7 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
   return tab;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result) {
+PMATH_API pmath_bool_t pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result) {
   pmath_dispatch_table_t tab = _pmath_rules_need_dispatch_table(rules);
   struct _pmath_dispatch_table_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   size_t i;

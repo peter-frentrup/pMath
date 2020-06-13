@@ -4,6 +4,7 @@
 #include <pmath-language/scanner.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -26,7 +27,7 @@ static void print_rule_defs(
 ) {
   size_t i;
   
-  if(!_pmath_is_list_of_rules(rules)) {
+  if(!pmath_is_list_of_rules(rules)) {
     pmath_unref(rules);
     return;
   }

@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/symbols-private.h>
 
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -121,7 +122,7 @@ pmath_bool_t check_set_of_options(pmath_t expr) {
   if(_pmath_is_rule(expr))
     return TRUE;
   
-  if(_pmath_is_list_of_rules(expr))
+  if(pmath_is_list_of_rules(expr))
     return TRUE;
     
   if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
@@ -412,7 +413,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr) {
                 pmath_ref(PMATH_SYMBOL_OPTIONS), 1,
                 pmath_ref(sym)));
                 
-  if(!_pmath_is_list_of_rules(options))
+  if(!pmath_is_list_of_rules(options))
     options = pmath_ref(_pmath_object_emptylist);
     
   for(i = 2; i <= len; ++i) {

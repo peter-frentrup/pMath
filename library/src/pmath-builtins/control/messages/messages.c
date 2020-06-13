@@ -1,6 +1,7 @@
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
@@ -11,6 +12,7 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control/messages-private.h>
 #include <pmath-builtins/control-private.h>
+
 
 PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   struct _pmath_symbol_rules_t  *rules;
@@ -90,7 +92,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       rhs);
   }
   
-  if(_pmath_is_list_of_rules(rhs)){
+  if(pmath_is_list_of_rules(rhs)){
     size_t i;
     
     pmath_unref(lhs);

@@ -3,7 +3,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/threads.h>
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
@@ -34,7 +34,7 @@ static pmath_t apply_rule_list(
     return obj;
 
   if(reldepth == 0) {
-    if(_pmath_rules_lookup(rules, pmath_ref(obj), &obj))
+    if(pmath_rules_lookup(rules, pmath_ref(obj), &obj))
       return obj;
   }
 
@@ -67,12 +67,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule) {
     return pmath_same(head, PMATH_SYMBOL_RULE) ||
            pmath_same(head, PMATH_SYMBOL_RULEDELAYED);
   }
-}
-
-PMATH_PRIVATE pmath_bool_t _pmath_is_list_of_rules(pmath_t rules) { 
-  pmath_dispatch_table_t disp = _pmath_rules_need_dispatch_table(rules);
-  pmath_unref(disp);
-  return !pmath_same(disp, PMATH_NULL);
 }
 
 PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
@@ -119,10 +113,10 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
   }
 
   rules = pmath_expr_get_item(expr, 2);
-  if(!_pmath_is_list_of_rules(rules)) {
+  if(!pmath_is_list_of_rules(rules)) {
     rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
 
-    if(!_pmath_is_list_of_rules(rules)) {
+    if(!pmath_is_list_of_rules(rules)) {
       pmath_message(PMATH_NULL, "reps", 1, rules);
       return expr;
     }
@@ -274,10 +268,10 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr) {
     n = pmath_ref(_pmath_object_pos_infinity);
 
   rules = pmath_expr_get_item(expr, 2);
-  if(!_pmath_is_list_of_rules(rules)) {
+  if(!pmath_is_list_of_rules(rules)) {
     rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
 
-    if(!_pmath_is_list_of_rules(rules)) {
+    if(!pmath_is_list_of_rules(rules)) {
       pmath_message(PMATH_NULL, "reps", 1, rules);
       pmath_unref(n);
       return expr;

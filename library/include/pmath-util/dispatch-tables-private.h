@@ -1,26 +1,19 @@
-#ifndef PMATH_UTIL__DISPATCH_TABLE_PRIVATE_H__INCLUDED
-#define PMATH_UTIL__DISPATCH_TABLE_PRIVATE_H__INCLUDED
+#ifndef PMATH_UTIL__DISPATCH_TABLES_PRIVATE_H__INCLUDED
+#define PMATH_UTIL__DISPATCH_TABLES_PRIVATE_H__INCLUDED
 
 #ifndef BUILDING_PMATH
 #  error This header file is not part of the public pMath API
 #endif
 
-
 #include <pmath-core/objects-private.h>
 
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/hashtables.h>
 
 
-/**\defgroup dispatch_tables Dispatch tables
-   \brief Fast lookup for lists of rules.
-  
-  A dispatch table is an internal pMath object attached on-demand as metadata to a 
-  list of rules expression to allow fast lookup of literal rule keys.
-  
+/**\addtogroup dispatch_tables Dispatch tables
   @{
  */
-
-typedef pmath_t pmath_dispatch_table_t;
 
 struct _pmath_dispatch_entry_t {
   pmath_t key;
@@ -46,21 +39,9 @@ struct _pmath_dispatch_table_t {
     If \a expr is a list-of-rules without a previously attached dispatch-table, a new dispatch-table 
     will be attached to expr atomically (and in-place).
     
-    \see _pmath_is_list_of_rules
+    \see pmath_is_list_of_rules
  */
 PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t expr);
-
-/** Look-up a key in a list-of-rules.
-    
-    \param rules  A pMath object. It won't be freed.
-    \param key    A pMath object. It will be freed.
-    \param result A pointer to a pMath object. On success, the previous pointed-to object will 
-                  be freed and replaced by the first matching rule's right-hand side.
-    \return If \a rules is not a list-of-rules or if no left-hand side matches, FALSE will be returned, otherwise TRUE.
-    
-    On success, *result will be set to Replace(key, rules).
- */
-PMATH_PRIVATE pmath_bool_t _pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result);
 
 /** Find the first rule in a list-of-rules given its left-hand side.
     
@@ -95,4 +76,4 @@ PMATH_PRIVATE void _pmath_dispatch_tables_done(void);
 
 /** @} */
 
-#endif // PMATH_UTIL__DISPATCH_TABLE_PRIVATE_H__INCLUDED
+#endif // PMATH_UTIL__DISPATCH_TABLES_PRIVATE_H__INCLUDED

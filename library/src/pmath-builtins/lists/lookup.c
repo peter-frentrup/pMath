@@ -1,6 +1,6 @@
 #include <pmath-core/expressions.h>
 
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
@@ -72,18 +72,14 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
   
   obj = pmath_expr_get_item(rules, 1);
   if(_pmath_is_rule(obj)) {
-    pmath_dispatch_table_t disp;
     pmath_unref(obj);
     
-    disp = _pmath_rules_need_dispatch_table(rules);
-    if(pmath_is_null(disp)) { // not a list of rules
+    if(!pmath_is_list_of_rules(rules)) {
       *failure_flag = TRUE;
       pmath_unref(rules);
       pmath_unref(key);
       return PMATH_NULL;
     }
-    
-    pmath_unref(disp); disp = PMATH_NULL;
     
     if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
       len = pmath_expr_length(key);
@@ -99,7 +95,7 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
     key = peel_off_key_head(key);
     
     obj = PMATH_UNDEFINED;
-    if(!_pmath_rules_lookup(rules, pmath_ref(key), &obj)) {
+    if(!pmath_rules_lookup(rules, pmath_ref(key), &obj)) {
       pmath_unref(obj);
       obj = missing_key_result(key, default_value);
     }

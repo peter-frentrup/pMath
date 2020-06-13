@@ -304,10 +304,10 @@ static pmath_bool_t binary_write(
           
           if(pmath_is_rational(value)) {
             switch(size) {
-              case 2:  value = pmath_set_precision(value,  11);
-              case 4:  value = pmath_set_precision(value,  24);
-              case 8:  value = pmath_set_precision(value,  53);
-              default: value = pmath_set_precision(value, 113);
+              case 2:  value = pmath_set_precision(value,  11); break;
+              case 4:  value = pmath_set_precision(value,  24); break;
+              case 8:  value = pmath_set_precision(value,  53); break;
+              default: value = pmath_set_precision(value, 113); break;
             }
             
             value = pmath_evaluate(value);
@@ -322,10 +322,10 @@ static pmath_bool_t binary_write(
               pmath_unref(value);
               
               switch(size) {
-                case 2:  type = PMATH_C_STRING("Real16"); break;
-                case 4:  type = PMATH_C_STRING("Real32"); break;
-                case 8:  type = PMATH_C_STRING("Real64"); break;
-                default: type = PMATH_C_STRING("Real128");
+                case 2:  type = PMATH_C_STRING("Real16");  break;
+                case 4:  type = PMATH_C_STRING("Real32");  break;
+                case 8:  type = PMATH_C_STRING("Real64");  break;
+                default: type = PMATH_C_STRING("Real128"); break;
               }
               
               binary_write(file, re, pmath_ref(type), byte_ordering);

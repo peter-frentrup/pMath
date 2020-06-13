@@ -56,6 +56,7 @@
 #include <pmath-util/files/mixed-buffer.h>
 #include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/dispatch-tables.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/hashtables.h>

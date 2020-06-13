@@ -1,6 +1,6 @@
 #include <pmath-core/expressions-private.h>
 
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -20,13 +20,11 @@ static pmath_bool_t part(
   size_t         position_start);
 
 static pmath_bool_t check_list_of_rules(pmath_expr_t list) {
-  pmath_dispatch_table_t disp = _pmath_rules_need_dispatch_table(list);
-  if(pmath_is_null(disp)) { // not a list of rules
+  if(!pmath_is_list_of_rules(list)) { // not a list of rules
     pmath_message(PMATH_NULL, "partw", 1, pmath_ref(list));
     return FALSE;
   }
   
-  pmath_unref(disp);
   return TRUE;
 }
 
@@ -67,7 +65,7 @@ static pmath_bool_t part(
       }
       
       result = PMATH_UNDEFINED;
-      if(!_pmath_rules_lookup(*list, pmath_ref(pos), &result)) {
+      if(!pmath_rules_lookup(*list, pmath_ref(pos), &result)) {
         pmath_unref(result);
         pmath_unref(*list);
         *list = pmath_expr_new_extended(
