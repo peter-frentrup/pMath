@@ -155,26 +155,47 @@ Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
-static Document *set_selected_document(FrontEndReference id) {
-  Box *box = FrontEndObject::find_cast<Box>(id);
-  if(!box)
-    return nullptr;
-  
-  Document *doc = box->find_parent<Document>(true);
-  if(!doc)
-    return nullptr;
-  
-  //set_current_document(doc);
-  doc->native()->bring_to_front();
-  
-  return doc;
-}
-
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
-  auto id = FrontEndReference::from_pmath(expr[1]);
-  Document *doc = set_selected_document(id);
+  /*  FrontEnd`SetSelectedDocument(doc)
+      FrontEnd`SetSelectedDocument(doc,       selectionOrBox)
+      FrontEnd`SetSelectedDocument(Automatic, selectionOrBox)
+   */
+  size_t exprlen = expr.expr_length();
+  if(exprlen < 1 || exprlen > 2)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  auto docid = FrontEndReference::from_pmath(expr[1]);
+  Box *docbox = FrontEndObject::find_cast<Box>(docid);
+  Document *doc = docbox ? docbox->find_parent<Document>(true) : nullptr;
+  
+  if(exprlen == 2) {
+    Expr sel_expr = expr[2];
+    SelectionReference sel = SelectionReference::from_debug_info(expr[2]);
+    Box *selbox = sel.get();
+    if(!selbox) {
+      sel.id = FrontEndReference::from_pmath(expr[2]);
+      if(selbox = sel.get()) {
+        sel.start = 0;
+        sel.end = selbox->length();
+      }
+    }
+  
+    if(selbox) {
+      if(Document *seldoc = selbox->find_parent<Document>(true)) {
+        if(expr[1] == PMATH_SYMBOL_AUTOMATIC) 
+          doc = seldoc;
+        
+        if(seldoc == doc) 
+          doc->select(selbox, sel.start, sel.end);
+      }
+    }
+  }
+  
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
+    
+  //set_current_document(doc);
+  doc->native()->bring_to_front();
   
   return doc->to_pmath_id();
 }
@@ -450,12 +471,11 @@ bool SelectDocumentMenuImpl::set_selected_document_cmd(Expr cmd) {
   if(cmd[0] != richmath_FrontEnd_SetSelectedDocument)
     return false;
   
-  if(cmd.expr_length() != 1) 
+  cmd = richmath_eval_FrontEnd_SetSelectedDocument(std::move(cmd));
+  if(cmd == PMATH_SYMBOL_FAILED)
     return false;
   
-  FrontEndReference id = FrontEndReference::from_pmath(cmd[1]);
-  
-  return set_selected_document(id);
+  return true;
 }
 
 Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {

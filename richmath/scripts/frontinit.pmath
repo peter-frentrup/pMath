@@ -168,7 +168,8 @@ Documents(~~~args)::= 1 /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 0,
 SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
 SelectedDocument(~~args)::= 1 /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)
 SetSelectedDocument(doc: ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
-SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 1);False)
+SetSelectedDocument(doc: Automatic|~:FrontEndObject|~:DocumentObject, sel: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc, sel))
+SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 2);False)
 Protect(CreateDocument, DocumentOpen, Documents, SelectedDocument, SetSelectedDocument)
 
 End()
