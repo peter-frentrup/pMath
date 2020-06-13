@@ -119,7 +119,7 @@ bool InputJob::start() {
   section->style->set(SectionLabel, label + line.to_string() + String("]:"));
   section->invalidate();
   
-  Server::local_server->run_boxes(section->content()->to_pmath(BoxOutputFlags::Parseable));
+  Server::local_server->run_boxes(section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo));
   
   doc->native()->running_state_changed();
   
@@ -244,7 +244,7 @@ bool ReplacementJob::start() {
   }
   
   Server::local_server->run_boxes(
-    sequence->to_pmath(BoxOutputFlags::Parseable, selection_start, selection_end));
+    sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo, selection_start, selection_end));
     
   doc->native()->running_state_changed();
   
