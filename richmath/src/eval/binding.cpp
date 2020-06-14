@@ -275,12 +275,12 @@ static pmath_t builtin_interrupt(pmath_expr_t expr) {
   }
   
   pmath_unref(expr); 
-  expr = PMATH_NULL;
+  expr = pmath_evaluate(pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0));
   
   if(Application::is_running_on_gui_thread()) 
-    expr = ask_interrupt().release();
+    expr = ask_interrupt(Expr(expr)).release();
   else
-    expr = Application::notify_wait(ClientNotification::AskInterrupt, Expr()).release();
+    expr = Application::notify_wait(ClientNotification::AskInterrupt, Expr(expr)).release();
   
   pmath_t ex = pmath_catch();
   if(!pmath_same(ex, PMATH_UNDEFINED)) {

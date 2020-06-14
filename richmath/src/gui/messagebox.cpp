@@ -36,12 +36,12 @@ YesNoCancel richmath::ask_save(Document *doc) {
   return YesNoCancel::Yes;
 }
 
-Expr richmath::ask_interrupt() {
+Expr richmath::ask_interrupt(Expr stack) {
 #ifdef RICHMATH_USE_GTK_GUI
-  return mgtk_ask_interrupt();
+  return mgtk_ask_interrupt(std::move(stack));
 #endif
 #ifdef RICHMATH_USE_WIN32_GUI
-  return win32_ask_interrupt();
+  return win32_ask_interrupt(std::move(stack));
 #endif
   return Expr();
 }

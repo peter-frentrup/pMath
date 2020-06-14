@@ -57,7 +57,7 @@ YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
   }
 }
 
-Expr richmath::mgtk_ask_interrupt() {
+Expr richmath::mgtk_ask_interrupt(Expr stack) {
   GtkWindow *owner_window = nullptr;
   
   Document *doc = nullptr;
