@@ -158,7 +158,7 @@ $PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 <<Documentation`
 
 
-Unprotect(System`CreateDocument, System`DocumentOpen, System`Documents, System`SelectedDocument, System`SetSelectedDocument)
+Unprotect(System`CreateDocument, System`DocumentOpen, System`Documents, System`SelectedDocument, System`SetSelectedDocument, Developer`DebugInfoOpenerFunction)
 Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
 DocumentOpen(~filename)::= FE`CallFrontEnd(FrontEnd`DocumentOpen(filename))
@@ -170,7 +170,8 @@ SelectedDocument(~~args)::= 1 /? (IsValidArgumentCount(SelectedDocument, Length@
 SetSelectedDocument(doc: ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
 SetSelectedDocument(doc: Automatic|~:FrontEndObject|~:DocumentObject, sel: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc, sel))
 SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 2);False)
-Protect(CreateDocument, DocumentOpen, Documents, SelectedDocument, SetSelectedDocument)
+Developer`DebugInfoOpenerFunction(src: Developer`DebugInfoSource(~:FrontEndObject, ~:Range))::= Function(SetSelectedDocument(Automatic, src))
+Protect(CreateDocument, DocumentOpen, Documents, SelectedDocument, SetSelectedDocument, Developer`DebugInfoOpenerFunction)
 
 End()
 
