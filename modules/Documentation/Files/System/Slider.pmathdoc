@@ -106,8 +106,37 @@ Document({
         Section({
           "Note that the post-evaluation is not evaluated when canceling the \
           mouse drag operation with the ", TemplateBox({"Esc"}, "KeyEvent"), 
-          " key."}, "ExampleText")}, 1), Section("", "SectionFooterSpacer")}, 
-     All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+          " key."}, "ExampleText")}, 1), 
+      SectionGroup({Section("Neat examples", "ExampleSection"), 
+        Section("Interactively change the document background color:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Row", "@", {
+              "{", {
+               {"Slider", "(", {"Dynamic", "(", {
+                  {{"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, 
+                     ",", "Background"}, ")"}, ".", "Replace", "(", {
+                    {"GrayLevel", "(", {"~", "g"}, ")"}, "\[RuleDelayed]", 
+                    "g"}, ")"}, ",", {"Function", "(", {
+                    {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, 
+                      ",", "Background"}, ")"}, "\[Assign]", {
+                     "GrayLevel", "(", "#", ")"}}, ")"}}, ")"}, ")"}, ",", {
+                "Button", "(", {ComplexStringBox("\"Reset\""), ",", {
+                  {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, 
+                    ",", "Background"}, ")"}, "\[Assign]", "Inherited"}}, 
+                ")"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({
+              SliderBox(
+               Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), 
+                 GrayLevel(~Global`g) :> Global`g), (
+                 CurrentValue(EvaluationDocument(), Background):= GrayLevel(
+                 #1)) &), 0 .. 1), ButtonBox(ComplexStringBox("\"Reset\""), 
+               ButtonFunction -> ((CurrentValue(EvaluationDocument(), 
+                Background):= Inherited) &))}, "RowDefault")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink")}, 
        "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
  Visible -> True)
