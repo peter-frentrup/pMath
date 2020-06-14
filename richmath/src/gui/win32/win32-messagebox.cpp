@@ -296,7 +296,7 @@ void TaskDialogConfig::on_hyperlink_clicked(HWND hwnd, const wchar_t *url) {
   size_t i = 0;
   const wchar_t *s = url;
   while(*s >= L'0' && *s <= L'9' && i < hyperlink_actions.expr_length()) {
-    i = 10*i + (*s - '0');
+    i = 10*i + (*s - L'0');
     ++s;
   }
   

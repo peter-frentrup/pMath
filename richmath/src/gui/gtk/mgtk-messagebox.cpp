@@ -2,11 +2,44 @@
 
 #include <gui/gtk/mgtk-widget.h>
 
+#include <boxes/section.h>
+
 #include <eval/binding.h>
 
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
+extern pmath_symbol_t richmath_FE_CallFrontEnd;
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+
+namespace {
+  class MathGtkHyperlinks {
+    public:
+      MathGtkHyperlinks();
+      
+      String register_hyperlink_action(Expr action);
+      
+      void connect(GtkWidget *label);
+      void disconnect(GtkWidget *label);
+    
+    private:
+      bool on_activate_link(GtkLabel *label, const char *uri);
+    
+    private:
+      Expr hyperlink_actions;
+    
+    private:
+      static gboolean activate_link_callback(GtkLabel *label, gchar *uri, gpointer user_data);
+  };
+}
+
+static GtkWidget *make_left_aligned(GtkWidget *widget) {
+  GtkWidget *alignment = gtk_alignment_new(0.0f, 0.0f, 0.0f, 0.0f);
+  gtk_container_add(GTK_CONTAINER(alignment), widget);
+  gtk_alignment_set_padding(GTK_ALIGNMENT(alignment), 5, 0, 10, 10);
+  return alignment;
+}
 
 YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
   GtkWindow *owner_window = nullptr;
@@ -43,7 +76,7 @@ YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
   
   GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
   //gtk_box_pack_end(GTK_BOX(content_box), label, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(content_box), label);
+  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(label));
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
   int result = gtk_dialog_run(GTK_DIALOG(dialog));
@@ -58,6 +91,7 @@ YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
 }
 
 Expr richmath::mgtk_ask_interrupt(Expr stack) {
+  MathGtkHyperlinks hyperlinks;
   GtkWindow *owner_window = nullptr;
   
   Document *doc = nullptr;
@@ -96,14 +130,104 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   
   gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_CANCEL);
   
-  GtkWidget *label = gtk_label_new("An interrupt occurred.");
+  GtkWidget *caption_label = gtk_label_new("<big><b>An interrupt occurred</b></big>");
+  gtk_label_set_use_markup(GTK_LABEL(caption_label), TRUE);
+  GtkWidget *desctiption_label = nullptr;
+  GtkWidget *details_section = nullptr;
+  GtkWidget *details_label = nullptr;
   
   GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
-  //gtk_box_pack_end(GTK_BOX(content_box), label, TRUE, TRUE, 0);
-  gtk_container_add(GTK_CONTAINER(content_box), label);
+  //gtk_container_set_border_width(GTK_CONTAINER(content_box), 5);
+  gtk_box_set_spacing(GTK_BOX(content_box), 5);
+  
+  //gtk_box_pack_end(GTK_BOX(content_box), caption_label, TRUE, TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(caption_label));
+  
+  String content;
+  if(box) {
+    if(Section *sect = box->find_parent<Section>(true)) {
+      content = "During evaluation of <a href=\"";
+      content+= hyperlinks.register_hyperlink_action(
+                  Call(Symbol(richmath_FE_CallFrontEnd),
+                    Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
+                    Symbol(PMATH_SYMBOL_AUTOMATIC),
+                    sect->id().to_pmath())));
+      content+= "\">";
+      content+= sect->get_own_style(SectionLabel, "?");
+      content+= "</a>";
+    }
+  }
+  
+  String details;
+  if(stack[0] == PMATH_SYMBOL_LIST && stack.expr_length() > 1) {
+    Expr default_name = String("?");
+    Expr key_Head = String("Head");
+    Expr key_Location = String("Location");
+    
+    for(size_t i = stack.expr_length() - 1; i > 0; --i) {
+      Expr frame = stack[i];
+      
+      if(details.is_string())
+        details+= "\n";
+      
+      String name = frame.lookup(key_Head, default_name).to_string();
+      bool have_link = false;
+      Expr location {};
+      if(frame.try_lookup(key_Location, location)) {
+        location = Application::interrupt_wait(Call(Symbol(richmath_Developer_DebugInfoOpenerFunction), std::move(location)));
+        
+        if(location[0] == PMATH_SYMBOL_FUNCTION) {
+          if(location.expr_length() == 1)
+            location = location[1];
+          else
+            location = Call(location);
+          
+          details+= "<a href=\"";
+          details+= hyperlinks.register_hyperlink_action(location);
+          details+= "\">";
+          have_link = true;
+        }
+      }
+      details+= name;
+      if(have_link)
+        details+= "</a>";
+    }
+  }
+  
+  if(content.is_string()) {
+    content+= String::FromChar(0);
+    if(char *utf8 = pmath_string_to_utf8(content.get(), nullptr)) {
+      desctiption_label = gtk_label_new("");
+      gtk_label_set_markup(GTK_LABEL(desctiption_label), utf8);
+      pmath_mem_free(utf8);
+      
+      gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(desctiption_label));
+      
+      hyperlinks.connect(desctiption_label);
+    }
+  }
+  
+  if(details.is_string()) {
+    details+= String::FromChar(0);
+    if(char *utf8 = pmath_string_to_utf8(details.get(), nullptr)) {
+      details_section = gtk_expander_new_with_mnemonic("Stack _trace:");
+      GtkWidget *details_label = gtk_label_new("");
+      gtk_label_set_markup(GTK_LABEL(details_label), utf8);
+      pmath_mem_free(utf8);
+      
+      gtk_container_add(GTK_CONTAINER(details_section), make_left_aligned(details_label));
+      gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(details_section));
+      
+      hyperlinks.connect(details_label);
+    }
+  }
+  
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
   int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  
+  hyperlinks.disconnect(details_label);
+  hyperlinks.disconnect(desctiption_label);
   
   gtk_widget_destroy(dialog);
   switch(result) {
@@ -113,3 +237,54 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   
   return Expr();
 }
+
+//{ class MathGtkHyperlinks ...
+
+MathGtkHyperlinks::MathGtkHyperlinks() {
+}
+
+String MathGtkHyperlinks::register_hyperlink_action(Expr action) {
+  if(hyperlink_actions.is_null())
+    hyperlink_actions = List(std::move(action));
+  else
+    hyperlink_actions.append(std::move(action));
+  
+  return Expr(hyperlink_actions.expr_length()).to_string();
+}
+
+void MathGtkHyperlinks::connect(GtkWidget *label) {
+  if(!label)
+    return;
+    
+  g_signal_connect(label, "activate-link", G_CALLBACK(activate_link_callback), this);
+}
+
+void MathGtkHyperlinks::disconnect(GtkWidget *label) {
+  if(!label)
+    return;
+  
+  g_signal_handlers_disconnect_by_data(label, this);
+}
+
+bool MathGtkHyperlinks::on_activate_link(GtkLabel *label, const char *uri) {
+  size_t i = 0;
+  const char *s = uri;
+  while(*s >= '0' && *s <= '9' && i < hyperlink_actions.expr_length()) {
+    i = 10*i + (*s - '0');
+    ++s;
+  }
+  
+  if(*s == '\0' && i >= 1 && i <= hyperlink_actions.expr_length()) {
+    Expr action = hyperlink_actions[i];
+    Application::interrupt_wait(action);
+    return true;
+  }
+  return false;
+}
+
+gboolean MathGtkHyperlinks::activate_link_callback(GtkLabel *label, gchar *uri, gpointer user_data) {
+  MathGtkHyperlinks *self = (MathGtkHyperlinks*)user_data;
+  return self->on_activate_link(label, uri);
+}
+
+//} ... class MathGtkHyperlinks
