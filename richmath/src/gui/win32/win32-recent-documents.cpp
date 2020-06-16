@@ -12,6 +12,10 @@
 //#include <shlobjidl.h>
 
 
+//http://www.catch22.net/tuts/undocumented-createprocess
+#define STARTF_TITLESHORTCUT  0x800
+
+  
 using namespace pmath;
 using namespace richmath;
 
@@ -28,6 +32,7 @@ namespace {
     
     public:
       static void init_app_user_model_id();
+      static String find_startup_shortcut_path();
       
       static bool are_file_associations_registered();
       static HRESULT register_application();
@@ -226,6 +231,13 @@ bool Win32RecentDocuments::remove(String path) {
 }
 
 void Win32RecentDocuments::init() {
+  Expr shortcut_path = FileAssociationRegistry::find_startup_shortcut_path();
+  if(shortcut_path.is_null())
+    shortcut_path = Symbol(PMATH_SYMBOL_NONE);
+  
+  Evaluate(Parse("FE`Private`StartupShortcutPath:= `1`", std::move(shortcut_path)));
+  
+  // Note: SetCurrentProcessExplicitAppUserModelID() will overwrite the STARTUPINFO block.
   FileAssociationRegistry::init_app_user_model_id();
   
   if(!FileAssociationRegistry::are_file_associations_registered())
@@ -253,6 +265,44 @@ void FileAssociationRegistry::init_app_user_model_id() {
     
     FreeLibrary(shell32);
   }
+}
+
+String FileAssociationRegistry::find_startup_shortcut_path() {
+  STARTUPINFOW si = {sizeof(si)};
+  
+  GetStartupInfoW(&si);
+  
+  Evaluate(ParseArgs(
+    "FE`Private`StartupInfo:= {"
+      "\"Desktop\" -> `1`,"
+      "\"Title\" -> `2`,"
+      "\"Reserved\" -> `3`,"
+      "\"Flags\" -> `4`,"
+      "\"Position\" -> {`5`, `6`},"
+      "\"Size\" -> {`7`, `8`},"
+      "\"SizeInChars\" -> {`9`, `10`},"
+      "\"FillAttribute\" -> `11`,"
+      "\"ShowWindowSetting\" -> `12`,"
+      "\"Reserved2\" -> `13`}", 
+    List(
+      si.lpDesktop  ? String::FromUcs2((const uint16_t*)si.lpDesktop)  : Symbol(PMATH_SYMBOL_NONE),
+      si.lpTitle    ? String::FromUcs2((const uint16_t*)si.lpTitle)    : Symbol(PMATH_SYMBOL_NONE),
+      si.lpReserved ? String::FromUcs2((const uint16_t*)si.lpReserved) : Symbol(PMATH_SYMBOL_NONE),
+      Expr((uintptr_t)si.dwFlags),
+      Expr((uintptr_t)si.dwX),
+      Expr((uintptr_t)si.dwY),
+      Expr((uintptr_t)si.dwXSize),
+      Expr((uintptr_t)si.dwYSize),
+      Expr((uintptr_t)si.dwXCountChars),
+      Expr((uintptr_t)si.dwYCountChars),
+      Expr((uintptr_t)si.dwFillAttribute),
+      Expr((uintptr_t)si.wShowWindow),
+      Expr((uintptr_t)si.cbReserved2))));
+  
+  if(si.dwFlags & STARTF_TITLESHORTCUT) 
+    return String::FromUcs2((const uint16_t*)si.lpTitle);
+  
+  return String();
 }
 
 bool FileAssociationRegistry::are_file_associations_registered() {
