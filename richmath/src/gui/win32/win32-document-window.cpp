@@ -15,6 +15,7 @@
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
+#include <gui/win32/win32-recent-documents.h>
 #include <gui/win32/win32-scrollbar-overlay.h>
 #include <gui/win32/win32-themes.h>
 #include <resources.h>
@@ -688,6 +689,8 @@ Win32DocumentWindow::Win32DocumentWindow(
 
 void Win32DocumentWindow::after_construction() {
   base::after_construction();
+  
+  Win32RecentDocuments::set_window_app_user_model_id(_hwnd);
   
   _working_area->init();
   _top_glass_area->init();

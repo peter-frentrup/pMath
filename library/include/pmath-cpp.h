@@ -313,6 +313,9 @@ namespace pmath {
       /**\brief Check for not holding the null pointer. */
       bool is_valid() const throw() { return !is_null(); }
       
+      /**\brief Check for not holding the null pointer. */
+      explicit operator bool() const throw() { return is_valid(); }
+      
       /**\brief Length of the expression or 0 on error. */
       size_t expr_length() const throw() {
         if(!is_expr())

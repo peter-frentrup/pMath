@@ -7,6 +7,8 @@
 #include <gui/recent-documents.h>
 
 #include <gui/win32/ole/combase.h>
+#include <gui/win32/ole/propvar.h>
+#include <propkey.h>
 #include <shlwapi.h>
 #include <shlobj.h>
 //#include <shlobjidl.h>
@@ -33,6 +35,7 @@ namespace {
     public:
       static void init_app_user_model_id();
       static String find_startup_shortcut_path();
+      static HRESULT set_shortcut_app_user_model_id(String shortcut_path);
       
       static bool are_file_associations_registered();
       static HRESULT register_application();
@@ -231,11 +234,10 @@ bool Win32RecentDocuments::remove(String path) {
 }
 
 void Win32RecentDocuments::init() {
-  Expr shortcut_path = FileAssociationRegistry::find_startup_shortcut_path();
-  if(shortcut_path.is_null())
-    shortcut_path = Symbol(PMATH_SYMBOL_NONE);
-  
-  Evaluate(Parse("FE`Private`StartupShortcutPath:= `1`", std::move(shortcut_path)));
+  if(String shortcut_path = FileAssociationRegistry::find_startup_shortcut_path()) {
+    //Evaluate(Parse("FE`Private`StartupShortcutPath:= `1`", shortcut_path));
+    HRreport(FileAssociationRegistry::set_shortcut_app_user_model_id(std::move(shortcut_path)));
+  }
   
   // Note: SetCurrentProcessExplicitAppUserModelID() will overwrite the STARTUPINFO block.
   FileAssociationRegistry::init_app_user_model_id();
@@ -247,7 +249,31 @@ void Win32RecentDocuments::init() {
 void Win32RecentDocuments::done() {
 }
 
-// class FileAssociationRegistry ...
+void Win32RecentDocuments::set_window_app_user_model_id(HWND hwnd) {
+  if(!hwnd)
+    return;
+  
+  HMODULE shell32 = LoadLibrary("shell32.dll");
+  if(shell32) {
+    HRESULT (WINAPI * p_SHGetPropertyStoreForWindow)(HWND, REFIID, void **);
+    p_SHGetPropertyStoreForWindow = (HRESULT (WINAPI*)(HWND, REFIID, void **))
+      GetProcAddress(shell32, "SHGetPropertyStoreForWindow");
+    
+    if(p_SHGetPropertyStoreForWindow) {
+      ComBase<IPropertyStore> props;
+      HRreport(p_SHGetPropertyStoreForWindow(hwnd, props.iid(), (void**)props.get_address_of()));
+      if(props) {
+        PropertyVariant appIdPropVar = PropertyVariant(FileAssociationRegistry::app_user_model_id);
+        HRreport(props->SetValue(PKEY_AppUserModel_ID, appIdPropVar.value));
+        //HRreport(props->Commit());
+      }
+    }
+    
+    FreeLibrary(shell32);
+  }
+}
+
+//{ class FileAssociationRegistry ...
 
 const wchar_t *FileAssociationRegistry::app_user_model_id = L"Frentrup.pMath.RichMath";
 const wchar_t *FileAssociationRegistry::document_prog_id = L"Frentrup.pMath.RichMath.Document";
@@ -305,6 +331,47 @@ String FileAssociationRegistry::find_startup_shortcut_path() {
   return String();
 }
 
+HRESULT FileAssociationRegistry::set_shortcut_app_user_model_id(String shortcut_path) {
+  if(shortcut_path.is_null())
+    return E_INVALIDARG;
+  
+  shortcut_path+= String::FromChar(0);
+  if(shortcut_path.is_null())
+    return E_OUTOFMEMORY;
+  
+  ComBase<IShellLinkW> link;
+  HR(CoCreateInstance(CLSID_ShellLink, nullptr, CLSCTX_INPROC_SERVER, link.iid(), (void**)link.get_address_of()));
+  
+  ComBase<IPersistFile> file = link.as<IPersistFile>();
+  if(!file)
+    return E_NOINTERFACE;
+  
+  static_assert(sizeof(OLECHAR) == sizeof(wchar_t), "OLE2ANSI must not be defined");
+  
+  HR(file->Load((const wchar_t*)shortcut_path.buffer(), STGM_READWRITE));
+  
+  ComBase<IPropertyStore> props = link.as<IPropertyStore>();
+  if(!props)
+    return E_NOINTERFACE;
+  
+  PropertyVariant appIdPropVar;
+  HR(props->GetValue(PKEY_AppUserModel_ID, &appIdPropVar.value));
+  if(appIdPropVar) {
+    pmath_debug_print_object("[shortcut already has an AppUserModelID: ", appIdPropVar.to_string_or_null().get(), "]\n");
+    return S_FALSE;
+  }
+  
+  pmath_debug_print("[setting AppUserModelID ...]\n");
+  
+  appIdPropVar = PropertyVariant(app_user_model_id);
+  HR(props->SetValue(PKEY_AppUserModel_ID, appIdPropVar.value));
+  HR(props->Commit());
+  
+  HR(file->Save(nullptr, TRUE));
+  
+  return S_OK;
+}
+
 bool FileAssociationRegistry::are_file_associations_registered() {
   HKEY prog_id_key;
   
@@ -360,7 +427,7 @@ HRESULT FileAssociationRegistry::register_known_file_extensions() {
   return S_OK;
 }
 
-// ... class FileAssociationRegistry
+//} ... class FileAssociationRegistry
 
 
 //{ class RegistryKey ...

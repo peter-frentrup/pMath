@@ -7,6 +7,7 @@
 
 
 #include <util/pmath-extra.h>
+#include <windows.h>
 
 
 namespace richmath {
@@ -16,6 +17,8 @@ namespace richmath {
     static bool remove(String path);
     static void init();
     static void done();
+    
+    static void set_window_app_user_model_id(HWND hwnd);
   };
 }
 

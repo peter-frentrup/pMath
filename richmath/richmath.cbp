@@ -16,10 +16,10 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
-					<Add option="-std=gnu++11" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
@@ -52,6 +52,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -69,10 +70,10 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
-					<Add option="-std=gnu++11" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -109,6 +110,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -233,11 +235,12 @@
 				<Option compiler="gcc" />
 				<Compiler>
 					<Add option="-march=i686" />
+					<Add option="-flto" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
-					<Add option="-std=gnu++11" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DRICHMATH_USE_WIN32_FONT" />
@@ -252,10 +255,10 @@
 					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="-O3" />
+					<Add option="-flto" />
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
-					<Add option="-flto" />
-					<Add option="-O3" />
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
@@ -273,6 +276,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 				</Linker>
 				<ExtraCommands>
@@ -384,6 +388,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_32.lib)" />
 					<Add directory="$(#glib_32.lib)" />
@@ -444,6 +449,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_32.lib)" />
 					<Add directory="$(#pango_32.lib)" />
@@ -503,6 +509,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_64.lib)" />
 					<Add directory="$(#glib_64.lib)" />
@@ -564,6 +571,7 @@
 					<Add library="advapi32" />
 					<Add library="shell32" />
 					<Add library="shlwapi" />
+					<Add library="propsys" />
 					<Add directory="../library/$(TARGET_OUTPUT_DIR)" />
 					<Add directory="$(#cairo_64.lib)" />
 					<Add directory="$(#glib_64.lib)" />
@@ -976,6 +984,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/ole/enumformatetc.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/ole/propvar.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

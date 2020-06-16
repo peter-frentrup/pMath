@@ -50,6 +50,9 @@ class BasicWin32Window::Impl {
     void on_windowposchanged(WINDOWPOS *pos);
     bool on_nclbuttonup(LRESULT *result, WPARAM wParam, POINT pos);
     
+    void clear_property_store() { clear_property_store(self._hwnd); }
+    static void clear_property_store(HWND hwnd);
+    
     void paint_themed(HDC hdc);
     
   private:
@@ -397,6 +400,8 @@ BasicWin32Window::~BasicWin32Window() {
     _blur_behind_window->destroy(); 
     _blur_behind_window = nullptr;
   }
+  
+  Impl(*this).clear_property_store();
 }
 
 void BasicWin32Window::get_client_rect(RECT *rect) {
@@ -2785,6 +2790,42 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
   }
   
   return false;
+}
+
+void BasicWin32Window::Impl::clear_property_store(HWND hwnd) {
+  if(!hwnd)
+    return;
+  
+  HMODULE shell32 = LoadLibrary("shell32.dll");
+  if(shell32) {
+    HRESULT (WINAPI * p_SHGetPropertyStoreForWindow)(HWND, REFIID, void **);
+    p_SHGetPropertyStoreForWindow = (HRESULT (WINAPI*)(HWND, REFIID, void **))
+      GetProcAddress(shell32, "SHGetPropertyStoreForWindow");
+    
+    if(p_SHGetPropertyStoreForWindow) {
+      ComBase<IPropertyStore> props;
+      HRreport(p_SHGetPropertyStoreForWindow(hwnd, props.iid(), (void**)props.get_address_of()));
+      if(props) {
+        DWORD count;
+        if(!HRbool(props->GetCount(&count)))
+          count = 0;
+        
+        pmath_debug_print("[BasicWin32Window::Impl::clear_property_store: %d entries]\n", (int)count);
+        
+        for(count; count > 0; --count) {
+          PROPERTYKEY key;
+          if(HRbool(props->GetAt(count - 1, &key))) {
+            PROPVARIANT empty = {};
+            HRreport(props->SetValue(key, empty));
+          }
+        }
+        
+        HRreport(props->Commit());
+      }
+    }
+    
+    FreeLibrary(shell32);
+  }
 }
 
 void BasicWin32Window::Impl::paint_themed(HDC hdc) {
