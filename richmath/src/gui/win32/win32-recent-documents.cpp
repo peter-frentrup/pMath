@@ -308,8 +308,7 @@ String FileAssociationRegistry::find_startup_shortcut_path() {
       "\"Size\" -> {`7`, `8`},"
       "\"SizeInChars\" -> {`9`, `10`},"
       "\"FillAttribute\" -> `11`,"
-      "\"ShowWindowSetting\" -> `12`,"
-      "\"Reserved2\" -> `13`}", 
+      "\"ShowWindowSetting\" -> `12`}", // "\"ReservedBytes\" -> `13`
     List(
       si.lpDesktop  ? String::FromUcs2((const uint16_t*)si.lpDesktop)  : Symbol(PMATH_SYMBOL_NONE),
       si.lpTitle    ? String::FromUcs2((const uint16_t*)si.lpTitle)    : Symbol(PMATH_SYMBOL_NONE),
@@ -322,8 +321,8 @@ String FileAssociationRegistry::find_startup_shortcut_path() {
       Expr((uintptr_t)si.dwXCountChars),
       Expr((uintptr_t)si.dwYCountChars),
       Expr((uintptr_t)si.dwFillAttribute),
-      Expr((uintptr_t)si.wShowWindow),
-      Expr((uintptr_t)si.cbReserved2))));
+      Expr((uintptr_t)si.wShowWindow)/*,
+      Expr((uintptr_t)si.cbReserved2)*/)));
   
   if(si.dwFlags & STARTF_TITLESHORTCUT) 
     return String::FromUcs2((const uint16_t*)si.lpTitle);
