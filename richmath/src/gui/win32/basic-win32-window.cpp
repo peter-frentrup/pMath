@@ -55,6 +55,10 @@ class BasicWin32Window::Impl {
     
     void paint_themed(HDC hdc);
     
+    void find_all_snappers();
+    HDWP move_all_snappers(HDWP hdwp, const RECT &new_bounds);
+    void snap_rect_or_pt(RECT *windowrect, POINT *pt); // pt may be nullptr, rect must not
+    
   private:
     void paint_themed_system_buttons(HDC hdc_bitmap);
     void paint_themed_caption(HDC hdc_bitmap);
@@ -125,6 +129,26 @@ namespace {
       static BOOL CALLBACK window_callback(HWND hwnd, LPARAM lParam);
       void window_callback(HWND hwnd);
   };
+  
+  class WindowMagnetCollector {
+    public:
+      WindowMagnetCollector(Hashset<HWND> &_snappers, Array<SnapPosition> &_snapper_positions);
+      int min_level;
+    
+    private:
+      HWND dst;
+      RECT dst_rect;
+      Hashset<HWND> &snappers;
+      Array<SnapPosition> &snapper_positions;
+    
+    public:
+      void reset_dst(HWND _dst);
+      void visit_all_windows();
+      
+    private:
+      static BOOL CALLBACK visit_window(HWND hwnd, LPARAM lParam);
+      void visit_window(HWND hwnd);
+  };
 }
 
 // Microsoft Calculator, Settings Pannel: 0xE6E6E6 (light mode) and(?) 0x1F1F1F (dark mode)
@@ -135,156 +159,42 @@ static Color CustomTitlebarColorizationDark  = Color::from_rgb24(0x1F1F1F);//Col
 // dark mode Popup menu background: 0x2B2B2B
 static Color DarkModeButtonFaceColor = Color::from_rgb24(0x2B2B2B);
 
-static bool is_window_cloaked(HWND hwnd);
-static bool is_window_visible_on_screen(HWND hwnd);
-
 class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
     using base = BasicWin32Widget;
-  protected:
-    virtual void after_construction() override {
-      base::after_construction();
-      // for debugging purposes:
-      SetWindowTextW(_hwnd, L"BlurBehind");
-      enable_blur(0xff0000FFu);
-    }
-    
-    bool enable_blur(COLORREF abgr) {
-      if(!Win32Themes::SetWindowCompositionAttribute)
-        return false;
-      
-      // TODO: check for right Windows 10 version
-      // Note that Acrylic Blur Behind is very slow (window lags when moving) because it uses a much larger blur radius.
-      Win32Themes::AccentPolicy accent_policy = {};
-      accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
-      accent_policy.flags = Win32Themes::AccentFlagMixWithGradientColor;
-      accent_policy.gradient_color = abgr;
-      accent_policy.animation_id = 0;
-      
-      Win32Themes::WINCOMPATTRDATA data = {};
-      data.attr = Win32Themes::UndocumentedWindowCompositionAttribute::AccentPolicy;
-      data.data = &accent_policy;
-      data.data_size = sizeof(accent_policy);
-      if(!Win32Themes::SetWindowCompositionAttribute(_hwnd, &data)) {
-        pmath_debug_print("[Win32BlurBehindWindow: SetWindowCompositionAttribute failed]\n");
-        return false;
-      }
-      
-      return true;
-    }
-    
-    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override {
-      switch(message) {
-        case WM_WINDOWPOSCHANGING: 
-          on_windowposchanging((WINDOWPOS*)lParam);
-          return 0;
-      }
-      
-      return base::callback(message, wParam, lParam);
-    }
-    
-    void on_windowposchanging(WINDOWPOS *lParam) {
-      if((lParam->flags & SWP_NOZORDER)) {
-        lParam->hwndInsertAfter = _owner->hwnd();
-      }
-    }
-    
   public:
-    Win32BlurBehindWindow(BasicWin32Window *owner) 
-      : base(
-          WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
-          WS_POPUP,// | WS_DISABLED,
-          0,
-          0,
-          1,
-          1,
-          nullptr),
-        _owner(owner)
-    {
-      assert(_owner != nullptr);
-    }
+    Win32BlurBehindWindow(BasicWin32Window *owner);
+    virtual ~Win32BlurBehindWindow();
     
-    ~Win32BlurBehindWindow() {
-      _owner->lost_blur_behind_window(this);
-    }
+    void hide();
+    void show();
+    void show(const RECT &owner_rect);
+    void show_if_owner_visible_on_screen();
     
-    static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins) {
-      window_rect.left+=   margins.cxLeftWidth;
-      window_rect.right-=  margins.cxRightWidth;
-      window_rect.top+=    1;//margins.cyTopHeight;
-      window_rect.bottom-= margins.cyBottomHeight;
-      return window_rect;
-    }
+    void colorize(bool active, bool dark_mode = false);
     
-    void hide() {
-      ShowWindow(_hwnd, SW_HIDE);
-    }
+    static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins);
     
-    void show() {
-      RECT rect;
-      GetWindowRect(_hwnd, &rect);
-      show(rect);
-    }
+  protected:
+    virtual void after_construction() override;
+    bool enable_blur(COLORREF abgr);
     
-    void show(const RECT &owner_rect) {
-      Win32Themes::MARGINS margins = {};
-      _owner->get_nc_margins(&margins);
-      
-      RECT rect = blur_bounds(owner_rect, margins);
-      
-      SetWindowPos(
-        _hwnd,
-        _owner->hwnd(),
-        rect.left, 
-        rect.top,
-        rect.right - rect.left,
-        rect.bottom - rect.top,
-        SWP_NOACTIVATE | SWP_SHOWWINDOW);
-    }
-    
-    void show_if_owner_visible_on_screen() {
-      if(is_window_visible_on_screen(_owner->hwnd())) {
-        if(!is_window_visible_on_screen(_hwnd))
-          show();
-      }
-      else {
-        if(is_window_visible_on_screen(_hwnd))
-          hide();
-      }
-    }
-    
-    void colorize(bool active, bool dark_mode = false) {
-      DWORD alpha = 0xFFu;
-      if(Win32Themes::use_win10_transparency() && active) {
-        alpha = 0xBFu; // 0.75 * 0xFF
-      }
-      
-      Color custom = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight;
-      COLORREF bgr;
-      if(custom.is_valid()) {
-        bgr = custom.to_bgr24();
-      }
-      else {
-        Win32Themes::ColorizationInfo colorization;
-        if(Win32Themes::try_read_win10_colorization(&colorization)) {
-          if(active && colorization.has_accent_color_in_active_titlebar) 
-            bgr = colorization.accent_color;
-          else if(dark_mode)
-            bgr = 0x000000u;
-          else
-            bgr = 0xFFFFFFu;
-        }
-        else if(active)
-          bgr = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
-        else
-          bgr = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
-      }
-      
-      enable_blur((alpha << 24u) | bgr);
-    }
+    virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
+    void on_windowposchanging(WINDOWPOS *lParam);
     
   private:
     BasicWin32Window *_owner;
 };
+
+static bool is_window_cloaked(HWND hwnd);
+static bool is_window_visible_on_screen(HWND hwnd);
+
+static POINT point_from_lparam(LPARAM lParam);
+static bool touching_rectangles(RECT *touchRegion, const RECT &rect1, const RECT &rect2);
+static POINT get_rect_center(const RECT &rect);
+static Point to_relative_point(const RECT &frame, const POINT &point);
+static POINT to_absolute_point(const RECT &frame, const Point &point);
+
+static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi);
 
 static bool use_custom_system_buttons() {
   return Win32Themes::is_windows_10_or_newer();
@@ -292,34 +202,6 @@ static bool use_custom_system_buttons() {
 
 static bool hit_test_is_system_button(int ht) {
   return ht == HTMINBUTTON || ht == HTMAXBUTTON || ht == HTCLOSE || ht == HTHELP;
-}
-
-static bool is_window_cloaked(HWND hwnd) {
-  BOOL is_cloaked = FALSE;
-  return Win32Themes::DwmGetWindowAttribute &&
-         SUCCEEDED(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CLOAKED, &is_cloaked, sizeof(is_cloaked))) &&
-         is_cloaked;
-}
-
-static bool is_window_visible_on_screen(HWND hwnd) {
-  return IsWindowVisible(hwnd) & !is_window_cloaked(hwnd);
-}
-
-static POINT point_from_lparam(LPARAM lParam) {
-  return POINT { (short)LOWORD(lParam), (short)HIWORD(lParam) };
-}
-
-static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi) {
-  DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
-  DWORD ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
-
-  RECT frame = {0, 0, 0, 0};
-  Win32HighDpi::adjust_window_rect(&frame, style, FALSE, ex_style, dpi);
-
-  margins->cxLeftWidth    = -frame.left;
-  margins->cyTopHeight    = -frame.top;
-  margins->cxRightWidth   = frame.right;
-  margins->cyBottomHeight = frame.bottom;
 }
 
 static HDWP tryDeferWindowPos(
@@ -497,213 +379,6 @@ void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
 }
 
 //{ snapping windows & alignment ...
-
-void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
-  RECT current_rect;
-  WindowMagnetics::get_snap_rect(_hwnd, &current_rect);
-
-  snapping_rect->left -=   snap_correction_x;
-  snapping_rect->right -=  snap_correction_x;
-  snapping_rect->top -=    snap_correction_y;
-  snapping_rect->bottom -= snap_correction_y;
-
-  if(pt) {
-    pt->x -= snap_correction_x;
-    pt->y -= snap_correction_y;
-  }
-
-  int old_dx = current_rect.left - snapping_rect->left;
-  int old_dy = current_rect.top  - snapping_rect->top;
-
-  WindowMagnetics magnetics {_hwnd, all_snappers};
-  magnetics.orig_rect = snapping_rect;
-  magnetics.orig_pt = pt;
-  magnetics.snap_all_monitors();
-  magnetics.snap_all_windows();
-  
-  for(auto hwnd : all_snappers.keys()) {
-    RECT rect;
-    WindowMagnetics::get_snap_rect(hwnd, &rect);
-    rect.left -=   old_dx;
-    rect.right -=  old_dx;
-    rect.top -=    old_dy;
-    rect.bottom -= old_dy;
-    
-    magnetics.orig_rect = &rect;
-    
-    magnetics.snap_all_monitors();
-    magnetics.snap_all_windows();
-  }
-  
-  snap_correction_x = magnetics.dx;
-  snap_correction_y = magnetics.dy;
-
-  snapping_rect->left +=   magnetics.dx;
-  snapping_rect->right +=  magnetics.dx;
-  snapping_rect->top +=    magnetics.dy;
-  snapping_rect->bottom += magnetics.dy;
-
-  if(pt) {
-    pt->x += magnetics.dx;
-    pt->y += magnetics.dy;
-  }
-}
-
-struct find_snap_info_t {
-  HWND dst;
-  RECT dst_rect;
-  int min_level;
-  Hashset<HWND> *snappers;
-  Array<SnapPosition> *snapper_positions;
-};
-
-static bool touchingRectangles(RECT *touchRegion, const RECT &rect1, const RECT &rect2) {
-  touchRegion->left   = MAX(rect1.left,   rect2.left);
-  touchRegion->right  = MIN(rect1.right,  rect2.right);
-  touchRegion->top    = MAX(rect1.top,    rect2.top);
-  touchRegion->bottom = MIN(rect1.bottom, rect2.bottom);
-  return (touchRegion->left == touchRegion->right) != (touchRegion->top == touchRegion->bottom);
-}
-
-static POINT get_rect_center(const RECT &rect) {
-  POINT p;
-  p.x = rect.left + (rect.right - rect.left) / 2;
-  p.y = rect.top + (rect.bottom - rect.top) / 2;
-  return p;
-}
-
-static Point to_relative_point(const RECT &frame, const POINT &point) {
-  int width = frame.right - frame.left;
-  int height = frame.bottom - frame.top;
-  
-  return Point(
-           width  > 0 ? (point.x - frame.left) / (double)width : 0.0,
-           height > 0 ? (point.y - frame.top) / (double)height : 0.0);
-}
-
-static POINT to_absolute_point(const RECT &frame, const Point &point) {
-  POINT p;
-  p.x = (int)(frame.left + point.x * (frame.right - frame.left));
-  p.y = (int)(frame.top + point.y * (frame.bottom - frame.top));
-  return p;
-}
-
-BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
-  struct find_snap_info_t *info = (struct find_snap_info_t *)lParam;
-
-  if(hwnd != info->dst && is_window_visible_on_screen(hwnd)) {
-    auto widget = BasicWin32Widget::from_hwnd(hwnd);
-    
-    if(dynamic_cast<Win32BlurBehindWindow*>(widget))
-      return TRUE;
-    
-    if(auto win = dynamic_cast<BasicWin32Window*>(widget)) {
-      if(win->zorder_level() <= info->min_level)
-        return TRUE;
-    }
-    
-    RECT rect;
-    WindowMagnetics::get_snap_rect(hwnd, &rect);
-    
-    RECT touchRegion;
-    if(!touchingRectangles(&touchRegion, info->dst_rect, rect))
-      return TRUE;
-    
-    if(info->snappers->contains(hwnd))
-      return TRUE;
-    
-    POINT touch_center = get_rect_center(touchRegion);
-    
-    SnapPosition snap { 
-      hwnd,
-      to_relative_point(rect, touch_center),
-      info->dst, 
-      to_relative_point(info->dst_rect, touch_center), 
-    };
-    
-    info->snappers->add(hwnd);
-    info->snapper_positions->add(std::move(snap));
-  }
-
-  return TRUE;
-}
-
-void BasicWin32Window::find_all_snappers() {
-  struct find_snap_info_t info;
-
-  all_snappers.clear();
-  all_snapper_positions.length(0);
-
-  info.dst = _hwnd;
-  info.min_level = zorder_level();
-  WindowMagnetics::get_snap_rect(info.dst, &info.dst_rect);
-  info.snappers = &all_snappers;
-  info.snapper_positions = &all_snapper_positions;
-
-  all_snappers.add(_hwnd);
-
-  EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
-
-  unsigned int found = 1;
-  for(int rep = 1; rep < 5 && found < all_snappers.size(); ++rep) {
-    found = all_snappers.size();
-    
-    Hashset<HWND> old_snappers;
-    old_snappers.merge(all_snappers);
-    
-    for(auto hwnd : old_snappers.keys()) {
-      info.dst = hwnd;
-      WindowMagnetics::get_snap_rect(info.dst, &info.dst_rect);
-
-      EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
-    }
-  }
-
-  all_snappers.remove(_hwnd);
-}
-
-HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, const RECT &new_bounds) {
-  Hashtable<HWND, RECT> new_rects;
-  new_rects.set(_hwnd, new_bounds);
-  
-  for(const auto &snap : all_snapper_positions) {
-    RECT src_rect;
-    if(!GetWindowRect(snap.src, &src_rect)) {
-      pmath_debug_print("\n[GetWindowRect(%p) failed]", snap.src);
-    }
-    RECT *dst_rect = new_rects.search(snap.dst);
-    
-    if(!dst_rect) {
-      pmath_debug_print("\n[unrecognized DST %p]", snap.dst);
-      continue;
-    }
-    
-    RECT frame = *dst_rect;
-    WindowMagnetics::adjust_snap_rect(snap.dst, &frame);
-    POINT dst_touch_pt = to_absolute_point(frame, snap.dst_rel_touch);
-    
-    frame = src_rect;
-    WindowMagnetics::adjust_snap_rect(snap.src, &frame);
-    POINT src_touch_pt = to_absolute_point(frame, snap.src_rel_touch);
-    
-    OffsetRect(&src_rect, dst_touch_pt.x - src_touch_pt.x, dst_touch_pt.y - src_touch_pt.y);
-    new_rects.set(snap.src, src_rect);
-  }
-  
-  new_rects.remove(_hwnd);
-  for(const auto &entry : new_rects.entries()) {
-    hdwp = tryDeferWindowPos(
-             hdwp,
-             entry.key,
-             nullptr,
-             entry.value.left,
-             entry.value.top,
-             0, 0,
-             SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
-  }
-  
-  return hdwp;
-}
 
 struct find_align_info_t {
   HWND dst;
@@ -943,7 +618,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
 
   snap_correction_x = 0;
   snap_correction_y = 0;
-  snap_rect_or_pt(&snapping_rect, &pt);
+  Impl(*this).snap_rect_or_pt(&snapping_rect, &pt);
   
   switch(wParam) {
     case WMSZ_BOTTOM:
@@ -1047,7 +722,7 @@ void BasicWin32Window::on_moving(RECT *lParam) {
   snapping_rect.right  = lParam->right  + snap_margins.cxRightWidth;
   snapping_rect.bottom = lParam->bottom + snap_margins.cyBottomHeight;
   
-  snap_rect_or_pt(&snapping_rect, nullptr);
+  Impl(*this).snap_rect_or_pt(&snapping_rect, nullptr);
   lParam->left   = snapping_rect.left   + snap_margins.cxLeftWidth;
   lParam->top    = snapping_rect.top    + snap_margins.cyTopHeight;
   lParam->right  = snapping_rect.right  - snap_margins.cxRightWidth;
@@ -1059,7 +734,7 @@ void BasicWin32Window::on_moving(RECT *lParam) {
   int cx = rect.left + (rect.right - rect.left)/2;
   int cy = rect.top  + (rect.bottom - rect.top)/2;
   if( cx != last_moving_cx || cy != last_moving_cy) {
-    hdwp = move_all_snappers(hdwp, rect);
+    hdwp = Impl(*this).move_all_snappers(hdwp, rect);
   }
   
   EndDeferWindowPos(hdwp);
@@ -1113,7 +788,7 @@ void BasicWin32Window::on_move(LPARAM lParam) {
   int cx = rect.left + (rect.right - rect.left)/2;
   int cy = rect.top  + (rect.bottom - rect.top)/2;
   if( cx != last_moving_cx || cy != last_moving_cy)
-    hdwp = move_all_snappers(hdwp, rect);
+    hdwp = Impl(*this).move_all_snappers(hdwp, rect);
 
   EndDeferWindowPos(hdwp);
 
@@ -2012,7 +1687,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           last_moving_cx = sizing_initial_rect.left + (sizing_initial_rect.right - sizing_initial_rect.left)/2;
           last_moving_cy = sizing_initial_rect.top  + (sizing_initial_rect.bottom - sizing_initial_rect.top)/2;
 
-          find_all_snappers();
+          Impl(*this).find_all_snappers();
         } break;
 
       case WM_EXITSIZEMOVE:
@@ -2938,7 +2613,272 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
   }
 }
 
-//} ... class BasicWin32WindowImpl
+void BasicWin32Window::Impl::find_all_snappers() {
+  self.all_snappers.clear();
+  self.all_snapper_positions.length(0);
+
+  self.all_snappers.add(self._hwnd);
+  
+  WindowMagnetCollector collector{self.all_snappers, self.all_snapper_positions};
+  collector.min_level = self.zorder_level();
+  collector.reset_dst(self._hwnd);
+  collector.visit_all_windows();
+  
+  unsigned int found = 1;
+  for(int rep = 1; rep < 5 && found < self.all_snappers.size(); ++rep) {
+    found = self.all_snappers.size();
+    
+    Hashset<HWND> old_snappers;
+    old_snappers.merge(self.all_snappers);
+    
+    for(auto hwnd : old_snappers.keys()) {
+      collector.reset_dst(hwnd);
+      collector.visit_all_windows();
+    }
+  }
+
+  self.all_snappers.remove(self._hwnd);
+}
+
+HDWP BasicWin32Window::Impl::move_all_snappers(HDWP hdwp, const RECT &new_bounds) {
+  Hashtable<HWND, RECT> new_rects;
+  new_rects.set(self._hwnd, new_bounds);
+  
+  for(const auto &snap : self.all_snapper_positions) {
+    RECT src_rect;
+    if(!GetWindowRect(snap.src, &src_rect)) {
+      pmath_debug_print("\n[GetWindowRect(%p) failed]", snap.src);
+    }
+    RECT *dst_rect = new_rects.search(snap.dst);
+    
+    if(!dst_rect) {
+      pmath_debug_print("\n[unrecognized DST %p]", snap.dst);
+      continue;
+    }
+    
+    RECT frame = *dst_rect;
+    WindowMagnetics::adjust_snap_rect(snap.dst, &frame);
+    POINT dst_touch_pt = to_absolute_point(frame, snap.dst_rel_touch);
+    
+    frame = src_rect;
+    WindowMagnetics::adjust_snap_rect(snap.src, &frame);
+    POINT src_touch_pt = to_absolute_point(frame, snap.src_rel_touch);
+    
+    OffsetRect(&src_rect, dst_touch_pt.x - src_touch_pt.x, dst_touch_pt.y - src_touch_pt.y);
+    new_rects.set(snap.src, src_rect);
+  }
+  
+  new_rects.remove(self._hwnd);
+  for(const auto &entry : new_rects.entries()) {
+    hdwp = tryDeferWindowPos(
+             hdwp,
+             entry.key,
+             nullptr,
+             entry.value.left,
+             entry.value.top,
+             0, 0,
+             SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
+  }
+  
+  return hdwp;
+}
+
+void BasicWin32Window::Impl::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
+  RECT current_rect;
+  WindowMagnetics::get_snap_rect(self._hwnd, &current_rect);
+
+  snapping_rect->left -=   self.snap_correction_x;
+  snapping_rect->right -=  self.snap_correction_x;
+  snapping_rect->top -=    self.snap_correction_y;
+  snapping_rect->bottom -= self.snap_correction_y;
+
+  if(pt) {
+    pt->x -= self.snap_correction_x;
+    pt->y -= self.snap_correction_y;
+  }
+
+  int old_dx = current_rect.left - snapping_rect->left;
+  int old_dy = current_rect.top  - snapping_rect->top;
+
+  WindowMagnetics magnetics {self._hwnd, self.all_snappers};
+  magnetics.orig_rect = snapping_rect;
+  magnetics.orig_pt = pt;
+  magnetics.snap_all_monitors();
+  magnetics.snap_all_windows();
+  
+  for(auto hwnd : self.all_snappers.keys()) {
+    RECT rect;
+    WindowMagnetics::get_snap_rect(hwnd, &rect);
+    rect.left -=   old_dx;
+    rect.right -=  old_dx;
+    rect.top -=    old_dy;
+    rect.bottom -= old_dy;
+    
+    magnetics.orig_rect = &rect;
+    
+    magnetics.snap_all_monitors();
+    magnetics.snap_all_windows();
+  }
+  
+  self.snap_correction_x = magnetics.dx;
+  self.snap_correction_y = magnetics.dy;
+
+  snapping_rect->left +=   magnetics.dx;
+  snapping_rect->right +=  magnetics.dx;
+  snapping_rect->top +=    magnetics.dy;
+  snapping_rect->bottom += magnetics.dy;
+
+  if(pt) {
+    pt->x += magnetics.dx;
+    pt->y += magnetics.dy;
+  }
+}
+
+//} ... class BasicWin32Window::Impl
+
+//{ class Win32BlurBehindWindow ...
+
+Win32BlurBehindWindow::Win32BlurBehindWindow(BasicWin32Window *owner) 
+  : base(
+      WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
+      WS_POPUP,// | WS_DISABLED,
+      0,
+      0,
+      1,
+      1,
+      nullptr),
+    _owner(owner)
+{
+  assert(_owner != nullptr);
+}
+
+Win32BlurBehindWindow::~Win32BlurBehindWindow() {
+  _owner->lost_blur_behind_window(this);
+}
+
+void Win32BlurBehindWindow::after_construction() {
+  base::after_construction();
+  // for debugging purposes:
+  SetWindowTextW(_hwnd, L"BlurBehind");
+  enable_blur(0xff0000FFu);
+}
+
+bool Win32BlurBehindWindow::enable_blur(COLORREF abgr) {
+  if(!Win32Themes::SetWindowCompositionAttribute)
+    return false;
+  
+  // TODO: check for right Windows 10 version
+  // Note that Acrylic Blur Behind is very slow (window lags when moving) because it uses a much larger blur radius.
+  Win32Themes::AccentPolicy accent_policy = {};
+  accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
+  accent_policy.flags = Win32Themes::AccentFlagMixWithGradientColor;
+  accent_policy.gradient_color = abgr;
+  accent_policy.animation_id = 0;
+  
+  Win32Themes::WINCOMPATTRDATA data = {};
+  data.attr = Win32Themes::UndocumentedWindowCompositionAttribute::AccentPolicy;
+  data.data = &accent_policy;
+  data.data_size = sizeof(accent_policy);
+  if(!Win32Themes::SetWindowCompositionAttribute(_hwnd, &data)) {
+    pmath_debug_print("[Win32BlurBehindWindow: SetWindowCompositionAttribute failed]\n");
+    return false;
+  }
+  
+  return true;
+}
+
+RECT Win32BlurBehindWindow::blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins) {
+  window_rect.left+=   margins.cxLeftWidth;
+  window_rect.right-=  margins.cxRightWidth;
+  window_rect.top+=    1;//margins.cyTopHeight;
+  window_rect.bottom-= margins.cyBottomHeight;
+  return window_rect;
+}
+
+LRESULT Win32BlurBehindWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  switch(message) {
+    case WM_WINDOWPOSCHANGING: 
+      on_windowposchanging((WINDOWPOS*)lParam);
+      return 0;
+  }
+  
+  return base::callback(message, wParam, lParam);
+}
+
+void Win32BlurBehindWindow::on_windowposchanging(WINDOWPOS *lParam) {
+  if((lParam->flags & SWP_NOZORDER)) {
+    lParam->hwndInsertAfter = _owner->hwnd();
+  }
+}
+
+void Win32BlurBehindWindow::hide() {
+  ShowWindow(_hwnd, SW_HIDE);
+}
+
+void Win32BlurBehindWindow::show() {
+  RECT rect;
+  GetWindowRect(_hwnd, &rect);
+  show(rect);
+}
+
+void Win32BlurBehindWindow::show(const RECT &owner_rect) {
+  Win32Themes::MARGINS margins = {};
+  _owner->get_nc_margins(&margins);
+  
+  RECT rect = blur_bounds(owner_rect, margins);
+  
+  SetWindowPos(
+    _hwnd,
+    _owner->hwnd(),
+    rect.left, 
+    rect.top,
+    rect.right - rect.left,
+    rect.bottom - rect.top,
+    SWP_NOACTIVATE | SWP_SHOWWINDOW);
+}
+
+void Win32BlurBehindWindow::show_if_owner_visible_on_screen() {
+  if(is_window_visible_on_screen(_owner->hwnd())) {
+    if(!is_window_visible_on_screen(_hwnd))
+      show();
+  }
+  else {
+    if(is_window_visible_on_screen(_hwnd))
+      hide();
+  }
+}
+
+void Win32BlurBehindWindow::colorize(bool active, bool dark_mode) {
+  DWORD alpha = 0xFFu;
+  if(Win32Themes::use_win10_transparency() && active) {
+    alpha = 0xBFu; // 0.75 * 0xFF
+  }
+  
+  Color custom = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight;
+  COLORREF bgr;
+  if(custom.is_valid()) {
+    bgr = custom.to_bgr24();
+  }
+  else {
+    Win32Themes::ColorizationInfo colorization;
+    if(Win32Themes::try_read_win10_colorization(&colorization)) {
+      if(active && colorization.has_accent_color_in_active_titlebar) 
+        bgr = colorization.accent_color;
+      else if(dark_mode)
+        bgr = 0x000000u;
+      else
+        bgr = 0xFFFFFFu;
+    }
+    else if(active)
+      bgr = GetSysColor(COLOR_GRADIENTACTIVECAPTION);
+    else
+      bgr = GetSysColor(COLOR_GRADIENTINACTIVECAPTION);
+  }
+  
+  enable_blur((alpha << 24u) | bgr);
+}
+
+//} ... Win32BlurBehindWindow
 
 //{ class StaticResources ...
 
@@ -3247,3 +3187,121 @@ void WindowMagnetics::window_callback(HWND hwnd) {
 }
 
 //} ... class WindowMagnetics
+
+//{ class WindowMagnetCollector ...
+
+void WindowMagnetCollector::reset_dst(HWND _dst) {
+  dst = _dst;
+  WindowMagnetics::get_snap_rect(dst, &dst_rect);
+}
+
+WindowMagnetCollector::WindowMagnetCollector(Hashset<HWND> &_snappers, Array<SnapPosition> &_snapper_positions) 
+: snappers{_snappers},
+  snapper_positions{_snapper_positions}
+{}
+
+void WindowMagnetCollector::visit_all_windows() {
+  EnumThreadWindows(GetCurrentThreadId(), visit_window, (LPARAM)this);
+}
+
+BOOL CALLBACK WindowMagnetCollector::visit_window(HWND hwnd, LPARAM lParam) {
+  ((WindowMagnetCollector*)lParam)->visit_window(hwnd);
+  return TRUE;
+}
+
+void WindowMagnetCollector::visit_window(HWND hwnd) {
+  if(hwnd != dst && is_window_visible_on_screen(hwnd)) {
+    auto widget = BasicWin32Widget::from_hwnd(hwnd);
+    
+    if(dynamic_cast<Win32BlurBehindWindow*>(widget))
+      return;
+    
+    if(auto win = dynamic_cast<BasicWin32Window*>(widget)) {
+      if(win->zorder_level() <= min_level)
+        return;
+    }
+    
+    RECT rect;
+    WindowMagnetics::get_snap_rect(hwnd, &rect);
+    
+    RECT touchRegion;
+    if(!touching_rectangles(&touchRegion, dst_rect, rect))
+      return;
+    
+    if(snappers.contains(hwnd))
+      return;
+    
+    POINT touch_center = get_rect_center(touchRegion);
+    
+    SnapPosition snap { 
+      hwnd,
+      to_relative_point(rect, touch_center),
+      dst, 
+      to_relative_point(dst_rect, touch_center), 
+    };
+    
+    snappers.add(hwnd);
+    snapper_positions.add(std::move(snap));
+  }
+}
+
+//} ... class WindowMagnetCollector
+
+static bool is_window_cloaked(HWND hwnd) {
+  BOOL is_cloaked = FALSE;
+  return Win32Themes::DwmGetWindowAttribute &&
+         SUCCEEDED(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CLOAKED, &is_cloaked, sizeof(is_cloaked))) &&
+         is_cloaked;
+}
+
+static bool is_window_visible_on_screen(HWND hwnd) {
+  return IsWindowVisible(hwnd) & !is_window_cloaked(hwnd);
+}
+
+static POINT point_from_lparam(LPARAM lParam) {
+  return POINT { (short)LOWORD(lParam), (short)HIWORD(lParam) };
+}
+
+static bool touching_rectangles(RECT *touchRegion, const RECT &rect1, const RECT &rect2) {
+  touchRegion->left   = MAX(rect1.left,   rect2.left);
+  touchRegion->right  = MIN(rect1.right,  rect2.right);
+  touchRegion->top    = MAX(rect1.top,    rect2.top);
+  touchRegion->bottom = MIN(rect1.bottom, rect2.bottom);
+  return (touchRegion->left == touchRegion->right) != (touchRegion->top == touchRegion->bottom);
+}
+
+static POINT get_rect_center(const RECT &rect) {
+  POINT p;
+  p.x = rect.left + (rect.right - rect.left) / 2;
+  p.y = rect.top + (rect.bottom - rect.top) / 2;
+  return p;
+}
+
+static Point to_relative_point(const RECT &frame, const POINT &point) {
+  int width = frame.right - frame.left;
+  int height = frame.bottom - frame.top;
+  
+  return Point(
+           width  > 0 ? (point.x - frame.left) / (double)width : 0.0,
+           height > 0 ? (point.y - frame.top) / (double)height : 0.0);
+}
+
+static POINT to_absolute_point(const RECT &frame, const Point &point) {
+  POINT p;
+  p.x = (int)(frame.left + point.x * (frame.right - frame.left));
+  p.y = (int)(frame.top + point.y * (frame.bottom - frame.top));
+  return p;
+}
+
+static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi) {
+  DWORD style    = GetWindowLongW(hwnd, GWL_STYLE);
+  DWORD ex_style = GetWindowLongW(hwnd, GWL_EXSTYLE);
+
+  RECT frame = {0, 0, 0, 0};
+  Win32HighDpi::adjust_window_rect(&frame, style, FALSE, ex_style, dpi);
+
+  margins->cxLeftWidth    = -frame.left;
+  margins->cyTopHeight    = -frame.top;
+  margins->cxRightWidth   = frame.right;
+  margins->cyBottomHeight = frame.bottom;
+}

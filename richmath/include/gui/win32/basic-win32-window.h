@@ -126,13 +126,6 @@ namespace richmath {
       int last_moving_cx;
       int last_moving_cy;
       
-    private:
-      static BOOL CALLBACK find_snap_hwnd(HWND hwnd, LPARAM lParam);
-      
-      void snap_rect_or_pt(RECT *windowrect, POINT *pt); // pt may be 0, rect must not
-      void find_all_snappers();
-      HDWP move_all_snappers(HDWP hdwp, const RECT &new_bounds);
-    
     public:
       static HANDLE composition_window_theme(int dpi);
       static COLORREF title_font_color(bool glass_enabled, int dpi, bool active, bool dark_mode);
