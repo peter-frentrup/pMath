@@ -90,6 +90,41 @@ namespace {
       ComBase<IVirtualDesktopNotificationService> virtual_desktop_service;
       
   } static_resources;
+  
+  class WindowMagnetics {
+    public:
+      WindowMagnetics(HWND _src, Hashset<HWND> &_dont_snap);
+    
+    public:
+      const RECT  *orig_rect;  // must not be null
+      const POINT *orig_pt;    // may be null
+      int dx;
+      int dy;
+    
+    private:
+      HWND src;
+      Hashset<HWND> &dont_snap;
+      int max_dx;
+      int max_dy;
+    
+    public:
+      void snap_all_monitors();
+      void snap_all_windows();
+      
+    public:
+      static void WindowMagnetics::get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins);
+      static void WindowMagnetics::adjust_snap_rect(HWND hwnd, RECT *rect);
+      static void WindowMagnetics::get_snap_rect(HWND hwnd, RECT *rect);
+    
+    private:
+      bool WindowMagnetics::snap_inside(const RECT &outer);
+      
+      static BOOL CALLBACK monitor_callback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam);
+      void monitor_callback(HMONITOR hMonitor);
+      
+      static BOOL CALLBACK window_callback(HWND hwnd, LPARAM lParam);
+      void window_callback(HWND hwnd);
+  };
 }
 
 // Microsoft Calculator, Settings Pannel: 0xE6E6E6 (light mode) and(?) 0x1F1F1F (dark mode)
@@ -463,214 +498,9 @@ void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
 
 //{ snapping windows & alignment ...
 
-static void get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
-  memset(margins, 0, sizeof(Win32Themes::MARGINS));
-  
-  if(Win32Themes::is_windows_10_or_newer()) {
-    ::get_nc_margins(hwnd, margins, Win32HighDpi::get_dpi_for_window(hwnd));
-    margins->cyTopHeight    = 0;
-    margins->cxLeftWidth    = 1 - margins->cxLeftWidth;
-    margins->cxRightWidth   = 1 - margins->cxRightWidth;
-    margins->cyBottomHeight = 1 - margins->cyBottomHeight;
-  }
-}
-
-static void adjust_snap_rect(HWND hwnd, RECT *rect) {
-  Win32Themes::MARGINS margins;
-  get_snap_margins(hwnd, &margins);
-  rect->left-= margins.cxLeftWidth;
-  rect->top-= margins.cyTopHeight;
-  rect->right+= margins.cxLeftWidth;
-  rect->bottom+= margins.cyBottomHeight;
-}
-
-static void get_snap_rect(HWND hwnd, RECT *rect) {
-  GetWindowRect(hwnd, rect);
-  adjust_snap_rect(hwnd, rect);
-}
-
-static bool snap_inside(
-  const RECT &orig,
-  const RECT &outer,
-  const POINT *pt,
-  int *dx,
-  int *dy,
-  int *max_dx,
-  int *max_dy
-) {
-  bool have_snapped_x = false;
-  bool have_snapped_y = false;
-
-  if( (outer.bottom >= orig.top && outer.top    <= orig.bottom) ||
-      (outer.top    >= orig.top && outer.bottom <= orig.bottom))
-  {
-    int dx_left;
-    int dx_right;
-    if(pt) {
-      dx_left  = outer.left - pt->x;
-      dx_right = outer.right - pt->x;
-    }
-    else {
-      dx_left  = outer.left - orig.left;
-      dx_right = outer.right - orig.right;
-    }
-    
-    if(abs(dx_left) < *max_dx) {
-      if(dx_left == dx_right || abs(dx_left) < abs(dx_right)) {
-        *dx = *max_dx = dx_left;
-        have_snapped_x = true;
-      }
-      else if(abs(dx_right) < abs(dx_left)){
-        *dx = *max_dx = dx_right;
-        have_snapped_x = true;
-      }
-    }
-    else if(abs(dx_right) < *max_dx) {
-      *dx = *max_dx = dx_right;
-      have_snapped_x = true;
-    }
-  }
-
-  if( (outer.right >= orig.left && outer.left  <= orig.right) ||
-      (outer.left  >= orig.left && outer.right <= orig.right))
-  {
-    int dy_top;
-    int dy_bottom;
-    if(pt) {
-      dy_top    = outer.top    - pt->y;
-      dy_bottom = outer.bottom - pt->y;
-    }
-    else {
-      dy_top    = outer.top    - orig.top;
-      dy_bottom = outer.bottom - orig.bottom;
-    }
-    
-    if(abs(dy_top) < *max_dy) {
-      if(dy_top == dy_bottom || abs(dy_top) < abs(dy_bottom)) {
-        *dy = *max_dy = dy_top;
-        have_snapped_y = true;
-      }
-      else if(abs(dy_bottom) < abs(dy_top)) {
-        *dy = *max_dy = dy_bottom;
-        have_snapped_y = true;
-      }
-    }
-    else if(abs(dy_bottom) < *max_dy) {
-      *dy = *max_dy = dy_bottom;
-      have_snapped_y = true;
-    }
-  }
-
-  if(have_snapped_x && !have_snapped_y) {
-    int dx_top    = outer.top - orig.bottom;
-    int dx_bottom = outer.bottom - orig.top;
-    
-    if(abs(dx_top) < *max_dy) {
-      if(dx_top == dx_bottom || abs(dx_top) < abs(dx_bottom)) {
-        *dy = *max_dy = dx_top;
-        have_snapped_y = true;
-      }
-      else if(abs(dx_bottom) < abs(dx_top)) {
-        *dy = *max_dy = dx_bottom;
-        have_snapped_y = true;
-      }
-    }
-    else if(abs(dx_bottom) < *max_dy) {
-      *dy = *max_dy = dx_bottom;
-      have_snapped_y = true;
-    }
-  }
-  else if(have_snapped_y && !have_snapped_x) {
-    int dx_left  = outer.left  - orig.right;
-    int dx_right = outer.right - orig.left;
-    
-    if(abs(dx_left) < *max_dx) {
-      if(dx_left == dx_right || abs(dx_left) < abs(dx_right)) {
-        *dx = *max_dx = dx_left;
-        have_snapped_x = true;
-      }
-      else if(abs(dx_right) < abs(dx_left)) {
-        *dx = *max_dx = dx_right;
-        have_snapped_x = true;
-      }
-    }
-    else if(abs(dx_right) < *max_dx) {
-      *dx = *max_dx = dx_right;
-      have_snapped_x = true;
-    }
-  }
-
-  return have_snapped_x || have_snapped_y;
-}
-
-struct snap_info_t {
-  HWND src;
-  Hashset<HWND> *dont_snap;
-
-  const RECT  *orig_rect;
-  const POINT *orig_pt;
-  int *dx;
-  int *dy;
-  int *max_dx;
-  int *max_dy;
-};
-
-static BOOL CALLBACK snap_monitor(
-  HMONITOR hMonitor,
-  HDC      hdcMonitor,
-  LPRECT   lprcMonitor,
-  LPARAM   dwData
-) {
-  struct snap_info_t *info = (struct snap_info_t *)dwData;
-  MONITORINFO moninfo;
-
-  memset(&moninfo, 0, sizeof(moninfo));
-  moninfo.cbSize = sizeof(moninfo);
-
-  if(GetMonitorInfo(hMonitor, &moninfo)) {
-    snap_inside(
-      *info->orig_rect,
-      moninfo.rcWork,
-      info->orig_pt,
-      info->dx, info->dy,
-      info->max_dx, info->max_dy);
-  }
-
-  return TRUE;
-}
-
-static BOOL CALLBACK snap_hwnd(HWND hwnd, LPARAM lParam) {
-  struct snap_info_t *info = (struct snap_info_t *)lParam;
-
-  if(hwnd != info->src && is_window_visible_on_screen(hwnd) && !info->dont_snap->contains(hwnd)) {
-    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
-      return TRUE;
-    
-    RECT rect;
-    get_snap_rect(hwnd, &rect);
-    
-    int tmp = rect.left;
-    rect.left = rect.right;
-    rect.right = tmp;
-
-    tmp = rect.top;
-    rect.top = rect.bottom;
-    rect.bottom = tmp;
-
-    snap_inside(
-      *info->orig_rect,
-      rect,
-      info->orig_pt,
-      info->dx, info->dy,
-      info->max_dx, info->max_dy);
-  }
-
-  return TRUE;
-}
-
 void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
   RECT current_rect;
-  get_snap_rect(_hwnd, &current_rect);
+  WindowMagnetics::get_snap_rect(_hwnd, &current_rect);
 
   snapping_rect->left -=   snap_correction_x;
   snapping_rect->right -=  snap_correction_x;
@@ -685,56 +515,37 @@ void BasicWin32Window::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
   int old_dx = current_rect.left - snapping_rect->left;
   int old_dy = current_rect.top  - snapping_rect->top;
 
-  snap_correction_x = 0;
-  snap_correction_y = 0;
-
-  int max_dx = 10;
-  int max_dy = 10;
-  
-  struct snap_info_t info;
-  info.src = _hwnd;
-  info.dont_snap = &all_snappers;
-  info.orig_rect = snapping_rect;
-  info.orig_pt = pt;
-  info.dx = &snap_correction_x;
-  info.dy = &snap_correction_y;
-  info.max_dx = &max_dx;
-  info.max_dy = &max_dy;
-  EnumDisplayMonitors(
-    nullptr,
-    nullptr,
-    snap_monitor,
-    (LPARAM)&info);
-
-  EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
+  WindowMagnetics magnetics {_hwnd, all_snappers};
+  magnetics.orig_rect = snapping_rect;
+  magnetics.orig_pt = pt;
+  magnetics.snap_all_monitors();
+  magnetics.snap_all_windows();
   
   for(auto hwnd : all_snappers.keys()) {
     RECT rect;
-    get_snap_rect(hwnd, &rect);
+    WindowMagnetics::get_snap_rect(hwnd, &rect);
     rect.left -=   old_dx;
     rect.right -=  old_dx;
     rect.top -=    old_dy;
     rect.bottom -= old_dy;
     
-    info.orig_rect = &rect;
-
-    EnumDisplayMonitors(
-      nullptr,
-      nullptr,
-      snap_monitor,
-      (LPARAM)&info);
-
-    EnumThreadWindows(GetCurrentThreadId(), snap_hwnd, (LPARAM)&info);
+    magnetics.orig_rect = &rect;
+    
+    magnetics.snap_all_monitors();
+    magnetics.snap_all_windows();
   }
   
-  snapping_rect->left +=   snap_correction_x;
-  snapping_rect->right +=  snap_correction_x;
-  snapping_rect->top +=    snap_correction_y;
-  snapping_rect->bottom += snap_correction_y;
+  snap_correction_x = magnetics.dx;
+  snap_correction_y = magnetics.dy;
+
+  snapping_rect->left +=   magnetics.dx;
+  snapping_rect->right +=  magnetics.dx;
+  snapping_rect->top +=    magnetics.dy;
+  snapping_rect->bottom += magnetics.dy;
 
   if(pt) {
-    pt->x += snap_correction_x;
-    pt->y += snap_correction_y;
+    pt->x += magnetics.dx;
+    pt->y += magnetics.dy;
   }
 }
 
@@ -792,7 +603,7 @@ BOOL CALLBACK BasicWin32Window::find_snap_hwnd(HWND hwnd, LPARAM lParam) {
     }
     
     RECT rect;
-    get_snap_rect(hwnd, &rect);
+    WindowMagnetics::get_snap_rect(hwnd, &rect);
     
     RECT touchRegion;
     if(!touchingRectangles(&touchRegion, info->dst_rect, rect))
@@ -825,7 +636,7 @@ void BasicWin32Window::find_all_snappers() {
 
   info.dst = _hwnd;
   info.min_level = zorder_level();
-  get_snap_rect(info.dst, &info.dst_rect);
+  WindowMagnetics::get_snap_rect(info.dst, &info.dst_rect);
   info.snappers = &all_snappers;
   info.snapper_positions = &all_snapper_positions;
 
@@ -842,7 +653,7 @@ void BasicWin32Window::find_all_snappers() {
     
     for(auto hwnd : old_snappers.keys()) {
       info.dst = hwnd;
-      get_snap_rect(info.dst, &info.dst_rect);
+      WindowMagnetics::get_snap_rect(info.dst, &info.dst_rect);
 
       EnumThreadWindows(GetCurrentThreadId(), find_snap_hwnd, (LPARAM)&info);
     }
@@ -868,11 +679,11 @@ HDWP BasicWin32Window::move_all_snappers(HDWP hdwp, const RECT &new_bounds) {
     }
     
     RECT frame = *dst_rect;
-    adjust_snap_rect(snap.dst, &frame);
+    WindowMagnetics::adjust_snap_rect(snap.dst, &frame);
     POINT dst_touch_pt = to_absolute_point(frame, snap.dst_rel_touch);
     
     frame = src_rect;
-    adjust_snap_rect(snap.src, &frame);
+    WindowMagnetics::adjust_snap_rect(snap.src, &frame);
     POINT src_touch_pt = to_absolute_point(frame, snap.src_rel_touch);
     
     OffsetRect(&src_rect, dst_touch_pt.x - src_touch_pt.x, dst_touch_pt.y - src_touch_pt.y);
@@ -911,7 +722,7 @@ static BOOL CALLBACK find_align_hwnd(HWND hwnd, LPARAM lParam) {
       return TRUE;
     
     RECT rect;
-    get_snap_rect(hwnd, &rect);
+    WindowMagnetics::get_snap_rect(hwnd, &rect);
 
     if(info->dst_rect.left == rect.right)
       info->align_left = true;
@@ -937,7 +748,7 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
 
   memset(&info, 0, sizeof(info));
   info.dst = _hwnd;
-  get_snap_rect(info.dst, &info.dst_rect);
+  WindowMagnetics::get_snap_rect(info.dst, &info.dst_rect);
   EnumThreadWindows(GetCurrentThreadId(), find_align_hwnd, (LPARAM)&info);
 
   *right  = info.align_right  && !info.align_left;
@@ -1082,7 +893,7 @@ void BasicWin32Window::on_sizing(WPARAM wParam, RECT *lParam) {
 //  RECT snapping_rect = *lParam;
 //  adjust_snap_rect(_hwnd, &snapping_rect);
   Win32Themes::MARGINS snap_margins;
-  get_snap_margins(_hwnd, &snap_margins);
+  WindowMagnetics::get_snap_margins(_hwnd, &snap_margins);
   RECT snapping_rect;
   snapping_rect.left   = lParam->left   - snap_margins.cxLeftWidth;
   snapping_rect.top    = lParam->top    - snap_margins.cyTopHeight;
@@ -1219,7 +1030,7 @@ void BasicWin32Window::on_moving(RECT *lParam) {
   GetWindowRect(_hwnd, &rect);
   
   Win32Themes::MARGINS snap_margins;
-  get_snap_margins(_hwnd, &snap_margins);
+  WindowMagnetics::get_snap_margins(_hwnd, &snap_margins);
   
   if( rect.right - rect.left != lParam->right - lParam->left ||
       rect.bottom - rect.top != lParam->bottom - lParam->top)
@@ -3241,3 +3052,198 @@ void StaticResources::unregister_notifications(DWORD cookie) {
 }
 
 //} ... class StaticResources
+
+//{ class WindowMagnetics ...
+
+WindowMagnetics::WindowMagnetics(HWND _src, Hashset<HWND> &_dont_snap)
+: dx{0}, dy{0}, 
+  src{_src},
+  dont_snap{_dont_snap}
+{
+  int dpi = Win32HighDpi::get_dpi_for_window(src);
+  max_dx = max_dy = MulDiv(10, dpi, 96);
+}
+
+void WindowMagnetics::get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
+  memset(margins, 0, sizeof(Win32Themes::MARGINS));
+  
+  if(Win32Themes::is_windows_10_or_newer()) {
+    ::get_nc_margins(hwnd, margins, Win32HighDpi::get_dpi_for_window(hwnd));
+    margins->cyTopHeight    = 0;
+    margins->cxLeftWidth    = 1 - margins->cxLeftWidth;
+    margins->cxRightWidth   = 1 - margins->cxRightWidth;
+    margins->cyBottomHeight = 1 - margins->cyBottomHeight;
+  }
+}
+
+void WindowMagnetics::adjust_snap_rect(HWND hwnd, RECT *rect) {
+  Win32Themes::MARGINS margins;
+  get_snap_margins(hwnd, &margins);
+  rect->left-= margins.cxLeftWidth;
+  rect->top-= margins.cyTopHeight;
+  rect->right+= margins.cxLeftWidth;
+  rect->bottom+= margins.cyBottomHeight;
+}
+
+void WindowMagnetics::get_snap_rect(HWND hwnd, RECT *rect) {
+  GetWindowRect(hwnd, rect);
+  adjust_snap_rect(hwnd, rect);
+}
+
+bool WindowMagnetics::snap_inside(const RECT &outer) {
+  assert(orig_rect != nullptr);
+  
+  bool have_snapped_x = false;
+  bool have_snapped_y = false;
+
+  if( (outer.bottom >= orig_rect->top && outer.top    <= orig_rect->bottom) ||
+      (outer.top    >= orig_rect->top && outer.bottom <= orig_rect->bottom))
+  {
+    int dx_left;
+    int dx_right;
+    if(orig_pt) {
+      dx_left  = outer.left - orig_pt->x;
+      dx_right = outer.right - orig_pt->x;
+    }
+    else {
+      dx_left  = outer.left - orig_rect->left;
+      dx_right = outer.right - orig_rect->right;
+    }
+    
+    if(abs(dx_left) < max_dx) {
+      if(dx_left == dx_right || abs(dx_left) < abs(dx_right)) {
+        dx = max_dx = dx_left;
+        have_snapped_x = true;
+      }
+      else if(abs(dx_right) < abs(dx_left)){
+        dx = max_dx = dx_right;
+        have_snapped_x = true;
+      }
+    }
+    else if(abs(dx_right) < max_dx) {
+      dx = max_dx = dx_right;
+      have_snapped_x = true;
+    }
+  }
+
+  if( (outer.right >= orig_rect->left && outer.left  <= orig_rect->right) ||
+      (outer.left  >= orig_rect->left && outer.right <= orig_rect->right))
+  {
+    int dy_top;
+    int dy_bottom;
+    if(orig_pt) {
+      dy_top    = outer.top    - orig_pt->y;
+      dy_bottom = outer.bottom - orig_pt->y;
+    }
+    else {
+      dy_top    = outer.top    - orig_rect->top;
+      dy_bottom = outer.bottom - orig_rect->bottom;
+    }
+    
+    if(abs(dy_top) < max_dy) {
+      if(dy_top == dy_bottom || abs(dy_top) < abs(dy_bottom)) {
+        dy = max_dy = dy_top;
+        have_snapped_y = true;
+      }
+      else if(abs(dy_bottom) < abs(dy_top)) {
+        dy = max_dy = dy_bottom;
+        have_snapped_y = true;
+      }
+    }
+    else if(abs(dy_bottom) < max_dy) {
+      dy = max_dy = dy_bottom;
+      have_snapped_y = true;
+    }
+  }
+
+  if(have_snapped_x && !have_snapped_y) {
+    int dx_top    = outer.top - orig_rect->bottom;
+    int dx_bottom = outer.bottom - orig_rect->top;
+    
+    if(abs(dx_top) < max_dy) {
+      if(dx_top == dx_bottom || abs(dx_top) < abs(dx_bottom)) {
+        dy = max_dy = dx_top;
+        have_snapped_y = true;
+      }
+      else if(abs(dx_bottom) < abs(dx_top)) {
+        dy = max_dy = dx_bottom;
+        have_snapped_y = true;
+      }
+    }
+    else if(abs(dx_bottom) < max_dy) {
+      dy = max_dy = dx_bottom;
+      have_snapped_y = true;
+    }
+  }
+  else if(have_snapped_y && !have_snapped_x) {
+    int dx_left  = outer.left  - orig_rect->right;
+    int dx_right = outer.right - orig_rect->left;
+    
+    if(abs(dx_left) < max_dx) {
+      if(dx_left == dx_right || abs(dx_left) < abs(dx_right)) {
+        dx = max_dx = dx_left;
+        have_snapped_x = true;
+      }
+      else if(abs(dx_right) < abs(dx_left)) {
+        dx = max_dx = dx_right;
+        have_snapped_x = true;
+      }
+    }
+    else if(abs(dx_right) < max_dx) {
+      dx = max_dx = dx_right;
+      have_snapped_x = true;
+    }
+  }
+
+  return have_snapped_x || have_snapped_y;
+}
+
+void WindowMagnetics::snap_all_monitors() {
+  EnumDisplayMonitors(nullptr, nullptr, WindowMagnetics::monitor_callback, (LPARAM)this);
+}
+
+BOOL CALLBACK WindowMagnetics::monitor_callback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam) {
+  ((WindowMagnetics*)lParam)->monitor_callback(hMonitor);
+  return TRUE;
+}
+
+void WindowMagnetics::monitor_callback(HMONITOR hMonitor) {
+  MONITORINFO moninfo;
+
+  memset(&moninfo, 0, sizeof(moninfo));
+  moninfo.cbSize = sizeof(moninfo);
+
+  if(GetMonitorInfo(hMonitor, &moninfo)) 
+    snap_inside(moninfo.rcWork);
+}
+
+void WindowMagnetics::snap_all_windows() {
+  EnumThreadWindows(GetCurrentThreadId(), WindowMagnetics::window_callback, (LPARAM)this);
+}
+
+BOOL CALLBACK WindowMagnetics::window_callback(HWND hwnd, LPARAM lParam) {
+  ((WindowMagnetics*)lParam)->window_callback(hwnd);
+  return TRUE;
+}
+
+void WindowMagnetics::window_callback(HWND hwnd) {
+  if(hwnd != src && is_window_visible_on_screen(hwnd) && !dont_snap.contains(hwnd)) {
+    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
+      return;
+    
+    RECT rect;
+    get_snap_rect(hwnd, &rect);
+    
+    int tmp = rect.left;
+    rect.left = rect.right;
+    rect.right = tmp;
+
+    tmp = rect.top;
+    rect.top = rect.bottom;
+    rect.bottom = tmp;
+
+    snap_inside(rect);
+  }
+}
+
+//} ... class WindowMagnetics
