@@ -122,12 +122,6 @@ namespace {
     
     private:
       bool WindowMagnetics::snap_inside(const RECT &outer);
-      
-      static BOOL CALLBACK monitor_callback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam);
-      void monitor_callback(HMONITOR hMonitor);
-      
-      static BOOL CALLBACK window_callback(HWND hwnd, LPARAM lParam);
-      void window_callback(HWND hwnd);
   };
   
   class WindowMagnetCollector {
@@ -144,10 +138,6 @@ namespace {
     public:
       void reset_dst(HWND _dst);
       void visit_all_windows();
-      
-    private:
-      static BOOL CALLBACK visit_window(HWND hwnd, LPARAM lParam);
-      void visit_window(HWND hwnd);
   };
 }
 
@@ -195,6 +185,26 @@ static Point to_relative_point(const RECT &frame, const POINT &point);
 static POINT to_absolute_point(const RECT &frame, const Point &point);
 
 static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi);
+
+template <typename TLambda>
+void enum_thread_windows(TLambda callback) {
+  EnumThreadWindows(
+    GetCurrentThreadId(), 
+    [](HWND hwnd, LPARAM lParam) -> BOOL { (*(TLambda*)lParam)(hwnd); return TRUE; }, 
+    (LPARAM)&callback);
+}
+
+template <typename TLambda>
+void enum_display_monitors(HDC hdc, LPCRECT lprcClip, TLambda callback) {
+  EnumDisplayMonitors(
+    hdc, 
+    lprcClip,
+    [](HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam) -> BOOL { 
+      (*(TLambda*)lParam)(hMonitor, hdcMonitor, lprcMonitor); 
+      return TRUE; 
+    },
+    (LPARAM)&callback);
+}
 
 static bool use_custom_system_buttons() {
   return Win32Themes::is_windows_10_or_newer();
@@ -380,59 +390,47 @@ void BasicWin32Window::get_nc_margins(Win32Themes::MARGINS *margins) {
 
 //{ snapping windows & alignment ...
 
-struct find_align_info_t {
-  HWND dst;
-  RECT dst_rect;
-  bool align_left;
-  bool align_right;
-  bool align_top;
-  bool align_bottom;
-};
-
-static BOOL CALLBACK find_align_hwnd(HWND hwnd, LPARAM lParam) {
-  struct find_align_info_t *info = (struct find_align_info_t *)lParam;
-
-  if(hwnd != info->dst && is_window_visible_on_screen(hwnd)) {
-    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
-      return TRUE;
-    
-    RECT rect;
-    WindowMagnetics::get_snap_rect(hwnd, &rect);
-
-    if(info->dst_rect.left == rect.right)
-      info->align_left = true;
-
-    if(info->dst_rect.right == rect.left)
-      info->align_right = true;
-
-    if(info->dst_rect.top == rect.bottom)
-      info->align_top = true;
-
-    if(info->dst_rect.bottom == rect.top)
-      info->align_bottom = true;
-  }
-
-  return TRUE;
-}
-
 void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
-  struct find_align_info_t info;
-
   *right = false;
   *bottom = false;
 
-  memset(&info, 0, sizeof(info));
-  info.dst = _hwnd;
-  WindowMagnetics::get_snap_rect(info.dst, &info.dst_rect);
-  EnumThreadWindows(GetCurrentThreadId(), find_align_hwnd, (LPARAM)&info);
+  RECT dst_rect;
+  WindowMagnetics::get_snap_rect(_hwnd, &dst_rect);
+  bool align_left   = false;
+  bool align_right  = false;
+  bool align_top    = false;
+  bool align_bottom = false;
+  
+  enum_thread_windows([&](HWND hwnd) {
+    if(hwnd == _hwnd || !is_window_visible_on_screen(hwnd))
+      return;
+      
+      if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
+        return;
+      
+      RECT rect;
+      WindowMagnetics::get_snap_rect(hwnd, &rect);
 
-  *right  = info.align_right  && !info.align_left;
-  *bottom = info.align_bottom && !info.align_top;
+      if(dst_rect.left == rect.right)
+        align_left = true;
 
-//  if( !info.align_left &&
-//      !info.align_right &&
-//      !info.align_top &&
-//      !info.align_bottom)
+      if(dst_rect.right == rect.left)
+        align_right = true;
+
+      if(dst_rect.top == rect.bottom)
+        align_top = true;
+
+      if(dst_rect.bottom == rect.top)
+        align_bottom = true;
+  });
+  
+  *right  = align_right  && !align_left;
+  *bottom = align_bottom && !align_top;
+
+//  if( !align_left &&
+//      !align_right &&
+//      !align_top &&
+//      !align_bottom)
 //  {
 //    MONITORINFO monitor_info;
 //    memset(&monitor_info, 0, sizeof(monitor_info));
@@ -440,11 +438,8 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
 //
 //    HMONITOR hmon = MonitorFromWindow(_hwnd, MONITOR_DEFAULTTONEAREST);
 //    if(GetMonitorInfo(hmon, &monitor_info)) {
-//      *right  = (info.dst_rect.left       + info.dst_rect.right)
-//                > (monitor_info.rcWork.left + monitor_info.rcWork.right);
-//
-//      *bottom = (info.dst_rect.top        + info.dst_rect.bottom)
-//                > (monitor_info.rcWork.top  + monitor_info.rcWork.bottom);
+//      *right  = (dst_rect.left + dst_rect.right) > (monitor_info.rcWork.left + monitor_info.rcWork.right);
+//      *bottom = (dst_rect.top + dst_rect.bottom) > (monitor_info.rcWork.top  + monitor_info.rcWork.bottom);
 //    }
 //  }
 }
@@ -3139,35 +3134,22 @@ bool WindowMagnetics::snap_inside(const RECT &outer) {
 }
 
 void WindowMagnetics::snap_all_monitors() {
-  EnumDisplayMonitors(nullptr, nullptr, WindowMagnetics::monitor_callback, (LPARAM)this);
-}
+  enum_display_monitors(nullptr, nullptr, [&](HMONITOR hMonitor, HDC hdcMonitor, RECT *lprcMonitor) {
+    MONITORINFO moninfo;
 
-BOOL CALLBACK WindowMagnetics::monitor_callback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam) {
-  ((WindowMagnetics*)lParam)->monitor_callback(hMonitor);
-  return TRUE;
-}
+    memset(&moninfo, 0, sizeof(moninfo));
+    moninfo.cbSize = sizeof(moninfo);
 
-void WindowMagnetics::monitor_callback(HMONITOR hMonitor) {
-  MONITORINFO moninfo;
-
-  memset(&moninfo, 0, sizeof(moninfo));
-  moninfo.cbSize = sizeof(moninfo);
-
-  if(GetMonitorInfo(hMonitor, &moninfo)) 
-    snap_inside(moninfo.rcWork);
+    if(GetMonitorInfo(hMonitor, &moninfo)) 
+      snap_inside(moninfo.rcWork);
+  });
 }
 
 void WindowMagnetics::snap_all_windows() {
-  EnumThreadWindows(GetCurrentThreadId(), WindowMagnetics::window_callback, (LPARAM)this);
-}
-
-BOOL CALLBACK WindowMagnetics::window_callback(HWND hwnd, LPARAM lParam) {
-  ((WindowMagnetics*)lParam)->window_callback(hwnd);
-  return TRUE;
-}
-
-void WindowMagnetics::window_callback(HWND hwnd) {
-  if(hwnd != src && is_window_visible_on_screen(hwnd) && !dont_snap.contains(hwnd)) {
+  enum_thread_windows([&](HWND hwnd) {
+    if(hwnd == src || !is_window_visible_on_screen(hwnd) || dont_snap.contains(hwnd))
+      return;
+    
     if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
       return;
     
@@ -3183,7 +3165,7 @@ void WindowMagnetics::window_callback(HWND hwnd) {
     rect.bottom = tmp;
 
     snap_inside(rect);
-  }
+  });
 }
 
 //} ... class WindowMagnetics
@@ -3201,18 +3183,11 @@ WindowMagnetCollector::WindowMagnetCollector(Hashset<HWND> &_snappers, Array<Sna
 {}
 
 void WindowMagnetCollector::visit_all_windows() {
-  EnumThreadWindows(GetCurrentThreadId(), visit_window, (LPARAM)this);
-}
-
-BOOL CALLBACK WindowMagnetCollector::visit_window(HWND hwnd, LPARAM lParam) {
-  ((WindowMagnetCollector*)lParam)->visit_window(hwnd);
-  return TRUE;
-}
-
-void WindowMagnetCollector::visit_window(HWND hwnd) {
-  if(hwnd != dst && is_window_visible_on_screen(hwnd)) {
+  enum_thread_windows([&](HWND hwnd) {
+    if(hwnd == dst || !is_window_visible_on_screen(hwnd))
+      return;
+      
     auto widget = BasicWin32Widget::from_hwnd(hwnd);
-    
     if(dynamic_cast<Win32BlurBehindWindow*>(widget))
       return;
     
@@ -3242,7 +3217,7 @@ void WindowMagnetCollector::visit_window(HWND hwnd) {
     
     snappers.add(hwnd);
     snapper_positions.add(std::move(snap));
-  }
+  });
 }
 
 //} ... class WindowMagnetCollector
