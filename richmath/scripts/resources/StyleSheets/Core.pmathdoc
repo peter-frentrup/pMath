@@ -107,82 +107,74 @@ Document({
            SelectedDocument(), #1) &)})}, All), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 
         Section(StyleData("Binomial"), TemplateBoxOptions -> {
-          Tooltip -> Automatic, DisplayFunction -> ({"(", 
-           GridBox({{#1}, {#2}}), ")"} &)}), 
-        Section(StyleData("Hypergeometric0F1"), 
-         TemplateBoxOptions -> {Tooltip -> Automatic, 
-          DisplayFunction -> ({
+          DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &)}), 
-        Section(StyleData("Hypergeometric1F1"), 
-         TemplateBoxOptions -> {Tooltip -> Automatic, 
-          DisplayFunction -> ({
+            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &)}), 
-        Section(StyleData("Hypergeometric2F1"), 
-         TemplateBoxOptions -> {Tooltip -> Automatic, 
-          DisplayFunction -> ({
+            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
             ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", #4}, 
-           ")"} &)}), Section(StyleData("OpenerView"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
+           ")"} &), Tooltip -> Automatic}), Section(StyleData("OpenerView"), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"OpenerView", "(", 
+           {{"{", {#1, ",", #2}, "}"}, ",", InterpretationBox("", #3)}, 
+           ")"} &), DisplayFunction -> ({
            GridBox({{OpenerBox(#3), {#1}}, {
               "", PaneSelectorBox({
                 True -> GridBox({{""}, {#2}}, 
                  GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
             BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-            GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
-           "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
-            InterpretationBox("", #3)}, ")"} &)}), 
+            GridBoxRowSpacing -> 0)} &)}), 
         Section(StyleData("DocumentObject"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
-           DynamicLocalBox({FE`Private`arg}, 
-            DynamicBox(
-             ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-               FE`Private`arg:= ReleaseHold(
-                FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(#1, 
-                  FE`Private`dyn))); Button(
-                Panel(
-                 Style(Dynamic(Replace(CurrentValue(FE`Private`arg, 
-                     WindowTitle), $Failed :> ReleaseHold(
-                     FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(#2, 
-                       FE`Private`dyn))))), FontColor -> Dynamic(
-                   If(CurrentValue(FE`Private`arg, WindowTitle) === $Failed, 
-                    Gray, If(CurrentValue(FrontEndObject(FE`Private`dyn), 
-                      "MouseOver") === True, Blue, Inherited))))), 
-                SetSelectedDocument(FE`Private`arg), 
-                ButtonFrame -> "Frameless"))))), ")"} &), 
-          InterpretationFunction -> ({"DocumentObject", "(", 
-           InterpretationBox("", #1), ")"} &)}), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"DocumentObject", 
+           "(", InterpretationBox("", #1), ")"} &), 
+          DisplayFunction -> ({"DocumentObject", "(", 
+           DynamicBox(
+            ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+              Button(
+               Panel(
+                Style(
+                 Dynamic(
+                  Replace(CurrentValue(CurrentValue({"TemplateBoxSlot", 1}), 
+                    WindowTitle), $Failed :> CurrentValue({
+                     "TemplateBoxSlot", 2}))), FontColor -> Dynamic(
+                  If(CurrentValue(CurrentValue({"TemplateBoxSlot", 1}), 
+                    WindowTitle) === $Failed, Gray, 
+                   If(CurrentValue(FrontEndObject(FE`Private`dyn), 
+                     "MouseOver") === True, Blue, Inherited))))), 
+               SetSelectedDocument(CurrentValue({"TemplateBoxSlot", 1})), 
+               ButtonFrame -> "Frameless")))), ")"} &)}), 
         Section(StyleData("FrontEndObject"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"FrontEndObject", "(", 
-           DynamicLocalBox({FE`Private`arg}, 
-            DynamicBox(
-             ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-               FE`Private`arg:= ReleaseHold(
-                FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(#1, 
-                  FE`Private`dyn))); Button(
-                Panel(Style(FE`Private`arg, FontColor -> Dynamic(
-                   If(CurrentValue(FrontEndObject(FE`Private`dyn), 
-                     "MouseOver") === True, Blue, Inherited)))), 
-                Replace(MakeExpression(FE`Private`arg), 
-                 HoldComplete(~FE`Private`id:Integer) :> SetSelectedDocument(
-                  Automatic, FrontEndObject(FE`Private`id))), 
-                ButtonFrame -> "Frameless"))))), ")"} &)}), 
-        Section(StyleData("Det"), TemplateBoxOptions -> {Tooltip -> Automatic, 
+           DynamicBox(
+            ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+              Button(Panel(Style(CurrentValue({"TemplateBoxSlot", 1}), 
+                 FontColor -> Dynamic(
+                  If(CurrentValue(FrontEndObject(FE`Private`dyn), 
+                    "MouseOver") === True, Blue, Inherited)))), 
+               Replace(MakeExpression(CurrentValue({"TemplateBoxSlot", 1})), 
+                HoldComplete(~FE`Private`id:Integer) :> SetSelectedDocument(
+                 Automatic, FrontEndObject(FE`Private`id))), 
+               ButtonFrame -> "Frameless")))), ")"} &)}), 
+        Section(StyleData("Det"), TemplateBoxOptions -> {
           DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
-           "\[RightBracketingBar]"} &)}), Section(StyleData("TooltipContent"), 
+           "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
+        Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
            Appearance -> "Tooltip") &)}), Section(StyleData("Row")), 
         Section(StyleData("RowDefault"), BaseStyle -> "Row", 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           TemplateSlotSequence(##1)} &), InterpretationFunction -> ({"Row", 
-           "(", {"{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &)}), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"Row", "(", {
+            "{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &), 
+          DisplayFunction -> ({TemplateSlotSequence(##1)} &)}), 
         Section(StyleData("RowWithSeparators"), BaseStyle -> "Row", 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           TemplateSlotSequence(##3, #1)} &), 
-          InterpretationFunction -> ({"Row", "(", {
-            {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, ")"} &)}), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"Row", "(", {
+            {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, ")"} &), 
+          DisplayFunction -> ({TemplateSlotSequence(##3, #1)} &)}), 
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("Hyperlink"), 
            TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
