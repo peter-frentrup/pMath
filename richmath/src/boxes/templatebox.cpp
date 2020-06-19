@@ -35,7 +35,8 @@ namespace richmath {
     public:
       TemplateBoxSlotImpl(TemplateBoxSlot &_self);
       
-      static TemplateBox *find_owner(Box *box);
+      static TemplateBox *find_owner(Box *box) { return find_owner_or_self(box->parent()); }
+      static TemplateBox *find_owner_or_self(Box *box);
       
       void reload_content();
       Expr get_content();
@@ -43,6 +44,7 @@ namespace richmath {
       void assign_content();
       
       static Expr prepare_boxes(Expr boxes);
+      static size_t parse_current_value_item(Expr item);
       
     private:
       static Expr prepare_pure_arg(Expr expr);
@@ -430,6 +432,27 @@ Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
   return TemplateBoxSlotImpl::prepare_boxes(boxes);
 }
 
+size_t TemplateBoxSlotImpl::parse_current_value_item(Expr item) {
+  if(item.expr_length() != 2)
+    return 0;
+    
+  if(item[0] != PMATH_SYMBOL_LIST)
+    return 0;
+  
+  if(!String(item[1]).equals("TemplateBoxSlot"))
+    return 0;
+  
+  Expr obj = item[2];
+  if(!obj.is_int32())
+    return 0;
+  
+  int num = PMATH_AS_INT32(obj.get());
+  if(num <= 0)
+    return 0;
+  
+  return (size_t)num;
+}
+
 bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_TemplateSlot || expr.expr_length() != 1)
     return false;
@@ -591,6 +614,41 @@ void TemplateBoxSlot::on_finish_editing() {
     TemplateBoxSlotImpl(*this).assign_content();
 }
 
+Expr TemplateBoxSlot::get_current_value_of_TemplateBoxSlot(FrontEndObject *obj, Expr item) {
+  size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
+  if(!num)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  if(!tb)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  tb->register_observer();
+  if(num > tb->arguments.expr_length())
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  return tb->arguments[num];
+}
+
+bool TemplateBoxSlot::put_current_value_of_TemplateBoxSlot(FrontEndObject *obj, Expr item, Expr rhs) {
+  size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
+  if(!num)
+    return false;
+
+  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  if(!tb)
+    return false;
+  
+  if(num > tb->arguments.expr_length())
+    return false;
+  
+  if(tb->arguments[num] == rhs)
+    return true;
+  
+  tb->reset_argument((int)num, std::move(rhs));
+  return true;
+}
+
 //} ... class TemplateBoxSlot
 
 //{ class TemplateBoxImpl ...
@@ -637,9 +695,8 @@ TemplateBoxSlotImpl::TemplateBoxSlotImpl(TemplateBoxSlot &_self)
 {
 }
 
-TemplateBox *TemplateBoxSlotImpl::find_owner(Box *box) {
+TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box) {
   int nesting = 0;
-  box = box->parent();
   while(box) {
     if(auto slot = dynamic_cast<TemplateBoxSlot*>(box)) {
       ++nesting;

@@ -9,6 +9,7 @@
 
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/section.h>
+#include <boxes/templatebox.h>
 #include <boxes/mathsequence.h>
 
 #include <graphics/config-shaper.h>
@@ -744,6 +745,7 @@ void Application::init() {
   register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
   register_currentvalue_provider(String(s_SelectedMenuCommand),       get_current_value_of_SelectedMenuCommand);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
+  register_currentvalue_provider(String("TemplateBoxSlot"),           TemplateBoxSlot::get_current_value_of_TemplateBoxSlot, TemplateBoxSlot::put_current_value_of_TemplateBoxSlot);
   register_currentvalue_provider(Symbol(richmath_System_WindowTitle), get_current_value_of_WindowTitle);
   
   
