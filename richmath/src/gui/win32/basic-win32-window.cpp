@@ -116,12 +116,12 @@ namespace {
       void snap_all_windows();
       
     public:
-      static void WindowMagnetics::get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins);
-      static void WindowMagnetics::adjust_snap_rect(HWND hwnd, RECT *rect);
-      static void WindowMagnetics::get_snap_rect(HWND hwnd, RECT *rect);
+      static void get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins);
+      static void adjust_snap_rect(HWND hwnd, RECT *rect);
+      static void get_snap_rect(HWND hwnd, RECT *rect);
     
     private:
-      bool WindowMagnetics::snap_inside(const RECT &outer);
+      bool snap_inside(const RECT &outer);
   };
   
   class WindowMagnetCollector {
@@ -188,21 +188,30 @@ static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi);
 
 template <typename TLambda>
 void enum_thread_windows(TLambda callback) {
+  struct Callback {
+    static BOOL WINAPI static_callback(HWND hwnd, LPARAM lParam) {
+      (*(TLambda*)lParam)(hwnd); 
+      return TRUE;
+    }
+  };
   EnumThreadWindows(
     GetCurrentThreadId(), 
-    [](HWND hwnd, LPARAM lParam) -> BOOL { (*(TLambda*)lParam)(hwnd); return TRUE; }, 
+    Callback::static_callback, 
     (LPARAM)&callback);
 }
 
 template <typename TLambda>
 void enum_display_monitors(HDC hdc, LPCRECT lprcClip, TLambda callback) {
+  struct Callback {
+    static BOOL WINAPI static_callback(HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam) {
+      (*(TLambda*)lParam)(hMonitor, hdcMonitor, lprcMonitor); 
+      return TRUE; 
+    }
+  };
   EnumDisplayMonitors(
     hdc, 
     lprcClip,
-    [](HMONITOR hMonitor, HDC hdcMonitor, LPRECT lprcMonitor, LPARAM lParam) -> BOOL { 
-      (*(TLambda*)lParam)(hMonitor, hdcMonitor, lprcMonitor); 
-      return TRUE; 
-    },
+    Callback::static_callback,
     (LPARAM)&callback);
 }
 
