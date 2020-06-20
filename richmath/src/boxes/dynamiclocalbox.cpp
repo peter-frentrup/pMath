@@ -188,7 +188,7 @@ Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
 
 void DynamicLocalBox::ensure_init() {
   if(_init_call.is_valid()) {
-    Application::interrupt_wait(prepare_dynamic(_init_call), Application::dynamic_timeout);
+    Application::interrupt_wait_for(prepare_dynamic(_init_call), this, Application::dynamic_timeout);
     _init_call = Expr();
   }
 }

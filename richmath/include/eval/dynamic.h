@@ -48,7 +48,7 @@ namespace richmath {
       
       AutoBoolValues synchronous_updating() { return _synchronous_updating; }
       
-      static FrontEndReference current_evaluation_box_id;
+      static FrontEndReference current_observer_id;
       
     private:
       Box *_owner;
@@ -57,19 +57,19 @@ namespace richmath {
       AutoBoolValues _synchronous_updating;
   };
 
-  class AutoResetCurrentEvaluationBox {
+  class AutoResetCurrentObserver {
     public:
-      AutoResetCurrentEvaluationBox()
-        : old_id{Dynamic::current_evaluation_box_id}
+      AutoResetCurrentObserver()
+        : old_id{Dynamic::current_observer_id}
       {
-        Dynamic::current_evaluation_box_id = FrontEndReference();
+        Dynamic::current_observer_id = FrontEndReference();
       }
-      ~AutoResetCurrentEvaluationBox() {
-        Dynamic::current_evaluation_box_id = old_id;
+      ~AutoResetCurrentObserver() {
+        Dynamic::current_observer_id = old_id;
       }
       
-      AutoResetCurrentEvaluationBox(const AutoResetCurrentEvaluationBox&) = delete;
-      AutoResetCurrentEvaluationBox &operator=(const AutoResetCurrentEvaluationBox&) = delete;
+      AutoResetCurrentObserver(const AutoResetCurrentObserver&) = delete;
+      AutoResetCurrentObserver &operator=(const AutoResetCurrentObserver&) = delete;
 
     private:
       FrontEndReference old_id;

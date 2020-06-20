@@ -137,8 +137,9 @@ static void execute(ClientNotificationData &cn);
 
 static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
+static FrontEndReference  current_evaluation_box_id;
 
-static EvaluationPosition old_job;
+static EvaluationPosition old_job_print_pos;
 static Expr               main_message_queue;
 static double total_time_waited_for_gui = 0.0;
 
@@ -178,7 +179,7 @@ static int on_add_job(void *data) {
       if(session->current_job) {
         pmath_atomic_lock(&print_pos_lock);
         {
-          old_job = print_pos;
+          old_job_print_pos = print_pos;
         }
         pmath_atomic_unlock(&print_pos_lock);
         
@@ -964,7 +965,8 @@ void Application::abort_all_jobs() {
 }
 
 Box *Application::get_evaluation_box() {
-  Box *box = FrontEndObject::find_cast<Box>(Dynamic::current_evaluation_box_id);
+  //Box *box = FrontEndObject::find_cast<Box>(Dynamic::current_observer_id);
+  Box *box = FrontEndObject::find_cast<Box>(current_evaluation_box_id);
   
   if(box)
     return box;
@@ -1371,56 +1373,38 @@ Expr Application::interrupt_wait_cached(Expr expr) {
   return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
-extern pmath_symbol_t richmath_FE_InternalExecuteFor;
 Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
-  EvaluationPosition pos(box);
+  EvaluationPosition old_print_pos(box);
   
-  expr = Call(
-           Symbol(richmath_FE_InternalExecuteFor),
-           expr,
-           pos.document_id.to_pmath_raw(),
-           pos.section_id.to_pmath_raw(),
-           pos.box_id.to_pmath_raw());
-           
-  bool old_is_executing_for_sth = is_executing_for_sth;
+  pmath_atomic_lock(&print_pos_lock);
+  {
+    using std::swap;
+    swap(old_print_pos, print_pos);
+  }
+  pmath_atomic_unlock(&print_pos_lock);
+  
+  auto old_current_evaluation_box_id = current_evaluation_box_id;
+  auto old_is_executing_for_sth = is_executing_for_sth;
+  current_evaluation_box_id = box ? box->id() : FrontEndReference::None;
   is_executing_for_sth = true;
   
   Expr result = interrupt_wait(expr, seconds);
   
-  is_executing_for_sth = old_is_executing_for_sth;
+  current_evaluation_box_id = old_current_evaluation_box_id;
+  is_executing_for_sth      = old_is_executing_for_sth;
+  
+  pmath_atomic_lock(&print_pos_lock);
+  {
+    using std::swap;
+    swap(old_print_pos, print_pos);
+  }
+  pmath_atomic_unlock(&print_pos_lock);
+  
   return result;
 }
 
 Expr Application::interrupt_wait_for(Expr expr, Box *box) {
   return interrupt_wait_for(expr, box, interrupt_timeout);
-}
-
-Expr Application::internal_execute_for(
-  Expr              expr,
-  FrontEndReference doc,
-  FrontEndReference sect,
-  FrontEndReference box
-) {
-  EvaluationPosition old_print_pos;
-  
-  pmath_atomic_lock(&print_pos_lock);
-  {
-    old_print_pos = print_pos;
-    print_pos.document_id = doc;
-    print_pos.section_id  = sect;
-    print_pos.box_id      = box;
-  }
-  pmath_atomic_unlock(&print_pos_lock);
-  
-  expr = Evaluate(expr);
-  
-  pmath_atomic_lock(&print_pos_lock);
-  {
-    print_pos = old_print_pos;
-  }
-  pmath_atomic_unlock(&print_pos_lock);
-  
-  return expr;
 }
 
 void Application::delay_dynamic_updates(bool delay) {
@@ -1517,7 +1501,7 @@ static void cnt_end(Expr data) {
     
     pmath_atomic_lock(&print_pos_lock);
     {
-      print_pos = old_job;
+      print_pos = old_job_print_pos;
     }
     pmath_atomic_unlock(&print_pos_lock);
   }
@@ -1536,7 +1520,7 @@ static void cnt_end(Expr data) {
     if(session->current_job) {
       pmath_atomic_lock(&print_pos_lock);
       {
-        old_job = print_pos;
+        old_job_print_pos = print_pos;
       }
       pmath_atomic_unlock(&print_pos_lock);
       
@@ -1701,22 +1685,6 @@ static Expr cnt_setcurrentvalue(Expr assignment) {
   }
   
   return std::move(assignment);
-}
-
-static Expr cnt_getevaluationdocument(Expr data) {
-  Document *doc = nullptr;
-  Box      *box = Application::get_evaluation_box();
-  
-  if(box)
-    doc = box->find_parent<Document>(true);
-    
-  if(doc && doc->main_document)
-    doc = doc->main_document;
-    
-  if(doc)
-    return doc->to_pmath_id();
-    
-  return Symbol(PMATH_SYMBOL_FAILED);
 }
 
 static Expr cnt_documentget(Expr data) {
@@ -1979,11 +1947,6 @@ static void execute(ClientNotificationData &cn) {
         *cn.result_ptr = cnt_setcurrentvalue(std::move(cn.data)).release();
       break;
       
-    case ClientNotification::GetEvaluationDocument:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_getevaluationdocument(std::move(cn.data)).release();
-      break;
-      
     case ClientNotification::DocumentGet:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentget(std::move(cn.data)).release();
@@ -2059,7 +2022,7 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
   SharedPtr<Style> style = new Style();
   ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.ptr());
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   String item_string {item};
   if(item_string.equals(s_ControlsFontFamily))
     return style->get_pmath(FontFamilies);
@@ -2157,4 +2120,29 @@ static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item) {
   }
   
   return Style::get_current_style_value(obj, std::move(item));
+}
+
+Expr richmath_eval_FrontEnd_EvaluationBox(Expr expr) {
+  if(expr.expr_length() != 0)
+    return std::move(expr);
+  
+  Box *box = Application::get_evaluation_box();
+  if(box)
+    return box->to_pmath_id();
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+Expr richmath_eval_FrontEnd_EvaluationDocument(Expr expr) {
+  if(expr.expr_length() != 0)
+    return std::move(expr);
+  
+  Box *box = Application::get_evaluation_box();
+  if(box)
+    box = box->find_parent<Document>(true);
+  
+  if(box)
+    return box->to_pmath_id();
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
 }

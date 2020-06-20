@@ -76,21 +76,6 @@ static pmath_t builtin_filedialog(pmath_expr_t _expr) {
   return Application::notify_wait(ClientNotification::FileDialog, Expr(_expr)).release();
 }
 
-static pmath_t builtin_internalexecutefor(pmath_expr_t _expr) {
-  if(pmath_expr_length(_expr) != 4)
-    return _expr;
-  
-  Expr expr {_expr};
-  
-  pmath_debug_print_object("[", _expr, "]\n");
-  
-  return Application::internal_execute_for(
-           expr[1],
-           FrontEndReference::from_pmath_raw(expr[2]),
-           FrontEndReference::from_pmath_raw(expr[3]),
-           FrontEndReference::from_pmath_raw(expr[4])).release();
-}
-
 static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
   Expr expr(_expr);
   if(expr.expr_length() != 2) {
@@ -196,7 +181,8 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     }
     else {
       boxes = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
-      boxes = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_ROW));
+      boxes = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      boxes = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 2, boxes, PMATH_C_STRING(" "));
     }
     
     boxes = pmath_evaluate(
@@ -255,17 +241,6 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   
   pmath_unref(sections);
   return expr;
-}
-
-static pmath_t builtin_evaluationdocument(pmath_expr_t expr) {
-  if(pmath_expr_length(expr) > 0) {
-    pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
-    return expr;
-  }
-  
-  pmath_unref(expr);
-  
-  return Application::notify_wait(ClientNotification::GetEvaluationDocument, Expr()).release();
 }
 
 static pmath_t builtin_interrupt(pmath_expr_t expr) {
@@ -1468,14 +1443,12 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
-  BIND_DOWN(PMATH_SYMBOL_EVALUATIONDOCUMENT,       builtin_evaluationdocument)
   BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)
   BIND_DOWN(PMATH_SYMBOL_INTERRUPT,                builtin_interrupt)
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
   
   BIND_UP(PMATH_SYMBOL_CURRENTVALUE,               builtin_assign_currentvalue)
   
-  BIND_DOWN(richmath_FE_InternalExecuteFor,  builtin_internalexecutefor)
   BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
   BIND_DOWN(richmath_FE_FileSaveDialog,      builtin_filedialog)

@@ -65,7 +65,7 @@ static Expr eval_sequence(Expr e1, Expr e2, Expr e3) {
 
 //{ class Dynamic ...
 
-FrontEndReference Dynamic::current_evaluation_box_id = FrontEndReference::None;
+FrontEndReference Dynamic::current_observer_id = FrontEndReference::None;
 
 Dynamic::Dynamic()
   : Base(),
@@ -456,12 +456,12 @@ Expr DynamicImpl::get_value_now() {
     self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  auto old_eval_id = Dynamic::current_evaluation_box_id;
-  Dynamic::current_evaluation_box_id = self._owner->id();
+  auto old_eval_id = Dynamic::current_observer_id;
+  Dynamic::current_observer_id = self._owner->id();
   
-  Expr value = Application::interrupt_wait(call, Application::dynamic_timeout);
+  Expr value = Application::interrupt_wait_for(call, self._owner, Application::dynamic_timeout);
                  
-  Dynamic::current_evaluation_box_id = old_eval_id;
+  Dynamic::current_observer_id = old_eval_id;
   
   if(value == PMATH_UNDEFINED)
     return Symbol(PMATH_SYMBOL_ABORTED);
@@ -532,15 +532,41 @@ bool DynamicImpl::get_value(Expr *result, Expr job_info) {
 //} ... class DynamicImpl
 
 Expr richmath_eval_FrontEnd_PrepareDynamicEvaluation(Expr expr) {
+  /*  FrontEnd`PrepareDynamicEvaluation(FrontEndObject(...), Dynamic(...))
+      FrontEnd`PrepareDynamicEvaluation(Automatic,           Dynamic(...))
+   */
   if(expr.expr_length() != 2)
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  FrontEndReference id = FrontEndReference::from_pmath_raw(expr[2]);
-  if(Box *box = FrontEndObject::find_cast<Box>(id)) 
-    return Call(Symbol(PMATH_SYMBOL_HOLD), Dynamic(box, expr[1]).get_value_unevaluated());
+  Box *box = nullptr;
+  if(expr[1] == PMATH_SYMBOL_AUTOMATIC)
+    box = Application::get_evaluation_box();
+  else
+    box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]));
   
-  expr.set(0, Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE));
-  return Call(
-           Symbol(PMATH_SYMBOL_HOLD),
-           expr);
+  if(box)
+    return Call(Symbol(PMATH_SYMBOL_HOLD), Dynamic(box, expr[2]).get_value_unevaluated());
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+Expr richmath_eval_FrontEnd_AssignDynamicValue(Expr expr) {
+  /*  FrontEnd`AssignDynamicValue(FrontEndObject(...), Dynamic(...), value)
+      FrontEnd`AssignDynamicValue(Automatic,           Dynamic(...), value)
+   */
+  if(expr.expr_length() != 3)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Box *box = nullptr;
+  if(expr[1] == PMATH_SYMBOL_AUTOMATIC)
+    box = Application::get_evaluation_box();
+  else
+    box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]));
+  
+  if(box) {
+    Dynamic(box, expr[2]).assign(expr[3]);
+    return Expr();
+  }
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
 }

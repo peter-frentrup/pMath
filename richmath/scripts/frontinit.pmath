@@ -158,20 +158,22 @@ $PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 <<Documentation`
 
 
-Unprotect(System`CreateDocument, System`DocumentOpen, System`Documents, System`SelectedDocument, System`SetSelectedDocument, Developer`DebugInfoOpenerFunction)
+Unprotect(System`CreateDocument, System`DocumentOpen, System`Documents, System`EvaluationDocument, System`SelectedDocument, System`SetSelectedDocument, Developer`DebugInfoOpenerFunction)
 Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
 DocumentOpen(~filename)::= FE`CallFrontEnd(FrontEnd`DocumentOpen(filename))
-DocumentOpen(~~~args)::= 1 /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 1, 1);False)
+DocumentOpen(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 1, 1);False)
 Documents()::= FE`CallFrontEnd(FrontEnd`Documents())
-Documents(~~~args)::= 1 /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 0, 0);False)
+Documents(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentOpen, Length@{args}, 0, 0);False)
+EvaluationDocument()::= FE`CallFrontEnd(FrontEnd`EvaluationDocument())
+EvaluationDocument(~~~args)::= $Failed /? (IsValidArgumentCount(EvaluationDocument, Length@{args}, 0, 0);False)
 SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
-SelectedDocument(~~args)::= 1 /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)
+SelectedDocument(~~args)::= $Failed /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)
 SetSelectedDocument(doc: ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
 SetSelectedDocument(doc: Automatic|~:FrontEndObject|~:DocumentObject, sel: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc, sel))
-SetSelectedDocument(~~~args)::= 1 /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 2);False)
+SetSelectedDocument(~~~args)::= $Failed /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 2);False)
 Developer`DebugInfoOpenerFunction(src: Developer`DebugInfoSource(~:FrontEndObject, ~:Range))::= Function(SetSelectedDocument(Automatic, src))
-Protect(CreateDocument, DocumentOpen, Documents, SelectedDocument, SetSelectedDocument, Developer`DebugInfoOpenerFunction)
+Protect(CreateDocument, DocumentOpen, Documents, EvaluationDocument, SelectedDocument, SetSelectedDocument, Developer`DebugInfoOpenerFunction)
 
 End()
 
@@ -182,7 +184,7 @@ Protect(FE`Graphics`DefaultTickBoxes)
 Protect(FE`Import`FileNamesDropDescription)
 Protect(FE`Import`PasteFileNameContentBoxes)
 
-AutoLoad(Hold(DocumentObject, FrontEndObject), 
+AutoLoad(Hold(DocumentObject, FrontEndObject, FE`EvaluateDynamic, FE`AssignDynamicValue), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "frontendobject.pmath"));
 AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, FillBox, Filler, InputField, InputFieldBox, Opener, OpenerBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, Tooltip, TooltipBox), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));

@@ -22,6 +22,10 @@ FrontEndObject/: Options(~obj:FrontEndObject, args:Repeated(~, 0..1))::= FE`Call
 DocumentObject/: SetOptions(~obj:DocumentObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))
 FrontEndObject/: SetOptions(~obj:FrontEndObject, ~~args)::= FE`CallFrontEnd(FrontEnd`SetOptions(obj, args))
 
+FE`EvaluateDynamic(~feo, ~dyn)::= ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(feo, dyn)))
+FE`AssignDynamicValue(~feo, ~dyn, ~val)::= FE`CallFrontEnd(FrontEnd`AssignDynamicValue(feo, dyn, val))
+
+
 End()
 
 EndPackage()

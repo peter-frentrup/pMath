@@ -17,6 +17,13 @@ namespace richmath {
       EvaluationPosition(FrontEndReference _doc, FrontEndReference _sect, FrontEndReference _box);
       explicit EvaluationPosition(Box *box = nullptr);
       
+      friend void swap(EvaluationPosition &left, EvaluationPosition &right) {
+        using std::swap;
+        swap(left.document_id, right.document_id);
+        swap(left.section_id,  right.section_id);
+        swap(left.box_id,      right.box_id);
+      }
+      
     public:
       FrontEndReference document_id;
       FrontEndReference section_id;
@@ -76,7 +83,7 @@ namespace richmath {
       
     protected:
       Expr              _info;
-      FrontEndReference old_eval_id;
+      FrontEndReference old_observer_id;
   };
   
   class ReplacementJob: public InputJob {

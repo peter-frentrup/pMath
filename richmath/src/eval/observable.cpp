@@ -138,7 +138,7 @@ Observable &Observable::operator=(Observable &&src) {
 }
 
 void Observable::register_observer() const {
-  register_observer(Dynamic::current_evaluation_box_id);
+  register_observer(Dynamic::current_observer_id);
 }
 
 void Observable::register_observer(FrontEndReference id) const {

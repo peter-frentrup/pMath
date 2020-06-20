@@ -229,7 +229,7 @@ bool ProgressIndicatorBox::is_foreground_window() {
   if(!doc)
     return false;
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   return doc->native()->is_foreground_window();
 }
 
@@ -238,7 +238,7 @@ bool ProgressIndicatorBox::is_focused_widget() {
   if(!doc)
     return false;
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   return doc->native()->is_focused_widget();
 }
 
@@ -247,7 +247,7 @@ int ProgressIndicatorBox::dpi() {
   if(!doc)
     return 96;
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   return doc->native()->dpi();
 }
 

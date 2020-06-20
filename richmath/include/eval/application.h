@@ -21,7 +21,6 @@ namespace richmath {
     DynamicUpdate,
     CurrentValue,
     SetCurrentValue,
-    GetEvaluationDocument,
     DocumentGet,
     DocumentRead,
     FileDialog,
@@ -132,14 +131,7 @@ namespace richmath {
       
       static Expr interrupt_wait_for(Expr expr, Box *box, double seconds);
       static Expr interrupt_wait_for(Expr expr, Box *box);
-      
-      // callable from non-gui thread:
-      static Expr internal_execute_for(
-                    Expr              expr, 
-                    FrontEndReference doc, 
-                    FrontEndReference sect, 
-                    FrontEndReference box);
-      
+            
       static void delay_dynamic_updates(bool delay);
       
     public:

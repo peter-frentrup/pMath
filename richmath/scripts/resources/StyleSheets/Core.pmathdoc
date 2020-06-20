@@ -10,8 +10,8 @@ Document({
     SectionGroup({Section("Section styles", "Section"), 
       Section(StyleData("SystemResetStyle"), AspectRatio -> 1, 
        AutoDelete -> False, AutoNumberFormating -> True, AutoSpacing -> False, 
-       Background -> None, ButtonBoxOptions -> {Method -> "Preemptive", 
-        ButtonFunction -> (/\/ &)}, Editable -> True, Evaluatable -> False, 
+       Background -> None, ButtonBoxOptions -> {ButtonFunction -> (/\/ &), 
+        Method -> "Preemptive"}, Editable -> True, Evaluatable -> False, 
        FontColor -> GrayLevel(0), FontFamily -> {}, FontSize -> 10, 
        FontSlant -> Plain, FontWeight -> Plain, 
        GridBoxColumnSpacing -> 0.40000000596046448`, 
@@ -107,35 +107,38 @@ Document({
            SelectedDocument(), #1) &)})}, All), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 
         Section(StyleData("Binomial"), TemplateBoxOptions -> {
-          Tooltip -> Automatic, DisplayFunction -> ({"(", 
-           GridBox({{#1}, {#2}}), ")"} &)}), 
-        Section(StyleData("Hypergeometric0F1"), 
-         TemplateBoxOptions -> {Tooltip -> Automatic, 
-          DisplayFunction -> ({
+          DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &)}), 
-        Section(StyleData("Hypergeometric1F1"), 
-         TemplateBoxOptions -> {Tooltip -> Automatic, 
-          DisplayFunction -> ({
+            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &)}), 
-        Section(StyleData("Hypergeometric2F1"), 
-         TemplateBoxOptions -> {Tooltip -> Automatic, 
-          DisplayFunction -> ({
+            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &), 
+          Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({
            StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
             ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", #4}, 
-           ")"} &)}), Section(StyleData("OpenerView"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           GridBox({{OpenerBox(#3), {#1}}, {
+           ")"} &), Tooltip -> Automatic}), Section(StyleData("OpenerView"), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"OpenerView", "(", 
+           {{"{", {#1, ",", #2}, "}"}, ",", InterpretationBox("", #3)}, 
+           ")"} &), DisplayFunction -> ({
+           GridBox({
+             {OpenerBox(#3), {
+               ButtonBox(#1, ButtonFunction -> Function({}, 
+                 FE`AssignDynamicValue(Automatic, #3, 
+                  If(FE`EvaluateDynamic(Automatic, #3) === True, False, 
+                   True))), ButtonFrame -> None), "\[InvisibleSpace]"}}, {
               "", PaneSelectorBox({
                 True -> GridBox({{""}, {#2}}, 
                  GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
             BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-            GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
-           "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
-            InterpretationBox("", #3)}, ")"} &)}), 
+            GridBoxRowSpacing -> 0)} &)}), 
         Section(StyleData("DocumentObject"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"DocumentObject", 
+           "(", InterpretationBox("", #1), ")"} &), 
+          DisplayFunction -> ({"DocumentObject", "(", 
            DynamicBox(
             ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
               Button(
@@ -150,9 +153,7 @@ Document({
                    If(CurrentValue(FrontEndObject(FE`Private`dyn), 
                      "MouseOver") === True, Blue, Inherited))))), 
                SetSelectedDocument(CurrentValue({"TemplateBoxSlot", 1})), 
-               ButtonFrame -> "Frameless")))), ")"} &), 
-          InterpretationFunction -> ({"DocumentObject", "(", 
-           InterpretationBox("", #1), ")"} &)}), 
+               ButtonFrame -> "Frameless")))), ")"} &)}), 
         Section(StyleData("FrontEndObject"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"FrontEndObject", "(", 
            DynamicBox(
@@ -165,20 +166,20 @@ Document({
                 HoldComplete(~FE`Private`id:Integer) :> SetSelectedDocument(
                  Automatic, FrontEndObject(FE`Private`id))), 
                ButtonFrame -> "Frameless")))), ")"} &)}), 
-        Section(StyleData("Det"), TemplateBoxOptions -> {Tooltip -> Automatic, 
+        Section(StyleData("Det"), TemplateBoxOptions -> {
           DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
-           "\[RightBracketingBar]"} &)}), Section(StyleData("TooltipContent"), 
+           "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
+        Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
            Appearance -> "Tooltip") &)}), Section(StyleData("Row")), 
         Section(StyleData("RowDefault"), BaseStyle -> "Row", 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           TemplateSlotSequence(##1)} &), InterpretationFunction -> ({"Row", 
-           "(", {"{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &)}), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"Row", "(", {
+            "{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &), 
+          DisplayFunction -> ({TemplateSlotSequence(##1)} &)}), 
         Section(StyleData("RowWithSeparators"), BaseStyle -> "Row", 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           TemplateSlotSequence(##3, #1)} &), 
-          InterpretationFunction -> ({"Row", "(", {
-            {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, ")"} &)}), 
+         TemplateBoxOptions -> {InterpretationFunction -> ({"Row", "(", {
+            {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, ")"} &), 
+          DisplayFunction -> ({TemplateSlotSequence(##3, #1)} &)}), 
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("Hyperlink"), 
            TemplateBoxOptions -> {DisplayFunction -> (StyleBox(

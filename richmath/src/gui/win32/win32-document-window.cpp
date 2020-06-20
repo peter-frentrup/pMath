@@ -504,8 +504,8 @@ class richmath::Win32GlassDock: public Win32Dock {
     }
     
     virtual Color get_textcolor() override {
-      AutoResetCurrentEvaluationBox auto_observer;
-      Dynamic::current_evaluation_box_id = document()->id();
+      AutoResetCurrentObserver auto_observer;
+      Dynamic::current_observer_id = document()->id();
       
       COLORREF color = BasicWin32Window::title_font_color(
         _parent->glass_enabled(),

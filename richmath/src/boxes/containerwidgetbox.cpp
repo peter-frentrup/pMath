@@ -246,7 +246,7 @@ bool ContainerWidgetBox::is_foreground_window() {
   if(!doc)
     return false;
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   return doc->native()->is_foreground_window();
 }
 
@@ -255,7 +255,7 @@ bool ContainerWidgetBox::is_focused_widget() {
   if(!doc)
     return false;
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   return doc->native()->is_focused_widget();
 }
 
@@ -264,7 +264,7 @@ int ContainerWidgetBox::dpi() {
   if(!doc)
     return 96;
   
-  AutoResetCurrentEvaluationBox guard;
+  AutoResetCurrentObserver guard;
   return doc->native()->dpi();
 }
 
