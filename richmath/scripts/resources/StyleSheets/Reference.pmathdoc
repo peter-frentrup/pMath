@@ -96,10 +96,7 @@ Document({
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
           Section(StyleData("UsageReference"), 
            TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
-             With({FE`Private`name:= With({
-                 FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                ReleaseHold(FE`CallFrontEnd(FrontEnd`PrepareDynamicEvaluation(
-                   #1, FE`Private`dyn))))}, 
+             With({FE`Private`name:= CurrentValue({"TemplateBoxSlot", 1})}, 
               Replace(MakeExpression(FE`Private`name, ParseSymbols -> False), 
                HoldComplete(~FE`Private`sym:Symbol) :> 
                 Documentation`PrepareUsageSection(
@@ -118,11 +115,7 @@ Document({
                   ButtonFrame -> "Frameless"), "\""}), 
                FontColor -> Dynamic(
                 With({FE`Private`file:= With({
-                    FE`Private`name:= With({
-                      FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                     ReleaseHold(FE`CallFrontEnd(
-                       FrontEnd`PrepareDynamicEvaluation(#1, 
-                        FE`Private`dyn))))}, 
+                    FE`Private`name:= CurrentValue({"TemplateBoxSlot", 1})}, 
                    Documentation`FindSymbolDocumentationByFullName(
                     FE`Private`name))}, If(FE`Private`file === None, 
                   RGBColor(0.80000000000000004`, 0, 0), 
