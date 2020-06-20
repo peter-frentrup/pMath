@@ -145,6 +145,26 @@ MakeBoxes(RadioButton(~state))::=                                   RadioButtonB
 MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonBox(state, value, options) /? allowGuiBoxes
 
 
+% MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= Block {
+% 	With(enabled:= OptionValue(RadioButtonBar, Enabled))
+% 	Function(
+% 		If(enabled === Inherited || enabled === Automatic) {
+% 			#
+% 		} Else {
+% 			StyleBox(#, Enabled -> enabled).InterpretationBox(rb) 
+% 		}
+% 	)(TemplateBox({var, values}, "RadioButtonBar"))
+% }
+% MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()))::= Block {
+% 	With(enabled:= OptionValue(RadioButtonBar, Enabled))
+% 	Function(
+% 		If(enabled === Inherited || enabled === Automatic) {
+% 			#
+% 		} Else {
+% 			StyleBox(#, Enabled -> enabled).InterpretationBox(rb) 
+% 		}
+% 	)(TemplateBox({var, values}, "RadioButtonBarSimple"))
+% }
 MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= Block {
 	With(setterOpt:= FilterRules(FilterRules({options}, Except(ButtonFrame)), {Enabled}).Append(ButtonFrame->None))
 	With(boxes:= ToBoxes(Grid({values.Map(Setter(var, #[1], Row({RadioButton(var, #[1]), #[2]}, "\[InvisibleSpace]"), setterOpt)&)})))
