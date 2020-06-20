@@ -266,25 +266,52 @@ Document({
                         ComplexStringBox("\"\\n\""), ",", {
                          "\n", {"DynamicBox", "(", {
                            "ToBoxes", "(", {"CurrentValue", "(", {
-                             "{", {ComplexStringBox("\"TemplateBoxSlot\""), 
-                              ",", "1"}, "}"}, ")"}, ")"}, ")"}}, ",", 
-                        ComplexStringBox("\"\\n\""), ",", {
-                         "\n", {"ButtonBox", "(", {
+                             "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, 
+                           ")"}, ")"}}, ",", ComplexStringBox("\"\\n\""), ",", 
+                        {"\n", {"ButtonBox", "(", {
                            ComplexStringBox("\"Reset\""), ",", {
                             "ButtonFunction", "\[Rule]", {
                              "Function", "(", {
                               {"CurrentValue", "(", {
-                                "{", {ComplexStringBox("\"TemplateBoxSlot\""), 
-                                 ",", "1"}, "}"}, ")"}, "\[Assign]", {
-                               "SqrtBox", "(", ComplexStringBox("\"2\""), 
-                               ")"}}, ")"}}}, ")"}}}, "}"}, ")"}, ")"}}}, 
-                  ")"}}), "Input", SectionLabel -> "in [1]:"), 
+                                "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, 
+                              "\[Assign]", {"SqrtBox", "(", 
+                               ComplexStringBox("\"2\""), ")"}}, ")"}}}, 
+                          ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
+               SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({SqrtBox("5")}, "MyTag", 
                  DisplayFunction -> (PanelBox({
                    FrameBox(#1), "\n", 
-                   DynamicBox(ToBoxes(CurrentValue({"TemplateBoxSlot", 1}))), 
-                   "\n", ButtonBox("Reset", ButtonFunction -> ((CurrentValue({
-                      "TemplateBoxSlot", 1}):= SqrtBox("2")) &))}) &))), 
+                   DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 1}))), "\n", 
+                   ButtonBox("Reset", ButtonFunction -> ((CurrentValue({
+                      TemplateSlot, 1}):= SqrtBox("2")) &))}) &))), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"Get the number of ", TemplateBox({"TemplateBox"}, 
+               "ReferenceHyperlink"), " arguments:"}, "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"RawBoxes", "@", {
+                  "TemplateBox", "(", {
+                   {"{", {ComplexStringBox("\"a\""), ",", 
+                     ComplexStringBox("\"b\"")}, "}"}, ",", 
+                   ComplexStringBox("\"MyTag\""), ",", {
+                    "DisplayFunction", "\[Rule]", {
+                     "Function", "(", {"PanelBox", "(", {
+                       "{", {{"FrameBox", "(", {"#", "1"}, ")"}, ",", 
+                        ComplexStringBox("\" \""), ",", {
+                         "FrameBox", "(", {"#", "2"}, ")"}, ",", " ", 
+                        ComplexStringBox("\" \""), ",", {
+                         "\n", {"DynamicBox", "(", {
+                           "ToBoxes", "(", {"CurrentValue", "(", 
+                            ComplexStringBox("\"TemplateSlotCount\""), ")"}, 
+                           ")"}, ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(TemplateBox({"a", "b"}, "MyTag", 
+                 DisplayFunction -> (PanelBox({
+                   FrameBox(#1), " ", FrameBox(#2), " ", 
+                   DynamicBox(
+                    ToBoxes(CurrentValue("TemplateSlotCount")))}) &))), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 

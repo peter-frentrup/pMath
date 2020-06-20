@@ -747,6 +747,7 @@ void Application::init() {
   register_currentvalue_provider(String(s_SectionGroupOpen),           get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
   register_currentvalue_provider(String(s_SelectedMenuCommand),        get_current_value_of_SelectedMenuCommand);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),      get_current_value_of_StyleDefinitionsOwner);
+  register_currentvalue_provider(String("TemplateSlotCount"),          TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
   register_currentvalue_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot, TemplateBoxSlot::put_current_value_of_TemplateSlot);
   register_currentvalue_provider(Symbol(richmath_System_WindowTitle),  get_current_value_of_WindowTitle);
   

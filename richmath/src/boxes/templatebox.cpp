@@ -615,6 +615,17 @@ void TemplateBoxSlot::on_finish_editing() {
     TemplateBoxSlotImpl(*this).assign_content();
 }
 
+Expr TemplateBoxSlot::get_current_value_of_TemplateSlotCount(FrontEndObject *obj, Expr item) {
+  if(!item.is_string())
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  if(!tb)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  return Expr(tb->arguments.expr_length());
+}
+
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item) {
   size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
   if(!num)
