@@ -208,10 +208,13 @@ bool DynamicImpl::find_template_box_dynamic(Box *box, int i, Expr *source, Templ
       return true;
     }
     
-    if(TemplateBoxSlot *slot = dynamic_cast<TemplateBoxSlot*>(box)) 
+    if(TemplateBoxSlot *slot = dynamic_cast<TemplateBoxSlot*>(box)) {
       box = slot->find_owner();
-    else
-      box = box->parent();
+      if(!box)
+        break;
+    }
+    
+    box = box->parent();
   }
   
   return false;
