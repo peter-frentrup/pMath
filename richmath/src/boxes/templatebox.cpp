@@ -2,6 +2,7 @@
 #include <boxes/mathsequence.h>
 
 #include <eval/application.h>
+#include <eval/dynamic.h>
 
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -627,7 +628,12 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   if(num > tb->arguments.expr_length())
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  return tb->arguments[num];
+  //return tb->arguments[num];
+  Dynamic dyn {tb, tb->arguments[num]};
+  Expr expr = dyn.get_value_unevaluated();
+  if(expr[0] == PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE)
+    expr.set(2, obj->id().to_pmath_raw());
+  return std::move(expr);
 }
 
 bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -645,7 +651,13 @@ bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   if(tb->arguments[num] == rhs)
     return true;
   
-  tb->reset_argument((int)num, std::move(rhs));
+  //tb->reset_argument((int)num, std::move(rhs));
+  Dynamic dyn {tb, tb->arguments[num]};
+  if(dyn.is_dynamic())
+    dyn.assign(std::move(rhs));
+  else
+    tb->reset_argument((int)num, std::move(rhs));
+  
   return true;
 }
 
