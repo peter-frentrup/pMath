@@ -439,7 +439,7 @@ size_t TemplateBoxSlotImpl::parse_current_value_item(Expr item) {
   if(item[0] != PMATH_SYMBOL_LIST)
     return 0;
   
-  if(!String(item[1]).equals("TemplateBoxSlot"))
+  if(item[1] != richmath_System_TemplateSlot)
     return 0;
   
   Expr obj = item[2];
@@ -614,7 +614,7 @@ void TemplateBoxSlot::on_finish_editing() {
     TemplateBoxSlotImpl(*this).assign_content();
 }
 
-Expr TemplateBoxSlot::get_current_value_of_TemplateBoxSlot(FrontEndObject *obj, Expr item) {
+Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item) {
   size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
   if(!num)
     return Symbol(PMATH_SYMBOL_FAILED);
@@ -630,7 +630,7 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateBoxSlot(FrontEndObject *obj, 
   return tb->arguments[num];
 }
 
-bool TemplateBoxSlot::put_current_value_of_TemplateBoxSlot(FrontEndObject *obj, Expr item, Expr rhs) {
+bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs) {
   size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
   if(!num)
     return false;

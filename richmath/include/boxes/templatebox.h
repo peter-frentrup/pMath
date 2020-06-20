@@ -91,8 +91,8 @@ namespace richmath {
       virtual void on_exit() override;
       virtual void on_finish_editing() override;
       
-      static Expr get_current_value_of_TemplateBoxSlot(FrontEndObject *obj, Expr item);
-      static bool put_current_value_of_TemplateBoxSlot(FrontEndObject *obj, Expr item, Expr rhs);
+      static Expr get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item);
+      static bool put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs);
 
     protected:
       virtual void resize_default_baseline(Context *context) override;

@@ -66,6 +66,7 @@ extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace {
@@ -736,18 +737,18 @@ void Application::init() {
   main_thread = pthread_self();
 #endif
   
-  register_currentvalue_provider(String(s_MouseOver),                 get_current_value_of_MouseOver);
-  register_currentvalue_provider(String(s_DocumentScreenDpi),         get_current_value_of_DocumentScreenDpi);
-  register_currentvalue_provider(String(s_ControlsFontFamily),        get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSlant),         get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontWeight),        get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSize),          get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_CurrentValueProviders),     get_current_value_of_CurrentValueProviders);
-  register_currentvalue_provider(String(s_SectionGroupOpen),          get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
-  register_currentvalue_provider(String(s_SelectedMenuCommand),       get_current_value_of_SelectedMenuCommand);
-  register_currentvalue_provider(String(s_StyleDefinitionsOwner),     get_current_value_of_StyleDefinitionsOwner);
-  register_currentvalue_provider(String("TemplateBoxSlot"),           TemplateBoxSlot::get_current_value_of_TemplateBoxSlot, TemplateBoxSlot::put_current_value_of_TemplateBoxSlot);
-  register_currentvalue_provider(Symbol(richmath_System_WindowTitle), get_current_value_of_WindowTitle);
+  register_currentvalue_provider(String(s_MouseOver),                  get_current_value_of_MouseOver);
+  register_currentvalue_provider(String(s_DocumentScreenDpi),          get_current_value_of_DocumentScreenDpi);
+  register_currentvalue_provider(String(s_ControlsFontFamily),         get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSlant),          get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontWeight),         get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_ControlsFontSize),           get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(String(s_CurrentValueProviders),      get_current_value_of_CurrentValueProviders);
+  register_currentvalue_provider(String(s_SectionGroupOpen),           get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
+  register_currentvalue_provider(String(s_SelectedMenuCommand),        get_current_value_of_SelectedMenuCommand);
+  register_currentvalue_provider(String(s_StyleDefinitionsOwner),      get_current_value_of_StyleDefinitionsOwner);
+  register_currentvalue_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot, TemplateBoxSlot::put_current_value_of_TemplateSlot);
+  register_currentvalue_provider(Symbol(richmath_System_WindowTitle),  get_current_value_of_WindowTitle);
   
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
