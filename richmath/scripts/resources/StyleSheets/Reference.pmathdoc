@@ -96,7 +96,7 @@ Document({
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
           Section(StyleData("UsageReference"), 
            TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
-             With({FE`Private`name:= CurrentValue({"TemplateBoxSlot", 1})}, 
+             With({FE`Private`name:= CurrentValue({TemplateSlot, 1})}, 
               Replace(MakeExpression(FE`Private`name, ParseSymbols -> False), 
                HoldComplete(~FE`Private`sym:Symbol) :> 
                 Documentation`PrepareUsageSection(
@@ -114,12 +114,12 @@ Document({
                         False))))}, 0) &), BaseStyle -> "Text", 
                   ButtonFrame -> "Frameless"), "\""}), 
                FontColor -> Dynamic(
-                With({FE`Private`file:= With({
-                    FE`Private`name:= CurrentValue({"TemplateBoxSlot", 1})}, 
+                With({
+                  FE`Private`file:= 
                    Documentation`FindSymbolDocumentationByFullName(
-                    FE`Private`name))}, If(FE`Private`file === None, 
-                  RGBColor(0.80000000000000004`, 0, 0), 
-                  RGBColor(0, 0, 0.80000000000000004`)))), 
+                   CurrentValue({TemplateSlot, 1}))}, 
+                 If(FE`Private`file === None, RGBColor(0.80000000000000004`, 
+                   0, 0), RGBColor(0, 0, 0.80000000000000004`)))), 
                ShowAutoStyles -> False) &)}), 
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
