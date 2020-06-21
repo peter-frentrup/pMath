@@ -130,10 +130,10 @@ Document({
            ")"} &), DisplayFunction -> ({
            GridBox({
              {OpenerBox(#3), {
-               ButtonBox(#1, ButtonFunction -> Function({}, 
-                 FE`AssignDynamicValue(Automatic, #3, 
-                  If(FE`EvaluateDynamic(Automatic, #3) === True, False, 
-                   True))), ButtonFrame -> None), "\[InvisibleSpace]"}}, {
+               ButtonBox(#1, ButtonFunction -> ((CurrentValue({
+                  TemplateSlot, 3}):= If(CurrentValue({TemplateSlot, 3}) === 
+                  True, False, True)) &), ButtonFrame -> None), 
+               "\[InvisibleSpace]"}}, {
               "", PaneSelectorBox({
                 True -> GridBox({{""}, {#2}}, 
                  GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
