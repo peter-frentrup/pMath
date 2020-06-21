@@ -145,47 +145,10 @@ MakeBoxes(RadioButton(~state))::=                                   RadioButtonB
 MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonBox(state, value, options) /? allowGuiBoxes
 
 
-% MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= Block {
-% 	With(enabled:= OptionValue(RadioButtonBar, Enabled))
-% 	Function(
-% 		If(enabled === Inherited || enabled === Automatic) {
-% 			#
-% 		} Else {
-% 			StyleBox(#, Enabled -> enabled).InterpretationBox(rb) 
-% 		}
-% 	)(TemplateBox({var, values}, "RadioButtonBar"))
-% }
-% MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()))::= Block {
-% 	With(enabled:= OptionValue(RadioButtonBar, Enabled))
-% 	Function(
-% 		If(enabled === Inherited || enabled === Automatic) {
-% 			#
-% 		} Else {
-% 			StyleBox(#, Enabled -> enabled).InterpretationBox(rb) 
-% 		}
-% 	)(TemplateBox({var, values}, "RadioButtonBarSimple"))
-% }
-MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= Block {
-	With(setterOpt:= FilterRules(FilterRules({options}, Except(ButtonFrame)), {Enabled}).Append(ButtonFrame->None))
-	With(boxes:= ToBoxes(Grid({values.Map(Setter(var, #[1], Row({RadioButton(var, #[1]), #[2]}, "\[InvisibleSpace]"), setterOpt)&)})))
-	InterpretationBox(boxes, rb)
-} /? allowGuiBoxes
-
-MakeBoxes(rb: RadioButtonBar(~var:Dynamic, values:{~~}, options:OptionsPattern()))::= Block {
-	With(setterOpt:= FilterRules(FilterRules({options}, Except(ButtonFrame)), {Enabled}).Append(ButtonFrame->None))
-	With(boxes:= ToBoxes(Grid({values.Map(Setter(var, #, Row({RadioButton(var, #), #}, "\[InvisibleSpace]"), setterOpt)&)})))
-	InterpretationBox(boxes, rb)
-} /? allowGuiBoxes
-	
-
-MakeBoxes(RadioButtonBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern()))::=
-	TagBox(
-		DynamicLocalBox({var}, 
-			MakeBoxes(Interpretation(
-				RadioButtonBar(Dynamic(var), values, options), 
-				RadioButtonBar(var, values, options))), 
-			DynamicLocalValues :> {var:= val}),
-		Setting(#, 0) &) /? allowGuiBoxes
+MakeBoxes(rb: RadioButtonBar(~var, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= 
+	TemplateBox({var, values, options}, "RadioButtonBar")
+MakeBoxes(rb: RadioButtonBar(~var, values:{~~}, options:OptionsPattern()))::= 
+	TemplateBox({var, values, options}, "RadioButtonBarSimple")
 
 MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(value), options) /? allowGuiBoxes
 MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options) /? allowGuiBoxes
@@ -326,7 +289,7 @@ TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPatter
 
 
 System`Setting`$Rules:= Join(System`Setting`$Rules, {
-	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|Setter|SetterBar|Slider)(~x, ~~~) :> x,
+	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|RadioButtonBar|Setter|SetterBar|Slider)(~x, ~~~) :> x,
 	(Checkbox|Opener)() :> False,
 	PaneSelector(~, ~x, ~~~) :> x,
 	ProgressIndicator() :> 0,

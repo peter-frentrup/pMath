@@ -134,8 +134,10 @@ Options(PaneSelector):= Options(PaneSelectorBox):= {
     BaseStyle -> "PaneSelector",
     Enabled -> Automatic }
 
-Options(RadioButton):= Options(RadioButtonBox):= Options(RadioButtonBar):= { 
+Options(RadioButton):= Options(RadioButtonBox):= { 
     BaseStyle -> "RadioButton",
+    Enabled -> Automatic }
+Options(RadioButtonBar):= {
     Enabled -> Automatic }
 
 Options(Style):= Options(StyleBox):= {
