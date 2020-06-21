@@ -12,6 +12,7 @@ using namespace richmath;
 using namespace pmath;
 
 extern pmath_symbol_t richmath_System_ComplexStringBox;
+extern pmath_symbol_t richmath_System_Key;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_Private_FlattenTemplateSequence;
@@ -27,6 +28,9 @@ namespace richmath {
       void load_content(Expr dispfun);
       static bool is_valid_display_function(Expr dispfun);
       Expr display_function_body(Expr dispfun);
+    
+      void reset_argument(int index, Expr new_arg);
+      void reset_arguments(Expr new_args);
       
     private:
       TemplateBox &self;
@@ -52,6 +56,20 @@ namespace richmath {
       
     private:
       TemplateBoxSlot &self;
+  };
+  
+  class CurrentValueOfTemplateSlot {
+    public:
+      static Expr get_next(Expr expr, Expr key, bool allow_options);
+      
+      static bool set(Expr &expr, const Expr &items, size_t depth, Expr value);
+      
+    private:
+      static Expr get_next_by_index(Expr expr, int index);
+      static Expr get_next_by_lookup(Expr expr, Expr name, bool allow_options);
+      
+      static bool set_by_index(Expr &expr, int index, const Expr &items, size_t depth, Expr value);
+      static bool set_by_lookup(Expr &expr, Expr name, const Expr &items, size_t depth, Expr value);
   };
 }
 
@@ -397,20 +415,7 @@ void TemplateBox::on_mouse_exit() {
 }
 
 void TemplateBox::reset_argument(int index, Expr new_arg) {
-  arguments.set(index, std::move(new_arg));
-  
-  // TODO: We should maybe use Array<ObservableValue<Expr>> instead?
-  notify_all();
-  
-  TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(this, LogicalDirection::Forward, this);
-  while(slot) {
-    if(slot->argument() == index && slot->find_owner() == this) {
-      //slot->_is_content_loaded = false;
-      slot->invalidate();
-      TemplateBoxSlotImpl(*slot).reload_content();
-    }
-    slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, this);
-  }
+  TemplateBoxImpl(*this).reset_argument(index, std::move(new_arg));
 }
 
 //} ... class TemplateBox
@@ -627,49 +632,77 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlotCount(FrontEndObject *obj
 }
 
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item) {
-  size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
-  if(!num)
+  if(item[0] != PMATH_SYMBOL_LIST)
     return Symbol(PMATH_SYMBOL_FAILED);
-    
+  
+  if(item[1] != richmath_System_TemplateSlot)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
   TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
   if(!tb)
     return Symbol(PMATH_SYMBOL_FAILED);
   
+  // TODO: register observer only for requested index
   tb->register_observer();
-  if(num > tb->arguments.expr_length())
-    return Symbol(PMATH_SYMBOL_FAILED);
   
-  //return tb->arguments[num];
-  Dynamic dyn {tb, tb->arguments[num]};
-  Expr expr = dyn.get_value_unevaluated();
+  Expr expr = tb->arguments;
+  for(size_t depth = 2; depth <= item.expr_length(); ++depth) 
+    expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
+  
+  expr = Dynamic(tb, std::move(expr)).get_value_unevaluated();
   if(expr[0] == PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE)
     expr.set(2, obj->id().to_pmath_raw());
+  
   return std::move(expr);
 }
 
 bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs) {
-  size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
-  if(!num)
+  if(item[0] != PMATH_SYMBOL_LIST)
     return false;
-
+  
+  if(item[1] != richmath_System_TemplateSlot)
+    return false;
+  
   TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
   if(!tb)
     return false;
   
-  if(num > tb->arguments.expr_length())
-    return false;
+  Expr expr = tb->arguments;
+  for(size_t depth = 2; depth <= item.expr_length(); ++depth) 
+    expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
   
-  if(tb->arguments[num] == rhs)
-    return true;
-  
-  //tb->reset_argument((int)num, std::move(rhs));
-  Dynamic dyn {tb, tb->arguments[num]};
-  if(dyn.is_dynamic())
+  Dynamic dyn{tb, expr};
+  if(dyn.is_dynamic()) {
     dyn.assign(std::move(rhs));
-  else
-    tb->reset_argument((int)num, std::move(rhs));
+    return true;
+  }
   
-  return true;
+  expr = tb->arguments;
+  if(CurrentValueOfTemplateSlot::set(expr, item, 2, std::move(rhs))) {
+    if(expr[0] == PMATH_SYMBOL_LIST) {
+      TemplateBoxImpl(*tb).reset_arguments(expr);
+      return true;
+    }
+  }
+  return false;
+//  size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
+//  if(!num)
+//    return false;
+//  
+//  if(num > tb->arguments.expr_length())
+//    return false;
+//  
+//  if(tb->arguments[num] == rhs)
+//    return true;
+//  
+//  //tb->reset_argument((int)num, std::move(rhs));
+//  Dynamic dyn {tb, tb->arguments[num]};
+//  if(dyn.is_dynamic())
+//    dyn.assign(std::move(rhs));
+//  else
+//    tb->reset_argument((int)num, std::move(rhs));
+//  
+//  return true;
 }
 
 //} ... class TemplateBoxSlot
@@ -707,6 +740,44 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
     return dispfun[1];
     
   return String("$Failed");
+}
+
+void TemplateBoxImpl::reset_argument(int index, Expr new_arg) {
+  self.arguments.set(index, std::move(new_arg));
+  
+  // TODO: We should maybe use Array<ObservableValue<Expr>> instead?
+  self.notify_all();
+  
+  TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(&self, LogicalDirection::Forward, &self);
+  while(slot) {
+    if(slot->argument() == index && slot->find_owner() == &self) {
+      //slot->_is_content_loaded = false;
+      slot->invalidate();
+      TemplateBoxSlotImpl(*slot).reload_content();
+    }
+    slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, &self);
+  }
+}
+
+void TemplateBoxImpl::reset_arguments(Expr new_args) {
+  using std::swap;
+  swap(new_args, self.arguments);
+  
+  // TODO: We should maybe use Array<ObservableValue<Expr>> instead?
+  self.notify_all();
+  
+  TemplateBoxSlot *slot = search_box<TemplateBoxSlot>(&self, LogicalDirection::Forward, &self);
+  while(slot) {
+    auto num = slot->argument();
+    if(slot->find_owner() == &self) {
+      if(num <= 0 || new_args[num] != self.arguments[num]) {
+        //slot->_is_content_loaded = false;
+        slot->invalidate();
+        TemplateBoxSlotImpl(*slot).reload_content();
+      }
+    }
+    slot = search_next_box<TemplateBoxSlot>(slot, LogicalDirection::Forward, &self);
+  }
 }
 
 //} ... class TemplateBoxImpl
@@ -803,3 +874,136 @@ Expr TemplateBoxSlotImpl::prepare_pure_arg(Expr expr) {
 }
 
 //} ... class TemplateBoxSlotImpl
+
+//{ class CurrentValueOfTemplateSlot ...
+
+Expr CurrentValueOfTemplateSlot::get_next(Expr expr, Expr key, bool allow_options) {
+  if(key.is_int32())
+    return get_next_by_index(std::move(expr), PMATH_AS_INT32(key.get()));
+  
+  if(key[0] == richmath_System_Key && key.expr_length() == 1)
+    return get_next_by_lookup(std::move(expr), key[1], allow_options);
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
+Expr CurrentValueOfTemplateSlot::get_next_by_index(Expr expr, int index) {
+  if(expr[0] != PMATH_SYMBOL_LIST)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  if(index <= 0 || (size_t)index > expr.expr_length())
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  return expr[index];
+}
+
+Expr CurrentValueOfTemplateSlot::get_next_by_lookup(Expr expr, Expr name, bool allow_options) {
+  if(expr.is_list_of_rules()) 
+    return expr.lookup(name, Symbol(PMATH_SYMBOL_INHERITED));
+  
+  if(!allow_options)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  size_t i = expr.expr_length();
+  Expr last = expr[i];
+  if(last.is_list_of_rules()) 
+    return last.lookup(name, Symbol(PMATH_SYMBOL_INHERITED));
+  
+  for(; i > 0; last = expr[--i]) {
+    if(!last.is_rule())
+      return Symbol(PMATH_SYMBOL_INHERITED);
+    
+    if(last[1] == name) 
+      return last[2];
+  }
+  
+  return Symbol(PMATH_SYMBOL_INHERITED);
+}
+
+bool CurrentValueOfTemplateSlot::set(Expr &expr, const Expr &items, size_t depth, Expr value) {
+  if(depth > items.expr_length()) {
+    expr = std::move(value);
+    return true;
+  }
+  
+  if(depth > 10)
+    return false;
+  
+  Expr key = items[depth];
+  if(key.is_int32()) 
+    return set_by_index(expr, PMATH_AS_INT32(key.get()), items, depth, std::move(value));
+  
+  if(key[0] == richmath_System_Key && key.expr_length() == 1)
+    return set_by_lookup(std::move(expr), key[1], items, depth, std::move(value));
+  
+  return false;
+}
+
+bool CurrentValueOfTemplateSlot::set_by_index(Expr &expr, int index, const Expr &items, size_t depth, Expr value) {
+  if(expr[0] != PMATH_SYMBOL_LIST)
+    return false;
+    
+  if(index <= 0 || (size_t)index > expr.expr_length())
+    return false;
+  
+  Expr rest = expr[index];
+  bool success = set(rest, items, depth + 1, std::move(value));
+  if(success)
+    expr.set(index, std::move(rest));
+  return success;
+}
+
+bool CurrentValueOfTemplateSlot::set_by_lookup(Expr &expr, Expr name, const Expr &items, size_t depth, Expr value) {
+  if(expr.is_list_of_rules()) {
+    Expr rest = expr.lookup(name, Symbol(PMATH_SYMBOL_INHERITED));
+    bool success = set(rest, items, depth + 1, std::move(value));
+    if(success) {
+      if(rest == PMATH_SYMBOL_INHERITED)
+        rest = Expr(PMATH_UNDEFINED);
+      expr.set_lookup(std::move(name), std::move(rest));
+    }
+    return success;
+  }
+  
+  bool allow_options = (depth == 2 && items[1] == richmath_System_TemplateSlot) || depth == 1;
+  if(!allow_options)
+    return false;
+  
+  size_t i = expr.expr_length();
+  Expr last = expr[i];
+  if(last.is_list_of_rules()) {
+    bool success = set_by_lookup(last, std::move(name), items, depth, std::move(value));
+    if(success)
+      expr.set(i, std::move(last));
+    return success;
+  }
+  
+  for(; i > 0; last = expr[--i]) {
+    if(!last.is_rule())
+      break;
+    
+    if(last[1] == name) {
+      Expr rhs = last[2];
+      bool success = set(rhs, items, depth + 1, std::move(value));
+      if(success) {
+        if(rhs == PMATH_SYMBOL_INHERITED) {
+          expr.set(i, Expr(PMATH_UNDEFINED));
+          expr.expr_remove_all(Expr(PMATH_UNDEFINED));
+        }
+        else{
+          last.set(2, std::move(rhs));
+          expr.set(i, std::move(last));
+        }
+      }
+      return success;
+    }
+  }
+  
+  last = Expr();
+  bool success = set(last, items, depth + 1, std::move(value));
+  if(success && last != PMATH_SYMBOL_INHERITED)
+    expr.append(Rule(std::move(name), std::move(last)));
+  return success;
+}
+
+//} ... class CurrentValueOfTemplateSlot
