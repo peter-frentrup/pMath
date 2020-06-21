@@ -514,7 +514,7 @@ static pmath_t append_rule(
   return pmath_expr_append(rules, 1, rule);
 }
 
-PMATH_PRIVATE pmath_t _pmath_rules_modify(
+PMATH_API pmath_t pmath_rules_modify(
   pmath_t        rules, 
   pmath_t        key, 
   pmath_bool_t (*callback)(pmath_t*, pmath_bool_t, void*), 

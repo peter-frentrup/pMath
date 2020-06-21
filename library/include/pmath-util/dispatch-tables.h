@@ -30,6 +30,23 @@ PMATH_API pmath_bool_t pmath_is_list_of_rules(pmath_t obj);
  */
 PMATH_API pmath_bool_t pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *result);
 
+/** Change a rule's right-hand side in a list-of-rules.
+
+    \param rules The old list-of-rules. It will be freed.
+    \param key The left-hand side of the rule to change. It will be freed.
+    \param callback A callback function whose first argument receives the old right-hand side 
+                    (or PMATH_UNDEFINED), modifies it to the new right-hand side (or PMATH_UNDEFINED)
+                    and returns whether the new rule should be Rule (TRUE) or RuleDelayed (FALSE).
+                    Its second argument is TRUE if the rule had head Rule before and FALSE otherwise (i.e. for RuleDelayed)
+    \param callback_context The third argument for \a callback.
+    \return The new list-of-rules.
+ */
+PMATH_API pmath_t pmath_rules_modify(
+  pmath_t rules, 
+  pmath_t key, 
+  pmath_bool_t (*callback)(pmath_t*, pmath_bool_t, void*), 
+  void *callback_context);
+
 /** @} */
 
 #endif // PMATH__UTIL__DISPATCH_TABLES_H__INCLUDED

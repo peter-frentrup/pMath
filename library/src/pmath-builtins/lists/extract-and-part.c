@@ -277,7 +277,7 @@ static pmath_t assign_part(
     context.position_start = position_start;
     context.new_value = new_value;
     context.error = error;
-    return _pmath_rules_modify(list, index, modify_rule_rhs, &context);
+    return pmath_rules_modify(list, index, modify_rule_rhs, &context);
   }
   
   listlen = pmath_expr_length(list);

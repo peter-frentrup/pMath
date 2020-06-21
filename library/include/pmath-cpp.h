@@ -384,6 +384,23 @@ namespace pmath {
         return ReverseItemsEnum(this, smallest, largest);
       }
       
+      void set_lookup(Expr key, Expr rhs) throw() {
+        struct Modifier {
+          Expr rhs;
+
+          static pmath_bool_t callback(pmath_t *old_rhs, pmath_bool_t is_simple_rule, void *self) throw() {
+            return ((Modifier*)self)->callback(old_rhs, is_simple_rule);
+          }
+
+          pmath_bool_t callback(pmath_t *old_rhs, pmath_bool_t is_simple_rule) throw() {
+            using std::swap;
+            swap(*old_rhs, rhs._obj);
+            return is_simple_rule;
+          }
+        } modifier { PMATH_CPP_MOVE(rhs) };
+        _obj = pmath_rules_modify(_obj, key.release(), Modifier::callback, &modifier);
+      }
+      
       /**\brief Change the i-th argument of an expression
          \param i Index. May be > expr_length().
          \param e The new element.
