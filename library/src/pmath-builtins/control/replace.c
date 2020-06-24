@@ -70,19 +70,22 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule) {
 }
 
 PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
-  /* Replace(obj, rules, levelspec)
-     Replace(obj, rules, n)  =  Replace(obj, rules, 0..n)
-     Replace(obj, rules)     =  Replace(obj, rules, 0..)
+  /*  Replace(obj, rules, levelspec)
+      Replace(obj, rules, n)  =  Replace(obj, rules, 0..n)
+      Replace(obj, rules)     =  Replace(obj, rules, 0..)
+      ReplaceRepeated(obj, rules, levelspec)
+      ReplaceRepeated(obj, rules, n)  =  Replace(obj, rules, 0..n)
+      ReplaceRepeated(obj, rules)     =  Replace(obj, rules, 0..)
 
-     same for ReplaceRepeated
+      same for ReplaceRepeated
 
-     options:
-       Heads->False
+      options:
+        Heads->False
 
-     messages:
-       General::level
-       General::opttf
-       General::reps
+      messages:
+        General::level
+        General::opttf
+        General::reps
    */
   replace_info_t info;
   size_t last_nonoption, len = pmath_expr_length(expr);
