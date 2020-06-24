@@ -63,47 +63,32 @@ Document({
              "Section", "(", {
               {"BoxData", "(", {
                 "{", {{"FillBox", "(", ComplexStringBox("\" \""), ")"}, ",", {
-                  "DynamicLocalBox", "(", {{"{", "scale", "}"}, ",", {
-                    "SliderBox", "(", {
-                     {"Dynamic", "(", {
-                       {"\n", {"Log", "(", {"2", ",", "scale"}, ")"}}, ",", {
-                        "\n", {
-                         {{"If", "(", {{"IsNumber", "(", {"#", "1"}, ")"}, 
-                            ",", {
-                             "\n", {
-                              {{"scale", "\[Assign]", {
-                                 "2", "^", {"\[Piecewise]", 
-                                  GridBox({
-                                    {"0", {{"-", "0.2"}, "<", "#", "<", 
-                                      "0.2"}}, {"#", "True"}})}}}, ";", {
-                                "\n", {"SetOptions", "(", {
-                                  {"EvaluationDocument", "(", ")"}, ",", {
-                                   "Magnification", "\[Rule]", "scale"}}, 
-                                 ")"}}}, "\n"}}}, ")"}, "&"}, "\n"}}}, ")"}, 
-                     ",", {{"-", "1"}, "..", "1"}}, ")"}, ",", {
-                    "DynamicLocalValues", "\[RuleDelayed]", {
-                     "{", {{"OwnRules", "(", "scale", ")"}, "\[Assign]", {
-                       "{", {{"HoldPattern", "(", "scale", ")"}, 
-                        "\[RuleDelayed]", {"Replace", "(", {
-                          {"Replace", "(", {"Magnification", ",", {
-                             "Options", "(", {
-                              {"EvaluationDocument", "(", ")"}, ",", 
-                              "Magnification"}, ")"}}, ")"}, ",", {
-                           "Inherited", "\[Rule]", "1"}}, ")"}}, "}"}}, 
-                     "}"}}}, ")"}}, "}"}, ")"}, ",", 
-              ComplexStringBox("\"Docked\"")}, ")"}}, "}"}}}, ")"}, ";"}), 
-     "Input", SectionLabel -> "in [3]:")}, All)}, 
+                  "SliderBox", "(", {
+                   {"Dynamic", "(", {
+                     {"\n", {"Log", "(", {
+                        "2", ",", {"CurrentValue", "(", {
+                          {"EvaluationDocument", "(", ")"}, ",", 
+                          "Magnification"}, ")"}}, ")"}}, ",", {
+                      "\n", {
+                       {{"If", "(", {{"IsNumber", "(", {"#", "1"}, ")"}, ",", {
+                           "\n", {
+                            {{"CurrentValue", "(", {
+                               {"EvaluationDocument", "(", ")"}, ",", 
+                               "Magnification"}, ")"}, "\[Assign]", {
+                              "2", "^", {"\[Piecewise]", 
+                               GridBox({
+                                 {"0", {{"-", "0.2"}, "<", "#", "<", "0.2"}}, {
+                                  "#", "True"}})}}}, "\n"}}}, ")"}, "&"}, 
+                       "\n"}}}, ")"}, ",", {{"-", "1"}, "..", "1"}}, ")"}}, 
+                "}"}, ")"}, ",", ComplexStringBox("\"Docked\"")}, ")"}}, 
+           "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [3]:")}, All)}, 
  DockedSections :> {"Top" -> {}, "BottomGlass" -> Section(
-   BoxData({FillBox(" "), DynamicLocalBox({Global`scale}, 
-      SliderBox(Dynamic(Log(2, Global`scale), 
-        If(IsNumber(#1), Global`scale:= 2^Piecewise({
-           {0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
-            #1, True}}); SetOptions(EvaluationDocument(), 
-          Magnification -> Global`scale)) &), -1 .. 1), 
-      DynamicLocalValues :> {OwnRules(Global`scale):= {
-        HoldPattern(Global`scale) :> Replace(
-         Replace(Magnification, Options(EvaluationDocument(), Magnification)), 
-         Inherited -> 1)}})}), "Docked"), 
+   BoxData({FillBox(" "), 
+     SliderBox(
+      Dynamic(Log(2, CurrentValue(EvaluationDocument(), Magnification)), 
+       If(IsNumber(#1), CurrentValue(EvaluationDocument(), Magnification):= 2^
+         Piecewise({{0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
+           #1, True}})) &), -1 .. 1)}), "Docked"), 
   "TopGlass" -> {
    Section(
     BoxData({
