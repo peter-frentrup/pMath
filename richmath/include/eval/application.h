@@ -130,7 +130,7 @@ namespace richmath {
       static Expr interrupt_wait_cached(Expr expr);
       
       static Expr interrupt_wait_for(Expr expr, Box *box, double seconds);
-      static Expr interrupt_wait_for(Expr expr, Box *box);
+      static Expr interrupt_wait_for_interactive(Expr expr, Box *box, double seconds);
             
       static void delay_dynamic_updates(bool delay);
       

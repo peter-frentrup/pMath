@@ -194,7 +194,7 @@ void ButtonBox::click() {
   
   String method = get_own_style(Method);
   if(method.equals("Preemptive")) 
-    Application::interrupt_wait_for(std::move(fn), this, Application::button_timeout);
+    Application::interrupt_wait_for_interactive(std::move(fn), this, Application::button_timeout);
   else
     Application::add_job(new EvaluationJob(std::move(fn), this));
 }

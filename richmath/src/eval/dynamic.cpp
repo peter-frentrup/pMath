@@ -389,7 +389,7 @@ void DynamicImpl::assign(Expr value, bool pre, bool middle, bool post) {
     return;
   
   run = dyn_source->prepare_dynamic(run);
-  Application::interrupt_wait_for(run, self._owner, Application::dynamic_timeout);
+  Application::interrupt_wait_for_interactive(run, self._owner, Application::dynamic_timeout);
 }
 
 Expr DynamicImpl::get_value_unevaluated() {

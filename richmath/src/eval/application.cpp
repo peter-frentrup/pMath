@@ -1376,15 +1376,6 @@ Expr Application::interrupt_wait_cached(Expr expr) {
 }
 
 Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
-  EvaluationPosition old_print_pos(box);
-  
-  pmath_atomic_lock(&print_pos_lock);
-  {
-    using std::swap;
-    swap(old_print_pos, print_pos);
-  }
-  pmath_atomic_unlock(&print_pos_lock);
-  
   auto old_current_evaluation_box_id = current_evaluation_box_id;
   auto old_is_executing_for_sth = is_executing_for_sth;
   current_evaluation_box_id = box ? box->id() : FrontEndReference::None;
@@ -1395,6 +1386,12 @@ Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   current_evaluation_box_id = old_current_evaluation_box_id;
   is_executing_for_sth      = old_is_executing_for_sth;
   
+  return std::move(result);
+}
+
+Expr Application::interrupt_wait_for_interactive(Expr expr, Box *box, double seconds) {
+  EvaluationPosition old_print_pos(box);
+  
   pmath_atomic_lock(&print_pos_lock);
   {
     using std::swap;
@@ -1402,11 +1399,16 @@ Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   }
   pmath_atomic_unlock(&print_pos_lock);
   
-  return result;
-}
+  Expr result = interrupt_wait_for(std::move(expr), box, seconds);
 
-Expr Application::interrupt_wait_for(Expr expr, Box *box) {
-  return interrupt_wait_for(expr, box, interrupt_timeout);
+  pmath_atomic_lock(&print_pos_lock);
+  {
+    using std::swap;
+    swap(old_print_pos, print_pos);
+  }
+  pmath_atomic_unlock(&print_pos_lock);
+  
+  return std::move(result);
 }
 
 void Application::delay_dynamic_updates(bool delay) {
