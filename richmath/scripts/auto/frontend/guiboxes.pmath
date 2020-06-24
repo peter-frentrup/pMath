@@ -145,10 +145,8 @@ MakeBoxes(RadioButton(~state))::=                                   RadioButtonB
 MakeBoxes(RadioButton(~state, ~value, options:OptionsPattern()))::= RadioButtonBox(state, value, options) /? allowGuiBoxes
 
 
-MakeBoxes(rb: RadioButtonBar(~var, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= 
-	TemplateBox({var, values, options}, "RadioButtonBar")
-MakeBoxes(rb: RadioButtonBar(~var, values:{~~}, options:OptionsPattern()))::= 
-	TemplateBox({var, values, options}, "RadioButtonBarSimple")
+MakeBoxes(rb: RadioButtonBar(~var, values:{((~ -> ~) | (~ :> ~))**}, options:OptionsPattern()))::= TemplateBox({var, values, options}, "RadioButtonBar") /? allowGuiBoxes
+MakeBoxes(rb: RadioButtonBar(~var, values:{~~}, options:OptionsPattern()))::=                      TemplateBox({var, values, options}, "RadioButtonBarSimple") /? allowGuiBoxes
 
 MakeBoxes(Setter(~var, ~value,                                    options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(value), options) /? allowGuiBoxes
 MakeBoxes(Setter(~var, ~value, label:Except((~ -> ~) | (~ :> ~)), options:OptionsPattern()))::= SetterBox(var, value, MakeBoxes(label), options) /? allowGuiBoxes
