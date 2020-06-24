@@ -86,6 +86,8 @@ namespace richmath {
       
       void align_point(float *x, float *y, bool tostroke);
       
+      float pixel_round_dx(float dx);
+      float pixel_round_dy(float dy);
       void pixrect(float x1, float y1, float x2, float y2, bool tostroke);
       
       void show_blur_rect(

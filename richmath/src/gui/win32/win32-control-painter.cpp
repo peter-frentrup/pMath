@@ -209,6 +209,12 @@ Win32ControlPainter::~Win32ControlPainter() {
   clear_cache();
 }
 
+static void round_extents(Canvas *canvas, BoxSize *extents) {
+  extents->width = canvas->pixel_round_dx(extents->width);
+  extents->ascent = canvas->pixel_round_dy(extents->ascent);
+  extents->descent = canvas->pixel_round_dy(extents->descent);
+}
+
 void Win32ControlPainter::calc_container_size(
   ControlContext *context,
   Canvas         *canvas,
@@ -224,12 +230,14 @@ void Win32ControlPainter::calc_container_size(
           extents->width +=   3;
           extents->ascent +=  1.5;
           extents->descent += 1.5;
+          round_extents(canvas, extents);
           return;
         }
         
         extents->width +=   4.5;
         extents->ascent +=  3;
         extents->descent += 2.25;
+        round_extents(canvas, extents);
       } return;
       
     case AddressBandInputField: {
@@ -237,12 +245,14 @@ void Win32ControlPainter::calc_container_size(
           extents->width +=   1.5;
           extents->ascent +=  0.75;
           extents->descent += 0.75;
+          round_extents(canvas, extents);
           return;
         }
         
         extents->width +=   3.0;
         extents->ascent +=  2.25;
         extents->descent += 1.5;
+        round_extents(canvas, extents);
       } return;
     
     case AddressBandBackground: 
@@ -250,6 +260,7 @@ void Win32ControlPainter::calc_container_size(
         extents->width +=   1.5;
         extents->ascent +=  0.75;
         extents->descent += 0.75;
+        round_extents(canvas, extents);
         return;
       }
       break;
@@ -257,6 +268,7 @@ void Win32ControlPainter::calc_container_size(
     case ListViewItem:
     case ListViewItemSelected:
       ControlPainter::calc_container_size(context, canvas, type, extents);
+      round_extents(canvas, extents);
       return;
     
     case PanelControl:
@@ -273,6 +285,7 @@ void Win32ControlPainter::calc_container_size(
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
             extents->ascent = 0.75 * size.cy;
             extents->descent = 0;
+            round_extents(canvas, extents);
             return;
           }
         }
@@ -284,6 +297,7 @@ void Win32ControlPainter::calc_container_size(
           extents->ascent -=  2.25;
           extents->descent -= 2.25;
         }
+        round_extents(canvas, extents);
       } return;
       
     case SliderHorzChannel: {
@@ -308,6 +322,7 @@ void Win32ControlPainter::calc_container_size(
             extents->descent = 0;
             //extents->width = 0.75 * size.cx;
             extents->width = 0.5 * extents->height();
+            round_extents(canvas, extents);
             return;
           }
         }
@@ -318,6 +333,7 @@ void Win32ControlPainter::calc_container_size(
           extents->width +=   6;
           extents->ascent +=  3;
           extents->descent += 3;
+          round_extents(canvas, extents);
           return;
         }
       } break;
@@ -388,6 +404,7 @@ void Win32ControlPainter::calc_container_size(
   }
   
   ControlPainter::calc_container_size(context, canvas, type, extents);
+  round_extents(canvas, extents);
 }
 
 void Win32ControlPainter::calc_container_radii(

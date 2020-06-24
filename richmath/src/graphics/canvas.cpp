@@ -299,6 +299,42 @@ void Canvas::align_point(float *x, float *y, bool tostroke) {
   }
 }
 
+float Canvas::pixel_round_dx(float dx) {
+  if(!pixel_device)
+    return dx;
+  
+  double _dx = dx;
+  double _dy = 0;
+  user_to_device(&_dx, &_dy);
+  if(_dx == 0)
+    _dy = round(_dy);
+  else if(_dy == 0)
+    _dx = round(_dx);
+  else
+    return dx;
+  device_to_user(&_dx, &_dy);
+  
+  return _dx;
+}
+
+float Canvas::pixel_round_dy(float dy) {
+  if(!pixel_device)
+    return dy;
+  
+  double _dx = 0;
+  double _dy = dy;
+  user_to_device(&_dx, &_dy);
+  if(_dx == 0)
+    _dy = round(_dy);
+  else if(_dy == 0)
+    _dx = round(_dx);
+  else
+    return dy;
+  device_to_user(&_dx, &_dy);
+  
+  return _dy;
+}
+
 void Canvas::pixrect(float x1, float y1, float x2, float y2, bool tostroke) {
   Rectangle rect(x1, y1, x2 - x1, y2 - y1);
   
