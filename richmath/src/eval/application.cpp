@@ -2142,11 +2142,17 @@ Expr richmath_eval_FrontEnd_EvaluationDocument(Expr expr) {
     return std::move(expr);
   
   Box *box = Application::get_evaluation_box();
+  Document *doc = nullptr;
   if(box)
-    box = box->find_parent<Document>(true);
+    doc = box->find_parent<Document>(true);
   
-  if(box)
-    return box->to_pmath_id();
+  if(doc) {
+    if(auto working_doc = doc->native()->working_area_document())
+      doc = working_doc;
+  }
+    
+  if(doc)
+    return doc->to_pmath_id();
   
   return Symbol(PMATH_SYMBOL_FAILED);
 }
