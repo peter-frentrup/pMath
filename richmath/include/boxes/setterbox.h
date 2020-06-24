@@ -7,6 +7,7 @@
 
 namespace richmath {
   class SetterBox: public AbstractButtonBox {
+      using base = AbstractButtonBox;
     public:
       explicit SetterBox(MathSequence *content = nullptr);
       
@@ -22,6 +23,7 @@ namespace richmath {
       
       virtual void reset_style() override;
       
+      virtual void on_mouse_down(MouseEvent &event) override;
       virtual void click() override;
       
       virtual void dynamic_updated() override;

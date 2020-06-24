@@ -5,10 +5,22 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_OpenerBox;
 
+namespace richmath {
+  class OpenerBox::Impl {
+    public:
+      Impl(OpenerBox &_self) : self(_self) {}
+      
+      Expr next_value_when_clicked();
+      
+    private:
+      OpenerBox &self;
+  };
+}
+
 //{ class OpenerBox ...
 
 OpenerBox::OpenerBox()
-  : EmptyWidgetBox(OpenerTriangleClosed)
+  : base(OpenerTriangleClosed)
 {
   dynamic.init(this, Expr());
 }
@@ -125,14 +137,29 @@ ContainerType OpenerBox::calc_type(Expr result) {
   return OpenerTriangleClosed;
 }
 
+void OpenerBox::on_mouse_down(MouseEvent &event) {
+  if(event.left)
+    dynamic.assign(Impl(*this).next_value_when_clicked(), true, false, false);
+  
+  base::on_mouse_down(event);
+}
+
 void OpenerBox::click() {
   if(!enabled())
     return;
   
-  if(type == OpenerTriangleOpened) 
-    dynamic.assign(Symbol(PMATH_SYMBOL_FALSE));
-  else 
-    dynamic.assign(Symbol(PMATH_SYMBOL_TRUE));
+  dynamic.assign(Impl(*this).next_value_when_clicked(), false, true, true);
 }
 
 //} ... class OpenerBox
+
+//{ class OpenerBox::Impl ...
+
+Expr OpenerBox::Impl::next_value_when_clicked() {
+  if(self.type == OpenerTriangleOpened) 
+    return Symbol(PMATH_SYMBOL_FALSE);
+  else 
+    return Symbol(PMATH_SYMBOL_TRUE);
+}
+
+//} ... class OpenerBox::Impl

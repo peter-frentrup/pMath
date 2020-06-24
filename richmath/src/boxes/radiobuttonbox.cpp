@@ -7,7 +7,7 @@ extern pmath_symbol_t richmath_System_RadioButtonBox;
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
-  : EmptyWidgetBox(RadioButtonUnchecked),
+  : base(RadioButtonUnchecked),
     first_paint(true)
 {
   dynamic.init(this, Expr());
@@ -69,7 +69,7 @@ void RadioButtonBox::paint(Context *context) {
     animation = nullptr;
   }
   
-  EmptyWidgetBox::paint(context);
+  base::paint(context);
   first_paint = false;
 }
 
@@ -149,6 +149,13 @@ ContainerType RadioButtonBox::calc_type(Expr result) {
     return RadioButtonChecked;
     
   return RadioButtonUnchecked;
+}
+
+void RadioButtonBox::on_mouse_down(MouseEvent &event) {
+  if(event.left)
+    dynamic.assign(value, true, false, false);
+  
+  base::on_mouse_down(event);
 }
 
 void RadioButtonBox::click() {

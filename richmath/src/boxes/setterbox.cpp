@@ -9,7 +9,7 @@ extern pmath_symbol_t richmath_System_SetterBox;
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
-  : AbstractButtonBox(content, PaletteButton),
+  : base(content, PaletteButton),
     must_update(true),
     is_down(false)
 {
@@ -55,7 +55,7 @@ ControlState SetterBox::calc_state(Context *context) {
     //return Pressed;
   }
   
-  ControlState state = AbstractButtonBox::calc_state(context);
+  ControlState state = base::calc_state(context);
   //if(state == Normal)
   //  return Hovered;
   return state;
@@ -108,8 +108,15 @@ void SetterBox::reset_style() {
   Style::reset(style, "Setter");
 }
 
+void SetterBox::on_mouse_down(MouseEvent &event) {
+  if(event.left)
+    dynamic.assign(value, true, false, false);
+  
+  base::on_mouse_down(event);
+}
+
 void SetterBox::click() {
-  dynamic.assign(value);
+  dynamic.assign(value, false, true, true);
   is_down = true;
   request_repaint_all();
 }

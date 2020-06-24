@@ -4,6 +4,18 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_CheckboxBox;
 
+namespace richmath {
+  class CheckboxBox::Impl {
+    public:
+      Impl(CheckboxBox &_self) : self(_self) {}
+      
+      Expr next_value_when_clicked();
+      
+    private:
+      CheckboxBox &self;
+  };
+}
+
 //{ class CheckboxBox ...
 
 CheckboxBox::CheckboxBox()
@@ -175,26 +187,37 @@ ContainerType CheckboxBox::calc_type(Expr result) {
   return CheckboxIndeterminate;
 }
 
+void CheckboxBox::on_mouse_down(MouseEvent &event) {
+  if(event.left)
+    dynamic.assign(Impl(*this).next_value_when_clicked(), false, true, true);
+  
+  base::on_mouse_down(event);
+}
+
 void CheckboxBox::click() {
   if(!enabled())
     return;
   
-  if(type == CheckboxChecked) {
-    if(values.is_null()) {
-      dynamic.assign(Symbol(PMATH_SYMBOL_FALSE));
-    }
-    else if(values.expr_length() == 2) {
-      dynamic.assign(values[1]);
-    }
-  }
-  else {
-    if(values.is_null()) {
-      dynamic.assign(Symbol(PMATH_SYMBOL_TRUE));
-    }
-    else if(values.expr_length() == 2) {
-      dynamic.assign(values[2]);
-    }
-  }
+  dynamic.assign(Impl(*this).next_value_when_clicked(), false, true, true);
 }
 
 //} ... class CheckboxBox
+
+//{ class CheckboxBox::Impl ...
+
+Expr CheckboxBox::Impl::next_value_when_clicked() {
+  if(self.type == CheckboxChecked) {
+    if(self.values.expr_length() == 2 && self.values[0] == PMATH_SYMBOL_LIST)
+      return self.values[1];
+    else
+      return Symbol(PMATH_SYMBOL_FALSE);
+  }
+  else {
+    if(self.values.expr_length() == 2 && self.values[0] == PMATH_SYMBOL_LIST)
+      return self.values[2];
+    else
+      return Symbol(PMATH_SYMBOL_TRUE);
+  }
+}
+
+//} ... class CheckboxBox::Impl
