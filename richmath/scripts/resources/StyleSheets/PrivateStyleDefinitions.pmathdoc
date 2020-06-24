@@ -21,7 +21,7 @@ Document({
            "\[HighNineDoubleQuote]"}, "Docked", 
           SectionFrame -> {Inherited, {Inherited, 0.5`}})}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
-       Visible -> True, WindowFrame -> "Normal", 
+       Saveable -> False, Visible -> True, WindowFrame -> "Normal", 
        WindowTitle -> Dynamic(
         ToString(Row({"Private StyleDefinitions for ", 
           With({FE`Private`owner:= CurrentValue("StyleDefinitionsOwner")}, 

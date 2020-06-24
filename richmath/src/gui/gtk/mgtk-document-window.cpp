@@ -791,6 +791,9 @@ bool MathGtkDocumentWindow::on_delete(GdkEvent *e) {
     }
   }
   
+  if(auto styles = _working_area->stylesheet_document())
+    styles->native()->close();
+  
   return false;
 }
 
