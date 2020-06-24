@@ -227,7 +227,8 @@ namespace {
           upper(0),
           lower(0),
           tbms_font(0),
-          ul_font(0)
+          ul_font(0),
+          vertical(false)
       {
       }
       
@@ -664,9 +665,7 @@ namespace richmath {
           SharedPtr<TextShaper> shaper = TextShaper::find(tables->math_fontnames[0], style);
           GlyphInfo glyphs[4];
           uint16_t  str[4];
-          ComposedGlyph cg;
-          
-          memset(&cg, 0, sizeof(ComposedGlyph));
+          ComposedGlyph cg {};
           cg.vertical = true;
           
           for(size_t i = 0; i < sizeof(default_vertical_composed_glyphs) / sizeof(default_vertical_composed_glyphs[0]); ++i) {

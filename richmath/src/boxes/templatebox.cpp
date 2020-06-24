@@ -934,7 +934,7 @@ bool CurrentValueOfTemplateSlot::set(Expr &expr, const Expr &items, size_t depth
     return set_by_index(expr, PMATH_AS_INT32(key.get()), items, depth, std::move(value));
   
   if(key[0] == richmath_System_Key && key.expr_length() == 1)
-    return set_by_lookup(std::move(expr), key[1], items, depth, std::move(value));
+    return set_by_lookup(expr, key[1], items, depth, std::move(value));
   
   return false;
 }
