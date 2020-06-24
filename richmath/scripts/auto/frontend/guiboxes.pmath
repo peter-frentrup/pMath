@@ -98,39 +98,45 @@ hasHeldOption(HoldComplete(~~~, (Rule|RuleDelayed)(~lhs, ~), ~~~), ~lhs)::= True
 hasHeldOption(~,~)::= False
 
 
-MakeBoxes(InputField())::=                                                                                                   InputFieldBox(,      Expression) /? allowGuiBoxes
-MakeBoxes(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options) /? allowGuiBoxes
-MakeBoxes(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options) /? allowGuiBoxes
-MakeBoxes(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options) /? allowGuiBoxes
-MakeBoxes(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options) /? allowGuiBoxes
+MakeBoxes(~x: InputField)::= makeInputFieldBox(x) /? allowGuiBoxes
+Attributes(makeInputFieldBox):= {HoldAllComplete}
+makeInputFieldBox(InputField())::=                                                                                                   InputFieldBox(,      Expression)
+makeInputFieldBox(InputField(~value,                                                                   options:OptionsPattern()))::= InputFieldBox(value, Expression, options)
+makeInputFieldBox(InputField(~value?isStringOrDynamic, String,                                         options:OptionsPattern()))::= InputFieldBox(value, String,     options)
+makeInputFieldBox(InputField(~value?isNumberOrDynamic, Number,                                         options:OptionsPattern()))::= InputFieldBox(value, Number,     options)
+makeInputFieldBox(InputField(~value,                   type: Expression | RawBoxes | Hold(Expression), options:OptionsPattern()))::= InputFieldBox(value, type,       options)
+makeInputFieldBox(~x)::= makeCallBoxes(x)
 
 
-MakeBoxes(~x: Opener)::= makeGuiBoxes(x) /? allowGuiBoxes
-
-makeGuiBoxes(Opener())::=                                 OpenerBox(False)
-makeGuiBoxes(Opener(~state, options:OptionsPattern()))::= OpenerBox(state, options)
+MakeBoxes(~x: Opener)::= makeOpenerBox(x) /? allowGuiBoxes
+Attributes(makeOpenerBox):= {HoldAllComplete}
+makeOpenerBox(Opener())::=                                 OpenerBox(False)
+makeOpenerBox(Opener(~state, options:OptionsPattern()))::= OpenerBox(state, options)
+makeOpenerBox(~x)::= makeCallBoxes(x)
 
 
 MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBoxes
 MakeBoxes(Panel(~expr, options:OptionsPattern()))::=  PanelBox(MakeBoxes(expr), options) /? allowGuiBoxes
 
 
-MakeBoxes(~p: PaneSelector)::= makeGuiBoxes(p) /? allowGuiBoxes
+MakeBoxes(~p: PaneSelector)::= makePaneSelectorBox(p) /? allowGuiBoxes
 
 Attributes(HOLD):= {HoldAllComplete}
-
-makeGuiBoxes(PaneSelector(panes: {~~}, ~sel, options:OptionsPattern()))::= 
+Attributes(makePaneSelectorBox):= {HoldAllComplete}
+makePaneSelectorBox(PaneSelector(panes: {~~}, ~sel, options:OptionsPattern()))::= 
 	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, options).Replace(HOLD(~x) :> x)
-makeGuiBoxes(PaneSelector(panes: {~~}, ~sel, ~def, options:OptionsPattern()))::= 
+makePaneSelectorBox(PaneSelector(panes: {~~}, ~sel, ~def, options:OptionsPattern()))::= 
 	PaneSelectorBox(paneSelectorListToBoxes(panes), sel, MakeBoxes(def), options).Replace(HOLD(~x) :> x)
+makePaneSelectorBox(~x)::= makeCallBoxes(x)
 
-Attributes(paneSelectorRuleToBoxes):= {HoldAll}
+
+Attributes(paneSelectorRuleToBoxes):= {HoldAllComplete}
 paneSelectorRuleToBoxes(~val:HoldPattern -> ~pane)::=             val  -> makeNullBoxes(pane)
 paneSelectorRuleToBoxes(~val             -> ~pane)::= HoldPattern(val) -> makeNullBoxes(pane)
 paneSelectorRuleToBoxes(~val:HoldPattern :> ~pane)::= RuleDelayed @@ {            val,  makeNullBoxes(pane)}
 paneSelectorRuleToBoxes(~val             :> ~pane)::= RuleDelayed @@ {HoldPattern(val), makeNullBoxes(pane)}
 
-Attributes(paneSelectorListToBoxes):= {HoldAll}
+Attributes(paneSelectorListToBoxes):= {HoldAllComplete}
 paneSelectorListToBoxes(rules: {(Rule|RuleDelayed)(~,~)**})::= Unevaluated(rules).Map(paneSelectorRuleToBoxes)
 paneSelectorListToBoxes(~values: List)::= With({indices:= Array(Length(Unevaluated(values)))}, 
 	Unevaluated({indices, values}).MapThread(Function(,paneSelectorRuleToBoxes(#1 -> #2),HoldAllComplete)))
@@ -171,11 +177,14 @@ MakeBoxes(SetterBar(val: Except(~:Dynamic), values:{~~}, options:OptionsPattern(
 			DynamicLocalValues :> {var:= val}),
 		Setting(#, 0) &) /? allowGuiBoxes
 
-MakeBoxes(Slider(                                                  options:OptionsPattern()))::= SliderBox(0.5, 0..1, options) /? allowGuiBoxes
-MakeBoxes(Slider(~val ? isNumberOrDynamic,                         options:OptionsPattern()))::= SliderBox(val, 0..1, options) /? allowGuiBoxes
-MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max,             options:OptionsPattern()))::= SliderBox(val, min..max, options) /? allowGuiBoxes
-MakeBoxes(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:OptionsPattern()))::= SliderBox(val, min..max..step, options) /? allowGuiBoxes
-MakeBoxes(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options) /? allowGuiBoxes
+MakeBoxes(~x: Slider)::= makeSliderBox(x) /? allowGuiBoxes
+Attributes(makeSliderBox):= {HoldAllComplete}
+makeSliderBox(Slider(                                                  options:OptionsPattern()))::= SliderBox(0.5, 0..1, options)
+makeSliderBox(Slider(~val ? isNumberOrDynamic,                         options:OptionsPattern()))::= SliderBox(val, 0..1, options)
+makeSliderBox(Slider(~val ? isNumberOrDynamic, ~min..~max,             options:OptionsPattern()))::= SliderBox(val, min..max, options)s
+makeSliderBox(Slider(~val ? isNumberOrDynamic, ~min..~max..~step,      options:OptionsPattern()))::= SliderBox(val, min..max..step, options)
+makeSliderBox(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:OptionsPattern()))::= SliderBox(val, vals, options)
+makeSliderBox(~x)::= makeCallBoxes(x)
 
 
 MakeBoxes(Tooltip(~content, ~tooltip, options:OptionsPattern()))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip), options) /? allowGuiBoxes
