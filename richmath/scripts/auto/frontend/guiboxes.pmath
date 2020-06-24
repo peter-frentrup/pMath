@@ -296,11 +296,12 @@ TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPatter
 
 
 System`Setting`$Rules:= Join(System`Setting`$Rules, {
-	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|RadioButtonBar|Setter|SetterBar|Slider)(~x, ~~~) :> x,
-	(Checkbox|Opener)() :> False,
-	PaneSelector(~, ~x, ~~~) :> x,
+	Checkbox() :> False,
+	Opener() :> False,
 	ProgressIndicator() :> 0,
-	Slider() :> 0.5});
+	Slider() :> 0.5,
+	PaneSelector(~, ~x, ~~~) :> x,
+	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|RadioButtonBar|Setter|SetterBar|Slider)(~x, ~~~) :> x});
 
 
 Protect @@ toBeProtected
