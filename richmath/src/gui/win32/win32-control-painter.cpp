@@ -1474,6 +1474,8 @@ bool Win32ControlPainter::container_hover_repaint(ControlContext *context, Conta
     case GenericButton:
     case TooltipWindow:
     case PanelControl:
+    case TabHeadBackground:
+    case TabBodyBackground:
       return false;
   }
   
