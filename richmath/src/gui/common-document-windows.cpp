@@ -1,6 +1,7 @@
 #include <gui/common-document-windows.h>
 
 #include <gui/document.h>
+#include <gui/native-widget.h>
 
 #include <eval/application.h>
 
@@ -108,6 +109,9 @@ void CommonDocumentWindow::on_saved() {
     _has_unsaved_changes = false;
     reset_title();
   }
+  
+  if(Document *style_doc = content()->native()->stylesheet_document())
+    style_doc->native()->on_saved();
 }
 
 void CommonDocumentWindow::title(String text) {

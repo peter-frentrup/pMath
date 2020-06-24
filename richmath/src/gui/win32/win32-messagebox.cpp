@@ -103,6 +103,49 @@ YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
   }
 }
 
+YesNoCancel richmath::win32_ask_remove_private_style_definitions(Document *doc) {
+  const wchar_t *str = L"This document has private style definitions.\nAre you sure you want to replace them with a shared stylesheet?";
+  
+  const wchar_t *title = L"Richmath";
+  
+  TASKDIALOG_BUTTON buttons[] = {
+    { IDYES,    L"&Delete private style definitions\nUse shared stylesheet instead" },
+    { IDNO,     L"&Keep private style definitions" },
+    //{ IDCANCEL, L"&Cancel" }
+  };
+  TaskDialogConfig config;
+  config.hInstance = GetModuleHandleW(nullptr);
+  config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_USE_COMMAND_LINKS | TDF_POSITION_RELATIVE_TO_WINDOW;
+  config.pszMainIcon = MAKEINTRESOURCEW(ICO_APP_MAIN);
+  config.pszWindowTitle = title;
+  config.pszMainInstruction = L"Replace private style definitions?";
+  config.pszContent = str;
+  config.cButtons = sizeof(buttons) / sizeof(buttons[0]);
+  config.pButtons = buttons;
+  config.nDefaultButton = IDNO;
+  
+  if(doc) {
+    if(Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native())) {
+      config.dark_mode = wid->has_dark_background();
+      config.hwndParent = wid->hwnd();
+      while(auto parent = GetParent(config.hwndParent))
+        config.hwndParent = parent;
+    }
+  }
+  
+  
+  int result = 0;
+  if(!HRbool(try_TaskDialogIndirect(&config, &result, nullptr, nullptr))) {
+    result = MessageBoxW(config.hwndParent, str, title, MB_YESNOCANCEL | MB_TASKMODAL);
+  }
+  
+  switch(result) {
+    case IDYES: return YesNoCancel::Yes;
+    case IDNO:  return YesNoCancel::No;
+    default:    return YesNoCancel::Cancel;
+  }
+}
+
 Expr richmath::win32_ask_interrupt(Expr stack) {
   TaskDialogConfig config;
   

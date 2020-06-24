@@ -36,6 +36,16 @@ YesNoCancel richmath::ask_save(Document *doc) {
   return YesNoCancel::Yes;
 }
 
+YesNoCancel richmath::ask_remove_private_style_definitions(Document *doc) {
+#ifdef RICHMATH_USE_GTK_GUI
+  return mgtk_ask_remove_private_style_definitions(doc);
+#endif
+#ifdef RICHMATH_USE_WIN32_GUI
+  return win32_ask_remove_private_style_definitions(doc);
+#endif
+  return YesNoCancel::Yes;
+}
+
 Expr richmath::ask_interrupt(Expr stack) {
 #ifdef RICHMATH_USE_GTK_GUI
   return mgtk_ask_interrupt(std::move(stack));

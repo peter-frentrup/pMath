@@ -1300,6 +1300,18 @@ static bool set_style_cmd(Expr cmd) {
     return false;
     
   if(Application::menu_command_scope == MenuCommandScope::Document) {
+    if(cmd.is_rule() && cmd[1] == richmath_System_StyleDefinitions) {
+      if(Expr style_def = doc->get_own_style(StyleDefinitions)) {
+        if(style_def[0] == PMATH_SYMBOL_DOCUMENT) {
+          if(ask_remove_private_style_definitions(doc) != YesNoCancel::Yes)
+            return false;
+          
+          if(auto style_doc = doc->native()->stylesheet_document())
+            style_doc->native()->close();
+        }
+      }
+    }
+    
     doc->style->add_pmath(cmd);
     doc->invalidate_options();
     doc->invalidate();

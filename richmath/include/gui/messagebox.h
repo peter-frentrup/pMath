@@ -11,6 +11,7 @@ namespace richmath {
   };
   
   YesNoCancel ask_save(Document *doc);
+  YesNoCancel ask_remove_private_style_definitions(Document *doc);
   Expr ask_interrupt(Expr stack);
 }
 

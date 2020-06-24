@@ -10,6 +10,7 @@
 
 namespace richmath {
   YesNoCancel win32_ask_save(Document *doc, String question);
+  YesNoCancel win32_ask_remove_private_style_definitions(Document *doc);
   Expr win32_ask_interrupt(Expr stack);
 }
 
