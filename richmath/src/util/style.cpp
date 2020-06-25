@@ -132,34 +132,6 @@ bool richmath::get_factor_of_scaled(Expr expr, double *value) {
   return false;
 }
 
-static bool needs_ruledelayed(Expr expr) {
-  if(!expr.is_expr())
-    return false;
-    
-  Expr head = expr[0];
-  if(head == richmath_System_Dynamic || head == PMATH_SYMBOL_FUNCTION)
-    return false;
-    
-  if( head == PMATH_SYMBOL_LIST ||
-      head == PMATH_SYMBOL_RANGE ||
-      head == PMATH_SYMBOL_NCACHE ||
-      head == PMATH_SYMBOL_PUREARGUMENT ||
-      head == PMATH_SYMBOL_RULE ||
-      head == PMATH_SYMBOL_RULEDELAYED ||
-      head == PMATH_SYMBOL_GRAYLEVEL ||
-      head == PMATH_SYMBOL_HUE ||
-      head == PMATH_SYMBOL_RGBCOLOR)
-  {
-    for(size_t i = expr.expr_length(); i > 0; --i) {
-      if(needs_ruledelayed(expr[i]))
-        return true;
-    }
-    return false;
-  }
-  
-  return true;
-}
-
 namespace {
   class StyleEnumConverter: public Shareable {
     public:
@@ -243,6 +215,8 @@ namespace {
     public:
       static Expr get_current_style_value(FrontEndObject *obj, Expr item);
       static bool put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs);
+      
+      static bool needs_ruledelayed(Expr expr);
       
     private:
       static int _num_styles;
@@ -1189,7 +1163,7 @@ void StyleImpl::emit_definition(StyleOptionName n) const {
   if(e == PMATH_SYMBOL_INHERITED)
     return;
     
-  if(needs_ruledelayed(e))
+  if(StyleInformation::needs_ruledelayed(e))
     Gather::emit(RuleDelayed(StyleInformation::get_name(n), e));
   else
     Gather::emit(Rule(StyleInformation::get_name(n), e));
@@ -2678,21 +2652,6 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
-static bool rules_contain_key(Expr rules, Expr key) {
-  if(rules[0] != PMATH_SYMBOL_LIST)
-    return false;
-  
-  for(auto &&rule : rules.items()) {
-    if(!rule.is_rule())
-      continue;
-    
-    if(rule[1] == key)
-      return true;
-  }
-  
-  return false;
-}
-
 bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
   Box *box = dynamic_cast<Box*>(obj);
   if(!box)
@@ -2708,7 +2667,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   
   Expr opts = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(head));
   opts = Application::interrupt_wait_cached(std::move(opts));
-  if(!rules_contain_key(std::move(opts), std::move(item)))
+  if(opts.lookup(std::move(item), Expr{PMATH_UNDEFINED}) == PMATH_UNDEFINED)
     return false;
   
   if(!box->style) {
@@ -2720,6 +2679,43 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   
   if(box->style->set_pmath(key, std::move(rhs)))
     box->invalidate_options();
+  
+  return true;
+}
+
+bool StyleInformation::needs_ruledelayed(Expr expr) {
+  if(expr.is_symbol()) {
+    if(!(pmath_symbol_get_attributes(expr.get()) & PMATH_SYMBOL_ATTRIBUTE_PROTECTED))
+      return true;
+    
+    // TODO: white-list allowed symbols
+    
+    return false;
+  }
+  
+  if(!expr.is_expr())
+    return false;
+    
+  Expr head = expr[0];
+  if(head == richmath_System_Dynamic || head == PMATH_SYMBOL_FUNCTION)
+    return false;
+    
+  if( head == PMATH_SYMBOL_LIST ||
+      head == PMATH_SYMBOL_RANGE ||
+      head == PMATH_SYMBOL_NCACHE ||
+      head == PMATH_SYMBOL_PUREARGUMENT ||
+      head == PMATH_SYMBOL_RULE ||
+      head == PMATH_SYMBOL_RULEDELAYED ||
+      head == PMATH_SYMBOL_GRAYLEVEL ||
+      head == PMATH_SYMBOL_HUE ||
+      head == PMATH_SYMBOL_RGBCOLOR)
+  {
+    for(size_t i = expr.expr_length(); i > 0; --i) {
+      if(needs_ruledelayed(expr[i]))
+        return true;
+    }
+    return false;
+  }
   
   return true;
 }

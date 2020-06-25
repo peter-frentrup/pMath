@@ -47,6 +47,7 @@ namespace richmath {
       }
       
       AutoBoolValues synchronous_updating() { return _synchronous_updating; }
+      void synchronous_updating(AutoBoolValues setting) { _synchronous_updating = setting; }
       
       static FrontEndReference current_observer_id;
       

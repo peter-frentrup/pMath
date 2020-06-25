@@ -118,6 +118,11 @@ void DynamicBox::paint_content(Context *context) {
   if(must_update) {
     must_update = false;
     
+    if(style) {
+      dynamic.synchronous_updating((AutoBoolValues)get_own_style(SynchronousUpdating, dynamic.synchronous_updating()));
+      // TODO: update TrackedSymbols setting inside dynamic from our style
+    }
+    
     Expr result;
     if(dynamic.get_value(&result)) 
       dynamic_finished(Expr(), result);
@@ -131,10 +136,19 @@ Expr DynamicBox::to_pmath_symbol() {
 Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
+  
+  Expr expr = dynamic.expr();
+  if(style) {
+    Gather g;
     
-  Expr e = dynamic.expr();
-  e.set(0, Symbol(richmath_System_DynamicBox));
-  return e;
+    Gather::emit(expr[1]);
+    style->emit_to_pmath(false);
+    
+    expr = g.end();
+  }
+  
+  expr.set(0, Symbol(richmath_System_DynamicBox));
+  return std::move(expr);
 }
 
 void DynamicBox::dynamic_updated() {
