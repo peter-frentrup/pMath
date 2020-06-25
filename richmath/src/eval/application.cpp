@@ -66,6 +66,7 @@ extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_Selectable;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_WindowTitle;
@@ -708,7 +709,8 @@ static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item);
-static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
+static bool put_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
+static Expr get_current_value_of_Selectable(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
@@ -745,7 +747,8 @@ void Application::init() {
   register_currentvalue_provider(String(s_ControlsFontWeight),         get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSize),           get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_CurrentValueProviders),      get_current_value_of_CurrentValueProviders);
-  register_currentvalue_provider(String(s_SectionGroupOpen),           get_current_value_of_SectionGroupOpen,      set_current_value_of_SectionGroupOpen);
+  register_currentvalue_provider(String(s_SectionGroupOpen),           get_current_value_of_SectionGroupOpen,                   put_current_value_of_SectionGroupOpen);
+  register_currentvalue_provider(Symbol(richmath_System_Selectable),   get_current_value_of_Selectable,                         Style::put_current_style_value);
   register_currentvalue_provider(String(s_SelectedMenuCommand),        get_current_value_of_SelectedMenuCommand);
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),      get_current_value_of_StyleDefinitionsOwner);
   register_currentvalue_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
@@ -2059,7 +2062,7 @@ static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item
     return Symbol(PMATH_SYMBOL_FALSE);
 }
 
-static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs) {
+static bool put_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs) {
   Box *box = dynamic_cast<Box*>(obj);
   Section *sec = box ? box->find_parent<Section>(true) : nullptr;
   if(!sec)
@@ -2080,6 +2083,13 @@ static bool set_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item
   }
   
   return false;
+}
+
+static Expr get_current_value_of_Selectable(FrontEndObject *obj, Expr item) {
+  if(Box *box = dynamic_cast<Box*>(obj)) 
+    return box->selectable() ? Symbol(PMATH_SYMBOL_TRUE) : Symbol(PMATH_SYMBOL_FALSE);
+  
+  return Style::get_current_style_value(obj, std::move(item));
 }
 
 static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
