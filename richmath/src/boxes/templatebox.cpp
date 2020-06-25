@@ -131,6 +131,10 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+bool TemplateBox::edit_selection(Context *context) {
+  return false;
+}
+
 bool TemplateBox::selectable(int i) {
   if(i >= 0)
     return false;
@@ -159,6 +163,9 @@ VolatileSelection TemplateBox::mouse_selection(float x, float y, bool *was_insid
         return sel; // inside a template slot
     }
   }
+  
+  if(sel.selectable())
+    return sel;
   
   *was_inside_start = true;
   return { this, 0, 0 };
@@ -492,6 +499,15 @@ Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
     return owner->prepare_dynamic(std::move(expr));
     
   return base::prepare_dynamic(std::move(expr));
+}
+
+bool TemplateBoxSlot::edit_selection(Context *context) {
+  if(TemplateBox *owner = find_owner()) {
+    if(owner->parent())
+      return owner->parent()->edit_selection(context);
+  }
+  
+  return base::edit_selection(context);
 }
 
 bool TemplateBoxSlot::selectable(int i) {

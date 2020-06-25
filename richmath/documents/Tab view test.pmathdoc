@@ -19,14 +19,14 @@ Document({
                 {"SqrtBox", "(", ComplexStringBox("\"3\""), ")"}, "\[Rule]", 
                 ComplexStringBox("\"333333333333\"")}}, "}"}, ",", "1"}, "}"}, 
            ",", ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-       SectionLabel -> "in [62]:"), 
+       SectionLabel -> "in [2]:"), 
       Section(
        BoxData(TemplateBox({
           {SqrtBox("1") -> FrameBox("111"), SqrtBox("2") -> FrameBox("222"), 
            SqrtBox("3") -> "333333333333"}, 1}, "TabView")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [62]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
     Section(BoxData({"ClearAll", "(", "tabView", ")"}), "Input", 
-     SectionLabel -> "in [91]:"), 
+     SectionLabel -> "in [3]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {
@@ -36,7 +36,7 @@ Document({
          {"{", {{"ReleaseHold", "@", {{"Hold", "(", "tabs", ")"}, ".", "Map", 
              "(", {"MakeBoxes", ",", "3"}, ")"}}, ",", "i"}, "}"}, ",", 
          ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [93]:"), 
+     SectionLabel -> "in [4]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {
@@ -46,7 +46,7 @@ Document({
          {"{", {{"ReleaseHold", "@", {{"Hold", "(", "tabs", ")"}, ".", "Map", 
              "(", {"MakeBoxes", ",", "3"}, ")"}}, ",", "1"}, "}"}, ",", 
          ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [94]:"), 
+     SectionLabel -> "in [5]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {
@@ -59,7 +59,7 @@ Document({
                  "\[Rule]", {"MakeBoxes", "(", "#", ")"}}, ",", 
                 "HoldAllComplete"}, ")"}, ",", "2"}, ")"}}, ",", "i"}, "}"}, 
          ",", ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [113]:"), 
+     SectionLabel -> "in [6]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {"panes", ":", {"{", "~~", "}"}}, 
@@ -72,25 +72,25 @@ Document({
                  "\[Rule]", {"MakeBoxes", "(", "#", ")"}}, ",", 
                 "HoldAllComplete"}, ")"}, ",", "2"}, ")"}}, ",", "1"}, "}"}, 
          ",", ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [110]:"), 
+     SectionLabel -> "in [7]:"), 
     SectionGroup({
       Section(BoxData({"tabView", "(", {
           "{", {{"tabView", "(", {"{", {"a", ",", "b", ",", "c"}, "}"}, ")"}, 
            ",", {"tabView", "(", {"{", {"x", ",", "y"}, "}"}, ")"}}, "}"}, 
-         ")"}), "Input", SectionLabel -> "in [114]:"), 
+         ")"}), "Input", SectionLabel -> "in [8]:"), 
       Section(
        BoxData(TemplateBox({
           {"1" -> TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1}, 
             "TabView"), "2" -> TemplateBox({{"1" -> "x", "2" -> "y"}, 1}, 
             "TabView")}, 1}, "TabView")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [114]:")}, All), 
+       SectionLabel -> "out [8]:")}, All), 
     SectionGroup({
       Section(BoxData({"tabView", "(", {
           "Table", "(", {
            {"f", "\[Rule]", {"Plot", "(", {{"f", "(", "x", ")"}, ",", {
                "x", "\[Rule]", {{"-", "5"}, "..", "5"}}}, ")"}}, ",", {
             "f", "\[Rule]", {"{", {"Sin", ",", "Cos", ",", "Tan"}, "}"}}}, 
-          ")"}, ")"}), "Input"), 
+          ")"}, ")"}), "Input", SectionLabel -> "in [9]:"), 
       Section(
        BoxData({{"Developer`FromPackedArray", "::", 
           ComplexStringBox("\"punpack\"")}, "\[Colon]", 
@@ -121,6 +121,16 @@ Document({
             StringForm("Unpacking array with dimensions `2` in call to `1`.", 
              Times, {15}))}, "RowDefault")}), "Message", 
        SectionGenerated -> True), 
+      Section(BoxData({{"General", "::", ComplexStringBox("\"stop\"")}, 
+         "\[Colon]", TemplateBox({
+           InterpretationBox(ComplexStringBox("\"Further output of ", {
+              {"Developer`FromPackedArray", "::", 
+               ComplexStringBox("\"punpack\"")}}, 
+             " will be suppressed during this calculation.\""), 
+            StringForm(
+             "Further output of `1` will be suppressed during this \
+             calculation.", HoldForm(Developer`FromPackedArray::"punpack")))}, 
+          "RowDefault")}), "Message", SectionGenerated -> True), 
       Section(
        BoxData(TemplateBox({
           {"Sin" -> GraphicsBox({
@@ -884,7 +894,7 @@ Document({
                -5 .. 5, -15.507266348532156` .. 15.507266348532156`}, {
                -5.0` .. 5.0`, -15.507266348532156` .. 
                 15.507266348532156`})})}, 1}, "TabView")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [107]:")}, All)}, All)}, 
+       SectionGenerated -> True, SectionLabel -> "out [9]:")}, All)}, All)}, 
  StyleDefinitions :> Document({
    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
      Section(StyleData("TabView"), TemplateBoxOptions -> {
@@ -903,7 +913,9 @@ Document({
             Appearance -> "TabHead")}, {
            PanelBox({
              DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
-                First(#2) -> Last(#1) &), 
+                First(#2) -> StyleBox(Last(#1), 
+                 Selectable -> Dynamic(CurrentValue(CurrentValue(TemplateBox), 
+                   Selectable))) &), 
                Dynamic(CurrentValue({TemplateSlot, 2})))), FillBox("")}, 
             Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
         Initialization :> (FE`Private`rules:= CurrentValue({
