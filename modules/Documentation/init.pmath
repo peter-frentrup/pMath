@@ -60,6 +60,29 @@ Function PrepareUsageSection(~text:String) {
 }
 
 
+$overloadPrepareUsageLine:= True
+Attributes($overloadPrepareUsageLine):= {ThreadLocal}
+
+Unprotect(System`Private`PrepareUsageLine)
+Function System`Private`PrepareUsageLine(~sym:Symbol) Where($overloadPrepareUsageLine) {
+    Block({$overloadPrepareUsageLine:= False}, Block {
+        With(docfile:= FindSymbolDocumentation(sym))
+        With(line:= System`Private`PrepareUsageLine(sym))
+
+        If(docfile === None) {
+            Return(line)
+        }
+
+        With(buttonbox:= TemplateBox({ToString@HoldForm(LongForm(InputForm(sym)))}, "ShowMoreDocumentationHyperlink"))
+        If(line.IsString) {
+            Return(line ++ " \(" ++ ToString(InputForm(buttonbox)) ++ "\)")
+        }
+
+        Return(Row({line, RawBoxes(buttonbox)}, " "))
+    })
+}
+Protect(System`Private`PrepareUsageLine)
+
 End()
 
 EndPackage()
