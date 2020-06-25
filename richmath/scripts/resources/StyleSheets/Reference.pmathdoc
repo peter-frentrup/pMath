@@ -16,8 +16,9 @@ Document({
          ShowSectionBracket -> False), Section(StyleData("Usage"), 
          BaseStyle -> "PrintUsage", SectionFrame -> {0, 0, 0.75`, 0.75`}, 
          SectionFrameMargins -> {17, 6, 6, 6}, 
-         SectionMargins -> {0, 0, Inherited, 8}, ShowAutoStyles -> False, 
-         ShowSectionBracket -> False, ShowStringCharacters -> False)}, All), 
+         SectionMargins -> {0, 0, Inherited, 8}, Selectable -> False, 
+         ShowAutoStyles -> False, ShowSectionBracket -> False, 
+         ShowStringCharacters -> False)}, All), 
       SectionGroup({Section(StyleData("CollapseSection"), 
          Background -> GrayLevel(0.90200000000000002`), 
          BaseStyle -> "Section", FontColor -> RGBColor(0, 0.502`, 0.125`), 
@@ -96,11 +97,10 @@ Document({
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
           Section(StyleData("UsageReference"), 
            TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
-             With({FE`Private`name:= CurrentValue({TemplateSlot, 1})}, 
-              Replace(MakeExpression(FE`Private`name, ParseSymbols -> False), 
-               HoldComplete(~FE`Private`sym:Symbol) :> 
-                Documentation`PrepareUsageSection(
-                FE`Private`sym::"usage")))) &)}), 
+             Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
+               ParseSymbols -> False), HoldComplete(~FE`Private`sym:Symbol) :> 
+               Documentation`PrepareUsageSection(FE`Private`sym::"usage")), 
+             Selectable -> True) &)}), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
             Section(StyleData("ReferenceHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
