@@ -109,13 +109,16 @@ void SetterBox::reset_style() {
 }
 
 void SetterBox::on_mouse_down(MouseEvent &event) {
-  if(event.left)
+  if(event.left && enabled())
     dynamic.assign(value, true, false, false);
   
   base::on_mouse_down(event);
 }
 
 void SetterBox::click() {
+  if(!enabled())
+    return;
+    
   dynamic.assign(value, false, true, true);
   is_down = true;
   request_repaint_all();

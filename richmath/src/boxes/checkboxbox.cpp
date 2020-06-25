@@ -189,7 +189,7 @@ ContainerType CheckboxBox::calc_type(Expr result) {
 }
 
 void CheckboxBox::on_mouse_down(MouseEvent &event) {
-  if(event.left) {
+  if(event.left && enabled()) {
     mouse_down_value = Impl(*this).next_value_when_clicked();
     dynamic.assign(mouse_down_value, true, false, false);
   }

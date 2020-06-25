@@ -152,7 +152,7 @@ ContainerType RadioButtonBox::calc_type(Expr result) {
 }
 
 void RadioButtonBox::on_mouse_down(MouseEvent &event) {
-  if(event.left)
+  if(event.left && enabled())
     dynamic.assign(value, true, false, false);
   
   base::on_mouse_down(event);
@@ -162,7 +162,7 @@ void RadioButtonBox::click() {
   if(!enabled())
     return;
   
-  dynamic.assign(value);
+  dynamic.assign(value, false, true, true);
 }
 
 //} ... class RadioButtonBox
