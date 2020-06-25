@@ -53,6 +53,20 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
  */
 PMATH_PRIVATE pmath_t _pmath_rules_find_rule(pmath_t rules, pmath_t lhs, pmath_bool_t literal);
 
+/** Look-up a key.
+    
+    If rules_in_rhs_out is given, it must point to (a copy of) a list of rules whose left-hand-sides 
+    are the keys of \a table. It will be used for pattern matching (respecting any Condition in the 
+    corresponding rhs). On output, the list-of-rules will be freed and be replaced by the matched 
+    right-hand side. It then needs to be freed.
+ */
+PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
+  struct _pmath_dispatch_table_t *table, // won't be freed
+  pmath_t key,                           // won't be freed
+  pmath_t *rules_in_rhs_out,             // will be freed, optional
+  pmath_bool_t literal);
+
+
 PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void);
 PMATH_PRIVATE void _pmath_dispatch_tables_done(void);

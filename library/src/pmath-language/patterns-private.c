@@ -4,6 +4,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/debug.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/evaluation.h>
@@ -14,6 +15,7 @@
 #include <pmath-util/concurrency/threads.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
 #include <string.h>
@@ -26,6 +28,8 @@ PMATH_PRIVATE pmath_t _pmath_object_singlematch; /* readonly */
 PMATH_PRIVATE pmath_t _pmath_object_multimatch; /* readonly */
 PMATH_PRIVATE pmath_t _pmath_object_zeromultimatch; /* readonly */
 PMATH_PRIVATE pmath_t _pmath_object_empty_pattern_sequence; /* readonly */
+
+extern pmath_symbol_t pmath_System_KeyValuePattern;
 
 //{ compare patterns ...
 
@@ -173,16 +177,17 @@ static int pattern_compare(
 ) {
   /* result: -1 == "pat1 < pat2", 0 == "pat1 == pat2", 1 == "pat1 > pat2"
 
-     count(x) > count(y) => Pattern(x, A)           < Pattern(y, A)           for any A
-     A < B               => Pattern(x, A)           < Pattern(y, B)           for any x, y
-     A < B               => Optional(A, value1)     < Optional(B, value2)     for any value1, value2
-     A < B               => Repeated(A, r1)         < Repeated(B, r2)         for any r1, r2
-     A < B               => TestPattern(A, fn1)     < TestPattern(B, fn2)     for any fn1, fn2
-     A < B               => Alternatives(A,...)     < Alternatives(B,...)     when both Alternatives(...) have the same length
-     A < B               => Condition(A, c1)        < Condition(B, c2)        when both Condition(...) have the same length
-     A < B               => PatternSequence(A, ...) < PatternSequence(B, ...) when both PatternSequence(...) have the same length
-     A < B               => Except(A)               > Except(B)
-     A < B               => Except(no, A)           < Except(no, B)
+     count(x) > count(y) => Pattern(x, A)            < Pattern(y, A)            for any A
+     A < B               => Pattern(x, A)            < Pattern(y, B)            for any x, y
+     A < B               => Optional(A, value1)      < Optional(B, value2)      for any value1, value2
+     A < B               => Repeated(A, r1)          < Repeated(B, r2)          for any r1, r2
+     A < B               => TestPattern(A, fn1)      < TestPattern(B, fn2)      for any fn1, fn2
+     A < B               => Alternatives(A,...)      < Alternatives(B,...)      when both Alternatives(...) have the same length
+     A < B               => KeyValuePattern({A,...}) < KeyValuePattern({B,...}) when both {...} have the same length
+     A < B               => Condition(A, c1)         < Condition(B, c2)         when both Condition(...) have the same length
+     A < B               => PatternSequence(A, ...)  < PatternSequence(B, ...)  when both PatternSequence(...) have the same length
+     A < B               => Except(A)                > Except(B)
+     A < B               => Except(no, A)            < Except(no, B)
      constants  <  SingleMatch(type)  <  SingleMatch()  <  Repeated(...)
 
      Except(no) == Except(no, SingleMatch())
@@ -190,8 +195,8 @@ static int pattern_compare(
      Shortest(pattern) == pattern
      HoldPattern(pattern) == pattern
      Alternatives(pattern) == pattern
-     Alternatives(...) < Alternatives(...) when first Alternatives()-expr is
-     shorter that second.
+     Alternatives(...) < Alternatives(...) when first Alternatives()-expr is shorter that second.
+     KeyValuePattern({...}) > KeyValuePattern({...}) when first {...} is longer that second.
    */
 
   pmath_t head1 = PMATH_NULL;
@@ -235,10 +240,10 @@ static int pattern_compare(
       }
       return 0;
     }
-    if(len2 < 1)
-      return 1;
-    if(len2 > 1)
+    if(len1 < 1)
       return -1;
+    if(len1 > 1)
+      return 1;
 
     p1 = pmath_expr_get_item(pat1, 1);
     cmp = pattern_compare(p1, pat2, status);
@@ -448,9 +453,9 @@ static int pattern_compare(
       }
       return 0;
     }
-    if(len2 < 1)
+    if(len1 < 1)
       return -1;
-    if(len2 > 1)
+    if(len1 > 1)
       return 1;
 
     p1 = pmath_expr_get_item(pat1, 1);
@@ -624,6 +629,63 @@ static int pattern_compare(
   }
   //}
 
+  //{ KeyValuePattern(), KeyValuePattern(rule), KeyValuePattern({rules}) ...
+  if(pmath_same(head1, pmath_System_KeyValuePattern) && len1 <= 1) {
+    pmath_t rules_1 = pmath_expr_get_item(pat1, 1);
+    if(_pmath_is_rule(rules_1)) {
+      pmath_unref(rules_1);
+      rules_1 = pmath_ref(pat1);
+    }
+    if(len1 == 0 || pmath_same(rules_1, pat1) || pmath_is_expr_of(rules_1, PMATH_SYMBOL_LIST)) {
+      if(pmath_same(head2, pmath_System_KeyValuePattern) && len2 <= 1) {
+        pmath_t rules_2 = pmath_expr_get_item(pat2, 1);
+        if(_pmath_is_rule(rules_2)) {
+          pmath_unref(rules_2);
+          rules_2 = pmath_ref(pat2);
+        }
+        if(len2 == 0 || pmath_same(rules_2, pat2) || pmath_is_expr_of(rules_2, PMATH_SYMBOL_LIST)) {
+          size_t num_rules_1 = pmath_expr_length(rules_1);
+          size_t num_rules_2 = pmath_expr_length(rules_2);
+          
+          if(num_rules_1 == num_rules_2) {
+            int cmp = 0;
+            size_t i;
+            
+            for(i = 1; i <= num_rules_1; ++i) {
+              pmath_t p1 = pmath_expr_get_item(rules_1, i);
+              pmath_t p2 = pmath_expr_get_item(rules_2, i);
+              
+              cmp = pattern_compare(p1, p2, status);
+              pmath_unref(p1);
+              pmath_unref(p2);
+              if(cmp != 0) 
+                break;
+            }
+            
+            pmath_unref(rules_1);
+            pmath_unref(rules_2);
+            return cmp;
+          }
+          
+          pmath_unref(rules_1);
+          pmath_unref(rules_2);
+          if(num_rules_1 > num_rules_2)
+            return -1;
+          else
+            return 1;
+        }
+        pmath_unref(rules_2);
+      }
+    }
+    pmath_unref(rules_1);
+    return 1;
+  }
+  
+  if(pmath_same(head2, pmath_System_KeyValuePattern) && len2 <= 1) {
+    return -1;
+  }
+  //} ... KeyValuePattern(), KeyValuePattern(rule), KeyValuePattern({rules})
+  
   //{ Literal(x) ...
   if(pmath_same(head1, PMATH_SYMBOL_LITERAL) && len1 == 1) {
     pmath_t p1, p2;
@@ -642,7 +704,7 @@ static int pattern_compare(
     return cmp;
   }
 
-  if(pmath_same(head2, PMATH_SYMBOL_PATTERN) && len2 == 1) {
+  if(pmath_same(head2, PMATH_SYMBOL_LITERAL) && len2 == 1) {
     pmath_t p2;
     int cmp;
 
@@ -710,7 +772,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_pattern_is_const(
       (pmath_same(head, PMATH_SYMBOL_SHORTEST)         &&  len == 1)              ||
       (pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)      &&  len <= 1)              ||
       (pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)   &&  len <= 1)              ||
-      (pmath_same(head, PMATH_SYMBOL_TESTPATTERN)      &&  len == 2))
+      (pmath_same(head, PMATH_SYMBOL_TESTPATTERN)      &&  len == 2)              ||
+      (pmath_same(head, pmath_System_KeyValuePattern)  &&  len <= 1))
   {
     return FALSE;
   }
@@ -1103,6 +1166,7 @@ static match_kind_t match_atom_to_optionspattern(   pattern_info_t *info, pmath_
 static match_kind_t match_atom_to_literal(          pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
 static match_kind_t match_atom_to_patternsequence(  pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
 static match_kind_t match_atom_to_except(           pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_keyvaluepattern(  pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
 static match_kind_t match_atom_to_other_function(   pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
 
 static match_kind_t match_atom(
@@ -1166,6 +1230,9 @@ static match_kind_t match_atom(
 
     if(pmath_same(head, PMATH_SYMBOL_EXCEPT) && (len == 1 || len == 2)) // Except(no) Except(no, but)
       return match_atom_to_except(info, pat, arg, index_of_arg, count_of_arg);
+    
+    if(pmath_same(head, pmath_System_KeyValuePattern) && (len == 0 || len == 1)) // Except(no) Except(no, but)
+      return match_atom_to_keyvaluepattern(info, pat, arg, index_of_arg, count_of_arg);
     
     return match_atom_to_other_function(info, pat, arg, index_of_arg, count_of_arg);
   }
@@ -1621,6 +1688,169 @@ static match_kind_t match_atom_to_except(pattern_info_t *info, pmath_t pat, pmat
   }
 
   return kind;
+}
+
+static match_kind_t match_atom_to_keyvaluepattern(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t rule_pats;
+  pmath_dispatch_table_t tab;
+  size_t num_rule_pats;
+  size_t arglen;
+  size_t i;
+  size_t first_unused_arg;
+  uint8_t *arg_usage;
+  
+  tab = _pmath_rules_need_dispatch_table(arg);
+  if(pmath_is_null(tab))
+    return PMATH_MATCH_KIND_NONE;
+  
+  if(pmath_expr_length(pat) == 0)
+    return PMATH_MATCH_KIND_LOCAL;
+  
+  rule_pats = pmath_expr_get_item(pat, 1);
+  if(_pmath_is_rule(rule_pats)) {
+    pmath_unref(rule_pats);
+    rule_pats = pmath_ref(pat);
+  }
+  else if(!pmath_is_expr_of(rule_pats, PMATH_SYMBOL_LIST)) {
+    pmath_unref(rule_pats);
+    pmath_unref(tab);
+    return PMATH_MATCH_KIND_NONE;
+  }
+  
+  num_rule_pats = pmath_expr_length(rule_pats);
+  if(num_rule_pats == 0) {
+    pmath_unref(rule_pats);
+    pmath_unref(tab);
+    return PMATH_MATCH_KIND_LOCAL;
+  }
+  
+  arglen = pmath_expr_length(arg);
+  if(arglen == 0) {
+    pmath_t empty = pmath_expr_new(PMATH_MAGIC_PATTERN_SEQUENCE, 0);
+    for(i = 1; i <= num_rule_pats; ++i) {
+      pmath_t sub_pat = pmath_expr_get_item(rule_pats, i);
+      match_kind_t kind = match_atom(info, sub_pat, empty, 1, 0);
+      pmath_unref(sub_pat);
+      if(kind != PMATH_MATCH_KIND_LOCAL) {
+        pmath_unref(empty);
+        pmath_unref(rule_pats);
+        pmath_unref(tab);
+        return kind;
+      }
+    }
+    pmath_unref(empty);
+    pmath_unref(rule_pats);
+    pmath_unref(tab);
+    return PMATH_MATCH_KIND_LOCAL;
+  }
+  
+  if(arglen < num_rule_pats) {
+    _pmath_pattern_analyse_input_t  analyise_in;
+    _pmath_pattern_analyse_output_t analyise_out;
+    
+    rule_pats = pmath_expr_set_item(rule_pats, 0, pmath_ref(PMATH_SYMBOL_PATTERNSEQUENCE));
+    memset(&analyise_in, 0, sizeof(analyise_in));
+    analyise_in.parent_pat_head = PMATH_SYMBOL_PATTERNSEQUENCE;
+    analyise_in.pat = rule_pats;
+    analyise_in.pattern_variables = info->pattern_variables;
+    _pmath_pattern_analyse(&analyise_in, &analyise_out);
+    
+    if(analyise_out.size.min > arglen) {
+      pmath_unref(rule_pats);
+      pmath_unref(tab);
+      return PMATH_MATCH_KIND_NONE;
+    }
+  }
+
+  arg_usage = pmath_mem_alloc(arglen);
+  if(!arg_usage) {
+    pmath_unref(rule_pats);
+    pmath_unref(tab);
+    return PMATH_MATCH_KIND_GLOBAL; // pmath_aborting() will be true
+  }
+  memset(arg_usage, NOT_IN_USE, arglen);
+  
+  first_unused_arg = 1;
+  // TODO: every rule can only match once
+  for(i = 1; i <= num_rule_pats; ++i) {
+    pmath_t sub_pat = pmath_expr_get_item(rule_pats, i);
+    match_kind_t kind;
+    size_t arg_i;
+    
+    if(_pmath_is_rule(sub_pat)) {
+      pmath_t lhs = pmath_expr_get_item(sub_pat, 1);
+      if(_pmath_pattern_is_const(lhs)) {
+        arg_i = _pmath_dispatch_table_lookup((void*)PMATH_AS_PTR(tab), lhs, NULL, TRUE);
+        if(arg_i == 0) {
+          pmath_unref(lhs);
+          pmath_unref(sub_pat);
+          pmath_mem_free(arg_usage);
+          pmath_unref(rule_pats);
+          pmath_unref(tab);
+          return PMATH_MATCH_KIND_NONE;
+        }
+        assert(arg_i <= arglen);
+        if(arg_usage[arg_i - 1] == NOT_IN_USE) {
+          pmath_t rule = pmath_expr_get_item(arg, arg_i);
+          arg_usage[arg_i - 1] = TESTING_USE;
+          kind = match_atom(info, sub_pat, rule, arg_i, arglen);
+          pmath_unref(rule);
+          if(kind == PMATH_MATCH_KIND_GLOBAL) {
+            pmath_unref(lhs);
+            pmath_unref(sub_pat);
+            pmath_mem_free(arg_usage);
+            pmath_unref(rule_pats);
+            pmath_unref(tab);
+            return kind;
+          }
+          if(kind == PMATH_MATCH_KIND_LOCAL) {
+            arg_usage[arg_i - 1] = IN_USE;
+            pmath_unref(lhs);
+            pmath_unref(sub_pat);
+            continue;
+          }
+          arg_usage[arg_i - 1] = NOT_IN_USE;
+        }
+      }
+      pmath_unref(lhs);
+    }
+    
+    while(first_unused_arg <= arglen && arg_usage[first_unused_arg - 1] == IN_USE)
+      ++first_unused_arg;
+    
+    for(arg_i = first_unused_arg; arg_i <= arglen; ++arg_i) {
+      if(arg_usage[arg_i - 1] == NOT_IN_USE) {
+        pmath_t rule = pmath_expr_get_item(arg, arg_i);
+        arg_usage[arg_i - 1] = TESTING_USE;
+        kind = match_atom(info, sub_pat, rule, arg_i, arglen);
+        pmath_unref(rule);
+        if(kind == PMATH_MATCH_KIND_GLOBAL) {
+          pmath_unref(sub_pat);
+          pmath_mem_free(arg_usage);
+          pmath_unref(rule_pats);
+          pmath_unref(tab);
+          return kind;
+        }
+        if(kind == PMATH_MATCH_KIND_LOCAL) {
+          arg_usage[arg_i - 1] = IN_USE;
+          pmath_unref(sub_pat);
+          continue;
+        }
+        arg_usage[arg_i - 1] = NOT_IN_USE;
+      }
+    }
+    
+    pmath_unref(sub_pat);
+    pmath_mem_free(arg_usage);
+    pmath_unref(rule_pats);
+    pmath_unref(tab);
+    return PMATH_MATCH_KIND_NONE;
+  }
+  
+  pmath_mem_free(arg_usage);
+  pmath_unref(rule_pats);
+  pmath_unref(tab);
+  return PMATH_MATCH_KIND_LOCAL;
 }
 
 static match_kind_t match_atom_to_other_function(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
@@ -2831,7 +3061,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
 
     defs = _pmath_expr_set_debug_info(defs, defs_debug_info);
   }
-  else if(!pmath_same(defs, PMATH_NULL))
+  else if(!pmath_is_null(defs))
     preprocess_local_one(&local_expr, &defs);
 
   local_expr = pmath_expr_set_item(local_expr, 1, defs);

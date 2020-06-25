@@ -24,19 +24,6 @@ static struct _pmath_dispatch_table_t *find_dispatch_table(pmath_expr_t keys); /
 static struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys); // keys will be freed
 static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t keys); // keys will be freed
 
-/** Look-up a key.
-    
-    If rules_in_rhs_out is given, it must point to (a copy of) a list of rules whose left-hand-sides 
-    are the keys of \a table. It will be used for pattern matching (respecting any Condition in the 
-    corresponding rhs). On output, the list-of-rules will be freed and be replaced by the matched 
-    right-hand side. It then needs to be freed.
- */
-static size_t dispatch_table_lookup(
-  struct _pmath_dispatch_table_t *table, // won't be freed
-  pmath_t key,                           // won't be freed
-  pmath_t *rules_in_rhs_out,             // will be freed
-  pmath_bool_t literal);
-
 static void disown_dispatch_table(pmath_t a);
 static unsigned int hash_dispatch_table(pmath_t a);
 static int cmp_dispatch_tables(pmath_t a, pmath_t b);
@@ -281,7 +268,7 @@ static struct _pmath_dispatch_entry_t *get_next_slice(struct _pmath_dispatch_ent
   return get_slice_start(entry)->next_slice_or_slice_start;
 }
 
-static size_t dispatch_table_lookup(
+PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
   struct _pmath_dispatch_table_t *table, // won't be freed
   pmath_t key,                           // won't be freed
   pmath_t *rules_in_rhs_out,             // will be freed
@@ -424,7 +411,7 @@ PMATH_API pmath_bool_t pmath_rules_lookup(pmath_t rules, pmath_t key, pmath_t *r
   }
   
   rules_in_rhs_out = pmath_ref(rules);
-  i = dispatch_table_lookup(tab_ptr, key, &rules_in_rhs_out, FALSE);
+  i = _pmath_dispatch_table_lookup(tab_ptr, key, &rules_in_rhs_out, FALSE);
   pmath_unref(tab);
   
   pmath_unref(key);
@@ -446,7 +433,7 @@ PMATH_PRIVATE pmath_t _pmath_rules_find_rule(pmath_t rules, pmath_t lhs, pmath_b
   if(!tab_ptr)
     return PMATH_NULL;
   
-  i = dispatch_table_lookup(tab_ptr, lhs, NULL, literal);  
+  i = _pmath_dispatch_table_lookup(tab_ptr, lhs, NULL, literal);  
   pmath_unref(tab);
   
   if(i) 
@@ -531,7 +518,7 @@ PMATH_API pmath_t pmath_rules_modify(
   }
   
   if(_pmath_pattern_is_const(key)) {
-    i = dispatch_table_lookup(tab_ptr, key, NULL, FALSE);
+    i = _pmath_dispatch_table_lookup(tab_ptr, key, NULL, FALSE);
     if(i == 0) {
       pmath_unref(tab);
       return append_rule(rules, key, callback, callback_context);

@@ -194,6 +194,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( InverseWeierstrassP,                DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( JacobiP,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Key,                                0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Keys,                               0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( KeyValuePattern,                    0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( LanguageCategory,                   0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( LaguerreL,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Left,                               0 )
