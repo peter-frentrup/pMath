@@ -418,6 +418,18 @@ void TemplateBox::reset_argument(int index, Expr new_arg) {
   TemplateBoxImpl(*this).reset_argument(index, std::move(new_arg));
 }
 
+Expr TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item) {
+  Box *box = dynamic_cast<Box*>(obj);
+  if(item == richmath_System_TemplateBox) {
+    box = box ? TemplateBoxSlotImpl::find_owner_or_self(box) : nullptr;
+    if(box)
+      return box->to_pmath_id();
+    return Symbol(PMATH_SYMBOL_NONE);
+  }
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
+}
+
 //} ... class TemplateBox
 
 //{ class TemplateBoxSlot ...
@@ -476,8 +488,7 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
-  TemplateBox *owner = find_owner();
-  if(owner)
+  if(TemplateBox *owner = find_owner())
     return owner->prepare_dynamic(std::move(expr));
     
   return base::prepare_dynamic(std::move(expr));
@@ -485,8 +496,7 @@ Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
 
 bool TemplateBoxSlot::selectable(int i) {
   if(i >= 0) {
-    TemplateBox *owner = find_owner();
-    if(owner) {
+    if(TemplateBox *owner = find_owner()) {
       if(!owner->selectable())
         return false;
     }

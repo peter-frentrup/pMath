@@ -44,6 +44,8 @@ namespace richmath {
       
       void reset_argument(int index, Expr new_arg);
       
+      static Expr get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item);
+
     protected:
       virtual void resize_default_baseline(Context *context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
