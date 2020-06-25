@@ -463,10 +463,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
   if(!assignment)
     return expr;
     
-  if(!pmath_is_expr(lhs) ||
-      pmath_expr_length(lhs) <= 1 ||
-      pmath_same(rhs, PMATH_UNDEFINED))
-  {
+  if(!pmath_is_expr(lhs) || pmath_expr_length(lhs) <= 1) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -491,6 +488,19 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
     pmath_unref(lhs);
     pmath_unref(rhs);
     return expr;
+  }
+  
+  if(pmath_same(rhs, PMATH_UNDEFINED)) {
+    pmath_t item = pmath_expr_get_item(lhs, pmath_expr_length(lhs));
+    
+    if(!pmath_is_string(item) && !pmath_is_expr_of(item, pmath_System_Key)) {
+      pmath_message(PMATH_NULL, "keydel", 2, item, lhs);
+      pmath_unref(tag);
+      pmath_unref(lhs);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    pmath_unref(item);
   }
   
   sym = pmath_expr_get_item(lhs, 1);

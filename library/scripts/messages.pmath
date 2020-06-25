@@ -231,6 +231,8 @@ PadLeft::margin:= PadRight::margin:= "The list of margins `1` given in `2` must 
 
 ParallelTry::toofew:= "Only `1` results received, rather than `2`."
 
+Part::keydel:= "Part specification `1` must be a string or Key(...) in Unassign(`2`)."
+
 Partition::ohp:= "Overhang parameters in `1` must be nonzero machine-size integers, or lists of nonzero machine-size integers."
 Partition::ohpdm:= "The `1`-dimensional overhang parameter cannot indicate position in the `2`-dimensional block."
 Partition::pdep:= "Depth `1` requested in object with dimensions `2`."
