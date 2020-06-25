@@ -382,6 +382,8 @@ PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( FlattenTemplateSequence,            0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeLimitsExpression,               0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeScriptsExpression,              0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeJuxtapositionExpression,        0 )
+PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( PrepareUsageLine,                   HOLDALL )
+PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( PrepareDefinitionLine,              HOLDALL )
 
 #undef PMATH_DECLARE_SYSTEM_SYMBOL
 #undef PMATH_DECLARE_SYSTEM_DOLLAR_VAR

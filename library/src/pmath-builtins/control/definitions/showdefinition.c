@@ -19,6 +19,20 @@
                       (code), (format), __VA_ARGS__))
 
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+extern pmath_symbol_t pmath_System_Private_PrepareUsageLine;
+extern pmath_symbol_t pmath_System_Private_PrepareDefinitionLine;
+
+static void print_definition_line(pmath_t expr) { // expr will be freed
+  expr = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_HOLDFORM), 1, expr);
+  expr = pmath_expr_new_extended(
+           pmath_ref(pmath_System_Private_PrepareDefinitionLine), 1,
+           expr);
+  expr = pmath_expr_new_extended(
+           pmath_ref(PMATH_SYMBOL_SECTIONPRINT), 2,
+           PMATH_C_STRING("Print"),
+           expr);
+  pmath_unref(pmath_evaluate(expr));
+}
 
 static void print_rule_defs(
   pmath_symbol_t  sym,   // wont be freed
@@ -46,36 +60,33 @@ static void print_rule_defs(
     
     if(tagged) {
       if(pmath_is_evaluated(rhs)) {
-        PMATH_RUN_ARGS(
-          "SectionPrint(\"Print\", HoldForm(`1`/: `2`:= `3`))",
-          "(ooo)",
-          pmath_ref(sym),
-          lhs,
-          rhs);
+        print_definition_line(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_TAGASSIGN), 3, 
+            pmath_ref(sym), 
+            lhs, 
+            rhs));
       }
       else {
-        PMATH_RUN_ARGS(
-          "SectionPrint(\"Print\", HoldForm(`1`/: `2`::= `3`))",
-          "(ooo)",
-          pmath_ref(sym),
-          lhs,
-          rhs);
+        print_definition_line(
+          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_TAGASSIGNDELAYED), 3, 
+          pmath_ref(sym), 
+          lhs, 
+          rhs));
       }
     }
     else {
       if(pmath_is_evaluated(rhs)) {
-        PMATH_RUN_ARGS(
-          "SectionPrint(\"Print\", HoldForm(`1`:= `2`))",
-          "(oo)",
-          lhs,
-          rhs);
+        print_definition_line(
+          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+          lhs, 
+          rhs));
       }
       else {
-        PMATH_RUN_ARGS(
-          "SectionPrint(\"Print\", HoldForm(`1`::= `2`))",
-          "(oo)",
-          lhs,
-          rhs);
+        print_definition_line(
+          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
+          lhs, 
+          rhs));
       }
     }
   }
@@ -85,6 +96,7 @@ static void print_rule_defs(
 
 PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   pmath_symbol_t sym;
+  pmath_t name;
   pmath_t obj;
   
   if(pmath_expr_length(expr) != 1) {
@@ -133,20 +145,13 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     return PMATH_NULL;
   }
   
-  obj = EVAL_CODE_ARGS("`1`::usage", "(o)", pmath_ref(sym));
-  if(pmath_is_string(obj)) {
-    PMATH_RUN_ARGS(
-      "SectionPrint(\"PrintUsage\", `1`)",
-      "(o)",
-      obj);
-  }
-  else {
-    pmath_unref(obj);
-    PMATH_RUN_ARGS(
-      "SectionPrint(\"PrintUsage\", HoldForm(LongForm(`1`)))",
-      "(o)",
-      pmath_ref(sym));
-  }
+  obj = pmath_expr_new_extended(
+          pmath_ref(PMATH_SYMBOL_SECTIONPRINT), 2,
+          PMATH_C_STRING("PrintUsage"),
+          pmath_expr_new_extended(
+            pmath_ref(pmath_System_Private_PrepareUsageLine), 1, 
+            pmath_ref(sym)));
+  pmath_unref(pmath_evaluate(obj));
   
   /* We use Attributes("Global`a"), UpRules("Global`a"), ... instead of 
      Attributes(a), UpRules(a), ..., to prevent unfriendly definitions like
@@ -155,19 +160,24 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
      
      from disturbing us.
    */
+  name = pmath_symbol_name(sym);
   
-  obj = EVAL_CODE_ARGS("Attributes(`1`)", "(o)", pmath_symbol_name(sym));
+  obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ATTRIBUTES), 1, pmath_ref(name));
+  obj = pmath_evaluate(obj);
   if(!pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 0)) {
-    PMATH_RUN_ARGS(
-      "SectionPrint(\"Print\", HoldForm(Attributes(`1`):= `2`))",
-      "(oo)",
-      pmath_ref(sym),
-      obj);
+    
+    print_definition_line(
+      pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+      pmath_expr_new_extended(
+        pmath_ref(PMATH_SYMBOL_ATTRIBUTES), 1,
+        pmath_ref(sym)), 
+      obj));
   }
   else
     pmath_unref(obj);
     
-  obj = EVAL_CODE_ARGS("DefaultRules(`1`)", "(o)", pmath_symbol_name(sym));
+  obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DEFAULTRULES), 1, pmath_ref(name));
+  obj = pmath_evaluate(obj);
   print_rule_defs(sym, obj, FALSE);
   
   if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0) {
@@ -176,43 +186,49 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
       pmath_System_BoxForm_DollarUseTextFormatting, 
       pmath_ref(PMATH_SYMBOL_TRUE));
     
-    obj = EVAL_CODE_ARGS("NRules(`1`)", "(o)", pmath_symbol_name(sym));
+    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_NRULES), 1, pmath_ref(name));
+    obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
-    obj = EVAL_CODE_ARGS("DownRules(`1`)", "(o)", pmath_symbol_name(sym));
+    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DOWNRULES), 1, pmath_ref(name));
+    obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
-    obj = EVAL_CODE_ARGS("SubRules(`1`)", "(o)", pmath_symbol_name(sym));
+    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_SUBRULES), 1, pmath_ref(name));
+    obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
-    obj = EVAL_CODE_ARGS("UpRules(`1`)", "(o)", pmath_symbol_name(sym));
+    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_UPRULES), 1, pmath_ref(name));
+    obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, TRUE);
     
-    obj = EVAL_CODE_ARGS("FormatRules(`1`)", "(o)", pmath_symbol_name(sym));
+    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_FORMATRULES), 1, pmath_ref(name));
+    obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
     obj = pmath_symbol_get_value(sym);
     if(!pmath_same(obj, PMATH_UNDEFINED)) {
       if(pmath_is_evaluatable(obj)) {
         if(pmath_is_evaluated(obj)) {
-          PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(`1`:= `2`))",
-            "(oo)",
-            pmath_ref(sym),
-            obj);
+          print_definition_line(
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_ASSIGN), 2, 
+              pmath_ref(sym), 
+              obj));
         }
         else {
-          PMATH_RUN_ARGS(
-            "SectionPrint(\"Print\", HoldForm(`1`::= `2`))",
-            "(oo)",
-            pmath_ref(sym),
-            obj);
+          print_definition_line(
+            pmath_expr_new_extended(
+              pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2, 
+                pmath_ref(sym), 
+                obj));
         }
       }
       else {
         pmath_unref(obj);
         
-        obj = EVAL_CODE_ARGS("OwnRules(`1`)", "(o)", pmath_symbol_name(sym));
+        obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_OWNRULES), 1, pmath_ref(name));
+        obj = pmath_evaluate(obj);
         print_rule_defs(sym, obj, FALSE);
       }
     }
@@ -222,6 +238,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
       old_use_text_formatting));
   }
   
+  pmath_unref(name);
   pmath_unref(sym);
   return PMATH_NULL;
 }

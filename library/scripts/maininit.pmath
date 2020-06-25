@@ -96,6 +96,11 @@ System`Utilities`GetSystemSyntaxInformation(~symbol:Symbol)::=
 		)
 Protect(System`Utilities`GetSystemSyntaxInformation)
 
+Unprotect(System`Private`PrepareUsageLine, System`Private`PrepareDefinitionLine)
+System`Private`PrepareUsageLine(~sym:Symbol)::= With({s:= sym::usage}, If(s.IsString, s, HoldForm(LongForm(sym))))
+System`Private`PrepareDefinitionLine(~holdform)::= holdform
+Protect(System`Private`PrepareUsageLine, System`Private`PrepareDefinitionLine)
+
 Protect(System`Util`latexToBoxes)
 
 
