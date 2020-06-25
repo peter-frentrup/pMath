@@ -375,6 +375,7 @@ namespace richmath {
       static enum StyleType get_type(StyleOptionName n);
       
       static Expr get_current_style_value(FrontEndObject *obj, Expr item);
+      static bool put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs);
       
     private:
       Hashtable<StyleOptionName, IntFloatUnion> int_float_values;

@@ -750,8 +750,8 @@ void Application::init() {
   register_currentvalue_provider(String(s_StyleDefinitionsOwner),      get_current_value_of_StyleDefinitionsOwner);
   register_currentvalue_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
   register_currentvalue_provider(String("TemplateSlotCount"),          TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
-  register_currentvalue_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot, TemplateBoxSlot::put_current_value_of_TemplateSlot);
-  register_currentvalue_provider(Symbol(richmath_System_WindowTitle),  get_current_value_of_WindowTitle);
+  register_currentvalue_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot,      TemplateBoxSlot::put_current_value_of_TemplateSlot);
+  register_currentvalue_provider(Symbol(richmath_System_WindowTitle),  get_current_value_of_WindowTitle,                        Style::put_current_style_value);
   
   
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));

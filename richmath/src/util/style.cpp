@@ -1812,7 +1812,10 @@ enum StyleType Style::get_type(StyleOptionName n) {
 Expr Style::get_current_style_value(FrontEndObject *obj, Expr item) {
   return StyleInformation::get_current_style_value(obj, std::move(item));
 }
-      
+
+bool Style::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
+  return StyleInformation::put_current_style_value(obj, std::move(item), std::move(rhs));
+}
 
 void Style::set_pmath_by_unknown_key(Expr lhs, Expr rhs) {
   StyleOptionName key = StyleInformation::get_key(lhs);
