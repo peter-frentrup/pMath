@@ -19,7 +19,8 @@ namespace richmath {
 //{ class CheckboxBox ...
 
 CheckboxBox::CheckboxBox()
-  : EmptyWidgetBox(CheckboxIndeterminate)
+  : base(CheckboxIndeterminate),
+    mouse_down_value(PMATH_UNDEFINED)
 {
   dynamic.init(this, Expr());
 }
@@ -188,17 +189,37 @@ ContainerType CheckboxBox::calc_type(Expr result) {
 }
 
 void CheckboxBox::on_mouse_down(MouseEvent &event) {
-  if(event.left)
-    dynamic.assign(Impl(*this).next_value_when_clicked(), false, true, true);
+  if(event.left) {
+    mouse_down_value = Impl(*this).next_value_when_clicked();
+    dynamic.assign(mouse_down_value, true, false, false);
+  }
   
   base::on_mouse_down(event);
+}
+
+void CheckboxBox::on_mouse_up(MouseEvent &event) {
+  base::on_mouse_up(event);
+  
+  mouse_down_value = Expr(PMATH_UNDEFINED);
+}
+
+void CheckboxBox::on_mouse_cancel() {
+  mouse_down_value = Expr(PMATH_UNDEFINED);
+  
+  base::on_mouse_cancel();
 }
 
 void CheckboxBox::click() {
   if(!enabled())
     return;
   
-  dynamic.assign(Impl(*this).next_value_when_clicked(), false, true, true);
+  Expr value(PMATH_UNDEFINED);
+  if(mouse_down_value == PMATH_UNDEFINED)
+    value = Impl(*this).next_value_when_clicked();
+  else
+    swap(mouse_down_value, value);
+    
+  dynamic.assign(std::move(value), false, true, true);
 }
 
 //} ... class CheckboxBox

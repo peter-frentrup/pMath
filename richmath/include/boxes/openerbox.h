@@ -25,6 +25,8 @@ namespace richmath {
       virtual Box *dynamic_to_literal(int *start, int *end) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;
+      virtual void on_mouse_up(MouseEvent &event) override;
+      virtual void on_mouse_cancel() override;
       virtual void click() override;
       
     private:
@@ -33,6 +35,7 @@ namespace richmath {
       
     private:
       Dynamic dynamic;
+      Expr mouse_down_value;
   };
 }
 

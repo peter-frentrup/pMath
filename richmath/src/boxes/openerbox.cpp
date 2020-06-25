@@ -20,7 +20,8 @@ namespace richmath {
 //{ class OpenerBox ...
 
 OpenerBox::OpenerBox()
-  : base(OpenerTriangleClosed)
+  : base(OpenerTriangleClosed),
+    mouse_down_value(PMATH_UNDEFINED)
 {
   dynamic.init(this, Expr());
 }
@@ -138,17 +139,37 @@ ContainerType OpenerBox::calc_type(Expr result) {
 }
 
 void OpenerBox::on_mouse_down(MouseEvent &event) {
-  if(event.left)
-    dynamic.assign(Impl(*this).next_value_when_clicked(), true, false, false);
+  if(event.left) {
+    mouse_down_value = Impl(*this).next_value_when_clicked();
+    dynamic.assign(mouse_down_value, true, false, false);
+  }
   
   base::on_mouse_down(event);
+}
+
+void OpenerBox::on_mouse_up(MouseEvent &event) {
+  base::on_mouse_up(event);
+  
+  mouse_down_value = Expr(PMATH_UNDEFINED);
+}
+
+void OpenerBox::on_mouse_cancel() {
+  mouse_down_value = Expr(PMATH_UNDEFINED);
+  
+  base::on_mouse_cancel();
 }
 
 void OpenerBox::click() {
   if(!enabled())
     return;
   
-  dynamic.assign(Impl(*this).next_value_when_clicked(), false, true, true);
+  Expr value(PMATH_UNDEFINED);
+  if(mouse_down_value == PMATH_UNDEFINED)
+    value = Impl(*this).next_value_when_clicked();
+  else
+    swap(mouse_down_value, value);
+    
+  dynamic.assign(std::move(value), false, true, true);
 }
 
 //} ... class OpenerBox
