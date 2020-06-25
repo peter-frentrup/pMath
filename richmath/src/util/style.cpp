@@ -1417,6 +1417,7 @@ Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
   if(all_inherited)
     return inherited;
     
+  e.sort();
   return e;
 }
 
