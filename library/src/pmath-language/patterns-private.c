@@ -1092,6 +1092,19 @@ static void init_pattern_variables(
   }
 }
 
+static match_kind_t match_atom_to_typed_singlematch(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_condition(        pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_testpattern(      pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_repeatedpattern(  pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_named_pattern(    pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_optional(         pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_alternatives(     pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_optionspattern(   pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_literal(          pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_patternsequence(  pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_except(           pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+static match_kind_t match_atom_to_other_function(   pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg);
+
 static match_kind_t match_atom(
   pattern_info_t  *info,
   pmath_t          pat,  // wont be freed
@@ -1103,277 +1116,30 @@ static match_kind_t match_atom(
     return PMATH_MATCH_KIND_LOCAL;
 
   if(pmath_is_expr(pat)) {
-    const size_t              len  = pmath_expr_length(pat);
-    pmath_t                   head = pmath_expr_get_item(pat, 0);
-    pmath_symbol_attributes_t attr = 0;
-
-    if(pmath_is_symbol(head))
-      attr = pmath_symbol_get_attributes(head);
+    const size_t len  = pmath_expr_length(pat);
+    pmath_t      head = pmath_expr_get_item(pat, 0);
     pmath_unref(head);
 
     if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH) && len == 0) // SingleMatch()
       return PMATH_MATCH_KIND_LOCAL;
 
-    if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH) && len == 1) { // SingleMatch(type)
-      pmath_t type    = pmath_expr_get_item(pat, 1);
-      pmath_t arghead = _pmath_object_head(arg);
+    if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH) && len == 1) // SingleMatch(type)
+      return match_atom_to_typed_singlematch(info, pat, arg, index_of_arg, count_of_arg);
 
-      if(pmath_equals(type, arghead)) {
-        pmath_unref(type);
-        pmath_unref(arghead);
-        return PMATH_MATCH_KIND_LOCAL;
-      }
-      pmath_unref(type);
-      pmath_unref(arghead);
-      return PMATH_MATCH_KIND_NONE;
-    }
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_CONDITION)) // pattern /? condition
+      return match_atom_to_condition(info, pat, arg, index_of_arg, count_of_arg);
+    
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) // pattern ? testfunc
+      return match_atom_to_testpattern(info, pat, arg, index_of_arg, count_of_arg);
 
-    if( (pmath_same(head, PMATH_SYMBOL_TESTPATTERN) || // pattern ? testfunc
-         pmath_same(head, PMATH_SYMBOL_CONDITION)) &&  // pattern /? condition
-        len == 2 )
-    {
-      pmath_t pattern = pmath_expr_get_item(pat, 1);
-      pmath_t test = PMATH_NULL;
+    if(len == 2 && pmath_same(head, PMATH_SYMBOL_REPEATED)) // Repeated(pattern, range)
+      return match_atom_to_repeatedpattern(info, pat, arg, index_of_arg, count_of_arg);
 
-      match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
-      pmath_unref(pattern);
-      if(kind != PMATH_MATCH_KIND_LOCAL)
-        return kind;
+    if(pmath_same(head, PMATH_SYMBOL_PATTERN) && len == 2) // name: pattern
+      return match_atom_to_named_pattern(info, pat, arg, index_of_arg, count_of_arg);
 
-      if(pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) {
-        if(pmath_is_expr(arg)) {
-          pmath_t arghead = pmath_expr_get_item(arg, 0);
-          pmath_unref(arghead);
-
-          if(pmath_same(arghead, PMATH_MAGIC_PATTERN_SEQUENCE)) {
-            test = pmath_expr_set_item(
-                     pmath_ref(arg), 0,
-                     pmath_expr_get_item(pat, 2));
-
-            goto AFTER_TEST_INIT;
-          }
-        }
-        test = pmath_expr_new_extended(
-                 pmath_expr_get_item(pat, 2), 1,
-                 pmath_ref(arg));
-      }
-      else {
-        test = pmath_expr_get_item(pat, 2);
-
-        if(info->pattern_variables) {
-          test = replace_multiple_symbols(test, info->pattern_variables);
-        }
-      }
-
-    AFTER_TEST_INIT:
-      test = pmath_evaluate(test);
-      pmath_unref(test);
-
-      if(pmath_aborting())
-        return PMATH_MATCH_KIND_GLOBAL;
-
-      if(pmath_same(test, PMATH_SYMBOL_TRUE))
-        return PMATH_MATCH_KIND_LOCAL;
-
-      return PMATH_MATCH_KIND_NONE;
-    }
-
-    if(len == 2 && pmath_same(head, PMATH_SYMBOL_REPEATED)) { // Repeated(pattern, range)
-      pmath_t range, pattern;
-      match_kind_t kind;
-      size_t min, max, arglen;
-
-      range = pmath_expr_get_item(pat, 2);
-
-      min = 1;
-      max = SIZE_MAX;
-
-      if(!extract_range(range, &min, &max, TRUE)) {
-        pmath_unref(range);
-        return PMATH_MATCH_KIND_NONE;
-      }
-
-      pmath_unref(range);
-
-      if(min > max)
-        return PMATH_MATCH_KIND_NONE;
-
-      if(max == 0) {
-        if(pmath_is_expr_of_len(arg, PMATH_MAGIC_PATTERN_SEQUENCE, 0))
-          return PMATH_MATCH_KIND_LOCAL;
-        return PMATH_MATCH_KIND_NONE;
-      }
-
-      pattern = pmath_expr_get_item(pat, 1);
-
-      if(!pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) {
-        if(min > 1) {
-          pmath_unref(pattern);
-          return PMATH_MATCH_KIND_NONE;
-        }
-
-        kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
-        pmath_unref(pattern);
-        return kind;
-      }
-
-      arglen = pmath_expr_length(arg);
-
-      if(arglen < min || arglen > max) {
-        pmath_unref(pattern);
-        return PMATH_MATCH_KIND_NONE;
-      }
-
-      kind = match_repeated(info, pattern, arg);
-      pmath_unref(pattern);
-      return kind;
-    }
-
-    if(pmath_same(head, PMATH_SYMBOL_PATTERN) && len == 2) { // name: pattern
-      struct pattern_variable_entry_t *entry;
-      match_kind_t kind;
-
-      pmath_t pat_item = pmath_expr_get_item(pat, 1);
-      if(!pmath_is_symbol(pat_item)) {
-        pmath_debug_print_object("[Internal Pattern Error: ignore pattern with invalid name ", pat_item, "]\n");
-        pmath_unref(pat_item);
-        return PMATH_MATCH_KIND_NONE;
-      }
-
-      if(!info->pattern_variables) {
-        info->pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
-        if(!info->pattern_variables) {
-          pmath_debug_print("[Internal Pattern Error: failed to initialize pattern_variables]\n");
-          pmath_unref(pat_item);
-          return PMATH_MATCH_KIND_NONE;
-        }
-
-        init_pattern_variables(info->pattern, info->pattern_variables);
-      }
-
-      entry = pmath_ht_search(info->pattern_variables, PMATH_AS_PTR(pat_item));
-      if(!entry) {
-        pmath_debug_print_object("[Internal Pattern Error: unknown pattern name ", pat_item, "]\n");
-        pmath_unref(pat_item);
-        return PMATH_MATCH_KIND_NONE;
-      }
-
-//      // Do not allow recursive patterns like  (x: x: ~), i.e.
-//      // Pattern(x, Pattern(x, ~)) to prevent possible infinite recursion.
-//      if(entry->is_currently_matching) {
-//        pmath_debug_print_object("[recursive pattern ", pat, "]\n");
-//        return PMATH_MATCH_KIND_NONE;
-//      }
-
-      pmath_unref(pat_item);
-      pat_item = pmath_expr_get_item(pat, 2);
-
-      if( pmath_same(entry->first_matched_pattern, PMATH_UNDEFINED) &&
-          !pmath_same(pat_item, PMATH_UNDEFINED))
-      {
-        // Didn't (fully) match a pattern with this name before.
-
-        pmath_bool_t recursive_matching = entry->is_currently_matching;
-
-        entry->is_currently_matching = TRUE;
-        kind = match_atom(info, pat_item, arg, index_of_arg, count_of_arg);
-        entry->is_currently_matching = recursive_matching;
-
-        if(kind != PMATH_MATCH_KIND_NONE) {
-          pmath_t default_value;
-
-          if(kind == PMATH_MATCH_KIND_GLOBAL) {
-            pmath_unref(pat_item);
-            return kind;
-          }
-
-          default_value = entry->value;
-          entry->value = pmath_ref(arg);
-
-          if(recursive_matching) {
-            pmath_unref(pat_item);
-            pmath_unref(default_value);
-            return kind;
-          }
-
-          assert(pmath_same(PMATH_UNDEFINED, entry->first_matched_pattern));
-          entry->first_matched_pattern = pat_item;
-
-          // Success: now do global matching because there could be other
-          // occurences of the name.
-          // TODO: maybe we could add a flag to pattern_variable_entry_t which
-          // says whether there are other occurences. But be careful, because
-          // these could be hidden inside Condition(...) or an Optional(name,...)
-          kind = match_atom(info, info->pattern, info->func, 0, 0);
-          if(kind != PMATH_MATCH_KIND_NONE) {
-            pmath_unref(default_value);
-            return PMATH_MATCH_KIND_GLOBAL;
-          }
-
-          pmath_unref(entry->value);
-          entry->value = default_value;
-          entry->first_matched_pattern = PMATH_UNDEFINED;
-        }
-
-        pmath_unref(pat_item);
-        return PMATH_MATCH_KIND_NONE;
-      }
-      else { // Already matched a pattern with this name before.
-        if(!pmath_equals(arg, entry->value)) {
-          pmath_unref(pat_item);
-          return PMATH_MATCH_KIND_NONE;
-        }
-
-        if(pmath_equals(pat_item, entry->first_matched_pattern)) {
-          // No need to match the same pattern twice.
-          //
-          // Actually, if pat_item == PMATH_UNDEFINED, then there occurs no
-          // matching at all, because that special value is used as the
-          // already-visited-flag above.
-          // A fix would be to use a seperate flag but that would cost another
-          // byte per pattern and PMATH_UNDEFINED cannot be entered by the user,
-          // so there is no real need to fix this corner case.
-
-          pmath_unref(pat_item);
-          return PMATH_MATCH_KIND_LOCAL;
-        }
-
-        kind = match_atom(info, pat_item, arg, index_of_arg, count_of_arg);
-        pmath_unref(pat_item);
-
-        return kind;
-      }
-    }
-
-    if(pmath_same(head, PMATH_SYMBOL_OPTIONAL) && (len == 1 || len == 2)) { // Optional(pattern), Optional(pattern, value)
-      pmath_t pattern;
-      pmath_t value;
-      match_kind_t kind;
-
-      pattern = pmath_expr_get_item(pat, 1);
-
-      if(pmath_is_expr_of_len(arg, PMATH_MAGIC_PATTERN_SEQUENCE, 0)) {
-        if(len == 1) {
-          value = pmath_evaluate(
-                    pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_DEFAULT), 3,
-                      pmath_ref(info->current_head),
-                      pmath_integer_new_uiptr(index_of_arg),
-                      pmath_integer_new_uiptr(count_of_arg)));
-        }
-        else
-          value = pmath_expr_get_item(pat, 2);
-      }
-      else {
-        value = pmath_ref(arg);
-      }
-
-      kind = match_atom(info, pattern, value, index_of_arg, count_of_arg);
-
-      pmath_unref(pattern);
-      pmath_unref(value);
-      return kind;
-    }
+    if(pmath_same(head, PMATH_SYMBOL_OPTIONAL) && (len == 1 || len == 2)) // Optional(pattern), Optional(pattern, value)
+      return match_atom_to_optional(info, pat, arg, index_of_arg, count_of_arg);
 
     if( len == 1 &&
         (pmath_same(head, PMATH_SYMBOL_HOLDPATTERN) || // HoldPattern(p)
@@ -1386,209 +1152,506 @@ static match_kind_t match_atom(
       return kind;
     }
 
-    if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)) { // p1 | p2 | ...
-      size_t i;
-      for(i = 1; i <= len; ++i) {
-        pmath_t p = pmath_expr_get_item(pat, i);
-        match_kind_t result = match_atom(info, p, arg, index_of_arg, count_of_arg);
-        pmath_unref(p);
-        if(result != PMATH_MATCH_KIND_NONE)
-          return result;
-      }
-      return PMATH_MATCH_KIND_NONE;
-    }
+    if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)) // p1 | p2 | ...
+      return match_atom_to_alternatives(info, pat, arg, index_of_arg, count_of_arg);
+    
+    if(len <= 1 && pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)) 
+      return match_atom_to_optionspattern(info, pat, arg, index_of_arg, count_of_arg);
 
-    if(len <= 1 && pmath_same(head, PMATH_SYMBOL_OPTIONSPATTERN)) { // OptionsPattern(), OptionsPattern(f)
-      pmath_t arghead;
-      size_t i, arglen;
+    if(pmath_same(head, PMATH_SYMBOL_LITERAL)) 
+      return match_atom_to_literal(info, pat, arg, index_of_arg, count_of_arg);
 
-      if(!pmath_is_expr(arg))
-        return PMATH_MATCH_KIND_NONE;
+    if(pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)) 
+      return match_atom_to_patternsequence(info, pat, arg, index_of_arg, count_of_arg);
 
-      arglen = pmath_expr_length(arg);
-      arghead = pmath_expr_get_item(arg, 0);
-      pmath_unref(arghead);
-      if( arglen == 2 &&
-          (pmath_same(arghead, PMATH_SYMBOL_RULE) ||
-           pmath_same(arghead, PMATH_SYMBOL_RULEDELAYED)))
-      {
-        goto OPTIONSPATTERN_FIT;
-      }
-
-      if( !pmath_same(arghead, PMATH_MAGIC_PATTERN_SEQUENCE) &&
-          !pmath_same(arghead, PMATH_SYMBOL_LIST))
-      {
-        return PMATH_MATCH_KIND_NONE;
-      }
-
-      for(i = 1; i <= arglen; ++i) {
-        pmath_t argi = pmath_expr_get_item(arg, i);
-
-        if(!pmath_is_set_of_options(argi)) {
-          pmath_unref(argi);
-          return PMATH_MATCH_KIND_NONE;
-        }
-
-        pmath_unref(argi);
-      }
-
-    OPTIONSPATTERN_FIT:
-      {
-        pmath_t old_pattern = pmath_ref(info->pattern);
-        pmath_t old_options = pmath_ref(info->options);
-        pmath_t fn;
-        match_kind_t kind;
-
-        if(len == 0)
-          fn = pmath_ref(info->current_head);
-        else
-          fn = pmath_expr_get_item(pat, 1);
-        info->options = pmath_expr_new_extended(
-                          fn, 2,
-                          pmath_ref(arg),
-                          info->options);
-
-        /* replaces the first pat and since all pattern matching is
-           left-to-right, it replaces exactly our given pat and not another,
-           equal one.
-         */
-        replace_with_literal_exact_once(&info->pattern, pat, arg);
-
-        kind = match_atom(info, info->pattern, info->func, 0, 0);
-        if(kind != PMATH_MATCH_KIND_NONE) {
-          pmath_unref(old_pattern);
-          pmath_unref(old_options);
-          return PMATH_MATCH_KIND_GLOBAL;
-        }
-
-        pmath_unref(info->pattern);
-        pmath_unref(info->options);
-        info->pattern = old_pattern;
-        info->options = old_options;
-      }
-      return PMATH_MATCH_KIND_NONE;
-    }
-
-    if(pmath_same(head, PMATH_SYMBOL_LITERAL)) {
-      if(pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) {
-        size_t i;
-
-        if(pmath_expr_length(arg) != pmath_expr_length(pat))
-          return PMATH_MATCH_KIND_NONE;
-
-        for(i = pmath_expr_length(pat); i > 0; --i) {
-          pmath_t p = pmath_expr_get_item(pat, i);
-          pmath_t a = pmath_expr_get_item(arg, i);
-
-          if(!pmath_equals(p, a)) {
-            pmath_unref(p);
-            pmath_unref(a);
-            return PMATH_MATCH_KIND_NONE;
-          }
-
-          pmath_unref(p);
-          pmath_unref(a);
-        }
-
-        return PMATH_MATCH_KIND_LOCAL;
-      }
-
-      if(len == 1) {
-        pmath_t p = pmath_expr_get_item(pat, 1);
-        if(pmath_equals(p, arg)) {
-          pmath_unref(p);
-          return PMATH_MATCH_KIND_LOCAL;
-        }
-
-        pmath_unref(p);
-      }
-
-      return PMATH_MATCH_KIND_NONE;
-    }
-
-    if(pmath_same(head, PMATH_SYMBOL_PATTERNSEQUENCE)) {
-      match_func_data_t data;
-      match_kind_t kind;
-
-      memset(&data, 0, sizeof(data));
-      data.info = info;
-      data.pat  = pat;
-      data.func = pmath_ref(arg);
-      data.associative = FALSE;
-      data.one_identity = FALSE;
-      data.symmetric = FALSE;
-
-      if(!pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE))
-        data.func = pmath_expr_new_extended(PMATH_MAGIC_PATTERN_SEQUENCE, 1, data.func);
-
-#ifdef DEBUG_LOG_MATCH
-      debug_indent(); pmath_debug_print("sequence ...\n");
-      ++indented;
-#endif
-
-      if(init_analyse_match_func(&data)) {
-        kind = match_func_left(&data, 1, 1);
-
-        done_analyse_match_func(&data);
-      }
-      else
-        kind = PMATH_MATCH_KIND_NONE;
-
-#ifdef DEBUG_LOG_MATCH
-      --indented;
-      debug_indent(); pmath_debug_print("... sequence %d\n", kind);
-#endif
-
-      pmath_unref(data.func);
-      return kind;
-    }
-
-    if(pmath_same(head, PMATH_SYMBOL_EXCEPT) && (len == 1 || len == 2)) { // Except(no) Except(no, but)
-      pmath_t p = pmath_expr_get_item(pat, 1);
-      match_kind_t kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
-      pmath_unref(p);
-
-      if(kind == PMATH_MATCH_KIND_GLOBAL)
-        return kind;
-
-      if(kind == PMATH_MATCH_KIND_LOCAL)
-        return PMATH_MATCH_KIND_NONE;
-
-      kind = PMATH_MATCH_KIND_LOCAL;
-      if(len == 2) {
-        p = pmath_expr_get_item(pat, 2);
-        kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
-        pmath_unref(p);
-      }
-
-      return kind;
-    }
-
-    if(attr & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY) {
-      match_kind_t kind;
-
-      if(pmath_is_expr(arg)) {
-        kind = match_func(info, pat, arg);
-        if(kind != PMATH_MATCH_KIND_NONE)
-          return kind;
-      }
-
-      arg = pmath_expr_new_extended(
-              pmath_expr_get_item(pat, 0), 1,
-              pmath_ref(arg));
-
-      kind = match_func(info, pat, arg);
-      pmath_unref(arg);
-      return kind;
-    }
-
-    if(!pmath_is_expr(arg))
-      return PMATH_MATCH_KIND_NONE;
-
-    return match_func(info, pat, arg);
+    if(pmath_same(head, PMATH_SYMBOL_EXCEPT) && (len == 1 || len == 2)) // Except(no) Except(no, but)
+      return match_atom_to_except(info, pat, arg, index_of_arg, count_of_arg);
+    
+    return match_atom_to_other_function(info, pat, arg, index_of_arg, count_of_arg);
   }
 
   return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_typed_singlematch(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t type    = pmath_expr_get_item(pat, 1);
+  pmath_t arghead = _pmath_object_head(arg);
+
+  if(pmath_equals(type, arghead)) {
+    pmath_unref(type);
+    pmath_unref(arghead);
+    return PMATH_MATCH_KIND_LOCAL;
+  }
+  pmath_unref(type);
+  pmath_unref(arghead);
+  return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_condition(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t pattern = pmath_expr_get_item(pat, 1);
+  pmath_t test = PMATH_NULL;
+
+  match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
+  pmath_unref(pattern);
+  if(kind != PMATH_MATCH_KIND_LOCAL)
+    return kind;
+
+  test = pmath_expr_get_item(pat, 2);
+  if(info->pattern_variables) {
+    test = replace_multiple_symbols(test, info->pattern_variables);
+  }
+
+  test = pmath_evaluate(test);
+  pmath_unref(test);
+
+  if(pmath_aborting())
+    return PMATH_MATCH_KIND_GLOBAL;
+
+  if(pmath_same(test, PMATH_SYMBOL_TRUE))
+    return PMATH_MATCH_KIND_LOCAL;
+
+  return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_testpattern(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t pattern = pmath_expr_get_item(pat, 1);
+  pmath_t test = PMATH_NULL;
+
+  match_kind_t kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
+  pmath_unref(pattern);
+  if(kind != PMATH_MATCH_KIND_LOCAL)
+    return kind;
+
+  if(pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+    test = pmath_expr_set_item(
+             pmath_ref(arg), 0,
+             pmath_expr_get_item(pat, 2));
+  }
+  else {
+    test = pmath_expr_new_extended(
+             pmath_expr_get_item(pat, 2), 1,
+             pmath_ref(arg));
+  }
+
+  test = pmath_evaluate(test);
+  pmath_unref(test);
+
+  if(pmath_aborting())
+    return PMATH_MATCH_KIND_GLOBAL;
+
+  if(pmath_same(test, PMATH_SYMBOL_TRUE))
+    return PMATH_MATCH_KIND_LOCAL;
+
+  return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_repeatedpattern(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t range, pattern;
+  match_kind_t kind;
+  size_t min, max, arglen;
+
+  range = pmath_expr_get_item(pat, 2);
+
+  min = 1;
+  max = SIZE_MAX;
+
+  if(!extract_range(range, &min, &max, TRUE)) {
+    pmath_unref(range);
+    return PMATH_MATCH_KIND_NONE;
+  }
+
+  pmath_unref(range);
+
+  if(min > max)
+    return PMATH_MATCH_KIND_NONE;
+
+  if(max == 0) {
+    if(pmath_is_expr_of_len(arg, PMATH_MAGIC_PATTERN_SEQUENCE, 0))
+      return PMATH_MATCH_KIND_LOCAL;
+    return PMATH_MATCH_KIND_NONE;
+  }
+
+  pattern = pmath_expr_get_item(pat, 1);
+
+  if(!pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+    if(min > 1) {
+      pmath_unref(pattern);
+      return PMATH_MATCH_KIND_NONE;
+    }
+
+    kind = match_atom(info, pattern, arg, index_of_arg, count_of_arg);
+    pmath_unref(pattern);
+    return kind;
+  }
+
+  arglen = pmath_expr_length(arg);
+
+  if(arglen < min || arglen > max) {
+    pmath_unref(pattern);
+    return PMATH_MATCH_KIND_NONE;
+  }
+
+  kind = match_repeated(info, pattern, arg);
+  pmath_unref(pattern);
+  return kind;
+}
+
+static match_kind_t match_atom_to_named_pattern(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  struct pattern_variable_entry_t *entry;
+  match_kind_t kind;
+
+  pmath_t pat_item = pmath_expr_get_item(pat, 1);
+  if(!pmath_is_symbol(pat_item)) {
+    pmath_debug_print_object("[Internal Pattern Error: ignore pattern with invalid name ", pat_item, "]\n");
+    pmath_unref(pat_item);
+    return PMATH_MATCH_KIND_NONE;
+  }
+
+  if(!info->pattern_variables) {
+    info->pattern_variables = pmath_ht_create(&ht_pattern_variable_class, 0);
+    if(!info->pattern_variables) {
+      pmath_debug_print("[Internal Pattern Error: failed to initialize pattern_variables]\n");
+      pmath_unref(pat_item);
+      return PMATH_MATCH_KIND_NONE;
+    }
+
+    init_pattern_variables(info->pattern, info->pattern_variables);
+  }
+
+  entry = pmath_ht_search(info->pattern_variables, PMATH_AS_PTR(pat_item));
+  if(!entry) {
+    pmath_debug_print_object("[Internal Pattern Error: unknown pattern name ", pat_item, "]\n");
+    pmath_unref(pat_item);
+    return PMATH_MATCH_KIND_NONE;
+  }
+
+//  // Do not allow recursive patterns like  (x: x: ~), i.e.
+//  // Pattern(x, Pattern(x, ~)) to prevent possible infinite recursion.
+//  if(entry->is_currently_matching) {
+//    pmath_debug_print_object("[recursive pattern ", pat, "]\n");
+//    return PMATH_MATCH_KIND_NONE;
+//  }
+
+  pmath_unref(pat_item);
+  pat_item = pmath_expr_get_item(pat, 2);
+
+  if( pmath_same(entry->first_matched_pattern, PMATH_UNDEFINED) &&
+      !pmath_same(pat_item, PMATH_UNDEFINED))
+  {
+    // Didn't (fully) match a pattern with this name before.
+
+    pmath_bool_t recursive_matching = entry->is_currently_matching;
+
+    entry->is_currently_matching = TRUE;
+    kind = match_atom(info, pat_item, arg, index_of_arg, count_of_arg);
+    entry->is_currently_matching = recursive_matching;
+
+    if(kind != PMATH_MATCH_KIND_NONE) {
+      pmath_t default_value;
+
+      if(kind == PMATH_MATCH_KIND_GLOBAL) {
+        pmath_unref(pat_item);
+        return kind;
+      }
+
+      default_value = entry->value;
+      entry->value = pmath_ref(arg);
+
+      if(recursive_matching) {
+        pmath_unref(pat_item);
+        pmath_unref(default_value);
+        return kind;
+      }
+
+      assert(pmath_same(PMATH_UNDEFINED, entry->first_matched_pattern));
+      entry->first_matched_pattern = pat_item;
+
+      // Success: now do global matching because there could be other
+      // occurences of the name.
+      // TODO: maybe we could add a flag to pattern_variable_entry_t which
+      // says whether there are other occurences. But be careful, because
+      // these could be hidden inside Condition(...) or an Optional(name,...)
+      kind = match_atom(info, info->pattern, info->func, 0, 0);
+      if(kind != PMATH_MATCH_KIND_NONE) {
+        pmath_unref(default_value);
+        return PMATH_MATCH_KIND_GLOBAL;
+      }
+
+      pmath_unref(entry->value);
+      entry->value = default_value;
+      entry->first_matched_pattern = PMATH_UNDEFINED;
+    }
+
+    pmath_unref(pat_item);
+    return PMATH_MATCH_KIND_NONE;
+  }
+  else { // Already matched a pattern with this name before.
+    if(!pmath_equals(arg, entry->value)) {
+      pmath_unref(pat_item);
+      return PMATH_MATCH_KIND_NONE;
+    }
+
+    if(pmath_equals(pat_item, entry->first_matched_pattern)) {
+      // No need to match the same pattern twice.
+      //
+      // Actually, if pat_item == PMATH_UNDEFINED, then there occurs no
+      // matching at all, because that special value is used as the
+      // already-visited-flag above.
+      // A fix would be to use a seperate flag but that would cost another
+      // byte per pattern and PMATH_UNDEFINED cannot be entered by the user,
+      // so there is no real need to fix this corner case.
+
+      pmath_unref(pat_item);
+      return PMATH_MATCH_KIND_LOCAL;
+    }
+
+    kind = match_atom(info, pat_item, arg, index_of_arg, count_of_arg);
+    pmath_unref(pat_item);
+
+    return kind;
+  }
+}
+
+static match_kind_t match_atom_to_optional(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t pattern;
+  pmath_t value;
+  match_kind_t kind;
+
+  pattern = pmath_expr_get_item(pat, 1);
+
+  if(pmath_is_expr_of_len(arg, PMATH_MAGIC_PATTERN_SEQUENCE, 0)) {
+    if(pmath_expr_length(pat) == 1) {
+      value = pmath_evaluate(
+                pmath_expr_new_extended(
+                  pmath_ref(PMATH_SYMBOL_DEFAULT), 3,
+                  pmath_ref(info->current_head),
+                  pmath_integer_new_uiptr(index_of_arg),
+                  pmath_integer_new_uiptr(count_of_arg)));
+    }
+    else
+      value = pmath_expr_get_item(pat, 2);
+  }
+  else {
+    value = pmath_ref(arg);
+  }
+
+  kind = match_atom(info, pattern, value, index_of_arg, count_of_arg);
+
+  pmath_unref(pattern);
+  pmath_unref(value);
+  return kind;
+}
+
+static match_kind_t match_atom_to_alternatives(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  const size_t len  = pmath_expr_length(pat);
+  size_t i;
+  for(i = 1; i <= len; ++i) {
+    pmath_t p = pmath_expr_get_item(pat, i);
+    match_kind_t result = match_atom(info, p, arg, index_of_arg, count_of_arg);
+    pmath_unref(p);
+    if(result != PMATH_MATCH_KIND_NONE)
+      return result;
+  }
+  return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_optionspattern(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t arghead;
+  size_t i, arglen;
+
+  if(!pmath_is_expr(arg))
+    return PMATH_MATCH_KIND_NONE;
+
+  arglen = pmath_expr_length(arg);
+  arghead = pmath_expr_get_item(arg, 0);
+  pmath_unref(arghead);
+  if( arglen == 2 &&
+      (pmath_same(arghead, PMATH_SYMBOL_RULE) ||
+       pmath_same(arghead, PMATH_SYMBOL_RULEDELAYED)))
+  {
+    goto OPTIONSPATTERN_FIT;
+  }
+
+  if( !pmath_same(arghead, PMATH_MAGIC_PATTERN_SEQUENCE) &&
+      !pmath_same(arghead, PMATH_SYMBOL_LIST))
+  {
+    return PMATH_MATCH_KIND_NONE;
+  }
+
+  for(i = 1; i <= arglen; ++i) {
+    pmath_t argi = pmath_expr_get_item(arg, i);
+
+    if(!pmath_is_set_of_options(argi)) {
+      pmath_unref(argi);
+      return PMATH_MATCH_KIND_NONE;
+    }
+
+    pmath_unref(argi);
+  }
+
+OPTIONSPATTERN_FIT:
+  {
+    pmath_t old_pattern = pmath_ref(info->pattern);
+    pmath_t old_options = pmath_ref(info->options);
+    pmath_t fn;
+    match_kind_t kind;
+
+    if(pmath_expr_length(pat) == 0)
+      fn = pmath_ref(info->current_head);
+    else
+      fn = pmath_expr_get_item(pat, 1);
+    info->options = pmath_expr_new_extended(
+                      fn, 2,
+                      pmath_ref(arg),
+                      info->options);
+
+    /* replaces the first pat and since all pattern matching is
+       left-to-right, it replaces exactly our given pat and not another,
+       equal one.
+     */
+    replace_with_literal_exact_once(&info->pattern, pat, arg);
+
+    kind = match_atom(info, info->pattern, info->func, 0, 0);
+    if(kind != PMATH_MATCH_KIND_NONE) {
+      pmath_unref(old_pattern);
+      pmath_unref(old_options);
+      return PMATH_MATCH_KIND_GLOBAL;
+    }
+
+    pmath_unref(info->pattern);
+    pmath_unref(info->options);
+    info->pattern = old_pattern;
+    info->options = old_options;
+  }
+  return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_literal(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  const size_t len = pmath_expr_length(pat);
+  
+  if(pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+    size_t i;
+
+    if(pmath_expr_length(arg) != len)
+      return PMATH_MATCH_KIND_NONE;
+
+    for(i = len; i > 0; --i) {
+      pmath_t p = pmath_expr_get_item(pat, i);
+      pmath_t a = pmath_expr_get_item(arg, i);
+
+      if(!pmath_equals(p, a)) {
+        pmath_unref(p);
+        pmath_unref(a);
+        return PMATH_MATCH_KIND_NONE;
+      }
+
+      pmath_unref(p);
+      pmath_unref(a);
+    }
+
+    return PMATH_MATCH_KIND_LOCAL;
+  }
+
+  if(len == 1) {
+    pmath_t p = pmath_expr_get_item(pat, 1);
+    if(pmath_equals(p, arg)) {
+      pmath_unref(p);
+      return PMATH_MATCH_KIND_LOCAL;
+    }
+
+    pmath_unref(p);
+  }
+
+  return PMATH_MATCH_KIND_NONE;
+}
+
+static match_kind_t match_atom_to_patternsequence(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  match_func_data_t data;
+  match_kind_t kind;
+
+  memset(&data, 0, sizeof(data));
+  data.info = info;
+  data.pat  = pat;
+  data.func = pmath_ref(arg);
+  data.associative = FALSE;
+  data.one_identity = FALSE;
+  data.symmetric = FALSE;
+
+  if(!pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE))
+    data.func = pmath_expr_new_extended(PMATH_MAGIC_PATTERN_SEQUENCE, 1, data.func);
+
+#ifdef DEBUG_LOG_MATCH
+  debug_indent(); pmath_debug_print("sequence ...\n");
+  ++indented;
+#endif
+
+  if(init_analyse_match_func(&data)) {
+    kind = match_func_left(&data, 1, 1);
+
+    done_analyse_match_func(&data);
+  }
+  else
+    kind = PMATH_MATCH_KIND_NONE;
+
+#ifdef DEBUG_LOG_MATCH
+  --indented;
+  debug_indent(); pmath_debug_print("... sequence %d\n", kind);
+#endif
+
+  pmath_unref(data.func);
+  return kind;
+}
+
+static match_kind_t match_atom_to_except(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_t p = pmath_expr_get_item(pat, 1);
+  match_kind_t kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
+  pmath_unref(p);
+
+  if(kind == PMATH_MATCH_KIND_GLOBAL)
+    return kind;
+
+  if(kind == PMATH_MATCH_KIND_LOCAL)
+    return PMATH_MATCH_KIND_NONE;
+
+  kind = PMATH_MATCH_KIND_LOCAL;
+  if(pmath_expr_length(pat) == 2) {
+    p = pmath_expr_get_item(pat, 2);
+    kind = match_atom(info, p, arg, index_of_arg, count_of_arg);
+    pmath_unref(p);
+  }
+
+  return kind;
+}
+
+static match_kind_t match_atom_to_other_function(pattern_info_t *info, pmath_t pat, pmath_t arg, size_t index_of_arg, size_t count_of_arg) {
+  pmath_symbol_attributes_t attr = 0;
+  pmath_t head = pmath_expr_get_item(pat, 0);
+  if(pmath_is_symbol(head))
+    attr = pmath_symbol_get_attributes(head);
+  
+  pmath_unref(head);
+  if(attr & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY) {
+    match_kind_t kind;
+
+    if(pmath_is_expr(arg)) {
+      kind = match_func(info, pat, arg);
+      if(kind != PMATH_MATCH_KIND_NONE)
+        return kind;
+    }
+
+    arg = pmath_expr_new_extended(
+            pmath_expr_get_item(pat, 0), 1,
+            pmath_ref(arg));
+
+    kind = match_func(info, pat, arg);
+    pmath_unref(arg);
+    return kind;
+  }
+
+  if(!pmath_is_expr(arg))
+    return PMATH_MATCH_KIND_NONE;
+
+  return match_func(info, pat, arg);
 }
 
 static pmath_bool_t validate_pattern_and_free(pmath_t pattern) {
