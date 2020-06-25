@@ -95,6 +95,7 @@ extern pmath_symbol_t richmath_System_StripOnInput;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
 extern pmath_symbol_t richmath_System_SurdForm;
+extern pmath_symbol_t richmath_System_SynchronousUpdating;
 extern pmath_symbol_t richmath_System_SyntaxForm;
 extern pmath_symbol_t richmath_System_TemplateBoxOptions;
 extern pmath_symbol_t richmath_System_TextShadow;
@@ -1963,11 +1964,13 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(StripOnInput);
   impl.emit_definition(StyleDefinitions);
   impl.emit_definition(SurdForm);
+  impl.emit_definition(SynchronousUpdating);
   impl.emit_definition(SyntaxForm);
   impl.emit_definition(TemplateBoxOptions);
   impl.emit_definition(TextShadow);
   impl.emit_definition(Ticks);
   impl.emit_definition(Tooltip);
+  impl.emit_definition(TrackedSymbols);
   impl.emit_definition(Visible);
   impl.emit_definition(WholeSectionGroupOpener);
   impl.emit_definition(WindowFrame);
@@ -2451,6 +2454,7 @@ void StyleInformation::add_style() {
     add(StyleTypeBool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
     add(StyleTypeBool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
     add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
+    add(StyleTypeBoolAuto,        SynchronousUpdating,              Symbol( richmath_System_SynchronousUpdating));
     add(StyleTypeBool,            Visible,                          Symbol( richmath_System_Visible));
     add(StyleTypeBool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
@@ -2514,6 +2518,7 @@ void StyleInformation::add_style() {
     add(StyleTypeAny,             FontFamilies,                     Symbol( richmath_System_FontFamily));
     add(StyleTypeAny,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleTypeAny,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
+    add(StyleTypeAny,             TrackedSymbols,                   Symbol( PMATH_SYMBOL_TRACKEDSYMBOLS));
     add(StyleTypeAny,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
     add(StyleTypeAny,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
     add(StyleTypeAny,             PlotRange,                        Symbol( richmath_System_PlotRange));

@@ -74,8 +74,14 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   /* now success is guaranteed */
+  reset_style();
+  if(options_expr[0] == PMATH_SYMBOL_LIST) {
+    if(!style)
+      style = new Style();
+    style->add_pmath(options_expr);
+  }
   
-  expr.set(0, Symbol(richmath_System_Dynamic));
+  expr.set(0, Symbol(richmath_System_Dynamic)); // TODO: update the Dynamic expr when a style changes
   
   if(dynamic.expr() != expr || has(opts, BoxInputFlags::ForceResetDynamic)){
     must_update = true;

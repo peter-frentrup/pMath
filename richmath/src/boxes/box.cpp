@@ -309,6 +309,17 @@ Box *Box::move_logical(
   bool              jumping,
   int              *index
 ) {
+  if(style && _parent) {
+    if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
+      if(direction == LogicalDirection::Forward)
+        *index = _index + 1;
+      else
+        *index = _index;
+        
+      return _parent;
+    }
+  }
+  
   if(direction == LogicalDirection::Forward) {
     int b = *index;
     if(b < 0 || jumping)

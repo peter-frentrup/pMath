@@ -13,17 +13,6 @@ namespace richmath {
       
       virtual void colorize_scope(SyntaxState *state) override;
       
-      virtual Box *move_logical(
-        LogicalDirection  direction,
-        bool              jumping,
-        int              *index) override;
-        
-      virtual Box *move_vertical(
-        LogicalDirection  direction,
-        float            *index_rel_x,
-        int              *index,
-        bool              called_from_child) override;
-        
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
     protected:

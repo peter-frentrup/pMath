@@ -85,45 +85,6 @@ void AbstractStyleBox::colorize_scope(SyntaxState *state) {
   base::colorize_scope(state);
 }
 
-Box *AbstractStyleBox::move_logical(
-  LogicalDirection  direction,
-  bool              jumping,
-  int              *index
-) {
-  if(style && _parent) {
-    if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
-      if(direction == LogicalDirection::Forward)
-        *index = _index + 1;
-      else
-        *index = _index;
-        
-      return _parent;
-    }
-  }
-  
-  return base::move_logical(direction, jumping, index);
-}
-
-Box *AbstractStyleBox::move_vertical(
-  LogicalDirection  direction,
-  float            *index_rel_x,
-  int              *index,
-  bool              called_from_child
-) {
-  if(style && *index < 0) { // called from parent
-    if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
-      if(*index_rel_x <= _extents.width)
-        *index = _index;
-      else
-        *index = _index + 1;
-        
-      return _parent;
-    }
-  }
-  
-  return base::move_vertical(direction, index_rel_x, index, called_from_child);
-}
-
 VolatileSelection AbstractStyleBox::mouse_selection(float x, float y, bool *was_inside_start) {
   if(_parent) {
     if(get_own_style(Placeholder)) {
@@ -140,15 +101,6 @@ VolatileSelection AbstractStyleBox::mouse_selection(float x, float y, bool *was_
         *was_inside_start = false;
         return { _parent, _index + 1, _index + 1 };
       }
-    }
-    
-    if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
-      auto sel = base::mouse_selection(x, y, was_inside_start);
-      if(sel && sel.box->mouse_sensitive())
-        return sel;
-      
-      *was_inside_start = x >= 0 && x <= _extents.width;
-      return { _parent, _index, _index + 1 };
     }
   }
   

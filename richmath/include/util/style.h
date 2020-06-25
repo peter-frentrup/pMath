@@ -60,6 +60,7 @@ namespace richmath {
     ShowStringCharacters,
     StripOnInput,
     SurdForm,
+    SynchronousUpdating, // AutoBoolXXX
     Visible,
     WholeSectionGroupOpener,
     
@@ -168,6 +169,7 @@ namespace richmath {
     FontFeatures,
     MathFontFamily,
     UnknownOptions,
+    TrackedSymbols,
     
     ButtonBoxOptions,
     ButtonData,

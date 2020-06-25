@@ -68,6 +68,7 @@ Options(Checkbox):= Options(CheckboxBox):= {
 Options(Dynamic):= Options(DynamicBox):= {
     %BaselinePosition -> Automatic,
     SynchronousUpdating -> True,
+    Selectable -> Automatic,
     TrackedSymbols -> Automatic }
 
 Options(DynamicLocal):= Options(DynamicLocalBox):= {

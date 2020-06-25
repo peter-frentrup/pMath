@@ -104,7 +104,16 @@ Box *OwnerBox::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  if(*index < 0) {
+  if(*index < 0) { // called from parent
+    if(style && get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
+      if(*index_rel_x <= _extents.width)
+        *index = _index;
+      else
+        *index = _index + 1;
+        
+      return _parent;
+    }
+    
     *index_rel_x -= cx;
     return _content->move_vertical(direction, index_rel_x, index, false);
   }
@@ -116,6 +125,16 @@ Box *OwnerBox::move_vertical(
 VolatileSelection OwnerBox::mouse_selection(float x, float y, bool *was_inside_start) {
   x -= cx;
   y -= cy;
+  
+  if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
+    auto sel = _content->mouse_selection(x, y, was_inside_start);
+    if(sel && sel.box->mouse_sensitive())
+      return sel;
+    
+    *was_inside_start = x >= 0 && x <= _extents.width;
+    return { _parent, _index, _index + 1 };
+  }
+
   return _content->mouse_selection(x, y, was_inside_start);
 }
 
