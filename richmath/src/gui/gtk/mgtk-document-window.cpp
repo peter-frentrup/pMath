@@ -222,8 +222,8 @@ class richmath::MathGtkDock: public MathGtkWidget {
         document()->style = new Style();
         
       document()->style->set(Editable,           false); // redirect Print() to console
-      document()->style->set(Selectable,         false);
-      document()->style->set(ShowSectionBracket, false);
+      document()->style->set(Selectable,         AutoBoolFalse);
+      document()->style->set(ShowSectionBracket, AutoBoolFalse);
       
       document()->select(0, 0, 0);
     }

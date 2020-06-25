@@ -2442,7 +2442,7 @@ void StyleInformation::add_style() {
     add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    Symbol( richmath_System_SectionEditDuplicateMakesCopy));
     add(StyleTypeBool,            SectionGenerated,                 Symbol( richmath_System_SectionGenerated));
     add(StyleTypeBool,            SectionLabelAutoDelete,           Symbol( richmath_System_SectionLabelAutoDelete));
-    add(StyleTypeBool,            Selectable,                       Symbol( richmath_System_Selectable));
+    add(StyleTypeBoolAuto,        Selectable,                       Symbol( richmath_System_Selectable));
     add(StyleTypeBool,            ShowAutoStyles,                   Symbol( richmath_System_ShowAutoStyles));
     add(StyleTypeBoolAuto,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
     add(StyleTypeBool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));

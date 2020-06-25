@@ -608,7 +608,7 @@ Box *AbstractSequenceSection::move_vertical(
   bool              called_from_child
 ) {
   if(*index < 0) {
-    if(!can_enter_content() || !get_own_style(Selectable, true))
+    if(!can_enter_content() || get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse)
       return Section::move_vertical(direction, index_rel_x, index, called_from_child);
     *index_rel_x -= cx;
     return _content->move_vertical(direction, index_rel_x, index, false);

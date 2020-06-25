@@ -384,23 +384,14 @@ void Box::transformation(
 }
 
 bool Box::selectable(int i) {
-  if(_parent)
-    if(!_parent->selectable(_index))
-      return false;
-    
-  int result;
-  
-  if(style && style->get(Selectable, &result))
-    return result;
-    
-  SharedPtr<Stylesheet> all = stylesheet();
-  if(all) {
-    if(all->get(style, Selectable, &result))
-      return result;
-      
-    if(all->base && all->base->get(Selectable, &result))
-      return result;
+  switch(get_own_style(Selectable, AutoBoolAutomatic)) {
+    case AutoBoolTrue:  return true;
+    case AutoBoolFalse: return false;
+    default: break;
   }
+  
+  if(_parent)
+    return _parent->selectable(_index);
   
   return true;
 }

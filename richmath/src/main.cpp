@@ -294,6 +294,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(SectionEditDuplicate,                false);
   Stylesheet::Default->base->set(SectionEditDuplicateMakesCopy,       false);
   Stylesheet::Default->base->set(SectionGenerated,                    false);
+  Stylesheet::Default->base->set(Selectable,                          AutoBoolAutomatic);
   Stylesheet::Default->base->set(ShowAutoStyles,                      false);
   Stylesheet::Default->base->set(SectionLabelAutoDelete,              true);
   Stylesheet::Default->base->set(ShowSectionBracket,                  true);

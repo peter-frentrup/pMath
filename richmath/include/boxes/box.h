@@ -337,7 +337,7 @@ namespace richmath {
 
       /// Decides whether this box (i = -1) or the child box at index i >= 0 may be selected.
       ///
-      /// This usually first asks parent()->selectable(index())
+      /// This usually defaults to parent()->selectable(index()) unless an explicit Selectable style is set.
       virtual bool selectable(int i = -1);
       
       /// Adjust the to be selected range.

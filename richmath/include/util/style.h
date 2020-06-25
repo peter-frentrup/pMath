@@ -54,7 +54,7 @@ namespace richmath {
     SectionEditDuplicateMakesCopy,
     SectionGenerated,
     SectionLabelAutoDelete,
-    Selectable,
+    Selectable, // AutoBoolXXX
     ShowAutoStyles,
     ShowSectionBracket, // AutoBoolXXX
     ShowStringCharacters,
