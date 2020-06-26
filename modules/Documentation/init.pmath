@@ -55,6 +55,7 @@ Function PrepareUsageSection(~text:String) {
     reflown.StringReplace({
         s: ("\(" ++ Shortest(~~~) ++ "\)") :> s,
         s: ("." ++ " "** ++ "A".."Z") :> s,
+        s: ("\"" ++ Except("\"")*** ++ "\"" ) :> s,
         (WordBoundary ++ s: (("A".."Z"|"$") ++ (LetterCharacter|DigitCharacter)**) ++ WordBoundary
         ) :> "\(" ++ ToString@InputForm@TemplateBox({s}, "ReferenceHyperlink") ++ "\)"})
 }
