@@ -1151,7 +1151,7 @@ Box *GraphicsBox::mouse_sensitive() {
 void GraphicsBox::on_mouse_enter() {
   if(error_boxes_expr.is_valid()) {
     if(auto doc = find_parent<Document>(false))
-      doc->native()->show_tooltip(error_boxes_expr);
+      doc->native()->show_tooltip(this, error_boxes_expr);
   }
 }
 

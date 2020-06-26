@@ -299,8 +299,8 @@ void MathGtkWidget::scroll_to(float x, float y) {
   }
 }
 
-void MathGtkWidget::show_tooltip(Expr boxes) {
-  MathGtkTooltipWindow::show_global_tooltip(boxes, document()->stylesheet());
+void MathGtkWidget::show_tooltip(Box *source, Expr boxes) {
+  MathGtkTooltipWindow::show_global_tooltip(source, boxes, document()->stylesheet());
 }
 
 void MathGtkWidget::hide_tooltip() {

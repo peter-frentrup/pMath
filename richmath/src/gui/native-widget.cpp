@@ -75,7 +75,7 @@ namespace {
       
       virtual void scroll_to(float x, float y) override {}
       
-      virtual void show_tooltip(Expr boxes) override {}
+      virtual void show_tooltip(Box *source, Expr boxes) override {}
       virtual void hide_tooltip() override {}
       
       virtual bool is_scaleable() override { return false; }
@@ -303,6 +303,38 @@ void NativeWidget::on_idle_after_edit() {
     owner->invalidate_options();
   }
 }
+
+Box *NativeWidget::source_box() {
+  return FrontEndObject::find_cast<Box>(_source_box);
+}
+
+bool NativeWidget::source_box(Box *box) {
+  if(box) {
+    if(_source_box.unobserved_equals(box->id()))
+      return true;
+    
+    Document *doc = box->find_parent<Document>(true);
+    while(doc) {
+      if(doc->native() == this) {
+        pmath_debug_print("[Cannot set source_box, because that would introduce a reference cycle]\n");
+        return false;
+      }
+      
+      Box *tmp = doc->native()->source_box();
+      if(!tmp)
+        break;
+        
+      doc = tmp->find_parent<Document>(true);
+    }
+    
+    _source_box = box->id();
+  }
+  else
+    _source_box = FrontEndReference::None;
+    
+  return true;
+}
+      
 
 Document *NativeWidget::owner_document(){
   return FrontEndObject::find_cast<Document>(_owner_document); 

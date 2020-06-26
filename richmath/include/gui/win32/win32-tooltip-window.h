@@ -15,7 +15,7 @@ namespace richmath {
       
     public:
       static void move_global_tooltip();
-      static void show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet);
+      static void show_global_tooltip(Box *source, Expr boxes, SharedPtr<Stylesheet> stylesheet);
       static void hide_global_tooltip();
       static void delete_global_tooltip();
       

@@ -62,7 +62,7 @@ namespace richmath {
       virtual void scroll_to(float x, float y) = 0;
       virtual void scroll_by(float dx, float dy);
       
-      virtual void show_tooltip(Expr boxes) = 0;
+      virtual void show_tooltip(Box *source, Expr boxes) = 0;
       virtual void hide_tooltip() = 0;
       
       // scale setting changes doc style Magnification
@@ -113,6 +113,9 @@ namespace richmath {
       
       virtual void on_saved() = 0;
       
+      Box *source_box();
+      bool source_box(Box *box);
+      
       Document *owner_document();
       Document *stylesheet_document();
       bool stylesheet_document(Document *doc);
@@ -140,10 +143,11 @@ namespace richmath {
       ObservableValue<int> _dpi;
       
     private:
-      Document              *_document;
-      FrontEndReference      _owner_document;
-      FrontEndReference      _stylesheet_document;
-      SharedPtr<TimedEvent>  _idle_after_edit;
+      Document                           *_document;
+      ObservableValue<FrontEndReference>  _source_box;
+      FrontEndReference                   _owner_document;
+      FrontEndReference                   _stylesheet_document;
+      SharedPtr<TimedEvent>               _idle_after_edit;
   };
   
   static const float ScaleDefault = 1.f;

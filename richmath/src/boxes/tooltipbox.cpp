@@ -69,7 +69,7 @@ Expr TooltipBox::to_pmath(BoxOutputFlags flags) {
 
 void TooltipBox::on_mouse_enter() {
   if(auto doc = find_parent<Document>(false))
-    doc->native()->show_tooltip(tooltip_boxes);
+    doc->native()->show_tooltip(this, tooltip_boxes);
 }
 
 void TooltipBox::on_mouse_exit() {

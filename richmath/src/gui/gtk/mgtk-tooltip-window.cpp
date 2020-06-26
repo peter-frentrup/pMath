@@ -53,12 +53,13 @@ void MathGtkTooltipWindow::move_global_tooltip() {
   tooltip_window->resize(true);
 }
 
-void MathGtkTooltipWindow::show_global_tooltip(Expr boxes, SharedPtr<Stylesheet> stylesheet) {
+void MathGtkTooltipWindow::show_global_tooltip(Box *source, Expr boxes, SharedPtr<Stylesheet> stylesheet) {
   if(!tooltip_window) {
     tooltip_window = new MathGtkTooltipWindow();
     tooltip_window->init();
   }
   
+  tooltip_window->source_box(source);
   if(tooltip_window->_content_expr != boxes) {
     tooltip_window->_content_expr = boxes;
     

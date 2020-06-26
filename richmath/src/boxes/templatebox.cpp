@@ -404,7 +404,7 @@ void TemplateBox::on_mouse_enter() {
       tooltip = Evaluate(std::move(tooltip));
     }
     
-    doc->native()->show_tooltip(tooltip);
+    doc->native()->show_tooltip(this, tooltip);
   }
 }
 
@@ -428,9 +428,13 @@ void TemplateBox::reset_argument(int index, Expr new_arg) {
 Expr TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item) {
   Box *box = dynamic_cast<Box*>(obj);
   if(item == richmath_System_TemplateBox) {
-    box = box ? TemplateBoxSlotImpl::find_owner_or_self(box) : nullptr;
-    if(box)
-      return box->to_pmath_id();
+    if(!box)
+      return Symbol(PMATH_SYMBOL_NONE);
+    
+    auto tb = TemplateBoxSlotImpl::find_owner_or_self(box);
+    if(tb)
+      return tb->to_pmath_id();
+    
     return Symbol(PMATH_SYMBOL_NONE);
   }
   
@@ -817,6 +821,7 @@ TemplateBoxSlotImpl::TemplateBoxSlotImpl(TemplateBoxSlot &_self)
 
 TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box) {
   int nesting = 0;
+  int max_doc_recursion = 10;
   while(box) {
     if(auto slot = dynamic_cast<TemplateBoxSlot*>(box)) {
       ++nesting;
@@ -824,6 +829,15 @@ TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box) {
     else if(auto tb = dynamic_cast<TemplateBox*>(box)) {
       if(nesting-- == 0)
         return tb;
+    }
+    else if(auto doc = dynamic_cast<Document*>(box)) {
+      if(--max_doc_recursion < 0) {
+        pmath_debug_print("[too deep document -> source_box nesting]\n");
+        break;
+      }
+      
+      box = doc->native()->source_box();
+      continue;
     }
     box = box->parent();
   }

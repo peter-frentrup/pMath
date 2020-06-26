@@ -31,7 +31,7 @@ namespace richmath {
       virtual void scroll_pos(float *x, float *y) override;
       virtual void scroll_to(float x, float y) override;
       
-      virtual void show_tooltip(Expr boxes) override;
+      virtual void show_tooltip(Box *source, Expr boxes) override;
       virtual void hide_tooltip() override;
       
       virtual bool is_scaleable() override { return true; }
