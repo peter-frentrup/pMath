@@ -219,8 +219,9 @@ Document({
                 FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
                   False)))) &), BaseStyle -> "Text", 
               ButtonFrame -> "Frameless"), FontColor -> Dynamic(
-              If(CurrentValue("MouseOver"), RGBColor(1, 0.5`, 0)), 
-              RGBColor(0, 0, 1)), ShowAutoStyles -> False) &)}), 
+              If(CurrentValue("MouseOver"), RGBColor(1, 0.5`, 0), 
+               RGBColor(0, 0, 1))), ShowAutoStyles -> False) &), 
+            Tooltip -> "\"Open reference page\""}), 
           Section(StyleData("StylesheetHyperlink"), 
            TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
              With({FE`Private`content:= Replace(

@@ -99,19 +99,19 @@ Document({
            TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
              Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
                ParseSymbols -> False), HoldComplete(~FE`Private`sym:Symbol) :> 
-               Documentation`PrepareUsageSection(FE`Private`sym::"usage")), 
-             Selectable -> True) &)}), 
+               ToBoxes(Documentation`PrepareUsageSection(
+                FE`Private`sym::"usage"))), Selectable -> True) &)}), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
             Section(StyleData("ReferenceHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({
-                 "\"", ButtonBox(#1, ButtonFunction -> (Replace(#1, {
-                    BoxData(~FE`Private`name:String) :> With({
-                      FE`Private`file:= 
-                       Documentation`FindSymbolDocumentationByFullName(
-                       FE`Private`name)}, If(IsString(FE`Private`file), 
-                      FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
-                        False))))}, 0) &), BaseStyle -> "Text", 
+                 "\"", ButtonBox(#1, ButtonFunction -> (With({
+                    FE`Private`file:= 
+                     Documentation`FindSymbolDocumentationByFullName(
+                     CurrentValue({TemplateSlot, 1}))}, 
+                   If(IsString(FE`Private`file), 
+                    FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
+                      False)))) &), BaseStyle -> "Text", 
                   ButtonFrame -> "Frameless"), "\""}), 
                FontColor -> Dynamic(
                 With({
@@ -120,7 +120,11 @@ Document({
                    CurrentValue({TemplateSlot, 1}))}, 
                  If(FE`Private`file === None, RGBColor(0.80000000000000004`, 
                    0, 0), RGBColor(0, 0, 0.80000000000000004`)))), 
-               ShowAutoStyles -> False) &)}), 
+               ShowAutoStyles -> False) &), Tooltip -> DynamicBox(
+               Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
+                 ParseSymbols -> False), 
+                HoldComplete(~FE`Private`sym:Symbol) :> ToBoxes(
+                 FE`Private`sym::"usage")))}), 
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
                ComplexStringBox({"\"\\\\[", #1, "]\""}), 
