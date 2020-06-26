@@ -224,5 +224,7 @@ Document({
         TemplateBox({"Missing"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Key"}, 
          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Keys"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
-   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+        TemplateBox({"Keys"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"KeyValuePattern"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
