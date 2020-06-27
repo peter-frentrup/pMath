@@ -284,6 +284,7 @@
 {"Join", {"ArgumentCount" -> 2..}},
 {"Key", {"ArgumentCount" -> 1}},
 {"Keys", {"ArgumentCount" -> 1..2}},
+{"KeyValuePattern", {"ArgumentCount" -> 0..1}},
 {"KroneckerSymbol", {"ArgumentCount" -> 2}},
 {"Label", {"ArgumentCount" -> 1}},
 {"Last", {"ArgumentCount" -> 1}},
