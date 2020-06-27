@@ -48,7 +48,25 @@ Document({
          BoxData(FillBox(ButtonBox(StyleBox({"Small", " ", "Caps"}, 
              FontFeatures -> {"smcp"}), ButtonFunction -> (DocumentApply(
              SelectedDocument(), StyleBox("\[SelectionPlaceholder]", 
-              FontFeatures -> {"smcp"})) &)))), "Text")}, All)}, All), 
+              FontFeatures -> {"smcp"})) &)))), "Text")}, All), 
+      SectionGroup({Section("Sections", "Subsubsection"), 
+        Section(
+         BoxData(FillBox(ButtonBox(ComplexStringBox("\"Example Delimiter\""), 
+            BaseStyle -> "Paste", ButtonData :> Section(
+             BoxData(InterpretationBox("", $Line:= 0;, Editable -> False)), 
+             "ExampleDelimiter")))), "Text"), 
+        Section(
+         BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Scope\""), 
+             "ExampleSection"), BaseStyle -> "Paste", 
+            ButtonData :> SectionGroup({Section("Scope", "ExampleSection"), 
+              Section("XXX", "ExampleText")}, All)))), "Text"), 
+        Section(
+         BoxData(
+          FillBox(
+           ButtonBox(StyleBox(ComplexStringBox("\"Example Subsection\""), 
+             "ExampleSubsection"), BaseStyle -> "Paste", 
+            ButtonData :> SectionGroup({Section("XXX", "ExampleSubsection"), 
+              Section("XXX", "ExampleText")}, All)))), "Text")}, All)}, All), 
     SectionGroup({Section("Actions", "Subsection"), 
       Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Reset $Line\""), 
           ButtonFunction -> (($Line:= 0) &)))), "Text")}, All)}, All)}, 
@@ -67,8 +85,22 @@ Document({
         SectionMargins -> {25, 5, 5, 5}, Selectable -> False, 
         WholeSectionGroupOpener -> True), Section(StyleData("Text"), 
         ButtonBoxOptions -> {ButtonFrame -> "Palette"}, 
-        SectionMargins -> {0, 0, 0, 0})}, All), 
-     SectionGroup({Section("Box styles", "Section"), 
+        SectionMargins -> {0, 0, 0, 0}), 
+       SectionGroup({Section(StyleData("ExampleSection"), 
+          BaseStyle -> "Subsection", DefaultNewSectionStyle -> "ExampleText", 
+          FontColor -> RGBColor(0, 0.502`, 0.125`), 
+          SectionDingbat :> OpenerBox(
+           Dynamic(CurrentValue("SectionGroupOpen"))), 
+          SectionMargins -> {35, Inherited, Inherited, Inherited}, 
+          ShowSectionBracket -> Automatic, WholeSectionGroupOpener -> True), 
+         Section(StyleData("ExampleSubsection"), BaseStyle -> "Subsubsection", 
+          DefaultNewSectionStyle -> "ExampleText", 
+          FontColor -> RGBColor(0, 0.502`, 0.125`), 
+          SectionDingbat :> OpenerBox(
+           Dynamic(CurrentValue("SectionGroupOpen"))), 
+          SectionMargins -> {45, Inherited, Inherited, Inherited}, 
+          ShowSectionBracket -> Automatic, WholeSectionGroupOpener -> True)}, 
+        All)}, All), SectionGroup({Section("Box styles", "Section"), 
        Section({
          "The following styles mimic those of the \[HighSixDoubleQuote]", 
          TemplateBox({"Reference.pmathdoc"}, "StylesheetHyperlink"), 
