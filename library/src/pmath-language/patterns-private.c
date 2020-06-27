@@ -1818,6 +1818,7 @@ static match_kind_t match_atom_to_keyvaluepattern(pattern_info_t *info, pmath_t 
     while(first_unused_arg <= arglen && arg_usage[first_unused_arg - 1] == IN_USE)
       ++first_unused_arg;
     
+    kind = PMATH_MATCH_KIND_NONE;
     for(arg_i = first_unused_arg; arg_i <= arglen; ++arg_i) {
       if(arg_usage[arg_i - 1] == NOT_IN_USE) {
         pmath_t rule = pmath_expr_get_item(arg, arg_i);
@@ -1833,18 +1834,19 @@ static match_kind_t match_atom_to_keyvaluepattern(pattern_info_t *info, pmath_t 
         }
         if(kind == PMATH_MATCH_KIND_LOCAL) {
           arg_usage[arg_i - 1] = IN_USE;
-          pmath_unref(sub_pat);
-          continue;
+          break;
         }
         arg_usage[arg_i - 1] = NOT_IN_USE;
       }
     }
     
     pmath_unref(sub_pat);
-    pmath_mem_free(arg_usage);
-    pmath_unref(rule_pats);
-    pmath_unref(tab);
-    return PMATH_MATCH_KIND_NONE;
+    if(kind == PMATH_MATCH_KIND_NONE) {
+      pmath_mem_free(arg_usage);
+      pmath_unref(rule_pats);
+      pmath_unref(tab);
+      return PMATH_MATCH_KIND_NONE;
+    }
   }
   
   pmath_mem_free(arg_usage);
