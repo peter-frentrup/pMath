@@ -1,0 +1,70 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Keys", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Keys"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"Keys"}, "ReferenceHyperlink"), 
+          " maintains the order of keys."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get the keys in a list of rules:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Keys", "(", {
+              "{", {{"a", "\[Rule]", "1"}, ",", {"b", "\[Rule]", "2"}}, "}"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"a", ",", "b"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"Keys"}, "ReferenceHyperlink"), 
+            " automatically threads of general lists:"}, "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Keys", "(", {
+                "{", {
+                 {"{", {{"a", "\[Rule]", "1"}, ",", {"b", "\[Rule]", "2"}}, 
+                  "}"}, ",", {"{", {"c", "\[Rule]", "3"}, "}"}}, "}"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{"{", {"a", ",", "b"}, "}"}, ",", {
+                 "{", "c", "}"}}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Use ", TemplateBox({"Hold"}, "ReferenceHyperlink"), 
+            " to prevent evaluation due to ", 
+            TemplateBox({"UpRules"}, "ReferenceHyperlink"), " definitions:"}, 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Keys", "(", {
+                {"{", {{"a", "\[Rule]", "1"}, ",", {
+                   "Nothing", "\[Rule]", "2"}}, "}"}, ",", "Hold"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {{"Hold", "(", "a", ")"}, ",", {
+                 "Hold", "(", "Nothing", ")"}}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section({TemplateBox({"Keys"}, "ReferenceHyperlink"), 
+          " returns keys in the order of occurence:"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Keys", "(", {
+              "{", {{"c", "\[Rule]", "3"}, ",", {"b", "\[Rule]", "2"}, ",", {
+                "a", "\[Rule]", "1"}}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"c", ",", "b", ",", "a"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Rule"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"RuleDelayed"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

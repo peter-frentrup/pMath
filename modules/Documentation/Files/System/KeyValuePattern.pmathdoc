@@ -1,0 +1,31 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("KeyValuePattern", "ObjectName"), 
+      Section(BoxData(TemplateBox({"KeyValuePattern"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({"The ", StyleBox({"patt", SubscriptBox("i")}, "Arg"), 
+          " are usually of the form ", StyleBox({"key", SubscriptBox("i")}, 
+           "Arg"), " \[Rule] ", StyleBox({"val", SubscriptBox("i")}, "Arg"), 
+          " but may be any pattern."}, "Notes"), 
+        Section({"The ", StyleBox({"patt", SubscriptBox("i")}, "Arg"), 
+          " are matched in order, but may appear in any order in the list of \
+          rules."}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Test for a list of rules:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Match", "(", {
+              {"{", {{"a", "\[Rule]", "1"}, ",", {"b", "\[Rule]", "2"}}, "}"}, 
+              ",", {"KeyValuePattern", "(", ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("True"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"OptionsPattern"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"PatternSequence"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
