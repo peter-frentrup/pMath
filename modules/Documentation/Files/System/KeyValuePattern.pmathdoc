@@ -12,18 +12,62 @@ Document({
           " but may be any pattern."}, "Notes"), 
         Section({"The ", StyleBox({"patt", SubscriptBox("i")}, "Arg"), 
           " are matched in order, but may appear in any order in the list of \
-          rules."}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+          rules."}, "Notes"), 
+        Section({"For a single rule, ", TemplateBox({"KeyValuePattern"}, 
+           "ReferenceHyperlink"), "(", StyleBox("key", "Arg"), " \[Rule] ", 
+          StyleBox("value", "Arg"), ") is the same as  ", 
+          TemplateBox({"KeyValuePattern"}, "ReferenceHyperlink"), "({", 
+          StyleBox("key", "Arg"), " \[Rule] ", StyleBox("value", "Arg"), 
+          "})"}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Test for a list of rules:", "ExampleText"), 
         SectionGroup({
           Section(
            BoxData({"Match", "(", {
-              {"{", {{"a", "\[Rule]", "1"}, ",", {"b", "\[Rule]", "2"}}, "}"}, 
-              ",", {"KeyValuePattern", "(", ")"}}, ")"}), "Input", 
+              {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}}, 
+               "}"}, ",", {"KeyValuePattern", "(", ")"}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), Section(BoxData("True"), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-       All), Section("", "SectionFooterSpacer")}, All), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Test for appearance of a particular rule:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Match", "(", {
+                {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}, 
+                  ",", {"c", "\[Rule]", "33"}}, "}"}, ",", {
+                 "KeyValuePattern", "(", {"b", "\[Rule]", "2"}, ")"}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("False"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section({TemplateBox({"KeyValuePattern"}, "ReferenceHyperlink"), 
+          " distinguishes ", TemplateBox({"Rule"}, "ReferenceHyperlink"), 
+          " and ", TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), ":"}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Match", "(", {{"{", {"a", "\[Rule]", "11"}, "}"}, 
+              ",", {"KeyValuePattern", "(", {
+                "{", {"a", "\[RuleDelayed]", "11"}, "}"}, ")"}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("False"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({TemplateBox({"KeyValuePattern"}, "ReferenceHyperlink"), 
+            " tests patterns from left to right:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Replace", "(", {
+                {"{", {{"b", "\[Rule]", "22"}, ",", {"a", "\[Rule]", "11"}}, 
+                 "}"}, ",", {{"KeyValuePattern", "(", {
+                   "{", {{"~", "\[Rule]", {"~", "x"}}, ",", {
+                     "~", "\[Rule]", {"~", "y"}}}, "}"}, ")"}, 
+                 "\[RuleDelayed]", {"{", {"x", ",", "y"}, "}"}}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"22", ",", "11"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"OptionsPattern"}, "ReferenceHyperlink"), 
         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"PatternSequence"}, 
