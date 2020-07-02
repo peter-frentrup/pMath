@@ -119,7 +119,7 @@
 {"Do", {"ArgumentCount" -> 2, "LocalVariables" -> {"Table", 2}, "Category" -> "Keyword"}},
 {"DocumentApply", {"ArgumentCount" -> 2}},
 {"DocumentDelete", {"ArgumentCount" -> 1..2}},
-{"DocumentGet", {"ArgumentCount" -> 1..2}},
+{"DocumentGet", {"ArgumentCount" -> 0..1}},
 {"DocumentObject", {"ArgumentCount" -> 1}},
 {"DocumentOpen", {"ArgumentCount" -> 1}},
 {"DocumentRead", {"ArgumentCount" -> 1..2}},
