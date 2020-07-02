@@ -399,6 +399,7 @@ void Win32ControlPainter::calc_container_size(
         }
       }
       
+      round_extents(canvas, extents);
       return;
     }
   }
