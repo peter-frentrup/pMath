@@ -150,6 +150,7 @@ namespace richmath {
       
       FrontEndReference clicked_box_id() {   return context.clicked_box_id; }
       FrontEndReference mouseover_box_id() { return context.mouseover_box_id; }
+      static Expr get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item);
       void reset_mouse();
       bool is_mouse_down();
       

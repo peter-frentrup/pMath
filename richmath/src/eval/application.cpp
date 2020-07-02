@@ -722,6 +722,7 @@ static const char s_ControlsFontWeight[] = "ControlsFontWeight";
 static const char s_CurrentValueProviders[] = "CurrentValueProviders";
 static const char s_DocumentScreenDpi[] = "DocumentScreenDpi";
 static const char s_MouseOver[] = "MouseOver";
+static const char s_MouseOverBox[] = "MouseOverBox";
 static const char s_SectionGroupOpen[] = "SectionGroupOpen";
 static const char s_SelectedMenuCommand[] = "SelectedMenuCommand";
 static const char s_StyleDefinitionsOwner[] = "StyleDefinitionsOwner";
@@ -741,6 +742,7 @@ void Application::init() {
 #endif
   
   register_currentvalue_provider(String(s_MouseOver),                  get_current_value_of_MouseOver);
+  register_currentvalue_provider(String(s_MouseOverBox),               Document::get_current_value_of_MouseOverBox);
   register_currentvalue_provider(String(s_DocumentScreenDpi),          get_current_value_of_DocumentScreenDpi);
   register_currentvalue_provider(String(s_ControlsFontFamily),         get_current_value_of_ControlFont_data);
   register_currentvalue_provider(String(s_ControlsFontSlant),          get_current_value_of_ControlFont_data);

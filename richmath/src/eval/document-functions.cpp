@@ -247,7 +247,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
 }
 
 bool richmath::impl::init_document_functions() {
-  Application::register_menucommand(String("OpenSelectionHelp"),                   open_selection_help_cmd);
+  Application::register_menucommand(String("OpenSelectionHelp"), open_selection_help_cmd);
 
   OpenDocumentMenuImpl::init();
   SelectDocumentMenuImpl::init();

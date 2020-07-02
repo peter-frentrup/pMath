@@ -95,6 +95,8 @@ namespace {
       SelectionReference debug_move_sel;
       int                click_repeat_count;
       
+      ObservableValue<FrontEndReference> observable_mouseover_box_id;
+      
     private:
       Document *_document;
       int _num_buttons_pressed;
@@ -479,6 +481,7 @@ void Document::mouse_exit() {
     }
     
     context.mouseover_box_id = FrontEndReference::None;
+    mouse_history.observable_mouseover_box_id = FrontEndReference::None;
   }
   
   if(DebugFollowMouse) {
@@ -609,22 +612,8 @@ void Document::mouse_move(MouseEvent &event) {
     }
     else
       context.mouseover_box_id = FrontEndReference::None;
-      
-//    if(new_over != old_over){
-//      if(old_over)
-//        old_over->on_mouse_exit();
-//
-//      if(new_over)
-//        new_over->on_mouse_enter();
-//    }
-//
-//    if(new_over){
-//      context.mouseover_box_id = new_over->id();
-//
-//      new_over->on_mouse_move(event);
-//    }
-//    else
-//      context.mouseover_box_id = FrontEndReference::None;
+    
+    mouse_history.observable_mouseover_box_id = context.mouseover_box_id;
   }
 }
 
@@ -3452,6 +3441,18 @@ void Document::complete_box() {
   }
   
   native()->beep();
+}
+
+Expr Document::get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item) {
+  FrontEndReference ref = mouse_history.observable_mouseover_box_id;
+  Box *box = FrontEndObject::find_cast<Box>(ref);
+  if(!box)
+    return Symbol(PMATH_SYMBOL_NONE);
+  
+  if(dynamic_cast<AbstractSequence*>(box) && box->parent())
+    box = box->parent();
+  
+  return box->to_pmath_id();
 }
 
 void Document::reset_mouse() {
