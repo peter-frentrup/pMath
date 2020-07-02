@@ -69,6 +69,13 @@ extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
 static bool open_selection_help_cmd(Expr cmd);
 
+Expr richmath_eval_FrontEnd_CreateDocument(Expr expr);
+Expr richmath_eval_FrontEnd_DocumentGet(Expr expr);
+Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr);
+Expr richmath_eval_FrontEnd_Documents(Expr expr);
+Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
+Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
+
 void richmath::set_current_document(Document *document) {
   FrontEndReference id = document ? document->id() : FrontEndReference::None;
   if(current_document_id.unobserved_equals(id))
@@ -105,6 +112,28 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
   doc->invalidate_options();
   
   return doc->to_pmath_id();
+}
+
+Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
+  /*  FrontEnd`DocumentGet()
+      FrontEnd`DocumentGet(doc)
+   */
+  
+  size_t exprlen = expr.expr_length();
+  if(exprlen > 1)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  FrontEndReference docid;
+  if(exprlen == 1)
+    docid = FrontEndReference::from_pmath(expr[1]);
+  else
+    docid = current_document_id;
+  
+  Box *box = FrontEndObject::find_cast<Box>(docid);
+  if(!box)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  return box->to_pmath(BoxOutputFlags::WithDebugInfo);
 }
 
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
@@ -145,6 +174,16 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
   }
   doc->native()->bring_to_front();
   return doc->to_pmath_id();
+}
+
+Expr richmath_eval_FrontEnd_Documents(Expr expr) {
+  Gather gather;
+  
+  for(auto win : CommonDocumentWindow::All) {
+    Gather::emit(win->content()->to_pmath_id());
+  }
+  
+  return gather.end();
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
@@ -198,16 +237,6 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   doc->native()->bring_to_front();
   
   return doc->to_pmath_id();
-}
-
-Expr richmath_eval_FrontEnd_Documents(Expr expr) {
-  Gather gather;
-  
-  for(auto win : CommonDocumentWindow::All) {
-    Gather::emit(win->content()->to_pmath_id());
-  }
-  
-  return gather.end();
 }
 
 bool richmath::impl::init_document_functions() {

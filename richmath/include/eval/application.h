@@ -21,7 +21,6 @@ namespace richmath {
     DynamicUpdate,
     CurrentValue,
     SetCurrentValue,
-    DocumentGet,
     DocumentRead,
     FileDialog,
     Save,

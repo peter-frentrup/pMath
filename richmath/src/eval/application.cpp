@@ -1696,21 +1696,6 @@ static Expr cnt_setcurrentvalue(Expr assignment) {
   return std::move(assignment);
 }
 
-static Expr cnt_documentget(Expr data) {
-  Box *box;
-  
-  if(data.expr_length() == 0)
-    box = get_current_document();
-  else
-    box = FrontEndObject::find_cast<Box>(
-            FrontEndReference::from_pmath(data[1]));
-            
-  if(box == nullptr)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  return box->to_pmath(BoxOutputFlags::Default);
-}
-
 static Expr cnt_documentread(Expr data) {
   Document *doc = nullptr;
   
@@ -1954,11 +1939,6 @@ static void execute(ClientNotificationData &cn) {
     case ClientNotification::SetCurrentValue:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_setcurrentvalue(std::move(cn.data)).release();
-      break;
-      
-    case ClientNotification::DocumentGet:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_documentget(std::move(cn.data)).release();
       break;
       
     case ClientNotification::DocumentRead:

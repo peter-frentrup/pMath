@@ -100,16 +100,6 @@ static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
   return PMATH_NULL;
 }
 
-static pmath_t builtin_documentget(pmath_expr_t _expr) {
-  Expr expr(_expr);
-  if(expr.expr_length() > 1) {
-    pmath_message_argxxx(expr.expr_length(), 0, 1);
-    return expr.release();
-  }
-  
-  return Application::notify_wait(ClientNotification::DocumentGet, expr).release();
-}
-
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
   Expr expr(_expr);
   
@@ -1451,7 +1441,6 @@ bool richmath::init_bindings() {
   BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTDELETE,           builtin_documentdelete)
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTGET,              builtin_documentget)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
