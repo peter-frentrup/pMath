@@ -116,7 +116,7 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
 
 Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
   /*  FrontEnd`DocumentGet()
-      FrontEnd`DocumentGet(doc)
+      FrontEnd`DocumentGet(selectionOrBox)
    */
   
   size_t exprlen = expr.expr_length();
@@ -124,8 +124,15 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
     return Symbol(PMATH_SYMBOL_FAILED);
   
   FrontEndReference docid;
-  if(exprlen == 1)
+  if(exprlen == 1) {
     docid = FrontEndReference::from_pmath(expr[1]);
+    
+    if(docid == FrontEndReference::None) {
+      if(VolatileSelection sel = SelectionReference::from_debug_info(expr[1]).get_all()) {
+        return sel.to_pmath(BoxOutputFlags::WithDebugInfo);
+      }
+    }
+  }
   else
     docid = current_document_id;
   
