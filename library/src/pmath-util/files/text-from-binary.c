@@ -1,4 +1,5 @@
 #include <pmath-util/files/text-from-binary.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
 
 #include <errno.h>
@@ -127,10 +128,23 @@ pmath_string_t bintext_extra_readln(void *closure) {
     len = pmath_string_length(result);
     
     do {
+      size_t old_inbytesleft = inbytesleft;
       size_t ret = iconv(extra->in_cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
       
       if(ret == (size_t) - 1) {
-        if(errno == EILSEQ) { // invalid input byte
+        int err = errno;
+        if(err != E2BIG && err != EILSEQ && err != EINVAL) {
+          pmath_debug_print("[bintext_extra_readln: unknown errno %d from failed iconv()]\n", err);
+        
+          if(inbytesleft < 4)
+            err = EINVAL;
+          else if(outbytesleft < 4)
+            err = E2BIG;
+          else 
+            err = EILSEQ;
+        }
+        
+        if(err == EILSEQ) { // invalid input byte
           if(outbytesleft > 1) {
             *((uint16_t *)outbuf) = *(uint8_t *)inbuf;
             
@@ -141,7 +155,7 @@ pmath_string_t bintext_extra_readln(void *closure) {
           ++inbuf;
           --inbytesleft;
         }
-        else if(errno == EINVAL) { // incomplete input
+        else if(err == EINVAL) { // incomplete input
           size_t more = 0;
           
           memmove(in, inbuf, inbytesleft);
@@ -149,7 +163,7 @@ pmath_string_t bintext_extra_readln(void *closure) {
           more = pmath_file_read(
                    extra->binfile,
                    in + inbytesleft,
-                   1/*sizeof(inbuf) - inbytesleft*/,
+                   1, //sizeof(in) - inbytesleft
                    FALSE);
                    
           inbuf = in;
@@ -170,7 +184,7 @@ pmath_string_t bintext_extra_readln(void *closure) {
           
           inbytesleft += more;
         }
-        else if(errno == E2BIG) { // output buffer too small
+        else if(err == E2BIG) { // output buffer too small
           chars_read = (int)(((size_t)outbuf - (size_t)out) / 2);
           
           if(chars_read > 0) {
@@ -190,7 +204,7 @@ pmath_string_t bintext_extra_readln(void *closure) {
           
           outbuf = (char *)out;
           outbytesleft = sizeof(out);
-        }
+        } 
       }
     } while(inbytesleft > 0);
     
@@ -279,7 +293,19 @@ static pmath_bool_t bintext_extra_write(
         size_t ret = iconv(extra->out_cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
         
         if(ret == (size_t) - 1) {
-          if(errno == EILSEQ) { // invalid input byte
+          int err = errno;
+          if(err != E2BIG && err != EILSEQ && err != EINVAL) {
+            pmath_debug_print("[bintext_extra_write: unknown errno %d from failed iconv()]\n", err);
+            
+            if(inbytesleft < 4)
+              err = EINVAL;
+            else if(outbytesleft < 4)
+              err = E2BIG;
+            else 
+              err = EILSEQ;
+          }
+          
+          if(err == EILSEQ) { // invalid input byte
             if(outbytesleft > 1) {
               *outbuf = '?';
               
@@ -296,7 +322,7 @@ static pmath_bool_t bintext_extra_write(
               inbytesleft -= 2;
             }
           }
-          else if(errno == EINVAL) { // incomplete input
+          else if(err == EINVAL) { // incomplete input
             if(outbytesleft > 1) {
               *outbuf = '?';
               
@@ -306,7 +332,7 @@ static pmath_bool_t bintext_extra_write(
             
             inbytesleft = 0;
           }
-          else if(errno == E2BIG) { // output buffer too small
+          else if(err == E2BIG) { // output buffer too small
             result = pmath_file_write(
                        extra->binfile,
                        buf,
