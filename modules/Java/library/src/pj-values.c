@@ -711,7 +711,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
               arr = pmath_expr_set_item(arr, i + 1, item);
             }
             
-            (*env)->ReleasePrimitiveArrayCritical(env, value->l, data, 0);
+            (*env)->ReleasePrimitiveArrayCritical(env, value->l, data, JNI_ABORT);
           }
         }
         
