@@ -1,7 +1,10 @@
+#define ICONV_CONST
+
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/concurrency/threads.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
@@ -11,6 +14,10 @@
 
 #include <errno.h>
 #include <iconv.h>
+
+#ifndef iconv_errno
+#  define iconv_errno  errno
+#endif
 
 
 static pmath_expr_t string_to_utf16_codes(pmath_string_t str, iconv_t dummy) { // str will be freed
@@ -125,17 +132,29 @@ static pmath_expr_t string_to_iconv_bytes(pmath_string_t str, iconv_t cd) {
     result = append_bytes(result, buffer, outbuf - buffer);
     
     if(ret == (size_t) - 1) {
-      if(errno == EILSEQ) { // invalid input byte
+      int err = iconv_errno;
+      if(err != E2BIG && err != EILSEQ && err != EINVAL) {
+        pmath_debug_print("[string_to_iconv_bytes: unknown errno %d from failed iconv()]\n", err);
+      
+        if(inbytesleft < 4)
+          err = EINVAL;
+        else if(outbytesleft < 4)
+          err = E2BIG;
+        else 
+          err = EILSEQ;
+      }
+      
+      if(err == EILSEQ) { // invalid input byte
         result = pmath_expr_append(result, 1, pmath_ref(PMATH_SYMBOL_NONE));
         
         ++inbuf;
         --inbytesleft;
       }
-      else if(errno == EINVAL) { // incomplete input
+      else if(err == EINVAL) { // incomplete input
         result = pmath_expr_append(result, 1, pmath_ref(PMATH_SYMBOL_NONE));
         break;
       }
-      else if(errno == E2BIG) { // output buffer too small
+      else if(err == E2BIG) { // output buffer too small
         // already flushed buffer
         
         if(pmath_aborting())

@@ -1,3 +1,5 @@
+#define ICONV_CONST
+
 #include <pmath-util/files/text-from-binary.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/memory.h>
@@ -6,6 +8,10 @@
 #include <iconv.h>
 #include <limits.h>
 #include <string.h>
+
+#ifndef iconv_errno
+#  define iconv_errno  errno
+#endif
 
 
 struct _bintext_extra_t {
@@ -132,7 +138,7 @@ pmath_string_t bintext_extra_readln(void *closure) {
       size_t ret = iconv(extra->in_cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
       
       if(ret == (size_t) - 1) {
-        int err = errno;
+        int err = iconv_errno;
         if(err != E2BIG && err != EILSEQ && err != EINVAL) {
           pmath_debug_print("[bintext_extra_readln: unknown errno %d from failed iconv()]\n", err);
         
@@ -293,7 +299,7 @@ static pmath_bool_t bintext_extra_write(
         size_t ret = iconv(extra->out_cd, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
         
         if(ret == (size_t) - 1) {
-          int err = errno;
+          int err = iconv_errno;
           if(err != E2BIG && err != EILSEQ && err != EINVAL) {
             pmath_debug_print("[bintext_extra_write: unknown errno %d from failed iconv()]\n", err);
             

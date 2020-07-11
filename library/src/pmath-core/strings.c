@@ -1,3 +1,5 @@
+#define ICONV_CONST
+
 #include <pmath-core/objects-private.h>
 #include <pmath-core/strings-private.h>
 
@@ -20,6 +22,10 @@
 #include <iconv.h>
 #include <limits.h>
 #include <string.h>
+
+#ifndef iconv_errno
+#  define iconv_errno  errno
+#endif
 
 
 extern pmath_symbol_t pmath_System_ComplexStringBox;
@@ -1283,10 +1289,14 @@ void pmath_utf8_writer(void *user, const uint16_t *data, int len) {
     return;
 
   while(inbytesleft > 0) {
-    size_t ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
+    size_t ret;
+    
+    iconv_errno = 0;
+    ret = iconv(to_utf8, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
 
     if(ret == (size_t) - 1) {
-      if(errno == E2BIG) { // output buffer too small
+      int err = iconv_errno;
+      if(err == E2BIG) { // output buffer too small
         *outbuf = '\0';
 
         write_with_nulls(user, buf, outbuf);
@@ -1321,15 +1331,23 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
   while(inbytesleft > 0) {
     size_t ret;
 
-    errno = 0;
+    iconv_errno = 0;
     ret = iconv(to_native, &inbuf, &inbytesleft, &outbuf, &outbytesleft);
 
     if(ret == (size_t) - 1) {
-      int the_error = errno;
-      if(the_error == 0 && outbytesleft == 0) // win_iconv seems to sometimes fails setting errno to E2BIG.
-        the_error = E2BIG;
-
-//      if(the_error == E2BIG){ // output buffer too small
+      int err = iconv_errno;
+      if(err != E2BIG && err != EILSEQ && err != EINVAL) {
+        pmath_debug_print("[pmath_native_writer: unknown errno %d from failed iconv()]\n", err);
+      
+        if(inbytesleft < 4)
+          err = EINVAL;
+        else if(outbytesleft < 4)
+          err = E2BIG;
+        else 
+          err = EILSEQ;
+      }
+      
+//      if(err == E2BIG){ // output buffer too small
       *outbuf = '\0';
 
       write_with_nulls(info, buf, outbuf);
@@ -1338,7 +1356,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
       outbytesleft = sizeof(buf) - 1;
 //      }
 
-      if(the_error == EILSEQ && ((size_t)inbuf & 1) == 0 && inbytesleft >= 2) { // 2-byte aligned
+      if(err == EILSEQ && ((size_t)inbuf & 1) == 0 && inbytesleft >= 2) { // 2-byte aligned
         const char *name;
         uint16_t *u16 = (void *)inbuf;
         uint32_t ch;
@@ -1374,7 +1392,7 @@ void pmath_native_writer(void *user, const uint16_t *data, int len) {
             }
         }
       }
-      else if(the_error != E2BIG) { // invalid input byte  or  incomplete input
+      else if(err != E2BIG) { // invalid input byte  or  incomplete input
         ++inbuf;
         --inbytesleft;
       }

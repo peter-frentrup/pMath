@@ -1,3 +1,5 @@
+#define ICONV_CONST
+
 #include <pmath-core/numbers.h>
 #include <pmath-core/packed-arrays.h>
 
@@ -13,6 +15,10 @@
 #include <iconv.h>
 #include <limits.h>
 #include <string.h>
+
+#ifndef iconv_errno
+#  define iconv_errno  errno
+#endif
 
 
 // PMATH_UNDEFINED on error
@@ -110,7 +116,19 @@ static pmath_t try_from_iconv_bytes(const int32_t *data, size_t length, iconv_t 
     str = pmath_string_insert_ucs2(str, INT_MAX, words, (int)((uint16_t*)outbuf - words));
     
     if(ret == (size_t) - 1) {
-      if(errno == EILSEQ) { // invalid input byte
+      int err = iconv_errno;
+      if(err != E2BIG && err != EILSEQ && err != EINVAL) {
+        pmath_debug_print("[try_from_iconv_bytes: unknown errno %d from failed iconv()]\n", err);
+      
+        if(inbytesleft < 4)
+          err = EINVAL;
+        else if(outbytesleft < 4)
+          err = E2BIG;
+        else 
+          err = EILSEQ;
+      }
+      
+      if(err == EILSEQ) { // invalid input byte
         int32_t extended_byte = *(uint8_t*)inbuf;
         pmath_t ch = try_from_unicode(&extended_byte, 1, NULL);
         if(pmath_is_string(ch)) {
@@ -126,10 +144,10 @@ static pmath_t try_from_iconv_bytes(const int32_t *data, size_t length, iconv_t 
         ++inbuf;
         --inbytesleft;
       }
-      else if(errno == EINVAL) { // incomplete input
+      else if(err == EINVAL) { // incomplete input
         // already flushed. Next iteration should succeed
       }
-      else if(errno == E2BIG) { // output buffer too small
+      else if(err == E2BIG) { // output buffer too small
         // already flushed. Next iteration should succeed
       }
     }
