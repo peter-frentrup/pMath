@@ -73,12 +73,12 @@ ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\)
 
 Local(path) {
 	If($SystemId === "Windows") {
-		path:= Join(Environment("PATH").StringSplit($PathListSeparator),
-				Environment("ProgramFiles").StringSplit($PathListSeparator))
+		path:= Environment("ProgramFiles").StringSplit($PathListSeparator)
 		
 		path:= path.FileNames("Java")
 		path:= Join(path.FileNames("jre*").Reverse, path.FileNames("jdk*").FileNames("jre").Reverse)
 		path:= path.FileNames("bin")
+		path:= Join(Environment("PATH").StringSplit($PathListSeparator), path)
 		path:= path.FileNames({"server","client"})
 		path:= path.FileNames("jvm.dll")
 		
