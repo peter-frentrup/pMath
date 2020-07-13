@@ -190,7 +190,7 @@ AddToClassPath(~~~paths:String)::= {paths}.Scan(AddToClassPath)
 AddToClassPath(paths: {~~~:String})::= paths.Scan(AddToClassPath)
 Function AddToClassPath(~path:String) {
 	If(JavaIsRunning()) {
-		JavaClass("pmath.util.ClassPathUpdater") @ add(path);
+		Java`Internal`AddToClassPath(path)
 	} Else {
 		With(protected:= Unprotect($DefaultClassPath))
 		

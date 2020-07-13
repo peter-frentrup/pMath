@@ -39,7 +39,8 @@ extern pmath_bool_t pj_class_set_field(
   pmath_string_t  name,   // will be freed; gives error message if no string 
   pmath_t         value); // will be freed
 
-
+extern pmath_t pj_builtin_internal_addtoclasspath(pmath_expr_t expr);
+  
 extern pmath_bool_t pj_classes_init(void);
 extern void         pj_classes_done(void);
 

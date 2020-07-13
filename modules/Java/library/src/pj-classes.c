@@ -1630,6 +1630,33 @@ extern pmath_bool_t pj_class_set_field(
   return result;
 }
 
+extern pmath_t pj_builtin_internal_addtoclasspath(pmath_expr_t expr) {
+  pmath_t pjvm = pjvm_try_get();
+  jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
+  
+  if(jvmti) {
+    size_t i;
+    
+    for(i = 1; i <pmath_expr_length(expr); ++i) {
+      pmath_t arg = pmath_expr_get_item(expr, 1);
+      if(pmath_is_string(arg)) {
+        int len;
+        char *utf8 = pmath_string_to_utf8(arg, &len);
+        if(utf8) {
+          jvmtiError err = (*jvmti)->AddToSystemClassLoaderSearch(jvmti, utf8);
+          if(err != JVMTI_ERROR_NONE) {
+            pmath_debug_print("[AddToSystemClassLoaderSearch failed with error %d]\n", (int)err);
+          }
+          pmath_mem_free(utf8);
+        }
+      }
+      pmath_unref(arg);
+    }
+  }
+  
+  pmath_unref(pjvm);
+  return expr;
+}
 
 pmath_bool_t pj_classes_init(void) {
   cms2id = pmath_ht_create(&cms2id_class, 0);

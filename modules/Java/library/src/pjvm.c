@@ -198,7 +198,7 @@ static pmath_custom_t create_pjvm(JavaVM *jvm) {
     
   d->jvm   = jvm;
   d->jvmti = NULL;
-  (*d->jvm)->GetEnv(d->jvm, (void**)&d->jvmti, JVMTI_VERSION_1_0);
+  (*d->jvm)->GetEnv(d->jvm, (void**)&d->jvmti, JVMTI_VERSION_1_1);
   if(!d->jvmti) {
     pmath_mem_free(d);
     return PMATH_NULL;
