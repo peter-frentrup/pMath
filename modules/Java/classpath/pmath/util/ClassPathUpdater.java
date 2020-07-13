@@ -14,36 +14,27 @@ import java.net.URLClassLoader;
  * Source: http://stackoverflow.com/questions/271506/why-system-setproperty-cannot-change-the-classpath-at-run-time
  */
 public class ClassPathUpdater {
-	/** Used to find the method signature. */
-	private static final Class[] PARAMETERS = new Class[]{ URL.class };
-
-	/** Class containing the private addURL method. */
-	private static final Class<?> CLASS_LOADER = URLClassLoader.class;
-
-	/** Adds a direcotry or jar/zip file to the class path. */
-	public static void add( String s )
+	private static final Class[] PARAMETERS_URL = new Class[]{ URL.class };
+	private static final Class[] PARAMETERS_STRING = new Class[]{ String.class };
+	
+	/** Adds a directory or jar/zip file to the class path. */
+	public static void add(String path)
 		throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException 
 	{
-		add( new File( s ) );
-	}
+		ClassLoader sysLoader = ClassLoader.getSystemClassLoader();
+		Class<?> classLoaderClass = sysLoader.getClass();
+		try {
+			Method method = classLoaderClass.getDeclaredMethod("appendToClassPathForInstrumentation", PARAMETERS_STRING);
+			method.setAccessible(true);
+			method.invoke(sysLoader, new Object[]{ path });
+		}
+		catch(NoSuchMethodException ex) {
+		}
 
-	/** Adds a direcotry or jar/zip file to the class path. */
-	public static void add( File f )
-		throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException 
-	{
-		add( f.toURI().toURL() );
-	}
-
-	/** Adds a direcotry or jar/zip file to the class path. */
-	public static void add( URL url )
-		throws IOException, NoSuchMethodException, IllegalAccessException, InvocationTargetException 
-	{
-		Method method = CLASS_LOADER.getDeclaredMethod( "addURL", PARAMETERS );
-		method.setAccessible( true );
-		method.invoke( getClassLoader(), new Object[]{ url } );
-	}
-
-	private static URLClassLoader getClassLoader() {
-		return (URLClassLoader)ClassLoader.getSystemClassLoader();
+		if(sysLoader instanceof URLClassLoader) {
+			Method method = URLClassLoader.class.getDeclaredMethod( "addURL", PARAMETERS_URL );
+			method.setAccessible( true );
+			method.invoke(sysLoader, new Object[]{ new File(path).getCanonicalFile().toURI().toURL() });
+		}
 	}
 }
