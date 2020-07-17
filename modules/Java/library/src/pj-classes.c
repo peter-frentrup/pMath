@@ -1,6 +1,5 @@
 #include "pj-classes.h"
 #include "pj-objects.h"
-#include "pj-symbols.h"
 #include "pj-threads.h"
 #include "pj-values.h"
 #include "pjvm.h"
@@ -25,6 +24,18 @@ enum {
   PJ_MODIFIER_STRICT        = 2048
 };
 
+extern pmath_symbol_t pjsym_Java_Java;
+extern pmath_symbol_t pjsym_Java_JavaNew;
+
+extern pmath_symbol_t pjsym_Java_Type_Array;
+extern pmath_symbol_t pjsym_Java_Type_Boolean;
+extern pmath_symbol_t pjsym_Java_Type_Byte;
+extern pmath_symbol_t pjsym_Java_Type_Char;
+extern pmath_symbol_t pjsym_Java_Type_Double;
+extern pmath_symbol_t pjsym_Java_Type_Float;
+extern pmath_symbol_t pjsym_Java_Type_Int;
+extern pmath_symbol_t pjsym_Java_Type_Long;
+extern pmath_symbol_t pjsym_Java_Type_Short;
 
 //{ cms2id Hashtable implementation ...
 struct pmath2id_t {
@@ -103,7 +114,7 @@ static pmath_atomic_t cms2id_lock = PMATH_ATOMIC_STATIC_INIT;
 static pmath_hashtable_t cms2id;
 
 
-
+PMATH_PRIVATE
 pmath_string_t pj_class_get_nice_name(JNIEnv *env, jclass clazz) {
   pmath_string_t result = PMATH_NULL;
   pmath_t pjvm    = pjvm_try_get();
@@ -156,6 +167,7 @@ pmath_string_t pj_class_get_nice_name(JNIEnv *env, jclass clazz) {
   return result;
 }
 
+PMATH_PRIVATE
 pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz) {
   pmath_string_t result = PMATH_NULL;
   pmath_t pjvm    = pjvm_try_get();
@@ -177,7 +189,7 @@ pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz) {
 }
 
 static char *java_class_name(pmath_t obj) { // obj will be freed
-  if(pmath_is_expr_of(obj, PJ_SYMBOL_JAVACLASS)) {
+  if(pmath_is_expr_of(obj, pjsym_Java_Java)) {
     pmath_t name = pmath_expr_get_item(obj, 1);
     pmath_unref(obj);
     obj = name;
@@ -209,6 +221,7 @@ static char *java_class_name(pmath_t obj) { // obj will be freed
   return NULL;
 }
 
+PMATH_PRIVATE
 jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
   jclass result = NULL;
   
@@ -216,48 +229,48 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
     char *str;
     
     /*if(pmath_is_symbol(obj)){
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_BOOLEAN)){
+      if(pmath_same(obj, pjsym_Java_Type_Boolean)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "Z");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_BYTE)){
+      if(pmath_same(obj, pjsym_Java_Type_Byte)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "B");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_CHAR)){
+      if(pmath_same(obj, pjsym_Java_Type_Char)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "C");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_SHORT)){
+      if(pmath_same(obj, pjsym_Java_Type_Short)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "S");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_INT)){
+      if(pmath_same(obj, pjsym_Java_Type_Int)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "I");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_LONG)){
+      if(pmath_same(obj, pjsym_Java_Type_Long)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "J");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_FLOAT)){
+      if(pmath_same(obj, pjsym_Java_Type_Float)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "F");
       }
     
-      if(pmath_same(obj, PJ_SYMBOL_TYPE_DOUBLE)){
+      if(pmath_same(obj, pjsym_Java_Type_Double)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "D");
       }
     }*/
     
-    if(pmath_is_expr_of_len(obj, PJ_SYMBOL_TYPE_ARRAY, 1)) {
+    if(pmath_is_expr_of_len(obj, pjsym_Java_Type_Array, 1)) {
       pmath_string_t prefix = PMATH_NULL;
       char *str;
       
@@ -266,7 +279,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
         pmath_unref(obj);
         obj = elem;
         prefix = pmath_string_insert_latin1(prefix, INT_MAX, "[", 1);
-      } while(pmath_is_expr_of_len(obj, PJ_SYMBOL_TYPE_ARRAY, 1));
+      } while(pmath_is_expr_of_len(obj, pjsym_Java_Type_Array, 1));
       
       if(!pmath_aborting()) {
         pmath_unref(obj);
@@ -336,14 +349,14 @@ static pmath_t type2pmath(pmath_string_t name, int start) { // name will be free
     pmath_unref(name);
     
     switch(ch) {
-      case 'Z': return pmath_ref(PJ_SYMBOL_TYPE_BOOLEAN);
-      case 'B': return pmath_ref(PJ_SYMBOL_TYPE_BYTE);
-      case 'C': return pmath_ref(PJ_SYMBOL_TYPE_CHAR);
-      case 'S': return pmath_ref(PJ_SYMBOL_TYPE_SHORT);
-      case 'I': return pmath_ref(PJ_SYMBOL_TYPE_INT);
-      case 'J': return pmath_ref(PJ_SYMBOL_TYPE_LONG);
-      case 'F': return pmath_ref(PJ_SYMBOL_TYPE_FLOAT);
-      case 'D': return pmath_ref(PJ_SYMBOL_TYPE_DOUBLE);
+      case 'Z': return pmath_ref(pjsym_Java_Type_Boolean);
+      case 'B': return pmath_ref(pjsym_Java_Type_Byte);
+      case 'C': return pmath_ref(pjsym_Java_Type_Char);
+      case 'S': return pmath_ref(pjsym_Java_Type_Short);
+      case 'I': return pmath_ref(pjsym_Java_Type_Int);
+      case 'J': return pmath_ref(pjsym_Java_Type_Long);
+      case 'F': return pmath_ref(pjsym_Java_Type_Float);
+      case 'D': return pmath_ref(pjsym_Java_Type_Double);
     }
     
     return PMATH_NULL;
@@ -352,7 +365,7 @@ static pmath_t type2pmath(pmath_string_t name, int start) { // name will be free
   if(buf[start] == '[') {
     pmath_t sub = type2pmath(name, start + 1);
     return pmath_expr_new_extended(
-             pmath_ref(PJ_SYMBOL_TYPE_ARRAY), 1,
+             pmath_ref(pjsym_Java_Type_Array), 1,
              sub);
   }
   
@@ -787,6 +800,7 @@ static pmath_expr_t cache_fields(
   return pmath_gather_end();
 }
 
+PMATH_PRIVATE
 void pj_class_cache_members(JNIEnv *env, jclass clazz) {
   struct pmath2id_t    *cache_entry;
   struct cache_info_t   info;
@@ -891,6 +905,7 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz) {
   free_cache_info(env, &info);
 }
 
+PMATH_PRIVATE
 pmath_t pj_class_call_method(
   JNIEnv           *env,
   jobject           obj,
@@ -945,7 +960,7 @@ pmath_t pj_class_call_method(
       pmath_string_equals_latin1(name, "<init>"))
   {
     pj_thread_message(msg_thread,
-                      PJ_SYMBOL_JAVA, "nometh", 2,
+                      pjsym_Java_Java, "nometh", 2,
                       name,
                       pj_class_get_nice_name(env, clazz));
     pmath_unref(args);
@@ -1120,7 +1135,7 @@ pmath_t pj_class_call_method(
     if(num_args == 0) {
       pmath_unref(args);
       pj_thread_message(msg_thread,
-                        PJ_SYMBOL_JAVA, "argx0", 2,
+                        pjsym_Java_Java, "argx0", 2,
                         name,
                         pj_class_get_nice_name(env, clazz));
     }
@@ -1128,7 +1143,7 @@ pmath_t pj_class_call_method(
       args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
       
       pj_thread_message(msg_thread,
-                        PJ_SYMBOL_JAVA, "argx", 3,
+                        pjsym_Java_Java, "argx", 3,
                         name,
                         pj_class_get_nice_name(env, clazz),
                         args);
@@ -1148,6 +1163,7 @@ pmath_t pj_class_call_method(
   return result;
 }
 
+PMATH_PRIVATE
 jobject pj_class_new_object(
   JNIEnv           *env,
   jclass            clazz,
@@ -1195,7 +1211,7 @@ jobject pj_class_new_object(
   if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)) {
     // should not happen: every Java Class has a constructor <init>
     pj_thread_message(msg_thread,
-                      PJ_SYMBOL_JAVANEW, "fail", 1,
+                      pjsym_Java_JavaNew, "fail", 1,
                       class_name);
     pmath_unref(args);
     pmath_unref(key);
@@ -1251,13 +1267,13 @@ jobject pj_class_new_object(
     if(num_args == 0) {
       pmath_unref(args);
       pj_thread_message(msg_thread,
-                        PJ_SYMBOL_JAVANEW, "argx0", 1,
+                        pjsym_Java_JavaNew, "argx0", 1,
                         pj_class_get_nice_name(env, clazz));
     }
     else {
       args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
       pj_thread_message(msg_thread,
-                        PJ_SYMBOL_JAVANEW, "argx", 2,
+                        pjsym_Java_JavaNew, "argx", 2,
                         pj_class_get_nice_name(env, clazz),
                         args);
     }
@@ -1270,6 +1286,7 @@ jobject pj_class_new_object(
 }
 
 
+PMATH_PRIVATE
 pmath_t pj_class_get_field(
   JNIEnv         *env,
   jobject         obj,
@@ -1320,7 +1337,7 @@ pmath_t pj_class_get_field(
   pmath_unref(key); key = PMATH_NULL;
   
   if(!fid) {
-    pmath_message(PJ_SYMBOL_JAVA, "nofld", 2,
+    pmath_message(pjsym_Java_Java, "nofld", 2,
                   name,
                   class_name);
     if(!is_static)
@@ -1447,7 +1464,8 @@ pmath_t pj_class_get_field(
   return result;
 }
 
-extern pmath_bool_t pj_class_set_field(
+PMATH_PRIVATE
+pmath_bool_t pj_class_set_field(
   JNIEnv         *env,
   jobject         obj,
   pmath_bool_t    is_static,
@@ -1502,7 +1520,7 @@ extern pmath_bool_t pj_class_set_field(
   pmath_unref(key); key = PMATH_NULL;
   
   if(!fid) {
-    pmath_message(PJ_SYMBOL_JAVA, "nofld", 2,
+    pmath_message(pjsym_Java_Java, "nofld", 2,
                   name,
                   class_name);
     pmath_unref(field_type);
@@ -1513,7 +1531,7 @@ extern pmath_bool_t pj_class_set_field(
   }
   
   if(!pj_value_to_java(env, pmath_ref(value), field_type, &val)) {
-    pmath_message(PJ_SYMBOL_JAVA, "fldx", 3,
+    pmath_message(pjsym_Java_Java, "fldx", 3,
                   name,
                   class_name,
                   value);
@@ -1630,7 +1648,8 @@ extern pmath_bool_t pj_class_set_field(
   return result;
 }
 
-extern pmath_t pj_builtin_internal_addtoclasspath(pmath_expr_t expr) {
+PMATH_PRIVATE
+pmath_t pj_eval_Java_Internal_AddToClassPath(pmath_expr_t expr) {
   pmath_t pjvm = pjvm_try_get();
   jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
   
@@ -1658,6 +1677,7 @@ extern pmath_t pj_builtin_internal_addtoclasspath(pmath_expr_t expr) {
   return expr;
 }
 
+PMATH_PRIVATE
 pmath_bool_t pj_classes_init(void) {
   cms2id = pmath_ht_create(&cms2id_class, 0);
   if(!cms2id)
@@ -1666,6 +1686,7 @@ pmath_bool_t pj_classes_init(void) {
   return TRUE;
 }
 
+PMATH_PRIVATE
 void pj_classes_done(void) {
   pmath_ht_destroy(cms2id); cms2id = NULL;
 }

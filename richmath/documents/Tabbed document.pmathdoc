@@ -16,25 +16,34 @@ Document({
                          {"{", {
                            "\n", {
                             "{", {
-                             {"Setter", "(", {{"Dynamic", "(", "idx", ")"}, 
-                               ",", "1", ",", ComplexStringBox("\"Tab 1\""), 
-                               ",", {"\n", {"ButtonFrame", "\[Rule]", 
+                             {"Setter", "(", {
+                               {"Dynamic", "(", {"idx", ",", {
+                                  "{", {"Automatic", ",", "None", ",", 
+                                   "Automatic"}, "}"}}, ")"}, ",", "1", ",", 
+                               ComplexStringBox("\"Tab 1\""), ",", {
+                                "\n", {"ButtonFrame", "\[Rule]", 
                                  ComplexStringBox(
                                   "\"TabHeadAbuttingRight\"")}}}, ")"}, ",", {
                               "\n", {"Setter", "(", {
-                                {"Dynamic", "(", "idx", ")"}, ",", "2", ",", 
+                                {"Dynamic", "(", {"idx", ",", {
+                                   "{", {"Automatic", ",", "None", ",", 
+                                    "Automatic"}, "}"}}, ")"}, ",", "2", ",", 
                                 ComplexStringBox("\"Tab 2\""), ",", {
                                  "\n", {"ButtonFrame", "\[Rule]", 
                                   ComplexStringBox(
                                    "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
                              ",", {"\n", {"Setter", "(", {
-                                {"Dynamic", "(", "idx", ")"}, ",", "3", ",", 
+                                {"Dynamic", "(", {"idx", ",", {
+                                   "{", {"Automatic", ",", "None", ",", 
+                                    "Automatic"}, "}"}}, ")"}, ",", "3", ",", 
                                 ComplexStringBox("\"Tab 3\""), ",", {
                                  "\n", {"ButtonFrame", "\[Rule]", 
                                   ComplexStringBox(
                                    "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
                              ",", {"\n", {"Setter", "(", {
-                                {"Dynamic", "(", "idx", ")"}, ",", "4", ",", 
+                                {"Dynamic", "(", {"idx", ",", {
+                                   "{", {"Automatic", ",", "None", ",", 
+                                    "Automatic"}, "}"}}, ")"}, ",", "4", ",", 
                                 ComplexStringBox("\"Tab 4\""), ",", {
                                  "\n", {"ButtonFrame", "\[Rule]", 
                                   ComplexStringBox(
@@ -53,20 +62,24 @@ Document({
                "SectionFrameMargins", "\[Rule]", {
                 "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
                   "{", {"Inherited", ",", "0"}, "}"}}, "}"}}}, ")"}}, "}"}}}, 
-        ")"}, ";"}), "Input", SectionLabel -> "in [5]:")}, All)}, 
+        ")"}, ";"}), "Input", SectionLabel -> "in [1]:")}, All)}, 
  DockedSections :> {"TopGlass" -> Section(
    BoxData(
     FillBox(
      PanelBox(TemplateBox({ComplexStringBox("\" \""), 
         TagBox(
          GridBox({
-           {SetterBox(Dynamic(Global`idx), 1, ComplexStringBox("\"Tab 1\""), 
+           {SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 1, 
+             ComplexStringBox("\"Tab 1\""), 
              ButtonFrame -> "TabHeadAbuttingRight"), 
-            SetterBox(Dynamic(Global`idx), 2, ComplexStringBox("\"Tab 2\""), 
+            SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 2, 
+             ComplexStringBox("\"Tab 2\""), 
              ButtonFrame -> "TabHeadAbuttingLeftRight"), 
-            SetterBox(Dynamic(Global`idx), 3, ComplexStringBox("\"Tab 3\""), 
+            SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 3, 
+             ComplexStringBox("\"Tab 3\""), 
              ButtonFrame -> "TabHeadAbuttingLeftRight"), 
-            SetterBox(Dynamic(Global`idx), 4, ComplexStringBox("\"Tab 4\""), 
+            SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 4, 
+             ComplexStringBox("\"Tab 4\""), 
              ButtonFrame -> "TabHeadAbuttingLeft"), 
             ComplexStringBox("\"  \""), ButtonBox(ComplexStringBox("\"+\""), 
              ButtonFunction -> (/\/ &), ButtonFrame -> "TabHead"), 

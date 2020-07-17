@@ -1,6 +1,5 @@
 #include "pmath_Core.h"
 #include "pj-objects.h"
-#include "pj-symbols.h"
 #include "pj-threads.h"
 #include "pj-values.h"
 #include "pj-load-pmath.h"
@@ -9,7 +8,12 @@
 #include <math.h>
 
 
-pmath_t pj_builtin__pmath_Core_execute(pmath_t expr) {
+extern pmath_symbol_t pjsym_Java_Internal_Failed; 
+extern pmath_symbol_t pjsym_Java_Internal_CallFromJava; 
+extern pmath_symbol_t pjsym_Java_Internal_Succeeded; 
+
+
+pmath_t pj_eval_Java_Internal_CallFromJava(pmath_t expr) {
   pmath_messages_t mq   = pmath_expr_get_item(expr, 1);
   pmath_string_t code   = pmath_expr_get_item(expr, 2);
   pmath_t        args   = pmath_expr_get_item(expr, 3);
@@ -47,7 +51,7 @@ pmath_t pj_builtin__pmath_Core_execute(pmath_t expr) {
     pmath_unref(result);
     
     result = pmath_expr_new_extended(
-               pmath_ref(PJ_SYMBOL_INTERNAL_FAILED), 1,
+               pmath_ref(pjsym_Java_Internal_Failed), 1,
                exception);
                
 //    pmath_thread_send(mq,
@@ -59,7 +63,7 @@ pmath_t pj_builtin__pmath_Core_execute(pmath_t expr) {
     pmath_unref(exception);
     
     result = pmath_expr_new_extended(
-               pmath_ref(PJ_SYMBOL_INTERNAL_SUCCEEDED), 1,
+               pmath_ref(pjsym_Java_Internal_Succeeded), 1,
                result);
   }
   
@@ -103,14 +107,14 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
   
   companion = pj_thread_get_companion(NULL);
   expr = pmath_expr_new_extended(
-           pmath_ref(PJ_SYMBOL_INTERNAL_CALLFROMJAVA), 3,
+           pmath_ref(pjsym_Java_Internal_CallFromJava), 3,
            pmath_thread_get_queue(),
            code,
            args);
   expr = pmath_thread_send_wait(companion, expr, HUGE_VAL, NULL, NULL);
   pmath_unref(companion);
   
-  if(pmath_is_expr_of(expr, PJ_SYMBOL_INTERNAL_FAILED)) {
+  if(pmath_is_expr_of(expr, pjsym_Java_Internal_Failed)) {
     pmath_throw(pmath_expr_get_item(expr, 1));
     
     pj_exception_to_java(env);
@@ -118,7 +122,7 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
     pmath_unref(expr);
     return NULL;
   }
-  else if(pmath_is_expr_of(expr, PJ_SYMBOL_INTERNAL_SUCCEEDED)) {
+  else if(pmath_is_expr_of(expr, pjsym_Java_Internal_Succeeded)) {
     pmath_t result = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
     expr = result;

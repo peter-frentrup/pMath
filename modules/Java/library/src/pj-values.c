@@ -1,7 +1,6 @@
 #include "pj-values.h"
 #include "pj-classes.h"
 #include "pj-objects.h"
-#include "pj-symbols.h"
 #include "pjvm.h"
 
 #include <math.h>
@@ -9,14 +8,23 @@
 
 
 #ifndef NAN
-
 static uint64_t nan_as_int = ((uint64_t)1 << 63) - 1;
 #define NAN (*(double*)&nan_as_int)
-
 #endif
 
 
-pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr) {
+extern pmath_symbol_t pjsym_Java_Type_Array;
+extern pmath_symbol_t pjsym_Java_Type_Boolean;
+extern pmath_symbol_t pjsym_Java_Type_Byte;
+extern pmath_symbol_t pjsym_Java_Type_Char;
+extern pmath_symbol_t pjsym_Java_Type_Double;
+extern pmath_symbol_t pjsym_Java_Type_Float;
+extern pmath_symbol_t pjsym_Java_Type_Int;
+extern pmath_symbol_t pjsym_Java_Type_Long;
+extern pmath_symbol_t pjsym_Java_Type_Short;
+
+
+PMATH_PRIVATE pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr) {
   pmath_string_t s;
   const jchar *buf;
   int len;
@@ -197,32 +205,32 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
   memset(value, 0, sizeof(jvalue));
   
   if(pmath_is_symbol(type)) {
-    if(pmath_same(type, PJ_SYMBOL_TYPE_BOOLEAN))
+    if(pmath_same(type, pjsym_Java_Type_Boolean))
       return bool_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_BYTE))
+    if(pmath_same(type, pjsym_Java_Type_Byte))
       return byte_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_CHAR))
+    if(pmath_same(type, pjsym_Java_Type_Char))
       return char_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_SHORT))
+    if(pmath_same(type, pjsym_Java_Type_Short))
       return short_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_INT))
+    if(pmath_same(type, pjsym_Java_Type_Int))
       return int_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_LONG))
+    if(pmath_same(type, pjsym_Java_Type_Long))
       return long_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_FLOAT))
+    if(pmath_same(type, pjsym_Java_Type_Float))
       return float_to_java(obj, value);
       
-    if(pmath_same(type, PJ_SYMBOL_TYPE_DOUBLE))
+    if(pmath_same(type, pjsym_Java_Type_Double))
       return double_to_java(obj, value);
   }
   
-  if(pmath_is_expr_of_len(type, PJ_SYMBOL_TYPE_ARRAY, 1)) {
+  if(pmath_is_expr_of_len(type, pjsym_Java_Type_Array, 1)) {
     if(pmath_is_null(obj)) {
       value->l = NULL;
       return TRUE;
@@ -236,7 +244,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       
       switch(pmath_packed_array_get_element_type(obj)) {
         case PMATH_PACKED_DOUBLE:
-          if(pmath_same(elem_type, PJ_SYMBOL_TYPE_DOUBLE)) {
+          if(pmath_same(elem_type, pjsym_Java_Type_Double)) {
             const double *data = pmath_packed_array_read(obj, NULL, 0);
             jdoubleArray arr = (*env)->NewDoubleArray(env, len);
             
@@ -253,7 +261,7 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
           return TRUE;
           
         case PMATH_PACKED_INT32:
-          if(pmath_same(elem_type, PJ_SYMBOL_TYPE_INT)) {
+          if(pmath_same(elem_type, pjsym_Java_Type_Int)) {
             const jint *data = pmath_packed_array_read(obj, NULL, 0);
             jintArray arr = (*env)->NewIntArray(env, len);
             
@@ -280,42 +288,42 @@ pmath_bool_t pj_value_to_java(JNIEnv *env, pmath_t obj, pmath_t type, jvalue *va
       size_t item_size = 0;
       pmath_bool_t (*simple_converter)(pmath_t, jvalue*) = NULL;
       
-      if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BOOLEAN)) {
+      if(pmath_same(elem_type, pjsym_Java_Type_Boolean)) {
         item_size = sizeof(jboolean);
         simple_converter = bool_to_java;
         arr = (*env)->NewBooleanArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_BYTE)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Byte)) {
         item_size = sizeof(jbyte);
         simple_converter = byte_to_java;
         arr = (*env)->NewByteArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_CHAR)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Char)) {
         item_size = sizeof(jchar);
         simple_converter = char_to_java;
         arr = (*env)->NewCharArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_SHORT)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Short)) {
         item_size = sizeof(jshort);
         simple_converter = short_to_java;
         arr = (*env)->NewShortArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_INT)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Int)) {
         item_size = sizeof(jint);
         simple_converter = int_to_java;
         arr = (*env)->NewIntArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_LONG)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Long)) {
         item_size = sizeof(jlong);
         simple_converter = long_to_java;
         arr = (*env)->NewLongArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_FLOAT)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Float)) {
         item_size = sizeof(jfloat);
         simple_converter = float_to_java;
         arr = (*env)->NewFloatArray(env, len);
       }
-      else if(pmath_same(elem_type, PJ_SYMBOL_TYPE_DOUBLE)) {
+      else if(pmath_same(elem_type, pjsym_Java_Type_Double)) {
         item_size = sizeof(jdouble);
         simple_converter = double_to_java;
         arr = (*env)->NewDoubleArray(env, len);

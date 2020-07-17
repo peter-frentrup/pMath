@@ -1,7 +1,6 @@
 #include "pjvm.h"
 #include "pj-classes.h"
 #include "pj-objects.h"
-#include "pj-symbols.h"
 #include "pj-values.h"
 
 #include <limits.h>
@@ -18,6 +17,11 @@
 #  include <errno.h>
 #endif
 
+
+extern pmath_symbol_t pjsym_Java_JavaException;
+extern pmath_symbol_t pjsym_Java_JavaStartVM;
+extern pmath_symbol_t pjsym_Java_DollarDefaultClassPath;
+extern pmath_symbol_t pjsym_Java_DollarJavaVMLibraryName;
 
 static pmath_messages_t jvm_main_mq = PMATH_STATIC_NULL;
 pmath_t pjvm_auto_detach_key = PMATH_STATIC_NULL; // initialized/freed in main.c
@@ -99,7 +103,7 @@ static void load_jvm_callback(void *p) {
   
   if(!vm_library) {
     pmath_string_t vmlibfile;
-    vmlibfile = pmath_evaluate(pmath_ref(PJ_SYMBOL_JAVAVMLIBRARYNAME));
+    vmlibfile = pmath_evaluate(pmath_ref(pjsym_Java_DollarJavaVMLibraryName));
     
     if(!pmath_is_string(vmlibfile)) {
       pmath_unref(vmlibfile);
@@ -204,7 +208,7 @@ static pmath_custom_t create_pjvm(JavaVM *jvm) {
     return PMATH_NULL;
   }
   
-  pmath_symbol_set_value(PJ_SYMBOL_ISJAVAOBJECT, pmath_ref(PMATH_SYMBOL_TRUE));
+  //pmath_symbol_set_value(PJ_SYMBOL_ISJAVARUNNING, pmath_ref(PMATH_SYMBOL_TRUE));
   
   return pmath_custom_new(d, pjvm_destructor);
 }
@@ -246,6 +250,7 @@ static void jvm_main(void *arg) {
   pmath_debug_print("[bye jvm_main]\n");
 }
 
+PMATH_PRIVATE
 pmath_bool_t pjvm_register_external(JavaVM *jvm) {
   pmath_t pjvm = create_pjvm(jvm);
   
@@ -261,6 +266,7 @@ pmath_bool_t pjvm_register_external(JavaVM *jvm) {
   return !pmath_is_null(pjvm);
 }
 
+PMATH_PRIVATE
 pmath_bool_t pjvm_java_is_running(void) {
   JavaVM   *jvm     = NULL;
   jsize     num_vms = 0;
@@ -278,6 +284,7 @@ pmath_bool_t pjvm_java_is_running(void) {
   return jvm != NULL && num_vms > 0;
 }
 
+PMATH_PRIVATE
 pmath_t pjvm_try_get(void) {
   pmath_t _vm;
   pmath_atomic_lock(&vm_lock);
@@ -347,10 +354,12 @@ static JNIEnv *get_env(pmath_bool_t may_fail) {
   return NULL;
 }
 
+PMATH_PRIVATE
 JNIEnv *pjvm_try_get_env(void) {
   return get_env(TRUE);
 }
 
+PMATH_PRIVATE
 JNIEnv *pjvm_get_env(void) {
   return get_env(FALSE);
 }
@@ -362,6 +371,7 @@ static void clear_exception(JNIEnv *env) {
   (*env)->ExceptionClear(env);
 }
 
+PMATH_PRIVATE
 pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
   jthrowable jex;
   if(!env)
@@ -400,7 +410,7 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
       
       if(pmath_same(pex, PMATH_UNDEFINED)) {
         pex = pmath_expr_new_extended(
-                pmath_ref(PJ_SYMBOL_JAVAEXCEPTION), 3,
+                pmath_ref(pjsym_Java_JavaException), 3,
                 pj_object_from_java(env, jex),
                 PMATH_C_STRING(""),
                 pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0));
@@ -487,7 +497,7 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
   return FALSE;
 }
 
-
+PMATH_PRIVATE
 pmath_bool_t pj_exception_to_java(JNIEnv *env) {
   jclass throwable_class;
   jclass ex_class;
@@ -524,7 +534,7 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
   
   jex = NULL;
   
-  if(pmath_is_expr_of(ex, PJ_SYMBOL_JAVAEXCEPTION)) {
+  if(pmath_is_expr_of(ex, pjsym_Java_JavaException)) {
     pmath_t inner = pmath_expr_get_item(ex, 1);
     
     if(pj_object_is_java(env, inner)) {
@@ -585,7 +595,7 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
   return TRUE;
 }
 
-
+PMATH_PRIVATE
 void pjvm_ensure_started(void) {
   pmath_t pjvm = pjvm_try_get();
   
@@ -594,12 +604,11 @@ void pjvm_ensure_started(void) {
     return;
   }
   
-  pmath_unref(pmath_evaluate(pmath_expr_new(
-                               pmath_ref(PJ_SYMBOL_JAVASTARTVM), 0)));
+  pmath_unref(pmath_evaluate(pmath_expr_new(pmath_ref(pjsym_Java_JavaStartVM), 0)));
 }
 
 
-extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr) {
+PMATH_PRIVATE pmath_t pj_eval_Java_JavaIsRunning(pmath_expr_t expr) {
   if(pmath_expr_length(expr) > 0) {
     pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
     return expr;
@@ -613,7 +622,7 @@ extern pmath_t pj_builtin_javaisrunning(pmath_expr_t expr) {
   return pmath_ref(PMATH_SYMBOL_FALSE);
 }
 
-pmath_t pj_builtin_startvm(pmath_expr_t expr) {
+PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
   pmath_messages_t msg;
   pmath_t pjvm;
   
@@ -669,7 +678,7 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr) {
             
             
             { // setting up classpath
-              pmath_t cp = pmath_evaluate(pmath_ref(PJ_SYMBOL_DEFAULTCLASSPATH));
+              pmath_t cp = pmath_evaluate(pmath_ref(pjsym_Java_DollarDefaultClassPath));
               
               if(pmath_is_string(cp))
                 cp = pmath_build_value("(o)", cp);
@@ -838,14 +847,13 @@ pmath_t pj_builtin_startvm(pmath_expr_t expr) {
   return pmath_is_null(pjvm) ? pmath_ref(PMATH_SYMBOL_FAILED) : PMATH_NULL;
 }
 
-
-pmath_bool_t pjvm_init(void) {
+PMATH_PRIVATE pmath_bool_t pjvm_init(void) {
   pmath_atomic_write_release(&vm_lock, 0);
   jvm_main_mq = pmath_thread_fork_daemon(jvm_main, jvm_main_kill, NULL);
   return !pmath_is_null(jvm_main_mq);
 }
 
-void pjvm_done(void) {
+PMATH_PRIVATE void pjvm_done(void) {
   pmath_unref(pmath_thread_local_save(pjvm_auto_detach_key, PMATH_UNDEFINED));
   
   pjvm_register_external(NULL);

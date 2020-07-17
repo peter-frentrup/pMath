@@ -1,5 +1,4 @@
 #include "pj-threads.h"
-#include "pj-symbols.h"
 #include "pjvm.h"
 
 #include <math.h>
@@ -31,9 +30,11 @@ static int sem_post(sem_t *sem) {
 }
 
 #else
-#include <semaphore.h>
+#  include <semaphore.h>
 #endif
 
+extern pmath_symbol_t pjsym_Java_Internal_StoppedCothread;
+extern pmath_symbol_t pjsym_Java_Java;
 
 static pmath_t cothread_key = PMATH_STATIC_NULL;
 static pmath_atomic_t bye_companions = PMATH_ATOMIC_STATIC_INIT;
@@ -55,7 +56,7 @@ static void cothread_destructor(void *p) {
     // inform our companion of our end
     pmath_thread_send(ct->pmath,
                       pmath_expr_new_extended(
-                        pmath_ref(PJ_SYMBOL_INTERNAL_STOPPEDCOTHREAD), 1,
+                        pmath_ref(pjsym_Java_Internal_StoppedCothread), 1,
                         pmath_integer_new_uiptr((uintptr_t)PMATH_AS_PTR(ct->pmath))));
   }
   
@@ -172,6 +173,7 @@ static void companion_proc(void *p) {
   pmath_debug_print("[cothread bye]\n");
 }
 
+PMATH_PRIVATE 
 void pj_thread_message(
   pmath_messages_t mq, // wont be freed
   pmath_symbol_t sym,  // wont be freed
@@ -327,7 +329,7 @@ pmath_messages_t pj_thread_get_companion(jthread *out_jthread) {
   return PMATH_NULL;
 }
 
-pmath_t pj_builtin_internal_stoppedcothread(pmath_expr_t expr) {
+pmath_t pj_eval_Java_Internal_StoppedCothread(pmath_expr_t expr) {
   pmath_t cookie = pmath_expr_get_item(expr, 1);
   pmath_messages_t me = pmath_thread_get_queue();
   
@@ -352,7 +354,7 @@ pmath_t pj_builtin_internal_stoppedcothread(pmath_expr_t expr) {
 
 pmath_bool_t pj_threads_init(void) {
   cothread_key = pmath_expr_new_extended(
-                   pmath_ref(PJ_SYMBOL_JAVA), 1,
+                   pmath_ref(pjsym_Java_Java), 1,
                    PMATH_C_STRING("Cothread Key"));
                    
   pmath_atomic_write_release(&bye_companions, 0);

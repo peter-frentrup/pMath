@@ -586,10 +586,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pj-objects.h" />
-		<Unit filename="src/pj-symbols.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pj-symbols.h" />
 		<Unit filename="src/pj-threads.c">
 			<Option compilerVar="CC" />
 		</Unit>
@@ -606,6 +602,7 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath_Core.h" />
+		<Unit filename="src/symbols.inc" />
 		<Extensions>
 			<code_completion>
 				<search_path add="../../../library/include" />
