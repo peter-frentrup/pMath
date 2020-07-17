@@ -114,7 +114,7 @@
 				<Option object_output="obj/windows/gcc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="gnu_gcc_x64_compiler" />
-				<Option parameters="-d64 -Dpmath.core.dll=..\..\..\library\bin\windows\gcc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86-64\pmath-java.dll -classpath ..\classpath;..\example\App TestApp" />
+				<Option parameters="-Dpmath.core.dll=..\..\..\library\bin\windows\gcc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86-64\pmath-java.dll -classpath ..\classpath;..\example\App TestApp" />
 				<Option host_application="java" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
@@ -248,7 +248,7 @@
 				<Option object_output="obj/windows/msvc-debug-x64/" />
 				<Option type="3" />
 				<Option compiler="msvc_2015_x64" />
-				<Option parameters="-d64 -Dpmath.core.dll=..\..\..\library\bin\windows\msvc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86-64\pmath-java.dll -classpath ..\classpath;..\example\app TestApp" />
+				<Option parameters="-Dpmath.core.dll=..\..\..\library\bin\windows\msvc-debug-x64\pmath.dll -Dpmath.core.base_directory=..\..\..\library\scripts -Dpmath.binding.dll=..\bin\Windows\x86-64\pmath-java.dll -classpath ..\classpath;..\example\app TestApp" />
 				<Option host_application="java" />
 				<Option run_host_application_in_terminal="1" />
 				<Compiler>
@@ -607,8 +607,6 @@
 			<code_completion>
 				<search_path add="../../../library/include" />
 			</code_completion>
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

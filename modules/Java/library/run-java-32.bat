@@ -20,7 +20,7 @@ for /F "usebackq skip=2 tokens=2*" %%A in (`reg.exe query "%JAVA_REG_KEY%\%JRE_V
 	set "JRE_HOME=%%B"
 )
 
-"%JRE_HOME%\bin\java.exe" -d32 %*
+"%JRE_HOME%\bin\java.exe" %*
 
 
 :end
