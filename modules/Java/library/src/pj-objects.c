@@ -6,8 +6,6 @@
 #include <limits.h>
 
 
-static jmethodID midHashCode = NULL;
-
 extern pmath_symbol_t pjsym_Java_Internal_JavaCall;
 extern pmath_symbol_t pjsym_Java_Internal_JavaNew;
 extern pmath_symbol_t pjsym_Java_Internal_Return;
@@ -18,6 +16,7 @@ extern pmath_symbol_t pjsym_Java_JavaField;
 extern pmath_symbol_t pjsym_Java_JavaObject;
 extern pmath_symbol_t pjsym_Java_JavaNew;
 
+
 //{ p2j_objects Hashtable implementation ...
 struct obj_entry_t {
   pmath_string_t owner_name;
@@ -25,34 +24,21 @@ struct obj_entry_t {
 };
 
 static unsigned int java_hash(jobject jobj) {
-  JNIEnv *env = pjvm_get_env();
+  pmath_t pjvm = pjvm_try_get();
+  jvmtiEnv *jvmti = pjvm_get_jvmti(pjvm);
+  jint hash_code = 0;
   
-  if(env) {
-    if(!midHashCode && (*env)->EnsureLocalCapacity(env, 1) == 0) {
-      jclass clazz = (*env)->GetObjectClass(env, jobj);
-      pj_exception_to_pmath(env);
-      
-      if(clazz) {
-        midHashCode = (*env)->GetMethodID(env, clazz, "hashCode", "()I");
-        pj_exception_to_pmath(env);
-        (*env)->DeleteLocalRef(env, clazz);
-      }
-    }
-    
-    if(midHashCode) {
-      int hash = (*env)->CallIntMethod(env, jobj, midHashCode);
-      pj_exception_to_pmath(env);
-      
-      return (unsigned int)hash;
-    }
-    else {
-      pmath_debug_print("java_hash: midHashCode unknown\n");
-      return 0;
+  if(jvmti) {
+    jvmtiError err = (*jvmti)->GetObjectHashCode(jvmti, jobj, &hash_code);
+    if(err) {
+      pmath_debug_print("[java_hash: GetObjectHashCode failed with error %d]\n", (int)err);
     }
   }
+  else
+    pmath_debug_print("[java_hash: pjvm_get_jvmti() failed]\n");
   
-  pmath_debug_print("java_hash: pjvm_get_env() failed\n");
-  return 0;
+  pmath_unref(pjvm);
+  return hash_code;
 }
 
 static void p2j_entry_destructor(void *p) {
