@@ -5,6 +5,9 @@ import java.io.*;
 public class Core {
 	public static native Object execute(String code, Object... args);
 	
+	public static void load() {
+	} 
+
 	private static String getPathInUserDir(String path){
 		if(path == null)
 			return path;

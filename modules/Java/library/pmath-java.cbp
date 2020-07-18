@@ -602,6 +602,10 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath_Core.h" />
+		<Unit filename="src/pmath_ParserArguments.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath_ParserArguments.h" />
 		<Unit filename="src/symbols.inc" />
 		<Extensions>
 			<code_completion>
