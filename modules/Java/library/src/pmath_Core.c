@@ -105,6 +105,8 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
   val.l = j_args;
   args = pj_value_from_java(env, '[', &val);
   
+  val.l = NULL;
+  
   companion = pj_thread_get_companion(NULL);
   expr = pmath_expr_new_extended(
            pmath_ref(pjsym_Java_Internal_CallFromJava), 3,
@@ -116,27 +118,22 @@ JNIEXPORT jobject JNICALL Java_pmath_Core_execute(
   
   if(pmath_is_expr_of(expr, pjsym_Java_Internal_Failed)) {
     pmath_throw(pmath_expr_get_item(expr, 1));
+    pmath_unref(expr);
     
     pj_exception_to_java(env);
-    
-    pmath_unref(expr);
-    return NULL;
   }
   else if(pmath_is_expr_of(expr, pjsym_Java_Internal_Succeeded)) {
     pmath_t result = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
-    expr = result;
+    
+    code = PMATH_C_STRING("java/lang/Object");
+    pj_value_to_java(env, result, code, &val);
+    pmath_unref(code);
   }
   else {
     pmath_debug_print_object("[java->pmath callback returned invalid code ", expr, "]\n");
     pmath_unref(expr);
-    expr = PMATH_NULL;
   }
-  
-  val.l = NULL;
-  code = PMATH_C_STRING("Ljava/lang/Object;");
-  pj_value_to_java(env, expr, code, &val);
-  pmath_unref(code);
   
   if(load_temporary)
     pmath_done();

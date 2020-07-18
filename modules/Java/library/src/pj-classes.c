@@ -25,12 +25,13 @@ enum {
 };
 
 extern pmath_symbol_t pjsym_Java_Java;
+extern pmath_symbol_t pjsym_Java_JavaClass;
 extern pmath_symbol_t pjsym_Java_JavaNew;
 
 extern pmath_symbol_t pjsym_Java_Type_Array;
 extern pmath_symbol_t pjsym_Java_Type_Boolean;
 extern pmath_symbol_t pjsym_Java_Type_Byte;
-extern pmath_symbol_t pjsym_Java_Type_Char;
+extern pmath_symbol_t pjsym_Java_Type_Character;
 extern pmath_symbol_t pjsym_Java_Type_Double;
 extern pmath_symbol_t pjsym_Java_Type_Float;
 extern pmath_symbol_t pjsym_Java_Type_Int;
@@ -189,7 +190,7 @@ pmath_string_t pj_class_get_name(JNIEnv *env, jclass clazz) {
 }
 
 static char *java_class_name(pmath_t obj) { // obj will be freed
-  if(pmath_is_expr_of(obj, pjsym_Java_Java)) {
+  if(pmath_is_expr_of(obj, pjsym_Java_JavaClass)) {
     pmath_t name = pmath_expr_get_item(obj, 1);
     pmath_unref(obj);
     obj = name;
@@ -239,7 +240,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
         return (*env)->FindClass(env, "B");
       }
     
-      if(pmath_same(obj, pjsym_Java_Type_Char)){
+      if(pmath_same(obj, pjsym_Java_Type_Character)){
         pmath_unref(obj);
         return (*env)->FindClass(env, "C");
       }
@@ -351,7 +352,7 @@ static pmath_t type2pmath(pmath_string_t name, int start) { // name will be free
     switch(ch) {
       case 'Z': return pmath_ref(pjsym_Java_Type_Boolean);
       case 'B': return pmath_ref(pjsym_Java_Type_Byte);
-      case 'C': return pmath_ref(pjsym_Java_Type_Char);
+      case 'C': return pmath_ref(pjsym_Java_Type_Character);
       case 'S': return pmath_ref(pjsym_Java_Type_Short);
       case 'I': return pmath_ref(pjsym_Java_Type_Int);
       case 'J': return pmath_ref(pjsym_Java_Type_Long);

@@ -8,6 +8,8 @@
 PMATH_PRIVATE pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr); 
 PMATH_PRIVATE jstring        pj_string_to_java(  JNIEnv *env, pmath_string_t str); // str will be freed; returns local ref
 
+// obj will be freed
+PMATH_PRIVATE jobject pj_value_to_java_object(JNIEnv *env, pmath_t obj, jclass type);
 
 // obj will be freed; type wont be freed
 PMATH_PRIVATE pmath_bool_t pj_value_to_java(  JNIEnv *env, pmath_t obj, pmath_t type, jvalue *value);
