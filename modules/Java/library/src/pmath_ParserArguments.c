@@ -47,13 +47,20 @@ pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
   else
     pmath_unref(ns_path);
   
-  expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 2,
-           code,
-           pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_RULE), 2,
-             pmath_ref(PMATH_SYMBOL_PARSERARGUMENTS),
-             args));
+  if(pmath_is_null(args)) {
+    expr = pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+             code);
+  }
+  else {
+    expr = pmath_expr_new_extended(
+             pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 2,
+             code,
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(PMATH_SYMBOL_PARSERARGUMENTS),
+               args));
+  }
   
   expr = pmath_evaluate(expr);
   
