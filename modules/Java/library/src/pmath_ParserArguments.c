@@ -129,7 +129,7 @@ static void set_hidden_object_field(JNIEnv *env, jobject obj, const char *name, 
     return;
   
   if(*type_signature != '[' && *type_signature != 'L')
-    return NULL;
+    return;
   
   clazz = (*env)->GetObjectClass(env, obj);
   if(clazz) {
