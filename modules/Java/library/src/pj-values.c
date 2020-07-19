@@ -595,16 +595,22 @@ GENERATE_MAKE_PRIMITIVE_ARRAY_FROM_ELEMENTS( Short,   short   )
 
 static jclass get_component_type(JNIEnv *env, jclass array_type) {
   jmethodID mid_Class_getComponentType;
+  jclass    clazz;
+  jclass    result = NULL;
   
-  if(!env)
+  if(!env || !array_type)
     return NULL;
   
-  mid_Class_getComponentType = (*env)->GetMethodID(env, array_type, "getComponentType", "()[Ljava/lang/Class;");
-  if(mid_Class_getComponentType) {
-    return (*env)->CallObjectMethod(env, array_type, mid_Class_getComponentType);
+  clazz = (*env)->GetObjectClass(env, array_type);
+  if(clazz) {
+    mid_Class_getComponentType = (*env)->GetMethodID(env, clazz, "getComponentType", "()Ljava/lang/Class;");
+    if(mid_Class_getComponentType) {
+      result = (jclass)(*env)->CallObjectMethod(env, array_type, mid_Class_getComponentType);
+    }
+    (*env)->DeleteLocalRef(env, clazz);
   }
   
-  return NULL;
+  return result;
 }
 
 static jobject make_object_array_from_elements(JNIEnv *env, jclass element_type, pmath_expr_t list) { // list won't be freed
@@ -686,7 +692,7 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
   }
   
   if(!result) {
-    if(class_name_len == 2 && buf[0] == '[') {
+    if(class_name_len >= 2 && buf[0] == '[') {
       switch(buf[1]) {
         case 'Z': result = make_boolean_array_from_elements(env, list); break;
         case 'B': result = make_byte_array_from_elements(env, list); break;
