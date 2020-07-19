@@ -6,6 +6,10 @@ for %%X in (javac.exe) do (
 	set javac.exe="%%~$PATH:X"
 )
 
+for %%X in (javadoc.exe) do (
+	set javadoc.exe="%%~$PATH:X"
+)
+
 if defined javac.exe (
 	goto found_javac
 )
@@ -31,15 +35,18 @@ if not defined JDK_HOME (
 
 set javac.exe="%JDK_HOME%\bin\javac.exe"
 
+if not defined javadoc.exe (
+	set javadoc.exe="%JDK_HOME%\bin\javadoc.exe"
+)
+
+
 :found_javac
 
 pushd %~dp0
 
-%javac.exe% -source 7 -target 7 classpath\pmath\*.java
-%javac.exe% -source 7 -target 7 classpath\pmath\util\*.java
+%javac.exe% -source 7 -target 7 .\classpath\pmath\*.java  .\classpath\pmath\util\*.java .\example\App\*.java .\example\Interrupt\*.java
 
-%javac.exe% -source 7 -target 7 -cp classpath example\App\*.java
-%javac.exe% -source 7 -target 7 -cp classpath example\Interrupt\*.java
+%javadoc.exe% -encoding UTF-8 -charset UTF-8 -docencoding UTF-8 -noqualifier java.lang -link https://docs.oracle.com/en/java/javase/14/docs/api -d .\doc -sourcepath .\classpath pmath pmath.util
 
 popd
 
