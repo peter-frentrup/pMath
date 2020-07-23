@@ -112,7 +112,7 @@ public final class Expr {
 
     public int getInt() {
         if (!isDefaultConverted())
-            throw new IllegalStateException("not an int");
+            throw new UnsupportedOperationException("not an int");
 
         if (object instanceof Integer)
             return (Integer) object;
@@ -121,12 +121,12 @@ public final class Expr {
         if (object instanceof Byte)
             return (Byte) object;
 
-        throw new IllegalStateException("not an int");
+        throw new UnsupportedOperationException("not an int");
     }
 
     public BigInteger getInteger() {
         if (!isDefaultConverted())
-            throw new IllegalStateException("not an integer");
+            throw new UnsupportedOperationException("not an integer");
 
         if (object instanceof BigInteger)
             return (BigInteger) object;
@@ -139,7 +139,7 @@ public final class Expr {
         if (object instanceof Byte)
             return BigInteger.valueOf((Byte) object);
 
-        throw new IllegalStateException("not an integer");
+        throw new UnsupportedOperationException("not an integer");
     }
 
     private static Expr asExpr(Object object) {
