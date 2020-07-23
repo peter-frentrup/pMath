@@ -1144,17 +1144,21 @@ static pmath_bool_t starts_with(pmath_string_t str, const char *s) {
 }
 
 #define GENERATE_MAKE_VALUE_FROM_JAVA(LOWER_NAME, UPPER_NAME, UPPER_LONG_NAME, J_PRIM_SIG, PMATH_SIG_CAST, PMATH_SIG) \
-  static pmath_t make_value_from_java_ ## UPPER_LONG_NAME ## _and_delete_class(JNIEnv *env, jclass clazz, jobject obj) { \
-    jmethodID mid = (*env)->GetMethodID(env, clazz, #LOWER_NAME "Value", "()" J_PRIM_SIG);              \
-    if(!pj_exception_to_pmath(env) && mid) {                                                                  \
-      j ## LOWER_NAME  val;                                                                                   \
-      (*env)->DeleteLocalRef(env, clazz);                                                                     \
-      val = (*env)->Call ## UPPER_NAME ## Method(env, obj, mid);                                              \
-      pj_exception_to_pmath(env);                                                                             \
-      return pmath_build_value(PMATH_SIG, (PMATH_SIG_CAST)val);                                               \
-    }                                                                                                         \
-    (*env)->DeleteLocalRef(env, clazz);                                                                       \
-    return PMATH_NULL;                                                                                        \
+  static pmath_t make_value_from_java_ ## UPPER_LONG_NAME ## _and_delete_class(            \
+      JNIEnv *env,                                                                         \
+      jclass  clazz,                                                                       \
+      jobject obj                                                                          \
+  ) {                                                                                      \
+    jmethodID mid = (*env)->GetMethodID(env, clazz, #LOWER_NAME "Value", "()" J_PRIM_SIG); \
+    if(!pj_exception_to_pmath(env) && mid) {                                               \
+      j ## LOWER_NAME  val;                                                                \
+      (*env)->DeleteLocalRef(env, clazz);                                                  \
+      val = (*env)->Call ## UPPER_NAME ## Method(env, obj, mid);                           \
+      pj_exception_to_pmath(env);                                                          \
+      return pmath_build_value(PMATH_SIG, (PMATH_SIG_CAST)val);                            \
+    }                                                                                      \
+    (*env)->DeleteLocalRef(env, clazz);                                                    \
+    return PMATH_NULL;                                                                     \
   }
 
 GENERATE_MAKE_VALUE_FROM_JAVA( boolean, Boolean, Boolean,   "Z", int,       "b")
@@ -1165,6 +1169,31 @@ GENERATE_MAKE_VALUE_FROM_JAVA( int,     Int,     Integer,   "I", int,       "i")
 GENERATE_MAKE_VALUE_FROM_JAVA( long,    Long,    Long,      "J", long long, "k")
 GENERATE_MAKE_VALUE_FROM_JAVA( float,   Float,   Float,     "F", double,    "f")
 GENERATE_MAKE_VALUE_FROM_JAVA( double,  Double,  Double,    "D", double,    "f")
+
+static pmath_t make_value_from_java_BigInteger_and_delete_class(JNIEnv *env, jclass clazz, jobject obj) {
+  pmath_t result = PMATH_NULL;
+  
+  jmethodID mid_toString_with_radix = (*env)->GetMethodID(env, clazz, "toString", "(I)Ljava/lang/String;");
+  if(!pj_exception_to_pmath(env) && mid_toString_with_radix) {
+    jstring s = (*env)->CallObjectMethod(env, obj, mid_toString_with_radix, 16);
+    if(s) {
+      pmath_string_t  str = pj_string_from_java(env, s);
+      int             len = pmath_string_length(str);
+      const uint16_t *buf = pmath_string_buffer(&str);
+      
+      if(buf && len >= 1 && buf[0] == '-')
+        str = pmath_string_insert_latin1(str, 1, "16^^", 4);
+      else
+        str = pmath_string_insert_latin1(str, 0, "16^^", 4);
+      
+      result = pmath_parse_string(str);
+      
+      (*env)->DeleteLocalRef(env, s);
+    }
+  }
+  (*env)->DeleteLocalRef(env, clazz);
+  return result; 
+}
 
 PMATH_PRIVATE
 pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
@@ -1233,6 +1262,10 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
         pmath_unref(class_name);
         return make_value_from_java_Double_and_delete_class(env, clazz, value->l);
       }
+    }
+    else if(pmath_string_equals_latin1(class_name, "Ljava/math/BigInteger;")) {
+      pmath_unref(class_name);
+      return make_value_from_java_BigInteger_and_delete_class(env, clazz, value->l);
     }
     
     (*env)->DeleteLocalRef(env, clazz);
