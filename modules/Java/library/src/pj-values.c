@@ -1026,7 +1026,7 @@ static jobject make_object_from_other(JNIEnv *env, jclass type, pmath_t obj) {
   str = PMATH_NULL;
   pmath_write(
     obj, 
-    PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR, 
+    PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM | PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_FULLSTR, 
     write_to_string, 
     &str);
   
