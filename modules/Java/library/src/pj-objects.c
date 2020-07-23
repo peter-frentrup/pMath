@@ -169,6 +169,9 @@ PMATH_PRIVATE pmath_t pj_object_from_java(JNIEnv *env, jobject jobj) {
   pmath_symbol_t symbol         = PMATH_NULL;
   pmath_string_t nice_classname = PMATH_NULL;
   
+  if(!jobj)
+    return PMATH_NULL;
+  
   if(env && (*env)->EnsureLocalCapacity(env, 1) == JNI_OK) {
     jclass clazz = (*env)->GetObjectClass(env, jobj);
     

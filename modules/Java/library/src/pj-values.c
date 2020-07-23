@@ -1196,6 +1196,81 @@ static pmath_t make_value_from_java_BigInteger_and_delete_class(JNIEnv *env, jcl
   return result; 
 }
 
+static pmath_t make_value_from_java_Expr_and_delete_class(JNIEnv *env, jclass clazz, jobject obj) {
+  pmath_t result = PMATH_NULL;
+  
+  jfieldID fid_object          = (*env)->GetFieldID(env, clazz, "object",          "Ljava/lang/Object;");
+  jfieldID fid_convert_options = (*env)->GetFieldID(env, clazz, "convert_options", "I");
+  if(fid_object && fid_convert_options) {
+    int convert_options = (*env)->GetIntField(env, obj, fid_convert_options);
+    jobject data = (*env)->GetObjectField(env, obj, fid_object);
+    
+    switch(convert_options) {
+      case PJ_EXPR_CONVERT_DEFAULT: {
+          jvalue val;
+          val.l = data;
+          result = pj_value_from_java(env, 'L', &val);
+        } break;
+      
+      case PJ_EXPR_CONVERT_AS_JAVAOBJECT: {
+          result = pj_object_from_java(env, data);
+        } break;
+      
+      case PJ_EXPR_CONVERT_AS_SYMBOL: {
+          jclass java_lang_String = (*env)->FindClass(env, "Ljava/lang/String;");
+          if(java_lang_String) {
+            if((*env)->IsInstanceOf(env, data, java_lang_String)) {
+              result = pmath_symbol_get(pj_string_from_java(env, data), TRUE);
+            }
+            (*env)->DeleteLocalRef(env, java_lang_String);
+          }
+        } break;
+      
+      case PJ_EXPR_CONVERT_AS_PARSED: {
+          jclass java_lang_String = (*env)->FindClass(env, "Ljava/lang/String;");
+          if(java_lang_String) {
+            if((*env)->IsInstanceOf(env, data, java_lang_String)) {
+              result = pmath_parse_string(pj_string_from_java(env, data));
+            }
+            (*env)->DeleteLocalRef(env, java_lang_String);
+          }
+        } break;
+      
+      case PJ_EXPR_CONVERT_AS_EXPRESSION: {
+          jclass array_of_java_lang_Object = (*env)->FindClass(env, "[Ljava/lang/Object;");
+          if(array_of_java_lang_Object) {
+            if((*env)->IsInstanceOf(env, data, array_of_java_lang_Object)) {
+              size_t len_with_head = (size_t)(*env)->GetArrayLength(env, data);
+              if(len_with_head >= 1) {
+                size_t i;
+                jvalue val;
+                
+                result = pmath_expr_new(PMATH_NULL, len_with_head - 1);
+                for(i = 0; i < len_with_head; ++i) {
+                  val.l = (*env)->GetObjectArrayElement(env, data, (jsize)i);
+                  result = pmath_expr_set_item(result, i, pj_value_from_java(env, 'L', &val));
+                  (*env)->DeleteLocalRef(env, val.l);
+                }
+              }
+            }
+            (*env)->DeleteLocalRef(env, array_of_java_lang_Object);
+          }
+        } break;
+      
+      default:
+        pmath_debug_print("[unsupported pmath.util.Expr.convert_options %d]\n", convert_options);
+        result = pj_object_from_java(env, data);
+        break;
+    }
+    
+    if(data)
+      (*env)->DeleteLocalRef(env, data);
+  }
+  
+  (*env)->DeleteLocalRef(env, clazz);
+  return result; 
+}
+
 PMATH_PRIVATE
 pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
   switch(type) {
@@ -1267,6 +1342,10 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
     else if(pmath_string_equals_latin1(class_name, "Ljava/math/BigInteger;")) {
       pmath_unref(class_name);
       return make_value_from_java_BigInteger_and_delete_class(env, clazz, value->l);
+    }
+    else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
+      pmath_unref(class_name);
+      return make_value_from_java_Expr_and_delete_class(env, clazz, value->l);
     }
     
     (*env)->DeleteLocalRef(env, clazz);
