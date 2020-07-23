@@ -4,6 +4,7 @@
 #include <jni.h>
 #include <pmath.h>
 
+
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_string_t pj_class_get_nice_name(JNIEnv *env, jclass clazz);

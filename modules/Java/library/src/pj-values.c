@@ -14,6 +14,7 @@ static uint64_t nan_as_int = ((uint64_t)1 << 63) - 1;
 
 
 extern pmath_symbol_t pjsym_Java_JavaClass;
+extern pmath_symbol_t pjsym_Java_JavaObject;
 
 extern pmath_symbol_t pjsym_Java_Type_Array;
 extern pmath_symbol_t pjsym_Java_Type_Boolean;
@@ -24,6 +25,13 @@ extern pmath_symbol_t pjsym_Java_Type_Float;
 extern pmath_symbol_t pjsym_Java_Type_Int;
 extern pmath_symbol_t pjsym_Java_Type_Long;
 extern pmath_symbol_t pjsym_Java_Type_Short;
+
+// constants from pmath/util/Expr.java
+#define PJ_EXPR_CONVERT_DEFAULT        0
+#define PJ_EXPR_CONVERT_AS_JAVAOBJECT  1
+#define PJ_EXPR_CONVERT_AS_SYMBOL      2
+#define PJ_EXPR_CONVERT_AS_PARSED      3
+#define PJ_EXPR_CONVERT_AS_EXPRESSION  4
 
 
 PMATH_PRIVATE pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr) {
@@ -274,19 +282,42 @@ static jobject make_BigInteger(JNIEnv *env, pmath_integer_t value) { // value wi
   if((*env)->EnsureLocalCapacity(env, 3) == 0) {
     jstring hex_digits = pj_string_to_java(env, str); str = PMATH_NULL;
     if(hex_digits) {
-      jclass clazz = (*env)->FindClass(env, "java/math/BigInteger");
-      if(clazz) {
-        jmethodID cid = (*env)->GetMethodID(env, clazz, "<init>", "(Ljava/lang/String;I)V"); 
+      jclass java_math_BigInteger = (*env)->FindClass(env, "Ljava/math/BigInteger;");
+      if(java_math_BigInteger) {
+        jmethodID cid = (*env)->GetMethodID(env, java_math_BigInteger, "<init>", "(Ljava/lang/String;I)V"); 
         if(cid) {
-          result = (*env)->NewObject(env, clazz, cid, hex_digits, (jint)16);
+          result = (*env)->NewObject(env, java_math_BigInteger, cid, hex_digits, (jint)16);
         }
-        (*env)->DeleteLocalRef(env, clazz);
+        (*env)->DeleteLocalRef(env, java_math_BigInteger);
       }
       (*env)->DeleteLocalRef(env, hex_digits);
     }
   }
   
   pmath_unref(str);
+  return result;
+}
+
+static jobject make_Expr_and_delete_local(JNIEnv *env, jobject object, int convert_options) {
+  jobject result = NULL;
+  jclass pmath_util_Expr;
+  
+  if(!env)
+    return NULL;
+  
+  pmath_util_Expr = (*env)->FindClass(env, "Lpmath/util/Expr;");
+  if(pmath_util_Expr) {
+    jmethodID cid = (*env)->GetMethodID(env, pmath_util_Expr, "<init>", "(Ljava/lang/Object;I)V");
+    if(cid) {
+      result = (*env)->NewObject(env, pmath_util_Expr, cid, object, (jint)convert_options);
+    }
+  
+    (*env)->DeleteLocalRef(env, pmath_util_Expr);
+  }
+  
+  if(object)
+    (*env)->DeleteLocalRef(env, object);
+  
   return result;
 }
 
@@ -323,6 +354,9 @@ static jobject make_object_from_int32(JNIEnv *env, jclass type, int32_t value) {
   }
   else if(pmath_string_equals_latin1(class_name, "Ljava/math/BigInteger;")) {
     result = make_BigInteger(env, PMATH_FROM_INT32(value));
+  }
+  else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
+    result = make_Expr_and_delete_local(env, make_boxed_Integer(env, (jint)value), PJ_EXPR_CONVERT_DEFAULT);
   }
   
   pmath_unref(class_name);
@@ -365,6 +399,16 @@ static jobject make_object_from_bigint(JNIEnv *env, jclass type, pmath_integer_t
     result = make_BigInteger(env, value);
     value = PMATH_NULL;
   }
+  else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
+    if(pmath_integer_fits_si64(value)) {
+      result = make_boxed_Long(env, (jlong)pmath_integer_get_si64(value));
+    }
+    else {
+      result = make_BigInteger(env, value);
+      value = PMATH_NULL;
+    }
+    result = make_Expr_and_delete_local(env, result, PJ_EXPR_CONVERT_DEFAULT);
+  }
   
   pmath_unref(value);
   pmath_unref(class_name);
@@ -388,6 +432,9 @@ static jobject make_object_from_double(JNIEnv *env, jclass type, double value) {
   else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
     result = make_boxed_Float(env, (jfloat)value);
   }
+  else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
+    result = make_Expr_and_delete_local(env, make_boxed_Double(env, (jdouble)value), PJ_EXPR_CONVERT_DEFAULT);
+  }
   
   pmath_unref(class_name);
   return result;
@@ -405,6 +452,9 @@ static jobject make_object_from_bool(JNIEnv *env, jclass type, pmath_bool_t valu
       pmath_string_equals_latin1(class_name, "Ljava/lang/Object;")) 
   {
     result = make_boxed_Boolean(env, (jboolean)value);
+  }
+  else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
+    result = make_Expr_and_delete_local(env, make_boxed_Boolean(env, (jboolean)value), PJ_EXPR_CONVERT_DEFAULT);
   }
   
   pmath_unref(class_name);
@@ -646,11 +696,16 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
   int class_name_len = pmath_string_length(class_name);
   jobject result = NULL;
   pmath_bool_t allow_any_object = FALSE;
+  pmath_bool_t need_expr = FALSE;
   size_t list_len = pmath_expr_length(list);
   
   if(class_name_len == 0 || buf[0] != '[') {
     if(pmath_string_equals_latin1(class_name, "Ljava/lang/Object;")) {
       allow_any_object = TRUE;
+    }
+    else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
+      allow_any_object = TRUE;
+      need_expr = TRUE;
     }
     else {
       pmath_unref(list);
@@ -732,12 +787,16 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
     }
     
     if(!result) {
-      jclass elem_type = (*env)->FindClass(env, "java/lang/Object");
-      if(elem_type) {
-        result = make_object_array_from_elements(env, elem_type, list);
-        (*env)->DeleteLocalRef(env, elem_type);
+      jclass java_lang_Object = (*env)->FindClass(env, "Ljava/lang/Object;");
+      if(java_lang_Object) {
+        result = make_object_array_from_elements(env, java_lang_Object, list);
+        (*env)->DeleteLocalRef(env, java_lang_Object);
       }
     }
+  }
+  
+  if(result && need_expr) {
+    result = make_Expr_and_delete_local(env, result, PJ_EXPR_CONVERT_DEFAULT);
   }
   
   pmath_unref(list);
@@ -753,8 +812,15 @@ static jobject ensure_assignable_or_delete_local(JNIEnv *env, jclass type, jobje
     jclass obj_class = (*env)->GetObjectClass(env, obj);
     if(obj_class) {
       if(!(*env)->IsAssignableFrom(env, obj_class, type)) {
-        (*env)->DeleteLocalRef(env, obj);
-        obj = NULL;
+        pmath_t type_name = pj_class_get_name(env, type);
+        if(pmath_string_equals_latin1(type_name, "Lpmath/util/Expr;")) {
+          obj = make_Expr_and_delete_local(env, obj, PJ_EXPR_CONVERT_DEFAULT);
+        }
+        else {
+          (*env)->DeleteLocalRef(env, obj);
+          obj = NULL;
+        }
+        pmath_unref(type_name);
       }
       (*env)->DeleteLocalRef(env, obj_class);
     }
@@ -782,6 +848,143 @@ static jobject make_object_from_string(JNIEnv *env, jclass type, pmath_string_t 
   return ensure_assignable_or_delete_local(env, type, pj_string_to_java(env, str));
 }
 
+static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr) {
+  pmath_t item;
+  jobject result = NULL;
+  size_t len;
+  jclass pmath_util_Expr;
+  
+  if(!env) {
+    pmath_unref(expr);
+    return NULL;
+  }
+  
+  item = pmath_expr_get_item(expr, 0);
+  if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+    pmath_unref(item);
+    return make_object_from_list(env, type, expr);
+  }
+  
+  if(pmath_same(item, pjsym_Java_JavaObject)) {
+    if(pj_object_is_java(env, expr)) {
+      pmath_unref(item);
+      return ensure_assignable_or_delete_local(env, type, pj_object_to_java(env, expr));
+    }
+  }
+  
+  if(pmath_same(item, pjsym_Java_JavaClass)) {
+    jclass clazz = pj_class_to_java(env, pmath_ref(expr));
+    if(clazz) {
+      pmath_unref(item);
+      pmath_unref(expr);
+      return ensure_assignable_or_delete_local(env, type, clazz);
+    }
+  }
+  
+  len = pmath_expr_length(expr);
+  if(len > INT_MAX/2) {
+    pmath_unref(item);
+    pmath_unref(expr);
+    return NULL;
+  }
+  
+  pmath_util_Expr = (*env)->FindClass(env, "Lpmath/util/Expr;");
+  if(pmath_util_Expr) {
+    jclass java_lang_Object = (*env)->FindClass(env, "Ljava/lang/Object;");
+    if(java_lang_Object) {
+      if( (*env)->IsSameObject(env, type, pmath_util_Expr) ||
+          (*env)->IsSameObject(env, type, java_lang_Object))
+      {
+        jobject head_and_args = (*env)->NewObjectArray(env, (jsize)len + 1, java_lang_Object, NULL);
+        if(head_and_args) {
+          size_t i = 0;
+          for(;;) {
+            jobject elem = pj_value_to_java_object(env, item, java_lang_Object);
+            if(elem || pmath_is_null(item)) {
+              (*env)->SetObjectArrayElement(env, head_and_args, (jsize)i, elem);
+              (*env)->DeleteLocalRef(env, elem);
+            }
+            else {
+              (*env)->DeleteLocalRef(env, elem);
+              (*env)->DeleteLocalRef(env, head_and_args);
+              head_and_args = NULL;
+              break;
+            }
+            
+            ++i;
+            if(i > len)
+              break;
+            
+            pmath_unref(item);
+            item = pmath_expr_get_item(expr, i);
+          }
+          
+          if(head_and_args) {
+            jmethodID cid = (*env)->GetMethodID(env, pmath_util_Expr, "<init>", "(Ljava/lang/Object;I)V");
+            if(cid) {
+              result = (*env)->NewObject(env, pmath_util_Expr, cid, head_and_args, (jint)PJ_EXPR_CONVERT_AS_EXPRESSION);
+            }
+          }
+          
+          (*env)->DeleteLocalRef(env, head_and_args);
+        }
+      }
+      
+      (*env)->DeleteLocalRef(env, java_lang_Object);
+    }
+    
+    (*env)->DeleteLocalRef(env, pmath_util_Expr);
+  }
+  
+  pmath_unref(item);
+  pmath_unref(expr);
+  return result;
+}
+
+static jobject make_object_from_symbol(JNIEnv *env, jclass type, pmath_symbol_t sym) {
+  pmath_string_t str;
+  
+  if(pmath_same(sym, PMATH_SYMBOL_TRUE)) {
+    pmath_unref(sym);
+    return make_object_from_bool(env, type, TRUE);
+  }
+  
+  if(pmath_same(sym, PMATH_SYMBOL_FALSE)) {
+    pmath_unref(sym);
+    return make_object_from_bool(env, type, FALSE);
+  }
+  
+  str = pmath_symbol_name(sym);
+  pmath_unref(sym);
+  return ensure_assignable_or_delete_local(
+           env, 
+           type, 
+           make_Expr_and_delete_local(
+             env, 
+             pj_string_to_java(env, str),
+             PJ_EXPR_CONVERT_AS_SYMBOL));
+}
+
+static jobject make_object_from_other(JNIEnv *env, jclass type, pmath_t obj) {
+  pmath_string_t str;
+  
+  str = PMATH_NULL;
+  pmath_write(
+    obj, 
+    PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM | PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR, 
+    write_to_string, 
+    &str);
+  
+  pmath_unref(obj);
+  return ensure_assignable_or_delete_local(
+           env, 
+           type, 
+           make_Expr_and_delete_local(
+             env, 
+             pj_string_to_java(env, str),
+             PJ_EXPR_CONVERT_AS_PARSED));
+}
+
 PMATH_PRIVATE
 jobject pj_value_to_java_object(JNIEnv *env, pmath_t obj, jclass type) { // obj will be freed
   if(pmath_is_int32(obj))
@@ -790,38 +993,23 @@ jobject pj_value_to_java_object(JNIEnv *env, pmath_t obj, jclass type) { // obj 
   if(pmath_is_double(obj))
     return make_object_from_double(env, type, PMATH_AS_DOUBLE(obj));
     
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
-    pmath_unref(obj);
-    return make_object_from_bool(env, type, TRUE);
-  }
-  
-  if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-    pmath_unref(obj);
-    return make_object_from_bool(env, type, FALSE);
-  }
+  if(pmath_is_null(obj))
+    return NULL;
   
   if(pmath_is_integer(obj))
     return make_object_from_bigint(env, type, obj);
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST))
-    return make_object_from_list(env, type, obj);
-  
   if(pmath_is_string(obj)) 
     return make_object_from_string(env, type, obj);
   
-  if(pj_object_is_java(env, obj)) 
-    return ensure_assignable_or_delete_local(env, type, pj_object_to_java(env, obj));
-  
-  if(pmath_is_expr_of(obj, pjsym_Java_JavaClass))
-    return ensure_assignable_or_delete_local(env, type, pj_class_to_java(env, obj));
-  
-  if(pmath_is_null(obj))
-    return NULL;
-  
   // TODO: handle +/- infinity and Undefined
+  if(pmath_is_expr(obj)) 
+    return make_object_from_expr(env, type, obj);
+    
+  if(pmath_is_symbol(obj)) 
+    return make_object_from_symbol(env, type, obj);
   
-  pmath_unref(obj);
-  return NULL;
+  return make_object_from_other(env, type, obj);
 }
 
 // obj will be freed; type wont be freed

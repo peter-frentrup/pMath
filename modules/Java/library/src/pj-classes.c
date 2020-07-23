@@ -38,6 +38,8 @@ extern pmath_symbol_t pjsym_Java_Type_Int;
 extern pmath_symbol_t pjsym_Java_Type_Long;
 extern pmath_symbol_t pjsym_Java_Type_Short;
 
+
+
 //{ cms2id Hashtable implementation ...
 struct pmath2id_t {
   pmath_string_t class_method_signature;
