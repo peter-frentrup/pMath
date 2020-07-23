@@ -948,11 +948,13 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
             if(elem || pmath_is_null(item)) {
               (*env)->SetObjectArrayElement(env, head_and_args, (jsize)i, elem);
               (*env)->DeleteLocalRef(env, elem);
+              item = PMATH_NULL;
             }
             else {
               (*env)->DeleteLocalRef(env, elem);
               (*env)->DeleteLocalRef(env, head_and_args);
               head_and_args = NULL;
+              item = PMATH_NULL;
               break;
             }
             
@@ -960,7 +962,6 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
             if(i > len)
               break;
             
-            pmath_unref(item);
             item = pmath_expr_get_item(expr, i);
           }
           
