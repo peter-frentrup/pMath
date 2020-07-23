@@ -596,6 +596,25 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
 }
 
 PMATH_PRIVATE
+pmath_bool_t pj_exception_throw_new(JNIEnv *env, jclass clazz, pmath_string_t message) {
+  pmath_bool_t success = FALSE;
+  
+  if(env) {
+    jmethodID cid = (*env)->GetMethodID(env, clazz, "<init>", "(Ljava/lang/String;)V");
+    if(cid) {
+      jthrowable exception = (*env)->NewObject(env, clazz, cid, pj_string_to_java(env, pmath_ref(message)));
+      if(exception) {
+        success = 0 == (*env)->Throw(env, exception);
+        (*env)->DeleteLocalRef(env, exception);
+      }
+    }
+  }
+  
+  pmath_unref(message);
+  return success;
+}
+
+PMATH_PRIVATE
 void pjvm_ensure_started(void) {
   pmath_t pjvm = pjvm_try_get();
   

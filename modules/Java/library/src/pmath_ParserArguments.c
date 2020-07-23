@@ -123,7 +123,6 @@ static jobject get_hidden_object_field(JNIEnv *env, jobject obj, const char *nam
 
 static void set_hidden_object_field(JNIEnv *env, jobject obj, const char *name, const char *type_signature, jobject value) {
   jclass  clazz;
-  jobject result = NULL;
   
   if(!obj)
     return;

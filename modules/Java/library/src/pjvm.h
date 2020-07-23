@@ -26,7 +26,7 @@ PMATH_PRIVATE JNIEnv *pjvm_get_env(void);
 
 PMATH_PRIVATE pmath_bool_t pj_exception_to_pmath(JNIEnv *env);
 PMATH_PRIVATE pmath_bool_t pj_exception_to_java(JNIEnv *env);
-
+PMATH_PRIVATE pmath_bool_t pj_exception_throw_new(JNIEnv *env, jclass clazz, pmath_string_t message); // message will be freed
 
 PMATH_PRIVATE void pjvm_ensure_started(void);
 

@@ -17,6 +17,10 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 jclass pj_class_to_java(JNIEnv *env, pmath_t obj); // obj will be freed
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_USE_RESULT
+jclass pj_class_get_component_type(JNIEnv *env, jclass array_class);
+
 PMATH_PRIVATE void pj_class_cache_members(JNIEnv *env, jclass clazz);
 
 

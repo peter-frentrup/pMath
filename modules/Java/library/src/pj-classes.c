@@ -339,6 +339,26 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
   return result;
 }
 
+PMATH_PRIVATE
+jclass pj_class_get_component_type(JNIEnv *env, jclass array_class) {
+  jmethodID mid_Class_getComponentType;
+  jclass    clazz;
+  jclass    result = NULL;
+  
+  if(!env || !array_class)
+    return NULL;
+  
+  clazz = (*env)->GetObjectClass(env, array_class);
+  if(clazz) {
+    mid_Class_getComponentType = (*env)->GetMethodID(env, clazz, "getComponentType", "()Ljava/lang/Class;");
+    if(mid_Class_getComponentType) {
+      result = (jclass)(*env)->CallObjectMethod(env, array_class, mid_Class_getComponentType);
+    }
+    (*env)->DeleteLocalRef(env, clazz);
+  }
+  
+  return result;
+}
 
 static pmath_t type2pmath(pmath_string_t name, int start) { // name will be freed
   const uint16_t *buf = pmath_string_buffer(&name);

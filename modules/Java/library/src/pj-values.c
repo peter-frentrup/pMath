@@ -321,6 +321,18 @@ static jobject make_Expr_and_delete_local(JNIEnv *env, jobject object, int conve
   return result;
 }
 
+static void throw_java_lang_ClassCastException(JNIEnv *env, jclass destination_type) {
+  jclass java_lang_ClassCastException;
+  
+  java_lang_ClassCastException = (*env)->FindClass(env, "Ljava/lang/ClassCastException;");
+  if(java_lang_ClassCastException) {
+    pmath_string_t str = pj_class_get_nice_name(env, destination_type);
+    str = pmath_string_insert_latin1(str, 0, "Cannot cast expression to ", -1);
+    pj_exception_throw_new(env, java_lang_ClassCastException, str);
+    (*env)->DeleteLocalRef(env, java_lang_ClassCastException);
+  }
+}
+
 static jobject make_object_from_int32(JNIEnv *env, jclass type, int32_t value) {
   pmath_string_t class_name;
   jobject result = NULL;
@@ -329,27 +341,38 @@ static jobject make_object_from_int32(JNIEnv *env, jclass type, int32_t value) {
     return NULL;
   
   class_name = pj_class_get_name(env, type);
-  if( pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;") ||
+  if( pmath_string_equals_latin1(class_name, "I") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;") ||
       pmath_string_equals_latin1(class_name, "Ljava/lang/Number;") ||
       pmath_string_equals_latin1(class_name, "Ljava/lang/Object;")) 
   {
     result = make_boxed_Integer(env, (jint)value);
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
+  else if(pmath_string_equals_latin1(class_name, "J") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) 
+  {
     result = make_boxed_Long(env, (jlong)value);
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")) {
+  else if(pmath_string_equals_latin1(class_name, "S") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")) 
+  {
     if(INT16_MIN <= value && value <= INT16_MAX)
       result = make_boxed_Short(env, (jshort)value);
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")) {
+  else if(pmath_string_equals_latin1(class_name, "B") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")) 
+  {
     if(INT8_MIN <= value && value <= INT8_MAX)
       result = make_boxed_Byte(env, (jbyte)value);
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) {
+  else if(pmath_string_equals_latin1(class_name, "D") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) 
+  {
     result = make_boxed_Double(env, (jdouble)value);
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
+  else if(pmath_string_equals_latin1(class_name, "F") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) 
+  {
     result = make_boxed_Float(env, (jfloat)value);
   }
   else if(pmath_string_equals_latin1(class_name, "Ljava/math/BigInteger;")) {
@@ -357,6 +380,11 @@ static jobject make_object_from_int32(JNIEnv *env, jclass type, int32_t value) {
   }
   else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
     result = make_Expr_and_delete_local(env, make_boxed_Integer(env, (jint)value), PJ_EXPR_CONVERT_DEFAULT);
+  }
+  else if(!pmath_string_equals_latin1(class_name, "V") && 
+      !pmath_string_equals_latin1(class_name, "Ljava/lang/Void;"))
+  {
+    throw_java_lang_ClassCastException(env, type);
   }
   
   pmath_unref(class_name);
@@ -373,7 +401,8 @@ static jobject make_object_from_bigint(JNIEnv *env, jclass type, pmath_integer_t
   }
   
   class_name = pj_class_get_name(env, type);
-  if( pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
+  if( pmath_string_equals_latin1(class_name, "J") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
     if(pmath_integer_fits_si64(value)) {
       result = make_boxed_Long(env, (jlong)pmath_integer_get_si64(value));
     }
@@ -389,10 +418,14 @@ static jobject make_object_from_bigint(JNIEnv *env, jclass type, pmath_integer_t
       value = PMATH_NULL;
     }
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) {
+  else if(pmath_string_equals_latin1(class_name, "D") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Double;"))
+  {
     result = make_boxed_Double(env, (jdouble)pmath_number_get_d(value));
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
+  else if(pmath_string_equals_latin1(class_name, "F") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) 
+  {
     result = make_boxed_Float(env, (jfloat)pmath_number_get_d(value));
   }
   else if(pmath_string_equals_latin1(class_name, "Ljava/math/BigInteger;")) {
@@ -409,6 +442,11 @@ static jobject make_object_from_bigint(JNIEnv *env, jclass type, pmath_integer_t
     }
     result = make_Expr_and_delete_local(env, result, PJ_EXPR_CONVERT_DEFAULT);
   }
+  else if(!pmath_string_equals_latin1(class_name, "V") && 
+      !pmath_string_equals_latin1(class_name, "Ljava/lang/Void;"))
+  {
+    throw_java_lang_ClassCastException(env, type);
+  }
   
   pmath_unref(value);
   pmath_unref(class_name);
@@ -423,17 +461,25 @@ static jobject make_object_from_double(JNIEnv *env, jclass type, double value) {
     return NULL;
   
   class_name = pj_class_get_name(env, type);
-  if( pmath_string_equals_latin1(class_name, "Ljava/lang/Double;") ||
+  if( pmath_string_equals_latin1(class_name, "D") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Double;") ||
       pmath_string_equals_latin1(class_name, "Ljava/lang/Number;") ||
       pmath_string_equals_latin1(class_name, "Ljava/lang/Object;")) 
   {
     result = make_boxed_Double(env, (jdouble)value);
   }
-  else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
+  else if(pmath_string_equals_latin1(class_name, "F") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Float;"))
+  {
     result = make_boxed_Float(env, (jfloat)value);
   }
   else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
     result = make_Expr_and_delete_local(env, make_boxed_Double(env, (jdouble)value), PJ_EXPR_CONVERT_DEFAULT);
+  }
+  else if(!pmath_string_equals_latin1(class_name, "V") && 
+      !pmath_string_equals_latin1(class_name, "Ljava/lang/Void;"))
+  {
+    throw_java_lang_ClassCastException(env, type);
   }
   
   pmath_unref(class_name);
@@ -448,13 +494,19 @@ static jobject make_object_from_bool(JNIEnv *env, jclass type, pmath_bool_t valu
     return NULL;
   
   class_name = pj_class_get_name(env, type);
-  if( pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;") ||
+  if( pmath_string_equals_latin1(class_name, "Z") ||
+      pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;") ||
       pmath_string_equals_latin1(class_name, "Ljava/lang/Object;")) 
   {
     result = make_boxed_Boolean(env, (jboolean)value);
   }
   else if(pmath_string_equals_latin1(class_name, "Lpmath/util/Expr;")) {
     result = make_Expr_and_delete_local(env, make_boxed_Boolean(env, (jboolean)value), PJ_EXPR_CONVERT_DEFAULT);
+  }
+  else if(!pmath_string_equals_latin1(class_name, "V") && 
+      !pmath_string_equals_latin1(class_name, "Ljava/lang/Void;")) 
+  {
+    throw_java_lang_ClassCastException(env, type);
   }
   
   pmath_unref(class_name);
@@ -643,25 +695,6 @@ GENERATE_MAKE_PRIMITIVE_ARRAY_FROM_ELEMENTS( Int,     int     )
 GENERATE_MAKE_PRIMITIVE_ARRAY_FROM_ELEMENTS( Long,    long    )
 GENERATE_MAKE_PRIMITIVE_ARRAY_FROM_ELEMENTS( Short,   short   )
 
-static jclass get_component_type(JNIEnv *env, jclass array_type) {
-  jmethodID mid_Class_getComponentType;
-  jclass    clazz;
-  jclass    result = NULL;
-  
-  if(!env || !array_type)
-    return NULL;
-  
-  clazz = (*env)->GetObjectClass(env, array_type);
-  if(clazz) {
-    mid_Class_getComponentType = (*env)->GetMethodID(env, clazz, "getComponentType", "()Ljava/lang/Class;");
-    if(mid_Class_getComponentType) {
-      result = (jclass)(*env)->CallObjectMethod(env, array_type, mid_Class_getComponentType);
-    }
-    (*env)->DeleteLocalRef(env, clazz);
-  }
-  
-  return result;
-}
 
 static jobject make_object_array_from_elements(JNIEnv *env, jclass element_type, pmath_expr_t list) { // list won't be freed
   size_t len = pmath_expr_length(list); 
@@ -708,6 +741,11 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
       need_expr = TRUE;
     }
     else {
+      if( !pmath_string_equals_latin1(class_name, "V") && 
+          !pmath_string_equals_latin1(class_name, "Ljava/lang/Void;"))
+       {
+        throw_java_lang_ClassCastException(env, type);
+      }
       pmath_unref(list);
       pmath_unref(class_name);
       return NULL;
@@ -758,7 +796,7 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
         case 'F': result = make_float_array_from_elements(env, list); break;
         case 'D': result = make_double_array_from_elements(env, list); break;
         default: {
-            jclass elem_type = get_component_type(env, type);
+            jclass elem_type = pj_class_get_component_type(env, type);
             if(elem_type) {
               result = make_object_array_from_elements(env, elem_type, list);
               (*env)->DeleteLocalRef(env, elem_type);
@@ -817,6 +855,11 @@ static jobject ensure_assignable_or_delete_local(JNIEnv *env, jclass type, jobje
           obj = make_Expr_and_delete_local(env, obj, PJ_EXPR_CONVERT_DEFAULT);
         }
         else {
+          if( !pmath_string_equals_latin1(type_name, "V") && 
+              !pmath_string_equals_latin1(type_name, "Ljava/lang/Void;"))
+          {
+            throw_java_lang_ClassCastException(env, type);
+          }
           (*env)->DeleteLocalRef(env, obj);
           obj = NULL;
         }
@@ -835,7 +878,9 @@ static jobject make_object_from_string(JNIEnv *env, jclass type, pmath_string_t 
   
   if(pmath_string_length(str) == 1) {
     pmath_string_t type_name = pj_class_get_name(env, type);
-    if(pmath_string_equals_latin1(type_name, "Ljava/lang/Character;")) {
+    if( pmath_string_equals_latin1(type_name, "C") ||
+       pmath_string_equals_latin1(type_name, "Ljava/lang/Character;"))
+    {
       const uint16_t *buf = pmath_string_buffer(&str);
       result = make_boxed_Character(env, (jchar)*buf);
       pmath_unref(str);
@@ -928,6 +973,15 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
           
           (*env)->DeleteLocalRef(env, head_and_args);
         }
+      }
+      else {
+        pmath_string_t type_name = pj_class_get_name(env, type);
+        if( !pmath_string_equals_latin1(type_name, "V") && 
+            !pmath_string_equals_latin1(type_name, "Ljava/lang/Void;"))
+        {
+          throw_java_lang_ClassCastException(env, type);
+        }
+        pmath_unref(type_name);
       }
       
       (*env)->DeleteLocalRef(env, java_lang_Object);
