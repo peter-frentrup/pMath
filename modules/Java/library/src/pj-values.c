@@ -1143,18 +1143,40 @@ static pmath_bool_t starts_with(pmath_string_t str, const char *s) {
   return *s == '\0';
 }
 
+#define GENERATE_MAKE_VALUE_FROM_JAVA(LOWER_NAME, UPPER_NAME, UPPER_LONG_NAME, J_PRIM_SIG, PMATH_SIG_CAST, PMATH_SIG) \
+  static pmath_t make_value_from_java_ ## UPPER_LONG_NAME ## _and_delete_class(JNIEnv *env, jclass clazz, jobject obj) { \
+    jmethodID mid = (*env)->GetMethodID(env, clazz, #LOWER_NAME "Value", "()" J_PRIM_SIG);              \
+    if(!pj_exception_to_pmath(env) && mid) {                                                                  \
+      j ## LOWER_NAME  val;                                                                                   \
+      (*env)->DeleteLocalRef(env, clazz);                                                                     \
+      val = (*env)->Call ## UPPER_NAME ## Method(env, obj, mid);                                              \
+      pj_exception_to_pmath(env);                                                                             \
+      return pmath_build_value(PMATH_SIG, (PMATH_SIG_CAST)val);                                               \
+    }                                                                                                         \
+    (*env)->DeleteLocalRef(env, clazz);                                                                       \
+    return PMATH_NULL;                                                                                        \
+  }
+
+GENERATE_MAKE_VALUE_FROM_JAVA( boolean, Boolean, Boolean,   "Z", int,       "b")
+GENERATE_MAKE_VALUE_FROM_JAVA( byte,    Byte,    Byte,      "B", int,       "i")
+GENERATE_MAKE_VALUE_FROM_JAVA( char,    Char,    Character, "C", int,       "c")
+GENERATE_MAKE_VALUE_FROM_JAVA( short,   Short,   Short,     "S", int,       "i")
+GENERATE_MAKE_VALUE_FROM_JAVA( int,     Int,     Integer,   "I", int,       "i")
+GENERATE_MAKE_VALUE_FROM_JAVA( long,    Long,    Long,      "J", long long, "k")
+GENERATE_MAKE_VALUE_FROM_JAVA( float,   Float,   Float,     "F", double,    "f")
+GENERATE_MAKE_VALUE_FROM_JAVA( double,  Double,  Double,    "D", double,    "f")
 
 PMATH_PRIVATE
 pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
   switch(type) {
     case 'Z':  return pmath_build_value("b", (int)value->z);
     case 'B':  return pmath_build_value("i", (int)value->b);
-    case 'C':  return pmath_build_value("c", (uint16_t)value->c);
+    case 'C':  return pmath_build_value("c", (int)value->c);
     case 'S':  return pmath_build_value("i", (int)value->s);
     case 'I':  return pmath_build_value("i", (int)value->i);
-    case 'J':  return pmath_build_value("k", value->j);
+    case 'J':  return pmath_build_value("k", (long long)value->j);
     case 'F':  return pmath_build_value("f", (double)value->f);
-    case 'D':  return pmath_build_value("f", value->d);
+    case 'D':  return pmath_build_value("f", (double)value->d);
     
     case 'L':
     case '[': break;
@@ -1179,109 +1201,37 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
         (*env)->DeleteLocalRef(env, clazz);
         return pj_string_from_java(env, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "booleanValue", "()Z");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jboolean val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallBooleanMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("b", (int)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Boolean;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Boolean_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "byteValue", "()B");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jbyte val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallByteMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("i", (int)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Byte;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Byte_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Character;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "charValue", "()C");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jchar val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallCharMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("i", (int)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Character;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Character_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "shortValue", "()S");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jshort val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallShortMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("i", (int)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Short;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Short_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "intValue", "()I");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jint val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallIntMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("i", (int)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Integer;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Integer_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "longValue", "()J");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jlong val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallLongMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("k", (long long)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Long;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Long_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "floatValue", "()F");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jfloat val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallFloatMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("f", (double)val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Float;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Float_and_delete_class(env, clazz, value->l);
       }
-      
-      if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) {
-        jmethodID mid = (*env)->GetMethodID(env, clazz, "doubleValue", "()D");
-        
-        if(!pj_exception_to_pmath(env) && mid) {
-          jdouble val;
-          pmath_unref(class_name);
-          (*env)->DeleteLocalRef(env, clazz);
-          val = (*env)->CallDoubleMethod(env, value->l, mid);
-          pj_exception_to_pmath(env);
-          return pmath_build_value("f", val);
-        }
+      else if(pmath_string_equals_latin1(class_name, "Ljava/lang/Double;")) {
+        pmath_unref(class_name);
+        return make_value_from_java_Double_and_delete_class(env, clazz, value->l);
       }
     }
     
