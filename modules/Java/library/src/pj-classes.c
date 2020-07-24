@@ -300,10 +300,12 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
         if(str && len > 0) {
           result = (*env)->FindClass(env, str);
           pmath_mem_free(str);
+          pmath_unref(prefix);
           return result;
         }
       }
       
+      pmath_unref(prefix);
       return NULL;
     }
     
