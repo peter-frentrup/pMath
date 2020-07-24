@@ -24,6 +24,7 @@ public class ParserArguments {
      *  <li>the {@link java.math.BigInteger} class,
      *  <li>the {@link java.lang.Number} class to allow any of the recognized number types above,
      *  <li>the {@link String} class for strings,
+     *  <li>the {@link pmath.util.Expr} class for arbitrary expressions,
      *  <li>the {@link Object} class to allow any recognized type,
      *  <li>any array of recognized types (including primitive types),
      *  <li>the {@code void} type (represented by {@link Void}), to ignore any pMath result and return

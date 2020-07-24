@@ -7,6 +7,8 @@ import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
 
+/** Represents a pMath expression tree.
+ */
 public final class Expr {
     private final Object object;
     private final int convert_options;
@@ -17,8 +19,17 @@ public final class Expr {
     private static final int CONVERT_AS_PARSED = 3;
     private static final int CONVERT_AS_EXPRESSION = 4;
 
+    /** The pMath {@code System`List} symbol.
+     */
     public static final Expr LIST_SYMBOL = symbol("System`List");
 
+    /** Create an expression from an abitrary object using default conversion rules.
+     * 
+     * @param value An object or {@code null} to be converted to a suitable pMath expression upon evaluation.
+     * 
+     * @see #isDefaultConverted()
+     * @see #javaObject(Object)
+     */
     public Expr(Object value) {
         object = value;
         convert_options = CONVERT_DEFAULT;
@@ -29,18 +40,51 @@ public final class Expr {
         convert_options = opts;
     }
 
+    /** Create a pMath symbol reference.
+     * 
+     * @param name A valid pMath symbol name with namespace, e.g. {@code "System`Pi"}.
+     * @return A new expression that will be converted to a pMath symbol upon evaluation.
+     * 
+     * @see #isSymbol()
+     */
     public static Expr symbol(String name) {
+        if(name == null)
+            throw new IllegalArgumentException("Null not allowed for `name`.");
         return new Expr(name, CONVERT_AS_SYMBOL);
     }
 
+    /** Create an expression from an arbitrary piece of valid pMath code.
+     * 
+     * @param code Valid pMath code
+     * @return A new expression that will be converted to a pMath symbol upon evaluation.
+     * 
+     * @see #isUnparsedCode()
+     */
     public static Expr parseDelayed(String code) {
+        if(code == null)
+            throw new IllegalArgumentException("Null not allowed for `code`.");
         return new Expr(code, CONVERT_AS_PARSED);
     }
 
+    /** Create an expression from an arbitary object without special conversions.
+     * 
+     * @param object An arbitrary object or {@code null}.
+     * @return An expression that will be converted to a {@code Java`JavaObject(...)} (or {@code /\/})
+     *         pMath expression upon evaluation.
+     * 
+     * @see #isWrappedJavaObject()
+     */
     public static Expr javaObject(Object object) {
         return new Expr(object, CONVERT_AS_JAVAOBJECT);
     }
 
+    /** Create a new composite expression with this expression as head.
+     * 
+     * @param arguments The new composite expression's arguments.
+     * @return A new pMath composite expression <i>h</i>(<i>a</i><sub>1</sub>, <i>a</i><sub>2</sub>, ...).
+     * 
+     * @see #isComposite()
+     */
     public Expr call(Object... arguments) {
         Object[] headAndArgs = new Object[arguments.length + 1];
         headAndArgs[0] = this;
@@ -54,6 +98,13 @@ public final class Expr {
         throw new IllegalArgumentException();
     }
 
+    /** Create a new composite expression.
+     * 
+     * @param headAndArgs The new composite expression's head and arguments. Must be at least 1 argument (for the head).
+     * @return A new expression pMath <span class="math"><i>a</i><sub>0</sub>(<i>a</i><sub>1</sub>, <i>a</i><sub>2</sub>, ...)</span>.
+     * 
+     * @see #isComposite()
+     */
     public static Expr callTo(Object... headAndArgs) {
         if (headAndArgs.length == 0)
             throw new IllegalArgumentException("expression head (element [0]) is missing");
@@ -61,10 +112,22 @@ public final class Expr {
         return new Expr(headAndArgs, CONVERT_AS_EXPRESSION);
     }
 
+    /** Get the underlying object data.
+     * 
+     * @return The underlying object. Its meaning depends on the kind of expression.
+     */
     public Object getObject() {
         return object;
     }
 
+    /** Test whether this expression represents a composite expression.
+     * 
+     * @return whether this expression represents a composite expression 
+     *         <span class="math"><i>a</i><sub>0</sub>(<i>a</i><sub>1</sub>, <i>a</i><sub>2</sub>, ...)</span>.
+     * @see #length()
+     * @see #head()
+     * @see #part(int)
+     */
     public boolean isComposite() {
         switch (convert_options) {
             case CONVERT_DEFAULT:
@@ -77,32 +140,72 @@ public final class Expr {
         return false;
     }
 
+    /** Test whether this expression represents an explicit Java reference.
+     * 
+     * The referenced object is {@link #getObject()}.
+     * 
+     * @return whether this expression represents a {@code Java`JavaObject(...)} reference for pMath code.
+     */
     public boolean isWrappedJavaObject() {
         return convert_options == CONVERT_AS_JAVAOBJECT;
     }
 
+    /** Test whether this expression represents a value with default conversion rules.
+     * 
+     * If {@link #getObject()} is an instance of one of the special classes mentioned in 
+     * {@link pmath.ParserArguments#getExpectedType()}, it will be converted to the corresponding pMath type.
+     * Otherwise, this expression will be converted a {@code Java`JavaObject(...)} (or {@code /\/}).
+     * 
+     * @return whether this expression uses default conversion rules for {@link #getObject()}.
+     */
     public boolean isDefaultConverted() {
         return convert_options == CONVERT_DEFAULT;
     }
 
+    /** Test whether this expression represents a pMath symbol.
+     * 
+     * A symbol expression's {@link #getObject()} gives the symbol's full name.
+     * 
+     * @return whether this expression represents a pMath symbol {@code full`namespace`path`name}.
+     */
     public boolean isSymbol() {
         return convert_options == CONVERT_AS_SYMBOL;
     }
 
+    /** Test whether this expression represents an arbitrary pMath object given by its InputForm string.
+     * 
+     * @return whether this expression will by parsing its {@code (String){@link #getObject()}}.
+     */
     public boolean isUnparsedCode() {
         return convert_options == CONVERT_AS_PARSED;
     }
 
+    /** Test whether this expression represents a pMath string.
+     * 
+     * @return Whether {@link #isDefaultConverted()} and {@link #getObject()} is a string.
+     */
     public boolean isString() {
-        return (isWrappedJavaObject() || isDefaultConverted()) && object instanceof String;
+        return isDefaultConverted() && object instanceof String;
     }
 
+    /** Test whether this expression represents a (small) pMath integer.
+     * 
+     * @return Whether {@link #isDefaultConverted()} is true and {@link #getObject()} is 
+     *         an {@link Integer}, {@link Short}, or {@link Byte}.
+     * @see #getInt() 
+     */
     public boolean isInt() {
         if (!isDefaultConverted())
             return false;
         return object instanceof Integer || object instanceof Short || object instanceof Byte;
     }
 
+    /** Test whether this expression represents an arbitrary precision pMath integer.
+     * 
+     * @return Whether {@link #isDefaultConverted()} is true and {@link #getObject()} is 
+     *         a {@link java.math.BigInteger}, {@link Long}, {@link Integer}, {@link Short}, or {@link Byte}.
+     * @see #getInteger() 
+     */
     public boolean isInteger() {
         if (!isDefaultConverted())
             return false;
@@ -110,6 +213,11 @@ public final class Expr {
                 || object instanceof Short || object instanceof Byte;
     }
 
+    /** Get the int value of an integer exprssion.
+     * 
+     * @return the integer value if {@link #isInt()} is true.
+     * @throws UnsupportedOperationException if {@link #isInt()} is false.
+     */
     public int getInt() {
         if (!isDefaultConverted())
             throw new UnsupportedOperationException("not an int");
@@ -124,6 +232,11 @@ public final class Expr {
         throw new UnsupportedOperationException("not an int");
     }
 
+    /** Get the integer value of an integer exprssion.
+     * 
+     * @return the integer value if {@link #isInteger()} is true.
+     * @throws UnsupportedOperationException if {@link #isInteger()} is false.
+     */
     public BigInteger getInteger() {
         if (!isDefaultConverted())
             throw new UnsupportedOperationException("not an integer");
@@ -149,6 +262,11 @@ public final class Expr {
             return new Expr(object);
     }
 
+    /** Get the length of this composite expression.
+     * 
+     * @return The expression's number of arguments or 0 if {@link #isComposite()} is false.
+     * @see #part(int)
+     */
     public int length() {
         switch (convert_options) {
             case CONVERT_AS_EXPRESSION:
@@ -157,11 +275,21 @@ public final class Expr {
             case CONVERT_DEFAULT:
                 if (object instanceof Object[])
                     return ((Object[]) object).length;
+                return 0;
         }
 
         return 0;
     }
 
+    /** Get this composite expression's head.
+     * 
+     * If {@link #isDefaultConverted()} is true and {@link #getObject()} is an array,
+     * the array will contain elements for a pMath list, and this function will give
+     * {@link #LIST_SYMBOL}.
+     * 
+     * @return The expression's head if {@link #isComposite()} is true, and a {@code new Expr(null)}
+     *         otherwise. 
+     */
     public Expr head() {
         switch (convert_options) {
             case CONVERT_AS_EXPRESSION:
@@ -176,6 +304,15 @@ public final class Expr {
         return new Expr(null);
     }
 
+    /** Get a part of this composite expression.
+     * 
+     * @param index The 1-based part index.
+     * @return If index is 0, returns {@link #head()}. 
+     *         If index is between 1 and {@link #length()} (inclusive), returns the requested 
+     *         argument <span class="math"><i>a</i><sub><i>index</i></sub></span> of this composite expression
+     *         <span class="math"><i>h</i>(<i>a</i><sub>1</sub>, <i>a</i><sub>2</sub>, ...)</span>.
+     *         Otherwise, returns a {@code new Expr(null)}.
+     */
     public Expr part(int index) {
         if (index < 0)
             return new Expr(null);
@@ -219,6 +356,11 @@ public final class Expr {
         return object.hashCode();
     }
 
+    /** Literally compare this expression to another expression.
+     * 
+     * <p>
+     * Note that wrapped java objects ({@link #isWrappedJavaObject()}) are compared for reference equality.
+     */
     @Override
     public boolean equals(Object obj) {
         if (!(obj instanceof Expr))
@@ -261,7 +403,7 @@ public final class Expr {
     public String toString() {
         try {
             try (ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream()) {
-                Charset charset = StandardCharsets.UTF_8;
+                Charset charset = StandardCharsets.UTF_16LE;
 
                 try (PrintStream ps = new PrintStream(byteArrayStream, true, charset)) {
                     writeTo(ps);
@@ -274,6 +416,13 @@ public final class Expr {
         }
     }
 
+    /** Print this expression to a stream.
+     * 
+     * <p>
+     * This function is an optimized version of {@code stream.append(this.toString())}.
+     * 
+     * @param stream A stream to print to.
+     */
     public void writeTo(PrintStream stream) {
         switch (convert_options) {
             case CONVERT_AS_EXPRESSION:

@@ -2,12 +2,16 @@ package pmath.util;
 
 import java.security.Permission;
 
+/** A security manager that gives every permission but disallows exit.
+ */
 public class NoExitSecurityManager extends SecurityManager {
-	public void checkExit(int status){
+	@Override 
+	public void checkExit(int status) {
 		throw new SecurityException("exit not allowed");
 	}
 	
-	public void checkPermission(Permission perm){
+	@Override
+	public void checkPermission(Permission perm) {
 		/* allow everything else */
 	}
 }
