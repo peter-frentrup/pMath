@@ -284,7 +284,7 @@ jclass pj_class_to_java(JNIEnv *env, pmath_t obj) {
         prefix = pmath_string_insert_latin1(prefix, INT_MAX, "[", 1);
       } while(pmath_is_expr_of_len(obj, pjsym_Java_Type_Array, 1));
       
-      if(!pmath_aborting()) {
+      if(pmath_aborting()) {
         pmath_unref(obj);
         return NULL;
       }
