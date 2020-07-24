@@ -230,6 +230,7 @@ Options(Section):= {
     SectionDingbat -> None,
     SectionEditDuplicate -> Inherited,
     SectionEditDuplicateMakesCopy -> Inherited,
+    SectionEvaluationFunction -> Identity,
     SectionFrame -> False,
     SectionFrameColor -> GrayLevel(0),
     SectionFrameLabelMargins -> 3,

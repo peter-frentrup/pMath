@@ -329,8 +329,9 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
   
-  Stylesheet::Default->base->set(FontFamilies,   List());
-  Stylesheet::Default->base->set(SectionLabel, "");
+  Stylesheet::Default->base->set(FontFamilies,              List());
+  Stylesheet::Default->base->set(SectionLabel,              "");
+  Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(PMATH_SYMBOL_IDENTITY));
   
   Stylesheet::Default->base->set_pmath(Method,
                                        Expr(pmath_option_value(

@@ -205,6 +205,7 @@ namespace richmath {
     GeneratedSectionStyles,
     
     SectionDingbat,
+    SectionEvaluationFunction,
     Appearance,
     
     ButtonBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::ButtonBox,

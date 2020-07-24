@@ -105,21 +105,28 @@ bool InputJob::start() {
   
   doc->move_to(doc, i);
   
-  Expr line = Application::interrupt_wait(Plus(Symbol(richmath_System_DollarLine), 1));
-  Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
-  
-  String label = String("in [");
-  if(dlvl == PMATH_FROM_INT32(1))
-    label = String("(Dialog) ") + label;
-  else if(dlvl != PMATH_FROM_INT32(0))
-    label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
+  {
+    Expr line = Application::interrupt_wait(Plus(Symbol(richmath_System_DollarLine), 1));
+    Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
     
-  if(!section->style)
-    section->style = new Style;
-  section->style->set(SectionLabel, label + line.to_string() + String("]:"));
-  section->invalidate();
+    String label = String("in [");
+    if(dlvl == PMATH_FROM_INT32(1))
+      label = String("(Dialog) ") + label;
+    else if(dlvl != PMATH_FROM_INT32(0))
+      label = String("(Dialog ") + dlvl.to_string() + String(") ") + label;
+      
+    if(!section->style)
+      section->style = new Style;
+    section->style->set(SectionLabel, label + line.to_string() + String("]:"));
+    section->invalidate();
+  }
   
-  Server::local_server->run_boxes(section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo));
+  Expr boxes = section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo);
+  Expr eval_fun = section->get_style(SectionEvaluationFunction);
+  if(eval_fun != PMATH_SYMBOL_IDENTITY)
+    boxes = Call(std::move(eval_fun), std::move(boxes));
+  
+  Server::local_server->run_boxes(std::move(boxes));
   
   doc->native()->running_state_changed();
   
@@ -243,8 +250,12 @@ bool ReplacementJob::start() {
     return false;
   }
   
-  Server::local_server->run_boxes(
-    sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo, selection_start, selection_end));
+  Expr boxes = sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo, selection_start, selection_end);
+  Expr eval_fun = section->get_style(SectionEvaluationFunction);
+  if(eval_fun != PMATH_SYMBOL_IDENTITY)
+    boxes = Call(std::move(eval_fun), std::move(boxes));
+  
+  Server::local_server->run_boxes(std::move(boxes));
     
   doc->native()->running_state_changed();
   

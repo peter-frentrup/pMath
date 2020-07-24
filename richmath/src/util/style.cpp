@@ -77,6 +77,7 @@ extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionDingbat;
 extern pmath_symbol_t richmath_System_SectionEditDuplicate;
 extern pmath_symbol_t richmath_System_SectionEditDuplicateMakesCopy;
+extern pmath_symbol_t richmath_System_SectionEvaluationFunction;
 extern pmath_symbol_t richmath_System_SectionFrame;
 extern pmath_symbol_t richmath_System_SectionFrameColor;
 extern pmath_symbol_t richmath_System_SectionFrameLabelMargins;
@@ -1923,6 +1924,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(SectionDingbat);
   impl.emit_definition(SectionEditDuplicate);
   impl.emit_definition(SectionEditDuplicateMakesCopy);
+  impl.emit_definition(SectionEvaluationFunction);
   impl.emit_definition(SectionFrameLeft);
   impl.emit_definition(SectionFrameColor);
   impl.emit_definition(SectionFrameMarginLeft);
@@ -2508,6 +2510,7 @@ void StyleInformation::add_style() {
     add(StyleTypeAny,             Tooltip,                          Symbol( richmath_System_Tooltip));
     add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
     add(StyleTypeAny,             SectionDingbat,                   Symbol( richmath_System_SectionDingbat));
+    add(StyleTypeAny,             SectionEvaluationFunction,        Symbol( richmath_System_SectionEvaluationFunction));
     
     add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(richmath_System_DockedSections), String("Top")));
     add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(richmath_System_DockedSections), String("TopGlass")));

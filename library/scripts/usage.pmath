@@ -701,6 +701,7 @@ Section::usage:= "Section(\(StyleBox(\"content\", \"Arg\")\)) is the low-level r
 SectionDingbat::usage:= "SectionDingbat is an option for Section which specifies what dingbat to use to emphasize the document section."
 SectionEditDuplicate::usage:= "SectionEditDuplicate is an option for Section which specifies whether the current section should be duplicated (with a new style) before any edits are done."
 SectionEditDuplicateMakesCopy::usage:= "SectionEditDuplicateMakesCopy is an option for Section which specifies whether a copy of the section should be inserted before duplicating it for editing, when SectionEditDuplicate is True."
+SectionEvaluationFunction::usage:= "SectionEvaluationFunction is an option for Section which specifies a function to apply to its box expression for evaluation."
 SectionFrame::usage:= "SectionFrame is an option for Section which specifies whether a frame should draw around a section."
 SectionFrameColor::usage:= "SectionFrameColor is an option for Section which specifies the color of the frame around a section."
 SectionFrameMargins::usage:= "SectionFrameMargins is an option for Section which specifies the margins in points to leave inside a frame that is drawn around a section."
