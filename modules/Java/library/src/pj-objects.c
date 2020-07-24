@@ -364,7 +364,7 @@ pmath_t wrap_exception_result(pmath_symbol_t head, pmath_t exception) {
              pmath_ref(PMATH_SYMBOL_ABORT), 0);
   }
   
-  if(pmath_is_evaluatable(exception)) {
+  if(pmath_is_evaluatable(exception) || pmath_is_magic(exception)) {
     pmath_t do_throw = pmath_expr_new_extended(
                          pmath_ref(PMATH_SYMBOL_THROW), 1,
                          pmath_ref(exception));

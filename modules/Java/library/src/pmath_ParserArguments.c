@@ -80,7 +80,7 @@ pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
   ns_path = pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH);
   pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, old_ns_path);
   
-  if(pmath_is_evaluatable(exception)) {
+  if(!pmath_same(exception, PMATH_UNDEFINED)) {
     pmath_unref(expr);
     return pmath_expr_new_extended(
              pmath_ref(pjsym_Java_Internal_Failed), 3,
@@ -192,6 +192,22 @@ static void set_hidden_string_field(JNIEnv *env, jobject obj, const char *name, 
     (*env)->DeleteLocalRef(env, val);
 }
 
+static void set_context(JNIEnv *env, jobject context, pmath_t ns, pmath_t ns_path) { // frees ns, ns_path
+  if(context) {
+    if(pmath_is_string(ns)) {
+      set_hidden_string_field(env, context, "namespace", ns);
+      ns = PMATH_NULL;
+    }
+    if(pmath_is_expr_of(ns_path, PMATH_SYMBOL_LIST)) {
+      set_hidden_object_field_from_pmath(env, context, "namespacePath", "[Ljava/lang/String;", ns_path);
+      ns_path = PMATH_NULL;
+    }
+  }
+  
+  pmath_unref(ns);
+  pmath_unref(ns_path);
+}
+
 JNIEXPORT jobject JNICALL Java_pmath_ParserArguments_execute(JNIEnv *env, jobject obj_ParserArguments_this) {
   pmath_messages_t companion;
   pmath_t expr;
@@ -247,11 +263,14 @@ JNIEXPORT jobject JNICALL Java_pmath_ParserArguments_execute(JNIEnv *env, jobjec
   expr = pmath_thread_send_wait(companion, expr, HUGE_VAL, NULL, NULL);
   pmath_unref(companion);
   
-  this_context_namespace     = PMATH_NULL;
-  this_context_namespacePath = PMATH_NULL;
   if(pmath_is_expr_of(expr, pjsym_Java_Internal_Failed)) {
-    this_context_namespace     = pmath_expr_get_item(expr, 2);
-    this_context_namespacePath = pmath_expr_get_item(expr, 3);
+    if(obj_ParserArguments_context) {
+      set_context(
+        env, 
+        obj_ParserArguments_context, 
+        pmath_expr_get_item(expr, 2),
+        pmath_expr_get_item(expr, 3));
+    }
     
     pmath_throw(pmath_expr_get_item(expr, 1));
     pmath_unref(expr);
@@ -262,8 +281,13 @@ JNIEXPORT jobject JNICALL Java_pmath_ParserArguments_execute(JNIEnv *env, jobjec
     pmath_t result;
     jclass expected_type = get_hidden_object_field(env, obj_ParserArguments_this, "expectedType", "Ljava/lang/Class;");
     
-    this_context_namespace     = pmath_expr_get_item(expr, 2);
-    this_context_namespacePath = pmath_expr_get_item(expr, 3);
+    if(obj_ParserArguments_context) {
+      set_context(
+        env, 
+        obj_ParserArguments_context, 
+        pmath_expr_get_item(expr, 2),
+        pmath_expr_get_item(expr, 3));
+    }
     
     result = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
@@ -278,21 +302,9 @@ JNIEXPORT jobject JNICALL Java_pmath_ParserArguments_execute(JNIEnv *env, jobjec
     pmath_unref(expr);
   }
   
-  if(obj_ParserArguments_context) {
-    if(pmath_is_string(this_context_namespace)) {
-      set_hidden_string_field(env, obj_ParserArguments_context, "namespace", this_context_namespace);
-      this_context_namespace = PMATH_NULL;
-    }
-    if(pmath_is_expr_of(this_context_namespacePath, PMATH_SYMBOL_LIST)) {
-      set_hidden_object_field_from_pmath(env, obj_ParserArguments_context, "namespacePath", "[Ljava/lang/String;", this_context_namespacePath);
-      this_context_namespacePath = PMATH_NULL;
-    }
-    
+  if(obj_ParserArguments_context) 
     (*env)->DeleteLocalRef(env, obj_ParserArguments_context);
-  }
   
-  pmath_unref(this_context_namespace);
-  pmath_unref(this_context_namespacePath);
   if(load_temporary)
     pmath_done();
     

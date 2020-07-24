@@ -47,7 +47,7 @@ pmath_t pj_eval_Java_Internal_CallFromJava(pmath_t expr) {
   result = pmath_evaluate(result);
   
   exception = pmath_catch();
-  if(pmath_is_evaluatable(exception)) {
+  if(!pmath_same(exception, PMATH_UNDEFINED)) {
     pmath_unref(result);
     
     result = pmath_expr_new_extended(

@@ -355,6 +355,8 @@ jclass pj_class_get_component_type(JNIEnv *env, jclass array_class) {
     mid_Class_getComponentType = (*env)->GetMethodID(env, clazz, "getComponentType", "()Ljava/lang/Class;");
     if(mid_Class_getComponentType) {
       result = (jclass)(*env)->CallObjectMethod(env, array_class, mid_Class_getComponentType);
+      if((*env)->ExceptionOccurred(env))
+        pmath_debug_print("[unexpected java exception]\n");
     }
     (*env)->DeleteLocalRef(env, clazz);
   }
@@ -1080,7 +1082,8 @@ pmath_t pj_class_call_method(
                   assert("invalid java type" && 0);
               }
               
-              result = pj_value_from_java(env, return_type, &val);
+              if(!(*env)->ExceptionCheck(env))
+                result = pj_value_from_java(env, return_type, &val);
             }
             else if(is_static) {
               /* error: trying to call non-static method without an object */
@@ -1138,7 +1141,8 @@ pmath_t pj_class_call_method(
                   assert("invalid java type" && 0);
               }
               
-              result = pj_value_from_java(env, return_type, &val);
+              if(!(*env)->ExceptionCheck(env))
+                result = pj_value_from_java(env, return_type, &val);
             }
           }
         }

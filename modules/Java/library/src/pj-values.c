@@ -32,6 +32,7 @@ extern pmath_symbol_t pjsym_Java_Type_Short;
 #define PJ_EXPR_CONVERT_AS_SYMBOL      2
 #define PJ_EXPR_CONVERT_AS_PARSED      3
 #define PJ_EXPR_CONVERT_AS_EXPRESSION  4
+#define PJ_EXPR_CONVERT_AS_MAGIC       5
 
 
 PMATH_PRIVATE pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr) {
@@ -282,7 +283,7 @@ static jobject make_BigInteger(JNIEnv *env, pmath_integer_t value) { // value wi
   if((*env)->EnsureLocalCapacity(env, 3) == 0) {
     jstring hex_digits = pj_string_to_java(env, str); str = PMATH_NULL;
     if(hex_digits) {
-      jclass java_math_BigInteger = (*env)->FindClass(env, "Ljava/math/BigInteger;");
+      jclass java_math_BigInteger = (*env)->FindClass(env, "java/math/BigInteger");
       if(java_math_BigInteger) {
         jmethodID cid = (*env)->GetMethodID(env, java_math_BigInteger, "<init>", "(Ljava/lang/String;I)V"); 
         if(cid) {
@@ -305,7 +306,7 @@ static jobject make_Expr_and_delete_local(JNIEnv *env, jobject object, int conve
   if(!env)
     return NULL;
   
-  pmath_util_Expr = (*env)->FindClass(env, "Lpmath/util/Expr;");
+  pmath_util_Expr = (*env)->FindClass(env, "pmath/util/Expr");
   if(pmath_util_Expr) {
     jmethodID cid = (*env)->GetMethodID(env, pmath_util_Expr, "<init>", "(Ljava/lang/Object;I)V");
     if(cid) {
@@ -324,7 +325,7 @@ static jobject make_Expr_and_delete_local(JNIEnv *env, jobject object, int conve
 static void throw_java_lang_ClassCastException(JNIEnv *env, jclass destination_type) {
   jclass java_lang_ClassCastException;
   
-  java_lang_ClassCastException = (*env)->FindClass(env, "Ljava/lang/ClassCastException;");
+  java_lang_ClassCastException = (*env)->FindClass(env, "java/lang/ClassCastException");
   if(java_lang_ClassCastException) {
     pmath_string_t str = pj_class_get_nice_name(env, destination_type);
     str = pmath_string_insert_latin1(str, 0, "Cannot cast expression to ", -1);
@@ -825,7 +826,7 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
     }
     
     if(!result) {
-      jclass java_lang_Object = (*env)->FindClass(env, "Ljava/lang/Object;");
+      jclass java_lang_Object = (*env)->FindClass(env, "java/lang/Object");
       if(java_lang_Object) {
         result = make_object_array_from_elements(env, java_lang_Object, list);
         (*env)->DeleteLocalRef(env, java_lang_Object);
@@ -933,9 +934,9 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
     return NULL;
   }
   
-  pmath_util_Expr = (*env)->FindClass(env, "Lpmath/util/Expr;");
+  pmath_util_Expr = (*env)->FindClass(env, "pmath/util/Expr");
   if(pmath_util_Expr) {
-    jclass java_lang_Object = (*env)->FindClass(env, "Ljava/lang/Object;");
+    jclass java_lang_Object = (*env)->FindClass(env, "java/lang/Object");
     if(java_lang_Object) {
       if( (*env)->IsSameObject(env, type, pmath_util_Expr) ||
           (*env)->IsSameObject(env, type, java_lang_Object))
@@ -1020,6 +1021,32 @@ static jobject make_object_from_symbol(JNIEnv *env, jclass type, pmath_symbol_t 
              PJ_EXPR_CONVERT_AS_SYMBOL));
 }
 
+static jobject make_object_from_magic(JNIEnv *env, jclass type, int32_t magic_value) {
+  jobject result = NULL;
+  jclass pmath_util_Expr;
+  
+  if(!env) 
+    return NULL;
+  
+  pmath_util_Expr = (*env)->FindClass(env, "pmath/util/Expr");
+  if(pmath_util_Expr) {
+    if((*env)->IsAssignableFrom(env, pmath_util_Expr, type)) {
+      jmethodID cid = (*env)->GetMethodID(env, pmath_util_Expr, "<init>", "(Ljava/lang/Object;I)V");
+      if(cid) {
+        jobject value = make_boxed_Integer(env, (jint)magic_value);
+        
+        result = (*env)->NewObject(env, pmath_util_Expr, cid, value, (jint)PJ_EXPR_CONVERT_AS_MAGIC);
+        
+        (*env)->DeleteLocalRef(env, value);
+      }
+    }
+    
+    (*env)->DeleteLocalRef(env, pmath_util_Expr);
+  }
+  
+  return result;
+}
+
 static jobject make_object_from_other(JNIEnv *env, jclass type, pmath_t obj) {
   pmath_string_t str;
   
@@ -1063,6 +1090,9 @@ jobject pj_value_to_java_object(JNIEnv *env, pmath_t obj, jclass type) { // obj 
     
   if(pmath_is_symbol(obj)) 
     return make_object_from_symbol(env, type, obj);
+  
+  if(pmath_is_magic(obj))
+    return make_object_from_magic(env, type, PMATH_AS_INT32(obj));
   
   return make_object_from_other(env, type, obj);
 }
@@ -1177,6 +1207,8 @@ static pmath_t make_value_from_java_BigInteger_and_delete_class(JNIEnv *env, jcl
   jmethodID mid_toString_with_radix = (*env)->GetMethodID(env, clazz, "toString", "(I)Ljava/lang/String;");
   if(!pj_exception_to_pmath(env) && mid_toString_with_radix) {
     jstring s = (*env)->CallObjectMethod(env, obj, mid_toString_with_radix, 16);
+    pj_exception_to_pmath(env);
+    
     if(s) {
       pmath_string_t  str = pj_string_from_java(env, s);
       int             len = pmath_string_length(str);
@@ -1217,7 +1249,7 @@ static pmath_t make_value_from_java_Expr_and_delete_class(JNIEnv *env, jclass cl
         } break;
       
       case PJ_EXPR_CONVERT_AS_SYMBOL: {
-          jclass java_lang_String = (*env)->FindClass(env, "Ljava/lang/String;");
+          jclass java_lang_String = (*env)->FindClass(env, "java/lang/String");
           if(java_lang_String) {
             if((*env)->IsInstanceOf(env, data, java_lang_String)) {
               result = pmath_symbol_get(pj_string_from_java(env, data), TRUE);
@@ -1227,7 +1259,7 @@ static pmath_t make_value_from_java_Expr_and_delete_class(JNIEnv *env, jclass cl
         } break;
       
       case PJ_EXPR_CONVERT_AS_PARSED: {
-          jclass java_lang_String = (*env)->FindClass(env, "Ljava/lang/String;");
+          jclass java_lang_String = (*env)->FindClass(env, "java/lang/String");
           if(java_lang_String) {
             if((*env)->IsInstanceOf(env, data, java_lang_String)) {
               result = pmath_parse_string(pj_string_from_java(env, data));
@@ -1254,6 +1286,19 @@ static pmath_t make_value_from_java_Expr_and_delete_class(JNIEnv *env, jclass cl
               }
             }
             (*env)->DeleteLocalRef(env, array_of_java_lang_Object);
+          }
+        } break;
+      
+      case PJ_EXPR_CONVERT_AS_MAGIC: {
+          jvalue val;
+          val.l = data;
+          result = pj_value_from_java(env, 'L', &val);
+          if(pmath_is_int32(result)) {
+            result = PMATH_FROM_TAG(PMATH_TAG_MAGIC, PMATH_AS_INT32(result));
+          }
+          else {
+            pmath_unref(result);
+            result = PMATH_NULL;
           }
         } break;
       

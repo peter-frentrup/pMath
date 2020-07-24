@@ -18,6 +18,8 @@ public final class Expr {
     private static final int CONVERT_AS_SYMBOL = 2;
     private static final int CONVERT_AS_PARSED = 3;
     private static final int CONVERT_AS_EXPRESSION = 4;
+    private static final int CONVERT_AS_MAGIC = 5;
+
 
     /** The pMath {@code System`List} symbol.
      */
@@ -441,6 +443,11 @@ public final class Expr {
                 stream.append("" + object);
                 stream.append(" )");
                 return;
+            
+            case CONVERT_AS_MAGIC:
+            stream.append("<< magic value ");
+            stream.append("" + object);
+            stream.append(" >>");
         }
 
         stream.append("" + object);
