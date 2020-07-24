@@ -391,17 +391,17 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
         if(wrapped_ex_class &&
             (*env)->IsInstanceOf(env, jex, wrapped_ex_class))
         {
-          jmethodID mid = (*env)->GetMethodID(env, wrapped_ex_class, "getCode", "()Ljava/lang/String;");
+          jmethodID mid = (*env)->GetMethodID(env, wrapped_ex_class, "getExpr", "()Lpmath/util/Expr;");
           clear_exception(env);
           
           if(mid) {
-            jobject jobj = (*env)->CallObjectMethod(env, jex, mid);
+            jvalue val;
+            val.l = (*env)->CallObjectMethod(env, jex, mid);
             clear_exception(env);
             
-            pmath_string_t code = pj_string_from_java(env, jobj);
-            pex = pmath_parse_string(code);
+            pex = pj_value_from_java(env, 'L', &val);
             
-            (*env)->DeleteLocalRef(env, jobj);
+            (*env)->DeleteLocalRef(env, val.l);
           }
           
           (*env)->DeleteLocalRef(env, wrapped_ex_class);
@@ -499,10 +499,8 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
 
 PMATH_PRIVATE
 pmath_bool_t pj_exception_to_java(JNIEnv *env) {
-  jclass throwable_class;
-  jclass ex_class;
+  jclass java_lang_Throwable;
   jthrowable jex;
-  jobject str;
   
   pmath_t ex = pmath_catch();
   
@@ -526,8 +524,8 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
     return TRUE;
   }
   
-  throwable_class = (*env)->FindClass(env, "java/lang/Throwable");
-  if(!throwable_class) {
+  java_lang_Throwable = (*env)->FindClass(env, "java/lang/Throwable");
+  if(!java_lang_Throwable) {
     pmath_unref(ex);
     return TRUE;
   }
@@ -540,7 +538,7 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
     if(pj_object_is_java(env, inner)) {
       jex = pj_object_to_java(env, inner);
       
-      if(jex && !(*env)->IsInstanceOf(env, jex, throwable_class)) {
+      if(jex && !(*env)->IsInstanceOf(env, jex, java_lang_Throwable)) {
         (*env)->DeleteLocalRef(env, jex);
         jex = NULL;
       }
@@ -548,40 +546,31 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
     else
       pmath_unref(inner);
   }
+  (*env)->DeleteLocalRef(env, java_lang_Throwable); 
+  java_lang_Throwable = NULL;
   
   if(!jex) {
-    ex_class = (*env)->FindClass(env, "pmath/util/WrappedException");
-    
-    if(ex_class) {
-      jmethodID cid = (*env)->GetMethodID(env, ex_class, "<init>", "(Ljava/lang/String;)V");
+    jclass pmath_util_WrappedException = (*env)->FindClass(env, "Lpmath/util/WrappedException;");
+    if(pmath_util_WrappedException) {
+      jmethodID cid = (*env)->GetMethodID(env, pmath_util_WrappedException, "<init>", "(Lpmath/util/Expr;)V");
       
       if(cid) {
-        ex = pmath_evaluate(
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_TOSTRING), 1,
-                 pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_INPUTFORM), 1,
-                   ex)));
-                   
-        if(!pmath_is_string(ex)) {
-          pmath_debug_print_object("[ToString did not return a string: ", ex, "]\n");
-          pmath_unref(ex);
-          ex = PMATH_C_STRING("$Failed");
-        }
-        
-        str = pj_string_to_java(env, pmath_ref(ex));
-        
-        if(str) {
-          jvalue val[1];
-          val[0].l = str;
+        jclass pmath_util_Expr = (*env)->FindClass(env, "Lpmath/util/Expr;");
+        if(pmath_util_Expr) {
+          jobject java_expr = pj_value_to_java_object(env, ex, pmath_util_Expr);
+          ex = PMATH_UNDEFINED;
           
-          jex = (*env)->NewObjectA(env, ex_class, cid, val);
+          if(java_expr) {
+            jex = (*env)->NewObject(env, pmath_util_WrappedException, cid, java_expr);
+            
+            (*env)->DeleteLocalRef(env, java_expr);
+          }
           
-          (*env)->DeleteLocalRef(env, str);
+          (*env)->DeleteLocalRef(env, pmath_util_Expr);
         }
       }
       
-      (*env)->DeleteLocalRef(env, ex_class);
+      (*env)->DeleteLocalRef(env, pmath_util_WrappedException);
     }
   }
   
@@ -590,7 +579,6 @@ pmath_bool_t pj_exception_to_java(JNIEnv *env) {
     (*env)->DeleteLocalRef(env, jex);
   }
   
-  (*env)->DeleteLocalRef(env, throwable_class);
   pmath_unref(ex);
   return TRUE;
 }
