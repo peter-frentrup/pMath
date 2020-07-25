@@ -3429,11 +3429,20 @@ else INPUTFORM:
         WRITE_CSTR(")");
       }
       else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))) {
+        if(priority > PRIO_FACTOR)
+          WRITE_CSTR("(");
+        
         WRITE_CSTR("1/");
 
         write_ex(&hook_info, PRIO_POWER + 1, base);
+        
+        if(priority > PRIO_FACTOR)
+          WRITE_CSTR(")");
       }
       else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0) {
+        if(priority > PRIO_FACTOR)
+          WRITE_CSTR("(");
+        
         WRITE_CSTR("1/");
 
         exponent = pmath_number_neg(exponent);
@@ -3442,14 +3451,23 @@ else INPUTFORM:
 
         WRITE_CSTR("^");
         write_ex(info, PRIO_POWER, exponent);
+        
+        if(priority > PRIO_FACTOR)
+          WRITE_CSTR(")");
       }
       else {
         pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
 
         if(pmath_equals(exponent, minus_one_half)) {
+          if(priority > PRIO_FACTOR)
+            WRITE_CSTR("(");
+            
           WRITE_CSTR("1/Sqrt(");
           _pmath_write_impl(info, base);
           WRITE_CSTR(")");
+          
+          if(priority > PRIO_FACTOR)
+            WRITE_CSTR(")");
         }
         else {
           if(priority > PRIO_POWER)
