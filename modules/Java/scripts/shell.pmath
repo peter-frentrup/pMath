@@ -1,0 +1,186 @@
+
+BeginPackage("Java`", {"ExperimentalSyntax`"})
+
+Java`EvaluateJavaBox
+Java`RunJavaSection
+Java`$Shell
+
+Begin("Java`Shell`Private`")
+
+
+Java`$Shell:= /\/
+
+
+Java::box:= "Cannot convert `1` to Java code.";
+Java::ex:= "`1`";
+Java::diag:= "`1`";
+
+
+javaCodeFromBoxes(~s:String)::= s
+javaCodeFromBoxes(ComplexStringBox(~~~s))::= StringExpression @@ Map({s}, javaStringCodeFromBoxes)
+
+%
+% Caution: the front-end will strip white-space and pMath comments before 
+% sending the box expressions. Hence, we insert spaces between any two tokens.
+% A better solution would be to tell the front-end that is should send 
+% everything, e.g. with a Section option StripWhitespace → False 
+%
+%javaCodeFromBoxes(~boxes:List)::= StringExpression @@ boxes.Map(javaCodeFromBoxes).Riffle(" ")
+
+Function javaCodeFromBoxes(~boxes:List) {
+    StringExpression @@ boxes.Map(Function(With(code:= javaCodeFromBoxes(#)) {
+        % Crashes for long subjects with stack overflow in pcre:
+        %If(StringMatch(code, ~~~ ++ (LetterCharacter|DigitCharacter))) {
+        If(StringCount(code, (LetterCharacter|DigitCharacter) ++ EndOfString) > 0) {
+            {code, " "}
+        } Else {
+            code
+        }
+    })).Flatten
+}
+
+%javaCodeFromBoxes(SqrtBox(~box,~~~))::= "(java.lang.Math.sqrt(" ++ javaCodeFromBoxes(box) ++ "))"
+
+Function javaCodeFromBoxes(TagBox(~boxes, "MathInJava")) {
+    Local(javaInset, i:= 0)
+    With({newBoxes, insets}:= Gather(
+        boxes.Replace(
+            TagBox(InterpretationBox(,~code), Java`EvaluateJavaBox) :> Block {
+                Emit("(" ++ javaCodeFromBoxes(code) ++ ")")
+                ++i
+                With(i:= i) {
+                    InterpretationBox(, javaInset(i))
+                }
+            }
+        )))
+    With(expr:= MakeExpression(newBoxes))
+    With(code:= ToString(LongForm(InputForm(expr))).StringReplace(
+            ToString(LongForm(InputForm(javaInset))) ++ "(" ++ (i:("0".."9")**) ++ ")" :> "`" ++ i ++ "`"
+        ).StringReplace({"\"" -> "\\\"", "\\" -> "\\\""}))
+    
+    " new pmath.Context(null,null).evaluate(\"ReleaseHold(" ++ (
+            code
+        ) ++ ")\",new Object[]{" ++ (
+            StringExpression @@ insets.Riffle(",")
+        ) ++ "})"
+}
+
+Function javaCodeFromBoxes(~errbox) {
+    Message(Java::box, 
+        RawBoxes @ ButtonBox(
+            MakeBoxes(Short(errbox)), 
+            ButtonFunction -> Developer`DebugInfoOpenerFunction(Developer`GetDebugInfo(errbox)),
+            ButtonFrame->"Frameless"))
+    $Failed
+}
+
+
+javaStringCodeFromBoxes(~s:String)::= s
+javaStringCodeFromBoxes(~box)::= 
+    "\\uFFF9" ++ ToString(InputForm(box)).StringReplace({"\\" :> "\\\\", "\"" :> "\\\""}) ++ "\\uFFFB"
+
+
+Function needShell() {
+    If($Shell === /\/) {
+        With(engine:= JavaNew("jdk.jshell.execution.LocalExecutionControlProvider"))
+        $Shell:= JavaClass("jdk.jshell.JShell") @ builder() @ executionEngine(engine, /\/) @ build()
+    }
+    $Shell
+}
+
+
+RunJavaSection("\n")::= "/\\/"
+Function RunJavaSection(~lines:/\/) {
+    lines.Scan(RunJavaSection)
+    "/\\/"
+}
+
+Function RunJavaSection(~boxes) {
+    Local(snippetEvent)
+    CurrentValue(FE`CallFrontEnd(FrontEnd`EvaluationBox()), SectionLabel):= Inherited
+    With(code:= javaCodeFromBoxes(boxes))
+    If(code.IsString) {
+        needShell()
+        Do(snippetEvent -> $Shell @ eval(code) @ toArray()) {
+            debugSnippetEvent:= snippetEvent
+            %Echo(snippetEvent @ toString())
+            With(val:= snippetEvent @ value())
+            If(val.IsString() && val =!= "") {
+                SectionPrint(Section(BoxData(ToBoxes(val)), "JavaOutput", SectionGenerated->True))
+            } Else {
+                Switch(snippetEvent @ status() @ toString()) {
+                    Case("REJECTED") {
+                        Local(diag)
+                        Do(diag-> $Shell @ diagnostics(snippetEvent @ snippet()) @ toArray()) {
+                            Message(Java::diag, diag @ getMessage(/\/))
+                        }
+                    }
+                    Case(~) {
+                        With(ex:=snippetEvent@exception())
+                        If(ex =!= /\/) {
+                            If(InstanceOf(ex, JavaClass("jdk.jshell.EvalException"))) {
+                                Message(Java::ex, ex @ getExceptionClassName() ++ ": " ++ ex @ getMessage())
+                            } Else {
+                                Message(Java::ex, ex @ toString())
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+    "/\\/"
+}
+
+Function EvaluateJavaBox(~boxes) {
+    Local(snippetEvent)
+    Local(result:= $Failed)
+    
+    With(code:= javaCodeFromBoxes(boxes))
+    If(code.IsString) {
+        needShell()
+        Do(snippetEvent -> $Shell @ eval(code) @ toArray()) {
+            result:= $Failed
+            debugSnippetEvent:= snippetEvent
+            %Echo(snippetEvent @ toString())
+            Switch(snippetEvent @ status() @ toString()) {
+                Case("VALID") {
+                    With(snip:= snippetEvent @ snippet())
+                    If(snip.InstanceOf("jdk.jshell.ExpressionSnippet") || snip.InstanceOf("jdk.jshell.PersistentSnippet")) {
+                        $Shell @ eval(
+                            "new pmath.Context(null,null).run(\"" ++ ToString(
+                                HoldForm(LongForm(result))
+                            ) ++ ":= `1`\",new Object[]{" ++ (
+                                snip @ name()
+                            ) ++ "})")
+                    } Else If(snip.InstanceOf("jdk.jshell.StatementSnippet")) {
+                        result:= /\/
+                    }
+                }
+                Case("REJECTED") {
+                    Local(diag)
+                    Do(diag-> $Shell @ diagnostics(snippetEvent @ snippet()) @ toArray()) {
+                        Message(Java::diag, diag @ getMessage(/\/))
+                    }
+                }
+                Case(~) {
+                    With(ex:=snippetEvent@exception())
+                    If(ex =!= /\/) {
+                        If(InstanceOf(ex, JavaClass("jdk.jshell.EvalException"))) {
+                            Message(Java::ex, ex @ getExceptionClassName() ++ ": " ++ ex @ getMessage())
+                        } Else {
+                            Message(Java::ex, ex @ toString())
+                        }
+                    }
+                }
+            }
+        }
+    }
+    
+    result
+}
+
+End()
+
+
+EndPackage()

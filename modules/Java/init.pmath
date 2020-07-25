@@ -27,6 +27,8 @@ Java`Methods
 Java`Fields
 
 Java`ImplementJavaClass
+Java`EvaluateJavaBox
+Java`RunJavaSection
 
 Begin("Java`Private`")
 
@@ -174,10 +176,12 @@ expr:(~o:JavaObject @ (e1: ~(~~~))(~e2)) ::= Block {
 Attributes(JavaObject):= {DeepHoldAll, Protected, ReadProtected}
 
 AutoLoad(Hold(Constructors, Methods, Fields), 
-	ToFileName(ParentDirectory($Input), "reflection.pmath"))
+	ToFileName({ParentDirectory($Input), "scripts"}, "reflection.pmath"))
 AutoLoad(Hold(ImplementJavaClass), 
-	ToFileName(ParentDirectory($Input), "ImplementJavaClass.pmath"))
-Protect(Constructors, Methods, Fields, ImplementJavaClass)
+	ToFileName({ParentDirectory($Input), "scripts"}, "ImplementJavaClass.pmath"))
+AutoLoad(Hold(EvaluateJavaBox, RunJavaSection),
+	ToFileName({ParentDirectory($Input), "scripts"}, "shell.pmath"))
+Protect(Constructors, Methods, Fields, ImplementJavaClass, EvaluateJavaBox, RunJavaSection)
 
 LoadLibrary(ToFileName(
 	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
