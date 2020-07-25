@@ -14,7 +14,7 @@
 #include <pmath-util/concurrency/threadlocks-private.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/overflow-calc-private.h>
 
 #include <stdio.h>

@@ -8,7 +8,7 @@
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/incremental-hash-private.h>

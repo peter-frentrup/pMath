@@ -8,7 +8,7 @@
 #include <pmath-language/patterns-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h> // depends on pmath-objects-inline.h
-#include <pmath-util/dispatch-table-private.h>
+#include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
