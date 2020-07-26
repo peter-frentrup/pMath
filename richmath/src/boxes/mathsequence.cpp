@@ -2465,7 +2465,8 @@ MathSequence::MathSequence()
   : AbstractSequence(),
     str(""),
     boxes_invalid(false),
-    spans_invalid(false)
+    spans_invalid(false),
+    auto_indent(false)
 {
 }
 
@@ -2543,6 +2544,7 @@ void MathSequence::resize(Context *context) {
   ensure_spans_valid();
   
   em = context->canvas->get_font_size();
+  auto_indent = context->math_spacing;
   
   float old_scww = context->section_content_window_width;
   context->section_content_window_width = HUGE_VAL;
@@ -4188,8 +4190,10 @@ int MathSequence::get_box(int index, int guide) {
 }
 
 float MathSequence::indention_width(int i) {
-  float f = i * em / 2;
+  if(!auto_indent)
+    return 0.0f;
   
+  float f = i * em / 2;
   if(f <= _extents.width / 2)
     return f;
     

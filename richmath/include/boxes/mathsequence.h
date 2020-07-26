@@ -120,8 +120,9 @@ namespace richmath {
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
       
-      bool boxes_invalid;
-      bool spans_invalid;
+      bool boxes_invalid : 1;
+      bool spans_invalid : 1;
+      bool auto_indent : 1;
   };
   
   

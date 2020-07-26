@@ -186,154 +186,198 @@ Document({
             "StandardCharsets"}}, ";"})), "JavaInput"), 
       Section(BoxData({"public", " ", "abstract", " ", "class", " ", 
          "LineActionOutputStream", " ", "extends", " ", "OutputStream", " ", {
-          "{", {"\n", {{"private", " ", {"byte", "[", "]"}, " ", "buffer"}, 
-            ";", {"\n", {"private", " ", "boolean", " ", "skipNextLineFeed"}}, 
-            ";", {"\n", {"private", " ", "final", " ", "Charset", " ", 
-              "charset"}}, ";", {
-             "\n", "\n", {"public", " ", {"LineActionOutputStream", "(", {
+          "{", {"\n", "\[RawTab]", {
+            {"private", " ", {"byte", "[", "]"}, " ", "buffer"}, ";", {
+             "\n", "\[RawTab]", {"private", " ", "boolean", " ", 
+              "skipNextLineFeed"}}, ";", {"\n", "\[RawTab]", {
+              "private", " ", "final", " ", "Charset", " ", "charset"}}, ";", {
+             "\n", "\[RawTab]", "\n", "\[RawTab]", {
+              "public", " ", {"LineActionOutputStream", "(", {
                 "Charset", " ", "cs"}, ")"}, " ", {
-               {{"{", {"\n", {{"if", "(", {"cs", " ", "=", "=", " ", "null"}, 
-                    ")"}, "\n", " ", " ", {"throw", " ", "new", " ", {
-                     "IllegalArgumentException", "(", ")"}}, ";", {
-                    "\n", "\n", {"skipNextLineFeed", " ", "=", " ", "false"}}, 
-                   ";", {"\n", {"buffer", " ", "=", " ", {
+               {{"{", {"\n", "\[RawTab]", "\[RawTab]", {
+                   {"if", "(", {"cs", " ", "=", "=", " ", "null"}, ")"}, "\n", 
+                   "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                    "throw", " ", "new", " ", {"IllegalArgumentException", 
+                     "(", ")"}}, ";", {"\n", "\n", "\[RawTab]", "\[RawTab]", {
+                     "skipNextLineFeed", " ", "=", " ", "false"}}, ";", {
+                    "\n", "\[RawTab]", "\[RawTab]", {
+                     "buffer", " ", "=", " ", {
                       "new", " ", {"byte", "[", "0", "]"}}}}, ";", {
-                    "\n", {"charset", " ", "=", " ", "cs"}}, ";", "\n"}}, 
-                 "}"}, "\n", "\n"}, "@", "Override"}}}, "\n", {
+                    "\n", "\[RawTab]", "\[RawTab]", {
+                     "charset", " ", "=", " ", "cs"}}, ";", "\n"}}, 
+                 "\[RawTab]", "}"}, "\n", "\[RawTab]", "\n"}, "\[RawTab]", 
+               "@", "Override"}}}, "\n", "\[RawTab]", {
              "public", " ", "void", " ", {"write", "(", {"int", " ", "b"}, 
               ")"}, " ", "throws", " ", "IOException", " ", {
-              {{"{", {
-                 "\n", {{{{"if", "(", {"b", " ", "=", "=", " ", "10"}, ")"}, 
-                    " ", {"{", {"\n", {{"if", "(", "skipNextLineFeed", ")"}, 
-                       "\n", " ", " ", {"skipNextLineFeed", " ", "=", " ", 
-                        "false"}, ";", {"\n", "else"}, "\n", " ", " ", {
-                        "flushToAction", "(", ")"}, ";", "\n"}}, "}"}}, "\n", {
-                    "else", " ", {"if", "(", {"b", " ", "=", "=", " ", "13"}, 
-                     ")"}, " ", {
-                     "{", {"\n", {{"skipNextLineFeed", " ", "=", " ", "true"}, 
-                       ";", {"\n", {"flushToAction", "(", ")"}}, ";", "\n"}}, 
-                     "}"}}, "\n", {"else", " ", {
-                     "{", {"\n", {{{"int", " ", "oldlen"}, " ", "=", " ", {
+              {{"{", {"\n", "\[RawTab]", "\[RawTab]", {
+                  {{{"if", "(", {"b", " ", "=", "=", " ", "10"}, ")"}, " ", {
+                     "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                       {"if", "(", "skipNextLineFeed", ")"}, "\n", 
+                       "\[RawTab]", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                        "skipNextLineFeed", " ", "=", " ", "false"}, ";", {
+                        "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", "else"}, 
+                       "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                       "\[RawTab]", {"flushToAction", "(", ")"}, ";", "\n"}}, 
+                     "\[RawTab]", "\[RawTab]", "}"}}, "\n", "\[RawTab]", 
+                   "\[RawTab]", {"else", " ", {
+                     "if", "(", {"b", " ", "=", "=", " ", "13"}, ")"}, " ", {
+                     "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                       {"skipNextLineFeed", " ", "=", " ", "true"}, ";", {
+                        "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                         "flushToAction", "(", ")"}}, ";", "\n"}}, 
+                     "\[RawTab]", "\[RawTab]", "}"}}, "\n", "\[RawTab]", 
+                   "\[RawTab]", {"else", " ", {
+                     "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                       {{"int", " ", "oldlen"}, " ", "=", " ", {
                          "buffer", ".", "length"}}, ";", {
-                        "\n", {"buffer", " ", "=", " ", {
-                          "Arrays", ".", "copyOf", "(", {
-                           "buffer", ",", " ", {"oldlen", " ", "+", " ", 
-                            "1"}}, ")"}}}, ";", {
-                        "\n", {{"buffer", "[", "oldlen", "]"}, " ", "=", " ", {
+                        "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                         "buffer", " ", "=", " ", {"Arrays", ".", "copyOf", 
+                          "(", {"buffer", ",", " ", {
+                            "oldlen", " ", "+", " ", "1"}}, ")"}}}, ";", {
+                        "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                         {"buffer", "[", "oldlen", "]"}, " ", "=", " ", {
                           {"(", "byte", ")"}, "b"}}}, ";", {
-                        "\n", {"skipNextLineFeed", " ", "=", " ", "false"}}, 
-                       ";", "\n"}}, "}"}}}, "\n"}}, "}"}, "\n", "\n"}, "@", 
-              "Override"}}, "\n", {"public", " ", "void", " ", {
+                        "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                         "skipNextLineFeed", " ", "=", " ", "false"}}, ";", 
+                       "\n"}}, "\[RawTab]", "\[RawTab]", "}"}}}, "\n"}}, 
+                "\[RawTab]", "}"}, "\n", "\[RawTab]", "\n"}, "\[RawTab]", "@", 
+              "Override"}}, "\n", "\[RawTab]", {
+             "public", " ", "void", " ", {
               "write", "(", {{{"byte", "[", "]"}, " ", "buf"}, ",", " ", {
                 "int", " ", "off"}, ",", " ", {"int", " ", "len"}}, ")"}, " ", 
              "throws", " ", "IOException", " ", {
-              {{"{", {
-                 "\n", {
+              {{"{", {"\n", "\[RawTab]", "\[RawTab]", {
                   {{"for", "(", {{{"int", " ", "i"}, " ", "=", " ", "0"}, ";", 
                      " ", {"i", " ", "<", " ", "len"}, ";", " ", {"++", "i"}}, 
-                    ")"}, " ", {
-                    "{", {
-                     "\n", {
+                    ")"}, " ", {"{", {"\n", "\[RawTab]", "\[RawTab]", 
+                     "\[RawTab]", {
                       {{"if", "(", {{"buf", "[", {"off", " ", "+", " ", "i"}, 
                           "]"}, " ", "=", "=", " ", "10"}, ")"}, " ", {
-                        "{", {
-                         "\n", {{"silentAppend", "(", {
-                            "buf", ",", " ", "off", ",", " ", "i"}, ")"}, ";", 
-                          {"\n", {"if", "(", {"!", "skipNextLineFeed"}, ")"}}, 
-                          "\n", " ", " ", {"flushToAction", "(", ")"}, ";", {
-                           "\n", {"off", " ", "=", " ", {
+                        "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                         "\[RawTab]", {
+                          {"silentAppend", "(", {"buf", ",", " ", "off", ",", 
+                            " ", "i"}, ")"}, ";", {"\n", "\[RawTab]", 
+                           "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                            "if", "(", {"!", "skipNextLineFeed"}, ")"}}, "\n", 
+                          "\[RawTab]", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                          "\[RawTab]", {"flushToAction", "(", ")"}, ";", {
+                           "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"off", " ", "=", " ", {
                              "i", " ", "+", " ", "1"}}}, ";", {
-                           "\n", {"len", "-=", " ", "off"}}, ";", {
-                           "\n", {"i", " ", "=", " ", {"-", "1"}}}, ";", {
-                           "\n", {"skipNextLineFeed", " ", "=", " ", 
-                            "false"}}, ";", "\n"}}, "}"}}, "\n", {
-                       "else", " ", {"if", "(", {
-                         {"buf", "[", {"off", " ", "+", " ", "i"}, "]"}, " ", 
-                         "=", "=", " ", "13"}, ")"}, " ", {
-                        "{", {
-                         "\n", {{"silentAppend", "(", {
-                            "buf", ",", " ", "off", ",", " ", "i"}, ")"}, ";", 
-                          {"\n", {"flushToAction", "(", ")"}}, ";", {
-                           "\n", {"off", " ", "=", " ", {
+                           "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"len", "-=", " ", "off"}}, ";", {
+                           "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"i", " ", "=", " ", {"-", "1"}}}, 
+                          ";", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"skipNextLineFeed", " ", "=", " ", 
+                            "false"}}, ";", "\n"}}, "\[RawTab]", "\[RawTab]", 
+                        "\[RawTab]", "}"}}, "\n", "\[RawTab]", "\[RawTab]", 
+                      "\[RawTab]", {"else", " ", {
+                        "if", "(", {{"buf", "[", {"off", " ", "+", " ", "i"}, 
+                          "]"}, " ", "=", "=", " ", "13"}, ")"}, " ", {
+                        "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                         "\[RawTab]", {
+                          {"silentAppend", "(", {"buf", ",", " ", "off", ",", 
+                            " ", "i"}, ")"}, ";", {"\n", "\[RawTab]", 
+                           "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                            "flushToAction", "(", ")"}}, ";", {
+                           "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"off", " ", "=", " ", {
                              "i", " ", "+", " ", "1"}}}, ";", {
-                           "\n", {"len", "-=", " ", "off"}}, ";", {
-                           "\n", {"i", " ", "=", " ", {"-", "1"}}}, ";", {
-                           "\n", {"skipNextLineFeed", " ", "=", " ", "true"}}, 
-                          ";", "\n"}}, "}"}}, "\n", "else", "\n", " ", " ", {
-                       "skipNextLineFeed", " ", "=", " ", "false"}, ";", 
-                      "\n"}}, "}"}}, "\n", {"silentAppend", "(", {
-                    "buf", ",", " ", "off", ",", " ", "len"}, ")"}, ";", 
-                  "\n"}}, "}"}, "\n", "\n"}, "@", "Override"}}, "\n", {
-             "public", " ", "void", " ", {"flush", "(", ")"}, " ", "throws", 
-             " ", "IOException", " ", {
-              "{", {
-               "\n", {{"if", "(", {{"buffer", ".", "length"}, " ", ">", " ", 
-                  "0"}, ")"}, "\n", {"flushToAction", "(", ")"}, ";", "\n"}}, 
-              "}"}}, "\n", {"\n", {"private", " ", "void", " ", {
+                           "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"len", "-=", " ", "off"}}, ";", {
+                           "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"i", " ", "=", " ", {"-", "1"}}}, 
+                          ";", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", 
+                           "\[RawTab]", {"skipNextLineFeed", " ", "=", " ", 
+                            "true"}}, ";", "\n"}}, "\[RawTab]", "\[RawTab]", 
+                        "\[RawTab]", "}"}}, "\n", "\[RawTab]", "\[RawTab]", 
+                      "\[RawTab]", "else", "\n", "\[RawTab]", "\[RawTab]", 
+                      "\[RawTab]", "\[RawTab]", {"skipNextLineFeed", " ", "=", 
+                       " ", "false"}, ";", "\n"}}, "\[RawTab]", "\[RawTab]", 
+                    "}"}}, "\n", "\[RawTab]", "\[RawTab]", {
+                   "silentAppend", "(", {"buf", ",", " ", "off", ",", " ", 
+                    "len"}, ")"}, ";", "\n"}}, "\[RawTab]", "}"}, "\n", 
+               "\[RawTab]", "\n"}, "\[RawTab]", "@", "Override"}}, "\n", 
+            "\[RawTab]", {"public", " ", "void", " ", {"flush", "(", ")"}, 
+             " ", "throws", " ", "IOException", " ", {
+              "{", {"\n", "\[RawTab]", "\[RawTab]", {
+                {"if", "(", {{"buffer", ".", "length"}, " ", ">", " ", "0"}, 
+                 ")"}, "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
+                 "flushToAction", "(", ")"}, ";", "\n"}}, "\[RawTab]", "}"}}, 
+            "\n", "\[RawTab]", {"\n", "\[RawTab]", {
+              "private", " ", "void", " ", {
                "silentAppend", "(", {{{"byte", "[", "]"}, " ", "buf"}, ",", 
                 " ", {"int", " ", "off"}, ",", " ", {"int", " ", "len"}}, 
-               ")"}, " ", {
-               "{", {"\n", {{"if", "(", {"len", " ", "<=", " ", "0"}, ")"}, 
-                 "\n", " ", " ", "return", ";", {
-                  "\n", {{"int", " ", "oldlen"}, " ", "=", " ", {
+               ")"}, " ", {"{", {"\n", "\[RawTab]", "\[RawTab]", {
+                 {"if", "(", {"len", " ", "<=", " ", "0"}, ")"}, "\n", 
+                 "\[RawTab]", "\[RawTab]", "\[RawTab]", "return", ";", {
+                  "\n", "\[RawTab]", "\[RawTab]", {
+                   {"int", " ", "oldlen"}, " ", "=", " ", {
                     "buffer", ".", "length"}}}, ";", {
-                  "\n", {"buffer", " ", "=", " ", {
-                    "Arrays", ".", "copyOf", "(", {
+                  "\n", "\[RawTab]", "\[RawTab]", {
+                   "buffer", " ", "=", " ", {"Arrays", ".", "copyOf", "(", {
                      "buffer", ",", " ", {"oldlen", " ", "+", " ", "len"}}, 
-                    ")"}}}, ";", {
-                  "\n", {"for", "(", {{{"int", " ", "i"}, " ", "=", " ", "0"}, 
-                    ";", " ", {"i", " ", "<", " ", "len"}, ";", " ", {
-                     "++", "i"}}, ")"}}, "\n", " ", " ", {
+                    ")"}}}, ";", {"\n", "\[RawTab]", "\[RawTab]", {
+                   "for", "(", {{{"int", " ", "i"}, " ", "=", " ", "0"}, ";", 
+                    " ", {"i", " ", "<", " ", "len"}, ";", " ", {"++", "i"}}, 
+                   ")"}}, "\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
                   {"buffer", "[", {"oldlen", " ", "+", " ", "i"}, "]"}, " ", 
                   "=", " ", {"buf", "[", {"off", " ", "+", " ", "i"}, "]"}}, 
-                 ";", "\n"}}, "}"}}}, "\n", {
-             "\n", {"private", " ", "void", " ", {"flushToAction", "(", ")"}, 
-              " ", "throws", " ", "IOException", " ", {
-               "{", {"\n", {{{"String", " ", "line"}, " ", "=", " ", {
+                 ";", "\n"}}, "\[RawTab]", "}"}}}, "\n", "\[RawTab]", {
+             "\n", "\[RawTab]", {"private", " ", "void", " ", {
+               "flushToAction", "(", ")"}, " ", "throws", " ", "IOException", 
+              " ", {"{", {"\n", "\[RawTab]", "\[RawTab]", {
+                 {{"String", " ", "line"}, " ", "=", " ", {
                    {"charset", ".", "decode", "(", {
                      "ByteBuffer", ".", "wrap", "(", "buffer", ")"}, ")"}, 
                    ".", "toString", "(", ")"}}, ";", {
-                  "\n", {"buffer", " ", "=", " ", {
+                  "\n", "\[RawTab]", "\[RawTab]", {
+                   "buffer", " ", "=", " ", {
                     "new", " ", {"byte", "[", "0", "]"}}}}, ";", {
-                  "\n", {"action", "(", "line", ")"}}, ";", "\n"}}, "}"}}}, 
-            "\n", {"\n", {"protected", " ", "abstract", " ", "void", " ", {
+                  "\n", "\[RawTab]", "\[RawTab]", {
+                   "action", "(", "line", ")"}}, ";", "\n"}}, "\[RawTab]", 
+               "}"}}}, "\n", "\[RawTab]", {"\n", "\[RawTab]", {
+              "protected", " ", "abstract", " ", "void", " ", {
                "action", "(", {"String", " ", "line"}, ")"}, " ", "throws", 
               " ", "IOException"}}, ";", "\n"}}, "}"}}), "JavaInput"), 
       Section(
        BoxData({{"System", ".", "setOut", "(", {
            "new", " ", {"PrintStream", "(", {
-             {"\n", {"new", " ", {"LineActionOutputStream", "(", {
+             {"\n", "\[RawTab]", {
+               "new", " ", {"LineActionOutputStream", "(", {
                  "StandardCharsets", ".", "UTF_8"}, ")"}, " ", {
-                "{", {
-                 "\n", {{"protected", " ", "void", " ", {
+                "{", {"\n", "\[RawTab]", "\[RawTab]", {
+                  {"protected", " ", "void", " ", {
                     "action", "(", {"String", " ", "line"}, ")"}, " ", 
                    "throws", " ", "IOException", " ", {
-                    "{", {
-                     "\n", {
+                    "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
                       TemplateBox({
                         {"Print", "(", TemplateBox({"line"}, 
                           "InlineJavaInput"), ")"}}, "MathInJava"), ";", 
-                      "\n"}}, "}"}}, "\n"}}, "}"}}}, ",", " ", "false", ",", 
-             " ", {"StandardCharsets", ".", "UTF_8"}}, ")"}}, ")"}, ";"}), 
+                      "\n"}}, "\[RawTab]", "\[RawTab]", "}"}}, "\n"}}, 
+                "\[RawTab]", "}"}}}, ",", " ", "false", ",", " ", {
+              "StandardCharsets", ".", "UTF_8"}}, ")"}}, ")"}, ";"}), 
        "JavaInput"), 
       Section(
        BoxData({{"System", ".", "setErr", "(", {
            "new", " ", {"PrintStream", "(", {
-             {"\n", {"new", " ", {"LineActionOutputStream", "(", {
+             {"\n", "\[RawTab]", {
+               "new", " ", {"LineActionOutputStream", "(", {
                  "StandardCharsets", ".", "UTF_8"}, ")"}, " ", {
-                "{", {
-                 "\n", {{"protected", " ", "void", " ", {
+                "{", {"\n", "\[RawTab]", "\[RawTab]", {
+                  {"protected", " ", "void", " ", {
                     "action", "(", {"String", " ", "line"}, ")"}, " ", 
                    "throws", " ", "IOException", " ", {
-                    "{", {
-                     "\n", {
+                    "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
                       TemplateBox({
                         {"SectionPrint", "(", {
                           ComplexStringBox("\"Message\""), ",", 
                           TemplateBox({"line"}, "InlineJavaInput")}, ")"}}, 
-                       "MathInJava"), ";", "\n"}}, "}"}}, "\n"}}, "}"}}}, ",", 
-             " ", "false", ",", " ", {"StandardCharsets", ".", "UTF_8"}}, 
-            ")"}}, ")"}, ";"}), "JavaInput"), 
+                       "MathInJava"), ";", "\n"}}, "\[RawTab]", "\[RawTab]", 
+                    "}"}}, "\n"}}, "\[RawTab]", "}"}}}, ",", " ", "false", 
+             ",", " ", {"StandardCharsets", ".", "UTF_8"}}, ")"}}, ")"}, 
+         ";"}), "JavaInput"), 
       SectionGroup({
         Section(BoxData({{{"System", ".", "out"}, ".", "print", "(", 
             ComplexStringBox("\"Hello\""), ")"}, ";", " ", {
