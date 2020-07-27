@@ -19,6 +19,7 @@ public final class Expr {
     private static final int CONVERT_AS_PARSED = 3;
     private static final int CONVERT_AS_EXPRESSION = 4;
     private static final int CONVERT_AS_MAGIC = 5;
+    private static final int CONVERT_AS_QUOTIENT = 6;
 
 
     /** The pMath {@code System`List} symbol.
@@ -53,6 +54,37 @@ public final class Expr {
         if(name == null)
             throw new IllegalArgumentException("Null not allowed for `name`.");
         return new Expr(name, CONVERT_AS_SYMBOL);
+    }
+
+    public static Expr rational(int numerator, int denominator) {
+        if(denominator == 0)
+            throw new ArithmeticException("Division by zero.");
+        if(denominator == 1)
+            return new Expr(numerator);
+
+        return new Expr(new int[]{ numerator, denominator }, CONVERT_AS_QUOTIENT);
+    }
+
+    public static Expr rational(BigInteger numerator, BigInteger denominator) {
+        if(BigInteger.ZERO.equals(denominator))
+            throw new ArithmeticException("Division by zero.");
+        if(BigInteger.ONE.equals(denominator))
+            return new Expr(numerator);
+
+        return new Expr(new BigInteger[]{ numerator, denominator }, CONVERT_AS_QUOTIENT);
+    }
+
+    public static Expr rational(Expr numerator, Expr denominator) {
+        if(numerator.isInt() && denominator.isInt()) 
+            return rational(numerator.getInt(), denominator.getInt());
+        
+        if(numerator.isInteger() && denominator.isInteger()) 
+            return rational(numerator.getInteger(), denominator.getInteger());
+        
+        if(!numerator.isInteger())
+            throw new IllegalArgumentException("Numerator must be an integer.");
+        else
+            throw new IllegalArgumentException("Denominator must be an integer.");
     }
 
     /** Create an expression from an arbitrary piece of valid pMath code.
@@ -215,6 +247,23 @@ public final class Expr {
                 || object instanceof Short || object instanceof Byte;
     }
 
+    /** Test whether this expression represents a non-integer rational number.
+     * 
+     * @return Whether {@link #getObject()} is an array of two integers to be interpreted as
+     *         numerator and denominator.
+     */
+    public boolean isQuotient() {
+        return convert_options == CONVERT_AS_QUOTIENT;
+    }
+    
+    /** Test whether this expression represents a rational number.
+     * 
+     * @return Whether {@link #isQuotient()} or {@link #isInteger()} is true.
+     */
+    public boolean isRational() {
+        return isQuotient() || isInteger();
+    }
+
     /** Get the int value of an integer exprssion.
      * 
      * @return the integer value if {@link #isInt()} is true.
@@ -255,6 +304,42 @@ public final class Expr {
             return BigInteger.valueOf((Byte) object);
 
         throw new UnsupportedOperationException("not an integer");
+    }
+
+    /** Get the numerator of a rational number.
+     * 
+     * @return the numerator if {@link #isRational()} is true.
+     * @throws UnsupportedOperationException if {@link #isRational()} is false.
+     */
+    public Expr getNumerator() {
+        if(isQuotient()) {
+            if(object instanceof int[])
+                return asExpr(((int[])object)[0]);
+            else
+                return asExpr(((Object[])object)[0]);
+        }
+        else if(isInteger())
+            return this;
+        else
+            throw new UnsupportedOperationException("not a rational number");
+    }
+
+    /** Get the denominator of a rational number.
+     * 
+     * @return the denominator if {@link #isRational()} is true.
+     * @throws UnsupportedOperationException if {@link #isRational()} is false.
+     */
+    public Expr getDenominator() {
+        if(isQuotient()){
+            if(object instanceof int[])
+                return asExpr(((int[])object)[1]);
+            else
+                return asExpr(((Object[])object)[1]);
+        }
+        else if(isInteger())
+            return new Expr(1);
+        else
+            throw new UnsupportedOperationException("not a rational number");
     }
 
     private static Expr asExpr(Object object) {
@@ -354,6 +439,12 @@ public final class Expr {
                 result = 31 * result + part(i).hashCode();
             return result;
         }
+        else if(isQuotient()) {
+            int result = 17;
+            result = 31 * result + getNumerator().hashCode();
+            result = 31 * result + getDenominator().hashCode();
+            return result;
+        }
 
         return object.hashCode();
     }
@@ -396,6 +487,11 @@ public final class Expr {
 
         if (convert_options == CONVERT_AS_JAVAOBJECT)
             return false; // we already checked for reference equality above
+
+        if(convert_options == CONVERT_AS_QUOTIENT) {
+            return getNumerator().equals(other.getNumerator()) &&
+                   getDenominator().equals(other.getDenominator());
+        }
 
         // TODO: double and integers should be treated as not equal.
         return object.equals(other.object);
@@ -444,10 +540,17 @@ public final class Expr {
                 stream.append(" )");
                 return;
             
+            case CONVERT_AS_QUOTIENT:
+                getNumerator().writeTo(stream);
+                stream.append("/");
+                getDenominator().writeTo(stream);
+                return;
+            
             case CONVERT_AS_MAGIC:
-            stream.append("<< magic value ");
-            stream.append("" + object);
-            stream.append(" >>");
+                stream.append("<< magic value ");
+                stream.append("" + object);
+                stream.append(" >>");
+                return;
         }
 
         stream.append("" + object);

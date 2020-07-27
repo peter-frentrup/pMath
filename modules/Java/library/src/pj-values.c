@@ -33,6 +33,7 @@ extern pmath_symbol_t pjsym_Java_Type_Short;
 #define PJ_EXPR_CONVERT_AS_PARSED      3
 #define PJ_EXPR_CONVERT_AS_EXPRESSION  4
 #define PJ_EXPR_CONVERT_AS_MAGIC       5
+#define PJ_EXPR_CONVERT_AS_QUOTIENT    6
 
 
 PMATH_PRIVATE pmath_string_t pj_string_from_java(JNIEnv *env, jstring jstr) {
@@ -451,6 +452,42 @@ static jobject make_object_from_bigint(JNIEnv *env, jclass type, pmath_integer_t
   
   pmath_unref(value);
   pmath_unref(class_name);
+  return result;
+}
+
+static jobject make_object_from_quotient(JNIEnv *env, jclass type, pmath_quotient_t value) { // value will be freed
+  jobject result = NULL;
+  jclass pmath_util_Expr;
+  
+  if(!env || !type) {
+    pmath_unref(value);
+    return result;
+  }
+  
+  pmath_util_Expr = (*env)->FindClass(env, "pmath/util/Expr");
+  if(pmath_util_Expr) {
+    jclass java_lang_Object = (*env)->FindClass(env, "java/lang/Object");
+    if(java_lang_Object) {
+      if( (*env)->IsSameObject(env, type, pmath_util_Expr) ||
+          (*env)->IsSameObject(env, type, java_lang_Object))
+      {
+        pmath_t num_den = pmath_expr_new_extended(
+                            pmath_ref(PMATH_SYMBOL_LIST), 2,
+                            pmath_rational_numerator(value),
+                            pmath_rational_denominator(value));
+        
+        jobject data = pj_value_to_java_object(env, num_den, java_lang_Object);
+        if(data) 
+          result = make_Expr_and_delete_local(env, data, PJ_EXPR_CONVERT_AS_QUOTIENT);
+      }
+      
+      (*env)->DeleteLocalRef(env, java_lang_Object);
+    }
+    (*env)->DeleteLocalRef(env, pmath_util_Expr);
+  }
+  
+  
+  pmath_unref(value);
   return result;
 }
 
@@ -1081,6 +1118,9 @@ jobject pj_value_to_java_object(JNIEnv *env, pmath_t obj, jclass type) { // obj 
   if(pmath_is_integer(obj))
     return make_object_from_bigint(env, type, obj);
   
+  if(pmath_is_quotient(obj))
+    return make_object_from_quotient(env, type, obj);
+  
   if(pmath_is_string(obj)) 
     return make_object_from_string(env, type, obj);
   
@@ -1300,6 +1340,26 @@ static pmath_t make_value_from_java_Expr_and_delete_class(JNIEnv *env, jclass cl
             pmath_unref(result);
             result = PMATH_NULL;
           }
+        } break;
+      
+      case PJ_EXPR_CONVERT_AS_QUOTIENT: {
+          jvalue val;
+          pmath_t num_den;
+          val.l = data;
+          num_den = pj_value_from_java(env, 'L', &val);
+          if(pmath_is_expr_of_len(num_den, PMATH_SYMBOL_LIST, 2)) {
+            pmath_t num = pmath_expr_get_item(num_den, 1);
+            pmath_t den = pmath_expr_get_item(num_den, 2);
+            
+            if(pmath_is_integer(num) && pmath_is_integer(den)) {
+              result = pmath_rational_new(num, den);
+            }
+            else {
+              pmath_unref(num);
+              pmath_unref(den);
+            }
+          }
+          pmath_unref(num_den);
         } break;
       
       default:
