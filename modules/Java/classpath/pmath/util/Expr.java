@@ -6,10 +6,12 @@ import java.io.PrintStream;
 import java.math.BigInteger;
 import java.nio.charset.Charset;
 import java.nio.charset.StandardCharsets;
+import java.util.Formattable;
+import java.util.Formatter;
 
 /** Represents a pMath expression tree.
  */
-public final class Expr {
+public final class Expr implements Formattable {
     private final Object object;
     private final int convert_options;
 
@@ -499,107 +501,80 @@ public final class Expr {
 
     @Override
     public String toString() {
-        try {
-            try (ByteArrayOutputStream byteArrayStream = new ByteArrayOutputStream()) {
-                Charset charset = StandardCharsets.UTF_16LE;
-
-                try (PrintStream ps = new PrintStream(byteArrayStream, true, charset)) {
-                    writeTo(ps);
-                }
-
-                return byteArrayStream.toString(charset);
-            }
-        } catch (IOException ex) {
-            return "" + object;
-        }
+        return String.format("%s", this);
     }
 
-    /** Print this expression to a stream.
+    /** Formats the object using the provided formatter.
      * 
-     * <p>
-     * This function is an optimized version of {@code stream.append(this.toString())}.
-     * 
-     * @param stream A stream to print to.
+     * @param formatter The formatter.
+     * @param flags Unused.
+     * @param width Unused.
+     * @param precision Unused.
      */
-    public void writeTo(PrintStream stream) {
+    public void formatTo(Formatter formatter, int flags, int width, int precision) {
         switch (convert_options) {
             case CONVERT_AS_EXPRESSION:
-                writeCallForm(stream, (Object[]) object);
+                writeCallForm(formatter, (Object[]) object);
                 return;
 
             case CONVERT_DEFAULT:
                 if (object instanceof Object[]) {
-                    writeListForm(stream, (Object[]) object);
+                    writeListForm(formatter, (Object[]) object);
                     return;
                 }
                 break;
 
             case CONVERT_AS_JAVAOBJECT:
-                stream.append("JavaObject( ");
-                stream.append("" + object);
-                stream.append(" )");
+                formatter.format("JavaObject(%s)", object);
                 return;
             
             case CONVERT_AS_QUOTIENT:
-                getNumerator().writeTo(stream);
-                stream.append("/");
-                getDenominator().writeTo(stream);
+                formatter.format("%s/%s", getNumerator(), getDenominator());
                 return;
             
             case CONVERT_AS_MAGIC:
-                stream.append("<< magic value ");
-                stream.append("" + object);
-                stream.append(" >>");
+                formatter.format("<< magic value %s >>", object);
                 return;
         }
 
-        stream.append("" + object);
+        formatter.format("%s", object);
     }
 
-    private static void writeCallForm(PrintStream stream, Object[] headAndArgs) {
+    private static void writeCallForm(Formatter formatter, Object[] headAndArgs) {
         if (headAndArgs.length == 0) {
-            stream.append(headAndArgs.toString());
+            formatter.format("%s", headAndArgs);
             return;
         }
 
         Expr head = asExpr(headAndArgs[0]);
         if (head.isSymbol()) {
-            head.writeTo(stream);
+            formatter.format("%s", head);
         } else {
-            stream.append('(');
-            head.writeTo(stream);
-            stream.append(')');
+            formatter.format("(%s)", head);
         }
-        stream.append('(');
+        try { formatter.out().append("("); } catch (IOException e) { throw new RuntimeException(e); }
         for (int i = 1; i < headAndArgs.length; ++i) {
             if (i > 1) {
-                stream.append(", ");
+                try { formatter.out().append(", "); } catch (IOException e) { throw new RuntimeException(e); }
             }
 
-            asExpr(headAndArgs[i]).writeTo(stream);
+            asExpr(headAndArgs[i]).formatTo(formatter, 0, 0, 0);
         }
-        stream.append(')');
+        try { formatter.out().append(")"); } catch (IOException e) { throw new RuntimeException(e); }
     }
 
-    private static void writeListForm(PrintStream stream, Object[] elements) {
-        // Class<?> clazz = elements.getClass();
-        // if(!clazz.getName().endsWith(";")) { // not enging in "Lname;": arbitrarily
-        // nested array of primitive type
-        // stream.append(elements.toString());
-        // return;
-        // }
-        // stream.append(clazz.getSimpleName());
-        stream.append("{ ");
+    private static void writeListForm(Formatter formatter, Object[] elements) {
+        try { formatter.out().append("{ "); } catch (IOException e) { throw new RuntimeException(e); }
         boolean first = true;
         for (Object item : elements) {
             if (first) {
                 first = false;
             } else {
-                stream.append(", ");
+                try { formatter.out().append(", "); } catch (IOException e) { throw new RuntimeException(e); }
             }
 
-            asExpr(item).writeTo(stream);
+            asExpr(item).formatTo(formatter, 0, 0, 0);
         }
-        stream.append(" }");
+        try { formatter.out().append(" }"); } catch (IOException e) { throw new RuntimeException(e); }
     }
 }
