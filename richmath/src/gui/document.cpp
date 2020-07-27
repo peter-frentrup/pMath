@@ -1169,7 +1169,8 @@ void Document::on_key_press(uint32_t unichar) {
       DocumentImpl(*this).handle_immediate_macros();
     }
     
-    int newpos = seq->insert(context.selection.start, unichar);
+    int oldpos = context.selection.start;
+    int newpos = seq->insert(oldpos, unichar);
     move_to(seq, newpos);
     
     if(mseq && !was_inside_string && !was_inside_alias) {
@@ -1217,6 +1218,19 @@ void Document::on_key_press(uint32_t unichar) {
         
         if(!DocumentImpl(*this).handle_macros())
           move_to(mseq, start);
+      }
+      
+      if(unichar == '\n') {
+        int line_start = oldpos;
+        while(line_start > 0 && buf[line_start-1] != '\n')
+          --line_start;
+        
+        int indent_end = line_start;
+        while(indent_end < context.selection.start && (buf[indent_end] == ' ' || buf[indent_end] == '\t'))
+          ++indent_end;
+        
+        newpos = seq->insert(newpos, mseq, line_start, indent_end);
+        move_to(seq, newpos);
       }
     }
     else if(had_empty_selection && mseq && was_inside_string && !was_inside_alias) {
