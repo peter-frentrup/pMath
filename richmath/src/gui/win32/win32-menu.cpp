@@ -173,7 +173,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
         if(new_items.expr_length() == 0 || new_items[0] != PMATH_SYMBOL_LIST) {
           mii.fMask |= MIIM_STRING | MIIM_STATE;
           mii.fState |= MFS_DISABLED;
-          mii.dwTypeData = L"(empty)";
+          mii.dwTypeData = (wchar_t*)L"(empty)";
           mii.cch = 7;
           
           if(mii.hSubMenu) {
@@ -187,7 +187,6 @@ void Win32Menu::init_popupmenu(HMENU sub) {
         
         int first_menu_index = i;
         bool insert = false;
-        size_t k;
         for(size_t k = 1; k <= new_items.expr_length(); ++k) {
           String buffer;
           mii.fState = 0;
@@ -242,7 +241,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
           mii.dwItemData = list_id;
           mii.wID = list_id;
           mii.fState |= MFS_DISABLED;
-          mii.dwTypeData = L"(empty)";
+          mii.dwTypeData = (wchar_t*)L"(empty)";
           mii.cch = 7;
           
           if(mii.hSubMenu) {
@@ -319,8 +318,8 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
   UINT item_or_index = LOWORD(wParam);
   UINT flags = HIWORD(wParam);
   
-  static HWND previous_aero_peak = nullptr;
-  HWND aero_peak = nullptr;
+//  static HWND previous_aero_peak = nullptr;
+//  HWND aero_peak = nullptr;
   
   //pmath_debug_print("[WM_MENUSELECT %p %d (%x)]\n", menu, item_or_index, flags);
   
@@ -637,7 +636,7 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
     info->wID = get_or_create_command_id(sub_items);
     info->dwItemData = info->wID; // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
     info->fState |= MFS_DISABLED;
-    info->dwTypeData = L"(empty)";
+    info->dwTypeData = (wchar_t*)L"(empty)";
     info->cch = 7;
   }
   else if(sub_items[0] == PMATH_SYMBOL_LIST) {
