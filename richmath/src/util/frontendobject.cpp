@@ -1,6 +1,8 @@
 #include <util/frontendobject.h>
 #include <util/hashtable.h>
 
+#include <eval/application.h>
+
 #include <new>         // placement new
 #include <type_traits> // aligned_storage
 
@@ -83,8 +85,10 @@ FrontEndReference FrontEndReference::from_pmath(pmath::Expr expr) {
   if(expr.expr_length() == 1 && expr[0] == richmath_System_DocumentObject)
     expr = expr[1];
   
-  if(expr.expr_length() == 1 && expr[0] == richmath_System_FrontEndObject)
-    return from_pmath_raw(expr[1]);
+  if(expr.expr_length() == 2 && expr[0] == richmath_System_FrontEndObject) {
+    if(expr[1] == Application::session_id)
+      return from_pmath_raw(expr[2]);
+  }
   
   return FrontEndReference::None;
 }
@@ -100,7 +104,7 @@ FrontEndReference FrontEndReference::from_pmath_raw(pmath::Expr expr) {
 }
 
 Expr FrontEndReference::to_pmath() const {
-  return Call(Symbol(richmath_System_FrontEndObject), to_pmath_raw());
+  return Call(Symbol(richmath_System_FrontEndObject), Application::session_id, to_pmath_raw());
 }
 
 //} ... class FrontEndReference

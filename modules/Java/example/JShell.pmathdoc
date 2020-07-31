@@ -41,15 +41,15 @@ Document({
                     ",", {"BaseStyle", "\[Rule]", 
                      ComplexStringBox("\"Paste\"")}}, ")"}}}, "}"}, ")"}, ",", 
               {"\n", ComplexStringBox("\"Docked\"")}}, ")"}}, "}"}}}, ")"}, 
-       ";"}), "Input", SectionLabel -> "in [36]:"), 
+       ";"}), "Input", SectionLabel -> "in [1]:"), 
     Section("Inline Java code inside pMath:", "Text"), 
     SectionGroup({
       Section(BoxData({"ver", "\[Assign]", 
          TemplateBox({{"System", ".", "getProperty", "(", 
             ComplexStringBox("\"java.version\""), ")"}}, "InlineJavaInput")}), 
-       "Input", SectionLabel -> "in [63]:"), 
+       "Input", SectionLabel -> "in [2]:"), 
       Section(BoxData(ComplexStringBox("\"14.0.1\"")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [63]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
     Section("Top-level Java code:", "Text"), 
     SectionGroup({
       Section(BoxData({"System", ".", "getProperty", "(", 
@@ -66,22 +66,24 @@ Document({
     SectionGroup({
       Section(BoxData(/\/({"1", " ", "+", " ", "1"}, "\n", {
           "2", " ", "+", " ", "2"})), "JavaInput"), 
-      Section("2", "JavaOutput", SectionGenerated -> True), 
-      Section("4", "JavaOutput", SectionGenerated -> True)}, All), 
+      Section(BoxData(ComplexStringBox("\"2\"")), "JavaOutput", 
+       SectionGenerated -> True), Section(BoxData(ComplexStringBox("\"4\"")), 
+       "JavaOutput", SectionGenerated -> True)}, All), 
     SectionGroup({Section(BoxData({"1", "+", SqrtBox("3")}), "JavaInput"), 
       Section(BoxData({{"Java", "::", ComplexStringBox("\"box\"")}, 
          "\[Colon]", TemplateBox({
            InterpretationBox(ComplexStringBox("\"Cannot convert ", {
               ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, ")"}, 
                ButtonFunction -> (SetSelectedDocument(Automatic, 
-                Developer`DebugInfoSource(FrontEndObject(44), 2 .. 3)) &), 
-               ButtonFrame -> "Frameless")}, " to Java code.\""), 
+                Developer`DebugInfoSource(FrontEndObject(2618097393662643470, 
+                  60), 2 .. 3)) &), ButtonFrame -> "Frameless")}, 
+             " to Java code.\""), 
             StringForm("Cannot convert `1` to Java code.", 
              RawBoxes(ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, 
                 ")"}, ButtonFunction -> (SetSelectedDocument(Automatic, 
-                Developer`DebugInfoSource(FrontEndObject(44), 2 .. 3)) &), 
-               ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
-       SectionGenerated -> True)}, All), 
+                Developer`DebugInfoSource(FrontEndObject(2618097393662643470, 
+                  60), 2 .. 3)) &), ButtonFrame -> "Frameless"))))}, 
+          "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(
        BoxData({{"throw", " ", "new", " ", {
@@ -107,15 +109,16 @@ Document({
            InterpretationBox(ComplexStringBox("\"Cannot convert ", {
               ButtonBox({"SuperscriptBox", "(", {ComplexStringBox("\"2\"")}, 
                 ")"}, ButtonFunction -> (SetSelectedDocument(Automatic, 
-                Developer`DebugInfoSource(FrontEndObject(82), 1 .. 2)) &), 
-               ButtonFrame -> "Frameless")}, " to Java code.\""), 
+                Developer`DebugInfoSource(FrontEndObject(2618097393662643470, 
+                  110), 1 .. 2)) &), ButtonFrame -> "Frameless")}, 
+             " to Java code.\""), 
             StringForm("Cannot convert `1` to Java code.", 
              RawBoxes(ButtonBox({"SuperscriptBox", "(", {
                  ComplexStringBox("\"2\"")}, ")"}, 
                ButtonFunction -> (SetSelectedDocument(Automatic, 
-                Developer`DebugInfoSource(FrontEndObject(82), 1 .. 2)) &), 
-               ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
-       SectionGenerated -> True)}, All), 
+                Developer`DebugInfoSource(FrontEndObject(2618097393662643470, 
+                  110), 1 .. 2)) &), ButtonFrame -> "Frameless"))))}, 
+          "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(BoxData(ComplexStringBox("\"x", SuperscriptBox("2"), "+", 
          SqrtBox("3"), "\"")), "JavaInput"), 
@@ -142,15 +145,17 @@ Document({
       Section(
        BoxData({{{"var", " ", "ctx"}, " ", "=", " ", {
            "new", " ", {"pmath", ".", "Context", "(", ")"}}}, ";"}), 
-       "JavaInput"), Section("pmath.Context@4202dd61", "JavaOutput", 
-       SectionGenerated -> True)}, All), 
+       "JavaInput"), 
+      Section(BoxData(ComplexStringBox("\"pmath.Context@689eae3a\"")), 
+       "JavaOutput", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(BoxData({"ctx", ".", "evaluate", "(", {
           ComplexStringBox("\"Print(`1`)\""), ",", " ", 
           ComplexStringBox("\"Hello\"")}, ")"}), "JavaInput"), 
       Section(BoxData(TemplateBox({ComplexStringBox("\"Hello\"")}, 
          "RowDefault")), "Print", SectionGenerated -> True), 
-      Section("null", "JavaOutput", SectionGenerated -> True)}, All), 
+      Section(BoxData(ComplexStringBox("\"null\"")), "JavaOutput", 
+       SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(
        BoxData({"new", " ", {
@@ -396,7 +401,7 @@ Document({
         Section(BoxData({"With", "(", {{"{", {"i", "\[Assign]", "123"}, "}"}, 
             ",", TemplateBox({{{"System", ".", "out"}, ".", "println", "(", 
                TemplateBox({"i"}, "MathInJava"), ")"}}, "InlineJavaInput")}, 
-           ")"}), "Input", SectionLabel -> "in [64]:"), 
+           ")"}), "Input", SectionLabel -> "in [21]:"), 
         Section(BoxData(TemplateBox({ComplexStringBox("\"Global`i\"")}, 
            "RowDefault")), "Print", SectionGenerated -> True)}, All)}, All)}, 
    All)}, DockedSections :> {

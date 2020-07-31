@@ -10,7 +10,7 @@ MakeBoxes(doc: DocumentObject(~feo:FrontEndObject))::= Block {
     If(title.IsString) {
         TemplateBox({feo, title}, "DocumentObject")
     } Else {
-        TemplateBox({feo, feo.ReplaceRepeated(FrontEndObject(~id) :> id)}, "DocumentObject")
+        TemplateBox({feo, feo.ReplaceRepeated(FrontEndObject(~~~, ~id) :> id)}, "DocumentObject")
     }
 } /? allowGuiBoxes
 

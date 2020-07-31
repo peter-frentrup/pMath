@@ -62,6 +62,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarSessionId;
+
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Section;
@@ -271,6 +273,7 @@ String Application::application_filename;
 String Application::application_directory;
 String Application::stylesheet_path_base;
 Expr Application::palette_search_path;
+Expr Application::session_id;
 MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr> Application::eval_cache;
@@ -764,6 +767,7 @@ void Application::init() {
     
   stylesheet_path_base = String(Evaluate(Parse("FE`$StylesheetDirectory")));
   palette_search_path = Evaluate(Parse("FE`$PaletteSearchPath"));
+  session_id = Evaluate(Symbol(richmath_System_DollarSessionId));
   
   total_time_waited_for_gui = 0.0;
 }
@@ -872,6 +876,7 @@ void Application::done() {
   application_directory = String();
   stylesheet_path_base = String();
   palette_search_path = Expr();
+  session_id = Expr();
   main_message_queue = Expr();
 }
 

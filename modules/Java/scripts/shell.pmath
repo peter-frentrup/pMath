@@ -31,7 +31,7 @@ Function javaCodeFromBoxes(~boxes:List) {
     StringExpression @@ boxes.Map(Function(With(code:= javaCodeFromBoxes(#)) {
         % Crashes for long subjects with stack overflow in pcre:
         %If(StringMatch(code, ~~~ ++ (LetterCharacter|DigitCharacter))) {
-        If(StringCount(code, (LetterCharacter|DigitCharacter) ++ EndOfString) > 0) {
+        If(code.IsString && StringCount(code, (LetterCharacter|DigitCharacter) ++ EndOfString) > 0) {
             {code, " "}
         } Else {
             code

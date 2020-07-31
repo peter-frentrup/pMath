@@ -194,7 +194,7 @@
 {"FresnelC", {"ArgumentCount" -> 1}},
 {"FresnelS", {"ArgumentCount" -> 1}},
 {"FromCharacterCode", {"ArgumentCount" -> 1..2}},
-{"FrontEndObject", {"ArgumentCount" -> 1}},
+{"FrontEndObject", {"ArgumentCount" -> 2}},
 {"FrontEndTokenExecute", {"ArgumentCount" -> 1}},
 {"FullForm", {"ArgumentCount" -> 1}},
 {"Function", {"ArgumentCount" -> 1..3, "LocalVariables" -> {"Function", 1}}},

@@ -147,7 +147,7 @@ Document({
                      TemplateSlot, 2}))), FontColor -> Dynamic(
                   If(CurrentValue(CurrentValue({TemplateSlot, 1}), 
                     WindowTitle) === $Failed, Gray, 
-                   If(CurrentValue(FrontEndObject(FE`Private`dyn), 
+                   If(CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
                      "MouseOver") === True, Blue, Inherited))))), 
                SetSelectedDocument(CurrentValue({TemplateSlot, 1})), 
                ButtonFrame -> "Frameless")))), ")"} &), 
@@ -159,11 +159,11 @@ Document({
             ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
               Button(Panel(Style(CurrentValue({TemplateSlot, 1}), 
                  FontColor -> Dynamic(
-                  If(CurrentValue(FrontEndObject(FE`Private`dyn), 
+                  If(CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
                     "MouseOver") === True, Blue, Inherited)))), 
                Replace(MakeExpression(CurrentValue({TemplateSlot, 1})), 
                 HoldComplete(~FE`Private`id:Integer) :> SetSelectedDocument(
-                 Automatic, FrontEndObject(FE`Private`id))), 
+                 Automatic, FrontEndObject($SessionId, FE`Private`id))), 
                ButtonFrame -> "Frameless")))), ")"} &)}), 
         Section(StyleData("Det"), TemplateBoxOptions -> {
           DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
