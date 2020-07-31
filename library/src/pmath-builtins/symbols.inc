@@ -374,6 +374,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( Line,                           0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( MachineId,                      0 )
+PMATH_DECLARE_SYSTEM_DOLLAR_VAR( SessionId,                      0 )
 
 PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDynamicID,  0 )
 PMATH_DECLARE_INTERNAL_SYMBOL( TryEvaluateSecured,   HOLDALLCOMPLETE )

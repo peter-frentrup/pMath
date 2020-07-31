@@ -20,6 +20,7 @@
 #include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/hash/hashtables-private.h>
+#include <pmath-util/hash/sha1.h>
 #include <pmath-util/modules-private.h>
 #include <pmath-util/security-private.h>
 #include <pmath-util/stacks-private.h>
@@ -264,8 +265,9 @@ static pmath_expr_t get_exe_name(void) {
 #endif
 }
 
-static pmath_integer_t get_machine_id(void) {
-  pmath_t result = PMATH_NULL;
+static void get_machine_app_id_hash(struct _pmath_sha1_digest_t hash_out[1]) {
+  pmath_bool_t success = FALSE;
+  
 #ifdef PMATH_OS_WIN32
   {
     wchar_t data[40];
@@ -286,8 +288,15 @@ static pmath_integer_t get_machine_id(void) {
       
       rstat = UuidFromStringW(data, &uuid);
       if(rstat == RPC_S_OK) {
-        // TODO: does the MachineGuid reveal personal data? Maybe apply sha1 or another hash function.
-        result = pmath_integer_new_data(sizeof(uuid), 1, 1, 0, 0, &uuid);
+        struct _pmath_sha1_context_t ctx;
+        
+        //_pmath_sha1(hash_out, (const uint8_t*)&uuid, sizeof(uuid));
+        _pmath_sha1_init(&ctx);
+        _pmath_sha1_update(&ctx, (const uint8_t*)"pMath", 5);
+        _pmath_sha1_update(&ctx, (const uint8_t*)&uuid, sizeof(uuid));
+        _pmath_sha1_final(hash_out, &ctx);
+        
+        success = TRUE;
       }
       else
         pmath_debug_print("[UuidFromStringW failed: %x]\n", (unsigned)rstat);
@@ -297,48 +306,85 @@ static pmath_integer_t get_machine_id(void) {
   }
 #else
   {
-    // TODO: first try /etc/machine-id on Linux (but does not exist on WSL)
-    // or IOPlatformUUID on MacOS
-    //
-    // From the machine-id man page:
-    //   This ID uniquely identifies the host. It should be considered
-    //   "confidential", and must not be exposed in untrusted environments, in
-    //   particular on the network. If a stable unique identifier that is tied
-    //   to the machine is needed for some application, the machine ID or any
-    //   part of it must not be used directly. Instead the machine ID should
-    //   be hashed with a cryptographic, keyed hash function, using a fixed,
-    //   application-specific key. That way the ID will be properly unique,
-    //   and derived in a constant way from the machine ID but there will be
-    //   no way to retrieve the original machine ID from the
-    //   application-specific one. The sd_id128_get_machine_app_specific(3)
-    //   API provides an implementation of such an algorithm.
+    // TODO: try IOPlatformUUID on MacOS
     
-//    FILE *f = fopen("/etc/machine-id", "r");
-//    if(f) {
-//      char buf[32 + 1];
-//      
-//      if(fgets(buf, sizeof(buf)-1, f)) {
-//        buf[sizeof(buf)-1] = '\0';
-//        
-//        result = pmath_integer_new_str(buf, 16);
-//      }
-//      else
-//        pmath_debug_print("failed to read from /etc/machine-id\n");
-//      
-//      fclose(f);
-//    }
-//    else 
-//      pmath_debug_print("cannot open /etc/machine-id\n");
+    // Linux specific, but note that /etc/machine-id does not exist on WSL
+    FILE *f = fopen("/etc/machine-id", "r");
+    if(f) {
+      #define PREFIX_LEN   5
+      char buf[PREFIX_LEN + 32] = "pMath";
+      
+      if(fgets(buf + PREFIX_LEN, sizeof(buf) - PREFIX_LEN, f)) {
+        _pmath_sha1(hash_out, (const uint8_t*)buf, sizeof(buf));
+        success = TRUE;
+      }
+      else
+        pmath_debug_print("failed to read from /etc/machine-id\n");
+      
+      fclose(f);
+    }
+    else 
+      pmath_debug_print("cannot open /etc/machine-id\n");
     
-    if(pmath_is_null(result))
-      result = pmath_integer_new_ulong((unsigned long)gethostid());
+    if(!success) {
+      struct _pmath_sha1_context_t ctx;
+      
+      long host_id = gethostid();
+      
+      _pmath_sha1_init(&ctx);
+      _pmath_sha1_update(&ctx, (const uint8_t*)"pMath", 5);
+      _pmath_sha1_update(&ctx, (const uint8_t*)&host_id, sizeof(host_id));
+      _pmath_sha1_final(hash_out, &ctx);
+      
+      success = TRUE;
+    }
   }
 #endif
+
+  if(!success) {
+    memset(hash_out, 0, sizeof(hash_out[0]));
+  }
+}
+
+static void init_machine_process_session_ids(void) {
+  struct _pmath_sha1_context_t ctx;
+  union {
+    struct _pmath_sha1_digest_t raw;
+    uint32_t blocks[5];
+  } digest;
   
-  if(pmath_is_null(result))
-    result = PMATH_FROM_INT32(0);
+  char machine_id[50];
+  size_t process_id;
+  double now = pmath_datetime();
   
-  return result;
+#ifdef PMATH_OS_WIN32
+  process_id = (size_t)GetCurrentProcessId();
+#else
+  process_id = (size_t)getpid();
+#endif
+
+  get_machine_app_id_hash(&digest.raw);
+  
+  snprintf(
+    machine_id, sizeof(machine_id), "%8X-%8X-%8X-%8X-%8X", 
+    digest.blocks[0],
+    digest.blocks[1],
+    digest.blocks[2],
+    digest.blocks[3],
+    digest.blocks[4]);
+  
+  _pmath_sha1_init(&ctx);
+  _pmath_sha1_update(&ctx, (const uint8_t*)&digest,     sizeof(digest));
+  _pmath_sha1_update(&ctx, (const uint8_t*)&process_id, sizeof(process_id));
+  _pmath_sha1_update(&ctx, (const uint8_t*)&now,        sizeof(now));
+  _pmath_sha1_final(&digest.raw, &ctx);
+  
+  PMATH_RUN_ARGS(
+    "$MachineId:= `1`; $ProcessId:=`2`; $SessionId:=`3`", 
+    "(sNo)", 
+    machine_id, 
+    process_id, 
+    pmath_integer_new_data(8, 1, 1, 0, 0, &digest.raw)); // only use the first 8 bytes of the SHA1 digest for $SessionId:
 }
 
 static pmath_expr_t get_system_information(void) {
@@ -762,8 +808,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     }
     
     { // initialize runs ...
+      init_machine_process_session_ids();
       PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
-      PMATH_RUN_ARGS("$MachineId:= `1`", "(o)", get_machine_id());
       PMATH_RUN_ARGS("Developer`$SystemInformation:= `1`", "(o)", get_system_information());
       
       PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");
@@ -800,12 +846,6 @@ PMATH_API pmath_bool_t pmath_init(void) {
       init_pagewidth();
       
       PMATH_RUN("$Path:={\".\"}");
-      
-#ifdef PMATH_OS_WIN32
-      PMATH_RUN_ARGS("$ProcessId:=`1`", "(N)", (size_t)GetCurrentProcessId());
-#else
-      PMATH_RUN_ARGS("$ProcessId:=`1`", "(N)", (size_t)getpid());
-#endif
       
       PMATH_RUN_ARGS("$ProcessorCount:=`1`", "(i)", _pmath_processor_count());
       

@@ -2203,14 +2203,14 @@ FAIL:
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
   int i;
   
+#define PROTECT(sym) pmath_symbol_set_attributes(sym, pmath_symbol_get_attributes(sym) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
+  
   for(i = 0; i < PMATH_BUILTIN_SYMBOL_COUNT; i++) {
-    pmath_symbol_set_attributes(
-      _pmath_builtin_symbol_array[i],
-      PMATH_SYMBOL_ATTRIBUTE_PROTECTED
-      | pmath_symbol_get_attributes(_pmath_builtin_symbol_array[i]));
+    PROTECT( _pmath_builtin_symbol_array[i] );
   }
   
-  pmath_symbol_set_attributes(pmath_System_DollarMachineId, PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
+  PROTECT( pmath_System_DollarMachineId );
+  PROTECT( pmath_System_DollarSessionId );
   
 #define UNPROTECT(sym) pmath_symbol_set_attributes(sym, pmath_symbol_get_attributes(sym) & ~PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
   
