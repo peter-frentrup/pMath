@@ -869,10 +869,10 @@
 		<Unit filename="include/pmath-util/files/mixed-buffer.h" />
 		<Unit filename="include/pmath-util/files/text-from-binary.h" />
 		<Unit filename="include/pmath-util/garbage-collection-private.h" />
-		<Unit filename="include/pmath-util/hashtables-private.h" />
-		<Unit filename="include/pmath-util/hashtables.h" />
+		<Unit filename="include/pmath-util/hash/hashtables-private.h" />
+		<Unit filename="include/pmath-util/hash/hashtables.h" />
+		<Unit filename="include/pmath-util/hash/incremental-hash-private.h" />
 		<Unit filename="include/pmath-util/helpers.h" />
-		<Unit filename="include/pmath-util/incremental-hash-private.h" />
 		<Unit filename="include/pmath-util/io-varint-private.h" />
 		<Unit filename="include/pmath-util/line-writer.h" />
 		<Unit filename="include/pmath-util/memory.h" />
@@ -1677,13 +1677,13 @@
 		<Unit filename="src/pmath-util/garbage-collection-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-util/hashtables-private.c">
+		<Unit filename="src/pmath-util/hash/hashtables.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/hash/incremental-hash-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/helpers.c">
-			<Option compilerVar="CC" />
-		</Unit>
-		<Unit filename="src/pmath-util/incremental-hash-private.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/io-varint.c">

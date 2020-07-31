@@ -6,7 +6,7 @@
 #include <pmath-core/symbols.h>
 
 #include <pmath-util/debug.h>
-#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 
 #include <stdio.h>
@@ -142,10 +142,10 @@ PMATH_API unsigned int pmath_hash(pmath_t obj) {
     if(d == 0)
       d = +0.0;
       
-    return incremental_hash(&d, sizeof(double), 0); 
+    return _pmath_incremental_hash(&d, sizeof(double), 0); 
   }
   
-  return incremental_hash(&obj, sizeof(pmath_t), 0);
+  return _pmath_incremental_hash(&obj, sizeof(pmath_t), 0);
 }
 
 #ifdef pmath_equals

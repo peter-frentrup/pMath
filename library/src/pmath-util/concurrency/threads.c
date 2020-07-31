@@ -5,7 +5,7 @@
 
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threadmsg-private.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/security.h>
 
 #include <pmath-builtins/all-symbols-private.h>

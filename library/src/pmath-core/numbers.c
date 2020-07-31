@@ -10,7 +10,7 @@
 #include <pmath-util/concurrency/threadmsg.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
-#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/strtod.h>
@@ -1394,7 +1394,7 @@ static void destroy_mp_int(pmath_t integer) {
 }
 
 static unsigned int hash_mpz(mpz_srcptr mpz, unsigned h) {
-  return incremental_hash(
+  return _pmath_incremental_hash(
            mpz[0]._mp_d,
            sizeof(mpz[0]._mp_d[0]) * (size_t)abs(mpz[0]._mp_size),
            h);
@@ -1519,9 +1519,9 @@ static unsigned int hash_quotient(pmath_t quotient) {
   unsigned int h;
   
   h    = pmath_hash(PMATH_QUOT_NUM(quotient));
-  next = incremental_hash(&h, sizeof(h), next);
+  next = _pmath_incremental_hash(&h, sizeof(h), next);
   h    = pmath_hash(PMATH_QUOT_DEN(quotient));
-  return incremental_hash(&h, sizeof(h), next);
+  return _pmath_incremental_hash(&h, sizeof(h), next);
 }
 
 static void write_quotient(struct pmath_write_ex_t *info, pmath_t quotient) {
@@ -1581,10 +1581,10 @@ static unsigned int hash_arf(const arf_t x, unsigned int h) {
   mp_size_t mant_len;
   
   h = hash_fmpz(ARF_EXPREF(x), h);
-  h = incremental_hash(&ARF_XSIZE(x), sizeof(mp_size_t), h);
+  h = _pmath_incremental_hash(&ARF_XSIZE(x), sizeof(mp_size_t), h);
   
   ARF_GET_MPN_READONLY(mant, mant_len, x);
-  h = incremental_hash(mant, sizeof(mant[0]) * mant_len, h);
+  h = _pmath_incremental_hash(mant, sizeof(mant[0]) * mant_len, h);
   return h;
 }
 
@@ -1593,7 +1593,7 @@ static unsigned int hash_mag(const mag_t x, unsigned int h) {
   const mp_size_t mant_len = 1;
   
   h = hash_fmpz(MAG_EXPREF(x), h);
-  h = incremental_hash(mant, sizeof(mant[0]) * mant_len, h);
+  h = _pmath_incremental_hash(mant, sizeof(mant[0]) * mant_len, h);
   return h;
 }
 
@@ -2310,7 +2310,7 @@ PMATH_PRIVATE void _pmath_numbers_memory_panic(void) {
 
 PMATH_PRIVATE pmath_bool_t _pmath_numbers_init(void) {
   char c = 0;
-  hash_init = incremental_hash(&c, 1, 0);
+  hash_init = _pmath_incremental_hash(&c, 1, 0);
   
 #ifdef mpir_version
   pmath_debug_print("[mpir %s ~= gmp %s]\n", mpir_version, gmp_version);

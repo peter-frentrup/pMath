@@ -10,8 +10,8 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/user-format-private.h>
@@ -2297,7 +2297,7 @@ static unsigned int hash_expression(
     pmath_t item = pmath_expr_get_item(expr, i);
     unsigned int h = pmath_hash(item);
     pmath_unref(item);
-    next = incremental_hash(&h, sizeof(h), next);
+    next = _pmath_incremental_hash(&h, sizeof(h), next);
   }
   return next;
 }

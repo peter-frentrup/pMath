@@ -9,8 +9,8 @@
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -566,10 +566,10 @@ static unsigned int hash_string(pmath_t str) {
         break;
     }
 
-    return incremental_hash(&tmp, sizeof(pmath_t), 0);
+    return _pmath_incremental_hash(&tmp, sizeof(pmath_t), 0);
   }
 
-  return incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
+  return _pmath_incremental_hash(buf, (size_t)len * sizeof(uint16_t), 0);
 }
 
 static unsigned int hash_pinned_string(pmath_t str) {

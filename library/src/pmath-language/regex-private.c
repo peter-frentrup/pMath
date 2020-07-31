@@ -2,7 +2,7 @@
 
 #include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>

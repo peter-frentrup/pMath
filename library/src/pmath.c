@@ -19,7 +19,7 @@
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/dispatch-tables-private.h>
 #include <pmath-util/dynamic-private.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/modules-private.h>
 #include <pmath-util/security-private.h>
 #include <pmath-util/stacks-private.h>

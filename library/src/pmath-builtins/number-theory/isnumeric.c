@@ -2,7 +2,7 @@
 #include <pmath-util/approximate.h>
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threads-private.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 

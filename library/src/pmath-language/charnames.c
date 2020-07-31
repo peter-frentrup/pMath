@@ -1,8 +1,8 @@
 #include <pmath-language/charnames.h>
 
 #include <pmath-util/debug.h>
-#include <pmath-util/hashtables.h>
-#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/hash/hashtables.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 
 #include <pmath-language/tokens.h>
 
@@ -752,7 +752,7 @@ static unsigned int hash_nc_char(void *_entry) {
 static unsigned int hash_nc_name(void *_entry) {
   const struct pmath_named_char_t *entry = (const struct pmath_named_char_t *)_entry;
   
-  return incremental_hash(entry->name, strlen(entry->name), 0);
+  return _pmath_incremental_hash(entry->name, strlen(entry->name), 0);
 }
 
 static pmath_bool_t nc_nc_equal_chars(void *_entry1, void *_entry2) {
@@ -775,7 +775,7 @@ static unsigned int nc_char_hash(void *key) {
 
 static unsigned int nc_name_hash(void *_key) {
   const char *key = (const char *)_key;
-  return incremental_hash(key, strlen(key), 0);
+  return _pmath_incremental_hash(key, strlen(key), 0);
 }
 
 static pmath_bool_t nc_char_key_equal(void *_entry, void *key) {

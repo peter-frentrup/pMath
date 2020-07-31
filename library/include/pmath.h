@@ -59,7 +59,7 @@
 #include <pmath-util/dispatch-tables.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/hashtables.h>
+#include <pmath-util/hash/hashtables.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>

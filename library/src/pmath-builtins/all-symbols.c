@@ -3,7 +3,7 @@
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/security-private.h>

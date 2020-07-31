@@ -5,7 +5,7 @@
 
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/evaluation.h>
-#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 
 
@@ -39,7 +39,7 @@ static void destroy_doorman_entry(void *e) {
 
 static unsigned int hash_doorman_key(void *k) {
   pmath_builtin_func_t key = k;
-  return incremental_hash(&key, sizeof(pmath_builtin_func_t), 0);
+  return _pmath_incremental_hash(&key, sizeof(pmath_builtin_func_t), 0);
 }
 
 static unsigned int hash_doorman_entry(void *e) {

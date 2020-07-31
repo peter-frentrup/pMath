@@ -8,7 +8,7 @@
 #include <pmath-core/symbols.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 
 struct _pmath_rulecache_t { // do not access members directly, init all with PMATH_NULL
   pmath_atomic_t  _table; // pmath_hashtable_t, const patterns, no condition in rhs

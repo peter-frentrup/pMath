@@ -5,7 +5,7 @@
 #include <pmath-util/concurrency/threadlocks.h>
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/files/filesystem.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 

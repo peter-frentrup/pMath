@@ -1,6 +1,6 @@
 // algortihm by http://www.azillionmonkeys.com/qed/hash.html
 
-#include <pmath-util/incremental-hash-private.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 
 #include <stdint.h>
 
@@ -15,7 +15,7 @@
                       +(uint32_t)(((const uint8_t *)(d))[0]) )
 #endif
 
-PMATH_PRIVATE unsigned int incremental_hash(
+PMATH_PRIVATE unsigned int _pmath_incremental_hash(
   const void   *data,
   size_t        len,
   unsigned int  hash

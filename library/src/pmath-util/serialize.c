@@ -7,7 +7,7 @@
 
 #include <pmath-util/debug.h>
 #include <pmath-util/files/abstract-file.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/io-varint-private.h>
 #include <pmath-util/memory.h>
 

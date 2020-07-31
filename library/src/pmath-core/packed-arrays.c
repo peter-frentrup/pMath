@@ -7,9 +7,9 @@
 #include <pmath-builtins/lists-private.h>
 
 #include <pmath-util/debug.h>
-#include <pmath-util/hashtables-private.h>
+#include <pmath-util/hash/hashtables-private.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/overflow-calc-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
@@ -240,7 +240,7 @@ static unsigned int hash_double(double d) {
     if(d == 0)
       d = +0.0;
       
-    return incremental_hash(&d, sizeof(double), 0); // pmath_hash(PMATH_FROM_DOUBLE(d))
+    return _pmath_incremental_hash(&d, sizeof(double), 0); // pmath_hash(PMATH_FROM_DOUBLE(d))
   }
   
   if(d > 0)
@@ -263,12 +263,12 @@ static unsigned int hash_packed_array_of_double(
   
   unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
   
-  hash = incremental_hash(&hash, sizeof(hash), 0);
+  hash = _pmath_incremental_hash(&hash, sizeof(hash), 0);
   
   for(; nums > 0; --nums, ptr += step) {
     unsigned h = hash_double(*(double *)ptr);
     
-    hash = incremental_hash(&h, sizeof(h), hash);
+    hash = _pmath_incremental_hash(&h, sizeof(h), hash);
   }
   
   return hash;
@@ -286,16 +286,16 @@ static unsigned int hash_packed_array_of_int32(
   unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
   pmath_t dummy = PMATH_FROM_INT32(0);
   
-  hash = incremental_hash(&hash, sizeof(hash), 0);
+  hash = _pmath_incremental_hash(&hash, sizeof(hash), 0);
   
   for(; nums > 0; --nums, ptr += step) {
     unsigned h;
     
     dummy.s.u.as_int32 = *(int32_t *)ptr;
     
-    h = incremental_hash(&dummy, sizeof(pmath_t), 0); // = pmath_hash(dummy)
+    h = _pmath_incremental_hash(&dummy, sizeof(pmath_t), 0); // = pmath_hash(dummy)
     
-    hash = incremental_hash(&h, sizeof(h), hash);
+    hash = _pmath_incremental_hash(&h, sizeof(h), hash);
   }
   
   return hash;
@@ -312,12 +312,12 @@ static unsigned int hash_packed_array_part(
     const uint8_t *ptr = data;
     
     unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
-    hash = incremental_hash(&hash, sizeof(hash), 0);
+    hash = _pmath_incremental_hash(&hash, sizeof(hash), 0);
     
     for(; nums > 0; --nums, ptr += step) {
       unsigned h = hash_packed_array_part(array, ptr, level + 1);
       
-      hash = incremental_hash(&h, sizeof(h), hash);
+      hash = _pmath_incremental_hash(&h, sizeof(h), hash);
     }
     
     return hash;
@@ -354,7 +354,7 @@ static unsigned int hash_packed_array(pmath_t a) {
    *    pmath_t item = pmath_expr_get_item(expr, i);
    *    unsigned int h = pmath_hash(item);
    *    pmath_unref(item);
-   *    next = incremental_hash(&h, sizeof(h), next);
+   *    next = _pmath_incremental_hash(&h, sizeof(h), next);
    *  }
    *  return next;
    */

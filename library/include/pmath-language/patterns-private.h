@@ -6,7 +6,7 @@
 #endif
 
 #include <pmath-core/expressions.h>
-#include <pmath-util/hashtables.h>
+#include <pmath-util/hash/hashtables.h>
 
 
 #define PMATH_MAGIC_PATTERN_SEQUENCE  PMATH_FROM_TAG(PMATH_TAG_MAGIC, 2)

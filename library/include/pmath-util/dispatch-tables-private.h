@@ -8,7 +8,7 @@
 #include <pmath-core/objects-private.h>
 
 #include <pmath-util/dispatch-tables.h>
-#include <pmath-util/hashtables.h>
+#include <pmath-util/hash/hashtables.h>
 
 
 /**\addtogroup dispatch_tables Dispatch tables

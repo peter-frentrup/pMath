@@ -6,8 +6,8 @@
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/dispatch-tables.h>
 #include <pmath-util/evaluation.h>
+#include <pmath-util/hash/incremental-hash-private.h>
 #include <pmath-util/helpers.h>
-#include <pmath-util/incremental-hash-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/option-helpers.h>
@@ -84,7 +84,7 @@ static pmath_bool_t resize_current_multiindex(struct replace_info_t *info, size_
 static unsigned int hash_multiindex(void *p) {
   struct multiindex_t *mi = p;
 
-  return incremental_hash(mi, (1 + mi->length) * sizeof(size_t), 0);
+  return _pmath_incremental_hash(mi, (1 + mi->length) * sizeof(size_t), 0);
 }
 
 static pmath_bool_t equal_multiindices(void *p1, void *p2) {
