@@ -38,7 +38,11 @@
 #  define NOGDI
 #  define WIN32_LEAN_AND_MEAN
 #  include <windows.h>
+#  include <rpc.h>
 #  include <shellapi.h>
+#  ifndef RRF_SUBKEY_WOW6464KEY
+#    define RRF_SUBKEY_WOW6464KEY   0x00010000
+#  endif
 #elif defined(__APPLE__)
 #  include <CoreServices/CoreServices.h>
 #else
@@ -258,6 +262,83 @@ static pmath_expr_t get_exe_name(void) {
     return PMATH_NULL;
   }
 #endif
+}
+
+static pmath_integer_t get_machine_id(void) {
+  pmath_t result = PMATH_NULL;
+#ifdef PMATH_OS_WIN32
+  {
+    wchar_t data[40];
+    DWORD cbData = sizeof(data);
+    LSTATUS status = RegGetValueW(
+                       HKEY_LOCAL_MACHINE, 
+                       L"SOFTWARE\\Microsoft\\Cryptography",
+                       L"MachineGuid", 
+                       RRF_RT_REG_SZ | RRF_SUBKEY_WOW6464KEY,
+                       NULL,
+                       &data,
+                       &cbData);
+    
+    if(status == ERROR_SUCCESS) {
+      UUID uuid;
+      RPC_STATUS rstat;
+      data[sizeof(data)/sizeof(data[0]) - 1] = L'\0';
+      
+      rstat = UuidFromStringW(data, &uuid);
+      if(rstat == RPC_S_OK) {
+        // TODO: does the MachineGuid reveal personal data? Maybe apply sha1 or another hash function.
+        result = pmath_integer_new_data(sizeof(uuid), 1, 1, 0, 0, &uuid);
+      }
+      else
+        pmath_debug_print("[UuidFromStringW failed: %x]\n", (unsigned)rstat);
+    }
+    else
+      pmath_debug_print("[RegGetValueW failed: %x]\n", (unsigned)status);
+  }
+#else
+  {
+    // TODO: first try /etc/machine-id on Linux (but does not exist on WSL)
+    // or IOPlatformUUID on MacOS
+    //
+    // From the machine-id man page:
+    //   This ID uniquely identifies the host. It should be considered
+    //   "confidential", and must not be exposed in untrusted environments, in
+    //   particular on the network. If a stable unique identifier that is tied
+    //   to the machine is needed for some application, the machine ID or any
+    //   part of it must not be used directly. Instead the machine ID should
+    //   be hashed with a cryptographic, keyed hash function, using a fixed,
+    //   application-specific key. That way the ID will be properly unique,
+    //   and derived in a constant way from the machine ID but there will be
+    //   no way to retrieve the original machine ID from the
+    //   application-specific one. The sd_id128_get_machine_app_specific(3)
+    //   API provides an implementation of such an algorithm.
+    
+//    FILE *f = fopen("/etc/machine-id", "r");
+//    if(f) {
+//      char buf[32 + 1];
+//      
+//      if(fgets(buf, sizeof(buf)-1, f)) {
+//        buf[sizeof(buf)-1] = '\0';
+//        
+//        result = pmath_integer_new_str(buf, 16);
+//      }
+//      else
+//        pmath_debug_print("failed to read from /etc/machine-id\n");
+//      
+//      fclose(f);
+//    }
+//    else 
+//      pmath_debug_print("cannot open /etc/machine-id\n");
+    
+    if(pmath_is_null(result))
+      result = pmath_integer_new_ulong((unsigned long)gethostid());
+  }
+#endif
+  
+  if(pmath_is_null(result))
+    result = PMATH_FROM_INT32(0);
+  
+  return result;
 }
 
 static pmath_expr_t get_system_information(void) {
@@ -682,7 +763,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     
     { // initialize runs ...
       PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
-      
+      PMATH_RUN_ARGS("$MachineId:= `1`", "(o)", get_machine_id());
       PMATH_RUN_ARGS("Developer`$SystemInformation:= `1`", "(o)", get_system_information());
       
       PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");

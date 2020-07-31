@@ -2210,6 +2210,8 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
       | pmath_symbol_get_attributes(_pmath_builtin_symbol_array[i]));
   }
   
+  pmath_symbol_set_attributes(pmath_System_DollarMachineId, PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
+  
 #define UNPROTECT(sym) pmath_symbol_set_attributes(sym, pmath_symbol_get_attributes(sym) & ~PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
   
   UNPROTECT( PMATH_SYMBOL_CHARACTERENCODINGDEFAULT);
