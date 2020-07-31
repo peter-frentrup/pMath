@@ -872,6 +872,7 @@
 		<Unit filename="include/pmath-util/hash/hashtables-private.h" />
 		<Unit filename="include/pmath-util/hash/hashtables.h" />
 		<Unit filename="include/pmath-util/hash/incremental-hash-private.h" />
+		<Unit filename="include/pmath-util/hash/sha1.h" />
 		<Unit filename="include/pmath-util/helpers.h" />
 		<Unit filename="include/pmath-util/io-varint-private.h" />
 		<Unit filename="include/pmath-util/line-writer.h" />
@@ -1681,6 +1682,9 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/hash/incremental-hash-private.c">
+			<Option compilerVar="CC" />
+		</Unit>
+		<Unit filename="src/pmath-util/hash/sha1.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-util/helpers.c">
