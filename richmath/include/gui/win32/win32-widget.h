@@ -99,7 +99,6 @@ namespace richmath {
       cairo_surface_t *_old_pixels;
       CursorType cursor;
       bool mouse_moving : 1;
-      bool is_painting : 1;
       bool scrolling : 1;
       bool already_scrolled : 1;
       bool _has_dark_background : 1;

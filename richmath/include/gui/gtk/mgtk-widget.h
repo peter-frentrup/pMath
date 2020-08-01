@@ -89,7 +89,6 @@ namespace richmath {
     private:
       CursorType cursor;
       bool mouse_moving : 1;
-      bool is_painting : 1;
       bool is_blinking : 1;
       bool ignore_key_release : 1;
       ObservableValue<bool> _focused;

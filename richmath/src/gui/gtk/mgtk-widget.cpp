@@ -154,7 +154,6 @@ MathGtkWidget::MathGtkWidget(Document *doc)
     BasicGtkWidget(),
     _autohide_vertical_scrollbar(false),
     _mouse_down_button(0),
-    is_painting(false),
     is_blinking(false),
     ignore_key_release(true),
     _focused(false),
@@ -452,8 +451,6 @@ void MathGtkWidget::invalidate() {
   if(!_widget)
     return;
     
-  is_painting = false; // if inside "expose" event, invalidate at end of event
-  
   gtk_widget_queue_draw(_widget);
 }
 
@@ -464,8 +461,6 @@ void MathGtkWidget::invalidate_rect(float x, float y, float w, float h) {
   if(!_widget)
     return;
     
-  is_painting = false; // if inside "expose" event, invalidate at end of event
-  
   float sx, sy, sf;
   scroll_pos(&sx, &sy);
   sf = scale_factor();
@@ -1034,8 +1029,6 @@ bool MathGtkWidget::on_draw(cairo_t *cr) {
     document()->invalidate_all();
   }
   
-  is_painting = true;
-  
   {
     Canvas canvas(cr);
     
@@ -1056,11 +1049,7 @@ bool MathGtkWidget::on_draw(cairo_t *cr) {
       update_im_cursor_location();
   }
   
-  if(!is_painting)
-    invalidate();
-    
 //  set_cursor(cursor);
-  is_painting = false;
   return true;
 }
 

@@ -113,7 +113,6 @@ Win32Widget::Win32Widget(
     _autohide_vertical_scrollbar(false),
     _image_format(CAIRO_FORMAT_RGB24),
     _old_pixels(nullptr),
-    is_painting(false),
     scrolling(false),
     already_scrolled(false),
     _has_dark_background(false),
@@ -351,7 +350,6 @@ void Win32Widget::bring_to_front() {
 }
 
 void Win32Widget::invalidate() {
-  is_painting = false; // if inside WM_PAINT, invalidate at end of event
   InvalidateRect(_hwnd, 0, FALSE);
 }
 
@@ -359,8 +357,6 @@ void Win32Widget::invalidate_options() {
 }
 
 void Win32Widget::invalidate_rect(float x, float y, float w, float h) {
-  is_painting = false; // if inside WM_PAINT, invalidate at end of event
-  
   float sx, sy, sf;
   scroll_pos(&sx, &sy);
   sf = scale_factor();
@@ -379,18 +375,10 @@ void Win32Widget::force_redraw() {
   GetClientRect(_hwnd, &rect);
   if(_width != rect.right || _height != rect.bottom) // called before WM_SIZE
     return;
-    
-  is_painting = true;
-  {
-    HDC dc = GetDC(_hwnd);
-    on_paint(dc, true);
-    ReleaseDC(_hwnd, dc);
-  }
   
-  if(!is_painting) {
-    invalidate();
-  }
-  is_painting = false;
+  HDC dc = GetDC(_hwnd);
+  on_paint(dc, true);
+  ReleaseDC(_hwnd, dc);
 }
 
 void Win32Widget::set_cursor(CursorType type) {
@@ -888,11 +876,13 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
       si.cbSize = sizeof(si);
       si.fMask = SIF_PAGE | SIF_RANGE;
       
-      GetScrollInfo(_hwnd, SB_VERT, &si);
-      bool vert = si.nMax - si.nMin > (int)si.nPage;
+      bool vert = false;
+      if(GetScrollInfo(_hwnd, SB_VERT, &si))
+        vert = si.nMax - si.nMin > (int)si.nPage;
       
-      GetScrollInfo(_hwnd, SB_HORZ, &si);
-      bool horz = si.nMax - si.nMin > (int)si.nPage;
+      bool horz = false;
+      if(GetScrollInfo(_hwnd, SB_HORZ, &si))
+        horz = si.nMax - si.nMin > (int)si.nPage;
       
       if(vert || horz) {
         scrolling = true;
@@ -902,8 +892,9 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
         mouse_down_event = event;
         mouse_down_event.x = (event.x - sx) * scale_factor();
         mouse_down_event.y = (event.y - sy) * scale_factor();
-        invalidate();
         SetTimer(_hwnd, TID_SCROLL, 20, 0);
+        if(event.middle)
+          invalidate();
       }
     }
   }
@@ -934,7 +925,8 @@ void Win32Widget::on_mouseup(MouseEvent &event) {
   if(scrolling && already_scrolled) {
     scrolling = false;
     KillTimer(_hwnd, TID_SCROLL);
-    invalidate();
+    if(mouse_down_event.middle)
+      invalidate();
   }
 }
 
@@ -1040,8 +1032,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           GetClientRect(_hwnd, &rect);
           if(_width != rect.right || _height != rect.bottom) // called before WM_SIZE
             return 0;
-            
-          is_painting = true;
+          
           {
             PAINTSTRUCT paintStruct;
             HDC dc = BeginPaint(_hwnd, &paintStruct);
@@ -1049,11 +1040,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             on_paint(dc, true);
             EndPaint(_hwnd, &paintStruct);
           }
-          
-          if(!is_painting) {
-            invalidate();
-          }
-          is_painting = false;
         } return 0;
         
       case WM_CONTEXTMENU:  {
