@@ -848,6 +848,7 @@ bool StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
       if(raw_set_string(n, String(obj))) {
         any_change = true;
         raw_set_int(InternalHasPendingDynamic, true);
+        raw_set_int(InternalHasNewBaseStyle, true);
       }
       return any_change;
     }
@@ -1484,6 +1485,8 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
   
   style->clear();
   style->set(BaseStyleName, base_style_name);
+  if(!base_style_name.is_null())
+    style->set(InternalHasNewBaseStyle, true);
   if(!old_has_pending_dynamic && old_base_style_name == base_style_name)
     style->remove(InternalHasPendingDynamic);
 }
@@ -1736,6 +1739,7 @@ bool Style::modifies_size(StyleOptionName style_name) {
     case Evaluatable:
     case InternalHasModifiedWindowOption:
     case InternalHasPendingDynamic:
+    case InternalHasNewBaseStyle:
     case InternalUsesCurrentValueOfMouseOver:
     case Placeholder:
     case ReturnCreatesNewSection:
@@ -2103,9 +2107,27 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   StyleImpl s_impl = StyleImpl::of(*s.ptr());
   
   int i;
-  if(!s_impl.raw_get_int(InternalHasPendingDynamic, &i) || !i)
-    return false;
+  if(!s_impl.raw_get_int(InternalHasPendingDynamic, &i) || !i) {
+    bool has_parent_pending_dynamic = false;
     
+    if(s_impl.raw_get_int(InternalHasNewBaseStyle, &i) && i) {
+      s_impl.raw_set_int(InternalHasNewBaseStyle, false);
+      
+      SharedPtr<Style> tmp = self.find_parent_style(s);
+      for(int count = 20; count && tmp; --count) {
+        if(StyleImpl::of(*tmp.ptr()).raw_get_int(InternalHasPendingDynamic, &i) && i) {
+          has_parent_pending_dynamic = true;
+          break;
+        }
+        
+        tmp = self.find_parent_style(tmp);
+      }
+    }
+    
+    if(!has_parent_pending_dynamic)
+      return false;
+  }
+  s_impl.raw_set_int(InternalHasNewBaseStyle, false);
   s_impl.raw_set_int(InternalHasPendingDynamic, false);
   
   s_impl.remove_all_volatile();

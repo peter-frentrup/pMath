@@ -38,8 +38,6 @@ namespace richmath {
       
       virtual bool changes_children_style() override { return true; }
       
-      virtual void reset_style() override;
-      
     public:
       float y_offset;
       float top_margin;

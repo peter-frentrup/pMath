@@ -44,6 +44,7 @@ namespace richmath {
     Evaluatable,
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,
+    InternalHasNewBaseStyle,
     InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver,
     LineBreakWithin,

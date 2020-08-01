@@ -22,7 +22,6 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
     selection_inside(false)
 {
   reset_style(); // caution: this does not call the derived reset_style(), but our implementation below
-  style->flag_pending_dynamic();
 }
 
 ControlState ContainerWidgetBox::calc_state(Context *context) {
