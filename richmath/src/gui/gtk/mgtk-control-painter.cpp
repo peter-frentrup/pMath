@@ -413,9 +413,12 @@ void MathGtkControlPainter::container_content_move(
 bool MathGtkControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
   switch(type) {
     case NoContainerType:
+    case FramelessButton:
     case GenericButton:
     case TooltipWindow:
     case PanelControl:
+    case TabHeadBackground:
+    case TabBodyBackground:
       return false;
   }
   

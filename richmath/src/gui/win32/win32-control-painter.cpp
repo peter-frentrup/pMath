@@ -1472,6 +1472,7 @@ void Win32ControlPainter::container_content_move(
 bool Win32ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
   switch(type) {
     case NoContainerType:
+    case FramelessButton:
     case GenericButton:
     case TooltipWindow:
     case PanelControl:
