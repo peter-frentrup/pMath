@@ -784,13 +784,25 @@ Box *Box::mouse_sensitive() {
 }
 
 void Box::on_mouse_enter() {
-  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
+  auto i = get_own_style(InternalUsesCurrentValueOfMouseOver, ObserverKindNone);
+  if(i & ObserverKindSelf)
     dynamic_updated();
+  
+  if(i & ObserverKindOther) {
+    if(style)
+      style->notify_all();
+  }
 }
 
 void Box::on_mouse_exit() {
-  if(get_own_style(InternalUsesCurrentValueOfMouseOver, false))
+  auto i = get_own_style(InternalUsesCurrentValueOfMouseOver, ObserverKindNone);
+  if(i & ObserverKindSelf)
     dynamic_updated();
+  
+  if(i & ObserverKindOther) {
+    if(style)
+      style->notify_all();
+  }
 }
 
 void Box::on_mouse_down(MouseEvent &event) {

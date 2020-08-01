@@ -27,6 +27,13 @@ namespace richmath {
     AutoBoolAutomatic = 2
   };
   
+  enum ObserverKind {
+    ObserverKindNone  = 0x0,
+    ObserverKindSelf  = 0x1,
+    ObserverKindOther = 0x2,
+    ObserverKindBoth  = ObserverKindSelf | ObserverKindOther,
+  };
+  
   enum ColorStyleOptionName {
     Background = 0x00000,
     FontColor,
@@ -46,7 +53,7 @@ namespace richmath {
     InternalHasPendingDynamic,
     InternalHasNewBaseStyle,
     InternalRequiresChildResize,
-    InternalUsesCurrentValueOfMouseOver,
+    InternalUsesCurrentValueOfMouseOver, // ObserverKindXXX
     LineBreakWithin,
     Placeholder,
     ReturnCreatesNewSection,
