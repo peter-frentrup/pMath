@@ -324,13 +324,17 @@ void Win32Menubar::show_menu(int item) {
     
     POINT pt;
     pt.y = tpm.rcExclude.bottom;
-    UINT align = TPM_LEFTALIGN;
+    UINT align;
     DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-    if(ex_style & WS_EX_LAYOUTRTL)
+    if(ex_style & WS_EX_LAYOUTRTL) {
       pt.x = tpm.rcExclude.right;
-    else
+      align = TPM_RIGHTALIGN;
+    }
+    else {
       pt.x = tpm.rcExclude.left;
-    
+      align = TPM_LEFTALIGN;
+    }
+
     UINT flags = TPM_RETURNCMD | align;
     if(!menu_animation)
       flags |= TPM_NOANIMATION;
@@ -401,8 +405,8 @@ void Win32Menubar::show_sysmenu() {
   tpm.cbSize = sizeof(tpm);
   GetWindowRect(parent, &tpm.rcExclude);
   
-  tpm.rcExclude.left += Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi);
-  tpm.rcExclude.top +=  Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi);
+  tpm.rcExclude.left += Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+  tpm.rcExclude.top +=  Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
   tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   
@@ -413,13 +417,14 @@ void Win32Menubar::show_sysmenu() {
     
     int x;
     UINT align;
-    if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-      align = TPM_LEFTALIGN;
-      x = tpm.rcExclude.left;
-    }
-    else {
+    DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
+    if(ex_style & WS_EX_LAYOUTRTL) {
       align = TPM_RIGHTALIGN;
       x = tpm.rcExclude.right;
+    }
+    else {
+      align = TPM_LEFTALIGN;
+      x = tpm.rcExclude.left;
     }
     
     UINT flags = TPM_RETURNCMD | align;

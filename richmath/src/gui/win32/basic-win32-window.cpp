@@ -1817,6 +1817,14 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               pt.x = (short)LOWORD(lParam);
               pt.y = (short)HIWORD(lParam);
               
+              UINT align;
+              if(GetSystemMetrics(SM_MENUDROPALIGNMENT)) {
+                align = TPM_RIGHTALIGN;
+              }
+              else {
+                align = TPM_LEFTALIGN;
+              }
+
               DWORD cmd;
               {
                 Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
@@ -1824,7 +1832,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                 
                 cmd = TrackPopupMenu(
                         menu,
-                        GetSystemMetrics(SM_MENUDROPALIGNMENT) | TPM_RETURNCMD,
+                        align | TPM_RETURNCMD,
                         pt.x,
                         pt.y,
                         0,
@@ -2239,21 +2247,24 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
       memset(&tpm, 0, sizeof(tpm));
       tpm.cbSize = sizeof(tpm);
       GetWindowRect(self._hwnd, &tpm.rcExclude);
-
-      tpm.rcExclude.left +=  GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-      tpm.rcExclude.top +=   GetSystemMetrics(SM_CYSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-      tpm.rcExclude.right -= GetSystemMetrics(SM_CXSIZEFRAME) + GetSystemMetrics(SM_CXPADDEDBORDER);
-      tpm.rcExclude.bottom = tpm.rcExclude.top + GetSystemMetrics(SM_CYCAPTION) + GetSystemMetrics(SM_CXPADDEDBORDER);
+      
+      int dpi = self.dpi();
+      
+      tpm.rcExclude.left +=  Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      tpm.rcExclude.top +=   Win32HighDpi::get_system_metrics_for_dpi(SM_CYSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      tpm.rcExclude.right -= Win32HighDpi::get_system_metrics_for_dpi(SM_CXSIZEFRAME, dpi) + Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      tpm.rcExclude.bottom = tpm.rcExclude.top + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
 
       int x;
       UINT align;
-      if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-        align = TPM_LEFTALIGN;
-        x = tpm.rcExclude.left;
-      }
-      else {
+      DWORD ex_style = GetWindowLongW(self._hwnd, GWL_EXSTYLE);
+      if(ex_style & WS_EX_LAYOUTRTL) {
         align = TPM_RIGHTALIGN;
         x = tpm.rcExclude.right;
+      }
+      else {
+        align = TPM_LEFTALIGN;
+        x = tpm.rcExclude.left;
       }
 
       DWORD cmd;
