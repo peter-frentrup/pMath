@@ -35,6 +35,7 @@ namespace richmath {
       
       virtual bool is_foreground_window() override;
       virtual bool is_focused_widget() override;
+      virtual bool is_using_dark_mode() override;
       virtual int dpi() override;
     
     protected:

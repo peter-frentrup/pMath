@@ -15,24 +15,17 @@ using namespace richmath;
 
 static const int SnapDistance = 4;
 
-class richmath::MathGtkWorkingArea: public MathGtkWidget {
+class MathGtkDocumentChildWidget: public MathGtkWidget {
     using base = MathGtkWidget;
     friend class MathGtkDocumentWindow;
   public:
-    MathGtkWorkingArea(MathGtkDocumentWindow *parent)
-      : MathGtkWidget(new Document()),
+    MathGtkDocumentChildWidget(MathGtkDocumentWindow *parent)
+      : base(new Document()),
         _parent(parent)
     {
     }
-    
+  
     MathGtkDocumentWindow *parent() { return _parent; }
-    
-    virtual void page_size(float *w, float *h) override {
-      MathGtkWidget::page_size(w, h);
-      
-      if(_parent->window_frame() != WindowFrameNormal)
-        *w = HUGE_VAL;
-    }
     
     virtual void bring_to_front() override {
       _parent->bring_to_front();
@@ -50,20 +43,6 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     
     virtual void running_state_changed() override {
       _parent->reset_title();
-    }
-    
-    int width() {
-      int h = (int)(document()->unfilled_width * scale_factor() + 0.5f);
-      if(h < 1)
-        return 1;
-      return h;
-    }
-    
-    int height() {
-      int h = (int)(document()->extents().height() * scale_factor() + 0.5f);
-      if(h < 1)
-        return 1;
-      return h;
     }
     
     virtual String directory() override { return _parent->directory(); }
@@ -84,15 +63,60 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
     virtual void on_saved() override { _parent->on_saved(); }
     
     virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    virtual bool is_using_dark_mode() override { return _parent->is_using_dark_mode(); }
+    
+  private:
+    MathGtkDocumentWindow *_parent;
+    
+  protected:
+    virtual void do_set_current_document() override {
+      set_current_document(_parent->document());
+    }
+};
+
+class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
+    using base = MathGtkDocumentChildWidget;
+    friend class MathGtkDocumentWindow;
+  public:
+    MathGtkWorkingArea(MathGtkDocumentWindow *parent)
+      : base(parent)
+    {
+    }
+    
+    virtual void page_size(float *w, float *h) override {
+      base::page_size(w, h);
+      
+      if(parent()->window_frame() != WindowFrameNormal)
+        *w = HUGE_VAL;
+    }
+    
+    int width() {
+      int h = (int)(document()->unfilled_width * scale_factor() + 0.5f);
+      if(h < 1)
+        return 1;
+      return h;
+    }
+    
+    int height() {
+      int h = (int)(document()->extents().height() * scale_factor() + 0.5f);
+      if(h < 1)
+        return 1;
+      return h;
+    }
     
   protected:
     virtual void paint_background(Canvas *canvas) override {
-      if(!_parent->is_palette())
-        MathGtkWidget::paint_background(canvas);
+      if(!parent()->is_palette())
+        base::paint_background(canvas);
+    }
+    
+    virtual void on_changed_dark_mode() override {
+      parent()->update_dark_mode();
+      base::on_changed_dark_mode();
     }
     
     void rearrange() {
-      if(_parent->window_frame() != WindowFrameNormal) {
+      if(parent()->window_frame() != WindowFrameNormal) {
         GtkAllocation rect;
         gtk_widget_get_allocation(_widget, &rect);
         
@@ -101,35 +125,27 @@ class richmath::MathGtkWorkingArea: public MathGtkWidget {
         if(h != rect.height || w != rect.width) {
           // GTK 3 shows the menu bar even if we said not to do so before,
           // so we say it again.
-          _parent->reset_window_frame();
+          parent()->reset_window_frame();
           
-          _parent->set_gravity();
+          parent()->set_gravity();
           gtk_widget_set_size_request(_widget, w, h);
         }
       }
     }
     
     virtual bool on_draw(cairo_t *cr) override {
-      bool result = MathGtkWidget::on_draw(cr);
+      bool result = base::on_draw(cr);
       rearrange();
       return result;
     }
-    
-    virtual void do_set_current_document() override {
-      set_current_document(_parent->document());
-    }
-    
-  private:
-    MathGtkDocumentWindow *_parent;
 };
 
-class richmath::MathGtkDock: public MathGtkWidget {
-    typedef MathGtkWidget base;
+class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
+    typedef MathGtkDocumentChildWidget base;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkDock(MathGtkDocumentWindow *parent)
-      : MathGtkWidget(new Document()),
-        _parent(parent)
+      : base(parent)
     {
     }
     
@@ -145,10 +161,8 @@ class richmath::MathGtkDock: public MathGtkWidget {
       document()->invalidate_all();
     }
     
-    MathGtkDocumentWindow *parent() { return _parent; }
-    
     virtual void page_size(float *w, float *h) override {
-      MathGtkWidget::page_size(w, h);
+      base::page_size(w, h);
       
       *w = HUGE_VAL;
     }
@@ -166,16 +180,7 @@ class richmath::MathGtkDock: public MathGtkWidget {
         gtk_widget_hide(_widget);
       }
       
-      MathGtkWidget::invalidate();
-    }
-    
-    virtual void bring_to_front() override {
-      _parent->bring_to_front();
-      gtk_widget_grab_focus(_widget);
-    }
-    
-    virtual void close() override {
-      _parent->close();
+      base::invalidate();
     }
     
     int height() {
@@ -189,34 +194,11 @@ class richmath::MathGtkDock: public MathGtkWidget {
       return (int)(document()->unfilled_width * scale_factor() + 0.5f);
     }
     
-    virtual void running_state_changed() override {
-      _parent->reset_title();
-    }
-    
-    virtual String directory() override { return _parent->directory(); }
-    virtual void directory(String new_directory) override { _parent->directory(new_directory); }
-    
-    virtual String filename() override { return _parent->filename(); }
-    virtual void filename(String new_filename) override { _parent->filename(new_filename); }
-    
-    virtual String full_filename() override { return _parent->full_filename(); }
-    virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }
-    
-    virtual String window_title() override { return _parent->title(); }
-    
-    virtual void on_idle_after_edit() override {
-      base::on_idle_after_edit();
-      _parent->on_idle_after_edit(this); 
-    }
-    virtual void on_saved() override {   _parent->on_saved(); }
-    
-    virtual Document *working_area_document() override { return _parent->working_area()->document(); }
-    
-    virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    virtual Document *working_area_document() override { return parent()->working_area()->document(); }
     
   protected:
     virtual void after_construction() override {
-      MathGtkWidget::after_construction();
+      base::after_construction();
       
       if(!document()->style)
         document()->style = new Style();
@@ -242,18 +224,13 @@ class richmath::MathGtkDock: public MathGtkWidget {
     }
     
     virtual bool on_draw(cairo_t *cr) override {
-      bool result = MathGtkWidget::on_draw(cr);
+      bool result = base::on_draw(cr);
       rearrange();
       return result;
     }
     
-    virtual void do_set_current_document() override {
-      set_current_document(_parent->document());
-    }
-    
   private:
-    MathGtkDocumentWindow *_parent;
-    Expr                   _content;
+    Expr  _content;
 };
 
 //{ class MathGtkDocumentWindow ...
@@ -276,7 +253,8 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _vscrollbar(nullptr),
     _table(nullptr),
     _window_frame(WindowFrameNormal),
-    _active(true)
+    _active(true),
+    _use_dark_mode(false)
 {
   _previous_rect.x = 0;
   _previous_rect.y = 0;
@@ -415,6 +393,10 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
 
   g_object_unref(_hadjustment);
   g_object_unref(_vadjustment);
+}
+
+void MathGtkDocumentWindow::update_dark_mode() {
+  _use_dark_mode = _working_area->has_dark_background();
 }
 
 void MathGtkDocumentWindow::invalidate_options() {

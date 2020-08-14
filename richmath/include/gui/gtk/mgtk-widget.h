@@ -71,6 +71,9 @@ namespace richmath {
       virtual void on_saved() override {}
       
       virtual bool is_focused_widget() override { return _focused; }
+      virtual bool is_using_dark_mode() override { return has_dark_background(); }
+      
+      bool has_dark_background() { return _has_dark_background; }
       
       GtkMenu *popup_menu();
       GtkAdjustment *hadjustment() { return _hadjustment; }
@@ -91,6 +94,7 @@ namespace richmath {
       bool mouse_moving : 1;
       bool is_blinking : 1;
       bool ignore_key_release : 1;
+      bool _has_dark_background : 1;
       ObservableValue<bool> _focused;
       
       int old_width;
@@ -198,6 +202,7 @@ namespace richmath {
       
       virtual void paint_background(Canvas *canvas);
       virtual void paint_canvas(Canvas *canvas, bool resize_only);
+      virtual void on_changed_dark_mode();
       virtual void handle_mouse_move(MouseEvent &event);
       
       virtual bool on_popup_menu(); 

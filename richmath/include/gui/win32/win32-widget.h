@@ -80,6 +80,7 @@ namespace richmath {
       virtual void on_saved() override {}
       
       virtual bool is_focused_widget() override { return _focused; }
+      virtual bool is_using_dark_mode() override { return has_dark_background(); }
       
     public:
       STDMETHODIMP DragEnter(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) override;

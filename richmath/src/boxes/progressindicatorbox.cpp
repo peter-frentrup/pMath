@@ -242,6 +242,15 @@ bool ProgressIndicatorBox::is_focused_widget() {
   return doc->native()->is_focused_widget();
 }
 
+bool ProgressIndicatorBox::is_using_dark_mode() {
+  Document *doc = find_parent<Document>(false);
+  if(!doc)
+    return false;
+  
+  AutoResetCurrentObserver guard;
+  return doc->native()->is_using_dark_mode();
+}
+
 int ProgressIndicatorBox::dpi() {
   Document *doc = find_parent<Document>(false);
   if(!doc)

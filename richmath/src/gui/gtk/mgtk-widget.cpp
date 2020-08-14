@@ -922,6 +922,11 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
     }
     else
       paint_background(canvas);
+    
+    bool old_has_dark_background = _has_dark_background;
+    _has_dark_background = color.is_dark();
+    if(old_has_dark_background != _has_dark_background)
+      on_changed_dark_mode();
   }
   
   canvas->scale(scale_factor(), scale_factor());
@@ -991,6 +996,9 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
                    nullptr);
     }
   }
+}
+
+void MathGtkWidget::on_changed_dark_mode() {
 }
 
 void MathGtkWidget::handle_mouse_move(MouseEvent &event) {

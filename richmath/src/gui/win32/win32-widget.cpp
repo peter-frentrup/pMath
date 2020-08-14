@@ -566,12 +566,10 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
     else
       paint_background(canvas);
     
-    if(Win32Themes::SetWindowTheme) {
-      bool old_has_dark_background = _has_dark_background;
-      _has_dark_background = color.is_dark();
-      if(old_has_dark_background != _has_dark_background)
-        on_changed_dark_mode();
-    }
+    bool old_has_dark_background = _has_dark_background;
+    _has_dark_background = color.is_dark();
+    if(old_has_dark_background != _has_dark_background)
+      on_changed_dark_mode();
   }
   
   canvas->scale(scale_factor(), scale_factor());
@@ -980,7 +978,7 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
   DWORD cmd;
   {
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
-    Win32Menu::use_dark_mode = has_dark_background();
+    Win32Menu::use_dark_mode = is_using_dark_mode();
     cmd = TrackPopupMenuEx(
             menu,
             flags,

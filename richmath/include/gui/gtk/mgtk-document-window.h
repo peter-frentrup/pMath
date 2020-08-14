@@ -39,6 +39,7 @@ namespace richmath {
       MathGtkDocumentWindow();
       virtual ~MathGtkDocumentWindow();
       
+      void update_dark_mode();
       void invalidate_options();
       
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
@@ -61,6 +62,7 @@ namespace richmath {
       
       virtual bool is_foreground_window() override { return _active; };
       virtual bool is_focused_widget() override { return _active; };
+      virtual bool is_using_dark_mode() override { return _use_dark_mode; }
       virtual int dpi() override;
       
       virtual void reset_title() override;
@@ -109,6 +111,7 @@ namespace richmath {
       
       WindowFrameType _window_frame;
       ObservableValue<bool> _active;
+      bool _use_dark_mode : 1;
   };
 }
 
