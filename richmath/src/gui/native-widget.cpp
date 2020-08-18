@@ -138,7 +138,8 @@ NativeWidget::NativeWidget(Document *doc)
   : FrontEndObject(),
     _custom_scale_factor(ScaleDefault),
     _dpi(96),
-    _document(0),
+    _document(nullptr),
+    _source_box(FrontEndReference::None),
     _owner_document(FrontEndReference::None),
     _stylesheet_document(FrontEndReference::None)
 {

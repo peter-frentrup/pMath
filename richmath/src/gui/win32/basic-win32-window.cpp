@@ -185,6 +185,7 @@ static Point to_relative_point(const RECT &frame, const POINT &point);
 static POINT to_absolute_point(const RECT &frame, const Point &point);
 
 static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi);
+static HBRUSH create_solid_brush_with_alpha(Color color, int alpha = 255);
 
 template <typename TLambda>
 void enum_thread_windows(TLambda callback) {
@@ -216,7 +217,8 @@ void enum_display_monitors(HDC hdc, LPCRECT lprcClip, TLambda callback) {
 }
 
 static bool use_custom_system_buttons() {
-  return Win32Themes::is_windows_10_or_newer();
+  //return Win32Themes::is_windows_10_or_newer();
+  return Win32Themes::use_win10_transparency();
 }
 
 static bool hit_test_is_system_button(int ht) {
@@ -826,7 +828,7 @@ void BasicWin32Window::on_theme_changed() {
         bb.dwFlags = Win32Themes::DWM_BB_ENABLE;
         bb.fEnable = TRUE;
         bb.dwFlags |= Win32Themes::DWM_BB_BLURREGION;
-        bb.hRgnBlur = CreateRectRgn(0,0, 1, 1);
+        bb.hRgnBlur = CreateRectRgn(0, 0, 1, 1);
         HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
       }
       
@@ -840,6 +842,17 @@ void BasicWin32Window::on_theme_changed() {
       if(is_window_visible_on_screen(_hwnd))
         _blur_behind_window->show();
       else
+        _blur_behind_window->hide();
+    }
+    else if(Win32Themes::is_windows_10_or_newer()) {
+      if(Win32Themes::DwmEnableBlurBehindWindow) {
+        Win32Themes::DWM_BLURBEHIND bb = {};
+        bb.dwFlags = Win32Themes::DWM_BB_ENABLE | Win32Themes::DWM_BB_BLURREGION;
+        bb.fEnable = TRUE;
+        HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
+      }
+      
+      if(_blur_behind_window)
         _blur_behind_window->hide();
     }
   }
@@ -912,10 +925,10 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
     }
   }
   else if(use_custom_system_buttons()) {
+    int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
     Win32Themes::MARGINS margins;
-    get_nc_margins(hwnd, &margins, Win32HighDpi::get_dpi_for_window(hwnd));
+    get_nc_margins(hwnd, &margins, dpi);
     if(WS_EX_TOOLWINDOW & GetWindowLongW(hwnd, GWL_EXSTYLE)) {
-      int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
       close->bottom = close->top + margins.cyTopHeight - Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
       close->top += Win32HighDpi::get_system_metrics_for_dpi(SM_CYFIXEDFRAME, dpi) +
                     Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
@@ -960,10 +973,10 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
     }
   }
   else if(use_custom_system_buttons()) {
+    int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
     Win32Themes::MARGINS margins;
-    get_nc_margins(hwnd, &margins, Win32HighDpi::get_dpi_for_window(hwnd));
+    get_nc_margins(hwnd, &margins, dpi);
     if(WS_EX_TOOLWINDOW & GetWindowLongW(hwnd, GWL_EXSTYLE)) {
-      int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
       rect->bottom = rect->top + margins.cyTopHeight - Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
       rect->top += Win32HighDpi::get_system_metrics_for_dpi(SM_CYFIXEDFRAME, dpi) +
                     Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
@@ -1041,11 +1054,13 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
 //    }
     if(Win32Themes::is_windows_10_or_newer()) {
       if(active) {
-        if(Color custom_color = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight) {
-          if(custom_color.is_light())
-            return 0x000000;
-          else
-            return 0xFFFFFF;
+        if(Win32Themes::use_win10_transparency()) {
+          if(Color custom_color = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight) {
+            if(custom_color.is_light())
+              return 0x000000;
+            else
+              return 0xFFFFFF;
+          }
         }
         
         Win32Themes::ColorizationInfo colorization;
@@ -1648,6 +1663,15 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
           EnumChildWindows(_hwnd, redraw_glass_callback, (LPARAM)&info);
         }
+        
+//        if(Win32Themes::DwmSetWindowAttribute) {
+//          DWORD policy = Win32Themes::DWMNCRP_ENABLED; 
+//          Win32Themes::DwmSetWindowAttribute(
+//            _hwnd, 
+//            Win32Themes::DWMWA_NCRENDERING_POLICY,
+//            &policy,
+//            sizeof(policy));
+//        }
 
         if(_themed_frame) {
           int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
@@ -1736,6 +1760,15 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           suggested_rect->bottom - suggested_rect->top,
           SWP_NOZORDER | SWP_NOACTIVATE);
       } break;
+      
+      case WM_SYSCOLORCHANGE: {
+          on_theme_changed();
+        } break;
+        
+      case WM_SETTINGCHANGE: {
+          // TODO(?): check if lParam == "ImmersiveColorSet"
+          on_theme_changed();
+        } break;
         
       case WM_THEMECHANGED:
       case WM_DWMCOMPOSITIONCHANGED: {
@@ -1747,12 +1780,22 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
       case WM_ERASEBKGND:
         return 1;
+        
+//      case WM_NCPAINT: {
+//          HDC hdc = GetDCEx(_hwnd, (HRGN)wParam, DCX_WINDOW|DCX_INTERSECTRGN);
+//          if(HBRUSH brush = create_solid_brush_with_alpha(Color::from_rgb24(0x00FF00), 255)) {
+//            RECT tmp_rect = {-5,0,30,30};
+//            
+//            FillRect(hdc, &tmp_rect, brush);
+//            
+//            DeleteObject(brush);
+//          }
+//          ReleaseDC(_hwnd, hdc);
+//          return 0;
+//        } break;
 
       case WM_PAINT: {
           if(_themed_frame) {
-            RECT client;
-            GetClientRect(_hwnd, &client);
-
             PAINTSTRUCT ps;
             HDC hdc = BeginPaint(_hwnd, &ps);
             Impl(*this).paint_themed(hdc);
@@ -2381,6 +2424,14 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
     //paint_themed_caption(hdc);
 
     cairo_surface_destroy(surface);
+    
+//    if(HBRUSH brush = create_solid_brush_with_alpha(Color::from_rgb24(0x808080), 255)) {
+//      RECT tmp_rect = {rect.left, 0, rect.right, 1};
+//      
+//      FillRect(hdc, &tmp_rect, brush);
+//      
+//      DeleteObject(brush);
+//    }
   }
   else {
   }
@@ -3299,4 +3350,23 @@ static void get_nc_margins(HWND hwnd, Win32Themes::MARGINS *margins, int dpi) {
   margins->cyTopHeight    = -frame.top;
   margins->cxRightWidth   = frame.right;
   margins->cyBottomHeight = frame.bottom;
+}
+
+static HBRUSH create_solid_brush_with_alpha(Color color, int alpha) {
+  // https://delphihaven.wordpress.com/2010/09/06/custom-drawing-on-glass-2/
+  BITMAPINFO bmi = {0};
+  bmi.bmiHeader.biSize = sizeof(bmi.bmiHeader);
+  bmi.bmiHeader.biWidth = 1;
+  bmi.bmiHeader.biHeight = 1;
+  bmi.bmiHeader.biPlanes = 1;
+  bmi.bmiHeader.biBitCount = 32;
+  bmi.bmiHeader.biCompression = BI_RGB;
+  
+  int rgb = color.to_rgb24();
+  bmi.bmiColors[0].rgbBlue  = (rgb & 0x0000FF);
+  bmi.bmiColors[0].rgbGreen = (rgb & 0x00FF00) >> 8;
+  bmi.bmiColors[0].rgbRed   = (rgb & 0xFF0000) >> 16;
+  bmi.bmiColors[0].rgbReserved = 0xFF & alpha;
+  
+  return CreateDIBPatternBrushPt(&bmi, DIB_RGB_COLORS);
 }

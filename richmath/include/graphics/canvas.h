@@ -9,11 +9,9 @@ namespace richmath {
   class Base;
   class Rectangle;
   
-  static const float SelectionAlpha               = 0.4f;
-  static const Color SelectionFillColor           = Color::from_rgb24(0x6699FF);
-  static const Color SelectionBorderColor         = Color::from_rgb24(0x0000FF);
-  static const Color InactiveSelectionFillColor   = Color::from_rgb24(0xA0A0A0);
-  static const Color InactiveSelectionBorderColor = Color::from_rgb24(0x000000);
+  static const float SelectionFillAlpha     = 0.333f;
+  static const Color SelectionColor         = Color::from_rgb24(0x6699FF); // TODO: use Highlight color for border and HotTrack color with alpha = 0x55 = 85 = 33.3%
+  static const Color InactiveSelectionColor = Color::from_rgb24(0x999999);
   
   class Canvas: public Base {
     public:

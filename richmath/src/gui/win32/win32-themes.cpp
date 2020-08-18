@@ -401,7 +401,20 @@ bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
   return result;
 }
 
+bool Win32Themes::use_high_contrast() {
+  HIGHCONTRASTW hc;
+  memset(&hc, 0, sizeof(hc));
+  hc.cbSize = sizeof(hc);
+  if(SystemParametersInfoW(SPI_GETHIGHCONTRAST, sizeof(hc), &hc, 0)) {
+    return (hc.dwFlags & HCF_HIGHCONTRASTON) != 0;
+  }
+  return false;
+}
+
 bool Win32Themes::use_win10_transparency() {
+  if(use_high_contrast())
+    return false;
+  
   // https://superuser.com/questions/1245923/registry-keys-to-change-personalization-settings
   if(!is_windows_10_or_newer())
     return false;

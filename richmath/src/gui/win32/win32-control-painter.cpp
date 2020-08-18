@@ -67,6 +67,23 @@ namespace {
   static Color get_sys_color(int index) {
     return Color::from_bgr24(GetSysColor(index));
   }
+  
+  static bool dark_mode_is_fake(ContainerType type) {
+    switch(type) {
+      case ProgressIndicatorBackground:
+      case SliderHorzChannel:
+      case PanelControl:
+      case TabHeadAbuttingRight:
+      case TabHeadAbuttingLeftRight:
+      case TabHeadAbuttingLeft:
+      case TabHead:
+      case TabHeadBackground:
+      case TabBodyBackground:
+        return true;
+      
+      default: return false;
+    }
+  }
 };
 
 static class Win32ControlPainterCache {
@@ -79,30 +96,60 @@ static class Win32ControlPainterCache {
     }
   
   public:
-    HANDLE addressband_theme(int dpi) {
+    HANDLE addressband_theme(int dpi, bool dark) {
       // TODO: ABComposited::ADRESSBAND
-      return get_theme_for_dpi(addressband_theme_for_dpi, L"AB::ADDRESSBAND", dpi);
+      if(dark)
+        return get_theme_for_dpi(dark_addressband_theme_for_dpi, L"DarkMode_ABComposited::ADDRESSBAND;ADDRESSBAND", dpi);
+      else
+        return get_theme_for_dpi(addressband_theme_for_dpi, L"AB::ADDRESSBAND;ADDRESSBAND", dpi);
     }
-    HANDLE addressband_edit_theme(int dpi) {
-      return get_theme_for_dpi(addressband_edit_theme_for_dpi, L"AddressComposited::Edit;Address::Edit;Edit", dpi);
+    HANDLE addressband_combobox_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_addressband_combobox_theme_for_dpi, L"DarkMode_AddressComposited::Combobox;AddressComposited::Combobox;Combobox", dpi);
+      else
+        return get_theme_for_dpi(addressband_combobox_theme_for_dpi, L"AddressComposited::Combobox;Combobox", dpi);
     }
-    HANDLE button_theme(int dpi) {
-      return get_theme_for_dpi(button_theme_for_dpi, L"BUTTON", dpi);
+    HANDLE addressband_edit_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_addressband_edit_theme_for_dpi, L"DarkMode_AddressComposited::Edit;AddressComposited::Edit;Edit", dpi);
+      else
+        return get_theme_for_dpi(addressband_edit_theme_for_dpi, L"AddressComposited::Edit;Edit", dpi);
     }
-    HANDLE edit_theme(int dpi) {
-      return get_theme_for_dpi(edit_theme_for_dpi, L"EDIT", dpi);
+    HANDLE button_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_button_theme_for_dpi, L"DarkMode_Explorer::BUTTON;BUTTON", dpi);
+      else
+        return get_theme_for_dpi(button_theme_for_dpi, L"BUTTON", dpi);
     }
-    HANDLE explorer_listview_theme(int dpi) {
-      return get_theme_for_dpi(explorer_listview_theme_for_dpi, L"Explorer::LISTVIEW;LISTVIEW", dpi);
+    HANDLE edit_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_edit_theme_for_dpi, L"DarkMode_CFD::EDIT;Explorer::EDIT;EDIT", dpi);
+      else
+        return get_theme_for_dpi(edit_theme_for_dpi, L"Explorer::EDIT;EDIT", dpi);
     }
-    HANDLE explorer_treeview_theme(int dpi) {
-      return get_theme_for_dpi(explorer_treeview_theme_for_dpi, L"Explorer::TREEVIEW;TREEVIEW", dpi);
+    HANDLE explorer_listview_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_explorer_listview_theme_for_dpi, L"DarkMode_ItemsView::LISTVIEW;LISTVIEW", dpi);
+      else
+        return get_theme_for_dpi(explorer_listview_theme_for_dpi, L"Explorer::LISTVIEW;LISTVIEW", dpi);
     }
-    HANDLE navigation_theme(int dpi) {
-      return get_theme_for_dpi(navigation_theme_for_dpi, L"Navigation", dpi);
+    HANDLE explorer_treeview_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_explorer_treeview_theme_for_dpi, L"DarkMode_Explorer::TREEVIEW;TREEVIEW", dpi);
+      else
+        return get_theme_for_dpi(explorer_treeview_theme_for_dpi, L"Explorer::TREEVIEW;TREEVIEW", dpi);
     }
-    HANDLE tooltip_theme(int dpi) {
-      return get_theme_for_dpi(tooltip_theme_for_dpi, L"TOOLTIP", dpi);
+    HANDLE navigation_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(navigation_theme_for_dpi, L"DarkMode::Navigation;Navigation", dpi);
+      else
+        return get_theme_for_dpi(navigation_theme_for_dpi, L"Navigation", dpi);
+    }
+    HANDLE tooltip_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_tooltip_theme_for_dpi, L"DarkMode_Explorer::TOOLTIP;TOOLTIP", dpi);
+      else
+        return get_theme_for_dpi(tooltip_theme_for_dpi, L"TOOLTIP", dpi);
     }
     HANDLE progress_theme(int dpi) {
       return get_theme_for_dpi(progress_theme_for_dpi, L"PROGRESS", dpi);
@@ -116,8 +163,11 @@ static class Win32ControlPainterCache {
     HANDLE tab_theme(int dpi) {
       return get_theme_for_dpi(tab_theme_for_dpi, L"TAB", dpi);
     }
-    HANDLE toolbar_theme(int dpi) {
-      return get_theme_for_dpi(toolbar_theme_for_dpi, L"TOOLBAR", dpi);
+    HANDLE toolbar_theme(int dpi, bool dark) {
+      if(dark)
+        return get_theme_for_dpi(dark_toolbar_theme_for_dpi, L"DarkMode::TOOLBAR;TOOLBAR", dpi);
+      else
+        return get_theme_for_dpi(toolbar_theme_for_dpi, L"TOOLBAR", dpi);
     }
     HANDLE toolbar_go_theme(int dpi) {
       // TODO: "GoComposited::TOOLBAR"
@@ -125,19 +175,30 @@ static class Win32ControlPainterCache {
     }
     
     void clear() {
-      close_themes(addressband_theme_for_dpi);
-      close_themes(addressband_edit_theme_for_dpi);
-      close_themes(button_theme_for_dpi);
-      close_themes(edit_theme_for_dpi);
-      close_themes(explorer_listview_theme_for_dpi);
-      close_themes(explorer_treeview_theme_for_dpi);
-      close_themes(navigation_theme_for_dpi);
-      close_themes(tooltip_theme_for_dpi);
+      close_themes(     addressband_theme_for_dpi);
+      close_themes(dark_addressband_theme_for_dpi);
+      close_themes(     addressband_combobox_theme_for_dpi);
+      close_themes(dark_addressband_combobox_theme_for_dpi);
+      close_themes(     addressband_edit_theme_for_dpi);
+      close_themes(dark_addressband_edit_theme_for_dpi);
+      close_themes(     button_theme_for_dpi);
+      close_themes(dark_button_theme_for_dpi);
+      close_themes(     edit_theme_for_dpi);
+      close_themes(dark_edit_theme_for_dpi);
+      close_themes(     explorer_listview_theme_for_dpi);
+      close_themes(dark_explorer_listview_theme_for_dpi);
+      close_themes(     explorer_treeview_theme_for_dpi);
+      close_themes(dark_explorer_treeview_theme_for_dpi);
+      close_themes(     navigation_theme_for_dpi);
+      close_themes(dark_navigation_theme_for_dpi);
+      close_themes(     tooltip_theme_for_dpi);
+      close_themes(dark_tooltip_theme_for_dpi);
       close_themes(progress_theme_for_dpi);
       close_themes(scrollbar_theme_for_dpi);
       close_themes(slider_theme_for_dpi);
       close_themes(tab_theme_for_dpi);
-      close_themes(toolbar_theme_for_dpi);
+      close_themes(     toolbar_theme_for_dpi);
+      close_themes(dark_toolbar_theme_for_dpi);
       close_themes(toolbar_go_theme_for_dpi);
     }
   
@@ -176,6 +237,7 @@ static class Win32ControlPainterCache {
   
   private:
     Hashtable<int, HANDLE> addressband_theme_for_dpi;
+    Hashtable<int, HANDLE> addressband_combobox_theme_for_dpi;
     Hashtable<int, HANDLE> addressband_edit_theme_for_dpi;
     Hashtable<int, HANDLE> button_theme_for_dpi;
     Hashtable<int, HANDLE> edit_theme_for_dpi;
@@ -189,6 +251,16 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> tab_theme_for_dpi;
     Hashtable<int, HANDLE> toolbar_theme_for_dpi;
     Hashtable<int, HANDLE> toolbar_go_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_addressband_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_addressband_combobox_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_addressband_edit_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_button_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_edit_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_explorer_listview_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_explorer_treeview_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_navigation_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_tooltip_theme_for_dpi;
+    Hashtable<int, HANDLE> dark_toolbar_theme_for_dpi;
 } w32cp_cache;
 
 Win32ControlPainter Win32ControlPainter::win32_painter;
@@ -438,11 +510,24 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
   if(is_very_transparent(context, type, state))
     return Color::None;
     
+  if(type == AddressBandBackground)
+    type = AddressBandInputField;
+  
   int theme_part, theme_state;
   HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
   
   if(theme && Win32Themes::GetThemeColor) {
     COLORREF col = 0;
+    
+    if(type == AddressBandInputField) {
+      theme = w32cp_cache.addressband_edit_theme(context->dpi(), context->is_using_dark_mode());
+      theme_part = 1; // EP_EDITTEXT
+      theme_state = 1; // ETS_NORMAL
+    }
+    else if(type == InputField) {
+      theme_part = 1; // EP_EDITTEXT
+      theme_state = 1; // ETS_NORMAL
+    }
     
     // TMT_TEXTCOLOR  = 3803
     // TMT_WINDOWTEXT  = 1609
@@ -454,6 +539,9 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
         SUCCEEDED(Win32Themes::GetThemeColor(
                     theme, theme_part, theme_state, 1619, &col)))
     {
+      if(dark_mode_is_fake(type) && context->is_using_dark_mode()) {
+        col = 0xFFFFFF & ~col;
+      }
       return Color::from_bgr24(col);
     }
     
@@ -475,12 +563,21 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
     case TabHeadAbuttingLeftRight:
     case TabHeadAbuttingLeft:
     case TabHead:
-    case TabBodyBackground:
-      return get_sys_color(COLOR_BTNTEXT);
-      
-    case AddressBandBackground:
-    case InputField:
+    case TabBodyBackground: {
+        if(dark_mode_is_fake(type) && context->is_using_dark_mode()) {
+          return Color::White;
+        }
+        return get_sys_color(COLOR_BTNTEXT);
+      } break;
+    
     case ListViewItem:
+      if(state == Normal)
+        return Color::None;
+      else
+        return get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+    
+    case AddressBandInputField: // AddressBandBackground
+    case InputField:
       return get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
     case ListViewItemSelected:
@@ -511,6 +608,9 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
     case GenericButton:
     case AddressBandInputField:
       return ControlPainter::is_very_transparent(context, type, state);
+    
+    case ListViewItem:
+      return state == Normal;
       
     case PaletteButton:
     case AddressBandGoButton: {
@@ -522,9 +622,7 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
         
         // TMT_TRANSPARENT = 2201
         BOOL value;
-        if(theme && SUCCEEDED(Win32Themes::GetThemeBool(
-                                theme, theme_part, theme_state, 2201, &value))
-          ) {
+        if(theme && SUCCEEDED(Win32Themes::GetThemeBool(theme, theme_part, theme_state, 2201, &value))) {
           return value;
         }
       } break;
@@ -579,8 +677,13 @@ void Win32ControlPainter::draw_container(
         context, canvas, type, state, x, y, width, height);
       return;
       
+    case ListViewItem:
+      if(state == Normal)
+        return;
+      break;
+    
     case AddressBandInputField:
-      if(state == ControlState::Normal || state == ControlState::Hovered)
+      if(state == Normal || state == Hovered)
         return;
       break;
     
@@ -648,6 +751,8 @@ void Win32ControlPainter::draw_container(
   if(width <= 0 || height <= 0)
     return;
   
+  Win32Themes::MARGINS margins = {0};
+  
   if(canvas->pixel_device) {
     canvas->user_to_device_dist(&width, &height);
     width  = floor(width  + 0.5);
@@ -693,6 +798,7 @@ void Win32ControlPainter::draw_container(
   if( Win32Themes::OpenThemeData && 
       Win32Themes::CloseThemeData && 
       Win32Themes::DrawThemeBackground &&
+      Win32Themes::GetThemeBool &&
       Win32Themes::GetThemeMargins &&
       Win32Themes::GetThemePartSize) 
   {
@@ -863,20 +969,18 @@ void Win32ControlPainter::draw_container(
       FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
     }
     
+    // 3601 = TMT_SIZINGMARGINS
+    if(FAILED(Win32Themes::GetThemeMargins(theme, dc, _part, _state, 3601, nullptr, &margins))) {
+      margins = {0};
+    }
+    
     switch(type) {
       case TabHeadBackground: {
-          Win32Themes::MARGINS mar;
-          // 3601 = TMT_SIZINGMARGINS
-          if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, dc, _part, _state, 3601, nullptr, &mar))) {
-            rect.top = rect.bottom - mar.cyTopHeight;
-            rect.bottom+= mar.cyBottomHeight;
-          }
+          rect.top = rect.bottom - margins.cyTopHeight;
+          rect.bottom+= margins.cyBottomHeight;
         } break;
       case TabBodyBackground: {
-          Win32Themes::MARGINS mar;
-          // 3601 = TMT_SIZINGMARGINS
-          if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, dc, _part, _state, 3601, nullptr, &mar)))
-            rect.top-= mar.cyTopHeight;
+          rect.top-= margins.cyTopHeight;
         } break;
     }
     
@@ -887,7 +991,7 @@ void Win32ControlPainter::draw_container(
       _state,
       &rect,
       &clip);
-      
+    
     if(two_times) {
       Win32Themes::DrawThemeBackground(
         theme,
@@ -1247,6 +1351,20 @@ void Win32ControlPainter::draw_container(
   }
   else {
     cairo_surface_mark_dirty(cairo_get_target(canvas->cairo()));
+  }
+  
+  if(dark_mode_is_fake(type) && context->is_using_dark_mode()) {
+    double inv_x_scale = x_scale > 0 ? 1.0/x_scale : 1.0;
+    double inv_y_scale = y_scale > 0 ? 1.0/y_scale : 1.0;
+    canvas->pixrect(
+      x          , // + inv_x_scale * margins.cxLeftWidth,
+      y          , // + inv_y_scale * margins.cyTopHeight,
+      x + width  , // - inv_x_scale * margins.cxRightWidth,
+      y + height , // - inv_y_scale * margins.cyBottomHeight,
+      false);
+    
+    canvas->set_color(Color::Black, 0.667);
+    canvas->fill();
   }
   
   if(need_vector_overlay) {
@@ -1953,23 +2071,23 @@ HANDLE Win32ControlPainter::get_control_theme(
     case CheckboxIndeterminate:
     case RadioButtonUnchecked:
     case RadioButtonChecked: 
-      theme = w32cp_cache.button_theme(context->dpi());
+      theme = w32cp_cache.button_theme(context->dpi(), context->is_using_dark_mode());
       break;
       
     case PaletteButton: 
-      theme = w32cp_cache.toolbar_theme(context->dpi());
+      theme = w32cp_cache.toolbar_theme(context->dpi(), context->is_using_dark_mode());
       break;
       
     case InputField: 
-      theme = w32cp_cache.edit_theme(context->dpi());
+      theme = w32cp_cache.edit_theme(context->dpi(), context->is_using_dark_mode());
       break;
     
     case AddressBandBackground:
-      theme = w32cp_cache.addressband_theme(context->dpi());
+      theme = w32cp_cache.addressband_theme(context->dpi(), context->is_using_dark_mode());
       break;
       
     case AddressBandInputField: 
-      theme = w32cp_cache.addressband_edit_theme(context->dpi());
+      theme = w32cp_cache.addressband_combobox_theme(context->dpi(), context->is_using_dark_mode());
       break;
       
     case AddressBandGoButton:
@@ -1978,12 +2096,12 @@ HANDLE Win32ControlPainter::get_control_theme(
       
     case ListViewItem:
     case ListViewItemSelected:
-      theme = w32cp_cache.explorer_listview_theme(context->dpi());
+      theme = w32cp_cache.explorer_listview_theme(context->dpi(), context->is_using_dark_mode());
       break;
     
     case OpenerTriangleClosed:
     case OpenerTriangleOpened:
-      theme = w32cp_cache.explorer_treeview_theme(context->dpi());
+      theme = w32cp_cache.explorer_treeview_theme(context->dpi(), context->is_using_dark_mode());
       break;
       
     case PanelControl:
@@ -2007,12 +2125,12 @@ HANDLE Win32ControlPainter::get_control_theme(
       break;
       
     case TooltipWindow: 
-      theme = w32cp_cache.tooltip_theme(context->dpi());
+      theme = w32cp_cache.tooltip_theme(context->dpi(), context->is_using_dark_mode());
       break;
       
     case NavigationBack: 
     case NavigationForward: 
-      theme = w32cp_cache.navigation_theme(context->dpi());
+      theme = w32cp_cache.navigation_theme(context->dpi(), context->is_using_dark_mode());
       break;
     
     default: return nullptr;
@@ -2070,7 +2188,19 @@ HANDLE Win32ControlPainter::get_control_theme(
         }
       } break;
       
-    case AddressBandInputField:
+    case AddressBandInputField: {
+        *theme_part = 4;//CP_BORDER
+        
+        switch(state) {
+          case Normal:         *theme_state = 1; break;
+          case Hot:
+          case Hovered:        *theme_state = 2; break;
+          case Pressed:
+          case PressedHovered: *theme_state = 3; break; // = focused
+          case Disabled:       *theme_state = 4; break;
+        }
+      } break;
+      
     case InputField: {
         *theme_part = 6;//EP_EDITBORDER_NOSCROLL
         

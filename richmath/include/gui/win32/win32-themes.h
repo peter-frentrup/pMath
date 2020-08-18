@@ -39,6 +39,13 @@ namespace richmath {
         UINT32 uiDenominator;
       } UNSIGNED_RATIO;
       
+      enum DWMNCRENDERINGPOLICY {
+        DWMNCRP_USEWINDOWSTYLE,
+        DWMNCRP_DISABLED,
+        DWMNCRP_ENABLED,
+        DWMNCRP_LAST
+      };
+      
       enum DWMWINDOWATTRIBUTE {
         DWMWA_NCRENDERING_ENABLED = 1,
         DWMWA_NCRENDERING_POLICY = 2,
@@ -366,6 +373,7 @@ namespace richmath {
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
       static bool try_read_win10_colorization(ColorizationInfo *info);
+      static bool use_high_contrast();
       static bool use_win10_transparency();
       static void try_set_dark_mode_frame(HWND hwnd, bool dark_mode);
       

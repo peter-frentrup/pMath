@@ -24,16 +24,16 @@ Context::Context()
     cursor_color(Color::Black),
     syntax(GeneralSyntaxInfo::std),
     multiplication_sign(0x00D7),
+    script_indent(0),
+    script_size_min(5),
+    mouseover_box_id(FrontEndReference::None),
+    clicked_box_id(FrontEndReference::None),
     show_auto_styles(true),
     show_string_characters(true),
     math_spacing(true),
     smaller_fraction_parts(false),
     single_letter_italics(true),
     boxchar_fallback_enabled(true),
-    script_indent(0),
-    script_size_min(5),
-    mouseover_box_id(FrontEndReference::None),
-    clicked_box_id(FrontEndReference::None),
     active(true)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -112,22 +112,19 @@ void Context::draw_selection_path() {
       canvas->new_path();
   }
   else {
-    cairo_push_group(canvas->cairo());
+    canvas->save();
     {
-      canvas->save();
-      {
-        canvas->reset_matrix();
-        cairo_set_line_width(canvas->cairo(), 2.0);
-        canvas->set_color(active ? SelectionBorderColor : InactiveSelectionBorderColor);
-        canvas->stroke_preserve();
-      }
-      canvas->restore();
+      canvas->clip_preserve();
       
-      canvas->set_color(active ? SelectionFillColor : InactiveSelectionFillColor); //ControlPainter::std->selection_color()
-      canvas->fill();
+      canvas->set_color(active ? SelectionColor : InactiveSelectionColor, SelectionFillAlpha); //ControlPainter::std->selection_color()
+      canvas->paint();
+      
+      canvas->reset_matrix();
+      cairo_set_line_width(canvas->cairo(), 2.0);
+      canvas->set_color(active ? SelectionColor : InactiveSelectionColor);
+      canvas->stroke();
     }
-    cairo_pop_group_to_source(canvas->cairo());
-    canvas->paint_with_alpha(SelectionAlpha);
+    canvas->restore();
   }
 }
 

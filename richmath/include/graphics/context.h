@@ -70,13 +70,6 @@ namespace richmath {
       
       uint16_t multiplication_sign;
       
-      bool show_auto_styles;
-      bool show_string_characters;
-      bool math_spacing;
-      bool smaller_fraction_parts;
-      bool single_letter_italics;
-      bool boxchar_fallback_enabled;
-      
       int          script_indent;
       float        script_size_min;
       Array<float> script_size_multis;
@@ -86,7 +79,14 @@ namespace richmath {
       FrontEndReference mouseover_box_id;
       FrontEndReference clicked_box_id;
       
-      bool active;
+      bool show_auto_styles : 1;
+      bool show_string_characters : 1;
+      bool math_spacing : 1;
+      bool smaller_fraction_parts : 1;
+      bool single_letter_italics : 1;
+      bool boxchar_fallback_enabled : 1;
+      
+      bool active : 1;
   };
   
   class ContextState {
@@ -113,11 +113,11 @@ namespace richmath {
       float                 old_width;
       SharedPtr<MathShaper> old_math_shaper;
       SharedPtr<TextShaper> old_text_shaper;
-      bool                  old_math_spacing;
-      bool                  old_show_auto_styles;
-      bool                  old_show_string_characters;
       
-      bool                  have_font_feature_set;
+      bool                  old_math_spacing : 1;
+      bool                  old_show_auto_styles : 1;
+      bool                  old_show_string_characters : 1;
+      bool                  have_font_feature_set : 1;
       
       // not always set:
       cairo_antialias_t     old_antialiasing;

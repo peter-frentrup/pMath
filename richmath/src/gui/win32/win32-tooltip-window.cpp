@@ -47,6 +47,7 @@ void Win32TooltipWindow::after_construction() {
   
   if(!document()->style)
     document()->style = new Style;
+  
   document()->style->set(Editable,            false);
   document()->style->set(Selectable,          AutoBoolFalse);
   document()->style->set(ShowSectionBracket,  AutoBoolFalse);
@@ -102,6 +103,30 @@ void Win32TooltipWindow::delete_global_tooltip() {
 void Win32TooltipWindow::page_size(float *w, float *h) {
   Win32Widget::page_size(w, h);
   *w = HUGE_VAL;
+}
+
+bool Win32TooltipWindow::is_using_dark_mode() {
+  static int recursion = 0;
+  
+  for(Box *src = source_box(); src; src = src->parent()) {
+    ControlContext *ctx = dynamic_cast<ControlContext*>(src);
+    if(!ctx) {
+      if(Document *doc = dynamic_cast<Document*>(src))
+        ctx = doc->native();
+    }
+    
+    if(ctx) {
+      bool result = false;
+      if(recursion < 2) {
+        ++recursion;
+        result = ctx->is_using_dark_mode();
+        --recursion;
+      }
+      return result;
+    }
+  }
+  
+  return false;
 }
 
 int Win32TooltipWindow::dpi() {
