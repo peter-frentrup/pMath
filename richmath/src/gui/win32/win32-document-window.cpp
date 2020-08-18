@@ -782,7 +782,7 @@ bool Win32DocumentWindow::is_all_glass() {
 }
 
 void Win32DocumentWindow::update_dark_mode() {
-  bool dark_mode = _working_area->has_dark_background();
+  bool dark_mode = _working_area->has_dark_background() && !Win32Themes::use_high_contrast();
   use_dark_mode(dark_mode);
   menubar->use_dark_mode(dark_mode);
 }
