@@ -8,9 +8,11 @@
 
 #if __cplusplus >= 201103L
 #  define PMATH_CPP_USE_RVALUE_REF
+#  define PMATH_CPP_SPECIALIZE_STD_HASH
 #elif defined(_MSC_VER)
 #  if _MSC_VER >= 1600 /* MSVC++ 2010 */
 #    define PMATH_CPP_USE_RVALUE_REF
+#    define PMATH_CPP_SPECIALIZE_STD_HASH
 #  endif
 #endif
 
@@ -1907,6 +1909,24 @@ namespace pmath {
     return Expr(pmath_deserialize(file.get(), error));
   }
 };
+
+
+#ifdef PMATH_CPP_SPECIALIZE_STD_HASH
+
+#include <functional>
+#define PMATH_DEFINE_STD_HASH_VIA_MEMBER(CLASS) \
+  namespace std {                               \
+    template<> struct hash<CLASS> {             \
+      size_t operator()(const CLASS &obj) {     \
+        return obj.hash();                      \
+      }                                         \
+    };                                          \
+  }
+
+PMATH_DEFINE_STD_HASH_VIA_MEMBER(pmath::Expr)
+PMATH_DEFINE_STD_HASH_VIA_MEMBER(pmath::String)
+
+#endif
 
 /* @} */
 
