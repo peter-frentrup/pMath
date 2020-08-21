@@ -136,8 +136,6 @@ PMATH_PRIVATE pmath_t eval_System_FileInformation(pmath_expr_t expr) {
       struct stat buf;
 
       if(stat(str, &buf) == 0) {
-        pmath_mem_free(str);
-        
         fullname = pmath_ref(name);
         
         bytecount = pmath_integer_new_data(1, -1, sizeof(off_t), 0, 0, &buf.st_size);
