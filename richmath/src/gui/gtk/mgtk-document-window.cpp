@@ -105,11 +105,6 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
     }
     
   protected:
-    virtual void paint_background(Canvas *canvas) override {
-      if(!parent()->is_palette())
-        base::paint_background(canvas);
-    }
-    
     virtual void on_changed_dark_mode() override {
       parent()->update_dark_mode();
       base::on_changed_dark_mode();
@@ -208,9 +203,6 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
       document()->style->set(ShowSectionBracket, AutoBoolFalse);
       
       document()->select(0, 0, 0);
-    }
-    
-    virtual void paint_background(Canvas *canvas) override {
     }
     
     void rearrange() {

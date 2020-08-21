@@ -72,6 +72,7 @@ namespace richmath {
       WindowFrameType         _window_frame;
       
     protected:
+      virtual void use_dark_mode(bool dark_mode) override;
       virtual void on_close() override;
       virtual void on_theme_changed() override;
       void on_setting_changed();

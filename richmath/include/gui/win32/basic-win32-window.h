@@ -72,14 +72,14 @@ namespace richmath {
       // All windows with zorder_level = i are always in front of all
       // windows with zorder_level < i.
       // Snap affinity is also guided by zorder_level: a window carries any
-      // bordering window whit a higher zorder_level when moved.
+      // bordering window with a higher zorder_level when moved.
       int zorder_level() { return _zorder_level; }
       
       virtual bool is_foreground_window() override { return _active; }
       virtual bool is_focused_widget() override { return _active; }
       virtual int dpi() override;
       
-      bool is_using_dark_mode() { return _use_dark_mode; }
+      virtual bool is_using_dark_mode() override { return _use_dark_mode; }
       
     protected:
       int min_client_height;
@@ -92,7 +92,7 @@ namespace richmath {
       AutoCairoSurface background_image;
       
     protected:
-      void use_dark_mode(bool dark_mode);
+      virtual void use_dark_mode(bool dark_mode);
       
       virtual void on_sizing(WPARAM wParam, RECT *lParam);
       virtual void on_moving(RECT *lParam);

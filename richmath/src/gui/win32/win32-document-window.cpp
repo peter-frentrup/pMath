@@ -94,6 +94,10 @@ class Win32DocumentChildWidget: public Win32Widget {
       set_current_document(_parent->document());
     }
     
+    virtual void paint_background(Canvas *canvas) override {
+      parent()->paint_background_at(canvas, _hwnd);
+    }
+    
 };
 
 class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
@@ -162,16 +166,6 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
         return;
         
       base::set_cursor(type);
-    }
-    
-    virtual void paint_background(Canvas *canvas) override {
-      if((auto_size && document()->count() == 0) || parent()->window_frame() != WindowFrameNormal) {
-        parent()->paint_background_at(canvas, _hwnd);
-      }
-      else {
-        canvas->set_color(Color::White);
-        canvas->paint();
-      }
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
@@ -379,7 +373,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         document()->style->set(FontColor, color);
       }
       
-      parent()->paint_background_at(canvas, _hwnd);
+      base::paint_background(canvas);
     }
     
     virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
@@ -784,6 +778,11 @@ bool Win32DocumentWindow::is_all_glass() {
 void Win32DocumentWindow::update_dark_mode() {
   bool dark_mode = _working_area->has_dark_background() && !Win32Themes::use_high_contrast();
   use_dark_mode(dark_mode);
+}
+
+void Win32DocumentWindow::use_dark_mode(bool dark_mode) {
+  base::use_dark_mode(dark_mode);
+  
   menubar->use_dark_mode(dark_mode);
 }
 

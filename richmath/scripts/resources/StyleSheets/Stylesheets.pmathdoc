@@ -11,7 +11,8 @@ Document({
            Section({DynamicBox(ToBoxes(CurrentValue("DocumentFileName"))), 
              " Stylesheet"}, "Docked", SectionFrame -> {Inherited, {
               Inherited, 0.5`}})}}, FontFeatures -> {"ssty" -> Automatic}, 
-         Magnification -> 1, Visible -> True, WindowFrame -> "Normal")}, All), 
+         Magnification -> 1, Visible -> True, WindowFrame -> "Normal", 
+         Background -> GrayLevel(0.94999999999999996`))}, All), 
       SectionGroup({Section(BoxData({"Section", " ", "styles"}), "Section"), 
         Section(StyleData("Text"), FontFamily -> {"Georgia", "Constantia", 
           "Times New Roman"}, SectionMargins -> {3, Inherited, 7, 7}, 

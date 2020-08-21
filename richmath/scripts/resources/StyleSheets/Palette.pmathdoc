@@ -1,0 +1,13 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
+    SectionGroup({Section("Palette stylesheet", "Title"), 
+      Section(
+       "This file contains default style definitions to apply to palette \
+       windows.", "Text"), 
+      SectionGroup({Section("Document styles", "Section"), 
+        Section(StyleData("Document"), Background -> None, 
+         FontColor -> Automatic, Saveable -> False, Selectable -> False, 
+         ShowSectionBracket -> False, WindowFrame -> "Palette")}, All)}, 
+     All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)

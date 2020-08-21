@@ -6,6 +6,9 @@ Document({
       Section(
        "This file contains default style definitions to apply to new \
        documents.", "Text"), 
+      SectionGroup({Section("Document styles", "Section"), 
+        Section(StyleData("Document"), Background -> GrayLevel(1), 
+         FontColor -> GrayLevel(0))}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         SectionGroup({Section("Formulas", "Subsection"), 
           Section(StyleData("DisplayFormula"), AutoNumberFormating -> False, 

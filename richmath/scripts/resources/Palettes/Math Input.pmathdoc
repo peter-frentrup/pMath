@@ -195,11 +195,9 @@ Document({
           "\[Placeholder]")), "\"Ctrl+7\""), 
        TooltipBox(ButtonBox(UnderoverscriptBox("\[SelectionPlaceholder]", 
           "\[Placeholder]", "\[Placeholder]")), "\"Ctrl+4, Ctrl+5\"")}})), 
-   "Input", ButtonBoxOptions -> {ButtonFunction -> (DocumentApply(
-     SelectedDocument(), #1) &), ButtonFrame -> "Palette"}, FontSize -> 9, 
-   GridBoxColumnSpacing -> 0.10000000149011612`, 
+   "Input", ButtonBoxOptions -> {ButtonFrame -> "Palette", 
+    ButtonFunction -> (DocumentApply(SelectedDocument(), #1) &)}, 
+   FontSize -> 9, GridBoxColumnSpacing -> 0.10000000149011612`, 
    GridBoxRowSpacing -> 0.10000000149011612`, 
-   SectionMargins -> {0, 0, 0, 0})}, Editable -> False, Saveable -> True, 
- Selectable -> False, ShowSectionBracket -> False, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True, 
- WindowFrame -> "Palette", WindowTitle -> "Math Input")
+   SectionMargins -> {0, 0, 0, 0})}, StyleDefinitions -> "Palette.pmathdoc", 
+ Visible -> True, WindowTitle -> "Math Input")
