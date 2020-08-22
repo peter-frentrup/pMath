@@ -23,6 +23,7 @@ namespace richmath {
   } MenuAppearence;
   
   class Win32Menubar: public Base {
+      class Impl;
     protected:
       ~Win32Menubar();
       

@@ -2000,9 +2000,10 @@ void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       
     int _state;
     switch(state) {
-      case Hovered: _state = 2; break;
-      case Pressed: _state = 3; break;
-      default: _state = 1;
+      case Hovered:        _state = 2; break;
+      case Pressed:        _state = 3; break;
+      case PressedHovered: _state = 3; break;
+      default:             _state = 1; break;
     }
     
     Win32Themes::DrawThemeBackground(
@@ -2023,9 +2024,10 @@ FALLBACK:
   
   UINT edge;
   switch(state) {
-    case Hovered: edge = BDR_RAISEDINNER; break;
-    case Pressed: edge = BDR_SUNKENOUTER; break;
-    default:      edge = 0; break;
+    case Hovered:        edge = BDR_RAISEDINNER; break;
+    case Pressed:        edge = BDR_SUNKENOUTER; break;
+    case PressedHovered: edge = BDR_SUNKENOUTER; break;
+    default:             edge = 0; break;
   }
   RECT edge_rect = *rect;
   edge_rect.bottom-= 1;

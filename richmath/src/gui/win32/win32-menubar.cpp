@@ -33,12 +33,22 @@
 #ifdef max
 #  undef max
 #endif
+#ifdef min
+#  undef min
+#endif
+
 
 using namespace richmath;
 
-
-//extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
-
+class Win32Menubar::Impl {
+  public:
+    Impl(Win32Menubar &self) : self(self) {}
+    
+    bool try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF color, ControlState state);
+    
+  private:
+    Win32Menubar &self;
+};
 
 static Win32Menubar *current_menubar = nullptr;
 
@@ -109,7 +119,6 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   SendMessageW(_hwnd, TB_BUTTONSTRUCTSIZE, (WPARAM)sizeof(TBBUTTON), 0);
   
   dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
-  reload_image_list();
   
   _num_items = _menu.is_valid() ? GetMenuItemCount(_menu->hmenu()) : 0;
   _visible_items = _num_items;
@@ -155,7 +164,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   buttons[pin_index()].iBitmap = 0;
   buttons[pin_index()].idCommand = pin_index() + 1;
   buttons[pin_index()].fsState = TBSTATE_ENABLED;
-  buttons[pin_index()].fsStyle = BTNS_AUTOSIZE | BTNS_BUTTON | BTNS_CHECK;
+  buttons[pin_index()].fsStyle = BTNS_BUTTON | BTNS_CHECK;
   buttons[pin_index()].dwData = 0;
   buttons[pin_index()].iString = (INT_PTR)L"";
   
@@ -163,6 +172,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
                (WPARAM)buttons.length(),
                (LPARAM)buttons.items());
   
+  reload_image_list();
   theme_changed();
 }
 
@@ -197,6 +207,13 @@ void Win32Menubar::reload_image_list() {
   HBITMAP hbmp = LoadBitmapW((HINSTANCE)GetModuleHandle(nullptr), MAKEINTRESOURCEW(BMP_PIN16 + index));
   ImageList_AddMasked(image_list, hbmp, RGB(0xFF, 0, 0xFF));
   DeleteObject(hbmp);
+  
+  TBBUTTONINFOW info = {0};
+  info.cbSize = sizeof(info);
+  info.dwMask = TBIF_BYINDEX | TBIF_SIZE;
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index(), (LPARAM)&info);
+  info.cx = MulDiv(16 + 4, dpi, 96);//best_size;
+  SendMessageW(_hwnd, TB_SETBUTTONINFOW, pin_index(), (LPARAM)&info);
   
   SendMessageW(_hwnd, TB_SETIMAGELIST, 0, (LPARAM)image_list);
 }
@@ -826,10 +843,12 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         
                         SendMessageW(_hwnd, TB_GETBUTTONINFOW, (int)draw->nmcd.dwItemSpec, (LPARAM)&info);
                         
-                        if(info.fsState & TBSTATE_CHECKED) 
-                          state = Pressed;
-                        else if(draw->nmcd.uItemState & CDIS_CHECKED)
-                          state = Pressed;
+                        if((info.fsState & TBSTATE_CHECKED) || (draw->nmcd.uItemState & CDIS_CHECKED)) {
+                          if(hot_tracking && (int)draw->nmcd.dwItemSpec == hot_item)
+                            state = PressedHovered;
+                          else
+                            state = Pressed;
+                        }
                         else if(hot_tracking && (int)draw->nmcd.dwItemSpec == hot_item)
                           state = Hovered; // Hot
                       }
@@ -851,6 +870,11 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                       
                       if(_use_dark_mode) {
                         draw->clrText = 0xFFFFFFu & (~draw->clrText);
+                      }
+                      
+                      if((int)draw->nmcd.dwItemSpec == pin_index() + 1) {
+                        if(Impl(*this).try_draw_pin_icon(draw->nmcd.hdc, draw->nmcd.rc, draw->clrText, state))
+                          *result = CDRF_SKIPDEFAULT;
                       }
                     } return true;
                 }
@@ -974,3 +998,72 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
 }
 
 //} ... class Win32Menubar
+
+//{ class Win32Menubar::Impl ...
+
+bool Win32Menubar::Impl::try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF color, ControlState state) {
+  if(!Win32Themes::is_windows_10_or_newer()) 
+    return false; // Need Segoe MDL2 Assets font
+  
+  if( Win32Themes::OpenThemeData && 
+      Win32Themes::CloseThemeData && 
+      Win32Themes::DrawThemeTextEx) 
+  {
+    if(HANDLE theme = Win32Themes::OpenThemeData(self.hwnd(), L"MENU")) {
+      Win32Themes::DTTOPTS dtt_opts;
+      memset(&dtt_opts, 0, sizeof(dtt_opts));
+      dtt_opts.dwSize    = sizeof(dtt_opts);
+      dtt_opts.dwFlags   = DTT_COMPOSITED | DTT_TEXTCOLOR;
+      dtt_opts.crText    = color;
+      
+      HFONT font = CreateFontW(
+        std::min(
+          MulDiv(12, self.dpi, 96),
+          (int)std::min(rect.right  - rect.left, rect.bottom - rect.top)),
+        0,
+        0,
+        0,
+        FW_NORMAL,
+        FALSE,
+        FALSE,
+        FALSE,
+        DEFAULT_CHARSET,
+        OUT_DEFAULT_PRECIS,
+        CLIP_DEFAULT_PRECIS,
+        DEFAULT_QUALITY,
+        DEFAULT_PITCH | FF_DONTCARE,
+        L"Segoe MDL2 Assets");
+      HFONT old_font = (HFONT)SelectObject(hdc, font);
+      
+      static const wchar_t PinSymbol[] = L"\xE718";
+      static const wchar_t PinnedSymbol[] = L"\xE840";
+      static const wchar_t UnpinSymbol[] = L"\xE77A";
+      
+      const wchar_t *symbol;
+      switch(state) {
+        case Pressed:        symbol = PinnedSymbol; break;
+        case PressedHovered: symbol = UnpinSymbol; break;
+        default:             symbol = PinSymbol; break;
+      }
+      
+      Win32Themes::DrawThemeTextEx(
+        theme,
+        hdc,
+        0, 0,
+        symbol,
+        -1,
+        DT_VCENTER | DT_CENTER | DT_SINGLELINE,
+        (RECT*)&rect,
+        &dtt_opts);
+      
+      SelectObject(hdc, old_font);
+      DeleteObject(font);
+      Win32Themes::CloseThemeData(theme);
+      return true;
+    }
+  }
+  
+  return false;
+}
+
+//} ... class Win32Menubar::Impl
