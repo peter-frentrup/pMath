@@ -1,4 +1,4 @@
-/* pMath Document */
+﻿/* pMath Document */
 
 Document({
   SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
@@ -6,7 +6,8 @@ Document({
       Section(
        "This file contains default style definitions to apply to documentation \
        pages.", "Text"), SectionGroup({Section("Document styles", "Section"), 
-        Section(StyleData("Document"), Saveable -> False)}, All), 
+        Section(StyleData("Document"), Saveable -> False, 
+         Background -> GrayLevel(1), FontColor -> GrayLevel(0))}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Output"), SectionLabel -> "out:")}, All), 
       SectionGroup({Section(StyleData("ObjectName"), BaseStyle -> "Section", 
@@ -103,7 +104,7 @@ Document({
                 FE`Private`sym::"usage"))), Selectable -> True) &)}), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
             Section(StyleData("ReferenceHyperlink"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+             TemplateBoxOptions :> {DisplayFunction -> (StyleBox(
                ComplexStringBox({
                  "\"", ButtonBox(#1, ButtonFunction -> (With({
                     FE`Private`file:= 
