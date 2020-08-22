@@ -40,6 +40,10 @@
 #  include <gui/gtk/mgtk-tooltip-window.h>
 #endif
 
+#ifdef RICHMATH_USE_FT_FONT
+#  include <cairo-ft.h>
+#endif
+
 #include <gui/document.h>
 
 #include <resources.h>
@@ -415,6 +419,10 @@ int main(int argc, char **argv) {
 #  endif
   printf("cairo version: %s\n", cairo_version_string());
   printf("pango version: %s\n", pango_version_string());
+  
+#  ifdef RICHMATH_USE_FT_FONT
+  printf("fontconfig version: %d\n", FcGetVersion());
+#  endif
   
 #  ifdef RICHMATH_USE_GTK_GUI
   printf("gtk version: %d.%d.%d\n", gtk_major_version, gtk_minor_version, gtk_micro_version);
