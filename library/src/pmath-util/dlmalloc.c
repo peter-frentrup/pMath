@@ -3,6 +3,10 @@
 
 #include <pmath-util/dlmalloc.h>
 
+#if HAVE_MORECORE
+#  warning "dlmalloc is NOT THREAD SAFE when using MORECORE concurrently with other memory allocators in the same executable! See *Lock preliminaries* section in dlmalloc.c"
+#endif 
+
 /*------------------------------ internal #includes ---------------------- */
 
 #ifdef WIN32

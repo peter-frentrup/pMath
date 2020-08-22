@@ -484,6 +484,7 @@ MAX_RELEASE_CHECK_RATE   default: 4095 unless not HAVE_MMAP
 
 #ifdef PMATH_USE_DLMALLOC
 #define USE_DL_PREFIX 1
+#define HAVE_MORECORE 0 /* dlmalloc is not thread safe when using MORECORE concurrently with other memory allocators in the same executable! See *Lock preliminaries* section in dlmalloc.c */
 
 
 /* Version identifier to allow people to support multiple versions */
