@@ -34,6 +34,9 @@ void MathGtkRecentDocuments::add(String path) {
 }
 
 static Expr recent_info_to_menu_item(int index, GtkRecentInfo *info) {
+  if(!gtk_recent_info_has_application(info, g_get_application_name()))
+    return Expr();
+  
   const char *uri = gtk_recent_info_get_uri(info);
   char *str = g_filename_from_uri(uri, nullptr, nullptr);
   if(!str)
