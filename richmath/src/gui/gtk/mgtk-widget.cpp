@@ -905,6 +905,10 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
 }
 
 void MathGtkWidget::paint_background(Canvas *canvas) {
+//  cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+//  canvas->set_color(Color::Black, 0.0);
+//  canvas->paint();
+//  cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
 }
 
 void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {

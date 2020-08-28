@@ -1,4 +1,5 @@
 #include <gui/gtk/mgtk-cursors.h>
+#include <gtk/gtk.h>
 
 #include <util/hashtable.h>
 
@@ -476,6 +477,23 @@ static int num_refs = 0;
 
 static Hashtable<CursorType, CppGdkCursor> all_cursors;
 
+static GdkCursor *new_cursor_from_name_or_fallback(const char *name, GdkCursorType fallback) {
+  GdkDisplay *display = gdk_display_get_default();
+  GdkCursor *cursor = nullptr;
+  
+  char *theme_name;
+  g_object_get(gtk_settings_get_default(), "gtk-cursor-theme-name", &theme_name, nullptr);
+  if(theme_name) {
+    cursor = gdk_cursor_new_from_name(display, name);
+  }
+  g_free(theme_name);
+  
+  if(!cursor)
+    cursor = gdk_cursor_new_for_display(display, fallback);
+  
+  return cursor;
+}
+
 //{ class MathGtkCursors ...
 
 MathGtkCursors::MathGtkCursors()
@@ -483,9 +501,16 @@ MathGtkCursors::MathGtkCursors()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
+// TODO: clear cache on cursor theme change
+  
+//  char *theme_name;
+//  g_object_get(gtk_settings_get_default(), "gtk-cursor-theme-name", &theme_name, nullptr);
+//  pmath_debug_print("[gtk-cursor-theme-name = %s]\n", theme_name);
+//  g_free(theme_name);
+  
   if(num_refs++ == 0) {
-    all_cursors.set(FingerCursor,  gdk_cursor_new(GDK_HAND2));
-    all_cursors.set(DefaultCursor, gdk_cursor_new(GDK_LEFT_PTR));
+    all_cursors.set(FingerCursor,  new_cursor_from_name_or_fallback("help", GDK_HAND2));
+    all_cursors.set(DefaultCursor, new_cursor_from_name_or_fallback("default", GDK_LEFT_PTR));
     
     all_cursors.set(DocumentCursor, gdk_pixbuf_new_from_xpm_data(xpm_document));
     all_cursors.set(NoSelectCursor, gdk_pixbuf_new_from_xpm_data(xpm_no_select));
@@ -500,14 +525,14 @@ MathGtkCursors::MathGtkCursors()
     all_cursors.set(TextSCursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_s));
     all_cursors.set(TextSECursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_se));
     
-    all_cursors.set(SizeECursor,    gdk_cursor_new(GDK_RIGHT_SIDE));
-    all_cursors.set(SizeNECursor,   gdk_cursor_new(GDK_TOP_RIGHT_CORNER));
-    all_cursors.set(SizeNCursor,    gdk_cursor_new(GDK_TOP_SIDE));
-    all_cursors.set(SizeNWCursor,   gdk_cursor_new(GDK_TOP_LEFT_CORNER));
-    all_cursors.set(SizeWCursor,    gdk_cursor_new(GDK_LEFT_SIDE));
-    all_cursors.set(SizeSWCursor,   gdk_cursor_new(GDK_BOTTOM_LEFT_CORNER));
-    all_cursors.set(SizeSCursor,    gdk_cursor_new(GDK_BOTTOM_SIDE));
-    all_cursors.set(SizeSECursor,   gdk_cursor_new(GDK_BOTTOM_RIGHT_CORNER));
+    all_cursors.set(SizeECursor,    new_cursor_from_name_or_fallback("e-resize",  GDK_RIGHT_SIDE));
+    all_cursors.set(SizeNECursor,   new_cursor_from_name_or_fallback("ne-resize", GDK_TOP_RIGHT_CORNER));
+    all_cursors.set(SizeNCursor,    new_cursor_from_name_or_fallback("n-resize",  GDK_TOP_SIDE));
+    all_cursors.set(SizeNWCursor,   new_cursor_from_name_or_fallback("nw-resize", GDK_TOP_LEFT_CORNER));
+    all_cursors.set(SizeWCursor,    new_cursor_from_name_or_fallback("w-resize",  GDK_LEFT_SIDE));
+    all_cursors.set(SizeSWCursor,   new_cursor_from_name_or_fallback("sw-resize", GDK_BOTTOM_LEFT_CORNER));
+    all_cursors.set(SizeSCursor,    new_cursor_from_name_or_fallback("s-resize",  GDK_BOTTOM_SIDE));
+    all_cursors.set(SizeSECursor,   new_cursor_from_name_or_fallback("se-resize", GDK_BOTTOM_RIGHT_CORNER));
     
   }
 }

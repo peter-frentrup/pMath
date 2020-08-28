@@ -124,6 +124,15 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
           
           parent()->set_gravity();
           gtk_widget_set_size_request(_widget, w, h);
+          
+          bool was_resizable = gtk_window_get_resizable(GTK_WINDOW(parent()->widget()));
+          if(!was_resizable)
+            gtk_window_set_resizable(GTK_WINDOW(parent()->widget()), true);
+          
+          gtk_window_resize(GTK_WINDOW(parent()->widget()), 1, 1);
+          
+          if(!was_resizable)
+            gtk_window_set_resizable(GTK_WINDOW(parent()->widget()), false);
         }
       }
     }
@@ -142,6 +151,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     MathGtkDock(MathGtkDocumentWindow *parent)
       : base(parent)
     {
+      Style::reset(document()->style, "Docked");
     }
     
     void reload(Expr content) {
@@ -195,9 +205,6 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     virtual void after_construction() override {
       base::after_construction();
       
-      if(!document()->style)
-        document()->style = new Style();
-        
       document()->style->set(Editable,           false); // redirect Print() to console
       document()->style->set(Selectable,         AutoBoolFalse);
       document()->style->set(ShowSectionBracket, AutoBoolFalse);
@@ -451,7 +458,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
     return;
   }
   
-  gtk_window_set_resizable(   GTK_WINDOW(_widget), type == WindowFrameNormal);
+  //gtk_window_set_resizable(   GTK_WINDOW(_widget), type == WindowFrameNormal);
   gtk_window_set_focus_on_map(GTK_WINDOW(_widget), type == WindowFrameNormal);
   
   gtk_widget_set_visible(_menu_bar, type == WindowFrameNormal);
@@ -459,24 +466,31 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
   _working_area->_autohide_vertical_scrollbar = type == WindowFramePalette || type == WindowFrameDialog;
   
   if(_window_frame != type) {
+//    GdkWindow *gdk = gtk_widget_get_window(_widget);
+    
     _working_area->invalidate();
     
-    int x, y;
-    bool was_visible = gtk_widget_get_visible(_widget);
-    if(was_visible) {
-      gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
-      gtk_widget_hide(_widget);
+    bool was_mapped = gtk_widget_get_mapped(_widget);
+    if(was_mapped) {
+      gtk_widget_set_mapped(_widget, false);
     }
+//    int x, y;
+//    bool was_visible = gtk_widget_get_visible(_widget);
+//    if(was_visible) {
+//      gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
+//      gtk_widget_hide(_widget);
+//      //gdk_window_hide(gdk);
+//    }
     
     switch(type) {
       case WindowFrameNormal:
-        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_UTILITY);
-        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
+        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
+        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), false);
         break;
         
       case WindowFramePalette:
-        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
-        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), false);
+        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_UTILITY);
+        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
         break;
         
       case WindowFrameDialog:
@@ -485,10 +499,14 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
         break;
     }
     
-    if(was_visible) {
-      gtk_widget_show(_widget);
-      gtk_window_move(GTK_WINDOW(_widget), x, y);
+    if(was_mapped) {
+      gtk_widget_set_mapped(_widget, true);
     }
+//    if(was_visible) {
+//      //gdk_window_hide(gdk);
+//      gtk_widget_show(_widget);
+//      gtk_window_move(GTK_WINDOW(_widget), x, y);
+//    }
   }
   
   _window_frame = type;
@@ -525,8 +543,12 @@ void MathGtkDocumentWindow::bring_to_front() {
 void MathGtkDocumentWindow::close() {
   if(!_widget || destroying())
     return;
-    
-  destroy();
+  
+  GdkEvent *ev = gdk_event_new(GDK_DELETE);
+  if(!gtk_widget_event(_widget, ev)) {
+    destroy();
+  }
+  gdk_event_free(ev);
 }
 
 int MathGtkDocumentWindow::dpi() {
@@ -602,7 +624,7 @@ void MathGtkDocumentWindow::get_window_margins(int *left, int *right, int *top, 
   gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_NORTH_WEST);
   gtk_window_get_position(GTK_WINDOW(_widget), &x1, &y1);
   gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_SOUTH_EAST);
-  gtk_window_get_position(GTK_WINDOW(_widget), &x2, &y2); // seems not to take the client widht/height into account
+  gtk_window_get_position(GTK_WINDOW(_widget), &x2, &y2); // seems not to take the client width/height into account
   
   int cx, cy;
   gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_STATIC);
@@ -755,10 +777,10 @@ bool MathGtkDocumentWindow::on_delete(GdkEvent *e) {
       case YesNoCancel::Yes:
         if(Application::save(document()) == PMATH_SYMBOL_FAILED)
           return true;
-        return false;
+        break;
       
       case YesNoCancel::No:
-        return false;
+        break;
         
       case YesNoCancel::Cancel:
         return true;

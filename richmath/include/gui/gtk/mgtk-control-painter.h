@@ -51,28 +51,10 @@ namespace richmath {
       virtual void system_font_style(ControlContext *context, Style *style) override;
       
     public:
-      GtkStyleContext *get_control_theme(ControlContext *context, ContainerType type);
+      GtkStyleContext *get_control_theme(ControlContext *context, ContainerType type, bool foreground = false);
       GtkStateFlags    get_state_flags(ControlContext *context, ContainerType type, ControlState state);
       
       void clear_cache();
-      
-    protected:
-      GtkStyleContext *push_button_context;
-      GtkStyleContext *default_push_button_context;
-      GtkStyleContext *expander_arrow_context;
-      GtkStyleContext *tool_button_context;
-      GtkStyleContext *input_field_context;
-      GtkStyleContext *input_field_button_context;
-      GtkStyleContext *slider_channel_context;
-      GtkStyleContext *slider_thumb_context;
-      GtkStyleContext *list_item_context;
-      GtkStyleContext *list_item_selected_context;
-      GtkStyleContext *panel_context;
-      GtkStyleContext *progress_bar_trough_context;
-      GtkStyleContext *progress_bar_context;
-      GtkStyleContext *checkbox_context;
-      GtkStyleContext *radio_button_context;
-      GtkStyleContext *tooltip_context;
       
 #endif
     

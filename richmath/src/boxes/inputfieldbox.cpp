@@ -199,7 +199,7 @@ void InputFieldBox::paint_content(Context *context) {
   }
   
   float dx = frame_x - 0.75f;
-  float dy = frame_x;
+  float dy = 0;
   
   context->canvas->save();
   

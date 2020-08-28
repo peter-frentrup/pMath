@@ -27,8 +27,10 @@ namespace richmath {
       }
       
       void destroy() {
-        _destroying = true;
-        delete this;
+        if(!_destroying) {
+          _destroying = true;
+          delete this;
+        }
       }
       
       virtual ~BasicGtkWidget();
