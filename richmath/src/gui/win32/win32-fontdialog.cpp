@@ -36,7 +36,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
         for(size_t i = 1;i <= families.expr_length();++i){
           family = String(families[i]);
           
-          if(FontInfo::font_exists(family))
+          if(FontInfo::font_exists_similar(family))
             break;
         }
       }

@@ -726,7 +726,7 @@ namespace richmath {
           return s;
         }
         
-        if(!FontInfo::font_exists(s)) {
+        if(!FontInfo::font_exists_exact(s)) {
           pmath_debug_print_object("Font ", name.get(), " not found.\n");
           return String();
         }

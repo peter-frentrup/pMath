@@ -476,7 +476,7 @@ static int CALLBACK search_font(
 }
 #endif
 
-bool FontInfo::font_exists(String name) {
+bool FontInfo::font_exists(String name, bool exact_match) {
   if(name.length() == 0)
     return false;
     
@@ -555,10 +555,14 @@ bool FontInfo::font_exists(String name) {
     
     char *str = 0;
     
-    if( FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8 **)&str)
-        || !str
-        || 0 != strcmp(str, family))
-    {
+    if( FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8 **)&str) || !str) {
+      FcPatternDestroy(resolved);
+      pmath_mem_free(family);
+      return false;
+    }
+    
+    if(exact_match && 0 != strcmp(str, family)) {
+      pmath_debug_print("[font %s has substitution %s]\n", family, str);
       FcPatternDestroy(resolved);
       pmath_mem_free(family);
       return false;

@@ -340,7 +340,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
     if(expr.is_string()) {
       s = String(expr);
       
-      if(FontInfo::font_exists(s)) {
+      if(FontInfo::font_exists_similar(s)) {
         FallbackTextShaper *fts = new FallbackTextShaper(TextShaper::find(s, fs));
         fts->add(ctx->math_shaper);
         ctx->text_shaper = fts;
@@ -358,7 +358,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
         for(size_t i = 1; i <= expr.expr_length(); ++i) {
           s = String(expr[i]);
           
-          if(FontInfo::font_exists(s)) {
+          if(FontInfo::font_exists_similar(s)) {
             if(--max_fallbacks == 0)
               break;
               

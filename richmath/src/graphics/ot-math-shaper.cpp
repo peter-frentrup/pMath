@@ -423,6 +423,9 @@ namespace richmath {
       
     public:
       static SharedPtr<OTMathShaperImpl> try_load(String name, FontStyle style) {
+        if(!FontInfo::font_exists_exact(name))
+          return nullptr;
+        
         SharedPtr<OTMathShaperImpl> impl = new OTMathShaperImpl(name, style);
         
         size_t size = impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, 0, 0);

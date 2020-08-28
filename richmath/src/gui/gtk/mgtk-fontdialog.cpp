@@ -47,7 +47,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
         for(size_t i = 1;i <= families.expr_length();++i){
           family = String(families[i]);
           
-          if(FontInfo::font_exists(family))
+          if(FontInfo::font_exists_similar(family))
             break;
         }
       }
@@ -183,7 +183,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
         for(size_t i = 1;i <= families.expr_length();++i){
           String fam(families[i]);
           
-          if(FontInfo::font_exists(fam)) {
+          if(FontInfo::font_exists_similar(fam)) {
             if(family.length() > 0)
               family+= ",";
             

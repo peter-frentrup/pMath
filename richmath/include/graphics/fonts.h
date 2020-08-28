@@ -141,7 +141,9 @@ namespace richmath {
       static Expr all_fonts();
       static bool add_private_font(String filename);
       static void remove_all_private_fonts();
-      static bool font_exists(String name);
+      static bool font_exists(String name, bool exact_match);
+      static bool font_exists_exact(String name) {   return font_exists(std::move(name), true); }
+      static bool font_exists_similar(String name) { return font_exists(std::move(name), false); }
       
       uint16_t char_to_glyph(uint32_t ch);
       
