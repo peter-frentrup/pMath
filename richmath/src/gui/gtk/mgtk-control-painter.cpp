@@ -26,38 +26,43 @@ using namespace richmath;
 static Observable style_observations;
 
 #if GTK_MAJOR_VERSION >= 3
-static class MathGtkStyleContextCache {
+class MathGtkStyleContextCache {
   public:
-    MathGtkStyleContextCache();
+    MathGtkStyleContextCache(const char *theme_variant);
+    MathGtkStyleContextCache(const MathGtkStyleContextCache &) = delete;
     ~MathGtkStyleContextCache();
     void clear();
     
-    GtkStyleContext *checkbox_context() {             return init_once(_checkbox_context,             make_checkbox_context); }
-    GtkStyleContext *default_push_button_context() {  return init_once(_default_push_button_context,  make_default_push_button_context); }
-    GtkStyleContext *expander_arrow_context() {       return init_once(_expander_arrow_context,       make_expander_arrow_context); }
-    GtkStyleContext *input_field_button_context() {   return init_once(_input_field_button_context,   make_input_field_button_context); }
-    GtkStyleContext *input_field_context() {          return init_once(_input_field_context,          make_input_field_context); }
-    GtkStyleContext *list_item_context() {            return init_once(_list_item_context,            make_list_item_context); }
-    GtkStyleContext *list_item_selected_context() {   return init_once(_list_item_selected_context,   make_list_item_selected_context); }
-    GtkStyleContext *panel_context() {                return init_once(_panel_context,                make_panel_context); }
-    GtkStyleContext *progress_bar_context() {         return init_once(_progress_bar_context,         make_progress_bar_context); }
-    GtkStyleContext *progress_bar_trough_context() {  return init_once(_progress_bar_trough_context,  make_progress_bar_trough_context); }
-    GtkStyleContext *push_button_context() {          return init_once(_push_button_context,          make_push_button_context); }
-    GtkStyleContext *radio_button_context() {         return init_once(_radio_button_context,         make_radio_button_context); }
-    GtkStyleContext *slider_channel_context() {       return init_once(_slider_channel_context,       make_slider_channel_context); }
-    GtkStyleContext *slider_thumb_context() {         return init_once(_slider_thumb_context,         make_slider_thumb_context); }
-    GtkStyleContext *tab_body_context() {             return init_once(_tab_body_context,             make_tab_body_context); }
-    GtkStyleContext *tab_head_background_context() {  return init_once(_tab_head_background_context,  make_tab_head_background_context); }
-    GtkStyleContext *tab_head_context() {             return init_once(_tab_head_context,             []() { return make_tab_head_context(false, false); }); }
-    GtkStyleContext *tab_head_label_context() {       return init_once(_tab_head_label_context,       make_tab_head_label_context); }
-    GtkStyleContext *tool_button_context() {          return init_once(_tool_button_context,          make_tool_button_context); }
-    GtkStyleContext *tooltip_context() {              return init_once(_tooltip_context,              make_tooltip_context); }
+    GtkStyleProvider *current_theme() {  return init_once(_current_theme,  [variant=_theme_variant]() { return make_current_theme_provider(variant); }); }
+    
+    GtkStyleContext *checkbox_context() {             return init_context_once(_checkbox_context,             make_checkbox_context); }
+    GtkStyleContext *default_push_button_context() {  return init_context_once(_default_push_button_context,  make_default_push_button_context); }
+    GtkStyleContext *expander_arrow_context() {       return init_context_once(_expander_arrow_context,       make_expander_arrow_context); }
+    GtkStyleContext *input_field_button_context() {   return init_context_once(_input_field_button_context,   make_input_field_button_context); }
+    GtkStyleContext *input_field_context() {          return init_context_once(_input_field_context,          make_input_field_context); }
+    GtkStyleContext *list_item_context() {            return init_context_once(_list_item_context,            make_list_item_context); }
+    GtkStyleContext *list_item_selected_context() {   return init_context_once(_list_item_selected_context,   make_list_item_selected_context); }
+    GtkStyleContext *panel_context() {                return init_context_once(_panel_context,                make_panel_context); }
+    GtkStyleContext *progress_bar_context() {         return init_context_once(_progress_bar_context,         make_progress_bar_context); }
+    GtkStyleContext *progress_bar_trough_context() {  return init_context_once(_progress_bar_trough_context,  make_progress_bar_trough_context); }
+    GtkStyleContext *push_button_context() {          return init_context_once(_push_button_context,          make_push_button_context); }
+    GtkStyleContext *radio_button_context() {         return init_context_once(_radio_button_context,         make_radio_button_context); }
+    GtkStyleContext *slider_channel_context() {       return init_context_once(_slider_channel_context,       make_slider_channel_context); }
+    GtkStyleContext *slider_thumb_context() {         return init_context_once(_slider_thumb_context,         make_slider_thumb_context); }
+    GtkStyleContext *tab_body_context() {             return init_context_once(_tab_body_context,             make_tab_body_context); }
+    GtkStyleContext *tab_head_background_context() {  return init_context_once(_tab_head_background_context,  make_tab_head_background_context); }
+    GtkStyleContext *tab_head_context() {             return init_context_once(_tab_head_context,             []() { return make_tab_head_context(false, false); }); }
+    GtkStyleContext *tab_head_label_context() {       return init_context_once(_tab_head_label_context,       make_tab_head_label_context); }
+    GtkStyleContext *tool_button_context() {          return init_context_once(_tool_button_context,          make_tool_button_context); }
+    GtkStyleContext *tooltip_context() {              return init_context_once(_tooltip_context,              make_tooltip_context); }
     
     static void render_all_common(GtkStyleContext *ctx, Canvas *canvas, float x, float y, float width, float height);
     
     static GtkStyleContext *make_context_from_path_and_free(GtkWidgetPath *path, GtkStyleContext *parent = nullptr);
     
   private:
+    static GtkStyleProvider *make_current_theme_provider(const char *variant);
+    
     static GtkStyleContext *make_checkbox_context();
     static GtkStyleContext *make_default_push_button_context();
     static GtkStyleContext *make_expander_arrow_context();
@@ -79,16 +84,35 @@ static class MathGtkStyleContextCache {
     static GtkStyleContext *make_tool_button_context();
     static GtkStyleContext *make_tooltip_context();
     
-    template<typename Init>
-    static GtkStyleContext *init_once(GtkStyleContext *&obj, Init init) {
+    template<typename T, typename Init>
+    static T init_once(T &obj, Init init) {
       if(!obj)
         obj = init();
       return obj;
     }
     
-    void unref_and_null(GtkStyleContext *&style_context);
+    template<typename Init>
+    GtkStyleContext *init_context_once(GtkStyleContext *&context, Init init) {
+      if(!context) {
+        context = init();
+        gtk_style_context_add_provider(context, current_theme(), GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+      }
+      return context;
+    }
+    
+    template<typename T>
+    void unref_and_null(T *&obj) {
+      if(obj) {
+        g_object_unref(obj);
+        obj = nullptr;
+      }
+    }
     
   private:
+    const char *_theme_variant;
+    
+    GtkStyleProvider *_current_theme;
+    
     GtkStyleContext *_checkbox_context;
     GtkStyleContext *_default_push_button_context;
     GtkStyleContext *_expander_arrow_context;
@@ -110,12 +134,42 @@ static class MathGtkStyleContextCache {
     GtkStyleContext *_tool_button_context;
     GtkStyleContext *_tooltip_context;
     
-} mgtk_painter_cache;
-  
-static bool initialized_change_notifications = false;
+};
+
+static MathGtkStyleContextCache mgtk_painter_cache_light("light");
+static MathGtkStyleContextCache mgtk_painter_cache_dark("dark");
+
+static MathGtkStyleContextCache &painter_cache_for(ControlContext *context) {
+  if(context->is_using_dark_mode())
+    return mgtk_painter_cache_dark;
+  else
+    return mgtk_painter_cache_light;
+}
+
 static void on_theme_changed(GObject*, GParamSpec*) {
   MathGtkControlPainter::gtk_painter.clear_cache();
   style_observations.notify_all();
+  
+  char *theme_name;
+  g_object_get(gtk_settings_get_default(), "gtk-theme-name", &theme_name, nullptr);
+  pmath_debug_print("[on_theme_changed: gtk-theme-name = %s]\n", theme_name);
+  g_free(theme_name);
+}
+
+static void need_change_notifications() {
+  static bool initialized_change_notifications = false;
+
+  if(!initialized_change_notifications) {
+    GtkSettings *settings = gtk_settings_get_default();
+    g_signal_connect(settings, "notify::gtk-theme-name",   G_CALLBACK(on_theme_changed), nullptr);
+    g_signal_connect(settings, "notify::gtk-color-scheme", G_CALLBACK(on_theme_changed), nullptr);
+    initialized_change_notifications = true;
+    
+    char *theme_name;
+    g_object_get(gtk_settings_get_default(), "gtk-theme-name", &theme_name, nullptr);
+    pmath_debug_print("[gtk-theme-name = %s]\n", theme_name);
+    g_free(theme_name);
+  }
 }
 #endif
 
@@ -590,12 +644,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
     return nullptr;
   }
   
-  if(!initialized_change_notifications) {
-    GtkSettings *settings = gtk_settings_get_default();
-    g_signal_connect(settings, "notify::gtk-theme-name",   G_CALLBACK(on_theme_changed), 0);
-    g_signal_connect(settings, "notify::gtk-color-scheme", G_CALLBACK(on_theme_changed), 0);
-    initialized_change_notifications = true;
-  }
+  need_change_notifications;
   
   style_observations.register_observer();
   switch(type) {
@@ -604,45 +653,45 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext *contex
     case GenericButton:
       break;
       
-    case PushButton:                  return mgtk_painter_cache.push_button_context();
-    case DefaultPushButton:           return mgtk_painter_cache.default_push_button_context();
+    case PushButton:                  return painter_cache_for(context).push_button_context();
+    case DefaultPushButton:           return painter_cache_for(context).default_push_button_context();
       
     case NavigationBack:
     case NavigationForward:
-    case PaletteButton:               return mgtk_painter_cache.tool_button_context();
+    case PaletteButton:               return painter_cache_for(context).tool_button_context();
     
-    case AddressBandGoButton:         return mgtk_painter_cache.input_field_button_context();
+    case AddressBandGoButton:         return painter_cache_for(context).input_field_button_context();
       
     case InputField:
     case AddressBandInputField:
-    case AddressBandBackground:       return mgtk_painter_cache.input_field_context();
+    case AddressBandBackground:       return painter_cache_for(context).input_field_context();
       
     case CheckboxUnchecked:
     case CheckboxChecked:
-    case CheckboxIndeterminate:       return mgtk_painter_cache.checkbox_context();
+    case CheckboxIndeterminate:       return painter_cache_for(context).checkbox_context();
       
     case RadioButtonUnchecked:
-    case RadioButtonChecked:          return mgtk_painter_cache.radio_button_context();
+    case RadioButtonChecked:          return painter_cache_for(context).radio_button_context();
     
-    case PanelControl:                return mgtk_painter_cache.panel_context();
-    case ProgressIndicatorBackground: return mgtk_painter_cache.progress_bar_trough_context();
-    case ProgressIndicatorBar:        return mgtk_painter_cache.progress_bar_context();
-    case SliderHorzChannel:           return mgtk_painter_cache.slider_channel_context();
-    case SliderHorzThumb:             return mgtk_painter_cache.slider_thumb_context();
-    case TooltipWindow:               return mgtk_painter_cache.tooltip_context();
-    case ListViewItem:                return mgtk_painter_cache.list_item_context();
-    case ListViewItemSelected:        return mgtk_painter_cache.list_item_selected_context();
+    case PanelControl:                return painter_cache_for(context).panel_context();
+    case ProgressIndicatorBackground: return painter_cache_for(context).progress_bar_trough_context();
+    case ProgressIndicatorBar:        return painter_cache_for(context).progress_bar_context();
+    case SliderHorzChannel:           return painter_cache_for(context).slider_channel_context();
+    case SliderHorzThumb:             return painter_cache_for(context).slider_thumb_context();
+    case TooltipWindow:               return painter_cache_for(context).tooltip_context();
+    case ListViewItem:                return painter_cache_for(context).list_item_context();
+    case ListViewItemSelected:        return painter_cache_for(context).list_item_selected_context();
     
     case OpenerTriangleClosed:
-    case OpenerTriangleOpened:        return mgtk_painter_cache.expander_arrow_context();
+    case OpenerTriangleOpened:        return painter_cache_for(context).expander_arrow_context();
     
-    case TabBodyBackground:           return mgtk_painter_cache.tab_body_context();
-    case TabHeadBackground:           return foreground ? mgtk_painter_cache.tab_head_label_context() : mgtk_painter_cache.tab_head_background_context();
+    case TabBodyBackground:           return painter_cache_for(context).tab_body_context();
+    case TabHeadBackground:           return foreground ? painter_cache_for(context).tab_head_label_context() : painter_cache_for(context).tab_head_background_context();
     
     case TabHead:
     case TabHeadAbuttingRight:
     case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:         return foreground ? mgtk_painter_cache.tab_head_label_context() : mgtk_painter_cache.tab_head_context();
+    case TabHeadAbuttingLeft:         return foreground ? painter_cache_for(context).tab_head_label_context() : painter_cache_for(context).tab_head_context();
     
     default:
       break;
@@ -765,9 +814,20 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
   
   return (GtkStateFlags)result;
 }
- 
+
+GtkStyleProvider *MathGtkControlPainter::current_theme_light() {
+  need_change_notifications();
+  return mgtk_painter_cache_light.current_theme();
+}
+
+GtkStyleProvider *MathGtkControlPainter::current_theme_dark() {
+  need_change_notifications();
+  return mgtk_painter_cache_dark.current_theme();
+}
+
 void MathGtkControlPainter::clear_cache() {
-  mgtk_painter_cache.clear();
+  mgtk_painter_cache_light.clear();
+  mgtk_painter_cache_dark.clear();
 }
  
 #endif
@@ -778,7 +838,10 @@ void MathGtkControlPainter::clear_cache() {
 
 //{ class MathGtkStyleContextCache ...
 
-MathGtkStyleContextCache::MathGtkStyleContextCache() {
+MathGtkStyleContextCache::MathGtkStyleContextCache(const char *theme_variant) {
+  _theme_variant = theme_variant;
+  _current_theme = nullptr;
+  
   _checkbox_context            = nullptr;
   _default_push_button_context = nullptr;
   _expander_arrow_context      = nullptr;
@@ -806,6 +869,8 @@ MathGtkStyleContextCache::~MathGtkStyleContextCache() {
 }
 
 void MathGtkStyleContextCache::clear() {
+  unref_and_null(_current_theme);
+  
   unref_and_null(_checkbox_context);
   unref_and_null(_default_push_button_context);
   unref_and_null(_expander_arrow_context);
@@ -846,6 +911,22 @@ GtkStyleContext *MathGtkStyleContextCache::make_context_from_path_and_free(GtkWi
     g_object_unref(parent);
   }
   return context;
+}
+
+GtkStyleProvider *MathGtkStyleContextCache::make_current_theme_provider(const char *variant) {
+  char *theme_name;
+  g_object_get(gtk_settings_get_default(), "gtk-theme-name", &theme_name, nullptr);
+  pmath_debug_print("[gtk-theme-name = %s]\n", theme_name);
+  
+  // TODO: if there is no theme with that name, Gtk falls back to "Adwaita"
+  
+  GtkCssProvider *provider = gtk_css_provider_get_named(theme_name, variant);
+  
+  pmath_debug_print("[theme(%s, %s) = %p]\n", theme_name, variant ? variant : "(null)", provider);
+  
+  g_free(theme_name);
+  
+  return GTK_STYLE_PROVIDER(g_object_ref(provider));
 }
 
 GtkStyleContext *MathGtkStyleContextCache::make_checkbox_context() {
@@ -1432,13 +1513,6 @@ GtkStyleContext *MathGtkStyleContextCache::make_tooltip_context() {
 //
 //  gtk_widget_path_unref(path);
 //  return tooltip_context;
-}
-
-void MathGtkStyleContextCache::unref_and_null(GtkStyleContext *&style_context) {
-  if(style_context) {
-    g_object_unref(style_context);
-    style_context = nullptr;
-  }
 }
 
 //} ... class MathGtkStyleContextCache

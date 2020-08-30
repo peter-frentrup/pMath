@@ -54,6 +54,9 @@ namespace richmath {
       GtkStyleContext *get_control_theme(ControlContext *context, ContainerType type, bool foreground = false);
       GtkStateFlags    get_state_flags(ControlContext *context, ContainerType type, ControlState state);
       
+      GtkStyleProvider *current_theme_light();
+      GtkStyleProvider *current_theme_dark();
+      
       void clear_cache();
       
 #endif

@@ -983,19 +983,31 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
       w_page = w_max;
       
     if(_hadjustment) {
-      g_object_set(_hadjustment,
-                   "lower",     0.0,
-                   "page-size", w_page,
-                   "upper",     w_max,
-                   nullptr);
+      double old_lower = gtk_adjustment_get_lower(_hadjustment);
+      double old_upper = gtk_adjustment_get_upper(_hadjustment);
+      double old_page  = gtk_adjustment_get_page_size(_hadjustment);
+      
+      if(old_lower != 0.0 || old_upper != w_max || old_page != w_page) {
+        g_object_set(_hadjustment,
+                     "lower",     0.0,
+                     "page-size", w_page,
+                     "upper",     w_max,
+                     nullptr);
+      }
     }
     
     if(_vadjustment) {
-      g_object_set(_vadjustment,
-                   "lower",     0.0,
-                   "page-size", h_page,
-                   "upper",     h_max,
-                   nullptr);
+      double old_lower = gtk_adjustment_get_lower(_vadjustment);
+      double old_upper = gtk_adjustment_get_upper(_vadjustment);
+      double old_page  = gtk_adjustment_get_page_size(_vadjustment);
+      
+      if(old_lower != 0.0 || old_upper != h_max || old_page != h_page) {
+        g_object_set(_vadjustment,
+                     "lower",     0.0,
+                     "page-size", h_page,
+                     "upper",     h_max,
+                     nullptr);
+      }
     }
   }
 }

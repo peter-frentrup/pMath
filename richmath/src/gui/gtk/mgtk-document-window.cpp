@@ -5,6 +5,7 @@
 #include <eval/application.h>
 #include <eval/binding.h>
 
+#include <gui/gtk/mgtk-control-painter.h>
 #include <gui/gtk/mgtk-menu-builder.h>
 #include <gui/messagebox.h>
 
@@ -232,16 +233,26 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     Expr  _content;
 };
 
-//{ class MathGtkDocumentWindow ...
-
-static void adjustment_changed_callback(
-  GtkAdjustment *adjustment,
-  void          *user_data
-) {
-  MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
-  
-  self->adjustment_changed(adjustment);
+namespace richmath {
+  class MathGtkDocumentWindow::Impl {
+    public:
+      Impl(MathGtkDocumentWindow &self) : self(self) {}
+      
+      void connect_adjustment_changed_signals();
+      static void register_theme_observer();
+      
+    private:
+      static void adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data);
+      void on_adjustment_changed(GtkAdjustment *adjustment);
+      
+      static void on_theme_changed(GObject*, GParamSpec*);
+    
+    private:
+      MathGtkDocumentWindow &self;
+  };
 }
+
+//{ class MathGtkDocumentWindow ...
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
@@ -251,6 +262,9 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _hscrollbar(nullptr),
     _vscrollbar(nullptr),
     _table(nullptr),
+#if GTK_MAJOR_VERSION >= 3
+    _style_provider(nullptr),
+#endif
     _window_frame(WindowFrameNormal),
     _active(true),
     _use_dark_mode(false)
@@ -306,8 +320,7 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_table_attach(GTK_TABLE(_table), _vscrollbar, 1, 2, 2, 3, (GtkAttachOptions)0, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
   gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
   
-  g_signal_connect(_hadjustment, "changed", G_CALLBACK(adjustment_changed_callback), this);
-  g_signal_connect(_vadjustment, "changed", G_CALLBACK(adjustment_changed_callback), this);
+  Impl(*this).connect_adjustment_changed_signals();
   
   g_object_ref(_hadjustment);
   g_object_ref(_vadjustment);
@@ -341,6 +354,8 @@ void MathGtkDocumentWindow::after_construction() {
   
   working_area()->document()->style->set(Visible,                         true);
   working_area()->document()->style->set(InternalHasModifiedWindowOption, true);
+  update_dark_mode();
+  Impl::register_theme_observer();
 }
 
 MathGtkDocumentWindow::~MathGtkDocumentWindow() {
@@ -389,13 +404,86 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
 //  _top_area->destroy();
 //  _bottom_area->destroy();
 //  _working_area->destroy();
-
+  
+#if GTK_MAJOR_VERSION >= 3
+  if(_style_provider)
+    g_object_unref(_style_provider);
+#endif
   g_object_unref(_hadjustment);
   g_object_unref(_vadjustment);
 }
 
+template<typename Func>
+static void forall_widgets_recursive(GtkWidget *widget, Func func) {
+//  static int debug_depth = 0;
+//  
+//  for(int i = debug_depth;i > 0;--i)
+//    pmath_debug_print("  ");
+//  
+//  pmath_debug_print("%s\n", G_OBJECT_TYPE_NAME(widget));
+  
+  func(widget);
+  if(GTK_IS_CONTAINER(widget)) {
+//    ++debug_depth;
+    gtk_container_forall(
+      GTK_CONTAINER(widget),
+      [](GtkWidget *child, void *func_ptr) {
+        forall_widgets_recursive(child, *(Func*)func_ptr);
+      },
+      &func);
+//    --debug_depth;
+  }
+  
+//  // TODO: menus should probably be handled when they map/unmap only, menu item labels are not correctly styled
+//  if(GTK_IS_MENU_ITEM(widget)) {
+//    if(GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget))) {
+//      ++debug_depth;
+//      forall_widgets_recursive(menu, func);
+//      --debug_depth;
+//    }
+//  }
+}
+
 void MathGtkDocumentWindow::update_dark_mode() {
+#if GTK_MAJOR_VERSION >= 3
+  if(_style_provider) {
+    forall_widgets_recursive(
+      _widget, 
+      [=](GtkWidget *w) { 
+        gtk_style_context_remove_provider(gtk_widget_get_style_context(w), _style_provider);
+      });
+      
+    if(gtk_widget_has_screen(_widget)) {
+      GdkScreen *screen = gtk_widget_get_screen(_widget);
+      pmath_debug_print("[remove_provider_for_screen(%p, %p)]\n", screen, _style_provider);
+      gtk_style_context_remove_provider_for_screen(screen, _style_provider);
+    }
+    
+    g_object_unref(_style_provider);
+    _style_provider = nullptr;
+  }
+#endif
+  
   _use_dark_mode = _working_area->has_dark_background();
+  
+#if GTK_MAJOR_VERSION >= 3
+  _style_provider = _use_dark_mode ? MathGtkControlPainter::gtk_painter.current_theme_dark() : MathGtkControlPainter::gtk_painter.current_theme_light();
+  (void)g_object_ref(_style_provider);
+  
+  forall_widgets_recursive(
+    _widget, 
+    [=](GtkWidget *w) { 
+      gtk_style_context_add_provider(gtk_widget_get_style_context(w), _style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    });
+  
+  if(_active.unobserved_equals(true)) {
+    if(gtk_widget_has_screen(_widget)) {
+      GdkScreen *screen = gtk_widget_get_screen(_widget);
+      pmath_debug_print("[add_provider_for_screen(%p, %p)]\n", screen, _style_provider);
+      gtk_style_context_add_provider_for_screen(screen, _style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    }
+  }
+#endif
 }
 
 void MathGtkDocumentWindow::invalidate_options() {
@@ -514,26 +602,6 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
 
 void MathGtkDocumentWindow::run_menucommand(Expr cmd) {
   Application::run_menucommand(std::move(cmd));
-}
-
-void MathGtkDocumentWindow::adjustment_changed(GtkAdjustment *adjustment) {
-  GtkWidget *scrollbar = 0;
-  if(adjustment == _hadjustment)
-    scrollbar = _hscrollbar;
-  else if(adjustment == _vadjustment)
-    scrollbar = _vscrollbar;
-    
-  if(!scrollbar)
-    return;
-    
-  double lo, page, hi;
-  g_object_get(adjustment,
-               "lower",     &lo,
-               "page-size", &page,
-               "upper",     &hi,
-               nullptr);
-               
-  gtk_widget_set_visible(scrollbar, (window_frame() == WindowFrameNormal) && lo + page < hi);
 }
 
 void MathGtkDocumentWindow::bring_to_front() {
@@ -798,10 +866,35 @@ bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e) {
   _snapped_documents.length(0);
   _snapped_documents.add(DocumentPosition(FrontEndReference::None, _previous_rect.x, _previous_rect.y));
   
+#if GTK_MAJOR_VERSION >= 3
+  if(_style_provider) {
+    if(gtk_widget_has_screen(_widget)) {
+      GdkScreen *screen = gtk_widget_get_screen(_widget);
+      
+      pmath_debug_print("[remove_provider_for_screen(%p, %p)]\n", screen, _style_provider);
+      gtk_style_context_remove_provider_for_screen(screen, _style_provider);
+      
+      pmath_debug_print("[add_provider_for_screen(%p, %p)]\n", screen, _style_provider);
+      gtk_style_context_add_provider_for_screen(screen, _style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    }
+  }
+#endif
+
   return false;
 }
 
 bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
+#if GTK_MAJOR_VERSION >= 3
+  if(_style_provider) {
+    if(gtk_widget_has_screen(_widget)) {
+      GdkScreen *screen = gtk_widget_get_screen(_widget);
+      
+      pmath_debug_print("[remove_provider_for_screen(%p, %p)]\n", screen, _style_provider);
+      gtk_style_context_remove_provider_for_screen(screen, _style_provider);
+    }
+  }
+#endif
+
   for(auto _win : CommonDocumentWindow::All) {
     if(auto main = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
       main->_snapped_documents.length(0);
@@ -851,7 +944,7 @@ bool MathGtkDocumentWindow::on_window_state(GdkEvent *e) {
 
 #if GTK_MAJOR_VERSION >= 3
   if(event->changed_mask & GDK_WINDOW_STATE_FOCUSED) {
-    if(event->new_window_state & GDK_WINDOW_STATE_FOCUSED)
+    if(event->new_window_state & GDK_WINDOW_STATE_FOCUSED) 
       _active = true;
     else
       _active = false;
@@ -863,4 +956,60 @@ bool MathGtkDocumentWindow::on_window_state(GdkEvent *e) {
 
 //} ... class MathGtkDocumentWindow
 
+//{ class MathGtkDocumentWindow::Impl ...
 
+void MathGtkDocumentWindow::Impl::connect_adjustment_changed_signals() {
+  g_signal_connect(self._hadjustment, "changed", G_CALLBACK(adjustment_changed_callback), &self);
+  g_signal_connect(self._vadjustment, "changed", G_CALLBACK(adjustment_changed_callback), &self);
+}
+
+void MathGtkDocumentWindow::Impl::adjustment_changed_callback(
+  GtkAdjustment *adjustment,
+  void          *user_data
+) {
+  MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
+  
+  Impl(*self).on_adjustment_changed(adjustment);
+}
+
+void MathGtkDocumentWindow::Impl::on_adjustment_changed(GtkAdjustment *adjustment) {
+  GtkWidget *scrollbar = nullptr;
+  if(adjustment == self._hadjustment)
+    scrollbar = self._hscrollbar;
+  else if(adjustment == self._vadjustment)
+    scrollbar = self._vscrollbar;
+    
+  if(!scrollbar)
+    return;
+    
+  double lo, page, hi;
+  g_object_get(adjustment,
+               "lower",     &lo,
+               "page-size", &page,
+               "upper",     &hi,
+               nullptr);
+               
+  gtk_widget_set_visible(scrollbar, (self.window_frame() == WindowFrameNormal) && lo + page < hi);
+}
+
+void MathGtkDocumentWindow::Impl::register_theme_observer() {
+#if GTK_MAJOR_VERSION >= 3
+  static bool already_registered = false;
+  
+  if(!already_registered) {
+    GtkSettings *settings = gtk_settings_get_default();
+    g_signal_connect_after(settings, "notify::gtk-theme-name", G_CALLBACK(on_theme_changed), nullptr);
+    already_registered = true;
+  }
+#endif
+}
+
+void MathGtkDocumentWindow::Impl::on_theme_changed(GObject*, GParamSpec*) {
+  for(auto _win : CommonDocumentWindow::All) {
+    if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
+      win->update_dark_mode();
+    }
+  }
+}
+
+//} ... class MathGtkDocumentWindow::Impl

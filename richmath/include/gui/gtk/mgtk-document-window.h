@@ -18,6 +18,7 @@ namespace richmath {
   class MathGtkWorkingArea;
   
   class MathGtkDocumentWindow: public CommonDocumentWindow, public BasicGtkWidget, public ControlContext {
+      class Impl;
     public:
       class DocumentPosition {
         public:
@@ -46,8 +47,6 @@ namespace richmath {
       WindowFrameType window_frame() { return _window_frame; }
       
       void run_menucommand(Expr cmd);
-      
-      void adjustment_changed(GtkAdjustment *adjustment);
       
       Document *top() {          return ((MathGtkWidget*)_top_area)->document();     }
       Document *document() {     return ((MathGtkWidget*)_working_area)->document(); }
@@ -109,6 +108,10 @@ namespace richmath {
       GtkWidget *_vscrollbar;
       GtkWidget *_table;
       
+#if GTK_MAJOR_VERSION >= 3
+      GtkStyleProvider *_style_provider;
+#endif
+
       WindowFrameType _window_frame;
       ObservableValue<bool> _active;
       bool _use_dark_mode : 1;
