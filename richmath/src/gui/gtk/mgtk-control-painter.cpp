@@ -57,6 +57,11 @@ class MathGtkStyleContextCache {
     GtkStyleContext *tooltip_context() {              return init_context_once(_tooltip_context,              make_tooltip_context); }
     
     static void render_all_common(GtkStyleContext *ctx, Canvas *canvas, float x, float y, float width, float height);
+    static void render_all_common_inset_const(GtkStyleContext *ctx, Canvas *canvas, float x, float y, float width, float height) {
+      render_all_common_inset(ctx, canvas, x, y, width, height);
+    }
+    static void render_all_common_inset(GtkStyleContext *ctx, Canvas *canvas, float &x, float &y, float &width, float &height);
+    static void get_all_border_padding(GtkStyleContext *ctx, GtkBorder &padding);
     
     static GtkStyleContext *make_context_from_path_and_free(GtkWidgetPath *path, GtkStyleContext *parent = nullptr);
     
@@ -363,16 +368,18 @@ void MathGtkControlPainter::calc_container_size(
     extents->width   = std::max(extents->width,   min_width * 0.75f);
     
     GtkBorder border;
-    gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+    MathGtkStyleContextCache::get_all_border_padding(gtk_ctx, border);
+    
+    //gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
     extents->ascent +=  0.75f * border.top;
     extents->descent += 0.75f * border.bottom;
     extents->width +=   0.75f * (border.left + border.right);
-    
-    gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
-    extents->ascent +=  0.75f * border.top;
-    extents->descent += 0.75f * border.bottom;
-    extents->width +=   0.75f * (border.left + border.right);
-    
+//    
+//    gtk_style_context_get_border(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
+//    extents->ascent +=  0.75f * border.top;
+//    extents->descent += 0.75f * border.bottom;
+//    extents->width +=   0.75f * (border.left + border.right);
+//    
     return;
   }
   
@@ -465,13 +472,13 @@ void MathGtkControlPainter::draw_container(
       case CheckboxUnchecked:
       case CheckboxChecked:
       case CheckboxIndeterminate:
-        MathGtkStyleContextCache::render_all_common(gsc, canvas, x, y, width, height);
+        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, x, y, width, height);
         gtk_render_check(gsc, canvas->cairo(), x, y, width, height);
         break;
         
       case RadioButtonUnchecked:
       case RadioButtonChecked:
-        MathGtkStyleContextCache::render_all_common(gsc, canvas, x, y, width, height);
+        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, x, y, width, height);
         gtk_render_option(gsc, canvas->cairo(), x, y, width, height);
         break;
         
@@ -491,7 +498,7 @@ void MathGtkControlPainter::draw_container(
         
           canvas->align_point(&x, &y, false);
           
-          MathGtkStyleContextCache::render_all_common(gsc, canvas, x, y, width, height);
+          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y, width, height);
           
           GtkIconTheme *icon_theme = gtk_icon_theme_get_default();
           int w, h;
@@ -518,10 +525,11 @@ void MathGtkControlPainter::draw_container(
       
       case TabBodyBackground: {
           GtkBorder border;
-          gtk_style_context_get_border(gsc, GTK_STATE_FLAG_NORMAL, &border);
+          //gtk_style_context_get_border(gsc, GTK_STATE_FLAG_NORMAL, &border);
+          MathGtkStyleContextCache::get_all_border_padding(gsc, border);
           
           float top_hide = border.top + canvas->get_font_size() / 0.75; // add font size for possible border radius
-          MathGtkStyleContextCache::render_all_common(gsc, canvas, x, y - top_hide, width, height + top_hide);
+          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y - top_hide, width, height + top_hide);
         } break;
       
       case TabHead:
@@ -536,11 +544,11 @@ void MathGtkControlPainter::draw_container(
           height-= margin.top;
           //width+=  margin.left + margin.right;
           
-          MathGtkStyleContextCache::render_all_common(gsc, canvas, x, y, width, height);
+          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y, width, height);
         } break;
       
       default:
-        MathGtkStyleContextCache::render_all_common(gsc, canvas, x, y, width, height);
+        MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y, width, height);
         break;
     }
     
@@ -706,6 +714,9 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext *context, Co
     result = GTK_STATE_FLAG_BACKDROP;
   
   switch(type) {
+    case PanelControl:
+      return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
+    
     case CheckboxUnchecked:
     case OpenerTriangleClosed:
     case RadioButtonUnchecked:
@@ -900,6 +911,71 @@ void MathGtkStyleContextCache::render_all_common(GtkStyleContext *ctx, Canvas *c
   render_all_common(gtk_style_context_get_parent(ctx), canvas, x, y, width, height);
   gtk_render_background(ctx, canvas->cairo(), x, y, width, height);
   gtk_render_frame(     ctx, canvas->cairo(), x, y, width, height);
+}
+
+void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Canvas *canvas, float &x, float &y, float &width, float &height) {
+  if(!ctx)
+    return;
+  
+  GtkStyleContext *parent = gtk_style_context_get_parent(ctx);
+  render_all_common_inset(parent, canvas, x, y, width, height);
+  if(parent) {
+    GtkBorder margin;
+    gtk_style_context_get_margin(ctx, gtk_style_context_get_state(ctx), &margin);
+    x+= margin.left;
+    y+= margin.top;
+    width-= margin.left + margin.right;
+    height-= margin.top + margin.bottom;
+  }
+  gtk_render_background(ctx, canvas->cairo(), x, y, width, height);
+  gtk_render_frame(     ctx, canvas->cairo(), x, y, width, height);
+  
+  GtkBorder border;
+  gtk_style_context_get_border(ctx, gtk_style_context_get_state(ctx), &border);
+  x+= border.left;
+  y+= border.top;
+  width-= border.left + border.right;
+  height-= border.top + border.bottom;
+  
+  gtk_style_context_get_padding(ctx, gtk_style_context_get_state(ctx), &border);
+  x+= border.left;
+  y+= border.top;
+  width-= border.left + border.right;
+  height-= border.top + border.bottom;
+}
+
+void MathGtkStyleContextCache::get_all_border_padding(GtkStyleContext *ctx, GtkBorder &padding) {
+  if(!ctx) {
+    padding.left = 0;
+    padding.right = 0;
+    padding.top = 0;
+    padding.bottom = 0;
+    return;
+  }
+  
+  GtkStyleContext *parent = gtk_style_context_get_parent(ctx);
+  get_all_border_padding(parent, padding);
+  if(parent) {
+    GtkBorder margin;
+    gtk_style_context_get_margin(ctx, gtk_style_context_get_state(ctx), &margin);
+    padding.left   += margin.left;
+    padding.right  += margin.right;
+    padding.top    += margin.top;
+    padding.bottom += margin.bottom;
+  }
+  
+  GtkBorder border;
+  gtk_style_context_get_padding(ctx, gtk_style_context_get_state(ctx), &border);
+  padding.left   += border.left;
+  padding.right  += border.right;
+  padding.top    += border.top;
+  padding.bottom += border.bottom;
+  
+  gtk_style_context_get_border(ctx, gtk_style_context_get_state(ctx), &border);
+  padding.left   += border.left;
+  padding.right  += border.right;
+  padding.top    += border.top;
+  padding.bottom += border.bottom;
 }
 
 GtkStyleContext *MathGtkStyleContextCache::make_context_from_path_and_free(GtkWidgetPath *path, GtkStyleContext *parent) {
@@ -1142,14 +1218,14 @@ GtkStyleContext *MathGtkStyleContextCache::make_panel_context() {
   gtk_widget_path_iter_set_object_name(path, -1, "frame");
   gtk_widget_path_iter_add_class(path, -1, "background");
   gtk_widget_path_iter_add_class(path, -1, "frame");
-  
-  GtkStyleContext *frame_context = make_context_from_path_and_free(path);
-  
-  path = gtk_widget_path_copy(gtk_style_context_get_path(frame_context));
-  gtk_widget_path_append_type(path, G_TYPE_NONE);
-  gtk_widget_path_iter_set_object_name(path, -1, "border");
-  
-  return make_context_from_path_and_free(path, frame_context);
+  return make_context_from_path_and_free(path);
+//  GtkStyleContext *frame_context = make_context_from_path_and_free(path);
+//  
+//  path = gtk_widget_path_copy(gtk_style_context_get_path(frame_context));
+//  gtk_widget_path_append_type(path, G_TYPE_NONE);
+//  gtk_widget_path_iter_set_object_name(path, -1, "border");
+//  
+//  return make_context_from_path_and_free(path, frame_context);
 
 //  GtkStyleContext *panel_context = gtk_style_context_new();
 //  
@@ -1367,14 +1443,14 @@ GtkStyleContext *MathGtkStyleContextCache::make_tab_body_context() {
   gtk_widget_path_iter_set_object_name(path, -1, "notebook");
   gtk_widget_path_iter_add_class(path, -1, "frame");
   gtk_widget_path_iter_add_class(path, -1, "background");
-  return make_context_from_path_and_free(path);
-//  GtkStyleContext *notebook = make_context_from_path_and_free(path);
-//  return notebook;
-//  
-//  path = gtk_widget_path_copy(gtk_style_context_get_path(notebook));
-//  gtk_widget_path_append_type(path, G_TYPE_NONE);
-//  gtk_widget_path_iter_set_object_name(path, -1, "stack");
-//  return make_context_from_path_and_free(path, notebook);
+  //return make_context_from_path_and_free(path);
+  GtkStyleContext *notebook = make_context_from_path_and_free(path);
+  //return notebook;
+  
+  path = gtk_widget_path_copy(gtk_style_context_get_path(notebook));
+  gtk_widget_path_append_type(path, G_TYPE_NONE);
+  gtk_widget_path_iter_set_object_name(path, -1, "stack");
+  return make_context_from_path_and_free(path, notebook);
 }
 
 GtkStyleContext *MathGtkStyleContextCache::make_tab_head_background_context() {
