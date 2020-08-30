@@ -70,9 +70,9 @@ namespace richmath {
       int maxargs;
       
       LocalVariableForm locals_form;
-      bool is_keyword;
       int locals_min;
       int locals_max;
+      bool is_keyword;
   };
   
   class SyntaxState: public Base {

@@ -71,9 +71,9 @@ SymbolInfo::SymbolInfo(
   SharedPtr<ScopePos>   _pos,
   SharedPtr<SymbolInfo> _next)
   : Shareable(),
-    kind(_kind),
     pos(_pos ? _pos : dummy_pos),
-    next(_next)
+    next(_next),
+    kind(_kind)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
