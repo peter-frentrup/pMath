@@ -11,6 +11,12 @@
 
 #include <cmath>
 
+#ifdef GDK_WINDOWING_X11
+#  include <gdk/gdkx.h>
+#  ifdef None
+#    undef None
+#  endif
+#endif
 
 using namespace richmath;
 
@@ -483,7 +489,14 @@ void MathGtkDocumentWindow::update_dark_mode() {
       gtk_style_context_add_provider_for_screen(screen, _style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
     }
   }
-#endif
+  
+#ifdef GDK_WINDOWING_X11
+  GdkWindow *gdk_window = gtk_widget_get_window(_widget);
+  if(GDK_IS_X11_WINDOW(gdk_window)) {
+    gdk_x11_window_set_theme_variant(gdk_window, (char*)(_use_dark_mode ? "dark" : "light"));
+  }
+#endif // GDK_WINDOWING_X11
+#endif // GTK_MAJOR_VERSION
 }
 
 void MathGtkDocumentWindow::invalidate_options() {
