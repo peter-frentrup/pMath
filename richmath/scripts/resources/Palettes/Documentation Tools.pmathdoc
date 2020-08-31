@@ -70,7 +70,7 @@ Document({
     SectionGroup({Section("Actions", "Subsection"), 
       Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Reset $Line\""), 
           ButtonFunction -> (($Line:= 0) &)))), "Text")}, All)}, All)}, 
- Selectable -> True, StyleDefinitions :> Document({
+ StyleDefinitions :> Document({
    SectionGroup({Section(StyleData(StyleDefinitions -> "Palette.pmathdoc")), 
      SectionGroup({Section("Section styles", "Section"), 
        Section(StyleData("Subsection"), SectionDingbat :> OpenerBox(
