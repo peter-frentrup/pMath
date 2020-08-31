@@ -11,6 +11,12 @@
 
 #include <cmath>
 
+#if GTK_MAJOR_VERSION >= 3
+#  include <gdk/gdkkeysyms-compat.h>
+#else
+#  include <gdk/gdkkeysyms.h>
+#endif
+
 #ifdef GDK_WINDOWING_X11
 #  include <gdk/gdkx.h>
 #  ifdef None
@@ -244,17 +250,31 @@ namespace richmath {
     public:
       Impl(MathGtkDocumentWindow &self) : self(self) {}
       
+      static void add_remove_window(int delta);
+      
       void connect_adjustment_changed_signals();
+      void connect_menubar_signals();
       static void register_theme_observer();
       
+      void append_menu_bar_pin();
+      bool menu_is_auto_hidden();
+      void on_auto_hide_menu(bool hide);
+    
     private:
+      static void activate_pin_item_callback(GtkMenuItem *menu_item, void *user_data);
+      void on_activate_pin_item(GtkMenuItem *menu_item);
+      
       static void adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data);
       void on_adjustment_changed(GtkAdjustment *adjustment);
       
       static void on_theme_changed(GObject*, GParamSpec*);
-    
+      
     private:
       MathGtkDocumentWindow &self;
+    
+#if GTK_MAJOR_VERSION >= 3
+      static GtkStyleProvider *global_style_provider;
+#endif
   };
 }
 
@@ -270,11 +290,14 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _table(nullptr),
 #if GTK_MAJOR_VERSION >= 3
     _style_provider(nullptr),
+    _menu_bar_pin(nullptr),
 #endif
     _window_frame(WindowFrameNormal),
     _active(true),
     _use_dark_mode(false)
 {
+  Impl::add_remove_window(+1);
+  
   _previous_rect.x = 0;
   _previous_rect.y = 0;
   _previous_rect.width = 1;
@@ -306,6 +329,7 @@ void MathGtkDocumentWindow::after_construction() {
   
   _menu_bar = gtk_menu_bar_new();
   MathGtkMenuBuilder::main_menu.append_to(GTK_MENU_SHELL(_menu_bar), accel_group, document()->id());
+  Impl(*this).append_menu_bar_pin();
   MathGtkAccelerators::connect_all(accel_group, document()->id());
   
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
@@ -327,6 +351,7 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
   
   Impl(*this).connect_adjustment_changed_signals();
+  Impl(*this).connect_menubar_signals();
   
   g_object_ref(_hadjustment);
   g_object_ref(_vadjustment);
@@ -362,13 +387,10 @@ void MathGtkDocumentWindow::after_construction() {
   working_area()->document()->style->set(InternalHasModifiedWindowOption, true);
   update_dark_mode();
   Impl::register_theme_observer();
+  Impl(*this).on_auto_hide_menu(true);
 }
 
 MathGtkDocumentWindow::~MathGtkDocumentWindow() {
-//  _top_area->_parent     = 0;
-//  _working_area->_parent = 0;
-//  _bottom_area->_parent  = 0;
-
   static bool deleting_all = false;
   if(!deleting_all) {
     bool have_only_palettes = true;
@@ -406,17 +428,15 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
     }
   }
   
-  // those are deleted by their destroy-event:
-//  _top_area->destroy();
-//  _bottom_area->destroy();
-//  _working_area->destroy();
-  
 #if GTK_MAJOR_VERSION >= 3
-  if(_style_provider)
+  if(_style_provider) {
     g_object_unref(_style_provider);
+  }
 #endif
   g_object_unref(_hadjustment);
   g_object_unref(_vadjustment);
+  
+  Impl::add_remove_window(-1);
 }
 
 template<typename Func>
@@ -971,15 +991,108 @@ bool MathGtkDocumentWindow::on_window_state(GdkEvent *e) {
 
 //{ class MathGtkDocumentWindow::Impl ...
 
+#if GTK_MAJOR_VERSION >= 3
+GtkStyleProvider *MathGtkDocumentWindow::Impl::global_style_provider = nullptr;
+#endif
+
+void MathGtkDocumentWindow::Impl::add_remove_window(int delta) {
+  static int global_window_count = 0;
+  if(global_window_count == 0) {
+#if GTK_MAJOR_VERSION >= 3
+    if(!global_style_provider) {
+      global_style_provider = GTK_STYLE_PROVIDER(gtk_css_provider_new());
+      gtk_css_provider_load_from_data(
+        GTK_CSS_PROVIDER(global_style_provider), 
+        ( "menubar.hidden-menu {"
+          "  opacity: 0;"
+          "  margin-bottom:-100px;"
+          "}"
+          "menuitem.menubar-pin > label {"
+          "  background-image: -gtk-icontheme('view-pin-symbolic');"
+          "  background-repeat: no-repeat;"
+          "  background-position: center;"
+          "  min-width: 20pt;"
+          "}"
+          "menuitem.menubar-pin:checked > label {"
+          "  background-image: -gtk-icontheme('go-up-symbolic');"
+          "}"
+          //"menuitem.menubar-pin > label {"
+          //"  opacity:0.5;"
+          //"}"
+        ), -1,
+        nullptr);
+      
+      gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), global_style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+    }
+#endif // GTK_MAJOR_VERSION
+  }
+  
+  global_window_count += delta;
+  
+  if(global_window_count == 0) {
+#if GTK_MAJOR_VERSION >= 3
+    if(global_style_provider) {
+      gtk_style_context_remove_provider_for_screen(gdk_screen_get_default(), global_style_provider);
+      
+      g_object_unref(global_style_provider);
+      global_style_provider = nullptr;
+    }
+#endif // GTK_MAJOR_VERSION
+  }
+}
+
 void MathGtkDocumentWindow::Impl::connect_adjustment_changed_signals() {
   g_signal_connect(self._hadjustment, "changed", G_CALLBACK(adjustment_changed_callback), &self);
   g_signal_connect(self._vadjustment, "changed", G_CALLBACK(adjustment_changed_callback), &self);
 }
 
-void MathGtkDocumentWindow::Impl::adjustment_changed_callback(
-  GtkAdjustment *adjustment,
-  void          *user_data
-) {
+void MathGtkDocumentWindow::Impl::connect_menubar_signals() {
+  gtk_container_forall(GTK_CONTAINER(self._menu_bar), [](GtkWidget *item, void *_self) {
+      MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+      if(GTK_IS_MENU_ITEM(item)) {
+        if(GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(item))) {
+          g_signal_connect(
+            menu, 
+            "map-event", 
+            G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))([](GtkWidget *sender, GdkEvent *ev, void *_self) -> gboolean {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              pmath_debug_print("[menu: map]\n");
+              Impl(self).on_auto_hide_menu(false);
+              return FALSE;
+            })), &self);
+          g_signal_connect(
+            menu, 
+            "unmap-event", 
+            G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))([](GtkWidget *sender, GdkEvent *ev, void *_self) -> gboolean {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              pmath_debug_print("[menu: unmap]\n");
+              Impl(self).on_auto_hide_menu(true);
+              return FALSE;
+            })), &self);
+        }
+      }
+    }, &self);
+  g_signal_connect(
+    self._widget, 
+    "key-press-event", 
+    G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))([](GtkWidget *sender, GdkEvent *e, void *_self) -> gboolean {
+      GdkEventKey *event = &e->key;
+      MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+      
+      switch(event->keyval) {
+        case GDK_Alt_L:
+        case GDK_Alt_R: 
+          Impl(self).on_auto_hide_menu(!Impl(self).menu_is_auto_hidden());
+          break;
+        
+        default:
+          break;
+      }
+      return FALSE;
+    })), &self);
+}
+
+void MathGtkDocumentWindow::Impl::adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data) {
   MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
   
   Impl(*self).on_adjustment_changed(adjustment);
@@ -1023,6 +1136,83 @@ void MathGtkDocumentWindow::Impl::on_theme_changed(GObject*, GParamSpec*) {
       win->update_dark_mode();
     }
   }
+}
+
+void MathGtkDocumentWindow::Impl::append_menu_bar_pin() {
+#if GTK_MAJOR_VERSION >= 3
+  self._menu_bar_pin = gtk_menu_item_new_with_mnemonic("    "); // "_pin"
+  gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(self._menu_bar_pin)), "menubar-pin");
+  gtk_menu_item_set_right_justified(GTK_MENU_ITEM(self._menu_bar_pin), true);
+  gtk_menu_shell_append(GTK_MENU_SHELL(self._menu_bar), self._menu_bar_pin);
+  
+  g_signal_connect(
+    self._menu_bar_pin, 
+    "activate", 
+    G_CALLBACK(activate_pin_item_callback), 
+    &self);
+  g_signal_connect(
+    self._menu_bar_pin, 
+    "enter-notify-event", 
+    G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))[](GtkWidget *menu_item, GdkEvent *ev, void *_self) -> gboolean { 
+      MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+      gtk_menu_shell_select_item(GTK_MENU_SHELL(self._menu_bar), menu_item);
+      return FALSE;
+    }), 
+    &self);
+#endif
+}
+
+void MathGtkDocumentWindow::Impl::activate_pin_item_callback(GtkMenuItem *menu_item, void *user_data) {
+  MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
+  
+  Impl(*self).on_activate_pin_item(menu_item);
+}
+
+void MathGtkDocumentWindow::Impl::on_activate_pin_item(GtkMenuItem *menu_item) {
+#if GTK_MAJOR_VERSION >= 3
+  GtkStateFlags flags = gtk_widget_get_state_flags(GTK_WIDGET(menu_item));
+  
+  if(flags & GTK_STATE_FLAG_CHECKED) {
+    pmath_debug_print("[on_activate_pin_item: was checked]\n");
+    
+    gtk_widget_unset_state_flags(GTK_WIDGET(menu_item), GTK_STATE_FLAG_CHECKED);
+    on_auto_hide_menu(true);
+  }
+  else {
+    pmath_debug_print("[on_activate_pin_item: was unchecked]\n");
+    
+    gtk_widget_set_state_flags(GTK_WIDGET(menu_item), GTK_STATE_FLAG_CHECKED, false);
+  }
+#endif
+}
+
+bool MathGtkDocumentWindow::Impl::menu_is_auto_hidden() {
+#if GTK_MAJOR_VERSION >= 3
+  GtkStyleContext *menu_bar_context = gtk_widget_get_style_context(self._menu_bar);
+  return gtk_style_context_has_class(menu_bar_context, "hidden-menu");
+#else
+  return false;
+#endif
+}
+
+void MathGtkDocumentWindow::Impl::on_auto_hide_menu(bool hide) {
+#if GTK_MAJOR_VERSION >= 3
+  if(self._menu_bar_pin && (gtk_widget_get_state_flags(self._menu_bar_pin) & GTK_STATE_FLAG_CHECKED)) {
+    hide = false;
+  }
+
+  GtkStyleContext *menu_bar_context = gtk_widget_get_style_context(self._menu_bar);
+  if(gtk_style_context_has_class(menu_bar_context, "hidden-menu")) {
+    if(!hide) {
+      gtk_style_context_remove_class(menu_bar_context, "hidden-menu");
+    }
+  }
+  else {
+    if(hide) {
+      gtk_style_context_add_class(menu_bar_context, "hidden-menu");
+    }
+  }
+#endif
 }
 
 //} ... class MathGtkDocumentWindow::Impl

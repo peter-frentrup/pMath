@@ -110,6 +110,7 @@ namespace richmath {
       
 #if GTK_MAJOR_VERSION >= 3
       GtkStyleProvider *_style_provider;
+      GtkWidget *_menu_bar_pin;
 #endif
 
       WindowFrameType _window_frame;
