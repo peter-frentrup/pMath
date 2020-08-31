@@ -263,7 +263,15 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   //append(menu, CommandId::None, String("Go to Definition\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F12), MF_DISABLED | MF_GRAYED);
   
   if(Application::has_submenu_item_deleter(list_cmd)) {
-    append(menu, CommandId::Remove, String("Remove\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_DELETE));
+    String remove_label;
+    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+      remove_label = String("Close");
+    else
+      remove_label = String("Remove");
+    
+    remove_label+= '\t';
+    remove_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_DELETE);
+    append(menu, CommandId::Remove, std::move(remove_label));
   }
   
   //append(menu, CommandId::None, String("Help\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F1), MF_DISABLED | MF_GRAYED);
