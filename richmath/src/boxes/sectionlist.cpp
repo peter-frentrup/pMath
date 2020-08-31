@@ -1079,10 +1079,14 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
             float clip_top    = sel_y1;
             float clip_bottom = sel_y2;
             
-            if((style & BorderNoTop) == 0)
+            if(style & BorderNoTop)
+              sel_y1 -= pixel;
+            else
               clip_top -= pixel;
               
-            if((style & BorderNoBottom) == 0)
+            if(style & BorderNoBottom)
+              sel_y2 += pixel;
+            else
               clip_bottom += pixel;
               
             context->canvas->pixrect(x1 - pixel, clip_top, x2 + pixel, clip_bottom, false);
@@ -1181,7 +1185,7 @@ void SectionList::paint_single_section_bracket(
     }
     
     if(style & BorderNoTop) {
-      context->canvas->move_to(px2, py2);
+      context->canvas->move_to(px2 - pdyx, py2 - pdyy);
     }
     else {
       if(style & BorderNoEditable) {
@@ -1197,9 +1201,8 @@ void SectionList::paint_single_section_bracket(
     
     context->canvas->line_to(px3, py3);
     
-    if(!(style & BorderNoBottom)) {
+    if(!(style & BorderNoBottom)) 
       context->canvas->line_to(px4, py4);
-    }
     
     if(style & BorderSession) {
       double dashes[2] = {
