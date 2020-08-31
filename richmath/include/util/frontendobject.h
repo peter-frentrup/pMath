@@ -8,8 +8,8 @@
 
 namespace richmath {
   class FrontEndReference {
-    friend class FrontEndObject;
-    friend class FrontEndReferenceImpl;
+      friend class FrontEndObject;
+      friend class FrontEndReferenceImpl;
     public:
       int hash() const { return default_hash(_id) ^ 0xBADC0DE; }
       

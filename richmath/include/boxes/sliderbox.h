@@ -8,7 +8,7 @@
 namespace richmath {
   class SliderBox: public EmptyWidgetBox {
       using base = EmptyWidgetBox;
-      friend class SliderBoxImpl;
+      class Impl;
     public:
       explicit SliderBox();
       virtual ~SliderBox();

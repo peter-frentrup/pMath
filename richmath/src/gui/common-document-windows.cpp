@@ -11,9 +11,9 @@
 using namespace richmath;
 
 namespace richmath {
-  class CommonDocumentWindowImpl {
+  class CommonDocumentWindow::Impl {
     public:
-      CommonDocumentWindowImpl(CommonDocumentWindow &_self) : self(_self) {}
+      Impl(CommonDocumentWindow &_self) : self(_self) {}
       
     private:
       CommonDocumentWindow &self;

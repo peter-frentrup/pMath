@@ -13,9 +13,9 @@ extern pmath_symbol_t richmath_System_SynchronousUpdating;
 
 
 namespace richmath {
-  class DynamicImpl {
+  class Dynamic::Impl {
     public:
-      DynamicImpl(Dynamic &_self) : self(_self) {}
+      Impl(Dynamic &self) : self(self) {}
       
       static bool is_template_slot(Expr expr, int *index);
       bool is_template_slot(int *index);
@@ -132,38 +132,38 @@ Expr Dynamic::operator=(Expr expr) {
 }
 
 bool Dynamic::has_pre_or_post_assignment() {
-  return DynamicImpl(*this).has_pre_or_post_assignment();
+  return Impl(*this).has_pre_or_post_assignment();
 }
 
 bool Dynamic::has_temporary_assignment() {
-  return DynamicImpl(*this).has_temporary_assignment();
+  return Impl(*this).has_temporary_assignment();
 }
 
 void Dynamic::assign(Expr value, bool pre, bool middle, bool post) {
-  return DynamicImpl(*this).assign(value, pre, middle, post);
+  return Impl(*this).assign(value, pre, middle, post);
 }
 
 Expr Dynamic::get_value_unevaluated() {
-  return DynamicImpl(*this).get_value_unevaluated();
+  return Impl(*this).get_value_unevaluated();
 }
 
 Expr Dynamic::get_value_now() {
-  return DynamicImpl(*this).get_value_now();
+  return Impl(*this).get_value_now();
 }
 
 void Dynamic::get_value_later(Expr job_info) {
-  DynamicImpl(*this).get_value_later(std::move(job_info));
+  Impl(*this).get_value_later(std::move(job_info));
 }
 
 bool Dynamic::get_value(Expr *result, Expr job_info) {
-  return DynamicImpl(*this).get_value(result, std::move(job_info));
+  return Impl(*this).get_value(result, std::move(job_info));
 }
 
 //} ... class Dynamic
 
-//{ class DynamicImpl ...
+//{ class Dynamic::Impl ...
 
-bool DynamicImpl::is_template_slot(Expr expr, int *index) {
+bool Dynamic::Impl::is_template_slot(Expr expr, int *index) {
   if(expr[0] == PMATH_SYMBOL_PUREARGUMENT && expr.expr_length() == 1) {
     Expr arg = expr[1];
     if(arg.is_int32()) {
@@ -175,11 +175,11 @@ bool DynamicImpl::is_template_slot(Expr expr, int *index) {
   return false;
 }
 
-bool DynamicImpl::is_template_slot(int *index) {
+bool Dynamic::Impl::is_template_slot(int *index) {
   return is_template_slot(self._expr, index);
 }
 
-bool DynamicImpl::find_template_box_dynamic(Expr *source, TemplateBox **source_template, int *source_index) {
+bool Dynamic::Impl::find_template_box_dynamic(Expr *source, TemplateBox **source_template, int *source_index) {
   int i;
   if(is_template_slot(&i))
     return find_template_box_dynamic(self._owner, i, source, source_template, source_index);
@@ -187,7 +187,7 @@ bool DynamicImpl::find_template_box_dynamic(Expr *source, TemplateBox **source_t
   return false;
 }
 
-bool DynamicImpl::find_template_box_dynamic(Box *box, int i, Expr *source, TemplateBox **source_template, int *source_index) {
+bool Dynamic::Impl::find_template_box_dynamic(Box *box, int i, Expr *source, TemplateBox **source_template, int *source_index) {
   if(i == 0 || !box)
     return false;
   
@@ -200,7 +200,7 @@ bool DynamicImpl::find_template_box_dynamic(Box *box, int i, Expr *source, Templ
         i+= num_arg + 1;
       
       Dynamic dyn { template_box, template_box->arguments[i] };
-      if(!DynamicImpl(dyn).find_template_box_dynamic(source, source_template, source_index)) {
+      if(!Impl(dyn).find_template_box_dynamic(source, source_template, source_index)) {
         if(source)          *source          = std::move(dyn._expr);
         if(source_template) *source_template = template_box;
         if(source_index)    *source_index    = i;
@@ -220,7 +220,7 @@ bool DynamicImpl::find_template_box_dynamic(Box *box, int i, Expr *source, Templ
   return false;
 }
 
-void DynamicImpl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post) {
+void Dynamic::Impl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post) {
   *pre    = Symbol(PMATH_SYMBOL_NONE);
   *middle = Symbol(PMATH_SYMBOL_NONE);
   *post   = Symbol(PMATH_SYMBOL_NONE);
@@ -259,7 +259,7 @@ void DynamicImpl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle, E
   }
 }
 
-bool DynamicImpl::has_pre_or_post_assignment() {
+bool Dynamic::Impl::has_pre_or_post_assignment() {
   int i;
   if(is_template_slot(&i)) {
     Expr         source;
@@ -286,7 +286,7 @@ bool DynamicImpl::has_pre_or_post_assignment() {
   return fun.expr_length() > 1;
 }
 
-bool DynamicImpl::has_temporary_assignment() {
+bool Dynamic::Impl::has_temporary_assignment() {
   int i;
   if(is_template_slot(&i)) {
     Expr         source;
@@ -320,7 +320,7 @@ static Expr make_assignment_call(Expr func, Expr name, Expr value) {
   return Call(std::move(func), std::move(value), std::move(name));
 }
 
-void DynamicImpl::assign(Expr value, bool pre, bool middle, bool post) {
+void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
   Box *dyn_source = self._owner;
   Expr dyn_expr = self._expr;
   
@@ -334,7 +334,7 @@ void DynamicImpl::assign(Expr value, bool pre, bool middle, bool post) {
       Dynamic dyn{ source_template, source };
       dyn_source = source_template;
       
-      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, &source_index)) {
+      while(Impl(dyn).find_template_box_dynamic(&source, &source_template, &source_index)) {
         //dyn.init(source_template, source);
         dyn_source = source_template;
         dyn._owner = std::move(source_template);
@@ -392,12 +392,12 @@ void DynamicImpl::assign(Expr value, bool pre, bool middle, bool post) {
   Application::interrupt_wait_for_interactive(run, self._owner, Application::dynamic_timeout);
 }
 
-Expr DynamicImpl::get_value_unevaluated() {
+Expr Dynamic::Impl::get_value_unevaluated() {
   bool is_dynamic;
   return get_value_unevaluated(&is_dynamic);
 }
 
-Expr DynamicImpl::get_value_unevaluated(bool *is_dynamic) {
+Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
   Box *dyn_source = self._owner;
   Expr dyn_expr = self._expr;
   
@@ -410,7 +410,7 @@ Expr DynamicImpl::get_value_unevaluated(bool *is_dynamic) {
       Dynamic dyn{ source_template, source };
       dyn_source = source_template;
       
-      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) {
+      while(Impl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) {
         //dyn.init(source_template, source);
         dyn_source = source_template;
         dyn._owner = std::move(source_template);
@@ -445,7 +445,7 @@ Expr DynamicImpl::get_value_unevaluated(bool *is_dynamic) {
            self._owner->id().to_pmath_raw());
 }
 
-Expr DynamicImpl::get_value_now() {
+Expr Dynamic::Impl::get_value_now() {
   bool is_dynamic = false;
   Expr call = get_value_unevaluated(&is_dynamic);
   
@@ -472,7 +472,7 @@ Expr DynamicImpl::get_value_now() {
   return value;
 }
 
-void DynamicImpl::get_value_later(Expr job_info) {
+void Dynamic::Impl::get_value_later(Expr job_info) {
   bool is_dynamic = false;
   Expr call = get_value_unevaluated(&is_dynamic);
   
@@ -486,7 +486,7 @@ void DynamicImpl::get_value_later(Expr job_info) {
   Application::add_job(new DynamicEvaluationJob(job_info, call, self._owner));
 }
 
-bool DynamicImpl::get_value(Expr *result, Expr job_info) {
+bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
   if(result)
     *result = Expr();
     
@@ -500,7 +500,7 @@ bool DynamicImpl::get_value(Expr *result, Expr job_info) {
     if(find_template_box_dynamic(self._owner, i, &source, &source_template, nullptr)) {
       Dynamic dyn { source_template, source };
       
-      while(DynamicImpl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) 
+      while(Dynamic::Impl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) 
         dyn.init(std::move(source_template), std::move(source));
       
       if(dyn.is_dynamic()) {
@@ -532,7 +532,7 @@ bool DynamicImpl::get_value(Expr *result, Expr job_info) {
   return false;
 }
 
-//} ... class DynamicImpl
+//} ... class Dynamic::Impl
 
 Expr richmath_eval_FrontEnd_PrepareDynamicEvaluation(Expr expr) {
   /*  FrontEnd`PrepareDynamicEvaluation(FrontEndObject(...), Dynamic(...))

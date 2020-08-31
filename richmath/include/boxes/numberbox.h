@@ -22,7 +22,7 @@ namespace richmath {
   };
   
   class NumberBox: public OwnerBox {
-      friend class NumberBoxImpl;
+      class Impl;
     public:
       NumberBox();
       explicit NumberBox(String number);

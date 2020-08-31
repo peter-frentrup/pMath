@@ -246,10 +246,10 @@ class PangoContextUtil {
 };
 
 namespace richmath {
-  class TextSequenceImpl {
+  class TextSequence::Impl {
       TextSequence &self;
     public:
-      TextSequenceImpl(TextSequence &_self) : self(_self) {}
+      Impl(TextSequence &self) : self(self) {}
       
       Expr to_pmath(BoxOutputFlags flags, int start, int end);
       
@@ -573,7 +573,7 @@ Expr TextSequence::to_pmath(BoxOutputFlags flags) {
 }
 
 Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
-  return TextSequenceImpl(*this).to_pmath(flags, start, end);
+  return Impl(*this).to_pmath(flags, start, end);
 }
 
 void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
@@ -591,10 +591,10 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
     
   if(object[0] == PMATH_SYMBOL_LIST) {
     for(size_t i = 1; i <= object.expr_length(); ++i) 
-      TextSequenceImpl(*this).append_object(object[i], options);
+      Impl(*this).append_object(object[i], options);
   }
   else 
-    TextSequenceImpl(*this).append_object(object, options);
+    Impl(*this).append_object(object, options);
   
   finish_load_from_object(std::move(object));
 }
@@ -1180,9 +1180,9 @@ void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size) {
 
 //} ... class TextSequence
 
-//{ class TextSequenceImpl ...
+//{ class TextSequence::Impl ...
 
-Expr TextSequenceImpl::to_pmath(BoxOutputFlags flags, int start, int end) {
+Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(end <= start || start < 0 || end > self.text.length())
     return String("");
     
@@ -1235,7 +1235,7 @@ Expr TextSequenceImpl::to_pmath(BoxOutputFlags flags, int start, int end) {
   return add_debug_info(g.end(), flags, start, end);
 }
 
-Expr TextSequenceImpl::add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end) {
+Expr TextSequence::Impl::add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end) {
   if(!has(flags, BoxOutputFlags::WithDebugInfo))
     return std::move(expr);
   
@@ -1246,7 +1246,7 @@ Expr TextSequenceImpl::add_debug_info(Expr expr, BoxOutputFlags flags, int start
   return Expr{ obj };
 }
 
-void TextSequenceImpl::append_object(Expr object, BoxInputFlags options) {
+void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
   if(object.is_string()) {
     String s(object.release());
     
@@ -1276,4 +1276,4 @@ void TextSequenceImpl::append_object(Expr object, BoxInputFlags options) {
   self.insert(self.text.length(), box);
 }
 
-//} ... class TextSequenceImpl
+//} ... class TextSequence::Impl

@@ -24,7 +24,7 @@ namespace richmath {
   
   class Document: public SectionList {
       friend class NativeWidget;
-      friend class DocumentImpl;
+      class Impl;
     public:
       Document();
       ~Document();

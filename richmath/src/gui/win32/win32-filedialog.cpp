@@ -13,12 +13,12 @@ using namespace pmath;
 
 
 namespace richmath {
-  class Win32FileDialogImpl {
+  class Win32FileDialog::Impl {
     private:
       Win32FileDialog &self;
       
     public:
-      Win32FileDialogImpl(Win32FileDialog &_self): self(_self) {}
+      Impl(Win32FileDialog &self): self(self) {}
       
       void try_set_default_ext(String ext);
       
@@ -67,7 +67,7 @@ void Win32FileDialog::set_filter(Expr filter) {
     Expr rule = filter[i];
     
     if(rule.is_rule())
-      Win32FileDialogImpl(*this).add_filter(rule[1], rule[2]);
+      Impl(*this).add_filter(rule[1], rule[2]);
   }
 }
 
@@ -77,14 +77,14 @@ void Win32FileDialog::set_initial_file(String initialfile) {
 }
 
 Expr Win32FileDialog::show_dialog() {
-  return Win32FileDialogImpl(*this).show_dialog();
+  return Impl(*this).show_dialog();
 }
 
 //} ... class Win32FileDialog
 
-//{ class Win32FileDialogImpl ...
+//{ class Win32FileDialog::Impl ...
 
-void Win32FileDialogImpl::try_set_default_ext(String ext) {
+void Win32FileDialog::Impl::try_set_default_ext(String ext) {
   if(self._default_extension_z.length() > 0 || ext.length() == 0)
     return;
     
@@ -97,7 +97,7 @@ void Win32FileDialogImpl::try_set_default_ext(String ext) {
   self._default_extension_z = ext + String::FromChar(0);
 }
 
-void Win32FileDialogImpl::add_filter(Expr caption, Expr extensions) {
+void Win32FileDialog::Impl::add_filter(Expr caption, Expr extensions) {
   if(!caption.is_string())
     return;
     
@@ -148,7 +148,7 @@ void Win32FileDialogImpl::add_filter(Expr caption, Expr extensions) {
     self._filters_z += String::FromChar(0);
 }
 
-Expr Win32FileDialogImpl::show_dialog() {
+Expr Win32FileDialog::Impl::show_dialog() {
   OPENFILENAMEW data;
   static WCHAR filenamebuffer[4096];
   
@@ -224,7 +224,7 @@ Expr Win32FileDialogImpl::show_dialog() {
   return Symbol(PMATH_SYMBOL_CANCELED);
 }
 
-HWND Win32FileDialogImpl::get_dialog_owner() {
+HWND Win32FileDialog::Impl::get_dialog_owner() {
   Box *box = Application::get_evaluation_box();
   if(!box)
     box = get_current_document();
@@ -242,4 +242,4 @@ HWND Win32FileDialogImpl::get_dialog_owner() {
   return nullptr;
 }
 
-// ... class Win32FileDialogImpl
+// ... class Win32FileDialog::Impl

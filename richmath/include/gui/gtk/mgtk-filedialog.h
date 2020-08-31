@@ -14,7 +14,7 @@ typedef struct _GtkFileChooser        GtkFileChooser;
 
 namespace richmath {
   class MathGtkFileDialog: public Base {
-    friend class MathGtkFileDialogImpl;
+      class Impl;
     public:
       MathGtkFileDialog(bool to_save);
       ~MathGtkFileDialog();

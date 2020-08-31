@@ -254,12 +254,12 @@ static bool selection_is_name(Document *doc) {
 }
 
 namespace richmath {
-  class DocumentImpl {
+  class Document::Impl {
     private:
       Document &self;
       
     public:
-      DocumentImpl(Document &_self);
+      Impl(Document &self) : self(self) {}
       
     public:
       void raw_select(Box *box, int start, int end);
@@ -776,7 +776,7 @@ void Document::on_mouse_down(MouseEvent &event) {
     else {
       mouse_history.click_repeat_count = 1;
       
-      if(DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
+      if(Impl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
         // maybe drag & drop
         drag_status = DragStatusMayDrag;
       }
@@ -818,7 +818,7 @@ void Document::on_mouse_move(MouseEvent &event) {
   if(!mouse_sel)
     return;
   
-  if(!event.left && DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
+  if(!event.left && Impl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
     native()->set_cursor(DefaultCursor);
   }
   else if(mouse_sel.selectable()) {
@@ -851,7 +851,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       
       VolatileSelection down_sel = mouse_down_sel;
       if(mouse_history.click_repeat_count >= 2) {
-        bool in_text = DocumentImpl::is_inside_string(down_sel.box, down_sel.start);
+        bool in_text = Impl::is_inside_string(down_sel.box, down_sel.start);
         
         if(!in_text) {
           VolatileSelection new_down_sel = down_sel.expanded_up_to_sibling(mouse_sel);
@@ -878,9 +878,7 @@ void Document::on_mouse_up(MouseEvent &event) {
     bool was_inside_start;
     VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
                  
-    if( DocumentImpl(*this).is_inside_selection(mouse_sel, was_inside_start) &&
-        mouse_sel.selectable())
-    {
+    if(Impl(*this).is_inside_selection(mouse_sel, was_inside_start) && mouse_sel.selectable()) {
       select(mouse_sel);
     }
   }
@@ -895,51 +893,51 @@ void Document::on_mouse_cancel() {
 void Document::on_key_down(SpecialKeyEvent &event) {
   switch(event.key) {
     case SpecialKey::Left:
-      DocumentImpl(*this).handle_key_left_right(event, LogicalDirection::Backward);
+      Impl(*this).handle_key_left_right(event, LogicalDirection::Backward);
       return;
       
     case SpecialKey::Right:
-      DocumentImpl(*this).handle_key_left_right(event, LogicalDirection::Forward);
+      Impl(*this).handle_key_left_right(event, LogicalDirection::Forward);
       return;
       
     case SpecialKey::Home:
-      DocumentImpl(*this).handle_key_home_end(event, LogicalDirection::Backward);
+      Impl(*this).handle_key_home_end(event, LogicalDirection::Backward);
       return;
       
     case SpecialKey::End:
-      DocumentImpl(*this).handle_key_home_end(event, LogicalDirection::Forward);
+      Impl(*this).handle_key_home_end(event, LogicalDirection::Forward);
       return;
       
     case SpecialKey::Up:
-      DocumentImpl(*this).handle_key_up_down(event, LogicalDirection::Backward);
+      Impl(*this).handle_key_up_down(event, LogicalDirection::Backward);
       return;
       
     case SpecialKey::Down:
-      DocumentImpl(*this).handle_key_up_down(event, LogicalDirection::Forward);
+      Impl(*this).handle_key_up_down(event, LogicalDirection::Forward);
       return;
       
     case SpecialKey::PageUp:
-      DocumentImpl(*this).handle_key_pageup_pagedown(event, LogicalDirection::Backward);
+      Impl(*this).handle_key_pageup_pagedown(event, LogicalDirection::Backward);
       return;
       
     case SpecialKey::PageDown:
-      DocumentImpl(*this).handle_key_pageup_pagedown(event, LogicalDirection::Forward);
+      Impl(*this).handle_key_pageup_pagedown(event, LogicalDirection::Forward);
       return;
       
     case SpecialKey::Tab:
-      DocumentImpl(*this).handle_key_tab(event);
+      Impl(*this).handle_key_tab(event);
       return;
       
     case SpecialKey::Backspace:
-      DocumentImpl(*this).handle_key_backspace(event);
+      Impl(*this).handle_key_backspace(event);
       return;
       
     case SpecialKey::Delete:
-      DocumentImpl(*this).handle_key_delete(event);
+      Impl(*this).handle_key_delete(event);
       return;
       
     case SpecialKey::Escape:
-      DocumentImpl(*this).handle_key_escape(event);
+      Impl(*this).handle_key_escape(event);
       return;
       
     default: return;
@@ -952,7 +950,7 @@ void Document::on_key_up(SpecialKeyEvent &event) {
 void Document::on_key_press(uint32_t unichar) {
   AbstractSequence *initial_seq = dynamic_cast<AbstractSequence *>(selection_box());
   
-  if(!DocumentImpl(*this).prepare_insert()) {
+  if(!Impl(*this).prepare_insert()) {
     Document *cur = get_current_document();
     
     if(cur && cur != this)
@@ -1162,11 +1160,11 @@ void Document::on_key_press(uint32_t unichar) {
     
     MathSequence *mseq = dynamic_cast<MathSequence *>(seq);
     
-    bool was_inside_string = DocumentImpl(*this).is_inside_string();
-    bool was_inside_alias  = DocumentImpl(*this).is_inside_alias();
+    bool was_inside_string = Impl(*this).is_inside_string();
+    bool was_inside_alias  = Impl(*this).is_inside_alias();
     
     if(!was_inside_string && !was_inside_alias) {
-      DocumentImpl(*this).handle_immediate_macros();
+      Impl(*this).handle_immediate_macros();
     }
     
     int oldpos = context.selection.start;
@@ -1179,7 +1177,7 @@ void Document::on_key_press(uint32_t unichar) {
         context.selection.start--;
         context.selection.end--;
         
-        bool ok = DocumentImpl(*this).handle_macros();
+        bool ok = Impl(*this).handle_macros();
         
         if( mseq == context.selection.get() &&
             context.selection.start < mseq->length() &&
@@ -1216,7 +1214,7 @@ void Document::on_key_press(uint32_t unichar) {
         context.selection.start = i + 1;
         context.selection.end = i + 1;
         
-        if(!DocumentImpl(*this).handle_macros())
+        if(!Impl(*this).handle_macros())
           move_to(mseq, start);
       }
       
@@ -1254,7 +1252,7 @@ void Document::select(Box *box, int start, int end) {
   sel_first = sel_last;
   auto_scroll = !mouse_history.is_mouse_down(this);
   
-  DocumentImpl(*this).raw_select(box, start, end);
+  Impl(*this).raw_select(box, start, end);
 }
 
 void Document::select_to(const VolatileSelection &sel) {
@@ -1305,11 +1303,11 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
         int o2 = box_order(b1, e1, b2, s2);
         
         if(o1 > 0)
-          DocumentImpl(*this).raw_select(b1, 0, e1);
+          Impl(*this).raw_select(b1, 0, e1);
         else if(o2 < 0)
-          DocumentImpl(*this).raw_select(b1, s1, b1->length());
+          Impl(*this).raw_select(b1, s1, b1->length());
         else
-          DocumentImpl(*this).raw_select(b1, 0, b1->length());
+          Impl(*this).raw_select(b1, 0, b1->length());
       }
       return;
     }
@@ -1334,9 +1332,9 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
         int o = box_order(b1, s1, b2, s2);
         
         if(o < 0)
-          DocumentImpl(*this).raw_select(b1, s1, b1->length());
+          Impl(*this).raw_select(b1, s1, b1->length());
         else
-          DocumentImpl(*this).raw_select(b1, 0, e1);
+          Impl(*this).raw_select(b1, 0, e1);
       }
       return;
     }
@@ -1364,7 +1362,7 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
     b1 = b1->parent();
   }
   if(b1)
-    DocumentImpl(*this).raw_select(b1, s1, e1);
+    Impl(*this).raw_select(b1, s1, e1);
 }
 
 void Document::move_to(Box *box, int index, bool selecting) {
@@ -2129,7 +2127,7 @@ void Document::paste_from_boxes(Expr boxes) {
   
   remove_selection(false);
   
-  if(DocumentImpl(*this).prepare_insert()) {
+  if(Impl(*this).prepare_insert()) {
     if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     
       BoxInputFlags options = BoxInputFlags::Default;
@@ -2165,7 +2163,7 @@ void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::PlainText)) {
     bool doc_was_selected = selection_box() == this;
     
-    if(DocumentImpl(*this).prepare_insert()) {
+    if(Impl(*this).prepare_insert()) {
       remove_selection(false);
       
       data = String(Evaluate(Parse("`1`.StringReplace(\"\\r\\n\"->\"\\n\")", data)));
@@ -2295,7 +2293,7 @@ void Document::set_selection_style(Expr options) {
       sect->style->add_pmath(options);
       
       if(old_basestyle != sect->get_own_style(BaseStyleName))
-        sect = DocumentImpl(*this).auto_make_text_or_math(sect);
+        sect = Impl(*this).auto_make_text_or_math(sect);
         
       sect->invalidate();
     }
@@ -2327,7 +2325,7 @@ void Document::set_selection_style(Expr options) {
     }
     
     native()->on_editing();
-    DocumentImpl(*this).set_prev_sel_line();
+    Impl(*this).set_prev_sel_line();
     
     if(!style_box) {
       style_box = new StyleBox();
@@ -2552,7 +2550,7 @@ void Document::insert_string(String text, bool autoformat) {
   const uint16_t *buf = text.buffer();
   int             len = text.length();
   
-  if(!DocumentImpl(*this).prepare_insert()) {
+  if(!Impl(*this).prepare_insert()) {
     native()->beep();
     return;
   }
@@ -2574,7 +2572,7 @@ void Document::insert_string(String text, bool autoformat) {
   }
   
   if(autoformat) {
-    if(DocumentImpl(*this).is_inside_string()) {
+    if(Impl(*this).is_inside_string()) {
       bool have_sth_to_escape = false;
       
       for(int i = 0; i < len; ++i) {
@@ -2728,7 +2726,7 @@ void Document::insert_string(String text, bool autoformat) {
     auto seq = new MathSequence;
     seq->insert(0, text);
     
-    if(autoformat && !DocumentImpl(*this).is_inside_string()) { // replace tokens from global_immediate_macros ...
+    if(autoformat && !Impl(*this).is_inside_string()) { // replace tokens from global_immediate_macros ...
       seq->ensure_spans_valid();
       const SpanArray &spans = seq->span_array();
       
@@ -2820,7 +2818,7 @@ static AbstractSequence *find_selection_placeholder(
 }
 
 void Document::insert_box(Box *box, bool handle_placeholder) {
-  if(!box || !DocumentImpl(*this).prepare_insert()) {
+  if(!box || !Impl(*this).prepare_insert()) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2836,11 +2834,11 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   
   assert(box->parent() == 0);
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
   if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
@@ -2897,7 +2895,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
 }
 
 void Document::insert_fraction() {
-  if(!DocumentImpl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2910,11 +2908,11 @@ void Document::insert_fraction() {
     return;
   }
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
   select_prev(true);
@@ -2947,7 +2945,7 @@ void Document::insert_fraction() {
 }
 
 void Document::insert_matrix_column() {
-  if(!DocumentImpl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -2960,11 +2958,11 @@ void Document::insert_matrix_column() {
     return;
   }
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
   GridBox *grid = 0;
@@ -3043,7 +3041,7 @@ void Document::insert_matrix_column() {
 }
 
 void Document::insert_matrix_row() {
-  if(!DocumentImpl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -3056,14 +3054,14 @@ void Document::insert_matrix_row() {
     return;
   }
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
-  GridBox *grid = 0;
+  GridBox *grid = nullptr;
   
   MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
   
@@ -3142,7 +3140,7 @@ void Document::insert_matrix_row() {
 }
 
 void Document::insert_sqrt() {
-  if(!DocumentImpl(*this).prepare_insert_math(false)) {
+  if(!Impl(*this).prepare_insert_math(false)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -3155,11 +3153,11 @@ void Document::insert_sqrt() {
     return;
   }
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
   if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
@@ -3187,7 +3185,7 @@ void Document::insert_sqrt() {
 }
 
 void Document::insert_subsuperscript(bool sub) {
-  if(!DocumentImpl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -3200,11 +3198,11 @@ void Document::insert_subsuperscript(bool sub) {
     return;
   }
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
   if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
@@ -3248,7 +3246,7 @@ void Document::insert_subsuperscript(bool sub) {
 }
 
 void Document::insert_underoverscript(bool under) {
-  if(!DocumentImpl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(true)) {
     Document *cur = get_current_document();
     
     if(cur && cur != this) {
@@ -3261,11 +3259,11 @@ void Document::insert_underoverscript(bool under) {
     return;
   }
   
-  if( !DocumentImpl(*this).is_inside_string() &&
-      !DocumentImpl(*this).is_inside_alias() &&
-      !DocumentImpl(*this).handle_immediate_macros())
+  if( !Impl(*this).is_inside_string() &&
+      !Impl(*this).is_inside_alias() &&
+      !Impl(*this).handle_immediate_macros())
   {
-    DocumentImpl(*this).handle_macros();
+    Impl(*this).handle_macros();
   }
   
   select_prev(false);
@@ -3573,8 +3571,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(section(i)->must_resize) // || i == sel_sect)
       resize_section(&context, i);
       
-    DocumentImpl(*this).after_resize_section(i);
-    
+    Impl(*this).after_resize_section(i);
     ++i;
   }
   
@@ -3586,8 +3583,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(section(i)->must_resize) // || i == sel_sect)
       resize_section(&context, i);
       
-    DocumentImpl(*this).after_resize_section(i);
-    
+    Impl(*this).after_resize_section(i);
     ++i;
   }
   
@@ -3609,16 +3605,15 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
       }
     }
     
-    DocumentImpl(*this).after_resize_section(i);
-    
+    Impl(*this).after_resize_section(i);
     ++i;
   }
   
   finish_resize(&context);
   
   if(!resize_only) {
-    DocumentImpl(*this).add_selection_highlights(0, length());
-//    DocumentImpl(*this).add_selection_highlights(first_visible_section, last_visible_section);
+    Impl(*this).add_selection_highlights(0, length());
+//    Impl(*this).add_selection_highlights(first_visible_section, last_visible_section);
     
     {
       float y = 0;
@@ -3638,7 +3633,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     context.pre_paint_hooks.clear();
     context.post_paint_hooks.clear();
     
-    DocumentImpl(*this).paint_cursor_and_flash();
+    Impl(*this).paint_cursor_and_flash();
     
     if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
       if(VolatileSelection drag_src = drag_source.get_all()) {
@@ -3650,7 +3645,7 @@ void Document::paint_resize(Canvas *canvas, bool resize_only) {
     if(DebugFollowMouse) {
       if(VolatileSelection ms = mouse_history.debug_move_sel.get_all()) {
         ms.add_path(canvas);
-        if(DocumentImpl::is_inside_string(ms.box, ms.start))
+        if(Impl::is_inside_string(ms.box, ms.start))
           canvas->set_color(DebugFollowMouseInStringColor);
         else
           canvas->set_color(DebugFollowMouseColor);
@@ -3764,14 +3759,9 @@ Expr Document::to_pmath_id() {
 
 //} ... class Document
 
-//{ class DocumentImpl ...
+//{ class Document::Impl ...
 
-inline DocumentImpl::DocumentImpl(Document &_self)
-  : self(_self)
-{
-}
-
-void DocumentImpl::raw_select(Box *box, int start, int end) {
+void Document::Impl::raw_select(Box *box, int start, int end) {
   if(end < start) {
     int i = start;
     start = end;
@@ -3833,7 +3823,7 @@ void DocumentImpl::raw_select(Box *box, int start, int end) {
   self.best_index_rel_x = 0;
 }
 
-void DocumentImpl::after_resize_section(int i) {
+void Document::Impl::after_resize_section(int i) {
   Section *sect = self.section(i);
   sect->y_offset = self._extents.descent;
   if(sect->visible) {
@@ -3857,7 +3847,7 @@ void DocumentImpl::after_resize_section(int i) {
 }
 
 //{ selection highlights
-void DocumentImpl::add_fill(PaintHookManager &hooks, Box *box, int start, int end, Color color, float alpha) {
+void Document::Impl::add_fill(PaintHookManager &hooks, Box *box, int start, int end, Color color, float alpha) {
   SelectionReference ref;
   ref.set(box, start, end);
   
@@ -3865,11 +3855,11 @@ void DocumentImpl::add_fill(PaintHookManager &hooks, Box *box, int start, int en
   self.additional_selection.add(ref);
 }
 
-void DocumentImpl::add_pre_fill(Box *box, int start, int end, Color color, float alpha) {
+void Document::Impl::add_pre_fill(Box *box, int start, int end, Color color, float alpha) {
   add_fill(self.context.pre_paint_hooks, box, start, end, color, alpha);
 }
 
-void DocumentImpl::add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section) {
+void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section) {
   self._current_word_references.length(0);
   
   if(self.selection_length() == 0)
@@ -3947,7 +3937,7 @@ void DocumentImpl::add_selected_word_highlight_hooks(int first_visible_section, 
   }
 }
 
-bool DocumentImpl::word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section) {
+bool Document::Impl::word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section) {
   Box *find = &self;
   int index = 0;
   
@@ -3978,7 +3968,7 @@ bool DocumentImpl::word_occurs_outside_visible_range(String str, int first_visib
   return false;
 }
 
-void DocumentImpl::add_matching_bracket_hook() {
+void Document::Impl::add_matching_bracket_hook() {
   int start = self.selection_start();
   int end   = self.selection_end();
   auto seq = dynamic_cast<MathSequence *>(self.selection_box());
@@ -4075,7 +4065,7 @@ void DocumentImpl::add_matching_bracket_hook() {
   return;
 }
 
-void DocumentImpl::add_autocompletion_hook() {
+void Document::Impl::add_autocompletion_hook() {
   Box *box = self.auto_completion.range.get();
   
   if(!box)
@@ -4089,7 +4079,7 @@ void DocumentImpl::add_autocompletion_hook() {
     AutoCompleteHighlightAlpha);
 }
 
-void DocumentImpl::add_selection_highlights(int first_visible_section, int last_visible_section) {
+void Document::Impl::add_selection_highlights(int first_visible_section, int last_visible_section) {
   add_matching_bracket_hook();
   add_selected_word_highlight_hooks(first_visible_section, last_visible_section);
   add_autocompletion_hook();
@@ -4097,7 +4087,7 @@ void DocumentImpl::add_selection_highlights(int first_visible_section, int last_
 //}
 
 //{ cursor painting
-void DocumentImpl::paint_document_cursor() {
+void Document::Impl::paint_document_cursor() {
   // paint cursor (as a horizontal line) at end of document:
   if( self.context.selection.id    == self.id() &&
       self.context.selection.start == self.context.selection.end)
@@ -4142,7 +4132,7 @@ void DocumentImpl::paint_document_cursor() {
   }
 }
 
-void DocumentImpl::paint_flashing_cursor_if_needed() {
+void Document::Impl::paint_flashing_cursor_if_needed() {
   if(self.prev_sel_line >= 0) {
     AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box());
     
@@ -4216,18 +4206,18 @@ void DocumentImpl::paint_flashing_cursor_if_needed() {
   }
 }
 
-void DocumentImpl::paint_cursor_and_flash() {
+void Document::Impl::paint_cursor_and_flash() {
   paint_document_cursor();
   paint_flashing_cursor_if_needed();
 }
 //}
 
 //{ insertion
-inline bool DocumentImpl::is_inside_string() {
+inline bool Document::Impl::is_inside_string() {
   return is_inside_string(self.context.selection.get(), self.context.selection.start);
 }
 
-bool DocumentImpl::is_inside_string(Box *box, int index) {
+bool Document::Impl::is_inside_string(Box *box, int index) {
   while(box) {
     if(auto seq = dynamic_cast<MathSequence *>(box)) {
       if(seq->is_inside_string(index))
@@ -4243,7 +4233,7 @@ bool DocumentImpl::is_inside_string(Box *box, int index) {
   return false;
 }
 
-bool DocumentImpl::is_inside_alias() {
+bool Document::Impl::is_inside_alias() {
   bool result = false;
   Box *box = self.context.selection.get();
   int index = self.context.selection.start;
@@ -4262,7 +4252,7 @@ bool DocumentImpl::is_inside_alias() {
 }
 
 // sub.start and sub.end may lie outside 0..sub.box->length()
-bool DocumentImpl::is_inside_selection(const VolatileSelection &sub) {
+bool Document::Impl::is_inside_selection(const VolatileSelection &sub) {
   if(self.selection_box() && self.selection_length() > 0) {
     // section selections are only at the right margin, the section content is
     // not inside the selection-frame
@@ -4292,7 +4282,7 @@ bool DocumentImpl::is_inside_selection(const VolatileSelection &sub) {
   return false;
 }
 
-bool DocumentImpl::is_inside_selection(const VolatileSelection &sub, bool was_inside_start) {
+bool Document::Impl::is_inside_selection(const VolatileSelection &sub, bool was_inside_start) {
   if(!self.selection_box())
     return false;
   
@@ -4306,7 +4296,7 @@ bool DocumentImpl::is_inside_selection(const VolatileSelection &sub, bool was_in
   return is_inside_selection(sub);
 }
 
-void DocumentImpl::set_prev_sel_line() {
+void Document::Impl::set_prev_sel_line() {
   if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
     self.prev_sel_line = seq->get_line(self.selection_end(), self.prev_sel_line);
     self.prev_sel_box_id = seq->id();
@@ -4317,7 +4307,7 @@ void DocumentImpl::set_prev_sel_line() {
   }
 }
 
-bool DocumentImpl::prepare_insert() {
+bool Document::Impl::prepare_insert() {
   if(self.context.selection.id == self.id()) {
     self.prev_sel_line = -1;
     if( self.context.selection.start != self.context.selection.end ||
@@ -4363,7 +4353,7 @@ bool DocumentImpl::prepare_insert() {
   return false;
 }
 
-bool DocumentImpl::prepare_insert_math(bool include_previous_word) {
+bool Document::Impl::prepare_insert_math(bool include_previous_word) {
   if(!prepare_insert())
     return false;
     
@@ -4398,7 +4388,7 @@ bool DocumentImpl::prepare_insert_math(bool include_previous_word) {
   return true;
 }
 
-Section *DocumentImpl::auto_make_text_or_math(Section *sect) {
+Section *Document::Impl::auto_make_text_or_math(Section *sect) {
   assert(sect != nullptr);
   assert(sect->parent() == &self);
   
@@ -4413,7 +4403,7 @@ Section *DocumentImpl::auto_make_text_or_math(Section *sect) {
 }
 
 template<class FromSectionType, class ToSectionType>
-Section *DocumentImpl::convert_content(Section *sect) {
+Section *Document::Impl::convert_content(Section *sect) {
   assert(sect != nullptr);
   assert(sect->parent() == &self);
   
@@ -4439,7 +4429,7 @@ Section *DocumentImpl::convert_content(Section *sect) {
 //}
 
 //{ key events
-void DocumentImpl::handle_key_left_right(SpecialKeyEvent &event, LogicalDirection direction) {
+void Document::Impl::handle_key_left_right(SpecialKeyEvent &event, LogicalDirection direction) {
   int sel_forward_start;
   int sel_forward_end;
   
@@ -4479,19 +4469,19 @@ void DocumentImpl::handle_key_left_right(SpecialKeyEvent &event, LogicalDirectio
   self.auto_completion.stop();
 }
 
-void DocumentImpl::handle_key_home_end(SpecialKeyEvent &event, LogicalDirection direction) {
+void Document::Impl::handle_key_home_end(SpecialKeyEvent &event, LogicalDirection direction) {
   self.move_start_end(direction, event.shift);
   event.key = SpecialKey::Unknown;
   self.auto_completion.stop();
 }
 
-void DocumentImpl::handle_key_up_down(SpecialKeyEvent &event, LogicalDirection direction) {
+void Document::Impl::handle_key_up_down(SpecialKeyEvent &event, LogicalDirection direction) {
   self.move_vertical(direction, event.shift);
   event.key = SpecialKey::Unknown;
   self.auto_completion.stop();
 }
 
-void DocumentImpl::handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalDirection direction) {
+void Document::Impl::handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalDirection direction) {
   if(!self.native()->is_scrollable())
     return;
     
@@ -4505,7 +4495,7 @@ void DocumentImpl::handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalDir
   event.key = SpecialKey::Unknown;
 }
 
-void DocumentImpl::handle_key_tab(SpecialKeyEvent &event) {
+void Document::Impl::handle_key_tab(SpecialKeyEvent &event) {
   if(is_tabkey_only_moving()) {
     SelectionReference oldpos = self.context.selection;
     
@@ -4528,7 +4518,7 @@ void DocumentImpl::handle_key_tab(SpecialKeyEvent &event) {
   event.key = SpecialKey::Unknown;
 }
 
-bool DocumentImpl::is_tabkey_only_moving() {
+bool Document::Impl::is_tabkey_only_moving() {
   Box *selbox = self.context.selection.get();
   
   if(self.context.selection.start != self.context.selection.end)
@@ -4571,7 +4561,7 @@ bool DocumentImpl::is_tabkey_only_moving() {
   return true;
 }
 
-void DocumentImpl::handle_key_backspace(SpecialKeyEvent &event) {
+void Document::Impl::handle_key_backspace(SpecialKeyEvent &event) {
   set_prev_sel_line();
   if(self.selection_length() > 0) {
     if(self.remove_selection(true))
@@ -4628,7 +4618,7 @@ void DocumentImpl::handle_key_backspace(SpecialKeyEvent &event) {
   event.key = SpecialKey::Unknown;
 }
 
-void DocumentImpl::handle_key_delete(SpecialKeyEvent &event) {
+void Document::Impl::handle_key_delete(SpecialKeyEvent &event) {
   set_prev_sel_line();
   if(self.selection_length() > 0) {
     if(self.remove_selection(true))
@@ -4694,7 +4684,7 @@ void DocumentImpl::handle_key_delete(SpecialKeyEvent &event) {
   event.key = SpecialKey::Unknown;
 }
 
-void DocumentImpl::handle_key_escape(SpecialKeyEvent &event) {
+void Document::Impl::handle_key_escape(SpecialKeyEvent &event) {
   if(self.context.clicked_box_id) {
     if(auto receiver = FrontEndObject::find_cast<Box>(self.context.clicked_box_id))
       receiver->on_mouse_cancel();
@@ -4710,11 +4700,11 @@ void DocumentImpl::handle_key_escape(SpecialKeyEvent &event) {
 //}
 
 //{ macro handling
-inline bool DocumentImpl::handle_immediate_macros() {
+inline bool Document::Impl::handle_immediate_macros() {
   return handle_immediate_macros(global_immediate_macros);
 }
 
-bool DocumentImpl::handle_immediate_macros(const Hashtable<String, Expr> &table) {
+bool Document::Impl::handle_immediate_macros(const Hashtable<String, Expr> &table) {
   if(self.selection_length() != 0)
     return false;
     
@@ -4764,11 +4754,11 @@ bool DocumentImpl::handle_immediate_macros(const Hashtable<String, Expr> &table)
   return false;
 }
 
-inline bool DocumentImpl::handle_macros() {
+inline bool Document::Impl::handle_macros() {
   return handle_macros(global_macros);
 }
 
-bool DocumentImpl::handle_macros(const Hashtable<String, Expr> &table) {
+bool Document::Impl::handle_macros(const Hashtable<String, Expr> &table) {
   if(self.selection_length() != 0)
     return false;
     
@@ -4841,4 +4831,4 @@ bool DocumentImpl::handle_macros(const Hashtable<String, Expr> &table) {
 }
 //}
 
-//} ... class DocumentImpl
+//} ... class Document::Impl

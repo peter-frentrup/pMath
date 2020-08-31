@@ -113,7 +113,7 @@ namespace richmath {
   };
   
   class GridBox: public Box {
-      friend class GridBoxImpl;
+      class Impl;
       friend class GridItem;
     public:
       GridBox();

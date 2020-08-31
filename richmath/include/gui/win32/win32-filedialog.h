@@ -11,7 +11,7 @@
 
 namespace richmath {
   class Win32FileDialog: public Base {
-    friend class Win32FileDialogImpl;
+      class Impl;
     public:
       Win32FileDialog(bool to_save);
       ~Win32FileDialog();

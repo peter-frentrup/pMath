@@ -8,7 +8,7 @@ using namespace pmath;
 using namespace richmath;
 
 namespace richmath {
-  class Win32AutoMenuHookImpl {
+  class Win32AutoMenuHook::Impl {
     public:
       static void push(Win32AutoMenuHook *handler);
       static void pop(Win32AutoMenuHook *handler);
@@ -34,10 +34,11 @@ namespace richmath {
   };
 }
 
-HHOOK              Win32AutoMenuHookImpl::the_hook = nullptr;
-Win32AutoMenuHook *Win32AutoMenuHookImpl::current = nullptr;
+HHOOK              Win32AutoMenuHook::Impl::the_hook = nullptr;
+Win32AutoMenuHook *Win32AutoMenuHook::Impl::current = nullptr;
 
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 static const char MenuWindowClass[] = "#32768";
 
@@ -69,11 +70,11 @@ Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse
     exit_reason(MenuExitReason::Other),
     exit_cmd(0)
 {
-  Win32AutoMenuHookImpl::push(this);
+  Impl::push(this);
 }
 
 Win32AutoMenuHook::~Win32AutoMenuHook() {
-  Win32AutoMenuHookImpl::pop(this);
+  Impl::pop(this);
 }
 
 bool Win32AutoMenuHook::handle(MSG *msg) {
@@ -199,9 +200,9 @@ bool Win32AutoMenuHook::handle(MSG *msg) {
 
 //} ... class Win32AutoMenuHook
 
-//{ class Win32AutoMenuHookImpl ...
+//{ class Win32AutoMenuHook::Impl ...
 
-void Win32AutoMenuHookImpl::push(Win32AutoMenuHook *handler) {
+void Win32AutoMenuHook::Impl::push(Win32AutoMenuHook *handler) {
   assert(handler != nullptr);
   assert(handler->_next == nullptr);
   
@@ -214,7 +215,7 @@ void Win32AutoMenuHookImpl::push(Win32AutoMenuHook *handler) {
   current = handler;
 }
 
-void Win32AutoMenuHookImpl::pop(Win32AutoMenuHook *handler) {
+void Win32AutoMenuHook::Impl::pop(Win32AutoMenuHook *handler) {
   assert(handler == current);
   
   current = current->_next;
@@ -226,7 +227,7 @@ void Win32AutoMenuHookImpl::pop(Win32AutoMenuHook *handler) {
   }
 }
 
-LRESULT CALLBACK Win32AutoMenuHookImpl::menu_hook_proc(int code, WPARAM h_wParam, LPARAM h_lParam) {
+LRESULT CALLBACK Win32AutoMenuHook::Impl::menu_hook_proc(int code, WPARAM h_wParam, LPARAM h_lParam) {
   if(code == MSGF_MENU && current) {
     MSG *msg = (MSG *)h_lParam;
     
@@ -240,7 +241,7 @@ LRESULT CALLBACK Win32AutoMenuHookImpl::menu_hook_proc(int code, WPARAM h_wParam
   return CallNextHookEx(0, code, h_wParam, h_lParam);
 }
 
-//} ... class Win32AutoMenuHookImpl
+//} ... class Win32AutoMenuHook::Impl
 
 //{ class Win32MenuItemPopupMenu ...
 

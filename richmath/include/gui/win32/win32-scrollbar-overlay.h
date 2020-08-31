@@ -23,7 +23,7 @@ namespace richmath {
   
   class Win32ScrollBarOverlay: public BasicWin32Widget {
       using base = BasicWin32Widget;
-      friend class Win32ScrollBarOverlayImpl;
+      class Impl;
     public:
       Win32ScrollBarOverlay(HWND *parent_ptr, HWND *scrollbar_owner_ptr);
       

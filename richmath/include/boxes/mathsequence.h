@@ -23,7 +23,7 @@ namespace richmath {
      For normal text, use class TextSequence.
    */
   class MathSequence: public AbstractSequence {
-    friend class MathSequenceImpl;
+      class Impl;
     public:
       MathSequence();
       virtual ~MathSequence();

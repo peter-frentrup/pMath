@@ -13,7 +13,7 @@ namespace richmath {
   class Document;
   
   class CommonDocumentWindow: public virtual Base {
-      friend class CommonDocumentWindowImpl;
+      class Impl;
     public:
       CommonDocumentWindow();
       virtual ~CommonDocumentWindow();

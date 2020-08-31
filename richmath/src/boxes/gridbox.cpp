@@ -27,9 +27,9 @@ extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Top;
 
 namespace richmath {
-  class GridBoxImpl {
+  class GridBox::Impl {
     public:
-      GridBoxImpl(GridBox &_self) : self(_self) {}
+      Impl(GridBox &_self) : self(_self) {}
       
       int resize_items(Context *context);
       void simple_spacing(float em);
@@ -352,10 +352,10 @@ bool GridBox::expand(const BoxSize &size) {
   if(auto seq = dynamic_cast<MathSequence*>(parent()))
     em = seq->font_size();
   
-  GridBoxImpl(*this).simple_spacing(em);
-  GridBoxImpl(*this).expand_colspans(span_count);
-  GridBoxImpl(*this).expand_rowspans(span_count);
-  GridBoxImpl(*this).adjust_baseline(em);
+  Impl(*this).simple_spacing(em);
+  Impl(*this).expand_colspans(span_count);
+  Impl(*this).expand_rowspans(span_count);
+  Impl(*this).adjust_baseline(em);
   return true;
 }
 
@@ -369,14 +369,14 @@ void GridBox::resize(Context *context) {
   
   float w = context->width;
   context->width = Infinity;
-  int span_count = GridBoxImpl(*this).resize_items(context);
+  int span_count = Impl(*this).resize_items(context);
   context->width = w;
   
-  GridBoxImpl(*this).simple_spacing(em);
-  GridBoxImpl(*this).expand_colspans(span_count);
-  GridBoxImpl(*this).expand_rowspans(span_count);
+  Impl(*this).simple_spacing(em);
+  Impl(*this).expand_colspans(span_count);
+  Impl(*this).expand_rowspans(span_count);
   
-  GridBoxImpl(*this).adjust_baseline(em);
+  Impl(*this).adjust_baseline(em);
 }
 
 void GridBox::paint(Context *context) {
@@ -867,9 +867,9 @@ void GridBox::ensure_valid_boxes() {
 
 //} ... class GridBox
 
-//{ class GridBoxImpl ...
+//{ class GridBox::Impl ...
 
-int GridBoxImpl::resize_items(Context *context) {
+int GridBox::Impl::resize_items(Context *context) {
   int span_count = 0;
   
   for(int i = 0; i < self.count(); ++i)
@@ -914,7 +914,7 @@ int GridBoxImpl::resize_items(Context *context) {
   return span_count;
 }
 
-void GridBoxImpl::simple_spacing(float em) {
+void GridBox::Impl::simple_spacing(float em) {
   float right = 0;//colspacing / 2;
   self.xpos.length(self.items.cols());
   
@@ -1016,7 +1016,7 @@ void GridBoxImpl::simple_spacing(float em) {
   }
 }
 
-void GridBoxImpl::expand_colspans(int span_count) {
+void GridBox::Impl::expand_colspans(int span_count) {
   int first_span = 0;
   while(span_count-- > 0 && first_span < self.count()) {
     for(int x = 0; x < self.cols(); ++x) {
@@ -1072,7 +1072,7 @@ void GridBoxImpl::expand_colspans(int span_count) {
   }
 }
 
-void GridBoxImpl::expand_rowspans(int span_count) {
+void GridBox::Impl::expand_rowspans(int span_count) {
   int first_span = 0;
   while(span_count-- > 0 && first_span < self.count()) {
     for(int y = 0; y < self.rows(); ++y) {
@@ -1135,7 +1135,7 @@ void GridBoxImpl::expand_rowspans(int span_count) {
   }
 }
 
-float GridBoxImpl::calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const {
+float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const {
   float height = self._extents.height();
   
   if(baseline_pos == richmath_System_Bottom) 
@@ -1230,7 +1230,7 @@ float GridBoxImpl::calculate_ascent_for_baseline_position(float em, Expr baselin
     return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
 }
 
-void GridBoxImpl::adjust_baseline(float em) {
+void GridBox::Impl::adjust_baseline(float em) {
   float height = self._extents.height();
   
   float ascent = calculate_ascent_for_baseline_position(em, self.get_style(BaselinePosition));
@@ -1238,4 +1238,4 @@ void GridBoxImpl::adjust_baseline(float em) {
   self._extents.descent = height - ascent;
 }
 
-//} ... class GridBoxImpl
+//} ... class GridBox::Impl

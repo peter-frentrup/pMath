@@ -17,7 +17,7 @@ namespace richmath {
   };
   
   class Win32AutoMenuHook {
-      friend class Win32AutoMenuHookImpl;
+      class Impl;
     public:
       Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse_notifications, bool allow_leave_left, bool allow_leave_right);
       ~Win32AutoMenuHook();

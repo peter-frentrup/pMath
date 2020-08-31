@@ -279,16 +279,14 @@ namespace {
 }
 
 namespace richmath {
-  class NumberBoxImpl {
-    private:
-      NumberBox &self;
-      
+  class NumberBox::Impl {
     public:
-      NumberBoxImpl(NumberBox &_self)
-        : self(_self)
-      {
-      }
+      Impl(NumberBox &self) : self(self) {}
       
+      void set_number(String n);
+      PositionInRange selection_to_string_index(Box *selbox, int selpos);
+      Box *string_index_to_selection(int char_index, int *selection_index);
+    
     private:
       void append(uint16_t chr) {
         self._content->insert(self._content->length(), chr);
@@ -310,191 +308,11 @@ namespace richmath {
         self._content->insert(self._content->length(), box);
       }
       
-      MathSequence *append_radix(NumberPartPositions &parts) {
-        if(!parts.has_radix())
-          return nullptr;
-          
-        SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, nullptr);
-        MathSequence *seq = bas->subscript();
-        seq->insert(0, parts.radix());
-        append(bas);
-        return seq;
-      }
+      MathSequence *append_radix(NumberPartPositions &parts);
+      MathSequence *append_superscript(NumberPartPositions &parts, String s);
       
-      MathSequence *append_superscript(NumberPartPositions &parts, String s) {
-        SubsuperscriptBox *exp = new SubsuperscriptBox(0, new MathSequence);
-        MathSequence *seq = exp->superscript();
-        seq->insert(0, s);
-        
-        append(Multiplication, MultiplicationLength);
-        
-        if(parts.has_radix())
-          append(parts.radix());
-        else
-          append("10");
-          
-        append(exp);
-        return exp->superscript();
-      }
-      
-    public:
-      void set_number(String n) {
-        self._number = n;
-        self._base = nullptr;
-        self._radius_base = nullptr;
-        self._radius_exponent = nullptr;
-        self._exponent = nullptr;
-        
-        NumberPartPositions parts{ n };
-        
-        self._content->remove(0, self._content->length());
-        
-        int preferred_digits = DefaultMachinePrecisionDigits;
-        double prec = parts.parse_precision_digits();
-        if(0 < prec && prec < INT_MAX/2)
-          preferred_digits = (int)ceil(prec);
-        else if(prec > 0)
-          preferred_digits = n.length();
-        
-        bool allow_less_digits = (prec < 0);
-        int base = parts.parse_base();
-        append(parts.short_midpoint_mantissa(base, preferred_digits, allow_less_digits));
-        //append(parts.midpoint_mantissa());
-        
-        self._base = append_radix(parts);
-        
-        // TODO: only show radius when requested or when it is particularly big
-        if(parts.has_radius()) {
-          append(RadiusOpening, RadiusOpeningLength);
-          
-          append(parts.radius_mantissa());
-          self._radius_base = append_radix(parts);
-          
-          if(parts.has_radius_exponent())
-            self._radius_exponent = append_superscript(parts, parts.radius_exponent());
-            
-          append(']');
-        }
-        
-        if(parts.has_exponent())
-          self._exponent = append_superscript(parts, parts.exponent());
-      }
-      
-    public:
-      PositionInRange selection_to_string_index(Box *selbox, int selpos) {
-        NumberPartPositions parts{ self._number };
-        
-        if(selbox == nullptr)
-          return PositionInRange(-1, 0, 0); // error
-          
-        if(selbox == self._exponent)
-          return PositionInRange(parts.exp_start + selpos, parts.exp_start, parts.exp_end);
-          
-        if(selbox == self._radius_exponent)
-          return PositionInRange(parts.radius_exp_start + selpos, parts.radius_exp_start, parts.radius_exp_end);
-          
-        if(selbox == self._base || selbox == self._radius_base)
-          return PositionInRange(selpos, 0, parts.radix_end());
-          
-        // we should be in the midpoint mantissa, radius mantissa or one of the "[+/-", "]" or "*10" parts
-        if(selbox != self._content)
-          return PositionInRange(-1, 0, 0); // error
-          
-        int len = self._content->length();
-        if(selpos <= 0)
-          return PositionInRange(0, 0, parts.mid_mant_end);
-          
-        if(selpos >= len)
-          return PositionInRange(self._number.length(), parts.exp_start, parts.exp_end);
-          
-        const uint16_t *buf = self._content->text().buffer();
-        int i = selpos;
-        while(i > 0 && (buf[i - 1] == '.' || pmath_char_is_36digit(buf[i - 1])))
-          --i;
-          
-        if(i == 0)
-          return PositionInRange(parts.mid_mant_start + selpos, parts.mid_mant_start, parts.mid_mant_end);
-          
-        if(buf[i - 1] == PMATH_CHAR_PLUSMINUS)
-          return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
-          
-        if(buf[i - 1] == '[')
-          return PositionInRange(parts.mid_mant_end + selpos - i, parts.mid_mant_end + 1, parts.radius_mant_start);
-          
-        if(buf[i - 1] == MULTIPLICATION_SPACE_CHAR || buf[i - 1] == TIMES_CHAR) {
-          // in onw of the two "*^" exponent specifiers
-          int j = selpos;
-          while(j < len && 
-              (buf[j] == MULTIPLICATION_SPACE_CHAR || 
-              buf[j] == TIMES_CHAR || 
-              buf[j] == '.' || 
-              buf[j] == PMATH_CHAR_BOX || 
-              pmath_char_is_36digit(buf[j])))
-          {
-            ++j;
-          }
-            
-          if(j == len)
-            return PositionInRange(self._number.length(), parts.prec_end, parts.exp_start);
-            
-          if(buf[j] == ']')
-            return PositionInRange(parts.radius_mant_end, parts.radius_mant_end, parts.radius_exp_start);
-        }
-        
-        return PositionInRange(-1, 0, 0); // error
-      }
-      
-      Box *string_index_to_selection(int char_index, int *selection_index) {
-        NumberPartPositions parts{ self._number };
-        
-        const uint16_t *buf = self._content->text().buffer();
-        const int buflen = self._content->length();
-        
-        if(char_index < parts.mid_mant_start) {
-          *selection_index = std::max(0, std::min(char_index, self._base->length()));
-          return self._base;
-        }
-        
-        if(char_index <= parts.mid_mant_end) {
-          int in_mid_mant = char_index - parts.mid_mant_start;
-          *selection_index = std::max(0, std::min(in_mid_mant, buflen));
-          return self._content;
-        }
-        
-        int buf_rad_start = parts.mid_mant_end - parts.mid_mant_start;
-        if(self._base && buf_rad_start < buflen && buf[buf_rad_start] == PMATH_CHAR_BOX)
-          buf_rad_start += 1;
-        
-        if(parts.has_radius()) { 
-          if( buf_rad_start + RadiusOpeningLength < buflen && 
-              0 == memcmp(buf + buf_rad_start, RadiusOpening, sizeof(uint16_t) * RadiusOpeningLength))
-          {
-            buf_rad_start += RadiusOpeningLength;
-            
-            if(char_index <= parts.radius_mant_end) {
-              int in_rad_mant = char_index - parts.radius_mant_start;
-              *selection_index = std::max(0, std::min(buf_rad_start + in_rad_mant, buflen));
-              return self._content;
-            }
-            
-            if(char_index < parts.radius_exp_end) {
-              if(self._radius_exponent) {
-                int in_rad_exp = char_index - parts.radius_exp_start;
-                *selection_index = std::max(0, std::min(in_rad_exp, self._radius_exponent->length()));
-                return self._radius_exponent;
-              }
-            }
-          }
-        }
-        
-        if(self._exponent && char_index <= parts.exp_end) {
-          int in_mid_exp = char_index - parts.exp_start;
-          *selection_index = std::max(0, std::min(in_mid_exp, self._exponent->length()));
-          return self._exponent;
-        }
-        
-        return nullptr;
-      }
+    private:
+      NumberBox &self;
   };
 }
 
@@ -503,13 +321,13 @@ namespace richmath {
 NumberBox::NumberBox()
   : OwnerBox()
 {
-  NumberBoxImpl(*this).set_number(String(""));
+  Impl(*this).set_number(String(""));
 }
 
 NumberBox::NumberBox(String number)
   : OwnerBox()
 {
-  NumberBoxImpl(*this).set_number(number);
+  Impl(*this).set_number(number);
 }
 
 bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -523,7 +341,7 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(s.is_null())
     return false;
     
-  NumberBoxImpl(*this).set_number(s);
+  Impl(*this).set_number(s);
   finish_load_from_object(std::move(expr));
   return true;
 }
@@ -535,8 +353,8 @@ bool NumberBox::edit_selection(Context *context) {
       return false;
       
     Box *selbox = context->selection.get();
-    PositionInRange pos_start = NumberBoxImpl(*this).selection_to_string_index(selbox, context->selection.start);
-    PositionInRange pos_end = NumberBoxImpl(*this).selection_to_string_index(selbox, context->selection.end);
+    PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, context->selection.start);
+    PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, context->selection.end);
     
     if(!pos_start.is_valid() || !pos_end.is_valid())
       return false;
@@ -642,7 +460,7 @@ PositionInRange NumberBox::selection_to_string_index(String number, Box *sel, in
   if(number != _number)
     return PositionInRange(-1, 0, 0);
   
-  return NumberBoxImpl(*this).selection_to_string_index(sel, index);
+  return Impl(*this).selection_to_string_index(sel, index);
 }
 
 Box *NumberBox::string_index_to_selection(String number, int char_index, int *selection_index) {
@@ -652,12 +470,200 @@ Box *NumberBox::string_index_to_selection(String number, int char_index, int *se
         number[0] == '"' && 
         number.part(1, _number.length()) == _number)
     {
-      return NumberBoxImpl(*this).string_index_to_selection(char_index - 1, selection_index);
+      return Impl(*this).string_index_to_selection(char_index - 1, selection_index);
     }
     return nullptr;
   }
   
-  return NumberBoxImpl(*this).string_index_to_selection(char_index, selection_index);
+  return Impl(*this).string_index_to_selection(char_index, selection_index);
 }
       
 //} ... class NumberBox
+
+//{ class NumberBox::Impl ...
+
+void NumberBox::Impl::set_number(String n) {
+  self._number = n;
+  self._base = nullptr;
+  self._radius_base = nullptr;
+  self._radius_exponent = nullptr;
+  self._exponent = nullptr;
+  
+  NumberPartPositions parts{ n };
+  
+  self._content->remove(0, self._content->length());
+  
+  int preferred_digits = DefaultMachinePrecisionDigits;
+  double prec = parts.parse_precision_digits();
+  if(0 < prec && prec < INT_MAX/2)
+    preferred_digits = (int)ceil(prec);
+  else if(prec > 0)
+    preferred_digits = n.length();
+  
+  bool allow_less_digits = (prec < 0);
+  int base = parts.parse_base();
+  append(parts.short_midpoint_mantissa(base, preferred_digits, allow_less_digits));
+  //append(parts.midpoint_mantissa());
+  
+  self._base = append_radix(parts);
+  
+  // TODO: only show radius when requested or when it is particularly big
+  if(parts.has_radius()) {
+    append(RadiusOpening, RadiusOpeningLength);
+    
+    append(parts.radius_mantissa());
+    self._radius_base = append_radix(parts);
+    
+    if(parts.has_radius_exponent())
+      self._radius_exponent = append_superscript(parts, parts.radius_exponent());
+      
+    append(']');
+  }
+  
+  if(parts.has_exponent())
+    self._exponent = append_superscript(parts, parts.exponent());
+}
+
+PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selpos) {
+  NumberPartPositions parts{ self._number };
+  
+  if(selbox == nullptr)
+    return PositionInRange(-1, 0, 0); // error
+    
+  if(selbox == self._exponent)
+    return PositionInRange(parts.exp_start + selpos, parts.exp_start, parts.exp_end);
+    
+  if(selbox == self._radius_exponent)
+    return PositionInRange(parts.radius_exp_start + selpos, parts.radius_exp_start, parts.radius_exp_end);
+    
+  if(selbox == self._base || selbox == self._radius_base)
+    return PositionInRange(selpos, 0, parts.radix_end());
+    
+  // we should be in the midpoint mantissa, radius mantissa or one of the "[+/-", "]" or "*10" parts
+  if(selbox != self._content)
+    return PositionInRange(-1, 0, 0); // error
+    
+  int len = self._content->length();
+  if(selpos <= 0)
+    return PositionInRange(0, 0, parts.mid_mant_end);
+    
+  if(selpos >= len)
+    return PositionInRange(self._number.length(), parts.exp_start, parts.exp_end);
+    
+  const uint16_t *buf = self._content->text().buffer();
+  int i = selpos;
+  while(i > 0 && (buf[i - 1] == '.' || pmath_char_is_36digit(buf[i - 1])))
+    --i;
+    
+  if(i == 0)
+    return PositionInRange(parts.mid_mant_start + selpos, parts.mid_mant_start, parts.mid_mant_end);
+    
+  if(buf[i - 1] == PMATH_CHAR_PLUSMINUS)
+    return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
+    
+  if(buf[i - 1] == '[')
+    return PositionInRange(parts.mid_mant_end + selpos - i, parts.mid_mant_end + 1, parts.radius_mant_start);
+    
+  if(buf[i - 1] == MULTIPLICATION_SPACE_CHAR || buf[i - 1] == TIMES_CHAR) {
+    // in onw of the two "*^" exponent specifiers
+    int j = selpos;
+    while(j < len && 
+        (buf[j] == MULTIPLICATION_SPACE_CHAR || 
+        buf[j] == TIMES_CHAR || 
+        buf[j] == '.' || 
+        buf[j] == PMATH_CHAR_BOX || 
+        pmath_char_is_36digit(buf[j])))
+    {
+      ++j;
+    }
+      
+    if(j == len)
+      return PositionInRange(self._number.length(), parts.prec_end, parts.exp_start);
+      
+    if(buf[j] == ']')
+      return PositionInRange(parts.radius_mant_end, parts.radius_mant_end, parts.radius_exp_start);
+  }
+  
+  return PositionInRange(-1, 0, 0); // error
+}
+
+Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_index) {
+  NumberPartPositions parts{ self._number };
+  
+  const uint16_t *buf = self._content->text().buffer();
+  const int buflen = self._content->length();
+  
+  if(char_index < parts.mid_mant_start) {
+    *selection_index = std::max(0, std::min(char_index, self._base->length()));
+    return self._base;
+  }
+  
+  if(char_index <= parts.mid_mant_end) {
+    int in_mid_mant = char_index - parts.mid_mant_start;
+    *selection_index = std::max(0, std::min(in_mid_mant, buflen));
+    return self._content;
+  }
+  
+  int buf_rad_start = parts.mid_mant_end - parts.mid_mant_start;
+  if(self._base && buf_rad_start < buflen && buf[buf_rad_start] == PMATH_CHAR_BOX)
+    buf_rad_start += 1;
+  
+  if(parts.has_radius()) { 
+    if( buf_rad_start + RadiusOpeningLength < buflen && 
+        0 == memcmp(buf + buf_rad_start, RadiusOpening, sizeof(uint16_t) * RadiusOpeningLength))
+    {
+      buf_rad_start += RadiusOpeningLength;
+      
+      if(char_index <= parts.radius_mant_end) {
+        int in_rad_mant = char_index - parts.radius_mant_start;
+        *selection_index = std::max(0, std::min(buf_rad_start + in_rad_mant, buflen));
+        return self._content;
+      }
+      
+      if(char_index < parts.radius_exp_end) {
+        if(self._radius_exponent) {
+          int in_rad_exp = char_index - parts.radius_exp_start;
+          *selection_index = std::max(0, std::min(in_rad_exp, self._radius_exponent->length()));
+          return self._radius_exponent;
+        }
+      }
+    }
+  }
+  
+  if(self._exponent && char_index <= parts.exp_end) {
+    int in_mid_exp = char_index - parts.exp_start;
+    *selection_index = std::max(0, std::min(in_mid_exp, self._exponent->length()));
+    return self._exponent;
+  }
+  
+  return nullptr;
+}
+
+MathSequence *NumberBox::Impl::append_radix(NumberPartPositions &parts) {
+  if(!parts.has_radix())
+    return nullptr;
+    
+  SubsuperscriptBox *bas = new SubsuperscriptBox(new MathSequence, nullptr);
+  MathSequence *seq = bas->subscript();
+  seq->insert(0, parts.radix());
+  append(bas);
+  return seq;
+}
+
+MathSequence *NumberBox::Impl::append_superscript(NumberPartPositions &parts, String s) {
+  SubsuperscriptBox *exp = new SubsuperscriptBox(0, new MathSequence);
+  MathSequence *seq = exp->superscript();
+  seq->insert(0, s);
+  
+  append(Multiplication, MultiplicationLength);
+  
+  if(parts.has_radix())
+    append(parts.radix());
+  else
+    append("10");
+    
+  append(exp);
+  return exp->superscript();
+}
+
+//} ... class NumberBox::Impl

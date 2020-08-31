@@ -10,82 +10,15 @@ using namespace pmath;
 
 
 namespace richmath {
-  class MathGtkFileDialogImpl {
+  class MathGtkFileDialog::Impl {
     private:
       MathGtkFileDialog &self;
       
     public:
-      MathGtkFileDialogImpl(MathGtkFileDialog &_self): self(_self) {}
+      Impl(MathGtkFileDialog &self): self(self) {}
     
-    public:
-      void add_filter(Expr caption, Expr extensions) {
-        if(!caption.is_string())
-          return;
-        
-        if(extensions.is_string()) 
-          extensions = List(extensions);
-        
-        if(extensions.expr_length() >= 1 && extensions[0] == PMATH_SYMBOL_LIST) {
-          bool all_strings = true;
-          
-          for(size_t j = extensions.expr_length(); j > 0; --j) {
-            if(!extensions[j].is_string()) {
-              all_strings = false;
-              break;
-            }
-          }
-          
-          if(all_strings) {
-            GtkFileFilter *next_filter = gtk_file_filter_new();
-            
-            String str = String(caption);
-            if(char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr)) {
-              gtk_file_filter_set_name(next_filter, utf8);
-              pmath_mem_free(utf8);
-            }
-            
-            for(size_t j = 1; j <= extensions.expr_length(); ++j) {
-              str = String(extensions[j]);
-              
-              if(str.equals("*.*")) {
-                gtk_file_filter_add_pattern(next_filter, "*");
-              }
-              else {
-                if(char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr)) {
-                  gtk_file_filter_add_pattern(next_filter, utf8);
-                  pmath_mem_free(utf8);
-                }
-              }
-            }
-            
-            gtk_file_chooser_add_filter(self._chooser, next_filter);
-          }
-        }
-      }
-    
-    public:
-      GtkWindow *get_parent_window() {
-        Box *box = Application::get_evaluation_box();
-        if(!box)
-          box = get_current_document();
-          
-        if(!box)
-          return nullptr;
-          
-        Document *doc = box->find_parent<Document>(true);
-        if(!doc)
-          return nullptr;
-          
-        auto widget = dynamic_cast<MathGtkWidget*>(doc->native());
-        if(!widget)
-          return nullptr;
-          
-        GtkWidget *wid = widget->widget();
-        if(!wid)
-          return nullptr;
-          
-        return GTK_WINDOW(gtk_widget_get_ancestor(wid, GTK_TYPE_WINDOW));
-      }
+      void add_filter(Expr caption, Expr extensions);
+      GtkWindow *get_parent_window();
   };
 }
 
@@ -133,7 +66,7 @@ void MathGtkFileDialog::set_filter(Expr filter) {
     Expr rule = filter[i];
     
     if(rule.is_rule()) 
-      MathGtkFileDialogImpl(*this).add_filter(rule[1], rule[2]);
+      Impl(*this).add_filter(rule[1], rule[2]);
   }
 }
 
@@ -151,7 +84,7 @@ void MathGtkFileDialog::set_initial_file(String initialfile) {
 }
 
 Expr MathGtkFileDialog::show_dialog() {
-  if(GtkWindow *parent = MathGtkFileDialogImpl(*this).get_parent_window())
+  if(GtkWindow *parent = Impl(*this).get_parent_window())
     gtk_window_set_transient_for(GTK_WINDOW(_dialog), parent);
   
   // TODO: goto working directory when no initialfile was given
@@ -182,3 +115,75 @@ Expr MathGtkFileDialog::show_dialog() {
 }
 
 //} ... class MathGtkFileDialog
+
+//{ class MathGtkFileDialog::Impl ...
+
+void MathGtkFileDialog::Impl::add_filter(Expr caption, Expr extensions) {
+  if(!caption.is_string())
+    return;
+  
+  if(extensions.is_string()) 
+    extensions = List(extensions);
+  
+  if(extensions.expr_length() >= 1 && extensions[0] == PMATH_SYMBOL_LIST) {
+    bool all_strings = true;
+    
+    for(size_t j = extensions.expr_length(); j > 0; --j) {
+      if(!extensions[j].is_string()) {
+        all_strings = false;
+        break;
+      }
+    }
+    
+    if(all_strings) {
+      GtkFileFilter *next_filter = gtk_file_filter_new();
+      
+      String str = String(caption);
+      if(char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr)) {
+        gtk_file_filter_set_name(next_filter, utf8);
+        pmath_mem_free(utf8);
+      }
+      
+      for(size_t j = 1; j <= extensions.expr_length(); ++j) {
+        str = String(extensions[j]);
+        
+        if(str.equals("*.*")) {
+          gtk_file_filter_add_pattern(next_filter, "*");
+        }
+        else {
+          if(char *utf8 = pmath_string_to_utf8(str.get_as_string(), nullptr)) {
+            gtk_file_filter_add_pattern(next_filter, utf8);
+            pmath_mem_free(utf8);
+          }
+        }
+      }
+      
+      gtk_file_chooser_add_filter(self._chooser, next_filter);
+    }
+  }
+}
+
+GtkWindow *MathGtkFileDialog::Impl::get_parent_window() {
+  Box *box = Application::get_evaluation_box();
+  if(!box)
+    box = get_current_document();
+    
+  if(!box)
+    return nullptr;
+    
+  Document *doc = box->find_parent<Document>(true);
+  if(!doc)
+    return nullptr;
+    
+  auto widget = dynamic_cast<MathGtkWidget*>(doc->native());
+  if(!widget)
+    return nullptr;
+    
+  GtkWidget *wid = widget->widget();
+  if(!wid)
+    return nullptr;
+    
+  return GTK_WINDOW(gtk_widget_get_ancestor(wid, GTK_TYPE_WINDOW));
+}
+
+//} ... class MathGtkFileDialog::Impl

@@ -7,7 +7,7 @@ extern pmath_symbol_t richmath_System_Dynamic;
 
 namespace richmath {
   class Dynamic: public Base {
-      friend class DynamicImpl;
+      class Impl;
     public:
       Dynamic();
       Dynamic(Box *owner, Expr expr);
