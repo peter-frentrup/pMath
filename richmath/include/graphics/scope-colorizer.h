@@ -10,9 +10,9 @@ namespace richmath {
   
   class ScopeColorizer: public Base {
     public:
-      explicit ScopeColorizer(MathSequence *_sequence);
+      explicit ScopeColorizer(MathSequence &sequence);
       
-      void scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se);
+      void scope_colorize_spanexpr(SyntaxState &state, SpanExpr *se);
       
       void comments_colorize_span(Span span, int *pos);
       
@@ -21,7 +21,7 @@ namespace richmath {
       void arglist_errors_colorize_spanexpr(SpanExpr *se, float error_indicator_height);
       
     private:
-      MathSequence *sequence;
+      MathSequence &sequence;
   };
 }
 

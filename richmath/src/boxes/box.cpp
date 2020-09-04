@@ -217,7 +217,7 @@ bool Box::update_dynamic_styles(Context &context) {
   return false;
 }
 
-void Box::colorize_scope(SyntaxState *state) {
+void Box::colorize_scope(SyntaxState &state) {
   for(int i = 0; i < count(); ++i)
     item(i)->colorize_scope(state);
 }

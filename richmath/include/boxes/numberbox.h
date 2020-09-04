@@ -33,7 +33,7 @@ namespace richmath {
       
       virtual bool edit_selection(SelectionReference &selection) override;
       
-      virtual void colorize_scope(SyntaxState *state) override {}
+      virtual void colorize_scope(SyntaxState &state) override {}
       virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }

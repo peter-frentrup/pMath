@@ -230,7 +230,7 @@ void UnderoverscriptBox::after_items_resize(Context &context) {
   }
 }
 
-void UnderoverscriptBox::colorize_scope(SyntaxState *state) {
+void UnderoverscriptBox::colorize_scope(SyntaxState &state) {
   _base->colorize_scope(state);
   
   if(_underscript && !_underscript_is_stretched)

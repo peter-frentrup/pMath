@@ -41,7 +41,7 @@ namespace richmath {
       virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context &context) override;
-      virtual void colorize_scope(SyntaxState *state) override;
+      virtual void colorize_scope(SyntaxState &state) override;
       virtual void paint(Context &context) override;
       
       virtual void selection_path(Canvas &canvas,   int start, int end) override;

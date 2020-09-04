@@ -260,7 +260,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) { return false; }
       bool update_dynamic_styles(Context &context);
       virtual void resize(Context &context) = 0;
-      virtual void colorize_scope(SyntaxState *state);
+      virtual void colorize_scope(SyntaxState &state);
       virtual void paint(Context &context) = 0;
       virtual Box *get_highlight_child(Box *src, int *start, int *end);
       virtual void selection_path(Canvas &canvas, int start, int end);

@@ -395,7 +395,7 @@ void AbstractSequenceSection::resize(Context &context) {
   
   if(context.show_auto_styles) {
     SyntaxState syntax;
-    _content->colorize_scope(&syntax);
+    _content->colorize_scope(syntax);
   }
   
   if(_content->var_extents().ascent < 0.75 * _content->get_em())

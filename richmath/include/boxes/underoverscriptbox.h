@@ -26,7 +26,7 @@ namespace richmath {
       
       virtual void resize(Context &context) override;
       void after_items_resize(Context &context);
-      virtual void colorize_scope(SyntaxState *state) override;
+      virtual void colorize_scope(SyntaxState &state) override;
       virtual void paint(Context &context) override;
       
       virtual Box *remove(int *index) override;

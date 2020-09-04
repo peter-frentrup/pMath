@@ -78,7 +78,7 @@ void AbstractStyleBox::paint(Context &context) {
   paint_or_resize_no_baseline(context, true);
 }
 
-void AbstractStyleBox::colorize_scope(SyntaxState *state) {
+void AbstractStyleBox::colorize_scope(SyntaxState &state) {
   if(get_own_style(FontColor).is_valid()) 
     return;
     

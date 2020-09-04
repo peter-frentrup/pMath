@@ -18,17 +18,17 @@ using namespace richmath;
 namespace richmath {
   class ScopeColorizerImpl {
     private:
-      MathSequence           *sequence;
-      SyntaxState            *state;
+      MathSequence           &sequence;
+      SyntaxState            &state;
       const Array<GlyphInfo> &glyphs;
       const String           &str;
       
     public:
-      ScopeColorizerImpl(MathSequence *_sequence, SyntaxState *_state)
-        : sequence(_sequence),
-          state(_state),
-          glyphs(sequence->glyph_array()),
-          str(sequence->text())
+      ScopeColorizerImpl(MathSequence &sequence, SyntaxState &state)
+        : sequence(sequence),
+          state(state),
+          glyphs(sequence.glyph_array()),
+          str(sequence.text())
       {
       }
       
@@ -37,14 +37,14 @@ namespace richmath {
         int          start,
         SymbolKind   kind
       ) {
-        const SpanArray &spans = sequence->span_array();
+        const SpanArray &spans = sequence.span_array();
         
         int end = start;
         while(end < glyphs.length() && !spans.is_token_end(end))
           ++end;
         ++end;
         
-        if(sequence->is_placeholder(start) && start + 1 == end)
+        if(sequence.is_placeholder(start) && start + 1 == end)
           return end;
           
         if( glyphs[start].style != GlyphStyleNone      &&
@@ -58,12 +58,12 @@ namespace richmath {
         
         String name(str.part(start, end - start));
         
-        SharedPtr<SymbolInfo> info = state->local_symbols[name];
+        SharedPtr<SymbolInfo> info = state.local_symbols[name];
         uint8_t style = GlyphStyleNone;
         
         if(kind == SymbolKind::Global) {
           while(info) {
-            if(info->pos->contains(state->current_pos)) {
+            if(info->pos->contains(state.current_pos)) {
               switch(info->kind) {
                 case SymbolKind::LocalSymbol:  style = GylphStyleLocal;      break;
                 case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
@@ -96,12 +96,12 @@ namespace richmath {
           SharedPtr<SymbolInfo> si = info;
           
           do {
-            if(info->pos.ptr() == state->current_pos.ptr()) {
+            if(info->pos.ptr() == state.current_pos.ptr()) {
               if(info->kind == kind)
                 break;
                 
               if(info->kind == SymbolKind::LocalSymbol && kind == SymbolKind::Special) {
-                si->add(kind, state->current_pos);
+                si->add(kind, state.current_pos);
                 break;
               }
               
@@ -110,14 +110,14 @@ namespace richmath {
                 break;
               }
               
-              si->add(SymbolKind::Error, state->current_pos);
+              si->add(SymbolKind::Error, state.current_pos);
               style = GylphStyleScopeError;
               break;
             }
             
-            if(info->pos->contains(state->current_pos)) {
+            if(info->pos->contains(state.current_pos)) {
               if(info->kind == SymbolKind::LocalSymbol && kind != SymbolKind::LocalSymbol/* && kind == SymbolKind::Special*/) {
-                si->add(kind, state->current_pos);
+                si->add(kind, state.current_pos);
                 break;
               }
               
@@ -126,7 +126,7 @@ namespace richmath {
                 break;
               }
               
-              si->add(SymbolKind::Error, state->current_pos);
+              si->add(SymbolKind::Error, state.current_pos);
               style = GylphStyleScopeError;
               break;
             }
@@ -136,12 +136,12 @@ namespace richmath {
           
           if(!info) {
             si->kind = kind;
-            si->pos = state->current_pos;
+            si->pos = state.current_pos;
             si->next = 0;
           }
         }
         else
-          state->local_symbols.set(name, new SymbolInfo(kind, state->current_pos));
+          state.local_symbols.set(name, new SymbolInfo(kind, state.current_pos));
           
         if(!style) {
           switch(kind) {
@@ -242,7 +242,7 @@ namespace richmath {
         
         if(se->first_char() == '#') {
           uint8_t style;
-          if(state->in_function)
+          if(state.in_function)
             style = GlyphStyleParameter;
           else
             style = GylphStyleScopeError;
@@ -253,7 +253,7 @@ namespace richmath {
           return;
         }
         
-        if(se->first_char() == '~' && state->in_pattern) {
+        if(se->first_char() == '~' && state.in_pattern) {
           for(int i = se->start(); i <= se->end(); ++i)
             glyphs[i].style = GlyphStyleParameter;
             
@@ -265,7 +265,7 @@ namespace richmath {
         assert(se->count() == 2);
         
         uint8_t style;
-        if(state->in_function)
+        if(state.in_function)
           style = GlyphStyleParameter;
         else
           style = GylphStyleScopeError;
@@ -277,12 +277,12 @@ namespace richmath {
       void colorize_pure_function(SpanExpr *se) { // body &
         assert(se->count() == 2);
         
-        bool old_in_function = state->in_function;
-        state->in_function = true;
+        bool old_in_function = state.in_function;
+        state.in_function = true;
         
         scope_colorize_spanexpr(se->item(0));
         
-        state->in_function = old_in_function;
+        state.in_function = old_in_function;
       }
       
       void colorize_mapsto_function(SpanExpr *se) {
@@ -290,8 +290,8 @@ namespace richmath {
         // args \[Function] body
         assert(se->count() == 2 || se->count() == 3);
         
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
+        SharedPtr<ScopePos> next_scope = state.new_scope();
+        state.new_scope();
         
         SpanExpr *sub = se->item(0);
         scope_colorize_spanexpr(sub);
@@ -326,13 +326,13 @@ namespace richmath {
             glyphs[i].style = GlyphStyleSyntaxError;
         }
         
-        state->current_pos = next_scope;
+        state.current_pos = next_scope;
       }
       
       void colorize_simple_pattern_name(SpanExpr *se) { // ~x   ?x
         assert(se->count() == 2);
         
-        if(!state->in_pattern)
+        if(!state.in_pattern)
           return;
           
         symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
@@ -344,7 +344,7 @@ namespace richmath {
       void colorize_pattern_name(SpanExpr *se) { // name:pat
         assert(se->count() >= 2);
         
-        if(!state->in_pattern)
+        if(!state.in_pattern)
           return;
           
         for(int i = 0; i < se->count(); ++i) {
@@ -359,7 +359,7 @@ namespace richmath {
       void colorize_typed_pattern(SpanExpr *se) { // ~name:type
         assert(se->count() >= 3);
         
-        if(!state->in_pattern)
+        if(!state.in_pattern)
           return;
           
         symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
@@ -371,7 +371,7 @@ namespace richmath {
       void colorize_optional_value_pattern(SpanExpr *se) { // ?name:value
         assert(se->count() >= 3);
         
-        if(!state->in_pattern)
+        if(!state.in_pattern)
           return;
           
         for(int i = 0; i < se->count(); ++i) {
@@ -394,18 +394,18 @@ namespace richmath {
         // lhs->rhs
         assert(se->count() == 2 || se->count() == 3);
         
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
+        SharedPtr<ScopePos> next_scope = state.new_scope();
+        state.new_scope();
         
-        bool old_in_pattern = state->in_pattern;
-        state->in_pattern = true;
+        bool old_in_pattern = state.in_pattern;
+        state.in_pattern = true;
         
         scope_colorize_spanexpr(se->item(0));
         
-        state->in_pattern = old_in_pattern;
+        state.in_pattern = old_in_pattern;
         
         if(!delayed)
-          state->current_pos = next_scope;
+          state.current_pos = next_scope;
           
         if(se->count() == 3) {
           scope_colorize_spanexpr(se->item(2));
@@ -416,7 +416,7 @@ namespace richmath {
         }
         
         if(delayed)
-          state->current_pos = next_scope;
+          state.current_pos = next_scope;
       }
       
       void colorize_tag_assignment(SpanExpr * se, bool delayed) { // x/:y:=z   x/:y::=z
@@ -424,18 +424,18 @@ namespace richmath {
         
         scope_colorize_spanexpr(se->item(0));
         
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
+        SharedPtr<ScopePos> next_scope = state.new_scope();
+        state.new_scope();
         
-        bool old_in_pattern = state->in_pattern;
-        state->in_pattern = true;
+        bool old_in_pattern = state.in_pattern;
+        state.in_pattern = true;
         
         scope_colorize_spanexpr(se->item(2));
         
-        state->in_pattern = old_in_pattern;
+        state.in_pattern = old_in_pattern;
         
         if(!delayed)
-          state->current_pos = next_scope;
+          state.current_pos = next_scope;
           
         if(se->count() == 5) {
           scope_colorize_spanexpr(se->item(4));
@@ -446,7 +446,7 @@ namespace richmath {
         }
         
         if(delayed)
-          state->current_pos = next_scope;
+          state.current_pos = next_scope;
       }
       
       bool colorize_integral(SpanExpr *se) { // \[Integral] ... \[DifferentialD]...
@@ -482,15 +482,15 @@ namespace richmath {
             for(int i = 0; i < se->count() - 1; ++i)
               scope_colorize_spanexpr(se->item(i));
               
-            SharedPtr<ScopePos> next_scope = state->new_scope();
-            state->new_scope();
+            SharedPtr<ScopePos> next_scope = state.new_scope();
+            state.new_scope();
             
             symbol_colorize(dx->item_pos(1), SymbolKind::Special);
             
             for(int i = 0; i < integrand->count() - 1; ++i)
               scope_colorize_spanexpr(integrand->item(i));
               
-            state->current_pos = next_scope;
+            state.current_pos = next_scope;
             return true;
           }
         }
@@ -532,15 +532,15 @@ namespace richmath {
           {
             scope_colorize_spanexpr(se->item(next_item - 1));
             
-            SharedPtr<ScopePos> next_scope = state->new_scope();
-            state->new_scope();
+            SharedPtr<ScopePos> next_scope = state.new_scope();
+            state.new_scope();
             
-            ScopeColorizerImpl(bigop_init, state).symbol_colorize(init->item_pos(0), SymbolKind::Special);
+            ScopeColorizerImpl(*bigop_init, state).symbol_colorize(init->item_pos(0), SymbolKind::Special);
             
             for(int i = next_item; i < se->count(); ++i)
               scope_colorize_spanexpr(se->item(i));
               
-            state->current_pos = next_scope;
+            state.current_pos = next_scope;
             delete init;
             return true;
           }
@@ -561,8 +561,8 @@ namespace richmath {
           
         scope_colorize_spanexpr(call.function_argument(1));
         
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
+        SharedPtr<ScopePos> next_scope = state.new_scope();
+        state.new_scope();
         
         symdeflist_colorize_spanexpr(call.function_argument(1), SymbolKind::LocalSymbol);
         
@@ -570,7 +570,7 @@ namespace richmath {
           scope_colorize_spanexpr(call.function_argument(2));
         }
         
-        state->current_pos = next_scope;
+        state.current_pos = next_scope;
         
         for(int i = 3; i <= arg_count; ++i)
           scope_colorize_spanexpr(call.function_argument(i));
@@ -584,19 +584,19 @@ namespace richmath {
           return;
           
         if(arg_count == 1) {
-          bool old_in_function = state->in_function;
-          state->in_function = true;
+          bool old_in_function = state.in_function;
+          state.in_function = true;
           
           scope_colorize_spanexpr(call.function_argument(1));
           
-          state->in_function = old_in_function;
+          state.in_function = old_in_function;
           return;
         }
         
         scope_colorize_spanexpr(call.function_argument(1));
         
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
+        SharedPtr<ScopePos> next_scope = state.new_scope();
+        state.new_scope();
         
         if(pmath_char_is_name(call.function_argument(1)->first_char()))
           symbol_colorize(call.function_argument(1)->start(), SymbolKind::Parameter);
@@ -605,7 +605,7 @@ namespace richmath {
           
         scope_colorize_spanexpr(call.function_argument(2));
         
-        state->current_pos = next_scope;
+        state.current_pos = next_scope;
         
         for(int i = 3; i < arg_count; ++i)
           scope_colorize_spanexpr(call.function_argument(i));
@@ -618,8 +618,8 @@ namespace richmath {
         if(arg_count < 1)
           return;
           
-        SharedPtr<ScopePos> next_scope = state->new_scope();
-        state->new_scope();
+        SharedPtr<ScopePos> next_scope = state.new_scope();
+        state.new_scope();
         
         for(int i = info.locals_min; i <= info.locals_max && i <= arg_count; ++i) {
           replacement_colorize_spanexpr(call.function_argument(i), SymbolKind::Special);
@@ -640,7 +640,7 @@ namespace richmath {
         for(int i = info.locals_max; i < arg_count; ++i)
           scope_colorize_spanexpr(call.function_argument(i + 1));
           
-        state->current_pos = next_scope;
+        state.current_pos = next_scope;
       }
       
       void colorize_simple_call(SpanExpr *head_name, SpanExpr *se) {
@@ -718,7 +718,7 @@ namespace richmath {
         SharedPtr<ScopePos> next_scope;
         colorize_block_body_line(se->item(1), next_scope);
         if(next_scope)
-          state->current_pos = next_scope;
+          state.current_pos = next_scope;
       }
       
       void symdef_local_colorize_spanexpr(SpanExpr *se) {
@@ -734,9 +734,9 @@ namespace richmath {
         colorize_keyword(head.function_head());
         
         if(!scope_after_block)
-          scope_after_block = state->new_scope();
+          scope_after_block = state.new_scope();
           
-        state->new_scope();
+        state.new_scope();
         
         const int head_arg_count = head.function_argument_count();
         for(int i = 1; i <= head_arg_count; ++i)
@@ -752,7 +752,7 @@ namespace richmath {
         
         colorize_block_body(se->item(1));
         
-        state->current_pos = next_scope;
+        state.current_pos = next_scope;
       }
       
       void colorize_if_blocks(FunctionCallSpan &head, SpanExpr *se) {
@@ -820,15 +820,15 @@ namespace richmath {
              */
             colorize_keyword(name);
             
-            SharedPtr<ScopePos> next_scope = state->new_scope();
-            state->new_scope();
+            SharedPtr<ScopePos> next_scope = state.new_scope();
+            state.new_scope();
             
-            bool old_in_pattern = state->in_pattern;
-            state->in_pattern = true;
+            bool old_in_pattern = state.in_pattern;
+            state.in_pattern = true;
             
             scope_colorize_spanexpr(se->item(1)); // name(...)
             
-            state->in_pattern = old_in_pattern;
+            state.in_pattern = old_in_pattern;
             
             for(int i = 2; i < se->count() - 1; ++i) {
               SpanExpr *item = se->item(i);
@@ -844,7 +844,7 @@ namespace richmath {
             
             colorize_block_body(se->item(se->count() - 1)); // {...}
             
-            state->current_pos = next_scope;
+            state.current_pos = next_scope;
             return;
           }
         }
@@ -1395,23 +1395,23 @@ namespace richmath {
 
 //{ class ScopeColorizer ...
 
-ScopeColorizer::ScopeColorizer(MathSequence *_sequence)
+ScopeColorizer::ScopeColorizer(MathSequence &sequence)
   : Base(),
-    sequence(_sequence)
+    sequence(sequence)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
-void ScopeColorizer::scope_colorize_spanexpr(SyntaxState *state, SpanExpr *se) {
+void ScopeColorizer::scope_colorize_spanexpr(SyntaxState &state, SpanExpr *se) {
   ScopeColorizerImpl(sequence, state).scope_colorize_spanexpr(se);
 }
 
 
 void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
-  const uint16_t         *buf     = sequence->text().buffer();
-  const uint16_t         *buf_end = buf + sequence->text().length();
-  const Array<GlyphInfo> &glyphs  = sequence->glyph_array();
-  const SpanArray        &spans   = sequence->span_array();
+  const uint16_t         *buf     = sequence.text().buffer();
+  const uint16_t         *buf_end = buf + sequence.text().length();
+  const Array<GlyphInfo> &glyphs  = sequence.glyph_array();
+  const SpanArray        &spans   = sequence.span_array();
   
   if(!span) {
     if(is_comment_start_at(buf + *pos, buf_end)) {

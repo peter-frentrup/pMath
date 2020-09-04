@@ -392,7 +392,7 @@ void MathSequence::resize(Context &context) {
   Impl(*this).apply_glyph_substitutions(context);
   
   if(context.show_auto_styles) {
-    ScopeColorizer colorizer(this);
+    ScopeColorizer colorizer(*this);
     
     pos = 0;
     while(pos < glyphs.length())
@@ -492,11 +492,11 @@ void MathSequence::resize(Context &context) {
     context.sequence_unfilled_width = _extents.width;
 }
 
-void MathSequence::colorize_scope(SyntaxState *state) {
+void MathSequence::colorize_scope(SyntaxState &state) {
   assert(glyphs.length() == spans.length());
   assert(glyphs.length() == str.length());
   
-  ScopeColorizer colorizer(this);
+  ScopeColorizer colorizer(*this);
   
   int pos = 0;
   while(pos < glyphs.length()) {

@@ -11,7 +11,7 @@ namespace richmath {
       
       virtual void paint(Context &context) override;
       
-      virtual void colorize_scope(SyntaxState *state) override;
+      virtual void colorize_scope(SyntaxState &state) override;
       
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
