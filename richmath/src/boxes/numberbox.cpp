@@ -346,15 +346,15 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool NumberBox::edit_selection(Context &context) {
-  if(Box::edit_selection(context)) {
+bool NumberBox::edit_selection(SelectionReference &selection) {
+  if(Box::edit_selection(selection)) {
     auto seq = dynamic_cast<MathSequence*>(_parent);
     if(!seq)
       return false;
       
-    Box *selbox = context.selection.get();
-    PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, context.selection.start);
-    PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, context.selection.end);
+    Box *selbox = selection.get();
+    PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, selection.start);
+    PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, selection.end);
     
     if(!pos_start.is_valid() || !pos_end.is_valid())
       return false;
@@ -364,7 +364,7 @@ bool NumberBox::edit_selection(Context &context) {
     seq->insert(_index + 1, _number);
     seq->remove(_index, _index + 1); // deletes this
     
-    context.selection.set(seq, i + pos_start.pos, i + pos_end.pos);
+    selection.set(seq, i + pos_start.pos, i + pos_end.pos);
     return true;
   }
   

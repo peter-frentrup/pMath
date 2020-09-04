@@ -30,7 +30,7 @@ class OwnerBox::Impl {
 //{ class OwnerBox ...
 
 OwnerBox::OwnerBox(MathSequence *content)
-  : Box(),
+  : base(),
   _content(content)
 {
   if(!_content)
@@ -119,7 +119,7 @@ Box *OwnerBox::move_vertical(
   }
   
   *index_rel_x+= cx;
-  return Box::move_vertical(direction, index_rel_x, index, called_from_child);
+  return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 VolatileSelection OwnerBox::mouse_selection(float x, float y, bool *was_inside_start) {
@@ -147,24 +147,17 @@ void OwnerBox::child_transformation(
                          cy/* + _extents.ascent*/);
 }
 
-bool OwnerBox::edit_selection(Context &context) {
-  if(Box::edit_selection(context)) {
-    int auto_delete;
+bool OwnerBox::edit_selection(SelectionReference &selection) {
+  if(base::edit_selection(selection)) {
+    bool auto_delete = 0 != get_own_style(AutoDelete, false);
     
-    if(context.stylesheet) {
-      if(!context.stylesheet->get(style, AutoDelete, &auto_delete))
-        auto_delete = 0;
-    }
-    else if(!style || !style->get(AutoDelete, &auto_delete))
-      auto_delete = 0;
-      
-    Box *selbox = context.selection.get();
+    Box *selbox = selection.get();
     if(auto_delete && selbox != this) {
       if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
         if(selbox == _content) {
-          context.selection.set(seq,
-                                context.selection.start + _index,
-                                context.selection.end   + _index);
+          selection.set(seq,
+                        selection.start + _index,
+                        selection.end   + _index);
         }
         
         seq->insert(_index + 1, _content, 0, _content->length());

@@ -172,10 +172,10 @@ void DynamicBox::dynamic_finished(Expr info, Expr result) {
   invalidate();
 }
 
-bool DynamicBox::edit_selection(Context &context) {
+bool DynamicBox::edit_selection(SelectionReference &selection) {
   if(get_own_style(Editable, false)) {
     if(_parent)
-      return _parent->edit_selection(context);
+      return _parent->edit_selection(selection);
   }
   
   return false;

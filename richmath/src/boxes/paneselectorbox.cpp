@@ -264,25 +264,25 @@ Box *PaneSelectorBox::move_vertical(
       return _panes[_current_selection]->move_vertical(direction, index_rel_x, index, false);
   }
   
-  return Box::move_vertical(direction, index_rel_x, index, called_from_child);
+  return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
 VolatileSelection PaneSelectorBox::mouse_selection(float x, float  y, bool *was_inside_start) {
   if(_current_selection >= 0 && _current_selection < _cases.length())
     return _panes[_current_selection]->mouse_selection(x, y, was_inside_start);
   
-  return Box::mouse_selection(x, y, was_inside_start);
+  return base::mouse_selection(x, y, was_inside_start);
 }
 
-bool PaneSelectorBox::edit_selection(Context &context) {
+bool PaneSelectorBox::edit_selection(SelectionReference &selection) {
   if(_current_selection < 0 || _current_selection >= _cases.length())
     return false;
   
-  Box *b = context.selection.get();
+  Box *b = selection.get();
   if(b == this)
     return false;
   
-  int i = context.selection.start;
+  int i = selection.start;
   while(b) {
     i = b->index();
     b = b->parent();
@@ -291,7 +291,7 @@ bool PaneSelectorBox::edit_selection(Context &context) {
         return false;
   }
   
-  return Box::edit_selection(context);
+  return base::edit_selection(selection);
 }
 
 Expr PaneSelectorBox::to_literal() {

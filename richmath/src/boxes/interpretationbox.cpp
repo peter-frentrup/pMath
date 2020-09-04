@@ -84,18 +84,18 @@ Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
   return e;
 }
 
-bool InterpretationBox::edit_selection(Context &context) {
-  if(!base::edit_selection(context))
+bool InterpretationBox::edit_selection(SelectionReference &selection) {
+  if(!base::edit_selection(selection))
     return false;
     
   if(get_own_style(AutoDelete)) {
     if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
       int len = _content->length();
       
-      if(context.selection.get() == _content) {
-        int s = context.selection.start + _index;
-        int e = context.selection.end + _index;
-        context.selection.set(seq, s, e);
+      if(selection.get() == _content) {
+        int s = selection.start + _index;
+        int e = selection.end + _index;
+        selection.set(seq, s, e);
       }
       
       seq->insert(_index + 1, _content, 0, len);

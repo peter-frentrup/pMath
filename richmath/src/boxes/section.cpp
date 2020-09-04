@@ -178,8 +178,8 @@ void Section::invalidate() {
   Box::invalidate();
 }
 
-bool Section::edit_selection(Context &context) {
-  if(!Box::edit_selection(context))
+bool Section::edit_selection(SelectionReference &selection) {
+  if(!Box::edit_selection(selection))
     return false;
     
   if( get_style(SectionLabel).length() > 0 &&

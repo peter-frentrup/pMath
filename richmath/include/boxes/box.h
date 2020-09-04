@@ -386,9 +386,7 @@ namespace richmath {
       /// 
       /// This function usually first calls parent()->edit_selection(). It is only called before
       /// user initiated operations.
-      ///
-      /// TODO: refactor this to not give the full Context, but only selection box, start and end. 
-      virtual bool edit_selection(Context &context); // *not* automatically called
+      virtual bool edit_selection(SelectionReference &selection); // *not* automatically called
       
       virtual bool changes_children_style() { return false; }
       

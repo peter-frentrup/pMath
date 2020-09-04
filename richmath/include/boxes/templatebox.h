@@ -17,7 +17,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual bool edit_selection(Context &context) override;
+      virtual bool edit_selection(SelectionReference &selection) override;
       virtual bool selectable(int i = -1) override;
       virtual Box *normalize_selection(int *start, int *end) override;
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
@@ -76,7 +76,7 @@ namespace richmath {
       
       virtual Expr prepare_dynamic(Expr expr) override;
       
-      virtual bool edit_selection(Context &context) override;
+      virtual bool edit_selection(SelectionReference &selection) override;
       virtual bool selectable(int i = -1) override;
       
       virtual Box *move_logical(

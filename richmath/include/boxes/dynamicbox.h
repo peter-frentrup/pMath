@@ -33,7 +33,7 @@ namespace richmath {
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
       
-      virtual bool edit_selection(Context &context) override;
+      virtual bool edit_selection(SelectionReference &selection) override;
       
     protected:
       virtual void resize_default_baseline(Context &context) override;

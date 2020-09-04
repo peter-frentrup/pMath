@@ -9,6 +9,7 @@ namespace richmath {
   class MathSequence;
   
   class PaneSelectorBox : public Box {
+      using base = Box;
     protected:
       virtual ~PaneSelectorBox();
     public:
@@ -46,7 +47,7 @@ namespace richmath {
         
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
       
-      virtual bool edit_selection(Context &context) override;
+      virtual bool edit_selection(SelectionReference &selection) override;
     
     private:
       Expr to_literal();

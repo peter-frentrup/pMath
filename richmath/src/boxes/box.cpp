@@ -483,25 +483,12 @@ void Box::invalidate_options() {
   invalidate();
 }
 
-bool Box::edit_selection(Context &context) {
-  int editable;
-  
-  if(context.stylesheet) {
-    if(context.stylesheet->get(style, Editable, &editable) && !editable)
-      return false;
-  }
-  else if(style && style->get(Editable, &editable) && !editable)
+bool Box::edit_selection(SelectionReference &selection) {
+  if(!get_own_style(Editable, true))
     return false;
     
   if(_parent)
-    return _parent->edit_selection(context);
-    
-  if( context.stylesheet       &&
-      context.stylesheet->base &&
-      context.stylesheet->base->get(Editable, &editable))
-  {
-    return editable;
-  }
+    return _parent->edit_selection(selection);
   
   return true;
 }

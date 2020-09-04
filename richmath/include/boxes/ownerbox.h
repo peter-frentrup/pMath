@@ -8,6 +8,7 @@ namespace richmath {
   class MathSequence;
   
   class OwnerBox: public Box {
+      using base = Box;
       class Impl;
     protected:
       virtual ~OwnerBox();
@@ -40,7 +41,7 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
-      virtual bool edit_selection(Context &context) override;
+      virtual bool edit_selection(SelectionReference &selection) override;
     
     protected:
       virtual void resize_default_baseline(Context &context);

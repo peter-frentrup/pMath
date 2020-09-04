@@ -131,7 +131,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool TemplateBox::edit_selection(Context &context) {
+bool TemplateBox::edit_selection(SelectionReference &selection) {
   return false;
 }
 
@@ -505,13 +505,13 @@ Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
   return base::prepare_dynamic(std::move(expr));
 }
 
-bool TemplateBoxSlot::edit_selection(Context &context) {
+bool TemplateBoxSlot::edit_selection(SelectionReference &selection) {
   if(TemplateBox *owner = find_owner()) {
     if(owner->parent())
-      return owner->parent()->edit_selection(context);
+      return owner->parent()->edit_selection(selection);
   }
   
-  return base::edit_selection(context);
+  return base::edit_selection(selection);
 }
 
 bool TemplateBoxSlot::selectable(int i) {

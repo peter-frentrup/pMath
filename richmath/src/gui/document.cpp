@@ -2304,7 +2304,7 @@ void Document::set_selection_style(Expr options) {
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel);
   if(seq && start < end) {
   
-    if(!seq->edit_selection(context))
+    if(!seq->edit_selection(context.selection))
       return;
       
     StyleBox *style_box = nullptr;
@@ -3303,7 +3303,7 @@ bool Document::remove_selection(bool insert_default) {
   if(selection_length() == 0)
     return false;
     
-  if(selection_box() && !selection_box()->edit_selection(context))
+  if(selection_box() && !selection_box()->edit_selection(context.selection))
     return false;
     
   auto_completion.stop();
@@ -4342,7 +4342,7 @@ bool Document::Impl::prepare_insert() {
     return true;
   }
   else {
-    if(self.selection_box() && self.selection_box()->edit_selection(self.context)) {
+    if(self.selection_box() && self.selection_box()->edit_selection(self.context.selection)) {
       self.native()->on_editing();
       set_prev_sel_line();
       return true;
