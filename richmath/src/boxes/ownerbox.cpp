@@ -40,7 +40,7 @@ OwnerBox::OwnerBox(MathSequence *content)
 }
 
 OwnerBox::~OwnerBox() {
-  delete _content;
+  delete_owned(_content);
 }
 
 Box *OwnerBox::item(int i) {

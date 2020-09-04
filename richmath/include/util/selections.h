@@ -9,6 +9,10 @@ namespace richmath {
   class Canvas;
   enum class BoxOutputFlags;
   
+  /// Represents a weak reference to a position inside a Box.
+  /// 
+  /// Weak means that when the Box gets destroyed, this object will notice and give 
+  /// nullptr instead of a dangling reference.
   class LocationReference {
     public:
       explicit LocationReference();
@@ -46,6 +50,15 @@ namespace richmath {
       int index;
   };
   
+  /** Represents a (volatile) reference to a position inside a Box.
+  
+      Volatile means that this object is only valid as long as the Box is valid.
+      When the Box gets destroyed, this object holds a dangling reference without the possibility
+      to detect the destruction of the Box. 
+      
+      \see AutoMemorySuspension
+      \see Box::safe_destroy()
+   */
   struct VolatileSelection {
     Box *box;
     int  start;
@@ -107,6 +120,8 @@ namespace richmath {
     }
   };
   
+  /** Represents a weak
+   */
   class SelectionReference {
     public:
       explicit SelectionReference();

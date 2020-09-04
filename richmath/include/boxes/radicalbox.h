@@ -8,9 +8,10 @@ namespace richmath {
   class MathSequence;
   
   class RadicalBox: public Box {
+    protected:
+      virtual ~RadicalBox();
     public:
       RadicalBox(MathSequence *radicand = 0, MathSequence *exponent = 0);
-      virtual ~RadicalBox();
       
       // Box::try_create<RadicalBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

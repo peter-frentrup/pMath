@@ -305,7 +305,7 @@ MathSequence::MathSequence()
 
 MathSequence::~MathSequence() {
   for(int i = 0; i < boxes.length(); ++i)
-    delete boxes[i];
+    delete_owned(boxes[i]);
 }
 
 Box *MathSequence::item(int i) {

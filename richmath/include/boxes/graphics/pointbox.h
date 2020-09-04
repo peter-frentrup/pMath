@@ -31,9 +31,10 @@ namespace richmath {
   };
   
   class PointBox: public GraphicsElement {
+    protected:
+      virtual ~PointBox();
     public:
       static PointBox *create(Expr expr, BoxInputFlags opts); // may return nullptr
-      virtual ~PointBox();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

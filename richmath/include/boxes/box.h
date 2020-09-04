@@ -171,9 +171,16 @@ namespace richmath {
   
   class Box: public FrontEndObject {
       friend class AutoMemorySuspension;
+    protected:
+      virtual ~Box();
+      void delete_owned(Box *child) { 
+        if(child) {
+          assert(child->parent() == this);
+          delete child;
+        }
+      }
     public:
       Box();
-      virtual ~Box();
       
       /// Usually called after the box was inserted into a document.
       ///
@@ -197,7 +204,8 @@ namespace richmath {
         T *box = new T();
         
         if(!box->try_load_from_object(expr, options)) {
-          delete box;
+          Box *upcast_box = box;
+          delete upcast_box;
           return nullptr;
         }
         
@@ -479,9 +487,10 @@ namespace richmath {
   };
   
   class DummyBox: public Box {
+    protected:
+      virtual ~DummyBox() {}
     public:
       DummyBox(): Box() {}
-      virtual ~DummyBox() {}
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override { return false; }
       
@@ -499,9 +508,10 @@ namespace richmath {
   };
   
   class AbstractSequence: public Box {
+    protected:
+      virtual ~AbstractSequence();
     public:
       AbstractSequence();
-      virtual ~AbstractSequence();
       
       virtual AbstractSequence *create_similar() = 0;
       

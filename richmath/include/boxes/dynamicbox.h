@@ -7,8 +7,9 @@
 
 namespace richmath {
   class AbstractDynamicBox: public OwnerBox {
-    public:
+    protected:
       virtual ~AbstractDynamicBox();
+    public:
       virtual Box *dynamic_to_literal(int *start, int *end) override;
       
     protected:
@@ -16,9 +17,10 @@ namespace richmath {
   };
   
   class DynamicBox: public AbstractDynamicBox {
+    protected:
+      virtual ~DynamicBox();
     public:
       explicit DynamicBox();
-      virtual ~DynamicBox();
       
       // Box::try_create<DynamicBox>(expr, options)
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

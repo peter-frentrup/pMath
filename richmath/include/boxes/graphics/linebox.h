@@ -7,9 +7,10 @@
 
 namespace richmath {
   class LineBox: public GraphicsElement {
+    protected:
+      virtual ~LineBox();
     public:
       static LineBox *create(Expr expr, BoxInputFlags opts); // may return nullptr
-      virtual ~LineBox();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

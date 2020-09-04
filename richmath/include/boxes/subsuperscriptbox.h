@@ -8,10 +8,11 @@ namespace richmath {
   class MathSequence;
   
   class SubsuperscriptBox: public Box {
+    protected:
+      virtual ~SubsuperscriptBox();
     public:
       SubsuperscriptBox();
       SubsuperscriptBox(MathSequence *sub, MathSequence *super);
-      virtual ~SubsuperscriptBox();
       
       // Box::try_create<SubsuperscriptBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

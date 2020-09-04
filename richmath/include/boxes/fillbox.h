@@ -7,9 +7,10 @@
 namespace richmath {
   class FillBox: public OwnerBox {
       using base = OwnerBox;
+    protected:
+      virtual ~FillBox();
     public:
       explicit FillBox(MathSequence *content = nullptr);
-      ~FillBox();
       
       // Box::try_create<FillBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

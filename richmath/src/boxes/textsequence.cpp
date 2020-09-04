@@ -274,7 +274,7 @@ TextSequence::TextSequence()
 TextSequence::~TextSequence() {
   g_object_unref(_layout);
   for(auto box : boxes)
-    delete box;
+    delete_owned(box);
 }
 
 String TextSequence::raw_substring(int start, int length) {

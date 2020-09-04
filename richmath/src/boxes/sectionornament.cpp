@@ -18,7 +18,7 @@ SectionOrnament::SectionOrnament()
 
 SectionOrnament::~SectionOrnament() {
   if(_box)
-    delete _box;
+    _box->safe_destroy();
 }
 
 bool SectionOrnament::reload_if_necessary(Expr expr, BoxInputFlags flags) {

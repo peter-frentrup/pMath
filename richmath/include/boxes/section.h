@@ -10,9 +10,10 @@ namespace richmath {
   class TextSequence;
   
   class Section: public Box {
+    protected:
+      virtual ~Section();
     public:
       Section(SharedPtr<Style> _style);
-      virtual ~Section();
       
       static Section *create_from_object(const Expr expr);
       
@@ -79,9 +80,10 @@ namespace richmath {
   
   class AbstractSequenceSection: public Section {
       using base = Section;
+    protected:
+      virtual ~AbstractSequenceSection();
     public:
       AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
-      virtual ~AbstractSequenceSection();
       
       AbstractSequence *abstract_content() {return _content; };
       
@@ -147,9 +149,10 @@ namespace richmath {
   };
   
   class EditSection: public MathSection {
+    protected:
+      virtual ~EditSection();
     public:
       EditSection();
-      virtual ~EditSection();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

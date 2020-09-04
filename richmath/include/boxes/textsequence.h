@@ -40,9 +40,10 @@ namespace richmath {
    */
   class TextSequence: public AbstractSequence {
       class Impl;
+    protected:
+      virtual ~TextSequence();
     public:
       TextSequence();
-      virtual ~TextSequence();
       
       virtual AbstractSequence *create_similar() override { return new TextSequence(); }
       

@@ -23,8 +23,8 @@ RadicalBox::RadicalBox(MathSequence *radicand, MathSequence *exponent)
 }
 
 RadicalBox::~RadicalBox() {
-  delete _radicand;
-  delete _exponent;
+  delete_owned(_radicand);
+  delete_owned(_exponent);
 }
 
 bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

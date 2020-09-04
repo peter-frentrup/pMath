@@ -4,7 +4,7 @@
 #include <boxes/box.h>
 
 namespace richmath {
-  class SectionOrnament {
+  class SectionOrnament : public Base {
     public:
       SectionOrnament();
       ~SectionOrnament();

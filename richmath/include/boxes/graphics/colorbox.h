@@ -9,9 +9,10 @@
 namespace richmath {
   class ColorBox: public GraphicsElement {
     friend class Box;
+    protected:
+      virtual ~ColorBox();
     public:
       static ColorBox *create(Expr expr, BoxInputFlags opts); // may return nullptr
-      virtual ~ColorBox();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

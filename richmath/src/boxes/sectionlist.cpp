@@ -41,7 +41,7 @@ SectionList::SectionList()
 
 SectionList::~SectionList() {
   for(auto section : _sections)
-    delete section;
+    delete_owned(section);
 }
 
 Box *SectionList::item(int i) {

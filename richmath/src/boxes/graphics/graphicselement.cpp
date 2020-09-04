@@ -130,7 +130,7 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
     if(dir->try_load_from_object(expr, opts))
       return dir;
       
-    delete dir;
+    delete_owned(dir);
   }
   
   return new DummyGraphicsElement(expr);
@@ -148,7 +148,7 @@ GraphicsDirective::GraphicsDirective()
 GraphicsDirective::~GraphicsDirective()
 {
   for(int i = 0; i < _items.length(); ++i)
-    delete _items[i];
+    delete_owned(_items[i]);
 }
 
 bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {

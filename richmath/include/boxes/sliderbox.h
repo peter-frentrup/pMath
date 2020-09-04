@@ -9,9 +9,10 @@ namespace richmath {
   class SliderBox: public EmptyWidgetBox {
       using base = EmptyWidgetBox;
       class Impl;
+    protected:
+      virtual ~SliderBox();
     public:
       explicit SliderBox();
-      virtual ~SliderBox();
       
       // Box::try_create<SliderBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

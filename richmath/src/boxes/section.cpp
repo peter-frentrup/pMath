@@ -302,7 +302,7 @@ AbstractSequenceSection::AbstractSequenceSection(AbstractSequence *content, Shar
 }
 
 AbstractSequenceSection::~AbstractSequenceSection() {
-  delete _content;
+  delete_owned(_content);
 }
 
 void AbstractSequenceSection::adopt_all() {
@@ -788,7 +788,7 @@ EditSection::EditSection()
 }
 
 EditSection::~EditSection() {
-  delete original;
+  delete_owned(original);
 }
 
 bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {

@@ -35,8 +35,8 @@ FractionBox::FractionBox(MathSequence *num, MathSequence *den)
 }
 
 FractionBox::~FractionBox() {
-  delete _numerator;
-  delete _denominator;
+  delete_owned(_numerator);
+  delete_owned(_denominator);
 }
 
 bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

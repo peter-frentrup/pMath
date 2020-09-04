@@ -8,9 +8,10 @@
 
 namespace richmath {
   class ProgressIndicatorBox: public Box, public ControlContext {
+    protected:
+      virtual ~ProgressIndicatorBox();
     public:
       explicit ProgressIndicatorBox();
-      virtual ~ProgressIndicatorBox();
       
       // Box::try_create<ProgressIndicatorBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

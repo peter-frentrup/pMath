@@ -37,8 +37,8 @@ SubsuperscriptBox::SubsuperscriptBox(MathSequence *sub, MathSequence *super)
 }
 
 SubsuperscriptBox::~SubsuperscriptBox() {
-  delete _subscript;
-  delete _superscript;
+  delete_owned(_subscript);
+  delete_owned(_superscript);
 }
 
 bool SubsuperscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

@@ -6,9 +6,10 @@
 
 namespace richmath {
   class ErrorBox: public Box {
+    protected:
+      virtual ~ErrorBox();
     public:
       ErrorBox(const Expr object);
-      virtual ~ErrorBox();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       

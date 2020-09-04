@@ -47,9 +47,12 @@ namespace richmath {
   };
   
   class GraphicsElement: public Base {
+    protected:
+      virtual ~GraphicsElement();
+      static void delete_owned(GraphicsElement *child) { assert(child != nullptr); delete child; }
+
     public:
       static GraphicsElement *create(Expr expr, BoxInputFlags opts);
-      virtual ~GraphicsElement();
       
       void safe_destroy() { delete this; }
       
@@ -66,9 +69,10 @@ namespace richmath {
   };
   
   class GraphicsDirective: public GraphicsElement {
+    protected:
+      virtual ~GraphicsDirective();
     public:
       GraphicsDirective();
-      virtual ~GraphicsDirective();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
@@ -88,9 +92,11 @@ namespace richmath {
   };
   
   class GraphicsElementCollection: public GraphicsDirective {
+      friend class GraphicsBox;
+    protected:
+      virtual ~GraphicsElementCollection();
     public:
       GraphicsElementCollection();
-      virtual ~GraphicsElementCollection();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       void load_from_object(Expr expr, BoxInputFlags opts);

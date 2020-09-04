@@ -7,9 +7,10 @@
 
 namespace richmath {
   class AxisTicks: public Box {
+    protected:
+      virtual ~AxisTicks();
     public:
       AxisTicks();
-      virtual ~AxisTicks();
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
       void             load_from_object(Expr object, BoxInputFlags options);

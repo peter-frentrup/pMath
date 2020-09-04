@@ -48,12 +48,12 @@ namespace richmath {
   };
   
   class SectionList: public Box {
-    public:
-      static Expr group(Expr sections);
-      
+    protected:
+      virtual ~SectionList();
     public:
       SectionList();
-      virtual ~SectionList();
+      
+      static Expr group(Expr sections);
       
       Section *section(int i) { return _sections[i]; }
       const SectionGroupInfo &group_info(int i) { return _group_info[i]; }

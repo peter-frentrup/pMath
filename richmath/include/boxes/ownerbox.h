@@ -9,9 +9,10 @@ namespace richmath {
   
   class OwnerBox: public Box {
       class Impl;
+    protected:
+      virtual ~OwnerBox();
     public:
       explicit OwnerBox(MathSequence *content = nullptr);
-      ~OwnerBox();
       
       MathSequence *content() { return _content; }
       

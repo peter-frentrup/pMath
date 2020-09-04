@@ -26,9 +26,10 @@ namespace richmath {
   
   class GraphicsBox: public Box {
       class Impl;
+    protected:
+      virtual ~GraphicsBox();
     public:
       GraphicsBox();
-      virtual ~GraphicsBox();
       
       // Box::try_create<GraphicsBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

@@ -24,9 +24,10 @@ namespace richmath {
    */
   class MathSequence: public AbstractSequence {
       class Impl;
+    protected:
+      virtual ~MathSequence();
     public:
       MathSequence();
-      virtual ~MathSequence();
       
       virtual AbstractSequence *create_similar() override { return new MathSequence(); }
       

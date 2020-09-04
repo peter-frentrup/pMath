@@ -50,9 +50,9 @@ UnderoverscriptBox::UnderoverscriptBox(
 }
 
 UnderoverscriptBox::~UnderoverscriptBox() {
-  delete _base;
-  delete _underscript;
-  delete _overscript;
+  delete_owned(_base);
+  delete_owned(_underscript);
+  delete_owned(_overscript);
 }
 
 bool UnderoverscriptBox::try_load_from_object(Expr expr, BoxInputFlags opts) {

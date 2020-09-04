@@ -82,9 +82,9 @@ namespace richmath {
   class GridItem: public OwnerBox {
       friend class GridBoxImpl;
       friend class GridBox;
-    public:
+    protected:
       virtual ~GridItem();
-      
+    public:
       GridBox *grid() { return (GridBox*)_parent; }
       
       virtual float fill_weight() override;
@@ -115,10 +115,11 @@ namespace richmath {
   class GridBox: public Box {
       class Impl;
       friend class GridItem;
+    protected:
+      virtual ~GridBox();
     public:
       GridBox();
       GridBox(int rows, int cols);
-      virtual ~GridBox();
       
       // Box::try_create<GridBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

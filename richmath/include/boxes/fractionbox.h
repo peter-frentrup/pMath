@@ -8,10 +8,11 @@ namespace richmath {
   class MathSequence;
   
   class FractionBox: public Box {
+    protected:
+      virtual ~FractionBox();
     public:
       FractionBox();
       FractionBox(MathSequence *num, MathSequence *den);
-      virtual ~FractionBox();
       
       // Box::try_create<FractionBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

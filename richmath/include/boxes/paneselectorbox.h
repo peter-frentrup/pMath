@@ -9,9 +9,10 @@ namespace richmath {
   class MathSequence;
   
   class PaneSelectorBox : public Box {
+    protected:
+      virtual ~PaneSelectorBox();
     public:
       explicit PaneSelectorBox();
-      virtual ~PaneSelectorBox();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

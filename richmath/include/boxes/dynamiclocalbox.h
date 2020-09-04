@@ -6,9 +6,10 @@
 
 namespace richmath {
   class DynamicLocalBox: public AbstractDynamicBox {
+    protected:
+      virtual ~DynamicLocalBox();
     public:
       DynamicLocalBox();
-      virtual ~DynamicLocalBox();
       
       // Box::try_create<DynamicLocalBox>(expr, options)
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
