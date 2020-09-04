@@ -21,8 +21,8 @@ namespace richmath {
       virtual int length() override { return 0; }
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override;

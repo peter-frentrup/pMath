@@ -25,32 +25,32 @@ namespace richmath {
       virtual String font_name(uint8_t fontinfo) override;
       
       virtual void decode_token(
-        Context        *context,
+        Context        &context,
         int             len,
         const uint16_t *str,
         GlyphInfo      *result) override;
         
       virtual void vertical_glyph_size(
-        Context         *context,
+        Context         &context,
         const uint16_t   ch,
         const GlyphInfo &info,
         float           *ascent,
         float           *descent) override;
         
       virtual void show_glyph(
-        Context         *context,
+        Context         &context,
         float            x,
         float            y,
         const uint16_t   ch,
         const GlyphInfo &info) override;
         
       virtual float italic_correction(
-        Context          *context,
+        Context          &context,
         uint16_t          ch,
         const GlyphInfo  &info) override;
         
       virtual void script_corrections(
-        Context           *context,
+        Context           &context,
         uint16_t           base_char,
         const GlyphInfo   &base_info,
         MathSequence      *sub,

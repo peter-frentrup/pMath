@@ -19,44 +19,44 @@ AbstractStyleBox::AbstractStyleBox(MathSequence *content)
 {
 }
 
-void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint) {
+void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint) {
   if(style) {
     float x, y;
-    context->canvas->current_pos(&x, &y);
+    context.canvas().current_pos(&x, &y);
     
     ContextState cc(context);
     cc.begin(style);
     
     Color c;
     if(paint) {
-      if(context->stylesheet->get(style, Background, &c)) {
+      if(context.stylesheet->get(style, Background, &c)) {
         if(c.is_valid()) {
-          if(context->canvas->show_only_text)
+          if(context.canvas().show_only_text)
             return;
           
           Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
           BoxRadius radii;
           
           Expr expr;
-          if(context->stylesheet->get(style, BorderRadius, &expr))
+          if(context.stylesheet->get(style, BorderRadius, &expr))
             radii = BoxRadius(expr);
           
           rect.normalize();
-          rect.pixel_align(*context->canvas, false, +1);
+          rect.pixel_align(context.canvas(), false, +1);
           
           radii.normalize(rect.width, rect.height);
-          rect.add_round_rect_path(*context->canvas, radii, false);
+          rect.add_round_rect_path(context.canvas(), radii, false);
           
-          context->canvas->set_color(c);
-          context->canvas->fill();
+          context.canvas().set_color(c);
+          context.canvas().fill();
         }
       }
       
       c = cc.old_color;
-      context->stylesheet->get(style, FontColor, &c);
-      context->canvas->set_color(c);
+      context.stylesheet->get(style, FontColor, &c);
+      context.canvas().set_color(c);
       
-      context->canvas->move_to(x, y);
+      context.canvas().move_to(x, y);
       base::paint(context);
     }
     else 
@@ -70,11 +70,11 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context *context, bool paint)
     base::resize_default_baseline(context);
 }
 
-void AbstractStyleBox::resize_default_baseline(Context *context) {
+void AbstractStyleBox::resize_default_baseline(Context &context) {
   paint_or_resize_no_baseline(context, false);
 }
 
-void AbstractStyleBox::paint(Context *context) {
+void AbstractStyleBox::paint(Context &context) {
   paint_or_resize_no_baseline(context, true);
 }
 
@@ -250,7 +250,7 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void TagBox::resize_default_baseline(Context *context) {
+void TagBox::resize_default_baseline(Context &context) {
   style->set(BaseStyleName, String(tag));
   base::resize_default_baseline(context);
 }

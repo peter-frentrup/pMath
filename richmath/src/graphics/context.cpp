@@ -17,7 +17,7 @@ using namespace richmath;
 
 Context::Context()
   : Base(),
-    canvas(0),
+    canvas_ptr(nullptr),
     width(HUGE_VAL),
     section_content_window_width(HUGE_VAL),
     sequence_unfilled_width(0),
@@ -47,21 +47,21 @@ void Context::draw_error_rect(
   float x2,
   float y2
 ) {
-  canvas->save();
+  canvas().save();
   {
-    Color c = canvas->get_color();
-    canvas->pixrect(x1, y1, x2, y2, true);
-    canvas->set_color(Color::from_rgb24(0xFFE6E6));
-    canvas->fill_preserve();
-    canvas->set_color(Color::from_rgb24(0xFF5454));
-    canvas->hair_stroke();
-    canvas->set_color(c);
+    Color c = canvas().get_color();
+    canvas().pixrect(x1, y1, x2, y2, true);
+    canvas().set_color(Color::from_rgb24(0xFFE6E6));
+    canvas().fill_preserve();
+    canvas().set_color(Color::from_rgb24(0xFF5454));
+    canvas().hair_stroke();
+    canvas().set_color(c);
   }
-  canvas->restore();
+  canvas().restore();
 }
 
 void Context::draw_selection_path() {
-  cairo_path_t *path = cairo_copy_path(canvas->cairo());
+  cairo_path_t *path = cairo_copy_path(canvas().cairo());
   int num_points = 0;
   int end = 0;
   while(end < path->num_data) {
@@ -105,26 +105,26 @@ void Context::draw_selection_path() {
   
   if(num_points <= 2) {
     if(old_selection != selection) {
-      canvas->set_color(cursor_color);
-      canvas->hair_stroke();
+      canvas().set_color(cursor_color);
+      canvas().hair_stroke();
     }
     else
-      canvas->new_path();
+      canvas().new_path();
   }
   else {
-    canvas->save();
+    canvas().save();
     {
-      canvas->clip_preserve();
+      canvas().clip_preserve();
       
-      canvas->set_color(active ? SelectionColor : InactiveSelectionColor, SelectionFillAlpha); //ControlPainter::std->selection_color()
-      canvas->paint();
+      canvas().set_color(active ? SelectionColor : InactiveSelectionColor, SelectionFillAlpha); //ControlPainter::std->selection_color()
+      canvas().paint();
       
-      canvas->reset_matrix();
-      cairo_set_line_width(canvas->cairo(), 2.0);
-      canvas->set_color(active ? SelectionColor : InactiveSelectionColor);
-      canvas->stroke();
+      canvas().reset_matrix();
+      cairo_set_line_width(canvas().cairo(), 2.0);
+      canvas().set_color(active ? SelectionColor : InactiveSelectionColor);
+      canvas().stroke();
     }
-    canvas->restore();
+    canvas().restore();
   }
 }
 
@@ -173,11 +173,11 @@ void Context::draw_text_shadow(
   if(!color.is_valid())
     return;
   
-  if(canvas->show_only_text)
+  if(canvas().show_only_text)
     return;
     
   float x0, y0;
-  canvas->current_pos(&x0, &y0);
+  canvas().current_pos(&x0, &y0);
   
   if(radius > 0) {
     float x, y, w, h;
@@ -188,56 +188,53 @@ void Context::draw_text_shadow(
     h = box->extents().height() + 2 * radius;
     
     SharedPtr<Buffer> buf = new Buffer(
-      canvas,
+      canvas(),
       CAIRO_FORMAT_A8,
       x, y, w, h);
       
     if(buf->canvas()) {
-      Canvas *old = canvas;
-      canvas = buf->canvas();
-      
-      buf->clear();
-      
-      canvas->current_pos(&x, &y);
-      canvas->move_to(x + dx, y + dy);
-      canvas->set_color(Color::Black);
-      
-      canvas->show_only_text = true;
-      box->paint(this);
-      canvas->show_only_text = false;
-      
+      with_canvas(*buf->canvas(), [&]() {
+        buf->clear();
+        
+        canvas().current_pos(&x, &y);
+        canvas().move_to(x + dx, y + dy);
+        canvas().set_color(Color::Black);
+        
+        canvas().show_only_text = true;
+        box->paint(*this);
+        canvas().show_only_text = false;
+      });
       buf->blur(radius);
-      canvas = old;
       
-      canvas->save();
-      canvas->set_color(color); // important: set color before mask!
-      buf->mask(canvas);
-      canvas->fill();
-      canvas->restore();
+      canvas().save();
+      canvas().set_color(color); // important: set color before mask!
+      buf->mask(canvas());
+      canvas().fill();
+      canvas().restore();
     }
     else
       radius = 0;
   }
   
   if(radius <= 0) {
-    canvas->rel_move_to(dx, dy);
-    canvas->set_color(color);
+    canvas().rel_move_to(dx, dy);
+    canvas().set_color(color);
     
-    canvas->show_only_text = true;
-    box->paint(this);
-    canvas->show_only_text = false;
+    canvas().show_only_text = true;
+    box->paint(*this);
+    canvas().show_only_text = false;
   }
   
-  canvas->move_to(x0, y0);
+  canvas().move_to(x0, y0);
 }
 
 void Context::draw_with_text_shadows(Box *box, Expr shadows) {
   // shadows = {{dx,dy,color,r},...}   r is optional
   
-  if(canvas->show_only_text && shadows == PMATH_SYMBOL_NONE)
+  if(canvas().show_only_text && shadows == PMATH_SYMBOL_NONE)
     return;
     
-  Color c = canvas->get_color();
+  Color c = canvas().get_color();
   if(shadows[0] == PMATH_SYMBOL_LIST) {
     for(size_t i = 1; i <= shadows.expr_length(); ++i) {
       Expr shadow = shadows[i];
@@ -258,9 +255,9 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
     }
   }
   
-  canvas->set_color(c);
+  canvas().set_color(c);
   
-  box->paint(this);
+  box->paint(*this);
 }
 
 //} ... class Context
@@ -268,15 +265,15 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
 //{ class ContextState ...
 
 void ContextState::begin(SharedPtr<Style> style) {
-  old_cursor_color           = ctx->cursor_color;
-  old_color                  = ctx->canvas->get_color();
-  old_fontsize               = ctx->canvas->get_font_size();
-  old_width                  = ctx->width;
-  old_math_shaper            = ctx->math_shaper;
-  old_text_shaper            = ctx->text_shaper;
-  old_math_spacing           = ctx->math_spacing;
-  old_show_auto_styles       = ctx->show_auto_styles;
-  old_show_string_characters = ctx->show_string_characters;
+  old_cursor_color           = ctx.cursor_color;
+  old_color                  = ctx.canvas().get_color();
+  old_fontsize               = ctx.canvas().get_font_size();
+  old_width                  = ctx.width;
+  old_math_shaper            = ctx.math_shaper;
+  old_text_shaper            = ctx.text_shaper;
+  old_math_spacing           = ctx.math_spacing;
+  old_show_auto_styles       = ctx.show_auto_styles;
+  old_show_string_characters = ctx.show_string_characters;
   have_font_feature_set      = false;
   
   old_antialiasing           = (cairo_antialias_t) - 1;
@@ -295,60 +292,59 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
   String s;
   Expr expr;
   
-  if(ctx->stylesheet->get(style, AutoSpacing, &i)) {
-    ctx->math_spacing = i;
-    //show_auto_styles = i;
+  if(ctx.stylesheet->get(style, AutoSpacing, &i)) {
+    ctx.math_spacing = i;
   }
   
-  FontStyle fs = ctx->text_shaper->get_style();
-  if(ctx->stylesheet->get(style, FontSlant, &i)) {
+  FontStyle fs = ctx.text_shaper->get_style();
+  if(ctx.stylesheet->get(style, FontSlant, &i)) {
     if(i == FontSlantItalic)
       fs += Italic;
     else
       fs -= Italic;
   }
   
-  if(ctx->stylesheet->get(style, FontWeight, &i)) {
+  if(ctx.stylesheet->get(style, FontWeight, &i)) {
     if(i == FontWeightBold)
       fs += Bold;
     else
       fs -= Bold;
   }
   
-  if(ctx->stylesheet->get(style, MathFontFamily, &expr)) {
+  if(ctx.stylesheet->get(style, MathFontFamily, &expr)) {
     if(expr.is_string()) {
       s = String(expr);
       
       if(auto math_shaper = MathShaper::available_shapers.search(s))
-        ctx->math_shaper = *math_shaper;
+        ctx.math_shaper = *math_shaper;
     }
     else if(expr[0] == PMATH_SYMBOL_LIST) {
       for(const auto &item : expr.items()) {
         s = String(item);
         
         if(auto math_shaper = MathShaper::available_shapers.search(s)) {
-          ctx->math_shaper = *math_shaper;
+          ctx.math_shaper = *math_shaper;
           break;
         }
       }
     }
   }
   
-  ctx->math_shaper = ctx->math_shaper->math_set_style(fs);
+  ctx.math_shaper = ctx.math_shaper->math_set_style(fs);
   
-  if(ctx->stylesheet->get(style, FontFamilies, &expr)) {
+  if(ctx.stylesheet->get(style, FontFamilies, &expr)) {
     if(expr.is_string()) {
       s = String(expr);
       
       if(FontInfo::font_exists_similar(s)) {
         FallbackTextShaper *fts = new FallbackTextShaper(TextShaper::find(s, fs));
-        fts->add(ctx->math_shaper);
-        ctx->text_shaper = fts;
+        fts->add(ctx.math_shaper);
+        ctx.text_shaper = fts;
       }
     }
     else if(expr[0] == PMATH_SYMBOL_LIST) {
       if(expr.expr_length() == 0) {
-        ctx->text_shaper = ctx->math_shaper;
+        ctx.text_shaper = ctx.math_shaper;
       }
       else {
         FallbackTextShaper *fts = 0;
@@ -370,43 +366,42 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
         }
         
         if(fts) {
-          fts->add(ctx->math_shaper);
-          ctx->text_shaper = fts;
+          fts->add(ctx.math_shaper);
+          ctx.text_shaper = fts;
         }
       }
     }
   }
   else
-    ctx->text_shaper = ctx->text_shaper->set_style(fs);
+    ctx.text_shaper = ctx.text_shaper->set_style(fs);
     
-  if(ctx->stylesheet->get(style, FontFeatures, &expr)) {
+  if(ctx.stylesheet->get(style, FontFeatures, &expr)) {
     have_font_feature_set = true;
     old_font_feature_set.clear();
-    old_font_feature_set.add(ctx->fontfeatures);
+    old_font_feature_set.add(ctx.fontfeatures);
     
-    ctx->fontfeatures.add(expr);
+    ctx.fontfeatures.add(expr);
   }
   
-  if(ctx->stylesheet->get(style, FontSize, &f)) {
-    ctx->canvas->set_font_size(f);
+  if(ctx.stylesheet->get(style, FontSize, &f)) {
+    ctx.canvas().set_font_size(f);
   }
   
-  if(ctx->stylesheet->get(style, LineBreakWithin, &i) && !i) {
-    ctx->width = Infinity;
+  if(ctx.stylesheet->get(style, LineBreakWithin, &i) && !i) {
+    ctx.width = Infinity;
   }
   
-  if(ctx->stylesheet->get(style, ScriptSizeMultipliers, &expr)) {
-    old_script_size_multis.swap(ctx->script_size_multis);
-    ctx->set_script_size_multis(expr);
+  if(ctx.stylesheet->get(style, ScriptSizeMultipliers, &expr)) {
+    old_script_size_multis.swap(ctx.script_size_multis);
+    ctx.set_script_size_multis(expr);
   }
   
-  if(ctx->stylesheet->get(style, ShowAutoStyles, &i)) {
-    ctx->show_auto_styles = i;
-    //show_auto_styles = i;
+  if(ctx.stylesheet->get(style, ShowAutoStyles, &i)) {
+    ctx.show_auto_styles = i;
   }
   
-  if(ctx->stylesheet->get(style, ShowStringCharacters, &i)) {
-    ctx->show_string_characters = i;
+  if(ctx.stylesheet->get(style, ShowStringCharacters, &i)) {
+    ctx.show_string_characters = i;
   }
 }
 
@@ -415,24 +410,24 @@ void ContextState::apply_non_layout_styles(SharedPtr<Style> style) {
     return;
   
   int i;
-  if(ctx->stylesheet->get(style, Antialiasing, &i)) {
-    old_antialiasing = cairo_get_antialias(ctx->canvas->cairo());
+  if(ctx.stylesheet->get(style, Antialiasing, &i)) {
+    old_antialiasing = cairo_get_antialias(ctx.canvas().cairo());
     switch(i) {
       case AutoBoolFalse:
         cairo_set_antialias(
-          ctx->canvas->cairo(),
+          ctx.canvas().cairo(),
           CAIRO_ANTIALIAS_NONE);
         break;
         
       case AutoBoolTrue:
         cairo_set_antialias(
-          ctx->canvas->cairo(),
+          ctx.canvas().cairo(),
           CAIRO_ANTIALIAS_GRAY);
         break;
         
       case AutoBoolAutomatic:
         cairo_set_antialias(
-          ctx->canvas->cairo(),
+          ctx.canvas().cairo(),
           CAIRO_ANTIALIAS_DEFAULT);
         break;
     }
@@ -440,25 +435,25 @@ void ContextState::apply_non_layout_styles(SharedPtr<Style> style) {
 }
 
 void ContextState::end() {
-  ctx->cursor_color = old_cursor_color;
-  ctx->canvas->set_color(       old_color);
-  ctx->canvas->set_font_size(   old_fontsize);
-  ctx->width                  = old_width;
-  ctx->show_string_characters = old_show_string_characters;
-  ctx->show_auto_styles       = old_show_auto_styles;
-  ctx->math_spacing           = old_math_spacing;
-  ctx->math_shaper            = old_math_shaper;
-  ctx->text_shaper            = old_text_shaper;
+  ctx.cursor_color = old_cursor_color;
+  ctx.canvas().set_color(      old_color);
+  ctx.canvas().set_font_size(  old_fontsize);
+  ctx.width                  = old_width;
+  ctx.show_string_characters = old_show_string_characters;
+  ctx.show_auto_styles       = old_show_auto_styles;
+  ctx.math_spacing           = old_math_spacing;
+  ctx.math_shaper            = old_math_shaper;
+  ctx.text_shaper            = old_text_shaper;
   
   if(old_antialiasing >= 0)
-    cairo_set_antialias(ctx->canvas->cairo(), old_antialiasing);
+    cairo_set_antialias(ctx.canvas().cairo(), old_antialiasing);
     
   if(old_script_size_multis.length() > 0)
-    old_script_size_multis.swap(ctx->script_size_multis);
+    old_script_size_multis.swap(ctx.script_size_multis);
     
   if(have_font_feature_set) {
-    ctx->fontfeatures.clear();
-    ctx->fontfeatures.add(old_font_feature_set);
+    ctx.fontfeatures.clear();
+    ctx.fontfeatures.add(old_font_feature_set);
   }
 }
 

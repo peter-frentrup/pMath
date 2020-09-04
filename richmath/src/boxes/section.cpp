@@ -64,7 +64,7 @@ float Section::label_width() {
   return label_glyphs[label_glyphs.length() - 1].right;
 }
 
-void Section::resize_label(Context *context) {
+void Section::resize_label(Context &context) {
   String lbl = get_style(SectionLabel);
   if(lbl.is_null() || label_string == lbl)
     return;
@@ -73,8 +73,8 @@ void Section::resize_label(Context *context) {
   
   SharedPtr<TextShaper> shaper = TextShaper::find("Arial", NoStyle);
   
-  float fs = context->canvas->get_font_size();
-  context->canvas->set_font_size(8/* * 4/3. */);
+  float fs = context.canvas().get_font_size();
+  context.canvas().set_font_size(8/* * 4/3. */);
   
   label_glyphs.length(lbl.length());
   label_glyphs.zeromem();
@@ -88,10 +88,10 @@ void Section::resize_label(Context *context) {
   for(auto &glyph : label_glyphs)
     glyph.right = x += glyph.right;
     
-  context->canvas->set_font_size(fs);
+  context.canvas().set_font_size(fs);
 }
 
-void Section::paint_label(Context *context) {
+void Section::paint_label(Context &context) {
   if(label_glyphs.length() == 0)
     return;
     
@@ -102,13 +102,13 @@ void Section::paint_label(Context *context) {
   SharedPtr<TextShaper> shaper = TextShaper::find("Arial", NoStyle);
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  float fs = context->canvas->get_font_size();
-  context->canvas->set_font_size(8/* * 4/3. */);
+  float fs = context.canvas().get_font_size();
+  context.canvas().set_font_size(8/* * 4/3. */);
   
-  Color col = context->canvas->get_color();
-  context->canvas->set_color(Color::from_rgb24(0x454E99));
+  Color col = context.canvas().get_color();
+  context.canvas().set_color(Color::from_rgb24(0x454E99));
   
   x -= label_glyphs[label_glyphs.length() - 1].right;
   float xx = x;
@@ -122,8 +122,8 @@ void Section::paint_label(Context *context) {
     xx = x + label_glyphs[i].right;
   }
   
-  context->canvas->set_font_size(fs);
-  context->canvas->set_color(col);
+  context.canvas().set_font_size(fs);
+  context.canvas().set_color(col);
 }
 
 Box *Section::move_vertical(
@@ -178,7 +178,7 @@ void Section::invalidate() {
   Box::invalidate();
 }
 
-bool Section::edit_selection(Context *context) {
+bool Section::edit_selection(Context &context) {
   if(!Box::edit_selection(context))
     return false;
     
@@ -258,7 +258,7 @@ bool ErrorSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
-void ErrorSection::resize(Context *context) {
+void ErrorSection::resize(Context &context) {
   must_resize = false;
   
   top_margin    = get_style(SectionMarginTop);
@@ -272,13 +272,13 @@ void ErrorSection::resize(Context *context) {
   unfilled_width = _extents.width;
 }
 
-void ErrorSection::paint(Context *context) {
+void ErrorSection::paint(Context &context) {
   update_dynamic_styles(context);
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  context->draw_error_rect(
+  context.draw_error_rect(
     x +                    get_style(SectionMarginLeft),
     y +                    get_style(SectionMarginTop),
     x + _extents.width   - get_style(SectionMarginRight),
@@ -332,17 +332,17 @@ int AbstractSequenceSection::count() {
   return i;
 }
       
-void AbstractSequenceSection::resize(Context *context) {
+void AbstractSequenceSection::resize(Context &context) {
   must_resize = false;
   
-  float old_scww = context->section_content_window_width;
+  float old_scww = context.section_content_window_width;
   ContextState cc(context);
   cc.begin(style);
   
   // take document option if not set for this Section alone:
-  context->show_auto_styles = get_style(ShowAutoStyles);
+  context.show_auto_styles = get_style(ShowAutoStyles);
   
-  context->script_indent = 0;
+  context.script_indent = 0;
   
   top_margin    = get_style(SectionMarginTop);
   bottom_margin = get_style(SectionMarginBottom);
@@ -373,8 +373,8 @@ void AbstractSequenceSection::resize(Context *context) {
   }
   
   horz_border += cx;
-  context->width -= horz_border;
-  context->section_content_window_width -= horz_border;
+  context.width -= horz_border;
+  context.section_content_window_width -= horz_border;
   
   if(Box *dingbat = _dingbat.box_or_null()) {
     dingbat->resize(context);
@@ -384,16 +384,16 @@ void AbstractSequenceSection::resize(Context *context) {
       horz_border                           += extra_indent;
       left_margin                           += extra_indent;
       cx                                    += extra_indent;
-      context->width                        -= extra_indent;
-      context->section_content_window_width -= extra_indent;
+      context.width                        -= extra_indent;
+      context.section_content_window_width -= extra_indent;
     }
   }
   
   _content->resize(context);
   
-  unfilled_width = context->sequence_unfilled_width + horz_border;
+  unfilled_width = context.sequence_unfilled_width + horz_border;
   
-  if(context->show_auto_styles) {
+  if(context.show_auto_styles) {
     SyntaxState syntax;
     _content->colorize_scope(&syntax);
   }
@@ -408,12 +408,12 @@ void AbstractSequenceSection::resize(Context *context) {
   _extents.ascent = 0;
   _extents.descent = cy + _content->extents().descent + bottom_margin;
   
-  float w = min(context->width, context->section_content_window_width);
+  float w = min(context.width, context.section_content_window_width);
   if(w < HUGE_VAL && _content->var_extents().width < w) {
     _content->var_extents().width = w;
   }
   
-  context->section_content_window_width = old_scww;
+  context.section_content_window_width = old_scww;
   cc.end();
   
   _extents.width = cx + _content->extents().width;
@@ -426,9 +426,9 @@ void AbstractSequenceSection::resize(Context *context) {
   }
 }
 
-void AbstractSequenceSection::paint(Context *context) {
+void AbstractSequenceSection::paint(Context &context) {
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
   ContextState cc(context);
   //cc.begin(style);
@@ -462,31 +462,31 @@ void AbstractSequenceSection::paint(Context *context) {
     
     BoxRadius radii;
     Expr expr;
-    if(context->stylesheet->get(style, BorderRadius, &expr))
+    if(context.stylesheet->get(style, BorderRadius, &expr))
       radii = BoxRadius(expr);
       
     Rectangle rect(Point(x + left_margin,
                          y + top_margin),
                    Point(x + _extents.width,
                          y + _extents.descent - bottom_margin));
-    rect.pixel_align(*context->canvas, false);
+    rect.pixel_align(context.canvas(), false);
     radii.normalize(rect.width, rect.height);
     
     // outer rounded rectangle
-    rect.add_round_rect_path(*context->canvas, radii, false);
+    rect.add_round_rect_path(context.canvas(), radii, false);
     
-    if(background.is_valid() && !context->canvas->show_only_text) {
-      context->canvas->set_color(background);
-      context->canvas->fill_preserve();
+    if(background.is_valid() && !context.canvas().show_only_text) {
+      context.canvas().set_color(background);
+      context.canvas().fill_preserve();
     }
     
     Point delta_tl(l, t);
-    delta_tl.pixel_align_distance(*context->canvas);
+    delta_tl.pixel_align_distance(context.canvas());
     rect.x += delta_tl.x; rect.width -= delta_tl.x;
     rect.y += delta_tl.y; rect.height -= delta_tl.y;
     
     Point delta_br(r, b);
-    delta_br.pixel_align_distance(*context->canvas);
+    delta_br.pixel_align_distance(context.canvas());
     rect.width -= delta_br.x;
     rect.height -= delta_br.y;
     
@@ -503,21 +503,21 @@ void AbstractSequenceSection::paint(Context *context) {
     radii.normalize(rect.width, rect.height);
     
     // inner rounded rectangle
-    rect.add_round_rect_path(*context->canvas, radii, true);
+    rect.add_round_rect_path(context.canvas(), radii, true);
     
-    context->canvas->set_color(get_style(SectionFrameColor));
-    context->canvas->fill();
+    context.canvas().set_color(get_style(SectionFrameColor));
+    context.canvas().fill();
   }
   
-  context->canvas->move_to(
+  context.canvas().move_to(
     x + left_margin - 3,
     y + _content->extents().ascent + top_margin);
     
   paint_label(context);
   
   Expr textshadow;
-  context->stylesheet->get(style, TextShadow, &textshadow);
-  context->canvas->set_color(get_style(FontColor));
+  context.stylesheet->get(style, TextShadow, &textshadow);
+  context.canvas().set_color(get_style(FontColor));
   
   float xx, yy;
   
@@ -525,18 +525,18 @@ void AbstractSequenceSection::paint(Context *context) {
     float dist = get_style(SectionFrameLabelMarginLeft);
     xx = x + cx - dist - dingbat->extents().width;
     yy = y + cy;
-    context->canvas->align_point(&xx, &yy, false);
-    context->canvas->move_to(xx, yy);
+    context.canvas().align_point(&xx, &yy, false);
+    context.canvas().move_to(xx, yy);
     
-    context->draw_with_text_shadows(dingbat, textshadow);
+    context.draw_with_text_shadows(dingbat, textshadow);
   }
   
   xx = x + cx;
   yy = y + cy;
-  context->canvas->align_point(&xx, &yy, false);
-  context->canvas->move_to(xx, yy);
+  context.canvas().align_point(&xx, &yy, false);
+  context.canvas().move_to(xx, yy);
   
-  context->draw_with_text_shadows(_content, textshadow);
+  context.draw_with_text_shadows(_content, textshadow);
   
   cc.end();
 }

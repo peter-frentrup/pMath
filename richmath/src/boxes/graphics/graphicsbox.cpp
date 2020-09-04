@@ -226,11 +226,11 @@ bool GraphicsBox::request_repaint(float x, float y, float w, float h) {
   return Box::request_repaint(x, y, w, h);
 }
 
-void GraphicsBox::resize(Context *context) {
+void GraphicsBox::resize(Context &context) {
   is_currently_resizing = true;
   cached_bitmap = 0;
   
-  em = context->canvas->get_font_size();
+  em = context.canvas().get_font_size();
   
   resize_axes(context);
   
@@ -855,7 +855,7 @@ bool GraphicsBox::set_axis_ends(enum AxisIndex part, const GraphicsBounds &bound
   return false;
 }
 
-void GraphicsBox::resize_axes(Context *context) {
+void GraphicsBox::resize_axes(Context &context) {
   ContextState cc(context);
   cc.begin(style);
   {
@@ -894,8 +894,7 @@ void GraphicsBox::resize_axes(Context *context) {
   cc.end();
 }
 
-void GraphicsBox::paint(Context *context) {
-  GraphicsBoxContext gctx(this, context);
+void GraphicsBox::paint(Context &context) {
   error_boxes_expr = Expr();
   
   update_dynamic_styles(context);
@@ -903,135 +902,132 @@ void GraphicsBox::paint(Context *context) {
   float w = _extents.width;
   float h = _extents.height();
   
-  if(!cached_bitmap.is_valid() || !cached_bitmap->is_compatible(context->canvas)) {
-    Canvas *old_canvas = context->canvas;
-    cached_bitmap = new Buffer(context->canvas, CAIRO_FORMAT_ARGB32, _extents);
-    if(cached_bitmap->canvas()) {
-      context->canvas = cached_bitmap->canvas();
-    }
-    else {
+  if(!cached_bitmap.is_valid() || !cached_bitmap->is_compatible(context.canvas())) {
+    Canvas *old_canvas = &context.canvas();
+    cached_bitmap = new Buffer(context.canvas(), CAIRO_FORMAT_ARGB32, _extents);
+    if(!cached_bitmap->canvas()) 
       cached_bitmap = nullptr;
-    }
     
-    ContextState cc(context);
-    cc.begin(style);
-    {
-      float x, y;
-      context->canvas->current_pos(&x, &y);
-      y -= _extents.ascent;
-      
-      if(error_boxes_expr.is_valid())
-        context->draw_error_rect(x, y, x + w, y + h);
-        
-      context->canvas->save();
-      {
-        context->canvas->pixrect(
-          x +     margin_left   - 0.75f,
-          y +     margin_top    - 0.75f,
-          x + w - margin_right  + 0.75f,
-          y + h - margin_bottom + 0.75f,
-          false);
-        context->canvas->clip();
-        
-        cairo_matrix_t m;
-        cairo_matrix_init_identity(&m);
-        
-        cairo_matrix_translate(&m, x, y + _extents.ascent);
-        transform_inner_to_outer(&m);
-        context->canvas->transform(m);
-        
-        Color old_color = context->canvas->get_color();
-        
-        //context->canvas->set_color(0xff0000);
-        //context->canvas->move_to(0, 0);
-        //context->canvas->line_to(1, 1);
-        //context->canvas->hair_stroke();
-        
-        context->canvas->set_color(Color::Black);
-        elements.paint(&gctx);
-        
-        context->canvas->set_color(old_color);
-      }
-      context->canvas->restore();
-      
-      
-      context->canvas->save();
-      {
-        Color old_color = context->canvas->get_color();
-        context->canvas->set_color(Color::Black);
-        
-        for(int axis = 0; axis < 6; ++axis) {
-          if(!ticks[axis]->axis_hidden) {
-            float x1 = ticks[axis]->start_x + x;
-            float y1 = ticks[axis]->start_y + y;
-            float x2 = ticks[axis]->end_x   + x;
-            float y2 = ticks[axis]->end_y   + y;
-            
-            context->canvas->align_point(&x1, &y1, true);
-            context->canvas->align_point(&x2, &y2, true);
-            
-            context->canvas->move_to(x1, y1);
-            context->canvas->line_to(x2, y2);
-            context->canvas->hair_stroke();
-            
-          }
-        }
-        
-        for(int axis = 0; axis < 6; ++axis) {
-          if(!ticks[axis]->axis_hidden) {
-            context->canvas->move_to(x, y);
-            ticks[axis]->paint(context);
-          }
-        }
-        
-        context->canvas->set_color(old_color);
-      }
-      context->canvas->restore();
-    }
-    cc.end();
+    context.with_canvas(cached_bitmap ? *cached_bitmap->canvas() : context.canvas(), [&]() {
     
-    context->canvas = old_canvas;
+      ContextState cc(context);
+      cc.begin(style);
+      {
+        float x, y;
+        context.canvas().current_pos(&x, &y);
+        y -= _extents.ascent;
+        
+        if(error_boxes_expr.is_valid())
+          context.draw_error_rect(x, y, x + w, y + h);
+          
+        context.canvas().save();
+        {
+          context.canvas().pixrect(
+            x +     margin_left   - 0.75f,
+            y +     margin_top    - 0.75f,
+            x + w - margin_right  + 0.75f,
+            y + h - margin_bottom + 0.75f,
+            false);
+          context.canvas().clip();
+          
+          cairo_matrix_t m;
+          cairo_matrix_init_identity(&m);
+          
+          cairo_matrix_translate(&m, x, y + _extents.ascent);
+          transform_inner_to_outer(&m);
+          context.canvas().transform(m);
+          
+          Color old_color = context.canvas().get_color();
+          
+          //context.canvas().set_color(0xff0000);
+          //context.canvas().move_to(0, 0);
+          //context.canvas().line_to(1, 1);
+          //context.canvas().hair_stroke();
+          
+          context.canvas().set_color(Color::Black);
+          elements.paint(this, context);
+          
+          context.canvas().set_color(old_color);
+        }
+        context.canvas().restore();
+        
+        
+        context.canvas().save();
+        {
+          Color old_color = context.canvas().get_color();
+          context.canvas().set_color(Color::Black);
+          
+          for(int axis = 0; axis < 6; ++axis) {
+            if(!ticks[axis]->axis_hidden) {
+              float x1 = ticks[axis]->start_x + x;
+              float y1 = ticks[axis]->start_y + y;
+              float x2 = ticks[axis]->end_x   + x;
+              float y2 = ticks[axis]->end_y   + y;
+              
+              context.canvas().align_point(&x1, &y1, true);
+              context.canvas().align_point(&x2, &y2, true);
+              
+              context.canvas().move_to(x1, y1);
+              context.canvas().line_to(x2, y2);
+              context.canvas().hair_stroke();
+              
+            }
+          }
+          
+          for(int axis = 0; axis < 6; ++axis) {
+            if(!ticks[axis]->axis_hidden) {
+              context.canvas().move_to(x, y);
+              ticks[axis]->paint(context);
+            }
+          }
+          
+          context.canvas().set_color(old_color);
+        }
+        context.canvas().restore();
+      }
+      cc.end();
+    });
   }
   
   if(cached_bitmap.is_valid())
-    cached_bitmap->paint(context->canvas);
+    cached_bitmap->paint(context.canvas());
     
-  if(context->selection.equals(this, 0, 0)) {
+  if(context.selection.equals(this, 0, 0)) {
     float x, y;
-    context->canvas->current_pos(&x, &y);
+    context.canvas().current_pos(&x, &y);
     y -= _extents.ascent;
     
-    context->canvas->save();
+    context.canvas().save();
     
-    context->canvas->pixrect(x, y, x + w, y + h, true);
+    context.canvas().pixrect(x, y, x + w, y + h, true);
     
-    context->canvas->set_color(Color::from_rgb24(0xFF8000));
-    context->canvas->hair_stroke();
+    context.canvas().set_color(Color::from_rgb24(0xFF8000));
+    context.canvas().hair_stroke();
     
-    context->canvas->pixrect(
+    context.canvas().pixrect(
       x + w - 2.25,
       y + h / 2 - 1.5,
       x + w,
       y + h / 2 + 0.75,
       false);
       
-    context->canvas->pixrect(
+    context.canvas().pixrect(
       x + w - 2.25,
       y + h - 2.25,
       x + w,
       y + h,
       false);
       
-    context->canvas->pixrect(
+    context.canvas().pixrect(
       x + w / 2 - 1.5,
       y + h - 2.25,
       x + w / 2 + 0.75,
       y + h,
       false);
       
-    context->canvas->fill();
+    context.canvas().fill();
     
-    context->canvas->restore();
+    context.canvas().restore();
   }
 }
 

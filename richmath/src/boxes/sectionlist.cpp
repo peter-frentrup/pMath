@@ -48,11 +48,11 @@ Box *SectionList::item(int i) {
   return _sections[i];
 }
 
-void SectionList::resize(Context *context) {
+void SectionList::resize(Context &context) {
   unfilled_width = 0;
   _extents.ascent = 0;
   _extents.descent = 0;
-  _extents.width = _page_width = context->width;
+  _extents.width = _page_width = context.width;
   init_section_bracket_sizes(context);
   
   for(int i = 0; i < _sections.length(); ++i) {
@@ -88,7 +88,7 @@ void SectionList::resize(Context *context) {
   finish_resize(context);
 }
 
-void SectionList::finish_resize(Context *context) {
+void SectionList::finish_resize(Context &context) {
   if(_must_resize_group_info) {
     recalc_group_info();
     update_group_nesting();
@@ -96,41 +96,41 @@ void SectionList::finish_resize(Context *context) {
   }
 }
 
-void SectionList::paint(Context *context) {
+void SectionList::paint(Context &context) {
   update_dynamic_styles(context);
     
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  context->canvas->save();
-  context->canvas->translate(x, y);
+  context.canvas().save();
+  context.canvas().translate(x, y);
   
   //_scrollx = 0;
   for(int i = 0; i < _sections.length(); ++i) {
-    context->canvas->move_to(0, _sections[i]->y_offset);
+    context.canvas().move_to(0, _sections[i]->y_offset);
     paint_section(context, i);
   }
   
-  if( context->selection.get() == this &&
-      context->selection.start == _sections.length())
+  if( context.selection.get() == this &&
+      context.selection.start == _sections.length())
   {
     float x1 = 0;
     float y1 = _extents.descent;
     float x2 = _extents.width;
     float y2 = _extents.descent;
     
-    context->canvas->align_point(&x1, &y1, true);
-    context->canvas->align_point(&x2, &y2, true);
-    context->canvas->move_to(x1, y1);
-    context->canvas->line_to(x2, y2);
+    context.canvas().align_point(&x1, &y1, true);
+    context.canvas().align_point(&x2, &y2, true);
+    context.canvas().move_to(x1, y1);
+    context.canvas().line_to(x2, y2);
     
-    context->draw_selection_path();
+    context.draw_selection_path();
   }
   
-  context->canvas->restore();
+  context.canvas().restore();
 }
 
-void SectionList::selection_path(Canvas *canvas, int start, int end) {
+void SectionList::selection_path(Canvas &canvas, int start, int end) {
   float yend;
   if(end < length())
     yend = _sections[end]->y_offset;
@@ -138,7 +138,7 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
     yend = _extents.height();
     
   float x, y;
-  canvas->current_pos(&x, &y);
+  canvas.current_pos(&x, &y);
   
   if(start == end) {
     float x1 = x;
@@ -146,12 +146,12 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
     float x2 = x + _extents.width;
     float y2 = y + yend;
     
-    canvas->align_point(&x1, &y1, true);
-    canvas->align_point(&x2, &y2, true);
+    canvas.align_point(&x1, &y1, true);
+    canvas.align_point(&x2, &y2, true);
     
-    canvas->move_to(x1, y1);
-    canvas->line_to(x2, y2);
-    canvas->close_path();
+    canvas.move_to(x1, y1);
+    canvas.line_to(x2, y2);
+    canvas.close_path();
   }
   else {
     //float left   = x;
@@ -190,16 +190,16 @@ void SectionList::selection_path(Canvas *canvas, int start, int end) {
     float x4 = left;
     float y4 = bottom;
     
-    canvas->align_point(&x1, &y1, false);
-    canvas->align_point(&x2, &y2, false);
-    canvas->align_point(&x3, &y3, false);
-    canvas->align_point(&x4, &y4, false);
+    canvas.align_point(&x1, &y1, false);
+    canvas.align_point(&x2, &y2, false);
+    canvas.align_point(&x3, &y3, false);
+    canvas.align_point(&x4, &y4, false);
     
-    canvas->move_to(x1, y1);
-    canvas->line_to(x2, y2);
-    canvas->line_to(x3, y3);
-    canvas->line_to(x4, y4);
-    canvas->close_path();
+    canvas.move_to(x1, y1);
+    canvas.line_to(x2, y2);
+    canvas.line_to(x3, y3);
+    canvas.line_to(x4, y4);
+    canvas.close_path();
   }
 }
 
@@ -835,26 +835,26 @@ bool SectionList::request_repaint_range(int start, int end) {
   
 }
 
-void SectionList::init_section_bracket_sizes(Context *context) {
+void SectionList::init_section_bracket_sizes(Context &context) {
   float dx = 1;
   float dy = 0;
   
-  context->canvas->user_to_device_dist(&dx, &dy);
+  context.canvas().user_to_device_dist(&dx, &dy);
   float pix = 1 / hypot(dx, dy);
   
   section_bracket_width        = 8 * pix;
   section_bracket_right_margin = 2 * pix;
 }
 
-void SectionList::resize_section(Context *context, int i) {
-  float old_w    = context->width;
-  float old_scww = context->section_content_window_width;
+void SectionList::resize_section(Context &context, int i) {
+  float old_w    = context.width;
+  float old_scww = context.section_content_window_width;
   
   if(get_own_style(ShowSectionBracket, true)) {
     int nesting = _group_info[i].nesting;
     if(nesting > 0) {
-      context->width                        -= section_bracket_right_margin + section_bracket_width * nesting;
-      context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
+      context.width                        -= section_bracket_right_margin + section_bracket_width * nesting;
+      context.section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
     }
   }
   
@@ -866,8 +866,8 @@ void SectionList::resize_section(Context *context, int i) {
     _must_resize_group_info = true;
   }
   
-  context->width                        = old_w;
-  context->section_content_window_width = old_scww;
+  context.width                        = old_w;
+  context.section_content_window_width = old_scww;
 }
 
 float SectionList::get_content_scroll_correction_x(int i) {
@@ -891,24 +891,24 @@ float SectionList::get_content_scroll_correction_x(int i) {
   return ssx - _scrollx;
 }
 
-void SectionList::paint_section(Context *context, int i) {
+void SectionList::paint_section(Context &context, int i) {
   if(_sections[i]->must_resize)
     _sections[i]->resize(context);
     
-  float old_w    = context->width;
-  float old_scww = context->section_content_window_width;
+  float old_w    = context.width;
+  float old_scww = context.section_content_window_width;
   //_scrollx = scrollx;
   
   if(get_own_style(ShowSectionBracket, true)) {
     int nesting = _group_info[i].nesting;
     if(nesting > 0) {
-      context->width                        -= section_bracket_right_margin + section_bracket_width * nesting;
-      context->section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
+      context.width                        -= section_bracket_right_margin + section_bracket_width * nesting;
+      context.section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
     }
   }
   
-  context->width                        = old_w;
-  context->section_content_window_width = old_scww;
+  context.width                        = old_w;
+  context.section_content_window_width = old_scww;
   
   if(!_sections[i]->visible)
     return;
@@ -916,9 +916,9 @@ void SectionList::paint_section(Context *context, int i) {
   float scroll_cor_x = get_content_scroll_correction_x(i);
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  float w = context->width;
+  float w = context.width;
   if(w == HUGE_VAL) {
     w = _window_width;
   }
@@ -930,30 +930,30 @@ void SectionList::paint_section(Context *context, int i) {
     }
   }
   
-  context->canvas->save();
+  context.canvas().save();
   {
-    context->canvas->pixrect(
+    context.canvas().pixrect(
       x + _scrollx,
       y - _sections[i]->extents().ascent,
       x + _scrollx + w,
       y + _sections[i]->extents().descent,
       false);
-    context->canvas->clip();
+    context.canvas().clip();
     
-    context->canvas->move_to(x - scroll_cor_x, y);
+    context.canvas().move_to(x - scroll_cor_x, y);
     
     Expr expr;
-    context->stylesheet->get(style, TextShadow, &expr);
-    context->draw_with_text_shadows(_sections[i], expr);
+    context.stylesheet->get(style, TextShadow, &expr);
+    context.draw_with_text_shadows(_sections[i], expr);
     
   }
-  context->canvas->restore();
+  context.canvas().restore();
   paint_section_brackets(context, i, x + _scrollx + _window_width, y);
   
-  context->canvas->move_to(x, y + _sections[i]->extents().height());
+  context.canvas().move_to(x, y + _sections[i]->extents().height());
 }
 
-void SectionList::paint_section_brackets(Context *context, int i, float right, float top) {
+void SectionList::paint_section_brackets(Context &context, int i, float right, float top) {
   if(get_own_style(ShowSectionBracket, true)) {
     int style = BorderDefault;
     
@@ -987,14 +987,15 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     float sel_y2 = y2 + 1.5;
     
     int sel_depth = -1;
-    if(context->selection.get() == this
-        && context->selection.start <= i
-        && context->selection.end > i) {
+    if( context.selection.get() == this && 
+        context.selection.start <= i && 
+        context.selection.end > i) 
+    {
       int start = i;
       if(_group_info[i].end > i)
         ++sel_depth;
         
-      while(start >= context->selection.start && _group_info[start].end < context->selection.end) {
+      while(start >= context.selection.start && _group_info[start].end < context.selection.end) {
         ++sel_depth;
         start = _group_info[start].first;
       }
@@ -1002,7 +1003,7 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     
     switch(_sections[i]->get_style(ShowSectionBracket)) {
       case AutoBoolAutomatic:
-        if(context->selection.id == id() && context->selection.start <= i && context->selection.end > i)
+        if(context.selection.id == id() && context.selection.start <= i && context.selection.end > i)
           paint_single_section_bracket(context, x1, y1, x2, y2, style);
         break;
         
@@ -1016,8 +1017,8 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
     }
     
     if(sel_depth-- == 0) {
-      context->canvas->pixrect(x1, sel_y1, x2, sel_y2, false);
-      context->draw_selection_path();
+      context.canvas().pixrect(x1, sel_y1, x2, sel_y2, false);
+      context.draw_selection_path();
     }
     
     int s = i;
@@ -1057,7 +1058,7 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
         
         switch(_sections[start]->get_style(ShowSectionBracket)) {
           case AutoBoolAutomatic:
-            if(context->selection.id == id() && context->selection.start <= start && context->selection.end > _group_info[start].end)
+            if(context.selection.id == id() && context.selection.start <= start && context.selection.end > _group_info[start].end)
               paint_single_section_bracket(context, x1, y1, x2, y2, style);
             break;
             
@@ -1074,7 +1075,7 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
         style = style & ~BorderBottomArrow;
         
         if(sel_depth-- == 0) {
-          context->canvas->save();
+          context.canvas().save();
           if((style & BorderNoTop) || (style & BorderNoBottom)) {
             float clip_top    = sel_y1;
             float clip_bottom = sel_y2;
@@ -1089,13 +1090,13 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
             else
               clip_bottom += pixel;
               
-            context->canvas->pixrect(x1 - pixel, clip_top, x2 + pixel, clip_bottom, false);
-            context->canvas->clip();
+            context.canvas().pixrect(x1 - pixel, clip_top, x2 + pixel, clip_bottom, false);
+            context.canvas().clip();
           }
           
-          context->canvas->pixrect(x1, sel_y1, x2, sel_y2, false);
-          context->draw_selection_path();
-          context->canvas->restore();
+          context.canvas().pixrect(x1, sel_y1, x2, sel_y2, false);
+          context.draw_selection_path();
+          context.canvas().restore();
         }
       }
       
@@ -1105,7 +1106,7 @@ void SectionList::paint_section_brackets(Context *context, int i, float right, f
 }
 
 void SectionList::paint_single_section_bracket(
-  Context *context,
+  Context &context,
   float    x1,
   float    y1,
   float    x2,
@@ -1126,20 +1127,20 @@ void SectionList::paint_single_section_bracket(
   float pdyx = 0;
   float pdyy = 1;
   
-  context->canvas->save();
-  Color c = context->canvas->get_color();
+  context.canvas().save();
+  Color c = context.canvas().get_color();
   {
-    cairo_set_line_width(context->canvas->cairo(), 1);
-    cairo_set_line_cap(context->canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
-    cairo_set_line_join(context->canvas->cairo(), CAIRO_LINE_JOIN_MITER);
+    cairo_set_line_width(context.canvas().cairo(), 1);
+    cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_SQUARE);
+    cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
     
-    context->canvas->user_to_device(&px1, &py1);
-    context->canvas->user_to_device(&px2, &py2);
-    context->canvas->user_to_device(&px3, &py3);
-    context->canvas->user_to_device(&px4, &py4);
+    context.canvas().user_to_device(&px1, &py1);
+    context.canvas().user_to_device(&px2, &py2);
+    context.canvas().user_to_device(&px3, &py3);
+    context.canvas().user_to_device(&px4, &py4);
     
-    context->canvas->user_to_device_dist(&pdxx, &pdxy);
-    context->canvas->user_to_device_dist(&pdyx, &pdyy);
+    context.canvas().user_to_device_dist(&pdxx, &pdxy);
+    context.canvas().user_to_device_dist(&pdyx, &pdyy);
     
     float picy = 1;
     
@@ -1155,54 +1156,54 @@ void SectionList::paint_single_section_bracket(
     px2 = ceilf(px2) - 0.5f;   py2 = ceilf(py2) - 0.5f;
     px3 = ceilf(px3) - 0.5f;   py3 = ceilf(py3) - 0.5f;
     px4 = ceilf(px4) - 0.5f;   py4 = ceilf(py4) - 0.5f;
-//    context->canvas->align_point(&px1, &py1, true);
-//    context->canvas->align_point(&px2, &py2, true);
-//    context->canvas->align_point(&px3, &py3, true);
-//    context->canvas->align_point(&px4, &py4, true);
+//    context.canvas().align_point(&px1, &py1, true);
+//    context.canvas().align_point(&px2, &py2, true);
+//    context.canvas().align_point(&px3, &py3, true);
+//    context.canvas().align_point(&px4, &py4, true);
 
-    context->canvas->reset_matrix();
+    context.canvas().reset_matrix();
     
     Color col = Color::from_rgb24(0x999999); // 0x454E99
-    context->canvas->set_color(col);
+    context.canvas().set_color(col);
     if(style & BorderTopArrow) {
-      context->canvas->move_to(px2, py2);
-      context->canvas->line_to(px1, py1 + (px2 - px1));
-      context->canvas->line_to(px2, py2 + (px2 - px1));
-      context->canvas->close_path();
-      context->canvas->fill_preserve();
-      context->canvas->stroke();
+      context.canvas().move_to(px2, py2);
+      context.canvas().line_to(px1, py1 + (px2 - px1));
+      context.canvas().line_to(px2, py2 + (px2 - px1));
+      context.canvas().close_path();
+      context.canvas().fill_preserve();
+      context.canvas().stroke();
       style |= BorderNoTop;
     }
     
     if(style & BorderBottomArrow) {
-      context->canvas->move_to(px3, py3);
-      context->canvas->line_to(px4, py4 - (px2 - px1));
-      context->canvas->line_to(px3, py3 - (px2 - px1));
-      context->canvas->close_path();
-      context->canvas->fill_preserve();
-      context->canvas->stroke();
+      context.canvas().move_to(px3, py3);
+      context.canvas().line_to(px4, py4 - (px2 - px1));
+      context.canvas().line_to(px3, py3 - (px2 - px1));
+      context.canvas().close_path();
+      context.canvas().fill_preserve();
+      context.canvas().stroke();
       style |= BorderNoBottom;
     }
     
     if(style & BorderNoTop) {
-      context->canvas->move_to(px2 - pdyx, py2 - pdyy);
+      context.canvas().move_to(px2 - pdyx, py2 - pdyy);
     }
     else {
       if(style & BorderNoEditable) {
-        context->canvas->move_to(px1 + pdyx, py1 + pdyy);
-        context->canvas->line_to(px2 + pdyx, py2 + pdyy);
+        context.canvas().move_to(px1 + pdyx, py1 + pdyy);
+        context.canvas().line_to(px2 + pdyx, py2 + pdyy);
         
         picy += 1;
       }
       
-      context->canvas->move_to(px1, py1);
-      context->canvas->line_to(px2, py2);
+      context.canvas().move_to(px1, py1);
+      context.canvas().line_to(px2, py2);
     }
     
-    context->canvas->line_to(px3, py3);
+    context.canvas().line_to(px3, py3);
     
     if(!(style & BorderNoBottom)) 
-      context->canvas->line_to(px4, py4);
+      context.canvas().line_to(px4, py4);
     
     if(style & BorderSession) {
       double dashes[2] = {
@@ -1210,35 +1211,35 @@ void SectionList::paint_single_section_bracket(
         1.0   /* skip*/
       };
       
-      cairo_set_dash(context->canvas->cairo(), dashes, 2, 0.5);
-      cairo_set_line_cap(context->canvas->cairo(), CAIRO_LINE_CAP_BUTT);
-      cairo_set_line_width(context->canvas->cairo(), 3.0);
+      cairo_set_dash(context.canvas().cairo(), dashes, 2, 0.5);
+      cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_BUTT);
+      cairo_set_line_width(context.canvas().cairo(), 3.0);
       
-      context->canvas->set_color(Color::Black);
-      context->canvas->stroke_preserve();
+      context.canvas().set_color(Color::Black);
+      context.canvas().stroke_preserve();
       
-      cairo_set_dash(context->canvas->cairo(), nullptr, 0, 0.0);
+      cairo_set_dash(context.canvas().cairo(), nullptr, 0, 0.0);
     }
     else if(style & BorderEval) {
-      cairo_set_line_width(context->canvas->cairo(), 3.0);
+      cairo_set_line_width(context.canvas().cairo(), 3.0);
       
-      context->canvas->set_color(Color::Black);
-      context->canvas->stroke_preserve();
+      context.canvas().set_color(Color::Black);
+      context.canvas().stroke_preserve();
       
       //col = 0xffffff & ~col;
     }
     
-    cairo_set_line_width(context->canvas->cairo(), 1.0);
-    context->canvas->set_color(col);
-    context->canvas->stroke();
+    cairo_set_line_width(context.canvas().cairo(), 1.0);
+    context.canvas().set_color(col);
+    context.canvas().stroke();
     
     if(style & BorderInput) {
       float cx = px2 + (picy + 1) * pdyx - 3 * pdxx;
       float cy = py2 + (picy + 1) * pdyy - 3 * pdxy;
       
-      context->canvas->move_to(cx, cy);
-      context->canvas->line_to(cx + 3 * pdyx, cy + 3 * pdyy);
-      context->canvas->stroke();
+      context.canvas().move_to(cx, cy);
+      context.canvas().line_to(cx + 3 * pdyx, cy + 3 * pdyy);
+      context.canvas().stroke();
       
       picy += 5;
     }
@@ -1247,12 +1248,12 @@ void SectionList::paint_single_section_bracket(
       float cx = px2 + (picy + 1) * pdyx - 3 * pdxx;
       float cy = py2 + (picy + 1) * pdyy - 3 * pdxy;
       
-      context->canvas->move_to(cx, cy);
-      context->canvas->line_to(cx + 3 * pdyx, cy + 3 * pdyy);
-      context->canvas->move_to(cx - pdxx, cy - pdxy);
-      context->canvas->line_to(cx + pdxx, cy + pdxy);
+      context.canvas().move_to(cx, cy);
+      context.canvas().line_to(cx + 3 * pdyx, cy + 3 * pdyy);
+      context.canvas().move_to(cx - pdxx, cy - pdxy);
+      context.canvas().line_to(cx + pdxx, cy + pdxy);
       
-      context->canvas->stroke();
+      context.canvas().stroke();
       
       picy += 5;
     }
@@ -1261,14 +1262,14 @@ void SectionList::paint_single_section_bracket(
       float cx = px2 + (picy + 2) * pdyx - 3 * pdxx;
       float cy = py2 + (picy + 2) * pdyy - 3 * pdxy;
       
-      context->canvas->arc(cx, cy, 1, 0, 2 * M_PI, false);
-      context->canvas->stroke();
+      context.canvas().arc(cx, cy, 1, 0, 2 * M_PI, false);
+      context.canvas().stroke();
       
       picy += 4;
     }
   }
-  context->canvas->set_color(c);
-  context->canvas->restore();
+  context.canvas().set_color(c);
+  context.canvas().restore();
 }
 
 //} ... class SectionList

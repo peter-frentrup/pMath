@@ -105,7 +105,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   return true;
 }
 
-void DynamicLocalBox::paint(Context *context) {
+void DynamicLocalBox::paint(Context &context) {
   ensure_init();
   
   AbstractDynamicBox::paint(context);

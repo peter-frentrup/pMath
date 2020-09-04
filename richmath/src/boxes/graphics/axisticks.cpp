@@ -144,34 +144,34 @@ bool AxisTicks::is_visible(double t) {
   return start_position - err <= t && t <= end_position + err;
 }
 
-void AxisTicks::resize(Context *context) {
-  float old_w = context->width;
-  float old_fs = context->canvas->get_font_size();
+void AxisTicks::resize(Context &context) {
+  float old_w = context.width;
+  float old_fs = context.canvas().get_font_size();
   
-  context->width = HUGE_VAL;
+  context.width = HUGE_VAL;
   
-  context->canvas->set_font_size(0.8 * old_fs);
+  context.canvas().set_font_size(0.8 * old_fs);
   
   for(auto label : _labels)
     label->resize(context);
   
-  context->canvas->set_font_size(old_fs);
-  context->width = old_w;
+  context.canvas().set_font_size(old_fs);
+  context.width = old_w;
   
   _extents.width   = 0;
   _extents.ascent  = 0;
   _extents.descent = 0;
   
-  context->width = old_w;
+  context.width = old_w;
 }
 
-void AxisTicks::paint(Context *context) {
+void AxisTicks::paint(Context &context) {
   float x, y;
   
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  float old_fs = context->canvas->get_font_size();
-  context->canvas->set_font_size(0.8 * old_fs);
+  float old_fs = context.canvas().get_font_size();
+  context.canvas().set_font_size(0.8 * old_fs);
   
   bool have_ilp = is_visible(ignore_label_position);
   
@@ -180,8 +180,8 @@ void AxisTicks::paint(Context *context) {
       Point p;
       get_tick_position(position(i), &p.x, &p.y);
       
-      draw_tick(context->canvas, x + p.x, y + p.y,   _rel_tick_pos[i] * tick_length_factor);
-      draw_tick(context->canvas, x + p.x, y + p.y, - _rel_tick_neg[i] * tick_length_factor);
+      draw_tick(context.canvas(), x + p.x, y + p.y,   _rel_tick_pos[i] * tick_length_factor);
+      draw_tick(context.canvas(), x + p.x, y + p.y, - _rel_tick_neg[i] * tick_length_factor);
       
       
       get_label_position(i, &p.x, &p.y);
@@ -201,12 +201,12 @@ void AxisTicks::paint(Context *context) {
           continue;
       }
       
-      context->canvas->move_to(x + p.x, y + p.y);
+      context.canvas().move_to(x + p.x, y + p.y);
       lbl->paint(context);
     }
   }
   
-  context->canvas->set_font_size(old_fs);
+  context.canvas().set_font_size(old_fs);
 }
 
 void AxisTicks::calc_bounds(float *x1, float *y1, float *x2, float *y2) {
@@ -332,7 +332,7 @@ void AxisTicks::set_count(int new_count) {
   }
 }
 
-void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
+void AxisTicks::draw_tick(Canvas &canvas, float x, float y, float length) {
   if(length == 0)
     return;
     
@@ -349,20 +349,20 @@ void AxisTicks::draw_tick(Canvas *canvas, float x, float y, float length) {
   float y2 = y + length * label_direction_y * factor;
   
   if(label_direction_x == 0 || label_direction_y == 0) {
-    canvas->align_point(&x1, &y1, true);
-    canvas->align_point(&x2, &y2, true);
+    canvas.align_point(&x1, &y1, true);
+    canvas.align_point(&x2, &y2, true);
   }
   
-  canvas->save();
+  canvas.save();
   {
-    cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
+    cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
     
-    canvas->move_to(x1, y1);
-    canvas->line_to(x2, y2);
+    canvas.move_to(x1, y1);
+    canvas.line_to(x2, y2);
     
-    canvas->hair_stroke();
+    canvas.hair_stroke();
   }
-  canvas->restore();
+  canvas.restore();
 }
 
 void AxisTicks::get_tick_position(

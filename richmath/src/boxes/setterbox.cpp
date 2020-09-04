@@ -47,7 +47,7 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-ControlState SetterBox::calc_state(Context *context) {
+ControlState SetterBox::calc_state(Context &context) {
   if(is_down) {
     //if(mouse_inside)
     return PressedHovered;
@@ -61,7 +61,7 @@ ControlState SetterBox::calc_state(Context *context) {
   return state;
 }
 
-void SetterBox::paint(Context *context) {
+void SetterBox::paint(Context &context) {
   if(must_update) {
     must_update = false;
     
@@ -71,7 +71,7 @@ void SetterBox::paint(Context *context) {
     }
   }
   
-  ContainerWidgetBox::paint(context);
+  base::paint(context);
 }
 
 Expr SetterBox::to_pmath_symbol() {

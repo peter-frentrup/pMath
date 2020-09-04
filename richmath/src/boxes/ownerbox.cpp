@@ -47,15 +47,15 @@ Box *OwnerBox::item(int i) {
   return _content;
 }
 
-void OwnerBox::resize_default_baseline(Context *context) {
+void OwnerBox::resize_default_baseline(Context &context) {
   _content->resize(context);
   _extents = _content->extents();
   cx = 0;
   cy = 0;
 }
 
-void OwnerBox::adjust_baseline_after_resize(Context *context) {
-  Impl(*this).adjust_baseline(context->canvas->get_font_size());
+void OwnerBox::adjust_baseline_after_resize(Context &context) {
+  Impl(*this).adjust_baseline(context.canvas().get_font_size());
 }
 
 float OwnerBox::calculate_scaled_baseline(double scale) const {
@@ -63,18 +63,18 @@ float OwnerBox::calculate_scaled_baseline(double scale) const {
   return (float)(-(double)_extents.descent + scale * (double)(_extents.ascent + _extents.descent));
 }
 
-void OwnerBox::paint(Context *context) {
+void OwnerBox::paint(Context &context) {
   update_dynamic_styles(context);
     
   paint_content(context);
 }
 
-void OwnerBox::paint_content(Context *context) {
-  context->canvas->rel_move_to(cx, cy);
+void OwnerBox::paint_content(Context &context) {
+  context.canvas().rel_move_to(cx, cy);
   
   Expr expr;
-  if(style && context->stylesheet->get(style, TextShadow, &expr))
-    context->draw_with_text_shadows(_content, expr);
+  if(style && context.stylesheet->get(style, TextShadow, &expr))
+    context.draw_with_text_shadows(_content, expr);
   else
     _content->paint(context);
 }
@@ -147,24 +147,24 @@ void OwnerBox::child_transformation(
                          cy/* + _extents.ascent*/);
 }
 
-bool OwnerBox::edit_selection(Context *context) {
+bool OwnerBox::edit_selection(Context &context) {
   if(Box::edit_selection(context)) {
     int auto_delete;
     
-    if(context->stylesheet) {
-      if(!context->stylesheet->get(style, AutoDelete, &auto_delete))
+    if(context.stylesheet) {
+      if(!context.stylesheet->get(style, AutoDelete, &auto_delete))
         auto_delete = 0;
     }
     else if(!style || !style->get(AutoDelete, &auto_delete))
       auto_delete = 0;
       
-    Box *selbox = context->selection.get();
+    Box *selbox = context.selection.get();
     if(auto_delete && selbox != this) {
       if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
         if(selbox == _content) {
-          context->selection.set(seq,
-                                 context->selection.start + _index,
-                                 context->selection.end   + _index);
+          context.selection.set(seq,
+                                context.selection.start + _index,
+                                context.selection.end   + _index);
         }
         
         seq->insert(_index + 1, _content, 0, _content->length());
@@ -218,40 +218,40 @@ bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
   return false;
 }
 
-void InlineSequenceBox::resize_default_baseline(Context *context) {
-  bool old_math_spacing = context->math_spacing;
-  context->math_spacing = true;
+void InlineSequenceBox::resize_default_baseline(Context &context) {
+  bool old_math_spacing = context.math_spacing;
+  context.math_spacing = true;
   OwnerBox::resize_default_baseline(context);
-  context->math_spacing = old_math_spacing;
+  context.math_spacing = old_math_spacing;
 }
 
-void InlineSequenceBox::paint(Context *context) {
-  bool old_math_spacing = context->math_spacing;
-  context->math_spacing = true;
+void InlineSequenceBox::paint(Context &context) {
+  bool old_math_spacing = context.math_spacing;
+  context.math_spacing = true;
   
-  Box *b = context->selection.get();
+  Box *b = context.selection.get();
   while(b && b != this)
     b = b->parent();
     
   if(b == this) {
     float x, y;
-    Color c = context->canvas->get_color();
-    context->canvas->current_pos(&x, &y);
-    context->canvas->pixrect(
+    Color c = context.canvas().get_color();
+    context.canvas().current_pos(&x, &y);
+    context.canvas().pixrect(
       x,
       y - _extents.ascent - 1,
       x + _extents.width,
       y + _extents.descent + 1,
       false);
       
-    context->canvas->set_color(Color::from_rgb24(0xF6EDD6));
-    context->canvas->fill();
-    context->canvas->set_color(c);
-    context->canvas->move_to(x, y);
+    context.canvas().set_color(Color::from_rgb24(0xF6EDD6));
+    context.canvas().fill();
+    context.canvas().set_color(c);
+    context.canvas().move_to(x, y);
   }
   
   OwnerBox::paint(context);
-  context->math_spacing = old_math_spacing;
+  context.math_spacing = old_math_spacing;
 }
 
 void InlineSequenceBox::on_enter() {

@@ -20,18 +20,18 @@ namespace richmath {
     public:
 #if GTK_MAJOR_VERSION >= 3
       virtual void calc_container_size(
-        ControlContext *context,
-        Canvas         *canvas,
+        ControlContext &control,
+        Canvas         &canvas,
         ContainerType   type,
         BoxSize        *extents) override;
       
-      virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
+      virtual Color control_font_color(ControlContext &control, ContainerType type, ControlState state) override;
       
-      virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state) override;
+      virtual bool is_very_transparent(ControlContext &control, ContainerType type, ControlState state) override;
       
       virtual void draw_container(
-        ControlContext *context, 
-        Canvas         *canvas,
+        ControlContext &control, 
+        Canvas         &canvas,
         ContainerType   type,
         ControlState    state,
         float           x,
@@ -40,19 +40,19 @@ namespace richmath {
         float           height) override;
     
       virtual void container_content_move(
-        ControlContext *context, 
+        ControlContext &control, 
         ContainerType   type,
         ControlState    state,
         float          *x,
         float          *y) override;
         
-      virtual bool container_hover_repaint(ControlContext *context, ContainerType type) override;
+      virtual bool container_hover_repaint(ControlContext &control, ContainerType type) override;
       
-      virtual void system_font_style(ControlContext *context, Style *style) override;
+      virtual void system_font_style(ControlContext &control, Style *style) override;
       
     public:
-      GtkStyleContext *get_control_theme(ControlContext *context, ContainerType type, bool foreground = false);
-      GtkStateFlags    get_state_flags(ControlContext *context, ContainerType type, ControlState state);
+      GtkStyleContext *get_control_theme(ControlContext &control, ContainerType type, bool foreground = false);
+      GtkStateFlags    get_state_flags(ControlContext &control, ContainerType type, ControlState state);
       
       GtkStyleProvider *current_theme_light();
       GtkStyleProvider *current_theme_dark();

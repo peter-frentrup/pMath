@@ -21,7 +21,7 @@ FreetypeFontShaper::~FreetypeFontShaper() {
 }
 
 void FreetypeFontShaper::decode_token(
-  Context        *context,
+  Context        &context,
   int             len,
   const uint16_t *str,
   GlyphInfo      *result
@@ -31,7 +31,7 @@ void FreetypeFontShaper::decode_token(
   cairo_glyph_t cg;
   
   FontInfo info(_font);
-  context->canvas->set_font_face(_font);
+  context.canvas().set_font_face(_font);
   
   cg.x = 0;
   cg.y = 0;
@@ -44,7 +44,7 @@ void FreetypeFontShaper::decode_token(
         result[i].index = UnknownGlyph;
       }
       else {
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         result[i].right = cte.x_advance;
       }
       
@@ -56,7 +56,7 @@ void FreetypeFontShaper::decode_token(
         result[i].index = UnknownGlyph;
       }
       else {
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         result[i].right = cte.x_advance;
       }
     }

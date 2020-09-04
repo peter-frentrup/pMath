@@ -74,7 +74,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void CheckboxBox::paint(Context *context) {
+void CheckboxBox::paint(Context &context) {
   if(must_update) {
     must_update = false;
     

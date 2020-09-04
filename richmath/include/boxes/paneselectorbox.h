@@ -19,8 +19,8 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override { return _panes.length(); }
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
       virtual void reset_style() override;
       
@@ -46,7 +46,7 @@ namespace richmath {
         
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
       
-      virtual bool edit_selection(Context *context) override;
+      virtual bool edit_selection(Context &context) override;
     
     private:
       Expr to_literal();

@@ -23,16 +23,16 @@ AbstractTransformationBox::AbstractTransformationBox()
   mat.yy = 1;
 }
 
-void AbstractTransformationBox::resize_default_baseline(Context *context) {
-  context->canvas->save();
-  context->canvas->transform(mat);
-  float w = context->width;
-  context->width = Infinity;
+void AbstractTransformationBox::resize_default_baseline(Context &context) {
+  context.canvas().save();
+  context.canvas().transform(mat);
+  float w = context.width;
+  context.width = Infinity;
   
   OwnerBox::resize_default_baseline(context);
   
-  context->width = w;
-  context->canvas->restore();
+  context.width = w;
+  context.canvas().restore();
   
   double mx = 0;//_content->extents().width / 2;
   double my = _content->extents().ascent;//_content->extents().height() / 2;
@@ -88,22 +88,22 @@ void AbstractTransformationBox::resize_default_baseline(Context *context) {
   _extents.descent = yb;
 }
 
-void AbstractTransformationBox::paint(Context *context) {
+void AbstractTransformationBox::paint(Context &context) {
   update_dynamic_styles(context);
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  context->canvas->save();
+  context.canvas().save();
   
-  context->canvas->translate(x, y);
-  context->canvas->transform(mat);
+  context.canvas().translate(x, y);
+  context.canvas().transform(mat);
   
-  context->canvas->move_to(0, 0);
+  context.canvas().move_to(0, 0);
   
   _content->paint(context);
   
-  context->canvas->restore();
+  context.canvas().restore();
 }
 
 VolatileSelection AbstractTransformationBox::mouse_selection(float x, float y, bool *was_inside_start) {
@@ -178,7 +178,7 @@ bool RotationBox::angle(Expr a) {
   return true;
 }
 
-void RotationBox::paint(Context *context) {
+void RotationBox::paint(Context &context) {
   bool have_dynamic = update_dynamic_styles(context);
   
   AbstractTransformationBox::paint(context);
@@ -270,7 +270,7 @@ bool TransformationBox::matrix(Expr m) {
   return false;
 }
 
-void TransformationBox::paint(Context *context) {
+void TransformationBox::paint(Context &context) {
   bool have_dynamic = update_dynamic_styles(context);
   
   AbstractTransformationBox::paint(context);

@@ -53,7 +53,7 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-ControlState InputFieldBox::calc_state(Context *context) {
+ControlState InputFieldBox::calc_state(Context &context) {
   if(!enabled())
     return Disabled;
   
@@ -72,11 +72,11 @@ bool InputFieldBox::expand(const BoxSize &size) {
   return true;
 }
 
-void InputFieldBox::resize_default_baseline(Context *context) {
-  bool  old_math_spacing = context->math_spacing;
-  float old_width        = context->width;
-  context->math_spacing = false;
-  context->width = HUGE_VAL;
+void InputFieldBox::resize_default_baseline(Context &context) {
+  bool  old_math_spacing = context.math_spacing;
+  float old_width        = context.width;
+  context.math_spacing = false;
+  context.width = HUGE_VAL;
   
   type = parse_inputfield_appearance(get_own_style(Appearance));
   
@@ -84,8 +84,8 @@ void InputFieldBox::resize_default_baseline(Context *context) {
   AbstractStyleBox::resize_default_baseline(context); // not ContainerWidgetBox::resize() !
   cx = old_cx;
   
-  context->math_spacing = old_math_spacing;
-  context->width = old_width;
+  context.math_spacing = old_math_spacing;
+  context.width = old_width;
   
   if(_content->var_extents().ascent < 0.95 * _content->get_em())
     _content->var_extents().ascent = 0.95 * _content->get_em();
@@ -95,12 +95,12 @@ void InputFieldBox::resize_default_baseline(Context *context) {
     
   _extents = _content->extents();
   
-  float w = 10 * context->canvas->get_font_size();
+  float w = 10 * context.canvas().get_font_size();
   _extents.width = w;
   
   ControlPainter::std->calc_container_size(
-    this,
-    context->canvas,
+    *this,
+    context.canvas(),
     type,
     &_extents);
     
@@ -109,7 +109,7 @@ void InputFieldBox::resize_default_baseline(Context *context) {
   cx += frame_x;
 }
 
-void InputFieldBox::paint_content(Context *context) {
+void InputFieldBox::paint_content(Context &context) {
   if(must_update) {
     must_update = false;
     
@@ -151,19 +151,19 @@ void InputFieldBox::paint_content(Context *context) {
       else if(result == PMATH_UNDEFINED || result == PMATH_SYMBOL_ABORTED)
         result = String("$Aborted");
         
-      bool was_parent = is_parent_of(context->selection.get());
+      bool was_parent = is_parent_of(context.selection.get());
       
       content()->load_from_object(result, opt);
-      context->canvas->save();
+      context.canvas().save();
       {
         float w = _extents.width;
         resize(context);
         _extents.width = w;
       }
-      context->canvas->restore();
+      context.canvas().restore();
       
       if(was_parent) {
-        context->selection = SelectionReference();
+        context.selection = SelectionReference();
         if(auto doc = find_parent<Document>(false))
           doc->select(content(), content()->length(), content()->length());
       }
@@ -174,10 +174,10 @@ void InputFieldBox::paint_content(Context *context) {
   }
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
   if(invalidated) {
-    context->canvas->save();
+    context.canvas().save();
     
     float cx = x + _extents.width;
     float cy = y - _extents.ascent;
@@ -188,32 +188,32 @@ void InputFieldBox::paint_content(Context *context) {
     cairo_pattern_add_color_stop_rgba(pat, 0,  1.0, 0.5, 0.0, 0.8);
     cairo_pattern_add_color_stop_rgba(pat, 1,  1.0, 0.5, 0.0, 0.0);
     
-    cairo_set_source(context->canvas->cairo(), pat);
+    cairo_set_source(context.canvas().cairo(), pat);
     cairo_pattern_destroy(pat);
     
-    context->canvas->move_to(cx, cy);
-    context->canvas->arc(cx, cy, r, M_PI / 2, M_PI, false);
-    context->canvas->fill();
+    context.canvas().move_to(cx, cy);
+    context.canvas().arc(cx, cy, r, M_PI / 2, M_PI, false);
+    context.canvas().fill();
     
-    context->canvas->restore();
+    context.canvas().restore();
   }
   
   float dx = frame_x - 0.75f;
   float dy = 0;
   
-  context->canvas->save();
+  context.canvas().save();
   
-  context->canvas->pixrect(
+  context.canvas().pixrect(
     x + dx,
     y - _extents.ascent + dy,
     x + _extents.width - dx,
     y + _extents.descent - dy,
     false);
-  context->canvas->clip();
-  context->canvas->move_to(x, y);
+  context.canvas().clip();
+  context.canvas().move_to(x, y);
   ContainerWidgetBox::paint_content(context);
   
-  context->canvas->restore();
+  context.canvas().restore();
 }
 
 void InputFieldBox::reset_style() {
@@ -250,7 +250,7 @@ void InputFieldBox::scroll_to(float x, float y, float w, float h) {
     request_repaint_all();
 }
 
-void InputFieldBox::scroll_to(Canvas *canvas, const VolatileSelection &child_sel) {
+void InputFieldBox::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
   default_scroll_to(canvas, _content, child_sel);
 }
 

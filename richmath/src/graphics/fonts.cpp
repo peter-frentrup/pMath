@@ -28,147 +28,150 @@ using namespace richmath;
 
 #ifdef RICHMATH_USE_WIN32_FONT
 
-class AutoDC: public Base {
-  public:
-    AutoDC(HDC dc):
-      Base(),
-      handle(dc)
-    {
-      SET_BASE_DEBUG_TAG(typeid(*this).name());
-    }
-    
-    ~AutoDC() {
-      DeleteDC(handle);
-    }
-    
-    HDC handle;
-};
+namespace {
+  class AutoDC: public Base {
+    public:
+      AutoDC(HDC dc):
+        Base(),
+        handle(dc)
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
+      
+      ~AutoDC() {
+        DeleteDC(handle);
+      }
+      
+      HDC handle;
+  };
+}
 
 static AutoDC dc(CreateCompatibleDC(0));
 
-
-class PrivateWin32Font: public Shareable {
-  public:
-    static bool load(String file) {
-      file += String::FromChar(0);
-      
-      guard = new PrivateWin32Font(guard);
-      guard->filename.length(file.length());
-      memcpy(
-        guard->filename.items(),
-        file.buffer(),
-        guard->filename.length() * sizeof(uint16_t));
+namespace {
+  class PrivateWin32Font: public Shareable {
+    public:
+      static bool load(String file) {
+        file += String::FromChar(0);
         
-      if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, nullptr) > 0) {
-        return true;
+        guard = new PrivateWin32Font(guard);
+        guard->filename.length(file.length());
+        memcpy(
+          guard->filename.items(),
+          file.buffer(),
+          guard->filename.length() * sizeof(uint16_t));
+          
+        if(AddFontResourceExW(guard->filename.items(), FR_PRIVATE, nullptr) > 0) {
+          return true;
+        }
+        
+        guard = guard->next;
+        return false;
       }
       
-      guard = guard->next;
-      return false;
-    }
-    
-    static void unload_all() {
-      guard = nullptr;
-    }
-    
-  private:
-    PrivateWin32Font(SharedPtr<PrivateWin32Font> _next)
-      : Shareable(),
-        filename(0),
-        next(_next)
-    {
-      SET_BASE_DEBUG_TAG(typeid(*this).name());
-    }
-    
-    ~PrivateWin32Font() {
-      if(filename.length() > 0) {
-        RemoveFontResourceExW(filename.items(), FR_PRIVATE, nullptr);
+      static void unload_all() {
+        guard = nullptr;
       }
-    }
-    
-  private:
-    static SharedPtr<PrivateWin32Font> guard;
-    
-    Array<WCHAR> filename;
-    SharedPtr<PrivateWin32Font> next;
-};
+      
+    private:
+      PrivateWin32Font(SharedPtr<PrivateWin32Font> _next)
+        : Shareable(),
+          filename(0),
+          next(_next)
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
+      
+      ~PrivateWin32Font() {
+        if(filename.length() > 0) {
+          RemoveFontResourceExW(filename.items(), FR_PRIVATE, nullptr);
+        }
+      }
+      
+    private:
+      static SharedPtr<PrivateWin32Font> guard;
+      
+      Array<WCHAR> filename;
+      SharedPtr<PrivateWin32Font> next;
+  };
+}
 
 SharedPtr<PrivateWin32Font> PrivateWin32Font::guard = nullptr;
 
 #endif
 
-class StaticCanvas: public Base {
-  public:
-    StaticCanvas()
-      : Base()
-    {
-      SET_BASE_DEBUG_TAG(typeid(*this).name());
+namespace {
+  class StaticCanvas: public Base { // FIXME: the same class exists in ot-math-shaper.cpp
+    public:
+      StaticCanvas()
+        : Base(),
+          surface{cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1)},
+          cr{cairo_create(surface)},
+          canvas{cr}
+      {
+        SET_BASE_DEBUG_TAG(typeid(*this).name());
+      }
       
-      surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
-      cr = cairo_create(surface);
+      ~StaticCanvas() {
+        cairo_destroy(cr);
+        cairo_surface_destroy(surface);
+      }
       
-      canvas = new Canvas(cr);
-    }
-    
-    ~StaticCanvas() {
-      delete canvas;
-      
-      cairo_destroy(cr);
-      cairo_surface_destroy(surface);
-    }
-    
-  public:
-    cairo_surface_t *surface;
-    cairo_t         *cr;
-    Canvas          *canvas;
-};
+    public:
+      cairo_surface_t *surface;
+      cairo_t         *cr;
+      Canvas           canvas;
+  };
+}
 
 static StaticCanvas static_canvas;
 
 #ifdef RICHMATH_USE_FT_FONT
 
-class PangoSettings {
-  public:
-    PangoSettings() {
-      font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
-      
-      if(font_map) {
-        pango_cairo_font_map_set_default((PangoCairoFontMap *)font_map);
-      }
-      else
-        fprintf(stderr, "Cannot create Pango font map for Freetype backend.\n");
+namespace {
+  class PangoSettings {
+    public:
+      PangoSettings() {
+        font_map = pango_cairo_font_map_new_for_font_type(CAIRO_FONT_TYPE_FT);
         
-      surface = cairo_surface_reference(static_canvas.surface);
-      cr      = cairo_reference(static_canvas.cr);
-      context = pango_cairo_create_context(cr);
+        if(font_map) {
+          pango_cairo_font_map_set_default((PangoCairoFontMap *)font_map);
+        }
+        else
+          fprintf(stderr, "Cannot create Pango font map for Freetype backend.\n");
+          
+        surface = cairo_surface_reference(static_canvas.surface);
+        cr      = cairo_reference(static_canvas.cr);
+        context = pango_cairo_create_context(cr);
+        
+  //#ifdef WIN32
+  //      {
+  //        char system_font_dir[PATH_MAX];
+  //
+  //        if(FAILED(SHGetFolderPathA(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, system_font_dir))) {
+  //          fprintf(stderr, "SHGetFolderPathA failed. Using \n");
+  //          strcpy(system_font_dir, "C:\\Windows\\Fonts");
+  //        }
+  //
+  //        FcConfigAppFontAddDir(nullptr, (const FcChar8*)system_font_dir);
+  //      }
+  //#endif
+      }
       
-//#ifdef WIN32
-//      {
-//        char system_font_dir[PATH_MAX];
-//
-//        if(FAILED(SHGetFolderPathA(nullptr, CSIDL_FONTS, nullptr, SHGFP_TYPE_CURRENT, system_font_dir))) {
-//          fprintf(stderr, "SHGetFolderPathA failed. Using \n");
-//          strcpy(system_font_dir, "C:\\Windows\\Fonts");
-//        }
-//
-//        FcConfigAppFontAddDir(nullptr, (const FcChar8*)system_font_dir);
-//      }
-//#endif
-    }
-    
-    ~PangoSettings() {
-      g_object_unref(font_map);
-      g_object_unref(context);
-      cairo_destroy(cr);
-      cairo_surface_destroy(surface);
-    }
-    
-  public:
-    cairo_surface_t *surface;
-    cairo_t       *cr;
-    PangoFontMap  *font_map;
-    PangoContext  *context;
-};
+      ~PangoSettings() {
+        g_object_unref(font_map);
+        g_object_unref(context);
+        cairo_destroy(cr);
+        cairo_surface_destroy(surface);
+      }
+      
+    public:
+      cairo_surface_t *surface;
+      cairo_t       *cr;
+      PangoFontMap  *font_map;
+      PangoContext  *context;
+  };
+}
 
 static PangoSettings pango_settings;
 
@@ -323,10 +326,10 @@ class richmath::FontInfoPrivate: public Shareable {
     {
       SET_BASE_DEBUG_TAG(typeid(*this).name());
       
-      static_canvas.canvas->set_font_face(font.cairo());
+      static_canvas.canvas.set_font_face(font.cairo());
       scaled_font = cairo_scaled_font_reference(
                       cairo_get_scaled_font(
-                        static_canvas.canvas->cairo()));
+                        static_canvas.canvas.cairo()));
     }
     
     ~FontInfoPrivate() {

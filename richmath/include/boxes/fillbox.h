@@ -16,7 +16,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void paint_content(Context *context) override;
+      virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -34,7 +34,7 @@ namespace richmath {
       virtual float fill_weight() override { return _weight; }
     
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FillBox; }
     

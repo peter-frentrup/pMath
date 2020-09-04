@@ -22,8 +22,8 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override;
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
       virtual Box *remove(int *index) override;
       

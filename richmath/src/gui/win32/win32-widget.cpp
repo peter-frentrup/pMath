@@ -547,21 +547,21 @@ static const char *describe_system_event(SYSTEM_EVENT event) {
   return "???";
 }
 
-void Win32Widget::paint_background(Canvas *canvas) {
-  canvas->set_color(Color::White);
-  canvas->paint();
+void Win32Widget::paint_background(Canvas &canvas) {
+  canvas.set_color(Color::White);
+  canvas.paint();
 }
 
-void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
-  cairo_set_line_width(canvas->cairo(), 1);
-  cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
-  canvas->set_font_size(10);// 10 * 4/3.
+void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
+  cairo_set_line_width(canvas.cairo(), 1);
+  cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
+  canvas.set_font_size(10);// 10 * 4/3.
   
   if(!resize_only) {
     Color color = document()->get_style(Background);
     if(color.is_valid()) {
-      canvas->set_color(color);
-      canvas->paint();
+      canvas.set_color(color);
+      canvas.paint();
     }
     else
       paint_background(canvas);
@@ -572,8 +572,8 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
       on_changed_dark_mode();
   }
   
-  canvas->scale(scale_factor(), scale_factor());
-  canvas->set_color(document()->get_style(FontColor, Color::Black));
+  canvas.scale(scale_factor(), scale_factor());
+  canvas.set_color(document()->get_style(FontColor, Color::Black));
   
   document()->paint_resize(canvas, resize_only);
   if( _hwnd &&
@@ -585,7 +585,7 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
     SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
   }
   
-  canvas->scale(1 / scale_factor(), 1 / scale_factor());
+  canvas.scale(1 / scale_factor(), 1 / scale_factor());
   
   float w, h;
   window_size(&w, &h);
@@ -602,7 +602,7 @@ void Win32Widget::paint_canvas(Canvas *canvas, bool resize_only) {
     GetScrollInfo(_hwnd, SB_HORZ, &si);
     bool horz = si.nMax - si.nMin > (int)si.nPage;
     
-    canvas->new_path();
+    canvas.new_path();
     ControlPainter::std->paint_scroll_indicator(
       canvas,
       mouse_down_event.x,
@@ -728,7 +728,7 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
       canvas.clip();
     }
     
-    paint_canvas(&canvas, !from_wmpaint);
+    paint_canvas(canvas, !from_wmpaint);
     
     if(from_wmpaint && DebugColorizeChanges) {
       next_debug_color_index = (next_debug_color_index + 1) % NumDebugColors;

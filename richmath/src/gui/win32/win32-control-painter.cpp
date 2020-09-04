@@ -281,20 +281,20 @@ Win32ControlPainter::~Win32ControlPainter() {
   clear_cache();
 }
 
-static void round_extents(Canvas *canvas, BoxSize *extents) {
-  extents->width = canvas->pixel_round_dx(extents->width);
-  extents->ascent = canvas->pixel_round_dy(extents->ascent);
-  extents->descent = canvas->pixel_round_dy(extents->descent);
+static void round_extents(Canvas &canvas, BoxSize *extents) {
+  extents->width = canvas.pixel_round_dx(extents->width);
+  extents->ascent = canvas.pixel_round_dy(extents->ascent);
+  extents->descent = canvas.pixel_round_dy(extents->descent);
 }
 
 void Win32ControlPainter::calc_container_size(
-  ControlContext *context,
-  Canvas         *canvas,
+  ControlContext &control,
+  Canvas         &canvas,
   ContainerType   type,
   BoxSize        *extents // in/out
 ) {
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(context, type, Normal, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(control, type, Normal, &theme_part, &theme_state);
   
   switch(type) {
     case InputField: {
@@ -339,7 +339,7 @@ void Win32ControlPainter::calc_container_size(
       
     case ListViewItem:
     case ListViewItemSelected:
-      ControlPainter::calc_container_size(context, canvas, type, extents);
+      ControlPainter::calc_container_size(control, canvas, type, extents);
       round_extents(canvas, extents);
       return;
     
@@ -381,7 +381,7 @@ void Win32ControlPainter::calc_container_size(
             dy = size.cy;
           }
         }
-        canvas->device_to_user_dist(&dx, &dy);
+        canvas.device_to_user_dist(&dx, &dy);
         extents->ascent = max(fabs(dx), fabs(dy));
         extents->descent = 0;
       } return;
@@ -418,10 +418,10 @@ void Win32ControlPainter::calc_container_size(
           /* For the Navigation parts, TS_TRUE on 144 DPI monitor gives 45x45 and on
              96 PDI monitor gives 30, so here the TS_TRUE size is not in terms of the primary monitor DPI (unlike PushButton?)
            */
-          int dpi = context->dpi();
+          int dpi = control.dpi();
           double scale = 72.0 / dpi;
           extents->width   = std::max(size.cx * scale, (double)extents->width);
-          float axis = canvas->get_font_size() * 0.4;
+          float axis = canvas.get_font_size() * 0.4;
           extents->ascent  = std::max(axis + size.cy * scale * 0.5, (double)extents->ascent);
           extents->descent = std::max(-axis + size.cy * scale * 0.5, (double)extents->descent);
           return;
@@ -459,7 +459,7 @@ void Win32ControlPainter::calc_container_size(
         extents->width = 0.75 * size.cx;
         
       if(extents->height() < 0.75 * size.cy) {
-        float axis = 0.4 * canvas->get_font_size();
+        float axis = 0.4 * canvas.get_font_size();
         
         extents->ascent  = size.cy * 0.75 / 2 + axis;
         extents->descent = size.cy * 0.75 - extents->ascent;
@@ -476,17 +476,17 @@ void Win32ControlPainter::calc_container_size(
     }
   }
   
-  ControlPainter::calc_container_size(context, canvas, type, extents);
+  ControlPainter::calc_container_size(control, canvas, type, extents);
   round_extents(canvas, extents);
 }
 
 void Win32ControlPainter::calc_container_radii(
-  ControlContext *context,
+  ControlContext &control,
   ContainerType   type,
   BoxRadius      *radii
 ) {
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(context, type, Normal, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(control, type, Normal, &theme_part, &theme_state);
   
   switch(type) {
     case TooltipWindow: {
@@ -503,24 +503,24 @@ void Win32ControlPainter::calc_container_radii(
       break;
   }
   
-  ControlPainter::calc_container_radii(context, type, radii);
+  ControlPainter::calc_container_radii(control, type, radii);
 }
 
-Color Win32ControlPainter::control_font_color(ControlContext *context, ContainerType type, ControlState state) {
-  if(is_very_transparent(context, type, state))
+Color Win32ControlPainter::control_font_color(ControlContext &control, ContainerType type, ControlState state) {
+  if(is_very_transparent(control, type, state))
     return Color::None;
     
   if(type == AddressBandBackground)
     type = AddressBandInputField;
   
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(control, type, state, &theme_part, &theme_state);
   
   if(theme && Win32Themes::GetThemeColor) {
     COLORREF col = 0;
     
     if(type == AddressBandInputField) {
-      theme = w32cp_cache.addressband_edit_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.addressband_edit_theme(control.dpi(), control.is_using_dark_mode());
       theme_part = 1; // EP_EDITTEXT
       theme_state = 1; // ETS_NORMAL
     }
@@ -539,7 +539,7 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
         SUCCEEDED(Win32Themes::GetThemeColor(
                     theme, theme_part, theme_state, 1619, &col)))
     {
-      if(dark_mode_is_fake(type) && context->is_using_dark_mode()) {
+      if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
         col = 0xFFFFFF & ~col;
       }
       return Color::from_bgr24(col);
@@ -552,7 +552,7 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
-      return ControlPainter::control_font_color(context, type, state);
+      return ControlPainter::control_font_color(control, type, state);
       
     case AddressBandGoButton:
     case PushButton:
@@ -564,7 +564,7 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
     case TabHeadAbuttingLeft:
     case TabHead:
     case TabBodyBackground: {
-        if(dark_mode_is_fake(type) && context->is_using_dark_mode()) {
+        if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
           return Color::White;
         }
         return get_sys_color(COLOR_BTNTEXT);
@@ -601,13 +601,13 @@ Color Win32ControlPainter::control_font_color(ControlContext *context, Container
   return Color::None;
 }
 
-bool Win32ControlPainter::is_very_transparent(ControlContext *context, ContainerType type, ControlState state) {
+bool Win32ControlPainter::is_very_transparent(ControlContext &control, ContainerType type, ControlState state) {
   switch(type) {
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
     case AddressBandInputField:
-      return ControlPainter::is_very_transparent(context, type, state);
+      return ControlPainter::is_very_transparent(control, type, state);
     
     case ListViewItem:
       return state == Normal;
@@ -618,7 +618,7 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
           return false;
           
         int theme_part, theme_state;
-        HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
+        HANDLE theme = get_control_theme(control, type, state, &theme_part, &theme_state);
         
         // TMT_TRANSPARENT = 2201
         BOOL value;
@@ -634,13 +634,13 @@ bool Win32ControlPainter::is_very_transparent(ControlContext *context, Container
 }
 
 static bool rect_in_clip(
-  Canvas *canvas,
+  Canvas &canvas,
   float   x,
   float   y,
   float   width,
   float   height
 ) {
-  cairo_rectangle_list_t *clip_rects = cairo_copy_clip_rectangle_list(canvas->cairo());
+  cairo_rectangle_list_t *clip_rects = cairo_copy_clip_rectangle_list(canvas.cairo());
   
   if(clip_rects->status == CAIRO_STATUS_SUCCESS) {
     for(int i = 0; i < clip_rects->num_rectangles; ++i) {
@@ -660,8 +660,8 @@ static bool rect_in_clip(
 }
 
 void Win32ControlPainter::draw_container(
-  ControlContext *context, 
-  Canvas         *canvas,
+  ControlContext &control, 
+  Canvas         &canvas,
   ContainerType   type,
   ControlState    state,
   float           x,
@@ -674,7 +674,7 @@ void Win32ControlPainter::draw_container(
     case FramelessButton:
     case GenericButton:
       ControlPainter::generic_painter.draw_container(
-        context, canvas, type, state, x, y, width, height);
+        control, canvas, type, state, x, y, width, height);
       return;
       
     case ListViewItem:
@@ -695,12 +695,12 @@ void Win32ControlPainter::draw_container(
   {
     double a = 1;
     double b = 0;
-    canvas->user_to_device_dist(&a, &b);
+    canvas.user_to_device_dist(&a, &b);
     x_scale = hypot(a, b);
     
     a = 0;
     b = 1;
-    canvas->user_to_device_dist(&a, &b);
+    canvas.user_to_device_dist(&a, &b);
     y_scale = hypot(a, b);
   }
   
@@ -715,7 +715,7 @@ void Win32ControlPainter::draw_container(
           
           if(y_scale > 0) {
             int _part, _state;
-            if(HANDLE theme = get_control_theme(context, TabHeadBackground, Normal, &_part, &_state)) {
+            if(HANDLE theme = get_control_theme(control, TabHeadBackground, Normal, &_part, &_state)) {
               Win32Themes::MARGINS mar;
               // 3601 = TMT_SIZINGMARGINS
               if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
@@ -734,7 +734,7 @@ void Win32ControlPainter::draw_container(
         
         if(y_scale > 0) {
           int _part, _state;
-          if(HANDLE theme = get_control_theme(context, TabHeadBackground, Normal, &_part, &_state)) {
+          if(HANDLE theme = get_control_theme(control, TabHeadBackground, Normal, &_part, &_state)) {
             Win32Themes::MARGINS mar;
             // 3601 = TMT_SIZINGMARGINS
             if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
@@ -753,11 +753,11 @@ void Win32ControlPainter::draw_container(
   
   Win32Themes::MARGINS margins = {0};
   
-  if(canvas->pixel_device) {
-    canvas->user_to_device_dist(&width, &height);
+  if(canvas.pixel_device) {
+    canvas.user_to_device_dist(&width, &height);
     width  = floor(width  + 0.5);
     height = floor(height + 0.5);
-    canvas->device_to_user_dist(&width, &height);
+    canvas.device_to_user_dist(&width, &height);
   }
   
   int dc_x = 0;
@@ -769,11 +769,11 @@ void Win32ControlPainter::draw_container(
   if(w == 0 || h == 0)
     return;
     
-  canvas->align_point(&x, &y, false);
+  canvas.align_point(&x, &y, false);
   
-  HDC dc = safe_cairo_win32_surface_get_dc(canvas->target());
+  HDC dc = safe_cairo_win32_surface_get_dc(canvas.target());
   if(dc) {
-    cairo_matrix_t ctm = canvas->get_matrix();
+    cairo_matrix_t ctm = canvas.get_matrix();
     
     if( (ctm.xx == 0) == (ctm.yy == 0) &&
         (ctm.xy == 0) == (ctm.yx == 0) &&
@@ -782,10 +782,10 @@ void Win32ControlPainter::draw_container(
     {
       float ux = x;
       float uy = y;
-      canvas->user_to_device(&ux, &uy);
+      canvas.user_to_device(&ux, &uy);
       dc_x = (int)floor(ux + 0.5);
       dc_y = (int)floor(uy + 0.5);
-      cairo_surface_flush(cairo_get_target(canvas->cairo()));
+      cairo_surface_flush(cairo_get_target(canvas.cairo()));
     }
     else {
       dc = nullptr;
@@ -803,7 +803,7 @@ void Win32ControlPainter::draw_container(
       Win32Themes::GetThemePartSize) 
   {
     int _part, _state;
-    HANDLE theme = get_control_theme(context, type, state, &_part, &_state);
+    HANDLE theme = get_control_theme(control, type, state, &_part, &_state);
     if(!theme)
       goto FALLBACK;
     
@@ -831,7 +831,7 @@ void Win32ControlPainter::draw_container(
       if(!dc) {
         cairo_surface_destroy(surface);
         surface = nullptr;
-        ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
         return;
       }
     }
@@ -845,7 +845,7 @@ void Win32ControlPainter::draw_container(
     RECT clip = rect;
   
     bool two_times = false;
-    if(canvas->glass_background) {
+    if(canvas.glass_background) {
       switch(type) {
         case PaletteButton: {
           if(state == Normal)
@@ -865,7 +865,7 @@ void Win32ControlPainter::draw_container(
         //case SliderHorzThumb:
         case NavigationBack:
         case NavigationForward: 
-          if(!canvas->show_only_text) {
+          if(!canvas.show_only_text) {
             cairo_surface_t *tmp = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_ARGB32, w, h);
             
             if(cairo_surface_status(tmp) == CAIRO_STATUS_SUCCESS) {
@@ -882,22 +882,22 @@ void Win32ControlPainter::draw_container(
               cairo_surface_flush(tmp);
               
 //              SharedPtr<Buffer> buf;
-//              canvas->save();
+//              canvas.save();
 //              {
 //                cairo_matrix_t mat;
 //                cairo_matrix_init_identity(&mat);
-//                canvas->set_matrix(mat);
+//                canvas.set_matrix(mat);
 //                //buf = new Buffer(canvas, CAIRO_FORMAT_A8, x, y, width, height);
 //                
 //                buf = new Buffer(canvas, CAIRO_FORMAT_A8, 0, 0, w, h);
 //              }
-//              canvas->restore();
+//              canvas.restore();
 //              if(cairo_t *buf_cr = buf->cairo()) {
 //                cairo_set_source_surface(buf_cr, tmp, 0, 0);
 //                cairo_paint(buf_cr);
 //                buf->blur(1.0);
 //                
-//                canvas->save();
+//                canvas.save();
 //                cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(buf->surface());
 //                //cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(tmp);
 //                
@@ -910,18 +910,18 @@ void Win32ControlPainter::draw_container(
 //                
 //                cairo_pattern_set_matrix(tmp_pat, &mat);
 //                
-//                Color oldc = canvas->get_color();
-//                canvas->set_color(Color::from_rgb(1, 0, 0), 1.0);
-//                cairo_mask(canvas->cairo(), tmp_pat);
+//                Color oldc = canvas.get_color();
+//                canvas.set_color(Color::from_rgb(1, 0, 0), 1.0);
+//                cairo_mask(canvas.cairo(), tmp_pat);
 //                
-//                canvas->fill();
+//                canvas.fill();
 //                
 //                cairo_pattern_destroy(tmp_pat);
-//                canvas->set_color(oldc);
-//                canvas->restore();
+//                canvas.set_color(oldc);
+//                canvas.restore();
 //              }
               
-              canvas->save();
+              canvas.save();
               cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(tmp);
               
               // 0.75 is one pixel at default scaling
@@ -938,23 +938,23 @@ void Win32ControlPainter::draw_container(
               mat.yy = h / height;
               mat.xy = mat.yx = 0;
               
-              Color oldc = canvas->get_color();
+              Color oldc = canvas.get_color();
               for(auto &s : shadows) {
                 mat.x0 = -(x + s.dx) * mat.xx;
                 mat.y0 = -(y + s.dy) * mat.yy;
                 
                 cairo_pattern_set_matrix(tmp_pat, &mat);
                 
-                canvas->set_color(s.c, s.alpha);
-                cairo_mask(canvas->cairo(), tmp_pat);
+                canvas.set_color(s.c, s.alpha);
+                cairo_mask(canvas.cairo(), tmp_pat);
                 
-                canvas->fill();
+                canvas.fill();
               
               }
               
               cairo_pattern_destroy(tmp_pat);
-              canvas->set_color(oldc);
-              canvas->restore();
+              canvas.set_color(oldc);
+              canvas.restore();
             }
 
             cairo_surface_destroy(tmp);
@@ -1012,7 +1012,7 @@ void Win32ControlPainter::draw_container(
   else {
   FALLBACK: ;
     if(dc) {
-      if(cairo_surface_get_content(canvas->target()) != CAIRO_CONTENT_COLOR) {
+      if(cairo_surface_get_content(canvas.target()) != CAIRO_CONTENT_COLOR) {
         dc = nullptr;
         dc_x = 0;
         dc_y = 0;
@@ -1028,7 +1028,7 @@ void Win32ControlPainter::draw_container(
       if(!dc) {
         cairo_surface_destroy(surface);
         surface = nullptr;
-        ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
         return;
       }
     }
@@ -1046,11 +1046,11 @@ void Win32ControlPainter::draw_container(
       
       default: 
         if(state == Pressed) {
-          if(!context->is_focused_widget())
+          if(!control.is_focused_widget())
             state = Normal;
         }
         else if(state == PressedHovered) {
-          if(!context->is_focused_widget())
+          if(!control.is_focused_widget())
             state = Hovered;
         }
         break;
@@ -1246,7 +1246,7 @@ void Win32ControlPainter::draw_container(
       
       case OpenerTriangleClosed:
       case OpenerTriangleOpened:
-        ControlPainter::draw_container(context, canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
         return;
         
       case NavigationBack:
@@ -1324,12 +1324,12 @@ void Win32ControlPainter::draw_container(
   if(surface) {
     cairo_surface_mark_dirty(surface);
     
-    canvas->save();
+    canvas.save();
     
-    //cairo_reset_clip(canvas->cairo());
+    //cairo_reset_clip(canvas.cairo());
     
     cairo_set_source_surface(
-      canvas->cairo(),
+      canvas.cairo(),
       surface,
       x, y);
       
@@ -1341,30 +1341,30 @@ void Win32ControlPainter::draw_container(
       mat.x0 = -x * mat.xx;
       mat.y0 = -y * mat.yy;
       
-      cairo_pattern_set_matrix(cairo_get_source(canvas->cairo()), &mat);
+      cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
     }
     
-    canvas->paint();
+    canvas.paint();
     
-    canvas->restore();
+    canvas.restore();
     cairo_surface_destroy(surface);
   }
   else {
-    cairo_surface_mark_dirty(cairo_get_target(canvas->cairo()));
+    cairo_surface_mark_dirty(cairo_get_target(canvas.cairo()));
   }
   
-  if(dark_mode_is_fake(type) && context->is_using_dark_mode()) {
+  if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
     double inv_x_scale = x_scale > 0 ? 1.0/x_scale : 1.0;
     double inv_y_scale = y_scale > 0 ? 1.0/y_scale : 1.0;
-    canvas->pixrect(
+    canvas.pixrect(
       x          , // + inv_x_scale * margins.cxLeftWidth,
       y          , // + inv_y_scale * margins.cyTopHeight,
       x + width  , // - inv_x_scale * margins.cxRightWidth,
       y + height , // - inv_y_scale * margins.cyBottomHeight,
       false);
     
-    canvas->set_color(Color::Black, 0.667);
-    canvas->fill();
+    canvas.set_color(Color::Black, 0.667);
+    canvas.fill();
   }
   
   if(need_vector_overlay) {
@@ -1387,19 +1387,19 @@ void Win32ControlPainter::draw_container(
             width = -width;
           }
           
-          Color old_col = canvas->get_color();
+          Color old_col = canvas.get_color();
           
-          canvas->move_to(x + width/4, y + height/2);
-          canvas->rel_line_to(width/4, height/4);
-          canvas->rel_line_to(width/6, 0);
-          canvas->rel_line_to(-width/4 + width/12, -height/4 + height/12);
-          canvas->rel_line_to(width/4, 0);
-          canvas->rel_line_to(0, -height/6);
-          canvas->rel_line_to(-width/4, 0);
-          canvas->rel_line_to(width/4 - width/12, -height/4 + height/12);
-          canvas->rel_line_to(-width/6, 0);
-          canvas->rel_line_to(-width/4, height/4);
-          canvas->close_path();
+          canvas.move_to(x + width/4, y + height/2);
+          canvas.rel_line_to(width/4, height/4);
+          canvas.rel_line_to(width/6, 0);
+          canvas.rel_line_to(-width/4 + width/12, -height/4 + height/12);
+          canvas.rel_line_to(width/4, 0);
+          canvas.rel_line_to(0, -height/6);
+          canvas.rel_line_to(-width/4, 0);
+          canvas.rel_line_to(width/4 - width/12, -height/4 + height/12);
+          canvas.rel_line_to(-width/6, 0);
+          canvas.rel_line_to(-width/4, height/4);
+          canvas.close_path();
           
           Color fill_col;
           Color stroke_col;
@@ -1415,12 +1415,12 @@ void Win32ControlPainter::draw_container(
               break;
           }
           
-          canvas->set_color(fill_col);
-          canvas->fill_preserve();
-          canvas->set_color(stroke_col);
-          canvas->stroke();
+          canvas.set_color(fill_col);
+          canvas.fill_preserve();
+          canvas.set_color(stroke_col);
+          canvas.stroke();
           
-          canvas->set_color(old_col);
+          canvas.set_color(old_col);
         } break;
     }
   }
@@ -1428,7 +1428,7 @@ void Win32ControlPainter::draw_container(
 
 SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   FrontEndReference  widget_id,
-  Canvas            *canvas,
+  Canvas            &canvas,
   ContainerType      type1,
   ContainerType      type2,
   ControlState       state1,
@@ -1445,11 +1445,11 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   if(SystemParametersInfoW(SPI_GETCLIENTAREAANIMATION, 0, &has_animations, FALSE) && !has_animations)
     return nullptr;
   
-  ControlContext *context = ControlContext::find(FrontEndObject::find_cast<Box>(widget_id));
+  ControlContext &control = ControlContext::find(FrontEndObject::find_cast<Box>(widget_id));
   
   bool repeat = false;
   if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal) {
-    if(context->is_foreground_window()) {
+    if(control.is_foreground_window()) {
       state2 = Hot;
       repeat = true;
     }
@@ -1466,8 +1466,8 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     return nullptr;
   
   int theme_part, theme_state1, theme_state2;
-  HANDLE theme = get_control_theme(context, type1, state1, &theme_part, &theme_state1);
-  get_control_theme(context, type2, state2, &theme_part, &theme_state2);
+  HANDLE theme = get_control_theme(control, type1, state1, &theme_part, &theme_state1);
+  get_control_theme(control, type2, state2, &theme_part, &theme_state2);
   if(!theme)
     return nullptr;
   
@@ -1494,7 +1494,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     
   if(duration > 0) {
     float x0, y0;
-    canvas->current_pos(&x0, &y0);
+    canvas.current_pos(&x0, &y0);
     
     float x1 = x0;
     float y1 = y;
@@ -1524,8 +1524,8 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     anim->repeat = repeat;
     
     draw_container(
-      context,
-      anim->buf1->canvas(),
+      control,
+      *anim->buf1->canvas(),
       type1,
       state1,
       x - x0,
@@ -1534,8 +1534,8 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
       height);
       
     draw_container(
-      context,
-      anim->buf2->canvas(),
+      control,
+      *anim->buf2->canvas(),
       type2,
       state2,
       x - x0,
@@ -1550,7 +1550,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
 }
 
 void Win32ControlPainter::container_content_move(
-  ControlContext *context, 
+  ControlContext &control, 
   ContainerType   type,
   ControlState    state,
   float          *x,
@@ -1558,7 +1558,7 @@ void Win32ControlPainter::container_content_move(
 ) {
 //  if(Win32Themes::GetThemePosition){
 //    int theme_part, theme_state;
-//    HANDLE theme = get_control_theme(context, type, state, &theme_part, &theme_state);
+//    HANDLE theme = get_control_theme(control, type, state, &theme_part, &theme_state);
 //
 //    POINT off;
 //    // TMT_OFFSET  = 3401
@@ -1577,9 +1577,9 @@ void Win32ControlPainter::container_content_move(
   
   float old_x = *x;
   float old_y = *y;
-  ControlPainter::container_content_move(context, type, state, x, y);
+  ControlPainter::container_content_move(control, type, state, x, y);
   if(*x != old_x || *y != old_y) {
-    double scale = context->dpi() / 72.0;
+    double scale = control.dpi() / 72.0;
     if(*x != old_x)
       *x = old_x + floor(0.5 + (*x - old_x) * scale) / scale;
     if(*y != old_y)
@@ -1587,7 +1587,7 @@ void Win32ControlPainter::container_content_move(
   }
 }
 
-bool Win32ControlPainter::container_hover_repaint(ControlContext *context, ContainerType type) {
+bool Win32ControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
     case NoContainerType:
     case FramelessButton:
@@ -1604,7 +1604,7 @@ bool Win32ControlPainter::container_hover_repaint(ControlContext *context, Conta
          Win32Themes::DrawThemeBackground;
 }
 
-void Win32ControlPainter::system_font_style(ControlContext *context, Style *style) {
+void Win32ControlPainter::system_font_style(ControlContext &control, Style *style) {
   NONCLIENTMETRICSW nonclientmetrics;
   LOGFONTW *logfont = nullptr;
   
@@ -1618,13 +1618,13 @@ void Win32ControlPainter::system_font_style(ControlContext *context, Style *styl
     if(logfont) {
       // GetThemeSysFont gets metrics in dots per inch for the current logical screen
       
-      dpi_scale = Win32HighDpi::get_dpi_for_system() / (float)context->dpi();
+      dpi_scale = Win32HighDpi::get_dpi_for_system() / (float)control.dpi();
     }
   }
   
   if(!logfont) {
     nonclientmetrics.cbSize = sizeof(nonclientmetrics);
-    Win32HighDpi::get_nonclient_metrics_for_dpi(&nonclientmetrics, context->dpi());
+    Win32HighDpi::get_nonclient_metrics_for_dpi(&nonclientmetrics, control.dpi());
     dpi_scale = 1.0f;
     logfont = &nonclientmetrics.lfMessageFont;
   }
@@ -1640,7 +1640,7 @@ void Win32ControlPainter::system_font_style(ControlContext *context, Style *styl
   style->set(FontSlant, logfont->lfItalic ? FontSlantItalic : FontSlantPlain);
 }
 
-Color Win32ControlPainter::selection_color(ControlContext *context) {
+Color Win32ControlPainter::selection_color(ControlContext &control) {
   return get_sys_color(COLOR_HIGHLIGHT);
 }
 
@@ -1649,8 +1649,8 @@ float Win32ControlPainter::scrollbar_width() {
 }
 
 void Win32ControlPainter::paint_scrollbar_part(
-  ControlContext     *context, 
-  Canvas             *canvas,
+  ControlContext     &control, 
+  Canvas             &canvas,
   ScrollbarPart       part,
   ScrollbarDirection  dir,
   ControlState        state,
@@ -1668,7 +1668,7 @@ void Win32ControlPainter::paint_scrollbar_part(
   float uw, uh;
   uw = width;
   uh = height;
-  canvas->user_to_device_dist(&uw, &uh);
+  canvas.user_to_device_dist(&uw, &uh);
   uw = fabs(uw);
   uh = fabs(uh);
   int w = (int)ceil(uw);
@@ -1677,22 +1677,22 @@ void Win32ControlPainter::paint_scrollbar_part(
   if(w == 0 || h == 0)
     return;
     
-  canvas->align_point(&x, &y, true);
+  canvas.align_point(&x, &y, true);
   
-  HDC dc = safe_cairo_win32_surface_get_dc(cairo_get_target(canvas->cairo()));
+  HDC dc = safe_cairo_win32_surface_get_dc(cairo_get_target(canvas.cairo()));
   cairo_surface_t *surface = nullptr;
   
   if(dc) {
-    cairo_matrix_t ctm = canvas->get_matrix();
+    cairo_matrix_t ctm = canvas.get_matrix();
     
     if(ctm.xx > 0 && ctm.yy > 0 && ctm.xy == 0 && ctm.yx == 0) {
       float ux = x;
       float uy = y;
-      canvas->user_to_device(&ux, &uy);
+      canvas.user_to_device(&ux, &uy);
       dc_x = (int)ux;
       dc_y = (int)uy;
       
-      cairo_surface_flush(cairo_get_target(canvas->cairo()));
+      cairo_surface_flush(cairo_get_target(canvas.cairo()));
     }
     else
       dc = 0;
@@ -1717,7 +1717,7 @@ void Win32ControlPainter::paint_scrollbar_part(
     
     dc = safe_cairo_win32_surface_get_dc(surface);
     if(!dc) {
-      ControlPainter::paint_scrollbar_part(context, canvas, part, dir, state, x, y, width, height);
+      ControlPainter::paint_scrollbar_part(control, canvas, part, dir, state, x, y, width, height);
       return;
     }
   }
@@ -1732,7 +1732,7 @@ void Win32ControlPainter::paint_scrollbar_part(
       Win32Themes::CloseThemeData &&
       Win32Themes::DrawThemeBackground)
   {
-    HANDLE scrollbar_theme = w32cp_cache.scrollbar_theme(context->dpi());
+    HANDLE scrollbar_theme = w32cp_cache.scrollbar_theme(control.dpi());
     if(!scrollbar_theme)
       goto FALLBACK;
       
@@ -1910,12 +1910,12 @@ void Win32ControlPainter::paint_scrollbar_part(
   if(surface) {
     cairo_surface_mark_dirty(surface);
     
-    canvas->save();
+    canvas.save();
     
-    cairo_reset_clip(canvas->cairo());
+    cairo_reset_clip(canvas.cairo());
     
     cairo_set_source_surface(
-      canvas->cairo(),
+      canvas.cairo(),
       surface,
       x, y);
       
@@ -1927,16 +1927,16 @@ void Win32ControlPainter::paint_scrollbar_part(
       mat.x0 = -x * mat.xx;
       mat.y0 = -y * mat.yy;
       
-      cairo_pattern_set_matrix(cairo_get_source(canvas->cairo()), &mat);
+      cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
     }
     
-    canvas->paint();
+    canvas.paint();
     
-    canvas->restore();
+    canvas.restore();
     cairo_surface_destroy(surface);
   }
   else {
-    cairo_surface_mark_dirty(cairo_get_target(canvas->cairo()));
+    cairo_surface_mark_dirty(cairo_get_target(canvas.cairo()));
   }
 }
 
@@ -2040,7 +2040,7 @@ FALLBACK:
 }
 
 HANDLE Win32ControlPainter::get_control_theme(
-  ControlContext *context, 
+  ControlContext &control, 
   ContainerType   type,
   ControlState    state,
   int            *theme_part,
@@ -2073,37 +2073,37 @@ HANDLE Win32ControlPainter::get_control_theme(
     case CheckboxIndeterminate:
     case RadioButtonUnchecked:
     case RadioButtonChecked: 
-      theme = w32cp_cache.button_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.button_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
     case PaletteButton: 
-      theme = w32cp_cache.toolbar_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.toolbar_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
     case InputField: 
-      theme = w32cp_cache.edit_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.edit_theme(control.dpi(), control.is_using_dark_mode());
       break;
     
     case AddressBandBackground:
-      theme = w32cp_cache.addressband_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.addressband_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
     case AddressBandInputField: 
-      theme = w32cp_cache.addressband_combobox_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.addressband_combobox_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
     case AddressBandGoButton:
-      theme = w32cp_cache.toolbar_go_theme(context->dpi());
+      theme = w32cp_cache.toolbar_go_theme(control.dpi());
       break;
       
     case ListViewItem:
     case ListViewItemSelected:
-      theme = w32cp_cache.explorer_listview_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.explorer_listview_theme(control.dpi(), control.is_using_dark_mode());
       break;
     
     case OpenerTriangleClosed:
     case OpenerTriangleOpened:
-      theme = w32cp_cache.explorer_treeview_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.explorer_treeview_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
     case PanelControl:
@@ -2113,26 +2113,26 @@ HANDLE Win32ControlPainter::get_control_theme(
     case TabHead:
     case TabHeadBackground:
     case TabBodyBackground:
-      theme = w32cp_cache.tab_theme(context->dpi());
+      theme = w32cp_cache.tab_theme(control.dpi());
       break;
     
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar:
-      theme = w32cp_cache.progress_theme(context->dpi());
+      theme = w32cp_cache.progress_theme(control.dpi());
       break;
     
     case SliderHorzChannel:
     case SliderHorzThumb: 
-      theme = w32cp_cache.slider_theme(context->dpi());
+      theme = w32cp_cache.slider_theme(control.dpi());
       break;
       
     case TooltipWindow: 
-      theme = w32cp_cache.tooltip_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.tooltip_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
     case NavigationBack: 
     case NavigationForward: 
-      theme = w32cp_cache.navigation_theme(context->dpi(), context->is_using_dark_mode());
+      theme = w32cp_cache.navigation_theme(control.dpi(), control.is_using_dark_mode());
       break;
     
     default: return nullptr;
@@ -2150,11 +2150,11 @@ HANDLE Win32ControlPainter::get_control_theme(
     
     default:
       if(state == Pressed) {
-        if(!context->is_focused_widget())
+        if(!control.is_focused_widget())
           state = Normal;
       }
       else if(state == PressedHovered) {
-        if(!context->is_focused_widget())
+        if(!control.is_focused_widget())
           state = Hovered;
       }
       break;

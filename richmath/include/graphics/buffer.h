@@ -10,8 +10,8 @@ namespace richmath {
   
   class Buffer: public Shareable {
     public:
-      Buffer(Canvas *dst, cairo_format_t format, float x, float y, float w, float h);
-      Buffer(Canvas *dst, cairo_format_t format, const BoxSize &size);
+      Buffer(Canvas &dst, cairo_format_t format, float x, float y, float w, float h);
+      Buffer(Canvas &dst, cairo_format_t format, const BoxSize &size);
       virtual ~Buffer();
       
       int width() {  return _width; }
@@ -25,12 +25,12 @@ namespace richmath {
       const cairo_matrix_t &user_to_device() { return u2d_matrix; }
       const cairo_matrix_t &device_to_user() { return d2u_matrix; }
       
-      bool is_compatible(Canvas *dst);
-      bool is_compatible(Canvas *dst, float w, float h);
-      bool is_compatible(Canvas *dst, const BoxSize &size);
-      bool paint(Canvas *dst);
-      bool paint_with_alpha(Canvas *dst, float alpha);
-      bool mask(Canvas *dst);
+      bool is_compatible(Canvas &dst);
+      bool is_compatible(Canvas &dst, float w, float h);
+      bool is_compatible(Canvas &dst, const BoxSize &size);
+      bool paint(Canvas &dst);
+      bool paint_with_alpha(Canvas &dst, float alpha);
+      bool mask(Canvas &dst);
       
       bool clear();
       bool blend(SharedPtr<Buffer> buf1, SharedPtr<Buffer> buf2, double t);
@@ -39,7 +39,7 @@ namespace richmath {
       bool blur(float radius);
       
     private:
-      void init(Canvas *dst, cairo_format_t format, float x, float y, float w, float h);
+      void init(Canvas &dst, cairo_format_t format, float x, float y, float w, float h);
       
     private:
       int _width;

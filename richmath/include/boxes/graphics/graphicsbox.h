@@ -45,8 +45,8 @@ namespace richmath {
       virtual bool request_repaint(float x, float y, float w, float h) override;
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
       virtual void reset_style() override;
       
@@ -107,7 +107,7 @@ namespace richmath {
       
       bool set_axis_ends(enum AxisIndex part, const GraphicsBounds &bounds); // true if ends changed
       
-      void resize_axes(Context *context);
+      void resize_axes(Context &context);
   };
 }
 

@@ -465,7 +465,7 @@ void Document::scroll_to(float x, float y, float w, float h) {
   native()->scroll_to(_x, _y);
 }
 
-void Document::scroll_to(Canvas *canvas, const VolatileSelection &child_sel) {
+void Document::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
   default_scroll_to(canvas, this, child_sel);
 }
 
@@ -1860,9 +1860,9 @@ void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::Rectangle *ou
     
     canvas.set_font_size(10);// 10 * 4/3.
     
-    paint_resize(&canvas, true);
+    paint_resize(canvas, true);
     
-    copysel.get_all().add_path(&canvas);
+    copysel.get_all().add_path(canvas);
     
     cairo_matrix_t mat = canvas.get_matrix();
     canvas.reset_matrix();
@@ -1934,13 +1934,13 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
     float sx, sy;
     native()->scroll_pos(&sx, &sy);
     canvas.translate(-sx, -sy);
-    copysel.get_all().add_path(&canvas);
+    copysel.get_all().add_path(canvas);
     canvas.clip();
     canvas.translate(sx, sy);
     
     canvas.set_color(get_style(FontColor, Color::Black));
     
-    paint_resize(&canvas, false);
+    paint_resize(canvas, false);
   }
   
   context.selection = oldsel;
@@ -2304,7 +2304,7 @@ void Document::set_selection_style(Expr options) {
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel);
   if(seq && start < end) {
   
-    if(!seq->edit_selection(&context))
+    if(!seq->edit_selection(context))
       return;
       
     StyleBox *style_box = nullptr;
@@ -3303,7 +3303,7 @@ bool Document::remove_selection(bool insert_default) {
   if(selection_length() == 0)
     return false;
     
-  if(selection_box() && !selection_box()->edit_selection(&context))
+  if(selection_box() && !selection_box()->edit_selection(context))
     return false;
     
   auto_completion.stop();
@@ -3510,228 +3510,227 @@ void Document::reset_style() {
   Style::reset(style, "Document");
 }
 
-void Document::paint_resize(Canvas *canvas, bool resize_only) {
-  if(update_dynamic_styles(&context)) {
-    if(get_own_style(InternalHasModifiedWindowOption)) {
-      style->set(InternalHasModifiedWindowOption, false);
-      native()->invalidate_options();
+void Document::paint_resize(Canvas &canvas, bool resize_only) {
+  context.with_canvas(canvas, [&]() {
+    if(update_dynamic_styles(context)) {
+      if(get_own_style(InternalHasModifiedWindowOption)) {
+        style->set(InternalHasModifiedWindowOption, false);
+        native()->invalidate_options();
+      }
     }
-  }
 
-  if(get_own_style(InternalRequiresChildResize)) {
-    style->set(InternalRequiresChildResize, false);
-    if(resize_only) {
-      invalidate_all();
+    if(get_own_style(InternalRequiresChildResize)) {
+      style->set(InternalRequiresChildResize, false);
+      if(resize_only) {
+        invalidate_all();
+      }
+      else {
+        must_resize_min = count();
+        for(int i = 0;i < length();++i)
+          section(i)->must_resize = true;
+      }
     }
-    else {
-      must_resize_min = count();
-      for(int i = 0;i < length();++i)
-        section(i)->must_resize = true;
+  
+    additional_selection.length(0);
+    
+    ContextState cc(context);
+    cc.begin(style);
+    
+    float scrolly, page_height;
+    native()->window_size(&_window_width, &page_height);
+    native()->page_size(&_page_width, &page_height);
+    native()->scroll_pos(&_scrollx, &scrolly);
+    
+    context.fontfeatures.clear();
+    context.fontfeatures.add(context.stylesheet->get_with_base(style, FontFeatures));
+    
+    context.width = _page_width;
+    context.section_content_window_width = _window_width;
+    
+    if(_page_width < HUGE_VAL)
+      _extents.width = _page_width;
+    else
+      _extents.width = 0;
+      
+    unfilled_width = 0;
+    _extents.ascent = _extents.descent = 0;
+    
+    canvas.translate(-_scrollx, -scrolly);
+    
+    init_section_bracket_sizes(context);
+    
+    int sel_sect = -1;
+    Box *b = context.selection.get();
+    while(b && b != this) {
+      sel_sect = b->index();
+      b = b->parent();
     }
-  }
-  
-  additional_selection.length(0);
-  
-  context.canvas = canvas;
-  ContextState cc(&context);
-  cc.begin(style);
-  
-  float scrolly, page_height;
-  native()->window_size(&_window_width, &page_height);
-  native()->page_size(&_page_width, &page_height);
-  native()->scroll_pos(&_scrollx, &scrolly);
-  
-  context.fontfeatures.clear();
-  context.fontfeatures.add(context.stylesheet->get_with_base(style, FontFeatures));
-  
-  context.width = _page_width;
-  context.section_content_window_width = _window_width;
-  
-  if(_page_width < HUGE_VAL)
-    _extents.width = _page_width;
-  else
-    _extents.width = 0;
     
-  unfilled_width = 0;
-  _extents.ascent = _extents.descent = 0;
-  
-  canvas->translate(-_scrollx, -scrolly);
-  
-  init_section_bracket_sizes(&context);
-  
-  int sel_sect = -1;
-  Box *b = context.selection.get();
-  while(b && b != this) {
-    sel_sect = b->index();
-    b = b->parent();
-  }
-  
-  int i = 0;
-  while(i < length() && _extents.descent <= scrolly) {
-    if(section(i)->must_resize) // || i == sel_sect)
-      resize_section(&context, i);
-      
-    Impl(*this).after_resize_section(i);
-    ++i;
-  }
-  
-  int first_visible_section = i - 1;
-  if(first_visible_section < 0)
-    first_visible_section = 0;
-    
-  while(i < length() && _extents.descent <= scrolly + page_height) {
-    if(section(i)->must_resize) // || i == sel_sect)
-      resize_section(&context, i);
-      
-    Impl(*this).after_resize_section(i);
-    ++i;
-  }
-  
-  int last_visible_section = i - 1;
-  
-  while(i < length()) {
-    if(section(i)->must_resize) {
-      bool resi = (i == sel_sect || i < must_resize_min);
-      
-      if(!resi && auto_scroll) {
-        resi = (i <= sel_sect);
+    int i = 0;
+    while(i < length() && _extents.descent <= scrolly) {
+      if(section(i)->must_resize) // || i == sel_sect)
+        resize_section(context, i);
         
-        if(!resi && context.selection.id == this->id())
-          resi = (i < context.selection.end);
-      }
+      Impl(*this).after_resize_section(i);
+      ++i;
+    }
+    
+    int first_visible_section = i - 1;
+    if(first_visible_section < 0)
+      first_visible_section = 0;
       
-      if(resi) {
-        resize_section(&context, i);
-      }
+    while(i < length() && _extents.descent <= scrolly + page_height) {
+      if(section(i)->must_resize) // || i == sel_sect)
+        resize_section(context, i);
+        
+      Impl(*this).after_resize_section(i);
+      ++i;
     }
     
-    Impl(*this).after_resize_section(i);
-    ++i;
-  }
-  
-  finish_resize(&context);
-  
-  if(!resize_only) {
-    Impl(*this).add_selection_highlights(0, length());
-//    Impl(*this).add_selection_highlights(first_visible_section, last_visible_section);
+    int last_visible_section = i - 1;
     
-    {
-      float y = 0;
-      if(first_visible_section < length())
-        y += section(first_visible_section)->y_offset;
-      canvas->move_to(0, y);
-    }
-    
-    if(Color bg = get_style(Background)) {
-      context.cursor_color = bg.is_dark() ? Color::White : Color::Black;
-    }
-    
-    for(i = first_visible_section; i <= last_visible_section; ++i) {
-      paint_section(&context, i);
-    }
-    
-    context.pre_paint_hooks.clear();
-    context.post_paint_hooks.clear();
-    
-    Impl(*this).paint_cursor_and_flash();
-    
-    if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
-      if(VolatileSelection drag_src = drag_source.get_all()) {
-        drag_src.add_path(canvas);
-        context.draw_selection_path();
-      }
-    }
-    
-    if(DebugFollowMouse) {
-      if(VolatileSelection ms = mouse_history.debug_move_sel.get_all()) {
-        ms.add_path(canvas);
-        if(Impl::is_inside_string(ms.box, ms.start))
-          canvas->set_color(DebugFollowMouseInStringColor);
-        else
-          canvas->set_color(DebugFollowMouseColor);
-        canvas->hair_stroke();
-      }
-    }
-    
-    if(DebugSelectionBounds) {
-      if(VolatileSelection sel = selection_now()) {
-        canvas->save();
-        {
-          sel.add_path(canvas);
+    while(i < length()) {
+      if(section(i)->must_resize) {
+        bool resi = (i == sel_sect || i < must_resize_min);
+        
+        if(!resi && auto_scroll) {
+          resi = (i <= sel_sect);
           
-          static const double dashes[] = {1.0, 2.0};
-          
-          double x1, y1, x2, y2;
-          canvas->path_extents(&x1, &y1, &x2, &y2);
-          canvas->new_path();
-          
-          if(canvas->pixel_device) {
-            canvas->user_to_device(&x1, &y1);
-            canvas->user_to_device(&x2, &y2);
-            
-            x2 = floor(x2 + 0.5) - 0.5;
-            y2 = floor(y2 + 0.5) - 0.5;
-            x1 = ceil(x1 - 0.5) + 0.5;
-            y1 = ceil(y1 - 0.5) + 0.5;
-            
-            canvas->device_to_user(&x1, &y1);
-            canvas->device_to_user(&x2, &y2);
-          }
-          
-          canvas->move_to(x1, scrolly);
-          canvas->line_to(x1, scrolly + page_height);
-          
-          canvas->move_to(x2, scrolly);
-          canvas->line_to(x2, scrolly + page_height);
-          
-          canvas->move_to(_scrollx,               y1);
-          canvas->line_to(_scrollx + _page_width, y1);
-          
-          canvas->move_to(_scrollx,               y2);
-          canvas->line_to(_scrollx + _page_width, y2);
-          canvas->close_path();
-          
-          canvas->set_color(DebugSelectionBoundsColor);
-          cairo_set_dash(canvas->cairo(), dashes, sizeof(dashes) / sizeof(double), 0.5);
-          canvas->hair_stroke();
+          if(!resi && context.selection.id == this->id())
+            resi = (i < context.selection.end);
         }
-        canvas->restore();
+        
+        if(resi) {
+          resize_section(context, i);
+        }
       }
-    }
-    
-    if(auto_scroll) {
-      auto_scroll = false;
-      if(VolatileSelection box_range = sel_last.get_all())
-        box_range.box->scroll_to(canvas, box_range);
-    }
-    
-    if(selection_length() == 1 && best_index_rel_x == 0) {
-      if(auto seq = dynamic_cast<MathSequence *>(selection_box())) {
-        best_index_rel_x = seq->glyph_array()[selection_end() - 1].right;
-        if(selection_start() > 0)
-          best_index_rel_x -= seq->glyph_array()[selection_start() - 1].right;
-          
-        best_index_rel_x /= 2;
-      }
-    }
-    
-    canvas->translate(_scrollx, scrolly);
-    
-    if(last_paint_sel != context.selection) {
-      last_paint_sel = context.selection;
       
-      for(auto sel : additional_selection) {
-        if(Box *b = sel.get())
-          b->request_repaint_range(sel.start, sel.end);
-      }
-      additional_selection.length(0);
+      Impl(*this).after_resize_section(i);
+      ++i;
     }
-  }
-  
-  cc.end();
-  
-  context.canvas = nullptr;
-  must_resize_min = 0;
+    
+    finish_resize(context);
+    
+    if(!resize_only) {
+      Impl(*this).add_selection_highlights(0, length());
+  //    Impl(*this).add_selection_highlights(first_visible_section, last_visible_section);
+      
+      {
+        float y = 0;
+        if(first_visible_section < length())
+          y += section(first_visible_section)->y_offset;
+        canvas.move_to(0, y);
+      }
+      
+      if(Color bg = get_style(Background)) {
+        context.cursor_color = bg.is_dark() ? Color::White : Color::Black;
+      }
+      
+      for(i = first_visible_section; i <= last_visible_section; ++i) {
+        paint_section(context, i);
+      }
+      
+      context.pre_paint_hooks.clear();
+      context.post_paint_hooks.clear();
+      
+      Impl(*this).paint_cursor_and_flash();
+      
+      if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
+        if(VolatileSelection drag_src = drag_source.get_all()) {
+          drag_src.add_path(canvas);
+          context.draw_selection_path();
+        }
+      }
+      
+      if(DebugFollowMouse) {
+        if(VolatileSelection ms = mouse_history.debug_move_sel.get_all()) {
+          ms.add_path(canvas);
+          if(Impl::is_inside_string(ms.box, ms.start))
+            canvas.set_color(DebugFollowMouseInStringColor);
+          else
+            canvas.set_color(DebugFollowMouseColor);
+          canvas.hair_stroke();
+        }
+      }
+      
+      if(DebugSelectionBounds) {
+        if(VolatileSelection sel = selection_now()) {
+          canvas.save();
+          {
+            sel.add_path(canvas);
+            
+            static const double dashes[] = {1.0, 2.0};
+            
+            double x1, y1, x2, y2;
+            canvas.path_extents(&x1, &y1, &x2, &y2);
+            canvas.new_path();
+            
+            if(canvas.pixel_device) {
+              canvas.user_to_device(&x1, &y1);
+              canvas.user_to_device(&x2, &y2);
+              
+              x2 = floor(x2 + 0.5) - 0.5;
+              y2 = floor(y2 + 0.5) - 0.5;
+              x1 = ceil(x1 - 0.5) + 0.5;
+              y1 = ceil(y1 - 0.5) + 0.5;
+              
+              canvas.device_to_user(&x1, &y1);
+              canvas.device_to_user(&x2, &y2);
+            }
+            
+            canvas.move_to(x1, scrolly);
+            canvas.line_to(x1, scrolly + page_height);
+            
+            canvas.move_to(x2, scrolly);
+            canvas.line_to(x2, scrolly + page_height);
+            
+            canvas.move_to(_scrollx,               y1);
+            canvas.line_to(_scrollx + _page_width, y1);
+            
+            canvas.move_to(_scrollx,               y2);
+            canvas.line_to(_scrollx + _page_width, y2);
+            canvas.close_path();
+            
+            canvas.set_color(DebugSelectionBoundsColor);
+            cairo_set_dash(canvas.cairo(), dashes, sizeof(dashes) / sizeof(double), 0.5);
+            canvas.hair_stroke();
+          }
+          canvas.restore();
+        }
+      }
+      
+      if(auto_scroll) {
+        auto_scroll = false;
+        if(VolatileSelection box_range = sel_last.get_all())
+          box_range.box->scroll_to(canvas, box_range);
+      }
+      
+      if(selection_length() == 1 && best_index_rel_x == 0) {
+        if(auto seq = dynamic_cast<MathSequence *>(selection_box())) {
+          best_index_rel_x = seq->glyph_array()[selection_end() - 1].right;
+          if(selection_start() > 0)
+            best_index_rel_x -= seq->glyph_array()[selection_start() - 1].right;
+            
+          best_index_rel_x /= 2;
+        }
+      }
+      
+      canvas.translate(_scrollx, scrolly);
+      
+      if(last_paint_sel != context.selection) {
+        last_paint_sel = context.selection;
+        
+        for(auto sel : additional_selection) {
+          if(Box *b = sel.get())
+            b->request_repaint_range(sel.start, sel.end);
+        }
+        additional_selection.length(0);
+      }
+    }
+    
+    cc.end();
+    must_resize_min = 0;
+  });
 }
 
 Expr Document::to_pmath(BoxOutputFlags flags) {
@@ -4103,13 +4102,13 @@ void Document::Impl::paint_document_cursor() {
     float x2 = self._extents.width;
     float y2 = y + 0.5;
     
-    self.context.canvas->align_point(&x1, &y1, true);
-    self.context.canvas->align_point(&x2, &y2, true);
-    self.context.canvas->move_to(x1, y1);
-    self.context.canvas->line_to(x2, y2);
+    self.context.canvas().align_point(&x1, &y1, true);
+    self.context.canvas().align_point(&x2, &y2, true);
+    self.context.canvas().move_to(x1, y1);
+    self.context.canvas().line_to(x2, y2);
     
-    self.context.canvas->set_color(DocumentCursorLineColor);
-    self.context.canvas->hair_stroke();
+    self.context.canvas().set_color(DocumentCursorLineColor);
+    self.context.canvas().hair_stroke();
     
     if(self.context.selection.start < self.count()) {
       x1 = self.section(self.context.selection.start)->get_style(SectionMarginLeft);
@@ -4123,10 +4122,10 @@ void Document::Impl::paint_document_cursor() {
     x1 += self._scrollx;
     x2 = x1 + 40 * 0.75;
     
-    self.context.canvas->align_point(&x1, &y1, true);
-    self.context.canvas->align_point(&x2, &y2, true);
-    self.context.canvas->move_to(x1, y1);
-    self.context.canvas->line_to(x2, y2);
+    self.context.canvas().align_point(&x1, &y1, true);
+    self.context.canvas().align_point(&x2, &y2, true);
+    self.context.canvas().move_to(x1, y1);
+    self.context.canvas().line_to(x2, y2);
     
     self.context.draw_selection_path();
   }
@@ -4170,12 +4169,12 @@ void Document::Impl::paint_flashing_cursor_if_needed() {
       
       r = MaxFlashingCursorRadius * (1 - t);
       
-      self.context.canvas->save();
+      self.context.canvas().save();
       {
-        self.context.canvas->user_to_device(&x1, &y1);
-        self.context.canvas->user_to_device(&x2, &y2);
+        self.context.canvas().user_to_device(&x1, &y1);
+        self.context.canvas().user_to_device(&x2, &y2);
         
-        self.context.canvas->reset_matrix();
+        self.context.canvas().reset_matrix();
         
         double dx = x2 - x1;
         double dy = y2 - y1;
@@ -4191,17 +4190,17 @@ void Document::Impl::paint_flashing_cursor_if_needed() {
         mat.yy = c;
         mat.x0 = x - c * x + s * y;
         mat.y0 = y - s * x - c * y;
-        self.context.canvas->transform(mat);
-        self.context.canvas->translate(x, y);
-        self.context.canvas->scale(r + h / 2, r);
+        self.context.canvas().transform(mat);
+        self.context.canvas().translate(x, y);
+        self.context.canvas().scale(r + h / 2, r);
         
-        self.context.canvas->arc(0, 0, 1, 0, 2 * M_PI, false);
+        self.context.canvas().arc(0, 0, 1, 0, 2 * M_PI, false);
         
-        cairo_set_operator(self.context.canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
-        self.context.canvas->set_color(Color::White);
-        self.context.canvas->fill();
+        cairo_set_operator(self.context.canvas().cairo(), CAIRO_OPERATOR_DIFFERENCE);
+        self.context.canvas().set_color(Color::White);
+        self.context.canvas().fill();
       }
-      self.context.canvas->restore();
+      self.context.canvas().restore();
     }
   }
 }
@@ -4343,7 +4342,7 @@ bool Document::Impl::prepare_insert() {
     return true;
   }
   else {
-    if(self.selection_box() && self.selection_box()->edit_selection(&self.context)) {
+    if(self.selection_box() && self.selection_box()->edit_selection(self.context)) {
       self.native()->on_editing();
       set_prev_sel_line();
       return true;

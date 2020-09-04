@@ -131,7 +131,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool TemplateBox::edit_selection(Context *context) {
+bool TemplateBox::edit_selection(Context &context) {
   return false;
 }
 
@@ -288,7 +288,7 @@ Box *TemplateBox::move_vertical(
   return box;
 } 
 
-void TemplateBox::resize_default_baseline(Context *context) {
+void TemplateBox::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
   
   if(_extents.width <= 0)
@@ -300,12 +300,12 @@ void TemplateBox::resize_default_baseline(Context *context) {
   }
 }
 
-void TemplateBox::paint_content(Context *context) {
+void TemplateBox::paint_content(Context &context) {
 //  if(must_resize) {
-//    context->canvas->save();
+//    context.canvas().save();
 //    base::resize(context);
 //    must_resize = false;
-//    context->canvas->restore();
+//    context.canvas().restore();
 //  }
 
   base::paint_content(context);
@@ -505,7 +505,7 @@ Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
   return base::prepare_dynamic(std::move(expr));
 }
 
-bool TemplateBoxSlot::edit_selection(Context *context) {
+bool TemplateBoxSlot::edit_selection(Context &context) {
   if(TemplateBox *owner = find_owner()) {
     if(owner->parent())
       return owner->parent()->edit_selection(context);
@@ -610,7 +610,7 @@ void TemplateBoxSlot::invalidate() {
     _has_changed_content = true;
 }
 
-void TemplateBoxSlot::resize_default_baseline(Context *context) {
+void TemplateBoxSlot::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
   
   if(_extents.width <= 0)
@@ -622,7 +622,7 @@ void TemplateBoxSlot::resize_default_baseline(Context *context) {
   }
 }
 
-void TemplateBoxSlot::paint_content(Context *context) {
+void TemplateBoxSlot::paint_content(Context &context) {
   base::paint_content(context);
   
   if(!_is_content_loaded) {

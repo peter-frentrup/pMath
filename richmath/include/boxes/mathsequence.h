@@ -40,12 +40,12 @@ namespace richmath {
       
       virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
+      virtual void resize(Context &context) override;
       virtual void colorize_scope(SyntaxState *state) override;
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
-      virtual void selection_path(Canvas *canvas, int start, int end) override;
-      void selection_path(Context *opt_context, Canvas *canvas, int start, int end);
+      virtual void selection_path(Canvas &canvas,   int start, int end) override;
+      void         selection_path(Context &context, int start, int end);
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -103,7 +103,7 @@ namespace richmath {
       const Array<Line>      &line_array() {  return lines;  }
       const Array<GlyphInfo> &glyph_array() { return glyphs; }
       
-      bool stretch_horizontal(Context *context, float width);
+      bool stretch_horizontal(Context &context, float width);
       
       virtual int get_line(int index, int guide = 0) override; // 0, 1, ...
       

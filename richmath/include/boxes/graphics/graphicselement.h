@@ -14,21 +14,6 @@ namespace richmath {
   enum class BoxOutputFlags;
   enum class BoxInputFlags;
   
-  class GraphicsBoxContext: public Base {
-    public:
-      GraphicsBoxContext(GraphicsBox *_box, Context *_ctx)
-        : Base(),
-          box(_box),
-          ctx(_ctx)
-      {
-        SET_BASE_DEBUG_TAG(typeid(*this).name());
-      }
-      
-    public:
-      GraphicsBox *box;
-      Context     *ctx;
-  };
-  
   class GraphicsBounds {
     public:
       GraphicsBounds();
@@ -59,7 +44,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) = 0;
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
-      virtual void paint(GraphicsBoxContext *context) = 0;
+      virtual void paint(GraphicsBox *owner, Context &context) = 0;
       virtual Expr to_pmath(BoxOutputFlags flags) = 0;
       
     protected:
@@ -84,7 +69,7 @@ namespace richmath {
       void remove(int i);
       
       virtual void find_extends(GraphicsBounds &bounds) override;
-      virtual void paint(GraphicsBoxContext *context) override;
+      virtual void paint(GraphicsBox *owner, Context &context) override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     private:
@@ -92,6 +77,7 @@ namespace richmath {
   };
   
   class GraphicsElementCollection: public GraphicsDirective {
+      using base = GraphicsDirective;
       friend class GraphicsBox;
     protected:
       virtual ~GraphicsElementCollection();
@@ -101,7 +87,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       void load_from_object(Expr expr, BoxInputFlags opts);
       
-      virtual void paint(GraphicsBoxContext *context) override;
+      virtual void paint(GraphicsBox *owner, Context &context) override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
   };
 }

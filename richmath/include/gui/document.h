@@ -41,7 +41,7 @@ namespace richmath {
       NativeWidget *native() { return _native; } // never nullptr
       
       virtual void scroll_to(float x, float y, float w, float h) override;
-      virtual void scroll_to(Canvas *canvas, const VolatileSelection &child_sel) override;
+      virtual void scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
@@ -159,7 +159,7 @@ namespace richmath {
       bool load_stylesheet();
       virtual void reset_style() override;
       
-      void paint_resize(Canvas *canvas, bool resize_only);
+      void paint_resize(Canvas &canvas, bool resize_only);
       
       Expr section_list_to_pmath(BoxOutputFlags flags, int start, int end) {
         return SectionList::to_pmath(flags, start, end);

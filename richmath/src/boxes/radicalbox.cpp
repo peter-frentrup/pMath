@@ -85,12 +85,12 @@ int RadicalBox::count() {
   return 1 + (_exponent ? 1 : 0);
 }
 
-void RadicalBox::resize(Context *context) {
+void RadicalBox::resize(Context &context) {
   _radicand->resize(context);
   
   _extents = _radicand->extents();
   
-  context->math_shaper->shape_radical(
+  context.math_shaper->shape_radical(
     context,
     &_extents,
     &rx,
@@ -101,22 +101,22 @@ void RadicalBox::resize(Context *context) {
   info.surd_form = get_own_style(SurdForm, 0) ? 1 : 0;
     
   if(_exponent) {
-    float old_fs = context->canvas->get_font_size();
-    int old_script_indent = context->script_indent;
+    float old_fs = context.canvas().get_font_size();
+    int old_script_indent = context.script_indent;
     
     /* http://www.ntg.nl/maps/38/04.pdf: LuaTeX sets the radical degree in 
        \scriptscriptstyle 
        Microsoft's Math Input Panel seems to do the same.
      */
-    context->script_indent+= 2;
+    context.script_indent+= 2;
     
-    small_em = context->get_script_size(old_fs);
-    context->canvas->set_font_size(small_em);
+    small_em = context.get_script_size(old_fs);
+    context.canvas().set_font_size(small_em);
     
     _exponent->resize(context);
     
-    context->canvas->set_font_size(old_fs);
-    context->script_indent = old_script_indent;
+    context.canvas().set_font_size(old_fs);
+    context.script_indent = old_script_indent;
     
     if(_extents.ascent < _exponent->extents().height() - ey)
       _extents.ascent = _exponent->extents().height() - ey;
@@ -128,43 +128,45 @@ void RadicalBox::resize(Context *context) {
   }
 }
 
-void RadicalBox::paint(Context *context) {
+void RadicalBox::paint(Context &context) {
   update_dynamic_styles(context);
     
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  context->canvas->move_to(x + rx, y);
+  context.canvas().move_to(x + rx, y);
   _radicand->paint(context);
   
   if(_exponent) {
     if(ex < _exponent->extents().width)
-      context->canvas->move_to(x + _exponent->extents().width - ex, y);
+      context.canvas().move_to(x + _exponent->extents().width - ex, y);
     else
-      context->canvas->move_to(x, y);
+      context.canvas().move_to(x, y);
   }
   else
-    context->canvas->move_to(x, y);
+    context.canvas().move_to(x, y);
     
-  context->math_shaper->show_radical(
+  context.math_shaper->show_radical(
     context,
     info);
     
   if(_exponent) {
-    float old_fs = context->canvas->get_font_size();
-    context->canvas->set_font_size(small_em);
+    float old_fs = context.canvas().get_font_size();
+    context.canvas().set_font_size(small_em);
     
-    if(ex < _exponent->extents().width)
-      context->canvas->move_to(
+    if(ex < _exponent->extents().width) {
+      context.canvas().move_to(
         x,
         y + ey - _exponent->extents().descent);
-    else
-      context->canvas->move_to(
+    }
+    else {
+      context.canvas().move_to(
         x + ex - _exponent->extents().width,
         y + ey - _exponent->extents().descent);
+    }
     _exponent->paint(context);
     
-    context->canvas->set_font_size(old_fs);
+    context.canvas().set_font_size(old_fs);
   }
 }
 

@@ -23,13 +23,13 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override;
       
-      virtual void resize(Context *context) override;
-      void stretch(Context *context, const BoxSize &base);
+      virtual void resize(Context &context) override;
+      void stretch(Context &context, const BoxSize &base);
       void adjust_x(
-        Context           *context,
+        Context           &context,
         uint16_t           base_char,
         const GlyphInfo   &base_info);
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual Box *remove(int *index) override;
       

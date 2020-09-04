@@ -31,7 +31,7 @@ namespace richmath {
     public:
       Impl(GridBox &_self) : self(_self) {}
       
-      int resize_items(Context *context);
+      int resize_items(Context &context);
       void simple_spacing(float em);
       void expand_colspans(int span_count);
       void expand_rowspans(int span_count);
@@ -69,13 +69,13 @@ bool GridItem::expand(const BoxSize &size) {
   return true;
 }
 
-void GridItem::resize_default_baseline(Context *context) {
-  bool smf = context->smaller_fraction_parts;
-  context->smaller_fraction_parts = true;
+void GridItem::resize_default_baseline(Context &context) {
+  bool smf = context.smaller_fraction_parts;
+  context.smaller_fraction_parts = true;
   
   OwnerBox::resize_default_baseline(context);
   
-  context->smaller_fraction_parts = smf;
+  context.smaller_fraction_parts = smf;
   _span_right = 0;
   _span_down = 0;
   _really_span_from_left = false;
@@ -359,18 +359,18 @@ bool GridBox::expand(const BoxSize &size) {
   return true;
 }
 
-void GridBox::resize(Context *context) {
-  float em = context->canvas->get_font_size();
+void GridBox::resize(Context &context) {
+  float em = context.canvas().get_font_size();
   rowspacing = em;
   colspacing = em;
   
   rowspacing *= get_style(GridBoxRowSpacing);
   colspacing *= get_style(GridBoxColumnSpacing);
   
-  float w = context->width;
-  context->width = Infinity;
+  float w = context.width;
+  context.width = Infinity;
   int span_count = Impl(*this).resize_items(context);
-  context->width = w;
+  context.width = w;
   
   Impl(*this).simple_spacing(em);
   Impl(*this).expand_colspans(span_count);
@@ -379,20 +379,20 @@ void GridBox::resize(Context *context) {
   Impl(*this).adjust_baseline(em);
 }
 
-void GridBox::paint(Context *context) {
+void GridBox::paint(Context &context) {
   using std::swap;
   
   update_dynamic_styles(context);
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
   for(int ix = 0; ix < items.cols(); ++ix) {
     for(int iy = 0; iy < items.rows(); ++iy) {
       GridItem *gi = item(iy, ix);
       
       if(!gi->_really_span_from_left && !gi->_really_span_from_above) {
-        context->canvas->move_to(
+        context.canvas().move_to(
           x + xpos[ix],
           y + ypos[iy] + gi->extents().ascent - _extents.ascent);
         gi->paint(context);
@@ -400,8 +400,8 @@ void GridBox::paint(Context *context) {
     }
   }
   
-  if(context->selection.get() == this) {
-    auto rect = get_enclosing_range(context->selection.start, context->selection.end - 1);
+  if(context.selection.get() == this) {
+    auto rect = get_enclosing_range(context.selection.start, context.selection.end - 1);
     
     float x1, x2, y1, y2;
     x1 = x + xpos[rect.x.start.primary_value()];
@@ -416,15 +416,15 @@ void GridBox::paint(Context *context) {
     else
       y2 = y + _extents.descent;
       
-    Color c = context->canvas->get_color();
-    context->canvas->pixrect(x1, y1, x2, y2, false);
-    context->draw_selection_path();
-//    context->canvas->paint_selection(x1, y1, x2, y2);
-    context->canvas->set_color(c);
+    Color c = context.canvas().get_color();
+    context.canvas().pixrect(x1, y1, x2, y2, false);
+    context.draw_selection_path();
+//    context.canvas().paint_selection(x1, y1, x2, y2);
+    context.canvas().set_color(c);
   }
 }
 
-void GridBox::selection_path(Canvas *canvas, int start, int end) {
+void GridBox::selection_path(Canvas &canvas, int start, int end) {
   auto rect = get_enclosing_range(start, end - 1);
   
   float x1, x2, y1, y2;
@@ -441,7 +441,7 @@ void GridBox::selection_path(Canvas *canvas, int start, int end) {
     y2 = _extents.descent;
     
   float x0, y0;
-  canvas->current_pos(&x0, &y0);
+  canvas.current_pos(&x0, &y0);
   
   x1 += x0;
   y1 += y0;
@@ -457,16 +457,16 @@ void GridBox::selection_path(Canvas *canvas, int start, int end) {
   float px4 = x1;
   float py4 = y2;
   
-  canvas->align_point(&px1, &py1, false);
-  canvas->align_point(&px2, &py2, false);
-  canvas->align_point(&px3, &py3, false);
-  canvas->align_point(&px4, &py4, false);
+  canvas.align_point(&px1, &py1, false);
+  canvas.align_point(&px2, &py2, false);
+  canvas.align_point(&px3, &py3, false);
+  canvas.align_point(&px4, &py4, false);
   
-  canvas->move_to(px1, py1);
-  canvas->line_to(px2, py2);
-  canvas->line_to(px3, py3);
-  canvas->line_to(px4, py4);
-  canvas->close_path();
+  canvas.move_to(px1, py1);
+  canvas.line_to(px2, py2);
+  canvas.line_to(px3, py3);
+  canvas.line_to(px4, py4);
+  canvas.close_path();
 }
 
 Box *GridBox::remove_range(int *start, int end) {
@@ -869,7 +869,7 @@ void GridBox::ensure_valid_boxes() {
 
 //{ class GridBox::Impl ...
 
-int GridBox::Impl::resize_items(Context *context) {
+int GridBox::Impl::resize_items(Context &context) {
   int span_count = 0;
   
   for(int i = 0; i < self.count(); ++i)

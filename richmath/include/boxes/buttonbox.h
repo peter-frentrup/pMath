@@ -10,7 +10,7 @@ namespace richmath {
     protected:
       explicit AbstractButtonBox(MathSequence *content = nullptr, ContainerType _type = PushButton);
     
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       
       virtual ContainerType default_container_type() { return PushButton; }
       

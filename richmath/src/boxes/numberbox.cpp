@@ -319,13 +319,13 @@ namespace richmath {
 //{ class NumberBox ...
 
 NumberBox::NumberBox()
-  : OwnerBox()
+  : base()
 {
   Impl(*this).set_number(String(""));
 }
 
 NumberBox::NumberBox(String number)
-  : OwnerBox()
+  : base()
 {
   Impl(*this).set_number(number);
 }
@@ -346,15 +346,15 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool NumberBox::edit_selection(Context *context) {
+bool NumberBox::edit_selection(Context &context) {
   if(Box::edit_selection(context)) {
     auto seq = dynamic_cast<MathSequence*>(_parent);
     if(!seq)
       return false;
       
-    Box *selbox = context->selection.get();
-    PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, context->selection.start);
-    PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, context->selection.end);
+    Box *selbox = context.selection.get();
+    PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, context.selection.start);
+    PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, context.selection.end);
     
     if(!pos_start.is_valid() || !pos_end.is_valid())
       return false;
@@ -364,47 +364,47 @@ bool NumberBox::edit_selection(Context *context) {
     seq->insert(_index + 1, _number);
     seq->remove(_index, _index + 1); // deletes this
     
-    context->selection.set(seq, i + pos_start.pos, i + pos_end.pos);
+    context.selection.set(seq, i + pos_start.pos, i + pos_end.pos);
     return true;
   }
   
   return false;
 }
 
-void NumberBox::resize_default_baseline(Context *context) {
-  bool                  old_math_spacing     = context->math_spacing;
-  bool                  old_show_auto_styles = context->show_auto_styles;
-  SharedPtr<TextShaper> old_text_shaper      = context->text_shaper;
+void NumberBox::resize_default_baseline(Context &context) {
+  bool                  old_math_spacing     = context.math_spacing;
+  bool                  old_show_auto_styles = context.show_auto_styles;
+  SharedPtr<TextShaper> old_text_shaper      = context.text_shaper;
   
-  context->math_spacing     = false;
-  context->show_auto_styles = false;
+  context.math_spacing     = false;
+  context.show_auto_styles = false;
   
   if(old_math_spacing)
-    context->text_shaper = context->math_shaper;
+    context.text_shaper = context.math_shaper;
     
-  OwnerBox::resize_default_baseline(context);
+  base::resize_default_baseline(context);
   
-  context->math_spacing     = old_math_spacing;
-  context->show_auto_styles = old_show_auto_styles;
-  context->text_shaper      = old_text_shaper;
+  context.math_spacing     = old_math_spacing;
+  context.show_auto_styles = old_show_auto_styles;
+  context.text_shaper      = old_text_shaper;
 }
 
-void NumberBox::paint(Context *context) {
-  bool                  old_math_spacing     = context->math_spacing;
-  bool                  old_show_auto_styles = context->show_auto_styles;
-  SharedPtr<TextShaper> old_text_shaper      = context->text_shaper;
+void NumberBox::paint(Context &context) {
+  bool                  old_math_spacing     = context.math_spacing;
+  bool                  old_show_auto_styles = context.show_auto_styles;
+  SharedPtr<TextShaper> old_text_shaper      = context.text_shaper;
   
-  context->math_spacing     = false;
-  context->show_auto_styles = false;
+  context.math_spacing     = false;
+  context.show_auto_styles = false;
   
   if(old_math_spacing)
-    context->text_shaper = context->math_shaper;
+    context.text_shaper = context.math_shaper;
     
-  OwnerBox::paint(context);
+  base::paint(context);
   
-  context->math_spacing     = old_math_spacing;
-  context->show_auto_styles = old_show_auto_styles;
-  context->text_shaper      = old_text_shaper;
+  context.math_spacing     = old_math_spacing;
+  context.show_auto_styles = old_show_auto_styles;
+  context.text_shaper      = old_text_shaper;
 }
 
 Expr NumberBox::to_pmath(BoxOutputFlags flags) {

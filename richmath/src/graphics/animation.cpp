@@ -53,21 +53,21 @@ void BoxRepaintEvent::execute_event() {
 
 //{ class BoxAnimation ...
 
-bool BoxAnimation::is_compatible(Canvas *canvas) {
+bool BoxAnimation::is_compatible(Canvas &canvas) {
   if(!current_buffer)
     return false;
   
   return current_buffer->is_compatible(canvas);
 }
 
-bool BoxAnimation::is_compatible(Canvas *canvas, float w, float h) {
+bool BoxAnimation::is_compatible(Canvas &canvas, float w, float h) {
   if(!current_buffer)
     return false;
   
   return current_buffer->is_compatible(canvas, w, h);
 }
 
-bool BoxAnimation::is_compatible(Canvas *canvas, const BoxSize &size) {
+bool BoxAnimation::is_compatible(Canvas &canvas, const BoxSize &size) {
   if(!current_buffer)
     return false;
   
@@ -80,7 +80,7 @@ bool BoxAnimation::is_compatible(Canvas *canvas, const BoxSize &size) {
 
 LinearTransition::LinearTransition(
   FrontEndReference  _box_id,
-  Canvas            *dst,
+  Canvas            &dst,
   const BoxSize     &size,
   double             _seconds)
   : BoxAnimation(_box_id),
@@ -99,7 +99,7 @@ LinearTransition::LinearTransition(
 
 LinearTransition::LinearTransition(
   FrontEndReference  _box_id,
-  Canvas            *dst,
+  Canvas            &dst,
   float              x, 
   float              y, 
   float              w, 
@@ -124,7 +124,7 @@ void LinearTransition::update(ControlContext *cc) {
     repeat = false;
 }
 
-bool LinearTransition::paint(Canvas *canvas) {
+bool LinearTransition::paint(Canvas &canvas) {
   if(!buf1 || !buf2 || seconds <= 0)
     return false;
     

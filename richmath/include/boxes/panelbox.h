@@ -12,7 +12,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual ControlState calc_state(Context *context) override;
+      virtual ControlState calc_state(Context &context) override;
       
       virtual bool expand(const BoxSize &size) override;
       
@@ -26,7 +26,7 @@ namespace richmath {
       virtual void on_exit() override;
       
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
 
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::PanelBox; }
   };

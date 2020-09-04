@@ -57,10 +57,10 @@ namespace richmath {
       
       const TextBuffer &text_buffer() { return text; }
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
-      virtual void selection_path(Canvas *canvas, int start, int end) override;
+      virtual void selection_path(Canvas &canvas, int start, int end) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;

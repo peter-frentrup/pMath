@@ -1180,7 +1180,7 @@ bool BasicWin32Window::is_closed() {
   return !IsWindowVisible(_hwnd);
 }
 
-void BasicWin32Window::paint_background_at(Canvas *canvas, HWND child, bool wallpaper_only) {
+void BasicWin32Window::paint_background_at(Canvas &canvas, HWND child, bool wallpaper_only) {
   RECT rect, child_rect;
   Win32Themes::MARGINS margins = {0};
 
@@ -1194,25 +1194,25 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, HWND child, bool wall
     wallpaper_only);
 }
 
-static void add_rect(Canvas *canvas, const RECT &rect) {
-  canvas->move_to(rect.left, rect.top);
-  canvas->line_to(rect.left, rect.bottom);
-  canvas->line_to(rect.right, rect.bottom);
-  canvas->line_to(rect.right, rect.top);
-  canvas->close_path();
+static void add_rect(Canvas &canvas, const RECT &rect) {
+  canvas.move_to(rect.left, rect.top);
+  canvas.line_to(rect.left, rect.bottom);
+  canvas.line_to(rect.right, rect.bottom);
+  canvas.line_to(rect.right, rect.top);
+  canvas.close_path();
 }
 
-void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallpaper_only) {
+void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallpaper_only) {
   CanvasAutoSave saved(canvas);
   
-  canvas->reset_matrix();
-  cairo_reset_clip(canvas->cairo());
+  canvas.reset_matrix();
+  cairo_reset_clip(canvas.cairo());
 
   RECT window_rect;
   GetWindowRect(_hwnd, &window_rect);
   MapWindowPoints(nullptr, _hwnd, (POINT *)&window_rect, 2);
 
-  canvas->translate(-pos.x, -pos.y);
+  canvas.translate(-pos.x, -pos.y);
 
   RECT glassfree;
   get_glassfree_rect(&glassfree);
@@ -1230,21 +1230,21 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         else
           bg_color = Color::from_bgr24(GetSysColor(COLOR_GRADIENTINACTIVECAPTION));
 
-        canvas->set_color(bg_color);
-        canvas->paint();
+        canvas.set_color(bg_color);
+        canvas.paint();
       }
       else {
         bg_color = Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
         
-        canvas->set_color(bg_color);
-        canvas->paint();
+        canvas.set_color(bg_color);
+        canvas.paint();
       }
     }
     else {
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-      canvas->set_color(Color::Black, 0.0);
-      canvas->paint();
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
+      canvas.set_color(Color::Black, 0.0);
+      canvas.paint();
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
     }
 
     if(!IsRectEmpty(&glassfree)) {
@@ -1252,8 +1252,8 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
       
       add_rect(canvas, glassfree);
       
-      canvas->set_color(color);
-      canvas->fill();
+      canvas.set_color(color);
+      canvas.fill();
     }
   }
   
@@ -1270,13 +1270,13 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
          but Cairo coordinates are left-to-right.
          Temporarily make Cairo use Windows client coordinates.
        */
-      canvas->translate(
+      canvas.translate(
         client_rect.right - client_rect.left,
         0);
-      canvas->scale(-1, 1);
+      canvas.scale(-1, 1);
     }
 
-    cairo_reset_clip(canvas->cairo());
+    cairo_reset_clip(canvas.cairo());
 
     int buttonradius;
     int frameradius;
@@ -1316,40 +1316,40 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
     }
     
     if(!IsRectEmpty(&glassfree) && !is_win8_or_newer) { // show border between glass/nonglass on Windows Vista and 7
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
 
-      canvas->move_to(client_rect.left,  client_rect.top);
-      canvas->line_to(client_rect.right, client_rect.top);
-      canvas->line_to(client_rect.right, client_rect.bottom);
-      canvas->line_to(client_rect.left,  client_rect.bottom);
-      canvas->close_path();
+      canvas.move_to(client_rect.left,  client_rect.top);
+      canvas.line_to(client_rect.right, client_rect.top);
+      canvas.line_to(client_rect.right, client_rect.bottom);
+      canvas.line_to(client_rect.left,  client_rect.bottom);
+      canvas.close_path();
 
-      canvas->move_to(glassfree.left,  glassfree.top);
-      canvas->line_to(glassfree.left,  glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.top);
-      canvas->close_path();
+      canvas.move_to(glassfree.left,  glassfree.top);
+      canvas.line_to(glassfree.left,  glassfree.bottom);
+      canvas.line_to(glassfree.right, glassfree.bottom);
+      canvas.line_to(glassfree.right, glassfree.top);
+      canvas.close_path();
 
-      canvas->clip();
+      canvas.clip();
 
-      cairo_set_line_width(canvas->cairo(), 3);
+      cairo_set_line_width(canvas.cairo(), 3);
 
-      canvas->move_to(window_rect.left,  window_rect.top);
-      canvas->line_to(window_rect.right, window_rect.top);
-      canvas->line_to(window_rect.right, window_rect.bottom);
-      canvas->line_to(window_rect.left,  window_rect.bottom);
-      canvas->close_path();
+      canvas.move_to(window_rect.left,  window_rect.top);
+      canvas.line_to(window_rect.right, window_rect.top);
+      canvas.line_to(window_rect.right, window_rect.bottom);
+      canvas.line_to(window_rect.left,  window_rect.bottom);
+      canvas.close_path();
 
-      canvas->move_to(glassfree.left,  glassfree.top);
-      canvas->line_to(glassfree.left,  glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.bottom);
-      canvas->line_to(glassfree.right, glassfree.top);
-      canvas->close_path();
+      canvas.move_to(glassfree.left,  glassfree.top);
+      canvas.line_to(glassfree.left,  glassfree.bottom);
+      canvas.line_to(glassfree.right, glassfree.bottom);
+      canvas.line_to(glassfree.right, glassfree.top);
+      canvas.close_path();
 
-      canvas->set_color(Color::White, 1 - 0.1);
-      canvas->stroke();
+      canvas.set_color(Color::White, 1 - 0.1);
+      canvas.stroke();
 
-      cairo_reset_clip(canvas->cairo());
+      cairo_reset_clip(canvas.cairo());
     }
 
     if(use_custom_system_buttons()) {
@@ -1364,56 +1364,56 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         
         add_rect(canvas, min_rect);
         if(bg_color.is_valid()) {
-          canvas->set_color(bg_color, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          canvas.set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
         else{
-          canvas->set_color(Color::White, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+          canvas.set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
         }
         if(_hit_test_mouse_over == HTMINBUTTON) {
-          canvas->fill_preserve();
-          canvas->set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          canvas.fill_preserve();
+          canvas.set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
-        canvas->fill();
+        canvas.fill();
         
         add_rect(canvas, max_rect);
         if(bg_color.is_valid()) {
-          canvas->set_color(bg_color, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          canvas.set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
         else{
-          canvas->set_color(Color::White, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+          canvas.set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
         }
         if(_hit_test_mouse_over == HTMAXBUTTON) {
-          canvas->fill_preserve();
-          canvas->set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          canvas.fill_preserve();
+          canvas.set_color(fg_color, (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.3 : 0.2);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
-        canvas->fill();
+        canvas.fill();
         
         add_rect(canvas, close_rect);
         if(bg_color.is_valid()) {
-          canvas->set_color(bg_color, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          canvas.set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
         else{
-          canvas->set_color(Color::White, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+          canvas.set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
         }
         if(_hit_test_mouse_over == HTCLOSE) {
           // TODO: obtain this color from Windows
           static const Color CloseButtonRed = Color::from_rgb24(0xE81123);
           
-          canvas->fill_preserve();
-          canvas->set_color(
+          canvas.fill_preserve();
+          canvas.set_color(
             CloseButtonRed, 
             (_hit_test_mouse_down == _hit_test_mouse_over) ? 0.6 : 1.0);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
-        canvas->fill();
+        canvas.fill();
       }
       else {
         RECT buttons;
@@ -1421,19 +1421,19 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         
         add_rect(canvas, buttons);
 
-//        canvas->set_color(Color::White, buttons_alpha);
-//        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
-//        canvas->fill_preserve();
+//        canvas.set_color(Color::White, buttons_alpha);
+//        cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
+//        canvas.fill_preserve();
         
         if(bg_color.is_valid()) {
-          canvas->set_color(bg_color, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+          canvas.set_color(bg_color, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
         }
         else{
-          canvas->set_color(Color::White, buttons_alpha);
-          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+          canvas.set_color(Color::White, buttons_alpha);
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
         }
-        canvas->fill();
+        canvas.fill();
       }
     } 
     else { // small alpha value above the min/max/close buttons
@@ -1444,73 +1444,73 @@ void BasicWin32Window::paint_background_at(Canvas *canvas, POINT pos, bool wallp
         add_rect(canvas, buttons);
       }
       else {
-        canvas->move_to(buttons.left + 0.5,   buttons.top);
-        canvas->arc(    buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
-        canvas->arc(    buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
-        canvas->line_to(buttons.right - 0.5,  buttons.top);
-        canvas->close_path();
+        canvas.move_to(buttons.left + 0.5,   buttons.top);
+        canvas.arc(    buttons.left + 0.5  + buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI,   M_PI / 2, true);
+        canvas.arc(    buttons.right - 0.5 - buttonradius, buttons.bottom - 0.5 - buttonradius, buttonradius, M_PI / 2, 0,      true);
+        canvas.line_to(buttons.right - 0.5,  buttons.top);
+        canvas.close_path();
       }
 
-      canvas->set_color(Color::White, buttons_alpha);
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+      canvas.set_color(Color::White, buttons_alpha);
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
 
 //        if(hit_test_is_system_button(_hit_test_mouse_over)) {
-//          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
+//          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
 //        }
 //        else if(_active) {
-//          canvas->set_color(Color::White, 1 - 0.2);
-//          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+//          canvas.set_color(Color::White, 1 - 0.2);
+//          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
 //        }
 //        else {
-//          canvas->set_color(Color::White, 1 - 0.6);
-//          cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_DEST_OUT);
+//          canvas.set_color(Color::White, 1 - 0.6);
+//          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
 //        }
 
-      canvas->fill();
+      canvas.fill();
     }
     
     if( client_rect.left - window_rect.left < frameradius || 
         window_rect.right - client_rect.right < frameradius)
     { // make the edges round again
-      canvas->move_to(client_rect.left,  client_rect.top);
-      canvas->line_to(client_rect.left,  client_rect.bottom);
-      canvas->line_to(client_rect.right, client_rect.bottom);
-      canvas->line_to(client_rect.right, client_rect.top);
-      canvas->close_path();
+      canvas.move_to(client_rect.left,  client_rect.top);
+      canvas.line_to(client_rect.left,  client_rect.bottom);
+      canvas.line_to(client_rect.right, client_rect.bottom);
+      canvas.line_to(client_rect.right, client_rect.top);
+      canvas.close_path();
 
       {
         window_rect.top+= 1;
 
-        canvas->move_to(window_rect.left, window_rect.top + frameradius);
-        canvas->arc(window_rect.left  + frameradius, window_rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
-        canvas->arc(window_rect.right - frameradius, window_rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
-        canvas->arc(window_rect.right - frameradius, window_rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
-        canvas->arc(window_rect.left  + frameradius, window_rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
-        canvas->close_path();
+        canvas.move_to(window_rect.left, window_rect.top + frameradius);
+        canvas.arc(window_rect.left  + frameradius, window_rect.top    + frameradius, frameradius,     M_PI,     3 * M_PI / 2, false);
+        canvas.arc(window_rect.right - frameradius, window_rect.top    + frameradius, frameradius, 3 * M_PI / 2, 2 * M_PI,     false);
+        canvas.arc(window_rect.right - frameradius, window_rect.bottom - frameradius, frameradius, 0,                M_PI / 2, false);
+        canvas.arc(window_rect.left  + frameradius, window_rect.bottom - frameradius, frameradius,     M_PI / 2,     M_PI,     false);
+        canvas.close_path();
       }
 
-      cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-      canvas->fill();
+      cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
+      canvas.fill();
     }
     else if(use_custom_system_buttons()) {
-      canvas->move_to(client_rect.left, client_rect.top);
-      canvas->line_to(client_rect.right, client_rect.top);
-      canvas->line_to(client_rect.right, client_rect.top + 1);
-      canvas->line_to(client_rect.left, client_rect.top + 1);
+      canvas.move_to(client_rect.left, client_rect.top);
+      canvas.line_to(client_rect.right, client_rect.top);
+      canvas.line_to(client_rect.right, client_rect.top + 1);
+      canvas.line_to(client_rect.left, client_rect.top + 1);
       if(_active) {
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-        canvas->set_color(Color::Black, 0.0);
+        cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
+        canvas.set_color(Color::Black, 0.0);
       }
       else {
-        cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
-        canvas->set_color(Color::from_rgb24(0x565656), 0.5);
+        cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
+        canvas.set_color(Color::from_rgb24(0x565656), 0.5);
       }
-      canvas->fill();
+      canvas.fill();
     }
   }
 }
 
-void BasicWin32Window::paint_background(Canvas *canvas) {
+void BasicWin32Window::paint_background(Canvas &canvas) {
   if( !_themed_frame          ||
       !background_image.ptr() ||
       cairo_surface_status(background_image.ptr()) != CAIRO_STATUS_SUCCESS)
@@ -1525,36 +1525,36 @@ void BasicWin32Window::paint_background(Canvas *canvas) {
   get_glassfree_rect(&glassfree);
   
   int x = rect.right - cairo_image_surface_get_width(background_image.ptr());
-  cairo_set_source_surface(canvas->cairo(), background_image.ptr(), x, 0);
-  //canvas->set_color(0xff0000);
+  cairo_set_source_surface(canvas.cairo(), background_image.ptr(), x, 0);
+  //canvas.set_color(0xff0000);
 
-  canvas->move_to(rect.left,  rect.top);
-  canvas->line_to(rect.right, rect.top);
-  canvas->line_to(rect.right, rect.bottom);
-  canvas->line_to(rect.left,  rect.bottom);
-  canvas->close_path();
+  canvas.move_to(rect.left,  rect.top);
+  canvas.line_to(rect.right, rect.top);
+  canvas.line_to(rect.right, rect.bottom);
+  canvas.line_to(rect.left,  rect.bottom);
+  canvas.close_path();
 
   if(!IsRectEmpty(&glassfree)) {
-    canvas->move_to(glassfree.left,  glassfree.top);
-    canvas->line_to(glassfree.left,  glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.top);
-    canvas->close_path();
+    canvas.move_to(glassfree.left,  glassfree.top);
+    canvas.line_to(glassfree.left,  glassfree.bottom);
+    canvas.line_to(glassfree.right, glassfree.bottom);
+    canvas.line_to(glassfree.right, glassfree.top);
+    canvas.close_path();
   }
 
-  canvas->clip();
-  canvas->paint_with_alpha(0.8);
+  canvas.clip();
+  canvas.paint_with_alpha(0.8);
 
   if(!IsRectEmpty(&glassfree)) {
-    cairo_reset_clip(canvas->cairo());
-    canvas->move_to(glassfree.left,  glassfree.top);
-    canvas->line_to(glassfree.left,  glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.bottom);
-    canvas->line_to(glassfree.right, glassfree.top);
-    canvas->close_path();
-    canvas->clip();
+    cairo_reset_clip(canvas.cairo());
+    canvas.move_to(glassfree.left,  glassfree.top);
+    canvas.line_to(glassfree.left,  glassfree.bottom);
+    canvas.line_to(glassfree.right, glassfree.bottom);
+    canvas.line_to(glassfree.right, glassfree.top);
+    canvas.close_path();
+    canvas.clip();
 
-    canvas->paint_with_alpha(0.25);
+    canvas.paint_with_alpha(0.25);
   }
 }
 
@@ -2400,7 +2400,7 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
     {
       Canvas canvas(cr);
 
-      self.paint_background_at(&canvas, POINT{ 0, 0 });
+      self.paint_background_at(canvas, POINT{ 0, 0 });
     }
     cairo_destroy(cr);
 
@@ -2537,8 +2537,8 @@ void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
   }
 //  
 //  add_rect(canvas, close_rect);
-//  canvas->set_color(Color::from_rgb(1, 0, 0), 0.9);
-//  canvas->fill();
+//  canvas.set_color(Color::from_rgb(1, 0, 0), 0.9);
+//  canvas.fill();
 }
 
 void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {

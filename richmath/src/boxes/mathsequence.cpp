@@ -157,18 +157,18 @@ namespace richmath {
       
       //{ vertical stretching
     private:
-      void box_size(Context *context, int pos, int box, float *a, float *d);
+      void box_size(Context &context, int pos, int box, float *a, float *d);
       
     public:
-      void boxes_size(Context *context, int start, int end, float *a, float *d);
-      void caret_size(Context *context, int pos, int box, float *a, float *d);
+      void boxes_size(Context &context, int start, int end, float *a, float *d);
+      void caret_size(Context &context, int pos, int box, float *a, float *d);
       //}
       
       //{ basic sizing
     public:
-      void resize_span(Context *context, Span span, int *pos, int *box);
+      void resize_span(Context &context, Span span, int *pos, int *box);
       void stretch_span(
-        Context *context,
+        Context &context,
         Span     span,
         int     *pos,
         int     *box,
@@ -181,7 +181,7 @@ namespace richmath {
       //{ OpenType substitutions
     private:
       void substitute_glyphs(
-        Context              *context,
+        Context              &context,
         int                   start,
         int                   end,
         uint32_t              math_script_tag,
@@ -191,16 +191,16 @@ namespace richmath {
         const FontFeatureSet &features);
       
     public:
-      void apply_glyph_substitutions(Context *context);
+      void apply_glyph_substitutions(Context &context);
       //}
       
       //{ horizontal kerning/spacing
     private:
       class EnlargeSpace {
         public:
-          EnlargeSpace(MathSequence &_self, Context *_context)
+          EnlargeSpace(MathSequence &_self, Context &context)
             : self(_self),
-              context(_context),
+              context(context),
               buf(_self.str.buffer())
           {
           }
@@ -220,13 +220,13 @@ namespace richmath {
           
         private:
           MathSequence &self;
-          Context *context;
+          Context      &context;
           
           const uint16_t *buf;
       };
     
     public:
-      void enlarge_space(Context *context) {
+      void enlarge_space(Context &context) {
         EnlargeSpace(self, context).run();
       }
       
@@ -235,8 +235,8 @@ namespace richmath {
       //{ horizontal stretching (variable width)
     public:
       bool hstretch_lines( // return whether there was any height change
-        float width,
-        float window_width,
+        float  width,
+        float  window_width,
         float *unfilled_width);
       
       //}
@@ -272,11 +272,13 @@ namespace richmath {
       void new_line(int pos, unsigned int indent, bool continuation = false);
       
     public:
-      void split_lines(Context *context);
+      void split_lines(Context &context);
       //}
       
-      void calculate_line_heights(Context *context);
+      void calculate_line_heights(Context &context);
       void calculate_total_extents_from_lines();
+      
+      void selection_path(Context *opt_context, Canvas &canvas, int start, int end);
   };
   
   Array<int>    MathSequence::Impl::indention_array(0);
@@ -369,18 +371,18 @@ bool MathSequence::expand(const BoxSize &size) {
   return false;
 }
 
-void MathSequence::resize(Context *context) {
+void MathSequence::resize(Context &context) {
   glyphs.length(str.length());
   glyphs.zeromem();
   
   ensure_boxes_valid();
   ensure_spans_valid();
   
-  em = context->canvas->get_font_size();
-  auto_indent = context->math_spacing;
+  em = context.canvas().get_font_size();
+  auto_indent = context.math_spacing;
   
-  float old_scww = context->section_content_window_width;
-  context->section_content_window_width = HUGE_VAL;
+  float old_scww = context.section_content_window_width;
+  context.section_content_window_width = HUGE_VAL;
   
   int box = 0;
   int pos = 0;
@@ -389,7 +391,7 @@ void MathSequence::resize(Context *context) {
     
   Impl(*this).apply_glyph_substitutions(context);
   
-  if(context->show_auto_styles) {
+  if(context.show_auto_styles) {
     ScopeColorizer colorizer(this);
     
     pos = 0;
@@ -410,7 +412,7 @@ void MathSequence::resize(Context *context) {
     }
   }
   
-  if(context->math_spacing) {
+  if(context.math_spacing) {
     float ca = 0;
     float cd = 0;
     float a = 0;
@@ -422,7 +424,7 @@ void MathSequence::resize(Context *context) {
       pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, nullptr);
       
       if(tok == PMATH_TOK_INTEGRAL || tok == PMATH_TOK_PREFIX) {
-        context->math_shaper->vertical_stretch_char(
+        context.math_shaper->vertical_stretch_char(
           context,
           a,
           d,
@@ -431,7 +433,7 @@ void MathSequence::resize(Context *context) {
           &glyphs[0]);
           
         BoxSize size;
-        context->math_shaper->vertical_glyph_size(
+        context.math_shaper->vertical_glyph_size(
           context,
           str[0],
           glyphs[0],
@@ -473,21 +475,21 @@ void MathSequence::resize(Context *context) {
   lines[0].indent = 0;
   lines[0].continuation = 0;
   
-  context->section_content_window_width = old_scww;
+  context.section_content_window_width = old_scww;
   
   Impl(*this).split_lines(context);
   if(dynamic_cast<Section *>(_parent)) {
     Impl(*this).hstretch_lines(
-      context->width,
-      context->section_content_window_width,
-      &context->sequence_unfilled_width);
+      context.width,
+      context.section_content_window_width,
+      &context.sequence_unfilled_width);
   }
   
   Impl(*this).calculate_line_heights(context);
   Impl(*this).calculate_total_extents_from_lines();
   
-  if(context->sequence_unfilled_width == -HUGE_VAL)
-    context->sequence_unfilled_width = _extents.width;
+  if(context.sequence_unfilled_width == -HUGE_VAL)
+    context.sequence_unfilled_width = _extents.width;
 }
 
 void MathSequence::colorize_scope(SyntaxState *state) {
@@ -507,15 +509,15 @@ void MathSequence::colorize_scope(SyntaxState *state) {
   }
 }
 
-void MathSequence::paint(Context *context) {
+void MathSequence::paint(Context &context) {
   float x0, y0;
-  context->canvas->current_pos(&x0, &y0);
+  context.canvas().current_pos(&x0, &y0);
   
-  Color default_color = context->canvas->get_color();
-  SharedPtr<MathShaper> default_math_shaper = context->math_shaper;
+  Color default_color = context.canvas().get_color();
+  SharedPtr<MathShaper> default_math_shaper = context.math_shaper;
   
   {
-    context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+    context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
     AutoCallPaintHooks auto_hooks(this, context);
     
     float y = y0;
@@ -525,7 +527,7 @@ void MathSequence::paint(Context *context) {
     const uint16_t *buf = str.buffer();
     
     double clip_x1, clip_y1, clip_x2, clip_y2;
-    context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
+    context.canvas().clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
     
     int line = 0;
     // skip invisible lines:
@@ -556,20 +558,20 @@ void MathSequence::paint(Context *context) {
         
 //#ifndef NDEBUG
 //        {
-//          int old_color = context->canvas->get_color();
-//          context->canvas->save();
-//          context->canvas->set_color(0x808080);
+//          int old_color = context.canvas().get_color();
+//          context.canvas().save();
+//          context.canvas().set_color(0x808080);
 //          
 //          for(int i = 0; i < lines[line].indent; ++i) {
-//            context->canvas->move_to(
+//            context.canvas().move_to(
 //              x0 + i * (x_extra - x0) / lines[line].indent,
 //              y + lines[line].ascent);
-//            context->canvas->rel_line_to(0, -0.75);
+//            context.canvas().rel_line_to(0, -0.75);
 //          }
-//          context->canvas->stroke();
+//          context.canvas().stroke();
 //          
-//          context->canvas->set_color(old_color);
-//          context->canvas->restore();
+//          context.canvas().set_color(old_color);
+//          context.canvas().restore();
 //        }
 //#endif
         
@@ -589,42 +591,42 @@ void MathSequence::paint(Context *context) {
           }
           
           if(have_style || glyphs[pos].style) {
-            Color color = context->syntax->glyph_style_colors[glyphs[pos].style];
+            Color color = context.syntax->glyph_style_colors[glyphs[pos].style];
             
-            context->canvas->set_color(color);
+            context.canvas().set_color(color);
             have_style = color != default_color;
           }
           
           if(have_slant || glyphs[pos].slant) {
             if(glyphs[pos].slant == FontSlantItalic) {
-              context->math_shaper = default_math_shaper->set_style(
-                                       default_math_shaper->get_style() + Italic);
+              context.math_shaper = default_math_shaper->set_style(
+                                      default_math_shaper->get_style() + Italic);
               have_slant = true;
             }
             else if(glyphs[pos].slant == FontSlantPlain) {
-              context->math_shaper = default_math_shaper->set_style(
-                                       default_math_shaper->get_style() - Italic);
+              context.math_shaper = default_math_shaper->set_style(
+                                      default_math_shaper->get_style() - Italic);
               have_slant = true;
             }
             else {
-              context->math_shaper = default_math_shaper;
+              context.math_shaper = default_math_shaper;
               have_slant = false;
             }
           }
           
 //          #ifndef NDEBUG
 //          if(spans.is_operand_start(pos)){
-//            context->canvas->save();
+//            context.canvas().save();
 //
-//            context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
-//            context->canvas->rel_line_to(0, 3);
-//            context->canvas->rel_line_to(3, 0);
+//            context.canvas().move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
+//            context.canvas().rel_line_to(0, 3);
+//            context.canvas().rel_line_to(3, 0);
 //
-//            context->canvas->set_color(0x008000);
-//            context->canvas->hair_stroke();
+//            context.canvas().set_color(0x008000);
+//            context.canvas().hair_stroke();
 //
-//            context->canvas->set_color(default_color);
-//            context->canvas->restore();
+//            context.canvas().set_color(default_color);
+//            context.canvas().restore();
 //          }
 //          #endif
 
@@ -633,11 +635,11 @@ void MathSequence::paint(Context *context) {
             while(boxes[box]->index() < pos)
               ++box;
               
-            context->canvas->move_to(glyph_left + x_extra + glyphs[pos].x_offset, y);
+            context.canvas().move_to(glyph_left + x_extra + glyphs[pos].x_offset, y);
             
             boxes[box]->paint(context);
             
-            context->syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+            context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
             ++box;
           }
           else if(glyphs[pos].index ||
@@ -645,7 +647,7 @@ void MathSequence::paint(Context *context) {
                   glyphs[pos].horizontal_stretch)
           {
             if(glyphs[pos].is_normal_text) {
-              context->text_shaper->show_glyph(
+              context.text_shaper->show_glyph(
                 context,
                 glyph_left + x_extra,
                 y,
@@ -653,7 +655,7 @@ void MathSequence::paint(Context *context) {
                 glyphs[pos]);
             }
             else {
-              context->math_shaper->show_glyph(
+              context.math_shaper->show_glyph(
                 context,
                 glyph_left + x_extra,
                 y,
@@ -666,21 +668,21 @@ void MathSequence::paint(Context *context) {
             float d = em * RefErrorIndictorHeight * 2 / 3.0f;
             float dd = d / 4;
             
-            context->canvas->move_to(glyphs[pos].right + x_extra, y + em / 8);
+            context.canvas().move_to(glyphs[pos].right + x_extra, y + em / 8);
             if(pos + 1 < glyphs.length())
-              context->canvas->rel_move_to(glyphs[pos + 1].x_offset / 2, 0);
+              context.canvas().rel_move_to(glyphs[pos + 1].x_offset / 2, 0);
               
-            context->canvas->rel_line_to(-d, d);
-            context->canvas->rel_line_to(dd, dd);
-            context->canvas->rel_line_to(d - dd, dd - d);
-            context->canvas->rel_line_to(d - dd, d - dd);
-            context->canvas->rel_line_to(dd, -dd);
-            context->canvas->rel_line_to(-d, -d);
+            context.canvas().rel_line_to(-d, d);
+            context.canvas().rel_line_to(dd, dd);
+            context.canvas().rel_line_to(d - dd, dd - d);
+            context.canvas().rel_line_to(d - dd, d - dd);
+            context.canvas().rel_line_to(dd, -dd);
+            context.canvas().rel_line_to(-d, -d);
             
-            context->canvas->close_path();
-            context->canvas->set_color(
-              context->syntax->glyph_style_colors[GlyphStyleExcessOrMissingArg]);
-            context->canvas->fill();
+            context.canvas().close_path();
+            context.canvas().set_color(
+              context.syntax->glyph_style_colors[GlyphStyleExcessOrMissingArg]);
+            context.canvas().fill();
             
             have_style = true;
           }
@@ -692,13 +694,13 @@ void MathSequence::paint(Context *context) {
           GlyphInfo gi;
           memset(&gi, 0, sizeof(GlyphInfo));
           uint16_t cont = CHAR_LINE_CONTINUATION;
-          context->math_shaper->decode_token(
+          context.math_shaper->decode_token(
             context,
             1,
             &cont,
             &gi);
             
-          context->math_shaper->show_glyph(
+          context.math_shaper->show_glyph(
             context,
             glyph_left + x_extra,
             y,
@@ -711,169 +713,28 @@ void MathSequence::paint(Context *context) {
       
     }
     
-    if(context->selection.get() == this && !context->canvas->show_only_text) {
-      context->canvas->move_to(x0, y0);
+    if(context.selection.get() == this && !context.canvas().show_only_text) {
+      context.canvas().move_to(x0, y0);
       
       selection_path(
         context,
-        context->canvas,
-        context->selection.start,
-        context->selection.end);
+        context.selection.start,
+        context.selection.end);
         
-      context->draw_selection_path();
+      context.draw_selection_path();
     }
   }
   
-  context->canvas->set_color(default_color);
-  context->math_shaper = default_math_shaper;
+  context.canvas().set_color(default_color);
+  context.math_shaper = default_math_shaper;
 }
 
-void MathSequence::selection_path(Canvas *canvas, int start, int end) {
-  selection_path(0, canvas, start, end);
+void MathSequence::selection_path(Canvas &canvas, int start, int end) {
+  Impl(*this).selection_path(nullptr, canvas, start, end);
 }
 
-void MathSequence::selection_path(Context *opt_context, Canvas *canvas, int start, int end) {
-  float x0, y0, x1, y1, x2, y2;
-//  const uint16_t *buf = str.buffer();
-
-  if(start > glyphs.length())
-    start = glyphs.length();
-  if(end > glyphs.length())
-    end = glyphs.length();
-    
-  canvas->current_pos(&x0, &y0);
-  
-  y0 -= lines[0].ascent;
-  y1 = y0;
-  
-  int startline = 0;
-  while(startline < lines.length() && start >= lines[startline].end) {
-    y1 += lines[startline].ascent + lines[startline].descent + line_spacing();
-    ++startline;
-  }
-  
-  if(startline == lines.length()) {
-    --startline;
-    y1 -= lines[startline].ascent + lines[startline].descent + line_spacing();
-  }
-  
-  y2 = y1;
-  int endline = startline;
-  while(endline < lines.length() && end > lines[endline].end) {
-    y2 += lines[endline].ascent + lines[endline].descent + line_spacing();
-    ++endline;
-  }
-  
-  if(endline == lines.length()) {
-    --endline;
-    y2 -= lines[endline].ascent + lines[endline].descent + line_spacing();
-  }
-  
-  x1 = x0;
-  if(start > 0)
-    x1 += glyphs[start - 1].right;
-    
-  if(startline > 0)
-    x1 -= glyphs[lines[startline - 1].end - 1].right;
-    
-  x1 += indention_width(lines[startline].indent);
-  
-  x2 = x0;
-  if(end > 0)
-    x2 += glyphs[end - 1].right;
-    
-  if(endline > 0)
-    x2 -= glyphs[lines[endline - 1].end - 1].right;
-    
-  x2 += indention_width(lines[endline].indent);
-  
-  if(endline == startline) {
-    float a = 0.5 * em;
-    float d = 0;
-    
-    if(opt_context) {
-      if(start == end) {
-        const uint16_t *buf = str.buffer();
-        int box = 0;
-        
-        for(int i = 0; i < start; ++i)
-          if(buf[i] == PMATH_CHAR_BOX)
-            ++box;
-            
-        Impl(*this).caret_size(opt_context, start, box, &a, &d);
-      }
-      else {
-        Impl(*this).boxes_size(
-          opt_context,
-          start,
-          end,
-          &a, &d);
-      }
-    }
-    else {
-      a = lines[startline].ascent;
-      d = lines[startline].descent;
-    }
-    
-    y1 += lines[startline].ascent;
-    y2 = y1 + d + 1;
-    y1 -= a + 1;
-    
-    if(start == end) {
-      canvas->align_point(&x1, &y1, true);
-      canvas->align_point(&x2, &y2, true);
-      
-      canvas->move_to(x1, y1);
-      canvas->line_to(x2, y2);
-    }
-    else
-      canvas->pixrect(x1, y1, x2, y2, false);
-  }
-  else {
-    y2 = y1;
-    for(int line = startline; line <= endline; ++line)
-      y2 += lines[line].ascent + lines[line].descent + line_spacing();
-    y2 -= line_spacing();
-    
-    /*    1----3
-          |    |
-      7---8    |
-      |      5-4
-      |      |
-      6------2
-     */
-    
-    float x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8;
-    
-    x3 = x4 = x0 + _extents.width;
-    x5 = x2;
-    x6 = x7 = x0;
-    x8 = x1;
-    
-    y3 = y1;
-    y4 = y5 = y2 - lines[endline].ascent - lines[endline].descent - line_spacing() / 2;
-    y6 = y2;
-    y7 = y8 = y1 + lines[startline].ascent + lines[startline].descent + line_spacing() / 2;
-    
-    canvas->align_point(&x1, &y1, false);
-    canvas->align_point(&x2, &y2, false);
-    canvas->align_point(&x3, &y3, false);
-    canvas->align_point(&x4, &y4, false);
-    canvas->align_point(&x5, &y5, false);
-    canvas->align_point(&x6, &y6, false);
-    canvas->align_point(&x7, &y7, false);
-    canvas->align_point(&x8, &y8, false);
-    
-    canvas->move_to(x1, y1);
-    canvas->line_to(x3, y3);
-    canvas->line_to(x4, y4);
-    canvas->line_to(x5, y5);
-    canvas->line_to(x2, y2);
-    canvas->line_to(x6, y6);
-    canvas->line_to(x7, y7);
-    canvas->line_to(x8, y8);
-    canvas->close_path();
-  }
+void MathSequence::selection_path(Context &context, int start, int end) { 
+  Impl(*this).selection_path(&context, context.canvas(), start, end); 
 }
 
 Expr MathSequence::to_pmath(BoxOutputFlags flags) {
@@ -1931,11 +1792,11 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   finish_load_from_object(std::move(object));
 }
 
-bool MathSequence::stretch_horizontal(Context *context, float width) {
+bool MathSequence::stretch_horizontal(Context &context, float width) {
   if(glyphs.length() != 1 || str[0] == PMATH_CHAR_BOX)
     return false;
     
-  if(context->math_shaper->horizontal_stretch_char(
+  if(context.math_shaper->horizontal_stretch_char(
         context,
         width,
         str[0],
@@ -1943,7 +1804,7 @@ bool MathSequence::stretch_horizontal(Context *context, float width) {
   {
     _extents.width = glyphs[0].right;
     _extents.ascent  = _extents.descent = -1e9;
-    context->math_shaper->vertical_glyph_size(
+    context.math_shaper->vertical_glyph_size(
       context, str[0], glyphs[0], &_extents.ascent, &_extents.descent);
     lines[0].ascent  = _extents.ascent;
     lines[0].descent = _extents.descent;
@@ -2240,7 +2101,7 @@ pmath_t MathSequence::Impl::remove_null_tokens(pmath_t boxes) {
 }
 
 
-void MathSequence::Impl::box_size(Context *context, int pos, int box, float *a, float *d) {
+void MathSequence::Impl::box_size(Context &context, int pos, int box, float *a, float *d) {
   if(pos >= 0 && pos < self.glyphs.length()) {
     const uint16_t *buf = self.str.buffer();
     if(buf[pos] == PMATH_CHAR_BOX) {
@@ -2250,14 +2111,14 @@ void MathSequence::Impl::box_size(Context *context, int pos, int box, float *a, 
       self.boxes[box]->extents().bigger_y(a, d);
     }
     else if(self.glyphs[pos].is_normal_text)
-      context->text_shaper->vertical_glyph_size(
+      context.text_shaper->vertical_glyph_size(
         context,
         buf[pos],
         self.glyphs[pos],
         a,
         d);
     else
-      context->math_shaper->vertical_glyph_size(
+      context.math_shaper->vertical_glyph_size(
         context,
         buf[pos],
         self.glyphs[pos],
@@ -2266,7 +2127,7 @@ void MathSequence::Impl::box_size(Context *context, int pos, int box, float *a, 
   }
 }
 
-void MathSequence::Impl::boxes_size(Context *context, int start, int end, float *a, float *d) {
+void MathSequence::Impl::boxes_size(Context &context, int start, int end, float *a, float *d) {
   int box = -1;
   const uint16_t *buf = self.str.buffer();
   for(int i = start; i < end; ++i) {
@@ -2279,7 +2140,7 @@ void MathSequence::Impl::boxes_size(Context *context, int start, int end, float 
       self.boxes[box++]->extents().bigger_y(a, d);
     }
     else if(self.glyphs[i].is_normal_text) {
-      context->text_shaper->vertical_glyph_size(
+      context.text_shaper->vertical_glyph_size(
         context,
         buf[i],
         self.glyphs[i],
@@ -2287,7 +2148,7 @@ void MathSequence::Impl::boxes_size(Context *context, int start, int end, float 
         d);
     }
     else {
-      context->math_shaper->vertical_glyph_size(
+      context.math_shaper->vertical_glyph_size(
         context,
         buf[i],
         self.glyphs[i],
@@ -2297,7 +2158,7 @@ void MathSequence::Impl::boxes_size(Context *context, int start, int end, float 
   }
 }
 
-void MathSequence::Impl::caret_size(Context *context, int pos, int box, float *a, float *d) {
+void MathSequence::Impl::caret_size(Context &context, int pos, int box, float *a, float *d) {
   if(self.glyphs.length() > 0) {
     box_size(context, pos - 1, box - 1, a, d);
     box_size(context, pos,     box,     a, d);
@@ -2309,7 +2170,7 @@ void MathSequence::Impl::caret_size(Context *context, int pos, int box, float *a
 }
 
 
-void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int *box) {
+void MathSequence::Impl::resize_span(Context &context, Span span, int *pos, int *box) {
   if(!span) {
     if(self.str[*pos] == PMATH_CHAR_BOX) {
       self.boxes[*box]->resize(context);
@@ -2330,15 +2191,15 @@ void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int 
       
     const uint16_t *buf = self.str.buffer();
     
-    if(context->math_spacing) {
-      context->math_shaper->decode_token(
+    if(context.math_spacing) {
+      context.math_shaper->decode_token(
         context,
         next - *pos,
         buf + *pos,
         self.glyphs.items() + *pos);
     }
     else {
-      context->text_shaper->decode_token(
+      context.text_shaper->decode_token(
         context,
         next - *pos,
         buf + *pos,
@@ -2349,7 +2210,7 @@ void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int 
           self.glyphs[i].is_normal_text = 1;
         }
         else {
-          context->math_shaper->decode_token(
+          context.math_shaper->decode_token(
             context,
             1,
             buf + i,
@@ -2365,28 +2226,28 @@ void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int 
   if(!span.next() && self.str[*pos] == '"') {
     const uint16_t *buf = self.str.buffer();
     int end = span.end();
-    if(!context->show_string_characters) {
+    if(!context.show_string_characters) {
       ++*pos;
       if(buf[end] == '"')
         --end;
     }
     else {
-      context->math_shaper->decode_token(
+      context.math_shaper->decode_token(
         context,
         1,
         buf + *pos,
         self.glyphs.items() + *pos);
         
       if(buf[end] == '"')
-        context->math_shaper->decode_token(
+        context.math_shaper->decode_token(
           context,
           1,
           buf + end,
           self.glyphs.items() + end);
     }
     
-    bool old_math_styling = context->math_spacing;
-    context->math_spacing = false;
+    bool old_math_styling = context.math_spacing;
+    context.math_spacing = false;
     
     while(*pos <= end) {
       if(buf[*pos] == PMATH_CHAR_BOX) {
@@ -2402,10 +2263,10 @@ void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int 
           ++next;
         ++next;
         
-        if(!context->show_string_characters && buf[*pos] == '\\')
+        if(!context.show_string_characters && buf[*pos] == '\\')
           ++*pos;
           
-        context->text_shaper->decode_token(
+        context.text_shaper->decode_token(
           context,
           next - *pos,
           buf + *pos,
@@ -2419,7 +2280,7 @@ void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int 
       }
     }
     
-    context->math_spacing = old_math_styling;
+    context.math_spacing = old_math_styling;
     
     *pos = span.end() + 1;
   }
@@ -2431,7 +2292,7 @@ void MathSequence::Impl::resize_span(Context *context, Span span, int *pos, int 
 }
 
 void MathSequence::Impl::stretch_span(
-  Context *context,
+  Context &context,
   Span     span,
   int     *pos,
   int     *box,
@@ -2483,13 +2344,13 @@ void MathSequence::Impl::stretch_span(
           if(ch == '{' && buf[*pos] == '}')
             full_stretch = false;
           
-          context->math_shaper->vertical_stretch_char(
+          context.math_shaper->vertical_stretch_char(
             context, new_ca, new_cd, full_stretch, buf[*pos], &self.glyphs[*pos]);
             
           ++*pos;
         }
         
-        context->math_shaper->vertical_stretch_char(
+        context.math_shaper->vertical_stretch_char(
           context, new_ca, new_cd, full_stretch, buf[start], &self.glyphs[start]);
           
         if(*ascent < a)
@@ -2536,7 +2397,7 @@ void MathSequence::Impl::stretch_span(
           
           assert(underover != 0);
           
-          context->math_shaper->vertical_stretch_char(
+          context.math_shaper->vertical_stretch_char(
             context,
             a,
             d,
@@ -2544,7 +2405,7 @@ void MathSequence::Impl::stretch_span(
             underover->base()->str[0],
             &underover->base()->glyphs[0]);
             
-          context->math_shaper->vertical_glyph_size(
+          context.math_shaper->vertical_glyph_size(
             context,
             underover->base()->str[0],
             underover->base()->glyphs[0],
@@ -2561,7 +2422,7 @@ void MathSequence::Impl::stretch_span(
           underover->extents().bigger_y(ascent, descent);
         }
         else {
-          context->math_shaper->vertical_stretch_char(
+          context.math_shaper->vertical_stretch_char(
             context,
             a,
             d,
@@ -2570,7 +2431,7 @@ void MathSequence::Impl::stretch_span(
             &self.glyphs[start]);
             
           BoxSize size;
-          context->math_shaper->vertical_glyph_size(
+          context.math_shaper->vertical_glyph_size(
             context,
             buf[start],
             self.glyphs[start],
@@ -2613,7 +2474,7 @@ void MathSequence::Impl::stretch_span(
       while(*pos <= span.end())
         stretch_span(context, self.spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
         
-      context->math_shaper->vertical_stretch_char(
+      context.math_shaper->vertical_stretch_char(
         context,
         *core_ascent  - 0.1 * self.em,
         *core_descent - 0.1 * self.em,
@@ -2622,7 +2483,7 @@ void MathSequence::Impl::stretch_span(
         &self.glyphs[start]);
         
       BoxSize size;
-      context->math_shaper->vertical_glyph_size(
+      context.math_shaper->vertical_glyph_size(
         context,
         buf[start],
         self.glyphs[start],
@@ -2655,13 +2516,13 @@ void MathSequence::Impl::stretch_span(
       float new_cd = cd + overhang_d;
       
       if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
-        context->math_shaper->vertical_stretch_char(
+        context.math_shaper->vertical_stretch_char(
           context, new_ca, new_cd, false, buf[*pos], &self.glyphs[*pos]);
           
         ++*pos;
       }
       
-      context->math_shaper->vertical_stretch_char(
+      context.math_shaper->vertical_stretch_char(
         context, new_ca, new_cd, false, buf[start], &self.glyphs[start]);
         
       if(*ascent < a)
@@ -2701,7 +2562,7 @@ void MathSequence::Impl::stretch_span(
       else {
         BoxSize size;
         
-        context->math_shaper->vertical_glyph_size(
+        context.math_shaper->vertical_glyph_size(
           context, buf[*pos - 1], self.glyphs[*pos - 1],
           &size.ascent, &size.descent);
           
@@ -2722,7 +2583,7 @@ void MathSequence::Impl::stretch_span(
         if( self.spans.is_operand_start(*pos) &&
             (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)))
         {
-          context->math_shaper->vertical_stretch_char(
+          context.math_shaper->vertical_stretch_char(
             context,
             0,
             0,
@@ -2730,7 +2591,7 @@ void MathSequence::Impl::stretch_span(
             underover->base()->str[0],
             &underover->base()->glyphs[0]);
             
-          context->math_shaper->vertical_glyph_size(
+          context.math_shaper->vertical_glyph_size(
             context,
             underover->base()->str[0],
             underover->base()->glyphs[0],
@@ -2760,7 +2621,7 @@ void MathSequence::Impl::stretch_span(
       self.length() > 1 &&
       (pmath_char_maybe_bigop(buf[*pos]) || pmath_char_is_integral(buf[*pos])))
   {
-    context->math_shaper->vertical_stretch_char(
+    context.math_shaper->vertical_stretch_char(
       context,
       0,
       0,
@@ -2769,7 +2630,7 @@ void MathSequence::Impl::stretch_span(
       &self.glyphs[*pos]);
       
     BoxSize size;
-    context->math_shaper->vertical_glyph_size(
+    context.math_shaper->vertical_glyph_size(
       context,
       buf[*pos],
       self.glyphs[*pos],
@@ -2784,7 +2645,7 @@ void MathSequence::Impl::stretch_span(
   }
   
   do {
-    context->math_shaper->vertical_glyph_size(
+    context.math_shaper->vertical_glyph_size(
       context, buf[*pos], self.glyphs[*pos], core_ascent, core_descent);
     ++*pos;
   } while(*pos < self.str.length() && !self.spans.is_token_end(*pos - 1));
@@ -2797,7 +2658,7 @@ void MathSequence::Impl::stretch_span(
 
 
 void MathSequence::Impl::substitute_glyphs(
-  Context              *context,
+  Context              &context,
   int                   start,
   int                   end,
   uint32_t              math_script_tag,
@@ -2840,12 +2701,12 @@ void MathSequence::Impl::substitute_glyphs(
     SharedPtr<TextShaper> shaper;
     
     if(self.glyphs[run_start].is_normal_text) {
-      shaper = context->text_shaper;
+      shaper = context.text_shaper;
       script_tag   = text_script_tag;
       language_tag = text_language_tag;
     }
     else {
-      shaper = context->math_shaper;
+      shaper = context.math_shaper;
       script_tag   = math_script_tag;
       language_tag = math_language_tag;
     }
@@ -2865,7 +2726,7 @@ void MathSequence::Impl::substitute_glyphs(
         &lookups);
         
       if(lookups.length() > 0) {
-        context->canvas->set_font_face(face);
+        context.canvas().set_font_face(face);
         
         static OTFontReshaper reshaper;
         
@@ -2916,7 +2777,7 @@ void MathSequence::Impl::substitute_glyphs(
           if(self.glyphs[pos].index != reshaper.glyphs[i]) {
             cg.index = self.glyphs[pos].index = reshaper.glyphs[i];
             
-            context->canvas->glyph_extents(&cg, 1, &cte);
+            context.canvas().glyph_extents(&cg, 1, &cte);
             cte.x_advance /= (next - pos);
             self.glyphs[pos].right = cte.x_advance;
             
@@ -2934,13 +2795,13 @@ void MathSequence::Impl::substitute_glyphs(
   }
 }
 
-void MathSequence::Impl::apply_glyph_substitutions(Context *context) {
-  if(context->fontfeatures.empty())
+void MathSequence::Impl::apply_glyph_substitutions(Context &context) {
+  if(context.fontfeatures.empty())
     return;
     
-  int old_ssty_feature_value = context->fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
+  int old_ssty_feature_value = context.fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
   if(old_ssty_feature_value < 0)
-    context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context->script_indent);
+    context.fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context.script_indent);
     
   /* TODO: infer script ("math") and language ("dflt") from style/context.
    */
@@ -2953,7 +2814,7 @@ void MathSequence::Impl::apply_glyph_substitutions(Context *context) {
     OTFontReshaper::LANG_dflt,
     OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
     OTFontReshaper::LANG_dflt,
-    context->fontfeatures);
+    context.fontfeatures);
     
   substitute_glyphs(
     context,
@@ -2963,9 +2824,9 @@ void MathSequence::Impl::apply_glyph_substitutions(Context *context) {
     OTFontReshaper::LANG_dflt,
     OTFontReshaper::SCRIPT_latn, //OTFontReshaper::SCRIPT_DFLT
     OTFontReshaper::LANG_dflt,
-    context->fontfeatures);
+    context.fontfeatures);
     
-  context->fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
+  context.fontfeatures.set_feature(FontFeatureSet::TAG_ssty, old_ssty_feature_value);
 }
 
 bool MathSequence::Impl::hstretch_lines( // return whether there was any height change
@@ -3420,13 +3281,13 @@ void MathSequence::Impl::new_line(int pos, unsigned int indent, bool continuatio
 }
 
 
-void MathSequence::Impl::split_lines(Context *context) {
+void MathSequence::Impl::split_lines(Context &context) {
   if(self.glyphs.length() == 0)
     return;
     
   const uint16_t *buf = self.str.buffer();
   
-  if(self.glyphs[self.glyphs.length() - 1].right <= context->width) {
+  if(self.glyphs[self.glyphs.length() - 1].right <= context.width) {
     bool have_newline = false;
     
     for(int i = 0; i < self.glyphs.length(); ++i)
@@ -3459,7 +3320,7 @@ void MathSequence::Impl::split_lines(Context *context) {
   if(buf[self.glyphs.length() - 1] != '\n')
     penalty_array[self.glyphs.length() - 1] = HUGE_VAL;
     
-  self._extents.width = context->width;
+  self._extents.width = context.width;
   for(int start_of_paragraph = 0; start_of_paragraph < self.glyphs.length();) {
     int end_of_paragraph = start_of_paragraph + 1;
     while(end_of_paragraph < self.glyphs.length()
@@ -3486,17 +3347,17 @@ void MathSequence::Impl::split_lines(Context *context) {
           penalty  += penalty_array[tp];
         }
         
-        if(xend - xstart + indention > context->width
+        if(xend - xstart + indention > context.width
             && i + 1 < current)
           break;
           
-        double best = context->width * BestLineWidth;
+        double best = context.width * BestLineWidth;
         if( pos + 1 < end_of_paragraph ||
             best < xend - xstart + indention)
         {
           double factor = 0;
-          if(context->width > 0)
-            factor = LineWidthFactor / context->width;
+          if(context.width > 0)
+            factor = LineWidthFactor / context.width;
           double rel_amplitude = ((xend - xstart + indention) - best) * factor;
           penalty += rel_amplitude * rel_amplitude;
         }
@@ -3560,7 +3421,7 @@ void MathSequence::Impl::split_lines(Context *context) {
         
         float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
         
-        if(filler->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context->width) {
+        if(filler->extents().width + w + self.indention_width(self.lines[line + 1].indent) <= context.width) {
           self.lines[line].end--;
         }
       }
@@ -3568,7 +3429,7 @@ void MathSequence::Impl::split_lines(Context *context) {
   }
 }
 
-void MathSequence::Impl::calculate_line_heights(Context *context) {
+void MathSequence::Impl::calculate_line_heights(Context &context) {
   const uint16_t *buf = self.str.buffer();
   int line = 0;
   int pos = 0;
@@ -3589,7 +3450,7 @@ void MathSequence::Impl::calculate_line_heights(Context *context) {
       ++box;
     }
     else if(self.glyphs[pos].is_normal_text) {
-      context->text_shaper->vertical_glyph_size(
+      context.text_shaper->vertical_glyph_size(
         context,
         buf[pos],
         self.glyphs[pos],
@@ -3597,7 +3458,7 @@ void MathSequence::Impl::calculate_line_heights(Context *context) {
         &self.lines[line].descent);
     }
     else {
-      context->math_shaper->vertical_glyph_size(
+      context.math_shaper->vertical_glyph_size(
         context,
         buf[pos],
         self.glyphs[pos],
@@ -3672,7 +3533,7 @@ void MathSequence::Impl::EnlargeSpace::run_text_space_characters() {
     switch(buf[i]) {
       case '\t':
         self.glyphs[i].index = 0;
-        self.glyphs[i].right = 4 * context->canvas->get_font_size();
+        self.glyphs[i].right = 4 * context.canvas().get_font_size();
         break;
     }
   }
@@ -3681,7 +3542,7 @@ void MathSequence::Impl::EnlargeSpace::run_text_space_characters() {
 void MathSequence::Impl::EnlargeSpace::run() {
   run_text_space_characters();
   
-  if(context->script_indent > 0 || !context->math_spacing)
+  if(context.script_indent > 0 || !context.math_spacing)
     return;
     
   int box = 0;
@@ -3885,7 +3746,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
           // implicit multiplication:
           if( buf[i] == ' '           &&
               e + 1 < self.glyphs.length() &&
-              last_was_factor && context->multiplication_sign)
+              last_was_factor && context.multiplication_sign)
           {
             pmath_token_t tok2 = pmath_token_analyse(buf + e + 1, 1, nullptr);
             
@@ -3896,15 +3757,15 @@ void MathSequence::Impl::EnlargeSpace::run() {
             }
             
             if(tok2 == PMATH_TOK_DIGIT || tok2 == PMATH_TOK_LEFTCALL) {
-              context->math_shaper->decode_token(
+              context.math_shaper->decode_token(
                 context,
                 1,
-                &context->multiplication_sign,
+                &context.multiplication_sign,
                 &self.glyphs[i]);
                 
               space_left = space_right = self.em * 3 / 18;
               
-              //if(context->show_auto_styles)
+              //if(context.show_auto_styles)
               self.glyphs[i].style = GlyphStyleImplicit;
             }
           }
@@ -4050,7 +3911,7 @@ bool MathSequence::Impl::EnlargeSpace::slant_is_italic(int glyph_slant) {
     case FontSlantItalic:
       return true;
   }
-  return context->math_shaper->get_style().italic;
+  return context.math_shaper->get_style().italic;
 }
 
 void MathSequence::Impl::EnlargeSpace::italic_correction(int token_end) {
@@ -4067,7 +3928,7 @@ void MathSequence::Impl::EnlargeSpace::italic_correction(int token_end) {
       buf[token_end + 1] == PMATH_CHAR_BOX ||
       pmath_char_is_integral(buf[token_end]))
   {
-    float ital_corr = context->math_shaper->italic_correction(
+    float ital_corr = context.math_shaper->italic_correction(
                         context,
                         buf[token_end],
                         self.glyphs[token_end]);
@@ -4104,10 +3965,10 @@ void MathSequence::Impl::EnlargeSpace::skip_subsuperscript(int &token_end, int &
 
 void MathSequence::Impl::EnlargeSpace::show_tab_character(int pos, bool in_string) {
   static uint16_t arrow = 0x21e2;//0x27F6;
-  float width = 4 * context->canvas->get_font_size();
+  float width = 4 * context.canvas().get_font_size();
   
-  if(context->show_auto_styles && !in_string) {
-    context->math_shaper->decode_token(
+  if(context.show_auto_styles && !in_string) {
+    context.math_shaper->decode_token(
       context,
       1,
       &arrow,
@@ -4249,6 +4110,151 @@ int MathSequence::Impl::EnlargeSpace::get_string_end(int pos) {
     if(!next)
       return span.end();
     span = next;
+  }
+}
+
+
+void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, int start, int end) {
+  float x0, y0, x1, y1, x2, y2;
+//  const uint16_t *buf = str.buffer();
+
+  if(start > self.glyphs.length())
+    start = self.glyphs.length();
+  if(end > self.glyphs.length())
+    end = self.glyphs.length();
+    
+  canvas.current_pos(&x0, &y0);
+  
+  y0 -= self.lines[0].ascent;
+  y1 = y0;
+  
+  int startline = 0;
+  while(startline < self.lines.length() && start >= self.lines[startline].end) {
+    y1 += self.lines[startline].ascent + self.lines[startline].descent + self.line_spacing();
+    ++startline;
+  }
+  
+  if(startline == self.lines.length()) {
+    --startline;
+    y1 -= self.lines[startline].ascent + self.lines[startline].descent + self.line_spacing();
+  }
+  
+  y2 = y1;
+  int endline = startline;
+  while(endline < self.lines.length() && end > self.lines[endline].end) {
+    y2 += self.lines[endline].ascent + self.lines[endline].descent + self.line_spacing();
+    ++endline;
+  }
+  
+  if(endline == self.lines.length()) {
+    --endline;
+    y2 -= self.lines[endline].ascent + self.lines[endline].descent + self.line_spacing();
+  }
+  
+  x1 = x0;
+  if(start > 0)
+    x1 += self.glyphs[start - 1].right;
+    
+  if(startline > 0)
+    x1 -= self.glyphs[self.lines[startline - 1].end - 1].right;
+    
+  x1 += self.indention_width(self.lines[startline].indent);
+  
+  x2 = x0;
+  if(end > 0)
+    x2 += self.glyphs[end - 1].right;
+    
+  if(endline > 0)
+    x2 -= self.glyphs[self.lines[endline - 1].end - 1].right;
+    
+  x2 += self.indention_width(self.lines[endline].indent);
+  
+  if(endline == startline) {
+    float a = 0.5 * self.em;
+    float d = 0;
+    
+    if(opt_context) {
+      if(start == end) {
+        const uint16_t *buf = self.str.buffer();
+        int box = 0;
+        
+        for(int i = 0; i < start; ++i)
+          if(buf[i] == PMATH_CHAR_BOX)
+            ++box;
+            
+        caret_size(*opt_context, start, box, &a, &d);
+      }
+      else {
+        boxes_size(
+          *opt_context,
+          start,
+          end,
+          &a, &d);
+      }
+    }
+    else {
+      a = self.lines[startline].ascent;
+      d = self.lines[startline].descent;
+    }
+    
+    y1 += self.lines[startline].ascent;
+    y2 = y1 + d + 1;
+    y1 -= a + 1;
+    
+    if(start == end) {
+      canvas.align_point(&x1, &y1, true);
+      canvas.align_point(&x2, &y2, true);
+      
+      canvas.move_to(x1, y1);
+      canvas.line_to(x2, y2);
+    }
+    else
+      canvas.pixrect(x1, y1, x2, y2, false);
+  }
+  else {
+    y2 = y1;
+    for(int line = startline; line <= endline; ++line)
+      y2 += self.lines[line].ascent + self.lines[line].descent + self.line_spacing();
+    y2 -= self.line_spacing();
+    
+    /*    1----3
+          |    |
+      7---8    |
+      |      5-4
+      |      |
+      6------2
+     */
+    
+    float x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8;
+    
+    x3 = x4 = x0 + self._extents.width;
+    x5 = x2;
+    x6 = x7 = x0;
+    x8 = x1;
+    
+    y3 = y1;
+    y4 = y5 = y2 - self.lines[endline].ascent - self.lines[endline].descent - self.line_spacing() / 2;
+    y6 = y2;
+    y7 = y8 = y1 + self.lines[startline].ascent + self.lines[startline].descent + self.line_spacing() / 2;
+    
+    canvas.align_point(&x1, &y1, false);
+    canvas.align_point(&x2, &y2, false);
+    canvas.align_point(&x3, &y3, false);
+    canvas.align_point(&x4, &y4, false);
+    canvas.align_point(&x5, &y5, false);
+    canvas.align_point(&x6, &y6, false);
+    canvas.align_point(&x7, &y7, false);
+    canvas.align_point(&x8, &y8, false);
+    
+    canvas.move_to(x1, y1);
+    canvas.line_to(x3, y3);
+    canvas.line_to(x4, y4);
+    canvas.line_to(x5, y5);
+    canvas.line_to(x2, y2);
+    canvas.line_to(x6, y6);
+    canvas.line_to(x7, y7);
+    canvas.line_to(x8, y8);
+    canvas.close_path();
   }
 }
 

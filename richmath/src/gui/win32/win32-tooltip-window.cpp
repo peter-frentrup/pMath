@@ -136,7 +136,7 @@ int Win32TooltipWindow::dpi() {
 void Win32TooltipWindow::resize(bool just_move) {
   if(!just_move) {
     BoxRadius radii;
-    ControlPainter::std->calc_container_radii(this, TooltipWindow, &radii);
+    ControlPainter::std->calc_container_radii(*this, TooltipWindow, &radii);
     float xrad = std::min(std::min(radii.top_left_x, radii.top_right_x), std::min(radii.bottom_left_x, radii.bottom_right_x));
     float yrad = std::min(std::min(radii.top_left_y, radii.top_right_y), std::min(radii.bottom_left_y, radii.bottom_right_y));
     
@@ -188,7 +188,7 @@ void Win32TooltipWindow::resize(bool just_move) {
                just_move ? SWP_NOSIZE | SWP_NOACTIVATE : SWP_NOZORDER | SWP_NOACTIVATE);
 }
 
-void Win32TooltipWindow::paint_canvas(Canvas *canvas, bool resize_only) {
+void Win32TooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   Win32Widget::paint_canvas(canvas, resize_only);
   
   int old_bh = best_height;

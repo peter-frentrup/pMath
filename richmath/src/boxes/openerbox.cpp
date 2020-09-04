@@ -52,7 +52,7 @@ bool OpenerBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void OpenerBox::paint(Context *context) {
+void OpenerBox::paint(Context &context) {
   if(must_update) {
     must_update = false;
     

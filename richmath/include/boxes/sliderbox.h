@@ -21,10 +21,10 @@ namespace richmath {
       virtual int count() override { return 0; }
       virtual int length() override { return 0; }
       
-      virtual ControlState calc_state(Context *context) override;
+      virtual ControlState calc_state(Context &context) override;
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override;

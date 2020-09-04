@@ -9,7 +9,7 @@ namespace richmath {
     public:
       AbstractTransformationBox();
       
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
@@ -20,7 +20,7 @@ namespace richmath {
       const cairo_matrix_t &cairo_matrix() { return mat; }
       
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
     
     protected:
       cairo_matrix_t mat;
@@ -36,7 +36,7 @@ namespace richmath {
       Expr angle() { return _angle; }
       bool angle(Expr a);
       
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -55,7 +55,7 @@ namespace richmath {
       Expr matrix() { return _matrix; }
       bool matrix(Expr m);
       
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;

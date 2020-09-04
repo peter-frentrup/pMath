@@ -24,53 +24,53 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
   reset_style(); // caution: this does not call the derived reset_style(), but our implementation below
 }
 
-ControlState ContainerWidgetBox::calc_state(Context *context) {
+ControlState ContainerWidgetBox::calc_state(Context &context) {
   if(!enabled())
     return Disabled;
   
-  if(context->selection.id == id() && context->active)
+  if(context.selection.id == id() && context.active)
     return Pressed;
     
-  if(context->clicked_box_id == id() && mouse_left_down) {
+  if(context.clicked_box_id == id() && mouse_left_down) {
     if(mouse_inside)
       return PressedHovered;
       
     return Pressed;
   }
   
-  Box *mo = FrontEndObject::find_cast<Box>(context->mouseover_box_id);
+  Box *mo = FrontEndObject::find_cast<Box>(context.mouseover_box_id);
   if(mo && mo->mouse_sensitive() == this)
     return Hovered;
     
   return Normal;
 }
 
-void ContainerWidgetBox::resize_default_baseline(Context *context) {
+void ContainerWidgetBox::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
   
   ControlPainter::std->calc_container_size(
-    this,
-    context->canvas,
+    *this,
+    context.canvas(),
     type,
     &_extents);
     
   cx = (_extents.width - _content->extents().width) / 2;
 }
 
-void ContainerWidgetBox::paint(Context *context) {
+void ContainerWidgetBox::paint(Context &context) {
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
   Rectangle rect = _extents.to_rectangle(Point(x, y));
   ControlState state = calc_state(context);
   
-  if(animation && !animation->is_compatible(context->canvas, rect.width, rect.height)) 
+  if(animation && !animation->is_compatible(context.canvas(), rect.width, rect.height)) 
     animation = nullptr;
   
   if(state != old_state || !animation) {
     animation = ControlPainter::std->control_transition(
                   id(),
-                  context->canvas,
+                  context.canvas(),
                   type,
                   type,
                   old_state,
@@ -86,13 +86,13 @@ void ContainerWidgetBox::paint(Context *context) {
   bool need_bg = true;
   if(animation) {
     animation->update(this);
-    if(animation->paint(context->canvas)) {
+    if(animation->paint(context.canvas())) {
       need_bg = false;
     }
     else {
       animation = ControlPainter::std->control_transition(
                     id(),
-                    context->canvas,
+                    context.canvas(),
                     type,
                     type,
                     old_state,
@@ -104,12 +104,12 @@ void ContainerWidgetBox::paint(Context *context) {
     }
   }
   
-  bool very_transparent = ControlPainter::std->is_very_transparent(this, type, state);
+  bool very_transparent = ControlPainter::std->is_very_transparent(*this, type, state);
   
   if(need_bg) {
     ControlPainter::std->draw_container(
-      this,
-      context->canvas,
+      *this,
+      context.canvas(),
       type,
       state,
       rect.x,
@@ -120,38 +120,38 @@ void ContainerWidgetBox::paint(Context *context) {
   
   float x2 = x;
   float y2 = y;
-  ControlPainter::std->container_content_move(this, type, state, &x2, &y2);
+  ControlPainter::std->container_content_move(*this, type, state, &x2, &y2);
     
-  context->canvas->move_to(x2, y2);
+  context.canvas().move_to(x2, y2);
   
-  Color old_cursor_color = context->cursor_color;
-  Color old_color        = context->canvas->get_color();
-  if(Color c = ControlPainter::std->control_font_color(this, type, state)) {
-    context->canvas->set_color(c);
-    context->cursor_color = c;
+  Color old_cursor_color = context.cursor_color;
+  Color old_color        = context.canvas().get_color();
+  if(Color c = ControlPainter::std->control_font_color(*this, type, state)) {
+    context.canvas().set_color(c);
+    context.cursor_color = c;
   }
   
-  if(very_transparent || !context->canvas->show_only_text)
+  if(very_transparent || !context.canvas().show_only_text)
     base::paint(context);
     
   if(type == FramelessButton && state == PressedHovered) {
-    context->canvas->save();
+    context.canvas().save();
     {
     /* Workaround for Cairo/win32 1.10.0 bug (fixed in 1.12.0?):
        Fill with CAIRO_OPERATOR_DIFFERENCE crshes the simple rectangle fast path
      */
-      rect.add_round_rect_path(*context->canvas, BoxRadius(0.75));
-      //rect.add_rect_path(*context->canvas);
+      rect.add_round_rect_path(context.canvas(), BoxRadius(0.75));
+      //rect.add_rect_path(context.canvas());
       
-      cairo_set_operator(context->canvas->cairo(), CAIRO_OPERATOR_DIFFERENCE);
-      context->canvas->set_color(Color::White);
-      context->canvas->fill();
+      cairo_set_operator(context.canvas().cairo(), CAIRO_OPERATOR_DIFFERENCE);
+      context.canvas().set_color(Color::White);
+      context.canvas().fill();
     }
-    context->canvas->restore();
+    context.canvas().restore();
   }
   
-  context->canvas->set_color(old_color);
-  context->cursor_color = old_cursor_color;
+  context.canvas().set_color(old_color);
+  context.cursor_color = old_cursor_color;
 }
 
 void ContainerWidgetBox::reset_style() {
@@ -159,7 +159,7 @@ void ContainerWidgetBox::reset_style() {
 }
 
 void ContainerWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(this, type) && enabled())
+  if(!mouse_inside && ControlPainter::std->container_hover_repaint(*this, type) && enabled())
     request_repaint_all();
     
   mouse_inside = true;
@@ -167,7 +167,7 @@ void ContainerWidgetBox::on_mouse_enter() {
 }
 
 void ContainerWidgetBox::on_mouse_exit() {
-  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(this, type) && enabled())
+  if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(*this, type) && enabled())
     request_repaint_all();
     
   mouse_inside = false;

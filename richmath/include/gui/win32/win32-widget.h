@@ -124,8 +124,8 @@ namespace richmath {
       ComBase<IRealTimeStylus> stylus;
       
     protected:
-      virtual void paint_background(Canvas *canvas);
-      virtual void paint_canvas(Canvas *canvas, bool resize_only);
+      virtual void paint_background(Canvas &canvas);
+      virtual void paint_canvas(Canvas &canvas, bool resize_only);
       virtual void on_changed_dark_mode();
       
       virtual void on_paint(HDC dc, bool from_wmpaint);

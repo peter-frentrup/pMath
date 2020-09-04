@@ -108,9 +108,8 @@ void PaintHookManager::add(Box *box, SharedPtr<PaintHook> hook) {
   return;
 }
 
-void PaintHookManager::run(Box *box, Context *context) {
+void PaintHookManager::run(Box *box, Context &context) {
   HOOK_ASSERT(box);
-  HOOK_ASSERT(context);
   
   Entry<Box *, PaintHookList> *entry = _hooks.search_entry(box);
   if(!entry)
@@ -118,14 +117,14 @@ void PaintHookManager::run(Box *box, Context *context) {
     
   PaintHookList &hook_list = entry->value;
   float x0, y0;
-  context->canvas->current_pos(&x0, &y0);
+  context.canvas().current_pos(&x0, &y0);
   
-  context->canvas->save();
+  context.canvas().save();
   for(auto hook = hook_list.pop(); hook.is_valid(); hook = hook_list.pop()) {
     hook->run(box, context);
-    context->canvas->move_to(x0, y0);
+    context.canvas().move_to(x0, y0);
   }
-  context->canvas->restore();
+  context.canvas().restore();
   
   _hooks.remove(box);
 }
@@ -165,21 +164,21 @@ SelectionFillHook::SelectionFillHook(int _start, int _end, Color _color, float _
 {
 }
 
-void SelectionFillHook::run(Box *box, Context *context) {
-  context->canvas->save();
+void SelectionFillHook::run(Box *box, Context &context) {
+  context.canvas().save();
   
   if(MathSequence *mseq = dynamic_cast<MathSequence*>(box))
-    mseq->selection_path(context, context->canvas, start, end);
+    mseq->selection_path(context, start, end);
   else
-    box->selection_path(context->canvas, start, end);
+    box->selection_path(context.canvas(), start, end);
     
-  Color old_c = context->canvas->get_color();
-  context->canvas->set_color(color, alpha);
+  Color old_c = context.canvas().get_color();
+  context.canvas().set_color(color, alpha);
   
-  context->canvas->fill();
+  context.canvas().fill();
   
-  context->canvas->set_color(old_c);
-  context->canvas->restore();
+  context.canvas().set_color(old_c);
+  context.canvas().restore();
 }
 
 //} ... class SelectionFillHook

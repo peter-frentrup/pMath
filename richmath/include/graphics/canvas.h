@@ -143,18 +143,18 @@ namespace richmath {
   
   class CanvasAutoSave {
     public:
-      CanvasAutoSave(Canvas *_canvas)
-      : canvas(_canvas) 
+      CanvasAutoSave(Canvas &canvas)
+        : canvas(canvas) 
       {
-        canvas->save();
+        canvas.save();
       }
       
       ~CanvasAutoSave() {
-        canvas->restore();
+        canvas.restore();
       }
     
     private:
-      Canvas *canvas;
+      Canvas &canvas;
   };
   
   typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;

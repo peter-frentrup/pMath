@@ -41,11 +41,11 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   return true;
 }
 
-void FrameBox::resize_default_baseline(Context *context) {
-  em = context->canvas->get_font_size();
+void FrameBox::resize_default_baseline(Context &context) {
+  em = context.canvas().get_font_size();
   
-  float old_width = context->width;
-  context->width -= em * 0.5f;
+  float old_width = context.width;
+  context.width -= em * 0.5f;
   
   OwnerBox::resize_default_baseline(context);
   
@@ -61,31 +61,31 @@ void FrameBox::resize_default_baseline(Context *context) {
   if(_extents.descent < em * 0.4f)
     _extents.descent = em * 0.4f;
     
-  context->width = old_width;
+  context.width = old_width;
 }
 
-void FrameBox::paint(Context *context) {
+void FrameBox::paint(Context &context) {
   update_dynamic_styles(context);
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
   Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
   BoxRadius radii;
   
   Expr expr;
-  if(context->stylesheet->get(style, BorderRadius, &expr)) {
+  if(context.stylesheet->get(style, BorderRadius, &expr)) {
     radii = BoxRadius(expr);
   }
   
   rect.normalize();
-  rect.pixel_align(*context->canvas, false, +1);
+  rect.pixel_align(context.canvas(), false, +1);
   
   radii.normalize(rect.width, rect.height);
-  rect.add_round_rect_path(*context->canvas, radii, false);
+  rect.add_round_rect_path(context.canvas(), radii, false);
   
   Point delta(-0.1f * em, -0.1f * em);
-  delta.pixel_align_distance(*context->canvas);
+  delta.pixel_align_distance(context.canvas());
   
   rect.grow(delta);
   rect.normalize_to_zero();
@@ -93,14 +93,14 @@ void FrameBox::paint(Context *context) {
   radii += BoxRadius(delta.x, delta.y);
   radii.normalize(rect.width, rect.height);
   
-  rect.add_round_rect_path(*context->canvas, radii, true);
+  rect.add_round_rect_path(context.canvas(), radii, true);
   
-  bool sot = context->canvas->show_only_text;
-  context->canvas->show_only_text = false;
-  context->canvas->fill();
-  context->canvas->show_only_text = sot;
+  bool sot = context.canvas().show_only_text;
+  context.canvas().show_only_text = false;
+  context.canvas().fill();
+  context.canvas().show_only_text = sot;
   
-  context->canvas->move_to(x, y);
+  context.canvas().move_to(x, y);
   OwnerBox::paint(context);
   //paint_content(context);
 }

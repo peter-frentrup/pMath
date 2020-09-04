@@ -61,25 +61,25 @@ Box *FractionBox::item(int i) {
   return _denominator;
 }
 
-void FractionBox::resize(Context *context) {
-  float old_width         = context->width;
-  float old_fs            = context->canvas->get_font_size();
-  int   old_script_indent = context->script_indent;
+void FractionBox::resize(Context &context) {
+  float old_width         = context.width;
+  float old_fs            = context.canvas().get_font_size();
+  int   old_script_indent = context.script_indent;
   
-  if(context->smaller_fraction_parts) {
-    context->script_indent++;
+  if(context.smaller_fraction_parts) {
+    context.script_indent++;
   }
   
-  context->canvas->set_font_size(context->get_script_size(old_fs));
+  context.canvas().set_font_size(context.get_script_size(old_fs));
   
-  context->width = HUGE_VAL;
+  context.width = HUGE_VAL;
   _numerator->resize(context);
   _denominator->resize(context);
-  context->width = old_width;
+  context.width = old_width;
   
-  context->canvas->set_font_size(old_fs);
+  context.canvas().set_font_size(old_fs);
   
-  context->math_shaper->shape_fraction(
+  context.math_shaper->shape_fraction(
     context,
     _numerator->extents(),
     _denominator->extents(),
@@ -90,33 +90,33 @@ void FractionBox::resize(Context *context) {
   _extents.ascent  = _numerator->extents().ascent    - num_y;
   _extents.descent = _denominator->extents().descent + den_y;
   
-  context->script_indent = old_script_indent;
+  context.script_indent = old_script_indent;
 }
 
-void FractionBox::paint(Context *context) {
+void FractionBox::paint(Context &context) {
   update_dynamic_styles(context);
   
-  float old_fs = context->canvas->get_font_size();
+  float old_fs = context.canvas().get_font_size();
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  context->math_shaper->show_fraction(context, _extents.width);
+  context.math_shaper->show_fraction(context, _extents.width);
   
-  context->canvas->move_to(
+  context.canvas().move_to(
     x + (_extents.width - _numerator->extents().width) / 2,
     y + num_y);
     
-  context->canvas->set_font_size(_numerator->get_em());
+  context.canvas().set_font_size(_numerator->get_em());
   _numerator->paint(context);
   
-  context->canvas->move_to(
+  context.canvas().move_to(
     x + (_extents.width - _denominator->extents().width) / 2,
     y + den_y);
     
-  context->canvas->set_font_size(_denominator->get_em());
+  context.canvas().set_font_size(_denominator->get_em());
   _denominator->paint(context);
   
-  context->canvas->set_font_size(old_fs);
+  context.canvas().set_font_size(old_fs);
 }
 
 Box *FractionBox::remove(int *index) {

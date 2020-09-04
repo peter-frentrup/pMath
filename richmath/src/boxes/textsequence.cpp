@@ -197,22 +197,22 @@ class PangoContextUtil {
       return layout;
     }
     
-    static void update(PangoContext *pango, Context *ctx) {
-      pango_cairo_update_context(ctx->canvas->cairo(), pango);
+    static void update(PangoContext *pango, Context &ctx) {
+      pango_cairo_update_context(ctx.canvas().cairo(), pango);
       
       pango_cairo_context_set_shape_renderer(
         pango,
         box_shape_renderer,
-        ctx,
+        &ctx,
         0);
         
       PangoFontDescription *desc = pango_font_description_new();
-      String name     = ctx->text_shaper->font_name(0);
-      FontStyle style = ctx->text_shaper->get_style();
+      String name     = ctx.text_shaper->font_name(0);
+      FontStyle style = ctx.text_shaper->get_style();
       
-      int num_fonts = ctx->text_shaper->num_fonts();
+      int num_fonts = ctx.text_shaper->num_fonts();
       for(int i = 1; i < num_fonts; ++i) {
-        String fn = ctx->text_shaper->font_name(i);
+        String fn = ctx.text_shaper->font_name(i);
         
         name += ",";
         name += fn;
@@ -222,7 +222,7 @@ class PangoContextUtil {
       if(utf8_name)
         pango_font_description_set_family_static(desc, utf8_name);
         
-      pango_font_description_set_absolute_size(desc, ctx->canvas->get_font_size() * PANGO_SCALE);
+      pango_font_description_set_absolute_size(desc, ctx.canvas().get_font_size() * PANGO_SCALE);
       pango_font_description_set_style(        desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
       pango_font_description_set_weight(       desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
       
@@ -233,14 +233,13 @@ class PangoContextUtil {
     };
     
     static void box_shape_renderer(cairo_t *cr, PangoAttrShape *shape, gboolean do_path, void *data) {
-      Context *ctx = (Context *)data;
+      Context &ctx = *(Context *)data;
       Box     *box = (Box *)shape->data;
       
-      assert(ctx != 0);
-      assert(box != 0);
-      assert(ctx->canvas->cairo() == cr);
+      assert(box != nullptr);
+      assert(ctx.canvas().cairo() == cr);
       
-      ctx->canvas->rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
+      ctx.canvas().rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
       box->paint(ctx);
     }
 };
@@ -310,8 +309,8 @@ bool TextSequence::is_placeholder(int i) {
   return ch == PMATH_CHAR_PLACEHOLDER || ch == PMATH_CHAR_SELECTIONPLACEHOLDER;
 }
 
-void TextSequence::resize(Context *context) {
-  em = context->canvas->get_font_size();
+void TextSequence::resize(Context &context) {
+  em = context.canvas().get_font_size();
   
   PangoTabArray *tabs = pango_tab_array_new(1, FALSE);
   pango_tab_array_set_tab(tabs, 0, PANGO_TAB_LEFT, pango_units_from_double(72 / 2.54)); // 1cm
@@ -329,8 +328,8 @@ void TextSequence::resize(Context *context) {
   PangoContextUtil::update(pango, context);
   pango_layout_context_changed(_layout);
   
-  if(context->width < Infinity) {
-    int w = pango_units_from_double(context->width);
+  if(context.width < Infinity) {
+    int w = pango_units_from_double(context.width);
     if(w < 0)
       w = 0;
     pango_layout_set_width(_layout, w);
@@ -381,12 +380,12 @@ void TextSequence::resize(Context *context) {
   _extents.ascent  = pango_units_to_double(pango_layout_get_baseline(_layout) - line_y_corrections[0]);
   _extents.descent = pango_units_to_double(rect.height - corr) - _extents.ascent;
   
-  context->sequence_unfilled_width = _extents.width;
+  context.sequence_unfilled_width = _extents.width;
 }
 
-void TextSequence::paint(Context *context) {
+void TextSequence::paint(Context &context) {
   float x0, y0;
-  context->canvas->current_pos(&x0, &y0);
+  context.canvas().current_pos(&x0, &y0);
   ensure_text_valid();
   
   AutoCallPaintHooks auto_hooks(this, context);
@@ -395,7 +394,7 @@ void TextSequence::paint(Context *context) {
   
   y0 -= _extents.ascent;
   double clip_x1, clip_y1, clip_x2, clip_y2;
-  context->canvas->clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
+  context.canvas().clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
     
   int cl_y1 = pango_units_from_double(clip_y1 - y0);
   int cl_y2 = pango_units_from_double(clip_y2 - y0);
@@ -427,12 +426,12 @@ void TextSequence::paint(Context *context) {
     if(rect.y + rect.height >= cl_y1) {
       int base = pango_layout_iter_get_baseline(iter) - line_y_corrections[line];
       
-      context->canvas->move_to(
+      context.canvas().move_to(
         x0,
         y0 + pango_units_to_double(base));
         
       pango_cairo_show_layout_line(
-        context->canvas->cairo(),
+        context.canvas().cairo(),
         pango_layout_iter_get_line_readonly(iter));
     }
     
@@ -440,21 +439,21 @@ void TextSequence::paint(Context *context) {
   } while(pango_layout_iter_next_line(iter));
   pango_layout_iter_free(iter);
   
-  if(context->selection.get() == this && !context->canvas->show_only_text) {
-    context->canvas->move_to(x0, y0 + _extents.ascent);
+  if(context.selection.get() == this && !context.canvas().show_only_text) {
+    context.canvas().move_to(x0, y0 + _extents.ascent);
     
     selection_path(
-      context->canvas,
-      context->selection.start,
-      context->selection.end);
+      context.canvas(),
+      context.selection.start,
+      context.selection.end);
       
-    context->draw_selection_path();
+    context.draw_selection_path();
   }
 }
 
-void TextSequence::selection_path(Canvas *canvas, int start, int end) {
+void TextSequence::selection_path(Canvas &canvas, int start, int end) {
   float x0, y0;
-  canvas->current_pos(&x0, &y0);
+  canvas.current_pos(&x0, &y0);
   
   ensure_text_valid();
   
@@ -473,11 +472,11 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
     float x2 = x1;
     float y2 = y0 + y + size.descent + 0.75;
     
-    canvas->align_point(&x1, &y1, true);
-    canvas->align_point(&x2, &y2, true);
+    canvas.align_point(&x1, &y1, true);
+    canvas.align_point(&x2, &y2, true);
     
-    canvas->move_to(x1, y1);
-    canvas->line_to(x2, y2);
+    canvas.move_to(x1, y1);
+    canvas.line_to(x2, y2);
   }
   else {
     float last_bottom = 0;
@@ -525,10 +524,10 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
           
           Rectangle rect(x0 + x, last_bottom, _extents.width - x, y0 + y - size.ascent - last_bottom);
           rect.normalize();
-          rect.pixel_align(  *canvas, false, 0);
-          rect.add_rect_path(*canvas, false);
+          rect.pixel_align(  canvas, false, 0);
+          rect.add_rect_path(canvas, false);
           
-          //canvas->pixrect(
+          //canvas.pixrect(
           //  x0 + x,
           //  last_bottom,
           //  x0 + _extents.width,
@@ -547,10 +546,10 @@ void TextSequence::selection_path(Canvas *canvas, int start, int end) {
             Point(x0 + pango_units_to_double(xranges[2 * i + 1]),
                   last_bottom));
                   
-          rect.pixel_align(  *canvas, false, 0);
-          rect.add_rect_path(*canvas, false);
+          rect.pixel_align(  canvas, false, 0);
+          rect.add_rect_path(canvas, false);
           
-          //canvas->pixrect(
+          //canvas.pixrect(
           //  x0 + pango_units_to_double(xranges[2 * i]),
           //  y0 + y - size.ascent,
           //  x0 + pango_units_to_double(xranges[2 * i + 1]),

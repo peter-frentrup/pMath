@@ -92,7 +92,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void DynamicBox::resize_default_baseline(Context *context) {
+void DynamicBox::resize_default_baseline(Context &context) {
   AbstractDynamicBox::resize_default_baseline(context);
   must_resize = false;
   
@@ -105,12 +105,12 @@ void DynamicBox::resize_default_baseline(Context *context) {
   }
 }
 
-void DynamicBox::paint_content(Context *context) {
+void DynamicBox::paint_content(Context &context) {
   if(must_resize) {
-    context->canvas->save();
+    context.canvas().save();
     AbstractDynamicBox::resize(context);
     must_resize = false;
-    context->canvas->restore();
+    context.canvas().restore();
   }
   
   AbstractDynamicBox::paint_content(context);
@@ -172,7 +172,7 @@ void DynamicBox::dynamic_finished(Expr info, Expr result) {
   invalidate();
 }
 
-bool DynamicBox::edit_selection(Context *context) {
+bool DynamicBox::edit_selection(Context &context) {
   if(get_own_style(Editable, false)) {
     if(_parent)
       return _parent->edit_selection(context);

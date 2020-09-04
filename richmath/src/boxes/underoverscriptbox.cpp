@@ -136,18 +136,18 @@ int UnderoverscriptBox::count() {
   return 1 + (_underscript ? 1 : 0) + (_overscript ? 1 : 0);
 }
 
-void UnderoverscriptBox::resize(Context *context) {
-  float old_w = context->width;
-  context->width = HUGE_VAL;
+void UnderoverscriptBox::resize(Context &context) {
+  float old_w = context.width;
+  context.width = HUGE_VAL;
   
   _base->resize(context);
   
-  int old_script_indent = context->script_indent;
-  float old_fs = context->canvas->get_font_size();
+  int old_script_indent = context.script_indent;
+  float old_fs = context.canvas().get_font_size();
   
-  context->script_indent++;
-  float em = context->get_script_size(old_fs);
-  context->canvas->set_font_size(em);
+  context.script_indent++;
+  float em = context.get_script_size(old_fs);
+  context.canvas().set_font_size(em);
   
   float w = 0;
   
@@ -172,8 +172,8 @@ void UnderoverscriptBox::resize(Context *context) {
       w = _overscript->extents().width;
   }
   
-  context->canvas->set_font_size(old_fs);
-  context->width = old_w;
+  context.canvas().set_font_size(old_fs);
+  context.width = old_w;
   
   if( !_underscript_is_stretched &&
       !_overscript_is_stretched &&
@@ -193,12 +193,12 @@ void UnderoverscriptBox::resize(Context *context) {
     _base->stretch_horizontal(context, w + 0.6f * em);
   }
   
-  context->script_indent = old_script_indent;
+  context.script_indent = old_script_indent;
   after_items_resize(context);
 }
 
-void UnderoverscriptBox::after_items_resize(Context *context) {
-  context->math_shaper->accent_positions(
+void UnderoverscriptBox::after_items_resize(Context &context) {
+  context.math_shaper->accent_positions(
     context,
     _base,
     _underscript,
@@ -240,32 +240,32 @@ void UnderoverscriptBox::colorize_scope(SyntaxState *state) {
     _overscript->colorize_scope(state);
 }
 
-void UnderoverscriptBox::paint(Context *context) {
+void UnderoverscriptBox::paint(Context &context) {
   update_dynamic_styles(context);
     
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  context->canvas->move_to(x + base_x, y);
+  context.canvas().move_to(x + base_x, y);
   _base->paint(context);
   
-  float old_fs = context->canvas->get_font_size();
+  float old_fs = context.canvas().get_font_size();
   
   if(_underscript) {
-    context->canvas->move_to(x + under_x, y + under_y);
+    context.canvas().move_to(x + under_x, y + under_y);
     
-    context->canvas->set_font_size(_underscript->font_size());
+    context.canvas().set_font_size(_underscript->font_size());
     _underscript->paint(context);
   }
   
   if(_overscript) {
-    context->canvas->move_to(x + over_x, y + over_y);
+    context.canvas().move_to(x + over_x, y + over_y);
     
-    context->canvas->set_font_size(_overscript->font_size());
+    context.canvas().set_font_size(_overscript->font_size());
     _overscript->paint(context);
   }
   
-  context->canvas->set_font_size(old_fs);
+  context.canvas().set_font_size(old_fs);
 }
 
 Box *UnderoverscriptBox::remove(int *index) {

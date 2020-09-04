@@ -46,7 +46,7 @@ WindowsFontShaper::~WindowsFontShaper() {
 }
 
 void WindowsFontShaper::decode_token(
-  Context        *context,
+  Context        &context,
   int             len,
   const uint16_t *str,
   GlyphInfo      *result
@@ -59,10 +59,10 @@ void WindowsFontShaper::decode_token(
   
   SaveDC(dc.handle);
   
-  context->canvas->set_font_face(_font);
+  context.canvas().set_font_face(_font);
   
   cairo_win32_scaled_font_select_font(
-    cairo_get_scaled_font(context->canvas->cairo()),
+    cairo_get_scaled_font(context.canvas().cairo()),
     dc.handle);
     
   GetGlyphIndicesW(
@@ -115,7 +115,7 @@ void WindowsFontShaper::decode_token(
         {
           result[i].index = cg.index = out_glyphs[0];
           
-          context->canvas->glyph_extents(&cg, 1, &cte);
+          context.canvas().glyph_extents(&cg, 1, &cte);
           result[i].right = cte.x_advance;
           
           result[i + 1].index = 0;
@@ -150,7 +150,7 @@ void WindowsFontShaper::decode_token(
       result[i].right = 0;
     }
     else {
-      context->canvas->glyph_extents(&cg, 1, &cte);
+      context.canvas().glyph_extents(&cg, 1, &cte);
       result[i].right = cte.x_advance;
     }
   }

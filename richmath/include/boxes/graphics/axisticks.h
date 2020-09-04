@@ -24,8 +24,8 @@ namespace richmath {
       
       bool is_visible(double t);
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
       void calc_bounds(float *x1, float *y1, float *x2, float *y2);
       BoxSize all_labels_extents();
@@ -51,7 +51,7 @@ namespace richmath {
     protected:
       void set_count(int new_count);
       
-      void draw_tick(Canvas *canvas, float x, float y, float length);
+      void draw_tick(Canvas &canvas, float x, float y, float length);
       
       void get_label_center(
         double  t,

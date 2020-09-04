@@ -91,7 +91,7 @@ namespace richmath {
     
     pmath::Expr to_pmath(BoxOutputFlags flags) const;
     
-    void add_path(Canvas *canvas);
+    void add_path(Canvas &canvas);
     
     void expand();
     void expand_to_parent();

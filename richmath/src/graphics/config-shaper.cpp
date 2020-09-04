@@ -81,11 +81,11 @@ namespace {
         surface = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
         cr = cairo_create(surface);
         
-        context.canvas = new Canvas(cr);
+        context.canvas_ptr = new Canvas(cr);
       }
       
       ~GlyphGetter() {
-        delete context.canvas;
+        delete context.canvas_ptr;
         
         cairo_destroy(cr);
         cairo_surface_destroy(surface);
@@ -675,7 +675,7 @@ namespace richmath {
               str[2] = default_vertical_composed_glyphs[i][3];
               str[3] = default_vertical_composed_glyphs[i][4];
               
-              shaper->decode_token(&GG.context, 4, str, glyphs);
+              shaper->decode_token(GG.context, 4, str, glyphs);
               
               if( (str[0] && glyphs[0].index) ||
                   (str[1] && glyphs[1].index) ||
@@ -1036,12 +1036,12 @@ String ConfigShaper::font_name(uint8_t fontinfo) {
 }
 
 void ConfigShaper::decode_token(
-  Context        *context,
+  Context        &context,
   int             len,
   const uint16_t *str,
   GlyphInfo      *result
 ) {
-  if(len == 1 && context->single_letter_italics) {
+  if(len == 1 && context.single_letter_italics) {
     uint32_t ch = *str;
     if(ch >= 'a' && ch <= 'z')
       ch = 0x1D44E + ch - 'a';
@@ -1075,20 +1075,20 @@ void ConfigShaper::decode_token(
         result->index    = gfo->glyph;
         result->fontinfo = gfo->font;
         
-        context->canvas->set_font_face(font(result->fontinfo));
+        context.canvas().set_font_face(font(result->fontinfo));
         cairo_text_extents_t cte;
         cairo_glyph_t cg;
         cg.x = 0;
         cg.y = 0;
         cg.index = result->index;
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         
         result->x_offset = 0;
         result->right = cte.x_advance;
         
         if(gfo && gfo->offset) {
           result->right += gfo->offset
-                           * context->canvas->get_font_size()
+                           * context.canvas().get_font_size()
                            * GlyphFontOffset::EmPerOffset;
         }
         
@@ -1111,14 +1111,14 @@ void ConfigShaper::decode_token(
 //        ch+= 0x10000;
 //      }
 //
-//      bool old_boxchar_fallback_enabled = context->boxchar_fallback_enabled;
-//      context->boxchar_fallback_enabled = false;
+//      bool old_boxchar_fallback_enabled = context.boxchar_fallback_enabled;
+//      context.boxchar_fallback_enabled = false;
 //      text_shaper->decode_token(
 //        context,
 //        ch <= 0xFFFF ? 1 : 2,
 //        utf16,
 //        r);
-//      context->boxchar_fallback_enabled = old_boxchar_fallback_enabled;
+//      context.boxchar_fallback_enabled = old_boxchar_fallback_enabled;
 //
 //      if(r->index != 0
 //      && r->index != UnknownGlyph
@@ -1150,17 +1150,17 @@ void ConfigShaper::decode_token(
       result->x_offset = 0;
       
       for(const auto &part : *arr) {
-        context->canvas->set_font_face(font(part.font));
+        context.canvas().set_font_face(font(part.font));
         cg.x = 0;
         cg.y = 0;
         cg.index = part.glyph;
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         
         result->right += cte.x_advance;
         
         if(part.offset) {
           result->right += part.offset
-                           * context->canvas->get_font_size()
+                           * context.canvas().get_font_size()
                            * GlyphFontOffset::EmPerOffset;
         }
       }
@@ -1178,20 +1178,20 @@ void ConfigShaper::decode_token(
         result[i].index    = arr->get(i).glyph;
         result[i].fontinfo = arr->get(i).font;
         
-        context->canvas->set_font_face(font(result[i].fontinfo));
+        context.canvas().set_font_face(font(result[i].fontinfo));
         cairo_text_extents_t cte;
         cairo_glyph_t cg;
         cg.x = 0;
         cg.y = 0;
         cg.index = result[i].index;
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         
         result[i].x_offset = 0;
         result[i].right = cte.x_advance;
         
         if(arr->get(i).offset) {
           result[i].right += arr->get(i).offset
-                             * context->canvas->get_font_size()
+                             * context.canvas().get_font_size()
                              * GlyphFontOffset::EmPerOffset;
         }
       }
@@ -1257,20 +1257,20 @@ void ConfigShaper::decode_token(
         result[1].fontinfo = 0;
       }
       
-      context->canvas->set_font_face(font(result->fontinfo));
+      context.canvas().set_font_face(font(result->fontinfo));
       cairo_text_extents_t cte;
       cairo_glyph_t cg;
       cg.x = 0;
       cg.y = 0;
       cg.index = result->index;
-      context->canvas->glyph_extents(&cg, 1, &cte);
+      context.canvas().glyph_extents(&cg, 1, &cte);
       
       result->x_offset = 0;
       result->right = cte.x_advance;
       
       if(gfo && gfo->offset) {
         result->right += gfo->offset
-                         * context->canvas->get_font_size()
+                         * context.canvas().get_font_size()
                          * GlyphFontOffset::EmPerOffset;
       }
       
@@ -1285,7 +1285,7 @@ void ConfigShaper::decode_token(
 }
 
 void ConfigShaper::vertical_glyph_size(
-  Context         *context,
+  Context         &context,
   const uint16_t   ch,
   const GlyphInfo &info,
   float           *ascent,
@@ -1309,11 +1309,11 @@ void ConfigShaper::vertical_glyph_size(
       cairo_glyph_t        cg;
       
       for(const auto &part : *arr) {
-        context->canvas->set_font_face(font(part.font));
+        context.canvas().set_font_face(font(part.font));
         cg.x = 0;
         cg.y = 0;
         cg.index = part.glyph;
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         if(*ascent < -cte.y_bearing)
           *ascent = -cte.y_bearing;
         if(*descent < cte.height + cte.y_bearing)
@@ -1328,7 +1328,7 @@ void ConfigShaper::vertical_glyph_size(
 }
 
 void ConfigShaper::show_glyph(
-  Context         *context,
+  Context         &context,
   float            x,
   float            y,
   const uint16_t   ch,
@@ -1355,16 +1355,16 @@ void ConfigShaper::show_glyph(
       cg.y = y;
       
       for(const auto &part : *arr) {
-        context->canvas->set_font_face(font(part.font));
+        context.canvas().set_font_face(font(part.font));
         cg.index = part.glyph;
-        context->canvas->show_glyphs(&cg, 1);
+        context.canvas().show_glyphs(&cg, 1);
         
-        context->canvas->glyph_extents(&cg, 1, &cte);
+        context.canvas().glyph_extents(&cg, 1, &cte);
         cg.x += cte.x_advance;
         
         if(part.offset) {
           cg.x += part.offset
-                  * context->canvas->get_font_size()
+                  * context.canvas().get_font_size()
                   * GlyphFontOffset::EmPerOffset;
         }
       }
@@ -1377,7 +1377,7 @@ void ConfigShaper::show_glyph(
 }
 
 float ConfigShaper::italic_correction(
-  Context          *context,
+  Context          &context,
   uint16_t          ch,
   const GlyphInfo  &info
 ) {
@@ -1403,7 +1403,7 @@ float ConfigShaper::italic_correction(
 }
 
 void ConfigShaper::script_corrections(
-  Context           *context,
+  Context           &context,
   uint16_t           base_char,
   const GlyphInfo   &base_info,
   MathSequence          *sub,
@@ -1433,7 +1433,7 @@ void ConfigShaper::script_corrections(
       break;
   }
   
-  float em = context->canvas->get_font_size();
+  float em = context.canvas().get_font_size();
   *sub_x = *super_x = 0;
   
   if(style.italic) {

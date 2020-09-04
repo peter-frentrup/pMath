@@ -53,7 +53,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void RadioButtonBox::paint(Context *context) {
+void RadioButtonBox::paint(Context &context) {
   if(must_update) {
     must_update = false;
     

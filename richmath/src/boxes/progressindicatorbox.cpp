@@ -92,14 +92,14 @@ bool ProgressIndicatorBox::expand(const BoxSize &size) {
   return true;
 }
 
-void ProgressIndicatorBox::resize(Context *context) {
-  float em = context->canvas->get_font_size();
+void ProgressIndicatorBox::resize(Context &context) {
+  float em = context.canvas().get_font_size();
   _extents.ascent  = 0.5 * em * 1.5;
   _extents.descent = 0;
   _extents.width   = 6 * em * 1.5;
   
-  ControlPainter::std->calc_container_size(this, context->canvas, ProgressIndicatorBackground, &_extents);
-  //ControlPainter::std->calc_container_size(this, context->canvas, ProgressIndicatorBar, &size);
+  ControlPainter::std->calc_container_size(*this, context.canvas(), ProgressIndicatorBackground, &_extents);
+  //ControlPainter::std->calc_container_size(*this, context.canvas(), ProgressIndicatorBar, &size);
   
   float h = _extents.height();
   _extents.ascent = 0.25 * em + 0.5 * h;
@@ -107,8 +107,8 @@ void ProgressIndicatorBox::resize(Context *context) {
 }
 
 // TODO: support progress bar animations
-void ProgressIndicatorBox::paint(Context *context) {
-  if(context->canvas->show_only_text)
+void ProgressIndicatorBox::paint(Context &context) {
+  if(context.canvas().show_only_text)
     return;
   
   have_drawn = true;
@@ -123,13 +123,13 @@ void ProgressIndicatorBox::paint(Context *context) {
   }
   
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
   y -= _extents.ascent;
   
   ControlPainter::std->draw_container(
-    this,
-    context->canvas,
+    *this,
+    context.canvas(),
     ProgressIndicatorBackground,
     Normal,
     x, y,
@@ -151,14 +151,14 @@ void ProgressIndicatorBox::paint(Context *context) {
   
   BoxSize content_size = _extents;
   ControlPainter::std->calc_container_size(
-    this,
-    context->canvas,
+    *this,
+    context.canvas(),
     ProgressIndicatorBar,
     &content_size);
     
   ControlPainter::std->draw_container(
-    this,
-    context->canvas,
+    *this,
+    context.canvas(),
     ProgressIndicatorBar,
     state,
     x + (_extents.width - content_size.width) / 2,

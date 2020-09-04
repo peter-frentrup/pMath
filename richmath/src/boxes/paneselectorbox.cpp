@@ -120,7 +120,7 @@ Box *PaneSelectorBox::item(int i) {
   return _panes[i]; 
 }
 
-void PaneSelectorBox::resize(Context *context) {
+void PaneSelectorBox::resize(Context &context) {
   // TODO (?) : only resize the currently selected pane?
   for(auto box : _panes)
     box->resize(context);
@@ -131,7 +131,7 @@ void PaneSelectorBox::resize(Context *context) {
     _extents = BoxSize();
 }
 
-void PaneSelectorBox::paint(Context *context) {
+void PaneSelectorBox::paint(Context &context) {
   update_dynamic_styles(context);
   
   if(_current_selection >= 0 && _current_selection < _panes.length())
@@ -274,15 +274,15 @@ VolatileSelection PaneSelectorBox::mouse_selection(float x, float  y, bool *was_
   return Box::mouse_selection(x, y, was_inside_start);
 }
 
-bool PaneSelectorBox::edit_selection(Context *context) {
+bool PaneSelectorBox::edit_selection(Context &context) {
   if(_current_selection < 0 || _current_selection >= _cases.length())
     return false;
   
-  Box *b = context->selection.get();
+  Box *b = context.selection.get();
   if(b == this)
     return false;
   
-  int i = context->selection.start;
+  int i = context.selection.start;
   while(b) {
     i = b->index();
     b = b->parent();

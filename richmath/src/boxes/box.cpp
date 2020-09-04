@@ -210,9 +210,9 @@ Box *Box::next_child_or_null(int index, LogicalDirection direction) {
   return nullptr;
 }
 
-bool Box::update_dynamic_styles(Context *context) {
-  if(context->stylesheet)
-    return context->stylesheet->update_dynamic(style, this);
+bool Box::update_dynamic_styles(Context &context) {
+  if(context.stylesheet)
+    return context.stylesheet->update_dynamic(style, this);
   
   return false;
 }
@@ -229,12 +229,12 @@ Box *Box::get_highlight_child(Box *src, int *start, int *end) {
   return src;
 }
 
-void Box::selection_path(Canvas *canvas, int start, int end) {
+void Box::selection_path(Canvas &canvas, int start, int end) {
   if(end > count())
     end = count();
     
   float x, y;
-  canvas->current_pos(&x, &y);
+  canvas.current_pos(&x, &y);
   
   for(int i = start; i < end; ++i) {
     Box *b = item(i);
@@ -248,37 +248,37 @@ void Box::selection_path(Canvas *canvas, int start, int end) {
     float x4 = x1;
     float y4 = y3;
     
-    canvas->align_point(&x1, &y1, false);
-    canvas->align_point(&x2, &y2, false);
-    canvas->align_point(&x3, &y3, false);
-    canvas->align_point(&x4, &y4, false);
+    canvas.align_point(&x1, &y1, false);
+    canvas.align_point(&x2, &y2, false);
+    canvas.align_point(&x3, &y3, false);
+    canvas.align_point(&x4, &y4, false);
     
-    canvas->move_to(x1, y1);
-    canvas->line_to(x2, y2);
-    canvas->line_to(x3, y3);
-    canvas->line_to(x4, y4);
-    canvas->close_path();
+    canvas.move_to(x1, y1);
+    canvas.line_to(x2, y2);
+    canvas.line_to(x3, y3);
+    canvas.line_to(x4, y4);
+    canvas.close_path();
   }
 }
 
 void Box::scroll_to(float x, float y, float w, float h) {
 }
 
-void Box::scroll_to(Canvas *canvas, const VolatileSelection &child) {
+void Box::scroll_to(Canvas &canvas, const VolatileSelection &child) {
   if(_parent)
     _parent->scroll_to(canvas, child);
 }
 
-void Box::default_scroll_to(Canvas *canvas, Box *parent, const VolatileSelection &child_sel) {
+void Box::default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection &child_sel) {
   double x1, y1, x2, y2;
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
   child_sel.box->transformation(parent, &mat);
   
-  canvas->save();
+  canvas.save();
   {
-    canvas->transform(mat);
-    canvas->move_to(0, 0);
+    canvas.transform(mat);
+    canvas.move_to(0, 0);
     
     child_sel.box->selection_path(
       canvas,
@@ -287,11 +287,11 @@ void Box::default_scroll_to(Canvas *canvas, Box *parent, const VolatileSelection
       
     // cairo 1.10.0 bug:
     // cairo_path_extents gives (0,0,0,0) for pixel aligned lines
-    canvas->stroke_extents(&x1, &y1, &x2, &y2);
+    canvas.stroke_extents(&x1, &y1, &x2, &y2);
     
-    canvas->new_path();
+    canvas.new_path();
   }
-  canvas->restore();
+  canvas.restore();
   
   float x = x1;
   float y = y1;
@@ -483,11 +483,11 @@ void Box::invalidate_options() {
   invalidate();
 }
 
-bool Box::edit_selection(Context *context) {
+bool Box::edit_selection(Context &context) {
   int editable;
   
-  if(context->stylesheet) {
-    if(context->stylesheet->get(style, Editable, &editable) && !editable)
+  if(context.stylesheet) {
+    if(context.stylesheet->get(style, Editable, &editable) && !editable)
       return false;
   }
   else if(style && style->get(Editable, &editable) && !editable)
@@ -496,9 +496,9 @@ bool Box::edit_selection(Context *context) {
   if(_parent)
     return _parent->edit_selection(context);
     
-  if( context->stylesheet       &&
-      context->stylesheet->base &&
-      context->stylesheet->base->get(Editable, &editable))
+  if( context.stylesheet       &&
+      context.stylesheet->base &&
+      context.stylesheet->base->get(Editable, &editable))
   {
     return editable;
   }

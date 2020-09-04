@@ -42,7 +42,7 @@ bool PanelBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-ControlState PanelBox::calc_state(Context *context) {
+ControlState PanelBox::calc_state(Context &context) {
   if(!enabled())
     return Disabled;
   
@@ -66,18 +66,18 @@ bool PanelBox::expand(const BoxSize &size) {
   return true;
 }
 
-void PanelBox::resize_default_baseline(Context *context) {
-//  float old_width = context->width;
-//  context->width = HUGE_VAL;
+void PanelBox::resize_default_baseline(Context &context) {
+//  float old_width = context.width;
+//  context.width = HUGE_VAL;
   
   type = parse_panel_appearance(get_own_style(Appearance));
   
   base::resize_default_baseline(context);
   
-//  context->width = old_width;
+//  context.width = old_width;
   
   // like BaselinePosition -> (Center -> Axis)
-  float baseline_adjust = calculate_scaled_baseline(0.5) - 0.25 * context->canvas->get_font_size();
+  float baseline_adjust = calculate_scaled_baseline(0.5) - 0.25 * context.canvas().get_font_size();
   cy+= baseline_adjust;
   _extents.ascent-= baseline_adjust;
   _extents.descent+= baseline_adjust;

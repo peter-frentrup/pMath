@@ -13,42 +13,42 @@ using namespace richmath;
 
 //{ class Buffer ...
 
-Buffer::Buffer(Canvas *dst, cairo_format_t format, float x, float y, float w, float h)
+Buffer::Buffer(Canvas &dst, cairo_format_t format, float x, float y, float w, float h)
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   init(dst, format, x, y, w, h);
 }
 
-Buffer::Buffer(Canvas *dst, cairo_format_t format, const BoxSize &size)
+Buffer::Buffer(Canvas &dst, cairo_format_t format, const BoxSize &size)
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
   float x0, y0;
-  dst->current_pos(&x0, &y0);
+  dst.current_pos(&x0, &y0);
   
   init(dst, format, x0, y0 - size.ascent, size.width, size.height());
 }
 
-void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w, float h) {
+void Buffer::init(Canvas &dst, cairo_format_t format, float x, float y, float w, float h) {
   _width = 0;
   _height = 0;
-  _canvas = 0;
-  _cr = 0;
-  _surface = 0;
+  _canvas = nullptr;
+  _cr = nullptr;
+  _surface = nullptr;
   
-  cairo_surface_t *target = dst->target();
+  cairo_surface_t *target = dst.target();
   cairo_surface_type_t type = cairo_surface_get_type(target);
   
   switch(type) {
     case CAIRO_SURFACE_TYPE_IMAGE:
     case CAIRO_SURFACE_TYPE_WIN32: {
         float x0, y0;
-        dst->current_pos(&x0, &y0);
+        dst.current_pos(&x0, &y0);
         
-        //dst->save();
-        u2d_matrix = dst->get_matrix();
+        //dst.save();
+        u2d_matrix = dst.get_matrix();
         
         float mx0 = u2d_matrix.x0;
         float my0 = u2d_matrix.y0;
@@ -94,7 +94,7 @@ void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w,
         
         _cr = cairo_create(_surface);
         _canvas = new Canvas(_cr);
-        cairo_set_line_width(_cr, cairo_get_line_width(dst->cairo()));
+        cairo_set_line_width(_cr, cairo_get_line_width(dst.cairo()));
         _canvas->set_matrix(u2d_matrix);
         //dst->restore();
         
@@ -102,21 +102,21 @@ void Buffer::init(Canvas *dst, cairo_format_t format, float x, float y, float w,
         //dst->current_pos(&x0, &y0);
         //_canvas->move_to(x0, y0);
         
-        _canvas->glass_background   = dst->glass_background;
-//      _canvas->text_emboss_size   = dst->text_emboss_size;
-//      _canvas->text_emboss_color  = dst->text_emboss_color;
-        _canvas->native_show_glyphs = dst->native_show_glyphs;
+        _canvas->glass_background   = dst.glass_background;
+//      _canvas->text_emboss_size   = dst.text_emboss_size;
+//      _canvas->text_emboss_color  = dst.text_emboss_color;
+        _canvas->native_show_glyphs = dst.native_show_glyphs;
         
-        cairo_set_font_face(_cr, cairo_get_font_face(dst->cairo()));
+        cairo_set_font_face(_cr, cairo_get_font_face(dst.cairo()));
         
         cairo_matrix_t fmat;
-        cairo_get_font_matrix(dst->cairo(), &fmat);
+        cairo_get_font_matrix(dst.cairo(), &fmat);
         cairo_set_font_matrix(_cr, &fmat);
         
 //      _canvas->set_color(0xFF0000);
 //      _canvas->paint_with_alpha(0.1);
 
-        _canvas->set_color(dst->get_color());
+        _canvas->set_color(dst.get_color());
       } break;
       
     default:
@@ -137,16 +137,16 @@ Buffer::~Buffer() {
     cairo_surface_destroy(_surface);
 }
 
-bool Buffer::is_compatible(Canvas *dst) {
+bool Buffer::is_compatible(Canvas &dst) {
   if(!_cr)
     return false;
     
-  cairo_surface_t *target = dst->target();
+  cairo_surface_t *target = dst.target();
   
   switch(cairo_surface_get_type(target)) {
     case CAIRO_SURFACE_TYPE_IMAGE:
     case CAIRO_SURFACE_TYPE_WIN32: {
-        cairo_matrix_t mat = dst->get_matrix();
+        cairo_matrix_t mat = dst.get_matrix();
         
         if( mat.xx == u2d_matrix.xx && 
             mat.xy == u2d_matrix.xy && 
@@ -163,12 +163,12 @@ bool Buffer::is_compatible(Canvas *dst) {
   return false;
 }
 
-bool Buffer::is_compatible(Canvas *dst, float w, float h) {
+bool Buffer::is_compatible(Canvas &dst, float w, float h) {
   if(!is_compatible(dst))
     return false;
     
   float x, y;
-  dst->current_pos(&x, &y);
+  dst.current_pos(&x, &y);
   
   Canvas::transform_rect(u2d_matrix, &x, &y, &w, &h);
   
@@ -176,79 +176,79 @@ bool Buffer::is_compatible(Canvas *dst, float w, float h) {
   //return _width  == (int)(ceil(w) + 1) && _height == (int)(ceil(h) + 1);
 }
 
-bool Buffer::is_compatible(Canvas *dst, const BoxSize &size) {
+bool Buffer::is_compatible(Canvas &dst, const BoxSize &size) {
   return is_compatible(dst, size.width, size.height());
 }
 
-bool Buffer::paint(Canvas *dst) {
+bool Buffer::paint(Canvas &dst) {
   return paint_with_alpha(dst, 1);
 }
 
-bool Buffer::paint_with_alpha(Canvas *dst, float alpha) {
+bool Buffer::paint_with_alpha(Canvas &dst, float alpha) {
   if(!is_compatible(dst))
     return false;
     
   float x, y;
-  dst->current_pos(&x, &y);
+  dst.current_pos(&x, &y);
   
   cairo_surface_flush(_surface);
   
-  dst->save();
+  dst.save();
   
-  dst->user_to_device(&x, &y);
+  dst.user_to_device(&x, &y);
   x -= u2d_matrix.x0;
   y -= u2d_matrix.y0;
   x = floor(x + 0.5);
   y = floor(y + 0.5);
   
-  dst->reset_matrix();
-  dst->translate(x, y);
+  dst.reset_matrix();
+  dst.translate(x, y);
   
-  //dst->translate(x0, y0);
+  //dst.translate(x0, y0);
   cairo_pattern_t *pattern = cairo_pattern_create_for_surface(_surface);
   
-  cairo_set_source(dst->cairo(), pattern);
+  cairo_set_source(dst.cairo(), pattern);
   cairo_pattern_destroy(pattern);
   
   if(alpha >= 1)
-    dst->paint();
+    dst.paint();
   else
-    dst->paint_with_alpha(alpha);
+    dst.paint_with_alpha(alpha);
     
-  dst->restore();
+  dst.restore();
   return true;
 }
 
-bool Buffer::mask(Canvas *dst) {
+bool Buffer::mask(Canvas &dst) {
   if(!is_compatible(dst))
     return false;
     
   float x, y;
-  dst->current_pos(&x, &y);
+  dst.current_pos(&x, &y);
   
   cairo_surface_flush(_surface);
   
   
-//  dst->save();
+//  dst.save();
 
-  dst->user_to_device(&x, &y);
+  dst.user_to_device(&x, &y);
   x -= u2d_matrix.x0;
   y -= u2d_matrix.y0;
   x = floor(x + 0.5);
   y = floor(y + 0.5);
   
-  cairo_matrix_t oldmat = dst->get_matrix();
-  dst->reset_matrix();
-  dst->translate(x, y);
+  cairo_matrix_t oldmat = dst.get_matrix();
+  dst.reset_matrix();
+  dst.translate(x, y);
   
-  //dst->translate(x0, y0);
+  //dst.translate(x0, y0);
   cairo_pattern_t *pattern = cairo_pattern_create_for_surface(_surface);
   
-  cairo_mask(dst->cairo(), pattern);
+  cairo_mask(dst.cairo(), pattern);
   cairo_pattern_destroy(pattern);
   
-//  dst->restore();
-  dst->set_matrix(oldmat);
+//  dst.restore();
+  dst.set_matrix(oldmat);
   return true;
 }
 

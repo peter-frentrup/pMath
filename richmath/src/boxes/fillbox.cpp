@@ -54,15 +54,15 @@ bool FillBox::expand(const BoxSize &size) {
   return true;
 }
 
-void FillBox::paint_content(Context *context) {
+void FillBox::paint_content(Context &context) {
   if(_content->extents().width > 0) {
     float x, y;
-    context->canvas->current_pos(&x, &y);
+    context.canvas().current_pos(&x, &y);
     
     int i = (int)(_extents.width / _content->extents().width);
     
     while(i-- > 0) {
-      context->canvas->move_to(x, y);
+      context.canvas().move_to(x, y);
       
       _content->paint(context);
       
@@ -129,7 +129,7 @@ bool FillBox::request_repaint(float x, float y, float w, float h) {
   return base::request_repaint(x, y, w, h);
 }
 
-void FillBox::resize_default_baseline(Context *context) {
+void FillBox::resize_default_baseline(Context &context) {
   _weight = get_own_style(FillBoxWeight, 1.0f);
   if(!(_weight > 0.0))
     _weight = 0.0;

@@ -22,6 +22,7 @@ namespace richmath {
   };
   
   class NumberBox: public OwnerBox {
+      using base = OwnerBox;
       class Impl;
     public:
       NumberBox();
@@ -30,10 +31,10 @@ namespace richmath {
       // Box::try_create<NumberBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual bool edit_selection(Context *context) override;
+      virtual bool edit_selection(Context &context) override;
       
       virtual void colorize_scope(SyntaxState *state) override {}
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -45,7 +46,7 @@ namespace richmath {
       Box *string_index_to_selection(String number, int char_index, int *selection_index);
       
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       
     private:
       String        _number;

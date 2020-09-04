@@ -11,9 +11,9 @@ namespace richmath {
     public:
       explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = nullptr);
       
-      virtual ControlState calc_state(Context *context);
+      virtual ControlState calc_state(Context &context);
       
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual void reset_style() override;
       
@@ -34,7 +34,7 @@ namespace richmath {
       virtual int dpi() override;
     
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       
     protected:
       SharedPtr<BoxAnimation> animation;

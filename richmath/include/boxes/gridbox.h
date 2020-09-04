@@ -103,7 +103,7 @@ namespace richmath {
       
     protected:
       GridItem();
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       
     protected:
       int _span_right;
@@ -157,9 +157,9 @@ namespace richmath {
       void remove_cols(int xindex, int count);
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
-      virtual void selection_path(Canvas *canvas, int start, int end) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
+      virtual void selection_path(Canvas &canvas, int start, int end) override;
       
       Box *remove_range(int *start, int end);
       virtual Box *remove(int *index) override;

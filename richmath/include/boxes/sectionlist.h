@@ -60,9 +60,9 @@ namespace richmath {
       
       virtual Box *item(int i) override;
       virtual int count() override { return _sections.length(); }
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
-      virtual void selection_path(Canvas *canvas, int start, int end) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
+      virtual void selection_path(Canvas &canvas, int start, int end) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -114,15 +114,15 @@ namespace richmath {
       
       float get_content_scroll_correction_x(int i);
       
-      void init_section_bracket_sizes(Context *context);
-      void resize_section(Context *context, int i);
-      void finish_resize(Context *context);
-      void paint_section(Context *context, int i);
+      void init_section_bracket_sizes(Context &context);
+      void resize_section(Context &context, int i);
+      void finish_resize(Context &context);
+      void paint_section(Context &context, int i);
       
-      void paint_section_brackets(Context *context, int i, float right, float top);
+      void paint_section_brackets(Context &context, int i, float right, float top);
       
       static void paint_single_section_bracket(
-        Context *context,
+        Context &context,
         float    x1,
         float    y1,
         float    x2,

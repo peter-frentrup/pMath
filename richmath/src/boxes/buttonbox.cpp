@@ -20,19 +20,19 @@ AbstractButtonBox::AbstractButtonBox(MathSequence *content, ContainerType _type)
 {
 }
 
-void AbstractButtonBox::resize_default_baseline(Context *context) {
+void AbstractButtonBox::resize_default_baseline(Context &context) {
   int bf = get_own_style(ButtonFrame, -1);
   if(bf >= 0)
     type = (ContainerType)bf;
   else
     type = default_container_type();
     
-  float old_width = context->width;
-  context->width = HUGE_VAL;
+  float old_width = context.width;
+  context.width = HUGE_VAL;
   
   ContainerWidgetBox::resize_default_baseline(context);
   
-  context->width = old_width;
+  context.width = old_width;
 }
 
 bool AbstractButtonBox::expand(const BoxSize &size) {

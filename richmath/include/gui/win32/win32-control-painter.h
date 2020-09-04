@@ -19,23 +19,23 @@ namespace richmath {
       
     public:
       virtual void calc_container_size(
-        ControlContext *context,
-        Canvas         *canvas,
+        ControlContext &context,
+        Canvas         &canvas,
         ContainerType   type,
         BoxSize        *extents) override;
       
       virtual void calc_container_radii(
-        ControlContext *context,
+        ControlContext &context,
         ContainerType   type,
         BoxRadius      *radii) override;
       
-      virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state) override;
+      virtual Color control_font_color(ControlContext &context, ContainerType type, ControlState state) override;
       
-      virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state) override;
+      virtual bool is_very_transparent(ControlContext &context, ContainerType type, ControlState state) override;
       
       virtual void draw_container(
-        ControlContext *context, 
-        Canvas         *canvas,
+        ControlContext &context, 
+        Canvas         &canvas,
         ContainerType   type,
         ControlState    state,
         float           x,
@@ -45,7 +45,7 @@ namespace richmath {
         
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
-        Canvas            *canvas,
+        Canvas            &canvas,
         ContainerType      type1,
         ContainerType      type2,
         ControlState       state1,
@@ -56,23 +56,23 @@ namespace richmath {
         float              height) override;
         
       virtual void container_content_move(
-        ControlContext *context, 
+        ControlContext &control, 
         ContainerType   type,
         ControlState    state,
         float          *x,
         float          *y) override;
         
-      virtual bool container_hover_repaint(ControlContext *context, ContainerType type) override;
+      virtual bool container_hover_repaint(ControlContext &context, ContainerType type) override;
       
-      virtual void system_font_style(ControlContext *context, Style *style) override;
+      virtual void system_font_style(ControlContext &context, Style *style) override;
       
-      virtual Color selection_color(ControlContext *context) override;
+      virtual Color selection_color(ControlContext &context) override;
       
       virtual float scrollbar_width() override;
       
       virtual void paint_scrollbar_part(
-        ControlContext     *context, 
-        Canvas             *canvas,
+        ControlContext     &context, 
+        Canvas             &canvas,
         ScrollbarPart       part,
         ScrollbarDirection  dir,
         ControlState        state,
@@ -89,7 +89,7 @@ namespace richmath {
       void draw_menubar_itembg(HDC dc, RECT *rect, ControlState state, bool dark_mode = false);
       
       HANDLE get_control_theme( // do not close the theme
-        ControlContext *context, 
+        ControlContext &context, 
         ContainerType   type,
         ControlState    state,
         int            *theme_part,

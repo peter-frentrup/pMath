@@ -162,7 +162,7 @@ void MathGtkTooltipWindow::resize(bool just_move) {
   gtk_window_move(GTK_WINDOW(_widget), ix, iy);
 }
 
-void MathGtkTooltipWindow::paint_canvas(Canvas *canvas, bool resize_only) {
+void MathGtkTooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   MathGtkWidget::paint_canvas(canvas, resize_only);
   
   int old_bh = best_height;

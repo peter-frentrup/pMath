@@ -94,7 +94,7 @@ class Win32DocumentChildWidget: public Win32Widget {
       set_current_document(_parent->document());
     }
     
-    virtual void paint_background(Canvas *canvas) override {
+    virtual void paint_background(Canvas &canvas) override {
       parent()->paint_background_at(canvas, _hwnd);
     }
     
@@ -168,7 +168,7 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       base::set_cursor(type);
     }
     
-    virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
+    virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
       _overlay.clear();
       base::paint_canvas(canvas, resize_only);
       
@@ -215,20 +215,20 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       base::on_changed_dark_mode();
     }
     
-    void add_overlay(Canvas *canvas, Box *box, int start, int end, unsigned color, IndicatorLane lane) {
+    void add_overlay(Canvas &canvas, Box *box, int start, int end, unsigned color, IndicatorLane lane) {
       cairo_matrix_t mat;
       cairo_matrix_init_identity(&mat);
       box->transformation(nullptr, &mat);
       
-      canvas->save();
-      canvas->transform(mat);
-      canvas->move_to(0, 0);
+      canvas.save();
+      canvas.transform(mat);
+      canvas.move_to(0, 0);
       box->selection_path(canvas, start, end);
-      canvas->restore();
+      canvas.restore();
       
       double x1,y1,x2,y2;
-      canvas->path_extents(&x1, &y1, &x2, &y2);
-      canvas->new_path();
+      canvas.path_extents(&x1, &y1, &x2, &y2);
+      canvas.new_path();
       
       _overlay.add((y1 + y2)/2, color, lane);
     }
@@ -336,18 +336,18 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     }
     
   protected:
-    void paint_size_grip(Canvas *canvas) {
+    void paint_size_grip(Canvas &canvas) {
       if(have_size_grip()) {
-        canvas->save();
-        canvas->scale(scale_factor(), scale_factor());
+        canvas.save();
+        canvas.scale(scale_factor(), scale_factor());
         
         float w, h, b;
         window_size(&w, &h);
         b = ControlPainter::std->scrollbar_width();
         
-        canvas->glass_background = true;
+        canvas.glass_background = true;
         ControlPainter::std->paint_scrollbar_part(
-          this,
+          *this,
           canvas,
           ScrollbarSizeGrip,
           ScrollbarHorizontal,
@@ -356,7 +356,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
           h - b,
           b,
           b);
-        canvas->restore();
+        canvas.restore();
       }
     }
     
@@ -365,7 +365,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       return parent()->is_using_dark_mode() ? Color::White : Color::Black;
     }
     
-    virtual void paint_background(Canvas *canvas) override {
+    virtual void paint_background(Canvas &canvas) override {
       if(Color color = get_textcolor()) {
         if(!document()->style)
           document()->style = new Style();
@@ -376,7 +376,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       base::paint_background(canvas);
     }
     
-    virtual void paint_canvas(Canvas *canvas, bool resize_only) override {
+    virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
       bool bif = Win32ControlPainter::win32_painter.blur_input_field;
       Win32ControlPainter::win32_painter.blur_input_field = false;
       
@@ -499,12 +499,12 @@ class richmath::Win32GlassDock: public Win32Dock {
         document()->style->remove(TextShadow);
     }
     
-    virtual void paint_background(Canvas *canvas) override {
+    virtual void paint_background(Canvas &canvas) override {
       if( Win32Themes::IsCompositionActive &&
           Win32Themes::IsCompositionActive())
       {
         set_textshadows();
-        canvas->glass_background = true;
+        canvas.glass_background = true;
         
 //        /* Workaround a Cairo (1.8.8) Bug:
 //            Platform: Windows, Cleartype on, ARGB32 image or HDC
@@ -522,21 +522,21 @@ class richmath::Win32GlassDock: public Win32Dock {
 //        SystemParametersInfo(SPI_GETFONTSMOOTHINGTYPE, 0, &fontSmoothingType, 0);
 //
 //        if(haveFontSmoothing && fontSmoothingType == FE_FONTSMOOTHINGCLEARTYPE){
-//          //canvas->native_show_glyphs = false;
+//          //canvas.native_show_glyphs = false;
 //
 //          cairo_font_options_t *opt = cairo_font_options_create();
 //          cairo_font_options_set_antialias(opt, CAIRO_ANTIALIAS_GRAY);
-//          cairo_set_font_options(canvas->cairo(), opt);
+//          cairo_set_font_options(canvas.cairo(), opt);
 //          cairo_font_options_destroy(opt);
 //        }
       }
       else {
         remove_textshadows();
         
-        //canvas->native_show_glyphs = true;
+        //canvas.native_show_glyphs = true;
         
         if(parent()->glass_enabled())
-          canvas->glass_background = true;
+          canvas.glass_background = true;
       }
       
       base::paint_background(canvas);

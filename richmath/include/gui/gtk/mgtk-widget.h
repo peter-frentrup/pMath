@@ -200,8 +200,8 @@ namespace richmath {
       virtual bool on_drag_motion(GdkDragContext *context, int x, int y, guint time);
       virtual bool on_drag_drop(GdkDragContext *context, int x, int y, guint time);
       
-      virtual void paint_background(Canvas *canvas);
-      virtual void paint_canvas(Canvas *canvas, bool resize_only);
+      virtual void paint_background(Canvas &canvas);
+      virtual void paint_canvas(Canvas &canvas, bool resize_only);
       virtual void on_changed_dark_mode();
       virtual void handle_mouse_move(MouseEvent &event);
       

@@ -36,7 +36,7 @@ namespace {
       virtual void find_extends(GraphicsBounds &bounds) override {
       }
       
-      virtual void paint(GraphicsBoxContext *context) override {
+      virtual void paint(GraphicsBox *owner, Context &context) override {
       }
       
       virtual Expr to_pmath(BoxOutputFlags flags) override {
@@ -212,9 +212,9 @@ void GraphicsDirective::find_extends(GraphicsBounds &bounds) {
     item(i)->find_extends(bounds);
 }
 
-void GraphicsDirective::paint(GraphicsBoxContext *context) {
+void GraphicsDirective::paint(GraphicsBox *owner, Context &context) {
   for(int i = 0; i < count(); ++i)
-    item(i)->paint(context);
+    item(i)->paint(owner, context);
 }
 
 Expr GraphicsDirective::to_pmath(BoxOutputFlags flags) {
@@ -233,7 +233,7 @@ Expr GraphicsDirective::to_pmath(BoxOutputFlags flags) {
 //{ class GraphicsElementCollection ...
 
 GraphicsElementCollection::GraphicsElementCollection()
-  : GraphicsDirective()
+  : base()
 {
 }
 
@@ -246,7 +246,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
     return false;
     
   expr.set(0, Symbol(PMATH_SYMBOL_DIRECTIVE));
-  return GraphicsDirective::try_load_from_object(expr, opts);
+  return base::try_load_from_object(expr, opts);
 }
 
 void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) {
@@ -255,21 +255,21 @@ void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) 
   else
     expr = Call(Symbol(PMATH_SYMBOL_DIRECTIVE), expr);
     
-  GraphicsDirective::try_load_from_object(expr, opts);
+  base::try_load_from_object(expr, opts);
 }
 
-void GraphicsElementCollection::paint(GraphicsBoxContext *context) {
-  context->ctx->canvas->save();
-  Color old_color = context->ctx->canvas->get_color();
+void GraphicsElementCollection::paint(GraphicsBox *owner, Context &context) {
+  context.canvas().save();
+  Color old_color = context.canvas().get_color();
   
-  GraphicsDirective::paint(context);
+  base::paint(owner, context);
   
-  context->ctx->canvas->set_color(old_color);
-  context->ctx->canvas->restore();
+  context.canvas().set_color(old_color);
+  context.canvas().restore();
 }
 
 Expr GraphicsElementCollection::to_pmath(BoxOutputFlags flags) {
-  Expr e = GraphicsDirective::to_pmath(flags);
+  Expr e = base::to_pmath(flags);
   e.set(0, Symbol(PMATH_SYMBOL_LIST));
   return e;
 }

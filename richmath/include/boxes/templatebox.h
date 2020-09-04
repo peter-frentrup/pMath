@@ -17,7 +17,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual bool edit_selection(Context *context) override;
+      virtual bool edit_selection(Context &context) override;
       virtual bool selectable(int i = -1) override;
       virtual Box *normalize_selection(int *start, int *end) override;
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
@@ -33,7 +33,7 @@ namespace richmath {
         int              *index,        // [in/out], -1 if called from parent
         bool              called_from_child) override;
       
-      virtual void paint_content(Context *context) override;
+      virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
@@ -46,7 +46,7 @@ namespace richmath {
       static Expr get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item);
 
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
       
     public:
@@ -76,7 +76,7 @@ namespace richmath {
       
       virtual Expr prepare_dynamic(Expr expr) override;
       
-      virtual bool edit_selection(Context *context) override;
+      virtual bool edit_selection(Context &context) override;
       virtual bool selectable(int i = -1) override;
       
       virtual Box *move_logical(
@@ -88,7 +88,7 @@ namespace richmath {
       
       virtual float fill_weight() override;
       virtual void invalidate() override;
-      virtual void paint_content(Context *context) override;
+      virtual void paint_content(Context &context) override;
       
       virtual void on_exit() override;
       virtual void on_finish_editing() override;
@@ -98,7 +98,7 @@ namespace richmath {
       static bool put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs);
 
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
     
     private:
       int _argument;

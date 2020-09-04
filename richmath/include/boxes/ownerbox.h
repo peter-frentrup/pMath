@@ -19,9 +19,9 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override { return 1; }
       
-      virtual void resize(Context *context) final override { resize_default_baseline(context); adjust_baseline_after_resize(context); }
-      virtual void paint(Context *context) override;
-      virtual void paint_content(Context *context);
+      virtual void resize(Context &context) final override { resize_default_baseline(context); adjust_baseline_after_resize(context); }
+      virtual void paint(Context &context) override;
+      virtual void paint_content(Context &context);
       
       virtual Box *remove(int *index) override;
       
@@ -40,11 +40,11 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
-      virtual bool edit_selection(Context *context) override;
+      virtual bool edit_selection(Context &context) override;
     
     protected:
-      virtual void resize_default_baseline(Context *context);
-      void adjust_baseline_after_resize(Context *context);
+      virtual void resize_default_baseline(Context &context);
+      void adjust_baseline_after_resize(Context &context);
       float calculate_scaled_baseline(double scale) const;
     
     protected:
@@ -67,13 +67,13 @@ namespace richmath {
     public:
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual void on_enter() override;
       virtual void on_exit() override;
     
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
   };
 }
 

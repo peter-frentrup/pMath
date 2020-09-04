@@ -18,8 +18,8 @@ namespace richmath {
       static Section *create_from_object(const Expr expr);
       
       float label_width();
-      void resize_label(Context *context);
-      void paint_label(Context *context);
+      void resize_label(Context &context);
+      void paint_label(Context &context);
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -35,7 +35,7 @@ namespace richmath {
       virtual Box *get_highlight_child(Box *src, int *start, int *end) override;
       virtual bool request_repaint(float x, float y, float w, float h) override;
       virtual void invalidate() override;
-      virtual bool edit_selection(Context *context) override;
+      virtual bool edit_selection(Context &context) override;
       
       virtual bool changes_children_style() override { return true; }
       
@@ -64,8 +64,8 @@ namespace richmath {
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
       virtual Box *remove(int *index) override { return this; }
       
@@ -90,8 +90,8 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override;
       
-      virtual void resize(Context *context) override;
-      virtual void paint(Context *context) override;
+      virtual void resize(Context &context) override;
+      virtual void paint(Context &context) override;
       
       virtual Box *remove(int *index) override;
       
@@ -174,7 +174,7 @@ namespace richmath {
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
       
-      virtual bool edit_selection(Context *context) override { return false; }
+      virtual bool edit_selection(Context &context) override { return false; }
       virtual bool selectable(int i) override { return i < 0; }
       
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;

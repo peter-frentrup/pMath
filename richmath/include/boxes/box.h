@@ -258,15 +258,15 @@ namespace richmath {
       const BoxSize &extents() { return _extents; }
       
       virtual bool expand(const BoxSize &size) { return false; }
-      bool update_dynamic_styles(Context *context);
-      virtual void resize(Context *context) = 0;
+      bool update_dynamic_styles(Context &context);
+      virtual void resize(Context &context) = 0;
       virtual void colorize_scope(SyntaxState *state);
-      virtual void paint(Context *context) = 0;
+      virtual void paint(Context &context) = 0;
       virtual Box *get_highlight_child(Box *src, int *start, int *end);
-      virtual void selection_path(Canvas *canvas, int start, int end);
+      virtual void selection_path(Canvas &canvas, int start, int end);
       virtual void scroll_to(float x, float y, float w, float h);
-      virtual void scroll_to(Canvas *canvas, const VolatileSelection &child);
-      void default_scroll_to(Canvas *canvas, Box *parent, const VolatileSelection &child_sel);
+      virtual void scroll_to(Canvas &canvas, const VolatileSelection &child);
+      void default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection &child_sel);
       
       /// Remove a child box and get the new selection. May also delete this box itself.
       ///
@@ -388,7 +388,7 @@ namespace richmath {
       /// user initiated operations.
       ///
       /// TODO: refactor this to not give the full Context, but only selection box, start and end. 
-      virtual bool edit_selection(Context *context); // *not* automatically called
+      virtual bool edit_selection(Context &context); // *not* automatically called
       
       virtual bool changes_children_style() { return false; }
       
@@ -498,8 +498,8 @@ namespace richmath {
       virtual int  count() override {     return 0; }
       virtual int  length() override {    return 0; }
       
-      virtual void resize(Context *context) override {}
-      virtual void paint(Context *context) override {}
+      virtual void resize(Context &context) override {}
+      virtual void paint(Context &context) override {}
       
       virtual Box *remove(int *index) override { return this; }
       

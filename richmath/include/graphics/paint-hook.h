@@ -16,7 +16,7 @@ namespace richmath {
     public:
       PaintHook();
       
-      virtual void run(Box *box, Context *context) = 0;
+      virtual void run(Box *box, Context &context) = 0;
       
     private:
       PaintHook *_next;
@@ -45,7 +45,7 @@ namespace richmath {
       
       void clear();
       void add(Box *box, SharedPtr<PaintHook> hook);
-      void run(Box *box, Context *context); // also removes all hooks for the box
+      void run(Box *box, Context &context); // also removes all hooks for the box
       
       void move_into(PaintHookManager &other);
       
@@ -59,7 +59,7 @@ namespace richmath {
     public:
       SelectionFillHook(int _start, int _end, Color _color, float _alpha = 1.0);
       
-      virtual void run(Box *box, Context *context) override;
+      virtual void run(Box *box, Context &context) override;
       
     public:
       int start;

@@ -301,20 +301,20 @@ Expr VolatileSelection::to_pmath(BoxOutputFlags flags) const {
   return box->to_pmath(flags, start, end);
 } 
 
-void VolatileSelection::add_path(Canvas *canvas) {
+void VolatileSelection::add_path(Canvas &canvas) {
   if(box) {
-    canvas->save();
+    canvas.save();
     
     cairo_matrix_t mat;
     cairo_matrix_init_identity(&mat);
     box->transformation(0, &mat);
     
-    canvas->transform(mat);
+    canvas.transform(mat);
     
-    canvas->move_to(0, 0);
+    canvas.move_to(0, 0);
     box->selection_path(canvas, start, end);
     
-    canvas->restore();
+    canvas.restore();
   }
 }
 

@@ -115,16 +115,16 @@ int SubsuperscriptBox::count() {
   return (_subscript ? 1 : 0) + (_superscript ? 1 : 0);
 }
 
-void SubsuperscriptBox::resize(Context *context) {
-  float old_w = context->width;
-  float old_fs = context->canvas->get_font_size();
-  int old_script_indent = context->script_indent;
-  context->script_indent++;
+void SubsuperscriptBox::resize(Context &context) {
+  float old_w = context.width;
+  float old_fs = context.canvas().get_font_size();
+  int old_script_indent = context.script_indent;
+  context.script_indent++;
   
-  context->width = HUGE_VAL;
+  context.width = HUGE_VAL;
   
-  em = context->get_script_size(old_fs);
-  context->canvas->set_font_size(em);
+  em = context.get_script_size(old_fs);
+  context.canvas().set_font_size(em);
   
   if(_subscript)
     _subscript->resize(context);
@@ -132,16 +132,16 @@ void SubsuperscriptBox::resize(Context *context) {
   if(_superscript)
     _superscript->resize(context);
     
-  context->script_indent = old_script_indent;
-  context->canvas->set_font_size(old_fs);
-  context->width = old_w;
+  context.script_indent = old_script_indent;
+  context.canvas().set_font_size(old_fs);
+  context.width = old_w;
   
   static const BoxSize zero_size(0, 0, 0);
   stretch(context, zero_size);
 }
 
-void SubsuperscriptBox::stretch(Context *context, const BoxSize &base) {
-  context->math_shaper->script_positions(
+void SubsuperscriptBox::stretch(Context &context, const BoxSize &base) {
+  context.math_shaper->script_positions(
     context, base.ascent, base.descent, _subscript, _superscript,
     &sub_y, &super_y);
     
@@ -174,11 +174,11 @@ void SubsuperscriptBox::stretch(Context *context, const BoxSize &base) {
 }
 
 void SubsuperscriptBox::adjust_x(
-  Context           *context,
+  Context           &context,
   uint16_t           base_char,
   const GlyphInfo   &base_info
 ) {
-  context->math_shaper->script_corrections(
+  context.math_shaper->script_corrections(
     context, base_char, base_info,
     _subscript, _superscript,
     sub_y, super_y,
@@ -195,26 +195,26 @@ void SubsuperscriptBox::adjust_x(
   }
 }
 
-void SubsuperscriptBox::paint(Context *context) {
+void SubsuperscriptBox::paint(Context &context) {
   update_dynamic_styles(context);
     
   float x, y;
-  context->canvas->current_pos(&x, &y);
+  context.canvas().current_pos(&x, &y);
   
-  float old_fs = context->canvas->get_font_size();
-  context->canvas->set_font_size(em);
+  float old_fs = context.canvas().get_font_size();
+  context.canvas().set_font_size(em);
   
   if(_subscript) {
-    context->canvas->move_to(x + sub_x, y + sub_y);
+    context.canvas().move_to(x + sub_x, y + sub_y);
     _subscript->paint(context);
   }
   
   if(_superscript) {
-    context->canvas->move_to(x + super_x, y + super_y);
+    context.canvas().move_to(x + super_x, y + super_y);
     _superscript->paint(context);
   }
   
-  context->canvas->set_font_size(old_fs);
+  context.canvas().set_font_size(old_fs);
 }
 
 Box *SubsuperscriptBox::remove(int *index) {

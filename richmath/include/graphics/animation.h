@@ -43,12 +43,12 @@ namespace richmath {
     public:
       BoxAnimation(FrontEndReference _box_id): BoxRepaintEvent(_box_id, 0.0) {}
       
-      virtual void update(ControlContext *cc) = 0;
-      virtual bool paint(Canvas *canvas) = 0;
+      virtual void update(ControlContext *control) = 0;
+      virtual bool paint(Canvas &canvas) = 0;
       
-      bool is_compatible(Canvas *canvas);
-      bool is_compatible(Canvas *canvas, float w, float h);
-      bool is_compatible(Canvas *canvas, const BoxSize &size);
+      bool is_compatible(Canvas &canvas);
+      bool is_compatible(Canvas &canvas, float w, float h);
+      bool is_compatible(Canvas &canvas, const BoxSize &size);
       
     public:
       SharedPtr<Buffer> current_buffer;
@@ -58,18 +58,18 @@ namespace richmath {
     public:
       LinearTransition(
         FrontEndReference _box_id,
-        Canvas *dst,
+        Canvas &dst,
         const BoxSize &size,
         double _seconds);
         
       LinearTransition(
         FrontEndReference _box_id,
-        Canvas *dst,
+        Canvas &dst,
         float x, float y, float w, float h,
         double _seconds);
       
-      virtual void update(ControlContext *cc) override;
-      virtual bool paint(Canvas *canvas) override;
+      virtual void update(ControlContext *control) override;
+      virtual bool paint(Canvas &canvas) override;
       
     public:
       double seconds;

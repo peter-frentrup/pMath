@@ -17,7 +17,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual void find_extends(GraphicsBounds &bounds) override {}
-      virtual void paint(GraphicsBoxContext *context) override;
+      virtual void paint(GraphicsBox *owner, Context &context) override;
       
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       

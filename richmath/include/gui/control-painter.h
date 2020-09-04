@@ -81,10 +81,10 @@ namespace richmath {
       virtual bool is_using_dark_mode() = 0;
       virtual int dpi() = 0;
       
-      static ControlContext *find(Box *box);
+      static ControlContext &find(Box *box);
     
     public:
-      static ControlContext *dummy;
+      static ControlContext &dummy;
   };
   
   class ControlPainter: public Base {
@@ -94,27 +94,27 @@ namespace richmath {
       
     public:
       virtual void calc_container_size(
-        ControlContext       *context,
-        Canvas               *canvas,
+        ControlContext       &control,
+        Canvas               &canvas,
         ContainerType         type,
         BoxSize              *extents);
       
       virtual void calc_container_radii(
-        ControlContext       *context,
+        ControlContext       &control,
         ContainerType         type,
         BoxRadius            *radii);
       
-      virtual Color control_font_color(ControlContext *context, ContainerType type, ControlState state);
+      virtual Color control_font_color(ControlContext &control, ContainerType type, ControlState state);
       
       static bool is_static_background(ContainerType type) {
         return type == NoContainerType || type == PanelControl;
       }
       
-      virtual bool is_very_transparent(ControlContext *context, ContainerType type, ControlState state);
+      virtual bool is_very_transparent(ControlContext &control, ContainerType type, ControlState state);
       
       virtual void draw_container(
-        ControlContext *context,
-        Canvas         *canvas,
+        ControlContext &control,
+        Canvas         &canvas,
         ContainerType   type,
         ControlState    state,
         float           x,
@@ -124,7 +124,7 @@ namespace richmath {
         
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
-        Canvas            *canvas,
+        Canvas            &canvas,
         ContainerType      type1,
         ContainerType      type2,
         ControlState       state1,
@@ -135,30 +135,30 @@ namespace richmath {
         float              height);
         
       virtual void container_content_move(
-        ControlContext *context, 
+        ControlContext &control, 
         ContainerType   type,
         ControlState    state,
         float          *x,
         float          *y);
         
-      virtual bool container_hover_repaint(ControlContext *context, ContainerType type);
+      virtual bool container_hover_repaint(ControlContext &control, ContainerType type);
       
       virtual void paint_scroll_indicator(
-        Canvas *canvas,
+        Canvas &canvas,
         float   x,
         float   y,
         bool    horz,
         bool    vert);
         
-      virtual void system_font_style(ControlContext *context, Style *style);
+      virtual void system_font_style(ControlContext &control, Style *style);
       
-      virtual Color selection_color(ControlContext *context);
+      virtual Color selection_color(ControlContext &control);
       
       virtual float scrollbar_width() { return 16 * 3 / 4.f; };
       
       virtual void paint_scrollbar_part(
-        ControlContext     *context,
-        Canvas             *canvas,
+        ControlContext     &control,
+        Canvas             &canvas,
         ScrollbarPart       part,
         ScrollbarDirection  dir,
         ControlState        state,
@@ -199,8 +199,8 @@ namespace richmath {
         float rel_page_size); // =0: default;  >0..<1: relative;  other: no thumb
         
       void paint_scrollbar(
-        ControlContext     *context,
-        Canvas             *canvas,
+        ControlContext     &control,
+        Canvas             &canvas,
         float               track_pos,
         float               rel_page_size,
         ScrollbarDirection  dir,

@@ -166,20 +166,20 @@ void PointBox::find_extends(GraphicsBounds &bounds) {
     bounds.add_point(_points.get(i, 0), _points.get(i, 1));
 }
 
-void PointBox::paint(GraphicsBoxContext *context) {
-  context->ctx->canvas->save();
+void PointBox::paint(GraphicsBox *owner, Context &context) {
+  context.canvas().save();
   {
-    cairo_matrix_t mat = context->ctx->canvas->get_matrix();
+    cairo_matrix_t mat = context.canvas().get_matrix();
     
-    context->ctx->canvas->reset_matrix();
+    context.canvas().reset_matrix();
     
     for(size_t i = 0; i < _points.rows(); ++i) {
       DoublePoint pt{ _points.get(i, 0), _points.get(i, 1) };
       
       cairo_matrix_transform_point(&mat, &pt.x, &pt.y);
       
-      context->ctx->canvas->new_sub_path();
-      context->ctx->canvas->arc(
+      context.canvas().new_sub_path();
+      context.canvas().arc(
         pt.x, pt.y,
         2,
         0.0,
@@ -187,9 +187,9 @@ void PointBox::paint(GraphicsBoxContext *context) {
         false);
     }
   }
-  context->ctx->canvas->restore();
+  context.canvas().restore();
   
-  context->ctx->canvas->fill();
+  context.canvas().fill();
 }
 
 Expr PointBox::to_pmath(BoxOutputFlags flags) { 

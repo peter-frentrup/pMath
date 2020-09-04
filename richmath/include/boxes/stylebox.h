@@ -9,15 +9,15 @@ namespace richmath {
     public:
       explicit AbstractStyleBox(MathSequence *content = nullptr);
       
-      virtual void paint(Context *context) override;
+      virtual void paint(Context &context) override;
       
       virtual void colorize_scope(SyntaxState *state) override;
       
       virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
         
     protected:
-      virtual void resize_default_baseline(Context *context) override;
-      void paint_or_resize_no_baseline(Context *context, bool paint);
+      virtual void resize_default_baseline(Context &context) override;
+      void paint_or_resize_no_baseline(Context &context, bool paint);
   };
   
   class StyleBox: public AbstractStyleBox {
@@ -47,7 +47,7 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
     
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
       
     public:
       Expr tag;

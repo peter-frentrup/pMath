@@ -43,7 +43,17 @@ namespace richmath {
       void draw_with_text_shadows(Box *box, Expr shadows);
       
     public:
-      Canvas *canvas; // not owned
+      bool has_canvas() { return canvas_ptr != nullptr; }
+      Canvas &canvas() { return *canvas_ptr; }
+      Canvas *canvas_ptr; // not owned
+      
+      template<typename F>
+      void with_canvas(Canvas &new_canvas, F func) {
+        Canvas *old_canvas = canvas_ptr;
+        canvas_ptr = &new_canvas;
+        func();
+        canvas_ptr = old_canvas;
+      }
       
       PaintHookManager pre_paint_hooks;
       PaintHookManager post_paint_hooks;
@@ -91,7 +101,7 @@ namespace richmath {
   
   class ContextState {
     public:
-      explicit ContextState(Context *context): ctx(context) {}
+      explicit ContextState(Context &context): ctx(context) {}
       
       // does not change the color:
       void begin(SharedPtr<Style> style);
@@ -104,7 +114,7 @@ namespace richmath {
       void end();
       
     public:
-      Context *ctx;
+      Context &ctx;
       
       // always set in begin():
       Color                 old_cursor_color;
@@ -127,25 +137,25 @@ namespace richmath {
   
   class AutoCallPaintHooks: public Base {
     public:
-      AutoCallPaintHooks(Box *box, Context *context)
+      AutoCallPaintHooks(Box *box, Context &context)
         : Base(),
           _box(box),
           _context(context)
       {
         SET_BASE_DEBUG_TAG(typeid(*this).name());
-        _context->canvas->current_pos(&_x0, &_y0);
-        _context->pre_paint_hooks.run(_box, _context);
+        _context.canvas().current_pos(&_x0, &_y0);
+        _context.pre_paint_hooks.run(_box, _context);
       }
       
       ~AutoCallPaintHooks() {
-        _context->canvas->move_to(_x0, _y0);
-        _context->post_paint_hooks.run(_box, _context);
+        _context.canvas().move_to(_x0, _y0);
+        _context.post_paint_hooks.run(_box, _context);
       }
       
     private:
       float _x0, _y0;
       Box     *_box;
-      Context *_context;
+      Context &_context;
   };
 }
 

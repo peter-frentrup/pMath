@@ -22,7 +22,7 @@ namespace richmath {
       virtual ~FreetypeFontShaper();
 
       virtual void decode_token(
-        Context        *context,
+        Context        &context,
         int             len,
         const uint16_t *str,
         GlyphInfo      *result) override;

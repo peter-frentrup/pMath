@@ -38,8 +38,8 @@ ColorBox *ColorBox::create(Expr expr, BoxInputFlags opts) {
   return box;
 }
 
-void ColorBox::paint(GraphicsBoxContext *context) {
-  context->ctx->canvas->set_color(_color);
+void ColorBox::paint(GraphicsBox *owner, Context &context) {
+  context.canvas().set_color(_color);
 }
 
 Expr ColorBox::to_pmath(BoxOutputFlags flags) {

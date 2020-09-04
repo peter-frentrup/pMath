@@ -71,29 +71,29 @@ void LineBox::find_extends(GraphicsBounds &bounds) {
   }
 }
 
-void LineBox::paint(GraphicsBoxContext *context) {
+void LineBox::paint(GraphicsBox *owner, Context &context) {
   for(int i = 0; i < _lines.length(); ++i) {
     DoubleMatrix &line = _lines[i];
     
     if(line.rows() > 1) {
-      context->ctx->canvas->move_to(line.get(0, 0), line.get(0, 1));
+      context.canvas().move_to(line.get(0, 0), line.get(0, 1));
       
       for(int j = 1; j < line.rows(); ++j) 
-        context->ctx->canvas->line_to(line.get(j, 0), line.get(j, 1));
+        context.canvas().line_to(line.get(j, 0), line.get(j, 1));
     }
     else if(line.rows() == 1){
       DoublePoint pt { line.get(0, 0), line.get(0, 1) };
-      context->ctx->canvas->move_to(pt.x, pt.y);
-      context->ctx->canvas->line_to(pt.x, pt.y);
+      context.canvas().move_to(pt.x, pt.y);
+      context.canvas().line_to(pt.x, pt.y);
     }
   }
   
-  cairo_line_cap_t cap = cairo_get_line_cap(context->ctx->canvas->cairo());
-  cairo_set_line_cap(context->ctx->canvas->cairo(), CAIRO_LINE_CAP_ROUND);
+  cairo_line_cap_t cap = cairo_get_line_cap(context.canvas().cairo());
+  cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_ROUND);
   
-  context->ctx->canvas->hair_stroke();
+  context.canvas().hair_stroke();
   
-  cairo_set_line_cap(context->ctx->canvas->cairo(), cap);
+  cairo_set_line_cap(context.canvas().cairo(), cap);
 }
 
 Expr LineBox::to_pmath(BoxOutputFlags flags) { 

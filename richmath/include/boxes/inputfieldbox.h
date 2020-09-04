@@ -14,15 +14,15 @@ namespace richmath {
       // Box::try_create<InputFieldBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual ControlState calc_state(Context *context) override;
+      virtual ControlState calc_state(Context &context) override;
       
       virtual bool expand(const BoxSize &size) override;
-      virtual void paint_content(Context *context) override;
+      virtual void paint_content(Context &context) override;
       
       virtual void reset_style() override;
       
       virtual void scroll_to(float x, float y, float w, float h) override;
-      virtual void scroll_to(Canvas *canvas, const VolatileSelection &child_sel) override;
+      virtual void scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
       
       virtual Box *remove(int *index) override;
       
@@ -40,7 +40,7 @@ namespace richmath {
       virtual bool exitable() override;
       virtual bool selectable(int i = -1) override;
       
-      virtual bool edit_selection(Context *context) override { return true; }
+      virtual bool edit_selection(Context &context) override { return true; }
       
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;
@@ -56,7 +56,7 @@ namespace richmath {
       bool assign_dynamic();
       
     protected:
-      virtual void resize_default_baseline(Context *context) override;
+      virtual void resize_default_baseline(Context &context) override;
 
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::InputFieldBox; }
       

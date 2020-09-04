@@ -24,15 +24,15 @@
 
 #if !GTK_CHECK_VERSION(2,22,0)
 static GdkDragAction gdk_drag_context_get_selected_action(GdkDragContext *context) {
-  return context->action;
+  return context.action;
 }
 
 static GdkDragAction gdk_drag_context_get_suggested_action(GdkDragContext *context) {
-  return context->action;
+  return context.action;
 }
 
 static GdkDragAction gdk_drag_context_get_actions(GdkDragContext *context) {
-  return context->actions;
+  return context.actions;
 }
 #endif
 
@@ -904,23 +904,23 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   return true;
 }
 
-void MathGtkWidget::paint_background(Canvas *canvas) {
-//  cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_CLEAR);
-//  canvas->set_color(Color::Black, 0.0);
-//  canvas->paint();
-//  cairo_set_operator(canvas->cairo(), CAIRO_OPERATOR_OVER);
+void MathGtkWidget::paint_background(Canvas &canvas) {
+//  cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
+//  canvas.set_color(Color::Black, 0.0);
+//  canvas.paint();
+//  cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
 }
 
-void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
-  cairo_set_line_width(canvas->cairo(), 1);
-  cairo_set_line_cap(canvas->cairo(), CAIRO_LINE_CAP_SQUARE);
-  canvas->set_font_size(10);// 10 * 4/3.
+void MathGtkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
+  cairo_set_line_width(canvas.cairo(), 1);
+  cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
+  canvas.set_font_size(10);// 10 * 4/3.
   
   if(!resize_only) {
     Color color = document()->get_style(Background);
     if(color.is_valid()) {
-      canvas->set_color(color);
-      canvas->paint();
+      canvas.set_color(color);
+      canvas.paint();
     }
     else
       paint_background(canvas);
@@ -931,8 +931,8 @@ void MathGtkWidget::paint_canvas(Canvas *canvas, bool resize_only) {
       on_changed_dark_mode();
   }
   
-  canvas->scale(scale_factor(), scale_factor());
-  canvas->set_color(document()->get_style(FontColor, Color::Black));
+  canvas.scale(scale_factor(), scale_factor());
+  canvas.set_color(document()->get_style(FontColor, Color::Black));
   
   document()->paint_resize(canvas, resize_only);
   
@@ -1061,7 +1061,7 @@ bool MathGtkWidget::on_draw(cairo_t *cr) {
     canvas.close_path();
     canvas.clip();
     
-    paint_canvas(&canvas, false);
+    paint_canvas(canvas, false);
     
     if(_im_context_pos != document_context()->selection) {
       _im_context_pos = document_context()->selection;
