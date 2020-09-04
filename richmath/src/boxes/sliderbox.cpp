@@ -237,7 +237,7 @@ Expr SliderBox::to_pmath(BoxOutputFlags flags) {
   
   Expr result = g.end();
   result.set(0, Symbol(richmath_System_SliderBox));
-  return std::move(result);
+  return result;
 }
 
 void SliderBox::reset_style() {

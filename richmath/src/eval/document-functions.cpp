@@ -375,7 +375,7 @@ Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Ex
   String result = doc->native()->directory();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  return std::move(result);
+  return std::move(result); // Not literally the return type Expr, hence std::move.
 }
 
 bool DocumentCurrentValueProvider::put_DocumentDirectory(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -410,7 +410,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Exp
   String result = doc->native()->filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  return std::move(result);
+  return std::move(result); // Not literally the return type Expr, hence std::move.
 }
 
 bool DocumentCurrentValueProvider::put_DocumentFileName(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -444,7 +444,7 @@ Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj,
   String result = doc->native()->full_filename();
   if(!result.is_valid())
     return Symbol(PMATH_SYMBOL_NONE);
-  return std::move(result);
+  return std::move(result); // Not literally the return type Expr, hence std::move.
 }
 
 bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj, Expr item, Expr rhs) {

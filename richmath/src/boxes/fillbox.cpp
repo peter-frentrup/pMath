@@ -88,7 +88,7 @@ Expr FillBox::to_pmath(BoxOutputFlags flags) {
 
   Expr expr = g.end();
   expr.set(0, Symbol(richmath_System_FillBox));
-  return std::move(expr);
+  return expr;
 }
 
 Box *FillBox::move_vertical(

@@ -1237,7 +1237,7 @@ Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
 
 Expr TextSequence::Impl::add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end) {
   if(!has(flags, BoxOutputFlags::WithDebugInfo))
-    return std::move(expr);
+    return expr;
   
   pmath_t obj = expr.release();
   obj = pmath_try_set_debug_info(

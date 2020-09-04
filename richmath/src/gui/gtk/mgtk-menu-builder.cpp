@@ -312,7 +312,7 @@ Expr MathGtkMenuBuilder::selected_item_command() {
   if(cmd.is_null()) 
     return Expr{};
   
-  return std::move(cmd);
+  return cmd;
 }
 
 //} ... class MathGtkMenuBuilder

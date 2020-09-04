@@ -148,7 +148,7 @@ Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
   }
   
   expr.set(0, Symbol(richmath_System_DynamicBox));
-  return std::move(expr);
+  return expr;
 }
 
 void DynamicBox::dynamic_updated() {

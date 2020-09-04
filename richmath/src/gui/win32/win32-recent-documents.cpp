@@ -438,7 +438,7 @@ RegistryKey RegistryKey::open(const wchar_t *name) const {
   
   HRreport(HRESULT_FROM_WIN32(RegOpenKeyW(_key, name, result.pointer())));
   
-  return std::move(result);
+  return result;
 }
 
 RegistryKey RegistryKey::create(const wchar_t *name, REGSAM desiredAccess, DWORD options) {
@@ -446,7 +446,7 @@ RegistryKey RegistryKey::create(const wchar_t *name, REGSAM desiredAccess, DWORD
   
   HRreport(HRESULT_FROM_WIN32(RegCreateKeyExW(_key, name, 0, nullptr, options, desiredAccess, nullptr, result.pointer(), nullptr)));
   
-  return std::move(result);
+  return result;
 }
 
 HRESULT RegistryKey::set_string_value(const wchar_t *name, const wchar_t *str) {

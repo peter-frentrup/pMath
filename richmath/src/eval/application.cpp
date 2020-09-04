@@ -1398,7 +1398,7 @@ Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   current_evaluation_box_id = old_current_evaluation_box_id;
   is_executing_for_sth      = old_is_executing_for_sth;
   
-  return std::move(result);
+  return result;
 }
 
 Expr Application::interrupt_wait_for_interactive(Expr expr, Box *box, double seconds) {
@@ -1420,7 +1420,7 @@ Expr Application::interrupt_wait_for_interactive(Expr expr, Box *box, double sec
   }
   pmath_atomic_unlock(&print_pos_lock);
   
-  return std::move(result);
+  return result;
 }
 
 void Application::delay_dynamic_updates(bool delay) {
@@ -1693,14 +1693,14 @@ static Expr cnt_setcurrentvalue(Expr assignment) {
         item = item[2];
       }
       else
-        return std::move(assignment);
+        return assignment;
       
       if(Application::set_current_value(obj, std::move(item), rhs))
-        return std::move(rhs);
+        return rhs;
     }
   }
   
-  return std::move(assignment);
+  return assignment;
 }
 
 static Expr cnt_documentread(Expr data) {
@@ -2139,7 +2139,7 @@ static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item) {
 
 Expr richmath_eval_FrontEnd_EvaluationBox(Expr expr) {
   if(expr.expr_length() != 0)
-    return std::move(expr);
+    return expr;
   
   Box *box = Application::get_evaluation_box();
   if(box)
@@ -2150,7 +2150,7 @@ Expr richmath_eval_FrontEnd_EvaluationBox(Expr expr) {
 
 Expr richmath_eval_FrontEnd_EvaluationDocument(Expr expr) {
   if(expr.expr_length() != 0)
-    return std::move(expr);
+    return expr;
   
   Box *box = Application::get_evaluation_box();
   Document *doc = nullptr;

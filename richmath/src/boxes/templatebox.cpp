@@ -683,7 +683,7 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   if(expr[0] == PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE)
     expr.set(2, obj->id().to_pmath_raw());
   
-  return std::move(expr);
+  return expr;
 }
 
 bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs) {
