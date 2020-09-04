@@ -12,7 +12,8 @@ namespace richmath {
     protected:
       virtual ~ColorBox();
     public:
-      static ColorBox *create(Expr expr, BoxInputFlags opts); // may return nullptr
+      static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
+      static ColorBox *try_create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

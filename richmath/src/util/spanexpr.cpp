@@ -777,7 +777,7 @@ void SequenceSpan::reset() {
   _is_sequence = false;
 }
 
-SpanExpr *SequenceSpan::item(int i) { // 1-based; always may return nullptr
+SpanExpr *SequenceSpan::item(int i) { // 1-based; may return nullptr
   if(i <= 0 || i > _items.length())
     return nullptr;
     

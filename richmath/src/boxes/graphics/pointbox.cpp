@@ -150,7 +150,7 @@ bool PointBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
-PointBox *PointBox::create(Expr expr, BoxInputFlags opts) {
+PointBox *PointBox::try_create(Expr expr, BoxInputFlags opts) {
   PointBox *box = new PointBox;
   
   if(!box->try_load_from_object(expr, opts)) {

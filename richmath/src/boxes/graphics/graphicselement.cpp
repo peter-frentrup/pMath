@@ -101,12 +101,12 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   Expr head = expr[0];
   
   if(head == richmath_System_PointBox) {
-    if(auto ge = PointBox::create(expr, opts))
+    if(auto ge = PointBox::try_create(expr, opts))
       return ge;
   }
   
   if(head == richmath_System_LineBox) {
-    if(auto ge = LineBox::create(expr, opts))
+    if(auto ge = LineBox::try_create(expr, opts))
       return ge;
   }
   
@@ -114,7 +114,7 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
       head == PMATH_SYMBOL_HUE       ||
       head == PMATH_SYMBOL_GRAYLEVEL)
   {
-    if(auto ge = ColorBox::create(expr, opts))
+    if(auto ge = ColorBox::try_create(expr, opts))
       return ge;
   }
   

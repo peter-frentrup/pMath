@@ -27,7 +27,7 @@ bool ColorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-ColorBox *ColorBox::create(Expr expr, BoxInputFlags opts) {
+ColorBox *ColorBox::try_create(Expr expr, BoxInputFlags opts) {
   ColorBox *box = new ColorBox;
   
   if(!box->try_load_from_object(expr, opts)) {

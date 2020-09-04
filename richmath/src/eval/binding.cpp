@@ -868,7 +868,7 @@ static bool edit_style_definitions_cmd(Expr cmd) {
                      Rule(Symbol(richmath_System_StyleDefinitions), String("PrivateStyleDefinitions.pmathdoc")));
     }
     
-    style_doc = Application::create_document(stylesheet);
+    style_doc = Application::try_create_document(stylesheet);
     if(!style_doc)
       return false;
     
@@ -1116,7 +1116,7 @@ static bool new_cmd(Expr cmd) {
 //  Application::notify(
 //    ClientNotification::CreateDocument,
 //    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
-  Document *doc = Application::create_document();
+  Document *doc = Application::try_create_document();
   if(!doc)
     return false;
     

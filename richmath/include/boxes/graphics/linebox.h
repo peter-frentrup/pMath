@@ -10,7 +10,8 @@ namespace richmath {
     protected:
       virtual ~LineBox();
     public:
-      static LineBox *create(Expr expr, BoxInputFlags opts); // may return nullptr
+      static GraphicsElement *create(Expr expr, BoxInputFlags opts) = delete;
+      static LineBox *try_create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       

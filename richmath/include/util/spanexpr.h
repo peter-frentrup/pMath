@@ -267,7 +267,7 @@ namespace richmath {
       bool is_sequence(){ return _is_sequence; }
       int  length(){      return _items.length(); }
       
-      SpanExpr *item(int i); // 1-based; may return empty SpanExpr!
+      SpanExpr *item(int i); // 1-based; may return nullptr
       SpanExpr *all(){ return _span; }
       
     protected:

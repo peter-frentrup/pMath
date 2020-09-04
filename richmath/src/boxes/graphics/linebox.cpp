@@ -51,7 +51,7 @@ bool LineBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
-LineBox *LineBox::create(Expr expr, BoxInputFlags opts) {
+LineBox *LineBox::try_create(Expr expr, BoxInputFlags opts) {
   LineBox *box = new LineBox;
   
   if(!box->try_load_from_object(expr, opts)) {

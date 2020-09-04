@@ -110,8 +110,8 @@ namespace richmath {
          The document will not be visible, call invslidate_options() to
          recognize the "Visible" style option.
       */
-      static Document *create_document();
-      static Document *create_document(Expr data);
+      static Document *try_create_document();
+      static Document *try_create_document(Expr data);
       
       // you should have normalized the filename with FileSystem::to_absolute_file_name()
       static Document *find_open_document(String filename);

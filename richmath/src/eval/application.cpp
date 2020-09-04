@@ -1011,7 +1011,7 @@ Box *Application::get_evaluation_box() {
   return nullptr;
 }
 
-Document *Application::create_document() {
+Document *Application::try_create_document() {
   Document *doc = nullptr;
   
 #ifdef RICHMATH_USE_WIN32_GUI
@@ -1100,13 +1100,12 @@ Document *Application::create_document() {
   return doc;
 }
 
-Document *Application::create_document(Expr data) {
+Document *Application::try_create_document(Expr data) {
   // CreateDocument({sections...}, options...)
   
   // TODO: respect window-related options (WindowTitle...)
   
-  Document *doc = Application::create_document();
-  
+  Document *doc = Application::try_create_document();
   if(!doc)
     return nullptr;
     
@@ -1162,7 +1161,7 @@ Document *Application::open_new_document(String full_filename) {
   if(full_filename.is_null())
     return nullptr;
   
-  Document *doc = Application::create_document();
+  Document *doc = Application::try_create_document();
   if(!doc)
     return nullptr;
     
