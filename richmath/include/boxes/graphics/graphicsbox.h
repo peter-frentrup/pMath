@@ -102,10 +102,10 @@ namespace richmath {
       bool have_axes(bool *x, bool *y);
       
       Expr generate_default_ticks(double min, double max, bool with_labels);
-      Expr generate_ticks(const GraphicsBounds &bounds, enum AxisIndex part);
-      Expr get_ticks(const GraphicsBounds &bounds, enum AxisIndex part);
+      Expr generate_ticks(const GraphicsBounds &bounds, AxisIndex part);
+      Expr get_ticks(const GraphicsBounds &bounds, AxisIndex part);
       
-      bool set_axis_ends(enum AxisIndex part, const GraphicsBounds &bounds); // true if ends changed
+      bool set_axis_ends(AxisIndex part, const GraphicsBounds &bounds); // true if ends changed
       
       void resize_axes(Context &context);
   };

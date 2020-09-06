@@ -42,7 +42,7 @@ namespace richmath {
       Box *origin;
   };
   
-  enum class SpecialKey: char {
+  enum class SpecialKey: uint8_t {
     Unknown = 0,
     
     Left,

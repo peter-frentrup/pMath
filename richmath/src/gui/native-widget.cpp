@@ -248,7 +248,7 @@ CursorType NativeWidget::text_cursor(float dx, float dy) {
   if(part == -4)
     part = 4;
     
-  return (CursorType)(TextNCursor + part);
+  return (CursorType)((int)CursorType::TextN + part);
 }
 
 CursorType NativeWidget::text_cursor(Box *box, int index) {
@@ -260,7 +260,7 @@ CursorType NativeWidget::text_cursor(Box *box, int index) {
 }
 
 CursorType NativeWidget::size_cursor(float dx, float dy, CursorType base) {
-  int delta = base - SizeNCursor;
+  int delta = (int)base - (int)CursorType::SizeN;
   
   if(delta < -8 || delta > 8)
     return base;
@@ -276,7 +276,7 @@ CursorType NativeWidget::size_cursor(float dx, float dy, CursorType base) {
   else if(part <= -4)
     part += 8;
     
-  return (CursorType)(SizeNCursor + part);
+  return (CursorType)((int)CursorType::SizeN + part);
 }
 
 CursorType NativeWidget::size_cursor(Box *box, CursorType base) {

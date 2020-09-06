@@ -252,13 +252,6 @@ namespace richmath {
       float y_offset;
   };
   
-  enum ScriptPosition {
-    ScriptUpperLeft,
-    ScriptLowerLeft,
-    ScriptUpperRight,
-    ScriptLowerRight
-  };
-  
   class MathSequence;
   
   class MathShaper: public TextShaper {

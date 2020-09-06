@@ -388,34 +388,34 @@ void Win32Widget::set_cursor(CursorType type) {
   }
   
   switch(type) {
-    case FingerCursor:
+    case CursorType::Finger:
       SetCursor(LoadCursor(0, IDC_HAND));
       return;
       
-    case DefaultCursor:
+    case CursorType::Default:
       SetCursor(LoadCursor(0, IDC_ARROW));
       return;
       
-    case CurrentCursor:
+    case CursorType::Current:
       break;
       
-    case SizeNCursor:
-    case SizeSCursor:
+    case CursorType::SizeN:
+    case CursorType::SizeS:
       SetCursor(LoadCursor(0, IDC_SIZENS));
       return;
       
-    case SizeNWCursor:
-    case SizeSECursor:
+    case CursorType::SizeNW:
+    case CursorType::SizeSE:
       SetCursor(LoadCursor(0, IDC_SIZENWSE));
       return;
       
-    case SizeECursor:
-    case SizeWCursor:
+    case CursorType::SizeE:
+    case CursorType::SizeW:
       SetCursor(LoadCursor(0, IDC_SIZEWE));
       return;
       
-    case SizeNECursor:
-    case SizeSWCursor:
+    case CursorType::SizeNE:
+    case CursorType::SizeSW:
       SetCursor(LoadCursor(0, IDC_SIZENESW));
       return;
       
@@ -930,7 +930,7 @@ void Win32Widget::on_mouseup(MouseEvent &event) {
 
 void Win32Widget::on_mousemove(MouseEvent &event) {
   mouse_moving = true;
-  cursor = DefaultCursor;
+  cursor = CursorType::Default;
   
   Win32TooltipWindow::move_global_tooltip();
   document()->mouse_move(event);

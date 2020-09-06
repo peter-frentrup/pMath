@@ -16,10 +16,10 @@ namespace richmath {
   class Win32DocumentWindow;
   class Win32Menu;
   
-  enum MenuAppearence {
-    MaAllwaysShow,
-    MaAutoShow,
-    MaNeverShow
+  enum class MenuAppearence {
+    Show,
+    AutoShow,
+    Hide
   };
   
   class Win32Menubar: public Base {

@@ -189,7 +189,7 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
 void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
   if(mouse_inside) {
     if(Document *doc = find_parent<Document>(false))
-      doc->native()->set_cursor(DefaultCursor);
+      doc->native()->set_cursor(CursorType::Default);
   }
   
   if(!enabled())

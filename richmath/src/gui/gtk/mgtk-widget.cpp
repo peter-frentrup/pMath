@@ -1017,7 +1017,7 @@ void MathGtkWidget::on_changed_dark_mode() {
 
 void MathGtkWidget::handle_mouse_move(MouseEvent &event) {
   mouse_moving = true;
-  cursor = DefaultCursor;
+  cursor = CursorType::Default;
   
   MathGtkTooltipWindow::move_global_tooltip();
   document()->mouse_move(event);

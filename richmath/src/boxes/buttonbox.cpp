@@ -52,9 +52,9 @@ void AbstractButtonBox::on_mouse_move(MouseEvent &event) {
   if(mouse_inside && enabled()) {
     if(Document *doc = find_parent<Document>(false)) {
       if(type == FramelessButton)
-        doc->native()->set_cursor(FingerCursor);
+        doc->native()->set_cursor(CursorType::Finger);
       else
-        doc->native()->set_cursor(DefaultCursor);
+        doc->native()->set_cursor(CursorType::Default);
     }
   }
   

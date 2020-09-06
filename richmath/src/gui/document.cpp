@@ -351,7 +351,7 @@ Document::Document()
     prev_sel_line(-1),
     prev_sel_box_id(FrontEndReference::None),
     must_resize_min(0),
-    drag_status(DragStatusIdle),
+    drag_status(DragStatus::Idle),
     auto_scroll(false),
     _native(NativeWidget::dummy),
     auto_completion(this)
@@ -580,7 +580,7 @@ static void reverse_mouse_enter(Box *base, Box *child) {
 
 void Document::mouse_move(MouseEvent &event) {
   if(Box *receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id)) {
-    native()->set_cursor(CurrentCursor);
+    native()->set_cursor(CursorType::Current);
     
     receiver->on_mouse_move(event);
   }
@@ -712,7 +712,7 @@ void Document::on_mouse_down(MouseEvent &event) {
   
   event.set_origin(this);
   
-  drag_status = DragStatusIdle;
+  drag_status = DragStatus::Idle;
   if(event.left) {
     float ddx, ddy;
     native()->double_click_dist(&ddx, &ddy);
@@ -782,7 +782,7 @@ void Document::on_mouse_down(MouseEvent &event) {
       
       if(Impl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
         // maybe drag & drop
-        drag_status = DragStatusMayDrag;
+        drag_status = DragStatus::MayDrag;
       }
       else if(mouse_sel.selectable())
         select(mouse_sel);
@@ -799,14 +799,14 @@ void Document::on_mouse_move(MouseEvent &event) {
   bool was_inside_start;
   VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
   
-  if(event.left && drag_status == DragStatusMayDrag) {
+  if(event.left && drag_status == DragStatus::MayDrag) {
     float ddx, ddy;
     native()->double_click_dist(&ddx, &ddy);
     
     if( fabs(event.x - mouse_history.down_pos.x) > ddx ||
         fabs(event.y - mouse_history.down_pos.y) > ddy)
     {
-      drag_status = DragStatusCurrentlyDragging;
+      drag_status = DragStatus::CurrentlyDragging;
       mouse_history.down_pos = Point(HUGE_VAL, HUGE_VAL);
       native()->do_drag_drop(selection_now(), event);
     }
@@ -814,8 +814,8 @@ void Document::on_mouse_move(MouseEvent &event) {
     return;
   }
   
-  if(drag_status == DragStatusCurrentlyDragging) {
-    native()->set_cursor(CurrentCursor);
+  if(drag_status == DragStatus::CurrentlyDragging) {
+    native()->set_cursor(CursorType::Current);
     return;
   }
   
@@ -823,25 +823,25 @@ void Document::on_mouse_move(MouseEvent &event) {
     return;
   
   if(!event.left && Impl(*this).is_inside_selection(mouse_sel, was_inside_start)) {
-    native()->set_cursor(DefaultCursor);
+    native()->set_cursor(CursorType::Default);
   }
   else if(mouse_sel.selectable()) {
     if(mouse_sel.box == this) {
       if(length() == 0)
-        native()->set_cursor(TextNCursor);
+        native()->set_cursor(CursorType::TextN);
       else if(mouse_sel.is_empty())
-        native()->set_cursor(DocumentCursor);
+        native()->set_cursor(CursorType::Document);
       else
-        native()->set_cursor(SectionCursor);
+        native()->set_cursor(CursorType::Section);
     }
     else
       native()->set_cursor(NativeWidget::text_cursor(mouse_sel.box, mouse_sel.start));
   }
   else if(dynamic_cast<Section *>(mouse_sel.box) && selectable()) {
-    native()->set_cursor(NoSelectCursor);
+    native()->set_cursor(CursorType::NoSelect);
   }
   else
-    native()->set_cursor(DefaultCursor);
+    native()->set_cursor(CursorType::Default);
     
   if(event.left && context.clicked_box_id) {
     if(VolatileSelection mouse_down_sel = mouse_history.down_sel.get_all()) {
@@ -878,7 +878,7 @@ void Document::on_mouse_move(MouseEvent &event) {
 void Document::on_mouse_up(MouseEvent &event) {
   event.set_origin(this);
   
-  if(event.left && drag_status != DragStatusIdle) {
+  if(event.left && drag_status != DragStatus::Idle) {
     bool was_inside_start;
     VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
                  
@@ -887,11 +887,11 @@ void Document::on_mouse_up(MouseEvent &event) {
     }
   }
   
-  drag_status = DragStatusIdle;
+  drag_status = DragStatus::Idle;
 }
 
 void Document::on_mouse_cancel() {
-  drag_status = DragStatusIdle;
+  drag_status = DragStatus::Idle;
 }
 
 void Document::on_key_down(SpecialKeyEvent &event) {
@@ -1839,7 +1839,7 @@ void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::Rectangle *ou
   }
   
   DragStatus old_drag_status = drag_status;
-  drag_status = DragStatusIdle;
+  drag_status = DragStatus::Idle;
   
   SelectionReference oldsel = context.selection;
   context.selection = SelectionReference();
@@ -1895,7 +1895,7 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
   }
   
   DragStatus old_drag_status = drag_status;
-  drag_status = DragStatusIdle;
+  drag_status = DragStatus::Idle;
   
   SelectionReference oldsel = context.selection;
   context.selection = SelectionReference();
@@ -3472,7 +3472,7 @@ Expr Document::get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item)
 }
 
 void Document::reset_mouse() {
-  drag_status = DragStatusIdle;
+  drag_status = DragStatus::Idle;
   
   mouse_history.reset();
   Application::delay_dynamic_updates(false);
@@ -3639,7 +3639,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
       
       Impl(*this).paint_cursor_and_flash();
       
-      if(drag_source != context.selection && drag_status == DragStatusCurrentlyDragging) {
+      if(drag_source != context.selection && drag_status == DragStatus::CurrentlyDragging) {
         if(VolatileSelection drag_src = drag_source.get_all()) {
           drag_src.add_path(canvas);
           context.draw_selection_path();

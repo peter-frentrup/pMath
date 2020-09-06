@@ -75,7 +75,7 @@ namespace w { // win32 typedefs that mingw does not provide
 
 Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<Win32Menu> menu)
   : Base(),
-    _appearence(MaAllwaysShow),
+    _appearence(MenuAppearence::Show),
     _window(window),
     _hwnd(nullptr),
     _menu(menu),
@@ -233,14 +233,14 @@ void Win32Menubar::appearence(MenuAppearence value) {
   _appearence = value;
   
   switch(_appearence) {
-    case MaAllwaysShow:
+    case MenuAppearence::Show:
       if(!visible()) {
         ShowWindow(_hwnd, SW_SHOWNOACTIVATE);
         _window->rearrange();
       }
       break;
       
-    case MaNeverShow:
+    case MenuAppearence::Hide:
       if(visible()) {
         kill_focus();
         ShowWindow(_hwnd, SW_HIDE);
@@ -248,7 +248,7 @@ void Win32Menubar::appearence(MenuAppearence value) {
       }
       break;
       
-    case MaAutoShow:
+    case MenuAppearence::AutoShow:
       break;
   }
   
@@ -259,7 +259,7 @@ void Win32Menubar::appearence(MenuAppearence value) {
     
     SendMessageW(_hwnd, TB_GETBUTTONINFOW, i, (LPARAM)&info);
     
-    if(_appearence == MaAutoShow)
+    if(_appearence == MenuAppearence::AutoShow)
       info.fsState &= ~TBSTATE_HIDDEN;
     else
       info.fsState |= TBSTATE_HIDDEN;
@@ -275,7 +275,7 @@ void Win32Menubar::appearence(MenuAppearence value) {
 }
 
 bool Win32Menubar::is_pinned() {
-  if(_appearence != MaAutoShow)
+  if(_appearence != MenuAppearence::AutoShow)
     return false;
     
   TBBUTTONINFOW info;
@@ -468,7 +468,7 @@ void Win32Menubar::show_sysmenu() {
 }
 
 void Win32Menubar::set_focus(int item) {
-  if(_appearence == MaNeverShow)
+  if(_appearence == MenuAppearence::Hide)
     return;
     
   next_item = 0;
@@ -500,7 +500,7 @@ void Win32Menubar::kill_focus() {
     current_menubar = nullptr;
   
   hot_item = 0;
-  if(_appearence == MaAutoShow && !is_pinned()) {
+  if(_appearence == MenuAppearence::AutoShow && !is_pinned()) {
     ShowWindow(_hwnd, SW_HIDE);
     _window->rearrange();
   }
@@ -929,7 +929,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       break;
       
     case WM_SYSKEYDOWN: {
-        if(_appearence != MaNeverShow) {
+        if(_appearence != MenuAppearence::Hide) {
           if(wParam == VK_MENU)
             return true;
       
@@ -950,7 +950,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
           break;
         }
         
-        if(_appearence != MaNeverShow) {
+        if(_appearence != MenuAppearence::Hide) {
           bool was_visible = visible();
           
           switch(wParam) {

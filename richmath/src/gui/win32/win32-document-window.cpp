@@ -1054,9 +1054,9 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
                        GetWindowLongW(_hwnd, GWL_STYLE) | (WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
                        
         if(glass_enabled())
-          menubar->appearence(MaAutoShow);
+          menubar->appearence(MenuAppearence::AutoShow);
         else
-          menubar->appearence(MaAllwaysShow);
+          menubar->appearence(MenuAppearence::Show);
       }
       break;
       
@@ -1076,7 +1076,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         SetWindowLongW(_hwnd, GWL_STYLE,
                        GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
                        
-        menubar->appearence(MaNeverShow);
+        menubar->appearence(MenuAppearence::Hide);
       }
       break;
       
@@ -1096,7 +1096,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         SetWindowLongW(_hwnd, GWL_STYLE,
                        GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
                        
-        menubar->appearence(MaNeverShow);
+        menubar->appearence(MenuAppearence::Hide);
       }
       break;
   }
@@ -1150,11 +1150,11 @@ void Win32DocumentWindow::on_theme_changed() {
   base::on_theme_changed();
   
   if(window_frame() != WindowFrameNormal)
-    menubar->appearence(MaNeverShow);
+    menubar->appearence(MenuAppearence::Hide);
   else if(glass_enabled())
-    menubar->appearence(MaAutoShow);
+    menubar->appearence(MenuAppearence::AutoShow);
   else
-    menubar->appearence(MaAllwaysShow);
+    menubar->appearence(MenuAppearence::Show);
     
   DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
   if( (Win32Themes::IsCompositionActive &&

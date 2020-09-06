@@ -220,7 +220,7 @@ void ProgressIndicatorBox::on_mouse_move(MouseEvent &event) {
   Document *doc = find_parent<Document>(false);
   
   if(doc && doc->native()) {
-    doc->native()->set_cursor(DefaultCursor);
+    doc->native()->set_cursor(CursorType::Default);
   }
 }
 

@@ -1269,19 +1269,19 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
       
       switch(mouse_over_part) {
         case GraphicsPartSizeRight:
-          doc->native()->set_cursor(NativeWidget::size_cursor(this, SizeECursor));
+          doc->native()->set_cursor(NativeWidget::size_cursor(this, CursorType::SizeE));
           break;
           
         case GraphicsPartSizeBottom:
-          doc->native()->set_cursor(NativeWidget::size_cursor(this, SizeSCursor));
+          doc->native()->set_cursor(NativeWidget::size_cursor(this, CursorType::SizeS));
           break;
           
         case GraphicsPartSizeBottomRight:
-          doc->native()->set_cursor(NativeWidget::size_cursor(this, SizeSECursor));
+          doc->native()->set_cursor(NativeWidget::size_cursor(this, CursorType::SizeSE));
           break;
           
         default:
-          doc->native()->set_cursor(DefaultCursor);
+          doc->native()->set_cursor(CursorType::Default);
       }
     }
   }

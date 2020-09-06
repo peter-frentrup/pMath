@@ -16,11 +16,11 @@ namespace richmath {
   extern bool DebugFollowMouse;
   extern bool DebugSelectionBounds;
   
-  typedef enum {
-    DragStatusIdle,
-    DragStatusMayDrag,
-    DragStatusCurrentlyDragging
-  } DragStatus;
+  enum class DragStatus : uint8_t {
+    Idle,
+    MayDrag,
+    CurrentlyDragging
+  };
   
   class Document: public SectionList {
       friend class NativeWidget;

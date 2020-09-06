@@ -195,7 +195,7 @@ namespace {
         if(key.is_literal() || key.is_volatile())
           return _key_to_type[key.to_literal()];
         else
-          return StyleTypeNone;
+          return StyleType::None;
       }
       
       static Expr get_name(StyleOptionName key) { return _key_to_name[key]; }
@@ -494,51 +494,51 @@ void StyleImpl::collect_unused_dynamic(Hashtable<StyleOptionName, Expr> &dynamic
 }
 
 bool StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
-  enum StyleType type = StyleInformation::get_type(n);
+  StyleType type = StyleInformation::get_type(n);
   
   bool any_change = false;
   switch(type) {
-    case StyleTypeNone:
+    case StyleType::None:
       pmath_debug_print("[Cannot encode style %u]\n", (unsigned)(int)n);
       break;
       
-    case StyleTypeBool:
+    case StyleType::Bool:
       any_change = set_pmath_bool(n, obj);
       break;
       
-    case StyleTypeBoolAuto:
+    case StyleType::AutoBool:
       any_change = set_pmath_bool_auto(n, obj);
       break;
       
-    case StyleTypeColor:
+    case StyleType::Color:
       any_change = set_pmath_color(n, obj);
       break;
       
-    case StyleTypeNumber:
+    case StyleType::Number:
       any_change = set_pmath_float(n, obj);
       break;
       
-    case StyleTypeMargin:
+    case StyleType::Margin:
       any_change = set_pmath_margin(n, obj);
       break;
       
-    case StyleTypeSize:
+    case StyleType::Size:
       any_change = set_pmath_size(n, obj);
       break;
       
-    case StyleTypeString:
+    case StyleType::String:
       any_change = set_pmath_string(n, obj);
       break;
       
-    case StyleTypeAny:
+    case StyleType::Any:
       any_change = set_pmath_object(n, obj);
       break;
       
-    case StyleTypeEnum:
+    case StyleType::Enum:
       any_change = set_pmath_enum(n, obj);
       break;
       
-    case StyleTypeRuleSet:
+    case StyleType::RuleSet:
       any_change = set_pmath_ruleset(n, obj);
       break;
   }
@@ -946,17 +946,17 @@ Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) 
   if(older == PMATH_SYMBOL_INHERITED)
     return newer;
     
-  enum StyleType type = StyleInformation::get_type(key);
+  StyleType type = StyleInformation::get_type(key);
   
   switch(type) {
-    case StyleTypeMargin:
+    case StyleType::Margin:
       return merge_margin_values(std::move(newer), std::move(older));
       
-    case StyleTypeSize:
+    case StyleType::Size:
       return merge_list_members(std::move(newer), std::move(older));
       break;
       
-    case StyleTypeRuleSet:
+    case StyleType::RuleSet:
       return merge_ruleset_members(key, std::move(newer), std::move(older));
       
     default:
@@ -1138,7 +1138,7 @@ void StyleImpl::emit_definition(StyleOptionName n) const {
   
   StyleType type = StyleInformation::get_type(n);
   switch(type) {
-    case StyleTypeSize:
+    case StyleType::Size:
       {
         StyleOptionName Horizontal = StyleOptionName((int)n + 1);
         StyleOptionName Vertical = StyleOptionName((int)n + 2);
@@ -1158,7 +1158,7 @@ void StyleImpl::emit_definition(StyleOptionName n) const {
       }
       break;
       
-      //case StyleTypeMargin: ....
+      //case StyleType::Margin: ....
   }
   
   e = raw_get_pmath(n, std::move(e));
@@ -1172,40 +1172,40 @@ void StyleImpl::emit_definition(StyleOptionName n) const {
 }
 
 Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
-  enum StyleType type = StyleInformation::get_type(key);
+  StyleType type = StyleInformation::get_type(key);
   
   switch(type) {
-    case StyleTypeNone:
+    case StyleType::None:
       break;
       
-    case StyleTypeBool:
+    case StyleType::Bool:
       return raw_get_pmath_bool(key, std::move(inherited));
       
-    case StyleTypeBoolAuto:
+    case StyleType::AutoBool:
       return raw_get_pmath_bool_auto(key, std::move(inherited));
       
-    case StyleTypeColor:
+    case StyleType::Color:
       return raw_get_pmath_color(key, std::move(inherited));
       
-    case StyleTypeNumber:
+    case StyleType::Number:
       return raw_get_pmath_float(key, std::move(inherited));
       
-    case StyleTypeMargin:
+    case StyleType::Margin:
       return raw_get_pmath_margin(key, std::move(inherited));
       
-    case StyleTypeSize:
+    case StyleType::Size:
       return raw_get_pmath_size(key, std::move(inherited));
       
-    case StyleTypeString:
+    case StyleType::String:
       return raw_get_pmath_string(key, std::move(inherited));
       
-    case StyleTypeAny:
+    case StyleType::Any:
       return raw_get_pmath_object(key, std::move(inherited));
       
-    case StyleTypeEnum:
+    case StyleType::Enum:
       return raw_get_pmath_enum(key, std::move(inherited));
       
-    case StyleTypeRuleSet:
+    case StyleType::RuleSet:
       return raw_get_pmath_ruleset(key, std::move(inherited));
   }
   
@@ -1786,7 +1786,7 @@ Expr Style::get_name(StyleOptionName n) {
   return StyleInformation::get_name(n);
 }
 
-enum StyleType Style::get_type(StyleOptionName n) {
+StyleType Style::get_type(StyleOptionName n) {
   return StyleInformation::get_type(n);
 }
 
@@ -2391,7 +2391,7 @@ Expr Stylesheet::get_pmath_with_base(SharedPtr<Style> s, StyleOptionName n) {
 void StyleInformation::add_style() {
   if(_num_styles++ == 0) {
     _name_to_key.default_value = StyleOptionName{ -1};
-    _key_to_type.default_value = StyleTypeNone;
+    _key_to_type.default_value = StyleType::None;
     
     add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
     add_ruleset_head(ButtonBoxOptions,     Symbol( richmath_System_ButtonBoxOptions));
@@ -2428,131 +2428,131 @@ void StyleInformation::add_style() {
     add_enum(FontWeight,  Symbol( richmath_System_FontWeight),  new FontWeightStyleEnumConverter);
     add_enum(WindowFrame, Symbol( richmath_System_WindowFrame), new WindowFrameStyleEnumConverter);
     
-    add(StyleTypeColor,           Background,                       Symbol( richmath_System_Background));
-    add(StyleTypeColor,           FontColor,                        Symbol( richmath_System_FontColor));
-    add(StyleTypeColor,           SectionFrameColor,                Symbol( richmath_System_SectionFrameColor));
-    add(StyleTypeBoolAuto,        Antialiasing,                     Symbol( richmath_System_Antialiasing));
-    add(StyleTypeBool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
-    add(StyleTypeBool,            AutoNumberFormating,              Symbol( richmath_System_AutoNumberFormating));
-    add(StyleTypeBool,            AutoSpacing,                      Symbol( richmath_System_AutoSpacing));
-    add(StyleTypeBool,            ContinuousAction,                 Symbol( richmath_System_ContinuousAction));
-    add(StyleTypeBool,            Editable,                         Symbol( richmath_System_Editable));
-    add(StyleTypeBoolAuto,        Enabled,                          Symbol( richmath_System_Enabled));
-    add(StyleTypeBool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
-    add(StyleTypeBool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
-    add(StyleTypeBool,            Placeholder,                      Symbol( richmath_System_Placeholder));
-    add(StyleTypeBool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
-    add(StyleTypeBool,            Saveable,                         Symbol( richmath_System_Saveable));
-    add(StyleTypeBool,            SectionEditDuplicate,             Symbol( richmath_System_SectionEditDuplicate));
-    add(StyleTypeBool,            SectionEditDuplicateMakesCopy,    Symbol( richmath_System_SectionEditDuplicateMakesCopy));
-    add(StyleTypeBool,            SectionGenerated,                 Symbol( richmath_System_SectionGenerated));
-    add(StyleTypeBool,            SectionLabelAutoDelete,           Symbol( richmath_System_SectionLabelAutoDelete));
-    add(StyleTypeBoolAuto,        Selectable,                       Symbol( richmath_System_Selectable));
-    add(StyleTypeBool,            ShowAutoStyles,                   Symbol( richmath_System_ShowAutoStyles));
-    add(StyleTypeBoolAuto,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
-    add(StyleTypeBool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
-    add(StyleTypeBool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
-    add(StyleTypeBool,            SurdForm,                         Symbol( richmath_System_SurdForm));
-    add(StyleTypeBoolAuto,        SynchronousUpdating,              Symbol( richmath_System_SynchronousUpdating));
-    add(StyleTypeBool,            Visible,                          Symbol( richmath_System_Visible));
-    add(StyleTypeBool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
+    add(StyleType::Color,           Background,                       Symbol( richmath_System_Background));
+    add(StyleType::Color,           FontColor,                        Symbol( richmath_System_FontColor));
+    add(StyleType::Color,           SectionFrameColor,                Symbol( richmath_System_SectionFrameColor));
+    add(StyleType::AutoBool,        Antialiasing,                     Symbol( richmath_System_Antialiasing));
+    add(StyleType::Bool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
+    add(StyleType::Bool,            AutoNumberFormating,              Symbol( richmath_System_AutoNumberFormating));
+    add(StyleType::Bool,            AutoSpacing,                      Symbol( richmath_System_AutoSpacing));
+    add(StyleType::Bool,            ContinuousAction,                 Symbol( richmath_System_ContinuousAction));
+    add(StyleType::Bool,            Editable,                         Symbol( richmath_System_Editable));
+    add(StyleType::AutoBool,        Enabled,                          Symbol( richmath_System_Enabled));
+    add(StyleType::Bool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));
+    add(StyleType::Bool,            LineBreakWithin,                  Symbol( richmath_System_LineBreakWithin));
+    add(StyleType::Bool,            Placeholder,                      Symbol( richmath_System_Placeholder));
+    add(StyleType::Bool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
+    add(StyleType::Bool,            Saveable,                         Symbol( richmath_System_Saveable));
+    add(StyleType::Bool,            SectionEditDuplicate,             Symbol( richmath_System_SectionEditDuplicate));
+    add(StyleType::Bool,            SectionEditDuplicateMakesCopy,    Symbol( richmath_System_SectionEditDuplicateMakesCopy));
+    add(StyleType::Bool,            SectionGenerated,                 Symbol( richmath_System_SectionGenerated));
+    add(StyleType::Bool,            SectionLabelAutoDelete,           Symbol( richmath_System_SectionLabelAutoDelete));
+    add(StyleType::AutoBool,        Selectable,                       Symbol( richmath_System_Selectable));
+    add(StyleType::Bool,            ShowAutoStyles,                   Symbol( richmath_System_ShowAutoStyles));
+    add(StyleType::AutoBool,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
+    add(StyleType::Bool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
+    add(StyleType::Bool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));
+    add(StyleType::Bool,            SurdForm,                         Symbol( richmath_System_SurdForm));
+    add(StyleType::AutoBool,        SynchronousUpdating,              Symbol( richmath_System_SynchronousUpdating));
+    add(StyleType::Bool,            Visible,                          Symbol( richmath_System_Visible));
+    add(StyleType::Bool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
-    add(StyleTypeBoolAuto,        ButtonBoxDefaultEnabled,          Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
+    add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
     
-    add(StyleTypeBool,            InputFieldBoxDefaultContinuousAction, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
-    add(StyleTypeBool,            InputFieldBoxDefaultEnabled,          Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
+    add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
+    add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
     
-    add(StyleTypeBool,            PanelBoxDefaultEnabled,           Rule(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
+    add(StyleType::Bool,            PanelBoxDefaultEnabled,           Rule(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
     
-    add(StyleTypeNumber,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
-    add(StyleTypeNumber,          FillBoxWeight,                    Symbol( richmath_System_FillBoxWeight));
-    add(StyleTypeNumber,          FontSize,                         Symbol( richmath_System_FontSize));
-    add(StyleTypeNumber,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
-    add(StyleTypeNumber,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
-    add(StyleTypeNumber,          Magnification,                    Symbol( richmath_System_Magnification));
+    add(StyleType::Number,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
+    add(StyleType::Number,          FillBoxWeight,                    Symbol( richmath_System_FillBoxWeight));
+    add(StyleType::Number,          FontSize,                         Symbol( richmath_System_FontSize));
+    add(StyleType::Number,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
+    add(StyleType::Number,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
+    add(StyleType::Number,          Magnification,                    Symbol( richmath_System_Magnification));
     
-    add(StyleTypeSize,            ImageSizeCommon,                  Symbol( richmath_System_ImageSize));
+    add(StyleType::Size,            ImageSizeCommon,                  Symbol( richmath_System_ImageSize));
     // ImageSizeHorizontal
     // ImageSizeVertical
-    add(StyleTypeMargin,          SectionMarginLeft,                Symbol( richmath_System_SectionMargins));
+    add(StyleType::Margin,          SectionMarginLeft,                Symbol( richmath_System_SectionMargins));
     // SectionMarginRight
     // SectionMarginTop
     // SectionMarginBottom
-    add(StyleTypeMargin,          SectionFrameLeft,                 Symbol( richmath_System_SectionFrame));
+    add(StyleType::Margin,          SectionFrameLeft,                 Symbol( richmath_System_SectionFrame));
     // SectionFrameRight
     // SectionFrameTop
     // SectionFrameBottom
-    add(StyleTypeMargin,          SectionFrameMarginLeft,           Symbol( richmath_System_SectionFrameMargins));
+    add(StyleType::Margin,          SectionFrameMarginLeft,           Symbol( richmath_System_SectionFrameMargins));
     // SectionFrameMarginRight
     // SectionFrameMarginTop
     // SectionFrameMarginBottom
-    add(StyleTypeMargin,          SectionFrameLabelMarginLeft,      Symbol( richmath_System_SectionFrameLabelMargins));
+    add(StyleType::Margin,          SectionFrameLabelMarginLeft,      Symbol( richmath_System_SectionFrameLabelMargins));
     // SectionFrameLabelMarginRight
     // SectionFrameLabelMarginTop
     // SectionFrameLabelMarginBottom
-    add(StyleTypeNumber,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
+    add(StyleType::Number,          SectionGroupPrecedence,           Symbol( richmath_System_SectionGroupPrecedence));
     
-    add(StyleTypeNumber,          FillBoxDefaultFillBoxWeight,      Rule(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_FillBoxWeight)));
-    add(StyleTypeBool,            FillBoxDefaultStripOnInput,       Rule(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_StripOnInput)));
+    add(StyleType::Number,          FillBoxDefaultFillBoxWeight,      Rule(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_FillBoxWeight)));
+    add(StyleType::Bool,            FillBoxDefaultStripOnInput,       Rule(Symbol(richmath_System_FillBoxOptions), Symbol( richmath_System_StripOnInput)));
     
-    add(StyleTypeString,          BaseStyleName,                    Symbol( richmath_System_BaseStyle));
-    add(StyleTypeString,          Method,                           Symbol( richmath_System_Method));
-    add(StyleTypeString,          LanguageCategory,                 Symbol( richmath_System_LanguageCategory));
-    add(StyleTypeString,          SectionLabel,                     Symbol( richmath_System_SectionLabel));
-    add(StyleTypeString,          WindowTitle,                      Symbol( richmath_System_WindowTitle));
+    add(StyleType::String,          BaseStyleName,                    Symbol( richmath_System_BaseStyle));
+    add(StyleType::String,          Method,                           Symbol( richmath_System_Method));
+    add(StyleType::String,          LanguageCategory,                 Symbol( richmath_System_LanguageCategory));
+    add(StyleType::String,          SectionLabel,                     Symbol( richmath_System_SectionLabel));
+    add(StyleType::String,          WindowTitle,                      Symbol( richmath_System_WindowTitle));
     
-    add(StyleTypeString,          ButtonBoxDefaultMethod,           Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Method)));
+    add(StyleType::String,          ButtonBoxDefaultMethod,           Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Method)));
     
-    add(StyleTypeAny,             Appearance,                       Symbol( richmath_System_Appearance));
-    add(StyleTypeAny,             Axes,                             Symbol( richmath_System_Axes));
-    add(StyleTypeAny,             Ticks,                            Symbol( richmath_System_Ticks));
-    add(StyleTypeAny,             Frame,                            Symbol( richmath_System_Frame));
-    add(StyleTypeAny,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
-    add(StyleTypeAny,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
-    add(StyleTypeAny,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
-    add(StyleTypeAny,             ButtonData,                       Symbol( richmath_System_ButtonData));
-    add(StyleTypeAny,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
-    add(StyleTypeAny,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
-    add(StyleTypeAny,             TextShadow,                       Symbol( richmath_System_TextShadow));
-    add(StyleTypeAny,             FontFamilies,                     Symbol( richmath_System_FontFamily));
-    add(StyleTypeAny,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
-    add(StyleTypeAny,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
-    add(StyleTypeAny,             TrackedSymbols,                   Symbol( PMATH_SYMBOL_TRACKEDSYMBOLS));
-    add(StyleTypeAny,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
-    add(StyleTypeAny,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
-    add(StyleTypeAny,             PlotRange,                        Symbol( richmath_System_PlotRange));
-    add(StyleTypeAny,             BorderRadius,                     Symbol( richmath_System_BorderRadius));
-    add(StyleTypeAny,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
-    add(StyleTypeAny,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
-    add(StyleTypeAny,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));
-    add(StyleTypeAny,             DisplayFunction,                  Symbol( richmath_System_DisplayFunction));
-    add(StyleTypeAny,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
-    add(StyleTypeAny,             SyntaxForm,                       Symbol( richmath_System_SyntaxForm));
-    add(StyleTypeAny,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
-    add(StyleTypeAny,             Tooltip,                          Symbol( richmath_System_Tooltip));
-    add(StyleTypeAny,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
-    add(StyleTypeAny,             SectionDingbat,                   Symbol( richmath_System_SectionDingbat));
-    add(StyleTypeAny,             SectionEvaluationFunction,        Symbol( richmath_System_SectionEvaluationFunction));
+    add(StyleType::Any,             Appearance,                       Symbol( richmath_System_Appearance));
+    add(StyleType::Any,             Axes,                             Symbol( richmath_System_Axes));
+    add(StyleType::Any,             Ticks,                            Symbol( richmath_System_Ticks));
+    add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
+    add(StyleType::Any,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
+    add(StyleType::Any,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
+    add(StyleType::Any,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
+    add(StyleType::Any,             ButtonData,                       Symbol( richmath_System_ButtonData));
+    add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
+    add(StyleType::Any,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
+    add(StyleType::Any,             TextShadow,                       Symbol( richmath_System_TextShadow));
+    add(StyleType::Any,             FontFamilies,                     Symbol( richmath_System_FontFamily));
+    add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
+    add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
+    add(StyleType::Any,             TrackedSymbols,                   Symbol( PMATH_SYMBOL_TRACKEDSYMBOLS));
+    add(StyleType::Any,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
+    add(StyleType::Any,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
+    add(StyleType::Any,             PlotRange,                        Symbol( richmath_System_PlotRange));
+    add(StyleType::Any,             BorderRadius,                     Symbol( richmath_System_BorderRadius));
+    add(StyleType::Any,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
+    add(StyleType::Any,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
+    add(StyleType::Any,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));
+    add(StyleType::Any,             DisplayFunction,                  Symbol( richmath_System_DisplayFunction));
+    add(StyleType::Any,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
+    add(StyleType::Any,             SyntaxForm,                       Symbol( richmath_System_SyntaxForm));
+    add(StyleType::Any,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
+    add(StyleType::Any,             Tooltip,                          Symbol( richmath_System_Tooltip));
+    add(StyleType::Any,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
+    add(StyleType::Any,             SectionDingbat,                   Symbol( richmath_System_SectionDingbat));
+    add(StyleType::Any,             SectionEvaluationFunction,        Symbol( richmath_System_SectionEvaluationFunction));
     
-    add(StyleTypeAny, DockedSectionsTop,         Rule(Symbol(richmath_System_DockedSections), String("Top")));
-    add(StyleTypeAny, DockedSectionsTopGlass,    Rule(Symbol(richmath_System_DockedSections), String("TopGlass")));
-    add(StyleTypeAny, DockedSectionsBottom,      Rule(Symbol(richmath_System_DockedSections), String("Bottom")));
-    add(StyleTypeAny, DockedSectionsBottomGlass, Rule(Symbol(richmath_System_DockedSections), String("BottomGlass")));
+    add(StyleType::Any, DockedSectionsTop,         Rule(Symbol(richmath_System_DockedSections), String("Top")));
+    add(StyleType::Any, DockedSectionsTopGlass,    Rule(Symbol(richmath_System_DockedSections), String("TopGlass")));
+    add(StyleType::Any, DockedSectionsBottom,      Rule(Symbol(richmath_System_DockedSections), String("Bottom")));
+    add(StyleType::Any, DockedSectionsBottomGlass, Rule(Symbol(richmath_System_DockedSections), String("BottomGlass")));
     
-    add(StyleTypeAny, ButtonBoxDefaultAppearance,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Appearance)));
-    add(StyleTypeAny, ButtonBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
-    add(StyleTypeAny, ButtonBoxDefaultButtonData,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
-    add(StyleTypeAny, ButtonBoxDefaultButtonFunction,   Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
+    add(StyleType::Any, ButtonBoxDefaultAppearance,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Appearance)));
+    add(StyleType::Any, ButtonBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
+    add(StyleType::Any, ButtonBoxDefaultButtonData,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
+    add(StyleType::Any, ButtonBoxDefaultButtonFunction,   Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
     
-    add(StyleTypeAny, InputFieldBoxDefaultAppearance,       Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
-    add(StyleTypeAny, InputFieldBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));
+    add(StyleType::Any, InputFieldBoxDefaultAppearance,       Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
+    add(StyleType::Any, InputFieldBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
-    add(StyleTypeAny, PanelBoxDefaultAppearance,       Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
-    add(StyleTypeAny, PanelBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
+    add(StyleType::Any, PanelBoxDefaultAppearance,       Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
+    add(StyleType::Any, PanelBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
-    add(StyleTypeAny, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
-    add(StyleTypeAny, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
-    add(StyleTypeAny, TemplateBoxDefaultTooltip,                Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_Tooltip)));
+    add(StyleType::Any, TemplateBoxDefaultDisplayFunction,        Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
+    add(StyleType::Any, TemplateBoxDefaultInterpretationFunction, Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
+    add(StyleType::Any, TemplateBoxDefaultTooltip,                Rule(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_Tooltip)));
   }
 }
 
@@ -2598,24 +2598,24 @@ bool StyleInformation::requires_child_resize(StyleOptionName key) {
 }
 
 void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name) {
-  assert(type != StyleTypeEnum);
+  assert(type != StyleType::Enum);
   
   _key_to_type.set(key, type);
-  if(type == StyleTypeSize) { // {horz, vert} = {key+1, key+2}
+  if(type == StyleType::Size) { // {horz, vert} = {key+1, key+2}
     StyleOptionName Horizontal = StyleOptionName((int)key + 1);
     StyleOptionName Vertical   = StyleOptionName((int)key + 2);
-    _key_to_type.set(Horizontal, StyleTypeNumber);
-    _key_to_type.set(Vertical,   StyleTypeNumber);
+    _key_to_type.set(Horizontal, StyleType::Number);
+    _key_to_type.set(Vertical,   StyleType::Number);
   }
-//  else if(type == StyleTypeMargin) { // {left, right, top, bottom} = {key, key+1, key+2, key+3}
+//  else if(type == StyleType::Margin) { // {left, right, top, bottom} = {key, key+1, key+2, key+3}
 //    //StyleOptionName Left   = StyleOptionName((int)key + 1);
 //    StyleOptionName Right  = StyleOptionName((int)key + 1);
 //    StyleOptionName Top    = StyleOptionName((int)key + 2);
 //    StyleOptionName Bottom = StyleOptionName((int)key + 3);
-//    //_key_to_type.set(Left,   StyleTypeNumber);
-//    _key_to_type.set(Right,  StyleTypeNumber);
-//    _key_to_type.set(Top,    StyleTypeNumber);
-//    _key_to_type.set(Bottom, StyleTypeNumber);
+//    //_key_to_type.set(Left,   StyleType::Number);
+//    _key_to_type.set(Right,  StyleType::Number);
+//    _key_to_type.set(Top,    StyleType::Number);
+//    _key_to_type.set(Bottom, StyleType::Number);
 //  }
 
   _key_to_name.set(key, name);
@@ -2628,7 +2628,7 @@ void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name
 
 void StyleInformation::add_enum(IntStyleOptionName key, const Expr &name, SharedPtr<StyleEnumConverter> enum_converter) {
   _key_to_enum_converter.set(key, enum_converter);
-  _key_to_type.set(          key, StyleTypeEnum);
+  _key_to_type.set(          key, StyleType::Enum);
   _key_to_name.set(          key, name);
   _name_to_key.set(          name, key);
   
@@ -2643,8 +2643,8 @@ void StyleInformation::add_to_ruleset(StyleOptionName key, const Expr &name) {
     Expr sub_name   = name[2];
     
     StyleOptionName super_key = _name_to_key[super_name];
-    if(_key_to_type[super_key] != StyleTypeRuleSet) {
-      pmath_debug_print_object("[not a StyleTypeRuleSet: ", super_name.get(), "]\n");
+    if(_key_to_type[super_key] != StyleType::RuleSet) {
+      pmath_debug_print_object("[not a StyleType::RuleSet: ", super_name.get(), "]\n");
       return;
     }
     
@@ -2661,7 +2661,7 @@ void StyleInformation::add_to_ruleset(StyleOptionName key, const Expr &name) {
 
 void StyleInformation::add_ruleset_head(StyleOptionName key, const Expr &symbol) {
   _key_to_enum_converter.set(key, new SubRuleConverter);
-  _key_to_type.set(          key, StyleTypeRuleSet);
+  _key_to_type.set(          key, StyleType::RuleSet);
   _key_to_name.set(          key, symbol);
   _name_to_key.set(          symbol, key);
 }

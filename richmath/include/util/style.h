@@ -304,20 +304,18 @@ namespace richmath {
       int _value;
   };
   
-  enum StyleType {
-    StyleTypeNone,
-    
-    StyleTypeBool,
-    StyleTypeBoolAuto,
-    StyleTypeColor,
-    StyleTypeNumber,
-    StyleTypeMargin,
-    StyleTypeSize,
-    StyleTypeString,
-    StyleTypeAny,
-    
-    StyleTypeEnum,
-    StyleTypeRuleSet
+  enum class StyleType {
+    None,
+    Bool,
+    AutoBool,
+    Color,
+    Number,
+    Margin,
+    Size,
+    String,
+    Any,
+    Enum,
+    RuleSet
   };
   
   union IntFloatUnion {

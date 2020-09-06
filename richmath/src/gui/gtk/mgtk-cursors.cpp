@@ -509,30 +509,30 @@ MathGtkCursors::MathGtkCursors()
 //  g_free(theme_name);
   
   if(num_refs++ == 0) {
-    all_cursors.set(FingerCursor,  new_cursor_from_name_or_fallback("help", GDK_HAND2));
-    all_cursors.set(DefaultCursor, new_cursor_from_name_or_fallback("default", GDK_LEFT_PTR));
+    all_cursors.set(CursorType::Finger,  new_cursor_from_name_or_fallback("help", GDK_HAND2));
+    all_cursors.set(CursorType::Default, new_cursor_from_name_or_fallback("default", GDK_LEFT_PTR));
     
-    all_cursors.set(DocumentCursor, gdk_pixbuf_new_from_xpm_data(xpm_document));
-    all_cursors.set(NoSelectCursor, gdk_pixbuf_new_from_xpm_data(xpm_no_select));
-    all_cursors.set(SectionCursor,  gdk_pixbuf_new_from_xpm_data(xpm_section));
+    all_cursors.set(CursorType::Document, gdk_pixbuf_new_from_xpm_data(xpm_document));
+    all_cursors.set(CursorType::NoSelect, gdk_pixbuf_new_from_xpm_data(xpm_no_select));
+    all_cursors.set(CursorType::Section,  gdk_pixbuf_new_from_xpm_data(xpm_section));
     
-    all_cursors.set(TextECursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_e));
-    all_cursors.set(TextNECursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_ne));
-    all_cursors.set(TextNCursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_n));
-    all_cursors.set(TextNWCursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_nw));
-    all_cursors.set(TextWCursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_w));
-    all_cursors.set(TextSWCursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_sw));
-    all_cursors.set(TextSCursor,    gdk_pixbuf_new_from_xpm_data(xpm_text_s));
-    all_cursors.set(TextSECursor,   gdk_pixbuf_new_from_xpm_data(xpm_text_se));
+    all_cursors.set(CursorType::TextE,    gdk_pixbuf_new_from_xpm_data(xpm_text_e));
+    all_cursors.set(CursorType::TextNE,   gdk_pixbuf_new_from_xpm_data(xpm_text_ne));
+    all_cursors.set(CursorType::TextN,    gdk_pixbuf_new_from_xpm_data(xpm_text_n));
+    all_cursors.set(CursorType::TextNW,   gdk_pixbuf_new_from_xpm_data(xpm_text_nw));
+    all_cursors.set(CursorType::TextW,    gdk_pixbuf_new_from_xpm_data(xpm_text_w));
+    all_cursors.set(CursorType::TextSW,   gdk_pixbuf_new_from_xpm_data(xpm_text_sw));
+    all_cursors.set(CursorType::TextS,    gdk_pixbuf_new_from_xpm_data(xpm_text_s));
+    all_cursors.set(CursorType::TextSE,   gdk_pixbuf_new_from_xpm_data(xpm_text_se));
     
-    all_cursors.set(SizeECursor,    new_cursor_from_name_or_fallback("e-resize",  GDK_RIGHT_SIDE));
-    all_cursors.set(SizeNECursor,   new_cursor_from_name_or_fallback("ne-resize", GDK_TOP_RIGHT_CORNER));
-    all_cursors.set(SizeNCursor,    new_cursor_from_name_or_fallback("n-resize",  GDK_TOP_SIDE));
-    all_cursors.set(SizeNWCursor,   new_cursor_from_name_or_fallback("nw-resize", GDK_TOP_LEFT_CORNER));
-    all_cursors.set(SizeWCursor,    new_cursor_from_name_or_fallback("w-resize",  GDK_LEFT_SIDE));
-    all_cursors.set(SizeSWCursor,   new_cursor_from_name_or_fallback("sw-resize", GDK_BOTTOM_LEFT_CORNER));
-    all_cursors.set(SizeSCursor,    new_cursor_from_name_or_fallback("s-resize",  GDK_BOTTOM_SIDE));
-    all_cursors.set(SizeSECursor,   new_cursor_from_name_or_fallback("se-resize", GDK_BOTTOM_RIGHT_CORNER));
+    all_cursors.set(CursorType::SizeE,    new_cursor_from_name_or_fallback("e-resize",  GDK_RIGHT_SIDE));
+    all_cursors.set(CursorType::SizeNE,   new_cursor_from_name_or_fallback("ne-resize", GDK_TOP_RIGHT_CORNER));
+    all_cursors.set(CursorType::SizeN,    new_cursor_from_name_or_fallback("n-resize",  GDK_TOP_SIDE));
+    all_cursors.set(CursorType::SizeNW,   new_cursor_from_name_or_fallback("nw-resize", GDK_TOP_LEFT_CORNER));
+    all_cursors.set(CursorType::SizeW,    new_cursor_from_name_or_fallback("w-resize",  GDK_LEFT_SIDE));
+    all_cursors.set(CursorType::SizeSW,   new_cursor_from_name_or_fallback("sw-resize", GDK_BOTTOM_LEFT_CORNER));
+    all_cursors.set(CursorType::SizeS,    new_cursor_from_name_or_fallback("s-resize",  GDK_BOTTOM_SIDE));
+    all_cursors.set(CursorType::SizeSE,   new_cursor_from_name_or_fallback("se-resize", GDK_BOTTOM_RIGHT_CORNER));
     
   }
 }
