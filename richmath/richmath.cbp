@@ -1189,6 +1189,7 @@
 		<Unit filename="include/util/selections.h" />
 		<Unit filename="include/util/sharedptr.h" />
 		<Unit filename="include/util/style.h" />
+		<Unit filename="include/util/styled-object.h" />
 		<Unit filename="resources/Windows.manifest">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1676,6 +1677,7 @@
 		<Unit filename="src/util/selection-tracking.cpp" />
 		<Unit filename="src/util/selections.cpp" />
 		<Unit filename="src/util/style.cpp" />
+		<Unit filename="src/util/styled-object.cpp" />
 		<Extensions>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />

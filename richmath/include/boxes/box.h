@@ -5,7 +5,7 @@
 #include <eval/observable.h>
 #include <util/selections.h>
 #include <util/sharedptr.h>
-#include <util/style.h>
+#include <util/styled-object.h>
 
 #include <functional>
 
@@ -169,7 +169,7 @@ namespace richmath {
       static void resume_deletions();
   };
   
-  class Box: public FrontEndObject {
+  class Box: public StyledObject {
       friend class AutoMemorySuspension;
     protected:
       virtual ~Box();
@@ -181,6 +181,9 @@ namespace richmath {
       }
     public:
       Box();
+      
+      virtual StyledObject *style_parent() override { return parent(); }
+      virtual SharedPtr<Style> own_style() override { return style; };
       
       /// Usually called after the box was inserted into a document.
       ///
@@ -388,39 +391,6 @@ namespace richmath {
       /// user initiated operations.
       virtual bool edit_selection(SelectionReference &selection); // *not* automatically called
       
-      virtual bool changes_children_style() { return false; }
-      
-      bool enabled();
-      
-      virtual SharedPtr<Stylesheet> stylesheet();
-      
-      Color  get_style(ColorStyleOptionName  n, Color  result = Color::None);
-      int    get_style(IntStyleOptionName    n, int    result = 0);
-      float  get_style(FloatStyleOptionName  n, float  result = 0.0);
-      String get_style(StringStyleOptionName n, String result);
-      Expr   get_style(ObjectStyleOptionName n, Expr   result);
-      String get_style(StringStyleOptionName n);
-      Expr   get_style(ObjectStyleOptionName n);
-      Expr   get_pmath_style(StyleOptionName n);
-      
-      // ignore parents (except for search via get_default_key)
-      Color  get_own_style(ColorStyleOptionName  n, Color  fallback_result = Color::None);
-      int    get_own_style(IntStyleOptionName    n, int    fallback_result = 0);
-      float  get_own_style(FloatStyleOptionName  n, float  fallback_result = 0.0);
-      String get_own_style(StringStyleOptionName n, String fallback_result);
-      Expr   get_own_style(ObjectStyleOptionName n, Expr   fallback_result);
-      String get_own_style(StringStyleOptionName n);
-      Expr   get_own_style(ObjectStyleOptionName n);
-      
-      StyleOptionName       get_default_key(StyleOptionName n);
-      ColorStyleOptionName  get_default_key(ColorStyleOptionName n);
-      IntStyleOptionName    get_default_key(IntStyleOptionName n);
-      FloatStyleOptionName  get_default_key(FloatStyleOptionName n);
-      StringStyleOptionName get_default_key(StringStyleOptionName n);
-      ObjectStyleOptionName get_default_key(ObjectStyleOptionName n);
-      
-      virtual void reset_style() { if(style) style->clear(); }
-      
       /// Get the box that captures mouse input when the a mouse button is pressed at this box.
       /// Capturing takes place until the last mouse button is released or until explicitly cancelled.
       virtual Box *mouse_sensitive();
@@ -475,8 +445,6 @@ namespace richmath {
       void abandon(Box *child);
       
       void finish_load_from_object(Expr expr);
-      
-      virtual DefaultStyleOptionOffsets get_default_styles_offset() { return DefaultStyleOptionOffsets::None; }
       
     protected:
       BoxSize  _extents;
