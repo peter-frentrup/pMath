@@ -58,19 +58,19 @@ namespace {
   
   static StaticCanvas static_canvas;
   
-  typedef struct {
+  struct MathTableHeader {
     uint32_t version;
     uint16_t constants_offset;
     uint16_t glyphinfo_offset;
     uint16_t variants_offset;
-  } MathTableHeader;
+  };
   
-  typedef struct {
+  struct MathValueRecord {
     int16_t value;
     uint16_t device_table_offset;
-  } MathValueRecord;
+  };
   
-  typedef struct {
+  struct MathConstants {
     uint16_t script_percent_scale_down;
     uint16_t script_script_percent_scale_down;
     uint16_t delimited_sub_formula_min_height;
@@ -127,9 +127,9 @@ namespace {
     MathValueRecord radical_kern_before_degree;
     MathValueRecord radical_kern_after_degree;
     uint16_t radical_degree_bottom_raise_percent;
-  } MathConstants;
+  };
   
-  typedef struct {
+  struct MathVariants {
     uint16_t min_connector_overlap;
     uint16_t vert_glyph_coverage_offset;
     uint16_t horz_glyph_coverage_offset;
@@ -138,82 +138,82 @@ namespace {
     uint16_t glyph_construction_offsets[1]; // vert_glyph_count + horz_glyph_count
 //    uint16_t vert_glyph_construction_offsets[1]; // ANY
 //    uint16_t horz_glyph_construction_offsets[1]; // ANY
-  } MathVariants;
+  };
   
-  typedef struct {
+  struct MathGlyphVariantRecord {
     uint16_t glyph;
     uint16_t advance;
-  } MathGlyphVariantRecord;
+  };
   
-  typedef struct {
+  struct MathGlyphConstruction {
     uint16_t assembly_offset;
     uint16_t count;
     MathGlyphVariantRecord variants[1]; // count
-  } MathGlyphConstruction;
+  };
   
-  typedef struct {
+  struct MathGlyphPartRecord {
     uint16_t glyph;
     uint16_t start_connector_length;
     uint16_t end_connector_length;
     uint16_t full_advance;
     uint16_t flags;
-  } MathGlyphPartRecord;
+  };
   
-  typedef enum {
+  enum MathGlyphPartRecordFlag {
     MGPRF_Extender = 0x0001
-  } MathGlyphPartRecordFlag;
+  };
   
-  typedef struct {
+  struct MathGlyphAssembly {
     MathValueRecord     italics_correction;
     uint16_t            count;
     MathGlyphPartRecord parts[1]; // count
-  } MathGlyphAssembly;
+  };
   
-  typedef struct {
+  struct MathGlyphInfo {
     uint16_t  italics_correction_info_offset;
     uint16_t  top_accent_attachment_offset;
     uint16_t  extended_shape_coverage_offset;
     uint16_t  kern_info_offset;
-  } MathGlyphInfo;
+  };
   
-  typedef struct {
+  struct MathItalicsCorrectionInfo {
     uint16_t        coverage_offset;
     uint16_t        count;
     MathValueRecord  italics_corrections[1]; // count
-  } MathItalicsCorrectionInfo;
+  };
   
-  typedef struct {
+  struct MathTopAccentAttachment {
     uint16_t        coverage_offset;
     uint16_t        count;
     MathValueRecord  top_accent_attachment[1]; // count
-  } MathTopAccentAttachment;
+  };
   
-  typedef struct {
+  struct MathKernVertex {
     uint16_t        heigth_count;  // there is one more kern width that height
     
     MathValueRecord values[1];     // heigth_count  +  (heigth_count + 1)
 //    MathValueRecord heights[1];    // heigth_count
 //    MathValueRecord kern_width[1]; // heigth_count + 1
-  } MathKernVertex;
+  };
   
-  typedef enum {
+  enum MathKernEdge {
     MKE_TOP_RIGHT,
     MKE_TOP_LEFTT,
     MKE_BOTTOM_RIGHT,
     MKE_BOTTOM_LEFT
-  } MathKernEdge;
+  };
   
-  typedef struct {
+  struct MathKernInfo {
     uint16_t  coverage_offset;
     uint16_t  count;
     uint16_t  offsets[1][4]; // [count,4]
-  } MathKernInfo;
+  };
   
-  typedef struct {
+  struct GlyphRangeRecord {
     uint16_t start_glyph;
     uint16_t end_glyph;
     uint16_t start_index;
-  } GlyphRangeRecord;
+  };
   
   class DeviceAdjustment {
     public:

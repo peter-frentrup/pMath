@@ -27,7 +27,7 @@ namespace richmath {
         int              *index,
         bool              called_from_child) override;
         
-      virtual bool exitable() override { return false; }
+      virtual bool selection_exitable() override { return false; }
       virtual bool remove_inserts_placeholder() override { return false; }
       
       virtual Box *normalize_selection(int *start, int *end) override;

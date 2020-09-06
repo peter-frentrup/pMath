@@ -122,8 +122,8 @@ namespace richmath {
   template <typename K, typename V>
   class Hashtable: public Base {
     private:
-      typedef Hashtable<K, V> self_t;
-      typedef Entry<K, V>     entry_t;
+      using self_type = Hashtable<K, V>;
+      using entry_type = Entry<K, V>;
       
       static const unsigned int MINSIZE = 8; // power of 2, >= 2
       static Entry<K, V> *Deleted() { return (Entry<K, V> *)(-(size_t)1); }
@@ -148,7 +148,7 @@ namespace richmath {
 
       class TableFreezer {
         public:
-          TableFreezer(self_t &_table)
+          TableFreezer(self_type &_table)
           : table(_table)
           {
 #ifdef RICHMATH_DEBUG_HASHTABLES
@@ -175,7 +175,7 @@ namespace richmath {
           TableFreezer const &operator=(TableFreezer const &src) = delete;
           
         public:
-          self_t &table;
+          self_type &table;
       };
       
     public:
@@ -183,11 +183,11 @@ namespace richmath {
       
       template<class E>
       class Iterator {
-          friend self_t;
+          friend self_type;
         public:
-          typedef E entry_t;
+          using entry_type = E;
         private:
-          Iterator(E **entries, unsigned int unused_count, self_t &owning_table)
+          Iterator(E **entries, unsigned int unused_count, self_type &owning_table)
             : _entries(entries), 
               _unused_count(unused_count),
               _owner(owning_table)
@@ -224,9 +224,9 @@ namespace richmath {
       };
       
       class MutableIterator {
-          friend self_t;
+          friend self_type;
         public:
-          typedef typename self_t::entry_t entry_t;
+          using entry_type = typename self_type::entry_type;
         public:
           class DeletableEntry {
               friend class MutableIterator;
@@ -241,7 +241,7 @@ namespace richmath {
               }
               
             private:
-              DeletableEntry(MutableIterator &owner, entry_t &entry)
+              DeletableEntry(MutableIterator &owner, entry_type &entry)
                 : key(entry.key), value(entry.value), owning_iter(owner)
               {
               }
@@ -251,7 +251,7 @@ namespace richmath {
           };
           
         private:
-          MutableIterator(entry_t **entries, unsigned int unused_count, self_t &owning_table)
+          MutableIterator(entry_type **entries, unsigned int unused_count, self_type &owning_table)
             : _entries(entries), 
               _unused_count(unused_count),
               _owner(owning_table)
@@ -262,7 +262,7 @@ namespace richmath {
           bool operator!=(const MutableIterator &other) const {
             return _unused_count != other._unused_count;
           }
-          const entry_t operator*() const {
+          const entry_type operator*() const {
             HASHTABLE_ASSERT(is_used(*_entries));
             return **_entries;
           }
@@ -301,13 +301,13 @@ namespace richmath {
           }
           
         private:
-          entry_t **_entries;
+          entry_type **_entries;
           unsigned int _unused_count;
           TableFreezer _owner;
       };
       
       class KeyIterator {
-          friend self_t;
+          friend self_type;
         private:
           Iterator<const Entry<K, V>> _entry_iter;
           
@@ -329,9 +329,9 @@ namespace richmath {
           }
       };
       
-      typedef Iterator<Entry<K, V>> iterator_t;
-      typedef Iterator<const Entry<K, V>> const_iterator_t;
-      typedef KeyIterator key_iterator_t;
+      using iterator_type       = Iterator<Entry<K, V>>;
+      using const_iterator_type = Iterator<const Entry<K, V>>;
+      using key_iterator_type   = KeyIterator;
       
     private:
       void do_change() { 
@@ -435,13 +435,13 @@ namespace richmath {
           delete[] table;
       }
       
-      Hashtable(self_t &&other)
+      Hashtable(self_type &&other)
         : Hashtable()
       {
         this->swap(other);
       }
       
-      self_t &operator=(self_t &&other) {
+      self_type &operator=(self_type &&other) {
         this->swap(other);
         return *this;
       }
@@ -615,7 +615,7 @@ namespace richmath {
         }
       }
       
-      void swap(self_t &other) {
+      void swap(self_type &other) {
         using std::swap;
         swap(nonnull_count, other.nonnull_count);
         swap(used_count, other.used_count);
@@ -634,26 +634,26 @@ namespace richmath {
       
       template <class HT, class It>
       class EntryEnum {
-        typedef typename It::entry_t entry_t;
-        typedef typename HT::self_t  mutable_table_t;
+          using entry_type         = typename It::entry_type;
+          using mutable_table_type = typename HT::self_type;
         public:
           EntryEnum(HT &table): _table(table) {
           }
           
           It begin() const {
-            entry_t **entries = const_cast<entry_t **>(_table.table);
+            entry_type **entries = const_cast<entry_type **>(_table.table);
             if(_table.used_count > 0) {
               while(!is_used(*entries))
                 ++entries;
                 
-              return It {entries, _table.used_count, const_cast<mutable_table_t&>(_table)};
+              return It {entries, _table.used_count, const_cast<mutable_table_type&>(_table)};
             }
-            return It {entries, 0, const_cast<mutable_table_t&>(_table)};
+            return It {entries, 0, const_cast<mutable_table_type&>(_table)};
           }
           
           It end() const {
-            entry_t **entries = const_cast<entry_t **>(_table.table);
-            return It {entries, 0, const_cast<mutable_table_t&>(_table)};
+            entry_type **entries = const_cast<entry_type **>(_table.table);
+            return It {entries, 0, const_cast<mutable_table_type&>(_table)};
           }
           
         private:
@@ -662,7 +662,7 @@ namespace richmath {
       
       class KeyEnum {
         public:
-          KeyEnum(EntryEnum<const self_t, const_iterator_t> entries): _entries(entries) {
+          KeyEnum(EntryEnum<const self_type, const_iterator_type> entries): _entries(entries) {
           }
         
           KeyIterator begin() const {
@@ -674,23 +674,23 @@ namespace richmath {
           }
           
         private:
-          EntryEnum<const self_t, const_iterator_t>  _entries;
+          EntryEnum<const self_type, const_iterator_type>  _entries;
       };
       
-      EntryEnum<const self_t, const_iterator_t> entries() const {
-        return EntryEnum<const self_t, const_iterator_t> {*this};
+      EntryEnum<const self_type, const_iterator_type> entries() const {
+        return EntryEnum<const self_type, const_iterator_type> {*this};
       }
       
-      EntryEnum<self_t, iterator_t> entries() {
-        return EntryEnum<self_t, iterator_t> {*this};
+      EntryEnum<self_type, iterator_type> entries() {
+        return EntryEnum<self_type, iterator_type> {*this};
       }
       
       KeyEnum keys() const {
         return KeyEnum {entries()};
       }
       
-      EntryEnum<self_t, MutableIterator> deletable_entries() {
-        return EntryEnum<self_t, MutableIterator> {*this};
+      EntryEnum<self_type, MutableIterator> deletable_entries() {
+        return EntryEnum<self_type, MutableIterator> {*this};
       }
   };
   

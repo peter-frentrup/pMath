@@ -157,8 +157,7 @@ namespace richmath {
       Canvas &canvas;
   };
   
-  typedef AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy > AutoCairoSurface;
-
+  using AutoCairoSurface = AutoRefBase < cairo_surface_t, cairo_surface_reference, cairo_surface_destroy >;
 
 #if CAIRO_HAS_WIN32_SURFACE
   HDC safe_cairo_win32_surface_get_dc(cairo_surface_t *surface);

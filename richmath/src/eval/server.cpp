@@ -61,7 +61,7 @@ class LocalServer: public Server {
   public:
     class Token {
       public:
-        typedef enum {Normal, Aborted, Returned} ResultKind;
+        enum ResultKind {Normal, Aborted, Returned};
       public:
         Expr object;
         bool boxes;

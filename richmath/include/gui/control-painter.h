@@ -12,7 +12,7 @@ namespace richmath {
   class Canvas;
   class Style;
   
-  typedef enum {
+  enum ContainerType {
     NoContainerType,
     FramelessButton,
     GenericButton,
@@ -48,9 +48,9 @@ namespace richmath {
     OpenerTriangleOpened,
     NavigationBack,
     NavigationForward
-  } ContainerType;
+  };
   
-  typedef enum {
+  enum ScrollbarPart {
     ScrollbarNowhere,
     ScrollbarUpLeft,
     ScrollbarLowerRange,
@@ -58,21 +58,21 @@ namespace richmath {
     ScrollbarUpperRange,
     ScrollbarDownRight,
     ScrollbarSizeGrip
-  } ScrollbarPart;
+  };
   
-  typedef enum {
+  enum ScrollbarDirection {
     ScrollbarHorizontal,
     ScrollbarVertical
-  } ScrollbarDirection;
+  };
   
-  typedef enum {
+  enum ControlState {
     Normal,         // mouse avay, not pressed
     Hovered,        // mouse over, not pressed
     Hot,            // mouse over other part of the widget (possibly pressed there)
     Pressed,        // mouse away, pressed
     PressedHovered, // mouse over, pressed
     Disabled        // inactive widget
-  } ControlState;
+  };
   
   class ControlContext {
     public:

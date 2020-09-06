@@ -252,12 +252,12 @@ namespace richmath {
       float y_offset;
   };
   
-  typedef enum {
+  enum ScriptPosition {
     ScriptUpperLeft,
     ScriptLowerLeft,
     ScriptUpperRight,
     ScriptLowerRight
-  } ScriptPosition;
+  };
   
   class MathSequence;
   

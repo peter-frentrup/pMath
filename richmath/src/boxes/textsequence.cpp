@@ -830,7 +830,7 @@ Box *TextSequence::move_logical(
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(_parent) {
-        if(jumping && !_parent->exitable())
+        if(!_parent->exitable())
           return this;
           
         *index = _index;
@@ -895,7 +895,7 @@ Box *TextSequence::move_logical(
   
   if(*index <= 0) {
     if(_parent) {
-      if(jumping && !_parent->exitable())
+      if(!_parent->exitable())
         return this;
       
       *index = _index + 1;

@@ -320,10 +320,10 @@ namespace richmath {
     StyleTypeRuleSet
   };
   
-  typedef union {
+  union IntFloatUnion {
     int   int_value;
     float float_value;
-  } IntFloatUnion;
+  };
   
   class Style: public Observable, public Shareable {
     friend class StyleImpl;

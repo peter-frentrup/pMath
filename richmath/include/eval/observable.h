@@ -23,7 +23,7 @@ namespace richmath {
   template<class T>
   class ObservableValue : public Observable {
     private:
-      typedef ObservableValue<T> self_t;
+      using self_t = ObservableValue<T>;
     public:
       ObservableValue() = default;
       explicit ObservableValue(const T &value) : Observable(), _value(value) {}

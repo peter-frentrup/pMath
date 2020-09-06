@@ -13,7 +13,7 @@ namespace richmath {
   class MouseEvent;
   class TimedEvent;
   
-  typedef enum {
+  enum CursorType {
     FingerCursor   = -3,
     CurrentCursor  = -2,
     DefaultCursor  = -1,
@@ -36,7 +36,7 @@ namespace richmath {
     SizeWCursor    = 125,
     SizeSWCursor   = 126,
     SizeSCursor    = 127,
-  } CursorType;
+  };
   
   template<>
   struct default_hash_impl<CursorType> {

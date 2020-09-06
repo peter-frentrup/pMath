@@ -341,10 +341,15 @@ namespace richmath {
         
       virtual bool remove_inserts_placeholder() { return true; }
       
-      /// Decides whether the selection can exit any (direct) child box via Left/Right/... keys
+      /// Decides whether the cursor can exit any (direct) child box via Left/Right/... keys
       ///
       /// Note that mouse and e.g. TAB selection are not subject to this restriction.
       virtual bool exitable() { return true; }
+      
+      /// Decides whether the selection can exit any (direct) child box via Shift+Left/Right/... keys
+      ///
+      /// Note that mouse and e.g. TAB selection are not subject to this restriction.
+      virtual bool selection_exitable() { return true; }
 
       /// Decides whether this box (i = -1) or the child box at index i >= 0 may be selected.
       ///

@@ -30,10 +30,10 @@ namespace richmath {
   
   template<typename T> class Array {
     public:
-      typedef Array<T>          self_type;
-      typedef T                 value_type;
-      typedef value_type       *iterator;
-      typedef const value_type *const_iterator;
+      using self_type = Array<T>;
+      using value_type = T;
+      using iterator = value_type*;
+      using const_iterator = const value_type*;
     public:
       Array(const Array &src)
         : _length(src._length),

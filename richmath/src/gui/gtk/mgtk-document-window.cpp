@@ -158,7 +158,7 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
 };
 
 class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
-    typedef MathGtkDocumentChildWidget base;
+    using base = MathGtkDocumentChildWidget;
     friend class MathGtkDocumentWindow;
   public:
     MathGtkDock(MathGtkDocumentWindow *parent)

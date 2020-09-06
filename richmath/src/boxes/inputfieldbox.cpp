@@ -326,10 +326,6 @@ void InputFieldBox::invalidate() {
   }
 }
 
-bool InputFieldBox::exitable() {
-  return false;//_parent && _parent->selectable();
-}
-
 bool InputFieldBox::selectable(int i) {
   return i >= 0 && enabled();
 }

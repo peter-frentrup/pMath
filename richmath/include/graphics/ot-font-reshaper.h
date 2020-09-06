@@ -7,10 +7,10 @@
 
 
 namespace richmath {
-  typedef struct  {
+  struct UnalignedBEUint32 {
     uint16_t hi;
     uint16_t lo;
-  } UnalignedBEUint32;
+  };
   
   class BigEndian {
     public:
