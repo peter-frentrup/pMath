@@ -72,7 +72,7 @@ namespace richmath {
       
       int insert(int pos, const char *utf8, int len);
       int insert(int pos, TextSequence *txt, int start, int end);
-      virtual int insert(int pos, const String &s) override; // unsafe: allows PMATH_BOX_CHAR
+      virtual int insert(int pos, const String &s) override;
       virtual int insert(int pos, Box *box) override;
       virtual int insert(int pos, AbstractSequence *seq, int start, int end) override;
       

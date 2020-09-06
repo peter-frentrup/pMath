@@ -82,10 +82,10 @@ namespace richmath {
       int matching_fence(int pos); // -1 on error
       
     public:
-      virtual int insert(int pos, uint16_t chr) override; // unsafe, allows PMATH_BOX_CHAR
-      int insert(int pos, const uint16_t *ucs2, int len); // unsafe, allows PMATH_BOX_CHAR
-      int insert(int pos, const char *latin1, int len);   // unsafe, allows PMATH_BOX_CHAR
-      virtual int insert(int pos, const String &s) override; // unsafe, allows PMATH_BOX_CHAR
+      virtual int insert(int pos, uint16_t chr) override;
+      int insert(int pos, const uint16_t *ucs2, int len);
+      int insert(int pos, const char *latin1, int len);
+      virtual int insert(int pos, const String &s) override;
       virtual int insert(int pos, Box *box) override;
       virtual int insert(int pos, AbstractSequence *seq, int start, int end) override {
         return AbstractSequence::insert(pos, seq, start, end);
