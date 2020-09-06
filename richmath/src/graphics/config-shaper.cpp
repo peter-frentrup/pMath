@@ -8,7 +8,8 @@
 #include <graphics/ot-math-shaper.h>
 
 #include <util/style.h>
-#include <util/syntax-state.h>
+
+#include <syntax/syntax-state.h>
 
 
 using namespace richmath;

@@ -14,11 +14,15 @@
 #include <boxes/subsuperscriptbox.h>
 #include <boxes/textsequence.h>
 #include <boxes/underoverscriptbox.h>
+
 #include <eval/binding.h>
+
 #include <gui/clipboard.h>
 #include <gui/native-widget.h>
+
+#include <syntax/spanexpr.h>
+
 #include <util/autovaluereset.h>
-#include <util/spanexpr.h>
 
 
 using namespace richmath;

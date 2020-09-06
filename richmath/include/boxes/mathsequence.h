@@ -3,7 +3,7 @@
 
 #include <boxes/box.h>
 #include <util/array.h>
-#include <util/syntax-state.h>
+#include <syntax/syntax-state.h>
 
 
 namespace richmath {

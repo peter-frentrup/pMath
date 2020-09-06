@@ -13,7 +13,7 @@
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
-#include <util/spanexpr.h>
+#include <syntax/spanexpr.h>
 
 #include <algorithm>
 #include <cmath>

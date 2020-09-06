@@ -9,10 +9,11 @@ namespace richmath {
   class Canvas;
   enum class BoxOutputFlags;
   
-  /// Represents a weak reference to a position inside a Box.
-  /// 
-  /// Weak means that when the Box gets destroyed, this object will notice and give 
-  /// nullptr instead of a dangling reference.
+  /** Represents a weak reference to a position inside a Box.
+      
+      Weak means that when the Box gets destroyed, this object will notice and give 
+      nullptr instead of a dangling reference.
+   */
   class LocationReference {
     public:
       explicit LocationReference();
@@ -120,7 +121,10 @@ namespace richmath {
     }
   };
   
-  /** Represents a weak
+  /** Represents a weak reference to a range of positions inside a Box.
+      
+      Weak means that when the Box gets destroyed, this object will notice and give 
+      nullptr instead of a dangling reference.
    */
   class SelectionReference {
     public:

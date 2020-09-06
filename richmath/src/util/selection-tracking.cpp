@@ -6,7 +6,7 @@
 #include <boxes/sectionlist.h>
 #include <boxes/textsequence.h>
 
-#include <util/spanexpr.h>
+#include <syntax/spanexpr.h>
 
 #ifdef max
 #  undef max

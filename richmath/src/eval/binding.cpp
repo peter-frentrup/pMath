@@ -12,7 +12,9 @@
 #include <gui/messagebox.h>
 #include <gui/native-widget.h>
 #include <gui/recent-documents.h>
-#include <util/spanexpr.h>
+
+#include <syntax/spanexpr.h>
+
 #include <util/selection-tracking.h>
 
 

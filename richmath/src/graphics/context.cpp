@@ -3,7 +3,7 @@
 #include <boxes/box.h>
 #include <graphics/buffer.h>
 #include <gui/control-painter.h>
-#include <util/syntax-state.h>
+#include <syntax/syntax-state.h>
 
 #include <cmath>
 

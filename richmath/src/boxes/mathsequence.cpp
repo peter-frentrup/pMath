@@ -38,9 +38,9 @@
 
 #include <graphics/context.h>
 #include <graphics/ot-font-reshaper.h>
-#include <graphics/scope-colorizer.h>
 
-#include <util/spanexpr.h>
+#include <syntax/scope-colorizer.h>
+#include <syntax/spanexpr.h>
 
 
 #define MIN(a, b)  ((a) < (b) ? (a) : (b))

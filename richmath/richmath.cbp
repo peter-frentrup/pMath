@@ -792,7 +792,6 @@
 		<Unit filename="include/graphics/ot-math-shaper.h" />
 		<Unit filename="include/graphics/paint-hook.h" />
 		<Unit filename="include/graphics/rectangle.h" />
-		<Unit filename="include/graphics/scope-colorizer.h" />
 		<Unit filename="include/graphics/shapers.h" />
 		<Unit filename="include/graphics/win32-shaper.h">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1172,8 +1171,11 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/syntax/autocompletion.h" />
+		<Unit filename="include/syntax/scope-colorizer.h" />
+		<Unit filename="include/syntax/spanexpr.h" />
+		<Unit filename="include/syntax/syntax-state.h" />
 		<Unit filename="include/util/array.h" />
-		<Unit filename="include/util/autocompletion.h" />
 		<Unit filename="include/util/autovaluereset.h" />
 		<Unit filename="include/util/base.h" />
 		<Unit filename="include/util/concurrent-queue.h" />
@@ -1186,9 +1188,7 @@
 		<Unit filename="include/util/selection-tracking.h" />
 		<Unit filename="include/util/selections.h" />
 		<Unit filename="include/util/sharedptr.h" />
-		<Unit filename="include/util/spanexpr.h" />
 		<Unit filename="include/util/style.h" />
-		<Unit filename="include/util/syntax-state.h" />
 		<Unit filename="resources/Windows.manifest">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1284,7 +1284,6 @@
 		<Unit filename="src/graphics/ot-math-shaper.cpp" />
 		<Unit filename="src/graphics/paint-hook.cpp" />
 		<Unit filename="src/graphics/rectangle.cpp" />
-		<Unit filename="src/graphics/scope-colorizer.cpp" />
 		<Unit filename="src/graphics/shapers.cpp" />
 		<Unit filename="src/graphics/win32-shaper.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
@@ -1666,16 +1665,17 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/main.cpp" />
-		<Unit filename="src/util/autocompletion.cpp" />
+		<Unit filename="src/syntax/autocompletion.cpp" />
+		<Unit filename="src/syntax/scope-colorizer.cpp" />
+		<Unit filename="src/syntax/spanexpr.cpp" />
+		<Unit filename="src/syntax/syntax-state.cpp" />
 		<Unit filename="src/util/base.cpp" />
 		<Unit filename="src/util/filesystem.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
 		<Unit filename="src/util/pmath-extra.cpp" />
 		<Unit filename="src/util/selection-tracking.cpp" />
 		<Unit filename="src/util/selections.cpp" />
-		<Unit filename="src/util/spanexpr.cpp" />
 		<Unit filename="src/util/style.cpp" />
-		<Unit filename="src/util/syntax-state.cpp" />
 		<Extensions>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />

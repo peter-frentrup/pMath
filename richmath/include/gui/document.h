@@ -3,7 +3,7 @@
 
 #include <boxes/sectionlist.h>
 #include <eval/application.h>
-#include <util/autocompletion.h>
+#include <syntax/autocompletion.h>
 
 
 namespace richmath {

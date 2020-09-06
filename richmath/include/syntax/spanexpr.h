@@ -1,5 +1,5 @@
-#ifndef RICHMATH__UTIL__SPANEXPR_H__INCLUDED
-#define RICHMATH__UTIL__SPANEXPR_H__INCLUDED
+#ifndef RICHMATH__SYNTAX__SPANEXPR_H__INCLUDED
+#define RICHMATH__SYNTAX__SPANEXPR_H__INCLUDED
 
 #include <util/pmath-extra.h>
 
@@ -354,4 +354,4 @@ namespace richmath {
   };
 }
 
-#endif // RICHMATH__UTIL__SPANEXPR_H__INCLUDED
+#endif // RICHMATH__SYNTAX__SPANEXPR_H__INCLUDED

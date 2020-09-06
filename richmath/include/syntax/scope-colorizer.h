@@ -1,7 +1,7 @@
-#ifndef RICHMATH__GRAPHICS__SCOPE_COLORIZER_H__INCLUDED
-#define RICHMATH__GRAPHICS__SCOPE_COLORIZER_H__INCLUDED
+#ifndef RICHMATH__SYNTAX__SCOPE_COLORIZER_H__INCLUDED
+#define RICHMATH__SYNTAX__SCOPE_COLORIZER_H__INCLUDED
 
-#include <util/syntax-state.h>
+#include <syntax/syntax-state.h>
 
 
 namespace richmath {
@@ -25,4 +25,4 @@ namespace richmath {
   };
 }
 
-#endif // RICHMATH__GRAPHICS__SCOPE_COLORIZER_H__INCLUDED
+#endif // RICHMATH__SYNTAX__SCOPE_COLORIZER_H__INCLUDED

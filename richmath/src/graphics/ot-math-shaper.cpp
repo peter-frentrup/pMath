@@ -7,8 +7,10 @@
 
 #include <graphics/context.h>
 
+#include <syntax/syntax-state.h>
+
 #include <util/style.h>
-#include <util/syntax-state.h>
+
 
 using namespace richmath;
 
