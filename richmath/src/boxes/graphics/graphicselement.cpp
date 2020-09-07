@@ -1,6 +1,6 @@
 #include <boxes/graphics/graphicselement.h>
 
-#include <boxes/graphics/colorbox.h>
+#include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/pointbox.h>
 #include <boxes/graphics/linebox.h>
 
@@ -110,51 +110,37 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
       return ge;
   }
   
-  if( head == PMATH_SYMBOL_RGBCOLOR  ||
-      head == PMATH_SYMBOL_HUE       ||
-      head == PMATH_SYMBOL_GRAYLEVEL)
-  {
-    if(auto ge = ColorBox::try_create(expr, opts))
-      return ge;
-  }
-  
   if(head == PMATH_SYMBOL_LIST) {
     auto coll = new GraphicsElementCollection;
     coll->load_from_object(expr, opts);
     return coll;
   }
   
-  if(head == PMATH_SYMBOL_DIRECTIVE) {
-    auto dir = new GraphicsDirective;
-    
-    if(dir->try_load_from_object(expr, opts))
-      return dir;
-      
-    delete_owned(dir);
-  }
+  if(auto dir = GraphicsDirective::try_create(expr, opts)) 
+    return dir;
   
   return new DummyGraphicsElement(expr);
 }
 
 //} ...class GraphicsElement
 
-//{ class GraphicsDirective ...
+//{ class GraphicsElementCollection ...
 
-GraphicsDirective::GraphicsDirective()
-  : GraphicsElement()
+GraphicsElementCollection::GraphicsElementCollection()
+  : base()
 {
 }
 
-GraphicsDirective::~GraphicsDirective()
+GraphicsElementCollection::~GraphicsElementCollection()
 {
   for(int i = 0; i < _items.length(); ++i)
     delete_owned(_items[i]);
 }
 
-bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_DIRECTIVE)
+bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags opts) {
+  if(expr[0] != PMATH_SYMBOL_LIST)
     return false;
-    
+  
   int oldlen = _items.length();
   int newlen = (int)expr.expr_length();
   
@@ -185,13 +171,20 @@ bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void GraphicsDirective::add(GraphicsElement *g) {
+void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) {
+  if(expr[0] != PMATH_SYMBOL_LIST)
+    expr = List(expr);
+    
+  try_load_from_object(std::move(expr), opts);
+}
+
+void GraphicsElementCollection::add(GraphicsElement *g) {
   assert(g != nullptr);
   
   _items.add(g);
 }
 
-void GraphicsDirective::insert(int i, GraphicsElement *g) {
+void GraphicsElementCollection::insert(int i, GraphicsElement *g) {
   assert(g != nullptr);
   
   assert(0 <= i);
@@ -199,7 +192,7 @@ void GraphicsDirective::insert(int i, GraphicsElement *g) {
   _items.insert(i, 1, &g);
 }
 
-void GraphicsDirective::remove(int i) {
+void GraphicsElementCollection::remove(int i) {
   assert(0 <= i);
   assert(i < count());
   
@@ -207,71 +200,29 @@ void GraphicsDirective::remove(int i) {
   _items.remove(i, 1);
 }
 
-void GraphicsDirective::find_extends(GraphicsBounds &bounds) {
+void GraphicsElementCollection::find_extends(GraphicsBounds &bounds) {
   for(int i = 0; i < count(); ++i)
     item(i)->find_extends(bounds);
-}
-
-void GraphicsDirective::paint(GraphicsBox *owner, Context &context) {
-  for(int i = 0; i < count(); ++i)
-    item(i)->paint(owner, context);
-}
-
-Expr GraphicsDirective::to_pmath(BoxOutputFlags flags) {
-  Gather g;
-  
-  for(int i = 0; i < count(); ++i)
-    Gather::emit(item(i)->to_pmath(flags));
-    
-  Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_DIRECTIVE));
-  return e;
-}
-
-//} ... class GraphicsDirective
-
-//{ class GraphicsElementCollection ...
-
-GraphicsElementCollection::GraphicsElementCollection()
-  : base()
-{
-}
-
-GraphicsElementCollection::~GraphicsElementCollection()
-{
-}
-
-bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_LIST)
-    return false;
-    
-  expr.set(0, Symbol(PMATH_SYMBOL_DIRECTIVE));
-  return base::try_load_from_object(expr, opts);
-}
-
-void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] == PMATH_SYMBOL_LIST)
-    expr.set(0, Symbol(PMATH_SYMBOL_DIRECTIVE));
-  else
-    expr = Call(Symbol(PMATH_SYMBOL_DIRECTIVE), expr);
-    
-  base::try_load_from_object(expr, opts);
 }
 
 void GraphicsElementCollection::paint(GraphicsBox *owner, Context &context) {
   context.canvas().save();
   Color old_color = context.canvas().get_color();
   
-  base::paint(owner, context);
+  for(int i = 0; i < count(); ++i)
+    item(i)->paint(owner, context);
   
   context.canvas().set_color(old_color);
   context.canvas().restore();
 }
 
 Expr GraphicsElementCollection::to_pmath(BoxOutputFlags flags) {
-  Expr e = base::to_pmath(flags);
-  e.set(0, Symbol(PMATH_SYMBOL_LIST));
-  return e;
+  Expr result = MakeList((size_t)count());
+  
+  for(int i = 0; i < count(); ++i)
+    result.set(i+1, item(i)->to_pmath(flags));
+    
+  return result;
 }
 
 //} ... class GraphicsElementCollection

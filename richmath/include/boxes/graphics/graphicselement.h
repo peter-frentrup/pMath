@@ -53,13 +53,16 @@ namespace richmath {
       void finish_load_from_object(Expr expr) {}
   };
   
-  class GraphicsDirective: public GraphicsElement {
+  class GraphicsElementCollection: public GraphicsElement {
+      using base = GraphicsElement;
+      friend class GraphicsBox;
     protected:
-      virtual ~GraphicsDirective();
+      virtual ~GraphicsElementCollection();
     public:
-      GraphicsDirective();
+      GraphicsElementCollection();
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
+      void load_from_object(Expr expr, BoxInputFlags opts);
       
       int              count() {     return _items.length(); }
       GraphicsElement *item(int i) { return _items[i]; }
@@ -74,21 +77,6 @@ namespace richmath {
       
     private:
       Array<GraphicsElement *> _items;
-  };
-  
-  class GraphicsElementCollection: public GraphicsDirective {
-      using base = GraphicsDirective;
-      friend class GraphicsBox;
-    protected:
-      virtual ~GraphicsElementCollection();
-    public:
-      GraphicsElementCollection();
-      
-      virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
-      void load_from_object(Expr expr, BoxInputFlags opts);
-      
-      virtual void paint(GraphicsBox *owner, Context &context) override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
   };
 }
 

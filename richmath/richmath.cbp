@@ -742,8 +742,8 @@
 		<Unit filename="include/boxes/fractionbox.h" />
 		<Unit filename="include/boxes/framebox.h" />
 		<Unit filename="include/boxes/graphics/axisticks.h" />
-		<Unit filename="include/boxes/graphics/colorbox.h" />
 		<Unit filename="include/boxes/graphics/graphicsbox.h" />
+		<Unit filename="include/boxes/graphics/graphicsdirective.h" />
 		<Unit filename="include/boxes/graphics/graphicselement.h" />
 		<Unit filename="include/boxes/graphics/linebox.h" />
 		<Unit filename="include/boxes/graphics/pointbox.h" />
@@ -1234,8 +1234,8 @@
 		<Unit filename="src/boxes/fractionbox.cpp" />
 		<Unit filename="src/boxes/framebox.cpp" />
 		<Unit filename="src/boxes/graphics/axisticks.cpp" />
-		<Unit filename="src/boxes/graphics/colorbox.cpp" />
 		<Unit filename="src/boxes/graphics/graphicsbox.cpp" />
+		<Unit filename="src/boxes/graphics/graphicsdirective.cpp" />
 		<Unit filename="src/boxes/graphics/graphicselement.cpp" />
 		<Unit filename="src/boxes/graphics/linebox.cpp" />
 		<Unit filename="src/boxes/graphics/pointbox.cpp" />
