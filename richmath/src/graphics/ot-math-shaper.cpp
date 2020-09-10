@@ -1619,10 +1619,8 @@ void OTMathShaper::accent_positions(
   MathSequence      *under,
   MathSequence      *over,
   float             *base_x,
-  float             *under_x,
-  float             *under_y,
-  float             *over_x,
-  float             *over_y
+  Vector2F          *underscript_offset,
+  Vector2F          *overscript_offset
 ) {
   float pt = context.canvas().get_font_size() / impl->units_per_em;
   uint16_t base_char = 0;
@@ -1636,42 +1634,43 @@ void OTMathShaper::accent_positions(
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
-      under_y, over_y);
+      &underscript_offset->y, &overscript_offset->y);
       
     script_corrections(
       context, base_char, base->glyph_array()[0],
-      under, over, *under_y, *over_y,
-      under_x, over_x);
+      under, over, 
+      underscript_offset->y, overscript_offset->y,
+      &underscript_offset->x, &overscript_offset->x);
       
     *base_x = 0;
-    *under_x += base->extents().width;
-    *over_x += base->extents().width;
+    underscript_offset->x += base->extents().width;
+    overscript_offset->x += base->extents().width;
     return;
   }
   
-  *under_y = base->extents().descent;
+  underscript_offset->y = base->extents().descent;
   if(under) {
     float gap = impl->consts.lower_limit_gap_min.value * pt;
     
-    if(*under_y < impl->consts.lower_limit_baseline_drop_min.value * pt)
-      *under_y  = impl->consts.lower_limit_baseline_drop_min.value * pt;
+    if(underscript_offset->y < impl->consts.lower_limit_baseline_drop_min.value * pt)
+      underscript_offset->y  = impl->consts.lower_limit_baseline_drop_min.value * pt;
       
-    if(*under_y < base->extents().descent + gap + under->extents().ascent)
-      *under_y = base->extents().descent + gap + under->extents().ascent;
+    if(underscript_offset->y < base->extents().descent + gap + under->extents().ascent)
+      underscript_offset->y = base->extents().descent + gap + under->extents().ascent;
   }
   
-  *over_y = -base->extents().ascent;
+  overscript_offset->y = -base->extents().ascent;
   if(over) {
     float gap = impl->consts.upper_limit_gap_min.value * pt;
     
     if(over->extents().descent < 0)
-      *over_y -= over->extents().descent;
+      overscript_offset->y -= over->extents().descent;
       
-    if(*over_y > -impl->consts.upper_limit_baseline_rise_min.value * pt)
-      *over_y  = -impl->consts.upper_limit_baseline_rise_min.value * pt;
+    if(overscript_offset->y > -impl->consts.upper_limit_baseline_rise_min.value * pt)
+      overscript_offset->y  = -impl->consts.upper_limit_baseline_rise_min.value * pt;
       
-    if(*over_y > -base->extents().ascent - gap - over->extents().descent)
-      *over_y  = -base->extents().ascent - gap - over->extents().descent;
+    if(overscript_offset->y > -base->extents().ascent - gap - over->extents().descent)
+      overscript_offset->y  = -base->extents().ascent - gap - over->extents().descent;
   }
   
   float w = base->extents().width;
@@ -1691,24 +1690,25 @@ void OTMathShaper::accent_positions(
       
     script_corrections(
       context, base_char, base->glyph_array()[0],
-      under, over, dummy_uy, dummy_oy,
-      under_x, over_x);
+      under, over, 
+      dummy_uy, dummy_oy,
+      &underscript_offset->x, &overscript_offset->x);
       
-    float diff = *over_x - *under_x;
+    float diff = overscript_offset->x - underscript_offset->x;
     
     if(under)
-      *under_x = (w + *over_x - diff - under->extents().width) / 2;
+      underscript_offset->x = (w + overscript_offset->x - diff - under->extents().width) / 2;
       
     if(over)
-      *over_x = (w + *over_x + diff - over->extents().width) / 2;
+      overscript_offset->x = (w + overscript_offset->x + diff - over->extents().width) / 2;
       
     return;
   }
   
   if(under)
-    *under_x = (w - under->extents().width) / 2;
+    underscript_offset->x = (w - under->extents().width) / 2;
   else
-    *under_x = 0;
+    underscript_offset->x = 0;
     
   if(over) {
     if(base_char && over->length() == 1) {
@@ -1731,13 +1731,13 @@ void OTMathShaper::accent_positions(
       else
         over_acc = over->extents().width / 2;
         
-      *over_x = *base_x + base_acc - over_acc;
+      overscript_offset->x = *base_x + base_acc - over_acc;
     }
     else
-      *over_x = (w - over->extents().width) / 2;
+      overscript_offset->x = (w - over->extents().width) / 2;
   }
   else
-    *over_x = 0;
+    overscript_offset->x = 0;
 }
 
 void OTMathShaper::script_positions(

@@ -290,10 +290,8 @@ namespace richmath {
         MathSequence      *under,
         MathSequence      *over,
         float             *base_x,
-        float             *under_x,
-        float             *under_y,
-        float             *over_x,
-        float             *over_y) = 0;
+        Vector2F          *underscript_offset,
+        Vector2F          *overscript_offset) = 0;
         
       virtual void script_positions(
         Context           &context,
@@ -399,10 +397,8 @@ namespace richmath {
         MathSequence      *under,
         MathSequence      *over,
         float             *base_x,
-        float             *under_x,
-        float             *under_y,
-        float             *over_x,
-        float             *over_y) override;
+        Vector2F          *underscript_offset,
+        Vector2F          *overscript_offset) override;
         
       virtual void script_positions(
         Context           &context,

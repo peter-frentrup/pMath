@@ -1265,10 +1265,8 @@ void SimpleMathShaper::accent_positions(
   MathSequence      *under,
   MathSequence      *over,
   float             *base_x,
-  float             *under_x,
-  float             *under_y,
-  float             *over_x,
-  float             *over_y
+  Vector2F          *underscript_offset,
+  Vector2F          *overscript_offset
 ) {
   uint16_t base_char = 0;
   if(base->length() == 1)
@@ -1280,33 +1278,34 @@ void SimpleMathShaper::accent_positions(
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
-      under_y, over_y);
+      &underscript_offset->y, &overscript_offset->y);
       
     script_corrections(
       context, base_char, base->glyph_array()[0],
-      under, over, *under_y, *over_y,
-      under_x, over_x);
+      under, over, 
+      underscript_offset->y,  overscript_offset->y,
+      &underscript_offset->x, &overscript_offset->x);
       
     *base_x = 0;
-    *under_x += base->extents().width;
-    *over_x += base->extents().width;
+    underscript_offset->x += base->extents().width;
+    overscript_offset->x += base->extents().width;
     return;
   }
   
   float em = context.canvas().get_font_size();
   float w = base->extents().width;
   
-  *under_y = base->extents().descent + 0.2f * em;
+  underscript_offset->y = base->extents().descent + 0.2f * em;
   if(under) {
-    *under_y += under->extents().ascent;
+    underscript_offset->y += under->extents().ascent;
     
     if(w < under->extents().width)
       w = under->extents().width;
   }
   
-  *over_y = -base->extents().ascent - 0.2f * em;
+  overscript_offset->y = -base->extents().ascent - 0.2f * em;
   if(over) {
-    *over_y -= over->extents().descent;
+    overscript_offset->y -= over->extents().descent;
     
     if(w < over->extents().width)
       w = over->extents().width;
@@ -1323,29 +1322,30 @@ void SimpleMathShaper::accent_positions(
       
     script_corrections(
       context, base_char, base->glyph_array()[0],
-      under, over, dummy_uy, dummy_oy,
-      under_x, over_x);
+      under, over, 
+      dummy_uy, dummy_oy,
+      &underscript_offset->x, &overscript_offset->x);
       
-    float diff = *over_x - *under_x;
+    float diff = overscript_offset->x - underscript_offset->x;
     
     if(under)
-      *under_x = (w + *over_x - diff - under->extents().width) / 2;
+      underscript_offset->x = (w + overscript_offset->x - diff - under->extents().width) / 2;
       
     if(over)
-      *over_x = (w + *over_x + diff - over->extents().width) / 2;
+      overscript_offset->x = (w + overscript_offset->x + diff - over->extents().width) / 2;
       
     return;
   }
   
   if(under)
-    *under_x = (w - under->extents().width) / 2;
+    underscript_offset->x = (w - under->extents().width) / 2;
   else
-    *under_x = 0;
+    underscript_offset->x = 0;
     
   if(over)
-    *over_x = (w - over->extents().width) / 2;
+    overscript_offset->x = (w - over->extents().width) / 2;
   else
-    *over_x = 0;
+    overscript_offset->x = 0;
 }
 
 void SimpleMathShaper::script_positions(

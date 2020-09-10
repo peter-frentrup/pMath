@@ -204,10 +204,8 @@ void UnderoverscriptBox::after_items_resize(Context &context) {
     _underscript,
     _overscript,
     &_base_offset_x,
-    &_underscript_offset.x,
-    &_underscript_offset.y,
-    &_overscript_offset.x,
-    &_overscript_offset.y);
+    &_underscript_offset,
+    &_overscript_offset);
     
   _extents = _base->extents();
   if(_base_offset_x > 0)
