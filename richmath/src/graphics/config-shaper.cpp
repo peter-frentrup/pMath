@@ -1330,8 +1330,7 @@ void ConfigShaper::vertical_glyph_size(
 
 void ConfigShaper::show_glyph(
   Context         &context,
-  float            x,
-  float            y,
+  Point            pos,
   const uint16_t   ch,
   const GlyphInfo &info
 ) {
@@ -1340,7 +1339,7 @@ void ConfigShaper::show_glyph(
     memcpy(&gi, &info, sizeof(GlyphInfo));
     
     gi.fontinfo -= math_font_faces.length();
-    text_shaper->show_glyph(context, x, y, ch, gi);
+    text_shaper->show_glyph(context, pos, ch, gi);
     
     return;
   }
@@ -1352,8 +1351,8 @@ void ConfigShaper::show_glyph(
       cairo_text_extents_t cte;
       cairo_glyph_t        cg;
       
-      cg.x = x + info.x_offset;
-      cg.y = y;
+      cg.x = pos.x + info.x_offset;
+      cg.y = pos.y;
       
       for(const auto &part : *arr) {
         context.canvas().set_font_face(font(part.font));
@@ -1374,7 +1373,7 @@ void ConfigShaper::show_glyph(
     }
   }
   
-  SimpleMathShaper::show_glyph(context, x, y, ch, info);
+  SimpleMathShaper::show_glyph(context, pos, ch, info);
 }
 
 float ConfigShaper::italic_correction(

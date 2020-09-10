@@ -649,16 +649,14 @@ void MathSequence::paint(Context &context) {
             if(glyphs[pos].is_normal_text) {
               context.text_shaper->show_glyph(
                 context,
-                glyph_left + x_extra,
-                y,
+                Point{glyph_left + x_extra, y},
                 buf[pos],
                 glyphs[pos]);
             }
             else {
               context.math_shaper->show_glyph(
                 context,
-                glyph_left + x_extra,
-                y,
+                Point{glyph_left + x_extra, y},
                 buf[pos],
                 glyphs[pos]);
             }
@@ -702,8 +700,7 @@ void MathSequence::paint(Context &context) {
             
           context.math_shaper->show_glyph(
             context,
-            glyph_left + x_extra,
-            y,
+            Point{glyph_left + x_extra, y},
             cont,
             gi);
         }

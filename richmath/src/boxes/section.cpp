@@ -116,7 +116,7 @@ void Section::paint_label(Context &context) {
   for(int i = 0; i < label_glyphs.length(); ++i) {
     shaper->show_glyph(
       context,
-      xx, y,
+      Point{xx, y},
       buf[i],
       label_glyphs[i]);
     xx = x + label_glyphs[i].right;

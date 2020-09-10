@@ -1443,13 +1443,12 @@ void OTMathShaper::vertical_glyph_size(
 
 void OTMathShaper::show_glyph(
   Context         &context,
-  float            x,
-  float            y,
+  Point            pos,
   const uint16_t   ch,
   const GlyphInfo &info
 ) {
   if(info.fontinfo > 0) {
-    impl->text_shaper->show_glyph(context, x, y, ch, info);
+    impl->text_shaper->show_glyph(context, pos, ch, info);
     return;
   }
   
@@ -1457,8 +1456,7 @@ void OTMathShaper::show_glyph(
 //    if(style.italic) {
 //      math_set_style(style - Italic)->show_glyph(
 //        context,
-//        x,
-//        y,
+//        pos,
 //        ch,
 //        info);
 //      return;
@@ -1471,8 +1469,8 @@ void OTMathShaper::show_glyph(
     float overlap  = impl->min_connector_overlap * em / impl->units_per_em;
     
     cairo_glyph_t cg;
-    cg.x = x + info.x_offset;
-    cg.y = y;
+    cg.x = pos.x + info.x_offset;
+    cg.y = pos.y;
     
     if(info.horizontal_stretch) {
       if(auto ass = impl->get_horz_assembly(ch, glyph)) {
@@ -1528,7 +1526,7 @@ void OTMathShaper::show_glyph(
     }
   }
   
-  MathShaper::show_glyph(context, x, y, ch, info);
+  MathShaper::show_glyph(context, pos, ch, info);
 }
 
 bool OTMathShaper::horizontal_stretch_char(
@@ -2038,8 +2036,7 @@ void OTMathShaper::show_radical(
     return;
   }
   
-  float x, y;
-  context.canvas().current_pos(&x, &y);
+  Point pos = context.canvas().current_pos();
   
   GlyphInfo gi;
   memset(&gi, 0, sizeof(gi));
@@ -2056,11 +2053,12 @@ void OTMathShaper::show_radical(
   float a = 0;
   float d = 0;
   vertical_glyph_size(context, SqrtChar, gi, &a, &d);
-  y += info.y_offset - a;
-  context.canvas().align_point(&x, &y, false);
-  y -= info.y_offset - a;
+  pos.y += info.y_offset - a;
+  pos = context.canvas().align_point(pos, false);
+  pos.y += a;
   
-  show_glyph(context, x, y + info.y_offset, SqrtChar, gi);
+  show_glyph(context, pos, SqrtChar, gi);
+  pos.y -= info.y_offset;
   
   context.canvas().set_font_face(font(0));
   cairo_text_extents_t cte;
@@ -2071,7 +2069,7 @@ void OTMathShaper::show_radical(
   float em = context.canvas().get_font_size();
   float overlap  = impl->min_connector_overlap * em / impl->units_per_em;
   float x1, y1, x2, y2;
-  y1 = y + info.y_offset - a;
+  y1 = pos.y + info.y_offset - a;
   if(gi.composed) {
     x1 = 0;
     if(auto ass = impl->get_vert_assembly(SqrtChar, impl->fi.char_to_glyph(SqrtChar))) {
@@ -2084,13 +2082,13 @@ void OTMathShaper::show_radical(
       }
     }
     
-    x1 += x;
+    x1 += pos.x;
   }
   else {
     cg.index = gi.index;
     context.canvas().glyph_extents(&cg, 1, &cte);
     
-    x1 = x + cte.x_advance;
+    x1 = pos.x + cte.x_advance;
   }
   
   x2 = x1 + info.hbar;

@@ -100,8 +100,7 @@ void TextShaper::vertical_glyph_size(
 
 void TextShaper::show_glyph(
   Context         &context,
-  float            x,
-  float            y,
+  Point            pos,
   const uint16_t   ch,
   const GlyphInfo &info
 ) {
@@ -156,30 +155,30 @@ void TextShaper::show_glyph(
     
     context.canvas().glyph_extents(&cg, 1, &cte);
     
-    y -= get_center_height(context, info.fontinfo);
-    y -= cte.height / 2;
-    y -= cte.y_bearing;
+    pos.y -= get_center_height(context, info.fontinfo);
+    pos.y -= cte.height / 2;
+    pos.y -= cte.y_bearing;
   }
   
   if(workaround) {
     cairo_glyph_t cg[3];
     cg[0].index = space_glyph.index;
-    cg[0].x = x - 3.0;
-    cg[0].y = y;
+    cg[0].x = pos.x - 3.0;
+    cg[0].y = pos.y;
     cg[1].index = info.index;
-    cg[1].x = x + info.x_offset;
-    cg[1].y = y;
+    cg[1].x = pos.x + info.x_offset;
+    cg[1].y = pos.y;
     cg[2].index = space_glyph.index;
-    cg[2].x = x + info.right + 3.0;
-    cg[2].y = y;
+    cg[2].x = pos.x + info.right + 3.0;
+    cg[2].y = pos.y;
     
     context.canvas().show_glyphs(cg, 3);
   }
   else {
     cairo_glyph_t cg;
     cg.index = info.index;
-    cg.x = x + info.x_offset;
-    cg.y = y;
+    cg.x = pos.x + info.x_offset;
+    cg.y = pos.y;
     
     context.canvas().show_glyphs(&cg, 1);
   }
@@ -407,8 +406,7 @@ void FallbackTextShaper::vertical_glyph_size(
 
 void FallbackTextShaper::show_glyph(
   Context         &context,
-  float            x,
-  float            y,
+  Point            pos,
   const uint16_t   ch,
   const GlyphInfo &info
 ) {
@@ -416,7 +414,7 @@ void FallbackTextShaper::show_glyph(
   int i = fallback_index(&fontinfo);
   
   if(i == 0) {
-    _shapers[0]->show_glyph(context, x, y, ch, info);
+    _shapers[0]->show_glyph(context, pos, ch, info);
   }
   else {
     GlyphInfo gi;
@@ -424,7 +422,7 @@ void FallbackTextShaper::show_glyph(
     
     gi.fontinfo = fontinfo;
     
-    _shapers[i]->show_glyph(context, x, y, ch, gi);
+    _shapers[i]->show_glyph(context, pos, ch, gi);
   }
 }
 
@@ -538,8 +536,7 @@ void CharBoxTextShaper::vertical_glyph_size(
 
 void CharBoxTextShaper::show_glyph(
   Context         &context,
-  float            x,
-  float            y,
+  Point            pos,
   const uint16_t   ch,
   const GlyphInfo &info
 ) {
@@ -570,7 +567,7 @@ void CharBoxTextShaper::show_glyph(
     return;
     
   float em = context.canvas().get_font_size();
-  y -= 0.75 * em;
+  pos.y -= 0.75 * em;
   
   bool sot = context.canvas().show_only_text;
   context.canvas().show_only_text = false;
@@ -578,7 +575,7 @@ void CharBoxTextShaper::show_glyph(
   context.canvas().set_font_face(digit_font);
   
   {
-    RectangleF rect(x, y, em, em);
+    RectangleF rect(pos, Vector2F{em, em});
     //BoxRadius radii(0.1 * em);
     
     rect.normalize();
@@ -593,25 +590,22 @@ void CharBoxTextShaper::show_glyph(
     rect.grow(delta);
     rect.normalize_to_zero();
     
-    //radii+= BoxRadius(delta.x, delta.y);
-    //radii.normalize(rect.width, rect.height);
-    
     rect.add_rect_path(context.canvas(), true);
     
     context.canvas().fill();
   }
   
   float inner = 0.8 * em;
-  x += 0.1 * em;
-  y += 0.1 * em;
+  pos.x += 0.1 * em;
+  pos.y += 0.1 * em;
   
   cairo_text_extents_t te1, te2;
   cairo_text_extents(context.canvas().cairo(), str1, &te1);
   cairo_text_extents(context.canvas().cairo(), str2, &te2);
   
   context.canvas().move_to(
-    x + (inner   - te1.width) / 2  - te1.x_bearing,
-    y + (inner / 2 - te1.height) / 2 - te1.y_bearing);
+    pos.x + (inner     - te1.width) / 2  - te1.x_bearing,
+    pos.y + (inner / 2 - te1.height) / 2 - te1.y_bearing);
     
   if(context.canvas().native_show_glyphs) {
     cairo_show_text(context.canvas().cairo(), str1);
@@ -622,8 +616,8 @@ void CharBoxTextShaper::show_glyph(
   }
   
   context.canvas().move_to(
-    x + (inner   - te2.width) / 2  - te2.x_bearing,
-    y + inner / 2 + (inner / 2 - te2.height) / 2 - te2.y_bearing);
+    pos.x +             (inner     - te2.width) / 2  - te2.x_bearing,
+    pos.y + inner / 2 + (inner / 2 - te2.height) / 2 - te2.y_bearing);
     
   if(context.canvas().native_show_glyphs) {
     cairo_show_text(context.canvas().cairo(), str2);
@@ -822,15 +816,13 @@ void SimpleMathShaper::vertical_glyph_size(
 
 void SimpleMathShaper::show_glyph(
   Context         &context,
-  float            x,
-  float            y,
+  Point            pos,
   const uint16_t   ch,
   const GlyphInfo &info
 ) {
   if(info.composed) {
     if(get_style().italic) {
-      math_set_style(get_style() - Italic)->show_glyph(
-        context, x, y, ch, info);
+      math_set_style(get_style() - Italic)->show_glyph(context, pos, ch, info);
         
       return;
     }
@@ -847,8 +839,8 @@ void SimpleMathShaper::show_glyph(
       if(left || middle || right || special_center) {
         cairo_text_extents_t cte;
         cairo_glyph_t cg;
-        cg.x = x + info.x_offset;
-        cg.y = y;
+        cg.x = pos.x + info.x_offset;
+        cg.y = pos.y;
         
         context.canvas().set_font_face(font(info.fontinfo));
         
@@ -900,8 +892,8 @@ void SimpleMathShaper::show_glyph(
       if(upper && lower) {
         cairo_text_extents_t cte;
         cairo_glyph_t cg;
-        cg.x = x + info.x_offset;
-        cg.y = y - context.canvas().get_font_size() * 0.25;
+        cg.x = pos.x + info.x_offset;
+        cg.y = pos.y - context.canvas().get_font_size() * 0.25;
         
         context.canvas().set_font_face(font(info.fontinfo));
         
@@ -934,8 +926,8 @@ void SimpleMathShaper::show_glyph(
       if(top && bottom) {
         cairo_text_extents_t cte;
         cairo_glyph_t cg;
-        cg.x = x + info.x_offset;
-        cg.y = y - context.canvas().get_font_size() * 0.25;
+        cg.x = pos.x + info.x_offset;
+        cg.y = pos.y - context.canvas().get_font_size() * 0.25;
         
         context.canvas().set_font_face(font(info.fontinfo));
         
@@ -1006,7 +998,7 @@ void SimpleMathShaper::show_glyph(
     }
   }
   else
-    TextShaper::show_glyph(context, x, y, ch, info);
+    TextShaper::show_glyph(context, pos, ch, info);
 }
 
 bool SimpleMathShaper::horizontal_stretch_char(

@@ -39,8 +39,7 @@ namespace richmath {
         
       virtual void show_glyph(
         Context         &context,
-        float            x,
-        float            y,
+        Point            pos,
         const uint16_t   ch,
         const GlyphInfo &info) override;
         
