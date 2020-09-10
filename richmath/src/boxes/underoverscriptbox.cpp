@@ -203,30 +203,30 @@ void UnderoverscriptBox::after_items_resize(Context &context) {
     _base,
     _underscript,
     _overscript,
-    &base_x,
-    &under_x,
-    &under_y,
-    &over_x,
-    &over_y);
+    &_base_offset_x,
+    &_underscript_offset.x,
+    &_underscript_offset.y,
+    &_overscript_offset.x,
+    &_overscript_offset.y);
     
   _extents = _base->extents();
-  if(base_x > 0)
-    _extents.width += base_x;
+  if(_base_offset_x > 0)
+    _extents.width += _base_offset_x;
     
   if(_underscript) {
-    if(_extents.descent < under_y + _underscript->extents().descent)
-      _extents.descent = under_y + _underscript->extents().descent;
+    if(_extents.descent < _underscript_offset.y + _underscript->extents().descent)
+      _extents.descent = _underscript_offset.y + _underscript->extents().descent;
       
-    if(_extents.width < under_x + _underscript->extents().width)
-      _extents.width = under_x + _underscript->extents().width;
+    if(_extents.width < _underscript_offset.x + _underscript->extents().width)
+      _extents.width = _underscript_offset.x + _underscript->extents().width;
   }
   
   if(_overscript) {
-    if(_extents.ascent < -over_y + _overscript->extents().ascent)
-      _extents.ascent = -over_y + _overscript->extents().ascent;
+    if(_extents.ascent < -_overscript_offset.y + _overscript->extents().ascent)
+      _extents.ascent = -_overscript_offset.y + _overscript->extents().ascent;
       
-    if(_extents.width < over_x + _overscript->extents().width)
-      _extents.width = over_x + _overscript->extents().width;
+    if(_extents.width < _overscript_offset.x + _overscript->extents().width)
+      _extents.width = _overscript_offset.x + _overscript->extents().width;
   }
 }
 
@@ -243,23 +243,22 @@ void UnderoverscriptBox::colorize_scope(SyntaxState &state) {
 void UnderoverscriptBox::paint(Context &context) {
   update_dynamic_styles(context);
     
-  float x, y;
-  context.canvas().current_pos(&x, &y);
+  Point pos = context.canvas().current_pos();
   
-  context.canvas().move_to(x + base_x, y);
+  context.canvas().move_to(pos.x + _base_offset_x, pos.y);
   _base->paint(context);
   
   float old_fs = context.canvas().get_font_size();
   
   if(_underscript) {
-    context.canvas().move_to(x + under_x, y + under_y);
+    context.canvas().move_to(pos + _underscript_offset);
     
     context.canvas().set_font_size(_underscript->font_size());
     _underscript->paint(context);
   }
   
   if(_overscript) {
-    context.canvas().move_to(x + over_x, y + over_y);
+    context.canvas().move_to(pos + _overscript_offset);
     
     context.canvas().set_font_size(_overscript->font_size());
     _overscript->paint(context);
@@ -382,48 +381,48 @@ Box *UnderoverscriptBox::move_vertical(
     if(direction == LogicalDirection::Forward) {
       if(_overscript) {
         dst = _overscript;
-        *index_rel_x -= over_x;
+        *index_rel_x -= _overscript_offset.x;
       }
       else {
         dst = _base;
-        *index_rel_x -= base_x;
+        *index_rel_x -= _base_offset_x;
       }
     }
     else if(_underscript) {
       dst = _underscript;
-      *index_rel_x -= under_x;
+      *index_rel_x -= _underscript_offset.x;
     }
     else {
       dst = _base;
-      *index_rel_x -= base_x;
+      *index_rel_x -= _base_offset_x;
     }
   }
   else if(*index == 0) { // comming from base
-    *index_rel_x += base_x;
+    *index_rel_x += _base_offset_x;
     
     if(direction == LogicalDirection::Backward) {
       dst = _overscript;
-      *index_rel_x -= over_x;
+      *index_rel_x -= _overscript_offset.x;
     }
     else {
       dst = _underscript;
-      *index_rel_x -= under_x;
+      *index_rel_x -= _underscript_offset.x;
     }
   }
   else if(*index == 1 && _underscript) { // comming from underscript
-    *index_rel_x += under_x;
+    *index_rel_x += _underscript_offset.x;
     
     if(direction == LogicalDirection::Backward) {
       dst = _base;
-      *index_rel_x -= base_x;
+      *index_rel_x -= _base_offset_x;
     }
   }
   else { // comming from overscript
-    *index_rel_x += over_x;
+    *index_rel_x += _overscript_offset.x;
     
     if(direction == LogicalDirection::Forward) {
       dst = _base;
-      *index_rel_x -= base_x;
+      *index_rel_x -= _base_offset_x;
     }
   }
   
@@ -442,28 +441,28 @@ Box *UnderoverscriptBox::move_vertical(
 
 VolatileSelection UnderoverscriptBox::mouse_selection(float x, float y, bool *was_inside_start) {
   if(_underscript) {
-    if(under_y - _underscript->extents().ascent > _base->extents().descent) {
+    if(_underscript_offset.y - _underscript->extents().ascent > _base->extents().descent) {
       if(y > _base->extents().descent) {
-        return _underscript->mouse_selection( x - under_x, y - under_y, was_inside_start);
+        return _underscript->mouse_selection( x - _underscript_offset.x, y - _underscript_offset.y, was_inside_start);
       }
     }
-    else if(x >= under_x) {
-      if(!_overscript || y >= under_y - _underscript->extents().ascent + over_y + _overscript->extents().descent) {
-        return _underscript->mouse_selection(x - under_x, y - under_y, was_inside_start);
+    else if(x >= _underscript_offset.x) {
+      if(!_overscript || y >= _underscript_offset.y - _underscript->extents().ascent + _overscript_offset.y + _overscript->extents().descent) {
+        return _underscript->mouse_selection(x - _underscript_offset.x, y - _underscript_offset.y, was_inside_start);
       }
     }
   }
   
   if(_overscript) {
-    if(-over_y - _overscript->extents().descent > _base->extents().ascent) {
+    if(-_overscript_offset.y - _overscript->extents().descent > _base->extents().ascent) {
       if(y < -_base->extents().ascent) 
-        return _overscript->mouse_selection(x - over_x, y - over_y, was_inside_start);
+        return _overscript->mouse_selection(x - _overscript_offset.x, y - _overscript_offset.y, was_inside_start);
     }
-    else if(x >= over_x) 
-      return _overscript->mouse_selection(x - over_x, y - over_y, was_inside_start);
+    else if(x >= _overscript_offset.x) 
+      return _overscript->mouse_selection(x - _overscript_offset.x, y - _overscript_offset.y, was_inside_start);
   }
   
-  return _base->mouse_selection(x - base_x, y, was_inside_start);
+  return _base->mouse_selection(x - _base_offset_x, y, was_inside_start);
 }
 
 void UnderoverscriptBox::child_transformation(
@@ -473,20 +472,20 @@ void UnderoverscriptBox::child_transformation(
   if(index == 0) {
     cairo_matrix_translate(
       matrix,
-      base_x,
+      _base_offset_x,
       0);
   }
   else if(index == 1 && _underscript) {
     cairo_matrix_translate(
       matrix,
-      under_x,
-      under_y);
+      _underscript_offset.x,
+      _underscript_offset.y);
   }
   else {
     cairo_matrix_translate(
       matrix,
-      over_x,
-      over_y);
+      _overscript_offset.x,
+      _overscript_offset.y);
   }
 }
 

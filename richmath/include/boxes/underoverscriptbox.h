@@ -53,7 +53,9 @@ namespace richmath {
       MathSequence *_underscript;
       MathSequence *_overscript;
       
-      float base_x, under_x, under_y, over_x, over_y;
+      float    _base_offset_x;
+      Vector2F _underscript_offset;
+      Vector2F _overscript_offset;
       
 //      float ou_displacement;
       bool _overscript_is_stretched;
