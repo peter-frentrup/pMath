@@ -54,8 +54,9 @@ namespace richmath {
       MathSequence *_subscript;
       MathSequence *_superscript;
       
-      float sub_x, super_x;
-      float em, sub_y, super_y;
+      Vector2F _subscript_offset;
+      Vector2F _superscript_offset;
+      float em;
   };
 }
 

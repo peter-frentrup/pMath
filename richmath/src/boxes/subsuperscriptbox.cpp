@@ -143,9 +143,10 @@ void SubsuperscriptBox::resize(Context &context) {
 void SubsuperscriptBox::stretch(Context &context, const BoxSize &base) {
   context.math_shaper->script_positions(
     context, base.ascent, base.descent, _subscript, _superscript,
-    &sub_y, &super_y);
+    &_subscript_offset.y, &_superscript_offset.y);
     
-  sub_x = super_x = 0;
+  _subscript_offset.x   = 0;
+  _superscript_offset.x = 0;
   _extents.ascent  = base.ascent;
   _extents.descent = base.descent;
   _extents.width   = 0;
@@ -157,16 +158,16 @@ void SubsuperscriptBox::stretch(Context &context, const BoxSize &base) {
     _extents.descent = 0;
     
   if(_subscript) {
-    if(_extents.descent < sub_y + _subscript->extents().descent)
-      _extents.descent = sub_y + _subscript->extents().descent;
+    if(_extents.descent < _subscript_offset.y + _subscript->extents().descent)
+      _extents.descent = _subscript_offset.y + _subscript->extents().descent;
       
     if(_extents.width < _subscript->extents().width)
       _extents.width = _subscript->extents().width;
   }
   
   if(_superscript) {
-    if(_extents.ascent < -super_y + _superscript->extents().ascent)
-      _extents.ascent = -super_y + _superscript->extents().ascent;
+    if(_extents.ascent < -_superscript_offset.y + _superscript->extents().ascent)
+      _extents.ascent = -_superscript_offset.y + _superscript->extents().ascent;
       
     if(_extents.width < _superscript->extents().width)
       _extents.width = _superscript->extents().width;
@@ -181,36 +182,35 @@ void SubsuperscriptBox::adjust_x(
   context.math_shaper->script_corrections(
     context, base_char, base_info,
     _subscript, _superscript,
-    sub_y, super_y,
-    &sub_x, &super_x);
+    _subscript_offset.y,   _superscript_offset.y,
+    &_subscript_offset.x, &_superscript_offset.x);
     
   if(_subscript) {
-    if(_extents.width < sub_x + _subscript->extents().width)
-      _extents.width = sub_x + _subscript->extents().width;
+    if(_extents.width < _subscript_offset.x + _subscript->extents().width)
+      _extents.width = _subscript_offset.x + _subscript->extents().width;
   }
   
   if(_superscript) {
-    if(_extents.width < super_x + _superscript->extents().width)
-      _extents.width = super_x + _superscript->extents().width;
+    if(_extents.width < _superscript_offset.x + _superscript->extents().width)
+      _extents.width = _superscript_offset.x + _superscript->extents().width;
   }
 }
 
 void SubsuperscriptBox::paint(Context &context) {
   update_dynamic_styles(context);
-    
-  float x, y;
-  context.canvas().current_pos(&x, &y);
+  
+  Point pos = context.canvas().current_pos();
   
   float old_fs = context.canvas().get_font_size();
   context.canvas().set_font_size(em);
   
   if(_subscript) {
-    context.canvas().move_to(x + sub_x, y + sub_y);
+    context.canvas().move_to(pos + _subscript_offset);
     _subscript->paint(context);
   }
   
   if(_superscript) {
-    context.canvas().move_to(x + super_x, y + super_y);
+    context.canvas().move_to(pos + _superscript_offset);
     _superscript->paint(context);
   }
   
@@ -301,17 +301,17 @@ Box *SubsuperscriptBox::move_vertical(
   if(*index < 0) {
     if(direction == LogicalDirection::Forward || !_subscript) {
       dst = _superscript;
-      *index_rel_x -= super_x;
+      *index_rel_x -= _superscript_offset.x;
     }
     else {
       dst = _subscript;
-      *index_rel_x -= sub_x;
+      *index_rel_x -= _subscript_offset.x;
 //      *index_rel_x-= _base.width;
     }
   }
   else if(*index == 0 && _subscript) { // comming from subscript
 //    *index_rel_x+= _base.width;
-    *index_rel_x += sub_x;
+    *index_rel_x += _subscript_offset.x;
     
     if(direction == LogicalDirection::Backward)
       dst = _superscript;
@@ -319,7 +319,7 @@ Box *SubsuperscriptBox::move_vertical(
   else { // comming from superscript
     if(direction == LogicalDirection::Forward && _subscript) {
       dst = _subscript;
-      *index_rel_x -= sub_x;
+      *index_rel_x -= _subscript_offset.x;
 //      *index_rel_x-= _base.width;
     }
   }
@@ -338,18 +338,18 @@ Box *SubsuperscriptBox::move_vertical(
 }
 VolatileSelection SubsuperscriptBox::mouse_selection(float x, float y, bool *was_inside_start) {
   if(_subscript) {
-    if(!_superscript || y >= sub_y - _subscript->extents().ascent + super_y + _superscript->extents().descent) {
+    if(!_superscript || y >= _subscript_offset.y - _subscript->extents().ascent + _superscript_offset.y + _superscript->extents().descent) {
       return _subscript->mouse_selection(
-               x - sub_x, // x - _base.width,
-               y - sub_y,
+               x - _subscript_offset.x, // x - _base.width,
+               y - _subscript_offset.y,
                was_inside_start);
     }
   }
           
   if(_superscript) {
     return _superscript->mouse_selection(
-             x - super_x,
-             y - super_y,
+             x - _superscript_offset.x,
+             y - _superscript_offset.y,
              was_inside_start);
   }
   
@@ -362,9 +362,9 @@ void SubsuperscriptBox::child_transformation(
   cairo_matrix_t *matrix
 ) {
   if(index == 0 && _subscript)
-    cairo_matrix_translate(matrix, sub_x/*_base.width*/, sub_y);
+    cairo_matrix_translate(matrix, _subscript_offset.x/*_base.width*/, _subscript_offset.y);
   else
-    cairo_matrix_translate(matrix, super_x, super_y);
+    cairo_matrix_translate(matrix, _superscript_offset.x, _superscript_offset.y);
 }
 
 //} ... class SubsuperscriptBox
