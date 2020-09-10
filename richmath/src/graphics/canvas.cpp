@@ -30,10 +30,16 @@ Canvas::Canvas(cairo_t *cr)
 Canvas::~Canvas() {
 }
 
-void Canvas::transform_point(
-  const cairo_matrix_t &m,
-  float *x, float *y
-) {
+Point Canvas::transform_point(const cairo_matrix_t &m, Point pt) {
+  double dx = pt.x;
+  double dy = pt.y;
+  
+  cairo_matrix_transform_point(&m, &dx, &dy);
+  
+  return Point(dx, dy);
+}
+
+void Canvas::transform_point(const cairo_matrix_t &m, float *x, float *y) {
   double dx = *x;
   double dy = *y;
   
@@ -41,6 +47,10 @@ void Canvas::transform_point(
   
   *x = dx;
   *y = dy;
+}
+
+void Canvas::transform_rect_inline(const cairo_matrix_t &m, RectangleF &rect) {
+  transform_rect(m, &rect.x, &rect.y, &rect.width, &rect.height);
 }
 
 void Canvas::transform_rect(
@@ -94,6 +104,12 @@ void Canvas::restore() {
 
 bool Canvas::has_current_pos() {
   return cairo_has_current_point(_cr);
+}
+
+Point Canvas::current_pos() {
+  double dx, dy;
+  cairo_get_current_point(_cr, &dx, &dy);
+  return Point(dx, dy);
 }
 
 void Canvas::current_pos(float *x, float *y) {
@@ -333,6 +349,11 @@ float Canvas::pixel_round_dy(float dy) {
   device_to_user(&_dx, &_dy);
   
   return _dy;
+}
+
+void Canvas::pixrect(RectangleF rect, bool tostroke) {
+  rect.pixel_align(*this, tostroke, 0);
+  rect.add_rect_path(*this);
 }
 
 void Canvas::pixrect(float x1, float y1, float x2, float y2, bool tostroke) {
@@ -788,6 +809,12 @@ void Canvas::path_extents(float *x1, float *y1, float *x2, float *y2) {
 
 void Canvas::path_extents(double *x1, double *y1, double *x2, double *y2) {
   cairo_path_extents(_cr, x1, y1, x2, y2);
+}
+
+RectangleF Canvas::stroke_extents() {
+  double x1, y1, x2, y2;
+  cairo_stroke_extents(_cr, &x1, &y1, &x2, &y2);
+  return RectangleF{Point(x1, y1), Point(x2, y2)};
 }
 
 void Canvas::stroke_extents(float *x1, float *y1, float *x2, float *y2) {
