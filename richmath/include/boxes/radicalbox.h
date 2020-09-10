@@ -51,8 +51,7 @@ namespace richmath {
       RadicalShapeInfo info;
       float small_em;
       float rx;
-      float ex;
-      float ey;
+      Vector2F _exponent_offset;
   };
 }
 

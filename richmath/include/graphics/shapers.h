@@ -317,8 +317,7 @@ namespace richmath {
         Context          &context,
         BoxSize          *box,        // in/out
         float            *radicand_x, // out
-        float            *exponent_x, // out
-        float            *exponent_y, // out
+        Vector2F         *exponent_offset, // out
         RadicalShapeInfo *info) = 0;  // out
         
       virtual void show_radical(
@@ -339,24 +338,21 @@ namespace richmath {
       }
       
       SmallRadicalGlyph(
-        uint16_t     _index,
-        uint16_t     _hbar_index,
-        float        _rel_ascent,
-        float        _rel_exp_x,
-        float        _rel_exp_y)
-        : index(_index),
-        hbar_index(_hbar_index),
-        rel_ascent(_rel_ascent),
-        rel_exp_x(_rel_exp_x),
-        rel_exp_y(_rel_exp_y)
+        uint16_t     index,
+        uint16_t     hbar_index,
+        float        rel_ascent,
+        Vector2F     rel_exp_offset)
+        : index(index),
+          hbar_index(hbar_index),
+          rel_ascent(rel_ascent),
+          rel_exp_offset(rel_exp_offset)
       {}
       
     public:
       uint16_t index;
       uint16_t hbar_index;
       float    rel_ascent;
-      float    rel_exp_x;
-      float    rel_exp_y; // from top
+      Vector2F rel_exp_offset; // from top-left
   };
   
   class SimpleMathShaper: public MathShaper {
@@ -441,8 +437,7 @@ namespace richmath {
         Context          &context,    // in
         BoxSize          *box,        // in/out
         float            *radicand_x, // out
-        float            *exponent_x, // out
-        float            *exponent_y, // out
+        Vector2F         *exponent_offset, // out
         RadicalShapeInfo *info) override;      // out
         
       virtual void show_radical(
@@ -495,8 +490,7 @@ namespace richmath {
         uint16_t     *vertical,
         uint16_t     *edge,
         uint16_t     *horizontal,
-        float        *_rel_exp_x,
-        float        *_rel_exp_y) = 0;
+        Vector2F     *rel_exponent_offset) = 0;
   };
 }
 

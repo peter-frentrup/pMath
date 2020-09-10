@@ -1960,8 +1960,7 @@ void OTMathShaper::shape_radical(
   Context          &context,    // in
   BoxSize          *box,        // in/out
   float            *radicand_x, // out
-  float            *exponent_x, // out
-  float            *exponent_y, // out
+  Vector2F         *exponent_offset, // out
   RadicalShapeInfo *info        // out
 ) {
   if(style.italic) {
@@ -1969,8 +1968,7 @@ void OTMathShaper::shape_radical(
       context,
       box,
       radicand_x,
-      exponent_x,
-      exponent_y,
+      exponent_offset,
       info);
     return;
   }
@@ -1991,7 +1989,7 @@ void OTMathShaper::shape_radical(
   
   info->surd_form = 0;
   info->hbar = (unsigned)ceilf(box->width + 0.2f * em);
-  *exponent_x = impl->consts.radical_kern_after_degree.value * pt;
+  exponent_offset->x = impl->consts.radical_kern_after_degree.value * pt;
   float rel_raise_exp = impl->consts.radical_degree_bottom_raise_percent / 100.0f;
   
   GlyphInfo gi;
@@ -2000,7 +1998,7 @@ void OTMathShaper::shape_radical(
   gi.vertical_centered = false;
   
   *radicand_x = gi.right;
-  *exponent_x += gi.right;
+  exponent_offset->x += gi.right;
   box->width = info->hbar + *radicand_x;
   
   float rad_ascent = 0;
@@ -2018,7 +2016,7 @@ void OTMathShaper::shape_radical(
   
   box->ascent += impl->consts.radical_extra_ascender.value * pt;
   
-  *exponent_y = box->descent - rel_raise_exp * total_height;
+  exponent_offset->y = box->descent - rel_raise_exp * total_height;
   if(gi.composed) {
     info->size = gi.ext.num_extenders;
   }

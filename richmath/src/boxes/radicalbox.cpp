@@ -94,8 +94,7 @@ void RadicalBox::resize(Context &context) {
     context,
     &_extents,
     &rx,
-    &ex,
-    &ey,
+    &_exponent_offset,
     &info);
   
   info.surd_form = get_own_style(SurdForm, 0) ? 1 : 0;
@@ -118,12 +117,12 @@ void RadicalBox::resize(Context &context) {
     context.canvas().set_font_size(old_fs);
     context.script_indent = old_script_indent;
     
-    if(_extents.ascent < _exponent->extents().height() - ey)
-      _extents.ascent = _exponent->extents().height() - ey;
+    if(_extents.ascent < _exponent->extents().height() - _exponent_offset.y)
+      _extents.ascent = _exponent->extents().height() - _exponent_offset.y;
       
-    if(ex < _exponent->extents().width) {
-      rx +=             _exponent->extents().width - ex;
-      _extents.width += _exponent->extents().width - ex;
+    if(_exponent_offset.x < _exponent->extents().width) {
+      rx +=             _exponent->extents().width - _exponent_offset.x;
+      _extents.width += _exponent->extents().width - _exponent_offset.x;
     }
   }
 }
@@ -138,8 +137,8 @@ void RadicalBox::paint(Context &context) {
   _radicand->paint(context);
   
   if(_exponent) {
-    if(ex < _exponent->extents().width)
-      context.canvas().move_to(x + _exponent->extents().width - ex, y);
+    if(_exponent_offset.x < _exponent->extents().width)
+      context.canvas().move_to(x + _exponent->extents().width - _exponent_offset.x, y);
     else
       context.canvas().move_to(x, y);
   }
@@ -154,15 +153,15 @@ void RadicalBox::paint(Context &context) {
     float old_fs = context.canvas().get_font_size();
     context.canvas().set_font_size(small_em);
     
-    if(ex < _exponent->extents().width) {
+    if(_exponent_offset.x < _exponent->extents().width) {
       context.canvas().move_to(
         x,
-        y + ey - _exponent->extents().descent);
+        y + _exponent_offset.y - _exponent->extents().descent);
     }
     else {
       context.canvas().move_to(
-        x + ex - _exponent->extents().width,
-        y + ey - _exponent->extents().descent);
+        x + _exponent_offset.x - _exponent->extents().width,
+        y + _exponent_offset.y - _exponent->extents().descent);
     }
     _exponent->paint(context);
     
@@ -241,10 +240,10 @@ Box *RadicalBox::move_vertical(
   if(*index < 0) {
     if(_exponent) {
       float er;
-      if(ex < _exponent->extents().width)
+      if(_exponent_offset.x < _exponent->extents().width)
         er = _exponent->extents().width;
       else
-        er = ex;
+        er = _exponent_offset.x;
         
       if(*index_rel_x < (er + rx) / 2)
         return _exponent->move_vertical(direction, index_rel_x, index, false);
@@ -273,13 +272,13 @@ VolatileSelection RadicalBox::mouse_selection(float x, float y, bool *was_inside
   
   if(_exponent) {
     float el = 0;
-    if(ex > _exponent->extents().width)
-      el = ex - _exponent->extents().width;
+    if(_exponent_offset.x > _exponent->extents().width)
+      el = _exponent_offset.x - _exponent->extents().width;
       
     if(x > el / 2 && x < (el + _exponent->extents().width + rx) / 2)
       return _exponent->mouse_selection(
                x - el,
-               y - ey + _exponent->extents().descent,
+               y - _exponent_offset.y + _exponent->extents().descent,
                was_inside_start);
   }
   
@@ -301,10 +300,10 @@ void RadicalBox::child_transformation(
   }
   else {
     float el = 0;
-    if(ex > _exponent->extents().width)
-      el = ex - _exponent->extents().width;
+    if(_exponent_offset.x > _exponent->extents().width)
+      el = _exponent_offset.x - _exponent->extents().width;
       
-    cairo_matrix_translate(matrix, el, ey - _exponent->extents().descent);
+    cairo_matrix_translate(matrix, el, _exponent_offset.y - _exponent->extents().descent);
   }
 }
 

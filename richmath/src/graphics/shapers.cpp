@@ -1457,13 +1457,12 @@ void SimpleMathShaper::shape_radical(
   Context          &context,
   BoxSize          *box,        // in/out
   float            *radicand_x, // out
-  float            *exponent_x, // out
-  float            *exponent_y, // out
+  Vector2F         *exponent_offset, // out
   RadicalShapeInfo *info        // out
 ) {
   if(get_style().italic) {
     math_set_style(get_style() - Italic)->shape_radical(
-      context, box, radicand_x, exponent_x, exponent_y, info);
+      context, box, radicand_x, exponent_offset, info);
       
     return;
   }
@@ -1485,9 +1484,9 @@ void SimpleMathShaper::shape_radical(
     cg.index = srg[i].index;
     context.canvas().glyph_extents(&cg, 1, &cte);
     *radicand_x = cte.x_advance;
-    *exponent_x = srg[i].rel_exp_x * cte.width;
-    *exponent_y = srg[i].rel_exp_y * cte.height
-                  + srg[i].rel_ascent * cte.height + hbar_height + cte.y_bearing;
+    exponent_offset->x = srg[i].rel_exp_offset.x * cte.width;
+    exponent_offset->y = srg[i].rel_exp_offset.y * cte.height
+                       + srg[i].rel_ascent * cte.height + hbar_height + cte.y_bearing;
                   
     if(box->descent >= (1 - srg[i].rel_ascent) * cte.height)
       info->y_offset = box->descent - cte.height - cte.y_bearing;
@@ -1514,7 +1513,7 @@ void SimpleMathShaper::shape_radical(
     box->ascent = -cte.y_bearing - info->y_offset;
     if(box->descent < cte.height - box->ascent)
       box->descent = cte.height - box->ascent;
-    *exponent_y += info->y_offset;
+    exponent_offset->y += info->y_offset;
     
     return;
   }
@@ -1528,16 +1527,15 @@ void SimpleMathShaper::shape_radical(
     &vertical,
     &edge,
     &horizontal,
-    exponent_x,
-    exponent_y);
+    exponent_offset);
     
   float h = box->height();
   cg.index = bottom;
   context.canvas().glyph_extents(&cg, 1, &cte);
   info->y_offset = box->descent - cte.height;
   *radicand_x = cte.x_advance;
-  *exponent_x *= cte.x_advance;
-  *exponent_y = *exponent_y * cte.height + info->y_offset;
+  exponent_offset->x *= cte.x_advance;
+  exponent_offset->y = exponent_offset->y * cte.height + info->y_offset;
   h -= cte.height;
   
   cg.index = edge;
@@ -1595,7 +1593,7 @@ void SimpleMathShaper::show_radical(
     }
   }
   else {
-    float dummyx, dummyy;
+    Vector2F dummyxy;
     uint16_t bottom;
     uint16_t vertical;
     uint16_t edge;
@@ -1605,8 +1603,7 @@ void SimpleMathShaper::show_radical(
       &vertical,
       &edge,
       &horizontal,
-      &dummyx,
-      &dummyy);
+      &dummyxy);
       
     cg.index = bottom;
     context.canvas().glyph_extents(&cg, 1, &cte);

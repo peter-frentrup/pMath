@@ -254,8 +254,7 @@ namespace {
       uint16_t  vertical;
       uint16_t  edge;
       uint16_t  horizontal;
-      float     rel_exp_x;
-      float     rel_exp_y;
+      Vector2F  rel_exponent_offset;
   };
   
   class RadicalGlyphs {
@@ -377,18 +376,17 @@ namespace richmath {
                   Expr g = rhs[j + 1];
                   
                   if(g[0] == PMATH_SYMBOL_LIST && g.expr_length() == 5) {
-                    tables->radical.small_glyphs[j].index      = GG.expr_to_glyph(g[1], tables->radical.font);
-                    tables->radical.small_glyphs[j].hbar_index = GG.expr_to_glyph(g[2], tables->radical.font);
-                    tables->radical.small_glyphs[j].rel_ascent = g[3].to_double();
-                    tables->radical.small_glyphs[j].rel_exp_x  = g[4].to_double();
-                    tables->radical.small_glyphs[j].rel_exp_y  = g[5].to_double();
+                    tables->radical.small_glyphs[j].index          = GG.expr_to_glyph(g[1], tables->radical.font);
+                    tables->radical.small_glyphs[j].hbar_index     = GG.expr_to_glyph(g[2], tables->radical.font);
+                    tables->radical.small_glyphs[j].rel_ascent     = g[3].to_double();
+                    tables->radical.small_glyphs[j].rel_exp_offset = Vector2F(g[4].to_double(), g[5].to_double());
                   }
                   else
                     break;
                 }
                 
                 tables->radical.small_glyphs[tables->radical.small_glyphs.length() - 1] =
-                  SmallRadicalGlyph(0, 0, 0, 0, 0);
+                  SmallRadicalGlyph(0, 0, 0, Vector2F());
               }
               
               continue;
@@ -396,12 +394,11 @@ namespace richmath {
             
             if(lhs.equals("BigRadical")) {
               if(rhs[0] == PMATH_SYMBOL_LIST && rhs.expr_length() == 6) {
-                tables->radical.big_glyph.bottom     = GG.expr_to_glyph(rhs[1], tables->radical.font);
-                tables->radical.big_glyph.vertical   = GG.expr_to_glyph(rhs[2], tables->radical.font);
-                tables->radical.big_glyph.edge       = GG.expr_to_glyph(rhs[3], tables->radical.font);
-                tables->radical.big_glyph.horizontal = GG.expr_to_glyph(rhs[4], tables->radical.font);
-                tables->radical.big_glyph.rel_exp_x  = rhs[5].to_double();
-                tables->radical.big_glyph.rel_exp_y  = rhs[6].to_double();
+                tables->radical.big_glyph.bottom              = GG.expr_to_glyph(rhs[1], tables->radical.font);
+                tables->radical.big_glyph.vertical            = GG.expr_to_glyph(rhs[2], tables->radical.font);
+                tables->radical.big_glyph.edge                = GG.expr_to_glyph(rhs[3], tables->radical.font);
+                tables->radical.big_glyph.horizontal          = GG.expr_to_glyph(rhs[4], tables->radical.font);
+                tables->radical.big_glyph.rel_exponent_offset = Vector2F(rhs[5].to_double(), rhs[6].to_double());
               }
               
               continue;
@@ -707,7 +704,7 @@ namespace richmath {
         SET_BASE_DEBUG_TAG(typeid(*this).name());
         
         script_size_multipliers.length(1, 0.71f);
-        radical.small_glyphs.length(1, SmallRadicalGlyph(0, 0, 0, 0, 0));
+        radical.small_glyphs.length(1, SmallRadicalGlyph(0, 0, 0, Vector2F()));
       }
       
       static String find_font(Expr name) {
@@ -782,12 +779,12 @@ namespace richmath {
             return false;
           }
           
-          if(last.rel_exp_x != 0) {
+          if(last.rel_exp_offset.x != 0) {
             printf("[%s, %d]", FUNC_NAME, __LINE__);
             return false;
           }
           
-          if(last.rel_exp_y != 0) {
+          if(last.rel_exp_offset.y != 0) {
             printf("[%s, %d]", FUNC_NAME, __LINE__);
             return false;
           }
@@ -1584,15 +1581,13 @@ void ConfigShaper::big_radical_glyphs(
   uint16_t     *vertical,
   uint16_t     *edge,
   uint16_t     *horizontal,
-  float        *_rel_exp_x,
-  float        *_rel_exp_y
+  Vector2F     *rel_exponent_offset
 ) {
-  *bottom     = tables->radical.big_glyph.bottom;
-  *vertical   = tables->radical.big_glyph.vertical;
-  *edge       = tables->radical.big_glyph.edge;
-  *horizontal = tables->radical.big_glyph.horizontal;
-  *_rel_exp_x = tables->radical.big_glyph.rel_exp_x;
-  *_rel_exp_y = tables->radical.big_glyph.rel_exp_y;
+  *bottom              = tables->radical.big_glyph.bottom;
+  *vertical            = tables->radical.big_glyph.vertical;
+  *edge                = tables->radical.big_glyph.edge;
+  *horizontal          = tables->radical.big_glyph.horizontal;
+  *rel_exponent_offset = tables->radical.big_glyph.rel_exponent_offset;
 }
 
 //} ... class ConfigShaper

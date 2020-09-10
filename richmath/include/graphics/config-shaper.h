@@ -105,8 +105,7 @@ namespace richmath {
         uint16_t     *vertical,
         uint16_t     *edge,
         uint16_t     *horizontal,
-        float        *_rel_exp_x,
-        float        *_rel_exp_y) override;
+        Vector2F     *rel_exponent_offset) override;
         
     protected:
       SharedPtr<ConfigShaperTables>  tables;

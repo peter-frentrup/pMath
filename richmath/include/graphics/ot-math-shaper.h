@@ -107,8 +107,7 @@ namespace richmath {
         Context          &context,    // in
         BoxSize          *box,        // in/out
         float            *radicand_x, // out
-        float            *exponent_x, // out
-        float            *exponent_y, // out
+        Vector2F         *exponent_offset, // out
         RadicalShapeInfo *info) override; // out
         
       virtual void show_radical(
