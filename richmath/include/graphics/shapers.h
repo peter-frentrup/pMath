@@ -112,12 +112,12 @@ namespace richmath {
           *d = descent;
       };
       
-      Rectangle to_rectangle() const {
+      RectangleF to_rectangle() const {
         return to_rectangle(Point(0, 0));
       }
       
-      Rectangle to_rectangle(const Point &origin) const {
-        return Rectangle(origin.x, origin.y - ascent, width, height());
+      RectangleF to_rectangle(const Point &origin) const {
+        return RectangleF(origin.x, origin.y - ascent, width, height());
       }
   };
   

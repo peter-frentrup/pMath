@@ -578,7 +578,7 @@ void CharBoxTextShaper::show_glyph(
   context.canvas().set_font_face(digit_font);
   
   {
-    Rectangle rect(x, y, em, em);
+    RectangleF rect(x, y, em, em);
     //BoxRadius radii(0.1 * em);
     
     rect.normalize();
@@ -587,7 +587,7 @@ void CharBoxTextShaper::show_glyph(
     //radii.normalize(rect.width, rect.height);
     rect.add_rect_path(context.canvas(), false);
     
-    Point delta(-0.1f * em, -0.1f * em);
+    Vector2F delta(-0.1f * em, -0.1f * em);
     delta.pixel_align_distance(context.canvas());
     
     rect.grow(delta);

@@ -34,7 +34,7 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint)
           if(context.canvas().show_only_text)
             return;
           
-          Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
+          RectangleF rect(x, y - _extents.ascent, _extents.width, _extents.height());
           BoxRadius radii;
           
           Expr expr;

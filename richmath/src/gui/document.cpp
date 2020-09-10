@@ -1788,7 +1788,7 @@ void Document::copy_to_binary(String mimetype, Expr file) {
   pmath_file_writetext(file.get(), text.buffer(), text.length());
 }
 
-void Document::prepare_copy_to_image(cairo_surface_t *target_surface, richmath::Rectangle *out_pix_rect) {
+void Document::prepare_copy_to_image(cairo_surface_t *target_surface, richmath::RectangleF *out_pix_rect) {
   cairo_t *cr = cairo_create(target_surface);
   
   cairo_set_line_width(cr, 1);
@@ -1805,7 +1805,7 @@ void Document::prepare_copy_to_image(cairo_surface_t *target_surface, richmath::
   cairo_surface_flush(target_surface);
 }
 
-void Document::finish_copy_to_image(cairo_surface_t *target_surface, const richmath::Rectangle &pix_rect) {
+void Document::finish_copy_to_image(cairo_surface_t *target_surface, const richmath::RectangleF &pix_rect) {
   cairo_t *cr = cairo_create(target_surface);
   
   cairo_set_line_width(cr, 1);
@@ -1822,8 +1822,8 @@ void Document::finish_copy_to_image(cairo_surface_t *target_surface, const richm
   cairo_surface_flush(target_surface);
 }
 
-void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::Rectangle *out_pix_rect) {
-  *out_pix_rect = Rectangle{0, 0, 0, 0};
+void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::RectangleF *out_pix_rect) {
+  *out_pix_rect = RectangleF{0, 0, 0, 0};
   
   SelectionReference copysel = context.selection;
   Box *selbox = copysel.get();
@@ -1880,7 +1880,7 @@ void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::Rectangle *ou
   drag_status = old_drag_status;
 }
 
-void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangle &pix_rect) {
+void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::RectangleF &pix_rect) {
   SelectionReference copysel = context.selection;
   Box *selbox = copysel.get();
   if(!selbox)
@@ -1986,7 +1986,7 @@ void Document::copy_to_clipboard(Clipboard *clipboard, String mimetype) {
       return;
     }
     
-    Rectangle rect;
+    RectangleF rect;
     prepare_copy_to_image(image, &rect);
     cairo_surface_destroy(image);
     image = clipboard->create_image(mimetype, rect.width, rect.height);

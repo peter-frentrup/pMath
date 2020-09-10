@@ -127,7 +127,7 @@ void EmptyWidgetBox::paint(Context &context) {
   if(type == FramelessButton && state == PressedHovered) {
     context.canvas().save();
     {
-      Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
+      RectangleF rect(x, y - _extents.ascent, _extents.width, _extents.height());
       
       rect.pixel_align(context.canvas(), false, 0);
       rect.add_rect_path(context.canvas(), false);

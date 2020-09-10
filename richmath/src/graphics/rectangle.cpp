@@ -33,30 +33,10 @@ static float round(float x, int direction, bool to_half) {
   return x;
 }
 
-//{ class Point ...
+//{ class Vector2F ...
 
-void Point::pixel_align_point(Canvas &canvas, bool tostroke) {
-  if(canvas.pixel_device) {
-    cairo_matrix_t ctm = canvas.get_matrix();
-    
-    if( (ctm.xx == 0 && ctm.yy == 0) ||
-        (ctm.xy == 0 && ctm.yx == 0))
-    {
-      canvas.user_to_device(&x, &y);
-      if(tostroke) {
-        x = ceil(x) - 0.5;
-        y = ceil(y) - 0.5;
-      }
-      else {
-        x = floor(x + 0.5);
-        y = floor(y + 0.5);
-      }
-      canvas.device_to_user(&x, &y);
-    }
-  }
-}
 
-void Point::pixel_align_distance(Canvas &canvas) {
+void Vector2F::pixel_align_distance(Canvas &canvas) {
   if(canvas.pixel_device) {
     cairo_matrix_t ctm = canvas.get_matrix();
     
@@ -90,11 +70,36 @@ void Point::pixel_align_distance(Canvas &canvas) {
   }
 }
 
+//} ... class Vector2F
+
+//{ class Point ...
+
+void Point::pixel_align_point(Canvas &canvas, bool tostroke) {
+  if(canvas.pixel_device) {
+    cairo_matrix_t ctm = canvas.get_matrix();
+    
+    if( (ctm.xx == 0 && ctm.yy == 0) ||
+        (ctm.xy == 0 && ctm.yx == 0))
+    {
+      canvas.user_to_device(&x, &y);
+      if(tostroke) {
+        x = ceil(x) - 0.5;
+        y = ceil(y) - 0.5;
+      }
+      else {
+        x = floor(x + 0.5);
+        y = floor(y + 0.5);
+      }
+      canvas.device_to_user(&x, &y);
+    }
+  }
+}
+
 //} ... class Point
 
-//{ class Rectangle ...
+//{ class RectangleF ...
 
-void Rectangle::normalize() {
+void RectangleF::normalize() {
   if(width < 0) {
     x = x + width;
     width = -width;
@@ -106,7 +111,7 @@ void Rectangle::normalize() {
   }
 }
 
-void Rectangle::normalize_to_zero() {
+void RectangleF::normalize_to_zero() {
   if(width < 0) {
     x += width / 2;
     width = 0;
@@ -118,7 +123,7 @@ void Rectangle::normalize_to_zero() {
   }
 }
 
-void Rectangle::pixel_align(Canvas &canvas, bool tostroke, int direction) {
+void RectangleF::pixel_align(Canvas &canvas, bool tostroke, int direction) {
   if(canvas.pixel_device) {
     cairo_matrix_t ctm = canvas.get_matrix();
     
@@ -156,7 +161,7 @@ void Rectangle::pixel_align(Canvas &canvas, bool tostroke, int direction) {
   }
 }
 
-void Rectangle::grow(float dx, float dy) {
+void RectangleF::grow(float dx, float dy) {
   x -= dx;
   y -= dy;
   
@@ -164,7 +169,7 @@ void Rectangle::grow(float dx, float dy) {
   height += 2 * dy;
 }
 
-void Rectangle::add_round_rect_path(Canvas &canvas, const BoxRadius &radii, bool negative) const {
+void RectangleF::add_round_rect_path(Canvas &canvas, const BoxRadius &radii, bool negative) const {
   canvas.new_sub_path();
   
   if(negative) {
@@ -245,11 +250,11 @@ void Rectangle::add_round_rect_path(Canvas &canvas, const BoxRadius &radii, bool
   canvas.close_path();
 }
 
-void Rectangle::add_rect_path(Canvas &canvas, bool negative) const {
+void RectangleF::add_rect_path(Canvas &canvas, bool negative) const {
   add_round_rect_path(canvas, BoxRadius(), negative);
 }
 
-//} ... class Rectangle
+//} ... class RectangleF
 
 //{ class BorderRadius ...
 

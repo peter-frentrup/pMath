@@ -465,7 +465,7 @@ void AbstractSequenceSection::paint(Context &context) {
     if(context.stylesheet->get(style, BorderRadius, &expr))
       radii = BoxRadius(expr);
       
-    Rectangle rect(Point(x + left_margin,
+    RectangleF rect(Point(x + left_margin,
                          y + top_margin),
                    Point(x + _extents.width,
                          y + _extents.descent - bottom_margin));
@@ -480,12 +480,12 @@ void AbstractSequenceSection::paint(Context &context) {
       context.canvas().fill_preserve();
     }
     
-    Point delta_tl(l, t);
+    Vector2F delta_tl(l, t);
     delta_tl.pixel_align_distance(context.canvas());
     rect.x += delta_tl.x; rect.width -= delta_tl.x;
     rect.y += delta_tl.y; rect.height -= delta_tl.y;
     
-    Point delta_br(r, b);
+    Vector2F delta_br(r, b);
     delta_br.pixel_align_distance(context.canvas());
     rect.width -= delta_br.x;
     rect.height -= delta_br.y;

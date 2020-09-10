@@ -9,37 +9,26 @@ namespace pmath {
 namespace richmath {
   class Canvas;
   class BoxRadius;
+  class Point;
   
-  class Point final {
+  class Vector2F final {
     public:
-      Point(): x(0), y(0) {}
-      Point(float _x, float _y): x(_x), y(_y) {}
+      Vector2F() : x(0), y(0) {}
+      Vector2F(float x, float y) : x(x), y(y) {}
       
-      Point &operator+= (const Point &delta) {
-        x += delta.x;
-        y += delta.y;
-        return *this;
-      }
+      explicit Vector2F(const Point &pt);
       
-      Point &operator-= (const Point &delta) {
-        x -= delta.x;
-        y -= delta.y;
-        return *this;
-      }
+      Vector2F &operator+=(const Vector2F &other) { x+= other.x; y+= other.y; return *this; }
+      Vector2F &operator-=(const Vector2F &other) { x-= other.x; y-= other.y; return *this; }
+      Vector2F &operator*=(float factor) {        x*= factor;  y*= factor;  return *this; }
+      Vector2F &operator/=(float divisor) {       x/= divisor; y/= divisor; return *this; }
       
-      Point &operator*= (float m) {
-        x *= m;
-        y *= m;
-        return *this;
-      }
+      friend Vector2F operator+(Vector2F left, const Vector2F &right) { return left+= right; }
+      friend Vector2F operator-(Vector2F left, const Vector2F &right) { return left-= right; }
+      friend Vector2F operator*(Vector2F vec, float factor) { return vec*= factor; }
+      friend Vector2F operator*(float factor, Vector2F vec) { return vec*= factor; }
+      friend Vector2F operator/(Vector2F vec, float divisor) { return vec/= divisor; }
       
-      Point &operator/= (float m) {
-        x /= m;
-        y /= m;
-        return *this;
-      }
-      
-      void pixel_align_point(Canvas &canvas, bool tostroke);
       void pixel_align_distance(Canvas &canvas);
       
     public:
@@ -47,18 +36,46 @@ namespace richmath {
       float y;
   };
   
-  class Rectangle final {
+  class Point final {
     public:
-      Rectangle()
+      Point(): x(0), y(0) {}
+      Point(float x, float y): x(x), y(y) {}
+      
+      explicit Point(const Vector2F &vec) : x(vec.x), y(vec.y) {}
+      
+      Point &operator+=(const Vector2F &delta) { x += delta.x; y += delta.y; return *this; }
+      Point &operator-=(const Vector2F &delta) { x -= delta.x; y -= delta.y; return *this; }
+      
+      friend Point operator+(Point pt, const Vector2F &vec) { return pt+= vec; }
+      friend Point operator+(const Vector2F &vec, Point pt) { return pt+= vec; }
+      friend Point operator-(Point pt, const Vector2F &vec) { return pt-= vec; }
+      friend Vector2F operator-(const Point &left, const Point &right) { return Vector2F(left) -= Vector2F(right); }
+      
+      void pixel_align_point(Canvas &canvas, bool tostroke);
+      
+    public:
+      float x;
+      float y;
+  };
+  
+  inline Vector2F::Vector2F(const Point &pt) : x(pt.x), y(pt.y) {}
+  
+  class RectangleF final {
+    public:
+      RectangleF()
         : x(0), y(0), width(0), height(0)
       {}
       
-      Rectangle(float _x, float _y, float _w, float _h)
-        : x(_x), y(_y), width(_w), height(_h)
+      RectangleF(float x, float y, float w, float h)
+        : x(x), y(y), width(w), height(h)
       {}
       
-      Rectangle(const Point &p1, const Point &p2)
+      RectangleF(const Point &p1, const Point &p2)
         : x(p1.x), y(p1.y), width(p2.x - p1.x), height(p2.y - p1.y)
+      {}
+      
+      RectangleF(const Point &pos, const Vector2F &size)
+        : x(pos.x), y(pos.y), width(size.x), height(size.y)
       {}
       
       void normalize();
@@ -77,8 +94,9 @@ namespace richmath {
       Point top_right()    const { return Point(right(), top()); }
       Point bottom_left()  const { return Point(left(),  bottom()); }
       Point bottom_right() const { return Point(right(), bottom()); }
+      Vector2F size() const { return Vector2F(width, height); }
       
-      bool contains(const Rectangle &other) const {
+      bool contains(const RectangleF &other) const {
         return x <= other.x &&
                y <= other.y &&
                other.x + other.width  <= x + width &&
@@ -93,8 +111,8 @@ namespace richmath {
         return x <= px && y <= py && px <= x + width && py <= y + height;
       }
       
-      void grow(float delta) {         grow(delta, delta); }
-      void grow(const Point &delta) { grow(delta.x, delta.y); }
+      void grow(float delta) {           grow(delta, delta); }
+      void grow(const Vector2F &delta) { grow(delta.x, delta.y); }
       void grow(float dx, float dy);
       
       // radii: assuming Y axis goes "down", X axis goes "right", all is normalized

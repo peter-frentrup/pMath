@@ -17,7 +17,6 @@
 #endif
 
 
-#define Rectangle richmath::Rectangle
 using namespace richmath;
 
 namespace {
@@ -244,8 +243,8 @@ bool ControlPainter::is_very_transparent(ControlContext &control, ContainerType 
 
 static void paint_edge(
   Canvas          &canvas,
-  const Rectangle &outer_rect,
-  const Rectangle &inner_rect,
+  const RectangleF &outer_rect,
+  const RectangleF &inner_rect,
   Color           top_left_color,
   Color           bottom_right_color
 ) {
@@ -324,9 +323,9 @@ static void paint_frame(
     c1 = Button3DDarkColor;
   }
   
-  Rectangle rect{x, y, width, height};
+  RectangleF rect{x, y, width, height};
   rect.pixel_align(canvas, 0);
-  Rectangle inner = rect;
+  RectangleF inner = rect;
   inner.grow(-d);
   
   paint_edge(canvas, rect, inner, c1, c3);
@@ -684,14 +683,14 @@ void ControlPainter::draw_container(
     case TabHeadAbuttingLeftRight:
     case TabHeadAbuttingLeft:
     case TabHead: {
-        Rectangle rect {x, y, width, height};
+        RectangleF rect {x, y, width, height};
         
         if(state != Pressed && state != PressedHovered) {
           rect.y+=      1.5f;
           rect.height-= 3.0f;
         }
         
-        Rectangle inner = rect;
+        RectangleF inner = rect;
         inner.y+=      1.5f;
         inner.height-= 1.5f;
         
@@ -723,12 +722,12 @@ void ControlPainter::draw_container(
       } break;
     
     case TabHeadBackground: {
-        Rectangle rect {x, y, width, height};
+        RectangleF rect {x, y, width, height};
         
         rect.y+= rect.height - 1.5f;
         rect.height = 1.5f;
         
-        Rectangle inner = rect;
+        RectangleF inner = rect;
         inner.y+= inner.height;
         inner.height = 0.0f;
         inner.x+= 1.5f;
@@ -737,8 +736,8 @@ void ControlPainter::draw_container(
       } break;
     
     case TabBodyBackground: {
-        Rectangle rect {x, y, width, height};
-        Rectangle inner = rect;
+        RectangleF rect {x, y, width, height};
+        RectangleF inner = rect;
         inner.x+= 1.5f;
         inner.width-= 3.0f;
         inner.height-= 1.5f;

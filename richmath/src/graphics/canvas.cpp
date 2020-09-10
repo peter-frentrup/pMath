@@ -336,7 +336,7 @@ float Canvas::pixel_round_dy(float dy) {
 }
 
 void Canvas::pixrect(float x1, float y1, float x2, float y2, bool tostroke) {
-  Rectangle rect(x1, y1, x2 - x1, y2 - y1);
+  RectangleF rect(x1, y1, x2 - x1, y2 - y1);
   
   rect.pixel_align(*this, tostroke, 0);
   rect.add_rect_path(*this);
@@ -746,7 +746,7 @@ void Canvas::stroke_preserve() {
   cairo_stroke_preserve(_cr);
 }
 
-void Canvas::clip_extents(richmath::Rectangle *rect) {
+void Canvas::clip_extents(richmath::RectangleF *rect) {
   double _x1, _y1, _x2, _y2;
   cairo_clip_extents(_cr, &_x1, &_y1, &_x2, &_y2);
   rect->x = _x1;
@@ -768,7 +768,7 @@ void Canvas::clip_extents(double *x1, double *y1, double *x2, double *y2) {
   cairo_clip_extents(_cr, x1, y1, x2, y2);
 }
 
-void Canvas::path_extents(richmath::Rectangle *rect) {
+void Canvas::path_extents(richmath::RectangleF *rect) {
   double _x1, _y1, _x2, _y2;
   cairo_path_extents(_cr, &_x1, &_y1, &_x2, &_y2);
   rect->x = _x1;

@@ -278,7 +278,7 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
     return E_OUTOFMEMORY;
   }
     
-  Rectangle rect;
+  RectangleF rect;
   doc->prepare_copy_to_image(image, &rect);
   cairo_surface_destroy(image);
   

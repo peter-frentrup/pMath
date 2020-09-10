@@ -70,7 +70,7 @@ void FrameBox::paint(Context &context) {
   float x, y;
   context.canvas().current_pos(&x, &y);
   
-  Rectangle rect(x, y - _extents.ascent, _extents.width, _extents.height());
+  RectangleF rect(x, y - _extents.ascent, _extents.width, _extents.height());
   BoxRadius radii;
   
   Expr expr;
@@ -84,7 +84,7 @@ void FrameBox::paint(Context &context) {
   radii.normalize(rect.width, rect.height);
   rect.add_round_rect_path(context.canvas(), radii, false);
   
-  Point delta(-0.1f * em, -0.1f * em);
+  Vector2F delta(-0.1f * em, -0.1f * em);
   delta.pixel_align_distance(context.canvas());
   
   rect.grow(delta);

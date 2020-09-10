@@ -61,7 +61,7 @@ void ContainerWidgetBox::paint(Context &context) {
   float x, y;
   context.canvas().current_pos(&x, &y);
   
-  Rectangle rect = _extents.to_rectangle(Point(x, y));
+  RectangleF rect = _extents.to_rectangle(Point(x, y));
   ControlState state = calc_state(context);
   
   if(animation && !animation->is_compatible(context.canvas(), rect.width, rect.height)) 

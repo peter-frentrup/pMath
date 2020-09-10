@@ -364,7 +364,7 @@ void MathGtkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &event
     AutoResetSelection ars(doc);
     
     cairo_surface_t *image = cairo_image_surface_create(CAIRO_FORMAT_RGB24, 1, 1);
-    Rectangle rect;
+    RectangleF rect;
     doc->prepare_copy_to_image(image, &rect);
     cairo_surface_destroy(image);
     

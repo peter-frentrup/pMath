@@ -7,7 +7,7 @@
 
 namespace richmath {
   class Base;
-  class Rectangle;
+  class RectangleF;
   
   static const float SelectionFillAlpha     = 0.333f;
   static const Color SelectionColor         = Color::from_rgb24(0x6699FF); // TODO: use Highlight color for border and HotTrack color with alpha = 0x55 = 85 = 33.3%
@@ -116,10 +116,10 @@ namespace richmath {
       void hair_stroke();
       void stroke();
       void stroke_preserve();
-      void clip_extents(Rectangle *rect);
+      void clip_extents(RectangleF *rect);
       void clip_extents(float *x1, float *y1, float *x2, float *y2);
       void clip_extents(double *x1, double *y1, double *x2, double *y2);
-      void path_extents(Rectangle *rect);
+      void path_extents(RectangleF *rect);
       void path_extents(float *x1, float *y1, float *x2, float *y2);
       void path_extents(double *x1, double *y1, double *x2, double *y2);
       void stroke_extents(float *x1, float *y1, float *x2, float *y2);
