@@ -498,7 +498,7 @@ void Document::mouse_down(MouseEvent &event) {
     event.set_origin(this);
     
     bool was_inside_start;
-    receiver = mouse_selection(event.x, event.y, &was_inside_start).box;
+    receiver = mouse_selection(event.position.x, event.position.y, &was_inside_start).box;
                  
     receiver = receiver ? receiver->mouse_sensitive() : this;
     assert(receiver != nullptr);
@@ -582,7 +582,7 @@ void Document::mouse_move(MouseEvent &event) {
     event.set_origin(this);
     
     bool was_inside_start;
-    VolatileSelection receiver_sel = mouse_selection(event.x, event.y, &was_inside_start);
+    VolatileSelection receiver_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
     
     if(DebugFollowMouse && !mouse_history.debug_move_sel.equals(receiver_sel)) {
       mouse_history.debug_move_sel.set(receiver_sel);
@@ -712,13 +712,13 @@ void Document::on_mouse_down(MouseEvent &event) {
     
     bool double_click =
       abs(mouse_history.down_time - native()->message_time()) <= native()->double_click_time() &&
-      fabs(event.x - mouse_history.down_pos.x) <= dd.x &&
-      fabs(event.y - mouse_history.down_pos.y) <= dd.y;
+      fabs(event.position.x - mouse_history.down_pos.x) <= dd.x &&
+      fabs(event.position.y - mouse_history.down_pos.y) <= dd.y;
       
     mouse_history.down_time = native()->message_time();
     
     bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
                  
     if(double_click) {
       ++mouse_history.click_repeat_count;
@@ -781,7 +781,7 @@ void Document::on_mouse_down(MouseEvent &event) {
         select(mouse_sel);
     }
     
-    mouse_history.down_pos = { event.x, event.y };
+    mouse_history.down_pos = event.position;
     mouse_history.down_sel = sel_first;
   }
 }
@@ -790,13 +790,13 @@ void Document::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
   bool was_inside_start;
-  VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
+  VolatileSelection mouse_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
   
   if(event.left && drag_status == DragStatus::MayDrag) {
     Vector2F dd = native()->double_click_dist();
     
-    if( fabs(event.x - mouse_history.down_pos.x) > dd.x ||
-        fabs(event.y - mouse_history.down_pos.y) > dd.y)
+    if( fabs(event.position.x - mouse_history.down_pos.x) > dd.x ||
+        fabs(event.position.y - mouse_history.down_pos.y) > dd.y)
     {
       drag_status = DragStatus::CurrentlyDragging;
       mouse_history.down_pos = Point(HUGE_VAL, HUGE_VAL);
@@ -842,7 +842,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       
       if(sec1 && sec1 != sec2) {
         event.set_origin(sec1);
-        mouse_sel = sec1->mouse_selection(event.x, event.y, &was_inside_start);
+        mouse_sel = sec1->mouse_selection(event.position.x, event.position.y, &was_inside_start);
       }
       
       VolatileSelection down_sel = mouse_down_sel;
@@ -872,7 +872,7 @@ void Document::on_mouse_up(MouseEvent &event) {
   
   if(event.left && drag_status != DragStatus::Idle) {
     bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
                  
     if(Impl(*this).is_inside_selection(mouse_sel, was_inside_start) && mouse_sel.selectable()) {
       select(mouse_sel);

@@ -1161,7 +1161,7 @@ void GraphicsBox::on_mouse_exit() {
 void GraphicsBox::on_mouse_down(MouseEvent &event) {
   event.set_origin(this);
   
-  int part = calc_mouse_over_part(event.x, event.y);
+  int part = calc_mouse_over_part(event.position.x, event.position.y);
   
   mouse_over_part = part == GraphicsPartNone ? GraphicsPartNone : GraphicsPartBackground;
   
@@ -1172,8 +1172,8 @@ void GraphicsBox::on_mouse_down(MouseEvent &event) {
       mouse_over_part = part;
   }
   
-  mouse_down_x = event.x;
-  mouse_down_y = event.y + _extents.ascent;
+  mouse_down_x = event.position.x;
+  mouse_down_y = event.position.y + _extents.ascent;
   
   Box::on_mouse_down(event);
 }
@@ -1188,23 +1188,16 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
     
     switch(mouse_over_part) {
       case GraphicsPartSizeRight:
-        dx = event.x - mouse_down_x;
-        
-        //mouse_down_x = event.x;
+        dx = event.position.x - mouse_down_x;
         break;
         
       case GraphicsPartSizeBottom:
-        dy = event.y + _extents.ascent - mouse_down_y;
-        
-        //mouse_down_y = event.y + _extents.ascent;
+        dy = event.position.y + _extents.ascent - mouse_down_y;
         break;
         
       case GraphicsPartSizeBottomRight:
-        dx = event.x                   - mouse_down_x;
-        dy = event.y + _extents.ascent - mouse_down_y;
-        
-        //mouse_down_x = event.x;
-        //mouse_down_y = event.y + _extents.ascent;
+        dx = event.position.x                   - mouse_down_x;
+        dy = event.position.y + _extents.ascent - mouse_down_y;
         break;
     }
     
@@ -1259,7 +1252,7 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
   {
     event.set_origin(this);
     
-    int part = calc_mouse_over_part(event.x, event.y);
+    int part = calc_mouse_over_part(event.position.x, event.position.y);
     mouse_over_part = part == GraphicsPartNone ? GraphicsPartNone : GraphicsPartBackground;
     
     if(auto doc = find_parent<Document>(false)) {

@@ -779,22 +779,14 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   me.middle = false;
   me.right  = false;
   
-  me.x = x;
-  me.y = y;
+  me.position = scroll_pos() + Vector2F(x, y) / scale_factor();
   
-  me.x /= scale_factor();
-  me.y /= scale_factor();
-  
-  Point sp = scroll_pos();
-  me.x += sp.x;
-  me.y += sp.y;
-
   handle_mouse_move(me);
   
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(me.x, me.y, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(me.position.x, me.position.y, &was_inside_start);
   
   document()->select(dst);
   bool self_is_source = source_widget == _widget;
@@ -1273,19 +1265,10 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   me.device = get_pointer_device_for_event(e);
   pmath_debug_print("[%s down]", me.device == DeviceKind::Pen ? "pen" : (me.device == DeviceKind::Touch ? "touch" : "mouse"));
   
-  me.left   = event->button == 1;
-  me.middle = event->button == 2;
-  me.right  = event->button == 3;
-  
-  me.x = event->x;
-  me.y = event->y;
-  
-  me.x /= scale_factor();
-  me.y /= scale_factor();
-  
-  Point sp = scroll_pos();
-  me.x += sp.x;
-  me.y += sp.y;
+  me.left     = event->button == 1;
+  me.middle   = event->button == 2;
+  me.right    = event->button == 3;
+  me.position = scroll_pos() + Vector2F(event->x, event->y) / scale_factor();
   
   document()->mouse_down(me);
   
@@ -1309,19 +1292,10 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   MouseEvent me;
   me.device = get_pointer_device_for_event(e);
   
-  me.left   = event->button == 1;
-  me.middle = event->button == 2;
-  me.right  = event->button == 3;
-  
-  me.x = event->x;
-  me.y = event->y;
-  
-  me.x /= scale_factor();
-  me.y /= scale_factor();
-  
-  Point sp = scroll_pos();
-  me.x += sp.x;
-  me.y += sp.y;
+  me.left     = event->button == 1;
+  me.middle   = event->button == 2;
+  me.right    = event->button == 3;
+  me.position = scroll_pos() + Vector2F(event->x, event->y) / scale_factor();
   
   document()->mouse_up(me);
   
@@ -1355,19 +1329,10 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   MouseEvent me;
   me.device = get_pointer_device_for_event(e);
   
-  me.left   = 0 != (event->state & GDK_BUTTON1_MASK);
-  me.middle = 0 != (event->state & GDK_BUTTON2_MASK);
-  me.right  = 0 != (event->state & GDK_BUTTON3_MASK);
-  
-  me.x = event->x;
-  me.y = event->y;
-  
-  me.x /= scale_factor();
-  me.y /= scale_factor();
-  
-  Point sp = scroll_pos();
-  me.x += sp.x;
-  me.y += sp.y;
+  me.left     = 0 != (event->state & GDK_BUTTON1_MASK);
+  me.middle   = 0 != (event->state & GDK_BUTTON2_MASK);
+  me.right    = 0 != (event->state & GDK_BUTTON3_MASK);
+  me.position = scroll_pos() + Vector2F(event->x, event->y) / scale_factor();
   
   handle_mouse_move(me);
   return true;

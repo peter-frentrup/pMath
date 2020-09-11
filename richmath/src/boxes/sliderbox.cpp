@@ -289,7 +289,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
     if(dynamic.is_dynamic())
       Application::activated_control(this);
       
-    double val = Impl(*this).mouse_to_val(event.x);
+    double val = Impl(*this).mouse_to_val(event.position.x);
     
     bool has_pre = dynamic.has_pre_or_post_assignment();
     if(has_pre || !Impl(*this).approximately_equals(val, range_value)) {
@@ -308,7 +308,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
     event.set_origin(this);
     
     if(mouse_left_down) {
-      double val = Impl(*this).mouse_to_val(event.x);
+      double val = Impl(*this).mouse_to_val(event.position.x);
       
       if(!Impl(*this).approximately_equals(val, range_value)) {
         if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) {
@@ -326,7 +326,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
       float tx = Impl(*this).calc_thumb_pos(range_value);
       
       bool old_mot = mouse_over_thumb;
-      mouse_over_thumb = (tx <= event.x && event.x <= tx + thumb_width);
+      mouse_over_thumb = (tx <= event.position.x && event.position.x <= tx + thumb_width);
       
       if(old_mot != mouse_over_thumb)
         request_repaint_all();
@@ -337,7 +337,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
 void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left && enabled()) {
     event.set_origin(this);
-    double val = Impl(*this).mouse_to_val(event.x);
+    double val = Impl(*this).mouse_to_val(event.position.x);
     if( //!Impl(*this).approximately_equals(val, range_value) ||
         dynamic.synchronous_updating() == AutoBoolAutomatic ||
         !get_own_style(ContinuousAction, true) ||

@@ -180,7 +180,7 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
   mouse_left_down   = mouse_left_down   || event.left;
   mouse_middle_down = mouse_middle_down || event.middle;
   mouse_right_down  = mouse_right_down  || event.right;
-  mouse_inside      = _extents.to_rectangle().contains(event.x, event.y);
+  mouse_inside      = _extents.to_rectangle().contains(event.position);
   
   if(event.left)
     request_repaint_all();
@@ -197,7 +197,7 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
   
   event.set_origin(this);
   
-  bool mi = _extents.to_rectangle().contains(event.x, event.y);
+  bool mi = _extents.to_rectangle().contains(event.position);
   
   if(mi != mouse_inside)
     request_repaint_all();

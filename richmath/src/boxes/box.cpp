@@ -26,8 +26,7 @@ namespace {
 //{ class MouseEvent ...
 
 MouseEvent::MouseEvent()
-  : x(0),
-    y(0),
+  : position(0, 0),
     id(0),
     device(DeviceKind::Mouse),
     left(false),
@@ -54,7 +53,7 @@ void MouseEvent::set_origin(Box *new_origin) {
   if(origin)
     origin->transformation(common, &mat);
     
-  Canvas::transform_point(mat, &x, &y);
+  position = Canvas::transform_point(mat, position);
   
   origin = new_origin;
 }

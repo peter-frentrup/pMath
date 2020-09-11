@@ -32,7 +32,7 @@ namespace richmath {
       void set_origin(Box *new_origin);
       
     public:
-      float      x, y;
+      Point      position;
       int        id;
       DeviceKind device;
       bool       left;

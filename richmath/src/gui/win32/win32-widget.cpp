@@ -286,17 +286,14 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
     }
   }
   
-  Point sp = scroll_pos();
-  
   event.set_origin(document());
-  double px = (event.x - sp.x) * scale_factor();
-  double py = (event.y - sp.y) * scale_factor();
+  Point pos{(event.position - scroll_pos()) * scale_factor()};
   
   /* Unlike set_drag_image_from_window() i.e. IDropSourceHelper::InitializeFromWindow, 
      set_drag_image_from_document() , i.e. IDropSourceHelper::InitializeFromBitmap,
      we lose default drag description texts with the latter.
    */
-  if(FAILED(drop_source->set_drag_image_from_document(Point{(float)px, (float)py}, data_object->source)))
+  if(FAILED(drop_source->set_drag_image_from_document(pos, data_object->source)))
     drop_source->set_drag_image_from_window(nullptr);
   
   HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
@@ -584,8 +581,8 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
     canvas.new_path();
     ControlPainter::std->paint_scroll_indicator(
       canvas,
-      mouse_down_event.x,
-      mouse_down_event.y,
+      mouse_down_event.position.x,
+      mouse_down_event.position.y,
       horz,//w < document()->extents().width,
       vert);
   }
@@ -866,8 +863,7 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
         already_scrolled = !event.middle;
         Point sp = scroll_pos();
         mouse_down_event = event;
-        mouse_down_event.x = (event.x - sp.x) * scale_factor();
-        mouse_down_event.y = (event.y - sp.y) * scale_factor();
+        mouse_down_event.position = Point{(event.position - scroll_pos()) * scale_factor()};
         SetTimer(_hwnd, TID_SCROLL, 20, 0);
         if(event.middle)
           invalidate();
@@ -1144,11 +1140,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.middle = message == WM_MBUTTONDOWN;
           event.right  = message == WM_RBUTTONDOWN;
           
-          event.x = (int16_t)( lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
-          event.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
+          event.position.x = (int16_t)( lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
+          event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
           
-          event.x /= scale_factor();
-          event.y /= scale_factor();
+          event.position.x /= scale_factor();
+          event.position.y /= scale_factor();
           
           event.device = Win32Touch::get_mouse_message_source(&event.id);
           fprintf(
@@ -1157,8 +1153,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             message == WM_LBUTTONDOWN ? "L" : (message == WM_MBUTTONDOWN ? "M" : "R"),
             event.device == DeviceKind::Mouse ? "mouse" : (event.device == DeviceKind::Pen ? "pen" : "touch"),
             event.id,
-            (double)event.x,
-            (double)event.y);
+            (double)event.position.x,
+            (double)event.position.y);
             
           on_mousedown(event);
         } return 0;
@@ -1184,11 +1180,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           pt.x = (int16_t)( lParam & 0xFFFF);
           pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
           
-          event.x = pt.x + GetScrollPos(_hwnd, SB_HORZ);
-          event.y = pt.y + GetScrollPos(_hwnd, SB_VERT);
+          event.position.x = pt.x + GetScrollPos(_hwnd, SB_HORZ);
+          event.position.y = pt.y + GetScrollPos(_hwnd, SB_VERT);
           
-          event.x /= scale_factor();
-          event.y /= scale_factor();
+          event.position.x /= scale_factor();
+          event.position.y /= scale_factor();
           
           on_mouseup(event);
           
@@ -1206,11 +1202,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           event.middle = (wParam & MK_MBUTTON) != 0;
           event.right  = (wParam & MK_RBUTTON) != 0;
           
-          event.x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
-          event.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
+          event.position.x = (int16_t)(lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
+          event.position.y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
           
-          event.x /= scale_factor();
-          event.y /= scale_factor();
+          event.position.x /= scale_factor();
+          event.position.y /= scale_factor();
           
           on_mousemove(event);
           
@@ -1388,19 +1384,19 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   
                   Vector2F delta;
                   if(mouse_down_event.middle) {
-                    if(abs(mouse.x - mouse_down_event.x) > 10)
-                      delta.x = abs(mouse.x - mouse_down_event.x) / 4;
+                    if(abs(mouse.x - mouse_down_event.position.x) > 10)
+                      delta.x = abs(mouse.x - mouse_down_event.position.x) / 4;
                       
-                    if(abs(mouse.y - mouse_down_event.y) > 10)
-                      delta.y = abs(mouse.y - mouse_down_event.y) / 4;
+                    if(abs(mouse.y - mouse_down_event.position.y) > 10)
+                      delta.y = abs(mouse.y - mouse_down_event.position.y) / 4;
                       
                     delta.x /= scale_factor();
                     delta.y /= scale_factor();
                     
-                    if(mouse.x < mouse_down_event.x)
+                    if(mouse.x < mouse_down_event.position.x)
                       delta.x = -delta.x;
                       
-                    if(mouse.y < mouse_down_event.y)
+                    if(mouse.y < mouse_down_event.position.y)
                       delta.y = -delta.y;
                   }
                   else if(mouse_down_event.left) {
@@ -1427,11 +1423,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                     event.middle = (GetKeyState(VK_MBUTTON) & ~1);
                     event.right  = (GetKeyState(VK_RBUTTON) & ~1);
                     
-                    event.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
-                    event.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
+                    event.position.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
+                    event.position.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
                     
-                    event.x /= scale_factor();
-                    event.y /= scale_factor();
+                    event.position.x /= scale_factor();
+                    event.position.y /= scale_factor();
                     
                     on_mousemove(event);
                   }
