@@ -395,14 +395,10 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
 }
 
 bool Document::request_repaint(float x, float y, float w, float h) {
-  float wx, wy, ww, wh;
-  native()->scroll_pos(&wx, &wy);
-  native()->window_size(&ww, &wh);
+  RectangleF window_rect { native()->scroll_pos(), native()->window_size() };
   
-  if( x + w >= wx && x <= wx + ww &&
-      y + h >= wy && y <= wy + wh)
-  {
-    native()->invalidate_rect(x, y, w, h);
+  if(window_rect.overlaps({x,y,w,h})) {
+    native()->invalidate_rect({x,y,w,h});
     return true;
   }
   
@@ -436,37 +432,35 @@ void Document::invalidate_all() {
     section(i)->invalidate();
 }
 
-void Document::scroll_to(float x, float y, float w, float h) {
+void Document::scroll_to(const RectangleF &rect) {
   if(!native()->is_scrollable())
     return;
     
-  float _w, _h, _x, _y;
-  native()->window_size(&_w, &_h);
-  native()->scroll_pos(&_x, &_y);
+  RectangleF window_rect{ native()->scroll_pos(), native()->window_size() };
   
-  if(y < _y && y + h < _y + _h) {
-    _y = y - _h / 6.f;
-    if(y + h > _y + _h)
-      _y = y + h - _h;
+  if(rect.top() < window_rect.top() && rect.top() < window_rect.top()) {
+    window_rect.y = rect.y - window_rect.height / 6.f;
+    if(rect.bottom() > window_rect.bottom())
+      window_rect.y = rect.bottom() - window_rect.height;
   }
-  else if(y + h >= _y + _h && y > _y) {
-    _y = y + h - _h * 5 / 6.f;
-    if(y < _y)
-      _y = y;
+  else if(rect.bottom() >= window_rect.bottom() && rect.top() > window_rect.top()) {
+    window_rect.y = rect.bottom() - window_rect.height * 5 / 6.f;
+    if(rect.top() < window_rect.top())
+      window_rect.y = rect.y;
   }
   
-  if(x < _x && x + w < _x + _w) {
-    _x = x - _w / 6.f;
-    if(x + w > _x + _w)
-      _x = x + w - _w;
+  if(rect.left() < window_rect.left() && rect.right() < window_rect.right()) {
+    window_rect.x = rect.x - window_rect.width / 6.f;
+    if(rect.right() > window_rect.right())
+      window_rect.x = rect.right() - window_rect.width;
   }
-  else if(x + w >= _x + _w && x > _x) {
-    _x = x + w - _w * 5 / 6.f;
-    if(x < _x)
-      _x = x;
+  else if(rect.right() >= window_rect.right() && rect.left() > window_rect.left()) {
+    window_rect.x = rect.right() - window_rect.width * 5 / 6.f;
+    if(rect.left() < window_rect.left())
+      window_rect.x = rect.x;
   }
   
-  native()->scroll_to(_x, _y);
+  native()->scroll_to(window_rect.top_left());
 }
 
 void Document::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
@@ -714,13 +708,12 @@ void Document::on_mouse_down(MouseEvent &event) {
   
   drag_status = DragStatus::Idle;
   if(event.left) {
-    float ddx, ddy;
-    native()->double_click_dist(&ddx, &ddy);
+    Vector2F dd = native()->double_click_dist();
     
     bool double_click =
       abs(mouse_history.down_time - native()->message_time()) <= native()->double_click_time() &&
-      fabs(event.x - mouse_history.down_pos.x) <= ddx &&
-      fabs(event.y - mouse_history.down_pos.y) <= ddy;
+      fabs(event.x - mouse_history.down_pos.x) <= dd.x &&
+      fabs(event.y - mouse_history.down_pos.y) <= dd.y;
       
     mouse_history.down_time = native()->message_time();
     
@@ -800,11 +793,10 @@ void Document::on_mouse_move(MouseEvent &event) {
   VolatileSelection mouse_sel = mouse_selection(event.x, event.y, &was_inside_start);
   
   if(event.left && drag_status == DragStatus::MayDrag) {
-    float ddx, ddy;
-    native()->double_click_dist(&ddx, &ddy);
+    Vector2F dd = native()->double_click_dist();
     
-    if( fabs(event.x - mouse_history.down_pos.x) > ddx ||
-        fabs(event.y - mouse_history.down_pos.y) > ddy)
+    if( fabs(event.x - mouse_history.down_pos.x) > dd.x ||
+        fabs(event.y - mouse_history.down_pos.y) > dd.y)
     {
       drag_status = DragStatus::CurrentlyDragging;
       mouse_history.down_pos = Point(HUGE_VAL, HUGE_VAL);
@@ -1935,12 +1927,11 @@ void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::Rectangl
       }
     }
     
-    float sx, sy;
-    native()->scroll_pos(&sx, &sy);
-    canvas.translate(-sx, -sy);
+    Point scroll_pos = native()->scroll_pos();
+    canvas.translate(-scroll_pos.x, -scroll_pos.y);
     copysel.get_all().add_path(canvas);
     canvas.clip();
-    canvas.translate(sx, sy);
+    canvas.translate(scroll_pos.x, scroll_pos.y);
     
     canvas.set_color(get_style(FontColor, Color::Black));
     
@@ -3540,10 +3531,10 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     ContextState cc(context);
     cc.begin(style);
     
-    float scrolly, page_height;
-    native()->window_size(&_window_width, &page_height);
-    native()->page_size(&_page_width, &page_height);
-    native()->scroll_pos(&_scrollx, &scrolly);
+    RectangleF page_rect{ native()->scroll_pos(), native()->page_size() };
+    _page_width   = page_rect.width;
+    _scrollx      = page_rect.x;
+    _window_width = native()->window_size().x;
     
     context.fontfeatures.clear();
     context.fontfeatures.add(context.stylesheet->get_with_base(style, FontFeatures));
@@ -3559,7 +3550,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     unfilled_width = 0;
     _extents.ascent = _extents.descent = 0;
     
-    canvas.translate(-_scrollx, -scrolly);
+    canvas.translate(-page_rect.x, -page_rect.y);
     
     init_section_bracket_sizes(context);
     
@@ -3571,7 +3562,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     }
     
     int i = 0;
-    while(i < length() && _extents.descent <= scrolly) {
+    while(i < length() && _extents.descent <= page_rect.top()) {
       if(section(i)->must_resize) // || i == sel_sect)
         resize_section(context, i);
         
@@ -3583,7 +3574,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     if(first_visible_section < 0)
       first_visible_section = 0;
       
-    while(i < length() && _extents.descent <= scrolly + page_height) {
+    while(i < length() && _extents.descent <= page_rect.bottom()) {
       if(section(i)->must_resize) // || i == sel_sect)
         resize_section(context, i);
         
@@ -3682,17 +3673,17 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
               canvas.device_to_user(&x2, &y2);
             }
             
-            canvas.move_to(x1, scrolly);
-            canvas.line_to(x1, scrolly + page_height);
+            canvas.move_to(x1, page_rect.top());
+            canvas.line_to(x1, page_rect.bottom());
             
-            canvas.move_to(x2, scrolly);
-            canvas.line_to(x2, scrolly + page_height);
+            canvas.move_to(x2, page_rect.top());
+            canvas.line_to(x2, page_rect.bottom());
             
-            canvas.move_to(_scrollx,               y1);
-            canvas.line_to(_scrollx + _page_width, y1);
+            canvas.move_to(page_rect.left(),  y1);
+            canvas.line_to(page_rect.right(), y1);
             
-            canvas.move_to(_scrollx,               y2);
-            canvas.line_to(_scrollx + _page_width, y2);
+            canvas.move_to(page_rect.left(),  y2);
+            canvas.line_to(page_rect.right(), y2);
             canvas.close_path();
             
             canvas.set_color(DebugSelectionBoundsColor);
@@ -3719,7 +3710,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
         }
       }
       
-      canvas.translate(_scrollx, scrolly);
+      canvas.translate(page_rect.x, page_rect.y);
       
       if(last_paint_sel != context.selection) {
         last_paint_sel = context.selection;
@@ -4488,8 +4479,7 @@ void Document::Impl::handle_key_pageup_pagedown(SpecialKeyEvent &event, LogicalD
   if(!self.native()->is_scrollable())
     return;
     
-  float w, h;
-  self.native()->window_size(&w, &h);
+  float h = self.native()->window_size().y;
   if(direction == LogicalDirection::Backward)
     h = -h;
     

@@ -54,26 +54,18 @@ namespace {
       FrontEndReference widget_id;
   };
   
-  class DummyNativeWidget: public NativeWidget {
+  class DummyNativeWidget final : public NativeWidget {
     public:
       DummyNativeWidget(): NativeWidget(nullptr) {
       }
       
-      virtual void window_size(float *w, float *h) override {
-        *w = *h = 0;
-      }
-      
-      virtual void page_size(float *w, float *h) override {
-        *w = *h = 0;
-      }
+      virtual Vector2F window_size() override { return Vector2F(0, 0); }
+      virtual Vector2F page_size() override { return Vector2F(0, 0); }
       
       virtual bool is_scrollable() override { return false; }
       virtual bool autohide_vertical_scrollbar() override { return false; }
-      virtual void scroll_pos(float *x, float *y) override {
-        *x = *y = 0;
-      }
-      
-      virtual void scroll_to(float x, float y) override {}
+      virtual Point scroll_pos() override { return Point(0,0); }
+      virtual void scroll_to(Point pos) override {}
       
       virtual void show_tooltip(Box *source, Expr boxes) override {}
       virtual void hide_tooltip() override {}
@@ -82,14 +74,9 @@ namespace {
       
       virtual double double_click_time() override { return 0; }
       virtual double message_time() override { return 0; }
-      virtual void double_click_dist(float *dx, float *dy) override {
-        *dx = *dy = 0;
-      }
+      virtual Vector2F double_click_dist() override { return Vector2F(0, 0); }
+      
       virtual void do_drag_drop(const VolatileSelection &src, MouseEvent &event) override {}
-      virtual bool cursor_position(float *x, float *y) override {
-        *x = *y = 0;
-        return false;
-      }
       
       virtual void bring_to_front() override {}
       
@@ -152,12 +139,6 @@ NativeWidget::~NativeWidget() {
   if(_document)
     _document->_native = dummy;
   delete _document;
-}
-
-void NativeWidget::scroll_by(float dx, float dy) {
-  float x, y;
-  scroll_pos(&x, &y);
-  scroll_to(x + dx, y + dy);
 }
 
 void NativeWidget::scale_by(float ds) {
@@ -243,8 +224,8 @@ bool NativeWidget::may_drop_into(const VolatileSelection &dst, bool self_is_sour
   return true;
 }
 
-CursorType NativeWidget::text_cursor(float dx, float dy) {
-  int part = (int)floor(atan2(dx, dy) * 4 / M_PI + 0.5);
+CursorType NativeWidget::text_cursor(Vector2F dir) {
+  int part = (int)floor(atan2(dir.x, dir.y) * 4 / M_PI + 0.5); // note: x and y are reversed
   if(part == -4)
     part = 4;
     
@@ -256,16 +237,16 @@ CursorType NativeWidget::text_cursor(Box *box, int index) {
   cairo_matrix_init_identity(&mat);
   box->transformation(0, &mat);
   
-  return text_cursor(mat.xy, mat.yy);
+  return text_cursor(Vector2F(mat.xy, mat.yy));
 }
 
-CursorType NativeWidget::size_cursor(float dx, float dy, CursorType base) {
+CursorType NativeWidget::size_cursor(Vector2F dir, CursorType base) {
   int delta = (int)base - (int)CursorType::SizeN;
   
   if(delta < -8 || delta > 8)
     return base;
     
-  int part = (int)floor(atan2(dx, dy) * 4 / M_PI + 0.5);
+  int part = (int)floor(atan2(dir.x, dir.y) * 4 / M_PI + 0.5); // note: x and y are reversed
   if(part == -4)
     part = 4;
     
@@ -284,7 +265,7 @@ CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
   cairo_matrix_init_identity(&mat);
   box->transformation(0, &mat);
   
-  return size_cursor(mat.xy, mat.yy, base);
+  return size_cursor(Vector2F(mat.xy, mat.yy), base);
 }
 
 void NativeWidget::on_editing() {

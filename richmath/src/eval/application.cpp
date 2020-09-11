@@ -1648,30 +1648,7 @@ static Expr cnt_currentvalue(Expr data) {
   }
   else
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-//  Document *doc = box->find_parent<Document>(true);
-//  if(item.is_string()) {
-//    String item_string { item };
-//
-//    if(item_string.equals("MousePosition")){
-//      if(box && doc){
-//        if(!box->style)
-//          box->style = new Style();
-//
-//        box->style->set(InternalUsesCurrentValueOfMousePosition, true);
-//
-//        MouseEvent ev;
-//        if(doc->native()->cursor_position(&ev.x, &ev.y)){
-//          ev.set_source(box);
-//
-//          return List(ev.x, ev.y);
-//        }
-//      }
-//
-//      return Symbol(PMATH_SYMBOL_NONE);
-//    }
-//  }
-
+  
   return Application::current_value(obj, item);
 }
 

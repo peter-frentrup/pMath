@@ -100,9 +100,10 @@ void Win32TooltipWindow::delete_global_tooltip() {
     tooltip_window->destroy();
 }
 
-void Win32TooltipWindow::page_size(float *w, float *h) {
-  Win32Widget::page_size(w, h);
-  *w = HUGE_VAL;
+Vector2F Win32TooltipWindow::page_size() {
+  Vector2F size = Win32Widget::page_size();
+  size.x = HUGE_VAL;
+  return size;
 }
 
 bool Win32TooltipWindow::is_using_dark_mode() {

@@ -233,35 +233,13 @@ void Box::selection_path(Canvas &canvas, int start, int end) {
   if(end > count())
     end = count();
     
-  float x, y;
-  canvas.current_pos(&x, &y);
+  Point p0 = canvas.current_pos();
   
-  for(int i = start; i < end; ++i) {
-    Box *b = item(i);
-    
-    float x1 = x;
-    float y1 = y - b->extents().ascent;
-    float x2 = x + b->extents().width;
-    float y2 = y1;
-    float x3 = x2;
-    float y3 = y + b->extents().descent;
-    float x4 = x1;
-    float y4 = y3;
-    
-    canvas.align_point(&x1, &y1, false);
-    canvas.align_point(&x2, &y2, false);
-    canvas.align_point(&x3, &y3, false);
-    canvas.align_point(&x4, &y4, false);
-    
-    canvas.move_to(x1, y1);
-    canvas.line_to(x2, y2);
-    canvas.line_to(x3, y3);
-    canvas.line_to(x4, y4);
-    canvas.close_path();
-  }
+  for(int i = start; i < end; ++i) 
+    canvas.pixrect(item(i)->extents().to_rectangle(p0), false);
 }
 
-void Box::scroll_to(float x, float y, float w, float h) {
+void Box::scroll_to(const RectangleF &rect) {
 }
 
 void Box::scroll_to(Canvas &canvas, const VolatileSelection &child) {
@@ -298,7 +276,7 @@ void Box::default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection
   float w = x2 - x1;
   float h = y2 - y1;
   Canvas::transform_rect(mat, &x, &y, &w, &h);
-  scroll_to(x, y, w, h);
+  scroll_to(RectangleF{x, y, w, h});
   
   if(_parent)
     _parent->scroll_to(canvas, child_sel);

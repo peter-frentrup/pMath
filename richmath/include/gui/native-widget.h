@@ -53,14 +53,15 @@ namespace richmath {
       
       virtual void dynamic_updated() override {}
       
-      virtual void window_size(float *w, float *h) = 0;
-      virtual void page_size(float *w, float *h) = 0;
+      virtual Vector2F window_size() = 0;
+      virtual Vector2F page_size() = 0;
       
       virtual bool is_scrollable() = 0;
       virtual bool autohide_vertical_scrollbar() = 0;
-      virtual void scroll_pos(float *x, float *y) = 0;
-      virtual void scroll_to(float x, float y) = 0;
-      virtual void scroll_by(float dx, float dy);
+      virtual Point scroll_pos() = 0;
+      virtual void scroll_to(Point pos) = 0;
+      void scroll_by(Vector2F delta) { scroll_to(scroll_pos() + delta); }
+      void scroll_by(float dx, float dy) { scroll_by({dx, dy}); }
       
       virtual void show_tooltip(Box *source, Expr boxes) = 0;
       virtual void hide_tooltip() = 0;
@@ -72,23 +73,22 @@ namespace richmath {
       
       virtual double message_time() = 0;
       virtual double double_click_time() = 0;
-      virtual void double_click_dist(float *dx, float *dy) = 0;
+      virtual Vector2F double_click_dist() = 0;
       virtual void do_drag_drop(const VolatileSelection &src, MouseEvent &event) = 0;
-      virtual bool cursor_position(float *x, float *y) = 0;
       virtual bool may_drop_into(const VolatileSelection &dst, bool self_is_source);
       
       virtual void bring_to_front() = 0;
       virtual void close() = 0;
       virtual void invalidate() = 0;
       virtual void invalidate_options() = 0;
-      virtual void invalidate_rect(float x, float y, float w, float h) { invalidate(); }
+      virtual void invalidate_rect(const RectangleF &rect) { invalidate(); }
       virtual void force_redraw() = 0;
       
       virtual void set_cursor(CursorType type) = 0;
-      static CursorType text_cursor(float dx, float dy);
+      static CursorType text_cursor(Vector2F dir);
       static CursorType text_cursor(Box *box, int index);
-      static CursorType size_cursor(float dx, float dy, CursorType base);
-      static CursorType size_cursor(Box *box, CursorType base);
+      static CursorType size_cursor(Vector2F dir, CursorType base);
+      static CursorType size_cursor(Box *box,     CursorType base);
       
       virtual void running_state_changed() = 0;
       

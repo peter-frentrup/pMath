@@ -87,9 +87,10 @@ void MathGtkTooltipWindow::delete_global_tooltip() {
     tooltip_window->destroy();
 }
 
-void MathGtkTooltipWindow::page_size(float *w, float *h) {
-  MathGtkWidget::page_size(w, h);
-  *w = HUGE_VAL;
+Vector2F MathGtkTooltipWindow::page_size() {
+  Vector2F size = MathGtkWidget::page_size();
+  size.x = HUGE_VAL;
+  return size;
 }
 
 int MathGtkTooltipWindow::dpi() {

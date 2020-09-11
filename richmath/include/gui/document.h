@@ -40,7 +40,7 @@ namespace richmath {
       
       NativeWidget *native() { return _native; } // never nullptr
       
-      virtual void scroll_to(float x, float y, float w, float h) override;
+      virtual void scroll_to(const RectangleF &rect) override;
       virtual void scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
       
       void mouse_exit();

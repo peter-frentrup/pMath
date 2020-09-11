@@ -191,19 +191,17 @@ Win32Widget::~Win32Widget() {
     cairo_surface_destroy(_old_pixels);
 }
 
-void Win32Widget::window_size(float *w, float *h) {
+Vector2F Win32Widget::window_size() {
   RECT rect;
   GetClientRect(_hwnd, &rect);
-  *w = rect.right / scale_factor();
-  *h = rect.bottom / scale_factor();
+  return Vector2F(rect.right, rect.bottom) / scale_factor();
 }
 
-void Win32Widget::scroll_pos(float *x, float *y) {
-  *x = GetScrollPos(_hwnd, SB_HORZ) / scale_factor();
-  *y = GetScrollPos(_hwnd, SB_VERT) / scale_factor();
+Point Win32Widget::scroll_pos() {
+  return Point(Vector2F(GetScrollPos(_hwnd, SB_HORZ), GetScrollPos(_hwnd, SB_VERT)) / scale_factor());
 }
 
-void Win32Widget::scroll_to(float x, float y) {
+void Win32Widget::scroll_to(Point pos) {
   SCROLLINFO si;
   
   si.cbSize = sizeof(si);
@@ -213,14 +211,14 @@ void Win32Widget::scroll_to(float x, float y) {
   
   GetScrollInfo(_hwnd, SB_HORZ, &si);
   oldx = si.nPos;
-  si.nPos = floor(x * scale_factor() + 0.5);
+  si.nPos = floor(pos.x * scale_factor() + 0.5);
   SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
   GetScrollInfo(_hwnd, SB_HORZ, &si);
   newx = si.nPos;
   
   GetScrollInfo(_hwnd, SB_VERT, &si);
   oldy = si.nPos;
-  si.nPos = floor(y * scale_factor() + 0.5);
+  si.nPos = floor(pos.y * scale_factor() + 0.5);
   SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
   GetScrollInfo(_hwnd, SB_VERT, &si);
   newy = si.nPos;
@@ -249,9 +247,8 @@ double Win32Widget::double_click_time() {
   return GetDoubleClickTime() / 1000.0;
 }
 
-void Win32Widget::double_click_dist(float *dx, float *dy) {
-  *dx = GetSystemMetrics(SM_CXDOUBLECLK) / scale_factor();
-  *dy = GetSystemMetrics(SM_CYDOUBLECLK) / scale_factor();
+Vector2F Win32Widget::double_click_dist() {
+  return Vector2F(GetSystemMetrics(SM_CXDOUBLECLK), GetSystemMetrics(SM_CYDOUBLECLK)) / scale_factor();
 }
 
 void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) {
@@ -289,12 +286,11 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
     }
   }
   
-  float sx, sy;
-  scroll_pos(&sx, &sy);
+  Point sp = scroll_pos();
   
   event.set_origin(document());
-  double px = (event.x - sx) * scale_factor();
-  double py = (event.y - sy) * scale_factor();
+  double px = (event.x - sp.x) * scale_factor();
+  double py = (event.y - sp.y) * scale_factor();
   
   /* Unlike set_drag_image_from_window() i.e. IDropSourceHelper::InitializeFromWindow, 
      set_drag_image_from_document() , i.e. IDropSourceHelper::InitializeFromBitmap,
@@ -330,21 +326,6 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
     doc->reset_mouse(); // DoDragDrop eats the mouse-up message
 }
 
-bool Win32Widget::cursor_position(float *x, float *y) {
-  POINT pt;
-  if(GetCursorPos(&pt)) {
-    ScreenToClient(_hwnd, &pt);
-    *x = pt.x + GetScrollPos(_hwnd, SB_HORZ);
-    *y = pt.y + GetScrollPos(_hwnd, SB_VERT);
-    
-    *x /= scale_factor();
-    *y /= scale_factor();
-    return true;
-  }
-  
-  return false;
-}
-
 void Win32Widget::bring_to_front() {
   SetFocus(_hwnd);
 }
@@ -356,18 +337,17 @@ void Win32Widget::invalidate() {
 void Win32Widget::invalidate_options() {
 }
 
-void Win32Widget::invalidate_rect(float x, float y, float w, float h) {
-  float sx, sy, sf;
-  scroll_pos(&sx, &sy);
-  sf = scale_factor();
+void Win32Widget::invalidate_rect(const RectangleF &rect) {
+  Point sp = scroll_pos();
+  float sf = scale_factor();
   
-  RECT rect;
-  rect.left   = (int)floorf((x - sx) * sf) - 4;
-  rect.top    = (int)floorf((y - sy) * sf) - 4;
-  rect.right  = rect.left + (int)ceilf(w * sf) + 8;
-  rect.bottom = rect.top  + (int)ceilf(h * sf) + 8;
+  RECT irect;
+  irect.left   = (int)floorf((rect.x - sp.x) * sf) - 4;
+  irect.top    = (int)floorf((rect.y - sp.y) * sf) - 4;
+  irect.right  = irect.left + (int)ceilf(rect.width  * sf) + 8;
+  irect.bottom = irect.top  + (int)ceilf(rect.height * sf) + 8;
   
-  InvalidateRect(_hwnd, &rect, FALSE);
+  InvalidateRect(_hwnd, &irect, FALSE);
 }
 
 void Win32Widget::force_redraw() {
@@ -587,8 +567,7 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
   
   canvas.scale(1 / scale_factor(), 1 / scale_factor());
   
-  float w, h;
-  window_size(&w, &h);
+  Vector2F win_size = window_size();
   
   if(scrolling && mouse_down_event.middle) {
     SCROLLINFO si;
@@ -615,16 +594,16 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
     RECT outer;
     GetWindowRect(_hwnd, &outer);
     
-    int w_page = floorf(scale_factor() * w + 0.5f);
-    int h_page = floorf(scale_factor() * h + 0.5f);
+    int w_page = floorf(scale_factor() * win_size.x + 0.5f);
+    int h_page = floorf(scale_factor() * win_size.y + 0.5f);
     
     int w_max = floorf(scale_factor() * document()->extents().width + 0.5f);
     int h_max;
     
     if(autohide_vertical_scrollbar())
-      h_max = floorf(document()->extents().height()            * scale_factor() + 0.5f);
+      h_max = floorf(document()->extents().height()                      * scale_factor() + 0.5f);
     else
-      h_max = floorf((document()->extents().height() + h * 0.8) * scale_factor() + 0.5f);
+      h_max = floorf((document()->extents().height() + win_size.y * 0.8) * scale_factor() + 0.5f);
       
     if(outer.bottom - outer.top  >= h_max)
       h_page = h_max + 1;
@@ -885,11 +864,10 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
       if(vert || horz) {
         scrolling = true;
         already_scrolled = !event.middle;
-        float sx, sy;
-        scroll_pos(&sx, &sy);
+        Point sp = scroll_pos();
         mouse_down_event = event;
-        mouse_down_event.x = (event.x - sx) * scale_factor();
-        mouse_down_event.y = (event.y - sy) * scale_factor();
+        mouse_down_event.x = (event.x - sp.x) * scale_factor();
+        mouse_down_event.y = (event.y - sp.y) * scale_factor();
         SetTimer(_hwnd, TID_SCROLL, 20, 0);
         if(event.middle)
           invalidate();
@@ -1408,41 +1386,40 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                   GetCursorPos(&mouse);
                   ScreenToClient(_hwnd, &mouse);
                   
-                  float relx = 0;
-                  float rely = 0;
+                  Vector2F delta;
                   if(mouse_down_event.middle) {
                     if(abs(mouse.x - mouse_down_event.x) > 10)
-                      relx = abs(mouse.x - mouse_down_event.x) / 4;
+                      delta.x = abs(mouse.x - mouse_down_event.x) / 4;
                       
                     if(abs(mouse.y - mouse_down_event.y) > 10)
-                      rely = abs(mouse.y - mouse_down_event.y) / 4;
+                      delta.y = abs(mouse.y - mouse_down_event.y) / 4;
                       
-                    relx /= scale_factor();
-                    rely /= scale_factor();
+                    delta.x /= scale_factor();
+                    delta.y /= scale_factor();
                     
                     if(mouse.x < mouse_down_event.x)
-                      relx = -relx;
+                      delta.x = -delta.x;
                       
                     if(mouse.y < mouse_down_event.y)
-                      rely = -rely;
+                      delta.y = -delta.y;
                   }
                   else if(mouse_down_event.left) {
                     RECT rect;
                     GetClientRect(_hwnd, &rect);
                     
                     if(mouse.x < 0)
-                      relx = mouse.x / 4;
+                      delta.x = mouse.x / 4;
                     else if(mouse.x > rect.right)
-                      relx = (mouse.x - rect.right) / 4;
+                      delta.x = (mouse.x - rect.right) / 4;
                       
                     if(mouse.y < 0)
-                      rely = mouse.y / 4;
+                      delta.y = mouse.y / 4;
                     else if(mouse.y > rect.bottom)
-                      rely = (mouse.y - rect.bottom) / 4;
+                      delta.y = (mouse.y - rect.bottom) / 4;
                   }
                   
-                  if(relx != 0 || rely != 0) {
-                    scroll_by(relx, rely);
+                  if(delta != Vector2F(0, 0)) {
+                    scroll_by(delta);
                     
                     MouseEvent event;
                     

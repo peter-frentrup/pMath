@@ -237,47 +237,46 @@ void MathGtkWidget::after_construction() {
   gtk_target_table_free(table, len);
 }
 
-void MathGtkWidget::window_size(float *w, float *h) {
-  if(!_widget) {
-    *w = *h = 0;
-    return;
-  }
+Vector2F MathGtkWidget::window_size() {
+  if(!_widget) 
+    return Vector2F(0, 0);
   
   GtkAllocation rect;
   
   gtk_widget_get_allocation(_widget, &rect);
   
-  *w = rect.width  / scale_factor();
-  *h = rect.height / scale_factor();
+  return Vector2F(rect.width, rect.height) / scale_factor();
 }
 
-void MathGtkWidget::scroll_pos(float *x, float *y) {
-  *x = *y = 0;
+Point MathGtkWidget::scroll_pos() {
   if(!is_scrollable())
-    return;
-    
+    return Point(0, 0);
+  
+  Point sp(0, 0);
   if(_hadjustment) {
-    *x = gtk_adjustment_get_value(_hadjustment);
-    *x /= scale_factor();
+    sp.x = gtk_adjustment_get_value(_hadjustment);
+    sp.x /= scale_factor();
   }
   
   if(_vadjustment) {
-    *y = gtk_adjustment_get_value(_vadjustment);
-    *y /= scale_factor();
+    sp.y = gtk_adjustment_get_value(_vadjustment);
+    sp.y /= scale_factor();
   }
+  
+  return sp;
 }
 
-void MathGtkWidget::scroll_to(float x, float y) {
+void MathGtkWidget::scroll_to(Point pos) {
   if(!is_scrollable())
     return;
     
   if(_hadjustment) {
     double oldx = gtk_adjustment_get_value(_hadjustment);
-    double newx = x * scale_factor();
+    double newx = pos.x * scale_factor();
     
     double lo = gtk_adjustment_get_lower(_hadjustment);
     double hi = gtk_adjustment_get_upper(_hadjustment);
-    hi -=        gtk_adjustment_get_page_size(_hadjustment);
+    hi -=       gtk_adjustment_get_page_size(_hadjustment);
     
     newx = CLAMP(newx, lo, hi);
     if(oldx != newx)
@@ -286,11 +285,11 @@ void MathGtkWidget::scroll_to(float x, float y) {
   
   if(_vadjustment) {
     double oldy = gtk_adjustment_get_value(_vadjustment);
-    double newy = y * scale_factor();
+    double newy = pos.y * scale_factor();
     
     double lo = gtk_adjustment_get_lower(_vadjustment);
     double hi = gtk_adjustment_get_upper(_vadjustment);
-    hi -=        gtk_adjustment_get_page_size(_vadjustment);
+    hi -=       gtk_adjustment_get_page_size(_vadjustment);
     
     newy = CLAMP(newy, lo, hi);
     if(oldy != newy)
@@ -333,11 +332,9 @@ double MathGtkWidget::double_click_time() {
   return t / 1000.0;
 }
 
-void MathGtkWidget::double_click_dist(float *dx, float *dy) {
-  if(!_widget) {
-    *dx = *dy = 0;
-    return;
-  }
+Vector2F MathGtkWidget::double_click_dist() {
+  if(!_widget) 
+    return Vector2F(0, 0);
   
   GtkSettings *settings = gtk_widget_get_settings(_widget);
   gint d;
@@ -347,7 +344,7 @@ void MathGtkWidget::double_click_dist(float *dx, float *dy) {
     "gtk-double-click-distance", &d,
     nullptr);
     
-  *dx = *dy = d / scale_factor();
+  return Vector2F(d, d) / scale_factor();
 }
 
 void MathGtkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) {
@@ -376,11 +373,10 @@ void MathGtkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &event
     /* hot_x, hot_y calculation below is correct, but with opaque drag image, we 
        should place the image below the cursor
      */
-//    float sx, sy;
-//    scroll_pos(&sx, &sy);
+//    Point sp = scroll_pos();
 //    event.set_origin(doc);
-//    float px = (event.x - sx) * scale_factor();
-//    float py = (event.y - sy) * scale_factor();
+//    float px = (event.x - sp.x) * scale_factor();
+//    float py = (event.y - sp.y) * scale_factor();
 //    hot_x = (int)ceil(px - rect.x);
 //    hot_y = (int)ceil(py - rect.y);
     
@@ -424,25 +420,6 @@ void MathGtkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &event
     gtk_drag_set_icon_default(context);
 }
 
-bool MathGtkWidget::cursor_position(float *x, float *y) {
-  if(!_widget)
-    return false;
-    
-  gint ix, iy;
-  
-  gtk_widget_get_pointer(_widget, &ix, &iy);
-  
-  *x = ix / scale_factor();
-  *y = iy / scale_factor();
-  
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  *x += sx;
-  *y += sy;
-  
-  return true;
-}
-
 void MathGtkWidget::bring_to_front() {
   gtk_widget_grab_focus(_widget);
 }
@@ -457,19 +434,18 @@ void MathGtkWidget::invalidate() {
 void MathGtkWidget::invalidate_options() {
 }
 
-void MathGtkWidget::invalidate_rect(float x, float y, float w, float h) {
+void MathGtkWidget::invalidate_rect(const RectangleF &rect) {
   if(!_widget)
     return;
     
-  float sx, sy, sf;
-  scroll_pos(&sx, &sy);
-  sf = scale_factor();
+  Point sp = scroll_pos();
+  float sf = scale_factor();
   
   gtk_widget_queue_draw_area(_widget,
-                             (int)floorf((x - sx) * sf) - 4,
-                             (int)floorf((y - sy) * sf) - 4,
-                             (int)ceilf(w * sf) + 8,
-                             (int)ceilf(h * sf) + 8);
+                             (int)floorf((rect.x - sp.x) * sf) - 4,
+                             (int)floorf((rect.y - sp.y) * sf) - 4,
+                             (int)ceilf(rect.width  * sf) + 8,
+                             (int)ceilf(rect.height * sf) + 8);
 }
 
 void MathGtkWidget::force_redraw() {
@@ -634,11 +610,10 @@ void MathGtkWidget::update_im_cursor_location() {
     y1 = t;
   }
   
-  float sx, sy;
-  scroll_pos(&sx, &sy);
+  Point sp = scroll_pos();
   
-  area.x      = (int)((sx + x1) * scale_factor());
-  area.y      = (int)((sy + y1) * scale_factor());
+  area.x      = (int)((sp.x + x1) * scale_factor());
+  area.y      = (int)((sp.y + y1) * scale_factor());
   area.width  = (int)ceilf((x2 - x1) * scale_factor());
   area.height = (int)ceilf((y2 - y1) * scale_factor());
   
@@ -730,12 +705,7 @@ void MathGtkWidget::on_drag_data_received(
   guint             info,
   guint             time
 ) {
-  float fx = x / scale_factor();
-  float fy = y / scale_factor();
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  fx += sx;
-  fy += sy;
+  Point pos = scroll_pos() + Vector2F(x,y) / scale_factor();
   
   if(info >= (unsigned)drag_mime_types.length()) {
     gtk_drag_finish(context, FALSE, FALSE, time);
@@ -745,7 +715,7 @@ void MathGtkWidget::on_drag_data_received(
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(fx, fy, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(pos.x, pos.y, &was_inside_start);
   
   if(!may_drop_into(dst, source_widget == _widget)) {
     gtk_drag_finish(context, FALSE, FALSE, time);
@@ -815,10 +785,9 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   me.x /= scale_factor();
   me.y /= scale_factor();
   
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  me.x += sx;
-  me.y += sy;
+  Point sp = scroll_pos();
+  me.x += sp.x;
+  me.y += sp.y;
 
   handle_mouse_move(me);
   
@@ -865,18 +834,12 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   if(!_widget)
     return false;
     
-  float fx = x / scale_factor();
-  float fy = y / scale_factor();
-  
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  fx += sx;
-  fy += sy;
+  Point pos = scroll_pos() + Vector2F(x, y) / scale_factor();
   
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(fx, fy, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(pos.x, pos.y, &was_inside_start);
   
   if(!may_drop_into(dst, source_widget == _widget))
     return false;
@@ -1320,35 +1283,15 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   me.x /= scale_factor();
   me.y /= scale_factor();
   
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  me.x += sx;
-  me.y += sy;
+  Point sp = scroll_pos();
+  me.x += sp.x;
+  me.y += sp.y;
   
   document()->mouse_down(me);
   
   if(document()->selection_box()) {
     gtk_widget_grab_focus(_widget);
   }
-//  else {
-//    Document *cur = get_current_document();
-//    if(cur && cur != document()) {
-//      MathGtkWidget *w = dynamic_cast<MathGtkWidget*>(cur->native());
-//
-//      if(w && !gtk_widget_has_focus(w->widget())) {
-//
-//        GtkWidget *wid = w->widget();
-//        GtkWidget *parent = gtk_widget_get_parent(wid);
-//        while(parent) {
-//          wid = parent;
-//          parent = gtk_widget_get_parent(wid);
-//        }
-//        gtk_widget_grab_focus(wid);
-//
-//        gtk_widget_grab_focus(w->widget());
-//      }
-//    }
-//  }
 
   if(me.right) {
     gtk_menu_popup(
@@ -1376,10 +1319,9 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   me.x /= scale_factor();
   me.y /= scale_factor();
   
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  me.x += sx;
-  me.y += sy;
+  Point sp = scroll_pos();
+  me.x += sp.x;
+  me.y += sp.y;
   
   document()->mouse_up(me);
   
@@ -1423,10 +1365,9 @@ bool MathGtkWidget::on_motion_notify(GdkEvent *e) {
   me.x /= scale_factor();
   me.y /= scale_factor();
   
-  float sx, sy;
-  scroll_pos(&sx, &sy);
-  me.x += sx;
-  me.y += sy;
+  Point sp = scroll_pos();
+  me.x += sp.x;
+  me.y += sp.y;
   
   handle_mouse_move(me);
   return true;
@@ -1469,27 +1410,26 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
     return true;
   }
   
-  float dx = 0;
-  float dy = 0;
+  Vector2F delta(0, 0);
   switch(event->direction) {
-    case GDK_SCROLL_UP:    dy = - 60; break;
-    case GDK_SCROLL_DOWN:  dy = + 60; break;
-    case GDK_SCROLL_LEFT:  dx = - 60; break;
-    case GDK_SCROLL_RIGHT: dx = + 60; break;
+    case GDK_SCROLL_UP:    delta.y = - 60; break;
+    case GDK_SCROLL_DOWN:  delta.y = + 60; break;
+    case GDK_SCROLL_LEFT:  delta.x = - 60; break;
+    case GDK_SCROLL_RIGHT: delta.x = + 60; break;
     
 #if GTK_MAJOR_VERSION >= 3
     case GDK_SCROLL_SMOOTH:
       {
         double ddx, ddy;
         gdk_event_get_scroll_deltas(e, &ddx, &ddy);
-        dx = 60 * ddx;
-        dy = 60 * ddy;
+        delta.x = 60 * ddx;
+        delta.y = 60 * ddy;
       }
       break;
 #endif
   }
   
-  scroll_by(dx, dy);
+  scroll_by(delta);
   
   return true;
 }

@@ -220,30 +220,30 @@ void InputFieldBox::reset_style() {
   Style::reset(style, "InputField");
 }
 
-void InputFieldBox::scroll_to(float x, float y, float w, float h) {
+void InputFieldBox::scroll_to(const RectangleF &rect) {
   float old_cx = cx;
   
-  if(x + cx < frame_x) {
-    cx = frame_x - x;
+  if(rect.left() < -cx + frame_x) {
+    cx = frame_x - rect.left();
     
     float extra = (_extents.width - 2 * frame_x) * 0.2;
-    if(extra + w > _extents.width - 2 * frame_x)
-      extra = _extents.width - 2 * frame_x - w;
+    if(extra + rect.width > _extents.width - 2 * frame_x)
+      extra = _extents.width - 2 * frame_x - rect.width;
       
     cx += extra;
     if(cx > frame_x)
       cx = frame_x;
   }
-  else if(x + w > -cx + _extents.width - 2 * frame_x) {
-    cx = _extents.width - frame_x - x - w;
+  else if(rect.right() > -cx + _extents.width - 2 * frame_x) {
+    cx = _extents.width - frame_x - rect.right();
     
     float extra = (_extents.width - 2 * frame_x) * 0.2;
-    if(extra + w > _extents.width - 2 * frame_x)
-      extra = _extents.width - 2 * frame_x - w;
+    if(extra + rect.width > _extents.width - 2 * frame_x)
+      extra = _extents.width - 2 * frame_x - rect.width;
       
     cx -= extra;
   }
-  else if(x + w < _extents.width - 2 * frame_x)
+  else if(rect.right() < _extents.width - 2 * frame_x)
     cx = frame_x;
     
   if(cx != old_cx)

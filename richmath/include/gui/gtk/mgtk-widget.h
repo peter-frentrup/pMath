@@ -21,15 +21,13 @@ namespace richmath {
       MathGtkWidget(Document *doc);
       virtual ~MathGtkWidget();
       
-      virtual void window_size(float *w, float *h) override;
-      virtual void page_size(float *w, float *h) override {
-        window_size(w, h);
-      }
+      virtual Vector2F window_size() override;
+      virtual Vector2F page_size() override { return window_size(); }
       
       virtual bool is_scrollable() override { return true; }
       virtual bool autohide_vertical_scrollbar() override { return _autohide_vertical_scrollbar; }
-      virtual void scroll_pos(float *x, float *y) override;
-      virtual void scroll_to(float x, float y) override;
+      virtual Point scroll_pos() override;
+      virtual void scroll_to(Point pos) override;
       
       virtual void show_tooltip(Box *source, Expr boxes) override;
       virtual void hide_tooltip() override;
@@ -38,15 +36,14 @@ namespace richmath {
       
       virtual double message_time() override;
       virtual double double_click_time() override;
-      virtual void double_click_dist(float *dx, float *dy) override;
+      virtual Vector2F double_click_dist() override;
       virtual void do_drag_drop(const VolatileSelection &src, MouseEvent &event) override;
-      virtual bool cursor_position(float *x, float *y) override;
       
       virtual void bring_to_front() override;
       virtual void close() override {}
       virtual void invalidate() override;
       virtual void invalidate_options() override;
-      virtual void invalidate_rect(float x, float y, float w, float h) override;
+      virtual void invalidate_rect(const RectangleF &rect) override;
       virtual void force_redraw() override;
       
       virtual void set_cursor(CursorType type) override;

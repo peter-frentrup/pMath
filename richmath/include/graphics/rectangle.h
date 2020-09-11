@@ -29,6 +29,9 @@ namespace richmath {
       friend Vector2F operator*(float factor, Vector2F vec) { return vec*= factor; }
       friend Vector2F operator/(Vector2F vec, float divisor) { return vec/= divisor; }
       
+      friend bool operator==(const Vector2F &left, const Vector2F &right) { return left.x == right.x && left.y == right.y; }
+      friend bool operator!=(const Vector2F &left, const Vector2F &right) { return !(left == right); }
+      
       void pixel_align_distance(Canvas &canvas);
       
     public:
@@ -50,6 +53,9 @@ namespace richmath {
       friend Point operator+(const Vector2F &vec, Point pt) { return pt+= vec; }
       friend Point operator-(Point pt, const Vector2F &vec) { return pt-= vec; }
       friend Vector2F operator-(const Point &left, const Point &right) { return Vector2F(left) -= Vector2F(right); }
+      
+      friend bool operator==(const Point &left, const Point &right) { return left.x == right.x && left.y == right.y; }
+      friend bool operator!=(const Point &left, const Point &right) { return !(left == right); }
       
       void pixel_align_point(Canvas &canvas, bool tostroke);
       
@@ -95,6 +101,11 @@ namespace richmath {
       Point bottom_left()  const { return Point(left(),  bottom()); }
       Point bottom_right() const { return Point(right(), bottom()); }
       Vector2F size() const { return Vector2F(width, height); }
+      
+      bool overlaps(const RectangleF &other) const {
+        return right() >= other.left() && left() <= other.right() &&
+               bottom() >= other.top() && top() <= other.bottom();
+      }
       
       bool contains(const RectangleF &other) const {
         return x <= other.x &&

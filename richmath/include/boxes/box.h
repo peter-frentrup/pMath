@@ -267,7 +267,7 @@ namespace richmath {
       virtual void paint(Context &context) = 0;
       virtual Box *get_highlight_child(Box *src, int *start, int *end);
       virtual void selection_path(Canvas &canvas, int start, int end);
-      virtual void scroll_to(float x, float y, float w, float h);
+      virtual void scroll_to(const RectangleF &rect);
       virtual void scroll_to(Canvas &canvas, const VolatileSelection &child);
       void default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection &child_sel);
       

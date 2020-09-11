@@ -21,7 +21,7 @@ namespace richmath {
       
       virtual void reset_style() override;
       
-      virtual void scroll_to(float x, float y, float w, float h) override;
+      virtual void scroll_to(const RectangleF &rect) override;
       virtual void scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
       
       virtual Box *remove(int *index) override;

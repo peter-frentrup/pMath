@@ -139,23 +139,23 @@ namespace richmath {
     public:
       AutoCallPaintHooks(Box *box, Context &context)
         : Base(),
-          _box(box),
-          _context(context)
+          _box{box},
+          _context{context},
+          _p0{_context.canvas().current_pos()}
       {
         SET_BASE_DEBUG_TAG(typeid(*this).name());
-        _context.canvas().current_pos(&_x0, &_y0);
         _context.pre_paint_hooks.run(_box, _context);
       }
       
       ~AutoCallPaintHooks() {
-        _context.canvas().move_to(_x0, _y0);
+        _context.canvas().move_to(_p0);
         _context.post_paint_hooks.run(_box, _context);
       }
       
     private:
-      float _x0, _y0;
       Box     *_box;
       Context &_context;
+      Point    _p0;
   };
 }
 

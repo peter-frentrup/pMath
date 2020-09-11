@@ -96,11 +96,13 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
     {
     }
     
-    virtual void page_size(float *w, float *h) override {
-      base::page_size(w, h);
+    virtual Vector2F page_size() override {
+      Vector2F size = base::page_size();
       
       if(parent()->window_frame() != WindowFrameNormal)
-        *w = HUGE_VAL;
+        size.x = HUGE_VAL;
+      
+      return size;
     }
     
     int width() {
@@ -179,10 +181,10 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
       document()->invalidate_all();
     }
     
-    virtual void page_size(float *w, float *h) override {
-      base::page_size(w, h);
-      
-      *w = HUGE_VAL;
+    virtual Vector2F page_size() override {
+      Vector2F size = base::page_size();
+      size.x = HUGE_VAL;
+      return size;
     }
     
     virtual bool is_scrollable() override { return false; }

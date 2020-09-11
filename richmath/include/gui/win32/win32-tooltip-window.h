@@ -19,7 +19,7 @@ namespace richmath {
       static void hide_global_tooltip();
       static void delete_global_tooltip();
       
-      virtual void page_size(float *w, float *h) override;
+      virtual Vector2F page_size() override;
       
       virtual bool is_scrollable() override { return false; }
       

@@ -121,10 +121,11 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
     {
     }
     
-    virtual void page_size(float *w, float *h) override {
-      base::page_size(w, h);
+    virtual Vector2F page_size() override {
+      Vector2F size = base::page_size();
       if(auto_size)
-        *w = HUGE_VAL;
+        size.x = HUGE_VAL;
+      return size;
     }
     
   private:
@@ -282,14 +283,15 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       return;
     }
     
-    virtual void page_size(float *w, float *h) override {
-      base::page_size(w, h);
-      *w = HUGE_VAL;
+    virtual Vector2F page_size() override {
+      Vector2F size = base::page_size();
+      size.x = HUGE_VAL;
+      return size;
     }
     
     virtual bool is_scrollable() override { return false; }
-    virtual void scroll_pos(float *x, float *y) override { *x = *y = 0; }
-    virtual void scroll_to(float x, float y) override {}
+    virtual Point scroll_pos() override { return Point(0, 0); }
+    virtual void scroll_to(Point pos) override {}
     
     int height() {
       return (int)(document()->extents().height() * scale_factor() + 0.5f);
@@ -341,9 +343,8 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         canvas.save();
         canvas.scale(scale_factor(), scale_factor());
         
-        float w, h, b;
-        window_size(&w, &h);
-        b = ControlPainter::std->scrollbar_width();
+        Vector2F win_size = window_size();
+        float sb = ControlPainter::std->scrollbar_width();
         
         canvas.glass_background = true;
         ControlPainter::std->paint_scrollbar_part(
@@ -352,10 +353,10 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
           ScrollbarSizeGrip,
           ScrollbarHorizontal,
           Normal,
-          w - b,
-          h - b,
-          b,
-          b);
+          win_size.x - sb,
+          win_size.x - sb,
+          sb,
+          sb);
         canvas.restore();
       }
     }
@@ -408,13 +409,11 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
                 int x = (int16_t) (lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
                 int y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
                 
-                float w, h;
-                window_size(&w, &h);
+                Vector2F win_size = window_size();
+                float sb = ControlPainter::std->scrollbar_width();
                 
-                float b = ControlPainter::std->scrollbar_width();
-                
-                if( x / scale_factor() >= w - b &&
-                    y / scale_factor() >= h - b)
+                if( x / scale_factor() >= win_size.x - sb &&
+                    y / scale_factor() >= win_size.y - sb)
                 {
                   SetCursor(LoadCursor(0, IDC_SIZENWSE));
                 }
@@ -428,13 +427,11 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
                 int x = (int16_t) (lParam & 0xFFFF)            + GetScrollPos(_hwnd, SB_HORZ);
                 int y = (int16_t)((lParam & 0xFFFF0000) >> 16) + GetScrollPos(_hwnd, SB_VERT);
                 
-                float w, h;
-                window_size(&w, &h);
+                Vector2F win_size = window_size();
+                float sb = ControlPainter::std->scrollbar_width();
                 
-                float b = ControlPainter::std->scrollbar_width();
-                
-                if( x / scale_factor() >= w - b &&
-                    y / scale_factor() >= h - b)
+                if( x / scale_factor() >= win_size.x - sb &&
+                    y / scale_factor() >= win_size.y - sb)
                 {
                   SendMessageW(_hwnd, WM_LBUTTONUP, wParam, lParam);
                   SendMessageW(parent()->hwnd(), WM_NCLBUTTONDOWN, HTBOTTOMRIGHT, 0);
