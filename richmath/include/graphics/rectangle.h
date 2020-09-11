@@ -100,6 +100,7 @@ namespace richmath {
       Point top_right()    const { return Point(right(), top()); }
       Point bottom_left()  const { return Point(left(),  bottom()); }
       Point bottom_right() const { return Point(right(), bottom()); }
+      Point center() const { return top_left() + 0.5f * size(); }
       Vector2F size() const { return Vector2F(width, height); }
       
       bool overlaps(const RectangleF &other) const {
@@ -125,6 +126,7 @@ namespace richmath {
       void grow(float delta) {           grow(delta, delta); }
       void grow(const Vector2F &delta) { grow(delta.x, delta.y); }
       void grow(float dx, float dy);
+      RectangleF enlarged_by(float dx, float dy) const { RectangleF rect = *this; rect.grow(dx, dy); return rect; }
       
       // radii: assuming Y axis goes "down", X axis goes "right", all is normalized
       void add_round_rect_path( Canvas &canvas, const BoxRadius &radii, bool negative = false) const;

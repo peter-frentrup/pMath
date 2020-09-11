@@ -98,21 +98,18 @@ LinearTransition::LinearTransition(
 }
 
 LinearTransition::LinearTransition(
-  FrontEndReference  _box_id,
+  FrontEndReference  box_id,
   Canvas            &dst,
-  float              x, 
-  float              y, 
-  float              w, 
-  float              h,
-  double             _seconds)
-  : BoxAnimation(_box_id),
-  seconds(_seconds),
+  const RectangleF  &rect,
+  double             seconds)
+  : BoxAnimation(box_id),
+  seconds(seconds),
   repeat(false)
 {
-  if(_seconds > 0) {
-    buf1           = new Buffer(dst, CAIRO_FORMAT_ARGB32, x, y, w, h);
-    buf2           = new Buffer(dst, CAIRO_FORMAT_ARGB32, x, y, w, h);
-    current_buffer = new Buffer(dst, CAIRO_FORMAT_ARGB32, x, y, w, h);
+  if(seconds > 0) {
+    buf1           = new Buffer(dst, CAIRO_FORMAT_ARGB32, rect);
+    buf2           = new Buffer(dst, CAIRO_FORMAT_ARGB32, rect);
+    current_buffer = new Buffer(dst, CAIRO_FORMAT_ARGB32, rect);
     
     if(!buf1->canvas() || !buf2->canvas() || !current_buffer->canvas())
       buf1 = buf2 = current_buffer = nullptr;

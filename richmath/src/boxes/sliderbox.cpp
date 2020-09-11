@@ -41,19 +41,19 @@ namespace richmath {
       
       void finish_update_value();
       
-      void paint_error_indicator_if_necessary(Canvas &canvas, float x, float y);
+      void paint_error_indicator_if_necessary(Canvas &canvas, Point pos);
       
     private:
-      void paint_error_indicator(Canvas &canvas, float x, float y);
-      void paint_underflow_indicator(Canvas &canvas, float x, float y);
-      void paint_overflow_indicator(Canvas &canvas, float x, float y);
+      void paint_error_indicator(Canvas &canvas, Point pos);
+      void paint_underflow_indicator(Canvas &canvas, Point pos);
+      void paint_overflow_indicator(Canvas &canvas, Point pos);
     
     public:
-      void paint_channel(Canvas &canvas, float x, float y);
-      void animate_thumb(Context &context, float x, float y, double old_value);
+      void paint_channel(Canvas &canvas, Point pos);
+      void animate_thumb(Context &context, Point pos, double old_value);
       
     private:
-      SharedPtr<BoxAnimation> create_thumb_animation(Canvas &canvas, float x, float y, ControlState state1, ControlState state2);
+      SharedPtr<BoxAnimation> create_thumb_animation(Canvas &canvas, Point pos, ControlState state1, ControlState state2);
   };
 }
 
@@ -202,13 +202,12 @@ void SliderBox::paint(Context &context) {
   have_drawn = true;
   Impl(*this).finish_update_value();
   
-  float x, y;
-  context.canvas().current_pos(&x, &y);
-  y -= _extents.ascent;
+  Point pos = context.canvas().current_pos();
+  pos.y -= _extents.ascent;
   
-  Impl(*this).paint_error_indicator_if_necessary(context.canvas(), x, y);
-  Impl(*this).paint_channel(context.canvas(), x, y);
-  Impl(*this).animate_thumb(context, x, y, old_value);
+  Impl(*this).paint_error_indicator_if_necessary(context.canvas(), pos);
+  Impl(*this).paint_channel(context.canvas(), pos);
+  Impl(*this).animate_thumb(context, pos, old_value);
 }
 
 Expr SliderBox::to_pmath_symbol() {
@@ -489,82 +488,83 @@ void SliderBox::Impl::finish_update_value() {
   }
 }
 
-void SliderBox::Impl::paint_error_indicator_if_necessary(Canvas &canvas, float x, float y) {
+void SliderBox::Impl::paint_error_indicator_if_necessary(Canvas &canvas, Point pos) {
   if(std::isnan(self.range_value)) {
-    paint_error_indicator(canvas, x, y);
+    paint_error_indicator(canvas, pos);
   }
   else if(self.range_value < self.range_min && self.range_value < self.range_max) {
-    paint_underflow_indicator(canvas, x, y);
+    paint_underflow_indicator(canvas, pos);
   }
   else if(self.range_value > self.range_max && self.range_value > self.range_min) {
-    paint_overflow_indicator(canvas, x, y);
+    paint_overflow_indicator(canvas, pos);
   }
 }
 
-void SliderBox::Impl::paint_error_indicator(Canvas &canvas, float x, float y) {
-  float rx = x + self._extents.width / 2;
+void SliderBox::Impl::paint_error_indicator(Canvas &canvas, Point pos) {
+  float rx = pos.x + self._extents.width / 2;
   float h = self._extents.height();
   
   Color old_color = canvas.get_color();
   canvas.save();
   canvas.set_color(Color::from_rgb24(0xFF0000), 0.2);
   for(int i = -2; i <= 2; ++i) {
-    canvas.arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
+    canvas.arc(rx + i * h / 6, pos.y + h / 2, h / 2, 0, 2 * M_PI, false);
     canvas.fill();
   }
   canvas.restore();
   canvas.set_color(old_color);
 }
 
-void SliderBox::Impl::paint_underflow_indicator(Canvas &canvas, float x, float y) {
+void SliderBox::Impl::paint_underflow_indicator(Canvas &canvas, Point pos) {
   float h = self._extents.height();
-  float rx = x + h / 2;
+  float rx = pos.x + h / 2;
   
   Color old_color = canvas.get_color();
   canvas.save();
   canvas.set_color(Color::from_rgb24(0xFF0000), 0.2);
   for(int i = 0; i <= 2; ++i) {
-    canvas.arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
+    canvas.arc(rx + i * h / 6, pos.y + h / 2, h / 2, 0, 2 * M_PI, false);
     canvas.fill();
   }
   canvas.restore();
   canvas.set_color(old_color);
 }
 
-void SliderBox::Impl::paint_overflow_indicator(Canvas &canvas, float x, float y) {
+void SliderBox::Impl::paint_overflow_indicator(Canvas &canvas, Point pos) {
   float h = self._extents.height();
-  float rx = x + self._extents.width - h / 2;
+  float rx = pos.x + self._extents.width - h / 2;
   
   Color old_color = canvas.get_color();
   canvas.save();
   canvas.set_color(Color::from_rgb24(0xFF0000), 0.2);
   for(int i = -2; i <= 0; ++i) {
-    canvas.arc(rx + i * h / 6, y + h / 2, h / 2, 0, 2 * M_PI, false);
+    canvas.arc(rx + i * h / 6, pos.y + h / 2, h / 2, 0, 2 * M_PI, false);
     canvas.fill();
   }
   canvas.restore();
   canvas.set_color(old_color);
 }
 
-void SliderBox::Impl::paint_channel(Canvas &canvas, float x, float y) {
+void SliderBox::Impl::paint_channel(Canvas &canvas, Point pos) {
   float h = self._extents.height();
   ControlPainter::std->draw_container(
     ControlContext::find(&self),
     canvas,
     SliderHorzChannel,
     Normal,
-    x,
-    y + h / 2 - self.channel_width / 2,
-    self._extents.width,
-    self.channel_width);
+    RectangleF(
+      pos.x,
+      pos.y + h / 2 - self.channel_width / 2,
+      self._extents.width,
+      self.channel_width));
 }
 
-void SliderBox::Impl::animate_thumb(Context &context, float x, float y, double old_value) {
+void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_value) {
   ControlState new_state = self.calc_state(context);
   
   if(old_value == self.range_value) {
     if(new_state != self.old_state || !self.animation) {
-      self.animation = create_thumb_animation(context.canvas(), x, y, self.old_state, new_state);
+      self.animation = create_thumb_animation(context.canvas(), pos, self.old_state, new_state);
       self.old_state = new_state;
     }
     
@@ -572,27 +572,24 @@ void SliderBox::Impl::animate_thumb(Context &context, float x, float y, double o
       if(self.animation->paint(context.canvas()))
         return;
         
-      self.animation = create_thumb_animation(context.canvas(), x, y, new_state, new_state);
+      self.animation = create_thumb_animation(context.canvas(), pos, new_state, new_state);
     }
   }
   
   float h = self._extents.height();
-  float thumb_x = x + calc_thumb_pos(self.range_value);
   ControlPainter::std->draw_container(
     ControlContext::find(&self),
     context.canvas(),
     SliderHorzThumb,
     new_state,
-    thumb_x,
-    y,
-    self.thumb_width,
-    h);
+    RectangleF(
+      pos.x + calc_thumb_pos(self.range_value),
+      pos.y,
+      self.thumb_width,
+      self._extents.height()));
 }
 
-SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, float x, float y, ControlState state1, ControlState state2) {
-  float h = self._extents.height();
-  float thumb_x = x + calc_thumb_pos(self.range_value);
-  
+SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, Point pos, ControlState state1, ControlState state2) {
   return ControlPainter::std->control_transition(
            self.id(),
            canvas,
@@ -600,10 +597,11 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
            SliderHorzThumb,
            state1,
            state2,
-           thumb_x,
-           y,
-           self.thumb_width,
-           h);
+           RectangleF{
+             pos.x + calc_thumb_pos(self.range_value),
+             pos.y,
+             self.thumb_width,
+             self._extents.height()});
 }
 
 //} ... class SliderBox::Impl

@@ -117,10 +117,7 @@ namespace richmath {
         Canvas         &canvas,
         ContainerType   type,
         ControlState    state,
-        float           x,
-        float           y,
-        float           width,
-        float           height);
+        RectangleF      rect);
         
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
@@ -129,24 +126,18 @@ namespace richmath {
         ContainerType      type2,
         ControlState       state1,
         ControlState       state2,
-        float              x,
-        float              y,
-        float              width,
-        float              height);
+        RectangleF         rect);
         
-      virtual void container_content_move(
+      virtual Vector2F container_content_offset(
         ControlContext &control, 
         ContainerType   type,
-        ControlState    state,
-        float          *x,
-        float          *y);
+        ControlState    state);
         
       virtual bool container_hover_repaint(ControlContext &control, ContainerType type);
       
       virtual void paint_scroll_indicator(
         Canvas &canvas,
-        float   x,
-        float   y,
+        Point   pos,
         bool    horz,
         bool    vert);
         
@@ -162,10 +153,7 @@ namespace richmath {
         ScrollbarPart       part,
         ScrollbarDirection  dir,
         ControlState        state,
-        float               x,
-        float               y,
-        float               width,
-        float               height);
+        RectangleF          rect);
         
       /* scrollbars scroll text, so "upper range" is below current thumb pos:
       
@@ -206,10 +194,7 @@ namespace richmath {
         ScrollbarDirection  dir,
         ScrollbarPart       mouseover_part,
         ControlState        state,
-        float               x,
-        float               y,
-        float               width,
-        float               height);
+        const RectangleF   &rect);
         
     protected:
       ControlPainter();

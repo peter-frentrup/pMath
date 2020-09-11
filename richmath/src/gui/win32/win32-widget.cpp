@@ -579,12 +579,7 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
     bool horz = si.nMax - si.nMin > (int)si.nPage;
     
     canvas.new_path();
-    ControlPainter::std->paint_scroll_indicator(
-      canvas,
-      mouse_down_event.position.x,
-      mouse_down_event.position.y,
-      horz,//w < document()->extents().width,
-      vert);
+    ControlPainter::std->paint_scroll_indicator(canvas, mouse_down_event.position, horz, vert);
   }
   
   if(is_scrollable()) {

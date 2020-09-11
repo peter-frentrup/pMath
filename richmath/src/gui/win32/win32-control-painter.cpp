@@ -633,22 +633,13 @@ bool Win32ControlPainter::is_very_transparent(ControlContext &control, Container
   return false;
 }
 
-static bool rect_in_clip(
-  Canvas &canvas,
-  float   x,
-  float   y,
-  float   width,
-  float   height
-) {
+static bool rect_in_clip(Canvas &canvas, const RectangleF &rect) {
   cairo_rectangle_list_t *clip_rects = cairo_copy_clip_rectangle_list(canvas.cairo());
   
   if(clip_rects->status == CAIRO_STATUS_SUCCESS) {
     for(int i = 0; i < clip_rects->num_rectangles; ++i) {
-      cairo_rectangle_t *rect = &clip_rects->rectangles[i];
-      if(x          >= rect->x
-          && y          >= rect->y
-          && x + width  <= rect->x + rect->width
-          && y + height <= rect->y + rect->height) {
+      const cairo_rectangle_t &clip_rect = clip_rects->rectangles[i];
+      if(RectangleF(clip_rect.x, clip_rect.y, clip_rect.width, clip_rect.height).contains(rect)) {
         cairo_rectangle_list_destroy(clip_rects);
         return true;
       }
@@ -664,17 +655,14 @@ void Win32ControlPainter::draw_container(
   Canvas         &canvas,
   ContainerType   type,
   ControlState    state,
-  float           x,
-  float           y,
-  float           width,
-  float           height
+  RectangleF      rect
 ) {
   switch(type) {
     case NoContainerType:
     case FramelessButton:
     case GenericButton:
       ControlPainter::generic_painter.draw_container(
-        control, canvas, type, state, x, y, width, height);
+        control, canvas, type, state, rect);
       return;
       
     case ListViewItem:
@@ -710,8 +698,8 @@ void Win32ControlPainter::draw_container(
     case TabHeadAbuttingLeft:
     case TabHead: {
         if(state != Pressed && state != PressedHovered) {
-          y+=      1.5f;
-          height-= 1.5f;
+          rect.y+=      1.5f;
+          rect.height-= 1.5f;
           
           if(y_scale > 0) {
             int _part, _state;
@@ -719,18 +707,18 @@ void Win32ControlPainter::draw_container(
               Win32Themes::MARGINS mar;
               // 3601 = TMT_SIZINGMARGINS
               if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
-                height-= mar.cyTopHeight / y_scale;
+                rect.height-= mar.cyTopHeight / y_scale;
               }
             }
             else
-              height-= 2 / y_scale;
+              rect.height-= 2 / y_scale;
           }
         }
       } break;
     
     case TabHeadBackground: {
-        y+= height;
-        height = 0;
+        rect.y+= rect.height;
+        rect.height = 0;
         
         if(y_scale > 0) {
           int _part, _state;
@@ -738,38 +726,29 @@ void Win32ControlPainter::draw_container(
             Win32Themes::MARGINS mar;
             // 3601 = TMT_SIZINGMARGINS
             if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
-              height = mar.cyTopHeight / y_scale;
+              rect.height = mar.cyTopHeight / y_scale;
             }
           }
-          height = 2 / y_scale;
+          rect.height = 2 / y_scale;
         }
         
-        y-= height;
+        rect.y-= rect.height;
       } break;
   }
   
-  if(width <= 0 || height <= 0)
+  rect.pixel_align(canvas, false);
+  if(rect.width <= 0 || rect.height <= 0)
     return;
   
   Win32Themes::MARGINS margins = {0};
   
-  if(canvas.pixel_device) {
-    canvas.user_to_device_dist(&width, &height);
-    width  = floor(width  + 0.5);
-    height = floor(height + 0.5);
-    canvas.device_to_user_dist(&width, &height);
-  }
-  
   int dc_x = 0;
   int dc_y = 0;
-  
-  int w = (int)ceil(x_scale * width - 0.5);
-  int h = (int)ceil(y_scale * height - 0.5);
+  int w = (int)ceil(x_scale * rect.width - 0.5);
+  int h = (int)ceil(y_scale * rect.height - 0.5);
   
   if(w == 0 || h == 0)
     return;
-    
-  canvas.align_point(&x, &y, false);
   
   HDC dc = safe_cairo_win32_surface_get_dc(canvas.target());
   if(dc) {
@@ -778,13 +757,11 @@ void Win32ControlPainter::draw_container(
     if( (ctm.xx == 0) == (ctm.yy == 0) &&
         (ctm.xy == 0) == (ctm.yx == 0) &&
         (ctm.xx == 0) != (ctm.xy == 0) &&
-        rect_in_clip(canvas, x, y, width, height))
+        rect_in_clip(canvas, rect))
     {
-      float ux = x;
-      float uy = y;
-      canvas.user_to_device(&ux, &uy);
-      dc_x = (int)floor(ux + 0.5);
-      dc_y = (int)floor(uy + 0.5);
+      Point upos = canvas.user_to_device(rect.top_left());
+      dc_x = (int)floor(upos.x + 0.5);
+      dc_y = (int)floor(upos.y + 0.5);
       cairo_surface_flush(cairo_get_target(canvas.cairo()));
     }
     else {
@@ -831,18 +808,18 @@ void Win32ControlPainter::draw_container(
       if(!dc) {
         cairo_surface_destroy(surface);
         surface = nullptr;
-        ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(control, canvas, type, state, rect);
         return;
       }
     }
     
-    RECT rect;
-    rect.left   = dc_x;
-    rect.top    = dc_y;
-    rect.right  = dc_x + w;
-    rect.bottom = dc_y + h;
+    RECT irect;
+    irect.left   = dc_x;
+    irect.top    = dc_y;
+    irect.right  = dc_x + w;
+    irect.bottom = dc_y + h;
     
-    RECT clip = rect;
+    RECT clip = irect;
   
     bool two_times = false;
     if(canvas.glass_background) {
@@ -881,46 +858,6 @@ void Win32ControlPainter::draw_container(
               
               cairo_surface_flush(tmp);
               
-//              SharedPtr<Buffer> buf;
-//              canvas.save();
-//              {
-//                cairo_matrix_t mat;
-//                cairo_matrix_init_identity(&mat);
-//                canvas.set_matrix(mat);
-//                //buf = new Buffer(canvas, CAIRO_FORMAT_A8, x, y, width, height);
-//                
-//                buf = new Buffer(canvas, CAIRO_FORMAT_A8, 0, 0, w, h);
-//              }
-//              canvas.restore();
-//              if(cairo_t *buf_cr = buf->cairo()) {
-//                cairo_set_source_surface(buf_cr, tmp, 0, 0);
-//                cairo_paint(buf_cr);
-//                buf->blur(1.0);
-//                
-//                canvas.save();
-//                cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(buf->surface());
-//                //cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(tmp);
-//                
-//                cairo_matrix_t mat {};
-//                mat.xx = w / width;
-//                mat.yy = h / height;
-//                mat.xy = mat.yx = 0;
-//                mat.x0 = -x * mat.xx;
-//                mat.y0 = -y * mat.yy;
-//                
-//                cairo_pattern_set_matrix(tmp_pat, &mat);
-//                
-//                Color oldc = canvas.get_color();
-//                canvas.set_color(Color::from_rgb(1, 0, 0), 1.0);
-//                cairo_mask(canvas.cairo(), tmp_pat);
-//                
-//                canvas.fill();
-//                
-//                cairo_pattern_destroy(tmp_pat);
-//                canvas.set_color(oldc);
-//                canvas.restore();
-//              }
-              
               canvas.save();
               cairo_pattern_t *tmp_pat = cairo_pattern_create_for_surface(tmp);
               
@@ -934,14 +871,14 @@ void Win32ControlPainter::draw_container(
               };
               
               cairo_matrix_t mat {};
-              mat.xx = w / width;
-              mat.yy = h / height;
+              mat.xx = w / rect.width;
+              mat.yy = h / rect.height;
               mat.xy = mat.yx = 0;
               
               Color oldc = canvas.get_color();
               for(auto &s : shadows) {
-                mat.x0 = -(x + s.dx) * mat.xx;
-                mat.y0 = -(y + s.dy) * mat.yy;
+                mat.x0 = -(rect.x + s.dx) * mat.xx;
+                mat.y0 = -(rect.y + s.dy) * mat.yy;
                 
                 cairo_pattern_set_matrix(tmp_pat, &mat);
                 
@@ -966,7 +903,7 @@ void Win32ControlPainter::draw_container(
     }
     
     if(!Win32Themes::IsCompositionActive) { /* XP not enough */
-      FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+      FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
     }
     
     // 3601 = TMT_SIZINGMARGINS
@@ -976,11 +913,11 @@ void Win32ControlPainter::draw_container(
     
     switch(type) {
       case TabHeadBackground: {
-          rect.top = rect.bottom - margins.cyTopHeight;
-          rect.bottom+= margins.cyBottomHeight;
+          irect.top = irect.bottom - margins.cyTopHeight;
+          irect.bottom+= margins.cyBottomHeight;
         } break;
       case TabBodyBackground: {
-          rect.top-= margins.cyTopHeight;
+          irect.top-= margins.cyTopHeight;
         } break;
     }
     
@@ -989,7 +926,7 @@ void Win32ControlPainter::draw_container(
       dc,
       _part,
       _state,
-      &rect,
+      &irect,
       &clip);
     
     if(two_times) {
@@ -998,14 +935,14 @@ void Win32ControlPainter::draw_container(
         dc,
         _part,
         _state,
-        &rect,
+        &irect,
         &clip);
       Win32Themes::DrawThemeBackground(
         theme,
         dc,
         _part,
         _state,
-        &rect,
+        &irect,
         &clip);
     }
   }
@@ -1028,16 +965,16 @@ void Win32ControlPainter::draw_container(
       if(!dc) {
         cairo_surface_destroy(surface);
         surface = nullptr;
-        ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(control, canvas, type, state, rect);
         return;
       }
     }
     
-    RECT rect;
-    rect.left   = dc_x;
-    rect.top    = dc_y;
-    rect.right  = dc_x + w;
-    rect.bottom = dc_y + h;
+    RECT irect;
+    irect.left   = dc_x;
+    irect.top    = dc_y;
+    irect.right  = dc_x + w;
+    irect.bottom = dc_y + h;
     
     switch(type) {
       case NoContainerType:
@@ -1063,120 +1000,120 @@ void Win32ControlPainter::draw_container(
         
       case AddressBandGoButton:
       case PaletteButton: {
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           if(state == PressedHovered)
-            DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
+            DrawEdge(dc, &irect, BDR_SUNKENOUTER, BF_RECT);
           else if(state == Hovered)
-            DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
+            DrawEdge(dc, &irect, BDR_RAISEDINNER, BF_RECT);
         } break;
         
       case DefaultPushButton:
       case GenericButton:
       case PushButton: {
           if(type == DefaultPushButton) {
-            FrameRect(dc, &rect, (HBRUSH)GetStockObject(BLACK_BRUSH));
+            FrameRect(dc, &irect, (HBRUSH)GetStockObject(BLACK_BRUSH));
             
-            InflateRect(&rect, -1, -1);
+            InflateRect(&irect, -1, -1);
           }
           
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           if(state == PressedHovered) {
-            DrawEdge(dc, &rect, EDGE_SUNKEN, BF_RECT);
+            DrawEdge(dc, &irect, EDGE_SUNKEN, BF_RECT);
           }
           else {
-            DrawEdge(dc, &rect, EDGE_RAISED, BF_RECT);
+            DrawEdge(dc, &irect, EDGE_RAISED, BF_RECT);
           }
           
 //        DrawFrameControl(
 //          dc,
-//          &rect,
+//          &irect,
 //          DFC_BUTTON,
 //          _state);
         } break;
         
       case InputField: {
-          FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_WINDOW + 1));
           
           DrawEdge(
             dc,
-            &rect,
+            &irect,
             EDGE_SUNKEN,
             BF_RECT);
         } break;
         
       case AddressBandInputField: {
           if(state == Pressed || state == PressedHovered) {
-            FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+            FillRect(dc, &irect, (HBRUSH)(COLOR_WINDOW + 1));
             DrawEdge(
               dc,
-              &rect,
+              &irect,
               BDR_SUNKENINNER,
               BF_RECT);
           }
         } break;
         
       case AddressBandBackground: {
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           DrawEdge(
             dc,
-            &rect,
+            &irect,
             BDR_SUNKENOUTER,
             BF_RECT);
         } break;
         
       case TooltipWindow: {
-          FrameRect(dc, &rect, GetSysColorBrush(COLOR_WINDOWFRAME));
+          FrameRect(dc, &irect, GetSysColorBrush(COLOR_WINDOWFRAME));
           
-          InflateRect(&rect, -1, -1);
+          InflateRect(&irect, -1, -1);
           
-          FillRect(dc, &rect, (HBRUSH)(COLOR_INFOBK + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_INFOBK + 1));
         } break;
         
       case ListViewItem:
-        FillRect(dc, &rect, (HBRUSH)(COLOR_WINDOW + 1));
+        FillRect(dc, &irect, (HBRUSH)(COLOR_WINDOW + 1));
         break;
         
       case ListViewItemSelected:
-        FillRect(dc, &rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
+        FillRect(dc, &irect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
         break;
       
       case PanelControl:
-        FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
-        DrawEdge(dc, &rect, BDR_RAISEDOUTER, BF_RECT);
+        FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
+        DrawEdge(dc, &irect, BDR_RAISEDOUTER, BF_RECT);
         break;
         
       case ProgressIndicatorBackground:
       case SliderHorzChannel: {
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           DrawEdge(
             dc,
-            &rect,
+            &irect,
             EDGE_SUNKEN,
             BF_RECT);
         } break;
         
       case ProgressIndicatorBar: {
-          int chunk = (rect.bottom - rect.top) / 2;
-          RECT chunk_rect = rect;
+          int chunk = (irect.bottom - irect.top) / 2;
+          RECT chunk_rect = irect;
           
           if(chunk < 2)
             chunk = 2;
             
           int x;
-          for(x = rect.left; x + chunk <= rect.right; x += chunk + 2) {
+          for(x = irect.left; x + chunk <= irect.right; x += chunk + 2) {
             chunk_rect.left = x;
             chunk_rect.right = x + chunk;
             
             FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
           }
           
-          if(x < rect.right) {
+          if(x < irect.right) {
             chunk_rect.left = x;
-            chunk_rect.right = rect.right;
+            chunk_rect.right = irect.right;
             
             FillRect(dc, &chunk_rect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
           }
@@ -1185,7 +1122,7 @@ void Win32ControlPainter::draw_container(
       case SliderHorzThumb: {
           DrawFrameControl(
             dc,
-            &rect,
+            &irect,
             DFC_BUTTON,
             DFCS_BUTTONPUSH);
         } break;
@@ -1206,7 +1143,7 @@ void Win32ControlPainter::draw_container(
           
           DrawFrameControl(
             dc,
-            &rect,
+            &irect,
             DFC_BUTTON,
             _state);
         } break;
@@ -1223,50 +1160,50 @@ void Win32ControlPainter::draw_container(
             default: break;
           }
           
-          if(rect.right - rect.left > 0) {
-            double w = (rect.right - rect.left) * 0.75;
-            double c = (rect.right + rect.left) * 0.5;
-            rect.left  = (int)(c - w / 2);
-            rect.right = (int)(c + w / 2);
+          if(irect.right - irect.left > 0) {
+            double w = (irect.right - irect.left) * 0.75;
+            double c = (irect.right + irect.left) * 0.5;
+            irect.left  = (int)(c - w / 2);
+            irect.right = (int)(c + w / 2);
           }
           
-          if(rect.bottom - rect.top > 12) {
-            double w = (rect.bottom - rect.top) * 0.75;
-            double c = (rect.bottom + rect.top) * 0.5;
-            rect.top    = (int)(c - w / 2);
-            rect.bottom = (int)(c + w / 2);
+          if(irect.bottom - irect.top > 12) {
+            double w = (irect.bottom - irect.top) * 0.75;
+            double c = (irect.bottom + irect.top) * 0.5;
+            irect.top    = (int)(c - w / 2);
+            irect.bottom = (int)(c + w / 2);
           }
           
           DrawFrameControl(
             dc,
-            &rect,
+            &irect,
             DFC_BUTTON,
             _state);
         } break;
       
       case OpenerTriangleClosed:
       case OpenerTriangleOpened:
-        ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
+        ControlPainter::draw_container(control, canvas, type, state, rect);
         return;
         
       case NavigationBack:
       case NavigationForward: {
-          int rw = rect.right - rect.left;
-          int rh = rect.bottom - rect.top;
-          int cx = rect.left + rw/2;
-          int cy = rect.top + rh/2;
+          int rw = irect.right - irect.left;
+          int rh = irect.bottom - irect.top;
+          int cx = irect.left + rw/2;
+          int cy = irect.top + rh/2;
           rw = rh = std::min(rw, rh);
           
-          rect.left = cx - rw/2;
-          rect.right = rect.left + rw;
-          rect.top = cy - rh/2;
-          rect.bottom = rect.top + rh;
+          irect.left = cx - rw/2;
+          irect.right = irect.left + rw;
+          irect.top = cy - rh/2;
+          irect.bottom = irect.top + rh;
           
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           if(state == PressedHovered)
-            DrawEdge(dc, &rect, BDR_SUNKENOUTER, BF_RECT);
+            DrawEdge(dc, &irect, BDR_SUNKENOUTER, BF_RECT);
           else if(state == Hovered)
-            DrawEdge(dc, &rect, BDR_RAISEDINNER, BF_RECT);
+            DrawEdge(dc, &irect, BDR_RAISEDINNER, BF_RECT);
           
           need_vector_overlay = true;
         } break;
@@ -1275,48 +1212,48 @@ void Win32ControlPainter::draw_container(
       case TabHeadAbuttingLeftRight:
       case TabHeadAbuttingLeft:
       case TabHead: {
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           DWORD flags = 0;
           if(state == Disabled)
             flags |= BF_MONO;
           
-          RECT edge = rect;
+          RECT edge = irect;
           edge.bottom = edge.top + 3;
           
-          rect.top+= 2;
-          DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_LEFT | BF_RIGHT);
+          irect.top+= 2;
+          DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_LEFT | BF_RIGHT);
           
-          edge.right = rect.left + 3;
+          edge.right = irect.left + 3;
           DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_TOP | BF_RIGHT);
           
-          edge.right = rect.right;
+          edge.right = irect.right;
           edge.left = edge.right - 3;
           DrawEdge(dc, &edge, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
           
-          rect.top = edge.top;
-          rect.left+= 2;
-          rect.right-= 2;
-          DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_TOP);
+          irect.top = edge.top;
+          irect.left+= 2;
+          irect.right-= 2;
+          DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, flags | BF_TOP);
           
         } break;
       
       case TabHeadBackground: {
           if(state == Disabled)
-            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT | BF_MONO);
+            DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT | BF_MONO);
           else
-            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT);
+            DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT);
           
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
         } break;
       
       case TabBodyBackground: {
           if(state == Disabled)
-            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT | BF_MONO);
+            DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT | BF_MONO);
           else
-            DrawEdge(dc, &rect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT);
+            DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT);
           
-          FillRect(dc, &rect, (HBRUSH)(COLOR_BTNFACE + 1));
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
         } break;
     }
   }
@@ -1331,15 +1268,15 @@ void Win32ControlPainter::draw_container(
     cairo_set_source_surface(
       canvas.cairo(),
       surface,
-      x, y);
+      rect.x, rect.y);
       
-    if(w != width || h != height) {
+    if(w != rect.width || h != rect.height) {
       cairo_matrix_t mat;
-      mat.xx = w / width;
-      mat.yy = h / height;
+      mat.xx = w / rect.width;
+      mat.yy = h / rect.height;
       mat.xy = mat.yx = 0;
-      mat.x0 = -x * mat.xx;
-      mat.y0 = -y * mat.yy;
+      mat.x0 = -rect.x * mat.xx;
+      mat.y0 = -rect.y * mat.yy;
       
       cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
     }
@@ -1354,14 +1291,7 @@ void Win32ControlPainter::draw_container(
   }
   
   if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
-    double inv_x_scale = x_scale > 0 ? 1.0/x_scale : 1.0;
-    double inv_y_scale = y_scale > 0 ? 1.0/y_scale : 1.0;
-    canvas.pixrect(
-      x          , // + inv_x_scale * margins.cxLeftWidth,
-      y          , // + inv_y_scale * margins.cyTopHeight,
-      x + width  , // - inv_x_scale * margins.cxRightWidth,
-      y + height , // - inv_y_scale * margins.cyBottomHeight,
-      false);
+    rect.add_rect_path(canvas, false);
     
     canvas.set_color(Color::Black, 0.667);
     canvas.fill();
@@ -1371,34 +1301,34 @@ void Win32ControlPainter::draw_container(
     switch(type) {
       case NavigationBack:
       case NavigationForward: {
-          float cx = x + width/2;
-          float cy = y + height/2;
-          width = height = std::min(width, height);
-          x = cx - width/2;
-          y = cy - height/2;
+          float cx = rect.x + rect.width/2;
+          float cy = rect.y + rect.height/2;
+          rect.width = rect.height = std::min(rect.width, rect.height);
+          rect.x = cx - rect.width/2;
+          rect.y = cy - rect.height/2;
           
           if(state == PressedHovered) {
-            x+= 0.75;
-            y+= 0.75;
+            rect.x+= 0.75;
+            rect.y+= 0.75;
           }
           
           if(type == NavigationForward) {
-            x+= width;
-            width = -width;
+            rect.x+= rect.width;
+            rect.width = -rect.width;
           }
           
           Color old_col = canvas.get_color();
           
-          canvas.move_to(x + width/4, y + height/2);
-          canvas.rel_line_to(width/4, height/4);
-          canvas.rel_line_to(width/6, 0);
-          canvas.rel_line_to(-width/4 + width/12, -height/4 + height/12);
-          canvas.rel_line_to(width/4, 0);
-          canvas.rel_line_to(0, -height/6);
-          canvas.rel_line_to(-width/4, 0);
-          canvas.rel_line_to(width/4 - width/12, -height/4 + height/12);
-          canvas.rel_line_to(-width/6, 0);
-          canvas.rel_line_to(-width/4, height/4);
+          canvas.move_to(rect.x + rect.width/4, rect.y + rect.height/2);
+          canvas.rel_line_to( rect.width/4,                  rect.height/4);
+          canvas.rel_line_to( rect.width/6,                  0);
+          canvas.rel_line_to(-rect.width/4 + rect.width/12, -rect.height/4 + rect.height/12);
+          canvas.rel_line_to( rect.width/4,                  0);
+          canvas.rel_line_to(0,                             -rect.height/6);
+          canvas.rel_line_to(-rect.width/4,                  0);
+          canvas.rel_line_to( rect.width/4 - rect.width/12, -rect.height/4 + rect.height/12);
+          canvas.rel_line_to(-rect.width/6,                  0);
+          canvas.rel_line_to(-rect.width/4,                  rect.height/4);
           canvas.close_path();
           
           Color fill_col;
@@ -1433,10 +1363,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   ContainerType      type2,
   ControlState       state1,
   ControlState       state2,
-  float              x,
-  float              y,
-  float              width,
-  float              height
+  RectangleF         rect
 ) {
   if(!Win32Themes::GetThemeTransitionDuration || !widget_id.is_valid())
     return nullptr;
@@ -1493,29 +1420,22 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     theme, theme_part, theme_state1, theme_state2, 6000, &duration);
     
   if(duration > 0) {
-    float x0, y0;
-    canvas.current_pos(&x0, &y0);
+    Point p0 = canvas.current_pos();
     
-    float x1 = x0;
-    float y1 = y;
-    float w1 = width;
-    float h1 = height;
+    RectangleF rect1 = rect;
+    rect1.x = p0.x;
     
-    if(type2 == InputField) { // bigger buffer for glow rectangle
-      x1 -= 4.5;
-      y1 -= 4.5;
-      w1 += 9;
-      h1 += 9;
-    }
+    if(type2 == InputField) // bigger buffer for glow rectangle
+      rect1.grow(4.5, 4.5);
     
     SharedPtr<LinearTransition> anim = new LinearTransition(
       widget_id,
       canvas,
-      x1, y1, w1, h1,
+      rect1,
       duration / 1000.0);
       
     if( !anim->box_id.is_valid() || 
-        !anim->buf1       || 
+        !anim->buf1 || 
         !anim->buf2)
     {
       return 0;
@@ -1523,25 +1443,21 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     
     anim->repeat = repeat;
     
+    rect.x-= p0.x;
+    rect.y-= p0.y;
     draw_container(
       control,
       *anim->buf1->canvas(),
       type1,
       state1,
-      x - x0,
-      y - y0,
-      width,
-      height);
+      rect);
       
     draw_container(
       control,
       *anim->buf2->canvas(),
       type2,
       state2,
-      x - x0,
-      y - y0,
-      width,
-      height);
+      rect);
       
     return anim;
   }
@@ -1549,42 +1465,20 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   return nullptr;
 }
 
-void Win32ControlPainter::container_content_move(
+Vector2F Win32ControlPainter::container_content_offset(
   ControlContext &control, 
   ContainerType   type,
-  ControlState    state,
-  float          *x,
-  float          *y
+  ControlState    state
 ) {
-//  if(Win32Themes::GetThemePosition){
-//    int theme_part, theme_state;
-//    HANDLE theme = get_control_theme(control, type, state, &theme_part, &theme_state);
-//
-//    POINT off;
-//    // TMT_OFFSET  = 3401
-//    if(theme
-//    && SUCCEEDED(Win32Themes::GetThemePosition(
-//        theme, theme_part, theme_state, 3401, &off))
-//    ){
-//      *x+= 0.75f * off.x;
-//      *y+= 0.75f * off.y;
-//      return;
-//    }
-//
-//    if(theme)
-//      return;
-//  }
-  
-  float old_x = *x;
-  float old_y = *y;
-  ControlPainter::container_content_move(control, type, state, x, y);
-  if(*x != old_x || *y != old_y) {
+  Vector2F delta = ControlPainter::container_content_offset(control, type, state);
+  if(delta.x != 0 || delta.y != 0) {
     double scale = control.dpi() / 72.0;
-    if(*x != old_x)
-      *x = old_x + floor(0.5 + (*x - old_x) * scale) / scale;
-    if(*y != old_y)
-      *y = old_y + floor(0.5 + (*y - old_y) * scale) / scale;
+    if(delta.x != 0)
+      delta.x = floor(0.5 + delta.x * scale) / scale;
+    if(delta.y != 0)
+      delta.y = floor(0.5 + delta.y * scale) / scale;
   }
+  return delta;
 }
 
 bool Win32ControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
@@ -1654,30 +1548,23 @@ void Win32ControlPainter::paint_scrollbar_part(
   ScrollbarPart       part,
   ScrollbarDirection  dir,
   ControlState        state,
-  float               x,
-  float               y,
-  float               width,
-  float               height
+  RectangleF          rect
 ) {
   if(part == ScrollbarNowhere)
     return;
-    
+  
+  rect.pixel_align(canvas, false);
   int dc_x = 0;
   int dc_y = 0;
   
-  float uw, uh;
-  uw = width;
-  uh = height;
-  canvas.user_to_device_dist(&uw, &uh);
-  uw = fabs(uw);
-  uh = fabs(uh);
-  int w = (int)ceil(uw);
-  int h = (int)ceil(uh);
+  Vector2F device_size = canvas.user_to_device_dist(rect.size());
+  device_size.x = fabs(device_size.x);
+  device_size.y = fabs(device_size.y);
+  int w = (int)ceil(device_size.x);
+  int h = (int)ceil(device_size.y);
   
   if(w == 0 || h == 0)
     return;
-    
-  canvas.align_point(&x, &y, true);
   
   HDC dc = safe_cairo_win32_surface_get_dc(cairo_get_target(canvas.cairo()));
   cairo_surface_t *surface = nullptr;
@@ -1686,11 +1573,9 @@ void Win32ControlPainter::paint_scrollbar_part(
     cairo_matrix_t ctm = canvas.get_matrix();
     
     if(ctm.xx > 0 && ctm.yy > 0 && ctm.xy == 0 && ctm.yx == 0) {
-      float ux = x;
-      float uy = y;
-      canvas.user_to_device(&ux, &uy);
-      dc_x = (int)ux;
-      dc_y = (int)uy;
+      Point dc_pos = canvas.user_to_device(rect.top_left());
+      dc_x = (int)dc_pos.x;
+      dc_y = (int)dc_pos.y;
       
       cairo_surface_flush(cairo_get_target(canvas.cairo()));
     }
@@ -1717,16 +1602,16 @@ void Win32ControlPainter::paint_scrollbar_part(
     
     dc = safe_cairo_win32_surface_get_dc(surface);
     if(!dc) {
-      ControlPainter::paint_scrollbar_part(control, canvas, part, dir, state, x, y, width, height);
+      ControlPainter::paint_scrollbar_part(control, canvas, part, dir, state, rect);
       return;
     }
   }
   
-  RECT rect;
-  rect.left   = dc_x;
-  rect.top    = dc_y;
-  rect.right  = dc_x + w;
-  rect.bottom = dc_y + h;
+  RECT irect;
+  irect.left   = dc_x;
+  irect.top    = dc_y;
+  irect.right  = dc_x + w;
+  irect.bottom = dc_y + h;
   
   if( Win32Themes::OpenThemeData  &&
       Win32Themes::CloseThemeData &&
@@ -1828,31 +1713,29 @@ void Win32ControlPainter::paint_scrollbar_part(
       dc,
       _part,
       _state,
-      &rect,
+      &irect,
       0);
       
     if(part == ScrollbarThumb) {
       if(dir == ScrollbarHorizontal) {
-        if(width >= height) {
+        if(rect.width >= rect.height) {
           Win32Themes::DrawThemeBackground(
             scrollbar_theme,
             dc,
             8,
             _state,
-            &rect,
+            &irect,
             0);
         }
       }
-      else if(height >= width) {
-        if(height >= width) {
-          Win32Themes::DrawThemeBackground(
-            scrollbar_theme,
-            dc,
-            9,
-            _state,
-            &rect,
-            0);
-        }
+      else if(rect.height >= rect.width) {
+        Win32Themes::DrawThemeBackground(
+          scrollbar_theme,
+          dc,
+          9,
+          _state,
+          &irect,
+          0);
       }
     }
     
@@ -1901,7 +1784,7 @@ void Win32ControlPainter::paint_scrollbar_part(
       
       DrawFrameControl(
         dc,
-        &rect,
+        &irect,
         _type,
         _state);
     }
@@ -1917,15 +1800,15 @@ void Win32ControlPainter::paint_scrollbar_part(
     cairo_set_source_surface(
       canvas.cairo(),
       surface,
-      x, y);
+      rect.x, rect.y);
       
-    if(w != width || h != height) {
+    if(w != rect.width || h != rect.height) {
       cairo_matrix_t mat;
-      mat.xx = w / width;
-      mat.yy = h / height;
+      mat.xx = w / rect.width;
+      mat.yy = h / rect.height;
       mat.xy = mat.yx = 0;
-      mat.x0 = -x * mat.xx;
-      mat.y0 = -y * mat.yy;
+      mat.x0 = -rect.x * mat.xx;
+      mat.y0 = -rect.y * mat.yy;
       
       cairo_pattern_set_matrix(cairo_get_source(canvas.cairo()), &mat);
     }

@@ -10,7 +10,7 @@ namespace richmath {
   
   class Buffer: public Shareable {
     public:
-      Buffer(Canvas &dst, cairo_format_t format, float x, float y, float w, float h);
+      Buffer(Canvas &dst, cairo_format_t format, const RectangleF &rect);
       Buffer(Canvas &dst, cairo_format_t format, const BoxSize &size);
       virtual ~Buffer();
       
@@ -39,7 +39,7 @@ namespace richmath {
       bool blur(float radius);
       
     private:
-      void init(Canvas &dst, cairo_format_t format, float x, float y, float w, float h);
+      void init(Canvas &dst, cairo_format_t format, RectangleF rect);
       
     private:
       int _width;

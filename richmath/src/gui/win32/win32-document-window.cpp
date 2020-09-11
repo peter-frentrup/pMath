@@ -353,10 +353,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
           ScrollbarSizeGrip,
           ScrollbarHorizontal,
           Normal,
-          win_size.x - sb,
-          win_size.x - sb,
-          sb,
-          sb);
+          {win_size.x - sb, win_size.y - sb, sb, sb});
         canvas.restore();
       }
     }

@@ -38,10 +38,7 @@ namespace richmath {
         Canvas         &canvas,
         ContainerType   type,
         ControlState    state,
-        float           x,
-        float           y,
-        float           width,
-        float           height) override;
+        RectangleF      rect) override;
         
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
@@ -50,17 +47,12 @@ namespace richmath {
         ContainerType      type2,
         ControlState       state1,
         ControlState       state2,
-        float              x,
-        float              y,
-        float              width,
-        float              height) override;
+        RectangleF         rect) override;
         
-      virtual void container_content_move(
+      virtual Vector2F container_content_offset(
         ControlContext &control, 
         ContainerType   type,
-        ControlState    state,
-        float          *x,
-        float          *y) override;
+        ControlState    state) override;
         
       virtual bool container_hover_repaint(ControlContext &context, ContainerType type) override;
       
@@ -76,10 +68,7 @@ namespace richmath {
         ScrollbarPart       part,
         ScrollbarDirection  dir,
         ControlState        state,
-        float               x,
-        float               y,
-        float               width,
-        float               height) override;
+        RectangleF          rect) override;
         
     public: // win32 specific
       bool blur_input_field;

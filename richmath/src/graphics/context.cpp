@@ -176,28 +176,25 @@ void Context::draw_text_shadow(
   if(canvas().show_only_text)
     return;
     
-  float x0, y0;
-  canvas().current_pos(&x0, &y0);
+  Point p0 = canvas().current_pos();
   
   if(radius > 0) {
-    float x, y, w, h;
-    
-    x = x0 + dx - radius;
-    y = y0 + dy - radius - box->extents().ascent;
-    w = box->extents().width    + 2 * radius;
-    h = box->extents().height() + 2 * radius;
+    RectangleF rect {
+      p0.x + dx - radius,
+      p0.y + dy - radius - box->extents().ascent,
+      box->extents().width    + 2 * radius,
+      box->extents().height() + 2 * radius};
     
     SharedPtr<Buffer> buf = new Buffer(
       canvas(),
       CAIRO_FORMAT_A8,
-      x, y, w, h);
+      rect);
       
     if(buf->canvas()) {
       with_canvas(*buf->canvas(), [&]() {
         buf->clear();
         
-        canvas().current_pos(&x, &y);
-        canvas().move_to(x + dx, y + dy);
+        canvas().rel_move_to(dx, dy);
         canvas().set_color(Color::Black);
         
         canvas().show_only_text = true;
@@ -225,7 +222,7 @@ void Context::draw_text_shadow(
     canvas().show_only_text = false;
   }
   
-  canvas().move_to(x0, y0);
+  canvas().move_to(p0);
 }
 
 void Context::draw_with_text_shadows(Box *box, Expr shadows) {

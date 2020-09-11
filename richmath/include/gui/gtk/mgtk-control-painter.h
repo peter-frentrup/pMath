@@ -34,17 +34,12 @@ namespace richmath {
         Canvas         &canvas,
         ContainerType   type,
         ControlState    state,
-        float           x,
-        float           y,
-        float           width,
-        float           height) override;
+        RectangleF      rect) override;
     
-      virtual void container_content_move(
+      virtual Vector2F container_content_offset(
         ControlContext &control, 
         ContainerType   type,
-        ControlState    state,
-        float          *x,
-        float          *y) override;
+        ControlState    state) override;
         
       virtual bool container_hover_repaint(ControlContext &control, ContainerType type) override;
       

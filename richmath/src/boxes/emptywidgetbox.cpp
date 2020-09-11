@@ -61,8 +61,7 @@ void EmptyWidgetBox::resize(Context &context) {
 }
 
 void EmptyWidgetBox::paint(Context &context) {
-  float x, y;
-  context.canvas().current_pos(&x, &y);
+  Point pos = context.canvas().current_pos();
   
   ControlState state = calc_state(context);
   
@@ -77,10 +76,7 @@ void EmptyWidgetBox::paint(Context &context) {
                   type,
                   old_state,
                   state,
-                  x,
-                  y - _extents.ascent,
-                  _extents.width,
-                  _extents.height());
+                  _extents.to_rectangle(pos));
     
     old_state = state;
   }
@@ -101,10 +97,7 @@ void EmptyWidgetBox::paint(Context &context) {
                     type,
                     old_state,
                     old_state,
-                    x,
-                    y - _extents.ascent,
-                    _extents.width,
-                    _extents.height());
+                    _extents.to_rectangle(pos));
     }
   }
   
@@ -114,23 +107,20 @@ void EmptyWidgetBox::paint(Context &context) {
       context.canvas(),
       type,
       state,
-      x,
-      y - _extents.ascent,
-      _extents.width,
-      _extents.height());
+      _extents.to_rectangle(pos));
   }
   
-  ControlPainter::std->container_content_move(*this, type, state, &x, &y);
+  pos+= ControlPainter::std->container_content_offset(*this, type, state);
     
-  context.canvas().move_to(x, y);
+  context.canvas().move_to(pos);
   
   if(type == FramelessButton && state == PressedHovered) {
     context.canvas().save();
     {
-      RectangleF rect(x, y - _extents.ascent, _extents.width, _extents.height());
+      RectangleF rect = _extents.to_rectangle(pos);
       
       rect.pixel_align(context.canvas(), false, 0);
-      rect.add_rect_path(context.canvas(), false);
+      rect.add_rect_path(context.canvas());
       
       cairo_set_operator(context.canvas().cairo(), CAIRO_OPERATOR_DIFFERENCE);
       context.canvas().set_color(Color::White);

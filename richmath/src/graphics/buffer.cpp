@@ -13,25 +13,21 @@ using namespace richmath;
 
 //{ class Buffer ...
 
-Buffer::Buffer(Canvas &dst, cairo_format_t format, float x, float y, float w, float h)
+Buffer::Buffer(Canvas &dst, cairo_format_t format, const RectangleF &rect)
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-  init(dst, format, x, y, w, h);
+  init(dst, format, rect);
 }
 
 Buffer::Buffer(Canvas &dst, cairo_format_t format, const BoxSize &size)
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-  
-  float x0, y0;
-  dst.current_pos(&x0, &y0);
-  
-  init(dst, format, x0, y0 - size.ascent, size.width, size.height());
+  init(dst, format, size.to_rectangle(dst.current_pos()));
 }
 
-void Buffer::init(Canvas &dst, cairo_format_t format, float x, float y, float w, float h) {
+void Buffer::init(Canvas &dst, cairo_format_t format, RectangleF rect) {
   _width = 0;
   _height = 0;
   _canvas = nullptr;
@@ -44,8 +40,7 @@ void Buffer::init(Canvas &dst, cairo_format_t format, float x, float y, float w,
   switch(type) {
     case CAIRO_SURFACE_TYPE_IMAGE:
     case CAIRO_SURFACE_TYPE_WIN32: {
-        float x0, y0;
-        dst.current_pos(&x0, &y0);
+        Point p0 = dst.current_pos();
         
         //dst.save();
         u2d_matrix = dst.get_matrix();
@@ -56,22 +51,22 @@ void Buffer::init(Canvas &dst, cairo_format_t format, float x, float y, float w,
         u2d_matrix.x0 = 0;
         u2d_matrix.y0 = 0;
         
-        Canvas::transform_rect(u2d_matrix, &x, &y, &w, &h);
+        Canvas::transform_rect_inline(u2d_matrix, rect);
         
         memcpy(&d2u_matrix, &u2d_matrix, sizeof(u2d_matrix));
         cairo_matrix_invert(&d2u_matrix);
         
-        x = floor(x - mx0) + mx0;
-        y = floor(y - my0) + my0;
+        rect.x = floor(rect.x - mx0) + mx0;
+        rect.y = floor(rect.y - my0) + my0;
         
-        Canvas::transform_point(d2u_matrix, &x, &y);
-        cairo_matrix_translate(&u2d_matrix, x0 - x, y0 - y);
+        Canvas::transform_point(d2u_matrix, &rect.x, &rect.y);
+        cairo_matrix_translate(&u2d_matrix, p0.x - rect.x, p0.y - rect.y);
         
         memcpy(&d2u_matrix, &u2d_matrix, sizeof(u2d_matrix));
         cairo_matrix_invert(&d2u_matrix);
         
-        _width  = (int)(ceil(w) + 1);
-        _height = (int)(ceil(h) + 1);
+        _width  = (int)(ceil(rect.width) + 1);
+        _height = (int)(ceil(rect.height) + 1);
         
         switch(type) {
           case CAIRO_SURFACE_TYPE_IMAGE:
@@ -96,15 +91,10 @@ void Buffer::init(Canvas &dst, cairo_format_t format, float x, float y, float w,
         _canvas = new Canvas(_cr);
         cairo_set_line_width(_cr, cairo_get_line_width(dst.cairo()));
         _canvas->set_matrix(u2d_matrix);
-        //dst->restore();
         
         _canvas->move_to(0,0);
-        //dst->current_pos(&x0, &y0);
-        //_canvas->move_to(x0, y0);
         
         _canvas->glass_background   = dst.glass_background;
-//      _canvas->text_emboss_size   = dst.text_emboss_size;
-//      _canvas->text_emboss_color  = dst.text_emboss_color;
         _canvas->native_show_glyphs = dst.native_show_glyphs;
         
         cairo_set_font_face(_cr, cairo_get_font_face(dst.cairo()));
@@ -113,9 +103,6 @@ void Buffer::init(Canvas &dst, cairo_format_t format, float x, float y, float w,
         cairo_get_font_matrix(dst.cairo(), &fmat);
         cairo_set_font_matrix(_cr, &fmat);
         
-//      _canvas->set_color(0xFF0000);
-//      _canvas->paint_with_alpha(0.1);
-
         _canvas->set_color(dst.get_color());
       } break;
       

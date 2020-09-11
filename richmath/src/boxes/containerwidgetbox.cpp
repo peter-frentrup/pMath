@@ -58,10 +58,9 @@ void ContainerWidgetBox::resize_default_baseline(Context &context) {
 }
 
 void ContainerWidgetBox::paint(Context &context) {
-  float x, y;
-  context.canvas().current_pos(&x, &y);
+  Point pos = context.canvas().current_pos();
   
-  RectangleF rect = _extents.to_rectangle(Point(x, y));
+  RectangleF rect = _extents.to_rectangle(pos);
   ControlState state = calc_state(context);
   
   if(animation && !animation->is_compatible(context.canvas(), rect.width, rect.height)) 
@@ -75,10 +74,7 @@ void ContainerWidgetBox::paint(Context &context) {
                   type,
                   old_state,
                   state,
-                  rect.x,
-                  rect.y,
-                  rect.width,
-                  rect.height);
+                  rect);
     
     old_state = state;
   }
@@ -97,10 +93,7 @@ void ContainerWidgetBox::paint(Context &context) {
                     type,
                     old_state,
                     old_state,
-                    rect.x,
-                    rect.y,
-                    rect.width,
-                    rect.height);
+                    rect);
     }
   }
   
@@ -112,17 +105,10 @@ void ContainerWidgetBox::paint(Context &context) {
       context.canvas(),
       type,
       state,
-      rect.x,
-      rect.y,
-      rect.width,
-      rect.height);
+      rect);
   }
   
-  float x2 = x;
-  float y2 = y;
-  ControlPainter::std->container_content_move(*this, type, state, &x2, &y2);
-    
-  context.canvas().move_to(x2, y2);
+  context.canvas().move_to(pos + ControlPainter::std->container_content_offset(*this, type, state));
   
   Color old_cursor_color = context.cursor_color;
   Color old_color        = context.canvas().get_color();

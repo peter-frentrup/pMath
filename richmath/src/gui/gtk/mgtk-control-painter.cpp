@@ -56,12 +56,10 @@ class MathGtkStyleContextCache {
     GtkStyleContext *tool_button_context() {          return init_context_once(_tool_button_context,          make_tool_button_context); }
     GtkStyleContext *tooltip_context() {              return init_context_once(_tooltip_context,              make_tooltip_context); }
     
-    static void render_all_common(GtkStyleContext *ctx, Canvas &canvas, float x, float y, float width, float height);
-    static void render_all_common_inset_const(GtkStyleContext *ctx, Canvas &canvas, float x, float y, float width, float height) {
-      render_all_common_inset(ctx, canvas, x, y, width, height);
-    }
-    static void render_all_common_inset(GtkStyleContext *ctx, Canvas &canvas, float &x, float &y, float &width, float &height);
-    static void get_all_border_padding(GtkStyleContext *ctx, GtkBorder &padding);
+    static void render_all_common(            GtkStyleContext *ctx, Canvas &canvas, const RectangleF &rect);
+    static void render_all_common_inset_const(GtkStyleContext *ctx, Canvas &canvas, RectangleF rect) { render_all_common_inset(ctx, canvas, rect); }
+    static void render_all_common_inset(      GtkStyleContext *ctx, Canvas &canvas, RectangleF &rect);
+    static GtkBorder get_all_border_padding(GtkStyleContext *ctx);
     
     static GtkStyleContext *make_context_from_path_and_free(GtkWidgetPath *path, GtkStyleContext *parent = nullptr);
     
@@ -367,8 +365,7 @@ void MathGtkControlPainter::calc_container_size(
     extents->descent = std::max(extents->descent, min_height * 0.75f * 0.5f - 0.25f * canvas.get_font_size());
     extents->width   = std::max(extents->width,   min_width * 0.75f);
     
-    GtkBorder border;
-    MathGtkStyleContextCache::get_all_border_padding(gtk_ctx, border);
+    GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(gtk_ctx);
     
     //gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
     extents->ascent +=  0.75f * border.top;
@@ -425,10 +422,7 @@ void MathGtkControlPainter::draw_container(
   Canvas         &canvas,
   ContainerType   type,
   ControlState    state,
-  float           x,
-  float           y,
-  float           width,
-  float           height
+  RectangleF      rect
 ) {
   switch(type) {
     case PaletteButton:
@@ -442,26 +436,17 @@ void MathGtkControlPainter::draw_container(
   }
   
   if(GtkStyleContext *gsc = get_control_theme(control, type)) {
-    canvas.save();
-    if(canvas.pixel_device) {
-      canvas.align_point(&x, &y, false);
-      canvas.user_to_device_dist(&width, &height);
-      width  = floor(width  + 0.5);
-      height = floor(height + 0.5);
-      canvas.device_to_user_dist(&width, &height);
-    }
+    rect.pixel_align(canvas, false);
     
-    canvas.translate(x, y);
-    x = y = 0;
+    canvas.save();
+    
+    canvas.translate(rect.x, rect.y);
+    rect.x = rect.y = 0;
     canvas.scale(0.75, 0.75);
-    width/= 0.75;
-    height/= 0.75;
-
-    canvas.move_to(x, y);
-    canvas.rel_line_to(width, 0);
-    canvas.rel_line_to(0, height);
-    canvas.rel_line_to(-width, 0);
-    canvas.close_path();
+    rect.width/= 0.75;
+    rect.height/= 0.75;
+    
+    rect.add_rect_path(canvas);
     canvas.clip();
     
     //gtk_style_context_save(gsc); // changes the widget path and thus does not always work (e.g. with Adwaita notebook tabs)
@@ -472,33 +457,33 @@ void MathGtkControlPainter::draw_container(
       case CheckboxUnchecked:
       case CheckboxChecked:
       case CheckboxIndeterminate:
-        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, x, y, width, height);
-        gtk_render_check(gsc, canvas.cairo(), x, y, width, height);
+        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, rect);
+        gtk_render_check(gsc, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
         break;
         
       case RadioButtonUnchecked:
       case RadioButtonChecked:
-        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, x, y, width, height);
-        gtk_render_option(gsc, canvas.cairo(), x, y, width, height);
+        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, rect);
+        gtk_render_option(gsc, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
         break;
         
       case OpenerTriangleClosed:
       case OpenerTriangleOpened:
         //gtk_render_background(gsc, canvas.cairo(), x, y, width, height);
-        gtk_render_expander(  gsc, canvas.cairo(), x, y, width, height);
+        gtk_render_expander(  gsc, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
         break;
       
       case NavigationBack:
       case NavigationForward: {
-          float cx = x + width/2;
-          float cy = y + height/2;
-          width = height = std::min(width, height);
-          x = cx - width/2;
-          y = cy - height/2;
+          float cx = rect.x + rect.width/2;
+          float cy = rect.y + rect.height/2;
+          rect.width = rect.height = std::min(rect.width, rect.height);
+          rect.x = cx - rect.width/2;
+          rect.y = cy - rect.height/2;
         
-          canvas.align_point(&x, &y, false);
+          canvas.align_point(&rect.x, &rect.y, false);
           
-          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y, width, height);
+          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
           
           GtkIconTheme *icon_theme = gtk_icon_theme_get_default();
           int w, h;
@@ -524,12 +509,13 @@ void MathGtkControlPainter::draw_container(
         } break;
       
       case TabBodyBackground: {
-          GtkBorder border;
           //gtk_style_context_get_border(gsc, GTK_STATE_FLAG_NORMAL, &border);
-          MathGtkStyleContextCache::get_all_border_padding(gsc, border);
+          GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(gsc);
           
           float top_hide = border.top + canvas.get_font_size() / 0.75; // add font size for possible border radius
-          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y - top_hide, width, height + top_hide);
+          rect.y -=      top_hide;
+          rect.height += top_hide;
+          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
         } break;
       
       case TabHead:
@@ -539,16 +525,16 @@ void MathGtkControlPainter::draw_container(
           GtkBorder margin;
           gtk_style_context_get_margin(gsc, flags, &margin);
           
-          //x-=      margin.left;
-          y+=      margin.top;
-          height-= margin.top;
-          //width+=  margin.left + margin.right;
+          //rect.x -=      margin.left;
+          rect.y +=      margin.top;
+          rect.height -= margin.top;
+          //rect.width +=  margin.left + margin.right;
           
-          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y, width, height);
+          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
         } break;
       
       default:
-        MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, x, y, width, height);
+        MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
         break;
     }
     
@@ -557,15 +543,13 @@ void MathGtkControlPainter::draw_container(
     return;
   }
   
-  ControlPainter::draw_container(control, canvas, type, state, x, y, width, height);
+  ControlPainter::draw_container(control, canvas, type, state, rect);
 }
  
-void MathGtkControlPainter::container_content_move(
+Vector2F MathGtkControlPainter::container_content_offset(
   ControlContext &control, 
   ContainerType   type,
-  ControlState    state,
-  float          *x,
-  float          *y)
+  ControlState    state)
 {
   switch(type) {
     case PushButton:
@@ -580,10 +564,7 @@ void MathGtkControlPainter::container_content_move(
                                       "child-displacement-y", &dy,
                                       nullptr);
                                       
-          *x += 0.75f * dx;
-          *y += 0.75f * dy;
-          
-          return;
+          return {0.75f * dx, 0.75f * dy};
         }
       }
       break;
@@ -591,7 +572,7 @@ void MathGtkControlPainter::container_content_move(
     default: break;
   }
   
-  ControlPainter::container_content_move(control, type, state, x, y);
+  return ControlPainter::container_content_offset(control, type, state);
 }
  
 bool MathGtkControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
@@ -904,57 +885,52 @@ void MathGtkStyleContextCache::clear() {
   unref_and_null(_tooltip_context);
 }
 
-void MathGtkStyleContextCache::render_all_common(GtkStyleContext *ctx, Canvas &canvas, float x, float y, float width, float height) {
+void MathGtkStyleContextCache::render_all_common(GtkStyleContext *ctx, Canvas &canvas, const RectangleF &rect) {
   if(!ctx)
     return;
   
-  render_all_common(gtk_style_context_get_parent(ctx), canvas, x, y, width, height);
-  gtk_render_background(ctx, canvas.cairo(), x, y, width, height);
-  gtk_render_frame(     ctx, canvas.cairo(), x, y, width, height);
+  render_all_common(gtk_style_context_get_parent(ctx), canvas, rect);
+  gtk_render_background(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+  gtk_render_frame(     ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
 }
 
-void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Canvas &canvas, float &x, float &y, float &width, float &height) {
+void MathGtkStyleContextCache::render_all_common_inset(GtkStyleContext *ctx, Canvas &canvas, RectangleF &rect) {
   if(!ctx)
     return;
   
   GtkStyleContext *parent = gtk_style_context_get_parent(ctx);
-  render_all_common_inset(parent, canvas, x, y, width, height);
+  render_all_common_inset(parent, canvas, rect);
   if(parent) {
     GtkBorder margin;
     gtk_style_context_get_margin(ctx, gtk_style_context_get_state(ctx), &margin);
-    x+= margin.left;
-    y+= margin.top;
-    width-= margin.left + margin.right;
-    height-= margin.top + margin.bottom;
+    rect.x +=      margin.left;
+    rect.y +=      margin.top;
+    rect.width -=  margin.left + margin.right;
+    rect.height -= margin.top + margin.bottom;
   }
-  gtk_render_background(ctx, canvas.cairo(), x, y, width, height);
-  gtk_render_frame(     ctx, canvas.cairo(), x, y, width, height);
+  gtk_render_background(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+  gtk_render_frame(     ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
   
   GtkBorder border;
   gtk_style_context_get_border(ctx, gtk_style_context_get_state(ctx), &border);
-  x+= border.left;
-  y+= border.top;
-  width-= border.left + border.right;
-  height-= border.top + border.bottom;
+  rect.x +=      border.left;
+  rect.y +=      border.top;
+  rect.width -=  border.left + border.right;
+  rect.height -= border.top + border.bottom;
   
   gtk_style_context_get_padding(ctx, gtk_style_context_get_state(ctx), &border);
-  x+= border.left;
-  y+= border.top;
-  width-= border.left + border.right;
-  height-= border.top + border.bottom;
+  rect.x +=      border.left;
+  rect.y +=      border.top;
+  rect.width -=  border.left + border.right;
+  rect.height -= border.top + border.bottom;
 }
 
-void MathGtkStyleContextCache::get_all_border_padding(GtkStyleContext *ctx, GtkBorder &padding) {
-  if(!ctx) {
-    padding.left = 0;
-    padding.right = 0;
-    padding.top = 0;
-    padding.bottom = 0;
-    return;
-  }
+GtkBorder MathGtkStyleContextCache::get_all_border_padding(GtkStyleContext *ctx) {
+  if(!ctx) 
+    return {0,0,0,0};
   
   GtkStyleContext *parent = gtk_style_context_get_parent(ctx);
-  get_all_border_padding(parent, padding);
+  GtkBorder padding = get_all_border_padding(parent);
   if(parent) {
     GtkBorder margin;
     gtk_style_context_get_margin(ctx, gtk_style_context_get_state(ctx), &margin);
@@ -976,6 +952,8 @@ void MathGtkStyleContextCache::get_all_border_padding(GtkStyleContext *ctx, GtkB
   padding.right  += border.right;
   padding.top    += border.top;
   padding.bottom += border.bottom;
+  
+  return padding;
 }
 
 GtkStyleContext *MathGtkStyleContextCache::make_context_from_path_and_free(GtkWidgetPath *path, GtkStyleContext *parent) {

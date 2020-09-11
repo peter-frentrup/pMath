@@ -122,19 +122,13 @@ void ProgressIndicatorBox::paint(Context &context) {
     }
   }
   
-  float x, y;
-  context.canvas().current_pos(&x, &y);
-  
-  y -= _extents.ascent;
-  
+  Point pos = context.canvas().current_pos();
   ControlPainter::std->draw_container(
     *this,
     context.canvas(),
     ProgressIndicatorBackground,
     Normal,
-    x, y,
-    _extents.width,
-    _extents.height());
+    _extents.to_rectangle(pos));
     
   double p = 0;
   ControlState state = Normal;
@@ -161,10 +155,11 @@ void ProgressIndicatorBox::paint(Context &context) {
     context.canvas(),
     ProgressIndicatorBar,
     state,
-    x + (_extents.width - content_size.width) / 2,
-    y + _extents.ascent - content_size.ascent,
-    content_size.width * p,
-    content_size.height());
+    RectangleF(
+      pos.x + (_extents.width - content_size.width) / 2,
+      pos.y - content_size.ascent,
+      content_size.width * p,
+      content_size.height()));
 }
 
 Expr ProgressIndicatorBox::to_pmath_symbol() {

@@ -63,10 +63,10 @@ namespace richmath {
         double _seconds);
         
       LinearTransition(
-        FrontEndReference _box_id,
-        Canvas &dst,
-        float x, float y, float w, float h,
-        double _seconds);
+        FrontEndReference  box_id,
+        Canvas            &dst,
+        const RectangleF  &rect,
+        double             seconds);
       
       virtual void update(ControlContext *control) override;
       virtual bool paint(Canvas &canvas) override;

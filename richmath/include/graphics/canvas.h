@@ -39,19 +39,19 @@ namespace richmath {
       void current_pos(float *x, float *y);
       void current_pos(double *x, double *y);
       
-      Point user_to_device(Point pt);
+      Point user_to_device(Point pt) { user_to_device(&pt.x, &pt.y); return pt; }
       void user_to_device(float *x, float *y);
       void user_to_device(double *x, double *y);
       
-      Vector2F user_to_device_dist(Vector2F delta);
+      Vector2F user_to_device_dist(Vector2F delta) { user_to_device_dist(&delta.x, &delta.y); return delta; }
       void user_to_device_dist(float *dx, float *dy);
       void user_to_device_dist(double *dx, double *dy);
       
-      Point device_to_user(Point pt);
+      Point device_to_user(Point pt) { device_to_user(&pt.x, &pt.y); return pt; }
       void device_to_user(float *x, float *y);
       void device_to_user(double *x, double *y);
       
-      Vector2F device_to_user_dist(Vector2F delta);
+      Vector2F device_to_user_dist(Vector2F delta) { device_to_user_dist(&delta.x, &delta.y); return delta; }
       void device_to_user_dist(float *dx, float *dy);
       void device_to_user_dist(double *dx, double *dy);
       
