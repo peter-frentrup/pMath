@@ -1623,11 +1623,12 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
   POINT pt = {(int) ptl.x, (int)ptl.y };
   ScreenToClient(_hwnd, &pt);
   
-  float x = (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor();
-  float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
+  Point pos{
+    (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor(),
+    (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor()};
   
   bool was_inside_start;
-  if(!may_drop_into(document()->mouse_selection(x, y, &was_inside_start), is_dragging))
+  if(!may_drop_into(document()->mouse_selection(pos, &was_inside_start), is_dragging))
     return DROPEFFECT_NONE;
     
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
@@ -1880,11 +1881,12 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
 void Win32Widget::position_drop_cursor(POINTL ptl) {
   POINT pt = {(int) ptl.x, (int)ptl.y };
   ScreenToClient(_hwnd, &pt);
-  float x = (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor();
-  float y = (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor();
+  Point pos{
+    (pt.x + GetScrollPos(_hwnd, SB_HORZ)) / scale_factor(),
+    (pt.y + GetScrollPos(_hwnd, SB_VERT)) / scale_factor()};
   
   bool was_inside_start;
-  document()->select(document()->mouse_selection(x, y, &was_inside_start));
+  document()->select(document()->mouse_selection(pos, &was_inside_start));
 }
 
 //} ... class Win32Widget

@@ -221,9 +221,9 @@ void Box::colorize_scope(SyntaxState &state) {
     item(i)->colorize_scope(state);
 }
 
-Box *Box::get_highlight_child(Box *src, int *start, int *end) {
+VolatileSelection Box::get_highlight_child(const VolatileSelection &src) {
   if(_parent)
-    return _parent->get_highlight_child(src, start, end);
+    return _parent->get_highlight_child(src);
     
   return src;
 }
@@ -346,7 +346,7 @@ Box *Box::move_vertical(
   return this;
 }
 
-VolatileSelection Box::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection Box::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   if(_parent) {
     return { _parent, _index, _index + 1 };
@@ -419,33 +419,22 @@ Box *Box::dynamic_to_literal(int *start, int *end) {
 }
 
 bool Box::request_repaint_all() {
-  return request_repaint(
-           0.0,
-           -_extents.ascent,
-           _extents.width + 0.1,
-           _extents.height() + 0.1);
+  return request_repaint(_extents.to_rectangle());
 }
 
 bool Box::request_repaint_range(int start, int end) {
   return request_repaint_all();
 }
 
-bool Box::request_repaint(float x, float y, float w, float h) {
-  if( x     > _extents.width + 0.01   ||
-      x + w < -0.01                   ||
-      y     > _extents.descent + 0.01 ||
-      y + h < -_extents.ascent - 0.01)
-  {
+bool Box::request_repaint(const RectangleF &rect) {
+  if(!_extents.to_rectangle().overlaps(rect))
     return false;
-  }
   
   if(_parent) {
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);
     transformation(_parent, &matrix);
-    
-    Canvas::transform_rect(matrix, &x, &y, &w, &h);
-    return _parent->request_repaint(x, y, w, h);
+    return _parent->request_repaint(Canvas::transform_rect(matrix, rect));
   }
   
   return false;
@@ -659,52 +648,31 @@ bool AbstractSequence::request_repaint_range(int start, int end) {
   cairo_matrix_init_identity(&mat);
   child_transformation(start, &mat);
   
-  double x1 = 0;
-  double y1 = 0;
-  cairo_matrix_transform_point(&mat, &x1, &y1);
+  Point p1 = Canvas::transform_point(mat, Point(0, 0));
   
-  double x2;
-  double y2;
+  Point p2;
   if(start == end) {
-    x2 = x1;
-    y2 = y1;
+    p2 = p1;
   }
   else {
-    x2 = y2 = 0;
     cairo_matrix_init_identity(&mat);
     child_transformation(end, &mat);
-    cairo_matrix_transform_point(&mat, &x2, &y2);
+    p2 = Canvas::transform_point(mat, Point(0, 0));
   }
   
   float a1, d1;
   get_line_heights(l1, &a1, &d1);
   
   if(l1 == l2)
-    return request_repaint(
-             x1,
-             y1 - a1,
-             x2 - x1,
-             a1 + d1);
+    return request_repaint({p1.x, p1.y - a1, p2.x - p1.x, a1 + d1});
              
   float a2, d2;
   get_line_heights(l2, &a2, &d2);
   
   bool result = true;
-  result = request_repaint(
-             x1,
-             y1 - a1,
-             extents().width - x1,
-             a1 + d1) || result;
-  result = request_repaint(
-             0.0,
-             y1 + d1,
-             extents().width,
-             y2 - a2 - y1 - d1) || result;
-  result = request_repaint(
-             0.0,
-             y2 - a2,
-             x2,
-             a2 + d2) || result;
+  result = request_repaint({p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}) || result;
+  result = request_repaint({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1}) || result;
+  result = request_repaint({0.0f, p2.y - a2, p2.x, a2 + d2}) || result;
   return result;
 }
 

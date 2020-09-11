@@ -437,30 +437,31 @@ Box *UnderoverscriptBox::move_vertical(
   return dst->move_vertical(direction, index_rel_x, index, false);
 }
 
-VolatileSelection UnderoverscriptBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection UnderoverscriptBox::mouse_selection(Point pos, bool *was_inside_start) {
   if(_underscript) {
     if(_underscript_offset.y - _underscript->extents().ascent > _base->extents().descent) {
-      if(y > _base->extents().descent) {
-        return _underscript->mouse_selection( x - _underscript_offset.x, y - _underscript_offset.y, was_inside_start);
+      if(pos.y > _base->extents().descent) {
+        return _underscript->mouse_selection(pos - _underscript_offset, was_inside_start);
       }
     }
-    else if(x >= _underscript_offset.x) {
-      if(!_overscript || y >= _underscript_offset.y - _underscript->extents().ascent + _overscript_offset.y + _overscript->extents().descent) {
-        return _underscript->mouse_selection(x - _underscript_offset.x, y - _underscript_offset.y, was_inside_start);
+    else if(pos.x >= _underscript_offset.x) {
+      // TODO: What is this check for? Shouldn't it be pos.y>= 0.5 * (...) ?
+      if(!_overscript || pos.y >= _underscript_offset.y - _underscript->extents().ascent + _overscript_offset.y + _overscript->extents().descent) {
+        return _underscript->mouse_selection(pos - _underscript_offset, was_inside_start);
       }
     }
   }
   
   if(_overscript) {
     if(-_overscript_offset.y - _overscript->extents().descent > _base->extents().ascent) {
-      if(y < -_base->extents().ascent) 
-        return _overscript->mouse_selection(x - _overscript_offset.x, y - _overscript_offset.y, was_inside_start);
+      if(pos.y < -_base->extents().ascent) 
+        return _overscript->mouse_selection(pos - _overscript_offset, was_inside_start);
     }
-    else if(x >= _overscript_offset.x) 
-      return _overscript->mouse_selection(x - _overscript_offset.x, y - _overscript_offset.y, was_inside_start);
+    else if(pos.x >= _overscript_offset.x) 
+      return _overscript->mouse_selection(pos - _overscript_offset, was_inside_start);
   }
   
-  return _base->mouse_selection(x - _base_offset_x, y, was_inside_start);
+  return _base->mouse_selection(pos - Vector2F(_base_offset_x, 0), was_inside_start);
 }
 
 void UnderoverscriptBox::child_transformation(

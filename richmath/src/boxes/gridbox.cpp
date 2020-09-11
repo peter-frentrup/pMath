@@ -777,17 +777,17 @@ Box *GridBox::move_vertical(
   return item(row, col)->move_vertical(direction, index_rel_x, index, false);
 }
 
-VolatileSelection GridBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection GridBox::mouse_selection(Point pos, bool *was_inside_start) {
   need_pos_vectors();
   
   int col = 0;
-  while(col < cols() - 1 && x > xpos[col + 1])
+  while(col < cols() - 1 && pos.x > xpos[col + 1])
     ++col;
     
-  y += _extents.ascent;
+  pos.y += _extents.ascent;
   
   int row = 0;
-  while(row < rows() - 1 && y > ypos[row + 1])
+  while(row < rows() - 1 && pos.y > ypos[row + 1])
     ++row;
     
   while(row > 0 && item(row, col)->_really_span_from_above)
@@ -797,8 +797,7 @@ VolatileSelection GridBox::mouse_selection(float x, float y, bool *was_inside_st
     --col;
     
   return item(row, col)->mouse_selection(
-           x - xpos[col],
-           y - ypos[row] - item(row, col)->extents().ascent,
+           pos - Vector2F{xpos[col], ypos[row] + item(row, col)->extents().ascent},
            was_inside_start);
 }
 

@@ -122,20 +122,19 @@ Box *OwnerBox::move_vertical(
   return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
-VolatileSelection OwnerBox::mouse_selection(float x, float y, bool *was_inside_start) {
-  x -= cx;
-  y -= cy;
+VolatileSelection OwnerBox::mouse_selection(Point pos, bool *was_inside_start) {
+  pos -= {cx, cy};
   
   if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
-    auto sel = _content->mouse_selection(x, y, was_inside_start);
+    auto sel = _content->mouse_selection(pos, was_inside_start);
     if(sel && sel.box->mouse_sensitive())
       return sel;
     
-    *was_inside_start = x >= 0 && x <= _extents.width;
+    *was_inside_start = 0 <= pos.x && pos.x <= _extents.width;
     return { _parent, _index, _index + 1 };
   }
 
-  return _content->mouse_selection(x, y, was_inside_start);
+  return _content->mouse_selection(pos, was_inside_start);
 }
 
 void OwnerBox::child_transformation(

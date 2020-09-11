@@ -150,7 +150,7 @@ void EmptyWidgetBox::dynamic_updated() {
   request_repaint_all();
 }
 
-VolatileSelection EmptyWidgetBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection EmptyWidgetBox::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   return { this, 0, 0 };
 }

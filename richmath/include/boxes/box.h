@@ -265,7 +265,7 @@ namespace richmath {
       virtual void resize(Context &context) = 0;
       virtual void colorize_scope(SyntaxState &state);
       virtual void paint(Context &context) = 0;
-      virtual Box *get_highlight_child(Box *src, int *start, int *end);
+      virtual VolatileSelection get_highlight_child(const VolatileSelection &src);
       virtual void selection_path(Canvas &canvas, int start, int end);
       virtual void scroll_to(const RectangleF &rect);
       virtual void scroll_to(Canvas &canvas, const VolatileSelection &child);
@@ -316,15 +316,14 @@ namespace richmath {
       
       /// Get the box/possible selection at a point.
       ///
-      /// \param x The local x coordinate.
-      /// \param y The local y coordinate.
+      /// \param pos              The position in local coordinates.
       /// \param was_inside_start [out] Set to true if the returned [*start, *end] interval contains 
       ///                         the point and fals if it is only near the point.
       /// \return The box with and start and end index that contains the point.
       ///
       /// Note that further mouse event processing done by the result of ret->mouse_sensitive() where 
       /// ret is the returned box, but text selection is subject to ret->selectable()
-      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start);
+      virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start);
         
       /// Append the child-to-parent coordinate transformation to a matrix (multiply from right). 
       virtual void child_transformation(
@@ -379,7 +378,7 @@ namespace richmath {
       
       bool         request_repaint_all();
       virtual bool request_repaint_range(int start, int end);
-      virtual bool request_repaint(float x, float y, float w, float h);
+      virtual bool request_repaint(const RectangleF &rect);
 
       /// Something inside this box changed and needs a resize().
       virtual void invalidate();

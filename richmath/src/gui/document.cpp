@@ -394,11 +394,9 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   return true;
 }
 
-bool Document::request_repaint(float x, float y, float w, float h) {
-  RectangleF window_rect { native()->scroll_pos(), native()->window_size() };
-  
-  if(window_rect.overlaps({x,y,w,h})) {
-    native()->invalidate_rect({x,y,w,h});
+bool Document::request_repaint(const RectangleF &rect) {
+  if(rect.overlaps({native()->scroll_pos(), native()->window_size()})) {
+    native()->invalidate_rect(rect);
     return true;
   }
   
@@ -498,7 +496,7 @@ void Document::mouse_down(MouseEvent &event) {
     event.set_origin(this);
     
     bool was_inside_start;
-    receiver = mouse_selection(event.position.x, event.position.y, &was_inside_start).box;
+    receiver = mouse_selection(event.position, &was_inside_start).box;
                  
     receiver = receiver ? receiver->mouse_sensitive() : this;
     assert(receiver != nullptr);
@@ -582,7 +580,7 @@ void Document::mouse_move(MouseEvent &event) {
     event.set_origin(this);
     
     bool was_inside_start;
-    VolatileSelection receiver_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
+    VolatileSelection receiver_sel = mouse_selection(event.position, &was_inside_start);
     
     if(DebugFollowMouse && !mouse_history.debug_move_sel.equals(receiver_sel)) {
       mouse_history.debug_move_sel.set(receiver_sel);
@@ -718,7 +716,7 @@ void Document::on_mouse_down(MouseEvent &event) {
     mouse_history.down_time = native()->message_time();
     
     bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
                  
     if(double_click) {
       ++mouse_history.click_repeat_count;
@@ -790,7 +788,7 @@ void Document::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
   bool was_inside_start;
-  VolatileSelection mouse_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
+  VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
   
   if(event.left && drag_status == DragStatus::MayDrag) {
     Vector2F dd = native()->double_click_dist();
@@ -842,7 +840,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       
       if(sec1 && sec1 != sec2) {
         event.set_origin(sec1);
-        mouse_sel = sec1->mouse_selection(event.position.x, event.position.y, &was_inside_start);
+        mouse_sel = sec1->mouse_selection(event.position, &was_inside_start);
       }
       
       VolatileSelection down_sel = mouse_down_sel;
@@ -872,7 +870,7 @@ void Document::on_mouse_up(MouseEvent &event) {
   
   if(event.left && drag_status != DragStatus::Idle) {
     bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection(event.position.x, event.position.y, &was_inside_start);
+    VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
                  
     if(Impl(*this).is_inside_selection(mouse_sel, was_inside_start) && mouse_sel.selectable()) {
       select(mouse_sel);
@@ -3891,13 +3889,10 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
                          str,
                          true)))
     {
-      int s = index - len;
-      int e = index;
-      Box *box = find->get_highlight_child(find, &s, &e);
-      
-      if(box == find) {
-        self._current_word_references.add(SelectionReference(box->id(), s, e));
-        add_fill(temp_hooks, box, s, e, OccurenceBackgroundColor);
+      VolatileSelection hc = find->get_highlight_child(VolatileSelection{find, index - len, index});
+      if(hc.box == find) {
+        self._current_word_references.add(SelectionReference{hc});
+        add_fill(temp_hooks, hc.box, hc.start, hc.end, OccurenceBackgroundColor);
         ++num_occurencies;
       }
     }

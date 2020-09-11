@@ -28,7 +28,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
-      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;

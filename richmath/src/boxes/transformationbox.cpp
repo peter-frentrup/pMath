@@ -106,7 +106,7 @@ void AbstractTransformationBox::paint(Context &context) {
   context.canvas().restore();
 }
 
-VolatileSelection AbstractTransformationBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection AbstractTransformationBox::mouse_selection(Point pos, bool *was_inside_start) {
   double mx = 0;//_content->extents().width / 2;
   double my = _content->extents().ascent;//_content->extents().height() / 2;
   
@@ -114,11 +114,9 @@ VolatileSelection AbstractTransformationBox::mouse_selection(float x, float y, b
   cairo_matrix_translate(&inv_mat, -mx, _content->extents().ascent - my);
   
   cairo_matrix_invert(&inv_mat);
-  cairo_matrix_translate(&inv_mat, x, y);
-  x = inv_mat.x0;
-  y = inv_mat.y0;
+  cairo_matrix_translate(&inv_mat, pos.x, pos.y);
   
-  return _content->mouse_selection(x, y, was_inside_start);
+  return _content->mouse_selection(Point(inv_mat.x0, inv_mat.y0), was_inside_start);
 }
 
 void AbstractTransformationBox::child_transformation(

@@ -21,7 +21,7 @@ namespace richmath {
       
       virtual void dynamic_updated() override;
       
-      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
       virtual Box *mouse_sensitive() override { return this; }
       virtual void on_mouse_enter() override;

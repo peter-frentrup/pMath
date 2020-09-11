@@ -336,22 +336,16 @@ Box *SubsuperscriptBox::move_vertical(
   *index = -1;
   return dst->move_vertical(direction, index_rel_x, index, false);
 }
-VolatileSelection SubsuperscriptBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection SubsuperscriptBox::mouse_selection(Point pos, bool *was_inside_start) {
   if(_subscript) {
-    if(!_superscript || y >= _subscript_offset.y - _subscript->extents().ascent + _superscript_offset.y + _superscript->extents().descent) {
-      return _subscript->mouse_selection(
-               x - _subscript_offset.x, // x - _base.width,
-               y - _subscript_offset.y,
-               was_inside_start);
+    // TODO: shouldn't it be pos.y >= 0.5*(...) to tie at the center?
+    if(!_superscript || pos.y >= _subscript_offset.y - _subscript->extents().ascent + _superscript_offset.y + _superscript->extents().descent) {
+      return _subscript->mouse_selection(pos - _subscript_offset, was_inside_start);
     }
   }
           
-  if(_superscript) {
-    return _superscript->mouse_selection(
-             x - _superscript_offset.x,
-             y - _superscript_offset.y,
-             was_inside_start);
-  }
+  if(_superscript) 
+    return _superscript->mouse_selection(pos - _superscript_offset, was_inside_start);
   
   *was_inside_start = true;
   return { _parent, _index, _index + 1 };

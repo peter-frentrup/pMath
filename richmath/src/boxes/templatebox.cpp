@@ -149,8 +149,8 @@ Box *TemplateBox::normalize_selection(int *start, int *end) {
   return this;
 }
 
-VolatileSelection TemplateBox::mouse_selection(float x, float y, bool *was_inside_start) {
-  auto sel = base::mouse_selection(x, y, was_inside_start);
+VolatileSelection TemplateBox::mouse_selection(Point pos, bool *was_inside_start) {
+  auto sel = base::mouse_selection(pos, was_inside_start);
   if(!sel)
     return sel;
   

@@ -267,11 +267,11 @@ Box *PaneSelectorBox::move_vertical(
   return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
-VolatileSelection PaneSelectorBox::mouse_selection(float x, float  y, bool *was_inside_start) {
+VolatileSelection PaneSelectorBox::mouse_selection(Point pos, bool *was_inside_start) {
   if(_current_selection >= 0 && _current_selection < _cases.length())
-    return _panes[_current_selection]->mouse_selection(x, y, was_inside_start);
+    return _panes[_current_selection]->mouse_selection(pos, was_inside_start);
   
-  return base::mouse_selection(x, y, was_inside_start);
+  return base::mouse_selection(pos, was_inside_start);
 }
 
 bool PaneSelectorBox::edit_selection(SelectionReference &selection) {

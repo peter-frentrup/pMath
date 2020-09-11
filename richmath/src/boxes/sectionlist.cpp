@@ -376,14 +376,14 @@ Box *SectionList::move_vertical(
   return _sections[s]->move_vertical(direction, index_rel_x, index, false);
 }
 
-VolatileSelection SectionList::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   
   float right = _scrollx + _window_width - section_bracket_right_margin;
   int border_level = -1;
   
   if(get_own_style(ShowSectionBracket, true) && section_bracket_width > 0) {
-    border_level = (int)ceil((right - x) / section_bracket_width + 0.2);
+    border_level = (int)ceil((right - pos.x) / section_bracket_width + 0.2);
     if(border_level < 0)
       border_level = 0;
   }
@@ -391,7 +391,7 @@ VolatileSelection SectionList::mouse_selection(float x, float y, bool *was_insid
   int start = 0;
   while(start < _sections.length()) {
     if(_sections[start]->visible) {
-      if(y <= _sections[start]->y_offset + _sections[start]->top_margin) {
+      if(pos.y <= _sections[start]->y_offset + _sections[start]->top_margin) {
         int group_start = 0;
         if(_group_info[start].end > start) { // this starts a group
           group_start = start;
@@ -427,7 +427,7 @@ VolatileSelection SectionList::mouse_selection(float x, float y, bool *was_insid
         return { this, start, end };
       }
       
-      if(y < _sections[start]->y_offset + _sections[start]->extents().height() - _sections[start]->bottom_margin) {
+      if(pos.y < _sections[start]->y_offset + _sections[start]->extents().height() - _sections[start]->bottom_margin) {
         if(border_level >= 0 && border_level <= _group_info[start].nesting) {
           int d = _group_info[start].nesting - border_level;
           
@@ -447,9 +447,9 @@ VolatileSelection SectionList::mouse_selection(float x, float y, bool *was_insid
             return { this, 0, _sections.length() };
         }
         
-        y -= _sections[start]->y_offset;
-        x += get_content_scroll_correction_x(start);
-        return _sections[start]->mouse_selection(x, y, was_inside_start);
+        pos.y -= _sections[start]->y_offset;
+        pos.x += get_content_scroll_correction_x(start);
+        return _sections[start]->mouse_selection(pos, was_inside_start);
       }
     }
     
@@ -831,7 +831,7 @@ bool SectionList::request_repaint_range(int start, int end) {
 //  else if(end > 0)
 //    y2 = _sections[end - 1]->y_offset + _sections[end - 1]->extents().height();
 
-  return request_repaint(0, y1, _extents.width, y2 - y1);
+  return request_repaint({0.0f, y1, _extents.width, y2 - y1});
   
 }
 

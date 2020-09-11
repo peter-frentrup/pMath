@@ -1029,7 +1029,7 @@ Box *TextSequence::move_vertical(
   return this;
 }
 
-VolatileSelection TextSequence::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_start) {
   BoxSize line_size;
   float line_x, line_y;
   
@@ -1038,7 +1038,7 @@ VolatileSelection TextSequence::mouse_selection(float x, float y, bool *was_insi
   do {
     line_extents(iter, line_index, &line_x, &line_y, &line_size);
     
-    if(y <= line_y + line_size.descent)
+    if(pos.y <= line_y + line_size.descent)
       break;
       
     ++line_index;
@@ -1050,7 +1050,7 @@ VolatileSelection TextSequence::mouse_selection(float x, float y, bool *was_insi
   int i, tr;
   pango_layout_line_x_to_index(
     line,
-    pango_units_from_double(x - line_x),
+    pango_units_from_double(pos.x - line_x),
     &i, &tr);
     
   if(text.is_box_at(i)) {
@@ -1063,15 +1063,15 @@ VolatileSelection TextSequence::mouse_selection(float x, float y, bool *was_insi
     int pango_x;
     pango_layout_line_index_to_x(line, i, 0, &pango_x);
     
-    y -= line_y;
-    x -= line_x + pango_units_to_double(pango_x);
+    pos.y -= line_y;
+    pos.x -= line_x + pango_units_to_double(pango_x);
     
-    return boxes[b]->mouse_selection(x, y, was_inside_start);
+    return boxes[b]->mouse_selection(pos, was_inside_start);
   }
   
   int x_pos;
   pango_layout_line_index_to_x(line, i, tr > 0, &x_pos);
-  *was_inside_start = (x >= 0 && (tr == 0 || pango_units_to_double(x_pos) < x));
+  *was_inside_start = (0 <= pos.x && (tr == 0 || pango_units_to_double(x_pos) < pos.x));
   char *s     = text.buffer() + i;
   char *s_end = text.buffer() + text.length();
   

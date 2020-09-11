@@ -279,21 +279,14 @@ Expr AxisTicks::to_pmath(BoxOutputFlags flags) {
   return g.end();
 }
 
-VolatileSelection AxisTicks::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection AxisTicks::mouse_selection(Point pos, bool *was_inside_start) {
   for(int i = 0; i < count(); ++i) {
-    float cx, cy;
+    Vector2F lbl_delta;
     
-    get_label_position(i, &cx, &cy);
+    get_label_position(i, &lbl_delta.x, &lbl_delta.y);
     
-    const BoxSize &size = label(i)->extents();
-    
-    if( cx               <= x && x <= cx + size.width &&
-        cy - size.ascent <= y && y <= cy + size.descent)
-    {
-      x -= cx;
-      y -= cy;
-      return label(i)->mouse_selection(x, y, was_inside_start);
-    }
+    if(label(i)->extents().to_rectangle().contains(pos - lbl_delta))
+      return label(i)->mouse_selection(pos - lbl_delta, was_inside_start);
   }
   
   return { this, 0, count() };

@@ -715,7 +715,7 @@ void MathGtkWidget::on_drag_data_received(
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(pos.x, pos.y, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(pos, &was_inside_start);
   
   if(!may_drop_into(dst, source_widget == _widget)) {
     gtk_drag_finish(context, FALSE, FALSE, time);
@@ -786,7 +786,7 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(me.position.x, me.position.y, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(me.position, &was_inside_start);
   
   document()->select(dst);
   bool self_is_source = source_widget == _widget;
@@ -831,7 +831,7 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   GtkWidget *source_widget = gtk_drag_get_source_widget(context);
   
   bool was_inside_start;
-  VolatileSelection dst = document()->mouse_selection(pos.x, pos.y, &was_inside_start);
+  VolatileSelection dst = document()->mouse_selection(pos, &was_inside_start);
   
   if(!may_drop_into(dst, source_widget == _widget))
     return false;

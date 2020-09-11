@@ -42,7 +42,7 @@ namespace richmath {
       virtual int count() override;
       
       virtual void invalidate() override;
-      virtual bool request_repaint(float x, float y, float w, float h) override;
+      virtual bool request_repaint(const RectangleF &rect) override;
       
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context &context) override;
@@ -55,7 +55,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
-      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
       virtual bool selectable(int i = -1) override;
         

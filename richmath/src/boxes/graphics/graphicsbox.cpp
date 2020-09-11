@@ -218,17 +218,17 @@ void GraphicsBox::invalidate() {
     Box::invalidate();
 }
 
-bool GraphicsBox::request_repaint(float x, float y, float w, float h) {
+bool GraphicsBox::request_repaint(const RectangleF &rect) {
   if(is_currently_resizing)
     return false;
     
-  cached_bitmap = 0;
-  return Box::request_repaint(x, y, w, h);
+  cached_bitmap = nullptr;
+  return Box::request_repaint(rect);
 }
 
 void GraphicsBox::resize(Context &context) {
   is_currently_resizing = true;
-  cached_bitmap = 0;
+  cached_bitmap = nullptr;
   
   em = context.canvas().get_font_size();
   
@@ -1102,16 +1102,13 @@ void GraphicsBox::transform_inner_to_outer(cairo_matrix_t *mat) {
     - ticks[AxisIndexLeft  ]->start_position);
 }
 
-VolatileSelection GraphicsBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection GraphicsBox::mouse_selection(Point pos, bool *was_inside_start) {
   for(int axis = 0; axis < 6; ++axis) {
-    VolatileSelection tmp = ticks[axis]->mouse_selection(x, y, was_inside_start);
+    VolatileSelection tmp = ticks[axis]->mouse_selection(pos, was_inside_start);
     
     if(tmp.box != ticks[axis])
       return tmp;
   }
-  
-  //if(!selectable())
-  //  return Box::mouse_selection(x, y, was_inside_start);
   
   *was_inside_start = false;
   return { this, 0, 0 };

@@ -106,27 +106,21 @@ Box *FillBox::move_vertical(
   return base::move_vertical(direction, index_rel_x, index, called_from_child);
 }
 
-VolatileSelection FillBox::mouse_selection(float x, float y, bool *was_inside_start) {
-  x -= cx;
-  y -= cy;
-  
+VolatileSelection FillBox::mouse_selection(Point pos, bool *was_inside_start) {
+  pos -= Vector2F{ cx, cy };
   if(_content->extents().width > 0) {
-    x = fmodf(x, _content->extents().width);
+    pos.x = fmodf(pos.x, _content->extents().width);
   }
-  return _content->mouse_selection(x, y, was_inside_start);
+  return _content->mouse_selection(pos, was_inside_start);
 }
 
-bool FillBox::request_repaint(float x, float y, float w, float h) {
+bool FillBox::request_repaint(const RectangleF &rect) {
   int num_repititions = (int)(_extents.width / _content->extents().width);
   
-  if(num_repititions > 1){
-    x = 0.0;
-    y = -_extents.ascent;
-    w = _extents.width + 0.1;
-    h = _extents.height() + 0.1;
-  }
+  if(num_repititions > 1) 
+    base::request_repaint(_extents.to_rectangle());
   
-  return base::request_repaint(x, y, w, h);
+  return base::request_repaint(rect);
 }
 
 void FillBox::resize_default_baseline(Context &context) {

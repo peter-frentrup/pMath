@@ -264,8 +264,8 @@ Box *RadicalBox::move_vertical(
   return _parent->move_vertical(direction, index_rel_x, index, true);
 }
 
-VolatileSelection RadicalBox::mouse_selection(float x, float y, bool *was_inside_start) {
-  if(_parent && x > (_extents.width + rx + _radicand->extents().width) / 2) {
+VolatileSelection RadicalBox::mouse_selection(Point pos, bool *was_inside_start) {
+  if(_parent && pos.x > (_extents.width + rx + _radicand->extents().width) / 2) {
     *was_inside_start = false;
     return { _parent, _index + 1, _index + 1 };
   }
@@ -275,20 +275,19 @@ VolatileSelection RadicalBox::mouse_selection(float x, float y, bool *was_inside
     if(_exponent_offset.x > _exponent->extents().width)
       el = _exponent_offset.x - _exponent->extents().width;
       
-    if(x > el / 2 && x < (el + _exponent->extents().width + rx) / 2)
+    if(el / 2 < pos.x && pos.x < (el + _exponent->extents().width + rx) / 2)
       return _exponent->mouse_selection(
-               x - el,
-               y - _exponent_offset.y + _exponent->extents().descent,
+               pos + Vector2F{-el, -_exponent_offset.y + _exponent->extents().descent},
                was_inside_start);
   }
   
-  if(_parent && x < rx / 2) {
+  if(_parent && pos.x < rx / 2) {
     *was_inside_start = true;
     return { _parent, _index, _index };
   }
   
   
-  return _radicand->mouse_selection(x - rx, y, was_inside_start);
+  return _radicand->mouse_selection(pos - Vector2F(rx, 0), was_inside_start);
 }
 
 void RadicalBox::child_transformation(

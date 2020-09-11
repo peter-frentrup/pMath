@@ -35,7 +35,7 @@ namespace richmath {
         int              *index,
         bool              called_from_child) override;
         
-      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
       virtual void child_transformation(
         int             index,

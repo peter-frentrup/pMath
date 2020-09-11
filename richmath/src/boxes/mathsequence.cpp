@@ -997,15 +997,15 @@ Box *MathSequence::move_vertical(
   return this;
 }
 
-VolatileSelection MathSequence::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   
   if(lines.length() == 0) 
     return { this, 0, 0 };
   
   int line = 0;
-  while(line < lines.length() - 1 && y > lines[line].descent + 0.1 * em) {
-    y -= lines[line].descent + line_spacing() + lines[line + 1].ascent;
+  while(line < lines.length() - 1 && pos.y > lines[line].descent + 0.1 * em) {
+    pos.y -= lines[line].descent + line_spacing() + lines[line + 1].ascent;
     ++line;
   }
   
@@ -1017,11 +1017,8 @@ VolatileSelection MathSequence::mouse_selection(float x, float y, bool *was_insi
     
   const uint16_t *buf = str.buffer();
   
-  x -= indention_width(lines[line].indent);
-//  if(line > 0 && lines[line - 1].end < glyphs.length())
-//    x += glyphs[lines[line - 1].end].x_offset;
-
-  if(x < 0) {
+  pos.x -= indention_width(lines[line].indent);
+  if(pos.x < 0) {
     *was_inside_start = false;
     return { this, start, start };
   }
@@ -1031,7 +1028,7 @@ VolatileSelection MathSequence::mouse_selection(float x, float y, bool *was_insi
     line_start += glyphs[start - 1].right;
     
   while(start < lines[line].end) {
-    if(x <= glyphs[start].right - line_start) {
+    if(pos.x <= glyphs[start].right - line_start) {
       float prev = 0;
       if(start > 0)
         prev = glyphs[start - 1].right;
@@ -1048,23 +1045,22 @@ VolatileSelection MathSequence::mouse_selection(float x, float y, bool *was_insi
           ++b;
           
         float xoff = glyphs[start].x_offset;
-        if(x > prev - line_start + xoff + boxes[b]->extents().width) {
+        if(pos.x > prev - line_start + xoff + boxes[b]->extents().width) {
           *was_inside_start = false;
           return { this, start + 1, start + 1 };
         }
         
-        if(x < prev - line_start + xoff) {
+        if(pos.x < prev - line_start + xoff) {
           *was_inside_start = false;
           return { this, start, start };
         }
         
         return boxes[b]->mouse_selection(
-                 x - (prev - line_start + xoff),
-                 y,
+                 pos - Vector2F(prev - line_start + xoff, 0),
                  was_inside_start);
       }
       
-      if(line_start + x > (prev + glyphs[start].right) / 2) {
+      if(line_start + pos.x > (prev + glyphs[start].right) / 2) {
         *was_inside_start = false;
         return { this, start + 1, start + 1 };
       }
@@ -1083,10 +1079,6 @@ VolatileSelection MathSequence::mouse_selection(float x, float y, bool *was_insi
       --start;
   }
   
-//  if(is_placeholder(*start - 1)){
-//    *was_inside_start = false;
-//    return { this, start - 1, start };
-//  }
   return { this, start, start };
 }
 

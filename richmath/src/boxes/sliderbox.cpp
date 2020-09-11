@@ -244,7 +244,7 @@ void SliderBox::reset_style() {
   Style::reset(style, "Slider");
 }
 
-VolatileSelection SliderBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection SliderBox::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   return { this, 0, 0 };
 }

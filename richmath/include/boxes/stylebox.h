@@ -13,7 +13,7 @@ namespace richmath {
       
       virtual void colorize_scope(SyntaxState &state) override;
       
-      virtual VolatileSelection mouse_selection(float x, float y, bool *was_inside_start) override;
+      virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
     protected:
       virtual void resize_default_baseline(Context &context) override;

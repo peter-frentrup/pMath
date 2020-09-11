@@ -85,15 +85,15 @@ void AbstractStyleBox::colorize_scope(SyntaxState &state) {
   base::colorize_scope(state);
 }
 
-VolatileSelection AbstractStyleBox::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection AbstractStyleBox::mouse_selection(Point pos, bool *was_inside_start) {
   if(_parent) {
     if(get_own_style(Placeholder)) {
-      *was_inside_start = x >= 0 && x <= _extents.width;
+      *was_inside_start = 0 <= pos.x && pos.x <= _extents.width;
       return { _parent, _index, _index + 1 };
     }
     
-    if(y < -_extents.ascent || y > _extents.descent) {
-      if(x <= _extents.width / 2) {
+    if(pos.y < -_extents.ascent || _extents.descent < pos.y) {
+      if(pos.x <= _extents.width / 2) {
         *was_inside_start = true;
         return { _parent, _index, _index };
       }
@@ -104,7 +104,7 @@ VolatileSelection AbstractStyleBox::mouse_selection(float x, float y, bool *was_
     }
   }
   
-  return base::mouse_selection(x, y, was_inside_start);
+  return base::mouse_selection(pos, was_inside_start);
 }
 
 //} ... class AbstractStyleBox

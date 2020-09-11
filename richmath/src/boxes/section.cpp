@@ -157,19 +157,19 @@ Box *Section::normalize_selection(int *start, int *end) {
   return this;
 }
 
-Box *Section::get_highlight_child(Box *src, int *start, int *end) {
-  if(src == this)
-    return this;
+VolatileSelection Section::get_highlight_child(const VolatileSelection &src) {
+  if(src.box == this)
+    return src;
     
   if(!visible)
-    return 0;
+    return VolatileSelection{nullptr, 0};
     
-  return Box::get_highlight_child(src, start, end);
+  return Box::get_highlight_child(src);
 }
 
-bool Section::request_repaint(float x, float y, float w, float h) {
+bool Section::request_repaint(const RectangleF &rect) {
   if(visible)
-    return Box::request_repaint(x, y, w, h);
+    return Box::request_repaint(rect);
   return false;
 }
 
@@ -285,7 +285,7 @@ void ErrorSection::paint(Context &context) {
     y + _extents.descent - get_style(SectionMarginBottom));
 }
 
-VolatileSelection ErrorSection::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection ErrorSection::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   return { this, 0, 0 };
 }
@@ -642,28 +642,23 @@ void AbstractSequenceSection::on_mouse_up(MouseEvent &event) {
   base::on_mouse_up(event);
 }
 
-VolatileSelection AbstractSequenceSection::mouse_selection(float x, float y, bool *was_inside_start) {
+VolatileSelection AbstractSequenceSection::mouse_selection(Point pos, bool *was_inside_start) {
   if(Box *dingbat = _dingbat.box_or_null()) {
     cairo_matrix_t mat;
     cairo_matrix_init_identity(&mat);
     child_transformation(dingbat->index(), &mat);
-    if( mat.x0 <= x && 
-        x <= mat.x0 + dingbat->extents().width &&
-        mat.y0 - dingbat->extents().ascent <= y &&
-        y <= mat.y0 + dingbat->extents().descent)
+    if( mat.x0 <= pos.x && 
+        pos.x <= mat.x0 + dingbat->extents().width &&
+        mat.y0 - dingbat->extents().ascent <= pos.y &&
+        pos.y <= mat.y0 + dingbat->extents().descent)
     {
-      if(VolatileSelection sel = dingbat->mouse_selection(x - mat.x0, y - y - mat.y0, was_inside_start)) {
-        //Box *tmp = sel.box->mouse_sensitive();
-        //while(tmp && tmp->parent() != this)
-        //  tmp = tmp->parent();
-        //
-        //if(tmp)
-          return sel;
+      if(VolatileSelection sel = dingbat->mouse_selection(pos - Vector2F(mat.x0, mat.y0), was_inside_start)) {
+        return sel;
       }
     }
   }
   
-  return _content->mouse_selection(x - cx, y - cy, was_inside_start);
+  return _content->mouse_selection(pos - Vector2F{cx, cy}, was_inside_start);
 }
 
 void AbstractSequenceSection::child_transformation(
@@ -902,16 +897,14 @@ Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
   return e;
 }
 
-VolatileSelection StyleDataSection::mouse_selection(float x, float y, bool *was_inside_start) {
-  if(auto sel = AbstractSequenceSection::mouse_selection(x, y, was_inside_start)) {
+VolatileSelection StyleDataSection::mouse_selection(Point pos, bool *was_inside_start) {
+  if(auto sel = AbstractSequenceSection::mouse_selection(pos, was_inside_start)) {
     Box *mouse = sel.box->mouse_sensitive();
     if(mouse && !mouse->is_parent_of(this)) 
       return sel;
   }
   
   *was_inside_start = true;
-//  if(_parent) 
-//    return { _parent, _index, _index + 1 };
   return { this, 0, length() };
 }
 
