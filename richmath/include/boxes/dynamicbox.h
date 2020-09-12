@@ -16,7 +16,7 @@ namespace richmath {
       explicit AbstractDynamicBox();
   };
   
-  class DynamicBox: public AbstractDynamicBox {
+  class DynamicBox final : public AbstractDynamicBox {
     protected:
       virtual ~DynamicBox();
     public:

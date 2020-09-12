@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class AxisTicks: public Box {
+  class AxisTicks final : public Box {
     protected:
       virtual ~AxisTicks();
     public:

@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class TemplateBox: public Observable, public ExpandableOwnerBox {
+  class TemplateBox final : public Observable, public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
       friend class TemplateBoxImpl;
       
@@ -58,7 +58,7 @@ namespace richmath {
       bool _is_content_loaded;
   };
   
-  class TemplateBoxSlot: public ExpandableOwnerBox {
+  class TemplateBoxSlot final : public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
       friend class TemplateBoxSlotImpl;
       

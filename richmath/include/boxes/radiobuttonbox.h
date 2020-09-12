@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class RadioButtonBox: public EmptyWidgetBox {
+  class RadioButtonBox final : public EmptyWidgetBox {
       using base = EmptyWidgetBox;
     public:
       RadioButtonBox();

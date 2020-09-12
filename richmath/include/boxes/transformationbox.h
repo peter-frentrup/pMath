@@ -26,7 +26,7 @@ namespace richmath {
       cairo_matrix_t mat;
   };
   
-  class RotationBox: public AbstractTransformationBox {
+  class RotationBox final : public AbstractTransformationBox {
     public:
       RotationBox();
       
@@ -45,7 +45,7 @@ namespace richmath {
       Expr _angle;
   };
   
-  class TransformationBox: public AbstractTransformationBox {
+  class TransformationBox final : public AbstractTransformationBox {
     public:
       TransformationBox();
       

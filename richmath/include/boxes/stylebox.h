@@ -20,7 +20,7 @@ namespace richmath {
       void paint_or_resize_no_baseline(Context &context, bool paint);
   };
   
-  class StyleBox: public AbstractStyleBox {
+  class StyleBox final : public AbstractStyleBox {
       using base = AbstractStyleBox;
     public:
       explicit StyleBox(MathSequence *content = nullptr);
@@ -34,7 +34,7 @@ namespace richmath {
       virtual bool changes_children_style() override { return true; }
   };
   
-  class TagBox: public AbstractStyleBox {
+  class TagBox final : public AbstractStyleBox {
       using base = AbstractStyleBox;
     public:
       explicit TagBox(MathSequence *content = nullptr);

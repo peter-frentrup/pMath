@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class CheckboxBox: public EmptyWidgetBox {
+  class CheckboxBox final : public EmptyWidgetBox {
       using base = EmptyWidgetBox;
       class Impl;
     public:

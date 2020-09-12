@@ -11,7 +11,7 @@
 namespace richmath {
   class OTMathShaperImpl;
   
-  class OTMathShaper: public MathShaper {
+  class OTMathShaper final : public MathShaper {
       friend class OTMathShaperDB;
     public:
       virtual ~OTMathShaper();

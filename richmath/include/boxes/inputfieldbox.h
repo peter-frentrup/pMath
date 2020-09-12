@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class InputFieldBox: public ContainerWidgetBox {
+  class InputFieldBox final : public ContainerWidgetBox {
       using base = ContainerWidgetBox;
     public:
       InputFieldBox(MathSequence *content = nullptr);

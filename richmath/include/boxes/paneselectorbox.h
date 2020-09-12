@@ -8,7 +8,7 @@
 namespace richmath {
   class MathSequence;
   
-  class PaneSelectorBox : public Box {
+  class PaneSelectorBox final : public Box {
       using base = Box;
     protected:
       virtual ~PaneSelectorBox();

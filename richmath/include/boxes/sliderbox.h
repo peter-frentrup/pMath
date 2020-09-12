@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class SliderBox: public EmptyWidgetBox {
+  class SliderBox final : public EmptyWidgetBox {
       using base = EmptyWidgetBox;
       class Impl;
     protected:

@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class FrameBox: public OwnerBox {
+  class FrameBox final : public OwnerBox {
     public:
       explicit FrameBox(MathSequence *content = 0);
       

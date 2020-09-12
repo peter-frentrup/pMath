@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class SetterBox: public AbstractButtonBox {
+  class SetterBox final : public AbstractButtonBox {
       using base = AbstractButtonBox;
     public:
       explicit SetterBox(MathSequence *content = nullptr);

@@ -7,7 +7,7 @@
 namespace richmath {
   class MathSequence;
   
-  class UnderoverscriptBox: public Box {
+  class UnderoverscriptBox final : public Box {
     protected:
       virtual ~UnderoverscriptBox();
     public:

@@ -10,7 +10,7 @@
 namespace richmath {
   class ConfigShaperTables;
   
-  class ConfigShaper: public SimpleMathShaper {
+  class ConfigShaper final : public SimpleMathShaper {
       friend class ConfigShaperDB;
       friend class ConfigShaperTables;
     public:

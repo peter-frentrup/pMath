@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class ErrorBox: public Box {
+  class ErrorBox final : public Box {
     protected:
       virtual ~ErrorBox();
     public:

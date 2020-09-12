@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class DynamicLocalBox: public AbstractDynamicBox {
+  class DynamicLocalBox final : public AbstractDynamicBox {
     protected:
       virtual ~DynamicLocalBox();
     public:

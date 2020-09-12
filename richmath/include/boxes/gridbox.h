@@ -79,7 +79,7 @@ namespace richmath {
     GridIndexRect(const GridYRange &_y, const GridXRange &_x) : y(_y), x(_x) {}
   };
   
-  class GridItem: public OwnerBox {
+  class GridItem final : public OwnerBox {
       friend class GridBoxImpl;
       friend class GridBox;
     protected:
@@ -112,7 +112,7 @@ namespace richmath {
       bool _really_span_from_above;
   };
   
-  class GridBox: public Box {
+  class GridBox final : public Box {
       class Impl;
       friend class GridItem;
     protected:

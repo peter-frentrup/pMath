@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class LineBox: public GraphicsElement {
+  class LineBox final : public GraphicsElement {
     protected:
       virtual ~LineBox();
     public:

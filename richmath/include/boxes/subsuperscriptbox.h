@@ -7,7 +7,7 @@
 namespace richmath {
   class MathSequence;
   
-  class SubsuperscriptBox: public Box {
+  class SubsuperscriptBox final : public Box {
     protected:
       virtual ~SubsuperscriptBox();
     public:

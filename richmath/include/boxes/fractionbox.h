@@ -7,7 +7,7 @@
 namespace richmath {
   class MathSequence;
   
-  class FractionBox: public Box {
+  class FractionBox final : public Box {
     protected:
       virtual ~FractionBox();
     public:

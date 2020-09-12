@@ -13,7 +13,7 @@
 
 
 namespace richmath {
-  class FreetypeFontShaper: public TextShaper {
+  class FreetypeFontShaper final : public TextShaper {
     public:
       FreetypeFontShaper(
         const String          &name,

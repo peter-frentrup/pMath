@@ -22,7 +22,7 @@ namespace richmath {
   /* This is a box containing math.
      For normal text, use class TextSequence.
    */
-  class MathSequence: public AbstractSequence {
+  class MathSequence final : public AbstractSequence {
       class Impl;
     protected:
       virtual ~MathSequence();

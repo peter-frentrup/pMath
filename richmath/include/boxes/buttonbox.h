@@ -24,7 +24,7 @@ namespace richmath {
       virtual void click() = 0;
   };
   
-  class ButtonBox: public AbstractButtonBox {
+  class ButtonBox final : public AbstractButtonBox {
       using base = AbstractButtonBox;
     public:
       explicit ButtonBox(MathSequence *content = nullptr);

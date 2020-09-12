@@ -24,7 +24,7 @@ namespace richmath {
     AxisIndexTop
   };
   
-  class GraphicsBox: public Box {
+  class GraphicsBox final : public Box {
       class Impl;
     protected:
       virtual ~GraphicsBox();

@@ -21,7 +21,7 @@ namespace richmath {
     bool is_valid() { return start <= pos && pos <= end; }
   };
   
-  class NumberBox: public OwnerBox {
+  class NumberBox final : public OwnerBox {
       using base = OwnerBox;
       class Impl;
     public:

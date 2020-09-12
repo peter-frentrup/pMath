@@ -7,7 +7,7 @@
 
 
 namespace richmath {
-  class ProgressIndicatorBox: public Box, public ControlContext {
+  class ProgressIndicatorBox final : public Box, public ControlContext {
     protected:
       virtual ~ProgressIndicatorBox();
     public:

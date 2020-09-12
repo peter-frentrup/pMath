@@ -22,7 +22,7 @@ namespace richmath {
     CurrentlyDragging
   };
   
-  class Document: public SectionList {
+  class Document final : public SectionList {
       friend class NativeWidget;
       class Impl;
     public:

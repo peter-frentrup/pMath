@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class InterpretationBox: public AbstractStyleBox {
+  class InterpretationBox final : public AbstractStyleBox {
       using base = AbstractStyleBox;
     public:
       InterpretationBox();

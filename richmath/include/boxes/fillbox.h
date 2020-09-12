@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class FillBox: public OwnerBox {
+  class FillBox final : public OwnerBox {
       using base = OwnerBox;
     protected:
       virtual ~FillBox();

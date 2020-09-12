@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class PanelBox: public ContainerWidgetBox {
+  class PanelBox final : public ContainerWidgetBox {
       using base = ContainerWidgetBox;
     public:
       explicit PanelBox(MathSequence *content = nullptr);

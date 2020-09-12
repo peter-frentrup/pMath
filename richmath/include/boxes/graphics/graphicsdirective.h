@@ -5,7 +5,7 @@
 #include <boxes/graphics/graphicselement.h>
 
 namespace richmath {
-  class GraphicsDirective: public GraphicsElement {
+  class GraphicsDirective final : public GraphicsElement {
       using base = GraphicsElement;
     public:
       static bool is_graphics_directive(Expr expr);

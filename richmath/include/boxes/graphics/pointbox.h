@@ -30,7 +30,7 @@ namespace richmath {
       double y;
   };
   
-  class PointBox: public GraphicsElement {
+  class PointBox final : public GraphicsElement {
     protected:
       virtual ~PointBox();
     public:

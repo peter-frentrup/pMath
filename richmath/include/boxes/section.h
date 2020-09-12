@@ -55,7 +55,7 @@ namespace richmath {
       String            label_string;
   };
   
-  class ErrorSection: public Section {
+  class ErrorSection final : public Section {
     public:
       ErrorSection(const Expr object);
       
@@ -128,7 +128,7 @@ namespace richmath {
       float cx, cy;
   };
   
-  class MathSection: public AbstractSequenceSection {
+  class MathSection : public AbstractSequenceSection {
     public:
       MathSection();
       explicit MathSection(SharedPtr<Style> _style);
@@ -138,7 +138,7 @@ namespace richmath {
       MathSequence *content() { return (MathSequence*)_content; }
   };
   
-  class TextSection: public AbstractSequenceSection {
+  class TextSection final : public AbstractSequenceSection {
     public:
       TextSection();
       explicit TextSection(SharedPtr<Style> _style);
@@ -148,7 +148,7 @@ namespace richmath {
       TextSequence *content() { return (TextSequence*)_content; }
   };
   
-  class EditSection: public MathSection {
+  class EditSection final : public MathSection {
     protected:
       virtual ~EditSection();
     public:
@@ -163,7 +163,7 @@ namespace richmath {
       Section *original;
   };
   
-  class StyleDataSection : public AbstractSequenceSection {
+  class StyleDataSection final : public AbstractSequenceSection {
     public:
       StyleDataSection();
       

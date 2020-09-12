@@ -17,7 +17,7 @@ namespace richmath {
   class SyntaxState;
   class WidgetBox;
   
-  class Context: public Base {
+  class Context final : public Base {
     public:
       Context();
       

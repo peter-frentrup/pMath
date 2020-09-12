@@ -7,7 +7,7 @@
 namespace richmath {
   class MathSequence;
   
-  class RadicalBox: public Box {
+  class RadicalBox final : public Box {
     protected:
       virtual ~RadicalBox();
     public:

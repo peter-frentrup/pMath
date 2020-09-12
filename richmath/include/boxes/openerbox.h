@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  class OpenerBox: public EmptyWidgetBox {
+  class OpenerBox final : public EmptyWidgetBox {
       using base = EmptyWidgetBox;
       class Impl;
     public:

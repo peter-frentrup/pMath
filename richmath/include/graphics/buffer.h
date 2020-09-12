@@ -8,7 +8,7 @@
 namespace richmath {
   class BoxSize;
   
-  class Buffer: public Shareable {
+  class Buffer final : public Shareable {
     public:
       Buffer(Canvas &dst, cairo_format_t format, const RectangleF &rect);
       Buffer(Canvas &dst, cairo_format_t format, const BoxSize &size);

@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class TooltipBox: public AbstractStyleBox {
+  class TooltipBox final : public AbstractStyleBox {
     public:
       TooltipBox();
       

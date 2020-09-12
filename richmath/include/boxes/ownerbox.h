@@ -64,7 +64,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
   };
   
-  class InlineSequenceBox: public OwnerBox {
+  class InlineSequenceBox final : public OwnerBox {
     public:
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       

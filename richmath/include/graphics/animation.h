@@ -54,7 +54,7 @@ namespace richmath {
       SharedPtr<Buffer> current_buffer;
   };
   
-  class LinearTransition: public BoxAnimation {
+  class LinearTransition final : public BoxAnimation {
     public:
       LinearTransition(
         FrontEndReference _box_id,

@@ -13,7 +13,7 @@
 
 
 namespace richmath {
-  class WindowsFontShaper: public TextShaper {
+  class WindowsFontShaper final : public TextShaper {
     public:
       WindowsFontShaper(
         const String          &name,
