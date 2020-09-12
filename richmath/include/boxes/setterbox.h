@@ -28,7 +28,7 @@ namespace richmath {
       
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
-      virtual Box *dynamic_to_literal(int *start, int *end) override;
+      virtual VolatileSelection dynamic_to_literal(int start, int end) override;
     
     protected:
       virtual ContainerType default_container_type() override { return PaletteButton; }

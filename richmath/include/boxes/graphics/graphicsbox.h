@@ -59,7 +59,7 @@ namespace richmath {
         
       virtual bool selectable(int i = -1) override;
         
-      virtual Box *normalize_selection(int *start, int *end) override;
+      virtual VolatileSelection normalize_selection(int start, int end) override;
       
       int calc_mouse_over_part(float x, float y);
       void transform_inner_to_outer(cairo_matrix_t *mat);

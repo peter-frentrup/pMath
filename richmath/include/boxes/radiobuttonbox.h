@@ -22,7 +22,7 @@ namespace richmath {
       virtual void reset_style() override;
 
       virtual void dynamic_finished(Expr info, Expr result) override;
-      virtual Box *dynamic_to_literal(int *start, int *end) override;
+      virtual VolatileSelection dynamic_to_literal(int start, int end) override;
       
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void click() override;

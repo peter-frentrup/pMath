@@ -1121,10 +1121,8 @@ bool GraphicsBox::selectable(int i) {
   return false;
 }
 
-Box *GraphicsBox::normalize_selection(int *start, int *end) {
-  *start = *end = 0;
-  
-  return this;
+VolatileSelection GraphicsBox::normalize_selection(int start, int end) {
+  return {this, 0, 0};
 }
 
 Box *GraphicsBox::mouse_sensitive() {

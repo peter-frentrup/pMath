@@ -181,7 +181,7 @@ namespace richmath {
         cairo_matrix_t *matrix) override;
       
       GridIndexRect get_enclosing_range(int start, int end);
-      virtual Box *normalize_selection(int *start, int *end) override;
+      virtual VolatileSelection normalize_selection(int start, int end) override;
       
     protected:
       float rowspacing;

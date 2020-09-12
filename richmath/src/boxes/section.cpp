@@ -147,14 +147,11 @@ Box *Section::move_vertical(
   return this;
 }
 
-Box *Section::normalize_selection(int *start, int *end) {
-  if(_parent) {
-    *start = _index;
-    *end = _index + 1;
-    return _parent->normalize_selection(start, end);
-  }
+VolatileSelection Section::normalize_selection(int start, int end) {
+  if(_parent) 
+    return _parent->normalize_selection(_index, _index + 1);
   
-  return this;
+  return {this, start, end};
 }
 
 VolatileSelection Section::get_highlight_child(const VolatileSelection &src) {

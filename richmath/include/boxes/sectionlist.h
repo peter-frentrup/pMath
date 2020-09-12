@@ -85,7 +85,7 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
-      virtual Box *normalize_selection(int *start, int *end) override;
+      virtual VolatileSelection normalize_selection(int start, int end) override;
       
       void set_open_close_group(int i, bool open);
       void toggle_open_close_group(int i);

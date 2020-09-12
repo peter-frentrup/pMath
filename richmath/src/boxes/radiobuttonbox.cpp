@@ -139,9 +139,9 @@ Expr RadioButtonBox::to_literal() {
   return Symbol(PMATH_SYMBOL_FALSE);
 }
 
-Box *RadioButtonBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection RadioButtonBox::dynamic_to_literal(int start, int end) {
   dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 ContainerType RadioButtonBox::calc_type(Expr result) {

@@ -98,7 +98,7 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
-      virtual Box *normalize_selection(int *start, int *end) override;
+      virtual VolatileSelection normalize_selection(int start, int end) override;
       
       PangoLayoutIter *get_iter();
       PangoLayout     *get_layout() { return _layout; }

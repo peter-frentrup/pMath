@@ -142,11 +142,11 @@ bool TemplateBox::selectable(int i) {
   return base::selectable(i);
 }
 
-Box *TemplateBox::normalize_selection(int *start, int *end) {
-  if(*start < *end)
+VolatileSelection TemplateBox::normalize_selection(int start, int end) {
+  if(start < end)
     return base::normalize_selection(start, end);
   
-  return this;
+  return {this, start, end};
 }
 
 VolatileSelection TemplateBox::mouse_selection(Point pos, bool *was_inside_start) {

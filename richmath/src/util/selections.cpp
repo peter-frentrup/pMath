@@ -352,7 +352,12 @@ void VolatileSelection::expand_up_to_sibling(const VolatileSelection &sibling, i
 
 void VolatileSelection::normalize() {
   if(box) 
-    box = box->normalize_selection(&start, &end); 
+    *this = box->normalize_selection(start, end); 
+}
+
+void VolatileSelection::dynamic_to_literal() {
+  if(box)
+    *this = box->dynamic_to_literal(start, end);
 }
 
 //} ... class VolatileSelection
@@ -366,17 +371,17 @@ SelectionReference::SelectionReference()
 {
 }
 
-SelectionReference::SelectionReference(Box *_box, int _start, int _end)
-  : id(_box ? _box->id() : FrontEndReference::None),
-    start(_box ? _start : 0),
-    end(_box ? _end : 0)
+SelectionReference::SelectionReference(Box *box, int start, int end)
+  : id(box ? box->id() : FrontEndReference::None),
+    start(box ? start : 0),
+    end(box ? end : 0)
 {
 }
 
-SelectionReference::SelectionReference(FrontEndReference _id, int _start, int _end)
-  : id(_id),
-    start(_start),
-    end(_end)
+SelectionReference::SelectionReference(FrontEndReference id, int start, int end)
+  : id(id),
+    start(start),
+    end(end)
 {
 }
 
@@ -402,29 +407,29 @@ VolatileSelection SelectionReference::get_all() {
   return VolatileSelection(box, start, end);
 }
 
-void SelectionReference::set(Box *box, int _start, int _end) {
-  if(box)
-    box = box->normalize_selection(&_start, &_end);
-    
-  set_raw(box, _start, _end);
+void SelectionReference::set(Box *new_box, int new_start, int new_end) {
+  if(new_box)
+    set_raw(new_box->normalize_selection(new_start, new_end));
+  else
+    set_raw(nullptr, 0, 0);
 }
 
-void SelectionReference::set_raw(Box *box, int _start, int _end) {
-  if(box) {
-    id = box->id();
-    start = _start;
-    end = _end;
+void SelectionReference::set_raw(Box *new_box, int new_start, int new_end) {
+  if(new_box) {
+    id = new_box->id();
+    start = new_start;
+    end = new_end;
   }
   else
     id = FrontEndReference::None;
 }
 
-bool SelectionReference::equals(Box *box, int _start, int _end) const {
-  if(!box)
+bool SelectionReference::equals(Box *other_box, int other_start, int other_end) const {
+  if(!other_box)
     return !id.is_valid();
     
   SelectionReference other;
-  other.set(box, _start, _end);
+  other.set(other_box, other_start, other_end);
   return equals(other);
 }
 

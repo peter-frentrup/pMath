@@ -787,7 +787,10 @@ int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
 void TextSequence::remove(int start, int end) {
   ensure_boxes_valid();
   
-  normalize_selection(&start, &end);
+  VolatileSelection sel = normalize_selection(start, end);
+  assert(sel.box == this);
+  start = sel.start;
+  end   = sel.end;
   
   int i = 0;
   while(i < boxes.length() && boxes[i]->index() < start)
@@ -1101,16 +1104,16 @@ void TextSequence::child_transformation(
   cairo_matrix_translate(matrix, x, y);
 }
 
-Box *TextSequence::normalize_selection(int *start, int *end) {
-  while(*end < text.length() && (text.buffer()[*end] & 0xC0) == 0x80)
-    ++*end;
+VolatileSelection TextSequence::normalize_selection(int start, int end) {
+  while(end < text.length() && (text.buffer()[end] & 0xC0) == 0x80)
+    ++end;
     
-  if(*start < text.length()) {
-    while(*start > 0 && (text.buffer()[*start] & 0xC0) == 0x80)
-      --*start;
+  if(start < text.length()) {
+    while(start > 0 && (text.buffer()[start] & 0xC0) == 0x80)
+      --start;
   }
   
-  return this;
+  return {this, start, end};
 }
 
 PangoLayoutIter *TextSequence::get_iter() {

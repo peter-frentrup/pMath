@@ -206,9 +206,9 @@ Expr ProgressIndicatorBox::to_literal() {
   return dynamic.get_value_now();
 }
 
-Box *ProgressIndicatorBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection ProgressIndicatorBox::dynamic_to_literal(int start, int end) {
   dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 void ProgressIndicatorBox::on_mouse_move(MouseEvent &event) {

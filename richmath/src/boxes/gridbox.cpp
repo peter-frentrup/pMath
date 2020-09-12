@@ -826,29 +826,28 @@ GridIndexRect GridBox::get_enclosing_range(int start, int end) {
   return GridIndexRect::FromYX(GridYRange{ay, by}, GridXRange{ax, bx});
 }
 
-Box *GridBox::normalize_selection(int *start, int *end) {
-  if(*start == *end) {
-    if(*start == count())
-      --*start;
+VolatileSelection GridBox::normalize_selection(int start, int end) {
+  if(start == end) {
+    if(start == count())
+      --start;
     else
-      ++*end;
+      ++end;
   }
   
-  auto rect = get_enclosing_range(*start, *end - 1);
+  auto rect = get_enclosing_range(start, end - 1);
   
-  *start = yx_to_index(rect.y.start, rect.x.start);
-  *end   = yx_to_index(rect.y.end, rect.x.end) + 1;
+  start = yx_to_index(rect.y.start, rect.x.start);
+  end   = yx_to_index(rect.y.end, rect.x.end) + 1;
   
-  if(*start + 1 == *end) {
-    *start = 0;
-    *end = items[*start]->content()->length();
-    return items[*start]->content();
+  if(start + 1 == end) {
+    auto content = items[start]->content();
+    return {content, 0, content->length()};
   }
   
-  if(*start == 0 && *end == count())
+  if(start == 0 && end == count())
     return Box::normalize_selection(start, end);
     
-  return this;
+  return {this, start, end};
 }
 
 void GridBox::need_pos_vectors() {

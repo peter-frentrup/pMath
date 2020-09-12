@@ -154,9 +154,9 @@ Expr SetterBox::to_literal() {
   return Symbol(PMATH_SYMBOL_FALSE);
 }
 
-Box *SetterBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection SetterBox::dynamic_to_literal(int start, int end) {
   dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 //} ... class SetterBox

@@ -126,9 +126,9 @@ Expr OpenerBox::to_literal() {
   return dynamic.get_value_now();
 }
 
-Box *OpenerBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection OpenerBox::dynamic_to_literal(int start, int end) {
   dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 ContainerType OpenerBox::calc_type(Expr result) {

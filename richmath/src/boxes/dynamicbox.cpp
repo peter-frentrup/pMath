@@ -24,22 +24,20 @@ AbstractDynamicBox::AbstractDynamicBox()
 AbstractDynamicBox::~AbstractDynamicBox() {
 }
 
-Box *AbstractDynamicBox::dynamic_to_literal(int *start, int *end) {
-  if(*start > 0 || *end < 1)
-    return this;
-    
-  int s = 0;
-  int e = content()->length();
-  content()->dynamic_to_literal(&s, &e);
+VolatileSelection AbstractDynamicBox::dynamic_to_literal(int start, int end) {
+  if(start > 0 || end < 1)
+    return {this, start, end};
+  
+  content()->all_dynamic_to_literal();
   
   auto seq = dynamic_cast<MathSequence*>(parent());
   if(!seq)
-    return this;
+    return {this, start, end};
     
-  *start = index();
-  *end = seq->insert(index(), content(), 0, content()->length());
-  seq->remove(*end, *end + 1); // remove this
-  return seq;
+  start = index();
+  end = seq->insert(index(), content(), 0, content()->length());
+  seq->remove(end, end + 1); // remove this
+  return {seq, start, end};
 }
 
 //} ... class AbstractDynamicBox

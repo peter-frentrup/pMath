@@ -318,11 +318,11 @@ namespace richmath {
       ///
       /// \param pos              The position in local coordinates.
       /// \param was_inside_start [out] Set to true if the returned [*start, *end] interval contains 
-      ///                         the point and fals if it is only near the point.
-      /// \return The box with and start and end index that contains the point.
+      ///                         the point and false if it is only near the point.
+      /// \return The box with start and end index that contains the point.
       ///
-      /// Note that further mouse event processing done by the result of ret->mouse_sensitive() where 
-      /// ret is the returned box, but text selection is subject to ret->selectable()
+      /// Note that further mouse event processing done by the result of Box::mouse_sensitive() where 
+      /// ret is the returned box, but text selection is subject to Box::selectable()
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start);
         
       /// Append the child-to-parent coordinate transformation to a matrix (multiply from right). 
@@ -356,10 +356,7 @@ namespace richmath {
       virtual bool selectable(int i = -1);
       
       /// Adjust the to be selected range.
-      ///
-      /// On input, this box is to be selected between *start and *end.
-      /// On output, the returned box will be selected between *start and *end.
-      virtual Box *normalize_selection(int *start, int *end);
+      virtual VolatileSelection normalize_selection(int start, int end);
       
       /// Modify an expression before it gets evaluated in a child box' Dynamic() context. 
       virtual Expr prepare_dynamic(Expr expr);
@@ -374,7 +371,12 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) {}
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) = 0;
-      virtual Box *dynamic_to_literal(int *start, int *end);
+      
+      /// Convert Dynamic content in this box to literal boxes.
+      VolatileSelection all_dynamic_to_literal() { return dynamic_to_literal(0, length()); }
+      
+      /// Convert Dynamic content in the specified range of this box to literal boxes.
+      virtual VolatileSelection dynamic_to_literal(int start, int end);
       
       bool         request_repaint_all();
       virtual bool request_repaint_range(int start, int end);
@@ -396,7 +398,7 @@ namespace richmath {
       virtual bool edit_selection(SelectionReference &selection); // *not* automatically called
       
       /// Get the box that captures mouse input when the a mouse button is pressed at this box.
-      /// Capturing takes place until the last mouse button is released or until explicitly cancelled.
+      /// Capturing takes place until the last mouse button is released or until explicitly canceled.
       virtual Box *mouse_sensitive();
       
       /// The mouse enters this box (with no button pressed).
@@ -430,7 +432,7 @@ namespace richmath {
       /// This is not called if the mouse input focus is a parent or child of this box.
       virtual void on_finish_editing();
       
-      /// A keyboard key was pressed. Key events do bubble up if unhandled.
+      /// A keyboard key was pressed. Key events do bubble up if not handled.
       virtual void on_key_down(SpecialKeyEvent &event);
       
       /// A keyboard key was released. Key events do bubble up if unhandled.
@@ -502,7 +504,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
       virtual void load_from_object(Expr object, BoxInputFlags options) = 0;
       
-      virtual Box *dynamic_to_literal(int *start, int *end) override;
+      virtual VolatileSelection dynamic_to_literal(int start, int end) override;
       
       BoxSize &var_extents() { return _extents; }
       

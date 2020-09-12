@@ -616,15 +616,12 @@ static bool convert_dynamic_to_literal(Expr cmd) {
   if(!doc || doc->selection_length() == 0)
     return false;
     
-  Box *sel = doc->selection_box();
-  if(!sel || !sel->get_style(Editable))
+  VolatileSelection sel = doc->selection_now();
+  if(!sel || !sel.box->get_style(Editable))
     return false;
     
-  int start = doc->selection_start();
-  int end   = doc->selection_end();
-  sel = sel->dynamic_to_literal(&start, &end);
-  doc->select(sel, start, end);
-  
+  sel.dynamic_to_literal();
+  doc->select(sel);
   return true;
 }
 

@@ -1119,14 +1119,18 @@ void MathSequence::child_transformation(
   cairo_matrix_translate(matrix, x, y);
 }
 
-Box *MathSequence::normalize_selection(int *start, int *end) {
-  if(is_utf16_high(str[*start - 1]))
-    --*start;
+VolatileSelection MathSequence::normalize_selection(int start, int end) {
+  if(start <= 0)
+    start = 0;
+  else if(is_utf16_high(str[start - 1]))
+    --start;
+  
+  if(end >= str.length())
+    end = str.length();
+  else if(is_utf16_low(str[end]))
+    ++end;
     
-  if(is_utf16_low(str[*end]))
-    ++*end;
-    
-  return this;
+  return {this, start, end};
 }
 
 int MathSequence::find_string_start(int pos_inside_string, int *next_afer_string) {

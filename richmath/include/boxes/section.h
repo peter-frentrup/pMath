@@ -30,7 +30,7 @@ namespace richmath {
       virtual bool selection_exitable() override { return false; }
       virtual bool remove_inserts_placeholder() override { return false; }
       
-      virtual Box *normalize_selection(int *start, int *end) override;
+      virtual VolatileSelection normalize_selection(int start, int end) override;
       
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src) override;
       virtual bool request_repaint(const RectangleF &rect) override;

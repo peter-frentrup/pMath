@@ -163,9 +163,9 @@ Expr CheckboxBox::to_literal() {
   return dynamic.get_value_now();
 }
 
-Box *CheckboxBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection CheckboxBox::dynamic_to_literal(int start, int end) {
   dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 ContainerType CheckboxBox::calc_type(Expr result) {

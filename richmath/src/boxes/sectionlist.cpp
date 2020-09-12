@@ -477,24 +477,22 @@ void SectionList::child_transformation(
   }
 }
 
-Box *SectionList::normalize_selection(int *start, int *end) {
-//  bool equal_start_end = *start == *end;
+VolatileSelection SectionList::normalize_selection(int start, int end) {
+//  bool equal_start_end = start == end;
 //
-//  if(*end < 0)
-//    *end = 0;
+//  if(end < 0)
+//    end = 0;
 //
-//  while(*end < length() && !_sections[*end]->visible)
-//    ++*end;
+//  while(end < length() && !_sections[end]->visible)
+//    ++end;
 //
-//  if(equal_start_end) {
-//    *start = *end;
-//    return this;
-//  }
+//  if(equal_start_end) 
+//    return {this, end, end};
 //
-//  while(*start > 0 && !_sections[*start]->visible)
-//    --*start;
+//  while(start > 0 && !_sections[start]->visible)
+//    --start;
 
-  return this;
+  return {this, start, end};
 }
 
 void SectionList::set_open_close_group(int i, bool open) {

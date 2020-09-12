@@ -384,14 +384,11 @@ bool Box::selectable(int i) {
   return true;
 }
 
-Box *Box::normalize_selection(int *start, int *end) {
-  if(_parent) {
-    *start = _index;
-    *end = _index + 1;
-    return _parent->normalize_selection(start, end);
-  }
+VolatileSelection Box::normalize_selection(int start, int end) {
+  if(_parent) 
+    return _parent->normalize_selection(_index, _index + 1);
   
-  return nullptr;
+  return {};
 }
 
 Expr Box::prepare_dynamic(Expr expr) {
@@ -407,15 +404,11 @@ void Box::dynamic_updated() {
   }
 }
 
-Box *Box::dynamic_to_literal(int *start, int *end) {
-  for(int b = *start; b < *end; ++b) {
-    Box *box = item(b);
-    int s = 0;
-    int e = box->length();
-    item(b)->dynamic_to_literal(&s, &e);
-  }
+VolatileSelection Box::dynamic_to_literal(int start, int end) {
+  for(int b = start; b < end; ++b) 
+    item(b)->all_dynamic_to_literal();
   
-  return this;
+  return {this, start, end};
 }
 
 bool Box::request_repaint_all() {
@@ -600,11 +593,11 @@ bool AbstractSequence::try_load_from_object(Expr object, BoxInputFlags options) 
   return true;
 }
 
-Box *AbstractSequence::dynamic_to_literal(int *start, int *end) {
+VolatileSelection AbstractSequence::dynamic_to_literal(int start, int end) {
   int b = 0;
   while(b < count()) {
     Box *box = item(b);
-    if(box->index() >= *start)
+    if(box->index() >= start)
       break;
       
     ++b;
@@ -613,19 +606,16 @@ Box *AbstractSequence::dynamic_to_literal(int *start, int *end) {
   while(b < count()) {
     Box *box = item(b);
     
-    if(box->index() >= *end)
+    if(box->index() >= end)
       break;
-      
-    int s = 0;
-    int e = box->length();
-    Box *next = box->dynamic_to_literal(&s, &e);
     
-    if(next == this) {
-      *end += e - s - 1;
+    VolatileSelection next = box->all_dynamic_to_literal();
+    if(next.box == this) {
+      end += next.length() - 1; // TODO: -1 for the old PMATH_CHAR_BOX is only correct for MathSequence 
       
       while(b < count()) {
         box = item(b);
-        if(box->index() >= e)
+        if(box->index() >= next.end)
           break;
         ++b;
       }
@@ -634,7 +624,7 @@ Box *AbstractSequence::dynamic_to_literal(int *start, int *end) {
       ++b;
   }
   
-  return this;
+  return {this, start, end};
 }
 
 bool AbstractSequence::request_repaint_range(int start, int end) {

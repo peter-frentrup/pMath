@@ -305,13 +305,13 @@ void InputFieldBox::dynamic_finished(Expr info, Expr result) {
   invalidated = false;
 }
 
-Box *InputFieldBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection InputFieldBox::dynamic_to_literal(int start, int end) {
   if(dynamic.is_dynamic()) {
     dynamic = Expr();
     assign_dynamic();
   }
   
-  return this;
+  return {this, start, end};
 }
 
 void InputFieldBox::invalidate() {

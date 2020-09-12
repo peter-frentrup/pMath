@@ -154,9 +154,9 @@ Box *PaneSelectorBox::remove(int *index) {
   return move_logical(LogicalDirection::Backward, false, index);
 }
 
-Box *PaneSelectorBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection PaneSelectorBox::dynamic_to_literal(int start, int end) {
   _dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 void PaneSelectorBox::dynamic_updated() {

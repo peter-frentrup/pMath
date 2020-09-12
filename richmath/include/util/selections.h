@@ -65,8 +65,9 @@ namespace richmath {
     int  start;
     int  end;
     
-    VolatileSelection(Box *_box, int _index) : box(_box), start(_index), end(_index) {}
-    VolatileSelection(Box *_box, int _start, int _end) : box(_box), start(_start), end(_end) {}
+    VolatileSelection() : box(nullptr), start(0), end(0) {}
+    VolatileSelection(Box *box, int index) : box(box), start(index), end(index) {}
+    VolatileSelection(Box *box, int start, int end) : box(box), start(start), end(end) {}
     
     VolatileSelection start_only() const { return VolatileSelection(box, start, start); }
     VolatileSelection end_only() const { return VolatileSelection(box, end, end); }
@@ -89,7 +90,6 @@ namespace richmath {
       return !(*this == other);
     }
     
-    
     pmath::Expr to_pmath(BoxOutputFlags flags) const;
     
     void add_path(Canvas &canvas);
@@ -98,6 +98,7 @@ namespace richmath {
     void expand_to_parent();
     void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);    
     void normalize();
+    void dynamic_to_literal();
     
     PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded() const {
       VolatileSelection ret = *this;
@@ -130,8 +131,8 @@ namespace richmath {
     public:
       explicit SelectionReference();
       explicit SelectionReference(const VolatileSelection &box_with_range) : SelectionReference(box_with_range.box, box_with_range.start, box_with_range.end) {}
-      explicit SelectionReference(Box *_box, int _start, int _end);
-      explicit SelectionReference(FrontEndReference _id, int _start, int _end);
+      explicit SelectionReference(Box *box, int start, int end);
+      explicit SelectionReference(FrontEndReference id, int start, int end);
       
       explicit operator bool() const { return id.is_valid(); }
       
@@ -139,14 +140,14 @@ namespace richmath {
       VolatileSelection get_all(); // may change the stored start and end fields
       
       void set(const VolatileSelection &box_with_range) { set(box_with_range.box, box_with_range.start, box_with_range.end); }
-      void set(Box *box, int _start, int _end);
+      void set(Box *new_box, int new_start, int new_end);
       void set_raw(const VolatileSelection &box_with_range) { set_raw(box_with_range.box, box_with_range.start, box_with_range.end); }
-      void set_raw(Box *box, int _start, int _end);
+      void set_raw(Box *new_box, int new_start, int new_end);
       void reset() { set(nullptr, 0, 0); }
       
       int length() const { return end - start; }
       
-      bool equals(Box *box, int _start, int _end) const;
+      bool equals(Box *other_box, int other_start, int other_end) const;
       bool equals(const VolatileSelection &other) const { return equals(other.box, other.start, other.end); }
       bool equals(const SelectionReference &other) const {
         return other.id == id && other.start == start && other.end == end;

@@ -270,9 +270,9 @@ Expr SliderBox::to_literal() {
   return Impl(*this).position_to_value(range_value, true);
 }
 
-Box *SliderBox::dynamic_to_literal(int *start, int *end) {
+VolatileSelection SliderBox::dynamic_to_literal(int start, int end) {
   dynamic = to_literal();
-  return this;
+  return {this, start, end};
 }
 
 void SliderBox::on_mouse_exit() {

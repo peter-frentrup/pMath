@@ -82,11 +82,9 @@ void OwnerBox::paint_content(Context &context) {
 Box *OwnerBox::remove(int *index) {
   if(_parent) {
     *index = _index;
-    if(auto seq = dynamic_cast<AbstractSequence*>(_parent)) {
-      int s = _index;
-      int e = _index + 1;
-      seq->normalize_selection(&s, &e);
-      seq->insert(e, _content, 0, _content->length());
+    VolatileSelection sel = _parent->normalize_selection(_index, _index + 1);
+    if(auto seq = dynamic_cast<AbstractSequence*>(sel.box)) {
+      seq->insert(sel.end, _content, 0, _content->length());
     }
     return _parent->remove(index);
   }

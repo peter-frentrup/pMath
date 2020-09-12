@@ -2850,33 +2850,35 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     seq->after_insertion(ins_start, ins_end);
     
     if(handle_placeholder) {
-      int pl_start = ins_start;
-      AbstractSequence *pl_seq = find_selection_placeholder(seq, &pl_start, seq, ins_end);
+      int _pl_start = ins_start;
       
-      int pl_end = pl_start + 1;
-      if(pl_seq && pl_seq == pl_seq->normalize_selection(&pl_start, &pl_end)) {
-        int old_pl_len = pl_end - pl_start;
-        
-        pl_seq->remove(pl_start, pl_end);
-        pl_end = pl_start;
-        
-        if(pl_seq == seq)
-          ins_end-= old_pl_len;
-        
-        if(rem_length == 0) 
-          pl_end = pl_seq->insert(pl_start, PMATH_CHAR_PLACEHOLDER);
-        else 
-          pl_end = pl_seq->insert(pl_start, seq, ins_end, ins_end + rem_length);
-        
-        if(pl_seq == seq)
-          ins_end+= pl_end - pl_start;
-        
-        pl_start = ins_start;
-        pl_seq = find_selection_placeholder(seq, &pl_start, seq, ins_end, true);
-        if(pl_seq)
-          select(pl_seq, pl_start, pl_start + 1);
-        else
-          move_to(seq, ins_end);
+      if(AbstractSequence *pl_seq = find_selection_placeholder(seq, &_pl_start, seq, ins_end)) {
+        if(VolatileSelection pl_sel = pl_seq->normalize_selection(_pl_start, _pl_start + 1)) {
+          if(pl_sel.box == pl_seq) {
+            int old_pl_len = pl_sel.length();
+            
+            pl_seq->remove(pl_sel.start, pl_sel.end);
+            pl_sel.end = pl_sel.start;
+            
+            if(pl_seq == seq)
+              ins_end-= old_pl_len;
+            
+            if(rem_length == 0) 
+              pl_sel.end = pl_seq->insert(pl_sel.start, PMATH_CHAR_PLACEHOLDER);
+            else 
+              pl_sel.end = pl_seq->insert(pl_sel.start, seq, ins_end, ins_end + rem_length);
+            
+            if(pl_seq == seq)
+              ins_end+= pl_sel.length();
+            
+            _pl_start = ins_start;
+            pl_seq = find_selection_placeholder(seq, &_pl_start, seq, ins_end, true);
+            if(pl_seq)
+              select(pl_seq, _pl_start, _pl_start + 1);
+            else
+              move_to(seq, ins_end);
+          }
+        }
       }
       
       seq->remove(ins_end, ins_end + rem_length);
@@ -3760,9 +3762,13 @@ void Document::Impl::raw_select(Box *box, int start, int end) {
     end = i;
   }
   
-  if(box)
-    box = box->normalize_selection(&start, &end);
-    
+  if(box) {
+    VolatileSelection sel = box->normalize_selection(start, end);
+    box   = sel.box;
+    start = sel.start;
+    end   = sel.end;
+  }
+  
   Box *selbox = self.context.selection.get();
   if( selbox != box ||
       self.context.selection.start != start ||
