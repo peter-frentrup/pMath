@@ -76,20 +76,17 @@ void Context::draw_selection_path() {
     while(c < 2 && end < path->num_data) {
       switch(path->data[end].header.type) {
         case CAIRO_PATH_MOVE_TO:
-          last_cursor_x[c] = path->data[end + 1].point.x;
-          last_cursor_y[c] = path->data[end + 1].point.y;
+          last_cursor_pos[c] = Point(path->data[end + 1].point.x, path->data[end + 1].point.y);
           ++c;
           break;
           
         case CAIRO_PATH_LINE_TO:
-          last_cursor_x[c] = path->data[end + 1].point.x;
-          last_cursor_y[c] = path->data[end + 1].point.y;
+          last_cursor_pos[c] = Point(path->data[end + 1].point.x, path->data[end + 1].point.y);
           ++c;
           break;
           
         case CAIRO_PATH_CURVE_TO: // flat path => no curves
-          last_cursor_x[c] = path->data[end + 3].point.x;
-          last_cursor_y[c] = path->data[end + 3].point.y;
+          last_cursor_pos[c] = Point(path->data[end + 3].point.x, path->data[end + 3].point.y);
           ++c;
           break;
           

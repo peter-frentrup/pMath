@@ -592,30 +592,18 @@ void MathGtkWidget::vadjustment(GtkAdjustment *va) {
 
 void MathGtkWidget::update_im_cursor_location() {
   GdkRectangle area;
+  RectangleF last_cursor_rect {
+    document_context()->last_cursor_pos[0], 
+    document_context()->last_cursor_pos[1] }; 
   
-  float x1 = document_context()->last_cursor_x[0];
-  float x2 = document_context()->last_cursor_x[1];
-  float y1 = document_context()->last_cursor_y[0];
-  float y2 = document_context()->last_cursor_y[1];
-  
-  if(x2 < x1) {
-    float t = x2;
-    x2 = x1;
-    x1 = t;
-  }
-  
-  if(y2 < y1) {
-    float t = y2;
-    y2 = y1;
-    y1 = t;
-  }
+  last_cursor_rect.normalize();
   
   Point sp = scroll_pos();
   
-  area.x      = (int)((sp.x + x1) * scale_factor());
-  area.y      = (int)((sp.y + y1) * scale_factor());
-  area.width  = (int)ceilf((x2 - x1) * scale_factor());
-  area.height = (int)ceilf((y2 - y1) * scale_factor());
+  area.x      = (int)((sp.x + last_cursor_rect.x) * scale_factor());
+  area.y      = (int)((sp.y + last_cursor_rect.y) * scale_factor());
+  area.width  = (int)ceilf(last_cursor_rect.width * scale_factor());
+  area.height = (int)ceilf(last_cursor_rect.height * scale_factor());
   
   gtk_im_context_set_cursor_location(_im_context, &area);
 }

@@ -4158,27 +4158,25 @@ void Document::Impl::paint_flashing_cursor_if_needed() {
     
     if(self.flashing_cursor_circle) {
       double r = MaxFlashingCursorRadius * (1 - t);
-      float x1 = self.context.last_cursor_x[0];
-      float y1 = self.context.last_cursor_y[0];
-      float x2 = self.context.last_cursor_x[1];
-      float y2 = self.context.last_cursor_y[1];
+      Point p1 = self.context.last_cursor_pos[0];
+      Point p2 = self.context.last_cursor_pos[1];
       
       r = MaxFlashingCursorRadius * (1 - t);
       
       self.context.canvas().save();
       {
-        self.context.canvas().user_to_device(&x1, &y1);
-        self.context.canvas().user_to_device(&x2, &y2);
+        p1 = self.context.canvas().user_to_device(p1);
+        p2 = self.context.canvas().user_to_device(p2);
         
         self.context.canvas().reset_matrix();
         
-        double dx = x2 - x1;
-        double dy = y2 - y1;
+        double dx = p2.x - p1.x;
+        double dy = p2.y - p1.y;
         double h = hypot(dx, dy);
         double c = dx / h;
         double s = dy / h;
-        double x = (x1 + x2) / 2;
-        double y = (y1 + y2) / 2;
+        double x = (p1.x + p2.x) * 0.5;
+        double y = (p1.y + p2.y) * 0.5;
         cairo_matrix_t mat;
         mat.xx = c;
         mat.yx = s;

@@ -15,7 +15,6 @@ namespace richmath {
   class Style;
   class Stylesheet;
   class SyntaxState;
-  class WidgetBox;
   
   class Context final : public Base {
     public:
@@ -62,8 +61,7 @@ namespace richmath {
       float section_content_window_width;
       float sequence_unfilled_width;
       
-      float last_cursor_x[2];
-      float last_cursor_y[2];
+      Point last_cursor_pos[2];
       
       String         fontname;
       FontStyle      fontstyle;
