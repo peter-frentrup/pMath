@@ -40,6 +40,7 @@ namespace richmath {
       MenuAppearence appearence() { return _appearence; }
       void appearence(MenuAppearence value);
       bool is_pinned();
+      bool toggle_pin(bool new_pinned);
       
       void use_dark_mode(bool dark_mode);
       void theme_changed();

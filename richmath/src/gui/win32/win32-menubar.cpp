@@ -287,6 +287,41 @@ bool Win32Menubar::is_pinned() {
   return (info.fsState & TBSTATE_CHECKED) != 0;
 }
 
+bool Win32Menubar::toggle_pin(bool new_pinned) {
+  if(_appearence != MenuAppearence::AutoShow)
+    return false;
+  
+  TBBUTTONINFOW info;
+  info.cbSize = sizeof(info);
+  info.dwMask = TBIF_BYINDEX | TBIF_STATE;
+  
+  SendMessageW(_hwnd, TB_GETBUTTONINFOW, pin_index(), (LPARAM)&info);
+  
+  bool was_pinned = (info.fsState & TBSTATE_CHECKED) != 0;
+  if(new_pinned == was_pinned) 
+    return true;
+  
+  if(new_pinned)
+    info.fsState |= TBSTATE_CHECKED;
+  else
+    info.fsState &= ~TBSTATE_CHECKED;
+  
+  bool success = (0 != SendMessageW(_hwnd, TB_SETBUTTONINFOW, pin_index(), (LPARAM)&info));
+  if(new_pinned) {
+    if(!visible()) {
+      ShowWindow(_hwnd, SW_SHOWNOACTIVATE);
+      _window->rearrange();
+      InvalidateRect(_hwnd, nullptr, FALSE);
+      UpdateWindow(_hwnd);
+    }
+  }
+  else if(visible()) {
+    ShowWindow(_hwnd, SW_HIDE);
+    _window->rearrange();
+  }
+  return success;
+}
+
 void Win32Menubar::use_dark_mode(bool dark_mode) {
   if(_use_dark_mode == dark_mode)
     return;

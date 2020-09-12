@@ -54,6 +54,7 @@ static String add_command(Expr cmd) {
 namespace {
   enum class MenuItemType {
     Normal,
+    CheckButton,
     RadioButton,
     Delimiter,
     SubMenu,
@@ -152,6 +153,9 @@ gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, vo
             ignore_activate_signal = true;
             gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(item), status.checked);
             ignore_activate_signal = false;
+          }
+          else if(status.checked) {
+            pmath_debug_print_object("[cannot display checked status for menu item: ", cmd.get(), "]\n");
           }
         }
       }
@@ -334,6 +338,11 @@ MenuItemType MenuItemBuilder::type_for_command(Expr cmd) {
   if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
     return MenuItemType::RadioButton;
   
+  if(cmd.is_string()) {
+    if(String(cmd).equals("ShowHideMenu"))
+      return MenuItemType::CheckButton;
+  }
+  
   return MenuItemType::Normal;
 }
 
@@ -379,6 +388,7 @@ bool MenuItemBuilder::has_type(GtkWidget *widget, MenuItemType type) {
              !GTK_IS_CHECK_MENU_ITEM(widget) && 
              !GTK_IS_SEPARATOR_MENU_ITEM(widget);
     
+    case MenuItemType::CheckButton:
     case MenuItemType::RadioButton:
       return GTK_IS_CHECK_MENU_ITEM(widget);
     
@@ -391,6 +401,9 @@ bool MenuItemBuilder::has_type(GtkWidget *widget, MenuItemType type) {
 
 void MenuItemBuilder::reset(GtkMenuItem *menu_item, MenuItemType type) {
   gtk_menu_item_set_submenu(menu_item, nullptr);
+  if(GTK_IS_CHECK_MENU_ITEM(menu_item)) {
+    gtk_check_menu_item_set_draw_as_radio(GTK_CHECK_MENU_ITEM(menu_item), type == MenuItemType::RadioButton);
+  }
 }
 
 GtkWidget *MenuItemBuilder::create(MenuItemType type, FrontEndReference for_document_window_id) {
@@ -400,6 +413,10 @@ GtkWidget *MenuItemBuilder::create(MenuItemType type, FrontEndReference for_docu
     case MenuItemType::Delimiter: 
       menu_item = gtk_separator_menu_item_new();
       return menu_item;
+    
+    case MenuItemType::CheckButton: 
+      menu_item = gtk_check_menu_item_new();
+      break;
     
     case MenuItemType::RadioButton: 
       menu_item = gtk_check_menu_item_new();
@@ -446,6 +463,7 @@ void MenuItemBuilder::init(GtkMenuItem *menu_item, MenuItemType type, Expr item,
       break;
     
     case MenuItemType::Normal:
+    case MenuItemType::CheckButton: 
     case MenuItemType::RadioButton: 
       init_command(menu_item, std::move(item));
       break;

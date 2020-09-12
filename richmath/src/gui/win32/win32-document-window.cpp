@@ -74,6 +74,10 @@ class Win32DocumentChildWidget: public Win32Widget {
     virtual String full_filename() override { return _parent->full_filename(); }
     virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }
     
+    virtual bool can_toggle_menubar() override {          return _parent->can_toggle_menubar(); }
+    virtual bool has_menubar() override {                 return _parent->has_menubar(); }
+    virtual bool try_set_menubar(bool visible) override { return _parent->try_set_menubar(visible); }
+    
     virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override { 
@@ -1021,6 +1025,18 @@ void Win32DocumentWindow::invalidate_options() {
 
 void Win32DocumentWindow::reset_title() {
   title(document()->get_style(WindowTitle, _default_title));
+}
+
+bool Win32DocumentWindow::can_toggle_menubar() {
+  return menubar->appearence() == MenuAppearence::AutoShow;
+}
+
+bool Win32DocumentWindow::has_menubar() {
+  return menubar->is_pinned();
+}
+
+bool Win32DocumentWindow::try_set_menubar(bool visible) {
+  return menubar->toggle_pin(visible);
 }
 
 void Win32DocumentWindow::window_frame(WindowFrameType type) {

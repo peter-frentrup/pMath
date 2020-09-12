@@ -106,6 +106,9 @@ namespace richmath {
       virtual String full_filename() = 0;
       virtual void full_filename(String new_full_filename) = 0;
       
+      virtual bool can_toggle_menubar() { return false; }
+      virtual bool has_menubar() { return false; }
+      virtual bool try_set_menubar(bool visible) { return false; }
       virtual String window_title() { return String(); }
       
       virtual void on_editing();

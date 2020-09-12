@@ -113,7 +113,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Menu("Installed Palettes", "MenuListPalettesMenu")
 		}),
 	Menu("&Window", {
-		Menu("&Magnification", {
+		MenuItem("&Menu bar", "ShowHideMenu"),
+		Menu("Ma&gnification", {
 			MenuItem("&50%",                                ScopedCommand(Magnification->0.5, Document)),
 			MenuItem("&75%",                                ScopedCommand(Magnification->0.75, Document)),
 			MenuItem("&100%",                               ScopedCommand(Magnification->Inherited, Document)),

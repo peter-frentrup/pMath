@@ -17,7 +17,7 @@ namespace richmath {
   class MathGtkDock;
   class MathGtkWorkingArea;
   
-  class MathGtkDocumentWindow: public CommonDocumentWindow, public BasicGtkWidget, public ControlContext {
+  class MathGtkDocumentWindow final : public CommonDocumentWindow, public BasicGtkWidget, public ControlContext {
       class Impl;
     public:
       class DocumentPosition {
@@ -65,6 +65,10 @@ namespace richmath {
       virtual int dpi() override;
       
       virtual void reset_title() override;
+      
+      bool can_toggle_menubar();
+      bool has_menubar();
+      bool try_set_menubar(bool visible);
       
       void reset_window_frame(){ window_frame(_window_frame); }
       void set_gravity();

@@ -17,7 +17,7 @@ namespace richmath {
   class Win32WorkingArea;
   
   // Must call init() immediately after the construction of a derived object!
-  class Win32DocumentWindow: public BasicWin32Window {
+  class Win32DocumentWindow final: public BasicWin32Window {
       using base = BasicWin32Window;
     protected:
       virtual ~Win32DocumentWindow();
@@ -46,6 +46,10 @@ namespace richmath {
       void invalidate_options();
       virtual void reset_title() override;
       
+      bool can_toggle_menubar();
+      bool has_menubar();
+      bool try_set_menubar(bool visible);
+      
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
@@ -67,9 +71,9 @@ namespace richmath {
       Win32GlassDock   *_bottom_glass_area;
       
       Win32Menubar *menubar;
-      bool creation;
       
-      WindowFrameType         _window_frame;
+      WindowFrameType _window_frame;
+      bool creation;
       
     protected:
       virtual void use_dark_mode(bool dark_mode) override;

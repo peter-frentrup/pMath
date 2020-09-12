@@ -67,6 +67,9 @@ extern pmath_symbol_t richmath_FE_MenuItem;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
+static bool show_hide_menu_cmd(Expr cmd);
+static MenuCommandStatus can_show_hide_menu(Expr cmd);
+
 static bool open_selection_help_cmd(Expr cmd);
 
 Expr richmath_eval_FrontEnd_CreateDocument(Expr expr);
@@ -247,6 +250,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
 }
 
 bool richmath::impl::init_document_functions() {
+  Application::register_menucommand(String("ShowHideMenu"),      show_hide_menu_cmd, can_show_hide_menu);
   Application::register_menucommand(String("OpenSelectionHelp"), open_selection_help_cmd);
 
   OpenDocumentMenuImpl::init();
@@ -260,6 +264,26 @@ void richmath::impl::done_document_functions() {
   DocumentCurrentValueProvider::done();
   SelectDocumentMenuImpl::done();
   OpenDocumentMenuImpl::done();
+}
+
+static bool show_hide_menu_cmd(Expr cmd) {
+  Document * const doc = get_current_document();
+  if(!doc)
+    return false;
+  
+  if(!doc->native()->can_toggle_menubar())
+    return false;
+  return doc->native()->try_set_menubar(!doc->native()->has_menubar());
+}
+
+static MenuCommandStatus can_show_hide_menu(Expr cmd) {
+  Document * const doc = get_current_document();
+  if(!doc)
+    return false;
+  
+  MenuCommandStatus status{ doc->native()->can_toggle_menubar() };
+  status.checked = doc->native()->has_menubar();
+  return status;
 }
 
 static bool open_selection_help_cmd(Expr cmd) {

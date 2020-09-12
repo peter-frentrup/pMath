@@ -67,6 +67,10 @@ class MathGtkDocumentChildWidget: public MathGtkWidget {
     virtual String full_filename() override { return _parent->full_filename(); }
     virtual void full_filename(String new_full_filename) override { _parent->full_filename(new_full_filename); }
     
+    virtual bool can_toggle_menubar() override {          return _parent->can_toggle_menubar(); }
+    virtual bool has_menubar() override {                 return _parent->has_menubar(); }
+    virtual bool try_set_menubar(bool visible) override { return _parent->try_set_menubar(visible); }
+    
     virtual String window_title() override { return _parent->title(); }
     
     virtual void on_idle_after_edit() override { 
@@ -573,6 +577,36 @@ void MathGtkDocumentWindow::finish_apply_title(String displayed_title) {
     gtk_window_set_title(GTK_WINDOW(_widget), str);
     
   pmath_mem_free(str);
+}
+
+bool MathGtkDocumentWindow::can_toggle_menubar() {
+#if GTK_MAJOR_VERSION >= 3
+  return gtk_widget_get_visible(_menu_bar);
+#else
+  return false;
+#endif
+}
+
+bool MathGtkDocumentWindow::has_menubar() {
+#if GTK_MAJOR_VERSION >= 3
+  if(_menu_bar_pin) {
+    return 0 != (gtk_widget_get_state_flags(_menu_bar_pin) & GTK_STATE_FLAG_CHECKED);
+  }
+#endif
+  return true;
+}
+
+bool MathGtkDocumentWindow::try_set_menubar(bool visible) {
+#if GTK_MAJOR_VERSION >= 3
+  if(_menu_bar_pin) {
+    if(visible)
+      gtk_widget_set_state_flags(GTK_WIDGET(_menu_bar_pin), GTK_STATE_FLAG_CHECKED, false);
+    else
+      gtk_widget_unset_state_flags(GTK_WIDGET(_menu_bar_pin), GTK_STATE_FLAG_CHECKED);
+  }
+#endif
+  Impl(*this).on_auto_hide_menu(!visible);
+  return has_menubar() == visible;
 }
 
 void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
