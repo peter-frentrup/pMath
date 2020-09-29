@@ -584,8 +584,13 @@ bool MenuItemBuilder::is_radiocheck_command(Expr cmd) {
   if(cmd[0] == richmath_FE_ScopedCommand)
     cmd = cmd[1];
   
-  // style->value  is a simple setter (does not toggle)
-  return cmd.is_rule();
+  if(cmd.is_rule()) // style->value  is a simple setter (does not toggle)
+    return true;
+  
+  if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+    return true;
+  
+  return false;
 }
 
 bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buffer) {
