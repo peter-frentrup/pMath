@@ -372,12 +372,14 @@ PMATH_DECLARE_SYSTEM_SYMBOL( WholeSectionGroupOpener,            0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowFrame,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 
+PMATH_DECLARE_SYSTEM_DOLLAR_VAR( CurrentDirectory,               READPROTECTED )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( Line,                           0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( MachineId,                      0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( SessionId,                      0 )
 
-PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDynamicID,  0 )
-PMATH_DECLARE_INTERNAL_SYMBOL( TryEvaluateSecured,   HOLDALLCOMPLETE )
+PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDirectory,              0 )
+PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDynamicID,              0 )
+PMATH_DECLARE_INTERNAL_SYMBOL( TryEvaluateSecured,               HOLDALLCOMPLETE )
 
 PMATH_DECLARE_SYSTEM_BOXFORM_DOLLAR_VAR( UseTextFormatting,      THREADLOCAL )
 

@@ -263,6 +263,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr
 PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(          pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/io/ ...
+PMATH_PRIVATE pmath_t builtin_assign_currentdirectory(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_binaryread(                    pmath_expr_t expr);
@@ -272,7 +273,7 @@ PMATH_PRIVATE pmath_t builtin_characters(                    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_close(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_compress(                      pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_compressstream(                pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_directory(                     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_getcurrentdirectory(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_directoryname(                 pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_environment(                   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_filenames(                     pmath_expr_t expr);
@@ -1542,6 +1543,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   BIND_UP(     PMATH_SYMBOL_NRULES,                           builtin_assign_symbol_rules)
   BIND_UP(     PMATH_SYMBOL_ATTRIBUTES,                       builtin_assign_attributes)
+  BIND_UP(     pmath_System_DollarCurrentDirectory,           builtin_assign_currentdirectory)
   BIND_UP(     PMATH_SYMBOL_CURRENTNAMESPACE,                 builtin_assign_namespace)
   BIND_UP(     PMATH_SYMBOL_DEFAULT,                          builtin_assign_default)
   BIND_UP(     PMATH_SYMBOL_DEFAULTRULES,                     builtin_assign_symbol_rules)
@@ -1574,6 +1576,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE,            builtin_internal_dynamicevaluate)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE,    builtin_internal_dynamicevaluatemultiple)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE,              builtin_internal_dynamicremove)
+  BIND_DOWN(   pmath_Internal_GetCurrentDirectory,               builtin_internal_getcurrentdirectory)
   BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,               builtin_internal_getcurrentdynamicid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,                builtin_getthreadid)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_NEXTTOWARD,                 builtin_internal_nexttoward)
@@ -1656,7 +1659,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   PMATH_SYMBOL_DIALOG,                      general_builtin_nofront)
   BIND_DOWN(   PMATH_SYMBOL_DIMENSIONS,                  builtin_dimensions)
   BIND_DOWN(   PMATH_SYMBOL_DIRECTEDINFINITY,            builtin_directedinfinity)
-  BIND_DOWN(   PMATH_SYMBOL_DIRECTORY,                   builtin_directory)
   BIND_DOWN(   PMATH_SYMBOL_DIRECTORYNAME,               builtin_directoryname)
   BIND_DOWN(   PMATH_SYMBOL_DIVIDEBY,                    builtin_divideby_or_timesby)
   BIND_DOWN(   PMATH_SYMBOL_DO,                          builtin_do)
@@ -1954,10 +1956,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   //{ setting attributes (except the Protected attribute) ...
 #define SET_ATTRIB(sym,attrib) pmath_symbol_set_attributes((sym), (attrib))
-  
-#define NHOLDALL              PMATH_SYMBOL_ATTRIBUTE_NHOLDALL
-#define NHOLDFIRST            PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST
-#define NHOLDREST             PMATH_SYMBOL_ATTRIBUTE_NHOLDREST
+
 #define ASSOCIATIVE           PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE
 #define DEEPHOLDALL           PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL
 #define DEFINITEFUNCTION      PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION
@@ -1966,6 +1965,9 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #define HOLDFIRST             PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST
 #define HOLDREST              PMATH_SYMBOL_ATTRIBUTE_HOLDREST
 #define LISTABLE              PMATH_SYMBOL_ATTRIBUTE_LISTABLE
+#define NHOLDALL              PMATH_SYMBOL_ATTRIBUTE_NHOLDALL
+#define NHOLDFIRST            PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST
+#define NHOLDREST             PMATH_SYMBOL_ATTRIBUTE_NHOLDREST
 #define NUMERICFUNCTION       PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION
 #define ONEIDENTITY           PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY
 #define READPROTECTED         PMATH_SYMBOL_ATTRIBUTE_READPROTECTED
@@ -2165,6 +2167,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  LISTABLE);
   
 #undef SET_ATTRIB
+
 #undef ASSOCIATIVE
 #undef DEEPHOLDALL
 #undef DEFINITEFUNCTION
@@ -2178,8 +2181,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #undef NHOLDREST
 #undef NUMERICFUNCTION
 #undef ONEIDENTITY
+#undef READPROTECTED
+#undef SEQUENCEHOLD
 #undef SYMMETRIC
 #undef THREADLOCAL
+
   //} ... setting attributes (except Protected attribute)
   
   if(!init_builtin_security_doormen()) goto FAIL;

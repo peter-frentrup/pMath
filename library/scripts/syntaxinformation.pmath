@@ -113,7 +113,6 @@
 {"Dialog", {"ArgumentCount" -> 0..1}},
 {"Dimensions", {"ArgumentCount" -> 1..2}},
 {"DirectedInfinity", {"ArgumentCount" -> 0..1}},
-{"Directory", {"ArgumentCount" -> 0}},
 {"DirectoryName", {"ArgumentCount" -> 1..2}},
 {"DivideBy", {"ArgumentCount" -> 2}},
 {"Do", {"ArgumentCount" -> 2, "LocalVariables" -> {"Table", 2}, "Category" -> "Keyword"}},
@@ -629,6 +628,7 @@
 }},
 {"Internal`",{
 {"CopySign", {"ArgumentCount" -> 2}},
+{"GetCurrentDirectory", {"ArgumentCount" -> 0}},
 {"NextToward", {"ArgumentCount" -> 2}},
 {"RealBallBounds", {"ArgumentCount" -> 1}},
 {"SignBit", {"ArgumentCount" -> 1}}

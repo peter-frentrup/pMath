@@ -9,6 +9,7 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/control/definitions-private.h>
 
 #include <limits.h>
 
@@ -23,6 +24,9 @@
 #  include <sys/types.h>
 #  include <unistd.h>
 #endif
+
+extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
+
 
 PMATH_PRIVATE
 pmath_string_t _pmath_get_directory(void) {
@@ -123,8 +127,8 @@ static pmath_bool_t try_change_directory(
 #endif
 }
 
-PMATH_PRIVATE pmath_t builtin_directory(pmath_expr_t expr) {
-  /* Directory()
+PMATH_PRIVATE pmath_t builtin_internal_getcurrentdirectory(pmath_expr_t expr) {
+  /* Internal`GetCurrentDirectory()
    */
   if(pmath_expr_length(expr) != 0) {
     pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
@@ -235,6 +239,36 @@ PMATH_PRIVATE pmath_t builtin_parentdirectory(pmath_expr_t expr) {
   }
 
   return PMATH_NULL;
+}
+
+PMATH_PRIVATE pmath_t builtin_assign_currentdirectory(pmath_expr_t expr) {
+  /* $CurrentDirectory:= ...
+   */
+  pmath_t tag;
+  pmath_t lhs;
+  pmath_t rhs;
+
+  if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
+    return expr;
+  
+  if(!pmath_same(tag, PMATH_UNDEFINED) || !pmath_same(lhs, pmath_System_DollarCurrentDirectory)) {
+    pmath_unref(tag);
+    pmath_unref(lhs);
+    pmath_unref(rhs);
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  if(!pmath_is_string(rhs) || pmath_string_length(rhs) == 0) {
+    pmath_unref(lhs);
+    pmath_message(PMATH_NULL, "fstr", 1, pmath_ref(rhs));
+  }
+  else if(!try_change_directory(pmath_ref(rhs))) {
+    pmath_message(PMATH_NULL, "cdir", 1, pmath_ref(rhs));
+  }
+
+  pmath_unref(rhs);
+  return _pmath_get_directory();
 }
 
 PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr) {

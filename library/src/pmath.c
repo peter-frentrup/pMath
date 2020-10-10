@@ -87,6 +87,9 @@ static pmath_atomic_t pmath_count = PMATH_ATOMIC_STATIC_INIT;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 extern pmath_symbol_t pmath_System_Missing;
 
+extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
+extern pmath_symbol_t pmath_Internal_GetCurrentDirectory;
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_running(void) {
   return _pmath_status == PMATH_STATUS_RUNNING;
@@ -786,7 +789,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           PMATH_SYMBOL_DIRECTORYSTACK,
           pmath_ref(_pmath_object_emptylist));
           
-      // $DirectoryStack:= {}
+      // $Input:= ""
       _pmath_symbol_set_global_value(
           PMATH_SYMBOL_INPUT,
           pmath_string_new(0));
@@ -805,6 +808,11 @@ PMATH_API pmath_bool_t pmath_init(void) {
       _pmath_symbol_set_global_value(
           pmath_System_BoxForm_DollarUseTextFormatting,
           pmath_ref(PMATH_SYMBOL_FALSE));
+        
+      // System`$CurrentDirectory::= Internal`GetCurrentDirectory()
+      _pmath_symbol_set_global_value(
+        pmath_System_DollarCurrentDirectory,
+        pmath_expr_new(pmath_ref(pmath_Internal_GetCurrentDirectory), 0));
     }
     
     { // initialize runs ...
@@ -825,7 +833,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("$PathnameSeparator:=\"/\"");
 #endif
       
-      PMATH_RUN("$InitialDirectory:=Directory()");
+      PMATH_RUN_ARGS("$InitialDirectory:=`1`", "(o)", _pmath_get_directory());
       
       PMATH_RUN_ARGS("$ByteOrdering:=`1`", "(i)", PMATH_BYTE_ORDER);
       PMATH_RUN_ARGS(
