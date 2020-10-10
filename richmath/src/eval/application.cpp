@@ -1096,7 +1096,9 @@ Document *Application::try_create_document() {
   }
 #endif
   
-  doc->style->set(StyleDefinitions, String("Default.pmathdoc"));
+  if(doc) {
+    doc->style->set(StyleDefinitions, String("Default.pmathdoc"));
+  }
   return doc;
 }
 

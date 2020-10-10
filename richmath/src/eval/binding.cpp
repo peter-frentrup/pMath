@@ -1118,7 +1118,10 @@ static bool new_cmd(Expr cmd) {
   Document *doc = Application::try_create_document();
   if(!doc)
     return false;
-    
+      
+  if(Document *cur = get_current_document()) {
+    doc->native()->try_set_menubar(cur->native()->has_menubar());
+  }
   doc->invalidate_options();
   doc->native()->bring_to_front();
   
