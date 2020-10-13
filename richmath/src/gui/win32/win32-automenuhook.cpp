@@ -1,4 +1,5 @@
 #include <gui/win32/win32-automenuhook.h>
+#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 
 #include <eval/application.h>
@@ -10,14 +11,25 @@ using namespace richmath;
 namespace richmath {
   class Win32AutoMenuHook::Impl {
     public:
+      Impl(Win32AutoMenuHook &self) : self(self) {}
+      
+    public:
       static void push(Win32AutoMenuHook *handler);
       static void pop(Win32AutoMenuHook *handler);
       
       static LRESULT CALLBACK menu_hook_proc(int code, WPARAM wParam, LPARAM lParam);
-    
+      
+    public:
+      void handle_mouse_movement(UINT message, WPARAM wParam, POINT pt);
+      void handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt);
+      bool handle_key_down(DWORD keycode);
+      
     private:
       static HHOOK the_hook;
       static Win32AutoMenuHook *current;
+      
+    private:
+      Win32AutoMenuHook &self;
   };
   
   class Win32MenuItemPopupMenu {
@@ -77,47 +89,23 @@ Win32AutoMenuHook::~Win32AutoMenuHook() {
   Impl::pop(this);
 }
 
-bool Win32AutoMenuHook::handle(MSG *msg) {
+bool Win32AutoMenuHook::handle(MSG &msg) {
   {
     const int len = 20;
     char clsname[len];
-    GetClassNameA(msg->hwnd, clsname, len);
+    GetClassNameA(msg.hwnd, clsname, len);
     clsname[len-1] = '\0';
     if(0 == strcmp(clsname, MenuWindowClass))
-      pmath_debug_print("[Win32AutoMenuHook msg 0x%x for menu window %p]\n", msg->message, msg->hwnd);
+      pmath_debug_print("[Win32AutoMenuHook msg 0x%x for menu window %p]\n", msg.message, msg.hwnd);
   }
   
-  switch(msg->message) {
+  switch(msg.message) {
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
-    case WM_MOUSEMOVE: {
-        POINT pt = dword_to_point(msg->lParam);
-        // Strangely, lParam is in screen coordinates during the message hook.
-        
-        const int len = 20;
-        char hover_name[len];
-        HWND hover_wnd = WindowFromPoint(pt);
-        GetClassNameA(hover_wnd, hover_name, len);
-        hover_name[len-1] = '\0';
-        
-        bool is_over_menu = 0 == strcmp(hover_name, MenuWindowClass);
-        if(!is_over_menu) {
-          if(_is_over_menu) {
-            HMENU menu = _current_popup;
-            int item = find_hilite_menuitem(&menu);
-            
-            if(item < 0)
-              Win32Menu::on_menuselect(0xFFFF0000U, (LPARAM)_current_popup);
-          }
-          if(_mouse_notifications) {
-            ScreenToClient(_mouse_notifications, &pt);
-            SendMessageW(_mouse_notifications, msg->message, msg->wParam, point_to_dword(pt));
-          }
-        }
-        
-        _is_over_menu = is_over_menu;
-        //return false;
-      } break;
+    case WM_MOUSEMOVE: 
+      // Strangely, lParam is in screen coordinates during the message hook.
+      Impl(*this).handle_mouse_movement(msg.message, msg.wParam, dword_to_point(msg.lParam));
+      break;
     
     // WM_MENURBUTTONUP is not sent through the hook, so we handle WM_RBUTTONUP instead
     case WM_RBUTTONUP: {
@@ -127,72 +115,12 @@ bool Win32AutoMenuHook::handle(MSG *msg) {
         int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd_id, &cmd_id);
         
         if(menu && item >= 0) {
-          Expr subitems_cmd = Win32Menu::id_to_command(subitems_cmd_id);
-          Expr cmd          = Win32Menu::id_to_command(cmd_id);
-          auto id = Win32MenuItemPopupMenu::show_popup_for(
-                      _owner, 
-                      dword_to_point(msg->lParam), 
-                      subitems_cmd, 
-                      cmd);
-          switch(id) {
-            case Win32MenuItemPopupMenu::CommandId::None: break;
-            
-            case Win32MenuItemPopupMenu::CommandId::Select:
-              exit_cmd = cmd_id;
-              exit_reason = MenuExitReason::ExplicitCmd;
-              EndMenu();
-              return true;
-            
-            case Win32MenuItemPopupMenu::CommandId::Remove: 
-              if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) 
-                Win32Menu::init_popupmenu(menu);
-              break;
-          }
-          
-          Win32Menu::on_menuselect(MAKEWPARAM(cmd_id, MF_MOUSESELECT), (LPARAM)menu);
-          
+          Impl(*this).handle_popup(menu, subitems_cmd_id, cmd_id, dword_to_point(msg.lParam));
           return true;
         }
       } break;
     
-    
-    case WM_KEYDOWN: {
-          switch(msg->wParam) {
-            case VK_DELETE: {
-                Expr cmd;
-                Expr subitems_cmd;
-                HMENU menu = _current_popup;
-                int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd, &cmd);
-                
-                if(menu && item >= 0) {
-                  if(Application::remove_dynamic_submenu_item(subitems_cmd, cmd)) 
-                    Win32Menu::init_popupmenu(menu);
-                }
-              } break;
-            
-            case VK_LEFT: if(_allow_leave_left) {
-                HMENU menu = _current_popup;
-                int item = find_hilite_menuitem(&menu);
-                
-                if(menu == _current_popup) {
-                  exit_reason = MenuExitReason::LeftKey;
-                  EndMenu();
-                  return true;
-                }
-              } break;
-              
-            case VK_RIGHT: if(_allow_leave_right) {
-                HMENU menu = _current_popup;
-                int item = find_hilite_menuitem(&menu);
-                
-                if(item < 0 || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
-                  exit_reason = MenuExitReason::RightKey;
-                  EndMenu();
-                  return true;
-                }
-              } break;
-          }
-        } break;
+    case WM_KEYDOWN: return Impl(*this).handle_key_down(msg.wParam);
   }
   
   return false;
@@ -233,12 +161,135 @@ LRESULT CALLBACK Win32AutoMenuHook::Impl::menu_hook_proc(int code, WPARAM h_wPar
     
     Win32AutoMenuHook *handlers = current;
     for(;handlers; handlers = handlers->_next) {
-      if(handlers->handle(msg))
+      if(handlers->handle(*msg))
         return TRUE;
     }
   }
   
   return CallNextHookEx(0, code, h_wParam, h_lParam);
+}
+
+void Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam, POINT pt) {
+  const int len = 20;
+  char hover_name[len];
+  HWND hover_wnd = WindowFromPoint(pt);
+  GetClassNameA(hover_wnd, hover_name, len);
+  hover_name[len-1] = '\0';
+  
+  bool is_over_menu = 0 == strcmp(hover_name, MenuWindowClass);
+  if(!is_over_menu) {
+    if(self._is_over_menu) {
+      HMENU menu = self._current_popup;
+      int item = find_hilite_menuitem(&menu);
+      
+      if(item < 0)
+        Win32Menu::on_menuselect(0xFFFF0000U, (LPARAM)self._current_popup);
+    }
+    
+    if(self._mouse_notifications) {
+      ScreenToClient(self._mouse_notifications, &pt);
+      SendMessageW(self._mouse_notifications, message, wParam, point_to_dword(pt));
+    }
+  }
+  
+  self._is_over_menu = is_over_menu;
+}
+
+void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt) {
+  Expr subitems_cmd = Win32Menu::id_to_command(subitems_cmd_id);
+  Expr cmd          = Win32Menu::id_to_command(cmd_id);
+  
+  auto old_mouse_notifications = self._mouse_notifications;
+  self._mouse_notifications = nullptr;
+  auto id = Win32MenuItemPopupMenu::show_popup_for(self._owner, pt, subitems_cmd, cmd);
+  self._mouse_notifications = old_mouse_notifications;
+  
+  switch(id) {
+    case Win32MenuItemPopupMenu::CommandId::None: break;
+    
+    case Win32MenuItemPopupMenu::CommandId::Select:
+      self.exit_cmd = cmd_id;
+      self.exit_reason = MenuExitReason::ExplicitCmd;
+      EndMenu();
+      return;
+    
+    case Win32MenuItemPopupMenu::CommandId::Remove: 
+      if(Application::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
+        Win32Menu::init_popupmenu(menu);
+      break;
+  }
+  
+  Win32Menu::on_menuselect(MAKEWPARAM(cmd_id, MF_MOUSESELECT), (LPARAM)menu);
+}
+
+bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
+  switch(keycode) {
+    case VK_DELETE: {
+        Expr cmd;
+        Expr subitems_cmd;
+        HMENU menu = self._current_popup;
+        int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd, &cmd);
+        
+        if(menu && item >= 0) {
+          if(Application::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
+            Win32Menu::init_popupmenu(menu);
+        }
+      } break;
+    
+    case VK_LEFT: if(self._allow_leave_left) {
+        HMENU menu = self._current_popup;
+        int item = find_hilite_menuitem(&menu);
+        
+        if(menu == self._current_popup) {
+          self.exit_reason = MenuExitReason::LeftKey;
+          EndMenu();
+          return true;
+        }
+      } break;
+      
+    case VK_RIGHT: if(self._allow_leave_right) {
+        HMENU menu = self._current_popup;
+        int item = find_hilite_menuitem(&menu);
+        
+        if(item < 0 || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
+          self.exit_reason = MenuExitReason::RightKey;
+          EndMenu();
+          return true;
+        }
+      } break;
+  
+    case VK_APPS: {
+      DWORD subitems_cmd_id;
+      DWORD cmd_id;
+      HMENU menu = self._current_popup;
+      int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd_id, &cmd_id);
+      if(menu && item >= 0) {
+        POINT pt = {0,0};
+        RECT menu_item_rect {0,0,0,0};
+        if(GetMenuItemRect(nullptr, menu, (unsigned)item, &menu_item_rect)) {
+          HWND wnd = WindowFromPoint({menu_item_rect.left, menu_item_rect.top});
+          int dpi = Win32HighDpi::get_dpi_for_window(wnd);
+          
+          int border = Win32HighDpi::get_system_metrics_for_dpi(SM_CXEDGE, dpi);
+          menu_item_rect.left+=  border;
+          menu_item_rect.right-= border;
+          
+          if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+            pt.x = menu_item_rect.left + (menu_item_rect.bottom - menu_item_rect.top)/2;
+            pt.x+= Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUCHECK, dpi);
+          }
+          else {
+            pt.x = menu_item_rect.right - (menu_item_rect.bottom - menu_item_rect.top)/2;
+          }
+          pt.y = menu_item_rect.top + (menu_item_rect.bottom - menu_item_rect.top)/2;
+        }
+        handle_popup(menu, subitems_cmd_id, cmd_id, pt);
+        return true;
+      }
+    } break;
+  }
+  
+  return false;
 }
 
 //} ... class Win32AutoMenuHook::Impl

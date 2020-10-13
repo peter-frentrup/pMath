@@ -26,7 +26,7 @@ namespace richmath {
       Win32AutoMenuHook &operator=(const Win32AutoMenuHook &) = delete;
     
     private:
-      bool handle(MSG *msg);
+      bool handle(MSG &msg);
     
     private:
       Win32AutoMenuHook *_next;
