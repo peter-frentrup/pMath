@@ -62,7 +62,11 @@ Document({
            "{", {ComplexStringBox("\"BottomGlass\""), "\[Rule]", {
              "Section", "(", {
               {"BoxData", "(", {
-                "{", {{"FillBox", "(", ComplexStringBox("\" \""), ")"}, ",", {
+                "{", {
+                 {"ButtonBox", "(", {ComplexStringBox("\"\\\"A Button\\\"\""), 
+                   ",", {"ButtonFrame", "\[Rule]", 
+                    ComplexStringBox("\"Palette\"")}}, ")"}, ",", {
+                  "FillBox", "(", ComplexStringBox("\" \""), ")"}, ",", {
                   "SliderBox", "(", {
                    {"Dynamic", "(", {
                      {"\n", {"Log", "(", {
@@ -81,14 +85,14 @@ Document({
                                   "#", "True"}})}}}, "\n"}}}, ")"}, "&"}, 
                        "\n"}}}, ")"}, ",", {{"-", "1"}, "..", "1"}}, ")"}}, 
                 "}"}, ")"}, ",", ComplexStringBox("\"Docked\"")}, ")"}}, 
-           "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [3]:")}, All)}, 
- DockedSections :> {"Top" -> {}, "BottomGlass" -> Section(
-   BoxData({FillBox(" "), 
+           "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [2]:")}, All)}, 
+ DockedSections :> {"Bottom" -> {}, "BottomGlass" -> Section(
+   BoxData({ButtonBox("\"A Button\"", ButtonFrame -> "Palette"), FillBox(" "), 
      SliderBox(
       Dynamic(Log(2, CurrentValue(EvaluationDocument(), Magnification)), 
        If(IsNumber(#1), CurrentValue(EvaluationDocument(), Magnification):= 2^
          Piecewise({{0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
-           #1, True}})) &), -1 .. 1)}), "Docked"), 
+           #1, True}})) &), -1 .. 1)}), "Docked"), "Top" -> {}, 
   "TopGlass" -> {
    Section(
     BoxData({
@@ -106,5 +110,5 @@ Document({
              ButtonFrame -> "AddressBandGo"), 
             ButtonBox("\" \[Ellipsis] \"", ButtonFrame -> "AddressBandGo")}}, 
           GridBoxColumnSpacing -> 0), Appearance -> "AddressBand")), "\"")}), 
-    "Docked", LineBreakWithin -> False)}, "Bottom" -> {}}, 
+    "Docked", LineBreakWithin -> False)}}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

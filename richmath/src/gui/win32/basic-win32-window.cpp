@@ -416,23 +416,23 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
     if(hwnd == _hwnd || !is_window_visible_on_screen(hwnd))
       return;
       
-      if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
-        return;
-      
-      RECT rect;
-      WindowMagnetics::get_snap_rect(hwnd, &rect);
+    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
+      return;
+    
+    RECT rect;
+    WindowMagnetics::get_snap_rect(hwnd, &rect);
 
-      if(dst_rect.left == rect.right)
-        align_left = true;
+    if(dst_rect.left == rect.right)
+      align_left = true;
 
-      if(dst_rect.right == rect.left)
-        align_right = true;
+    if(dst_rect.right == rect.left)
+      align_right = true;
 
-      if(dst_rect.top == rect.bottom)
-        align_top = true;
+    if(dst_rect.top == rect.bottom)
+      align_top = true;
 
-      if(dst_rect.bottom == rect.top)
-        align_bottom = true;
+    if(dst_rect.bottom == rect.top)
+      align_bottom = true;
   });
   
   *right  = align_right  && !align_left;
@@ -1005,7 +1005,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   RECT neg_margins = { 0, 0, 0, 0 };
   Win32HighDpi::adjust_window_rect(&neg_margins, style, FALSE, ex_style, dpi);
   
-  int caption_h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
+  //int caption_h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   int icon_w    = Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
   int icon_h    = Win32HighDpi::get_system_metrics_for_dpi(SM_CYSMICON, dpi);
   
@@ -1743,7 +1743,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
 
       case WM_DPICHANGED: { // Windows 8.1 and above
-        int dpiX = LOWORD(wParam);
+        //int dpiX = LOWORD(wParam);
         //int dpiY = HIWORD(wParam);
         // According to MSDN, "The values of the X-axis and the Y-axis are identical for Windows apps."
         
@@ -2356,7 +2356,7 @@ void BasicWin32Window::Impl::clear_property_store(HWND hwnd) {
         
         pmath_debug_print("[BasicWin32Window::Impl::clear_property_store: %d entries]\n", (int)count);
         
-        for(count; count > 0; --count) {
+        for(; count > 0; --count) {
           PROPERTYKEY key;
           if(HRbool(props->GetAt(count - 1, &key))) {
             PROPVARIANT empty = {};
