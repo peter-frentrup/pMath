@@ -138,7 +138,7 @@ Block::lvsym:= "Local variable specification `1` contains `2`, which is not a sy
 
 Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
 
-$CurrentNamespace::nsset:= "Cannot set $CurrentNamespace to `1`; value is not a parsable context name ending in `"
+$Namespace::nsset:= "Cannot set $Namespace to `1`; value is not a parsable context name ending in `"
 $NamespacePath::nslist:= "Cannot set $NamespacePath to `1`; value must be a list of strings ending in `"
 
 Clear::ssym:= Update::ssym:= "`1` is neither a symbol nor a string."
