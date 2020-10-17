@@ -780,7 +780,12 @@ EditSection::EditSection()
 }
 
 EditSection::~EditSection() {
-  delete_owned(original);
+  if(original) {
+    assert(original->parent() == nullptr);
+    //adopt(original, 1);
+    //delete_owned(original);
+    original->safe_destroy();
+  }
 }
 
 bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
