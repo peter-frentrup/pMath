@@ -817,6 +817,43 @@ namespace richmath {
           impl->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
         }
         
+        if(name.equals("GFS Neohellenic Math")) {
+          // Fix wrong full_advance values for Sqrt parts
+          // Since we ignore start_connector_length and end_connector_length, those need not be corrected
+          if(auto ass = impl->get_vert_assembly(SqrtChar, impl->fi.char_to_glyph(SqrtChar))) {
+            if( ass->length() == 3 && 
+                (*ass)[0].full_advance == 1820 && 
+                (*ass)[1].full_advance == 640 && 
+                (*ass)[2].full_advance == 620
+            ) {
+              (*ass)[0].full_advance = 1674;
+              (*ass)[1].full_advance = 730;  // 733
+              (*ass)[2].full_advance = 1586;
+            }
+          }
+          
+          // Fix wrong full_advance values for left brace parts
+          // Since we ignore start_connector_length and end_connector_length, those need not be corrected
+          const uint32_t braces[2] = {'{', '}'};
+          for(uint32_t brace_char : braces) {
+            if(auto ass = impl->get_vert_assembly(brace_char, impl->fi.char_to_glyph(brace_char))) {
+              if( ass->length() == 5 && 
+                  (*ass)[0].full_advance == 750 && 
+                  (*ass)[1].full_advance == 748 && 
+                  (*ass)[2].full_advance == 1500 && 
+                  (*ass)[3].full_advance == 748 && 
+                  (*ass)[4].full_advance == 750
+              ) {
+                (*ass)[0].full_advance = 880; // height: 882 or with serifs 894
+                (*ass)[1].full_advance = 600; // height 666;
+                (*ass)[2].full_advance = 1660;// height 1671;
+                (*ass)[3].full_advance = 600; // height 666;
+                (*ass)[4].full_advance = 880; // height: 882 or with serifs 894
+              }
+            }
+          }
+        }
+        
         return impl;
       }
       
