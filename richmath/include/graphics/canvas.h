@@ -14,7 +14,7 @@ namespace richmath {
   
   class Canvas: public Base {
     public:
-      Canvas(cairo_t *cr);
+      explicit Canvas(cairo_t *cr);
       ~Canvas();
       
       static Point transform_point(const cairo_matrix_t &m, Point pt);

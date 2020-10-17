@@ -326,7 +326,7 @@ class richmath::FontInfoPrivate: public Shareable {
     {
       SET_BASE_DEBUG_TAG(typeid(*this).name());
       
-      static_canvas.canvas.set_font_face(font.cairo());
+      static_canvas.canvas.set_font_face(font);
       scaled_font = cairo_scaled_font_reference(
                       cairo_get_scaled_font(
                         static_canvas.canvas.cairo()));

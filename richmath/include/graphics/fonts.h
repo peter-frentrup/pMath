@@ -107,7 +107,7 @@ namespace richmath {
   
   class FontFace {
     public:
-      FontFace(cairo_font_face_t *face = 0);
+      explicit FontFace(cairo_font_face_t *face = nullptr);
       FontFace(const FontFace &face);
       FontFace(
         const String    &name,
