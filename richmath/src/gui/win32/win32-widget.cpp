@@ -110,9 +110,11 @@ Win32Widget::Win32Widget(
   HWND *parent)
   : NativeWidget(doc),
     BasicWin32Widget(style_ex, style, x, y, width, height, parent),
-    _autohide_vertical_scrollbar(false),
     _image_format(CAIRO_FORMAT_RGB24),
+    _autohide_vertical_scrollbar(false),
+    _destination_has_alpha_channel(false),
     _old_pixels(nullptr),
+    _old_pixels_with_alpha(nullptr),
     scrolling(false),
     already_scrolled(false),
     _has_dark_background(false),
@@ -189,6 +191,8 @@ void Win32Widget::after_construction() {
 Win32Widget::~Win32Widget() {
   if(_old_pixels)
     cairo_surface_destroy(_old_pixels);
+  if(_old_pixels_with_alpha)
+    cairo_surface_destroy(_old_pixels_with_alpha);
 }
 
 Vector2F Win32Widget::window_size() {
@@ -632,6 +636,15 @@ void Win32Widget::on_changed_dark_mode() {
     Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
 }
 
+static int best_image_size(int width) {
+  if(width > 0x10000)
+    return width;
+  int w = 1;
+  while(w < width)
+    w*= 2;
+  return w;
+}
+
 void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   RECT rect;
   GetClientRect(_hwnd, &rect);
@@ -642,13 +655,16 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   int width = rect.right;
   int height = rect.bottom;
   
+  int best_width  = best_image_size(width);
+  int best_height = best_image_size(height);
+  
   cairo_surface_t *target = nullptr;
   if(_old_pixels && cairo_surface_status(_old_pixels) == CAIRO_STATUS_SUCCESS) {
     cairo_surface_t *old_img = cairo_win32_surface_get_image(_old_pixels);
     if( old_img && 
         cairo_image_surface_get_format(old_img) == _image_format &&
-        cairo_image_surface_get_width(old_img) == width &&
-        cairo_image_surface_get_height(old_img) == height)
+        cairo_image_surface_get_width(old_img)  == best_width &&
+        cairo_image_surface_get_height(old_img) == best_height)
     {
       target = _old_pixels;
     }
@@ -657,7 +673,7 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
     if(_old_pixels)
       cairo_surface_destroy(_old_pixels);
     
-    _old_pixels =  cairo_win32_surface_create_with_dib(_image_format, width, height);
+    _old_pixels = cairo_win32_surface_create_with_dib(_image_format, best_width, best_height);
     
     if(cairo_surface_status(_old_pixels) != CAIRO_STATUS_SUCCESS) {
       cairo_surface_destroy(_old_pixels);
@@ -667,7 +683,7 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
     
     target = _old_pixels;
   }
-                              
+  
   cairo_t *cr = cairo_create(target);
   {
     Canvas canvas(cr);
@@ -679,14 +695,14 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
 //      cairo_font_options_destroy(opts);
 //    }
 
-//  {
-//    cairo_font_options_t *opts = cairo_font_options_create();
-//    cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
-//    cairo_set_font_options(cr, opts);
-//    cairo_surface_get_font_options(target, opts);
-//    cairo_font_options_destroy(opts);
-//  }
-
+//    {
+//      cairo_font_options_t *opts = cairo_font_options_create();
+////      cairo_font_options_set_hint_metrics(opts, CAIRO_HINT_METRICS_OFF);
+//      cairo_font_options_set_antialias(opts, CAIRO_ANTIALIAS_SUBPIXEL);
+//      cairo_set_font_options(cr, opts);
+//      cairo_font_options_destroy(opts);
+//    }
+  
     if(!from_wmpaint) {
       canvas.clip();
     }
@@ -712,8 +728,39 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
   cairo_surface_flush(target);
   
   if(from_wmpaint) {
-    BitBlt(dc, 0, 0, rect.right, rect.bottom,
-           cairo_win32_surface_get_dc(target), 0, 0, SRCCOPY);
+    if(_destination_has_alpha_channel && _image_format != CAIRO_FORMAT_ARGB32) {
+      if(_old_pixels_with_alpha) {
+        cairo_surface_t *old_img = cairo_win32_surface_get_image(_old_pixels_with_alpha);
+        if( !old_img || 
+            cairo_image_surface_get_width(old_img) != best_width ||
+            cairo_image_surface_get_height(old_img) != best_height)
+        {
+          cairo_surface_destroy(_old_pixels_with_alpha);
+          _old_pixels_with_alpha = nullptr;
+        }
+      }
+      if(!_old_pixels_with_alpha) {
+        _old_pixels_with_alpha = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_ARGB32, best_width, best_height);
+      }
+      
+      if(cairo_surface_status(_old_pixels) != CAIRO_STATUS_SUCCESS) {
+        cairo_surface_destroy(_old_pixels_with_alpha);
+        _old_pixels_with_alpha = nullptr;
+      }
+      else {
+        cairo_t *tmp_cr = cairo_create(_old_pixels_with_alpha);
+        cairo_set_source_surface(tmp_cr, target, 0.0, 0.0);
+        cairo_paint(tmp_cr);
+        cairo_destroy(tmp_cr);
+        
+        BitBlt(dc, 0, 0, rect.right, rect.bottom,
+               cairo_win32_surface_get_dc(_old_pixels_with_alpha), 0, 0, SRCCOPY);
+      }
+    }
+    else {
+      BitBlt(dc, 0, 0, rect.right, rect.bottom,
+             cairo_win32_surface_get_dc(target), 0, 0, SRCCOPY);
+    }
   }
 }
 

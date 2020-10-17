@@ -643,7 +643,7 @@ Win32DocumentWindow::Win32DocumentWindow(
 {
   _working_area = new Win32WorkingArea(
     doc,
-    WS_EX_COMPOSITED,
+    0, // | WS_EX_COMPOSITED,
     WS_CHILD | WS_HSCROLL | WS_VSCROLL | WS_VISIBLE | WS_CLIPSIBLINGS,
     0, 0, 0, 0,
     this);
@@ -656,10 +656,13 @@ Win32DocumentWindow::Win32DocumentWindow(
   _bottom_glass_area = new Win32GlassDock(this);
   
   if(Win32Themes::is_windows_10_or_newer()) {
-    // alpha channel only necessary for win10 custom blur behind ...
-    _working_area->_image_format = CAIRO_FORMAT_ARGB32;
-    _top_area->_image_format     = CAIRO_FORMAT_ARGB32;
-    _bottom_area->_image_format  = CAIRO_FORMAT_ARGB32;
+    // Alpha channel only necessary for win10 custom blur behind ...
+    // We still use CAIRO_FORMAT_RGB24 instead of CAIRO_FORMAT_ARGB32, since 
+    // otherwise Cleartype subpixel rendering will be disabled.
+    // TODO: It is not clear why, PangoCairo would still use Cleartype on the same surface.
+    _working_area->_destination_has_alpha_channel = true;
+    _top_area->_destination_has_alpha_channel     = true;
+    _bottom_area->_destination_has_alpha_channel  = true;
   }
 }
 

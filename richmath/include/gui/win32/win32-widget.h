@@ -88,13 +88,15 @@ namespace richmath {
       STDMETHODIMP StylusUp(IRealTimeStylus*, const StylusInfo*, ULONG, LONG*, LONG**) override;
       
     public:
-      bool _autohide_vertical_scrollbar;
       cairo_format_t _image_format;
+      bool _autohide_vertical_scrollbar : 1;
+      bool _destination_has_alpha_channel: 1;
       
       bool has_dark_background() { return _has_dark_background; }
       
     private:
       cairo_surface_t *_old_pixels;
+      cairo_surface_t *_old_pixels_with_alpha;
       CursorType cursor;
       bool mouse_moving : 1;
       bool scrolling : 1;
