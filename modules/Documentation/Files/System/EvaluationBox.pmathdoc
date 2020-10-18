@@ -1,0 +1,54 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("EvaluationBox", "ObjectName"), 
+      Section(BoxData(TemplateBox({"EvaluationBox"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({
+      Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section({"Get the section that triggered a ", 
+          TemplateBox({"Enter"}, "ShiftKeyEvent"), " evaluation: "}, 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"EvaluationBox", "(", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(TemplateBox({18368969000864477252, 1004}, 
+             "FrontEndObject")), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Get the ", TemplateBox({"ButtonBox"}, 
+             "ReferenceHyperlink"), " that was clicked:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Button", "(", {ComplexStringBox("\"Click me\""), 
+                ",", {"Print", "(", {"EvaluationBox", "(", ")"}, ")"}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(ComplexStringBox("\"Click me\""), 
+               ButtonFunction -> (Print(EvaluationBox()) &))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Within a ", TemplateBox({"Dynamic"}, 
+             "ReferenceHyperlink"), " box, ", {
+             TemplateBox({"EvaluationBox"}, "ReferenceHyperlink"), "(", ")"}, 
+            " will give the document that contains the ", 
+            TemplateBox({"DynamicBox"}, "ReferenceHyperlink"), ":"}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"{", {{"EvaluationBox", "(", ")"}, ",", {
+                 "Dynamic", "(", {"EvaluationBox", "(", ")"}, ")"}}, "}"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {TemplateBox({18368969000864477252, 1054}, 
+                 "FrontEndObject"), ",", 
+                DynamicBox(ToBoxes(EvaluationBox()))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"EvaluationDocument"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FrontEndObject"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"CurrentValue"}, "ReferenceHyperlink")}, "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

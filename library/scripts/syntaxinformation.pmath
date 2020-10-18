@@ -157,6 +157,7 @@
 {"Erfi", {"ArgumentCount" -> 1}},
 {"Evaluate", {"ArgumentCount" -> 1}},
 {"EvaluateDelayed", {"ArgumentCount" -> 2}},
+{"EvaluationBox", {"ArgumentCount" -> 0}},
 {"EvaluationDocument", {"ArgumentCount" -> 0}},
 {"EvaluationSequence", {"ArgumentCount" -> 1..}},
 {"Except", {"ArgumentCount" -> 1..2}},
