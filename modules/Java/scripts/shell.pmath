@@ -97,7 +97,7 @@ Function RunJavaSection(~lines:/\/) {
 
 Function RunJavaSection(~boxes) {
     Local(snippetEvent)
-    CurrentValue(FE`CallFrontEnd(FrontEnd`EvaluationBox()), SectionLabel):= Inherited
+    CurrentValue(EvaluationBox(), SectionLabel):= Inherited
     With(code:= javaCodeFromBoxes(boxes))
     If(code.IsString) {
         needShell()
