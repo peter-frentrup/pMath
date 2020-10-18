@@ -1,0 +1,50 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("EvaluationDocument", "ObjectName"), 
+      Section(BoxData(TemplateBox({"EvaluationDocument"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({
+      Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get the current evaluation document:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"EvaluationDocument", "(", ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({FrontEndObject(18368969000864477252, 1639), 
+              "EvaluationDocument.pmathdoc"}, "DocumentObject")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section({"Within a ", TemplateBox({"Dynamic"}, 
+             "ReferenceHyperlink"), " construct, ", 
+            TemplateBox({"EvaluationDocument"}, "ReferenceHyperlink"), 
+            "() will give the document that contains the ", 
+            TemplateBox({"Dynamic"}, "ReferenceHyperlink"), " box:"}, 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"doc", "\[Assign]", {
+                "CreateDocument", "(", {
+                 "{", {
+                  {"\n", {"Section", "(", {
+                     {"{", {ComplexStringBox("\"Opened from: \""), ",", {
+                        "ToBoxes", "(", {"EvaluationDocument", "(", ")"}, 
+                        ")"}}, "}"}, ",", ComplexStringBox("\"Text\"")}, 
+                    ")"}}, ",", {
+                   "\n", {"Section", "(", {
+                     {"{", {ComplexStringBox("\"Current: \""), ",", {
+                        "ToBoxes", "(", {"Dynamic", "(", {
+                          "EvaluationDocument", "(", ")"}, ")"}, ")"}}, "}"}, 
+                     ",", ComplexStringBox("\"Text\"")}, ")"}}}, "}"}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({FrontEndObject(18368969000864477252, 1856), 
+                "Untitled 2"}, "DocumentObject")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"EvaluationBox"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"SelectedDocument"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"DocumentObject"}, "ReferenceHyperlink")}, "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
