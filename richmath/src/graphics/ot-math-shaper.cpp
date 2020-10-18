@@ -406,553 +406,20 @@ namespace richmath {
       FontStyle style;
       
     private:
-      OTMathShaperImpl(String _name, FontStyle _style)
-        : Shareable(),
-          name(_name),
-          text_shaper(new FallbackTextShaper(TextShaper::find(_name, _style))),
-          fi(text_shaper->font(0)),
-          style(_style)
-      {
-        SET_BASE_DEBUG_TAG(typeid(*this).name());
-        
-        text_shaper->add_default();
-        
-        private_characters.default_value = 0;
-        alt_glyphs.default_value = 0;
-        italics_correction.default_value = 0;
-        top_accents.default_value = 0;
-      }
+      OTMathShaperImpl(String _name, FontStyle _style);
       
     public:
-      static SharedPtr<OTMathShaperImpl> try_load(String name, FontStyle style) {
-        if(!FontInfo::font_exists_exact(name))
-          return nullptr;
-        
-        SharedPtr<OTMathShaperImpl> impl = new OTMathShaperImpl(name, style);
-        
-        size_t size = impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, 0, 0);
-        
-        if(!size)
-          return nullptr;
-          
-//        impl->private_characters.set(0x2061, 0); // function application
-        impl->set_private_char(0x2061, ' ');
-        
-        impl->set_private_char(PMATH_CHAR_LEFTINVISIBLEBRACKET,     0x200B);
-        impl->set_private_char(PMATH_CHAR_RIGHTINVISIBLEBRACKET,    0x200B);
-        impl->set_private_char(PMATH_CHAR_LEFTBRACKETINGBAR,        0x2223);
-        impl->set_private_char(PMATH_CHAR_RIGHTBRACKETINGBAR,       0x2223);
-        impl->set_private_char(PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR,  0x2225);
-        impl->set_private_char(PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR, 0x2225);
-        impl->set_private_char(PMATH_CHAR_PIECEWISE, '{');
-        impl->set_private_char(PMATH_CHAR_ALIASDELIMITER, 0x21E9);
-        impl->set_private_char(PMATH_CHAR_ALIASINDICATOR, 0x21E9);
-        impl->set_private_char(PMATH_CHAR_SELECTIONPLACEHOLDER, 0x220E);
-        impl->set_private_char(CHAR_LINE_CONTINUATION,          0x22F1);
-        if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x29E0))
-          if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x25A1))
-            impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x2B1A);
-        impl->set_private_char('-', 0x2212);
-        impl->set_private_char(0x2145, 0x1D403); // DD
-        impl->set_private_char(0x2146, 0x1D41D); // dd
-        impl->set_private_char(0x2147, 0x1D41E); // ee
-        impl->set_private_char(0x2148, 0x1D422); // ii
-        impl->set_private_char(0x2149, 0x1D423); // jj
-        
-        impl->set_alt_char('^',    0x0302);
-        impl->set_alt_char('~',    0x0303);
-        impl->set_alt_char('_',    0x0305);
-        impl->set_alt_char(0x02C7, 0x030C); // caron
-        impl->set_alt_char(0x21C0, 0x20D1); // vector
-        
-        impl->set_alt_char(0x2227, 0x22C0); // and
-        impl->set_alt_char(0x2228, 0x22C1); // or
-        impl->set_alt_char(0x2229, 0x22C2); // intersect
-        impl->set_alt_char(0x222A, 0x22C3); // union
-        impl->set_alt_char(0x2299, 0x2A00); // c.
-        impl->set_alt_char(0x2295, 0x2A01); // c+
-        impl->set_alt_char(0x2297, 0x2A02); // c*
-        impl->set_alt_char(0x2293, 0x2A05); // cap
-        impl->set_alt_char(0x2294, 0x2A06); // cup
-        impl->set_alt_char(0x00D7, 0x2A09); // times
-        
-        /* Ugly workaround to access cross product character. Glyph 941 is a small
-           cross, but it has no character mapping. Fontforge doesn't even list this
-           glyph! So we have to hardwire it here, because the cross product is
-           rather important and should be distinguishable from the times character.
-        
-           A better workaround would be to specify some fallback font.
-         */
-        if(name.equals("Cambria Math")) {
-          impl->private_characters.set(0x2A2F, 941);
-        }
-        else if(impl->fi.char_to_glyph(0x2A2F) == 0) { // cross
-          impl->set_private_char(0x2A2F, 0x00D7);
-        }
-        
-        /* Ugly workaround to access degree character in Asana Math. The font
-           assigns the glyph #1 to the degree character, which is clearly a bug,
-           because glyph #1 is the space.
-           We use the MASCULINE ORDINAL INDICATOR U+00BA which looks like a degree
-           sign in that font.
-         */
-        if(name.equals("Asana Math")) {
-//      pmath_debug_print("Asana Math degree glyph: %d\n", impl->fi.char_to_glyph(0x00B0));
-          impl->set_private_char(0x00B0, 0x00BA);
-        }
-        
-        impl->units_per_em = 1024;
-        impl->fi.get_truetype_table(FONT_TABLE_NAME('h', 'e', 'a', 'd'), 18, &impl->units_per_em, 2);
-        impl->units_per_em = BigEndian::read(impl->units_per_em);
-        
-        Array<uint8_t> data(size);
-        impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), size);
-        const uint8_t *table = data.items();
-        
-        const MathTableHeader *math_header = (const MathTableHeader *)table;
-        
-        {
-          uint16_t       *db_consts = (uint16_t *)&impl->consts;
-          const uint16_t *consts    = (const uint16_t *)(table + BigEndian::read(math_header->constants_offset));
-          for(size_t i = 0; i < sizeof(MathConstants) / 2; ++i)
-            db_consts[i] = BigEndian::read(consts[i]);
-        }
-        
-        if(math_header->glyphinfo_offset) {
-          const MathGlyphInfo *glyphinfo = (const MathGlyphInfo *)
-                                           (table + BigEndian::read(math_header->glyphinfo_offset));
-                                           
-          if(glyphinfo->kern_info_offset) {
-            const MathKernInfo *kern_info = (const MathKernInfo *)
-                                            (((const char *)glyphinfo) + BigEndian::read(glyphinfo->kern_info_offset));
-                                            
-            const uint16_t *coverage = (const uint16_t *)
-                                       (((const char *)kern_info) + BigEndian::read(kern_info->coverage_offset));
-                                       
-            switch(BigEndian::read(coverage[0])) { // coverage format
-              case 1: {
-                  const uint16_t *glyphs = (const uint16_t *)
-                                           (((const char *)coverage) + 4); // skip format, count
-                                           
-                  for(uint16_t i = 0; i < BigEndian::read(kern_info->count); ++i) {
-                    const MathKernVertex *vertex;
-                    
-                    for(int edge = 0; edge < 4; ++edge) {
-                      if(kern_info->offsets[i][edge]) {
-                        vertex = (const MathKernVertex *)
-                                 (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
-                                 
-                        impl->math_kern[edge].set(
-                          BigEndian::read(glyphs[i]),
-                          KernVertexObject(vertex));
-                      }
-                    }
-                  }
-                } break;
-                
-              case 2: {
-                  const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
-                                                   (((const char *)coverage) + 4);
-                                                   
-                  for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
-                    uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
-                    uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
-                    uint16_t start_index = BigEndian::read(ranges[r].start_index);
-                    
-                    for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
-                      const MathKernVertex *vertex;
-                      
-                      uint16_t i = start_index + g - start_glyph;
-                      
-                      for(int edge = 0; edge < 4; ++edge) {
-                        if(kern_info->offsets[i][edge]) {
-                          vertex = (const MathKernVertex *)
-                                   (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
-                                   
-                          impl->math_kern[edge].set(g, KernVertexObject(vertex));
-                        }
-                      }
-                    }
-                  }
-                } break;
-            }
-          }
-          
-          if(style.italic) {
-            /* The synthesized italics font seems to get an horizontal shear of about x:= 0.33,
-              meaning that
-              RawBoxes@TransformationBox(
-                ToBoxes@Style("ff",FontSlant->Plain,72),
-                BoxTransformation->{{1,x},{0,1}})
-              looks like Style("ff",FontSlant->Italic,72) for Cambria Math on Windows 7.
-            
-              Since a glyphs accent height is typically not 1em, but about 0.5em, we further
-              multiply by that factor to not spread glyphs too much
-             */
-            impl->italics_correction.default_value = (int)(impl->units_per_em * 0.33 * 0.5);
-          }
-          
-          if(glyphinfo->italics_correction_info_offset) {
-            const MathItalicsCorrectionInfo *ital_corr_info = (const MathItalicsCorrectionInfo *)
-                (((const char *)glyphinfo) + BigEndian::read(glyphinfo->italics_correction_info_offset));
-                
-            const uint16_t *coverage = (const uint16_t *)
-                                       (((const char *)ital_corr_info) + BigEndian::read(ital_corr_info->coverage_offset));
-                                       
-            switch(BigEndian::read(coverage[0])) { // coverage format
-              case 1: {
-                  const uint16_t *glyphs = (const uint16_t *)
-                                           (((const char *)coverage) + 4); // skip format, count
-                                           
-                  for(uint16_t i = 0; i < BigEndian::read(ital_corr_info->count); ++i) {
-                    impl->italics_correction.set(
-                      BigEndian::read(glyphs[i]),
-                      BigEndian::read(ital_corr_info->italics_corrections[i].value));
-                  }
-                } break;
-                
-              case 2: {
-                  const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
-                                                   (((const char *)coverage) + 4);
-                                                   
-                  for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
-                    uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
-                    uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
-                    uint16_t start_index = BigEndian::read(ranges[r].start_index);
-                    
-                    for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
-                      int16_t value = BigEndian::read(
-                                        ital_corr_info->italics_corrections[start_index + g - start_glyph].value);
-                                        
-                      impl->italics_correction.set(g, value);
-                    }
-                  }
-                } break;
-            }
-          }
-          
-          if(glyphinfo->top_accent_attachment_offset) {
-            const MathTopAccentAttachment *top_acc = (const MathTopAccentAttachment *)
-                (((const char *)glyphinfo) + BigEndian::read(glyphinfo->top_accent_attachment_offset));
-                
-            const uint16_t *coverage = (const uint16_t *)
-                                       (((const char *)top_acc) + BigEndian::read(top_acc->coverage_offset));
-                                       
-            switch(BigEndian::read(coverage[0])) { // coverage format
-              case 1: {
-                  const uint16_t *glyphs = (const uint16_t *)
-                                           (((const char *)coverage) + 4); // skip format, count
-                                           
-                  for(uint16_t i = 0; i < BigEndian::read(top_acc->count); ++i) {
-                    impl->top_accents.set(
-                      BigEndian::read(glyphs[i]),
-                      BigEndian::read(top_acc->top_accent_attachment[i].value));
-                  }
-                } break;
-                
-              case 2: {
-                  const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
-                                                   (((const char *)coverage) + 4);
-                                                   
-                  for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
-                    uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
-                    uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
-                    uint16_t start_index = BigEndian::read(ranges[r].start_index);
-                    
-                    for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
-                      int16_t value = BigEndian::read(
-                                        top_acc->top_accent_attachment[start_index + g - start_glyph].value);
-                                        
-                      impl->top_accents.set(g, value);
-                    }
-                  }
-                } break;
-            }
-          }
-        }
-        
-        if(math_header->variants_offset) {
-          static Array<MathGlyphVariantRecord> variant_array;
-          static Array<MathGlyphPartRecord>    assambly_array;
-          
-          const MathVariants *variants = (const MathVariants *)
-                                         (table + BigEndian::read(math_header->variants_offset));
-                                         
-          impl->min_connector_overlap = BigEndian::read(variants->min_connector_overlap);
-          
-          uint16_t vert_count = BigEndian::read(variants->vert_glyph_count);
-          for(uint16_t i = 0; i < vert_count; ++i) {
-            const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
-                (((const char *)variants) + BigEndian::read(variants->glyph_construction_offsets[i]));
-                
-            if(construction->count) {
-              if(construction->assembly_offset) {
-                const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
-                                                    (((const char *)construction) + BigEndian::read(construction->assembly_offset));
-                                                    
-                if(assambly->count) {
-                  assambly_array.length(BigEndian::read(assambly->count));
-                  
-                  for(int j = 0; j < assambly_array.length(); ++j) {
-                    const uint16_t *src = (const uint16_t *)&assambly->parts[j];
-                    uint16_t       *dst = (uint16_t *)&assambly_array[j];
-                    
-                    for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
-                      dst[k] = BigEndian::read(src[k]);
-                  }
-                  
-                  impl->vert_assembly.set(
-                    BigEndian::read(construction->variants[0].glyph),
-                    assambly_array);
-                }
-              }
-              
-              variant_array.length(BigEndian::read(construction->count));
-              if(variant_array.length() > 1) {
-                for(int j = 0; j < variant_array.length(); ++j) {
-                  variant_array[j].glyph   = BigEndian::read(construction->variants[j].glyph);
-                  variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
-                }
-                
-                impl->vert_variants.set(
-                  BigEndian::read(construction->variants[0].glyph),
-                  variant_array);
-              }
-            }
-          }
-          
-          uint16_t horz_count = BigEndian::read(variants->horz_glyph_count);
-          for(uint16_t i = 0; i < horz_count; ++i) {
-            const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
-                (((const char *)variants) + BigEndian::read(variants->glyph_construction_offsets[vert_count + i]));
-                
-            if(construction->count) {
-              if(construction->assembly_offset) {
-                const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
-                                                    (((const char *)construction) + BigEndian::read(construction->assembly_offset));
-                                                    
-                if(assambly->count) {
-                  assambly_array.length(BigEndian::read(assambly->count));
-                  
-                  for(int j = 0; j < assambly_array.length(); ++j) {
-                    const uint16_t *src = (const uint16_t *)&assambly->parts[j];
-                    uint16_t       *dst = (uint16_t *)&assambly_array[j];
-                    
-                    for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
-                      dst[k] = BigEndian::read(src[k]);
-                  }
-                  
-                  impl->horz_assembly.set(
-                    BigEndian::read(construction->variants[0].glyph),
-                    assambly_array);
-                }
-              }
-              
-              variant_array.length(BigEndian::read(construction->count));
-              if(variant_array.length() > 1) {
-                for(int j = 0; j < variant_array.length(); ++j) {
-                  variant_array[j].glyph   = BigEndian::read(construction->variants[j].glyph);
-                  variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
-                }
-                
-                impl->horz_variants.set(
-                  BigEndian::read(construction->variants[0].glyph),
-                  variant_array);
-              }
-            }
-          }
-          
-        }
-        
-        if(impl->fi.char_to_glyph(PMATH_CHAR_ASSIGNDELAYED) == 0) { // ::= (it is needed, but not in Cambria Math)
-          Array<MathGlyphPartRecord> lig;
-          
-          lig.length(3);
-          lig.zeromem();
-          lig[0].glyph = lig[1].glyph = impl->fi.char_to_glyph(0x2236); //colon
-          lig[2].glyph = impl->fi.char_to_glyph('=');
-          
-          static_canvas.canvas.set_font_face(impl->text_shaper->font(0));
-          static_canvas.canvas.set_font_size(impl->units_per_em);
-          cairo_text_extents_t cte;
-          cairo_glyph_t cg;
-          cg.x = 0;
-          cg.y = 0;
-          cg.index = lig[0].glyph;
-          static_canvas.canvas.glyph_extents(&cg, 1, &cte);
-          lig[0].full_advance = lig[1].full_advance =
-                                  (uint16_t)cte.x_advance + impl->min_connector_overlap;
-                                  
-          cg.index = lig[lig.length() - 1].glyph;
-          static_canvas.canvas.glyph_extents(&cg, 1, &cte);
-          lig[lig.length() - 1].full_advance = (uint16_t)cte.x_advance;
-          
-          impl->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
-        }
-        
-        if(impl->fi.char_to_glyph(PMATH_CHAR_RULEDELAYED) == 0) { // :-> (it is needed, but not in Cambria Math)
-          Array<MathGlyphPartRecord> lig;
-          
-          lig.length(2);
-          lig.zeromem();
-          lig[0].glyph = impl->fi.char_to_glyph(0x2236); //colon
-          lig[1].glyph = impl->fi.char_to_glyph(PMATH_CHAR_RULE);
-          
-          static_canvas.canvas.set_font_face(impl->text_shaper->font(0));
-          static_canvas.canvas.set_font_size(impl->units_per_em);
-          cairo_text_extents_t cte;
-          cairo_glyph_t cg;
-          cg.x = 0;
-          cg.y = 0;
-          
-          cg.index = lig[0].glyph;
-          static_canvas.canvas.glyph_extents(&cg, 1, &cte);
-          lig[0].full_advance = //lig[1].full_advance =
-            (uint16_t)cte.x_advance + impl->min_connector_overlap;
-            
-          cg.index = lig[1].glyph;
-          static_canvas.canvas.glyph_extents(&cg, 1, &cte);
-          lig[1].full_advance = (uint16_t)cte.x_advance;
-          
-          impl->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
-        }
-        
-        if(name.equals("GFS Neohellenic Math")) {
-          // Fix wrong full_advance values for Sqrt parts
-          // Since we ignore start_connector_length and end_connector_length, those need not be corrected
-          if(auto ass = impl->get_vert_assembly(SqrtChar, impl->fi.char_to_glyph(SqrtChar))) {
-            if( ass->length() == 3 && 
-                (*ass)[0].full_advance == 1820 && 
-                (*ass)[1].full_advance == 640 && 
-                (*ass)[2].full_advance == 620
-            ) {
-              (*ass)[0].full_advance = 1674;
-              (*ass)[1].full_advance = 730;  // 733
-              (*ass)[2].full_advance = 1586;
-            }
-          }
-          
-          // Fix wrong full_advance values for left brace parts
-          // Since we ignore start_connector_length and end_connector_length, those need not be corrected
-          const uint32_t braces[2] = {'{', '}'};
-          for(uint32_t brace_char : braces) {
-            if(auto ass = impl->get_vert_assembly(brace_char, impl->fi.char_to_glyph(brace_char))) {
-              if( ass->length() == 5 && 
-                  (*ass)[0].full_advance == 750 && 
-                  (*ass)[1].full_advance == 748 && 
-                  (*ass)[2].full_advance == 1500 && 
-                  (*ass)[3].full_advance == 748 && 
-                  (*ass)[4].full_advance == 750
-              ) {
-                (*ass)[0].full_advance = 880; // height: 882 or with serifs 894
-                (*ass)[1].full_advance = 600; // height 666;
-                (*ass)[2].full_advance = 1660;// height 1671;
-                (*ass)[3].full_advance = 600; // height 666;
-                (*ass)[4].full_advance = 880; // height: 882 or with serifs 894
-              }
-            }
-          }
-        }
-        
-        return impl;
-      }
-      
-      Array<MathGlyphVariantRecord> *get_vert_variants(uint32_t ch, uint16_t glyph) {
-        if(auto res = vert_variants.search(glyph))
-          return res;
-          
-        if(uint16_t alt = alt_glyphs[ch])
-          return vert_variants.search(alt);
-          
-        return nullptr;
-      }
-      
-      Array<MathGlyphVariantRecord> *get_horz_variants(uint32_t ch, uint16_t glyph) {
-        if(auto res = horz_variants.search(glyph))
-          return res;
-          
-        if(uint16_t alt = alt_glyphs[ch])
-          return horz_variants.search(alt);
-          
-        return 0;
-      }
-      
-      Array<MathGlyphPartRecord> *get_vert_assembly(uint32_t ch, uint16_t glyph) {
-        if(auto res = vert_assembly.search(glyph))
-          return res;
-          
-        if(uint16_t alt = alt_glyphs[ch])
-          return vert_assembly.search(alt);
-          
-        return 0;
-      }
-      
-      Array<MathGlyphPartRecord> *get_horz_assembly(uint32_t ch, uint16_t glyph) {
-        if(auto res = horz_assembly.search(glyph))
-          return res;
-          
-        if(uint16_t alt = alt_glyphs[ch]) {
-          if(auto res = horz_assembly.search(alt))
-            return res;
-        }
-        
-        return private_ligatures.search(ch);
-      }
+      static SharedPtr<OTMathShaperImpl> try_load(String name, FontStyle style);
+      Array<MathGlyphVariantRecord> *get_vert_variants(uint32_t ch, uint16_t glyph);
+      Array<MathGlyphVariantRecord> *get_horz_variants(uint32_t ch, uint16_t glyph);
+      Array<MathGlyphPartRecord> *get_vert_assembly(uint32_t ch, uint16_t glyph);
+      Array<MathGlyphPartRecord> *get_horz_assembly(uint32_t ch, uint16_t glyph);
       
       void stretch_glyph_assembly(
         Context                    &context,
         float                       width,
         Array<MathGlyphPartRecord> *parts,
-        GlyphInfo                  *result
-      ) {
-        float pt = context.canvas().get_font_size() / units_per_em;
-        int extenders = 0;
-        float ext_w = 0;
-        float non_ext_w = 0;
-        float overlap  = min_connector_overlap * pt;
-        
-        context.canvas().set_font_face(text_shaper->font(0));
-        result->fontinfo           = 0;
-        result->x_offset           = 0;
-        result->composed           = 1;
-        result->horizontal_stretch = 1;
-        result->is_normal_text     = 0;
-        
-        for(const auto &part : *parts) {
-          if(part.flags & MGPRF_Extender) {
-            ++extenders;
-            ext_w += part.full_advance * pt;
-            ext_w -= overlap;
-          }
-          else {
-            non_ext_w += part.full_advance * pt;
-            non_ext_w -= overlap;
-          }
-        }
-        
-        result->ext.num_extenders = 0;
-        result->ext.rel_overlap = 0;
-        if(extenders) {
-          int count = floorf((width - non_ext_w) / ext_w + 0.5f);
-          
-          if(count >= 0)
-            result->ext.num_extenders = count;
-        }
-        
-        result->right = 0;
-        for(const auto &part : *parts) {
-          if(part.flags & MGPRF_Extender) {
-            result->right += result->index * (part.full_advance * pt);
-            result->right -= result->index * overlap;
-          }
-          else {
-            result->right += part.full_advance * pt;
-            result->right -= overlap;
-          }
-        }
-        
-        result->right += overlap;
-      }
+        GlyphInfo                  *result);
       
       void vertical_stretch_char(
         Context        &context,
@@ -961,202 +428,23 @@ namespace richmath {
         float           abs_tolerance_per_em,
         bool            full_stretch,
         const uint16_t  ch,
-        GlyphInfo      *result
-      ) {
-        uint16_t glyph = result->index;
-        if(!glyph) {
-          glyph = fi.char_to_glyph(ch);
-        }
-        
-        Array<MathGlyphVariantRecord> *var = get_vert_variants(ch, glyph);
-        
-        float em = context.canvas().get_font_size();
-        
-        float max = Infinity;
-        if(!full_stretch)
-          max = 2 * em;
-          
-        if(var) {
-          cairo_text_extents_t cte;
-          cairo_glyph_t        cg;
-          
-          cg.x = 0;
-          cg.y = 0;
-          context.canvas().set_font_face(text_shaper->font(0));
-          result->fontinfo          = 0;
-          result->x_offset          = 0;
-          result->composed          = 0;
-          result->is_normal_text    = 0;
-          result->vertical_centered = 1;
-          
-          int i = 0;
-          if(context.script_indent == 0) {
-            if(pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))
-              i = 1;
-          }
-          
-          for(; i < var->length(); ++i) {
-            cg.index = var->get(i).glyph;
-            context.canvas().glyph_extents(&cg, 1, &cte);
-            
-            result->index = cg.index;
-            result->right = cte.x_advance;
-            
-            if( total_height <= cte.height * rel_tolerance ||
-                max < cte.height /*&& min <= cte.height*/)
-            {
-              return;
-            }
-          }
-        }
-        
-        if(!full_stretch)
-          return;
-          
-        if(auto ass = get_vert_assembly(ch, glyph)) {
-          int extenders = 0;
-          float ext_h = 0;
-          float non_ext_h = 0;
-          float overlap  = min_connector_overlap * em / units_per_em;
-          
-          context.canvas().set_font_face(text_shaper->font(0));
-          result->fontinfo           = 0;
-          result->x_offset           = 0;
-          result->composed           = 1;
-          result->horizontal_stretch = 0;
-          result->is_normal_text     = 0;
-          result->vertical_centered  = 0;
-          
-          for(const auto &part : *ass) {
-            if(part.flags & MGPRF_Extender) {
-              ++extenders;
-              ext_h += part.full_advance * em / units_per_em;
-              ext_h -= overlap;
-            }
-            else {
-              non_ext_h += part.full_advance * em / units_per_em;
-              non_ext_h -= overlap;
-            }
-          }
-          
-          if(extenders) {
-            int count = floorf((total_height - non_ext_h) / ext_h + 0.5f);
-            
-            if(count * ext_h + non_ext_h <= total_height - abs_tolerance_per_em * em)
-              count += 1;
-              
-            if(count >= 0) {
-              result->ext.num_extenders = count;
-              result->ext.rel_overlap = 0;
-            }
-            else {
-              if(var) {
-                result->composed = 0;
-                return;
-              }
-              result->ext.num_extenders = 0;
-              result->ext.rel_overlap = 0;
-            }
-          }
-          
-          result->right = 0;
-          context.canvas().set_font_face(text_shaper->font(0));
-          cairo_text_extents_t cte;
-          cairo_glyph_t        cg;
-          cg.x = 0;
-          cg.y = 0;
-          for(const auto &part : *ass) {
-            cg.index = part.glyph;
-            context.canvas().glyph_extents(&cg, 1, &cte);
-            
-            if(result->right < cte.x_advance)
-              result->right = cte.x_advance;
-          }
-        }
-      }
-      
+        GlyphInfo      *result);
       
     private:
-      bool set_private_char(uint32_t ch, uint32_t fallback) {
-        if(uint16_t glyph = fi.char_to_glyph(fallback)) {
-          private_characters.set(ch, glyph);
-          alt_glyphs.set(ch, glyph);
-          return true;
-        }
-        return false;
-      }
-      
-      bool set_alt_char(uint32_t ch, uint32_t fallback) {
-        if(uint16_t glyph = fi.char_to_glyph(fallback)) {
-          alt_glyphs.set(ch, glyph);
-          return true;
-        }
-        return false;
-      }
-      
+      bool set_private_char(uint32_t ch, uint32_t fallback);
+      bool set_alt_char(uint32_t ch, uint32_t fallback);
   };
   
   class OTMathShaperDB: public Shareable {
       friend class OTMathShaper;
     public:
-      virtual ~OTMathShaperDB() {
-      }
-      
-      static void dispose_all() {
-        registered.clear();
-      }
-      
-      static SharedPtr<OTMathShaper> try_register(const String name) {
-        SharedPtr<OTMathShaperImpl> plain_impl = OTMathShaperImpl::try_load(name, NoStyle);
-        if(!plain_impl.is_valid())
-          return nullptr;
-          
-        SharedPtr<OTMathShaper> plain_shaper = new OTMathShaper(plain_impl, NoStyle);
-        
-        SharedPtr<OTMathShaperDB> db = new OTMathShaperDB(name, plain_shaper);
-        registered.set(name, db);
-        return plain_shaper;
-      }
-      
-      static SharedPtr<OTMathShaper> try_find(String name, FontStyle style) {
-        SharedPtr<OTMathShaperDB> db = registered[name];
-        
-        if(db)
-          return db->find(style);
-          
-        return nullptr;
-      }
-      
-      SharedPtr<OTMathShaper> find(FontStyle style) {
-        int i = (int)style;
-        
-        if(shapers[i].is_valid())
-          return shapers[i];
-          
-        SharedPtr<OTMathShaperImpl> impl = OTMathShaperImpl::try_load(name, style);
-        if(!impl.is_valid()) {
-          printf("OTMathShaperImpl::try_load failed for style %x\n", (unsigned)style);
-          
-          if(!shapers[(int)NoStyle].is_valid()) {
-            assert(0 && "invalid OTMathShaperDB");
-          }
-          
-          impl = shapers[(int)NoStyle]->impl;
-        }
-        
-        shapers[i] = new OTMathShaper(impl, style);
-        return shapers[i];
-      }
+      static void dispose_all();
+      static SharedPtr<OTMathShaper> try_register(const String name);
+      static SharedPtr<OTMathShaper> try_find(String name, FontStyle style);
+      SharedPtr<OTMathShaper> find(FontStyle style);
       
     private:
-      OTMathShaperDB(String _name, SharedPtr<OTMathShaper> plain_shaper)
-        : Shareable(),
-          name(_name)
-      {
-        SET_BASE_DEBUG_TAG(typeid(*this).name());
-        
-        shapers[(int)NoStyle] = plain_shaper;
-      }
+      OTMathShaperDB(String _name, SharedPtr<OTMathShaper> plain_shaper);
       
     private:
       static Hashtable<String, SharedPtr<OTMathShaperDB> > registered;
@@ -2187,3 +1475,751 @@ float OTMathShaper::get_center_height(Context &context, uint8_t fontinfo) {
 }
 
 //} ... class OTMathShaper
+
+//{ class OTMathShaperImpl ...
+
+OTMathShaperImpl::OTMathShaperImpl(String _name, FontStyle _style)
+  : Shareable(),
+    name(_name),
+    text_shaper(new FallbackTextShaper(TextShaper::find(_name, _style))),
+    fi(text_shaper->font(0)),
+    style(_style)
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
+  text_shaper->add_default();
+  
+  private_characters.default_value = 0;
+  alt_glyphs.default_value = 0;
+  italics_correction.default_value = 0;
+  top_accents.default_value = 0;
+}
+
+SharedPtr<OTMathShaperImpl> OTMathShaperImpl::try_load(String name, FontStyle style) {
+  if(!FontInfo::font_exists_exact(name))
+    return nullptr;
+  
+  SharedPtr<OTMathShaperImpl> impl = new OTMathShaperImpl(name, style);
+  
+  size_t MATH_size = impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, 0, 0);
+  
+  if(!MATH_size)
+    return nullptr;
+    
+//        impl->private_characters.set(0x2061, 0); // function application
+  impl->set_private_char(0x2061, ' ');
+  
+  impl->set_private_char(PMATH_CHAR_LEFTINVISIBLEBRACKET,     0x200B);
+  impl->set_private_char(PMATH_CHAR_RIGHTINVISIBLEBRACKET,    0x200B);
+  impl->set_private_char(PMATH_CHAR_LEFTBRACKETINGBAR,        0x2223);
+  impl->set_private_char(PMATH_CHAR_RIGHTBRACKETINGBAR,       0x2223);
+  impl->set_private_char(PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR,  0x2225);
+  impl->set_private_char(PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR, 0x2225);
+  impl->set_private_char(PMATH_CHAR_PIECEWISE, '{');
+  impl->set_private_char(PMATH_CHAR_ALIASDELIMITER, 0x21E9);
+  impl->set_private_char(PMATH_CHAR_ALIASINDICATOR, 0x21E9);
+  impl->set_private_char(PMATH_CHAR_SELECTIONPLACEHOLDER, 0x220E);
+  impl->set_private_char(CHAR_LINE_CONTINUATION,          0x22F1);
+  if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x29E0))
+    if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x25A1))
+      impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x2B1A);
+  impl->set_private_char('-', 0x2212);
+  impl->set_private_char(0x2145, 0x1D403); // DD
+  impl->set_private_char(0x2146, 0x1D41D); // dd
+  impl->set_private_char(0x2147, 0x1D41E); // ee
+  impl->set_private_char(0x2148, 0x1D422); // ii
+  impl->set_private_char(0x2149, 0x1D423); // jj
+  
+  impl->set_alt_char('^',    0x0302);
+  impl->set_alt_char('~',    0x0303);
+  impl->set_alt_char('_',    0x0305);
+  impl->set_alt_char(0x02C7, 0x030C); // caron
+  impl->set_alt_char(0x21C0, 0x20D1); // vector
+  
+  impl->set_alt_char(0x2227, 0x22C0); // and
+  impl->set_alt_char(0x2228, 0x22C1); // or
+  impl->set_alt_char(0x2229, 0x22C2); // intersect
+  impl->set_alt_char(0x222A, 0x22C3); // union
+  impl->set_alt_char(0x2299, 0x2A00); // c.
+  impl->set_alt_char(0x2295, 0x2A01); // c+
+  impl->set_alt_char(0x2297, 0x2A02); // c*
+  impl->set_alt_char(0x2293, 0x2A05); // cap
+  impl->set_alt_char(0x2294, 0x2A06); // cup
+  impl->set_alt_char(0x00D7, 0x2A09); // times
+  
+  /* Ugly workaround to access cross product character. Glyph 941 is a small
+     cross, but it has no character mapping. Fontforge doesn't even list this
+     glyph! So we have to hardwire it here, because the cross product is
+     rather important and should be distinguishable from the times character.
+  
+     A better workaround would be to specify some fallback font.
+   */
+  if(name.equals("Cambria Math")) {
+    impl->private_characters.set(0x2A2F, 941);
+  }
+  else if(impl->fi.char_to_glyph(0x2A2F) == 0) { // cross
+    impl->set_private_char(0x2A2F, 0x00D7);
+  }
+  
+  /* Ugly workaround to access degree character in Asana Math. The font
+     assigns the glyph #1 to the degree character, which is clearly a bug,
+     because glyph #1 is the space.
+     We use the MASCULINE ORDINAL INDICATOR U+00BA which looks like a degree
+     sign in that font.
+   */
+  if(name.equals("Asana Math")) {
+//      pmath_debug_print("Asana Math degree glyph: %d\n", impl->fi.char_to_glyph(0x00B0));
+    impl->set_private_char(0x00B0, 0x00BA);
+  }
+  
+  impl->units_per_em = 1024;
+  impl->fi.get_truetype_table(FONT_TABLE_NAME('h', 'e', 'a', 'd'), 18, &impl->units_per_em, 2);
+  impl->units_per_em = BigEndian::read(impl->units_per_em);
+  
+  Array<uint8_t> data(MATH_size);
+  impl->fi.get_truetype_table(FONT_TABLE_NAME('M', 'A', 'T', 'H'), 0, data.items(), MATH_size);
+  const uint8_t *table = data.items();
+  
+  const MathTableHeader *math_header = (const MathTableHeader *)table;
+  
+  {
+    uint16_t       *db_consts = (uint16_t *)&impl->consts;
+    const uint16_t *consts    = (const uint16_t *)(table + BigEndian::read(math_header->constants_offset));
+    for(size_t i = 0; i < sizeof(MathConstants) / 2; ++i)
+      db_consts[i] = BigEndian::read(consts[i]);
+  }
+  
+  if(math_header->glyphinfo_offset) {
+    const MathGlyphInfo *glyphinfo = (const MathGlyphInfo *)
+                                     (table + BigEndian::read(math_header->glyphinfo_offset));
+                                     
+    if(glyphinfo->kern_info_offset) {
+      const MathKernInfo *kern_info = (const MathKernInfo *)
+                                      (((const char *)glyphinfo) + BigEndian::read(glyphinfo->kern_info_offset));
+                                      
+      const uint16_t *coverage = (const uint16_t *)
+                                 (((const char *)kern_info) + BigEndian::read(kern_info->coverage_offset));
+                                 
+      switch(BigEndian::read(coverage[0])) { // coverage format
+        case 1: {
+            const uint16_t *glyphs = (const uint16_t *)
+                                     (((const char *)coverage) + 4); // skip format, count
+                                     
+            for(uint16_t i = 0; i < BigEndian::read(kern_info->count); ++i) {
+              const MathKernVertex *vertex;
+              
+              for(int edge = 0; edge < 4; ++edge) {
+                if(kern_info->offsets[i][edge]) {
+                  vertex = (const MathKernVertex *)
+                           (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
+                           
+                  impl->math_kern[edge].set(
+                    BigEndian::read(glyphs[i]),
+                    KernVertexObject(vertex));
+                }
+              }
+            }
+          } break;
+          
+        case 2: {
+            const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
+                                             (((const char *)coverage) + 4);
+                                             
+            for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
+              uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
+              uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
+              uint16_t start_index = BigEndian::read(ranges[r].start_index);
+              
+              for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
+                const MathKernVertex *vertex;
+                
+                uint16_t i = start_index + g - start_glyph;
+                
+                for(int edge = 0; edge < 4; ++edge) {
+                  if(kern_info->offsets[i][edge]) {
+                    vertex = (const MathKernVertex *)
+                             (((const char *)kern_info) + BigEndian::read(kern_info->offsets[i][edge]));
+                             
+                    impl->math_kern[edge].set(g, KernVertexObject(vertex));
+                  }
+                }
+              }
+            }
+          } break;
+      }
+    }
+    
+    if(style.italic) {
+      /* The synthesized italics font seems to get an horizontal shear of about x:= 0.33,
+        meaning that
+        RawBoxes@TransformationBox(
+          ToBoxes@Style("ff",FontSlant->Plain,72),
+          BoxTransformation->{{1,x},{0,1}})
+        looks like Style("ff",FontSlant->Italic,72) for Cambria Math on Windows 7.
+      
+        Since a glyphs accent height is typically not 1em, but about 0.5em, we further
+        multiply by that factor to not spread glyphs too much
+       */
+      impl->italics_correction.default_value = (int)(impl->units_per_em * 0.33 * 0.5);
+    }
+    
+    if(glyphinfo->italics_correction_info_offset) {
+      const MathItalicsCorrectionInfo *ital_corr_info = (const MathItalicsCorrectionInfo *)
+          (((const char *)glyphinfo) + BigEndian::read(glyphinfo->italics_correction_info_offset));
+          
+      const uint16_t *coverage = (const uint16_t *)
+                                 (((const char *)ital_corr_info) + BigEndian::read(ital_corr_info->coverage_offset));
+                                 
+      switch(BigEndian::read(coverage[0])) { // coverage format
+        case 1: {
+            const uint16_t *glyphs = (const uint16_t *)
+                                     (((const char *)coverage) + 4); // skip format, count
+                                     
+            for(uint16_t i = 0; i < BigEndian::read(ital_corr_info->count); ++i) {
+              impl->italics_correction.set(
+                BigEndian::read(glyphs[i]),
+                BigEndian::read(ital_corr_info->italics_corrections[i].value));
+            }
+          } break;
+          
+        case 2: {
+            const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
+                                             (((const char *)coverage) + 4);
+                                             
+            for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
+              uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
+              uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
+              uint16_t start_index = BigEndian::read(ranges[r].start_index);
+              
+              for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
+                int16_t value = BigEndian::read(
+                                  ital_corr_info->italics_corrections[start_index + g - start_glyph].value);
+                                  
+                impl->italics_correction.set(g, value);
+              }
+            }
+          } break;
+      }
+    }
+    
+    if(glyphinfo->top_accent_attachment_offset) {
+      const MathTopAccentAttachment *top_acc = (const MathTopAccentAttachment *)
+          (((const char *)glyphinfo) + BigEndian::read(glyphinfo->top_accent_attachment_offset));
+          
+      const uint16_t *coverage = (const uint16_t *)
+                                 (((const char *)top_acc) + BigEndian::read(top_acc->coverage_offset));
+                                 
+      switch(BigEndian::read(coverage[0])) { // coverage format
+        case 1: {
+            const uint16_t *glyphs = (const uint16_t *)
+                                     (((const char *)coverage) + 4); // skip format, count
+                                     
+            for(uint16_t i = 0; i < BigEndian::read(top_acc->count); ++i) {
+              impl->top_accents.set(
+                BigEndian::read(glyphs[i]),
+                BigEndian::read(top_acc->top_accent_attachment[i].value));
+            }
+          } break;
+          
+        case 2: {
+            const GlyphRangeRecord *ranges = (const GlyphRangeRecord *)
+                                             (((const char *)coverage) + 4);
+                                             
+            for(uint16_t r = 0; r < BigEndian::read(coverage[1]); ++r) {
+              uint16_t start_glyph = BigEndian::read(ranges[r].start_glyph);
+              uint16_t end_glyph   = BigEndian::read(ranges[r].end_glyph);
+              uint16_t start_index = BigEndian::read(ranges[r].start_index);
+              
+              for(uint16_t g = start_glyph; g <= end_glyph; ++g) {
+                int16_t value = BigEndian::read(
+                                  top_acc->top_accent_attachment[start_index + g - start_glyph].value);
+                                  
+                impl->top_accents.set(g, value);
+              }
+            }
+          } break;
+      }
+    }
+  }
+  
+  if(math_header->variants_offset) {
+    static Array<MathGlyphVariantRecord> variant_array;
+    static Array<MathGlyphPartRecord>    assambly_array;
+    
+    const MathVariants *variants = (const MathVariants *)
+                                   (table + BigEndian::read(math_header->variants_offset));
+                                   
+    impl->min_connector_overlap = BigEndian::read(variants->min_connector_overlap);
+    
+    uint16_t vert_count = BigEndian::read(variants->vert_glyph_count);
+    for(uint16_t i = 0; i < vert_count; ++i) {
+      const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
+          (((const char *)variants) + BigEndian::read(variants->glyph_construction_offsets[i]));
+          
+      if(construction->count) {
+        if(construction->assembly_offset) {
+          const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
+                                              (((const char *)construction) + BigEndian::read(construction->assembly_offset));
+                                              
+          if(assambly->count) {
+            assambly_array.length(BigEndian::read(assambly->count));
+            
+            for(int j = 0; j < assambly_array.length(); ++j) {
+              const uint16_t *src = (const uint16_t *)&assambly->parts[j];
+              uint16_t       *dst = (uint16_t *)&assambly_array[j];
+              
+              for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
+                dst[k] = BigEndian::read(src[k]);
+            }
+            
+            impl->vert_assembly.set(
+              BigEndian::read(construction->variants[0].glyph),
+              assambly_array);
+          }
+        }
+        
+        variant_array.length(BigEndian::read(construction->count));
+        if(variant_array.length() > 1) {
+          for(int j = 0; j < variant_array.length(); ++j) {
+            variant_array[j].glyph   = BigEndian::read(construction->variants[j].glyph);
+            variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
+          }
+          
+          impl->vert_variants.set(
+            BigEndian::read(construction->variants[0].glyph),
+            variant_array);
+        }
+      }
+    }
+    
+    uint16_t horz_count = BigEndian::read(variants->horz_glyph_count);
+    for(uint16_t i = 0; i < horz_count; ++i) {
+      const MathGlyphConstruction *construction = (const MathGlyphConstruction *)
+          (((const char *)variants) + BigEndian::read(variants->glyph_construction_offsets[vert_count + i]));
+          
+      if(construction->count) {
+        if(construction->assembly_offset) {
+          const MathGlyphAssembly *assambly = (const MathGlyphAssembly *)
+                                              (((const char *)construction) + BigEndian::read(construction->assembly_offset));
+                                              
+          if(assambly->count) {
+            assambly_array.length(BigEndian::read(assambly->count));
+            
+            for(int j = 0; j < assambly_array.length(); ++j) {
+              const uint16_t *src = (const uint16_t *)&assambly->parts[j];
+              uint16_t       *dst = (uint16_t *)&assambly_array[j];
+              
+              for(size_t k = 0; k < sizeof(MathGlyphPartRecord) / 2; ++k)
+                dst[k] = BigEndian::read(src[k]);
+            }
+            
+            impl->horz_assembly.set(
+              BigEndian::read(construction->variants[0].glyph),
+              assambly_array);
+          }
+        }
+        
+        variant_array.length(BigEndian::read(construction->count));
+        if(variant_array.length() > 1) {
+          for(int j = 0; j < variant_array.length(); ++j) {
+            variant_array[j].glyph   = BigEndian::read(construction->variants[j].glyph);
+            variant_array[j].advance = BigEndian::read(construction->variants[j].advance);
+          }
+          
+          impl->horz_variants.set(
+            BigEndian::read(construction->variants[0].glyph),
+            variant_array);
+        }
+      }
+    }
+    
+  }
+  
+  if(impl->fi.char_to_glyph(PMATH_CHAR_ASSIGNDELAYED) == 0) { // ::= (it is needed, but not in Cambria Math)
+    Array<MathGlyphPartRecord> lig;
+    
+    lig.length(3);
+    lig.zeromem();
+    lig[0].glyph = lig[1].glyph = impl->fi.char_to_glyph(0x2236); //colon
+    lig[2].glyph = impl->fi.char_to_glyph('=');
+    
+    static_canvas.canvas.set_font_face(impl->text_shaper->font(0));
+    static_canvas.canvas.set_font_size(impl->units_per_em);
+    cairo_text_extents_t cte;
+    cairo_glyph_t cg;
+    cg.x = 0;
+    cg.y = 0;
+    cg.index = lig[0].glyph;
+    static_canvas.canvas.glyph_extents(&cg, 1, &cte);
+    lig[0].full_advance = lig[1].full_advance =
+                            (uint16_t)cte.x_advance + impl->min_connector_overlap;
+                            
+    cg.index = lig[lig.length() - 1].glyph;
+    static_canvas.canvas.glyph_extents(&cg, 1, &cte);
+    lig[lig.length() - 1].full_advance = (uint16_t)cte.x_advance;
+    
+    impl->private_ligatures.set(PMATH_CHAR_ASSIGNDELAYED, lig);
+  }
+  
+  if(impl->fi.char_to_glyph(PMATH_CHAR_RULEDELAYED) == 0) { // :-> (it is needed, but not in Cambria Math)
+    Array<MathGlyphPartRecord> lig;
+    
+    lig.length(2);
+    lig.zeromem();
+    lig[0].glyph = impl->fi.char_to_glyph(0x2236); //colon
+    lig[1].glyph = impl->fi.char_to_glyph(PMATH_CHAR_RULE);
+    
+    static_canvas.canvas.set_font_face(impl->text_shaper->font(0));
+    static_canvas.canvas.set_font_size(impl->units_per_em);
+    cairo_text_extents_t cte;
+    cairo_glyph_t cg;
+    cg.x = 0;
+    cg.y = 0;
+    
+    cg.index = lig[0].glyph;
+    static_canvas.canvas.glyph_extents(&cg, 1, &cte);
+    lig[0].full_advance = //lig[1].full_advance =
+      (uint16_t)cte.x_advance + impl->min_connector_overlap;
+      
+    cg.index = lig[1].glyph;
+    static_canvas.canvas.glyph_extents(&cg, 1, &cte);
+    lig[1].full_advance = (uint16_t)cte.x_advance;
+    
+    impl->private_ligatures.set(PMATH_CHAR_RULEDELAYED, lig);
+  }
+  
+  if(name.equals("GFS Neohellenic Math")) {
+    // Fix wrong full_advance values for Sqrt parts
+    // Since we ignore start_connector_length and end_connector_length, those need not be corrected
+    if(auto ass = impl->get_vert_assembly(SqrtChar, impl->fi.char_to_glyph(SqrtChar))) {
+      if( ass->length() == 3 && 
+          (*ass)[0].full_advance == 1820 && 
+          (*ass)[1].full_advance == 640 && 
+          (*ass)[2].full_advance == 620
+      ) {
+        (*ass)[0].full_advance = 1674;
+        (*ass)[1].full_advance = 730;  // 733
+        (*ass)[2].full_advance = 1586;
+      }
+    }
+    
+    // Fix wrong full_advance values for left brace parts
+    // Since we ignore start_connector_length and end_connector_length, those need not be corrected
+    const uint32_t braces[2] = {'{', '}'};
+    for(uint32_t brace_char : braces) {
+      if(auto ass = impl->get_vert_assembly(brace_char, impl->fi.char_to_glyph(brace_char))) {
+        if( ass->length() == 5 && 
+            (*ass)[0].full_advance == 750 && 
+            (*ass)[1].full_advance == 748 && 
+            (*ass)[2].full_advance == 1500 && 
+            (*ass)[3].full_advance == 748 && 
+            (*ass)[4].full_advance == 750
+        ) {
+          (*ass)[0].full_advance = 880; // height: 882 or with serifs 894
+          (*ass)[1].full_advance = 600; // height 666;
+          (*ass)[2].full_advance = 1660;// height 1671;
+          (*ass)[3].full_advance = 600; // height 666;
+          (*ass)[4].full_advance = 880; // height: 882 or with serifs 894
+        }
+      }
+    }
+  }
+  
+  return impl;
+}
+
+Array<MathGlyphVariantRecord> *OTMathShaperImpl::get_vert_variants(uint32_t ch, uint16_t glyph) {
+  if(auto res = vert_variants.search(glyph))
+    return res;
+    
+  if(uint16_t alt = alt_glyphs[ch])
+    return vert_variants.search(alt);
+    
+  return nullptr;
+}
+
+Array<MathGlyphVariantRecord> *OTMathShaperImpl::get_horz_variants(uint32_t ch, uint16_t glyph) {
+  if(auto res = horz_variants.search(glyph))
+    return res;
+    
+  if(uint16_t alt = alt_glyphs[ch])
+    return horz_variants.search(alt);
+    
+  return 0;
+}
+
+Array<MathGlyphPartRecord> *OTMathShaperImpl::get_vert_assembly(uint32_t ch, uint16_t glyph) {
+  if(auto res = vert_assembly.search(glyph))
+    return res;
+    
+  if(uint16_t alt = alt_glyphs[ch])
+    return vert_assembly.search(alt);
+    
+  return 0;
+}
+
+Array<MathGlyphPartRecord> *OTMathShaperImpl::get_horz_assembly(uint32_t ch, uint16_t glyph) {
+  if(auto res = horz_assembly.search(glyph))
+    return res;
+    
+  if(uint16_t alt = alt_glyphs[ch]) {
+    if(auto res = horz_assembly.search(alt))
+      return res;
+  }
+  
+  return private_ligatures.search(ch);
+}
+
+void OTMathShaperImpl::stretch_glyph_assembly(
+  Context                    &context,
+  float                       width,
+  Array<MathGlyphPartRecord> *parts,
+  GlyphInfo                  *result
+) {
+  float pt = context.canvas().get_font_size() / units_per_em;
+  int extenders = 0;
+  float ext_w = 0;
+  float non_ext_w = 0;
+  float overlap  = min_connector_overlap * pt;
+  
+  context.canvas().set_font_face(text_shaper->font(0));
+  result->fontinfo           = 0;
+  result->x_offset           = 0;
+  result->composed           = 1;
+  result->horizontal_stretch = 1;
+  result->is_normal_text     = 0;
+  
+  for(const auto &part : *parts) {
+    if(part.flags & MGPRF_Extender) {
+      ++extenders;
+      ext_w += part.full_advance * pt;
+      ext_w -= overlap;
+    }
+    else {
+      non_ext_w += part.full_advance * pt;
+      non_ext_w -= overlap;
+    }
+  }
+  
+  result->ext.num_extenders = 0;
+  result->ext.rel_overlap = 0;
+  if(extenders) {
+    int count = floorf((width - non_ext_w) / ext_w + 0.5f);
+    
+    if(count >= 0)
+      result->ext.num_extenders = count;
+  }
+  
+  result->right = 0;
+  for(const auto &part : *parts) {
+    if(part.flags & MGPRF_Extender) {
+      result->right += result->index * (part.full_advance * pt);
+      result->right -= result->index * overlap;
+    }
+    else {
+      result->right += part.full_advance * pt;
+      result->right -= overlap;
+    }
+  }
+  
+  result->right += overlap;
+}
+
+void OTMathShaperImpl::vertical_stretch_char(
+  Context        &context,
+  float           total_height,
+  float           rel_tolerance,
+  float           abs_tolerance_per_em,
+  bool            full_stretch,
+  const uint16_t  ch,
+  GlyphInfo      *result
+) {
+  uint16_t glyph = result->index;
+  if(!glyph) {
+    glyph = fi.char_to_glyph(ch);
+  }
+  
+  Array<MathGlyphVariantRecord> *var = get_vert_variants(ch, glyph);
+  
+  float em = context.canvas().get_font_size();
+  
+  float max = Infinity;
+  if(!full_stretch)
+    max = 2 * em;
+    
+  if(var) {
+    cairo_text_extents_t cte;
+    cairo_glyph_t        cg;
+    
+    cg.x = 0;
+    cg.y = 0;
+    context.canvas().set_font_face(text_shaper->font(0));
+    result->fontinfo          = 0;
+    result->x_offset          = 0;
+    result->composed          = 0;
+    result->is_normal_text    = 0;
+    result->vertical_centered = 1;
+    
+    int i = 0;
+    if(context.script_indent == 0) {
+      if(pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))
+        i = 1;
+    }
+    
+    for(; i < var->length(); ++i) {
+      cg.index = var->get(i).glyph;
+      context.canvas().glyph_extents(&cg, 1, &cte);
+      
+      result->index = cg.index;
+      result->right = cte.x_advance;
+      
+      if( total_height <= cte.height * rel_tolerance ||
+          max < cte.height /*&& min <= cte.height*/)
+      {
+        return;
+      }
+    }
+  }
+  
+  if(!full_stretch)
+    return;
+    
+  if(auto ass = get_vert_assembly(ch, glyph)) {
+    int extenders = 0;
+    float ext_h = 0;
+    float non_ext_h = 0;
+    float overlap  = min_connector_overlap * em / units_per_em;
+    
+    context.canvas().set_font_face(text_shaper->font(0));
+    result->fontinfo           = 0;
+    result->x_offset           = 0;
+    result->composed           = 1;
+    result->horizontal_stretch = 0;
+    result->is_normal_text     = 0;
+    result->vertical_centered  = 0;
+    
+    for(const auto &part : *ass) {
+      if(part.flags & MGPRF_Extender) {
+        ++extenders;
+        ext_h += part.full_advance * em / units_per_em;
+        ext_h -= overlap;
+      }
+      else {
+        non_ext_h += part.full_advance * em / units_per_em;
+        non_ext_h -= overlap;
+      }
+    }
+    
+    if(extenders) {
+      int count = floorf((total_height - non_ext_h) / ext_h + 0.5f);
+      
+      if(count * ext_h + non_ext_h <= total_height - abs_tolerance_per_em * em)
+        count += 1;
+        
+      if(count >= 0) {
+        result->ext.num_extenders = count;
+        result->ext.rel_overlap = 0;
+      }
+      else {
+        if(var) {
+          result->composed = 0;
+          return;
+        }
+        result->ext.num_extenders = 0;
+        result->ext.rel_overlap = 0;
+      }
+    }
+    
+    result->right = 0;
+    context.canvas().set_font_face(text_shaper->font(0));
+    cairo_text_extents_t cte;
+    cairo_glyph_t        cg;
+    cg.x = 0;
+    cg.y = 0;
+    for(const auto &part : *ass) {
+      cg.index = part.glyph;
+      context.canvas().glyph_extents(&cg, 1, &cte);
+      
+      if(result->right < cte.x_advance)
+        result->right = cte.x_advance;
+    }
+  }
+}
+
+bool OTMathShaperImpl::set_private_char(uint32_t ch, uint32_t fallback) {
+  if(uint16_t glyph = fi.char_to_glyph(fallback)) {
+    private_characters.set(ch, glyph);
+    alt_glyphs.set(ch, glyph);
+    return true;
+  }
+  return false;
+}
+
+bool OTMathShaperImpl::set_alt_char(uint32_t ch, uint32_t fallback) {
+  if(uint16_t glyph = fi.char_to_glyph(fallback)) {
+    alt_glyphs.set(ch, glyph);
+    return true;
+  }
+  return false;
+}
+      
+//} ... class OTMathShaperImpl
+
+//{ class OTMathShaperDB ...
+
+OTMathShaperDB::OTMathShaperDB(String _name, SharedPtr<OTMathShaper> plain_shaper)
+  : Shareable(),
+    name(_name)
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
+  shapers[(int)NoStyle] = plain_shaper;
+}
+
+void OTMathShaperDB::dispose_all() {
+  registered.clear();
+}
+
+SharedPtr<OTMathShaper> OTMathShaperDB::try_register(const String name) {
+  SharedPtr<OTMathShaperImpl> plain_impl = OTMathShaperImpl::try_load(name, NoStyle);
+  if(!plain_impl.is_valid())
+    return nullptr;
+    
+  SharedPtr<OTMathShaper> plain_shaper = new OTMathShaper(plain_impl, NoStyle);
+  
+  SharedPtr<OTMathShaperDB> db = new OTMathShaperDB(name, plain_shaper);
+  registered.set(name, db);
+  return plain_shaper;
+}
+
+SharedPtr<OTMathShaper> OTMathShaperDB::try_find(String name, FontStyle style) {
+  SharedPtr<OTMathShaperDB> db = registered[name];
+  
+  if(db)
+    return db->find(style);
+    
+  return nullptr;
+}
+
+SharedPtr<OTMathShaper> OTMathShaperDB::find(FontStyle style) {
+  int i = (int)style;
+  
+  if(shapers[i].is_valid())
+    return shapers[i];
+    
+  SharedPtr<OTMathShaperImpl> impl = OTMathShaperImpl::try_load(name, style);
+  if(!impl.is_valid()) {
+    printf("OTMathShaperImpl::try_load failed for style %x\n", (unsigned)style);
+    
+    if(!shapers[(int)NoStyle].is_valid()) {
+      assert(0 && "invalid OTMathShaperDB");
+    }
+    
+    impl = shapers[(int)NoStyle]->impl;
+  }
+  
+  shapers[i] = new OTMathShaper(impl, style);
+  return shapers[i];
+}
+
+//} ... class OTMathShaperDB
