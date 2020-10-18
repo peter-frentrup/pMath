@@ -157,17 +157,22 @@ Document({
          TemplateBoxOptions -> {DisplayFunction -> ({"FrontEndObject", "(", 
            DynamicBox(
             ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-              Button(Panel(Style(CurrentValue({TemplateSlot, 1}), 
+              Button(Panel(Style(CurrentValue({TemplateSlot, 2}), 
                  FontColor -> Dynamic(
-                  If(CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
+                  If(CurrentValue({TemplateSlot, 1}) === $SessionId && 
+                    CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
                     "MouseOver") === True, Blue, Inherited)))), 
-               Replace(MakeExpression(CurrentValue({TemplateSlot, 1})), 
-                HoldComplete(~FE`Private`id:Integer) :> SetSelectedDocument(
+               Replace({CurrentValue({TemplateSlot, 1}), 
+                 CurrentValue({TemplateSlot, 2})}, {
+                 $SessionId, ~FE`Private`id:Integer} :> SetSelectedDocument(
                  Automatic, FrontEndObject($SessionId, FE`Private`id))), 
-               ButtonFrame -> "Frameless")))), ")"} &)}), 
-        Section(StyleData("Det"), TemplateBoxOptions -> {
-          DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
-           "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
+               Enabled -> Dynamic(CurrentValue({TemplateSlot, 1}) === 
+                 $SessionId), ButtonFrame -> "Frameless")))), ")"} &), 
+          InterpretationFunction -> ({"FrontEndObject", "(", {
+            InterpretationBox("", #1), ",", InterpretationBox("", #2)}, 
+           ")"} &)}), Section(StyleData("Det"), 
+         TemplateBoxOptions -> {DisplayFunction -> ({"\[LeftBracketingBar]", 
+           #1, "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
         Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
            Appearance -> "Tooltip") &)}), Section(StyleData("RadioButtonBar"), 

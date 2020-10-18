@@ -14,7 +14,7 @@ MakeBoxes(doc: DocumentObject(~feo:FrontEndObject))::= Block {
     }
 } /? allowGuiBoxes
 
-MakeBoxes(feo: FrontEndObject(~id:Integer))::= TemplateBox({MakeBoxes(id)}, "FrontEndObject") /? allowGuiBoxes
+MakeBoxes(FrontEndObject(~sess:Integer, ~id:Integer))::= TemplateBox({sess, id}, "FrontEndObject") /? allowGuiBoxes
 
 DocumentObject/: Options(~obj:DocumentObject, args:Repeated(~, 0..1))::= FE`CallFrontEnd(FrontEnd`Options(obj, args))
 FrontEndObject/: Options(~obj:FrontEndObject, args:Repeated(~, 0..1))::= FE`CallFrontEnd(FrontEnd`Options(obj, args))
