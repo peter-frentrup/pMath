@@ -133,6 +133,7 @@ namespace richmath {
       void insert_subsuperscript(bool sub);
       void insert_underoverscript(bool under);
       
+      bool remove_selection(SelectionReference &sel, bool insert_default = true);
       bool remove_selection(bool insert_default = true);
       
       void toggle_open_close_current_group();

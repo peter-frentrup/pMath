@@ -424,6 +424,50 @@ void SelectionReference::set_raw(Box *new_box, int new_start, int new_end) {
     id = FrontEndReference::None;
 }
 
+void SelectionReference::move_after_edit(const SelectionReference &before_edit, const SelectionReference &after_edit) {
+  if(!id || !after_edit.id)
+    return;
+  
+  if(id == before_edit.id) {
+    if(after_edit.id != before_edit.id || after_edit.start != before_edit.start) {
+      *this = after_edit;
+      return;
+    }
+    
+    // TODO: maybe GridBox needs special handling?
+    
+    if(end <= before_edit.start)
+      return;
+    
+    if(end <= before_edit.end)
+      end = after_edit.end;
+    else
+      end+= after_edit.end - before_edit.end;
+    
+    if(start <= before_edit.start)
+      return;
+    
+    if(start < before_edit.end)
+      start = after_edit.start;
+    else
+      start+= after_edit.end - before_edit.end;
+  }
+  else if(Box *box = get()) {
+    Box *top_most = box;
+    while(top_most->parent())
+      top_most = top_most->parent();
+    
+    if(!top_most->is_parent_of(FrontEndObject::find_cast<Box>(after_edit.id))) {
+      *this = after_edit;
+      return;
+    }
+  }
+  else {
+    *this = after_edit;
+    return;
+  }
+}
+
 bool SelectionReference::equals(Box *other_box, int other_start, int other_end) const {
   if(!other_box)
     return !id.is_valid();

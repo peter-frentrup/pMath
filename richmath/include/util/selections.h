@@ -147,6 +147,8 @@ namespace richmath {
       
       int length() const { return end - start; }
       
+      void move_after_edit(const SelectionReference &before_edit, const SelectionReference &after_edit);
+      
       bool equals(Box *other_box, int other_start, int other_end) const;
       bool equals(const VolatileSelection &other) const { return equals(other.box, other.start, other.end); }
       bool equals(const SelectionReference &other) const {

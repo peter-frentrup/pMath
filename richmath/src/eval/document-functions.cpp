@@ -8,6 +8,9 @@
 
 #include <util/filesystem.h>
 
+#include <algorithm>
+
+
 using namespace pmath;
 using namespace richmath;
 
@@ -72,7 +75,10 @@ static MenuCommandStatus can_show_hide_menu(Expr cmd);
 
 static bool open_selection_help_cmd(Expr cmd);
 
+static void collect_selections(Array<SelectionReference> &sels, Expr expr);
+
 Expr richmath_eval_FrontEnd_CreateDocument(Expr expr);
+Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentGet(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr);
 Expr richmath_eval_FrontEnd_Documents(Expr expr);
@@ -115,6 +121,62 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
   doc->invalidate_options();
   
   return doc->to_pmath_id();
+}
+Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
+  /*  FrontEnd`DocumentDelete()
+      FrontEnd`DocumentDelete(doc)
+      FrontEnd`DocumentDelete(box)
+      FrontEnd`DocumentDelete(debuginfo)
+   */
+  size_t exprlen = expr.expr_length();
+  if(exprlen > 1)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  AutoMemorySuspension mem_suspend;
+  
+  Array<SelectionReference> sels;
+  
+  if(exprlen == 0) {
+    if(auto doc = FrontEndObject::find_cast<Document>(current_document_id))
+      sels.add(doc->selection());
+  }
+  else {
+    collect_selections(sels, expr[1]);
+  }
+  
+  if(sels.length() == 0 && expr[1][0] != PMATH_SYMBOL_LIST)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  std::sort(sels.items(), sels.items() + sels.length());
+  
+  int i = 0;
+  while(i < sels.length()) {
+    SelectionReference &sel = sels[i];
+    int j = i + 1;
+    for(; j < sels.length(); ++j) {
+      SelectionReference &next = sels[j];
+      if(sel.id != next.id)
+        break;
+      
+      if(sel.end <= next.start)
+        break;
+      
+      sel.end = next.end;
+      next.id = FrontEndReference::None;
+    }
+    i = j;
+  }
+  
+  for(int i = sels.length(); i > 0; --i) {
+    SelectionReference &sel = sels[i-1];
+    if(Box *box = sel.get()) {
+      if(auto doc = box->find_parent<Document>(true)) {
+        doc->remove_selection(sel);
+      }
+    }
+  }
+  
+  return Expr();
 }
 
 Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
@@ -365,6 +427,36 @@ static bool open_selection_help_cmd(Expr cmd) {
   
   doc->native()->beep();
   return false;
+}
+
+static void collect_selections(Array<SelectionReference> &sels, Expr expr) {
+  if(expr[0] == PMATH_SYMBOL_LIST) {
+    for(auto item : expr.items())
+      collect_selections(sels, std::move(item));
+    return;
+  }
+  
+  if(auto sel = SelectionReference::from_debug_info(expr)) {
+    sels.add(sel);
+    return;
+  }
+  
+  if(FrontEndReference id = FrontEndReference::from_pmath(expr)) {
+    FrontEndObject *obj = FrontEndObject::find(id);
+    if(auto doc = dynamic_cast<Document*>(obj)) {
+      sels.add(doc->selection());
+      return;
+    }
+    
+    if(auto box = dynamic_cast<Box*>(obj)) {
+      if(auto doc = box->find_parent<Document>(false)) {
+        sels.add(SelectionReference(box->parent(), box->index(), box->index() + 1));
+      }
+      return;
+    }
+    
+    return;
+  }
 }
 
 //{ class DocumentCurrentValueProvider ...

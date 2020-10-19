@@ -3294,6 +3294,24 @@ void Document::insert_underoverscript(bool under) {
   }
 }
 
+bool Document::remove_selection(SelectionReference &sel, bool insert_default) {
+  if(!is_parent_of(sel.get()))
+    return false;
+  
+  SelectionReference old_sel = context.selection;
+  
+  context.selection = sel;
+  bool success = remove_selection(insert_default);
+  SelectionReference new_sel = context.selection;
+    
+  context.selection = old_sel;
+  if(success) {
+    context.selection.move_after_edit(sel, new_sel);
+    sel = new_sel;
+  }
+  return success;
+}
+
 bool Document::remove_selection(bool insert_default) {
   if(selection_length() == 0)
     return false;

@@ -158,9 +158,12 @@ $PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
 <<Documentation`
 
 
-Unprotect(System`CreateDocument, System`DocumentGet, System`DocumentOpen, System`Documents, System`EvaluationBox, System`EvaluationDocument, System`SelectedDocument, System`SetSelectedDocument, Developer`DebugInfoOpenerFunction)
+Unprotect(System`CreateDocument, System`DocumentDelete, System`DocumentGet, System`DocumentOpen, System`Documents, System`EvaluationBox, System`EvaluationDocument, System`SelectedDocument, System`SetSelectedDocument, Developer`DebugInfoOpenerFunction)
 Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
+DocumentDelete()::= FE`CallFrontEnd(FrontEnd`DocumentDelete())
+DocumentDelete(arg : ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource|~:List)::= FE`CallFrontEnd(FrontEnd`DocumentDelete(arg))
+DocumentDelete(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentGet, Length@{args}, 0, 1);False)
 DocumentGet()::= FE`CallFrontEnd(FrontEnd`DocumentGet())
 DocumentGet(doc: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`DocumentGet(doc))
 DocumentGet(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentGet, Length@{args}, 0, 1);False)

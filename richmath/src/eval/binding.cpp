@@ -90,18 +90,6 @@ static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
   return PMATH_NULL;
 }
 
-static pmath_t builtin_documentdelete(pmath_expr_t _expr) {
-  Expr expr(_expr);
-  if(expr.expr_length() > 1) {
-    pmath_message_argxxx(expr.expr_length(), 0, 1);
-    return expr.release();
-  }
-  
-  Application::notify_wait(ClientNotification::MenuCommand, expr);
-  
-  return PMATH_NULL;
-}
-
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
   Expr expr(_expr);
   
@@ -699,22 +687,6 @@ static bool document_apply_cmd(Expr cmd) {
     
   seq->load_from_object(boxes, BoxInputFlags::Default);
   doc->insert_box(seq, true);
-  
-  return true;
-}
-
-static bool document_delete_cmd(Expr cmd) {
-  Document *doc;
-  
-  if(cmd.expr_length() == 0)
-    doc = get_current_document();
-  else
-    doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(cmd[1]));
-    
-  if(!doc)
-    return false;
-    
-  doc->remove_selection();
   
   return true;
 }
@@ -1420,7 +1392,6 @@ bool richmath::init_bindings() {
   Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
   
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY),  document_apply_cmd,  can_document_write);
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTDELETE), document_delete_cmd, can_document_write);
   Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTWRITE),  document_write_cmd,  can_document_write);
   
 #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
@@ -1442,7 +1413,6 @@ bool richmath::init_bindings() {
   
   BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTDELETE,           builtin_documentdelete)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
