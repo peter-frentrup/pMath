@@ -159,6 +159,20 @@ namespace richmath {
       bool operator==(const SelectionReference &other) const { return equals(other); }
       bool operator!=(const SelectionReference &other) const { return !equals(other); }
       
+      int cmp_lexicographic(const SelectionReference &other) const;
+      friend bool operator<(const SelectionReference &left, const SelectionReference &right) {
+        return left.cmp_lexicographic(right) < 0;
+      }
+      friend bool operator<=(const SelectionReference &left, const SelectionReference &right) {
+        return left.cmp_lexicographic(right) <= 0;
+      }
+      friend bool operator>(const SelectionReference &left, const SelectionReference &right) {
+        return left.cmp_lexicographic(right) > 0;
+      }
+      friend bool operator>=(const SelectionReference &left, const SelectionReference &right) {
+        return left.cmp_lexicographic(right) >= 0;
+      }
+      
       pmath::Expr to_debug_info() const;
       static SelectionReference from_debug_info(pmath::Expr expr);
       static SelectionReference from_debug_info_of(pmath::Expr expr);

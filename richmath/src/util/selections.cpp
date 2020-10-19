@@ -433,6 +433,19 @@ bool SelectionReference::equals(Box *other_box, int other_start, int other_end) 
   return equals(other);
 }
 
+int SelectionReference::cmp_lexicographic(const SelectionReference &other) const {
+  if(id < other.id) return -1;
+  if(id > other.id) return 1;
+  
+  if(start < other.start) return -1;
+  if(start > other.start) return 1;
+  
+  if(end < other.end) return -1;
+  if(end > other.end) return 1;
+  
+  return 0;
+}
+
 Expr SelectionReference::to_debug_info() const {
   if(id == FrontEndReference::None)
     return Expr();

@@ -22,12 +22,12 @@ namespace richmath {
       pmath::Expr to_pmath() const;
       pmath::Expr to_pmath_raw() const { return pmath::Expr((int32_t)_id); }
       
-      friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) {
-        return left._id == right._id;
-      } 
-      friend bool operator!=(const FrontEndReference &left, const FrontEndReference &right) {
-        return left._id != right._id;
-      }
+      friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) { return left._id == right._id; }
+      friend bool operator!=(const FrontEndReference &left, const FrontEndReference &right) { return left._id != right._id; }
+      friend bool operator<( const FrontEndReference &left, const FrontEndReference &right) { return left._id <  right._id; }
+      friend bool operator<=(const FrontEndReference &left, const FrontEndReference &right) { return left._id <= right._id; }
+      friend bool operator>( const FrontEndReference &left, const FrontEndReference &right) { return left._id >  right._id; }
+      friend bool operator>=(const FrontEndReference &left, const FrontEndReference &right) { return left._id >= right._id; }
       
       static const FrontEndReference None;
       
