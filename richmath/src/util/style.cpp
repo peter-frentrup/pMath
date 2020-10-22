@@ -134,9 +134,9 @@ bool richmath::get_factor_of_scaled(Expr expr, double *value) {
 }
 
 namespace {
-  class StyleEnumConverter: public Shareable {
+  class EnumStyleConverter: public Shareable {
     public:
-      StyleEnumConverter();
+      EnumStyleConverter();
       
       bool is_valid_key(int val) {    return _int_to_expr.search(val) != nullptr; }
       bool is_valid_expr(Expr expr) { return _expr_to_int.search(expr) != nullptr; }
@@ -154,30 +154,30 @@ namespace {
       Hashtable<Expr, int> _expr_to_int;
   };
   
-  struct ButtonFrameStyleEnumConverter: public StyleEnumConverter {
-    ButtonFrameStyleEnumConverter();
+  struct ButtonFrameStyleConverter: public EnumStyleConverter {
+    ButtonFrameStyleConverter();
   };
   
-  struct ButtonSourceStyleEnumConverter: public StyleEnumConverter {
-    ButtonSourceStyleEnumConverter();
+  struct ButtonSourceStyleConverter: public EnumStyleConverter {
+    ButtonSourceStyleConverter();
   };
   
-  struct WindowFrameStyleEnumConverter: public StyleEnumConverter {
-    WindowFrameStyleEnumConverter();
+  struct WindowFrameStyleConverter: public EnumStyleConverter {
+    WindowFrameStyleConverter();
   };
   
-  struct FontSlantStyleEnumConverter: public StyleEnumConverter {
-    FontSlantStyleEnumConverter();
+  struct FontSlantStyleConverter: public EnumStyleConverter {
+    FontSlantStyleConverter();
   };
   
-  struct FontWeightStyleEnumConverter: public StyleEnumConverter {
-    FontWeightStyleEnumConverter();
+  struct FontWeightStyleConverter: public EnumStyleConverter {
+    FontWeightStyleConverter();
   };
   
-  class SubRuleConverter: public StyleEnumConverter {
+  class SubRuleConverter: public EnumStyleConverter {
     public:
       void add(StyleOptionName val, Expr expr) {
-        StyleEnumConverter::add((int)val, expr);
+        EnumStyleConverter::add((int)val, expr);
       }
   };
   
@@ -202,14 +202,14 @@ namespace {
       
       static StyleOptionName get_key(Expr name) { return _name_to_key[name]; }
       
-      static SharedPtr<StyleEnumConverter> get_enum_converter(StyleOptionName key) {
+      static SharedPtr<EnumStyleConverter> get_enum_converter(StyleOptionName key) {
         return _key_to_enum_converter[key.to_literal()];
       }
       
     private:
       static void add(StyleType type, StyleOptionName key, const Expr &name);
       
-      static void add_enum(IntStyleOptionName key, const Expr &name, SharedPtr<StyleEnumConverter> enum_converter);
+      static void add_enum(IntStyleOptionName key, const Expr &name, SharedPtr<EnumStyleConverter> enum_converter);
       static void add_to_ruleset(StyleOptionName key, const Expr &name);
       static void add_ruleset_head(StyleOptionName key, const Expr &symbol);
       
@@ -222,14 +222,14 @@ namespace {
     private:
       static int _num_styles;
       
-      static Hashtable<StyleOptionName, SharedPtr<StyleEnumConverter>> _key_to_enum_converter;
+      static Hashtable<StyleOptionName, SharedPtr<EnumStyleConverter>> _key_to_enum_converter;
       static Hashtable<StyleOptionName, enum StyleType>                _key_to_type;
       static Hashtable<StyleOptionName, Expr>                          _key_to_name;
       static Hashtable<Expr, StyleOptionName>                          _name_to_key;
   };
   
   int                                                       StyleInformation::_num_styles = 0;
-  Hashtable<StyleOptionName, SharedPtr<StyleEnumConverter>> StyleInformation::_key_to_enum_converter;
+  Hashtable<StyleOptionName, SharedPtr<EnumStyleConverter>> StyleInformation::_key_to_enum_converter;
   Hashtable<StyleOptionName, enum StyleType>                StyleInformation::_key_to_type;
   Hashtable<StyleOptionName, Expr>                          StyleInformation::_key_to_name;
   Hashtable<Expr, StyleOptionName>                          StyleInformation::_name_to_key;
@@ -902,7 +902,7 @@ bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
-  SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
+  SharedPtr<EnumStyleConverter> enum_converter = StyleInformation::get_enum_converter(n);
   assert(enum_converter.is_valid());
   
   if(enum_converter->is_valid_expr(obj))
@@ -912,7 +912,7 @@ bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
-  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
+  SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(n);
   assert(key_converter.is_valid());
   
   bool any_change = false;
@@ -972,7 +972,7 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
   if(older == PMATH_SYMBOL_INHERITED)
     return newer;
     
-  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(key);
+  SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
   assert(key_converter.is_valid());
   
   if(newer[0] == PMATH_SYMBOL_LIST) {
@@ -1383,7 +1383,7 @@ Expr StyleImpl::raw_get_pmath_enum(StyleOptionName n, Expr inherited) const {
   
   int i;
   if(raw_get_int(n, &i)) {
-    SharedPtr<StyleEnumConverter> enum_converter = StyleInformation::get_enum_converter(n);
+    SharedPtr<EnumStyleConverter> enum_converter = StyleInformation::get_enum_converter(n);
     
     assert(enum_converter.is_valid());
     
@@ -1394,7 +1394,7 @@ Expr StyleImpl::raw_get_pmath_enum(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
-  SharedPtr<StyleEnumConverter> key_converter = StyleInformation::get_enum_converter(n);
+  SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(n);
   
   assert(key_converter.is_valid());
   
@@ -1423,9 +1423,9 @@ Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
   return e;
 }
 
-//{ class StyleEnumConverter ...
+//{ class EnumStyleConverter ...
 
-StyleEnumConverter::StyleEnumConverter()
+EnumStyleConverter::EnumStyleConverter()
   : Shareable()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
@@ -1433,12 +1433,12 @@ StyleEnumConverter::StyleEnumConverter()
   _expr_to_int.default_value = -1;
 }
 
-void StyleEnumConverter::add(int val, Expr expr) {
+void EnumStyleConverter::add(int val, Expr expr) {
   _int_to_expr.set(val, expr);
   _expr_to_int.set(expr, val);
 }
 
-//} ... class StyleEnumConverter
+//} ... class EnumStyleConverter
 
 //{ class Style ...
 
@@ -2393,15 +2393,15 @@ void StyleInformation::add_style() {
     _name_to_key.default_value = StyleOptionName{ -1};
     _key_to_type.default_value = StyleType::None;
     
-    add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
     add_ruleset_head(ButtonBoxOptions,     Symbol( richmath_System_ButtonBoxOptions));
+    add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
     add_ruleset_head(FillBoxOptions,       Symbol( richmath_System_FillBoxOptions));
     add_ruleset_head(InputFieldBoxOptions, Symbol( richmath_System_InputFieldBoxOptions));
     add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_PanelBoxOptions));
     add_ruleset_head(TemplateBoxOptions,   Symbol( richmath_System_TemplateBoxOptions));
     
     {
-      SharedPtr<StyleEnumConverter> converter{new ButtonFrameStyleEnumConverter};
+      SharedPtr<EnumStyleConverter> converter{new ButtonFrameStyleConverter};
       add_enum(
         ButtonFrame, 
         Symbol( richmath_System_ButtonFrame), 
@@ -2413,7 +2413,7 @@ void StyleInformation::add_style() {
     }
     
     {
-      SharedPtr<StyleEnumConverter> converter{new ButtonSourceStyleEnumConverter};
+      SharedPtr<EnumStyleConverter> converter{new ButtonSourceStyleConverter};
       add_enum(
         ButtonSource, 
         Symbol( richmath_System_ButtonSource), 
@@ -2424,9 +2424,9 @@ void StyleInformation::add_style() {
         converter);
     }
     
-    add_enum(FontSlant,   Symbol( richmath_System_FontSlant),   new FontSlantStyleEnumConverter);
-    add_enum(FontWeight,  Symbol( richmath_System_FontWeight),  new FontWeightStyleEnumConverter);
-    add_enum(WindowFrame, Symbol( richmath_System_WindowFrame), new WindowFrameStyleEnumConverter);
+    add_enum(FontSlant,   Symbol( richmath_System_FontSlant),   new FontSlantStyleConverter);
+    add_enum(FontWeight,  Symbol( richmath_System_FontWeight),  new FontWeightStyleConverter);
+    add_enum(WindowFrame, Symbol( richmath_System_WindowFrame), new WindowFrameStyleConverter);
     
     add(StyleType::Color,           Background,                       Symbol( richmath_System_Background));
     add(StyleType::Color,           FontColor,                        Symbol( richmath_System_FontColor));
@@ -2626,7 +2626,7 @@ void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name
   add_to_ruleset(key, name);
 }
 
-void StyleInformation::add_enum(IntStyleOptionName key, const Expr &name, SharedPtr<StyleEnumConverter> enum_converter) {
+void StyleInformation::add_enum(IntStyleOptionName key, const Expr &name, SharedPtr<EnumStyleConverter> enum_converter) {
   _key_to_enum_converter.set(key, enum_converter);
   _key_to_type.set(          key, StyleType::Enum);
   _key_to_name.set(          key, name);
@@ -2648,10 +2648,10 @@ void StyleInformation::add_to_ruleset(StyleOptionName key, const Expr &name) {
       return;
     }
     
-    SharedPtr<StyleEnumConverter> sec = _key_to_enum_converter[super_key];
+    SharedPtr<EnumStyleConverter> sec = _key_to_enum_converter[super_key];
     auto sur = dynamic_cast<SubRuleConverter*>(sec.ptr());
     if(!sur) {
-      pmath_debug_print_object("[invalid StyleEnumConverter: ", super_name.get(), "]\n");
+      pmath_debug_print_object("[invalid EnumStyleConverter: ", super_name.get(), "]\n");
       return;
     }
     
@@ -2748,7 +2748,7 @@ bool StyleInformation::needs_ruledelayed(Expr expr) {
 
 //} ... class StyleInformation
 
-ButtonFrameStyleEnumConverter::ButtonFrameStyleEnumConverter() : StyleEnumConverter() {
+ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Symbol(PMATH_SYMBOL_AUTOMATIC);
   _expr_to_int.default_value = -1;//PushButton;
   
@@ -2774,7 +2774,7 @@ ButtonFrameStyleEnumConverter::ButtonFrameStyleEnumConverter() : StyleEnumConver
   add(TabHead,                  String("TabHead"));
 }
 
-ButtonSourceStyleEnumConverter::ButtonSourceStyleEnumConverter() : StyleEnumConverter() {
+ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
@@ -2785,7 +2785,7 @@ ButtonSourceStyleEnumConverter::ButtonSourceStyleEnumConverter() : StyleEnumConv
   add(ButtonSourceFrontEndObject, Symbol(richmath_System_FrontEndObject));
 }
 
-WindowFrameStyleEnumConverter::WindowFrameStyleEnumConverter() : StyleEnumConverter() {
+WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
@@ -2794,7 +2794,7 @@ WindowFrameStyleEnumConverter::WindowFrameStyleEnumConverter() : StyleEnumConver
   add(WindowFrameDialog,  String("Dialog"));
 }
 
-FontSlantStyleEnumConverter::FontSlantStyleEnumConverter() : StyleEnumConverter() {
+FontSlantStyleConverter::FontSlantStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
@@ -2802,7 +2802,7 @@ FontSlantStyleEnumConverter::FontSlantStyleEnumConverter() : StyleEnumConverter(
   add(FontSlantItalic, Symbol(PMATH_SYMBOL_ITALIC));
 }
 
-FontWeightStyleEnumConverter::FontWeightStyleEnumConverter() : StyleEnumConverter() {
+FontWeightStyleConverter::FontWeightStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
