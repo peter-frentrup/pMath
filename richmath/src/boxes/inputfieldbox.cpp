@@ -16,7 +16,7 @@ static ContainerType parse_inputfield_appearance(Expr expr);
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
-  : ContainerWidgetBox(InputField, content),
+  : base(InputField, content),
     must_update(true),
     invalidated(false),
     frame_x(0)
@@ -81,7 +81,7 @@ void InputFieldBox::resize_default_baseline(Context &context) {
   type = parse_inputfield_appearance(get_own_style(Appearance));
   
   float old_cx = cx;
-  AbstractStyleBox::resize_default_baseline(context); // not ContainerWidgetBox::resize() !
+  AbstractStyleBox::resize_default_baseline(context); // not ContainerWidgetBox::resize_default_baseline() !
   cx = old_cx;
   
   context.math_spacing = old_math_spacing;
@@ -211,7 +211,7 @@ void InputFieldBox::paint_content(Context &context) {
     false);
   context.canvas().clip();
   context.canvas().move_to(x, y);
-  ContainerWidgetBox::paint_content(context);
+  base::paint_content(context);
   
   context.canvas().restore();
 }
@@ -430,7 +430,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
 
 void InputFieldBox::on_key_press(uint32_t unichar) {
   if(unichar != '\n' && unichar != '\t') {
-    ContainerWidgetBox::on_key_press(unichar);
+    base::on_key_press(unichar);
   }
 }
 
