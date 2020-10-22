@@ -1969,21 +1969,25 @@ static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item) {
   if(!doc)
     return Symbol(PMATH_SYMBOL_FALSE);
     
-  if(Dynamic::current_observer_id) {
+  if(auto observer_id = Dynamic::current_observer_id) {
+    // ensure that get/set of InternalUsesCurrentValueOfMouseOver below will not cause reevaluation
+    Dynamic::current_observer_id = FrontEndReference::None;
     if(!box->style)
       box->style = new Style();
       
     int observer_kind = ObserverKindNone;
     box->style->get(InternalUsesCurrentValueOfMouseOver, &observer_kind);
-    if(box->id() == Dynamic::current_observer_id) {
+    if(box->id() == observer_id) 
       observer_kind |= ObserverKindSelf;
-    }
-    else {
+    else 
       observer_kind |= ObserverKindOther;
-      box->style->register_observer();
-    }
     
     box->style->set(InternalUsesCurrentValueOfMouseOver, observer_kind);
+    
+    if(box->id() != observer_id)
+      box->style->register_observer(observer_id);
+    
+    Dynamic::current_observer_id = observer_id;
   }
   
   Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
