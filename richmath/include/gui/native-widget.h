@@ -49,7 +49,6 @@ namespace richmath {
       friend class NativeWidgetImpl;
     public:
       explicit NativeWidget(Document *doc);
-      virtual ~NativeWidget();
       
       virtual void dynamic_updated() override {}
       
@@ -135,6 +134,7 @@ namespace richmath {
       static NativeWidget *dummy;
       
     protected:
+      virtual ~NativeWidget();
       void adopt(Document *doc);
       
       Context *document_context();
