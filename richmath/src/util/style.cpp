@@ -66,6 +66,7 @@ extern pmath_symbol_t richmath_System_LineBreakWithin;
 extern pmath_symbol_t richmath_System_Magnification;
 extern pmath_symbol_t richmath_System_MathFontFamily;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Placeholder;
 extern pmath_symbol_t richmath_System_PlotRange;
@@ -2397,6 +2398,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
     add_ruleset_head(FillBoxOptions,       Symbol( richmath_System_FillBoxOptions));
     add_ruleset_head(InputFieldBoxOptions, Symbol( richmath_System_InputFieldBoxOptions));
+    add_ruleset_head(PaneBoxOptions,       Symbol( richmath_System_PaneBoxOptions));
     add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_PanelBoxOptions));
     add_ruleset_head(TemplateBoxOptions,   Symbol( richmath_System_TemplateBoxOptions));
     
@@ -2462,6 +2464,8 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
     
+    add(StyleType::Bool,            PaneBoxDefaultLineBreakWithin,        Rule(Symbol(richmath_System_PaneBoxOptions), Symbol( richmath_System_LineBreakWithin)));
+    
     add(StyleType::Bool,            PanelBoxDefaultEnabled,           Rule(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
     
     add(StyleType::Number,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
@@ -2474,6 +2478,11 @@ void StyleInformation::add_style() {
     add(StyleType::Size,            ImageSizeCommon,                  Symbol( richmath_System_ImageSize));
     // ImageSizeHorizontal
     // ImageSizeVertical
+    
+    add(StyleType::Size,            PaneBoxDefaultImageSizeCommon,    Rule(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_ImageSize)));
+    // PaneBoxDefaultImageSizeHorizontal
+    // PaneBoxDefaultImageSizeVertical
+    
     add(StyleType::Margin,          SectionMarginLeft,                Symbol( richmath_System_SectionMargins));
     // SectionMarginRight
     // SectionMarginTop
@@ -2546,6 +2555,8 @@ void StyleInformation::add_style() {
     
     add(StyleType::Any, InputFieldBoxDefaultAppearance,       Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, InputFieldBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));
+    
+    add(StyleType::Any, PaneBoxDefaultBaselinePosition,  Rule(Symbol(richmath_System_PaneBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
     add(StyleType::Any, PanelBoxDefaultAppearance,       Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, PanelBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));

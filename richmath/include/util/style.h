@@ -15,10 +15,11 @@ namespace richmath {
   enum class DefaultStyleOptionOffsets {
     None = 0,
     ButtonBox     = 0x00100000,
-    TemplateBox   = 0x00200000,
+    FillBox       = 0x00200000,
     InputFieldBox = 0x00300000,
-    PanelBox      = 0x00400000,
-    FillBox       = 0x00500000
+    PaneBox       = 0x00400000,
+    PanelBox      = 0x00500000,
+    TemplateBox   = 0x00600000
   };
   
   enum AutoBoolValues {
@@ -88,7 +89,9 @@ namespace richmath {
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
     
-    PanelBoxDefaultEnabled = Enabled + (int)DefaultStyleOptionOffsets::PanelBox
+    PaneBoxDefaultLineBreakWithin = LineBreakWithin + (int)DefaultStyleOptionOffsets::PanelBox,
+    
+    PanelBoxDefaultEnabled = Enabled + (int)DefaultStyleOptionOffsets::PanelBox,
   };
   
   enum {
@@ -124,7 +127,7 @@ namespace richmath {
     GridBoxRowSpacing,
     
     ImageSizeCommon,
-    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic or ImageSizeAll
+    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
     ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
     SectionMarginLeft,
@@ -149,7 +152,11 @@ namespace richmath {
     
     SectionGroupPrecedence,
     
-    FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox
+    FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,
+    
+    PaneBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PaneBox,
+    PaneBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneBox,
+    PaneBoxDefaultImageSizeVertical   = ImageSizeVertical   + (int)DefaultStyleOptionOffsets::PaneBox,
   };
   
   enum StringStyleOptionName {
@@ -200,6 +207,7 @@ namespace richmath {
     
     FillBoxOptions,
     InputFieldBoxOptions,
+    PaneBoxOptions,
     PanelBoxOptions,
     
     DisplayFunction,
@@ -224,8 +232,10 @@ namespace richmath {
     InputFieldBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::InputFieldBox,
     
-    PanelBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,
-    PanelBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
+    PaneBoxDefaultBaselinePosition           = BaselinePosition       + (int)DefaultStyleOptionOffsets::PaneBox,
+    
+    PanelBoxDefaultAppearance                = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
     
     TemplateBoxDefaultDisplayFunction        = DisplayFunction        + (int)DefaultStyleOptionOffsets::TemplateBox,
     TemplateBoxDefaultInterpretationFunction = InterpretationFunction + (int)DefaultStyleOptionOffsets::TemplateBox,

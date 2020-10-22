@@ -124,12 +124,18 @@ Options(InterpretationBox):= Options(Interpretation):= {
 Options(Opener):= Options(OpenerBox):= {
     Enabled -> Automatic }
 
+Options(Pane):= Options(PaneBox):= {
+    BaselinePosition -> Automatic, 
+    BaseStyle -> "Pane",
+    ImageSize -> Automatic,
+    LineBreakWithin -> True}
+
 Options(Panel):= Options(PanelBox):= {
     Appearance -> Automatic,
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
     Enabled -> Inherited}
-          
+
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
     %BaselinePosition -> Automatic, 
     BaseStyle -> "PaneSelector",
@@ -155,6 +161,7 @@ Options(Style):= Options(StyleBox):= {
     ButtonFunction -> Inherited, % remove
     Editable -> Inherited,
     Enabled -> Automatic,
+    FillBoxOptions -> Inherited,
     FontColor -> Inherited,
     FontFamily -> Inherited,
     FontFeatures -> Inherited,
@@ -163,8 +170,11 @@ Options(Style):= Options(StyleBox):= {
     FontWeight -> Inherited,
     GridBoxColumnSpacing -> Inherited,
     GridBoxRowSpacing -> Inherited,
+    InputFieldBoxOptions -> Inherited,
     LineBreakWithin -> Inherited,
     MathFontFamily -> Inherited,
+    PaneBoxOptions -> Inherited,
+    PanelBoxOptions -> Inherited,
     Placeholder -> Inherited,
     ScriptSizeMultipliers -> Inherited,
     Selectable -> Inherited,
@@ -219,6 +229,9 @@ Options(Section):= {
     LineBreakWithin -> True,
     Magnification -> Automatic,  % only valid for StyleData-sections
     MathFontFamily -> Inherited,
+    PaneBoxOptions -> {
+        BaselinePosition -> Automatic,
+        ImageSize -> Automatic},
     PanelBoxOptions -> {
         Appearance -> Automatic,
         BaselinePosition -> Automatic,

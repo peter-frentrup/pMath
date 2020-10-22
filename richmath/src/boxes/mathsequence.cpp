@@ -17,6 +17,7 @@
 #include <boxes/numberbox.h>
 #include <boxes/openerbox.h>
 #include <boxes/ownerbox.h>
+#include <boxes/panebox.h>
 #include <boxes/panelbox.h>
 #include <boxes/paneselectorbox.h>
 #include <boxes/progressindicatorbox.h>
@@ -64,6 +65,7 @@ extern pmath_symbol_t richmath_System_InputFieldBox;
 extern pmath_symbol_t richmath_System_InterpretationBox;
 extern pmath_symbol_t richmath_System_OpenerBox;
 extern pmath_symbol_t richmath_System_OverscriptBox;
+extern pmath_symbol_t richmath_System_PaneBox;
 extern pmath_symbol_t richmath_System_PanelBox;
 extern pmath_symbol_t richmath_System_PaneSelectorBox;
 extern pmath_symbol_t richmath_System_ProgressIndicatorBox;
@@ -1465,6 +1467,9 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     
   if(head == richmath_System_InterpretationBox)
     return create_or_error<  InterpretationBox>(expr, options);
+    
+  if(head == richmath_System_PaneBox)
+    return create_or_error<  PaneBox>(expr, options);
     
   if(head == richmath_System_PanelBox)
     return create_or_error<  PanelBox>(expr, options);

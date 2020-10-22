@@ -31,6 +31,8 @@ toBeProtected:= Unprotect(
 	OpenerBox,
 	Panel,
 	PanelBox,
+	Pane,
+	PaneBox,
 	PaneSelector,
 	PaneSelectorBox,
 	ProgressIndicator,
@@ -113,6 +115,14 @@ Attributes(makeOpenerBox):= {HoldAllComplete}
 makeOpenerBox(Opener())::=                                 OpenerBox(False)
 makeOpenerBox(Opener(~state, options:OptionsPattern()))::= OpenerBox(state, options)
 makeOpenerBox(~x)::= makeCallBoxes(x)
+
+
+MakeBoxes(~p:Pane)::= makePaneBox(p) /? allowGuiBoxes
+
+Attributes(makePaneBox):= {HoldAllComplete}
+makePaneBox(Pane(~expr))::= PaneBox(MakeBoxes(expr))
+makePaneBox(Pane(~expr, ~size, options:OptionsPattern()))::= PaneBox(MakeBoxes(expr), ImageSize->size, options)
+makePaneBox(~x)::= makeCallBoxes(x)
 
 
 MakeBoxes(Panel())::=                                 PanelBox("") /? allowGuiBoxes
@@ -240,11 +250,30 @@ InputFieldBox/: MakeExpression(InputFieldBox(~value, ~type, options:OptionsPatte
 OpenerBox/: MakeExpression(OpenerBox(~state))::=                           HoldComplete(Opener(state))
 OpenerBox/: MakeExpression(OpenerBox(~state, options:OptionsPattern()))::= HoldComplete(Opener(state, options))
 
+
+PaneBox/: MakeExpression(PaneBox(~content, ~~~opt1, (Rule|RuleDelayed)(ImageSize, ~size)), ~~~opt2)::=
+	With(c:= MakeExpression(content)) {
+		If(c === $Failed) {
+			Return($Failed)
+		}
+		HoldComplete(Pane(c, size, opt1, opt2)).Replace({HoldComplete(~x) :> x}, 2)
+	}
+PaneBox/: MakeExpression(PaneBox(~content))::=
+	With(c:= MakeExpression(content)) {
+		If(c === $Failed) {
+			Return($Failed)
+		}
+		HoldComplete(Pane(c)).Replace({HoldComplete(~x) :> x}, 2)
+	}
+
+
 PanelBox/: MakeExpression(PanelBox(~content, options:OptionsPattern()))::= 
-	With({c:= MakeExpression(content)},
-		If(c === $Failed, Return($Failed));
+	With(c:= MakeExpression(content)) {
+		If(c === $Failed) {
+			Return($Failed)
+		}
 		HoldComplete(Panel(c, options)).Replace({HoldComplete(~x) :> x}, 2)
-		)
+	}
 
 
 makeNullExpression("")::= HoldComplete(/\/)
