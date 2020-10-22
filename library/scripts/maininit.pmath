@@ -61,7 +61,7 @@ AutoLoad(~heldall:Hold, ~file)::=
 			heldall.Scan(
 				Function(s, s ::= AutoLoadStart(Hold(s), heldall); SetAttributes(s, ReadProtected), {HoldAll}));
 		).Finally(Protect @@ p))
-Attributes(Autoload):= {Protected, ReadProtected}
+Attributes(AutoLoad):= {Protected, ReadProtected}
 
 AutoLoadStart(~heldsymbol, heldall: Hold(~~~all))::= Synchronize({all}, AutoLoadContinue(heldall, heldsymbol))
 AutoLoadContinue(~heldall, Hold(~sym))::= sym
