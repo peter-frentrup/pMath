@@ -27,7 +27,7 @@ Document({
           " setting only affects interactive manipulation, but not \
           programmatic updates due to ", TemplateBox({"Dynamic"}, 
            "ReferenceHyperlink"), "."}, "Notes")}, All), 
-      Section("", "SectionFooterSpacer")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section({"A ", TemplateBox({"Button"}, "ReferenceHyperlink"), 
