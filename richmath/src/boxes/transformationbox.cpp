@@ -5,6 +5,16 @@
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
+#ifdef max
+#  undef max
+#endif
+#ifdef min
+#  undef min
+#endif
+
+#include <algorithm>
+
+
 using namespace richmath;
 
 //{ class AbstractTransformationBox ...
@@ -15,7 +25,7 @@ extern pmath_symbol_t richmath_System_RotationBox;
 extern pmath_symbol_t richmath_System_TransformationBox;
 
 AbstractTransformationBox::AbstractTransformationBox()
-  : OwnerBox(0)
+  : base(nullptr)
 {
   mat.xx = 1;
   mat.xy = 0;
@@ -26,12 +36,14 @@ AbstractTransformationBox::AbstractTransformationBox()
 void AbstractTransformationBox::resize_default_baseline(Context &context) {
   context.canvas().save();
   context.canvas().transform(mat);
-  float w = context.width;
-  context.width = Infinity;
-  
-  OwnerBox::resize_default_baseline(context);
-  
-  context.width = w;
+  {
+    auto w = context.width;
+    context.width = allowed_content_width(context);
+    
+    base::resize_default_baseline(context);
+    
+    context.width = w;
+  }
   context.canvas().restore();
   
   double mx = 0;//_content->extents().width / 2;
@@ -60,26 +72,14 @@ void AbstractTransformationBox::resize_default_baseline(Context &context) {
   double x4 = mat.xx * x + mat.xy * y;
   double y4 = mat.yx * x + mat.yy * y;
   
-  double xa = x1;
-  if(xa > x2) xa = x2;
-  if(xa > x3) xa = x3;
-  if(xa > x4) xa = x4;
+  double xa = std::min(std::min(x1, x2), std::min(x3, x4));
+  double xb = std::max(std::max(x1, x2), std::max(x3, x4));
   
-  double xb = x1;
-  if(xb < x2) xb = x2;
-  if(xb < x3) xb = x3;
-  if(xb < x4) xb = x4;
+  double ya = std::min(std::min(y1, y2), std::min(y3, y4));
+  double yb = std::max(std::max(y1, y2), std::max(y3, y4));
   
-  double ya = y1;
-  if(ya > y2) ya = y2;
-  if(ya > y3) ya = y3;
-  if(ya > y4) ya = y4;
-  
-  double yb = y1;
-  if(yb < y2) yb = y2;
-  if(yb < y3) yb = y3;
-  if(yb < y4) yb = y4;
-  
+  cx = 0;
+  cy = 0;
   mat.x0 = -xa;
   mat.y0 = 0;
   
@@ -88,7 +88,15 @@ void AbstractTransformationBox::resize_default_baseline(Context &context) {
   _extents.descent = yb;
 }
 
-void AbstractTransformationBox::paint(Context &context) {
+void AbstractTransformationBox::adjust_baseline_after_resize(Context &context) {
+  base::adjust_baseline_after_resize(context);
+  mat.x0+= cx;
+  mat.y0+= cy;
+  cx = 0;
+  cy = 0;
+}
+
+void AbstractTransformationBox::paint_content(Context &context) {
   update_dynamic_styles(context);
   
   float x, y;
@@ -101,6 +109,7 @@ void AbstractTransformationBox::paint(Context &context) {
   
   context.canvas().move_to(0, 0);
   
+  //base::paint_content(context); will also incorporate cx, cy
   _content->paint(context);
   
   context.canvas().restore();

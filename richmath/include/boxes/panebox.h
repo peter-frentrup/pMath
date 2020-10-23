@@ -1,15 +1,16 @@
 #ifndef RICHMATH__BOXES__PANEBOX_H__INCLUDED
 #define RICHMATH__BOXES__PANEBOX_H__INCLUDED
 
-#include <boxes/ownerbox.h>
+#include <boxes/transformationbox.h>
 
 namespace richmath {
-  class PaneBox : public OwnerBox {
-      using base = OwnerBox;
+  class PaneBox : public AbstractTransformationBox {
+      using base = AbstractTransformationBox;
+      class Impl;
     protected:
       virtual ~PaneBox();
     public:
-      explicit PaneBox(MathSequence *content = nullptr);
+      explicit PaneBox();
       
       virtual void reset_style() override;
       
@@ -22,6 +23,7 @@ namespace richmath {
     
     protected:
       virtual void resize_default_baseline(Context &context) override;
+      virtual float allowed_content_width(const Context &context) override;
       
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::PaneBox; }
   };

@@ -45,7 +45,7 @@ namespace richmath {
     
     protected:
       virtual void resize_default_baseline(Context &context);
-      void adjust_baseline_after_resize(Context &context);
+      virtual void adjust_baseline_after_resize(Context &context);
       float calculate_scaled_baseline(double scale) const;
     
     protected:

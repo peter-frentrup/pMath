@@ -128,6 +128,7 @@ Options(Pane):= Options(PaneBox):= {
     BaselinePosition -> Automatic, 
     BaseStyle -> "Pane",
     ImageSize -> Automatic,
+    ImageSizeAction -> "Clip",
     LineBreakWithin -> True}
 
 Options(Panel):= Options(PanelBox):= {
@@ -235,7 +236,9 @@ Options(Section):= {
     PanelBoxOptions -> {
         Appearance -> Automatic,
         BaselinePosition -> Automatic,
-        Enabled -> Automatic},
+        Enabled -> Automatic,
+        ImageSize -> Automatic,
+        ImageSizeAction -> "Clip"},
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections

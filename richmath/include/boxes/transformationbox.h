@@ -6,10 +6,11 @@
 
 namespace richmath {
   class AbstractTransformationBox: public OwnerBox {
+      using base = OwnerBox;
     public:
       AbstractTransformationBox();
       
-      virtual void paint(Context &context) override;
+      virtual void paint_content(Context &context) override;
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
@@ -21,6 +22,8 @@ namespace richmath {
       
     protected:
       virtual void resize_default_baseline(Context &context) override;
+      virtual float allowed_content_width(const Context &context) { return Infinity; }
+      virtual void adjust_baseline_after_resize(Context &context) override;
     
     protected:
       cairo_matrix_t mat;

@@ -59,6 +59,7 @@ extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
 extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t richmath_System_ImageSize;
+extern pmath_symbol_t richmath_System_ImageSizeAction;
 extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
 extern pmath_symbol_t richmath_System_LanguageCategory;
@@ -163,16 +164,20 @@ namespace {
     ButtonSourceStyleConverter();
   };
   
-  struct WindowFrameStyleConverter: public EnumStyleConverter {
-    WindowFrameStyleConverter();
-  };
-  
   struct FontSlantStyleConverter: public EnumStyleConverter {
     FontSlantStyleConverter();
   };
   
   struct FontWeightStyleConverter: public EnumStyleConverter {
     FontWeightStyleConverter();
+  };
+  
+  struct ImageSizeActionStyleConverter: public EnumStyleConverter {
+    ImageSizeActionStyleConverter();
+  };
+  
+  struct WindowFrameStyleConverter: public EnumStyleConverter {
+    WindowFrameStyleConverter();
   };
   
   class SubRuleConverter: public EnumStyleConverter {
@@ -1913,6 +1918,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(GridBoxColumnSpacing);
   impl.emit_definition(GridBoxRowSpacing);
   impl.emit_definition(ImageSizeCommon);
+  impl.emit_definition(ImageSizeAction);
   impl.emit_definition(InputFieldBoxOptions);
   impl.emit_definition(InterpretationFunction);
   impl.emit_definition(LanguageCategory);
@@ -1920,6 +1926,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Magnification);
   impl.emit_definition(MathFontFamily);
   impl.emit_definition(Method);
+  impl.emit_definition(PaneBoxOptions);
   impl.emit_definition(PanelBoxOptions);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
@@ -2426,9 +2433,21 @@ void StyleInformation::add_style() {
         converter);
     }
     
-    add_enum(FontSlant,   Symbol( richmath_System_FontSlant),   new FontSlantStyleConverter);
-    add_enum(FontWeight,  Symbol( richmath_System_FontWeight),  new FontWeightStyleConverter);
-    add_enum(WindowFrame, Symbol( richmath_System_WindowFrame), new WindowFrameStyleConverter);
+    {
+      SharedPtr<EnumStyleConverter> converter{new ImageSizeActionStyleConverter};
+      add_enum(
+        ImageSizeAction, 
+        Symbol( richmath_System_ImageSizeAction), 
+        converter);
+      add_enum(
+        PaneBoxDefaultImageSizeAction, 
+        Rule(Symbol(richmath_System_PaneBoxOptions), Symbol( richmath_System_ImageSizeAction)),
+        converter);
+    }
+    
+    add_enum(FontSlant,       Symbol( richmath_System_FontSlant),       new FontSlantStyleConverter);
+    add_enum(FontWeight,      Symbol( richmath_System_FontWeight),      new FontWeightStyleConverter);
+    add_enum(WindowFrame,     Symbol( richmath_System_WindowFrame),     new WindowFrameStyleConverter);
     
     add(StyleType::Color,           Background,                       Symbol( richmath_System_Background));
     add(StyleType::Color,           FontColor,                        Symbol( richmath_System_FontColor));
@@ -2796,15 +2815,6 @@ ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() 
   add(ButtonSourceFrontEndObject, Symbol(richmath_System_FrontEndObject));
 }
 
-WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
-  _int_to_expr.default_value = Expr();
-  _expr_to_int.default_value = -1;
-  
-  add(WindowFrameNormal,  String("Normal"));
-  add(WindowFramePalette, String("Palette"));
-  add(WindowFrameDialog,  String("Dialog"));
-}
-
 FontSlantStyleConverter::FontSlantStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
@@ -2819,4 +2829,22 @@ FontWeightStyleConverter::FontWeightStyleConverter() : EnumStyleConverter() {
   
   add(FontWeightPlain, Symbol(PMATH_SYMBOL_PLAIN));
   add(FontWeightBold,  Symbol(PMATH_SYMBOL_BOLD));
+}
+
+ImageSizeActionStyleConverter::ImageSizeActionStyleConverter() : EnumStyleConverter() {
+  _int_to_expr.default_value = Expr();
+  _expr_to_int.default_value = -1;
+  
+  add(ImageSizeActionClip,        String("Clip"));
+  add(ImageSizeActionShrinkToFit, String("ShrinkToFit"));
+  add(ImageSizeActionResizeToFit, String("ResizeToFit"));
+}
+
+WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
+  _int_to_expr.default_value = Expr();
+  _expr_to_int.default_value = -1;
+  
+  add(WindowFrameNormal,  String("Normal"));
+  add(WindowFramePalette, String("Palette"));
+  add(WindowFrameDialog,  String("Dialog"));
 }

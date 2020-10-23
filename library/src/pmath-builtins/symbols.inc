@@ -183,6 +183,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( HypergeometricPFQ,                  DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( HypergeometricPFQRegularized,       DEFINITEFUNCTION | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( HypergeometricU,                    DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( ImageSize,                          0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( ImageSizeAction,                    0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Initialization,                     0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( InputField,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( InputFieldBox,                      0 )

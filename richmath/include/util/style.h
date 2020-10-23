@@ -28,6 +28,12 @@ namespace richmath {
     AutoBoolAutomatic = 2
   };
   
+  enum ImageSizeActionValues {
+    ImageSizeActionClip = 0,
+    ImageSizeActionShrinkToFit = 1,
+    ImageSizeActionResizeToFit = 2,
+  };
+  
   enum ObserverKind {
     ObserverKindNone  = 0x0,
     ObserverKindSelf  = 0x1,
@@ -50,6 +56,7 @@ namespace richmath {
     Editable,
     Enabled, // AutoBoolXXX
     Evaluatable,
+    ImageSizeAction, // ImageSizeActionXXX
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,
     InternalHasNewBaseStyle,
@@ -89,7 +96,8 @@ namespace richmath {
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
     
-    PaneBoxDefaultLineBreakWithin = LineBreakWithin + (int)DefaultStyleOptionOffsets::PanelBox,
+    PaneBoxDefaultImageSizeAction = ImageSizeAction + (int)DefaultStyleOptionOffsets::PaneBox,
+    PaneBoxDefaultLineBreakWithin = LineBreakWithin + (int)DefaultStyleOptionOffsets::PaneBox,
     
     PanelBoxDefaultEnabled = Enabled + (int)DefaultStyleOptionOffsets::PanelBox,
   };
