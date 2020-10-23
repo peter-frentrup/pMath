@@ -1,0 +1,148 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Pane", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Pane"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+          " by default displays ", StyleBox("expr", "Arg"), 
+          " in \"Pane\" style."}, "Notes"), 
+        Section({"With a typical default stylesheet, ", 
+          TemplateBox({"Pane"}, "ReferenceHyperlink"), "(", 
+          StyleBox("expr", "Arg"), ") without options displays exactly like ", 
+          StyleBox("expr", "Arg"), "."}, "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Restrict output to a given width:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Pane", "(", {{"50", "!"}, ",", "100"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            PaneBox(
+             "3041409320171337804361260816606476884437764156896051200000000000\
+             0", ImageSize -> {100, Automatic})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Also set the height, shrinking content if necessary:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Pane", "(", {{"50", "!"}, ",", {
+                 "{", {"100", ",", "50"}, "}"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              PaneBox(
+               "30414093201713378043612608166064768844377641568960512000000000\
+               000", ImageSize -> {100, 50})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
+          Section("Vertically align panes:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Row", "(", {
+                {"Table", "(", {
+                  {"Pane", "(", {{"15", "!"}, ",", "30", ",", {
+                     "BaselinePosition", "\[Rule]", "p"}}, ")"}, ",", {
+                   "p", "\[Rule]", {"{", {"Automatic", ",", "Top", ",", 
+                     "Center", ",", "Baseline", ",", "Bottom"}, "}"}}}, ")"}, 
+                ",", ComplexStringBox("\"x\"")}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "x", "x", PaneBox("1307674368000", ImageSize -> 30, 
+                 BaselinePosition -> Automatic), 
+                PaneBox("1307674368000", ImageSize -> 30, 
+                 BaselinePosition -> Top), PaneBox("1307674368000", 
+                 ImageSize -> 30, BaselinePosition -> Center), 
+                PaneBox("1307674368000", ImageSize -> 30, 
+                 BaselinePosition -> Baseline), 
+                PaneBox("1307674368000", ImageSize -> 30, 
+                 BaselinePosition -> Bottom)}, "RowWithSeparators")), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1), SectionGroup({
+          Section("ImageSizeAction", "ExampleSubsection"), 
+          Section("Accomodate for oversized content:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Grid", "@", {
+                "Table", "(", {
+                 {"{", {"a", ",", {"Framed", "(", {
+                     "Pane", "(", {{"50", "!"}, ",", {
+                       "{", {"50", ",", "50"}, "}"}, ",", {
+                       "ImageSizeAction", "\[Rule]", "a"}}, ")"}, ")"}, ",", {
+                    "Framed", "(", {"Pane", "(", {
+                      "123", ",", {"{", {"50", ",", "50"}, "}"}, ",", {
+                       "ImageSizeAction", "\[Rule]", "a"}}, ")"}, ")"}}, "}"}, 
+                 ",", {"a", "\[Rule]", {
+                   "{", {ComplexStringBox("\"Clip\""), ",", 
+                    ComplexStringBox("\"ShrinkToFit\""), ",", 
+                    ComplexStringBox("\"ResizeToFit\"")}, "}"}}}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              TagBox(
+               GridBox({{ComplexStringBox("\"Clip\""), 
+                  FrameBox(
+                   PaneBox(
+                    "304140932017133780436126081660647688443776415689605120000\
+                    00000000", ImageSize -> {50, 50}, 
+                    ImageSizeAction -> "Clip")), 
+                  FrameBox(PaneBox("123", ImageSize -> {50, 50}, 
+                    ImageSizeAction -> "Clip"))}, {
+                  ComplexStringBox("\"ShrinkToFit\""), 
+                  FrameBox(
+                   PaneBox(
+                    "304140932017133780436126081660647688443776415689605120000\
+                    00000000", ImageSize -> {50, 50}, 
+                    ImageSizeAction -> "ShrinkToFit")), 
+                  FrameBox(PaneBox("123", ImageSize -> {50, 50}, 
+                    ImageSizeAction -> "ShrinkToFit"))}, {
+                  ComplexStringBox("\"ResizeToFit\""), 
+                  FrameBox(
+                   PaneBox(
+                    "304140932017133780436126081660647688443776415689605120000\
+                    00000000", ImageSize -> {50, 50}, 
+                    ImageSizeAction -> "ResizeToFit")), 
+                  FrameBox(PaneBox("123", ImageSize -> {50, 50}, 
+                    ImageSizeAction -> "ResizeToFit"))}}), "Grid")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("LineBreakWithin", "ExampleSubsection"), 
+          Section("By default, content is broken into multiple lines:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "Pane", "(", {{"Array", "(", "10", ")"}, ",", "100"}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              FrameBox(
+               PaneBox({"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5", 
+                  ",", "6", ",", "7", ",", "8", ",", "9", ",", "10"}, "}"}, 
+                ImageSize -> {100, Automatic}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section("Suppess line breaks and shrink contents instead:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "Pane", "(", {{"Array", "(", "10", ")"}, ",", "100", ",", {
+                  "LineBreakWithin", "\[Rule]", "False"}}, ")"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(
+             BoxData(
+              FrameBox(
+               PaneBox({"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5", 
+                  ",", "6", ",", "7", ",", "8", ",", "9", ",", "10"}, "}"}, 
+                ImageSize -> {100, Automatic}, LineBreakWithin -> False))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSizeAction"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink")}, "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

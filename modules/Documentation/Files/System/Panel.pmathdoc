@@ -1,0 +1,209 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Panel", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Panel"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+          " by default displays ", StyleBox("expr", "Arg"), 
+          " in \"Panel\" style which uses the system panel font."}, "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A simple panel:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Panel", "(", ComplexStringBox("\"Content\""), 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(PanelBox(ComplexStringBox("\"Content\""))), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Nested panels:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Nest", "(", {
+                "Panel", ",", ComplexStringBox("\"Inside\""), ",", "5"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              PanelBox(
+               PanelBox(
+                PanelBox(
+                 PanelBox(PanelBox(ComplexStringBox("\"Inside\""))))))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Appearance", "ExampleSubsection"), 
+          Section({"The default setting is ", 
+            TemplateBox({"\[SelectionPlaceholder]"}, "ReferenceHyperlink"), 
+            " \[Rule] \"Framed\":"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
+                ",", {"Appearance", "\[Rule]", 
+                 ComplexStringBox("\"Framed\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(PanelBox(ComplexStringBox("\"Content\""), 
+               Appearance -> "Framed")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"Use ", TemplateBox({"Appearance"}, 
+               "ReferenceHyperlink"), 
+              " \[Rule] \"Frameless\" to use no background image:"}, 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
+                  ",", {"Appearance", "\[Rule]", 
+                   ComplexStringBox("\"Frameless\"")}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(PanelBox(ComplexStringBox("\"Content\""), 
+                 Appearance -> "Frameless")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"A tooltips is a floating ", 
+              TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}, 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Tooltip", "(", {
+                  {"Panel", "(", {ComplexStringBox("\"Tip\""), ",", {
+                     "Appearance", "\[Rule]", 
+                     ComplexStringBox("\"Tooltip\"")}}, ")"}, ",", 
+                  ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"Tip\""), 
+                  Appearance -> "Tooltip"), ComplexStringBox("\"Tip\""))), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"An ", TemplateBox({"InputField"}, "ReferenceHyperlink"), 
+              " with an included ", TemplateBox({"\[SelectionPlaceholder]"}, 
+               "ReferenceHyperlink"), ":"}, "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Panel", "(", {
+                  {"Grid", "(", {
+                    {"{", {
+                      "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), 
+                         ",", "String", ",", {"Appearance", "\[Rule]", 
+                          ComplexStringBox("\"AddressBand\"")}}, ")"}, ",", {
+                        "Button", "(", {ComplexStringBox("\"Go\""), ",", 
+                         "None", ",", {"ButtonFrame", "\[Rule]", 
+                          ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, 
+                      "}"}, "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, 
+                   ")"}, ",", {"Appearance", "\[Rule]", 
+                   ComplexStringBox("\"AddressBand\"")}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                PanelBox(
+                 TagBox(
+                  GridBox({
+                    {InputFieldBox("abc", String, 
+                      Appearance -> "AddressBand"), 
+                     ButtonBox(ComplexStringBox("\"Go\""), 
+                      ButtonFrame -> "AddressBandGo")}}, 
+                   GridBoxColumnSpacing -> 0), "Grid"), 
+                 Appearance -> "AddressBand")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"Tab views are built using panels with ", 
+              TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
+              " \[Rule] \"TabBody\" and ", TemplateBox({"Appearance"}, 
+               "ReferenceHyperlink"), " \[Rule] \"TabHead\":"}, 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({"Grid", "(", {
+                  {"{", {
+                    {"{", {"Panel", "(", {
+                       {"Grid", "(", {
+                         {"{", {"{", {ComplexStringBox("\"Left \""), ",", {
+                             "Setter", "(", {"1", ",", "1", ",", 
+                              ComplexStringBox("\"Center\""), ",", {
+                               "ButtonFrame", "\[Rule]", 
+                               ComplexStringBox("\"TabHead\"")}}, ")"}, ",", 
+                            ComplexStringBox("\"Right\"")}, "}"}, "}"}, ",", {
+                          "ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+                        "Appearance", "\[Rule]", 
+                        ComplexStringBox("\"TabHead\"")}}, ")"}, "}"}, ",", {
+                     "{", {"Panel", "(", {ComplexStringBox("\"Content\""), 
+                       ",", {"Appearance", "\[Rule]", 
+                        ComplexStringBox("\"TabBody\"")}}, ")"}, "}"}}, "}"}, 
+                  ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                TagBox(
+                 GridBox({
+                   {PanelBox(
+                     TagBox(
+                      GridBox({{ComplexStringBox("\"Left \""), 
+                         SetterBox(1, 1, ComplexStringBox("\"Center\""), 
+                          ButtonFrame -> "TabHead"), 
+                         ComplexStringBox("\"Right\"")}}, 
+                       GridBoxColumnSpacing -> 0), "Grid"), 
+                     Appearance -> "TabHead")}, {
+                    PanelBox(ComplexStringBox("\"Content\""), 
+                     Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
+                 "Grid")), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
+          Section("Vertically align panels:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Row", "(", {
+                {"Table", "(", {
+                  {"Panel", "(", {"p", ",", {"BaselinePosition", "\[Rule]", 
+                     "p"}}, ")"}, ",", {"p", "\[Rule]", {
+                    "{", {"Automatic", ",", "Top", ",", "Center", ",", 
+                     "Baseline", ",", "Bottom"}, "}"}}}, ")"}, ",", 
+                ComplexStringBox("\"x\"")}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "x", "x", PanelBox("Automatic", 
+                 BaselinePosition -> Automatic), 
+                PanelBox("Top", BaselinePosition -> Top), 
+                PanelBox("Center", BaselinePosition -> Center), 
+                PanelBox("Baseline", BaselinePosition -> Baseline), 
+                PanelBox("Bottom", BaselinePosition -> Bottom)}, 
+               "RowWithSeparators")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, 1), 
+        SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section({"Use the ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
+            " option to affect contained controls:"}, "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Panel", "(", {
+                {"Grid", "(", {
+                  "{", {{"{", {ComplexStringBox("\"Button:\""), ",", {
+                      "Button", "(", {ComplexStringBox("\"Ok\""), ",", 
+                       "None"}, ")"}}, "}"}, ",", {
+                    "{", {ComplexStringBox("\"Slider:\""), ",", {
+                      "Slider", "(", ")"}}, "}"}, ",", {
+                    "{", {ComplexStringBox("\"InputField:\""), ",", {
+                      "InputField", "(", {ComplexStringBox("\"\""), ",", 
+                       "String"}, ")"}}, "}"}}, "}"}, ")"}, ",", {
+                 "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              PanelBox(
+               TagBox(
+                GridBox({{ComplexStringBox("\"Button:\""), 
+                   ButtonBox(ComplexStringBox("\"Ok\""))}, {
+                   ComplexStringBox("\"Slider:\""), SliderBox(0.5`, 0 .. 1)}, {
+                   ComplexStringBox("\"InputField:\""), 
+                   InputFieldBox("", String)}}), "Grid"), Enabled -> False)), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
