@@ -379,6 +379,7 @@ If::usage:= "If(\(StyleBox(\"condition\", \"Arg\")\), \(StyleBox(\"t\", \"Arg\")
 IgnoreCase::usage:= "IgnoreCase is an option for string manipulation and searching functions which specifies whether low- and upper-case letters should be treated as equivalent."
 Im::usage:= "Im(\(StyleBox(\"z\", \"Arg\")\)) gives the imaginary part of the complex number \(StyleBox(\"z\", \"Arg\")\)."
 ImageSize::usage:= "ImageSize is an option for graphics which specifies the size of an image."
+ImageSizeAction::usage:= "ImageSizeAction is an option for Pane and related constructs which specifies what to do if the contents size does not match the ImageSize setting."
 Increment::usage:= "++\(StyleBox(\"x\", \"Arg\")\) increases the value of \(StyleBox(\"x\", \"Arg\")\) by 1 and returns the new value.\n\(StyleBox(\"x\", \"Arg\")\)+= \(StyleBox(\"dx\", \"Arg\")\) increases the value of \(StyleBox(\"x\", \"Arg\")\) by \(StyleBox(\"dx\", \"Arg\")\)."
 Inequation::usage:= "Inequation represents a sequence of relational statements."
 Infinity::usage:= "Infinity or \[Infinity] is a symbol that represents a positive infinite quantity."
