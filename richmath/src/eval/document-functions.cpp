@@ -78,6 +78,7 @@ static bool open_selection_help_cmd(Expr cmd);
 static void collect_selections(Array<SelectionReference> &sels, Expr expr);
 
 Expr richmath_eval_FrontEnd_CreateDocument(Expr expr);
+Expr richmath_eval_FrontEnd_DocumentClose(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentGet(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr);
@@ -122,6 +123,30 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
   
   return doc->to_pmath_id();
 }
+
+Expr richmath_eval_FrontEnd_DocumentClose(Expr expr) {
+  /*  FrontEnd`DocumentClose()
+      FrontEnd`DocumentClose(doc)
+   */
+  
+  size_t exprlen = expr.expr_length();
+  if(exprlen > 1)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  FrontEndReference docid = FrontEndReference::None;
+  if(exprlen == 1) 
+    docid = FrontEndReference::from_pmath(expr[1]);
+  else
+    docid = current_document_id;
+  
+  Document *doc = FrontEndObject::find_cast<Document>(docid);
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  doc->native()->close();
+  return Expr();
+}
+
 Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
   /*  FrontEnd`DocumentDelete()
       FrontEnd`DocumentDelete(doc)

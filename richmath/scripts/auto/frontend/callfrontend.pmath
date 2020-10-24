@@ -8,9 +8,13 @@ Begin("FE`Private`")
 
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
 
+DocumentClose()::= FE`CallFrontEnd(FrontEnd`DocumentClose())
+DocumentClose(arg : ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`DocumentClose(arg))
+DocumentClose(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentClose, Length@{args}, 0, 1);False)
+
 DocumentDelete()::= FE`CallFrontEnd(FrontEnd`DocumentDelete())
 DocumentDelete(arg : ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource|~:List)::= FE`CallFrontEnd(FrontEnd`DocumentDelete(arg))
-DocumentDelete(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentGet, Length@{args}, 0, 1);False)
+DocumentDelete(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentDelete, Length@{args}, 0, 1);False)
 
 DocumentGet()::= FE`CallFrontEnd(FrontEnd`DocumentGet())
 DocumentGet(doc: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`DocumentGet(doc))
