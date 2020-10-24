@@ -1129,7 +1129,7 @@ Document *Application::try_create_document(Expr data) {
         item = Call(Symbol(richmath_System_Section),
                     Call(Symbol(richmath_System_BoxData),
                          Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
-                    String("Input"));
+                    doc->get_own_style(DefaultNewSectionStyle, String("Input")));
       }
       
       int pos = doc->length();
