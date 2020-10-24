@@ -10,6 +10,7 @@
 
 namespace richmath {
   class Win32TooltipWindow: public Win32Widget {
+      using base = Win32Widget;
     protected:
       virtual ~Win32TooltipWindow();
       

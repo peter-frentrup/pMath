@@ -21,16 +21,16 @@
 
 using namespace richmath;
 
-static Win32TooltipWindow *tooltip_window = 0;
+static Win32TooltipWindow *tooltip_window = nullptr;
 
 static const wchar_t win32_tooltip_class_name[] = L"RichmathWin32Tooltip";
 
 //{ class Win32TooltipWindow ...
 
 Win32TooltipWindow::Win32TooltipWindow()
-  : Win32Widget(
+  : base(
     new Document(),
-    WS_EX_TOOLWINDOW,
+    WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
     WS_POPUP | WS_CLIPCHILDREN | WS_DISABLED,
     0,
     0,
@@ -43,7 +43,7 @@ Win32TooltipWindow::Win32TooltipWindow()
 }
 
 void Win32TooltipWindow::after_construction() {
-  Win32Widget::after_construction();
+  base::after_construction();
   
   if(!document()->style)
     document()->style = new Style;
@@ -51,12 +51,12 @@ void Win32TooltipWindow::after_construction() {
   document()->style->set(Editable,            false);
   document()->style->set(Selectable,          AutoBoolFalse);
   document()->style->set(ShowSectionBracket,  AutoBoolFalse);
-  document()->select(0, 0, 0);
+  document()->select(nullptr, 0, 0);
 }
 
 Win32TooltipWindow::~Win32TooltipWindow() {
   if(this == tooltip_window)
-    tooltip_window = 0;
+    tooltip_window = nullptr;
 }
 
 void Win32TooltipWindow::move_global_tooltip() {
@@ -101,7 +101,7 @@ void Win32TooltipWindow::delete_global_tooltip() {
 }
 
 Vector2F Win32TooltipWindow::page_size() {
-  Vector2F size = Win32Widget::page_size();
+  Vector2F size = base::page_size();
   size.x = HUGE_VAL;
   return size;
 }
@@ -190,7 +190,7 @@ void Win32TooltipWindow::resize(bool just_move) {
 }
 
 void Win32TooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
-  Win32Widget::paint_canvas(canvas, resize_only);
+  base::paint_canvas(canvas, resize_only);
   
   int old_bh = best_height;
   int old_bw = best_width;
@@ -232,7 +232,7 @@ LRESULT Win32TooltipWindow::callback(UINT message, WPARAM wParam, LPARAM lParam)
     }
   }
   
-  return Win32Widget::callback(message, wParam, lParam);
+  return base::callback(message, wParam, lParam);
 }
 
 void Win32TooltipWindow::init_tooltip_class() {
