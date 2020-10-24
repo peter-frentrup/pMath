@@ -107,7 +107,7 @@ namespace richmath {
       static Expr      run_filedialog(Expr data);
       
       /* These may return nullptr (no gui available ...)
-         The document will not be visible, call invslidate_options() to
+         The document will not be visible, call its invalidate_options() to
          recognize the "Visible" style option.
       */
       static Document *try_create_document();
