@@ -47,13 +47,19 @@ namespace richmath {
           _items[i] = src._items[i];
       }
       
+      Array(Array &&src)
+        : _length{0}, _capacity{0}, _items{nullptr}
+      {
+        swap(*this, src);
+      }
+      
       explicit Array(int length = 0)
         : _length(length),
         _capacity(best_capacity(length)),
         _items(nullptr)
       {
         ARRAY_ASSERT(_length >= 0);
-        if(_length > 0)
+        if(_capacity > 0)
           _items = new T[(size_t)_capacity];
       }
       
@@ -72,20 +78,8 @@ namespace richmath {
         delete[] _items;
       }
       
-      Array &operator=(const Array &src) {
-        if(this != &src) {
-          delete[] _items;
-          
-          _length   = src._length;
-          _capacity = best_capacity(src._length);
-          _items    = nullptr;
-          
-          if(_length > 0)
-            _items = new T[_capacity];
-            
-          for(int i = 0; i < _length; ++i)
-            _items[i] = src._items[i];
-        }
+      Array &operator=(Array other) {
+        swap(*this, other);
         return *this;
       }
       
@@ -285,17 +279,12 @@ namespace richmath {
         return result;
       }
       
-      void swap(Array<T> &other) {
-        int  l  = _length;
-        int  c  = _capacity;
-        T   *is = _items;
-        _length   = other._length;
-        _capacity = other._capacity;
-        _items    = other._items;
+      friend void swap(Array &left, Array &right) {
+        using std::swap;
         
-        other._length   = l;
-        other._capacity = c;
-        other._items    = is;
+        swap(left._length,   right._length);
+        swap(left._capacity, right._capacity);
+        swap(left._items,    right._items);
       }
     private:
       int  _length;

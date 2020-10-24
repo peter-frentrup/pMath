@@ -386,7 +386,8 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
   }
   
   if(ctx.stylesheet->get(style, ScriptSizeMultipliers, &expr)) {
-    old_script_size_multis.swap(ctx.script_size_multis);
+    using std::swap;
+    swap(old_script_size_multis, ctx.script_size_multis);
     ctx.set_script_size_multis(expr);
   }
   
@@ -442,8 +443,8 @@ void ContextState::end() {
   if(old_antialiasing >= 0)
     cairo_set_antialias(ctx.canvas().cairo(), old_antialiasing);
     
-  if(old_script_size_multis.length() > 0)
-    old_script_size_multis.swap(ctx.script_size_multis);
+  if(old_script_size_multis.length() > 0) 
+    swap(old_script_size_multis, ctx.script_size_multis);
     
   if(have_font_feature_set) {
     ctx.fontfeatures.clear();
