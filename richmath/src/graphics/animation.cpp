@@ -7,10 +7,10 @@ using namespace richmath;
 
 //{ class TimedEvent ...
 
-TimedEvent::TimedEvent(double _min_wait_seconds)
+TimedEvent::TimedEvent(double min_wait_seconds)
   : Shareable(),
   start_time(pmath_tickcount()),
-  min_wait_seconds(_min_wait_seconds)
+  min_wait_seconds(min_wait_seconds)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -36,9 +36,9 @@ bool TimedEvent::register_for(FrontEndReference box_id) {
 
 //{ class BoxRepaintEvent ...
 
-BoxRepaintEvent::BoxRepaintEvent(FrontEndReference _box_id, double _min_wait_seconds)
-  : TimedEvent(_min_wait_seconds),
-  box_id(_box_id)
+BoxRepaintEvent::BoxRepaintEvent(FrontEndReference box_id, double min_wait_seconds)
+  : TimedEvent(min_wait_seconds),
+  box_id(box_id)
 {
   if(!register_for(box_id))
     box_id = FrontEndReference::None;
@@ -79,15 +79,15 @@ bool BoxAnimation::is_compatible(Canvas &canvas, const BoxSize &size) {
 //{ class LinearTransition ...
 
 LinearTransition::LinearTransition(
-  FrontEndReference  _box_id,
+  FrontEndReference  box_id,
   Canvas            &dst,
   const BoxSize     &size,
-  double             _seconds)
-  : BoxAnimation(_box_id),
-  seconds(_seconds),
+  double             seconds)
+  : BoxAnimation(box_id),
+  seconds(seconds),
   repeat(false)
 {
-  if(_seconds > 0) {
+  if(seconds > 0) {
     buf1           = new Buffer(dst, CAIRO_FORMAT_ARGB32, size);
     buf2           = new Buffer(dst, CAIRO_FORMAT_ARGB32, size);
     current_buffer = new Buffer(dst, CAIRO_FORMAT_ARGB32, size);

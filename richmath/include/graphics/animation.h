@@ -10,7 +10,7 @@ namespace richmath {
   
   class TimedEvent: public Shareable {
     public:
-      TimedEvent(double _min_wait_seconds);
+      TimedEvent(double min_wait_seconds);
       
       bool register_for(FrontEndReference box_id);
       virtual void execute_event() = 0;
@@ -30,7 +30,7 @@ namespace richmath {
   
   class BoxRepaintEvent: public TimedEvent {
     public:
-      BoxRepaintEvent(FrontEndReference _box_id, double _min_wait_seconds);
+      BoxRepaintEvent(FrontEndReference box_id, double min_wait_seconds);
       
       bool register_event() { return register_for(box_id); }
       virtual void execute_event() override;
@@ -41,7 +41,7 @@ namespace richmath {
   
   class BoxAnimation: public BoxRepaintEvent {
     public:
-      BoxAnimation(FrontEndReference _box_id): BoxRepaintEvent(_box_id, 0.0) {}
+      BoxAnimation(FrontEndReference box_id): BoxRepaintEvent(box_id, 0.0) {}
       
       virtual void update(ControlContext *control) = 0;
       virtual bool paint(Canvas &canvas) = 0;
@@ -57,10 +57,10 @@ namespace richmath {
   class LinearTransition final : public BoxAnimation {
     public:
       LinearTransition(
-        FrontEndReference _box_id,
-        Canvas &dst,
-        const BoxSize &size,
-        double _seconds);
+        FrontEndReference  box_id,
+        Canvas            &dst,
+        const BoxSize     &size,
+        double             seconds);
         
       LinearTransition(
         FrontEndReference  box_id,
