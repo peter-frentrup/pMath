@@ -10,6 +10,7 @@ namespace richmath {
   class TextSequence;
   
   class Section: public Box {
+      using base = Box;
     protected:
       virtual ~Section();
     public:
@@ -34,6 +35,7 @@ namespace richmath {
       
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src) override;
       virtual bool request_repaint(const RectangleF &rect) override;
+      virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       virtual void invalidate() override;
       virtual bool edit_selection(SelectionReference &selection) override;
       

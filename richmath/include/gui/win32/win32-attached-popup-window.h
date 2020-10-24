@@ -18,12 +18,15 @@ namespace richmath {
       
       virtual void close() override;
       virtual void invalidate_options() override;
+      
       virtual bool is_foreground_window() override { return _active; }
-    
+      virtual bool is_using_dark_mode() override;
+      
     protected:
       virtual ~Win32AttachedPopupWindow();
       virtual void after_construction() override;
       
+      virtual void paint_background(Canvas &canvas) override;
       virtual void paint_canvas(Canvas &canvas, bool resize_only) override;
       virtual void on_close() override;
       

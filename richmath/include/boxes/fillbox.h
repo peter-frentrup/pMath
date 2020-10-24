@@ -30,6 +30,7 @@ namespace richmath {
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
       virtual bool request_repaint(const RectangleF &rect) override;
+      virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       
       virtual float fill_weight() override { return _weight; }
     

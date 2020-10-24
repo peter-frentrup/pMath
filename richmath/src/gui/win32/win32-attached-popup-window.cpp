@@ -1,4 +1,5 @@
 #include <gui/win32/win32-attached-popup-window.h>
+#include <gui/win32/win32-control-painter.h>
 
 #ifdef max
 #  undef max
@@ -51,7 +52,6 @@ Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, Box *anchor)
   _best_width{1},
   _best_height{1}
 {
-  pmath_debug_print("[new Win32AttachedPopupWindow %p]\n", this);
   Impl::init_window_class();
   set_window_class_name(Impl::class_name);
   
@@ -62,7 +62,6 @@ Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, Box *anchor)
 }
 
 Win32AttachedPopupWindow::~Win32AttachedPopupWindow() {
-  pmath_debug_print("[Win32AttachedPopupWindow %p destroyed]\n", this);
   if(Document *owner = owner_document()) 
     owner->popup_window_closed(document());
 }
@@ -82,7 +81,6 @@ void Win32AttachedPopupWindow::after_construction() {
 }
 
 void Win32AttachedPopupWindow::close() {
-  pmath_debug_print("[Win32AttachedPopupWindow %p: close]\n", this);
   //SendMessageW(_hwnd, WM_CLOSE, 0, 0);
   on_close();
 }
@@ -90,28 +88,41 @@ void Win32AttachedPopupWindow::close() {
 void Win32AttachedPopupWindow::invalidate_options() {
   base::invalidate_options();
   
-  bool owner_visible = false;
-  if(Win32Widget *wid = Impl(*this).owner_widget()) {
-    owner_visible = !!IsWindowVisible(wid->hwnd());
-  }
+  anchor_location_changed();
+}
+
+bool Win32AttachedPopupWindow::is_using_dark_mode() {
+  static int recursion = 0;
   
-  if(document()->get_style(Visible, true) && owner_visible) {
-    if(!IsWindowVisible(_hwnd)) {
-      SetWindowPos(
-        _hwnd, nullptr,
-        0, 0, 1, 1,
-        SWP_SHOWWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+  for(Box *src = source_box(); src; src = src->parent()) {
+    ControlContext *ctx = dynamic_cast<ControlContext*>(src);
+    if(!ctx) {
+      if(Document *doc = dynamic_cast<Document*>(src))
+        ctx = doc->native();
+    }
+    
+    if(ctx) {
+      bool result = false;
+      if(recursion < 2) {
+        ++recursion;
+        result = ctx->is_using_dark_mode();
+        --recursion;
+      }
+      return result;
     }
   }
-  else {
-    if(IsWindowVisible(_hwnd))
-      SetWindowPos(
-        _hwnd, nullptr,
-        0, 0, 1, 1,
-        SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+  
+  if(Document *owner = owner_document()) {
+    bool result = false;
+    if(recursion < 2) {
+      ++recursion;
+      result = owner->native()->is_using_dark_mode();
+      --recursion;
+    }
+    return result;
   }
   
-  anchor_location_changed();
+  return base::is_using_dark_mode();
 }
 
 void Win32AttachedPopupWindow::anchor_location_changed() {
@@ -122,9 +133,11 @@ void Win32AttachedPopupWindow::anchor_location_changed() {
     return;
   }
   
+  bool visible = !!IsWindowVisible(owner_wid->hwnd()) && document()->get_style(Visible, true);
+  
   if(Box *anchor = source_box()) {
     POINT pos;
-    if(Impl(*this).find_anchor_screen_position(pos)) {
+    if(visible && Impl(*this).find_anchor_screen_position(pos)) {
       RECT rect;
       GetWindowRect(_hwnd, &rect);
       int width  = rect.right - rect.left;
@@ -146,16 +159,32 @@ void Win32AttachedPopupWindow::anchor_location_changed() {
         flags |= SWP_NOSIZE;
       }
       
+      if(!IsWindowVisible(_hwnd))
+        flags |= SWP_SHOWWINDOW;
+      
       SetWindowPos(
         _hwnd, nullptr,
         pos.x, pos.y, width, height,
         flags);
+    }
+    else {
+      if(IsWindowVisible(_hwnd)) {
+        SetWindowPos(
+          _hwnd, nullptr,
+          0, 0, 1, 1,
+          SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
+      }
     }
   }
   else {
     pmath_debug_print("[Win32AttachedPopupWindow: lost anchor]\n");
     close();
   }
+}
+
+void Win32AttachedPopupWindow::paint_background(Canvas &canvas) {
+  canvas.set_color(Win32ControlPainter::win32_painter.win32_button_face_color(is_using_dark_mode()));
+  canvas.paint();
 }
 
 void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
@@ -275,11 +304,15 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(POINT &pos) {
   if(!anchor)
     return false;
   
+  Point anchor_point = {0, anchor->extents().descent};
+  RectangleF rect = anchor->extents().to_rectangle();
+  if(!anchor->visible_rect(rect))
+    return false;
+  
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
   anchor->transformation(nullptr, &mat);
   
-  Point anchor_point = {0, anchor->extents().descent};
   anchor_point = Canvas::transform_point(mat, anchor_point);
   anchor_point.x *= owner_wid->scale_factor();
   anchor_point.y *= owner_wid->scale_factor();

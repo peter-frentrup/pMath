@@ -145,10 +145,6 @@ namespace {
 static Color CustomTitlebarColorizationLight = Color::from_rgb24(0xE6E6E6);//Color::None;//
 static Color CustomTitlebarColorizationDark  = Color::from_rgb24(0x1F1F1F);//Color::None;//
 
-// TODO: do not hardcode dark-mode COLOR_BTNFACE but get it from the system somehow
-// dark mode Popup menu background: 0x2B2B2B
-static Color DarkModeButtonFaceColor = Color::from_rgb24(0x2B2B2B);
-
 class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
     using base = BasicWin32Widget;
   public:
@@ -1248,7 +1244,7 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
     }
 
     if(!IsRectEmpty(&glassfree)) {
-      Color color = _use_dark_mode ? DarkModeButtonFaceColor : Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+      Color color = Win32ControlPainter::win32_painter.win32_button_face_color(_use_dark_mode);
       
       add_rect(canvas, glassfree);
       

@@ -1538,6 +1538,16 @@ Color Win32ControlPainter::selection_color(ControlContext &control) {
   return get_sys_color(COLOR_HIGHLIGHT);
 }
 
+Color Win32ControlPainter::win32_button_face_color(bool dark) {
+  if(dark) {
+    // TODO: do not hardcode dark-mode COLOR_BTNFACE but get it from the system somehow
+    // dark mode Popup menu background: 0x2B2B2B
+    return Color::from_rgb24(0x2B2B2B);
+  }
+  
+  return Color::from_bgr24(GetSysColor(COLOR_BTNFACE));
+}
+
 float Win32ControlPainter::scrollbar_width() {
   return GetSystemMetrics(SM_CXHTHUMB) * 3 / 4.f;
 }

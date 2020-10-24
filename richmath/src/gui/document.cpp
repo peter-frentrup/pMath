@@ -413,6 +413,13 @@ bool Document::request_repaint(const RectangleF &rect) {
   return false;
 }
 
+bool Document::visible_rect(RectangleF &rect, Box *top_most) {
+  if(this == top_most)
+    return true;
+  
+  return rect.overlaps({native()->scroll_pos(), native()->window_size()});
+}
+
 void Document::invalidate() {
   native()->invalidate();
   

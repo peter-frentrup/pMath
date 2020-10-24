@@ -161,22 +161,28 @@ VolatileSelection Section::get_highlight_child(const VolatileSelection &src) {
   if(!visible)
     return VolatileSelection{nullptr, 0};
     
-  return Box::get_highlight_child(src);
+  return base::get_highlight_child(src);
 }
 
 bool Section::request_repaint(const RectangleF &rect) {
   if(visible)
-    return Box::request_repaint(rect);
+    return base::request_repaint(rect);
+  return false;
+}
+
+bool Section::visible_rect(RectangleF &rect, Box *top_most) {
+  if(visible)
+    return base::visible_rect(rect, top_most);
   return false;
 }
 
 void Section::invalidate() {
   must_resize = true;
-  Box::invalidate();
+  base::invalidate();
 }
 
 bool Section::edit_selection(SelectionReference &selection) {
-  if(!Box::edit_selection(selection))
+  if(!base::edit_selection(selection))
     return false;
     
   if( get_style(SectionLabel).length() > 0 &&

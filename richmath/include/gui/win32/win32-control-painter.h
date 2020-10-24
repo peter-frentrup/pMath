@@ -59,6 +59,7 @@ namespace richmath {
       virtual void system_font_style(ControlContext &context, Style *style) override;
       
       virtual Color selection_color(ControlContext &context) override;
+      Color win32_button_face_color(bool dark);
       
       virtual float scrollbar_width() override;
       

@@ -118,9 +118,19 @@ bool FillBox::request_repaint(const RectangleF &rect) {
   int num_repititions = (int)(_extents.width / _content->extents().width);
   
   if(num_repititions > 1) 
-    base::request_repaint(_extents.to_rectangle());
+    return base::request_repaint(_extents.to_rectangle());
   
   return base::request_repaint(rect);
+}
+
+bool FillBox::visible_rect(RectangleF &rect, Box *top_most) {
+  int num_repititions = (int)(_extents.width / _content->extents().width);
+  
+  if(num_repititions > 1) {
+    rect = _extents.to_rectangle();
+  }
+  
+  return base::visible_rect(rect, top_most);
 }
 
 void FillBox::resize_default_baseline(Context &context) {

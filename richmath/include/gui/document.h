@@ -47,6 +47,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual bool request_repaint(const RectangleF &rect) override;
+      virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       virtual void invalidate() override;
       virtual void invalidate_options() override;
       void invalidate_all();

@@ -433,6 +433,24 @@ bool Box::request_repaint(const RectangleF &rect) {
   return false;
 }
 
+bool Box::visible_rect(RectangleF &rect, Box *top_most) {
+  if(this == top_most)
+    return true;
+  
+  if(!_extents.to_rectangle().overlaps(rect))
+    return false;
+  
+  if(_parent) {
+    cairo_matrix_t matrix;
+    cairo_matrix_init_identity(&matrix);
+    transformation(_parent, &matrix);
+    Canvas::transform_rect_inline(matrix, rect);
+    return _parent->visible_rect(rect, top_most);
+  }
+  
+  return false;
+}
+
 void Box::invalidate() {
   if(_parent)
     _parent->invalidate();

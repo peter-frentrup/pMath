@@ -381,6 +381,9 @@ namespace richmath {
       bool         request_repaint_all();
       virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(const RectangleF &rect);
+      
+      bool visible_rect(RectangleF &rect) { return visible_rect(rect, nullptr); }
+      virtual bool visible_rect(RectangleF &rect, Box *top_most);
 
       /// Something inside this box changed and needs a resize().
       virtual void invalidate();
