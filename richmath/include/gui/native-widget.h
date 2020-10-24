@@ -65,6 +65,12 @@ namespace richmath {
       virtual void show_tooltip(Box *source, Expr boxes) = 0;
       virtual void hide_tooltip() = 0;
       
+      /* May return nullptr (no gui or floating popup windows available ...)
+         The document will not be visible, call its invalidate_options() to
+         recognize the "Visible" style option.
+      */
+      virtual Document *try_create_popup_window(const SelectionReference &anchor) { return nullptr; }
+      
       // scale setting changes doc style Magnification
       virtual bool is_scaleable() = 0;
       void scale_by(float ds);
@@ -136,6 +142,9 @@ namespace richmath {
     protected:
       virtual ~NativeWidget();
       void adopt(Document *doc);
+      
+      bool owner_document(Document *owner);
+      bool owner_document(FrontEndReference owner);
       
       Context *document_context();
       

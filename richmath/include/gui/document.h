@@ -23,6 +23,20 @@ namespace richmath {
     CurrentlyDragging
   };
   
+  struct BoxAttchmentPopup {
+    SelectionReference anchor;
+    FrontEndReference  popup_id;
+    
+    Document *popup_document() const { return FrontEndObject::find_cast<Document>(popup_id); }
+  
+    friend void swap(BoxAttchmentPopup &left, BoxAttchmentPopup &right) {
+      using std::swap;
+      swap(left.anchor,   right.anchor);
+      swap(left.popup_id, right.popup_id);
+    }
+    
+  };
+  
   class Document final : public SectionList {
       friend class NativeWidget;
       class Impl;
@@ -171,6 +185,11 @@ namespace richmath {
       
       virtual Expr to_pmath_id() override;
       
+      bool attach_popup_window(const SelectionReference &anchor, Document *popup_window);
+      void popup_window_closed(Document *popup_window) { if(popup_window) popup_window_closed(popup_window->id()); };
+      void popup_window_closed(FrontEndReference popup_window_id);
+      void invalidate_popup_window_positions();
+      
     public:
       Document *main_document; // not owned
       
@@ -197,6 +216,7 @@ namespace richmath {
       Array<SelectionReference> additional_selection;
       
       Array<SelectionReference> _current_word_references;
+      Array<BoxAttchmentPopup>  _attached_popup_windows;
       
       SelectionReference        last_paint_sel;
       

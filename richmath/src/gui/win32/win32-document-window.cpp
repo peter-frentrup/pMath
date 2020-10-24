@@ -1197,6 +1197,14 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         on_setting_changed();
         } break;
       
+      case WM_MOVE: {
+          top_glass(   )->invalidate_popup_window_positions();
+          top(         )->invalidate_popup_window_positions();
+          document(    )->invalidate_popup_window_positions();
+          bottom(      )->invalidate_popup_window_positions();
+          bottom_glass()->invalidate_popup_window_positions();
+        } break;
+      
       case WM_SIZE: {
           _top_glass_area->resize();
           _top_area->resize();

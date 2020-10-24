@@ -70,6 +70,11 @@ extern pmath_symbol_t richmath_FE_MenuItem;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGroup;
+
+
 static bool show_hide_menu_cmd(Expr cmd);
 static MenuCommandStatus can_show_hide_menu(Expr cmd);
 
@@ -77,6 +82,7 @@ static bool open_selection_help_cmd(Expr cmd);
 
 static void collect_selections(Array<SelectionReference> &sels, Expr expr);
 
+Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr);
 Expr richmath_eval_FrontEnd_CreateDocument(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentClose(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr);
@@ -102,6 +108,74 @@ void richmath::set_current_document(Document *document) {
 
 Document *richmath::get_current_document() {
   return FrontEndObject::find_cast<Document>(current_document_id);
+}
+
+Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
+  /*  FrontEnd`AttachBoxes(sel, anchor, boxes, options)
+   */
+  
+  if(expr.expr_length() < 3)
+    return Symbol(PMATH_SYMBOL_FAILED);
+    
+  SelectionReference sel;
+  {
+    if(sel.id = FrontEndReference::from_pmath(expr[1])) {
+      if(Box *box = sel.get()) {
+        sel.start = 0;
+        sel.end = box->length();
+      }
+    }
+    
+    // TODO: allow selections ...
+    
+//    Array<SelectionReference> sels;
+//    collect_selections(sels, expr[1]);
+//    if(sels.length() != 1)
+//      return Symbol(PMATH_SYMBOL_FAILED);
+//    
+//    sel = std::move(sels[0]);
+  }
+  
+  Box *anchor_box = sel.get();
+  if(!anchor_box)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Document *owner_doc = anchor_box->find_parent<Document>(true);
+  if(!owner_doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Document *popup_doc = owner_doc->native()->try_create_popup_window(sel);
+  if(!popup_doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  // FIXME: this is duplicated in Application::try_create_document():
+  Expr options(pmath_options_extract_ex(expr.get(), 3, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(options.is_expr())
+    popup_doc->style->add_pmath(options);
+    
+  Expr sections = expr[3];
+  if(sections[0] != PMATH_SYMBOL_LIST)
+    sections = List(sections);
+    
+  for(size_t i = 1; i <= sections.expr_length(); ++i) {
+    Expr item = sections[i];
+    
+    if( item[0] != richmath_System_Section      &&
+        item[0] != richmath_System_SectionGroup)
+    {
+      item = Call(Symbol(richmath_System_Section),
+                  Call(Symbol(richmath_System_BoxData),
+                       Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
+                  popup_doc->get_own_style(DefaultNewSectionStyle, String("Input")));
+    }
+    
+    int pos = popup_doc->length();
+    popup_doc->insert_pmath(&pos, item);
+  }
+  
+  owner_doc->attach_popup_window(sel, popup_doc);
+  popup_doc->invalidate_options();
+  return popup_doc->to_pmath_id();
 }
 
 Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {

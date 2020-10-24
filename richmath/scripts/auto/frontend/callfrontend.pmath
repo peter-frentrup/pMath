@@ -4,6 +4,12 @@ BeginPackage("FE`", "ExperimentalSyntax`")
 Begin("FE`Private`")
 
 
+Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
+    BaseStyle -> "AttachedPopupWindow"
+};
+FE`AttachBoxes(src: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource, ~anchor, ~boxes, opts: OptionsPattern())::= FE`CallFrontEnd(FrontEnd`AttachBoxes(src, anchor, boxes, opts))
+FE`AttachBoxes(~~~args)::= $Failed /? (IsValidArgumentCount(FE`AttachBoxes, Length@{args}, 3, Infinity);False)
+
 % Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
 
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))

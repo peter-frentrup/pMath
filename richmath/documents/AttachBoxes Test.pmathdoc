@@ -1,0 +1,46 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("AttachBoxes Test", "Title"), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"TemplateBox", "(", {
+           {"{", {ComplexStringBox("\"Click me!\""), ",", 
+             ComplexStringBox("\"Hello\"")}, "}"}, ",", 
+           ComplexStringBox("\"PopupTest\"")}, ")"}, "//", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [1]:"), 
+      Section(BoxData(TemplateBox({"Click me!", "Hello"}, "PopupTest")), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"TemplateBox", "(", {
+           {"{", {ComplexStringBox("\"Outer...\""), ",", {
+              "TemplateBox", "(", {
+               {"{", {ComplexStringBox("\"Inner...\""), ",", 
+                 ComplexStringBox("\"Hello\"")}, "}"}, ",", 
+               ComplexStringBox("\"PopupTest\"")}, ")"}}, "}"}, ",", 
+           ComplexStringBox("\"PopupTest\"")}, ")"}, "//", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [3]:"), 
+      Section(
+       BoxData(TemplateBox({
+          "Outer...", TemplateBox({"Inner...", "Hello"}, "PopupTest")}, 
+         "PopupTest")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [3]:")}, All)}, All)}, 
+ StyleDefinitions :> Document({
+   SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+     SectionGroup({Section("Box styles", "Section"), 
+       SectionGroup({Section("TemplateBox styles", "Subsection"), 
+         Section(StyleData("PopupTest"), 
+          TemplateBoxOptions -> {DisplayFunction -> (DynamicLocalBox({
+             FE`Private`popup}, ButtonBox(#1, 
+             ButtonFunction -> (Replace(CurrentValue(FE`Private`popup, 
+               Visible), {True :> (CurrentValue(FE`Private`popup, Visible):= 
+                False), False :> (CurrentValue(FE`Private`popup, Visible):= 
+                True), $Failed :> (FE`Private`popup:= Echo(
+                FE`AttachBoxes(Echo(EvaluationBox()), Bottom, 
+                 Section(BoxData({"\"content: \"", TemplateSlot(2)}), 
+                  "PopupWindowSection"))))}) &))) &)})}, All)}, All)}, All)}, 
+  StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
+ Visible -> True)

@@ -319,8 +319,23 @@ bool NativeWidget::source_box(Box *box) {
 }
       
 
-Document *NativeWidget::owner_document(){
+Document *NativeWidget::owner_document() {
   return FrontEndObject::find_cast<Document>(_owner_document); 
+}
+
+bool NativeWidget::owner_document(Document *owner) {
+  return owner_document(owner ? owner->id() : FrontEndReference::None); 
+}
+
+bool NativeWidget::owner_document(FrontEndReference owner) {
+  if(_owner_document) {
+    pmath_debug_print("[NativeWidget: owner_document already set]\n");
+    return false;
+  }
+  
+  // TODO: beware of cyclic references
+  _owner_document = owner;
+  return true;
 }
 
 Document *NativeWidget::stylesheet_document() {

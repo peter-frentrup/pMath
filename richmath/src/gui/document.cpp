@@ -339,6 +339,15 @@ namespace richmath {
       bool handle_immediate_macros();
       bool handle_macros();
       //}
+    
+      //{ attached boxes
+    public:
+      bool attach_popup_window(const SelectionReference &anchor, Document *popup_window);
+      void popup_window_closed(FrontEndReference popup_window_id);
+      void invalidate_popup_window_positions();
+      void close_orphaned_popup_windows();
+      void close_all_popup_windows();
+      //}
   };
 }
 
@@ -367,6 +376,7 @@ Document::Document()
 }
 
 Document::~Document() {
+  Impl(*this).close_all_popup_windows();
 }
 
 bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
@@ -3746,6 +3756,8 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     
     cc.end();
     must_resize_min = 0;
+    
+    invalidate_popup_window_positions();
   });
 }
 
@@ -3770,6 +3782,18 @@ Expr Document::to_pmath(BoxOutputFlags flags) {
 
 Expr Document::to_pmath_id() {
   return Call(Symbol(richmath_System_DocumentObject), id().to_pmath());
+}
+
+bool Document::attach_popup_window(const SelectionReference &anchor, Document *popup_window) {
+  return Impl(*this).attach_popup_window(anchor, popup_window);
+}
+
+void Document::popup_window_closed(FrontEndReference popup_window_id) {
+  Impl(*this).popup_window_closed(popup_window_id);
+}
+
+void Document::invalidate_popup_window_positions() {
+  Impl(*this).invalidate_popup_window_positions();
 }
 
 //} ... class Document
@@ -4841,6 +4865,87 @@ bool Document::Impl::handle_macros(const Hashtable<String, Expr> &table) {
   }
   
   return false;
+}
+//}
+
+//{ attachment boxes
+bool Document::Impl::attach_popup_window(const SelectionReference &anchor, Document *popup_window) {
+  if(!popup_window)
+    return false;
+  
+  // TODO: ensure that popup_window is not a direct or indirect owner window of this Document
+  BoxAttchmentPopup popup{ anchor, popup_window->id() };
+  if(!self.is_parent_of(popup.anchor.get()))
+    return false;
+  
+  self._attached_popup_windows.add(popup);
+  return true;
+}
+
+void Document::Impl::popup_window_closed(FrontEndReference popup_window_id) {
+  int len = self._attached_popup_windows.length();
+  for(int i = 0; i < len; ++i) {
+    if(self._attached_popup_windows[i].popup_id == popup_window_id) {
+      if(i < len-1) {
+        using std::swap;
+        
+        swap(self._attached_popup_windows[i], self._attached_popup_windows[len-1]);
+      }
+      self._attached_popup_windows.length(len-1);
+      return;
+    }
+  }
+}
+
+void Document::Impl::invalidate_popup_window_positions() {
+  Array<FrontEndReference> popups;
+  popups.length(self._attached_popup_windows.length());
+  
+  for(int i = 0; i < self._attached_popup_windows.length(); ++i)
+    popups[i] = self._attached_popup_windows[i].popup_id;
+    
+  for(auto id : popups) {
+    Document *doc = FrontEndObject::find_cast<Document>(id);
+    if(doc)
+      doc->native()->invalidate_options();
+  }
+}
+
+void Document::Impl::close_orphaned_popup_windows() {
+  Array<FrontEndReference> orphaned;
+  
+  int len = self._attached_popup_windows.length();
+  for(int i = len - 1; i >= 0; --i) {
+    Box *anchor_box = FrontEndObject::find_cast<Box>(self._attached_popup_windows[i].anchor.id);
+    if(!self.is_parent_of(anchor_box)) {
+      orphaned.add(self._attached_popup_windows[i].popup_id);
+      if(i < len-1) {
+        using std::swap;
+        swap(self._attached_popup_windows[i], self._attached_popup_windows[len - 1]);
+      }
+      --len;
+    }
+  }
+  
+  self._attached_popup_windows.length(len);
+  for(auto doc_id : orphaned) {
+    if(auto doc = FrontEndObject::find_cast<Document>(doc_id)) {
+      doc->native()->close();
+    }
+  }
+}
+
+void Document::Impl::close_all_popup_windows() {
+  Array<BoxAttchmentPopup> popups;
+  
+  using std::swap;
+  swap(popups, self._attached_popup_windows);
+  
+  for(auto &popup : popups) {
+    if(auto doc = popup.popup_document()) {
+      doc->native()->close();
+    }
+  }
 }
 //}
 

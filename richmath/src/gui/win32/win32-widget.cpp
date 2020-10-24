@@ -18,6 +18,7 @@
 #include <gui/control-painter.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
+#include <gui/win32/win32-attached-popup-window.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-highdpi.h>
@@ -241,6 +242,16 @@ void Win32Widget::show_tooltip(Box *source, Expr boxes) {
 
 void Win32Widget::hide_tooltip() {
   Win32TooltipWindow::hide_global_tooltip();
+}
+
+Document *Win32Widget::try_create_popup_window(const SelectionReference &anchor) {
+  Box *anchor_box = FrontEndObject::find_cast<Box>(anchor.id);
+  if(!document()->is_parent_of(anchor_box))
+    return nullptr;
+  
+  auto *popup = new Win32AttachedPopupWindow(document(), anchor_box);
+  popup->init();
+  return popup->document();
 }
 
 double Win32Widget::message_time() {
