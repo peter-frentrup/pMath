@@ -3,6 +3,7 @@
 
 #include <boxes/sectionlist.h>
 #include <eval/application.h>
+#include <graphics/rectangle.h>
 #include <syntax/autocompletion.h>
 
 
@@ -99,8 +100,8 @@ namespace richmath {
       String copy_to_text(String mimetype);
       void copy_to_binary(String mimetype, Expr file);
       
-      void prepare_copy_to_image(cairo_surface_t *target_surface, RectangleF *out_pix_rect);
-      void prepare_copy_to_image(cairo_t         *target_cr,      RectangleF *out_pix_rect);
+      RectangleF prepare_copy_to_image(cairo_surface_t *target_surface);
+      RectangleF prepare_copy_to_image(cairo_t         *target_cr);
       void finish_copy_to_image(cairo_surface_t *target_surface, const RectangleF &pix_rect);
       void finish_copy_to_image(cairo_t         *target_cr,      const RectangleF &pix_rect);
       

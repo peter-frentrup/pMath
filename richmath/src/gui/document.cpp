@@ -1778,7 +1778,7 @@ void Document::copy_to_binary(String mimetype, Expr file) {
   pmath_file_writetext(file.get(), text.buffer(), text.length());
 }
 
-void Document::prepare_copy_to_image(cairo_surface_t *target_surface, richmath::RectangleF *out_pix_rect) {
+RectangleF Document::prepare_copy_to_image(cairo_surface_t *target_surface) {
   cairo_t *cr = cairo_create(target_surface);
   
   cairo_set_line_width(cr, 1);
@@ -1789,10 +1789,12 @@ void Document::prepare_copy_to_image(cairo_surface_t *target_surface, richmath::
   cairo_set_font_options(cr, opt);
   cairo_font_options_destroy(opt);
 
-  prepare_copy_to_image(cr, out_pix_rect);
+  RectangleF pix_rect = prepare_copy_to_image(cr);
   
   cairo_destroy(cr);
   cairo_surface_flush(target_surface);
+  
+  return pix_rect;
 }
 
 void Document::finish_copy_to_image(cairo_surface_t *target_surface, const richmath::RectangleF &pix_rect) {
@@ -1812,20 +1814,20 @@ void Document::finish_copy_to_image(cairo_surface_t *target_surface, const richm
   cairo_surface_flush(target_surface);
 }
 
-void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::RectangleF *out_pix_rect) {
-  *out_pix_rect = RectangleF{0, 0, 0, 0};
+RectangleF Document::prepare_copy_to_image(cairo_t *target_cr) {
+  RectangleF pix_rect = RectangleF{0, 0, 0, 0};
   
   SelectionReference copysel = context.selection;
   Box *selbox = copysel.get();
   if(!selbox)
-    return;
+    return pix_rect;
     
   if(dynamic_cast<GraphicsBox *>(selbox)) {
     copysel.set(selbox->parent(), selbox->index(), selbox->index() + 1);
     
     selbox = copysel.get();
     if(!selbox)
-      return;
+      return pix_rect;
   }
   
   DragStatus old_drag_status = drag_status;
@@ -1860,7 +1862,7 @@ void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::RectangleF *o
     
     cairo_matrix_t mat = canvas.get_matrix();
     canvas.reset_matrix();
-    canvas.path_extents(out_pix_rect);
+    canvas.path_extents(&pix_rect);
     canvas.set_matrix(mat);
     
     canvas.new_path();
@@ -1868,6 +1870,8 @@ void Document::prepare_copy_to_image(cairo_t *target_cr, richmath::RectangleF *o
   
   context.selection = oldsel;
   drag_status = old_drag_status;
+  
+  return pix_rect;
 }
 
 void Document::finish_copy_to_image(cairo_t *target_cr, const richmath::RectangleF &pix_rect) {
@@ -1975,8 +1979,7 @@ void Document::copy_to_clipboard(Clipboard *clipboard, String mimetype) {
       return;
     }
     
-    RectangleF rect;
-    prepare_copy_to_image(image, &rect);
+    RectangleF rect = prepare_copy_to_image(image);
     cairo_surface_destroy(image);
     image = clipboard->create_image(mimetype, rect.width, rect.height);
     if(image) {
