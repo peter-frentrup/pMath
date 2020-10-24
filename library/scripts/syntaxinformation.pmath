@@ -117,6 +117,7 @@
 {"DivideBy", {"ArgumentCount" -> 2}},
 {"Do", {"ArgumentCount" -> 2, "LocalVariables" -> {"Table", 2}, "Category" -> "Keyword"}},
 {"DocumentApply", {"ArgumentCount" -> 2}},
+{"DocumentClose", {"ArgumentCount" -> 0..1}},
 {"DocumentDelete", {"ArgumentCount" -> 1..2}},
 {"DocumentGet", {"ArgumentCount" -> 0..1}},
 {"DocumentObject", {"ArgumentCount" -> 1}},
