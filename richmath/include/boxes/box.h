@@ -175,7 +175,7 @@ namespace richmath {
       virtual ~Box();
       void delete_owned(Box *child) { 
         if(child) {
-          assert(child->parent() == this);
+          assert(child->parent() == this || child->parent() == nullptr);
           delete child;
         }
       }
