@@ -1,5 +1,6 @@
 #include <gui/win32/win32-attached-popup-window.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-highdpi.h>
 
 #ifdef max
 #  undef max
@@ -124,6 +125,10 @@ bool Win32AttachedPopupWindow::is_using_dark_mode() {
   }
   
   return base::is_using_dark_mode();
+}
+
+int Win32AttachedPopupWindow::dpi() {
+  return Win32HighDpi::get_dpi_for_window(_hwnd);
 }
 
 void Win32AttachedPopupWindow::anchor_location_changed() {

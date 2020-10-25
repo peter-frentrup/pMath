@@ -1,11 +1,11 @@
 #include <gui/win32/win32-messagebox.h>
 
+#include <gui/documents.h>
 #include <gui/win32/win32-themes.h>
 #include <gui/win32/win32-widget.h>
 
 #include <boxes/section.h>
 
-#include <eval/binding.h>
 #include <resources.h>
 
 
@@ -155,7 +155,7 @@ Expr richmath::win32_ask_interrupt(Expr stack) {
     doc = box->find_parent<Document>(true);
   
   if(!doc)
-    doc = get_current_document();
+    doc = Documents::current();
   
   if(Win32Widget *wid = doc ? dynamic_cast<Win32Widget*>(doc->native()) : nullptr) {
     config.dark_mode = wid->has_dark_background();

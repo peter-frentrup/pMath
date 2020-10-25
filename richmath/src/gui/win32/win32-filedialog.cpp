@@ -1,7 +1,7 @@
 #include <gui/win32/win32-filedialog.h>
 
 #include <eval/application.h>
-#include <eval/binding.h>
+#include <gui/documents.h>
 #include <gui/win32/win32-themes.h>
 #include <gui/win32/win32-widget.h>
 
@@ -227,7 +227,7 @@ Expr Win32FileDialog::Impl::show_dialog() {
 HWND Win32FileDialog::Impl::get_dialog_owner() {
   Box *box = Application::get_evaluation_box();
   if(!box)
-    box = get_current_document();
+    box = Documents::current();
     
   if(!box)
     return nullptr;

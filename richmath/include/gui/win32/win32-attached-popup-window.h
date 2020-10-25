@@ -21,6 +21,7 @@ namespace richmath {
       
       virtual bool is_foreground_window() override { return _active; }
       virtual bool is_using_dark_mode() override;
+      virtual int dpi() override;
       
     protected:
       virtual ~Win32AttachedPopupWindow();

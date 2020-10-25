@@ -18,6 +18,7 @@
 #include <eval/binding.h>
 
 #include <gui/clipboard.h>
+#include <gui/documents.h>
 #include <gui/native-widget.h>
 
 #include <syntax/spanexpr.h>
@@ -668,7 +669,7 @@ void Document::key_down(SpecialKeyEvent &event) {
     selbox->on_key_down(event);
   }
   else {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     if(cur && cur != this)
       cur->key_down(event);
   }
@@ -679,7 +680,7 @@ void Document::key_up(SpecialKeyEvent &event) {
     selbox->on_key_up(event);
   }
   else {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     if(cur && cur != this)
       cur->key_up(event);
   }
@@ -702,7 +703,7 @@ void Document::key_press(uint16_t unicode) {
     selbox->on_key_press(unicode);
   }
   else {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     if(cur && cur != this)
       cur->key_press(unicode);
     else
@@ -962,7 +963,7 @@ void Document::on_key_press(uint32_t unichar) {
   AbstractSequence *initial_seq = dynamic_cast<AbstractSequence *>(selection_box());
   
   if(!Impl(*this).prepare_insert()) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this)
       cur->key_press(unichar);
@@ -2832,7 +2833,7 @@ static AbstractSequence *find_selection_placeholder(
 
 void Document::insert_box(Box *box, bool handle_placeholder) {
   if(!box || !Impl(*this).prepare_insert()) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_box(box, handle_placeholder);
@@ -2911,7 +2912,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
 
 void Document::insert_fraction() {
   if(!Impl(*this).prepare_insert_math(true)) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_fraction();
@@ -2961,7 +2962,7 @@ void Document::insert_fraction() {
 
 void Document::insert_matrix_column() {
   if(!Impl(*this).prepare_insert_math(true)) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_matrix_column();
@@ -3057,7 +3058,7 @@ void Document::insert_matrix_column() {
 
 void Document::insert_matrix_row() {
   if(!Impl(*this).prepare_insert_math(true)) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_matrix_row();
@@ -3156,7 +3157,7 @@ void Document::insert_matrix_row() {
 
 void Document::insert_sqrt() {
   if(!Impl(*this).prepare_insert_math(false)) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_sqrt();
@@ -3201,7 +3202,7 @@ void Document::insert_sqrt() {
 
 void Document::insert_subsuperscript(bool sub) {
   if(!Impl(*this).prepare_insert_math(true)) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_subsuperscript(sub);
@@ -3262,7 +3263,7 @@ void Document::insert_subsuperscript(bool sub) {
 
 void Document::insert_underoverscript(bool under) {
   if(!Impl(*this).prepare_insert_math(true)) {
-    Document *cur = get_current_document();
+    Document *cur = Documents::current();
     
     if(cur && cur != this) {
       cur->insert_underoverscript(under);

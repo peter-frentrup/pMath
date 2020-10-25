@@ -21,6 +21,7 @@
 #include <graphics/config-shaper.h>
 #include <graphics/ot-math-shaper.h>
 #include <gui/control-painter.h>
+#include <gui/documents.h>
 #include <gui/recent-documents.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
@@ -505,7 +506,7 @@ int main(int argc, char **argv) {
   
   load_documents_from_command_line();
   
-  if(!get_current_document()) {
+  if(!Documents::current()) {
     main_doc = Application::try_create_document();
     if(main_doc) {
       write_text_section(main_doc, "Title", "Welcome");

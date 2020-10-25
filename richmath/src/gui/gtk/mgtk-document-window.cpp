@@ -5,9 +5,10 @@
 #include <eval/application.h>
 #include <eval/binding.h>
 
+#include <gui/documents.h>
+#include <gui/messagebox.h>
 #include <gui/gtk/mgtk-control-painter.h>
 #include <gui/gtk/mgtk-menu-builder.h>
-#include <gui/messagebox.h>
 
 #include <cmath>
 
@@ -87,7 +88,7 @@ class MathGtkDocumentChildWidget: public MathGtkWidget {
     
   protected:
     virtual void do_set_current_document() override {
-      set_current_document(_parent->document());
+      Documents::current(_parent->document());
     }
 };
 
@@ -377,8 +378,8 @@ void MathGtkDocumentWindow::after_construction() {
   top()->invalidate();
   bottom()->invalidate();
   
-  if(get_current_document() == 0) 
-    set_current_document(document());
+  if(!Documents::current()) 
+    Documents::current(document());
   
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_configure>("configure-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_delete>("delete-event");

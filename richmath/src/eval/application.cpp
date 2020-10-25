@@ -39,6 +39,7 @@
 
 
 #include <gui/document.h>
+#include <gui/documents.h>
 #include <gui/recent-documents.h>
 
 #include <eval/binding.h>
@@ -1021,7 +1022,7 @@ Document *Application::try_create_document() {
     int w = 500;
     int h = 550;
     
-    doc = get_current_document();
+    doc = Documents::current();
     if(doc) {
       auto wid = dynamic_cast<Win32Widget*>(doc->native());
       if(wid) {
@@ -1119,21 +1120,10 @@ Document *Application::try_create_document(Expr data) {
     Expr sections = data[1];
     if(sections[0] != PMATH_SYMBOL_LIST)
       sections = List(sections);
-      
-    for(size_t i = 1; i <= sections.expr_length(); ++i) {
-      Expr item = sections[i];
-      
-      if( item[0] != richmath_System_Section      &&
-          item[0] != richmath_System_SectionGroup)
-      {
-        item = Call(Symbol(richmath_System_Section),
-                    Call(Symbol(richmath_System_BoxData),
-                         Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), item))),
-                    doc->get_own_style(DefaultNewSectionStyle, String("Input")));
-      }
-      
+    
+    for(auto item : sections.items()) {
       int pos = doc->length();
-      doc->insert_pmath(&pos, item);
+      doc->insert_pmath(&pos, Documents::make_section_boxes(std::move(item), doc));
     }
   }
   
@@ -1685,7 +1675,7 @@ static Expr cnt_documentread(Expr data) {
   Document *doc = nullptr;
   
   if(data.expr_length() == 0) {
-    doc = get_current_document();
+    doc = Documents::current();
   }
   else {
     Box *box = FrontEndObject::find_cast<Box>(
@@ -1752,7 +1742,7 @@ namespace {
             doc = box->find_parent<Document>(true);
         }
         else
-          doc = get_current_document();
+          doc = Documents::current();
           
         if(!doc)
           return Symbol(PMATH_SYMBOL_FAILED);

@@ -1,7 +1,8 @@
 #include <gui/gtk/mgtk-filedialog.h>
 
 #include <eval/application.h>
-#include <eval/binding.h>
+
+#include <gui/documents.h>
 #include <gui/gtk/mgtk-widget.h>
 
 
@@ -166,7 +167,7 @@ void MathGtkFileDialog::Impl::add_filter(Expr caption, Expr extensions) {
 GtkWindow *MathGtkFileDialog::Impl::get_parent_window() {
   Box *box = Application::get_evaluation_box();
   if(!box)
-    box = get_current_document();
+    box = Documents::current();
     
   if(!box)
     return nullptr;

@@ -9,6 +9,7 @@
 #include <eval/binding.h>
 #include <eval/dynamic.h>
 #include <gui/control-painter.h>
+#include <gui/documents.h>
 #include <gui/messagebox.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
@@ -95,7 +96,7 @@ class Win32DocumentChildWidget: public Win32Widget {
   
   protected:
     virtual void do_set_current_document() override {
-      set_current_document(_parent->document());
+      Documents::current(_parent->document());
     }
     
     virtual void paint_background(Canvas &canvas) override {
@@ -711,8 +712,8 @@ void Win32DocumentWindow::after_construction() {
     InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
   }
   
-  if(get_current_document() == 0) 
-    set_current_document(document());
+  if(!Documents::current()) 
+    Documents::current(document());
   
   creation = false;
   
@@ -1230,7 +1231,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       case WM_SETFOCUS: {
           SetFocus(_working_area->hwnd());
           if(document()->selectable()) {
-            set_current_document(document());
+            Documents::current(document());
           }
         } break;
         
@@ -1268,7 +1269,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         } break;
         
       case WM_ACTIVATEAPP: {
-          Document *current_doc = get_current_document();
+          Document *current_doc = Documents::current();
           
           if(wParam) { // activate
             if(current_doc)

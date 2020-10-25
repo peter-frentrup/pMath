@@ -4,7 +4,7 @@
 
 #include <boxes/section.h>
 
-#include <eval/binding.h>
+#include <gui/documents.h>
 
 
 using namespace richmath;
@@ -144,7 +144,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
     doc = box->find_parent<Document>(true);
   
   if(!doc)
-    doc = get_current_document();
+    doc = Documents::current();
   
   if(MathGtkWidget *mwid = doc ? dynamic_cast<MathGtkWidget*>(doc->native()) : nullptr) {
     GtkWidget *wid = nullptr;

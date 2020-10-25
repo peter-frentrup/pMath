@@ -16,14 +16,6 @@ namespace richmath {
   
   bool init_bindings();
   void done_bindings();
-  
-  namespace impl {
-    bool init_document_functions();
-    void done_document_functions();
-  }
-  
-  void set_current_document(Document *document);
-  Document *get_current_document();
 }
 
 #endif // RICHMATH__EVAL__BINDING_H__INCLUDED

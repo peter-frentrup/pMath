@@ -931,7 +931,7 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
     SetWindowPos(GetAncestor(_hwnd, GA_ROOT), HWND_TOP, 0, 0, 1, 1, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
   }
 //  else {
-//    Document *cur = get_current_document();
+//    Document *cur = Documents::current();
 //    if(cur && cur != document()) {
 //      Win32Widget *wig = dynamic_cast<Win32Widget *>(cur->native());
 //
