@@ -195,8 +195,8 @@ void Win32TooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   int old_bh = best_height;
   int old_bw = best_width;
   
-  best_height = (int)floorf(document()->extents().height() * scale_factor() + 0.5);
-  best_width  = (int)floorf(document()->unfilled_width     * scale_factor() + 0.5);
+  best_height = (int)round(document()->extents().height() * scale_factor());
+  best_width  = (int)round(document()->unfilled_width     * scale_factor());
   
   if(best_height < 1)
     best_height = 1;

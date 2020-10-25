@@ -760,8 +760,8 @@ void Win32ControlPainter::draw_container(
         rect_in_clip(canvas, rect))
     {
       Point upos = canvas.user_to_device(rect.top_left());
-      dc_x = (int)floor(upos.x + 0.5);
-      dc_y = (int)floor(upos.y + 0.5);
+      dc_x = (int)round(upos.x);
+      dc_y = (int)round(upos.y);
       cairo_surface_flush(cairo_get_target(canvas.cairo()));
     }
     else {
@@ -1474,9 +1474,9 @@ Vector2F Win32ControlPainter::container_content_offset(
   if(delta.x != 0 || delta.y != 0) {
     double scale = control.dpi() / 72.0;
     if(delta.x != 0)
-      delta.x = floor(0.5 + delta.x * scale) / scale;
+      delta.x = round(delta.x * scale) / scale;
     if(delta.y != 0)
-      delta.y = floor(0.5 + delta.y * scale) / scale;
+      delta.y = round(delta.y * scale) / scale;
   }
   return delta;
 }

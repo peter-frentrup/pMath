@@ -377,7 +377,7 @@ double SliderBox::Impl::mouse_to_val(double mouse_x) {
     val = (mouse_x / (self._extents.width - self.thumb_width)) * (self.range_max - self.range_min);
     
     if(self.range_step != 0) {
-      val = self.range_min + floor(val / self.range_step + 0.5) * self.range_step;
+      val = self.range_min + round(val / self.range_step) * self.range_step;
       
       if(self.range_min < self.range_max) {
         if(val > self.range_max)

@@ -185,8 +185,8 @@ bool Buffer::paint_with_alpha(Canvas &dst, float alpha) {
   dst.user_to_device(&x, &y);
   x -= u2d_matrix.x0;
   y -= u2d_matrix.y0;
-  x = floor(x + 0.5);
-  y = floor(y + 0.5);
+  x = round(x);
+  y = round(y);
   
   dst.reset_matrix();
   dst.translate(x, y);
@@ -221,8 +221,8 @@ bool Buffer::mask(Canvas &dst) {
   dst.user_to_device(&x, &y);
   x -= u2d_matrix.x0;
   y -= u2d_matrix.y0;
-  x = floor(x + 0.5);
-  y = floor(y + 0.5);
+  x = round(x);
+  y = round(y);
   
   cairo_matrix_t oldmat = dst.get_matrix();
   dst.reset_matrix();
@@ -480,7 +480,7 @@ bool Buffer::blur(float radius) {
   Canvas::transform_rect(user_to_device(), &rx, &ry, &rw, &rh);
   float rd = (fabsf(rw) + fabsf(rh)) / 2;
   
-  iradius = (int)floorf(radius * rd + 0.5f);
+  iradius = (int)round(radius * rd);
   if(iradius <= 0)
     return false;
     

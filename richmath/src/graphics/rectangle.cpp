@@ -48,8 +48,8 @@ void Vector2F::pixel_align_distance(Canvas &canvas) {
       bool x_was_zero = fabs(x) < 1e-5;
       bool y_was_zero = fabs(y) < 1e-5;
       
-      x = floor(x + 0.5);
-      y = floor(y + 0.5);
+      x = round(x);
+      y = round(y);
       
       if(!x_was_zero) {
         if(x >= 0 && x < 1)
@@ -87,8 +87,8 @@ void Point::pixel_align_point(Canvas &canvas, bool tostroke) {
         y = ceil(y) - 0.5;
       }
       else {
-        x = floor(x + 0.5);
-        y = floor(y + 0.5);
+        x = round(x);
+        y = round(y);
       }
       canvas.device_to_user(&x, &y);
     }

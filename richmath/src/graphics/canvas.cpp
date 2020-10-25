@@ -307,8 +307,8 @@ void Canvas::align_point(float *x, float *y, bool tostroke) {
         *y = ceil(*y) - 0.5;
       }
       else {
-        *x = floor(*x + 0.5);
-        *y = floor(*y + 0.5);
+        *x = round(*x);
+        *y = round(*y);
       }
       device_to_user(x, y);
     }

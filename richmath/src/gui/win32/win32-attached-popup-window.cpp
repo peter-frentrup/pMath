@@ -194,8 +194,8 @@ void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   int old_bh = _best_height;
   int old_bw = _best_width;
   
-  _best_height = (int)floorf(document()->extents().height() * scale_factor() + 0.5);
-  _best_width  = (int)floorf(document()->unfilled_width     * scale_factor() + 0.5);
+  _best_height = (int)round(document()->extents().height() * scale_factor());
+  _best_width  = (int)round(document()->unfilled_width     * scale_factor());
   
   if(_best_height < 1)
     _best_height = 1;
@@ -318,7 +318,7 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(POINT &pos) {
   anchor_point.x *= owner_wid->scale_factor();
   anchor_point.y *= owner_wid->scale_factor();
   
-  pos = { (int)floor(anchor_point.x + 0.5), (int)floor(anchor_point.y + 0.5) };
+  pos = { (int)round(anchor_point.x), (int)round(anchor_point.y) };
   pos.x -= GetScrollPos(owner_wid->hwnd(), SB_HORZ);
   pos.y -= GetScrollPos(owner_wid->hwnd(), SB_VERT);
   return !!ClientToScreen(owner_wid->hwnd(), &pos);

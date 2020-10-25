@@ -216,14 +216,14 @@ void Win32Widget::scroll_to(Point pos) {
   
   GetScrollInfo(_hwnd, SB_HORZ, &si);
   oldx = si.nPos;
-  si.nPos = floor(pos.x * scale_factor() + 0.5);
+  si.nPos = round(pos.x * scale_factor());
   SetScrollInfo(_hwnd, SB_HORZ, &si, TRUE);
   GetScrollInfo(_hwnd, SB_HORZ, &si);
   newx = si.nPos;
   
   GetScrollInfo(_hwnd, SB_VERT, &si);
   oldy = si.nPos;
-  si.nPos = floor(pos.y * scale_factor() + 0.5);
+  si.nPos = round(pos.y * scale_factor());
   SetScrollInfo(_hwnd, SB_VERT, &si, TRUE);
   GetScrollInfo(_hwnd, SB_VERT, &si);
   newy = si.nPos;
@@ -601,16 +601,16 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
     RECT outer;
     GetWindowRect(_hwnd, &outer);
     
-    int w_page = floorf(scale_factor() * win_size.x + 0.5f);
-    int h_page = floorf(scale_factor() * win_size.y + 0.5f);
+    int w_page = round(scale_factor() * win_size.x);
+    int h_page = round(scale_factor() * win_size.y);
     
-    int w_max = floorf(scale_factor() * document()->extents().width + 0.5f);
+    int w_max = round(scale_factor() * document()->extents().width);
     int h_max;
     
     if(autohide_vertical_scrollbar())
-      h_max = floorf(document()->extents().height()                      * scale_factor() + 0.5f);
+      h_max = round(document()->extents().height()                      * scale_factor());
     else
-      h_max = floorf((document()->extents().height() + win_size.y * 0.8) * scale_factor() + 0.5f);
+      h_max = round((document()->extents().height() + win_size.y * 0.8) * scale_factor());
       
     if(outer.bottom - outer.top  >= h_max)
       h_page = h_max + 1;

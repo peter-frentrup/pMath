@@ -225,7 +225,7 @@ bool NativeWidget::may_drop_into(const VolatileSelection &dst, bool self_is_sour
 }
 
 CursorType NativeWidget::text_cursor(Vector2F dir) {
-  int part = (int)floor(atan2(dir.x, dir.y) * 4 / M_PI + 0.5); // note: x and y are reversed
+  int part = (int)round(atan2(dir.x, dir.y) * 4 / M_PI); // note: x and y are reversed
   if(part == -4)
     part = 4;
     
@@ -246,7 +246,7 @@ CursorType NativeWidget::size_cursor(Vector2F dir, CursorType base) {
   if(delta < -8 || delta > 8)
     return base;
     
-  int part = (int)floor(atan2(dir.x, dir.y) * 4 / M_PI + 0.5); // note: x and y are reversed
+  int part = (int)round(atan2(dir.x, dir.y) * 4 / M_PI); // note: x and y are reversed
   if(part == -4)
     part = 4;
     

@@ -2004,7 +2004,7 @@ void OTMathShaperImpl::stretch_glyph_assembly(
   result->ext.num_extenders = 0;
   result->ext.rel_overlap = 0;
   if(extenders) {
-    int count = floorf((width - non_ext_w) / ext_w + 0.5f);
+    int count = round((width - non_ext_w) / ext_w);
     
     if(count >= 0)
       result->ext.num_extenders = count;
@@ -2111,7 +2111,7 @@ void OTMathShaperImpl::vertical_stretch_char(
     }
     
     if(extenders) {
-      int count = floorf((total_height - non_ext_h) / ext_h + 0.5f);
+      int count = round((total_height - non_ext_h) / ext_h);
       
       if(count * ext_h + non_ext_h <= total_height - abs_tolerance_per_em * em)
         count += 1;

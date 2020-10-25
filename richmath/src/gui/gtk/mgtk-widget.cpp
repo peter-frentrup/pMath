@@ -915,8 +915,8 @@ void MathGtkWidget::paint_canvas(Canvas &canvas, bool resize_only) {
     else
       h_max = scale_factor() * document()->extents().height() + h_page * 0.8;
       
-    w_max = floor(w_max + 0.5);
-    h_max = floor(h_max + 0.5);
+    w_max = round(w_max);
+    h_max = round(h_max);
     
     if(rect.height >= h_max)
       h_page = h_max;

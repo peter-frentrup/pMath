@@ -1242,7 +1242,7 @@ void SimpleMathShaper::vertical_stretch_char(
     context.canvas().glyph_extents(&cg, 1, &cte);
     
     if(h < 0) h = 0;
-    result->ext.num_extenders = (uint16_t)floor(divide(h, cte.height) + 0.5);
+    result->ext.num_extenders = (uint16_t)round(divide(h, cte.height));
     result->ext.rel_overlap = 0;
   }
   else {
