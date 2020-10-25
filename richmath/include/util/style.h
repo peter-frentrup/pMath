@@ -445,6 +445,7 @@ namespace richmath {
       
       static SharedPtr<Stylesheet> try_load(Expr expr);
       static Expr name_from_path(String filename);
+      static String path_for_name(Expr name);
       void add(Expr expr);
       void reload();
       void reload(Expr expr);

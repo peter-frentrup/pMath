@@ -1,5 +1,7 @@
 #include <gui/documents.h>
 
+#include <boxes/section.h>
+
 #include <gui/common-document-windows.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -7,6 +9,7 @@
 
 #include <eval/application.h>
 
+#include <util/autovaluereset.h>
 #include <util/filesystem.h>
 
 #include <algorithm>
@@ -18,6 +21,8 @@ namespace richmath {
     static MenuCommandStatus can_show_hide_menu(Expr cmd);
 
     static bool open_selection_help_cmd(Expr cmd);
+    static Section *find_style_definition(Expr stylesheet_name, String style_name);
+    static Section *find_style_definition(Document *style_doc, int index, String style_name);
 
     static void collect_selections(Array<SelectionReference> &sels, Expr expr);
   };
@@ -115,6 +120,7 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentGet(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr);
 Expr richmath_eval_FrontEnd_Documents(Expr expr);
+Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
@@ -129,6 +135,7 @@ extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_StyleDefinitions;
 
 //{ class Documents ...
 
@@ -291,6 +298,80 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   
   doc->native()->beep();
   return false;
+}
+
+Section *DocumentsImpl::find_style_definition(Expr stylesheet_name, String style_name) {
+  if(SharedPtr<Stylesheet> stylesheet = Stylesheet::find_registered(stylesheet_name)) {
+    if(stylesheet->styles.search(style_name)) {
+      if(String path = Stylesheet::path_for_name(stylesheet_name)) {
+        Document *doc = Application::find_open_document(path);
+        bool was_open = doc;
+        if(!doc) 
+          doc = Application::open_new_document(path);
+        
+        if(doc) {
+          auto result = find_style_definition(doc, doc->length(), style_name);
+          
+          if(doc->is_parent_of(result))
+            doc->native()->bring_to_front();
+          else if(!was_open)
+            doc->native()->close();
+          
+          if(result)
+            return result;
+        }
+      }
+      else {
+        pmath_debug_print_object("[Stylesheet::path_for_name failed for ", stylesheet_name.get(), "]\n");
+      }
+    }
+    else {
+      pmath_debug_print_object("[skip stylesheet ", stylesheet_name.get(), "]\n");
+    }
+  }
+  else {
+    pmath_debug_print_object("[stylesheet ", stylesheet_name.get(), " not loaded]\n");
+  }
+  
+  return nullptr;
+}
+
+Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, String style_name) {
+  static int max_recursion = 10;
+  
+  AutoValueReset<int> recursion_guard(max_recursion);
+  if(max_recursion-- <= 0) {
+    pmath_debug_print("[find_style_definition: recursion limit reached]\n");
+    return nullptr;
+  }
+  
+  while(--index >= 0) {
+    Section *sect = style_doc->section(index);
+    StyleDataSection *style_sect = dynamic_cast<StyleDataSection*>(sect);
+    if(!style_sect) {
+      if(EditSection *edit = dynamic_cast<EditSection*>(sect))
+        style_sect = dynamic_cast<StyleDataSection*>(edit->original);
+    }
+    
+    if(!style_sect)
+      continue;
+    
+    if(String name = style_sect->style_data[1]) {
+      if(name == style_name) {
+        style_doc->select(sect, 0, 0);
+        return sect;
+      }
+    }
+    else {
+      Expr def = style_sect->style_data[1];
+      if(def.is_rule() && def[1] == richmath_System_StyleDefinitions) {
+        if(auto result = find_style_definition(def[2], style_name))
+          return result;
+      }
+    }
+  }
+  
+  return nullptr;
 }
 
 void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr expr) {
@@ -999,6 +1080,62 @@ Expr richmath_eval_FrontEnd_Documents(Expr expr) {
   }
   
   return gather.end();
+}
+
+Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
+  /*  FrontEnd`FindStyleDefinition("style")
+      FrontEnd`FindStyleDefinition(doc, "style")
+   */
+  
+  size_t exprlen = expr.expr_length();
+  if(exprlen < 1 || exprlen > 2)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  String style_name = expr[exprlen];
+  if(!style_name)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  Box *box = nullptr;
+  Document *doc = nullptr;
+  if(exprlen > 1) {
+    auto id = FrontEndReference::from_pmath(expr[1]);
+    box = FrontEndObject::find_cast<Box>(id);
+    if(doc = dynamic_cast<Document*>(box))
+      box = doc->selection_box();
+    else
+      doc = box ? box->find_parent<Document>(true) : nullptr;
+  }
+  else {
+    doc = Documents::current();
+    box = doc ? doc->selection_box() : nullptr;
+  }
+  
+  if(!doc)
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  int index = doc->length();
+  for(Box *tmp = box; box && box != doc; box = box->parent()) {
+    index = box->index();
+  }
+  
+  if(auto result = DocumentsImpl::find_style_definition(doc, index, style_name))
+    return result->to_pmath_id();
+  
+  SharedPtr<Style> style;
+  if(SharedPtr<Style> *style_ptr = doc->stylesheet()->styles.search(style_name))
+    style = *style_ptr;
+  else
+    return Symbol(PMATH_SYMBOL_FAILED);
+  
+  if(Document *style_doc = doc->native()->stylesheet_document()) {
+    if(auto result = DocumentsImpl::find_style_definition(style_doc, style_doc->length(), style_name))
+      return result->to_pmath_id();
+  }
+  
+  if(auto result = DocumentsImpl::find_style_definition(doc->get_own_style(StyleDefinitions, {}), style_name))
+    return result->to_pmath_id();
+  
+  return Symbol(PMATH_SYMBOL_FAILED);
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {

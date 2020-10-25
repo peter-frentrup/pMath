@@ -184,8 +184,8 @@ namespace richmath {
     protected:
       virtual bool can_enter_content() override { return false; }
       
-    private:
-      Expr _style_data;
+    public:
+      Expr style_data; // StyleData("name")
   };
 }
 

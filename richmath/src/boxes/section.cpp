@@ -867,15 +867,15 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_Section)
     return false;
     
-  Expr style_data = expr[1];
-  if(style_data[0] != richmath_System_StyleData)
+  Expr new_style_data = expr[1];
+  if(new_style_data[0] != richmath_System_StyleData)
     return false;
     
   Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
     
-  _style_data = style_data;
+  style_data = std::move(new_style_data);
   
   reset_style();
   style->add_pmath(options);
@@ -897,7 +897,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
-  Gather::emit(_style_data);
+  Gather::emit(style_data);
   style->emit_to_pmath(true);
   
   Expr e = g.end();

@@ -4,6 +4,8 @@
 #include <eval/application.h>
 #include <eval/dynamic.h>
 
+#include <util/filesystem.h>
+
 #include <cmath>
 #include <limits>
 
@@ -2283,6 +2285,16 @@ Expr Stylesheet::name_from_path(String filename) {
     return filename.part(Application::stylesheet_path_base.length());
   
   return String();
+}
+
+String Stylesheet::path_for_name(Expr name) {
+  if(String str = name) {
+    if(FileSystem::is_filename_without_directory(name)) {
+      return FileSystem::file_name_join(Application::stylesheet_path_base, name);
+    }
+  }
+  
+  return {}; 
 }
 
 void Stylesheet::add(Expr expr) {
