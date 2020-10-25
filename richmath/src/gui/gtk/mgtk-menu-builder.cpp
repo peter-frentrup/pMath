@@ -4,6 +4,7 @@
 #include <eval/binding.h>
 #include <eval/observable.h>
 
+#include <gui/menus.h>
 #include <gui/gtk/mgtk-document-window.h>
 
 #include <util/hashtable.h>
@@ -21,7 +22,6 @@ using namespace richmath;
 extern pmath_symbol_t richmath_FE_Delimiter;
 extern pmath_symbol_t richmath_FE_Menu;
 extern pmath_symbol_t richmath_FE_MenuItem;
-extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 static const char accel_path_prefix[] = "<Richmath>/";
 static Hashtable<String,  Expr> accel_path_to_cmd;
@@ -52,15 +52,6 @@ static String add_command(Expr cmd) {
 }
 
 namespace {
-  enum class MenuItemType {
-    Normal,
-    CheckButton,
-    RadioButton,
-    Delimiter,
-    SubMenu,
-    InlineMenu
-  };
-
   class MenuItemBuilder {
     public:
       static bool is_valid(Expr item, MenuItemType *type);
@@ -83,8 +74,6 @@ namespace {
       static void on_destroy(GtkMenuItem *menu_item, void *doc_id_as_ptr);
       
     private:
-      static MenuItemType type_for_command(Expr cmd);
-
       static void set_label(GtkMenuItem *menu_item, String label);
 
       static void init_command(GtkMenuItem *menu_item, Expr item);
@@ -229,8 +218,8 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
       
       if(item_list[0] == PMATH_SYMBOL_LIST) {
         for(Expr item : item_list.items()) {
-          MenuItemType type;
-          if(!MenuItemBuilder::is_valid(item, &type))
+          MenuItemType type = Menus::menu_item_type(item);
+          if(type == MenuItemType::Invalid)
             continue;
           
           is_empty = false;
@@ -292,8 +281,8 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
   for(size_t i = 1; i <= list.expr_length(); ++i) {
     Expr item = list[i];
     
-    MenuItemType type;
-    if(!MenuItemBuilder::is_valid(item, &type))
+    MenuItemType type = Menus::menu_item_type(item);
+    if(type == MenuItemType::Invalid)
       continue;
     
     GtkWidget *menu_item = MenuItemBuilder::create(type, for_document_window_id);
@@ -327,57 +316,6 @@ const char *MenuItemBuilder::inline_menu_list_data_key = "richmath:inline_menu_l
 
 ObservableValue<GtkMenuItem*> MenuItemBuilder::_selected_item { nullptr };
 
-
-MenuItemType MenuItemBuilder::type_for_command(Expr cmd) {
-  if(cmd[0] == richmath_FE_ScopedCommand)
-    cmd = cmd[1];
-  
-  if(cmd.is_rule()) 
-    return MenuItemType::RadioButton;
-  
-  if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
-    return MenuItemType::RadioButton;
-  
-  if(cmd.is_string()) {
-    if(String(cmd).equals("ShowHideMenu"))
-      return MenuItemType::CheckButton;
-  }
-  
-  return MenuItemType::Normal;
-}
-
-bool MenuItemBuilder::is_valid(Expr item, MenuItemType *type) {
-  if(item == richmath_FE_Delimiter) {
-    *type = MenuItemType::Delimiter;
-    return true;
-  }
-  
-  if(item[0] == richmath_FE_MenuItem && item.expr_length() == 2) {
-    if(!item[1].is_string())
-      return false;
-    
-    *type = type_for_command(item[2]);
-    return true;
-  }
-  
-  if(item[0] == richmath_FE_Menu) {
-    if(!item[1].is_string())
-      return false;
-    
-    Expr submenu = item[2];
-    if(submenu.is_string()) {
-      *type = MenuItemType::InlineMenu;
-      return true;
-    }
-    
-    if(submenu[0] == PMATH_SYMBOL_LIST) {
-      *type = MenuItemType::SubMenu;
-      return true;
-    }
-  }
-  
-  return false;
-}
 
 bool MenuItemBuilder::has_type(GtkWidget *widget, MenuItemType type) {
   switch(type) {

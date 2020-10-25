@@ -4,6 +4,7 @@
 #include <eval/application.h>
 #include <eval/observable.h>
 
+#include <gui/menus.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-themes.h>
 #include <gui/win32/ole/dataobject.h>
@@ -580,19 +581,6 @@ bool MenuItemBuilder::init_info(MENUITEMINFOW *info, Expr item, String *buffer) 
   return false;
 }
 
-bool MenuItemBuilder::is_radiocheck_command(Expr cmd) {
-  if(cmd[0] == richmath_FE_ScopedCommand)
-    cmd = cmd[1];
-  
-  if(cmd.is_rule()) // style->value  is a simple setter (does not toggle)
-    return true;
-  
-  if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
-    return true;
-  
-  return false;
-}
-
 bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buffer) {
   *buffer = String(item[1]);
   Expr cmd = item[2];
@@ -602,7 +590,7 @@ bool MenuItemBuilder::init_item_info(MENUITEMINFOW *info, Expr item, String *buf
   info->fType = MFT_STRING;
   info->fState = MFS_ENABLED;
   
-  if(is_radiocheck_command(cmd))
+  if(Menus::command_type(cmd) == MenuItemType::RadioButton)
     info->fType |= MFT_RADIOCHECK;
   
   String shortcut = id_to_shortcut_text[info->wID];

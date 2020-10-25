@@ -927,6 +927,7 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="include/gui/menus.h" />
 		<Unit filename="include/gui/messagebox.h" />
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/recent-documents.h" />
@@ -1440,6 +1441,7 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="src/gui/menus.cpp" />
 		<Unit filename="src/gui/messagebox.cpp" />
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/recent-documents.cpp" />
