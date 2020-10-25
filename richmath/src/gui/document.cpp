@@ -2371,8 +2371,12 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
   }
   else if(scope == richmath_System_Section) {
     Box *box = old_sel.get();
-    if(box)
-      box = box->find_parent<Section>(true);
+    if(box) {
+      if(box == this && old_sel.start + 1 == old_sel.end)
+        box = section(old_sel.start);
+      else
+        box = box->find_parent<Section>(true);
+    }
       
     new_sel.set(box, 0, 0);
   }

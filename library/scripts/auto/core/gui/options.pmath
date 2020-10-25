@@ -230,6 +230,8 @@ Options(Section):= {
     LineBreakWithin -> True,
     Magnification -> Automatic,  % only valid for StyleData-sections
     MathFontFamily -> Inherited,
+    MenuCommandKey -> None,
+    MenuSortingValue -> Inherited,
     PaneBoxOptions -> {
         BaselinePosition -> Automatic,
         ImageSize -> Automatic},

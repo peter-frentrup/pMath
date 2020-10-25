@@ -63,6 +63,8 @@ namespace richmath {
     InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver, // ObserverKindXXX
     LineBreakWithin,
+    MenuCommandKey,
+    MenuSortingValue,
     Placeholder,
     ReturnCreatesNewSection,
     Saveable,
@@ -449,9 +451,12 @@ namespace richmath {
       
       virtual void dynamic_updated() override {}
       
-      void add_user(FrontEndObject *obj) {
+      void add_user(FrontEndObject *obj) const {
         assert(obj);
-        users.add(obj->id());
+        if(users.add(obj->id())) {
+          for(auto &other : used_stylesheets)
+            other->add_user(obj);
+        }
       }
       
       Hashset<FrontEndReference>::KeyEnum enum_users() const {

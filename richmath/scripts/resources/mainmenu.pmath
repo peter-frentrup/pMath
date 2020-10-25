@@ -66,17 +66,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 		}),
 	Menu("Fo&rmat", {
 		Menu("&Style", {
-			% FIXME: The shortcut are actually ScopedCommand(..., Section), so they do not appear here automatically
-			MenuItem("Title\tAlt+1",                       BaseStyle->"Title"),
-			MenuItem("Section\tAlt+4",                     BaseStyle->"Section"),
-			MenuItem("Subsection\tAlt+5",                  BaseStyle->"Subsection"),
-			MenuItem("Subsubsection\tAlt+6",               BaseStyle->"Subsubsection"),
-			MenuItem("Text\tAlt+7",                        BaseStyle->"Text"),
-			MenuItem("Code\tAlt+8",                        BaseStyle->"Code"),
-			MenuItem("Input\tAlt+9",                       BaseStyle->"Input"),
-			MenuItem("Output",                             BaseStyle->"Output"),
-			MenuItem("Item",                               BaseStyle->"Item"),
-			MenuItem("DisplayFormula",                     BaseStyle->"DisplayFormula")
+			Menu("Styles", "MenuListStyles")
 			}),
 		Menu("St&ylesheet", {
 			MenuItem("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),

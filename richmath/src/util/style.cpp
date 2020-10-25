@@ -66,6 +66,8 @@ extern pmath_symbol_t richmath_System_LanguageCategory;
 extern pmath_symbol_t richmath_System_LineBreakWithin;
 extern pmath_symbol_t richmath_System_Magnification;
 extern pmath_symbol_t richmath_System_MathFontFamily;
+extern pmath_symbol_t richmath_System_MenuCommandKey;
+extern pmath_symbol_t richmath_System_MenuSortingValue;
 extern pmath_symbol_t richmath_System_Method;
 extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
@@ -140,11 +142,11 @@ namespace {
     public:
       EnumStyleConverter();
       
-      bool is_valid_key(int val) {    return _int_to_expr.search(val) != nullptr; }
-      bool is_valid_expr(Expr expr) { return _expr_to_int.search(expr) != nullptr; }
+      virtual bool is_valid_key(int val) {    return _int_to_expr.search(val) != nullptr; }
+      virtual bool is_valid_expr(Expr expr) { return _expr_to_int.search(expr) != nullptr; }
       
-      int to_int(Expr expr) { return _expr_to_int[expr]; }
-      Expr to_expr(int val) { return _int_to_expr[val]; }
+      virtual int to_int(Expr expr) { return _expr_to_int[std::move(expr)]; }
+      virtual Expr to_expr(int val) { return _int_to_expr[val]; }
       
       const Hashtable<Expr, int> &expr_to_int() { return _expr_to_int; }
       
@@ -174,6 +176,21 @@ namespace {
   
   struct ImageSizeActionStyleConverter: public EnumStyleConverter {
     ImageSizeActionStyleConverter();
+  };
+  
+  struct MenuCommandKeyStyleConverter: public EnumStyleConverter {
+    MenuCommandKeyStyleConverter();
+  };
+  
+  struct MenuSortingValueStyleConverter: public EnumStyleConverter {
+    MenuSortingValueStyleConverter();
+
+    virtual bool is_valid_key(int val) override;
+    virtual bool is_valid_expr(Expr expr) override;
+    
+    virtual int to_int(Expr expr) override;
+    virtual Expr to_expr(int val) override;
+    
   };
   
   struct WindowFrameStyleConverter: public EnumStyleConverter {
@@ -1925,6 +1942,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(LineBreakWithin);
   impl.emit_definition(Magnification);
   impl.emit_definition(MathFontFamily);
+  impl.emit_definition(MenuCommandKey);
+  impl.emit_definition(MenuSortingValue);
   impl.emit_definition(Method);
   impl.emit_definition(PaneBoxOptions);
   impl.emit_definition(PanelBoxOptions);
@@ -2445,9 +2464,11 @@ void StyleInformation::add_style() {
         converter);
     }
     
-    add_enum(FontSlant,       Symbol( richmath_System_FontSlant),       new FontSlantStyleConverter);
-    add_enum(FontWeight,      Symbol( richmath_System_FontWeight),      new FontWeightStyleConverter);
-    add_enum(WindowFrame,     Symbol( richmath_System_WindowFrame),     new WindowFrameStyleConverter);
+    add_enum(FontSlant,        Symbol( richmath_System_FontSlant),        new FontSlantStyleConverter);
+    add_enum(FontWeight,       Symbol( richmath_System_FontWeight),       new FontWeightStyleConverter);
+    add_enum(MenuCommandKey,   Symbol( richmath_System_MenuCommandKey),   new MenuCommandKeyStyleConverter);
+    add_enum(MenuSortingValue, Symbol( richmath_System_MenuSortingValue), new MenuSortingValueStyleConverter);
+    add_enum(WindowFrame,      Symbol( richmath_System_WindowFrame),      new WindowFrameStyleConverter);
     
     add(StyleType::Color,           Background,                       Symbol( richmath_System_Background));
     add(StyleType::Color,           FontColor,                        Symbol( richmath_System_FontColor));
@@ -2838,6 +2859,57 @@ ImageSizeActionStyleConverter::ImageSizeActionStyleConverter() : EnumStyleConver
   add(ImageSizeActionClip,        String("Clip"));
   add(ImageSizeActionShrinkToFit, String("ShrinkToFit"));
   add(ImageSizeActionResizeToFit, String("ResizeToFit"));
+}
+
+MenuCommandKeyStyleConverter::MenuCommandKeyStyleConverter() : EnumStyleConverter() {
+  _int_to_expr.default_value = Expr();
+  _expr_to_int.default_value = -1;
+  
+  add(0,   Symbol(PMATH_SYMBOL_NONE));
+  add('1', String("1"));
+  add('2', String("2"));
+  add('3', String("3"));
+  add('4', String("4"));
+  add('5', String("5"));
+  add('6', String("6"));
+  add('7', String("7"));
+  add('8', String("8"));
+  add('9', String("9"));
+}
+
+MenuSortingValueStyleConverter::MenuSortingValueStyleConverter() : EnumStyleConverter() {
+  _int_to_expr.default_value = Expr();
+  _expr_to_int.default_value = -1;
+  
+  add(0, Symbol(PMATH_SYMBOL_NONE));
+}
+
+bool MenuSortingValueStyleConverter::is_valid_key(int val) {
+  return val >= 0;
+}
+
+bool MenuSortingValueStyleConverter::is_valid_expr(Expr expr) {
+  if(expr.is_int32()) {
+    int value = PMATH_AS_INT32(expr.get());
+    return value >= 0;
+  }
+  return expr == PMATH_SYMBOL_NONE;
+}
+    
+int MenuSortingValueStyleConverter::to_int(Expr expr) {
+  if(expr.is_int32()) {
+    int value = PMATH_AS_INT32(expr.get());
+    if(value >= 0)
+      return value;
+  }
+  return EnumStyleConverter::to_int(std::move(expr));
+}
+
+Expr MenuSortingValueStyleConverter::to_expr(int val) {
+  if(val > 0)
+    return Expr(val);
+  
+  return EnumStyleConverter::to_expr(val);
 }
 
 WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {

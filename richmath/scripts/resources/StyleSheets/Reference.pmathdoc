@@ -1,4 +1,4 @@
-﻿/* pMath Document */
+/* pMath Document */
 
 Document({
   SectionGroup({Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
@@ -6,8 +6,8 @@ Document({
       Section(
        "This file contains default style definitions to apply to documentation \
        pages.", "Text"), SectionGroup({Section("Document styles", "Section"), 
-        Section(StyleData("Document"), Saveable -> False, 
-         Background -> GrayLevel(1), FontColor -> GrayLevel(0))}, All), 
+        Section(StyleData("Document"), Background -> GrayLevel(1), 
+         FontColor -> GrayLevel(0), Saveable -> False)}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Output"), SectionLabel -> "out:")}, All), 
       SectionGroup({Section(StyleData("ObjectName"), BaseStyle -> "Section", 
@@ -48,12 +48,13 @@ Document({
             0.59999999999999998`), SectionFrameMargins -> {0, 0, 4, 0}, 
            SectionMargins -> {0, 0, 0, Inherited}), 
           Section(StyleData("Notes"), BaseStyle -> "Text", 
-           DefaultNewSectionStyle -> "Notes", ReturnCreatesNewSection -> True, 
-           SectionDingbat :> StyleBox("\"\[U+25AA]\"", 
-            FontColor -> GrayLevel(0.5`)), SectionMargins -> {35, Inherited, 
-            5, 5}, ShowSectionBracket -> Automatic), 
-          Section(StyleData("2ColumnTableNotes"), BaseStyle -> "Text", 
+           DefaultNewSectionStyle -> "Notes", MenuSortingValue -> 1600, 
+           ReturnCreatesNewSection -> True, SectionDingbat :> StyleBox(
+            "\"\[U+25AA]\"", FontColor -> GrayLevel(0.5`)), 
            SectionMargins -> {35, Inherited, 5, 5}, 
+           ShowSectionBracket -> Automatic), 
+          Section(StyleData("2ColumnTableNotes"), BaseStyle -> "Text", 
+           MenuSortingValue -> 1650, SectionMargins -> {35, Inherited, 5, 5}, 
            ShowSectionBracket -> Automatic), 
           Section(StyleData("PrimaryExamplesSection"), 
            BaseStyle -> "CollapseSection", DefaultNewSectionStyle -> 
@@ -62,6 +63,7 @@ Document({
           SectionGroup({Section(StyleData("ExampleSection"), 
              BaseStyle -> "Subsection", DefaultNewSectionStyle -> 
               "ExampleText", FontColor -> RGBColor(0, 0.502`, 0.125`), 
+             MenuCommandKey -> "4", MenuSortingValue -> 1210, 
              SectionDingbat :> OpenerBox(
               Dynamic(CurrentValue("SectionGroupOpen"))), 
              SectionMargins -> {35, Inherited, Inherited, Inherited}, 
@@ -70,19 +72,21 @@ Document({
             SectionGroup({Section(StyleData("ExampleSubsection"), 
                BaseStyle -> "Subsubsection", DefaultNewSectionStyle -> 
                 "ExampleText", FontColor -> RGBColor(0, 0.502`, 0.125`), 
+               MenuCommandKey -> "5", MenuSortingValue -> 1220, 
                SectionDingbat :> OpenerBox(
                 Dynamic(CurrentValue("SectionGroupOpen"))), 
                SectionMargins -> {45, Inherited, Inherited, Inherited}, 
                ShowSectionBracket -> Automatic, 
                WholeSectionGroupOpener -> True), 
               Section(StyleData("ExampleText"), BaseStyle -> "Text", 
-               DefaultNewSectionStyle -> "Input", 
-               SectionMargins -> {Inherited, Inherited, 6, 4}, 
-               ShowSectionBracket -> Automatic), 
+               DefaultNewSectionStyle -> "Input", MenuCommandKey -> "7", 
+               MenuSortingValue -> 1400, SectionMargins -> {Inherited, 
+                Inherited, 6, 4}, ShowSectionBracket -> Automatic), 
               SectionGroup({Section(StyleData("ExampleDelimiter"), 
                  DefaultNewSectionStyle -> "ExampleText", Evaluatable -> True, 
-                 FontSize -> 2, SectionFrame -> {Inherited, Inherited, 0.25`, 
-                  Inherited}, SectionFrameColor -> GrayLevel(
+                 FontSize -> 2, MenuCommandKey -> "6", 
+                 MenuSortingValue -> 1300, SectionFrame -> {Inherited, 
+                  Inherited, 0.25`, Inherited}, SectionFrameColor -> GrayLevel(
                   0.70199999999999996`), SectionGroupPrecedence -> -25, 
                  SectionMargins -> {35, Inherited, 8, 4}, SectionLabel -> "", 
                  ShowSectionBracket -> Automatic), 
@@ -167,6 +171,14 @@ Document({
                 ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
                   "+", TemplateBox({"Shift"}, "KeyEvent"), "+", 
                   TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-               FontColor -> GrayLevel(0.35999999999999999`)) &)})}, All)}, 
+               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+            Section(StyleData("Title"), MenuSortingValue -> None), 
+            Section(StyleData("Subtitle"), MenuSortingValue -> None), 
+            Section(StyleData("Subsubtitle"), MenuSortingValue -> None), 
+            Section(StyleData("Section"), MenuSortingValue -> None), 
+            Section(StyleData("Subsection"), MenuSortingValue -> None), 
+            Section(StyleData("Subsubsection"), MenuSortingValue -> None), 
+            Section(StyleData("Text"), MenuSortingValue -> None), 
+            Section(StyleData("Item"), MenuSortingValue -> None)}, All)}, 
          All)}, All)}, All)}, All)}, StyleDefinitions -> 
   "Stylesheets.pmathdoc", Visible -> True)

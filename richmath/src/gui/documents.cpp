@@ -44,6 +44,41 @@ namespace {
       static bool put_DocumentFullFileName(FrontEndObject *obj, Expr item, Expr rhs);
   };
   
+  class StylesMenuImpl : public FrontEndObject {
+    public:
+      static void init();
+      static void done();
+    
+    private:
+      static MenuCommandStatus can_set_style(Expr cmd);
+      static bool set_style(Expr cmd);
+      
+      static Expr enum_styles_menu(Expr name);
+      
+    private:
+      StylesMenuImpl();
+      
+      void clear_cache();
+      virtual void dynamic_updated() override;
+      
+      String style_name_from_command(Expr cmd);
+      String style_name_from_command_key(int command_key);
+      
+      struct StyleItem {
+        int sorting_value;
+        int command_key;
+        String name;
+        
+        friend bool operator<(const StyleItem &left, const StyleItem &right) { return left.sorting_value < right.sorting_value; }
+      };
+      
+      const Array<StyleItem> &enum_styles();
+      
+      static StylesMenuImpl cache;
+      Stylesheet *latest_stylesheet;
+      Array<StyleItem> latest_items;
+  };
+  
   class SelectDocumentMenuImpl {
     public:
       static void init();
@@ -86,9 +121,11 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 
 extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
 extern pmath_symbol_t richmath_FE_MenuItem;
+extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
+extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
@@ -101,6 +138,7 @@ bool Documents::init() {
 
   OpenDocumentMenuImpl::init();
   SelectDocumentMenuImpl::init();
+  StylesMenuImpl::init();
   DocumentCurrentValueProvider::init();
   
   return true;
@@ -109,6 +147,7 @@ bool Documents::init() {
 void Documents::done() {
   DocumentCurrentValueProvider::done();
   SelectDocumentMenuImpl::done();
+  StylesMenuImpl::done();
   OpenDocumentMenuImpl::done();
 }
 
@@ -413,6 +452,172 @@ bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj,
 }
 
 //} ... class DocumentCurrentValueProvider
+
+//{ class StylesMenuImpl ...
+
+StylesMenuImpl StylesMenuImpl::cache;
+
+StylesMenuImpl::StylesMenuImpl() 
+  : FrontEndObject(),
+    latest_stylesheet {nullptr}
+{
+}
+
+void StylesMenuImpl::init() {
+  Application::register_menucommand(String("SelectStyle1"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle2"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle3"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle4"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle5"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle6"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle7"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle8"), set_style, can_set_style);
+  Application::register_menucommand(String("SelectStyle9"), set_style, can_set_style);
+
+  Application::register_dynamic_submenu(String("MenuListStyles"), enum_styles_menu);
+}
+
+void StylesMenuImpl::done() {
+  cache.clear_cache();
+}
+
+MenuCommandStatus StylesMenuImpl::can_set_style(Expr cmd) {
+  Document * const doc = Documents::current();
+  if(!doc)
+    return false;
+  
+  if(String name = cache.style_name_from_command(cmd)) {
+    return doc->can_do_scoped(
+      Rule(Symbol(richmath_System_BaseStyle), std::move(name)), 
+      Symbol(richmath_System_Section));
+  }
+  
+  return false;
+}
+
+bool StylesMenuImpl::set_style(Expr cmd) {
+  Document * const doc = Documents::current();
+  if(!doc)
+    return false;
+    
+  if(String name = cache.style_name_from_command(cmd)) {
+    return doc->do_scoped(
+      Rule(Symbol(richmath_System_BaseStyle), std::move(name)), 
+      Symbol(richmath_System_Section));
+  }
+  
+  return false;
+}
+
+Expr StylesMenuImpl::enum_styles_menu(Expr name) {
+  const Array<StyleItem> &styles = cache.enum_styles();
+  
+  Expr commands = MakeList((size_t)styles.length());
+  for(int i = 0; i < styles.length(); ++i) {
+    const StyleItem &item = styles[i];
+    
+    Expr cmd;
+    if(item.command_key >= '1' && item.command_key <= '9') {
+      // Alt+1 ... Alt+9 are mapped to "SelectStyle1" ... "SelectStyle9" commands
+      cmd = String("SelectStyle") + String::FromChar((unsigned)item.command_key);
+    }
+    else {
+      cmd = Call(
+              Symbol(richmath_FE_ScopedCommand), 
+              Rule(Symbol(richmath_System_BaseStyle), item.name),
+              Symbol(richmath_System_Section));
+    }
+    commands.set(i + 1, Call(Symbol(richmath_FE_MenuItem), item.name, cmd));
+  }
+  
+  return commands;
+}
+
+void StylesMenuImpl::clear_cache() {
+  // Array.length(0) does not destroy the old items
+  latest_items = Array<StyleItem>();
+  latest_stylesheet = nullptr;
+}
+
+void StylesMenuImpl::dynamic_updated() {
+  clear_cache();
+}
+
+String StylesMenuImpl::style_name_from_command(Expr cmd) {
+  if(String str = cmd) {
+    if(str.starts_with("SelectStyle") && str.length() == 12) {
+      uint16_t ch = str[11];
+      if(ch >= '1' && ch <= '9')
+        return style_name_from_command_key(ch);
+    }
+    return {};
+  }
+  
+  if(cmd.is_rule() && cmd[1] == richmath_System_BaseStyle)
+    return cmd[2];
+  
+  return {};
+}
+
+String StylesMenuImpl::style_name_from_command_key(int command_key) {
+  for(auto &item : enum_styles()) {
+    if(item.command_key == command_key)
+      return item.name;
+  }
+  
+  return {};
+}
+      
+const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
+  SharedPtr<Stylesheet> stylesheet;
+  if(Document *doc = Documents::current())
+    stylesheet = doc->stylesheet();
+  
+  if(!stylesheet) {
+    static const Array<StyleItem> empty;
+    return empty;
+  }
+  
+  if(latest_stylesheet == stylesheet.ptr())
+    return latest_items;
+  
+  clear_cache();
+  latest_stylesheet = stylesheet.ptr();
+  latest_stylesheet->add_user(this);
+  
+  for(const auto &entry : latest_stylesheet->styles.entries()) {
+    StyleItem item;
+    
+    if(entry.value->get(MenuSortingValue, &item.sorting_value) && item.sorting_value > 0) {
+      if(!entry.value->get(MenuCommandKey, &item.command_key))
+        item.command_key = 0;
+      
+      item.name = entry.key;
+      latest_items.add(item);
+    }
+  }
+  
+  std::sort(latest_items.items(), latest_items.items() + latest_items.length());
+  
+  unsigned used_keys = 0;
+  for(auto &style_item : latest_items) {
+    if(style_item.command_key) {
+      if(style_item.command_key >= '1' && style_item.command_key <= '9') {
+        unsigned flag = 1U << (unsigned)(style_item.command_key - '1');
+        if(used_keys & flag)
+          style_item.command_key = 0; // duplicate MenuCommandKey
+        else
+          used_keys |= flag;
+      }
+      else
+        style_item.command_key = 0;
+    }
+  }
+  
+  return latest_items;
+}
+
+//} ... class StylesMenuImpl
 
 //{ class SelectDocumentMenuImpl ...
 
