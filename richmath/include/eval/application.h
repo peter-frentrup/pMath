@@ -27,24 +27,6 @@ namespace richmath {
     AskInterrupt,
   };
   
-  class MenuCommandStatus {
-    public:
-      MenuCommandStatus(bool _enabled)
-        : enabled(_enabled),
-          checked(false)
-      {
-      }
-      
-    public:
-      bool enabled;
-      bool checked;
-  };
-  
-  enum class MenuCommandScope {
-    Selection,
-    Document
-  };
-  
   class FrontEndObject;
   class Box;
   class Document;
@@ -60,26 +42,6 @@ namespace richmath {
       static Expr current_value(Expr item);
       static Expr current_value(FrontEndObject *obj, Expr item);
       static bool set_current_value(FrontEndObject *obj, Expr item, Expr rhs);
-      
-      static void run_menucommand(Expr cmd) { // callable from non-GUI thread
-        notify(ClientNotification::MenuCommand, cmd);
-      }
-      
-      // bad design:
-      static bool run_recursive_menucommand(Expr cmd);
-      
-      static MenuCommandStatus test_menucommand_status(Expr cmd);
-      static Expr generate_dynamic_submenu(Expr cmd);
-      static bool remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd);
-      
-      static void register_menucommand(
-        Expr cmd,
-        bool              (*func)(Expr cmd),
-        MenuCommandStatus (*test)(Expr cmd) = nullptr);
-      
-      static void register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd));
-      static void register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd));
-      static bool has_submenu_item_deleter(Expr submenu_cmd);
       
       static bool register_currentvalue_provider(
         Expr   item,
@@ -144,7 +106,6 @@ namespace richmath {
       static String stylesheet_path_base; // includes trailing (back)slash
       static Expr   palette_search_path;
       static Expr   session_id;
-      static MenuCommandScope menu_command_scope;
       
       static Hashtable<Expr, Expr> eval_cache;
       

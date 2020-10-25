@@ -169,7 +169,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
       if(mii.dwItemData) {
         DWORD list_id = mii.dwItemData;
         // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
-        Expr new_items = Application::generate_dynamic_submenu(id_to_command(list_id));
+        Expr new_items = Menus::generate_dynamic_submenu(id_to_command(list_id));
         
         if(new_items.expr_length() == 0 || new_items[0] != PMATH_SYMBOL_LIST) {
           mii.fMask |= MIIM_STRING | MIIM_STATE;
@@ -197,7 +197,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
           mii.fMask |= MIIM_DATA | MIIM_STATE;
           mii.dwItemData = list_id;
           
-          MenuCommandStatus status = Application::test_menucommand_status(id_to_command(mii.wID));
+          MenuCommandStatus status = Menus::test_command_status(id_to_command(mii.wID));
           if(status.enabled)
             mii.fState |= MFS_ENABLED;
           else
@@ -269,7 +269,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
         continue;
       }
     
-      MenuCommandStatus status = Application::test_menucommand_status(id_to_command(mii.wID));
+      MenuCommandStatus status = Menus::test_command_status(id_to_command(mii.wID));
       mii.fMask = MIIM_STATE;
       
       if(status.enabled)
@@ -294,7 +294,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
 //    mii.fMask = MIIM_STATE;
 //    
 //    int id = GetMenuItemID(sub, i);
-//    MenuCommandStatus status = Application::test_menucommand_status(id_to_command(id));
+//    MenuCommandStatus status = Application::test_command_status(id_to_command(id));
 //    
 //    if(status.enabled)
 //      mii.fState |= MFS_ENABLED;

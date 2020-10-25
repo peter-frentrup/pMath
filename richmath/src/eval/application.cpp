@@ -14,6 +14,7 @@
 
 #include <graphics/config-shaper.h>
 
+#include <gui/menus.h>
 #include <gui/messagebox.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
@@ -125,10 +126,6 @@ static ConcurrentQueue<ClientNotificationData> notifications;
 
 static SharedPtr<Session> session = new Session(nullptr);
 
-static Hashtable<Expr, bool              ( *)(Expr)>                        menu_commands;
-static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>                        menu_command_testers;
-static Hashtable<Expr, Expr              ( *)(Expr)>                        dynamic_menu_lists;
-static Hashtable<Expr, bool              ( *)(Expr, Expr)>                  dynamic_menu_list_item_deleter;
 static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)>       currentvalue_providers;
 static Hashtable<Expr, bool              ( *)(FrontEndObject*, Expr, Expr)> currentvalue_setters;
 
@@ -275,7 +272,6 @@ String Application::application_directory;
 String Application::stylesheet_path_base;
 Expr Application::palette_search_path;
 Expr Application::session_id;
-MenuCommandScope Application::menu_command_scope = MenuCommandScope::Selection;
 
 Hashtable<Expr, Expr> Application::eval_cache;
 
@@ -372,108 +368,6 @@ bool Application::set_current_value(FrontEndObject *obj, Expr item, Expr rhs) {
     return false;
     
   return func(obj, std::move(item), std::move(rhs));
-}
-
-bool Application::run_recursive_menucommand(Expr cmd) {
-  bool (*func)(Expr);
-  
-  func = menu_commands[cmd];
-  if(func && func(cmd))
-    return true;
-    
-  func = menu_commands[cmd[0]];
-  if(func && func(std::move(cmd)))
-    return true;
-    
-  return false;
-}
-
-MenuCommandStatus Application::test_menucommand_status(Expr cmd) {
-  MenuCommandStatus (*func)(Expr);
-  
-  if(cmd.is_null())
-    return MenuCommandStatus(true);
-  
-  func = menu_command_testers[cmd];
-  if(func)
-    return func(std::move(cmd));
-    
-  func = menu_command_testers[cmd[0]];
-  if(func)
-    return func(std::move(cmd));
-    
-  return MenuCommandStatus(true);
-}
-
-Expr Application::generate_dynamic_submenu(Expr cmd) {
-  Expr (*func)(Expr);
-  
-  if(cmd.is_null())
-    return Expr();
-  
-  func = dynamic_menu_lists[cmd];
-  if(func)
-    return func(std::move(cmd));
-    
-  return Expr();
-}
-
-bool Application::remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd) {
-  bool (*func)(Expr, Expr);
-  
-  if(submenu_cmd.is_null())
-    return false;
-  
-  func = dynamic_menu_list_item_deleter[submenu_cmd];
-  if(func)
-    return func(std::move(submenu_cmd), std::move(item_cmd));
-    
-  return false;
-}
-
-void Application::register_menucommand(
-  Expr cmd,
-  bool              (*func)(Expr cmd),
-  MenuCommandStatus (*test)(Expr cmd)
-) {
-  if(cmd.is_null()) {
-    menu_commands.default_value        = func;
-    menu_command_testers.default_value = test;
-    return;
-  }
-  
-  if(func)
-    menu_commands.set(cmd, func);
-  else
-    menu_commands.remove(cmd);
-    
-  if(test)
-    menu_command_testers.set(cmd, test);
-  else
-    menu_command_testers.remove(cmd);
-}
-
-void Application::register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd)) {
-  if(cmd.is_null()) {
-    dynamic_menu_lists.default_value = func;
-    return;
-  }
-  
-  if(func)
-    dynamic_menu_lists.set(std::move(cmd), func);
-  else
-    dynamic_menu_lists.remove(std::move(cmd));
-}
-
-void Application::register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd)) {
-  if(func)
-    dynamic_menu_list_item_deleter.set(std::move(submenu_cmd), func);
-  else
-    dynamic_menu_list_item_deleter.remove(std::move(submenu_cmd));
-}
-
-bool Application::has_submenu_item_deleter(Expr submenu_cmd) {
-  return dynamic_menu_list_item_deleter[std::move(submenu_cmd)] != nullptr;
 }
 
 bool Application::register_currentvalue_provider(
@@ -867,10 +761,6 @@ void Application::done() {
   }
   
   eval_cache.clear();
-  menu_commands.clear();
-  menu_command_testers.clear();
-  dynamic_menu_lists.clear();
-  dynamic_menu_list_item_deleter.clear();
   currentvalue_providers.clear();
   currentvalue_setters.clear();
   application_filename = String();
@@ -1582,10 +1472,6 @@ static Expr cnt_callfrontend(Expr data) {
   return Evaluate(std::move(data));
 }
 
-static void cnt_menucommand(Expr data) {
-  Application::run_recursive_menucommand(data);
-}
-
 static void cnt_dynamicupate(Expr data) {
 
   double now = pmath_tickcount();
@@ -1899,7 +1785,7 @@ static void execute(ClientNotificationData &cn) {
       break;
       
     case ClientNotification::MenuCommand:
-      cnt_menucommand(std::move(cn.data));
+      Menus::run_recursive_command(std::move(cn.data));
       break;
       
     case ClientNotification::DynamicUpdate:

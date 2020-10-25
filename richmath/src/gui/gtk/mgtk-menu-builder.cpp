@@ -132,7 +132,7 @@ gboolean MathGtkMenuBuilder::on_map_menu(GtkWidget *menu, GdkEventAny *event, vo
           
         Expr cmd = accel_path_to_cmd[String(accel_path_str)];
         if(!cmd.is_null()) {
-          MenuCommandStatus status = Application::test_menucommand_status(cmd);
+          MenuCommandStatus status = Menus::test_command_status(cmd);
           
           gtk_widget_set_sensitive(item, status.enabled);
           
@@ -187,7 +187,7 @@ gboolean MathGtkMenuBuilder::on_menu_key_press(GtkWidget *menu, GdkEvent *e, voi
       if(inline_list_data.is_null())
         break;
       
-      if(Application::remove_dynamic_submenu_item(inline_list_data, cmd)) {
+      if(Menus::remove_dynamic_submenu_item(inline_list_data, cmd)) {
         MathGtkMenuBuilder::on_map_menu(menu, nullptr, doc_id_as_ptr);
         return TRUE;
       }
@@ -210,7 +210,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
     Expr inline_list_data = MenuItemBuilder::inline_menu_list_data(menu_item);
     if(!inline_list_data.is_null()) {
       //pmath_debug_print_object("[inline list ", inline_list_data.get(), "]\n");
-      Expr item_list = Application::generate_dynamic_submenu(inline_list_data);
+      Expr item_list = Menus::generate_dynamic_submenu(inline_list_data);
       //pmath_debug_print_object("[inline list yields ", item_list.get(), "]\n");
       
       ++old_index;
@@ -521,7 +521,7 @@ void MenuItemBuilder::on_activate(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
     
     g_warning("no MathGtkDocumentWindow parent found.");
     
-    Application::run_menucommand(cmd);
+    Menus::run_command(cmd);
   }
 }
 
@@ -721,7 +721,7 @@ static gboolean closure_callback(
   
   g_warning("no MathGtkDocumentWindow parent found.");
   
-  Application::run_menucommand(accel_data->cmd);
+  Menus::run_command(accel_data->cmd);
   
   return TRUE;
 }

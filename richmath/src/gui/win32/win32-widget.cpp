@@ -1619,7 +1619,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(cmd.is_null())
             break;
             
-          Application::run_menucommand(cmd);
+          Menus::run_command(cmd);
         } return 0;
       
       case WM_MENUDRAG:      return Win32Menu::on_menudrag(     wParam, lParam, drag_source_helper());

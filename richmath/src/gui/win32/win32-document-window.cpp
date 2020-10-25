@@ -1306,7 +1306,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         /* no break */
       case WM_COMMAND: {
           Expr cmd = Win32Menu::id_to_command(LOWORD(wParam));
-          Application::run_menucommand(std::move(cmd));
+          Menus::run_command(std::move(cmd));
         } return 0;
         
       case WM_KEYDOWN:

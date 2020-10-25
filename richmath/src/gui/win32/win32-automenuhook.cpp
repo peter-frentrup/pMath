@@ -2,7 +2,7 @@
 #include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 
-#include <eval/application.h>
+#include <gui/menus.h>
 
 
 using namespace pmath;
@@ -214,7 +214,7 @@ void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DW
       return;
     
     case Win32MenuItemPopupMenu::CommandId::Remove: 
-      if(Application::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
+      if(Menus::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
         Win32Menu::init_popupmenu(menu);
       break;
   }
@@ -231,7 +231,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd, &cmd);
         
         if(menu && item >= 0) {
-          if(Application::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
+          if(Menus::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
             Win32Menu::init_popupmenu(menu);
         }
       } break;
@@ -313,7 +313,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   
   //append(menu, CommandId::None, String("Go to Definition\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F12), MF_DISABLED | MF_GRAYED);
   
-  if(Application::has_submenu_item_deleter(list_cmd)) {
+  if(Menus::has_submenu_item_deleter(list_cmd)) {
     String remove_label;
     if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
       remove_label = String("Close");

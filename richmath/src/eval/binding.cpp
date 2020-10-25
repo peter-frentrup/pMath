@@ -10,6 +10,7 @@
 #include <gui/clipboard.h>
 #include <gui/documents.h>
 #include <gui/document.h>
+#include <gui/menus.h>
 #include <gui/messagebox.h>
 #include <gui/native-widget.h>
 #include <gui/recent-documents.h>
@@ -141,7 +142,7 @@ static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr) {
   Expr cmd = Expr(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
   
-  Application::run_menucommand(cmd);
+  Menus::run_command(cmd);
   
   return PMATH_NULL;
 }
@@ -535,7 +536,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
     }
   }
 
-  if(Application::menu_command_scope == MenuCommandScope::Document) {
+  if(Menus::current_scope == MenuCommandScope::Document) {
     status.checked = has_style(doc, lhs_key, rhs);
     
     return status;
@@ -1264,7 +1265,7 @@ static bool set_style_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  if(Application::menu_command_scope == MenuCommandScope::Document) {
+  if(Menus::current_scope == MenuCommandScope::Document) {
     if(cmd.is_rule() && cmd[1] == richmath_System_StyleDefinitions) {
       if(Expr style_def = doc->get_own_style(StyleDefinitions)) {
         if(style_def[0] == PMATH_SYMBOL_DOCUMENT) {
@@ -1347,53 +1348,55 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 #undef RICHMATH_DECLARE_SYMBOL
 
 bool richmath::init_bindings() {
-  Application::register_menucommand(String("New"),                        new_cmd);
-  Application::register_menucommand(String("Open"),                       open_cmd);
-  Application::register_menucommand(String("Save"),                       save_cmd,                            can_save);
-  Application::register_menucommand(String("SaveAs"),                     saveas_cmd);
-  Application::register_menucommand(String("Close"),                      close_cmd);
+  Menus::init();
   
-  Application::register_menucommand(String("Copy"),                       copy_cmd,                            can_copy_cut);
-  Application::register_menucommand(String("Cut"),                        cut_cmd,                             can_copy_cut);
-  Application::register_menucommand(String("OpenCloseGroup"),             open_close_group_cmd,                can_open_close_group);
-  Application::register_menucommand(String("Paste"),                      paste_cmd,                           can_document_write);
-  Application::register_menucommand(String("GraphicsOriginalSize"),       graphics_original_size_cmd,          can_graphics_original_size);
-  Application::register_menucommand(String("EditBoxes"),                  edit_boxes_cmd,                      can_edit_boxes);
-  Application::register_menucommand(String("EditStyleDefinitions"),       edit_style_definitions_cmd,          can_edit_style_definitions);
-  Application::register_menucommand(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
-  Application::register_menucommand(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
-  Application::register_menucommand(String("SelectAll"),                  select_all_cmd);
+  Menus::register_command(String("New"),                        new_cmd);
+  Menus::register_command(String("Open"),                       open_cmd);
+  Menus::register_command(String("Save"),                       save_cmd,                            can_save);
+  Menus::register_command(String("SaveAs"),                     saveas_cmd);
+  Menus::register_command(String("Close"),                      close_cmd);
   
-  Application::register_menucommand(String("SectionMerge"),               section_merge_cmd,                   can_section_merge);
-  Application::register_menucommand(String("SectionSplit"),               section_split_cmd,                   can_section_split);
+  Menus::register_command(String("Copy"),                       copy_cmd,                            can_copy_cut);
+  Menus::register_command(String("Cut"),                        cut_cmd,                             can_copy_cut);
+  Menus::register_command(String("OpenCloseGroup"),             open_close_group_cmd,                can_open_close_group);
+  Menus::register_command(String("Paste"),                      paste_cmd,                           can_document_write);
+  Menus::register_command(String("GraphicsOriginalSize"),       graphics_original_size_cmd,          can_graphics_original_size);
+  Menus::register_command(String("EditBoxes"),                  edit_boxes_cmd,                      can_edit_boxes);
+  Menus::register_command(String("EditStyleDefinitions"),       edit_style_definitions_cmd,          can_edit_style_definitions);
+  Menus::register_command(String("ExpandSelection"),            expand_selection_cmd,                can_expand_selection);
+  Menus::register_command(String("FindMatchingFence"),          find_matching_fence_cmd,             can_find_matching_fence);
+  Menus::register_command(String("SelectAll"),                  select_all_cmd);
   
-  Application::register_menucommand(String("DuplicatePreviousInput"),     duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
-  Application::register_menucommand(String("DuplicatePreviousOutput"),    duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
-  Application::register_menucommand(String("SimilarSectionBelow"),        similar_section_below_cmd,           can_similar_section_below);
-  Application::register_menucommand(String("InsertColumn"),               insert_column_cmd,                   can_document_write);
-  Application::register_menucommand(String("InsertFraction"),             insert_fraction_cmd,                 can_document_write);
-  Application::register_menucommand(String("InsertOpposite"),             insert_opposite_cmd);
-  Application::register_menucommand(String("InsertOverscript"),           insert_overscript_cmd,               can_document_write);
-  Application::register_menucommand(String("InsertRadical"),              insert_radical_cmd,                  can_document_write);
-  Application::register_menucommand(String("InsertRow"),                  insert_row_cmd,                      can_document_write);
-  Application::register_menucommand(String("InsertSubscript"),            insert_subscript_cmd,                can_document_write);
-  Application::register_menucommand(String("InsertSuperscript"),          insert_superscript_cmd,              can_document_write);
-  Application::register_menucommand(String("InsertUnderscript"),          insert_underscript_cmd,              can_document_write);
+  Menus::register_command(String("SectionMerge"),               section_merge_cmd,                   can_section_merge);
+  Menus::register_command(String("SectionSplit"),               section_split_cmd,                   can_section_split);
+  
+  Menus::register_command(String("DuplicatePreviousInput"),     duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Menus::register_command(String("DuplicatePreviousOutput"),    duplicate_previous_input_output_cmd, can_duplicate_previous_input_output);
+  Menus::register_command(String("SimilarSectionBelow"),        similar_section_below_cmd,           can_similar_section_below);
+  Menus::register_command(String("InsertColumn"),               insert_column_cmd,                   can_document_write);
+  Menus::register_command(String("InsertFraction"),             insert_fraction_cmd,                 can_document_write);
+  Menus::register_command(String("InsertOpposite"),             insert_opposite_cmd);
+  Menus::register_command(String("InsertOverscript"),           insert_overscript_cmd,               can_document_write);
+  Menus::register_command(String("InsertRadical"),              insert_radical_cmd,                  can_document_write);
+  Menus::register_command(String("InsertRow"),                  insert_row_cmd,                      can_document_write);
+  Menus::register_command(String("InsertSubscript"),            insert_subscript_cmd,                can_document_write);
+  Menus::register_command(String("InsertSuperscript"),          insert_superscript_cmd,              can_document_write);
+  Menus::register_command(String("InsertUnderscript"),          insert_underscript_cmd,              can_document_write);
   
   
-  Application::register_menucommand(String("DynamicToLiteral"),           convert_dynamic_to_literal,          can_convert_dynamic_to_literal);
-  Application::register_menucommand(String("EvaluatorAbort"),             abort_cmd,                           can_abort_or_interrupt);
-  Application::register_menucommand(String("EvaluatorInterrupt"),         interrupt_cmd,                       can_abort_or_interrupt);
-  Application::register_menucommand(String("EvaluateInPlace"),            evaluate_in_place_cmd,               can_evaluate_in_place);
-  Application::register_menucommand(String("EvaluateSections"),           evaluate_sections_cmd,               can_evaluate_sections);
-  Application::register_menucommand(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
-  Application::register_menucommand(String("EvaluatorSubsession"),        evaluator_subsession_cmd,            can_abort_or_interrupt);
-  Application::register_menucommand(String("FindEvaluatingSection"),      find_evaluating_section,             can_find_evaluating_section);
-  Application::register_menucommand(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
-  Application::register_menucommand(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
+  Menus::register_command(String("DynamicToLiteral"),           convert_dynamic_to_literal,          can_convert_dynamic_to_literal);
+  Menus::register_command(String("EvaluatorAbort"),             abort_cmd,                           can_abort_or_interrupt);
+  Menus::register_command(String("EvaluatorInterrupt"),         interrupt_cmd,                       can_abort_or_interrupt);
+  Menus::register_command(String("EvaluateInPlace"),            evaluate_in_place_cmd,               can_evaluate_in_place);
+  Menus::register_command(String("EvaluateSections"),           evaluate_sections_cmd,               can_evaluate_sections);
+  Menus::register_command(String("EvaluateSectionsAndReturn"),  evaluate_sections_cmd);
+  Menus::register_command(String("EvaluatorSubsession"),        evaluator_subsession_cmd,            can_abort_or_interrupt);
+  Menus::register_command(String("FindEvaluatingSection"),      find_evaluating_section,             can_find_evaluating_section);
+  Menus::register_command(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
+  Menus::register_command(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
   
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY),  document_apply_cmd,  can_document_write);
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_DOCUMENTWRITE),  document_write_cmd,  can_document_write);
+  Menus::register_command(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY),  document_apply_cmd,  can_document_write);
+  Menus::register_command(Symbol(PMATH_SYMBOL_DOCUMENTWRITE),  document_write_cmd,  can_document_write);
   
 #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
 #define NEW_SYMBOL(name)     pmath_symbol_get(PMATH_C_STRING(name), TRUE)
@@ -1427,9 +1430,9 @@ bool richmath::init_bindings() {
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
   BIND_DOWN(richmath_FE_FileSaveDialog,      builtin_filedialog)
   
-  Application::register_menucommand(Symbol(richmath_FE_CopySpecial),   copy_special_cmd, can_copy_cut);
-  Application::register_menucommand(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);
-  Application::register_menucommand(Symbol(richmath_FE_ScopedCommand), do_scoped_cmd,    can_do_scoped);
+  Menus::register_command(Symbol(richmath_FE_CopySpecial),   copy_special_cmd, can_copy_cut);
+  Menus::register_command(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);
+  Menus::register_command(Symbol(richmath_FE_ScopedCommand), do_scoped_cmd,    can_do_scoped);
   
   if(!Documents::init())
     goto FAIL;
@@ -1447,6 +1450,7 @@ FAIL:
 
 void richmath::done_bindings() {
   Documents::done();
+  Menus::done();
 #define RICHMATH_DECLARE_SYMBOL(SYM, NAME)           pmath_unref( SYM ); SYM = PMATH_NULL;
 #define RICHMATH_RESET_SYMBOL_ATTRIBUTES(SYM, ATTR)  
 #  include "symbols.inc"

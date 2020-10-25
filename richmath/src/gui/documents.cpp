@@ -133,8 +133,8 @@ extern pmath_symbol_t richmath_System_SectionGroup;
 //{ class Documents ...
 
 bool Documents::init() {
-  Application::register_menucommand(String("ShowHideMenu"),      Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
-  Application::register_menucommand(String("OpenSelectionHelp"), Impl::open_selection_help_cmd);
+  Menus::register_command(String("ShowHideMenu"),      Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
+  Menus::register_command(String("OpenSelectionHelp"), Impl::open_selection_help_cmd);
 
   OpenDocumentMenuImpl::init();
   SelectDocumentMenuImpl::init();
@@ -464,17 +464,17 @@ StylesMenuImpl::StylesMenuImpl()
 }
 
 void StylesMenuImpl::init() {
-  Application::register_menucommand(String("SelectStyle1"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle2"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle3"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle4"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle5"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle6"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle7"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle8"), set_style, can_set_style);
-  Application::register_menucommand(String("SelectStyle9"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle1"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle2"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle3"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle4"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle5"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle6"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle7"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle8"), set_style, can_set_style);
+  Menus::register_command(String("SelectStyle9"), set_style, can_set_style);
 
-  Application::register_dynamic_submenu(String("MenuListStyles"), enum_styles_menu);
+  Menus::register_dynamic_submenu(String("MenuListStyles"), enum_styles_menu);
 }
 
 void StylesMenuImpl::done() {
@@ -622,11 +622,11 @@ const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
 //{ class SelectDocumentMenuImpl ...
 
 void SelectDocumentMenuImpl::init() {
-  Application::register_menucommand(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
+  Menus::register_command(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
 
   String s_MenuListWindows {"MenuListWindows"};
-  Application::register_dynamic_submenu(               s_MenuListWindows,  enum_windows_menu);
-  Application::register_submenu_item_deleter(std::move(s_MenuListWindows), remove_window);
+  Menus::register_dynamic_submenu(               s_MenuListWindows,  enum_windows_menu);
+  Menus::register_submenu_item_deleter(std::move(s_MenuListWindows), remove_window);
 }
 
 void SelectDocumentMenuImpl::done() {
@@ -694,13 +694,13 @@ bool SelectDocumentMenuImpl::remove_window(Expr submenu_cmd, Expr item_cmd) {
 //{ class OpenDocumentMenuImpl ...
 
 void OpenDocumentMenuImpl::init() {
-  Application::register_menucommand(Symbol(richmath_FrontEnd_DocumentOpen), document_open_cmd);
+  Menus::register_command(Symbol(richmath_FrontEnd_DocumentOpen), document_open_cmd);
   
-  Application::register_dynamic_submenu(String("MenuListPalettesMenu"), enum_palettes_menu);
+  Menus::register_dynamic_submenu(String("MenuListPalettesMenu"), enum_palettes_menu);
   
   String s_MenuListRecentDocuments {"MenuListRecentDocuments"};
-  Application::register_dynamic_submenu(               s_MenuListRecentDocuments,  enum_recent_documents_menu);
-  Application::register_submenu_item_deleter(std::move(s_MenuListRecentDocuments), remove_recent_document);
+  Menus::register_dynamic_submenu(               s_MenuListRecentDocuments,  enum_recent_documents_menu);
+  Menus::register_submenu_item_deleter(std::move(s_MenuListRecentDocuments), remove_recent_document);
 }
 
 void OpenDocumentMenuImpl::done() {

@@ -4,6 +4,7 @@
 #include <boxes/sectionlist.h>
 #include <eval/application.h>
 #include <graphics/rectangle.h>
+#include <gui/menus.h>
 #include <syntax/autocompletion.h>
 
 

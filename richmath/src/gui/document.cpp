@@ -2362,11 +2362,11 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
   SelectionReference old_sel = context.selection;
   SelectionReference new_sel;
   
-  AutoValueReset<MenuCommandScope> auto_reset(Application::menu_command_scope);
-  Application::menu_command_scope = MenuCommandScope::Selection;
+  AutoValueReset<MenuCommandScope> auto_reset(Menus::current_scope);
+  Menus::current_scope = MenuCommandScope::Selection;
   
   if(scope == PMATH_SYMBOL_DOCUMENT) {
-    Application::menu_command_scope = MenuCommandScope::Document;
+    Menus::current_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
   else if(scope == richmath_System_Section) {
@@ -2386,7 +2386,7 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
     
   context.selection = new_sel;
   
-  MenuCommandStatus result = Application::test_menucommand_status(cmd);
+  MenuCommandStatus result = Menus::test_command_status(cmd);
   
   context.selection = old_sel;
   return result;
@@ -2396,11 +2396,11 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
   SelectionReference old_sel = context.selection;
   SelectionReference new_sel;
   
-  AutoValueReset<MenuCommandScope> auto_reset(Application::menu_command_scope);
-  Application::menu_command_scope = MenuCommandScope::Selection;
+  AutoValueReset<MenuCommandScope> auto_reset(Menus::current_scope);
+  Menus::current_scope = MenuCommandScope::Selection;
   
   if(scope == PMATH_SYMBOL_DOCUMENT) {
-    Application::menu_command_scope = MenuCommandScope::Document;
+    Menus::current_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
   else if(scope == richmath_System_Section) {
@@ -2420,7 +2420,7 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
     
   context.selection = new_sel;
   
-  bool result = Application::run_recursive_menucommand(cmd);
+  bool result = Menus::run_recursive_command(cmd);
   
   if(is_parent_of(old_sel.get()))
     context.selection = old_sel;
