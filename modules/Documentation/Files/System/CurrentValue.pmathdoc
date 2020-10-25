@@ -7,10 +7,10 @@ Document({
        "Usage")}, All), SectionGroup({
       Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+        Section({TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
           " by default refers to the location where it appears in the \
           document."}, "Notes"), 
-        Section({TemplateBox({"ControlActive"}, "ReferenceHyperlink"), 
+        Section({TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
           " may be used inside ", TemplateBox({"Dynamic"}, 
            "ReferenceHyperlink"), "."}, "Notes"), 
         Section({"Certain items can be reset with ", {
