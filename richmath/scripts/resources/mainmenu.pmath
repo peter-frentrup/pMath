@@ -44,6 +44,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("E&xpand Selection",                     "ExpandSelection"),
 		MenuItem("Select &All",                           "SelectAll"),
 		MenuItem("Find Matching &Bracket",                "FindMatchingFence"),
+		MenuItem("Find &Style Definition",                FrontEnd`FindStyleDefinition()),
 		Delimiter,
 		MenuItem("&Open/Close Group",                     "OpenCloseGroup")
 		}),

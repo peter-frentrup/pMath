@@ -81,6 +81,8 @@ namespace richmath {
     
     bool null_or_selectable() const;
     bool selectable() const;
+    
+    Box *contained_box() const;
         
     bool operator==(const VolatileSelection &other) const {
       return other.box == box && other.start == start && other.end == end;
@@ -96,7 +98,7 @@ namespace richmath {
     
     void expand();
     void expand_to_parent();
-    void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);    
+    void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);
     void normalize();
     void dynamic_to_literal();
     

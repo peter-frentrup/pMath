@@ -2,6 +2,7 @@
 #define RICHMATH__SYNTAX__SPANEXPR_H__INCLUDED
 
 #include <util/pmath-extra.h>
+#include <util/selections.h>
 
 #include <boxes/mathsequence.h>
 
@@ -112,6 +113,10 @@ namespace richmath {
       /** Get the end index of this span (index of last character included in the span).
        */
       int end() { return _end; }
+      
+      /** Get the index range of this span.
+       */
+      VolatileSelection range() { return {_sequence, _start, _end + 1}; }
       
       /** Get the number of characters (UTF-16 code units) of the span.
        */

@@ -9,6 +9,8 @@
 
 #include <eval/application.h>
 
+#include <syntax/spanexpr.h>
+
 #include <util/autovaluereset.h>
 #include <util/filesystem.h>
 
@@ -21,8 +23,11 @@ namespace richmath {
     static MenuCommandStatus can_show_hide_menu(Expr cmd);
 
     static bool open_selection_help_cmd(Expr cmd);
+    
+    static String get_style_name_at(VolatileSelection sel);
     static Section *find_style_definition(Expr stylesheet_name, String style_name);
     static Section *find_style_definition(Document *style_doc, int index, String style_name);
+    static bool find_style_definition_cmd(Expr cmd);
 
     static void collect_selections(Array<SelectionReference> &sels, Expr expr);
   };
@@ -128,8 +133,9 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
 extern pmath_symbol_t richmath_FE_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
-extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+extern pmath_symbol_t richmath_FrontEnd_FindStyleDefinition;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
@@ -140,8 +146,9 @@ extern pmath_symbol_t richmath_System_StyleDefinitions;
 //{ class Documents ...
 
 bool Documents::init() {
-  Menus::register_command(String("ShowHideMenu"),      Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
-  Menus::register_command(String("OpenSelectionHelp"), Impl::open_selection_help_cmd);
+  Menus::register_command(String("ShowHideMenu"),                        Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
+  Menus::register_command(String("OpenSelectionHelp"),                   Impl::open_selection_help_cmd);
+  Menus::register_command(Symbol(richmath_FrontEnd_FindStyleDefinition), Impl::find_style_definition_cmd);
 
   OpenDocumentMenuImpl::init();
   SelectDocumentMenuImpl::init();
@@ -300,6 +307,52 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   return false;
 }
 
+String DocumentsImpl::get_style_name_at(VolatileSelection sel) {
+  VolatileSelection inner_sel = sel;
+  while(Box *inner = inner_sel.contained_box()) 
+    inner_sel = {inner, 0, inner->length()};
+  
+  for(Box *tmp = inner_sel.box; tmp; tmp = tmp->parent()) {
+    if(auto style_sect = dynamic_cast<StyleDataSection*>(tmp)) {
+      if(String style_name = style_sect->style_data[1])
+        return style_name;
+    }
+    else if(auto mseq = dynamic_cast<MathSequence*>(tmp)) {
+      if(mseq == sel.box) {
+        SpanExpr *span = SpanExpr::find(mseq, sel.start);
+        
+        while(span && !span->range().directly_contains(sel))
+          span = span->expand();
+        
+        for(; span; span = span->expand()) {
+          String style_name;
+          switch(span->as_token()) {
+            case PMATH_TOK_STRING:
+              style_name = span->as_text();
+              if(style_name.length() > 2 && style_name[style_name.length()-1] == '"' && style_name[0] == '"') {
+                // TODO: proper un-escaping
+                style_name = style_name.part(1, style_name.length() - 2);
+              }
+              else
+                style_name = String();
+              break;
+          }
+          
+          if(style_name) {
+            delete span;
+            return style_name;
+          }
+        }
+      }
+    }
+    else if(String style_name = tmp->get_own_style(BaseStyleName)) {
+      return style_name;
+    }
+  }
+  
+  return {};
+}
+
 Section *DocumentsImpl::find_style_definition(Expr stylesheet_name, String style_name) {
   if(SharedPtr<Stylesheet> stylesheet = Stylesheet::find_registered(stylesheet_name)) {
     if(stylesheet->styles.search(style_name)) {
@@ -372,6 +425,15 @@ Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, St
   }
   
   return nullptr;
+}
+
+bool DocumentsImpl::find_style_definition_cmd(Expr cmd) {
+  if(cmd[0] == richmath_FrontEnd_FindStyleDefinition) {
+    cmd = richmath_eval_FrontEnd_FindStyleDefinition(std::move(cmd));
+    return cmd != PMATH_SYMBOL_FAILED;
+  }
+  
+  return false;
 }
 
 void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr expr) {
@@ -1083,39 +1145,63 @@ Expr richmath_eval_FrontEnd_Documents(Expr expr) {
 }
 
 Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
-  /*  FrontEnd`FindStyleDefinition("style")
+  /*  FrontEnd`FindStyleDefinition()
+      FrontEnd`FindStyleDefinition(doc)
+      FrontEnd`FindStyleDefinition("style")
       FrontEnd`FindStyleDefinition(doc, "style")
    */
-  
+   
   size_t exprlen = expr.expr_length();
-  if(exprlen < 1 || exprlen > 2)
+  if(exprlen > 2)
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  String style_name = expr[exprlen];
-  if(!style_name)
-    return Symbol(PMATH_SYMBOL_FAILED);
-  
-  Box *box = nullptr;
   Document *doc = nullptr;
-  if(exprlen > 1) {
-    auto id = FrontEndReference::from_pmath(expr[1]);
-    box = FrontEndObject::find_cast<Box>(id);
-    if(doc = dynamic_cast<Document*>(box))
-      box = doc->selection_box();
-    else
-      doc = box ? box->find_parent<Document>(true) : nullptr;
+  VolatileSelection sel;
+  
+  String style_name;
+  
+  if(exprlen == 0) {
+    doc = Documents::current();
+    if(!doc)
+      return Symbol(PMATH_SYMBOL_FAILED);
+    
+    sel = doc->selection_now();
   }
   else {
-    doc = Documents::current();
-    box = doc ? doc->selection_box() : nullptr;
+    style_name = String(expr[exprlen]);
+    if(exprlen == 2 && !style_name)
+      return Symbol(PMATH_SYMBOL_FAILED);
+    
+    if(exprlen == 2 || !style_name) {
+      auto id = FrontEndReference::from_pmath(expr[1]);
+      sel.box = FrontEndObject::find_cast<Box>(id);
+      if(doc = dynamic_cast<Document*>(sel.box)) {
+        sel = doc->selection_now();
+      }
+      else
+        doc = sel.box ? sel.box->find_parent<Document>(true) : nullptr;
+    }
+    else {
+      doc = Documents::current();
+      if(!doc)
+        return Symbol(PMATH_SYMBOL_FAILED);
+      
+      sel = doc->selection_now();
+    }
   }
   
   if(!doc)
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  int index = doc->length();
-  for(Box *tmp = box; box && box != doc; box = box->parent()) {
-    index = box->index();
+  if(!style_name) {
+    style_name = DocumentsImpl::get_style_name_at(sel);
+    if(!style_name)
+      return Symbol(PMATH_SYMBOL_FAILED);
+  }
+  
+  int index = sel.start;
+  for(Box *tmp = sel.box; tmp && tmp != doc; tmp = tmp->parent()) {
+    index = tmp->index();
   }
   
   if(auto result = DocumentsImpl::find_style_definition(doc, index, style_name))

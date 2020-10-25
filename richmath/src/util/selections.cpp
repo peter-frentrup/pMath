@@ -294,6 +294,33 @@ bool VolatileSelection::selectable() const {
   return box->selectable();
 }
 
+Box *VolatileSelection::contained_box() const {
+  if(!box)
+    return nullptr;
+  
+  if(auto seq = dynamic_cast<AbstractSequence*>(box)) {
+    if(auto tseq = dynamic_cast<TextSequence*>(seq)) {
+      if(!tseq->text_buffer().is_box_at(start, end))
+        return nullptr;
+    }
+    else if(start + 1 != end || seq->char_at(start) != PMATH_CHAR_BOX) 
+      return nullptr;
+      
+    for(int i = seq->count() - 1; i >= 0; --i) {
+      Box *item = seq->item(i);
+      if(item->index() == start)
+        return item;
+    }
+    
+    return nullptr;
+  }
+  
+  if(start + 1 == end && start >= 0 && end <= box->count())
+    return box->item(start);
+    
+  return nullptr;
+}
+
 Expr VolatileSelection::to_pmath(BoxOutputFlags flags) const {
   if(!box)
     return Expr();
