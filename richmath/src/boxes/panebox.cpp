@@ -11,6 +11,7 @@
 #endif
 
 #include <algorithm>
+#include <cmath>
 
 
 using namespace richmath;

@@ -9,6 +9,7 @@
 #endif
 
 #include <algorithm>
+#include <cmath>
 
 
 namespace richmath {
