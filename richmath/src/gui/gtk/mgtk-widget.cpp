@@ -313,7 +313,7 @@ Document *MathGtkWidget::try_create_popup_window(const SelectionReference &ancho
   
   auto *popup = new MathGtkAttachedPopupWindow(document(), anchor_box);
   popup->init();
-  return popup->document();
+  return popup->content();
 }
 
 double MathGtkWidget::message_time() {
@@ -991,8 +991,11 @@ bool MathGtkWidget::on_map(GdkEvent *e) {
 }
 
 bool MathGtkWidget::on_unmap(GdkEvent *e) {
+  // FIXME: unmap-event is only sent to the top-level window, not its child widgets
+  document()->invalidate_popup_window_positions();
+  
   gtk_im_context_reset(_im_context);
-  gtk_im_context_set_client_window(_im_context, 0);
+  gtk_im_context_set_client_window(_im_context, nullptr);
   return false;
 }
 

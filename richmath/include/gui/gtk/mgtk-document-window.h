@@ -42,19 +42,20 @@ namespace richmath {
       
       void update_dark_mode();
       void invalidate_options();
+      void invalidate_popup_window_positions();
       
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
       void run_menucommand(Expr cmd);
       
-      Document *top() {          return ((MathGtkWidget*)_top_area)->document();     }
-      Document *document() {     return ((MathGtkWidget*)_working_area)->document(); }
-      Document *bottom() {       return ((MathGtkWidget*)_bottom_area)->document();  }
-      
       MathGtkWidget *top_area() {     return (MathGtkWidget*)_top_area;     }
       MathGtkWidget *working_area() { return (MathGtkWidget*)_working_area; }
       MathGtkWidget *bottom_area() {  return (MathGtkWidget*)_bottom_area;  }
+      
+      Document *top() {      return top_area()->document();     }
+      Document *document() { return working_area()->document(); }
+      Document *bottom() {   return bottom_area()->document();  }
       
       virtual void bring_to_front();
       virtual void close();
@@ -87,12 +88,13 @@ namespace richmath {
       virtual void finish_apply_title(String displayed_title) override;
       void window_frame(WindowFrameType type);
       
-      virtual bool on_configure(GdkEvent *e);
-      virtual bool on_delete(GdkEvent *e);
-      virtual bool on_focus_in(GdkEvent *e);
-      virtual bool on_focus_out(GdkEvent *e);
-      virtual bool on_scroll(GdkEvent *e);
-      virtual bool on_window_state(GdkEvent *e);
+      bool on_configure(GdkEvent *e);
+      bool on_delete(GdkEvent *e);
+      bool on_focus_in(GdkEvent *e);
+      bool on_focus_out(GdkEvent *e);
+      bool on_scroll(GdkEvent *e);
+      bool on_unmap(GdkEvent *e);
+      bool on_window_state(GdkEvent *e);
       
     private:
       Array<DocumentPosition> _snapped_documents; // [0] = self

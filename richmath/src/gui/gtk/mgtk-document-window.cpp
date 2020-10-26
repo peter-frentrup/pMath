@@ -153,6 +153,8 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
           
           if(!was_resizable)
             gtk_window_set_resizable(GTK_WINDOW(parent()->widget()), false);
+          
+          parent()->invalidate_popup_window_positions();
         }
       }
     }
@@ -385,6 +387,7 @@ void MathGtkDocumentWindow::after_construction() {
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_scroll>("scroll-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_unmap>("unmap-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_window_state>("window-state-event");
 
   title(String());
@@ -565,6 +568,12 @@ void MathGtkDocumentWindow::invalidate_options() {
   
   float scale = doc->get_style(Magnification, _working_area->custom_scale_factor());
   _working_area->set_custom_scale(scale);
+}
+
+void MathGtkDocumentWindow::invalidate_popup_window_positions() {
+  top(     )->invalidate_popup_window_positions();
+  document()->invalidate_popup_window_positions();
+  bottom(  )->invalidate_popup_window_positions();
 }
 
 void MathGtkDocumentWindow::reset_title() {
@@ -1006,6 +1015,11 @@ bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
     return true;
   }
   
+  return false;
+}
+
+bool MathGtkDocumentWindow::on_unmap(GdkEvent *e) {
+  invalidate_popup_window_positions();
   return false;
 }
 

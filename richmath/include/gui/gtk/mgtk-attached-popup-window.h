@@ -8,17 +8,20 @@
 #include <gui/gtk/mgtk-widget.h>
 
 namespace richmath {
-  // TODO: a MathGtkWidget has no scroll bars, better inherit from BasicGtkWidget and encapsulate a MathGtkWidget?
-  class MathGtkAttachedPopupWindow: public MathGtkWidget {
-      using base = MathGtkWidget;
+  class MathGtkPopupContentArea;
+  
+  class MathGtkAttachedPopupWindow final : public BasicGtkWidget, public ControlContext {
+      using base = BasicGtkWidget;
       class Impl;
     public:
       MathGtkAttachedPopupWindow(Document *owner, Box *anchor);
       
       void anchor_location_changed();
       
-      virtual void close() override;
-      virtual void invalidate_options() override;
+      MathGtkWidget *content_area() { return (MathGtkWidget*)_content_area; }
+      Document      *content() { return content_area()->document(); }
+      
+      void close();
       
       virtual bool is_foreground_window() override { return _active; };
       virtual bool is_focused_widget() override { return _active; };
@@ -29,15 +32,18 @@ namespace richmath {
       virtual ~MathGtkAttachedPopupWindow();
       virtual void after_construction() override;
       
-      virtual void paint_canvas(Canvas &canvas, bool resize_only) override;
-      
+      bool on_unmap(GdkEvent *e);
       bool on_delete(GdkEvent *e);
       bool on_window_state(GdkEvent *e);
       
     private:
-      ObservableValue<bool> _active;
-      int _best_width;
-      int _best_height;
+      GtkAdjustment           *_hadjustment;
+      GtkAdjustment           *_vadjustment;
+      GtkWidget               *_hscrollbar;
+      GtkWidget               *_vscrollbar;
+      GtkWidget               *_table;
+      MathGtkPopupContentArea *_content_area;
+      ObservableValue<bool>    _active;
   };
 }
 
