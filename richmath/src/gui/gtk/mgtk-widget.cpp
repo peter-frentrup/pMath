@@ -1,6 +1,7 @@
 #include <gui/gtk/mgtk-widget.h>
 
 #include <eval/binding.h>
+#include <gui/gtk/mgtk-attached-popup-window.h>
 #include <gui/gtk/mgtk-clipboard.h>
 #include <gui/gtk/mgtk-icons.h>
 #include <gui/gtk/mgtk-menu-builder.h>
@@ -303,6 +304,16 @@ void MathGtkWidget::show_tooltip(Box *source, Expr boxes) {
 
 void MathGtkWidget::hide_tooltip() {
   MathGtkTooltipWindow::hide_global_tooltip();
+}
+
+Document *MathGtkWidget::try_create_popup_window(const SelectionReference &anchor) {
+  Box *anchor_box = FrontEndObject::find_cast<Box>(anchor.id);
+  if(!document()->is_parent_of(anchor_box))
+    return nullptr;
+  
+  auto *popup = new MathGtkAttachedPopupWindow(document(), anchor_box);
+  popup->init();
+  return popup->document();
 }
 
 double MathGtkWidget::message_time() {

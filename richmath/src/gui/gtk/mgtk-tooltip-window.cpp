@@ -12,12 +12,12 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonFrame;
 
-static MathGtkTooltipWindow *tooltip_window = 0;
+static MathGtkTooltipWindow *tooltip_window = nullptr;
 
 //{ class MathGtkTooltipWindow ...
 
 MathGtkTooltipWindow::MathGtkTooltipWindow()
-  : MathGtkWidget(new Document())
+  : base(new Document())
 {
 }
 
@@ -36,9 +36,9 @@ void MathGtkTooltipWindow::after_construction() {
   document()->style->set(Editable,           false);
   document()->style->set(Selectable,         AutoBoolFalse);
   document()->style->set(ShowSectionBracket, AutoBoolFalse);
-  document()->select(0, 0, 0);
+  document()->select(nullptr, 0, 0);
   
-  MathGtkWidget::after_construction();
+  base::after_construction();
 }
 
 MathGtkTooltipWindow::~MathGtkTooltipWindow() {
@@ -88,7 +88,7 @@ void MathGtkTooltipWindow::delete_global_tooltip() {
 }
 
 Vector2F MathGtkTooltipWindow::page_size() {
-  Vector2F size = MathGtkWidget::page_size();
+  Vector2F size = base::page_size();
   size.x = HUGE_VAL;
   return size;
 }
@@ -100,11 +100,11 @@ int MathGtkTooltipWindow::dpi() {
     return 96;
   return (int)dpi;
 }
-      
+
 void MathGtkTooltipWindow::resize(bool just_move) {
   GdkDisplay *display = gtk_widget_get_display(_widget);
   
-  gint             ix, iy;
+  int              ix, iy;
   GdkScreen       *screen;
   GdkModifierType  mod;
   gdk_display_get_pointer(display, &screen, &ix, &iy, &mod);
@@ -164,7 +164,7 @@ void MathGtkTooltipWindow::resize(bool just_move) {
 }
 
 void MathGtkTooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
-  MathGtkWidget::paint_canvas(canvas, resize_only);
+  base::paint_canvas(canvas, resize_only);
   
   int old_bh = best_height;
   int old_bw = best_width;

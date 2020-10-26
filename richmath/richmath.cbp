@@ -820,6 +820,15 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="include/gui/gtk/mgtk-attached-popup-window.h">
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86-Gtk3" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86" />
+			<Option target="Linux-GCC-Debug-x64" />
+		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-clipboard.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
 			<Option target="Windows-GCC-Debug-x86-Gtk3" />
@@ -1323,6 +1332,15 @@
 			<Option target="Linux-GCC-Debug-x64" />
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+		</Unit>
+		<Unit filename="src/gui/gtk/mgtk-attached-popup-window.cpp">
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86-Gtk3" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86" />
+			<Option target="Linux-GCC-Debug-x64" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-clipboard.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />

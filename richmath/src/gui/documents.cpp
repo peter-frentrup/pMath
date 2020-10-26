@@ -367,10 +367,13 @@ Section *DocumentsImpl::find_style_definition(Expr stylesheet_name, String style
         if(doc) {
           auto result = find_style_definition(doc, doc->length(), style_name);
           
-          if(doc->is_parent_of(result))
+          if(doc->is_parent_of(result)) {
             doc->native()->bring_to_front();
-          else if(!was_open)
-            doc->native()->close();
+          }
+          else if(!was_open) {
+            // Closing the window too soon seems to sometimes cause a crash on windows in "OleMainThreadWndClass" ?
+            //doc->native()->close();
+          }
           
           if(result)
             return result;

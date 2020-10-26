@@ -10,6 +10,7 @@
 
 namespace richmath {
   class MathGtkTooltipWindow: public MathGtkWidget {
+      using base = MathGtkWidget;
     public:
       virtual ~MathGtkTooltipWindow();
       

@@ -197,8 +197,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     virtual void invalidate() override {
       if(document()->length() > 0) {
         gtk_widget_set_size_request(_widget, 1, 1);
-        if(!gtk_widget_get_visible(_widget))
-          gtk_widget_set_visible(_widget, TRUE);
+        gtk_widget_show(_widget);
       }
       else {
         gtk_widget_set_size_request(_widget, 1, 1);

@@ -31,6 +31,7 @@ namespace richmath {
       
       virtual void show_tooltip(Box *source, Expr boxes) override;
       virtual void hide_tooltip() override;
+      virtual Document *try_create_popup_window(const SelectionReference &anchor) override;
       
       virtual bool is_scaleable() override { return true; }
       

@@ -139,15 +139,16 @@ void Win32AttachedPopupWindow::anchor_location_changed() {
     return;
   }
   
-  bool visible = !!IsWindowVisible(owner_wid->hwnd()) && document()->get_style(Visible, true);
+  bool visible = IsWindowVisible(owner_wid->hwnd()) && document()->get_style(Visible, true);
   
   if(Box *anchor = source_box()) {
     POINT pos;
     if(visible && Impl(*this).find_anchor_screen_position(pos)) {
+      int width  = _best_width;
+      int height = _best_height;
+      
       RECT rect;
       GetWindowRect(_hwnd, &rect);
-      int width  = rect.right - rect.left;
-      int height = rect.bottom - rect.top;
       
       if(HMONITOR hmon = MonitorFromPoint(pos, MONITOR_DEFAULTTONEAREST)) {
         MONITORINFO monitor_info;
@@ -326,7 +327,7 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(POINT &pos) {
   pos = { (int)round(anchor_point.x), (int)round(anchor_point.y) };
   pos.x -= GetScrollPos(owner_wid->hwnd(), SB_HORZ);
   pos.y -= GetScrollPos(owner_wid->hwnd(), SB_VERT);
-  return !!ClientToScreen(owner_wid->hwnd(), &pos);
+  return ClientToScreen(owner_wid->hwnd(), &pos);
 }
 
 void Win32AttachedPopupWindow::Impl::on_windowposchanged(const WINDOWPOS &wp) {
