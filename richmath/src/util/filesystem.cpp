@@ -34,6 +34,20 @@ String FileSystem::file_name_join(String dir, String name) {
   if(dir.is_null() || name.is_null())
     return String();
   
+  int dirlen = dir.length();
+  if(dirlen > 0) {
+#ifdef PMATH_OS_WIN32
+    if(dir[dirlen-1] == '\\')
+      return dir + name;
+    
+    if(dir[dirlen-1] == '/')
+      dir = dir.part(0, dirlen-1);
+#else
+    if(dir[dirlen-1] == '/')
+      return dir + name;
+#endif
+  }
+  
 #ifdef PMATH_OS_WIN32
   return dir + "\\" + name;
 #else
