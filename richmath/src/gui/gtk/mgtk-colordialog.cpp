@@ -3,6 +3,7 @@
 #include <eval/application.h>
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-widget.h>
+#include <gui/documents.h>
 
 
 using namespace richmath;
