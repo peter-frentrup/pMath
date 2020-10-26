@@ -197,7 +197,8 @@ gboolean MathGtkMenuBuilder::on_menu_key_press(GtkWidget *menu, GdkEvent *e, voi
       if(keep_open)
         MathGtkMenuBuilder::on_map_menu(menu, nullptr, doc_id_as_ptr);
       else
-        gtk_widget_hide(menu);
+        gtk_menu_shell_cancel(GTK_MENU_SHELL(menu));
+      
       return TRUE;
     }
   }
