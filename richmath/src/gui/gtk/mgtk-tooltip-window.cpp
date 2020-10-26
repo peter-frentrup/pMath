@@ -1,4 +1,5 @@
 #include <gui/gtk/mgtk-tooltip-window.h>
+#include <gui/gtk/mgtk-control-painter.h>
 #include <gui/common-tooltips.h>
 
 #include <boxes/mathsequence.h>
@@ -6,6 +7,25 @@
 
 #include <cmath>
 
+#include <gdk/gdk.h>
+
+#ifdef GDK_WINDOWING_WAYLAND
+#  include <gdk/gdkwayland.h>
+#endif
+
+
+namespace richmath {
+  class MathGtkTooltipWindow::Impl {
+    public:
+      Impl(MathGtkTooltipWindow &self) : self{self} {}
+      
+      void resize(bool just_move);
+      void update_shape();
+      
+    private:
+      MathGtkTooltipWindow &self;
+  };
+}
 
 using namespace richmath;
 
@@ -50,7 +70,7 @@ void MathGtkTooltipWindow::move_global_tooltip() {
   if(!tooltip_window || !gtk_widget_get_visible(tooltip_window->_widget))
     return;
     
-  tooltip_window->resize(true);
+  Impl(*tooltip_window).resize(true);
 }
 
 void MathGtkTooltipWindow::show_global_tooltip(Box *source, Expr boxes, SharedPtr<Stylesheet> stylesheet) {
@@ -101,8 +121,32 @@ int MathGtkTooltipWindow::dpi() {
   return (int)dpi;
 }
 
-void MathGtkTooltipWindow::resize(bool just_move) {
-  GdkDisplay *display = gtk_widget_get_display(_widget);
+void MathGtkTooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
+  base::paint_canvas(canvas, resize_only);
+  
+  int old_bh = best_height;
+  int old_bw = best_width;
+  
+  best_height = (int)round(document()->extents().height() * scale_factor());
+  best_width  = (int)round(document()->unfilled_width     * scale_factor());
+  
+  if(best_height < 1)
+    best_height = 1;
+    
+  if(best_width < 1)
+    best_width = 1;
+    
+  if(old_bw != best_width || old_bh != best_height) {
+    Impl(*this).resize(false);
+  }
+}
+
+//} ... class MathGtkTooltipWindow
+
+//{ class MathGtkTooltipWindow::Impl ...
+
+void MathGtkTooltipWindow::Impl::resize(bool just_move) {
+  GdkDisplay *display = gtk_widget_get_display(self._widget);
   
   int              ix, iy;
   GdkScreen       *screen;
@@ -124,8 +168,8 @@ void MathGtkTooltipWindow::resize(bool just_move) {
   bool align_left = true;
   bool align_top  = true;
   
-  if(ix + cx + best_width > monitor_rect.x + monitor_rect.width) {
-    ix -= cx + best_width;
+  if(ix + cx + self.best_width > monitor_rect.x + monitor_rect.width) {
+    ix -= cx + self.best_width;
     align_left = false;
     
     if(ix < monitor_rect.x)
@@ -134,8 +178,8 @@ void MathGtkTooltipWindow::resize(bool just_move) {
   else
     ix += cx;
     
-  if(iy + cy + best_height > monitor_rect.y + monitor_rect.height) {
-    iy -= cy + best_height;
+  if(iy + cy + self.best_height > monitor_rect.y + monitor_rect.height) {
+    iy -= cy + self.best_height;
     align_top = false;
     
     if(iy < monitor_rect.y)
@@ -156,31 +200,45 @@ void MathGtkTooltipWindow::resize(bool just_move) {
   else
     gravity = GDK_GRAVITY_SOUTH_EAST;
     
-  if(!just_move)
-    gtk_widget_set_size_request(_widget, best_width, best_height);
-    
-  gtk_window_set_gravity(GTK_WINDOW(_widget), gravity);
-  gtk_window_move(GTK_WINDOW(_widget), ix, iy);
-}
-
-void MathGtkTooltipWindow::paint_canvas(Canvas &canvas, bool resize_only) {
-  base::paint_canvas(canvas, resize_only);
-  
-  int old_bh = best_height;
-  int old_bw = best_width;
-  
-  best_height = (int)round(document()->extents().height() * scale_factor());
-  best_width  = (int)round(document()->unfilled_width     * scale_factor());
-  
-  if(best_height < 1)
-    best_height = 1;
-    
-  if(best_width < 1)
-    best_width = 1;
-    
-  if(old_bw != best_width || old_bh != best_height) {
-    resize(false);
+  if(!just_move) {
+    gtk_widget_set_size_request(self._widget, self.best_width, self.best_height);
+    update_shape();
   }
+  
+  gtk_window_set_gravity(GTK_WINDOW(self._widget), gravity);
+  gtk_window_move(GTK_WINDOW(self._widget), ix, iy);
 }
 
-//} ... class MathGtkTooltipWindow
+void MathGtkTooltipWindow::Impl::update_shape() {
+#if GTK_MAJOR_VERSION >= 3
+  if(!gtk_widget_is_drawable(self._widget))
+    return;
+  
+#ifdef GDK_WINDOWING_WAYLAND
+  if (GDK_IS_WAYLAND_DISPLAY(gtk_widget_get_display(self._widget)))
+    return;
+#endif
+  
+  GdkWindow *win = gtk_widget_get_window(self._widget);
+  
+  int w = self.best_width; //gdk_window_get_width(win);
+  int h = self.best_height;//gdk_window_get_height(win);
+  cairo_surface_t *surface = gdk_window_create_similar_surface(win, CAIRO_CONTENT_COLOR_ALPHA, w, h);
+  
+  cairo_t *cr = cairo_create(surface);
+  {
+    Canvas canvas(cr);
+    MathGtkControlPainter::gtk_painter.draw_container(self, canvas, TooltipWindow, Normal, RectangleF(0, 0, w, h));
+  }
+  cairo_destroy(cr);
+  
+  cairo_region_t *region = gdk_cairo_region_create_from_surface(surface);
+  cairo_surface_destroy(surface);
+  
+  gtk_widget_shape_combine_region(self._widget, region);
+  cairo_region_destroy(region);
+  //gdk_window_set_child_shapes(gtk_widget_get_parent_window(self._widget));
+#endif
+}
+
+//} ... class MathGtkTooltipWindow::Impl
