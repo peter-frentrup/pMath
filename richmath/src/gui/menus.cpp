@@ -17,6 +17,7 @@ static Hashtable<Expr, bool              ( *)(Expr)>       menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>       menu_command_testers;
 static Hashtable<Expr, Expr              ( *)(Expr)>       dynamic_menu_lists;
 static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_deleter;
+static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_locator;
 
 //{ class Menus ...
 
@@ -30,6 +31,7 @@ void Menus::done() {
   menu_command_testers.clear();
   dynamic_menu_lists.clear();
   dynamic_menu_list_item_deleter.clear();
+  dynamic_menu_list_item_locator.clear();
 }
 
 void Menus::run_command(Expr cmd) {
@@ -93,6 +95,19 @@ bool Menus::remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd) {
   return false;
 }
 
+bool Menus::locate_dynamic_submenu_item_source(Expr submenu_cmd, Expr item_cmd) {
+  bool (*func)(Expr, Expr);
+  
+  if(submenu_cmd.is_null())
+    return false;
+  
+  func = dynamic_menu_list_item_locator[submenu_cmd];
+  if(func)
+    return func(std::move(submenu_cmd), std::move(item_cmd));
+    
+  return false;
+}
+
 void Menus::register_command(
   Expr cmd,
   bool              (*func)(Expr cmd),
@@ -136,6 +151,17 @@ void Menus::register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr su
 
 bool Menus::has_submenu_item_deleter(Expr submenu_cmd) {
   return dynamic_menu_list_item_deleter[std::move(submenu_cmd)] != nullptr;
+}
+
+void Menus::register_submenu_item_locator(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd)) {
+  if(func)
+    dynamic_menu_list_item_locator.set(std::move(submenu_cmd), func);
+  else
+    dynamic_menu_list_item_locator.remove(std::move(submenu_cmd));
+}
+
+bool Menus::has_submenu_item_locator(Expr submenu_cmd) {
+  return dynamic_menu_list_item_locator[std::move(submenu_cmd)] != nullptr;
 }
 
 MenuItemType Menus::menu_item_type(Expr item) {

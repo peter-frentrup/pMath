@@ -14,6 +14,17 @@ namespace richmath {
     LeftKey,
     RightKey,
     ExplicitCmd,
+    LocateItemSource,
+  };
+  
+  struct MenuExitInfo {
+    MenuExitReason reason;
+    DWORD          list_cmd;
+    DWORD          cmd;
+    
+    MenuExitInfo() : reason(MenuExitReason::Other), list_cmd(0), cmd(0) { }
+    
+    bool handle_after_exit();
   };
   
   class Win32AutoMenuHook {
@@ -24,7 +35,7 @@ namespace richmath {
       
       Win32AutoMenuHook(const Win32AutoMenuHook &) = delete;
       Win32AutoMenuHook &operator=(const Win32AutoMenuHook &) = delete;
-    
+      
     private:
       bool handle(MSG &msg);
     
@@ -38,8 +49,7 @@ namespace richmath {
       bool _is_over_menu;
       
     public:
-      MenuExitReason exit_reason; 
-      DWORD          exit_cmd;
+      MenuExitInfo exit_info;
   };
 }
 

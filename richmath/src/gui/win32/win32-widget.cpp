@@ -1002,6 +1002,7 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
   
   HMENU menu = Win32Menu::popup_menu->hmenu();
   
+  MenuExitInfo exit_info;
   DWORD cmd;
   {
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
@@ -1013,9 +1014,13 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
             screen_pt.y,
             _hwnd,
             nullptr);
+    
+    exit_info = menu_hook.exit_info;
+  }
   
-    if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
-      cmd = menu_hook.exit_cmd;
+  if(!cmd && !exit_info.handle_after_exit()) {
+    if(exit_info.reason == MenuExitReason::ExplicitCmd)
+      cmd = exit_info.cmd;
   }
   
   if(cmd) 

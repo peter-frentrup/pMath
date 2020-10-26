@@ -169,30 +169,39 @@ gboolean MathGtkMenuBuilder::on_unmap_menu(GtkWidget *menu, GdkEventAny *event, 
 gboolean MathGtkMenuBuilder::on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *doc_id_as_ptr) {
   GdkEventKey *event = &e->key;
   
+  bool (*action)(Expr, Expr) = nullptr;
+  bool keep_open = false;
   switch(event->keyval) {
-    case GDK_Delete: {
-      GtkMenuItem *menu_item = MenuItemBuilder::selected_item();//gtk_menu_get_active(GTK_MENU(menu));
-      if(!menu_item)
-        break;
-      
-      const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
-      if(!accel_path_str)
-        break;
-        
-      Expr cmd = accel_path_to_cmd[String(accel_path_str)];
-      if(cmd.is_null())
-        break;
-      
-      Expr inline_list_data = MenuItemBuilder::inline_menu_list_data(GTK_WIDGET(menu_item));
-      if(inline_list_data.is_null())
-        break;
-      
-      if(Menus::remove_dynamic_submenu_item(inline_list_data, cmd)) {
-        MathGtkMenuBuilder::on_map_menu(menu, nullptr, doc_id_as_ptr);
-        return TRUE;
-      }
-    } break;
+    case GDK_Delete: action = Menus::remove_dynamic_submenu_item; keep_open = true; break;
+    case GDK_F12:    action = Menus::locate_dynamic_submenu_item_source; break; 
   }
+  
+  if(action) {
+    GtkMenuItem *menu_item = MenuItemBuilder::selected_item();//gtk_menu_get_active(GTK_MENU(menu));
+    if(!menu_item)
+      return FALSE;
+    
+    const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
+    if(!accel_path_str)
+      return FALSE;
+      
+    Expr cmd = accel_path_to_cmd[String(accel_path_str)];
+    if(cmd.is_null())
+      return FALSE;
+    
+    Expr inline_list_data = MenuItemBuilder::inline_menu_list_data(GTK_WIDGET(menu_item));
+    if(inline_list_data.is_null())
+      return FALSE;
+    
+    if(action(inline_list_data, cmd)) {
+      if(keep_open)
+        MathGtkMenuBuilder::on_map_menu(menu, nullptr, doc_id_as_ptr);
+      else
+        gtk_widget_hide(menu);
+      return TRUE;
+    }
+  }
+  
   return FALSE;
 }
 

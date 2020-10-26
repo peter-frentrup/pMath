@@ -372,35 +372,40 @@ void Win32Menubar::show_menu(int item) {
     current_item = item;
     current_menubar = this;
     
-    Win32AutoMenuHook menu_hook(current_popup, parent, _hwnd, true, true);
-    
-    POINT pt;
-    pt.y = tpm.rcExclude.bottom;
-    UINT align;
-    DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
-    if(ex_style & WS_EX_LAYOUTRTL) {
-      pt.x = tpm.rcExclude.right;
-      align = TPM_RIGHTALIGN;
-    }
-    else {
-      pt.x = tpm.rcExclude.left;
-      align = TPM_LEFTALIGN;
-    }
+    MenuExitInfo exit_info;
+    {
+      Win32AutoMenuHook menu_hook(current_popup, parent, _hwnd, true, true);
+      
+      POINT pt;
+      pt.y = tpm.rcExclude.bottom;
+      UINT align;
+      DWORD ex_style = GetWindowLongW(_hwnd, GWL_EXSTYLE);
+      if(ex_style & WS_EX_LAYOUTRTL) {
+        pt.x = tpm.rcExclude.right;
+        align = TPM_RIGHTALIGN;
+      }
+      else {
+        pt.x = tpm.rcExclude.left;
+        align = TPM_LEFTALIGN;
+      }
 
-    UINT flags = TPM_RETURNCMD | align;
-    if(!menu_animation)
-      flags |= TPM_NOANIMATION;
+      UINT flags = TPM_RETURNCMD | align;
+      if(!menu_animation)
+        flags |= TPM_NOANIMATION;
+      
+      Win32Menu::use_dark_mode = _use_dark_mode;
+      cmd = TrackPopupMenuEx(
+              current_popup,
+              flags,
+              pt.x,
+              pt.y,
+              parent,
+              &tpm);
+      
+      exit_info = menu_hook.exit_info;
+    }
     
-    Win32Menu::use_dark_mode = _use_dark_mode;
-    cmd = TrackPopupMenuEx(
-            current_popup,
-            flags,
-            pt.x,
-            pt.y,
-            parent,
-            &tpm);
-    
-    switch(menu_hook.exit_reason) {
+    switch(exit_info.reason) {
       case MenuExitReason::LeftKey:
         next_item = item - 1;
         if(next_item <= 0) {
@@ -416,10 +421,11 @@ void Win32Menubar::show_menu(int item) {
         break;
       
       case MenuExitReason::ExplicitCmd: 
-        cmd = menu_hook.exit_cmd;
+        cmd = exit_info.cmd;
         break;
       
-      case MenuExitReason::Other:
+      default:
+        exit_info.handle_after_exit();
         break;
     }
     
@@ -462,6 +468,7 @@ void Win32Menubar::show_sysmenu() {
   tpm.rcExclude.right  = tpm.rcExclude.left + Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
   tpm.rcExclude.bottom = tpm.rcExclude.top  + Win32HighDpi::get_system_metrics_for_dpi(SM_CYCAPTION, dpi);
   
+  MenuExitInfo exit_info;
   DWORD cmd = 0;
   {
     HMENU menu = GetSystemMenu(parent, FALSE);
@@ -492,8 +499,12 @@ void Win32Menubar::show_sysmenu() {
             parent,
             &tpm);
     
-    if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
-      cmd = menu_hook.exit_cmd;
+    exit_info = menu_hook.exit_info;
+  }
+  
+  if(!cmd && !exit_info.handle_after_exit()) {
+    if(exit_info.reason == MenuExitReason::ExplicitCmd)
+      cmd = exit_info.cmd;
   }
   
   if(cmd) {

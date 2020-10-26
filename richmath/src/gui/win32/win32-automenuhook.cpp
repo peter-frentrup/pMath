@@ -37,7 +37,8 @@ namespace richmath {
       enum class CommandId : DWORD {
         None = 0,
         Select,
-        Remove
+        Remove,
+        GoToDefinition,
       };
       
       static HMENU create_popup_for(Expr list_cmd, Expr cmd);
@@ -71,6 +72,28 @@ static DWORD point_to_dword(const POINT &pt) {
 
 //{ class Win32AutoMenuHook ...
 
+
+bool MenuExitInfo::handle_after_exit() {
+  switch(reason) {
+    case MenuExitReason::Other: 
+    case MenuExitReason::LeftKey:
+    case MenuExitReason::RightKey:
+    case MenuExitReason::ExplicitCmd:
+      return false;
+    
+    case MenuExitReason::LocateItemSource:
+      return Menus::locate_dynamic_submenu_item_source(
+               Win32Menu::id_to_command(list_cmd), 
+               Win32Menu::id_to_command(cmd));
+  }
+  
+  return false;
+}
+
+//} ... class Win32AutoMenuHook
+
+//{ class Win32AutoMenuHook ...
+
 Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse_notifications, bool allow_leave_left, bool allow_leave_right) 
   : _next(nullptr),
     _current_popup(tracked_popup),
@@ -78,9 +101,7 @@ Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse
     _mouse_notifications(mouse_notifications),
     _allow_leave_left(allow_leave_left),
     _allow_leave_right(allow_leave_right),
-    _is_over_menu(false),
-    exit_reason(MenuExitReason::Other),
-    exit_cmd(0)
+    _is_over_menu(false)
 {
   Impl::push(this);
 }
@@ -208,8 +229,8 @@ void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DW
     case Win32MenuItemPopupMenu::CommandId::None: break;
     
     case Win32MenuItemPopupMenu::CommandId::Select:
-      self.exit_cmd = cmd_id;
-      self.exit_reason = MenuExitReason::ExplicitCmd;
+      self.exit_info.cmd    = cmd_id;
+      self.exit_info.reason = MenuExitReason::ExplicitCmd;
       EndMenu();
       return;
     
@@ -217,6 +238,18 @@ void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DW
       if(Menus::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
         Win32Menu::init_popupmenu(menu);
       break;
+    
+    case Win32MenuItemPopupMenu::CommandId::GoToDefinition:
+      self.exit_info.cmd      = cmd_id;
+      self.exit_info.list_cmd = subitems_cmd_id;
+      self.exit_info.reason   = MenuExitReason::LocateItemSource;
+      EndMenu();
+      return;
+//      if(Menus::locate_dynamic_submenu_item_source(std::move(subitems_cmd), std::move(cmd))) {
+//        //EndMenu();
+//        return;
+//      }
+//      break;
   }
   
   Win32Menu::on_menuselect(MAKEWPARAM(cmd_id, MF_MOUSESELECT), (LPARAM)menu);
@@ -236,12 +269,39 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         }
       } break;
     
+    case VK_F12: {
+        DWORD cmd_id;
+        DWORD subitems_cmd_id;
+        HMENU menu = self._current_popup;
+        int item = find_hilite_menuitem_cmd(&menu, &subitems_cmd_id, &cmd_id);
+        if(menu && item >= 0) {
+          Expr subitems_cmd = Win32Menu::id_to_command(subitems_cmd_id);
+          if(Menus::has_submenu_item_locator(subitems_cmd)) {
+            self.exit_info.list_cmd = subitems_cmd_id;
+            self.exit_info.cmd      = cmd_id;
+            self.exit_info.reason   = MenuExitReason::LocateItemSource;
+            EndMenu();
+            return true;
+          }
+        }
+        
+//        Expr cmd;
+//        Expr subitems_cmd;
+//        
+//        if(menu && item >= 0) {
+//          if(Menus::locate_dynamic_submenu_item_source(std::move(subitems_cmd), std::move(cmd))) {
+//            //EndMenu();
+//            return true;
+//          }
+//        }
+      } break;
+    
     case VK_LEFT: if(self._allow_leave_left) {
         HMENU menu = self._current_popup;
         int item = find_hilite_menuitem(&menu);
         
         if(menu == self._current_popup) {
-          self.exit_reason = MenuExitReason::LeftKey;
+          self.exit_info.reason = MenuExitReason::LeftKey;
           EndMenu();
           return true;
         }
@@ -252,7 +312,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
         int item = find_hilite_menuitem(&menu);
         
         if(item < 0 || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
-          self.exit_reason = MenuExitReason::RightKey;
+          self.exit_info.reason = MenuExitReason::RightKey;
           EndMenu();
           return true;
         }
@@ -311,7 +371,12 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   //select_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_RETURN);
   append(menu, CommandId::Select, std::move(select_label));
   
-  //append(menu, CommandId::None, String("Go to Definition\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F12), MF_DISABLED | MF_GRAYED);
+  if(Menus::has_submenu_item_locator(list_cmd)) {
+    String gotodef_label = String("Go to Definition\t");
+    
+    gotodef_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F12);
+    append(menu, CommandId::GoToDefinition, std::move(gotodef_label));
+  }
   
   if(Menus::has_submenu_item_deleter(list_cmd)) {
     String remove_label;
@@ -349,15 +414,24 @@ Win32MenuItemPopupMenu::CommandId Win32MenuItemPopupMenu::show_popup_for(HWND ow
   else
     flags |= TPM_RIGHTALIGN;
   
+  MenuExitInfo exit_info;
   DWORD id;
   {
     Win32AutoMenuHook menu_hook(popup, owner, nullptr, false, false);
     id = TrackPopupMenuEx(popup, flags, pt.x, pt.y, owner, nullptr);
-    if(!id && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
-      id = menu_hook.exit_cmd;
+    exit_info = menu_hook.exit_info;
   }
   
   DestroyMenu(popup);
+  
+  if(!id) {
+    if(exit_info.handle_after_exit())
+      return CommandId::None;
+    
+    if(exit_info.reason == MenuExitReason::ExplicitCmd)
+      id = exit_info.cmd;
+  }
+  
   return (CommandId)id;
 }
 

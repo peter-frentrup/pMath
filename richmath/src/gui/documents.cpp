@@ -65,6 +65,8 @@ namespace {
       
       static Expr enum_styles_menu(Expr name);
       
+      static bool find_style_definition(Expr submenu_cmd, Expr item_cmd);
+      
     private:
       StylesMenuImpl();
       
@@ -617,7 +619,9 @@ void StylesMenuImpl::init() {
   Menus::register_command(String("SelectStyle8"), set_style, can_set_style);
   Menus::register_command(String("SelectStyle9"), set_style, can_set_style);
 
-  Menus::register_dynamic_submenu(String("MenuListStyles"), enum_styles_menu);
+  String s_MenuListStyles("MenuListStyles");
+  Menus::register_dynamic_submenu(     s_MenuListStyles, enum_styles_menu);
+  Menus::register_submenu_item_locator(s_MenuListStyles, find_style_definition);
 }
 
 void StylesMenuImpl::done() {
@@ -676,6 +680,26 @@ Expr StylesMenuImpl::enum_styles_menu(Expr name) {
   return commands;
 }
 
+bool StylesMenuImpl::find_style_definition(Expr submenu_cmd, Expr item_cmd) {
+  if(String style_name = cache.style_name_from_command(item_cmd)) {
+    // Handle message later, or Windows might crash with error 0xc0000409 (stack overrun)
+    // during GetMessageW(). 
+    // Last received message is WM_USER on a "OleMainThreadWndClass" window, with
+    // wParam = 47806, lParam = some pointer.
+    // The debugger also mentions an access violation (reading NULL pointer)
+    //
+    // FIXME: Application::notify still does not delay the message long enough.
+    
+    Expr expr = Call(Symbol(richmath_FrontEnd_FindStyleDefinition), std::move(style_name));
+    //expr = richmath_eval_FrontEnd_FindStyleDefinition(std::move(expr));
+    //return expr != PMATH_SYMBOL_FAILED;
+    Application::notify(ClientNotification::MenuCommand, std::move(expr));
+    return true;
+  }
+  
+  return false;
+}
+
 void StylesMenuImpl::clear_cache() {
   // Array.length(0) does not destroy the old items
   latest_items = Array<StyleItem>();
@@ -687,6 +711,9 @@ void StylesMenuImpl::dynamic_updated() {
 }
 
 String StylesMenuImpl::style_name_from_command(Expr cmd) {
+  if(cmd[0] == richmath_FE_ScopedCommand)
+    cmd = cmd[1];
+  
   if(String str = cmd) {
     if(str.starts_with("SelectStyle") && str.length() == 12) {
       uint16_t ch = str[11];

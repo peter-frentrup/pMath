@@ -1863,7 +1863,8 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
               else {
                 align = TPM_LEFTALIGN;
               }
-
+              
+              MenuExitInfo exit_info;
               DWORD cmd;
               {
                 Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
@@ -1878,10 +1879,14 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                         _hwnd,
                         nullptr);
                 
-                if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
-                  cmd = menu_hook.exit_cmd;
+                exit_info = menu_hook.exit_info;
               }
 
+              if(!cmd && !exit_info.handle_after_exit()) {
+                if(exit_info.reason == MenuExitReason::ExplicitCmd)
+                  cmd = exit_info.cmd;
+              }
+      
               if(cmd)
                 SendMessageW(_hwnd, WM_SYSCOMMAND, cmd, 0);
               return 0;
@@ -2305,7 +2310,8 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
         align = TPM_LEFTALIGN;
         x = tpm.rcExclude.left;
       }
-
+      
+      MenuExitInfo exit_info;
       DWORD cmd;
       {
         Win32AutoMenuHook menu_hook(menu, self._hwnd, nullptr, false, false);
@@ -2317,11 +2323,15 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
                 tpm.rcExclude.bottom,
                 self._hwnd,
                 &tpm);
-                
-        if(!cmd && menu_hook.exit_reason == MenuExitReason::ExplicitCmd)
-          cmd = menu_hook.exit_cmd;
+        
+        exit_info = menu_hook.exit_info;
       }
-      
+
+      if(!cmd && !exit_info.handle_after_exit()) {
+        if(exit_info.reason == MenuExitReason::ExplicitCmd)
+          cmd = exit_info.cmd;
+      }
+
       if(cmd)
         SendMessageW(self._hwnd, WM_SYSCOMMAND, cmd, 0);
       *result = 0;
