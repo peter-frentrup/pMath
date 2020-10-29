@@ -24,6 +24,10 @@ namespace richmath {
 
     static bool open_selection_help_cmd(Expr cmd);
     
+    static bool edit_style_definitions_cmd(Expr cmd);
+    static MenuCommandStatus can_edit_style_definitions(Expr cmd);
+    static Document *open_private_style_definitions(Document *doc, bool create);
+    
     static String get_style_name_at(VolatileSelection sel);
     static Section *find_style_definition(Expr stylesheet_name, String style_name);
     static Section *find_style_definition(Document *style_doc, int index, String style_name);
@@ -143,15 +147,17 @@ extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
 
 //{ class Documents ...
 
 bool Documents::init() {
-  Menus::register_command(String("ShowHideMenu"),                        Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
-  Menus::register_command(String("OpenSelectionHelp"),                   Impl::open_selection_help_cmd);
+  Menus::register_command(String("EditStyleDefinitions"),                Impl::edit_style_definitions_cmd, Impl::can_edit_style_definitions);
   Menus::register_command(Symbol(richmath_FrontEnd_FindStyleDefinition), Impl::find_style_definition_cmd);
-
+  Menus::register_command(String("OpenSelectionHelp"),                   Impl::open_selection_help_cmd);
+  Menus::register_command(String("ShowHideMenu"),                        Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
+  
   OpenDocumentMenuImpl::init();
   SelectDocumentMenuImpl::init();
   StylesMenuImpl::init();
@@ -309,6 +315,72 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   return false;
 }
 
+bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
+  Document *doc = Documents::current();
+  
+  if(!doc || !doc->get_style(Editable))
+    return false;
+  
+  if(doc->native()->owner_document())
+    return false;
+  
+  Document *style_doc = open_private_style_definitions(doc, true);
+  if(!style_doc)
+    return false;
+    
+  style_doc->native()->bring_to_front();
+  return true;
+}
+
+MenuCommandStatus DocumentsImpl::can_edit_style_definitions(Expr cmd) {
+  Document *doc = Documents::current();
+  
+  if(!doc || !doc->get_style(Editable))
+    return MenuCommandStatus(false);
+  
+  if(doc->native()->owner_document())
+    return MenuCommandStatus(false);
+  
+  return MenuCommandStatus(true);
+}
+
+Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool create) {
+  if(!doc)
+    return nullptr;
+  
+  Document *style_doc = doc->native()->stylesheet_document();
+  if(style_doc) 
+    return style_doc;
+  
+  Expr stylesheet = doc->get_style(StyleDefinitions);
+  if(create && stylesheet[0] != PMATH_SYMBOL_DOCUMENT) {
+    stylesheet = Call(
+                   Symbol(PMATH_SYMBOL_DOCUMENT),
+                   Call(
+                     Symbol(richmath_System_Section),
+                     Call(
+                       Symbol(richmath_System_StyleData),
+                       Rule(Symbol(richmath_System_StyleDefinitions), stylesheet))),
+                   Rule(Symbol(richmath_System_StyleDefinitions), String("PrivateStyleDefinitions.pmathdoc")));
+    
+    doc->style->set(StyleDefinitions, stylesheet);
+  }
+  
+  if(stylesheet[0] != PMATH_SYMBOL_DOCUMENT)
+    return nullptr;
+  
+  style_doc = Application::try_create_document(stylesheet);
+  if(!style_doc)
+    return nullptr;
+  
+  if(!doc->native()->stylesheet_document(style_doc))
+    doc->native()->beep();
+  
+  doc->invalidate_options();
+  style_doc->invalidate_options();
+  return style_doc;
+}
+
 String DocumentsImpl::get_style_name_at(VolatileSelection sel) {
   VolatileSelection inner_sel = sel;
   while(Box *inner = inner_sel.contained_box()) 
@@ -417,6 +489,7 @@ Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, St
     if(String name = style_sect->style_data[1]) {
       if(name == style_name) {
         style_doc->select(sect, 0, 0);
+        style_doc->native()->bring_to_front();
         return sect;
       }
     }
@@ -1237,13 +1310,10 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
   if(auto result = DocumentsImpl::find_style_definition(doc, index, style_name))
     return result->to_pmath_id();
   
-  SharedPtr<Style> style;
-  if(SharedPtr<Style> *style_ptr = doc->stylesheet()->styles.search(style_name))
-    style = *style_ptr;
-  else
+  if(!doc->stylesheet()->styles.search(style_name))
     return Symbol(PMATH_SYMBOL_FAILED);
   
-  if(Document *style_doc = doc->native()->stylesheet_document()) {
+  if(Document *style_doc = DocumentsImpl::open_private_style_definitions(doc, false)) {
     if(auto result = DocumentsImpl::find_style_definition(style_doc, style_doc->length(), style_name))
       return result->to_pmath_id();
   }
