@@ -56,6 +56,13 @@ class MathGtkStyleContextCache {
     GtkStyleContext *tool_button_context() {          return init_context_once(_tool_button_context,          make_tool_button_context); }
     GtkStyleContext *tooltip_context() {              return init_context_once(_tooltip_context,              make_tooltip_context); }
     
+    static void render_container(
+      GtkStyleContext *ctx, 
+      GtkStateFlags    flags,
+      Canvas          &canvas,
+      ContainerType    type,
+      ControlState     state,
+      RectangleF       rect);
     static void render_all_common(            GtkStyleContext *ctx, Canvas &canvas, const RectangleF &rect);
     static void render_all_common_inset_const(GtkStyleContext *ctx, Canvas &canvas, RectangleF rect) { render_all_common_inset(ctx, canvas, rect); }
     static void render_all_common_inset(      GtkStyleContext *ctx, Canvas &canvas, RectangleF &rect);
@@ -449,96 +456,9 @@ void MathGtkControlPainter::draw_container(
     rect.add_rect_path(canvas);
     canvas.clip();
     
-    //gtk_style_context_save(gsc); // changes the widget path and thus does not always work (e.g. with Adwaita notebook tabs)
     GtkStateFlags flags = get_state_flags(control, type, state);
-    gtk_style_context_set_state(gsc, flags);
+    MathGtkStyleContextCache::render_container(gsc, flags, canvas, type, state, rect);
     
-    switch(type) {
-      case CheckboxUnchecked:
-      case CheckboxChecked:
-      case CheckboxIndeterminate:
-        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, rect);
-        gtk_render_check(gsc, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
-        break;
-        
-      case RadioButtonUnchecked:
-      case RadioButtonChecked:
-        MathGtkStyleContextCache::render_all_common_inset(gsc, canvas, rect);
-        gtk_render_option(gsc, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
-        break;
-        
-      case OpenerTriangleClosed:
-      case OpenerTriangleOpened:
-        //gtk_render_background(gsc, canvas.cairo(), x, y, width, height);
-        gtk_render_expander(  gsc, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
-        break;
-      
-      case NavigationBack:
-      case NavigationForward: {
-          float cx = rect.x + rect.width/2;
-          float cy = rect.y + rect.height/2;
-          rect.width = rect.height = std::min(rect.width, rect.height);
-          rect.x = cx - rect.width/2;
-          rect.y = cy - rect.height/2;
-        
-          canvas.align_point(&rect.x, &rect.y, false);
-          
-          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
-          
-          GtkIconTheme *icon_theme = gtk_icon_theme_get_default();
-          int w, h;
-          gtk_icon_size_lookup(GTK_ICON_SIZE_SMALL_TOOLBAR, &w, &h);
-          int icon_size = std::min(w, h);
-          
-          GtkIconInfo *icon_info = gtk_icon_theme_lookup_icon(icon_theme, type == NavigationBack ? "go-previous-symbolic" : "go-next-symbolic", icon_size, (GtkIconLookupFlags)0);
-          GdkPixbuf *pixbuf = gtk_icon_info_load_symbolic_for_context(icon_info, gsc, nullptr, nullptr);
-          g_object_unref(icon_info);
-          
-          canvas.save();
-          gtk_render_icon(gsc, canvas.cairo(), pixbuf, cx - w * 0.5, cy - h * 0.5);
-          canvas.restore();
-          gdk_pixbuf_unref(pixbuf);
-          
-//          if(GtkIconSet *icon = gtk_icon_factory_lookup_default(type == NavigationBack ? "go-previous" : "go-next")) {
-//            GdkPixbuf *pixbuf = gtk_icon_set_render_icon_pixbuf(icon, gsc, GTK_ICON_SIZE_SMALL_TOOLBAR);
-//            
-//            gtk_render_icon(gsc, canvas.cairo(), pixbuf, cx - w, cy - h);
-//            
-//            gdk_pixbuf_unref(pixbuf);
-//          }
-        } break;
-      
-      case TabBodyBackground: {
-          //gtk_style_context_get_border(gsc, GTK_STATE_FLAG_NORMAL, &border);
-          GtkBorder border = MathGtkStyleContextCache::get_all_border_padding(gsc);
-          
-          float top_hide = border.top + canvas.get_font_size() / 0.75; // add font size for possible border radius
-          rect.y -=      top_hide;
-          rect.height += top_hide;
-          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
-        } break;
-      
-      case TabHead:
-      case TabHeadAbuttingRight:
-      case TabHeadAbuttingLeftRight:
-      case TabHeadAbuttingLeft: {
-          GtkBorder margin;
-          gtk_style_context_get_margin(gsc, flags, &margin);
-          
-          //rect.x -=      margin.left;
-          rect.y +=      margin.top;
-          rect.height -= margin.top;
-          //rect.width +=  margin.left + margin.right;
-          
-          MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
-        } break;
-      
-      default:
-        MathGtkStyleContextCache::render_all_common_inset_const(gsc, canvas, rect);
-        break;
-    }
-    
-    //gtk_style_context_restore(gsc); 
     canvas.restore();
     return;
   }
@@ -883,6 +803,105 @@ void MathGtkStyleContextCache::clear() {
   unref_and_null(_tab_head_label_context);
   unref_and_null(_tool_button_context);
   unref_and_null(_tooltip_context);
+}
+
+void MathGtkStyleContextCache::render_container(
+  GtkStyleContext *ctx, 
+  GtkStateFlags    flags,
+  Canvas          &canvas,
+  ContainerType    type,
+  ControlState     state,
+  RectangleF       rect
+) {
+  //gtk_style_context_save(ctx); // changes the widget path and thus does not always work (e.g. with Adwaita notebook tabs)
+  gtk_style_context_set_state(ctx, flags);
+  
+  switch(type) {
+    case CheckboxUnchecked:
+    case CheckboxChecked:
+    case CheckboxIndeterminate:
+      render_all_common_inset(ctx, canvas, rect);
+      gtk_render_check(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+      break;
+      
+    case RadioButtonUnchecked:
+    case RadioButtonChecked:
+      render_all_common_inset(ctx, canvas, rect);
+      gtk_render_option(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+      break;
+      
+    case OpenerTriangleClosed:
+    case OpenerTriangleOpened:
+      //gtk_render_background(ctx, canvas.cairo(), x, y, width, height);
+      gtk_render_expander(  ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+      break;
+    
+    case NavigationBack:
+    case NavigationForward: {
+        float cx = rect.x + rect.width/2;
+        float cy = rect.y + rect.height/2;
+        rect.width = rect.height = std::min(rect.width, rect.height);
+        rect.x = cx - rect.width/2;
+        rect.y = cy - rect.height/2;
+      
+        canvas.align_point(&rect.x, &rect.y, false);
+        
+        render_all_common_inset_const(ctx, canvas, rect);
+        
+        GtkIconTheme *icon_theme = gtk_icon_theme_get_default();
+        int w, h;
+        gtk_icon_size_lookup(GTK_ICON_SIZE_SMALL_TOOLBAR, &w, &h);
+        int icon_size = std::min(w, h);
+        
+        GtkIconInfo *icon_info = gtk_icon_theme_lookup_icon(icon_theme, type == NavigationBack ? "go-previous-symbolic" : "go-next-symbolic", icon_size, (GtkIconLookupFlags)0);
+        GdkPixbuf *pixbuf = gtk_icon_info_load_symbolic_for_context(icon_info, ctx, nullptr, nullptr);
+        g_object_unref(icon_info);
+        
+        canvas.save();
+        gtk_render_icon(ctx, canvas.cairo(), pixbuf, cx - w * 0.5, cy - h * 0.5);
+        canvas.restore();
+        gdk_pixbuf_unref(pixbuf);
+        
+//          if(GtkIconSet *icon = gtk_icon_factory_lookup_default(type == NavigationBack ? "go-previous" : "go-next")) {
+//            GdkPixbuf *pixbuf = gtk_icon_set_render_icon_pixbuf(icon, ctx, GTK_ICON_SIZE_SMALL_TOOLBAR);
+//            
+//            gtk_render_icon(ctx, canvas.cairo(), pixbuf, cx - w, cy - h);
+//            
+//            gdk_pixbuf_unref(pixbuf);
+//          }
+      } break;
+    
+    case TabBodyBackground: {
+        //gtk_style_context_get_border(ctx, GTK_STATE_FLAG_NORMAL, &border);
+        GtkBorder border = get_all_border_padding(ctx);
+        
+        float top_hide = border.top + canvas.get_font_size() / 0.75; // add font size for possible border radius
+        rect.y -=      top_hide;
+        rect.height += top_hide;
+        render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
+    case TabHead:
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft: {
+        GtkBorder margin;
+        gtk_style_context_get_margin(ctx, flags, &margin);
+        
+        //rect.x -=      margin.left;
+        rect.y +=      margin.top;
+        rect.height -= margin.top;
+        //rect.width +=  margin.left + margin.right;
+        
+        render_all_common_inset_const(ctx, canvas, rect);
+      } break;
+    
+    default:
+      render_all_common_inset_const(ctx, canvas, rect);
+      break;
+  }
+  
+  //gtk_style_context_restore(ctx); 
 }
 
 void MathGtkStyleContextCache::render_all_common(GtkStyleContext *ctx, Canvas &canvas, const RectangleF &rect) {
