@@ -38,7 +38,7 @@ Document({
       SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("Appearance", "ExampleSubsection"), 
           Section({"The default setting is ", 
-            TemplateBox({"\[SelectionPlaceholder]"}, "ReferenceHyperlink"), 
+            TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
             " \[Rule] \"Framed\":"}, "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
@@ -82,7 +82,7 @@ Document({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section({"An ", TemplateBox({"InputField"}, "ReferenceHyperlink"), 
-              " with an included ", TemplateBox({"\[SelectionPlaceholder]"}, 
+              " with an included ", TemplateBox({"Panel"}, 
                "ReferenceHyperlink"), ":"}, "ExampleText"), 
             SectionGroup({
               Section(BoxData({"Panel", "(", {
