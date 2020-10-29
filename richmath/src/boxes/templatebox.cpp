@@ -49,7 +49,6 @@ namespace richmath {
       void assign_content();
       
       static Expr prepare_boxes(Expr boxes);
-      static size_t parse_current_value_item(Expr item);
       
     private:
       static Expr prepare_pure_arg(Expr expr);
@@ -461,27 +460,6 @@ Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
   return TemplateBoxSlotImpl::prepare_boxes(boxes);
 }
 
-size_t TemplateBoxSlotImpl::parse_current_value_item(Expr item) {
-  if(item.expr_length() != 2)
-    return 0;
-    
-  if(item[0] != PMATH_SYMBOL_LIST)
-    return 0;
-  
-  if(item[1] != richmath_System_TemplateSlot)
-    return 0;
-  
-  Expr obj = item[2];
-  if(!obj.is_int32())
-    return 0;
-  
-  int num = PMATH_AS_INT32(obj.get());
-  if(num <= 0)
-    return 0;
-  
-  return (size_t)num;
-}
-
 bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_TemplateSlot || expr.expr_length() != 1)
     return false;
@@ -715,24 +693,6 @@ bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
     }
   }
   return false;
-//  size_t num = TemplateBoxSlotImpl::parse_current_value_item(std::move(item));
-//  if(!num)
-//    return false;
-//  
-//  if(num > tb->arguments.expr_length())
-//    return false;
-//  
-//  if(tb->arguments[num] == rhs)
-//    return true;
-//  
-//  //tb->reset_argument((int)num, std::move(rhs));
-//  Dynamic dyn {tb, tb->arguments[num]};
-//  if(dyn.is_dynamic())
-//    dyn.assign(std::move(rhs));
-//  else
-//    tb->reset_argument((int)num, std::move(rhs));
-//  
-//  return true;
 }
 
 //} ... class TemplateBoxSlot

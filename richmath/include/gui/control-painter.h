@@ -27,6 +27,7 @@ namespace richmath {
     ListViewItem,
     ListViewItemSelected,
     PanelControl,
+    PopupPanel,
     TabHeadAbuttingRight,
     TabHeadAbuttingLeftRight,
     TabHeadAbuttingLeft,

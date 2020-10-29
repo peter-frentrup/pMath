@@ -127,6 +127,7 @@ void ControlPainter::calc_container_size(
         extents->descent += 0.75;
       } break;
       
+    case PopupPanel:
     case PanelControl: {
         extents->width +=   12.0;
         extents->ascent +=  6.0;
@@ -402,7 +403,19 @@ void ControlPainter::draw_container(
     
     case PanelControl:
       paint_frame(canvas, rect, false, true);
-      break; 
+      break;
+    
+    case PopupPanel: {
+        Color c = canvas.get_color();
+        rect.add_rect_path(canvas, false);
+        canvas.set_color(ButtonColor);
+        canvas.fill_preserve();
+        rect.grow(-0.75, -0.75);
+        rect.add_rect_path(canvas, true);
+        canvas.set_color(Color::Black, 0.5);
+        canvas.fill();
+        canvas.set_color(c);
+      } break;
     
     case SliderHorzChannel:
       paint_frame(canvas, rect, true, state != Disabled);
@@ -764,13 +777,13 @@ Vector2F ControlPainter::container_content_offset(
 
 bool ControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
-    case GenericButton:
-    case PushButton:
-    case PaletteButton:
     case DefaultPushButton:
-    case SliderHorzThumb:
+    case GenericButton:
     case NavigationBack:
     case NavigationForward:
+    case PaletteButton:
+    case PushButton:
+    case SliderHorzThumb:
     case TabHeadAbuttingRight:
     case TabHeadAbuttingLeftRight:
     case TabHeadAbuttingLeft:

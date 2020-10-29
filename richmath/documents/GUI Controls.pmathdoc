@@ -211,6 +211,13 @@ Document({
        SectionGenerated -> True, SectionLabel -> "out [15]:")}, All), 
     SectionGroup({
       Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
+           "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, ")"}), 
+       "Input", SectionLabel -> "in [2]:"), 
+      Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 
+         Appearance -> "Popup")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [2]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
            "Appearance", "\[Rule]", ComplexStringBox("\"Tooltip\"")}}, ")"}), 
        "Input", SectionLabel -> "in [16]:"), 
       Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 

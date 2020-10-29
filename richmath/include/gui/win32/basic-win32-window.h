@@ -58,7 +58,7 @@ namespace richmath {
       
       void get_snap_alignment(bool *right, bool *bottom);
       
-      void extend_glass(const Win32Themes::MARGINS *margins);
+      void extend_glass(const Win32Themes::MARGINS &margins);
       bool glass_enabled() { return _glass_enabled; }
       
       virtual bool is_closed();

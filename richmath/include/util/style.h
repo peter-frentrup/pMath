@@ -120,7 +120,9 @@ namespace richmath {
   enum WindowFrameType {
     WindowFrameNormal  = 0,
     WindowFramePalette = 1,
-    WindowFrameDialog  = 2
+    WindowFrameDialog  = 2,
+    WindowFrameNone    = 3,
+    WindowFrameSingle  = 4
   };
   
   static const float ImageSizeAutomatic = -1.0f;

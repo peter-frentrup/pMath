@@ -1,4 +1,5 @@
 #include <gui/win32/win32-attached-popup-window.h>
+
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-highdpi.h>
 
@@ -44,7 +45,7 @@ Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, Box *anchor)
   : base(
     new Document(),
     WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
-    WS_POPUP | WS_CLIPCHILDREN | WS_BORDER,
+    WS_POPUP | WS_CLIPCHILDREN,// | WS_BORDER,
     0,
     0,
     100,
@@ -89,6 +90,17 @@ void Win32AttachedPopupWindow::close() {
     
 void Win32AttachedPopupWindow::invalidate_options() {
   base::invalidate_options();
+  
+  switch(document()->get_own_style(WindowFrame)) {
+    default:
+    case WindowFrameNone:
+      SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) & ~WS_BORDER);
+      break;
+    
+    case WindowFrameSingle:
+      SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) | WS_BORDER);
+      break;
+  }
   
   anchor_location_changed();
 }
@@ -150,6 +162,11 @@ void Win32AttachedPopupWindow::anchor_location_changed() {
       RECT rect;
       GetWindowRect(_hwnd, &rect);
       
+      RECT client_rect;
+      GetClientRect(_hwnd, &client_rect);
+      width += (rect.right - rect.left) - (client_rect.right - client_rect.left);
+      height+= (rect.bottom - rect.top) - (client_rect.bottom - client_rect.top);
+      
       if(HMONITOR hmon = MonitorFromPoint(pos, MONITOR_DEFAULTTONEAREST)) {
         MONITORINFO monitor_info;
         memset(&monitor_info, 0, sizeof(monitor_info));
@@ -190,6 +207,12 @@ void Win32AttachedPopupWindow::anchor_location_changed() {
 }
 
 void Win32AttachedPopupWindow::paint_background(Canvas &canvas) {
+//  RECT rect;
+////  GetClientRect(_hwnd, &rect);
+//  GetWindowRect(_hwnd, &rect); OffsetRect(&rect, -rect.left, -rect.top);
+//  ControlPainter::std->draw_container(
+//    *this, canvas, PopupPanel, Normal, 
+//    RectangleF{Point(rect.left, rect.top), Point(rect.right, rect.bottom)});
   canvas.set_color(Win32ControlPainter::win32_painter.win32_button_face_color(is_using_dark_mode()));
   canvas.paint();
 }

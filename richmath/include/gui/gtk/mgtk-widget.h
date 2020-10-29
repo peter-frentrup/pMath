@@ -223,7 +223,7 @@ namespace richmath {
       static gboolean blink_caret(gpointer id_as_ptr);
       
     private:
-      virtual bool on_expose(GdkEvent *e);
+      bool on_expose(GdkEvent *e);
   };
 }
 

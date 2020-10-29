@@ -5,7 +5,8 @@ Begin("FE`Private`")
 
 
 Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
-    BaseStyle -> "AttachedPopupWindow"
+    BaseStyle -> "AttachedPopupWindow",
+    WindowFrame -> None
 };
 FE`AttachBoxes(src: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource, ~anchor, ~boxes, opts: OptionsPattern())::= FE`CallFrontEnd(FrontEnd`AttachBoxes(src, anchor, boxes, opts))
 FE`AttachBoxes(~~~args)::= $Failed /? (IsValidArgumentCount(FE`AttachBoxes, Length@{args}, 3, Infinity);False)

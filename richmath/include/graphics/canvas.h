@@ -181,7 +181,7 @@ namespace richmath {
   
   class CanvasAutoSave {
     public:
-      CanvasAutoSave(Canvas &canvas)
+      explicit CanvasAutoSave(Canvas &canvas)
         : canvas(canvas) 
       {
         canvas.save();
@@ -190,7 +190,10 @@ namespace richmath {
       ~CanvasAutoSave() {
         canvas.restore();
       }
-    
+      
+      CanvasAutoSave(const CanvasAutoSave &) = delete;
+      CanvasAutoSave &operator=(const CanvasAutoSave &) = delete;
+      
     private:
       Canvas &canvas;
   };

@@ -143,12 +143,14 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
           parent()->reset_window_frame();
           
           parent()->set_gravity();
+          
           gtk_widget_set_size_request(_widget, w, h);
           
           bool was_resizable = gtk_window_get_resizable(GTK_WINDOW(parent()->widget()));
           if(!was_resizable)
             gtk_window_set_resizable(GTK_WINDOW(parent()->widget()), true);
           
+          gtk_window_set_default_size(GTK_WINDOW(parent()->widget()), 1, 1);
           gtk_window_resize(GTK_WINDOW(parent()->widget()), 1, 1);
           
           if(!was_resizable)
@@ -624,56 +626,85 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
     return;
   }
   
-  //gtk_window_set_resizable(   GTK_WINDOW(_widget), type == WindowFrameNormal);
   gtk_window_set_focus_on_map(GTK_WINDOW(_widget), type == WindowFrameNormal);
   
-  gtk_widget_set_visible(_menu_bar, type == WindowFrameNormal);
-  
-  _working_area->_autohide_vertical_scrollbar = type == WindowFramePalette || type == WindowFrameDialog;
-  
-  if(_window_frame != type) {
 //    GdkWindow *gdk = gtk_widget_get_window(_widget);
-    
-    _working_area->invalidate();
-    
-    bool was_mapped = gtk_widget_get_mapped(_widget);
-    if(was_mapped) {
-      gtk_widget_set_mapped(_widget, false);
-    }
-//    int x, y;
-//    bool was_visible = gtk_widget_get_visible(_widget);
-//    if(was_visible) {
-//      gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
-//      gtk_widget_hide(_widget);
-//      //gdk_window_hide(gdk);
-//    }
-    
-    switch(type) {
-      case WindowFrameNormal:
-        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
-        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), false);
-        break;
-        
-      case WindowFramePalette:
-        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_UTILITY);
-        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
-        break;
-        
-      case WindowFrameDialog:
-        gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_DIALOG);
-        gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
-        break;
-    }
-    
-    if(was_mapped) {
-      gtk_widget_set_mapped(_widget, true);
-    }
-//    if(was_visible) {
-//      //gdk_window_hide(gdk);
-//      gtk_widget_show(_widget);
-//      gtk_window_move(GTK_WINDOW(_widget), x, y);
-//    }
+  
+  _working_area->invalidate();
+  
+  bool was_mapped = gtk_widget_get_mapped(_widget);
+  if(was_mapped) {
+    gtk_widget_set_mapped(_widget, false);
   }
+//  int x, y;
+//  bool was_visible = gtk_widget_get_visible(_widget);
+//  if(was_visible) {
+//    gtk_window_get_position(GTK_WINDOW(_widget), &x, &y);
+//    gtk_widget_hide(_widget);
+//    //gdk_window_hide(gdk);
+//  }
+  
+  switch(type) {
+    case WindowFrameNormal:
+      gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_NORMAL);
+      gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), false);
+      gtk_window_set_resizable(        GTK_WINDOW(_widget), true);
+      gtk_window_set_decorated(        GTK_WINDOW(_widget), true);
+      gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
+      _working_area->_autohide_vertical_scrollbar = false;
+      gtk_widget_set_visible(_menu_bar, true);
+      break;
+      
+    case WindowFramePalette:
+      gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_UTILITY);
+      gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
+      gtk_window_set_resizable(        GTK_WINDOW(_widget), false);
+      gtk_window_set_decorated(        GTK_WINDOW(_widget), true);
+      gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
+      _working_area->_autohide_vertical_scrollbar = true;
+      gtk_widget_set_visible(_menu_bar, false);
+      break;
+      
+    case WindowFrameDialog:
+      gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_DIALOG);
+      gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
+      gtk_window_set_resizable(        GTK_WINDOW(_widget), false);
+      gtk_window_set_decorated(        GTK_WINDOW(_widget), true);
+      gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
+      _working_area->_autohide_vertical_scrollbar = true;
+      gtk_widget_set_visible(_menu_bar, false);
+      break;
+    
+    case WindowFrameNone:
+      gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+      gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
+      gtk_window_set_resizable(        GTK_WINDOW(_widget), false);
+      gtk_window_set_decorated(        GTK_WINDOW(_widget), false);
+      gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
+      _working_area->_autohide_vertical_scrollbar = true;
+      gtk_widget_set_visible(_menu_bar, false);
+      break;
+    
+    case WindowFrameSingle:
+      // TODO: draw a border ...
+      gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+      gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
+      gtk_window_set_resizable(        GTK_WINDOW(_widget), false);
+      gtk_window_set_decorated(        GTK_WINDOW(_widget), false);
+      gtk_container_set_border_width(  GTK_CONTAINER(_widget), 1);
+      _working_area->_autohide_vertical_scrollbar = true;
+      gtk_widget_set_visible(_menu_bar, false);
+      break;
+  }
+  
+  if(was_mapped) {
+    gtk_widget_set_mapped(_widget, true);
+  }
+//  if(was_visible) {
+//    //gdk_window_hide(gdk);
+//    gtk_widget_show(_widget);
+//    gtk_window_move(GTK_WINDOW(_widget), x, y);
+//  }
   
   _window_frame = type;
 }

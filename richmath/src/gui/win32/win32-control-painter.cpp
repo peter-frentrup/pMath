@@ -344,6 +344,7 @@ void Win32ControlPainter::calc_container_size(
       return;
     
     case PanelControl:
+    case PopupPanel:
       if(theme && Win32Themes::GetThemeMargins) {
         extents->width +=   9.0;
         extents->ascent +=  4.5;
@@ -553,7 +554,10 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
     case FramelessButton:
     case GenericButton:
       return ControlPainter::control_font_color(control, type, state);
-      
+    
+    case PopupPanel:
+      return control.is_using_dark_mode() ? Color::White : get_sys_color(COLOR_BTNTEXT);
+    
     case AddressBandGoButton:
     case PushButton:
     case DefaultPushButton:
@@ -674,7 +678,7 @@ void Win32ControlPainter::draw_container(
       if(state == Normal || state == Hovered)
         return;
       break;
-    
+     
     default: break;
   }
   
@@ -739,6 +743,21 @@ void Win32ControlPainter::draw_container(
   rect.pixel_align(canvas, false);
   if(rect.width <= 0 || rect.height <= 0)
     return;
+  
+  switch(type) {
+    case PopupPanel: {
+        CanvasAutoSave saved(canvas);
+        Color c = canvas.get_color();
+        rect.add_rect_path(canvas, false);
+        canvas.set_color(win32_button_face_color(control.is_using_dark_mode()));
+        canvas.fill_preserve();
+        rect.grow(-1.0/x_scale, -1.0/y_scale);
+        rect.add_rect_path(canvas, true);
+        canvas.set_color(Color::Black, 0.5);
+        canvas.fill();
+        canvas.set_color(c);
+      } return;
+  }
   
   Win32Themes::MARGINS margins = {0};
   
@@ -1084,7 +1103,7 @@ void Win32ControlPainter::draw_container(
         FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
         DrawEdge(dc, &irect, BDR_RAISEDOUTER, BF_RECT);
         break;
-        
+      
       case ProgressIndicatorBackground:
       case SliderHorzChannel: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
@@ -1483,14 +1502,17 @@ Vector2F Win32ControlPainter::container_content_offset(
 
 bool Win32ControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
-    case NoContainerType:
     case FramelessButton:
-    case GenericButton:
-    case TooltipWindow:
+    case NoContainerType:
     case PanelControl:
-    case TabHeadBackground:
+    case PopupPanel:
     case TabBodyBackground:
+    case TabHeadBackground:
+    case TooltipWindow:
       return false;
+    
+    case GenericButton:
+      return ControlPainter::container_hover_repaint(control, type);
   }
   
   return Win32Themes::OpenThemeData && 

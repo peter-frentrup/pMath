@@ -65,6 +65,19 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
+            Section({"A popup window is a floating ", 
+              TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}, 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Panel", "(", {ComplexStringBox("\"Popup\""), 
+                  ",", {"Appearance", "\[Rule]", 
+                   ComplexStringBox("\"Popup\"")}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(PanelBox(ComplexStringBox("\"Popup\""), 
+                 Appearance -> "Popup")), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
             Section({"A tooltips is a floating ", 
               TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}, 
              "ExampleText"), SectionGroup({

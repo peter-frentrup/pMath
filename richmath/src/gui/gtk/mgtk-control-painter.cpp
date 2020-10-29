@@ -43,6 +43,7 @@ class MathGtkStyleContextCache {
     GtkStyleContext *list_item_context() {            return init_context_once(_list_item_context,            make_list_item_context); }
     GtkStyleContext *list_item_selected_context() {   return init_context_once(_list_item_selected_context,   make_list_item_selected_context); }
     GtkStyleContext *panel_context() {                return init_context_once(_panel_context,                make_panel_context); }
+    GtkStyleContext *popup_panel_context() {          return init_context_once(_popup_panel_context,          make_popup_panel_context); }
     GtkStyleContext *progress_bar_context() {         return init_context_once(_progress_bar_context,         make_progress_bar_context); }
     GtkStyleContext *progress_bar_trough_context() {  return init_context_once(_progress_bar_trough_context,  make_progress_bar_trough_context); }
     GtkStyleContext *push_button_context() {          return init_context_once(_push_button_context,          make_push_button_context); }
@@ -81,6 +82,7 @@ class MathGtkStyleContextCache {
     static GtkStyleContext *make_list_item_context();
     static GtkStyleContext *make_list_item_selected_context();
     static GtkStyleContext *make_panel_context();
+    static GtkStyleContext *make_popup_panel_context();
     static GtkStyleContext *make_progress_bar_context();
     static GtkStyleContext *make_progress_bar_trough_context();
     static GtkStyleContext *make_push_button_context();
@@ -131,6 +133,7 @@ class MathGtkStyleContextCache {
     GtkStyleContext *_list_item_context;
     GtkStyleContext *_list_item_selected_context;
     GtkStyleContext *_panel_context;
+    GtkStyleContext *_popup_panel_context;
     GtkStyleContext *_progress_bar_context;
     GtkStyleContext *_progress_bar_trough_context;
     GtkStyleContext *_push_button_context;
@@ -288,7 +291,8 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
       
-      case PanelControl: {
+      case PanelControl:
+      case PopupPanel: {
           extents->width +=   12.0;
           extents->ascent +=  6.0;
           extents->descent += 6.0;
@@ -497,13 +501,13 @@ Vector2F MathGtkControlPainter::container_content_offset(
  
 bool MathGtkControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
-    case NoContainerType:
     case FramelessButton:
-    case GenericButton:
-    case TooltipWindow:
+    case NoContainerType:
     case PanelControl:
-    case TabHeadBackground:
+    case PopupPanel:
     case TabBodyBackground:
+    case TabHeadBackground:
+    case TooltipWindow:
       return false;
     
     default:
@@ -583,6 +587,7 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &contro
     case RadioButtonChecked:          return painter_cache_for(control).radio_button_context();
     
     case PanelControl:                return painter_cache_for(control).panel_context();
+    case PopupPanel:                  return painter_cache_for(control).popup_panel_context();
     case ProgressIndicatorBackground: return painter_cache_for(control).progress_bar_trough_context();
     case ProgressIndicatorBar:        return painter_cache_for(control).progress_bar_context();
     case SliderHorzChannel:           return painter_cache_for(control).slider_channel_context();
@@ -616,6 +621,7 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
   
   switch(type) {
     case PanelControl:
+    case PopupPanel:
       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
     
     case CheckboxUnchecked:
@@ -705,9 +711,15 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
   }
   
   switch(type) {
-    case InputField:
-    case AddressBandInputField:
     case AddressBandBackground:
+    case AddressBandGoButton:
+    case AddressBandInputField:
+    case DefaultPushButton:
+    case InputField:
+    case NavigationBack:
+    case NavigationForward:
+    case PaletteButton:
+    case PushButton:
     case TabBodyBackground:
     case TabHeadBackground:
     //case TabHead:
@@ -762,6 +774,7 @@ MathGtkStyleContextCache::MathGtkStyleContextCache(const char *theme_variant) {
   _list_item_context           = nullptr;
   _list_item_selected_context  = nullptr;
   _panel_context               = nullptr;
+  _popup_panel_context         = nullptr;
   _progress_bar_context        = nullptr;
   _progress_bar_trough_context = nullptr;
   _push_button_context         = nullptr;
@@ -791,6 +804,7 @@ void MathGtkStyleContextCache::clear() {
   unref_and_null(_list_item_context);
   unref_and_null(_list_item_selected_context);
   unref_and_null(_panel_context);
+  unref_and_null(_popup_panel_context);
   unref_and_null(_progress_bar_context);
   unref_and_null(_progress_bar_trough_context);
   unref_and_null(_push_button_context);
@@ -1244,6 +1258,23 @@ GtkStyleContext *MathGtkStyleContextCache::make_panel_context() {
 //  return panel_context;
 }
 
+GtkStyleContext *MathGtkStyleContextCache::make_popup_panel_context() {
+  GtkWidgetPath *path = gtk_widget_path_new();
+  gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+  gtk_widget_path_iter_set_object_name(path, -1, "window");
+  gtk_widget_path_iter_add_class(path, -1, "background");
+  //gtk_widget_path_iter_add_class(path, -1, "popup");
+  
+  GtkStyleContext *window = make_context_from_path_and_free(path);
+  path = gtk_widget_path_copy(gtk_style_context_get_path(window));
+  
+  gtk_widget_path_append_type(path, GTK_TYPE_FRAME);
+  gtk_widget_path_iter_set_object_name(path, -1, "frame");
+  gtk_widget_path_iter_add_class(path, -1, "background");
+  gtk_widget_path_iter_add_class(path, -1, "frame");
+  return make_context_from_path_and_free(path, window);
+}
+
 GtkStyleContext *MathGtkStyleContextCache::make_progress_bar_context() {
   GtkWidgetPath *path = gtk_widget_path_new();
   gtk_widget_path_append_type(path, GTK_TYPE_PROGRESS_BAR);
@@ -1432,16 +1463,19 @@ GtkStyleContext *MathGtkStyleContextCache::make_slider_thumb_context() {
 
 GtkStyleContext *MathGtkStyleContextCache::make_tab_body_context() {
   GtkWidgetPath *path = gtk_widget_path_new();
-//  gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
-//  gtk_widget_path_iter_set_object_name(path, -1, "window");
-//  gtk_widget_path_iter_add_class(path, -1, "background");
+  gtk_widget_path_append_type(path, GTK_TYPE_WINDOW);
+  gtk_widget_path_iter_set_object_name(path, -1, "window");
+  gtk_widget_path_iter_add_class(path, -1, "background");
+  
+  GtkStyleContext *window = make_context_from_path_and_free(path);
+  path = gtk_widget_path_copy(gtk_style_context_get_path(window));
   
   gtk_widget_path_append_type(path, GTK_TYPE_NOTEBOOK);
   gtk_widget_path_iter_set_object_name(path, -1, "notebook");
   gtk_widget_path_iter_add_class(path, -1, "frame");
-  gtk_widget_path_iter_add_class(path, -1, "background");
+  //gtk_widget_path_iter_add_class(path, -1, "background");
   //return make_context_from_path_and_free(path);
-  GtkStyleContext *notebook = make_context_from_path_and_free(path);
+  GtkStyleContext *notebook = make_context_from_path_and_free(path, window);
   //return notebook;
   
   path = gtk_widget_path_copy(gtk_style_context_get_path(notebook));

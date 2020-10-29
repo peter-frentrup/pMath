@@ -909,7 +909,7 @@ void Win32DocumentWindow::rearrange() {
       }
     }
     
-    extend_glass(&mar);
+    extend_glass(mar);
   }
   
   int order[PARTCOUNT] = {0, 1, 2, 5, 4, 3};
@@ -1050,23 +1050,22 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
   if(hide_temporary)
     ShowWindow(_hwnd, SW_HIDE);
     
+  DWORD style    = GetWindowLongW(_hwnd, GWL_STYLE);
+  DWORD style_ex = GetWindowLongW(_hwnd, GWL_EXSTYLE);
+  
   switch(_window_frame) {
     case WindowFrameNormal:
       {
         _working_area->auto_size                    = false;
         _working_area->_autohide_vertical_scrollbar = false;
         
-        // normal window caption:
-        SetWindowLongW(_hwnd, GWL_EXSTYLE,
-                       GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
-                       
         // behind palettes:
         _zorder_level = 0;
         
-        // also enable Minimize/Maximize in system menu:
-        SetWindowLongW(_hwnd, GWL_STYLE,
-                       GetWindowLongW(_hwnd, GWL_STYLE) | (WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
-                       
+        style_ex &= ~WS_EX_TOOLWINDOW;
+        style    &= ~(WS_POPUP | WS_BORDER);
+        style    |= WS_OVERLAPPEDWINDOW;
+        
         if(glass_enabled())
           menubar->appearence(MenuAppearence::AutoShow);
         else
@@ -1079,17 +1078,13 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         _working_area->auto_size                    = true;
         _working_area->_autohide_vertical_scrollbar = true;
         
-        // tool window caption:
-        SetWindowLongW(_hwnd, GWL_EXSTYLE,
-                       GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
-                       
         // in front of non-palettes:
         _zorder_level = 1;
         
-        // also enable Minimize/Maximize in system menu:
-        SetWindowLongW(_hwnd, GWL_STYLE,
-                       GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
-                       
+        style_ex |= WS_EX_TOOLWINDOW;
+        style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
+        style    |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME;
+        
         menubar->appearence(MenuAppearence::Hide);
       }
       break;
@@ -1099,21 +1094,52 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         _working_area->auto_size                    = true;
         _working_area->_autohide_vertical_scrollbar = true;
         
-        // normal window caption:
-        SetWindowLongW(_hwnd, GWL_EXSTYLE,
-                       GetWindowLongW(_hwnd, GWL_EXSTYLE) & ~(WS_EX_TOOLWINDOW));
-                       
         // behind palettes:
         _zorder_level = 0;
         
-        // also enable Minimize/Maximize in system menu:
-        SetWindowLongW(_hwnd, GWL_STYLE,
-                       GetWindowLongW(_hwnd, GWL_STYLE) & ~(WS_MAXIMIZEBOX | WS_MINIMIZEBOX));
+        style_ex &= ~WS_EX_TOOLWINDOW;
+        style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
+        style    |= WS_CAPTION | WS_SYSMENU;
+        
+        menubar->appearence(MenuAppearence::Hide);
+      }
+      break;
+      
+    case WindowFrameNone: 
+      {
+        _working_area->auto_size                    = true;
+        _working_area->_autohide_vertical_scrollbar = true;
+         
+        SetWindowLongW(_hwnd, GWL_EXSTYLE,
+                       GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
                        
+        style_ex |= WS_EX_TOOLWINDOW;
+        style    &= ~(WS_OVERLAPPEDWINDOW | WS_BORDER);
+        style    |= WS_POPUP;
+        
+        menubar->appearence(MenuAppearence::Hide);
+      }
+      break;
+      
+    case WindowFrameSingle: 
+      {
+        _working_area->auto_size                    = true;
+        _working_area->_autohide_vertical_scrollbar = true;
+         
+        SetWindowLongW(_hwnd, GWL_EXSTYLE,
+                       GetWindowLongW(_hwnd, GWL_EXSTYLE) | WS_EX_TOOLWINDOW);
+                       
+        style_ex |= WS_EX_TOOLWINDOW;
+        style    &= ~WS_OVERLAPPEDWINDOW;
+        style    |= WS_POPUP | WS_BORDER;
+        
         menubar->appearence(MenuAppearence::Hide);
       }
       break;
   }
+  
+  SetWindowLongW(_hwnd, GWL_EXSTYLE, style_ex);
+  SetWindowLongW(_hwnd, GWL_STYLE, style);
   
   if(hide_temporary)
     ShowWindow(_hwnd, SW_SHOW);

@@ -61,8 +61,8 @@ MathGtkAttachedPopupWindow::MathGtkAttachedPopupWindow(Document *owner, Box *anc
   _vadjustment{GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))},
   _hscrollbar{nullptr},
   _vscrollbar{nullptr},
-  _table{nullptr},
   _content_area{new MathGtkPopupContentArea(this, owner, anchor)},
+  _appearance{NoContainerType},
   _active{false}
 {
 }
@@ -99,11 +99,11 @@ void MathGtkAttachedPopupWindow::after_construction() {
     //gtk_window_set_transient_for(GTK_WINDOW(_widget), owner_win);
   }
   
-  _table = gtk_table_new(2, 2, FALSE);
-  gtk_container_add(GTK_CONTAINER(_widget), _table);
+  GtkWidget *table = gtk_table_new(2, 2, FALSE);
+  gtk_container_add(GTK_CONTAINER(_widget), table);
   
   gtk_table_attach(
-    GTK_TABLE(_table), 
+    GTK_TABLE(table), 
     _content_area->widget(), 
     0, 1, 0, 1, 
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 
@@ -116,14 +116,14 @@ void MathGtkAttachedPopupWindow::after_construction() {
   _vscrollbar = gtk_vscrollbar_new(_vadjustment);
   
   gtk_table_attach(
-    GTK_TABLE(_table), 
+    GTK_TABLE(table), 
     _vscrollbar, 
     1, 2, 0, 1, 
     (GtkAttachOptions)0, 
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 
     0, 0);
   gtk_table_attach(
-    GTK_TABLE(_table), 
+    GTK_TABLE(table), 
     _hscrollbar, 
     0, 1, 1, 2,
     (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 
@@ -135,11 +135,41 @@ void MathGtkAttachedPopupWindow::after_construction() {
   _content_area->hadjustment(_hadjustment);
   _content_area->vadjustment(_vadjustment);
   
+//  gtk_widget_set_app_paintable(_widget, true);
+#if GTK_MAJOR_VERSION >= 3
+  signal_connect<MathGtkAttachedPopupWindow, cairo_t *, &MathGtkAttachedPopupWindow::on_draw>("draw");
+#else
+  signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_expose>("expose-event");
+#endif
+
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_delete>("delete-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_unmap>("unmap-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_window_state>("window-state-event");
 
-  gtk_widget_show_all(_table);
+  gtk_widget_show_all(table);
+}
+
+void MathGtkAttachedPopupWindow::invalidate_options() {
+  switch(content()->get_own_style(WindowFrame)) {
+    default: 
+    case WindowFrameNone: 
+      _appearance = NoContainerType;
+      gtk_widget_set_app_paintable(_widget, false);
+      gtk_container_set_border_width(GTK_CONTAINER(_widget), 0);
+      break;
+      
+    case WindowFrameSingle:
+      _appearance = PopupPanel;
+      gtk_widget_set_app_paintable(_widget, true);
+      gtk_container_set_border_width(GTK_CONTAINER(_widget), 1);
+      break;
+    
+  }
+//  if(_appearance != old_appearance) {
+//    gtk_widget_queue_draw(_widget);
+//  }
+  
+  anchor_location_changed();
 }
 
 void MathGtkAttachedPopupWindow::anchor_location_changed() {
@@ -159,6 +189,13 @@ void MathGtkAttachedPopupWindow::anchor_location_changed() {
       
       int max_width  = content_width + 100;
       int max_height = content_height + 100;
+      int border_extra = 0;
+      
+      for(GtkWidget *tmp = _widget; tmp; tmp = gtk_widget_get_parent(tmp)) {
+        if(GTK_IS_CONTAINER(tmp)) {
+          border_extra += 2 * gtk_container_get_border_width(GTK_CONTAINER(tmp));
+        }
+      }
       
       GtkWidget *owner_win = gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW);
       {
@@ -176,16 +213,16 @@ void MathGtkAttachedPopupWindow::anchor_location_changed() {
         max_width  = monitor_rect.x + monitor_rect.width - x;
         max_height = monitor_rect.y + monitor_rect.height - y;
         
-        content_width  = std::max(1, std::min(content_width,  max_width));
-        content_height = std::max(1, std::min(content_height, max_height));
+        content_width  = std::max(1, std::min(content_width,  max_width - border_extra));
+        content_height = std::max(1, std::min(content_height, max_height - border_extra));
       }
       
       bool was_visible = gtk_widget_get_mapped(_widget);
       if(!was_visible)
         gtk_window_set_transient_for(GTK_WINDOW(_widget), GTK_WINDOW(owner_win));
       
-      int width = content_width;
-      int height = content_height;
+      int width = content_width + border_extra;
+      int height = content_height + border_extra;
       
       if(content_height < _content_area->best_height()) {
         gtk_widget_show(_vscrollbar);
@@ -303,6 +340,24 @@ bool MathGtkAttachedPopupWindow::on_unmap(GdkEvent *e) {
   return false;
 }
 
+bool MathGtkAttachedPopupWindow::on_draw(cairo_t *cr) {
+  GtkAllocation alloc_rect;
+  gtk_widget_get_allocation(_widget, &alloc_rect);
+  
+  RectangleF rect(Point(alloc_rect.x, alloc_rect.y), Vector2F(alloc_rect.width, alloc_rect.height));
+  
+  {
+    Canvas canvas(cr);
+    
+    rect.add_rect_path(canvas);
+    canvas.clip();
+    
+    ControlPainter::std->draw_container(*this, canvas, _appearance, Normal, rect);
+  }
+  
+  return false;
+}
+
 bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
   if(Document *owner = _content_area->owner_document()) 
     owner->popup_window_closed(content());
@@ -324,6 +379,25 @@ bool MathGtkAttachedPopupWindow::on_window_state(GdkEvent *e) {
   
   return false;
 }
+
+bool MathGtkAttachedPopupWindow::on_expose(GdkEvent *e) {
+  GdkEventExpose *event = &e->expose;
+  
+  cairo_t *cr = gdk_cairo_create(event->window);
+  
+  cairo_move_to(cr, event->area.x, event->area.y);
+  cairo_line_to(cr, event->area.x + event->area.width, event->area.y);
+  cairo_line_to(cr, event->area.x + event->area.width, event->area.y + event->area.height);
+  cairo_line_to(cr, event->area.x,                     event->area.y + event->area.height);
+  cairo_close_path(cr);
+  cairo_clip(cr);
+  
+  bool result = on_draw(cr);
+  cairo_destroy(cr);
+  
+  return result;
+}
+
 //} ... class MathGtkAttachedPopupWindow
 
 //{ class MathGtkAttachedPopupWindow::Impl ...
@@ -421,7 +495,7 @@ MathGtkWidget *MathGtkPopupContentArea::owner_widget() {
 
 void MathGtkPopupContentArea::invalidate_options() {
   base::invalidate_options();
-  _parent->anchor_location_changed();
+  _parent->invalidate_options();
 }
 
 void MathGtkPopupContentArea::paint_background(Canvas &canvas) {

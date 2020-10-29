@@ -2630,15 +2630,15 @@ void StyleInformation::remove_style() {
 
 bool StyleInformation::is_window_option(StyleOptionName key) {
   StyleOptionName literal_key = key.to_literal();
-  return literal_key == Magnification             ||
+  return literal_key == DockedSectionsTop         ||
+         literal_key == DockedSectionsTopGlass    ||
+         literal_key == DockedSectionsBottom      ||
+         literal_key == DockedSectionsBottomGlass ||
+         literal_key == Magnification             ||
          literal_key == StyleDefinitions          ||
          literal_key == Visible                   ||
          literal_key == WindowFrame               ||
-         literal_key == WindowTitle               ||
-         literal_key == DockedSectionsTop         ||
-         literal_key == DockedSectionsTopGlass    ||
-         literal_key == DockedSectionsBottom      ||
-         literal_key == DockedSectionsBottomGlass;
+         literal_key == WindowTitle;
 }
 
 bool StyleInformation::requires_child_resize(StyleOptionName key) {
@@ -2928,7 +2928,9 @@ WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
+  add(WindowFrameNone,    Symbol(PMATH_SYMBOL_NONE));
   add(WindowFrameNormal,  String("Normal"));
-  add(WindowFramePalette, String("Palette"));
   add(WindowFrameDialog,  String("Dialog"));
+  add(WindowFramePalette, String("Palette"));
+  add(WindowFrameSingle,  String("Single"));
 }

@@ -803,18 +803,20 @@ void BasicWin32Window::on_move(LPARAM lParam) {
 void BasicWin32Window::on_theme_changed() {
   _glass_enabled = false;
   _themed_frame = false;
-
-  if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive()) {
-    _glass_enabled = true;
-//    if(Win32Themes::use_win10_transparency())
-//      _themed_frame = true;
-//    else
-      _themed_frame = 0 == (WS_EX_TOOLWINDOW & GetWindowLongW(_hwnd, GWL_EXSTYLE));
+  
+  if(WS_CAPTION & GetWindowLongW(_hwnd, GWL_STYLE)) {
+    if(Win32Themes::IsCompositionActive && Win32Themes::IsCompositionActive()) {
+      _glass_enabled = true;
+  //    if(Win32Themes::use_win10_transparency())
+  //      _themed_frame = true;
+  //    else
+        _themed_frame = !(WS_EX_TOOLWINDOW & GetWindowLongW(_hwnd, GWL_EXSTYLE));
+    }
+    else if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
+      _glass_enabled = Win32Themes::current_theme_is_aero();
+    }
   }
-  else if(Win32Themes::IsThemeActive && Win32Themes::IsThemeActive()) {
-    _glass_enabled = Win32Themes::current_theme_is_aero();
-  }
-
+  
   static_resources.clear_theme_data();
   
   if(_glass_enabled) {
@@ -852,8 +854,25 @@ void BasicWin32Window::on_theme_changed() {
         _blur_behind_window->hide();
     }
   }
+  else {
+    if(Win32Themes::is_windows_10_or_newer()) {
+      // FIXME: WS_BORDER (WindorFrame->"Single") is still drawn white instead of gray by Windows
+      
+      if(Win32Themes::DwmEnableBlurBehindWindow) {
+        Win32Themes::DWM_BLURBEHIND bb = {};
+        bb.dwFlags = Win32Themes::DWM_BB_ENABLE | Win32Themes::DWM_BB_BLURREGION;
+        bb.fEnable = FALSE;
+        HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
+      }
     
-  extend_glass(&_extra_glass);
+    
+    if(_blur_behind_window) {
+      delete _blur_behind_window;
+      _blur_behind_window = nullptr;
+    }
+  }
+    
+  extend_glass(_extra_glass);
 
   SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
@@ -1101,22 +1120,18 @@ void BasicWin32Window::lost_blur_behind_window(Win32BlurBehindWindow *bb) {
   }
 }
 
-void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
-  if(margins != &_extra_glass) {
-    if(0 == memcmp(&_extra_glass, &margins, sizeof(_extra_glass)))
-      return;
-
-    memcpy(&_extra_glass, margins, sizeof(_extra_glass));
+void BasicWin32Window::extend_glass(const Win32Themes::MARGINS &margins) {
+  if(&_extra_glass != &margins) {
+    _extra_glass = margins;
   }
 
   if(Win32Themes::DwmExtendFrameIntoClientArea) {
-
-    if( margins->cxLeftWidth    == -1 &&
-        margins->cxRightWidth   == -1 &&
-        margins->cyTopHeight    == -1 &&
-        margins->cyBottomHeight == -1)
+    if( margins.cxLeftWidth    == -1 &&
+        margins.cxRightWidth   == -1 &&
+        margins.cyTopHeight    == -1 &&
+        margins.cyBottomHeight == -1)
     {
-      Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, margins);
+      Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &margins);
     }
     else {
       Win32Themes::MARGINS nc;
@@ -1130,14 +1145,14 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS *margins) {
         nc.cyBottomHeight = 0;
       }
       
-      nc.cxLeftWidth += margins->cxLeftWidth;
-      nc.cxRightWidth += margins->cxRightWidth;
+      nc.cxLeftWidth += margins.cxLeftWidth;
+      nc.cxRightWidth += margins.cxRightWidth;
       if(use_custom_system_buttons()) {
         nc.cyTopHeight = 1;
       }
       else {
-        nc.cyTopHeight += margins->cyTopHeight;
-        nc.cyBottomHeight += margins->cyBottomHeight;
+        nc.cyTopHeight += margins.cyTopHeight;
+        nc.cyBottomHeight += margins.cyBottomHeight;
       }
       
       Win32Themes::DwmExtendFrameIntoClientArea(_hwnd, &nc);

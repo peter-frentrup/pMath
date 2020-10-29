@@ -16,6 +16,7 @@ namespace richmath {
     public:
       MathGtkAttachedPopupWindow(Document *owner, Box *anchor);
       
+      void invalidate_options();
       void anchor_location_changed();
       
       MathGtkWidget *content_area() { return (MathGtkWidget*)_content_area; }
@@ -32,17 +33,21 @@ namespace richmath {
       virtual ~MathGtkAttachedPopupWindow();
       virtual void after_construction() override;
       
+      bool on_draw(cairo_t *cr);
       bool on_unmap(GdkEvent *e);
       bool on_delete(GdkEvent *e);
       bool on_window_state(GdkEvent *e);
+    
+    private:
+      bool on_expose(GdkEvent *e); // GTK-2 only
       
     private:
       GtkAdjustment           *_hadjustment;
       GtkAdjustment           *_vadjustment;
       GtkWidget               *_hscrollbar;
       GtkWidget               *_vscrollbar;
-      GtkWidget               *_table;
       MathGtkPopupContentArea *_content_area;
+      ContainerType            _appearance;
       ObservableValue<bool>    _active;
   };
 }

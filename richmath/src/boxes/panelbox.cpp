@@ -140,6 +140,9 @@ static ContainerType parse_panel_appearance(Expr expr) {
     if(s.equals("AddressBand"))
       return AddressBandBackground;
     
+    if(s.equals("Popup"))
+      return PopupPanel;
+    
     if(s.equals("Tooltip"))
       return TooltipWindow;
     
