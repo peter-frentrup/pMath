@@ -70,10 +70,7 @@ namespace richmath {
         ScrollbarDirection  dir,
         ControlState        state,
         RectangleF          rect) override;
-        
-    public: // win32 specific
-      bool blur_input_field;
-      
+    
     public: // win32 specific
       void draw_menubar(HDC dc, RECT *rect, bool dark_mode = false);
       void draw_menubar_itembg(HDC dc, RECT *rect, ControlState state, bool dark_mode = false);

@@ -380,12 +380,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     }
     
     virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
-      bool bif = Win32ControlPainter::win32_painter.blur_input_field;
-      Win32ControlPainter::win32_painter.blur_input_field = false;
-      
       base::paint_canvas(canvas, resize_only);
-      
-      Win32ControlPainter::win32_painter.blur_input_field = bif;
       paint_size_grip(canvas);
     }
     

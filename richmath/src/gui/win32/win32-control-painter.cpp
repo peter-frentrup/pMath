@@ -271,8 +271,7 @@ void Win32ControlPainter::done() {
 }
 
 Win32ControlPainter::Win32ControlPainter()
-  : ControlPainter(),
-    blur_input_field(true)
+  : ControlPainter()
 {
   ControlPainter::std = this;
 }
