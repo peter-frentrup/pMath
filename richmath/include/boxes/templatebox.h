@@ -68,6 +68,7 @@ namespace richmath {
       virtual void after_insertion() override;
       
       TemplateBox *find_owner();
+      TemplateBox *find_owner_in_same_document();
       int argument() { return _argument; }
       
       static Expr prepare_boxes(Expr boxes);

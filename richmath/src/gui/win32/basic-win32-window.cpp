@@ -860,7 +860,7 @@ void BasicWin32Window::on_theme_changed() {
       
       if(Win32Themes::DwmEnableBlurBehindWindow) {
         Win32Themes::DWM_BLURBEHIND bb = {};
-        bb.dwFlags = Win32Themes::DWM_BB_ENABLE | Win32Themes::DWM_BB_BLURREGION;
+        bb.dwFlags = Win32Themes::DWM_BB_ENABLE;
         bb.fEnable = FALSE;
         HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
       }

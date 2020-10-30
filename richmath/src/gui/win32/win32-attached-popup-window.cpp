@@ -1,5 +1,6 @@
 #include <gui/win32/win32-attached-popup-window.h>
 
+#include <gui/documents.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-highdpi.h>
 
@@ -249,6 +250,10 @@ void Win32AttachedPopupWindow::on_close() {
     owner->popup_window_closed(document());
   
   base::on_close();
+}
+
+void Win32AttachedPopupWindow::do_set_current_document() {
+  Documents::current(document());
 }
 
 LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {

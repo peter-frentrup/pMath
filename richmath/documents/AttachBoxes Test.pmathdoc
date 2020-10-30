@@ -12,46 +12,67 @@ Document({
          ButtonFunction -> ((CurrentValue(EvaluationDocument(), Background):= 
           Inherited) &))}, "RowDefault")), "Output", SectionGenerated -> True, 
      SectionLabel -> "out [1]:"), 
+    Section(
+     BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
+          "{", {"WindowFrame", "\[Rule]", ComplexStringBox("\"Single\"")}, 
+          "}"}}, ";"}, "\n", {
+        {"MakeBoxes", "(", {"SimplePopup", "(", {
+           {"~", "lbl"}, ",", {"~", "contents"}, ",", {
+            "opts", ":", {"OptionsPattern", "(", ")"}}}, ")"}, ")"}, 
+        "\[AssignDelayed]", {"TemplateBox", "(", {
+          {"{", {{"MakeBoxes", "(", "lbl", ")"}, ",", {
+             "MakeBoxes", "(", "contents", ")"}, ",", "opts"}, "}"}, ",", 
+          ComplexStringBox("\"SimplePopup\"")}, ")"}})), "Input", 
+     SectionLabel -> "in [1]:"), 
     SectionGroup({
-      Section(
-       BoxData({
-         {"TemplateBox", "(", {
-           {"{", {ComplexStringBox("\"Click me!\""), ",", 
-             ComplexStringBox("\"Hello\""), ",", {
-              "WindowFrame", "\[Rule]", "None"}}, "}"}, ",", 
-           ComplexStringBox("\"SimplePopup\"")}, ")"}, "//", "RawBoxes"}), 
-       "Input", SectionLabel -> "in [1]:"), 
-      Section(BoxData(TemplateBox({"Click me!", "Hello", WindowFrame -> None}, 
+      Section(BoxData({"SimplePopup", "(", {
+          ComplexStringBox("\"Click me!\""), ",", 
+          ComplexStringBox("\"Hello\""), ",", {
+           "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
+       SectionLabel -> "in [3]:"), 
+      Section(BoxData(TemplateBox({ComplexStringBox("\"Click me!\""), 
+          ComplexStringBox("\"Hello\""), WindowFrame -> None}, 
          "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [1]:")}, All), 
+       SectionLabel -> "out [3]:")}, All), 
     SectionGroup({
-      Section(
-       BoxData({
-         {"TemplateBox", "(", {
-           {"{", {ComplexStringBox("\"Outer...\""), ",", {
-              "{", {ComplexStringBox("\"\\\"content: \\\"\""), ",", {
-                "TemplateBox", "(", {
-                 {"{", {ComplexStringBox("\"Inner...\""), ",", 
-                   ComplexStringBox("\"Hello\"")}, "}"}, ",", 
-                 ComplexStringBox("\"SimplePopup\"")}, ")"}}, "}"}}, "}"}, 
-           ",", ComplexStringBox("\"SimplePopup\"")}, ")"}, "//", 
-         "RawBoxes"}), "Input", SectionLabel -> "in [2]:"), 
-      Section(
-       BoxData(TemplateBox({
-          "Outer...", {"\"content: \"", TemplateBox({"Inner...", "Hello"}, 
-            "SimplePopup")}}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+      Section(BoxData({"SimplePopup", "(", {
+          ComplexStringBox("\"Outer ...\""), ",", {
+           "Row", "(", {"{", {ComplexStringBox("\"content: \""), ",", {
+              "SimplePopup", "(", {ComplexStringBox("\"Inner ...\""), ",", 
+               ComplexStringBox("\"Hello\"")}, ")"}}, "}"}, ")"}}, ")"}), 
+       "Input", SectionLabel -> "in [4]:"), 
+      Section(BoxData(TemplateBox({ComplexStringBox("\"Outer ...\""), 
+          TemplateBox({ComplexStringBox("\"content: \""), 
+            TemplateBox({ComplexStringBox("\"Inner ...\""), 
+              ComplexStringBox("\"Hello\"")}, "SimplePopup")}, "RowDefault")}, 
+         "SimplePopup")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [4]:")}, All), 
     SectionGroup({
-      Section(
-       BoxData({
-         {"TemplateBox", "(", {
-           {"{", {ComplexStringBox("\"BesselJ plot\""), ",", {
-              {"Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
-                 "x", "\[Rule]", {"0", "..", "10"}}}, ")"}, "//", "ToBoxes"}}, 
-            "}"}, ",", ComplexStringBox("\"SimplePopup\"")}, ")"}, "//", 
-         "RawBoxes"}), "Input", SectionLabel -> "in [12]:"), 
-      Section(
-       BoxData(TemplateBox({"BesselJ plot", 
+      Section(BoxData({"DynamicLocal", "(", {
+          {"{", {"x", "\[Assign]", ComplexStringBox("\"\"")}, "}"}, ",", {
+           "{", {
+            {"SimplePopup", "(", {ComplexStringBox("\"Enter value ...\""), 
+              ",", {"Row", "(", {"{", {ComplexStringBox("\"content: \""), ",", 
+                 {"InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
+                   "String"}, ")"}}, "}"}, ")"}}, ")"}, ",", {
+             "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
+       SectionLabel -> "in [5]:"), 
+      Section(BoxData(DynamicLocalBox({Global`x}, {
+          "{", {TemplateBox({ComplexStringBox("\"Enter value ...\""), 
+             TemplateBox({ComplexStringBox("\"content: \""), 
+               InputFieldBox(Dynamic(Global`x), String)}, "RowDefault")}, 
+            "SimplePopup"), ",", DynamicBox(ToBoxes(Global`x))}, "}"}, 
+         Initialization :> None, Deinitialization :> None, 
+         UnsavedVariables :> {}, DynamicLocalValues :> {{
+           OwnRules(Global`x):= {HoldPattern(Global`x) :> ""}}})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"SimplePopup", "(", {
+          ComplexStringBox("\"BesselJ plot\""), ",", {
+           "Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
+             "x", "\[Rule]", {"0", "..", "10"}}}, ")"}}, ")"}), "Input", 
+       SectionLabel -> "in [6]:"), 
+      Section(BoxData(TemplateBox({ComplexStringBox("\"BesselJ plot\""), 
           GraphicsBox({
             {RGBColor(0.75`, 0, 0), {
               LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
@@ -208,22 +229,18 @@ Document({
               0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, {
               0.0` .. 10.0`, -0.34612429616257212` .. 
                0.58186520139010445`})})}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [12]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
+      Section(BoxData({"SimplePopup", "(", {
+          ComplexStringBox("\"Panelled BesselJ plot\""), ",", {
+           "Panel", "(", {
+            {"Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
+               "x", "\[Rule]", {"0", "..", "10"}}}, ")"}, ",", {
+             "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, ")"}, 
+          ",", {"WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
+       SectionLabel -> "in [7]:"), 
       Section(
-       BoxData({
-         {"TemplateBox", "(", {
-           {"{", {ComplexStringBox("\"Click me!\""), ",", {
-              {"Panel", "(", {
-                {"Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
-                   "x", "\[Rule]", {"0", "..", "10"}}}, ")"}, ",", {
-                 "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, 
-               ")"}, "//", "ToBoxes"}, ",", {"WindowFrame", "\[Rule]", 
-              "None"}}, "}"}, ",", ComplexStringBox("\"SimplePopup\"")}, ")"}, 
-         "//", "RawBoxes"}), "Input", SectionLabel -> "in [3]:"), 
-      Section(
-       BoxData(TemplateBox({
-          "Click me!", 
+       BoxData(TemplateBox({ComplexStringBox("\"Panelled BesselJ plot\""), 
           PanelBox(GraphicsBox({
              {RGBColor(0.75`, 0, 0), {
                LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
@@ -381,23 +398,19 @@ Document({
                0.0` .. 10.0`, -0.34612429616257212` .. 
                 0.58186520139010445`})}), Appearance -> "Popup"), 
           WindowFrame -> None}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
     SectionGroup({
-      Section(
-       BoxData({
-         {"TemplateBox", "(", {
-           {"{", {ComplexStringBox("\"Click me!\""), ",", {
-              {"Panel", "(", {ComplexStringBox("\"Tada!\""), ",", {
-                 "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, 
-               ")"}, "//", "ToBoxes"}, ",", {"WindowFrame", "\[Rule]", 
-              "None"}}, "}"}, ",", ComplexStringBox("\"SimplePopup\"")}, ")"}, 
-         "//", "RawBoxes"}), "Input", SectionLabel -> "in [4]:"), 
-      Section(
-       BoxData(TemplateBox({
-          "Click me!", PanelBox(ComplexStringBox("\"Tada!\""), 
-           Appearance -> "Popup"), WindowFrame -> None}, "SimplePopup")), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
-     All)}, All)}, StyleDefinitions :> Document({
+      Section(BoxData({"SimplePopup", "(", {
+          ComplexStringBox("\"Panelled popup\""), ",", {
+           "Panel", "(", {ComplexStringBox("\"Tada\""), ",", {
+             "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, ")"}, 
+          ",", {"WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
+       SectionLabel -> "in [8]:"), 
+      Section(BoxData(TemplateBox({ComplexStringBox("\"Panelled popup\""), 
+          PanelBox(ComplexStringBox("\"Tada\""), Appearance -> "Popup"), 
+          WindowFrame -> None}, "SimplePopup")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All)}, All)}, 
+ StyleDefinitions :> Document({
    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
      SectionGroup({Section("Box styles", "Section"), 
        SectionGroup({Section("TemplateBox styles", "Subsection"), 

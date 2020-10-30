@@ -40,8 +40,8 @@ namespace richmath {
     public:
       TemplateBoxSlotImpl(TemplateBoxSlot &_self);
       
-      static TemplateBox *find_owner(Box *box) { return find_owner_or_self(box->parent()); }
-      static TemplateBox *find_owner_or_self(Box *box);
+      static TemplateBox *find_owner(Box *box, bool same_document_only) { return find_owner_or_self(box->parent(), same_document_only); }
+      static TemplateBox *find_owner_or_self(Box *box, bool same_document_only = false);
       
       void reload_content();
       Expr get_content();
@@ -178,7 +178,7 @@ Box *TemplateBox::move_logical(
   if(*index < 0 || *index > length()) {
     TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(this, direction, this);
     while(slot) {
-      if(slot->find_owner() == this) {
+      if(slot->find_owner_in_same_document() == this) {
         if(direction == LogicalDirection::Forward)
           *index = -1;
         else
@@ -222,7 +222,7 @@ Box *TemplateBox::move_vertical(
   Box *tmp = box;
   while(tmp && tmp != this) {
     if(auto slot = dynamic_cast<TemplateBoxSlot*>(tmp)) {
-      if(slot->find_owner() == this)
+      if(slot->find_owner_in_same_document() == this)
         return box;
     }
     
@@ -453,7 +453,11 @@ TemplateBoxSlot::TemplateBoxSlot()
 }
 
 TemplateBox *TemplateBoxSlot::find_owner() {
-  return TemplateBoxSlotImpl::find_owner(this);
+  return TemplateBoxSlotImpl::find_owner(this, false);
+}
+
+TemplateBox *TemplateBoxSlot::find_owner_in_same_document() {
+  return TemplateBoxSlotImpl::find_owner(this, true);
 }
 
 Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
@@ -484,7 +488,7 @@ Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
 }
 
 bool TemplateBoxSlot::edit_selection(SelectionReference &selection) {
-  if(TemplateBox *owner = find_owner()) {
+  if(TemplateBox *owner = find_owner_in_same_document()) {
     if(owner->parent())
       return owner->parent()->edit_selection(selection);
   }
@@ -494,11 +498,10 @@ bool TemplateBoxSlot::edit_selection(SelectionReference &selection) {
 
 bool TemplateBoxSlot::selectable(int i) {
   if(i >= 0) {
-    if(TemplateBox *owner = find_owner()) {
+    if(TemplateBox *owner = find_owner_in_same_document()) {
       if(!owner->selectable())
         return false;
     }
-    return true;
   }
   
   return base::selectable(i);
@@ -779,7 +782,7 @@ TemplateBoxSlotImpl::TemplateBoxSlotImpl(TemplateBoxSlot &_self)
 {
 }
 
-TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box) {
+TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box, bool same_document_only) {
   int nesting = 0;
   int max_doc_recursion = 10;
   while(box) {
@@ -791,6 +794,9 @@ TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box) {
         return tb;
     }
     else if(auto doc = dynamic_cast<Document*>(box)) {
+      if(same_document_only)
+        break;
+      
       if(--max_doc_recursion < 0) {
         pmath_debug_print("[too deep document -> source_box nesting]\n");
         break;

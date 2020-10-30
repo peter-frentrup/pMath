@@ -1,5 +1,8 @@
 #include <gui/gtk/mgtk-attached-popup-window.h>
 
+#include <gui/documents.h>
+#include <gui/gtk/mgtk-menu-builder.h>
+
 #include <cmath>
 
 
@@ -38,6 +41,7 @@ namespace richmath {
     
       virtual void paint_background(Canvas &canvas) override;
       virtual void paint_canvas(Canvas &canvas, bool resize_only) override;
+      virtual void do_set_current_document() override;
       
     private:
       MathGtkAttachedPopupWindow *_parent;
@@ -74,12 +78,23 @@ MathGtkAttachedPopupWindow::~MathGtkAttachedPopupWindow() {
 
 void MathGtkAttachedPopupWindow::after_construction() {
   if(!_widget)
-    _widget = gtk_window_new(GTK_WINDOW_POPUP);
+    _widget = gtk_window_new(GTK_WINDOW_TOPLEVEL); // GTK_WINDOW_TOPLEVEL to support keyboard focus
+  
+  /*  With GTK_WINDOW_TOPLEVEL, GTK3 (on WSL with Xming) will temporarily add window decorations
+      whenever the window is shown.
+      But GTK_WINDOW_TOPLEVEL is necessary to allow keyboard focus.
+      
+      TODO: maybe we should use GdkWindow directly? See also GtkPopover
+   */
   
   //gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_COMBO);
   gtk_window_set_type_hint(GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
+  gtk_window_set_decorated(GTK_WINDOW(_widget), false);
+  gtk_window_set_focus_on_map(GTK_WINDOW(_widget), false); // might be ignored by window manager
+//  gtk_window_set_accept_focus(GTK_WINDOW(_widget), false);
+//  gtk_widget_set_can_focus(_widget, FALSE);
   gtk_window_set_default_size(GTK_WINDOW(_widget), 1, 1);
-  gtk_window_set_resizable(GTK_WINDOW(_widget), FALSE);
+//  gtk_window_set_resizable(GTK_WINDOW(_widget), false);
   
   base::after_construction();
   
@@ -96,8 +111,14 @@ void MathGtkAttachedPopupWindow::after_construction() {
 
   if(MathGtkWidget *owner_wid = _content_area->owner_widget()) {
     GtkWindow *owner_win = GTK_WINDOW(gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW));
-    //gtk_window_set_transient_for(GTK_WINDOW(_widget), owner_win);
+    gtk_window_set_transient_for(GTK_WINDOW(_widget), owner_win);
+    //gtk_window_set_attached_to(GTK_WINDOW(_widget), owner_wid->widget());
   }
+  
+  GtkAccelGroup *accel_group = gtk_accel_group_new();
+  MathGtkAccelerators::connect_all(accel_group, content()->id());
+  gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
+  g_object_unref(accel_group);
   
   GtkWidget *table = gtk_table_new(2, 2, FALSE);
   gtk_container_add(GTK_CONTAINER(_widget), table);
@@ -147,6 +168,12 @@ void MathGtkAttachedPopupWindow::after_construction() {
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_window_state>("window-state-event");
 
   gtk_widget_show_all(table);
+  
+  GList *focus_chain = nullptr;
+  focus_chain = g_list_prepend(focus_chain, _content_area->widget());
+  gtk_container_set_focus_chain(GTK_CONTAINER(table), focus_chain);
+  g_list_free(focus_chain);
+  
 }
 
 void MathGtkAttachedPopupWindow::invalidate_options() {
@@ -218,8 +245,10 @@ void MathGtkAttachedPopupWindow::anchor_location_changed() {
       }
       
       bool was_visible = gtk_widget_get_mapped(_widget);
-      if(!was_visible)
+      if(!was_visible) {
         gtk_window_set_transient_for(GTK_WINDOW(_widget), GTK_WINDOW(owner_win));
+        //gtk_window_set_attached_to(GTK_WINDOW(_widget), owner_wid->widget());
+      }
       
       int width = content_width + border_extra;
       int height = content_height + border_extra;
@@ -254,27 +283,32 @@ void MathGtkAttachedPopupWindow::anchor_location_changed() {
       else
         gtk_widget_hide(_hscrollbar);
       
-      int old_width, old_height;
-      gtk_window_get_size(GTK_WINDOW(_widget), &old_width, &old_height);
+      GtkAllocation old_rect;
+      gtk_widget_get_allocation(_widget, &old_rect);
       
-      int old_x, old_y;
-      gtk_window_get_position(GTK_WINDOW(_widget), &old_x, &old_y);
+//      gtk_window_get_size(GTK_WINDOW(_widget), &old_rect.width, &old_rect.height);
+//      gtk_window_get_position(GTK_WINDOW(_widget), &old_rect.x, &old_rect.y);
       
-      if(old_width != width || old_height != height)
+      if(old_rect.width != width || old_rect.height != height) {
         gtk_widget_set_size_request(_widget, width, height);
+        gtk_window_resize(GTK_WINDOW(_widget), 1, 1);
+      }
       
       //gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_NORTH_WEST);
-      if(old_x != x || old_y != y)
+      if(old_rect.x != x || old_rect.y != y)
         gtk_window_move(GTK_WINDOW(_widget), x, y);
       
       gtk_widget_show(_widget);
       
-      if(old_x != x || old_y != y || old_width != width || old_height != height || !was_visible)
+      if(old_rect.x != x || old_rect.y != y || old_rect.width != width || old_rect.height != height || !was_visible)
         content()->invalidate_popup_window_positions();
     }
     else {
       gtk_widget_hide(_widget);
+      gtk_widget_set_size_request(_widget, 1, 1);
+      gtk_window_set_default_size(GTK_WINDOW(_widget), 1, 1);
       gtk_window_set_transient_for(GTK_WINDOW(_widget), nullptr);
+      //gtk_window_set_attached_to(GTK_WINDOW(_widget), nullptr);
     }
   }
   else {
@@ -335,8 +369,10 @@ int MathGtkAttachedPopupWindow::dpi() {
   return (int)dpi;
 }
 
-bool MathGtkAttachedPopupWindow::on_unmap(GdkEvent *e) {
-  content()->invalidate_popup_window_positions();
+bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
+  if(Document *owner = _content_area->owner_document()) 
+    owner->popup_window_closed(content());
+  
   return false;
 }
 
@@ -358,10 +394,8 @@ bool MathGtkAttachedPopupWindow::on_draw(cairo_t *cr) {
   return false;
 }
 
-bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
-  if(Document *owner = _content_area->owner_document()) 
-    owner->popup_window_closed(content());
-  
+bool MathGtkAttachedPopupWindow::on_unmap(GdkEvent *e) {
+  content()->invalidate_popup_window_positions();
   return false;
 }
 
@@ -522,6 +556,10 @@ void MathGtkPopupContentArea::paint_canvas(Canvas &canvas, bool resize_only) {
   if(old_bw != _best_width || old_bh != _best_height) {
     _parent->anchor_location_changed();
   }
+}
+
+void MathGtkPopupContentArea::do_set_current_document() {
+  Documents::current(document());
 }
 
 //} ... class MathGtkPopupContentArea

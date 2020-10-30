@@ -1273,7 +1273,7 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   
   document()->mouse_down(me);
   
-  if(document()->selection_box()) {
+  if(document()->selectable()) {
     gtk_widget_grab_focus(_widget);
   }
 
