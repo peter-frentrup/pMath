@@ -864,7 +864,7 @@ void BasicWin32Window::on_theme_changed() {
         bb.fEnable = FALSE;
         HRreport(Win32Themes::DwmEnableBlurBehindWindow(_hwnd, &bb));
       }
-    
+    }
     
     if(_blur_behind_window) {
       delete _blur_behind_window;
