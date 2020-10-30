@@ -68,15 +68,8 @@ namespace richmath {
       template<class C, typename A, bool (C::*method)(A)>
       struct Marshaller {
         static gboolean function(GtkWidget *wid, A arg, void *dummy) {
-//          if(event->type != GDK_EXPOSE
-//          && event->type != GDK_MOTION_NOTIFY
-//          && event->type != GDK_ENTER_NOTIFY
-//          && event->type != GDK_LEAVE_NOTIFY
-//          && event->type != GDK_FOCUS_CHANGE)
-//            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
-
           AutoMemorySuspension ams;
-          C *_this = (C*)BasicGtkWidget::from_widget(wid);
+          C *_this = static_cast<C*>(BasicGtkWidget::from_widget(wid));
           if(_this)
             return (_this->*method)(arg);
           return TRUE;
@@ -86,15 +79,8 @@ namespace richmath {
       template<class C, bool (C::*method)()>
       struct Marshaller0 {
         static gboolean function(GtkWidget *wid, void *dummy) {
-//          if(event->type != GDK_EXPOSE
-//          && event->type != GDK_MOTION_NOTIFY
-//          && event->type != GDK_ENTER_NOTIFY
-//          && event->type != GDK_LEAVE_NOTIFY
-//          && event->type != GDK_FOCUS_CHANGE)
-//            pmath_debug_print("[%s %p] event %d\n", G_OBJECT_TYPE_NAME(wid), wid, event->type);
-
           AutoMemorySuspension ams;
-          C *_this = (C*)BasicGtkWidget::from_widget(wid);
+          C *_this = static_cast<C*>(BasicGtkWidget::from_widget(wid));
           if(_this)
             return (_this->*method)();
           return TRUE;
