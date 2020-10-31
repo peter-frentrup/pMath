@@ -29,6 +29,45 @@ using namespace richmath;
 
 static const int SnapDistance = 4;
 
+class richmath::MathGtkDocumentWindowImpl {
+    using Impl = MathGtkDocumentWindowImpl;
+  public:
+    MathGtkDocumentWindowImpl(MathGtkDocumentWindow &self) : self(self) {}
+    
+    static void add_remove_window(int delta);
+    
+    void connect_scrollbar_overlay_signals();
+    void connect_adjustment_changed_signals();
+    void connect_menubar_signals();
+    static void register_theme_observer();
+    
+    void append_menu_bar_pin();
+    bool menu_is_auto_hidden();
+    void on_auto_hide_menu(bool hide);
+    
+    void update_scrollbar_overlay();
+  
+  private:
+    static gboolean scrollbar_expose_callback(GtkWidget *scrollbar, GdkEvent *e, void *user_data);
+    static gboolean scrollbar_draw_callback(  GtkWidget *scrollbar, cairo_t *cr, void *user_data);
+    void on_scrollbar_draw(GtkWidget *scrollbar, Canvas &canvas);
+    
+    static void activate_pin_item_callback(GtkMenuItem *menu_item, void *user_data);
+    void on_activate_pin_item(GtkMenuItem *menu_item);
+    
+    static void adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data);
+    void on_adjustment_changed(GtkAdjustment *adjustment);
+    
+    static void on_theme_changed(GObject*, GParamSpec*);
+    
+  private:
+    MathGtkDocumentWindow &self;
+  
+#if GTK_MAJOR_VERSION >= 3
+    static GtkStyleProvider *global_style_provider;
+#endif
+};
+
 class MathGtkDocumentChildWidget: public MathGtkWidget {
     using base = MathGtkWidget;
     friend class MathGtkDocumentWindow;
@@ -164,6 +203,7 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
     virtual bool on_draw(cairo_t *cr) override {
       bool result = base::on_draw(cr);
       rearrange();
+      MathGtkDocumentWindowImpl(*parent()).update_scrollbar_overlay();
       return result;
     }
 };
@@ -255,39 +295,6 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     Expr  _content;
 };
 
-namespace richmath {
-  class MathGtkDocumentWindow::Impl {
-    public:
-      Impl(MathGtkDocumentWindow &self) : self(self) {}
-      
-      static void add_remove_window(int delta);
-      
-      void connect_adjustment_changed_signals();
-      void connect_menubar_signals();
-      static void register_theme_observer();
-      
-      void append_menu_bar_pin();
-      bool menu_is_auto_hidden();
-      void on_auto_hide_menu(bool hide);
-    
-    private:
-      static void activate_pin_item_callback(GtkMenuItem *menu_item, void *user_data);
-      void on_activate_pin_item(GtkMenuItem *menu_item);
-      
-      static void adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data);
-      void on_adjustment_changed(GtkAdjustment *adjustment);
-      
-      static void on_theme_changed(GObject*, GParamSpec*);
-      
-    private:
-      MathGtkDocumentWindow &self;
-    
-#if GTK_MAJOR_VERSION >= 3
-      static GtkStyleProvider *global_style_provider;
-#endif
-  };
-}
-
 //{ class MathGtkDocumentWindow ...
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
@@ -360,6 +367,7 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_table_attach(GTK_TABLE(_table), _vscrollbar, 1, 2, 2, 3, (GtkAttachOptions)0, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
   gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
   
+  Impl(*this).connect_scrollbar_overlay_signals();
   Impl(*this).connect_adjustment_changed_signals();
   Impl(*this).connect_menubar_signals();
   
@@ -1071,13 +1079,13 @@ bool MathGtkDocumentWindow::on_window_state(GdkEvent *e) {
 
 //} ... class MathGtkDocumentWindow
 
-//{ class MathGtkDocumentWindow::Impl ...
+//{ class MathGtkDocumentWindowImpl ...
 
 #if GTK_MAJOR_VERSION >= 3
-GtkStyleProvider *MathGtkDocumentWindow::Impl::global_style_provider = nullptr;
+GtkStyleProvider *MathGtkDocumentWindowImpl::global_style_provider = nullptr;
 #endif
 
-void MathGtkDocumentWindow::Impl::add_remove_window(int delta) {
+void MathGtkDocumentWindowImpl::add_remove_window(int delta) {
   static int global_window_count = 0;
   if(global_window_count == 0) {
 #if GTK_MAJOR_VERSION >= 3
@@ -1123,12 +1131,135 @@ void MathGtkDocumentWindow::Impl::add_remove_window(int delta) {
   }
 }
 
-void MathGtkDocumentWindow::Impl::connect_adjustment_changed_signals() {
+void MathGtkDocumentWindowImpl::update_scrollbar_overlay() {
+  // TODO: check if any of the indicators changed ...
+  gtk_widget_queue_draw(self._vscrollbar);
+}
+
+gboolean MathGtkDocumentWindowImpl::scrollbar_expose_callback(GtkWidget *scrollbar, GdkEvent *e, void *user_data) {
+  GdkEventExpose *event = &e->expose;
+  
+  cairo_t *cr = gdk_cairo_create(event->window);
+  
+  cairo_translate(cr, event->area.x, event->area.y);
+  
+  cairo_move_to(cr, 0, 0);
+  cairo_rel_line_to(cr, event->area.width, 0);
+  cairo_rel_line_to(cr, 0, event->area.height);
+  cairo_rel_line_to(cr, -event->area.width, 0);
+  cairo_close_path(cr);
+  cairo_clip(cr);
+  
+  gboolean result = scrollbar_draw_callback(scrollbar, cr, user_data);
+  cairo_destroy(cr);
+  
+  return result;
+}
+
+gboolean MathGtkDocumentWindowImpl::scrollbar_draw_callback(GtkWidget *scrollbar, cairo_t *cr, void *user_data) {
+  MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
+  
+  Canvas canvas(cr);
+  Impl(*self).on_scrollbar_draw(scrollbar, canvas);
+  
+  return false;
+}
+
+void MathGtkDocumentWindowImpl::on_scrollbar_draw(GtkWidget *scrollbar, Canvas &canvas) {
+  cairo_set_line_width(canvas.cairo(), 1);
+  cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_BUTT);
+  
+  gboolean has_back, has_secondary_forward, has_secondary_back, has_forward;
+  gtk_widget_style_get(
+    scrollbar,
+    "has-backward-stepper",           &has_back,
+    "has-secondary-forward-stepper",  &has_secondary_forward,
+    "has-secondary-backward-stepper", &has_secondary_back,
+    "has-forward-stepper",            &has_forward,
+    nullptr);
+  
+  int stepper_size = 0;
+  // TODO: use min-height CSS property for GTK >= 3.20
+  gtk_widget_style_get(scrollbar, "stepper-size", &stepper_size, nullptr);
+  
+  int stepper_spacing = 0;
+  // TODO: use margin CSS property for GTK >= 3.20
+  gtk_widget_style_get(scrollbar, "stepper-spacing", &stepper_spacing, nullptr);
+  
+  GdkRectangle rect;
+  //gtk_range_get_range_rect(GTK_RANGE(scrollbar), &rect);
+  gtk_widget_get_allocation(scrollbar, &rect);
+  
+  int trough_start = rect.y;
+  int trough_end = rect.y + rect.height;
+  
+  if(has_back)              trough_start += stepper_size + stepper_spacing;
+  if(has_secondary_forward) trough_start += stepper_size + stepper_spacing;
+  
+  if(has_forward)        trough_end -= stepper_size + stepper_spacing;
+  if(has_secondary_back) trough_end -= stepper_size + stepper_spacing;
+  
+  RectangleF trough_rect {Point(0, trough_start), Point(rect.width, trough_end)};
+  
+  if(trough_rect.height > 0) {
+    Document *doc = self.document();
+    GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scrollbar));
+    
+    double doc_height = gtk_adjustment_get_upper(adjustment);
+    if(!(doc_height > 0.0))
+      doc_height = 1.0;
+    
+    canvas.set_color(Color::from_rgb24(0x000080));
+    if(auto sel = doc->selection_now()) {
+      sel.add_path(canvas);
+      RectangleF doc_sel_rect = canvas.path_extents();
+      canvas.new_path();
+      
+      float doc_y = doc_sel_rect.y + 0.5 * doc_sel_rect.height;
+      float y = trough_rect.y + trough_rect.height * doc_y / doc_height;
+      
+      RectangleF overlay_rect(Point(trough_rect.x, y), Vector2F(trough_rect.width, 2));
+      overlay_rect.pixel_align(canvas, false, 0);
+      overlay_rect.add_rect_path(canvas);
+      canvas.fill();
+    }
+    
+    canvas.set_color(Color::from_rgb24(0xFF8000));
+    for(auto ref : doc->current_word_references()) {
+      if(auto sel = ref.get_all()) {
+        sel.add_path(canvas);
+        RectangleF doc_sel_rect = canvas.path_extents();
+        canvas.new_path();
+        
+        float doc_y = doc_sel_rect.y + 0.5 * doc_sel_rect.height;
+        float y = trough_rect.y + trough_rect.height * doc_y / doc_height;
+        
+        float w = trough_rect.width/3;
+        RectangleF overlay_rect(Point(trough_rect.x + trough_rect.width/2, y), Vector2F(0, 0));
+        overlay_rect.grow(w/2, w/2);
+        overlay_rect.pixel_align(canvas, false, 0);
+        overlay_rect.add_rect_path(canvas);
+        canvas.fill();
+      }
+    }
+  }
+}
+
+void MathGtkDocumentWindowImpl::connect_scrollbar_overlay_signals() {
+#if GTK_MAJOR_VERSION >= 3
+  g_signal_connect_after(self._vscrollbar, "draw", G_CALLBACK(scrollbar_draw_callback), &self);
+#else
+  gtk_widget_set_events(self._vscrollbar, gtk_widget_get_events(self._vscrollbar) | GDK_EXPOSURE_MASK);
+  g_signal_connect_after(self._vscrollbar, "expose-event", G_CALLBACK(scrollbar_expose_callback), &self);
+#endif
+}
+
+void MathGtkDocumentWindowImpl::connect_adjustment_changed_signals() {
   g_signal_connect(self._hadjustment, "changed", G_CALLBACK(adjustment_changed_callback), &self);
   g_signal_connect(self._vadjustment, "changed", G_CALLBACK(adjustment_changed_callback), &self);
 }
 
-void MathGtkDocumentWindow::Impl::connect_menubar_signals() {
+void MathGtkDocumentWindowImpl::connect_menubar_signals() {
   gtk_container_forall(GTK_CONTAINER(self._menu_bar), [](GtkWidget *item, void *_self) {
       MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
       if(GTK_IS_MENU_ITEM(item)) {
@@ -1174,13 +1305,13 @@ void MathGtkDocumentWindow::Impl::connect_menubar_signals() {
     })), &self);
 }
 
-void MathGtkDocumentWindow::Impl::adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data) {
+void MathGtkDocumentWindowImpl::adjustment_changed_callback(GtkAdjustment *adjustment, void *user_data) {
   MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
   
   Impl(*self).on_adjustment_changed(adjustment);
 }
 
-void MathGtkDocumentWindow::Impl::on_adjustment_changed(GtkAdjustment *adjustment) {
+void MathGtkDocumentWindowImpl::on_adjustment_changed(GtkAdjustment *adjustment) {
   GtkWidget *scrollbar = nullptr;
   if(adjustment == self._hadjustment)
     scrollbar = self._hscrollbar;
@@ -1200,7 +1331,7 @@ void MathGtkDocumentWindow::Impl::on_adjustment_changed(GtkAdjustment *adjustmen
   gtk_widget_set_visible(scrollbar, (self.window_frame() == WindowFrameNormal) && lo + page < hi);
 }
 
-void MathGtkDocumentWindow::Impl::register_theme_observer() {
+void MathGtkDocumentWindowImpl::register_theme_observer() {
 #if GTK_MAJOR_VERSION >= 3
   static bool already_registered = false;
   
@@ -1212,7 +1343,7 @@ void MathGtkDocumentWindow::Impl::register_theme_observer() {
 #endif
 }
 
-void MathGtkDocumentWindow::Impl::on_theme_changed(GObject*, GParamSpec*) {
+void MathGtkDocumentWindowImpl::on_theme_changed(GObject*, GParamSpec*) {
   for(auto _win : CommonDocumentWindow::All) {
     if(auto win = dynamic_cast<MathGtkDocumentWindow*>(_win)) {
       win->update_dark_mode();
@@ -1220,7 +1351,7 @@ void MathGtkDocumentWindow::Impl::on_theme_changed(GObject*, GParamSpec*) {
   }
 }
 
-void MathGtkDocumentWindow::Impl::append_menu_bar_pin() {
+void MathGtkDocumentWindowImpl::append_menu_bar_pin() {
 #if GTK_MAJOR_VERSION >= 3
   self._menu_bar_pin = gtk_menu_item_new_with_mnemonic("    "); // "_pin"
   gtk_style_context_add_class(gtk_widget_get_style_context(GTK_WIDGET(self._menu_bar_pin)), "menubar-pin");
@@ -1244,13 +1375,13 @@ void MathGtkDocumentWindow::Impl::append_menu_bar_pin() {
 #endif
 }
 
-void MathGtkDocumentWindow::Impl::activate_pin_item_callback(GtkMenuItem *menu_item, void *user_data) {
+void MathGtkDocumentWindowImpl::activate_pin_item_callback(GtkMenuItem *menu_item, void *user_data) {
   MathGtkDocumentWindow *self = (MathGtkDocumentWindow *)user_data;
   
   Impl(*self).on_activate_pin_item(menu_item);
 }
 
-void MathGtkDocumentWindow::Impl::on_activate_pin_item(GtkMenuItem *menu_item) {
+void MathGtkDocumentWindowImpl::on_activate_pin_item(GtkMenuItem *menu_item) {
 #if GTK_MAJOR_VERSION >= 3
   GtkStateFlags flags = gtk_widget_get_state_flags(GTK_WIDGET(menu_item));
   
@@ -1268,7 +1399,7 @@ void MathGtkDocumentWindow::Impl::on_activate_pin_item(GtkMenuItem *menu_item) {
 #endif
 }
 
-bool MathGtkDocumentWindow::Impl::menu_is_auto_hidden() {
+bool MathGtkDocumentWindowImpl::menu_is_auto_hidden() {
 #if GTK_MAJOR_VERSION >= 3
   GtkStyleContext *menu_bar_context = gtk_widget_get_style_context(self._menu_bar);
   return gtk_style_context_has_class(menu_bar_context, "hidden-menu");
@@ -1277,7 +1408,7 @@ bool MathGtkDocumentWindow::Impl::menu_is_auto_hidden() {
 #endif
 }
 
-void MathGtkDocumentWindow::Impl::on_auto_hide_menu(bool hide) {
+void MathGtkDocumentWindowImpl::on_auto_hide_menu(bool hide) {
 #if GTK_MAJOR_VERSION >= 3
   if(self._menu_bar_pin && (gtk_widget_get_state_flags(self._menu_bar_pin) & GTK_STATE_FLAG_CHECKED)) {
     hide = false;
@@ -1297,4 +1428,4 @@ void MathGtkDocumentWindow::Impl::on_auto_hide_menu(bool hide) {
 #endif
 }
 
-//} ... class MathGtkDocumentWindow::Impl
+//} ... class MathGtkDocumentWindowImpl

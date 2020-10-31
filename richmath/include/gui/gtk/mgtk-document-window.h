@@ -16,9 +16,11 @@
 namespace richmath {
   class MathGtkDock;
   class MathGtkWorkingArea;
+  class MathGtkDocumentWindowImpl;
   
   class MathGtkDocumentWindow final : public CommonDocumentWindow, public BasicGtkWidget, public ControlContext {
-      class Impl;
+      friend class MathGtkDocumentWindowImpl;
+      using Impl = MathGtkDocumentWindowImpl;
     public:
       class DocumentPosition {
         public:
