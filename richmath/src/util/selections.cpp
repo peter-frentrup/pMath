@@ -328,7 +328,7 @@ Expr VolatileSelection::to_pmath(BoxOutputFlags flags) const {
   return box->to_pmath(flags, start, end);
 } 
 
-void VolatileSelection::add_path(Canvas &canvas) {
+void VolatileSelection::add_path(Canvas &canvas) const {
   if(box) {
     canvas.save();
     

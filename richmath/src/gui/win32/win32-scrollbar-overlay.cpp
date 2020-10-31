@@ -71,8 +71,9 @@ void Win32ScrollBarOverlay::clear() {
   indicators.length(0);
 }
 
-void Win32ScrollBarOverlay::add(float position, unsigned color, IndicatorLane lane) {
-  indicators.add(Indicator{position, color & 0xFFFFFF, (unsigned)lane});
+void Win32ScrollBarOverlay::add(float position, Color color, IndicatorLane lane) {
+  if(color)
+    indicators.add(Indicator{position, (unsigned)color.to_rgb24(), (unsigned)lane});
 }
 
 void Win32ScrollBarOverlay::handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam) {

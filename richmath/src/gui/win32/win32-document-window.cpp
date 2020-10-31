@@ -179,12 +179,12 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       base::paint_canvas(canvas, resize_only);
       
       _overlay.set_scale(scale_factor());
-      if(Box *sel = document()->selection_box()) {
-        add_overlay(canvas, sel, document()->selection_start(), document()->selection_end(), 0x000080, IndicatorLane::All);
+      if(auto sel = document()->selection_now()) {
+        add_overlay(canvas, sel, Color::from_rgb24(0x000080), IndicatorLane::All);
       }
       for(auto ref : document()->current_word_references()) {
-        if(Box *box = ref.get()) {
-         add_overlay(canvas, box, ref.start, ref.end, 0xFF8000, IndicatorLane::Middle);
+        if(auto sel = ref.get_all()) {
+         add_overlay(canvas, sel, Color::from_rgb24(0xFF8000), IndicatorLane::Middle);
         }
       }
       _overlay.update();
@@ -221,22 +221,13 @@ class richmath::Win32WorkingArea: public Win32DocumentChildWidget {
       base::on_changed_dark_mode();
     }
     
-    void add_overlay(Canvas &canvas, Box *box, int start, int end, unsigned color, IndicatorLane lane) {
-      cairo_matrix_t mat;
-      cairo_matrix_init_identity(&mat);
-      box->transformation(nullptr, &mat);
-      
-      canvas.save();
-      canvas.transform(mat);
-      canvas.move_to(0, 0);
-      box->selection_path(canvas, start, end);
-      canvas.restore();
-      
-      double x1,y1,x2,y2;
-      canvas.path_extents(&x1, &y1, &x2, &y2);
+    void add_overlay(Canvas &canvas, const VolatileSelection &sel, Color color, IndicatorLane lane) {
+      sel.add_path(canvas);
+      RectangleF doc_sel_rect = canvas.path_extents();
       canvas.new_path();
       
-      _overlay.add((y1 + y2)/2, color, lane);
+      float doc_y = doc_sel_rect.y + 0.5 * doc_sel_rect.height;
+      _overlay.add(doc_y, color, lane);
     }
     
     virtual void on_paint(HDC dc, bool from_wmpaint) override {

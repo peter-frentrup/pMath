@@ -30,7 +30,7 @@ namespace richmath {
       void set_scale(float _scale);
       void update();
       void clear();
-      void add(float position, unsigned color, IndicatorLane lane);
+      void add(float position, Color color, IndicatorLane lane);
       
       void handle_scrollbar_owner_callback(UINT message, WPARAM wParam, LPARAM lParam);
       
