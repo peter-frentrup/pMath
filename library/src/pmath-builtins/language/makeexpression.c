@@ -2308,6 +2308,11 @@ static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
   pmath_t result;
   
   exprlen = pmath_expr_length(boxes);
+  if(exprlen == 0) {
+    pmath_unref(boxes);
+    return pmath_expr_new(pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+  }
+  
   result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), exprlen);
   
   for(i = 1; i <= exprlen; ++i) {
