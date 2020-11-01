@@ -103,7 +103,7 @@ void Win32AttachedPopupWindow::invalidate_options() {
       break;
   }
   
-  anchor_location_changed();
+  invalidate_source_location();
 }
 
 bool Win32AttachedPopupWindow::is_using_dark_mode() {
@@ -144,7 +144,7 @@ int Win32AttachedPopupWindow::dpi() {
   return Win32HighDpi::get_dpi_for_window(_hwnd);
 }
 
-void Win32AttachedPopupWindow::anchor_location_changed() {
+void Win32AttachedPopupWindow::invalidate_source_location() {
   Win32Widget *owner_wid = Impl(*this).owner_widget();
   if(!owner_wid) {
     pmath_debug_print("[Win32AttachedPopupWindow: lost owner window]\n");
@@ -241,7 +241,7 @@ void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
   _best_height += outer.bottom - outer.top  - inner.bottom + inner.top;
   
   if(old_bw != _best_width || old_bh != _best_height) {
-    anchor_location_changed();
+    invalidate_source_location();
   }
 }
 

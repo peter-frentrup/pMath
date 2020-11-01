@@ -17,7 +17,7 @@ namespace richmath {
       MathGtkAttachedPopupWindow(Document *owner, Box *anchor);
       
       void invalidate_options();
-      void anchor_location_changed();
+      void invalidate_source_location();
       
       MathGtkWidget *content_area() { return (MathGtkWidget*)_content_area; }
       Document      *content() { return content_area()->document(); }

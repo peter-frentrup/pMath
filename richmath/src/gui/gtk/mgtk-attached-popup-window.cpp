@@ -29,6 +29,7 @@ namespace richmath {
       
       virtual void close() override { _parent->close(); }
       virtual void invalidate_options() override;
+      virtual void invalidate_source_location() override;
       
       virtual bool is_foreground_window() override { return _parent->is_foreground_window(); };
       virtual bool is_focused_widget() override { return _parent->is_focused_widget(); };
@@ -196,10 +197,10 @@ void MathGtkAttachedPopupWindow::invalidate_options() {
 //    gtk_widget_queue_draw(_widget);
 //  }
   
-  anchor_location_changed();
+  invalidate_source_location();
 }
 
-void MathGtkAttachedPopupWindow::anchor_location_changed() {
+void MathGtkAttachedPopupWindow::invalidate_source_location() {
   MathGtkWidget *owner_wid = _content_area->owner_widget();
   if(!owner_wid) {
     close();
@@ -532,6 +533,11 @@ void MathGtkPopupContentArea::invalidate_options() {
   _parent->invalidate_options();
 }
 
+void MathGtkPopupContentArea::invalidate_source_location() {
+  base::invalidate_source_location();
+  _parent->invalidate_source_location();
+}
+
 void MathGtkPopupContentArea::paint_background(Canvas &canvas) {
   // TODO: use proper style
   //canvas.set_color(Color::from_rgb24(0xDCDCDC));
@@ -554,7 +560,7 @@ void MathGtkPopupContentArea::paint_canvas(Canvas &canvas, bool resize_only) {
     _best_width = 1;
     
   if(old_bw != _best_width || old_bh != _best_height) {
-    _parent->anchor_location_changed();
+    _parent->invalidate_source_location();
   }
 }
 

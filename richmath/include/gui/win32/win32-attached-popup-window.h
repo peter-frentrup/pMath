@@ -14,10 +14,9 @@ namespace richmath {
     public:
       Win32AttachedPopupWindow(Document *owner, Box *anchor);
       
-      void anchor_location_changed();
-      
       virtual void close() override;
       virtual void invalidate_options() override;
+      virtual void invalidate_source_location() override;
       
       virtual bool is_foreground_window() override { return _active; }
       virtual bool is_using_dark_mode() override;

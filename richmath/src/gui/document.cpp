@@ -4919,7 +4919,7 @@ void Document::Impl::invalidate_popup_window_positions() {
   for(auto id : popups) {
     Document *doc = FrontEndObject::find_cast<Document>(id);
     if(doc)
-      doc->native()->invalidate_options();
+      doc->native()->invalidate_source_location();
   }
 }
 

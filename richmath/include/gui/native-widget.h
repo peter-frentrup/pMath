@@ -87,6 +87,7 @@ namespace richmath {
       virtual void invalidate() = 0;
       virtual void invalidate_options() = 0;
       virtual void invalidate_rect(const RectangleF &rect) { invalidate(); }
+      virtual void invalidate_source_location() {}
       virtual void force_redraw() = 0;
       
       virtual void set_cursor(CursorType type) = 0;
