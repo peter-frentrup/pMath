@@ -43,6 +43,7 @@ toBeProtected:= Unprotect(
 	Setting,
 	Slider,
 	SliderBox,
+	TabView,
 	Tooltip,
 	TooltipBox)
 
@@ -197,6 +198,14 @@ makeSliderBox(Slider(~val ? isNumberOrDynamic, Except({}, ~vals:List), options:O
 makeSliderBox(~x)::= makeCallBoxes(x)
 
 
+MakeBoxes(~x: TabView)::= makeTabViewBox(x) /? allowGuiBoxes
+Attributes(makeTabViewBox):= {HoldAllComplete}
+makeTabViewBox(TabView(tabs:{(~ -> ~)**},~i))::= TemplateBox({ReleaseHold @ Hold(tabs).Map(MakeBoxes, 3), i}, "TabView")
+makeTabViewBox(TabView(panes:{~~}, ~i))::=       TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->MakeBoxes(#), HoldAllComplete), 2), i}, "TabView")
+makeTabViewBox(TabView(~panes))::=               makeTabViewBox(TabView(panes, 1))
+makeTabViewBox(~x)::= makeCallBoxes(x)
+
+
 MakeBoxes(Tooltip(~content, ~tooltip, options:OptionsPattern()))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip), options) /? allowGuiBoxes
 
 
@@ -316,6 +325,13 @@ SetterBox/: MakeExpression(SetterBox(~var, ~value, ~labelBoxes, options:OptionsP
 
 SliderBox/: MakeExpression(SliderBox(~val, 0..1,   options:OptionsPattern()))::= HoldComplete(Slider(val, options))
 SliderBox/: MakeExpression(SliderBox(~val, ~range, options:OptionsPattern()))::= HoldComplete(Slider(val, range, options))
+
+
+FE`TabViewBox /: MakeExpression(FE`TabViewBox(tabBoxes: {(~->~)**},~i))::=
+    With(tabs:= HoldComplete(tabBoxes).Map(MakeExpression, 3).Replace(HoldComplete(~x) :> x, 3)) {
+        HoldComplete(TabView(tabs, i)).Replace(HoldComplete(~x) :> x, 2)
+    }
+
 
 TooltipBox/: MakeExpression(TooltipBox(~content, ~tooltip, options:OptionsPattern()))::= 
 	With({c:= MakeExpression(content), t:= MakeExpression(tooltip)},

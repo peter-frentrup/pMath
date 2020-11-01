@@ -18,15 +18,15 @@ Document({
                  ComplexStringBox("\"222\""), ")"}}, ",", {
                 {"SqrtBox", "(", ComplexStringBox("\"3\""), ")"}, "\[Rule]", 
                 ComplexStringBox("\"333333333333\"")}}, "}"}, ",", "1"}, "}"}, 
-           ",", ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-       SectionLabel -> "in [2]:"), 
+           ",", ComplexStringBox("\"MyTabView\"")}, ")"}}), "Input", 
+       SectionLabel -> "in [1]:"), 
       Section(
        BoxData(TemplateBox({
           {SqrtBox("1") -> FrameBox("111"), SqrtBox("2") -> FrameBox("222"), 
-           SqrtBox("3") -> "333333333333"}, 1}, "TabView")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+           SqrtBox("3") -> "333333333333"}, 1}, "MyTabView")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
     Section(BoxData({"ClearAll", "(", "tabView", ")"}), "Input", 
-     SectionLabel -> "in [3]:"), 
+     SectionLabel -> "in [2]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {
@@ -35,8 +35,8 @@ Document({
         "TemplateBox", "(", {
          {"{", {{"ReleaseHold", "@", {{"Hold", "(", "tabs", ")"}, ".", "Map", 
              "(", {"MakeBoxes", ",", "3"}, ")"}}, ",", "i"}, "}"}, ",", 
-         ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [4]:"), 
+         ComplexStringBox("\"MyTabView\"")}, ")"}}), "Input", 
+     SectionLabel -> "in [3]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {
@@ -45,8 +45,8 @@ Document({
         "TemplateBox", "(", {
          {"{", {{"ReleaseHold", "@", {{"Hold", "(", "tabs", ")"}, ".", "Map", 
              "(", {"MakeBoxes", ",", "3"}, ")"}}, ",", "1"}, "}"}, ",", 
-         ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [5]:"), 
+         ComplexStringBox("\"MyTabView\"")}, ")"}}), "Input", 
+     SectionLabel -> "in [4]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {
@@ -58,8 +58,8 @@ Document({
                 ",", {{"ToBoxes", "(", {"Last", "(", {"#", "2"}, ")"}, ")"}, 
                  "\[Rule]", {"MakeBoxes", "(", "#", ")"}}, ",", 
                 "HoldAllComplete"}, ")"}, ",", "2"}, ")"}}, ",", "i"}, "}"}, 
-         ",", ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [6]:"), 
+         ",", ComplexStringBox("\"MyTabView\"")}, ")"}}), "Input", 
+     SectionLabel -> "in [5]:"), 
     Section(
      BoxData({
        {"MakeBoxes", "(", {"tabView", "(", {"panes", ":", {"{", "~~", "}"}}, 
@@ -71,8 +71,22 @@ Document({
                 ",", {{"ToBoxes", "(", {"Last", "(", {"#", "2"}, ")"}, ")"}, 
                  "\[Rule]", {"MakeBoxes", "(", "#", ")"}}, ",", 
                 "HoldAllComplete"}, ")"}, ",", "2"}, ")"}}, ",", "1"}, "}"}, 
-         ",", ComplexStringBox("\"TabView\"")}, ")"}}), "Input", 
-     SectionLabel -> "in [7]:"), 
+         ",", ComplexStringBox("\"MyTabView\"")}, ")"}}), "Input", 
+     SectionLabel -> "in [6]:"), 
+    Section(BoxData({"tabViewBox", "/:", {
+        "MakeExpression", "(", {"tabViewBox", "(", {
+          {"tabBoxes", ":", {"{", {{"(", {"~", "\[Rule]", "~"}, ")"}, "**"}, 
+            "}"}}, ",", {"~", "i"}}, ")"}, ")"}, "\[AssignDelayed]", {
+        "With", "(", {
+         {"{", {"tabs", "\[Assign]", {
+            {{"HoldComplete", "(", "tabBoxes", ")"}, ".", "Map", "(", {
+              "MakeExpression", ",", "3"}, ")"}, ".", "Replace", "(", {
+             {{"HoldComplete", "(", {"~", "x"}, ")"}, "\[RuleDelayed]", "x"}, 
+             ",", "3"}, ")"}}, "}"}, ",", {
+          {"HoldComplete", "(", {"tabView", "(", {"tabs", ",", "i"}, ")"}, 
+           ")"}, ".", "Replace", "(", {
+           {{"HoldComplete", "(", {"~", "x"}, ")"}, "\[RuleDelayed]", "x"}, 
+           ",", "2"}, ")"}}, ")"}}), "Input", SectionLabel -> "in [7]:"), 
     SectionGroup({
       Section(BoxData({"tabView", "(", {
           "{", {{"tabView", "(", {"{", {"a", ",", "b", ",", "c"}, "}"}, ")"}, 
@@ -81,16 +95,88 @@ Document({
       Section(
        BoxData(TemplateBox({
           {"1" -> TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1}, 
-            "TabView"), "2" -> TemplateBox({{"1" -> "x", "2" -> "y"}, 1}, 
-            "TabView")}, 1}, "TabView")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [8]:")}, All), 
+            "MyTabView"), "2" -> TemplateBox({{"1" -> "x", "2" -> "y"}, 1}, 
+            "MyTabView")}, 1}, "MyTabView")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {TemplateBox({
+            {"1" -> TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1}, 
+              "MyTabView"), "2" -> TemplateBox({{"1" -> "x", "2" -> "y"}, 1}, 
+              "MyTabView")}, 1}, "MyTabView"), "//", "Hold"}, "//", 
+         "InputForm"}), "Input", SectionLabel -> "in [9]:"), 
+      Section(BoxData({{"MakeExpression", "::", ComplexStringBox("\"inv\"")}, 
+         "\[Colon]", TemplateBox({
+           InterpretationBox(ComplexStringBox("\"", {
+              {ComplexStringBox("\"1\""), "\[Rule]", 
+               ComplexStringBox("\"a\"")}}, 
+             " is neither a string nor a valid box.\""), 
+            StringForm("`1` is neither a string nor a valid box.", 
+             "1" -> "a"))}, "RowDefault")}), "Message", 
+       SectionGenerated -> True), 
+      Section(BoxData({{"MakeExpression", "::", ComplexStringBox("\"inv\"")}, 
+         "\[Colon]", TemplateBox({
+           InterpretationBox(ComplexStringBox("\"", {
+              {ComplexStringBox("\"1\""), "\[Rule]", 
+               ComplexStringBox("\"x\"")}}, 
+             " is neither a string nor a valid box.\""), 
+            StringForm("`1` is neither a string nor a valid box.", 
+             "1" -> "x"))}, "RowDefault")}), "Message", 
+       SectionGenerated -> True), 
+      Section(
+       BoxData(
+        StyleBox({"Hold", "(", {"tabView", "(", {
+            {"{", {{"1", "->", "$Failed"}, ",", {"2", "->", "$Failed"}}, "}"}, 
+            ",", "1"}, ")"}, ")"}, AutoDelete -> True, 
+         AutoNumberFormating -> False, ShowStringCharacters -> True)), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {{{"tabView", "(", {"{", {"a", ",", "b", ",", "c"}, "}"}, ")"}, "//", 
+           "ToBoxes"}, "//", "Echo"}, "//", "ToExpression"}), "Input", 
+       SectionLabel -> "in [10]:"), 
+      Section(BoxData({"TemplateBox", "(", {
+          {"{", {
+            {"{", {{ComplexStringBox("\"1\""), "\[Rule]", 
+               ComplexStringBox("\"a\"")}, ",", {
+               ComplexStringBox("\"2\""), "\[Rule]", 
+               ComplexStringBox("\"b\"")}, ",", {
+               ComplexStringBox("\"3\""), "\[Rule]", 
+               ComplexStringBox("\"c\"")}}, "}"}, ",", "1"}, "}"}, ",", 
+          ComplexStringBox("\"MyTabView\"")}, ")"}), "Echo", 
+       SectionGenerated -> True), 
+      Section(BoxData({{"MakeExpression", "::", ComplexStringBox("\"inv\"")}, 
+         "\[Colon]", TemplateBox({
+           InterpretationBox(ComplexStringBox("\"", {
+              {ComplexStringBox("\"1\""), "\[Rule]", 
+               ComplexStringBox("\"a\"")}}, 
+             " is neither a string nor a valid box.\""), 
+            StringForm("`1` is neither a string nor a valid box.", 
+             "1" -> "a"))}, "RowDefault")}), "Message", 
+       SectionGenerated -> True), Section(BoxData("$Failed"), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({{TemplateBox({{"1" -> "a", "2" -> "b", "3" -> "c"}, 1}, 
+           "MyTabView"), "//", "Hold"}, "//", "InputForm"}), "Input", 
+       SectionLabel -> "in [12]:"), 
+      Section(
+       BoxData(
+        StyleBox({"Hold", "(", {"tabView", "(", {
+            {"{", {{"1", "->", "a"}, ",", {"2", "->", "b"}, ",", {
+               "3", "->", "c"}}, "}"}, ",", "1"}, ")"}, ")"}, 
+         AutoDelete -> True, AutoNumberFormating -> False, 
+         ShowStringCharacters -> True)), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [12]:")}, All), 
     SectionGroup({
       Section(BoxData({"tabView", "(", {
           "Table", "(", {
            {"f", "\[Rule]", {"Plot", "(", {{"f", "(", "x", ")"}, ",", {
                "x", "\[Rule]", {{"-", "5"}, "..", "5"}}}, ")"}}, ",", {
             "f", "\[Rule]", {"{", {"Sin", ",", "Cos", ",", "Tan"}, "}"}}}, 
-          ")"}, ")"}), "Input", SectionLabel -> "in [9]:"), 
+          ")"}, ")"}), "Input", SectionLabel -> "in [13]:"), 
       Section(
        BoxData({{"Developer`FromPackedArray", "::", 
           ComplexStringBox("\"punpack\"")}, "\[Colon]", 
@@ -893,11 +979,11 @@ Document({
              Axes -> True, PlotRange -> NCache({
                -5 .. 5, -15.507266348532156` .. 15.507266348532156`}, {
                -5.0` .. 5.0`, -15.507266348532156` .. 
-                15.507266348532156`})})}, 1}, "TabView")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [9]:")}, All)}, All)}, 
+                15.507266348532156`})})}, 1}, "MyTabView")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [13]:")}, All)}, All)}, 
  StyleDefinitions :> Document({
    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
-     Section(StyleData("TabView"), TemplateBoxOptions -> {
+     Section(StyleData("MyTabView"), TemplateBoxOptions -> {
        DisplayFunction -> (DynamicLocalBox({FE`Private`rules}, 
         GridBox({
           {PanelBox({
@@ -919,6 +1005,6 @@ Document({
                Dynamic(CurrentValue({TemplateSlot, 2})))), FillBox("")}, 
             Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
         Initialization :> (FE`Private`rules:= CurrentValue({
-          TemplateSlot, 1}))) &)})}, All)}, 
-  StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
- Visible -> True)
+          TemplateSlot, 1}))) &), InterpretationFunction -> (Global`tabViewBox(
+        #1, #2) &)})}, All)}, StyleDefinitions -> 
+   "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True)

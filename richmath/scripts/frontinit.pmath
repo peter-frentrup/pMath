@@ -175,7 +175,7 @@ AutoLoad(Hold(DocumentObject, FrontEndObject, FE`EvaluateDynamic, FE`AssignDynam
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "frontendobject.pmath"));
 AutoLoad(Hold(FE`AttachBoxes, CreateDocument, DocumentClose, DocumentDelete, DocumentGet, DocumentOpen, Documents, EvaluationBox, EvaluationDocument, SelectedDocument, SetSelectedDocument),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "callfrontend.pmath"));
-AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, FillBox, Filler, InputField, InputFieldBox, Opener, OpenerBox, Pane, PaneBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, Tooltip, TooltipBox), 
+AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, FillBox, Filler, InputField, InputFieldBox, Opener, OpenerBox, Pane, PaneBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, TabView, FE`TabViewBox, Tooltip, TooltipBox), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
 AutoLoad(Hold(FE`FontDialog, FE`ColorDialog), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "dialogs.pmath"));

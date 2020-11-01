@@ -57,7 +57,7 @@ Document({
             Inherited, Inherited}, SectionLabel -> "\[RightGuillemet]"), 
           Section(StyleData("Message"), AutoSpacing -> False, 
            BaseStyle -> "ControlStyle", Editable -> False, 
-           FontColor -> RGBColor(0.5`, 0, 0), SectionGroupPrecedence -> 20, 
+           FontColor -> RGBColor(0.502`, 0, 0), SectionGroupPrecedence -> 20, 
            SectionMargins -> {50, Inherited, Inherited, Inherited}, 
            ShowAutoStyles -> False, ShowStringCharacters -> False), 
           Section(StyleData("PrintUsage"), AutoSpacing -> False, 
@@ -81,7 +81,7 @@ Document({
        SectionLabelAutoDelete -> False), Section(StyleData("Docked"), 
        BaseStyle -> "ControlStyle", SectionFrame -> {Inherited, Inherited, 
         Inherited, 1.0000000116860974`*^-7}, 
-       SectionFrameColor -> GrayLevel(0.5`), 
+       SectionFrameColor -> GrayLevel(0.502`), 
        SectionFrameMargins -> {3, 3, 3, 3}, SectionMargins -> {0, 0, 0, 0}, 
        ShowStringCharacters -> False), 
       Section(StyleData("TooltipWindowSection"), AutoNumberFormating -> True, 
@@ -107,14 +107,16 @@ Document({
           ImageSizeAction -> "ShrinkToFit"}), 
         Section(StyleData("Panel"), BaseStyle -> "ControlStyle"), 
         Section(StyleData("PaneSelector")), 
-        Section(StyleData("RadioButton"), BaseStyle -> "ControlStyle"), 
-        Section(StyleData("Setter"), BaseStyle -> "ControlStyle"), 
-        Section(StyleData("Slider"), BaseStyle -> "ControlStyle"), 
         Section(StyleData("Placeholder"), 
          Background -> RGBColor(1, 0.97299999999999998`, 
-          0.80000000000000004`), FontColor -> GrayLevel(0.5`), FontSize -> 9, 
-         Placeholder -> True, ShowAutoStyles -> False, 
-         ShowStringCharacters -> False)}, All), 
+          0.80000000000000004`), FontColor -> GrayLevel(0.502`), 
+         FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
+         ShowStringCharacters -> False), Section(StyleData("RadioButton"), 
+         BaseStyle -> "ControlStyle"), Section(StyleData("Setter"), 
+         BaseStyle -> "ControlStyle"), Section(StyleData("Slider"), 
+         BaseStyle -> "ControlStyle"), Section(StyleData("TabViewLabel"), 
+         BaseStyle -> "ControlStyle"), Section(StyleData("TabView"), 
+         BaseStyle -> "ControlStyle")}, All), 
       SectionGroup({Section("Button styles", "Subsection"), 
         Section(StyleData("Paste"), BaseStyle -> "Button", 
          ButtonBoxOptions -> {ButtonFunction -> (DocumentApply(
@@ -187,7 +189,33 @@ Document({
            ")"} &)}), Section(StyleData("Det"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"\[LeftBracketingBar]", 
            #1, "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
-        Section(StyleData("TooltipContent"), 
+        Section(StyleData("TabView"), TemplateBoxOptions -> {
+          DisplayFunction -> (DynamicLocalBox({FE`Private`rules}, 
+           GridBox({
+             {PanelBox({
+                " ", DynamicBox(
+                 GridBox({MapIndexed(FE`Private`rules, 
+                    SetterBox(Dynamic(CurrentValue({TemplateSlot, 2}), {
+                       Automatic, None, Automatic}), First(#2), First(#1), 
+                     ButtonFrame -> If(Length(FE`Private`rules) === 1, 
+                      "TabHead", Replace(First(#2), {
+                        1 -> "TabHeadAbuttingRight", 
+                        Length(FE`Private`rules) -> "TabHeadAbuttingLeft", 
+                        ~ -> "TabHeadAbuttingLeftRight"})), 
+                     BaseStyle -> "TabViewLabel") &)}, 
+                  GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
+               Appearance -> "TabHead")}, {
+              PanelBox({
+                DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
+                   First(#2) -> StyleBox(Last(#1), 
+                    Selectable -> Dynamic(
+                     CurrentValue(CurrentValue(TemplateBox), Selectable))) &), 
+                  Dynamic(CurrentValue({TemplateSlot, 2})), 
+                  BaseStyle -> "TabView")), FillBox("")}, 
+               Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
+           Initialization :> (FE`Private`rules:= CurrentValue({
+             TemplateSlot, 1}))) &), InterpretationFunction -> (FE`TabViewBox(
+           ##1) &)}), Section(StyleData("TooltipContent"), 
          TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
            Appearance -> "Tooltip") &)}), Section(StyleData("RadioButtonBar"), 
          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
@@ -256,7 +284,7 @@ Document({
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 
            Background -> RGBColor(1, 0.77000000000000002`, 
-            0.77000000000000002`), FontColor -> GrayLevel(0.5`)), 
+            0.77000000000000002`), FontColor -> GrayLevel(0.502`)), 
           Section(StyleData("TemplateBoxErrorDisplayArgumentStyle"), 
            Background -> GrayLevel(1), FontColor -> GrayLevel(0))}, All)}, 
        All)}, All), SectionGroup({

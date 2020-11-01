@@ -562,6 +562,7 @@
 {"SyntaxInformation", {"ArgumentCount" -> 1}},
 {"SystemException", {"ArgumentCount" -> 1}},
 {"Table", {"ArgumentCount" -> 2.., "LocalVariables" -> {"Table", 2..}}},
+{"TabView", {"ArgumentCount" -> 1..2}},
 {"TagAssign", {"ArgumentCount" -> 3}},
 {"TagAssignDelayed", {"ArgumentCount" -> 3}},
 {"TagBox", {"ArgumentCount" -> 2}},
