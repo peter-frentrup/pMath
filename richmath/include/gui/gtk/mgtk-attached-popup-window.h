@@ -33,9 +33,10 @@ namespace richmath {
       virtual ~MathGtkAttachedPopupWindow();
       virtual void after_construction() override;
       
+      bool on_configure(GdkEvent *e);
+      bool on_delete(GdkEvent *e);
       bool on_draw(cairo_t *cr);
       bool on_unmap(GdkEvent *e);
-      bool on_delete(GdkEvent *e);
       bool on_window_state(GdkEvent *e);
     
     private:

@@ -950,8 +950,8 @@ bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
   if(!is_move_only || !_working_area->is_mouse_down() || _snapped_documents.length() < 1)
     return false;
     
+  invalidate_popup_window_positions();
   move_palettes();
-  
   return false;
 }
 

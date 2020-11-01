@@ -164,6 +164,7 @@ void MathGtkAttachedPopupWindow::after_construction() {
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_expose>("expose-event");
 #endif
 
+  signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_configure>("configure-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_delete>("delete-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_unmap>("unmap-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_window_state>("window-state-event");
@@ -368,6 +369,11 @@ int MathGtkAttachedPopupWindow::dpi() {
   if(dpi <= 0)
     return 96;
   return (int)dpi;
+}
+
+bool MathGtkAttachedPopupWindow::on_configure(GdkEvent *e) {
+  content()->invalidate_popup_window_positions();
+  return false;
 }
 
 bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
