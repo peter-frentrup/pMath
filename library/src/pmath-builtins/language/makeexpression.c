@@ -162,11 +162,578 @@ extern pmath_symbol_t pmath_System_Private_MakeLimitsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeScriptsExpression;
 extern pmath_symbol_t pmath_System_Private_MakeJuxtapositionExpression;
 
+static uint16_t unichar_at(pmath_expr_t expr, size_t i); 
+static pmath_bool_t is_empty_box(pmath_expr_t box);
+static pmath_bool_t is_string_at(pmath_expr_t expr, size_t i, const char *str);
+static pmath_bool_t string_equals(pmath_string_t str, const char *cstr);
+static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i);
+static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i);
+static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i);
+
+#define is_parse_error(x)  pmath_is_magic(x)
+static pmath_bool_t parse(pmath_t *box);
+static pmath_t parse_at(pmath_expr_t expr, size_t i);
+static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr);
+
+static pmath_t wrap_hold_with_debuginfo_from(pmath_t boxes_with_debuginfo, pmath_t result); // arguments be freed
+static void handle_row_error_at(pmath_expr_t expr, size_t i);
+
+static pmath_symbol_t inset_operator(uint16_t ch); // do not free result!
+static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i); // do not free result!
+
+static void emit_grid_options(pmath_expr_t options);
+static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling); // expr wont be freed, return PMATH_NULL on error
+
+static pmath_t make_expression_with_options(pmath_expr_t expr);
+static pmath_t get_parser_argument_from_string(pmath_string_t string); // string will be freed
+
+static pmath_t make_expression_from_string(pmath_string_t string);
+static pmath_t make_expression_from_name_token(pmath_string_t string);
+static pmath_t make_expression_from_string_token(pmath_string_t string);
+static pmath_string_t unescape_chars(pmath_string_t str);
+static pmath_string_t box_as_string(pmath_t box);
+static pmath_t make_expression_from_complexstringbox(pmath_expr_t box);
+static pmath_t make_expression_from_compresseddata(pmath_expr_t box);
+static pmath_t make_expression_from_fractionbox(pmath_expr_t box);
+static pmath_t make_expression_from_framebox(pmath_expr_t box);
+static pmath_t make_expression_from_gridbox(pmath_expr_t box);
+static pmath_t make_expression_from_gridbox_column(pmath_t box, pmath_expr_t gridbox);
+static pmath_t make_expression_from_interpretationbox(pmath_expr_t box);
+static pmath_t make_expression_from_overscriptbox(pmath_expr_t box);
+static pmath_t make_expression_from_radicalbox(pmath_expr_t box);
+static pmath_t make_expression_from_rotationbox(pmath_expr_t box);
+static pmath_t make_expression_from_sqrtbox(pmath_expr_t box);
+static pmath_t make_expression_from_stylebox(pmath_expr_t box);
+static pmath_t make_expression_from_tagbox(pmath_expr_t box);
+static pmath_t make_expression_from_templatebox(pmath_expr_t box);
+static pmath_t make_expression_from_underscriptbox(pmath_expr_t box);
+static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box);
+
+static pmath_t make_parenthesis(pmath_expr_t boxes); // (x)
+static pmath_t make_comma_sequence(pmath_expr_t expr); // a,b,c ...
+static pmath_t make_evaluation_sequence(pmath_expr_t boxes); // a; b; c\[RawNewline]d ...
+static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes);
+static pmath_t make_optional_pattern(pmath_expr_t boxes); // ?x  ?x:v
+static pmath_t make_from_first_box( pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_from_second_box(pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_matchfix(       pmath_expr_t boxes, pmath_symbol_t sym); // {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
+static pmath_t make_binary(         pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_infix_unchecked(pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_infix(          pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_relation(       pmath_expr_t boxes, pmath_symbol_t rel); // boxes will be freed, sym won't
+static pmath_t make_repeated_pattern(pmath_expr_t boxes, pmath_t range); // x**  x***
+static pmath_t make_unary_plus(pmath_expr_t boxes); // +x
+static pmath_t make_unary_minus(pmath_expr_t boxes); // -x
+static pmath_t make_pure_argument_range(pmath_expr_t boxes); // ##1
+static pmath_t make_text_line(pmath_expr_t boxes, pmath_symbol_t sym); // ??name  <<file    boxes will be freed, sym won't
+static pmath_t make_named_match(pmath_expr_t boxes, pmath_t range); // ~x  ~~x  ~~~x
+static pmath_t make_superscript(   pmath_expr_t boxes, pmath_expr_t superscript_box);
+static pmath_t make_subscript(     pmath_expr_t boxes, pmath_expr_t subscript_box);
+static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscript_box);
+static pmath_t make_simple_dot_call(  pmath_expr_t boxes); // a.f  a.f()
+static pmath_t make_dot_call(         pmath_expr_t boxes); // a.f(args)
+static pmath_t make_prefix_call(      pmath_expr_t boxes); // f @ a
+static pmath_t make_postfix_call(     pmath_expr_t boxes); // a // f
+static pmath_t make_argumentless_call(pmath_expr_t boxes); // f()
+static pmath_t make_simple_call(      pmath_expr_t boxes); // f(args)
+static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes); // x:p   ~:t  ~~:t  ~~~:t
+static pmath_t make_arrow_function(pmath_expr_t boxes); // args |-> body
+static pmath_t make_apply(pmath_expr_t boxes); // f @@ list
+static pmath_t make_message_name(pmath_expr_t boxes); // sym::tag
+static pmath_t make_typed_named_match(pmath_expr_t boxes); // ~x:t  ~~x:t  ~~~x:t
+static pmath_t make_tag_assignment(pmath_expr_t boxes); // tag/: lhs:= rhs   tag/: lhs::= rhs
+static pmath_t make_plus(pmath_expr_t boxes); // a + b - c ...
+static pmath_t make_division(pmath_expr_t boxes); //  a/b/c...
+static pmath_t make_and(pmath_expr_t boxes); // a && b & c ...
+static pmath_t make_or(pmath_expr_t boxes); // a || b || c ...
+static pmath_t make_part(pmath_expr_t boxes); // l[args]
+static pmath_t make_range(pmath_expr_t boxes); // a..b   a..b..c  with any of (a,b,c) optional
+static pmath_t make_multiplication(pmath_expr_t boxes);
+
+#define HOLDCOMPLETE(result) pmath_expr_new_extended(\
+    pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 1, result)
+
+// evaluates MakeExpression(box) but also retains debug information
+PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
+  pmath_t debug_info = pmath_get_debug_info(box);
+  
+  box = pmath_evaluate(
+          pmath_expr_new_extended(
+            pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box));
+            
+  if(pmath_is_null(debug_info))
+    return box;
+    
+  if(!pmath_is_expr_of(box, PMATH_SYMBOL_HOLDCOMPLETE)) {
+    pmath_unref(debug_info);
+    return box;
+  }
+  
+  if(pmath_expr_length(box) == 1) {
+    pmath_t content = pmath_expr_get_item(box, 1);
+    
+    if(pmath_is_ministr(content) || pmath_refcount(content) == 2) {
+      // one reference here and one in "box"
+      
+      pmath_unref(pmath_expr_extract_item(box, 1));
+      
+      content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
+      
+      box = pmath_expr_set_item(box, 1, content);
+    }
+    else
+      pmath_unref(content);
+  }
+  
+  return pmath_try_set_debug_info(box, debug_info);
+}
+
+PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
+  /* MakeExpression(boxes)
+     returns $Failed on error and HoldComplete(result) on success.
+  
+     options:
+       ParserArguments     {arg1, arg2, ...}
+       ParseSymbols        True/False
+   */
+  pmath_t box;
+  size_t exprlen = pmath_expr_length(expr);
+  
+  if(exprlen > 1)
+    return make_expression_with_options(expr);
+    
+  if(exprlen != 1) {
+    pmath_message_argxxx(exprlen, 1, 1);
+    pmath_unref(expr);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  box = pmath_expr_get_item(expr, 1);
+  pmath_unref(expr);
+  
+  if(pmath_is_string(box))
+    return make_expression_from_string(box);
+    
+  if(pmath_is_expr(box)) {
+    pmath_t head;
+    uint16_t firstchar, secondchar;
+    
+    head = pmath_expr_get_item(box, 0);
+    pmath_unref(head);
+    
+    expr = box;
+    box = PMATH_NULL;
+    
+    exprlen = pmath_expr_length(expr);
+    
+    if(!pmath_same(head, PMATH_SYMBOL_LIST)) {
+      // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
+      if(pmath_is_null(head))
+        return make_implicit_evaluation_sequence(expr);
+        
+      if(pmath_same(head, pmath_System_ComplexStringBox))
+        return make_expression_from_complexstringbox(expr);
+        
+      if(pmath_same(head, pmath_System_CompressedData))
+        return make_expression_from_compresseddata(expr);
+        
+      if(pmath_same(head, pmath_System_FractionBox))
+        return make_expression_from_fractionbox(expr);
+        
+      if(pmath_same(head, pmath_System_FrameBox))
+        return make_expression_from_framebox(expr);
+        
+      if(pmath_same(head, pmath_System_GridBox))
+        return make_expression_from_gridbox(expr);
+        
+      if(pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE))
+        return expr;
+        
+      if(pmath_same(head, pmath_System_InterpretationBox))
+        return make_expression_from_interpretationbox(expr);
+        
+      if(pmath_same(head, pmath_System_OverscriptBox))
+        return make_expression_from_overscriptbox(expr);
+        
+      if(pmath_same(head, pmath_System_RadicalBox))
+        return make_expression_from_radicalbox(expr);
+        
+      if(pmath_same(head, pmath_System_RotationBox))
+        return make_expression_from_rotationbox(expr);
+        
+      if(pmath_same(head, pmath_System_SqrtBox))
+        return make_expression_from_sqrtbox(expr);
+        
+      if(pmath_same(head, pmath_System_StyleBox))
+        return make_expression_from_stylebox(expr);
+        
+      if(pmath_same(head, pmath_System_TagBox))
+        return make_expression_from_tagbox(expr);
+        
+      if(pmath_same(head, pmath_System_TemplateBox))
+        return make_expression_from_templatebox(expr);
+        
+      if(pmath_same(head, pmath_System_UnderscriptBox))
+        return make_expression_from_underscriptbox(expr);
+        
+      if(pmath_same(head, pmath_System_UnderoverscriptBox))
+        return make_expression_from_underoverscriptbox(expr);
+        
+      pmath_message(PMATH_NULL, "inv", 1, expr);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    if(exprlen == 0) {
+      pmath_unref(expr);
+      return pmath_expr_new(
+               pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+    }
+    
+    firstchar  = unichar_at(expr, 1);
+    secondchar = unichar_at(expr, 2);
+    
+    // ()  and  (x) ...
+    if(firstchar == '(' && unichar_at(expr, exprlen) == ')')
+      return make_parenthesis(expr);
+      
+    // \[LeftInvisibleBracket]x\[RightInvisibleBracket]
+    if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+      return make_parenthesis(expr);
+      
+    // {}  and  {x}  and  {grid\[RightInvisibleBracket]
+    if(firstchar == '{') {
+      uint16_t lastchar = unichar_at(expr, exprlen);
+      
+      if(lastchar == '}')
+        return make_matchfix(expr, PMATH_SYMBOL_LIST);
+        
+      if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
+        return make_matchfix(expr, PMATH_SYMBOL_PIECEWISE);
+    }
+    
+    if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
+      return make_matchfix(expr, PMATH_SYMBOL_CEILING);
+      
+    if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
+      return make_matchfix(expr, PMATH_SYMBOL_FLOOR);
+      
+    if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
+      return make_matchfix(expr, pmath_System_BracketingBar);
+      
+    if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
+      return make_matchfix(expr, pmath_System_DoubleBracketingBar);
+      
+    // comma sepearted list ...
+    if(firstchar == ',' || secondchar == ',')
+      return make_comma_sequence(expr);
+      
+    // evaluation sequence ...
+    if(firstchar == ';' || secondchar == ';' || firstchar == '\n' || secondchar == '\n')
+      return make_evaluation_sequence(expr);
+      
+    if(exprlen == 1)
+      return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
+      
+    // ?x  and  ?x:v
+    if(firstchar == '?')
+      return make_optional_pattern(expr);
+      
+    // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
+    if(exprlen == 2) {
+      // x &
+      if(secondchar == '&')
+        return make_from_first_box(expr, PMATH_SYMBOL_FUNCTION);
+        
+      // x!
+      if(secondchar == '!')
+        return make_from_first_box(expr, PMATH_SYMBOL_FACTORIAL);
+        
+      // x!!
+      if(is_string_at(expr, 2, "!!"))
+        return make_from_first_box(expr, PMATH_SYMBOL_FACTORIAL2);
+        
+      // x++
+      if(is_string_at(expr, 2, "++"))
+        return make_from_first_box(expr, PMATH_SYMBOL_POSTINCREMENT);
+        
+      // x--
+      if(is_string_at(expr, 2, "--"))
+        return make_from_first_box(expr, PMATH_SYMBOL_POSTDECREMENT);
+        
+      // p**
+      if(is_string_at(expr, 2, "**"))
+        return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_one));
+        
+      // p***
+      if(is_string_at(expr, 2, "***"))
+        return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
+        
+      // +x
+      if(firstchar == '+')
+        return make_unary_plus(expr);
+        
+      // -x
+      if(firstchar == '-')
+        return make_unary_minus(expr);
+        
+      if(firstchar == PMATH_CHAR_PIECEWISE)
+        return make_from_second_box(expr, PMATH_SYMBOL_PIECEWISE);
+        
+      // !x
+      if(firstchar == '!' || firstchar == 0x00AC)
+        return make_from_second_box(expr, PMATH_SYMBOL_NOT);
+        
+      // #x
+      if(firstchar == '#')
+        return make_from_second_box(expr, PMATH_SYMBOL_PUREARGUMENT);
+        
+      // ##x
+      if(is_string_at(expr, 1, "##"))
+        return make_pure_argument_range(expr);
+        
+      // ++x
+      if(is_string_at(expr, 1, "++"))
+        return make_from_second_box(expr, PMATH_SYMBOL_INCREMENT);
+        
+      // --x
+      if(is_string_at(expr, 1, "--"))
+        return make_from_second_box(expr, PMATH_SYMBOL_DECREMENT);
+        
+      // ??x
+      if(is_string_at(expr, 1, "??"))
+        return make_text_line(expr, PMATH_SYMBOL_SHOWDEFINITION);
+        
+      // <<x
+      if(is_string_at(expr, 1, "<<"))
+        return make_text_line(expr, PMATH_SYMBOL_GET);
+        
+      // ~x
+      if(firstchar == '~')
+        return make_named_match(expr, pmath_ref(_pmath_object_singlematch));
+        
+      // ~~x
+      if(is_string_at(expr, 1, "~~"))
+        return make_named_match(expr, pmath_ref(_pmath_object_multimatch));
+        
+      // ~~~x
+      if(is_string_at(expr, 1, "~~~"))
+        return make_named_match(expr, pmath_ref(_pmath_object_zeromultimatch));
+        
+      // x^y   Subscript(x, y, ...)   Subscript(x,y,...)^z
+      if(secondchar == 0) {
+        box = pmath_expr_get_item(expr, 2);
+        
+        if(pmath_is_expr_of_len(box, pmath_System_SuperscriptBox, 1))
+          return make_superscript(expr, box);
+          
+        if(pmath_is_expr_of_len(box, pmath_System_SubscriptBox, 1))
+          return make_subscript(expr, box);
+          
+        if(pmath_is_expr_of_len(box, pmath_System_SubsuperscriptBox, 2))
+          return make_subsuperscript(expr, box);
+          
+        pmath_unref(box);
+        box = PMATH_NULL;
+      }
+    }
+    
+    // a.f  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
+    if(exprlen == 3) {       // a.f
+      if(secondchar == '.')
+        return make_simple_dot_call(expr);
+        
+      // f@x
+      if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL)
+        return make_prefix_call(expr);
+        
+      // arg // f
+      if(is_string_at(expr, 2, "//"))
+        return make_postfix_call(expr);
+        
+      // f()
+      if(secondchar == '(' && unichar_at(expr, 3) == ')')
+        return make_argumentless_call(expr);
+        
+      // ~:t  ~~:t  ~~~:t  x:p
+      if(secondchar == ':')
+        return make_pattern_or_typed_match(expr);
+        
+      // args |-> body
+      if(secondchar == 0x21A6)
+        return make_arrow_function(expr);
+        
+      // f@@list
+      if(is_string_at(expr, 2, "@@"))
+        return make_apply(expr);
+        
+      // s::tag
+      if(is_string_at(expr, 2, "::"))
+        return make_message_name(expr);
+        
+      // lhs:=rhs
+      if(secondchar == PMATH_CHAR_ASSIGN)
+        return make_binary(expr, PMATH_SYMBOL_ASSIGN);
+        
+      // lhs::=rhs
+      if(secondchar == PMATH_CHAR_ASSIGNDELAYED)
+        return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
+        
+      // lhs->rhs
+      if(secondchar == PMATH_CHAR_RULE)
+        return make_binary(expr, PMATH_SYMBOL_RULE);
+        
+      // lhs:>rhs
+      if(secondchar == PMATH_CHAR_RULEDELAYED)
+        return make_binary(expr, PMATH_SYMBOL_RULEDELAYED);
+        
+      // p?f
+      if(secondchar == '?')
+        return make_binary(expr, PMATH_SYMBOL_TESTPATTERN);
+        
+      // lhs:=rhs
+      if(is_string_at(expr, 2, ":="))
+        return make_binary(expr, PMATH_SYMBOL_ASSIGN);
+        
+      // lhs::=rhs
+      if(is_string_at(expr, 2, "::="))
+        return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
+        
+      // lhs->rhs
+      if(is_string_at(expr, 2, "->"))
+        return make_binary(expr, PMATH_SYMBOL_RULE);
+        
+      // lhs:>rhs
+      if(is_string_at(expr, 2, ":>"))
+        return make_binary(expr, PMATH_SYMBOL_RULEDELAYED);
+        
+      // lhs+=rhs
+      if(is_string_at(expr, 2, "+="))
+        return make_binary(expr, PMATH_SYMBOL_INCREMENT);
+        
+      // lhs-=rhs
+      if(is_string_at(expr, 2, "-="))
+        return make_binary(expr, PMATH_SYMBOL_DECREMENT);
+        
+      // lhs*=rhs
+      if(is_string_at(expr, 2, "*="))
+        return make_binary(expr, PMATH_SYMBOL_TIMESBY);
+        
+      // lhs/=rhs
+      if(is_string_at(expr, 2, "/="))
+        return make_binary(expr, PMATH_SYMBOL_DIVIDEBY);
+        
+      // p/?cond
+      if(is_string_at(expr, 2, "/?"))
+        return make_binary(expr, PMATH_SYMBOL_CONDITION);
+    }
+    
+    // ~x:t  ~~x:t  ~~~x:t
+    if(exprlen == 4 && unichar_at(expr, 3) == ':')
+      return make_typed_named_match(expr);
+      
+    // t/:l:=r   t/:l::=r
+    if(exprlen == 5 && is_string_at(expr, 2, "/:"))
+      return make_tag_assignment(expr);
+      
+    // infix operators (except * ) ...
+    if(exprlen & 1) {
+      int tokprec;
+      
+      if(secondchar == '+' || secondchar == '-')
+        return make_plus(expr);
+        
+      // single character infix operators (except + - * / && || and relations) ...
+      head = inset_operator(secondchar);
+      if(!pmath_is_null(head))
+        return make_infix(expr, head);
+        
+      pmath_token_analyse(&secondchar, 1, &tokprec);
+      
+      // x/y/.../z
+      if(tokprec == PMATH_PREC_DIV)
+        return make_division(expr);
+        
+      // a && b && ...
+      if(secondchar == 0x2227)
+        return make_and(expr);
+        
+      // a || b || ...
+      if(secondchar == 0x2228)
+        return make_or(expr);
+        
+      // a && b && ...
+      if(is_string_at(expr, 2, "&&"))
+        return make_and(expr);
+        
+      // a || b || ...
+      if(is_string_at(expr, 2, "||"))
+        return make_or(expr);
+        
+      // a ++ b ++ ...
+      if(is_string_at(expr, 2, "++"))
+        return make_infix_unchecked(expr, PMATH_SYMBOL_STRINGEXPRESSION);
+        
+      // relations ...
+      head = relation_at(expr, 2);
+      if(!pmath_is_null(head))
+        return make_relation(expr, head);
+    }
+    
+    // f(x)  l[x]  l[[x]]
+    if(exprlen == 4) {
+      // f(x)
+      if(secondchar == '(' && unichar_at(expr, 4) == ')')
+        return make_simple_call(expr);
+        
+      // l[x]
+      if(secondchar == '[' && unichar_at(expr, 4) == ']')
+        return make_part(expr);
+    }
+    
+    // a.f()
+    if( exprlen == 5               &&
+        secondchar == '.'          &&
+        unichar_at(expr, 4) == '(' &&
+        unichar_at(expr, 5) == ')')
+    {
+      return make_simple_dot_call(expr);
+    }
+    
+    // a.f(x)
+    if( exprlen == 6               &&
+        secondchar == '.'          &&
+        unichar_at(expr, 4) == '(' &&
+        unichar_at(expr, 6) == ')')
+    {
+      return make_dot_call(expr);
+    }
+    
+    // a..b..c
+    if(is_string_at(expr, 2, "..") || is_string_at(expr, 1, ".."))
+      return make_range(expr);
+      
+    if(is_underoverscript_at(expr, 1)) {
+      if(try_parse_helper(pmath_System_Private_MakeLimitsExpression, &expr))
+        return expr;
+    }
+    else if(exprlen > 2 && is_subsuperscript_at(expr, 2)) { // exprlen==2 case handled above
+      if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &expr))
+        return expr;
+    }
+    else if(secondchar != '*' && secondchar != 0x00D7) {
+      if(try_parse_helper(pmath_System_Private_MakeJuxtapositionExpression, &expr))
+        return expr;
+    }
+    
+    // everything else is multiplication ...
+    return make_multiplication(expr);
+  }
+  
+  return HOLDCOMPLETE(box);
+}
+
 // only handles BMP chars U+0001 .. U+ffff, 0 on error
-static uint16_t unichar_at(
-  pmath_expr_t expr,
-  size_t i
-) {
+static uint16_t unichar_at(pmath_expr_t expr, size_t i) {
   pmath_string_t obj = pmath_expr_get_item(expr, i);
   uint16_t result = 0;
   
@@ -210,11 +777,7 @@ static pmath_bool_t string_equals(pmath_string_t str, const char *cstr) {
   return TRUE;
 }
 
-static pmath_bool_t is_string_at(
-  pmath_expr_t expr,
-  size_t i,
-  const char *str
-) {
+static pmath_bool_t is_string_at(pmath_expr_t expr, size_t i, const char *str) {
   pmath_string_t obj = pmath_expr_get_item(expr, i);
   const uint16_t *buf;
   size_t len;
@@ -298,44 +861,6 @@ static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i) {
          pmath_same(head, pmath_System_UnderoverscriptBox);
 }
 
-#define HOLDCOMPLETE(result) pmath_expr_new_extended(\
-    pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 1, result)
-
-// evaluates MakeExpression(box) but also retains debug information
-PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
-  pmath_t debug_info = pmath_get_debug_info(box);
-  
-  box = pmath_evaluate(
-          pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box));
-            
-  if(pmath_is_null(debug_info))
-    return box;
-    
-  if(!pmath_is_expr_of(box, PMATH_SYMBOL_HOLDCOMPLETE)) {
-    pmath_unref(debug_info);
-    return box;
-  }
-  
-  if(pmath_expr_length(box) == 1) {
-    pmath_t content = pmath_expr_get_item(box, 1);
-    
-    if(pmath_is_ministr(content) || pmath_refcount(content) == 2) {
-      // one reference here and one in "box"
-      
-      pmath_unref(pmath_expr_extract_item(box, 1));
-      
-      content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
-      
-      box = pmath_expr_set_item(box, 1, content);
-    }
-    else
-      pmath_unref(content);
-  }
-  
-  return pmath_try_set_debug_info(box, debug_info);
-}
-
 static pmath_bool_t parse(pmath_t *box) {
 // *box = PMATH_NULL if result is FALSE
   pmath_t obj;
@@ -413,8 +938,6 @@ static void handle_row_error_at(pmath_expr_t expr, size_t i) {
   }
 }
 
-#define is_parse_error(x)  pmath_is_magic(x)
-
 static pmath_t parse_at(pmath_expr_t expr, size_t i) {
   pmath_t result = pmath_expr_get_item(expr, i);
   
@@ -432,6 +955,21 @@ static pmath_t parse_at(pmath_expr_t expr, size_t i) {
     return result;
     
   return PMATH_UNDEFINED;
+}
+
+static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr) {
+  pmath_t call_helper = pmath_expr_new_extended(pmath_ref(helper), 1, pmath_ref(*expr));
+  call_helper = pmath_evaluate(call_helper);
+  if(pmath_is_expr_of(call_helper, PMATH_SYMBOL_HOLDCOMPLETE) ||
+      pmath_same(call_helper, PMATH_SYMBOL_FAILED))
+  {
+    pmath_unref(*expr);
+    *expr = call_helper;
+    return TRUE;
+  }
+  // TODO: warn if call_helper is not Default ?
+  pmath_unref(call_helper);
+  return FALSE;
 }
 
 static pmath_symbol_t inset_operator(uint16_t ch) { // do not free result!
@@ -598,9 +1136,7 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i) { // do not free 
   return PMATH_NULL;
 }
 
-static void emit_grid_options(
-  pmath_expr_t options // wont be freed
-) {
+static void emit_grid_options(pmath_expr_t options) { // options wont be freed
   size_t i;
   
   for(i = 1; i <= pmath_expr_length(options); ++i) {
@@ -636,10 +1172,7 @@ static void emit_grid_options(
   }
 }
 
-static pmath_t parse_gridbox( // PMATH_NULL on error
-  pmath_expr_t expr,           // wont be freed
-  pmath_bool_t remove_styling
-) {
+static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling) { // expr wont be freed, return PMATH_NULL on error
   pmath_expr_t options, matrix, row;
   size_t height, width, i, j;
   
@@ -1197,6 +1730,49 @@ static pmath_t make_expression_from_gridbox(pmath_expr_t box) {
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
+static pmath_t make_expression_from_gridbox_column(pmath_t box, pmath_expr_t gridbox) {
+  pmath_t held   = parse_gridbox(gridbox, FALSE);
+  pmath_t grid   = pmath_expr_get_item(held, 1);
+  pmath_t matrix = pmath_expr_get_item(grid, 1);
+  pmath_t row    = pmath_expr_get_item(matrix, 1);
+  
+  if(pmath_expr_length(row) == 1) {
+    size_t i;
+    
+    pmath_unref(held);
+    pmath_unref(grid);
+    pmath_unref(row);
+    pmath_unref(gridbox);
+    
+    for(i = pmath_expr_length(matrix); i > 0; --i) {
+      row = pmath_expr_get_item(matrix, i);
+      
+      matrix = pmath_expr_set_item(matrix, i,
+                                   pmath_expr_get_item(row, 1));
+                                   
+      pmath_unref(row);
+    }
+    
+    return wrap_hold_with_debuginfo_from(
+             box,
+             pmath_expr_new_extended(
+               pmath_ref(PMATH_SYMBOL_COLUMN), 1,
+               matrix));
+  }
+  
+  pmath_unref(grid);
+  pmath_unref(matrix);
+  pmath_unref(row);
+  
+  if(!pmath_is_null(held)) {
+    pmath_unref(box);
+    return held;
+  }
+  
+  pmath_message(PMATH_NULL, "inv", 1, box);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
 static pmath_t make_expression_from_interpretationbox(pmath_expr_t box) {
   size_t len = pmath_expr_length(box);
   
@@ -1374,51 +1950,8 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
       if( pmath_string_equals_latin1(tag, "Column") &&
           pmath_is_expr_of(view, pmath_System_GridBox))
       {
-        pmath_t held;
-        pmath_t grid;
-        pmath_t matrix;
-        pmath_t row;
-        
-        held   = parse_gridbox(view, FALSE);
-        grid   = pmath_expr_get_item(held, 1);
-        matrix = pmath_expr_get_item(grid, 1);
-        row    = pmath_expr_get_item(matrix, 1);
-        
-        if(pmath_expr_length(row) == 1) {
-          size_t i;
-          
-          pmath_unref(held);
-          pmath_unref(grid);
-          pmath_unref(row);
-          pmath_unref(view);
-          pmath_unref(tag);
-          
-          for(i = pmath_expr_length(matrix); i > 0; --i) {
-            row = pmath_expr_get_item(matrix, i);
-            
-            matrix = pmath_expr_set_item(matrix, i,
-                                         pmath_expr_get_item(row, 1));
-                                         
-            pmath_unref(row);
-          }
-          
-          return wrap_hold_with_debuginfo_from(
-                   box,
-                   pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_COLUMN), 1,
-                     matrix));
-        }
-        
-        pmath_unref(grid);
-        pmath_unref(matrix);
-        pmath_unref(row);
-        
-        if(!pmath_is_null(held)) {
-          pmath_unref(box);
-          return held;
-        }
-        
-        goto FAILED;
+        pmath_unref(tag);
+        return make_expression_from_gridbox_column(box, view);
       }
       
       if(pmath_string_equals_latin1(tag, "Placeholder")) {
@@ -1442,9 +1975,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
         goto FAILED;
       }
       
-      if( pmath_string_equals_latin1(tag, "Grid") &&
-          pmath_is_expr_of(view, pmath_System_GridBox))
-      {
+      if(pmath_string_equals_latin1(tag, "Grid") && pmath_is_expr_of(view, pmath_System_GridBox)) {
         pmath_t grid = parse_gridbox(view, FALSE);
         
         pmath_unref(view);
@@ -1459,52 +1990,9 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
       }
     }
     
-    if( pmath_same(tag, PMATH_SYMBOL_COLUMN) &&
-        pmath_is_expr_of(view, pmath_System_GridBox))
-    {
-      pmath_t held;
-      pmath_t grid;
-      pmath_t matrix;
-      pmath_t row;
-      
-      held   = parse_gridbox(view, FALSE);
-      grid   = pmath_expr_get_item(held, 1);
-      matrix = pmath_expr_get_item(grid, 1);
-      row    = pmath_expr_get_item(matrix, 1);
-      
-      if(pmath_expr_length(row) == 1) {
-        size_t i;
-        
-        pmath_unref(tag);
-        pmath_unref(view);
-        pmath_unref(held);
-        pmath_unref(grid);
-        pmath_unref(row);
-        
-        for(i = pmath_expr_length(matrix); i > 0; --i) {
-          row = pmath_expr_get_item(matrix, i);
-          
-          matrix = pmath_expr_set_item(matrix, i,
-                                       pmath_expr_get_item(row, 1));
-                                       
-          pmath_unref(row);
-        }
-        
-        return wrap_hold_with_debuginfo_from(box, matrix);
-      }
-      
-      pmath_unref(grid);
-      pmath_unref(matrix);
-      pmath_unref(row);
-      pmath_unref(view);
+    if(pmath_same(tag, PMATH_SYMBOL_COLUMN) && pmath_is_expr_of(view, pmath_System_GridBox)) {
       pmath_unref(tag);
-      
-      if(!pmath_is_null(held)) {
-        pmath_unref(box);
-        return held;
-      }
-      
-      goto FAILED;
+      return make_expression_from_gridbox_column(box, view);
     }
     
     if(parse(&view)) {
@@ -1814,35 +2302,27 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
              pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE)));
 }
 
-// {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
-static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t head) {
-  pmath_t args;
-  size_t exprlen = pmath_expr_length(boxes);
+// implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
+static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
+  size_t i, exprlen;
+  pmath_t result;
   
-  if(exprlen == 2) {
-    pmath_unref(boxes);
-    if(pmath_same(head, PMATH_SYMBOL_LIST))
-      return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
-    else
-      return HOLDCOMPLETE(pmath_expr_new(pmath_ref(head), 0));
+  exprlen = pmath_expr_length(boxes);
+  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), exprlen);
+  
+  for(i = 1; i <= exprlen; ++i) {
+    pmath_t box = pmath_expr_get_item(boxes, i);
+    
+    if(!parse(&box)) {
+      pmath_unref(box);
+      pmath_unref(boxes);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    result = pmath_expr_set_item(result, i, box);
   }
   
-  if(exprlen != 3) {
-    pmath_message(PMATH_NULL, "inv", 1, boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
-  }
-  
-  args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 2));
-  
-  if(pmath_is_expr(args)) {
-    return wrap_hold_with_debuginfo_from(
-             boxes,
-             pmath_expr_set_item(args, 0, pmath_ref(head)));
-  }
-  
-  pmath_unref(boxes);
-  pmath_unref(args);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return wrap_hold_with_debuginfo_from(boxes, result);
 }
 
 // ?x  ?x:v
@@ -1903,6 +2383,202 @@ static pmath_t make_from_first_box(
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
+static pmath_t make_from_second_box(
+  pmath_expr_t boxes,  // will be freed
+  pmath_symbol_t sym  // wont be freed
+) {
+  pmath_t box = parse_at(boxes, 2);
+  
+  if(!is_parse_error(box)) {
+    return wrap_hold_with_debuginfo_from(
+             boxes,
+             pmath_expr_new_extended(
+               pmath_ref(sym), 1,
+               box));
+  }
+  
+  pmath_unref(boxes);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+// {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
+static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
+  pmath_t args;
+  size_t exprlen = pmath_expr_length(boxes);
+  
+  if(exprlen == 2) {
+    pmath_unref(boxes);
+    if(pmath_same(sym, PMATH_SYMBOL_LIST))
+      return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
+    else
+      return HOLDCOMPLETE(pmath_expr_new(pmath_ref(sym), 0));
+  }
+  
+  if(exprlen != 3) {
+    pmath_message(PMATH_NULL, "inv", 1, boxes);
+    return pmath_ref(PMATH_SYMBOL_FAILED);
+  }
+  
+  args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 2));
+  
+  if(pmath_is_expr(args)) {
+    return wrap_hold_with_debuginfo_from(
+             boxes,
+             pmath_expr_set_item(args, 0, pmath_ref(sym)));
+  }
+  
+  pmath_unref(boxes);
+  pmath_unref(args);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_binary(
+  pmath_expr_t boxes,  // will be freed
+  pmath_symbol_t sym   // wont be freed
+) {
+  pmath_t lhs = parse_at(boxes, 1);
+  
+  if(!is_parse_error(lhs)) {
+    pmath_t rhs;
+    
+    if( pmath_same(sym, PMATH_SYMBOL_ASSIGN) &&
+        unichar_at(boxes, 3) == '.')
+    {
+      return wrap_hold_with_debuginfo_from(
+               boxes,
+               pmath_expr_new_extended(
+                 pmath_ref(PMATH_SYMBOL_UNASSIGN), 1,
+                 lhs));
+    }
+    
+    rhs = parse_at(boxes, 3);
+    if(!is_parse_error(rhs)) {
+      return wrap_hold_with_debuginfo_from(
+               boxes,
+               pmath_expr_new_extended(
+                 pmath_ref(sym), 2,
+                 lhs,
+                 rhs));
+    }
+    
+    pmath_unref(lhs);
+  }
+  
+  pmath_unref(boxes);
+  return pmath_ref(PMATH_SYMBOL_FAILED);
+}
+
+static pmath_t make_infix_unchecked(
+  pmath_expr_t boxes,  // will be freed
+  pmath_symbol_t sym  // wont be freed
+) {
+  size_t i, exprlen;
+  pmath_expr_t result;
+  
+  exprlen = pmath_expr_length(boxes);
+  
+  result = pmath_expr_new(pmath_ref(sym), (1 + exprlen) / 2);
+  for(i = 0; i <= exprlen / 2; ++i) {
+    pmath_t arg = parse_at(boxes, 2 * i + 1);
+    
+    if(is_parse_error(arg)) {
+      pmath_unref(result);
+      pmath_unref(boxes);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    result = pmath_expr_set_item(result, i + 1, arg);
+  }
+  
+  return wrap_hold_with_debuginfo_from(boxes, result);
+}
+
+static pmath_t make_infix(
+  pmath_expr_t boxes,  // will be freed
+  pmath_symbol_t sym  // wont be freed
+) {
+  size_t i, exprlen;
+  
+  exprlen = pmath_expr_length(boxes);
+  
+  for(i = 4; i < exprlen; i += 2) {
+    if(!pmath_same(inset_operator(unichar_at(boxes, i)), sym)) {
+      handle_row_error_at(boxes, i);
+      pmath_unref(boxes);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+  }
+  
+  return make_infix_unchecked(boxes, sym);
+}
+
+// a < b <= c ...
+static pmath_t make_relation(
+  pmath_expr_t   boxes,  // will be freed
+  pmath_symbol_t rel     // wont be freed
+) {
+  pmath_expr_t result = pmath_ref(boxes);
+  size_t i, exprlen;
+  
+  exprlen = pmath_expr_length(boxes);
+  
+  for(i = 4; i < exprlen; ++i) {
+    if(!pmath_same(rel, relation_at(boxes, i))) {
+      pmath_t arg = parse_at(boxes, 1);
+      
+      if(is_parse_error(arg)) {
+        pmath_unref(boxes);
+        return pmath_ref(PMATH_SYMBOL_FAILED);
+      }
+      
+      result = pmath_expr_set_item(result, 1, arg);
+      for(i = 3; i <= exprlen; i += 2) {
+        rel = relation_at(boxes, i - 1);
+        
+        if(pmath_is_null(rel)) {
+          handle_row_error_at(boxes, i - 1);
+          pmath_unref(boxes);
+          pmath_unref(result);
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        }
+        
+        result = pmath_expr_set_item(result, i - 1, pmath_ref(rel));
+        
+        arg = parse_at(boxes, i);
+        if(is_parse_error(arg)) {
+          pmath_unref(boxes);
+          pmath_unref(result);
+          return pmath_ref(PMATH_SYMBOL_FAILED);
+        }
+        
+        result = pmath_expr_set_item(result, i, arg);
+      }
+      
+      return wrap_hold_with_debuginfo_from(
+               boxes,
+               pmath_expr_set_item(
+                 result, 0,
+                 pmath_ref(PMATH_SYMBOL_INEQUATION)));
+    }
+  }
+  
+  pmath_unref(result);
+  result = pmath_expr_new(pmath_ref(rel), (1 + exprlen) / 2);
+  for(i = 0; i <= exprlen / 2; ++i) {
+    pmath_t arg = parse_at(boxes, 2 * i + 1);
+    
+    if(is_parse_error(arg)) {
+      pmath_unref(result);
+      pmath_unref(boxes);
+      return pmath_ref(PMATH_SYMBOL_FAILED);
+    }
+    
+    result = pmath_expr_set_item(result, i + 1, arg);
+  }
+  
+  return wrap_hold_with_debuginfo_from(boxes, result);
+}
+
 // x**  x***
 static pmath_t make_repeated_pattern(
   pmath_expr_t boxes,   // will be freed
@@ -1948,24 +2624,6 @@ static pmath_t make_unary_minus(pmath_expr_t boxes) {
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_TIMES), 2,
                PMATH_FROM_INT32(-1),
-               box));
-  }
-  
-  pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
-}
-
-static pmath_t make_from_second_box(
-  pmath_expr_t boxes,  // will be freed
-  pmath_symbol_t sym  // wont be freed
-) {
-  pmath_t box = parse_at(boxes, 2);
-  
-  if(!is_parse_error(box)) {
-    return wrap_hold_with_debuginfo_from(
-             boxes,
-             pmath_expr_new_extended(
-               pmath_ref(sym), 1,
                box));
   }
   
@@ -2041,21 +2699,6 @@ static pmath_t make_named_match(
   pmath_unref(boxes);
   pmath_unref(range);
   return pmath_ref(PMATH_SYMBOL_FAILED);
-}
-
-static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr) {
-  pmath_t call_helper = pmath_expr_new_extended(pmath_ref(helper), 1, pmath_ref(*expr));
-  call_helper = pmath_evaluate(call_helper);
-  if(pmath_is_expr_of(call_helper, PMATH_SYMBOL_HOLDCOMPLETE) ||
-      pmath_same(call_helper, PMATH_SYMBOL_FAILED))
-  {
-    pmath_unref(*expr);
-    *expr = call_helper;
-    return TRUE;
-  }
-  // TODO: warn if call_helper is not Default ?
-  pmath_unref(call_helper);
-  return FALSE;
 }
 
 static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box) {
@@ -2442,42 +3085,6 @@ static pmath_t make_message_name(pmath_expr_t boxes) {
   return pmath_ref(PMATH_SYMBOL_FAILED);
 }
 
-static pmath_t make_binary(
-  pmath_expr_t boxes,  // will be freed
-  pmath_symbol_t sym   // wont be freed
-) {
-  pmath_t lhs = parse_at(boxes, 1);
-  
-  if(!is_parse_error(lhs)) {
-    pmath_t rhs;
-    
-    if( pmath_same(sym, PMATH_SYMBOL_ASSIGN) &&
-        unichar_at(boxes, 3) == '.')
-    {
-      return wrap_hold_with_debuginfo_from(
-               boxes,
-               pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_UNASSIGN), 1,
-                 lhs));
-    }
-    
-    rhs = parse_at(boxes, 3);
-    if(!is_parse_error(rhs)) {
-      return wrap_hold_with_debuginfo_from(
-               boxes,
-               pmath_expr_new_extended(
-                 pmath_ref(sym), 2,
-                 lhs,
-                 rhs));
-    }
-    
-    pmath_unref(lhs);
-  }
-  
-  pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
-}
-
 // ~x:t  ~~x:t  ~~~x:t
 static pmath_t make_typed_named_match(pmath_expr_t boxes) {
   pmath_t x, t;
@@ -2649,50 +3256,6 @@ static pmath_t make_plus(pmath_expr_t boxes) {
   return wrap_hold_with_debuginfo_from(boxes, result);
 }
 
-static pmath_t make_infix_unchecked(
-  pmath_expr_t boxes,  // will be freed
-  pmath_symbol_t sym  // wont be freed
-) {
-  size_t i, exprlen;
-  pmath_expr_t result;
-  
-  exprlen = pmath_expr_length(boxes);
-  
-  result = pmath_expr_new(pmath_ref(sym), (1 + exprlen) / 2);
-  for(i = 0; i <= exprlen / 2; ++i) {
-    pmath_t arg = parse_at(boxes, 2 * i + 1);
-    
-    if(is_parse_error(arg)) {
-      pmath_unref(result);
-      pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    result = pmath_expr_set_item(result, i + 1, arg);
-  }
-  
-  return wrap_hold_with_debuginfo_from(boxes, result);
-}
-
-static pmath_t make_infix(
-  pmath_expr_t boxes,  // will be freed
-  pmath_symbol_t sym  // wont be freed
-) {
-  size_t i, exprlen;
-  
-  exprlen = pmath_expr_length(boxes);
-  
-  for(i = 4; i < exprlen; i += 2) {
-    if(!pmath_same(inset_operator(unichar_at(boxes, i)), sym)) {
-      handle_row_error_at(boxes, i);
-      pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-  }
-  
-  return make_infix_unchecked(boxes, sym);
-}
-
 //  a/b/c...
 static pmath_t make_division(pmath_expr_t boxes) {
   pmath_expr_t result;
@@ -2813,73 +3376,6 @@ static pmath_t make_or(pmath_expr_t boxes) {
   return make_infix_unchecked(boxes, PMATH_SYMBOL_OR);
 }
 
-// a < b <= c ...
-static pmath_t make_relation(
-  pmath_expr_t   boxes,  // will be freed
-  pmath_symbol_t rel     // wont be freed
-) {
-  pmath_expr_t result = pmath_ref(boxes);
-  size_t i, exprlen;
-  
-  exprlen = pmath_expr_length(boxes);
-  
-  for(i = 4; i < exprlen; ++i) {
-    if(!pmath_same(rel, relation_at(boxes, i))) {
-      pmath_t arg = parse_at(boxes, 1);
-      
-      if(is_parse_error(arg)) {
-        pmath_unref(boxes);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
-      }
-      
-      result = pmath_expr_set_item(result, 1, arg);
-      for(i = 3; i <= exprlen; i += 2) {
-        rel = relation_at(boxes, i - 1);
-        
-        if(pmath_is_null(rel)) {
-          handle_row_error_at(boxes, i - 1);
-          pmath_unref(boxes);
-          pmath_unref(result);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
-        }
-        
-        result = pmath_expr_set_item(result, i - 1, pmath_ref(rel));
-        
-        arg = parse_at(boxes, i);
-        if(is_parse_error(arg)) {
-          pmath_unref(boxes);
-          pmath_unref(result);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
-        }
-        
-        result = pmath_expr_set_item(result, i, arg);
-      }
-      
-      return wrap_hold_with_debuginfo_from(
-               boxes,
-               pmath_expr_set_item(
-                 result, 0,
-                 pmath_ref(PMATH_SYMBOL_INEQUATION)));
-    }
-  }
-  
-  pmath_unref(result);
-  result = pmath_expr_new(pmath_ref(rel), (1 + exprlen) / 2);
-  for(i = 0; i <= exprlen / 2; ++i) {
-    pmath_t arg = parse_at(boxes, 2 * i + 1);
-    
-    if(is_parse_error(arg)) {
-      pmath_unref(result);
-      pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    result = pmath_expr_set_item(result, i + 1, arg);
-  }
-  
-  return wrap_hold_with_debuginfo_from(boxes, result);
-}
-
 // l[args]
 static pmath_t make_part(pmath_expr_t boxes) {
   pmath_t args, list;
@@ -2968,29 +3464,6 @@ static pmath_t make_range(pmath_expr_t boxes) {
   return wrap_hold_with_debuginfo_from(boxes, result);
 }
 
-// implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
-static pmath_t obsolete_make_implicit_evaluation_sequence(pmath_expr_t boxes) {
-  size_t i, exprlen;
-  pmath_t result;
-  
-  exprlen = pmath_expr_length(boxes);
-  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), exprlen);
-  
-  for(i = 1; i <= exprlen; ++i) {
-    pmath_t box = pmath_expr_get_item(boxes, i);
-    
-    if(!parse(&box)) {
-      pmath_unref(box);
-      pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    result = pmath_expr_set_item(result, i, box);
-  }
-  
-  return wrap_hold_with_debuginfo_from(boxes, result);
-}
-
 static pmath_t make_multiplication(pmath_expr_t boxes) {
   size_t i, exprlen;
   uint16_t ch;
@@ -3021,448 +3494,4 @@ static pmath_t make_multiplication(pmath_expr_t boxes) {
            pmath_expr_set_item(
              pmath_gather_end(), 0,
              pmath_ref(PMATH_SYMBOL_TIMES)));
-}
-
-PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
-  /* MakeExpression(boxes)
-     returns $Failed on error and HoldComplete(result) on success.
-  
-     options:
-       ParserArguments     {arg1, arg2, ...}
-       ParseSymbols        True/False
-   */
-  pmath_t box;
-  size_t exprlen = pmath_expr_length(expr);
-  
-  if(exprlen > 1)
-    return make_expression_with_options(expr);
-    
-  if(exprlen != 1) {
-    pmath_message_argxxx(exprlen, 1, 1);
-    pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
-  }
-  
-  box = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  if(pmath_is_string(box))
-    return make_expression_from_string(box);
-    
-  if(pmath_is_expr(box)) {
-    pmath_t head;
-    uint16_t firstchar, secondchar;
-    
-    head = pmath_expr_get_item(box, 0);
-    pmath_unref(head);
-    
-    expr = box;
-    box = PMATH_NULL;
-    
-    exprlen = pmath_expr_length(expr);
-    
-    if(!pmath_is_null(head) && !pmath_same(head, PMATH_SYMBOL_LIST)) {
-      if(pmath_same(head, pmath_System_ComplexStringBox))
-        return make_expression_from_complexstringbox(expr);
-        
-      if(pmath_same(head, pmath_System_CompressedData))
-        return make_expression_from_compresseddata(expr);
-        
-      if(pmath_same(head, pmath_System_FractionBox))
-        return make_expression_from_fractionbox(expr);
-        
-      if(pmath_same(head, pmath_System_FrameBox))
-        return make_expression_from_framebox(expr);
-        
-      if(pmath_same(head, pmath_System_GridBox))
-        return make_expression_from_gridbox(expr);
-        
-      if(pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE))
-        return expr;
-        
-      if(pmath_same(head, pmath_System_InterpretationBox))
-        return make_expression_from_interpretationbox(expr);
-        
-      if(pmath_same(head, pmath_System_OverscriptBox))
-        return make_expression_from_overscriptbox(expr);
-        
-      if(pmath_same(head, pmath_System_RadicalBox))
-        return make_expression_from_radicalbox(expr);
-        
-      if(pmath_same(head, pmath_System_RotationBox))
-        return make_expression_from_rotationbox(expr);
-        
-      if(pmath_same(head, pmath_System_SqrtBox))
-        return make_expression_from_sqrtbox(expr);
-        
-      if(pmath_same(head, pmath_System_StyleBox))
-        return make_expression_from_stylebox(expr);
-        
-      if(pmath_same(head, pmath_System_TagBox))
-        return make_expression_from_tagbox(expr);
-        
-      if(pmath_same(head, pmath_System_TemplateBox))
-        return make_expression_from_templatebox(expr);
-        
-      if(pmath_same(head, pmath_System_UnderscriptBox))
-        return make_expression_from_underscriptbox(expr);
-        
-      if(pmath_same(head, pmath_System_UnderoverscriptBox))
-        return make_expression_from_underoverscriptbox(expr);
-        
-      pmath_message(PMATH_NULL, "inv", 1, expr);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
-    }
-    
-    if(exprlen == 0) {
-      pmath_unref(expr);
-      return pmath_expr_new(
-               pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
-    }
-    
-    firstchar  = unichar_at(expr, 1);
-    secondchar = unichar_at(expr, 2);
-    
-    // ()  and  (x) ...
-    if(firstchar == '(' && unichar_at(expr, exprlen) == ')')
-      return make_parenthesis(expr);
-      
-    // \[LeftInvisibleBracket]x\[RightInvisibleBracket]
-    if(firstchar == PMATH_CHAR_LEFTINVISIBLEBRACKET && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
-      return make_parenthesis(expr);
-      
-    // {}  and  {x}  and  {grid\[RightInvisibleBracket]
-    if(firstchar == '{') {
-      uint16_t lastchar = unichar_at(expr, exprlen);
-      
-      if(lastchar == '}')
-        return make_matchfix(expr, PMATH_SYMBOL_LIST);
-        
-      if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
-        return make_matchfix(expr, PMATH_SYMBOL_PIECEWISE);
-    }
-    
-    if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
-      return make_matchfix(expr, PMATH_SYMBOL_CEILING);
-      
-    if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
-      return make_matchfix(expr, PMATH_SYMBOL_FLOOR);
-      
-    if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
-      return make_matchfix(expr, pmath_System_BracketingBar);
-      
-    if(firstchar == PMATH_CHAR_LEFTDOUBLEBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTDOUBLEBRACKETINGBAR)
-      return make_matchfix(expr, pmath_System_DoubleBracketingBar);
-      
-    // comma sepearted list ...
-    if(firstchar == ',' || secondchar == ',')
-      return make_comma_sequence(expr);
-      
-    // evaluation sequence ...
-    if(firstchar == ';' || secondchar == ';' || firstchar == '\n' || secondchar == '\n')
-      return make_evaluation_sequence(expr);
-      
-    if(exprlen == 1)
-      return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
-      
-    // ?x  and  ?x:v
-    if(firstchar == '?')
-      return make_optional_pattern(expr);
-      
-    // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
-    if(exprlen == 2) {
-      // x &
-      if(secondchar == '&')
-        return make_from_first_box(expr, PMATH_SYMBOL_FUNCTION);
-        
-      // x!
-      if(secondchar == '!')
-        return make_from_first_box(expr, PMATH_SYMBOL_FACTORIAL);
-        
-      // x!!
-      if(is_string_at(expr, 2, "!!"))
-        return make_from_first_box(expr, PMATH_SYMBOL_FACTORIAL2);
-        
-      // x++
-      if(is_string_at(expr, 2, "++"))
-        return make_from_first_box(expr, PMATH_SYMBOL_POSTINCREMENT);
-        
-      // x--
-      if(is_string_at(expr, 2, "--"))
-        return make_from_first_box(expr, PMATH_SYMBOL_POSTDECREMENT);
-        
-      // p**
-      if(is_string_at(expr, 2, "**"))
-        return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_one));
-        
-      // p***
-      if(is_string_at(expr, 2, "***"))
-        return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
-        
-      // +x
-      if(firstchar == '+')
-        return make_unary_plus(expr);
-        
-      // -x
-      if(firstchar == '-')
-        return make_unary_minus(expr);
-        
-      if(firstchar == PMATH_CHAR_PIECEWISE)
-        return make_from_second_box(expr, PMATH_SYMBOL_PIECEWISE);
-        
-      // !x
-      if(firstchar == '!' || firstchar == 0x00AC)
-        return make_from_second_box(expr, PMATH_SYMBOL_NOT);
-        
-      // #x
-      if(firstchar == '#')
-        return make_from_second_box(expr, PMATH_SYMBOL_PUREARGUMENT);
-        
-      // ##x
-      if(is_string_at(expr, 1, "##"))
-        return make_pure_argument_range(expr);
-        
-      // ++x
-      if(is_string_at(expr, 1, "++"))
-        return make_from_second_box(expr, PMATH_SYMBOL_INCREMENT);
-        
-      // --x
-      if(is_string_at(expr, 1, "--"))
-        return make_from_second_box(expr, PMATH_SYMBOL_DECREMENT);
-        
-      // ??x
-      if(is_string_at(expr, 1, "??"))
-        return make_text_line(expr, PMATH_SYMBOL_SHOWDEFINITION);
-        
-      // <<x
-      if(is_string_at(expr, 1, "<<"))
-        return make_text_line(expr, PMATH_SYMBOL_GET);
-        
-      // ~x
-      if(firstchar == '~')
-        return make_named_match(expr, pmath_ref(_pmath_object_singlematch));
-        
-      // ~~x
-      if(is_string_at(expr, 1, "~~"))
-        return make_named_match(expr, pmath_ref(_pmath_object_multimatch));
-        
-      // ~~~x
-      if(is_string_at(expr, 1, "~~~"))
-        return make_named_match(expr, pmath_ref(_pmath_object_zeromultimatch));
-        
-      // x^y   Subscript(x, y, ...)   Subscript(x,y,...)^z
-      if(secondchar == 0) {
-        box = pmath_expr_get_item(expr, 2);
-        
-        if(pmath_is_expr_of_len(box, pmath_System_SuperscriptBox, 1))
-          return make_superscript(expr, box);
-          
-        if(pmath_is_expr_of_len(box, pmath_System_SubscriptBox, 1))
-          return make_subscript(expr, box);
-          
-        if(pmath_is_expr_of_len(box, pmath_System_SubsuperscriptBox, 2))
-          return make_subsuperscript(expr, box);
-          
-        pmath_unref(box);
-        box = PMATH_NULL;
-      }
-    }
-    
-    // a.f  f@x  f@@list  s::tag  f()  ~:t  ~~:t  ~~~:t  x:p  a//f  p/?c  l->r  l:=r  l+=r  l-=r  l:>r  l::=r  l..r
-    if(exprlen == 3) {       // a.f
-      if(secondchar == '.')
-        return make_simple_dot_call(expr);
-        
-      // f@x
-      if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL)
-        return make_prefix_call(expr);
-        
-      // arg // f
-      if(is_string_at(expr, 2, "//"))
-        return make_postfix_call(expr);
-        
-      // f()
-      if(secondchar == '(' && unichar_at(expr, 3) == ')')
-        return make_argumentless_call(expr);
-        
-      // ~:t  ~~:t  ~~~:t  x:p
-      if(secondchar == ':')
-        return make_pattern_or_typed_match(expr);
-        
-      // args |-> body
-      if(secondchar == 0x21A6)
-        return make_arrow_function(expr);
-        
-      // f@@list
-      if(is_string_at(expr, 2, "@@"))
-        return make_apply(expr);
-        
-      // s::tag
-      if(is_string_at(expr, 2, "::"))
-        return make_message_name(expr);
-        
-      // lhs:=rhs
-      if(secondchar == PMATH_CHAR_ASSIGN)
-        return make_binary(expr, PMATH_SYMBOL_ASSIGN);
-        
-      // lhs::=rhs
-      if(secondchar == PMATH_CHAR_ASSIGNDELAYED)
-        return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
-        
-      // lhs->rhs
-      if(secondchar == PMATH_CHAR_RULE)
-        return make_binary(expr, PMATH_SYMBOL_RULE);
-        
-      // lhs:>rhs
-      if(secondchar == PMATH_CHAR_RULEDELAYED)
-        return make_binary(expr, PMATH_SYMBOL_RULEDELAYED);
-        
-      // p?f
-      if(secondchar == '?')
-        return make_binary(expr, PMATH_SYMBOL_TESTPATTERN);
-        
-      // lhs:=rhs
-      if(is_string_at(expr, 2, ":="))
-        return make_binary(expr, PMATH_SYMBOL_ASSIGN);
-        
-      // lhs::=rhs
-      if(is_string_at(expr, 2, "::="))
-        return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
-        
-      // lhs->rhs
-      if(is_string_at(expr, 2, "->"))
-        return make_binary(expr, PMATH_SYMBOL_RULE);
-        
-      // lhs:>rhs
-      if(is_string_at(expr, 2, ":>"))
-        return make_binary(expr, PMATH_SYMBOL_RULEDELAYED);
-        
-      // lhs+=rhs
-      if(is_string_at(expr, 2, "+="))
-        return make_binary(expr, PMATH_SYMBOL_INCREMENT);
-        
-      // lhs-=rhs
-      if(is_string_at(expr, 2, "-="))
-        return make_binary(expr, PMATH_SYMBOL_DECREMENT);
-        
-      // lhs*=rhs
-      if(is_string_at(expr, 2, "*="))
-        return make_binary(expr, PMATH_SYMBOL_TIMESBY);
-        
-      // lhs/=rhs
-      if(is_string_at(expr, 2, "/="))
-        return make_binary(expr, PMATH_SYMBOL_DIVIDEBY);
-        
-      // p/?cond
-      if(is_string_at(expr, 2, "/?"))
-        return make_binary(expr, PMATH_SYMBOL_CONDITION);
-    }
-    
-    // ~x:t  ~~x:t  ~~~x:t
-    if(exprlen == 4 && unichar_at(expr, 3) == ':')
-      return make_typed_named_match(expr);
-      
-    // t/:l:=r   t/:l::=r
-    if(exprlen == 5 && is_string_at(expr, 2, "/:"))
-      return make_tag_assignment(expr);
-      
-    // infix operators (except * ) ...
-    if(exprlen & 1) {
-      int tokprec;
-      
-      if(secondchar == '+' || secondchar == '-')
-        return make_plus(expr);
-        
-      // single character infix operators (except + - * / && || and relations) ...
-      head = inset_operator(secondchar);
-      if(!pmath_is_null(head))
-        return make_infix(expr, head);
-        
-      pmath_token_analyse(&secondchar, 1, &tokprec);
-      
-      // x/y/.../z
-      if(tokprec == PMATH_PREC_DIV)
-        return make_division(expr);
-        
-      // a && b && ...
-      if(secondchar == 0x2227)
-        return make_and(expr);
-        
-      // a || b || ...
-      if(secondchar == 0x2228)
-        return make_or(expr);
-        
-      // a && b && ...
-      if(is_string_at(expr, 2, "&&"))
-        return make_and(expr);
-        
-      // a || b || ...
-      if(is_string_at(expr, 2, "||"))
-        return make_or(expr);
-        
-      // a ++ b ++ ...
-      if(is_string_at(expr, 2, "++"))
-        return make_infix_unchecked(expr, PMATH_SYMBOL_STRINGEXPRESSION);
-        
-      // relations ...
-      head = relation_at(expr, 2);
-      if(!pmath_is_null(head))
-        return make_relation(expr, head);
-    }
-    
-    // f(x)  l[x]  l[[x]]
-    if(exprlen == 4) {
-      // f(x)
-      if(secondchar == '(' && unichar_at(expr, 4) == ')')
-        return make_simple_call(expr);
-        
-      // l[x]
-      if(secondchar == '[' && unichar_at(expr, 4) == ']')
-        return make_part(expr);
-    }
-    
-    // a.f()
-    if( exprlen == 5               &&
-        secondchar == '.'          &&
-        unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 5) == ')')
-    {
-      return make_simple_dot_call(expr);
-    }
-    
-    // a.f(x)
-    if( exprlen == 6               &&
-        secondchar == '.'          &&
-        unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 6) == ')')
-    {
-      return make_dot_call(expr);
-    }
-    
-    // a..b..c
-    if(is_string_at(expr, 2, "..") || is_string_at(expr, 1, ".."))
-      return make_range(expr);
-      
-    // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
-    if(pmath_is_expr_of(expr, PMATH_NULL))
-      return obsolete_make_implicit_evaluation_sequence(expr);
-      
-    if(is_underoverscript_at(expr, 1)) {
-      if(try_parse_helper(pmath_System_Private_MakeLimitsExpression, &expr))
-        return expr;
-    }
-    else if(exprlen > 2 && is_subsuperscript_at(expr, 2)) { // exprlen==2 case handled above
-      if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &expr))
-        return expr;
-    }
-    else if(secondchar != '*' && secondchar != 0x00D7) {
-      if(try_parse_helper(pmath_System_Private_MakeJuxtapositionExpression, &expr))
-        return expr;
-    }
-    
-    // everything else is multiplication ...
-    return make_multiplication(expr);
-  }
-  
-  return HOLDCOMPLETE(box);
 }
