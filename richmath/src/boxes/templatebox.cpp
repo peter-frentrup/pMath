@@ -499,8 +499,7 @@ bool TemplateBoxSlot::edit_selection(SelectionReference &selection) {
 bool TemplateBoxSlot::selectable(int i) {
   if(i >= 0) {
     if(TemplateBox *owner = find_owner_in_same_document()) {
-      if(!owner->selectable())
-        return false;
+      return owner->selectable();
     }
   }
   
