@@ -69,9 +69,9 @@ makeGuiBoxes(~x)::= makeCallBoxes(x)
 
 MakeBoxes(~button:Button)::= makeButtonBox(button) /? allowGuiBoxes
 Attributes(makeButtonBox):= {HoldAllComplete}
-makeButtonBox(Button(~text,                                        options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), options)
-makeButtonBox(Button(~text, None,                                  options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), options)
-makeButtonBox(Button(~text, code: Except((Rule|RuleDelayed)(~,~)), options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
+makeButtonBox(Button(~text,                                        options:OptionsPattern()))::= ButtonBox(makeNullBoxes(text), options)
+makeButtonBox(Button(~text, None,                                  options:OptionsPattern()))::= ButtonBox(makeNullBoxes(text), options)
+makeButtonBox(Button(~text, code: Except((Rule|RuleDelayed)(~,~)), options:OptionsPattern()))::= ButtonBox(makeNullBoxes(text), ButtonFunction -> (code &), options)
 makeButtonBox(~x)::= makeCallBoxes(x)
 
 
@@ -206,8 +206,8 @@ makeSliderBox(~x)::= makeCallBoxes(x)
 
 MakeBoxes(~x: TabView)::= makeTabViewBox(x) /? allowGuiBoxes
 Attributes(makeTabViewBox):= {HoldAllComplete}
-makeTabViewBox(TabView(tabs:{(~ -> ~)**},~i))::= TemplateBox({ReleaseHold @ Hold(tabs).Map(MakeBoxes, 3), i}, "TabView")
-makeTabViewBox(TabView(panes:{~~}, ~i))::=       TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->MakeBoxes(#), HoldAllComplete), 2), i}, "TabView")
+makeTabViewBox(TabView(tabs:{(~ -> ~)**},~i))::= TemplateBox({ReleaseHold @ Hold(tabs).Map(makeNullBoxes, 3), i}, "TabView")
+makeTabViewBox(TabView(panes:{~~}, ~i))::=       TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->makeNullBoxes(#), HoldAllComplete), 2), i}, "TabView")
 makeTabViewBox(TabView(~panes))::=               makeTabViewBox(TabView(panes, 1))
 makeTabViewBox(~x)::= makeCallBoxes(x)
 
