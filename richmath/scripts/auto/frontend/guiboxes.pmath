@@ -67,8 +67,14 @@ makeGuiBoxes(~x)::= makeCallBoxes(x)
 
 
 
-MakeBoxes(Button(~text, None, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), options) /? allowGuiBoxes
-MakeBoxes(Button(~text, ~code, options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options) /? allowGuiBoxes
+MakeBoxes(~button:Button)::= makeButtonBox(button) /? allowGuiBoxes
+Attributes(makeButtonBox):= {HoldAllComplete}
+makeButtonBox(Button(~text,                                        options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), options)
+makeButtonBox(Button(~text, None,                                  options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), options)
+makeButtonBox(Button(~text, code: Except((Rule|RuleDelayed)(~,~)), options:OptionsPattern()))::= ButtonBox(MakeBoxes(text), ButtonFunction -> (code &), options)
+makeButtonBox(~x)::= makeCallBoxes(x)
+
+
 
 MakeBoxes(Checkbox())::=                                               CheckboxBox(False) /? allowGuiBoxes
 MakeBoxes(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options) /? allowGuiBoxes
