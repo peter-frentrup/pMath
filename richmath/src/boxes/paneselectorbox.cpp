@@ -121,9 +121,14 @@ Box *PaneSelectorBox::item(int i) {
 }
 
 void PaneSelectorBox::resize(Context &context) {
+  ContextState cc(context);
+  cc.begin(style);
+  
   // TODO (?) : only resize the currently selected pane?
   for(auto box : _panes)
     box->resize(context);
+  
+  cc.end();
   
   if(_current_selection >= 0 && _current_selection < _panes.length())
     _extents = _panes[_current_selection]->extents();
@@ -132,10 +137,43 @@ void PaneSelectorBox::resize(Context &context) {
 }
 
 void PaneSelectorBox::paint(Context &context) {
+  Point p0 = context.canvas().current_pos();
+  
   update_dynamic_styles(context);
   
-  if(_current_selection >= 0 && _current_selection < _panes.length())
+  if(_current_selection >= 0 && _current_selection < _panes.length()) {
+    ContextState cc(context);
+    cc.begin(style);
+    
+    if(Color c = get_own_style(Background)) {
+      if(context.canvas().show_only_text) 
+        goto AFTER_PAINT;
+      
+      RectangleF rect = _extents.to_rectangle(p0);
+      BoxRadius radii;
+      
+      if(Expr radii_expr = get_own_style(BorderRadius)) 
+        radii = BoxRadius(std::move(radii_expr));
+      
+      rect.normalize();
+      rect.pixel_align(context.canvas(), false, +1);
+      
+      radii.normalize(rect.width, rect.height);
+      rect.add_round_rect_path(context.canvas(), radii, false);
+      
+      context.canvas().set_color(c);
+      context.canvas().fill();
+    }
+    
+    if(Color c = get_own_style(FontColor))
+      context.canvas().set_color(c);
+    
+    context.canvas().move_to(p0);
     _panes[_current_selection]->paint(context);
+    
+  AFTER_PAINT:
+    cc.end();
+  }
   
   if(_must_update) {
     _must_update = false;

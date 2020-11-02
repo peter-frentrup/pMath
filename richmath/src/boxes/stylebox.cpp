@@ -21,42 +21,38 @@ AbstractStyleBox::AbstractStyleBox(MathSequence *content)
 
 void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint) {
   if(style) {
-    float x, y;
-    context.canvas().current_pos(&x, &y);
+    Point p0 = context.canvas().current_pos();
     
     ContextState cc(context);
     cc.begin(style);
     
-    Color c;
     if(paint) {
-      if(context.stylesheet->get(style, Background, &c)) {
-        if(c.is_valid()) {
-          if(context.canvas().show_only_text)
-            return;
-          
-          RectangleF rect(x, y - _extents.ascent, _extents.width, _extents.height());
-          BoxRadius radii;
-          
-          Expr expr;
-          if(context.stylesheet->get(style, BorderRadius, &expr))
-            radii = BoxRadius(expr);
-          
-          rect.normalize();
-          rect.pixel_align(context.canvas(), false, +1);
-          
-          radii.normalize(rect.width, rect.height);
-          rect.add_round_rect_path(context.canvas(), radii, false);
-          
-          context.canvas().set_color(c);
-          context.canvas().fill();
+      if(Color c = get_own_style(Background)) {
+        if(context.canvas().show_only_text) {
+          cc.end();
+          return;
         }
+        
+        RectangleF rect = _extents.to_rectangle(p0);
+        BoxRadius radii;
+        
+        if(Expr radii_expr = get_own_style(BorderRadius)) 
+          radii = BoxRadius(std::move(radii_expr));
+        
+        rect.normalize();
+        rect.pixel_align(context.canvas(), false, +1);
+        
+        radii.normalize(rect.width, rect.height);
+        rect.add_round_rect_path(context.canvas(), radii, false);
+        
+        context.canvas().set_color(c);
+        context.canvas().fill();
       }
       
-      c = cc.old_color;
-      context.stylesheet->get(style, FontColor, &c);
-      context.canvas().set_color(c);
+      if(Color c = get_own_style(FontColor))
+        context.canvas().set_color(c);
       
-      context.canvas().move_to(x, y);
+      context.canvas().move_to(p0);
       base::paint(context);
     }
     else 
