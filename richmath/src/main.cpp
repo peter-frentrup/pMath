@@ -277,8 +277,8 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base = new Style;
   Stylesheet::Default->base->set(Background,             Color::None);
-  Stylesheet::Default->base->set(FontColor,              Color::Black);
-  Stylesheet::Default->base->set(SectionFrameColor,      Color::Black);
+  Stylesheet::Default->base->set(FontColor,              Color::None);
+  Stylesheet::Default->base->set(SectionFrameColor,      Color::None);
   
   Stylesheet::Default->base->set(FontSlant,              FontSlantPlain);
   Stylesheet::Default->base->set(FontWeight,             FontWeightPlain);
