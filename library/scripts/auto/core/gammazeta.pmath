@@ -6,8 +6,6 @@
 
 Begin("System`BernoulliB`")
 
-<<ExperimentalSyntax`
-
 System`BernoulliB`cache;
 
 % Ramanujan's congruences:
@@ -36,8 +34,6 @@ End()
 
 
 %Begin("System`Gamma`")
-%
-%<<ExperimentalSyntax`
 %
 %% Spouge's  Formula
 %%	

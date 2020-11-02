@@ -1,7 +1,5 @@
 Begin("System`Private`")
 
-<<ExperimentalSyntax`
-
 MakeBoxes(OpenerView({~a, ~b}, open: True | False | ~:Dynamic | ~:PureArgument))::=
     TemplateBox({MakeBoxes(a), MakeBoxes(b), open}, "OpenerView")
 

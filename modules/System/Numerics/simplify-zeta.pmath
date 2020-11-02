@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`Zeta`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyZeta
 
 Begin("System`Numerics`Zeta`Private`")

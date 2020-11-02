@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`OrthogonalPolynomials`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyOrthoPoly
 
 Begin("System`Numerics`OrthogonalPolynomials`Private`")

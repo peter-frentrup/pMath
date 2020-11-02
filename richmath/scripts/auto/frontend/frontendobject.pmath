@@ -1,4 +1,4 @@
-BeginPackage("FE`", {"ExperimentalSyntax`"})
+BeginPackage("FE`")
 
 Begin("FE`Private`")
 

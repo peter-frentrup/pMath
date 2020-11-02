@@ -2,8 +2,6 @@
 
 Begin("System`Private`GuiBoxes`")
 
-<<ExperimentalSyntax`
-
 Attributes(isDynamic):= Attributes(isNumberOrDynamic):= Attributes(isStringOrDynamic):= {HoldAllComplete}
 isDynamic(~):= False
 isDynamic(Dynamic(~)):= True

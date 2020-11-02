@@ -1,8 +1,6 @@
 
 BeginPackage("System`")
 
-<<ExperimentalSyntax`
-
 Normalize
 
 RotationMatrix

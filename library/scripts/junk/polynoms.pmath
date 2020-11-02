@@ -4,8 +4,6 @@
 
 BeginPackage("Polynoms`")
 
-<<ExperimentalSyntax`
-
 Monom
 Polynom
 PolyCoefficient

@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`TrigIntegrals`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyTrigIntegral
 
 Begin("System`Numerics`TrigIntegrals`Private`")

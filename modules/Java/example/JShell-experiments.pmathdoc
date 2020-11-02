@@ -173,8 +173,6 @@ Document({
             "}"}, "}"}), "Output", SectionGenerated -> True, 
          SectionLabel -> "out [47]:")}, All)}, All), 
     SectionGroup({Section("Front-End integration", "Section"), 
-      Section(BoxData({"<<", "ExperimentalSyntax`"}), "Input", 
-       SectionLabel -> "in [48]:"), 
       Section(BoxData({{"javaCodeFromBoxes", "(", {"~", "s", ":", "String"}, 
           ")"}, "\[AssignDelayed]", "s"}), "Input", 
        SectionLabel -> "in [49]:"), 

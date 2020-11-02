@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`HypGeom`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyHypGeom
 
 Begin("System`Numerics`HypGeom`Private`")

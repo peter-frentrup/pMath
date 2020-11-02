@@ -1,5 +1,5 @@
 
-BeginPackage("System`Con`", {"ExperimentalSyntax`"})
+BeginPackage("System`Con`")
 
 $HaveHyperlinks:= True
 

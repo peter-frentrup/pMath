@@ -3,8 +3,6 @@
 Document({
   SectionGroup({Section("Computional Geometry", "Title"), 
     SectionGroup({Section("Code", "Section"), 
-      Section(BoxData({"<<", "ExperimentalSyntax`"}), "Input", 
-       SectionLabel -> "in [2]:"), 
       Section(
        BoxData(/\/({"%", " ", {{"left", " ", "\[Congruent]", " ", {"-", "1"}}, 
            ",", " ", {"right", " ", "\[Congruent]", " ", {"+", "1"}}, ",", 

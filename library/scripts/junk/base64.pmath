@@ -1,8 +1,6 @@
 
 BeginPackage("Developer`Util`")
 
-<<ExperimentalSyntax`
-
 Function convert256to64(~bytes) {
 	With(len:= Length(bytes))
 	With(numTriplets:= Floor(len/3))

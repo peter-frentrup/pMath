@@ -1,4 +1,4 @@
-BeginPackage("Syntax`", {"ExperimentalSyntax`"})
+BeginPackage("Syntax`")
 
 System`Private`FindTemplateInterpretationFunction
 System`Private`FlattenTemplateSequence

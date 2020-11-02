@@ -1,8 +1,6 @@
 
 BeginPackage("System`")
 
-<<ExperimentalSyntax`
-
 UpTo
 
 Begin("System`Private`")

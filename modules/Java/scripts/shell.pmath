@@ -1,5 +1,5 @@
 
-BeginPackage("Java`", {"ExperimentalSyntax`"})
+BeginPackage("Java`")
 
 Java`EvaluateJavaBox
 Java`RunJavaSection

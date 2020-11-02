@@ -343,7 +343,7 @@ namespace richmath {
       SequenceSpan  _args;
   };
   
-  /* Blocks are syntactic as implemented by ExperimentalSyntax`
+  /* Blocks are syntactic as implemented by extended-syntax.pmath
      Examples are "If(...) {...} Else If(...) {...}" or "Block {...}"
      
      They are characterized by being a concatenation of at least two operands 

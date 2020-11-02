@@ -1,8 +1,6 @@
 
 BeginPackage("System`Graphics`")
 
-<<ExperimentalSyntax`
-
 MakeGraphicsExpression
 MakeGraphicsExpressionOptions
 

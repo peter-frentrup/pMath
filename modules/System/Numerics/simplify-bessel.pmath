@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`Bessel`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyBessel
 
 Begin("System`Numerics`Bessel`Private`")

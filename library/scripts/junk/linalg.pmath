@@ -1,8 +1,6 @@
 
 BeginPackage("System`linalg`")
 
-<<ExperimentalSyntax`
-
 Begin("System`linalg`Private`")
 
 % coefficients of the characteristc polynomial 

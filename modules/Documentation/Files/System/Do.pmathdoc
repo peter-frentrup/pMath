@@ -33,30 +33,23 @@ Document({
           Section(
            BoxData({"Do", "(", {{"Print", "(", {"RandomReal", "(", ")"}, ")"}, 
               ",", "3"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData(InterpretationBox("0.97082119143082479`", Row({
-              0.97082119143082479`}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("0.55950654247509346`", Row({
-              0.55950654247509346`}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("0.18539037801478808`", Row({
-              0.18539037801478808`}), Editable -> False)), "Print", 
-           SectionGenerated -> True)}, All), 
+          Section(BoxData(TemplateBox({"0.66841507971889269`"}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"0.32890888429287612`"}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"0.63500375973946055`"}, 
+             "RowDefault")), "Print", SectionGenerated -> True)}, All), 
         Section("The same in block form:", "ExampleText"), 
         SectionGroup({
-          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
-              {"Do", "(", "3", ")"}, {
-               "{", {"\n", {{"Print", "(", {"RandomReal", "(", ")"}, ")"}, 
-                 "\n"}}, "}"}})), "Input", SectionLabel -> "in [2]:"), 
-          Section(BoxData(InterpretationBox("0.06851358684807507`", Row({
-              0.06851358684807507`}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("0.19858457277426089`", Row({
-              0.19858457277426089`}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("0.71722804345637814`", Row({
-              0.71722804345637814`}), Editable -> False)), "Print", 
-           SectionGenerated -> True)}, All), 
+          Section(BoxData({{"Do", "(", "3", ")"}, {
+              "{", {"\n", {{"Print", "(", {"RandomReal", "(", ")"}, ")"}, 
+                "\n"}}, "}"}}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(TemplateBox({"0.010682693771948082`"}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"0.31855229564254639`"}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"0.081764482025949881`"}, 
+             "RowDefault")), "Print", SectionGenerated -> True)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
@@ -64,30 +57,30 @@ Document({
           SectionGroup({
             Section(BoxData({"Do", "(", {{"Print", "(", "i", ")"}, ",", {
                  "i", "\[Rule]", {"1", "..", "7", "..", "2"}}}, ")"}), 
-             "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(InterpretationBox("1", Row({1}), 
-               Editable -> False)), "Print", SectionGenerated -> True), 
-            Section(BoxData(InterpretationBox("3", Row({3}), 
-               Editable -> False)), "Print", SectionGenerated -> True), 
-            Section(BoxData(InterpretationBox("5", Row({5}), 
-               Editable -> False)), "Print", SectionGenerated -> True), 
-            Section(BoxData(InterpretationBox("7", Row({7}), 
-               Editable -> False)), "Print", SectionGenerated -> True)}, All), 
+             "Input", SectionLabel -> "in [3]:"), 
+            Section(BoxData(TemplateBox({"1"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"3"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"5"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"7"}, "RowDefault")), "Print", 
+             SectionGenerated -> True)}, All), 
           Section("Or in block form:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
-                {"Do", "(", {"i", "\[Rule]", {"1", "..", "7", "..", "2"}}, 
-                 ")"}, {"{", {"\n", {{"Print", "(", "i", ")"}, "\n"}}, 
-                 "}"}})), "Input", SectionLabel -> "in [2]:"), 
-            Section(BoxData(InterpretationBox("1", Row({1}), 
-               Editable -> False)), "Print", SectionGenerated -> True), 
-            Section(BoxData(InterpretationBox("3", Row({3}), 
-               Editable -> False)), "Print", SectionGenerated -> True), 
-            Section(BoxData(InterpretationBox("5", Row({5}), 
-               Editable -> False)), "Print", SectionGenerated -> True), 
-            Section(BoxData(InterpretationBox("7", Row({7}), 
-               Editable -> False)), "Print", SectionGenerated -> True)}, 
-           All)}, All)}, All), 
+            Section(
+             BoxData({
+               {"Do", "(", {"i", "\[Rule]", {"1", "..", "7", "..", "2"}}, 
+                ")"}, {"{", {"\n", {{"Print", "(", "i", ")"}, "\n"}}, "}"}}), 
+             "Input", SectionLabel -> "in [4]:"), 
+            Section(BoxData(TemplateBox({"1"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"3"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"5"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({"7"}, "RowDefault")), "Print", 
+             SectionGenerated -> True)}, All)}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Iterate over a list:", "ExampleText"), 
         SectionGroup({
@@ -122,62 +115,62 @@ Document({
         Section("Applications", "ExampleSection"), 
         Section("Build a list of exponents of Mersenne primes:", 
          "ExampleText"), SectionGroup({
-          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
-              {"Local", "(", {"l", "\[Assign]", {"{", "}"}}, ")"}, {
-               "{", {
-                "\n", {{{{"Do", "(", {"n", "\[Rule]", "100"}, ")"}, {
-                    "{", {
-                     "\n", {
-                      {{"If", "(", {"IsPrime", "(", {
-                          {"2", SuperscriptBox("n")}, "-", "1"}, ")"}, ")"}, {
-                        "{", {
-                         "\n", {{"l", "\[Assign]", {
-                            "Append", "(", {"l", ",", "n"}, ")"}}, "\n"}}, 
-                        "}"}}, "\n"}}, "}"}}, "\n", "l"}, "\n"}}, "}"}})), 
-           "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData({"{", {"2", ",", "3", ",", "5", ",", "7", ",", "13", 
-              ",", "17", ",", "19", ",", "31", ",", "61", ",", "89"}, "}"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-         All), Section({"Alternatively use ", 
-          TemplateBox({"Gather"}, "ReferenceHyperlink"), " and ", 
-          TemplateBox({"Emit"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
-        SectionGroup({
-          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
-              {"Gather", "(", {
-                "\n", {{{"Do", "(", {"n", "\[Rule]", "100"}, ")"}, {
+          Section(BoxData({{"Local", "(", {"l", "\[Assign]", {"{", "}"}}, 
+              ")"}, {
+              "{", {
+               "\n", {{{{"Do", "(", {"n", "\[Rule]", "100"}, ")"}, {
                    "{", {
                     "\n", {
                      {{"If", "(", {"IsPrime", "(", {
                          {"2", SuperscriptBox("n")}, "-", "1"}, ")"}, ")"}, {
-                       "{", {"\n", {{"Emit", "(", "n", ")"}, "\n"}}, "}"}}, 
-                     "\n"}}, "}"}}, "\n"}}, ")"}, "[", {"-", "1"}, "]"})), 
-           "Input", SectionLabel -> "in [3]:"), 
+                       "{", {
+                        "\n", {{"l", "\[Assign]", {
+                           "Append", "(", {"l", ",", "n"}, ")"}}, "\n"}}, 
+                       "}"}}, "\n"}}, "}"}}, "\n", "l"}, "\n"}}, "}"}}), 
+           "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"{", {"2", ",", "3", ",", "5", ",", "7", ",", "13", 
               ",", "17", ",", "19", ",", "31", ",", "61", ",", "89"}, "}"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section({"Alternatively use ", 
+          TemplateBox({"Gather"}, "ReferenceHyperlink"), " and ", 
+          TemplateBox({"Emit"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"Gather", "(", {
+               "\n", {{{"Do", "(", {"n", "\[Rule]", "100"}, ")"}, {
+                  "{", {
+                   "\n", {
+                    {{"If", "(", {"IsPrime", "(", {
+                        {"2", SuperscriptBox("n")}, "-", "1"}, ")"}, ")"}, {
+                      "{", {"\n", {{"Emit", "(", "n", ")"}, "\n"}}, "}"}}, 
+                    "\n"}}, "}"}}, "\n"}}, ")"}, "[", {"-", "1"}, "]"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"2", ",", "3", ",", "5", ",", "7", ",", "13", 
+              ",", "17", ",", "19", ",", "31", ",", "61", ",", "89"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All)}, 1), SectionGroup({
         Section("Properties & Relations", "ExampleSection"), 
         Section({"You can exit the loop early by calling ", 
           TemplateBox({"Break"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
         SectionGroup({
-          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
-              {"Do", "(", {"i", "\[Rule]", "100"}, ")"}, {
-               "{", {
-                "\n", {{{{"If", "(", {{"i", "^", "2"}, ">", "30"}, ")"}, {
-                    "{", {"\n", {{"Break", "(", ")"}, "\n"}}, "}"}}, "\n", {
-                   "Print", "(", {"i", "^", "2"}, ")"}}, "\n"}}, "}"}})), 
+          Section(BoxData({{"Do", "(", {"i", "\[Rule]", "100"}, ")"}, {
+              "{", {
+               "\n", {{{{"If", "(", {{"i", "^", "2"}, ">", "30"}, ")"}, {
+                   "{", {"\n", {{"Break", "(", ")"}, "\n"}}, "}"}}, "\n", {
+                  "Print", "(", {"i", "^", "2"}, ")"}}, "\n"}}, "}"}}), 
            "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData(InterpretationBox("1", Row({1}), 
-             Editable -> False)), "Print", SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("4", Row({4}), 
-             Editable -> False)), "Print", SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("9", Row({9}), 
-             Editable -> False)), "Print", SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("16", Row({16}), 
-             Editable -> False)), "Print", SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox("25", Row({25}), 
-             Editable -> False)), "Print", SectionGenerated -> True)}, All)}, 
-       1), SectionGroup({Section("Possible Issues", "ExampleSection"), 
+          Section(BoxData(TemplateBox({"1"}, "RowDefault")), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"4"}, "RowDefault")), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"9"}, "RowDefault")), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"16"}, "RowDefault")), "Print", 
+           SectionGenerated -> True), 
+          Section(BoxData(TemplateBox({"25"}, "RowDefault")), "Print", 
+           SectionGenerated -> True)}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
         Section({"Values of ", TemplateBox({"Do"}, "ReferenceHyperlink"), 
           " are not substituted before evaluation: "}, "ExampleText"), 
         SectionGroup({
@@ -187,22 +180,22 @@ Document({
                  "i", SuperscriptBox("2")}}, ")"}, ",", {
                "i", "\[Rule]", "4"}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(InterpretationBox({
-              "1", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
-              1 :> Global`i^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "2", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
-              2 :> Global`i^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "3", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
-              3 :> Global`i^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "4", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}, Row({
-              4 :> Global`i^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True)}, All), 
+          Section(
+           BoxData(TemplateBox({
+              {"1", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"2", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"3", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"4", "\[RuleDelayed]", {"i", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True)}, All), 
         Section({"Use ", TemplateBox({"With"}, "ReferenceHyperlink"), 
           " to perform explicit substituition:"}, "ExampleText"), 
         SectionGroup({
@@ -213,46 +206,45 @@ Document({
                    "i", SuperscriptBox("2")}}, ")"}}, ")"}, ",", {
                "i", "\[Rule]", "4"}}, ")"}), "Input", 
            SectionLabel -> "in [2]:"), 
-          Section(BoxData(InterpretationBox({
-              "1", "\[RuleDelayed]", {"1", SuperscriptBox("2")}}, Row({
-              1 :> 1^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "2", "\[RuleDelayed]", {"2", SuperscriptBox("2")}}, Row({
-              2 :> 2^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "3", "\[RuleDelayed]", {"3", SuperscriptBox("2")}}, Row({
-              3 :> 3^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "4", "\[RuleDelayed]", {"4", SuperscriptBox("2")}}, Row({
-              4 :> 4^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True)}, All), 
+          Section(
+           BoxData(TemplateBox({
+              {"1", "\[RuleDelayed]", {"1", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"2", "\[RuleDelayed]", {"2", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"3", "\[RuleDelayed]", {"3", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"4", "\[RuleDelayed]", {"4", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True)}, All), 
         Section("In block form this might be more readable:", "ExampleText"), 
         SectionGroup({
-          Section(BoxData(/\/({"<<", "ExperimentalSyntax`"}, "\n", {
-              {"Do", "(", {"i", "\[Rule]", "4"}, ")"}, {
-               "{", {"\n", {{{"With", "(", {"i", "\[Assign]", "i"}, ")"}, 
-                  "\n", {"Print", "(", {"i", "\[RuleDelayed]", {
-                     "i", SuperscriptBox("2")}}, ")"}}, "\n"}}, "}"}})), 
+          Section(BoxData({{"Do", "(", {"i", "\[Rule]", "4"}, ")"}, {
+              "{", {"\n", {{{"With", "(", {"i", "\[Assign]", "i"}, ")"}, "\n", 
+                 {"Print", "(", {"i", "\[RuleDelayed]", {
+                    "i", SuperscriptBox("2")}}, ")"}}, "\n"}}, "}"}}), 
            "Input", SectionLabel -> "in [3]:"), 
-          Section(BoxData(InterpretationBox({
-              "1", "\[RuleDelayed]", {"1", SuperscriptBox("2")}}, Row({
-              1 :> 1^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "2", "\[RuleDelayed]", {"2", SuperscriptBox("2")}}, Row({
-              2 :> 2^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "3", "\[RuleDelayed]", {"3", SuperscriptBox("2")}}, Row({
-              3 :> 3^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True), 
-          Section(BoxData(InterpretationBox({
-              "4", "\[RuleDelayed]", {"4", SuperscriptBox("2")}}, Row({
-              4 :> 4^2}), Editable -> False)), "Print", 
-           SectionGenerated -> True)}, All)}, 1), 
+          Section(
+           BoxData(TemplateBox({
+              {"1", "\[RuleDelayed]", {"1", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"2", "\[RuleDelayed]", {"2", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"3", "\[RuleDelayed]", {"3", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True), 
+          Section(
+           BoxData(TemplateBox({
+              {"4", "\[RuleDelayed]", {"4", SuperscriptBox("2")}}}, 
+             "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Table"}, "ReferenceHyperlink"), 

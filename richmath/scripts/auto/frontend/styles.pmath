@@ -1,8 +1,6 @@
 
 BeginPackage("FE`Styles`")
 
-<<ExperimentalSyntax`
-
 MakeStyleDataBoxes
 $DefaultDisplayFunction
 $DefaultDisplayFunctionTooltip

@@ -1,8 +1,6 @@
 
 BeginPackage("System`Graphics`Plot`")
 
-<<ExperimentalSyntax`
-
 System`Plot
 
 

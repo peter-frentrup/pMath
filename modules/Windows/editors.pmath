@@ -1,5 +1,5 @@
 
-BeginPackage("Windows`Editors`", {"Windows`", "ExperimentalSyntax`"})
+BeginPackage("Windows`Editors`", {"Windows`"})
 
 Windows`Editors`OpenTextFile
 

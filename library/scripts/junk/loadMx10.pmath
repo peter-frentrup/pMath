@@ -19,7 +19,7 @@
 % Stage 4 is the main expression pool. It contains a reference (possibly several references?) to the
 % main expression which is to be (executed and) returned by Get["file.mx"].
 %
-BeginPackage("Developer`LoadMx10`", "ExperimentalSyntax`")
+BeginPackage("Developer`LoadMx10`")
 
 Developer`LoadMx10`readInteger
 Developer`LoadMx10`readString

@@ -1,7 +1,5 @@
 Begin("System`Private`")
 
-<<ExperimentalSyntax`
-
 Attributes(symDefs):= {HoldAllComplete}
 symDefs(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
 	With({r:= OwnRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(OwnRules(sym):=     r))));

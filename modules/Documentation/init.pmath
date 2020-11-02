@@ -1,4 +1,4 @@
-BeginPackage("Documentation`", {"ExperimentalSyntax`"})
+BeginPackage("Documentation`")
 
 $DocumentationPath
 FindSymbolDocumentation

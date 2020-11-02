@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`Surd`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifySurd
 
 Begin("System`Numerics`Surd`Private`")

@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`Erf`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyErf
 
 Begin("System`Numerics`Erf`Private`")

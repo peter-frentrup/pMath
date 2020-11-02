@@ -1,4 +1,4 @@
-BeginPackage("Java`", {"ExperimentalSyntax`"})
+BeginPackage("Java`")
 
 Java`Java
 Java`JavaClass

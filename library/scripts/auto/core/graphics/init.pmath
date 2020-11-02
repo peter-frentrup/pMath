@@ -1,5 +1,5 @@
 
-BeginPackage("System`Graphics`", {"ExperimentalSyntax`"})
+BeginPackage("System`Graphics`")
 
 System`Graphics`ComposeHeldExpr
 System`Graphics`MakeGraphicsBoxes

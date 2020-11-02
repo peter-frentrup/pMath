@@ -1,7 +1,5 @@
 BeginPackage("System`Numerics`Trigonometry`")
 
-<<ExperimentalSyntax`
-
 System`Private`AutoSimplifyTrig
 
 Begin("System`Numerics`Trigonometry`Private`")

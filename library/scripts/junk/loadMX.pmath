@@ -6,8 +6,6 @@
 %
 BeginPackage("Developer`LoadMX`")
 
-<<ExperimentalSyntax`
-
 Developer`LoadMX`readString
 Developer`LoadMX`readMagicString
 Developer`LoadMX`readMagicUI32

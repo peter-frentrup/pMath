@@ -1,8 +1,6 @@
 
 BeginPackage("Compiler`")
 
-<<ExperimentalSyntax`
-
 Compiler`TestCompiler
 
 

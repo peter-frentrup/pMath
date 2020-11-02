@@ -1,6 +1,6 @@
 /* Helper functions for GraphicsBox */
 
-BeginPackage("FE`Import`", {"ExperimentalSyntax`"})
+BeginPackage("FE`Import`")
 
 FE`Import`PasteFileNameContentBoxes
 FE`Import`FileNamesDropDescription

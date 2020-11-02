@@ -1,15 +1,11 @@
 %
-% Experimental syntax simplififcations.
+% Extended syntax simplififcations.
 %
 % Reading and writing deeply nested expression trees (esp. nested With(...)) is hard. Especially
 % imperative definitions are hard to read because one can easily overlook a comma or miscount 
 % parenthesis.
 % This file enhances the pMath syntax with some syntactic suggar for With, Local, If, Do, While, 
-% and related functions. This is experimental. The performance impact on MakeExpression 
-% still needs to be investigated. Maybe a partial implementation in C is necessary
-%
-% These syntax enhancements are only active while ExperimentalSyntax` is in the current 
-% $NamespacePath. So any package may include <<ExperimentalSyntax` without breaking other packages.
+% and related functions.
 %
 % Note that there must be no space before "(" and no line-break before "{". Also, the braces around
 % blocks are mandatory. If ever mixed within (mathematical) expressions, these constructs should
@@ -95,16 +91,14 @@
 % Note that this makes it impossible to use the function-call syntax for With and Local 
 % directly within blocks.
 %
-BeginPackage("ExperimentalSyntax`", {"Developer`"})
+BeginPackage("System`", {"Developer`"})
 
-Begin("ExperimentalSyntax`Private`")
+Begin("System`Syntax`Private`")
 
 
-%
-% Experimental syntax is only active if ExperimentalSyntax` is in current namespace path.
-%
-$HaveExperimentalSyntax::= $Namespace === "ExperimentalSyntax`" || !$NamespacePath.IsFreeOf("ExperimentalSyntax`")
-Protect($HaveExperimentalSyntax)
+$HaveExtendedSyntax:= True
+%$HaveExtendedSyntax::= $Namespace === "ExperimentalSyntax`" || !$NamespacePath.IsFreeOf("ExperimentalSyntax`")
+Protect($HaveExtendedSyntax)
 
 %
 % Copied from auto/core/graphics/init.pmath
@@ -184,7 +178,7 @@ asHeldSwitchExpression(p: HoldComplete(~~~))::=
 
 
 System`Private`MakeJuxtapositionExpression(boxes: {~~, {"{", ~~~}, ~~~})::= 
-	If($HaveExperimentalSyntax, tryMakeBlockExpression(boxes), Default, Default)
+	If($HaveExtendedSyntax, tryMakeBlockExpression(boxes), Default, Default)
 
 tryMakeBlockExpression(~)::= $Failed
 tryMakeBlockExpression(boxes: {"Function", ~~~})::= tryMakeFunctionBlock(boxes)

@@ -1,8 +1,6 @@
 
 BeginPackage("System`Graphics`ListLinePlot`")
 
-<<ExperimentalSyntax`
-
 System`ListLinePlot
 
 System`DataRange

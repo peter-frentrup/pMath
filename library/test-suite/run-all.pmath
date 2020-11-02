@@ -1,5 +1,5 @@
 Print($Input)
-BeginPackage("TestSuite`", {"ExperimentalSyntax`"})
+BeginPackage("TestSuite`")
 
 TestSuite`Assert
 TestSuite`AssertEqual
@@ -127,7 +127,7 @@ Do(i -> 1..Length(testFiles)) {
 	Clear($MessageCount)
 	
 	Remove @ Evaluate("TestSuite`Private`Test" ++ ToString(i) ++ "`*")
-	BeginPackage("TestSuite`Private`Test" ++ ToString(i) ++ "`", {"TestSuite`", "ExperimentalSyntax`"});
+	BeginPackage("TestSuite`Private`Test" ++ ToString(i) ++ "`", {"TestSuite`"});
 	
 	Get(testFiles[i]);
 	

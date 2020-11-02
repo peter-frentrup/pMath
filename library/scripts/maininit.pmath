@@ -121,6 +121,8 @@ SetAttributes({ControlActive, $ControlActiveSetting}, {Protected, ReadProtected}
 
 End()
 
+Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "syntax.pmath"));
+Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "extended-syntax.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "gui"}, "options.pmath"))
 
 AutoLoad(Hold(System`Private`FindTemplateInterpretationFunction, System`Private`FlattenTemplateSequence),
@@ -175,7 +177,6 @@ AutoLoad(Hold(OpenerView),
 	ToFileName({$BaseDirectory, "auto", "core", "gui"}, "OpenerView.pmath"))
 
 Get(ToFileName({$BaseDirectory, "auto", "core", "Developer"}, "PrintMessageOverload.pmath"))
-Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "syntax.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "rawboxes.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "accents.pmath"));

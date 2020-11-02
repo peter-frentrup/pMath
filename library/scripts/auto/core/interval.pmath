@@ -10,8 +10,6 @@
 
 BeginPackage("System`")
 
-<<ExperimentalSyntax`
-
 Interval
 
 
