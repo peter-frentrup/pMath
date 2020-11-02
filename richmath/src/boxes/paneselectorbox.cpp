@@ -145,14 +145,14 @@ void PaneSelectorBox::paint(Context &context) {
     ContextState cc(context);
     cc.begin(style);
     
-    if(Color c = get_own_style(Background)) {
+    if(Color c = context.stylesheet->get_or_default(style, Background)) {
       if(context.canvas().show_only_text) 
         goto AFTER_PAINT;
       
       RectangleF rect = _extents.to_rectangle(p0);
       BoxRadius radii;
       
-      if(Expr radii_expr = get_own_style(BorderRadius)) 
+      if(Expr radii_expr = context.stylesheet->get_or_default(style, BorderRadius)) 
         radii = BoxRadius(std::move(radii_expr));
       
       rect.normalize();
@@ -165,7 +165,7 @@ void PaneSelectorBox::paint(Context &context) {
       context.canvas().fill();
     }
     
-    if(Color c = get_own_style(FontColor))
+    if(Color c = context.stylesheet->get_or_default(style, FontColor))
       context.canvas().set_color(c);
     
     context.canvas().move_to(p0);

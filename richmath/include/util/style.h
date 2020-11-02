@@ -432,6 +432,14 @@ namespace richmath {
       
       bool update_dynamic(SharedPtr<Style> s, Box *parent);
       
+      Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(std::move(s), n, &fallback_result); return fallback_result; }
+      int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(std::move(s), n, &fallback_result); return fallback_result; }
+      float  get_or_default(SharedPtr<Style> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(std::move(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n, String fallback_result) {               get(std::move(s), n, &fallback_result); return fallback_result; }
+      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(std::move(s), n, &fallback_result); return fallback_result; }
+      String get_or_default(SharedPtr<Style> s, StringStyleOptionName n) { return get_or_default(std::move(s), n, String{}); }
+      Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n) { return get_or_default(std::move(s), n, Expr{}); }
+      
       Color  get_with_base(SharedPtr<Style> s, ColorStyleOptionName  n);
       int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
       float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
