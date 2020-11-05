@@ -1309,7 +1309,7 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
   int d2 = box_depth(b2);
   
   while(d1 > d2) {
-    if(b1->parent() && !b1->parent()->selection_exitable()) {
+    if(b1->parent() && !b1->parent()->selection_exitable(false)) {
       if(b1->selectable()) {
         int o1 = box_order(b1, s1, b2, e2);
         int o2 = box_order(b1, e1, b2, s2);
@@ -1339,7 +1339,7 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
   sel_last.set(b2, s2, e2);
   
   while(b1 != b2 && b1 && b2) {
-    if(b1->parent() && !b1->parent()->selection_exitable()) {
+    if(b1->parent() && !b1->parent()->selection_exitable(false)) {
       if(b1->selectable()) {
         int o = box_order(b1, s1, b2, s2);
         
@@ -1366,7 +1366,7 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
     e1 = e2;
     
   while(b1 && !b1->selectable()) {
-    if(!b1->selection_exitable())
+    if(!b1->selection_exitable(false))
       return;
       
     s1 = b1->index();

@@ -38,7 +38,7 @@ namespace richmath {
       virtual bool remove_inserts_placeholder() override { return false; }
       
       virtual bool exitable() override { return false; }
-      virtual bool selection_exitable() override { return false; }
+      virtual bool selection_exitable(bool vertical) override { return false; }
       virtual bool selectable(int i = -1) override;
       
       virtual bool edit_selection(SelectionReference &selection) override { return true; }

@@ -406,17 +406,17 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
 //      return;
 
     case SpecialKey::Up: {
-        Document *doc = find_parent<Document>(false);
-        if(doc && doc->selection_box() == _content && doc->selection_start() == 0)
-          break;
+//        Document *doc = find_parent<Document>(false);
+//        if(doc && doc->selection_box() == _content && doc->selection_start() == 0)
+//          break;
           
         event.key = SpecialKey::Left;
       } break;
       
     case SpecialKey::Down: {
-        Document *doc = find_parent<Document>(false);
-        if(doc && doc->selection_box() == _content && doc->selection_start() == _content->length())
-          break;
+//        Document *doc = find_parent<Document>(false);
+//        if(doc && doc->selection_box() == _content && doc->selection_start() == _content->length())
+//          break;
           
         event.key = SpecialKey::Right;
       } break;

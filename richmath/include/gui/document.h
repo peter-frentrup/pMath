@@ -163,7 +163,7 @@ namespace richmath {
       int selection_length() { return context.selection.end - context.selection.start; }
       VolatileSelection selection_now() { return context.selection.get_all(); }
       const SelectionReference &selection() { return context.selection; }
-
+      
       const Array<SelectionReference> &current_word_references() { return _current_word_references; }
       
       FrontEndReference clicked_box_id() {   return context.clicked_box_id; }

@@ -1185,19 +1185,21 @@ static bool select_all_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  if(doc->selectable()) {
-    doc->select(doc, 0, doc->length());
-    return true;
-  }
-  
   Box *sel = doc->selection_box();
-  if(!sel)
-    return false;
+  if(!sel) {
+    if(doc->selectable()) {
+      doc->select(doc, 0, doc->length());
+      return true;
+    }
     
-  Box *next = sel;
-  while(next && next->selectable()) {
+    return false;
+  }
+    
+  while(sel && sel->selection_exitable(true)) {
+    Box *next = sel->parent();
+    if(!next || !next->selectable())
+      break;
     sel = next;
-    next = next->parent();
   }
   
   if(sel->selectable()) {
