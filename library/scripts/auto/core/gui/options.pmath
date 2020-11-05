@@ -165,6 +165,7 @@ Options(Style):= Options(StyleBox):= {
     Editable -> Inherited,
     Enabled -> Automatic,
     FillBoxOptions -> Inherited,
+    FrameBoxOptions -> Inherited,
     FontColor -> Inherited,
     FontFamily -> Inherited,
     FontFeatures -> Inherited,
