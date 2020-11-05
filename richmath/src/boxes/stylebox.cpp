@@ -45,8 +45,10 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint)
         radii.normalize(rect.width, rect.height);
         rect.add_round_rect_path(context.canvas(), radii, false);
         
+        Color old_color = context.canvas().get_color();
         context.canvas().set_color(c);
         context.canvas().fill();
+        context.canvas().set_color(old_color);
       }
       
       if(Color c = context.stylesheet->get_or_default(style, FontColor))
