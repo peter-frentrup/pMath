@@ -15,6 +15,8 @@ namespace richmath {
       
       virtual void paint(Context &context) override;
       
+      virtual void reset_style() override;
+      
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       

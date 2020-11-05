@@ -85,6 +85,7 @@ Options(FillBox):= Options(Filler):= {
 Options(Framed):= Options(FrameBox):= { 
     Background -> None,
     BaselinePosition -> Automatic,
+    BaseStyle -> "Framed", 
     BorderRadius -> 0,
     FrameStyle -> Automatic}
 
