@@ -16,10 +16,11 @@ namespace richmath {
     None = 0,
     ButtonBox     = 0x00100000,
     FillBox       = 0x00200000,
-    InputFieldBox = 0x00300000,
-    PaneBox       = 0x00400000,
-    PanelBox      = 0x00500000,
-    TemplateBox   = 0x00600000
+    FrameBox      = 0x00300000,
+    InputFieldBox = 0x00400000,
+    PaneBox       = 0x00500000,
+    PanelBox      = 0x00600000,
+    TemplateBox   = 0x00700000,
   };
   
   enum AutoBoolValues {
@@ -44,7 +45,9 @@ namespace richmath {
   enum ColorStyleOptionName {
     Background = 0x00000,
     FontColor,
-    SectionFrameColor
+    SectionFrameColor,
+    
+    FrameBoxDefaultBackground = Background + (int)DefaultStyleOptionOffsets::FrameBox,
   };
   
   enum IntStyleOptionName {
@@ -206,6 +209,7 @@ namespace richmath {
     BoxTransformation,
     PlotRange,
     BorderRadius,
+    FrameStyle,
     
     DefaultDuplicateSectionStyle,
     DefaultNewSectionStyle,
@@ -218,6 +222,7 @@ namespace richmath {
     DockedSectionsBottomGlass,
     
     FillBoxOptions,
+    FrameBoxOptions,
     InputFieldBoxOptions,
     PaneBoxOptions,
     PanelBoxOptions,
@@ -240,6 +245,9 @@ namespace richmath {
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
+    FrameBoxDefaultBorderRadius              = BorderRadius           + (int)DefaultStyleOptionOffsets::FrameBox,
+    FrameBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::FrameBox,
     
     InputFieldBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::InputFieldBox,

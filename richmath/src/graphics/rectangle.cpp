@@ -35,6 +35,9 @@ static float round(float x, int direction, bool to_half) {
 
 //{ class Vector2F ...
 
+float Vector2F::length() {
+  return hypot(x, y);
+}
 
 void Vector2F::pixel_align_distance(Canvas &canvas) {
   if(canvas.pixel_device) {

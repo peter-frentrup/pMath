@@ -1,5 +1,6 @@
 #include <boxes/framebox.h>
 
+#include <boxes/graphics/graphicsdirective.h>
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
@@ -12,7 +13,7 @@ extern pmath_symbol_t richmath_System_FrameBox;
 //{ class FrameBox ...
 
 FrameBox::FrameBox(MathSequence *content)
-  : OwnerBox(content)
+  : base(content)
 {
 }
 
@@ -44,14 +45,16 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
 void FrameBox::resize_default_baseline(Context &context) {
   em = context.canvas().get_font_size();
   
+  float border_and_padding = 0.25f * em;
+  
   float old_width = context.width;
-  context.width -= em * 0.5f;
+  context.width -= 2 * border_and_padding;
   
-  OwnerBox::resize_default_baseline(context);
+  base::resize_default_baseline(context);
   
-  cx = em * 0.25f;
+  cx = border_and_padding;
   
-  _extents.width +=   2 * cx;
+  _extents.width +=   2 * border_and_padding;
   _extents.ascent +=  cx;
   _extents.descent += cx;
   
@@ -67,42 +70,64 @@ void FrameBox::resize_default_baseline(Context &context) {
 void FrameBox::paint(Context &context) {
   update_dynamic_styles(context);
   
-  float x, y;
-  context.canvas().current_pos(&x, &y);
+  Point p0 = context.canvas().current_pos();
   
-  RectangleF rect(x, y - _extents.ascent, _extents.width, _extents.height());
-  BoxRadius radii;
-  
-  Expr expr;
-  if(context.stylesheet->get(style, BorderRadius, &expr)) {
-    radii = BoxRadius(expr);
+  context.canvas().save();
+  {
+    ContextState cs(context);
+    cs.begin(style);
+    {
+      bool sot = context.canvas().show_only_text;
+      context.canvas().show_only_text = false;
+          
+      RectangleF rect = _extents.to_rectangle(p0);
+      BoxRadius radii;
+      
+      if(Expr expr = get_own_style(BorderRadius)) 
+        radii = BoxRadius(expr);
+      
+      if(Expr expr = get_own_style(FrameStyle)) {
+        GraphicsDirective::apply(expr, context);
+      }
+      float half_border_thickness = 0.05f * context.canvas().get_font_size();
+    
+      rect.normalize();
+      rect.grow(-half_border_thickness);
+      radii += BoxRadius(-half_border_thickness);
+      
+      float thickness_pixels = context.canvas().user_to_device_dist(Vector2F(2 * half_border_thickness, 0)).length();
+      if(thickness_pixels > 0.5) {
+        thickness_pixels = round(thickness_pixels);
+        bool is_odd = (fmodf(thickness_pixels, 2.0f) == 1.0f);
+        rect.pixel_align(context.canvas(), is_odd, +1);
+      }
+      
+      radii.normalize(rect.width, rect.height);
+      rect.add_round_rect_path(context.canvas(), radii);
+      
+      cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
+      context.canvas().reset_matrix();
+      
+      cairo_set_line_width(context.canvas().cairo(), thickness_pixels);
+      
+      if(Color bg = get_own_style(Background)) {
+        context.canvas().save();
+        context.canvas().set_color(bg);
+        context.canvas().fill_preserve();
+        context.canvas().restore();
+      }
+      
+      context.canvas().stroke();
+      
+      context.canvas().show_only_text = sot;
+    }
+    cs.end();
   }
+  context.canvas().restore();
   
-  rect.normalize();
-  rect.pixel_align(context.canvas(), false, +1);
+  context.canvas().move_to(p0);
   
-  radii.normalize(rect.width, rect.height);
-  rect.add_round_rect_path(context.canvas(), radii, false);
-  
-  Vector2F delta(-0.1f * em, -0.1f * em);
-  delta.pixel_align_distance(context.canvas());
-  
-  rect.grow(delta);
-  rect.normalize_to_zero();
-  
-  radii += BoxRadius(delta.x, delta.y);
-  radii.normalize(rect.width, rect.height);
-  
-  rect.add_round_rect_path(context.canvas(), radii, true);
-  
-  bool sot = context.canvas().show_only_text;
-  context.canvas().show_only_text = false;
-  context.canvas().fill();
-  context.canvas().show_only_text = sot;
-  
-  context.canvas().move_to(x, y);
-  OwnerBox::paint(context);
-  //paint_content(context);
+  base::paint(context);
 }
 
 Expr FrameBox::to_pmath_symbol() {

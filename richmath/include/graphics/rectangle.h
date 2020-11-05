@@ -32,6 +32,7 @@ namespace richmath {
       friend bool operator==(const Vector2F &left, const Vector2F &right) { return left.x == right.x && left.y == right.y; }
       friend bool operator!=(const Vector2F &left, const Vector2F &right) { return !(left == right); }
       
+      float length();
       void pixel_align_distance(Canvas &canvas);
       
     public:

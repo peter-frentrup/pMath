@@ -55,6 +55,8 @@ extern pmath_symbol_t richmath_System_FontSize;
 extern pmath_symbol_t richmath_System_FontSlant;
 extern pmath_symbol_t richmath_System_FontWeight;
 extern pmath_symbol_t richmath_System_Frame;
+extern pmath_symbol_t richmath_System_FrameBoxOptions;
+extern pmath_symbol_t richmath_System_FrameStyle;
 extern pmath_symbol_t richmath_System_FrameTicks;
 extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
@@ -1932,6 +1934,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(FontSlant);
   impl.emit_definition(FontWeight);
   impl.emit_definition(Frame);
+  impl.emit_definition(FrameBoxOptions);
+  impl.emit_definition(FrameStyle);
   impl.emit_definition(FrameTicks);
   impl.emit_definition(GeneratedSectionStyles);
   impl.emit_definition(GridBoxColumnSpacing);
@@ -2435,6 +2439,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(ButtonBoxOptions,     Symbol( richmath_System_ButtonBoxOptions));
     add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
     add_ruleset_head(FillBoxOptions,       Symbol( richmath_System_FillBoxOptions));
+    add_ruleset_head(FrameBoxOptions,      Symbol( richmath_System_FrameBoxOptions));
     add_ruleset_head(InputFieldBoxOptions, Symbol( richmath_System_InputFieldBoxOptions));
     add_ruleset_head(PaneBoxOptions,       Symbol( richmath_System_PaneBoxOptions));
     add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_PanelBoxOptions));
@@ -2512,6 +2517,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
     add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
+    add(StyleType::Color,           FrameBoxDefaultBackground,        Rule(Symbol(richmath_System_FrameBoxOptions),  Symbol(richmath_System_Background)));
     
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
@@ -2568,6 +2574,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             Axes,                             Symbol( richmath_System_Axes));
     add(StyleType::Any,             Ticks,                            Symbol( richmath_System_Ticks));
     add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
+    add(StyleType::Any,             FrameStyle,                       Symbol( richmath_System_FrameStyle));
     add(StyleType::Any,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
     add(StyleType::Any,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
     add(StyleType::Any,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
@@ -2604,6 +2611,9 @@ void StyleInformation::add_style() {
     add(StyleType::Any, ButtonBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
     add(StyleType::Any, ButtonBoxDefaultButtonData,       Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
     add(StyleType::Any, ButtonBoxDefaultButtonFunction,   Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
+    
+    add(StyleType::Any, FrameBoxDefaultBaselinePosition,  Rule(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_BaselinePosition)));
+    add(StyleType::Any, FrameBoxDefaultBorderRadius,      Rule(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_BorderRadius)));
     
     add(StyleType::Any, InputFieldBoxDefaultAppearance,       Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, InputFieldBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));

@@ -6,6 +6,7 @@
 
 namespace richmath {
   class FrameBox final : public OwnerBox {
+      using base = OwnerBox;
     public:
       explicit FrameBox(MathSequence *content = 0);
       
@@ -20,6 +21,8 @@ namespace richmath {
     protected:
       virtual void resize_default_baseline(Context &context) override;
       
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FrameBox; }
+    
     protected:
       float em;
   };

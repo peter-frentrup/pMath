@@ -83,8 +83,10 @@ Options(FillBox):= Options(Filler):= {
     StripOnInput -> True}
 
 Options(Framed):= Options(FrameBox):= { 
+    Background -> None,
     BaselinePosition -> Automatic,
-    BorderRadius -> 0}
+    BorderRadius -> 0,
+    FrameStyle -> Automatic}
 
 Options(Graphics):= Options(GraphicsBox):= {
     AspectRatio -> Automatic,
@@ -212,6 +214,11 @@ Options(Section):= {
     FillBoxOptions -> {
         FillBoxWeight -> 1,
         StripOnInput -> True},
+    FrameBoxOptions -> {
+        Background -> None,
+        BaselinePosition -> Automatic,
+        BorderRadius -> 0,
+        FrameStyle -> Automatic},
     FontColor -> GrayLevel(0),
     FontFamily -> "Times",
     FontFeatures -> Inherited, % FontFeatures -> {"ssty" -> Automatic}
