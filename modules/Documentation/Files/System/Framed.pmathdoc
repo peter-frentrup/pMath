@@ -1,0 +1,179 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Framed", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Framed"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section({"If ", StyleBox("expr", "Arg"), 
+          " wraps onto multiple lines, the baseline of ", 
+          TemplateBox({"Framed"}, "ReferenceHyperlink"), "(", 
+          StyleBox("expr", "Arg"), 
+          ") is taken to be the baseline of the first line of ", 
+          StyleBox("expr", "Arg"), "."}, "Notes"), 
+        Section({TemplateBox({"Framed"}, "ReferenceHyperlink"), 
+          " by default applies the current stylesheet\[Prime]s \"Framed\" \
+          style."}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A simple frame:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Framed", "(", "123", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData(FrameBox("123")), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Nested frames:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Nest", "(", {"Framed", ",", "123", ",", "5"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(FrameBox(FrameBox(FrameBox(FrameBox(FrameBox("123")))))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, All), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Background", "ExampleSubsection"), 
+          Section("Fill with a background color:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "123", ",", {"Background", "\[Rule]", "Green"}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(FrameBox("123", Background -> RGBColor(0, 1, 0))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"The background takes ", 
+              TemplateBox({"BorderRadius"}, "ReferenceHyperlink"), 
+              " into account:"}, "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Framed", "(", {
+                  "123", ",", {"BorderRadius", "\[Rule]", "10"}, ",", {
+                   "Background", "\[Rule]", "Green"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("123", Background -> RGBColor(0, 1, 0), 
+                 BorderRadius -> 10)), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All), 
+            SectionGroup({
+              Section(BoxData({"Style", "(", {
+                  {"Framed", "(", {"123", ",", {"BorderRadius", "\[Rule]", 
+                     "10"}}, ")"}, ",", {"Background", "\[Rule]", "Green"}}, 
+                 ")"}), "Input", SectionLabel -> "in [2]:"), 
+              Section(BoxData(StyleBox(FrameBox("123", BorderRadius -> 10), 
+                 Background -> RGBColor(0, 1, 0), StripOnInput -> False)), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
+          Section(
+           "The baseline defaults to the first line for multiline contents:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Row", "(", {
+                "{", {"1", ",", {"Framed", "(", 
+                  ComplexStringBox("\"aaa\\nbbb\""), ")"}, ",", "2"}, "}"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                "1", FrameBox(ComplexStringBox("\"aaa\nbbb\"")), "2"}, 
+               "RowDefault")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Vertically align panels:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({"Row", "(", {
+                  {"Table", "(", {
+                    {"Framed", "(", {"p", ",", {"BaselinePosition", "\[Rule]", 
+                       "p"}}, ")"}, ",", {"p", "\[Rule]", {
+                      "{", {"Automatic", ",", "Top", ",", "Center", ",", 
+                       "Baseline", ",", "Bottom"}, "}"}}}, ")"}, ",", 
+                  ComplexStringBox("\"x\"")}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(TemplateBox({
+                  "x", "x", FrameBox("Automatic", 
+                   BaselinePosition -> Automatic), 
+                  FrameBox("Top", BaselinePosition -> Top), 
+                  FrameBox("Center", BaselinePosition -> Center), 
+                  FrameBox("Baseline", BaselinePosition -> Baseline), 
+                  FrameBox("Bottom", BaselinePosition -> Bottom)}, 
+                 "RowWithSeparators")), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("BorderRadius", "ExampleSubsection"), 
+          Section("A rounded frame:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "123", ",", {"BorderRadius", "\[Rule]", "5"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(FrameBox("123", BorderRadius -> 5)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Use different radii for each edge:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Framed", "(", {
+                  "123", ",", {"BorderRadius", "\[Rule]", {
+                    "{", {"0", ",", "5", ",", "0", ",", "10"}, "}"}}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("123", BorderRadius -> {0, 5, 0, 10})), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("An elliptical border:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Framed", "(", {
+                  "123", ",", {"BorderRadius", "\[Rule]", {
+                    "{", {"20", ",", "15"}, "}"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("123", BorderRadius -> {20, 15})), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Each edge can be elliptical too:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Framed", "(", {
+                  "123", ",", {"BorderRadius", "\[Rule]", {
+                    "{", {{"{", {"10", ",", "20"}, "}"}, ",", "0", ",", "0", 
+                     ",", "0"}, "}"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(FrameBox("123", BorderRadius -> {{10, 20}, 0, 0, 
+                  0})), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("FrameStyle", "ExampleSubsection"), 
+          Section("Customize the frame styling:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Framed", "(", {
+                "23", ",", {"FrameStyle", "\[Rule]", "Red"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(FrameBox("23", FrameStyle -> RGBColor(1, 0, 0))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section({"By default, ", TemplateBox({"FontColor"}, 
+               "ReferenceHyperlink"), " is used for the frame:"}, 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Style", "(", {{"Framed", "(", "123", ")"}, 
+                  ",", {"FontColor", "\[Rule]", "Red"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(StyleBox(FrameBox("123"), 
+                 FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Pane"}, 
+         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+        TemplateBox({"Style"}, "ReferenceHyperlink"), 
+        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FrameBoxOptions"}, 
+         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
