@@ -32,7 +32,7 @@ Document({
        Visible -> True), Section(StyleData("Edit"), AutoSpacing -> True, 
        LanguageCategory -> "pMath", ShowAutoStyles -> True), 
       Section(StyleData("Input"), AutoNumberFormating -> False, 
-       AutoSpacing -> True, Evaluatable -> True, FontSize -> 11, 
+       AutoSpacing -> True, Evaluatable -> True, FontSize -> 12, 
        LanguageCategory -> "pMath", MenuCommandKey -> "9", 
        MenuSortingValue -> 1500, SectionMargins -> {56, Inherited, 10, 5}, 
        SectionLabel -> "in:", ShowAutoStyles -> True), 

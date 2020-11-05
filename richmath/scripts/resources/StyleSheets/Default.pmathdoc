@@ -12,8 +12,8 @@ Document({
       SectionGroup({Section("Section styles", "Section"), 
         SectionGroup({Section("Formulas", "Subsection"), 
           Section(StyleData("DisplayFormula"), AutoNumberFormating -> False, 
-           AutoSpacing -> True, Evaluatable -> False, FontSize -> 11, 
-           LanguageCategory -> "Formula", SectionMargins -> {50, Inherited, 7, 
-            7}, ShowAutoStyles -> False, MenuSortingValue -> 1700)}, All)}, 
-       All)}, All)}, All)}, StyleDefinitions -> "Stylesheets.pmathdoc", 
- Visible -> True)
+           AutoSpacing -> True, Evaluatable -> False, FontSize -> 12, 
+           LanguageCategory -> "Formula", MenuSortingValue -> 1700, 
+           SectionMargins -> {50, Inherited, 7, 7}, ShowAutoStyles -> False)}, 
+         All)}, All)}, All)}, All)}, StyleDefinitions -> 
+  "Stylesheets.pmathdoc", Visible -> True)
