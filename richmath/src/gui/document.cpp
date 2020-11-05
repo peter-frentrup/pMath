@@ -2828,7 +2828,11 @@ static AbstractSequence *find_selection_placeholder(
       }
     }
     
+    int old_index = *index;
+    auto old = current;
     current = current->move_logical(LogicalDirection::Forward, false, index);
+    if(current == old && *index <= old_index)
+      break;
   }
   
   *index = placeholder_pos;
