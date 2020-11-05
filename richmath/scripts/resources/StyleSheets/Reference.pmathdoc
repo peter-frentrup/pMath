@@ -139,8 +139,8 @@ Document({
             Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
               DisplayFunction -> (StyleBox(
                FrameBox(ComplexStringBox({"\"", #1, "\""}), 
-                BorderRadius -> 2.5`), "ControlStyle", 
-               Background -> GrayLevel(0.96499999999999997`), 
+                BorderRadius -> 2.5`, Background -> GrayLevel(
+                 0.96499999999999997`)), "ControlStyle", 
                FontSize -> Dynamic(0.80000000000000004`*CurrentValue(
                  FontSize)), FontColor -> GrayLevel(
                 0.35999999999999999`)) &)}), 

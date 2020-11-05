@@ -7,112 +7,129 @@ Document({
        "\"BorderRadius is an option for Style, Framed and related constructs \
        which specifies the border radii to be used for the top-left, \
        top-right, bottom-right and bottom-left corner.\"")), "PrintUsage", 
-     SectionGenerated -> True), Section("Example", "Section"), 
-    Section(BoxData({"DynamicLocal", "(", {
-        {"{", {"radii", "\[Assign]", {
-           "{", {{"{", {"5", ",", "5"}, "}"}, ",", {
-             "{", {"5", ",", "5"}, "}"}, ",", {"{", {"5", ",", "5"}, "}"}, 
-            ",", {"{", {"5", ",", "5"}, "}"}}, "}"}}, "}"}, ",", "\n", {
-         {"max", "\[Assign]", "30"}, ";", "\n", {
-          "captions", "\[Assign]", {
-           "{", {ComplexStringBox("\"top left\""), ",", 
-            ComplexStringBox("\"top right\""), ",", 
-            ComplexStringBox("\"bottom right\""), ",", 
-            ComplexStringBox("\"bottom left\"")}, "}"}}, ";", "\n", {
-          "spanFromLeft", "\[Assign]", {
-           "RawBoxes", "(", ComplexStringBox("\"\\[SpanFromLeft]\""), ")"}}, 
-         ";", "\n", {"Style", "(", {
-           {"Framed", "(", "\n", {
-             {"Grid", "@", {"Join", "(", "\n", {
-                {"{", {"{", {ComplexStringBox("\"\""), ",", 
-                   ComplexStringBox("\"x\""), ",", ComplexStringBox("\"y\""), 
-                   ",", ComplexStringBox("\"both\"")}, "}"}, "}"}, ",", "\n", {
-                 "Table", "(", {
-                  {"With", "(", {{"{", {"i", "\[Assign]", "i"}, "}"}, ",", 
-                    "\n", {"{", {{"captions", "[", "i", "]"}, ",", "\n", {
-                       "Slider", "(", {
-                        {"Dynamic", "(", {"radii", "[", {"i", ",", "1"}, "]"}, 
-                         ")"}, ",", {"0", "..", "max", "..", "1"}}, ")"}, ",", 
-                      "\n", {"Slider", "(", {
-                        {"Dynamic", "(", {"radii", "[", {"i", ",", "2"}, "]"}, 
-                         ")"}, ",", {"0", "..", "max", "..", "1"}}, ")"}, ",", 
-                      "\n", {"Slider", "(", {
-                        {"Dynamic", "(", {
-                          {"Min", "(", {"radii", "[", "i", "]"}, ")"}, ",", {
-                           {"(", {{"radii", "[", "i", "]"}, "\[Assign]", {
-                              "{", {"#", ",", "#"}, "}"}}, ")"}, "&"}}, ")"}, 
-                        ",", {"0", "..", "max", "..", "1"}}, ")"}}, "}"}}, 
-                   ")"}, ",", "\n", {"i", "\[Rule]", {"1", "..", "4"}}}, ")"}, 
-                ",", "\n", {
-                 "{", {{"{", {ComplexStringBox("\"\""), ",", "\n", {
-                     "Slider", "(", {
-                      {"Dynamic", "(", {
-                        {"Min", "(", {"radii", "[", {"All", ",", "1"}, "]"}, 
-                         ")"}, ",", {
-                         {"(", {{"radii", "[", {"All", ",", "1"}, "]"}, 
-                           "\[Assign]", {"{", {"#", ",", "#", ",", "#", ",", 
-                             "#"}, "}"}}, ")"}, "&"}}, ")"}, ",", {
-                       "0", "..", "max", "..", "1"}}, ")"}, ",", "\n", {
-                     "Slider", "(", {
-                      {"Dynamic", "(", {
-                        {"Min", "(", {"radii", "[", {"All", ",", "2"}, "]"}, 
-                         ")"}, ",", {
-                         {"(", {{"radii", "[", {"All", ",", "2"}, "]"}, 
-                           "\[Assign]", {"{", {"#", ",", "#", ",", "#", ",", 
-                             "#"}, "}"}}, ")"}, "&"}}, ")"}, ",", {
-                       "0", "..", "max", "..", "1"}}, ")"}, ",", "\n", {
-                     "Slider", "(", {
-                      {"Dynamic", "(", {{"Min", "(", "radii", ")"}, ",", {
-                         {"(", {"radii", "\[Assign]", {
-                            "{", {{"{", {"#", ",", "#"}, "}"}, ",", {
-                              "{", {"#", ",", "#"}, "}"}, ",", {
-                              "{", {"#", ",", "#"}, "}"}, ",", {
-                              "{", {"#", ",", "#"}, "}"}}, "}"}}, ")"}, "&"}}, 
-                       ")"}, ",", {"0", "..", "max", "..", "1"}}, ")"}}, "}"}, 
-                  ",", "\n", {"{", {ComplexStringBox("\"\""), ",", {
-                     "BorderRadius", "\[Rule]", {"Dynamic", "(", "radii", 
-                      ")"}}, ",", "spanFromLeft", ",", "spanFromLeft"}, "}"}}, 
-                 "}"}}, ")"}}, ",", "\n", {"BorderRadius", "\[Rule]", {
-               "Dynamic", "(", "radii", ")"}}}, ")"}, ",", "\n", {
-            "Background", "\[Rule]", "Yellow"}, ",", "\n", {
-            "BorderRadius", "\[Rule]", {"Dynamic", "(", "radii", ")"}}}, 
-          ")"}}}, "\n", ")"}), "Input", SectionLabel -> "in [19]:"), 
-    Section(BoxData(DynamicLocalBox({radii}, 
-       StyleBox(
-        FrameBox(
-         TagBox(GridBox({{ComplexStringBox("\"\""), ComplexStringBox("\"x\""), 
-             ComplexStringBox("\"y\""), ComplexStringBox("\"both\"")}, {
-             ComplexStringBox("\"top left\""), 
-             SliderBox(Dynamic(radii[1, 1]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(radii[1, 2]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(Min(radii[1]), (radii[1]:= {#1, #1}) &), 
-              0 .. 30 .. 1)}, {ComplexStringBox("\"top right\""), 
-             SliderBox(Dynamic(radii[2, 1]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(radii[2, 2]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(Min(radii[2]), (radii[2]:= {#1, #1}) &), 
-              0 .. 30 .. 1)}, {ComplexStringBox("\"bottom right\""), 
-             SliderBox(Dynamic(radii[3, 1]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(radii[3, 2]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(Min(radii[3]), (radii[3]:= {#1, #1}) &), 
-              0 .. 30 .. 1)}, {ComplexStringBox("\"bottom left\""), 
-             SliderBox(Dynamic(radii[4, 1]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(radii[4, 2]), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(Min(radii[4]), (radii[4]:= {#1, #1}) &), 
-              0 .. 30 .. 1)}, {ComplexStringBox("\"\""), 
-             SliderBox(Dynamic(Min(radii[All, 1]), (
-                radii[All, 1]:= {#1, #1, #1, #1}) &), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(Min(radii[All, 2]), (
-                radii[All, 2]:= {#1, #1, #1, #1}) &), 0 .. 30 .. 1), 
-             SliderBox(Dynamic(Min(radii), (radii:= {{#1, #1}, {#1, #1}, {
-                 #1, #1}, {#1, #1}}) &), 0 .. 30 .. 1)}, {
-             ComplexStringBox("\"\""), {"BorderRadius", "\[Rule]", 
-              DynamicBox(ToBoxes(radii))}, "\[SpanFromLeft]", 
-             "\[SpanFromLeft]"}}), "Grid"), BorderRadius -> Dynamic(radii)), 
-        Background -> RGBColor(1, 1, 0), BorderRadius -> Dynamic(radii), 
-        StripOnInput -> False), Initialization :> None, 
-       Deinitialization :> None, UnsavedVariables :> {}, 
-       DynamicLocalValues :> {{
-         OwnRules(radii):= {HoldPattern(radii) :> {{15, 15}, {15, 15}, {
-            15, 15}, {15, 15}}}}})), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [19]:")}, All)}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+     SectionGenerated -> True), 
+    SectionGroup({Section("Example", "Section"), 
+      SectionGroup({
+        Section(BoxData({"DynamicLocal", "(", {
+            {"{", {"radii", "\[Assign]", {
+               "{", {{"{", {"5", ",", "5"}, "}"}, ",", {
+                 "{", {"5", ",", "5"}, "}"}, ",", {"{", {"5", ",", "5"}, "}"}, 
+                ",", {"{", {"5", ",", "5"}, "}"}}, "}"}}, "}"}, ",", {
+             "\n", {{{"max", "\[Assign]", "30"}, ";", {
+                "\n", {"captions", "\[Assign]", {
+                  "{", {ComplexStringBox("\"top left\""), ",", 
+                   ComplexStringBox("\"top right\""), ",", 
+                   ComplexStringBox("\"bottom right\""), ",", 
+                   ComplexStringBox("\"bottom left\"")}, "}"}}}, ";", {
+                "\n", {"Framed", "(", {
+                  {"\n", {"Grid", "@", {
+                     "Join", "(", {
+                      {"\n", {
+                        "{", {"{", {ComplexStringBox("\"\""), ",", 
+                          ComplexStringBox("\"x\""), ",", 
+                          ComplexStringBox("\"y\""), ",", 
+                          ComplexStringBox("\"both\"")}, "}"}, "}"}}, ",", {
+                       "\n", {"Table", "(", {
+                         {"With", "(", {{"{", {"i", "\[Assign]", "i"}, "}"}, 
+                           ",", {"\n", {"{", {{"captions", "[", "i", "]"}, 
+                              ",", {"\n", {"Slider", "(", {
+                                 {"Dynamic", "(", {"radii", "[", {
+                                    "i", ",", "1"}, "]"}, ")"}, ",", {
+                                  "0", "..", "max", "..", "1"}}, ")"}}, ",", {
+                               "\n", {"Slider", "(", {
+                                 {"Dynamic", "(", {"radii", "[", {
+                                    "i", ",", "2"}, "]"}, ")"}, ",", {
+                                  "0", "..", "max", "..", "1"}}, ")"}}, ",", {
+                               "\n", {"Slider", "(", {
+                                 {"Dynamic", "(", {
+                                   {"Min", "(", {"radii", "[", "i", "]"}, 
+                                    ")"}, ",", {
+                                    {"(", {{"radii", "[", "i", "]"}, 
+                                      "\[Assign]", {"{", {"#", ",", "#"}, 
+                                       "}"}}, ")"}, "&"}}, ")"}, ",", {
+                                  "0", "..", "max", "..", "1"}}, ")"}}}, 
+                             "}"}}}, ")"}, ",", {
+                          "\n", {"i", "\[Rule]", {"1", "..", "4"}}}}, ")"}}, 
+                      ",", {
+                       "\n", {
+                        "{", {{"{", {ComplexStringBox("\"\""), ",", {
+                            "\n", {"Slider", "(", {
+                              {"Dynamic", "(", {
+                                {"Min", "(", {"radii", "[", {"All", ",", "1"}, 
+                                  "]"}, ")"}, ",", {
+                                 {"(", {{"radii", "[", {"All", ",", "1"}, 
+                                    "]"}, "\[Assign]", {
+                                    "{", {"#", ",", "#", ",", "#", ",", "#"}, 
+                                    "}"}}, ")"}, "&"}}, ")"}, ",", {
+                               "0", "..", "max", "..", "1"}}, ")"}}, ",", {
+                            "\n", {"Slider", "(", {
+                              {"Dynamic", "(", {
+                                {"Min", "(", {"radii", "[", {"All", ",", "2"}, 
+                                  "]"}, ")"}, ",", {
+                                 {"(", {{"radii", "[", {"All", ",", "2"}, 
+                                    "]"}, "\[Assign]", {
+                                    "{", {"#", ",", "#", ",", "#", ",", "#"}, 
+                                    "}"}}, ")"}, "&"}}, ")"}, ",", {
+                               "0", "..", "max", "..", "1"}}, ")"}}, ",", {
+                            "\n", {"Slider", "(", {
+                              {"Dynamic", "(", {{"Min", "(", "radii", ")"}, 
+                                ",", {
+                                 {"(", {"radii", "\[Assign]", {
+                                    "{", {{"{", {"#", ",", "#"}, "}"}, ",", {
+                                      "{", {"#", ",", "#"}, "}"}, ",", {
+                                      "{", {"#", ",", "#"}, "}"}, ",", {
+                                      "{", {"#", ",", "#"}, "}"}}, "}"}}, 
+                                  ")"}, "&"}}, ")"}, ",", {
+                               "0", "..", "max", "..", "1"}}, ")"}}}, "}"}, 
+                         ",", {"\n", {"{", {ComplexStringBox("\"\""), ",", {
+                             "BorderRadius", "\[Rule]", {
+                              "Dynamic", "(", "radii", ")"}}, ",", 
+                            "SpanFromLeft", ",", "SpanFromLeft"}, "}"}}}, 
+                        "}"}}}, ")"}}}, ",", {
+                   "\n", {"BorderRadius", "\[Rule]", {
+                     "Dynamic", "(", "radii", ")"}}}, ",", {
+                   "Background", "\[Rule]", "Yellow"}}, ")"}}}, "\n"}}}, 
+           ")"}), "Input"), 
+        Section(BoxData(DynamicLocalBox({Global`radii}, 
+           FrameBox(
+            TagBox(
+             GridBox({{ComplexStringBox("\"\""), ComplexStringBox("\"x\""), 
+                ComplexStringBox("\"y\""), ComplexStringBox("\"both\"")}, {
+                ComplexStringBox("\"top left\""), 
+                SliderBox(Dynamic(Global`radii[1, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Global`radii[1, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min(Global`radii[1]), (
+                   Global`radii[1]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                ComplexStringBox("\"top right\""), 
+                SliderBox(Dynamic(Global`radii[2, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Global`radii[2, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min(Global`radii[2]), (
+                   Global`radii[2]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                ComplexStringBox("\"bottom right\""), 
+                SliderBox(Dynamic(Global`radii[3, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Global`radii[3, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min(Global`radii[3]), (
+                   Global`radii[3]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                ComplexStringBox("\"bottom left\""), 
+                SliderBox(Dynamic(Global`radii[4, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Global`radii[4, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min(Global`radii[4]), (
+                   Global`radii[4]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                ComplexStringBox("\"\""), 
+                SliderBox(Dynamic(Min(Global`radii[All, 1]), (
+                   Global`radii[All, 1]:= {#1, #1, #1, #1}) &), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min(Global`radii[All, 2]), (
+                   Global`radii[All, 2]:= {#1, #1, #1, #1}) &), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min(Global`radii), (
+                   Global`radii:= {{#1, #1}, {#1, #1}, {#1, #1}, {
+                    #1, #1}}) &), 0 .. 30 .. 1)}, {
+                ComplexStringBox("\"\""), {"BorderRadius", "\[Rule]", 
+                 DynamicBox(ToBoxes(Global`radii))}, "\[SpanFromLeft]", 
+                "\[SpanFromLeft]"}}), "Grid"), Background -> RGBColor(1, 1, 
+             0), BorderRadius -> Dynamic(Global`radii)), 
+           Initialization :> None, Deinitialization :> None, 
+           UnsavedVariables :> {}, DynamicLocalValues :> {{
+             OwnRules(Global`radii):= {HoldPattern(Global`radii) :> {{5, 5}, {
+                5, 5}, {5, 5}, {5, 5}}}}})), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, All)}, 
+   All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
