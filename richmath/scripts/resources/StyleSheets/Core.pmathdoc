@@ -195,6 +195,9 @@ Document({
            ")"} &)}), Section(StyleData("Det"), 
          TemplateBoxOptions -> {DisplayFunction -> ({"\[LeftBracketingBar]", 
            #1, "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
+        Section(StyleData("Highlighted"), 
+         TemplateBoxOptions -> {DisplayFunction -> (FrameBox(#1, 
+           BaseStyle -> "Highlighted") &), InterpretationFunction -> (#1 &)}), 
         Section(StyleData("TabView"), TemplateBoxOptions -> {
           DisplayFunction -> (DynamicLocalBox({FE`Private`rules}, 
            GridBox({

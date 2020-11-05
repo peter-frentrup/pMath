@@ -220,6 +220,7 @@
 {"Hash", {"ArgumentCount" -> 1}},
 {"Head", {"ArgumentCount" -> 1}},
 {"HermiteH", {"ArgumentCount" -> 2}},
+{"Highlighted", {"ArgumentCount" -> 1}},
 {"Hold", {"ArgumentCount" -> 1}},
 {"HoldComplete", {"ArgumentCount" -> 1..}},
 {"HoldForm", {"ArgumentCount" -> 1}},

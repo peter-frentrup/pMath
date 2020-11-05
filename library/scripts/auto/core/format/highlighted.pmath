@@ -1,0 +1,6 @@
+Begin("System`Private`")
+
+%FrameBox(MakeBoxes(expr), BaseStyle->"Highlighted", StripOnInput->True)
+MakeBoxes(Highlighted(~expr, opts: OptionsPattern()))::= TemplateBox({MakeBoxes(expr), opts}, "Highlighted")
+
+End()
