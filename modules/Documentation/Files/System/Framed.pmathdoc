@@ -102,7 +102,17 @@ Document({
                   FrameBox("Bottom", BaselinePosition -> Bottom)}, 
                  "RowWithSeparators")), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("BorderRadius", "ExampleSubsection"), 
+        SectionGroup({Section("BaseStyle", "ExampleSubsection"), 
+          Section("Highlight an expression:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Framed", "(", {{{"1", "/", "x"}, "+", "y"}, ",", 
+                {"BaseStyle", "\[Rule]", ComplexStringBox(
+                  "\"Highlighted\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(FrameBox({"y", "+", FractionBox("1", "x")}, 
+               BaseStyle -> "Highlighted")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("BorderRadius", "ExampleSubsection"), 
           Section("A rounded frame:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Framed", "(", {
@@ -167,7 +177,18 @@ Document({
               Section(BoxData(StyleBox(FrameBox("123"), 
                  FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), 
                "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("StripOnInput", "ExampleSubsection"), 
+          Section({"Use ", TemplateBox({"StripOnInput"}, 
+             "ReferenceHyperlink"), " \[Rule] ", 
+            TemplateBox({"True"}, "ReferenceHyperlink"), 
+            " to strip the frame on input: "}, "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              ComplexStringBox("\"Input\""), ",", {
+               "Framed", "(", {"123", ",", {"StripOnInput", "\[Rule]", 
+                 "True"}}, ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(FrameBox("123", StripOnInput -> True)), "Input", 
+           SectionGenerated -> True)}, 1)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 

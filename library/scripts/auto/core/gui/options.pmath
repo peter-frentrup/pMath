@@ -87,7 +87,8 @@ Options(Framed):= Options(FrameBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Framed", 
     BorderRadius -> 0,
-    FrameStyle -> Automatic}
+    FrameStyle -> Automatic,
+    StripOnInput -> False}
 
 Options(Graphics):= Options(GraphicsBox):= {
     AspectRatio -> Automatic,
@@ -220,7 +221,8 @@ Options(Section):= {
         Background -> None,
         BaselinePosition -> Automatic,
         BorderRadius -> 0,
-        FrameStyle -> Automatic},
+        FrameStyle -> Automatic,
+        StripOnInput -> False},
     FontColor -> GrayLevel(0),
     FontFamily -> "Times",
     FontFeatures -> Inherited, % FontFeatures -> {"ssty" -> Automatic}

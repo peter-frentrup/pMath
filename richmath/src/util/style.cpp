@@ -2614,6 +2614,7 @@ void StyleInformation::add_style() {
     
     add(StyleType::Any, FrameBoxDefaultBaselinePosition,  Rule(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_BaselinePosition)));
     add(StyleType::Any, FrameBoxDefaultBorderRadius,      Rule(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_BorderRadius)));
+    add(StyleType::Any, FrameBoxDefaultFrameStyle,        Rule(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_FrameStyle)));
     
     add(StyleType::Any, InputFieldBoxDefaultAppearance,       Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, InputFieldBoxDefaultBaselinePosition, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol(richmath_System_BaselinePosition)));

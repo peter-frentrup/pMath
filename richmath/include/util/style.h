@@ -248,6 +248,7 @@ namespace richmath {
     
     FrameBoxDefaultBorderRadius              = BorderRadius           + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::FrameBox,
+    FrameBoxDefaultFrameStyle                = FrameStyle             + (int)DefaultStyleOptionOffsets::FrameBox,
     
     InputFieldBoxDefaultAppearance           = Appearance             + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultBaselinePosition     = BaselinePosition       + (int)DefaultStyleOptionOffsets::InputFieldBox,

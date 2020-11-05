@@ -139,6 +139,10 @@ Expr FrameBox::to_pmath_symbol() {
 }
 
 Expr FrameBox::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, false)) {
+    return _content->to_pmath(flags);
+  }
+  
   Gather g;
   
   Gather::emit(_content->to_pmath(flags));
