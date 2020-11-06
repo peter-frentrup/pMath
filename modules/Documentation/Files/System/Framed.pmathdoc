@@ -6,16 +6,16 @@ Document({
       Section(BoxData(TemplateBox({"Framed"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({"If ", StyleBox("expr", "Arg"), 
-          " wraps onto multiple lines, the baseline of ", 
-          TemplateBox({"Framed"}, "ReferenceHyperlink"), "(", 
-          StyleBox("expr", "Arg"), 
-          ") is taken to be the baseline of the first line of ", 
-          StyleBox("expr", "Arg"), "."}, "Notes"), 
-        Section({TemplateBox({"Framed"}, "ReferenceHyperlink"), 
-          " by default applies the current stylesheet\[Prime]s \"Framed\" \
-          style."}, "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
-    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+        Section(TextData({"If ", StyleBox("expr", "Arg"), 
+           " wraps onto multiple lines, the baseline of ", 
+           TemplateBox({"Framed"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), 
+           ") is taken to be the baseline of the first line of ", 
+           StyleBox("expr", "Arg"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Framed"}, "ReferenceHyperlink"), 
+           " by default applies the current stylesheet\[Prime]s \"Framed\" \
+           style."}), "Notes")}, All), Section("", "SectionFooterSpacer")}, 
+     1), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple frame:", "ExampleText"), 
         SectionGroup({Section(BoxData({"Framed", "(", "123", ")"}), "Input", 
@@ -44,9 +44,9 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"The background takes ", 
-              TemplateBox({"BorderRadius"}, "ReferenceHyperlink"), 
-              " into account:"}, "ExampleText"), 
+            Section(TextData({"The background takes ", 
+               TemplateBox({"BorderRadius"}, "ReferenceHyperlink"), 
+               " into account:"}), "ExampleText"), 
             SectionGroup({
               Section(BoxData({"Framed", "(", {
                   "123", ",", {"BorderRadius", "\[Rule]", "10"}, ",", {
@@ -168,9 +168,10 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"By default, ", TemplateBox({"FontColor"}, 
-               "ReferenceHyperlink"), " is used for the frame:"}, 
-             "ExampleText"), SectionGroup({
+            Section(TextData({"By default, ", 
+               TemplateBox({"FontColor"}, "ReferenceHyperlink"), 
+               " is used for the frame:"}), "ExampleText"), 
+            SectionGroup({
               Section(BoxData({"Style", "(", {{"Framed", "(", "123", ")"}, 
                   ",", {"FontColor", "\[Rule]", "Red"}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
@@ -179,23 +180,36 @@ Document({
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
         SectionGroup({Section("StripOnInput", "ExampleSubsection"), 
-          Section({"Use ", TemplateBox({"StripOnInput"}, 
-             "ReferenceHyperlink"), " \[Rule] ", 
-            TemplateBox({"True"}, "ReferenceHyperlink"), 
-            " to strip the frame on input: "}, "ExampleText"), 
+          Section(
+           TextData({"Use ", TemplateBox({"StripOnInput"}, 
+              "ReferenceHyperlink"), " \[Rule] ", 
+             TemplateBox({"True"}, "ReferenceHyperlink"), 
+             " to strip the frame on input: "}), "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
               ComplexStringBox("\"Input\""), ",", {
                "Framed", "(", {"123", ",", {"StripOnInput", "\[Rule]", 
                  "True"}}, ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(FrameBox("123", StripOnInput -> True)), "Input", 
            SectionGenerated -> True)}, 1)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"TextShadow"}, "ReferenceHyperlink"), 
+           " also applies to the frame: "}), "Text"), 
+        SectionGroup({
+          Section(BoxData({{"Framed", "(", "123", ")"}, ".", "Style", "(", {
+              "TextShadow", "\[Rule]", {
+               "{", {"{", {"1", ",", "1", ",", "Red", ",", "2"}, "}"}, "}"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(StyleBox(FrameBox("123"), StripOnInput -> False, 
+             TextShadow -> {{1, 1, RGBColor(1, 0, 0), 2}})), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Highlighted"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Pane"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Style"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"FrameBoxOptions"}, "ReferenceHyperlink")}, "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Highlighted"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Style"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"FrameBoxOptions"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)
