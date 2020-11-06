@@ -71,7 +71,8 @@ Document({
       Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Reset $Line\""), 
           ButtonFunction -> (($Line:= 0) &)))), "Text")}, All)}, All)}, 
  StyleDefinitions :> Document({
-   SectionGroup({Section(StyleData(StyleDefinitions -> "Palette.pmathdoc")), 
+   SectionGroup({Section(StyleData(StyleDefinitions -> "Reference.pmathdoc")), 
+     Section(StyleData(StyleDefinitions -> "Palette.pmathdoc")), 
      SectionGroup({Section("Section styles", "Section"), 
        Section(StyleData("Subsection"), SectionDingbat :> OpenerBox(
          Dynamic(CurrentValue("SectionGroupOpen"))), 
@@ -82,26 +83,13 @@ Document({
         SectionMargins -> {25, 5, 5, 5}, Selectable -> False, 
         WholeSectionGroupOpener -> True), Section(StyleData("Text"), 
         ButtonBoxOptions -> {ButtonFrame -> "Palette"}, 
-        SectionMargins -> {0, 0, 0, 0}), 
-       SectionGroup({Section(StyleData("ExampleSection"), 
-          BaseStyle -> "Subsection", DefaultNewSectionStyle -> "ExampleText", 
-          FontColor -> RGBColor(0, 0.502`, 0.125`), 
-          SectionDingbat :> OpenerBox(
-           Dynamic(CurrentValue("SectionGroupOpen"))), 
-          SectionMargins -> {35, Inherited, Inherited, Inherited}, 
-          ShowSectionBracket -> Automatic, WholeSectionGroupOpener -> True), 
-         Section(StyleData("ExampleSubsection"), BaseStyle -> "Subsubsection", 
-          DefaultNewSectionStyle -> "ExampleText", 
-          FontColor -> RGBColor(0, 0.502`, 0.125`), 
-          SectionDingbat :> OpenerBox(
-           Dynamic(CurrentValue("SectionGroupOpen"))), 
-          SectionMargins -> {45, Inherited, Inherited, Inherited}, 
-          ShowSectionBracket -> Automatic, WholeSectionGroupOpener -> True)}, 
-        All)}, All), SectionGroup({Section("Box styles", "Section"), 
-       Section({
-         "The following styles mimic those of the \[HighSixDoubleQuote]", 
-         TemplateBox({"Reference.pmathdoc"}, "StylesheetHyperlink"), 
-         "\[HighNineDoubleQuote]:"}, "Text"), 
+        SectionMargins -> {0, 0, 0, 0})}, All), 
+     SectionGroup({Section("Box styles", "Section"), 
+       Section(
+        TextData({
+          "The following styles mimic those of the \[HighSixDoubleQuote]", 
+          TemplateBox({"Reference.pmathdoc"}, "StylesheetHyperlink"), 
+          "\[HighNineDoubleQuote]:"}), "Text"), 
        SectionGroup({Section("Hyperlinks", "Subsubsection"), 
          Section(StyleData("ReferenceHyperlink"), 
           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
@@ -113,41 +101,6 @@ Document({
             ComplexStringBox({"\"\\\\[", #1, "]\""}), 
             FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
             ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
-        All), SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
-         Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
-           DisplayFunction -> (StyleBox(
-            FrameBox(ComplexStringBox({"\"", #1, "\""}), 
-             BorderRadius -> 2.5`), "ControlStyle", 
-            Background -> GrayLevel(0.96499999999999997`), 
-            FontSize -> Dynamic(0.80000000000000004`*CurrentValue(FontSize)), 
-            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
-         Section(StyleData("KeyEventDelimiter"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-            ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
-            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
-         Section(StyleData("AliasDelimiterKeyEvent"), 
-          TemplateBoxOptions -> {DisplayFunction -> (TemplateBox({
-             " \[AliasIndicator] "}, "KeyEvent") &)}), 
-         Section(StyleData("ControlKeyEvent"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-             ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), "+", 
-               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
-         Section(StyleData("AltKeyEvent"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-             ComplexStringBox({"\"", TemplateBox({"Alt"}, "KeyEvent"), "+", 
-               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
-         Section(StyleData("ShiftKeyEvent"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-             ComplexStringBox({"\"", TemplateBox({"Shift"}, "KeyEvent"), "+", 
-               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-            FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
-         Section(StyleData("ControlShiftKeyEvent"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-             ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), "+", 
-               TemplateBox({"Shift"}, "KeyEvent"), "+", 
-               TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-            FontColor -> GrayLevel(0.35999999999999999`)) &)})}, All)}, All)}, 
-    All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
-  Visible -> True), Visible -> True, WindowTitle -> "Documentation Tools")
+        All)}, All)}, All)}, StyleDefinitions -> 
+   "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True, 
+ WindowTitle -> "Documentation Tools")
