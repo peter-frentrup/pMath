@@ -1,0 +1,5 @@
+Begin("System`ConditionalExpression`")
+
+MakeBoxes(ConditionalExpression(~a, ~b))::= TemplateBox({MakeBoxes(a), MakeBoxes(b)}, "ConditionalExpression")
+
+End()

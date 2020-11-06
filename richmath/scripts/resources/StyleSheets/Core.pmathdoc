@@ -97,6 +97,8 @@ Document({
        FrameBoxOptions -> {BorderRadius -> 6, 
         FrameStyle -> RGBColor(1, 0.92500000000000004`, 
          0.33000000000000002`)}), 
+      Section(StyleData("ConditionalExpressionLabel"), 
+       FontColor -> GrayLevel(0.5`), ShowStringCharacters -> False), 
       SectionGroup({Section("Default box level styles", "Subsection"), 
         Section(StyleData("Graphics"), AspectRatio -> 1, 
          AutoNumberFormating -> True, AutoSpacing -> True, 
@@ -128,137 +130,153 @@ Document({
          ButtonBoxOptions -> {ButtonFunction -> (DocumentApply(
            SelectedDocument(), #1) &)})}, All), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 
-        Section(StyleData("Binomial"), TemplateBoxOptions -> {
-          DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
-          Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
-          Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &), 
-          Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
-            ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", #4}, 
-           ")"} &), Tooltip -> Automatic}), Section(StyleData("OpenerView"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           GridBox({
-             {OpenerBox(#3), {
-               ButtonBox(#1, ButtonFunction -> ((CurrentValue({
-                  TemplateSlot, 3}):= If(CurrentValue({TemplateSlot, 3}) === 
-                  True, False, True)) &), ButtonFrame -> None), 
-               "\[InvisibleSpace]"}}, {
-              "", PaneSelectorBox({
-                True -> GridBox({{""}, {#2}}, 
-                 GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
-            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-            GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
-           "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
-            InterpretationBox("", #3)}, ")"} &)}), 
-        Section(StyleData("DocumentObject"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
-           DynamicBox(
-            ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-              Button(
-               Panel(
-                Style(
-                 Dynamic(Replace(CurrentValue(CurrentValue({TemplateSlot, 1}), 
-                    WindowTitle), $Failed :> CurrentValue({
-                     TemplateSlot, 2}))), FontColor -> Dynamic(
-                  If(CurrentValue(CurrentValue({TemplateSlot, 1}), 
-                    WindowTitle) === $Failed, Gray, 
-                   If(CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
-                     "MouseOver") === True, Blue, Inherited))))), 
-               SetSelectedDocument(CurrentValue({TemplateSlot, 1})), 
-               ButtonFrame -> "Frameless")))), ")"} &), 
-          InterpretationFunction -> ({"DocumentObject", "(", 
-           InterpretationBox("", #1), ")"} &)}), 
-        Section(StyleData("FrontEndObject"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({"FrontEndObject", "(", 
-           DynamicBox(
-            ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-              Button(Panel(Style(CurrentValue({TemplateSlot, 2}), 
-                 FontColor -> Dynamic(
-                  If(CurrentValue({TemplateSlot, 1}) === $SessionId && 
-                    CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
-                    "MouseOver") === True, Blue, Inherited)))), 
-               Replace({CurrentValue({TemplateSlot, 1}), 
-                 CurrentValue({TemplateSlot, 2})}, {
-                 $SessionId, ~FE`Private`id:Integer} :> SetSelectedDocument(
-                 Automatic, FrontEndObject($SessionId, FE`Private`id))), 
-               Enabled -> Dynamic(CurrentValue({TemplateSlot, 1}) === 
-                 $SessionId), ButtonFrame -> "Frameless")))), ")"} &), 
-          InterpretationFunction -> ({"FrontEndObject", "(", {
-            InterpretationBox("", #1), ",", InterpretationBox("", #2)}, 
-           ")"} &)}), Section(StyleData("Det"), 
-         TemplateBoxOptions -> {DisplayFunction -> ({"\[LeftBracketingBar]", 
-           #1, "\[RightBracketingBar]"} &), Tooltip -> Automatic}), 
-        Section(StyleData("Highlighted"), 
-         TemplateBoxOptions -> {DisplayFunction -> (FrameBox(#1, 
-           BaseStyle -> "Highlighted") &), InterpretationFunction -> (#1 &)}), 
-        Section(StyleData("TabView"), TemplateBoxOptions -> {
-          DisplayFunction -> (DynamicLocalBox({FE`Private`rules}, 
-           GridBox({
-             {PanelBox({
-                " ", DynamicBox(
-                 GridBox({MapIndexed(FE`Private`rules, 
-                    SetterBox(Dynamic(CurrentValue({TemplateSlot, 2}), {
-                       Automatic, None, Automatic}), First(#2), First(#1), 
-                     ButtonFrame -> If(Length(FE`Private`rules) === 1, 
-                      "TabHead", Replace(First(#2), {
-                        1 -> "TabHeadAbuttingRight", 
-                        Length(FE`Private`rules) -> "TabHeadAbuttingLeft", 
-                        ~ -> "TabHeadAbuttingLeftRight"})), 
-                     BaseStyle -> "TabViewLabel") &)}, 
-                  GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
-               Appearance -> "TabHead")}, {
-              PanelBox({
-                DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
-                   First(#2) -> StyleBox(Last(#1), 
-                    Selectable -> Dynamic(
-                     CurrentValue(CurrentValue(TemplateBox), Selectable))) &), 
-                  Dynamic(CurrentValue({TemplateSlot, 2})), 
-                  BaseStyle -> "TabView")), FillBox("")}, 
-               Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
-           Initialization :> (FE`Private`rules:= CurrentValue({
-             TemplateSlot, 1}))) &), InterpretationFunction -> (FE`TabViewBox(
-           ##1) &)}), Section(StyleData("TooltipContent"), 
-         TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
-           Appearance -> "Tooltip") &)}), Section(StyleData("RadioButtonBar"), 
-         TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-           DynamicBox(
-            ToBoxes(Row(Map(FE`EvaluateDynamic(Automatic, #2), 
-               Function({FE`Private`rule}, Setter(#1, FE`Private`rule[1], 
-                 Grid({{RadioButton(#1, FE`Private`rule[1]), 
-                    FE`Private`rule[2]}}, ColumnSpacing -> 0), 
-                 ButtonFrame -> None))), "\[InvisibleSpace]"))), 
-           Enabled -> Dynamic(CurrentValue({TemplateSlot, Key(Enabled)}))) &), 
-          InterpretationFunction -> ({"RadioButtonBar", "(", {
-            TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
-           ")"} &)}), Section(StyleData("RadioButtonBarSimple"), 
-         TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-           DynamicBox(
-            ToBoxes(Row(Map(FE`EvaluateDynamic(Automatic, #2), 
-               Function({FE`Private`val}, Setter(#1, FE`Private`val, 
-                 Grid({{RadioButton(#1, FE`Private`val), FE`Private`val}}, 
-                  ColumnSpacing -> 0), ButtonFrame -> None))), 
-              "\[InvisibleSpace]"))), Enabled -> Dynamic(
-            CurrentValue({TemplateSlot, Key(Enabled)}))) &), 
-          InterpretationFunction -> ({"RadioButtonBar", "(", {
-            TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
-           ")"} &)}), Section(StyleData("Row")), 
-        Section(StyleData("RowDefault"), BaseStyle -> "Row", 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           TemplateSlotSequence(##1)} &), InterpretationFunction -> ({"Row", 
-           "(", {"{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &)}), 
-        Section(StyleData("RowWithSeparators"), BaseStyle -> "Row", 
-         TemplateBoxOptions -> {DisplayFunction -> ({
-           TemplateSlotSequence(##3, #1)} &), 
-          InterpretationFunction -> ({"Row", "(", {
-            {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, ")"} &)}), 
-        SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+        SectionGroup({Section("Mathematical Functions", "Subsubsection"), 
+          Section(StyleData("Binomial"), TemplateBoxOptions -> {
+            DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
+            Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
+           TemplateBoxOptions -> {DisplayFunction -> ({
+             StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
+              ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
+            Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
+           TemplateBoxOptions -> {DisplayFunction -> ({
+             StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
+              ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"} &), 
+            Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
+           TemplateBoxOptions -> {DisplayFunction -> ({
+             StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
+              ShowAutoStyles -> False), "(", {{#1, ",", #2}, ";", #3, ";", 
+              #4}, ")"} &), Tooltip -> Automatic}), 
+          Section(StyleData("Det"), TemplateBoxOptions -> {
+            DisplayFunction -> ({"\[LeftBracketingBar]", #1, 
+             "\[RightBracketingBar]"} &), Tooltip -> Automatic})}, All), 
+        SectionGroup({Section("Controls", "Subsubsection"), 
+          Section(StyleData("OpenerView"), 
+           TemplateBoxOptions -> {DisplayFunction -> ({
+             GridBox({
+               {OpenerBox(#3), {
+                 ButtonBox(#1, ButtonFunction -> ((CurrentValue({
+                    TemplateSlot, 3}):= If(CurrentValue({TemplateSlot, 3}) === 
+                    True, False, True)) &), ButtonFrame -> None), 
+                 "\[InvisibleSpace]"}}, {
+                "", PaneSelectorBox({
+                  True -> GridBox({{""}, {#2}}, 
+                   GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
+              BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
+              GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
+             "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
+              InterpretationBox("", #3)}, ")"} &)}), 
+          Section(StyleData("DocumentObject"), 
+           TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
+             DynamicBox(
+              ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                Button(
+                 Panel(
+                  Style(
+                   Dynamic(
+                    Replace(CurrentValue(CurrentValue({TemplateSlot, 1}), 
+                      WindowTitle), $Failed :> CurrentValue({
+                       TemplateSlot, 2}))), FontColor -> Dynamic(
+                    If(CurrentValue(CurrentValue({TemplateSlot, 1}), 
+                      WindowTitle) === $Failed, Gray, 
+                     If(CurrentValue(FrontEndObject($SessionId, 
+                        FE`Private`dyn), "MouseOver") === True, Blue, 
+                      Inherited))))), SetSelectedDocument(
+                  CurrentValue({TemplateSlot, 1})), 
+                 ButtonFrame -> "Frameless")))), ")"} &), 
+            InterpretationFunction -> ({"DocumentObject", "(", 
+             InterpretationBox("", #1), ")"} &)}), 
+          Section(StyleData("FrontEndObject"), 
+           TemplateBoxOptions -> {DisplayFunction -> ({"FrontEndObject", "(", 
+             DynamicBox(
+              ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                Button(Panel(Style(CurrentValue({TemplateSlot, 2}), 
+                   FontColor -> Dynamic(
+                    If(CurrentValue({TemplateSlot, 1}) === $SessionId && 
+                      CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
+                      "MouseOver") === True, Blue, Inherited)))), 
+                 Replace({CurrentValue({TemplateSlot, 1}), 
+                   CurrentValue({TemplateSlot, 2})}, {
+                   $SessionId, ~FE`Private`id:Integer} :> SetSelectedDocument(
+                   Automatic, FrontEndObject($SessionId, FE`Private`id))), 
+                 Enabled -> Dynamic(CurrentValue({TemplateSlot, 1}) === 
+                   $SessionId), ButtonFrame -> "Frameless")))), ")"} &), 
+            InterpretationFunction -> ({"FrontEndObject", "(", {
+              InterpretationBox("", #1), ",", InterpretationBox("", #2)}, 
+             ")"} &)}), Section(StyleData("TabView"), 
+           TemplateBoxOptions -> {DisplayFunction -> (DynamicLocalBox({
+              FE`Private`rules}, 
+             GridBox({
+               {PanelBox({
+                  " ", DynamicBox(
+                   GridBox({MapIndexed(FE`Private`rules, 
+                      SetterBox(Dynamic(CurrentValue({TemplateSlot, 2}), {
+                         Automatic, None, Automatic}), First(#2), First(#1), 
+                       ButtonFrame -> If(Length(FE`Private`rules) === 1, 
+                        "TabHead", Replace(First(#2), {
+                          1 -> "TabHeadAbuttingRight", 
+                          Length(FE`Private`rules) -> "TabHeadAbuttingLeft", 
+                          ~ -> "TabHeadAbuttingLeftRight"})), 
+                       BaseStyle -> "TabViewLabel") &)}, 
+                    GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
+                 Appearance -> "TabHead")}, {
+                PanelBox({
+                  DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
+                     First(#2) -> StyleBox(Last(#1), 
+                      Selectable -> Dynamic(
+                       CurrentValue(CurrentValue(TemplateBox), 
+                        Selectable))) &), 
+                    Dynamic(CurrentValue({TemplateSlot, 2})), 
+                    BaseStyle -> "TabView")), FillBox("")}, 
+                 Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
+             Initialization :> (FE`Private`rules:= CurrentValue({
+               TemplateSlot, 1}))) &), InterpretationFunction -> (
+             FE`TabViewBox(##1) &)}), Section(StyleData("TooltipContent"), 
+           TemplateBoxOptions -> {DisplayFunction -> (PanelBox(#1, 
+             Appearance -> "Tooltip") &)}), 
+          Section(StyleData("RadioButtonBar"), 
+           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+             DynamicBox(
+              ToBoxes(Row(Map(FE`EvaluateDynamic(Automatic, #2), 
+                 Function({FE`Private`rule}, Setter(#1, FE`Private`rule[1], 
+                   Grid({{RadioButton(#1, FE`Private`rule[1]), 
+                      FE`Private`rule[2]}}, ColumnSpacing -> 0), 
+                   ButtonFrame -> None))), "\[InvisibleSpace]"))), 
+             Enabled -> Dynamic(CurrentValue({
+                TemplateSlot, Key(Enabled)}))) &), 
+            InterpretationFunction -> ({"RadioButtonBar", "(", {
+              TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
+             ")"} &)}), Section(StyleData("RadioButtonBarSimple"), 
+           TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
+             DynamicBox(
+              ToBoxes(Row(Map(FE`EvaluateDynamic(Automatic, #2), 
+                 Function({FE`Private`val}, Setter(#1, FE`Private`val, 
+                   Grid({{RadioButton(#1, FE`Private`val), FE`Private`val}}, 
+                    ColumnSpacing -> 0), ButtonFrame -> None))), 
+                "\[InvisibleSpace]"))), Enabled -> Dynamic(
+              CurrentValue({TemplateSlot, Key(Enabled)}))) &), 
+            InterpretationFunction -> ({"RadioButtonBar", "(", {
+              TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
+             ")"} &)})}, All), SectionGroup({
+          Section("Formatting", "Subsubsection"), 
+          Section(StyleData("ConditionalExpression"), 
+           TemplateBoxOptions -> {DisplayFunction -> (FrameBox({
+              #1, StyleBox("\" if \"", "ConditionalExpressionLabel"), #2}, 
+             FrameStyle -> GrayLevel(0.5`), BorderRadius -> 4) &)}), 
+          Section(StyleData("Highlighted"), 
+           TemplateBoxOptions -> {DisplayFunction -> (FrameBox(#1, 
+             BaseStyle -> "Highlighted") &), InterpretationFunction -> (#
+             1 &)}), Section(StyleData("Row")), 
+          Section(StyleData("RowDefault"), BaseStyle -> "Row", 
+           TemplateBoxOptions -> {DisplayFunction -> ({
+             TemplateSlotSequence(##1)} &), InterpretationFunction -> ({"Row", 
+             "(", {"{", {TemplateSlotSequence(##1, ",")}, "}"}, ")"} &)}), 
+          Section(StyleData("RowWithSeparators"), BaseStyle -> "Row", 
+           TemplateBoxOptions -> {DisplayFunction -> ({
+             TemplateSlotSequence(##3, #1)} &), 
+            InterpretationFunction -> ({"Row", "(", {
+              {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, 
+             ")"} &)})}, All), SectionGroup({
+          Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("Hyperlink"), 
            TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
              ComplexStringBox({"\"", #1, "\""}), 
