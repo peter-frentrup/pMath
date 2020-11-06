@@ -23,18 +23,6 @@ namespace richmath {
     LocalSpec
   };
   
-  class GeneralSyntaxInfo: public Shareable {
-    public:
-      static SharedPtr<GeneralSyntaxInfo> std;
-      
-    public:
-      GeneralSyntaxInfo();
-      virtual ~GeneralSyntaxInfo();
-      
-    public:
-      Color glyph_style_colors[16];
-  };
-  
   class ScopePos: public Shareable {
     public:
       ScopePos(SharedPtr<ScopePos> super = nullptr);

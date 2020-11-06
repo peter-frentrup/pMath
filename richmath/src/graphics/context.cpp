@@ -13,6 +13,22 @@
 
 using namespace richmath;
 
+namespace richmath {
+  class ContextState::Impl {
+    public:
+      Impl(ContextState &self) : self{self} {}
+      
+      void apply_syntax(SharedPtr<Style> style);
+    
+    private:
+      void ensure_new_syntax(SharedPtr<GeneralSyntaxInfo> &new_syntax) const;
+      void set_syntax_color(SharedPtr<Style> style, SharedPtr<GeneralSyntaxInfo> &new_syntax, int glyph_style_index, ColorStyleOptionName color_style_name) const;
+      
+    private:
+      ContextState &self;
+  };
+}
+
 //{ class Context ...
 
 Context::Context()
@@ -265,6 +281,7 @@ void ContextState::begin(SharedPtr<Style> style) {
   old_width                  = ctx.width;
   old_math_shaper            = ctx.math_shaper;
   old_text_shaper            = ctx.text_shaper;
+  old_syntax                 = ctx.syntax;
   old_math_spacing           = ctx.math_spacing;
   old_show_auto_styles       = ctx.show_auto_styles;
   old_show_string_characters = ctx.show_string_characters;
@@ -427,6 +444,8 @@ void ContextState::apply_non_layout_styles(SharedPtr<Style> style) {
         break;
     }
   }
+  
+  Impl(*this).apply_syntax(style);
 }
 
 void ContextState::end() {
@@ -439,6 +458,7 @@ void ContextState::end() {
   ctx.math_spacing           = old_math_spacing;
   ctx.math_shaper            = old_math_shaper;
   ctx.text_shaper            = old_text_shaper;
+  ctx.syntax                 = old_syntax;
   
   if(old_antialiasing >= 0)
     cairo_set_antialias(ctx.canvas().cairo(), old_antialiasing);
@@ -453,3 +473,48 @@ void ContextState::end() {
 }
 
 //} ... class ContextState
+
+//{ class ContextState::Impl ...
+
+void ContextState::Impl::apply_syntax(SharedPtr<Style> style) {
+  SharedPtr<GeneralSyntaxInfo> new_syntax = nullptr;
+  
+  set_syntax_color(style, new_syntax, GlyphStyleSpecialStringPart,  CharacterNameSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleComment,            CommentSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleExcessOrMissingArg, ExcessOrMissingArgumentSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleSpecialUse,         FunctionLocalVariableSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleFunctionCall,       FunctionNameSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleImplicit,           ImplicitOperatorSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleKeyword,            KeywordSymbolSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleScopeError,         LocalScopeConflictSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleLocal,              LocalVariableSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleParameter,          PatternVariableSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleString,             StringSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleShadowError,        SymbolShadowingSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleSyntaxError,        SyntaxErrorColor);
+  set_syntax_color(style, new_syntax, GlyphStyleNewSymbol,          UndefinedSymbolSyntaxColor);
+  set_syntax_color(style, new_syntax, GlyphStyleInvalidOption,      UnknownOptionSyntaxColor);
+  
+  if(new_syntax)
+    self.ctx.syntax = new_syntax;
+}
+
+void ContextState::Impl::ensure_new_syntax(SharedPtr<GeneralSyntaxInfo> &new_syntax) const {
+  if(new_syntax)
+    return;
+  
+  new_syntax = new GeneralSyntaxInfo();
+  if(self.old_syntax) {
+    memcpy(new_syntax->glyph_style_colors, self.old_syntax->glyph_style_colors, sizeof(new_syntax->glyph_style_colors));
+  }
+}
+
+void ContextState::Impl::set_syntax_color(SharedPtr<Style> style, SharedPtr<GeneralSyntaxInfo> &new_syntax, int glyph_style_index, ColorStyleOptionName color_style_name) const {
+  Color c;
+  if(self.ctx.stylesheet->get(style, color_style_name, &c)) {
+    ensure_new_syntax(new_syntax);
+    new_syntax->glyph_style_colors[glyph_style_index] = c;
+  }
+}
+
+//} ... class ContextState::Impl

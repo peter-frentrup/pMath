@@ -48,7 +48,7 @@ namespace richmath {
           
         if( glyphs[start].style != GlyphStyleNone      &&
             glyphs[start].style != GlyphStyleParameter &&
-            glyphs[start].style != GylphStyleLocal     &&
+            glyphs[start].style != GlyphStyleLocal     &&
             glyphs[start].style != GlyphStyleNewSymbol &&
             glyphs[start].style != GlyphStyleFunctionCall)
         {
@@ -64,10 +64,10 @@ namespace richmath {
           while(info) {
             if(info->pos->contains(state.current_pos)) {
               switch(info->kind) {
-                case SymbolKind::LocalSymbol:  style = GylphStyleLocal;      break;
+                case SymbolKind::LocalSymbol:  style = GlyphStyleLocal;      break;
                 case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
                 case SymbolKind::Parameter:    style = GlyphStyleParameter;  break;
-                case SymbolKind::Error:        style = GylphStyleScopeError; break;
+                case SymbolKind::Error:        style = GlyphStyleScopeError; break;
                 default: ;
               }
               
@@ -110,7 +110,7 @@ namespace richmath {
               }
               
               si->add(SymbolKind::Error, state.current_pos);
-              style = GylphStyleScopeError;
+              style = GlyphStyleScopeError;
               break;
             }
             
@@ -126,7 +126,7 @@ namespace richmath {
               }
               
               si->add(SymbolKind::Error, state.current_pos);
-              style = GylphStyleScopeError;
+              style = GlyphStyleScopeError;
               break;
             }
             
@@ -144,7 +144,7 @@ namespace richmath {
           
         if(!style) {
           switch(kind) {
-            case SymbolKind::LocalSymbol:  style = GylphStyleLocal;      break;
+            case SymbolKind::LocalSymbol:  style = GlyphStyleLocal;      break;
             case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
             case SymbolKind::Parameter:    style = GlyphStyleParameter;  break;
             default:           return end;
@@ -244,7 +244,7 @@ namespace richmath {
           if(state.in_function)
             style = GlyphStyleParameter;
           else
-            style = GylphStyleScopeError;
+            style = GlyphStyleScopeError;
             
           for(int i = se->start(); i <= se->end(); ++i)
             glyphs[i].style = style;
@@ -267,7 +267,7 @@ namespace richmath {
         if(state.in_function)
           style = GlyphStyleParameter;
         else
-          style = GylphStyleScopeError;
+          style = GlyphStyleScopeError;
           
         for(int i = se->start(); i <= se->end(); ++i)
           glyphs[i].style = style;

@@ -3,10 +3,35 @@
 Document({
   SectionGroup({
     SectionGroup({Section("Document styles", "Section"), 
-      Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
-       DefaultReturnCreatedSectionStyle -> Automatic, 
-       FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
-       Visible -> True, WindowFrame -> "Normal"), 
+      Section(StyleData("Document"), "CharacterNameStyle" -> {
+        FontColor -> RGBColor(0.84999999999999998`, 0.32500000000000001`, 
+         0.33300000000000002`)}, "CommentStyle" -> {
+        FontColor -> RGBColor(0, 0.502`, 0)}, 
+       DefaultNewSectionStyle -> "Input", DefaultReturnCreatedSectionStyle -> 
+        Automatic, "ExcessOrMissingArgumentStyle" -> {
+        FontColor -> RGBColor(1, 0.20000000000000001`, 0.20000000000000001`)}, 
+       FontFeatures -> {"ssty" -> Automatic}, 
+       "FunctionLocalVariableStyle" -> {
+        FontColor -> RGBColor(0.23499999999999999`, 0.48999999999999999`, 
+         0.56999999999999995`)}, "FunctionNameStyle" -> {
+        FontColor -> RGBColor(0.47499999999999998`, 0.37`, 
+         0.14999999999999999`)}, "ImplicitOperatorStyle" -> {
+        FontColor -> GrayLevel(0.59999999999999998`)}, 
+       "KeywordSymbolStyle" -> {FontColor -> RGBColor(0.68600000000000005`, 0, 
+         0.85999999999999999`)}, "LocalScopeConflictStyle" -> {
+        FontColor -> RGBColor(0.80000000000000004`, 0, 0)}, 
+       "LocalVariableStyle" -> {FontColor -> RGBColor(0.26300000000000001`, 
+         0.53700000000000003`, 0.34499999999999997`)}, Magnification -> 1, 
+       "PatternVariableStyle" -> {FontColor -> RGBColor(0.26300000000000001`, 
+         0.53700000000000003`, 0.34499999999999997`)}, 
+       "StringStyle" -> {FontColor -> GrayLevel(0.502`)}, 
+       "SymbolShadowingStyle" -> {FontColor -> RGBColor(1, 
+         0.20000000000000001`, 0.20000000000000001`)}, 
+       "SyntaxErrorStyle" -> {FontColor -> RGBColor(1, 0, 0)}, 
+       "UndefinedSymbolStyle" -> {FontColor -> RGBColor(0, 
+         0.17299999999999999`, 0.76500000000000001`)}, 
+       "UnknownOptionStyle" -> {FontColor -> RGBColor(1, 0.20000000000000001`, 
+         0.20000000000000001`)}, Visible -> True, WindowFrame -> "Normal"), 
       Section(StyleData("AttachedPopupWindow"), 
        DefaultNewSectionStyle -> "PopupWindowSection", Editable -> False, 
        FontFeatures -> {"ssty" -> Automatic}, ShowSectionBracket -> False, 
@@ -98,7 +123,7 @@ Document({
         FrameStyle -> RGBColor(1, 0.92500000000000004`, 
          0.33000000000000002`)}), 
       Section(StyleData("ConditionalExpressionLabel"), 
-       FontColor -> GrayLevel(0.5`), ShowStringCharacters -> False), 
+       FontColor -> GrayLevel(0.502`), ShowStringCharacters -> False), 
       SectionGroup({Section("Default box level styles", "Subsection"), 
         Section(StyleData("Graphics"), AspectRatio -> 1, 
          AutoNumberFormating -> True, AutoSpacing -> True, 
@@ -263,8 +288,8 @@ Document({
               #1, StyleBox("\" if \"", "ConditionalExpressionLabel"), #2}, 
              FrameStyle -> GrayLevel(0.5`), BorderRadius -> 4) &)}), 
           Section(StyleData("Highlighted"), 
-           TemplateBoxOptions -> {DisplayFunction -> (FrameBox(#1, 
-             BaseStyle -> "Highlighted") &), InterpretationFunction -> (#
+           TemplateBoxOptions :> {DisplayFunction -> (FrameBox(#1, 
+             BaseStyle -> "Highlighted") &), InterpretationFunction -> (#1; 
              1 &)}), Section(StyleData("Row")), 
           Section(StyleData("RowDefault"), BaseStyle -> "Row", 
            TemplateBoxOptions -> {DisplayFunction -> ({

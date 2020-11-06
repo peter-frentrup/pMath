@@ -794,6 +794,7 @@
 		<Unit filename="include/graphics/paint-hook.h" />
 		<Unit filename="include/graphics/rectangle.h" />
 		<Unit filename="include/graphics/shapers.h" />
+		<Unit filename="include/graphics/syntax-styles.h" />
 		<Unit filename="include/graphics/win32-shaper.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1308,6 +1309,7 @@
 		<Unit filename="src/graphics/paint-hook.cpp" />
 		<Unit filename="src/graphics/rectangle.cpp" />
 		<Unit filename="src/graphics/shapers.cpp" />
+		<Unit filename="src/graphics/syntax-styles.cpp" />
 		<Unit filename="src/graphics/win32-shaper.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />

@@ -4,41 +4,8 @@
 
 #include <eval/binding.h>
 #include <eval/application.h>
-#include <graphics/shapers.h>
 
 using namespace richmath;
-
-//{ class GeneralSyntaxInfo ...
-
-SharedPtr<GeneralSyntaxInfo> GeneralSyntaxInfo::std;
-
-GeneralSyntaxInfo::GeneralSyntaxInfo()
-  : Shareable()
-{
-  SET_BASE_DEBUG_TAG(typeid(*this).name());
-  memset(&glyph_style_colors, 0, sizeof(glyph_style_colors));
-  
-  glyph_style_colors[GlyphStyleImplicit]           = Color::from_rgb24(0x999999);
-  glyph_style_colors[GlyphStyleString]             = Color::from_rgb24(0x808080);//0xFF0080;
-  glyph_style_colors[GlyphStyleComment]            = Color::from_rgb24(0x008000);
-  glyph_style_colors[GlyphStyleParameter]          = Color::from_rgb24(0x438958);
-  glyph_style_colors[GylphStyleLocal]              = Color::from_rgb24(0x438958);
-  glyph_style_colors[GylphStyleScopeError]         = Color::from_rgb24(0xCC0000);
-  glyph_style_colors[GlyphStyleNewSymbol]          = Color::from_rgb24(0x002CC3);
-  glyph_style_colors[GlyphStyleShadowError]        = Color::from_rgb24(0xFF3333);
-  glyph_style_colors[GlyphStyleSyntaxError]        = Color::from_rgb24(0xFF0000);
-  glyph_style_colors[GlyphStyleSpecialUse]         = Color::from_rgb24(0x3C7D91);
-  glyph_style_colors[GlyphStyleExcessOrMissingArg] = Color::from_rgb24(0xFF3333);
-  glyph_style_colors[GlyphStyleInvalidOption]      = Color::from_rgb24(0xFF3333);
-  glyph_style_colors[GlyphStyleSpecialStringPart]  = Color::from_rgb24(0xD95355);
-  glyph_style_colors[GlyphStyleKeyword]            = Color::from_rgb24(0xAF00DB);
-  glyph_style_colors[GlyphStyleFunctionCall]       = Color::from_rgb24(0x795E26);
-}
-
-GeneralSyntaxInfo::~GeneralSyntaxInfo() {
-}
-
-//} ... class GeneralSyntaxInfo
 
 //{ class ScopePos ...
 

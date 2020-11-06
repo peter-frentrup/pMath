@@ -116,9 +116,24 @@ extern pmath_symbol_t richmath_System_WindowFrame;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath { namespace strings {
+  extern String CharacterNameStyle;
+  extern String CommentStyle;
+  extern String ExcessOrMissingArgumentStyle;
   extern String Frameless;
+  extern String FunctionLocalVariableStyle;
+  extern String FunctionNameStyle;
+  extern String ImplicitOperatorStyle;
+  extern String KeywordSymbolStyle;
+  extern String LocalScopeConflictStyle;
+  extern String LocalVariableStyle;
   extern String Normal;
+  extern String PatternVariableStyle;
+  extern String StringStyle;
+  extern String SymbolShadowingStyle;
+  extern String SyntaxErrorStyle;
   extern String TabHead;
+  extern String UndefinedSymbolStyle;
+  extern String UnknownOptionStyle;
 }}
 
 using namespace richmath;
@@ -1762,9 +1777,6 @@ void Style::remove(ObjectStyleOptionName n) {
 
 bool Style::modifies_size(StyleOptionName style_name) {
   switch((int)style_name) {
-    case Background:
-    case FontColor:
-    case SectionFrameColor:
     case AutoDelete:
     case ContinuousAction:
     case Editable:
@@ -1799,6 +1811,9 @@ bool Style::modifies_size(StyleOptionName style_name) {
     case GeneratedSectionStyles:
       return false;
   }
+  
+  if(StyleImpl::is_for_color(style_name))
+    return false;
   
   return true;
 }
@@ -1922,6 +1937,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ButtonFrame);
   impl.emit_definition(ButtonFunction);
   impl.emit_definition(ButtonSource);
+  impl.emit_definition(CharacterNameStyle);
+  impl.emit_definition(CommentStyle);
   impl.emit_definition(ContinuousAction);
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);
@@ -1931,6 +1948,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Editable);
   impl.emit_definition(Enabled);
   impl.emit_definition(Evaluatable);
+  impl.emit_definition(ExcessOrMissingArgumentStyle);
   impl.emit_definition(FillBoxOptions);
   impl.emit_definition(FillBoxWeight);
   impl.emit_definition(FontColor);
@@ -1943,15 +1961,21 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(FrameBoxOptions);
   impl.emit_definition(FrameStyle);
   impl.emit_definition(FrameTicks);
+  impl.emit_definition(FunctionLocalVariableStyle);
+  impl.emit_definition(FunctionNameStyle);
   impl.emit_definition(GeneratedSectionStyles);
   impl.emit_definition(GridBoxColumnSpacing);
   impl.emit_definition(GridBoxRowSpacing);
   impl.emit_definition(ImageSizeCommon);
   impl.emit_definition(ImageSizeAction);
+  impl.emit_definition(ImplicitOperatorStyle);
   impl.emit_definition(InputFieldBoxOptions);
   impl.emit_definition(InterpretationFunction);
+  impl.emit_definition(KeywordSymbolStyle);
   impl.emit_definition(LanguageCategory);
   impl.emit_definition(LineBreakWithin);
+  impl.emit_definition(LocalScopeConflictStyle);
+  impl.emit_definition(LocalVariableStyle);
   impl.emit_definition(Magnification);
   impl.emit_definition(MathFontFamily);
   impl.emit_definition(MenuCommandKey);
@@ -1959,6 +1983,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Method);
   impl.emit_definition(PaneBoxOptions);
   impl.emit_definition(PanelBoxOptions);
+  impl.emit_definition(PatternVariableStyle);
   impl.emit_definition(Placeholder);
   impl.emit_definition(PlotRange);
   impl.emit_definition(ReturnCreatesNewSection);
@@ -1982,15 +2007,20 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ShowSectionBracket);
   impl.emit_definition(ShowStringCharacters);
   impl.emit_definition(StripOnInput);
+  impl.emit_definition(StringStyle);
   impl.emit_definition(StyleDefinitions);
   impl.emit_definition(SurdForm);
+  impl.emit_definition(SymbolShadowingStyle);
   impl.emit_definition(SynchronousUpdating);
+  impl.emit_definition(SyntaxErrorStyle);
   impl.emit_definition(SyntaxForm);
   impl.emit_definition(TemplateBoxOptions);
   impl.emit_definition(TextShadow);
   impl.emit_definition(Ticks);
   impl.emit_definition(Tooltip);
   impl.emit_definition(TrackedSymbols);
+  impl.emit_definition(UndefinedSymbolStyle);
+  impl.emit_definition(UnknownOptionStyle);
   impl.emit_definition(Visible);
   impl.emit_definition(WholeSectionGroupOpener);
   impl.emit_definition(WindowFrame);
@@ -2442,14 +2472,29 @@ void StyleInformation::add_style() {
     _name_to_key.default_value = StyleOptionName{ -1};
     _key_to_type.default_value = StyleType::None;
     
-    add_ruleset_head(ButtonBoxOptions,     Symbol( richmath_System_ButtonBoxOptions));
-    add_ruleset_head(DockedSections,       Symbol( richmath_System_DockedSections));
-    add_ruleset_head(FillBoxOptions,       Symbol( richmath_System_FillBoxOptions));
-    add_ruleset_head(FrameBoxOptions,      Symbol( richmath_System_FrameBoxOptions));
-    add_ruleset_head(InputFieldBoxOptions, Symbol( richmath_System_InputFieldBoxOptions));
-    add_ruleset_head(PaneBoxOptions,       Symbol( richmath_System_PaneBoxOptions));
-    add_ruleset_head(PanelBoxOptions,      Symbol( richmath_System_PanelBoxOptions));
-    add_ruleset_head(TemplateBoxOptions,   Symbol( richmath_System_TemplateBoxOptions));
+    add_ruleset_head(ButtonBoxOptions,             Symbol( richmath_System_ButtonBoxOptions));
+    add_ruleset_head(CharacterNameStyle,           strings::CharacterNameStyle);
+    add_ruleset_head(CommentStyle,                 strings::CommentStyle);
+    add_ruleset_head(DockedSections,               Symbol( richmath_System_DockedSections));
+    add_ruleset_head(ExcessOrMissingArgumentStyle, strings::ExcessOrMissingArgumentStyle);
+    add_ruleset_head(FillBoxOptions,               Symbol( richmath_System_FillBoxOptions));
+    add_ruleset_head(FrameBoxOptions,              Symbol( richmath_System_FrameBoxOptions));
+    add_ruleset_head(FunctionLocalVariableStyle,   strings::FunctionLocalVariableStyle);
+    add_ruleset_head(FunctionNameStyle,            strings::FunctionNameStyle);
+    add_ruleset_head(ImplicitOperatorStyle,        strings::ImplicitOperatorStyle);
+    add_ruleset_head(InputFieldBoxOptions,         Symbol( richmath_System_InputFieldBoxOptions));
+    add_ruleset_head(KeywordSymbolStyle,           strings::KeywordSymbolStyle);
+    add_ruleset_head(LocalScopeConflictStyle,      strings::LocalScopeConflictStyle);
+    add_ruleset_head(LocalVariableStyle,           strings::LocalVariableStyle);
+    add_ruleset_head(PaneBoxOptions,               Symbol( richmath_System_PaneBoxOptions));
+    add_ruleset_head(PanelBoxOptions,              Symbol( richmath_System_PanelBoxOptions));
+    add_ruleset_head(PatternVariableStyle,         strings::PatternVariableStyle);
+    add_ruleset_head(StringStyle,                  strings::StringStyle);
+    add_ruleset_head(SymbolShadowingStyle,         strings::SymbolShadowingStyle);
+    add_ruleset_head(SyntaxErrorStyle,             strings::SyntaxErrorStyle);
+    add_ruleset_head(TemplateBoxOptions,           Symbol( richmath_System_TemplateBoxOptions));
+    add_ruleset_head(UndefinedSymbolStyle,         strings::UndefinedSymbolStyle);
+    add_ruleset_head(UnknownOptionStyle,           strings::UnknownOptionStyle);
     
     {
       SharedPtr<EnumStyleConverter> converter{new ButtonFrameStyleConverter};
@@ -2496,6 +2541,25 @@ void StyleInformation::add_style() {
     add(StyleType::Color,           Background,                       Symbol( richmath_System_Background));
     add(StyleType::Color,           FontColor,                        Symbol( richmath_System_FontColor));
     add(StyleType::Color,           SectionFrameColor,                Symbol( richmath_System_SectionFrameColor));
+    
+    add(StyleType::Color,           CharacterNameSyntaxColor,           Rule(strings::CharacterNameStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           CommentSyntaxColor,                 Rule(strings::CommentStyle,                  Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           ExcessOrMissingArgumentSyntaxColor, Rule(strings::ExcessOrMissingArgumentStyle,  Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           FunctionLocalVariableSyntaxColor,   Rule(strings::FunctionLocalVariableStyle,    Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           FunctionNameSyntaxColor,            Rule(strings::FunctionNameStyle,             Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           ImplicitOperatorSyntaxColor,        Rule(strings::ImplicitOperatorStyle,         Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           KeywordSymbolSyntaxColor,           Rule(strings::KeywordSymbolStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           LocalScopeConflictSyntaxColor,      Rule(strings::LocalScopeConflictStyle,       Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           LocalVariableSyntaxColor,           Rule(strings::LocalVariableStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           PatternVariableSyntaxColor,         Rule(strings::PatternVariableStyle,          Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           StringSyntaxColor,                  Rule(strings::StringStyle,                   Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           SymbolShadowingSyntaxColor,         Rule(strings::SymbolShadowingStyle,          Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           SyntaxErrorColor,                   Rule(strings::SyntaxErrorStyle,              Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           UndefinedSymbolSyntaxColor,         Rule(strings::UndefinedSymbolStyle,          Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           UnknownOptionSyntaxColor,           Rule(strings::UnknownOptionStyle,            Symbol(richmath_System_FontColor)));
+    
+    add(StyleType::Color,           FrameBoxDefaultBackground,        Rule(Symbol(richmath_System_FrameBoxOptions),  Symbol(richmath_System_Background)));
+    
     add(StyleType::AutoBool,        Antialiasing,                     Symbol( richmath_System_Antialiasing));
     add(StyleType::Bool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
     add(StyleType::Bool,            AutoNumberFormating,              Symbol( richmath_System_AutoNumberFormating));
@@ -2523,7 +2587,6 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
     add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          Rule(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
-    add(StyleType::Color,           FrameBoxDefaultBackground,        Rule(Symbol(richmath_System_FrameBoxOptions),  Symbol(richmath_System_Background)));
     
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          Rule(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));

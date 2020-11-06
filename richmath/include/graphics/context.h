@@ -1,6 +1,9 @@
 #ifndef RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED
 #define RICHMATH__GRAPHICS__CONTEXT_H__INCLUDED
 
+
+#include <syntax/syntax-state.h>
+
 #include <util/array.h>
 #include <util/pmath-extra.h>
 #include <util/selections.h>
@@ -8,10 +11,10 @@
 
 #include <graphics/paint-hook.h>
 #include <graphics/ot-font-reshaper.h>
+#include <graphics/syntax-styles.h>
 
 
 namespace richmath {
-  class GeneralSyntaxInfo;
   class Style;
   class Stylesheet;
   class SyntaxState;
@@ -98,6 +101,7 @@ namespace richmath {
   };
   
   class ContextState {
+      class Impl;
     public:
       explicit ContextState(Context &context): ctx(context) {}
       
@@ -115,12 +119,13 @@ namespace richmath {
       Context &ctx;
       
       // always set in begin():
-      Color                 old_cursor_color;
-      Color                 old_color;
-      float                 old_fontsize;
-      float                 old_width;
-      SharedPtr<MathShaper> old_math_shaper;
-      SharedPtr<TextShaper> old_text_shaper;
+      Color                        old_cursor_color;
+      Color                        old_color;
+      float                        old_fontsize;
+      float                        old_width;
+      SharedPtr<MathShaper>        old_math_shaper;
+      SharedPtr<TextShaper>        old_text_shaper;
+      SharedPtr<GeneralSyntaxInfo> old_syntax;
       
       bool                  old_math_spacing : 1;
       bool                  old_show_auto_styles : 1;
