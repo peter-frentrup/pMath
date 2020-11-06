@@ -95,7 +95,7 @@ void FrameBox::paint(Context &context) {
       if(Expr expr = get_own_style(FrameStyle)) {
         GraphicsDirective::apply(expr, context);
       }
-      float half_border_thickness = 0.05f * context.canvas().get_font_size();
+      float half_border_thickness = context.canvas().get_font_size() / 32;
     
       rect.normalize();
       rect.grow(-half_border_thickness);
