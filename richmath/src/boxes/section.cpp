@@ -14,6 +14,7 @@ using namespace richmath;
 using namespace std;
 
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_TextData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_StyleData;
 
@@ -41,12 +42,14 @@ Section *Section::create_from_object(const Expr expr) {
   if(expr[0] == richmath_System_Section) {
     Expr content = expr[1];
     
-    Section *section = 0;
+    Section *section = nullptr;
     
     if(content[0] == richmath_System_BoxData)
       section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
     else if(content[0] == richmath_System_StyleData)
       section = Box::try_create<StyleDataSection>(expr, BoxInputFlags::Default);
+    else if(content[0] == richmath_System_TextData || content.is_string() || content[0] == PMATH_SYMBOL_LIST)
+      section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
     else
       section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
       
@@ -557,8 +560,13 @@ Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   Expr cont = _content->to_pmath(flags/* & ~BoxOutputFlags::Parseable*/);
-  if(dynamic_cast<MathSequence *>(_content))
+  if(dynamic_cast<MathSequence *>(_content)) {
     cont = Call(Symbol(richmath_System_BoxData), cont);
+  }
+  else if(dynamic_cast<TextSequence *>(_content)) {
+    if(!cont.is_string())
+      cont = Call(Symbol(richmath_System_TextData), cont);
+  }
     
   Gather::emit(cont);
   
@@ -749,6 +757,9 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   Expr content = expr[1];
+  if(content[0] == richmath_System_TextData)
+    content = content[1];
+  
   if(!content.is_string() && content[0] != PMATH_SYMBOL_LIST)
     return false;
     
