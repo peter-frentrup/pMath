@@ -13,6 +13,13 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_ButtonBox;
 
+
+namespace richmath { namespace strings {
+  extern String Button;
+  extern String Preemptive;
+}}
+
+
 //{ class AbstractButtonBox ...
 
 AbstractButtonBox::AbstractButtonBox(MathSequence *content, ContainerType _type)
@@ -118,7 +125,7 @@ Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Button"))
+    if(style->get(BaseStyleName, &s) && s == strings::Button)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -130,7 +137,7 @@ Expr ButtonBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void ButtonBox::reset_style() {
-  Style::reset(style, "Button");
+  Style::reset(style, strings::Button);
 }
 
 void ButtonBox::click() {
@@ -193,7 +200,7 @@ void ButtonBox::click() {
   fn = Call(std::move(fn), std::move(arg1), std::move(data));
   
   String method = get_own_style(Method);
-  if(method.equals("Preemptive")) 
+  if(method == strings::Preemptive) 
     Application::interrupt_wait_for_interactive(std::move(fn), this, Application::button_timeout);
   else
     Application::add_job(new EvaluationJob(std::move(fn), this));

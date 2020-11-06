@@ -3,6 +3,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String EmptyString;
+}}
+
 //{ class FileSystem ...
 
 
@@ -114,7 +118,7 @@ String FileSystem::extract_directory_path(String *filename) {
     return dir;
   }
   else
-    return String("");
+    return strings::EmptyString;
 }
 
 

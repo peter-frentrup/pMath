@@ -23,6 +23,10 @@
 #include <algorithm>
 
 
+namespace richmath { namespace strings {
+  extern String EmptyString;
+}}
+
 using namespace richmath;
 
 static const int DefaultMachinePrecisionDigits = 6;
@@ -321,7 +325,7 @@ namespace richmath {
 NumberBox::NumberBox()
   : base()
 {
-  Impl(*this).set_number(String(""));
+  Impl(*this).set_number(strings::EmptyString);
 }
 
 NumberBox::NumberBox(String number)

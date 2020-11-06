@@ -18,6 +18,12 @@ extern pmath_symbol_t richmath_System_TextData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_StyleData;
 
+namespace richmath { namespace strings {
+  extern String Edit;
+  extern String EmptyString;
+  extern String Input;
+  extern String nonewsym;
+}}
 
 //{ class Section ...
 
@@ -575,7 +581,7 @@ Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
   if(style && style->get(BaseStyleName, &s))
     Gather::emit(s);
   else
-    Gather::emit(String(""));
+    Gather::emit(strings::EmptyString);
     
   if(style)
     style->emit_to_pmath();
@@ -719,7 +725,7 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   Expr stylename = expr[2];
   if(!stylename.is_string())
-    stylename = String("Input");
+    stylename = strings::Input;
     
   reset_style();
   style->add_pmath(options);
@@ -769,7 +775,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   Expr stylename = expr[2];
   if(!stylename.is_string())
-    stylename = String("Input");
+    stylename = strings::Input;
     
   reset_style();
   style->add_pmath(options);
@@ -791,7 +797,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 //{ class EditSection ...
 
 EditSection::EditSection()
-  : MathSection(new Style(String("Edit"))),
+  : MathSection(new Style(strings::Edit)),
     original(nullptr)
 {
 }
@@ -823,7 +829,7 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
                    Call(
                      Symbol(PMATH_SYMBOL_MESSAGENAME), 
                      Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
-                     String("nonewsym"))));
+                     strings::nonewsym)));
     }
   }
   else{

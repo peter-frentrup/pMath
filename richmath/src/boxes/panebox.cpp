@@ -19,6 +19,10 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_PaneBox;
 
 namespace richmath {
+  namespace strings {
+    extern String Pane;
+  }
+  
   class PaneBox::Impl {
     public:
       Impl(PaneBox &self) : self{self} {}
@@ -65,7 +69,7 @@ bool PaneBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void PaneBox::reset_style() {
-  Style::reset(style, "Pane");
+  Style::reset(style, strings::Pane);
 }
 
 Expr PaneBox::to_pmath_symbol() { 
@@ -81,7 +85,7 @@ Expr PaneBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Pane"))
+    if(style->get(BaseStyleName, &s) && s == strings::Pane)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);

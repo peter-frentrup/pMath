@@ -27,6 +27,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String Docked;
+}}
+
 static const int SnapDistance = 4;
 
 class richmath::MathGtkDocumentWindowImpl {
@@ -215,7 +219,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     MathGtkDock(MathGtkDocumentWindow *parent)
       : base(parent)
     {
-      Style::reset(document()->style, "Docked");
+      Style::reset(document()->style, strings::Docked);
     }
     
     void reload(Expr content) {

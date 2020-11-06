@@ -4,6 +4,10 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_RadioButtonBox;
 
+namespace richmath { namespace strings {
+  extern String RadioButton;
+}}
+
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
@@ -93,7 +97,7 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("RadioButton"))
+    if(style->get(BaseStyleName, &s) && s == strings::RadioButton)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -109,7 +113,7 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void RadioButtonBox::reset_style() {
-  Style::reset(style, "RadioButton");
+  Style::reset(style, strings::RadioButton);
 }
 
 void RadioButtonBox::dynamic_finished(Expr info, Expr result) {

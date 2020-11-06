@@ -15,6 +15,11 @@ extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
 extern pmath_symbol_t richmath_FE_CallFrontEnd;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
+namespace richmath { namespace strings {
+  extern String Head;
+  extern String Location;
+}}
+
 namespace {
   class TaskDialogConfig: public TASKDIALOGCONFIG {
     public:
@@ -182,18 +187,16 @@ Expr richmath::win32_ask_interrupt(Expr stack) {
   String details;
   if(stack[0] == PMATH_SYMBOL_LIST && stack.expr_length() > 1) {
     Expr default_name = String("?");
-    Expr key_Head = String("Head");
-    Expr key_Location = String("Location");
     
     details = "Stack trace:";
     for(size_t i = stack.expr_length() - 1; i > 0; --i) {
       Expr frame = stack[i];
       
       details+= "\n";
-      String name = frame.lookup(key_Head, default_name).to_string();
+      String name = frame.lookup(strings::Head, default_name).to_string();
       bool have_link = false;
       Expr location {};
-      if(frame.try_lookup(key_Location, location)) {
+      if(frame.try_lookup(strings::Location, location)) {
         location = Application::interrupt_wait(Call(Symbol(richmath_Developer_DebugInfoOpenerFunction), std::move(location)));
         
         if(location[0] == PMATH_SYMBOL_FUNCTION) {

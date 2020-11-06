@@ -6,6 +6,10 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_SetterBox;
 
+namespace richmath { namespace strings {
+  extern String Setter;
+}}
+
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
@@ -93,7 +97,7 @@ Expr SetterBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Setter"))
+    if(style->get(BaseStyleName, &s) && s == strings::Setter)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -105,7 +109,7 @@ Expr SetterBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void SetterBox::reset_style() {
-  Style::reset(style, "Setter");
+  Style::reset(style, strings::Setter);
 }
 
 void SetterBox::on_mouse_down(MouseEvent &event) {

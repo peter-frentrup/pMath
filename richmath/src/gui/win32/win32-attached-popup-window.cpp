@@ -16,6 +16,10 @@
 
 
 namespace richmath {
+  namespace strings {
+    extern String AttachedPopupWindow;
+  }
+  
   class Win32AttachedPopupWindow::Impl {
     public:
       Impl(Win32AttachedPopupWindow &self) : self{self} {}
@@ -73,7 +77,7 @@ Win32AttachedPopupWindow::~Win32AttachedPopupWindow() {
 void Win32AttachedPopupWindow::after_construction() {
   base::after_construction();
   
-  Style::reset(document()->style, "AttachedPopupWindow");
+  Style::reset(document()->style, strings::AttachedPopupWindow);
   
   if(Document *owner = owner_document()) {
     document()->stylesheet(owner->stylesheet());

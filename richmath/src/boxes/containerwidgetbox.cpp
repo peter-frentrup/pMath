@@ -9,6 +9,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String ControlStyle;
+}}
+
 //{ class ContainerWidgetBox ...
 
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
@@ -141,7 +145,7 @@ void ContainerWidgetBox::paint(Context &context) {
 }
 
 void ContainerWidgetBox::reset_style() {
-  Style::reset(style, "ControlStyle");
+  Style::reset(style, strings::ControlStyle);
 }
 
 void ContainerWidgetBox::on_mouse_enter() {

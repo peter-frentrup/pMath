@@ -75,6 +75,23 @@ extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
+namespace richmath { namespace strings {
+  extern String EmptyString;
+  extern String ControlsFontFamily;
+  extern String ControlsFontSize;
+  extern String ControlsFontSlant;
+  extern String ControlsFontWeight;
+  extern String CurrentValueProviders;
+  extern String DocumentScreenDpi;
+  extern String MouseOver;
+  extern String MouseOverBox;
+  extern String SectionGroupOpen;
+  extern String SelectedMenuCommand;
+  extern String StyleDefinitionsOwner;
+  extern String TemplateSlotCount;
+  extern String Text;
+}}
+
 namespace {
   class ClientNotificationData {
     public:
@@ -613,18 +630,6 @@ static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr i
 static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
 static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
 
-static const char s_ControlsFontFamily[] = "ControlsFontFamily";
-static const char s_ControlsFontSize[] = "ControlsFontSize";
-static const char s_ControlsFontSlant[] = "ControlsFontSlant";
-static const char s_ControlsFontWeight[] = "ControlsFontWeight";
-static const char s_CurrentValueProviders[] = "CurrentValueProviders";
-static const char s_DocumentScreenDpi[] = "DocumentScreenDpi";
-static const char s_MouseOver[] = "MouseOver";
-static const char s_MouseOverBox[] = "MouseOverBox";
-static const char s_SectionGroupOpen[] = "SectionGroupOpen";
-static const char s_SelectedMenuCommand[] = "SelectedMenuCommand";
-static const char s_StyleDefinitionsOwner[] = "StyleDefinitionsOwner";
-
 void Application::init() {
   main_message_queue = Expr(pmath_thread_get_queue());
   
@@ -639,20 +644,20 @@ void Application::init() {
   main_thread = pthread_self();
 #endif
   
-  register_currentvalue_provider(String(s_MouseOver),                  get_current_value_of_MouseOver);
-  register_currentvalue_provider(String(s_MouseOverBox),               Document::get_current_value_of_MouseOverBox);
-  register_currentvalue_provider(String(s_DocumentScreenDpi),          get_current_value_of_DocumentScreenDpi);
-  register_currentvalue_provider(String(s_ControlsFontFamily),         get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSlant),          get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontWeight),         get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_ControlsFontSize),           get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(String(s_CurrentValueProviders),      get_current_value_of_CurrentValueProviders);
-  register_currentvalue_provider(String(s_SectionGroupOpen),           get_current_value_of_SectionGroupOpen,                   put_current_value_of_SectionGroupOpen);
+  register_currentvalue_provider(strings::MouseOver,                   get_current_value_of_MouseOver);
+  register_currentvalue_provider(strings::MouseOverBox,                Document::get_current_value_of_MouseOverBox);
+  register_currentvalue_provider(strings::DocumentScreenDpi,           get_current_value_of_DocumentScreenDpi);
+  register_currentvalue_provider(strings::ControlsFontFamily,          get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(strings::ControlsFontSlant,           get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(strings::ControlsFontWeight,          get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(strings::ControlsFontSize,            get_current_value_of_ControlFont_data);
+  register_currentvalue_provider(strings::CurrentValueProviders,       get_current_value_of_CurrentValueProviders);
+  register_currentvalue_provider(strings::SectionGroupOpen,            get_current_value_of_SectionGroupOpen,                   put_current_value_of_SectionGroupOpen);
   register_currentvalue_provider(Symbol(richmath_System_Selectable),   get_current_value_of_Selectable,                         Style::put_current_style_value);
-  register_currentvalue_provider(String(s_SelectedMenuCommand),        get_current_value_of_SelectedMenuCommand);
-  register_currentvalue_provider(String(s_StyleDefinitionsOwner),      get_current_value_of_StyleDefinitionsOwner);
+  register_currentvalue_provider(strings::SelectedMenuCommand,         get_current_value_of_SelectedMenuCommand);
+  register_currentvalue_provider(strings::StyleDefinitionsOwner,       get_current_value_of_StyleDefinitionsOwner);
   register_currentvalue_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
-  register_currentvalue_provider(String("TemplateSlotCount"),          TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
+  register_currentvalue_provider(strings::TemplateSlotCount,           TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
   register_currentvalue_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot,      TemplateBoxSlot::put_current_value_of_TemplateSlot);
   register_currentvalue_provider(Symbol(richmath_System_WindowTitle),  get_current_value_of_WindowTitle,                        Style::put_current_style_value);
   
@@ -1074,7 +1079,7 @@ Document *Application::open_new_document(String full_filename) {
     }
     
     int pos = 0;
-    Expr section_expr = Call(Symbol(richmath_System_Section), s, String("Text"));
+    Expr section_expr = Call(Symbol(richmath_System_Section), s, strings::Text);
     doc->insert_pmath(&pos, section_expr);
   } while(false);
 
@@ -1572,7 +1577,7 @@ static Expr cnt_documentread(Expr data) {
   }
   
   if(!doc || !doc->selection_box() || doc->selection_length() == 0)
-    return String("");
+    return strings::EmptyString;
     
   return doc->selection_box()->to_pmath(BoxOutputFlags::Default,
                                         doc->selection_start(),
@@ -1889,14 +1894,13 @@ static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item
   ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.ptr());
   
   AutoResetCurrentObserver guard;
-  String item_string {item};
-  if(item_string.equals(s_ControlsFontFamily))
+  if(item == strings::ControlsFontFamily)
     return style->get_pmath(FontFamilies);
-  if(item_string.equals(s_ControlsFontSlant))
+  if(item == strings::ControlsFontSlant)
     return style->get_pmath(FontSlant);
-  if(item_string.equals(s_ControlsFontWeight))
+  if(item == strings::ControlsFontWeight)
     return style->get_pmath(FontWeight);
-  if(item_string.equals(s_ControlsFontSize))
+  if(item == strings::ControlsFontSize)
     return style->get_pmath(FontSize);
     
   return Symbol(PMATH_SYMBOL_FAILED);

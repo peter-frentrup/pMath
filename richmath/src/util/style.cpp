@@ -115,6 +115,12 @@ extern pmath_symbol_t richmath_System_WholeSectionGroupOpener;
 extern pmath_symbol_t richmath_System_WindowFrame;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
+namespace richmath { namespace strings {
+  extern String Frameless;
+  extern String Normal;
+  extern String TabHead;
+}}
+
 using namespace richmath;
 
 bool richmath::get_factor_of_scaled(Expr expr, double *value) {
@@ -2827,7 +2833,7 @@ ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   _expr_to_int.default_value = -1;//PushButton;
   
   add(NoContainerType,      Symbol(PMATH_SYMBOL_NONE));
-  add(FramelessButton,      String("Frameless"));
+  add(FramelessButton,      strings::Frameless);
   add(GenericButton,        String("Generic"));
   add(PushButton,           String("DialogBox"));
   add(DefaultPushButton,    String("Defaulted"));
@@ -2845,7 +2851,7 @@ ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   add(TabHeadAbuttingRight,     String("TabHeadAbuttingRight"));
   add(TabHeadAbuttingLeftRight, String("TabHeadAbuttingLeftRight"));
   add(TabHeadAbuttingLeft,      String("TabHeadAbuttingLeft"));
-  add(TabHead,                  String("TabHead"));
+  add(TabHead,                  strings::TabHead);
 }
 
 ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() {
@@ -2940,7 +2946,7 @@ WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   _expr_to_int.default_value = -1;
   
   add(WindowFrameNone,    Symbol(PMATH_SYMBOL_NONE));
-  add(WindowFrameNormal,  String("Normal"));
+  add(WindowFrameNormal,  strings::Normal);
   add(WindowFrameDialog,  String("Dialog"));
   add(WindowFramePalette, String("Palette"));
   add(WindowFrameSingle,  String("Single"));

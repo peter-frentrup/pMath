@@ -44,6 +44,10 @@ extern pmath_symbol_t richmath_System_GraphicsBox;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Top;
 
+namespace richmath { namespace strings {
+  extern String Graphics;
+}}
+
 template<typename T>
 static T max(const T &a, const T &b, const T &c) {
   return std::max(std::max(a, b), c);
@@ -1032,7 +1036,7 @@ void GraphicsBox::paint(Context &context) {
 }
 
 void GraphicsBox::reset_style() {
-  Style::reset(style, "Graphics");
+  Style::reset(style, strings::Graphics);
 }
 
 Expr GraphicsBox::to_pmath_symbol() {

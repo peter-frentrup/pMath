@@ -27,6 +27,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String Docked;
+}}
+
 class Win32DocumentChildWidget: public Win32Widget {
     using base = Win32Widget;
     friend class Win32DocumentWindow;
@@ -261,7 +265,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         0, 0, 10, 10,
         parent)
     {
-      Style::reset(document()->style, "Docked");
+      Style::reset(document()->style, strings::Docked);
     }
     
     void reload(Expr content, bool *change_flag) {

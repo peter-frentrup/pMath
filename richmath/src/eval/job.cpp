@@ -14,6 +14,10 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_DollarLine;
 
+namespace richmath { namespace strings {
+  extern String Output;
+}}
+
 //{ class EvaluationPosition ...
 
 EvaluationPosition::EvaluationPosition(FrontEndReference _doc, FrontEndReference _sect, FrontEndReference _box)
@@ -139,7 +143,7 @@ void InputJob::returned(Expr expr) {
 
 void InputJob::returned_boxes(Expr expr) {
   if(!String(expr).equals("/\\/")) {
-    Application::gui_print_section(generate_section("Output", expr));
+    Application::gui_print_section(generate_section(strings::Output, expr));
   }
 }
 

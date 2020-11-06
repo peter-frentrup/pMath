@@ -9,6 +9,17 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_PanelBox;
 
+namespace richmath { namespace strings {
+  extern String AddressBand;
+  extern String Framed;
+  extern String Frameless;
+  extern String Panel;
+  extern String Popup;
+  extern String TabBody;
+  extern String TabHead;
+  extern String Tooltip;
+}}
+
 static ContainerType parse_panel_appearance(Expr expr);
 
 //{ class PanelBox ...
@@ -96,7 +107,7 @@ Expr PanelBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Panel"))
+    if(style->get(BaseStyleName, &s) && s == strings::Panel)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -108,7 +119,7 @@ Expr PanelBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void PanelBox::reset_style() {
-  Style::reset(style, "Panel");
+  Style::reset(style, strings::Panel);
 }
 
 void PanelBox::on_enter() {
@@ -131,26 +142,26 @@ static ContainerType parse_panel_appearance(Expr expr) {
   if(expr.is_string()) {
     String s = std::move(expr);
     
-    if(s.equals("Framed"))
+    if(s == strings::Framed)
       return PanelControl;
     
-    if(s.equals("Frameless"))
+    if(s == strings::Frameless)
       return NoContainerType;
     
-    if(s.equals("AddressBand"))
+    if(s == strings::AddressBand)
       return AddressBandBackground;
     
-    if(s.equals("Popup"))
+    if(s == strings::Popup)
       return PopupPanel;
     
-    if(s.equals("Tooltip"))
-      return TooltipWindow;
+    if(s == strings::TabBody)
+      return TabBodyBackground;
     
-    if(s.equals("TabHead"))
+    if(s == strings::TabHead)
       return TabHeadBackground;
     
-    if(s.equals("TabBody"))
-      return TabBodyBackground;
+    if(s == strings::Tooltip)
+      return TooltipWindow;
     
     return PanelControl;
   }

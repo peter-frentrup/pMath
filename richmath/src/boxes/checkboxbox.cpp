@@ -5,6 +5,10 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_CheckboxBox;
 
 namespace richmath {
+  namespace strings {
+    extern String Checkbox;
+  }
+
   class CheckboxBox::Impl {
     public:
       Impl(CheckboxBox &_self) : self(_self) {}
@@ -110,7 +114,7 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Checkbox"))
+    if(style->get(BaseStyleName, &s) && s == strings::Checkbox)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -126,7 +130,7 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void CheckboxBox::reset_style() {
-  Style::reset(style, "Checkbox");
+  Style::reset(style, strings::Checkbox);
 }
 
 void CheckboxBox::dynamic_finished(Expr info, Expr result) {

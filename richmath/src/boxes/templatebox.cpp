@@ -20,6 +20,10 @@ extern pmath_symbol_t richmath_System_Private_FlattenTemplateSequence;
 extern pmath_symbol_t richmath_FE_Styles_DollarDefaultDisplayFunction;
 extern pmath_symbol_t richmath_FE_Styles_DollarDefaultDisplayFunctionTooltip;
 
+namespace richmath{ namespace strings {
+  extern String DollarFailed;
+}}
+
 namespace richmath {
   class TemplateBoxImpl {
     public:
@@ -731,7 +735,7 @@ Expr TemplateBoxImpl::display_function_body(Expr dispfun) {
   if(dispfun[0] == PMATH_SYMBOL_FUNCTION && dispfun.expr_length() == 1)
     return dispfun[1];
     
-  return String("$Failed");
+  return strings::DollarFailed;
 }
 
 void TemplateBoxImpl::reset_argument(int index, Expr new_arg) {

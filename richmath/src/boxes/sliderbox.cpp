@@ -22,6 +22,10 @@ namespace std {
 #endif
 
 namespace richmath {
+  namespace strings {
+    extern String Slider;
+  }
+  
   class SliderBox::Impl {
     private:
       SliderBox &self;
@@ -228,7 +232,7 @@ Expr SliderBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Slider"))
+    if(style->get(BaseStyleName, &s) && s == strings::Slider)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -240,7 +244,7 @@ Expr SliderBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void SliderBox::reset_style() {
-  Style::reset(style, "Slider");
+  Style::reset(style, strings::Slider);
 }
 
 VolatileSelection SliderBox::mouse_selection(Point pos, bool *was_inside_start) {

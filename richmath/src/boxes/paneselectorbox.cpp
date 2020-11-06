@@ -9,6 +9,10 @@ using namespace pmath;
 
 extern pmath_symbol_t richmath_System_PaneSelectorBox;
 
+namespace richmath { namespace strings {
+  extern String PaneSelector;
+}}
+
 //{ class PaneSelectorBox ...
 
 PaneSelectorBox::PaneSelectorBox() 
@@ -185,7 +189,7 @@ void PaneSelectorBox::paint(Context &context) {
 }
 
 void PaneSelectorBox::reset_style() {
-  Style::reset(style, "PaneSelector");
+  Style::reset(style, strings::PaneSelector);
 }
 
 Box *PaneSelectorBox::remove(int *index) {
@@ -244,7 +248,7 @@ Expr PaneSelectorBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("PaneSelector"))
+    if(style->get(BaseStyleName, &s) && s == strings::PaneSelector)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);

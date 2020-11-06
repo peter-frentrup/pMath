@@ -6,6 +6,10 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_OpenerBox;
 
 namespace richmath {
+  namespace strings {
+    extern String Opener;
+  }
+  
   class OpenerBox::Impl {
     public:
       Impl(OpenerBox &_self) : self(_self) {}
@@ -83,7 +87,7 @@ Expr OpenerBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Opener"))
+    if(style->get(BaseStyleName, &s) && s == strings::Opener)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -95,7 +99,7 @@ Expr OpenerBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void OpenerBox::reset_style() {
-  Style::reset(style, "Opener");
+  Style::reset(style, strings::Opener);
 }
 
 void OpenerBox::dynamic_finished(Expr info, Expr result) {

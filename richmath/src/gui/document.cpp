@@ -32,6 +32,14 @@ extern pmath_symbol_t richmath_System_DocumentObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 
+namespace richmath { namespace strings {
+  extern String Document;
+  extern String DollarFailed;
+  extern String DollarAborted;
+  extern String NaturalLanguage;
+  extern String PlainText;
+}}
+
 bool richmath::DebugFollowMouse     = false;
 bool richmath::DebugSelectionBounds = false;
 
@@ -1002,7 +1010,7 @@ void Document::on_key_press(uint32_t unichar) {
           else
             new_style->get(LanguageCategory, &lang);
             
-          if(lang.equals("NaturalLanguage"))
+          if(lang == strings::NaturalLanguage)
             new_sect = new TextSection(new_style);
           else
             new_sect = new MathSection(new_style);
@@ -1754,7 +1762,7 @@ String Document::copy_to_text(String mimetype) {
   }
   
   BoxOutputFlags flags = BoxOutputFlags::Default;
-  bool is_plain_text = mimetype.equals(Clipboard::PlainText) || mimetype.equals("PlainText");
+  bool is_plain_text = mimetype.equals(Clipboard::PlainText) || mimetype == strings::PlainText;
   if(is_plain_text)
     flags |= BoxOutputFlags::Literal | BoxOutputFlags::ShortNumbers;
     
@@ -1978,7 +1986,7 @@ void Document::copy_to_clipboard(Clipboard *clipboard, String mimetype) {
   
   if( mimetype.equals(Clipboard::BoxesText) ||
       mimetype.equals(Clipboard::PlainText) ||
-      mimetype.equals("PlainText"))
+      mimetype == strings::PlainText)
   {
     SharedPtr<OpenedClipboard> cb = clipboard->open_write();
     if(!cb) {
@@ -2239,8 +2247,8 @@ void Document::paste_from_filenames(Expr list_of_files, bool import_contents) {
     if(content_boxes.is_null())
       continue;
     
-    if(content_boxes == PMATH_SYMBOL_FAILED)       content_boxes = String("$Failed");
-    else if(content_boxes == PMATH_SYMBOL_ABORTED) content_boxes = String("$Aborted");
+    if(content_boxes == PMATH_SYMBOL_FAILED)       content_boxes = strings::DollarFailed;
+    else if(content_boxes == PMATH_SYMBOL_ABORTED) content_boxes = strings::DollarAborted;
     
     paste_from_boxes(content_boxes);
   }
@@ -3549,7 +3557,7 @@ bool Document::load_stylesheet() {
 }
 
 void Document::reset_style() {
-  Style::reset(style, "Document");
+  Style::reset(style, strings::Document);
 }
 
 void Document::paint_resize(Canvas &canvas, bool resize_only) {
@@ -4384,7 +4392,7 @@ bool Document::Impl::prepare_insert() {
     }
     
     Section *sect;
-    if(lang.equals("NaturalLanguage"))
+    if(lang == strings::NaturalLanguage)
       sect = new TextSection(section_style);
     else
       sect = new MathSection(section_style);
@@ -4450,7 +4458,7 @@ Section *Document::Impl::auto_make_text_or_math(Section *sect) {
     return sect;
     
   String langcat = sect->get_style(LanguageCategory);
-  if(langcat.equals("NaturalLanguage"))
+  if(langcat == strings::NaturalLanguage)
     return convert_content<MathSection, TextSection>(sect);
   else
     return convert_content<TextSection, MathSection>(sect);

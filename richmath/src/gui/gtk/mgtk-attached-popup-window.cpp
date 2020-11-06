@@ -7,6 +7,10 @@
 
 
 namespace richmath {
+  namespace strings {
+    extern String AttachedPopupWindow;
+  }
+  
   class MathGtkAttachedPopupWindow::Impl {
     public:
       Impl(MathGtkAttachedPopupWindow &self) : self{self} {}
@@ -516,7 +520,7 @@ MathGtkPopupContentArea::~MathGtkPopupContentArea() {
 void MathGtkPopupContentArea::after_construction() {
   base::after_construction();
   
-  Style::reset(document()->style, "AttachedPopupWindow");
+  Style::reset(document()->style, strings::AttachedPopupWindow);
   
   if(Document *owner = owner_document()) {
     document()->stylesheet(owner->stylesheet());

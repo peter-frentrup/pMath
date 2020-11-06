@@ -10,6 +10,10 @@
 #include <math.h>
 
 
+namespace richmath { namespace strings {
+  extern String EmptyString;
+}}
+
 using namespace richmath;
 using namespace pmath;
 
@@ -897,7 +901,7 @@ static String string_from_ansi(const char *s, int len) {
   static_assert(sizeof(uint16_t) == sizeof(wchar_t), "wchar_t must be 2 bytes on Win32");
 
   if(len == 0)
-    return String("");
+    return strings::EmptyString;
   
   int wlen = MultiByteToWideChar(CP_ACP, 0, s, len, nullptr, 0);
   pmath_string_t str = pmath_string_new_raw(wlen);

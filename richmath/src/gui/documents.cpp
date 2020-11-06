@@ -18,6 +18,14 @@
 
 
 namespace richmath {
+  namespace strings {
+    extern String DocumentDirectory;
+    extern String DocumentFileName;
+    extern String DocumentFullFileName;
+    extern String Input;
+    extern String ShowHideMenu;;
+  }
+  
   struct DocumentsImpl {
     static bool show_hide_menu_cmd(Expr cmd);
     static MenuCommandStatus can_show_hide_menu(Expr cmd);
@@ -46,10 +54,6 @@ namespace {
       static void done();
       
     private:
-      static String s_DocumentDirectory;
-      static String s_DocumentFileName;
-      static String s_DocumentFullFileName;
-      
       static Expr get_DocumentDirectory(FrontEndObject *obj, Expr item);
       static bool put_DocumentDirectory(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr get_DocumentFileName(FrontEndObject *obj, Expr item);
@@ -150,13 +154,21 @@ extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
 
+namespace richmath {
+  namespace strings {
+    extern String MenuListRecentDocuments;
+    extern String MenuListStyles;
+    extern String MenuListWindows;
+  }
+}
+
 //{ class Documents ...
 
 bool Documents::init() {
   Menus::register_command(String("EditStyleDefinitions"),                Impl::edit_style_definitions_cmd, Impl::can_edit_style_definitions);
   Menus::register_command(Symbol(richmath_FrontEnd_FindStyleDefinition), Impl::find_style_definition_cmd);
   Menus::register_command(String("OpenSelectionHelp"),                   Impl::open_selection_help_cmd);
-  Menus::register_command(String("ShowHideMenu"),                        Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
+  Menus::register_command(strings::ShowHideMenu,                         Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
   
   OpenDocumentMenuImpl::init();
   SelectDocumentMenuImpl::init();
@@ -207,7 +219,7 @@ Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
   
   return Call(Symbol(richmath_System_Section), 
               std::move(boxes), 
-              doc ? doc->get_own_style(DefaultNewSectionStyle, String("Input")) : String("Input"));
+              doc ? doc->get_own_style(DefaultNewSectionStyle, strings::Input) : strings::Input);
 }
 
 //} ... class Documents
@@ -548,25 +560,13 @@ void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr exp
 
 //{ class DocumentCurrentValueProvider ...
 
-String DocumentCurrentValueProvider::s_DocumentDirectory;
-String DocumentCurrentValueProvider::s_DocumentFileName;
-String DocumentCurrentValueProvider::s_DocumentFullFileName;
-
 void DocumentCurrentValueProvider::init() {
-  s_DocumentDirectory    = String("DocumentDirectory");
-  s_DocumentFileName     = String("DocumentFileName");
-  s_DocumentFullFileName = String("DocumentFullFileName");
-  
-  Application::register_currentvalue_provider(s_DocumentDirectory,    get_DocumentDirectory,    put_DocumentDirectory);
-  Application::register_currentvalue_provider(s_DocumentFileName,     get_DocumentFileName,     put_DocumentFileName);
-  Application::register_currentvalue_provider(s_DocumentFullFileName, get_DocumentFullFileName, put_DocumentFullFileName);
-  
+  Application::register_currentvalue_provider(strings::DocumentDirectory,    get_DocumentDirectory,    put_DocumentDirectory);
+  Application::register_currentvalue_provider(strings::DocumentFileName,     get_DocumentFileName,     put_DocumentFileName);
+  Application::register_currentvalue_provider(strings::DocumentFullFileName, get_DocumentFullFileName, put_DocumentFullFileName);
 }
 
 void DocumentCurrentValueProvider::done() {
-  s_DocumentDirectory    = String {};
-  s_DocumentFileName     = String {};
-  s_DocumentFullFileName = String {};
 }
 
 Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Expr item) {
@@ -695,9 +695,8 @@ void StylesMenuImpl::init() {
   Menus::register_command(String("SelectStyle8"), set_style, can_set_style);
   Menus::register_command(String("SelectStyle9"), set_style, can_set_style);
 
-  String s_MenuListStyles("MenuListStyles");
-  Menus::register_dynamic_submenu(     s_MenuListStyles, enum_styles_menu);
-  Menus::register_submenu_item_locator(s_MenuListStyles, find_style_definition);
+  Menus::register_dynamic_submenu(     strings::MenuListStyles, enum_styles_menu);
+  Menus::register_submenu_item_locator(strings::MenuListStyles, find_style_definition);
 }
 
 void StylesMenuImpl::done() {
@@ -870,9 +869,8 @@ const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
 void SelectDocumentMenuImpl::init() {
   Menus::register_command(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
 
-  String s_MenuListWindows {"MenuListWindows"};
-  Menus::register_dynamic_submenu(               s_MenuListWindows,  enum_windows_menu);
-  Menus::register_submenu_item_deleter(std::move(s_MenuListWindows), remove_window);
+  Menus::register_dynamic_submenu(               strings::MenuListWindows,  enum_windows_menu);
+  Menus::register_submenu_item_deleter(std::move(strings::MenuListWindows), remove_window);
 }
 
 void SelectDocumentMenuImpl::done() {
@@ -944,9 +942,8 @@ void OpenDocumentMenuImpl::init() {
   
   Menus::register_dynamic_submenu(String("MenuListPalettesMenu"), enum_palettes_menu);
   
-  String s_MenuListRecentDocuments {"MenuListRecentDocuments"};
-  Menus::register_dynamic_submenu(               s_MenuListRecentDocuments,  enum_recent_documents_menu);
-  Menus::register_submenu_item_deleter(std::move(s_MenuListRecentDocuments), remove_recent_document);
+  Menus::register_dynamic_submenu(               strings::MenuListRecentDocuments,  enum_recent_documents_menu);
+  Menus::register_submenu_item_deleter(std::move(strings::MenuListRecentDocuments), remove_recent_document);
 }
 
 void OpenDocumentMenuImpl::done() {

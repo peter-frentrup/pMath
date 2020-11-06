@@ -18,6 +18,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String EmptyString;
+}}
+
 // using U+FFFC OBJECT REPLACEMENT CHARACTER instead of PMATH_CHAR_BOX (U+FDD0),
 // Because U+FDD0 is an invalid unicode character and Pango treats it as three
 // invalid bytes => 3 glyphs instead of one.
@@ -1186,7 +1190,7 @@ void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size) {
 
 Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(end <= start || start < 0 || end > self.text.length())
-    return String("");
+    return strings::EmptyString;
     
   int boxi = 0;
   while(boxi < self.boxes.length() && self.boxes[boxi]->index() < start)

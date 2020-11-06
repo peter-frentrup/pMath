@@ -21,6 +21,10 @@
 using namespace richmath;
 using namespace pmath;
 
+namespace richmath { namespace strings {
+  extern String EmptyString;
+}}
+
 namespace {
   class TrackedSelection {
     public:
@@ -269,7 +273,7 @@ namespace {
         info.pre_write = pre_write_callback;
         info.post_write = post_write_callback;
         
-        output = String("");
+        output = strings::EmptyString;
         pmath_write_ex(&info, obj.get());
         return output;
       }

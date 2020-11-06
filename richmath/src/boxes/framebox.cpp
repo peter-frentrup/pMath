@@ -5,10 +5,16 @@
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
 
+#include <cmath>
+
 
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_FrameBox;
+
+namespace richmath { namespace strings {
+  extern String Framed;
+}}
 
 //{ class FrameBox ...
 
@@ -131,7 +137,7 @@ void FrameBox::paint(Context &context) {
 }
 
 void FrameBox::reset_style() {
-  Style::reset(style, "Framed");
+  Style::reset(style, strings::Framed);
 }
 
 Expr FrameBox::to_pmath_symbol() {
@@ -151,7 +157,7 @@ Expr FrameBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("Framed"))
+    if(style->get(BaseStyleName, &s) && s == strings::Framed)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);

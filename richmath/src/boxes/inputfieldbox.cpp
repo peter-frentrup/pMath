@@ -13,6 +13,15 @@ extern pmath_symbol_t richmath_System_InputFieldBox;
 
 static ContainerType parse_inputfield_appearance(Expr expr);
 
+namespace richmath {namespace strings {
+  extern String AddressBand;
+  extern String EmptyString;
+  extern String Framed;
+  extern String Frameless;
+  extern String DollarAborted;
+  extern String InputField;
+}}
+
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
@@ -127,11 +136,11 @@ void InputFieldBox::paint_content(Context &context) {
           result = Application::interrupt_wait(result, Application::dynamic_timeout);
         }
         else
-          result = String("");
+          result = strings::EmptyString;
       }
       else if(input_type == PMATH_SYMBOL_STRING) {
         if(!result.is_string())
-          result = String("");
+          result = strings::EmptyString;
       }
       else if(input_type[0] == PMATH_SYMBOL_HOLD) { // Hold(Expression)
         if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLD)
@@ -147,9 +156,9 @@ void InputFieldBox::paint_content(Context &context) {
       }
       
       if(result.is_null())
-        result = String("");
+        result = strings::EmptyString;
       else if(result == PMATH_UNDEFINED || result == PMATH_SYMBOL_ABORTED)
-        result = String("$Aborted");
+        result = strings::DollarAborted;
         
       bool was_parent = is_parent_of(context.selection.get());
       
@@ -217,7 +226,7 @@ void InputFieldBox::paint_content(Context &context) {
 }
 
 void InputFieldBox::reset_style() {
-  Style::reset(style, "InputField");
+  Style::reset(style, strings::InputField);
 }
 
 void InputFieldBox::scroll_to(const RectangleF &rect) {
@@ -276,7 +285,7 @@ Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
     bool with_inherited = true;
     
     String s;
-    if(style->get(BaseStyleName, &s) && s.equals("InputField"))
+    if(style->get(BaseStyleName, &s) && s == strings::InputField)
       with_inherited = false;
     
     style->emit_to_pmath(with_inherited);
@@ -517,13 +526,13 @@ static ContainerType parse_inputfield_appearance(Expr expr) {
   if(expr.is_string()) {
     String s = std::move(expr);
     
-    if(s.equals("Frameless"))
+    if(s == strings::Frameless)
       return NoContainerType;
     
-    if(s.equals("Framed"))
+    if(s == strings::Framed)
       return InputField;
     
-    if(s.equals("AddressBand"))
+    if(s == strings::AddressBand)
       return AddressBandInputField;
     
     return InputField;

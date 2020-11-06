@@ -47,6 +47,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String Copy;
+}}
+
 #ifdef NDEBUG
 #  define DEBUG_as_bool  false
 #else
@@ -1735,7 +1739,7 @@ void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL p
               }
               
               String rhs_s = String(rhs);
-              if(rhs_s.equals("Copy")) 
+              if(rhs == strings::Copy) 
                 _latest_drop_image = DROPIMAGE_COPY;
               else if(rhs_s.equals("Move"))
                 _latest_drop_image = DROPIMAGE_MOVE;

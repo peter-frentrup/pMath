@@ -1292,6 +1292,7 @@
 		<Unit filename="src/eval/observable.cpp" />
 		<Unit filename="src/eval/option-functions.cpp" />
 		<Unit filename="src/eval/server.cpp" />
+		<Unit filename="src/eval/strings.inc" />
 		<Unit filename="src/eval/symbols.inc" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />

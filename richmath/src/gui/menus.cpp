@@ -12,6 +12,9 @@ extern pmath_symbol_t richmath_FE_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
+namespace richmath { namespace strings {
+  extern String ShowHideMenu;
+}}
 
 static Hashtable<Expr, bool              ( *)(Expr)>       menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>       menu_command_testers;
@@ -198,7 +201,7 @@ MenuItemType Menus::command_type(Expr cmd) {
     if(str.starts_with("SelectStyle")) // SelectStyle1 ... SelectStyle9
       return MenuItemType::RadioButton;
     
-    if(str.equals("ShowHideMenu"))
+    if(cmd == strings::ShowHideMenu)
       return MenuItemType::CheckButton;
   }
   
