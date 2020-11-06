@@ -79,7 +79,7 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr) {
   }
   
   if(pmath_expr_length(item) > 1) {
-    item = pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_TRUE));
+    item = pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_AND));
   }
   else {
     pmath_t tmp = pmath_expr_get_item(item, 1);
