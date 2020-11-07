@@ -28,7 +28,6 @@
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-filedialog.h>
 #  include <gui/gtk/mgtk-document-window.h>
-#  include <gui/gtk/mgtk-menu-builder.h>
 #endif
 
 
@@ -44,6 +43,7 @@
 #include <gui/recent-documents.h>
 
 #include <eval/binding.h>
+#include <eval/current-value.h>
 #include <eval/dynamic.h>
 #include <eval/job.h>
 #include <eval/server.h>
@@ -67,28 +67,11 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_DollarSessionId;
 
 extern pmath_symbol_t richmath_System_BoxData;
-extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Section;
-extern pmath_symbol_t richmath_System_SectionGroup;
-extern pmath_symbol_t richmath_System_Selectable;
-extern pmath_symbol_t richmath_System_TemplateBox;
-extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath { namespace strings {
   extern String EmptyString;
-  extern String ControlsFontFamily;
-  extern String ControlsFontSize;
-  extern String ControlsFontSlant;
-  extern String ControlsFontWeight;
-  extern String CurrentValueProviders;
-  extern String DocumentScreenDpi;
-  extern String MouseOver;
-  extern String MouseOverBox;
-  extern String SectionGroupOpen;
-  extern String SelectedMenuCommand;
-  extern String StyleDefinitionsOwner;
-  extern String TemplateSlotCount;
   extern String Text;
 }}
 
@@ -142,9 +125,6 @@ static pmath_atomic_t state = { Starting }; // ClientState
 static ConcurrentQueue<ClientNotificationData> notifications;
 
 static SharedPtr<Session> session = new Session(nullptr);
-
-static Hashtable<Expr, Expr              ( *)(FrontEndObject*, Expr)>       currentvalue_providers;
-static Hashtable<Expr, bool              ( *)(FrontEndObject*, Expr, Expr)> currentvalue_setters;
 
 static Hashset<FrontEndReference> pending_dynamic_updates;
 static bool dynamic_update_delay = false;
@@ -361,53 +341,6 @@ Expr Application::notify_wait(ClientNotification type, Expr data) {
   return Expr(result);
 }
 
-Expr Application::current_value(Expr item) {
-  return current_value(Application::get_evaluation_box(), std::move(item));
-}
-
-Expr Application::current_value(FrontEndObject *obj, Expr item) {
-  auto func = currentvalue_providers[item];
-  if(!func && item[0] == PMATH_SYMBOL_LIST)
-    func = currentvalue_providers[item[1]];
-    
-  if(!func)
-    return Symbol(PMATH_SYMBOL_FAILED);
-    
-  return func(obj, std::move(item));
-}
-
-bool Application::set_current_value(FrontEndObject *obj, Expr item, Expr rhs) {
-  auto func = currentvalue_setters[item];
-  if(!func && item[0] == PMATH_SYMBOL_LIST)
-    func = currentvalue_setters[item[1]];
-    
-  if(!func)
-    return false;
-    
-  return func(obj, std::move(item), std::move(rhs));
-}
-
-bool Application::register_currentvalue_provider(
-  Expr   item,
-  Expr (*get)(FrontEndObject *obj, Expr item),
-  bool (*set)(FrontEndObject *obj, Expr item, Expr rhs))
-{
-  assert(get != nullptr);
-  
-  if(currentvalue_providers.search(item))
-    return false;
-  
-  if(currentvalue_setters.search(item))
-    return false;
-  
-  currentvalue_providers.set(item, get);
-  
-  if(set)
-    currentvalue_setters.set(item, set);
-  
-  return true;
-}
-
 static void write_data(void *user, const uint16_t *data, int len) {
   FILE *file = (FILE *)user;
   
@@ -619,17 +552,6 @@ void Application::deactivated_all_controls() {
   update_control_active(false);
 }
 
-static Expr get_current_value_of_CurrentValueProviders(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item);
-static bool put_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
-static Expr get_current_value_of_Selectable(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
-static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item);
-
 void Application::init() {
   main_message_queue = Expr(pmath_thread_get_queue());
   
@@ -644,24 +566,7 @@ void Application::init() {
   main_thread = pthread_self();
 #endif
   
-  register_currentvalue_provider(strings::MouseOver,                   get_current_value_of_MouseOver);
-  register_currentvalue_provider(strings::MouseOverBox,                Document::get_current_value_of_MouseOverBox);
-  register_currentvalue_provider(strings::DocumentScreenDpi,           get_current_value_of_DocumentScreenDpi);
-  register_currentvalue_provider(strings::ControlsFontFamily,          get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(strings::ControlsFontSlant,           get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(strings::ControlsFontWeight,          get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(strings::ControlsFontSize,            get_current_value_of_ControlFont_data);
-  register_currentvalue_provider(strings::CurrentValueProviders,       get_current_value_of_CurrentValueProviders);
-  register_currentvalue_provider(strings::SectionGroupOpen,            get_current_value_of_SectionGroupOpen,                   put_current_value_of_SectionGroupOpen);
-  register_currentvalue_provider(Symbol(richmath_System_Selectable),   get_current_value_of_Selectable,                         Style::put_current_style_value);
-  register_currentvalue_provider(strings::SelectedMenuCommand,         get_current_value_of_SelectedMenuCommand);
-  register_currentvalue_provider(strings::StyleDefinitionsOwner,       get_current_value_of_StyleDefinitionsOwner);
-  register_currentvalue_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
-  register_currentvalue_provider(strings::TemplateSlotCount,           TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
-  register_currentvalue_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot,      TemplateBoxSlot::put_current_value_of_TemplateSlot);
-  register_currentvalue_provider(Symbol(richmath_System_WindowTitle),  get_current_value_of_WindowTitle,                        Style::put_current_style_value);
-  
-  
+  CurrentValue::init();
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
   application_directory = FileSystem::get_directory_path(application_filename);
     
@@ -766,8 +671,7 @@ void Application::done() {
   }
   
   eval_cache.clear();
-  currentvalue_providers.clear();
-  currentvalue_setters.clear();
+  CurrentValue::done();
   application_filename = String();
   application_directory = String();
   stylesheet_path_base = String();
@@ -1516,52 +1420,6 @@ static void cnt_dynamicupate(Expr data) {
   }
 }
 
-static Expr cnt_currentvalue(Expr data) {
-  Expr item;
-  FrontEndObject *obj = nullptr;
-  
-  if(data.expr_length() == 1) {
-    obj = Application::get_evaluation_box();
-    item = data[1];
-  }
-  else if(data.expr_length() == 2) {
-    auto ref = FrontEndReference::from_pmath(data[1]);
-    obj = FrontEndObject::find(ref);
-    item = data[2];
-  }
-  else
-    return Symbol(PMATH_SYMBOL_FAILED);
-  
-  return Application::current_value(obj, item);
-}
-
-static Expr cnt_setcurrentvalue(Expr assignment) {
-  if(assignment.expr_length() == 2 && assignment[0] == PMATH_SYMBOL_ASSIGN) {
-    Expr item = assignment[1];
-    
-    if(item[0] == PMATH_SYMBOL_CURRENTVALUE) {
-      Expr rhs = assignment[2];
-      FrontEndObject *obj = nullptr;
-      if(item.expr_length() == 1) {
-        obj = Application::get_evaluation_box();
-        item = item[1];
-      }
-      else if(item.expr_length() == 2) {
-        auto ref = FrontEndReference::from_pmath(item[1]);
-        obj = FrontEndObject::find(ref);
-        item = item[2];
-      }
-      else
-        return assignment;
-      
-      if(Application::set_current_value(obj, std::move(item), rhs))
-        return rhs;
-    }
-  }
-  
-  return assignment;
-}
-
 static Expr cnt_documentread(Expr data) {
   Document *doc = nullptr;
   
@@ -1797,16 +1655,6 @@ static void execute(ClientNotificationData &cn) {
       cnt_dynamicupate(std::move(cn.data));
       break;
       
-    case ClientNotification::CurrentValue:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_currentvalue(std::move(cn.data)).release();
-      break;
-      
-    case ClientNotification::SetCurrentValue:
-      if(cn.result_ptr)
-        *cn.result_ptr = cnt_setcurrentvalue(std::move(cn.data)).release();
-      break;
-      
     case ClientNotification::DocumentRead:
       if(cn.result_ptr)
         *cn.result_ptr = cnt_documentread(std::move(cn.data)).release();
@@ -1831,172 +1679,6 @@ static void execute(ClientNotificationData &cn) {
   }
   
   cn.done();
-}
-
-static Expr get_current_value_of_CurrentValueProviders(FrontEndObject *obj, Expr item) {
-  Gather g;
-  for(auto &&key : currentvalue_providers.keys())
-    Gather::emit(std::move(key));
-  
-  return g.end();
-}
-
-static Expr get_current_value_of_MouseOver(FrontEndObject *obj, Expr item) {
-  Box *box = dynamic_cast<Box*>(obj);
-  if(!box)
-    return Symbol(PMATH_SYMBOL_FALSE);
-    
-  Document *doc = box->find_parent<Document>(true);
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FALSE);
-    
-  if(auto observer_id = Dynamic::current_observer_id) {
-    // ensure that get/set of InternalUsesCurrentValueOfMouseOver below will not cause reevaluation
-    Dynamic::current_observer_id = FrontEndReference::None;
-    if(!box->style)
-      box->style = new Style();
-      
-    int observer_kind = ObserverKindNone;
-    box->style->get(InternalUsesCurrentValueOfMouseOver, &observer_kind);
-    if(box->id() == observer_id) 
-      observer_kind |= ObserverKindSelf;
-    else 
-      observer_kind |= ObserverKindOther;
-    
-    box->style->set(InternalUsesCurrentValueOfMouseOver, observer_kind);
-    
-    if(box->id() != observer_id)
-      box->style->register_observer(observer_id);
-    
-    Dynamic::current_observer_id = observer_id;
-  }
-  
-  Box *mo = FrontEndObject::find_cast<Box>(doc->mouseover_box_id());
-  while(mo && mo != box)
-    mo = mo->parent();
-    
-  if(mo)
-    return Symbol(PMATH_SYMBOL_TRUE);
-  return Symbol(PMATH_SYMBOL_FALSE);
-}
-
-static Expr get_current_value_of_DocumentScreenDpi(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-  
-  return Expr(doc->native()->dpi());
-}
-
-static Expr get_current_value_of_ControlFont_data(FrontEndObject *obj, Expr item) {
-  SharedPtr<Style> style = new Style();
-  ControlPainter::std->system_font_style(ControlContext::find(dynamic_cast<Box*>(obj)), style.ptr());
-  
-  AutoResetCurrentObserver guard;
-  if(item == strings::ControlsFontFamily)
-    return style->get_pmath(FontFamilies);
-  if(item == strings::ControlsFontSlant)
-    return style->get_pmath(FontSlant);
-  if(item == strings::ControlsFontWeight)
-    return style->get_pmath(FontWeight);
-  if(item == strings::ControlsFontSize)
-    return style->get_pmath(FontSize);
-    
-  return Symbol(PMATH_SYMBOL_FAILED);
-}
-
-static Expr get_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item) {
-  Box *box = dynamic_cast<Box*>(obj);
-  Section *sec = box ? box->find_parent<Section>(true) : nullptr;
-  if(!sec)
-    return Symbol(PMATH_SYMBOL_FAILED);
-  
-  SectionList *slist = dynamic_cast<SectionList*>(sec->parent());
-  if(!slist)
-    return Symbol(PMATH_SYMBOL_FAILED);
-  
-  int close_rel = slist->group_info(sec->index()).close_rel;
-  if(close_rel < 0)
-    return Symbol(PMATH_SYMBOL_TRUE);
-  else
-    return Symbol(PMATH_SYMBOL_FALSE);
-}
-
-static bool put_current_value_of_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs) {
-  Box *box = dynamic_cast<Box*>(obj);
-  Section *sec = box ? box->find_parent<Section>(true) : nullptr;
-  if(!sec)
-    return false;
-    
-  SectionList *slist = dynamic_cast<SectionList*>(sec->parent());
-  if(!slist)
-    return false;
-  
-  if(rhs == PMATH_SYMBOL_TRUE) {
-    slist->set_open_close_group(sec->index(), true);
-    return true;
-  }
-  
-  if(rhs == PMATH_SYMBOL_FALSE) {
-    slist->set_open_close_group(sec->index(), false);
-    return true;
-  }
-  
-  return false;
-}
-
-static Expr get_current_value_of_Selectable(FrontEndObject *obj, Expr item) {
-  if(Box *box = dynamic_cast<Box*>(obj)) 
-    return box->selectable() ? Symbol(PMATH_SYMBOL_TRUE) : Symbol(PMATH_SYMBOL_FALSE);
-  
-  return Style::get_current_style_value(obj, std::move(item));
-}
-
-static Expr get_current_value_of_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
-  #ifdef RICHMATH_USE_GTK_GUI
-  Expr cmd = MathGtkMenuBuilder::selected_item_command();
-  #endif
-  #ifdef RICHMATH_USE_WIN32_GUI
-  Expr cmd = Win32Menu::selected_item_command();
-  #endif
-  
-  if(cmd.is_null())
-    return Symbol(PMATH_SYMBOL_NONE);
-  
-  return Call(Symbol(PMATH_SYMBOL_HOLD), std::move(cmd));
-}
-
-static Expr get_current_value_of_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
-  
-  Document *owner = doc->native()->owner_document();
-  while(!owner) {
-    doc = doc->native()->working_area_document();
-    if(!doc)
-      return Symbol(PMATH_SYMBOL_NONE);
-    
-    owner = doc->native()->owner_document();
-  }
-  return owner->to_pmath_id();
-}
-
-static Expr get_current_value_of_WindowTitle(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  
-  if(doc) {
-    if(item == richmath_System_WindowTitle) {
-      auto result = doc->native()->window_title();
-      if(!result.is_null())
-        return result;
-    }
-  }
-  
-  return Style::get_current_style_value(obj, std::move(item));
 }
 
 Expr richmath_eval_FrontEnd_EvaluationBox(Expr expr) {

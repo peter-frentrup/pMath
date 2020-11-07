@@ -7,7 +7,7 @@
 #include <gui/native-widget.h>
 #include <gui/recent-documents.h>
 
-#include <eval/application.h>
+#include <eval/current-value.h>
 
 #include <syntax/spanexpr.h>
 
@@ -561,9 +561,9 @@ void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr exp
 //{ class DocumentCurrentValueProvider ...
 
 void DocumentCurrentValueProvider::init() {
-  Application::register_currentvalue_provider(strings::DocumentDirectory,    get_DocumentDirectory,    put_DocumentDirectory);
-  Application::register_currentvalue_provider(strings::DocumentFileName,     get_DocumentFileName,     put_DocumentFileName);
-  Application::register_currentvalue_provider(strings::DocumentFullFileName, get_DocumentFullFileName, put_DocumentFullFileName);
+  CurrentValue::register_provider(strings::DocumentDirectory,    get_DocumentDirectory,    put_DocumentDirectory);
+  CurrentValue::register_provider(strings::DocumentFileName,     get_DocumentFileName,     put_DocumentFileName);
+  CurrentValue::register_provider(strings::DocumentFullFileName, get_DocumentFullFileName, put_DocumentFullFileName);
 }
 
 void DocumentCurrentValueProvider::done() {

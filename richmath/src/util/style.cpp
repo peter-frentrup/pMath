@@ -2,6 +2,7 @@
 
 #include <gui/control-painter.h>
 #include <eval/application.h>
+#include <eval/current-value.h>
 #include <eval/dynamic.h>
 
 #include <util/filesystem.h>
@@ -2764,7 +2765,7 @@ void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name
   _key_to_name.set(key, name);
   _name_to_key.set(name, key);
   
-  Application::register_currentvalue_provider(name, get_current_style_value, put_current_style_value);
+  CurrentValue::register_provider(name, get_current_style_value, put_current_style_value);
   
   add_to_ruleset(key, name);
 }
@@ -2775,7 +2776,7 @@ void StyleInformation::add_enum(IntStyleOptionName key, const Expr &name, Shared
   _key_to_name.set(          key, name);
   _name_to_key.set(          name, key);
   
-  Application::register_currentvalue_provider(name, get_current_style_value);
+  CurrentValue::register_provider(name, get_current_style_value);
   
   add_to_ruleset(key, name);
 }

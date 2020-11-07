@@ -2,6 +2,14 @@
 
 #include <eval/application.h>
 
+#ifdef RICHMATH_USE_WIN32_GUI
+#  include <gui/win32/win32-menu.h>
+#endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+#  include <gui/gtk/mgtk-menu-builder.h>
+#endif
+
 
 using namespace richmath;
 
@@ -53,6 +61,16 @@ bool Menus::run_recursive_command(Expr cmd) {
     return true;
     
   return false;
+}
+
+Expr Menus::selected_item_command() {
+#ifdef RICHMATH_USE_GTK_GUI
+  return MathGtkMenuBuilder::selected_item_command();
+#endif
+#ifdef RICHMATH_USE_WIN32_GUI
+  return Win32Menu::selected_item_command();
+#endif
+  return {};
 }
 
 MenuCommandStatus Menus::test_command_status(Expr cmd) {

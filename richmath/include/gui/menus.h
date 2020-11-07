@@ -44,6 +44,7 @@ namespace richmath {
       // bad design:
       static bool run_recursive_command(Expr cmd);
       
+      static Expr selected_item_command();
       static MenuCommandStatus test_command_status(Expr cmd);
       static Expr generate_dynamic_submenu(Expr cmd);
       static bool remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd);

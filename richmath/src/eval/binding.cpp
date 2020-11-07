@@ -181,7 +181,6 @@ static bool init_symbols() {
 
   BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated)
   
-  BIND_DOWN(PMATH_SYMBOL_CURRENTVALUE,             builtin_currentvalue)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
@@ -189,8 +188,6 @@ static bool init_symbols() {
   BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)
   BIND_DOWN(PMATH_SYMBOL_INTERRUPT,                builtin_interrupt)
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
-  
-  BIND_UP(PMATH_SYMBOL_CURRENTVALUE,               builtin_assign_currentvalue)
   
   BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
@@ -368,22 +365,6 @@ static pmath_t builtin_documentsave(pmath_expr_t _expr) {
   }
   
   return Application::notify_wait(ClientNotification::Save, Expr(_expr)).release();
-}
-
-static pmath_t builtin_assign_currentvalue(pmath_expr_t expr) {
-  if(pmath_is_expr_of_len(expr, PMATH_SYMBOL_ASSIGN, 2)) {
-    pmath_t lhs = pmath_expr_get_item(expr, 1);
-    if(pmath_is_expr_of(lhs, PMATH_SYMBOL_CURRENTVALUE)) {
-      pmath_unref(lhs);
-      return Application::notify_wait(ClientNotification::SetCurrentValue, Expr(expr)).release();
-    }
-    pmath_unref(lhs);
-  }
-  return expr;
-}
-
-static pmath_t builtin_currentvalue(pmath_expr_t expr) {
-  return Application::notify_wait(ClientNotification::CurrentValue, Expr(expr)).release();
 }
 
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {

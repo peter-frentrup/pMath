@@ -19,8 +19,6 @@ namespace richmath {
     CallFrontEnd,
     MenuCommand,
     DynamicUpdate,
-    CurrentValue,
-    SetCurrentValue,
     DocumentRead,
     FileDialog,
     Save,
@@ -39,15 +37,6 @@ namespace richmath {
       static void notify(     ClientNotification type, Expr data); // callable from non-GUI thread
       static Expr notify_wait(ClientNotification type, Expr data); // callable from non-GUI thread
       
-      static Expr current_value(Expr item);
-      static Expr current_value(FrontEndObject *obj, Expr item);
-      static bool set_current_value(FrontEndObject *obj, Expr item, Expr rhs);
-      
-      static bool register_currentvalue_provider(
-        Expr   item,
-        Expr (*get)(FrontEndObject *obj, Expr item),
-        bool (*set)(FrontEndObject *obj, Expr item, Expr rhs) = nullptr);
-        
       static void gui_print_section(Expr expr);
       static Expr save(Document *doc);
       //static void update_control_active(bool value);

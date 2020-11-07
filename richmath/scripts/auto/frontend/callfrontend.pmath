@@ -15,6 +15,14 @@ FE`AttachBoxes(~~~args)::= $Failed /? (IsValidArgumentCount(FE`AttachBoxes, Leng
 
 CreateDocument(~~~args)::= FE`CallFrontEnd(FrontEnd`CreateDocument(args))
 
+CurrentValue(~item)::=                                          FE`CallFrontEnd(FrontEnd`CurrentValue(Automatic, item))
+CurrentValue(obj : ~:FrontEndObject|~:DocumentObject, ~item)::= FE`CallFrontEnd(FrontEnd`CurrentValue(obj,       item))
+CurrentValue(~~~args)::= $Failed /? (IsValidArgumentCount(CurrentValue, Length@{args}, 1, 2);False)
+CurrentValue /: (CurrentValue(~item):= ~rhs)::=                                          FE`CallFrontEnd(FrontEnd`AssignCurrentValue(Automatic, item, HoldComplete(rhs)))
+CurrentValue /: (CurrentValue(obj : ~:FrontEndObject|~:DocumentObject, ~item):= ~rhs)::= FE`CallFrontEnd(FrontEnd`AssignCurrentValue(obj,       item, HoldComplete(rhs)))
+CurrentValue /: (CurrentValue(~item)::= ~rhs)::=                                          FE`CallFrontEnd(FrontEnd`AssignCurrentValue(Automatic, item, HoldComplete(rhs)))
+CurrentValue /: (CurrentValue(obj : ~:FrontEndObject|~:DocumentObject, ~item)::= ~rhs)::= FE`CallFrontEnd(FrontEnd`AssignCurrentValue(obj,       item, HoldComplete(rhs)))
+
 DocumentClose()::= FE`CallFrontEnd(FrontEnd`DocumentClose())
 DocumentClose(arg : ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`DocumentClose(arg))
 DocumentClose(~~~args)::= $Failed /? (IsValidArgumentCount(DocumentClose, Length@{args}, 0, 1);False)

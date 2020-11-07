@@ -776,6 +776,7 @@
 		<Unit filename="include/boxes/underoverscriptbox.h" />
 		<Unit filename="include/eval/application.h" />
 		<Unit filename="include/eval/binding.h" />
+		<Unit filename="include/eval/current-value.h" />
 		<Unit filename="include/eval/dynamic.h" />
 		<Unit filename="include/eval/job.h" />
 		<Unit filename="include/eval/observable.h" />
@@ -1288,6 +1289,7 @@
 		<Unit filename="src/boxes/underoverscriptbox.cpp" />
 		<Unit filename="src/eval/application.cpp" />
 		<Unit filename="src/eval/binding.cpp" />
+		<Unit filename="src/eval/current-value.cpp" />
 		<Unit filename="src/eval/dynamic.cpp" />
 		<Unit filename="src/eval/job.cpp" />
 		<Unit filename="src/eval/observable.cpp" />
