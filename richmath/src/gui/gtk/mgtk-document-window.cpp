@@ -1194,8 +1194,8 @@ void MathGtkDocumentWindowImpl::on_scrollbar_draw(GtkWidget *scrollbar, Canvas &
   //gtk_range_get_range_rect(GTK_RANGE(scrollbar), &rect);
   gtk_widget_get_allocation(scrollbar, &rect);
   
-  int trough_start = rect.y;
-  int trough_end = rect.y + rect.height;
+  int trough_start = 0;
+  int trough_end = rect.height;
   
   if(has_back)              trough_start += stepper_size + stepper_spacing;
   if(has_secondary_forward) trough_start += stepper_size + stepper_spacing;
@@ -1209,7 +1209,7 @@ void MathGtkDocumentWindowImpl::on_scrollbar_draw(GtkWidget *scrollbar, Canvas &
     Document *doc = self.document();
     GtkAdjustment *adjustment = gtk_range_get_adjustment(GTK_RANGE(scrollbar));
     
-    double doc_height = gtk_adjustment_get_upper(adjustment);
+    double doc_height = gtk_adjustment_get_upper(adjustment) / doc->native()->scale_factor();
     if(!(doc_height > 0.0))
       doc_height = 1.0;
     
