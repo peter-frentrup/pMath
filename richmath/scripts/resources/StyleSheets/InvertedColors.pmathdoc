@@ -6,7 +6,7 @@ Document({
       Section(
        "This stylesheet inverts colors for default styles. It can be used as a \
        basis for a dark theme or to find potential issues with hard-coded \
-       colors in documents.", "Text", FontColor -> GrayLevel(1)), 
+       colors in documents.", "Text"), 
       SectionGroup({
         Section(BoxData({"Slider", "(", {
             {"Dynamic", "(", {
@@ -51,7 +51,7 @@ Document({
         Section(StyleData("Edit"), AutoSpacing -> True, 
          FontColor -> GrayLevel(1), LanguageCategory -> "pMath", 
          ShowAutoStyles -> True), Section(StyleData("Input")), 
-        Section(StyleData("Text"), SectionFrameColor -> GrayLevel(1))}, All), 
-      Section("Box styles", "Section")}, All)}, All)}, 
- Background -> GrayLevel(0.19`), StyleDefinitions -> "Stylesheets.pmathdoc", 
- Visible -> True)
+        Section(StyleData("Text"), SectionFrameColor -> GrayLevel(1))}, All)}, 
+     All)}, All)}, Background -> GrayLevel(0.19`), 
+ FontColor -> GrayLevel(0.90200000000000002`), 
+ StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
