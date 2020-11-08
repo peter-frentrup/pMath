@@ -3216,5 +3216,5 @@ WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   add(WindowFrameNormal,  strings::Normal);
   add(WindowFrameDialog,  String("Dialog"));
   add(WindowFramePalette, String("Palette"));
-  add(WindowFrameSingle,  String("Single"));
+  add(WindowFrameThin,    String("ThinFrame"));
 }

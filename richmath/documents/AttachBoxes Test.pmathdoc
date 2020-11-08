@@ -423,7 +423,7 @@ Document({
                 True), $Failed :> (FE`Private`popup:= FE`AttachBoxes(
                 EvaluationBox(), Bottom, BoxData(TemplateSlot(2)), 
                 WindowFrame -> Dynamic(
-                 Lookup({Inherited -> "Single", 
+                 Lookup({Inherited -> "ThinFrame", 
                    ~FE`Private`x :> FE`Private`x}, 
                   CurrentValue({TemplateSlot, 
                     Key(WindowFrame)})))))}) &))) &)})}, All)}, All)}, All)}, 

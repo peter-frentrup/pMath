@@ -856,7 +856,7 @@ void BasicWin32Window::on_theme_changed() {
   }
   else {
     if(Win32Themes::is_windows_10_or_newer()) {
-      // FIXME: WS_BORDER (WindorFrame->"Single") is still drawn white instead of gray by Windows
+      // FIXME: WS_BORDER (WindorFrame->"ThinFrame") is still drawn white instead of gray by Windows
       
       if(Win32Themes::DwmEnableBlurBehindWindow) {
         Win32Themes::DWM_BLURBEHIND bb = {};

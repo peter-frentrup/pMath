@@ -102,7 +102,7 @@ void Win32AttachedPopupWindow::invalidate_options() {
       SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) & ~WS_BORDER);
       break;
     
-    case WindowFrameSingle:
+    case WindowFrameThin:
       SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) | WS_BORDER);
       break;
   }

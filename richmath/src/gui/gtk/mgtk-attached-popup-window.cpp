@@ -191,7 +191,7 @@ void MathGtkAttachedPopupWindow::invalidate_options() {
       gtk_container_set_border_width(GTK_CONTAINER(_widget), 0);
       break;
       
-    case WindowFrameSingle:
+    case WindowFrameThin:
       _appearance = PopupPanel;
       gtk_widget_set_app_paintable(_widget, true);
       gtk_container_set_border_width(GTK_CONTAINER(_widget), 1);
