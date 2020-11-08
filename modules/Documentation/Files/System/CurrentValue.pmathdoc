@@ -7,20 +7,20 @@ Document({
        "Usage")}, All), SectionGroup({
       Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
-          " by default refers to the location where it appears in the \
-          document."}, "Notes"), 
-        Section({TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
-          " may be used inside ", TemplateBox({"Dynamic"}, 
-           "ReferenceHyperlink"), "."}, "Notes"), 
-        Section({"Certain items can be reset with ", {
-           {TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
-            StyleBox("item", "Arg"), ")"}, "\[Assign]", 
-           StyleBox("val", "Arg")}, ", or implicitly via ", 
-          TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "."}, "Notes"), 
-        Section({"Any document option can be accessed with ", {
-           TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
-           StyleBox("opt", "Arg"), ")"}, "."}, "Notes")}, All), 
+        Section(TextData({TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
+           " by default refers to the location where it appears in the \
+           document."}), "Notes"), 
+        Section(TextData({TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
+           " may be used inside ", TemplateBox({"Dynamic"}, 
+            "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"Certain items can be reset with ", {
+            {TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
+             StyleBox("item", "Arg"), ")"}, "\[Assign]", 
+            StyleBox("val", "Arg")}, ", or implicitly via ", 
+           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"Any document option can be accessed with ", {
+            TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), "(", 
+            StyleBox("opt", "Arg"), ")"}, "."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -72,7 +72,19 @@ Document({
                    DynamicBox(ToBoxes(CurrentValue(FontSize))))}, 
                  FontSize -> 24, StripOnInput -> False)), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-           All)}, 1), SectionGroup({Section("Font", "ExampleSubsection"), 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Access nested option values:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"CurrentValue", "(", {
+                  "{", {ComplexStringBox("\"SyntaxErrorStyle\""), ",", 
+                   "FontColor"}, "}"}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData({"RGBColor", "(", {"1", ",", "0", ",", "0"}, 
+                 ")"}), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("Font", "ExampleSubsection"), 
           Section("Get the system\[HighNineQuote]s user interface font name:", 
            "ExampleText"), SectionGroup({
             Section(BoxData({"CurrentValue", "(", 
@@ -108,8 +120,7 @@ Document({
                SectionLabel -> "in [1]:"), Section(BoxData("Plain"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({Section("Document", "ExampleSubsection"), 
-          Section(
-           "Explore menu commands by hovering menu item with the mouse:", 
+          Section("Explore menu commands under the mouse cursor:", 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Dynamic", "(", {
                 "CurrentValue", "(", ComplexStringBox(
@@ -134,8 +145,9 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Obtain a document\[HighNineQuote]s directory (or ", 
-              TemplateBox({"None"}, "ReferenceHyperlink"), "):"}, 
+            Section(
+             TextData({"Obtain a document\[HighNineQuote]s directory (or ", 
+               TemplateBox({"None"}, "ReferenceHyperlink"), "):"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
                  ComplexStringBox("\"DocumentDirectory\""), ")"}), "Input", 
@@ -147,10 +159,12 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({
-              "Obtain a document\[HighNineQuote]s file name without directory \
-              path (or ", TemplateBox({"None"}, "ReferenceHyperlink"), "):"}, 
-             "ExampleText"), SectionGroup({
+            Section(
+             TextData({
+               "Obtain a document\[HighNineQuote]s file name without directory \
+               path (or ", TemplateBox({"None"}, "ReferenceHyperlink"), 
+               "):"}), "ExampleText"), 
+            SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
                  ComplexStringBox("\"DocumentFileName\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
@@ -170,10 +184,11 @@ Document({
               Section(BoxData(ComplexStringBox("\"test.pmathdoc\"")), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [2]:")}, All), 
-            Section({
-              "Reset the file name (but not the directory) so that File \
-              \[Rule] Save (", TemplateBox({"S"}, "ControlKeyEvent"), 
-              ") would pop-up a save dialog:"}, "ExampleText"), 
+            Section(
+             TextData({
+               "Reset the file name (but not the directory) so that File \
+               \[Rule] Save (", TemplateBox({"S"}, "ControlKeyEvent"), 
+               ") would pop-up a save dialog:"}), "ExampleText"), 
             SectionGroup({
               Section(
                BoxData({
@@ -185,8 +200,10 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Obtain a document\[HighNineQuote]s full file path (or ", 
-              TemplateBox({"None"}, "ReferenceHyperlink"), "):"}, 
+            Section(
+             TextData({
+               "Obtain a document\[HighNineQuote]s full file path (or ", 
+               TemplateBox({"None"}, "ReferenceHyperlink"), "):"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
                  ComplexStringBox("\"DocumentFullFileName\""), ")"}), "Input", 
@@ -216,6 +233,20 @@ Document({
               Section(BoxData({"{", {"WindowTitle", "\[Rule]", "Inherited"}, 
                  "}"}), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [2]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Change the window title:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+                   "WindowTitle"}, ")"}, "\[Assign]", 
+                 ComplexStringBox("\"PhD is a title\"")}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(ComplexStringBox("\"PhD is a title\"")), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
@@ -253,8 +284,8 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Extract a ", TemplateBox({"TemplateBox"}, 
-               "ReferenceHyperlink"), " argument:"}, "ExampleText"), 
+            Section(TextData({"Extract a ", TemplateBox({"TemplateBox"}, 
+                "ReferenceHyperlink"), " argument:"}), "ExampleText"), 
             SectionGroup({
               Section(BoxData({"RawBoxes", "@", {
                   "TemplateBox", "(", {
@@ -288,8 +319,9 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Get the number of ", TemplateBox({"TemplateBox"}, 
-               "ReferenceHyperlink"), " arguments:"}, "ExampleText"), 
+            Section(TextData({"Get the number of ", 
+               TemplateBox({"TemplateBox"}, "ReferenceHyperlink"), 
+               " arguments:"}), "ExampleText"), 
             SectionGroup({
               Section(BoxData({"RawBoxes", "@", {
                   "TemplateBox", "(", {
@@ -314,10 +346,58 @@ Document({
                     ToBoxes(CurrentValue("TemplateSlotCount")))}) &))), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
-      Section("", "SectionFooterSpacer")}, All), 
-    SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Options"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Dynamic"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"ControlActive"}, "ReferenceHyperlink")}, "SeeAlso")}, 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({"Unlike ", TemplateBox({"Options"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"CurrentValue"}, "ReferenceHyperlink"), 
+           " tries to resolve ", TemplateBox({"Inherited"}, 
+            "ReferenceHyperlink"), 
+           " definitions by considering ambient settings:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Options", "(", {{"EvaluationDocument", "(", ")"}, 
+              ",", "Editable"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"Editable", "\[Rule]", "Inherited"}, "}"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData({"CurrentValue", "(", {
+              {"EvaluationDocument", "(", ")"}, ",", "Editable"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("True"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({"Assignments ", TemplateBox({"CurrentValue"}, 
+            "ReferenceHyperlink"), "(", StyleBox("item", "Arg"), 
+           ")\[Assign] ", StyleBox("value", "Arg"), " apply to ", 
+           TemplateBox({"EvaluationBox"}, "ReferenceHyperlink"), 
+           "() and thus might fail instead of applying to an outer \
+           context:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({{"CurrentValue", "(", "WindowTitle", ")"}, 
+              "\[Assign]", ComplexStringBox("\"Where am I?\"")}, "\n", {
+              {"DocumentGet", "(", {"EvaluationBox", "(", ")"}, ")"}, ".", 
+              "Replace", "(", {{"BoxData", "(", "~", ")"}, "\[RuleDelayed]", 
+               ComplexStringBox("\"\[Ellipsis]\"")}, ")"})), "Input", 
+           SectionLabel -> "in [1]:", WindowTitle -> "Where am I?"), 
+          Section(BoxData(ComplexStringBox("\"Where am I?\"")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:"), 
+          Section(BoxData({"Section", "(", {
+              ComplexStringBox("\"\[Ellipsis]\""), ",", 
+              ComplexStringBox("\"Input\""), ",", {
+               "SectionLabel", "\[Rule]", ComplexStringBox("\"in [1]:\"")}, 
+              ",", {"WindowTitle", "\[Rule]", 
+               ComplexStringBox("\"Where am I?\"")}}, ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        Section("Explicitly specify the relevant object instead:", 
+         "ExampleText"), 
+        Section(
+         BoxData({
+           {{"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
+              "WindowTitle"}, ")"}, "\[Assign]", 
+            ComplexStringBox("\"Here I am!\"")}, ";"}), "Input", 
+         SectionLabel -> "in [3]:")}, 1), Section("", "SectionFooterSpacer")}, 
+     All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Options"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Dynamic"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ControlActive"}, "ReferenceHyperlink")}), "SeeAlso")}, 
      All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
