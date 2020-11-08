@@ -377,6 +377,7 @@ namespace richmath {
     Size,
     String,
     Any,
+    AnyFlatList,
     Enum,
     RuleSet
   };
@@ -401,6 +402,7 @@ namespace richmath {
       void merge(SharedPtr<Style> other);
       static bool contains_inherited(Expr expr);
       static Expr merge_style_values(StyleOptionName n, Expr newer, Expr older);
+      static Expr finish_style_merge(StyleOptionName n, Expr value);
       
       virtual bool get(ColorStyleOptionName  n, Color  *value) const;
       virtual bool get(IntStyleOptionName    n, int    *value) const;
@@ -486,8 +488,6 @@ namespace richmath {
       float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
       String get_with_base(SharedPtr<Style> s, StringStyleOptionName n);
       Expr   get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n);
-      
-      Expr get_pmath_with_base(SharedPtr<Style> s, StyleOptionName n);
       
       Expr name() { return _name; }
       void unregister();
