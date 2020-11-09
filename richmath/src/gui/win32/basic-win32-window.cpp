@@ -1148,7 +1148,11 @@ void BasicWin32Window::extend_glass(const Win32Themes::MARGINS &margins) {
       nc.cxLeftWidth += margins.cxLeftWidth;
       nc.cxRightWidth += margins.cxRightWidth;
       if(use_custom_system_buttons()) {
-        nc.cyTopHeight = 1;
+        // Windows 10, no accent color in titlebars:
+        // MARGINS != {0,0,0,0} will cause white border on all sides.
+        // See https://github.com/microsoft/terminal/issues/3425#issuecomment-558943616
+        //nc.cyTopHeight = 1;
+        nc.cyTopHeight = 0;
       }
       else {
         nc.cyTopHeight += margins.cyTopHeight;
@@ -1509,8 +1513,15 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
       canvas.line_to(client_rect.right, client_rect.top + 1);
       canvas.line_to(client_rect.left, client_rect.top + 1);
       if(_active) {
-        cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
-        canvas.set_color(Color::Black, 0.0);
+        Win32Themes::ColorizationInfo col_info {};
+        if(Win32Themes::try_read_win10_colorization(&col_info) && !col_info.has_accent_color_in_active_titlebar) {
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
+          canvas.set_color(Color::Black, 0.5);
+        }
+        else {
+          cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_CLEAR);
+          canvas.set_color(Color::Black, 0.0);
+        }
       }
       else {
         cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
