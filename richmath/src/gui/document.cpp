@@ -1006,7 +1006,7 @@ void Document::on_key_press(uint32_t unichar) {
             
           String lang;
           if(context.stylesheet)
-            lang = context.stylesheet->get_with_base(new_style, LanguageCategory);
+            lang = context.stylesheet->get_or_default(new_style, LanguageCategory);
           else
             new_style->get(LanguageCategory, &lang);
             
@@ -3592,7 +3592,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     _window_width = native()->window_size().x;
     
     context.fontfeatures.clear();
-    context.fontfeatures.add(context.stylesheet->get_with_base(style, FontFeatures));
+    context.fontfeatures.add(context.stylesheet->get_or_default(style, FontFeatures));
     
     context.width = _page_width;
     context.section_content_window_width = _window_width;
@@ -4388,7 +4388,7 @@ bool Document::Impl::prepare_insert() {
     String lang;
     if(!section_style->get(LanguageCategory, &lang)) {
       if(auto all = self.stylesheet())
-        lang = all->get_with_base(section_style, LanguageCategory);
+        lang = all->get_or_default(section_style, LanguageCategory);
     }
     
     Section *sect;

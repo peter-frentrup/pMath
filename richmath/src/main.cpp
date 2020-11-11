@@ -343,8 +343,6 @@ static void init_stylesheet() {
                                            richmath_System_ButtonBox,
                                            richmath_System_Method,
                                            PMATH_UNDEFINED)));
-                                           
-  Stylesheet::Default->base->set(LanguageCategory, "NaturalLanguage");
   
   Stylesheet::Default->base->set(ButtonFunction,
                                  Expr(pmath_option_value(

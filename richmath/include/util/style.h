@@ -483,12 +483,6 @@ namespace richmath {
       String get_or_default(SharedPtr<Style> s, StringStyleOptionName n) { return get_or_default(std::move(s), n, String{}); }
       Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n) { return get_or_default(std::move(s), n, Expr{}); }
       
-      Color  get_with_base(SharedPtr<Style> s, ColorStyleOptionName  n);
-      int    get_with_base(SharedPtr<Style> s, IntStyleOptionName    n);
-      float  get_with_base(SharedPtr<Style> s, FloatStyleOptionName  n);
-      String get_with_base(SharedPtr<Style> s, StringStyleOptionName n);
-      Expr   get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n);
-      
       Expr name() { return _name; }
       void unregister();
       bool register_as(Expr name);

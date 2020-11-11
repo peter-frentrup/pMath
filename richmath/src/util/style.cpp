@@ -2595,51 +2595,6 @@ bool Stylesheet::update_dynamic(SharedPtr<Style> s, Box *parent) {
   return StylesheetImpl(*this).update_dynamic(s, parent);
 }
 
-Color Stylesheet::get_with_base(SharedPtr<Style> s, ColorStyleOptionName n) {
-  Color value = Color::None;
-  
-  if(!get(s, n, &value))
-    base->get(n, &value);
-    
-  return value;
-}
-
-int Stylesheet::get_with_base(SharedPtr<Style> s, IntStyleOptionName n) {
-  int value = 0;
-  
-  if(!get(s, n, &value))
-    base->get(n, &value);
-    
-  return value;
-}
-
-float Stylesheet::get_with_base(SharedPtr<Style> s, FloatStyleOptionName n) {
-  float value = 0.0;
-  
-  if(!get(s, n, &value))
-    base->get(n, &value);
-    
-  return value;
-}
-
-String Stylesheet::get_with_base(SharedPtr<Style> s, StringStyleOptionName n) {
-  String value;
-  
-  if(!get(s, n, &value))
-    base->get(n, &value);
-    
-  return value;
-}
-
-Expr Stylesheet::get_with_base(SharedPtr<Style> s, ObjectStyleOptionName n) {
-  Expr value;
-  
-  if(!get(s, n, &value))
-    base->get(n, &value);
-    
-  return value;
-}
-
 //} ... class Stylesheet
 
 //{ class StyleInformation ...
