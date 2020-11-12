@@ -192,46 +192,8 @@ Document({
               GridBoxRowSpacing -> 0)} &), InterpretationFunction -> ({
              "OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
               InterpretationBox("", #3)}, ")"} &)}), 
-          Section(StyleData("DocumentObject"), 
-           TemplateBoxOptions -> {DisplayFunction -> ({"DocumentObject", "(", 
-             DynamicBox(
-              ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                Button(
-                 Panel(
-                  Style(
-                   Dynamic(
-                    Replace(CurrentValue(CurrentValue({TemplateSlot, 1}), 
-                      WindowTitle), $Failed :> CurrentValue({
-                       TemplateSlot, 2}))), FontColor -> Dynamic(
-                    If(CurrentValue(CurrentValue({TemplateSlot, 1}), 
-                      WindowTitle) === $Failed, Gray, 
-                     If(CurrentValue(FrontEndObject($SessionId, 
-                        FE`Private`dyn), "MouseOver") === True, Blue, 
-                      Inherited))))), SetSelectedDocument(
-                  CurrentValue({TemplateSlot, 1})), 
-                 ButtonFrame -> "Frameless")))), ")"} &), 
-            InterpretationFunction -> ({"DocumentObject", "(", 
-             InterpretationBox("", #1), ")"} &)}), 
-          Section(StyleData("FrontEndObject"), 
-           TemplateBoxOptions -> {DisplayFunction -> ({"FrontEndObject", "(", 
-             DynamicBox(
-              ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
-                Button(Panel(Style(CurrentValue({TemplateSlot, 2}), 
-                   FontColor -> Dynamic(
-                    If(CurrentValue({TemplateSlot, 1}) === $SessionId && 
-                      CurrentValue(FrontEndObject($SessionId, FE`Private`dyn), 
-                      "MouseOver") === True, Blue, Inherited)))), 
-                 Replace({CurrentValue({TemplateSlot, 1}), 
-                   CurrentValue({TemplateSlot, 2})}, {
-                   $SessionId, ~FE`Private`id:Integer} :> SetSelectedDocument(
-                   Automatic, FrontEndObject($SessionId, FE`Private`id))), 
-                 Enabled -> Dynamic(CurrentValue({TemplateSlot, 1}) === 
-                   $SessionId), ButtonFrame -> "Frameless")))), ")"} &), 
-            InterpretationFunction -> ({"FrontEndObject", "(", {
-              InterpretationBox("", #1), ",", InterpretationBox("", #2)}, 
-             ")"} &)}), Section(StyleData("TabView"), 
-           TemplateBoxOptions -> {DisplayFunction -> (DynamicLocalBox({
-              FE`Private`rules}, 
+          Section(StyleData("TabView"), TemplateBoxOptions -> {
+            DisplayFunction -> (DynamicLocalBox({FE`Private`rules}, 
              GridBox({
                {PanelBox({
                   " ", DynamicBox(
@@ -283,6 +245,53 @@ Document({
               CurrentValue({TemplateSlot, Key(Enabled)}))) &), 
             InterpretationFunction -> ({"RadioButtonBar", "(", {
               TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
+             ")"} &)})}, All), SectionGroup({
+          Section("Objects", "Subsubsection"), 
+          Section(StyleData("DocumentObject"), 
+           TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+              "DocumentObject", "(", 
+              DynamicBox(
+               ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                 Button(
+                  Panel(
+                   Style(
+                    Dynamic(
+                     Replace(CurrentValue(CurrentValue({TemplateSlot, 1}), 
+                       WindowTitle), $Failed :> CurrentValue({
+                        TemplateSlot, 2}))), FontColor -> Dynamic(
+                     If(CurrentValue(CurrentValue({TemplateSlot, 1}), 
+                       WindowTitle) === $Failed, Gray, 
+                      If(CurrentValue(FrontEndObject($SessionId, 
+                         FE`Private`dyn), "MouseOver") === True, Blue, 
+                       Inherited))))), SetSelectedDocument(
+                   CurrentValue({TemplateSlot, 1})), 
+                  ButtonFrame -> "Frameless")))), ")"}, 
+             ShowAutoStyles -> False, FontColor -> Dynamic(
+              If(Match(CurrentValue({TemplateSlot, 1}), 
+                FrontEndObject($SessionId, ~)), Inherited, Gray))) &), 
+            InterpretationFunction -> ({"DocumentObject", "(", 
+             InterpretationBox("", #1), ")"} &)}), 
+          Section(StyleData("FrontEndObject"), 
+           TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
+              "FrontEndObject", "(", 
+              DynamicBox(
+               ToBoxes(With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
+                 Button(Panel(Style(CurrentValue({TemplateSlot, 2}), 
+                    FontColor -> Dynamic(
+                     If(CurrentValue({TemplateSlot, 1}) === $SessionId, 
+                      If(CurrentValue(FrontEndObject($SessionId, 
+                         FE`Private`dyn), "MouseOver") === True, Blue, 
+                       Inherited), Gray)))), 
+                  Replace({CurrentValue({TemplateSlot, 1}), 
+                    CurrentValue({TemplateSlot, 2})}, {
+                    $SessionId, ~FE`Private`id:Integer} :> SetSelectedDocument(
+                    Automatic, FrontEndObject($SessionId, FE`Private`id))), 
+                  Enabled -> Dynamic(CurrentValue({TemplateSlot, 1}) === 
+                    $SessionId), ButtonFrame -> "Frameless")))), ")"}, 
+             ShowAutoStyles -> False, FontColor -> Dynamic(
+              If(CurrentValue({TemplateSlot, 1}) === $SessionId, Inherited, 
+               Gray))) &), InterpretationFunction -> ({"FrontEndObject", "(", {
+              InterpretationBox("", #1), ",", InterpretationBox("", #2)}, 
              ")"} &)})}, All), SectionGroup({
           Section("Formatting", "Subsubsection"), 
           Section(StyleData("ConditionalExpression"), 
