@@ -1,0 +1,140 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("FontFamily", "ObjectName"), 
+      Section(BoxData(TemplateBox({"FontFamily"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"With the default setting ", 
+           TemplateBox({"FontFamily"}, "ReferenceHyperlink"), 
+           " \[Rule] {}, textual contents will be shown using the current ", 
+           TemplateBox({"MathFontFamily"}, "ReferenceHyperlink"), 
+           ", falling back to a system-specific font."}), "Notes"), 
+        Section(TextData({TemplateBox({"FontFamily"}, "ReferenceHyperlink"), 
+           " is typically set by style sheets."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Display text in a comic-like font:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Style", "(", {ComplexStringBox("\"Text\""), ",", {
+               "FontFamily", "\[Rule]", ComplexStringBox(
+                "\"Comic Sans MS\"")}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(StyleBox(ComplexStringBox("\"Text\""), 
+             FontFamily -> "Comic Sans MS", StripOnInput -> False)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Specify more than one font name as fallback:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Style", "(", {
+                ComplexStringBox("\"E\[U+018E]\""), ",", {
+                 "FontFamily", "\[Rule]", {
+                  "{", {ComplexStringBox("\"Noto Sans\""), ",", 
+                   ComplexStringBox("\"Helvetica\""), ",", 
+                   ComplexStringBox("\"Arial\"")}, "}"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(StyleBox(ComplexStringBox("\"E\[U+018E]\""), 
+               FontFamily -> {"Noto Sans", "Helvetica", "Arial"}, 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"FontFamily"}, "ReferenceHyperlink"), 
+           " my specify a list containing ", 
+           TemplateBox({"Inherited"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Style", "(", {
+              {"{", {
+                {{"Dynamic", "(", {"CurrentValue", "(", "FontFamily", ")"}, 
+                  ")"}, " ", "\[Rule]", ComplexStringBox(
+                  "\"\[DoubleStruckCapitalC]C\"")}, ",", {
+                 "\n", {"Style", "(", {
+                   {{"Dynamic", "(", {"CurrentValue", "(", "FontFamily", ")"}, 
+                     ")"}, "\[Rule]", ComplexStringBox(
+                     "\"\[DoubleStruckCapitalC]C\"")}, ",", {
+                    "\n", {"FontFamily", "\[Rule]", {
+                      "{", {ComplexStringBox("\"Comic Sans MS\""), ",", 
+                       "Inherited"}, "}"}}}}, ")"}}}, "}"}, ",", {
+               "\n", {"FontFamily", "\[Rule]", {
+                 "{", ComplexStringBox("\"Asana Math\""), "}"}}}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            StyleBox({
+              "{", {{DynamicBox(ToBoxes(CurrentValue(FontFamily))), "\[Rule]", 
+                ComplexStringBox("\"\[DoubleStruckCapitalC]C\"")}, ",", 
+               StyleBox({DynamicBox(ToBoxes(CurrentValue(FontFamily))), 
+                 "\[Rule]", ComplexStringBox("\"\[DoubleStruckCapitalC]C\"")}, 
+                FontFamily -> {"Comic Sans MS", Inherited}, 
+                StripOnInput -> False)}, "}"}, FontFamily -> {"Asana Math"}, 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"FontFamily"}, "ReferenceHyperlink"), 
+             " is typically set by style sheets:"}), "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {
+               {"TextData", "(", {
+                 "{", {ComplexStringBox("\"A section of text. Fonts are: \""), 
+                  ",", {"ToBoxes", "(", {"Dynamic", "(", {
+                     "CurrentValue", "(", "FontFamily", ")"}, ")"}, ")"}}, 
+                 "}"}, ")"}, ",", ComplexStringBox("\"Text\""), ",", {
+                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(TextData({"A section of text. Fonts are: ", 
+             DynamicBox(ToBoxes(CurrentValue(FontFamily)))}), "Text", 
+           SectionGenerated -> True)}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         TextData({
+           "Characters that are not found in the specified fonts will use the \
+           currently effective ", TemplateBox({"MathFontFamily"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Style", "(", {
+              ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+               "FontFamily", "\[Rule]", ComplexStringBox(
+                "\"Comic Sans MS\"")}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(StyleBox(ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+             FontFamily -> "Comic Sans MS", StripOnInput -> False)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({TemplateBox({"FontFamily"}, "ReferenceHyperlink"), 
+           " only applies to strings or ", TemplateBox({"TextData"}, 
+            "ReferenceHyperlink"), 
+           " sections, but not to e.g. symbol names, operators or numbers, \
+           which are governed by ", TemplateBox({"MathFontFamily"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Style", "(", {
+              {"{", {"abc", ",", "123", ",", ComplexStringBox("\"abc\""), ",", 
+                ComplexStringBox("\"123\"")}, "}"}, ",", {
+               "FontFamily", "\[Rule]", ComplexStringBox(
+                "\"Comic Sans MS\"")}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(
+            StyleBox({"{", {"abc", ",", "123", ",", 
+               ComplexStringBox("\"abc\""), ",", ComplexStringBox("\"123\"")}, 
+              "}"}, FontFamily -> "Comic Sans MS", StripOnInput -> False)), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Style"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"MathFontFamily"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"FontSlant"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FontWeight"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"FontFeatures"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
