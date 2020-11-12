@@ -69,10 +69,24 @@ PMATH_PRIVATE pmath_expr_t _pmath_object_stop_message;     // read-only
 static pmath_atomic_t expr_caches[CACHES_MAX][CACHE_SIZE];
 static pmath_atomic_t expr_cache_pos[CACHES_MAX];
 
+
+enum {
+  METADATA_KIND_DEBUG_INFO,
+  METADATA_KIND_DISPATCH_TABLE
+};
+
+static pmath_bool_t metadata_find(pmath_t *metadata, int kind);
+static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_of_kind);
+static pmath_t get_metadata(pmath_expr_t expr, int kind);
+static pmath_t merge_metadata(pmath_expr_t expr, int kind, pmath_t new_of_kind);
+static void clear_metadata(struct _pmath_expr_t *_expr);
+static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_of_kind);
+
 #ifdef PMATH_DEBUG_LOG
 static pmath_atomic_t expr_cache_hits   = PMATH_ATOMIC_STATIC_INIT;
 static pmath_atomic_t expr_cache_misses = PMATH_ATOMIC_STATIC_INIT;
 #endif
+
 
 static uintptr_t expr_cache_inc(size_t length, intptr_t delta) {
   assert(length < CACHES_MAX);
@@ -185,23 +199,16 @@ static void destroy_general_expression(pmath_t expr) {
   size_t i;
   for(i = 0; i <= _expr->length; i++)
     pmath_unref(_expr->items[i]);
-
-  metadata = _pmath_atomic_lock_ptr(&_expr->metadata);
-  _pmath_atomic_unlock_ptr(&_expr->metadata, NULL);
-  if(metadata)
-    _pmath_unref_ptr(metadata);
-
+  
+  clear_metadata(_expr);
   end_destroy_general_expression(_expr);
 }
 
 static void destroy_part_expression(pmath_t expr) {
   struct _pmath_expr_part_t *_expr = (void *)PMATH_AS_PTR(expr);
   struct _pmath_t *metadata;
-
-  metadata = _pmath_atomic_lock_ptr(&_expr->inherited.metadata);
-  _pmath_atomic_unlock_ptr(&_expr->inherited.metadata, NULL);
-  if(metadata)
-    _pmath_unref_ptr(metadata);
+  
+  clear_metadata(&_expr->inherited);
 
   pmath_unref(_expr->inherited.items[0]);
   pmath_unref(PMATH_FROM_PTR(_expr->buffer));
@@ -388,8 +395,8 @@ pmath_expr_t pmath_expr_resize(
   }
 
   new_expr->length = new_length;
+  clear_metadata(new_expr);
   touch_expr(new_expr);
-
   return PMATH_FROM_PTR(new_expr);
 }
 
@@ -680,16 +687,10 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
         }
 
         if(_pmath_refcount_ptr((void *)old_expr) == 1) {
-          struct _pmath_t *old_metadata;
-
           pmath_unref(old_expr->items[index]);
-
-          old_metadata = _pmath_atomic_lock_ptr(&old_expr->metadata);
-          _pmath_atomic_unlock_ptr(&old_expr->metadata, NULL);
-          if(old_metadata)
-            _pmath_unref_ptr(old_metadata);
-
           old_expr->items[index] = item;
+          
+          clear_metadata(old_expr);
           touch_expr(old_expr);
 
           return expr;
@@ -1603,12 +1604,7 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
 
 /*----------------------------------------------------------------------------*/
 
-enum {
-  METADATA_KIND_DEBUG_INFO,
-  METADATA_KIND_DISPATCH_TABLE
-};
-
-static pmath_bool_t find_metadata(pmath_t *metadata, int kind) {
+static pmath_bool_t metadata_find(pmath_t *metadata, int kind) {
   assert(metadata);
   
   if(pmath_is_expr(*metadata)) {
@@ -1619,7 +1615,7 @@ static pmath_bool_t find_metadata(pmath_t *metadata, int kind) {
       size_t i;
       for(i = pmath_expr_length(*metadata); i > 0; --i) {
         pmath_t item = pmath_expr_get_item(*metadata, i);
-        if(find_metadata(&item, kind)) {
+        if(metadata_find(&item, kind)) {
           pmath_unref(*metadata);
           *metadata = item;
           return TRUE;
@@ -1697,7 +1693,7 @@ static pmath_t get_metadata(pmath_expr_t expr, int kind) {
     _pmath_atomic_unlock_ptr(&_expr->metadata, metadata_ptr);
   }
   
-  if(find_metadata(&metadata, kind))
+  if(metadata_find(&metadata, kind))
     return metadata;
 
   pmath_unref(metadata);
@@ -1711,6 +1707,14 @@ static pmath_t merge_metadata(pmath_expr_t expr, int kind, pmath_t new_of_kind) 
   }
   
   return pmath_expr_new_extended(PMATH_MAGIC_METADATA_LIST, 2, expr, new_of_kind);
+}
+
+static void clear_metadata(struct _pmath_expr_t *_expr) {
+  struct _pmath_t *metadata_ptr = _pmath_atomic_lock_ptr(&_expr->metadata);
+  _pmath_atomic_unlock_ptr(&_expr->metadata, NULL);
+  
+  if(metadata_ptr)
+    _pmath_unref_ptr(metadata_ptr);
 }
 
 static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_of_kind) {
