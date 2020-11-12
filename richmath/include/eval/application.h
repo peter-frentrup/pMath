@@ -26,6 +26,7 @@ namespace richmath {
   };
   
   class FrontEndObject;
+  class FrontEndSession;
   class Box;
   class Document;
   class Job;
@@ -85,6 +86,8 @@ namespace richmath {
       static void delay_dynamic_updates(bool delay);
       
     public:
+      static FrontEndSession *front_end_session;
+      
       static double edit_interrupt_timeout;
       static double interrupt_timeout;
       static double button_timeout;

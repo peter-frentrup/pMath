@@ -259,6 +259,7 @@ static pthread_t main_thread = 0;
 #endif
 
 
+FrontEndSession *Application::front_end_session = nullptr;
 double Application::edit_interrupt_timeout      = 2.0;
 double Application::interrupt_timeout           = 0.3;
 double Application::button_timeout              = 4.0;
@@ -567,6 +568,9 @@ void Application::init() {
 #endif
   
   CurrentValue::init();
+  if(!front_end_session)
+    front_end_session = new FrontEndSession(nullptr);
+  
   application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
   application_directory = FileSystem::get_directory_path(application_filename);
     
@@ -662,6 +666,9 @@ void Application::done() {
     
     session = session->next;
   }
+  
+  delete front_end_session;
+  front_end_session = nullptr;
   
   ClientNotificationData cn;
   while(notifications.get(&cn)) {

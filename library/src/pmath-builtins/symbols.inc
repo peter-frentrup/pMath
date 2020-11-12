@@ -386,6 +386,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( WindowFrame,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( WindowTitle,                        0 )
 
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( CurrentDirectory,               READPROTECTED )
+PMATH_DECLARE_SYSTEM_DOLLAR_VAR( FrontEndSession,                READPROTECTED | PMATH_SYMBOL_ATTRIBUTE_PROTECTED )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( Line,                           0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( MachineId,                      0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( SessionId,                      0 )

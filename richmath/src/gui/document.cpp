@@ -388,6 +388,10 @@ Document::~Document() {
   Impl(*this).close_all_popup_windows();
 }
 
+StyledObject *Document::style_parent() {
+  return Application::front_end_session;
+}
+
 bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] != PMATH_SYMBOL_DOCUMENT)
     return false;

@@ -10,14 +10,14 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
     return Symbol(PMATH_SYMBOL_FAILED);
   
   auto ref = FrontEndReference::from_pmath(expr[1]);
-  Box *box = FrontEndObject::find_cast<Box>(ref);
+  auto obj = FrontEndObject::find_cast<StyledObject>(ref);
   
-  if(box) {
+  if(obj) {
     Gather gather;
-    bool add_defaults = box->to_pmath_symbol().is_symbol();
+    bool add_defaults = true;
     bool need_filter = true;
     
-    if(auto s = box->style) {
+    if(auto s = obj->own_style()) {
       bool emit_all = true;
       if(len == 2) {
         StyleOptionName key = Style::get_key(expr[2]);
@@ -35,14 +35,22 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
       
     Expr options = gather.end();
     if(add_defaults || options.expr_length() == 0) {
-      need_filter = true;
-      options =
-        Call(Symbol(PMATH_SYMBOL_UNION),
-             options,
-             Call(Symbol(PMATH_SYMBOL_FILTERRULES),
-                  Call(Symbol(PMATH_SYMBOL_OPTIONS), box->to_pmath_symbol()),
-                  Call(Symbol(PMATH_SYMBOL_EXCEPT),
-                       options)));
+      Expr default_options;
+      if(auto box = dynamic_cast<Box*>(obj)) {
+        Expr sym = box->to_pmath_symbol();
+        if(sym.is_symbol())
+          default_options = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(sym));
+      }
+      
+      if(default_options) {
+        need_filter = true;
+        options = Call(Symbol(PMATH_SYMBOL_UNION),
+                    options,
+                    Call(Symbol(PMATH_SYMBOL_FILTERRULES),
+                         std::move(default_options),
+                         Call(Symbol(PMATH_SYMBOL_EXCEPT),
+                              options)));
+      }
     }
     
     if(len == 2 && need_filter) {
@@ -62,17 +70,17 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
     return Symbol(PMATH_SYMBOL_FAILED);
   
   auto ref = FrontEndReference::from_pmath(expr[1]);
-  Box *box = FrontEndObject::find_cast<Box>(ref);
+  auto obj = FrontEndObject::find_cast<ActiveStyledObject>(ref);
   
-  if(box) {
+  if(obj) {
     Expr options = Expr(pmath_expr_get_item_range(expr.get(), 2, SIZE_MAX));
     options.set(0, Symbol(PMATH_SYMBOL_LIST));
     
-    if(!box->style)
-      box->style = new Style();
+    if(!obj->style)
+      obj->style = new Style();
       
-    box->style->add_pmath(options);
-    box->invalidate_options();
+    obj->style->add_pmath(options);
+    obj->invalidate_options();
     
     return options;
   }

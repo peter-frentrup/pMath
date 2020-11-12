@@ -62,6 +62,20 @@ namespace richmath {
       /// A style option changed.
       virtual void invalidate_options() {}
   };
+  
+  class FrontEndSession : public ActiveStyledObject {
+      using base = ActiveStyledObject;
+    public:
+      explicit FrontEndSession(StyledObject *owner);
+      
+      virtual StyledObject *style_parent() final override { return _owner; }
+      virtual Expr allowed_options() override;
+      
+      virtual void dynamic_updated() override;
+      
+    private:
+      StyledObject *_owner;
+  };
 }
 
 #endif // RICHMATH__UTIL__STYLED_OBJECT_H__INCLUDED

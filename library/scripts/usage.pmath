@@ -10,6 +10,7 @@ $CurrentDirectory::usage:= "$CurrentDirectory defines the current working direct
 $DialogLevel::usage:= "$DialogLevel gives the current subsession level."
 $DirectoryStack::usage:= "$DirectoryStack is the list of current directories used."
 $Failed::usage:= "$Failed is a special symbol that is returned when a particular operation did not succeed."
+$FrontEndSession::usage:= "$FrontEndSession is a global variable that specifies the front end object which backs global settings for the current graphical user interface session."
 $History::usage:= "$History(-\(\"n\".StyleBox(\"Arg\")\)) gives the \(\"n\".StyleBox(\"Arg\")\)-th last evaluation result.\n$History(\(\"n\".StyleBox(\"Arg\")\)) gives the \(\"n\".StyleBox(\"Arg\")\)-th evaluation result."
 $HistoryLength::usage:= "$HistoryLength defines the number of results to be remembered by $History."
 $InitialDirectory::usage:= "$InitialDirectory gives the initial directory when \(StyleBox(\"pMath\", \"TI\")\) was started."

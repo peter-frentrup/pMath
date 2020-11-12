@@ -45,6 +45,8 @@ namespace richmath {
       Document();
       ~Document();
       
+      virtual StyledObject *style_parent() override;
+      
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual bool request_repaint(const RectangleF &rect) override;

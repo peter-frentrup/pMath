@@ -69,6 +69,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarFrontEndSession;
+extern pmath_symbol_t richmath_System_DollarPageSize;
+
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_Method;
@@ -448,7 +451,14 @@ int main(int argc, char **argv) {
   PMATH_RUN("NewTask(SyntaxInformation(Sin))");
   
   // do not depend on console window size:
-  PMATH_RUN("$PageWidth:= 72");
+  pmath_symbol_set_value(richmath_System_DollarPageSize, PMATH_FROM_INT32(72));
+  
+  {
+    pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(richmath_System_DollarFrontEndSession);
+    pmath_symbol_set_attributes(richmath_System_DollarFrontEndSession, 0);
+    pmath_symbol_set_value(     richmath_System_DollarFrontEndSession, Application::front_end_session->to_pmath_id().release());
+    pmath_symbol_set_attributes(richmath_System_DollarFrontEndSession, attr | PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
+  }
   
   PMATH_RUN("BeginPackage(\"FE`\")");
   

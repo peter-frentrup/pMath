@@ -201,6 +201,26 @@ void StyledObject::reset_style() {
 
 //} ... class StyledObject
 
+//{ class FrontEndSession ...
+
+FrontEndSession::FrontEndSession(StyledObject *owner)
+  : base{},
+    _owner{owner}
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  style = new Style();
+}
+
+Expr FrontEndSession::allowed_options() {
+  // {~ -> Inherited}
+  return List(Rule(Call(Symbol(PMATH_SYMBOL_SINGLEMATCH)), Symbol(PMATH_SYMBOL_INHERITED)));
+}
+
+void FrontEndSession::dynamic_updated() {
+}
+
+//} ... class FrontEndSession
+
 //{ class StyledObject::Impl ...
 
 template<typename N, typename T>
