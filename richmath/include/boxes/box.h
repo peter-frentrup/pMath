@@ -169,7 +169,7 @@ namespace richmath {
       static void resume_deletions();
   };
   
-  class Box: public StyledObject {
+  class Box: public ActiveStyledObject {
       friend class AutoMemorySuspension;
     protected:
       virtual ~Box();
@@ -183,7 +183,7 @@ namespace richmath {
       Box();
       
       virtual StyledObject *style_parent() override { return parent(); }
-      virtual SharedPtr<Style> own_style() override { return style; };
+      virtual Expr allowed_options() override;
       
       /// Usually called after the box was inserted into a document.
       ///
@@ -392,7 +392,7 @@ namespace richmath {
       ///
       /// TODO: Refactor to be more efficient, need not always call invalidate(),
       ///       sometimes only need request_repaint_all(), depending on option.
-      virtual void invalidate_options();
+      virtual void invalidate_options() override;
 
       /// Perform any cleanup before the user edits the selection or block the operation.
       /// 
@@ -445,8 +445,6 @@ namespace richmath {
       virtual void on_key_press(uint32_t unichar);
       
     public:
-      SharedPtr<Style> style;
-      
       static FunctionChain<Box*, Expr> *on_finish_load_from_object;
       
     protected:

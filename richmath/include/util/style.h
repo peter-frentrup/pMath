@@ -211,7 +211,7 @@ namespace richmath {
     BaselinePosition,
     ScriptSizeMultipliers,
     TextShadow,
-    FontFamilies,
+    FontFamilies, // StyleType::AnyFlatList
     FontFeatures,
     MathFontFamily,
     UnknownOptions,
@@ -232,10 +232,10 @@ namespace richmath {
     DefaultReturnCreatedSectionStyle,
     
     DockedSections,
-    DockedSectionsTop,
-    DockedSectionsTopGlass,
-    DockedSectionsBottom,
-    DockedSectionsBottomGlass,
+    DockedSectionsTop,         // StyleType::AnyFlatList
+    DockedSectionsTopGlass,    // StyleType::AnyFlatList
+    DockedSectionsBottom,      // StyleType::AnyFlatList
+    DockedSectionsBottomGlass, // StyleType::AnyFlatList
     
     FillBoxOptions,
     FrameBoxOptions,

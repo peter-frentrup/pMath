@@ -98,7 +98,7 @@ void AutoMemorySuspension::resume_deletions() {
 //{ class Box ...
 
 Box::Box()
-  : StyledObject(),
+  : ActiveStyledObject(),
     _extents(0, 0, 0),
     _parent(nullptr),
     _index(0)
@@ -140,6 +140,15 @@ void Box::safe_destroy() {
   }
   
   delete this;
+}
+
+Expr Box::allowed_options() {
+  Expr head = to_pmath_symbol();
+  if(!head.is_symbol())
+    return {};
+  
+  Expr opts = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(head));
+  return Application::interrupt_wait_cached(std::move(opts));
 }
 
 bool Box::is_parent_of(Box *child) {

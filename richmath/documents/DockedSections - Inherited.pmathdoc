@@ -1,0 +1,47 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("Partly-Inherited DockedSection ", "Section"), 
+    Section(TextData({"This document has custom ", 
+       ButtonBox(StyleBox(ComplexStringBox("\"style definitions\""), 
+         FontColor -> RGBColor(0, 0, 0.70199999999999996`), 
+         StripOnInput -> False), BaseStyle -> "", ButtonFrame -> "Frameless", 
+        ButtonFunction -> (FrontEndTokenExecute("EditStyleDefinitions") &)), 
+       ", which defines a DockedSection."}), "Text"), 
+    Section(
+     BoxData({
+       {{"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", {
+           "{", {"DockedSections", ",", ComplexStringBox("\"TopGlass\"")}, 
+           "}"}}, ")"}, "\[Assign]", {
+         "{", {{"Section", "(", {ComplexStringBox("\"Hello\""), ",", 
+            ComplexStringBox("\"Docked\"")}, ")"}, ",", "Inherited"}, "}"}}, 
+       ";"}), "Input", SectionLabel -> "in [1]:"), 
+    SectionGroup({
+      Section(BoxData({"CurrentValue", "(", {
+          "{", {"DockedSections", ",", ComplexStringBox("\"TopGlass\"")}, 
+          "}"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+      Section(
+       BoxData({
+         "{", {{"Section", "(", {ComplexStringBox("\"Hello\""), ",", 
+            ComplexStringBox("\"Docked\"")}, ")"}, ",", {
+           "Section", "(", {
+            ComplexStringBox("\"Hello from private stylesheet\""), ",", 
+            ComplexStringBox("\"Docked\"")}, ")"}}, "}"}), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {
+          "CurrentValue", "(", {
+           "{", {"DockedSections", ",", ComplexStringBox("\"TopGlass\"")}, 
+           "}"}, ")"}, ")"}), "Input", SectionLabel -> "in [3]:"), 
+      Section(
+       BoxData(
+        DynamicBox(ToBoxes(CurrentValue({DockedSections, "TopGlass"})))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+     All)}, All)}, DockedSections :> {
+  "TopGlass" -> {Section("Hello", "Docked"), Inherited}}, 
+ StyleDefinitions :> Document({
+   SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+     Section(StyleData("Document"), 
+      DockedSections :> {"TopGlass" -> {
+        Section("Hello from private stylesheet", "Docked"), Inherited}})}, 
+    All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+  Visible -> True), Visible -> True)

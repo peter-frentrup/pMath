@@ -316,7 +316,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(SectionMarginRight,            7.0);
   Stylesheet::Default->base->set(SectionMarginTop,              4.0);
   Stylesheet::Default->base->set(SectionMarginBottom,           4.0);
-  
+
   Stylesheet::Default->base->set(SectionFrameLeft,              0.0);
   Stylesheet::Default->base->set(SectionFrameRight,             0.0);
   Stylesheet::Default->base->set(SectionFrameTop,               0.0);
@@ -335,6 +335,11 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
   
   Stylesheet::Default->base->set(FontFamilies,              List());
+  Stylesheet::Default->base->set(DockedSectionsBottom,      List());
+  Stylesheet::Default->base->set(DockedSectionsBottomGlass, List());
+  Stylesheet::Default->base->set(DockedSectionsTop,         List());
+  Stylesheet::Default->base->set(DockedSectionsTopGlass,    List());
+  
   Stylesheet::Default->base->set(SectionLabel,              "");
   Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(PMATH_SYMBOL_IDENTITY));
   

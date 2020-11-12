@@ -2944,8 +2944,8 @@ void StyleInformation::add_ruleset_head(StyleOptionName key, const Expr &symbol)
 }
 
 Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
-  Box *box = dynamic_cast<Box*>(obj);
-  if(!box)
+  StyledObject *styled_obj = dynamic_cast<StyledObject*>(obj);
+  if(!styled_obj)
     return Symbol(PMATH_SYMBOL_FAILED);
 
   if(item[0] == PMATH_SYMBOL_LIST && item.expr_length() == 1)
@@ -2953,18 +2953,14 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
     
   StyleOptionName key = Style::get_key(item);
   if(key.is_valid()) 
-    return box->get_pmath_style(key);
+    return styled_obj->get_pmath_style(key);
   
   return Symbol(PMATH_SYMBOL_FAILED);
 }
 
 bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
-  Box *box = dynamic_cast<Box*>(obj);
-  if(!box)
-    return false;
-  
-  Expr head = box->to_pmath_symbol();
-  if(!head.is_symbol())
+  ActiveStyledObject *styled_obj = dynamic_cast<Box*>(obj);
+  if(!styled_obj)
     return false;
   
   if(item[0] == PMATH_SYMBOL_LIST && item.expr_length() == 1)
@@ -2974,8 +2970,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(!key.is_valid())
     return false;
   
-  Expr opts = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(head));
-  opts = Application::interrupt_wait_cached(std::move(opts));
+  Expr opts = styled_obj->allowed_options();
   if(item[0] == PMATH_SYMBOL_LIST) {
     Expr rhs = opts.lookup(item[1], Expr{PMATH_UNDEFINED});
     if(rhs == PMATH_UNDEFINED)
@@ -2988,15 +2983,25 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   else if(opts.lookup(std::move(item), Expr{PMATH_UNDEFINED}) == PMATH_UNDEFINED)
     return false;
   
-  if(!box->style) {
+  if(!styled_obj->style) {
     if(rhs == PMATH_SYMBOL_INHERITED)
       return true;
     
-    box->style = new Style();
+    styled_obj->style = new Style();
   }
   
-  if(box->style->set_pmath(key, std::move(rhs)))
-    box->invalidate_options();
+  bool any_change = false;
+  if(StyleInformation::get_type(key) == StyleType::AnyFlatList) {
+    // Reset the style so that calling CurrentValue(...):= {..., Inherited, ...} multiple times
+    // will not repeatedly fill in the previous value.
+    if(rhs != PMATH_SYMBOL_INHERITED) {
+      any_change = styled_obj->style->set_pmath(key, Symbol(PMATH_SYMBOL_INHERITED)) || any_change;
+    }
+  }
+  any_change = styled_obj->style->set_pmath(key, std::move(rhs)) || any_change;
+  
+  if(any_change)
+    styled_obj->invalidate_options();
   
   return true;
 }

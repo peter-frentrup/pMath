@@ -49,6 +49,19 @@ namespace richmath {
     protected:
       virtual DefaultStyleOptionOffsets get_default_styles_offset() { return DefaultStyleOptionOffsets::None; }
   };
+  
+  class ActiveStyledObject : public StyledObject {
+    public:
+      SharedPtr<Style> style;
+      
+    public:
+      virtual SharedPtr<Style> own_style() final override { return style; };
+      
+      virtual Expr allowed_options() = 0;
+      
+      /// A style option changed.
+      virtual void invalidate_options() {}
+  };
 }
 
 #endif // RICHMATH__UTIL__STYLED_OBJECT_H__INCLUDED

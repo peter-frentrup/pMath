@@ -980,10 +980,10 @@ void Win32DocumentWindow::invalidate_options() {
   _bottom_area->document()->stylesheet(doc->stylesheet());
   _bottom_glass_area->document()->stylesheet(doc->stylesheet());
   
-  _top_area->reload(         SectionList::group(doc->get_style(DockedSectionsTop)),         &change);
-  _top_glass_area->reload(   SectionList::group(doc->get_style(DockedSectionsTopGlass)),    &change);
-  _bottom_area->reload(      SectionList::group(doc->get_style(DockedSectionsBottom)),      &change);
-  _bottom_glass_area->reload(SectionList::group(doc->get_style(DockedSectionsBottomGlass)), &change);
+  _top_area->reload(         SectionList::group(Style::finish_style_merge(DockedSectionsTop,         doc->get_style(DockedSectionsTop))),         &change);
+  _top_glass_area->reload(   SectionList::group(Style::finish_style_merge(DockedSectionsTopGlass,    doc->get_style(DockedSectionsTopGlass))),    &change);
+  _bottom_area->reload(      SectionList::group(Style::finish_style_merge(DockedSectionsBottom,      doc->get_style(DockedSectionsBottom))),      &change);
+  _bottom_glass_area->reload(SectionList::group(Style::finish_style_merge(DockedSectionsBottomGlass, doc->get_style(DockedSectionsBottomGlass))), &change);
   
   if(change) {
     _top_area->resize();
