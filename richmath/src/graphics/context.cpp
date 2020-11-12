@@ -358,21 +358,21 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
         ctx.text_shaper = ctx.math_shaper;
       }
       else {
-        FallbackTextShaper *fts = 0;
+        SharedPtr<FallbackTextShaper> fts = nullptr;
         
         int max_fallbacks = FontsPerGlyphCount / 2;
         
-        for(size_t i = 1; i <= expr.expr_length(); ++i) {
-          s = String(expr[i]);
-          
-          if(FontInfo::font_exists_similar(s)) {
-            if(--max_fallbacks == 0)
-              break;
-              
-            if(fts)
-              fts->add(TextShaper::find(s, fs));
-            else
-              fts = new FallbackTextShaper(TextShaper::find(s, fs));
+        for(auto item : expr.items()) {
+          if(String s = item) {
+            if(FontInfo::font_exists_similar(s)) {
+              if(--max_fallbacks == 0)
+                break;
+                
+              FallbackTextShaper::add_or_create(fts, TextShaper::find(s, fs));
+            }
+          }
+          else if(item == PMATH_SYMBOL_INHERITED) {
+            FallbackTextShaper::add_or_create(fts, ctx.text_shaper);
           }
         }
         

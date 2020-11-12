@@ -1,0 +1,118 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Fallback font families", "Title"), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+           "FontFamily", "\[Rule]", {
+            "{", ComplexStringBox("\"Comic Sans MS\""), "}"}}}, ")"}), 
+       "Input", SectionLabel -> "in [5]:"), 
+      Section(
+       BoxData(StyleBox(ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+         FontFamily -> {"Comic Sans MS"}, StripOnInput -> False)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+           "FontFamily", "\[Rule]", {"{", ComplexStringBox("\"Asana Math\""), 
+            "}"}}}, ")"}), "Input", SectionLabel -> "in [4]:"), 
+      Section(
+       BoxData(StyleBox(ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+         FontFamily -> {"Asana Math"}, StripOnInput -> False)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+           "FontFamily", "\[Rule]", {
+            "{", ComplexStringBox("\"Cambria Math\""), "}"}}}, ")"}), "Input", 
+       SectionLabel -> "in [7]:"), 
+      Section(
+       BoxData(StyleBox(ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+         FontFamily -> {"Cambria Math"}, StripOnInput -> False)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+           "FontFamily", "\[Rule]", {
+            "{", {ComplexStringBox("\"Comic Sans MS\""), ",", 
+             ComplexStringBox("\"Asana Math\"")}, "}"}}}, ")"}), "Input", 
+       SectionLabel -> "in [9]:"), 
+      Section(
+       BoxData(StyleBox(ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+         FontFamily -> {"Comic Sans MS", "Asana Math"}, 
+         StripOnInput -> False)), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [9]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          {"{", {ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+             "Style", "(", {
+              {"{", ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), "}"}, 
+              ",", {"FontFamily", "\[Rule]", {
+                "{", ComplexStringBox("\"Comic Sans MS\""), "}"}}}, ")"}}, 
+           "}"}, ",", {"FontFamily", "\[Rule]", {
+            "{", ComplexStringBox("\"Asana Math\""), "}"}}}, ")"}), "Input", 
+       SectionLabel -> "in [11]:"), 
+      Section(
+       BoxData(
+        StyleBox({"{", {ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", 
+           StyleBox({"{", ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+             "}"}, FontFamily -> {"Comic Sans MS"}, StripOnInput -> False)}, 
+          "}"}, FontFamily -> {"Asana Math"}, StripOnInput -> False)), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
+     All), SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          {"{", {ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", {
+             "Style", "(", {
+              {"{", ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), "}"}, 
+              ",", {"FontFamily", "\[Rule]", {
+                "{", {ComplexStringBox("\"Comic Sans MS\""), ",", 
+                 "Inherited"}, "}"}}}, ")"}}, "}"}, ",", {
+           "FontFamily", "\[Rule]", {"{", ComplexStringBox("\"Asana Math\""), 
+            "}"}}}, ")"}), "Input", SectionLabel -> "in [12]:"), 
+      Section(
+       BoxData(
+        StyleBox({"{", {ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), ",", 
+           StyleBox({"{", ComplexStringBox("\"\[DoubleStruckCapitalC]C\""), 
+             "}"}, FontFamily -> {"Comic Sans MS", Inherited}, 
+            StripOnInput -> False)}, "}"}, FontFamily -> {"Asana Math"}, 
+         StripOnInput -> False)), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [12]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {"CurrentValue", "(", "FontFamily", 
+          ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+      Section(BoxData(DynamicBox(ToBoxes(CurrentValue(FontFamily)))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {
+          {"{", {{{"Dynamic", "(", {"CurrentValue", "(", "FontFamily", ")"}, 
+              ")"}, " ", "\[Rule]", ComplexStringBox(
+              "\"\[DoubleStruckCapitalC]C\"")}, ",", {
+             "Style", "(", {
+              {{"Dynamic", "(", {"CurrentValue", "(", "FontFamily", ")"}, 
+                ")"}, "\[Rule]", ComplexStringBox(
+                "\"\[DoubleStruckCapitalC]C\"")}, ",", {
+               "FontFamily", "\[Rule]", {
+                "{", {ComplexStringBox("\"Comic Sans MS\""), ",", 
+                 "Inherited"}, "}"}}}, ")"}}, "}"}, ",", {
+           "FontFamily", "\[Rule]", ComplexStringBox("\"Asana Math\"")}}, 
+         ")"}), "Input", SectionLabel -> "in [2]:"), 
+      Section(
+       BoxData(
+        StyleBox({
+          "{", {{DynamicBox(ToBoxes(CurrentValue(FontFamily))), "\[Rule]", 
+            ComplexStringBox("\"\[DoubleStruckCapitalC]C\"")}, ",", 
+           StyleBox({DynamicBox(ToBoxes(CurrentValue(FontFamily))), "\[Rule]", 
+             ComplexStringBox("\"\[DoubleStruckCapitalC]C\"")}, 
+            FontFamily -> {"Comic Sans MS", Inherited}, 
+            StripOnInput -> False)}, "}"}, FontFamily -> "Asana Math", 
+         StripOnInput -> False)), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [2]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

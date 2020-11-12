@@ -171,6 +171,8 @@ namespace richmath {
       void add(SharedPtr<TextShaper> fallback);
       void add_default();
       
+      static void add_or_create(SharedPtr<FallbackTextShaper> &all, SharedPtr<TextShaper> fallback);
+      
       virtual uint8_t num_fonts() override;
       virtual FontFace font(uint8_t fontinfo) override;
       virtual String font_name(uint8_t fontinfo) override;

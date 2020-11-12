@@ -1132,11 +1132,6 @@ Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
 }
 
 Expr StyleImpl::merge_flatlist_members(Expr newer, Expr older) {
-  if(newer == PMATH_SYMBOL_INHERITED)
-    return older;
-    
-  //if(older == PMATH_SYMBOL_INHERITED)
-  //  return newer;
   if(newer[0] == PMATH_SYMBOL_LIST) {
     bool need_flatten = false;
     for(size_t i = newer.expr_length(); i > 0; --i) {
@@ -1151,6 +1146,9 @@ Expr StyleImpl::merge_flatlist_members(Expr newer, Expr older) {
             newer.set(i, older);
           }
         }
+        else 
+          newer.set(i, older);
+        
         continue;
       }
       if(!need_flatten)
@@ -2572,8 +2570,12 @@ bool Stylesheet::get(SharedPtr<Style> s, StringStyleOptionName n, String *value)
 
 bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
   if(StyleInformation::get_type(n) == StyleType::AnyFlatList) {
-    *value = get_pmath(s, n);
-    return *value != PMATH_SYMBOL_INHERITED;
+    Expr result = get_pmath(s, n);
+    if(result != PMATH_SYMBOL_INHERITED) {
+      *value = std::move(result);
+      return true;
+    }
+    return false;
   }
   return Stylesheet_get_simple(this, s, n, value);
 }
@@ -2587,7 +2589,6 @@ Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
     s = find_parent_style(s);
   }
 
-  result = Style::finish_style_merge(n, std::move(result));
   return result;
 }
 
@@ -2783,7 +2784,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
     add(StyleType::Any,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
     add(StyleType::Any,             TextShadow,                       Symbol( richmath_System_TextShadow));
-    add(StyleType::Any,             FontFamilies,                     Symbol( richmath_System_FontFamily));
+    add(StyleType::AnyFlatList,     FontFamilies,                     Symbol( richmath_System_FontFamily));
     add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
     add(StyleType::Any,             TrackedSymbols,                   Symbol( PMATH_SYMBOL_TRACKEDSYMBOLS));

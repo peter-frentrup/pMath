@@ -244,7 +244,12 @@ FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
   assert(default_shaper.is_valid());
-  _shapers.add(default_shaper);
+  
+  if(auto fts = dynamic_cast<FallbackTextShaper *>(default_shaper.ptr())) {
+    _shapers = fts->_shapers;
+  }
+  else
+    _shapers.add(default_shaper);
   
   if(++fallback_shaper_count == 1) {
     default_fallback_fontlist = Evaluate(Parse("FE`$FallbackFonts"));
@@ -308,6 +313,13 @@ void FallbackTextShaper::add_default() {
   //       before this FallbackTextShaper, so we do not know the number of fonts
   //       here.
   add(new CharBoxTextShaper);
+}
+
+void FallbackTextShaper::add_or_create(SharedPtr<FallbackTextShaper> &all, SharedPtr<TextShaper> fallback) {
+  if(all)
+    all->add(std::move(fallback));
+  else
+    all = new FallbackTextShaper(std::move(fallback));
 }
 
 uint8_t FallbackTextShaper::num_fonts() {
