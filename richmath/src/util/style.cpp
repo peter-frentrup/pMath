@@ -369,9 +369,9 @@ namespace richmath {
       static Expr inherited_margin_top(Expr inherited);
       static Expr inherited_margin_bottom(Expr inherited);
 
-      Expr StyleImpl::prepare_inherited(StyleOptionName n) const;
-      Expr StyleImpl::prepare_inherited_size(StyleOptionName n) const;
-      Expr StyleImpl::prepare_inherited_ruleset(StyleOptionName n) const;
+      Expr prepare_inherited(StyleOptionName n) const;
+      Expr prepare_inherited_size(StyleOptionName n) const;
+      Expr prepare_inherited_ruleset(StyleOptionName n) const;
       
       Expr raw_get_pmath_bool_auto( StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_bool(      StyleOptionName n, Expr inherited) const;
