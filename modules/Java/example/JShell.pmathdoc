@@ -2,54 +2,14 @@
 
 Document({
   SectionGroup({Section("JShell", "Title"), 
-    Section(
-     BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
-          "DockedSections", "\[Rule]", {
-           "{", {ComplexStringBox("\"Top\""), "\[Rule]", {
-             "Section", "(", {
-              {"BoxData", "(", {
-                "{", {{"\n", ComplexStringBox("\"\\\"New Section: \\\"\"")}, 
-                 ",", {"\n", {"ButtonBox", "(", {
-                    ComplexStringBox("\"\\\"Java\\\"\""), ",", {
-                     "ButtonData", "\[Rule]", {
-                      "Section", "(", {
-                       {"BoxData", "(", ComplexStringBox("\"XXX\""), ")"}, 
-                       ",", ComplexStringBox("\"JavaInput\"")}, ")"}}, ",", {
-                     "BaseStyle", "\[Rule]", ComplexStringBox("\"Paste\"")}}, 
-                   ")"}}, ",", {
-                  "\n", {"ButtonBox", "(", {
-                    ComplexStringBox("\"\\\"pMath\\\"\""), ",", {
-                     "ButtonData", "\[Rule]", {
-                      "Section", "(", {
-                       {"BoxData", "(", ComplexStringBox("\"XXX\""), ")"}, 
-                       ",", ComplexStringBox("\"Input\"")}, ")"}}, ",", {
-                     "BaseStyle", "\[Rule]", ComplexStringBox("\"Paste\"")}}, 
-                   ")"}}, ",", {"\n", ComplexStringBox("\"      \"")}, ",", {
-                  "\n", ComplexStringBox("\"\\\"Inline: \\\"\"")}, ",", {
-                  "\n", {"ButtonBox", "(", {
-                    ComplexStringBox("\"\\\"Java\\\"\""), ",", {
-                     "ButtonData", "\[Rule]", {"TemplateBox", "(", {
-                       {"{", ComplexStringBox("\"\[SelectionPlaceholder]\""), 
-                        "}"}, ",", ComplexStringBox("\"InlineJavaInput\"")}, 
-                      ")"}}, ",", {"BaseStyle", "\[Rule]", 
-                     ComplexStringBox("\"Paste\"")}}, ")"}}, ",", {
-                  "\n", {"ButtonBox", "(", {
-                    ComplexStringBox("\"\\\"pMath\\\"\""), ",", {
-                     "ButtonData", "\[Rule]", {"TemplateBox", "(", {
-                       {"{", ComplexStringBox("\"\[SelectionPlaceholder]\""), 
-                        "}"}, ",", ComplexStringBox("\"MathInJava\"")}, ")"}}, 
-                    ",", {"BaseStyle", "\[Rule]", 
-                     ComplexStringBox("\"Paste\"")}}, ")"}}}, "}"}, ")"}, ",", 
-              {"\n", ComplexStringBox("\"Docked\"")}}, ")"}}, "}"}}}, ")"}, 
-       ";"}), "Input", SectionLabel -> "in [1]:"), 
     Section("Inline Java code inside pMath:", "Text"), 
     SectionGroup({
       Section(BoxData({"ver", "\[Assign]", 
          TemplateBox({{"System", ".", "getProperty", "(", 
             ComplexStringBox("\"java.version\""), ")"}}, "InlineJavaInput")}), 
-       "Input", SectionLabel -> "in [2]:"), 
+       "Input", SectionLabel -> "in [6]:"), 
       Section(BoxData(ComplexStringBox("\"14.0.1\"")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     Section("Top-level Java code:", "Text"), 
     SectionGroup({
       Section(BoxData({"System", ".", "getProperty", "(", 
@@ -169,7 +129,7 @@ Document({
     Section("Inline pMath code inside Java:", "Text"), 
     SectionGroup({
       Section(
-       BoxData({{{"var", " ", "x"}, " ", "=", 
+       BoxData({{{"var", " ", "x"}, " ", "=", " ", 
           TemplateBox({
             {"N", "(", RadicalBox("Pi", TemplateBox({{"2", "+", "3"}}, 
                "InlineJavaInput")), ")"}}, "MathInJava")}, ";"}), 
@@ -403,48 +363,50 @@ Document({
                TemplateBox({"i"}, "MathInJava"), ")"}}, "InlineJavaInput")}, 
            ")"}), "Input", SectionLabel -> "in [21]:"), 
         Section(BoxData(TemplateBox({ComplexStringBox("\"Global`i\"")}, 
-           "RowDefault")), "Print", SectionGenerated -> True)}, All)}, All)}, 
-   All)}, DockedSections :> {
-  "Top" -> Section(
-   BoxData({"\"New Section: \"", ButtonBox("\"Java\"", 
-      ButtonData -> Section(BoxData("XXX"), "JavaInput"), 
-      BaseStyle -> "Paste"), ButtonBox("\"pMath\"", 
-      ButtonData -> Section(BoxData("XXX"), "Input"), BaseStyle -> "Paste"), 
-     "      ", "\"Inline: \"", ButtonBox("\"Java\"", 
-      ButtonData -> TemplateBox({"\[SelectionPlaceholder]"}, 
-       "InlineJavaInput"), BaseStyle -> "Paste"), 
-     ButtonBox("\"pMath\"", ButtonData -> TemplateBox({
-        "\[SelectionPlaceholder]"}, "MathInJava"), BaseStyle -> "Paste")}), 
-   "Docked")}, StyleDefinitions :> Document({
+           "RowDefault")), "Print", SectionGenerated -> True)}, All)}, All), 
+    Section("Known issues", "Section")}, All)}, 
+ StyleDefinitions :> Document({
    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+     Section(StyleData("Document"), 
+      DockedSections :> {
+       "Top" -> {
+        Section(BoxData({"\"New Section: \"", 
+           ButtonBox("\"Java\"", ButtonData -> Section(BoxData("XXX"), 
+             "JavaInput"), BaseStyle -> "Paste"), 
+           ButtonBox("\"pMath\"", ButtonData -> Section(BoxData("XXX"), 
+             "Input"), BaseStyle -> "Paste"), "      ", "\"Inline: \"", 
+           ButtonBox("\"Java\"", ButtonData -> TemplateBox({
+              "\[SelectionPlaceholder]"}, "InlineJavaInput"), 
+            BaseStyle -> "Paste"), ButtonBox("\"pMath\"", 
+            ButtonData -> TemplateBox({"\[SelectionPlaceholder]"}, 
+             "MathInJava"), BaseStyle -> "Paste")}), "Docked"), Inherited}}), 
      SectionGroup({Section(StyleData("JavaInput"), AutoSpacing -> False, 
         Background -> GrayLevel(0.90200000000000002`), BaseStyle -> "Input", 
-        DefaultNewSectionStyle -> "JavaInput", FontFamily -> "Consolas", 
-        LanguageCategory -> "Java", LineBreakWithin -> False, 
-        SectionEvaluationFunction :> (Get("Java`"); Java`RunJavaSection), 
-        SectionFrame -> {0.0010000000474974513`, 0.0010000000474974513`, 
-         0.0010000000474974513`, 0.0010000000474974513`}, 
-        SectionFrameColor -> GrayLevel(0.90200000000000002`), 
-        SectionFrameMargins -> {3, 3, 3, 3}, SectionLabel -> "in (Java):", 
-        ShowAutoStyles -> False), Section(StyleData("JavaOutput"), 
-        AutoNumberFormating -> False, BaseStyle -> "Output", 
-        DefaultDuplicateSectionStyle -> "JavaInput", 
-        DefaultNewSectionStyle -> "JavaInput", FontFamily -> "Consolas", 
+        DefaultNewSectionStyle -> "JavaInput", 
+        FontFamily -> {"Consolas", "Courier New"}, 
+        InputAutoReplacements -> {}, LanguageCategory -> "Java", 
+        LineBreakWithin -> False, SectionEvaluationFunction :> (Get("Java`"); 
+         Java`RunJavaSection), SectionFrame -> {0.0010000000474974513`, 
+         0.0010000000474974513`, 0.0010000000474974513`, 
+         0.0010000000474974513`}, SectionFrameColor -> GrayLevel(
+         0.90200000000000002`), SectionFrameMargins -> {3, 3, 3, 3}, 
+        SectionLabel -> "in (Java):", ShowAutoStyles -> False), 
+       Section(StyleData("JavaOutput"), AutoNumberFormating -> False, 
+        BaseStyle -> "Output", DefaultDuplicateSectionStyle -> "JavaInput", 
+        DefaultNewSectionStyle -> "JavaInput", 
+        FontFamily -> {"Consolas", "Courier New"}, LanguageCategory -> "Java", 
         SectionLabel -> "out (Java):", ShowStringCharacters -> False)}, All), 
      Section(StyleData("InlineJavaInput"), 
       TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-        FrameBox(StyleBox(#1, FontColor -> GrayLevel(0))), 
-        Background -> GrayLevel(0.90200000000000002`), 
-        FontColor -> GrayLevel(0.84999999999999998`), ShowAutoStyles -> False, 
-        AutoSpacing -> False, LineBreakWithin -> False, 
-        FontFamily -> "Consolas") &), InterpretationFunction -> ({{
+        FrameBox(#1, FrameStyle -> GrayLevel(0.84999999999999998`), 
+         Background -> GrayLevel(0.90200000000000002`)), 
+        BaseStyle -> "JavaInput") &), InterpretationFunction -> ({{
          "Get", "(", ComplexStringBox("\"Java`\""), ")"}, ";", 
         TagBox(InterpretationBox(, #1), Java`EvaluateJavaBox)} &)}), 
      Section(StyleData("MathInJava"), 
       TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-        FrameBox(StyleBox(#1, FontColor -> GrayLevel(0))), 
-        Background -> GrayLevel(1), FontColor -> GrayLevel(0.75`), 
-        ShowAutoStyles -> True, AutoSpacing -> True, LineBreakWithin -> True, 
-        FontFamily -> "Consolas") &), InterpretationFunction -> (TagBox(#1, 
-        "MathInJava") &)})}, All)}, StyleDefinitions -> 
-   "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True)
+        FrameBox(#1, FrameStyle -> GrayLevel(0.75`), 
+         Background -> GrayLevel(1)), BaseStyle -> "Input") &), 
+       InterpretationFunction -> (TagBox(#1, "MathInJava") &)})}, All)}, 
+  StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
+ Visible -> True)
