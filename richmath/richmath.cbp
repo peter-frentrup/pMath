@@ -34,6 +34,7 @@
 					<Add directory="$(#pango_32.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
@@ -90,6 +91,7 @@
 					<Add directory="$(#freetype_32.include)" />
 				</Compiler>
 				<Linker>
+					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
@@ -128,10 +130,10 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
-					<Add option="-std=gnu++11" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -151,6 +153,7 @@
 					<Add directory="$(#gtk_32.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
+					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
@@ -182,10 +185,10 @@
 				<Compiler>
 					<Add option="-march=i686" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
-					<Add option="-std=gnu++11" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -205,6 +208,7 @@
 					<Add directory="$(#gtk3_32.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
+					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
@@ -258,6 +262,7 @@
 					<Add option="-O3" />
 					<Add option="-flto" />
 					<Add option="-s" />
+					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
@@ -294,10 +299,10 @@
 				<Compiler>
 					<Add option="-march=core2" />
 					<Add option="-Wall" />
+					<Add option="-std=gnu++11" />
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-mms-bitfields" />
-					<Add option="-std=gnu++11" />
 					<Add option="-Wsuggest-override" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DRICHMATH_USE_FT_FONT" />
@@ -317,6 +322,7 @@
 					<Add directory="$(#gtk3_64.include)/atk-1.0" />
 				</Compiler>
 				<Linker>
+					<Add option="-static-libstdc++" />
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#cairo_64.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_64.bin)/glib-2.0.dll&quot;' />
