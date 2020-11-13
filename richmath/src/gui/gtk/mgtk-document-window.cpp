@@ -349,6 +349,7 @@ void MathGtkDocumentWindow::after_construction() {
   GtkAccelGroup *accel_group = gtk_accel_group_new();
   
   _menu_bar = gtk_menu_bar_new();
+  gtk_widget_set_size_request(_menu_bar, 0, -1);
   MathGtkMenuBuilder::main_menu.append_to(GTK_MENU_SHELL(_menu_bar), accel_group, document()->id());
   Impl(*this).append_menu_bar_pin();
   MathGtkAccelerators::connect_all(accel_group, document()->id());
