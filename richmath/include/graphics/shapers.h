@@ -448,9 +448,6 @@ namespace richmath {
         
       virtual void get_script_size_multis(Array<float> *arr) override;
       
-    public:
-      static Hashtable<String, SharedPtr<MathShaper> > available_shapers;
-      
     protected:
       int _radical_font;
       
