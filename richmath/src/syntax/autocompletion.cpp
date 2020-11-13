@@ -15,6 +15,7 @@ extern pmath_symbol_t richmath_FE_AutoCompleteFile;
 extern pmath_symbol_t richmath_FE_AutoCompleteOther;
 
 extern pmath_symbol_t richmath_System_ComplexStringBox;
+extern pmath_symbol_t richmath_System_Keys;
 
 using namespace richmath;
 
@@ -112,25 +113,15 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     
   String alias = seq->raw_substring(alias_pos, alias_end - alias_pos).part(1);
   
+  Expr input_aliases           = seq->get_finished_flatlist_style(InputAliases);
+  Expr input_auto_replacements = seq->get_finished_flatlist_style(InputAutoReplacements);
+  
   Expr expr;
   {
     Gather g;
     
-    for(unsigned i = 0, rest = global_macros.size(); rest > 0; ++i) {
-      if(auto e = global_macros.entry(i)) {
-        --rest;
-        
-        Gather::emit(e->key);
-      }
-    }
-    
-    for(unsigned i = 0, rest = global_immediate_macros.size(); rest > 0; ++i) {
-      if(auto e = global_immediate_macros.entry(i)) {
-        --rest;
-        
-        Gather::emit(e->key);
-      }
-    }
+    Gather::emit(Evaluate(Call(Symbol(richmath_System_Keys), input_aliases)));
+    Gather::emit(Evaluate(Call(Symbol(richmath_System_Keys), input_auto_replacements)));
     
     if(alias[0] == '\\' && (alias[1] == 0 || alias[1] == '[')) {
       size_t count;
@@ -145,6 +136,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     }
     
     expr = g.end();
+    expr = Expr{pmath_expr_flatten(expr.release(), pmath_ref(PMATH_SYMBOL_LIST), 1)};
   }
   
   expr = Application::interrupt_wait_cached(
@@ -170,15 +162,15 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
       if(!item.is_string())
         continue;
         
-      if(Expr *macro = global_immediate_macros.search(item)) {
-        if(used.add(*macro)) 
-          Gather::emit(*macro);
+      if(Expr repl = input_auto_replacements.lookup(item, {})) {
+        if(used.add(repl)) 
+          Gather::emit(repl);
         continue;
       }
       
-      if(Expr *macro = global_macros.search(item)) {
-        if(used.add(*macro)) 
-          Gather::emit(*macro);
+      if(Expr repl = input_aliases.lookup(item, {})) {
+        if(used.add(repl)) 
+          Gather::emit(repl);
         continue;
       }
       

@@ -28,6 +28,8 @@ namespace richmath {
       Expr   get_style(ObjectStyleOptionName n);
       Expr   get_pmath_style(StyleOptionName n);
       
+      Expr get_finished_flatlist_style(ObjectStyleOptionName n);
+      
       // ignore parents (except for search via get_default_key)
       Color  get_own_style(ColorStyleOptionName  n, Color  fallback_result = Color::None);
       int    get_own_style(IntStyleOptionName    n, int    fallback_result = 0);
@@ -70,6 +72,7 @@ namespace richmath {
       
       virtual StyledObject *style_parent() final override { return _owner; }
       virtual Expr allowed_options() override;
+      virtual bool changes_children_style() override { return true; }
       
       virtual void dynamic_updated() override;
       

@@ -1,0 +1,52 @@
+Begin("FE`Private`")
+
+
+parseToExistingSymbol(~name:String)::= Try(
+	name.MakeExpression(ParseSymbols -> False), 
+	HoldComplete(Symbol(name)),
+	MakeExpression::nonewsym)
+
+Function FE`SymbolInfo(~name:String) { 
+	Try(
+	With(sym:= parseToExistingSymbol(name)) {
+		If(sym.Match(HoldComplete(Symbol(~)))) {
+			Return(False) /* symbol does not exist */
+		}
+		
+		If(!sym.Match(HoldComplete(~s:Symbol))) {
+			Return(True) /* name parses to something not a symbol */
+		}
+		
+		If(Union($NamespacePath, {$Namespace}).Map(
+				parseToExistingSymbol(# ++ name)&
+			).Cases(
+				HoldComplete(Except(Symbol(~)))
+			).Length() > 1
+		) {
+			Return(Alternatives) /* multiple symbols with the same name */
+		}
+		
+		/* todo: use Developer`HasBuiltinCode to distinguish functions from other symbols */
+		Return(Namespace @@ sym =!= "Global`"
+			|| Attributes @@ sym =!= {} 
+			|| DownRules @@ sym =!= {} 
+			|| UpRules @@ sym =!= {} 
+			|| SubRules @@ sym =!= {} 
+			|| OwnRules @@ sym =!= {});
+	},
+	Syntax)
+}
+
+Attributes(FE`SymbolDefinitions):= {HoldAllComplete}
+FE`SymbolDefinitions(~sym:Symbol)::= Flatten(HoldComplete @@ Gather(
+	With({r:= OwnRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(OwnRules(sym):=     r))));
+	With({r:= DownRules(sym)},    If(Length(r) > 0, Emit(HoldComplete(DownRules(sym):=    r))));
+	With({r:= UpRules(sym)},      If(Length(r) > 0, Emit(HoldComplete(UpRules(sym):=      r))));
+	With({r:= SubRules(sym)},     If(Length(r) > 0, Emit(HoldComplete(SubRules(sym):=     r))));
+	With({r:= DefaultRules(sym)}, If(Length(r) > 0, Emit(HoldComplete(DefaultRules(sym):= r))));
+	With({r:= FormatRules(sym)},  If(Length(r) > 0, Emit(HoldComplete(FormatRules(sym):=  r))));
+	With({r:= NRules(sym)},       If(Length(r) > 0, Emit(HoldComplete(NRules(sym):=       r))));
+	)[2])
+
+
+End()

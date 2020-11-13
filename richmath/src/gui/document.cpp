@@ -116,9 +116,6 @@ namespace {
   } mouse_history;
 }
 
-Hashtable<String, Expr> richmath::global_immediate_macros;
-Hashtable<String, Expr> richmath::global_macros;
-
 static int index_of_replacement(const String &s) {
   const uint16_t *buf = s.buffer();
   int             len = s.length();
@@ -341,12 +338,16 @@ namespace richmath {
       
       //{ macro handling
     private:
-      bool handle_immediate_macros(const Hashtable<String, Expr> &table);
-      bool handle_macros(const Hashtable<String, Expr> &table);
+      bool handle_auto_replacements(Expr table);
+      bool handle_backslash_aliases(Expr table);
+      Expr get_current_replacements(ObjectStyleOptionName n);
       
     public:
-      bool handle_immediate_macros();
-      bool handle_macros();
+      Expr get_current_auto_replacements() { return get_current_replacements(InputAutoReplacements); }
+      Expr get_current_input_aliases() {     return get_current_replacements(InputAliases); }
+      bool handle_auto_replacements();
+      bool handle_backslash_aliases();
+      bool handle_alias_delimiter();
       //}
     
       //{ attached boxes
@@ -1099,96 +1100,19 @@ void Document::on_key_press(uint32_t unichar) {
   
   remove_selection(false);
   
-  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
+  if(unichar == PMATH_CHAR_ALIASDELIMITER) {
+    if(Impl(*this).handle_alias_delimiter())
+      return;
+  }
   
-    // handle "CAPSLOCK alias CAPSLOCK" macros:
-    if(unichar == PMATH_CHAR_ALIASDELIMITER) {
-      int alias_end = context.selection.start;
-      int alias_pos = alias_end - 1;
-      
-      while(alias_pos >= 0 && seq->char_at(alias_pos) != PMATH_CHAR_ALIASDELIMITER)
-        --alias_pos;
-        
-      if(alias_pos >= 0) { // ==>  seq->char_at(alias_pos) == PMATH_CHAR_ALIASDELIMITER
-        String alias = seq->raw_substring(alias_pos, alias_end - alias_pos).part(1);
-        
-        const uint16_t *buf = alias.buffer();
-        const int       len = alias.length();
-        
-        if(len > 0 && buf[0] == '\\') {
-          uint32_t unichar;
-          const uint16_t *bufend = pmath_char_parse(buf, len, &unichar);
-          
-          if(unichar <= 0x10FFFF && bufend == buf + len) {
-            String ins = String::FromChar(unichar);
-            
-            int i = seq->insert(alias_end, ins);
-            seq->remove(alias_pos, alias_end);
-            
-            move_to(seq, i - (alias_end - alias_pos));
-            return;
-          }
-        }
-        else {
-          Expr repl = String::FromChar(unicode_to_utf32(alias));
-          
-          if(repl.is_null())
-            repl = global_immediate_macros[alias];
-          if(repl.is_null())
-            repl = global_macros[alias];
-            
-          if(!repl.is_null()) {
-            String ins(repl);
-            
-            if(ins.is_valid()) {
-              int repl_index = index_of_replacement(ins);
-              
-              if(repl_index >= 0) {
-                int new_sel_start = seq->insert(alias_end, ins.part(0, repl_index));
-                int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
-                seq->insert(new_sel_end, ins.part(repl_index + 1));
-                seq->remove(alias_pos, alias_end);
-                
-                select(seq, new_sel_start - (alias_end - alias_pos), new_sel_end - (alias_end - alias_pos));
-              }
-              else {
-                int i = seq->insert(alias_end, ins);
-                seq->remove(alias_pos, alias_end);
-                move_to(seq, i - (alias_end - alias_pos));
-              }
-              
-              return;
-            }
-            else {
-              MathSequence *repl_seq = new MathSequence();
-              repl_seq->load_from_object(repl, BoxInputFlags::Default);
-              
-              insert_box(repl_seq, true);
-              int sel_start = selection_start();
-              int sel_end   = selection_end();
-              seq->remove(alias_pos, alias_end);
-              
-              if(selection_box() == seq) { // renormalizes selection_[start|end]()
-                select(
-                  seq,
-                  sel_start - (alias_end - alias_pos),
-                  sel_end   - (alias_end - alias_pos));
-              }
-              
-              return;
-            }
-          }
-        }
-      }
-    }
-    
+  if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     MathSequence *mseq = dynamic_cast<MathSequence *>(seq);
     
     bool was_inside_string = Impl(*this).is_inside_string();
     bool was_inside_alias  = Impl(*this).is_inside_alias();
     
     if(!was_inside_string && !was_inside_alias) {
-      Impl(*this).handle_immediate_macros();
+      Impl(*this).handle_auto_replacements();
     }
     
     int oldpos = context.selection.start;
@@ -1201,7 +1125,7 @@ void Document::on_key_press(uint32_t unichar) {
         context.selection.start--;
         context.selection.end--;
         
-        bool ok = Impl(*this).handle_macros();
+        bool ok = Impl(*this).handle_backslash_aliases();
         
         if( mseq == context.selection.get() &&
             context.selection.start < mseq->length() &&
@@ -1238,7 +1162,7 @@ void Document::on_key_press(uint32_t unichar) {
         context.selection.start = i + 1;
         context.selection.end = i + 1;
         
-        if(!Impl(*this).handle_macros())
+        if(!Impl(*this).handle_backslash_aliases())
           move_to(mseq, start);
       }
       
@@ -2756,7 +2680,7 @@ void Document::insert_string(String text, bool autoformat) {
     auto seq = new MathSequence;
     seq->insert(0, text);
     
-    if(autoformat && !Impl(*this).is_inside_string()) { // replace tokens from global_immediate_macros ...
+    if(autoformat && !Impl(*this).is_inside_string()) { // Apply InputAutoReplacements ...
       seq->ensure_spans_valid();
       const SpanArray &spans = seq->span_array();
       
@@ -2785,14 +2709,14 @@ void Document::insert_string(String text, bool autoformat) {
           ++next;
         ++next;
         
-        if(Expr *e = global_immediate_macros.search(text.part(pos, next - pos))) {
+        if(Expr e = Impl(*this).get_current_auto_replacements().lookup(text.part(pos, next - pos), {})) {
           if(!seq2)
             seq2 = new MathSequence;
             
           seq2->insert(seq2->length(), text.part(last, pos - last));
           
           auto seq_tmp = new MathSequence;
-          seq_tmp->load_from_object(*e, BoxInputFlags::Default);
+          seq_tmp->load_from_object(e, BoxInputFlags::Default);
           seq2->insert(seq2->length(), seq_tmp);
           
           last = next;
@@ -2870,9 +2794,9 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
@@ -2946,9 +2870,9 @@ void Document::insert_fraction() {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   select_prev(true);
@@ -2996,9 +2920,9 @@ void Document::insert_matrix_column() {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   GridBox *grid = 0;
@@ -3092,9 +3016,9 @@ void Document::insert_matrix_row() {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   GridBox *grid = nullptr;
@@ -3191,9 +3115,9 @@ void Document::insert_sqrt() {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
@@ -3236,9 +3160,9 @@ void Document::insert_subsuperscript(bool sub) {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
@@ -3297,9 +3221,9 @@ void Document::insert_underoverscript(bool under) {
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
-      !Impl(*this).handle_immediate_macros())
+      !Impl(*this).handle_auto_replacements())
   {
-    Impl(*this).handle_macros();
+    Impl(*this).handle_backslash_aliases();
   }
   
   select_prev(false);
@@ -4765,11 +4689,11 @@ void Document::Impl::handle_key_escape(SpecialKeyEvent &event) {
 //}
 
 //{ macro handling
-inline bool Document::Impl::handle_immediate_macros() {
-  return handle_immediate_macros(global_immediate_macros);
+inline bool Document::Impl::handle_auto_replacements() {
+  return handle_auto_replacements(get_current_auto_replacements());
 }
 
-bool Document::Impl::handle_immediate_macros(const Hashtable<String, Expr> &table) {
+bool Document::Impl::handle_auto_replacements(Expr table) {
   if(self.selection_length() != 0)
     return false;
     
@@ -4782,12 +4706,8 @@ bool Document::Impl::handle_immediate_macros(const Hashtable<String, Expr> &tabl
     
     int e = self.selection_start();
     
-    Expr repl = table[seq->text().part(i, e - i)];
-    
-    if(!repl.is_null()) {
-      String s(repl);
-      
-      if(s.is_null()) {
+    if(Expr repl = table.lookup(seq->text().part(i, e - i), {})) {
+      if(String s = repl) {
         MathSequence *repl_seq = new MathSequence();
         repl_seq->load_from_object(repl, BoxInputFlags::Default);
         
@@ -4819,11 +4739,18 @@ bool Document::Impl::handle_immediate_macros(const Hashtable<String, Expr> &tabl
   return false;
 }
 
-inline bool Document::Impl::handle_macros() {
-  return handle_macros(global_macros);
+Expr Document::Impl::get_current_replacements(ObjectStyleOptionName n) {
+  if(auto box = self.selection_box())
+    return box->get_finished_flatlist_style(n);
+  
+  return List();
 }
 
-bool Document::Impl::handle_macros(const Hashtable<String, Expr> &table) {
+inline bool Document::Impl::handle_backslash_aliases() {
+  return handle_backslash_aliases(get_current_input_aliases());
+}
+
+bool Document::Impl::handle_backslash_aliases(Expr table) {
   if(self.selection_length() != 0)
     return false;
     
@@ -4856,13 +4783,11 @@ bool Document::Impl::handle_macros(const Hashtable<String, Expr> &table) {
         String s = seq->text().part(i + 1, e - i - 1);
         repl = String::FromChar(unicode_to_utf32(s));
         if(repl.is_null())
-          repl = table[s];
+          repl = table.lookup(s, {});
       }
       
-      if(!repl.is_null()) {
-        String s(repl);
-        
-        if(!s.is_null()) {
+      if(repl) {
+        if(String s = repl) {
           int repl_index = index_of_replacement(s);
           if(repl_index >= 0) {
             int new_sel_start = seq->insert(e, s.part(0, repl_index));
@@ -4894,6 +4819,91 @@ bool Document::Impl::handle_macros(const Hashtable<String, Expr> &table) {
   
   return false;
 }
+
+bool Document::Impl::handle_alias_delimiter() { // handle "CAPSLOCK alias CAPSLOCK" macros
+  auto seq = dynamic_cast<AbstractSequence *>(self.selection_box());
+  if(!seq)
+    return false;
+  
+  int alias_end = self.selection_start();
+  int alias_pos = alias_end - 1;
+  
+  while(alias_pos >= 0 && seq->char_at(alias_pos) != PMATH_CHAR_ALIASDELIMITER)
+    --alias_pos;
+    
+  if(alias_pos < 0)
+    return false;
+    
+  // ==>  seq->char_at(alias_pos) == PMATH_CHAR_ALIASDELIMITER
+  String alias = seq->raw_substring(alias_pos, alias_end - alias_pos).part(1);
+  
+  const uint16_t *buf = alias.buffer();
+  const int       len = alias.length();
+  
+  if(len > 0 && buf[0] == '\\') {
+    uint32_t unichar;
+    const uint16_t *bufend = pmath_char_parse(buf, len, &unichar);
+    
+    if(unichar <= 0x10FFFF && bufend == buf + len) {
+      String ins = String::FromChar(unichar);
+      
+      int i = seq->insert(alias_end, ins);
+      seq->remove(alias_pos, alias_end);
+      
+      self.move_to(seq, i - (alias_end - alias_pos));
+      return true;
+    }
+    
+    return false;
+  }
+  
+  Expr repl = String::FromChar(unicode_to_utf32(alias));
+  
+  if(repl.is_null())
+    repl = Impl(*this).get_current_auto_replacements().lookup(alias, {});
+  if(repl.is_null())
+    repl = Impl(*this).get_current_input_aliases().lookup(alias, {});
+    
+  if(repl.is_null())
+    return false;
+  
+  if(String ins = repl) {
+    int repl_index = index_of_replacement(ins);
+    
+    if(repl_index >= 0) {
+      int new_sel_start = seq->insert(alias_end, ins.part(0, repl_index));
+      int new_sel_end   = seq->insert(new_sel_start, PMATH_CHAR_PLACEHOLDER);
+      seq->insert(new_sel_end, ins.part(repl_index + 1));
+      seq->remove(alias_pos, alias_end);
+      
+      self.select(seq, new_sel_start - (alias_end - alias_pos), new_sel_end - (alias_end - alias_pos));
+    }
+    else {
+      int i = seq->insert(alias_end, ins);
+      seq->remove(alias_pos, alias_end);
+      self.move_to(seq, i - (alias_end - alias_pos));
+    }
+  }
+  else {
+    MathSequence *repl_seq = new MathSequence();
+    repl_seq->load_from_object(repl, BoxInputFlags::Default);
+    
+    self.insert_box(repl_seq, true);
+    int sel_start = self.selection_start();
+    int sel_end   = self.selection_end();
+    seq->remove(alias_pos, alias_end);
+    
+    if(self.selection_box() == seq) { // renormalizes selection_[start|end]()
+      self.select(
+        seq,
+        sel_start - (alias_end - alias_pos),
+        sel_end   - (alias_end - alias_pos));
+    }
+  }
+  
+  return true;
+}
+
 //}
 
 //{ attachment boxes

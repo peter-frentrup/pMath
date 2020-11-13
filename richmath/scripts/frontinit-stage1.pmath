@@ -1,0 +1,135 @@
+%
+% Front end initialization -- Stage 1
+%
+% This file is executed on the main (GUI) thread before the GUI system is initialized and thus 
+% C++ functions from richmath.exe are connected.
+%
+BeginPackage("FE`")
+
+$FrontEndDirectory;
+$StylesheetDirectory;
+$PaletteSearchPath;
+
+$FallbackFonts;
+$PrivateStartupFontFiles;
+$MathShapers;
+
+Begin("FE`Private`")
+
+
+$FrontEndDirectory:= DirectoryName($Input)
+Protect($FrontEndDirectory)
+
+$StylesheetDirectory:= ToFileName({FE`$FrontEndDirectory, "resources", "StyleSheets"})
+Protect($StylesheetDirectory)
+
+$PaletteSearchPath:= {ToFileName({FE`$FrontEndDirectory, "resources", "Palettes"})}
+Protect($PaletteSearchPath)
+
+
+
+$Path:= Prepend($Path, $FrontEndDirectory)
+
+
+If($SystemId === "Windows") {
+	<<Windows`
+}
+
+
+
+/* should not contain more than 6 fonts: */
+$FallbackFonts:= {"pMathFallback", "Asana Math", "Arial Unicode MS", "Unifont"}
+Protect($FallbackFonts)
+
+$PrivateStartupFontFiles:= $ApplicationFileName.DirectoryName.FileNames({"*.otf", "*.ttf"})
+
+Function mmaInstallPaths() {
+	If($SystemId === "Windows") {
+		Local(win64ver)
+		
+		Do(win64ver -> {True, False}) {
+			With(installKeys:= Try(
+				Windows`RegEnumKeys("HKEY_LOCAL_MACHINE\\SOFTWARE\\Wolfram Research\\Installations", Windows`Win64Version -> win64ver),
+				{},
+				{General::hresult}))
+			
+			If(installKeys =!= {}) {
+				% TODO: sort by product version, decending
+				With(path:= installKeys.Windows`RegGetValue("ExecutablePath", Windows`Win64Version -> win64ver).Map(DirectoryName))
+				Return(path)
+			}
+		}
+	}
+	Return({})
+}
+
+Function privateMmaFonts() {
+	With(ttfDirs:= mmaInstallPaths().FileNames("SystemFiles").FileNames("Fonts").FileNames("TrueType"))
+	With(ttfMmaSans:= ttfDirs.FileNames("MathematicaSans.ttf"))
+	If(Length(ttfMmaSans) === 0) {
+		Return({})
+	}
+	Return(ttfMmaSans[1].DirectoryName.FileNames("Mathematica*.ttf"))
+}
+
+$PrivateStartupFontFiles:= Join($PrivateStartupFontFiles, privateMmaFonts())
+
+
+$MathShapers:= {
+	"Cambria Math", 
+	"Asana Math", 
+	"Fira Math",
+	"Neo Euler", 
+	/*"STIX Math", */"XITS Math", 
+	"Latin Modern Math", 
+	"TeX Gyre Bonum Math", 
+	"TeX Gyre Pagella Math", 
+	"TeX Gyre Termes Math", 
+	"GFS Neohellenic Math"}
+Protect($MathShapers)
+
+
+Unprotect($ControlActiveSetting);
+FE`$ControlActive:= False
+$ControlActiveSetting::= Refresh(FE`$ControlActive === True, None)
+Protect($ControlActiveSetting)
+
+
+Options(FE`FileOpenDialog):= Options(FE`FileSaveDialog):= {WindowTitle -> Automatic}
+
+
+Protect(FE`Graphics`DefaultAxesOrigin)
+Protect(FE`Graphics`DefaultTickBoxes)
+Protect(FE`Import`FileNamesDropDescription)
+Protect(FE`Import`PasteFileNameContentBoxes)
+
+AutoLoad(Hold(DocumentObject, FrontEndObject, FE`EvaluateDynamic, FE`AssignDynamicValue), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "frontendobject.pmath"));
+AutoLoad(Hold(FE`AttachBoxes, CreateDocument, CurrentValue, DocumentClose, DocumentDelete, DocumentGet, DocumentOpen, Documents, EvaluationBox, EvaluationDocument, SelectedDocument, SetSelectedDocument),
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "callfrontend.pmath"));
+AutoLoad(Hold(Button, ButtonBox, Checkbox, CheckboxBox, Dynamic, DynamicBox, DynamicSetting, FillBox, Filler, InputField, InputFieldBox, Opener, OpenerBox, Pane, PaneBox, Panel, PanelBox, PaneSelector, PaneSelectorBox, ProgressIndicator, ProgressIndicatorBox, RadioButton, RadioButtonBar, RadioButtonBox, Setter, SetterBar, SetterBox, Slider, SliderBox, TabView, FE`TabViewBox, Tooltip, TooltipBox), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "guiboxes.pmath"));
+AutoLoad(Hold(FE`FontDialog, FE`ColorDialog), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "dialogs.pmath"));
+AutoLoad(Hold(ShowDefinition), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
+AutoLoad(Hold(FE`Styles`MakeStyleDataBoxes, FE`Styles`$DefaultDisplayFunction, FE`Styles`$DefaultDisplayFunctionTooltip), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "styles.pmath"));
+
+AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes), 
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "graphics.pmath"));
+AutoLoad(Hold(FE`Import`FileNamesDropDescription, FE`Import`PasteFileNameContentBoxes),
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "import.pmath"));
+
+
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "symbol-info.pmath"))
+
+FE`SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
+
+
+End()
+
+EndPackage()
+

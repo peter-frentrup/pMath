@@ -1,0 +1,41 @@
+%
+% Front end initialization -- Stage 2
+%
+% This file is executed on the main (GUI) thread after the C++ side of the GUI system is initialized, 
+% but before the GUI event loop starts.
+%
+BeginPackage("FE`")
+
+Begin("FE`Private`")
+
+% Load the syntax information table in parallel:
+NewTask(SyntaxInformation(Sin))
+
+
+
+
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "set-aliases.pmath"))
+
+<<Documentation`
+
+
+
+Unprotect(Developer`DebugInfoOpenerFunction)
+Developer`DebugInfoOpenerFunction(src: Developer`DebugInfoSource(~:FrontEndObject, ~:Range))::= 
+	Function(SetSelectedDocument(Automatic, src))
+Protect(Developer`DebugInfoOpenerFunction)
+
+
+If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ~~~ ++ ".png" ++ EndOfString)) {
+	FE`$WindowFrameImage:= $CommandLine[2]
+}
+Do(path -> $CommandLine.Rest.Select(Function(StringMatch(#, ~~~ ++ ".pmathdoc")))) {
+   FrontEnd`DocumentOpen(path)
+}
+
+%FrontEnd`CreateDocument({Section("Welcome", "Title")})
+
+
+End()
+
+EndPackage()

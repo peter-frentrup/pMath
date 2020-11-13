@@ -77,6 +77,10 @@ extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_Method;
 extern pmath_symbol_t richmath_System_Section;
 
+extern pmath_symbol_t richmath_FE_DollarMathShapers;
+extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
+
+
 static void write_section(Document *doc, Expr expr) {
   Box *b = doc->selection_box();
   int i  = doc->selection_end();
@@ -105,51 +109,6 @@ static void write_text_section(Document *doc, String style, String text) {
 
 static void todo(Document *doc, String msg) {
   write_text_section(doc, "Todo", msg);
-}
-
-static void load_aliases(
-  Expr                     aliases,
-  Hashtable<String, Expr> *implicit_macros,
-  Hashtable<String, Expr> *explicit_macros
-) {
-  Hashtable<String, Expr> *table = explicit_macros;
-  
-#ifdef PMATH_DEBUG_LOG
-  double start = pmath_tickcount();
-#endif
-  
-  if(aliases[0] == PMATH_SYMBOL_LIST) {
-    for(auto rule : aliases.items()) {
-      if(rule.is_rule()) {
-        String lhs = rule[1];
-        Expr   rhs = rule[2];
-        
-        if(lhs.equals("Explicit"))
-          table = explicit_macros;
-        else if(lhs.equals("Implicit"))
-          table = implicit_macros;
-        else
-          continue;
-          
-        if(rhs[0] == PMATH_SYMBOL_LIST) {
-          for(size_t j = 1; j <= rhs.expr_length(); ++j) {
-            Expr def = rhs[j];
-            
-            if(def.is_rule()) {
-              String name = def[1];
-              
-              if(name.length() > 0)
-                table->set(name, def[2]);
-            }
-          }
-        }
-      }
-    }
-  }
-  
-#ifdef PMATH_DEBUG_LOG
-  pmath_debug_print("Loaded aliases in %f seconds.\n", pmath_tickcount() - start);
-#endif
 }
 
 static void os_init() {
@@ -205,7 +164,7 @@ static void message_dialog(const char *title, const char *content) {
 }
 
 static void load_fonts() {
-  Expr font_files = Evaluate(Parse("FE`$PrivateStartupFontFiles"));
+  Expr font_files = Expr{pmath_symbol_get_value(richmath_FE_DollarPrivateStartupFontFiles)};
   
   if(font_files[0] == PMATH_SYMBOL_LIST) {
     for(auto item : font_files.items()) {
@@ -231,7 +190,7 @@ static void load_math_shapers() {
     )
   )PMATH");
   
-  Expr prefered_fonts = Evaluate(Parse("FE`$MathShapers"));
+  Expr prefered_fonts = Expr{pmath_symbol_get_value(richmath_FE_DollarMathShapers)};
   
   SharedPtr<MathShaper> shaper;
   SharedPtr<MathShaper> def;
@@ -273,9 +232,6 @@ static void load_math_shapers() {
 }
 
 static void init_stylesheet() {
-#define CAPTION_FONT List(String("Calibri"), String("Verdana"),    String("Arial"))
-#define TEXT_FONT    List(String("Georgia"), String("Constantia"), String("Times New Roman"))
-
   Stylesheet::Default = new Stylesheet;
   
   Stylesheet::Default->base = new Style;
@@ -337,11 +293,13 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
   
-  Stylesheet::Default->base->set(FontFamilies,              List());
   Stylesheet::Default->base->set(DockedSectionsBottom,      List());
   Stylesheet::Default->base->set(DockedSectionsBottomGlass, List());
   Stylesheet::Default->base->set(DockedSectionsTop,         List());
   Stylesheet::Default->base->set(DockedSectionsTopGlass,    List());
+  Stylesheet::Default->base->set(FontFamilies,              List());
+  Stylesheet::Default->base->set(InputAliases,              List());
+  Stylesheet::Default->base->set(InputAutoReplacements,     List());
   
   Stylesheet::Default->base->set(SectionLabel,              "");
   Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(PMATH_SYMBOL_IDENTITY));
@@ -374,23 +332,6 @@ static bool have_visible_documents() {
   }
   
   return false;
-}
-
-void load_documents_from_command_line() {
-  Expr initial_open_files = Evaluate(Parse("FE`$InitialOpenDocuments"));
-  if(initial_open_files[0] != PMATH_SYMBOL_LIST) 
-    return;
-  
-  for(String path : initial_open_files.items()) {
-    Document *doc = Application::find_open_document(path);
-    if(!doc)
-      doc = Application::open_new_document(path);
-    
-    if(doc) {
-      RecentDocuments::add(path);
-      doc->native()->bring_to_front();
-    }
-  }
 }
 
 int main(int argc, char **argv) {
@@ -447,9 +388,6 @@ int main(int argc, char **argv) {
   
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
   
-  // load the syntax information table in parallel
-  PMATH_RUN("NewTask(SyntaxInformation(Sin))");
-  
   // do not depend on console window size:
   pmath_symbol_set_value(richmath_System_DollarPageSize, PMATH_FROM_INT32(72));
   
@@ -494,33 +432,28 @@ int main(int argc, char **argv) {
   load_fonts();
   load_math_shapers();
   
-  load_aliases(
-    Evaluate(Parse(
-               "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"aliases.pmath\"))")),
-    &global_immediate_macros,
-    &global_macros);
-    
   init_stylesheet();
   
-  PMATH_RUN("EndPackage()"); /* FE` */
+  PMATH_RUN(
+    "EndPackage();" /* FE` */
+    "$NamespacePath:= {\"System`\"}");
   
   RecentDocuments::init();
   
-  Document *main_doc = nullptr;
   int result = 0;
   
   if(!MathShaper::available_shapers.default_value) {
     message_dialog("pMath Fatal Error",
-                   "Cannot start pMath because there is no math font on this System.");
+                   "Cannot start pMath because there is no math font on this system.");
                    
     result = 1;
     goto QUIT;
   }
   
-  load_documents_from_command_line();
+  PMATH_RUN("Get(ToFileName({FE`$FrontEndDirectory},\"frontinit-stage2.pmath\"))");
   
   if(!Documents::current()) {
-    main_doc = Application::try_create_document();
+    Document *main_doc = Application::try_create_document();
     if(main_doc) {
       write_text_section(main_doc, "Title", "Welcome");
       write_text_section(main_doc, "Section", "Todo-List");
@@ -568,9 +501,6 @@ QUIT:
   
   TextShaper::clear_cache();
   FontInfo::remove_all_private_fonts();
-  
-  global_immediate_macros.clear();
-  global_macros.clear();
   
   Stylesheet::Default = nullptr;
   

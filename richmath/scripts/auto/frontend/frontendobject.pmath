@@ -1,4 +1,4 @@
-BeginPackage("FE`")
+Begin("FE`")
 
 Begin("FE`Private`")
 
@@ -28,4 +28,4 @@ FE`AssignDynamicValue(~feo, ~dyn, ~val)::= FE`CallFrontEnd(FrontEnd`AssignDynami
 
 End()
 
-EndPackage()
+End()

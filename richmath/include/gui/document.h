@@ -241,9 +241,6 @@ namespace richmath {
       Document           *doc;
       SelectionReference  old_sel;
   };
-  
-  extern Hashtable<String, Expr> global_immediate_macros;
-  extern Hashtable<String, Expr> global_macros;
 }
 
 #endif // RICHMATH__GUI__DOCUMENT_H__INCLUDED

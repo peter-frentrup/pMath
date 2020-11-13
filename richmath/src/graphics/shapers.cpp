@@ -22,6 +22,10 @@ static float divide(float n, float d, float fail = 0) {
 
 using namespace richmath;
 
+
+extern pmath_symbol_t richmath_FE_DollarFallbackFonts;
+
+
 class FontKey {
   public:
     FontKey(
@@ -252,7 +256,7 @@ FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
     _shapers.add(default_shaper);
   
   if(++fallback_shaper_count == 1) {
-    default_fallback_fontlist = Evaluate(Parse("FE`$FallbackFonts"));
+    default_fallback_fontlist = Expr{pmath_symbol_get_value(richmath_FE_DollarFallbackFonts)};
     
     if(default_fallback_fontlist[0] != PMATH_SYMBOL_LIST)
       default_fallback_fontlist = Expr();

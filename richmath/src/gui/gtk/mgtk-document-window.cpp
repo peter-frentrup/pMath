@@ -559,10 +559,10 @@ void MathGtkDocumentWindow::invalidate_options() {
   if(_window_frame != f)
     window_frame(f);
     
-  Expr top          = SectionList::group(Style::finish_style_merge(DockedSectionsTop,         doc->get_style(DockedSectionsTop)));
-  Expr top_glass    = SectionList::group(Style::finish_style_merge(DockedSectionsTopGlass,    doc->get_style(DockedSectionsTopGlass)));
-  Expr bottom       = SectionList::group(Style::finish_style_merge(DockedSectionsBottom,      doc->get_style(DockedSectionsBottom)));
-  Expr bottom_glass = SectionList::group(Style::finish_style_merge(DockedSectionsBottomGlass, doc->get_style(DockedSectionsBottomGlass)));
+  Expr top          = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsTop));
+  Expr top_glass    = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsTopGlass));
+  Expr bottom       = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsBottom));
+  Expr bottom_glass = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsBottomGlass));
   
   _top_area->document()->stylesheet(doc->stylesheet());
   _bottom_area->document()->stylesheet(doc->stylesheet());

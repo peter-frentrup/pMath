@@ -79,7 +79,7 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
     if(!obj->style)
       obj->style = new Style();
       
-    obj->style->add_pmath(options);
+    obj->style->add_pmath(options, false);
     obj->invalidate_options();
     
     return options;

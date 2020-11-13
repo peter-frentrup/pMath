@@ -65,6 +65,8 @@ extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t richmath_System_ImageSize;
 extern pmath_symbol_t richmath_System_ImageSizeAction;
+extern pmath_symbol_t richmath_System_InputAliases;
+extern pmath_symbol_t richmath_System_InputAutoReplacements;
 extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
 extern pmath_symbol_t richmath_System_LanguageCategory;
@@ -329,6 +331,8 @@ namespace richmath {
       // only changes Dynamic() definitions if n.is_literal()
       bool set_pmath(StyleOptionName n, Expr obj);
       
+      bool add_pmath(Expr options, bool amend);
+      
     private:
       bool set_dynamic(StyleOptionName n, Expr value);
       
@@ -343,6 +347,8 @@ namespace richmath {
       bool set_pmath_flatlist(  StyleOptionName n, Expr obj);
       bool set_pmath_enum(      StyleOptionName n, Expr obj);
       bool set_pmath_ruleset(   StyleOptionName n, Expr obj);
+      
+      bool set_pmath_by_unknown_key(Expr lhs, Expr rhs, bool amend);
       
     public:
       static Expr merge_style_values(StyleOptionName key, Expr newer, Expr older);
@@ -616,6 +622,36 @@ bool StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
       raw_set_int(InternalRequiresChildResize, true);
   }
   return any_change;
+}
+
+bool StyleImpl::add_pmath(Expr options, bool amend) {
+  static bool allow_strings = true;
+  
+  if(allow_strings && options.is_string()) 
+    return set_pmath_string(BaseStyleName, String(options));
+  
+  if(options[0] == PMATH_SYMBOL_LIST) {
+    bool old_allow_strings = allow_strings;
+    allow_strings = false;
+    
+    bool any_change = false;
+    
+    for(size_t i = options.expr_length(); i > 0; --i) {
+      any_change = add_pmath(options[i], amend) || any_change;
+    }
+    
+    allow_strings = old_allow_strings;
+    return any_change;
+  }
+  
+  if(options.is_rule()) {
+    Expr lhs = options[1];
+    Expr rhs = options[2];
+    
+    return set_pmath_by_unknown_key(lhs, rhs, amend);
+  }
+  
+  return false;
 }
 
 bool StyleImpl::set_dynamic(StyleOptionName n, Expr value) {
@@ -1027,6 +1063,47 @@ bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
   }
   
   return any_change;
+}
+
+bool StyleImpl::set_pmath_by_unknown_key(Expr lhs, Expr rhs, bool amend) {
+  StyleOptionName key = StyleInformation::get_key(lhs);
+  
+  if(!key.is_valid()) {
+    pmath_debug_print_object("[unknown option ", lhs.get(), "]\n");
+    
+    Expr sym;
+    if(!raw_get_expr(UnknownOptions, &sym) || !sym.is_symbol()) {
+      sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
+      
+      pmath_symbol_set_attributes(sym.get(),
+                                  PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
+                                  
+      raw_set_expr(UnknownOptions, sym);
+    }
+    
+    Expr eval;
+    if(rhs == PMATH_SYMBOL_INHERITED) {
+      eval = Call(Symbol(PMATH_SYMBOL_UNASSIGN), Call(sym, lhs));
+    }
+    else {
+      eval = Call(Symbol(PMATH_SYMBOL_ASSIGN), Call(sym, lhs), rhs);
+    }
+    
+    Evaluate(eval);
+    return true;
+  }
+  
+  bool any_change = false;
+  if(!amend) {
+    if(StyleInformation::get_type(key) == StyleType::AnyFlatList) {
+      // Reset the style so that calling CurrentValue(...):= {..., Inherited, ...} multiple times
+      // will not repeatedly fill in the previous value.
+      if(rhs != PMATH_SYMBOL_INHERITED) {
+        any_change = raw_remove_expr(key) || any_change;
+      }
+    }
+  }
+  return set_pmath(key, rhs) || any_change;
 }
 
 Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) {
@@ -1715,28 +1792,9 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
     style->remove(InternalHasPendingDynamic);
 }
 
-void Style::add_pmath(Expr options) {
-  static bool allow_strings = true;
-  
-  if(allow_strings && options.is_string()) {
-    set(BaseStyleName, String(options));
-  }
-  else if(options[0] == PMATH_SYMBOL_LIST) {
-    bool old_allow_strings = allow_strings;
-    allow_strings = false;
-    
-    for(size_t i = options.expr_length(); i > 0; --i) {
-      add_pmath(options[i]);
-    }
-    
-    allow_strings = old_allow_strings;
-  }
-  else if(options.is_rule()) {
-    Expr lhs = options[1];
-    Expr rhs = options[2];
-    
-    set_pmath_by_unknown_key(lhs, rhs);
-  }
+void Style::add_pmath(Expr options, bool amend) {
+  if(StyleImpl::of(*this).add_pmath(std::move(options), amend))
+    notify_all();
 }
 
 void Style::merge(SharedPtr<Style> other) {
@@ -2026,48 +2084,6 @@ bool Style::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
   return StyleInformation::put_current_style_value(obj, std::move(item), std::move(rhs));
 }
 
-void Style::set_pmath_by_unknown_key(Expr lhs, Expr rhs) {
-  StyleOptionName key = StyleInformation::get_key(lhs);
-  
-  if(!key.is_valid()) {
-    pmath_debug_print_object("[unknown option ", lhs.get(), "]\n");
-    
-    Expr sym;
-    if(!get(UnknownOptions, &sym) || !sym.is_symbol()) {
-      sym = Expr(pmath_symbol_create_temporary(PMATH_C_STRING("FE`Styles`unknown"), TRUE));
-      
-      pmath_symbol_set_attributes(sym.get(),
-                                  PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE);
-                                  
-      set(UnknownOptions, sym);
-    }
-    
-    Expr eval;
-    if(rhs == PMATH_SYMBOL_INHERITED) {
-      eval = Call(Symbol(PMATH_SYMBOL_UNASSIGN),
-                  Call(sym, lhs));
-    }
-    else {
-      eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
-                  Call(sym, lhs), rhs);
-    }
-    
-//    Expr eval = Call(Symbol(PMATH_SYMBOL_ASSIGN),
-//                     Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-//                     Call(Symbol(PMATH_SYMBOL_APPEND),
-//                          Call(Symbol(PMATH_SYMBOL_DOWNRULES), sym),
-//                          Rule(
-//                            Call(Symbol(PMATH_SYMBOL_HOLDPATTERN),
-//                                 Call(sym, lhs)),
-//                            rhs)));
-
-    Evaluate(eval);
-    return;
-  }
-  
-  set_pmath(key, rhs);
-}
-
 bool Style::set_pmath(StyleOptionName n, Expr obj) {
   if(StyleImpl::of(*this).set_pmath(n, obj)) {
     notify_all();
@@ -2149,6 +2165,8 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ImageSizeCommon);
   impl.emit_definition(ImageSizeAction);
   impl.emit_definition(ImplicitOperatorStyle);
+  impl.emit_definition(InputAliases);
+  impl.emit_definition(InputAutoReplacements);
   impl.emit_definition(InputFieldBoxOptions);
   impl.emit_definition(InterpretationFunction);
   impl.emit_definition(KeywordSymbolStyle);
@@ -2784,7 +2802,6 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
     add(StyleType::Any,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
     add(StyleType::Any,             TextShadow,                       Symbol( richmath_System_TextShadow));
-    add(StyleType::AnyFlatList,     FontFamilies,                     Symbol( richmath_System_FontFamily));
     add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
     add(StyleType::Any,             TrackedSymbols,                   Symbol( PMATH_SYMBOL_TRACKEDSYMBOLS));
@@ -2808,6 +2825,10 @@ void StyleInformation::add_style() {
     add(StyleType::AnyFlatList, DockedSectionsTopGlass,    List(Symbol(richmath_System_DockedSections), String("TopGlass")));
     add(StyleType::AnyFlatList, DockedSectionsBottom,      List(Symbol(richmath_System_DockedSections), String("Bottom")));
     add(StyleType::AnyFlatList, DockedSectionsBottomGlass, List(Symbol(richmath_System_DockedSections), String("BottomGlass")));
+    
+    add(StyleType::AnyFlatList, FontFamilies,              Symbol( richmath_System_FontFamily));
+    add(StyleType::AnyFlatList, InputAliases,              Symbol( richmath_System_InputAliases));
+    add(StyleType::AnyFlatList, InputAutoReplacements,     Symbol( richmath_System_InputAutoReplacements));
     
     add(StyleType::Any, ButtonBoxDefaultAppearance,       List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, ButtonBoxDefaultBaselinePosition, List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
@@ -2944,7 +2965,7 @@ void StyleInformation::add_ruleset_head(StyleOptionName key, const Expr &symbol)
 }
 
 Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
-  StyledObject *styled_obj = dynamic_cast<StyledObject*>(obj);
+  auto styled_obj = dynamic_cast<StyledObject*>(obj);
   if(!styled_obj)
     return Symbol(PMATH_SYMBOL_FAILED);
 
@@ -2959,7 +2980,7 @@ Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
 }
 
 bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
-  ActiveStyledObject *styled_obj = dynamic_cast<Box*>(obj);
+  auto styled_obj = dynamic_cast<ActiveStyledObject*>(obj);
   if(!styled_obj)
     return false;
   

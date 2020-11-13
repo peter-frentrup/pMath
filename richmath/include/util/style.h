@@ -211,7 +211,6 @@ namespace richmath {
     BaselinePosition,
     ScriptSizeMultipliers,
     TextShadow,
-    FontFamilies, // StyleType::AnyFlatList
     FontFeatures,
     MathFontFamily,
     UnknownOptions,
@@ -236,6 +235,10 @@ namespace richmath {
     DockedSectionsTopGlass,    // StyleType::AnyFlatList
     DockedSectionsBottom,      // StyleType::AnyFlatList
     DockedSectionsBottomGlass, // StyleType::AnyFlatList
+    
+    FontFamilies,          // StyleType::AnyFlatList
+    InputAliases,          // StyleType::AnyFlatList
+    InputAutoReplacements, // StyleType::AnyFlatList
     
     FillBoxOptions,
     FrameBoxOptions,
@@ -397,7 +400,7 @@ namespace richmath {
       void clear();
       static void reset(SharedPtr<Style> &style, String base_style_name);
       
-      void add_pmath(Expr options);
+      void add_pmath(Expr options, bool amend = true);
       
       void merge(SharedPtr<Style> other);
       static bool contains_inherited(Expr expr);
@@ -431,7 +434,6 @@ namespace richmath {
       unsigned int count() const;
       
       bool set_pmath(StyleOptionName n, Expr obj);
-      void set_pmath_by_unknown_key(Expr lhs, Expr rhs);
       
       Expr get_pmath(StyleOptionName n) const;
       

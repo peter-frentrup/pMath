@@ -121,6 +121,10 @@ Expr StyledObject::get_pmath_style(StyleOptionName n) {
            Stylesheet_get_pmath::impl);
 }
 
+Expr StyledObject::get_finished_flatlist_style(ObjectStyleOptionName n) {
+  return Style::finish_style_merge(n, get_pmath_style(n));
+}
+
 Color StyledObject::get_own_style(ColorStyleOptionName n, Color fallback_result) {
   auto all = stylesheet();
   

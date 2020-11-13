@@ -1,5 +1,5 @@
 
-BeginPackage("FE`")
+Begin("FE`")
 
 Begin("FE`Private`")
 
@@ -60,4 +60,4 @@ SetSelectedDocument(~~~args) /? (IsValidArgumentCount(SetSelectedDocument, Lengt
 
 End()
 
-EndPackage()
+End()
