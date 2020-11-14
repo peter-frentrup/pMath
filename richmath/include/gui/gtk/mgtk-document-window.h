@@ -110,6 +110,7 @@ namespace richmath {
       MathGtkIcons icons;
       
       GtkWidget *_menu_bar;
+      GtkWidget *_overflow_menu_item;
       GtkAdjustment *_hadjustment;
       GtkAdjustment *_vadjustment;
       GtkWidget *_hscrollbar;

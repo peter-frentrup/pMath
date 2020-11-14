@@ -45,6 +45,9 @@ class richmath::MathGtkDocumentWindowImpl {
     void connect_menubar_signals();
     static void register_theme_observer();
     
+    void append_overflow_menu_item();
+    void update_menu_bar_overflow_item(int max_width);
+    
     void append_menu_bar_pin();
     bool menu_is_auto_hidden();
     void on_auto_hide_menu(bool hide);
@@ -304,6 +307,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
 MathGtkDocumentWindow::MathGtkDocumentWindow()
   : BasicGtkWidget(),
     _menu_bar(nullptr),
+    _overflow_menu_item(nullptr),
     _hadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
     _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
     _hscrollbar(nullptr),
@@ -351,6 +355,7 @@ void MathGtkDocumentWindow::after_construction() {
   _menu_bar = gtk_menu_bar_new();
   gtk_widget_set_size_request(_menu_bar, 0, -1);
   MathGtkMenuBuilder::main_menu.append_to(GTK_MENU_SHELL(_menu_bar), accel_group, document()->id());
+  Impl(*this).append_overflow_menu_item();
   Impl(*this).append_menu_bar_pin();
   MathGtkAccelerators::connect_all(accel_group, document()->id());
   
@@ -966,9 +971,12 @@ bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
                       
   _previous_rect = client_rect;
   
+  if(!is_move_only)
+    Impl(*this).update_menu_bar_overflow_item(event->width);
+  
   if(!is_move_only || !_working_area->is_mouse_down() || _snapped_documents.length() < 1)
     return false;
-    
+  
   invalidate_popup_window_positions();
   move_palettes();
   return false;
@@ -1370,6 +1378,160 @@ void MathGtkDocumentWindowImpl::on_theme_changed(GObject*, GParamSpec*) {
   }
 }
 
+void MathGtkDocumentWindowImpl::append_overflow_menu_item() {
+  self._overflow_menu_item = gtk_menu_item_new_with_label("\xC2\xBB"); // U+00BE = utf8: \xC2\xBB
+  gtk_menu_shell_append(GTK_MENU_SHELL(self._menu_bar), self._overflow_menu_item);
+  gtk_widget_set_visible(self._overflow_menu_item, false);
+  
+//  gtk_widget_set_events(self._menu_bar, 
+//    gtk_widget_get_events(self._menu_bar) | GDK_STRUCTURE_MASK);
+//  
+//  g_signal_connect(
+//    self._menu_bar,
+//    "configure-event",
+//    G_CALLBACK((gboolean(*)(GtkWidget*,GdkEventConfigure*,void*))[](GtkWidget *menubar, GdkEventConfigure *event, void *_self) -> gboolean {
+//      MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+//      MathGtkDocumentWindowImpl(self).update_menu_bar_overflow_item(event->width);
+//      return false;
+//    }),
+//    &self);
+}
+
+void MathGtkDocumentWindowImpl::update_menu_bar_overflow_item(int max_width) {
+  static const char *OrigWidgetKey = "richmath-overflow-orig";
+  
+  Array<GtkWidget*> items;
+  gtk_container_foreach(
+    GTK_CONTAINER(self._menu_bar),
+    [](GtkWidget *item, void *arr_ptr) {
+      Array<GtkWidget*> *arr = (Array<GtkWidget*>*)arr_ptr;
+      arr->add(item);
+    },
+    &items);
+  //items = {};
+  //return;
+  int overflow_index = items.length() - 1;
+  while(overflow_index >= 0 && items[overflow_index] != self._overflow_menu_item)
+    --overflow_index;
+  
+  if(overflow_index <= 0)
+    return;
+  
+  Array<int> total_widths;
+  total_widths.length(overflow_index + 1);
+  
+  GtkRequisition size;
+  int total_width = 0;
+  for(int i = 0; i <= overflow_index; ++i) {
+#if GTK_MAJOR_VERSION >= 3
+    gtk_widget_get_preferred_size(items[i], nullptr, &size);
+#else
+    gtk_widget_size_request(items[i], &size);
+#endif
+    total_width+= size.width;
+    total_widths[i] = total_width;
+  }
+  
+  for(int i = overflow_index + 1; i < items.length(); ++i) {
+#if GTK_MAJOR_VERSION >= 3
+    gtk_widget_get_preferred_size(items[i], nullptr, &size);
+#else
+    gtk_widget_size_request(items[i], &size);
+#endif
+    max_width-= size.width;
+  }
+  
+  int last_visible_index = overflow_index - 1;
+  if(total_widths[overflow_index - 1] > max_width) {
+    max_width-= total_widths[overflow_index] - total_widths[overflow_index - 1];
+    while(last_visible_index >= 0 && total_widths[last_visible_index] > max_width)
+      --last_visible_index;
+  }
+  
+//  pmath_debug_print(
+//    "[show %d items for width %d <= %d]\n", 
+//    last_visible_index + 1,
+//    total_widths[last_visible_index],
+//    max_width);
+  
+  GtkWidget *overflow_menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(self._overflow_menu_item));
+  if(!overflow_menu) {
+    overflow_menu = gtk_menu_new();
+    gtk_menu_item_set_submenu(GTK_MENU_ITEM(self._overflow_menu_item), overflow_menu);
+  }
+  
+  Array<GtkWidget*> overflow_items;
+  gtk_container_foreach(
+    GTK_CONTAINER(overflow_menu),
+    [](GtkWidget *item, void *arr_ptr) {
+      Array<GtkWidget*> *arr = (Array<GtkWidget*>*)arr_ptr;
+      arr->add(item);
+    },
+    &overflow_items);
+  
+  for(auto overflow_item : overflow_items) {
+    GtkWidget *orig = (GtkWidget*)g_object_get_data(G_OBJECT(overflow_item), OrigWidgetKey);
+    if(orig) {
+      GtkWidget *submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(overflow_item));
+      if(submenu) {
+        g_object_ref(G_OBJECT(submenu));
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(overflow_item), nullptr);
+        gtk_menu_item_set_submenu(GTK_MENU_ITEM(orig), submenu);
+        g_object_unref(G_OBJECT(submenu));
+      }
+      else {
+        pmath_debug_print(
+          "[no submenu found for overflow item %s]", 
+          gtk_menu_item_get_label(GTK_MENU_ITEM(overflow_item)));
+      }
+      
+      g_object_set_data(G_OBJECT(overflow_item), OrigWidgetKey, nullptr);
+    }
+  }
+  
+  for(int i = 0; i <= last_visible_index; ++i)
+    gtk_widget_show(items[i]);
+  
+  int num_overflow = overflow_index - (last_visible_index + 1);
+  for(int i = 0; i < num_overflow; ++i) {
+    GtkWidget *orig_item     = items[last_visible_index + 1 + i];
+    GtkWidget *overflow_item;
+    
+    if(i < overflow_items.length()) {
+      overflow_item = overflow_items[i];
+    }
+    else {
+      overflow_item = gtk_menu_item_new();
+      gtk_menu_shell_append(GTK_MENU_SHELL(overflow_menu), overflow_item);
+      gtk_menu_item_set_use_underline(GTK_MENU_ITEM(overflow_item), true);
+    }
+    
+    g_object_set_data(G_OBJECT(overflow_item), OrigWidgetKey, orig_item);
+    gtk_menu_item_set_label(
+      GTK_MENU_ITEM(overflow_item), 
+      gtk_menu_item_get_label(GTK_MENU_ITEM(orig_item)));
+    
+    GtkWidget *submenu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(orig_item));
+    if(submenu) {
+      g_object_ref(G_OBJECT(submenu));
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(orig_item), nullptr);
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(overflow_item), submenu);
+      g_object_unref(G_OBJECT(submenu));
+    }
+    else
+      gtk_menu_item_set_submenu(GTK_MENU_ITEM(overflow_item), nullptr);
+    
+    gtk_widget_show(overflow_item);
+    gtk_widget_hide(orig_item);
+  }
+  
+  for(int i = num_overflow; i < overflow_items.length(); ++i) {
+    gtk_widget_hide(overflow_items[i]);
+  }
+  
+  gtk_widget_set_visible(self._overflow_menu_item, last_visible_index + 1 < overflow_index);
+}
+
 void MathGtkDocumentWindowImpl::append_menu_bar_pin() {
 #if GTK_MAJOR_VERSION >= 3
   self._menu_bar_pin = gtk_menu_item_new_with_mnemonic("    "); // "_pin"
@@ -1388,7 +1550,7 @@ void MathGtkDocumentWindowImpl::append_menu_bar_pin() {
     G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))[](GtkWidget *menu_item, GdkEvent *ev, void *_self) -> gboolean { 
       MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
       gtk_menu_shell_select_item(GTK_MENU_SHELL(self._menu_bar), menu_item);
-      return FALSE;
+      return false;
     }), 
     &self);
 #endif
