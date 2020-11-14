@@ -354,13 +354,27 @@ void MathGtkDocumentWindow::after_construction() {
   Impl(*this).append_menu_bar_pin();
   MathGtkAccelerators::connect_all(accel_group, document()->id());
   
+  // Work around GTK 3 regression that ignores our explicit gtk_widget_set_size_request() above.
+  // This problem is also discussed on https://bugs.documentfoundation.org/show_bug.cgi?id=116290
+  GtkWidget *menu_area = _menu_bar;
+#if GTK_MAJOR_VERSION >= 3
+#  if !GTK_CHECK_VERSION(3, 16, 0)
+#    define   GTK_POLICY_EXTERNAL   ((GtkPolicyType)3)
+#  endif
+  if(nullptr == gtk_check_version(3, 16, 0)) {
+    menu_area = gtk_scrolled_window_new(nullptr, nullptr);
+    gtk_container_add(GTK_CONTAINER(menu_area), _menu_bar);
+    gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(menu_area), GTK_POLICY_EXTERNAL, GTK_POLICY_NEVER);
+  }
+#endif
+  
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
   g_object_unref(accel_group);
   
   _table = gtk_table_new(2, 5, FALSE);
   gtk_container_add(GTK_CONTAINER(_widget), _table);
   
-  gtk_table_attach(GTK_TABLE(_table), _menu_bar,               0, 2, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
+  gtk_table_attach(GTK_TABLE(_table), menu_area,               0, 2, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
   gtk_table_attach(GTK_TABLE(_table), _top_area->widget(),     0, 2, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
   gtk_table_attach(GTK_TABLE(_table), _working_area->widget(), 0, 1, 2, 3, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
   gtk_table_attach(GTK_TABLE(_table), _bottom_area->widget(),  0, 2, 4, 5, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
