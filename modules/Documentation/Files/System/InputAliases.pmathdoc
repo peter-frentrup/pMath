@@ -1,0 +1,1596 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("InputAliases", "ObjectName"), 
+      Section(BoxData(TemplateBox({"InputAliases"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"The setting ", TemplateBox({"InputAliases"}, 
+            "ReferenceHyperlink"), " \[Rule] {\"", 
+           StyleBox({"name", SubscriptBox("1")}, "Arg"), "\" \[Rule] ", 
+           StyleBox({"expr", SubscriptBox("1")}, "Arg"), ", \"", 
+           StyleBox({"name", SubscriptBox("2")}, "Arg"), "\" \[Rule] ", 
+           StyleBox({"expr", SubscriptBox("2")}, "Arg"), 
+           ", \[Ellipsis]} causes ", 
+           StyleBox({"\[AliasIndicator]", 
+             StyleBox({"name", SubscriptBox("i")}, "Arg"), 
+             "\[AliasIndicator]"}, AutoSpacing -> False), 
+           " to be replaced by ", StyleBox({"expr", SubscriptBox("i")}, 
+            "Arg"), " on input."}), "Notes"), 
+        Section(
+         TextData({
+           "In math sections, single word aliases can also be entered by ", 
+           StyleBox({"\\", StyleBox({"name", SubscriptBox("i")}, "Arg")}, 
+            AutoSpacing -> False), " followed by a ", 
+           TemplateBox({"space"}, "KeyEvent"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"InputAliases"}, "ReferenceHyperlink"), 
+           " is initialized as a ", TemplateBox({"$FrontEndSession"}, 
+            "ReferenceHyperlink"), " option."}), "Notes"), 
+        Section(TextData({TemplateBox({"InputAliases"}, "ReferenceHyperlink"), 
+           " is typically set by style sheets."}), "Notes"), 
+        Section(TextData({"To inherit replacement rules from outer boxes or ", 
+           TemplateBox({"$FrontEndSession"}, "ReferenceHyperlink"), 
+           ", use the form ", TemplateBox({"InputAliases"}, 
+            "ReferenceHyperlink"), " \[Rule] {\[Ellipsis], ", 
+           TemplateBox({"Inherited"}, "ReferenceHyperlink"), "}."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Create a document that uses ", 
+           StyleBox("\[AliasIndicator]dli\[AliasIndicator]", 
+            AutoSpacing -> False), " as an alias for ", 
+           TemplateBox({"DotlessI"}, "NamedCharacterHyperlink"), ":"}), 
+         "ExampleText"), 
+        Section(
+         BoxData({
+           {"CreateDocument", "(", {{"{", "}"}, ",", {
+              "InputAliases", "\[Rule]", {
+               "{", {ComplexStringBox("\"dli\""), "\[Rule]", 
+                ComplexStringBox("\"\[DotlessI]\"")}, "}"}}}, ")"}, ";"}), 
+         "Input", SectionLabel -> "in [1]:"), 
+        Section(TextData({"An input alias starts and ends with ", 
+           TemplateBox({}, "AliasDelimiterKeyEvent"), ", entered by ", 
+           TemplateBox({"Capslock"}, "KeyEvent"), " or ", 
+           TemplateBox({"Esc"}, "KeyEvent"), " key."}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Also support predefined aliases like ", 
+             StyleBox("\[AliasIndicator]a\[AliasIndicator]", 
+              AutoSpacing -> False), " or ", 
+             StyleBox({"\\", "alpha", TemplateBox({"space"}, "KeyEvent")}, 
+              AutoSpacing -> False), " for ", 
+             TemplateBox({"Alpha"}, "NamedCharacterHyperlink"), ": "}), 
+           "ExampleText"), 
+          Section(
+           BoxData({{"CreateDocument", "(", {
+               {"{", "}"}, ",", {"InputAliases", "\[Rule]", {
+                 "{", {{ComplexStringBox("\"dli\""), "\[Rule]", 
+                   ComplexStringBox("\"\[DotlessI]\"")}, ",", "Inherited"}, 
+                 "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [1]:")}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Aliases may be defined for arbitrary boxes expressions:", 
+         "ExampleText"), 
+        Section(
+         BoxData({
+           {"CreateDocument", "(", {{"{", "}"}, ",", {
+              "InputAliases", "\[Rule]", {
+               "{", {ComplexStringBox("\"x2\""), "\[Rule]", {
+                 "{", {ComplexStringBox("\"x\""), ",", {
+                   "SuperscriptBox", "(", ComplexStringBox("\"2\""), ")"}}, 
+                 "}"}}, "}"}}}, ")"}, ";"}), "Input", 
+         SectionLabel -> "in [1]:")}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section("Find out about predefined input aliases:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"CurrentValue", "(", "InputAliases", ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {{ComplexStringBox("\"button\""), "\[Rule]", {
+                "ButtonBox", "(", ComplexStringBox(
+                 "\"\[SelectionPlaceholder]\""), ")"}}, ",", {
+               ComplexStringBox("\"italic\""), "\[Rule]", {
+                "StyleBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", {
+                  "FontSlant", "\[Rule]", "Italic"}}, ")"}}, ",", {
+               ComplexStringBox("\"repeat\""), "\[Rule]", {
+                "FillBox", "(", ComplexStringBox(
+                 "\"\[SelectionPlaceholder]\""), ")"}}, ",", {
+               ComplexStringBox("\"hfill\""), "\[Rule]", {
+                "FillBox", "(", ComplexStringBox("\" \""), ")"}}, ",", {
+               ComplexStringBox("\"framed\""), "\[Rule]", {
+                "FrameBox", "(", ComplexStringBox(
+                 "\"\[SelectionPlaceholder]\""), ")"}}, ",", {
+               ComplexStringBox("\"panel\""), "\[Rule]", {
+                "PanelBox", "(", ComplexStringBox(
+                 "\"\[SelectionPlaceholder]\""), ")"}}, ",", {
+               ComplexStringBox("\"graphics\""), "\[Rule]", {
+                "GraphicsBox", "(", {"{", "}"}, ")"}}, ",", {
+               ComplexStringBox("\"lorem\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"Lorem ipsum dolor sit amet, consectetur adipisici elit, sed \
+                eiusmod tempor incidunt ut labore et dolore magna aliqua. Ut \
+                enim ad minim veniam, quis nostrud exercitation ullamco \
+                laboris nisi ut aliquid ex ea commodi consequat. Quis aute \
+                iure reprehenderit in voluptate velit esse cillum dolore eu \
+                fugiat nulla pariatur. Excepteur sint obcaecat cupiditat non \
+                proident, sunt in culpa qui officia deserunt mollit anim id \
+                est laborum.\"")}, ",", {ComplexStringBox("\"stylebuttons\""), 
+               "\[Rule]", {"StyleBox", "(", {
+                 {"GridBox", "(", {
+                   "{", {
+                    "{", {
+                     {"ButtonBox", "(", {
+                       {"ComplexStringBox", "(", 
+                        ComplexStringBox("\"\\\"Math in Text\\\"\""), ")"}, 
+                       ",", {"ButtonFunction", "\[Rule]", {
+                         "(", {{"DocumentApply", "(", {
+                            {"SelectedDocument", "(", ")"}, ",", 
+                            ComplexStringBox("\"", 
+                             "\[SelectionPlaceholder]")}, ")"}, "&"}, ")"}}}, 
+                      ")"}, ",", {"ButtonBox", "(", {
+                       {"ComplexStringBox", "(", 
+                        ComplexStringBox("\"\\\"italic\\\"\""), ")"}, ",", {
+                        "ButtonFunction", "\[Rule]", {
+                         "(", {{"DocumentApply", "(", {
+                            {"SelectedDocument", "(", ")"}, ",", {
+                             "StyleBox", "(", {
+                              ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                              ",", ComplexStringBox("\"TI\"")}, ")"}}, ")"}, 
+                          "&"}, ")"}}}, ")"}, ",", {
+                      "ButtonBox", "(", {
+                       {"ComplexStringBox", "(", 
+                        ComplexStringBox("\"\\\"Arg Style\\\"\""), ")"}, ",", {
+                        "ButtonFunction", "\[Rule]", {
+                         "(", {{"DocumentApply", "(", {
+                            {"SelectedDocument", "(", ")"}, ",", {
+                             "StyleBox", "(", {
+                              ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                              ",", ComplexStringBox("\"Arg\"")}, ")"}}, ")"}, 
+                          "&"}, ")"}}}, ")"}, ",", {
+                      "ButtonBox", "(", {
+                       {"ComplexStringBox", "(", 
+                        ComplexStringBox("\"\\\"Small Caps\\\"\""), ")"}, ",", 
+                       {"ButtonFunction", "\[Rule]", {
+                         "(", {{"DocumentApply", "(", {
+                            {"SelectedDocument", "(", ")"}, ",", {
+                             "StyleBox", "(", {
+                              ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                              ",", {"FontFeatures", "\[Rule]", {
+                                "{", ComplexStringBox("\"smcp\""), "}"}}}, 
+                             ")"}}, ")"}, "&"}, ")"}}}, ")"}}, "}"}, "}"}, 
+                  ")"}, ",", ComplexStringBox("\"ControlStyle\"")}, ")"}}, 
+              ",", {ComplexStringBox("\"LaTeX\""), "\[Rule]", {
+                "StyleBox", "(", {
+                 {"{", {
+                   {"{", {ComplexStringBox("\"L\""), ",", {
+                      "SuperscriptBox", "(", ComplexStringBox("\"A\""), ")"}}, 
+                    "}"}, ",", {"StyleBox", "(", {
+                     {"{", {ComplexStringBox("\"T\""), ",", {
+                        "SubscriptBox", "(", ComplexStringBox("\"E\""), ")"}}, 
+                      "}"}, ",", {"ScriptSizeMultipliers", "\[Rule]", {
+                       "{", "1", "}"}}}, ")"}, ",", 
+                   ComplexStringBox("\"X\"")}, "}"}, ",", {
+                  "AutoSpacing", "\[Rule]", "False"}, ",", {
+                  "ShowAutoStyles", "\[Rule]", "False"}}, ")"}}, ",", {
+               ComplexStringBox("\"TeX\""), "\[Rule]", {
+                "StyleBox", "(", {
+                 {"{", {
+                   {"StyleBox", "(", {
+                     {"{", {ComplexStringBox("\"T\""), ",", {
+                        "SubscriptBox", "(", ComplexStringBox("\"E\""), ")"}}, 
+                      "}"}, ",", {"ScriptSizeMultipliers", "\[Rule]", {
+                       "{", "1", "}"}}}, ")"}, ",", 
+                   ComplexStringBox("\"X\"")}, "}"}, ",", {
+                  "AutoSpacing", "\[Rule]", "False"}, ",", {
+                  "ShowAutoStyles", "\[Rule]", "False"}}, ")"}}, ",", {
+               ComplexStringBox("\"cases\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[Piecewise]\""), ",", {
+                  "GridBox", "(", {
+                   "{", {
+                    {"{", {ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                      ",", ComplexStringBox("\"\[Placeholder]\"")}, "}"}, ",", 
+                    {"{", {ComplexStringBox("\"\[Placeholder]\""), ",", 
+                      ComplexStringBox("\"\[Placeholder]\"")}, "}"}}, "}"}, 
+                  ")"}}, "}"}}, ",", {ComplexStringBox("\"pmatrix\""), 
+               "\[Rule]", {"{", {ComplexStringBox("\"(\""), ",", {
+                  "GridBox", "(", {
+                   "{", {
+                    {"{", {ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                      ",", ComplexStringBox("\"\[Placeholder]\"")}, "}"}, ",", 
+                    {"{", {ComplexStringBox("\"\[Placeholder]\""), ",", 
+                      ComplexStringBox("\"\[Placeholder]\"")}, "}"}}, "}"}, 
+                  ")"}, ",", ComplexStringBox("\")\"")}, "}"}}, ",", {
+               ComplexStringBox("\"intt\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[Integral]\""), ",", 
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[DifferentialD]\""), ",", 
+                 ComplexStringBox("\"\[Placeholder]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"dintt\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[Integral]\""), ",", {
+                  "SubsuperscriptBox", "(", {
+                   ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                   ComplexStringBox("\"\[Placeholder]\"")}, ")"}, ",", 
+                 ComplexStringBox("\"\[Placeholder]\""), ",", 
+                 ComplexStringBox("\"\[DifferentialD]\""), ",", 
+                 ComplexStringBox("\"\[Placeholder]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"dt\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[PartialD]\""), ",", {
+                  "SubscriptBox", "(", ComplexStringBox("\"\[Placeholder]\""), 
+                  ")"}, ",", ComplexStringBox("\"\[SelectionPlaceholder]\"")}, 
+                "}"}}, ",", {ComplexStringBox("\"sumt\""), "\[Rule]", {
+                "{", {{"UnderoverscriptBox", "(", {
+                   ComplexStringBox("\"\[Sum]\""), ",", {
+                    "{", {ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                     ",", ComplexStringBox("\"=\""), ",", 
+                     ComplexStringBox("\"\[Placeholder]\"")}, "}"}, ",", 
+                   ComplexStringBox("\"\[Placeholder]\"")}, ")"}, ",", 
+                 ComplexStringBox("\"\[Placeholder]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"prodt\""), "\[Rule]", {
+                "{", {{"UnderoverscriptBox", "(", {
+                   ComplexStringBox("\"\[Product]\""), ",", {
+                    "{", {ComplexStringBox("\"\[SelectionPlaceholder]\""), 
+                     ",", ComplexStringBox("\"=\""), ",", 
+                     ComplexStringBox("\"\[Placeholder]\"")}, "}"}, ",", 
+                   ComplexStringBox("\"\[Placeholder]\"")}, ")"}, ",", 
+                 ComplexStringBox("\"\[Placeholder]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"abs\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[LeftBracketingBar]\""), ",", 
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[RightBracketingBar]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"norm\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[LeftDoubleBracketingBar]\""), ",", 
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[RightDoubleBracketingBar]\"")}, "}"}}, 
+              ",", {ComplexStringBox("\"ceil\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[LeftCeiling]\""), ",", 
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[RightCeiling]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"ceiling\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[LeftCeiling]\""), ",", 
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[RightCeiling]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"floor\""), "\[Rule]", {
+                "{", {ComplexStringBox("\"\[LeftFloor]\""), ",", 
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[RightFloor]\"")}, "}"}}, ",", {
+               ComplexStringBox("\"surd\""), "\[Rule]", {
+                "RadicalBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"\[Placeholder]\""), ",", {
+                  "SurdForm", "\[Rule]", "True"}}, ")"}}, ",", {
+               ComplexStringBox("\"cbrt\""), "\[Rule]", {
+                "RadicalBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 ComplexStringBox("\"3\""), ",", {
+                  "SurdForm", "\[Rule]", "True"}}, ")"}}, ",", {
+               ComplexStringBox("\"0F1\""), "\[Rule]", {
+                "TemplateBox", "(", {
+                 {"{", {ComplexStringBox("\"\[Placeholder]\""), ",", 
+                   ComplexStringBox("\"\[SelectionPlaceholder]\"")}, "}"}, 
+                 ",", ComplexStringBox("\"Hypergeometric0F1\"")}, ")"}}, ",", {
+               ComplexStringBox("\"1F1\""), "\[Rule]", {
+                "TemplateBox", "(", {
+                 {"{", {ComplexStringBox("\"\[Placeholder]\""), ",", 
+                   ComplexStringBox("\"\[Placeholder]\""), ",", 
+                   ComplexStringBox("\"\[SelectionPlaceholder]\"")}, "}"}, 
+                 ",", ComplexStringBox("\"Hypergeometric1F1\"")}, ")"}}, ",", {
+               ComplexStringBox("\"2F1\""), "\[Rule]", {
+                "TemplateBox", "(", {
+                 {"{", {ComplexStringBox("\"\[Placeholder]\""), ",", 
+                   ComplexStringBox("\"\[Placeholder]\""), ",", 
+                   ComplexStringBox("\"\[Placeholder]\""), ",", 
+                   ComplexStringBox("\"\[SelectionPlaceholder]\"")}, "}"}, 
+                 ",", ComplexStringBox("\"Hypergeometric2F1\"")}, ")"}}, ",", {
+               ComplexStringBox("\"input\""), "\[Rule]", {
+                "InputFieldBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", 
+                 "String"}, ")"}}, ",", {ComplexStringBox("\"rot\""), 
+               "\[Rule]", {"RotationBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", {
+                  "BoxRotation", "\[Rule]", FractionBox("\[Pi]", "4")}}, 
+                ")"}}, ",", {ComplexStringBox("\"scale\""), "\[Rule]", {
+                "TransformationBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", {
+                  "BoxTransformation", "\[Rule]", {
+                   "{", {{"{", {"2", ",", "0"}, "}"}, ",", {
+                     "{", {"0", ",", "2"}, "}"}}, "}"}}}, ")"}}, ",", {
+               ComplexStringBox("\"trans\""), "\[Rule]", {
+                "TransformationBox", "(", {
+                 ComplexStringBox("\"\[SelectionPlaceholder]\""), ",", {
+                  "BoxTransformation", "\[Rule]", {
+                   "{", {{"{", {"1", ",", "0.29999999999999999`"}, "}"}, ",", {
+                     "{", {"0", ",", "1"}, "}"}}, "}"}}}, ")"}}, ",", {
+               ComplexStringBox("\"<~\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+21DC]\"")}, ",", {
+               ComplexStringBox("\"~>\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+21DD]\"")}, ",", {
+               ComplexStringBox("\"1/4\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+00BC]\"")}, ",", {
+               ComplexStringBox("\"1/2\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+00BD]\"")}, ",", {
+               ComplexStringBox("\"3/4\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+00BE]\"")}, ",", {
+               ComplexStringBox("\"1/7\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2150]\"")}, ",", {
+               ComplexStringBox("\"1/9\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2151]\"")}, ",", {
+               ComplexStringBox("\"1/10\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2152]\"")}, ",", {
+               ComplexStringBox("\"1/3\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2153]\"")}, ",", {
+               ComplexStringBox("\"2/3\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2154]\"")}, ",", {
+               ComplexStringBox("\"1/5\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2155]\"")}, ",", {
+               ComplexStringBox("\"2/5\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2156]\"")}, ",", {
+               ComplexStringBox("\"3/5\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2157]\"")}, ",", {
+               ComplexStringBox("\"4/5\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2158]\"")}, ",", {
+               ComplexStringBox("\"1/6\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2159]\"")}, ",", {
+               ComplexStringBox("\"5/6\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+215A]\"")}, ",", {
+               ComplexStringBox("\"1/8\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+215B]\"")}, ",", {
+               ComplexStringBox("\"3/8\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+215C]\"")}, ",", {
+               ComplexStringBox("\"5/8\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+215D]\"")}, ",", {
+               ComplexStringBox("\"7/8\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+215E]\"")}, ",", {
+               ComplexStringBox("\"1/\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+215F]\"")}, ",", {
+               ComplexStringBox("\"0/3\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2189]\"")}, ",", {
+               ComplexStringBox("\"uni^0\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2070]\"")}, ",", {
+               ComplexStringBox("\"uni^1\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+00B9]\"")}, ",", {
+               ComplexStringBox("\"uni^2\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+00B2]\"")}, ",", {
+               ComplexStringBox("\"uni^3\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+00B3]\"")}, ",", {
+               ComplexStringBox("\"uni^4\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2074]\"")}, ",", {
+               ComplexStringBox("\"uni^5\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2075]\"")}, ",", {
+               ComplexStringBox("\"uni^6\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2076]\"")}, ",", {
+               ComplexStringBox("\"uni^7\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2077]\"")}, ",", {
+               ComplexStringBox("\"uni^8\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2078]\"")}, ",", {
+               ComplexStringBox("\"uni^9\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2079]\"")}, ",", {
+               ComplexStringBox("\"uni^+\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+207A]\"")}, ",", {
+               ComplexStringBox("\"uni^-\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+207B]\"")}, ",", {
+               ComplexStringBox("\"uni^=\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+207C]\"")}, ",", {
+               ComplexStringBox("\"uni^(\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+207D]\"")}, ",", {
+               ComplexStringBox("\"uni^)\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+207E]\"")}, ",", {
+               ComplexStringBox("\"uni^a\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D43]\"")}, ",", {
+               ComplexStringBox("\"uni^b\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D47]\"")}, ",", {
+               ComplexStringBox("\"uni^c\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D9C]\"")}, ",", {
+               ComplexStringBox("\"uni^d\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D48]\"")}, ",", {
+               ComplexStringBox("\"uni^e\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D49]\"")}, ",", {
+               ComplexStringBox("\"uni^f\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1DA0]\"")}, ",", {
+               ComplexStringBox("\"uni^g\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D4D]\"")}, ",", {
+               ComplexStringBox("\"uni^h\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02B0]\"")}, ",", {
+               ComplexStringBox("\"uni^i\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2071]\"")}, ",", {
+               ComplexStringBox("\"uni^j\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02B2]\"")}, ",", {
+               ComplexStringBox("\"uni^k\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D4F]\"")}, ",", {
+               ComplexStringBox("\"uni^l\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02E1]\"")}, ",", {
+               ComplexStringBox("\"uni^m\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D50]\"")}, ",", {
+               ComplexStringBox("\"uni^n\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+207F]\"")}, ",", {
+               ComplexStringBox("\"uni^o\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D52]\"")}, ",", {
+               ComplexStringBox("\"uni^p\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D56]\"")}, ",", {
+               ComplexStringBox("\"uni^r\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02B3]\"")}, ",", {
+               ComplexStringBox("\"uni^s\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02E2]\"")}, ",", {
+               ComplexStringBox("\"uni^t\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D57]\"")}, ",", {
+               ComplexStringBox("\"uni^u\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D58]\"")}, ",", {
+               ComplexStringBox("\"uni^v\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D5B]\"")}, ",", {
+               ComplexStringBox("\"uni^w\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02B7]\"")}, ",", {
+               ComplexStringBox("\"uni^x\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02E3]\"")}, ",", {
+               ComplexStringBox("\"uni^y\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+02B8]\"")}, ",", {
+               ComplexStringBox("\"uni^z\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1DBB]\"")}, ",", {
+               ComplexStringBox("\"uni^A\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D2C]\"")}, ",", {
+               ComplexStringBox("\"uni^B\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D2E]\"")}, ",", {
+               ComplexStringBox("\"uni^D\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D30]\"")}, ",", {
+               ComplexStringBox("\"uni^E\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D31]\"")}, ",", {
+               ComplexStringBox("\"uni^G\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D33]\"")}, ",", {
+               ComplexStringBox("\"uni^H\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D34]\"")}, ",", {
+               ComplexStringBox("\"uni^I\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D35]\"")}, ",", {
+               ComplexStringBox("\"uni^J\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D36]\"")}, ",", {
+               ComplexStringBox("\"uni^K\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D37]\"")}, ",", {
+               ComplexStringBox("\"uni^L\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D38]\"")}, ",", {
+               ComplexStringBox("\"uni^M\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D39]\"")}, ",", {
+               ComplexStringBox("\"uni^N\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D3A]\"")}, ",", {
+               ComplexStringBox("\"uni^O\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D3C]\"")}, ",", {
+               ComplexStringBox("\"uni^P\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D3E]\"")}, ",", {
+               ComplexStringBox("\"uni^R\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D3F]\"")}, ",", {
+               ComplexStringBox("\"uni^T\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D40]\"")}, ",", {
+               ComplexStringBox("\"uni^U\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D41]\"")}, ",", {
+               ComplexStringBox("\"uni^V\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2C7D]\"")}, ",", {
+               ComplexStringBox("\"uni^W\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D42]\"")}, ",", {
+               ComplexStringBox("\"uni_0\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2080]\"")}, ",", {
+               ComplexStringBox("\"uni_1\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2081]\"")}, ",", {
+               ComplexStringBox("\"uni_2\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2082]\"")}, ",", {
+               ComplexStringBox("\"uni_3\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2083]\"")}, ",", {
+               ComplexStringBox("\"uni_4\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2084]\"")}, ",", {
+               ComplexStringBox("\"uni_5\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2085]\"")}, ",", {
+               ComplexStringBox("\"uni_6\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2086]\"")}, ",", {
+               ComplexStringBox("\"uni_7\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2087]\"")}, ",", {
+               ComplexStringBox("\"uni_8\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2088]\"")}, ",", {
+               ComplexStringBox("\"uni_9\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2089]\"")}, ",", {
+               ComplexStringBox("\"uni_+\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+208A]\"")}, ",", {
+               ComplexStringBox("\"uni_-\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+208B]\"")}, ",", {
+               ComplexStringBox("\"uni_=\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+208C]\"")}, ",", {
+               ComplexStringBox("\"uni_(\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+208D]\"")}, ",", {
+               ComplexStringBox("\"uni_)\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+208E]\"")}, ",", {
+               ComplexStringBox("\"uni_a\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2090]\"")}, ",", {
+               ComplexStringBox("\"uni_e\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2091]\"")}, ",", {
+               ComplexStringBox("\"uni_h\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2095]\"")}, ",", {
+               ComplexStringBox("\"uni_i\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D62]\"")}, ",", {
+               ComplexStringBox("\"uni_j\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2C7C]\"")}, ",", {
+               ComplexStringBox("\"uni_k\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2096]\"")}, ",", {
+               ComplexStringBox("\"uni_l\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2097]\"")}, ",", {
+               ComplexStringBox("\"uni_m\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2098]\"")}, ",", {
+               ComplexStringBox("\"uni_n\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2099]\"")}, ",", {
+               ComplexStringBox("\"uni_o\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2092]\"")}, ",", {
+               ComplexStringBox("\"uni_p\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+209A]\"")}, ",", {
+               ComplexStringBox("\"uni_r\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D63]\"")}, ",", {
+               ComplexStringBox("\"uni_s\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+209B]\"")}, ",", {
+               ComplexStringBox("\"uni_t\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+209C]\"")}, ",", {
+               ComplexStringBox("\"uni_u\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D64]\"")}, ",", {
+               ComplexStringBox("\"uni_v\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+1D65]\"")}, ",", {
+               ComplexStringBox("\"uni_x\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2093]\"")}, ",", {
+               ComplexStringBox("\"<<\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftGuillemet]\"")}, ",", {
+               ComplexStringBox("\">>\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightGuillemet]\"")}, ",", {
+               ComplexStringBox("\"< \""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftSingleGuillemet]\"")}, ",", {
+               ComplexStringBox("\"> \""), "\[Rule]", 
+               ComplexStringBox("\"\[RightSingleGuillemet]\"")}, ",", {
+               ComplexStringBox("\"^6\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighSixQuote]\"")}, ",", {
+               ComplexStringBox("\"^9\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighNineQuote]\"")}, ",", {
+               ComplexStringBox("\"_9\""), "\[Rule]", 
+               ComplexStringBox("\"\[LowNineQuote]\"")}, ",", {
+               ComplexStringBox("\"^-9\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighReversedNineQuote]\"")}, ",", {
+               ComplexStringBox("\"^66\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighSixDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"^99\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighNineDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"_99\""), "\[Rule]", 
+               ComplexStringBox("\"\[LowNineDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"^-99\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighReversedNineDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"fr\\\"\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LeftGuillemet]\[SelectionPlaceholder]\[RightGuillemet]\""\
+                )}, ",", {ComplexStringBox("\"frquo\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LeftGuillemet]\[SelectionPlaceholder]\[RightGuillemet]\""\
+                )}, ",", {ComplexStringBox("\"fr'\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LeftSingleGuillemet]\[SelectionPlaceholder]\
+                \[RightSingleGuillemet]\"")}, ",", {
+               ComplexStringBox("\"frsquo\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LeftSingleGuillemet]\[SelectionPlaceholder]\
+                \[RightSingleGuillemet]\"")}, ",", {
+               ComplexStringBox("\"en\\\"\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[HighSixDoubleQuote]\[SelectionPlaceholder]\
+                \[HighNineDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"enquo\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[HighSixDoubleQuote]\[SelectionPlaceholder]\
+                \[HighNineDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"en'\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[HighSixQuote]\[SelectionPlaceholder]\[HighNineQuote]\"")}, ",", {ComplexStringBox("\"ensquo\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[HighSixQuote]\[SelectionPlaceholder]\[HighNineQuote]\"")}, ",", {ComplexStringBox("\"de\\\"\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LowNineDoubleQuote]\[SelectionPlaceholder]\
+                \[HighSixDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"dequo\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LowNineDoubleQuote]\[SelectionPlaceholder]\
+                \[HighSixDoubleQuote]\"")}, ",", {
+               ComplexStringBox("\"de'\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LowNineQuote]\[SelectionPlaceholder]\[HighSixQuote]\"")}, 
+              ",", {ComplexStringBox("\"desquo\""), "\[Rule]", 
+               ComplexStringBox(
+                "\"\[LowNineQuote]\[SelectionPlaceholder]\[HighSixQuote]\"")}, 
+              ",", {ComplexStringBox("\"apostrophe\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighNineQuote]\"")}, ",", {
+               ComplexStringBox("\"apos\""), "\[Rule]", 
+               ComplexStringBox("\"\[HighNineQuote]\"")}, ",", {
+               ComplexStringBox("\"prime\""), "\[Rule]", 
+               ComplexStringBox("\"\[Prime]\"")}, ",", {
+               ComplexStringBox("\"'\""), "\[Rule]", 
+               ComplexStringBox("\"\[Prime]\"")}, ",", {
+               ComplexStringBox("\"''\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoublePrime]\"")}, ",", {
+               ComplexStringBox("\"'''\""), "\[Rule]", 
+               ComplexStringBox("\"\[TriplePrime]\"")}, ",", {
+               ComplexStringBox("\"''''\""), "\[Rule]", 
+               ComplexStringBox("\"\[QuadruplePrime]\"")}, ",", {
+               ComplexStringBox("\"\[SZ]\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalSZ]\"")}, ",", {
+               ComplexStringBox("\"a\""), "\[Rule]", 
+               ComplexStringBox("\"\[Alpha]\"")}, ",", {
+               ComplexStringBox("\"alpha\""), "\[Rule]", 
+               ComplexStringBox("\"\[Alpha]\"")}, ",", {
+               ComplexStringBox("\"b\""), "\[Rule]", 
+               ComplexStringBox("\"\[Beta]\"")}, ",", {
+               ComplexStringBox("\"beta\""), "\[Rule]", 
+               ComplexStringBox("\"\[Beta]\"")}, ",", {
+               ComplexStringBox("\"g\""), "\[Rule]", 
+               ComplexStringBox("\"\[Gamma]\"")}, ",", {
+               ComplexStringBox("\"gamma\""), "\[Rule]", 
+               ComplexStringBox("\"\[Gamma]\"")}, ",", {
+               ComplexStringBox("\"d\""), "\[Rule]", 
+               ComplexStringBox("\"\[Delta]\"")}, ",", {
+               ComplexStringBox("\"delta\""), "\[Rule]", 
+               ComplexStringBox("\"\[Delta]\"")}, ",", {
+               ComplexStringBox("\"e\""), "\[Rule]", 
+               ComplexStringBox("\"\[Epsilon]\"")}, ",", {
+               ComplexStringBox("\"epsilon\""), "\[Rule]", 
+               ComplexStringBox("\"\[Epsilon]\"")}, ",", {
+               ComplexStringBox("\"ce\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyEpsilon]\"")}, ",", {
+               ComplexStringBox("\"cepsilon\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyEpsilon]\"")}, ",", {
+               ComplexStringBox("\"varepsilon\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyEpsilon]\"")}, ",", {
+               ComplexStringBox("\"z\""), "\[Rule]", 
+               ComplexStringBox("\"\[Zeta]\"")}, ",", {
+               ComplexStringBox("\"zeta\""), "\[Rule]", 
+               ComplexStringBox("\"\[Zeta]\"")}, ",", {
+               ComplexStringBox("\"h\""), "\[Rule]", 
+               ComplexStringBox("\"\[Eta]\"")}, ",", {
+               ComplexStringBox("\"eta\""), "\[Rule]", 
+               ComplexStringBox("\"\[Eta]\"")}, ",", {
+               ComplexStringBox("\"q\""), "\[Rule]", 
+               ComplexStringBox("\"\[Theta]\"")}, ",", {
+               ComplexStringBox("\"th\""), "\[Rule]", 
+               ComplexStringBox("\"\[Theta]\"")}, ",", {
+               ComplexStringBox("\"theta\""), "\[Rule]", 
+               ComplexStringBox("\"\[Theta]\"")}, ",", {
+               ComplexStringBox("\"cq\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyTheta]\"")}, ",", {
+               ComplexStringBox("\"cth\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyTheta]\"")}, ",", {
+               ComplexStringBox("\"ctheta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyTheta]\"")}, ",", {
+               ComplexStringBox("\"vartheta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyTheta]\"")}, ",", {
+               ComplexStringBox("\"i\""), "\[Rule]", 
+               ComplexStringBox("\"\[Iota]\"")}, ",", {
+               ComplexStringBox("\"iota\""), "\[Rule]", 
+               ComplexStringBox("\"\[Iota]\"")}, ",", {
+               ComplexStringBox("\"k\""), "\[Rule]", 
+               ComplexStringBox("\"\[Kappa]\"")}, ",", {
+               ComplexStringBox("\"kappa\""), "\[Rule]", 
+               ComplexStringBox("\"\[Kappa]\"")}, ",", {
+               ComplexStringBox("\"ck\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyKappa]\"")}, ",", {
+               ComplexStringBox("\"ckappa\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyKappa]\"")}, ",", {
+               ComplexStringBox("\"varkappa\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyKappa]\"")}, ",", {
+               ComplexStringBox("\"l\""), "\[Rule]", 
+               ComplexStringBox("\"\[Lambda]\"")}, ",", {
+               ComplexStringBox("\"lambda\""), "\[Rule]", 
+               ComplexStringBox("\"\[Lambda]\"")}, ",", {
+               ComplexStringBox("\"m\""), "\[Rule]", 
+               ComplexStringBox("\"\[Mu]\"")}, ",", {
+               ComplexStringBox("\"mu\""), "\[Rule]", 
+               ComplexStringBox("\"\[Mu]\"")}, ",", {
+               ComplexStringBox("\"n\""), "\[Rule]", 
+               ComplexStringBox("\"\[Nu]\"")}, ",", {
+               ComplexStringBox("\"nu\""), "\[Rule]", 
+               ComplexStringBox("\"\[Nu]\"")}, ",", {
+               ComplexStringBox("\"x\""), "\[Rule]", 
+               ComplexStringBox("\"\[Xi]\"")}, ",", {
+               ComplexStringBox("\"xi\""), "\[Rule]", 
+               ComplexStringBox("\"\[Xi]\"")}, ",", {
+               ComplexStringBox("\"om\""), "\[Rule]", 
+               ComplexStringBox("\"\[Omicron]\"")}, ",", {
+               ComplexStringBox("\"omicron\""), "\[Rule]", 
+               ComplexStringBox("\"\[Omicron]\"")}, ",", {
+               ComplexStringBox("\"p\""), "\[Rule]", 
+               ComplexStringBox("\"\[Pi]\"")}, ",", {
+               ComplexStringBox("\"pi\""), "\[Rule]", 
+               ComplexStringBox("\"\[Pi]\"")}, ",", {
+               ComplexStringBox("\"cp\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPi]\"")}, ",", {
+               ComplexStringBox("\"cpi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPi]\"")}, ",", {
+               ComplexStringBox("\"varpi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPi]\"")}, ",", {
+               ComplexStringBox("\"r\""), "\[Rule]", 
+               ComplexStringBox("\"\[Rho]\"")}, ",", {
+               ComplexStringBox("\"rho\""), "\[Rule]", 
+               ComplexStringBox("\"\[Rho]\"")}, ",", {
+               ComplexStringBox("\"cr\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyRho]\"")}, ",", {
+               ComplexStringBox("\"crho\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyRho]\"")}, ",", {
+               ComplexStringBox("\"varrho\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyRho]\"")}, ",", {
+               ComplexStringBox("\"s\""), "\[Rule]", 
+               ComplexStringBox("\"\[Sigma]\"")}, ",", {
+               ComplexStringBox("\"sigma\""), "\[Rule]", 
+               ComplexStringBox("\"\[Sigma]\"")}, ",", {
+               ComplexStringBox("\"varsigma\""), "\[Rule]", 
+               ComplexStringBox("\"\[FinalSigma]\"")}, ",", {
+               ComplexStringBox("\"sti\""), "\[Rule]", 
+               ComplexStringBox("\"\[Stigma]\"")}, ",", {
+               ComplexStringBox("\"stigma\""), "\[Rule]", 
+               ComplexStringBox("\"\[Stigma]\"")}, ",", {
+               ComplexStringBox("\"t\""), "\[Rule]", 
+               ComplexStringBox("\"\[Tau]\"")}, ",", {
+               ComplexStringBox("\"tau\""), "\[Rule]", 
+               ComplexStringBox("\"\[Tau]\"")}, ",", {
+               ComplexStringBox("\"u\""), "\[Rule]", 
+               ComplexStringBox("\"\[Upsilon]\"")}, ",", {
+               ComplexStringBox("\"upsilon\""), "\[Rule]", 
+               ComplexStringBox("\"\[Upsilon]\"")}, ",", {
+               ComplexStringBox("\"f\""), "\[Rule]", 
+               ComplexStringBox("\"\[Phi]\"")}, ",", {
+               ComplexStringBox("\"ph\""), "\[Rule]", 
+               ComplexStringBox("\"\[Phi]\"")}, ",", {
+               ComplexStringBox("\"phi\""), "\[Rule]", 
+               ComplexStringBox("\"\[Phi]\"")}, ",", {
+               ComplexStringBox("\"j\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPhi]\"")}, ",", {
+               ComplexStringBox("\"cph\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPhi]\"")}, ",", {
+               ComplexStringBox("\"cphi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPhi]\"")}, ",", {
+               ComplexStringBox("\"varphi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CurlyPhi]\"")}, ",", {
+               ComplexStringBox("\"c\""), "\[Rule]", 
+               ComplexStringBox("\"\[Chi]\"")}, ",", {
+               ComplexStringBox("\"ch\""), "\[Rule]", 
+               ComplexStringBox("\"\[Chi]\"")}, ",", {
+               ComplexStringBox("\"chi\""), "\[Rule]", 
+               ComplexStringBox("\"\[Chi]\"")}, ",", {
+               ComplexStringBox("\"y\""), "\[Rule]", 
+               ComplexStringBox("\"\[Psi]\"")}, ",", {
+               ComplexStringBox("\"ps\""), "\[Rule]", 
+               ComplexStringBox("\"\[Psi]\"")}, ",", {
+               ComplexStringBox("\"psi\""), "\[Rule]", 
+               ComplexStringBox("\"\[Psi]\"")}, ",", {
+               ComplexStringBox("\"o\""), "\[Rule]", 
+               ComplexStringBox("\"\[Omega]\"")}, ",", {
+               ComplexStringBox("\"w\""), "\[Rule]", 
+               ComplexStringBox("\"\[Omega]\"")}, ",", {
+               ComplexStringBox("\"omega\""), "\[Rule]", 
+               ComplexStringBox("\"\[Omega]\"")}, ",", {
+               ComplexStringBox("\"A\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalAlpha]\"")}, ",", {
+               ComplexStringBox("\"Alpha\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalAlpha]\"")}, ",", {
+               ComplexStringBox("\"B\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalBeta]\"")}, ",", {
+               ComplexStringBox("\"Beta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalBeta]\"")}, ",", {
+               ComplexStringBox("\"G\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalGamma]\"")}, ",", {
+               ComplexStringBox("\"Gamma\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalGamma]\"")}, ",", {
+               ComplexStringBox("\"D\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalDelta]\"")}, ",", {
+               ComplexStringBox("\"Delta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalDelta]\"")}, ",", {
+               ComplexStringBox("\"E\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalEpsilon]\"")}, ",", {
+               ComplexStringBox("\"Epsilon\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalEpsilon]\"")}, ",", {
+               ComplexStringBox("\"Z\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalZeta]\"")}, ",", {
+               ComplexStringBox("\"Zeta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalZeta]\"")}, ",", {
+               ComplexStringBox("\"H\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalEta]\"")}, ",", {
+               ComplexStringBox("\"Eta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalEta]\"")}, ",", {
+               ComplexStringBox("\"Q\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalTheta]\"")}, ",", {
+               ComplexStringBox("\"Th\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalTheta]\"")}, ",", {
+               ComplexStringBox("\"Theta\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalTheta]\"")}, ",", {
+               ComplexStringBox("\"I\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalIota]\"")}, ",", {
+               ComplexStringBox("\"Iota\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalIota]\"")}, ",", {
+               ComplexStringBox("\"K\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalKappa]\"")}, ",", {
+               ComplexStringBox("\"Kappa\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalKappa]\"")}, ",", {
+               ComplexStringBox("\"L\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalLambda]\"")}, ",", {
+               ComplexStringBox("\"Lambda\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalLambda]\"")}, ",", {
+               ComplexStringBox("\"M\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalMu]\"")}, ",", {
+               ComplexStringBox("\"Mu\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalMu]\"")}, ",", {
+               ComplexStringBox("\"N\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalNu]\"")}, ",", {
+               ComplexStringBox("\"Nu\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalNu]\"")}, ",", {
+               ComplexStringBox("\"X\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalXi]\"")}, ",", {
+               ComplexStringBox("\"Xi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalXi]\"")}, ",", {
+               ComplexStringBox("\"Om\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalOmicron]\"")}, ",", {
+               ComplexStringBox("\"Omicron\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalOmicron]\"")}, ",", {
+               ComplexStringBox("\"P\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPi]\"")}, ",", {
+               ComplexStringBox("\"Pi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPi]\"")}, ",", {
+               ComplexStringBox("\"R\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalRho]\"")}, ",", {
+               ComplexStringBox("\"Rho\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalRho]\"")}, ",", {
+               ComplexStringBox("\"S\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalSigma]\"")}, ",", {
+               ComplexStringBox("\"Sigma\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalSigma]\"")}, ",", {
+               ComplexStringBox("\"T\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalTau]\"")}, ",", {
+               ComplexStringBox("\"Tau\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalTau]\"")}, ",", {
+               ComplexStringBox("\"U\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalUpsilon]\"")}, ",", {
+               ComplexStringBox("\"Upsilon\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalUpsilon]\"")}, ",", {
+               ComplexStringBox("\"F\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPhi]\"")}, ",", {
+               ComplexStringBox("\"Ph\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPhi]\"")}, ",", {
+               ComplexStringBox("\"Phi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPhi]\"")}, ",", {
+               ComplexStringBox("\"C\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalChi]\"")}, ",", {
+               ComplexStringBox("\"Ch\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalChi]\"")}, ",", {
+               ComplexStringBox("\"Chi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalChi]\"")}, ",", {
+               ComplexStringBox("\"Y\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPsi]\"")}, ",", {
+               ComplexStringBox("\"Ps\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPsi]\"")}, ",", {
+               ComplexStringBox("\"Psi\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalPsi]\"")}, ",", {
+               ComplexStringBox("\"O\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalOmega]\"")}, ",", {
+               ComplexStringBox("\"W\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalOmega]\"")}, ",", {
+               ComplexStringBox("\"Omega\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalOmega]\"")}, ",", {
+               ComplexStringBox("\"sca\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptA]\"")}, ",", {
+               ComplexStringBox("\"scb\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptB]\"")}, ",", {
+               ComplexStringBox("\"scc\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptC]\"")}, ",", {
+               ComplexStringBox("\"scd\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptD]\"")}, ",", {
+               ComplexStringBox("\"sce\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptE]\"")}, ",", {
+               ComplexStringBox("\"scf\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptF]\"")}, ",", {
+               ComplexStringBox("\"scg\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptG]\"")}, ",", {
+               ComplexStringBox("\"sch\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptH]\"")}, ",", {
+               ComplexStringBox("\"sci\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptI]\"")}, ",", {
+               ComplexStringBox("\"scj\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptJ]\"")}, ",", {
+               ComplexStringBox("\"sck\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptK]\"")}, ",", {
+               ComplexStringBox("\"scl\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptL]\"")}, ",", {
+               ComplexStringBox("\"scm\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptM]\"")}, ",", {
+               ComplexStringBox("\"scn\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptN]\"")}, ",", {
+               ComplexStringBox("\"sco\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptO]\"")}, ",", {
+               ComplexStringBox("\"scp\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptP]\"")}, ",", {
+               ComplexStringBox("\"scq\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptQ]\"")}, ",", {
+               ComplexStringBox("\"scr\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptR]\"")}, ",", {
+               ComplexStringBox("\"scs\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptS]\"")}, ",", {
+               ComplexStringBox("\"sct\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptT]\"")}, ",", {
+               ComplexStringBox("\"scu\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptU]\"")}, ",", {
+               ComplexStringBox("\"scv\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptV]\"")}, ",", {
+               ComplexStringBox("\"scw\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptW]\"")}, ",", {
+               ComplexStringBox("\"scx\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptX]\"")}, ",", {
+               ComplexStringBox("\"scy\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptY]\"")}, ",", {
+               ComplexStringBox("\"scz\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptZ]\"")}, ",", {
+               ComplexStringBox("\"scA\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalA]\"")}, ",", {
+               ComplexStringBox("\"scB\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalB]\"")}, ",", {
+               ComplexStringBox("\"scC\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalC]\"")}, ",", {
+               ComplexStringBox("\"scD\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalD]\"")}, ",", {
+               ComplexStringBox("\"scE\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalE]\"")}, ",", {
+               ComplexStringBox("\"scF\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalF]\"")}, ",", {
+               ComplexStringBox("\"scG\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalG]\"")}, ",", {
+               ComplexStringBox("\"scH\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalH]\"")}, ",", {
+               ComplexStringBox("\"scI\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalI]\"")}, ",", {
+               ComplexStringBox("\"scJ\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalJ]\"")}, ",", {
+               ComplexStringBox("\"scK\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalK]\"")}, ",", {
+               ComplexStringBox("\"scL\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalL]\"")}, ",", {
+               ComplexStringBox("\"scM\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalM]\"")}, ",", {
+               ComplexStringBox("\"scN\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalN]\"")}, ",", {
+               ComplexStringBox("\"scO\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalO]\"")}, ",", {
+               ComplexStringBox("\"scP\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalP]\"")}, ",", {
+               ComplexStringBox("\"scQ\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalQ]\"")}, ",", {
+               ComplexStringBox("\"scR\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalR]\"")}, ",", {
+               ComplexStringBox("\"scS\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalS]\"")}, ",", {
+               ComplexStringBox("\"scT\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalT]\"")}, ",", {
+               ComplexStringBox("\"scU\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalU]\"")}, ",", {
+               ComplexStringBox("\"scV\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalV]\"")}, ",", {
+               ComplexStringBox("\"scW\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalW]\"")}, ",", {
+               ComplexStringBox("\"scX\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalX]\"")}, ",", {
+               ComplexStringBox("\"scY\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalY]\"")}, ",", {
+               ComplexStringBox("\"scZ\""), "\[Rule]", 
+               ComplexStringBox("\"\[ScriptCapitalZ]\"")}, ",", {
+               ComplexStringBox("\"goa\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicA]\"")}, ",", {
+               ComplexStringBox("\"gob\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicB]\"")}, ",", {
+               ComplexStringBox("\"goc\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicC]\"")}, ",", {
+               ComplexStringBox("\"god\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicD]\"")}, ",", {
+               ComplexStringBox("\"goe\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicE]\"")}, ",", {
+               ComplexStringBox("\"gof\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicF]\"")}, ",", {
+               ComplexStringBox("\"gog\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicG]\"")}, ",", {
+               ComplexStringBox("\"goh\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicH]\"")}, ",", {
+               ComplexStringBox("\"goi\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicI]\"")}, ",", {
+               ComplexStringBox("\"goj\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicJ]\"")}, ",", {
+               ComplexStringBox("\"gok\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicK]\"")}, ",", {
+               ComplexStringBox("\"gol\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicL]\"")}, ",", {
+               ComplexStringBox("\"gom\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicM]\"")}, ",", {
+               ComplexStringBox("\"gon\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicN]\"")}, ",", {
+               ComplexStringBox("\"goo\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicO]\"")}, ",", {
+               ComplexStringBox("\"gop\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicP]\"")}, ",", {
+               ComplexStringBox("\"goq\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicQ]\"")}, ",", {
+               ComplexStringBox("\"gor\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicR]\"")}, ",", {
+               ComplexStringBox("\"gos\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicS]\"")}, ",", {
+               ComplexStringBox("\"got\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicT]\"")}, ",", {
+               ComplexStringBox("\"gou\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicU]\"")}, ",", {
+               ComplexStringBox("\"gov\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicV]\"")}, ",", {
+               ComplexStringBox("\"gow\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicW]\"")}, ",", {
+               ComplexStringBox("\"gox\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicX]\"")}, ",", {
+               ComplexStringBox("\"goy\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicY]\"")}, ",", {
+               ComplexStringBox("\"goz\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicZ]\"")}, ",", {
+               ComplexStringBox("\"goA\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalA]\"")}, ",", {
+               ComplexStringBox("\"goB\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalB]\"")}, ",", {
+               ComplexStringBox("\"goC\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalC]\"")}, ",", {
+               ComplexStringBox("\"goD\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalD]\"")}, ",", {
+               ComplexStringBox("\"goE\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalE]\"")}, ",", {
+               ComplexStringBox("\"goF\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalF]\"")}, ",", {
+               ComplexStringBox("\"goG\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalG]\"")}, ",", {
+               ComplexStringBox("\"goH\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalH]\"")}, ",", {
+               ComplexStringBox("\"goI\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalI]\"")}, ",", {
+               ComplexStringBox("\"goJ\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalJ]\"")}, ",", {
+               ComplexStringBox("\"goK\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalK]\"")}, ",", {
+               ComplexStringBox("\"goL\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalL]\"")}, ",", {
+               ComplexStringBox("\"goM\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalM]\"")}, ",", {
+               ComplexStringBox("\"goN\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalN]\"")}, ",", {
+               ComplexStringBox("\"goO\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalO]\"")}, ",", {
+               ComplexStringBox("\"goP\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalP]\"")}, ",", {
+               ComplexStringBox("\"goQ\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalQ]\"")}, ",", {
+               ComplexStringBox("\"goR\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalR]\"")}, ",", {
+               ComplexStringBox("\"goS\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalS]\"")}, ",", {
+               ComplexStringBox("\"goT\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalT]\"")}, ",", {
+               ComplexStringBox("\"goU\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalU]\"")}, ",", {
+               ComplexStringBox("\"goV\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalV]\"")}, ",", {
+               ComplexStringBox("\"goW\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalW]\"")}, ",", {
+               ComplexStringBox("\"goX\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalX]\"")}, ",", {
+               ComplexStringBox("\"goY\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalY]\"")}, ",", {
+               ComplexStringBox("\"goZ\""), "\[Rule]", 
+               ComplexStringBox("\"\[GothicCapitalZ]\"")}, ",", {
+               ComplexStringBox("\"dsa\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckA]\"")}, ",", {
+               ComplexStringBox("\"dsb\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckB]\"")}, ",", {
+               ComplexStringBox("\"dsc\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckC]\"")}, ",", {
+               ComplexStringBox("\"dsd\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckD]\"")}, ",", {
+               ComplexStringBox("\"dse\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckE]\"")}, ",", {
+               ComplexStringBox("\"dsf\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckF]\"")}, ",", {
+               ComplexStringBox("\"dsg\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckG]\"")}, ",", {
+               ComplexStringBox("\"dsh\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckH]\"")}, ",", {
+               ComplexStringBox("\"dsi\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckI]\"")}, ",", {
+               ComplexStringBox("\"dsj\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckJ]\"")}, ",", {
+               ComplexStringBox("\"dsk\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckK]\"")}, ",", {
+               ComplexStringBox("\"dsl\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckL]\"")}, ",", {
+               ComplexStringBox("\"dsm\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckM]\"")}, ",", {
+               ComplexStringBox("\"dsn\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckN]\"")}, ",", {
+               ComplexStringBox("\"dso\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckO]\"")}, ",", {
+               ComplexStringBox("\"dsp\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckP]\"")}, ",", {
+               ComplexStringBox("\"dsq\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckQ]\"")}, ",", {
+               ComplexStringBox("\"dsr\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckR]\"")}, ",", {
+               ComplexStringBox("\"dss\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckS]\"")}, ",", {
+               ComplexStringBox("\"dst\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckT]\"")}, ",", {
+               ComplexStringBox("\"dsu\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckU]\"")}, ",", {
+               ComplexStringBox("\"dsv\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckV]\"")}, ",", {
+               ComplexStringBox("\"dsw\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckW]\"")}, ",", {
+               ComplexStringBox("\"dsx\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckX]\"")}, ",", {
+               ComplexStringBox("\"dsy\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckY]\"")}, ",", {
+               ComplexStringBox("\"dsz\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckZ]\"")}, ",", {
+               ComplexStringBox("\"dsA\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalA]\"")}, ",", {
+               ComplexStringBox("\"dsB\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalB]\"")}, ",", {
+               ComplexStringBox("\"dsC\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalC]\"")}, ",", {
+               ComplexStringBox("\"dsD\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalD]\"")}, ",", {
+               ComplexStringBox("\"dsE\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalE]\"")}, ",", {
+               ComplexStringBox("\"dsF\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalF]\"")}, ",", {
+               ComplexStringBox("\"dsG\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalG]\"")}, ",", {
+               ComplexStringBox("\"dsH\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalH]\"")}, ",", {
+               ComplexStringBox("\"dsI\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalI]\"")}, ",", {
+               ComplexStringBox("\"dsJ\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalJ]\"")}, ",", {
+               ComplexStringBox("\"dsK\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalK]\"")}, ",", {
+               ComplexStringBox("\"dsL\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalL]\"")}, ",", {
+               ComplexStringBox("\"dsM\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalM]\"")}, ",", {
+               ComplexStringBox("\"dsN\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalN]\"")}, ",", {
+               ComplexStringBox("\"dsO\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalO]\"")}, ",", {
+               ComplexStringBox("\"dsP\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalP]\"")}, ",", {
+               ComplexStringBox("\"dsQ\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalQ]\"")}, ",", {
+               ComplexStringBox("\"dsR\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalR]\"")}, ",", {
+               ComplexStringBox("\"dsS\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalS]\"")}, ",", {
+               ComplexStringBox("\"dsT\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalT]\"")}, ",", {
+               ComplexStringBox("\"dsU\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalU]\"")}, ",", {
+               ComplexStringBox("\"dsV\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalV]\"")}, ",", {
+               ComplexStringBox("\"dsW\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalW]\"")}, ",", {
+               ComplexStringBox("\"dsX\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalX]\"")}, ",", {
+               ComplexStringBox("\"dsY\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalY]\"")}, ",", {
+               ComplexStringBox("\"dsZ\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckCapitalZ]\"")}, ",", {
+               ComplexStringBox("\"ds0\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckZero]\"")}, ",", {
+               ComplexStringBox("\"ds1\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckOne]\"")}, ",", {
+               ComplexStringBox("\"ds2\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckTwo]\"")}, ",", {
+               ComplexStringBox("\"ds3\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckThree]\"")}, ",", {
+               ComplexStringBox("\"ds4\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckFour]\"")}, ",", {
+               ComplexStringBox("\"ds5\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckFive]\"")}, ",", {
+               ComplexStringBox("\"ds6\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckSix]\"")}, ",", {
+               ComplexStringBox("\"ds7\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckSeven]\"")}, ",", {
+               ComplexStringBox("\"ds8\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckEight]\"")}, ",", {
+               ComplexStringBox("\"ds9\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleStruckNine]\"")}, ",", {
+               ComplexStringBox("\"al\""), "\[Rule]", 
+               ComplexStringBox("\"\[Aleph]\"")}, ",", {
+               ComplexStringBox("\"aleph\""), "\[Rule]", 
+               ComplexStringBox("\"\[Aleph]\"")}, ",", {
+               ComplexStringBox("\"be\""), "\[Rule]", 
+               ComplexStringBox("\"\[Beth]\"")}, ",", {
+               ComplexStringBox("\"beth\""), "\[Rule]", 
+               ComplexStringBox("\"\[Beth]\"")}, ",", {
+               ComplexStringBox("\"gi\""), "\[Rule]", 
+               ComplexStringBox("\"\[Gimel]\"")}, ",", {
+               ComplexStringBox("\"gimel\""), "\[Rule]", 
+               ComplexStringBox("\"\[Gimel]\"")}, ",", {
+               ComplexStringBox("\"da\""), "\[Rule]", 
+               ComplexStringBox("\"\[Dalet]\"")}, ",", {
+               ComplexStringBox("\"dalet\""), "\[Rule]", 
+               ComplexStringBox("\"\[Dalet]\"")}, ",", {
+               ComplexStringBox("\"DD\""), "\[Rule]", 
+               ComplexStringBox("\"\[CapitalDifferentialD]\"")}, ",", {
+               ComplexStringBox("\"dd\""), "\[Rule]", 
+               ComplexStringBox("\"\[DifferentialD]\"")}, ",", {
+               ComplexStringBox("\"ee\""), "\[Rule]", 
+               ComplexStringBox("\"\[ExponentialE]\"")}, ",", {
+               ComplexStringBox("\"gg\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+213D]\"")}, ",", {
+               ComplexStringBox("\"ii\""), "\[Rule]", 
+               ComplexStringBox("\"\[ImaginaryI]\"")}, ",", {
+               ComplexStringBox("\"jj\""), "\[Rule]", 
+               ComplexStringBox("\"\[ImaginaryJ]\"")}, ",", {
+               ComplexStringBox("\"pp\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+213C]\"")}, ",", {
+               ComplexStringBox("\"qed\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+220E]\"")}, ",", {
+               ComplexStringBox("\"<-\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftArrow]\"")}, ",", {
+               ComplexStringBox("\"<--\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+27F5]\"")}, ",", {
+               ComplexStringBox("\"->\""), "\[Rule]", 
+               ComplexStringBox("\"\[Rule]\"")}, ",", {
+               ComplexStringBox("\"-->\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+27F6]\"")}, ",", {
+               ComplexStringBox("\"<->\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftRightArrow]\"")}, ",", {
+               ComplexStringBox("\"<-->\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+27F7]\"")}, ",", {
+               ComplexStringBox("\"|->\""), "\[Rule]", 
+               ComplexStringBox("\"\[Function]\"")}, ",", {
+               ComplexStringBox("\"mt\""), "\[Rule]", 
+               ComplexStringBox("\"\[Function]\"")}, ",", {
+               ComplexStringBox("\"mapsto\""), "\[Rule]", 
+               ComplexStringBox("\"\[Function]\"")}, ",", {
+               ComplexStringBox("\"function\""), "\[Rule]", 
+               ComplexStringBox("\"\[Function]\"")}, ",", {
+               ComplexStringBox("\"vec\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+21C0]\"")}, ",", {
+               ComplexStringBox("\"<=\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleLeftArrow]\"")}, ",", {
+               ComplexStringBox("\"<==\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+27F8]\"")}, ",", {
+               ComplexStringBox("\"=>\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleRightArrow]\"")}, ",", {
+               ComplexStringBox("\"==>\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+27F9]\"")}, ",", {
+               ComplexStringBox("\"<=>\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleLeftRightArrow]\"")}, ",", {
+               ComplexStringBox("\"<==>\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+27FA]\"")}, ",", {
+               ComplexStringBox("\"nearrow\""), "\[Rule]", 
+               ComplexStringBox("\"\[UpperRightArrow]\"")}, ",", {
+               ComplexStringBox("\"nwarrow\""), "\[Rule]", 
+               ComplexStringBox("\"\[UpperLeftArrow]\"")}, ",", {
+               ComplexStringBox("\"searrow\""), "\[Rule]", 
+               ComplexStringBox("\"\[LowerRightArrow]\"")}, ",", {
+               ComplexStringBox("\"swarrow\""), "\[Rule]", 
+               ComplexStringBox("\"\[LowerLeftArrow]\"")}, ",", {
+               ComplexStringBox("\"downarrow\""), "\[Rule]", 
+               ComplexStringBox("\"\[DownArrow]\"")}, ",", {
+               ComplexStringBox("\"uparrow\""), "\[Rule]", 
+               ComplexStringBox("\"\[UpArrow]\"")}, ",", {
+               ComplexStringBox("\"fa\""), "\[Rule]", 
+               ComplexStringBox("\"\[ForAll]\"")}, ",", {
+               ComplexStringBox("\"pd\""), "\[Rule]", 
+               ComplexStringBox("\"\[PartialD]\"")}, ",", {
+               ComplexStringBox("\"ex\""), "\[Rule]", 
+               ComplexStringBox("\"\[Exists]\"")}, ",", {
+               ComplexStringBox("\"!ex\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotExists]\"")}, ",", {
+               ComplexStringBox("\"es\""), "\[Rule]", 
+               ComplexStringBox("\"\[EmptySet]\"")}, ",", {
+               ComplexStringBox("\"del\""), "\[Rule]", 
+               ComplexStringBox("\"\[Del]\"")}, ",", {
+               ComplexStringBox("\"nabla\""), "\[Rule]", 
+               ComplexStringBox("\"\[Del]\"")}, ",", {
+               ComplexStringBox("\"elem\""), "\[Rule]", 
+               ComplexStringBox("\"\[Element]\"")}, ",", {
+               ComplexStringBox("\" elem\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+220A]\"")}, ",", {
+               ComplexStringBox("\"!elem\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotElement]\"")}, ",", {
+               ComplexStringBox("\"mem\""), "\[Rule]", 
+               ComplexStringBox("\"\[ReverseElement]\"")}, ",", {
+               ComplexStringBox("\"!mem\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotReverseElement]\"")}, ",", {
+               ComplexStringBox("\"st\""), "\[Rule]", 
+               ComplexStringBox("\"\[SuchThat]\"")}, ",", {
+               ComplexStringBox("\"prod\""), "\[Rule]", 
+               ComplexStringBox("\"\[Product]\"")}, ",", {
+               ComplexStringBox("\"coprod\""), "\[Rule]", 
+               ComplexStringBox("\"\[Coproduct]\"")}, ",", {
+               ComplexStringBox("\"sum\""), "\[Rule]", 
+               ComplexStringBox("\"\[Sum]\"")}, ",", {
+               ComplexStringBox("\"-+\""), "\[Rule]", 
+               ComplexStringBox("\"\[MinusPlus]\"")}, ",", {
+               ComplexStringBox("\"+-\""), "\[Rule]", 
+               ComplexStringBox("\"\[PlusMinus]\"")}, ",", {
+               ComplexStringBox("\"dg\""), "\[Rule]", 
+               ComplexStringBox("\"\[Dagger]\"")}, ",", {
+               ComplexStringBox("\"dagger\""), "\[Rule]", 
+               ComplexStringBox("\"\[Dagger]\"")}, ",", {
+               ComplexStringBox("\"ddg\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleDagger]\"")}, ",", {
+               ComplexStringBox("\"ddagger\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleDagger]\"")}, ",", {
+               ComplexStringBox("\"bullet\""), "\[Rule]", 
+               ComplexStringBox("\"\[Bullet]\"")}, ",", {
+               ComplexStringBox("\"bu\""), "\[Rule]", 
+               ComplexStringBox("\"\[Bullet]\"")}, ",", {
+               ComplexStringBox("\"deg\""), "\[Rule]", 
+               ComplexStringBox("\"\[Degree]\"")}, ",", {
+               ComplexStringBox("\".\""), "\[Rule]", 
+               ComplexStringBox("\"\[Dot]\"")}, ",", {
+               ComplexStringBox("\"*\""), "\[Rule]", 
+               ComplexStringBox("\"\[Times]\"")}, ",", {
+               ComplexStringBox("\"times\""), "\[Rule]", 
+               ComplexStringBox("\"\[Times]\"")}, ",", {
+               ComplexStringBox("\"cross\""), "\[Rule]", 
+               ComplexStringBox("\"\[Cross]\"")}, ",", {
+               ComplexStringBox("\"/\""), "\[Rule]", 
+               ComplexStringBox("\"\[Divide]\"")}, ",", {
+               ComplexStringBox("\"\\\\\""), "\[Rule]", 
+               ComplexStringBox("\"\[Backslash]\"")}, ",", {
+               ComplexStringBox("\"sc\""), "\[Rule]", 
+               ComplexStringBox("\"\[SmallCircle]\"")}, ",", {
+               ComplexStringBox("\"sqrt\""), "\[Rule]", 
+               ComplexStringBox("\"\[Sqrt]\"")}, ",", {
+               ComplexStringBox("\"prop\""), "\[Rule]", 
+               ComplexStringBox("\"\[Proportional]\"")}, ",", {
+               ComplexStringBox("\"inf\""), "\[Rule]", 
+               ComplexStringBox("\"\[Infinity]\"")}, ",", {
+               ComplexStringBox("\" |\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2223]\"")}, ",", {
+               ComplexStringBox("\"!|\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2224]\"")}, ",", {
+               ComplexStringBox("\" ||\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2225]\"")}, ",", {
+               ComplexStringBox("\"!||\""), "\[Rule]", 
+               ComplexStringBox("\"\[U+2226]\"")}, ",", {
+               ComplexStringBox("\"&&\""), "\[Rule]", 
+               ComplexStringBox("\"\[And]\"")}, ",", {
+               ComplexStringBox("\"and\""), "\[Rule]", 
+               ComplexStringBox("\"\[And]\"")}, ",", {
+               ComplexStringBox("\"nand\""), "\[Rule]", 
+               ComplexStringBox("\"\[Nand]\"")}, ",", {
+               ComplexStringBox("\"||\""), "\[Rule]", 
+               ComplexStringBox("\"\[Or]\"")}, ",", {
+               ComplexStringBox("\"or\""), "\[Rule]", 
+               ComplexStringBox("\"\[Or]\"")}, ",", {
+               ComplexStringBox("\"nor\""), "\[Rule]", 
+               ComplexStringBox("\"\[Nor]\"")}, ",", {
+               ComplexStringBox("\"xor\""), "\[Rule]", 
+               ComplexStringBox("\"\[Xor]\"")}, ",", {
+               ComplexStringBox("\"!\""), "\[Rule]", 
+               ComplexStringBox("\"\[Not]\"")}, ",", {
+               ComplexStringBox("\"not\""), "\[Rule]", 
+               ComplexStringBox("\"\[Not]\"")}, ",", {
+               ComplexStringBox("\"inter\""), "\[Rule]", 
+               ComplexStringBox("\"\[Intersection]\"")}, ",", {
+               ComplexStringBox("\"un\""), "\[Rule]", 
+               ComplexStringBox("\"\[Union]\"")}, ",", {
+               ComplexStringBox("\"int\""), "\[Rule]", 
+               ComplexStringBox("\"\[Integral]\"")}, ",", {
+               ComplexStringBox("\"cint\""), "\[Rule]", 
+               ComplexStringBox("\"\[ContourIntegral]\"")}, ",", {
+               ComplexStringBox("\"ciint\""), "\[Rule]", 
+               ComplexStringBox("\"\[DoubleContourIntegral]\"")}, ",", {
+               ComplexStringBox("\"ccint\""), "\[Rule]", 
+               ComplexStringBox("\"\[ClockwiseContourIntegral]\"")}, ",", {
+               ComplexStringBox("\"cccint\""), "\[Rule]", 
+               ComplexStringBox("\"\[CounterClockwiseContourIntegral]\"")}, 
+              ",", {ComplexStringBox("\":\""), "\[Rule]", 
+               ComplexStringBox("\"\[Colon]\"")}, ",", {
+               ComplexStringBox("\".=\""), "\[Rule]", 
+               ComplexStringBox("\"\[DotEqual]\"")}, ",", {
+               ComplexStringBox("\"~\""), "\[Rule]", 
+               ComplexStringBox("\"\[Tilde]\"")}, ",", {
+               ComplexStringBox("\"!~\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotTilde]\"")}, ",", {
+               ComplexStringBox("\"=~\""), "\[Rule]", 
+               ComplexStringBox("\"\[EqualTilde]\"")}, ",", {
+               ComplexStringBox("\"~=\""), "\[Rule]", 
+               ComplexStringBox("\"\[TildeEqual]\"")}, ",", {
+               ComplexStringBox("\"!~=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotTildeEqual]\"")}, ",", {
+               ComplexStringBox("\"~==\""), "\[Rule]", 
+               ComplexStringBox("\"\[TildeFullEqual]\"")}, ",", {
+               ComplexStringBox("\"!~==\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotTildeFullEqual]\"")}, ",", {
+               ComplexStringBox("\"~~\""), "\[Rule]", 
+               ComplexStringBox("\"\[TildeTilde]\"")}, ",", {
+               ComplexStringBox("\"!~~\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotTildeTilde]\"")}, ",", {
+               ComplexStringBox("\"===\""), "\[Rule]", 
+               ComplexStringBox("\"\[Congruent]\"")}, ",", {
+               ComplexStringBox("\"!===\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotCongruent]\"")}, ",", {
+               ComplexStringBox("\"!<\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotLess]\"")}, ",", {
+               ComplexStringBox("\"!>\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotGreater]\"")}, ",", {
+               ComplexStringBox("\"!<=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotLessEqual]\"")}, ",", {
+               ComplexStringBox("\"!>=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotGreaterEqual]\"")}, ",", {
+               ComplexStringBox("\"<~\""), "\[Rule]", 
+               ComplexStringBox("\"\[LessTilde]\"")}, ",", {
+               ComplexStringBox("\">~\""), "\[Rule]", 
+               ComplexStringBox("\"\[GreaterTilde]\"")}, ",", {
+               ComplexStringBox("\"!<~\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotLessTilde]\"")}, ",", {
+               ComplexStringBox("\"!>~\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotGreaterTilde]\"")}, ",", {
+               ComplexStringBox("\"prec\""), "\[Rule]", 
+               ComplexStringBox("\"\[Precedes]\"")}, ",", {
+               ComplexStringBox("\"prec=\""), "\[Rule]", 
+               ComplexStringBox("\"\[PrecedesEqual]\"")}, ",", {
+               ComplexStringBox("\"prec~\""), "\[Rule]", 
+               ComplexStringBox("\"\[PrecedesTilde]\"")}, ",", {
+               ComplexStringBox("\"!prec\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotPrecedes]\"")}, ",", {
+               ComplexStringBox("\"!prec=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotPrecedesEqual]\"")}, ",", {
+               ComplexStringBox("\"succ\""), "\[Rule]", 
+               ComplexStringBox("\"\[Succeeds]\"")}, ",", {
+               ComplexStringBox("\"succ=\""), "\[Rule]", 
+               ComplexStringBox("\"\[SucceedsEqual]\"")}, ",", {
+               ComplexStringBox("\"succ~\""), "\[Rule]", 
+               ComplexStringBox("\"\[SucceedsTilde]\"")}, ",", {
+               ComplexStringBox("\"!succ\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotSucceeds]\"")}, ",", {
+               ComplexStringBox("\"!succ=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotSucceedsEqual]\"")}, ",", {
+               ComplexStringBox("\"sub\""), "\[Rule]", 
+               ComplexStringBox("\"\[Subset]\"")}, ",", {
+               ComplexStringBox("\"sup\""), "\[Rule]", 
+               ComplexStringBox("\"\[Superset]\"")}, ",", {
+               ComplexStringBox("\"!sub\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotSubset]\"")}, ",", {
+               ComplexStringBox("\"!sup\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotSuperset]\"")}, ",", {
+               ComplexStringBox("\"sub=\""), "\[Rule]", 
+               ComplexStringBox("\"\[SubsetEqual]\"")}, ",", {
+               ComplexStringBox("\"sup=\""), "\[Rule]", 
+               ComplexStringBox("\"\[SupersetEqual]\"")}, ",", {
+               ComplexStringBox("\"!sub=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotSubsetEqual]\"")}, ",", {
+               ComplexStringBox("\"!sup=\""), "\[Rule]", 
+               ComplexStringBox("\"\[NotSupersetEqual]\"")}, ",", {
+               ComplexStringBox("\"c+\""), "\[Rule]", 
+               ComplexStringBox("\"\[CirclePlus]\"")}, ",", {
+               ComplexStringBox("\"c-\""), "\[Rule]", 
+               ComplexStringBox("\"\[CircleMinus]\"")}, ",", {
+               ComplexStringBox("\"c*\""), "\[Rule]", 
+               ComplexStringBox("\"\[CircleTimes]\"")}, ",", {
+               ComplexStringBox("\"c.\""), "\[Rule]", 
+               ComplexStringBox("\"\[CircleDot]\"")}, ",", {
+               ComplexStringBox("\"rT\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightTee]\"")}, ",", {
+               ComplexStringBox("\"lT\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftTee]\"")}, ",", {
+               ComplexStringBox("\"tr\""), "\[Rule]", 
+               ComplexStringBox("\"\[DownTee]\"")}, ",", {
+               ComplexStringBox("\"dT\""), "\[Rule]", 
+               ComplexStringBox("\"\[DownTee]\"")}, ",", {
+               ComplexStringBox("\"uT\""), "\[Rule]", 
+               ComplexStringBox("\"\[UpTee]\"")}, ",", {
+               ComplexStringBox("\"dia\""), "\[Rule]", 
+               ComplexStringBox("\"\[Diamond]\"")}, ",", {
+               ComplexStringBox("\"star\""), "\[Rule]", 
+               ComplexStringBox("\"\[Star]\"")}, ",", {
+               ComplexStringBox("\"vdots\""), "\[Rule]", 
+               ComplexStringBox("\"\[VerticalEllipsis]\"")}, ",", {
+               ComplexStringBox("\"cdots\""), "\[Rule]", 
+               ComplexStringBox("\"\[CenterEllipsis]\"")}, ",", {
+               ComplexStringBox("\"hdots\""), "\[Rule]", 
+               ComplexStringBox("\"\[CenterEllipsis]\"")}, ",", {
+               ComplexStringBox("\"udots\""), "\[Rule]", 
+               ComplexStringBox("\"\[AscendingEllipsis]\"")}, ",", {
+               ComplexStringBox("\"ddots\""), "\[Rule]", 
+               ComplexStringBox("\"\[DescendingEllipsis]\"")}, ",", {
+               ComplexStringBox("\"lc\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftCeiling]\"")}, ",", {
+               ComplexStringBox("\"rc\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightCeiling]\"")}, ",", {
+               ComplexStringBox("\"lf\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftFloor]\"")}, ",", {
+               ComplexStringBox("\"rf\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightFloor]\"")}, ",", {
+               ComplexStringBox("\"<\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftAngleBracket]\"")}, ",", {
+               ComplexStringBox("\">\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightAngleBracket]\"")}, ",", {
+               ComplexStringBox("\"l.\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftInvisibleBracket]\"")}, ",", {
+               ComplexStringBox("\"left.\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftInvisibleBracket]\"")}, ",", {
+               ComplexStringBox("\"r.\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightInvisibleBracket]\"")}, ",", {
+               ComplexStringBox("\"right.\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightInvisibleBracket]\"")}, ",", {
+               ComplexStringBox("\"l|\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftBracketingBar]\"")}, ",", {
+               ComplexStringBox("\"r|\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightBracketingBar]\"")}, ",", {
+               ComplexStringBox("\"l||\""), "\[Rule]", 
+               ComplexStringBox("\"\[LeftDoubleBracketingBar]\"")}, ",", {
+               ComplexStringBox("\"r||\""), "\[Rule]", 
+               ComplexStringBox("\"\[RightDoubleBracketingBar]\"")}, ",", {
+               ComplexStringBox("\"t[\""), "\[Rule]", 
+               ComplexStringBox("\"\[OverBracket]\"")}, ",", {
+               ComplexStringBox("\"b[\""), "\[Rule]", 
+               ComplexStringBox("\"\[UnderBracket]\"")}, ",", {
+               ComplexStringBox("\"t(\""), "\[Rule]", 
+               ComplexStringBox("\"\[OverParenthesis]\"")}, ",", {
+               ComplexStringBox("\"b(\""), "\[Rule]", 
+               ComplexStringBox("\"\[UnderParenthesis]\"")}, ",", {
+               ComplexStringBox("\"t{\""), "\[Rule]", 
+               ComplexStringBox("\"\[OverBrace]\"")}, ",", {
+               ComplexStringBox("\"b{\""), "\[Rule]", 
+               ComplexStringBox("\"\[UnderBrace]\"")}, ",", {
+               ComplexStringBox("\"    \""), "\[Rule]", 
+               ComplexStringBox("\"\[ThickSpace]\"")}, ",", {
+               ComplexStringBox("\"   \""), "\[Rule]", 
+               ComplexStringBox("\"\[MediumSpace]\"")}, ",", {
+               ComplexStringBox("\"  \""), "\[Rule]", 
+               ComplexStringBox("\"\[ThinSpace]\"")}, ",", {
+               ComplexStringBox("\" \""), "\[Rule]", 
+               ComplexStringBox("\"\[VeryThinSpace]\"")}, ",", {
+               ComplexStringBox("\"nbsp\""), "\[Rule]", 
+               ComplexStringBox("\"\[NonBreakingSpace]\"")}, ",", {
+               ComplexStringBox("\"nb\""), "\[Rule]", 
+               ComplexStringBox("\"\[NoBreak]\"")}, ",", {
+               ComplexStringBox("\"null\""), "\[Rule]", 
+               ComplexStringBox("\"\[NoBreak]\"")}, ",", {
+               ComplexStringBox("\"mathrm\""), "\[Rule]", 
+               ComplexStringBox("\"\[NoBreak]\"")}, ",", {
+               ComplexStringBox("\"is\""), "\[Rule]", 
+               ComplexStringBox("\"\[InvisibleSpace]\"")}, ",", {
+               ComplexStringBox("\"zwsp\""), "\[Rule]", 
+               ComplexStringBox("\"\[InvisibleSpace]\"")}, ",", {
+               ComplexStringBox("\"@\""), "\[Rule]", 
+               ComplexStringBox("\"\[InvisibleApply]\"")}, ",", {
+               ComplexStringBox("\" *\""), "\[Rule]", 
+               ComplexStringBox("\"\[InvisibleTimes]\"")}, ",", {
+               ComplexStringBox("\",\""), "\[Rule]", 
+               ComplexStringBox("\"\[InvisibleComma]\"")}, ",", {
+               ComplexStringBox("\"+\""), "\[Rule]", 
+               ComplexStringBox("\"\[InvisiblePlus]\"")}, ",", {
+               ComplexStringBox("\"dhy\""), "\[Rule]", 
+               ComplexStringBox("\"\[DiscretionaryHyphen]\"")}, ",", {
+               ComplexStringBox("\"shy\""), "\[Rule]", 
+               ComplexStringBox("\"\[DiscretionaryHyphen]\"")}, ",", {
+               ComplexStringBox("\"hy\""), "\[Rule]", 
+               ComplexStringBox("\"\[Hyphen]\"")}, ",", {
+               ComplexStringBox("\"-\""), "\[Rule]", 
+               ComplexStringBox("\"\[Dash]\"")}, ",", {
+               ComplexStringBox("\"--\""), "\[Rule]", 
+               ComplexStringBox("\"\[LongDash]\"")}, ",", {
+               ComplexStringBox("\"pw\""), "\[Rule]", 
+               ComplexStringBox("\"\[Piecewise]\"")}, ",", {
+               ComplexStringBox("\"sfl\""), "\[Rule]", 
+               ComplexStringBox("\"\[SpanFromLeft]\"")}, ",", {
+               ComplexStringBox("\"sfa\""), "\[Rule]", 
+               ComplexStringBox("\"\[SpanFromAbove]\"")}, ",", {
+               ComplexStringBox("\"sfb\""), "\[Rule]", 
+               ComplexStringBox("\"\[SpanFromBoth]\"")}, ",", {
+               ComplexStringBox("\"spl\""), "\[Rule]", 
+               ComplexStringBox("\"\[SelectionPlaceholder]\"")}, ",", {
+               ComplexStringBox("\"pl\""), "\[Rule]", 
+               ComplexStringBox("\"\[Placeholder]\"")}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"InputAutoReplacements"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
