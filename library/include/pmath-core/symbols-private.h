@@ -36,9 +36,8 @@ void _pmath_symbol_set_global_value( // used in init
 
 /** Bind a symbol to a dynamic object, if applicable, or (partly) reset the binding.
     
-    Caution! The only place where this may be called with id==0 is inside
-    _pmath_dynamic_remove(symbol), because id==0 hardly resets binding without
-    clearing the list of bound ids
+    Caution! This should never be called with id==0, because id==0 causes a hard reset of id 
+    bindings without clearing the list of bound ids.
     In particular, you should always use the pattern
     <code>
     if(current_thread->current_dynamic_id != 0)
@@ -50,6 +49,15 @@ void _pmath_symbol_set_global_value( // used in init
  */
 PMATH_PRIVATE
 void _pmath_symbol_track_dynamic(pmath_symbol_t symbol, intptr_t id);
+
+/** Inform a symbol that one of it's trackers is removed.
+    
+    \param symbol A pMath symbol.
+    \param oldid  The id of the tracker that was removed.
+    \param other_tracker_id The id of an arbitray other tracker or 0 if no tracker remains.
+ */
+PMATH_PRIVATE
+void _pmath_symbol_lost_dynamic_tracker(pmath_symbol_t symbol, intptr_t oldid, intptr_t other_tracker_id);
 
 /** Gives the number of references to the symbol directly held by itself (circular references).
  */

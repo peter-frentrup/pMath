@@ -973,6 +973,21 @@ void _pmath_symbol_track_dynamic(
   _pmath_dynamic_bind(symbol, id);
 }
 
+PMATH_PRIVATE
+void _pmath_symbol_lost_dynamic_tracker(pmath_symbol_t symbol, intptr_t oldid, intptr_t other_tracker_id) {
+  struct _pmath_symbol_t *sym_ptr = (struct _pmath_symbol_t *)PMATH_AS_PTR(symbol);
+  
+  if(PMATH_UNLIKELY(!sym_ptr))
+    return;
+
+  assert(pmath_is_symbol(symbol));
+
+  if(pmath_atomic_read_aquire(&sym_ptr->current_dynamic_id) == oldid) {
+    pmath_atomic_write_release(&sym_ptr->current_dynamic_id, other_tracker_id);
+    return;
+  }
+}
+
 /*----------------------------------------------------------------------------*/
 
 PMATH_API

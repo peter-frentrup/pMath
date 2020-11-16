@@ -861,6 +861,7 @@
 		<Unit filename="include/pmath-util/dispatch-tables.h" />
 		<Unit filename="include/pmath-util/dlmalloc.h" />
 		<Unit filename="include/pmath-util/dynamic-private.h" />
+		<Unit filename="include/pmath-util/dynamic.h" />
 		<Unit filename="include/pmath-util/emit-and-gather.h" />
 		<Unit filename="include/pmath-util/evaluation.h" />
 		<Unit filename="include/pmath-util/files/abstract-file.h" />

@@ -1,4 +1,5 @@
 #include <pmath-util/dynamic-private.h>
+#include <pmath-util/dynamic.h>
 
 #include <pmath-core/numbers.h>
 #include <pmath-core/symbols-private.h>
@@ -245,7 +246,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id) {
       while(symbols) {
         struct symbol2ids_t *s2i_entry;
         
-        _pmath_symbol_track_dynamic(symbols->symbol, 0);
         s2i_entry = pmath_ht_search(s2i_table, &symbols->symbol);
         
         if(s2i_entry) {
@@ -265,7 +265,11 @@ PMATH_PRIVATE pmath_bool_t _pmath_dynamic_remove(intptr_t id) {
           
           pmath_mem_free(ids);
           if(s2i_entry->ids == NULL) {
+            _pmath_symbol_lost_dynamic_tracker(symbols->symbol, id, 0);
             symbol2ids_destructor(pmath_ht_remove(s2i_table, &symbols->symbol));
+          }
+          else {
+            _pmath_symbol_lost_dynamic_tracker(symbols->symbol, id, s2i_entry->ids->id);
           }
         }
         

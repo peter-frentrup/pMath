@@ -1,6 +1,7 @@
 #include <pmath-core/numbers.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/dynamic.h>
 #include <pmath-util/dynamic-private.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -52,20 +53,27 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
   return expr;
 }
 
+PMATH_API intptr_t pmath_dynamic_get_current_tracker_id(void) {
+  if(pmath_atomic_read_aquire(&_pmath_dynamic_trackers)) {
+    pmath_thread_t me = pmath_thread_get_current();
+    if(!me)
+      return 0;
+    
+    return me->current_dynamic_id;
+  }
+  return 0;
+}
+
 PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(pmath_expr_t expr) {
   /* Internal`GetCurrentDynamicID()
    */
-  pmath_thread_t thread = pmath_thread_get_current();
-  if(!thread) 
-    return expr;
-  
   if(pmath_expr_length(expr) != 0) {
     pmath_message_argxxx(pmath_expr_length(expr), 0, 0);
     return expr;
   }
   
   pmath_unref(expr);
-  return pmath_integer_new_siptr(thread->current_dynamic_id);
+  return pmath_integer_new_siptr(pmath_dynamic_get_current_tracker_id());
 }
 
 /** Get the TrackedSymbols option value in a Dynamic(...).
