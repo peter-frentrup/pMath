@@ -3281,6 +3281,22 @@ else INPUTFORM:
       if(exprlen < 3 || (exprlen & 1) == 0)
         goto FULLFORM;
 
+      for(i = 2; i < exprlen; i+= 2) {
+        item = pmath_expr_get_item(expr, i);
+        pmath_unref(item);
+        if( !pmath_same(item, PMATH_SYMBOL_LESS) &&
+            !pmath_same(item, PMATH_SYMBOL_LESSEQUAL) &&
+            !pmath_same(item, PMATH_SYMBOL_GREATER) &&
+            !pmath_same(item, PMATH_SYMBOL_GREATEREQUAL) &&
+            !pmath_same(item, PMATH_SYMBOL_EQUAL) &&
+            !pmath_same(item, PMATH_SYMBOL_UNEQUAL) &&
+            !pmath_same(item, PMATH_SYMBOL_IDENTICAL) &&
+            !pmath_same(item, PMATH_SYMBOL_UNIDENTICAL))
+        {
+          goto FULLFORM;
+        }
+      }
+
       if(priority > PMATH_PREC_REL)
         WRITE_CSTR("(");
 
@@ -3297,6 +3313,8 @@ else INPUTFORM:
         else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  write_spaced_operator(info, 0x2265, ">=");
         else if(pmath_same(item, PMATH_SYMBOL_EQUAL))         write_spaced_operator(info, '=',    "=");
         else if(pmath_same(item, PMATH_SYMBOL_UNEQUAL))       write_spaced_operator(info, 0x2260, "!=");
+        else if(pmath_same(item, PMATH_SYMBOL_IDENTICAL))     write_spaced_operator(info, 0,      "===");
+        else if(pmath_same(item, PMATH_SYMBOL_UNIDENTICAL))   write_spaced_operator(info, 0,      "=!=");
         else                                                  write_spaced_operator(info, 0,      "<<?>>");
         pmath_unref(item);
 
