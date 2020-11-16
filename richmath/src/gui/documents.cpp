@@ -281,7 +281,8 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
         helpdoc = Application::open_new_document(helpfile);
       
       if(helpdoc) {
-        helpdoc->native()->bring_to_front();
+        if(helpdoc->selectable())
+          helpdoc->native()->bring_to_front();
         return true;
       }
     }
@@ -1081,6 +1082,8 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
     doc->select(nullptr, 0, 0);
     
   doc->invalidate_options();
+  if(doc->selectable())
+    doc->native()->bring_to_front();
   
   return doc->to_pmath_id();
 }
@@ -1230,7 +1233,8 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
     if(add_to_recent_documents)
       RecentDocuments::add(filename);
   }
-  doc->native()->bring_to_front();
+  if(doc->selectable())
+    doc->native()->bring_to_front();
   return doc->to_pmath_id();
 }
 
