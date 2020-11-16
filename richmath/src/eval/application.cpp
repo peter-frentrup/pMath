@@ -17,6 +17,7 @@
 #include <gui/menus.h>
 #include <gui/messagebox.h>
 
+
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/basic-win32-widget.h>
 #  include <gui/win32/win32-document-window.h>
@@ -48,6 +49,7 @@
 #include <eval/job.h>
 #include <eval/server.h>
 
+#include <util/autovaluereset.h>
 #include <util/concurrent-queue.h>
 #include <util/filesystem.h>
 
@@ -1385,7 +1387,11 @@ static void cnt_printsection(Expr data) {
 }
 
 static Expr cnt_callfrontend(Expr data) {
-  return Evaluate(std::move(data));
+  AutoValueReset<FrontEndReference> auto_reset_eval(current_evaluation_box_id);
+  current_evaluation_box_id = FrontEndReference::from_pmath_raw(data[0]);
+  Expr expr = data[1];
+  data = {};
+  return Evaluate(std::move(expr));
 }
 
 static void cnt_dynamicupate(Expr data) {

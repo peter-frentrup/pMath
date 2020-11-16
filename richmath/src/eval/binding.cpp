@@ -316,17 +316,19 @@ static pmath_t builtin_callfrontend(pmath_expr_t expr) {
   else
     waiting = true;
   
-  item = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
-  if(Application::is_running_on_gui_thread())
+  if(Application::is_running_on_gui_thread()) {
+    item = pmath_expr_get_item(expr, 1);
+    pmath_unref(expr);
     return item;
+  }
+  
+  expr = pmath_expr_set_item(expr, 0, pmath_integer_new_siptr(pmath_dynamic_get_current_tracker_id()));
   
   if(waiting) {
-    return Application::notify_wait(ClientNotification::CallFrontEnd, Expr{item}).release();
+    return Application::notify_wait(ClientNotification::CallFrontEnd, Expr{expr}).release();
   }
   else{
-    Application::notify(ClientNotification::CallFrontEnd, Expr{item});
+    Application::notify(ClientNotification::CallFrontEnd, Expr{expr});
     return PMATH_NULL;
   }
 }
