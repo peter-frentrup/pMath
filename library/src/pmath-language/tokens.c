@@ -300,19 +300,19 @@ PMATH_API pmath_token_t pmath_token_analyse(
       } return PMATH_TOK_NONE;
       
     case '>': {
-        if(str[1] == '=') { // >=  !=
+        if(str[1] == '=') { // >=
           *prec = PMATH_PREC_REL;
           return PMATH_TOK_NARY;
         }
       } return PMATH_TOK_NONE;
       
     case '!': {
-        if(str[1] == '=') { // >=  !=
+        if(str[1] == '=') { // !=
           *prec = PMATH_PREC_REL;
           return PMATH_TOK_NARY;
         }
         
-        if(str[1] == '!') { // >=  !!
+        if(str[1] == '!') { // !!
           *prec = PMATH_PREC_FAC;
           return PMATH_TOK_POSTFIX;
         }

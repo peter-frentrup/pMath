@@ -2308,28 +2308,8 @@ static unsigned int hash_expression(
 
 //{ writing expressions
 
-#define PRIO_ANY                 0
-#define PRIO_ASSIGN             10 // a:= b, a::= b, a+= b, a-= b,
-#define PRIO_FUNCTION           20 // body _
-#define PRIO_COLON              25 // a : b : ...
-#define PRIO_RULE               30 // a -> b, a:> b
-#define PRIO_STREXPR            35 // a ++ b ++ ...
-#define PRIO_ARROWS             40 // a => b ...
-#define PRIO_CONDITION          50 // pattern // condition
-#define PRIO_ALTERNATIVES       60 // pat1 | pat2 | ...
-#define PRIO_LOGIC              70 // a || b || ..., a && b && ...
-#define PRIO_NOT                80 // !a
-#define PRIO_IDENTITY           90 // a == b, a =!= b
-#define PRIO_EQUATION          100 // a = b, a < b, ...
-#define PRIO_RANGE             110 // a .. b
-#define PRIO_INCDEC            115 // a++, ++a, a--, --a
-#define PRIO_PLUS              120 // a + b + ...
-#define PRIO_TIMES             130 // a * b * ...
-#define PRIO_FACTOR            (PRIO_TIMES + 1)
-#define PRIO_POWER             140 // a^b
-#define PRIO_PATTERN           160 // pattern ? function, pattern**, pattern***
-#define PRIO_CALL              170 // f(...)
-#define PRIO_SYMBOL            180
+#define PREC_NOT      (PMATH_PREC_AND + 1)
+#define PREC_FACTOR   (PMATH_PREC_MUL + 1)
 
 #define WRITE_CSTR(str) _pmath_write_cstr((str), info->write, info->user)
 
@@ -2387,8 +2367,8 @@ static void write_ex(
     write_expr_ex(info, priority, obj);
   }
   else if( pmath_is_number(obj) &&
-           ((priority > PRIO_TIMES  && pmath_number_sign(obj) < 0) ||
-            (priority > PRIO_FACTOR && pmath_is_quotient(obj))))
+           ((priority > PMATH_PREC_MUL  && pmath_number_sign(obj) < 0) ||
+            (priority > PREC_FACTOR && pmath_is_quotient(obj))))
   {
     WRITE_CSTR("(");
 
@@ -2615,14 +2595,14 @@ static void write_expr_ex(
         _pmath_write_impl(info, PMATH_SYMBOL_INFINITY);
       }
       else if(pmath_equals(direction, PMATH_FROM_INT32(-1))) {
-        if(priority > PRIO_FACTOR)
+        if(priority > PREC_FACTOR)
           WRITE_CSTR("(-");
         else
           WRITE_CSTR("-");
 
         _pmath_write_impl(info, PMATH_SYMBOL_INFINITY);
 
-        if(priority > PRIO_FACTOR)
+        if(priority > PREC_FACTOR)
           WRITE_CSTR(")");
       }
       else {
@@ -2681,7 +2661,7 @@ static void write_expr_ex(
 
     item = pmath_expr_get_item(expr, 1);
 
-    write_ex(info, PRIO_CALL, head);
+    write_ex(info, PMATH_PREC_CALL, head);
     WRITE_CSTR("(");
     _pmath_write_impl(info, item);
 
@@ -2728,7 +2708,7 @@ static void write_expr_ex(
     if(exprlen < 2)
       goto FULLFORM;
 
-    if(priority > PRIO_COLON)
+    if(priority > PMATH_PREC_REL)
       WRITE_CSTR("(");
 
     for(i = 1; i <= exprlen; i++) {
@@ -2736,11 +2716,11 @@ static void write_expr_ex(
         write_spaced_operator(info, 0x2236, ":");
 
       item = pmath_expr_get_item(expr, i);
-      write_ex(info, PRIO_COLON + 1, item);
+      write_ex(info, PMATH_PREC_REL + 1, item);
       pmath_unref(item);
     }
 
-    if(priority > PRIO_COLON)
+    if(priority > PMATH_PREC_REL)
       WRITE_CSTR(")");
   }
   else if(pmath_same(head, PMATH_SYMBOL_GRAPHICS)) {
@@ -2951,13 +2931,13 @@ else INPUTFORM:
     {
       pmath_t lhs, rhs;
 
-      if(priority > PRIO_ASSIGN)
+      if(priority > PMATH_PREC_ASS)
         WRITE_CSTR("(");
 
       lhs = pmath_expr_get_item(expr, 1);
       rhs = pmath_expr_get_item(expr, 2);
 
-      write_ex(info, PRIO_ASSIGN + 1, lhs);
+      write_ex(info, PMATH_PREC_ASS + 1, lhs);
 
       if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
       else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
@@ -2966,12 +2946,12 @@ else INPUTFORM:
       else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      write_spaced_operator2(info, FALSE, TRUE, 0, "+=");
       else                                                   write_spaced_operator2(info, FALSE, TRUE, 0, "*=");
 
-      write_ex(info, PRIO_ASSIGN, rhs);
+      write_ex(info, PMATH_PREC_ASS, rhs);
 
       pmath_unref(lhs);
       pmath_unref(rhs);
 
-      if(priority > PRIO_ASSIGN)
+      if(priority > PMATH_PREC_ASS)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
@@ -2984,20 +2964,20 @@ else INPUTFORM:
       if(exprlen != 1)
         goto FULLFORM;
 
-      if(priority > PRIO_INCDEC)
+      if(priority > PMATH_PREC_INC)
         WRITE_CSTR("(");
 
       if(pmath_same(head, PMATH_SYMBOL_DECREMENT))  WRITE_CSTR("--");
       else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))  WRITE_CSTR("++");
 
       arg = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_INCDEC + 1, arg);
+      write_ex(info, PMATH_PREC_INC + 1, arg);
       pmath_unref(arg);
 
       if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  WRITE_CSTR("--");
       else if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  WRITE_CSTR("++");
 
-      if(priority > PRIO_INCDEC)
+      if(priority > PMATH_PREC_INC)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN) ||
@@ -3008,27 +2988,27 @@ else INPUTFORM:
       if(exprlen != 3)
         goto FULLFORM;
 
-      if(priority > PRIO_ASSIGN)
+      if(priority > PMATH_PREC_ASS)
         WRITE_CSTR("(");
 
       obj = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_SYMBOL, obj);
+      write_ex(info, PMATH_PREC_PRIM, obj);
       pmath_unref(obj);
 
       write_spaced_operator2(info, FALSE, TRUE, 0, "/:");
 
       obj = pmath_expr_get_item(expr, 2);
-      write_ex(info, PRIO_ASSIGN + 1, obj);
+      write_ex(info, PMATH_PREC_ASS + 1, obj);
       pmath_unref(obj);
 
       if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
       else                                          write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
 
       obj = pmath_expr_get_item(expr, 3);
-      write_ex(info, PRIO_ASSIGN, obj);
+      write_ex(info, PMATH_PREC_ASS, obj);
       pmath_unref(obj);
 
-      if(priority > PRIO_ASSIGN)
+      if(priority > PMATH_PREC_ASS)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_RULE) ||
@@ -3039,25 +3019,25 @@ else INPUTFORM:
       if(exprlen != 2)
         goto FULLFORM;
 
-      if(priority > PRIO_RULE)
+      if(priority > PMATH_PREC_RULE)
         WRITE_CSTR("(");
 
       lhs = pmath_expr_get_item(expr, 1);
       rhs = pmath_expr_get_item(expr, 2);
 
-      write_ex(info, PRIO_RULE + 1, lhs);
+      write_ex(info, PMATH_PREC_RULE + 1, lhs);
 
       if(pmath_same(head, PMATH_SYMBOL_RULE))
         write_spaced_operator(info, PMATH_CHAR_RULE,        "->");
       else
         write_spaced_operator(info, PMATH_CHAR_RULEDELAYED, ":>");
 
-      write_ex(info, PRIO_RULE, rhs);
+      write_ex(info, PMATH_PREC_RULE, rhs);
 
       pmath_unref(lhs);
       pmath_unref(rhs);
 
-      if(priority > PRIO_RULE)
+      if(priority > PMATH_PREC_RULE)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
@@ -3084,7 +3064,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_STREXPR)
+      if(priority > PMATH_PREC_STR)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3092,11 +3072,11 @@ else INPUTFORM:
           write_spaced_operator(info, 0, "++");
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_STREXPR + 1, item);
+        write_ex(info, PMATH_PREC_STR + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_STREXPR)
+      if(priority > PMATH_PREC_STR)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_EVALUATIONSEQUENCE)) {
@@ -3106,7 +3086,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_ANY)
+      if(priority > PMATH_PREC_ANY)
         WRITE_CSTR("(");
 
       for(i = 1; i < exprlen; i++) {
@@ -3114,20 +3094,20 @@ else INPUTFORM:
           write_spaced_operator2(info, FALSE, TRUE, ';', ";");
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_ANY + 1, item);
+        write_ex(info, PMATH_PREC_ANY + 1, item);
         pmath_unref(item);
       }
 
       item = pmath_expr_get_item(expr, exprlen);
       if(!pmath_is_null(item)) {
         write_spaced_operator2(info, FALSE, TRUE, ';', ";");
-        write_ex(info, PRIO_ANY + 1, item);
+        write_ex(info, PMATH_PREC_ANY + 1, item);
         pmath_unref(item);
       }
       else
         WRITE_CSTR(";");
 
-      if(priority > PRIO_ANY)
+      if(priority > PMATH_PREC_ANY)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)) {
@@ -3137,7 +3117,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_ALTERNATIVES)
+      if(priority > PMATH_PREC_ALT)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3145,11 +3125,11 @@ else INPUTFORM:
           write_spaced_operator(info, '|', "|");
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_ALTERNATIVES + 1, item);
+        write_ex(info, PMATH_PREC_ALT + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_ALTERNATIVES)
+      if(priority > PMATH_PREC_ALT)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_OR)) {
@@ -3159,7 +3139,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_LOGIC)
+      if(priority > PMATH_PREC_OR)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3167,11 +3147,11 @@ else INPUTFORM:
           write_spaced_operator(info, 0, "||");
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_LOGIC + 1, item);
+        write_ex(info, PMATH_PREC_OR + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_LOGIC)
+      if(priority > PMATH_PREC_OR)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_AND)) {
@@ -3181,7 +3161,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_LOGIC)
+      if(priority > PMATH_PREC_AND)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3189,11 +3169,11 @@ else INPUTFORM:
           write_spaced_operator(info, 0, "&&");
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_LOGIC + 1, item);
+        write_ex(info, PMATH_PREC_AND + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_LOGIC)
+      if(priority > PMATH_PREC_AND)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_NOT)) {
@@ -3202,14 +3182,14 @@ else INPUTFORM:
       if(exprlen != 1)
         goto FULLFORM;
 
-      if(priority > PRIO_NOT)  WRITE_CSTR("(!");
+      if(priority > PREC_NOT)  WRITE_CSTR("(!");
       else                     WRITE_CSTR("!");
 
       item = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_NOT + 1, item);
+      write_ex(info, PREC_NOT + 1, item);
       pmath_unref(item);
 
-      if(priority > PRIO_NOT)
+      if(priority > PREC_NOT)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_IDENTICAL)) {
@@ -3219,7 +3199,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_IDENTITY)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3227,11 +3207,11 @@ else INPUTFORM:
           write_spaced_operator(info, 0, "==="); // note that U+2261 is \[Congruent]
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_IDENTITY + 1, item);
+        write_ex(info, PMATH_PREC_REL + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_IDENTITY)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL)) {
@@ -3241,7 +3221,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_IDENTITY)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3249,11 +3229,11 @@ else INPUTFORM:
           write_spaced_operator(info, 0, "=!="); // note that U+2262 is \[NotCongruent]
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_IDENTITY + 1, item);
+        write_ex(info, PMATH_PREC_REL + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_IDENTITY)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_LESS)         ||
@@ -3279,7 +3259,7 @@ else INPUTFORM:
       else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))      { uni_op = 0x2260; ascii_op = "!="; }
       else                                                 { uni_op = 0;      ascii_op = "<<?>>"; }
 
-      if(priority > PRIO_EQUATION)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR("(");
 
       for(i = 1; i <= exprlen; i++) {
@@ -3287,11 +3267,11 @@ else INPUTFORM:
           write_spaced_operator(info, uni_op, ascii_op);
 
         item = pmath_expr_get_item(expr, i);
-        write_ex(info, PRIO_EQUATION + 1, item);
+        write_ex(info, PMATH_PREC_REL + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_EQUATION)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_INEQUATION)) {
@@ -3301,11 +3281,11 @@ else INPUTFORM:
       if(exprlen < 3 || (exprlen & 1) == 0)
         goto FULLFORM;
 
-      if(priority > PRIO_EQUATION)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR("(");
 
       item = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_EQUATION + 1, item);
+      write_ex(info, PMATH_PREC_REL + 1, item);
       pmath_unref(item);
 
       exprlen /= 2;
@@ -3321,11 +3301,11 @@ else INPUTFORM:
         pmath_unref(item);
 
         item = pmath_expr_get_item(expr, 2 * i + 1);
-        write_ex(info, PRIO_EQUATION + 1, item);
+        write_ex(info, PMATH_PREC_REL + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_EQUATION)
+      if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_PLUS)) {
@@ -3336,7 +3316,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_PLUS)
+      if(priority > PMATH_PREC_ADD)
         WRITE_CSTR("(");
 
       sum_writer_data.next          = info;
@@ -3347,13 +3327,13 @@ else INPUTFORM:
 
       for(i = 1; i <= exprlen; i++) {
         pmath_t item = pmath_expr_get_item(expr, i);
-        write_ex(&hook_info, PRIO_PLUS + 1, item);
+        write_ex(&hook_info, PMATH_PREC_ADD + 1, item);
 
         sum_writer_data.prefix_status = FALSE;
         pmath_unref(item);
       }
 
-      if(priority > PRIO_PLUS)
+      if(priority > PMATH_PREC_ADD)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
@@ -3366,7 +3346,7 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(priority > PRIO_TIMES)
+      if(priority > PMATH_PREC_MUL)
         WRITE_CSTR("(");
 
       product_writer_data.next          = info;
@@ -3382,7 +3362,7 @@ else INPUTFORM:
         skip_star = TRUE;
       }
       else {
-        write_ex(&hook_info, PRIO_TIMES, item);
+        write_ex(&hook_info, PMATH_PREC_MUL, item);
         product_writer_data.prefix_status = 0;
       }
       pmath_unref(item);
@@ -3402,12 +3382,12 @@ else INPUTFORM:
           }
         }
 
-        write_ex(&hook_info, PRIO_FACTOR, item);
+        write_ex(&hook_info, PREC_FACTOR, item);
         product_writer_data.prefix_status = 0;
         pmath_unref(item);
       }
 
-      if(priority > PRIO_TIMES)
+      if(priority > PMATH_PREC_MUL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_POWER)) {
@@ -3433,55 +3413,55 @@ else INPUTFORM:
         WRITE_CSTR(")");
       }
       else if(pmath_equals(exponent, PMATH_FROM_INT32(-1))) {
-        if(priority > PRIO_FACTOR)
+        if(priority > PREC_FACTOR)
           WRITE_CSTR("(");
         
         WRITE_CSTR("1/");
 
-        write_ex(&hook_info, PRIO_POWER + 1, base);
+        write_ex(&hook_info, PMATH_PREC_POW + 1, base);
         
-        if(priority > PRIO_FACTOR)
+        if(priority > PREC_FACTOR)
           WRITE_CSTR(")");
       }
       else if(pmath_is_integer(exponent) && pmath_number_sign(exponent) < 0) {
-        if(priority > PRIO_FACTOR)
+        if(priority > PREC_FACTOR)
           WRITE_CSTR("(");
         
         WRITE_CSTR("1/");
 
         exponent = pmath_number_neg(exponent);
 
-        write_ex(&hook_info, PRIO_POWER + 1, base);
+        write_ex(&hook_info, PMATH_PREC_POW + 1, base);
 
         WRITE_CSTR("^");
-        write_ex(info, PRIO_POWER, exponent);
+        write_ex(info, PMATH_PREC_POW, exponent);
         
-        if(priority > PRIO_FACTOR)
+        if(priority > PREC_FACTOR)
           WRITE_CSTR(")");
       }
       else {
         pmath_t minus_one_half = pmath_number_neg(pmath_ref(_pmath_one_half));
 
         if(pmath_equals(exponent, minus_one_half)) {
-          if(priority > PRIO_FACTOR)
+          if(priority > PREC_FACTOR)
             WRITE_CSTR("(");
             
           WRITE_CSTR("1/Sqrt(");
           _pmath_write_impl(info, base);
           WRITE_CSTR(")");
           
-          if(priority > PRIO_FACTOR)
+          if(priority > PREC_FACTOR)
             WRITE_CSTR(")");
         }
         else {
-          if(priority > PRIO_POWER)
+          if(priority > PMATH_PREC_POW)
             WRITE_CSTR("(");
 
-          write_ex(info, PRIO_POWER + 1, base);
+          write_ex(info, PMATH_PREC_POW + 1, base);
           WRITE_CSTR("^");
-          write_ex(info, PRIO_POWER, exponent);
+          write_ex(info, PMATH_PREC_POW, exponent);
 
-          if(priority > PRIO_POWER)
+          if(priority > PMATH_PREC_POW)
             WRITE_CSTR(")");
         }
 
@@ -3496,30 +3476,30 @@ else INPUTFORM:
       if(exprlen < 2 || exprlen > 3)
         goto FULLFORM;
 
-      if(priority > PRIO_RANGE)
+      if(priority > PMATH_PREC_RANGE)
         WRITE_CSTR("(");
 
       item = pmath_expr_get_item(expr, 1);
       if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
-        write_ex(info, PRIO_RANGE + 1, item);
+        write_ex(info, PMATH_PREC_RANGE + 1, item);
       pmath_unref(item);
 
       write_spaced_operator(info, 0, "..");
 
       item = pmath_expr_get_item(expr, 2);
       if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
-        write_ex(info, PRIO_RANGE + 1, item);
+        write_ex(info, PMATH_PREC_RANGE + 1, item);
       pmath_unref(item);
 
       if(exprlen == 3) {
         write_spaced_operator(info, 0, "..");
 
         item = pmath_expr_get_item(expr, 3);
-        write_ex(info, PRIO_RANGE + 1, item);
+        write_ex(info, PMATH_PREC_RANGE + 1, item);
         pmath_unref(item);
       }
 
-      if(priority > PRIO_RANGE)
+      if(priority > PMATH_PREC_RANGE)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_PART)) {
@@ -3530,7 +3510,7 @@ else INPUTFORM:
         goto FULLFORM;
 
       item = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_CALL, item);
+      write_ex(info, PMATH_PREC_CALL, item);
       pmath_unref(item);
 
       WRITE_CSTR("[");
@@ -3558,18 +3538,18 @@ else INPUTFORM:
         goto FULLFORM;
       }
 
-      if(priority > PRIO_CALL)
+      if(priority > PMATH_PREC_CALL)
         WRITE_CSTR("(");
       symbol = pmath_expr_get_item(expr, 1);
 
-      write_ex(info, PRIO_CALL, symbol);
+      write_ex(info, PMATH_PREC_CALL, symbol);
       WRITE_CSTR("::");
       _pmath_write_impl(info, tag);
 
       pmath_unref(symbol);
       pmath_unref(tag);
 
-      if(priority > PRIO_CALL)
+      if(priority > PMATH_PREC_CALL)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_COMPLEX)) {
@@ -3583,7 +3563,7 @@ else INPUTFORM:
       im = pmath_expr_get_item(expr, 2);
 
       if(!pmath_same(re, PMATH_FROM_INT32(0))) {
-        if(priority > PRIO_PLUS) {
+        if(priority > PMATH_PREC_ADD) {
           WRITE_CSTR("(");
           lparen = TRUE;
         }
@@ -3597,7 +3577,7 @@ else INPUTFORM:
       }
 
       if(pmath_equals(im, PMATH_FROM_INT32(-1))) {
-        if(!lparen && priority > PRIO_TIMES) {
+        if(!lparen && priority > PMATH_PREC_MUL) {
           WRITE_CSTR("(");
           lparen = TRUE;
         }
@@ -3607,7 +3587,7 @@ else INPUTFORM:
         WRITE_CSTR("I");
       }
       else {
-        if(!lparen && priority > PRIO_TIMES) {
+        if(!lparen && priority > PMATH_PREC_MUL) {
           WRITE_CSTR("(");
           lparen = TRUE;
         }
@@ -3656,7 +3636,7 @@ else INPUTFORM:
           _pmath_write_impl(info, sym);
           WRITE_CSTR(":");
 
-          write_ex(info, PRIO_SYMBOL, type);
+          write_ex(info, PMATH_PREC_PRIM, type);
 
           pmath_unref(type);
           default_pattern = FALSE;
@@ -3673,7 +3653,7 @@ else INPUTFORM:
               _pmath_write_impl(info, sym);
               WRITE_CSTR(":");
 
-              write_ex(info, PRIO_SYMBOL, type);
+              write_ex(info, PMATH_PREC_PRIM, type);
               default_pattern = FALSE;
             }
             else if(pmath_equals(range, _pmath_object_range_from_zero)) {
@@ -3681,7 +3661,7 @@ else INPUTFORM:
               _pmath_write_impl(info, sym);
               WRITE_CSTR(":");
 
-              write_ex(info, PRIO_SYMBOL, type);
+              write_ex(info, PMATH_PREC_PRIM, type);
               default_pattern = FALSE;
             }
 
@@ -3693,14 +3673,14 @@ else INPUTFORM:
         }
 
         if(default_pattern) {
-          if(priority > PRIO_ALTERNATIVES)
+          if(priority > PMATH_PREC_ALT)
             WRITE_CSTR("(");
 
           _pmath_write_impl(info, sym);
           write_spaced_operator(info, ':', ":");
-          write_ex(info, PRIO_ALTERNATIVES, pat);
+          write_ex(info, PMATH_PREC_ALT, pat);
 
-          if(priority > PRIO_ALTERNATIVES)
+          if(priority > PMATH_PREC_ALT)
             WRITE_CSTR(")");
         }
       }
@@ -3714,20 +3694,20 @@ else INPUTFORM:
       if(exprlen != 2)
         goto FULLFORM;
 
-      if(priority > PRIO_PATTERN)
+      if(priority > PMATH_PREC_TEST)
         WRITE_CSTR("(");
 
       item = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_PATTERN + 1, item);
+      write_ex(info, PMATH_PREC_TEST + 1, item);
       pmath_unref(item);
 
       write_spaced_operator(info, '?', "?");
 
       item = pmath_expr_get_item(expr, 2);
-      write_ex(info, PRIO_CALL, item);
+      write_ex(info, PMATH_PREC_CALL, item);
       pmath_unref(item);
 
-      if(priority > PRIO_PATTERN)
+      if(priority > PMATH_PREC_TEST)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_CONDITION)) {
@@ -3736,20 +3716,20 @@ else INPUTFORM:
       if(exprlen != 2)
         goto FULLFORM;
 
-      if(priority > PRIO_CONDITION)
+      if(priority > PMATH_PREC_COND)
         WRITE_CSTR("(");
 
       item = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_CONDITION + 1, item);
+      write_ex(info, PMATH_PREC_COND + 1, item);
       pmath_unref(item);
 
       write_spaced_operator(info, 0, "/?");
 
       item = pmath_expr_get_item(expr, 2);
-      write_ex(info, PRIO_ALTERNATIVES + 1, item);
+      write_ex(info, PMATH_PREC_ALT + 1, item);
       pmath_unref(item);
 
-      if(priority > PRIO_CONDITION)
+      if(priority > PMATH_PREC_COND)
         WRITE_CSTR(")");
     }
     else if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)) {
@@ -3760,7 +3740,7 @@ else INPUTFORM:
         pmath_t type = pmath_expr_get_item(expr, 1);
 
         WRITE_CSTR("~:");
-        write_ex(info, PRIO_SYMBOL, type);
+        write_ex(info, PMATH_PREC_PRIM, type);
 
         pmath_unref(type);
       }
@@ -3784,18 +3764,18 @@ else INPUTFORM:
           pmath_t type = pmath_expr_get_item(pattern, 1);
 
           WRITE_CSTR("~~:");
-          write_ex(info, PRIO_SYMBOL, type);
+          write_ex(info, PMATH_PREC_PRIM, type);
 
           pmath_unref(type);
         }
         else {
-          if(priority > PRIO_PATTERN)
+          if(priority > PMATH_PREC_REPEAT)
             WRITE_CSTR("(");
 
-          write_ex(info, PRIO_PATTERN + 1, pattern);
+          write_ex(info, PMATH_PREC_REPEAT + 1, pattern);
           WRITE_CSTR("**");
 
-          if(priority > PRIO_PATTERN)
+          if(priority > PMATH_PREC_REPEAT)
             WRITE_CSTR(")");
         }
       }
@@ -3807,18 +3787,18 @@ else INPUTFORM:
           pmath_t type = pmath_expr_get_item(pattern, 1);
 
           WRITE_CSTR("~~~:");
-          write_ex(info, PRIO_SYMBOL, type);
+          write_ex(info, PMATH_PREC_PRIM, type);
 
           pmath_unref(type);
         }
         else {
-          if(priority > PRIO_PATTERN)
+          if(priority > PMATH_PREC_REPEAT)
             WRITE_CSTR("(");
 
-          write_ex(info, PRIO_PATTERN + 1, pattern);
+          write_ex(info, PMATH_PREC_REPEAT + 1, pattern);
           WRITE_CSTR("***");
 
-          if(priority > PRIO_PATTERN)
+          if(priority > PMATH_PREC_REPEAT)
             WRITE_CSTR(")");
         }
       }
@@ -3837,14 +3817,14 @@ else INPUTFORM:
       if(exprlen != 1)
         goto FULLFORM;
 
-      if(priority > PRIO_FUNCTION)
+      if(priority > PMATH_PREC_FUNC)
         WRITE_CSTR("(");
 
       body = pmath_expr_get_item(expr, 1);
-      write_ex(info, PRIO_FUNCTION, body);
+      write_ex(info, PMATH_PREC_FUNC, body);
       pmath_unref(body);
 
-      if(priority > PRIO_FUNCTION) {
+      if(priority > PMATH_PREC_FUNC) {
         if(info->options & PMATH_WRITE_OPTIONS_NOSPACES)
           WRITE_CSTR("&)");
         else
@@ -3884,14 +3864,14 @@ else INPUTFORM:
       item = pmath_expr_get_item(expr, 1);
 
       if(pmath_is_integer(item) && pmath_number_sign(item) > 0) {
-        if(priority > PRIO_CALL)
+        if(priority > PMATH_PREC_CALL)
           WRITE_CSTR("(#");
         else
           WRITE_CSTR("#");
 
-        write_ex(info, PRIO_CALL + 1, item);
+        write_ex(info, PMATH_PREC_CALL + 1, item);
 
-        if(priority > PRIO_CALL)
+        if(priority > PMATH_PREC_CALL)
           WRITE_CSTR(")");
       }
       else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RANGE, 2)) {
@@ -3903,15 +3883,15 @@ else INPUTFORM:
             pmath_is_integer(a)                   &&
             pmath_number_sign(a) > 0)
         {
-          if(priority > PRIO_CALL)
+          if(priority > PMATH_PREC_CALL)
             WRITE_CSTR("(##");
           else
             WRITE_CSTR("##");
 
-          write_ex(info, PRIO_CALL + 1, a);
+          write_ex(info, PMATH_PREC_CALL + 1, a);
           pmath_unref(a);
 
-          if(priority > PRIO_CALL)
+          if(priority > PMATH_PREC_CALL)
             WRITE_CSTR(")");
         }
         else {
@@ -3955,7 +3935,7 @@ else INPUTFORM:
         goto FULLFORM;
       }
 
-      if(exprlen == 2 && priority > PRIO_TIMES)  WRITE_CSTR("(?");
+      if(exprlen == 2 && priority > PMATH_PREC_MUL)  WRITE_CSTR("(?");
       else                                       WRITE_CSTR("?");
 
       _pmath_write_impl(info, sub_item);
@@ -3966,10 +3946,10 @@ else INPUTFORM:
         WRITE_CSTR(":");
 
         item = pmath_expr_get_item(expr, 2);
-        write_ex(info, PRIO_PLUS + 1, item);
+        write_ex(info, PMATH_PREC_ADD + 1, item);
         pmath_unref(item);
 
-        if(priority > PRIO_TIMES)
+        if(priority > PMATH_PREC_MUL)
           WRITE_CSTR(")");
       }
     }
@@ -3979,7 +3959,7 @@ else INPUTFORM:
 
     FULLFORM:
 
-      write_ex(info, PRIO_CALL, head);
+      write_ex(info, PMATH_PREC_CALL, head);
       WRITE_CSTR("(");
       for(i = 1; i <= exprlen; i++) {
         if(i > 1)
@@ -4001,7 +3981,7 @@ void _pmath_expr_write(struct pmath_write_ex_t *info, pmath_t expr) {
   if(_pmath_write_user_format(info, expr))
     return;
 
-  write_expr_ex(info, PRIO_ANY, expr);
+  write_expr_ex(info, PMATH_PREC_ANY, expr);
 }
 
 //}

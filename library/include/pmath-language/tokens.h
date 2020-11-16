@@ -127,7 +127,7 @@ PMATH_API pmath_token_t pmath_token_analyse(
 
 /**\brief Give the prefix oprator precedence for a token
    \param str A UTF16-string.
-   \param len The length (in uint16_t-s) of the token \a str.
+   \param len The length (in uint16_t elements) of the token \a str.
    \param defprec The default operator precedence as given by
                   pmath_token_analyse()
    \return The prefix operator precedence.
