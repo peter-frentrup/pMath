@@ -2451,7 +2451,7 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
         break;
     }
     
-    rect.grow(-1.5, -1.5);
+    rect.grow(-0.75, -0.75);
     radii+= BoxRadius(-0.75);
     rect.add_round_rect_path(canvas, radii, true);
     

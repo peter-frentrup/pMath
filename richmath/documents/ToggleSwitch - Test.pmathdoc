@@ -22,113 +22,79 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
        BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "c", ")"}, "}"}, 
            ",", ComplexStringBox("\"ToggleSwitch\""), ",", {
             "DisplayFunction", "\[Rule]", {
-             "Function", "(", {"DynamicLocalBox", "(", {
-               {"{", {"FE`Private`x", ",", "FE`Private`oldstate"}, "}"}, ",", {
-                "SliderBox", "(", {
-                 {"Dynamic", "(", {
-                   {"\n", {
-                     {"With", "(", {"FE`Private`state", "\[Assign]", {
-                        "CurrentValue", "(", {"{", {"TemplateSlot", ",", "1"}, 
-                         "}"}, ")"}}, ")"}, {
-                      "{", {
-                       "\n", {
-                        {{"If", "(", {"FE`Private`oldstate", "===", 
-                           "FE`Private`state"}, ")"}, {
-                          "{", {"\n", {"FE`Private`x", "\n"}}, "}"}, "Else", {
-                          "{", {
-                           "\n", {
-                            {{"If", "(", {"FE`Private`state", "===", "True"}, 
-                              ")"}, {
-                              "{", {
-                               "\n", {
-                                {{"FE`Private`oldstate", "\[Assign]", 
-                                  "FE`Private`state"}, "\n", {
-                                  "FE`Private`x", "\[Assign]", "1"}}, "\n"}}, 
-                              "}"}, "Else", " ", {
-                              "If", "(", {"FE`Private`state", "===", "False"}, 
-                              ")"}, {
-                              "{", {
-                               "\n", {
-                                {{"FE`Private`oldstate", "\[Assign]", 
-                                  "FE`Private`state"}, "\n", {
-                                  "FE`Private`x", "\[Assign]", "0"}}, "\n"}}, 
-                              "}"}, "Else", {
-                              "{", {
-                               "\n", {
-                                {{"FE`Private`oldstate", "\[Assign]", "."}, 
-                                 "\n", {"FE`Private`x", "\[Assign]", "."}}, 
-                                "\n"}}, "}"}}, "\n"}}, "}"}}, "\n"}}, "}"}}}, 
-                   ",", {"{", {{"\n", "None"}, ",", {
-                      "\n", {{"(", {"FE`Private`x", "\[Assign]", {"#", "1"}}, 
-                        ")"}, "&"}}, ",", {
-                      "\n", {"Function", "(", {
-                        "\n", {
-                         {{{"If", "(", {{"(", {"0", "<", "#", "<", "1"}, ")"}, 
-                             "===", "True"}, ")"}, {
+             "Function", "(", {"SliderBox", "(", {
+               {"Dynamic", "(", {
+                 {"\n", {{"CurrentValue", "(", {
+                     "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, ".", 
+                   "Replace", "(", {"{", {{"True", "\[Rule]", "1"}, ",", {
+                      "False", "\[Rule]", "0"}, ",", {"~", "\[Rule]", "0.5"}}, 
+                    "}"}, ")"}}, ",", {
+                  "{", {"None", ",", "Temporary", ",", {
+                    "Function", "(", {
+                     "\n", {
+                      {{"If", "(", {{"(", {"0", "<", "#", "<", "1"}, ")"}, 
+                         "===", "True"}, ")"}, {
+                        "{", {
+                         "\n", {
+                          {{"With", "(", {"FE`Private`state", "\[Assign]", {
+                              "CurrentValue", "(", {
+                               "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}}, 
+                            ")"}, {
                             "{", {
                              "\n", {
-                              {{"With", "(", {"FE`Private`state", "\[Assign]", 
-                                 {"CurrentValue", "(", {
-                                   "{", {"TemplateSlot", ",", "1"}, "}"}, 
-                                  ")"}}, ")"}, {
+                              {{"If", "(", {
+                                 {"FE`Private`state", "===", "True"}, "||", {
+                                  "FE`Private`state", "===", "False"}}, ")"}, {
                                 "{", {
                                  "\n", {
-                                  {{"If", "(", {
-                                     {"FE`Private`state", "===", "True"}, 
-                                     "||", {"FE`Private`state", "===", 
-                                      "False"}}, ")"}, {
-                                    "{", {"\n", {
-                                      {{"CurrentValue", "(", {
-                                        "{", {"TemplateSlot", ",", "1"}, "}"}, 
-                                        ")"}, "\[Assign]", {
-                                        "Not", "(", "FE`Private`state", ")"}}, 
-                                      "\n"}}, "}"}, "Else", {
-                                    "{", {"\n", {
-                                      {{"CurrentValue", "(", {
-                                        "{", {"TemplateSlot", ",", "1"}, "}"}, 
-                                        ")"}, "\[Assign]", {
-                                        {"(", {{"#", "1"}, "\[GreaterEqual]", 
-                                        "0.5"}, ")"}, "===", "True"}}, ";", 
-                                      "\n"}}, "}"}}, "\n"}}, "}"}}, "\n"}}, 
-                            "}"}, "Else", {
-                            "{", {
-                             "\n", {
-                              {{"CurrentValue", "(", {
-                                 "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, 
-                               "\[Assign]", {{"(", {"#", "=", "1"}, ")"}, 
-                                "===", "True"}}, "\n"}}, "}"}}, "\n", {
-                           "FE`Private`oldstate", "\[Assign]", "."}}, "\n"}}, 
-                       ")"}}}, "}"}}, ")"}, ",", {"0", "..", "1"}, ",", {
-                  "Appearance", "\[Rule]", {
-                   "Dynamic", "(", {
-                    "If", "(", {
-                     {{"CurrentValue", "(", {"{", {"TemplateSlot", ",", "1"}, 
-                        "}"}, ")"}, "===", "True"}, ",", 
-                     ComplexStringBox("\"ToggleSwitchChecked\""), ",", 
-                     ComplexStringBox("\"ToggleSwitchUnchecked\"")}, ")"}, 
-                   ")"}}}, ")"}}, ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), 
-       "Input", SectionLabel -> "in [3]:"), 
+                                  {{"CurrentValue", "(", {
+                                     "{", {"TemplateSlot", ",", "1"}, "}"}, 
+                                    ")"}, "\[Assign]", {
+                                    "Not", "(", "FE`Private`state", ")"}}, 
+                                  "\n"}}, "}"}, "Else", {
+                                "{", {
+                                 "\n", {
+                                  {{"CurrentValue", "(", {
+                                     "{", {"TemplateSlot", ",", "1"}, "}"}, 
+                                    ")"}, "\[Assign]", {
+                                    {"(", {{"#", "1"}, "\[GreaterEqual]", 
+                                      "0.5"}, ")"}, "===", "True"}}, ";", 
+                                  "\n"}}, "}"}}, "\n"}}, "}"}}, "\n"}}, "}"}, 
+                       "Else", {
+                        "{", {
+                         "\n", {
+                          {{"CurrentValue", "(", {
+                             "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, 
+                           "\[Assign]", {{"(", {"#", "=", "1"}, ")"}, "===", 
+                            "True"}}, "\n"}}, "}"}}, "\n"}}, ")"}}, "}"}}, 
+                ")"}, ",", {"0", "..", "1"}, ",", {
+                "ContinuousAction", "\[Rule]", "False"}, ",", {
+                "Appearance", "\[Rule]", {
+                 "Dynamic", "(", {
+                  {"CurrentValue", "(", {"{", {"TemplateSlot", ",", "1"}, 
+                    "}"}, ")"}, ".", "Replace", "(", {
+                   "{", {
+                    {"True", "\[Rule]", ComplexStringBox(
+                      "\"ToggleSwitchChecked\"")}, ",", {
+                     "~", "\[Rule]", ComplexStringBox(
+                      "\"ToggleSwitchUnchecked\"")}}, "}"}, ")"}, ")"}}}, 
+              ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
+       SectionLabel -> "in [17]:"), 
       Section(BoxData(TemplateBox({Dynamic(Global`c)}, "ToggleSwitch", 
-         DisplayFunction -> (DynamicLocalBox({
-           FE`Private`x, FE`Private`oldstate}, 
-          SliderBox(
-           Dynamic(With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
-             If(FE`Private`oldstate === FE`Private`state, FE`Private`x, 
-              If(FE`Private`state === True, 
-               FE`Private`oldstate:= FE`Private`state; FE`Private`x:= 1, 
-               If(FE`Private`state === False, 
-                FE`Private`oldstate:= FE`Private`state; FE`Private`x:= 0, 
-                Unassign(FE`Private`oldstate); Unassign(FE`Private`x))))), {
-             None, (FE`Private`x:= #1) &, (If((0 < #1 < 1) === True, 
-              With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
-               If(FE`Private`state === True || FE`Private`state === False, 
-                CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
-                CurrentValue({TemplateSlot, 1}):= (#1 >= 0.5`) === True;)), 
-              CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True); Unassign(
-              FE`Private`oldstate)) &}), 0 .. 1, 
-           Appearance -> Dynamic(If(CurrentValue({TemplateSlot, 1}) === True, 
-             "ToggleSwitchChecked", "ToggleSwitchUnchecked")))) &))), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+         DisplayFunction -> (SliderBox(
+          Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
+             True -> 1, False -> 0, ~ -> 0.5`}), {
+            None, Temporary, If((0 < #1 < 1) === True, 
+             With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
+              If(FE`Private`state === True || FE`Private`state === False, 
+               CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
+               CurrentValue({TemplateSlot, 1}):= (#1 >= 0.5`) === True;)), 
+             CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True) &}), 0 .. 1, 
+          ContinuousAction -> False, Appearance -> Dynamic(
+           Replace(CurrentValue({TemplateSlot, 1}), {
+             True -> "ToggleSwitchChecked", 
+             ~ -> "ToggleSwitchUnchecked"}))) &))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
     SectionGroup({Section(BoxData({"Dynamic", "(", "c", ")"}), "Input", 
        SectionLabel -> "in [4]:"), 
       Section(BoxData(DynamicBox(ToBoxes(Global`c))), "Output", 
@@ -137,5 +103,7 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
       Section(BoxData({"Checkbox", "(", {"Dynamic", "(", "c", ")"}, ")"}), 
        "Input", SectionLabel -> "in [5]:"), 
       Section(BoxData(CheckboxBox(Dynamic(Global`c))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All)}, All)}, 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+    Section(BoxData({"c", "\[Assign]", "."}), "Input", 
+     SectionLabel -> "in [10]:")}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)
