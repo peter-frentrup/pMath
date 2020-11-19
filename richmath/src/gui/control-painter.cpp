@@ -20,20 +20,20 @@
 using namespace richmath;
 
 namespace {
-  static const Color ButtonColor = Color::from_rgb24(0xDCDCDC);
-  static const Color ButtonHoverColor = Color::from_rgb24(0xE6E6E6);
-  static const Color Button3DLightColor = Color::from_rgb24(0xF0F0F0);
-  static const Color Button3DDarkColor = Color::from_rgb24(0x787878); // 0xB4B4B4
-  static const Color GrayTextColor = Color::from_rgb24(0x808080);
+  static const Color ButtonColor        = Color::from_rgb24(0xDCDCDC);
+  static const Color ButtonHoverColor   = Color::from_rgb24(0xE6E6E6); //Color::blend(ButtonColor, Color::White, 0.3);
+  static const Color Button3DLightColor = Color::from_rgb24(0xF1F1F1); //Color::blend(ButtonColor, Color::White, 0.6);
+  static const Color Button3DDarkColor  = Color::from_rgb24(0x787878); //Color::blend(ButtonColor, Color::Black, 0.6); // 0xB4B4B4
+  static const Color GrayTextColor      = Color::from_rgb24(0x808080);
   
   class ControlPainterImpl {
     public:
       static void paint_edge(
-        Canvas          &canvas,
+        Canvas           &canvas,
         const RectangleF &outer_rect,
         const RectangleF &inner_rect,
-        Color           top_left_color,
-        Color           bottom_right_color);
+        Color             top_left_color,
+        Color             bottom_right_color);
       
       static void paint_frame(
         Canvas           &canvas,
@@ -42,15 +42,16 @@ namespace {
         bool              enabled,
         Color             background_color = ButtonColor);
       
-      static void paint_popup_panel(Canvas &canvas, RectangleF rect);
       static void paint_checkbox_cross(             Canvas &canvas, const RectangleF &rect, Color color);
       static void paint_checkbox_mark(              Canvas &canvas, const RectangleF &rect, Color color);
       static void paint_checkbox_indeterminate_mark(Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_radio_button_background(    Canvas &canvas, const RectangleF &rect, Color inner_color);
-      static void paint_radio_button_mark(          Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_navigation_back_arrow(Canvas &canvas, const RectangleF &rect, Color stroke_col, Color fill_col);
       static void paint_opener_triangle_closed(     Canvas &canvas, const RectangleF &rect, Color color);
       static void paint_opener_triangle_opened(     Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_navigation_back_arrow(Canvas &canvas, const RectangleF &rect, Color stroke_col, Color fill_col);
+      static void paint_popup_panel(Canvas &canvas, RectangleF rect);
+      static void paint_radio_button_background(    Canvas &canvas, const RectangleF &rect, Color inner_color);
+      static void paint_radio_button_mark(          Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_slider_thumb_background(    Canvas &canvas, const RectangleF &rect, bool top_triangle, bool bottom_triangle, Color inner_color, bool enabled);
   };
 }
 
@@ -167,7 +168,9 @@ void ControlPainter::calc_container_size(
         extents->descent = 1.0;
       } break;
       
-    case SliderHorzThumb: {
+    case SliderHorzDownArrowThumb:
+    case SliderHorzThumb:
+    case SliderHorzUpArrowThumb: {
         extents->width = extents->height() / 2;
       } break;
     
@@ -361,7 +364,15 @@ void ControlPainter::draw_container(
       break;
       
     case SliderHorzThumb:
-      ControlPainterImpl::paint_frame(canvas, rect, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, false, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor, state != Disabled);
+      break;
+    
+    case SliderHorzDownArrowThumb:
+      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, true, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor, state != Disabled);
+      break;
+    
+    case SliderHorzUpArrowThumb:
+      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, true, false, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor, state != Disabled);
       break;
     
     case ToggleSwitchChannelUnchecked:
@@ -980,11 +991,11 @@ void ControlPainter::paint_scrollbar(
 //{ class ControlPainterImpl ...
 
 void ControlPainterImpl::paint_edge(
-  Canvas          &canvas,
+  Canvas           &canvas,
   const RectangleF &outer_rect,
   const RectangleF &inner_rect,
-  Color           top_left_color,
-  Color           bottom_right_color
+  Color             top_left_color,
+  Color             bottom_right_color
 ) {
   Color c = canvas.get_color();
   
@@ -1072,18 +1083,6 @@ void ControlPainterImpl::paint_frame(
   canvas.set_color(c);
 }
 
-void ControlPainterImpl::paint_popup_panel(Canvas &canvas, RectangleF rect) {
-  Color c = canvas.get_color();
-  rect.add_rect_path(canvas, false);
-  canvas.set_color(ButtonColor);
-  canvas.fill_preserve();
-  rect.grow(-0.75, -0.75);
-  rect.add_rect_path(canvas, true);
-  canvas.set_color(Color::Black, 0.5);
-  canvas.fill();
-  canvas.set_color(c);
-}
-
 void ControlPainterImpl::paint_checkbox_cross(Canvas &canvas, const RectangleF &rect, Color color) {
   Color c = canvas.get_color();
   canvas.move_to(rect.x +     rect.width / 4, rect.y +     rect.height / 4);
@@ -1123,6 +1122,65 @@ void ControlPainterImpl::paint_checkbox_indeterminate_mark(Canvas &canvas, const
   canvas.line_to(rect.x +     rect.width / 4, rect.y + 3 * rect.height / 4);
   
   canvas.set_color(color);
+  canvas.fill();
+  canvas.set_color(c);
+}
+
+void ControlPainterImpl::paint_navigation_back_arrow(Canvas &canvas, const RectangleF &rect, Color stroke_col, Color fill_col) {
+  Color old_col = canvas.get_color();
+  
+  canvas.move_to(rect.x + rect.width/4, rect.y + rect.height/2);
+  canvas.rel_line_to( rect.width/4,                  rect.height/4);
+  canvas.rel_line_to( rect.width/6,                  0);
+  canvas.rel_line_to(-rect.width/4 + rect.width/12, -rect.height/4 + rect.height/12);
+  canvas.rel_line_to( rect.width/4,                  0);
+  canvas.rel_line_to(0,                             -rect.height/6);
+  canvas.rel_line_to(-rect.width/4,                  0);
+  canvas.rel_line_to( rect.width/4 - rect.width/12, -rect.height/4 + rect.height/12);
+  canvas.rel_line_to(-rect.width/6,                  0);
+  canvas.rel_line_to(-rect.width/4,                  rect.height/4);
+  canvas.close_path();
+  
+  canvas.set_color(fill_col);
+  canvas.fill_preserve();
+  canvas.set_color(stroke_col);
+  canvas.stroke();
+  
+  canvas.set_color(old_col);
+}
+
+void ControlPainterImpl::paint_opener_triangle_closed(Canvas &canvas, const RectangleF &rect, Color color) {
+  Color old_col = canvas.get_color();
+  
+  canvas.move_to(rect.x + rect.width * 0.3f, rect.y + rect.height * 0.3f);
+  canvas.line_to(rect.x + rect.width * 0.6f, rect.y + rect.height * 0.5f);
+  canvas.line_to(rect.x + rect.width * 0.3f, rect.y + rect.height * 0.7f);
+  
+  canvas.set_color(color);
+  canvas.fill();
+  canvas.set_color(old_col);
+}
+
+void ControlPainterImpl::paint_opener_triangle_opened(Canvas &canvas, const RectangleF &rect, Color color) {
+  Color old_col = canvas.get_color();
+  
+  canvas.move_to(rect.x + rect.width * 0.6f, rect.y + rect.height * 0.3f);
+  canvas.line_to(rect.x + rect.width * 0.6f, rect.y + rect.height * 0.6f);
+  canvas.line_to(rect.x + rect.width * 0.3f, rect.y + rect.height * 0.6f);
+  
+  canvas.set_color(color);
+  canvas.fill();
+  canvas.set_color(old_col);
+}
+
+void ControlPainterImpl::paint_popup_panel(Canvas &canvas, RectangleF rect) {
+  Color c = canvas.get_color();
+  rect.add_rect_path(canvas, false);
+  canvas.set_color(ButtonColor);
+  canvas.fill_preserve();
+  rect.grow(-0.75, -0.75);
+  rect.add_rect_path(canvas, true);
+  canvas.set_color(Color::Black, 0.5);
   canvas.fill();
   canvas.set_color(c);
 }
@@ -1188,51 +1246,99 @@ void ControlPainterImpl::paint_radio_button_mark(Canvas &canvas, const Rectangle
   canvas.set_color(old_color);
 }
 
-void ControlPainterImpl::paint_opener_triangle_closed(Canvas &canvas, const RectangleF &rect, Color color) {
-  Color old_col = canvas.get_color();
+void ControlPainterImpl::paint_slider_thumb_background(Canvas &canvas, const RectangleF &rect, bool top_triangle, bool bottom_triangle, Color inner_color, bool enabled) {
+  float h = rect.width/2;
+  float d = enabled ? 1.5f : 0.75f;
   
-  canvas.move_to(rect.x + rect.width * 0.3f, rect.y + rect.height * 0.3f);
-  canvas.line_to(rect.x + rect.width * 0.6f, rect.y + rect.height * 0.5f);
-  canvas.line_to(rect.x + rect.width * 0.3f, rect.y + rect.height * 0.7f);
+  Color old_color = canvas.get_color();
   
-  canvas.set_color(color);
-  canvas.fill();
-  canvas.set_color(old_col);
-}
-
-void ControlPainterImpl::paint_opener_triangle_opened(Canvas &canvas, const RectangleF &rect, Color color) {
-  Color old_col = canvas.get_color();
+  if(inner_color) {
+    canvas.set_color(inner_color);
+    
+    if(top_triangle) {
+      canvas.move_to(rect.left(),     rect.top() + h);
+      canvas.line_to(rect.left() + h, rect.top());
+      canvas.line_to(rect.right(),    rect.top() + h);
+    }
+    else {
+      canvas.move_to(rect.top_left());
+      canvas.line_to(rect.top_right());
+    }
+    
+    if(bottom_triangle) {
+      canvas.line_to(rect.right(),     rect.bottom() - h);
+      canvas.line_to(rect.right() - h, rect.bottom());
+      canvas.line_to(rect.left(),      rect.bottom() - h);
+    }
+    else {
+      canvas.line_to(rect.bottom_right());
+      canvas.line_to(rect.bottom_left());
+    }
+    
+    canvas.fill();
+  }
   
-  canvas.move_to(rect.x + rect.width * 0.6f, rect.y + rect.height * 0.3f);
-  canvas.line_to(rect.x + rect.width * 0.6f, rect.y + rect.height * 0.6f);
-  canvas.line_to(rect.x + rect.width * 0.3f, rect.y + rect.height * 0.6f);
+  canvas.set_color(Button3DLightColor);
+  {
+    if(bottom_triangle)
+      canvas.move_to(rect.left(), rect.bottom() - h);
+    else 
+      canvas.move_to(rect.bottom_left());
+    
+    if(top_triangle) {
+      canvas.line_to(rect.left(),      rect.top() + h);
+      canvas.line_to(rect.left() + h,  rect.top());
+      canvas.line_to(rect.right(),     rect.top() + h);
+      canvas.line_to(rect.right() - d, rect.top() + h);
+      canvas.line_to(rect.left() + h,  rect.top() + d);
+      canvas.line_to(rect.left() + d,  rect.top() + h);
+    }
+    else {
+      canvas.line_to(rect.top_left());
+      canvas.line_to(rect.top_right());
+      canvas.line_to(rect.top_right() + Vector2F(-d, d));
+      canvas.line_to(rect.top_left() + Vector2F(d, d));
+    }
+    
+    if(bottom_triangle)
+      canvas.line_to(rect.left() + d, rect.bottom() - h);
+    else 
+      canvas.line_to(rect.bottom_left() + Vector2F(d, -d));
+    
+    canvas.fill();
+  }
   
-  canvas.set_color(color);
-  canvas.fill();
-  canvas.set_color(old_col);
-}
-
-void ControlPainterImpl::paint_navigation_back_arrow(Canvas &canvas, const RectangleF &rect, Color stroke_col, Color fill_col) {
-  Color old_col = canvas.get_color();
+  canvas.set_color(Button3DDarkColor);
+  {
+    if(top_triangle) 
+      canvas.move_to(rect.right(), rect.top() + h);
+    else 
+      canvas.move_to(rect.top_right());
+    
+    if(bottom_triangle) {
+      canvas.line_to(rect.right(),     rect.bottom() - h);
+      canvas.line_to(rect.right() - h, rect.bottom());
+      canvas.line_to(rect.left(),      rect.bottom() - h);
+      canvas.line_to(rect.left() + d,  rect.bottom() - h);
+      canvas.line_to(rect.right() - h, rect.bottom() - d);
+      canvas.line_to(rect.right() - d, rect.bottom() - h);
+    }
+    else {
+      canvas.line_to(rect.bottom_right());
+      canvas.line_to(rect.bottom_left());
+      canvas.line_to(rect.bottom_left() + Vector2F(d, -d));
+      canvas.line_to(rect.bottom_right() + Vector2F(-d, -d));
+    }
+    
+    if(top_triangle)
+      canvas.line_to(rect.right() - d, rect.top() + h);
+    else 
+      canvas.line_to(rect.top_right() + Vector2F(-d, d));
+    
+    canvas.fill();
+  }
   
-  canvas.move_to(rect.x + rect.width/4, rect.y + rect.height/2);
-  canvas.rel_line_to( rect.width/4,                  rect.height/4);
-  canvas.rel_line_to( rect.width/6,                  0);
-  canvas.rel_line_to(-rect.width/4 + rect.width/12, -rect.height/4 + rect.height/12);
-  canvas.rel_line_to( rect.width/4,                  0);
-  canvas.rel_line_to(0,                             -rect.height/6);
-  canvas.rel_line_to(-rect.width/4,                  0);
-  canvas.rel_line_to( rect.width/4 - rect.width/12, -rect.height/4 + rect.height/12);
-  canvas.rel_line_to(-rect.width/6,                  0);
-  canvas.rel_line_to(-rect.width/4,                  rect.height/4);
-  canvas.close_path();
-  
-  canvas.set_color(fill_col);
-  canvas.fill_preserve();
-  canvas.set_color(stroke_col);
-  canvas.stroke();
-  
-  canvas.set_color(old_col);
+  canvas.set_color(old_color);
 }
 
 //} ... class ControlPainterImpl

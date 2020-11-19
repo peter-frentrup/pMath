@@ -378,7 +378,9 @@ void Win32ControlPainter::calc_container_size(
         extents->descent = 0;
       } return;
       
-    case SliderHorzThumb: {
+    case SliderHorzThumb:
+    case SliderHorzDownArrowThumb:
+    case SliderHorzUpArrowThumb: {
         if(theme && Win32Themes::GetThemePartSize) {
           SIZE size;
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
@@ -583,6 +585,8 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
       
     case SliderHorzChannel:
     case SliderHorzThumb:
+    case SliderHorzDownArrowThumb:
+    case SliderHorzUpArrowThumb:
     case ProgressIndicatorBackground:
     case ProgressIndicatorBar:
     case CheckboxUnchecked:
@@ -1166,6 +1170,48 @@ void Win32ControlPainter::draw_container(
             &irect,
             DFC_BUTTON,
             DFCS_BUTTONPUSH);
+        } break;
+      
+      case SliderHorzDownArrowThumb: {
+          RECT tmp = irect;
+          int h = (tmp.right - tmp.left) / 2;
+          
+          irect.bottom-= 2;
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
+          irect.bottom+= 2;
+          
+          tmp.bottom-= h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_RIGHT | BF_TOP);
+          
+          tmp.bottom = irect.bottom;
+          tmp.top = tmp.bottom - h;
+          tmp.right = tmp.left + h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_LEFT);
+          
+          tmp.left = tmp.right;
+          tmp.right = irect.right;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
+        } break;
+        
+      case SliderHorzUpArrowThumb: {
+          RECT tmp = irect;
+          int h = (tmp.right - tmp.left) / 2;
+          
+          irect.top+= 2;
+          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
+          irect.top-= 2;
+          
+          tmp.top+= h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_RIGHT | BF_BOTTOM);
+          
+          tmp.top    = irect.top;
+          tmp.bottom = tmp.top + h;
+          tmp.right = tmp.left + h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_RIGHT);
+          
+          tmp.left = tmp.right;
+          tmp.right = irect.right;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
         } break;
         
       case ToggleSwitchThumbChecked:
@@ -2070,6 +2116,8 @@ HANDLE Win32ControlPainter::get_control_theme(
     
     case SliderHorzChannel:
     case SliderHorzThumb: 
+    case SliderHorzDownArrowThumb: 
+    case SliderHorzUpArrowThumb: 
       theme = w32cp_cache.slider_theme(control.dpi());
       break;
       
@@ -2235,8 +2283,15 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_state = 1;
       } break;
       
-    case SliderHorzThumb: {
-        *theme_part = 3; // TKP_THUMB
+    case SliderHorzThumb:
+    case SliderHorzDownArrowThumb:
+    case SliderHorzUpArrowThumb: {
+        switch(type) {
+          default:
+          case SliderHorzThumb:          *theme_part = 3; break; // TKP_THUMB
+          case SliderHorzDownArrowThumb: *theme_part = 4; break; // TKP_THUMBBOTTOM
+          case SliderHorzUpArrowThumb:   *theme_part = 5; break; // TKP_THUMBTOP
+        }
         switch(state) {
           case Normal:         *theme_state = 1; break;
           case Pressed:        *theme_state = 4; break;

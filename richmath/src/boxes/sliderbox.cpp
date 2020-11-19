@@ -23,9 +23,11 @@ namespace std {
 
 namespace richmath {
   namespace strings {
+    extern String DownArrow;
     extern String Slider;
     extern String ToggleSwitchChecked;
     extern String ToggleSwitchUnchecked;
+    extern String UpArrow;
   }
   
   class SliderBox::Impl {
@@ -627,6 +629,9 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
 ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
   if(appearance == PMATH_SYMBOL_AUTOMATIC || appearance == strings::Slider)
     return SliderHorzThumb;
+
+  if(appearance == strings::DownArrow)
+    return SliderHorzDownArrowThumb;
   
   if(appearance == strings::ToggleSwitchChecked)
     return ToggleSwitchThumbChecked;
@@ -634,12 +639,17 @@ ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
   if(appearance == strings::ToggleSwitchUnchecked)
     return ToggleSwitchThumbUnchecked;
 
+  if(appearance == strings::UpArrow)
+    return SliderHorzUpArrowThumb;
+
   return SliderHorzThumb;
 }
 
 ContainerType SliderBox::Impl::channel_for_thumb(ContainerType thumb) {
   switch(thumb) {
-    case SliderHorzThumb:            return SliderHorzChannel;
+    case SliderHorzDownArrowThumb:
+    case SliderHorzThumb:
+    case SliderHorzUpArrowThumb:     return SliderHorzChannel;
     case ToggleSwitchThumbChecked:   return ToggleSwitchChannelChecked;
     case ToggleSwitchThumbUnchecked: return ToggleSwitchChannelUnchecked;
     
