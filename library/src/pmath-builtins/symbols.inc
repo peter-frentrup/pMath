@@ -326,6 +326,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Sinh,                               DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( SinhIntegral,                       DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION )
 PMATH_DECLARE_SYSTEM_SYMBOL( Slider,                             0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SliderBox,                          0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( SliderBoxOptions,                   0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SpanFromAbove,                      0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SpanFromBoth,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( SpanFromLeft,                       0 )

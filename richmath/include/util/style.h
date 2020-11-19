@@ -20,7 +20,8 @@ namespace richmath {
     InputFieldBox = 0x00400000,
     PaneBox       = 0x00500000,
     PanelBox      = 0x00600000,
-    TemplateBox   = 0x00700000,
+    SliderBox     = 0x00700000,
+    TemplateBox   = 0x00800000,
   };
   
   enum AutoBoolValues {
@@ -121,6 +122,9 @@ namespace richmath {
     PaneBoxDefaultLineBreakWithin = LineBreakWithin + (int)DefaultStyleOptionOffsets::PaneBox,
     
     PanelBoxDefaultEnabled = Enabled + (int)DefaultStyleOptionOffsets::PanelBox,
+    
+    SliderBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::SliderBox,
+    SliderBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::SliderBox,
   };
   
   enum {
@@ -245,6 +249,7 @@ namespace richmath {
     InputFieldBoxOptions,
     PaneBoxOptions,
     PanelBoxOptions,
+    SliderBoxOptions,
     
     DisplayFunction,
     InterpretationFunction,
@@ -292,6 +297,8 @@ namespace richmath {
     
     PanelBoxDefaultAppearance                = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
+    
+    SliderBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::SliderBox,
     
     TemplateBoxDefaultDisplayFunction        = DisplayFunction        + (int)DefaultStyleOptionOffsets::TemplateBox,
     TemplateBoxDefaultInterpretationFunction = InterpretationFunction + (int)DefaultStyleOptionOffsets::TemplateBox,

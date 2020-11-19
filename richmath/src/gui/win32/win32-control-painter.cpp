@@ -62,28 +62,16 @@ class Win32ControlPainterInfo: public BasicWin32Widget {
 static Win32ControlPainterInfo w32cpinfo;
 
 namespace {
-  static const Color InputFieldBlurColor = Color::from_rgb24(0x8080FF);
-  
-  static Color get_sys_color(int index) {
-    return Color::from_bgr24(GetSysColor(index));
-  }
-  
-  static bool dark_mode_is_fake(ContainerType type) {
-    switch(type) {
-      case ProgressIndicatorBackground:
-      case SliderHorzChannel:
-      case PanelControl:
-      case TabHeadAbuttingRight:
-      case TabHeadAbuttingLeftRight:
-      case TabHeadAbuttingLeft:
-      case TabHead:
-      case TabHeadBackground:
-      case TabBodyBackground:
-        return true;
+  class Win32ControlPainterImpl {
+    public:
+      static Color get_sys_color(int index);
+      static bool dark_mode_is_fake(ContainerType type);
       
-      default: return false;
-    }
-  }
+      static void draw_toggle_switch_channel(Canvas &canvas, RectangleF rect, ControlState state, bool active, bool dark);
+      static void draw_toggle_switch_thumb(  Canvas &canvas, RectangleF rect, ControlState state, bool active, bool dark);
+  };
+  
+  static const Color InputFieldBlurColor = Color::from_rgb24(0x8080FF);
 };
 
 static class Win32ControlPainterCache {
@@ -263,6 +251,8 @@ static class Win32ControlPainterCache {
     Hashtable<int, HANDLE> dark_toolbar_theme_for_dpi;
 } w32cp_cache;
 
+//{ class Win32ControlPainter ...
+
 Win32ControlPainter Win32ControlPainter::win32_painter;
 
 void Win32ControlPainter::done() {
@@ -373,6 +363,8 @@ void Win32ControlPainter::calc_container_size(
       } return;
       
     case SliderHorzChannel: {
+        extents->width = 8 * extents->height();
+        
         float dx = 0;
         float dy = 4;
         if(theme && Win32Themes::GetThemePartSize) {
@@ -539,7 +531,7 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
         SUCCEEDED(Win32Themes::GetThemeColor(
                     theme, theme_part, theme_state, 1619, &col)))
     {
-      if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
+      if(Win32ControlPainterImpl::dark_mode_is_fake(type) && control.is_using_dark_mode()) {
         col = 0xFFFFFF & ~col;
       }
       return Color::from_bgr24(col);
@@ -555,7 +547,7 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
       return ControlPainter::control_font_color(control, type, state);
     
     case PopupPanel:
-      return control.is_using_dark_mode() ? Color::White : get_sys_color(COLOR_BTNTEXT);
+      return control.is_using_dark_mode() ? Color::White : Win32ControlPainterImpl::get_sys_color(COLOR_BTNTEXT);
     
     case AddressBandGoButton:
     case PushButton:
@@ -567,27 +559,27 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
     case TabHeadAbuttingLeft:
     case TabHead:
     case TabBodyBackground: {
-        if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
+        if(Win32ControlPainterImpl::dark_mode_is_fake(type) && control.is_using_dark_mode()) {
           return Color::White;
         }
-        return get_sys_color(COLOR_BTNTEXT);
+        return Win32ControlPainterImpl::get_sys_color(COLOR_BTNTEXT);
       } break;
     
     case ListViewItem:
       if(state == Normal)
         return Color::None;
       else
-        return get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+        return Win32ControlPainterImpl::get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
     case AddressBandInputField: // AddressBandBackground
     case InputField:
-      return get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+      return Win32ControlPainterImpl::get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
     case ListViewItemSelected:
-      return get_sys_color(COLOR_HIGHLIGHTTEXT);
+      return Win32ControlPainterImpl::get_sys_color(COLOR_HIGHLIGHTTEXT);
       
     case TooltipWindow:
-      return get_sys_color(COLOR_INFOTEXT);
+      return Win32ControlPainterImpl::get_sys_color(COLOR_INFOTEXT);
       
     case SliderHorzChannel:
     case SliderHorzThumb:
@@ -756,6 +748,26 @@ void Win32ControlPainter::draw_container(
         canvas.fill();
         canvas.set_color(c);
       } return;
+  }
+  
+  if(Win32Themes::is_app_themed()) {
+    switch(type) {
+      case ToggleSwitchChannelUnchecked: 
+        Win32ControlPainterImpl::draw_toggle_switch_channel(canvas, rect, state, false, control.is_using_dark_mode());
+        return;
+        
+      case ToggleSwitchChannelChecked: 
+        Win32ControlPainterImpl::draw_toggle_switch_channel(canvas, rect, state, true, control.is_using_dark_mode());
+        return;
+      
+      case ToggleSwitchThumbUnchecked: 
+        Win32ControlPainterImpl::draw_toggle_switch_thumb(canvas, rect, state, false, control.is_using_dark_mode());
+        return;
+        
+      case ToggleSwitchThumbChecked: 
+        Win32ControlPainterImpl::draw_toggle_switch_thumb(canvas, rect, state, true, control.is_using_dark_mode());
+        return;
+    }
   }
   
   Win32Themes::MARGINS margins = {0};
@@ -1104,8 +1116,19 @@ void Win32ControlPainter::draw_container(
         break;
       
       case ProgressIndicatorBackground:
-      case SliderHorzChannel: {
+      case SliderHorzChannel:
+      case ToggleSwitchChannelUnchecked: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
+          
+          DrawEdge(
+            dc,
+            &irect,
+            EDGE_SUNKEN,
+            BF_RECT);
+        } break;
+        
+      case ToggleSwitchChannelChecked: {
+          FillRect(dc, &irect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
           
           DrawEdge(
             dc,
@@ -1138,6 +1161,16 @@ void Win32ControlPainter::draw_container(
         } break;
         
       case SliderHorzThumb: {
+          DrawFrameControl(
+            dc,
+            &irect,
+            DFC_BUTTON,
+            DFCS_BUTTONPUSH);
+        } break;
+        
+      case ToggleSwitchThumbChecked:
+      case ToggleSwitchThumbUnchecked: {
+          InflateRect(&irect, -2, -1);
           DrawFrameControl(
             dc,
             &irect,
@@ -1308,7 +1341,7 @@ void Win32ControlPainter::draw_container(
     cairo_surface_mark_dirty(cairo_get_target(canvas.cairo()));
   }
   
-  if(dark_mode_is_fake(type) && control.is_using_dark_mode()) {
+  if(Win32ControlPainterImpl::dark_mode_is_fake(type) && control.is_using_dark_mode()) {
     rect.add_rect_path(canvas, false);
     
     canvas.set_color(Color::Black, 0.667);
@@ -1353,8 +1386,8 @@ void Win32ControlPainter::draw_container(
           Color stroke_col;
           switch(state) {
             case Disabled:
-              fill_col = get_sys_color(COLOR_BTNFACE);
-              stroke_col = get_sys_color(COLOR_GRAYTEXT);
+              fill_col = Win32ControlPainterImpl::get_sys_color(COLOR_BTNFACE);
+              stroke_col = Win32ControlPainterImpl::get_sys_color(COLOR_GRAYTEXT);
               break;
             
             default:
@@ -1556,7 +1589,7 @@ void Win32ControlPainter::system_font_style(ControlContext &control, Style *styl
 }
 
 Color Win32ControlPainter::selection_color(ControlContext &control) {
-  return get_sys_color(COLOR_HIGHLIGHT);
+  return Win32ControlPainterImpl::get_sys_color(COLOR_HIGHLIGHT);
 }
 
 Color Win32ControlPainter::win32_button_face_color(bool dark) {
@@ -2357,3 +2390,102 @@ HANDLE Win32ControlPainter::get_control_theme(
 void Win32ControlPainter::clear_cache() {
   w32cp_cache.clear();
 }
+
+//} ... class Win32ControlPainter
+
+//{ class Win32ControlPainterImpl ...
+
+Color Win32ControlPainterImpl::get_sys_color(int index) {
+  return Color::from_bgr24(GetSysColor(index));
+}
+
+bool Win32ControlPainterImpl::dark_mode_is_fake(ContainerType type) {
+  switch(type) {
+    case ProgressIndicatorBackground:
+    case SliderHorzChannel:
+    case PanelControl:
+    case TabHeadAbuttingRight:
+    case TabHeadAbuttingLeftRight:
+    case TabHeadAbuttingLeft:
+    case TabHead:
+    case TabHeadBackground:
+    case TabBodyBackground:
+      return true;
+    
+    default: return false;
+  }
+}
+
+void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, RectangleF rect, ControlState state, bool active, bool dark) {
+  Color c = canvas.get_color();
+  BoxRadius radii(rect.height/2);
+  rect.add_round_rect_path(canvas, radii, false);
+  
+  if(active) {
+    Color accent = Color::None;
+    if(Win32Themes::is_windows_10_or_newer()) {
+      Win32Themes::ColorizationInfo info {};
+      if(Win32Themes::try_read_win10_colorization(&info))
+        accent = Color::from_bgr24(info.accent_color & 0xFFFFFF);
+    }
+    
+    if(!accent)
+      accent = get_sys_color(COLOR_HIGHLIGHT);
+    
+    switch(state) {
+      case Normal:         canvas.set_color(accent); break;
+      case Hovered:        canvas.set_color(Color::blend(accent, Color::White, 0.25)); break;
+      case Pressed:        
+      case PressedHovered: canvas.set_color(Color::blend(accent, Color::Black, 0.25)); break;
+      case Disabled:       canvas.set_color(Color::Black, 0.5); break;
+    }
+  }
+  else {
+    Color fg = dark ? Color::White : Color::Black;
+    
+    switch(state) {
+      case Pressed:
+      case PressedHovered:
+        canvas.set_color(fg, 0.4);
+        canvas.fill_preserve();
+        break;
+    }
+    
+    rect.grow(-1.5, -1.5);
+    radii+= BoxRadius(-0.75);
+    rect.add_round_rect_path(canvas, radii, true);
+    
+    switch(state) {
+      case Normal:         canvas.set_color(fg, 0.6); break;
+      case Hovered:        canvas.set_color(fg, 0.8); break;
+      case Pressed:        
+      case PressedHovered: canvas.set_color(fg); break;
+      case Disabled:       canvas.set_color(fg, 0.5); break;
+    }
+  }
+  canvas.fill();
+  canvas.set_color(c);
+}
+
+void Win32ControlPainterImpl::draw_toggle_switch_thumb(Canvas &canvas, RectangleF rect, ControlState state, bool active, bool dark) {
+  Color c = canvas.get_color();
+  
+  auto size = std::min(rect.width, rect.height);
+  auto center = rect.center();
+  rect = {center, center};
+  rect.grow(size/4);
+  BoxRadius radii(rect.height/2);
+  rect.add_round_rect_path(canvas, radii, false);
+  
+  if(active)
+    canvas.set_color(Color::White);
+  else if(dark)
+    canvas.set_color(Color::White);
+  else
+    canvas.set_color(Color::Black);
+    
+  canvas.fill();
+  canvas.set_color(c);
+}
+
+//} ... class Win32ControlPainterImpl

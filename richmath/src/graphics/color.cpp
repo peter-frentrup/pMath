@@ -139,6 +139,26 @@ Expr Color::to_pmath() const {
            Number(round_to_prec(b / 255.0, 255)));
 }
 
+Color Color::blend(Color a, Color b, float scale) {
+  if(scale <= 0) return a;
+  if(scale >= 1) return b;
+  
+  if(!a) return b;
+  if(!b) return a;
+  
+  auto a_red   = a.red();
+  auto a_green = a.green();
+  auto a_blue  = a.blue();
+  auto b_red   = b.red();
+  auto b_green = b.green();
+  auto b_blue  = b.blue();
+  
+  return Color::from_rgb(
+           a_red   + (b_red   - a_red) * scale,
+           a_green + (b_green - a_green) * scale,
+           a_blue  + (b_blue  - a_blue) * scale);
+}
+
 //} ... class Color
 
 static double round_factor(double x, double f) {

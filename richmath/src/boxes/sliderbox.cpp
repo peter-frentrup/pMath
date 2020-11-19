@@ -24,6 +24,8 @@ namespace std {
 namespace richmath {
   namespace strings {
     extern String Slider;
+    extern String ToggleSwitchChecked;
+    extern String ToggleSwitchUnchecked;
   }
   
   class SliderBox::Impl {
@@ -47,14 +49,19 @@ namespace richmath {
       
       void paint_error_indicator_if_necessary(Canvas &canvas, Point pos);
       
+      Expr to_literal();
+      
     private:
       void paint_error_indicator(Canvas &canvas, Point pos);
       void paint_underflow_indicator(Canvas &canvas, Point pos);
       void paint_overflow_indicator(Canvas &canvas, Point pos);
     
     public:
-      void paint_channel(Canvas &canvas, Point pos);
-      void animate_thumb(Context &context, Point pos, double old_value);
+      void paint_channel(Canvas &canvas, Point pos, ControlState state);
+      void animate_thumb(Context &context, Point pos, double old_value, ControlState new_state);
+      
+      static ContainerType parse_thumb_appearance(Expr appearance);
+      static ContainerType channel_for_thumb(ContainerType thumb);
       
     private:
       SharedPtr<BoxAnimation> create_thumb_animation(Canvas &canvas, Point pos, ControlState state1, ControlState state2);
@@ -175,24 +182,27 @@ ControlState SliderBox::calc_state(Context &context) {
 
 void SliderBox::resize(Context &context) {
   float em = context.canvas().get_font_size();
-  _extents.ascent  = 0.75 * em * 1.5;
+  _extents.ascent  = em;//0.75 * em * 1.5;
   _extents.descent = 0;
-  _extents.width   = 6 * em * 1.5;
+  _extents.width   = em;
+  
+  type = Impl(*this).parse_thumb_appearance(get_own_style(Appearance));
   
   BoxSize size = _extents;
-  ControlPainter::std->calc_container_size(*this, context.canvas(), SliderHorzThumb, &size);
+  ControlPainter::std->calc_container_size(*this, context.canvas(), type, &size);
   
   thumb_width = size.width;
   _extents.ascent  = size.ascent;
   _extents.descent = size.descent;
   
   size = _extents;
-  ControlPainter::std->calc_container_size(*this, context.canvas(), SliderHorzChannel, &size);
+  ControlPainter::std->calc_container_size(*this, context.canvas(), Impl::channel_for_thumb(type), &size);
   channel_width = size.height();
   
   float h = _extents.height();
   _extents.ascent = 0.25 * em + 0.5 * h;
   _extents.descent = h - _extents.ascent;
+  _extents.width   = size.width;
 }
 
 void SliderBox::paint(Context &context) {
@@ -200,6 +210,7 @@ void SliderBox::paint(Context &context) {
     return;
     
   update_dynamic_styles(context);
+  type = Impl(*this).parse_thumb_appearance(get_own_style(Appearance));
   
   double old_value = range_value;
   
@@ -209,9 +220,13 @@ void SliderBox::paint(Context &context) {
   Point pos = context.canvas().current_pos();
   pos.y -= _extents.ascent;
   
+  ControlState new_state = calc_state(context);
+  
   Impl(*this).paint_error_indicator_if_necessary(context.canvas(), pos);
-  Impl(*this).paint_channel(context.canvas(), pos);
-  Impl(*this).animate_thumb(context, pos, old_value);
+  Impl(*this).paint_channel(context.canvas(), pos, new_state);
+  Impl(*this).animate_thumb(context, pos, old_value, new_state);
+  
+  old_state = new_state;
 }
 
 Expr SliderBox::to_pmath_symbol() {
@@ -222,7 +237,7 @@ Expr SliderBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   if(has(flags, BoxOutputFlags::Literal))
-    Gather::emit(to_literal());
+    Gather::emit(Impl(*this).to_literal());
   else
     Gather::emit(dynamic.expr());
   
@@ -257,6 +272,10 @@ void SliderBox::dynamic_updated() {
     return;
     
   must_update = true;
+  
+  if(style) 
+    style->flag_pending_dynamic();
+  
   request_repaint_all();
 }
 
@@ -267,15 +286,8 @@ void SliderBox::dynamic_finished(Expr info, Expr result) {
     request_repaint_all();
 }
 
-Expr SliderBox::to_literal() {
-  if(!dynamic.is_dynamic())
-    return dynamic.expr();
-  
-  return Impl(*this).position_to_value(range_value, true);
-}
-
 VolatileSelection SliderBox::dynamic_to_literal(int start, int end) {
-  dynamic = to_literal();
+  dynamic = Impl(*this).to_literal();
   return {this, start, end};
 }
 
@@ -492,6 +504,13 @@ void SliderBox::Impl::finish_update_value() {
   }
 }
 
+Expr SliderBox::Impl::to_literal() {
+  if(!self.dynamic.is_dynamic())
+    return self.dynamic.expr();
+  
+  return position_to_value(self.range_value, true);
+}
+
 void SliderBox::Impl::paint_error_indicator_if_necessary(Canvas &canvas, Point pos) {
   if(std::isnan(self.range_value)) {
     paint_error_indicator(canvas, pos);
@@ -549,13 +568,13 @@ void SliderBox::Impl::paint_overflow_indicator(Canvas &canvas, Point pos) {
   canvas.set_color(old_color);
 }
 
-void SliderBox::Impl::paint_channel(Canvas &canvas, Point pos) {
+void SliderBox::Impl::paint_channel(Canvas &canvas, Point pos, ControlState state) {
   float h = self._extents.height();
   ControlPainter::std->draw_container(
     ControlContext::find(&self),
     canvas,
-    SliderHorzChannel,
-    Normal,
+    Impl::channel_for_thumb(self.type),
+    state,
     RectangleF(
       pos.x,
       pos.y + h / 2 - self.channel_width / 2,
@@ -563,13 +582,10 @@ void SliderBox::Impl::paint_channel(Canvas &canvas, Point pos) {
       self.channel_width));
 }
 
-void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_value) {
-  ControlState new_state = self.calc_state(context);
-  
+void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_value, ControlState new_state) {
   if(old_value == self.range_value) {
     if(new_state != self.old_state || !self.animation) {
       self.animation = create_thumb_animation(context.canvas(), pos, self.old_state, new_state);
-      self.old_state = new_state;
     }
     
     if(self.animation) {
@@ -584,7 +600,7 @@ void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_valu
   ControlPainter::std->draw_container(
     ControlContext::find(&self),
     context.canvas(),
-    SliderHorzThumb,
+    self.type,
     new_state,
     RectangleF(
       pos.x + calc_thumb_pos(self.range_value),
@@ -597,8 +613,8 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
   return ControlPainter::std->control_transition(
            self.id(),
            canvas,
-           SliderHorzThumb,
-           SliderHorzThumb,
+           self.type,
+           self.type,
            state1,
            state2,
            RectangleF{
@@ -606,6 +622,29 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
              pos.y,
              self.thumb_width,
              self._extents.height()});
+}
+
+ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
+  if(appearance == PMATH_SYMBOL_AUTOMATIC || appearance == strings::Slider)
+    return SliderHorzThumb;
+  
+  if(appearance == strings::ToggleSwitchChecked)
+    return ToggleSwitchThumbChecked;
+
+  if(appearance == strings::ToggleSwitchUnchecked)
+    return ToggleSwitchThumbUnchecked;
+
+  return SliderHorzThumb;
+}
+
+ContainerType SliderBox::Impl::channel_for_thumb(ContainerType thumb) {
+  switch(thumb) {
+    case SliderHorzThumb:            return SliderHorzChannel;
+    case ToggleSwitchThumbChecked:   return ToggleSwitchChannelChecked;
+    case ToggleSwitchThumbUnchecked: return ToggleSwitchChannelUnchecked;
+    
+    default: return NoContainerType;
+  }
 }
 
 //} ... class SliderBox::Impl

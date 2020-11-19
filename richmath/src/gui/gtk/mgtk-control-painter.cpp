@@ -35,27 +35,29 @@ class MathGtkStyleContextCache {
     
     GtkStyleProvider *current_theme() {  return init_once(_current_theme,  [variant=_theme_variant]() { return make_current_theme_provider(variant); }); }
     
-    GtkStyleContext *checkbox_context() {             return init_context_once(_checkbox_context,             make_checkbox_context); }
-    GtkStyleContext *default_push_button_context() {  return init_context_once(_default_push_button_context,  make_default_push_button_context); }
-    GtkStyleContext *expander_arrow_context() {       return init_context_once(_expander_arrow_context,       make_expander_arrow_context); }
-    GtkStyleContext *input_field_button_context() {   return init_context_once(_input_field_button_context,   make_input_field_button_context); }
-    GtkStyleContext *input_field_context() {          return init_context_once(_input_field_context,          make_input_field_context); }
-    GtkStyleContext *list_item_context() {            return init_context_once(_list_item_context,            make_list_item_context); }
-    GtkStyleContext *list_item_selected_context() {   return init_context_once(_list_item_selected_context,   make_list_item_selected_context); }
-    GtkStyleContext *panel_context() {                return init_context_once(_panel_context,                make_panel_context); }
-    GtkStyleContext *popup_panel_context() {          return init_context_once(_popup_panel_context,          make_popup_panel_context); }
-    GtkStyleContext *progress_bar_context() {         return init_context_once(_progress_bar_context,         make_progress_bar_context); }
-    GtkStyleContext *progress_bar_trough_context() {  return init_context_once(_progress_bar_trough_context,  make_progress_bar_trough_context); }
-    GtkStyleContext *push_button_context() {          return init_context_once(_push_button_context,          make_push_button_context); }
-    GtkStyleContext *radio_button_context() {         return init_context_once(_radio_button_context,         make_radio_button_context); }
-    GtkStyleContext *slider_channel_context() {       return init_context_once(_slider_channel_context,       make_slider_channel_context); }
-    GtkStyleContext *slider_thumb_context() {         return init_context_once(_slider_thumb_context,         make_slider_thumb_context); }
-    GtkStyleContext *tab_body_context() {             return init_context_once(_tab_body_context,             make_tab_body_context); }
-    GtkStyleContext *tab_head_background_context() {  return init_context_once(_tab_head_background_context,  make_tab_head_background_context); }
-    GtkStyleContext *tab_head_context() {             return init_context_once(_tab_head_context,             []() { return make_tab_head_context(false, false); }); }
-    GtkStyleContext *tab_head_label_context() {       return init_context_once(_tab_head_label_context,       make_tab_head_label_context); }
-    GtkStyleContext *tool_button_context() {          return init_context_once(_tool_button_context,          make_tool_button_context); }
-    GtkStyleContext *tooltip_context() {              return init_context_once(_tooltip_context,              make_tooltip_context); }
+    GtkStyleContext *checkbox_context() {              return init_context_once(_checkbox_context,              make_checkbox_context); }
+    GtkStyleContext *default_push_button_context() {   return init_context_once(_default_push_button_context,   make_default_push_button_context); }
+    GtkStyleContext *expander_arrow_context() {        return init_context_once(_expander_arrow_context,        make_expander_arrow_context); }
+    GtkStyleContext *input_field_button_context() {    return init_context_once(_input_field_button_context,    make_input_field_button_context); }
+    GtkStyleContext *input_field_context() {           return init_context_once(_input_field_context,           make_input_field_context); }
+    GtkStyleContext *list_item_context() {             return init_context_once(_list_item_context,             make_list_item_context); }
+    GtkStyleContext *list_item_selected_context() {    return init_context_once(_list_item_selected_context,    make_list_item_selected_context); }
+    GtkStyleContext *panel_context() {                 return init_context_once(_panel_context,                 make_panel_context); }
+    GtkStyleContext *popup_panel_context() {           return init_context_once(_popup_panel_context,           make_popup_panel_context); }
+    GtkStyleContext *progress_bar_context() {          return init_context_once(_progress_bar_context,          make_progress_bar_context); }
+    GtkStyleContext *progress_bar_trough_context() {   return init_context_once(_progress_bar_trough_context,   make_progress_bar_trough_context); }
+    GtkStyleContext *push_button_context() {           return init_context_once(_push_button_context,           make_push_button_context); }
+    GtkStyleContext *radio_button_context() {          return init_context_once(_radio_button_context,          make_radio_button_context); }
+    GtkStyleContext *slider_channel_context() {        return init_context_once(_slider_channel_context,        make_slider_channel_context); }
+    GtkStyleContext *slider_thumb_context() {          return init_context_once(_slider_thumb_context,          make_slider_thumb_context); }
+    GtkStyleContext *tab_body_context() {              return init_context_once(_tab_body_context,              make_tab_body_context); }
+    GtkStyleContext *tab_head_background_context() {   return init_context_once(_tab_head_background_context,   make_tab_head_background_context); }
+    GtkStyleContext *tab_head_context() {              return init_context_once(_tab_head_context,              []() { return make_tab_head_context(false, false); }); }
+    GtkStyleContext *tab_head_label_context() {        return init_context_once(_tab_head_label_context,        make_tab_head_label_context); }
+    GtkStyleContext *toggle_switch_channel_context() { return init_context_once(_toggle_switch_channel_context, make_toggle_switch_channel_context); }
+    GtkStyleContext *toggle_switch_thumb_context() {   return init_context_once(_toggle_switch_thumb_context,   make_toggle_switch_thumb_context); }
+    GtkStyleContext *tool_button_context() {           return init_context_once(_tool_button_context,           make_tool_button_context); }
+    GtkStyleContext *tooltip_context() {               return init_context_once(_tooltip_context,               make_tooltip_context); }
     
     static void render_container(
       GtkStyleContext *ctx, 
@@ -93,6 +95,8 @@ class MathGtkStyleContextCache {
     static GtkStyleContext *make_tab_head_background_context();
     static GtkStyleContext *make_tab_head_context(bool has_left_sibling, bool has_right_sibling);
     static GtkStyleContext *make_tab_head_label_context();
+    static GtkStyleContext *make_toggle_switch_channel_context();
+    static GtkStyleContext *make_toggle_switch_thumb_context();
     static GtkStyleContext *make_tool_button_context();
     static GtkStyleContext *make_tooltip_context();
     
@@ -144,6 +148,8 @@ class MathGtkStyleContextCache {
     GtkStyleContext *_tab_head_background_context;
     GtkStyleContext *_tab_head_context;
     GtkStyleContext *_tab_head_label_context;
+    GtkStyleContext *_toggle_switch_channel_context;
+    GtkStyleContext *_toggle_switch_thumb_context;
     GtkStyleContext *_tool_button_context;
     GtkStyleContext *_tooltip_context;
     
@@ -301,6 +307,7 @@ void MathGtkControlPainter::calc_container_size(
       
       case SliderHorzChannel: {
           // TODO: calculate implicitly from minimum scale>contents>trough>slider height (18+2 for border), taking margins (-9 top and bottom) into account and add trough border (1 top and bottom)
+          extents->width = 8 * extents->height();
           float h = 4 * 0.75f;
           extents->ascent  = h * 0.75;
           extents->descent = h * 0.25;
@@ -362,6 +369,62 @@ void MathGtkControlPainter::calc_container_size(
       
       case TabHeadBackground: return;
       
+      case ToggleSwitchChannelChecked:
+      case ToggleSwitchChannelUnchecked: {
+          GtkBorder thumb_border = {};
+          if(GtkStyleContext *thumb_ctx = get_control_theme(control, type == ToggleSwitchChannelChecked ? ToggleSwitchThumbChecked : ToggleSwitchThumbUnchecked)) {
+            gtk_style_context_get(thumb_ctx, GTK_STATE_FLAG_NORMAL, "min-width", &min_width, nullptr); // GTK >= 3.20.0
+            if(min_width <= 0)
+              gtk_style_context_get_style(thumb_ctx, "slider-width", &min_width, nullptr);
+            
+            gtk_style_context_get(thumb_ctx, GTK_STATE_FLAG_NORMAL, "min-height", &min_height, nullptr); // GTK >= 3.20.0
+            if(min_height <= 0)
+              gtk_style_context_get_style(thumb_ctx, "slider-height", &min_height, nullptr);
+              
+            thumb_border = MathGtkStyleContextCache::get_all_border_padding(thumb_ctx);
+          }
+          
+          int em_i = (int)ceil(canvas.get_font_size());
+          min_width  = 2 * std::max(min_width, em_i);
+          min_height = std::max(min_height, em_i);
+          
+          min_width  += thumb_border.left + thumb_border.right;
+          min_height += thumb_border.top + thumb_border.bottom;
+          
+          thumb_border = MathGtkStyleContextCache::get_all_border_padding(gtk_ctx);
+          min_width  += thumb_border.left + thumb_border.right;
+          min_height += thumb_border.top + thumb_border.bottom;
+          
+          extents->ascent  = min_height * 0.75f * 0.75f;
+          extents->descent = min_height * 0.75f * 0.25f;
+          extents->width  = min_width * 0.75f;
+        }
+        return;
+      
+      case ToggleSwitchThumbChecked:
+      case ToggleSwitchThumbUnchecked: {
+          gtk_style_context_get(gtk_ctx, GTK_STATE_FLAG_NORMAL, "min-width", &min_width, nullptr); // GTK >= 3.20.0
+          if(min_width <= 0)
+            gtk_style_context_get_style(gtk_ctx, "slider-width", &min_width, nullptr);
+          
+          gtk_style_context_get(gtk_ctx, GTK_STATE_FLAG_NORMAL, "min-height", &min_height, nullptr); // GTK >= 3.20.0
+          if(min_height <= 0)
+            gtk_style_context_get_style(gtk_ctx, "slider-height", &min_height, nullptr);
+          
+          int em_i = (int)ceil(canvas.get_font_size());
+          min_width  = std::max(min_width, em_i);
+          min_height = std::max(min_height, em_i);
+          
+          GtkBorder thumb_border = MathGtkStyleContextCache::get_all_border_padding(gtk_ctx);
+          min_width  += thumb_border.left + thumb_border.right;
+          min_height += thumb_border.top + thumb_border.bottom;
+          
+          extents->ascent  = min_height * 0.75f * 0.75f;
+          extents->descent = min_height * 0.75f * 0.25f;
+          extents->width  = min_width * 0.75f;
+        }
+        return;
+        
       default:
         break;
     }
@@ -607,6 +670,11 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &contro
     case TabHeadAbuttingLeftRight:
     case TabHeadAbuttingLeft:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_context();
     
+    case ToggleSwitchChannelChecked:
+    case ToggleSwitchChannelUnchecked: return painter_cache_for(control).toggle_switch_channel_context();
+    case ToggleSwitchThumbChecked:
+    case ToggleSwitchThumbUnchecked: return painter_cache_for(control).toggle_switch_thumb_context();
+    
     default:
       break;
   }
@@ -627,6 +695,8 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     case CheckboxUnchecked:
     case OpenerTriangleClosed:
     case RadioButtonUnchecked:
+    case ToggleSwitchChannelUnchecked:
+    case ToggleSwitchThumbUnchecked:
       break;
     
     case ListViewItem: {
@@ -642,7 +712,9 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     
     case CheckboxChecked:
     case OpenerTriangleOpened:
-    case RadioButtonChecked: {
+    case RadioButtonChecked:
+    case ToggleSwitchChannelChecked:
+    case ToggleSwitchThumbChecked: {
         switch(state) {
           case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
           case PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
@@ -766,27 +838,29 @@ MathGtkStyleContextCache::MathGtkStyleContextCache(const char *theme_variant) {
   _theme_variant = theme_variant;
   _current_theme = nullptr;
   
-  _checkbox_context            = nullptr;
-  _default_push_button_context = nullptr;
-  _expander_arrow_context      = nullptr;
-  _input_field_button_context  = nullptr;
-  _input_field_context         = nullptr;
-  _list_item_context           = nullptr;
-  _list_item_selected_context  = nullptr;
-  _panel_context               = nullptr;
-  _popup_panel_context         = nullptr;
-  _progress_bar_context        = nullptr;
-  _progress_bar_trough_context = nullptr;
-  _push_button_context         = nullptr;
-  _radio_button_context        = nullptr;
-  _slider_channel_context      = nullptr;
-  _slider_thumb_context        = nullptr;
-  _tab_body_context            = nullptr;
-  _tab_head_background_context = nullptr;
-  _tab_head_context            = nullptr;
-  _tab_head_label_context      = nullptr;
-  _tool_button_context         = nullptr;
-  _tooltip_context             = nullptr;
+  _checkbox_context              = nullptr;
+  _default_push_button_context   = nullptr;
+  _expander_arrow_context        = nullptr;
+  _input_field_button_context    = nullptr;
+  _input_field_context           = nullptr;
+  _list_item_context             = nullptr;
+  _list_item_selected_context    = nullptr;
+  _panel_context                 = nullptr;
+  _popup_panel_context           = nullptr;
+  _progress_bar_context          = nullptr;
+  _progress_bar_trough_context   = nullptr;
+  _push_button_context           = nullptr;
+  _radio_button_context          = nullptr;
+  _slider_channel_context        = nullptr;
+  _slider_thumb_context          = nullptr;
+  _tab_body_context              = nullptr;
+  _tab_head_background_context   = nullptr;
+  _tab_head_context              = nullptr;
+  _tab_head_label_context        = nullptr;
+  _toggle_switch_channel_context = nullptr;
+  _toggle_switch_thumb_context   = nullptr;
+  _tool_button_context           = nullptr;
+  _tooltip_context               = nullptr;
 }
 
 MathGtkStyleContextCache::~MathGtkStyleContextCache() {
@@ -815,6 +889,8 @@ void MathGtkStyleContextCache::clear() {
   unref_and_null(_tab_head_background_context);
   unref_and_null(_tab_head_context);
   unref_and_null(_tab_head_label_context);
+  unref_and_null(_toggle_switch_channel_context);
+  unref_and_null(_toggle_switch_thumb_context);
   unref_and_null(_tool_button_context);
   unref_and_null(_tooltip_context);
 }
@@ -1546,6 +1622,25 @@ GtkStyleContext *MathGtkStyleContextCache::make_tab_head_label_context() {
 //  
 //  gtk_widget_path_append_type(path, GTK_TYPE_LABEL);
 //  gtk_widget_path_iter_set_object_name(path, -1, "label");
+  
+  return make_context_from_path_and_free(path);
+}
+
+GtkStyleContext *MathGtkStyleContextCache::make_toggle_switch_channel_context() {
+  GtkWidgetPath *path = gtk_widget_path_new();
+  gtk_widget_path_append_type(path, GTK_TYPE_SWITCH);
+  gtk_widget_path_iter_set_object_name(path, -1, "switch");
+  
+  return make_context_from_path_and_free(path);
+}
+
+GtkStyleContext *MathGtkStyleContextCache::make_toggle_switch_thumb_context() {
+  GtkWidgetPath *path = gtk_widget_path_new();
+  gtk_widget_path_append_type(path, GTK_TYPE_SWITCH);
+  gtk_widget_path_iter_set_object_name(path, -1, "switch");
+  
+  gtk_widget_path_append_type(path, GTK_TYPE_SWITCH);
+  gtk_widget_path_iter_set_object_name(path, -1, "slider");
   
   return make_context_from_path_and_free(path);
 }

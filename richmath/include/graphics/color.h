@@ -90,6 +90,8 @@ namespace richmath {
         return left._value != right._value;
       }
       
+      static Color blend(Color a, Color b, float scale);
+      
       static const Color None;
       static const Color Black;
       static const Color White;

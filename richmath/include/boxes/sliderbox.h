@@ -44,9 +44,9 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event) override;
       virtual void on_mouse_cancel() override;
       
-    private:
-      Expr to_literal();
-    
+    protected:
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SliderBox; }
+
     private:
       double range_min;
       double range_max;

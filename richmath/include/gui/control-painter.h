@@ -38,6 +38,10 @@ namespace richmath {
     // not really a container:
     SliderHorzChannel,
     SliderHorzThumb,
+    ToggleSwitchChannelChecked,
+    ToggleSwitchThumbChecked,
+    ToggleSwitchChannelUnchecked,
+    ToggleSwitchThumbUnchecked,
     ProgressIndicatorBackground,
     ProgressIndicatorBar,
     CheckboxUnchecked,

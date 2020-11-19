@@ -103,6 +103,7 @@ extern pmath_symbol_t richmath_System_Selectable;
 extern pmath_symbol_t richmath_System_ShowAutoStyles;
 extern pmath_symbol_t richmath_System_ShowSectionBracket;
 extern pmath_symbol_t richmath_System_ShowStringCharacters;
+extern pmath_symbol_t richmath_System_SliderBoxOptions;
 extern pmath_symbol_t richmath_System_StripOnInput;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
@@ -2746,6 +2747,9 @@ void StyleInformation::add_style() {
     
     add(StyleType::Bool,            PanelBoxDefaultEnabled,           List(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
     
+    add(StyleType::Bool,            ContinuousAction,                 List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ContinuousAction)));
+    add(StyleType::AutoBool,        SliderBoxDefaultEnabled,          List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Enabled)));
+    
     add(StyleType::Number,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
     add(StyleType::Number,          FillBoxWeight,                    Symbol( richmath_System_FillBoxWeight));
     add(StyleType::Number,          FontSize,                         Symbol( richmath_System_FontSize));
@@ -2846,6 +2850,8 @@ void StyleInformation::add_style() {
     
     add(StyleType::Any, PanelBoxDefaultAppearance,       List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, PanelBoxDefaultBaselinePosition, List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
+    
+    add(StyleType::Any, SliderBoxDefaultAppearance,      List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Appearance)));
     
     add(StyleType::Any, TemplateBoxDefaultDisplayFunction,        List(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
     add(StyleType::Any, TemplateBoxDefaultInterpretationFunction, List(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));

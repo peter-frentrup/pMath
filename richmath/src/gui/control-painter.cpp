@@ -43,6 +43,7 @@ namespace {
         Color             background_color = ButtonColor);
       
       static void paint_popup_panel(Canvas &canvas, RectangleF rect);
+      static void paint_checkbox_cross(             Canvas &canvas, const RectangleF &rect, Color color);
       static void paint_checkbox_mark(              Canvas &canvas, const RectangleF &rect, Color color);
       static void paint_checkbox_indeterminate_mark(Canvas &canvas, const RectangleF &rect, Color color);
       static void paint_radio_button_background(    Canvas &canvas, const RectangleF &rect, Color inner_color);
@@ -161,12 +162,25 @@ void ControlPainter::calc_container_size(
       } break;
     
     case SliderHorzChannel: {
+        extents->width   = 8 * extents->height();
         extents->ascent  = 3.0;
         extents->descent = 1.0;
       } break;
       
     case SliderHorzThumb: {
         extents->width = extents->height() / 2;
+      } break;
+    
+    case ToggleSwitchChannelChecked:
+    case ToggleSwitchChannelUnchecked: {
+        extents->ascent+= 0.75f;
+        extents->descent+= 0.75f;
+        extents->width = 2 * extents->height();
+      } break;
+      
+    case ToggleSwitchThumbChecked:
+    case ToggleSwitchThumbUnchecked: {
+        extents->width = extents->height() + 1.5f;
       } break;
       
     case ProgressIndicatorBackground: {
@@ -349,6 +363,31 @@ void ControlPainter::draw_container(
     case SliderHorzThumb:
       ControlPainterImpl::paint_frame(canvas, rect, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
+    
+    case ToggleSwitchChannelUnchecked:
+      ControlPainterImpl::paint_frame(canvas, rect, true, state != Disabled, ButtonColor);
+      rect.x+= rect.width - rect.height;
+      rect.width = rect.height;
+      ControlPainterImpl::paint_checkbox_cross(canvas, rect, Color::Black);
+      break;
+    
+    case ToggleSwitchChannelChecked:
+      ControlPainterImpl::paint_frame(canvas, rect, true, state != Disabled, ButtonHoverColor);
+      rect.width = rect.height;
+      ControlPainterImpl::paint_checkbox_mark(canvas, rect, Color::Black);
+      break;
+      
+    case ToggleSwitchThumbUnchecked: {
+      rect.grow(-0.75f, 0);
+      rect.pixel_align(canvas, false);
+      ControlPainterImpl::paint_frame(canvas, rect, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+    } break;
+      
+    case ToggleSwitchThumbChecked: {
+      rect.grow(-0.75f, 0);
+      rect.pixel_align(canvas, false);
+      ControlPainterImpl::paint_frame(canvas, rect, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonColor : ButtonHoverColor);
+    } break;
       
     case ProgressIndicatorBackground:
       ControlPainterImpl::paint_frame(canvas, rect, true, true);
@@ -583,6 +622,8 @@ bool ControlPainter::container_hover_repaint(ControlContext &control, ContainerT
     case TabHeadAbuttingLeftRight:
     case TabHeadAbuttingLeft:
     case TabHead:
+    case ToggleSwitchThumbChecked:
+    case ToggleSwitchThumbUnchecked:
       return true;
     
     default:
@@ -1040,6 +1081,22 @@ void ControlPainterImpl::paint_popup_panel(Canvas &canvas, RectangleF rect) {
   rect.add_rect_path(canvas, true);
   canvas.set_color(Color::Black, 0.5);
   canvas.fill();
+  canvas.set_color(c);
+}
+
+void ControlPainterImpl::paint_checkbox_cross(Canvas &canvas, const RectangleF &rect, Color color) {
+  Color c = canvas.get_color();
+  canvas.move_to(rect.x +     rect.width / 4, rect.y +     rect.height / 4);
+  canvas.line_to(rect.x + 3 * rect.width / 4, rect.y + 3 * rect.height / 4);
+  canvas.move_to(rect.x + 3 * rect.width / 4, rect.y +     rect.height / 4);
+  canvas.line_to(rect.x +     rect.width / 4, rect.y + 3 * rect.height / 4);
+  
+  cairo_set_line_width(canvas.cairo(), 2.0 * 0.75);
+  cairo_set_line_cap(canvas.cairo(), CAIRO_LINE_CAP_SQUARE);
+  cairo_set_line_join(canvas.cairo(), CAIRO_LINE_JOIN_MITER);
+  
+  canvas.set_color(color);
+  canvas.stroke();
   canvas.set_color(c);
 }
 

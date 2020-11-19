@@ -200,6 +200,7 @@ Options(Style):= Options(StyleBox):= {
     Selectable -> Inherited,
     ShowAutoStyles -> Inherited,
     ShowStringCharacters -> Inherited,
+    SliderBoxOptions -> Inherited,
     "StringStyle" -> Inherited,
     StripOnInput -> True,
     "SymbolShadowingStyle" -> Inherited,
@@ -304,6 +305,10 @@ Options(Section):= {
     ShowAutoStyles -> True,
     ShowSectionBracket -> True,
     ShowStringCharacters -> True,
+    SliderBoxOptions -> {
+        Appearance -> Automatic,
+        ContinuousAction -> True,
+        Enabled -> Automatic},
     "StringStyle" -> { FontColor -> Inherited },
     StyleDefinitions -> None,
     "SymbolShadowingStyle" -> { FontColor -> Inherited },
@@ -330,6 +335,7 @@ Options(Setter):= Options(SetterBox):= Options(SetterBar):= {
 
 Options(Slider):= Options(SliderBox):= {
     BaseStyle -> "Slider", 
+    Appearance -> Automatic,
     ContinuousAction -> True,
     Enabled -> Automatic }
 
