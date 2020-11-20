@@ -6,22 +6,33 @@ Document({
       Section(BoxData(TemplateBox({"Button"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Button"}, "ReferenceHyperlink"), 
-          " has attribute ", TemplateBox({"HoldRest"}, "ReferenceHyperlink"), 
-          " to prevent premature evaluation of ", StyleBox("action", "Arg"), 
-          ", but it evaluates all remaining arguments immediately (as \
-          options)."}, "Notes"), 
-        Section({"With the default setting ", 
-          TemplateBox({"Method"}, "ReferenceHyperlink"), 
-          " \[Rule] \"Preemptive\", clicking the button will preempt any \
-          running evaluation to execute ", StyleBox("action", "TI"), 
-          " and wait for the result. After a time-out, ", 
-          StyleBox("action", "Arg"), " is aborted."}, "Notes"), 
-        Section({"Use ", TemplateBox({"Method"}, "ReferenceHyperlink"), 
-          " \[Rule] \"Queued\" to facilitate longer-running actions without \
-          freezing the front-end. "}, "Notes")}, All), 
-      Section("", "SectionFooterSpacer")}, 1), 
-    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+        Section(TextData({TemplateBox({"Button"}, "ReferenceHyperlink"), 
+           " has attribute ", TemplateBox({"HoldRest"}, "ReferenceHyperlink"), 
+           " to prevent premature evaluation of ", StyleBox("action", "Arg"), 
+           ", but it evaluates all remaining arguments immediately (as \
+           options)."}), "Notes"), 
+        Section(TextData({"With the default setting ", 
+           TemplateBox({"Method"}, "ReferenceHyperlink"), 
+           " \[Rule] \"Preemptive\", clicking the button will preempt any \
+           running evaluation to execute ", StyleBox("action", "TI"), 
+           " and wait for the result. After a time-out, ", 
+           StyleBox("action", "Arg"), " is aborted."}), "Notes"), 
+        Section(
+         TextData({"Use ", TemplateBox({"Method"}, "ReferenceHyperlink"), 
+           " \[Rule] \"Queued\" to facilitate longer-running actions without \
+           freezing the front-end. "}), "Notes"), 
+        Section(TextData({TemplateBox({"Button"}, "ReferenceHyperlink"), 
+           " has options ", TemplateBox({"BaselinePosition"}, 
+            "ReferenceHyperlink"), ", ", TemplateBox({"BaseStyle"}, 
+            "ReferenceHyperlink"), ", ", TemplateBox({"ButtonFrame"}, 
+            "ReferenceHyperlink"), ", ", TemplateBox({"ContentPadding"}, 
+            "ReferenceHyperlink"), ", ", TemplateBox({"Enabled"}, 
+            "ReferenceHyperlink"), ", and ", 
+           TemplateBox({"Method"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Button"}, "ReferenceHyperlink"), 
+           " by default applies the current stylesheet\[Prime]s \"Button\" \
+           style."}), "Notes")}, All), Section("", "SectionFooterSpacer")}, 
+     1), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple button:", "ExampleText"), 
         SectionGroup({
@@ -148,10 +159,42 @@ Document({
                    ButtonFrame -> "ListViewItemSelected", 
                    ButtonFunction -> (/\/ &))}, "}"}), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-           All)}, 1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
-          Section({"By default, a ", TemplateBox({"Button"}, 
-             "ReferenceHyperlink"), 
-            " is enabled, when placed in an enabled environment:"}, 
+           All)}, 1), SectionGroup({
+          Section("ContentPadding", "ExampleSubsection"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             " ensures that the content's vertical size is at least one \
+             line-height:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"Button", "(", "g", ")"}, ",", {
+                 "Button", "(", "b", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {ButtonBox("g"), ",", ButtonBox("b")}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(
+             "Shrink wrap the button frame tightly around the content:", 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({
+                 "{", {
+                  {"Button", "(", {"g", ",", {"ContentPadding", "\[Rule]", 
+                     "False"}}, ")"}, ",", {"Button", "(", {
+                    "b", ",", {"ContentPadding", "\[Rule]", "False"}}, ")"}}, 
+                 "}"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData({"{", {ButtonBox("g", ContentPadding -> False), 
+                  ",", ButtonBox("b", ContentPadding -> False)}, "}"}), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section(TextData({"By default, a ", 
+             TemplateBox({"Button"}, "ReferenceHyperlink"), 
+             " is enabled, when placed in an enabled environment:"}), 
            "ExampleText"), SectionGroup({
             Section(
              BoxData({"Grid", "@", {
@@ -191,10 +234,10 @@ Document({
                    Enabled -> False)}}), "Grid")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          1), SectionGroup({Section("Method", "ExampleSubsection"), 
-          Section({"The default setting ", 
-            TemplateBox({"Method"}, "ReferenceHyperlink"), 
-            " \[Rule] \"Preemptive\" only allows short actions and blocks \
-            updating the front-end:"}, "ExampleText"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"Method"}, "ReferenceHyperlink"), 
+             " \[Rule] \"Preemptive\" only allows short actions and blocks \
+             updating the front-end:"}), "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Button", "(", {ComplexStringBox("\"Too long\""), 
                 ",", {{"Print", "(", ComplexStringBox("\"Start\""), ")"}, ";", 
@@ -208,8 +251,9 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Use ", TemplateBox({"Method"}, "ReferenceHyperlink"), 
-              " \[Rule] \"Queued\" for long-running operations:"}, 
+            Section(
+             TextData({"Use ", TemplateBox({"Method"}, "ReferenceHyperlink"), 
+               " \[Rule] \"Queued\" for long-running operations:"}), 
              "ExampleText"), SectionGroup({
               Section(
                BoxData({
@@ -234,7 +278,7 @@ Document({
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Setter"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFrame"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"Setter"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFrame"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

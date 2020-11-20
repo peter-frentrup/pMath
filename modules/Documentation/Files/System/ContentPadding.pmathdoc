@@ -1,0 +1,70 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ContentPadding", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ContentPadding"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+           " adds vertical space such that an object\[Prime]s content covers \
+           at least one line-height."}), "Notes"), 
+        Section(TextData({"The margin for frames is added after applying ", 
+           TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"A ", TemplateBox({"Button"}, "ReferenceHyperlink"), 
+           " that tightly wraps its content:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Button", "(", {
+              ComplexStringBox("\"\[Ellipsis]\""), ",", {
+               "ContentPadding", "\[Rule]", "False"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(ButtonBox(ComplexStringBox("\"\[Ellipsis]\""), 
+             ContentPadding -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             " increases vertical size appropriately:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Button", "(", 
+               ComplexStringBox("\"\[Ellipsis]\""), ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(ComplexStringBox("\"\[Ellipsis]\""))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Compare different ascender and descender heights:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({"Row", "@", {"Table", "(", {
+                 {"Framed", "(", {"s", ",", {"ContentPadding", "\[Rule]", 
+                    "False"}}, ")"}, ",", {"s", "\[Rule]", {
+                   "{", {ComplexStringBox("\"g\""), ",", 
+                    ComplexStringBox("\"A\""), ",", 
+                    ComplexStringBox("\"\[CapitalAAcute]\""), ",", 
+                    ComplexStringBox("\"\[CapitalAAcute]y\"")}, "}"}}}, 
+                ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({
+                FrameBox(ComplexStringBox("\"g\""), ContentPadding -> False), 
+                FrameBox(ComplexStringBox("\"A\""), ContentPadding -> False), 
+                FrameBox(ComplexStringBox("\"\[CapitalAAcute]\""), 
+                 ContentPadding -> False), 
+                FrameBox(ComplexStringBox("\"\[CapitalAAcute]y\""), 
+                 ContentPadding -> False)}, "RowDefault")), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

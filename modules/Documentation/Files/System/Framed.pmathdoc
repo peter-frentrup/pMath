@@ -157,6 +157,35 @@ Document({
               Section(BoxData(FrameBox("123", BorderRadius -> {{10, 20}, 0, 0, 
                   0})), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+        SectionGroup({Section("ContentPadding", "ExampleSubsection"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             " ensures that the content's vertical size is at least one \
+             line-height:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"Framed", "(", "g", ")"}, ",", {
+                 "Framed", "(", "b", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {FrameBox("g"), ",", FrameBox("b")}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Shrink wrap the frame tightly around the content:", 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({
+                 "{", {
+                  {"Framed", "(", {"g", ",", {"ContentPadding", "\[Rule]", 
+                     "False"}}, ")"}, ",", {"Framed", "(", {
+                    "b", ",", {"ContentPadding", "\[Rule]", "False"}}, ")"}}, 
+                 "}"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData({"{", {FrameBox("g", ContentPadding -> False), 
+                  ",", FrameBox("b", ContentPadding -> False)}, "}"}), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
         SectionGroup({Section("FrameStyle", "ExampleSubsection"), 
           Section("Customize the frame styling:", "ExampleText"), 
           SectionGroup({

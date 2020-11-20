@@ -6,10 +6,10 @@ Document({
       Section(BoxData(TemplateBox({"Panel"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
-          " by default displays ", StyleBox("expr", "Arg"), 
-          " in \"Panel\" style which uses the system panel font."}, "Notes")}, 
-       All), Section("", "SectionFooterSpacer")}, 1), 
+        Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+           " by default displays ", StyleBox("expr", "Arg"), 
+           " in \"Panel\" style which uses the system panel font."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple panel:", "ExampleText"), 
@@ -37,9 +37,9 @@ Document({
            All)}, All)}, All), 
       SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("Appearance", "ExampleSubsection"), 
-          Section({"The default setting is ", 
-            TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
-            " \[Rule] \"Framed\":"}, "ExampleText"), 
+          Section(TextData({"The default setting is ", 
+             TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
+             " \[Rule] \"Framed\":"}), "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
                 ",", {"Appearance", "\[Rule]", 
@@ -51,9 +51,10 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Use ", TemplateBox({"Appearance"}, 
-               "ReferenceHyperlink"), 
-              " \[Rule] \"Frameless\" to use no background image:"}, 
+            Section(
+             TextData({"Use ", TemplateBox({"Appearance"}, 
+                "ReferenceHyperlink"), 
+               " \[Rule] \"Frameless\" to use no background image:"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
                   ",", {"Appearance", "\[Rule]", 
@@ -65,8 +66,8 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"A popup window is a floating ", 
-              TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}, 
+            Section(TextData({"A popup window is a floating ", 
+               TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Panel", "(", {ComplexStringBox("\"Popup\""), 
                   ",", {"Appearance", "\[Rule]", 
@@ -78,8 +79,8 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"A tooltips is a floating ", 
-              TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}, 
+            Section(TextData({"A tooltips is a floating ", 
+               TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Tooltip", "(", {
                   {"Panel", "(", {ComplexStringBox("\"Tip\""), ",", {
@@ -94,10 +95,11 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"An ", TemplateBox({"InputField"}, "ReferenceHyperlink"), 
-              " with an included ", TemplateBox({"Panel"}, 
-               "ReferenceHyperlink"), ":"}, "ExampleText"), 
-            SectionGroup({
+            Section(
+             TextData({"An ", TemplateBox({"InputField"}, 
+                "ReferenceHyperlink"), " with an included ", 
+               TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}), 
+             "ExampleText"), SectionGroup({
               Section(BoxData({"Panel", "(", {
                   {"Grid", "(", {
                     {"{", {
@@ -126,10 +128,10 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Tab views are built using panels with ", 
-              TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
-              " \[Rule] \"TabBody\" and ", TemplateBox({"Appearance"}, 
-               "ReferenceHyperlink"), " \[Rule] \"TabHead\":"}, 
+            Section(TextData({"Tab views are built using panels with ", 
+               TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
+               " \[Rule] \"TabBody\" and ", TemplateBox({"Appearance"}, 
+                "ReferenceHyperlink"), " \[Rule] \"TabHead\":"}), 
              "ExampleText"), SectionGroup({
               Section(
                BoxData({"Grid", "(", {
@@ -188,9 +190,42 @@ Document({
                 PanelBox("Bottom", BaselinePosition -> Bottom)}, 
                "RowWithSeparators")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, 1), 
-        SectionGroup({Section("Enabled", "ExampleSubsection"), 
-          Section({"Use the ", TemplateBox({"Enabled"}, "ReferenceHyperlink"), 
-            " option to affect contained controls:"}, "ExampleText"), 
+        SectionGroup({Section("ContentPadding", "ExampleSubsection"), 
+          Section(TextData({"The default setting ", 
+             TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             " ensures that the content's vertical size is at least one \
+             line-height:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"Panel", "(", "g", ")"}, ",", {
+                 "Panel", "(", "b", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {PanelBox("g"), ",", PanelBox("b")}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Shrink wrap the panel frame tightly around the content:", 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Table", "(", {
+                  {"Panel", "(", {"s", ",", {"ContentPadding", "\[Rule]", 
+                     "False"}, ",", {"BaselinePosition", "\[Rule]", {
+                      "(", {"Baseline", "\[Rule]", "Baseline"}, ")"}}}, ")"}, 
+                  ",", {"s", "\[Rule]", {"{", {"g", ",", "b"}, "}"}}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {PanelBox("g", BaselinePosition -> Baseline -> Baseline, 
+                   ContentPadding -> False), ",", 
+                  PanelBox("b", BaselinePosition -> Baseline -> Baseline, 
+                   ContentPadding -> False)}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section(
+           TextData({"Use the ", TemplateBox({"Enabled"}, 
+              "ReferenceHyperlink"), 
+             " option to affect contained controls:"}), "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Panel", "(", {
                 {"Grid", "(", {
@@ -216,7 +251,7 @@ Document({
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
