@@ -6,13 +6,14 @@ Document({
       Section(BoxData(TemplateBox({"Pane"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
-          " by default displays ", StyleBox("expr", "Arg"), 
-          " in \"Pane\" style."}, "Notes"), 
-        Section({"With a typical default stylesheet, ", 
-          TemplateBox({"Pane"}, "ReferenceHyperlink"), "(", 
-          StyleBox("expr", "Arg"), ") without options displays exactly like ", 
-          StyleBox("expr", "Arg"), "."}, "Notes")}, All), 
+        Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+           " by default displays ", StyleBox("expr", "Arg"), 
+           " in \"Pane\" style."}), "Notes"), 
+        Section(TextData({"With a typical default stylesheet, ", 
+           TemplateBox({"Pane"}, "ReferenceHyperlink"), "(", 
+           StyleBox("expr", "Arg"), 
+           ") without options displays exactly like ", 
+           StyleBox("expr", "Arg"), "."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -139,10 +140,53 @@ Document({
                   ",", "6", ",", "7", ",", "8", ",", "9", ",", "10"}, "}"}, 
                 ImageSize -> {100, Automatic}, LineBreakWithin -> False))), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
-           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
+           All)}, 1)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({"Use ", TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+           " to inhibit automatic stretching of controls inside ", 
+           TemplateBox({"Filler"}, "ReferenceHyperlink"), " or ", 
+           TemplateBox({"Grid"}, "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Filler", "(", {
+              "Pane", "(", {"Button", "(", ComplexStringBox("\"Click\""), 
+               ")"}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(FillBox(PaneBox(ButtonBox(ComplexStringBox("\"Click\""))), 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        Section(
+         TextData({"Without ", TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+           ", certain constructs like ", TemplateBox({"Button"}, 
+            "ReferenceHyperlink"), " or ", TemplateBox({"Slider"}, 
+            "ReferenceHyperlink"), " are automatically enlarged by ", 
+           TemplateBox({"Filler"}, "ReferenceHyperlink"), " or inside ", 
+           TemplateBox({"Grid"}, "ReferenceHyperlink"), " tables:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"Filler", "(", {
+              "Button", "(", ComplexStringBox("\"Click\""), ")"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Click\"")), 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({"Grid", "(", {
+              "{", {{"{", {{"Button", "(", ComplexStringBox("\"long\""), ")"}, 
+                 ",", {"Pane", "(", {"Button", "(", 
+                   ComplexStringBox("\"short\""), ")"}, ")"}}, "}"}, ",", {
+                "{", {{"10", "^", "9"}, ",", {"10", "^", "9"}}, "}"}}, "}"}, 
+             ")"}), "Input", SectionLabel -> "in [3]:"), 
+          Section(
+           BoxData(
+            TagBox(GridBox({{ButtonBox(ComplexStringBox("\"long\"")), 
+                PaneBox(ButtonBox(ComplexStringBox("\"short\"")))}, {
+                "1000000000", "1000000000"}}), "Grid")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSizeAction"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink")}, "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Panel"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSizeAction"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)

@@ -173,7 +173,19 @@ Document({
          TextData({
            "Note that the post-evaluation is not evaluated when canceling the \
            mouse drag operation with the ", TemplateBox({"Esc"}, "KeyEvent"), 
-           " key."}), "ExampleText")}, 1), 
+           " key."}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Slider"}, "ReferenceHyperlink"), 
+             " gets resized automatically by ", 
+             TemplateBox({"Filler"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Filler", "(", {"Slider", "(", ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(FillBox(SliderBox(0.5`, 0 .. 1), 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       SectionGroup({Section("Neat examples", "ExampleSection"), 
         Section("Interactively change the document background color:", 
          "ExampleText"), SectionGroup({

@@ -6,36 +6,39 @@ Document({
       Section(BoxData(TemplateBox({"Filler"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-          "() is essentially equivalent to ", {
-           TemplateBox({"Filler"}, "ReferenceHyperlink"), "(", "/\\/", ")"}, 
-          "."}, "Notes"), Section({"To fill the available space, ", 
-          TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-          " first tries to stretch its contents and then repeats it if \
-          necessary."}, "Notes"), 
-        Section({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-          " can stretch ", StyleBox("expr", "Arg"), " if it is e.g. a ", 
-          TemplateBox({"Button"}, "ReferenceHyperlink"), ", ", 
-          TemplateBox({"InputField"}, "ReferenceHyperlink"), ", or ", 
-          TemplateBox({"Graphics"}, "ReferenceHyperlink"), "."}, "Notes"), 
-        Section({"Only ", TemplateBox({"Graphics"}, "ReferenceHyperlink"), 
-          " with ", TemplateBox({"ImageSize"}, "ReferenceHyperlink"), 
-          " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
-          " will be stretched, expanding height and width such as to keep \
-          their ", TemplateBox({"AspectRatio"}, "ReferenceHyperlink"), 
-          " constant."}, "Notes"), 
-        Section({"If ", StyleBox("expr", "Arg"), " is a ", 
-          TemplateBox({"Row"}, "ReferenceHyperlink"), ", ", 
-          TemplateBox({"Style"}, "ReferenceHyperlink"), ", or ", 
-          TemplateBox({"Interpretation"}, "ReferenceHyperlink"), 
-          " that itself contains ", TemplateBox({"Filler"}, 
-           "ReferenceHyperlink"), " objects, ", StyleBox("expr", "Arg"), 
-          " may also be stretched."}, "Notes")}, All), 
+        Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+           "() is essentially equivalent to ", {
+            TemplateBox({"Filler"}, "ReferenceHyperlink"), "(", "/\\/", ")"}, 
+           "."}), "Notes"), 
+        Section(TextData({"To fill the available space, ", 
+           TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+           " first tries to stretch its contents and then repeats it if \
+           necessary."}), "Notes"), 
+        Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+           " can stretch ", StyleBox("expr", "Arg"), " if it is e.g. a ", 
+           TemplateBox({"Button"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"InputField"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Slider"}, "ReferenceHyperlink"), ", or ", 
+           TemplateBox({"Graphics"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(
+         TextData({"Only ", TemplateBox({"Graphics"}, "ReferenceHyperlink"), 
+           " with ", TemplateBox({"ImageSize"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+           " will be stretched, expanding height and width such as to keep \
+           their ", TemplateBox({"AspectRatio"}, "ReferenceHyperlink"), 
+           " constant."}), "Notes"), 
+        Section(TextData({"If ", StyleBox("expr", "Arg"), " is a ", 
+           TemplateBox({"Row"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Style"}, "ReferenceHyperlink"), ", or ", 
+           TemplateBox({"Interpretation"}, "ReferenceHyperlink"), 
+           " that itself contains ", TemplateBox({"Filler"}, 
+            "ReferenceHyperlink"), " objects, ", StyleBox("expr", "Arg"), 
+           " may also be stretched."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
-        Section({"Make an ", TemplateBox({"InputField"}, 
-           "ReferenceHyperlink"), " that stretches the whole line:"}, 
+        Section(TextData({"Make an ", TemplateBox({"InputField"}, 
+            "ReferenceHyperlink"), " that stretches the whole line:"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData({"Filler", "(", {
               "InputField", "(", {ComplexStringBox("\"Text\""), ",", 
@@ -106,8 +109,8 @@ Document({
                StripOnInput -> False)), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, All), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
-        Section({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
-          " also stretches certain items if possible:"}, "ExampleText"), 
+        Section(TextData({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
+           " also stretches certain items if possible:"}), "ExampleText"), 
         SectionGroup({
           Section(
            BoxData({"Grid", "(", {
@@ -130,10 +133,10 @@ Document({
                 "\[SpanFromAbove]"}}), "Grid")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Possible Issues", "ExampleSection"), 
-        Section({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-          " may not expand to the whole line when it is wrapped in an ", 
-          TemplateBox({"InterpretationBox"}, "ReferenceHyperlink"), ", ", 
-          TemplateBox({"TagBox"}, "ReferenceHyperlink"), ", etc.:"}, 
+        Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
+           " may not expand to the whole line when it is wrapped in an ", 
+           TemplateBox({"InterpretationBox"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"TagBox"}, "ReferenceHyperlink"), ", etc.:"}), 
          "ExampleText"), SectionGroup({
           Section(
            BoxData({"Row", "(", {
@@ -145,8 +148,8 @@ Document({
               FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
               ComplexStringBox("\"1\"")}, "RowDefault")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        Section({"Wrap the outer box in ", 
-          TemplateBox({"Filler"}, "ReferenceHyperlink"), " too:"}, 
+        Section(TextData({"Wrap the outer box in ", 
+           TemplateBox({"Filler"}, "ReferenceHyperlink"), " too:"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData({"Filler", "(", {
               "Row", "(", {"{", {ComplexStringBox("\"Introduction\""), ",", {
@@ -161,7 +164,11 @@ Document({
            SectionLabel -> "out [2]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Button"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Pane"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Button"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"InputField"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Slider"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
