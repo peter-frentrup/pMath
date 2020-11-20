@@ -23,6 +23,7 @@ namespace richmath {
       
       virtual ControlState calc_state(Context &context) override;
       
+      virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       virtual Box *remove(int *index) override { return this; }

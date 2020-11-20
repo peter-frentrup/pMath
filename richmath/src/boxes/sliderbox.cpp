@@ -182,6 +182,12 @@ ControlState SliderBox::calc_state(Context &context) {
   return Normal;
 }
 
+bool SliderBox::expand(const BoxSize &size) {
+  base::expand(size);
+  _extents.merge(size);
+  return true;
+}
+
 void SliderBox::resize(Context &context) {
   float em = context.canvas().get_font_size();
   _extents.ascent  = em;//0.75 * em * 1.5;
