@@ -1388,7 +1388,9 @@ static void cnt_printsection(Expr data) {
 
 static Expr cnt_callfrontend(Expr data) {
   AutoValueReset<FrontEndReference> auto_reset_eval(current_evaluation_box_id);
-  current_evaluation_box_id = FrontEndReference::from_pmath_raw(data[0]);
+  if(FrontEndReference source = FrontEndReference::from_pmath_raw(data[0])) 
+    current_evaluation_box_id = source;
+  
   Expr expr = data[1];
   data = {};
   return Evaluate(std::move(expr));
