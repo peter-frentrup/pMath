@@ -52,6 +52,14 @@ ControlState ContainerWidgetBox::calc_state(Context &context) {
 void ContainerWidgetBox::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
   
+  if(get_own_style(ContentPadding, false)) {
+    float em = context.canvas().get_font_size();
+    if(_extents.ascent < 0.75f * em)
+      _extents.ascent = 0.75f * em;
+    if(_extents.descent < 0.25f * em)
+      _extents.descent = 0.25f * em;
+  }
+  
   ControlPainter::std->calc_container_size(
     *this,
     context.canvas(),

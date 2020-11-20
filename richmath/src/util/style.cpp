@@ -38,6 +38,7 @@ extern pmath_symbol_t richmath_System_ButtonData;
 extern pmath_symbol_t richmath_System_ButtonFrame;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_ButtonSource;
+extern pmath_symbol_t richmath_System_ContentPadding;
 extern pmath_symbol_t richmath_System_ContinuousAction;
 extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
@@ -100,6 +101,7 @@ extern pmath_symbol_t richmath_System_SectionLabel;
 extern pmath_symbol_t richmath_System_SectionLabelAutoDelete;
 extern pmath_symbol_t richmath_System_SectionMargins;
 extern pmath_symbol_t richmath_System_Selectable;
+extern pmath_symbol_t richmath_System_SetterBoxOptions;
 extern pmath_symbol_t richmath_System_ShowAutoStyles;
 extern pmath_symbol_t richmath_System_ShowSectionBracket;
 extern pmath_symbol_t richmath_System_ShowStringCharacters;
@@ -2136,6 +2138,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ButtonSource);
   impl.emit_definition(CharacterNameStyle);
   impl.emit_definition(CommentStyle);
+  impl.emit_definition(ContentPadding);
   impl.emit_definition(ContinuousAction);
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);
@@ -2202,6 +2205,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(SectionLabel);
   impl.emit_definition(SectionLabelAutoDelete);
   impl.emit_definition(Selectable);
+  impl.emit_definition(SetterBoxOptions);
   impl.emit_definition(ShowAutoStyles);
   impl.emit_definition(ShowSectionBracket);
   impl.emit_definition(ShowStringCharacters);
@@ -2641,6 +2645,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(PaneBoxOptions,               Symbol( richmath_System_PaneBoxOptions));
     add_ruleset_head(PanelBoxOptions,              Symbol( richmath_System_PanelBoxOptions));
     add_ruleset_head(PatternVariableStyle,         strings::PatternVariableStyle);
+    add_ruleset_head(SetterBoxOptions,             Symbol( richmath_System_SetterBoxOptions));
     add_ruleset_head(StringStyle,                  strings::StringStyle);
     add_ruleset_head(SymbolShadowingStyle,         strings::SymbolShadowingStyle);
     add_ruleset_head(SyntaxErrorStyle,             strings::SyntaxErrorStyle);
@@ -2657,6 +2662,10 @@ void StyleInformation::add_style() {
       add_enum(
         ButtonBoxDefaultButtonFrame, 
         List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFrame)),
+        converter);
+      add_enum(
+        SetterBoxDefaultButtonFrame, 
+        List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_ButtonFrame)),
         converter);
     }
     
@@ -2716,6 +2725,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
     add(StyleType::Bool,            AutoNumberFormating,              Symbol( richmath_System_AutoNumberFormating));
     add(StyleType::Bool,            AutoSpacing,                      Symbol( richmath_System_AutoSpacing));
+    add(StyleType::Bool,            ContentPadding,                   Symbol( richmath_System_ContentPadding));
     add(StyleType::Bool,            ContinuousAction,                 Symbol( richmath_System_ContinuousAction));
     add(StyleType::Bool,            Editable,                         Symbol( richmath_System_Editable));
     add(StyleType::AutoBool,        Enabled,                          Symbol( richmath_System_Enabled));
@@ -2738,14 +2748,21 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            Visible,                          Symbol( richmath_System_Visible));
     add(StyleType::Bool,            WholeSectionGroupOpener,          Symbol( richmath_System_WholeSectionGroupOpener));
     
+    add(StyleType::AutoBool,        ButtonBoxDefaultContentPadding,   List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
+    
+    add(StyleType::AutoBool,        FrameBoxDefaultContentPadding,    List(Symbol(richmath_System_FrameBoxOptions), Symbol(richmath_System_ContentPadding)));
     
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
     
     add(StyleType::Bool,            PaneBoxDefaultLineBreakWithin,        List(Symbol(richmath_System_PaneBoxOptions), Symbol( richmath_System_LineBreakWithin)));
     
-    add(StyleType::Bool,            PanelBoxDefaultEnabled,           List(Symbol(richmath_System_PanelBoxOptions), Symbol( richmath_System_Enabled)));
+    add(StyleType::AutoBool,        PanelBoxDefaultContentPadding,    List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_ContentPadding)));
+    add(StyleType::Bool,            PanelBoxDefaultEnabled,           List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Enabled)));
+    
+    add(StyleType::AutoBool,        SetterBoxDefaultContentPadding,   List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_ContentPadding)));
+    add(StyleType::Bool,            SetterBoxDefaultEnabled,          List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_Enabled)));
     
     add(StyleType::Bool,            ContinuousAction,                 List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_ContinuousAction)));
     add(StyleType::AutoBool,        SliderBoxDefaultEnabled,          List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Enabled)));
@@ -2850,6 +2867,8 @@ void StyleInformation::add_style() {
     
     add(StyleType::Any, PanelBoxDefaultAppearance,       List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_Appearance)));
     add(StyleType::Any, PanelBoxDefaultBaselinePosition, List(Symbol(richmath_System_PanelBoxOptions), Symbol(richmath_System_BaselinePosition)));
+    
+    add(StyleType::Any, SetterBoxDefaultBaselinePosition, List(Symbol(richmath_System_SetterBoxOptions), Symbol(richmath_System_BaselinePosition)));
     
     add(StyleType::Any, SliderBoxDefaultAppearance,      List(Symbol(richmath_System_SliderBoxOptions), Symbol(richmath_System_Appearance)));
     

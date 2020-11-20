@@ -20,8 +20,9 @@ namespace richmath {
     InputFieldBox = 0x00400000,
     PaneBox       = 0x00500000,
     PanelBox      = 0x00600000,
-    SliderBox     = 0x00700000,
-    TemplateBox   = 0x00800000,
+    SetterBox     = 0x00700000,
+    SliderBox     = 0x00800000,
+    TemplateBox   = 0x00900000,
   };
   
   enum AutoBoolValues {
@@ -72,6 +73,7 @@ namespace richmath {
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
+    ContentPadding,
     ContinuousAction,
     Editable,
     Enabled, // AutoBoolXXX
@@ -109,11 +111,14 @@ namespace richmath {
     ButtonSource, // ButtonSourceXXX
     WindowFrame, // WindowFrameType
     
-    ButtonBoxDefaultEnabled      = Enabled      + (int)DefaultStyleOptionOffsets::ButtonBox,
-    ButtonBoxDefaultButtonFrame  = ButtonFrame  + (int)DefaultStyleOptionOffsets::ButtonBox,
-    ButtonBoxDefaultButtonSource = ButtonSource + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultEnabled        = Enabled        + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultButtonFrame    = ButtonFrame    + (int)DefaultStyleOptionOffsets::ButtonBox,
+    ButtonBoxDefaultButtonSource   = ButtonSource   + (int)DefaultStyleOptionOffsets::ButtonBox,
     
     FillBoxDefaultStripOnInput = StripOnInput + (int)DefaultStyleOptionOffsets::FillBox,
+    
+    FrameBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::FrameBox,
     
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
@@ -121,7 +126,12 @@ namespace richmath {
     PaneBoxDefaultImageSizeAction = ImageSizeAction + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultLineBreakWithin = LineBreakWithin + (int)DefaultStyleOptionOffsets::PaneBox,
     
-    PanelBoxDefaultEnabled = Enabled + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::PanelBox,
+    PanelBoxDefaultEnabled        = Enabled        + (int)DefaultStyleOptionOffsets::PanelBox,
+    
+    SetterBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultEnabled        = Enabled        + (int)DefaultStyleOptionOffsets::SetterBox,
+    SetterBoxDefaultButtonFrame    = ButtonFrame    + (int)DefaultStyleOptionOffsets::SetterBox,
     
     SliderBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::SliderBox,
     SliderBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::SliderBox,
@@ -220,7 +230,6 @@ namespace richmath {
     UnknownOptions,
     TrackedSymbols,
     
-    ButtonBoxOptions,
     ButtonData,
     ButtonFunction,
     
@@ -244,18 +253,20 @@ namespace richmath {
     InputAliases,          // StyleType::AnyFlatList
     InputAutoReplacements, // StyleType::AnyFlatList
     
+    ButtonBoxOptions,
     FillBoxOptions,
     FrameBoxOptions,
     InputFieldBoxOptions,
     PaneBoxOptions,
     PanelBoxOptions,
+    SetterBoxOptions,
     SliderBoxOptions,
+    TemplateBoxOptions,
     
     DisplayFunction,
     InterpretationFunction,
     SyntaxForm,
     Tooltip,
-    TemplateBoxOptions,
     
     StyleDefinitions,
     InternalLastStyleDefinitions,
@@ -297,6 +308,8 @@ namespace richmath {
     
     PanelBoxDefaultAppearance                = Appearance             + (int)DefaultStyleOptionOffsets::PanelBox,
     PanelBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::PanelBox,
+    
+    SetterBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::SetterBox,
     
     SliderBoxDefaultAppearance               = Appearance             + (int)DefaultStyleOptionOffsets::SliderBox,
     

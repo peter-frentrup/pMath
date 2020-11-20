@@ -57,6 +57,12 @@ void FrameBox::resize_default_baseline(Context &context) {
   context.width -= 2 * border_and_padding;
   
   base::resize_default_baseline(context);
+  if(get_own_style(ContentPadding, false)) {
+    if(_extents.ascent < 0.75f * em)
+      _extents.ascent = 0.75f * em;
+    if(_extents.descent < 0.25f * em)
+      _extents.descent = 0.25f * em;
+  }
   
   cx = border_and_padding;
   
@@ -64,11 +70,11 @@ void FrameBox::resize_default_baseline(Context &context) {
   _extents.ascent +=  cx;
   _extents.descent += cx;
   
-  if(_extents.ascent < em)
-    _extents.ascent = em;
-    
-  if(_extents.descent < em * 0.4f)
-    _extents.descent = em * 0.4f;
+//  if(_extents.ascent < em)
+//    _extents.ascent = em;
+//    
+//  if(_extents.descent < em * 0.4f)
+//    _extents.descent = em * 0.4f;
     
   context.width = old_width;
 }

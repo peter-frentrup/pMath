@@ -33,6 +33,8 @@ namespace richmath {
     protected:
       virtual ContainerType default_container_type() override { return PaletteButton; }
     
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SetterBox; }
+    
     private:
       Expr to_literal();
     

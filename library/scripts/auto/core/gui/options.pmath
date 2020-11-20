@@ -6,6 +6,7 @@ Options(Button):= {
     %ButtonData :> Automatic,
     ButtonFrame -> Automatic,
     %ButtonSource -> Automatic,
+    ContentPadding -> True,
     Enabled -> Automatic,
     Method -> "Preemptive"}
 
@@ -16,6 +17,7 @@ Options(ButtonBox):= {
     ButtonFrame -> Automatic,
     ButtonFunction -> (/\/ &),
     ButtonSource -> Automatic,
+    ContentPadding -> True,
     Enabled -> Automatic,
     Method -> "Preemptive"}
 
@@ -89,6 +91,7 @@ Options(Framed):= Options(FrameBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Framed", 
     BorderRadius -> 0,
+    ContentPadding -> True,
     FrameStyle -> Automatic,
     StripOnInput -> False}
 
@@ -141,6 +144,7 @@ Options(Panel):= Options(PanelBox):= {
     Appearance -> Automatic,
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
+    ContentPadding -> True,
     Enabled -> Inherited}
 
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
@@ -198,6 +202,7 @@ Options(Style):= Options(StyleBox):= {
     Placeholder -> Inherited,
     ScriptSizeMultipliers -> Inherited,
     Selectable -> Inherited,
+    SetterBoxOptions -> Inherited,
     ShowAutoStyles -> Inherited,
     ShowStringCharacters -> Inherited,
     SliderBoxOptions -> Inherited,
@@ -226,6 +231,7 @@ Options(Section):= {
         ButtonFrame -> Automatic, 
         ButtonFunction -> (/\/ &),
         ButtonSource -> Automatic,
+        ContentPadding -> True,
         Enabled -> Automatic,
         Method -> "Preemptive"},
     "CharacterNameStyle" -> { FontColor -> Inherited },
@@ -244,6 +250,7 @@ Options(Section):= {
         Background -> None,
         BaselinePosition -> Automatic,
         BorderRadius -> 0,
+        ContentPadding -> True,
         FrameStyle -> Automatic,
         StripOnInput -> False},
     FontColor -> GrayLevel(0),
@@ -280,6 +287,7 @@ Options(Section):= {
     PanelBoxOptions -> {
         Appearance -> Automatic,
         BaselinePosition -> Automatic,
+        ContentPadding -> True,
         Enabled -> Automatic,
         ImageSize -> Automatic,
         ImageSizeAction -> "ShrinkToFit"},
@@ -302,6 +310,11 @@ Options(Section):= {
     SectionLabel -> None,
     SectionLabelAutoDelete -> True,
     Selectable -> Inherited,
+    SetterBoxOptions -> {
+        BaselinePosition -> Automatic,
+        ButtonFrame -> Automatic,
+        ContentPadding -> True,
+        Enabled -> Automatic},
     ShowAutoStyles -> True,
     ShowSectionBracket -> True,
     ShowStringCharacters -> True,
@@ -331,6 +344,7 @@ Options(Setter):= Options(SetterBox):= Options(SetterBar):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Setter", 
     ButtonFrame -> Automatic,
+    ContentPadding -> True,
     Enabled -> Automatic }
 
 Options(Slider):= Options(SliderBox):= {

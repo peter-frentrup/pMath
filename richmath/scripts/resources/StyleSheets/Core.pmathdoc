@@ -133,14 +133,17 @@ Document({
          FontFamily -> Dynamic(CurrentValue("ControlsFontFamily")), 
          FontSize -> Dynamic(CurrentValue("ControlsFontSize")), 
          ShowAutoStyles -> False, ShowStringCharacters -> False), 
-        Section(StyleData("Framed")), Section(StyleData("Button"), 
-         BaseStyle -> "ControlStyle"), Section(StyleData("Checkbox"), 
+        Section(StyleData("Framed"), FrameBoxOptions -> {
+          ContentPadding -> True}), Section(StyleData("Button"), 
+         BaseStyle -> "ControlStyle", ButtonBoxOptions -> {
+          ContentPadding -> True}), Section(StyleData("Checkbox"), 
          BaseStyle -> "ControlStyle"), Section(StyleData("InputField"), 
          BaseStyle -> "ControlStyle", ShowStringCharacters -> True), 
         Section(StyleData("Pane"), PaneBoxOptions -> {
           BaselinePosition -> Center -> Axis, 
           ImageSizeAction -> "ShrinkToFit"}), 
-        Section(StyleData("Panel"), BaseStyle -> "ControlStyle"), 
+        Section(StyleData("Panel"), BaseStyle -> "ControlStyle", 
+         PanelBoxOptions -> {ContentPadding -> True}), 
         Section(StyleData("PaneSelector")), 
         Section(StyleData("Placeholder"), 
          Background -> RGBColor(1, 0.97299999999999998`, 
@@ -148,10 +151,11 @@ Document({
          FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
          ShowStringCharacters -> False), Section(StyleData("RadioButton"), 
          BaseStyle -> "ControlStyle"), Section(StyleData("Setter"), 
-         BaseStyle -> "ControlStyle"), Section(StyleData("Slider"), 
-         BaseStyle -> "ControlStyle"), Section(StyleData("TabViewLabel"), 
-         BaseStyle -> "ControlStyle"), Section(StyleData("TabView"), 
-         BaseStyle -> "ControlStyle")}, All), 
+         BaseStyle -> "ControlStyle", SetterBoxOptions -> {
+          ButtonFrame -> "Palette", ContentPadding -> True}), 
+        Section(StyleData("Slider"), BaseStyle -> "ControlStyle"), 
+        Section(StyleData("TabViewLabel"), BaseStyle -> "ControlStyle"), 
+        Section(StyleData("TabView"), BaseStyle -> "ControlStyle")}, All), 
       SectionGroup({Section("Button styles", "Subsection"), 
         Section(StyleData("Paste"), BaseStyle -> "Button", 
          ButtonBoxOptions -> {ButtonFunction -> (DocumentApply(
