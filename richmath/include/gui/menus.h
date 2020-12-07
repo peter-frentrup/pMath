@@ -39,10 +39,9 @@ namespace richmath {
       static void done();
       
       static MenuCommandScope current_scope;
-      static void run_command(Expr cmd); // callable from non-GUI thread
+      static void run_command_async(Expr cmd); // callable from non-GUI thread
       
-      // bad design:
-      static bool run_recursive_command(Expr cmd);
+      static bool run_command_now(Expr cmd);
       
       static Expr selected_item_command();
       static MenuCommandStatus test_command_status(Expr cmd);

@@ -1186,6 +1186,13 @@ Expr Application::interrupt_wait_cached(Expr expr) {
   return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
+void Application::with_evaluation_box(Box *box, void(*callback)(void*), void *arg) {
+  AutoValueReset<FrontEndReference> auto_reset_eval_box(current_evaluation_box_id);
+  current_evaluation_box_id = box ? box->id() : FrontEndReference::None;
+  
+  callback(arg);
+}
+
 Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
   auto old_current_evaluation_box_id = current_evaluation_box_id;
   auto old_is_executing_for_sth = is_executing_for_sth;
@@ -1663,7 +1670,7 @@ static void execute(ClientNotificationData &cn) {
       break;
       
     case ClientNotification::MenuCommand:
-      Menus::run_recursive_command(std::move(cn.data));
+      Menus::run_command_now(std::move(cn.data));
       break;
       
     case ClientNotification::DynamicUpdate:

@@ -555,8 +555,8 @@ GtkMenu *MathGtkWidget::popup_menu(VolatileSelection src) {
     gtk_menu_attach_to_widget(GTK_MENU(_popup_menu), _widget, MathGtkWidget::popup_detached);
     
     GtkAccelGroup *accel_group = gtk_accel_group_new();
-    MathGtkMenuBuilder(menu_expr).append_to(GTK_MENU_SHELL(_popup_menu), accel_group, document()->id());
-    //MathGtkAccelerators::connect_all(accel_group, document()->id());
+    MathGtkMenuBuilder(menu_expr).append_to(GTK_MENU_SHELL(_popup_menu), accel_group, src.box->id());
+    //MathGtkAccelerators::connect_all(accel_group, src.box->id());
     g_object_unref(accel_group);
     
     gtk_widget_add_events(GTK_WIDGET(_popup_menu), GDK_STRUCTURE_MASK);
@@ -1214,11 +1214,11 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   }
   
   if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK))) {
-    auto sel = document()->selection_now();
-    if(!sel.box)
-      sel = VolatileSelection(document(), 0);
+    auto src = document()->selection_now();
+    if(!src.box)
+      src = VolatileSelection(document(), 0);
     
-    if(auto menu = popup_menu(sel)) {
+    if(auto menu = popup_menu(src)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
     }
   }
@@ -1298,7 +1298,11 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
 
   if(me.right) {
     bool dummy;
-    if(auto menu = popup_menu(document()->mouse_selection(me.position, &dummy))) {
+    auto src = document()->mouse_selection(me.position, &dummy);
+    if(!src.box)
+      src = VolatileSelection(document(), 0);
+    
+    if(auto menu = popup_menu(src)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, event->button, event->time);
     }
   }

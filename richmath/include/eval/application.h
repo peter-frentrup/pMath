@@ -74,6 +74,13 @@ namespace richmath {
       
       static void async_interrupt(Expr expr);
       
+      static void with_evaluation_box(Box *box, void(*callback)(void*), void *arg);
+      
+      template<typename Func>
+      static void with_evaluation_box(Box *box, Func func) {
+        with_evaluation_box(box, [](void *_func) { (*(Func*)_func)(); }, &func);
+      }
+      
       static Expr interrupt_wait(Expr expr, double seconds);
       static Expr interrupt_wait(Expr expr);
       

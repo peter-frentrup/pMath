@@ -45,11 +45,11 @@ void Menus::done() {
   dynamic_menu_list_item_locator.clear();
 }
 
-void Menus::run_command(Expr cmd) {
+void Menus::run_command_async(Expr cmd) {
   Application::notify(ClientNotification::MenuCommand, cmd);
 }
 
-bool Menus::run_recursive_command(Expr cmd) {
+bool Menus::run_command_now(Expr cmd) {
   bool (*func)(Expr);
   
   func = menu_commands[cmd];

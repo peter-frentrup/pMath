@@ -276,7 +276,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
   }
 }
 
-void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference for_document_window_id) {
+void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference evalution_box_id) {
   if(expr[0] != richmath_System_Menu || expr.expr_length() != 2)
     return;
     
@@ -294,10 +294,10 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
     if(type == MenuItemType::Invalid)
       continue;
     
-    GtkWidget *menu_item = MenuItemBuilder::create(type, for_document_window_id);
+    GtkWidget *menu_item = MenuItemBuilder::create(type, evalution_box_id);
     gtk_widget_show(menu_item);
     gtk_menu_shell_append(menu, menu_item);
-    MenuItemBuilder::init(GTK_MENU_ITEM(menu_item), type, std::move(item), accel_group, for_document_window_id);
+    MenuItemBuilder::init(GTK_MENU_ITEM(menu_item), type, std::move(item), accel_group, evalution_box_id);
   }
 }
 
@@ -504,11 +504,11 @@ void MenuItemBuilder::init_inline_menu(GtkMenuItem *menu_item, Expr item) {
   inline_menu_list_data(menu_item, item[2]);
 }
 
-void MenuItemBuilder::on_activate(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+void MenuItemBuilder::on_activate(GtkMenuItem *menu_item, void *eval_box_id_as_ptr) {
   if(ignore_activate_signal)
     return;
   
-  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(doc_id_as_ptr);
+  FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(eval_box_id_as_ptr);
   
   const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
   if(!accel_path_str)
@@ -516,34 +516,20 @@ void MenuItemBuilder::on_activate(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
   
   Expr cmd = accel_path_to_cmd[String(accel_path_str)];
   if(!cmd.is_null()) {
-    if(auto doc = FrontEndObject::find_cast<Document>(id)) {
-      auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
-      while(wid) {
-        if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
-          win->run_menucommand(cmd);
-          return;
-        }
-        
-        wid = wid->parent();
-      }
-    }
-    
-    g_warning("no MathGtkDocumentWindow parent found.");
-    
-    Menus::run_command(cmd);
+    Application::with_evaluation_box(FrontEndObject::find_cast<Box>(id), [&](){ Menus::run_command_now(cmd); });
   }
 }
 
-void MenuItemBuilder::on_select(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+void MenuItemBuilder::on_select(GtkMenuItem *menu_item, void *eval_box_id_as_ptr) {
   _selected_item = menu_item;
 }
 
-void MenuItemBuilder::on_deselect(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+void MenuItemBuilder::on_deselect(GtkMenuItem *menu_item, void *eval_box_id_as_ptr) {
   if(_selected_item.unobserved_equals(menu_item))
     _selected_item = nullptr;
 }
 
-void MenuItemBuilder::on_destroy(GtkMenuItem *menu_item, void *doc_id_as_ptr) {
+void MenuItemBuilder::on_destroy(GtkMenuItem *menu_item, void *eval_box_id_as_ptr) {
   if(_selected_item.unobserved_equals(menu_item))
     _selected_item = nullptr;
 }
@@ -698,7 +684,7 @@ void MathGtkAccelerators::load(Expr expr) {
 class AccelData {
   public:
     Expr                cmd;
-    FrontEndReference   document_id;
+    FrontEndReference   evaluation_box_id;
 };
 
 static void accel_data_destroy(void *data, GClosure *closure) {
@@ -716,32 +702,20 @@ static gboolean closure_callback(
 ) {
   AccelData *accel_data = (AccelData *)user_data;
   
-  if(auto doc = dynamic_cast<Document *>(Box::find(accel_data->document_id))) {
-    auto wid = dynamic_cast<BasicGtkWidget *>(doc->native());
-    while(wid) {
-      if(auto win = dynamic_cast<MathGtkDocumentWindow *>(wid)) {
-        win->run_menucommand(accel_data->cmd);
-        return TRUE;
-      }
-      
-      wid = wid->parent();
-    }
-  }
-  
-  g_warning("no MathGtkDocumentWindow parent found.");
-  
-  Menus::run_command(accel_data->cmd);
+  Application::with_evaluation_box(FrontEndObject::find_cast<Box>(accel_data->evaluation_box_id), [&](){
+    Menus::run_command_now(accel_data->cmd);
+  });
   
   return TRUE;
 }
 
-void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, FrontEndReference document_id) {
+void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, FrontEndReference evaluation_box_id) {
   for(auto accel : all_accelerators) {
     char *path = pmath_string_to_utf8(accel.get_as_string(), 0);
     AccelData *accel_data = new AccelData;
     
     if(path && accel_data) {
-      accel_data->document_id = document_id;
+      accel_data->evaluation_box_id = evaluation_box_id;
       accel_data->cmd = accel_path_to_cmd[path];
       
       gtk_accel_group_connect_by_path(

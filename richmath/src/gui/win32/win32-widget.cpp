@@ -1042,7 +1042,7 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
   }
   
   if(cmd) {
-    callback(WM_COMMAND, cmd, 0);
+    Application::with_evaluation_box(src.box, [&](){ callback(WM_COMMAND, cmd, 0); });
   }
 }
 
@@ -1646,7 +1646,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(cmd.is_null())
             break;
             
-          Menus::run_command(cmd);
+          Menus::run_command_now(cmd);
         } return 0;
       
       case WM_MENUDRAG:      return Win32Menu::on_menudrag(     wParam, lParam, drag_source_helper());

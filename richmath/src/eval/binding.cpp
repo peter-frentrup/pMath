@@ -389,7 +389,7 @@ static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr) {
   Expr cmd = Expr(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
   
-  Menus::run_command(cmd);
+  Menus::run_command_async(cmd);
   
   return PMATH_NULL;
 }

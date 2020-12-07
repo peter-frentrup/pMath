@@ -2356,7 +2356,7 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
     
   context.selection = new_sel;
   
-  bool result = Menus::run_recursive_command(cmd);
+  bool result = Menus::run_command_now(cmd);
   
   if(is_parent_of(old_sel.get()))
     context.selection = old_sel;

@@ -21,11 +21,11 @@ namespace richmath {
       MathGtkMenuBuilder();
       explicit MathGtkMenuBuilder(Expr _expr);
       
-      void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference for_document_window_id);
+      void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference evalution_box_id);
       
-      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr);
-      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr);
-      static gboolean on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *doc_id_as_ptr);
+      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
+      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
+      static gboolean on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static void expand_inline_lists(GtkMenu *menu, FrontEndReference id);
       
       static void done();
@@ -46,7 +46,7 @@ namespace richmath {
         all_accelerators = Array<String>();
       }
       
-      static void connect_all(GtkAccelGroup *accel_group, FrontEndReference document_id);
+      static void connect_all(GtkAccelGroup *accel_group, FrontEndReference evaluation_box_id);
       
     public:
       static Array<String> all_accelerators;

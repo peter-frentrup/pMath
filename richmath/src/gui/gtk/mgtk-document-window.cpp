@@ -741,11 +741,6 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
   _window_frame = type;
 }
 
-void MathGtkDocumentWindow::run_menucommand(Expr cmd) {
-  // TODO: temporarily select the document ...
-  Menus::run_command(std::move(cmd));
-}
-
 void MathGtkDocumentWindow::bring_to_front() {
   gtk_window_present(GTK_WINDOW(_widget));
 }

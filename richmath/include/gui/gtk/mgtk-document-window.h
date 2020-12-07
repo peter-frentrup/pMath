@@ -49,8 +49,6 @@ namespace richmath {
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
-      void run_menucommand(Expr cmd);
-      
       MathGtkWidget *top_area() {     return (MathGtkWidget*)_top_area;     }
       MathGtkWidget *working_area() { return (MathGtkWidget*)_working_area; }
       MathGtkWidget *bottom_area() {  return (MathGtkWidget*)_bottom_area;  }
