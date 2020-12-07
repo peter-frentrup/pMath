@@ -38,10 +38,54 @@ Document({
                FrontEnd`FindStyleDefinition()), Delimiter, Inherited}, 
              StripOnInput -> False)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         TextData({"The ", TemplateBox({"MenuItem"}, "ReferenceHyperlink"), 
+           " commands are ", TemplateBox({"FrontEndTokenExecute"}, 
+            "ReferenceHyperlink"), 
+           " tokens and apply to the current selection in the selected \
+           document, not necessarily to the clicked location:"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"Style", "(", {
+              ComplexStringBox("\"Right\[Dash]click me\""), ",", {
+               "ContextMenu", "\[Rule]", {
+                "{", {"MenuItem", "(", {
+                  ComplexStringBox("\"Copy selection\""), ",", 
+                  ComplexStringBox("\"Copy\"")}, ")"}, "}"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(StyleBox(ComplexStringBox("\"Right\[Dash]click me\""), 
+             ContextMenu :> {MenuItem("Copy selection", "Copy")}, 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Use ", TemplateBox({"FrontEnd`KernelExecute"}, 
+              "ReferenceHyperlink"), " to run arbitrary code:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Style", "(", {
+                ComplexStringBox("\"Right\[Dash]click me\""), ",", {
+                 "ContextMenu", "\[Rule]", {
+                  "{", {"MenuItem", "(", {ComplexStringBox("\"Print\""), ",", {
+                     "FrontEnd`KernelExecute", "(", {
+                      "Print", "(", {"{", {{"RandomReal", "(", ")"}, ",", {
+                         "EvaluationBox", "(", ")"}}, "}"}, ")"}, ")"}}, ")"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(StyleBox(ComplexStringBox("\"Right\[Dash]click me\""), 
+               ContextMenu :> {MenuItem("Print", 
+                 FrontEnd`KernelExecute(
+                  Print({RandomReal(), EvaluationBox()})))}, 
+               StripOnInput -> False)), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(
        TextData({TemplateBox({"FrontEndTokenExecute"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FE`CallFrontEnd"}, 
-          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
- StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"FrontEnd`KernelExecute"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)
