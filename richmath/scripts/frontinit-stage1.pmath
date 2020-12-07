@@ -97,6 +97,7 @@ Protect($ControlActiveSetting)
 
 Options(FE`FileOpenDialog):= Options(FE`FileSaveDialog):= {WindowTitle -> Automatic}
 
+Options(FrontEnd`KernelExecute):= {Method -> "Preemptive"}
 
 Protect(FE`Graphics`DefaultAxesOrigin)
 Protect(FE`Graphics`DefaultTickBoxes)

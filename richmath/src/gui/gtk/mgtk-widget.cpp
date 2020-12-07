@@ -1214,7 +1214,11 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
   }
   
   if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK))) {
-    if(auto menu = popup_menu(document()->selection_now())) {
+    auto sel = document()->selection_now();
+    if(!sel.box)
+      sel = VolatileSelection(document(), 0);
+    
+    if(auto menu = popup_menu(sel)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
     }
   }

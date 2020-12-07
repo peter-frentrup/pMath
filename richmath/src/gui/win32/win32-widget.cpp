@@ -1008,7 +1008,7 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
     flags |= TPM_RIGHTALIGN;
   
   if(!src.box)
-    src.box = document();
+    src = VolatileSelection(document(), 0);
   
   SharedPtr<Win32Menu> popup_menu;
   Expr context_menu = src.box->get_finished_flatlist_style(ContextMenu);
@@ -1041,8 +1041,9 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
       cmd = exit_info.cmd;
   }
   
-  if(cmd) 
+  if(cmd) {
     callback(WM_COMMAND, cmd, 0);
+  }
 }
 
 LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {

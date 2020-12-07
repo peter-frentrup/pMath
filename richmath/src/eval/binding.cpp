@@ -31,6 +31,9 @@ extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
 
 extern pmath_symbol_t richmath_FE_FileOpenDialog;
+extern pmath_symbol_t richmath_FrontEnd_KernelExecute;
+
+extern Expr richmath_eval_FrontEnd_KernelExecute(Expr expr);
 
 static pmath_t builtin_callfrontend(pmath_expr_t expr);
 static pmath_t builtin_filedialog(pmath_expr_t _expr);
@@ -78,6 +81,7 @@ static bool convert_dynamic_to_literal(Expr cmd);
 static bool copy_cmd(Expr cmd);
 static bool copy_special_cmd(Expr cmd);
 static bool cut_cmd(Expr cmd);
+static bool do_kernelexecute_cmd(Expr cmd);
 static bool do_scoped_cmd(Expr cmd);
 static bool document_apply_cmd(Expr cmd);
 static bool document_write_cmd(Expr cmd);
@@ -263,6 +267,8 @@ bool richmath::init_bindings() {
   Menus::register_command(Symbol(richmath_FE_CopySpecial),   copy_special_cmd, can_copy_cut);
   Menus::register_command(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);
   Menus::register_command(Symbol(richmath_FE_ScopedCommand), do_scoped_cmd,    can_do_scoped);
+  
+  Menus::register_command(Symbol(richmath_FrontEnd_KernelExecute), do_kernelexecute_cmd);
   
   if(!Documents::init())
     goto FAIL_DOCUMENTS;
@@ -873,6 +879,11 @@ static bool cut_cmd(Expr cmd) {
     
   doc->cut_to_clipboard(Clipboard::std);
   return true;
+}
+
+static bool do_kernelexecute_cmd(Expr cmd) {
+  cmd = richmath_eval_FrontEnd_KernelExecute(std::move(cmd));
+  return cmd != PMATH_SYMBOL_FAILED;
 }
 
 static bool do_scoped_cmd(Expr cmd) {
