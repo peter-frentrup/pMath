@@ -14,9 +14,9 @@
 using namespace richmath;
 
 
-extern pmath_symbol_t richmath_FE_Delimiter;
-extern pmath_symbol_t richmath_FE_Menu;
-extern pmath_symbol_t richmath_FE_MenuItem;
+extern pmath_symbol_t richmath_System_Delimiter;
+extern pmath_symbol_t richmath_System_Menu;
+extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
@@ -186,17 +186,17 @@ bool Menus::has_submenu_item_locator(Expr submenu_cmd) {
 }
 
 MenuItemType Menus::menu_item_type(Expr item) {
-  if(item == richmath_FE_Delimiter) 
+  if(item == richmath_System_Delimiter) 
     return MenuItemType::Delimiter;
   
-  if(item[0] == richmath_FE_MenuItem && item.expr_length() == 2) {
+  if(item[0] == richmath_System_MenuItem && item.expr_length() == 2) {
     if(!item[1].is_string())
       return MenuItemType::Invalid;
     
     return command_type(item[2]);
   }
   
-  if(item[0] == richmath_FE_Menu) {
+  if(item[0] == richmath_System_Menu) {
     if(!item[1].is_string())
       return MenuItemType::Invalid;
     

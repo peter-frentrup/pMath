@@ -239,6 +239,8 @@ namespace richmath {
     BorderRadius,
     FrameStyle,
     
+    ContextMenu, // StyleType::AnyFlatList
+    
     DefaultDuplicateSectionStyle,
     DefaultNewSectionStyle,
     DefaultReturnCreatedSectionStyle,

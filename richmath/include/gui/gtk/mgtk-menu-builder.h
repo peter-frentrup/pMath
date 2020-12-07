@@ -33,7 +33,6 @@ namespace richmath {
       
     public:
       static MathGtkMenuBuilder main_menu;
-      static MathGtkMenuBuilder popup_menu;
       
     private:
       Expr expr;

@@ -15,6 +15,7 @@ NewTask(SyntaxInformation(Sin))
 
 
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "set-aliases.pmath"))
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "set-contextmenu.pmath"))
 
 <<Documentation`
 

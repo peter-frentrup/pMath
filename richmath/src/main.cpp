@@ -293,6 +293,7 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
   
+  Stylesheet::Default->base->set(ContextMenu,               List());
   Stylesheet::Default->base->set(DockedSectionsBottom,      List());
   Stylesheet::Default->base->set(DockedSectionsBottomGlass, List());
   Stylesheet::Default->base->set(DockedSectionsTop,         List());
@@ -405,7 +406,6 @@ int main(int argc, char **argv) {
     
 #define SHORTCUTS_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"shortcuts.pmath\"))"
 #define MAIN_MENU_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))"
-#define POPUP_MENU_CMD "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"popupmenu.pmath\"))"
     
 #ifdef RICHMATH_USE_WIN32_GUI
     Win32Themes::init();
@@ -414,14 +414,12 @@ int main(int argc, char **argv) {
     Win32Clipboard::init();
     Win32AcceleratorTable::main_table = new Win32AcceleratorTable(Evaluate(Parse(SHORTCUTS_CMD)));
     Win32Menu::main_menu              = new Win32Menu(Evaluate(Parse(MAIN_MENU_CMD)),  false);
-    Win32Menu::popup_menu             = new Win32Menu(Evaluate(Parse(POPUP_MENU_CMD)), true);
 #endif
     
 #ifdef RICHMATH_USE_GTK_GUI
     Clipboard::std = &MathGtkClipboard::obj;
     MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
     MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
-    MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder(Evaluate(Parse(POPUP_MENU_CMD)));
 #endif
 
     double end = pmath_tickcount();
@@ -512,13 +510,11 @@ QUIT:
   Win32Clipboard::done();
   Win32ControlPainter::done();
   Win32Menu::main_menu              = nullptr;
-  Win32Menu::popup_menu             = nullptr;
   Win32AcceleratorTable::main_table = nullptr;
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
   MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder();
-  MathGtkMenuBuilder::popup_menu = MathGtkMenuBuilder();
   MathGtkMenuBuilder::done();
   MathGtkAccelerators::done();
   MathGtkControlPainter::done();

@@ -1,0 +1,47 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ContextMenu", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ContextMenu"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"ContextMenu"}, "ReferenceHyperlink"), 
+           " is typically set on the level of ", 
+           TemplateBox({"$FrontEndSession"}, "ReferenceHyperlink"), "."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"ContextMenu"}, "ReferenceHyperlink"), 
+           " is a list of ", TemplateBox({"MenuItem"}, "ReferenceHyperlink"), 
+           ", ", TemplateBox({"Delimiter"}, "ReferenceHyperlink"), 
+           ", nested ", TemplateBox({"Menu"}, "ReferenceHyperlink"), ", or ", 
+           TemplateBox({"Inherited"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"The ", StyleBox("token", "Arg"), " in ", 
+           TemplateBox({"MenuItem"}, "ReferenceHyperlink"), "(\"", 
+           StyleBox("label", "Arg"), "\", ", StyleBox("token", "Arg"), 
+           ") can be any front-end token supported by ", 
+           TemplateBox({"FrontEndTokenExecute"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A simple menu:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Style", "(", {ComplexStringBox("\"Input\""), ",", {
+               "ContextMenu", "\[Rule]", {
+                "{", {
+                 {"MenuItem", "(", {
+                   ComplexStringBox("\"Find Style definition\""), ",", {
+                    "FrontEnd`FindStyleDefinition", "(", ")"}}, ")"}, ",", 
+                 "Delimiter", ",", "Inherited"}, "}"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(StyleBox(ComplexStringBox("\"Input\""), 
+             ContextMenu :> {MenuItem("Find Style definition", 
+               FrontEnd`FindStyleDefinition()), Delimiter, Inherited}, 
+             StripOnInput -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"FrontEndTokenExecute"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"FE`CallFrontEnd"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

@@ -141,7 +141,7 @@ Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 
 extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
-extern pmath_symbol_t richmath_FE_MenuItem;
+extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_FindStyleDefinition;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
@@ -750,7 +750,7 @@ Expr StylesMenuImpl::enum_styles_menu(Expr name) {
               Rule(Symbol(richmath_System_BaseStyle), item.name),
               Symbol(richmath_System_Section));
     }
-    commands.set(i + 1, Call(Symbol(richmath_FE_MenuItem), item.name, cmd));
+    commands.set(i + 1, Call(Symbol(richmath_System_MenuItem), item.name, cmd));
   }
   
   return commands;
@@ -913,7 +913,7 @@ Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
   for(auto win : CommonDocumentWindow::All) {
     g.emit(
       Call(
-        Symbol(richmath_FE_MenuItem), 
+        Symbol(richmath_System_MenuItem), 
         win->title(), 
         //List(name, i)
         Call(Symbol(richmath_FrontEnd_SetSelectedDocument),

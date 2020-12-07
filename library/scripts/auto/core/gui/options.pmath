@@ -29,6 +29,7 @@ Options(CreateDocument):= Options(Document):= {
     BaseStyle -> None,
     ButtonFrame -> Inherited,
     ButtonFunction -> Inherited,
+    ContextMenu -> Inherited,
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
     DefaultReturnCreatedSectionStyle -> Inherited,
@@ -172,6 +173,7 @@ Options(Style):= Options(StyleBox):= {
     ButtonFunction -> Inherited, % remove
     "CharacterNameStyle" -> Inherited,
     "CommentStyle" -> Inherited,
+    ContextMenu -> Inherited,
     Editable -> Inherited,
     Enabled -> Automatic,
     "ExcessOrMissingArgumentStyle" -> Inherited,
@@ -236,6 +238,7 @@ Options(Section):= {
         Method -> "Preemptive"},
     "CharacterNameStyle" -> { FontColor -> Inherited },
     "CommentStyle" -> { FontColor -> Inherited },
+    ContextMenu -> Inherited,
     DefaultDuplicateSectionStyle -> Inherited,
     DefaultNewSectionStyle -> Inherited,
     DefaultReturnCreatedSectionStyle -> Inherited,

@@ -49,6 +49,7 @@ using namespace richmath;
 
 namespace richmath { namespace strings {
   extern String Copy;
+  extern String Popup;
 }}
 
 #ifdef NDEBUG
@@ -101,6 +102,8 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
     default: return SpecialKey::Unknown;
   }
 }
+
+extern pmath_symbol_t richmath_System_Menu; 
 
 //{ class Win32Widget ...
 
@@ -996,7 +999,7 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   }
 }
 
-void Win32Widget::on_popupmenu(POINT screen_pt) {
+void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
   UINT flags = TPM_RETURNCMD;
   
   if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
@@ -1004,7 +1007,18 @@ void Win32Widget::on_popupmenu(POINT screen_pt) {
   else
     flags |= TPM_RIGHTALIGN;
   
-  HMENU menu = Win32Menu::popup_menu->hmenu();
+  if(!src.box)
+    src.box = document();
+  
+  SharedPtr<Win32Menu> popup_menu;
+  Expr context_menu = src.box->get_finished_flatlist_style(ContextMenu);
+  if(context_menu[0] == PMATH_SYMBOL_LIST && context_menu.expr_length() > 0) {
+    popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
+  }
+  if(!popup_menu)
+    return;
+  
+  HMENU menu = popup_menu->hmenu();
   
   MenuExitInfo exit_info;
   DWORD cmd;
@@ -1098,7 +1112,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             pt.x = (int16_t)( lParam & 0xFFFF);
             pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
           }
-          on_popupmenu(pt);
+          on_popupmenu(document()->selection_now(), pt);
         } return 0;
         
       case WM_INITMENUPOPUP: {
@@ -1251,8 +1265,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           on_mouseup(event);
           
           if(message == WM_RBUTTONUP) {
-            ClientToScreen(_hwnd, &pt);
-            on_popupmenu(pt);
+            bool dummy;
+            if(auto src = document()->mouse_selection(event.position, &dummy)) {
+              ClientToScreen(_hwnd, &pt);
+              on_popupmenu(src, pt);
+            }
           }
         } return 0;
         

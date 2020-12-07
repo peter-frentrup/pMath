@@ -73,7 +73,6 @@ namespace richmath {
       
       bool has_dark_background() { return _has_dark_background; }
       
-      GtkMenu *popup_menu();
       GtkAdjustment *hadjustment() { return _hadjustment; }
       GtkAdjustment *vadjustment() { return _vadjustment; }
       void hadjustment(GtkAdjustment *ha);
@@ -203,8 +202,6 @@ namespace richmath {
       virtual void on_changed_dark_mode();
       virtual void handle_mouse_move(MouseEvent &event);
       
-      virtual bool on_popup_menu(); 
-      
       virtual bool on_map(GdkEvent *e);
       virtual bool on_unmap(GdkEvent *e);
       virtual bool on_draw(cairo_t *cr);
@@ -218,6 +215,8 @@ namespace richmath {
       virtual bool on_motion_notify(GdkEvent *e);
       virtual bool on_leave_notify(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);
+      
+      GtkMenu *popup_menu(VolatileSelection src);
       
       virtual void do_set_current_document() {}
       static gboolean blink_caret(gpointer id_as_ptr);

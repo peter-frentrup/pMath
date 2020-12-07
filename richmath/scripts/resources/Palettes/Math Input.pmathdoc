@@ -195,7 +195,7 @@ Document({
           "\[Placeholder]")), "\"Ctrl+7\""), 
        TooltipBox(ButtonBox(UnderoverscriptBox("\[SelectionPlaceholder]", 
           "\[Placeholder]", "\[Placeholder]")), "\"Ctrl+4, Ctrl+5\"")}})), 
-   "Input", ButtonBoxOptions -> {ButtonFrame -> "Palette", 
+   "Output", ButtonBoxOptions -> {ButtonFrame -> "Palette", 
     ButtonFunction -> (DocumentApply(SelectedDocument(), #1) &)}, 
    FontSize -> 9, GridBoxColumnSpacing -> 0.10000000149011612`, 
    GridBoxRowSpacing -> 0.10000000149011612`, 

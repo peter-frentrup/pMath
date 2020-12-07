@@ -36,7 +36,6 @@ namespace richmath {
       
     public:
       static SharedPtr<Win32Menu>  main_menu;
-      static SharedPtr<Win32Menu>  popup_menu;
       static bool                  use_dark_mode;
       
     private:

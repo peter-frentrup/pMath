@@ -2,9 +2,6 @@
 Begin("FE`")
 
 
-FE`Menu
-FE`MenuItem
-FE`Delimiter
 FE`$MathShapers
 FE`ScopedCommand
 
@@ -28,12 +25,12 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("&Copy",                                 "Copy"),
 		MenuItem("&Paste",                                "Paste"),
 		Menu("Cop&y As", {
-			MenuItem("Plain &Text",                       CopySpecial("PlainText")),
-			MenuItem("&Input Text",                       CopySpecial("InputText")),
-			MenuItem("Boxes &Expression",                 CopySpecial("BoxesText")),
+			MenuItem("Plain &Text",                       FE`CopySpecial("PlainText")),
+			MenuItem("&Input Text",                       FE`CopySpecial("InputText")),
+			MenuItem("Boxes &Expression",                 FE`CopySpecial("BoxesText")),
 			Delimiter,
-			MenuItem("&Bitmap",                           CopySpecial("Bitmap")),
-			MenuItem("&SVG",                              CopySpecial("image/svg+xml"))
+			MenuItem("&Bitmap",                           FE`CopySpecial("Bitmap")),
+			MenuItem("&SVG",                              FE`CopySpecial("image/svg+xml"))
 			}),
 		Delimiter,
 		MenuItem("Di&vide Section",                       "SectionSplit"),
@@ -70,12 +67,12 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Menu("Styles", "MenuListStyles")
 			}),
 		Menu("St&ylesheet", {
-			MenuItem("Default",               ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),
-			MenuItem("InvertedColors",        ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
+			MenuItem("Default",               FE`ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),
+			MenuItem("InvertedColors",        FE`ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
 			}),
 		MenuItem("Edit Sty&lesheet ...",       "EditStyleDefinitions"),
 		Menu("Math &Font", Join({
-				MenuItem("Inherited", ScopedCommand(MathFontFamily -> Inherited, Document)),
+				MenuItem("Inherited", FE`ScopedCommand(MathFontFamily -> Inherited, Document)),
 				Delimiter
 			},
 			$MathShapers.Join({
@@ -84,7 +81,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 				"Mathematica 10 Sans",
 				"Mathematica Mono",
 				"Mathematica Serif"
-			}).Map(MenuItem(#,             ScopedCommand(MathFontFamily -> #, Document)) &),
+			}).Map(MenuItem(#,             FE`ScopedCommand(MathFontFamily -> #, Document)) &),
 			))
 		}),
 	Menu("E&valuation", {
@@ -104,15 +101,15 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Menu("Installed Palettes", "MenuListPalettesMenu")
 		}),
 	Menu("&Window", {
-		MenuItem("&Menu bar", "ShowHideMenu"),
+		MenuItem("&Menu bar",            "ShowHideMenu"),
 		Menu("Ma&gnification", {
-			MenuItem("&50%",                                ScopedCommand(Magnification->0.5, Document)),
-			MenuItem("&75%",                                ScopedCommand(Magnification->0.75, Document)),
-			MenuItem("&100%",                               ScopedCommand(Magnification->Inherited, Document)),
-			MenuItem("1&25%",                               ScopedCommand(Magnification->1.25, Document)),
-			MenuItem("15&0%",                               ScopedCommand(Magnification->1.5, Document)),
-			MenuItem("200&%",                               ScopedCommand(Magnification->2, Document)),
-			MenuItem("&300%",                               ScopedCommand(Magnification->3, Document))
+			MenuItem("&50%",             FE`ScopedCommand(Magnification->0.5, Document)),
+			MenuItem("&75%",             FE`ScopedCommand(Magnification->0.75, Document)),
+			MenuItem("&100%",            FE`ScopedCommand(Magnification->Inherited, Document)),
+			MenuItem("1&25%",            FE`ScopedCommand(Magnification->1.25, Document)),
+			MenuItem("15&0%",            FE`ScopedCommand(Magnification->1.5, Document)),
+			MenuItem("200&%",            FE`ScopedCommand(Magnification->2, Document)),
+			MenuItem("&300%",            FE`ScopedCommand(Magnification->3, Document))
 			}),
 		Delimiter,
 		Menu("Opened Windows", "MenuListWindows")

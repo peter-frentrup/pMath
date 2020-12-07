@@ -19,9 +19,9 @@
 using namespace richmath;
 
 
-extern pmath_symbol_t richmath_FE_Delimiter;
-extern pmath_symbol_t richmath_FE_Menu;
-extern pmath_symbol_t richmath_FE_MenuItem;
+extern pmath_symbol_t richmath_System_Delimiter;
+extern pmath_symbol_t richmath_System_Menu;
+extern pmath_symbol_t richmath_System_MenuItem;
 
 static const char accel_path_prefix[] = "<Richmath>/";
 static Hashtable<String,  Expr> accel_path_to_cmd;
@@ -101,7 +101,6 @@ static void collect_container_children(GtkContainer *container, Array<GtkWidget*
 //{ class MathGtkMenuBuilder ...
 
 MathGtkMenuBuilder MathGtkMenuBuilder::main_menu;
-MathGtkMenuBuilder MathGtkMenuBuilder::popup_menu;
 
 MathGtkMenuBuilder::MathGtkMenuBuilder() {
 }
@@ -278,7 +277,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
 }
 
 void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference for_document_window_id) {
-  if(expr[0] != richmath_FE_Menu || expr.expr_length() != 2)
+  if(expr[0] != richmath_System_Menu || expr.expr_length() != 2)
     return;
     
   if(!expr[1].is_string())
@@ -665,7 +664,7 @@ void MathGtkAccelerators::load(Expr expr) {
     guint           accel_key = 0;
     GdkModifierType accel_mod = (GdkModifierType)0;
     
-    if( item[0] == richmath_FE_MenuItem                &&
+    if( item[0] == richmath_System_MenuItem                &&
         item.expr_length() == 2                        &&
         set_accel_key(item[1], &accel_key, &accel_mod) &&
         gtk_accelerator_valid(accel_key, accel_mod))

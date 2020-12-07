@@ -3,7 +3,6 @@ Begin("FE`")
 
 
 FE`KeyEvent
-FE`MenuItem
 
 FE`KeyAlt
 FE`KeyShift

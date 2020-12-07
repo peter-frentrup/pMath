@@ -39,6 +39,7 @@ extern pmath_symbol_t richmath_System_ButtonFrame;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_ButtonSource;
 extern pmath_symbol_t richmath_System_ContentPadding;
+extern pmath_symbol_t richmath_System_ContextMenu;
 extern pmath_symbol_t richmath_System_ContinuousAction;
 extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
@@ -2139,6 +2140,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(CharacterNameStyle);
   impl.emit_definition(CommentStyle);
   impl.emit_definition(ContentPadding);
+  impl.emit_definition(ContextMenu);
   impl.emit_definition(ContinuousAction);
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);
@@ -2841,6 +2843,8 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
     add(StyleType::Any,             SectionDingbat,                   Symbol( richmath_System_SectionDingbat));
     add(StyleType::Any,             SectionEvaluationFunction,        Symbol( richmath_System_SectionEvaluationFunction));
+    
+    add(StyleType::AnyFlatList, ContextMenu,               Symbol( richmath_System_ContextMenu));
     
     add(StyleType::AnyFlatList, DockedSectionsTop,         List(Symbol(richmath_System_DockedSections), String("Top")));
     add(StyleType::AnyFlatList, DockedSectionsTopGlass,    List(Symbol(richmath_System_DockedSections), String("TopGlass")));

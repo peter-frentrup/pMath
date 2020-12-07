@@ -17,6 +17,7 @@ extern pmath_symbol_t richmath_System_ButtonBox;
 namespace richmath { namespace strings {
   extern String Button;
   extern String Preemptive;
+  extern String Queued;
 }}
 
 
@@ -200,10 +201,15 @@ void ButtonBox::click() {
   fn = Call(std::move(fn), std::move(arg1), std::move(data));
   
   String method = get_own_style(Method);
-  if(method == strings::Preemptive) 
+  if(method == strings::Preemptive) {
     Application::interrupt_wait_for_interactive(std::move(fn), this, Application::button_timeout);
-  else
+  }
+  else if(method == strings::Queued) {
     Application::add_job(new EvaluationJob(std::move(fn), this));
+  }
+  else if(auto doc = find_parent<Document>(false)) {
+    doc->native()->beep();
+  }
 }
 
 //} ... class ButtonBox

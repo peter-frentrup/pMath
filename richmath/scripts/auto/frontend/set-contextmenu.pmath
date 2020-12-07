@@ -1,0 +1,17 @@
+SetOptions($FrontEndSession, ContextMenu -> {
+	MenuItem("Cu&t",   "Cut"),
+	MenuItem("&Copy",  "Copy"),
+	MenuItem("&Paste", "Paste"),
+	Menu("Cop&y As", {
+		MenuItem("Plain &Text",        FE`CopySpecial("PlainText")),
+		MenuItem("&Input Text",        FE`CopySpecial("InputText")),
+		MenuItem("Boxes &Expression",  FE`CopySpecial("BoxesText")),
+		Delimiter,
+		MenuItem("&Bitmap",            FE`CopySpecial("Bitmap")),
+		MenuItem("&SVG",               FE`CopySpecial("image/svg+xml"))
+		}),
+	Delimiter,
+	MenuItem("Reset &Graphics Size", "GraphicsOriginalSize"),
+	Delimiter,
+	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Commands", items))
+})

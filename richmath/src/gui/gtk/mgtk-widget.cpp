@@ -38,6 +38,12 @@ static GdkDragAction gdk_drag_context_get_actions(GdkDragContext *context) {
 #endif
 
 
+namespace richmath { namespace strings {
+  extern String Popup;
+}}
+
+extern pmath_symbol_t richmath_System_Menu;
+
 using namespace richmath;
 
 #define ANIMATION_DELAY  (50)
@@ -198,8 +204,6 @@ void MathGtkWidget::after_construction() {
   
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
   gtk_widget_set_can_focus(_widget, TRUE);
-  
-  signal_connect<MathGtkWidget, &MathGtkWidget::on_popup_menu>("popup-menu");
   
 #if GTK_MAJOR_VERSION >= 3
   signal_connect<MathGtkWidget, cairo_t *, &MathGtkWidget::on_draw>("draw");
@@ -530,13 +534,28 @@ void MathGtkWidget::popup_detached(GtkWidget *attach_widget, GtkMenu *menu) {
     wid->_popup_menu = nullptr;
 }
 
-GtkMenu *MathGtkWidget::popup_menu() {
+GtkMenu *MathGtkWidget::popup_menu(VolatileSelection src) {
+  if(!src.box)
+    src.box = document();
+  
+  Expr menu_expr = src.box->get_finished_flatlist_style(ContextMenu);
+  if(menu_expr[0] == PMATH_SYMBOL_LIST && menu_expr.expr_length() > 0) {
+    menu_expr = Call(Symbol(richmath_System_Menu), strings::Popup, std::move(menu_expr));
+  }
+  else
+    return nullptr;
+  
+  if(_popup_menu) {
+    g_object_unref(_popup_menu);
+    _popup_menu = nullptr;
+  }
+  
   if(!_popup_menu) {
     _popup_menu = gtk_menu_new();
     gtk_menu_attach_to_widget(GTK_MENU(_popup_menu), _widget, MathGtkWidget::popup_detached);
     
     GtkAccelGroup *accel_group = gtk_accel_group_new();
-    MathGtkMenuBuilder::popup_menu.append_to(GTK_MENU_SHELL(_popup_menu), accel_group, document()->id());
+    MathGtkMenuBuilder(menu_expr).append_to(GTK_MENU_SHELL(_popup_menu), accel_group, document()->id());
     //MathGtkAccelerators::connect_all(accel_group, document()->id());
     g_object_unref(accel_group);
     
@@ -979,12 +998,6 @@ void MathGtkWidget::handle_mouse_move(MouseEvent &event) {
   set_cursor(cursor);
 }
 
-bool MathGtkWidget::on_popup_menu() {
-  gtk_menu_popup(
-    popup_menu(), nullptr, nullptr, nullptr, nullptr, 0, gtk_get_current_event_time());
-  return true;
-}
-
 bool MathGtkWidget::on_map(GdkEvent *e) {
   gtk_im_context_set_client_window(_im_context, gtk_widget_get_window(_widget));
   return false;
@@ -1200,9 +1213,11 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return true;
   }
   
-  if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK)))
-    gtk_menu_popup(
-      popup_menu(), nullptr, nullptr, nullptr, nullptr, 0, event->time);
+  if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK))) {
+    if(auto menu = popup_menu(document()->selection_now())) {
+      gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
+    }
+  }
   
   if(ske.ctrl || (ske.alt && !ske.shift))
     return false;
@@ -1278,8 +1293,10 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
   }
 
   if(me.right) {
-    gtk_menu_popup(
-      popup_menu(), nullptr, nullptr, nullptr, nullptr, event->button, event->time);
+    bool dummy;
+    if(auto menu = popup_menu(document()->mouse_selection(me.position, &dummy))) {
+      gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, event->button, event->time);
+    }
   }
   
   return true;

@@ -122,9 +122,9 @@ static Hashtable<DWORD, Expr>   id_to_cmd;
 static Hashtable<DWORD, String> id_to_shortcut_text;
 
 
-extern pmath_symbol_t richmath_FE_Delimiter;
-extern pmath_symbol_t richmath_FE_Menu;
-extern pmath_symbol_t richmath_FE_MenuItem;
+extern pmath_symbol_t richmath_System_Delimiter;
+extern pmath_symbol_t richmath_System_Menu;
+extern pmath_symbol_t richmath_System_MenuItem;
 
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
@@ -133,7 +133,6 @@ StaticMenuOverride StaticMenuOverride::singleton;
 //{ class Win32Menu ...
 
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
-SharedPtr<Win32Menu>  Win32Menu::popup_menu;
 bool                  Win32Menu::use_dark_mode = false;
 
 Win32Menu::Win32Menu(Expr expr, bool is_popup)
@@ -531,7 +530,7 @@ DWORD MenuItemBuilder::get_or_create_command_id(Expr cmd) {
 }
 
 HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
-  if(expr[0] != richmath_FE_Menu || expr.expr_length() != 2)
+  if(expr[0] != richmath_System_Menu || expr.expr_length() != 2)
     return nullptr;
     
   String name(expr[1]);
@@ -569,13 +568,13 @@ bool MenuItemBuilder::init_info(MENUITEMINFOW *info, Expr item, String *buffer) 
   assert(info->cbSize >= sizeof(MENUITEMINFOW));
   assert(buffer);
   
-  if(item == richmath_FE_Delimiter)
+  if(item == richmath_System_Delimiter)
     return init_delimiter_info(info);
   
-  if(item[0] == richmath_FE_MenuItem && item.expr_length() == 2)
+  if(item[0] == richmath_System_MenuItem && item.expr_length() == 2)
     return init_item_info(info, std::move(item), buffer);
   
-  if(item[0] == richmath_FE_Menu && item.expr_length() == 2)
+  if(item[0] == richmath_System_Menu && item.expr_length() == 2)
     return init_submenu_info(info, std::move(item), buffer);
   
   return false;
@@ -899,7 +898,7 @@ static HACCEL create_accel(Expr expr) {
     Expr item(expr[i]);
     Expr cmd( item[2]);
     
-    if( item[0] == richmath_FE_MenuItem &&
+    if( item[0] == richmath_System_MenuItem &&
         item.expr_length() == 2          &&
         set_accel_key(item[1], &accel[j]))
     {
