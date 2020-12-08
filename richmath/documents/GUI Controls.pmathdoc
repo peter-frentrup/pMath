@@ -147,6 +147,26 @@ Document({
           CheckboxBox(Undefined, {False, True}, Enabled -> False)}, "}"}), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
     SectionGroup({
+      Section(BoxData({"Table", "(", {{"ToggleSwitch", "(", "c", ")"}, ",", {
+           "c", "\[Rule]", {"{", {"True", ",", "False", ",", "Undefined"}, 
+            "}"}}}, ")"}), "Input", SectionLabel -> "in [7]:"), 
+      Section(BoxData({"{", {TemplateBox({True}, "ToggleSwitch"), ",", 
+          TemplateBox({False}, "ToggleSwitch"), ",", 
+          TemplateBox({Undefined}, "ToggleSwitch")}, "}"}), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Table", "(", {
+          {"ToggleSwitch", "(", {"c", ",", {"Enabled", "\[Rule]", "False"}}, 
+           ")"}, ",", {"c", "\[Rule]", {
+            "{", {"True", ",", "False", ",", "Undefined"}, "}"}}}, ")"}), 
+       "Input", SectionLabel -> "in [13]:"), 
+      Section(
+       BoxData({"{", {TemplateBox({True, Enabled -> False}, "ToggleSwitch"), 
+          ",", TemplateBox({False, Enabled -> False}, "ToggleSwitch"), ",", 
+          TemplateBox({Undefined, Enabled -> False}, "ToggleSwitch")}, "}"}), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [13]:")}, 
+     All), SectionGroup({
       Section(BoxData({"Table", "(", {{"RadioButton", "(", "c", ")"}, ",", {
            "c", "\[Rule]", {"{", {"True", ",", "False"}, "}"}}}, ")"}), 
        "Input", SectionLabel -> "in [10]:"), 

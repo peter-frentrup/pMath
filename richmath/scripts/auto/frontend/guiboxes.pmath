@@ -42,6 +42,7 @@ toBeProtected:= Unprotect(
 	Slider,
 	SliderBox,
 	TabView,
+	ToggleSwitch,
 	Tooltip,
 	TooltipBox)
 
@@ -74,9 +75,13 @@ makeButtonBox(~x)::= makeCallBoxes(x)
 
 
 
-MakeBoxes(Checkbox())::=                                               CheckboxBox(False) /? allowGuiBoxes
-MakeBoxes(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options) /? allowGuiBoxes
-MakeBoxes(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxBox(state, values, options) /? allowGuiBoxes
+MakeBoxes(~x: Checkbox)::= makeCheckboxBox(x) /? allowGuiBoxes
+Attributes(makeCheckboxBox):= {HoldAllComplete}
+makeCheckboxBox(Checkbox())::=                                               CheckboxBox(False)
+makeCheckboxBox(Checkbox(~state,               options:OptionsPattern()))::= CheckboxBox(state, options)
+makeCheckboxBox(Checkbox(~state, values:{~,~}, options:OptionsPattern()))::= CheckboxBox(state, values, options)
+makeCheckboxBox(~x)::= makeCallBoxes(x)
+
 
 MakeBoxes(Dynamic(~var, options:OptionsPattern())) ::= DynamicBox(ToBoxes(var), options) /? allowGuiBoxes
 
@@ -208,6 +213,14 @@ makeTabViewBox(TabView(tabs:{(~ -> ~)**},~i))::= TemplateBox({ReleaseHold @ Hold
 makeTabViewBox(TabView(panes:{~~}, ~i))::=       TemplateBox({ReleaseHold @ Hold(panes).MapIndexed(Function(, ToBoxes(Last(#2))->makeNullBoxes(#), HoldAllComplete), 2), i}, "TabView")
 makeTabViewBox(TabView(~panes))::=               makeTabViewBox(TabView(panes, 1))
 makeTabViewBox(~x)::= makeCallBoxes(x)
+
+
+MakeBoxes(~x: ToggleSwitch)::= makeToggleSwitchBox(x) /? allowGuiBoxes
+Attributes(makeToggleSwitchBox):= {HoldAllComplete}
+makeToggleSwitchBox(ToggleSwitch())::=                                               TemplateBox({False},                  "ToggleSwitch")
+makeToggleSwitchBox(ToggleSwitch(~state,               options:OptionsPattern()))::= TemplateBox({state,         options}, "ToggleSwitch")
+makeToggleSwitchBox(ToggleSwitch(~state, values:{~,~}, options:OptionsPattern()))::= TemplateBox({state, values, options}, "ToggleSwitch2")
+makeToggleSwitchBox(~x)::= makeCallBoxes(x)
 
 
 MakeBoxes(Tooltip(~content, ~tooltip, options:OptionsPattern()))::= TooltipBox(MakeBoxes(content), MakeBoxes(tooltip), options) /? allowGuiBoxes
@@ -349,8 +362,9 @@ System`Setting`$Rules:= Join(System`Setting`$Rules, {
 	Opener() :> False,
 	ProgressIndicator() :> 0,
 	Slider() :> 0.5,
-	PaneSelector(~, ~x, ~~~) :> x,
-	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|RadioButtonBar|Setter|SetterBar|Slider)(~x, ~~~) :> x});
+	ToggleSwitch() :> False,
+	(PaneSelector|TabView)(~, ~x, ~~~) :> x,
+	(Checkbox|Dynamic|InputField|Opener|ProgressIndicator|RadioButton|RadioButtonBar|Setter|SetterBar|Slider|ToggleSwitch)(~x, ~~~) :> x});
 
 
 Protect @@ toBeProtected
