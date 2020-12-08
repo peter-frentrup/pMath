@@ -28,8 +28,15 @@
 using namespace richmath;
 
 namespace richmath { namespace strings {
+  extern String EmptyString;
   extern String Docked;
+  extern String ShowHideMenu;
+  extern String ShowHideMenu_label;
 }}
+
+extern pmath_symbol_t richmath_System_Menu;
+extern pmath_symbol_t richmath_System_MenuItem;
+extern pmath_symbol_t richmath_System_Delimiter;
 
 class Win32DocumentChildWidget: public Win32Widget {
     using base = Win32Widget;
@@ -685,21 +692,36 @@ void Win32DocumentWindow::after_construction() {
     Win32Menu::main_menu);
     
   HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
-  AppendMenuW(sysmenu, MF_SEPARATOR, 0, L"");
+//  AppendMenuW(sysmenu, MF_SEPARATOR, 0, L"");
   
-  HMENU menu = Win32Menu::main_menu ? Win32Menu::main_menu->hmenu() : nullptr;
-  for(int i = 0; i < GetMenuItemCount(menu); ++i) {
-    wchar_t data[100];
+  {
+    SharedPtr<Win32Menu> menus[] = { 
+      new Win32Menu(
+        Call(Symbol(richmath_System_Menu), strings::EmptyString, List(
+          Symbol(richmath_System_Delimiter),
+          Call(Symbol(richmath_System_MenuItem), strings::ShowHideMenu_label, strings::ShowHideMenu),
+          Symbol(richmath_System_Delimiter)
+        )), 
+        true), 
+      Win32Menu::main_menu };
     
-    MENUITEMINFOW info;
-    memset(&info, 0, sizeof(info));
-    info.cbSize = sizeof(info);
-    info.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_SUBMENU;
-    info.dwTypeData = data;
-    info.cch = 99;
+    for(auto menu : menus) {
+      if(menu) {
+        for(int i = 0; i < GetMenuItemCount(menu->hmenu()); ++i) {
+          wchar_t data[100];
+          
+          MENUITEMINFOW info;
+          memset(&info, 0, sizeof(info));
+          info.cbSize = sizeof(info);
+          info.fMask = MIIM_STRING | MIIM_FTYPE | MIIM_ID | MIIM_SUBMENU;
+          info.dwTypeData = data;
+          info.cch = sizeof(data)/sizeof(data[0])-1;
     
-    GetMenuItemInfoW(menu, i, TRUE, &info);
-    InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
+          GetMenuItemInfoW(menu->hmenu(), i, TRUE, &info);
+          InsertMenuItemW(sysmenu, GetMenuItemCount(sysmenu), TRUE, &info);
+        }
+      }
+    }
   }
   
   if(!Documents::current()) 

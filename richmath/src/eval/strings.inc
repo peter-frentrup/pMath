@@ -4,9 +4,10 @@
 #define RICHMATH_DECLARE_NAME_STRING(NAME) \
   RICHMATH_DECLARE_STRING( NAME, #NAME )
 
-RICHMATH_DECLARE_STRING( EmptyString,    "" )
-RICHMATH_DECLARE_STRING( DollarAborted, "$Aborted" )
-RICHMATH_DECLARE_STRING( DollarFailed,  "$Failed" )
+RICHMATH_DECLARE_STRING( EmptyString,         "" )
+RICHMATH_DECLARE_STRING( DollarAborted,       "$Aborted" )
+RICHMATH_DECLARE_STRING( DollarFailed,        "$Failed" )
+RICHMATH_DECLARE_STRING( ShowHideMenu_label,  "&Menu bar" )
 
 RICHMATH_DECLARE_NAME_STRING( AddressBand )
 RICHMATH_DECLARE_NAME_STRING( AttachedPopupWindow )
