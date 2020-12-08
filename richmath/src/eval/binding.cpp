@@ -40,8 +40,6 @@ static pmath_t builtin_filedialog(pmath_expr_t _expr);
 static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr);
 static pmath_t builtin_documentread(pmath_expr_t _expr);
 static pmath_t builtin_documentsave(pmath_expr_t _expr);
-static pmath_t builtin_assign_currentvalue(pmath_expr_t expr);
-static pmath_t builtin_currentvalue(pmath_expr_t expr);
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr);
 static pmath_t builtin_frontendtokenexecute(pmath_expr_t expr);
 static pmath_t builtin_sectionprint(pmath_expr_t expr);
