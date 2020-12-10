@@ -1,0 +1,92 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("SyntaxForm", "ObjectName"), 
+      Section(BoxData(TemplateBox({"SyntaxForm"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"SyntaxForm"}, "ReferenceHyperlink"), 
+           " is specified as a string of the operator whose precedence should \
+           be used, e.g. ", TemplateBox({"SyntaxForm"}, "ReferenceHyperlink"), 
+           " \[Rule] \"+\"."}), "Notes"), 
+        Section(TextData({"With the default setting ", 
+           TemplateBox({"SyntaxForm"}, "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+           ", the operator precedence is determined automatically by the \
+           box\[HighNineQuote]s contents."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Define a custom operator interpretation for ", 
+           TemplateBox({"TagBox"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), 
+        Section(BoxData(/\/({{"Unprotect", "(", "MakeExpression", ")"}, ";"}, 
+           "\n", {{"MakeExpression", "(", {
+              "{", {{"~", "x"}, ",", {
+                "TagBox", "(", {"~", ",", ComplexStringBox("\"myplus\""), ",", 
+                 "~~~"}, ")"}, ",", {"~", "y"}}, "}"}, ")"}, 
+            "\[AssignDelayed]", {"MakeExpression", "(", {
+              "{", {"x", ",", ComplexStringBox("\"+\""), ",", "y"}, "}"}, 
+             ")"}}, "\n", {{"Protect", "(", "MakeExpression", ")"}, ";"})), 
+         "Input", SectionLabel -> "in [1]:"), 
+        Section("Display an expression using the tag:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"RawBoxes", "(", {
+              "{", {ComplexStringBox("\"a\""), ",", {
+                "TagBox", "(", {
+                 {"StyleBox", "(", {ComplexStringBox("\"plus\""), ",", {
+                    "FontSize", "\[Rule]", "8"}}, ")"}, ",", 
+                 ComplexStringBox("\"myplus\"")}, ")"}, ",", 
+               ComplexStringBox("\"b\"")}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [4]:"), 
+          Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
+              "myplus"), "b"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [4]:")}, All), 
+        Section("Using the displayed expression as input works as intended:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
+              "myplus"), "b"}), "Input", SectionLabel -> "in [5]:"), 
+          Section(BoxData({"a", "+", "b"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+        Section(
+         TextData({
+           "Editing the surrounding content destroys the box structure, \
+           because the ", TemplateBox({"TagBox"}, "ReferenceHyperlink"), 
+           " is treated as an operand (factor) by the parser:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
+              "myplus"), "b", " ", "c"}), "Input", SectionLabel -> "in [6]:"), 
+          Section(BoxData({"a", " ", "b", " ", "c", " ", {
+              ComplexStringBox("\"myplus\""), "(", "plus", ")"}}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+        Section(
+         TextData({"Use ", TemplateBox({"SyntaxForm"}, "ReferenceHyperlink"), 
+           " to enforce the intended precedence rules:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"RawBoxes", "(", {
+              "{", {ComplexStringBox("\"a\""), ",", {
+                "TagBox", "(", {
+                 {"StyleBox", "(", {ComplexStringBox("\"plus\""), ",", {
+                    "FontSize", "\[Rule]", "8"}}, ")"}, ",", 
+                 ComplexStringBox("\"myplus\""), ",", {
+                  "SyntaxForm", "\[Rule]", ComplexStringBox("\"+\"")}}, ")"}, 
+               ",", ComplexStringBox("\"b\"")}, "}"}, ")"}), "Input", 
+           SectionLabel -> "in [7]:"), 
+          Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
+              "myplus", SyntaxForm -> "+"), "b"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+        Section(
+         "Editing nearby content preserves the intended box structure:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
+              "myplus", SyntaxForm -> "+"), {"b", " ", "c"}}), "Input", 
+           SectionLabel -> "in [8]:"), 
+          Section(BoxData({"a", "+", {"b", " ", "c"}}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [8]:")}, All)}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"TagBox"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"TemplateBox"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

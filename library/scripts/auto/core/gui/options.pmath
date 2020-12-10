@@ -128,8 +128,8 @@ Options(InputField):= Options(InputFieldBox):= {
 Options(InterpretationBox):= Options(Interpretation):= {
     %BaselinePosition -> Automatic,
     AutoDelete -> False,
-    Editable -> False
-    }
+    Editable -> False,
+    SyntaxForm -> Automatic }
 
 Options(Opener):= Options(OpenerBox):= {
     Enabled -> Automatic }
@@ -334,6 +334,7 @@ Options(Section):= {
         Editable -> Automatic, 
         InterpretationFunction -> Automatic,
         Selectable -> Automatic,
+        SyntaxForm -> None,
         Tooltip -> Automatic},
     TextShadow -> None,
     "UndefinedSymbolStyle" -> { FontColor -> Inherited },
@@ -355,6 +356,12 @@ Options(Slider):= Options(SliderBox):= {
     Appearance -> Automatic,
     ContinuousAction -> True,
     Enabled -> Automatic }
+
+Options(TagBox):= {
+    AutoDelete -> False,
+    Editable -> Automatic,
+    Selectable -> Automatic,
+    SyntaxForm -> Automatic }
 
 Options(TemplateBox):= {
     %BaselinePosition -> Automatic,

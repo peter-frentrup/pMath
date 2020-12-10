@@ -146,6 +146,7 @@ namespace richmath {
     public:
       static pmath_bool_t subsuperscriptbox_at_index(int i, void *_data);
       static pmath_string_t underoverscriptbox_at_index(int i, void *_data);
+      static pmath_string_t syntaxform_or_null(Box *box);
       static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
       static pmath_t box_at_index(int i, void *_data);
       static pmath_t add_debug_info(
@@ -1925,8 +1926,9 @@ pmath_string_t MathSequence::Impl::underoverscriptbox_at_index(int i, void *_dat
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
     if(data->sequence->boxes[data->current_box]->index() == i) {
-      if(auto box = dynamic_cast<UnderoverscriptBox *>(data->sequence->boxes[data->current_box]))
-        return pmath_ref(box->base()->text().get_as_string());
+      pmath_string_t str = syntaxform_or_null(data->sequence->boxes[data->current_box]);
+      if(!pmath_is_null(str))
+        return str;
     }
     ++data->current_box;
   }
@@ -1934,10 +1936,38 @@ pmath_string_t MathSequence::Impl::underoverscriptbox_at_index(int i, void *_dat
   data->current_box = 0;
   while(data->current_box < start) {
     if(data->sequence->boxes[data->current_box]->index() == i) {
-      if(auto box = dynamic_cast<UnderoverscriptBox *>(data->sequence->boxes[data->current_box]))
-        return pmath_ref(box->base()->text().get_as_string());
+      pmath_string_t str = syntaxform_or_null(data->sequence->boxes[data->current_box]);
+      if(!pmath_is_null(str))
+        return str;
     }
     ++data->current_box;
+  }
+  
+  return PMATH_NULL;
+}
+
+pmath_string_t MathSequence::Impl::syntaxform_or_null(Box *box) {
+  if(auto uo = dynamic_cast<UnderoverscriptBox *>(box))
+    return pmath_ref(uo->base()->text().get_as_string());
+  
+  if(auto obo = dynamic_cast<OwnerBox*>(box)) {
+    Expr syntax_form = obo->get_own_style(SyntaxForm, Symbol(PMATH_SYMBOL_AUTOMATIC));
+    if(syntax_form.is_string()) 
+      return syntax_form.release();
+    
+    if(syntax_form == PMATH_SYMBOL_AUTOMATIC || obo->get_own_style(StripOnInput, false)) {
+      auto content = obo->content();
+      if(content->length() == 1 && content->text()[0] == PMATH_CHAR_BOX) 
+        return syntaxform_or_null(content->item(0));
+      
+      content->ensure_spans_valid();
+      if(content->span_array().next_token(0) == content->span_array().length())
+        return pmath_ref(content->text().get());
+      else
+        return PMATH_NULL;
+    }
+    
+    return PMATH_NULL;
   }
   
   return PMATH_NULL;

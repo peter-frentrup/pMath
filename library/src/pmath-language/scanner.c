@@ -1326,31 +1326,25 @@ static pmath_token_t token_analyse(
   int              next,
   int             *prec
 ) {
-  pmath_token_t tok = pmath_token_analyse(
-                        parser->tokens.str + parser->tokens.pos,
-                        next - parser->tokens.pos,
-                        prec);
-                        
-  if( tok == PMATH_TOK_NAME2 &&
-      parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX &&
-      parser->underoverscriptbox_at_index)
-  {
+  if(parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX && parser->underoverscriptbox_at_index) {
     pmath_string_t str = parser->underoverscriptbox_at_index(parser->tokens.pos, parser->data);
     
     if(!pmath_is_null(str)) {
-      tok = pmath_token_analyse(
-              pmath_string_buffer(&str),
-              pmath_string_length(str),
-              prec);
+      pmath_token_t tok = pmath_token_analyse(pmath_string_buffer(&str), pmath_string_length(str), prec);
               
       pmath_unref(str);
       
-      if(tok == PMATH_TOK_NONE)
-        return PMATH_TOK_NAME2;
+      if(tok != PMATH_TOK_NONE)
+        return tok;
     }
+    
+    return PMATH_TOK_NAME2;
   }
   
-  return tok;
+  return pmath_token_analyse(
+           parser->tokens.str + parser->tokens.pos,
+           next - parser->tokens.pos,
+           prec);
 }
 
 static int prefix_precedence(
@@ -1358,6 +1352,20 @@ static int prefix_precedence(
   int              next,
   int              defprec
 ) {
+  if(parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX && parser->underoverscriptbox_at_index) {
+    pmath_string_t str = parser->underoverscriptbox_at_index(parser->tokens.pos, parser->data);
+    
+    if(!pmath_is_null(str)) {
+      int prec = pmath_token_prefix_precedence(pmath_string_buffer(&str), pmath_string_length(str), defprec);
+              
+      pmath_unref(str);
+      
+      return prec;
+    }
+    
+    return defprec;
+  }
+  
   return pmath_token_prefix_precedence(
            parser->tokens.str + parser->tokens.pos,
            next - parser->tokens.pos,

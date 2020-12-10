@@ -317,7 +317,8 @@ namespace richmath {
     
     TemplateBoxDefaultDisplayFunction        = DisplayFunction        + (int)DefaultStyleOptionOffsets::TemplateBox,
     TemplateBoxDefaultInterpretationFunction = InterpretationFunction + (int)DefaultStyleOptionOffsets::TemplateBox,
-    TemplateBoxDefaultTooltip                = Tooltip                + (int)DefaultStyleOptionOffsets::TemplateBox
+    TemplateBoxDefaultSyntaxForm             = SyntaxForm             + (int)DefaultStyleOptionOffsets::TemplateBox,
+    TemplateBoxDefaultTooltip                = Tooltip                + (int)DefaultStyleOptionOffsets::TemplateBox,
   };
   
   class StyleOptionName {

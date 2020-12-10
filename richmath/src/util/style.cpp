@@ -2878,6 +2878,7 @@ void StyleInformation::add_style() {
     
     add(StyleType::Any, TemplateBoxDefaultDisplayFunction,        List(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_DisplayFunction)));
     add(StyleType::Any, TemplateBoxDefaultInterpretationFunction, List(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_InterpretationFunction)));
+    add(StyleType::Any, TemplateBoxDefaultSyntaxForm,             List(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_SyntaxForm)));
     add(StyleType::Any, TemplateBoxDefaultTooltip,                List(Symbol(richmath_System_TemplateBoxOptions), Symbol(richmath_System_Tooltip)));
   }
 }
