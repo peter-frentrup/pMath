@@ -540,7 +540,10 @@ void Win32Menubar::kill_focus() {
   //EndMenu();
   focused = false;
   SendMessageW(_hwnd, TB_SETHOTITEM, -1, 0);
-  SetFocus((HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT));
+  
+  if(GetFocus() == _hwnd) {
+    SetFocus((HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT));
+  }
   
   if(current_menubar == this)
     current_menubar = nullptr;
