@@ -158,6 +158,7 @@
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gio-2.0.dll&quot;' />
 					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
 					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
 					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
@@ -213,6 +214,7 @@
 					<Add option='&quot;$(#cairo_32.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/glib-2.0.dll&quot;' />
 					<Add option='&quot;$(#glib_32.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_32.bin)/gio-2.0.dll&quot;' />
 					<Add option='&quot;$(#pango_32.bin)/pango-1.0.dll&quot;' />
 					<Add option='&quot;$(#pango_32.bin)/pangocairo-1.0.dll&quot;' />
 					<Add option='&quot;$(#pango_32.bin)/pangowin32-1.0.dll&quot;' />
@@ -327,6 +329,7 @@
 					<Add option='&quot;$(#cairo_64.bin)/cairo.dll&quot;' />
 					<Add option='&quot;$(#glib_64.bin)/glib-2.0.dll&quot;' />
 					<Add option='&quot;$(#glib_64.bin)/gobject-2.0.dll&quot;' />
+					<Add option='&quot;$(#glib_64.bin)/gio-2.0.dll&quot;' />
 					<Add option='&quot;$(#pango_64.bin)/pango-1.0.dll&quot;' />
 					<Add option='&quot;$(#pango_64.bin)/pangocairo-1.0.dll&quot;' />
 					<Add option='&quot;$(#pango_64.bin)/pangowin32-1.0.dll&quot;' />
@@ -1011,6 +1014,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/gui/win32/ole/filesystembinddata.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/ole/propvar.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1304,6 +1316,7 @@
 		<Unit filename="src/eval/server.cpp" />
 		<Unit filename="src/eval/strings.inc" />
 		<Unit filename="src/eval/symbols.inc" />
+		<Unit filename="src/eval/system-open-directory.cpp" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />
 		<Unit filename="src/graphics/cairostream.cpp" />
@@ -1530,6 +1543,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/ole/enumformatetc.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/ole/filesystembinddata.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

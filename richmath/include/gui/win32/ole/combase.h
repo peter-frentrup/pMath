@@ -194,7 +194,62 @@ namespace richmath {
         }
       }
   };
-
+  
+  template <typename Struct>
+  class ComHashPtr {
+    public:
+      ComHashPtr(const ComHashPtr&) = delete;
+      ComHashPtr &operator=(const ComHashPtr&) = delete;
+      
+      explicit ComHashPtr(Struct *p = nullptr) : ptr(p) {}
+      ~ComHashPtr() { internal_release(); }
+      
+      ComHashPtr(ComHashPtr &&other) : ptr(nullptr) { swap(*this, other); }
+      ComHashPtr &operator=(ComHashPtr &&other) { swap(*this, other); return *this; }
+      
+      friend void swap(ComHashPtr &left, ComHashPtr &right) noexcept {
+        using std::swap;
+        swap(left.ptr, right.ptr);
+      }
+      
+      explicit operator bool() const noexcept { return ptr != nullptr; }
+      
+      Struct *get() const noexcept {
+        COM_ASSERT(ptr != nullptr);
+        return ptr;
+      }
+      
+      Struct *operator->() const noexcept {
+        COM_ASSERT(ptr != nullptr);
+        return ptr;
+      }
+      
+      Struct **get_address_of() noexcept {
+        COM_ASSERT(ptr == nullptr);
+        return &ptr;
+      }
+      
+      void attach(Struct *p) noexcept {
+        internal_release();
+        ptr = p;
+      }
+      Struct *detach() noexcept {
+        Struct *result = ptr;
+        ptr = nullptr;
+        return result;
+      }
+      
+    private:
+      Struct *ptr;
+      
+      void internal_release() noexcept {
+        if(Struct *temp = ptr) {
+          ptr = nullptr;
+          CoTaskMemFree(temp);
+        }
+      }
+  };
+  
   #define HRreport(call) check_HRESULT((call), #call, __FILE__, __LINE__)
   #define HRbool(call) SUCCEEDED(check_HRESULT((call), #call, __FILE__, __LINE__))
   #define HR(call)       do { HRESULT _temp_hr = (call); if(!SUCCEEDED(_temp_hr)) return check_HRESULT(_temp_hr, #call, __FILE__, __LINE__); } while(0)
