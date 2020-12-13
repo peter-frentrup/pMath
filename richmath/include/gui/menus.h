@@ -48,9 +48,10 @@ namespace richmath {
       static Expr generate_dynamic_submenu(Expr cmd);
       static bool remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd);
       static bool locate_dynamic_submenu_item_source(Expr submenu_cmd, Expr item_cmd);
+      static MenuCommandStatus test_locate_dynamic_submenu_item_source(Expr submenu_cmd, Expr item_cmd);
       
       static void register_command(
-        Expr cmd,
+        Expr                cmd,
         bool              (*func)(Expr cmd),
         MenuCommandStatus (*test)(Expr cmd) = nullptr);
       
@@ -59,8 +60,11 @@ namespace richmath {
       static void register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd));
       static bool has_submenu_item_deleter(Expr submenu_cmd);
       
-      static void register_submenu_item_locator(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd));
-      static bool has_submenu_item_locator(Expr submenu_cmd);
+      static void register_submenu_item_locator(
+        Expr                submenu_cmd, 
+        bool              (*func)(Expr submenu_cmd, Expr item_cmd),
+        MenuCommandStatus (*test)(Expr submenu_cmd, Expr item_cmd) = nullptr);
+      static bool              has_submenu_item_locator(Expr submenu_cmd);
       
       static MenuItemType menu_item_type(Expr item);
       static MenuItemType command_type(Expr cmd);

@@ -23,6 +23,7 @@ namespace richmath {
     extern String DocumentFileName;
     extern String DocumentFullFileName;
     extern String Input;
+    extern String MenuListPalettesMenu;
     extern String ShowHideMenu;;
   }
   
@@ -110,6 +111,8 @@ namespace {
       
       static Expr enum_windows_menu(Expr name);
       
+      static MenuCommandStatus can_locate_window(Expr submenu_cmd, Expr item_cmd);
+      static bool locate_window(Expr submenu_cmd, Expr item_cmd);
       static bool remove_window(Expr submenu_cmd, Expr item_cmd);
   };
   
@@ -124,6 +127,7 @@ namespace {
       static Expr enum_palettes_menu(Expr name);
       static Expr enum_recent_documents_menu(Expr name);
 
+      static bool locate_document(Expr submenu_cmd, Expr item_cmd);
       static bool remove_recent_document(Expr submenu_cmd, Expr item_cmd);
   };
 }
@@ -146,6 +150,7 @@ extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_FindStyleDefinition;
 extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+extern pmath_symbol_t richmath_FrontEnd_SystemOpenDirectory;
 
 extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
@@ -870,8 +875,9 @@ const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
 void SelectDocumentMenuImpl::init() {
   Menus::register_command(Symbol(richmath_FrontEnd_SetSelectedDocument), set_selected_document_cmd, can_set_selected_document);
 
-  Menus::register_dynamic_submenu(               strings::MenuListWindows,  enum_windows_menu);
-  Menus::register_submenu_item_deleter(std::move(strings::MenuListWindows), remove_window);
+  Menus::register_dynamic_submenu(     strings::MenuListWindows, enum_windows_menu);
+  Menus::register_submenu_item_locator(strings::MenuListWindows, locate_window, can_locate_window);
+  Menus::register_submenu_item_deleter(strings::MenuListWindows, remove_window);
 }
 
 void SelectDocumentMenuImpl::done() {
@@ -923,6 +929,39 @@ Expr SelectDocumentMenuImpl::enum_windows_menu(Expr name) {
   return g.end();
 }
 
+MenuCommandStatus SelectDocumentMenuImpl::can_locate_window(Expr submenu_cmd, Expr item_cmd) {
+  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+    auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
+    if(doc) {
+      if(doc->native()->full_filename()) 
+        return MenuCommandStatus{ true };
+      
+      if(doc->native()->directory())
+        return MenuCommandStatus{ true };
+    }
+  }
+  return MenuCommandStatus{ false };
+}
+
+bool SelectDocumentMenuImpl::locate_window(Expr submenu_cmd, Expr item_cmd) {  
+  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
+    auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
+    if(doc) {
+      Expr expr;
+      if(String path = doc->native()->full_filename()) 
+        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), std::move(path));
+      else if(String dir = doc->native()->directory())
+        expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), std::move(dir), List());
+      else
+        return false;
+      
+      expr = Evaluate(std::move(expr));
+      return !expr.is_null();
+    }
+  }
+  return false;
+}
+
 bool SelectDocumentMenuImpl::remove_window(Expr submenu_cmd, Expr item_cmd) {  
   if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_SetSelectedDocument) {
     auto doc = FrontEndObject::find_cast<Document>(FrontEndReference::from_pmath(item_cmd[1]));
@@ -941,10 +980,12 @@ bool SelectDocumentMenuImpl::remove_window(Expr submenu_cmd, Expr item_cmd) {
 void OpenDocumentMenuImpl::init() {
   Menus::register_command(Symbol(richmath_FrontEnd_DocumentOpen), document_open_cmd);
   
-  Menus::register_dynamic_submenu(String("MenuListPalettesMenu"), enum_palettes_menu);
+  Menus::register_dynamic_submenu(     strings::MenuListPalettesMenu, enum_palettes_menu);
+  Menus::register_submenu_item_locator(strings::MenuListPalettesMenu, locate_document);
   
-  Menus::register_dynamic_submenu(               strings::MenuListRecentDocuments,  enum_recent_documents_menu);
-  Menus::register_submenu_item_deleter(std::move(strings::MenuListRecentDocuments), remove_recent_document);
+  Menus::register_dynamic_submenu(     strings::MenuListRecentDocuments, enum_recent_documents_menu);
+  Menus::register_submenu_item_locator(strings::MenuListRecentDocuments, locate_document);
+  Menus::register_submenu_item_deleter(strings::MenuListRecentDocuments, remove_recent_document);
 }
 
 void OpenDocumentMenuImpl::done() {
@@ -998,8 +1039,20 @@ Expr OpenDocumentMenuImpl::enum_recent_documents_menu(Expr name) {
   return RecentDocuments::as_menu_list();
 }
 
+bool OpenDocumentMenuImpl::locate_document(Expr submenu_cmd, Expr item_cmd) {
+  if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+    String path{ item_cmd[1] };
+    if(path.length() > 0) {
+      Expr expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), path);
+      expr = Evaluate(std::move(expr));
+      return expr.is_null();
+    }
+  }
+  return false;
+}
+
 bool OpenDocumentMenuImpl::remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
-  if(item_cmd.expr_length() == 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+  if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
     String path{ item_cmd[1] };
     if(path.length() > 0)
       return RecentDocuments::remove(std::move(path));

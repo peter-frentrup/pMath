@@ -5,6 +5,7 @@
 #include <eval/observable.h>
 
 #include <gui/menus.h>
+#include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/win32-themes.h>
 #include <gui/win32/ole/dataobject.h>
@@ -193,19 +194,23 @@ void Win32Menu::init_popupmenu(HMENU sub) {
           if(!MenuItemBuilder::init_info(&mii, new_items[k], &buffer))
             continue;
           
-          mii.fMask |= MIIM_DATA | MIIM_STATE;
+          mii.fMask |= MIIM_DATA;
           mii.dwItemData = list_id;
           
-          MenuCommandStatus status = Menus::test_command_status(id_to_command(mii.wID));
-          if(status.enabled)
-            mii.fState |= MFS_ENABLED;
-          else
-            mii.fState |= MFS_GRAYED;
-          
-          if(status.checked) 
-            mii.fState |= MFS_CHECKED;
-          else
-            mii.fState |= MFS_UNCHECKED;
+          if(Expr cmd = id_to_command(mii.wID)) {
+            MenuCommandStatus status = Menus::test_command_status(std::move(cmd));
+            
+            mii.fMask |= MIIM_STATE;
+            if(status.enabled)
+              mii.fState |= MFS_ENABLED;
+            else
+              mii.fState |= MFS_GRAYED;
+            
+            if(status.checked) 
+              mii.fState |= MFS_CHECKED;
+            else
+              mii.fState |= MFS_UNCHECKED;
+          }
           
           if(insert) {
             if(InsertMenuItemW(sub, i, TRUE, &mii)) {
@@ -268,20 +273,22 @@ void Win32Menu::init_popupmenu(HMENU sub) {
         continue;
       }
     
-      MenuCommandStatus status = Menus::test_command_status(id_to_command(mii.wID));
-      mii.fMask = MIIM_STATE;
-      
-      if(status.enabled)
-        mii.fState |= MFS_ENABLED;
-      else
-        mii.fState |= MFS_GRAYED;
-      
-      if(status.checked) 
-        mii.fState |= MFS_CHECKED;
-      else
-        mii.fState |= MFS_UNCHECKED;
-      
-      SetMenuItemInfoW(sub, i, TRUE, &mii);
+      if(Expr cmd = id_to_command(mii.wID)) {
+        MenuCommandStatus status = Menus::test_command_status(std::move(cmd));
+        mii.fMask = MIIM_STATE;
+        
+        if(status.enabled)
+          mii.fState |= MFS_ENABLED;
+        else
+          mii.fState |= MFS_GRAYED;
+        
+        if(status.checked) 
+          mii.fState |= MFS_CHECKED;
+        else
+          mii.fState |= MFS_UNCHECKED;
+        
+        SetMenuItemInfoW(sub, i, TRUE, &mii);
+      }
     }
   }
   
@@ -505,6 +512,10 @@ void MenuItemBuilder::add_remove_menu(int delta) {
     cmd_to_id.default_value = 0;
     
     add_command(SC_CLOSE, String("Close"));
+    add_command((UINT)SpecialCommandId::None, {});
+    add_command((UINT)SpecialCommandId::Select, {});
+    add_command((UINT)SpecialCommandId::Remove, {});
+    add_command((UINT)SpecialCommandId::GoToDefinition, {});
   }
   
   num_menus += delta;

@@ -27,8 +27,9 @@ namespace richmath { namespace strings {
 static Hashtable<Expr, bool              ( *)(Expr)>       menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>       menu_command_testers;
 static Hashtable<Expr, Expr              ( *)(Expr)>       dynamic_menu_lists;
-static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_deleter;
-static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_locator;
+static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_deleters;
+static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_locators;
+static Hashtable<Expr, MenuCommandStatus ( *)(Expr, Expr)> dynamic_menu_list_item_locator_testers;
 
 //{ class Menus ...
 
@@ -41,8 +42,9 @@ void Menus::done() {
   menu_commands.clear();
   menu_command_testers.clear();
   dynamic_menu_lists.clear();
-  dynamic_menu_list_item_deleter.clear();
-  dynamic_menu_list_item_locator.clear();
+  dynamic_menu_list_item_deleters.clear();
+  dynamic_menu_list_item_locators.clear();
+  dynamic_menu_list_item_locator_testers.clear();
 }
 
 void Menus::run_command_async(Expr cmd) {
@@ -109,7 +111,7 @@ bool Menus::remove_dynamic_submenu_item(Expr submenu_cmd, Expr item_cmd) {
   if(submenu_cmd.is_null())
     return false;
   
-  func = dynamic_menu_list_item_deleter[submenu_cmd];
+  func = dynamic_menu_list_item_deleters[submenu_cmd];
   if(func)
     return func(std::move(submenu_cmd), std::move(item_cmd));
     
@@ -122,11 +124,24 @@ bool Menus::locate_dynamic_submenu_item_source(Expr submenu_cmd, Expr item_cmd) 
   if(submenu_cmd.is_null())
     return false;
   
-  func = dynamic_menu_list_item_locator[submenu_cmd];
+  func = dynamic_menu_list_item_locators[submenu_cmd];
   if(func)
     return func(std::move(submenu_cmd), std::move(item_cmd));
     
   return false;
+}
+
+MenuCommandStatus Menus::test_locate_dynamic_submenu_item_source(Expr submenu_cmd, Expr item_cmd) {
+  MenuCommandStatus (*func)(Expr, Expr);
+  
+  if(submenu_cmd.is_null())
+    return false;
+  
+  func = dynamic_menu_list_item_locator_testers[submenu_cmd];
+  if(func)
+    return func(std::move(submenu_cmd), std::move(item_cmd));
+    
+  return MenuCommandStatus(true);
 }
 
 void Menus::register_command(
@@ -165,24 +180,33 @@ void Menus::register_dynamic_submenu(Expr cmd, Expr (*func)(Expr cmd)) {
 
 void Menus::register_submenu_item_deleter(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd)) {
   if(func)
-    dynamic_menu_list_item_deleter.set(std::move(submenu_cmd), func);
+    dynamic_menu_list_item_deleters.set(std::move(submenu_cmd), func);
   else
-    dynamic_menu_list_item_deleter.remove(std::move(submenu_cmd));
+    dynamic_menu_list_item_deleters.remove(std::move(submenu_cmd));
 }
 
 bool Menus::has_submenu_item_deleter(Expr submenu_cmd) {
-  return dynamic_menu_list_item_deleter[std::move(submenu_cmd)] != nullptr;
+  return dynamic_menu_list_item_deleters[std::move(submenu_cmd)] != nullptr;
 }
 
-void Menus::register_submenu_item_locator(Expr submenu_cmd, bool (*func)(Expr submenu_cmd, Expr item_cmd)) {
-  if(func)
-    dynamic_menu_list_item_locator.set(std::move(submenu_cmd), func);
+void Menus::register_submenu_item_locator(
+    Expr                submenu_cmd, 
+    bool              (*func)(Expr submenu_cmd, Expr item_cmd),
+    MenuCommandStatus (*test)(Expr submenu_cmd, Expr item_cmd)
+) {
+  if(test)
+    dynamic_menu_list_item_locator_testers.set(submenu_cmd, test);
   else
-    dynamic_menu_list_item_locator.remove(std::move(submenu_cmd));
+    dynamic_menu_list_item_locator_testers.remove(submenu_cmd);
+  
+  if(func)
+    dynamic_menu_list_item_locators.set(std::move(submenu_cmd), func);
+  else
+    dynamic_menu_list_item_locators.remove(std::move(submenu_cmd));
 }
 
 bool Menus::has_submenu_item_locator(Expr submenu_cmd) {
-  return dynamic_menu_list_item_locator[std::move(submenu_cmd)] != nullptr;
+  return dynamic_menu_list_item_locators[std::move(submenu_cmd)] != nullptr;
 }
 
 MenuItemType Menus::menu_item_type(Expr item) {

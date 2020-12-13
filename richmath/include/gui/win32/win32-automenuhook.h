@@ -16,6 +16,13 @@ namespace richmath {
     ExplicitCmd,
     LocateItemSource,
   };
+
+  enum class SpecialCommandId : DWORD {
+    None = 0,
+    Select,
+    Remove,
+    GoToDefinition,
+  };
   
   struct MenuExitInfo {
     MenuExitReason reason;
