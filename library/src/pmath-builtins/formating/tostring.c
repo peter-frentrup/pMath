@@ -40,6 +40,63 @@ struct write_short_t {
   pmath_bool_t               have_error;
 };
 
+static void write_short(void *_ws, const uint16_t *data, int len);
+static void pre_write_short(void *_ws, pmath_t item, pmath_write_options_t options);
+static void post_write_short(void *_ws, pmath_t item, pmath_write_options_t options);
+static pmath_bool_t short_custom_writer(void *_ws, pmath_t obj, struct pmath_write_ex_t *info);
+static void visit_spans(
+  struct write_short_t      *ws,
+  struct pmath_write_ex_t   *info,
+  int                       *pos,
+  struct write_short_span_t *span);
+// TODO: use arena allocator for spans
+static void free_spans(struct write_short_span_t *span);
+static void shorten_span(struct write_short_t *ws, struct write_short_span_t *span, int length);
+
+
+PMATH_PRIVATE
+void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) {
+  struct write_short_t ws;
+  struct pmath_write_ex_t new_info;
+  
+  ws.text          = PMATH_NULL;
+  ws.all_spans     = NULL;
+  ws.current_span  = NULL;
+  ws.user          = info->user;
+  ws.custom_writer = NULL;
+  ws.have_error    = FALSE;
+  
+  memset(&new_info, 0, sizeof(new_info));
+  new_info.size       = sizeof(new_info);
+  new_info.options    = info->options;
+  new_info.user       = &ws;
+  new_info.write      = write_short;
+  new_info.pre_write  = pre_write_short;
+  new_info.post_write = post_write_short;
+  
+  if(PMATH_HAS_MEMBER(info, custom_writer) && info->custom_writer) {
+    ws.custom_writer       = info->custom_writer;
+    new_info.custom_writer = short_custom_writer;
+  }
+  
+  _pmath_write_impl(&new_info, obj);
+  
+  if(ws.have_error || ws.current_span != ws.all_spans) {
+    _pmath_write_impl(info, obj);
+  }
+  else {
+    int pos;
+    
+    shorten_span(&ws, ws.all_spans, length);
+    
+    pos = 0;
+    visit_spans(&ws, info, &pos, ws.all_spans);
+    assert(pos == pmath_string_length(ws.text));
+  }
+  
+  pmath_unref(ws.text);
+  free_spans(ws.all_spans);
+}
 
 static void write_short(void *_ws, const uint16_t *data, int len) {
   struct write_short_t *ws = _ws;
@@ -339,50 +396,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
   }
 }
 
-PMATH_PRIVATE
-void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) {
-  struct write_short_t ws;
-  struct pmath_write_ex_t new_info;
-  
-  ws.text          = PMATH_NULL;
-  ws.all_spans     = NULL;
-  ws.current_span  = NULL;
-  ws.user          = info->user;
-  ws.custom_writer = NULL;
-  ws.have_error    = FALSE;
-  
-  memset(&new_info, 0, sizeof(new_info));
-  new_info.size       = sizeof(new_info);
-  new_info.options    = info->options;
-  new_info.user       = &ws;
-  new_info.write      = write_short;
-  new_info.pre_write  = pre_write_short;
-  new_info.post_write = post_write_short;
-  
-  if(PMATH_HAS_MEMBER(info, custom_writer) && info->custom_writer) {
-    ws.custom_writer       = info->custom_writer;
-    new_info.custom_writer = short_custom_writer;
-  }
-  
-  _pmath_write_impl(&new_info, obj);
-  
-  if(ws.have_error || ws.current_span != ws.all_spans) {
-    _pmath_write_impl(info, obj);
-  }
-  else {
-    int pos;
-    
-    shorten_span(&ws, ws.all_spans, length);
-    
-    pos = 0;
-    visit_spans(&ws, info, &pos, ws.all_spans);
-    assert(pos == pmath_string_length(ws.text));
-  }
-  
-  pmath_unref(ws.text);
-  free_spans(ws.all_spans);
-}
-
+//=================================================================================================
 
 PMATH_PRIVATE
 void _pmath_write_to_string(
@@ -396,6 +410,80 @@ void _pmath_write_to_string(
                                pmath_string_length(*result),
                                data,
                                len);
+}
+
+static pmath_bool_t apply_format_type_and_free(       pmath_write_options_t *flags, pmath_t format_type);
+static pmath_bool_t apply_characterencoding_option(   pmath_write_options_t *flags, pmath_t options);
+static pmath_bool_t apply_whitespace_option(          pmath_write_options_t *flags, pmath_t options);
+static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *flags, pmath_t options);
+static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_t options);
+
+PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
+  /*  ToString(object)
+      ToString(object, form)    InputForm | OutputForm | StandardForm
+  
+      options:
+        CharacterEncoding -> Automatic | "ASCII" | "Unicode"
+        PageWidth -> Infinity
+        Whitespace -> Automatic | True | False
+        ShowStringCharacters -> False | True | Automatic
+   */
+  pmath_string_t        result;
+  pmath_t               options;
+  pmath_t               obj;
+  pmath_write_options_t flags;
+  size_t len;
+  int pagewidth = 0;
+  
+  len = pmath_expr_length(expr);
+  if(len == 0) {
+    pmath_unref(expr);
+    return pmath_string_new(0);
+  }
+    
+  flags = 0;
+  
+  options = PMATH_NULL;
+  obj = pmath_expr_get_item(expr, 2);
+  if(pmath_is_null(obj) || pmath_is_set_of_options(obj)) {
+    pmath_unref(obj);
+    obj = PMATH_NULL;
+    options = pmath_options_extract(expr, 1);
+  }
+  else {
+    if(!apply_format_type_and_free(&flags, obj))
+      return expr;
+    
+    obj = PMATH_NULL;
+    options = pmath_options_extract(expr, 2);
+  }
+  
+  if(pmath_is_null(options))
+    return expr;
+  
+  if( !apply_characterencoding_option(   &flags, options) ||
+      !apply_whitespace_option(          &flags, options) ||
+      !apply_showstringcharacters_option(&flags, options) ||
+      !extract_pagewidth_option(         &pagewidth, options))
+  {
+    pmath_unref(options);
+    return expr;
+  }
+  
+  pmath_unref(options); options = PMATH_NULL;
+  result = PMATH_NULL;
+  
+  obj = pmath_expr_get_item(expr, 1);
+  
+  if(pagewidth > 0)
+    pmath_write_with_pagewidth(obj, flags, _pmath_write_to_string, &result, pagewidth, 0);
+  else  
+    pmath_write(obj, flags, _pmath_write_to_string, &result);
+  
+  pmath_unref(obj);
+  pmath_unref(expr);
+  
+  return result;
 }
 
 static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pmath_t format_type) { // format_type will be freed
@@ -520,72 +608,4 @@ static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_
   
   pmath_message(PMATH_NULL, "ioppf", 2, pmath_ref(PMATH_SYMBOL_PAGEWIDTH), page_width);
   return FALSE;
-}
-
-PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
-  /*  ToString(object)
-      ToString(object, form)    InputForm | OutputForm | StandardForm
-  
-      options:
-        CharacterEncoding -> Automatic | "ASCII" | "Unicode"
-        PageWidth -> Infinity
-        Whitespace -> Automatic | True | False
-        ShowStringCharacters -> False | True | Automatic
-   */
-  pmath_string_t        result;
-  pmath_t               options;
-  pmath_t               obj;
-  pmath_write_options_t flags;
-  size_t len;
-  int pagewidth = 0;
-  
-  len = pmath_expr_length(expr);
-  if(len == 0) {
-    pmath_unref(expr);
-    return pmath_string_new(0);
-  }
-    
-  flags = 0;
-  
-  options = PMATH_NULL;
-  obj = pmath_expr_get_item(expr, 2);
-  if(pmath_is_null(obj) || pmath_is_set_of_options(obj)) {
-    pmath_unref(obj);
-    obj = PMATH_NULL;
-    options = pmath_options_extract(expr, 1);
-  }
-  else {
-    if(!apply_format_type_and_free(&flags, obj))
-      return expr;
-    
-    obj = PMATH_NULL;
-    options = pmath_options_extract(expr, 2);
-  }
-  
-  if(pmath_is_null(options))
-    return expr;
-  
-  if( !apply_characterencoding_option(   &flags, options) ||
-      !apply_whitespace_option(          &flags, options) ||
-      !apply_showstringcharacters_option(&flags, options) ||
-      !extract_pagewidth_option(         &pagewidth, options))
-  {
-    pmath_unref(options);
-    return expr;
-  }
-  
-  pmath_unref(options); options = PMATH_NULL;
-  result = PMATH_NULL;
-  
-  obj = pmath_expr_get_item(expr, 1);
-  
-  if(pagewidth > 0)
-    pmath_write_with_pagewidth(obj, flags, _pmath_write_to_string, &result, pagewidth, 0);
-  else  
-    pmath_write(obj, flags, _pmath_write_to_string, &result);
-  
-  pmath_unref(obj);
-  pmath_unref(expr);
-  
-  return result;
 }
