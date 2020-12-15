@@ -673,6 +673,7 @@ void pmath_write_with_pagewidth_ex(
 ) {
   struct linewriter_t lw;
   struct pmath_write_ex_t info;
+  pmath_t old_page_width;
   
   assert(options != NULL);
   
@@ -702,7 +703,7 @@ void pmath_write_with_pagewidth_ex(
   
   if(options->page_width < 6)
     options->page_width = 6;
-    
+  
   memset(&lw, 0, sizeof(lw));
   lw.line_length   = options->page_width;
   lw.buffer_length = 2 * options->page_width;
@@ -719,6 +720,9 @@ void pmath_write_with_pagewidth_ex(
     fallback_write_ex(options, obj);
     return;
   }
+  
+  old_page_width = pmath_symbol_get_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT);
+  pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, PMATH_FROM_INT32(options->page_width - options->indentation_width));  
   
   lw.next_write_pos       = &lw.all_write_pos;
   lw.indentation_width    = options->indentation_width;
@@ -762,6 +766,8 @@ void pmath_write_with_pagewidth_ex(
   pmath_mem_free(lw.depths);
   pmath_mem_free(lw.char_flags);
   pmath_mem_free(lw.newlines);
+  
+  pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, old_page_width);
 }
 
 PMATH_API

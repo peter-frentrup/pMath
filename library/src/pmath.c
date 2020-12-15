@@ -164,7 +164,7 @@ static void init_pagewidth(void) {
   if(width < 6)
     width = 6;
     
-  PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", width);
+  pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, PMATH_FROM_INT32(width));
 }
 
 static pmath_expr_t get_exe_name(void) {
