@@ -35,6 +35,8 @@ struct write_short_t {
   pmath_string_t text;
   struct write_short_span_t *all_spans;
   struct write_short_span_t *current_span;
+  void                      *user;
+  pmath_bool_t             (*custom_writer)(void *user, pmath_t obj, struct pmath_write_ex_t *info);
   pmath_bool_t               have_error;
 };
 
@@ -119,6 +121,15 @@ static void post_write_short(void *_ws, pmath_t item, pmath_write_options_t opti
   }
   
   span->end = pmath_string_length(ws->text);
+}
+
+static pmath_bool_t short_custom_writer(void *_ws, pmath_t obj, struct pmath_write_ex_t *info) {
+  struct write_short_t *ws = _ws;
+  
+  if(ws->have_error)
+    return TRUE;
+  
+  return ws->custom_writer(ws->user, obj, info);
 }
 
 static void visit_spans(
@@ -348,7 +359,10 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) 
   new_info.pre_write  = pre_write_short;
   new_info.post_write = post_write_short;
   
-  //TODO: consider info->custom_writer if info->size is large enough
+  if(PMATH_HAS_MEMBER(info, custom_writer) && info->custom_writer) {
+    ws.custom_writer       = info->custom_writer;
+    new_info.custom_writer = short_custom_writer;
+  }
   
   _pmath_write_impl(&new_info, obj);
   
