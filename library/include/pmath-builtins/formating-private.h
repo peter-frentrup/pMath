@@ -14,6 +14,9 @@
    src/pmath-builtins/formating/
  */
 
+#define PMATH_HAS_MEMBER(OPT, MEMBER_NAME) \
+  ((OPT)->size >= ((char*)&((OPT)->MEMBER_NAME) - (char*)(OPT)) + sizeof((OPT)->MEMBER_NAME))
+
 PMATH_PRIVATE
 void _pmath_write_to_string(
   void           *pointer_to_pmath_string, // pmath_string_t *pointer_to_pmath_string

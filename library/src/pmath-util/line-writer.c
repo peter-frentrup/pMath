@@ -11,6 +11,7 @@
 #include <pmath-util/overflow-calc-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/formating-private.h>
 
 #include <string.h>
 
@@ -641,7 +642,6 @@ static pmath_bool_t linewriter_custom_formatter(void *user, pmath_t obj, struct 
   return lw->custom_writer(lw->user, obj, info);
 }
 
-#define HAS_MEMBER(OPT, MEMBER_NAME)  ((OPT)->size >= ((char*)&((OPT)->MEMBER_NAME) - (char*)(OPT)) + sizeof((OPT)->MEMBER_NAME))
 
 static void fallback_write_ex(
   struct pmath_line_writer_options_t *options,
@@ -654,13 +654,13 @@ static void fallback_write_ex(
   info.user       = options->user;
   info.write      = options->write;
   
-  if(HAS_MEMBER(options, pre_write))
+  if(PMATH_HAS_MEMBER(options, pre_write))
     info.pre_write = options->pre_write;
     
-  if(HAS_MEMBER(options, post_write))
+  if(PMATH_HAS_MEMBER(options, post_write))
     info.post_write = options->post_write;
     
-  if(HAS_MEMBER(options, custom_formatter))
+  if(PMATH_HAS_MEMBER(options, custom_formatter))
     info.custom_writer = options->custom_formatter;
     
   _pmath_write_impl(&info, obj);
@@ -677,7 +677,7 @@ void pmath_write_with_pagewidth_ex(
   assert(options != NULL);
   
   assert(options != NULL);
-  assert(HAS_MEMBER(options, user));
+  assert(PMATH_HAS_MEMBER(options, user));
   assert(&options->write != NULL);
   
   if(options->page_width < 0) {
@@ -724,11 +724,11 @@ void pmath_write_with_pagewidth_ex(
   lw.indentation_width    = options->indentation_width;
   lw.write                = options->write;
   lw.user                 = options->user;
-  if(HAS_MEMBER(options, pre_write))
+  if(PMATH_HAS_MEMBER(options, pre_write))
     lw.pre_write          = options->pre_write;
-  if(HAS_MEMBER(options, post_write))
+  if(PMATH_HAS_MEMBER(options, post_write))
     lw.post_write         = options->post_write;
-  if(HAS_MEMBER(options, custom_formatter))
+  if(PMATH_HAS_MEMBER(options, custom_formatter))
     lw.custom_writer      = options->custom_formatter;
     
   memset(&info, 0, sizeof(info));
