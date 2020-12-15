@@ -178,6 +178,16 @@ static void post_write_short(void *_ws, pmath_t item, pmath_write_options_t opti
   }
   
   span->end = pmath_string_length(ws->text);
+  
+  buf = pmath_string_buffer(&ws->text);
+  while(span->start < span->end && buf[span->start] == ' ')
+    span->start++;
+  
+  if(span->start < span->end && (buf[span->start] == '+' || buf[span->start] == '-')) {
+    span->start++;
+    while(span->start < span->end && buf[span->start] == ' ')
+      span->start++;
+  }
 }
 
 static pmath_bool_t short_custom_writer(void *_ws, pmath_t obj, struct pmath_write_ex_t *info) {
@@ -291,9 +301,11 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
           if(!left->down || w < APPROX_SKELETON_WIDTH)
             break;
             
-          left     = left->next;
-          left_pos = left->start;
-          shorten_span(ws, left->prev, length - lew - riw);
+          shorten_span(ws, left, length - lew - riw);
+          if(!left->is_skeleton) {
+            left     = left->next;
+            left_pos = left->start;
+          }
           break;
         }
         else {
@@ -308,9 +320,11 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
           if(!right->down || w <= APPROX_SKELETON_WIDTH)
             break;
             
-          right     = right->prev;
-          right_pos = right->end;
-          shorten_span(ws, right->next, length - lew - riw);
+          shorten_span(ws, right, length - lew - riw);
+          if(!right->is_skeleton) {
+            right     = right->prev;
+            right_pos = right->end;
+          }
           break;
         }
         else {
@@ -334,6 +348,13 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
                      PMATH_FROM_INT32(1));
                      
       left->is_skeleton = TRUE;
+    }
+    else if(left == span->down && !right->next) { // whole span
+      pmath_unref(span->item);
+      span->item = pmath_expr_new_extended(
+                     pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                     PMATH_FROM_INT32(num_skip));
+      span->is_skeleton = TRUE;
     }
     else if(num_skip > 0) {
       skip = pmath_mem_alloc(sizeof(struct write_short_span_t));

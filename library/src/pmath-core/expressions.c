@@ -2364,11 +2364,20 @@ static void write_ex(
   pmath_t                  obj
 ) {
   if(pmath_is_expr(obj)) {
-    write_expr_ex(info, priority, obj);
+    if(info->pre_write)
+      info->pre_write(info->user, obj, info->options);
+    
+    if(!info->custom_writer || !info->custom_writer(info->user, obj, info))
+      write_expr_ex(info, priority, obj);
+    
+    if(info->post_write)
+      info->post_write(info->user, obj, info->options);
+    return;
   }
-  else if( pmath_is_number(obj) &&
-           ((priority > PMATH_PREC_MUL  && pmath_number_sign(obj) < 0) ||
-            (priority > PREC_FACTOR && pmath_is_quotient(obj))))
+  
+  if( pmath_is_number(obj) &&
+       ((priority > PMATH_PREC_MUL  && pmath_number_sign(obj) < 0) ||
+        (priority > PREC_FACTOR && pmath_is_quotient(obj))))
   {
     WRITE_CSTR("(");
 
