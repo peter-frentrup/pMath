@@ -93,6 +93,8 @@ static sem_t interrupt_semaphore;
 static volatile pmath_messages_t main_mq;
 static pmath_atomic_t main_mq_lock = PMATH_ATOMIC_STATIC_INIT;
 
+static void init_console_width(void);
+
 static pmath_messages_t get_main_mq(void) {
   pmath_messages_t mq;
   
@@ -1261,7 +1263,7 @@ static pmath_t dialog(pmath_t first_eval) {
   result = check_dialog_return(first_eval);
   pmath_unref(first_eval);
   
-  PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth));
+  init_console_width();
   
   continuation_prompt = pmath_string_new(dialog_depth + 7 + 1);
   for(i = dialog_depth; i > 0; --i)
@@ -1310,7 +1312,9 @@ static pmath_t dialog(pmath_t first_eval) {
                 NULL,
                 scanner_error,
                 &parse_data);
-                
+      
+      init_console_width();
+      
       if(!parse_data.error) {
         pmath_t debug_info;
         pmath_t obj = pmath_boxes_from_spans_ex(
@@ -1369,8 +1373,6 @@ static pmath_t dialog(pmath_t first_eval) {
     
     pmath_unref(parse_data.filename);
   }
-  
-  PMATH_RUN_ARGS("$PageWidth:=`1`", "(i)", console_width - (7 + dialog_depth - 1));
   
   pmath_unref(continuation_prompt);
   pmath_session_end(old_dialog);
@@ -1688,11 +1690,33 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
 }
 
 static void init_console_width(void) {
-  pmath_t pw = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
-  
-  if(pmath_is_int32(pw))
-    console_width = PMATH_AS_INT32(pw) - 1;
+  pmath_t pw;
+
+#ifdef PMATH_OS_WIN32
+  {
+    CONSOLE_SCREEN_BUFFER_INFO info;
     
+    memset(&info, 0, sizeof(info));
+    
+    if(GetConsoleScreenBufferInfo(GetStdHandle(STD_OUTPUT_HANDLE), &info)) {
+      static int last_true_width = 0;
+      int width = info.dwSize.X;
+      if(last_true_width != width) {
+        last_true_width = width;
+        if(console_width != width) {
+          console_width = width;
+          pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, PMATH_FROM_INT32(console_width));
+        }
+        return;
+      }
+    }
+  }
+#endif
+  pw = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+  
+  if(pmath_is_int32(pw)) 
+    console_width = PMATH_AS_INT32(pw);
+  
   pmath_unref(pw);
 }
 
