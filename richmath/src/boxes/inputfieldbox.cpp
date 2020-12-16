@@ -379,7 +379,7 @@ void InputFieldBox::on_enter() {
 void InputFieldBox::on_exit() {
   base::on_exit();
   
-  if(invalidated)
+  if(invalidated && enabled())
     assign_dynamic();
 }
 

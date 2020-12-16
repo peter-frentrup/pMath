@@ -2833,6 +2833,10 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
             else 
               pl_sel.end = pl_seq->insert(pl_sel.start, seq, ins_end, ins_end + rem_length);
             
+            // ensure that e.g. TemplateBoxSlot recognizes the \[SelectionPlaceholder] replacement
+            for(Box *tmp = pl_seq; tmp && tmp != seq; tmp = tmp->parent())
+              tmp->on_finish_editing();
+            
             if(pl_seq == seq)
               ins_end+= pl_sel.length();
             
@@ -4708,15 +4712,6 @@ bool Document::Impl::handle_auto_replacements(Expr table) {
     
     if(Expr repl = table.lookup(seq->text().part(i, e - i), {})) {
       if(String s = repl) {
-        MathSequence *repl_seq = new MathSequence();
-        repl_seq->load_from_object(repl, BoxInputFlags::Default);
-        
-        seq->remove(i, e);
-        self.move_to(self.selection_box(), i);
-        self.insert_box(repl_seq, true);
-        return true;
-      }
-      else {
         int repl_index = index_of_replacement(s);
         if(repl_index >= 0) {
           int new_sel_start = seq->insert(e, s.part(0, repl_index));
@@ -4731,6 +4726,15 @@ bool Document::Impl::handle_auto_replacements(Expr table) {
           seq->remove(i, e);
           self.move_to(self.selection_box(), i + s.length());
         }
+        return true;
+      }
+      else {
+        MathSequence *repl_seq = new MathSequence();
+        repl_seq->load_from_object(repl, BoxInputFlags::Default);
+        
+        seq->remove(i, e);
+        self.move_to(self.selection_box(), i);
+        self.insert_box(repl_seq, true);
         return true;
       }
     }
