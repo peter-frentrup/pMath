@@ -1988,7 +1988,7 @@ void Document::paste_from_boxes(Expr boxes) {
                 rect.y.start.primary_value() + row, 
                 rect.x.start.primary_value() + col
               )->load_from_object(
-                String::FromChar(PMATH_CHAR_BOX),
+                String::FromChar(PMATH_CHAR_PLACEHOLDER),
                 BoxInputFlags::Default);
             }
           }
@@ -2012,7 +2012,7 @@ void Document::paste_from_boxes(Expr boxes) {
           rect.y.start.primary_value() + row, 
           rect.x.start.primary_value() + col
         )->load_from_object(
-          String::FromChar(PMATH_CHAR_BOX),
+          String::FromChar(PMATH_CHAR_PLACEHOLDER),
           BoxInputFlags::Default);
       }
     }
