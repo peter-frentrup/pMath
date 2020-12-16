@@ -1940,16 +1940,10 @@ void Document::cut_to_clipboard(Clipboard *clipboard) {
 }
 
 void Document::paste_from_boxes(Expr boxes) {
-  if( context.selection.get() == this &&
-      get_style(Editable, true))
-  {
-    if( boxes[0] == richmath_System_Section ||
-        boxes[0] == richmath_System_SectionGroup)
-    {
-      remove_selection(false);
-      
+  if(context.selection.get() == this && get_style(Editable, true)) {
+    if(boxes[0] == richmath_System_Section || boxes[0] == richmath_System_SectionGroup) {
       int i = context.selection.start;
-      insert_pmath(&i, boxes);
+      insert_pmath(&i, boxes, context.selection.end);
       
       select(this, i, i);
       
