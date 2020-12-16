@@ -247,9 +247,8 @@ Vector2F MathGtkWidget::window_size() {
     return Vector2F(0, 0);
   
   GtkAllocation rect;
-  
   gtk_widget_get_allocation(_widget, &rect);
-  
+  old_width.register_observer();
   return Vector2F(rect.width, rect.height) / scale_factor();
 }
 
@@ -1015,7 +1014,7 @@ bool MathGtkWidget::on_unmap(GdkEvent *e) {
 bool MathGtkWidget::on_draw(cairo_t *cr) {
   GtkAllocation rect;
   gtk_widget_get_allocation(_widget, &rect);
-  if(old_width != rect.width) {
+  if(!old_width.unobserved_equals(rect.width)) {
     old_width = rect.width;
     document()->invalidate_all();
   }

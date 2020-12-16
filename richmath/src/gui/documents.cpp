@@ -695,7 +695,6 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
   
   if(doc) {
     // TODO: consider ImageSize inside a PaneBox?
-    // FIXME: NativeWidget::page_size() should track dynamic updates.
     float page_width_points = doc->native()->page_size().x;
     if(page_width_points <= 0)
       return Expr(1);

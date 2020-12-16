@@ -106,7 +106,7 @@ namespace richmath {
       ObservableValue<bool> _focused;
       MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling adjustment)
       
-      int _width;
+      ObservableValue<int> _width;
       int _height;
       
       float gesture_zoom_factor;

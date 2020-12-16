@@ -206,6 +206,7 @@ Win32Widget::~Win32Widget() {
 Vector2F Win32Widget::window_size() {
   RECT rect;
   GetClientRect(_hwnd, &rect);
+  _width.register_observer();
   return Vector2F(rect.right, rect.bottom) / scale_factor();
 }
 
@@ -372,7 +373,7 @@ void Win32Widget::invalidate_rect(const RectangleF &rect) {
 void Win32Widget::force_redraw() {
   RECT rect;
   GetClientRect(_hwnd, &rect);
-  if(_width != rect.right || _height != rect.bottom) // called before WM_SIZE
+  if(!_width.unobserved_equals(rect.right) || _height != rect.bottom) // called before WM_SIZE
     return;
   
   HDC dc = GetDC(_hwnd);
@@ -1079,7 +1080,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_PAINT: {
           RECT rect;
           GetClientRect(_hwnd, &rect);
-          if(_width != rect.right || _height != rect.bottom) // called before WM_SIZE
+          if(!_width.unobserved_equals(rect.right) || _height != rect.bottom) // called before WM_SIZE
             return 0;
           
           {

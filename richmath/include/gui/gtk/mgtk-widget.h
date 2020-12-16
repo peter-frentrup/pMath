@@ -94,7 +94,7 @@ namespace richmath {
       bool _has_dark_background : 1;
       ObservableValue<bool> _focused;
       
-      int old_width;
+      ObservableValue<int> old_width;
       
       MathGtkCursors cursors;
       
