@@ -185,40 +185,8 @@ bool NativeWidget::may_drop_into(const VolatileSelection &dst, bool self_is_sour
     return false;
     
   if(self_is_source) {
-    if(VolatileSelection src = drag_source_reference().get_all()) {
-      Box *box = Box::common_parent(src.box, dst.box);
-      if(box == src.box) {
-        int s = dst.start;
-        int e = dst.end;
-        box = dst.box;
-        
-        if(box == src.box && s <= src.end && e >= src.start)
-          return false;
-        
-        while(box != src.box) {
-          s = box->index();
-          e = s + 1;
-          box = box->parent();
-        }
-        
-        if(s < src.end && e > src.start)
-          return false;
-      }
-      else if(box == dst.box) {
-        int s = src.start;
-        int e = src.end;
-        box = src.box;
-        
-        while(box != dst.box) {
-          s = box->index();
-          e = s + 1;
-          box = box->parent();
-        }
-        
-        if(s < dst.end && e > dst.start)
-          return false;
-      }
-    }
+    if(VolatileSelection src = drag_source_reference().get_all())
+      return !src.visually_contains(dst);
   }
   
   return true;

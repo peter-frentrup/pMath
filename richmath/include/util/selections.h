@@ -76,11 +76,15 @@ namespace richmath {
     
     explicit operator bool() const { return box != nullptr; }
     bool is_empty() const { return !box || start == end; }
+    
+    bool visually_contains(VolatileSelection other) const;
     bool directly_contains(const VolatileSelection &other) const { return box == other.box && start <= other.start && other.end <= end; }
     bool same_box_but_disjoint(const VolatileSelection &other) const { return box == other.box && (other.end <= start || end <= other.start); }
     
     bool null_or_selectable() const;
     bool selectable() const;
+    bool is_name() const;
+    bool is_inside_string() const;
     
     Box *contained_box() const;
         

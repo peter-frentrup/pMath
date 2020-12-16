@@ -1,7 +1,9 @@
 #include <util/selections.h>
 
 #include <boxes/box.h>
+#include <boxes/gridbox.h>
 #include <boxes/mathsequence.h>
+#include <boxes/sectionlist.h>
 #include <boxes/textsequence.h>
 
 
@@ -14,213 +16,15 @@ namespace {
     
     public:
       VolatileSelectionImpl(VolatileSelection &_self) : self(_self) {}
-    
-    private:
-      void expand_default() {
-        int index = self.box->index();
-        Box *box2 = self.box->parent();
-        while(box2) {
-          if(dynamic_cast<AbstractSequence *>(box2)) {
-            if(box2->selectable()) {
-              self.box = box2;
-              self.start = index;
-              self.end = index + 1;
-              return;
-            }
-          }
-          
-          index = box2->index();
-          box2 = box2->parent();
-        }
-      }
-
-      void expand_math() {
-        MathSequence * const seq = (MathSequence*)self.box;
-        
-        for(int i = self.start; i < self.end; ++i) {
-          if(seq->span_array().is_token_end(i))
-            goto MULTIPLE_TOKENS;
-        }
-        
-        if( self.start == self.end &&
-            self.start > 0 &&
-            !seq->span_array().is_operand_start(self.start))
-        {
-          --self.start;
-          --self.end;
-        }
-        
-        while(self.start > 0 && !seq->span_array().is_token_end(self.start - 1))
-          --self.start;
-          
-        while(self.end < seq->length() && !seq->span_array().is_token_end(self.end))
-          ++self.end;
-          
-        if(self.end < seq->length())
-          ++self.end;
-        return;
-        
-      MULTIPLE_TOKENS:
-        if(self.start < seq->length()) {
-          if(Span s = seq->span_array()[self.start]) {
-            int e = s.end();
-            while(s && s.end() >= self.end) {
-              e = s.end();
-              s = s.next();
-            }
-            
-            if(e >= self.end) {
-              self.end = e + 1;
-              return;
-            }
-          }
-        }
-        
-        int orig_start = self.start;
-        int orig_end = self.end;
-        const uint16_t *buf = seq->text().buffer();
-        
-        int a = self.start;
-        while(--a >= 0) {
-          if(Span s = seq->span_array()[a]) {
-            int e = s.end();
-            while(s && s.end() + 1 >= self.end) {
-              e = s.end();
-              s = s.next();
-            }
-            
-            if(e + 1 >= self.end) {
-              self.start = a;
-              while(self.start < orig_start && buf[self.start] == '\n')
-                ++self.start;
-              self.end = e + 1;
-              if(self.start == orig_start && self.end == orig_end && orig_end < seq->length()) {
-                ++self.end;
-                ++a;
-                continue;
-              }
-              return;
-            }
-          }
-        }
-        
-        if(self.start > 0 || self.end < seq->length()) {
-          self.start = 0;
-          self.end = seq->length();
-          return;
-        }
-        
-        expand_default();
-      }
-
-      void expand_text() {
-        TextSequence * const seq = (TextSequence*)self.box;
-        
-        if(self.start == 0 && self.end == seq->length()) {
-          expand_default();
-          return;
-        }
-          
-        int n_attrs;
-        const PangoLogAttr *attrs = pango_layout_get_log_attrs_readonly(seq->get_layout(), &n_attrs);
-        
-        const char *buf = seq->text_buffer().buffer();
-        const char *s              = buf;
-        const char *s_end          = buf + seq->length();
-        const char *word_start     = buf;
-        
-        int i = 0;
-        while(s && (size_t)s - (size_t)buf <= (size_t)self.start) {
-          if(attrs[i].is_word_start)
-            word_start = s;
-            
-          ++i;
-          s = g_utf8_find_next_char(s, s_end);
-        }
-        
-        const char *word_end = nullptr;
-        
-        while(s && !word_end) {
-          if(attrs[i].is_word_boundary && word_end != word_start)
-            word_end = s;
-            
-          ++i;
-          s = g_utf8_find_next_char(s, s_end);
-        }
-        
-        attrs = nullptr;
-        
-        if(!word_end)
-          word_end = s_end;
-          
-        if( (size_t)word_end - (size_t)buf       >= (size_t)self.end &&
-            (size_t)word_end - (size_t)word_start > (size_t)self.end - (size_t)self.start)
-        {
-          self.start = (int)((size_t)word_start - (size_t)buf);
-          self.end   = (int)((size_t)word_end   - (size_t)buf);
-        }
-        else {
-          GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
-          
-          int prev_par_start = 0;
-          int paragraph_start = 0;
-          while(lines) {
-            PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-            
-            if(line->is_paragraph_start && line->start_index <= self.start) {
-              prev_par_start = paragraph_start;
-              paragraph_start = line->start_index;
-            }
-            
-            if(line->start_index + line->length >= self.end) {
-              if(line->start_index <= self.start && self.end - self.start < line->length) {
-                self.start = line->start_index;
-                self.end = line->start_index + line->length;
-                break;
-              }
-              
-              int old_end = self.end;
-              
-              lines = lines->next;
-              while(lines) {
-                PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-                if(line->is_paragraph_start && line->start_index >= self.end) {
-                  self.end = line->start_index;
-                  break;
-                }
-                
-                lines = lines->next;
-              }
-              
-              if(!lines)
-                self.end = seq->length();
-                
-              if(old_end - self.start < self.end - paragraph_start)
-                self.start = paragraph_start;
-              else
-                self.start = prev_par_start;
-                
-              break;
-            }
-            
-            lines = lines->next;
-          }
-        }
-      }
       
-    public:
-      void expand() {
-        if(!self.box)
-          return;
-          
-        if(dynamic_cast<MathSequence *>(self.box))
-          expand_math();
-        else if(dynamic_cast<TextSequence *>(self.box))
-          expand_text();
-        else
-          expand_default();
-      }
-
+      static bool is_inside_string(VolatileSelection sel);
+      
+      void expand();
+      
+    private:
+      void expand_default();
+      void expand_math();
+      void expand_text();
   };
 }
 
@@ -280,6 +84,32 @@ bool LocationReference::equals(Box *box, int _index) const {
 
 //{ class VolatileSelection ...
 
+bool VolatileSelection::visually_contains(VolatileSelection other) const {
+  if(is_empty())
+    return *this == other;
+  
+  // Section selections are only at the right margin, the section content is
+  // not inside the selection-frame
+  if(auto seclist = dynamic_cast<SectionList*>(box) && other.box != box)
+    return false;
+  
+  while(other.box != box) {
+    if(!other)
+      return false;
+    
+    other.expand_to_parent();
+  }
+  
+  if(auto grid = dynamic_cast<GridBox*>(box)) {
+    auto this_rect  = grid->get_enclosing_range(start,       end - 1);
+    auto other_rect = grid->get_enclosing_range(other.start, other.end - 1);
+    
+    return this_rect.contains(other_rect);
+  }
+  
+  return start <= other.start && other.end <= end;
+}
+
 bool VolatileSelection::null_or_selectable() const {
   if(!box)
     return true;
@@ -292,6 +122,27 @@ bool VolatileSelection::selectable() const {
     return false;
   
   return box->selectable();
+}
+
+bool VolatileSelection::is_name() const {
+  MathSequence *seq = dynamic_cast<MathSequence *>(box);
+  if(!seq)
+    return false;
+    
+  const uint16_t *buf = seq->text().buffer();
+  for(int i = start; i < end; ++i) {
+    if(!pmath_char_is_digit(buf[i]) && !pmath_char_is_name(buf[i]))
+      return false;
+    
+    if(seq->span_array().is_token_end(i) && i < end - 1)
+      return false;
+  }
+  
+  return true;
+}
+
+bool VolatileSelection::is_inside_string() const {
+  return VolatileSelectionImpl::is_inside_string(*this);
 }
 
 Box *VolatileSelection::contained_box() const {
@@ -602,3 +453,226 @@ int richmath::box_order(Box *b1, int i1, Box *b2, int i2) {
     
   return i1 - i2;
 }
+
+//{ class VolatileSelectionImpl ...
+
+bool VolatileSelectionImpl::is_inside_string(VolatileSelection sel) {
+  for(; sel.box; sel.expand_to_parent()) {
+    if(auto seq = dynamic_cast<MathSequence *>(sel.box)) {
+      int string_end;
+      int string_start = seq->find_string_start(sel.start, &string_end);
+      if(string_start >= 0 && sel.end <= string_end)
+        return true;
+    }
+    else if(dynamic_cast<TextSequence *>(sel.box))
+      return true;
+  }
+  
+  return false;
+}
+
+void VolatileSelectionImpl::expand() {
+  if(!self.box)
+    return;
+    
+  if(dynamic_cast<MathSequence *>(self.box))
+    expand_math();
+  else if(dynamic_cast<TextSequence *>(self.box))
+    expand_text();
+  else
+    expand_default();
+}
+
+void VolatileSelectionImpl::expand_default() {
+  int index = self.box->index();
+  Box *box2 = self.box->parent();
+  while(box2) {
+    if(dynamic_cast<AbstractSequence *>(box2)) {
+      if(box2->selectable()) {
+        self.box = box2;
+        self.start = index;
+        self.end = index + 1;
+        return;
+      }
+    }
+    
+    index = box2->index();
+    box2 = box2->parent();
+  }
+}
+
+void VolatileSelectionImpl::expand_math() {
+  MathSequence * const seq = (MathSequence*)self.box;
+  
+  for(int i = self.start; i < self.end; ++i) {
+    if(seq->span_array().is_token_end(i))
+      goto MULTIPLE_TOKENS;
+  }
+  
+  if( self.start == self.end &&
+      self.start > 0 &&
+      !seq->span_array().is_operand_start(self.start))
+  {
+    --self.start;
+    --self.end;
+  }
+  
+  while(self.start > 0 && !seq->span_array().is_token_end(self.start - 1))
+    --self.start;
+    
+  while(self.end < seq->length() && !seq->span_array().is_token_end(self.end))
+    ++self.end;
+    
+  if(self.end < seq->length())
+    ++self.end;
+  return;
+  
+MULTIPLE_TOKENS:
+  if(self.start < seq->length()) {
+    if(Span s = seq->span_array()[self.start]) {
+      int e = s.end();
+      while(s && s.end() >= self.end) {
+        e = s.end();
+        s = s.next();
+      }
+      
+      if(e >= self.end) {
+        self.end = e + 1;
+        return;
+      }
+    }
+  }
+  
+  int orig_start = self.start;
+  int orig_end = self.end;
+  const uint16_t *buf = seq->text().buffer();
+  
+  int a = self.start;
+  while(--a >= 0) {
+    if(Span s = seq->span_array()[a]) {
+      int e = s.end();
+      while(s && s.end() + 1 >= self.end) {
+        e = s.end();
+        s = s.next();
+      }
+      
+      if(e + 1 >= self.end) {
+        self.start = a;
+        while(self.start < orig_start && buf[self.start] == '\n')
+          ++self.start;
+        self.end = e + 1;
+        if(self.start == orig_start && self.end == orig_end && orig_end < seq->length()) {
+          ++self.end;
+          ++a;
+          continue;
+        }
+        return;
+      }
+    }
+  }
+  
+  if(self.start > 0 || self.end < seq->length()) {
+    self.start = 0;
+    self.end = seq->length();
+    return;
+  }
+  
+  expand_default();
+}
+
+void VolatileSelectionImpl::expand_text() {
+  TextSequence * const seq = (TextSequence*)self.box;
+  
+  if(self.start == 0 && self.end == seq->length()) {
+    expand_default();
+    return;
+  }
+    
+  int n_attrs;
+  const PangoLogAttr *attrs = pango_layout_get_log_attrs_readonly(seq->get_layout(), &n_attrs);
+  
+  const char *buf = seq->text_buffer().buffer();
+  const char *s              = buf;
+  const char *s_end          = buf + seq->length();
+  const char *word_start     = buf;
+  
+  int i = 0;
+  while(s && (size_t)s - (size_t)buf <= (size_t)self.start) {
+    if(attrs[i].is_word_start)
+      word_start = s;
+      
+    ++i;
+    s = g_utf8_find_next_char(s, s_end);
+  }
+  
+  const char *word_end = nullptr;
+  
+  while(s && !word_end) {
+    if(attrs[i].is_word_boundary && word_end != word_start)
+      word_end = s;
+      
+    ++i;
+    s = g_utf8_find_next_char(s, s_end);
+  }
+  
+  attrs = nullptr;
+  
+  if(!word_end)
+    word_end = s_end;
+    
+  if( (size_t)word_end - (size_t)buf       >= (size_t)self.end &&
+      (size_t)word_end - (size_t)word_start > (size_t)self.end - (size_t)self.start)
+  {
+    self.start = (int)((size_t)word_start - (size_t)buf);
+    self.end   = (int)((size_t)word_end   - (size_t)buf);
+  }
+  else {
+    GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
+    
+    int prev_par_start = 0;
+    int paragraph_start = 0;
+    while(lines) {
+      PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
+      
+      if(line->is_paragraph_start && line->start_index <= self.start) {
+        prev_par_start = paragraph_start;
+        paragraph_start = line->start_index;
+      }
+      
+      if(line->start_index + line->length >= self.end) {
+        if(line->start_index <= self.start && self.end - self.start < line->length) {
+          self.start = line->start_index;
+          self.end = line->start_index + line->length;
+          break;
+        }
+        
+        int old_end = self.end;
+        
+        lines = lines->next;
+        while(lines) {
+          PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
+          if(line->is_paragraph_start && line->start_index >= self.end) {
+            self.end = line->start_index;
+            break;
+          }
+          
+          lines = lines->next;
+        }
+        
+        if(!lines)
+          self.end = seq->length();
+          
+        if(old_end - self.start < self.end - paragraph_start)
+          self.start = paragraph_start;
+        else
+          self.start = prev_par_start;
+          
+        break;
+      }
+      
+      lines = lines->next;
+    }
+  }
+}
+
+//} ... class VolatileSelectionImpl

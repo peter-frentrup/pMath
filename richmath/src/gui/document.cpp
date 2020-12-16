@@ -237,32 +237,6 @@ RESTART:
   return 0;
 }
 
-static bool selection_is_name(Document *doc) {
-  if(doc->selection_length() <= 0)
-    return false;
-    
-  MathSequence *seq = dynamic_cast<MathSequence *>(doc->selection_box());
-  if(!seq)
-    return false;
-    
-  const uint16_t *buf = seq->text().buffer();
-  for(int i = doc->selection_start(); i < doc->selection_end(); ++i) {
-    if( !pmath_char_is_digit(buf[i]) &&
-        !pmath_char_is_name(buf[i]))
-    {
-      return false;
-    }
-    
-    if( seq->span_array().is_token_end(i) &&
-        i < doc->selection_end() - 1)
-    {
-      return false;
-    }
-  }
-  
-  return true;
-}
-
 namespace richmath {
   class Document::Impl {
     private:
@@ -299,11 +273,8 @@ namespace richmath {
       
       //{ insertion
       bool is_inside_string();
-      static bool is_inside_string(Box *box, int index);
       bool is_inside_alias();
       
-      // substart and subend may lie outside 0..subbox->length()
-      bool is_inside_selection(const VolatileSelection &sub);
       bool is_inside_selection(const VolatileSelection &sub, bool was_inside_start);
       
       void set_prev_sel_line();
@@ -876,7 +847,7 @@ void Document::on_mouse_move(MouseEvent &event) {
       
       VolatileSelection down_sel = mouse_down_sel;
       if(mouse_history.click_repeat_count >= 2) {
-        bool in_text = Impl::is_inside_string(down_sel.box, down_sel.start);
+        bool in_text = down_sel.is_inside_string();
         
         if(!in_text) {
           VolatileSelection new_down_sel = down_sel.expanded_up_to_sibling(mouse_sel);
@@ -3627,7 +3598,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
       if(DebugFollowMouse) {
         if(VolatileSelection ms = mouse_history.debug_move_sel.get_all()) {
           ms.add_path(canvas);
-          if(Impl::is_inside_string(ms.box, ms.start))
+          if(ms.is_inside_string())
             canvas.set_color(DebugFollowMouseInStringColor);
           else
             canvas.set_color(DebugFollowMouseColor);
@@ -3874,7 +3845,7 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
       (start == 0 || seq->span_array().is_token_end(start - 1)) &&
       seq->span_array().is_token_end(end - 1))
   {
-    if(!selection_is_name(&self))
+    if(!self.selection_now().is_name())
       return;
       
     String str = seq->text().part(start, len);
@@ -4208,23 +4179,7 @@ void Document::Impl::paint_cursor_and_flash() {
 
 //{ insertion
 inline bool Document::Impl::is_inside_string() {
-  return is_inside_string(self.context.selection.get(), self.context.selection.start);
-}
-
-bool Document::Impl::is_inside_string(Box *box, int index) {
-  while(box) {
-    if(auto seq = dynamic_cast<MathSequence *>(box)) {
-      if(seq->is_inside_string(index))
-        return true;
-    }
-    else if(dynamic_cast<TextSequence *>(box))
-      return true;
-    
-    index = box->index();
-    box = box->parent();
-  }
-  
-  return false;
+  return self.selection_now().is_inside_string();
 }
 
 bool Document::Impl::is_inside_alias() {
@@ -4245,49 +4200,18 @@ bool Document::Impl::is_inside_alias() {
   return result;
 }
 
-// sub.start and sub.end may lie outside 0..sub.box->length()
-bool Document::Impl::is_inside_selection(const VolatileSelection &sub) {
-  if(self.selection_box() && self.selection_length() > 0) {
-    // section selections are only at the right margin, the section content is
-    // not inside the selection-frame
-    if(self.selection_box() == &self && sub.box != &self)
-      return false;
-      
-    if(sub.start == sub.end)
-      return false;
-      
-    Box *b = sub.box;
-    int substart = sub.start;
-    int subend = sub.end;
-    while(b && b != self.selection_box()) {
-      substart = b->index();
-      subend   = substart + 1;
-      b = b->parent();
-    }
-    
-    if( b == self.selection_box() &&
-        self.selection_start() <= substart &&
-        subend <= self.selection_end())
-    {
-      return true;
-    }
-  }
-  
-  return false;
-}
-
 bool Document::Impl::is_inside_selection(const VolatileSelection &sub, bool was_inside_start) {
   if(!self.selection_box())
     return false;
   
   if(sub.box && sub.box != &self && sub.start == sub.end) {
     if(was_inside_start)
-      return is_inside_selection(VolatileSelection(sub.box, sub.start, sub.start + 1));
+      return self.selection_now().visually_contains(VolatileSelection(sub.box, sub.start, sub.start + 1));
     else
-      return is_inside_selection(VolatileSelection(sub.box, sub.start - 1, sub.start));
+      return self.selection_now().visually_contains(VolatileSelection(sub.box, sub.start - 1, sub.start));
   }
   
-  return is_inside_selection(sub);
+  return self.selection_now().visually_contains(sub);
 }
 
 void Document::Impl::set_prev_sel_line() {

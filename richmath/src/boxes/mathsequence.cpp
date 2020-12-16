@@ -1136,11 +1136,11 @@ VolatileSelection MathSequence::normalize_selection(int start, int end) {
   return {this, start, end};
 }
 
-int MathSequence::find_string_start(int pos_inside_string, int *next_afer_string) {
+int MathSequence::find_string_start(int pos_inside_string, int *next_after_string) {
   ensure_spans_valid();
   
-  if(next_afer_string)
-    *next_afer_string = -1;
+  if(next_after_string)
+    *next_after_string = -1;
     
   const uint16_t *buf = str.buffer();
   int i = 0;
@@ -1156,8 +1156,8 @@ int MathSequence::find_string_start(int pos_inside_string, int *next_afer_string
       if(span) {
         i = span.end() + 1;
         if(i > pos_inside_string || (i == pos_inside_string && buf[i - 1] != '"')) {
-          if(next_afer_string)
-            *next_afer_string = i;
+          if(next_after_string)
+            *next_after_string = i;
           return start;
         }
       }

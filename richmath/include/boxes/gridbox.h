@@ -15,7 +15,7 @@ namespace richmath {
       explicit GridIndex(int primary_value) : _value(primary_value) {}
       
     public:
-      int primary_value() { return _value; }
+      int primary_value() const { return _value; }
   };
   
   class GridXIndex : public GridIndex {
@@ -23,17 +23,12 @@ namespace richmath {
       GridXIndex() = default;
       explicit GridXIndex(int primary_value) : GridIndex(primary_value) {}
       
-      int primary_value() { return _value; }
-      
-      friend bool operator==(GridXIndex left, GridXIndex right) {
-        return left._value == right._value;
-      }
-      friend bool operator!=(GridXIndex left, GridXIndex right) {
-        return left._value != right._value;
-      }
-      friend bool operator<(GridXIndex left, GridXIndex right) {
-        return left._value < right._value;
-      }
+      friend bool operator==(GridXIndex left, GridXIndex right) { return left._value == right._value; }
+      friend bool operator!=(GridXIndex left, GridXIndex right) { return left._value != right._value; }
+      friend bool operator< (GridXIndex left, GridXIndex right) { return left._value <  right._value; }
+      friend bool operator<=(GridXIndex left, GridXIndex right) { return left._value <= right._value; }
+      friend bool operator> (GridXIndex left, GridXIndex right) { return left._value >  right._value; }
+      friend bool operator>=(GridXIndex left, GridXIndex right) { return left._value >= right._value; }
   };
   
   class GridYIndex : public GridIndex {
@@ -41,15 +36,12 @@ namespace richmath {
       GridYIndex() = default;
       explicit GridYIndex(int primary_value) : GridIndex(primary_value) {}
       
-      friend bool operator==(GridYIndex left, GridYIndex right) {
-        return left._value == right._value;
-      }
-      friend bool operator!=(GridYIndex left, GridYIndex right) {
-        return left._value != right._value;
-      }
-      friend bool operator<(GridYIndex left, GridYIndex right) {
-        return left._value < right._value;
-      }
+      friend bool operator==(GridYIndex left, GridYIndex right) { return left._value == right._value; }
+      friend bool operator!=(GridYIndex left, GridYIndex right) { return left._value != right._value; }
+      friend bool operator< (GridYIndex left, GridYIndex right) { return left._value <  right._value; }
+      friend bool operator<=(GridYIndex left, GridYIndex right) { return left._value <= right._value; }
+      friend bool operator> (GridYIndex left, GridYIndex right) { return left._value >  right._value; }
+      friend bool operator>=(GridYIndex left, GridYIndex right) { return left._value >= right._value; }
   };
   
   template<typename T>
@@ -59,7 +51,9 @@ namespace richmath {
     
     GridAxisRange(T a, T b) : start(a < b ? a : b), end(a < b ? b : a) {}
     
-    int primary_length() { return end.primary_value() - start.primary_value() + 1; }
+    int primary_length() const { return end.primary_value() - start.primary_value() + 1; }
+    friend bool disjoint(const GridAxisRange &a, const GridAxisRange &b) { return a.end < b.start || b.end < a.start; }
+    bool contains(const GridAxisRange &other) const { return start <= other.start && other.end <= end; }
   };
   using GridXRange = GridAxisRange<GridXIndex>;
   using GridYRange = GridAxisRange<GridYIndex>;
@@ -68,12 +62,14 @@ namespace richmath {
     GridYRange y;
     GridXRange x;
     
-    int rows() { return y.primary_length(); }
-    int cols() { return x.primary_length(); }
+    int rows() const { return y.primary_length(); }
+    int cols() const { return x.primary_length(); }
     
     static GridIndexRect FromYX(const GridYRange &y, const GridXRange &x) {
       return GridIndexRect{y, x};
     }
+    
+    bool contains(const GridIndexRect &other) const { return y.contains(other.y) && x.contains(other.x); }
     
   private:
     GridIndexRect(const GridYRange &_y, const GridXRange &_x) : y(_y), x(_x) {}
