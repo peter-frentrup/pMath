@@ -1414,9 +1414,12 @@ static Box *create_or_error(Expr expr, BoxInputFlags options) {
 }
 
 static Box *create_box(Expr expr, BoxInputFlags options) {
-  if(expr.is_string()) {
+  if(String s = expr) {
+    if(s.length() == 1 && s[0] == PMATH_CHAR_BOX)
+      return new ErrorBox(s);
+    
     InlineSequenceBox *box = new InlineSequenceBox;
-    box->content()->load_from_object(expr, options);
+    box->content()->load_from_object(s, options);
     return box;
   }
   
