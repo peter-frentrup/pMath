@@ -1,0 +1,51 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Shallow", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Shallow"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"Omitted sequences of elements are displayed as ", 
+           TemplateBox({"Skeleton"}, "ReferenceHyperlink"), 
+           " objects which have the form ", {
+            "\[LeftGuillemet]", "\[NonBreakingSpace]", "k", 
+            "\[NonBreakingSpace]", "\[RightGuillemet]"}, "."}), "Notes"), 
+        Section(TextData({"Depth and length may be specified as ", 
+           TemplateBox({"Infinity"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"Trying to feed ", {
+            "\[LeftGuillemet]", "\[NonBreakingSpace]", "k", 
+            "\[NonBreakingSpace]", "\[RightGuillemet]"}, " back as ", 
+           StyleBox("pMath", "TI"), " input will generate an error."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Shallow display of a list:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Shallow", "(", {"Array", "(", "100", ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4", ",", "5", 
+              ",", "6", ",", "7", ",", "8", ",", "9", ",", "10", ",", {
+               "\[LeftGuillemet]", "\[NonBreakingSpace]", "90", 
+               "\[NonBreakingSpace]", "\[RightGuillemet]"}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Shallow"}, "ReferenceHyperlink"), 
+           " strips content at the end, ", 
+           TemplateBox({"Short"}, "ReferenceHyperlink"), 
+           " strips in the middle:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Short", "(", {"Array", "(", "100", ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "3", ",", "4", ",", {
+               "\[LeftGuillemet]", "\[NonBreakingSpace]", "93", 
+               "\[NonBreakingSpace]", "\[RightGuillemet]"}, ",", "98", ",", 
+              "99", ",", "100"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Short"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Skeleton"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
