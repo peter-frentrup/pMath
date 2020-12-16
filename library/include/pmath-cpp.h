@@ -307,6 +307,7 @@ namespace pmath {
       }
       
       /**\brief Return the pmath_t and discard it. Caller must pmath_unref() it. */
+      PMATH_ATTRIBUTE_USE_RESULT
       pmath_t release() throw() { pmath_t o = _obj; _obj = PMATH_NULL; return o; }
       
       /**\brief Get the pmath_t. Reference is held by the Expr object. */

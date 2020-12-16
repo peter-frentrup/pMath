@@ -70,7 +70,7 @@
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_DollarFrontEndSession;
-extern pmath_symbol_t richmath_System_DollarPageSize;
+extern pmath_symbol_t richmath_System_DollarPageWidth;
 
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonFunction;
@@ -390,7 +390,7 @@ int main(int argc, char **argv) {
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
   
   // do not depend on console window size:
-  pmath_symbol_set_value(richmath_System_DollarPageSize, PMATH_FROM_INT32(72));
+  pmath_symbol_set_value(richmath_System_DollarPageWidth, PMATH_FROM_INT32(72));
   
   {
     pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(richmath_System_DollarFrontEndSession);

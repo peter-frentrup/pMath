@@ -15,6 +15,7 @@
 #include <util/filesystem.h>
 
 #include <algorithm>
+#include <cmath>
 
 
 namespace richmath {
@@ -24,7 +25,9 @@ namespace richmath {
     extern String DocumentFullFileName;
     extern String Input;
     extern String MenuListPalettesMenu;
-    extern String ShowHideMenu;;
+    extern String Output;
+    extern String PageWidthCharacters;
+    extern String ShowHideMenu;
   }
   
   struct DocumentsImpl {
@@ -47,6 +50,7 @@ namespace richmath {
 }
 
 using namespace richmath;
+using namespace std;
 
 namespace {
   class DocumentCurrentValueProvider {
@@ -61,6 +65,8 @@ namespace {
       static bool put_DocumentFileName(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr get_DocumentFullFileName(FrontEndObject *obj, Expr item);
       static bool put_DocumentFullFileName(FrontEndObject *obj, Expr item, Expr rhs);
+      static Expr get_PageWidthCharacters(FrontEndObject *obj, Expr item);
+      static Expr get_WindowTitle(FrontEndObject *obj, Expr item);
   };
   
   class StylesMenuImpl : public FrontEndObject {
@@ -158,6 +164,7 @@ extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
+extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath {
   namespace strings {
@@ -428,6 +435,8 @@ String DocumentsImpl::get_style_name_at(VolatileSelection sel) {
               else
                 style_name = String();
               break;
+            
+            default: break;
           }
           
           if(style_name) {
@@ -552,7 +561,7 @@ void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr exp
     }
     
     if(auto box = dynamic_cast<Box*>(obj)) {
-      if(auto doc = box->find_parent<Document>(false)) {
+      if(box->find_parent<Document>(false)) {
         sels.add(SelectionReference(box->parent(), box->index(), box->index() + 1));
       }
       return;
@@ -567,9 +576,11 @@ void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr exp
 //{ class DocumentCurrentValueProvider ...
 
 void DocumentCurrentValueProvider::init() {
-  CurrentValue::register_provider(strings::DocumentDirectory,    get_DocumentDirectory,    put_DocumentDirectory);
-  CurrentValue::register_provider(strings::DocumentFileName,     get_DocumentFileName,     put_DocumentFileName);
-  CurrentValue::register_provider(strings::DocumentFullFileName, get_DocumentFullFileName, put_DocumentFullFileName);
+  CurrentValue::register_provider(strings::DocumentDirectory,          get_DocumentDirectory,    put_DocumentDirectory);
+  CurrentValue::register_provider(strings::DocumentFileName,           get_DocumentFileName,     put_DocumentFileName);
+  CurrentValue::register_provider(strings::DocumentFullFileName,       get_DocumentFullFileName, put_DocumentFullFileName);
+  CurrentValue::register_provider(strings::PageWidthCharacters,        get_PageWidthCharacters);
+  CurrentValue::register_provider(Symbol(richmath_System_WindowTitle), get_WindowTitle,           Style::put_current_style_value);
 }
 
 void DocumentCurrentValueProvider::done() {
@@ -676,6 +687,81 @@ bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj,
   
   doc->native()->full_filename(std::move(path));
   return true;
+}
+
+Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  
+  if(doc) {
+    // TODO: consider ImageSize inside a PaneBox?
+    // FIXME: NativeWidget::page_size() should track dynamic updates.
+    float page_width_points = doc->native()->page_size().x;
+    if(page_width_points <= 0)
+      return Expr(1);
+    
+    if(!isfinite(page_width_points))
+      return Symbol(PMATH_SYMBOL_INFINITY);
+    
+    int section_bracket_nesting = 0;
+    
+    SharedPtr<Style> output_style = nullptr;
+    if(auto section = box->find_parent<Section>(true)) {
+      output_style = section->style;
+      
+      if(section->parent() == doc) {
+        section_bracket_nesting = doc->group_info(section->index()).nesting;
+      }
+    }
+      
+    if(!output_style)
+      output_style = doc->stylesheet()->styles[strings::Output];
+    if(!output_style)
+      output_style = doc->stylesheet()->base;
+    
+    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft);
+    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight);
+    
+    // TODO: frame margin is only applied if a frame is visible (or Background is given)
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight);
+    
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight);
+    
+    page_width_points-= left + right;
+    if(doc->get_own_style(ShowSectionBracket, true)) {
+      page_width_points-= doc->section_bracket_right_margin + doc->section_bracket_width * section_bracket_nesting;
+    }
+    
+    float font_size = doc->stylesheet()->get_or_default(output_style, FontSize, 10.0f);
+    float average_char_width = 0.5f * font_size;
+    float chars_per_line = roundf(page_width_points / average_char_width);
+    if(chars_per_line <= 0)
+      return Expr(1);
+    
+    if(!(chars_per_line < 0xFFFF))
+      return Symbol(PMATH_SYMBOL_INFINITY);
+    
+    return Expr((int)chars_per_line);
+  }
+  
+  return Expr(80);
+}
+
+Expr DocumentCurrentValueProvider::get_WindowTitle(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  
+  if(doc) {
+    if(item == richmath_System_WindowTitle) {
+      auto result = doc->native()->window_title();
+      if(!result.is_null())
+        return result;
+    }
+  }
+  
+  return Style::get_current_style_value(obj, std::move(item));
 }
 
 //} ... class DocumentCurrentValueProvider
@@ -1071,7 +1157,7 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
     
   SelectionReference sel;
   {
-    if(sel.id = FrontEndReference::from_pmath(expr[1])) {
+    if((sel.id = FrontEndReference::from_pmath(expr[1]))) {
       if(Box *box = sel.get()) {
         sel.start = 0;
         sel.end = box->length();
@@ -1332,7 +1418,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
     if(exprlen == 2 || !style_name) {
       auto id = FrontEndReference::from_pmath(expr[1]);
       sel.box = FrontEndObject::find_cast<Box>(id);
-      if(doc = dynamic_cast<Document*>(sel.box)) {
+      if((doc = dynamic_cast<Document*>(sel.box))) {
         sel = doc->selection_now();
       }
       else
@@ -1405,7 +1491,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
     Box *selbox = sel.get();
     if(!selbox) {
       sel.id = FrontEndReference::from_pmath(expr[2]);
-      if(selbox = sel.get()) {
+      if((selbox = sel.get())) {
         sel.start = 0;
         sel.end = selbox->length();
       }

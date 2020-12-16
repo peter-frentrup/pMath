@@ -44,14 +44,12 @@ namespace richmath {
       static Expr get_Selectable(FrontEndObject *obj, Expr item);
       static Expr get_SelectedMenuCommand(FrontEndObject *obj, Expr item);
       static Expr get_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
-      static Expr get_WindowTitle(FrontEndObject *obj, Expr item);
   };
 }
 
 extern pmath_symbol_t richmath_System_Selectable;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
-extern pmath_symbol_t richmath_System_WindowTitle;
 
 Hashtable<Expr, Expr (*)(FrontEndObject*, Expr)>       CurrentValueImpl::providers;
 Hashtable<Expr, bool (*)(FrontEndObject*, Expr, Expr)> CurrentValueImpl::setters;
@@ -82,10 +80,6 @@ void CurrentValue::init() {
   register_provider(strings::TemplateSlotCount,           TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
   register_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot,
                                                           TemplateBoxSlot::put_current_value_of_TemplateSlot);
-  register_provider(Symbol(richmath_System_WindowTitle),  Impl::get_WindowTitle,
-                                                          Style::put_current_style_value);
-  
-  
 }
 
 void CurrentValue::done() {
@@ -294,21 +288,6 @@ Expr CurrentValueImpl::get_StyleDefinitionsOwner(FrontEndObject *obj, Expr item)
     owner = doc->native()->owner_document();
   }
   return owner->to_pmath_id();
-}
-
-Expr CurrentValueImpl::get_WindowTitle(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  
-  if(doc) {
-    if(item == richmath_System_WindowTitle) {
-      auto result = doc->native()->window_title();
-      if(!result.is_null())
-        return result;
-    }
-  }
-  
-  return Style::get_current_style_value(obj, std::move(item));
 }
 
 //} ... class CurrentValueImpl

@@ -19,6 +19,10 @@ Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "set-contextmenu.pmath"
 
 <<Documentation`
 
+ClearAttributes($PageWidth, ThreadLocal)
+$PageWidth::= CurrentValue("PageWidthCharacters")
+SetAttributes($PageWidth, ThreadLocal)
+
 
 
 Unprotect(Developer`DebugInfoOpenerFunction)
