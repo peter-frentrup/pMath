@@ -546,9 +546,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
   if(overwrite_until_index > _sections.length())
     overwrite_until_index  = _sections.length();
     
-  if( boxes[0]    == richmath_System_SectionGroup &&
-      boxes[1][0] == PMATH_SYMBOL_LIST)
-  {
+  if(boxes[0] == richmath_System_SectionGroup && boxes[1][0] == PMATH_SYMBOL_LIST) {
     Expr sect = boxes[1];
     Expr open = boxes[2];
     
@@ -562,10 +560,8 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     if(*pos < overwrite_until_index) {
       int e = _group_info[*pos].end;
       
-      if(e >= *pos && e < overwrite_until_index) {
-        internal_remove(e + 1, overwrite_until_index);
+      if(e >= *pos && e < overwrite_until_index) 
         overwrite_until_index = e + 1;
-      }
     }
     
     for(size_t i = 1; i <= sect.expr_length(); ++i) {
@@ -588,7 +584,6 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
         _group_info[*pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
         
         ++*pos;
-        internal_remove(*pos, overwrite_until_index);
         return;
       }
     }
@@ -604,12 +599,9 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       _group_info.insert_swap(*pos, 1, &sgi);
       
       ++*pos;
-      ++overwrite_until_index;
       
       section->after_insertion();
     }
-    
-    internal_remove(*pos, overwrite_until_index);
   }
 }
 
@@ -620,6 +612,8 @@ void SectionList::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) 
   int start = *pos;
   
   internal_insert_pmath(pos, boxes, overwrite_until_index);
+  if(*pos < overwrite_until_index)
+    internal_remove(*pos, overwrite_until_index);
   
   for(int i = start; i < _sections.length(); ++i)
     adopt(_sections[i], i);
