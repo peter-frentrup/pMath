@@ -101,8 +101,8 @@ bool VolatileSelection::visually_contains(VolatileSelection other) const {
   }
   
   if(auto grid = dynamic_cast<GridBox*>(box)) {
-    auto this_rect  = grid->get_enclosing_range(start,       end - 1);
-    auto other_rect = grid->get_enclosing_range(other.start, other.end - 1);
+    auto this_rect  = grid->get_enclosing_range(start,       end);
+    auto other_rect = grid->get_enclosing_range(other.start, other.end);
     
     return this_rect.contains(other_rect);
   }

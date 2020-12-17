@@ -14,6 +14,8 @@ namespace richmath {
       GridIndex() = default;
       explicit GridIndex(int primary_value) : _value(primary_value) {}
       
+      friend int operator-(GridIndex left, GridIndex right) { return left._value - right._value; }
+      
     public:
       int primary_value() const { return _value; }
   };
@@ -29,6 +31,17 @@ namespace richmath {
       friend bool operator<=(GridXIndex left, GridXIndex right) { return left._value <= right._value; }
       friend bool operator> (GridXIndex left, GridXIndex right) { return left._value >  right._value; }
       friend bool operator>=(GridXIndex left, GridXIndex right) { return left._value >= right._value; }
+      
+      friend GridXIndex operator+(GridXIndex left, int right) { return GridXIndex(left._value + right); }
+      friend GridXIndex operator-(GridXIndex left, int right) { return GridXIndex(left._value - right); }
+      
+      GridXIndex &operator+=(int delta) { return *this = *this + delta; }
+      GridXIndex &operator-=(int delta) { return *this = *this - delta; }
+      
+      GridXIndex &operator++() { return *this+= 1; }
+      GridXIndex &operator--() { return *this-= 1; }
+      GridXIndex operator++(int) { auto old = *this; *this+= 1; return old; }
+      GridXIndex operator--(int) { auto old = *this; *this-= 1; return old; }
   };
   
   class GridYIndex : public GridIndex {
@@ -42,18 +55,53 @@ namespace richmath {
       friend bool operator<=(GridYIndex left, GridYIndex right) { return left._value <= right._value; }
       friend bool operator> (GridYIndex left, GridYIndex right) { return left._value >  right._value; }
       friend bool operator>=(GridYIndex left, GridYIndex right) { return left._value >= right._value; }
+      
+      friend GridYIndex operator+(GridYIndex left, int right) { return GridYIndex(left._value + right); }
+      friend GridYIndex operator-(GridYIndex left, int right) { return GridYIndex(left._value - right); }
+      
+      GridYIndex &operator+=(int delta) { return *this = *this + delta; }
+      GridYIndex &operator-=(int delta) { return *this = *this - delta; }
+      
+      GridYIndex &operator++() { return *this+= 1; }
+      GridYIndex &operator--() { return *this-= 1; }
+      GridYIndex operator++(int) { auto old = *this; *this+= 1; return old; }
+      GridYIndex operator--(int) { auto old = *this; *this-= 1; return old; }
+  };
+  
+  template<typename Index>
+  class IndexIterator {
+    public:
+      IndexIterator(Index index) : index(index) {}
+      
+      friend bool operator==(IndexIterator left, IndexIterator right) { return left.index == right.index; }
+      friend bool operator!=(IndexIterator left, IndexIterator right) { return left.index != right.index; }
+      
+      Index operator*() const { return index; }
+      IndexIterator &operator++() { ++index; return *this; }
+      IndexIterator &operator--() { --index; return *this; }
+      
+    private:
+      Index index;
   };
   
   template<typename T>
-  struct GridAxisRange {
-    T start;
-    T end;
-    
-    GridAxisRange(T a, T b) : start(a < b ? a : b), end(a < b ? b : a) {}
-    
-    int primary_length() const { return end.primary_value() - start.primary_value() + 1; }
-    friend bool disjoint(const GridAxisRange &a, const GridAxisRange &b) { return a.end < b.start || b.end < a.start; }
-    bool contains(const GridAxisRange &other) const { return start <= other.start && other.end <= end; }
+  class GridAxisRange {
+    private:
+      GridAxisRange(T start, T end) : start(start), end(end) {}
+      
+    public:
+      static GridAxisRange InclusiveHull(T a, T b) { return a <= b ? GridAxisRange(a, b+1) : GridAxisRange(b, a+1); }
+      static GridAxisRange Hull(T a, T b) {          return a <= b ? GridAxisRange(a, b) :   GridAxisRange(b, a); }
+      
+      int length() const { return end.primary_value() - start.primary_value(); }
+      friend bool disjoint(const GridAxisRange &a, const GridAxisRange &b) { return a.end <= b.start || b.end <= a.start; }
+      bool contains(const GridAxisRange &other) const { return start <= other.start && other.end <= end; }
+      
+      friend IndexIterator<T> begin(const GridAxisRange &range) { return range.start; }
+      friend IndexIterator<T> end(const GridAxisRange &range) {   return range.end; }
+    public:
+      T start;
+      T end;
   };
   using GridXRange = GridAxisRange<GridXIndex>;
   using GridYRange = GridAxisRange<GridYIndex>;
@@ -62,8 +110,8 @@ namespace richmath {
     GridYRange y;
     GridXRange x;
     
-    int rows() const { return y.primary_length(); }
-    int cols() const { return x.primary_length(); }
+    int rows() const { return y.length(); }
+    int cols() const { return x.length(); }
     
     static GridIndexRect FromYX(const GridYRange &y, const GridXRange &x) {
       return GridIndexRect{y, x};
@@ -76,6 +124,7 @@ namespace richmath {
   };
   
   class GridItem final : public OwnerBox {
+      using base = OwnerBox;
       friend class GridBoxImpl;
       friend class GridBox;
     protected:
@@ -109,6 +158,7 @@ namespace richmath {
   };
   
   class GridBox final : public Box {
+      using base = Box;
       class Impl;
       friend class GridItem;
     protected:
@@ -123,18 +173,41 @@ namespace richmath {
       const Array<float> &xpos_array() { need_pos_vectors(); return xpos; }
       const Array<float> &ypos_array() { need_pos_vectors(); return ypos; }
       
+      float get_gap_x(GridXIndex col, int gap_side);
+      float get_gap_y(GridYIndex row, int gap_side);
+      
+      /*  A 2x3 grid has 6 items, so count()=6, positions after the last item are the 3*4 corners
+          ("gap indices"). Since Box::length() is an allowed position, we get length()=17.
+          6-----7-----8-----9
+          |  0  |  1  |  2  |
+          10---11----12----13
+          |  3  |  4  |  5  |
+          14---15----16----17
+       */
+
       virtual Box *item(int i) override { return items[i]; }
       virtual int count() override { return items.length(); }
+      virtual int length() override { return items.length() + (items.rows() + 1) * (items.cols() + 1) - 1; }
       GridItem *item(int row, int col) { return items.get(row, col); }
       GridItem *item(GridYIndex row, GridXIndex col) { return item(row.primary_value(), col.primary_value()); }
       
       int yx_to_index(GridYIndex y, GridXIndex x) {
         return items.yx_to_index(y.primary_value(), x.primary_value());
       }
+      int yx_to_gap_index(GridYIndex y, GridXIndex x) {
+        return items.length() + x.primary_value() + y.primary_value() * (items.cols() + 1);
+      }
       void index_to_yx(int index, GridYIndex *y, GridXIndex *x) {
         int y_primary;
         int x_primary;
-        items.index_to_yx(index, &y_primary, &x_primary);
+        if(index < items.length()) {
+          items.index_to_yx(index, &y_primary, &x_primary);
+        }
+        else {
+          int i = index - items.length();
+          x_primary = i % (items.cols() + 1);
+          y_primary = i / (items.cols() + 1);
+        }
         *y = GridYIndex{y_primary};
         *x = GridXIndex{x_primary};
       }
@@ -163,6 +236,11 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
+      
+      virtual Box *move_logical(
+        LogicalDirection  direction,
+        bool              jumping,
+        int              *index) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,

@@ -3,6 +3,7 @@
 #include <boxes/mathsequence.h>
 #include <graphics/context.h>
 
+#include <algorithm>
 #include <math.h>
 #include <limits>
 
@@ -47,7 +48,7 @@ namespace richmath {
 //{ class GridItem ...
 
 GridItem::GridItem()
-  : OwnerBox(),
+  : base(),
     _span_right(0),
     _span_down(0),
     _really_span_from_left(false),
@@ -73,7 +74,7 @@ void GridItem::resize_default_baseline(Context &context) {
   bool smf = context.smaller_fraction_parts;
   context.smaller_fraction_parts = true;
   
-  OwnerBox::resize_default_baseline(context);
+  base::resize_default_baseline(context);
   
   context.smaller_fraction_parts = smf;
   _span_right = 0;
@@ -125,7 +126,7 @@ bool GridItem::span_from_any() {
 //{ class GridBox ...
 
 GridBox::GridBox()
-  : Box(),
+  : base(),
     items(1, 1)
 {
   items[0] = new GridItem;
@@ -133,7 +134,7 @@ GridBox::GridBox()
 }
 
 GridBox::GridBox(int rows, int cols)
-  : Box(),
+  : base(),
     items(rows > 0 ? rows : 1, cols > 0 ? cols : 1)
 {
   for(int i = 0; i < items.length(); ++i) 
@@ -401,45 +402,69 @@ void GridBox::paint(Context &context) {
   }
   
   if(context.selection.get() == this) {
-    auto rect = get_enclosing_range(context.selection.start, context.selection.end - 1);
-    
-    float x1, x2, y1, y2;
-    x1 = x + xpos[rect.x.start.primary_value()];
-    if(rect.x.end.primary_value() < cols() - 1)
-      x2 = x + xpos[rect.x.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().width;
-    else
-      x2 = x + _extents.width;
-      
-    y1 = y - _extents.ascent + ypos[rect.y.start.primary_value()];// - item(ay, ax)->extents().ascent;
-    if(rect.y.end.primary_value() < rows() - 1)
-      y2 = y - _extents.ascent + ypos[rect.y.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().height();
-    else
-      y2 = y + _extents.descent;
-      
     Color c = context.canvas().get_color();
-    context.canvas().pixrect(x1, y1, x2, y2, false);
+    context.canvas().move_to(x, y);
+    selection_path(context.canvas(), context.selection.start, context.selection.end);
     context.draw_selection_path();
-//    context.canvas().paint_selection(x1, y1, x2, y2);
     context.canvas().set_color(c);
   }
 }
 
-void GridBox::selection_path(Canvas &canvas, int start, int end) {
-  auto rect = get_enclosing_range(start, end - 1);
+float GridBox::get_gap_x(GridXIndex col, int gap_side) {
+  if(col < GridXIndex(cols())) {
+    if(col == GridXIndex(0))
+      return xpos[0];
+    
+    if(gap_side > 0)
+      return xpos[col.primary_value()];
+    
+    float x_before = xpos[col.primary_value() - 1] + item(GridYIndex(0), col-1)->extents().width;
+    if(gap_side == 0)
+      return x_before + (xpos[col.primary_value()] - x_before)/2;
+      
+    return x_before;
+  }
   
-  float x1, x2, y1, y2;
-  x1 = xpos[rect.x.start.primary_value()];
-  if(rect.x.end.primary_value() < cols() - 1)
-    x2 = xpos[rect.x.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().width;
-  else
-    x2 = _extents.width;
+  return _extents.width;
+}
+
+float GridBox::get_gap_y(GridYIndex row, int gap_side) {
+  if(row < GridYIndex(rows())) {
+    if(row == GridYIndex(0))
+      return ypos[0] - _extents.ascent;
     
-  y1 = - _extents.ascent + ypos[rect.y.start.primary_value()];
-  if(rect.y.end.primary_value() < rows() - 1)
-    y2 = - _extents.ascent + ypos[rect.y.end.primary_value()] + item(rect.y.end, rect.x.end)->extents().height();
-  else
-    y2 = _extents.descent;
+    if(gap_side > 0)
+      return ypos[row.primary_value()] - _extents.ascent;
     
+    float y_before = ypos[row.primary_value() - 1] + item(row-1, GridXIndex(0))->extents().height() - _extents.ascent;
+    if(gap_side == 0)
+      return y_before + (ypos[row.primary_value()] - _extents.ascent - y_before)/2;
+    
+    return y_before;
+  }
+  
+  return _extents.descent;
+}
+
+void GridBox::selection_path(Canvas &canvas, int start, int end) {
+  auto rect = get_enclosing_range(start, end);
+  
+  float x1 = get_gap_x(rect.x.start, +1);
+  float x2 = get_gap_x(rect.x.end,   -1);
+  
+  if(abs(x2 - x1) < 1e-4) {
+    x1-= 0.75f;
+    x2+= 0.75f;
+  }
+  
+  float y1 = get_gap_y(rect.y.start, +1);
+  float y2 = get_gap_y(rect.y.end,   -1);
+  
+  if(abs(y2 - y1) < 1e-4) {
+    y1-= 0.75f;
+    y2+= 0.75f;
+  }
+  
   float x0, y0;
   canvas.current_pos(&x0, &y0);
   
@@ -448,25 +473,7 @@ void GridBox::selection_path(Canvas &canvas, int start, int end) {
   x2 += x0;
   y2 += y0;
   
-  float px1 = x1;
-  float py1 = y1;
-  float px2 = x2;
-  float py2 = y1;
-  float px3 = x2;
-  float py3 = y2;
-  float px4 = x1;
-  float py4 = y2;
-  
-  canvas.align_point(&px1, &py1, false);
-  canvas.align_point(&px2, &py2, false);
-  canvas.align_point(&px3, &py3, false);
-  canvas.align_point(&px4, &py4, false);
-  
-  canvas.move_to(px1, py1);
-  canvas.line_to(px2, py2);
-  canvas.line_to(px3, py3);
-  canvas.line_to(px4, py4);
-  canvas.close_path();
+  canvas.pixrect(x1, y1, x2, y2, false);
 }
 
 Box *GridBox::remove_range(int *start, int end) {
@@ -481,14 +488,13 @@ Box *GridBox::remove_range(int *start, int end) {
     return this;
   }
   
-  auto rect = get_enclosing_range(*start, end - 1);
+  auto rect = get_enclosing_range(*start, end);
   
-  int ax_val = rect.x.start.primary_value();
-  int ay_val = rect.y.start.primary_value();
-  int bx_val = rect.x.end.primary_value();
-  int by_val = rect.y.end.primary_value();
-  
-  if( ax_val == 0 && ay_val == 0 && bx_val == cols() - 1 && by_val == rows() - 1) {
+  if( rect.x.start == GridXIndex(0) && 
+      rect.y.start == GridYIndex(0) && 
+      rect.x.end == GridXIndex(cols()) && 
+      rect.y.end == GridYIndex(rows())) 
+  {
     if(_parent) {
       *start = _index;
       return _parent->remove(start);
@@ -500,7 +506,7 @@ Box *GridBox::remove_range(int *start, int end) {
   
   if(_parent) {
     if(cols() == 1) {
-      if(ay_val == 1 && by_val == rows() - 1) {
+      if(rect.y.start == GridYIndex(1) && rect.y.end == GridYIndex(rows())) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[0]->content();
@@ -514,7 +520,7 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ay_val == 0 && by_val == rows() - 2) {
+      else if(rect.y.start == GridYIndex(0) && rect.y.end == GridYIndex(rows() - 1)) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[items.length() - 1]->content();
@@ -528,14 +534,14 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ay_val == 0 && by_val == rows() - 1) {
+      else if(rect.y.start == GridYIndex(0) && rect.y.end == GridYIndex(rows())) {
         *start = _index;
         return _parent->remove(start);
       }
     }
     
     if(rows() == 1) {
-      if(ax_val == 1 && bx_val == cols() - 1) {
+      if(rect.x.start == GridXIndex(1) && rect.x.end == GridXIndex(cols())) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[0]->content();
@@ -549,7 +555,7 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ax_val == 0 && bx_val == cols() - 2) {
+      else if(rect.x.start == GridXIndex(0) && rect.x.end == GridXIndex(cols() - 1)) {
         *start = _index;
         if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
           MathSequence *content = items[items.length() - 1]->content();
@@ -563,7 +569,7 @@ Box *GridBox::remove_range(int *start, int end) {
         
         return _parent->remove(start);
       }
-      else if(ax_val == 0 && bx_val == cols() - 1) {
+      else if(rect.x.start == GridXIndex(0) && rect.x.end == GridXIndex(cols())) {
         *start = _index;
         return _parent->remove(start);
       }
@@ -572,8 +578,8 @@ Box *GridBox::remove_range(int *start, int end) {
   
   if(rect.cols() == cols()) {
     remove_rows(rect.y.start, rect.rows());
-    if(ay_val > 0) {
-      MathSequence *result = item(ay_val - 1, cols() - 1)->content();
+    if(rect.y.start > GridYIndex(0)) {
+      MathSequence *result = item(rect.y.start - 1, GridXIndex(cols() - 1))->content();
       *start = result->length();
       return result;
     }
@@ -589,8 +595,8 @@ Box *GridBox::remove_range(int *start, int end) {
   
   if(rect.rows() == rows()) {
     remove_cols(rect.x.start, rect.cols());
-    if(ax_val > 0) {
-      MathSequence *result = item(0, ax_val - 1)->content();
+    if(rect.x.start > GridXIndex(0)) {
+      MathSequence *result = item(GridYIndex(0), rect.x.start - 1)->content();
       *start = result->length();
       return result;
     }
@@ -604,26 +610,27 @@ Box *GridBox::remove_range(int *start, int end) {
     return items[0]->content();
   }
   
-  for(int x = ax_val; x <= bx_val; ++x)
-    for(int y = ay_val; y <= by_val; ++y) {
+  for(GridXIndex x : rect.x)
+    for(GridYIndex y : rect.y) {
       item(y, x)->content()->remove(0, item(y, x)->content()->length());
       item(y, x)->content()->insert(0, PMATH_CHAR_PLACEHOLDER);
     }
     
-  if(ay_val == 0 && by_val == 0 && rect.cols() == 1) {
+  if(rect.y.start == GridYIndex(0) && rect.rows() == 1 && rect.cols() == 1) {
     bool all_empty = true;
-    for(int y = 1; y < rows(); ++y)
-      if( item(y, ax_val)->content()->length() > 0 &&
-          !item(y, ax_val)->content()->is_placeholder())
+    for(GridYIndex y = GridYIndex(1); y < GridYIndex(rows()); ++y) {
+      if( item(y, rect.x.start)->content()->length() > 0 &&
+          !item(y, rect.x.start)->content()->is_placeholder())
       {
         all_empty = false;
         break;
       }
-      
+    }
+    
     if(all_empty) {
       remove_cols(rect.x.start, 1);
-      if(ax_val > 0) {
-        MathSequence *result = item(ay_val, ax_val - 1)->content();
+      if(rect.x.start > GridXIndex(0)) {
+        MathSequence *result = item(rect.y.start, rect.x.start - 1)->content();
         *start = result->length();
         return result;
       }
@@ -638,20 +645,21 @@ Box *GridBox::remove_range(int *start, int end) {
     }
   }
   
-  if(ax_val == 0 && bx_val == 0 && rect.rows() == 1) {
+  if(rect.x.start == GridXIndex(0) && rect.cols() == 1 && rect.rows() == 1) {
     bool all_empty = true;
-    for(int x = 1; x < cols(); ++x)
-      if( item(ay_val, x)->content()->length() > 0 &&
-          !item(ay_val, x)->content()->is_placeholder())
+    for(GridXIndex x = GridXIndex(1); x < GridXIndex(cols()); ++x) {
+      if( item(rect.y.start, x)->content()->length() > 0 &&
+          !item(rect.y.start, x)->content()->is_placeholder())
       {
         all_empty = false;
         break;
       }
-      
+    }
+    
     if(all_empty) {
       remove_rows(rect.y.start, 1);
-      if(ay_val > 0) {
-        MathSequence *result = item(ay_val - 1, cols() - 1)->content();
+      if(rect.y.start > GridYIndex(0)) {
+        MathSequence *result = item(rect.y.start - 1, GridXIndex(cols() - 1))->content();
         *start = result->length();
         return result;
       }
@@ -701,22 +709,17 @@ Expr GridBox::to_pmath(BoxOutputFlags flags) {
 }
 
 Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
-  auto rect = get_enclosing_range(start, end - 1);
-  
-  int ax_val = rect.x.start.primary_value();
-  int ay_val = rect.y.start.primary_value();
-  int bx_val = rect.x.end.primary_value();
-  int by_val = rect.y.end.primary_value();
+  auto rect = get_enclosing_range(start, end);
   
   Expr mat = MakeList(rect.rows());
   
-  for(int y = ay_val; y <= by_val; ++y) {
+  for(GridYIndex y : rect.y) {
     Expr row = MakeList(rect.cols());
     
-    for(int x = ax_val; x <= bx_val; ++x) 
-      row.set(x - ax_val + 1, item(y, x)->to_pmath(flags));
+    for(GridXIndex x : rect.x) 
+      row.set(x - rect.x.start + 1, item(y, x)->to_pmath(flags));
     
-    mat.set(y - ay_val + 1, row);
+    mat.set(y - rect.y.start + 1, row);
   }
   
   Gather g;
@@ -730,42 +733,82 @@ Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
   return e;
 }
 
+Box *GridBox::move_logical(LogicalDirection direction, bool jumping, int *index) {
+  if(*index < count() || *index == count() && direction == LogicalDirection::Backward)
+    return base::move_logical(direction, jumping, index);
+  
+  if(*index > length() && direction == LogicalDirection::Backward) { // from outside backwards
+    //// for debugging: select gaps instead of last item:
+    //*index = length();
+    //return this;
+    *index = count() + 1;
+    return base::move_logical(direction, jumping, index);
+  }
+  
+  GridYIndex row;
+  GridXIndex col;
+  index_to_yx(*index, &row, &col);
+  
+  if(direction == LogicalDirection::Forward) {
+    if(col < GridXIndex(cols()))
+      ++col;
+  }
+  else {
+    if(col > GridXIndex(0))
+      --col;
+  }
+  *index = yx_to_gap_index(row, col);
+  return this;
+}
+
 Box *GridBox::move_vertical(
   LogicalDirection  direction,
   float            *index_rel_x,
   int              *index,
   bool              called_from_child
 ) {
-  int row, col;
+  GridYIndex row;
+  GridXIndex col;
   need_pos_vectors();
   
   if(*index < 0) {
     if(direction == LogicalDirection::Forward)
-      row = 0;
+      row = GridYIndex(0);
     else
-      row = rows() - 1;
+      row = GridYIndex(rows() - 1);
       
-    col = 0;
-    while(col < cols() - 1 && *index_rel_x > xpos[col + 1])
+    col = GridXIndex(0);
+    while(col < GridXIndex(cols() - 1) && *index_rel_x > xpos[col.primary_value() + 1])
       ++col;
       
-    *index_rel_x -= xpos[col];
+    *index_rel_x -= xpos[col.primary_value()];
   }
   else {
-    GridYIndex y;
-    GridXIndex x;
-    index_to_yx(*index, &y, &x);
-    row = y.primary_value();
-    col = x.primary_value();
+    index_to_yx(*index, &row, &col);
     if(direction == LogicalDirection::Forward)
       ++row;
     else
       --row;
   }
   
-  if(row < 0 || row >= rows()) {
+  if(*index >= items.length()) {
+    if(row < GridYIndex(0) || row > GridYIndex(rows())) {
+      if(_parent) {
+        *index_rel_x += col < GridXIndex(cols()) ? xpos[col.primary_value()] : _extents.width;
+        *index = _index;
+        return _parent->move_vertical(direction, index_rel_x, index, true);
+      }
+      
+      return this;
+    }
+    
+    *index = yx_to_gap_index(row, col);
+    return this;
+  }
+  
+  if(row < GridYIndex(0) || row >= GridYIndex(rows())) {
     if(_parent) {
-      *index_rel_x += xpos[col];
+      *index_rel_x += xpos[col.primary_value()];
       *index = _index;
       return _parent->move_vertical(direction, index_rel_x, index, true);
     }
@@ -811,33 +854,58 @@ void GridBox::child_transformation(
   GridXIndex col;
   index_to_yx(index, &row, &col);
   
-  float x = xpos[col.primary_value()];
-  float y = ypos[row.primary_value()] + item(index)->extents().ascent - _extents.ascent;
-  
+  float x, y;
+  if(index < items.length()) {
+    x = xpos[col.primary_value()];
+    y = ypos[row.primary_value()] + item(index)->extents().ascent - _extents.ascent;
+  }
+  else {
+    x = col.primary_value() < cols() ? xpos[col.primary_value()] : _extents.width;
+    y = row.primary_value() < rows() ? ypos[row.primary_value()] : _extents.height();
+    y-= _extents.ascent;
+  }
   cairo_matrix_translate(matrix, x, y);
 }
 
 GridIndexRect GridBox::get_enclosing_range(int start, int end) {
+  if(end < start)
+    std::swap(start, end);
+
+  if(0 < end && end <= items.length() && start < items.length()) {
+    end-= 1;
+  }
+  
   GridXIndex ax, bx;
   GridYIndex ay, by;
   index_to_yx(start, &ay, &ax);
   index_to_yx(end,   &by, &bx); 
   
-  return GridIndexRect::FromYX(GridYRange{ay, by}, GridXRange{ax, bx});
+  if(start < items.length())
+    return GridIndexRect::FromYX(GridYRange::InclusiveHull(ay, by), GridXRange::InclusiveHull(ax, bx));
+  else
+    return GridIndexRect::FromYX(GridYRange::Hull(ay, by), GridXRange::Hull(ax, bx));
 }
 
 VolatileSelection GridBox::normalize_selection(int start, int end) {
+  if(end < start) 
+    std::swap(start, end);
+  
+  auto rect = get_enclosing_range(start, end);
+  
+  if(start >= items.length()) {
+    //if(rect.cols() == 0 || rect.rows() == 0) 
+      return {this, start, end};
+  }
+  
   if(start == end) {
-    if(start == count())
+    if(start == items.length())
       --start;
-    else
+    else if(start < items.length())
       ++end;
   }
   
-  auto rect = get_enclosing_range(start, end - 1);
-  
   start = yx_to_index(rect.y.start, rect.x.start);
-  end   = yx_to_index(rect.y.end, rect.x.end) + 1;
+  end   = yx_to_index(rect.y.end - 1, rect.x.end - 1) + 1;
   
   if(start + 1 == end) {
     auto content = items[start]->content();
@@ -845,7 +913,7 @@ VolatileSelection GridBox::normalize_selection(int start, int end) {
   }
   
   if(start == 0 && end == count())
-    return Box::normalize_selection(start, end);
+    return base::normalize_selection(start, end);
     
   return {this, start, end};
 }
