@@ -109,6 +109,11 @@ namespace richmath {
                bottom() >= other.top() && top() <= other.bottom();
       }
       
+      bool overlaps(const RectangleF &other, float epsilon) const {
+        return right() + epsilon >= other.left() && left() - epsilon <= other.right() &&
+               bottom() + epsilon >= other.top() && top() - epsilon <= other.bottom();
+      }
+      
       bool contains(const RectangleF &other) const {
         return x <= other.x &&
                y <= other.y &&

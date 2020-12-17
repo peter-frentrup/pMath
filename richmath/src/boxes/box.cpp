@@ -429,7 +429,7 @@ bool Box::request_repaint_range(int start, int end) {
 }
 
 bool Box::request_repaint(const RectangleF &rect) {
-  if(!_extents.to_rectangle().overlaps(rect))
+  if(!_extents.to_rectangle().overlaps(rect, 0.0001))
     return false;
   
   if(_parent) {
@@ -446,7 +446,7 @@ bool Box::visible_rect(RectangleF &rect, Box *top_most) {
   if(this == top_most)
     return true;
   
-  if(!_extents.to_rectangle().overlaps(rect))
+  if(!_extents.to_rectangle().overlaps(rect, 0.0001))
     return false;
   
   if(_parent) {
