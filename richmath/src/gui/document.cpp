@@ -32,6 +32,8 @@ extern pmath_symbol_t richmath_System_DocumentObject;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 
+extern pmath_symbol_t richmath_FE_SectionsToBoxes;
+
 namespace richmath { namespace strings {
   extern String Document;
   extern String DollarFailed;
@@ -283,6 +285,8 @@ namespace richmath {
       bool prepare_insert_math(bool include_previous_word);
       
       Section *auto_make_text_or_math(Section *sect);
+      
+      void paste_into_grid(GridBox *grid, const GridIndexRect &rect, MathSequence *seq); // will destroy seq
       
     private:
       template<class FromSectionType, class ToSectionType>
@@ -1952,92 +1956,37 @@ void Document::paste_from_boxes(Expr boxes) {
   }
   
   boxes = Application::interrupt_wait(
-            Parse("FE`SectionsToBoxes(`1`)", boxes),
+            Call(Symbol(richmath_FE_SectionsToBoxes), std::move(boxes)),
             Application::edit_interrupt_timeout);
-            
-  GridBox *grid = dynamic_cast<GridBox *>(context.selection.get());
-  if(grid && grid->get_style(Editable)) {
-    auto rect = grid->get_enclosing_range(context.selection.start, context.selection.end - 1);
-    
-    BoxInputFlags options = BoxInputFlags::Default;
-    if(grid->get_style(AutoNumberFormating))
-      options |= BoxInputFlags::FormatNumbers;
+  
+  if(auto grid = dynamic_cast<GridBox *>(context.selection.get())) {
+    if(grid->get_style(Editable)) {
+      auto rect = grid->get_enclosing_range(context.selection.start, context.selection.end);
       
-    MathSequence *tmp = new MathSequence;
-    tmp->load_from_object(boxes, options);
-    
-    if(tmp->length() == 1 && tmp->count() == 1) {
-      GridBox *tmpgrid = dynamic_cast<GridBox *>(tmp->item(0));
+      BoxInputFlags options = BoxInputFlags::Default;
+      if(grid->get_style(AutoNumberFormating))
+        options |= BoxInputFlags::FormatNumbers;
+        
+      MathSequence *tmp = new MathSequence;
+      tmp->load_from_object(boxes, options);
       
-      if( tmpgrid && 
-          tmpgrid->rows() <= rect.rows() && 
-          tmpgrid->cols() <= rect.cols()) 
-      {
-        for(int col = 0; col < rect.cols(); ++col) {
-          for(int row = 0; row < rect.rows(); ++row) {
-            if( col < tmpgrid->cols() && row < tmpgrid->rows()) {
-              grid->item(
-                rect.y.start.primary_value() + row, 
-                rect.x.start.primary_value() + col
-              )->load_from_object(
-                Expr(tmpgrid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
-                BoxInputFlags::FormatNumbers);
-            }
-            else {
-              grid->item(
-                rect.y.start.primary_value() + row, 
-                rect.x.start.primary_value() + col
-              )->load_from_object(
-                String::FromChar(PMATH_CHAR_PLACEHOLDER),
-                BoxInputFlags::Default);
-            }
-          }
-        }
-        
-        MathSequence *sel = grid->item(
-                              rect.y.start.primary_value() + tmpgrid->rows() - 1,
-                              rect.x.start.primary_value() + tmpgrid->cols() - 1)->content();
-                              
-        move_to(sel, sel->length());
-        grid->invalidate();
-        
-        tmp->safe_destroy();
-        return;
-      }
+      Impl(*this).paste_into_grid(grid, rect, tmp); tmp = nullptr;
+      return;
     }
-    
-    for(int col = 0; col < rect.cols(); ++col) {
-      for(int row = 0; row < rect.rows(); ++row) {
-        grid->item(
-          rect.y.start.primary_value() + row, 
-          rect.x.start.primary_value() + col
-        )->load_from_object(
-          String::FromChar(PMATH_CHAR_PLACEHOLDER),
-          BoxInputFlags::Default);
-      }
-    }
-    
-    MathSequence *sel = grid->item(rect.y.start, rect.x.start)->content();
-    sel->remove(0, 1);
-    sel->insert(0, tmp); tmp = nullptr;
-    move_to(sel, sel->length());
-    
-    grid->invalidate();
-    grid->after_insertion(); // TODO: only call on new grid items.
-    return;
   }
   
-  GraphicsBox *graphics = dynamic_cast<GraphicsBox *>(context.selection.get());
-  if(graphics && graphics->get_style(Editable)) {
-    BoxInputFlags options = BoxInputFlags::Default;
-    if(graphics->get_style(AutoNumberFormating))
-      options |= BoxInputFlags::FormatNumbers;
-      
-    if(graphics->try_load_from_object(boxes, options))
-      return;
-      
-    //select(graphics->parent(), graphics->index(), graphics->index() + 1);
-    graphics->after_insertion();
+  if(auto graphics = dynamic_cast<GraphicsBox *>(context.selection.get())) {
+    if(graphics->get_style(Editable)) {
+      BoxInputFlags options = BoxInputFlags::Default;
+      if(graphics->get_style(AutoNumberFormating))
+        options |= BoxInputFlags::FormatNumbers;
+        
+      if(graphics->try_load_from_object(boxes, options))
+        return;
+        
+      //select(graphics->parent(), graphics->index(), graphics->index() + 1);
+      graphics->after_insertion();
+    }
   }
   
   remove_selection(false);
@@ -2067,8 +2016,7 @@ void Document::paste_from_boxes(Expr boxes) {
 void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::BoxesText)) {
     Expr parsed = Application::interrupt_wait(
-                    Expr(
-                      pmath_parse_string(data.release())),
+                    Expr(pmath_parse_string(data.release())),
                     Application::edit_interrupt_timeout);
                     
     paste_from_boxes(parsed);
@@ -2083,7 +2031,7 @@ void Document::paste_from_text(String mimetype, String data) {
       
       data = String(Evaluate(Parse("`1`.StringReplace(\"\\r\\n\"->\"\\n\")", data)));
       
-      if (doc_was_selected && data.length() > 0 && data[data.length() - 1] == '\n')
+      if(doc_was_selected && data.length() > 0 && data[data.length() - 1] == '\n')
         data = data.part(0, data.length() - 1);
         
       insert_string(data);
@@ -4338,6 +4286,68 @@ Section *Document::Impl::convert_content(Section *sect) {
   
   return new_sect;
 }
+
+void Document::Impl::paste_into_grid(GridBox *grid, const GridIndexRect &rect, MathSequence *seq){ // will destroy seq
+  if(seq->length() == 1 && seq->count() == 1) {
+    GridBox *inner_grid = dynamic_cast<GridBox *>(seq->item(0));
+    
+    if( inner_grid && 
+        inner_grid->rows() <= rect.rows() && 
+        inner_grid->cols() <= rect.cols()) 
+    {
+      for(int col = 0; col < rect.cols(); ++col) {
+        for(int row = 0; row < rect.rows(); ++row) {
+          if( col < inner_grid->cols() && row < inner_grid->rows()) {
+            grid->item(
+              rect.y.start + row, 
+              rect.x.start + col
+            )->load_from_object(
+              Expr(inner_grid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
+              BoxInputFlags::FormatNumbers);
+          }
+          else {
+            grid->item(
+              rect.y.start + row, 
+              rect.x.start + col
+            )->load_from_object(
+              String::FromChar(PMATH_CHAR_PLACEHOLDER),
+              BoxInputFlags::Default);
+          }
+        }
+      }
+      
+      MathSequence *sel = grid->item(
+                            rect.y.start + inner_grid->rows() - 1,
+                            rect.x.start + inner_grid->cols() - 1)->content();
+                            
+      self.move_to(sel, sel->length());
+      grid->invalidate();
+      
+      seq->safe_destroy();
+      return;
+    }
+  }
+  
+  for(int col = 0; col < rect.cols(); ++col) {
+    for(int row = 0; row < rect.rows(); ++row) {
+      grid->item(
+        rect.y.start.primary_value() + row, 
+        rect.x.start.primary_value() + col
+      )->load_from_object(
+        String::FromChar(PMATH_CHAR_PLACEHOLDER),
+        BoxInputFlags::Default);
+    }
+  }
+  
+  MathSequence *item_content = grid->item(rect.y.start, rect.x.start)->content();
+  item_content->remove(0, 1);
+  item_content->insert(0, seq); seq = nullptr;
+  self.move_to(item_content, item_content->length());
+  
+  grid->invalidate();
+  grid->after_insertion(); // TODO: only call on new grid items.
+}
+
 //}
 
 //{ key events
