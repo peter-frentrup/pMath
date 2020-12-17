@@ -446,6 +446,10 @@ namespace richmath {
         return *this;
       }
       
+      friend void swap(Hashtable &lhs, Hashtable &rhs) {
+        lhs.swap(rhs);
+      }
+      
       unsigned int size() const { return used_count; }
       
       const Entry<K, V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : nullptr; }
@@ -693,11 +697,6 @@ namespace richmath {
         return EntryEnum<self_type, MutableIterator> {*this};
       }
   };
-  
-  template <typename K, typename V>
-  inline void swap(Hashtable<K, V> &lhs, Hashtable<K, V> &rhs) {
-    lhs.swap(rhs);
-  }
   
   template<typename K>
   class Hashset : public Hashtable<K, Void> {
