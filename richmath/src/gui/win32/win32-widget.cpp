@@ -1798,6 +1798,7 @@ void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL p
 }
 
 void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
+  AutoMemorySuspension ams;
   SetFocus(_hwnd);
   
   String mimetype;
@@ -1817,9 +1818,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   fmt.tymed    = TYMED_HGLOBAL;
   
   do {
-    DataObject *local_data_object = DataObject::as_current_data_object(data_object);
-    
-    if(local_data_object) {
+    if(DataObject *local_data_object = DataObject::as_current_data_object(data_object)) {
       if(VolatileSelection src = local_data_object->source.get_all()) {
         box_data = src.to_pmath(BoxOutputFlags::Default);
         break;
@@ -1832,9 +1831,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     }
     
     fmt.cfFormat = Win32Clipboard::AtomBoxesText;
-    if( data_object->QueryGetData(&fmt) == S_OK &&
-        data_object->GetData(&fmt, &stgmed) == S_OK)
-    {
+    if(data_object->QueryGetData(&fmt) == S_OK && data_object->GetData(&fmt, &stgmed) == S_OK) {
       mimetype = Clipboard::BoxesText;
       size_t size = GlobalSize(stgmed.hGlobal) / 2;
       if(size < INT_MAX) {
@@ -1856,9 +1853,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     
     mimetype = Clipboard::PlainText;
     fmt.cfFormat = Win32Clipboard::mime_to_win32cbformat[Clipboard::PlainText];
-    if( data_object->QueryGetData(&fmt) == S_OK &&
-        data_object->GetData(&fmt, &stgmed) == S_OK)
-    {
+    if(data_object->QueryGetData(&fmt) == S_OK && data_object->GetData(&fmt, &stgmed) == S_OK) {
       size_t size = GlobalSize(stgmed.hGlobal) / 2;
       if(size < INT_MAX) {
         const uint16_t *data = (const uint16_t *)GlobalLock(stgmed.hGlobal);
@@ -1878,9 +1873,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     }
     
     fmt.cfFormat = CF_TEXT;
-    if( data_object->QueryGetData(&fmt) == S_OK &&
-        data_object->GetData(&fmt, &stgmed) == S_OK)
-    {
+    if(data_object->QueryGetData(&fmt) == S_OK && data_object->GetData(&fmt, &stgmed) == S_OK) {
       size_t size = GlobalSize(stgmed.hGlobal);
       if(size < INT_MAX) {
         const char *data = (const char *)GlobalLock(stgmed.hGlobal);
@@ -1907,28 +1900,23 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   } while(false);
   
   if(!box_data.is_null() || !text_data.is_null() || !files_data.is_null()) {
-    Box *oldbox  = document()->selection_box();
-    int oldstart = document()->selection_start();
-    int oldend   = document()->selection_end();
+    VolatileSelection sel = document()->selection_now();
     
     if(effect & DROPEFFECT_MOVE && is_dragging) {
-      if(Box *src = drag_source_reference().get()) {
-        int s = drag_source_reference().start;
-        int e = drag_source_reference().end;
-        
+      if(VolatileSelection drag_src = drag_source_reference().get_all()) {
         drag_source_reference().reset();
         
-        document()->select(src, s, e);
+        document()->select(drag_src);
         document()->remove_selection();
         
-        if(src == oldbox) {
-          if(oldstart >= e)
-            oldstart -= e - s;
-          if(oldend >= e)
-            oldend -= e - s;
+        if(drag_src.box == sel.box) {
+          if(sel.start >= drag_src.end)
+            sel.start -= drag_src.length();
+          if(sel.end >= drag_src.end)
+            sel.end -= drag_src.length();
         }
         
-        document()->select(oldbox, oldstart, oldend);
+        document()->select(sel);
       }
     }
     
@@ -1939,21 +1927,8 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     else
       document()->paste_from_text(mimetype, text_data);
     
-    Box *newbox  = document()->selection_box();
-    int newend   = document()->selection_start();
-    
-    if(oldbox == newbox) {
-//      int inslen = newend - oldstart;
-//
-//      if(is_dragging
-//      && drag_source_reference().get() == oldbox
-//      && drag_source_reference().start >= oldend){
-//        drag_source_reference().start+= inslen;
-//        drag_source_reference().end  += inslen;
-//      }
-
-      document()->select(newbox, oldstart, newend);
-    }
+    if(sel.box == document()->selection_box()) 
+      document()->select(sel.box, sel.start, document()->selection_end());
   }
   
   DragLeave();
