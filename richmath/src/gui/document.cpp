@@ -4298,12 +4298,7 @@ void Document::Impl::paste_into_grid(GridBox *grid, const GridIndexRect &rect, M
       for(int col = 0; col < rect.cols(); ++col) {
         for(int row = 0; row < rect.rows(); ++row) {
           if( col < inner_grid->cols() && row < inner_grid->rows()) {
-            grid->item(
-              rect.y.start + row, 
-              rect.x.start + col
-            )->load_from_object(
-              Expr(inner_grid->item(row, col)->to_pmath(BoxOutputFlags::Default)),
-              BoxInputFlags::FormatNumbers);
+            grid->item(rect.y.start + row, rect.x.start + col)->swap_content(inner_grid->item(row, col));
           }
           else {
             grid->item(

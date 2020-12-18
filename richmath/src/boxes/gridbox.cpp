@@ -97,6 +97,16 @@ void GridItem::load_from_object(const Expr object, BoxInputFlags opts) {
   finish_load_from_object(std::move(object));
 }
 
+void GridItem::swap_content(GridItem *other) {
+  using std::swap;
+  assert(other != nullptr);
+  abandon(_content);
+  other->abandon(other->_content);
+  swap(_content, other->_content);
+  adopt(_content, 0);
+  other->adopt(other->_content, 0);
+}
+
 bool GridItem::span_from_left() {
   return content()->length() == 1 &&
          (_content->text()[0] == 0xF3BA ||
@@ -868,8 +878,9 @@ void GridBox::child_transformation(
 }
 
 GridIndexRect GridBox::get_enclosing_range(int start, int end) {
+  using std::swap;
   if(end < start)
-    std::swap(start, end);
+    swap(start, end);
 
   if(0 < end && end <= items.length() && start < items.length()) {
     end-= 1;
@@ -887,8 +898,9 @@ GridIndexRect GridBox::get_enclosing_range(int start, int end) {
 }
 
 VolatileSelection GridBox::normalize_selection(int start, int end) {
+  using std::swap;
   if(end < start) 
-    std::swap(start, end);
+    swap(start, end);
   
   auto rect = get_enclosing_range(start, end);
   

@@ -140,6 +140,7 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
       void             load_from_object(Expr object, BoxInputFlags options);
+      void swap_content(GridItem *other);
       
       bool span_from_left();
       bool span_from_above();
