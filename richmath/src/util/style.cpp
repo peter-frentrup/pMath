@@ -78,6 +78,7 @@ extern pmath_symbol_t richmath_System_MathFontFamily;
 extern pmath_symbol_t richmath_System_MenuCommandKey;
 extern pmath_symbol_t richmath_System_MenuSortingValue;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_Opacity;
 extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Placeholder;
@@ -130,11 +131,15 @@ namespace richmath { namespace strings {
   extern String FunctionLocalVariableStyle;
   extern String FunctionNameStyle;
   extern String ImplicitOperatorStyle;
+  extern String InlineAutoCompletionStyle;
   extern String KeywordSymbolStyle;
   extern String LocalScopeConflictStyle;
   extern String LocalVariableStyle;
+  extern String MatchingBracketHighlightStyle;
   extern String Normal;
+  extern String OccurenceHighlightStyle;
   extern String PatternVariableStyle;
+  extern String SectionInsertionPointColor;
   extern String StringStyle;
   extern String SymbolShadowingStyle;
   extern String SyntaxErrorStyle;
@@ -2171,6 +2176,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ImageSizeCommon);
   impl.emit_definition(ImageSizeAction);
   impl.emit_definition(ImplicitOperatorStyle);
+  impl.emit_definition(InlineAutoCompletionStyle);
   impl.emit_definition(InputAliases);
   impl.emit_definition(InputAutoReplacements);
   impl.emit_definition(InputFieldBoxOptions);
@@ -2181,10 +2187,12 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(LocalScopeConflictStyle);
   impl.emit_definition(LocalVariableStyle);
   impl.emit_definition(Magnification);
+  impl.emit_definition(MatchingBracketHighlightStyle);
   impl.emit_definition(MathFontFamily);
   impl.emit_definition(MenuCommandKey);
   impl.emit_definition(MenuSortingValue);
   impl.emit_definition(Method);
+  impl.emit_definition(OccurenceHighlightStyle);
   impl.emit_definition(PaneBoxOptions);
   impl.emit_definition(PanelBoxOptions);
   impl.emit_definition(PatternVariableStyle);
@@ -2203,6 +2211,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(SectionFrameLabelMarginLeft);
   impl.emit_definition(SectionGenerated);
   impl.emit_definition(SectionGroupPrecedence);
+  impl.emit_definition(SectionInsertionPointColor);
   impl.emit_definition(SectionMarginLeft);
   impl.emit_definition(SectionLabel);
   impl.emit_definition(SectionLabelAutoDelete);
@@ -2630,30 +2639,33 @@ void StyleInformation::add_style() {
     _name_to_key.default_value = StyleOptionName{ -1};
     _key_to_type.default_value = StyleType::None;
     
-    add_ruleset_head(ButtonBoxOptions,             Symbol( richmath_System_ButtonBoxOptions));
-    add_ruleset_head(CharacterNameStyle,           strings::CharacterNameStyle);
-    add_ruleset_head(CommentStyle,                 strings::CommentStyle);
-    add_ruleset_head(DockedSections,               Symbol( richmath_System_DockedSections));
-    add_ruleset_head(ExcessOrMissingArgumentStyle, strings::ExcessOrMissingArgumentStyle);
-    add_ruleset_head(FillBoxOptions,               Symbol( richmath_System_FillBoxOptions));
-    add_ruleset_head(FrameBoxOptions,              Symbol( richmath_System_FrameBoxOptions));
-    add_ruleset_head(FunctionLocalVariableStyle,   strings::FunctionLocalVariableStyle);
-    add_ruleset_head(FunctionNameStyle,            strings::FunctionNameStyle);
-    add_ruleset_head(ImplicitOperatorStyle,        strings::ImplicitOperatorStyle);
-    add_ruleset_head(InputFieldBoxOptions,         Symbol( richmath_System_InputFieldBoxOptions));
-    add_ruleset_head(KeywordSymbolStyle,           strings::KeywordSymbolStyle);
-    add_ruleset_head(LocalScopeConflictStyle,      strings::LocalScopeConflictStyle);
-    add_ruleset_head(LocalVariableStyle,           strings::LocalVariableStyle);
-    add_ruleset_head(PaneBoxOptions,               Symbol( richmath_System_PaneBoxOptions));
-    add_ruleset_head(PanelBoxOptions,              Symbol( richmath_System_PanelBoxOptions));
-    add_ruleset_head(PatternVariableStyle,         strings::PatternVariableStyle);
-    add_ruleset_head(SetterBoxOptions,             Symbol( richmath_System_SetterBoxOptions));
-    add_ruleset_head(StringStyle,                  strings::StringStyle);
-    add_ruleset_head(SymbolShadowingStyle,         strings::SymbolShadowingStyle);
-    add_ruleset_head(SyntaxErrorStyle,             strings::SyntaxErrorStyle);
-    add_ruleset_head(TemplateBoxOptions,           Symbol( richmath_System_TemplateBoxOptions));
-    add_ruleset_head(UndefinedSymbolStyle,         strings::UndefinedSymbolStyle);
-    add_ruleset_head(UnknownOptionStyle,           strings::UnknownOptionStyle);
+    add_ruleset_head(ButtonBoxOptions,              Symbol( richmath_System_ButtonBoxOptions));
+    add_ruleset_head(CharacterNameStyle,            strings::CharacterNameStyle);
+    add_ruleset_head(CommentStyle,                  strings::CommentStyle);
+    add_ruleset_head(DockedSections,                Symbol( richmath_System_DockedSections));
+    add_ruleset_head(ExcessOrMissingArgumentStyle,  strings::ExcessOrMissingArgumentStyle);
+    add_ruleset_head(FillBoxOptions,                Symbol( richmath_System_FillBoxOptions));
+    add_ruleset_head(FrameBoxOptions,               Symbol( richmath_System_FrameBoxOptions));
+    add_ruleset_head(FunctionLocalVariableStyle,    strings::FunctionLocalVariableStyle);
+    add_ruleset_head(FunctionNameStyle,             strings::FunctionNameStyle);
+    add_ruleset_head(ImplicitOperatorStyle,         strings::ImplicitOperatorStyle);
+    add_ruleset_head(InlineAutoCompletionStyle,     strings::InlineAutoCompletionStyle);
+    add_ruleset_head(InputFieldBoxOptions,          Symbol( richmath_System_InputFieldBoxOptions));
+    add_ruleset_head(KeywordSymbolStyle,            strings::KeywordSymbolStyle);
+    add_ruleset_head(LocalScopeConflictStyle,       strings::LocalScopeConflictStyle);
+    add_ruleset_head(LocalVariableStyle,            strings::LocalVariableStyle);
+    add_ruleset_head(MatchingBracketHighlightStyle, strings::MatchingBracketHighlightStyle);
+    add_ruleset_head(OccurenceHighlightStyle,       strings::OccurenceHighlightStyle);
+    add_ruleset_head(PaneBoxOptions,                Symbol( richmath_System_PaneBoxOptions));
+    add_ruleset_head(PanelBoxOptions,               Symbol( richmath_System_PanelBoxOptions));
+    add_ruleset_head(PatternVariableStyle,          strings::PatternVariableStyle);
+    add_ruleset_head(SetterBoxOptions,              Symbol( richmath_System_SetterBoxOptions));
+    add_ruleset_head(StringStyle,                   strings::StringStyle);
+    add_ruleset_head(SymbolShadowingStyle,          strings::SymbolShadowingStyle);
+    add_ruleset_head(SyntaxErrorStyle,              strings::SyntaxErrorStyle);
+    add_ruleset_head(TemplateBoxOptions,            Symbol( richmath_System_TemplateBoxOptions));
+    add_ruleset_head(UndefinedSymbolStyle,          strings::UndefinedSymbolStyle);
+    add_ruleset_head(UnknownOptionStyle,            strings::UnknownOptionStyle);
     
     {
       SharedPtr<EnumStyleConverter> converter{new ButtonFrameStyleConverter};
@@ -2701,27 +2713,31 @@ void StyleInformation::add_style() {
     add_enum(MenuSortingValue, Symbol( richmath_System_MenuSortingValue), new MenuSortingValueStyleConverter);
     add_enum(WindowFrame,      Symbol( richmath_System_WindowFrame),      new WindowFrameStyleConverter);
     
-    add(StyleType::Color,           Background,                       Symbol( richmath_System_Background));
-    add(StyleType::Color,           FontColor,                        Symbol( richmath_System_FontColor));
-    add(StyleType::Color,           SectionFrameColor,                Symbol( richmath_System_SectionFrameColor));
+    add(StyleType::Color,           Background,                          Symbol( richmath_System_Background));
+    add(StyleType::Color,           FontColor,                           Symbol( richmath_System_FontColor));
+    add(StyleType::Color,           SectionFrameColor,                   Symbol( richmath_System_SectionFrameColor));
     
-    add(StyleType::Color,           CharacterNameSyntaxColor,           List(strings::CharacterNameStyle,            Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           CommentSyntaxColor,                 List(strings::CommentStyle,                  Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           ExcessOrMissingArgumentSyntaxColor, List(strings::ExcessOrMissingArgumentStyle,  Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           FunctionLocalVariableSyntaxColor,   List(strings::FunctionLocalVariableStyle,    Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           FunctionNameSyntaxColor,            List(strings::FunctionNameStyle,             Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           ImplicitOperatorSyntaxColor,        List(strings::ImplicitOperatorStyle,         Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           KeywordSymbolSyntaxColor,           List(strings::KeywordSymbolStyle,            Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           LocalScopeConflictSyntaxColor,      List(strings::LocalScopeConflictStyle,       Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           LocalVariableSyntaxColor,           List(strings::LocalVariableStyle,            Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           PatternVariableSyntaxColor,         List(strings::PatternVariableStyle,          Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           StringSyntaxColor,                  List(strings::StringStyle,                   Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           SymbolShadowingSyntaxColor,         List(strings::SymbolShadowingStyle,          Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           SyntaxErrorColor,                   List(strings::SyntaxErrorStyle,              Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           UndefinedSymbolSyntaxColor,         List(strings::UndefinedSymbolStyle,          Symbol(richmath_System_FontColor)));
-    add(StyleType::Color,           UnknownOptionSyntaxColor,           List(strings::UnknownOptionStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           CharacterNameSyntaxColor,            List(strings::CharacterNameStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           CommentSyntaxColor,                  List(strings::CommentStyle,                  Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           ExcessOrMissingArgumentSyntaxColor,  List(strings::ExcessOrMissingArgumentStyle,  Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           FunctionLocalVariableSyntaxColor,    List(strings::FunctionLocalVariableStyle,    Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           FunctionNameSyntaxColor,             List(strings::FunctionNameStyle,             Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           ImplicitOperatorSyntaxColor,         List(strings::ImplicitOperatorStyle,         Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           KeywordSymbolSyntaxColor,            List(strings::KeywordSymbolStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           LocalScopeConflictSyntaxColor,       List(strings::LocalScopeConflictStyle,       Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           LocalVariableSyntaxColor,            List(strings::LocalVariableStyle,            Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           PatternVariableSyntaxColor,          List(strings::PatternVariableStyle,          Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           SectionInsertionPointColor,          strings::SectionInsertionPointColor);
+    add(StyleType::Color,           StringSyntaxColor,                   List(strings::StringStyle,                   Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           SymbolShadowingSyntaxColor,          List(strings::SymbolShadowingStyle,          Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           SyntaxErrorColor,                    List(strings::SyntaxErrorStyle,              Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           UndefinedSymbolSyntaxColor,          List(strings::UndefinedSymbolStyle,          Symbol(richmath_System_FontColor)));
+    add(StyleType::Color,           UnknownOptionSyntaxColor,            List(strings::UnknownOptionStyle,            Symbol(richmath_System_FontColor)));
     
-    add(StyleType::Color,           FrameBoxDefaultBackground,        List(Symbol(richmath_System_FrameBoxOptions),  Symbol(richmath_System_Background)));
+    add(StyleType::Color,           InlineAutoCompletionBackgroundColor, List(strings::InlineAutoCompletionStyle,      Symbol(richmath_System_Background)));
+    add(StyleType::Color,           MatchingBracketBackgroundColor,      List(strings::MatchingBracketHighlightStyle,  Symbol(richmath_System_Background)));
+    add(StyleType::Color,           OccurenceBackgroundColor,            List(strings::OccurenceHighlightStyle,        Symbol(richmath_System_Background)));
+    add(StyleType::Color,           FrameBoxDefaultBackground,           List(Symbol(richmath_System_FrameBoxOptions), Symbol(richmath_System_Background)));
     
     add(StyleType::AutoBool,        Antialiasing,                     Symbol( richmath_System_Antialiasing));
     add(StyleType::Bool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
@@ -2775,6 +2791,10 @@ void StyleInformation::add_style() {
     add(StyleType::Number,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
     add(StyleType::Number,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
     add(StyleType::Number,          Magnification,                    Symbol( richmath_System_Magnification));
+    
+    add(StyleType::Number,          InlineAutoCompletionHighlightOpacity, List(strings::InlineAutoCompletionStyle,     Symbol(richmath_System_Opacity)));
+    add(StyleType::Number,          MatchingBracketHighlightOpacity,      List(strings::MatchingBracketHighlightStyle, Symbol(richmath_System_Opacity)));
+    add(StyleType::Number,          OccurenceHighlightOpacity,            List(strings::OccurenceHighlightStyle,       Symbol(richmath_System_Opacity)));
     
     add(StyleType::Size,            ImageSizeCommon,                  Symbol( richmath_System_ImageSize));
     // ImageSizeHorizontal

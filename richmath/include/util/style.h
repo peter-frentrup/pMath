@@ -59,12 +59,16 @@ namespace richmath {
     LocalScopeConflictSyntaxColor,
     LocalVariableSyntaxColor,
     PatternVariableSyntaxColor,
+    SectionInsertionPointColor,
     StringSyntaxColor,
     SymbolShadowingSyntaxColor,
     SyntaxErrorColor,
     UndefinedSymbolSyntaxColor,
     UnknownOptionSyntaxColor,
     
+    InlineAutoCompletionBackgroundColor,
+    MatchingBracketBackgroundColor,
+    OccurenceBackgroundColor,
     FrameBoxDefaultBackground = Background + (int)DefaultStyleOptionOffsets::FrameBox,
   };
   
@@ -175,6 +179,10 @@ namespace richmath {
     ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
     ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
+    InlineAutoCompletionHighlightOpacity, // 0 .. 1
+    MatchingBracketHighlightOpacity,      // 0 .. 1
+    OccurenceHighlightOpacity,            // 0 .. 1
+    
     SectionMarginLeft,
     SectionMarginRight,
     SectionMarginTop,
@@ -284,9 +292,12 @@ namespace richmath {
     FunctionLocalVariableStyle,
     FunctionNameStyle,
     ImplicitOperatorStyle,
+    InlineAutoCompletionStyle,
     KeywordSymbolStyle,
     LocalScopeConflictStyle,
     LocalVariableStyle,
+    MatchingBracketHighlightStyle,
+    OccurenceHighlightStyle,
     PatternVariableStyle,
     StringStyle,
     SymbolShadowingStyle,

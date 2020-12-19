@@ -49,17 +49,6 @@ static const Color DebugFollowMouseInStringColor = Color::from_rgb(0.5, 0, 1);
 static const Color DebugFollowMouseColor         = Color::from_rgb(1, 0, 0);
 static const Color DebugSelectionBoundsColor     = Color::from_rgb(0.5, 0.5, 0.5);
 
-static const Color OccurenceBackgroundColor = Color::from_rgb24(0xFF9933);
-
-static const Color  MatchingBracketHighlightColor = Color::from_rgb(1, 1, 0);
-static const double MatchingBracketHighlightAlpha = 0.5;
-
-static const Color  AutoCompleteHighlightColor = Color::from_rgb(1, 1, 0);
-static const double AutoCompleteHighlightAlpha = 0.5;
-
-static const Color DocumentCursorLineColor = Color::from_rgb24(0xC0C0C0);
-
-
 static const double MaxFlashingCursorRadius = 9;  /* points */
 static const double MaxFlashingCursorTime = 0.15; /* seconds */
 
@@ -3811,9 +3800,14 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
     {
       VolatileSelection hc = find->get_highlight_child(VolatileSelection{find, index - len, index});
       if(hc.box == find) {
-        self._current_word_references.add(SelectionReference{hc});
-        add_fill(temp_hooks, hc.box, hc.start, hc.end, OccurenceBackgroundColor);
-        ++num_occurencies;
+        if(Color bg = hc.box->get_style(OccurenceBackgroundColor, Color::None)) {
+          float bg_alpha = hc.box->get_style(OccurenceHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            self._current_word_references.add(SelectionReference{hc});
+            add_fill(temp_hooks, hc.box, hc.start, hc.end, bg, bg_alpha);
+            ++num_occurencies;
+          }
+        }
       }
     }
     
@@ -3902,18 +3896,22 @@ void Document::Impl::add_matching_bracket_hook() {
           // head without white space
           while(head->count() == 1)
             head = head->item(0);
-            
-          add_pre_fill(seq, head->start(), head->end() + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
           
-          // opening parenthesis, always exists
-          add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
-          
-          // closing parenthesis, last item, might not exist
-          int clos = span->count() - 1;
-          if(clos >= 2 && span->item_equals(clos, ")")) {
-            add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
+          if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
+            float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+            if(0 < bg_alpha && bg_alpha <= 1) {
+              add_pre_fill(seq, head->start(), head->end() + 1, bg, bg_alpha);
+              
+              // opening parenthesis, always exists
+              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, bg, bg_alpha);
+              
+              // closing parenthesis, last item, might not exist
+              int clos = span->count() - 1;
+              if(clos >= 2 && span->item_equals(clos, ")")) {
+                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, bg, bg_alpha);
+              }
+            }
           }
-          
         } // destroy call before deleting span
         delete span;
         return;
@@ -3931,21 +3929,26 @@ void Document::Impl::add_matching_bracket_hook() {
           }
           seq = span->sequence();
           
-          // head, always exists
-          add_pre_fill(seq, head->start(), head->end() + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
-          
-          // dot, always exists
-          add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
-          
-          // opening parenthesis, might not exist
-          if(span->count() > 3) {
-            add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
-          }
-          
-          // closing parenthesis, last item, might not exist
-          int clos = span->count() - 1;
-          if(clos >= 2 && span->item_equals(clos, ")")) {
-            add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
+          if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
+            float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+            if(0 < bg_alpha && bg_alpha <= 1) {
+              // head, always exists
+              add_pre_fill(seq, head->start(), head->end() + 1, bg, bg_alpha);
+              
+              // dot, always exists
+              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, bg, bg_alpha);
+              
+              // opening parenthesis, might not exist
+              if(span->count() > 3) {
+                add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, bg, bg_alpha);
+              }
+              
+              // closing parenthesis, last item, might not exist
+              int clos = span->count() - 1;
+              if(clos >= 2 && span->item_equals(clos, ")")) {
+                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, bg, bg_alpha);
+              }
+            }
           }
         } // destroy call before deleting span
         delete span;
@@ -3966,8 +3969,13 @@ void Document::Impl::add_matching_bracket_hook() {
     }
     
     if(other_bracket >= 0) {
-      add_pre_fill(seq, pos,           pos + 1,           MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
-      add_pre_fill(seq, other_bracket, other_bracket + 1, MatchingBracketHighlightColor, MatchingBracketHighlightAlpha);
+      if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
+        float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+        if(0 < bg_alpha && bg_alpha <= 1) {
+          add_pre_fill(seq, pos,           pos + 1,           bg, bg_alpha);
+          add_pre_fill(seq, other_bracket, other_bracket + 1, bg, bg_alpha);
+        }
+      }
     }
   }
   
@@ -3980,12 +3988,17 @@ void Document::Impl::add_autocompletion_hook() {
   if(!box)
     return;
     
-  add_pre_fill(
-    box,
-    self.auto_completion.range.start,
-    self.auto_completion.range.end,
-    AutoCompleteHighlightColor,
-    AutoCompleteHighlightAlpha);
+  if(Color bg = box->get_style(InlineAutoCompletionBackgroundColor, Color::None)) {
+    float bg_alpha = box->get_style(InlineAutoCompletionHighlightOpacity, 1.0f);
+    if(0 < bg_alpha && bg_alpha <= 1) {
+      add_pre_fill(
+        box,
+        self.auto_completion.range.start,
+        self.auto_completion.range.end,
+        bg,
+        bg_alpha);
+    }
+  }
 }
 
 void Document::Impl::add_selection_highlights(int first_visible_section, int last_visible_section) {
@@ -4012,13 +4025,15 @@ void Document::Impl::paint_document_cursor() {
     float x2 = self._extents.width;
     float y2 = y + 0.5;
     
-    self.context.canvas().align_point(&x1, &y1, true);
-    self.context.canvas().align_point(&x2, &y2, true);
-    self.context.canvas().move_to(x1, y1);
-    self.context.canvas().line_to(x2, y2);
-    
-    self.context.canvas().set_color(DocumentCursorLineColor);
-    self.context.canvas().hair_stroke();
+    if(Color c = self.get_style(SectionInsertionPointColor, Color::None)) {
+      self.context.canvas().align_point(&x1, &y1, true);
+      self.context.canvas().align_point(&x2, &y2, true);
+      self.context.canvas().move_to(x1, y1);
+      self.context.canvas().line_to(x2, y2);
+      
+      self.context.canvas().set_color(c);
+      self.context.canvas().hair_stroke();
+    }
     
     if(self.context.selection.start < self.count()) {
       x1 = self.section(self.context.selection.start)->get_style(SectionMarginLeft);
