@@ -179,14 +179,16 @@ void UnderoverscriptBox::resize(Context &context) {
       !_overscript_is_stretched &&
       _base->length() == 1)
   {
-    if(_parent && _parent->length() == 1) {
-      if(auto uo = dynamic_cast<UnderoverscriptBox*>(_parent->parent())) {
-        for(int i = 0; i < uo->count(); ++i)
-          if(i != _parent->index()) {
-            float wi = uo->item(i)->extents().width;
-            if(w < wi)
-              w = wi;
-          }
+    if(auto par = parent()) {
+      if(par->length() == 1) {
+        if(auto uo = dynamic_cast<UnderoverscriptBox*>(par->parent())) {
+          for(int i = 0; i < uo->count(); ++i)
+            if(i != par->index()) {
+              float wi = uo->item(i)->extents().width;
+              if(w < wi)
+                w = wi;
+            }
+        }
       }
     }
     
@@ -268,7 +270,7 @@ void UnderoverscriptBox::paint(Context &context) {
 Box *UnderoverscriptBox::remove(int *index) {
   if(*index == 0) {
     if(_base->length() == 0) {
-      if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
+      if(auto seq = dynamic_cast<MathSequence*>(parent())) {
         if(_underscript && !_overscript) {
           seq->insert(_index + 1, _underscript, 0, _underscript->length());
           *index = _index;
@@ -308,7 +310,7 @@ Box *UnderoverscriptBox::remove(int *index) {
     return move_logical(LogicalDirection::Backward, false, index);
   }
   
-  auto seq = dynamic_cast<MathSequence*>(_parent);
+  auto seq = dynamic_cast<MathSequence*>(parent());
   if( seq && 
       ((_underscript && _underscript->length() == 0) || 
        (_overscript  && _overscript->length()  == 0))) 
@@ -425,9 +427,9 @@ Box *UnderoverscriptBox::move_vertical(
   }
   
   if(!dst) {
-    if(_parent) {
+    if(auto par = parent()) {
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index, true);
+      return par->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;

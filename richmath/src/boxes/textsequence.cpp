@@ -836,12 +836,12 @@ Box *TextSequence::move_logical(
   
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
-      if(_parent) {
-        if(!_parent->exitable())
+      if(auto par = parent()) {
+        if(!par->exitable())
           return this;
           
         *index = _index;
-        return _parent->move_logical(LogicalDirection::Forward, true, index);
+        return par->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -901,12 +901,12 @@ Box *TextSequence::move_logical(
   }
   
   if(*index <= 0) {
-    if(_parent) {
-      if(!_parent->exitable())
+    if(auto par = parent()) {
+      if(!par->exitable())
         return this;
       
       *index = _index + 1;
-      return _parent->move_logical(LogicalDirection::Backward, true, index);
+      return par->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -1027,10 +1027,10 @@ Box *TextSequence::move_vertical(
     return this;
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     *index_rel_x = x;
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index, true);
+    return par->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;

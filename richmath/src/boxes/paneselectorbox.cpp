@@ -270,13 +270,13 @@ Box *PaneSelectorBox::move_logical(
       return _panes[_current_selection]->move_logical(LogicalDirection::Forward, jumping, index);
     }
     
-    if(!_parent) {
-      *index = _panes.length();
-      return this;
+    if(auto par = parent()) {
+      *index = _index;
+      return par->move_logical(LogicalDirection::Forward, true, index);
     }
     
-    *index = _index;
-    return _parent->move_logical(LogicalDirection::Forward, true, index);
+    *index = _panes.length();
+    return this;
   }
   else {
     if(*index > _current_selection && !jumping && _current_selection >= 0 && _current_selection < _panes.length()) {
@@ -285,13 +285,13 @@ Box *PaneSelectorBox::move_logical(
       return pane->move_logical(LogicalDirection::Backward, jumping, index);
     }
     
-    if(!_parent) {
-      *index = 0;
-      return this;
+    if(auto par = parent()) {
+      *index = _index + 1;
+      return par->move_logical(LogicalDirection::Backward, true, index);
     }
     
-    *index = _index + 1;
-    return _parent->move_logical(LogicalDirection::Backward, true, index);
+    *index = 0;
+    return this;
   }
 }
 

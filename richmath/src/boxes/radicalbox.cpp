@@ -179,9 +179,9 @@ Box *RadicalBox::remove(int *index) {
     return move_logical(LogicalDirection::Backward, false, index);
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     *index = _index;
-    if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
+    if(auto seq = dynamic_cast<MathSequence*>(par)) {
       if(_exponent) {
         if(_radicand->length() > 0)
           return move_logical(LogicalDirection::Backward, false, index);
@@ -191,7 +191,7 @@ Box *RadicalBox::remove(int *index) {
       else
         seq->insert(_index + 1, _radicand, 0, _radicand->length());
     }
-    return _parent->remove(index);
+    return par->remove(index);
   }
   
   *index = 0;
@@ -254,20 +254,23 @@ Box *RadicalBox::move_vertical(
     return _radicand->move_vertical(direction, index_rel_x, index, false);
   }
   
-  if(!_parent)
-    return this;
-    
-  if(*index == 0)
-    *index_rel_x += rx;
-    
-  *index = _index;
-  return _parent->move_vertical(direction, index_rel_x, index, true);
+  if(auto par = parent()) {
+    if(*index == 0)
+      *index_rel_x += rx;
+      
+    *index = _index;
+    return par->move_vertical(direction, index_rel_x, index, true);
+  }
+  
+  return this;
 }
 
 VolatileSelection RadicalBox::mouse_selection(Point pos, bool *was_inside_start) {
-  if(_parent && pos.x > (_extents.width + rx + _radicand->extents().width) / 2) {
-    *was_inside_start = false;
-    return { _parent, _index + 1, _index + 1 };
+  if(pos.x > (_extents.width + rx + _radicand->extents().width) / 2) {
+    if(auto par = parent()) {
+      *was_inside_start = false;
+      return { par, _index + 1, _index + 1 };
+    }
   }
   
   if(_exponent) {
@@ -281,9 +284,11 @@ VolatileSelection RadicalBox::mouse_selection(Point pos, bool *was_inside_start)
                was_inside_start);
   }
   
-  if(_parent && pos.x < rx / 2) {
-    *was_inside_start = true;
-    return { _parent, _index, _index };
+  if(pos.x < rx / 2) {
+    if(auto par = parent()) {
+      *was_inside_start = true;
+      return { par, _index, _index };
+    }
   }
   
   

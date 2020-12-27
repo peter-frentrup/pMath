@@ -141,24 +141,24 @@ Box *Section::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  if(_parent) {
+  if(auto par = parent()) {
     if(index < 0) { // called from parent
       if(direction == LogicalDirection::Forward)
         *index = _index + 1;
       else
         *index = _index;
-      return _parent;
+      return par;
     }
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index, true);
+    return par->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;
 }
 
 VolatileSelection Section::normalize_selection(int start, int end) {
-  if(_parent) 
-    return _parent->normalize_selection(_index, _index + 1);
+  if(auto par = parent()) 
+    return par->normalize_selection(_index, _index + 1);
   
   return {this, start, end};
 }
@@ -624,15 +624,15 @@ Box *AbstractSequenceSection::move_vertical(
     return _content->move_vertical(direction, index_rel_x, index, false);
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     *index_rel_x += cx;
 //    if(direction == LogicalDirection::Forward)
 //      *index = _index + 1;
 //    else
 //      *index = _index;
-//    return _parent;
+//    return par;
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index, true);
+    return par->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;

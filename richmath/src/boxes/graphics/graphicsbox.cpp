@@ -201,8 +201,8 @@ int GraphicsBox::count() {
 }
 
 bool GraphicsBox::expand(const BoxSize &size) {
-  auto seq = dynamic_cast<MathSequence*>(_parent);
-  if(_parent && seq->length() == 1) {
+  auto seq = dynamic_cast<MathSequence*>(parent());
+  if(seq && seq->length() == 1) {
     if(dynamic_cast<FillBox *>(seq->parent())) {
       BoxSize old_size = _extents;
       calculate_size(&size.width);

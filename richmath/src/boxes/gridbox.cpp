@@ -490,9 +490,9 @@ Box *GridBox::remove_range(int *start, int end) {
   using std::swap;
   
   if(*start >= end) {
-    if(_parent) {
+    if(auto par = parent()) {
       *start = _index + 1;
-      return _parent->move_logical(LogicalDirection::Backward, true, start);
+      return par->move_logical(LogicalDirection::Backward, true, start);
     }
     
     return this;
@@ -505,20 +505,20 @@ Box *GridBox::remove_range(int *start, int end) {
       rect.x.end == GridXIndex(cols()) && 
       rect.y.end == GridYIndex(rows())) 
   {
-    if(_parent) {
+    if(auto par = parent()) {
       *start = _index;
-      return _parent->remove(start);
+      return par->remove(start);
     }
     
     *start = 0;
     return items[0]->content();
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     if(cols() == 1) {
       if(rect.y.start == GridYIndex(1) && rect.y.end == GridYIndex(rows())) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
           MathSequence *content = items[0]->content();
           seq->insert(
             _index,
@@ -528,11 +528,11 @@ Box *GridBox::remove_range(int *start, int end) {
           *start += content->length();
         }
         
-        return _parent->remove(start);
+        return par->remove(start);
       }
       else if(rect.y.start == GridYIndex(0) && rect.y.end == GridYIndex(rows() - 1)) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
           MathSequence *content = items[items.length() - 1]->content();
           seq->insert(
             _index,
@@ -542,18 +542,18 @@ Box *GridBox::remove_range(int *start, int end) {
           *start += content->length();
         }
         
-        return _parent->remove(start);
+        return par->remove(start);
       }
       else if(rect.y.start == GridYIndex(0) && rect.y.end == GridYIndex(rows())) {
         *start = _index;
-        return _parent->remove(start);
+        return par->remove(start);
       }
     }
     
     if(rows() == 1) {
       if(rect.x.start == GridXIndex(1) && rect.x.end == GridXIndex(cols())) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
           MathSequence *content = items[0]->content();
           seq->insert(
             _index,
@@ -563,11 +563,11 @@ Box *GridBox::remove_range(int *start, int end) {
           *start += content->length();
         }
         
-        return _parent->remove(start);
+        return par->remove(start);
       }
       else if(rect.x.start == GridXIndex(0) && rect.x.end == GridXIndex(cols() - 1)) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
+        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
           MathSequence *content = items[items.length() - 1]->content();
           seq->insert(
             _index,
@@ -577,11 +577,11 @@ Box *GridBox::remove_range(int *start, int end) {
           *start += content->length();
         }
         
-        return _parent->remove(start);
+        return par->remove(start);
       }
       else if(rect.x.start == GridXIndex(0) && rect.x.end == GridXIndex(cols())) {
         *start = _index;
-        return _parent->remove(start);
+        return par->remove(start);
       }
     }
   }
@@ -594,9 +594,9 @@ Box *GridBox::remove_range(int *start, int end) {
       return result;
     }
     
-    if(_parent) {
+    if(auto par = parent()) {
       *start = _index;
-      return _parent;
+      return par;
     }
     
     *start = items[0]->content()->length();
@@ -611,9 +611,9 @@ Box *GridBox::remove_range(int *start, int end) {
       return result;
     }
     
-    if(_parent) {
+    if(auto par = parent()) {
       *start = _index;
-      return _parent;
+      return par;
     }
     
     *start = items[0]->content()->length();
@@ -645,9 +645,9 @@ Box *GridBox::remove_range(int *start, int end) {
         return result;
       }
       
-      if(_parent) {
+      if(auto par = parent()) {
         *start = _index;
-        return _parent;
+        return par;
       }
       
       *start = items[0]->content()->length();
@@ -674,9 +674,9 @@ Box *GridBox::remove_range(int *start, int end) {
         return result;
       }
       
-      if(_parent) {
+      if(auto par = parent()) {
         *start = _index;
-        return _parent;
+        return par;
       }
       
       *start = items[0]->content()->length();
@@ -691,9 +691,9 @@ Box *GridBox::remove_range(int *start, int end) {
     return result;
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     *start = _index;
-    return _parent;
+    return par;
   }
   
   *start = items[0]->content()->length();
@@ -803,10 +803,10 @@ Box *GridBox::move_vertical(
   
   if(*index >= items.length()) {
     if(row < GridYIndex(0) || row > GridYIndex(rows())) {
-      if(_parent) {
+      if(auto par = parent()) {
         *index_rel_x += col < GridXIndex(cols()) ? xpos[col.primary_value()] : _extents.width;
         *index = _index;
-        return _parent->move_vertical(direction, index_rel_x, index, true);
+        return par->move_vertical(direction, index_rel_x, index, true);
       }
       
       return this;
@@ -817,10 +817,10 @@ Box *GridBox::move_vertical(
   }
   
   if(row < GridYIndex(0) || row >= GridYIndex(rows())) {
-    if(_parent) {
+    if(auto par = parent()) {
       *index_rel_x += xpos[col.primary_value()];
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index, true);
+      return par->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;

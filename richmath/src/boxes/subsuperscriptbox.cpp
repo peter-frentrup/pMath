@@ -237,12 +237,12 @@ Box *SubsuperscriptBox::remove(int *index) {
     return move_logical(LogicalDirection::Backward, false, index);
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     if( (_subscript   && _subscript->length()   == 0) ||
         (_superscript && _superscript->length() == 0))
     {
       *index = _index;
-      return _parent->remove(index);
+      return par->remove(index);
     }
   }
   
@@ -325,9 +325,9 @@ Box *SubsuperscriptBox::move_vertical(
   }
   
   if(!dst) {
-    if(_parent) {
+    if(auto par = parent()) {
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index, true);
+      return par->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;
@@ -336,6 +336,7 @@ Box *SubsuperscriptBox::move_vertical(
   *index = -1;
   return dst->move_vertical(direction, index_rel_x, index, false);
 }
+
 VolatileSelection SubsuperscriptBox::mouse_selection(Point pos, bool *was_inside_start) {
   if(_subscript) {
     // TODO: shouldn't it be pos.y >= 0.5*(...) to tie at the center?
@@ -348,7 +349,7 @@ VolatileSelection SubsuperscriptBox::mouse_selection(Point pos, bool *was_inside
     return _superscript->mouse_selection(pos - _superscript_offset, was_inside_start);
   
   *was_inside_start = true;
-  return { _parent, _index, _index + 1 };
+  return { parent(), _index, _index + 1 };
 }
 
 void SubsuperscriptBox::child_transformation(

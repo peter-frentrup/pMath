@@ -80,13 +80,13 @@ void OwnerBox::paint_content(Context &context) {
 }
 
 Box *OwnerBox::remove(int *index) {
-  if(_parent) {
+  if(auto par = parent()) {
     *index = _index;
-    VolatileSelection sel = _parent->normalize_selection(_index, _index + 1);
+    VolatileSelection sel = par->normalize_selection(_index, _index + 1);
     if(auto seq = dynamic_cast<AbstractSequence*>(sel.box)) {
       seq->insert(sel.end, _content, 0, _content->length());
     }
-    return _parent->remove(index);
+    return par->remove(index);
   }
   *index = 0;
   return _content;
@@ -109,7 +109,7 @@ Box *OwnerBox::move_vertical(
       else
         *index = _index + 1;
         
-      return _parent;
+      return parent();
     }
     
     *index_rel_x -= cx;
@@ -129,7 +129,7 @@ VolatileSelection OwnerBox::mouse_selection(Point pos, bool *was_inside_start) {
       return sel;
     
     *was_inside_start = 0 <= pos.x && pos.x <= _extents.width;
-    return { _parent, _index, _index + 1 };
+    return { parent(), _index, _index + 1 };
   }
 
   return _content->mouse_selection(pos, was_inside_start);
@@ -150,7 +150,7 @@ bool OwnerBox::edit_selection(SelectionReference &selection) {
     
     Box *selbox = selection.get();
     if(auto_delete && selbox != this) {
-      if(auto seq = dynamic_cast<MathSequence*>(_parent)) {
+      if(auto seq = dynamic_cast<MathSequence*>(parent())) {
         if(selbox == _content) {
           selection.set(seq,
                         selection.start + _index,

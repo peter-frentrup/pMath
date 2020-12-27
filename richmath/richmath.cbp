@@ -360,6 +360,7 @@
 					<Add option="/Gd" />
 					<Add option="/GF" />
 					<Add option="/Zi" />
+					<Add option='/Fd&quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot;' />
 					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
 					<Add option="/DPMATH_DEBUG_LOG" />
@@ -421,6 +422,7 @@
 					<Add option="/Gd" />
 					<Add option="/GF" />
 					<Add option="/Zi" />
+					<Add option='/Fd&quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot;' />
 					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
 					<Add option="/DNDEBUG" />
@@ -481,6 +483,7 @@
 					<Add option="/Gd" />
 					<Add option="/GF" />
 					<Add option="/Zi" />
+					<Add option='/Fd&quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot;' />
 					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
 					<Add option="/DPMATH_DEBUG_LOG" />
@@ -542,6 +545,7 @@
 					<Add option="/GL" />
 					<Add option="/GF" />
 					<Add option="/Zi" />
+					<Add option='/Fd&quot;$(TARGET_OUTPUT_DIR)$(TARGET_OUTPUT_BASENAME).pdb&quot;' />
 					<Add option="/wd4061 /wd4100 /wd4146 /wd4244 /wd4305 /wd4625 /wd4626 /wd4710 /wd4711 /wd4738 /wd4800 /wd4820 /wd5026 /wd5027" />
 					<Add option="/wd4263 /wd4264 /wd4266 /wd4577" />
 					<Add option="/DNDEBUG" />
@@ -1231,6 +1235,7 @@
 		<Unit filename="include/util/sharedptr.h" />
 		<Unit filename="include/util/style.h" />
 		<Unit filename="include/util/styled-object.h" />
+		<Unit filename="include/util/tintedptr.h" />
 		<Unit filename="resources/Windows.manifest">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />

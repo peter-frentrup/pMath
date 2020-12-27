@@ -421,8 +421,7 @@ void MathSequence::resize(Context &context) {
     float a = 0;
     float d = 0;
     
-    if(glyphs.length() == 1 &&
-        !dynamic_cast<UnderoverscriptBox *>(_parent))
+    if(glyphs.length() == 1 && !dynamic_cast<UnderoverscriptBox *>(parent()))
     {
       pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, nullptr);
       
@@ -481,7 +480,7 @@ void MathSequence::resize(Context &context) {
   context.section_content_window_width = old_scww;
   
   Impl(*this).split_lines(context);
-  if(dynamic_cast<Section *>(_parent)) {
+  if(dynamic_cast<Section *>(parent())) {
     Impl(*this).hstretch_lines(
       context.width,
       context.section_content_window_width,
@@ -814,12 +813,12 @@ Box *MathSequence::move_logical(
   
   if(direction == LogicalDirection::Forward) {
     if(*index >= len) {
-      if(_parent) {
-        if(!_parent->exitable())
+      if(auto par = parent()) {
+        if(!par->exitable())
           return this;
           
         *index = _index;
-        return _parent->move_logical(LogicalDirection::Forward, true, index);
+        return par->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -858,12 +857,12 @@ Box *MathSequence::move_logical(
   }
   
   if(*index <= 0) {
-    if(_parent) {
-      if(!_parent->exitable())
+    if(auto par = parent()) {
+      if(!par->exitable())
         return this;
         
       *index = _index + 1;
-      return _parent->move_logical(LogicalDirection::Backward, true, index);
+      return par->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }
@@ -991,10 +990,10 @@ Box *MathSequence::move_vertical(
     return this;
   }
   
-  if(_parent) {
+  if(auto par = parent()) {
     *index_rel_x = x;
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index, true);
+    return par->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;

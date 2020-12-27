@@ -260,9 +260,9 @@ BoxSize AxisTicks::all_labels_extents() {
 }
 
 Box *AxisTicks::remove(int *index) {
-  if(_parent) {
+  if(auto par = parent()) {
     *index = _index;
-    return _parent->remove(index);
+    return par->remove(index);
   }
   
   return this;

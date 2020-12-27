@@ -193,18 +193,19 @@ Box *TemplateBox::move_logical(
       slot = search_next_box<TemplateBoxSlot>(slot, direction, this);
     }
     
-    if(!_parent) {
-      *index = 0;
-      return this;
-    }
-    
-    if(direction == LogicalDirection::Forward) {
-      *index = _index;
-      return _parent->move_logical(direction, true, index);
+    if(auto par = parent()) {
+      if(direction == LogicalDirection::Forward) {
+        *index = _index;
+        return par->move_logical(direction, true, index);
+      }
+      else {
+        *index = _index + 1;
+        return par->move_logical(direction, true, index);
+      }
     }
     else {
-      *index = _index + 1;
-      return _parent->move_logical(direction, true, index);
+      *index = 0;
+      return this;
     }
   }
   
@@ -252,13 +253,13 @@ Box *TemplateBox::move_vertical(
     box = nullptr;
     
   if(!box) {
-    if(_parent) {
+    if(auto par = parent()) {
       if(direction == LogicalDirection::Forward) {
-        box = _parent;
+        box = par;
         *index = _index + 1;
       }
       else {
-        box = _parent;
+        box = par;
         *index = _index;
       }
     }
@@ -268,7 +269,7 @@ Box *TemplateBox::move_vertical(
     }
   }
   
-  if(box == _parent) {
+  if(box == parent()) {
     if(*index != _index) {
       cairo_matrix_t mat1;
       cairo_matrix_t mat2;

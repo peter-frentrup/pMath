@@ -172,8 +172,8 @@ void DynamicBox::dynamic_finished(Expr info, Expr result) {
 
 bool DynamicBox::edit_selection(SelectionReference &selection) {
   if(get_own_style(Editable, false)) {
-    if(_parent)
-      return _parent->edit_selection(selection);
+    if(auto p = parent())
+      return p->edit_selection(selection);
   }
   
   return false;

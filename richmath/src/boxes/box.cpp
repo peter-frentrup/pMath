@@ -80,7 +80,7 @@ void AutoMemorySuspension::resume_deletions() {
   int count = 0;
   while(box_limbo) {
     Box *tmp = box_limbo;
-    box_limbo = tmp->_parent;
+    box_limbo = tmp->_parent_or_limbo_next.as_tinted();
     
 //    Expr expr = tmp->to_pmath(0);
 //    pmath_debug_print_object("[limbo deletion: \n  ", expr.get(), "\n]\n");
@@ -100,7 +100,7 @@ void AutoMemorySuspension::resume_deletions() {
 Box::Box()
   : ActiveStyledObject(),
     _extents(0, 0, 0),
-    _parent(nullptr),
+    _parent_or_limbo_next(nullptr),
     _index(0)
 {
 }
@@ -134,7 +134,8 @@ void Box::after_insertion(int start, int end) {
 void Box::safe_destroy() {
   if(AutoMemorySuspension::are_deletions_suspended()) {
     _index = 0;
-    _parent = box_limbo;
+    TintedPtr_ASSERT( _parent_or_limbo_next.is_normal() );
+    _parent_or_limbo_next = TintedPtr<Box, Box>::FromTinted(box_limbo);
     box_limbo = this;
     return;
   }
@@ -162,30 +163,30 @@ Box *Box::common_parent(Box *a, Box *b) {
   int d1 = 0;
   Box *tmp = a;
   while(tmp) {
-    tmp = tmp->_parent;
+    tmp = tmp->parent();
     ++d1;
   }
   
   int d2 = 0;
   tmp = b;
   while(tmp) {
-    tmp = tmp->_parent;
+    tmp = tmp->parent();
     ++d2;
   }
   
   while(d1 > d2) {
-    a = a->_parent;
+    a = a->parent();
     --d1;
   }
   
   while(d1 < d2) {
-    b = b->_parent;
+    b = b->parent();
     --d2;
   }
   
   while(a != b) {
-    a = a->_parent;
-    b = b->_parent;
+    a = a->parent();
+    b = b->parent();
   }
   
   return a;
@@ -231,8 +232,8 @@ void Box::colorize_scope(SyntaxState &state) {
 }
 
 VolatileSelection Box::get_highlight_child(const VolatileSelection &src) {
-  if(_parent)
-    return _parent->get_highlight_child(src);
+  if(auto par = parent())
+    return par->get_highlight_child(src);
     
   return src;
 }
@@ -251,15 +252,15 @@ void Box::scroll_to(const RectangleF &rect) {
 }
 
 void Box::scroll_to(Canvas &canvas, const VolatileSelection &child) {
-  if(_parent)
-    _parent->scroll_to(canvas, child);
+  if(auto par = parent())
+    par->scroll_to(canvas, child);
 }
 
-void Box::default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection &child_sel) {
+void Box::default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel) {
   double x1, y1, x2, y2;
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
-  child_sel.box->transformation(parent, &mat);
+  child_sel.box->transformation(scroll_view, &mat);
   
   canvas.save();
   {
@@ -286,8 +287,8 @@ void Box::default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection
   Canvas::transform_rect(mat, &x, &y, &w, &h);
   scroll_to(RectangleF{x, y, w, h});
   
-  if(_parent)
-    _parent->scroll_to(canvas, child_sel);
+  if(auto par = parent())
+    par->scroll_to(canvas, child_sel);
 }
 
 Box *Box::move_logical(
@@ -295,14 +296,16 @@ Box *Box::move_logical(
   bool              jumping,
   int              *index
 ) {
-  if(style && _parent) {
-    if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
-      if(direction == LogicalDirection::Forward)
-        *index = _index + 1;
-      else
-        *index = _index;
-        
-      return _parent;
+  if(style) {
+    if(auto par = parent()) {
+      if(get_own_style(Selectable, AutoBoolAutomatic) == AutoBoolFalse) {
+        if(direction == LogicalDirection::Forward)
+          *index = _index + 1;
+        else
+          *index = _index;
+          
+        return par;
+      }
     }
   }
   
@@ -316,11 +319,12 @@ Box *Box::move_logical(
       return item(b)->move_logical(LogicalDirection::Forward, false, index);
     }
     
-    if(!_parent)
-      return this;
-      
-    *index = _index;
-    return _parent->move_logical(LogicalDirection::Forward, true, index);
+    if(auto par = parent()) {
+      *index = _index;
+      return par->move_logical(LogicalDirection::Forward, true, index);
+    }
+    
+    return this;  
   }
   
   int b = *index - 1;
@@ -334,11 +338,12 @@ Box *Box::move_logical(
     return item(b)->move_logical(LogicalDirection::Backward, false, index);
   }
   
-  if(!_parent)
-    return this;
-    
-  *index = _index + 1;
-  return _parent->move_logical(LogicalDirection::Backward, true, index);
+  if(auto par = parent()) {
+    *index = _index + 1;
+    return par->move_logical(LogicalDirection::Backward, true, index);
+  }
+  
+  return this;
 }
 
 Box *Box::move_vertical(
@@ -347,9 +352,9 @@ Box *Box::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  if(_parent) {
+  if(auto par = parent()) {
     *index = _index;
-    return _parent->move_vertical(direction, index_rel_x, index, true);
+    return par->move_vertical(direction, index_rel_x, index, true);
   }
   
   return this;
@@ -357,8 +362,8 @@ Box *Box::move_vertical(
 
 VolatileSelection Box::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
-  if(_parent) {
-    return { _parent, _index, _index + 1 };
+  if(auto par = parent()) {
+    return { par, _index, _index + 1 };
   }
   return { this, 0, length() };
 }
@@ -370,13 +375,15 @@ void Box::child_transformation(
 }
 
 void Box::transformation(
-  Box            *parent,
+  Box            *ancestor,
   cairo_matrix_t *matrix
 ) {
-  if(_parent && parent != this) {
-    _parent->transformation(parent, matrix);
-    
-    _parent->child_transformation(_index, matrix);
+  if(ancestor == this)
+    return;
+  
+  if(auto par = parent()) {
+    par->transformation(ancestor, matrix);
+    par->child_transformation(_index, matrix);
   }
 }
 
@@ -387,22 +394,22 @@ bool Box::selectable(int i) {
     default: break;
   }
   
-  if(_parent)
-    return _parent->selectable(_index);
+  if(auto par = parent())
+    return par->selectable(_index);
   
   return true;
 }
 
 VolatileSelection Box::normalize_selection(int start, int end) {
-  if(_parent) 
-    return _parent->normalize_selection(_index, _index + 1);
+  if(auto par = parent()) 
+    return par->normalize_selection(_index, _index + 1);
   
   return {};
 }
 
 Expr Box::prepare_dynamic(Expr expr) {
-  if(_parent)
-    return _parent->prepare_dynamic(expr);
+  if(auto par = parent())
+    return par->prepare_dynamic(expr);
   return expr;
 }
 
@@ -432,11 +439,11 @@ bool Box::request_repaint(const RectangleF &rect) {
   if(!_extents.to_rectangle().overlaps(rect, 0.0001))
     return false;
   
-  if(_parent) {
+  if(auto par = parent()) {
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);
-    transformation(_parent, &matrix);
-    return _parent->request_repaint(Canvas::transform_rect(matrix, rect));
+    transformation(par, &matrix);
+    return par->request_repaint(Canvas::transform_rect(matrix, rect));
   }
   
   return false;
@@ -449,20 +456,20 @@ bool Box::visible_rect(RectangleF &rect, Box *top_most) {
   if(!_extents.to_rectangle().overlaps(rect, 0.0001))
     return false;
   
-  if(_parent) {
+  if(auto par = parent()) {
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);
-    transformation(_parent, &matrix);
+    transformation(par, &matrix);
     Canvas::transform_rect_inline(matrix, rect);
-    return _parent->visible_rect(rect, top_most);
+    return par->visible_rect(rect, top_most);
   }
   
   return false;
 }
 
 void Box::invalidate() {
-  if(_parent)
-    _parent->invalidate();
+  if(auto par = parent())
+    par->invalidate();
 }
 
 void Box::invalidate_options() {
@@ -473,8 +480,8 @@ bool Box::edit_selection(SelectionReference &selection) {
   if(!get_own_style(Editable, true))
     return false;
     
-  if(_parent)
-    return _parent->edit_selection(selection);
+  if(auto par = parent())
+    return par->edit_selection(selection);
   
   return true;
 }
@@ -482,8 +489,8 @@ bool Box::edit_selection(SelectionReference &selection) {
 //{ event handlers ...
 
 Box *Box::mouse_sensitive() {
-  if(_parent)
-    return _parent->mouse_sensitive();
+  if(auto par = parent())
+    return par->mouse_sensitive();
   return nullptr;
 }
 
@@ -531,33 +538,34 @@ void Box::on_finish_editing() {
 }
 
 void Box::on_key_down(SpecialKeyEvent &event) {
-  if(_parent)
-    _parent->on_key_down(event);
+  if(auto par = parent())
+    par->on_key_down(event);
 }
 
 void Box::on_key_up(SpecialKeyEvent &event) {
-  if(_parent)
-    _parent->on_key_up(event);
+  if(auto par = parent())
+    par->on_key_up(event);
 }
 
 void Box::on_key_press(uint32_t unichar) {
-  if(_parent)
-    _parent->on_key_press(unichar);
+  if(auto par = parent())
+    par->on_key_press(unichar);
 }
 
 //} ... event handlers
 
 void Box::adopt(Box *child, int i) {
   assert(child != nullptr);
-  assert(child->_parent == nullptr || child->_parent == this);
-  child->_parent = this;
+  assert(child->_parent_or_limbo_next.is_normal());
+  assert(child->parent() == nullptr || child->parent() == this);
+  child->_parent_or_limbo_next = TintedPtr<Box,Box>(this);
   child->_index = i;
 }
 
 void Box::abandon(Box *child) {
   assert(child != nullptr);
-  assert(child->_parent == this);
-  child->_parent = nullptr;
+  assert(child->parent() == this);
+  child->_parent_or_limbo_next = TintedPtr<Box,Box>(nullptr);
   child->_index = 0;
 }
 

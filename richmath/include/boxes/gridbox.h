@@ -130,7 +130,7 @@ namespace richmath {
     protected:
       virtual ~GridItem();
     public:
-      GridBox *grid() { return (GridBox*)_parent; }
+      GridBox *grid() { return (GridBox*)parent(); }
       
       virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;

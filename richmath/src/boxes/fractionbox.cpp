@@ -120,7 +120,7 @@ void FractionBox::paint(Context &context) {
 }
 
 Box *FractionBox::remove(int *index) {
-  if(MathSequence *seq = dynamic_cast<MathSequence*>(_parent)) {
+  if(MathSequence *seq = dynamic_cast<MathSequence*>(parent())) {
     if(*index == 0 && _numerator->length() == 0) {
       *index = _index;
       seq->insert(_index + 1, _denominator, 0, _denominator->length());
@@ -177,9 +177,9 @@ Box *FractionBox::move_vertical(
   }
   
   if(!dst) {
-    if(_parent) {
+    if(auto par = parent()) {
       *index = _index;
-      return _parent->move_vertical(direction, index_rel_x, index, true);
+      return par->move_vertical(direction, index_rel_x, index, true);
     }
     
     return this;
@@ -191,19 +191,19 @@ Box *FractionBox::move_vertical(
 }
 
 VolatileSelection FractionBox::mouse_selection(Point pos, bool *was_inside_start) {
-  if(_parent) {
+  if(auto par = parent()) {
     float cw = _numerator->extents().width;
     if(cw < _denominator->extents().width)
       cw = _denominator->extents().width;
       
     if(pos.x < (_extents.width - cw) / 4) {
       *was_inside_start = false;
-      return { _parent, _index, _index };
+      return { par, _index, _index };
     }
     
     if(pos.x > (3 * _extents.width + cw) / 4) {
       *was_inside_start = false;
-      return { _parent, _index + 1, _index + 1 };
+      return { par, _index + 1, _index + 1 };
     }
   }
   

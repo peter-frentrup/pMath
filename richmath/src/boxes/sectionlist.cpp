@@ -264,9 +264,9 @@ Box *SectionList::move_logical(
 ) {
   if(direction == LogicalDirection::Forward) {
     if(*index >= count()) {
-      if(_parent) {
+      if(auto par = parent()) {
         *index = _index;
-        return _parent->move_logical(LogicalDirection::Forward, true, index);
+        return par->move_logical(LogicalDirection::Forward, true, index);
       }
       return this;
     }
@@ -282,9 +282,9 @@ Box *SectionList::move_logical(
   }
   
   if(*index <= 0) {
-    if(_parent) {
+    if(auto par = parent()) {
       *index = _index + 1;
-      return _parent->move_logical(LogicalDirection::Backward, true, index);
+      return par->move_logical(LogicalDirection::Backward, true, index);
     }
     return this;
   }

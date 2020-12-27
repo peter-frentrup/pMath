@@ -89,7 +89,7 @@ bool InterpretationBox::edit_selection(SelectionReference &selection) {
     return false;
     
   if(get_own_style(AutoDelete)) {
-    if(MathSequence *seq = dynamic_cast<MathSequence *>(_parent)) {
+    if(MathSequence *seq = dynamic_cast<MathSequence *>(parent())) {
       int len = _content->length();
       
       if(selection.get() == _content) {

@@ -6,6 +6,7 @@
 #include <util/selections.h>
 #include <util/sharedptr.h>
 #include <util/styled-object.h>
+#include <util/tintedptr.h>
 
 #include <functional>
 
@@ -176,7 +177,7 @@ namespace richmath {
       void delete_owned(Box *child) { 
         if(child) {
           assert(child->parent() == this || child->parent() == nullptr);
-          delete child;
+          child->safe_destroy();
         }
       }
     public:
@@ -215,7 +216,7 @@ namespace richmath {
         return box;
       }
       
-      Box *parent() { return _parent; }
+      Box *parent() { return _parent_or_limbo_next.as_normal(); }
 
       /// The selection index within parent().
       int index() {  return _index; }
@@ -225,7 +226,7 @@ namespace richmath {
         Box *b = this;
         
         if(!selfincluding)
-          b = _parent;
+          b = parent();
           
         while(b && !dynamic_cast<T*>(b))
           b = b->parent();
@@ -269,7 +270,7 @@ namespace richmath {
       virtual void selection_path(Canvas &canvas, int start, int end);
       virtual void scroll_to(const RectangleF &rect);
       virtual void scroll_to(Canvas &canvas, const VolatileSelection &child);
-      void default_scroll_to(Canvas &canvas, Box *parent, const VolatileSelection &child_sel);
+      void default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel);
       
       /// Remove a child box and get the new selection. May also delete this box itself.
       ///
@@ -332,10 +333,10 @@ namespace richmath {
         
       /// Append the child-to-parent coordinate transformation to a matrix.
       ///
-      /// \param parent An owning box or this (otherwise nullptr is assumed, meaning 
-      ///               "all the way up to userspace coordinates")
+      /// \param ancestor An owning box or this (otherwise nullptr is assumed, meaning 
+      ///                 "all the way up to userspace coordinates")
       void transformation(
-        Box            *parent,
+        Box            *ancestor,
         cairo_matrix_t *matrix);
         
       virtual bool remove_inserts_placeholder() { return true; }
@@ -454,9 +455,9 @@ namespace richmath {
       void finish_load_from_object(Expr expr);
       
     protected:
-      BoxSize  _extents;
-      Box     *_parent;
-      int      _index;
+      BoxSize             _extents;
+      TintedPtr<Box, Box> _parent_or_limbo_next;
+      int                 _index;
   };
   
   class DummyBox: public Box {
