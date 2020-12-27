@@ -476,14 +476,16 @@ void Dynamic::Impl::get_value_later(Expr job_info) {
   bool is_dynamic = false;
   Expr call = get_value_unevaluated(&is_dynamic);
   
-  if(!is_dynamic) 
+  if(!is_dynamic) {
+    self._owner->dynamic_finished(std::move(job_info), std::move(call));
     return;
+  }
   
   if(self._owner->style) {
     self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
-  Application::add_job(new DynamicEvaluationJob(job_info, call, self._owner));
+  Application::add_job(new DynamicEvaluationJob(std::move(job_info), std::move(call), self._owner));
 }
 
 bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
