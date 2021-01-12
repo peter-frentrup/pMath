@@ -153,6 +153,7 @@ namespace richmath {
       
       int length() const { return end - start; }
       
+      // TODO: GridBox needs special handling before and after the edit.
       void move_after_edit(const SelectionReference &before_edit, const SelectionReference &after_edit);
       
       bool equals(Box *other_box, int other_start, int other_end) const;

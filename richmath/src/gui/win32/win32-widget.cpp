@@ -1907,20 +1907,10 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     VolatileSelection sel = document()->selection_now();
     
     if(effect & DROPEFFECT_MOVE && is_dragging) {
-      if(VolatileSelection drag_src = drag_source_reference().get_all()) {
+      if(SelectionReference drag_src = drag_source_reference()) {
         drag_source_reference().reset();
         
-        document()->select(drag_src);
-        document()->remove_selection();
-        
-        if(drag_src.box == sel.box) {
-          if(sel.start >= drag_src.end)
-            sel.start -= drag_src.length();
-          if(sel.end >= drag_src.end)
-            sel.end -= drag_src.length();
-        }
-        
-        document()->select(sel);
+        document()->remove_selection(drag_src);
       }
     }
     

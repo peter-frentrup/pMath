@@ -1,5 +1,6 @@
 #include <gui/gtk/mgtk-widget.h>
 
+#include <boxes/gridbox.h>
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-attached-popup-window.h>
 #include <gui/gtk/mgtk-clipboard.h>
@@ -213,7 +214,6 @@ void MathGtkWidget::after_construction() {
   
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_press>(  "button-press-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_button_release>("button-release-event");
-  signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_grab_broken>(   "grab-broken-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_in>(      "focus-in-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_focus_out>(     "focus-out-event");
   signal_connect<MathGtkWidget, GdkEvent *, &MathGtkWidget::on_key_press>(     "key-press-event");
@@ -659,19 +659,17 @@ void MathGtkWidget::on_drag_data_get(
     return;
     
   Document *doc = document();
-  Box *srcbox = drag_source_reference().get();
+  VolatileSelection drag_src = drag_source_reference().get_all();
   
   if(info >= (unsigned)drag_mime_types.length())
     return;
     
-  if(!srcbox)
+  if(!drag_src)
     return;
     
-  int  old_s = doc->selection_start();
-  int  old_e = doc->selection_end();
-  Box *old_b = doc->selection_box();
+  VolatileSelection old_sel = doc->selection_now();
   
-  doc->select(srcbox, drag_source_reference().start, drag_source_reference().end);
+  doc->select(drag_src);
   String text = doc->copy_to_text(drag_mime_types[info]);
   
   int len;
@@ -680,7 +678,7 @@ void MathGtkWidget::on_drag_data_get(
   gtk_selection_data_set(data, target, 8, (const guchar *)str, len);
   pmath_mem_free(str);
   
-  doc->select(old_b, old_s, old_e);
+  doc->select(old_sel);
 }
 
 void MathGtkWidget::on_drag_data_delete(GdkDragContext *context) {
@@ -688,30 +686,10 @@ void MathGtkWidget::on_drag_data_delete(GdkDragContext *context) {
     return;
     
   Document *doc = document();
-  Box *srcbox = drag_source_reference().get();
-  
-  if(!srcbox)
-    return;
-    
-  int  old_s = doc->selection_start();
-  int  old_e = doc->selection_end();
-  Box *old_b = doc->selection_box();
-  
-  int s = drag_source_reference().start;
-  int e = drag_source_reference().end;
-  doc->select(srcbox, s, e);
-  doc->remove_selection();
-  
-  if(srcbox == old_b && doc->selection_box() == srcbox) {
-    if(old_s >= e)
-      old_s -= e - s;
-    if(old_e >= e)
-      old_e -= e - s;
-  }
-  
-  doc->select(old_b, old_s, old_e);
-  
+  SelectionReference drag_src = drag_source_reference();
   drag_source_reference().reset();
+  
+  doc->remove_selection(drag_src);
 }
 
 void MathGtkWidget::on_drag_data_received(
@@ -749,28 +727,22 @@ void MathGtkWidget::on_drag_data_received(
   String text = String::FromUtf8(raw_data, len);
   
   document()->select(dst);
+  if(gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE) {
+    if(SelectionReference drag_src = drag_source_reference()) {
+      drag_source_reference().reset();
+      
+      document()->remove_selection(drag_src);
+      dst = document()->selection_now();
+    }
+  }
+  
   document()->paste_from_text(mimetype, text);
   
   Box *newbox = document()->selection_box();
   int newend  = document()->selection_start();
   
-  if(dst.box == newbox) {
+  if(dst.box == newbox) 
     document()->select(newbox, dst.start, newend);
-    
-    VolatileSelection src = drag_source_reference().get_all();
-    if(src.box == dst.box) {
-      int s = drag_source_reference().start;
-      int e = drag_source_reference().end;
-      
-      if(src.start >= dst.end)
-        src.start += newend - dst.end;
-      if(src.end >= dst.end)
-        src.end += newend - dst.end;
-        
-      drag_source_reference().start = src.start;
-      drag_source_reference().end   = src.end;
-    }
-  }
   
   gtk_drag_finish(context, TRUE, gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE, time);
 }
@@ -858,9 +830,14 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   if(target != GDK_NONE) {
     bool need_data = true;
     if(MathGtkWidget *wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(source_widget))) {
-      if(VolatileSelection src = wid->drag_source_reference().get_all()) {
-        Expr boxes = src.to_pmath(BoxOutputFlags::Default);
+      if(SelectionReference drag_src = wid->drag_source_reference()) {
+        Expr boxes = drag_src.get_all().to_pmath(BoxOutputFlags::Default);
         
+        if(gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE) {
+          drag_source_reference().reset();
+          document()->remove_selection(drag_src);
+        }
+      
         document()->paste_from_boxes(boxes);
         need_data = false;
         gtk_drag_finish(context, TRUE, gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE, time);
@@ -1326,13 +1303,6 @@ bool MathGtkWidget::on_button_release(GdkEvent *e) {
   
   document()->mouse_up(me);
   
-  return true;
-}
-
-bool MathGtkWidget::on_grab_broken(GdkEvent *e) {
-  GdkEventGrabBroken *event = (GdkEventGrabBroken *)e;
-  
-  document()->reset_mouse();
   return true;
 }
 

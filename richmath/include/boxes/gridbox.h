@@ -93,6 +93,9 @@ namespace richmath {
       static GridAxisRange InclusiveHull(T a, T b) { return a <= b ? GridAxisRange(a, b+1) : GridAxisRange(b, a+1); }
       static GridAxisRange Hull(T a, T b) {          return a <= b ? GridAxisRange(a, b) :   GridAxisRange(b, a); }
       
+      GridAxisRange &operator+=(int delta) { start+= delta; end+= delta; return *this; }
+      GridAxisRange &operator-=(int delta) { start-= delta; end-= delta; return *this; }
+      
       int length() const { return end.primary_value() - start.primary_value(); }
       friend bool disjoint(const GridAxisRange &a, const GridAxisRange &b) { return a.end <= b.start || b.end <= a.start; }
       bool contains(const GridAxisRange &other) const { return start <= other.start && other.end <= end; }
@@ -221,6 +224,12 @@ namespace richmath {
       }
       int yx_to_gap_index(GridYIndex y, GridXIndex x) {
         return items.length() + x.primary_value() + y.primary_value() * (items.cols() + 1);
+      }
+      VolatileSelection selection(const GridIndexRect &rect) {
+        return {this, yx_to_index(rect.y.start, rect.x.start), yx_to_index(rect.y.end, rect.x.end)};
+      }
+      VolatileSelection gap_selection(const GridIndexRect &rect) {
+        return {this, yx_to_gap_index(rect.y.start, rect.x.start), yx_to_gap_index(rect.y.end, rect.x.end)};
       }
       void index_to_yx(int index, GridYIndex *y, GridXIndex *x) {
         int y_primary;

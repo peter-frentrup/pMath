@@ -312,8 +312,6 @@ void SelectionReference::move_after_edit(const SelectionReference &before_edit, 
       return;
     }
     
-    // TODO: maybe GridBox needs special handling?
-    
     if(end <= before_edit.start)
       return;
     

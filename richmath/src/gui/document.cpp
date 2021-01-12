@@ -3170,11 +3170,59 @@ bool Document::remove_selection(SelectionReference &sel, bool insert_default) {
     return false;
   
   SelectionReference old_sel = context.selection;
+  bool success;
+  
+  if(sel.id == old_sel.id) {
+    if(GridBox *grid = dynamic_cast<GridBox*>(sel.get())) {
+      int old_rows = grid->rows();
+      int old_cols = grid->cols();
+      
+      GridIndexRect bad_rect  = grid->get_enclosing_range(sel.start, sel.end);
+      if(bad_rect.rows() < old_rows || bad_rect.cols() < old_cols) { // don't remove the whole grid
+        GridIndexRect good_rect = grid->get_enclosing_range(old_sel.start, old_sel.end);
+        
+        bool good_is_gap = old_sel.end > grid->count();
+        
+        if(bad_rect.rows() == old_rows) {
+          // whole column(s) will be removed.
+          if(good_rect.x.start >= bad_rect.x.end)
+            good_rect.x -= bad_rect.x.length();
+          
+          bad_rect.x.end = bad_rect.x.start;
+        }
+        else if(bad_rect.cols() == old_cols) {
+          // whole row(s) will be removed.
+          if(good_rect.y.start >= bad_rect.y.end)
+            good_rect.y -= bad_rect.y.length();
+          
+          bad_rect.y.end = bad_rect.y.start;
+        }
+        
+        context.selection = sel;
+        success = remove_selection(insert_default);
+        
+        sel_first.reset();
+        sel_last.reset();
+        context.selection = old_sel;
+        if(success) {
+          if(good_is_gap)
+            context.selection = SelectionReference{grid->gap_selection(good_rect)};
+          else
+            context.selection = SelectionReference{grid->selection(good_rect)};
+          
+          sel = SelectionReference{grid->gap_selection(bad_rect)};
+        }
+        return success;
+      }
+    }
+  }
   
   context.selection = sel;
-  bool success = remove_selection(insert_default);
+  success = remove_selection(insert_default);
   SelectionReference new_sel = context.selection;
-    
+  
+  sel_first.reset();
+  sel_last.reset();
   context.selection = old_sel;
   if(success) {
     context.selection.move_after_edit(sel, new_sel);

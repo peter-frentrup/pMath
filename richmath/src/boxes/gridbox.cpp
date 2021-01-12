@@ -983,10 +983,7 @@ VolatileSelection GridBox::mouse_selection(Point pos, bool *was_inside_start) {
             rect.y = GridYRange::Hull(GridYIndex{0}, GridYIndex{num_rows});
         }
         
-        return VolatileSelection(
-          this, 
-          yx_to_gap_index(rect.y.start, rect.x.start), 
-          yx_to_gap_index(rect.y.end,   rect.x.end));
+        return gap_selection(rect);
       }
     } break;
     
@@ -1053,12 +1050,8 @@ VolatileSelection GridBox::mouse_selection(Point pos, bool *was_inside_start) {
             break;
           }
       
-      if(can_overwrite) {
-        return VolatileSelection(
-          this, 
-          yx_to_gap_index(rect.y.start, rect.x.start), 
-          yx_to_gap_index(rect.y.end,   rect.x.end));
-      }
+      if(can_overwrite) 
+        return gap_selection(rect);
     }
   }
   
