@@ -2220,6 +2220,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ShowAutoStyles);
   impl.emit_definition(ShowSectionBracket);
   impl.emit_definition(ShowStringCharacters);
+  impl.emit_definition(SliderBoxOptions);
   impl.emit_definition(StripOnInput);
   impl.emit_definition(StringStyle);
   impl.emit_definition(StyleDefinitions);
@@ -2660,6 +2661,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(PanelBoxOptions,               Symbol( richmath_System_PanelBoxOptions));
     add_ruleset_head(PatternVariableStyle,          strings::PatternVariableStyle);
     add_ruleset_head(SetterBoxOptions,              Symbol( richmath_System_SetterBoxOptions));
+    add_ruleset_head(SliderBoxOptions,              Symbol( richmath_System_SliderBoxOptions));
     add_ruleset_head(StringStyle,                   strings::StringStyle);
     add_ruleset_head(SymbolShadowingStyle,          strings::SymbolShadowingStyle);
     add_ruleset_head(SyntaxErrorStyle,              strings::SyntaxErrorStyle);
