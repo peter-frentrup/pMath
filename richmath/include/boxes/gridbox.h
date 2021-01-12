@@ -106,21 +106,22 @@ namespace richmath {
   using GridXRange = GridAxisRange<GridXIndex>;
   using GridYRange = GridAxisRange<GridYIndex>;
   
-  struct GridIndexRect {
-    GridYRange y;
-    GridXRange x;
-    
-    int rows() const { return y.length(); }
-    int cols() const { return x.length(); }
-    
-    static GridIndexRect FromYX(const GridYRange &y, const GridXRange &x) {
-      return GridIndexRect{y, x};
-    }
-    
-    bool contains(const GridIndexRect &other) const { return y.contains(other.y) && x.contains(other.x); }
-    
-  private:
-    GridIndexRect(const GridYRange &_y, const GridXRange &_x) : y(_y), x(_x) {}
+  class GridIndexRect {
+    public:
+      GridYRange y;
+      GridXRange x;
+      
+      int rows() const { return y.length(); }
+      int cols() const { return x.length(); }
+      
+      static GridIndexRect FromYX(const GridYRange &y, const GridXRange &x) {
+        return GridIndexRect{y, x};
+      }
+      
+      bool contains(const GridIndexRect &other) const { return y.contains(other.y) && x.contains(other.x); }
+      
+    private:
+      GridIndexRect(const GridYRange &_y, const GridXRange &_x) : y(_y), x(_x) {}
   };
   
   class GridItem final : public OwnerBox {
@@ -147,6 +148,9 @@ namespace richmath {
       bool span_from_both();
       bool span_from_any();
       
+      int span_right() const { return _span_right; }
+      int span_down()  const { return _span_down; }
+      
     protected:
       GridItem();
       virtual void resize_default_baseline(Context &context) override;
@@ -156,6 +160,26 @@ namespace richmath {
       int _span_down;
       bool _really_span_from_left;
       bool _really_span_from_above;
+  };
+  
+  class GridSelectionStrategy {
+    public:
+      enum class Kind { 
+        ContentsOnly,
+        ContentsOrGaps,
+        ContentsOrColumnGaps,
+        ContentsOrRowGaps,
+     };
+     
+     Kind kind;
+     int expected_rows;
+     int expected_cols;
+     
+     GridSelectionStrategy(Kind kind);
+     GridSelectionStrategy(Kind kind, const GridIndexRect &expected_size);
+     GridSelectionStrategy(Kind kind, int expected_rows, int expected_cols);
+     
+     static GridSelectionStrategy ContentsOnly;
   };
   
   class GridBox final : public Box {
@@ -258,10 +282,14 @@ namespace richmath {
       GridIndexRect get_enclosing_range(int start, int end);
       virtual VolatileSelection normalize_selection(int start, int end) override;
       
+    public:
+      static GridSelectionStrategy selection_strategy;
+      static GridSelectionStrategy best_selection_strategy_for_drag_source(const VolatileSelection &sel);
+      
     protected:
       float rowspacing;
       float colspacing;
-      
+    
     private:
       void need_pos_vectors();
       void ensure_valid_boxes();

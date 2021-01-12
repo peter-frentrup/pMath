@@ -10,6 +10,7 @@
 #include <cairo-win32.h>
 
 #include <boxes/buttonbox.h>
+#include <boxes/gridbox.h>
 #include <boxes/section.h>
 #include <boxes/mathsequence.h>
 #include <eval/binding.h>
@@ -25,6 +26,7 @@
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-touch.h>
+#include <util/autovaluereset.h>
 
 #include <resources.h>
 
@@ -319,9 +321,11 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
   if(FAILED(drop_source->set_drag_image_from_document(pos, data_object->source)))
     drop_source->set_drag_image_from_window(nullptr);
   
+  GridBox::selection_strategy = GridBox::best_selection_strategy_for_drag_source(src);
   HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
+  GridBox::selection_strategy = GridSelectionStrategy::ContentsOnly;
   
-  // TODO: is it clear that src was not deleted dusing do_drag_drop?
+  // TODO: is it clear that src was not deleted during do_drag_drop?
   Document *doc = src.box->find_parent<Document>(true);
   
   if(res == DRAGDROP_S_DROP) {

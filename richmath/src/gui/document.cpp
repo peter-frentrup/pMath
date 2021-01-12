@@ -275,7 +275,7 @@ namespace richmath {
       
       Section *auto_make_text_or_math(Section *sect);
       
-      void paste_into_grid(GridBox *grid, const GridIndexRect &rect, MathSequence *seq); // will destroy seq
+      void paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequence *seq); // will destroy seq
       
     private:
       template<class FromSectionType, class ToSectionType>
@@ -782,9 +782,6 @@ void Document::on_mouse_down(MouseEvent &event) {
 void Document::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
-  bool was_inside_start;
-  VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
-  
   if(event.left && drag_status == DragStatus::MayDrag) {
     Vector2F dd = native()->double_click_dist();
     
@@ -798,6 +795,9 @@ void Document::on_mouse_move(MouseEvent &event) {
     
     return;
   }
+  
+  bool was_inside_start;
+  VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
   
   if(drag_status == DragStatus::CurrentlyDragging) {
     native()->set_cursor(CursorType::Current);
@@ -4302,39 +4302,48 @@ Section *Document::Impl::convert_content(Section *sect) {
   return new_sect;
 }
 
-void Document::Impl::paste_into_grid(GridBox *grid, const GridIndexRect &rect, MathSequence *seq){ // will destroy seq
+void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequence *seq){ // will destroy seq
   if(seq->length() == 1 && seq->count() == 1) {
-    GridBox *inner_grid = dynamic_cast<GridBox *>(seq->item(0));
-    
-    if( inner_grid && 
-        inner_grid->rows() <= rect.rows() && 
-        inner_grid->cols() <= rect.cols()) 
-    {
-      for(int col = 0; col < rect.cols(); ++col) {
-        for(int row = 0; row < rect.rows(); ++row) {
-          if( col < inner_grid->cols() && row < inner_grid->rows()) {
-            grid->item(rect.y.start + row, rect.x.start + col)->swap_content(inner_grid->item(row, col));
-          }
-          else {
-            grid->item(
-              rect.y.start + row, 
-              rect.x.start + col
-            )->load_from_object(
-              String::FromChar(PMATH_CHAR_PLACEHOLDER),
-              BoxInputFlags::Default);
-          }
-        }
+    if(GridBox *inner_grid = dynamic_cast<GridBox *>(seq->item(0))) {
+      int ins_cols = inner_grid->cols();
+      int ins_rows = inner_grid->rows();
+      
+      if(rect.cols() == 0 && ins_rows <= rect.rows()) {
+        grid->insert_cols(rect.x.start, ins_cols);
+        rect.x = GridXRange::Hull(rect.x.start, rect.x.start + ins_cols);
+      }
+      else if(rect.rows() == 0 && ins_cols <= rect.cols()) {
+        grid->insert_rows(rect.y.start, ins_rows);
+        rect.y = GridYRange::Hull(rect.y.start, rect.y.start + ins_rows);
       }
       
-      MathSequence *sel = grid->item(
-                            rect.y.start + inner_grid->rows() - 1,
-                            rect.x.start + inner_grid->cols() - 1)->content();
-                            
-      self.move_to(sel, sel->length());
-      grid->invalidate();
-      
-      seq->safe_destroy();
-      return;
+      if(ins_rows <= rect.rows() &&  ins_cols <= rect.cols()) {
+        for(int col = 0; col < rect.cols(); ++col) {
+          for(int row = 0; row < rect.rows(); ++row) {
+            if( col < ins_cols && row < ins_rows) {
+              grid->item(rect.y.start + row, rect.x.start + col)->swap_content(inner_grid->item(row, col));
+            }
+            else {
+              grid->item(
+                rect.y.start + row, 
+                rect.x.start + col
+              )->load_from_object(
+                String::FromChar(PMATH_CHAR_PLACEHOLDER),
+                BoxInputFlags::Default);
+            }
+          }
+        }
+        
+        MathSequence *sel = grid->item(
+                              rect.y.start + ins_rows - 1,
+                              rect.x.start + ins_cols - 1)->content();
+                              
+        self.move_to(sel, sel->length());
+        grid->invalidate();
+        
+        seq->safe_destroy();
+        return;
+      }
     }
   }
   

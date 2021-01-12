@@ -16,6 +16,13 @@
 #  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
 
+#ifdef min
+#  undef min
+#endif
+#ifdef max
+#  undef max
+#endif
+
 using namespace richmath;
 using namespace std;
 
@@ -133,7 +140,36 @@ bool GridItem::span_from_any() {
 
 //} ... class GridItem
 
+//} class GridSelectionStrategy ...
+
+GridSelectionStrategy GridSelectionStrategy::ContentsOnly = GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOnly);
+
+GridSelectionStrategy::GridSelectionStrategy(Kind kind)
+  : kind(kind),
+    expected_rows(0),
+    expected_cols(0)
+{
+}
+
+GridSelectionStrategy::GridSelectionStrategy(Kind kind, const GridIndexRect &expected_size)
+  : kind(kind),
+    expected_rows(expected_size.rows()),
+    expected_cols(expected_size.cols())
+{
+}
+
+GridSelectionStrategy::GridSelectionStrategy(Kind kind, int expected_rows, int expected_cols)
+  : kind(kind),
+    expected_rows(expected_rows),
+    expected_cols(expected_cols)
+{
+}
+
+//{ ... class GridSelectionStrategy
+
 //{ class GridBox ...
+
+GridSelectionStrategy GridBox::selection_strategy = GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOnly);
 
 GridBox::GridBox()
   : base(),
@@ -415,7 +451,22 @@ void GridBox::paint(Context &context) {
     Color c = context.canvas().get_color();
     context.canvas().move_to(x, y);
     selection_path(context.canvas(), context.selection.start, context.selection.end);
-    context.draw_selection_path();
+    if(context.selection.start >= items.length() && context.selection.end >= items.length()) {
+      context.canvas().save();
+      context.canvas().set_color(context.cursor_color);
+      context.canvas().reset_matrix();
+      cairo_set_line_width(context.canvas().cairo(), 2.0);
+      cairo_set_line_cap(context.canvas().cairo(), CAIRO_LINE_CAP_BUTT);
+      cairo_set_line_join(context.canvas().cairo(), CAIRO_LINE_JOIN_MITER);
+      const double dashes[] = {1.0, 1.0};
+      cairo_set_dash(context.canvas().cairo(), dashes, int(sizeof(dashes)/sizeof(dashes[0])), 0.0);
+      context.canvas().clip_preserve();
+      context.canvas().stroke();
+      context.canvas().restore();
+    }
+    else {
+      context.draw_selection_path();
+    }
     context.canvas().set_color(c);
   }
 }
@@ -833,14 +884,17 @@ Box *GridBox::move_vertical(
 VolatileSelection GridBox::mouse_selection(Point pos, bool *was_inside_start) {
   need_pos_vectors();
   
+  const int num_cols = cols();
+  const int num_rows = rows();
+  
   int col = 0;
-  while(col < cols() - 1 && pos.x > xpos[col + 1])
+  while(col < num_cols - 1 && xpos[col + 1] <= pos.x)
     ++col;
-    
+  
   pos.y += _extents.ascent;
   
   int row = 0;
-  while(row < rows() - 1 && pos.y > ypos[row + 1])
+  while(row < num_rows - 1 && ypos[row + 1] <= pos.y)
     ++row;
     
   while(row > 0 && item(row, col)->_really_span_from_above)
@@ -849,9 +903,166 @@ VolatileSelection GridBox::mouse_selection(Point pos, bool *was_inside_start) {
   while(col > 0 && item(row, col)->_really_span_from_left)
     --col;
     
-  return item(row, col)->mouse_selection(
-           pos - Vector2F{xpos[col], ypos[row] + item(row, col)->extents().ascent},
-           was_inside_start);
+  GridItem *gi = item(row, col);
+  pos -= Vector2F{xpos[col], ypos[row] + gi->extents().ascent};
+  
+  switch(selection_strategy.kind) {
+    case GridSelectionStrategy::Kind::ContentsOrGaps:
+    case GridSelectionStrategy::Kind::ContentsOrColumnGaps:
+    case GridSelectionStrategy::Kind::ContentsOrRowGaps: {
+      enum {TopLeft, Top, TopRight, Left, Center, Right, BottomLeft, Bottom, BottomRight} edge = Center;
+      int dx = 1 + gi->span_right();
+      int dy = 1 + gi->span_down();
+      int NA = 0;
+      int start_dcol[9] = { 0,  0, dx,
+                            0, NA, dx,
+                            0,  0, dx};
+      int end_dcol[9]   = { 0, dx, dx, 
+                            0, NA, dx, 
+                            0, dx, dx};
+      int start_drow[9] = { 0,  0,  0, 
+                            0, NA,  0,
+                           dy, dy, dy};
+      int end_drow[9]   = { 0,  0,  0, 
+                           dy, NA, dy,
+                           dy, dy, dy};
+      
+      switch(selection_strategy.kind) {
+        case GridSelectionStrategy::Kind::ContentsOrGaps: {
+            if(pos.x < 0) {
+              if(     pos.y < -gi->extents().ascent) edge = TopLeft;
+              else if(pos.y > gi->extents().descent) edge = BottomLeft;
+              else                                   edge = Left;
+            }
+            else if(pos.x > gi->extents().width) {
+              if(     pos.y < -gi->extents().ascent) edge = TopRight;
+              else if(pos.y > gi->extents().descent) edge = BottomRight;
+              else                                   edge = Right;
+            }
+            else {
+              if(     pos.y < -gi->extents().ascent) edge = Top;
+              else if(pos.y > gi->extents().descent) edge = Bottom;
+              else                                   edge = Center;
+            }
+          } break;
+        
+        case GridSelectionStrategy::Kind::ContentsOrColumnGaps: {
+            if(gi->extents().to_rectangle().contains(pos)) edge = Center;
+            else if(pos.x < 0.5f * gi->extents().width)    edge = Left;
+            else                                           edge = Right;
+          } break;
+        
+        case GridSelectionStrategy::Kind::ContentsOrRowGaps: {
+            if(gi->extents().to_rectangle().contains(pos))                        edge = Center;
+            else if(pos.y + gi->extents().ascent < 0.5f * gi->extents().height()) edge = Top;
+            else                                                                  edge = Bottom;
+          } break;
+        
+        default: break; // should not happen
+      }
+      
+      if(edge != Center) {
+        auto rect = GridIndexRect::FromYX(
+          GridYRange::Hull(GridYIndex{row} + start_drow[edge], GridYIndex{row} + end_drow[edge]),
+          GridXRange::Hull(GridXIndex{col} + start_dcol[edge], GridXIndex{col} + end_dcol[edge]));
+        
+        if(rect.rows() == 0 && rect.cols() < selection_strategy.expected_cols) {
+          if(rect.x.start + selection_strategy.expected_cols <= GridXIndex{num_cols})
+            rect.x = GridXRange::Hull(rect.x.start, rect.x.start + selection_strategy.expected_cols);
+          else if(selection_strategy.expected_cols <= num_cols)
+            rect.x = GridXRange::Hull(GridXIndex{num_cols} - selection_strategy.expected_cols, GridXIndex{num_cols});
+          else
+            rect.x = GridXRange::Hull(GridXIndex{0}, GridXIndex{num_cols});
+        }
+        else if(rect.cols() == 0) {
+          if(rect.y.start + selection_strategy.expected_rows <= GridYIndex{num_rows})
+            rect.y = GridYRange::Hull(rect.y.start, rect.y.start + selection_strategy.expected_rows);
+          else if(selection_strategy.expected_rows <= num_rows)
+            rect.y = GridYRange::Hull(GridYIndex{num_rows} - selection_strategy.expected_rows, GridYIndex{num_rows});
+          else
+            rect.y = GridYRange::Hull(GridYIndex{0}, GridYIndex{num_rows});
+        }
+        
+        return VolatileSelection(
+          this, 
+          yx_to_gap_index(rect.y.start, rect.x.start), 
+          yx_to_gap_index(rect.y.end,   rect.x.end));
+      }
+    } break;
+    
+    case GridSelectionStrategy::Kind::ContentsOnly:
+      break;
+  }
+  
+  if( selection_strategy.expected_cols > 0 && 
+      selection_strategy.expected_rows > 0 &&
+      selection_strategy.expected_cols <= num_cols &&
+      selection_strategy.expected_rows <= num_rows &&
+      gi->content()->is_placeholder())
+  {
+    // TODO: properly support \[SpanFromLeft], etc.
+    
+    //GridXIndex last_col = std::min(GridXIndex{col} + selection_strategy.expected_cols/2, GridXIndex{num_cols});
+    GridXIndex last_col = std::min(GridXIndex{col} + selection_strategy.expected_cols, GridXIndex{num_cols});
+    for(auto x = GridXIndex{col} + 1; x < last_col; ++x) {
+      if(!item(GridYIndex{row}, x)->content()->is_placeholder()) {
+        last_col = x;
+        break;
+      }
+    }
+    
+    GridXIndex first_col = std::max(GridXIndex{0}, last_col - selection_strategy.expected_cols);
+    for(auto x = GridXIndex{col} - 1; x >= first_col; --x) {
+      if(!item(GridYIndex{row}, x)->content()->is_placeholder()) {
+        first_col = x + 1;
+        last_col = std::min(first_col + selection_strategy.expected_cols, GridXIndex{num_cols});
+        break;
+      }
+    }
+    
+    //GridYIndex last_row = std::min(GridYIndex{row} + selection_strategy.expected_rows/2, GridYIndex{num_rows});
+    GridYIndex last_row = std::min(GridYIndex{row} + selection_strategy.expected_rows, GridYIndex{num_rows});
+    for(auto y = GridYIndex{row} + 1; y < last_row; ++y) {
+      if(!item(y, GridXIndex{col})->content()->is_placeholder()) {
+        last_row = y;
+        break;
+      }
+    }
+    
+    GridYIndex first_row = std::max(GridYIndex{0}, last_row - selection_strategy.expected_rows);
+    for(auto y = GridYIndex{row} - 1; y >= first_row; --y) {
+      if(!item(y, GridXIndex{col})->content()->is_placeholder()) {
+        first_row = y + 1;
+        last_row = std::min(first_row + selection_strategy.expected_rows, GridYIndex{num_rows});
+        break;
+      }
+    }
+    
+    auto rect = GridIndexRect::FromYX(
+                  GridYRange::Hull(first_row, last_row),
+                  GridXRange::Hull(first_col, last_col));
+    
+    if( rect.rows() == selection_strategy.expected_rows && 
+        rect.cols() == selection_strategy.expected_cols)
+    {
+      bool can_overwrite = true;
+      for(auto x : rect.x)
+        for(auto y : rect.y)
+          if(!item(y, x)->content()->is_placeholder()) {
+            can_overwrite = false;
+            break;
+          }
+      
+      if(can_overwrite) {
+        return VolatileSelection(
+          this, 
+          yx_to_gap_index(rect.y.start, rect.x.start), 
+          yx_to_gap_index(rect.y.end,   rect.x.end));
+      }
+    }
+  }
+  
+  return gi->mouse_selection(pos, was_inside_start);
 }
 
 void GridBox::child_transformation(
@@ -943,6 +1154,29 @@ void GridBox::ensure_valid_boxes() {
     adopt(items[i], i);
 }
 
+GridSelectionStrategy GridBox::best_selection_strategy_for_drag_source(const VolatileSelection &sel) {
+  if(auto seq = dynamic_cast<AbstractSequence*>(sel.box)) {
+    if(auto grid = dynamic_cast<GridBox*>(sel.contained_box())) {
+      return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrGaps, grid->rows(), grid->cols());
+    }
+  }
+  
+  if(auto grid = dynamic_cast<GridBox*>(sel.box)) {
+    GridIndexRect rect = grid->get_enclosing_range(sel.start, sel.end);
+    if(rect.rows() == grid->rows())
+      return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrColumnGaps, rect);
+    else if(rect.cols() == grid->cols())
+      return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrRowGaps, rect);
+    else if(rect.rows() > rect.cols())
+      return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrColumnGaps, rect);
+    else if(rect.rows() < rect.cols())
+      return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrRowGaps, rect);
+    else
+      return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrGaps, rect);
+  }
+  return GridSelectionStrategy::ContentsOnly;
+}
+
 //} ... class GridBox
 
 //{ class GridBox::Impl ...
@@ -985,6 +1219,10 @@ int GridBox::Impl::resize_items(Context &context) {
       END_DOWN:
         if(gi->_span_right > 0 || gi->_span_down > 0)
           ++span_count;
+      }
+      else {
+        gi->_span_right = 0;
+        gi->_span_down = 0;
       }
     }
   }
