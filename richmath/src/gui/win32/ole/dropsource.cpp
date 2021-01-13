@@ -307,8 +307,6 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
   if(di.ptOffset.x > w) di.ptOffset.x = w;
   if(di.ptOffset.y > h) di.ptOffset.y = h;
   
-  // TODO: change every black pixel to e.g. #010101, because black implicitly gets alpha=0
-  
   if(HDC dc = cairo_win32_surface_get_dc(image)) {
     /* We cannot use the selected HBITMAP from dc, because cairo still
        owns it and will DeleteObject it when image gets freed.
@@ -332,6 +330,10 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
     DeleteDC(memDC);
   }
   cairo_surface_destroy(image);
+  
+  if(Color bg = box->get_style(Background, Color::None)) {
+    di.crColorKey = bg.to_bgr24();
+  }
   
   di.hbmpDragImage = replace_black(di.hbmpDragImage);
   
