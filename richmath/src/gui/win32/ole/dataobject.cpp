@@ -19,6 +19,27 @@ using namespace pmath;
 
 
 namespace {
+  class StgMediumObject : public IUnknown, public Base {
+    public:
+      explicit StgMediumObject(STGMEDIUM medium);
+      ~StgMediumObject();
+      
+      static HRESULT copy(STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external);
+      static HRESULT make_ref_counted(STGMEDIUM *stgm);
+      
+    public:
+      //
+      // IUnknown members
+      //
+      STDMETHODIMP         QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override;
+      STDMETHODIMP_(ULONG) Release(void) override;
+      
+    private:
+      STGMEDIUM medium;
+      LONG      refcount;
+  };
+  
   struct ImageSizeUserData {
     ImageSizeUserData(int w, int h) : width(w), height(h) {}
     
@@ -123,6 +144,10 @@ void DataObject::add_source_format(CLIPFORMAT cfFormat, TYMED tymed) {
   source_formats.add(fmt);
 }
 
+HRESULT DataObject::make_ref_counted(STGMEDIUM *pMedium) {
+  return StgMediumObject::make_ref_counted(pMedium);
+}
+
 HRESULT DataObject::find_data_format_etc(const FORMATETC *format, struct SavedData **entry, bool add_missing) {
   *entry = nullptr;
   
@@ -158,39 +183,6 @@ HRESULT DataObject::find_data_format_etc(const FORMATETC *format, struct SavedDa
   return S_OK;
 }
 
-HRESULT DataObject::add_ref_std_medium(const STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external) {
-  STGMEDIUM result = *stgm_in;
-  
-  if(result.pUnkForRelease == nullptr && !(result.tymed & (TYMED_ISTREAM | TYMED_ISTREAM))) {
-    if(copy_from_external) {
-      if(result.tymed == TYMED_HGLOBAL) {
-        result.hGlobal = GlobalClone(result.hGlobal);
-        if(!result.hGlobal)
-          return E_OUTOFMEMORY;
-      }
-      else
-        return DV_E_TYMED;
-    }
-    else
-      result.pUnkForRelease = static_cast<IDataObject*>(this);
-  }
-  
-  switch(result.tymed) {
-    case TYMED_ISTREAM:
-      result.pstm->AddRef();
-      break;
-    case TYMED_ISTORAGE:
-      result.pstg->AddRef();
-      break;
-  }
-  
-  if(result.pUnkForRelease)
-    result.pUnkForRelease->AddRef();
-  
-  *stgm_out = result;
-  return S_OK;
-}
-
 bool DataObject::has_source_format(const FORMATETC *pFormatEtc) {
   for(int i = 0; i < source_formats.length(); ++i) {
     if( (pFormatEtc->tymed   &  source_formats[i].tymed) &&
@@ -216,7 +208,7 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
   
   struct SavedData *entry;
   if(SUCCEEDED(find_data_format_etc(pFormatEtc, &entry, false))) {
-    HR(add_ref_std_medium(&entry->stg_medium, pMedium, false));
+    HR(StgMediumObject::copy(&entry->stg_medium, pMedium, false));
     return S_OK;
   }
   
@@ -357,7 +349,7 @@ STDMETHODIMP DataObject::GetCanonicalFormatEtc(FORMATETC *pFormatEct, FORMATETC 
 //  IDataObject::SetData
 //
 STDMETHODIMP DataObject::SetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium, BOOL fRelease) {
-  {
+  if(false) {
     char buffer[256];
     const char *name = "";
     if(0 != GetClipboardFormatNameA(pFormatEtc->cfFormat, buffer, sizeof(buffer) / sizeof(*buffer)))
@@ -382,8 +374,23 @@ STDMETHODIMP DataObject::SetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium, BOOL
       case CF_DIBV5:        name = "CF_DIBV5";        break;
     }
     
+    char val_buf[30] = "";
+    if(pMedium->tymed == TYMED_HGLOBAL) {
+      void *p = GlobalLock(pMedium->hGlobal);
+      size_t size = GlobalSize(pMedium->hGlobal);
+      switch(size) {
+        case sizeof(DWORD): 
+          snprintf(val_buf, sizeof(val_buf), "= DWORD 0x%x", *(DWORD*)p);
+          break;
+        default:
+          snprintf(val_buf, sizeof(val_buf), "= %d bytes", (int)size);
+          break;
+      }
+      GlobalUnlock(pMedium->hGlobal);
+    }
+    
     pmath_debug_print(
-      "[DataObject::SetData format %s (0x%x) %s%s%s%s%s%s%s (0x%x)]\n", 
+      "[DataObject::SetData %s (0x%x) %s%s%s%s%s%s%s(0x%x) %s]\n", 
       name, 
       (int)pFormatEtc->cfFormat,
       pFormatEtc->tymed & TYMED_HGLOBAL ?  "HGLOBAL " : "",
@@ -393,7 +400,8 @@ STDMETHODIMP DataObject::SetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium, BOOL
       pFormatEtc->tymed & TYMED_GDI ?      "GDI" : "",
       pFormatEtc->tymed & TYMED_MFPICT ?   "MFPICT" : "",
       pFormatEtc->tymed & TYMED_ENHMF ?    "ENHMF" : "",
-      (int)pFormatEtc->tymed);
+      (int)pFormatEtc->tymed,
+      val_buf);
   }
   
   struct SavedData *entry;
@@ -410,13 +418,7 @@ STDMETHODIMP DataObject::SetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium, BOOL
     hr = S_OK;
   }
   else
-    hr = add_ref_std_medium(pMedium, &entry->stg_medium, true);
-  
-  // break circular reference loop:
-  if(get_canonical_iunknown(entry->stg_medium.pUnkForRelease) == get_canonical_iunknown(static_cast<IDataObject*>(this))) {
-    entry->stg_medium.pUnkForRelease->Release();
-    entry->stg_medium.pUnkForRelease = nullptr;
-  }
+    hr = StgMediumObject::copy(pMedium, &entry->stg_medium, true);
   
   return hr;
 }
@@ -750,17 +752,21 @@ void DataObject::clear_drop_description(IDataObject *obj) {
                                             &desc_medium,
                                             sizeof(DROPDESCRIPTION)))) 
   {
-    DROPDESCRIPTION *desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
-    
-    bool change_desc = DataObject::clear_drop_description(desc);
-    
-    GlobalUnlock(desc_medium.hGlobal);
-    
-    if(change_desc)
-      change_desc = SUCCEEDED(obj->SetData(&desc_format, &desc_medium, TRUE));
-    
-    if(!change_desc)
+    // Workaround for Windows bug (issue #94: explorer.exe crashes due to drop-descriptions)
+    // We create a new STGMEDIUM instead of changing desc_medium in-place, because
+    // explorer.exe would crash otherwise when the mouse leaves our window.
+    DROPDESCRIPTION new_desc;
+    {
+      const DROPDESCRIPTION *orig_desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
+      new_desc = *orig_desc;
+      GlobalUnlock(desc_medium.hGlobal);
       ReleaseStgMedium(&desc_medium);
+      ZeroMemory(&desc_medium, sizeof(desc_medium));
+    }
+    
+    bool change_desc = DataObject::clear_drop_description(&new_desc);
+    if(change_desc) 
+      DataObject::set_global_data(obj, Win32Clipboard::Formats::DropDescription, &new_desc, sizeof(new_desc));
   }
 }
 
@@ -808,37 +814,41 @@ void DataObject::set_drop_description(IDataObject *obj, DROPIMAGETYPE image, con
                                             &desc_medium,
                                             sizeof(DROPDESCRIPTION)))) 
   {
-    DROPDESCRIPTION *desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
+    // Workaround for Windows bug (issue #94: explorer.exe crashes due to drop-descriptions)
+    // We create a new STGMEDIUM instead of changing desc_medium in-place, because
+    // explorer.exe would crash otherwise when the mouse leaves our window.
+    DROPDESCRIPTION new_desc;
+    {
+      const DROPDESCRIPTION *orig_desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
+      new_desc = *orig_desc;
+      
+      GlobalUnlock(desc_medium.hGlobal);
+      ReleaseStgMedium(&desc_medium);
+      ZeroMemory(&desc_medium, sizeof(desc_medium));
+    }
     
     bool change_desc = false;
     if(image == DROPIMAGE_INVALID) {
-      change_desc = clear_drop_description(desc);
+      change_desc = clear_drop_description(&new_desc);
     }
     else {
-      if(desc->type != image) {
+      if(new_desc.type != image) {
         change_desc = true;
-        desc->type = image;
+        new_desc.type = image;
       }
       
-      change_desc = copy_string(desc->szMessage, sizeof(desc->szMessage) / sizeof(wchar_t), message) || change_desc;
-      change_desc = copy_string(desc->szInsert, sizeof(desc->szInsert) / sizeof(wchar_t), insertion) || change_desc;
-    } 
+      change_desc = copy_string(new_desc.szMessage, sizeof(new_desc.szMessage) / sizeof(wchar_t), message) || change_desc;
+      change_desc = copy_string(new_desc.szInsert, sizeof(new_desc.szInsert) / sizeof(wchar_t), insertion) || change_desc;
+    }
     
-    GlobalUnlock(desc_medium.hGlobal);
-    
-    if(change_desc)
-      change_desc = SUCCEEDED(obj->SetData(&desc_format, &desc_medium, TRUE));
-    
-    if(!change_desc)
-      ReleaseStgMedium(&desc_medium);
-    
-    return;
+    if(change_desc) 
+      DataObject::set_global_data(obj, Win32Clipboard::Formats::DropDescription, &new_desc, sizeof(new_desc));
   }
-  
-  if(create && image != DROPIMAGE_INVALID) {
+  else if(create && image != DROPIMAGE_INVALID) {
     desc_medium.tymed = TYMED_HGLOBAL;
     desc_medium.hGlobal = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, sizeof(DROPDESCRIPTION));
-    desc_medium.pUnkForRelease = NULL;
+    desc_medium.pUnkForRelease = nullptr;
+    
     if(desc_medium.hGlobal) {
       DROPDESCRIPTION *desc = (DROPDESCRIPTION*)GlobalLock(desc_medium.hGlobal);
       
@@ -847,9 +857,10 @@ void DataObject::set_drop_description(IDataObject *obj, DROPIMAGETYPE image, con
       copy_string(desc->szInsert, sizeof(desc->szInsert) / sizeof(wchar_t), insertion);
       
       GlobalUnlock(desc_medium.hGlobal);
+      HRreport(DataObject::make_ref_counted(&desc_medium));
       
-      if(FAILED(obj->SetData(&desc_format, &desc_medium, TRUE)))
-        GlobalFree(desc_medium.hGlobal);
+      if(!HRbool(obj->SetData(&desc_format, &desc_medium, TRUE)))
+        ReleaseStgMedium(&desc_medium);
     }
   }
 }
@@ -876,6 +887,8 @@ HRESULT DataObject::get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATE
   }
   
   if(min_size && GlobalSize(medium->hGlobal) < min_size) {
+    pmath_debug_print("[get_global_data: format 0x%x got %d bytes (flags 0x%x) but expected %d]\n", 
+      format, GlobalSize(medium->hGlobal), GlobalFlags(medium->hGlobal), min_size);
     ReleaseStgMedium(medium);
     ZeroMemory(medium, sizeof(STGMEDIUM));
     return E_UNEXPECTED;
@@ -895,6 +908,37 @@ DWORD DataObject::get_global_data_dword(IDataObject *obj, CLIPFORMAT format) {
     ReleaseStgMedium(&medium);
   }
   return data;
+}
+
+HRESULT DataObject::set_global_data(IDataObject *obj, CLIPFORMAT format, void *data, size_t size) {
+  FORMATETC format_etc;
+  STGMEDIUM medium;
+  
+  format_etc.cfFormat = format;
+  format_etc.ptd      = nullptr;
+  format_etc.dwAspect = DVASPECT_CONTENT;
+  format_etc.lindex   = -1;
+  format_etc.tymed    = TYMED_HGLOBAL;
+  
+  medium.tymed = TYMED_HGLOBAL;
+  medium.hGlobal = GlobalAlloc(GMEM_MOVEABLE | GMEM_ZEROINIT, size);
+  medium.pUnkForRelease = nullptr;
+  if(!medium.hGlobal) 
+    return E_OUTOFMEMORY;
+  
+  void *dst = (DWORD*)GlobalLock(medium.hGlobal);
+  memcpy(dst, data, size);
+  
+  GlobalUnlock(medium.hGlobal);
+  HRESULT hr = HRreport(obj->SetData(&format_etc, &medium, TRUE));
+  if(!SUCCEEDED(hr))
+    ReleaseStgMedium(&medium);
+  
+  return hr;
+}
+
+HRESULT DataObject::set_global_data_dword(IDataObject *obj, CLIPFORMAT format, DWORD value) {
+  return set_global_data(obj, format, &value, sizeof(value));
 }
 
 static String string_from_ansi(const char *s, int len) {
@@ -966,3 +1010,102 @@ Expr DataObject::get_global_data_dropfiles(IDataObject *obj) {
 
 //} ... class DataObject
 
+//{ class StgMediumObject ...
+
+StgMediumObject::StgMediumObject(STGMEDIUM medium)
+  : medium{medium},
+    refcount{1}
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+}
+
+StgMediumObject::~StgMediumObject() {
+  pmath_debug_print("[StgMediumObject::~StgMediumObject]\n");
+  ReleaseStgMedium(&medium);
+}
+
+HRESULT StgMediumObject::copy(STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external) {
+  STGMEDIUM result = *stgm_in;
+  
+  if(result.pUnkForRelease == nullptr && !(result.tymed & (TYMED_ISTREAM | TYMED_ISTREAM))) {
+    if(copy_from_external) {
+      if(result.tymed == TYMED_HGLOBAL) {
+        result.hGlobal = GlobalClone(result.hGlobal);
+        if(!result.hGlobal)
+          return E_OUTOFMEMORY;
+      }
+      else
+        return DV_E_TYMED;
+    }
+    else {
+      result.pUnkForRelease = stgm_in->pUnkForRelease = new StgMediumObject(*stgm_in);
+    }
+  }
+  
+  switch(result.tymed) {
+    case TYMED_ISTREAM:
+      result.pstm->AddRef();
+      break;
+    case TYMED_ISTORAGE:
+      result.pstg->AddRef();
+      break;
+  }
+  
+  if(result.pUnkForRelease)
+    result.pUnkForRelease->AddRef();
+  
+  *stgm_out = result;
+  return S_OK;
+}
+
+HRESULT StgMediumObject::make_ref_counted(STGMEDIUM *stgm) {
+  if(!stgm)
+    return E_INVALIDARG;
+  
+  if(stgm->pUnkForRelease)
+    return S_OK;
+  
+  if(stgm->tymed & (TYMED_ISTREAM | TYMED_ISTREAM))
+    return S_OK;
+  
+  stgm->pUnkForRelease = new StgMediumObject(*stgm);
+  
+  return S_OK;
+}
+
+//
+//  IUnknown::AddRef
+//
+STDMETHODIMP_(ULONG) StgMediumObject::AddRef(void) {
+  return InterlockedIncrement(&refcount);
+}
+
+//
+//  IUnknown::Release
+//
+STDMETHODIMP_(ULONG) StgMediumObject::Release(void) {
+  LONG count = InterlockedDecrement(&refcount);
+  
+  if(count == 0) {
+    delete this;
+    return 0;
+  }
+  
+  return count;
+}
+
+//
+//  IUnknown::QueryInterface
+//
+STDMETHODIMP StgMediumObject::QueryInterface(REFIID iid, void **ppvObject) {
+  if(iid == IID_IUnknown) {
+    AddRef();
+    *ppvObject = static_cast<IUnknown*>(this);
+    return S_OK;
+  }
+  
+  *ppvObject = nullptr;
+  return E_NOINTERFACE;
+}
+
+//} ... class StgMediumObject

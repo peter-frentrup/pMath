@@ -72,9 +72,10 @@ namespace richmath {
       // e.g. message = "Move to %1", insertion = "Documents"
       static void set_drop_description(IDataObject *obj, DROPIMAGETYPE image, const String &message, const String &insertion, bool create);
       
+      static HRESULT make_ref_counted(STGMEDIUM *pMedium);
+      
     private:
       HRESULT find_data_format_etc(const FORMATETC *format, struct SavedData **entry, bool add_missing);
-      HRESULT add_ref_std_medium(const STGMEDIUM *stgm_in, STGMEDIUM *stgm_out, bool copy_from_external);
       
       bool has_source_format(const FORMATETC *pFormatEtc);
     
@@ -94,6 +95,8 @@ namespace richmath {
     public:
       static HRESULT get_global_data(IDataObject *obj, CLIPFORMAT format, FORMATETC *formatEtc, STGMEDIUM *medium, size_t min_size);
       static DWORD   get_global_data_dword(IDataObject *obj, CLIPFORMAT format);
+      static HRESULT set_global_data(IDataObject *obj, CLIPFORMAT format, void *data, size_t size);
+      static HRESULT set_global_data_dword(IDataObject *obj, CLIPFORMAT format, DWORD value);
       static Expr    get_global_data_dropfiles(HGLOBAL hglb);
       static Expr    get_global_data_dropfiles(IDataObject *obj);
   };
