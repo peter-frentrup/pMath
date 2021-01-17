@@ -59,7 +59,7 @@ BasicWin32Widget::BasicWin32Widget(
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  _drag_source_helper = _drop_target_helper.as<IDragSourceHelper>();
+  //_drag_source_helper = _drop_target_helper.as<IDragSourceHelper>();
   //CoCreateInstance(
   //  CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER,
   //  _drag_source_helper.iid(),

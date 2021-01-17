@@ -111,11 +111,6 @@ namespace richmath {
       
       float gesture_zoom_factor;
       
-      DWORD         _latest_drop_effect;
-      DROPIMAGETYPE _latest_drop_image;
-      String        _latest_drop_description;
-      String        _latest_drop_description_param;
-      
       Hashset<SharedPtr<TimedEvent>> animations;
       bool animation_running;
       bool is_dragging;

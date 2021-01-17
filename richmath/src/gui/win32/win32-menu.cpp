@@ -430,7 +430,7 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
 //  }
 }
 
-LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam, ComBase<IDragSourceHelper> drag_source_helper) {
+LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam) {
   pmath_debug_print("[on_menudrag]\n");
   
   HMENU menu = (HMENU)lParam;
@@ -447,15 +447,10 @@ LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam, ComBase<IDragSource
       data_object->add_source_format(CF_TEXT);
       
       DropSource *drop_source = new DropSource();
+      drop_source->description_data.copy(data_object);
       
-      if(Win32Themes::is_app_themed()) { 
-        if(drag_source_helper) {
-          drop_source->description_data.copy(data_object);
-          if(auto helper2 = drag_source_helper.as<IDragSourceHelper2>()) {
-            helper2->SetFlags(DSH_ALLOWDROPDESCRIPTIONTEXT);
-          }
-        }
-      }
+      if(Win32Themes::is_app_themed())
+        drop_source->set_flags(DSH_ALLOWDROPDESCRIPTIONTEXT);
       
       bool have_image = false;
       RECT rect;

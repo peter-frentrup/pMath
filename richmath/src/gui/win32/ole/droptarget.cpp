@@ -49,10 +49,8 @@ STDMETHODIMP DropTarget::DragEnter(IDataObject *data_object, DWORD key_state, PO
   _can_have_drop_descriptions = false;
   _did_set_drop_description = false;
   
-  if(_has_drag_image) {
-    DWORD flags = DataObject::get_global_data_dword(data_object, Win32Clipboard::Formats::DragSourceHelperFlags);
-    _can_have_drop_descriptions = (flags & DSH_ALLOWDROPDESCRIPTIONTEXT) != 0;
-  }
+  DWORD flags = DataObject::get_global_data_dword(data_object, Win32Clipboard::Formats::DragSourceHelperFlags);
+  _can_have_drop_descriptions = (flags & DSH_ALLOWDROPDESCRIPTIONTEXT) != 0;
   
   _preferred_drop_effect = preferred_drop_effect(data_object);
   
@@ -182,10 +180,19 @@ void DropTarget::position_drop_cursor(POINTL pt) {
 }
 
 void DropTarget::clear_drop_description() {
+//  if(_did_set_drop_description) {
+//    pmath_debug_print("[already _did_set_drop_description]");
+//    return;
+//  }
+  _did_set_drop_description = true;
   DataObject::clear_drop_description(_dragging.get());
 }
 
 void DropTarget::set_drop_description(DROPIMAGETYPE image, const String &insert, const String &message) {
+  if(_did_set_drop_description) {
+    pmath_debug_print("[already _did_set_drop_description]");
+    return;
+  }
   _did_set_drop_description = true;
   if(_can_have_drop_descriptions)
     DataObject::set_drop_description(_dragging.get(), image, insert, message, true);

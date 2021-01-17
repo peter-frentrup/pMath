@@ -962,7 +962,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
       } break;
     
     case WM_MENUDRAG: {
-        *result = Win32Menu::on_menudrag(wParam, lParam, _window->drag_source_helper());
+        *result = Win32Menu::on_menudrag(wParam, lParam);
       } return true;
     
     case WM_MENUGETOBJECT: {

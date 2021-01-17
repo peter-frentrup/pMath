@@ -14,6 +14,8 @@
 using namespace richmath;
 
 #define DDWM_UPDATEWINDOW_2  (WM_USER + 2)
+
+
 enum class DropDescriptionDefault {
   Unknown = 0, // should use "DropDescription" HGLOBAL object
   Stop = 1,
@@ -21,6 +23,19 @@ enum class DropDescriptionDefault {
   Copy = 3,
   Link = 4
 };
+
+namespace richmath {
+  class DropSource::Impl {
+    private:
+      DropSource &self;
+    
+    public:
+      Impl(DropSource &self) : self(self) {}
+      
+      HWND drag_window();
+      bool set_drag_image_cursor(DWORD effect);
+  };
+}
 
 namespace {
   // see https://www.codeproject.com/Articles/886711/Drag-Drop-Images-and-Drop-Descriptions-for-MFC-App
@@ -112,7 +127,7 @@ STDMETHODIMP_(ULONG) DropSource::Release(void) {
 STDMETHODIMP DropSource::QueryInterface(REFIID iid, void **ppvObject) {
   if(iid == IID_IDropSource || iid == IID_IUnknown) {
     AddRef();
-    *ppvObject = this;
+    *ppvObject = static_cast<IDropSource*>(this);
     return S_OK;
   }
   
@@ -172,7 +187,8 @@ STDMETHODIMP DropSource::GiveFeedback(DWORD dwEffect) {
         must_set_cursor = false;
       }
       
-      set_drag_image_cursor(dwEffect);
+      Impl(*this).set_drag_image_cursor(dwEffect);
+      
       return S_OK;
     }
     else
@@ -180,8 +196,14 @@ STDMETHODIMP DropSource::GiveFeedback(DWORD dwEffect) {
   }
   
   // default implementation ...
-  
   return DRAGDROP_S_USEDEFAULTCURSORS;
+}
+
+HRESULT DropSource::set_flags(DWORD flags) {
+  if(auto helper2 = helper.as<IDragSourceHelper2>()) 
+    return HRreport(helper2->SetFlags(flags));
+  
+  return HRreport(E_NOINTERFACE);
 }
 
 HRESULT DropSource::set_drag_image_from_window(HWND hwnd, const POINT *point) {
@@ -346,8 +368,16 @@ HRESULT DropSource::set_drag_image_from_document(const Point &mouse, SelectionRe
   return S_OK;
 }
 
-bool DropSource::set_drag_image_cursor(DWORD effect) {
-  HWND hwnd = (HWND)ULongToHandle(DataObject::get_global_data_dword(description_data.get(), Win32Clipboard::Formats::DragWindow));
+//} ... class DropSource
+
+//{ class DropSource::Impl ...
+
+HWND DropSource::Impl::drag_window() {
+  return (HWND)ULongToHandle(DataObject::get_global_data_dword(self.description_data.get(), Win32Clipboard::Formats::DragWindow));
+}
+
+bool DropSource::Impl::set_drag_image_cursor(DWORD effect) {
+  HWND hwnd = drag_window();
   if(!hwnd)
     return false;
     
@@ -359,8 +389,8 @@ bool DropSource::set_drag_image_cursor(DWORD effect) {
     case DROPEFFECT_LINK: wParam = DropDescriptionDefault::Link; break;
   }
   SendMessageW(hwnd, DDWM_UPDATEWINDOW_2, (WPARAM)wParam, 0);
-  
+
   return true;
 }
 
-//} ... class DropSource
+//} ... class DropSource::Impl

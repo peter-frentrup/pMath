@@ -11,6 +11,7 @@
 
 namespace richmath {
   class DropSource: public IDropSource {
+      class Impl;
     public:
       //
       // IUnknown members
@@ -29,14 +30,12 @@ namespace richmath {
       DropSource();
       virtual ~DropSource();
       
+      HRESULT set_flags(DWORD flags);
       HRESULT set_drag_image_from_window(HWND hwnd, const POINT *point = nullptr); // hwnd = NULL is allowed
       HRESULT set_drag_image_from_window_part(HWND hwnd, const RECT *rect, const POINT *point = nullptr); // hwnd = NULL means screen
       HRESULT set_drag_image_from_document(const Point &mouse, SelectionReference source);
             
       ComBase<IDataObject>  description_data;
-    
-    private:
-      bool set_drag_image_cursor(DWORD effect);
       
     private:
       LONG                       refcount;

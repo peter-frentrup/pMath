@@ -113,11 +113,8 @@ namespace richmath {
         return nullptr;
       }
       
-      ComBase<IDragSourceHelper> drag_source_helper() { return _drag_source_helper; }
-      
     protected:
-      ComBase<IDragSourceHelper> _drag_source_helper;
-      HWND                       _hwnd;
+      HWND _hwnd;
       
     protected:
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam);

@@ -50,8 +50,22 @@
 using namespace richmath;
 
 namespace richmath { namespace strings {
+  extern String EmptyString;
+  extern String column;
+  extern String columns;
   extern String Copy;
+  extern String Image;
+  extern String Insert;
+  extern String Insert_placeholder;
+  extern String items;
+  extern String Message;
+  extern String Move_placeholder;
+  extern String Path;
+  extern String Paths;
   extern String Popup;
+  extern String Reorder_placeholder;
+  extern String row;
+  extern String rows;
 }}
 
 #ifdef NDEBUG
@@ -105,6 +119,7 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   }
 }
 
+extern pmath_symbol_t richmath_FE_Import_FileNamesDropDescription;
 extern pmath_symbol_t richmath_System_Menu; 
 
 //{ class Win32Widget ...
@@ -296,19 +311,14 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
   data_object->add_source_format(CF_TEXT);
   
   DropSource *drop_source = new DropSource;
+  drop_source->description_data.copy(data_object);
   
   DWORD effect = DROPEFFECT_COPY;
   if(src.box->get_style(Editable))
     effect |= DROPEFFECT_MOVE;
   
-  if(Win32Themes::is_app_themed()) { 
-    if(_drag_source_helper) {
-      pmath_debug_print("[using drop source helper ...]\n");
-      drop_source->description_data.copy(data_object);
-      if(auto helper2 = _drag_source_helper.as<IDragSourceHelper2>()) {
-        helper2->SetFlags(DSH_ALLOWDROPDESCRIPTIONTEXT);
-      }
-    }
+  if(Win32Themes::is_app_themed()) {
+    drop_source->set_flags(DSH_ALLOWDROPDESCRIPTIONTEXT);
   }
   
   event.set_origin(document());
@@ -468,10 +478,6 @@ STDMETHODIMP Win32Widget::DragEnter(IDataObject *data_object, DWORD key_state, P
 //      document()->selection_end());
 //  }
   
-  _latest_drop_effect = DROPEFFECT_NONE;
-  _latest_drop_image = DROPIMAGE_INVALID;
-  _latest_drop_description = "";
-  _latest_drop_description_param = "";
   is_drop_over = true;
   
   return BasicWin32Widget::DragEnter(data_object, key_state, pt, effect);
@@ -1654,7 +1660,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           Menus::run_command_now(cmd);
         } return 0;
       
-      case WM_MENUDRAG:      return Win32Menu::on_menudrag(     wParam, lParam, drag_source_helper());
+      case WM_MENUDRAG:      return Win32Menu::on_menudrag(     wParam, lParam);
       case WM_MENUGETOBJECT: return Win32Menu::on_menugetobject(wParam, lParam);
       
       case WM_MENUSELECT: {
@@ -1720,85 +1726,113 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
 }
 
 void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {
-  FORMATETC fmt;
-  memset(&fmt, 0, sizeof(fmt));
+  DROPIMAGETYPE drop_image = DROPIMAGE_INVALID;
   
-  fmt.dwAspect = DVASPECT_CONTENT;
-  fmt.lindex   = -1;
-  fmt.ptd      = nullptr;
-  fmt.tymed    = TYMED_HGLOBAL;
+  switch(effect & ~DROPEFFECT_SCROLL) {
+    case DROPEFFECT_NONE: drop_image = DROPIMAGE_NOIMAGE; break; // DROPIMAGE_NONE
+    case DROPEFFECT_COPY: drop_image = DROPIMAGE_COPY; break;
+    case DROPEFFECT_MOVE: drop_image = DROPIMAGE_MOVE; break;
+    case DROPEFFECT_LINK: drop_image = DROPIMAGE_LINK; break;
+  }
   
-  if(_preferred_drop_format == CF_HDROP) {
-    if(effect != _latest_drop_effect) {
-      Expr paths = DataObject::get_global_data_dropfiles(_dragging.get());
-      
-      _latest_drop_effect = effect;
-      if(effect == DROPEFFECT_LINK) {
-        _latest_drop_image = DROPIMAGE_LINK;
-        _latest_drop_description = "Insert %1";
-        _latest_drop_description_param = paths.expr_length() == 1 ? "Path" : "Paths";
-      }
-      else {   
-        _latest_drop_image = DROPIMAGE_COPY;
-        _latest_drop_description = "";
-        _latest_drop_description_param = "";
+  String desc_message;
+  String desc_param;
+  
+//  desc_message = "at %1";
+//  desc_param = List(pt.x, pt.y).to_string();
+//  
+//  set_drop_description(drop_image, desc_message, desc_param);
+//  return;
+
+  if(VolatileSelection drag_src = drag_source_reference().get_all()) {
+    if(GridBox *src_grid = dynamic_cast<GridBox*>(drag_src.box)) {
+      VolatileSelection drop_dst = document()->selection_now();
+      if(GridBox *dst_grid = dynamic_cast<GridBox*>(drop_dst.box)) {
+        GridIndexRect src_rect = src_grid->get_enclosing_range(drag_src.start, drag_src.end);
+        GridIndexRect dst_rect = dst_grid->get_enclosing_range(drop_dst.start, drop_dst.end);
         
-        Expr desc = Application::interrupt_wait(
-          Parse("FE`Import`FileNamesDropDescription(`1`)", paths),
-          Application::edit_interrupt_timeout);
-        
-        if(desc[0] == PMATH_SYMBOL_LIST) {
-          for(size_t i = desc.expr_length(); i > 0; --i) {
-            Expr rule = desc[i];
-            if(!rule.is_rule())
-              continue;
-            
-            String lhs = rule[1];
-            if(lhs.equals("Image")) {
-              Expr rhs = rule[2];
-              if(rhs == PMATH_SYMBOL_AUTOMATIC) {
-                //_latest_drop_image = DROPIMAGE_INVALID;
-                continue;
-              }
-              
-              String rhs_s = String(rhs);
-              if(rhs == strings::Copy) 
-                _latest_drop_image = DROPIMAGE_COPY;
-              else if(rhs_s.equals("Move"))
-                _latest_drop_image = DROPIMAGE_MOVE;
-              else if(rhs_s.equals("Link"))
-                _latest_drop_image = DROPIMAGE_LINK;
-              else if(rhs_s.equals("Label"))
-                _latest_drop_image = DROPIMAGE_LABEL;
-              else if(rhs_s.equals("Warning"))
-                _latest_drop_image = DROPIMAGE_WARNING;
-              else if(rhs_s.equals("No"))
-                _latest_drop_image = DROPIMAGE_NONE;
-              else if(rhs_s.equals("NoImage"))
-                _latest_drop_image = DROPIMAGE_NOIMAGE;
+        bool may_be_singular = true;
+        if(effect == DROPEFFECT_COPY) {
+          desc_message = strings::Insert_placeholder;
+        }
+        else if(effect == DROPEFFECT_MOVE) {
+          if(drag_src.box == dst_grid && dst_rect.cols() == 0 || dst_rect.rows() == 0) {
+            if(src_rect.cols() == dst_grid->cols() || src_rect.rows() == dst_grid->rows()) {
+              desc_message = strings::Reorder_placeholder;
+              may_be_singular = false;
             }
-            else if(lhs.equals("Message")) {
-              _latest_drop_description = rule[2].to_string();
-            }
-            else if(lhs.equals("Insert")) {
-              _latest_drop_description_param = rule[2].to_string();
-            }
+            else
+              desc_message = strings::Move_placeholder;
           }
+          else
+            desc_message = strings::Move_placeholder;
+        }
+        
+        if(src_rect.rows() == src_grid->rows()) {
+          if(src_rect.cols() == 1 && may_be_singular)
+            desc_param = strings::column;
+          else
+            desc_param = strings::columns;
+        }
+        else if(src_rect.cols() == src_grid->cols()) {
+          if(src_rect.rows() == 1 && may_be_singular)
+            desc_param = strings::row;
+          else
+            desc_param = strings::rows;
+        }
+        else
+          desc_param = strings::items;
+        
+        if(desc_message) {
+          set_drop_description(drop_image, desc_message, desc_param);
+          return;
         }
       }
     }
-    
-    set_drop_description(_latest_drop_image, _latest_drop_description, _latest_drop_description_param);
-    
-//    if(effect == DROPEFFECT_COPY) {
-//      //Expr paths = DataObject::get_global_data_dropfiles(_dragging.get());
-//      //if(paths.expr_length() > 0 && paths[1].)
-//      set_drop_description(DROPIMAGE_COPY, "Open/insert", "File");
-//    }
-//    else if(effect == DROPEFFECT_LINK) 
-//      set_drop_description(DROPIMAGE_LINK, "Insert %1", "Path");
   }
-  //BasicWin32Widget::apply_drop_description(effect, key_state, pt);
+  
+  if(_preferred_drop_format == CF_HDROP) {
+    Expr paths = DataObject::get_global_data_dropfiles(_dragging.get());
+    
+    if(effect == DROPEFFECT_LINK) {
+      desc_message = strings::Insert_placeholder;
+      desc_param   = paths.expr_length() == 1 ? strings::Path : strings::Paths;
+    }
+    else {
+      Expr desc = Application::interrupt_wait(
+        Call(Symbol(richmath_FE_Import_FileNamesDropDescription), paths),
+        Application::edit_interrupt_timeout);
+      
+      if(desc.is_list_of_rules()) {
+        if(Expr image = desc.lookup(strings::Image, {})) {
+          if(image == PMATH_SYMBOL_AUTOMATIC) {
+            //drop_image = DROPIMAGE_INVALID;
+          }
+          else if(image == strings::Copy)      drop_image = DROPIMAGE_COPY;
+          else if(String image_s = image) {
+            if(     image_s.equals("Move"))    drop_image = DROPIMAGE_MOVE;
+            else if(image_s.equals("Link"))    drop_image = DROPIMAGE_LINK;
+            else if(image_s.equals("Label"))   drop_image = DROPIMAGE_LABEL;
+            else if(image_s.equals("Warning")) drop_image = DROPIMAGE_WARNING;
+            else if(image_s.equals("No"))      drop_image = DROPIMAGE_NONE;
+            else if(image_s.equals("NoImage")) drop_image = DROPIMAGE_NOIMAGE;
+          }
+        }
+        
+        Expr msg;
+        if(desc.try_lookup(strings::Message, msg))
+          desc_message = msg.to_string();
+        
+        if(desc.try_lookup(strings::Insert, msg))
+          desc_param = msg.to_string();
+      }
+    }
+    
+    set_drop_description(drop_image, desc_message, desc_param);
+    return;
+  }
+  
+  //set_drop_description(DROPIMAGE_INVALID, strings::EmptyString, strings::EmptyString);
 }
 
 void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {

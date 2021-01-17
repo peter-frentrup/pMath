@@ -51,6 +51,12 @@
     "FE`Styles`$" #NAME \
   )
   
+#define RICHMATH_DECLARE_FE_IMPORT_SYMBOL(NAME) \
+  RICHMATH_DECLARE_SYMBOL( \
+    richmath_FE_Import_ ## NAME, \
+    "FE`Import`" #NAME \
+  )
+
 #define RICHMATH_DECLARE_FE_SYMBOL_2(NAME, ATTR) \
   RICHMATH_DECLARE_SYMBOL( \
     richmath_FE_ ## NAME, \
@@ -286,6 +292,8 @@ RICHMATH_DECLARE_FE_SYMBOL( CopySpecial )
 RICHMATH_DECLARE_FE_SYMBOL( AutoCompleteName )
 RICHMATH_DECLARE_FE_SYMBOL( AutoCompleteFile )
 RICHMATH_DECLARE_FE_SYMBOL( AutoCompleteOther )
+
+RICHMATH_DECLARE_FE_IMPORT_SYMBOL( FileNamesDropDescription )
 
 RICHMATH_DECLARE_FE_STYLES_DOLLAR_SYMBOL( DefaultDisplayFunction )
 RICHMATH_DECLARE_FE_STYLES_DOLLAR_SYMBOL( DefaultDisplayFunctionTooltip )
