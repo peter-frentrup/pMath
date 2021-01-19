@@ -179,7 +179,8 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr) {
   }
   
   pmath_unref(expr);
-  default_opts = _pmath_options_from_expr(func);
+  //default_opts = _pmath_options_from_expr(func);
+  default_opts = pmath_evaluate(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_OPTIONS), 1, pmath_ref(func)));
   
   if(!pmath_same(extra, PMATH_UNDEFINED)) {
     if(check_set_of_options(extra))

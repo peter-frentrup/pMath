@@ -21,6 +21,10 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_OutputStream;
+
+
 struct _file_t {
   pmath_atomic_t _lock;
   
@@ -137,11 +141,144 @@ static pmath_t file_set_options(pmath_expr_t expr) {
 
 //------------------------------------------------------------------------------
 
+static pmath_custom_t get_single_file_object(pmath_t file) {
+  if(pmath_is_symbol(file)) {
+    pmath_custom_t result = pmath_symbol_get_value(file);
+    if(pmath_is_custom(result))
+      return result;
+    
+    pmath_unref(result);
+    return PMATH_NULL;
+  }
+  
+  if(pmath_is_expr(file)) {
+    pmath_t head = pmath_expr_get_item(file, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      if(pmath_expr_length(file) == 1) {
+        pmath_t item = pmath_expr_get_item(file, 1);
+        pmath_custom_t result = get_single_file_object(item);
+        pmath_unref(item);
+        return result;
+      }
+      
+      return PMATH_NULL;
+    }
+    
+    if(pmath_same(head, pmath_System_InputStream) || pmath_same(head, pmath_System_OutputStream)) {
+      pmath_t item = pmath_expr_get_item(file, 1);
+      pmath_custom_t result = get_single_file_object(item);
+      pmath_unref(item);
+      return result;
+    }
+  }
+  
+  return PMATH_NULL;
+}
+
+static pmath_bool_t foreach_file_object(pmath_t file, pmath_bool_t(*callback)(pmath_custom_t, void*), void *arg) {
+  if(pmath_is_symbol(file)) {
+    pmath_bool_t success = FALSE;
+    pmath_custom_t custom = pmath_symbol_get_value(file);
+    if(pmath_is_custom(custom)) {
+      success = callback(custom, arg);
+    }
+    pmath_unref(custom);
+    return success;
+  }
+  
+  if(pmath_is_expr(file)) {
+    pmath_t head = pmath_expr_get_item(file, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      pmath_bool_t success = TRUE;
+      size_t i;
+      for(i = pmath_expr_length(file); i > 0; --i) {
+        pmath_t item = pmath_expr_get_item(file, i);
+        success = foreach_file_object(item, callback, arg);
+        pmath_unref(item);
+        
+        if(success) {
+          if(!pmath_aborting()) continue;
+          success = FALSE;
+        }
+        break;
+      }
+      return success;
+    }
+    
+    if(pmath_same(head, pmath_System_InputStream) || pmath_same(head, pmath_System_OutputStream)) {
+      pmath_t item = pmath_expr_get_item(file, 1);
+      pmath_bool_t success = foreach_file_object(item, callback, arg);
+      pmath_unref(item);
+      return success;
+    }
+  }
+  
+  return FALSE;
+} 
+
 PMATH_API pmath_bool_t pmath_file_test(
   pmath_t file,
   int     properties
 ) {
-  if(pmath_is_symbol(file)) {
+  if(pmath_is_expr(file)) {
+    pmath_t head = pmath_expr_get_item(file, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      size_t i;
+      
+      if(properties & PMATH_FILE_PROP_READ)
+        return FALSE;
+      
+      for(i = pmath_expr_length(file); i > 0; --i) {
+        pmath_t item = pmath_expr_get_item(file, i);
+        
+        if(!pmath_file_test(item, properties)) {
+          pmath_unref(item);
+          return FALSE;
+        }
+        
+        pmath_unref(item);
+      }
+      
+      return TRUE;
+    }
+    
+    if(pmath_same(head, pmath_System_InputStream)) {
+      pmath_t item;
+      pmath_bool_t result;
+      if(properties & PMATH_FILE_PROP_WRITE)
+        return FALSE;
+      
+      if(pmath_expr_length(file) != 1) // TODO allow some options?
+        return FALSE;
+      
+      item = pmath_expr_get_item(file, 1);
+      result = pmath_file_test(item, properties);
+      pmath_unref(item);
+      return result;
+    }
+    
+    if(pmath_same(head, pmath_System_OutputStream)) {
+      pmath_t item;
+      pmath_bool_t result;
+      if(properties & PMATH_FILE_PROP_READ)
+        return FALSE;
+      
+      if(pmath_expr_length(file) != 1) // TODO allow some options?
+        return FALSE;
+      
+      item = pmath_expr_get_item(file, 1);
+      result = pmath_file_test(item, properties);
+      pmath_unref(item);
+      return result;
+    }
+  }
+  else if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
     if(pmath_is_custom(custom)) {
@@ -183,33 +320,13 @@ PMATH_API pmath_bool_t pmath_file_test(
     
     pmath_unref(custom);
   }
-  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
-    if( (properties & PMATH_FILE_PROP_READ)  == 0 &&
-        (properties & PMATH_FILE_PROP_WRITE) != 0)
-    {
-      size_t i;
-      
-      for(i = pmath_expr_length(file); i > 0; --i) {
-        pmath_t item = pmath_expr_get_item(file, i);
-        
-        if(!pmath_file_test(item, properties)) {
-          pmath_unref(item);
-          return FALSE;
-        }
-        
-        pmath_unref(item);
-      }
-      
-      return TRUE;
-    }
-  }
   
   return FALSE;
 }
 
 PMATH_API pmath_files_status_t pmath_file_status(pmath_t file) {
   if(pmath_file_test(file, PMATH_FILE_PROP_READ)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+    pmath_custom_t custom = get_single_file_object(file);
     
     if(pmath_custom_has_destructor(custom, destroy_binary_file)) {
       struct _pmath_binary_file_t *data = pmath_custom_get_data(custom);
@@ -275,7 +392,7 @@ PMATH_API size_t pmath_file_read(
   pmath_bool_t  preserve_internal_buffer
 ) {
   if(pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+    pmath_custom_t custom = get_single_file_object(file);
     
     if(pmath_custom_has_destructor(custom, destroy_binary_file)) {
       struct _pmath_binary_file_t *data = pmath_custom_get_data(custom);
@@ -352,7 +469,7 @@ PMATH_API size_t pmath_file_read(
 
 PMATH_API pmath_string_t pmath_file_readline(pmath_t file) {
   if(pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_TEXT)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+    pmath_custom_t custom = get_single_file_object(file);
     
     if(pmath_custom_has_destructor(custom, destroy_text_file)) {
       struct _pmath_text_file_t *data = pmath_custom_get_data(custom);
@@ -388,7 +505,7 @@ pmath_bool_t pmath_file_set_binbuffer(
   size_t   size
 ) {
   if(pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+    pmath_custom_t custom = get_single_file_object(file);
     
     if(pmath_custom_has_destructor(custom, destroy_binary_file)) {
       struct _pmath_binary_file_t *data = pmath_custom_get_data(custom);
@@ -420,7 +537,7 @@ pmath_bool_t pmath_file_set_binbuffer(
 PMATH_API
 void pmath_file_set_textbuffer(pmath_t file, pmath_string_t buffer) {
   if(pmath_file_test(file, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_TEXT)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+    pmath_custom_t custom = get_single_file_object(file);
     
     if(pmath_custom_has_destructor(custom, destroy_text_file)) {
       struct _pmath_text_file_t *data = pmath_custom_get_data(custom);
@@ -442,58 +559,71 @@ void pmath_file_set_textbuffer(pmath_t file, pmath_string_t buffer) {
   pmath_unref(buffer);
 }
 
+struct file_write_arg_t {
+  const void *buffer;
+  size_t      buffer_size;
+};
+
+static pmath_bool_t fileobj_write_callback(pmath_custom_t custom, void *_args) {
+  struct file_write_arg_t *args = _args;
+  
+  if(pmath_custom_has_destructor(custom, destroy_binary_file)) {
+    struct _pmath_binary_file_t *data = pmath_custom_get_data(custom);
+    if(data->write_function) {
+      if(lock_file(&data->inherited)) {
+        size_t result = data->write_function(
+                          data->inherited.extra,
+                          args->buffer,
+                          args->buffer_size);
+                          
+        unlock_file(&data->inherited);
+        
+        if(result < args->buffer_size)
+          args->buffer_size = result;
+        
+        return result > 0;
+      }
+    }
+  }
+  
+  return FALSE;
+}
+
 PMATH_API size_t pmath_file_write(
   pmath_t          file,
   const void      *buffer,
   size_t           buffer_size
 ) {
-  if(pmath_is_symbol(file)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
-    
-    if( pmath_is_custom(custom) &&
-        pmath_custom_has_destructor(custom, destroy_binary_file))
-    {
-      struct _pmath_binary_file_t *data = pmath_custom_get_data(custom);
-      
-      if(data->write_function) {
-        if(lock_file(&data->inherited)) {
-          size_t result = data->write_function(
-                            data->inherited.extra,
-                            buffer,
-                            buffer_size);
-                            
-          unlock_file(&data->inherited);
-          
-          pmath_unref(custom);
-          return result;
-        }
+  struct file_write_arg_t args;
+  args.buffer      = buffer;
+  args.buffer_size = buffer_size;
+  
+  if(!foreach_file_object(file, fileobj_write_callback, &args))
+    return 0;
+  
+  return args.buffer_size;
+}
+
+struct file_writetext_arg_t {
+  const uint16_t  *str;
+  int              len;
+};
+
+static pmath_bool_t fileobj_writetext_callback(pmath_custom_t custom, void *_args) {
+  struct file_writetext_arg_t *args = _args;
+  
+  if(pmath_custom_has_destructor(custom, destroy_text_file)) {
+    struct _pmath_text_file_t *data = pmath_custom_get_data(custom);
+    if(data->write_function) {
+      if(lock_file(&data->inherited)) {
+        pmath_bool_t success = data->write_function(data->inherited.extra, args->str, args->len);
+        unlock_file(&data->inherited);
+        return success;
       }
     }
-    
-    pmath_unref(custom);
-  }
-  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
-    size_t i;
-    size_t result = buffer_size;
-    
-    for(i = 1; i <= pmath_expr_length(file); ++i) {
-      pmath_t item = pmath_expr_get_item(file, i);
-      
-      size_t item_result = pmath_file_write(
-                             item,
-                             buffer,
-                             buffer_size);
-                             
-      if(result > item_result)
-        result = item_result;
-        
-      pmath_unref(item);
-    }
-    
-    return result;
   }
   
-  return 0;
+  return FALSE;
 }
 
 PMATH_API pmath_bool_t pmath_file_writetext(
@@ -501,69 +631,37 @@ PMATH_API pmath_bool_t pmath_file_writetext(
   const uint16_t  *str,
   int              len
 ) {
-  if(pmath_is_symbol(file)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
-    
-    if( pmath_is_custom(custom) &&
-        pmath_custom_has_destructor(custom, destroy_text_file))
-    {
-      struct _pmath_text_file_t *data = pmath_custom_get_data(custom);
-      
-      if(data->write_function) {
-        if(lock_file(&data->inherited)) {
-          pmath_bool_t result;
-          
-          result = data->write_function(data->inherited.extra, str, len);
-          
-          unlock_file(&data->inherited);
-          
-          pmath_unref(custom);
-          return result;
-        }
+  struct file_writetext_arg_t args;
+  if(len < 0) {
+    len = 0;
+    while(len < INT_MAX && str[len])
+      ++len;
+  }
+  args.str = str;
+  args.len = len;
+  
+  return foreach_file_object(file, fileobj_writetext_callback, &args);
+}
+
+static pmath_bool_t fileobj_flush_callback(pmath_custom_t custom, void *_args) {
+  if( pmath_custom_has_destructor(custom, destroy_binary_file) ||
+       pmath_custom_has_destructor(custom, destroy_text_file))
+  {
+    struct _file_t *f = pmath_custom_get_data(custom);
+    if(f->flush_function) {
+      if(lock_file(f)) {
+        f->flush_function(f->extra);
+        
+        unlock_file(f);
       }
     }
-    
-    pmath_unref(custom);
-  }
-  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
-    size_t i;
-    pmath_bool_t result = TRUE;
-    
-    for(i = 1; i <= pmath_expr_length(file); ++i) {
-      pmath_t item = pmath_expr_get_item(file, i);
-      
-      result = pmath_file_writetext(item, str, len) || result;
-      
-      pmath_unref(item);
-    }
-    
-    return result;
   }
   
-  return FALSE;
+  return TRUE;
 }
 
 PMATH_API void pmath_file_flush(pmath_t file) {
-  if(pmath_is_symbol(file)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
-    
-    if( pmath_is_custom(custom) &&
-        (pmath_custom_has_destructor(custom, destroy_binary_file) ||
-         pmath_custom_has_destructor(custom, destroy_text_file)))
-    {
-      struct _file_t *f = pmath_custom_get_data(custom);
-      
-      if(f->flush_function) {
-        if(lock_file(f)) {
-          f->flush_function(f->extra);
-          
-          unlock_file(f);
-        }
-      }
-    }
-    
-    pmath_unref(custom);
-  }
+  foreach_file_object(file, fileobj_flush_callback, NULL);
 }
 
 /**\brief Get the stream's position, if possible
@@ -572,42 +670,77 @@ PMATH_API void pmath_file_flush(pmath_t file) {
 PMATH_API int64_t pmath_file_get_position(pmath_t file) {
   int64_t result = -1;
   
-  if(pmath_is_symbol(file)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+  pmath_custom_t custom = get_single_file_object(file);
+  if(pmath_is_null(custom))
+    return -1;
+  
+  if(pmath_custom_has_destructor(custom, destroy_binary_file)) {
+    struct _pmath_binary_file_t *f = pmath_custom_get_data(custom);
     
-    if( pmath_is_custom(custom) &&
-        pmath_custom_has_destructor(custom, destroy_binary_file))
-    {
-      struct _pmath_binary_file_t *f = pmath_custom_get_data(custom);
-      
-      if(f->get_pos_function) {
-        if(lock_file(&f->inherited)) {
-          result = f->get_pos_function(f->inherited.extra);
-          
-          if(f->current_buffer_start < f->current_buffer_end) {
-            result -= (int64_t)(f->current_buffer_end - f->current_buffer_start);
-          }
-          
-          unlock_file(&f->inherited);
+    if(f->get_pos_function) {
+      if(lock_file(&f->inherited)) {
+        result = f->get_pos_function(f->inherited.extra);
+        
+        if(f->current_buffer_start < f->current_buffer_end) {
+          result -= (int64_t)(f->current_buffer_end - f->current_buffer_start);
         }
+        
+        unlock_file(&f->inherited);
       }
     }
-//    else if(pmath_is_custom(custom) &&
-//            pmath_custom_has_destructor(custom, destroy_text_file))
-//    {
-//      struct _file_t *f = pmath_custom_get_data(custom);
+  }
+//  else if(pmath_custom_has_destructor(custom, destroy_text_file))
+//  {
+//    struct _file_t *f = pmath_custom_get_data(custom);
 //
-//      if(f->get_pos_function) {
-//        if(lock_file(f)) {
-//          result = f->get_pos_function(f->extra);
+//    if(f->get_pos_function) {
+//      if(lock_file(f)) {
+//        result = f->get_pos_function(f->extra);
 //
-//          unlock_file(f);
-//        }
+//        unlock_file(f);
 //      }
 //    }
+//  }
+  
+  pmath_unref(custom);
+  return result;
+}
 
-    pmath_unref(custom);
+struct file_set_position_args_t {
+  int64_t offset;
+  int     origin;
+};
+
+static pmath_bool_t fileobj_set_position_callback(pmath_custom_t custom, void *_args) {
+  struct file_set_position_args_t *args = _args;
+  pmath_bool_t result = FALSE;
+  
+  if(pmath_custom_has_destructor(custom, destroy_binary_file)) {
+    struct _pmath_binary_file_t *f = pmath_custom_get_data(custom);
+    
+    if(f->set_pos_function) {
+      if(lock_file(&f->inherited)) {
+        result = f->set_pos_function(f->inherited.extra, args->offset, args->origin);
+        
+        if(result)
+          f->current_buffer_start = f->current_buffer_end;
+          
+        unlock_file(&f->inherited);
+      }
+    }
   }
+//  else if(pmath_custom_has_destructor(custom, destroy_text_file))
+//  {
+//    struct _file_t *f = pmath_custom_get_data(custom);
+//
+//    if(f->get_pos_function) {
+//      if(lock_file(f)) {
+//        result = f->get_pos_function(f->extra);
+//
+//        unlock_file(f);
+//      }
+//    }
+//  }
   
   return result;
 }
@@ -617,56 +750,22 @@ PMATH_API pmath_bool_t pmath_file_set_position(
   int64_t offset,
   int     origin
 ) {
-  pmath_bool_t result = FALSE;
-  
-  if(pmath_is_symbol(file)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
-    
-    if( pmath_is_custom(custom) &&
-        pmath_custom_has_destructor(custom, destroy_binary_file))
-    {
-      struct _pmath_binary_file_t *f = pmath_custom_get_data(custom);
-      
-      if(f->set_pos_function) {
-        if(lock_file(&f->inherited)) {
-          result = f->set_pos_function(f->inherited.extra, offset, origin);
-          
-          if(result)
-            f->current_buffer_start = f->current_buffer_end;
-            
-          unlock_file(&f->inherited);
-        }
-      }
-    }
-//    else if(pmath_is_custom(custom) &&
-//            pmath_custom_has_destructor(custom, destroy_text_file))
-//    {
-//      struct _file_t *f = pmath_custom_get_data(custom);
-//
-//      if(f->get_pos_function) {
-//        if(lock_file(f)) {
-//          result = f->get_pos_function(f->extra);
-//
-//          unlock_file(f);
-//        }
-//      }
-//    }
-
-    pmath_unref(custom);
-  }
-  
-  return result;
+  struct file_set_position_args_t args;
+  args.offset = offset;
+  args.origin = origin;
+  return foreach_file_object(file, fileobj_set_position_callback, &args);
 }
 
 typedef struct {
-  pmath_t  file;
+  pmath_t      file;
   pmath_bool_t success;
 } _write_data_t;
 
 static void write_data(void *user, const uint16_t *data, int len) {
   _write_data_t *wd = user;
   
-  wd->success = pmath_file_writetext(wd->file, data, len) || wd->success;
+  if(wd->success)
+    wd->success = pmath_file_writetext(wd->file, data, len);
 }
 
 PMATH_API pmath_bool_t pmath_file_write_object(
@@ -678,7 +777,7 @@ PMATH_API pmath_bool_t pmath_file_write_object(
   pmath_t pagewidth_obj;
   _write_data_t data;
   
-  data.file = file;
+  data.file    = file;
   data.success = TRUE;
   
   pagewidth_obj = pmath_evaluate(
@@ -704,30 +803,29 @@ void pmath_file_manipulate(
   void    (*callback)(void *, void *),
   void     *data
 ) {
-  if(pmath_is_symbol(file)) {
-    pmath_custom_t custom = pmath_symbol_get_value(file);
+  pmath_custom_t custom = get_single_file_object(file);
+  
+  if( pmath_custom_has_destructor(custom, destroy_binary_file) ||
+      pmath_custom_has_destructor(custom, destroy_text_file))
+  {
+    struct _file_t *f = (struct _file_t *)pmath_custom_get_data(custom);
     
-    if( pmath_is_custom(custom) &&
-        (pmath_custom_has_destructor(custom, destroy_binary_file) ||
-         pmath_custom_has_destructor(custom, destroy_text_file)))
-    {
-      struct _file_t *f = (struct _file_t *)pmath_custom_get_data(custom);
-      
-      if(f->extra_destructor == type) {
-        if(lock_file(f)) {
-          callback(f->extra, data);
-          
-          unlock_file(f);
-        }
+    if(f->extra_destructor == type) {
+      if(lock_file(f)) {
+        callback(f->extra, data);
+        
+        unlock_file(f);
       }
     }
-    
-    pmath_unref(custom);
   }
+  
+  pmath_unref(custom);
 }
 
 PMATH_API
 pmath_bool_t pmath_file_close(pmath_t file) {
+  pmath_bool_t success = FALSE;
+  
   if(pmath_is_symbol(file)) {
     pmath_custom_t custom = pmath_symbol_get_value(file);
     
@@ -735,33 +833,30 @@ pmath_bool_t pmath_file_close(pmath_t file) {
         (pmath_custom_has_destructor(custom, destroy_binary_file) ||
          pmath_custom_has_destructor(custom, destroy_text_file)))
     {
-      pmath_bool_t result;
-      
       pmath_symbol_set_attributes(file, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
-      result = _pmath_clear(file, TRUE);
-      pmath_unref(custom);
-      pmath_unref(file);
-      return result;
+      success = _pmath_clear(file, TRUE);
     }
     
     pmath_unref(custom);
   }
-  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
-    pmath_bool_t result = TRUE;
-    size_t i;
+  else if(pmath_is_expr(file)) {
+    pmath_t head = pmath_expr_get_item(file, 0);
+    pmath_unref(head);
     
-    for(i = 1; i <= pmath_expr_length(file); ++i) {
-      pmath_t item = pmath_expr_get_item(file, i);
-      
-      result = pmath_file_close(item) || result;
+    if(pmath_same(head, pmath_System_InputStream) || pmath_same(head, pmath_System_OutputStream)) {
+      success = pmath_file_close(pmath_expr_get_item(file, 1));
     }
-    
-    pmath_unref(file);
-    return result;
+    else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      size_t i;
+      success = TRUE;
+      for(i = pmath_expr_length(file); i > 0; --i) {
+        success = pmath_file_close(pmath_expr_get_item(file, i)) && success;
+      }
+    }
   }
   
   pmath_unref(file);
-  return FALSE;
+  return success;
 }
 
 PMATH_API
@@ -776,17 +871,19 @@ void pmath_file_close_if_unused(pmath_t file) {
       }
     }
   }
-  else if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST)) {
-    size_t i;
+  else if(pmath_is_expr(file) && pmath_refcount(file) == 1) {
+    pmath_t head = pmath_expr_get_item(file, 0);
+    pmath_unref(head);
     
-    if(pmath_refcount(file) > 1) {
-      pmath_unref(file);
-      return;
+    if(pmath_same(head, pmath_System_InputStream) || pmath_same(head, pmath_System_OutputStream)) {
+      pmath_file_close_if_unused(pmath_expr_extract_item(file, 1));
     }
-    
-    for(i = pmath_expr_length(file); i > 0; --i) {
-      pmath_file_close_if_unused(
-        pmath_expr_extract_item(file, i));
+    else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      size_t i;
+      for(i = pmath_expr_length(file); i > 0; --i) {
+        pmath_file_close_if_unused(
+          pmath_expr_extract_item(file, i));
+      }
     }
   }
   

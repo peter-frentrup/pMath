@@ -85,7 +85,9 @@ static volatile enum {
 static pmath_atomic_t pmath_count = PMATH_ATOMIC_STATIC_INIT;
 
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+extern pmath_symbol_t pmath_System_InputStream;
 extern pmath_symbol_t pmath_System_Missing;
+extern pmath_symbol_t pmath_System_OutputStream;
 
 extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
 extern pmath_symbol_t pmath_Internal_GetCurrentDirectory;
@@ -1058,6 +1060,13 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "PageWidth->Infinity,"
           "ShowStringCharacters->Automatic,"
           "Whitespace->Automatic}");
+      
+      pmath_symbol_set_attributes(pmath_System_InputStream, 0);
+      pmath_symbol_set_attributes(pmath_System_OutputStream, 0);
+      PMATH_RUN("InputStream/:Options(InputStream(~System`Private`sym))::=Options(System`Private`sym)");
+      PMATH_RUN("OutputStream/:Options(OutputStream(~System`Private`sym))::=Options(System`Private`sym)");
+      pmath_symbol_set_attributes(pmath_System_InputStream,  PMATH_SYMBOL_ATTRIBUTE_PROTECTED | PMATH_SYMBOL_ATTRIBUTE_READPROTECTED);
+      pmath_symbol_set_attributes(pmath_System_OutputStream, PMATH_SYMBOL_ATTRIBUTE_PROTECTED | PMATH_SYMBOL_ATTRIBUTE_READPROTECTED);
     }
     
     flint_set_num_threads(_pmath_processor_count());

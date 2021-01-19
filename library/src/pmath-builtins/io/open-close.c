@@ -34,6 +34,10 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_OutputStream;
+
+
 static pmath_bool_t eq_caseless(const char *s1, const char *s2) {
   while(*s1 && *s2) {
     if(tolower(*s1++) != tolower(*s2++))
@@ -537,7 +541,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       kind = OPEN_READ;
   }
   
-  if(pmath_is_symbol(filename)) {
+  if(pmath_is_symbol(filename) || pmath_is_expr(filename)) {
     if(kind == OPEN_APPEND) {
       pmath_message(PMATH_NULL, "fstr", 1, filename);
       pmath_unref(options);
@@ -787,5 +791,10 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   pmath_unref(filename);
   pmath_unref(page_width);
   pmath_unref(expr);
+  
+  if(kind == OPEN_READ)
+    file = pmath_expr_new_extended(pmath_ref(pmath_System_InputStream), 1, file);
+  else // OPEN_WRITE, OPEN_APPEND
+    file = pmath_expr_new_extended(pmath_ref(pmath_System_OutputStream), 1, file);
   return file;
 }
