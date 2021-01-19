@@ -1,0 +1,20 @@
+Begin("System`Private`")
+
+Unprotect(InputStream, OutputStream)
+
+
+Function Format(InputStream(~f:Symbol,~~~)) {
+    With(opts:= Options(Unevaluated(f)))
+
+    "InputStream"(Skeleton(Lookup(opts, Key(File), "")))
+}
+Function Format(OutputStream(~f:Symbol,~~~)) {
+    With(opts:= Options(Unevaluated(f)))
+
+    "OutputStream"(Skeleton(Lookup(opts, Key(File), "")))
+}
+
+
+Protect(InputStream, OutputStream)
+
+End()
