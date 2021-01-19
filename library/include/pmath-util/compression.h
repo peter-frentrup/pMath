@@ -66,7 +66,7 @@ struct pmath_decompressor_settings_t {
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile, struct pmath_compressor_settings_t *options);
+pmath_t pmath_file_create_compressor(pmath_t dstfile, struct pmath_compressor_settings_t *options);
 
 /**\brief Create a readable binary file object that decompresses its input.
    \param srcfile A readable binary file object to read the compressed data 
@@ -78,12 +78,11 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile, struct pmath_compre
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_symbol_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_decompressor_settings_t *options);
+pmath_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_decompressor_settings_t *options);
 
 
 /**\brief Compress an expression to a string.
    \param obj     An expression. It will be freed.
-   \param options Optional settings. Can be NULL.
    \return A string that can be decompressed with pmath_decompress_from_string() or PMATH_NULL on error.
    
    The compression uses pmath_file_create_compressor() and encodes the binary streams as "base85", 

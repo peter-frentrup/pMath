@@ -1,13 +1,19 @@
 #include <pmath-util/compression.h>
+
 #include <pmath-util/concurrency/threads.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/files/mixed-buffer.h>
+#include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/serialize.h>
 
 #include <string.h>
 #include <zlib.h>
+
+
+extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_OutputStream;
 
 
 static void *alloc_for_zlib(void *opaque, uInt items, uInt size) {
@@ -251,6 +257,12 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile, struct pmath_compre
     strategy = options->strategy;
   }
   
+  if(pmath_is_expr_of_len(dstfile, pmath_System_OutputStream, 1)) {
+    pmath_t item = pmath_expr_get_item(dstfile, 1);
+    pmath_unref(dstfile);
+    dstfile = item;
+  }
+  
   if(!pmath_file_test(dstfile, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
     pmath_unref(dstfile);
     return PMATH_NULL;
@@ -286,7 +298,8 @@ pmath_symbol_t pmath_file_create_compressor(pmath_t dstfile, struct pmath_compre
   data->info.next_out  = data->outbuffer;
   data->info.avail_out = sizeof(data->outbuffer);
   
-  return pmath_file_create_binary(data, compressor_deflate_destructor, &api);
+  dstfile = pmath_file_create_binary(data, compressor_deflate_destructor, &api);
+  return pmath_expr_new_extended(pmath_ref(pmath_System_OutputStream), 1, dstfile);
 }
 
 PMATH_API
@@ -323,6 +336,12 @@ pmath_symbol_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_deco
       window_bits = -window_bits;
   }
   
+  if(pmath_is_expr_of_len(srcfile, pmath_System_InputStream, 1)) {
+    pmath_t item = pmath_expr_get_item(srcfile, 1);
+    pmath_unref(srcfile);
+    srcfile = item;
+  }
+  
   if(!pmath_file_test(srcfile, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
     pmath_unref(srcfile);
     return PMATH_NULL;
@@ -351,7 +370,8 @@ pmath_symbol_t pmath_file_create_decompressor(pmath_t srcfile, struct pmath_deco
     return PMATH_NULL;
   }
   
-  return pmath_file_create_binary(data, compressor_inflate_destructor, &api);
+  srcfile = pmath_file_create_binary(data, compressor_inflate_destructor, &api);
+  return pmath_expr_new_extended(pmath_ref(pmath_System_InputStream), 1, srcfile);
 }
 
 /* ========================================================================== */
