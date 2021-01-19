@@ -9,6 +9,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_InputStream;
+
 PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
   /* StringToStream(text)
     
@@ -69,5 +71,5 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
     pmath_ref(page_width));
   
   pmath_unref(page_width);
-  return text_stream;
+  return pmath_expr_new_extended(pmath_ref(pmath_System_InputStream), 1, text_stream);
 }
