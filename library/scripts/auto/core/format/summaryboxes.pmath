@@ -1,0 +1,46 @@
+BeginPackage("System`")
+
+System`BoxForm`MakeSimpleSummaryBox
+
+$NamespacePath:= Append($NamespacePath, "System`BoxForm`")
+
+Begin("System`BoxForm`Private`")
+
+makeSummaryItemBox((Rule|RuleDelayed)(~lhs,~rhs))::= 
+    {{StyleBox(ToBoxes(HoldForm(lhs).ToString ++ ": "), "SummaryItemAnnotation"),
+     StyleBox(MakeBoxes(rhs), "SummaryItem")}}
+makeSummaryItemBox(~)::= Nothing
+
+makeSummaryGridBox(~items:List)::= GridBox(items.Map(makeSummaryItemBox))
+
+Function MakeSimpleSummaryBox(~head, ~shortInfo:List, ~moreInfo:List) {
+    {MakeBoxes(head), "(",
+        PanelBox(DynamicLocalBox({open},
+            GridBox({
+                {OpenerBox(Dynamic(open)), makeSummaryGridBox(shortInfo)},
+                {"", PaneSelectorBox(
+                    {True -> GridBox({{""}, {makeSummaryGridBox(moreInfo)}})}, 
+                    Dynamic(open))}},
+                GridBoxRowSpacing -> 0,
+                BaselinePosition -> 1)),
+            BaselinePosition -> Baseline), 
+        ")"}
+}
+
+Function MakeSimpleSummaryBox(~head, ~shortInfo:List, {}) {
+    {MakeBoxes(head), "(",
+        PanelBox(GridBox({{OpenerBox(False, Enabled->False), makeSummaryGridBox(shortInfo)}})),
+        ")"}
+}
+
+Function MakeSimpleSummaryBox(~head, ~shortInfo:List, None) {
+    {MakeBoxes(head), "(",
+        PanelBox(makeSummaryGridBox(shortInfo)),
+        ")"}
+}
+
+MakeSimpleSummaryBox(~head, ~shortInfo:List)::= MakeSimpleSummaryBox(head, shortInfo, None)
+
+End()
+
+EndPackage()

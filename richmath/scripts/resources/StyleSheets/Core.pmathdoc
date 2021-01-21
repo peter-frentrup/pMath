@@ -32,16 +32,16 @@ Document({
            0.20000000000000001`), Opacity -> 0.75`}, 
        "PatternVariableStyle" -> {
          FontColor -> RGBColor(0.26300000000000001`, 0.53700000000000003`, 
-           0.34499999999999997`)}, "StringStyle" -> {
-         FontColor -> GrayLevel(0.502`)}, "SymbolShadowingStyle" -> {
+           0.34499999999999997`)}, "SectionInsertionPointColor" -> 
+        GrayLevel(0.753`), "StringStyle" -> {FontColor -> GrayLevel(0.502`)}, 
+       "SymbolShadowingStyle" -> {
          FontColor -> RGBColor(1, 0.20000000000000001`, 
            0.20000000000000001`)}, "SyntaxErrorStyle" -> {
          FontColor -> RGBColor(1, 0, 0)}, "UndefinedSymbolStyle" -> {
          FontColor -> RGBColor(0, 0.17299999999999999`, 
            0.76500000000000001`)}, "UnknownOptionStyle" -> {
          FontColor -> RGBColor(1, 0.20000000000000001`, 
-           0.20000000000000001`)}, "SectionInsertionPointColor" -> 
-        GrayLevel(64/85), Visible -> True, WindowFrame -> "Normal"), 
+           0.20000000000000001`)}, Visible -> True, WindowFrame -> "Normal"), 
       Section(StyleData("AttachedPopupWindow"), 
        DefaultNewSectionStyle -> "PopupWindowSection", Editable -> False, 
        FontFeatures -> {"ssty" -> Automatic}, ShowSectionBracket -> False, 
@@ -171,6 +171,10 @@ Document({
         Section(StyleData("Paste"), BaseStyle -> "Button", 
          ButtonBoxOptions -> {
            ButtonFunction -> (DocumentApply(SelectedDocument(), #1) &)})}, 
+       All), SectionGroup({Section("SummaryBox styles", "Subsection"), 
+        Section(StyleData("SummaryItem"), Selectable -> True), 
+        Section(StyleData("SummaryItemAnnotation"), 
+         FontColor -> GrayLevel(0.502`), ShowStringCharacters -> False)}, 
        All), SectionGroup({Section("TemplateBox styles", "Subsection"), 
         SectionGroup({Section("Mathematical Functions", "Subsubsection"), 
           Section(StyleData("Binomial"), TemplateBoxOptions -> {
@@ -395,7 +399,49 @@ Document({
                  Dynamic(If(CurrentValue({TemplateSlot, 1}) === $SessionId, 
                    Inherited, Gray))) &), InterpretationFunction -> (
                {"FrontEndObject", "(", {InterpretationBox("", #1), ",", 
-                 InterpretationBox("", #2)}, ")"} &)})}, All), 
+                 InterpretationBox("", #2)}, ")"} &)}), 
+          Section(StyleData("InputStream"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               DynamicBox(
+                With({
+                  FE`Private`opts:= 
+                   Replace(Try(MakeExpression(CurrentValue({TemplateSlot, 1}), 
+                      ParseSymbols -> False)), {
+                     HoldComplete(~Global`s:Symbol) :> 
+                      Options(Unevaluated(Global`s)), ~ -> {}})}, 
+                 System`BoxForm`MakeSimpleSummaryBox(InputStream, {
+                   File -> Replace(FileNameSplit(Lookup(FE`Private`opts, File, 
+                       "")), {{} -> "\[LongDash]", ~FE`Private`path:List :> 
+                       Last(FE`Private`path)}), 
+                   BinaryFormat -> Lookup(FE`Private`opts, BinaryFormat, 
+                     "\[LongDash]")}, 
+                  Prepend(FilterRules(FE`Private`opts, 
+                    Except(File | BinaryFormat)), 
+                   Replace(DirectoryName(Lookup(FE`Private`opts, File, "")), {
+                     "" -> Nothing, ~FE`Private`dir :> 
+                      Directory -> FE`Private`dir}))))) &)}), 
+          Section(StyleData("OutputStream"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               DynamicBox(
+                With({
+                  FE`Private`opts:= 
+                   Replace(Try(MakeExpression(CurrentValue({TemplateSlot, 1}), 
+                      ParseSymbols -> False)), {
+                     HoldComplete(~Global`s:Symbol) :> 
+                      Options(Unevaluated(Global`s)), ~ -> {}})}, 
+                 System`BoxForm`MakeSimpleSummaryBox(OutputStream, {
+                   File -> Replace(FileNameSplit(Lookup(FE`Private`opts, File, 
+                       "")), {{} -> "\[LongDash]", ~FE`Private`path:List :> 
+                       Last(FE`Private`path)}), 
+                   BinaryFormat -> Lookup(FE`Private`opts, BinaryFormat, 
+                     "\[LongDash]")}, 
+                  Prepend(FilterRules(FE`Private`opts, 
+                    Except(File | BinaryFormat)), 
+                   Replace(DirectoryName(Lookup(FE`Private`opts, File, "")), {
+                     "" -> Nothing, ~FE`Private`dir :> 
+                      Directory -> FE`Private`dir}))))) &)})}, All), 
         SectionGroup({Section("Formatting", "Subsubsection"), 
           Section(StyleData("ConditionalExpression"), 
            TemplateBoxOptions -> {
