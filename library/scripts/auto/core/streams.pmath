@@ -1,0 +1,26 @@
+Begin("System`Private`")
+
+Unprotect(InputStream, OutputStream)
+
+% TODO: warn when trying to change BinaryFormat or CharacterEncoding options
+InputStream/: SetOptions(InputStream(~obj:Symbol), ~rules)::= SetOptions(obj, rules)
+OutputStream/: SetOptions(OutputStream(~obj:Symbol), ~rules)::= SetOptions(obj, rules)
+
+MakeBoxes(InputStream(~obj:Symbol))::= TemplateBox({MakeBoxes(LongForm(obj))}, "InputStream")
+MakeBoxes(OutputStream(~obj:Symbol))::= TemplateBox({MakeBoxes(LongForm(obj))}, "OutputStream")
+
+Function Format(InputStream(~obj:Symbol,~~~)) {
+    With(opts:= Options(Unevaluated(obj)))
+
+    "InputStream"(Skeleton(Lookup(opts, File, "")))
+}
+Function Format(OutputStream(~obj:Symbol,~~~)) {
+    With(opts:= Options(Unevaluated(obj)))
+
+    "OutputStream"(Skeleton(Lookup(opts, File, "")))
+}
+
+
+Protect(InputStream, OutputStream)
+
+End()

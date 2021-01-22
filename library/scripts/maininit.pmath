@@ -124,6 +124,7 @@ End()
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "syntax.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "extended-syntax.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "gui"}, "options.pmath"))
+Get(ToFileName({$BaseDirectory, "auto", "core"}, "streams.pmath"))
 
 AutoLoad(Hold(System`Private`FindTemplateInterpretationFunction, System`Private`FlattenTemplateSequence),
 	ToFileName({$BaseDirectory, "auto", "core", "format"}, "templateboxes.pmath"))
@@ -187,7 +188,6 @@ Get(ToFileName({$BaseDirectory, "auto", "core"}, "colors.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "rawboxes.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "accents.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "brackets.pmath"));
-Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "streams.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "format"}, "sumprod.pmath"));
 Get(ToFileName({$BaseDirectory, "auto", "core", "graphics"}, "init.pmath"))
 
