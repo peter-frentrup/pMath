@@ -468,7 +468,7 @@
 					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
 						<Exec>iFound = iFound + 1</Exec>
 						<If Condition="klass == &amp;pmath.dll!pmath_ht_obj_class">
-							<Item Name="[{(*(_pmath_object_entry_t*)*pBucket).key}]">*(_pmath_object_int_entry_t*)*pBucket</Item>
+							<Item Name="[{(*(_pmath_object_entry_t*)*pBucket).key}]">*(_pmath_object_entry_t*)*pBucket</Item>
 						</If>
 						<Elseif Condition="klass == &amp;pmath.dll!pmath_ht_obj_int_class">
 							<Item Name="[{(*(_pmath_object_int_entry_t*)*pBucket).key}]">*(_pmath_object_int_entry_t*)*pBucket</Item>
