@@ -412,6 +412,7 @@ PMATH_DECLARE_SYSTEM_BOXFORM_DOLLAR_VAR( UseTextFormatting,      THREADLOCAL )
 
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( FindTemplateInterpretationFunction, 0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( FlattenTemplateSequence,            0 )
+PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( GetRefCount,                        HOLDALLCOMPLETE )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeLimitsExpression,               0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeScriptsExpression,              0 )
 PMATH_DECLARE_SYSTEM_PRIVATE_SYMBOL( MakeJuxtapositionExpression,        0 )

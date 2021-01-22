@@ -1249,6 +1249,9 @@
 		<Unit filename="src/pmath-builtins/language/frompackedarray.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/language/getrefcount.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/language/is-object-type.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -346,6 +346,8 @@ PMATH_PRIVATE pmath_t builtin_toexpression(     pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_internal_parserealball(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_internal_writerealball(pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_private_getrefcount(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/lists/ ...
 PMATH_PRIVATE pmath_t builtin_part(         pmath_expr_t expr);
@@ -1569,6 +1571,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   BIND_UP(     PMATH_SYMBOL_CONDITIONALEXPRESSION,            builtin_operate_conditionalexpression)
   BIND_UP(     PMATH_SYMBOL_UNDEFINED,                        builtin_operate_undefined)
+  
+  BIND_DOWN(   pmath_System_Private_GetRefCount,                 builtin_private_getrefcount)
   
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,               builtin_internal_abortmessage)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_COPYSIGN,                   builtin_internal_copysign)
