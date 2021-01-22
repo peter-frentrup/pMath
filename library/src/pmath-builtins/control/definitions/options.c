@@ -33,6 +33,8 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
     return expr;
   }
   
+  lhs = pmath_evaluate_expression(lhs, FALSE);
+  
   sym = pmath_expr_get_item(lhs, 1);
   
   if(!pmath_same(tag, PMATH_UNDEFINED)) {
