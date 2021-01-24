@@ -147,6 +147,9 @@ PMATH_PRIVATE pmath_t builtin_position(        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_releasehold(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replace(         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replacelist(     pmath_expr_t expr);
+
+PMATH_PRIVATE pmath_t builtin_private_isvalid( pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_private_setvalid(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/control/definitions/ ...
 PMATH_PRIVATE pmath_t builtin_assign(   pmath_expr_t expr);
@@ -1573,6 +1576,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_UP(     PMATH_SYMBOL_UNDEFINED,                        builtin_operate_undefined)
   
   BIND_DOWN(   pmath_System_Private_GetRefCount,                 builtin_private_getrefcount)
+  BIND_DOWN(   pmath_System_Private_IsValid,                     builtin_private_isvalid)
+  BIND_DOWN(   pmath_System_Private_SetValid,                    builtin_private_setvalid)
   
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_ABORTMESSAGE,               builtin_internal_abortmessage)
   BIND_DOWN(   PMATH_SYMBOL_INTERNAL_COPYSIGN,                   builtin_internal_copysign)

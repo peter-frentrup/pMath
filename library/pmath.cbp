@@ -1081,6 +1081,9 @@
 		<Unit filename="src/pmath-builtins/control/history.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/control/isvalid-and-setvalid.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/control/loadlibrary.c">
 			<Option compilerVar="CC" />
 		</Unit>

@@ -131,6 +131,9 @@ static struct _pmath_symbol_t *create_symbol(void) {
   
   if(symbol) {
     symbol->inherited.inherited.inherited.type_shift = PMATH_TYPE_SHIFT_SYMBOL;
+    
+    pmath_atomic_write_uint8_release( &symbol->inherited.inherited.inherited.flags8,  0);
+    pmath_atomic_write_uint16_release(&symbol->inherited.inherited.inherited.flags16, 0);
     pmath_atomic_write_release(&symbol->inherited.inherited.inherited.refcount, 1);
   }
   else {
@@ -144,6 +147,7 @@ static struct _pmath_symbol_t *create_symbol(void) {
     symbol->inherited.gc_refcount           = 0;
     symbol->prev                            = NULL;
     symbol->next                            = NULL;
+    pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&symbol->inherited), 0);
     pmath_atomic_write_release(&symbol->current_dynamic_id, 0);
     pmath_atomic_write_release(&symbol->ignore_dynamic_id,  0);
   }

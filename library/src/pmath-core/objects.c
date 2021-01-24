@@ -464,8 +464,8 @@ PMATH_PRIVATE pmath_t _pmath_create_stub(unsigned int type_shift, size_t size) {
     return PMATH_NULL;
     
   obj->type_shift = type_shift;
-  obj->flags8     = 0;
-  obj->flags16    = 0;
+  pmath_atomic_write_uint8_release( &obj->flags8,  0);
+  pmath_atomic_write_uint16_release(&obj->flags16, 0);
   pmath_atomic_write_release(&obj->refcount, 1);
   return PMATH_FROM_PTR(obj);
 }

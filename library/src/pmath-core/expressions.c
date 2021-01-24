@@ -156,6 +156,7 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
       touch_expr(expr);
       expr->inherited.gc_refcount = 0;
       expr->length                = length;
+      pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&expr->inherited), 0);
       pmath_atomic_write_release(&expr->metadata, 0);
 
       return expr;
@@ -176,6 +177,7 @@ struct _pmath_expr_t *_pmath_expr_new_noinit(size_t length) {
   touch_expr(expr);
   expr->inherited.gc_refcount = 0;
   expr->length                = length;
+  pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&expr->inherited), 0);
   pmath_atomic_write_release(&expr->metadata, 0);
 
   return expr;
@@ -194,7 +196,6 @@ static void end_destroy_general_expression(struct _pmath_expr_t *expr) {
 
 static void destroy_general_expression(pmath_t expr) {
   struct _pmath_expr_t *_expr = (void *)PMATH_AS_PTR(expr);
-  struct _pmath_t *metadata;
 
   size_t i;
   for(i = 0; i <= _expr->length; i++)
@@ -206,7 +207,6 @@ static void destroy_general_expression(pmath_t expr) {
 
 static void destroy_part_expression(pmath_t expr) {
   struct _pmath_expr_part_t *_expr = (void *)PMATH_AS_PTR(expr);
-  struct _pmath_t *metadata;
   
   clear_metadata(&_expr->inherited);
 

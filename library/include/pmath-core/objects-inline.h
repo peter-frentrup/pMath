@@ -6,14 +6,16 @@
 #include <pmath-util/concurrency/atomic.h>
 
 struct _pmath_t { // do not access members
-  uint8_t        type_shift; /* 0..31 */
-  uint8_t        flags8;
-  uint16_t       flags16;
+  uint8_t                type_shift; /* 0..31 */
+  pmath_atomic_uint8_t   flags8;
+  pmath_atomic_uint16_t  flags16;
 #if PMATH_BITSIZE >= 64
-  uint32_t       padding_flags32;
+  pmath_atomic_uint32_t  padding_flags32;
 #endif
   pmath_atomic_t refcount;
 };
+
+#define  PMATH_OBJECT_FLAGS8_VALID   (0x01u)
 
 /*============================================================================*/
 
