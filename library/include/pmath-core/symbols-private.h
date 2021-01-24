@@ -59,7 +59,11 @@ void _pmath_symbol_track_dynamic(pmath_symbol_t symbol, intptr_t id);
 PMATH_PRIVATE
 void _pmath_symbol_lost_dynamic_tracker(pmath_symbol_t symbol, intptr_t oldid, intptr_t other_tracker_id);
 
-/** Gives the number of references to the symbol directly held by itself (circular references).
+/** Gives an extimate for the number of references to the symbol directly held by itself (circular references).
+
+    This function may overestimate the references when common sub-expressions are shared, e.g. in
+    <tt>With({common:= f(x)}, x()::= {common, common})</tt>, x is counted twice, although this 
+    definition only increases its refcount by 1.
  */
 PMATH_PRIVATE
 intptr_t _pmath_symbol_self_refcount(pmath_symbol_t symbol);
