@@ -10,6 +10,27 @@
 #include <sys/atomic.h>
 
 PMATH_FORCE_INLINE
+uint8_t pmath_atomic_read_uint8_aquire(pmath_atomic_uint8_t *atom){
+  uint8_t data = atom->_data;
+  membar_enter(); // all reads or writes below this line keep below it
+  return data;
+}
+
+PMATH_FORCE_INLINE
+uint16_t pmath_atomic_read_uint16_aquire(pmath_atomic_uint16_t *atom){
+  uint16_t data = atom->_data;
+  membar_enter(); // all reads or writes below this line keep below it
+  return data;
+}
+
+PMATH_FORCE_INLINE
+uint32_t pmath_atomic_read_uint32_aquire(pmath_atomic_uint32_t *atom){
+  uint32_t data = atom->_data;
+  membar_enter(); // all reads or writes below this line keep below it
+  return data;
+}
+
+PMATH_FORCE_INLINE
 intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
   intptr_t data = atom->_data;
   membar_enter(); // all reads or writes below this line keep below it

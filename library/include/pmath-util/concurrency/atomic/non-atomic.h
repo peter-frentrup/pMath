@@ -28,6 +28,33 @@
  */
 #define PMATH_DECLARE_ALIGNED(TYPE, NAME, ALIGNMENT)  TYPE NAME
 
+/**\brief Atomically read an 8 bit value with aquire semantics.
+ */
+PMATH_FORCE_INLINE
+uint8_t pmath_atomic_read_uint8_aquire(pmath_atomic_uint8_t *atom) {
+  uint8_t data = atom->_data;
+  pmath_atomic_barrier(); // in theory: all reads or writes below this line keep below it (pmath_atomic_barrier() is even a full barrier)
+  return data
+}
+
+/**\brief Atomically read an 16 bit value with aquire semantics.
+ */
+PMATH_FORCE_INLINE
+uint16_t pmath_atomic_read_uint16_aquire(pmath_atomic_uint16_t *atom) {
+  uint16_t data = atom->_data;
+  pmath_atomic_barrier(); // in theory: all reads or writes below this line keep below it (pmath_atomic_barrier() is even a full barrier)
+  return data
+}
+
+/**\brief Atomically read an 32 bit value with aquire semantics.
+ */
+PMATH_FORCE_INLINE
+uint32_t pmath_atomic_read_uint32_aquire(pmath_atomic_uint32_t *atom) {
+  uint32_t data = atom->_data;
+  pmath_atomic_barrier(); // in theory: all reads or writes below this line keep below it (pmath_atomic_barrier() is even a full barrier)
+  return data
+}
+
 /**\brief Atomically read a value with aquire semantics.
  */
 PMATH_FORCE_INLINE
