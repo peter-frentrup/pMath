@@ -39,6 +39,24 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
 
 
 PMATH_FORCE_INLINE
+void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value){
+  membar_exit(); // all reads or writes above this line keep above it
+  atom->data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t value){
+  membar_exit(); // all reads or writes above this line keep above it
+  atom->data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t value){
+  membar_exit(); // all reads or writes above this line keep above it
+  atom->data = value;
+}
+
+PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
   membar_exit(); // all reads or writes above this line keep above it
   atom->data = value;
@@ -48,6 +66,38 @@ void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   return atomic_add_ptr_nv(&atom->data, delta) - delta;
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask){
+  atomic_or_8(&atom->data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask){
+  atomic_or_16(&atom->data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask){
+  atomic_or_32(&atom->data, mask);
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask){
+  atomic_and_8(&atom->data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask){
+  atomic_and_16(&atom->data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint32(pmath_atomic_uint32_t *atom, uint32_t mask){
+  atomic_and_32(&atom->data, mask);
 }
 
 

@@ -64,6 +64,31 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom) {
   return data
 }
 
+
+/**\brief Atomically write an 8 bit value with release semantics.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value){
+  pmath_atomic_barrier(); // in theory: all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+/**\brief Atomically write an 16 bit value with release semantics.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t value){
+  pmath_atomic_barrier(); // in theory: all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+/**\brief Atomically write an 32 bit value with release semantics.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t value){
+  pmath_atomic_barrier(); // in theory: all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
 /**\brief Atomically write a value with release semantics.
  */
 PMATH_FORCE_INLINE
@@ -71,6 +96,7 @@ void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
   pmath_atomic_barrier(); // in theory: all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
   atom->_data = value;
 }
+
 
 /**\brief Add a value to another.
    \param atom An atomic variable.
@@ -88,6 +114,91 @@ intptr_t pmath_atomic_fetch_add(
   intptr_t result = *atom;
   *atom += delta;
   return result;
+}
+
+/**\brief Bitwise-or an 8 bit value to another.
+   \param atom  An atomic variable.
+   \param mask  The bits to combine with \c *atom.
+
+   This function atomically sets <c>*atom |= flags</c>.
+ */
+PMATH_FORCE_INLINE 
+void pmath_atomic_or_uint8(
+  pmath_atomic_uint8_t *atom, 
+  uint8_t               mask
+) {
+  *atom |= mask;
+}
+
+/**\brief Bitwise-or an 16 bit value to another.
+   \param atom  An atomic variable.
+   \param mask  The bits to combine with \c *atom.
+
+   This function atomically sets <c>*atom |= mask</c>.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint16(
+  pmath_atomic_uint16_t *atom, 
+  uint16_t               mask
+) {
+  *atom |= mask;
+}
+
+/**\brief Bitwise-or an 32 bit value to another.
+   \param atom  An atomic variable.
+   \param mask  The bits to combine with \c *atom.
+
+   This function atomically sets <c>*atom |= mask</c>.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint32(
+  pmath_atomic_uint32_t *atom, 
+  uint32_t               mask
+) {
+  *atom |= mask;
+}
+
+
+/**\brief Bitwise-and an 8 bit value to another.
+   \param atom  An atomic variable.
+   \param mask  The bits to combine with \c *atom.
+
+   This function atomically sets <c>*atom &= mask</c>.
+ */
+PMATH_FORCE_INLINE 
+void pmath_atomic_and_uint8(
+  pmath_atomic_uint8_t *atom, 
+  uint8_t               mask
+) {
+  *atom &= mask;
+}
+
+/**\brief Bitwise-and an 16 bit value to another.
+   \param atom  An atomic variable.
+   \param mask  The bits to combine with \c *atom.
+
+   This function atomically sets <c>*atom &= mask</c>.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint16(
+  pmath_atomic_uint16_t *atom, 
+  uint16_t               mask
+) {
+  *atom &= mask;
+}
+
+/**\brief Bitwise-and an 32 bit value to another.
+   \param atom  An atomic variable.
+   \param mask  The bits to combine with \c *atom.
+
+   This function atomically sets <c>*atom &= mask</c>.
+ */
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint32(
+  pmath_atomic_uint32_t *atom, 
+  uint32_t               mask
+) {
+  *atom &= mask;
 }
 
 

@@ -491,6 +491,7 @@ static pmath_expr_t get_system_information(void) {
 #ifdef PMATH_DEBUG_TESTS
 static void TEST_ATOMIC_OPS(void) {
   // This does not test for atomicity.
+  {
   pmath_atomic_t a;
   intptr_t b;
   pmath_atomic2_t c;
@@ -526,6 +527,79 @@ static void TEST_ATOMIC_OPS(void) {
   }
   else
     fprintf(stderr, "no CAS2 available\n");
+  }
+  
+  {
+    pmath_atomic_uint8_t a;
+    
+    pmath_atomic_write_uint8_release(&a, 0x00);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0);
+    
+    pmath_atomic_or_uint8(&a, 0x01);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0x01);
+    
+    pmath_atomic_or_uint8(&a, 0x05);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0x05);
+    
+    pmath_atomic_or_uint8(&a, 0x10);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0x15);
+    
+    pmath_atomic_or_uint8(&a, 0x80);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0x95);
+    
+    
+    pmath_atomic_and_uint8(&a, 0xF0);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0x90);
+    
+    pmath_atomic_and_uint8(&a, 0x1F);
+    assert(pmath_atomic_read_uint8_aquire(&a) == 0x10);
+  }
+  
+  {
+    pmath_atomic_uint16_t a;
+    
+    pmath_atomic_write_uint16_release(&a, 0x0000);
+    assert(pmath_atomic_read_uint16_aquire(&a) == 0);
+    
+    pmath_atomic_or_uint16(&a, 0x0001);
+    assert(pmath_atomic_read_uint16_aquire(&a) == 0x0001);
+    
+    pmath_atomic_or_uint16(&a, 0x0201);
+    assert(pmath_atomic_read_uint16_aquire(&a) == 0x0201);
+    
+    pmath_atomic_or_uint16(&a, 0x1F00);
+    assert(pmath_atomic_read_uint16_aquire(&a) == 0x1F01);
+    
+    pmath_atomic_or_uint16(&a, 0x8000);
+    assert(pmath_atomic_read_uint16_aquire(&a) == 0x9F01);
+    
+    
+    pmath_atomic_and_uint16(&a, 0xF10F);
+    assert(pmath_atomic_read_uint16_aquire(&a) == 0x9101);
+  }
+  
+  {
+    pmath_atomic_uint32_t a;
+    
+    pmath_atomic_write_uint32_release(&a, 0x00000000u);
+    assert(pmath_atomic_read_uint32_aquire(&a) == 0);
+    
+    pmath_atomic_or_uint32(&a, 0x00010010u);
+    assert(pmath_atomic_read_uint32_aquire(&a) == 0x00010010u);
+    
+    pmath_atomic_or_uint32(&a, 0x020100F0u);
+    assert(pmath_atomic_read_uint32_aquire(&a) == 0x020100F0u);
+    
+    pmath_atomic_or_uint32(&a, 0x1F000000u);
+    assert(pmath_atomic_read_uint32_aquire(&a) == 0x1F0100F0u);
+    
+    pmath_atomic_or_uint32(&a, 0x80000000u);
+    assert(pmath_atomic_read_uint32_aquire(&a) == 0x9F0100F0u);
+    
+    
+    pmath_atomic_and_uint32(&a, 0x00FF003Fu);
+    assert(pmath_atomic_read_uint32_aquire(&a) == 0x00010030u);
+  }
 }
 
 static void TEST_STACKS(void) {

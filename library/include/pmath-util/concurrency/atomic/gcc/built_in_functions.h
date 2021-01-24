@@ -56,7 +56,31 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
 
 
 PMATH_FORCE_INLINE
-void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
+void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value) {
+//  __atomic_store_1(&atom->_data, value, __ATOMIC_RELEASE);
+
+  __sync_synchronize(); // all reads or writes above this line keep above it (__sync_synchronize() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t value) {
+//  __atomic_store_2(&atom->_data, value, __ATOMIC_RELEASE);
+
+  __sync_synchronize(); // all reads or writes above this line keep above it (__sync_synchronize() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t value) {
+//  __atomic_store_4(&atom->_data, value, __ATOMIC_RELEASE);
+
+  __sync_synchronize(); // all reads or writes above this line keep above it (__sync_synchronize() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value) {
 //#if PMATH_BITSIZE == 64
 //  __atomic_store_8(&atom->_data, value, __ATOMIC_RELEASE); // all reads or writes above this line keep above it
 //#elif PMATH_BITSIZE == 32
@@ -71,6 +95,38 @@ void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
 PMATH_FORCE_INLINE
 intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   return __sync_fetch_and_add(&atom->_data, delta);
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask){
+  (void)__sync_or_and_fetch(&atom->_data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask){
+  (void)__sync_or_and_fetch(&atom->_data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask){
+  (void)__sync_or_and_fetch(&atom->_data, mask);
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask){
+  (void)__sync_and_and_fetch(&atom->_data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask){
+  (void)__sync_and_and_fetch(&atom->_data, mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint32(pmath_atomic_uint32_t *atom, uint32_t mask){
+  (void)__sync_and_and_fetch(&atom->_data, mask);
 }
 
 

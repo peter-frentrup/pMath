@@ -48,6 +48,24 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom) {
 
 
 PMATH_FORCE_INLINE
+void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value) {
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t value) {
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t value) {
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
   pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
   atom->_data = value;
@@ -63,6 +81,39 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   #endif
 }
 
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
+  (void)_InterlockedOr8((char volatile*)&atom->_data, (char)mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
+  (void)_InterlockedOr16((short volatile*)&atom->_data, (short)mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
+  (void)_InterlockedOr((long volatile*)&atom->_data, (long)mask);
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
+  (void)_InterlockedAnd8((char volatile*)&atom->_data, (char)mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
+  (void)_InterlockedAnd16((short volatile*)&atom->_data, (short)mask);
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
+  (void)_InterlockedAnd((long volatile*)&atom->_data, (long)mask);
+}
+
+
 #if PMATH_BITSIZE == 64
 
   PMATH_FORCE_INLINE
@@ -72,7 +123,7 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
     intptr_t old_value_snd,
     intptr_t new_value_fst,
     intptr_t new_value_snd
-  ){
+  ) {
     pmath_atomic2_t cmp;
     cmp._data[0] = old_value_fst;
     cmp._data[1] = old_value_snd;
@@ -112,7 +163,7 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
 
 
 PMATH_FORCE_INLINE
-pmath_bool_t pmath_atomic_have_cas2(void){
+pmath_bool_t pmath_atomic_have_cas2(void) {
   int cpuinfo[4];
   __cpuid(cpuinfo, 1);
   #if PMATH_BITSIZE == 64

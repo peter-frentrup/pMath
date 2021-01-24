@@ -45,6 +45,24 @@ intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
 
 
 PMATH_FORCE_INLINE
+void pmath_atomic_write_uint8_release(pmath_atomic_uint8_t *atom, uint8_t value) {
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint16_release(pmath_atomic_uint16_t *atom, uint16_t value) {
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_write_uint32_release(pmath_atomic_uint32_t *atom, uint32_t value) {
+  pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
+  atom->_data = value;
+}
+
+PMATH_FORCE_INLINE
 void pmath_atomic_write_release(pmath_atomic_t *atom, intptr_t value){
   pmath_atomic_barrier(); // all reads or writes above this line keep above it (pmath_atomic_barrier() is even a full barrier)
   atom->_data = value;
@@ -64,6 +82,74 @@ intptr_t pmath_atomic_fetch_add(pmath_atomic_t *atom, intptr_t delta){
   );
 
   return result;
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
+  uint8_t result;
+  __asm __volatile(
+    "lock; orb %0,%1"
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(mask),   "m" (atom->_data)
+    : "memory"
+  );
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
+  uint16_t result;
+  __asm __volatile(
+    "lock; orw %0,%1"
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(mask),   "m" (atom->_data)
+    : "memory"
+  );
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_or_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
+  uint32_t result;
+  __asm __volatile(
+    "lock; orl %0,%1"
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(mask),   "m" (atom->_data)
+    : "memory"
+  );
+}
+
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint8(pmath_atomic_uint8_t *atom, uint8_t mask) {
+  uint8_t result;
+  __asm __volatile(
+    "lock; andb %0,%1"
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(mask),   "m" (atom->_data)
+    : "memory"
+  );
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint16(pmath_atomic_uint16_t *atom, uint16_t mask) {
+  uint16_t result;
+  __asm __volatile(
+    "lock; andw %0,%1"
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(mask),   "m" (atom->_data)
+    : "memory"
+  );
+}
+
+PMATH_FORCE_INLINE
+void pmath_atomic_and_uint32(pmath_atomic_uint32_t *atom, uint32_t mask) {
+  uint32_t result;
+  __asm __volatile(
+    "lock; andl %0,%1"
+    : "=r"(result), "=m"(atom->_data)
+    : "0"(mask),   "m" (atom->_data)
+    : "memory"
+  );
 }
 
 
