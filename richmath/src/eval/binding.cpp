@@ -313,7 +313,8 @@ static pmath_t builtin_callfrontend(pmath_expr_t expr) {
       waiting = false;
     }
     else {
-      pmath_message(PMATH_NULL, "bool", 1, item);
+      pmath_unref(item);
+      pmath_message(PMATH_NULL, "bool", 2, pmath_ref(expr), PMATH_FROM_INT32(2));
       return expr;
     }
   }
