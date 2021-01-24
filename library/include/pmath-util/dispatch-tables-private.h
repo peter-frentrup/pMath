@@ -66,7 +66,9 @@ PMATH_PRIVATE size_t _pmath_dispatch_table_lookup(
   pmath_t *rules_in_rhs_out,             // will be freed, optional
   pmath_bool_t literal);
 
-
+PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
+  pmath_bool_t (*keep_callback)(struct _pmath_dispatch_table_t*, void*),
+  void          *closure);
 PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void);
 PMATH_PRIVATE pmath_bool_t _pmath_dispatch_tables_init(void);
 PMATH_PRIVATE void _pmath_dispatch_tables_done(void);

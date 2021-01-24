@@ -11,6 +11,7 @@
 #include <pmath-util/debug.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <string.h>
 
@@ -549,9 +550,66 @@ PMATH_API pmath_t pmath_rules_modify(
 
 //{ module init/done ...
 
+PMATH_PRIVATE void _pmath_dispatch_table_filter_limbo(
+  pmath_bool_t (*keep_callback)(const struct _pmath_dispatch_table_t*, void*),
+  void          *closure
+) {
+  struct _pmath_dispatch_table_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
+  size_t i;
+  size_t num_del;
+  
+  PMATH_STATIC_ASSERT(sizeof(dispatch_table_limbo) == sizeof(old_limbo));
+  
+  pmath_atomic_lock(&dispatch_table_cache_lock);
+  {
+    memcpy(old_limbo, dispatch_table_limbo, sizeof(dispatch_table_limbo));
+    memset(dispatch_table_limbo, 0, sizeof(dispatch_table_limbo));
+    dispatch_table_limbo_next = 0;
+  }
+  pmath_atomic_unlock(&dispatch_table_cache_lock);
+  
+  num_del = 0;
+  for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE; ++i) {
+    struct _pmath_dispatch_table_t *table = old_limbo[i];
+    if(table) {
+      // note that table normaly has refcount == 0 here.
+      if(keep_callback(table, closure)) {
+        _pmath_ref_ptr(&table->inherited);
+        _pmath_unref_ptr(&table->inherited); // will eventually return the table to limbo
+        old_limbo[i] = NULL;
+      }
+      else
+        ++num_del;
+    }
+  }
+  
+  if(num_del == 0)
+    return;
+  
+  pmath_atomic_lock(&dispatch_table_cache_lock);
+  {
+    size_t remaining = num_del;
+    for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE && remaining; ++i) {
+      struct _pmath_dispatch_table_t *table = old_limbo[i];
+      if(table) {
+        old_limbo[i] = pmath_ht_remove(dispatch_table_cache, &table->all_keys);
+        --remaining;
+      }
+    }
+  }
+  pmath_atomic_unlock(&dispatch_table_cache_lock);
+  
+  for(i = 0; i < DISPATCH_TABLE_LIMBO_SIZE && num_del; ++i) {
+    if(old_limbo[i]) {
+      --num_del;
+      dispatch_table_cache_entry_destructor(old_limbo[i]);
+    }
+  }
+}
+
 PMATH_PRIVATE void _pmath_dispatch_tables_memory_panic(void) {
   struct _pmath_dispatch_table_t *old_limbo[DISPATCH_TABLE_LIMBO_SIZE];
-    size_t i;
+  size_t i;
   
   PMATH_STATIC_ASSERT(sizeof(dispatch_table_limbo) == sizeof(old_limbo));
   

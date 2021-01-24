@@ -198,43 +198,38 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules) {
 //{ visiting all objects ...
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_symbol_value_visit(
-  pmath_t        value, // will be freed
-  pmath_bool_t (*callback)(pmath_t, void*),
-  void          *closure
+enum pmath_visit_result_t _pmath_symbol_value_visit(
+  pmath_t                     value, // will be freed
+  enum pmath_visit_result_t (*callback)(pmath_t, void*),
+  void                       *closure
 ) {
   while(!pmath_same(value, PMATH_NULL)) {
-    if(!callback(value, closure)) {
+    enum pmath_visit_result_t result = callback(value, closure);
+    if(result == PMATH_VISIT_ABORT) {
       pmath_unref(value);
-      return FALSE;
+      return PMATH_VISIT_ABORT;
     }
+    if(result == PMATH_VISIT_SKIP) 
+      break;
 
     if(pmath_is_expr(value)) {
       size_t i, len;
       const pmath_t *items = pmath_expr_read_item_data(value);
       struct _pmath_expr_t *expr_ptr;
 
-      if(!items) // packed arrays neither have general sub-expressions, nor debug expresssions, only a pmath_blob_t.
+      if(!items) // packed arrays neither have general sub-expressions, nor debug expressions, only a pmath_blob_t.
         break;
 
-      if(!_pmath_symbol_value_visit(
-            pmath_expr_get_item(value, 0),
-            callback,
-            closure))
-      {
+      if(_pmath_symbol_value_visit(pmath_expr_get_item(value, 0), callback, closure) == PMATH_VISIT_ABORT) {
         pmath_unref(value);
-        return FALSE;
+        return PMATH_VISIT_ABORT;
       }
 
       len = pmath_expr_length(value);
       for(i = 0; i < len; ++i) {
-        if(!_pmath_symbol_value_visit(
-              pmath_ref(items[i]),
-              callback,
-              closure))
-        {
+        if(_pmath_symbol_value_visit(pmath_ref(items[i]), callback, closure) == PMATH_VISIT_ABORT) {
           pmath_unref(value);
-          return FALSE;
+          return PMATH_VISIT_ABORT;
         }
       }
 
@@ -251,18 +246,18 @@ pmath_bool_t _pmath_symbol_value_visit(
     }
 
     if(pmath_is_multirule(value)) {
-      pmath_bool_t result = TRUE;
       pmath_t next;
       pmath_t rule = value;
       struct _pmath_multirule_t *_rule = (void*)PMATH_AS_PTR(rule);
-
-      while(_rule && result) {
+      
+      result = PMATH_VISIT_NORMAL;
+      while(_rule && result != PMATH_VISIT_ABORT) {
         result = _pmath_symbol_value_visit(
                    _pmath_object_atomic_read(&_rule->pattern),
                    callback,
                    closure);
 
-        if(result) {
+        if(result != PMATH_VISIT_ABORT) {
           result = _pmath_symbol_value_visit(
                      _pmath_object_atomic_read(&_rule->body),
                      callback,
@@ -276,20 +271,15 @@ pmath_bool_t _pmath_symbol_value_visit(
       }
 
       pmath_unref(rule);
-
       return result;
     }
 
     if(pmath_is_bigstr(value)) {
       struct _pmath_string_t *string_ptr = (void*)PMATH_AS_PTR(value);
       if(string_ptr->debug_info) {
-        if(!_pmath_symbol_value_visit(
-              pmath_ref(PMATH_FROM_PTR(string_ptr->debug_info)),
-              callback,
-              closure))
-        {
+        if(_pmath_symbol_value_visit(pmath_ref(PMATH_FROM_PTR(string_ptr->debug_info)), callback, closure) == PMATH_VISIT_ABORT) {
           pmath_unref(value);
-          return FALSE;
+          return PMATH_VISIT_ABORT;
         }
       }
 
@@ -310,9 +300,9 @@ pmath_bool_t _pmath_symbol_value_visit(
       
       len = pmath_expr_length(tab->all_keys);
       for(i = 0; i < len; ++i) {
-        if(!_pmath_symbol_value_visit(pmath_ref(tab->entries[i].key), callback, closure)) {
+        if(_pmath_symbol_value_visit(pmath_ref(tab->entries[i].key), callback, closure) == PMATH_VISIT_ABORT) {
           pmath_unref(value);
-          return FALSE;
+          return PMATH_VISIT_ABORT;
         }
       }
       
@@ -333,13 +323,13 @@ pmath_bool_t _pmath_symbol_value_visit(
   }
 
   pmath_unref(value);
-  return TRUE;
+  return PMATH_VISIT_NORMAL;
 }
 
-static pmath_bool_t object_table_visit(
-  pmath_hashtable_t table,
-  pmath_bool_t (*callback)(pmath_t, void*),
-  void *closure
+static enum pmath_visit_result_t object_table_visit(
+  pmath_hashtable_t           table,
+  enum pmath_visit_result_t (*callback)(pmath_t, void*),
+  void                       *closure
 ) {
   struct _pmath_object_entry_t *entry;
   unsigned int i, cap;
@@ -349,57 +339,55 @@ static pmath_bool_t object_table_visit(
     entry = pmath_ht_entry(table, i);
 
     if(entry) {
-      if(!_pmath_symbol_value_visit(pmath_ref(entry->key),   callback, closure)) return FALSE;
-      if(!_pmath_symbol_value_visit(pmath_ref(entry->value), callback, closure)) return FALSE;
+      if(_pmath_symbol_value_visit(pmath_ref(entry->key),   callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
+      if(_pmath_symbol_value_visit(pmath_ref(entry->value), callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
     }
   }
 
-  return TRUE;
+  return PMATH_VISIT_NORMAL;
 }
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
-pmath_bool_t _pmath_rulecache_visit(
+enum pmath_visit_result_t _pmath_rulecache_visit(
   struct _pmath_rulecache_t  *rc,
-  pmath_bool_t              (*callback)(pmath_t, void*),
+  enum pmath_visit_result_t (*callback)(pmath_t, void*),
   void                       *closure
 ) {
   pmath_hashtable_t table;
-  pmath_bool_t result;
+  enum pmath_visit_result_t result;
 
   if(!rc)
-    return FALSE;
+    return PMATH_VISIT_ABORT;
 
   table = rulecache_table_lock(rc);
   result = object_table_visit(table, callback, closure);
   rulecache_table_unlock(rc, table);
 
-  if(result) {
-    return _pmath_symbol_value_visit(
-             _pmath_object_atomic_read(&rc->_more),
-             callback,
-             closure);
-  }
-
-  return FALSE;
+  if(result == PMATH_VISIT_ABORT) return result;
+  
+  return _pmath_symbol_value_visit(
+           _pmath_object_atomic_read(&rc->_more),
+           callback,
+           closure);
 }
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
-pmath_bool_t _pmath_symbol_rules_visit(
+enum pmath_visit_result_t _pmath_symbol_rules_visit(
   struct _pmath_symbol_rules_t  *rules,
-  pmath_bool_t                 (*callback)(pmath_t, void*),
+  enum pmath_visit_result_t    (*callback)(pmath_t, void*),
   void                          *closure
 ) {
   pmath_hashtable_t table;
-  pmath_bool_t result;
+  enum pmath_visit_result_t result;
 
-  if(!_pmath_rulecache_visit(&rules->up_rules,      callback, closure)) return FALSE;
-  if(!_pmath_rulecache_visit(&rules->down_rules,    callback, closure)) return FALSE;
-  if(!_pmath_rulecache_visit(&rules->sub_rules,     callback, closure)) return FALSE;
-  if(!_pmath_rulecache_visit(&rules->approx_rules,  callback, closure)) return FALSE;
-  if(!_pmath_rulecache_visit(&rules->default_rules, callback, closure)) return FALSE;
-  if(!_pmath_rulecache_visit(&rules->format_rules,  callback, closure)) return FALSE;
+  if(_pmath_rulecache_visit(&rules->up_rules,      callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
+  if(_pmath_rulecache_visit(&rules->down_rules,    callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
+  if(_pmath_rulecache_visit(&rules->sub_rules,     callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
+  if(_pmath_rulecache_visit(&rules->approx_rules,  callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
+  if(_pmath_rulecache_visit(&rules->default_rules, callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
+  if(_pmath_rulecache_visit(&rules->format_rules,  callback, closure) == PMATH_VISIT_ABORT) return PMATH_VISIT_ABORT;
 
   table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
   result = object_table_visit(table, callback, closure);

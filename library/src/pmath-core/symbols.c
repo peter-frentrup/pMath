@@ -242,13 +242,13 @@ struct symbol_refcounter_t {
   intptr_t       count;
 };
 
-static pmath_bool_t count_symbol_callback(pmath_t obj, void *data) {
+static enum pmath_visit_result_t count_symbol_callback(pmath_t obj, void *data) {
   struct symbol_refcounter_t *counter = data;
   
   if(pmath_same(counter->symbol, obj))
     ++counter->count;
     
-  return TRUE;
+  return PMATH_VISIT_NORMAL;
 }
 
 // does not yet check thread local storage

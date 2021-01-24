@@ -63,24 +63,30 @@ void _pmath_symbol_rules_done(struct _pmath_symbol_rules_t *rules);
 /*============================================================================*/
 /* the callback function will be called while non-reentrant locks are hold!!! */
 
-PMATH_PRIVATE
-pmath_bool_t _pmath_symbol_value_visit(
-  pmath_t        value, // will be freed
-  pmath_bool_t (*callback)(pmath_t, void*),
-  void          *closure);
+enum pmath_visit_result_t {
+  PMATH_VISIT_ABORT = 0,
+  PMATH_VISIT_NORMAL,
+  PMATH_VISIT_SKIP
+};
 
 PMATH_PRIVATE
-PMATH_ATTRIBUTE_NONNULL(1)
-pmath_bool_t _pmath_rulecache_visit(
-  struct _pmath_rulecache_t  *rc,
-  pmath_bool_t              (*callback)(pmath_t, void*),
+enum pmath_visit_result_t _pmath_symbol_value_visit(
+  pmath_t                     value, // will be freed
+  enum pmath_visit_result_t (*callback)(pmath_t, void*),
   void                       *closure);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
-pmath_bool_t _pmath_symbol_rules_visit(
+enum pmath_visit_result_t _pmath_rulecache_visit(
+  struct _pmath_rulecache_t  *rc,
+  enum pmath_visit_result_t (*callback)(pmath_t, void*),
+  void                       *closure);
+
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_NONNULL(1)
+enum pmath_visit_result_t _pmath_symbol_rules_visit(
   struct _pmath_symbol_rules_t  *rules,
-  pmath_bool_t                 (*callback)(pmath_t, void*),
+  enum pmath_visit_result_t    (*callback)(pmath_t, void*),
   void                          *closure);
 
 /*============================================================================*/
