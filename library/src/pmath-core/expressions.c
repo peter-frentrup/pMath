@@ -125,6 +125,12 @@ static void expr_cache_clear(void) {
   }
 }
 
+static void reset_expr_flags(struct _pmath_expr_t *expr) {
+  pmath_atomic_write_uint8_release( &expr->inherited.inherited.inherited.flags8,  0);
+  pmath_atomic_write_uint16_release(&expr->inherited.inherited.inherited.flags16, 0);
+  pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&expr->inherited), 0);
+}
+
 static void touch_expr(struct _pmath_expr_t *expr) {
   expr->inherited.inherited.last_change = -_pmath_timer_get_next();
 }
@@ -395,6 +401,7 @@ pmath_expr_t pmath_expr_resize(
   }
 
   new_expr->length = new_length;
+  reset_expr_flags(new_expr);
   clear_metadata(new_expr);
   touch_expr(new_expr);
   return PMATH_FROM_PTR(new_expr);
@@ -563,7 +570,8 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         new_expr_part->inherited.inherited.gc_refcount = 0;
         new_expr_part->inherited.length                = length;
         new_expr_part->inherited.items[0]              = pmath_ref(old_expr->items[0]);
-        pmath_atomic_write_release(&new_expr_part->inherited.metadata, 0);
+        pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&new_expr_part->inherited.inherited), 0);
+        pmath_atomic_write_release(       &new_expr_part->inherited.metadata, 0);
 
         new_expr_part->start  = start;
         new_expr_part->buffer = old_expr;
@@ -611,7 +619,8 @@ PMATH_API pmath_expr_t pmath_expr_get_item_range(
         touch_expr(&new_expr_part->inherited);
         new_expr_part->inherited.inherited.gc_refcount = 0;
         new_expr_part->inherited.length                = length;
-        pmath_atomic_write_release(&new_expr_part->inherited.metadata, 0);
+        pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&new_expr_part->inherited.inherited), 0);
+        pmath_atomic_write_release(       &new_expr_part->inherited.metadata, 0);
         new_expr_part->inherited.items[0]              = pmath_ref(old_expr->items[0]);
 
         new_expr_part->start  = start + old_expr_part->start - 1;
@@ -690,6 +699,7 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           pmath_unref(old_expr->items[index]);
           old_expr->items[index] = item;
           
+          reset_expr_flags(old_expr);
           clear_metadata(old_expr);
           touch_expr(old_expr);
 
@@ -753,7 +763,8 @@ PMATH_API pmath_expr_t pmath_expr_set_item(
           touch_expr(&new_expr_part->inherited);
           new_expr_part->inherited.inherited.gc_refcount = 0;
           new_expr_part->inherited.length                = old_expr->length;
-          pmath_atomic_write_release(&new_expr_part->inherited.metadata, 0);
+          pmath_atomic_write_uint32_release(&PMATH_GC_FLAGS32(&new_expr_part->inherited.inherited), 0);
+          pmath_atomic_write_release(       &new_expr_part->inherited.metadata, 0);
           new_expr_part->inherited.items[0]              = item;
 
           new_expr_part->start  = old_expr_part->start;
@@ -1818,10 +1829,8 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
           pmath_unref(info);
           return expr;
         }
-
-        new_expr->inherited.inherited.inherited.flags8  = _expr->inherited.inherited.inherited.flags8;
-        new_expr->inherited.inherited.inherited.flags16 = _expr->inherited.inherited.inherited.flags16;
-        new_expr->inherited.inherited.last_change       = _expr->inherited.inherited.last_change;
+        
+        //reset_expr_flags(new_expr); // only debug infor changed -> do not reset flags
         pmath_atomic_write_release(&new_expr->metadata, (intptr_t)PMATH_AS_PTR(info));
 
         for(i = 0; i <= _expr->length; ++i)
@@ -1853,6 +1862,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
 
         new_expr_part->inherited.inherited.gc_refcount = 0;
         new_expr_part->inherited.length                = _expr->length;
+        //reset_expr_flags(new_expr); // only debug infor changed -> do not reset flags
         pmath_atomic_write_release(&new_expr_part->inherited.metadata, (intptr_t)PMATH_AS_PTR(info));
         new_expr_part->inherited.items[0]              = pmath_ref(_expr->items[0]);
 

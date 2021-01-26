@@ -218,10 +218,12 @@ struct _pmath_packed_array_t {
   uint8_t                   dimensions;
   uint8_t                   non_continuous_dimensions_count;
   
-  unsigned                  cached_hash;
+  pmath_atomic_uint32_t     cached_hash;
   
   size_t                    sizes_and_steps[1];
 };
+
+PMATH_STATIC_ASSERT(sizeof(unsigned) == sizeof(uint32_t));
 
 #define ARRAY_SIZES(_arr)  (&(_arr)->sizes_and_steps[0])
 #define ARRAY_STEPS(_arr)  (&(_arr)->sizes_and_steps[(_arr)->dimensions])
@@ -233,6 +235,12 @@ static void destroy_packed_array(pmath_t a) {
     _pmath_unref_ptr((void *)_array->blob);
     
   pmath_mem_free(_array);
+}
+
+static void reset_packed_array_caches(struct _pmath_packed_array_t *arr) {
+  pmath_atomic_write_uint8_release(&arr->inherited.flags8, 0);
+  pmath_atomic_write_uint16_release(&arr->inherited.flags16, 0);
+  pmath_atomic_write_uint32_release(&arr->cached_hash, 0);
 }
 
 static unsigned int hash_double(double d) {
@@ -336,16 +344,19 @@ static unsigned int hash_packed_array_part(
 // See hash_expression() in core/expressions.c
 static unsigned int hash_packed_array(pmath_t a) {
   struct _pmath_packed_array_t *_array = (void *)PMATH_AS_PTR(a);
+  uint32_t cached_hash;
   
-  if(_array->cached_hash != 0)
-    return _array->cached_hash;
+  cached_hash = pmath_atomic_read_uint32_aquire(&_array->cached_hash);
+  if(cached_hash)
+    return cached_hash;
     
-  _array->cached_hash = hash_packed_array_part(
+  cached_hash = hash_packed_array_part(
       _array,
       (const void *)((const uint8_t *)_array->blob->data + _array->offset),
       0);
+  pmath_atomic_write_uint32_release(&_array->cached_hash, cached_hash);
       
-  return _array->cached_hash;
+  return cached_hash;
   
   /*  unsigned int next = 0;
    *  size_t i;
@@ -806,7 +817,7 @@ pmath_packed_array_t pmath_packed_array_new(
   _array->offset       = offset;
   _array->element_type = element_type;
   _array->dimensions   = (uint8_t)dimensions;
-  _array->cached_hash  = 0;
+  reset_packed_array_caches(_array);
   
   memcpy(ARRAY_SIZES(_array), sizes, dimensions * sizeof(size_t));
   
@@ -893,7 +904,7 @@ static struct _pmath_packed_array_t *duplicate_packed_array(
   new_array->element_type                    = old_array->element_type;
   new_array->dimensions                      = old_array->dimensions;
   new_array->non_continuous_dimensions_count = old_array->non_continuous_dimensions_count;
-  new_array->cached_hash                     = 0;//old_array->cached_hash;
+  reset_packed_array_caches(new_array);
   
   memcpy(new_array->sizes_and_steps, old_array->sizes_and_steps, 2 * old_array->dimensions * sizeof(size_t));
   
@@ -1079,8 +1090,7 @@ void *pmath_packed_array_begin_write(
     data = _array->blob->data;
   }
   
-  _array->cached_hash = 0;
-  
+  reset_packed_array_caches(_array);
   return (void *)((uint8_t *)data + index_offset + _array->offset);
 }
 
@@ -1147,11 +1157,11 @@ pmath_t _pmath_packed_array_get_item(
     if(new_array == NULL)
       return PMATH_NULL;
       
-    new_array->offset                          = _array->offset + (index - 1) * steps[0];
-    new_array->total_size                      = _array->total_size / sizes[0];
-    new_array->element_type                    = _array->element_type;
-    new_array->dimensions                      = _array->dimensions - 1;
-    new_array->cached_hash                     = 0;
+    new_array->offset       = _array->offset + (index - 1) * steps[0];
+    new_array->total_size   = _array->total_size / sizes[0];
+    new_array->element_type = _array->element_type;
+    new_array->dimensions   = _array->dimensions - 1;
+    reset_packed_array_caches(new_array);
     
     if(_array->non_continuous_dimensions_count == 0)
       new_array->non_continuous_dimensions_count = 0;
@@ -1228,11 +1238,11 @@ pmath_expr_t _pmath_packed_array_get_item_range(
     if(new_array == NULL)
       return PMATH_NULL;
       
-    new_array->offset                          = _array->offset + (start - 1) * steps[0];
-    new_array->total_size                      = _array->total_size / sizes[0] * length;
-    new_array->element_type                    = _array->element_type;
-    new_array->dimensions                      = _array->dimensions;
-    new_array->cached_hash                     = 0;
+    new_array->offset       = _array->offset + (start - 1) * steps[0];
+    new_array->total_size   = _array->total_size / sizes[0] * length;
+    new_array->element_type = _array->element_type;
+    new_array->dimensions   = _array->dimensions;
+    reset_packed_array_caches(new_array);
     
     if(_array->non_continuous_dimensions_count == 0)
       new_array->non_continuous_dimensions_count = 0;
@@ -2278,7 +2288,7 @@ pmath_packed_array_t pmath_packed_array_reshape(
   //new_array->offset       = offset;
   new_array->element_type = _array->element_type;
   new_array->dimensions   = (uint8_t)new_dimensions;
-  new_array->cached_hash  = 0;
+  reset_packed_array_caches(new_array);
   
   memcpy(ARRAY_SIZES(new_array), new_sizes, new_dimensions);
   
