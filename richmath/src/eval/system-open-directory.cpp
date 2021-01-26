@@ -36,8 +36,9 @@ Expr richmath_eval_FrontEnd_SystemOpenDirectory(Expr expr) {
   String dir = expr[1];
   if(!dir)
     return Symbol(PMATH_SYMBOL_FAILED);
-    
-  dir = FileSystem::to_existing_absolute_file_name(std::move(dir));
+  
+  if(dir.length() > 0)
+    dir = FileSystem::to_existing_absolute_file_name(std::move(dir));
   
   Expr items;
   if(expr.expr_length() == 2) {
@@ -48,7 +49,10 @@ Expr richmath_eval_FrontEnd_SystemOpenDirectory(Expr expr) {
   else {
     String filename = dir;
     dir = FileSystem::extract_directory_path(&filename);
-    items = List(std::move(filename));
+    if(filename.length() > 0)
+      items = List(std::move(filename));
+    else
+      items = List();
   }
   
   expr = {};
@@ -59,16 +63,24 @@ Expr richmath_eval_FrontEnd_SystemOpenDirectory(Expr expr) {
 }
 
 static bool system_open_directory(String dir, Expr items) {
-  if(!dir || dir.length() == 0)
+  if(!dir)
     return false;
   
   if(items[0] != PMATH_SYMBOL_LIST)
     return false;
   
-  for(auto filename : items.items()) 
-    if(!FileSystem::is_filename_without_directory(String(std::move(filename))))
-      return false;
-
+  if(dir.length() == 0) {
+    // allow e.g. FrontEnd`SystemOpenDirectory("", "C:\\")
+    for(auto filename : items.items()) 
+      if(String(std::move(filename)).length() == 0)
+        return false;
+  }
+  else {
+    for(auto filename : items.items()) 
+      if(!FileSystem::is_filename_without_directory(String(std::move(filename))))
+        return false;
+  }
+  
 #if defined(RICHMATH_USE_WIN32_GUI)
   return HRbool(win32_system_open_directory(std::move(dir), std::move(items)));
 #elif defined(RICHMATH_USE_GTK_GUI)
