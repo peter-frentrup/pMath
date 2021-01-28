@@ -26,6 +26,8 @@ extern pmath_symbol_t pjsym_Java_Type_Int;
 extern pmath_symbol_t pjsym_Java_Type_Long;
 extern pmath_symbol_t pjsym_Java_Type_Short;
 
+extern pmath_symbol_t pjsym_System_BaseForm;
+
 // constants from pmath/util/Expr.java
 #define PJ_EXPR_CONVERT_DEFAULT        0
 #define PJ_EXPR_CONVERT_AS_JAVAOBJECT  1
@@ -258,7 +260,7 @@ static jobject make_BigInteger(JNIEnv *env, pmath_integer_t value) { // value wi
   }
   
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_BASEFORM), 2,
+           pmath_ref(pjsym_System_BaseForm), 2,
            value,
            PMATH_FROM_INT32(16));
   

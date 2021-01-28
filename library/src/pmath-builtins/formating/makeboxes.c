@@ -38,10 +38,12 @@ extern pmath_symbol_t pmath_Developer_PackedArrayForm;
 
 extern pmath_symbol_t pmath_System_AutoDelete;
 extern pmath_symbol_t pmath_System_AutoNumberFormating;
+extern pmath_symbol_t pmath_System_BaseForm;
 extern pmath_symbol_t pmath_System_BoxRotation;
 extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_Congruent;
@@ -88,6 +90,7 @@ extern pmath_symbol_t pmath_System_LessFullEqual;
 extern pmath_symbol_t pmath_System_LessGreater;
 extern pmath_symbol_t pmath_System_LessLess;
 extern pmath_symbol_t pmath_System_LessTilde;
+extern pmath_symbol_t pmath_System_LinearSolveFunction;
 extern pmath_symbol_t pmath_System_LowerLeftArrow;
 extern pmath_symbol_t pmath_System_LowerRightArrow;
 extern pmath_symbol_t pmath_System_MinusPlus;
@@ -2457,7 +2460,7 @@ static pmath_t matrixform(
     obj = pmath_expr_new_extended(
             pmath_ref(pmath_System_TagBox), 2,
             obj,
-            pmath_ref(PMATH_SYMBOL_COLUMN));
+            pmath_ref(pmath_System_Column));
             
     return pmath_build_value("sos", "(", obj, ")");
   }
@@ -3261,10 +3264,10 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       
     /*------------------------------------------------------------------------*/
     if(thread->boxform < BOXFORM_INPUT) {
-      if(pmath_same(head, PMATH_SYMBOL_BASEFORM))
+      if(pmath_same(head, pmath_System_BaseForm))
         return baseform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_COLUMN))
+      if(pmath_same(head, pmath_System_Column))
         return column_to_boxes(thread, expr);
         
       if(pmath_same(head, PMATH_SYMBOL_FULLFORM))
@@ -3293,7 +3296,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, pmath_System_Interpretation))
         return interpretation_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_LINEARSOLVEFUNCTION))
+      if(pmath_same(head, pmath_System_LinearSolveFunction))
         return linearsolvefunction_to_boxes(thread, expr);
         
       if(pmath_same(head, PMATH_SYMBOL_LONGFORM))

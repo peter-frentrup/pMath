@@ -12,6 +12,8 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_LinearSolveFunction;
+
 static pmath_bool_t is_zero(pmath_t x) {
   if(pmath_is_expr_of(x, PMATH_SYMBOL_LIST)) {
     size_t i = pmath_expr_length(x);
@@ -177,7 +179,7 @@ PMATH_PRIVATE pmath_t builtin_linearsolve(pmath_expr_t expr) {
 
   if(exprlen == 1) {
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_LINEARSOLVEFUNCTION), 2,
+             pmath_ref(pmath_System_LinearSolveFunction), 2,
              pmath_build_value("(NN)", rows, cols),
              pmath_build_value("(boo)", TRUE, matrix, vector));
   }
@@ -200,14 +202,14 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
   head   = pmath_expr_get_item(expr, 0);
   vector = pmath_expr_get_item(expr, 1);
 
-  if(!pmath_is_expr_of_len(head, PMATH_SYMBOL_LINEARSOLVEFUNCTION, 2)) {
+  if(!pmath_is_expr_of_len(head, pmath_System_LinearSolveFunction, 2)) {
     pmath_unref(head);
     pmath_unref(vector);
     return expr;
   }
 
   if(!_pmath_is_vector(vector) && !_pmath_is_matrix(vector, &i, &j, TRUE)) {
-    pmath_message(PMATH_SYMBOL_LINEARSOLVEFUNCTION, "vecmat1", 1, vector);
+    pmath_message(pmath_System_LinearSolveFunction, "vecmat1", 1, vector);
 
     pmath_unref(head);
     return expr;

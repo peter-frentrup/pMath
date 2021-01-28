@@ -18,6 +18,7 @@
                   pmath_parse_string_args( \
                       (code), (format), __VA_ARGS__))
 
+extern pmath_symbol_t pmath_System_FormatRules;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 extern pmath_symbol_t pmath_System_Private_PrepareUsageLine;
 extern pmath_symbol_t pmath_System_Private_PrepareDefinitionLine;
@@ -202,7 +203,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, TRUE);
     
-    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_FORMATRULES), 1, pmath_ref(name));
+    obj = pmath_expr_new_extended(pmath_ref(pmath_System_FormatRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     

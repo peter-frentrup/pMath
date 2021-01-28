@@ -6,6 +6,9 @@
 #include <pmath-builtins/build-expr-private.h>
 
 
+extern pmath_symbol_t pmath_System_Max;
+extern pmath_symbol_t pmath_System_Min;
+
 PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
   /* Rescale(x, min..max, xmin..xmax)
      Rescale(x, min..max)             == Rescale(x, min..max, 0..1)
@@ -27,8 +30,8 @@ PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
       return expr;
     }
     
-    min = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_MIN), pmath_ref(x)));
-    max = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_MAX), pmath_ref(x)));
+    min = pmath_evaluate(FUNC(pmath_ref(pmath_System_Min), pmath_ref(x)));
+    max = pmath_evaluate(FUNC(pmath_ref(pmath_System_Max), pmath_ref(x)));
     xmin = PMATH_FROM_INT32(0);
     xmax = PMATH_FROM_INT32(1);
   }

@@ -37,6 +37,8 @@ struct id2symbols_t {
   double                first_eval_time;
 };
 
+extern pmath_symbol_t pmath_Internal_DynamicUpdated;
+
 static void id2symbols_destructor(void *p) {
   if(p) {
     struct id2symbols_t *i2s = (struct id2symbols_t*)p;
@@ -314,7 +316,7 @@ PMATH_PRIVATE void _pmath_dynamic_update(pmath_symbol_t symbol) {
       pmath_evaluate(
         pmath_expr_set_item(
           pmath_gather_end(),
-          0, pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED))));
+          0, pmath_ref(pmath_Internal_DynamicUpdated))));
   }
 }
 

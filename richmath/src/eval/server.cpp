@@ -11,7 +11,9 @@ extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_SectionLabel;
+extern pmath_symbol_t richmath_System_ToExpression;
 
+extern pmath_symbol_t richmath_System_DollarDialogLevel;
 extern pmath_symbol_t richmath_System_DollarLine;
 
 namespace richmath { namespace strings {
@@ -37,7 +39,7 @@ Expr richmath::generate_section(String style, Expr boxes) {
     
   if(style == strings::Output) {
     Expr line = Application::interrupt_wait(Symbol(richmath_System_DollarLine));
-    Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+    Expr dlvl = Application::interrupt_wait(Symbol(richmath_System_DollarDialogLevel));
     
     if(line == PMATH_UNDEFINED)
       line = Symbol(PMATH_SYMBOL_ABORTED);
@@ -352,7 +354,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
         result = Expr(
                    pmath_session_execute(
                      pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+                       pmath_ref(richmath_System_ToExpression), 1,
                        result.release()),
                      &aborted));
                      
@@ -373,7 +375,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
       Expr result = Expr(
                       pmath_session_execute(
                         pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+                          pmath_ref(richmath_System_ToExpression), 1,
                           pmath_ref(object.get())),
                         &aborted));
                         

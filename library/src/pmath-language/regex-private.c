@@ -49,6 +49,9 @@ struct _regex_t {
   pmath_hashtable_t    named_subpatterns;
 };
 
+extern pmath_symbol_t pmath_System_NumberString;
+extern pmath_symbol_t pmath_System_Whitespace;
+
 static void free_callouts(struct _callout_t *c) {
   while(c) {
     struct _callout_t *next = c->next;
@@ -914,13 +917,13 @@ static pmath_bool_t compile_regex_part(
       return TRUE;
     }
     
-    if(pmath_same(part, PMATH_SYMBOL_NUMBERSTRING)) {
+    if(pmath_same(part, pmath_System_NumberString)) {
       pmath_unref(part);
       append_latin1(&info->pattern, "\\d+\\.\\d");
       return TRUE;
     }
     
-    if(pmath_same(part, PMATH_SYMBOL_WHITESPACE)) {
+    if(pmath_same(part, pmath_System_Whitespace)) {
       pmath_unref(part);
       append_latin1(&info->pattern, "\\s+");
       return TRUE;

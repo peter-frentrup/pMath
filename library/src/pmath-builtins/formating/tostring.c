@@ -18,6 +18,7 @@
 
 extern pmath_symbol_t pmath_Developer_PackedArrayForm;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
+extern pmath_symbol_t pmath_System_Whitespace;
 
 
 struct write_short_span_t {
@@ -556,7 +557,7 @@ static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags,
 }
 
 static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_t options) {
-  pmath_t whitespace = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WHITESPACE, options));
+  pmath_t whitespace = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Whitespace, options));
  
   if(pmath_same(whitespace, PMATH_SYMBOL_TRUE)) {
     *flags &= ~PMATH_WRITE_OPTIONS_NOSPACES;
@@ -578,7 +579,7 @@ static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_
     return TRUE;
   }
   
-  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(PMATH_SYMBOL_WHITESPACE), whitespace); 
+  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(pmath_System_Whitespace), whitespace); 
   return FALSE;
 }
 

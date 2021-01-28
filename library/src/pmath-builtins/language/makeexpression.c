@@ -39,6 +39,7 @@ extern pmath_symbol_t pmath_System_BracketingBar;
 extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_CompressedData;
@@ -1756,7 +1757,7 @@ static pmath_t make_expression_from_gridbox_column(pmath_t box, pmath_expr_t gri
     return wrap_hold_with_debuginfo_from(
              box,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_COLUMN), 1,
+               pmath_ref(pmath_System_Column), 1,
                matrix));
   }
   
@@ -1990,7 +1991,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
       }
     }
     
-    if(pmath_same(tag, PMATH_SYMBOL_COLUMN) && pmath_is_expr_of(view, pmath_System_GridBox)) {
+    if(pmath_same(tag, pmath_System_Column) && pmath_is_expr_of(view, pmath_System_GridBox)) {
       pmath_unref(tag);
       return make_expression_from_gridbox_column(box, view);
     }

@@ -12,6 +12,7 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarDialogLevel;
 extern pmath_symbol_t richmath_System_DollarLine;
 
 namespace richmath { namespace strings {
@@ -111,7 +112,7 @@ bool InputJob::start() {
   
   {
     Expr line = Application::interrupt_wait(Plus(Symbol(richmath_System_DollarLine), 1));
-    Expr dlvl = Application::interrupt_wait(Symbol(PMATH_SYMBOL_DIALOGLEVEL));
+    Expr dlvl = Application::interrupt_wait(Symbol(richmath_System_DollarDialogLevel));
     
     String label = String("in [");
     if(dlvl == PMATH_FROM_INT32(1))

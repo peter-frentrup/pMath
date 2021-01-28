@@ -5,6 +5,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Hue;
+
 static double round_to_prec(double x, int p);
 
 //{ class Color ...
@@ -49,7 +51,7 @@ Color Color::from_pmath(Expr expr) {
       }
     }
     
-    if(expr[0] == PMATH_SYMBOL_HUE) {
+    if(expr[0] == richmath_System_Hue) {
       if( expr.expr_length() == 1 &&
           expr[1][0] == PMATH_SYMBOL_LIST)
       {

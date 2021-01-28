@@ -65,6 +65,7 @@ extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
 extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
+extern pmath_symbol_t richmath_System_Hue;
 extern pmath_symbol_t richmath_System_ImageSize;
 extern pmath_symbol_t richmath_System_ImageSizeAction;
 extern pmath_symbol_t richmath_System_InputAliases;
@@ -118,6 +119,7 @@ extern pmath_symbol_t richmath_System_TemplateBoxOptions;
 extern pmath_symbol_t richmath_System_TextShadow;
 extern pmath_symbol_t richmath_System_Ticks;
 extern pmath_symbol_t richmath_System_Tooltip;
+extern pmath_symbol_t richmath_System_TrackedSymbols;
 extern pmath_symbol_t richmath_System_Visible;
 extern pmath_symbol_t richmath_System_WholeSectionGroupOpener;
 extern pmath_symbol_t richmath_System_WindowFrame;
@@ -2849,7 +2851,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             TextShadow,                       Symbol( richmath_System_TextShadow));
     add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
-    add(StyleType::Any,             TrackedSymbols,                   Symbol( PMATH_SYMBOL_TRACKEDSYMBOLS));
+    add(StyleType::Any,             TrackedSymbols,                   Symbol( richmath_System_TrackedSymbols));
     add(StyleType::Any,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
     add(StyleType::Any,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
     add(StyleType::Any,             PlotRange,                        Symbol( richmath_System_PlotRange));
@@ -3114,7 +3116,7 @@ bool StyleInformation::needs_ruledelayed(Expr expr) {
       head == PMATH_SYMBOL_RULE ||
       head == PMATH_SYMBOL_RULEDELAYED ||
       head == PMATH_SYMBOL_GRAYLEVEL ||
-      head == PMATH_SYMBOL_HUE ||
+      head == richmath_System_Hue ||
       head == PMATH_SYMBOL_RGBCOLOR)
   {
     for(size_t i = expr.expr_length(); i > 0; --i) {

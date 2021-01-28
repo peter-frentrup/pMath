@@ -12,6 +12,7 @@
 
 
 extern pmath_symbol_t pmath_Language_SourceLocation;
+extern pmath_symbol_t pmath_System_Whitespace;
 
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
   pmath_bool_t *have_critical = flag;
@@ -69,7 +70,7 @@ static pmath_bool_t handle_whitespace_option(
   pmath_t                               options // wont be freed
 ) {
   // Whitespace->False ==> PMATH_BFS_PARSEABLE flag set
-  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WHITESPACE, options));
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Whitespace, options));
   if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
     data->settings.flags |= PMATH_BFS_PARSEABLE;
     pmath_unref(value);
@@ -84,7 +85,7 @@ static pmath_bool_t handle_whitespace_option(
   
   pmath_message(
     PMATH_NULL, "opttf", 2,
-    pmath_ref(PMATH_SYMBOL_WHITESPACE),
+    pmath_ref(pmath_System_Whitespace),
     value);
   return FALSE;
 }
@@ -112,7 +113,7 @@ static pmath_bool_t handle_ignoresyntaxerrors_option(
   *result = FALSE;
   pmath_message(
     PMATH_NULL, "opttf", 2,
-    pmath_ref(PMATH_SYMBOL_WHITESPACE),
+    pmath_ref(pmath_System_Whitespace),
     value);
   return FALSE;
 }

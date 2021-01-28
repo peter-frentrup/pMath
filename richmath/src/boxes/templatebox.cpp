@@ -17,6 +17,8 @@ extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_Private_FlattenTemplateSequence;
 
+extern pmath_symbol_t richmath_Internal_DynamicEvaluateMultiple;
+
 extern pmath_symbol_t richmath_FE_Styles_DollarDefaultDisplayFunction;
 extern pmath_symbol_t richmath_FE_Styles_DollarDefaultDisplayFunctionTooltip;
 
@@ -665,7 +667,7 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
     expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
   
   expr = Dynamic(tb, std::move(expr)).get_value_unevaluated();
-  if(expr[0] == PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE)
+  if(expr[0] == richmath_Internal_DynamicEvaluateMultiple)
     expr.set(2, obj->id().to_pmath_raw());
   
   return expr;

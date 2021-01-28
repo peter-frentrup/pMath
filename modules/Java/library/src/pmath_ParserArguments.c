@@ -14,6 +14,8 @@ extern pmath_symbol_t pjsym_Java_Internal_CallFromJavaWithContext;
 extern pmath_symbol_t pjsym_Java_Internal_Failed;
 extern pmath_symbol_t pjsym_Java_Internal_Succeeded;
 
+extern pmath_symbol_t pjsym_System_ToExpression;
+
 PMATH_PRIVATE
 pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
   /*  Java`Internal`CallFromJavaWithContext(namespace, namespacePath, code, arguments, simplePostProcessor)
@@ -49,12 +51,12 @@ pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
   
   if(pmath_is_null(args)) {
     expr = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 1,
+             pmath_ref(pjsym_System_ToExpression), 1,
              code);
   }
   else {
     expr = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TOEXPRESSION), 2,
+             pmath_ref(pjsym_System_ToExpression), 2,
              code,
              pmath_expr_new_extended(
                pmath_ref(PMATH_SYMBOL_RULE), 2,

@@ -25,6 +25,8 @@ using namespace richmath;
 //{ pmath functions ...
 
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_DocumentSave;
+extern pmath_symbol_t richmath_System_FrontEndTokenExecute;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_SectionGenerated;
@@ -181,13 +183,13 @@ static bool init_symbols() {
 #undef RICHMATH_RESET_SYMBOL_ATTRIBUTES
 #undef RICHMATH_DECLARE_SYMBOL
 
-  BIND_DOWN(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED,  builtin_internal_dynamicupdated)
+  BIND_DOWN(richmath_Internal_DynamicUpdated,  builtin_internal_dynamicupdated)
   
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
   BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTSAVE,             builtin_documentsave)
-  BIND_DOWN(PMATH_SYMBOL_FRONTENDTOKENEXECUTE,     builtin_frontendtokenexecute)
+  BIND_DOWN(richmath_System_DocumentSave,          builtin_documentsave)
+  BIND_DOWN(richmath_System_FrontEndTokenExecute,  builtin_frontendtokenexecute)
   BIND_DOWN(PMATH_SYMBOL_INTERRUPT,                builtin_interrupt)
   BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
   
@@ -1525,7 +1527,7 @@ static bool similar_section_below_cmd(Expr cmd) {
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   Application::async_interrupt(
     Call(Symbol(PMATH_SYMBOL_DIALOG),
-         Call(Symbol(PMATH_SYMBOL_FRONTENDTOKENEXECUTE),
+         Call(Symbol(richmath_System_FrontEndTokenExecute),
               strings::EvaluateSectionsAndReturn)));
               
   return false;

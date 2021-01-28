@@ -63,6 +63,8 @@ static struct msg_queue_t *volatile sleeplist = NULL;
 static uint64_t win2unix_epoch;
 #endif
 
+extern pmath_symbol_t pmath_Internal_AbortMessage;
+
 /*============================================================================*/
 
 static void wakeup_msg_queue(struct msg_queue_t *mq_data) {
@@ -742,7 +744,7 @@ pmath_t pmath_thread_send_wait(
     
     result = pmath_custom_new(result_data, _pmath_destroy_abortable_message);
     interrupt = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_INTERNAL_ABORTMESSAGE), 1,
+                  pmath_ref(pmath_Internal_AbortMessage), 1,
                   pmath_ref(result));
     if(pmath_is_null(result) || pmath_is_null(interrupt)) {
       pmath_mem_free(msg_struct);

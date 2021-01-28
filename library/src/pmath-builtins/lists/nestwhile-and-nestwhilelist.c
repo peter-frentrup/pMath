@@ -12,6 +12,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_NestWhileList;
+
+
 static pmath_t nestwhile(
   pmath_t func,       // wont be freed
   pmath_t obj,        // will be freed
@@ -138,7 +141,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr) {
    */
   pmath_t obj, func, test;
   intptr_t m, mmin, max, n;
-  pmath_bool_t generate_list = pmath_is_expr_of(expr, PMATH_SYMBOL_NESTWHILELIST);
+  pmath_bool_t generate_list = pmath_is_expr_of(expr, pmath_System_NestWhileList);
   
   if(pmath_expr_length(expr) < 3 || pmath_expr_length(expr) > 6) {
     pmath_message_argxxx(pmath_expr_length(expr), 3, 6);

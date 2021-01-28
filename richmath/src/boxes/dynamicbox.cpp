@@ -13,6 +13,7 @@
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_DynamicBox;
+extern pmath_symbol_t richmath_Internal_DynamicRemove;
 
 //{ class AbstractDynamicBox ...
 
@@ -54,7 +55,7 @@ DynamicBox::DynamicBox()
 
 DynamicBox::~DynamicBox() {
   Application::interrupt_wait_for(
-    Call(Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICREMOVE), id().to_pmath_raw()), 
+    Call(Symbol(richmath_Internal_DynamicRemove), id().to_pmath_raw()), 
     0,
     Application::interrupt_timeout);
   Observable::unregister_oberserver(id());

@@ -53,9 +53,14 @@ PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
 
 PMATH_STATIC_ASSERT(sizeof(PMATH_GC_FLAGS32(((struct _pmath_gc_t*)NULL))) == 4);
 
-extern pmath_symbol_t pmath_Developer_PackedArrayForm;
+extern pmath_symbol_t pmath_System_BaseForm;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_LinearSolveFunction;
+
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+
+extern pmath_symbol_t pmath_Developer_PackedArrayForm;
+
 
 // initialization in pmath_init():
 PMATH_PRIVATE pmath_expr_t _pmath_object_memory_exception; // read-only
@@ -2577,7 +2582,7 @@ static void write_expr_ex(
   if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR)
     goto INPUTFORM;
 
-  if(pmath_same(head, PMATH_SYMBOL_BASEFORM)) {
+  if(pmath_same(head, pmath_System_BaseForm)) {
     pmath_t item;
     uint8_t oldbase;
     pmath_thread_t thread = pmath_thread_get_current();
@@ -2672,7 +2677,7 @@ static void write_expr_ex(
     write_ex(info, priority, item);
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_LINEARSOLVEFUNCTION)) {
+  else if(pmath_same(head, pmath_System_LinearSolveFunction)) {
     pmath_t item;
     char s[100];
 

@@ -12,6 +12,9 @@
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_FormatRules;
+
 PMATH_PRIVATE
 pmath_t _pmath_extract_holdpattern(pmath_t pat) {
   if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_HOLDPATTERN, 1)) {
@@ -173,7 +176,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
     
   if( !pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES) &&
       !pmath_same(kind, PMATH_SYMBOL_DOWNRULES)    &&
-      !pmath_same(kind, PMATH_SYMBOL_FORMATRULES)  &&
+      !pmath_same(kind, pmath_System_FormatRules)  &&
       !pmath_same(kind, PMATH_SYMBOL_NRULES)       &&
       !pmath_same(kind, PMATH_SYMBOL_SUBRULES)     &&
       !pmath_same(kind, PMATH_SYMBOL_UPRULES))
@@ -232,7 +235,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
   
   if(     pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)) rc = &rules->default_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_DOWNRULES))    rc = &rules->down_rules;
-  else if(pmath_same(kind, PMATH_SYMBOL_FORMATRULES))  rc = &rules->format_rules;
+  else if(pmath_same(kind, pmath_System_FormatRules))  rc = &rules->format_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_NRULES))       rc = &rules->approx_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_SUBRULES))     rc = &rules->sub_rules;
   else if(pmath_same(kind, PMATH_SYMBOL_UPRULES))      rc = &rules->up_rules;
@@ -362,7 +365,7 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr) {
   if(rules) {
     if(     pmath_same(head, PMATH_SYMBOL_DEFAULTRULES)) _pmath_rulecache_emit(&rules->default_rules);
     else if(pmath_same(head, PMATH_SYMBOL_DOWNRULES))    _pmath_rulecache_emit(&rules->down_rules);
-    else if(pmath_same(head, PMATH_SYMBOL_FORMATRULES))  _pmath_rulecache_emit(&rules->format_rules);
+    else if(pmath_same(head, pmath_System_FormatRules))  _pmath_rulecache_emit(&rules->format_rules);
     else if(pmath_same(head, PMATH_SYMBOL_NRULES))       _pmath_rulecache_emit(&rules->approx_rules);
     else if(pmath_same(head, PMATH_SYMBOL_SUBRULES))     _pmath_rulecache_emit(&rules->sub_rules);
     else if(pmath_same(head, PMATH_SYMBOL_UPRULES))      _pmath_rulecache_emit(&rules->up_rules);

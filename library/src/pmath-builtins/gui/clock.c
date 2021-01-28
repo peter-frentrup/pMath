@@ -16,6 +16,8 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_Internal_DynamicUpdated;
+
 static pmath_bool_t is_positive_infinity(pmath_t obj) {
   pmath_t dir = _pmath_directed_infinity_direction(obj);
   if(pmath_same(dir, PMATH_FROM_INT32(1)))
@@ -60,7 +62,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
     pmath_unref(expr);
 
     obj = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED), 1,
+            pmath_ref(pmath_Internal_DynamicUpdated), 1,
             pmath_integer_new_slong((long)thread->current_dynamic_id));
     pmath_unref(pmath_evaluate(obj));
 
@@ -256,7 +258,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
   }
 
   obj = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED), 1,
+          pmath_ref(pmath_Internal_DynamicUpdated), 1,
           pmath_integer_new_slong((long)thread->current_dynamic_id));
   pmath_unref(pmath_evaluate(obj));
 

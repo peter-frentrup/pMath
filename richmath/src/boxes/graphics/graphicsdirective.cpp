@@ -5,6 +5,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Hue;
+
 //{ class GraphicsDirective ...
 
 GraphicsDirective::GraphicsDirective()
@@ -25,7 +27,7 @@ bool GraphicsDirective::is_graphics_directive(Expr expr) {
   if(expr[0] == PMATH_SYMBOL_RGBCOLOR)
     return true;
   
-  if(expr[0] == PMATH_SYMBOL_HUE)
+  if(expr[0] == richmath_System_Hue)
     return true;
   
   if(expr[0] == PMATH_SYMBOL_GRAYLEVEL)
@@ -66,7 +68,7 @@ void GraphicsDirective::apply(Expr directive, Context &context) {
     return;
   }
   
-  if(directive[0] == PMATH_SYMBOL_RGBCOLOR || directive[0] == PMATH_SYMBOL_HUE || directive[0] == PMATH_SYMBOL_GRAYLEVEL) {
+  if(directive[0] == PMATH_SYMBOL_RGBCOLOR || directive[0] == richmath_System_Hue || directive[0] == PMATH_SYMBOL_GRAYLEVEL) {
     if(Color c = Color::from_pmath(directive)) {
       context.canvas().set_color(c);
     }

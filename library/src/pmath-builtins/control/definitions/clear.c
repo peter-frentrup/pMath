@@ -10,6 +10,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_ClearAll;
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be freed
   struct _pmath_symbol_rules_t  *rules;
@@ -47,8 +49,8 @@ pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be
   return TRUE;
 }
 
-PMATH_PRIVATE pmath_t builtin_clear(pmath_expr_t expr) {
-  pmath_bool_t all = pmath_is_expr_of(expr, PMATH_SYMBOL_CLEARALL);
+PMATH_PRIVATE pmath_t builtin_clear_or_clearall(pmath_expr_t expr) {
+  pmath_bool_t all = pmath_is_expr_of(expr, pmath_System_ClearAll);
   size_t i;
   
   for(i = 1; i <= pmath_expr_length(expr); ++i) {

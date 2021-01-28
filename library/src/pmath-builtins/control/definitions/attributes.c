@@ -12,6 +12,9 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_DefiniteFunction;
+extern pmath_symbol_t pmath_System_SequenceHold;
+
 PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   pmath_symbol_attributes_t *attr,
   pmath_t obj // wont be freed
@@ -47,7 +50,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   else if(pmath_same(obj, PMATH_SYMBOL_NHOLDREST))            *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDREST;
   else if(pmath_same(obj, PMATH_SYMBOL_ASSOCIATIVE))          *attr = PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE;
   else if(pmath_same(obj, PMATH_SYMBOL_DEEPHOLDALL))          *attr = PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL;
-  else if(pmath_same(obj, PMATH_SYMBOL_DEFINITEFUNCTION))     *attr = PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION;
+  else if(pmath_same(obj, pmath_System_DefiniteFunction))     *attr = PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION;
   else if(pmath_same(obj, PMATH_SYMBOL_HOLDALL))              *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALL;
   else if(pmath_same(obj, PMATH_SYMBOL_HOLDALLCOMPLETE))      *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE;
   else if(pmath_same(obj, PMATH_SYMBOL_HOLDFIRST))            *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST;
@@ -57,7 +60,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   else if(pmath_same(obj, PMATH_SYMBOL_ONEIDENTITY))          *attr = PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY;
   else if(pmath_same(obj, PMATH_SYMBOL_PROTECTED))            *attr = PMATH_SYMBOL_ATTRIBUTE_PROTECTED;
   else if(pmath_same(obj, PMATH_SYMBOL_READPROTECTED))        *attr = PMATH_SYMBOL_ATTRIBUTE_READPROTECTED;
-  else if(pmath_same(obj, PMATH_SYMBOL_SEQUENCEHOLD))         *attr = PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD;
+  else if(pmath_same(obj, pmath_System_SequenceHold))         *attr = PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD;
   else if(pmath_same(obj, PMATH_SYMBOL_SYMMETRIC))            *attr = PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC;
   else if(pmath_same(obj, PMATH_SYMBOL_TEMPORARY))            *attr = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
   else if(pmath_same(obj, PMATH_SYMBOL_THREADLOCAL))          *attr = PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL;
@@ -208,7 +211,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr) {
     pmath_emit(pmath_ref(PMATH_SYMBOL_DEEPHOLDALL), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_DEFINITEFUNCTION), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_DefiniteFunction), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) {
     if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)
@@ -247,7 +250,7 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr) {
     pmath_emit(pmath_ref(PMATH_SYMBOL_READPROTECTED), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_SEQUENCEHOLD), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_SequenceHold), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)
     pmath_emit(pmath_ref(PMATH_SYMBOL_SYMMETRIC), PMATH_NULL);

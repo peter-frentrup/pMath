@@ -7,14 +7,15 @@ namespace richmath { namespace strings {
   extern String EmptyString;
 }}
 
-//{ class FileSystem ...
+extern pmath_symbol_t richmath_System_FileInformation;
 
+//{ class FileSystem ...
 
 String FileSystem::to_existing_absolute_file_name(String filename) {
   if(filename.is_null())
     return String();
   
-  Expr info = Evaluate(Call(Symbol(PMATH_SYMBOL_FILEINFORMATION), filename));
+  Expr info = Evaluate(Call(Symbol(richmath_System_FileInformation), filename));
   if(info[0] == PMATH_SYMBOL_LIST) {
     size_t len = info.expr_length();
     for(size_t i = 1; i <= len; ++i) {

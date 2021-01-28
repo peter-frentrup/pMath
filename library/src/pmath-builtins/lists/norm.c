@@ -9,6 +9,9 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_Max;
+extern pmath_symbol_t pmath_System_Total;
+
 PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);
   pmath_t matrix;
@@ -35,13 +38,13 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
     
     if(_pmath_is_vector(matrix)) {
       pmath_unref(expr);
-      return SQRT(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), INT(2))));
+      return SQRT(FUNC(pmath_ref(pmath_System_Total), POW(ABS(matrix), INT(2))));
     }
     
     if(_pmath_is_matrix(matrix, &rows, &cols, TRUE)) {
       pmath_unref(expr);
-      return SQRT(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL),
-                       FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), INT(2)))));
+      return SQRT(FUNC(pmath_ref(pmath_System_Total),
+                       FUNC(pmath_ref(pmath_System_Total), POW(ABS(matrix), INT(2)))));
     }
     
     pmath_unref(matrix);
@@ -60,18 +63,18 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
       pmath_unref(ptype);
       pmath_unref(expr);
       
-      return FUNC(pmath_ref(PMATH_SYMBOL_MAX),
+      return FUNC(pmath_ref(pmath_System_Max),
                   FUNC2(pmath_ref(PMATH_SYMBOL_MAP),
                         ABS(matrix),
-                        pmath_ref(PMATH_SYMBOL_TOTAL)));
+                        pmath_ref(pmath_System_Total)));
     }
     
     if(ptype_class == PMATH_CLASS_POSONE) {
       pmath_unref(ptype);
       pmath_unref(expr);
       
-      return FUNC(pmath_ref(PMATH_SYMBOL_MAX),
-                  FUNC(pmath_ref(PMATH_SYMBOL_TOTAL),
+      return FUNC(pmath_ref(pmath_System_Max),
+                  FUNC(pmath_ref(pmath_System_Total),
                        ABS(matrix)));
     }
     
@@ -94,14 +97,14 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
     pmath_unref(ptype);
     pmath_unref(expr);
     
-    return FUNC(pmath_ref(PMATH_SYMBOL_MAX), ABS(matrix));
+    return FUNC(pmath_ref(pmath_System_Max), ABS(matrix));
   }
   
   if(ptype_class == PMATH_CLASS_POSONE) {
     pmath_unref(ptype);
     pmath_unref(expr);
     
-    return FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), ABS(matrix));
+    return FUNC(pmath_ref(pmath_System_Total), ABS(matrix));
   }
   
   // special casing Norm({a,b}) = Sqrt(a^2 + b^2) for double values
@@ -140,7 +143,7 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
   }
   
   pmath_unref(expr);
-  expr = POW(FUNC(pmath_ref(PMATH_SYMBOL_TOTAL), POW(ABS(matrix), pmath_ref(ptype))), INV(pmath_ref(ptype)));
+  expr = POW(FUNC(pmath_ref(pmath_System_Total), POW(ABS(matrix), pmath_ref(ptype))), INV(pmath_ref(ptype)));
   
   pmath_unref(ptype);
   return expr;

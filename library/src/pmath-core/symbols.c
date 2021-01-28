@@ -82,6 +82,8 @@ struct _pmath_symbol_t {
   pmath_atomic_t ignore_dynamic_id;
 };
 
+extern pmath_symbol_t pmath_System_Degree;
+
 //{ global symbol table ...
 static pmath_atomic_t global_symbol_table_lock = PMATH_ATOMIC_STATIC_INIT;
 
@@ -306,7 +308,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     switch(ch) {
       case 0x00B0:
         pmath_unref(name);
-        return pmath_ref(PMATH_SYMBOL_DEGREE);
+        return pmath_ref(pmath_System_Degree);
         
       case 0x03C0:
         pmath_unref(name);

@@ -88,8 +88,16 @@ extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 extern pmath_symbol_t pmath_System_InputStream;
 extern pmath_symbol_t pmath_System_Missing;
 extern pmath_symbol_t pmath_System_OutputStream;
+extern pmath_symbol_t pmath_System_SystemException;
 
+extern pmath_symbol_t pmath_System_DollarCreatioDate;
 extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
+extern pmath_symbol_t pmath_System_DollarDialogLevel;
+extern pmath_symbol_t pmath_System_DollarPathListSeparator;
+extern pmath_symbol_t pmath_System_DollarTimeZone;
+extern pmath_symbol_t pmath_System_DollarVersionList;
+extern pmath_symbol_t pmath_System_DollarVersionNumber;
+
 extern pmath_symbol_t pmath_Internal_GetCurrentDirectory;
 
 PMATH_PRIVATE
@@ -716,7 +724,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
     { // init static objects ...
       // SystemException("OutOfMemory")
       _pmath_object_memory_exception = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_SYSTEMEXCEPTION), 1,
+          pmath_ref(pmath_System_SystemException), 1,
           PMATH_C_STRING("OutOfMemory"));
       _pmath_expr_update(_pmath_object_memory_exception);
       
@@ -902,10 +910,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Infinity:=DirectedInfinity(1)");
       PMATH_RUN("I:=Complex(0,1)");
 #ifdef PMATH_OS_WIN32
-      PMATH_RUN("$PathListSeparator:=\";\"");
+      pmath_symbol_set_value(pmath_System_DollarPathListSeparator, PMATH_C_STRING(";"));
       PMATH_RUN("$PathnameSeparator:=\"\\\\\"");
 #else
-      PMATH_RUN("$PathListSeparator:=\":\"");
+      pmath_symbol_set_value(pmath_System_DollarPathListSeparator, PMATH_C_STRING(":"));
       PMATH_RUN("$PathnameSeparator:=\"/\"");
 #endif
       
@@ -963,21 +971,24 @@ PMATH_API pmath_bool_t pmath_init(void) {
       unknown processor
 #endif
       
-      PMATH_RUN("$DialogLevel:=0");
+      pmath_symbol_set_value(pmath_System_DollarDialogLevel, PMATH_FROM_INT32(0));
       
       {
         int year, month, day, hour, minute, second;
         pmath_version_datetime(&year, &month, &day, &hour, &minute, &second);
         
-        PMATH_RUN_ARGS("$CreationDate:= `1`", "((iiiiii))",
-            year, month, day, hour, minute, second);
-            
-        PMATH_RUN_ARGS("$VersionList:= `1`", "((iiii))",
-            pmath_version_number_part(1),
+        pmath_symbol_set_value(
+          pmath_System_DollarVersionList, 
+          pmath_build_value("(iiiiii)", year, month, day, hour, minute, second));
+        
+        pmath_symbol_set_value(
+          pmath_System_DollarVersionList, 
+          pmath_build_value("(iiii)", 
+            pmath_version_number_part(1), 
             pmath_version_number_part(2),
             pmath_version_number_part(3),
-            pmath_version_number_part(4));
-        PMATH_RUN_ARGS("$VersionNumber:= `1`", "(f)", pmath_version_number());
+            pmath_version_number_part(4)));
+        pmath_symbol_set_value(pmath_System_DollarVersionNumber, PMATH_FROM_DOUBLE(pmath_version_number()));
       }
       
       {
@@ -1007,7 +1018,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
         loc  = local_tm.tm_sec  + 60 * (local_tm.tm_min  + 60 * (local_tm.tm_hour  + 24 * local_tm.tm_yday));
         glob = global_tm.tm_sec + 60 * (global_tm.tm_min + 60 * (global_tm.tm_hour + 24 * global_tm.tm_yday));
         
-        PMATH_RUN_ARGS("$TimeZone:=`1`", "(f)", (glob - loc) / (60 * 60.0));
+        pmath_symbol_set_value(pmath_System_DollarTimeZone, PMATH_FROM_DOUBLE((glob - loc) / (60 * 60.0)));
       }
       
       PMATH_RUN("IsNumeric(Degree):=True");
@@ -1135,12 +1146,10 @@ PMATH_API pmath_bool_t pmath_init(void) {
           "ShowStringCharacters->Automatic,"
           "Whitespace->Automatic}");
       
-      pmath_symbol_set_attributes(pmath_System_InputStream, 0);
-      pmath_symbol_set_attributes(pmath_System_OutputStream, 0);
       PMATH_RUN("InputStream/:Options(InputStream(~System`Private`sym))::=Options(System`Private`sym)");
       PMATH_RUN("OutputStream/:Options(OutputStream(~System`Private`sym))::=Options(System`Private`sym)");
-      pmath_symbol_set_attributes(pmath_System_InputStream,  PMATH_SYMBOL_ATTRIBUTE_PROTECTED | PMATH_SYMBOL_ATTRIBUTE_READPROTECTED);
-      pmath_symbol_set_attributes(pmath_System_OutputStream, PMATH_SYMBOL_ATTRIBUTE_PROTECTED | PMATH_SYMBOL_ATTRIBUTE_READPROTECTED);
+      pmath_symbol_set_attributes(pmath_System_InputStream,  PMATH_SYMBOL_ATTRIBUTE_READPROTECTED);
+      pmath_symbol_set_attributes(pmath_System_OutputStream, PMATH_SYMBOL_ATTRIBUTE_READPROTECTED);
     }
     
     flint_set_num_threads(_pmath_processor_count());

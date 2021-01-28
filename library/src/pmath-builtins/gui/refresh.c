@@ -10,6 +10,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_TrackedSymbols;
+extern pmath_symbol_t pmath_Internal_DynamicUpdated;
+
 PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
 /** Refresh(body, None)  = Refresh(body, TrackedSymbols->None)
     Refresh(body, options)
@@ -41,8 +44,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
     options = pmath_options_extract(expr, 1);
     
     if(!pmath_is_null(options)) {
-      opt = pmath_evaluate(pmath_option_value(
-                             PMATH_NULL, PMATH_SYMBOL_TRACKEDSYMBOLS, options));
+      opt = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_TrackedSymbols, options));
       pmath_unref(opt);
     }
   }
@@ -82,7 +84,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
         pmath_thread_send_delayed(
           thread->message_queue,
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICUPDATED), 1,
+            pmath_ref(pmath_Internal_DynamicUpdated), 1,
             pmath_integer_new_siptr(thread->current_dynamic_id)),
           seconds);
       }

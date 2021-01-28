@@ -5,6 +5,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_ConditionalExpression;
+
 PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr) {
   pmath_t value, test;
   
@@ -31,7 +33,7 @@ PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr) {
     return pmath_ref(PMATH_SYMBOL_UNDEFINED);
   }
   
-  if(pmath_is_expr_of_len(value, PMATH_SYMBOL_CONDITIONALEXPRESSION, 2)) {
+  if(pmath_is_expr_of_len(value, pmath_System_ConditionalExpression, 2)) {
     pmath_t inner_test = pmath_expr_get_item(value, 2);
     
     pmath_unref(expr);
@@ -64,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr) {
   for(i = 1; i <= pmath_expr_length(expr); ++i) {
     item = pmath_expr_get_item(expr, i);
     
-    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_CONDITIONALEXPRESSION, 2)) {
+    if(pmath_is_expr_of_len(item, pmath_System_ConditionalExpression, 2)) {
       pmath_emit(pmath_expr_get_item(item, 2), PMATH_NULL);
       expr = pmath_expr_set_item(expr, i, pmath_expr_get_item(item, 1));
     }
@@ -88,7 +90,7 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr) {
   }
   
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_CONDITIONALEXPRESSION), 2,
+           pmath_ref(pmath_System_ConditionalExpression), 2,
            expr,
            item);
            

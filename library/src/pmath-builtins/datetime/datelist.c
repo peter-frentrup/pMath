@@ -12,6 +12,8 @@
 #include <math.h>
 
 
+extern pmath_symbol_t pmath_System_TimeZone;
+
 static const unsigned int DaysIn4Years   =      366 +   3 * 365;
 static const unsigned int DaysIn100Years = 24 * 366 +  76 * 365;
 static const unsigned int DaysIn400Years = 97 * 366 + 303 * 365;
@@ -106,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_datelist(pmath_expr_t expr) {
   }
   
   if(!pmath_is_null(options)) {
-    pmath_t tz = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_TIMEZONE, options));
+    pmath_t tz = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_TimeZone, options));
     
     if(!pmath_is_number(tz)) {
       pmath_unref(tz);

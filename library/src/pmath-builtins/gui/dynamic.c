@@ -11,6 +11,8 @@
 #include <pmath-builtins/control-private.h>
 
 extern pmath_symbol_t pmath_System_Dynamic;
+extern pmath_symbol_t pmath_Internal_DynamicEvaluate;
+extern pmath_symbol_t pmath_System_TrackedSymbols;
 
 PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(pmath_expr_t expr) {
   /* Internal`DynamicEvaluate(expr, id)
@@ -93,7 +95,7 @@ static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       
-      if(pmath_same(lhs, PMATH_SYMBOL_TRACKEDSYMBOLS)) {
+      if(pmath_same(lhs, pmath_System_TrackedSymbols)) {
         pmath_t ts = pmath_expr_get_item(item, 2);
         
         pmath_unref(item);
@@ -149,14 +151,14 @@ static pmath_t replace_dynamic(
         return pmath_expr_new_extended(
                  pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), 2,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE), 2,
+                   pmath_ref(pmath_Internal_DynamicEvaluate), 2,
                    ts,
                    pmath_ref(id_obj)),
                  dyn_expr);
       }
       
       return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATE), 2,
+               pmath_ref(pmath_Internal_DynamicEvaluate), 2,
                dyn_expr,
                pmath_ref(id_obj));
     }

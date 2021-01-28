@@ -10,6 +10,7 @@
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_SynchronousUpdating;
+extern pmath_symbol_t richmath_Internal_DynamicEvaluateMultiple;
 
 
 namespace richmath {
@@ -440,7 +441,7 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
   *is_dynamic = true;
   dyn_expr = dyn_source->prepare_dynamic(std::move(dyn_expr));
   return Call(
-           Symbol(PMATH_SYMBOL_INTERNAL_DYNAMICEVALUATEMULTIPLE),
+           Symbol(richmath_Internal_DynamicEvaluateMultiple),
            std::move(dyn_expr),
            self._owner->id().to_pmath_raw());
 }
