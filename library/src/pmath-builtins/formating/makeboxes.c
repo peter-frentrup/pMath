@@ -34,6 +34,8 @@
 
 const int PMATH_PREC_INC_OUT = PMATH_PREC_RANGE + 1;
 
+extern pmath_symbol_t pmath_Developer_PackedArrayForm;
+
 extern pmath_symbol_t pmath_System_AutoDelete;
 extern pmath_symbol_t pmath_System_AutoNumberFormating;
 extern pmath_symbol_t pmath_System_BoxRotation;
@@ -3303,7 +3305,7 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, PMATH_SYMBOL_OUTPUTFORM))
         return outputform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM))
+      if(pmath_same(head, pmath_Developer_PackedArrayForm))
         return packedarrayform_to_boxes(thread, expr);
         
       if(pmath_same(head, PMATH_SYMBOL_ROW))

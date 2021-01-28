@@ -16,6 +16,7 @@
 #define APPROX_SKELETON_WIDTH  8
 
 
+extern pmath_symbol_t pmath_Developer_PackedArrayForm;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
 
 
@@ -518,7 +519,7 @@ static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pma
     *flags = 0;
   else if(pmath_same(format_type, PMATH_SYMBOL_HOLDFORM))
     *flags = 0;
-  else if(pmath_same(format_type, PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM))
+  else if(pmath_same(format_type, pmath_Developer_PackedArrayForm))
     *flags = PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
   else {
     pmath_message(PMATH_NULL, "fmtval", 1, format_type);

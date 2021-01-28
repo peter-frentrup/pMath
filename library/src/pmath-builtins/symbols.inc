@@ -28,6 +28,20 @@
     PMATH_SYMBOL_ATTRIBUTE_PROTECTED | (attrib) \
   )
   
+#define PMATH_DECLARE_DEVELOPER_SYMBOL(name, attrib) \
+  PMATH_DECLARE_SYMBOL( \
+    pmath_Developer_ ## name, \
+    "Developer`" #name, \
+    PMATH_SYMBOL_ATTRIBUTE_PROTECTED | (attrib) \
+  )
+  
+#define PMATH_DECLARE_DEVELOPER_DOLLAR_VAR(name, attrib) \
+  PMATH_DECLARE_SYMBOL( \
+    pmath_Developer_Dollar ## name, \
+    "Developer`$" #name, \
+    (attrib) \
+  )
+  
 #define PMATH_DECLARE_INTERNAL_SYMBOL(name, attrib) \
   PMATH_DECLARE_SYMBOL( \
     pmath_Internal_ ## name, \
@@ -410,6 +424,15 @@ PMATH_DECLARE_SYSTEM_DOLLAR_VAR( FrontEndSession,                READPROTECTED |
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( Line,                           0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( MachineId,                      0 )
 PMATH_DECLARE_SYSTEM_DOLLAR_VAR( SessionId,                      0 )
+
+PMATH_DECLARE_DEVELOPER_DOLLAR_VAR( SystemInformation,     0 )
+PMATH_DECLARE_DEVELOPER_SYMBOL( FromPackedArray,                 0 )
+PMATH_DECLARE_DEVELOPER_SYMBOL( GetDebugInfo,                    HOLDFIRST )
+PMATH_DECLARE_DEVELOPER_SYMBOL( HasBuiltinCode,                  HOLDFIRST )
+PMATH_DECLARE_DEVELOPER_SYMBOL( IsPackedArray,                   0 )
+PMATH_DECLARE_DEVELOPER_SYMBOL( PackedArrayForm,                 0 )
+PMATH_DECLARE_DEVELOPER_SYMBOL( SetDebugInfoAt,                  0 )
+PMATH_DECLARE_DEVELOPER_SYMBOL( ToPackedArray,                   0 )
 
 PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDirectory,              0 )
 PMATH_DECLARE_INTERNAL_SYMBOL( GetCurrentDynamicID,              0 )

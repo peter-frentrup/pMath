@@ -53,6 +53,7 @@ PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
 
 PMATH_STATIC_ASSERT(sizeof(PMATH_GC_FLAGS32(((struct _pmath_gc_t*)NULL))) == 4);
 
+extern pmath_symbol_t pmath_Developer_PackedArrayForm;
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 
@@ -2702,7 +2703,7 @@ static void write_expr_ex(
     info->options = old_options;
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_DEVELOPER_PACKEDARRAYFORM)) {
+  else if(pmath_same(head, pmath_Developer_PackedArrayForm)) {
     pmath_t item;
     int old_options = info->options;
 

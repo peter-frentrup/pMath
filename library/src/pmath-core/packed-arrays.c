@@ -29,6 +29,8 @@ static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
 #endif
 
 
+extern pmath_symbol_t pmath_Developer_PackedArrayForm;
+
 /* -------------------------------------------------------------------------- */
 
 struct _pmath_blob_t {
@@ -1478,11 +1480,11 @@ static void unpack_array_message(pmath_packed_array_t array){
   pmath_t dimensions = _pmath_dimensions(array, SIZE_MAX);
   
   if(pmath_is_symbol(caller)) {
-    pmath_message(PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY, "punpack", 2, caller, dimensions);
+    pmath_message(pmath_Developer_PackedArrayForm, "punpack", 2, caller, dimensions);
   }
   else {
     pmath_unref(caller);
-    pmath_message(PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY, "punpack1", 1, dimensions);
+    pmath_message(pmath_Developer_PackedArrayForm, "punpack1", 1, dimensions);
   }
 }
 
