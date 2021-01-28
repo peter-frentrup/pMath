@@ -8,7 +8,7 @@ Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
     BaseStyle -> "AttachedPopupWindow",
     WindowFrame -> None
 };
-FE`AttachBoxes(src: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource, ~anchor, ~boxes, opts: OptionsPattern())::= FE`CallFrontEnd(FrontEnd`AttachBoxes(src, anchor, boxes, opts))
+FE`AttachBoxes(src: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation, ~anchor, ~boxes, opts: OptionsPattern())::= FE`CallFrontEnd(FrontEnd`AttachBoxes(src, anchor, boxes, opts))
 FE`AttachBoxes(~~~args)::= $Failed /? (IsValidArgumentCount(FE`AttachBoxes, Length@{args}, 3, Infinity);False)
 
 % Clear(CreateDocument, DocumentOpen, SelectedDocument, SetSelectedDocument)
@@ -31,11 +31,11 @@ DocumentClose(arg : ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontE
 DocumentClose(~~~args) /? (IsValidArgumentCount(DocumentClose, Length@{args}, 0, 1);False) ::= $Failed 
 
 DocumentDelete()::= FE`CallFrontEnd(FrontEnd`DocumentDelete())
-DocumentDelete(arg : ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource|~:List)::= FE`CallFrontEnd(FrontEnd`DocumentDelete(arg))
+DocumentDelete(arg : ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation|~:List)::= FE`CallFrontEnd(FrontEnd`DocumentDelete(arg))
 DocumentDelete(~~~args) /? (IsValidArgumentCount(DocumentDelete, Length@{args}, 0, 1);False)::= $Failed
 
 DocumentGet()::= FE`CallFrontEnd(FrontEnd`DocumentGet())
-DocumentGet(doc: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`DocumentGet(doc))
+DocumentGet(doc: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation)::= FE`CallFrontEnd(FrontEnd`DocumentGet(doc))
 DocumentGet(~~~args) /? (IsValidArgumentCount(DocumentGet, Length@{args}, 0, 1);False)::= $Failed
 
 DocumentOpen(~filename)::= FE`CallFrontEnd(FrontEnd`DocumentOpen(filename))
@@ -54,7 +54,7 @@ SelectedDocument()::= FE`CallFrontEnd(FrontEnd`SelectedDocument())
 SelectedDocument(~~args) /? (IsValidArgumentCount(SelectedDocument, Length@{args}, 0, 0);False)::= $Failed
 
 SetSelectedDocument(doc: ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc))
-SetSelectedDocument(doc: Automatic|~:FrontEndObject|~:DocumentObject, sel: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc, sel))
+SetSelectedDocument(doc: Automatic|~:FrontEndObject|~:DocumentObject, sel: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc, sel))
 SetSelectedDocument(~~~args) /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 2);False)::= $Failed
 
 FE`SystemOpenDirectory(~dir)::=         FE`CallFrontEnd(FrontEnd`SystemOpenDirectory(dir))

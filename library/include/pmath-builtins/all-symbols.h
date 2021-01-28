@@ -415,7 +415,7 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_DATARANGE                              PMATH_SYMBOL_BUILTIN(322)
 #define PMATH_SYMBOL_ISSYMBOL                               PMATH_SYMBOL_BUILTIN(323)
 #define PMATH_SYMBOL_N                                      PMATH_SYMBOL_BUILTIN(324)
-#define PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE              PMATH_SYMBOL_BUILTIN(325)
+#define PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE               PMATH_SYMBOL_BUILTIN(325)
 #define PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO                 PMATH_SYMBOL_BUILTIN(326)
 #define PMATH_SYMBOL_DEVELOPER_SETDEBUGINFOAT               PMATH_SYMBOL_BUILTIN(327)
 #define PMATH_SYMBOL_OPENREAD                               PMATH_SYMBOL_BUILTIN(328)
@@ -664,7 +664,6 @@ pmath_bool_t pmath_register_approx_code(
 #define PMATH_SYMBOL_TAKEWHILE                              PMATH_SYMBOL_BUILTIN(571)
 #define PMATH_SYMBOL_PARENTDIRECTORY                        PMATH_SYMBOL_BUILTIN(572)
 #define PMATH_SYMBOL_CREATEDOCUMENT                         PMATH_SYMBOL_BUILTIN(573)
-#define PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE               PMATH_SYMBOL_BUILTIN(574)
 
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_H__ */

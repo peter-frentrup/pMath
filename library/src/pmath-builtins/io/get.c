@@ -18,6 +18,8 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_Language_SourceLocation;
+
 static pmath_bool_t check_path(pmath_t path) {
   size_t i;
   
@@ -110,7 +112,7 @@ static pmath_t add_debug_info(
   end_column = end->index - end->line_start_index;
   
   debug_info = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,
+                 pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->filename),
                  pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_RANGE), 2,

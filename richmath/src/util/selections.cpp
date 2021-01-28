@@ -9,6 +9,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_Language_SourceLocation;
+
 namespace {
   class VolatileSelectionImpl {
     private:
@@ -371,7 +373,7 @@ Expr SelectionReference::to_debug_info() const {
     return Expr();
   
   return Call(
-           Symbol(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE),
+           Symbol(richmath_Language_SourceLocation),
            id.to_pmath(),
            Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
 }
@@ -379,7 +381,7 @@ Expr SelectionReference::to_debug_info() const {
 SelectionReference SelectionReference::from_debug_info(Expr expr) {
   SelectionReference result;
   
-  if(expr[0] != PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE)
+  if(expr[0] != richmath_Language_SourceLocation)
     return result;
   
   if(expr.expr_length() != 2)

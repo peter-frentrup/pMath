@@ -351,13 +351,13 @@ Document({
              InterpretationBox(ComplexStringBox("\"Cannot convert ", {
                 ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, ")"}, 
                  ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(FrontEndObject(212), 2 .. 3)) &), 
+                  Language`SourceLocation(FrontEndObject(212), 2 .. 3)) &), 
                  ButtonFrame -> "Frameless")}, " to Java code.\""), 
               StringForm("Cannot convert `1` to Java code.", 
                RawBoxes(ButtonBox({"SqrtBox", "(", {
                    ComplexStringBox("\"3\"")}, ")"}, 
                  ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(FrontEndObject(212), 2 .. 3)) &), 
+                  Language`SourceLocation(FrontEndObject(212), 2 .. 3)) &), 
                  ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
          SectionGenerated -> True)}, All), 
       SectionGroup({
@@ -385,13 +385,13 @@ Document({
              InterpretationBox(ComplexStringBox("\"Cannot convert ", {
                 ButtonBox({"SuperscriptBox", "(", {ComplexStringBox("\"2\"")}, 
                   ")"}, ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(FrontEndObject(250), 1 .. 2)) &), 
+                  Language`SourceLocation(FrontEndObject(250), 1 .. 2)) &), 
                  ButtonFrame -> "Frameless")}, " to Java code.\""), 
               StringForm("Cannot convert `1` to Java code.", 
                RawBoxes(ButtonBox({"SuperscriptBox", "(", {
                    ComplexStringBox("\"2\"")}, ")"}, 
                  ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(FrontEndObject(250), 1 .. 2)) &), 
+                  Language`SourceLocation(FrontEndObject(250), 1 .. 2)) &), 
                  ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
          SectionGenerated -> True)}, All), 
       SectionGroup({

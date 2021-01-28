@@ -11,9 +11,9 @@ InspectBoxes(~boxes)::= internalInspectBoxes(boxes)
 styleDebugInfoAvailable:= {FontColor -> RGBColor(1, 0.5, 0)}
 styleString:= {FontColor -> GrayLevel(0.5)}
 
-toNiceInfo(DebugInfoSource(~file, {~l1, ~c1} .. {~l2, ~c2}))::=
+toNiceInfo(Language`SourceLocation(~file, {~l1, ~c1} .. {~l2, ~c2}))::=
 	Row({file, Colon(l1,c1)..Colon(l2,c2)}, ",")
-toNiceInfo(DebugInfoSource(~file, ~s .. ~e))::=
+toNiceInfo(Language`SourceLocation(~file, ~s .. ~e))::=
 	Row({file, s..e}, ",")
 toNiceInfo(~x)::= x
 

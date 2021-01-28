@@ -36,14 +36,14 @@ Document({
               ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, ")"}, 
                ButtonFunction -> (
                  SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(
+                  Language`SourceLocation(
                    FrontEndObject(2618097393662643470, 60), 2 .. 3)) &), 
                ButtonFrame -> "Frameless")}, " to Java code.\""), 
             StringForm("Cannot convert `1` to Java code.", 
              RawBoxes(ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, 
                 ")"}, ButtonFunction -> (
                  SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(
+                  Language`SourceLocation(
                    FrontEndObject(2618097393662643470, 60), 2 .. 3)) &), 
                ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
        SectionGenerated -> True)}, All), 
@@ -73,7 +73,7 @@ Document({
               ButtonBox({"SuperscriptBox", "(", {ComplexStringBox("\"2\"")}, 
                 ")"}, ButtonFunction -> (
                  SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(
+                  Language`SourceLocation(
                    FrontEndObject(2618097393662643470, 110), 1 .. 2)) &), 
                ButtonFrame -> "Frameless")}, " to Java code.\""), 
             StringForm("Cannot convert `1` to Java code.", 
@@ -81,7 +81,7 @@ Document({
                  ComplexStringBox("\"2\"")}, ")"}, 
                ButtonFunction -> (
                  SetSelectedDocument(Automatic, 
-                  Developer`DebugInfoSource(
+                  Language`SourceLocation(
                    FrontEndObject(2618097393662643470, 110), 1 .. 2)) &), 
                ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
        SectionGenerated -> True)}, All), 

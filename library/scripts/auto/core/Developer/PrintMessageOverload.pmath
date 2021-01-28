@@ -54,14 +54,14 @@ Function stackEntryForm(OptionsPattern()) {
 	}
 }
 
-Unprotect(DebugInfoSource)
-Format(~di:DebugInfoSource)::= With({fmt:= DescribeLocation(di)}, fmt /? fmt =!= $Failed )
-Protect(DebugInfoSource)
+Unprotect(Language`SourceLocation)
+Format(~di:Language`SourceLocation)::= With({fmt:= DescribeLocation(di)}, fmt /? fmt =!= $Failed )
+Protect(Language`SourceLocation)
 
 
 DescribeLocation(~expr)::= $Failed
 Function DescribeLocation(
-	DebugInfoSource(
+	Language`SourceLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {

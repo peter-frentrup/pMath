@@ -226,7 +226,7 @@
 		<DisplayString Condition="items[0].as_bits == pmath.dll!_pmath_Range_symbol[0].as_bits &amp;&amp; length == 2">{items[1]} .. {items[2]}</DisplayString>
 		<DisplayString Condition="items[0].as_bits == pmath.dll!_pmath_Rule_symbol[0].as_bits &amp;&amp; length == 2">{items[1]} -&gt; {items[2]}</DisplayString>
 		<DisplayString Condition="items[0].as_bits == pmath.dll!_pmath_RuleDelayed_symbol[0].as_bits &amp;&amp; length == 2">{items[1]} :&gt; {items[2]}</DisplayString>
-		<DisplayString Condition="items[0].as_bits == pmath.dll!_pmath_DebugInfoSource_symbol[0].as_bits &amp;&amp; length == 2">at {items[2]} in {items[1]}</DisplayString>
+		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_Language_SourceLocation.as_bits &amp;&amp; length == 2">at {items[2]} in {items[1]}</DisplayString>
 		<DisplayString Condition="length==0">{items[0]}()</DisplayString>
 		<DisplayString>{items[0]}(&lt;&lt;{length,d}&gt;&gt;)</DisplayString>
 		<Expand HideRawView="true">

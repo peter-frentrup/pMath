@@ -962,7 +962,6 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   
   VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
   
-  VERIFY(   PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE     = NEW_SYMBOL("Developer`DebugInfoSource"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_FROMPACKEDARRAY     = NEW_SYMBOL("Developer`FromPackedArray"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_GETDEBUGINFO        = NEW_SYMBOL("Developer`GetDebugInfo"))
   VERIFY(   PMATH_SYMBOL_DEVELOPER_HASBUILTINCODE      = NEW_SYMBOL("Developer`HasBuiltinCode"))

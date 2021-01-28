@@ -50,7 +50,7 @@ static CRITICAL_SECTION  debuglog_critical_section;
 static FILE *debuglog = NULL;
 
 static pmath_bool_t debugging_output = TRUE;
-
+extern pmath_symbol_t pmath_Language_SourceLocation;
 
 /* Redirect pmath_debug_print_object(...) and pmath_debug_print_stack(...) to OutputDebugString().
   Settable in WinDbg with
@@ -542,7 +542,7 @@ static pmath_bool_t stack_walker(pmath_t head, pmath_t debug_info, void *p) {
   pmath_debug_print_object("\n  in ", head, "");
   
   if(!pmath_is_null(debug_info)) {
-    if(pmath_is_expr_of_len(debug_info, PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE, 2)) {
+    if(pmath_is_expr_of_len(debug_info, pmath_Language_SourceLocation, 2)) {
       pmath_t file = pmath_expr_get_item(debug_info, 1);
       pmath_t pos = pmath_expr_get_item(debug_info, 2);
       
@@ -583,8 +583,6 @@ void pmath_debug_print_debug_info(
 /* The following variables are used by the debugger visualizer (pmath.natvis) only.
  */
 
-PMATH_PRIVATE
-pmath_symbol_t *_pmath_DebugInfoSource_symbol = &PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE;
 PMATH_PRIVATE
 pmath_symbol_t *_pmath_List_symbol = &PMATH_SYMBOL_LIST;
 PMATH_PRIVATE

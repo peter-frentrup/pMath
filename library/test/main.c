@@ -14,8 +14,9 @@
 
 static void os_init(void);
 
-static pmath_symbol_t pmath_System_BoxData = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_Section = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_Language_SourceLocation = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_BoxData          = PMATH_STATIC_NULL;
+static pmath_symbol_t pmath_System_Section          = PMATH_STATIC_NULL;
 
 #ifdef PMATH_OS_WIN32
 #  include <io.h>
@@ -380,7 +381,7 @@ static pmath_t add_debug_info(
   end_column = end->index - end->line_start_index;
   
   debug_info = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,
+                 pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->filename),
                  pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_RANGE), 2,
@@ -781,10 +782,12 @@ static void init_console_width(void) {
 }
 
 static pmath_bool_t init_pmath_bindings() {
-  pmath_System_BoxData = pmath_symbol_get(PMATH_C_STRING("System`BoxData"), FALSE);
-  pmath_System_Section = pmath_symbol_get(PMATH_C_STRING("System`Section"), FALSE);
+  pmath_Language_SourceLocation = pmath_symbol_get(PMATH_C_STRING("Language`SourceLocation"), FALSE);
+  pmath_System_BoxData          = pmath_symbol_get(PMATH_C_STRING("System`BoxData"),          FALSE);
+  pmath_System_Section          = pmath_symbol_get(PMATH_C_STRING("System`Section"),          FALSE);
   
-  return !pmath_is_null(pmath_System_BoxData) &&
+  return !pmath_is_null(pmath_Language_SourceLocation) &&
+         !pmath_is_null(pmath_System_BoxData) &&
          !pmath_is_null(pmath_System_Section) &&
          pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
          pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) &&
@@ -794,8 +797,9 @@ static pmath_bool_t init_pmath_bindings() {
 
 static void done_pmath_bindings(void) {
   // FIXME: race condition when another thread still runs
-  pmath_unref(pmath_System_BoxData); pmath_System_BoxData = PMATH_NULL;
-  pmath_unref(pmath_System_Section); pmath_System_Section = PMATH_NULL;
+  pmath_unref(pmath_Language_SourceLocation); pmath_Language_SourceLocation = PMATH_NULL;
+  pmath_unref(pmath_System_BoxData);          pmath_System_BoxData          = PMATH_NULL;
+  pmath_unref(pmath_System_Section);          pmath_System_Section          = PMATH_NULL;
 }
 
 int main(int argc, const char **argv) {

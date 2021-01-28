@@ -11,6 +11,8 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_Language_SourceLocation;
+
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
   pmath_bool_t *have_critical = flag;
   
@@ -52,7 +54,7 @@ static pmath_t add_string_debug_info(
   }
   
   debug_info = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_DEVELOPER_DEBUGINFOSOURCE), 2,
+                 pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->debug_source),
                  pmath_expr_new_extended(
                    pmath_ref(PMATH_SYMBOL_RANGE), 2,

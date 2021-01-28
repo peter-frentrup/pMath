@@ -17,7 +17,7 @@ Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
 }
 
 DebugInfoOpenerFunction(~)::= None
-Function DebugInfoOpenerFunction(DebugInfoSource(~path, {~l1, ~c1} .. {~l2, ~c2})) {
+Function DebugInfoOpenerFunction(Language`SourceLocation(~path, {~l1, ~c1} .. {~l2, ~c2})) {
 	If(FileInformation(path) =!= {}) {
 		Return(OpenTextFile(path, Line->l1, Column->c1) &)
 	}

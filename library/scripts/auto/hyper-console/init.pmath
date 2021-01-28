@@ -20,7 +20,7 @@ Attributes($DescribeLocationOverload):= {ThreadLocal}
 $DescribeLocationOverload:= True
 
 Function Developer`DescribeLocation(
-	src: Developer`DebugInfoSource(
+	src: Language`SourceLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) Where($DescribeLocationOverload) {

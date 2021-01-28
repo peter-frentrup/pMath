@@ -571,7 +571,7 @@ class ExprFormatting:
     
     @staticmethod
     def debug_source_info_to_pair(src):
-        if src.is_expr_of('Developer`DebugInfoSource', 2):
+        if src.is_expr_of('Language`SourceLocation', 2):
             name = src.get_expr_item(1)
             pos  = src.get_expr_item(2)
             
