@@ -57,6 +57,10 @@ SetSelectedDocument(doc: ~:FrontEndObject|~:DocumentObject)::= FE`CallFrontEnd(F
 SetSelectedDocument(doc: Automatic|~:FrontEndObject|~:DocumentObject, sel: ~:FrontEndObject|~:DocumentObject|~:Developer`DebugInfoSource)::= FE`CallFrontEnd(FrontEnd`SetSelectedDocument(doc, sel))
 SetSelectedDocument(~~~args) /? (IsValidArgumentCount(SetSelectedDocument, Length@{args}, 1, 2);False)::= $Failed
 
+FE`SystemOpenDirectory(~dir)::=         FE`CallFrontEnd(FrontEnd`SystemOpenDirectory(dir))
+FE`SystemOpenDirectory(~dir, ~items)::= FE`CallFrontEnd(FrontEnd`SystemOpenDirectory(dir, items))
+FE`SystemOpenDirectory(~~~args) /? (IsValidArgumentCount(FE`SystemOpenDirectory, Length@{args}, 1, 2);False)::= $Failed
+
 
 End()
 

@@ -466,12 +466,29 @@ Document({
                  ",", #2}, ")"} &)})}, All), 
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("Hyperlink"), 
+           ButtonBoxOptions -> {ButtonFrame -> "Frameless"}, 
+           FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
                StyleBox(ComplexStringBox({"\"", #1, "\""}), 
-                FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
                 ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
-          Section(StyleData("ShowMoreDocumentationHyperlink"), 
+          Section(StyleData("HyperlinkActive"), BaseStyle -> "Hyperlink", 
+           FontColor -> RGBColor(0.80000000000000004`, 0.502`, 
+             0.10199999999999999`)), Section(StyleData("DirectoryHyperlink"), 
+           TemplateBoxOptions :> {
+             DisplayFunction -> (
+               StyleBox(ButtonBox(ComplexStringBox({"\"", #1, "\""}), 
+                 ButtonFunction -> (Apply(#2, FE`SystemOpenDirectory) &), 
+                 ButtonData -> Dynamic({CurrentValue({TemplateSlot, 2}), 
+                    Replace(CurrentValue({TemplateSlot, 3}), 
+                     $Failed -> Nothing)})), 
+                BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
+                   "HyperlinkActive", "Hyperlink")), 
+                ShowStringCharacters -> False, ShowAutoStyles -> False) &), 
+             Tooltip -> ComplexStringBox({
+                "\"Browse to ", 
+                DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 2}))), 
+                "\""})}), Section(StyleData("ShowMoreDocumentationHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
                StyleBox(ButtonBox("\" \[RightGuillemet] \"", 
@@ -489,6 +506,7 @@ Document({
                 ShowAutoStyles -> False) &), 
              Tooltip -> "\"Open reference page\""}), 
           Section(StyleData("StylesheetHyperlink"), 
+           FontColor -> RGBColor(0, 0, 0.502`), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
                DynamicBox(
@@ -502,7 +520,8 @@ Document({
                   TooltipBox(StyleBox(ButtonBox(ToBoxes(FE`Private`content), 
                      ButtonFrame -> "Frameless", 
                      ButtonFunction -> (DocumentOpen(FE`Private`path) &)), 
-                    FontColor -> RGBColor(0, 0, 0.5`)), 
+                    BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
+                       "HyperlinkActive", "StylesheetHyperlink"))), 
                    ToBoxes(FE`Private`path))))) &)})}, All), 
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 

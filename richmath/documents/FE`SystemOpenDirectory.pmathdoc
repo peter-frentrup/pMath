@@ -1,0 +1,327 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("FE`SystemOpenDirectory", "Title"), 
+    Section("Links to open successive directories in a path name:", "Text"), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {{{{{"$ApplicationFileName", ".", "FileNameSplit"}, ".", "FoldList", 
+             "(", {
+              {"\n", {"Function", "(", {
+                 "{", {{{"#", "2"}, ".", "StringReplace", "(", {
+                    {"$PathnameSeparator", "++", "EndOfString"}, "\[Rule]", 
+                    ComplexStringBox("\"\"")}, ")"}, ",", {
+                   "ToFileName", "(", {{"#", "[", "2", "]"}, ",", {"#", "2"}}, 
+                   ")"}}, "}"}, ")"}}, ",", {
+               {"{", {ComplexStringBox("\"\""), ",", 
+                 ComplexStringBox("\"\"")}, "}"}, "\n"}}, ")"}, ".", "Rest"}, 
+           ".", "Map", "(", {
+            "\n", {
+             {"Function", "(", {"With", "(", {
+                {"{", {"dir", "\[Assign]", {"#", "[", "2", "]"}}, "}"}, ",", {
+                 {"Button", "(", {{"#", "[", "1", "]"}, ",", {
+                    "ButtonFunction", "\[Rule]", {
+                     "Function", "(", {"FE`SystemOpenDirectory", "(", "dir", 
+                      ")"}, ")"}}, ",", {"ButtonFrame", "\[Rule]", 
+                    ComplexStringBox("\"Frameless\"")}}, ")"}, ".", "Tooltip", 
+                 "(", {"StringForm", "(", {
+                   ComplexStringBox("\"Browse to `1`\""), ",", "dir"}, ")"}, 
+                 ")"}}, ")"}, ")"}, "\n"}}, ")"}, ".", "Row", "(", {
+           "$PathnameSeparator", "\n"}, ")"}, ".", "Style", "(", {
+          "AutoSpacing", "\[Rule]", "False"}, ")"}), "Input"), 
+      Section(
+       BoxData(
+        StyleBox(TemplateBox({
+           "\\", "\\", TooltipBox(ButtonBox(ComplexStringBox("\"C:\""), 
+             ButtonFunction -> (FE`SystemOpenDirectory("C:\\") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox("\"C:\\\\\"")}, "\""), 
+             StringForm("Browse to `1`", "C:\\"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"Users\""), 
+             ButtonFunction -> (FE`SystemOpenDirectory("C:\\Users") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox("\"C:\\\\Users\"")}, "\""), 
+             StringForm("Browse to `1`", "C:\\Users"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"Peter\""), 
+             ButtonFunction -> (FE`SystemOpenDirectory("C:\\Users\\Peter") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox("\"C:\\\\Users\\\\Peter\"")}, "\""), 
+             StringForm("Browse to `1`", "C:\\Users\\Peter"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"Documents\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory("C:\\Users\\Peter\\Documents") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox("\"C:\\\\Users\\\\Peter\\\\Documents\"")}, 
+              "\""), StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"Programmieren\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\"")}, 
+              "\""), StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"pmath\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \"")}, "\""), StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"richmath\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath") &), ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\richmath\"")}, "\""), StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath"))), TooltipBox(ButtonBox(ComplexStringBox("\"bin\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
+                bin") &), ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\richmath\\\\bin\"")}, "\""), 
+             StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
+              n"))), TooltipBox(ButtonBox(ComplexStringBox("\"windows\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
+                bin\\windows") &), ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\richmath\\\\bin\\\\windows\"")}, "\""), 
+             StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
+              n\\windows"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"gcc-debug-x86\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
+                bin\\windows\\gcc-debug-x86") &), ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\richmath\\\\bin\\\\windows\\\\gcc-debug-x86\"")}, "\""), 
+             StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
+              n\\windows\\gcc-debug-x86"))), 
+           TooltipBox(ButtonBox(ComplexStringBox("\"richmath.exe\""), 
+             ButtonFunction -> (
+               FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
+                bin\\windows\\gcc-debug-x86\\richmath.exe") &), 
+             ButtonFrame -> "Frameless"), 
+            InterpretationBox(ComplexStringBox("\"Browse to ", {
+               ComplexStringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\richmath\\\\bin\\\\windows\\\\gcc-debug-x86\\\\richmath.ex\
+                e\"")}, "\""), StringForm("Browse to `1`", 
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
+              n\\windows\\gcc-debug-x86\\richmath.exe")))}, 
+          "RowWithSeparators"), AutoSpacing -> False, StripOnInput -> False)), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [27]:")}, 
+     All), Section("Using the \"DirectoryHyperlink\" template", "Text"), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {{{{{"$ApplicationFileName", ".", "FileNameSplit"}, ".", "FoldList", 
+             "(", {
+              {"\n", {"Function", "(", {
+                 "{", {{{"#", "2"}, ".", "StringReplace", "(", {
+                    {"$PathnameSeparator", "++", "EndOfString"}, "\[Rule]", 
+                    ComplexStringBox("\"\"")}, ")"}, ",", {
+                   "ToFileName", "(", {{"#", "[", "2", "]"}, ",", {"#", "2"}}, 
+                   ")"}}, "}"}, ")"}}, ",", {
+               {"{", {ComplexStringBox("\"\""), ",", 
+                 ComplexStringBox("\"\"")}, "}"}, "\n"}}, ")"}, ".", "Rest"}, 
+           ".", "Map", "(", {
+            "\n", {
+             {"Function", "(", {"RawBoxes", "@", {
+                "TemplateBox", "(", {
+                 "#", ",", ComplexStringBox("\"DirectoryHyperlink\"")}, ")"}}, 
+              ")"}, "\n"}}, ")"}, ".", "Row", "(", {
+           "$PathnameSeparator", "\n"}, ")"}, ".", "Style", "(", {
+          "AutoSpacing", "\[Rule]", "False"}, ")"}), "Input"), 
+      Section(
+       BoxData(
+        StyleBox(TemplateBox({
+           "\\", "\\", TemplateBox({"C:", "C:\\"}, "DirectoryHyperlink"), 
+           TemplateBox({"Users", "C:\\Users"}, "DirectoryHyperlink"), 
+           TemplateBox({"Peter", "C:\\Users\\Peter"}, "DirectoryHyperlink"), 
+           TemplateBox({"Documents", "C:\\Users\\Peter\\Documents"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"Programmieren", 
+             "C:\\Users\\Peter\\Documents\\Programmieren"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({
+             "pmath", "C:\\Users\\Peter\\Documents\\Programmieren\\pmath"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"richmath", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({
+             "bin", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             "}, "DirectoryHyperlink"), 
+           TemplateBox({
+             "windows", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows"}, "DirectoryHyperlink"), 
+           TemplateBox({"gcc-debug-x86", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows\\gcc-debug-x86"}, "DirectoryHyperlink"), 
+           TemplateBox({"richmath.exe", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows\\gcc-debug-x86\\richmath.exe"}, "DirectoryHyperlink")}, 
+          "RowWithSeparators"), AutoSpacing -> False, StripOnInput -> False)), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [26]:")}, 
+     All), SectionGroup({
+      Section(
+       BoxData({
+         {{{"With", "(", {
+             {"{", {"p", "\[Assign]", {"$ApplicationFileName", ".", 
+                "FileNameSplit"}}, "}"}, ",", {
+              "Transpose", "(", {
+               "{", {{{"Most", "(", "p", ")"}, ".", "StringReplace", "(", {
+                  {"$PathnameSeparator", "++", "EndOfString"}, "\[Rule]", 
+                  ComplexStringBox("\"\"")}, ")"}, ",", {
+                 {"p", ".", "FoldList", "(", {
+                   "ToFileName", ",", ComplexStringBox("\"\"")}, ")"}, "[", {
+                  "2", "..", {"-", "2"}}, "]"}, ",", {"Rest", "(", "p", ")"}}, 
+               "}"}, ")"}}, ")"}, ".", "Map", "(", {
+            "\n", {
+             {"Function", "(", {"RawBoxes", "@", {
+                "TemplateBox", "(", {
+                 {"{", {{"#", "[", "1", "]"}, ",", {"#", "[", "2", "]"}, ",", {
+                    "{", {"#", "[", "3", "]"}, "}"}}, "}"}, ",", 
+                 ComplexStringBox("\"DirectoryHyperlink\"")}, ")"}}, ")"}, 
+             "\n"}}, ")"}, ".", "Row", "(", {"$PathnameSeparator", "\n"}, 
+          ")"}, ".", "Style", "(", {"AutoSpacing", "\[Rule]", "False"}, ")"}), 
+       "Input", SectionLabel -> "in [26]:"), 
+      Section(
+       BoxData({{"Developer`FromPackedArray", "::", 
+          ComplexStringBox("\"punpack\"")}, "\[Colon]", 
+         TemplateBox({
+           InterpretationBox(ComplexStringBox(
+             "\"Unpacking array with dimensions ", {{"{", {"2"}, "}"}}, 
+             " in call to ", {"Part"}, ".\""), 
+            StringForm("Unpacking array with dimensions `2` in call to `1`.", 
+             Part, {2}))}, "RowDefault")}), "Message", 
+       SectionGenerated -> True), 
+      Section(
+       BoxData(
+        StyleBox(TemplateBox({
+           "\\", "\\", TemplateBox({"C:", "C:\\", {"Users"}}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"Users", "C:\\Users", {"Peter"}}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"Peter", "C:\\Users\\Peter", {"Documents"}}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"Documents", "C:\\Users\\Peter\\Documents", {
+              "Programmieren"}}, "DirectoryHyperlink"), 
+           TemplateBox({"Programmieren", 
+             "C:\\Users\\Peter\\Documents\\Programmieren", {"pmath"}}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({
+             "pmath", "C:\\Users\\Peter\\Documents\\Programmieren\\pmath", {
+              "richmath"}}, "DirectoryHyperlink"), 
+           TemplateBox({"richmath", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath", {
+              "bin"}}, "DirectoryHyperlink"), 
+           TemplateBox({
+             "bin", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             ", {"windows"}}, "DirectoryHyperlink"), 
+           TemplateBox({
+             "windows", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows", {"msvc-release-x64"}}, "DirectoryHyperlink"), 
+           TemplateBox({"msvc-release-x64", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows\\msvc-release-x64", {"richmath.exe"}}, 
+            "DirectoryHyperlink")}, "RowWithSeparators"), 
+         AutoSpacing -> False, StripOnInput -> False)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [26]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {{{"With", "(", {
+             {"{", {"p", "\[Assign]", {"$ApplicationFileName", ".", 
+                "FileNameSplit"}}, "}"}, ",", {
+              "Transpose", "(", {
+               "{", {{{"Most", "(", "p", ")"}, ".", "StringReplace", "(", {
+                  {"$PathnameSeparator", "++", "EndOfString"}, "\[Rule]", 
+                  ComplexStringBox("\"\"")}, ")"}, ",", {
+                 {"FoldList", "(", {"p", ",", "ToFileName", ",", 
+                   ComplexStringBox("\"\"")}, ")"}, "[", {"3", ".."}, "]"}}, 
+               "}"}, ")"}}, ")"}, ".", "Map", "(", {
+            "\n", {
+             {"Function", "(", {"RawBoxes", "@", {
+                "TemplateBox", "(", {
+                 "#", ",", ComplexStringBox("\"DirectoryHyperlink\"")}, ")"}}, 
+              ")"}, "\n"}}, ")"}, ".", "Row", "(", {
+           "$PathnameSeparator", "\n"}, ")"}, ".", "Style", "(", {
+          "AutoSpacing", "\[Rule]", "False"}, ")"}), "Input", 
+       SectionLabel -> "in [18]:"), 
+      Section(
+       BoxData({{"Developer`FromPackedArray", "::", 
+          ComplexStringBox("\"punpack\"")}, "\[Colon]", 
+         TemplateBox({
+           InterpretationBox(ComplexStringBox(
+             "\"Unpacking array with dimensions ", {{"{", {"2"}, "}"}}, 
+             " in call to ", {"Part"}, ".\""), 
+            StringForm("Unpacking array with dimensions `2` in call to `1`.", 
+             Part, {2}))}, "RowDefault")}), "Message", 
+       SectionGenerated -> True), 
+      Section(
+       BoxData(
+        StyleBox(TemplateBox({
+           "\\", "\\", TemplateBox({"C:", "C:\\Users"}, "DirectoryHyperlink"), 
+           TemplateBox({"Users", "C:\\Users\\Peter"}, "DirectoryHyperlink"), 
+           TemplateBox({"Peter", "C:\\Users\\Peter\\Documents"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"Documents", 
+             "C:\\Users\\Peter\\Documents\\Programmieren"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"Programmieren", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({
+             "pmath", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath"}, 
+            "DirectoryHyperlink"), 
+           TemplateBox({"richmath", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             "}, "DirectoryHyperlink"), 
+           TemplateBox({
+             "bin", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows"}, "DirectoryHyperlink"), 
+           TemplateBox({
+             "windows", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows\\msvc-release-x64"}, "DirectoryHyperlink"), 
+           TemplateBox({"msvc-release-x64", 
+             "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bin\
+             \\windows\\msvc-release-x64\\richmath.exe"}, 
+            "DirectoryHyperlink")}, "RowWithSeparators"), 
+         AutoSpacing -> False, StripOnInput -> False)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [18]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
