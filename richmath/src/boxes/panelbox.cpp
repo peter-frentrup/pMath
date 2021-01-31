@@ -7,8 +7,6 @@
 
 using namespace richmath;
 
-extern pmath_symbol_t richmath_System_PanelBox;
-
 namespace richmath { namespace strings {
   extern String AddressBand;
   extern String Framed;
@@ -19,6 +17,10 @@ namespace richmath { namespace strings {
   extern String TabHead;
   extern String Tooltip;
 }}
+
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_PanelBox;
 
 static ContainerType parse_panel_appearance(Expr expr);
 
@@ -166,10 +168,10 @@ static ContainerType parse_panel_appearance(Expr expr) {
     return PanelControl;
   }
   
-  if(expr == PMATH_SYMBOL_NONE)
+  if(expr == richmath_System_None)
     return NoContainerType;
     
-  if(expr == PMATH_SYMBOL_AUTOMATIC)
+  if(expr == richmath_System_Automatic)
     return PanelControl;
   
   return PanelControl;

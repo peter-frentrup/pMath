@@ -4,6 +4,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_BitNot;
+
 pmath_t builtin_bitxor(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);
   size_t i, j;
@@ -67,7 +69,7 @@ pmath_t builtin_bitxor(pmath_expr_t expr) {
           expr = pmath_expr_set_item(expr, i, PMATH_UNDEFINED);
           expr = _pmath_expr_shrink_associative(expr, PMATH_UNDEFINED);
           expr = pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_BITNOT), 1,
+                   pmath_ref(pmath_System_BitNot), 1,
                    expr);
           return expr;
         }

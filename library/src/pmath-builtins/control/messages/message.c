@@ -9,13 +9,26 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
-static const int max_message_count = 3;
 
+extern pmath_symbol_t pmath_System_DollarMessageCount;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_Message;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Off;
+extern pmath_symbol_t pmath_System_On;
+extern pmath_symbol_t pmath_System_Row;
+extern pmath_symbol_t pmath_System_SectionPrint;
+extern pmath_symbol_t pmath_System_StringForm;
+extern pmath_symbol_t pmath_Internal_CriticalMessageTag;
+
+static const int max_message_count = 3;
 
 PMATH_PRIVATE pmath_bool_t _pmath_message_is_default_off(pmath_t msg) {
 //  return pmath_equals(msg, _pmath_object_newsym_message);
-  if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
+  if(!pmath_is_expr_of_len(msg, pmath_System_MessageName, 2))
     return FALSE;
     
   return pmath_equals(msg, _pmath_object_loadlibrary_load_message) ||
@@ -30,12 +43,12 @@ static pmath_bool_t is_known_on_off(pmath_thread_t thread, pmath_t msg, pmath_bo
   val = _pmath_thread_local_load_with(msg, thread);
   pmath_unref(val);
   
-  if(pmath_same(val, PMATH_SYMBOL_ON)) {
+  if(pmath_same(val, pmath_System_On)) {
     *is_on = TRUE;
     return TRUE;
   }
   
-  if( pmath_same(val, PMATH_SYMBOL_OFF) ||
+  if( pmath_same(val, pmath_System_Off) ||
       _pmath_message_is_default_off(msg))
   {
     *is_on = FALSE;
@@ -55,7 +68,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg) {
   if(is_known_on_off(thread, msg, &result))
     return result;
     
-  if(!pmath_is_expr_of_len(msg, PMATH_SYMBOL_MESSAGENAME, 2))
+  if(!pmath_is_expr_of_len(msg, pmath_System_MessageName, 2))
     return TRUE;
     
   tmp = pmath_expr_set_item(pmath_ref(msg), 2, PMATH_NULL);
@@ -65,7 +78,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_message_is_on(pmath_t msg) {
   }
   pmath_unref(tmp);
   
-  tmp = pmath_expr_set_item(pmath_ref(msg), 1, pmath_ref(PMATH_SYMBOL_GENERAL));
+  tmp = pmath_expr_set_item(pmath_ref(msg), 1, pmath_ref(pmath_System_General));
   if(is_known_on_off(thread, tmp, &result)) {
     pmath_unref(tmp);
     return result;
@@ -107,9 +120,9 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
     thread->current_dynamic_id = 0;
     count = pmath_evaluate(
                       pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
+                        pmath_ref(pmath_System_Increment), 1,
                         pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_MESSAGECOUNT), 1,
+                          pmath_ref(pmath_System_DollarMessageCount), 1,
                           pmath_ref(name))));
     thread->current_dynamic_id = old_dynamic_id;
 
@@ -132,7 +145,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   if(thread->critical_messages) {
     pmath_t throw_tag = pmath_evaluate(
                           pmath_expr_new_extended(
-                            pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG), 1,
+                            pmath_ref(pmath_Internal_CriticalMessageTag), 1,
                             pmath_ref(name)));
     
     if(!pmath_is_null(throw_tag)) {
@@ -155,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   
 //  pmath_emit(
 //    pmath_expr_new_extended(
-//      pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
+//      pmath_ref(pmath_System_HoldForm), 1,
 //      pmath_ref(name)),
 //    PMATH_NULL);
 //
@@ -164,7 +177,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   if(!pmath_is_null(text)) {
     expr = pmath_expr_set_item(
              expr, 0,
-             pmath_ref(PMATH_SYMBOL_STRINGFORM));
+             pmath_ref(pmath_System_StringForm));
              
     expr = pmath_expr_set_item(expr, 1, text);
     
@@ -190,17 +203,17 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   
   expr = pmath_gather_end();
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_ROW), 1,
+           pmath_ref(pmath_System_Row), 1,
            expr);
   expr = pmath_expr_new_extended(
            pmath_ref(pmath_System_Colon), 2,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
+             pmath_ref(pmath_System_HoldForm), 1,
              pmath_ref(name)),
            expr);
            
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_SECTIONPRINT), 2,
+           pmath_ref(pmath_System_SectionPrint), 2,
            PMATH_C_STRING("Message"),
            expr);
            
@@ -208,10 +221,10 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
     pmath_unref(pmath_evaluate(expr));
     
     expr = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_MESSAGE), 2,
+             pmath_ref(pmath_System_Message), 2,
              pmath_ref(_pmath_object_stop_message),
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
+               pmath_ref(pmath_System_HoldForm), 1,
                name));
                
     name = PMATH_NULL;

@@ -25,6 +25,8 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_LoadLibrary;
+
 // initialized in pmath_init():
 PMATH_PRIVATE pmath_t _pmath_object_loadlibrary_load_message;
 PMATH_PRIVATE pmath_t _pmath_object_get_load_message;
@@ -111,7 +113,7 @@ static void load_callback(void *data) {
     return;
   }
 
-  pmath_message(PMATH_SYMBOL_LOADLIBRARY, "load", 1, pmath_ref(info->filename));
+  pmath_message(pmath_System_LoadLibrary, "load", 1, pmath_ref(info->filename));
 
   if(!pmath_aborting()) {
 #ifdef PMATH_OS_WIN32

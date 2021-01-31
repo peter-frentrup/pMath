@@ -17,11 +17,18 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_DollarMaxExtraPrecision;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_MachinePrecision;
+extern pmath_symbol_t pmath_System_SetPrecision;
+extern pmath_symbol_t pmath_System_TagAssignDelayed;
+
 PMATH_PRIVATE pmath_bool_t _pmath_to_precision(
   pmath_t  obj, // wont be freed
   double  *result
 ) {
-  if(pmath_same(obj, PMATH_SYMBOL_MACHINEPRECISION)) {
+  if(pmath_same(obj, pmath_System_MachinePrecision)) {
     *result = -HUGE_VAL;
     return TRUE;
   }
@@ -84,7 +91,7 @@ static pmath_bool_t check_convert_to_precision(pmath_t obj, double *result) { //
 
 PMATH_PRIVATE pmath_t _pmath_from_precision(double prec_bits) {
   if(prec_bits == -HUGE_VAL)
-    return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
+    return pmath_ref(pmath_System_MachinePrecision);
     
   if(prec_bits == HUGE_VAL)
     return pmath_ref(_pmath_object_pos_infinity);
@@ -93,7 +100,7 @@ PMATH_PRIVATE pmath_t _pmath_from_precision(double prec_bits) {
   if(isfinite(prec_bits))
     return PMATH_FROM_DOUBLE(prec_bits);
     
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 PMATH_PRIVATE
@@ -111,7 +118,7 @@ pmath_t builtin_precision(pmath_expr_t expr) {
     return PMATH_FROM_DOUBLE(prec * LOG10_2);
     
   if(prec < 0)
-    return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
+    return pmath_ref(pmath_System_MachinePrecision);
     
   return pmath_ref(_pmath_object_pos_infinity);
 }
@@ -150,7 +157,7 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(pmath_is_expr_of(lhs, PMATH_SYMBOL_SETPRECISION)) {
+  if(pmath_is_expr_of(lhs, pmath_System_SetPrecision)) {
     if(pmath_expr_length(lhs) != 2) {
       pmath_unref(tag);
       pmath_unref(lhs);
@@ -176,7 +183,7 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -189,7 +196,7 @@ PMATH_PRIVATE pmath_t builtin_assign_setprecision(pmath_expr_t expr) {
   if(!rules) {
     pmath_unref(lhs);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   _pmath_rulecache_change(&rules->approx_rules, lhs, rhs);
@@ -294,7 +301,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_same(lhs, PMATH_SYMBOL_MAXEXTRAPRECISION)) {
+  if(!pmath_same(lhs, pmath_System_DollarMaxExtraPrecision)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -309,7 +316,7 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
     pmath_unref(expr);
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
+             pmath_ref(pmath_System_AssignDelayed), 2,
              lhs,
              PMATH_FROM_INT32(50));
   }
@@ -336,18 +343,18 @@ pmath_t builtin_assign_maxextraprecision(pmath_expr_t expr) {
     }
   }
   
-  pmath_message(PMATH_SYMBOL_MAXEXTRAPRECISION, "meprecset", 1, rhs);
+  pmath_message(pmath_System_DollarMaxExtraPrecision, "meprecset", 1, rhs);
   pmath_unref(tag);
   pmath_unref(lhs);
   
   lhs = pmath_expr_get_item(expr, 0);
   pmath_unref(lhs);
   pmath_unref(expr);
-  if( pmath_same(lhs, PMATH_SYMBOL_ASSIGNDELAYED) ||
-      pmath_same(lhs, PMATH_SYMBOL_TAGASSIGNDELAYED))
+  if( pmath_same(lhs, pmath_System_AssignDelayed) ||
+      pmath_same(lhs, pmath_System_TagAssignDelayed))
   {
     return PMATH_NULL;
   }
   
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }

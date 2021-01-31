@@ -23,6 +23,7 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_List;
 
 pmath_threadlock_t read_lock = NULL;
 
@@ -162,7 +163,7 @@ static char **try_convert_matches(pmath_t list, const char *text, int prefix_len
   
   assert(prefix_len >= 0);
   
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(list, pmath_System_List))
     return NULL;
     
   if(pmath_expr_length(list) == 0)
@@ -234,7 +235,7 @@ static pmath_expr_t get_all_char_names(void) {
     
     nc_data = pmath_get_char_names(&nc_count);
     
-    all_char_names = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), nc_count);
+    all_char_names = pmath_expr_new(pmath_ref(pmath_System_List), nc_count);
     
     for(i = 0; i < nc_count; ++i) {
       all_char_names = pmath_expr_set_item(

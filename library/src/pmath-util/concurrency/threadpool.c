@@ -72,6 +72,8 @@ struct _pmath_task_t {
   pmath_thread_t    thread;
 };
 
+extern pmath_symbol_t pmath_System_Throw;
+
 static struct _pmath_task_t *create_idle_task(
   pmath_callback_t run,
   pmath_callback_t destroy,
@@ -131,7 +133,7 @@ static void run_task(struct _pmath_task_t *task) {
           _pmath_thread_throw(task->thread->parent, exception);
         }
         else {
-          pmath_message(PMATH_SYMBOL_THROW, "nocatch", 1, exception);
+          pmath_message(pmath_System_Throw, "nocatch", 1, exception);
         }
       }
     }

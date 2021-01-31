@@ -7,6 +7,9 @@
 #  undef min
 #endif
 
+extern pmath_symbol_t p4e_System_Complex;
+extern pmath_symbol_t p4e_System_List;
+
 namespace pmath4eigen {
 
   class Converter {
@@ -107,10 +110,10 @@ namespace pmath4eigen {
   }
 
   inline pmath::Expr Converter::const_matrix(size_t rows, size_t cols, const pmath::Expr &val) {
-    pmath::Expr expr = pmath::MakeList(rows);
+    pmath::Expr expr = pmath::MakeCall(pmath::Symbol(p4e_System_List), rows);
 
     for(size_t r = rows; r > 0; --r) {
-      pmath::Expr row_expr = pmath::MakeList(cols);
+      pmath::Expr row_expr = pmath::MakeCall(pmath::Symbol(p4e_System_List), cols);
 
       for(size_t c = cols; c > 0; --c) {
         row_expr.set(c, val);
@@ -137,10 +140,10 @@ namespace pmath4eigen {
   template<typename Derived>
   inline pmath::Expr Converter::from_eigen(const Eigen::MatrixBase<Derived> &matrix)
   {
-    pmath::Expr expr = pmath::MakeList(matrix.rows());
+    pmath::Expr expr = pmath::MakeCall(pmath::Symbol(p4e_System_List), matrix.rows());
 
     for(size_t r = matrix.rows(); r > 0; --r) {
-      pmath::Expr row_expr = pmath::MakeList(matrix.cols());
+      pmath::Expr row_expr = pmath::MakeCall(pmath::Symbol(p4e_System_List), matrix.cols());
 
       for(size_t c = matrix.cols(); c > 0; --c) {
         row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
@@ -301,7 +304,7 @@ namespace pmath4eigen {
     if(e.is_number())
       return e.to_double();
 
-    if(e.expr_length() == 2 && e[0] == PMATH_SYMBOL_COMPLEX)
+    if(e.expr_length() == 2 && e[0] == p4e_System_Complex)
       return std::complex<double>(to_scalar<double>(e[1]), to_scalar<double>(e[2]));
 
     return std::numeric_limits<double>::quiet_NaN();
@@ -316,7 +319,7 @@ namespace pmath4eigen {
   template<typename Derived>
   inline pmath::Expr Converter::list_from_permutation(const Eigen::PermutationBase<Derived> &perm)
   {
-    pmath::Expr list = pmath::MakeList(perm.size());
+    pmath::Expr list = pmath::MakeCall(pmath::Symbol(p4e_System_List), perm.size());
 
     for(size_t i = perm.size(); i > 0; --i)
       list.set(i, 1 + (size_t)perm.indices()[i - 1]);
@@ -327,7 +330,7 @@ namespace pmath4eigen {
   template<typename Derived>
   inline pmath::Expr Converter::list_from_transpositions(const Eigen::TranspositionsBase<Derived> &perm)
   {
-    pmath::Expr list = pmath::MakeList(perm.size());
+    pmath::Expr list = pmath::MakeCall(pmath::Symbol(p4e_System_List), perm.size());
 
     for(size_t i = perm.size(); i > 0; --i)
       list.set(i, 1 + (size_t)perm.indices()[i - 1]);
@@ -338,7 +341,7 @@ namespace pmath4eigen {
   template<typename Derived>
   inline pmath::Expr Converter::list_from_vector(const Eigen::MatrixBase<Derived> &vec)
   {
-    pmath::Expr list = pmath::MakeList(vec.size());
+    pmath::Expr list = pmath::MakeCall(pmath::Symbol(p4e_System_List), vec.size());
 
     for(size_t i = vec.size(); i > 0; --i)
       list.set(i, ArithmeticExpr(vec(i - 1)));

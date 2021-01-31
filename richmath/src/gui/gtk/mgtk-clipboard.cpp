@@ -8,6 +8,8 @@
 #include <cmath>
 
 
+extern pmath_symbol_t richmath_System_List;
+
 using namespace richmath;
 using namespace pmath;
 
@@ -247,7 +249,7 @@ Expr MathGtkClipboard::read_as_filenames() {
   while(uris[len])
     ++len;
   
-  Expr list = MakeList(len);
+  Expr list = MakeCall(Symbol(richmath_System_List), len);
   for(size_t i = 0; i < len; ++i)
     list[i+1] = String::FromUtf8(uris[i]);
   

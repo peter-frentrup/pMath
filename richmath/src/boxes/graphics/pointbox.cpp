@@ -21,12 +21,13 @@ using namespace richmath;
 using namespace std;
 
 extern pmath_symbol_t richmath_System_CompressedData;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PointBox;
 
 //{ class DoublePoint ...
 
 bool DoublePoint::load_point(DoublePoint &point, Expr coords) {
-  if(coords[0] != PMATH_SYMBOL_LIST)
+  if(coords[0] != richmath_System_List)
     return false;
     
   if(coords.expr_length() != 2)
@@ -67,7 +68,7 @@ bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
     }
   }
   
-  if(coords[0] != PMATH_SYMBOL_LIST)
+  if(coords[0] != richmath_System_List)
     return false;
   
   size_t rows = coords.expr_length();
@@ -91,7 +92,7 @@ bool DoublePoint::load_line(DoubleMatrix &line, Expr coords) {
 }
 
 bool DoublePoint::load_line_or_lines(Array< DoubleMatrix > &lines, Expr coords) {
-  if(coords[0] != PMATH_SYMBOL_LIST)
+  if(coords[0] != richmath_System_List)
     return false;
     
   lines.length(1);

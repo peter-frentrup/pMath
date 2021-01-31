@@ -10,12 +10,18 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
+
 extern pmath_symbol_t pmath_System_FractionBox;
 extern pmath_symbol_t pmath_System_FrameBox;
 extern pmath_symbol_t pmath_System_GridBox;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MakeBoxes;
 extern pmath_symbol_t pmath_System_OverscriptBox;
 extern pmath_symbol_t pmath_System_RadicalBox;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_Skeleton;
 extern pmath_symbol_t pmath_System_SqrtBox;
 extern pmath_symbol_t pmath_System_StyleBox;
 extern pmath_symbol_t pmath_System_SubsuperscriptBox;
@@ -40,7 +46,7 @@ pmath_t _pmath_prepare_shallow(
       return pmath_expr_new_extended(
                head, 1,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                 pmath_ref(pmath_System_Skeleton), 1,
                  pmath_integer_new_uiptr(len)));
     }
     
@@ -60,7 +66,7 @@ pmath_t _pmath_prepare_shallow(
       return pmath_expr_append(
                fst, 1,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                 pmath_ref(pmath_System_Skeleton), 1,
                  pmath_integer_new_uiptr(len - maxlength)));
     }
     
@@ -112,8 +118,8 @@ long _pmath_boxes_length(pmath_t boxes) { // boxes wont be freed
     pmath_t item = pmath_expr_get_item(boxes, 0);
     pmath_unref(item);
     
-    if( pmath_same(item, PMATH_SYMBOL_RULE) ||
-        pmath_same(item, PMATH_SYMBOL_RULEDELAYED))
+    if( pmath_same(item, pmath_System_Rule) ||
+        pmath_same(item, pmath_System_RuleDelayed))
     {
       return 0;
     }
@@ -290,7 +296,7 @@ pmath_t _pmath_shorten_boxes(pmath_t boxes, long length) {
     pmath_t item = pmath_expr_get_item(boxes, 0);
     pmath_unref(item);
     
-    if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(item, pmath_System_List)) {
       size_t left  = 1;
       size_t right = len;
       size_t prevleft  = left;
@@ -434,5 +440,5 @@ PMATH_PRIVATE pmath_t builtin_toboxes(pmath_expr_t expr) {
     return expr;
   }
   
-  return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEBOXES));
+  return pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_MakeBoxes));
 }

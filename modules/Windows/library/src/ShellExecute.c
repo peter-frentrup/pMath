@@ -7,6 +7,11 @@
 #include <shlobj.h>
 
 
+extern pmath_symbol_t p4win_System_DollarFailed;
+extern pmath_symbol_t p4win_System_Automatic;
+extern pmath_symbol_t p4win_System_List;
+extern pmath_symbol_t p4win_System_None;
+
 pmath_t windows_ShellExecute(pmath_expr_t expr) {
   /* ShellExecute(verb, file)
      ShellExecute(verb, file, param)
@@ -23,7 +28,7 @@ pmath_t windows_ShellExecute(pmath_expr_t expr) {
   }
   
   verb = pmath_expr_get_item(expr, 1);
-  if(pmath_same(verb, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(verb, p4win_System_Automatic)) {
     pmath_unref(verb);
     verb = PMATH_NULL;
   }
@@ -43,12 +48,12 @@ pmath_t windows_ShellExecute(pmath_expr_t expr) {
     if(pmath_is_string(parameters)) {
       options = pmath_options_extract(expr, 3);
     }
-    else if(pmath_same(parameters, PMATH_SYMBOL_NONE)) {
+    else if(pmath_same(parameters, p4win_System_None)) {
       pmath_unref(parameters);
       parameters = PMATH_NULL;
       options = pmath_options_extract(expr, 3);
     }
-    else if(pmath_is_expr_of(parameters, PMATH_SYMBOL_LIST)) {
+    else if(pmath_is_expr_of(parameters, p4win_System_List)) {
       parameters = try_compose_arguments(parameters);
       if(pmath_is_string(parameters)) {
         options = pmath_options_extract(expr, 3);
@@ -99,7 +104,7 @@ pmath_t windows_ShellExecute(pmath_expr_t expr) {
   else {
     check_succeeded_win32(GetLastError());
     pmath_unref(expr);
-    expr = pmath_ref(PMATH_SYMBOL_FAILED);
+    expr = pmath_ref(p4win_System_DollarFailed);
   }
   
   pmath_unref(options);

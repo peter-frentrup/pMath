@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-extern pmath_symbol_t pmath_System_Failed;
+extern pmath_symbol_t pmath_System_DollarFailed;
 
 static pmath_t file_to_bytecount(pmath_string_t name){ // name will be freed
 #ifdef PMATH_OS_WIN32
@@ -58,7 +58,7 @@ static pmath_t file_to_bytecount(pmath_string_t name){ // name will be freed
 #endif
 
   pmath_unref(name);
-  return pmath_ref(pmath_System_Failed);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 
@@ -81,7 +81,7 @@ PMATH_PRIVATE pmath_t eval_System_FileByteCount(pmath_expr_t expr) {
   
   obj = file_to_bytecount(obj);
   
-  if(pmath_same(obj, pmath_System_Failed)) {
+  if(pmath_same(obj, pmath_System_DollarFailed)) {
     pmath_message(PMATH_NULL, "nffil", 1, pmath_ref(expr));
   }
   

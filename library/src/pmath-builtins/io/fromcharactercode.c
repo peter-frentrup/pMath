@@ -22,6 +22,8 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_List;
+
 // PMATH_UNDEFINED on error
 static pmath_t try_from_unicode(const int32_t *data, size_t length, iconv_t dummy) {
   pmath_string_t str;
@@ -168,8 +170,8 @@ static pmath_t try_from_iconv_bytes(const int32_t *data, size_t length, iconv_t 
 static void unicode_error(pmath_t codes) {
   size_t i, length;
   
-  if(!pmath_is_expr_of(codes, PMATH_SYMBOL_LIST))
-    codes = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, codes);
+  if(!pmath_is_expr_of(codes, pmath_System_List))
+    codes = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, codes);
     
   length = pmath_expr_length(codes);
   for(i = 1; i <= length; ++i) {
@@ -226,9 +228,9 @@ PMATH_PRIVATE pmath_t builtin_fromcharactercode(pmath_expr_t expr) {
   
   codes = pmath_expr_get_item(expr, 1);
   if(!pmath_is_expr(codes))
-    codes = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, codes);
+    codes = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, codes);
     
-  if(!pmath_is_expr_of(codes, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(codes, pmath_System_List)) {
     pmath_unref(codes);
     pmath_message(PMATH_NULL, "ilsmn", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
@@ -268,12 +270,12 @@ PMATH_PRIVATE pmath_t builtin_fromcharactercode(pmath_expr_t expr) {
   }
   
   tmp = pmath_expr_get_item(codes, 1);
-  if(pmath_is_expr_of(tmp, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(tmp, pmath_System_List)) {
     give_list_of_strings = TRUE;
   }
   else {
     give_list_of_strings = FALSE;
-    codes = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, codes);
+    codes = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, codes);
   }
   pmath_unref(tmp);
   

@@ -31,6 +31,9 @@ namespace richmath {
   };
 }
 
+extern pmath_symbol_t richmath_System_DollarCanceled;
+extern pmath_symbol_t richmath_System_List;
+
 static void assert_double_zero_terminated(String s) {
   assert(s.length() >= 2);
   assert(s.buffer()[s.length() - 1] == 0);
@@ -60,7 +63,7 @@ void Win32FileDialog::set_title(String title) {
 }
 
 void Win32FileDialog::set_filter(Expr filter) {
-  if(filter.expr_length() == 0 || filter[0] != PMATH_SYMBOL_LIST)
+  if(filter.expr_length() == 0 || filter[0] != richmath_System_List)
     return;
     
   for(size_t i = 1; i <= filter.expr_length(); ++i) {
@@ -117,7 +120,7 @@ void Win32FileDialog::Impl::add_filter(Expr caption, Expr extensions) {
     if(ext.starts_with("*."))
       try_set_default_ext(ext.part(2));
   }
-  else if(extensions.expr_length() >= 1 && extensions[0] == PMATH_SYMBOL_LIST) {
+  else if(extensions.expr_length() >= 1 && extensions[0] == richmath_System_List) {
     bool all_strings = true;
     
     for(size_t j = extensions.expr_length(); j > 0; --j) {
@@ -217,11 +220,10 @@ Expr Win32FileDialog::Impl::show_dialog() {
     return String::FromUcs2((const uint16_t *)data.lpstrFile);
   }
   
-  DWORD err = CommDlgExtendedError();
-  if(err)
-    return Symbol(PMATH_SYMBOL_ABORTED);
+  if(DWORD err = CommDlgExtendedError())
+    pmath_debug_print("[CommDlgExtendedError %d]", err);
     
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 HWND Win32FileDialog::Impl::get_dialog_owner() {

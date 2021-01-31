@@ -9,6 +9,7 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_Language_SourceLocation;
 
 namespace {
@@ -375,7 +376,7 @@ Expr SelectionReference::to_debug_info() const {
   return Call(
            Symbol(richmath_Language_SourceLocation),
            id.to_pmath(),
-           Call(Symbol(PMATH_SYMBOL_RANGE), start, end));
+           Call(Symbol(richmath_System_Range), start, end));
 }
 
 SelectionReference SelectionReference::from_debug_info(Expr expr) {
@@ -390,7 +391,7 @@ SelectionReference SelectionReference::from_debug_info(Expr expr) {
   result.id = FrontEndReference::from_pmath(expr[1]);
   Expr range = expr[2];
   if( range.expr_length() == 2 && 
-      range[0] == PMATH_SYMBOL_RANGE &&
+      range[0] == richmath_System_Range &&
       range[1].is_int32() &&
       range[2].is_int32())
   {

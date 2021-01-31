@@ -6,6 +6,12 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Piecewise;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
+
 pmath_t builtin_piecewise(pmath_expr_t expr) {
   /* Piecewise({{val1, cond1}, {val2, cond2}, ...}, val)
      Piecewise(mat)  =  Piecewise(mat, 0)
@@ -32,7 +38,7 @@ pmath_t builtin_piecewise(pmath_expr_t expr) {
   if(exprlen == 2)
     fallback = pmath_expr_get_item(expr, 2);
   else
-    fallback = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    fallback = pmath_ref(pmath_System_Undefined);
     
   pmath_unref(expr);
   all_definite = TRUE;
@@ -40,14 +46,14 @@ pmath_t builtin_piecewise(pmath_expr_t expr) {
     pmath_t pair = pmath_expr_get_item(matrix, i);
     pmath_t cond = pmath_evaluate(pmath_expr_get_item(pair, 2));
     
-    if(pmath_same(cond, PMATH_SYMBOL_FALSE)) {
+    if(pmath_same(cond, pmath_System_False)) {
       pmath_unref(cond);
       pmath_unref(pair);
       matrix = pmath_expr_set_item(matrix, i, PMATH_UNDEFINED);
       continue;
     }
     
-    if(pmath_same(cond, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(cond, pmath_System_True)) {
       pmath_unref(cond);
       pmath_unref(fallback);
       fallback = pmath_expr_get_item(pair, 1);
@@ -76,7 +82,7 @@ pmath_t builtin_piecewise(pmath_expr_t expr) {
   
   matrix = pmath_expr_remove_all(matrix, PMATH_UNDEFINED);
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_PIECEWISE), 2,
+           pmath_ref(pmath_System_Piecewise), 2,
            matrix,
            fallback);
            

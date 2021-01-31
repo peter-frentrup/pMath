@@ -5,6 +5,7 @@
 
 
 extern pmath_symbol_t pjsym_Java_Java;
+extern pmath_symbol_t pjsym_System_Environment;
 
 static pmath_bool_t pj_symbols_init(void);
 static void pj_symbols_done(void);
@@ -47,7 +48,7 @@ pmath_bool_t pmath_module_init(pmath_string_t dll_filename) {
   
   pjvm_auto_detach_key = pmath_expr_new_extended(
                            pmath_ref(pjsym_Java_Java), 1,
-                           pmath_ref(PMATH_SYMBOL_ENVIRONMENT));
+                           pmath_ref(pjsym_System_Environment));
                            
   if(!pmath_is_null(pjvm_auto_detach_key))
     return TRUE;

@@ -10,8 +10,11 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_OptionValue;
+extern pmath_symbol_t pmath_System_Options;
 
 static pmath_t get_default_options(pmath_t head) {
   struct _pmath_symbol_rules_t  *rules;
@@ -22,7 +25,7 @@ static pmath_t get_default_options(pmath_t head) {
   rules = _pmath_symbol_get_rules(head, RULES_READ);
   if(rules) {
     pmath_t result = pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_OPTIONS), 1, pmath_ref(head));
+                       pmath_ref(pmath_System_Options), 1, pmath_ref(head));
                        
     if(_pmath_rulecache_find(&rules->default_rules, &result))
       return result;
@@ -36,7 +39,7 @@ static pmath_t get_default_options(pmath_t head) {
 
 PMATH_PRIVATE
 pmath_expr_t _pmath_option_find_rule(pmath_t name, pmath_t option_set) {
-  if(_pmath_is_rule(option_set)) {
+  if(pmath_is_rule(option_set)) {
     pmath_t lhs = pmath_expr_get_item(option_set, 1);
     
     if(pmath_equals(name, lhs)) {
@@ -51,7 +54,7 @@ pmath_expr_t _pmath_option_find_rule(pmath_t name, pmath_t option_set) {
   if(pmath_is_list_of_rules(option_set)) 
     return _pmath_rules_find_rule(option_set, name, TRUE);
   
-  if(pmath_is_expr_of(option_set, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(option_set, pmath_System_List)) {
     size_t i;
     size_t len = pmath_expr_length(option_set);
     const pmath_t *items = pmath_expr_read_item_data(option_set);
@@ -105,7 +108,7 @@ pmath_bool_t _pmath_options_check_subset_of(
   const char *msg_tag, // "optx" or NULL
   pmath_t     msg_arg
 ) {
-  if(_pmath_is_rule(set)) {
+  if(pmath_is_rule(set)) {
     pmath_t lhs = pmath_expr_get_item(set, 1);
     
     if(!is_option_name_of(lhs, default_options)) {
@@ -123,7 +126,7 @@ pmath_bool_t _pmath_options_check_subset_of(
     return TRUE;
   }
   
-  if(pmath_is_expr_of(set, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(set, pmath_System_List)) {
     size_t i;
     size_t len = pmath_expr_length(set);
     const pmath_t *items = pmath_expr_read_item_data(set);
@@ -167,7 +170,7 @@ pmath_t _pmath_options_from_expr(pmath_t expr) {
     }
     
     item = pmath_expr_get_item(expr, 0);
-    if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(item, pmath_System_List)) {
       if(pmath_is_set_of_options(expr)) {
         pmath_unref(item);
         return pmath_ref(expr);
@@ -188,7 +191,7 @@ pmath_t _pmath_options_from_expr(pmath_t expr) {
       return pmath_ref(_pmath_object_emptylist);
       
     item = pmath_expr_get_item_range(expr, i, SIZE_MAX);
-    item = pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_LIST));
+    item = pmath_expr_set_item(item, 0, pmath_ref(pmath_System_List));
     return item;
   }
   
@@ -202,10 +205,10 @@ pmath_bool_t pmath_is_set_of_options(pmath_t expr) {
   if(!pmath_is_expr(expr))
     return FALSE;
     
-  if(_pmath_is_rule(expr))
+  if(pmath_is_rule(expr))
     return TRUE;
     
-  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(expr, pmath_System_List))
     return FALSE;
     
   for(i = pmath_expr_length(expr); i > 0; --i) {
@@ -276,7 +279,7 @@ PMATH_API pmath_expr_t pmath_options_extract_ex(
     pmath_unref(option_set);
   }
   option_set = pmath_expr_get_item_range(expr, last_nonoption + 1, SIZE_MAX);
-  option_set = pmath_expr_set_item(option_set, 0, pmath_ref(PMATH_SYMBOL_LIST));
+  option_set = pmath_expr_set_item(option_set, 0, pmath_ref(pmath_System_List));
   return option_set;
 }
 
@@ -315,7 +318,7 @@ PMATH_API pmath_t pmath_option_value(
     
     pmath_unref(default_options);
     pmath_message(
-      PMATH_SYMBOL_OPTIONVALUE, "optnf", 2,
+      pmath_System_OptionValue, "optnf", 2,
       pmath_ref(name),
       head);
       
@@ -328,7 +331,7 @@ PMATH_API pmath_t pmath_option_value(
     more = _pmath_object_emptylist;
     
   pmath_message(
-    PMATH_SYMBOL_OPTIONVALUE, "optnf", 2,
+    pmath_System_OptionValue, "optnf", 2,
     pmath_ref(name),
     pmath_ref(more));
     

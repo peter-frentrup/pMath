@@ -10,7 +10,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_None;
 extern pmath_symbol_t pmath_System_TrackedSymbols;
+extern pmath_symbol_t pmath_System_UpdateInterval;
 extern pmath_symbol_t pmath_Internal_DynamicUpdated;
 
 PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
@@ -37,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
   opt = pmath_expr_get_item(expr, 2);
   pmath_unref(opt);
   
-  if(pmath_same(opt, PMATH_SYMBOL_NONE)) {
+  if(pmath_same(opt, pmath_System_None)) {
     options = pmath_options_extract(expr, 2);
   }
   else {
@@ -56,7 +59,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  if(pmath_same(opt, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(opt, pmath_System_Automatic)) {
     body = pmath_evaluate(body);
   }
   else {
@@ -70,7 +73,7 @@ PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr) {
   
   if(thread->current_dynamic_id != 0) {
     opt = pmath_evaluate(pmath_option_value(
-                           PMATH_NULL, PMATH_SYMBOL_UPDATEINTERVAL, options));
+                           PMATH_NULL, pmath_System_UpdateInterval, options));
                            
     if(!pmath_equals(opt, _pmath_object_pos_infinity)) {
       pmath_t sec_obj = pmath_set_precision(pmath_ref(opt), -HUGE_VAL);

@@ -2,7 +2,7 @@
 
 
 extern pmath_symbol_t pmath_System_DeleteContents;
-extern pmath_symbol_t pmath_System_Failed;
+extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_False;
 extern pmath_symbol_t pmath_System_True;
 
@@ -190,7 +190,7 @@ static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
               pmath_message(PMATH_NULL, "privv", 1, expr);
               expr = PMATH_NULL;
               pmath_unref(name);
-              name = pmath_ref(pmath_System_Failed);
+              name = pmath_ref(pmath_System_DollarFailed);
 
             case ERROR_DIR_NOT_EMPTY:
               pmath_message(PMATH_NULL, "dirne", 1, name);
@@ -201,7 +201,7 @@ static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
               pmath_message(PMATH_NULL, "ioarg", 1, expr);
               expr = PMATH_NULL;
               pmath_unref(name);
-              name = pmath_ref(pmath_System_Failed);
+              name = pmath_ref(pmath_System_DollarFailed);
           }
         }
         else {
@@ -222,7 +222,7 @@ static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
               }
           }
           pmath_unref(name);
-          name = pmath_ref(pmath_System_Failed);
+          name = pmath_ref(pmath_System_DollarFailed);
           CloseHandle(h);
         }
       }
@@ -244,7 +244,7 @@ static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
             }
         }
         pmath_unref(name);
-        name = pmath_ref(pmath_System_Failed);
+        name = pmath_ref(pmath_System_DollarFailed);
       }
     }
 
@@ -293,7 +293,7 @@ static pmath_t delete_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
         }
 
         pmath_unref(name);
-        name = pmath_ref(pmath_System_Failed);
+        name = pmath_ref(pmath_System_DollarFailed);
       }
 
       pmath_mem_free(str);

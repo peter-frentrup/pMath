@@ -9,7 +9,10 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_Abs;
+extern pmath_symbol_t pmath_System_Map;
 extern pmath_symbol_t pmath_System_Max;
+extern pmath_symbol_t pmath_System_Power;
 extern pmath_symbol_t pmath_System_Total;
 
 PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
@@ -64,7 +67,7 @@ PMATH_PRIVATE pmath_t builtin_norm(pmath_expr_t expr) {
       pmath_unref(expr);
       
       return FUNC(pmath_ref(pmath_System_Max),
-                  FUNC2(pmath_ref(PMATH_SYMBOL_MAP),
+                  FUNC2(pmath_ref(pmath_System_Map),
                         ABS(matrix),
                         pmath_ref(pmath_System_Total)));
     }

@@ -13,16 +13,16 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String ShowHideMenu;
+}}
 
 extern pmath_symbol_t richmath_System_Delimiter;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
-
-namespace richmath { namespace strings {
-  extern String ShowHideMenu;
-}}
 
 static Hashtable<Expr, bool              ( *)(Expr)>       menu_commands;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr)>       menu_command_testers;
@@ -228,7 +228,7 @@ MenuItemType Menus::menu_item_type(Expr item) {
     if(submenu.is_string()) 
       return MenuItemType::InlineMenu;
     
-    if(submenu[0] == PMATH_SYMBOL_LIST) 
+    if(submenu[0] == richmath_System_List) 
       return MenuItemType::SubMenu;
   }
   

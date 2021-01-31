@@ -19,6 +19,12 @@
 #include <string.h>
 
 extern pmath_symbol_t pmath_System_ComplexStringBox;
+extern pmath_symbol_t pmath_System_HoldComplete;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MakeExpression;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Off;
+extern pmath_symbol_t pmath_System_Sequence;
 
 //{ spans ...
 
@@ -2767,7 +2773,7 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
     
-    if(pmath_is_null(head) || pmath_same(head, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_null(head) || pmath_same(head, pmath_System_List)) {
       for(i = pmath_expr_length(box); i > 0; --i) {
         pmath_t boxi = pmath_expr_get_item(box, i);
         
@@ -2894,7 +2900,7 @@ static void ungroup(
     pmath_t head = pmath_expr_get_item(box, 0);
     pmath_unref(head);
     if( pmath_is_null(head) ||
-        pmath_same(head, PMATH_SYMBOL_LIST))
+        pmath_same(head, pmath_System_List))
     {
       size_t ei, len;
       int start = g->pos;
@@ -2935,7 +2941,7 @@ static void ungroup(
       
       if( len >= 1 &&
           start < g->pos &&
-          pmath_same(head, PMATH_SYMBOL_LIST))
+          pmath_same(head, pmath_System_List))
       {
         pmath_t first = pmath_expr_get_item(box, 1);
         
@@ -3130,18 +3136,18 @@ static pmath_t quiet_parse(pmath_t str) {
   pmath_unref(str);
   
   message_name = pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-                   pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION),
+                   pmath_ref(pmath_System_MessageName), 2,
+                   pmath_ref(pmath_System_MakeExpression),
                    PMATH_C_STRING("inv"));
                    
   // Off(MakeExpression::inv)
   on_off = pmath_thread_local_save(
              message_name,
-             pmath_ref(PMATH_SYMBOL_OFF));
+             pmath_ref(pmath_System_Off));
              
   result = pmath_evaluate(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+               pmath_ref(pmath_System_MakeExpression), 1,
                result));
                
   pmath_unref(
@@ -3151,7 +3157,7 @@ static pmath_t quiet_parse(pmath_t str) {
       
   pmath_unref(message_name);
   
-  if(pmath_is_expr_of_len(result, PMATH_SYMBOL_HOLDCOMPLETE, 1)) {
+  if(pmath_is_expr_of_len(result, pmath_System_HoldComplete, 1)) {
     pmath_t value = pmath_expr_get_item(result, 1);
     pmath_unref(result);
     return value;
@@ -3289,10 +3295,10 @@ PMATH_API pmath_t pmath_parse_string(
   
   result = pmath_evaluate(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+               pmath_ref(pmath_System_MakeExpression), 1,
                result));
                
-  if(!pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE))
+  if(!pmath_is_expr_of(result, pmath_System_HoldComplete))
     return result;
     
   if(pmath_expr_length(result) == 1) {
@@ -3303,7 +3309,7 @@ PMATH_API pmath_t pmath_parse_string(
   
   return pmath_expr_set_item(
            result, 0,
-           pmath_ref(PMATH_SYMBOL_SEQUENCE));
+           pmath_ref(pmath_System_Sequence));
 }
 
 PMATH_API

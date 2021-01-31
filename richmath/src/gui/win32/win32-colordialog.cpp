@@ -11,6 +11,7 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_DollarCanceled;
 
 //{ class Win32ColorDialog ...
 
@@ -50,11 +51,10 @@ Expr Win32ColorDialog::show(Color initialcolor) {
     return Color::from_bgr24(default_init_color).to_pmath();
   }
   
-  DWORD err = CommDlgExtendedError();
-  if(err)
-    return Symbol(PMATH_SYMBOL_ABORTED);
+  if(DWORD err = CommDlgExtendedError())
+    pmath_debug_print("[CommDlgExtendedError %d]", err);
     
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 //} ... class Win32ColorDialog

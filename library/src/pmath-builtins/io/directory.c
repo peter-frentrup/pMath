@@ -25,8 +25,12 @@
 #  include <unistd.h>
 #endif
 
-extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
 
+extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
+extern pmath_symbol_t pmath_System_DollarDirectoryStack;
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Prepend;
 
 PMATH_PRIVATE
 pmath_string_t _pmath_get_directory(void) {
@@ -139,7 +143,7 @@ PMATH_PRIVATE pmath_t builtin_internal_getcurrentdirectory(pmath_expr_t expr) {
 
   expr = _pmath_get_directory();
   if(pmath_is_null(expr))
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
 
   return expr;
 }
@@ -291,17 +295,17 @@ PMATH_PRIVATE pmath_t builtin_setdirectory(pmath_expr_t expr) {
   if(!try_change_directory(pmath_ref(name))) {
     pmath_message(PMATH_NULL, "cdir", 1, name);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
 
   pmath_unref(name);
 
   name = pmath_evaluate(pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_PREPEND), 2,
-                          pmath_thread_local_load(PMATH_SYMBOL_DIRECTORYSTACK),
+                          pmath_ref(pmath_System_Prepend), 2,
+                          pmath_thread_local_load(pmath_System_DollarDirectoryStack),
                           expr));
 
-  pmath_unref(pmath_thread_local_save(PMATH_SYMBOL_DIRECTORYSTACK, name));
+  pmath_unref(pmath_thread_local_save(pmath_System_DollarDirectoryStack, name));
 
   return _pmath_get_directory();
 }
@@ -316,8 +320,8 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr) {
   }
 
   pmath_unref(expr);
-  dirstack = pmath_thread_local_load(PMATH_SYMBOL_DIRECTORYSTACK);
-  if( !pmath_is_expr_of(dirstack, PMATH_SYMBOL_LIST) ||
+  dirstack = pmath_thread_local_load(pmath_System_DollarDirectoryStack);
+  if( !pmath_is_expr_of(dirstack, pmath_System_List) ||
       pmath_expr_length(dirstack) == 0)
   {
     pmath_message(PMATH_NULL, "dtop", 0);
@@ -330,12 +334,12 @@ PMATH_PRIVATE pmath_t builtin_resetdirectory(pmath_expr_t expr) {
   if(!try_change_directory(pmath_ref(name))) {
     pmath_message(PMATH_NULL, "cdir", 1, name);
     pmath_unref(dirstack);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
 
   pmath_unref(
     pmath_thread_local_save(
-      PMATH_SYMBOL_DIRECTORYSTACK,
+      pmath_System_DollarDirectoryStack,
       pmath_expr_get_item_range(dirstack, 2, SIZE_MAX)));
   pmath_unref(dirstack);
 

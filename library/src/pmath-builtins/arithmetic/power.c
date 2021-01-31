@@ -14,6 +14,15 @@
 #include <limits.h> // LONG_MAX
 
 
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Sign;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
+
 static void ui_power_of_complex_rational(fmpq_t re, fmpq_t im, ulong exponent) {
   acb_t num_c;
   fmpz_t num;
@@ -26,7 +35,7 @@ static void ui_power_of_complex_rational(fmpq_t re, fmpq_t im, ulong exponent) {
 //  fmpq_t im_over_re;
 
   if(exponent >= LONG_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+    pmath_message(pmath_System_General, "ovfl", 0);
     return;
   }
   
@@ -369,7 +378,7 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
     result = factor;
   }
   else
-    result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_TIMES));
+    result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_Times));
     
   fmpz_clear(reduced_exp);
   fmpz_clear(root);
@@ -409,7 +418,7 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
 //        break;
 //      }
     }
-    else if(pmath_is_expr_of_len(factor, PMATH_SYMBOL_COMPLEX, 2)) {
+    else if(pmath_is_expr_of_len(factor, pmath_System_Complex, 2)) {
       pmath_rational_t gcd = factor_complex(&factor);
       
       pmath_unref(factor);
@@ -449,7 +458,7 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
         pmath_emit(factor, PMATH_NULL);
         product = pmath_expr_set_item(product, i, INT(1));
       }
-      else if(pmath_is_expr_of_len(factor, PMATH_SYMBOL_COMPLEX, 2)) {
+      else if(pmath_is_expr_of_len(factor, pmath_System_Complex, 2)) {
         pmath_rational_t gcd = factor_complex(&factor);
         
         if(pmath_same(gcd, INT(1))) {
@@ -465,7 +474,7 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
     }
     
     numeric_factors = pmath_gather_end();
-    numeric_factors = pmath_expr_set_item(numeric_factors, 0, pmath_ref(PMATH_SYMBOL_TIMES));
+    numeric_factors = pmath_expr_set_item(numeric_factors, 0, pmath_ref(pmath_System_Times));
     numeric_factors = POW(numeric_factors, exponent);
     power = pmath_expr_set_item(power, 1, product);
     power = TIMES(numeric_factors, power);
@@ -484,7 +493,7 @@ static pmath_t expand_numeric_power_of_product(pmath_expr_t power) {
       factor = POW(factor, pmath_expr_get_item(power, 2));
       factor = pmath_evaluate(factor);
       
-      if(!pmath_is_expr_of(factor, PMATH_SYMBOL_POWER)) {
+      if(!pmath_is_expr_of(factor, pmath_System_Power)) {
         if(factor_class & PMATH_CLASS_NEG)
           product = pmath_expr_set_item(product, i, INT(-1));
         else
@@ -518,7 +527,7 @@ static pmath_bool_t number_contains_zero(pmath_t x) {
     return PMATH_AS_DOUBLE(x) == 0;
   if(pmath_is_mpfloat(x))
     return arb_contains_zero(PMATH_AS_ARB(x));
-  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(x, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(x, 1);
     pmath_t im = pmath_expr_get_item(x, 2);
     pmath_bool_t zero = number_contains_zero(re) && number_contains_zero(im);
@@ -577,7 +586,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
     if(exponent == 0) {
       pmath_unref(base);
       pmath_message(PMATH_NULL, "indet", 1, *expr);
-      *expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      *expr = pmath_ref(pmath_System_Undefined);
       return TRUE;
     }
     else if(exponent < 0) { // TODO: return interval?
@@ -656,7 +665,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
     return TRUE;
   }
   
-  if(pmath_is_expr_of_len(base, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(base, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(base, 1);
     pmath_t im = pmath_expr_get_item(base, 2);
     if(pmath_is_number(re) && pmath_is_number(im)) {
@@ -666,7 +675,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
           pmath_unref(im);
           pmath_unref(base);
           pmath_message(PMATH_NULL, "indet", 1, *expr);
-          *expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+          *expr = pmath_ref(pmath_System_Undefined);
           return TRUE;
         }
         else if(exponent < 0) { // TODO: return interval?
@@ -743,7 +752,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
     pmath_unref(im);
   }
   
-  if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) {
+  if(pmath_is_expr_of(base, pmath_System_Times)) {
     pmath_unref(*expr);
     *expr = spread_over_factors(base, PMATH_FROM_INT32(exponent));
     return TRUE;
@@ -828,7 +837,7 @@ static pmath_bool_t try_bigint_power(pmath_t *expr, mpz_srcptr exponent) {
     return TRUE;
   }
   
-  if(pmath_is_expr_of_len(base, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(base, pmath_System_Complex, 2)) {
     acb_t z;
     slong precision;
     pmath_bool_t is_machine_precision;
@@ -868,7 +877,7 @@ static pmath_bool_t is_rational_power(pmath_t expr, const fmpq_t exponent) {
   pmath_t exp;
   fmpq_t exp_q;
   
-  if(!pmath_is_expr_of_len(expr, PMATH_SYMBOL_POWER, 2))
+  if(!pmath_is_expr_of_len(expr, pmath_System_Power, 2))
     return FALSE;
     
   exp = pmath_expr_get_item(expr, 2);
@@ -955,7 +964,7 @@ static pmath_bool_t try_rational_power(pmath_t *expr, const fmpq_t exponent) {
       else if( !is_rational_power(root_num, exponent) || !is_rational_power(root_den, exponent)) {
         pmath_unref(base);
         if(pmath_same(root_num, PMATH_FROM_INT32(1))) {
-          if(pmath_is_expr_of(root_den, PMATH_SYMBOL_POWER)) {
+          if(pmath_is_expr_of(root_den, pmath_System_Power)) {
             pmath_unref(root_num);
             pmath_unref(root_den);
             return FALSE;
@@ -1114,7 +1123,7 @@ static pmath_t complex_power(pmath_t expr, acb_t base, acb_t exponent, slong pre
   
   if(arf_is_nan(arb_midref(acb_realref(base))) || arf_is_nan(arb_midref(acb_imagref(base)))) {
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    expr = pmath_ref(pmath_System_Undefined);
   }
   else {
     pmath_message(PMATH_NULL, "infy", 1, expr);
@@ -1143,7 +1152,7 @@ static pmath_bool_t try_inexact_power(pmath_t *expr, pmath_t exponent) {
     slong        base_prec;
     pmath_bool_t base_is_machine_prec;
     
-    if(pmath_same(base, PMATH_SYMBOL_E)) {
+    if(pmath_same(base, pmath_System_E)) {
       acb_exp(exp_z, exp_z, exp_prec);
       pmath_unref(base);
       pmath_unref(*expr);
@@ -1227,7 +1236,7 @@ static pmath_bool_t try_power_of_rational(pmath_t *expr, pmath_quotient_t base, 
     return TRUE;
   }
   
-  if(pmath_is_expr_of(exponent, PMATH_SYMBOL_TIMES)) {
+  if(pmath_is_expr_of(exponent, pmath_System_Times)) {
     pmath_t factor = pmath_expr_get_item(exponent, 1);
     if(pmath_is_number(factor) && pmath_number_sign(factor) < 0) {
       pmath_integer_t den = pmath_rational_denominator(base);
@@ -1294,7 +1303,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     return expr;
   }
   
-  if(pmath_is_expr_of_len(base, PMATH_SYMBOL_POWER, 2)) { // (x^y)^exponent
+  if(pmath_is_expr_of_len(base, pmath_System_Power, 2)) { // (x^y)^exponent
     pmath_t inner_exp = pmath_expr_get_item(base, 2);
     pmath_t inner_base;
     
@@ -1332,7 +1341,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(exp_class & PMATH_CLASS_POSINF) {
@@ -1359,7 +1368,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(exp_class & PMATH_CLASS_ZERO) {
@@ -1367,7 +1376,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_message(PMATH_NULL, "indet", 1, expr);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      return pmath_ref(pmath_System_Undefined);
     }
     
     pmath_unref(base);
@@ -1399,7 +1408,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(base_class & (PMATH_CLASS_NEGINF | PMATH_CLASS_CINF)) {
@@ -1421,16 +1430,16 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       expr = pmath_expr_set_item(
                expr, 1,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SIGN), 1,
+                 pmath_ref(pmath_System_Sign), 1,
                  base));
       return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1, expr);
+               pmath_ref(pmath_System_DirectedInfinity), 1, expr);
     }
     
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(base_class & PMATH_CLASS_POSINF) {
@@ -1450,7 +1459,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(exp_class & PMATH_CLASS_NEGINF) {
@@ -1478,7 +1487,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(base_class & PMATH_CLASS_POSONE) {
@@ -1504,7 +1513,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     pmath_unref(base);
     pmath_unref(exponent);
     pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(exp_class & PMATH_CLASS_POSONE) {
@@ -1514,13 +1523,13 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   }
   
   if(exp_class & (PMATH_CLASS_REAL | PMATH_CLASS_COMPLEX)) {
-    if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) {
+    if(pmath_is_expr_of(base, pmath_System_Times)) {
       pmath_unref(base);
       pmath_unref(exponent);
       return expand_numeric_power_of_product(expr);
     }
     
-    if(pmath_is_expr_of_len(base, PMATH_SYMBOL_COMPLEX, 2)) {
+    if(pmath_is_expr_of_len(base, pmath_System_Complex, 2)) {
       pmath_rational_t factor = factor_complex(&base);
       
       pmath_unref(exponent);
@@ -1534,7 +1543,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     }
   }
   
-  if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) { // (x y)^z = x^z y^z, if x > 0
+  if(pmath_is_expr_of(base, pmath_System_Times)) { // (x y)^z = x^z y^z, if x > 0
     pmath_unref(base);
     pmath_unref(exponent);
     return expand_numeric_power_of_product(expr);
@@ -1564,7 +1573,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
     
     pmath_unref(base);
     pmath_unref(exponent);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   pmath_unref(base);
@@ -1583,8 +1592,8 @@ PMATH_PRIVATE pmath_t builtin_exp(pmath_expr_t expr) {
   x = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_POWER), 2,
-           pmath_ref(PMATH_SYMBOL_E),
+           pmath_ref(pmath_System_Power), 2,
+           pmath_ref(pmath_System_E),
            x);
 }
 
@@ -1599,7 +1608,7 @@ PMATH_PRIVATE pmath_t builtin_sqrt(pmath_expr_t expr) {
   x = pmath_expr_get_item(expr, 1);
   pmath_unref(expr);
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_POWER), 2,
+           pmath_ref(pmath_System_Power), 2,
            x,
            pmath_ref(_pmath_one_half));
 }
@@ -1607,13 +1616,13 @@ PMATH_PRIVATE pmath_t builtin_sqrt(pmath_expr_t expr) {
 PMATH_PRIVATE pmath_bool_t builtin_approximate_power(pmath_t *obj, double prec) {
   pmath_t base, exp;
   
-  if(!pmath_is_expr_of_len(*obj, PMATH_SYMBOL_POWER, 2))
+  if(!pmath_is_expr_of_len(*obj, pmath_System_Power, 2))
     return FALSE;
     
   base = pmath_expr_extract_item(*obj, 1);
   exp  = pmath_expr_extract_item(*obj, 2);
   
-  if(pmath_same(base, PMATH_SYMBOL_E)) {
+  if(pmath_same(base, pmath_System_E)) {
     exp = pmath_set_precision(exp, prec);
   }
   else if(pmath_is_rational(exp)) {

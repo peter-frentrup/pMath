@@ -8,6 +8,12 @@
 #include <pmath-builtins/arithmetic-private.h>
 
 
+extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_EulerGamma;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_MachinePrecision;
+extern pmath_symbol_t pmath_System_Pi;
+
 static pmath_t approx_const_generic(
   double prec,
   void (*generator)(arb_t, slong),
@@ -19,7 +25,7 @@ static pmath_t approx_const_generic(
     return PMATH_FROM_DOUBLE(double_value);
   
   if(prec > PMATH_MP_PREC_MAX) {
-    pmath_message(PMATH_SYMBOL_GENERAL, "ovfl", 0);
+    pmath_message(pmath_System_General, "ovfl", 0);
     return pmath_ref(_pmath_object_overflow);
   }
   
@@ -51,7 +57,7 @@ static void arb_const_machineprecision(arb_t rop, slong prec) {
 }
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_e(pmath_t *obj, double prec) {
-  if(!pmath_same(*obj, PMATH_SYMBOL_E) || prec == HUGE_VAL)
+  if(!pmath_same(*obj, pmath_System_E) || prec == HUGE_VAL)
     return FALSE;
     
   pmath_unref(*obj);
@@ -60,7 +66,7 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_e(pmath_t *obj, double prec) {
 }
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(pmath_t *obj, double prec) {
-  if(!pmath_same(*obj, PMATH_SYMBOL_EULERGAMMA) || prec == HUGE_VAL)
+  if(!pmath_same(*obj, pmath_System_EulerGamma) || prec == HUGE_VAL)
     return FALSE;
     
   pmath_unref(*obj);
@@ -70,7 +76,7 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_eulergamma(pmath_t *obj, double p
 }
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, double prec) {
-  if(!pmath_same(*obj, PMATH_SYMBOL_MACHINEPRECISION) || prec == HUGE_VAL)
+  if(!pmath_same(*obj, pmath_System_MachinePrecision) || prec == HUGE_VAL)
     return FALSE;
     
   pmath_unref(*obj);
@@ -80,7 +86,7 @@ PMATH_PRIVATE pmath_bool_t builtin_approximate_machineprecision(pmath_t *obj, do
 }
 
 PMATH_PRIVATE pmath_bool_t builtin_approximate_pi(pmath_t *obj, double prec) {
-  if(!pmath_same(*obj, PMATH_SYMBOL_PI) || prec == HUGE_VAL)
+  if(!pmath_same(*obj, pmath_System_Pi) || prec == HUGE_VAL)
     return FALSE;
     
   pmath_unref(*obj);

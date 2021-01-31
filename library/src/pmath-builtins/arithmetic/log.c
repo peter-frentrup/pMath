@@ -10,6 +10,15 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_Log;
+extern pmath_symbol_t pmath_System_Pi;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
+
 static pmath_integer_t logii(pmath_integer_t base, pmath_integer_t z) {
   if(pmath_is_int32(base)) {
     base = _pmath_create_mp_int(PMATH_AS_INT32(base));
@@ -168,7 +177,7 @@ static pmath_bool_t try_log_of_zero(pmath_t *expr, pmath_t x) {
     *expr = pmath_ref(_pmath_object_neg_infinity);
     return TRUE;
   }
-  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_float(x) || pmath_is_expr_of_len(x, pmath_System_Complex, 2)) {
     acb_t z;
     acb_init(z);
     if(_pmath_complex_float_extract_acb(z, NULL, NULL, x)) {
@@ -180,7 +189,7 @@ static pmath_bool_t try_log_of_zero(pmath_t *expr, pmath_t x) {
       }
       if(acb_contains_zero(z)) {
         pmath_unref(*expr);
-        *expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+        *expr = pmath_ref(pmath_System_Undefined);
         acb_clear(z);
         return TRUE;
       }
@@ -204,7 +213,7 @@ static pmath_bool_t try_log_of_nonzero_rational(pmath_t *expr, pmath_t x) {
   }
   if(pmath_same(x, INT(-1))) {
     pmath_unref(*expr);
-    *expr = TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI));
+    *expr = TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(pmath_System_Pi));
     return TRUE;
   }
   if(pmath_is_rational(x)) {
@@ -216,7 +225,7 @@ static pmath_bool_t try_log_of_nonzero_rational(pmath_t *expr, pmath_t x) {
       
     if(sign < 0) {
       pmath_unref(*expr);
-      *expr = PLUS(TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI)), LOG(pmath_number_neg(pmath_ref(x))));
+      *expr = PLUS(TIMES(COMPLEX(INT(0), INT(1)), pmath_ref(pmath_System_Pi)), LOG(pmath_number_neg(pmath_ref(x))));
       return TRUE;
     }
     
@@ -240,22 +249,22 @@ static pmath_bool_t try_log_of_nonreal_exact_complex(pmath_t *expr, pmath_t x) {
   if(_pmath_is_imaginary(&im) && pmath_is_rational(im)) {
     if(pmath_same(im, INT(1))) {
       pmath_unref(*expr);
-      *expr = TIMES(COMPLEX(INT(0), ONE_HALF), pmath_ref(PMATH_SYMBOL_PI));
+      *expr = TIMES(COMPLEX(INT(0), ONE_HALF), pmath_ref(pmath_System_Pi));
       return TRUE;
     }
     if(pmath_same(im, INT(-1))) {
       pmath_unref(*expr);
-      *expr = TIMES(COMPLEX(INT(0), QUOT(-1, 2)), pmath_ref(PMATH_SYMBOL_PI));
+      *expr = TIMES(COMPLEX(INT(0), QUOT(-1, 2)), pmath_ref(pmath_System_Pi));
       return TRUE;
     }
     if(pmath_number_sign(im) > 0) {
       pmath_unref(*expr);
-      *expr = PLUS(TIMES(COMPLEX(INT(0), ONE_HALF), pmath_ref(PMATH_SYMBOL_PI)), LOG(im));
+      *expr = PLUS(TIMES(COMPLEX(INT(0), ONE_HALF), pmath_ref(pmath_System_Pi)), LOG(im));
       return TRUE;
     }
     if(pmath_number_sign(im) > 0) {
       pmath_unref(*expr);
-      *expr = PLUS(TIMES(COMPLEX(INT(0), QUOT(-1, 2)), pmath_ref(PMATH_SYMBOL_PI)), LOG(pmath_number_neg(im)));
+      *expr = PLUS(TIMES(COMPLEX(INT(0), QUOT(-1, 2)), pmath_ref(pmath_System_Pi)), LOG(pmath_number_neg(im)));
       return TRUE;
     }
   }
@@ -294,7 +303,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
       return PMATH_FROM_DOUBLE(log(PMATH_AS_DOUBLE(x)));
     }
     
-    base = pmath_ref(PMATH_SYMBOL_E);
+    base = pmath_ref(pmath_System_E);
   }
   else if(pmath_expr_length(expr) == 2) {
     base = pmath_expr_get_item(expr, 1);
@@ -305,7 +314,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     return expr;
   }
   
-  if(pmath_same(base, PMATH_SYMBOL_E) && pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
+  if(pmath_same(base, pmath_System_E) && pmath_complex_try_evaluate_acb(&expr, x, acb_log)) {
     pmath_unref(x);
     pmath_unref(base);
     return expr;
@@ -340,7 +349,7 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
     return INT(1);
   }
   
-  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_POWER, 2)) {
+  if(pmath_is_expr_of_len(x, pmath_System_Power, 2)) {
     pmath_t b = pmath_expr_get_item(x, 1);
     
     if(pmath_equals(base, b)) {
@@ -375,18 +384,18 @@ PMATH_PRIVATE pmath_t builtin_log(pmath_expr_t expr) {
       if(pmath_number_sign(im) < 0) {
         re = TIMES(
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                 pmath_ref(pmath_System_Complex), 2,
                  INT(0),
                  QUOT(-1, 2)),
-               pmath_ref(PMATH_SYMBOL_PI));
+               pmath_ref(pmath_System_Pi));
       }
       else {
         re = TIMES(
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                 pmath_ref(pmath_System_Complex), 2,
                  INT(0),
                  ONE_HALF),
-               pmath_ref(PMATH_SYMBOL_PI));
+               pmath_ref(pmath_System_Pi));
       }
       
       expr = pmath_expr_set_item(expr, 1, im);

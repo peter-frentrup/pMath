@@ -23,6 +23,8 @@ namespace {
   };
 }
 
+extern pmath_symbol_t richmath_System_Options;
+
 //{ class MouseEvent ...
 
 MouseEvent::MouseEvent()
@@ -148,7 +150,7 @@ Expr Box::allowed_options() {
   if(!head.is_symbol())
     return {};
   
-  Expr opts = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(head));
+  Expr opts = Call(Symbol(richmath_System_Options), std::move(head));
   return Application::interrupt_wait_cached(std::move(opts));
 }
 

@@ -9,6 +9,8 @@
 #  error SIMPLIFY_SYMBOL not defined
 #endif
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+
 pmath_t x;
 
 if(pmath_expr_length(expr) != 1) {
@@ -28,7 +30,7 @@ x = pmath_expr_new_extended(
       x);
 
 x = pmath_evaluate(x);
-if(!pmath_same(x, PMATH_SYMBOL_FAILED)) {
+if(!pmath_same(x, pmath_System_DollarFailed)) {
   pmath_unref(expr);
   return x;
 }

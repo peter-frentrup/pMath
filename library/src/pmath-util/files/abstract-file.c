@@ -14,15 +14,10 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
 #include <limits.h>
 #include <string.h>
-
-
-extern pmath_symbol_t pmath_System_InputStream;
-extern pmath_symbol_t pmath_System_OutputStream;
 
 
 struct _file_t {
@@ -59,6 +54,12 @@ struct _pmath_text_file_t {
   
   pmath_string_t buffer;
 };
+
+extern pmath_symbol_t pmath_System_BinaryFormat;
+extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_OutputStream;
+extern pmath_symbol_t pmath_System_SetOptions;
 
 static pmath_bool_t lock_file(struct _file_t *f) {
   intptr_t me = (intptr_t)pmath_thread_get_current();
@@ -101,7 +102,7 @@ static pmath_t file_set_options(pmath_expr_t expr) {
   size_t i;
   pmath_t file;
   
-  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_SETOPTIONS))
+  if(!pmath_is_expr_of(expr, pmath_System_SetOptions))
     return expr;
     
   file = pmath_expr_get_item(expr, 1);
@@ -113,10 +114,10 @@ static pmath_t file_set_options(pmath_expr_t expr) {
   for(i = 2; i <= pmath_expr_length(expr); ++i) {
     pmath_t rule = pmath_expr_get_item(expr, i);
     
-    if(_pmath_is_rule(rule)) {
+    if(pmath_is_rule(rule)) {
       pmath_t lhs = pmath_expr_get_item(rule, 1);
       
-      if(pmath_same(lhs, PMATH_SYMBOL_BINARYFORMAT)) {
+      if(pmath_same(lhs, pmath_System_BinaryFormat)) {
         pmath_message(
           PMATH_NULL, "changebf", 2,
           file,
@@ -155,7 +156,7 @@ static pmath_custom_t get_single_file_object(pmath_t file) {
     pmath_t head = pmath_expr_get_item(file, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(head, pmath_System_List)) {
       if(pmath_expr_length(file) == 1) {
         pmath_t item = pmath_expr_get_item(file, 1);
         pmath_custom_t result = get_single_file_object(item);
@@ -192,7 +193,7 @@ static pmath_bool_t foreach_file_object(pmath_t file, pmath_bool_t(*callback)(pm
     pmath_t head = pmath_expr_get_item(file, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(head, pmath_System_List)) {
       pmath_bool_t success = TRUE;
       size_t i;
       for(i = pmath_expr_length(file); i > 0; --i) {
@@ -228,7 +229,7 @@ PMATH_API pmath_bool_t pmath_file_test(
     pmath_t head = pmath_expr_get_item(file, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(head, pmath_System_List)) {
       size_t i;
       
       if(properties & PMATH_FILE_PROP_READ)
@@ -846,7 +847,7 @@ pmath_bool_t pmath_file_close(pmath_t file) {
     if(pmath_same(head, pmath_System_InputStream) || pmath_same(head, pmath_System_OutputStream)) {
       success = pmath_file_close(pmath_expr_get_item(file, 1));
     }
-    else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+    else if(pmath_same(head, pmath_System_List)) {
       size_t i;
       success = TRUE;
       for(i = pmath_expr_length(file); i > 0; --i) {
@@ -878,7 +879,7 @@ void pmath_file_close_if_unused(pmath_t file) {
     if(pmath_same(head, pmath_System_InputStream) || pmath_same(head, pmath_System_OutputStream)) {
       pmath_file_close_if_unused(pmath_expr_extract_item(file, 1));
     }
-    else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+    else if(pmath_same(head, pmath_System_List)) {
       size_t i;
       for(i = pmath_expr_length(file); i > 0; --i) {
         pmath_file_close_if_unused(

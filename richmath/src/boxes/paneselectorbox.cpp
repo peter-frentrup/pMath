@@ -7,6 +7,8 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_HoldPattern;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PaneSelectorBox;
 
 namespace richmath { namespace strings {
@@ -38,7 +40,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
   
   Expr pane_rules = expr[1];
-  if(pane_rules[0] != PMATH_SYMBOL_LIST)
+  if(pane_rules[0] != richmath_System_List)
     return false;
   
   if(pane_rules.expr_length() >= INT_MAX)
@@ -92,7 +94,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   for(int i = _cases.length(); i > 0; --i) {
     Expr rule = pane_rules[i];
     Expr val = rule[1];
-    if(val.expr_length() == 1 && val[0] == PMATH_SYMBOL_HOLDPATTERN)
+    if(val.expr_length() == 1 && val[0] == richmath_System_HoldPattern)
       val = val[1];
     
     if(i - 1 == _current_selection && _cases[i - 1] != val)
@@ -224,11 +226,11 @@ Expr PaneSelectorBox::to_pmath_symbol() {
 }
 
 Expr PaneSelectorBox::to_pmath(BoxOutputFlags flags) {
-  Expr rules = MakeList((size_t)_cases.length());
+  Expr rules = MakeCall(Symbol(richmath_System_List), (size_t)_cases.length());
   for(int i = 0;i < _cases.length();++i) {
     Expr val = _cases[i];
     if(val.is_symbol() || val.is_expr())
-      val = Call(Symbol(PMATH_SYMBOL_HOLDPATTERN), val);
+      val = Call(Symbol(richmath_System_HoldPattern), val);
     
     rules.set(i + 1, Rule(val, _panes[i]->to_pmath(flags)));
   }

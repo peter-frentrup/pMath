@@ -12,6 +12,10 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_tensor_get(
@@ -269,20 +273,20 @@ PMATH_PRIVATE pmath_t builtin_dot(pmath_expr_t expr) {
   if(exprlen == 0)
     return expr;
 
-  info.f = pmath_ref(PMATH_SYMBOL_TIMES);
-  info.g = pmath_ref(PMATH_SYMBOL_PLUS);
+  info.f = pmath_ref(pmath_System_Times);
+  info.g = pmath_ref(pmath_System_Plus);
 
   ia = 1;
   while(ia < exprlen) {
     pmath_t a = pmath_expr_get_item(expr, ia);
 
-    if(pmath_is_expr_of(a, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(a, pmath_System_List)) {
       ib = ia + 1;
 
       while(ib <= exprlen) {
         pmath_t b = pmath_expr_get_item(expr, ib);
 
-        if(pmath_is_expr_of(b, PMATH_SYMBOL_LIST)) {
+        if(pmath_is_expr_of(b, pmath_System_List)) {
           info.n = SIZE_MAX;
 
           if(init(&info, a, b)) {
@@ -340,7 +344,7 @@ PMATH_PRIVATE pmath_t builtin_inner(pmath_expr_t expr) {
   if(exprlen >= 4)
     info.g = pmath_expr_get_item(expr, 4);
   else
-    info.g = pmath_ref(PMATH_SYMBOL_PLUS);
+    info.g = pmath_ref(pmath_System_Plus);
 
   if(exprlen == 5) {
     pmath_t obj = pmath_expr_get_item(expr, 5);

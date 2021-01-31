@@ -1,7 +1,6 @@
 #include <pmath-util/dispatch-tables-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
 #include <pmath-core/expressions-private.h>
 
@@ -29,6 +28,10 @@ static void disown_dispatch_table(pmath_t a);
 static unsigned int hash_dispatch_table(pmath_t a);
 static int cmp_dispatch_tables(pmath_t a, pmath_t b);
 static pmath_bool_t equal_dispatch_tables(pmath_t a, pmath_t b);
+
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
 
 //{ dispatch table slice ...
 
@@ -373,16 +376,16 @@ PMATH_PRIVATE pmath_dispatch_table_t _pmath_rules_need_dispatch_table(pmath_t ex
   if(!pmath_is_null(tab))
     return tab;
   
-  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(expr, pmath_System_List))
     return PMATH_NULL;
   
   len = pmath_expr_length(expr);
-  keys = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
+  keys = pmath_expr_new(pmath_ref(pmath_System_List), len);
   for(; len > 0; --len) {
     pmath_t rule = pmath_expr_get_item(expr, len);
     pmath_t lhs;
     
-    if(!_pmath_is_rule(rule)) {
+    if(!pmath_is_rule(rule)) {
       pmath_unref(rule);
       pmath_unref(keys);
       return PMATH_NULL;
@@ -452,7 +455,7 @@ static pmath_t replace_rule_rhs(
 ) {
   struct _pmath_dispatch_table_t *tab_ptr = (void*)PMATH_AS_PTR(tab);
   pmath_t rule = pmath_expr_extract_item(rules, i);
-  pmath_bool_t old_no_delay = pmath_is_expr_of(rule, PMATH_SYMBOL_RULE);
+  pmath_bool_t old_no_delay = pmath_is_expr_of(rule, pmath_System_Rule);
   pmath_t value = pmath_expr_extract_item(rule, 2);
   
   pmath_bool_t new_no_delay = callback(&value, old_no_delay, callback_context);
@@ -465,7 +468,7 @@ static pmath_t replace_rule_rhs(
   }
   
   if(old_no_delay != new_no_delay) 
-    rule = pmath_expr_set_item(rule, 0, pmath_ref(new_no_delay ? PMATH_SYMBOL_RULE : PMATH_SYMBOL_RULEDELAYED));
+    rule = pmath_expr_set_item(rule, 0, pmath_ref(new_no_delay ? pmath_System_Rule : pmath_System_RuleDelayed));
   
   rule = pmath_expr_set_item(rule, 2, value);
   if(pmath_is_null(rule)) {
@@ -495,7 +498,7 @@ static pmath_t append_rule(
   }
   
   rule = pmath_expr_new_extended(
-           pmath_ref(no_delay ? PMATH_SYMBOL_RULE : PMATH_SYMBOL_RULEDELAYED),
+           pmath_ref(no_delay ? pmath_System_Rule : pmath_System_RuleDelayed),
            2,
            key,
            value);

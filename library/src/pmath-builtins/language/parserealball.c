@@ -12,11 +12,15 @@
 #include <pmath-util/option-helpers.h>
 
 
-#define RULE(NAME, VALUE)     pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RULE), 2, PMATH_C_STRING(NAME), VALUE)
-#define LIST2(A, B)           pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, A, B)
-#define LIST3(A, B, C)        pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 3, A, B, C)
-#define LIST4(A, B, C, D)     pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 4, A, B, C, D)
-#define LIST5(A, B, C, D, E)  pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 5, A, B, C, D, E)
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MachinePrecision;
+extern pmath_symbol_t pmath_System_Rule;
+
+#define RULE(NAME, VALUE)     pmath_expr_new_extended(pmath_ref(pmath_System_Rule), 2, PMATH_C_STRING(NAME), VALUE)
+#define LIST2(A, B)           pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, A, B)
+#define LIST3(A, B, C)        pmath_expr_new_extended(pmath_ref(pmath_System_List), 3, A, B, C)
+#define LIST4(A, B, C, D)     pmath_expr_new_extended(pmath_ref(pmath_System_List), 4, A, B, C, D)
+#define LIST5(A, B, C, D, E)  pmath_expr_new_extended(pmath_ref(pmath_System_List), 5, A, B, C, D, E)
 
 
 static pmath_t precision_from_digits(double digits) {
@@ -24,7 +28,7 @@ static pmath_t precision_from_digits(double digits) {
     return PMATH_FROM_DOUBLE(digits);
   
   if(digits == -HUGE_VAL)
-    return pmath_ref(PMATH_SYMBOL_MACHINEPRECISION);
+    return pmath_ref(pmath_System_MachinePrecision);
   
   return pmath_ref(_pmath_object_pos_infinity);
 }

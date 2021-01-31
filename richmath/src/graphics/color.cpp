@@ -5,7 +5,11 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_Hue;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_RGBColor;
 
 static double round_to_prec(double x, int p);
 
@@ -31,13 +35,13 @@ Color Color::from_rgb(double red, double green, double blue) {
 }
 
 Color Color::from_pmath(Expr expr) {
-  if(expr == PMATH_SYMBOL_NONE)
+  if(expr == richmath_System_None)
     return Color::None;
     
   if(expr.is_expr()) {
-    if(expr[0] == PMATH_SYMBOL_RGBCOLOR) {
+    if(expr[0] == richmath_System_RGBColor) {
       if( expr.expr_length() == 1 &&
-          expr[1][0] == PMATH_SYMBOL_LIST)
+          expr[1][0] == richmath_System_List)
       {
         expr = expr[1];
       }
@@ -53,7 +57,7 @@ Color Color::from_pmath(Expr expr) {
     
     if(expr[0] == richmath_System_Hue) {
       if( expr.expr_length() == 1 &&
-          expr[1][0] == PMATH_SYMBOL_LIST)
+          expr[1][0] == richmath_System_List)
       {
         expr = expr[1];
       }
@@ -105,7 +109,7 @@ Color Color::from_pmath(Expr expr) {
       }
     }
     
-    if( expr[0] == PMATH_SYMBOL_GRAYLEVEL &&
+    if( expr[0] == richmath_System_GrayLevel &&
         expr.expr_length() == 1 &&
         expr[1].is_number())
     {
@@ -122,7 +126,7 @@ Color Color::from_pmath(Expr expr) {
 
 Expr Color::to_pmath() const {
   if(!is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
+    return Symbol(richmath_System_None);
     
   int r = (_value & 0xFF0000) >> 16;
   int g = (_value & 0x00FF00) >>  8;
@@ -130,12 +134,12 @@ Expr Color::to_pmath() const {
   
   if(r == g && r == b) {
     return Call(
-             Symbol(PMATH_SYMBOL_GRAYLEVEL),
+             Symbol(richmath_System_GrayLevel),
              Number(round_to_prec(r / 255.0, 255)));
   }
   
   return Call(
-           Symbol(PMATH_SYMBOL_RGBCOLOR),
+           Symbol(richmath_System_RGBColor),
            Number(round_to_prec(r / 255.0, 255)),
            Number(round_to_prec(g / 255.0, 255)),
            Number(round_to_prec(b / 255.0, 255)));

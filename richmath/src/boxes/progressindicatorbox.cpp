@@ -9,6 +9,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_System_ProgressIndicatorBox;
 
 #ifdef _MSC_VER
@@ -49,7 +50,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     return false;
     
   Expr new_range = expr[2];
-  if(new_range[0] != PMATH_SYMBOL_RANGE)
+  if(new_range[0] != richmath_System_Range)
     return false;
     
   if(new_range.expr_length() != 2)

@@ -55,6 +55,11 @@ struct linewriter_t {
   pmath_bool_t (*custom_writer)(void *, pmath_t, struct pmath_write_ex_t *);
 };
 
+extern pmath_symbol_t pmath_System_DollarPageWidth;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_RawBoxes;
+extern pmath_symbol_t pmath_System_Row;
+
 static char HEX_DIGITS[] = "0123456789ABCDEF";
 
 static void fill_newlines(struct linewriter_t *lw) {
@@ -548,7 +553,7 @@ static pmath_bool_t is_row(pmath_t expr) {
   size_t exprlen;
   pmath_t item;
   
-  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_ROW))
+  if(!pmath_is_expr_of(expr, pmath_System_Row))
     return FALSE;
     
   exprlen = pmath_expr_length(expr);
@@ -556,7 +561,7 @@ static pmath_bool_t is_row(pmath_t expr) {
     return FALSE;
     
   item = pmath_expr_get_item(expr, 1);
-  if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(item, pmath_System_List)) {
     pmath_unref(item);
     return TRUE;
   }
@@ -571,13 +576,13 @@ static void linewriter_pre_write(void *user, pmath_t item, pmath_write_options_t
   
   if(!pmath_is_string(item)) {
     if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
-        pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
+        pmath_is_expr_of_len(item, pmath_System_RawBoxes, 1))
     {
       lw->rawboxes_depth++;
     }
     
     if(lw->rawboxes_depth > 0) {
-      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
+      if(pmath_is_expr_of(item, pmath_System_List))
         lw->expr_depth++;
     }
     else if(!is_row(item))
@@ -605,14 +610,14 @@ static void linewriter_post_write(void *user, pmath_t item, pmath_write_options_
   
   if(!pmath_is_string(item)) {
     if(lw->rawboxes_depth > 0) {
-      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST))
+      if(pmath_is_expr_of(item, pmath_System_List))
         lw->expr_depth--;
     }
     else if(!is_row(item))
       lw->expr_depth--;
       
     if( 0 == (flags & PMATH_WRITE_OPTIONS_INPUTEXPR) &&
-        pmath_is_expr_of_len(item, PMATH_SYMBOL_RAWBOXES, 1))
+        pmath_is_expr_of_len(item, pmath_System_RawBoxes, 1))
     {
       lw->rawboxes_depth--;
     }
@@ -682,7 +687,7 @@ void pmath_write_with_pagewidth_ex(
   assert(&options->write != NULL);
   
   if(options->page_width < 0) {
-    pmath_t tmp = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+    pmath_t tmp = pmath_evaluate(pmath_ref(pmath_System_DollarPageWidth));
     
     if(pmath_is_int32(tmp))
       options->page_width = PMATH_AS_INT32(tmp);
@@ -721,8 +726,8 @@ void pmath_write_with_pagewidth_ex(
     return;
   }
   
-  old_page_width = pmath_symbol_get_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT);
-  pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, PMATH_FROM_INT32(options->page_width - options->indentation_width));  
+  old_page_width = pmath_symbol_get_value(pmath_System_DollarPageWidth);
+  pmath_symbol_set_value(pmath_System_DollarPageWidth, PMATH_FROM_INT32(options->page_width - options->indentation_width));  
   
   lw.next_write_pos       = &lw.all_write_pos;
   lw.indentation_width    = options->indentation_width;
@@ -767,7 +772,7 @@ void pmath_write_with_pagewidth_ex(
   pmath_mem_free(lw.char_flags);
   pmath_mem_free(lw.newlines);
   
-  pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, old_page_width);
+  pmath_symbol_set_value(pmath_System_DollarPageWidth, old_page_width);
 }
 
 PMATH_API

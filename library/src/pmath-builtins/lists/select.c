@@ -20,6 +20,8 @@
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
 
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_bool_t test_at_0(
   pmath_t  expr,
   size_t   index_0,
@@ -32,7 +34,7 @@ static pmath_bool_t test_at_0(
   item = pmath_evaluate(item);
   pmath_unref(item);
   
-  return pmath_same(item, PMATH_SYMBOL_TRUE);
+  return pmath_same(item, pmath_System_True);
 }
 
 // all indices are 0-based

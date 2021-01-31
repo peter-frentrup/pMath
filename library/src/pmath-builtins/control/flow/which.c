@@ -6,6 +6,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_which(pmath_expr_t expr) {
   size_t i;
   size_t exprlen = pmath_expr_length(expr);
@@ -20,13 +23,13 @@ PMATH_PRIVATE pmath_t builtin_which(pmath_expr_t expr) {
     test = pmath_evaluate(test);
     pmath_unref(test);
     
-    if(pmath_same(test, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(test, pmath_System_True)) {
       test = pmath_expr_get_item(expr, i + 1);
       pmath_unref(expr);
       return test;
     }
     
-    if(pmath_same(test, PMATH_SYMBOL_FALSE)) {
+    if(pmath_same(test, pmath_System_False)) {
       expr = pmath_expr_set_item(expr, i,   PMATH_UNDEFINED);
       expr = pmath_expr_set_item(expr, i + 1, PMATH_UNDEFINED);
     }

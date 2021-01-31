@@ -26,14 +26,6 @@
 using namespace richmath;
 using namespace std;
 
-extern pmath_symbol_t richmath_System_Axis;
-extern pmath_symbol_t richmath_System_Baseline;
-extern pmath_symbol_t richmath_System_Bottom;
-extern pmath_symbol_t richmath_System_Center;
-extern pmath_symbol_t richmath_System_GridBox;
-extern pmath_symbol_t richmath_System_Scaled;
-extern pmath_symbol_t richmath_System_Top;
-
 namespace richmath {
   class GridBox::Impl {
     public:
@@ -51,6 +43,16 @@ namespace richmath {
       GridBox &self;
   };
 }
+
+extern pmath_symbol_t richmath_System_Axis;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Baseline;
+extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_Center;
+extern pmath_symbol_t richmath_System_GridBox;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_Top;
 
 //{ class GridItem ...
 
@@ -208,7 +210,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   Expr matrix = expr[1];
   
-  if(matrix[0] != PMATH_SYMBOL_LIST)
+  if(matrix[0] != richmath_System_List)
     return false;
     
   if(matrix.expr_length() < 1)
@@ -218,7 +220,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(n_rows <= 0)
     return false;
     
-  if(matrix[1][0] != PMATH_SYMBOL_LIST)
+  if(matrix[1][0] != richmath_System_List)
     return false;
     
   int n_cols = (int)matrix[1].expr_length();
@@ -232,7 +234,7 @@ bool GridBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     // compile with gcc -O1 ..., the app crashes, because matrix[row]._obj
     // is freed 1 time too often.
     
-    if(row[0] != PMATH_SYMBOL_LIST)
+    if(row[0] != richmath_System_List)
       return false;
       
     if(row.expr_length() != (size_t)n_cols)
@@ -772,10 +774,10 @@ Expr GridBox::to_pmath(BoxOutputFlags flags) {
 Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
   auto rect = get_enclosing_range(start, end);
   
-  Expr mat = MakeList(rect.rows());
+  Expr mat = MakeCall(Symbol(richmath_System_List), rect.rows());
   
   for(GridYIndex y : rect.y) {
-    Expr row = MakeList(rect.cols());
+    Expr row = MakeCall(Symbol(richmath_System_List), rect.cols());
     
     for(GridXIndex x : rect.x) 
       row.set(x - rect.x.start + 1, item(y, x)->to_pmath(flags));
@@ -1456,7 +1458,7 @@ float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr basel
   if(baseline_pos == richmath_System_Center) 
     return 0.5f * height;
   
-  if(baseline_pos == richmath_System_Axis || baseline_pos == PMATH_SYMBOL_AUTOMATIC) 
+  if(baseline_pos == richmath_System_Axis || baseline_pos == richmath_System_Automatic) 
     return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
   
   if(baseline_pos[0] == richmath_System_Scaled) {
@@ -1508,7 +1510,7 @@ float GridBox::Impl::calculate_ascent_for_baseline_position(float em, Expr basel
     if(row >= 1 && row <= self.rows()) 
       gi = self.item(row - 1, 0);
   }
-  else if(baseline_pos[0] == PMATH_SYMBOL_LIST) {
+  else if(baseline_pos[0] == richmath_System_List) {
     if(baseline_pos.expr_length() == 2) {
       Expr row_expr = baseline_pos[1];
       Expr col_expr = baseline_pos[2];

@@ -32,7 +32,7 @@ namespace richmath {
       
       virtual Box *remove(int *index) override;
       
-      virtual Expr to_pmath_symbol() override { return Symbol(PMATH_SYMBOL_LIST); }
+      virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;

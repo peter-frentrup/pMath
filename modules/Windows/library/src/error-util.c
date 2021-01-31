@@ -2,6 +2,11 @@
 
 #include "util.h"
 
+
+extern pmath_symbol_t p4win_System_DollarFailed;
+extern pmath_symbol_t p4win_System_Head;
+extern pmath_symbol_t p4win_System_Rule;
+
 static pmath_t format_win32_message(DWORD errorCode) {
   wchar_t *errorText = NULL;
   
@@ -20,7 +25,7 @@ static pmath_t format_win32_message(DWORD errorCode) {
     return str;
   }
   
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(p4win_System_DollarFailed);
 }
 
 static pmath_bool_t check_succeeded_internal(HRESULT hr, pmath_bool_t use_ierrorinfo) {
@@ -54,14 +59,14 @@ static pmath_bool_t check_succeeded_internal(HRESULT hr, pmath_bool_t use_ierror
   
   pmath_emit(
     pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RULE), 2,
-      pmath_ref(PMATH_SYMBOL_HEAD),
+      pmath_ref(p4win_System_Rule), 2,
+      pmath_ref(p4win_System_Head),
       pmath_current_head()),
     PMATH_NULL);
     
   pmath_emit(
     pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_RULE), 2,
+      pmath_ref(p4win_System_Rule), 2,
       PMATH_C_STRING("HResult"),
       pmath_integer_new_ui32(hr)),
     PMATH_NULL);
@@ -69,7 +74,7 @@ static pmath_bool_t check_succeeded_internal(HRESULT hr, pmath_bool_t use_ierror
   if(!pmath_is_null(description)) {
     pmath_emit(
       pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
+        pmath_ref(p4win_System_Rule), 2,
         PMATH_C_STRING("Description"),
         description),
       PMATH_NULL);

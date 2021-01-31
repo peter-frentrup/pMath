@@ -4,6 +4,8 @@
 #include <pmath-util/messages.h>
 
 
+extern pmath_symbol_t pmath_System_Unprotect;
+
 static void protect_callback(pmath_symbol_t *symbol) {
   pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(*symbol);
   
@@ -50,7 +52,7 @@ PMATH_PRIVATE pmath_t builtin_protect_or_unprotect(pmath_expr_t expr) {
   pmath_unref(head);
   
   callback = (pmath_callback_t)protect_callback;
-  if(pmath_same(head, PMATH_SYMBOL_UNPROTECT))
+  if(pmath_same(head, pmath_System_Unprotect))
     callback = (pmath_callback_t)unprotect_callback;
     
   pmath_gather_begin(PMATH_NULL);

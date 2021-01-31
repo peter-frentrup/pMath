@@ -10,6 +10,13 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_Heads;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_bool_t can_evaluate_all_args_for(pmath_t head) {
   pmath_symbol_t            sym;
   pmath_symbol_attributes_t att;
@@ -20,7 +27,7 @@ static pmath_bool_t can_evaluate_all_args_for(pmath_t head) {
     return (att & (PMATH_SYMBOL_ATTRIBUTE_HOLDALL | PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)) == 0;
   }
   
-  if(pmath_is_expr_of(head, PMATH_SYMBOL_FUNCTION)) {
+  if(pmath_is_expr_of(head, pmath_System_Function)) {
     pmath_t att_spec;
     if(pmath_expr_length(head) < 3)
       return TRUE;
@@ -69,7 +76,7 @@ static pmath_t map_impl_callback(pmath_t obj, size_t i, void *data) {
   obj = map_impl(context->info, obj, context->next_level, context->next_eval_imm);
   
   if(!context->has_sequence) {
-    if(pmath_is_expr_of(obj, PMATH_SYMBOL_SEQUENCE))
+    if(pmath_is_expr_of(obj, pmath_System_Sequence))
       context->has_sequence = TRUE;
   }
   
@@ -110,12 +117,12 @@ static pmath_t map_impl(
         if(context.next_eval_imm)
           context.next_eval_imm = can_evaluate_all_args_for(head);
           
-        update_only_result = pmath_same(head, PMATH_SYMBOL_LIST);
+        update_only_result = pmath_same(head, pmath_System_List);
         obj = pmath_expr_set_item(obj, 0, head);
       }
       else {
         pmath_t head = pmath_expr_get_item(obj, 0);
-        update_only_result = pmath_same(head, PMATH_SYMBOL_LIST);
+        update_only_result = pmath_same(head, pmath_System_List);
         pmath_unref(head);
       }
       
@@ -213,15 +220,15 @@ PMATH_PRIVATE pmath_t builtin_map(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
     
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
+  if(pmath_same(obj, pmath_System_True)) {
     info.with_heads = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_unref(options);
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_HEADS),
+      pmath_ref(pmath_System_Heads),
       obj);
     return expr;
   }

@@ -17,6 +17,9 @@ struct make_rect_t {
   pmath_bool_t  padleft;
 };
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_PadLeft;
+
 static pmath_bool_t is_expr_of_general(pmath_t obj, pmath_t head) {
   if(pmath_is_expr(obj)) {
     pmath_t h = pmath_expr_get_item(obj, 0);
@@ -188,7 +191,7 @@ struct make_rect_ex_t {
 };
 
 static pmath_t next_pad(pmath_t pad, intptr_t i) {
-  if(pmath_is_expr_of(pad, PMATH_SYMBOL_LIST) &&
+  if( pmath_is_expr_of(pad, pmath_System_List) &&
       pmath_expr_length(pad) > 0)
   {
     intptr_t len = (intptr_t)pmath_expr_length(pad);
@@ -317,7 +320,7 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
   }
 
   info.inherited.head    = pmath_expr_get_item(list, 0);
-  info.inherited.padleft = pmath_is_expr_of(expr, PMATH_SYMBOL_PADLEFT);
+  info.inherited.padleft = pmath_is_expr_of(expr, pmath_System_PadLeft);
   if(exprlen == 1) {
     pmath_unref(expr);
     list = make_rectangular(list, info.inherited.padleft);
@@ -325,8 +328,8 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
   }
 
   n_obj = pmath_expr_get_item(expr, 2);
-  if(!pmath_is_expr_of(n_obj, PMATH_SYMBOL_LIST))
-    n_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, n_obj);
+  if(!pmath_is_expr_of(n_obj, pmath_System_List))
+    n_obj = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, n_obj);
 
   if(pmath_expr_length(n_obj) > 1000000) {
     pmath_message(PMATH_NULL, "ovfl", 0);
@@ -348,9 +351,9 @@ PMATH_PRIVATE pmath_t builtin_padleft_and_padright(pmath_expr_t expr) {
   else
     margin = PMATH_FROM_INT32(0);
 
-  if(!pmath_is_expr_of(margin, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(margin, pmath_System_List)) {
     pmath_t tmp = margin;
-    margin = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), pmath_expr_length(n_obj));
+    margin = pmath_expr_new(pmath_ref(pmath_System_List), pmath_expr_length(n_obj));
     for(i = pmath_expr_length(n_obj); i > 0; --i)
       margin = pmath_expr_set_item(margin, i, pmath_ref(tmp));
 

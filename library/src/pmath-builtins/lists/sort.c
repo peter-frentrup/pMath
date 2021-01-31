@@ -10,6 +10,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Take;
+extern pmath_symbol_t pmath_System_True;
+
 // using nested functions where available (gcc)
 
 /* profile results (vista, pentium dual core):
@@ -38,9 +43,9 @@ static int ordering_user_cmp(pmath_t ctx, pmath_t a, pmath_t b) {
                        pmath_ref(b)));
                        
     pmath_unref(less);
-    if(pmath_same(less, PMATH_SYMBOL_TRUE))
+    if(pmath_same(less, pmath_System_True))
       return -1;
-    if(pmath_same(less, PMATH_SYMBOL_FALSE))
+    if(pmath_same(less, pmath_System_False))
       return 1;
       
     return pmath_compare(a, b);
@@ -103,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr) {
   
   len = pmath_expr_length(context.list);
   
-  indices = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
+  indices = pmath_expr_new(pmath_ref(pmath_System_List), len);
   for(i = len; i > 0; --i) {
     indices = pmath_expr_set_item(indices, i, pmath_integer_new_uiptr(i));
   }
@@ -124,12 +129,12 @@ PMATH_PRIVATE pmath_t builtin_ordering(pmath_expr_t expr) {
   
   if(exprlen >= 2) {
     pmath_t take = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_TAKE), 2,
+                     pmath_ref(pmath_System_Take), 2,
                      indices,
                      pmath_expr_get_item(expr, 2));
                      
     take = pmath_evaluate(take);
-    if(!pmath_is_expr_of(take, PMATH_SYMBOL_LIST)) {
+    if(!pmath_is_expr_of(take, pmath_System_List)) {
       pmath_unref(take);
       return expr;
     }
@@ -158,9 +163,9 @@ static int user_cmp_objs(void *p, const pmath_t *a, const pmath_t *b) {
                        pmath_ref(*b)));
                        
     pmath_unref(less);
-    if(pmath_same(less, PMATH_SYMBOL_TRUE))
+    if(pmath_same(less, pmath_System_True))
       return -1;
-    if(pmath_same(less, PMATH_SYMBOL_FALSE))
+    if(pmath_same(less, pmath_System_False))
       return 1;
       
     cmp = pmath_compare(*a, *b);

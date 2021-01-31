@@ -7,6 +7,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr) {
   pmath_t obj;
   double start, end;
@@ -25,7 +27,7 @@ PMATH_PRIVATE pmath_t builtin_timing(pmath_expr_t expr) {
   end = pmath_tickcount();
   
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_LIST), 2,
+           pmath_ref(pmath_System_List), 2,
            PMATH_FROM_DOUBLE(end - start),
            obj);
 }

@@ -23,6 +23,7 @@ using namespace richmath;
 
 
 extern pmath_symbol_t richmath_System_DollarApplicationFileName;
+extern pmath_symbol_t richmath_System_None;
 
 
 namespace {
@@ -310,9 +311,9 @@ String FileAssociationRegistry::find_startup_shortcut_path() {
       "\"FillAttribute\" -> `11`,"
       "\"ShowWindowSetting\" -> `12`}", // "\"ReservedBytes\" -> `13`
     List(
-      si.lpDesktop  ? String::FromUcs2((const uint16_t*)si.lpDesktop)  : Symbol(PMATH_SYMBOL_NONE),
-      si.lpTitle    ? String::FromUcs2((const uint16_t*)si.lpTitle)    : Symbol(PMATH_SYMBOL_NONE),
-      si.lpReserved ? String::FromUcs2((const uint16_t*)si.lpReserved) : Symbol(PMATH_SYMBOL_NONE),
+      si.lpDesktop  ? String::FromUcs2((const uint16_t*)si.lpDesktop)  : Symbol(richmath_System_None),
+      si.lpTitle    ? String::FromUcs2((const uint16_t*)si.lpTitle)    : Symbol(richmath_System_None),
+      si.lpReserved ? String::FromUcs2((const uint16_t*)si.lpReserved) : Symbol(richmath_System_None),
       Expr((uintptr_t)si.dwFlags),
       Expr((uintptr_t)si.dwX),
       Expr((uintptr_t)si.dwY),

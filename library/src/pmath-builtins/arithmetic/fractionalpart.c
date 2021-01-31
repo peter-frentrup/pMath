@@ -11,6 +11,10 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_IntegerPart;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE pmath_t builtin_fractionalpart(pmath_expr_t expr) {
   pmath_t x, ix;
   
@@ -21,9 +25,9 @@ PMATH_PRIVATE pmath_t builtin_fractionalpart(pmath_expr_t expr) {
   
   x = pmath_expr_get_item(expr, 1);
   
-  ix = FUNC(pmath_ref(PMATH_SYMBOL_INTEGERPART), pmath_ref(x));
+  ix = FUNC(pmath_ref(pmath_System_IntegerPart), pmath_ref(x));
   ix = pmath_evaluate(ix);
-  if(!pmath_is_expr_of_len(ix, PMATH_SYMBOL_INTEGERPART, 1)){
+  if(!pmath_is_expr_of_len(ix, pmath_System_IntegerPart, 1)){
     pmath_unref(expr);
     return MINUS(x, ix);
   }

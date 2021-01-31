@@ -50,6 +50,8 @@ static CRITICAL_SECTION  debuglog_critical_section;
 static FILE *debuglog = NULL;
 
 static pmath_bool_t debugging_output = TRUE;
+
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_Language_SourceLocation;
 
 /* Redirect pmath_debug_print_object(...) and pmath_debug_print_stack(...) to OutputDebugString().
@@ -361,7 +363,7 @@ static void debug_print_raw_pointer_impl(
         ++depth;
         
         head = pmath_expr_get_item(obj, 0);
-        if(!pmath_same(head, PMATH_SYMBOL_LIST)) {
+        if(!pmath_same(head, pmath_System_List)) {
           snprintf(
             info->index_info + index_info_start,
             info->index_info_length - index_info_start,
@@ -373,7 +375,7 @@ static void debug_print_raw_pointer_impl(
         
         length = pmath_expr_length(obj);
         if(length == 0) {
-          if(pmath_same(head, PMATH_SYMBOL_LIST))
+          if(pmath_same(head, pmath_System_List))
             _pmath_write_cstr("{}", info->write, info->user);
           else
             _pmath_write_cstr("()", info->write, info->user);
@@ -395,7 +397,7 @@ static void debug_print_raw_pointer_impl(
             skip_count = 0;
           }
           
-          if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+          if(pmath_same(head, pmath_System_List)) {
             _pmath_write_cstr("{ ", info->write, info->user);
           }
           else {
@@ -431,7 +433,7 @@ static void debug_print_raw_pointer_impl(
             }
           }
           
-          if(pmath_same(head, PMATH_SYMBOL_LIST))
+          if(pmath_same(head, pmath_System_List))
             _pmath_write_cstr(" }", info->write, info->user);
           else
             _pmath_write_cstr(")", info->write, info->user);
@@ -582,15 +584,6 @@ void pmath_debug_print_debug_info(
 
 /* The following variables are used by the debugger visualizer (pmath.natvis) only.
  */
-
-PMATH_PRIVATE
-pmath_symbol_t *_pmath_List_symbol = &PMATH_SYMBOL_LIST;
-PMATH_PRIVATE
-pmath_symbol_t *_pmath_Range_symbol = &PMATH_SYMBOL_RANGE;
-PMATH_PRIVATE
-pmath_symbol_t *_pmath_Rule_symbol = &PMATH_SYMBOL_RULE;
-PMATH_PRIVATE
-pmath_symbol_t *_pmath_RuleDelayed_symbol = &PMATH_SYMBOL_RULEDELAYED;
 
 PMATH_PRIVATE
 struct _pmath_debug_symbol_attribute_t {

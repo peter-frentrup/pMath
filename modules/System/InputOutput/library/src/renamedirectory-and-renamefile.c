@@ -1,6 +1,8 @@
 #include "stdafx.h"
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+
 static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directory);
 
 PMATH_PRIVATE pmath_t eval_System_RenameDirectory(pmath_expr_t expr) {
@@ -124,7 +126,7 @@ static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
             }
 
             pmath_unref(name2);
-            name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+            name2 = pmath_ref(pmath_System_DollarFailed);
           }
         }
         else {
@@ -147,7 +149,7 @@ static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
               }
           }
           pmath_unref(name2);
-          name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+          name2 = pmath_ref(pmath_System_DollarFailed);
           CloseHandle(h);
         }
       }
@@ -170,7 +172,7 @@ static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
             }
         }
         pmath_unref(name2);
-        name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+        name2 = pmath_ref(pmath_System_DollarFailed);
       }
     }
   }
@@ -184,7 +186,7 @@ static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
 
       if(stat(str2, &buf) == 0) {
         pmath_message(PMATH_NULL, "filex", 1, name2);
-        name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+        name2 = pmath_ref(pmath_System_DollarFailed);
       }
       else {
         errno = 0;
@@ -228,7 +230,7 @@ static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
             }
 
             pmath_unref(name2);
-            name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+            name2 = pmath_ref(pmath_System_DollarFailed);
           }
         }
         else {
@@ -250,7 +252,7 @@ static pmath_t rename_directory_or_file(pmath_expr_t expr, pmath_bool_t is_direc
               }
           }
           pmath_unref(name2);
-          name2 = pmath_ref(PMATH_SYMBOL_FAILED);
+          name2 = pmath_ref(pmath_System_DollarFailed);
         }
       }
     }

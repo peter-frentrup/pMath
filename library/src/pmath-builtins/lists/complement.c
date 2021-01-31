@@ -9,16 +9,21 @@
 #include <pmath-util/concurrency/threads.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_Complement;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_SameTest;
+extern pmath_symbol_t pmath_System_True;
 
 static pmath_t extract_sametest_option(pmath_expr_t expr, size_t *len) {
   if(*len > 1) {
     pmath_t last = pmath_expr_get_item(expr, *len);
     
-    if(_pmath_is_rule(last)) {
+    if(pmath_is_rule(last)) {
       pmath_t lhs = pmath_expr_get_item(last, 1);
-      if(pmath_equals(lhs, PMATH_SYMBOL_SAMETEST)) {
+      if(pmath_equals(lhs, pmath_System_SameTest)) {
         pmath_t rhs = pmath_expr_get_item(last, 2);
         
         --*len;
@@ -29,12 +34,12 @@ static pmath_t extract_sametest_option(pmath_expr_t expr, size_t *len) {
       
       pmath_unref(lhs);
     }
-    else if(pmath_is_expr_of_len(last, PMATH_SYMBOL_LIST, 1)) {
+    else if(pmath_is_expr_of_len(last, pmath_System_List, 1)) {
       pmath_t item = pmath_expr_get_item(last, 1);
       
-      if(_pmath_is_rule(item)) {
+      if(pmath_is_rule(item)) {
         pmath_t lhs = pmath_expr_get_item(item, 1);
-        if(pmath_equals(lhs, PMATH_SYMBOL_SAMETEST)) {
+        if(pmath_equals(lhs, pmath_System_SameTest)) {
           pmath_t rhs = pmath_expr_get_item(item, 2);
           
           --*len;
@@ -53,7 +58,7 @@ static pmath_t extract_sametest_option(pmath_expr_t expr, size_t *len) {
     pmath_unref(last);
   }
   
-  return pmath_option_value(PMATH_SYMBOL_COMPLEMENT, PMATH_SYMBOL_SAMETEST, PMATH_UNDEFINED);
+  return pmath_option_value(pmath_System_Complement, pmath_System_SameTest, PMATH_UNDEFINED);
 }
 
 PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr) {
@@ -110,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr) {
   expr = pmath_expr_set_item(expr, 1, PMATH_NULL);
   all = pmath_expr_sort(all);
   
-  if(pmath_same(sametest, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(sametest, pmath_System_Automatic)) {
     for(i = exprlen; i > 1; --i) {
       obj = pmath_expr_get_item(expr, i);
       expr = pmath_expr_set_item(expr, i, PMATH_NULL);
@@ -167,7 +172,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr) {
         cmp = pmath_evaluate(pmath_ref(sametest));
         pmath_unref(cmp);
         
-        if(pmath_same(cmp, PMATH_SYMBOL_TRUE)) {
+        if(pmath_same(cmp, pmath_System_True)) {
           all = pmath_expr_set_item(all, j, PMATH_UNDEFINED);
         }
         
@@ -199,7 +204,7 @@ PMATH_PRIVATE pmath_t builtin_complement(pmath_expr_t expr) {
           cmp = pmath_evaluate(pmath_ref(sametest));
           pmath_unref(cmp);
           
-          if(pmath_same(cmp, PMATH_SYMBOL_TRUE)) {
+          if(pmath_same(cmp, pmath_System_True)) {
             all = pmath_expr_set_item(all, i, PMATH_UNDEFINED);
           }
           

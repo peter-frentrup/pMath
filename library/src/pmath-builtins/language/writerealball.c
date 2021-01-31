@@ -14,7 +14,14 @@
 #include <pmath-util/option-helpers.h>
 
 
-#define RULE(NAME, VALUE)        pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RULE), 2, PMATH_C_STRING(NAME), VALUE)
+#define RULE(NAME, VALUE)        pmath_expr_new_extended(pmath_ref(pmath_System_Rule), 2, PMATH_C_STRING(NAME), VALUE)
+
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_InputForm;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_True;
 
 PMATH_PRIVATE
 pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
@@ -39,7 +46,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   base_flags = 0;
   
   value = pmath_expr_get_item(expr, 1);
-  if(pmath_is_expr_of_len(value, PMATH_SYMBOL_INPUTFORM, 1)) {
+  if(pmath_is_expr_of_len(value, pmath_System_InputForm, 1)) {
     pmath_t tmp;
     tmp = pmath_expr_get_item(value, 1);
     pmath_unref(value);
@@ -69,7 +76,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   str = PMATH_C_STRING("MaxDigits");
   obj = pmath_evaluate(pmath_option_value(PMATH_NULL, str, options));
   pmath_unref(str);
-  if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(obj, pmath_System_Automatic)) {
     max_digits = (int)(PMATH_AS_ARB_WORKING_PREC(value) / _pmath_log2_of(base) + 2);
     pmath_unref(obj);
   }
@@ -97,11 +104,11 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   str = PMATH_C_STRING("AllowInexactDigits");
   obj = pmath_evaluate(pmath_option_value(PMATH_NULL, str, options));
   pmath_unref(str);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(obj, pmath_System_True)) {
     base_flags |= PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS;
     pmath_unref(obj);
   }
-  else if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(pmath_same(obj, pmath_System_False)) {
     //base_flags &= ~PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS;
     pmath_unref(obj);
   }
@@ -143,7 +150,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   }
   
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_LIST), 8,
+           pmath_ref(pmath_System_List), 8,
            RULE("String", str),
            RULE("Sign", parts.is_negative ? PMATH_C_STRING("-") : PMATH_C_STRING("")),
            RULE("Base", PMATH_FROM_INT32(parts.base)),

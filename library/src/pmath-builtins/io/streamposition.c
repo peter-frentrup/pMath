@@ -9,6 +9,8 @@
 #include <stdio.h>
 
 
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE pmath_t builtin_streamposition(pmath_expr_t expr) {
   pmath_t file;
   int64_t pos;
@@ -30,7 +32,7 @@ PMATH_PRIVATE pmath_t builtin_streamposition(pmath_expr_t expr) {
   pmath_unref(file);
   
   if(pos < 0)
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
     
   return pmath_integer_new_si64(pos);
 }
@@ -95,7 +97,7 @@ PMATH_PRIVATE pmath_t builtin_setstreamposition(pmath_expr_t expr) {
   }
   
   if(newpos < 0)
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
     
   return pmath_integer_new_si64(newpos);
 }

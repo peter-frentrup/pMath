@@ -13,10 +13,23 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/io-private.h>
 #include <pmath-builtins/language-private.h>
 
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Character;
+extern pmath_symbol_t pmath_System_EndOfFile;
+extern pmath_symbol_t pmath_System_Expression;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_HoldComplete;
+extern pmath_symbol_t pmath_System_Number;
+extern pmath_symbol_t pmath_System_Real;
+extern pmath_symbol_t pmath_System_RecordLists;
+extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_String;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Word;
 
 struct read_info_t {
   pmath_t       file;
@@ -107,7 +120,7 @@ static pmath_t read_expression(pmath_t file) {
   
   result = _pmath_makeexpression_with_debuginfo(result);
   
-  if(!pmath_is_expr_of(result, PMATH_SYMBOL_HOLDCOMPLETE))
+  if(!pmath_is_expr_of(result, pmath_System_HoldComplete))
     return result;
     
   if(pmath_expr_length(result) == 1) {
@@ -119,7 +132,7 @@ static pmath_t read_expression(pmath_t file) {
     pmath_t debug_info = pmath_get_debug_info(result);
     result = pmath_expr_set_item(
                result, 0,
-               pmath_ref(PMATH_SYMBOL_SEQUENCE));
+               pmath_ref(pmath_System_Sequence));
     result = pmath_try_set_debug_info(result, debug_info);
     return result;
   }
@@ -133,13 +146,13 @@ static pmath_string_t read_word(pmath_t file, pmath_bool_t *eol) {
   switch(skip_whitespace(file, eol)) {
     case PMATH_FILE_ENDOFFILE:
       *eol = TRUE;
-      return pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+      return pmath_ref(pmath_System_EndOfFile);
       
     case PMATH_FILE_OK: break;
     
     default:
       *eol = TRUE;
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
   }
   
   line = pmath_file_readline(file);
@@ -174,7 +187,7 @@ static pmath_t word_to_number(pmath_string_t word) {
   if(pmath_is_null(result)) {
     pmath_message(PMATH_NULL, "readn", 0);
     
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   return result;
@@ -185,15 +198,15 @@ static pmath_bool_t _read(
   pmath_t      *type_value,
   pmath_bool_t *eol
 ) {
-  if(pmath_same(*type_value, PMATH_SYMBOL_STRING)) {
+  if(pmath_same(*type_value, pmath_System_String)) {
     pmath_unref(*type_value);
     *type_value = pmath_file_readline(file);
     
     if(pmath_is_null(*type_value)) {
       if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE)
-        *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+        *type_value = pmath_ref(pmath_System_EndOfFile);
       else
-        *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+        *type_value = pmath_ref(pmath_System_DollarFailed);
     }
     
     *eol = TRUE;
@@ -201,14 +214,14 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(pmath_same(*type_value, PMATH_SYMBOL_CHARACTER)) {
+  if(pmath_same(*type_value, pmath_System_Character)) {
     pmath_unref(*type_value);
     *type_value = pmath_file_readline(file);
     
     if(pmath_string_length(*type_value) == 0) {
       pmath_unref(*type_value);
       if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE)
-        *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+        *type_value = pmath_ref(pmath_System_EndOfFile);
       else
         *type_value = PMATH_C_STRING("\n");
         
@@ -227,31 +240,31 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(pmath_same(*type_value, PMATH_SYMBOL_WORD)) {
+  if(pmath_same(*type_value, pmath_System_Word)) {
     pmath_unref(*type_value);
     *type_value = read_word(file, eol);
     
     if(pmath_string_length(*type_value) == 0) {
       pmath_unref(*type_value);
       if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE)
-        *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+        *type_value = pmath_ref(pmath_System_EndOfFile);
       else
-        *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+        *type_value = pmath_ref(pmath_System_DollarFailed);
     }
     
     return TRUE;
   }
   
-  if(pmath_same(*type_value, PMATH_SYMBOL_NUMBER)) {
+  if(pmath_same(*type_value, pmath_System_Number)) {
     pmath_unref(*type_value);
     *type_value = read_word(file, eol);
     
     if(pmath_string_length(*type_value) == 0) {
       pmath_unref(*type_value);
       if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE)
-        *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+        *type_value = pmath_ref(pmath_System_EndOfFile);
       else
-        *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+        *type_value = pmath_ref(pmath_System_DollarFailed);
     }
     else
       *type_value = word_to_number(*type_value);
@@ -259,16 +272,16 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(pmath_same(*type_value, PMATH_SYMBOL_REAL)) {
+  if(pmath_same(*type_value, pmath_System_Real)) {
     pmath_unref(*type_value);
     *type_value = read_word(file, eol);
     
     if(pmath_string_length(*type_value) == 0) {
       pmath_unref(*type_value);
       if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE)
-        *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+        *type_value = pmath_ref(pmath_System_EndOfFile);
       else
-        *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+        *type_value = pmath_ref(pmath_System_DollarFailed);
     }
     else {
       *type_value = word_to_number(*type_value);
@@ -280,7 +293,7 @@ static pmath_bool_t _read(
     return TRUE;
   }
   
-  if(pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION)) {
+  if(pmath_same(*type_value, pmath_System_Expression)) {
     pmath_unref(*type_value);
     *type_value = read_expression(file);
     
@@ -295,7 +308,7 @@ static pmath_bool_t _read(
     if(pmath_file_status(file) == PMATH_FILE_ENDOFFILE) {
       *eol = TRUE;
       pmath_unref(*type_value);
-      *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+      *type_value = pmath_ref(pmath_System_EndOfFile);
       return TRUE;
     }
     
@@ -315,7 +328,7 @@ static pmath_bool_t _read(
   }
   
   pmath_message(PMATH_NULL, "readf", 1, *type_value);
-  *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+  *type_value = pmath_ref(pmath_System_DollarFailed);
   return FALSE;
 }
 
@@ -336,7 +349,7 @@ PMATH_PRIVATE pmath_t builtin_read(pmath_expr_t expr) {
   type = pmath_expr_get_item(expr, 2);
   if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
     pmath_unref(type);
-    type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
+    type = pmath_ref(pmath_System_Expression);
     last_nonoption = 1;
   }
   else
@@ -354,7 +367,7 @@ PMATH_PRIVATE pmath_t builtin_read(pmath_expr_t expr) {
     pmath_unref(type);
     pmath_unref(expr);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(expr);
@@ -390,7 +403,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
   type = pmath_expr_get_item(expr, 2);
   if(pmath_is_null(type) || pmath_is_set_of_options(type)) {
     pmath_unref(type);
-    type = pmath_ref(PMATH_SYMBOL_EXPRESSION);
+    type = pmath_ref(pmath_System_Expression);
     last_nonoption = 1;
   }
   else {
@@ -423,12 +436,12 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
     return expr;
   }
   
-  item = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_RECORDLISTS, options));
-  if(pmath_same(item, PMATH_SYMBOL_TRUE)) {
+  item = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_RecordLists, options));
+  if(pmath_same(item, pmath_System_True)) {
     record_lists = TRUE;
   }
-  else if(!pmath_same(item, PMATH_SYMBOL_FALSE)) {
-    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_RECORDLISTS), item);
+  else if(!pmath_same(item, pmath_System_False)) {
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(pmath_System_RecordLists), item);
     pmath_unref(options);
     pmath_unref(type);
     return expr;
@@ -446,7 +459,7 @@ PMATH_PRIVATE pmath_t builtin_readlist(pmath_expr_t expr) {
     pmath_unref(type);
     pmath_unref(expr);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(expr);

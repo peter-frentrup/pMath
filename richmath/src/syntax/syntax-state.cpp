@@ -7,6 +7,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Range;
+extern pmath_symbol_t richmath_System_SyntaxInformation;
+
 //{ class ScopePos ...
 
 ScopePos::ScopePos(SharedPtr<ScopePos> super)
@@ -72,8 +76,8 @@ class SyntaxInformationImpl {
       if(value.is_int32() && PMATH_AS_INT32(value.get()) >= 0) {
         self.minargs = self.maxargs = PMATH_AS_INT32(value.get());
       }
-      else if( value.is_expr()                &&
-               value[0] == PMATH_SYMBOL_RANGE &&
+      else if( value.is_expr()                   &&
+               value[0] == richmath_System_Range &&
                value.expr_length() == 2)
       {
         if( value[1].is_int32() &&
@@ -91,7 +95,7 @@ class SyntaxInformationImpl {
     }
     
     void init_local_variables(Expr value) {
-      if( !value.is_expr() || value.expr_length() != 2 || value[0] != PMATH_SYMBOL_LIST)
+      if( !value.is_expr() || value.expr_length() != 2 || value[0] != richmath_System_List)
         return;
         
       String form(value[1]);
@@ -110,8 +114,8 @@ class SyntaxInformationImpl {
         {
           self.locals_min = self.locals_max = PMATH_AS_INT32(value.get());
         }
-        else if( value.is_expr()                &&
-                 value[0] == PMATH_SYMBOL_RANGE &&
+        else if( value.is_expr()                   &&
+                 value[0] == richmath_System_Range &&
                  value.expr_length() == 2)
         {
           if( value[1].is_int32() &&
@@ -148,11 +152,11 @@ SyntaxInformation::SyntaxInformation(Expr name)
 {
   Expr expr = Application::interrupt_wait_cached(
                 Call(
-                  Symbol(PMATH_SYMBOL_SYNTAXINFORMATION),
+                  Symbol(richmath_System_SyntaxInformation),
                   name));
                   
   if( expr.is_expr() &&
-      expr[0] == PMATH_SYMBOL_LIST)
+      expr[0] == richmath_System_List)
   {
     for(size_t i = 1; i <= expr.expr_length(); ++i) {
       Expr opt = expr[i];

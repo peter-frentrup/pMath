@@ -7,6 +7,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
+
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Sign;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_infinite(pmath_t obj) {
   pmath_bool_t result;
@@ -18,7 +23,7 @@ pmath_bool_t _pmath_is_infinite(pmath_t obj) {
   item = pmath_expr_get_item(obj, 0);
   pmath_unref(item);
   
-  if(!pmath_same(item, PMATH_SYMBOL_DIRECTEDINFINITY))
+  if(!pmath_same(item, pmath_System_DirectedInfinity))
     return FALSE;
     
   if(pmath_expr_length(obj) == 0)
@@ -46,7 +51,7 @@ PMATH_PRIVATE pmath_t _pmath_directed_infinity_direction(
   
   head = pmath_expr_get_item(obj, 0);
   pmath_unref(head);
-  if(!pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY))
+  if(!pmath_same(head, pmath_System_DirectedInfinity))
     return PMATH_NULL;
     
   if(pmath_expr_length(obj) == 0)
@@ -68,7 +73,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr) {
   }
   
   item = pmath_expr_get_item(expr, 1);
-  if( pmath_same(item, PMATH_SYMBOL_UNDEFINED) ||
+  if( pmath_same(item, pmath_System_Undefined) ||
       (pmath_is_number(item) &&
        pmath_number_sign(item) == 0))
   {
@@ -79,7 +84,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr) {
   
   sign = pmath_evaluate(
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_SIGN), 1,
+             pmath_ref(pmath_System_Sign), 1,
              pmath_ref(item)));
              
   if(pmath_equals(sign, item)) {
@@ -93,7 +98,7 @@ PMATH_PRIVATE pmath_t builtin_directedinfinity(pmath_expr_t expr) {
   if(pmath_is_expr(sign) && pmath_expr_length(sign) == 1) {
     pmath_t signhead = pmath_expr_get_item(sign, 0);
     pmath_unref(signhead);
-    if(pmath_same(signhead, PMATH_SYMBOL_SIGN)) {
+    if(pmath_same(signhead, pmath_System_Sign)) {
       item = pmath_expr_get_item(sign, 1);
       pmath_unref(sign);
     }

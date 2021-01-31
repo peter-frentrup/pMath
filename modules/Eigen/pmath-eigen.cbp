@@ -358,10 +358,8 @@
 		<Unit filename="src/classification.h" />
 		<Unit filename="src/conversion.h" />
 		<Unit filename="src/main.cpp" />
+		<Unit filename="src/symbols.inc" />
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
 			<lib_finder disable_auto="1" />
 		</Extensions>
 	</Project>

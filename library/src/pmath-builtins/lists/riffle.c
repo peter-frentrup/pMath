@@ -5,6 +5,11 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_All;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Range;
+ 
 PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
   /* Riffle({e1, e2, ...}, x)
      Riffle({e1, e2, ...}, {x1, x2, ...})
@@ -21,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
   
   list = pmath_expr_get_item(expr, 1);
   
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(list, pmath_System_List)) {
     pmath_unref(list);
     return expr;
   }
@@ -32,8 +37,8 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
   step  = 2;
   
   xs = pmath_expr_get_item(expr, 2);
-  if(!pmath_is_expr_of(xs, PMATH_SYMBOL_LIST)) {
-    xs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, xs);
+  if(!pmath_is_expr_of(xs, pmath_System_List)) {
+    xs = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, xs);
   }
   else if(pmath_expr_length(xs) == 0) {
     pmath_unref(expr);
@@ -56,7 +61,7 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
         start = step; end = -2;
       }
     }
-    else if(pmath_is_expr_of(obj, PMATH_SYMBOL_RANGE)) {
+    else if(pmath_is_expr_of(obj, pmath_System_Range)) {
       pmath_t start_obj, end_obj, step_obj;
       start_obj = pmath_expr_get_item(obj, 1);
       end_obj   = pmath_expr_get_item(obj, 2);
@@ -70,7 +75,7 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
         start = pmath_integer_get_siptr(start_obj);
         end   = pmath_integer_get_siptr(end_obj);
       }
-      else if(!pmath_same(obj, PMATH_SYMBOL_ALL)) {
+      else if(!pmath_same(obj, pmath_System_All)) {
         pmath_unref(start_obj);
         pmath_unref(end_obj);
         pmath_unref(step_obj);
@@ -102,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_riffle(pmath_expr_t expr) {
       pmath_unref(end_obj);
       pmath_unref(step_obj);
     }
-    else if(!pmath_same(obj, PMATH_SYMBOL_ALL)) {
+    else if(!pmath_same(obj, pmath_System_All)) {
       pmath_unref(obj);
       pmath_unref(list);
       pmath_unref(xs);

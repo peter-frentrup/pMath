@@ -93,7 +93,7 @@ pmath_bool_t pmath_thread_is_parent(
            stored with the same key. You must destroy it.
 
    Note that keys of the form `symbol::tag` are used to store whether a message
-   should be suppressed (value PMATH_SYMBOL_OFF) or not (value PMATH_NULL).
+   should be suppressed (value System`Off) or not (value PMATH_NULL).
 
    All keys that are \ref pmath_type_t "magic numbers", have special meanings 
    for pmath_thread_local_save(). You should not use them as the a key.

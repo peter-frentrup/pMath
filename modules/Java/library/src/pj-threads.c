@@ -36,6 +36,10 @@ static int sem_post(sem_t *sem) {
 extern pmath_symbol_t pjsym_Java_Internal_StoppedCothread;
 extern pmath_symbol_t pjsym_Java_Java;
 
+extern pmath_symbol_t pjsym_System_HoldForm;
+extern pmath_symbol_t pjsym_System_Message;
+extern pmath_symbol_t pjsym_System_MessageName;
+
 static pmath_t cothread_key = PMATH_STATIC_NULL;
 static pmath_atomic_t bye_companions = PMATH_ATOMIC_STATIC_INIT;
 
@@ -186,11 +190,11 @@ void pj_thread_message(
   size_t i;
   
   va_start(items, argcount);
-  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_MESSAGE), argcount + 1);
+  expr = pmath_expr_new(pmath_ref(pjsym_System_Message), argcount + 1);
   
   expr = pmath_expr_set_item(expr, 1,
                              pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+                               pmath_ref(pjsym_System_MessageName), 2,
                                pmath_ref(sym),
                                PMATH_C_STRING(tag)));
                                
@@ -199,7 +203,7 @@ void pj_thread_message(
     
     if(!pmath_is_evaluated(item))
       item = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
+               pmath_ref(pjsym_System_HoldForm), 1,
                item);
                
     expr = pmath_expr_set_item(expr, 2 + i, item);

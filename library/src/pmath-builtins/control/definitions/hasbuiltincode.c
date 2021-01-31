@@ -4,17 +4,26 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
+
+extern pmath_symbol_t pmath_System_DownRules;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_NRules;
+extern pmath_symbol_t pmath_System_SubRules;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_UpRules;
+
 static pmath_code_usage_t kind_to_usage(pmath_symbol_t kind) {
-  if(pmath_same(kind, PMATH_SYMBOL_DOWNRULES))
+  if(pmath_same(kind, pmath_System_DownRules))
     return PMATH_CODE_USAGE_DOWNCALL;
     
-  if(pmath_same(kind, PMATH_SYMBOL_UPRULES))
+  if(pmath_same(kind, pmath_System_UpRules))
     return PMATH_CODE_USAGE_UPCALL;
     
-  if(pmath_same(kind, PMATH_SYMBOL_SUBRULES))
+  if(pmath_same(kind, pmath_System_SubRules))
     return PMATH_CODE_USAGE_SUBCALL;
     
-  if(pmath_same(kind, PMATH_SYMBOL_NRULES))
+  if(pmath_same(kind, pmath_System_NRules))
     return PMATH_CODE_USAGE_APPROX;
     
   return (pmath_code_usage_t)(-1);
@@ -65,17 +74,17 @@ PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
         _pmath_have_code(sym, PMATH_CODE_USAGE_APPROX))
     {
       pmath_unref(sym);
-      return pmath_ref(PMATH_SYMBOL_TRUE);
+      return pmath_ref(pmath_System_True);
     }
     
     pmath_unref(sym);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   kind = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
   
-  if(pmath_is_expr_of(kind, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(kind, pmath_System_List)) {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(kind); ++i) {
@@ -92,28 +101,28 @@ PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
       if(_pmath_have_code(sym, usage)) {
         pmath_unref(kind);
         pmath_unref(sym);
-        return pmath_ref(PMATH_SYMBOL_TRUE);
+        return pmath_ref(pmath_System_True);
       }
     }
     
     pmath_unref(kind);
     pmath_unref(sym);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   usage = kind_to_usage(kind);
   if((int)usage < 0) {
     pmath_message(PMATH_NULL, "norul", 1, kind);
     pmath_unref(sym);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   pmath_unref(kind);
   if(_pmath_have_code(sym, usage)) {
     pmath_unref(sym);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   }
   
   pmath_unref(sym);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pmath_System_False);
 }

@@ -12,19 +12,32 @@
     pmath_System_ ## name, \
     "System`" #name \
   )
+
 #define PNUM_DECLARE_SYSTEM_FUNC(name) \
   PMATH_NUMERICS_SYMBOL_DOWNFUNC( \
     pmath_System_ ## name, \
     "System`" #name, \
     eval_System_ ## name \
   )
-  
+
+#define PNUM_DECLARE_SYSTEM_DOLLAR_SYMBOL(name) \
+  PMATH_NUMERICS_SYMBOL( \
+    pmath_System_Dollar ## name, \
+    "System`$" #name \
+  )
+
 #define PNUM_DECLARE_SYSTEM_PRIVATE_SYMBOL(name) \
   PMATH_NUMERICS_SYMBOL( \
     pmath_System_Private_ ## name, \
     "System`Private`" #name \
   )
-  
+
+PNUM_DECLARE_SYSTEM_DOLLAR_SYMBOL( Failed )
+
+PNUM_DECLARE_SYSTEM_SYMBOL( Complex )
+PNUM_DECLARE_SYSTEM_SYMBOL( List )
+PNUM_DECLARE_SYSTEM_SYMBOL( Times )
+
 PNUM_DECLARE_SYSTEM_PRIVATE_SYMBOL( AutoSimplifyTrig )
 
 PNUM_DECLARE_SYSTEM_FUNC(   ArcCos  )
@@ -127,5 +140,6 @@ PNUM_DECLARE_SYSTEM_FUNC( ArithmeticGeometricMean )
 
 #undef PNUM_DECLARE_SYSTEM_SIMPLIFY_PRIVATE_SYMBOL
 #undef PNUM_DECLARE_SYSTEM_FUNC
+#undef PNUM_DECLARE_SYSTEM_DOLLAR_SYMBOL
 #undef PNUM_DECLARE_SYSTEM_SYMBOL
 #undef PMATH_NUMERICS_SYMBOL_DOWNFUNC

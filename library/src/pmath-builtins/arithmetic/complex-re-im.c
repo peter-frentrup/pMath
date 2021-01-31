@@ -13,6 +13,14 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Im;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Re;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_is_imaginary(
   pmath_t *z
@@ -22,7 +30,7 @@ pmath_bool_t _pmath_is_imaginary(
     pmath_t head = pmath_expr_get_item(*z, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
+    if(pmath_same(head, pmath_System_Times)) {
       size_t i;
       pmath_t x = pmath_expr_get_item(*z, 1);
       
@@ -43,7 +51,7 @@ pmath_bool_t _pmath_is_imaginary(
             head = pmath_expr_get_item(x, 0);
             pmath_unref(head);
             
-            if(pmath_same(head, PMATH_SYMBOL_COMPLEX)) {
+            if(pmath_same(head, pmath_System_Complex)) {
               pmath_t xx = pmath_expr_get_item(x, 1);
               
               if(pmath_equals(xx, PMATH_FROM_INT32(0))) {
@@ -72,7 +80,7 @@ pmath_bool_t _pmath_is_imaginary(
       return FALSE;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEX) && len == 2) {
+    if(pmath_same(head, pmath_System_Complex) && len == 2) {
       pmath_t x = pmath_expr_get_item(*z, 1);
       
       if(pmath_equals(x, PMATH_FROM_INT32(0))) {
@@ -95,7 +103,7 @@ static pmath_bool_t contains_float_or_complex(pmath_expr_t args) {
   size_t i;
   for(i = pmath_expr_length(args); i > 0; --i) {
     pmath_t x = pmath_expr_get_item(args, i);
-    if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+    if(pmath_is_float(x) || pmath_is_expr_of_len(x, pmath_System_Complex, 2)) {
       pmath_unref(x);
       return TRUE;
     }
@@ -106,7 +114,7 @@ static pmath_bool_t contains_float_or_complex(pmath_expr_t args) {
 
 PMATH_API
 pmath_bool_t pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*func)(acb_t, const acb_t, slong)) {
-  if(pmath_is_float(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_float(x) || pmath_is_expr_of_len(x, pmath_System_Complex, 2)) {
     acb_t z;
     slong prec;
     pmath_bool_t is_machine_prec;
@@ -127,8 +135,8 @@ pmath_bool_t pmath_complex_try_evaluate_acb(pmath_t *expr, pmath_t x, void (*fun
 
 PMATH_API
 pmath_bool_t pmath_complex_try_evaluate_acb_2(pmath_t *expr, pmath_t x, pmath_t y, void (*func)(acb_t, const acb_t, const acb_t, slong)) {
-  if( pmath_is_number(x) || pmath_is_expr_of_len(x, PMATH_SYMBOL_COMPLEX, 2) ||
-      pmath_is_number(y) || pmath_is_expr_of_len(y, PMATH_SYMBOL_COMPLEX, 2))
+  if( pmath_is_number(x) || pmath_is_expr_of_len(x, pmath_System_Complex, 2) ||
+      pmath_is_number(y) || pmath_is_expr_of_len(y, pmath_System_Complex, 2))
   {
     double x_precision = pmath_precision(pmath_ref(x));
     double y_precision = pmath_precision(pmath_ref(y));
@@ -267,7 +275,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
   if(re) *re = PMATH_NULL;
   if(im) *im = PMATH_NULL;
   
-  if( pmath_same(z, PMATH_SYMBOL_UNDEFINED)    ||
+  if( pmath_same(z, pmath_System_Undefined)    ||
       pmath_equals(z, _pmath_object_overflow)  ||
       pmath_equals(z, _pmath_object_underflow) ||
       pmath_is_number(z))
@@ -282,7 +290,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     pmath_unref(zhead);
     
     if( pmath_expr_length(z) == 1 &&
-        (pmath_same(zhead, PMATH_SYMBOL_RE) || pmath_same(zhead, PMATH_SYMBOL_IM)))
+        (pmath_same(zhead, pmath_System_Re) || pmath_same(zhead, pmath_System_Im)))
     {
       if(re) *re = z;
       if(im) *im = PMATH_FROM_INT32(0);
@@ -290,7 +298,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
     }
     
     if( pmath_expr_length(z) == 2 &&
-        pmath_same(zhead, PMATH_SYMBOL_COMPLEX))
+        pmath_same(zhead, pmath_System_Complex))
     {
       if(re) *re = pmath_expr_get_item(z, 1);
       if(im) *im = pmath_expr_get_item(z, 2);
@@ -298,23 +306,23 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       return TRUE;
     }
     
-    if(pmath_same(zhead, PMATH_SYMBOL_PLUS)) {
+    if(pmath_same(zhead, pmath_System_Plus)) {
       size_t i, j;
       
       for(j = 0, i = pmath_expr_length(z); i > 0; --i) {
         pmath_t re2, im2;
         
         if( _pmath_re_im(pmath_expr_get_item(z, i), &re2, &im2) &&
-            !_pmath_contains_symbol(re2, PMATH_SYMBOL_RE) &&
-            !_pmath_contains_symbol(re2, PMATH_SYMBOL_IM) &&
-            !_pmath_contains_symbol(im2, PMATH_SYMBOL_RE) &&
-            !_pmath_contains_symbol(im2, PMATH_SYMBOL_IM))
+            !_pmath_contains_symbol(re2, pmath_System_Re) &&
+            !_pmath_contains_symbol(re2, pmath_System_Im) &&
+            !_pmath_contains_symbol(im2, pmath_System_Re) &&
+            !_pmath_contains_symbol(im2, pmath_System_Im))
         {
           z = pmath_expr_set_item(z, i, PMATH_UNDEFINED);
           
           if(j == 0) {
-            if(re) *re = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), i);
-            if(im) *im = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), i);
+            if(re) *re = pmath_expr_new(pmath_ref(pmath_System_Plus), i);
+            if(im) *im = pmath_expr_new(pmath_ref(pmath_System_Plus), i);
           }
           
           ++j;
@@ -340,7 +348,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
           
           pmath_unref(*re);
           
-          *re = PLUS(z2, FUNC(pmath_ref(PMATH_SYMBOL_RE), pmath_ref(z)));
+          *re = PLUS(z2, FUNC(pmath_ref(pmath_System_Re), pmath_ref(z)));
         }
         
         if(im) {
@@ -348,7 +356,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
           
           pmath_unref(*im);
           
-          *im = PLUS(z2, FUNC(pmath_ref(PMATH_SYMBOL_IM), pmath_ref(z)));
+          *im = PLUS(z2, FUNC(pmath_ref(pmath_System_Im), pmath_ref(z)));
         }
         
         pmath_unref(z);
@@ -362,7 +370,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       return FALSE;
     }
     
-    if(pmath_same(zhead, PMATH_SYMBOL_TIMES) && pmath_expr_length(z) > 0) {
+    if(pmath_same(zhead, pmath_System_Times) && pmath_expr_length(z) > 0) {
       pmath_t re2 = INT(1);
       pmath_t im2 = INT(0);
       size_t i;
@@ -374,10 +382,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
         pmath_t tmp_re, tmp_im;
         
         if(!_pmath_re_im(zi, &re_zi, &im_zi) ||
-            _pmath_contains_symbol(re_zi, PMATH_SYMBOL_RE) ||
-            _pmath_contains_symbol(re_zi, PMATH_SYMBOL_IM) ||
-            _pmath_contains_symbol(im_zi, PMATH_SYMBOL_RE) ||
-            _pmath_contains_symbol(im_zi, PMATH_SYMBOL_IM))
+            _pmath_contains_symbol(re_zi, pmath_System_Re) ||
+            _pmath_contains_symbol(re_zi, pmath_System_Im) ||
+            _pmath_contains_symbol(im_zi, pmath_System_Re) ||
+            _pmath_contains_symbol(im_zi, pmath_System_Im))
         {
           pmath_unref(re_zi);
           pmath_unref(im_zi);
@@ -391,13 +399,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
                 *re = TIMES3(
                         INT(-1),
                         pmath_ref(im2),
-                        FUNC(pmath_ref(PMATH_SYMBOL_IM), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+                        FUNC(pmath_ref(pmath_System_Im), pmath_expr_get_item_range(z, i, SIZE_MAX)));
               }
               
               if(im) {
                 *im = TIMES(
                         pmath_ref(im2),
-                        FUNC(pmath_ref(PMATH_SYMBOL_RE), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+                        FUNC(pmath_ref(pmath_System_Re), pmath_expr_get_item_range(z, i, SIZE_MAX)));
               }
               
               pmath_unref(re2);
@@ -413,13 +421,13 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
               if(re) {
                 *re = TIMES(
                         pmath_ref(re2),
-                        FUNC(pmath_ref(PMATH_SYMBOL_RE), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+                        FUNC(pmath_ref(pmath_System_Re), pmath_expr_get_item_range(z, i, SIZE_MAX)));
               }
               
               if(im) {
                 *im = TIMES(
                         pmath_ref(re2),
-                        FUNC(pmath_ref(PMATH_SYMBOL_IM), pmath_expr_get_item_range(z, i, SIZE_MAX)));
+                        FUNC(pmath_ref(pmath_System_Im), pmath_expr_get_item_range(z, i, SIZE_MAX)));
               }
               
               pmath_unref(re2);
@@ -461,15 +469,15 @@ PMATH_PRIVATE pmath_bool_t _pmath_re_im(
       if(!pmath_is_null(zinfdir)) {
         pmath_unref(z);
         if(re) *re = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+                         pmath_ref(pmath_System_DirectedInfinity), 1,
                          pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_RE), 1,
+                           pmath_ref(pmath_System_Re), 1,
                            pmath_ref(zinfdir)));
                            
         if(im) *im = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+                         pmath_ref(pmath_System_DirectedInfinity), 1,
                          pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_IM), 1,
+                           pmath_ref(pmath_System_Im), 1,
                            pmath_ref(zinfdir)));
                            
         pmath_unref(zinfdir);
@@ -504,7 +512,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_nonreal_complex_number(pmath_t z) {
   pmath_t re, im;
   pmath_bool_t both_numbers;
   
-  if(!pmath_is_expr_of_len(z, PMATH_SYMBOL_COMPLEX, 2))
+  if(!pmath_is_expr_of_len(z, pmath_System_Complex, 2))
     return FALSE;
     
   re = pmath_expr_get_item(z, 1);
@@ -544,7 +552,7 @@ pmath_bool_t _pmath_complex_float_extract_acb(
     return TRUE;
   }
   
-  if(pmath_is_expr_of_len(complex, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(complex, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(complex, 1);
     pmath_t im = pmath_expr_get_item(complex, 2);
     
@@ -592,7 +600,7 @@ pmath_bool_t _pmath_complex_float_extract_acb_for_precision(
     arb_set_ui(acb_imagref(result), 0);
     return TRUE;
   }
-  if(pmath_is_expr_of_len(complex, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(complex, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(complex, 1);
     pmath_t im = pmath_expr_get_item(complex, 2);
     

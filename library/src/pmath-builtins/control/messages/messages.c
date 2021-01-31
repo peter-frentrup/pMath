@@ -11,8 +11,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/control/messages-private.h>
-#include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Messages;
 
 PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   struct _pmath_symbol_rules_t  *rules;
@@ -28,7 +31,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
   if(!kind)
     return expr;
   
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_MESSAGES, 1)){
+  if(!pmath_is_expr_of_len(lhs, pmath_System_Messages, 1)){
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -43,7 +46,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     
     pmath_unref(expr);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(tag);
@@ -57,11 +60,11 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     
     pmath_unref(sym);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if( pmath_same(rhs, PMATH_UNDEFINED) || 
-      pmath_is_expr_of_len(rhs, PMATH_SYMBOL_LIST, 0))
+      pmath_is_expr_of_len(rhs, pmath_System_List, 0))
   {
     rules = _pmath_symbol_get_rules(sym, RULES_READ);
     
@@ -86,9 +89,9 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     return PMATH_NULL;
   }
   
-  if(_pmath_is_rule(rhs)){
+  if(pmath_is_rule(rhs)){
     rhs = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_LIST), 1,
+      pmath_ref(pmath_System_List), 1,
       rhs);
   }
   
@@ -116,7 +119,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
         pmath_unref(rule_rhs);
         pmath_unref(rhs);
         pmath_unref(sym);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       tag = pmath_expr_get_item(lhs, 1);
@@ -126,7 +129,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
         pmath_ht_destroy(messages);
         pmath_unref(rule_rhs);
         pmath_unref(rhs);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       pmath_unref(tag);
       
@@ -136,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
         pmath_ht_destroy(messages);
         pmath_unref(rhs);
         pmath_unref(sym);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       entry = pmath_mem_alloc(sizeof(struct _pmath_object_entry_t));
@@ -171,12 +174,12 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     
     pmath_unref(sym);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(sym);
   pmath_message(PMATH_NULL, "vlist", 2, lhs, rhs);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 PMATH_PRIVATE pmath_t builtin_messages(pmath_expr_t expr){

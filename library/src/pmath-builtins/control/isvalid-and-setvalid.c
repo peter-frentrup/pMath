@@ -1,9 +1,11 @@
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/all-symbols-private.h>
 
 #include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/messages.h>
 
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
 
 PMATH_PRIVATE
 pmath_t builtin_private_isvalid(pmath_expr_t expr) {
@@ -23,15 +25,15 @@ pmath_t builtin_private_isvalid(pmath_expr_t expr) {
   pmath_unref(expr);
   
   if(!pmath_is_pointer(obj))
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   
   flags8 = pmath_atomic_read_uint8_aquire(&PMATH_AS_PTR(obj)->flags8);
   pmath_unref(obj);
   
   if(flags8 & PMATH_OBJECT_FLAGS8_VALID)
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   else
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
 }
 
 PMATH_PRIVATE
@@ -63,12 +65,12 @@ pmath_t builtin_private_setvalid(pmath_expr_t expr) {
   
   value = pmath_expr_get_item(expr, 2);
   pmath_unref(value);
-  if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(value, pmath_System_True)) {
     pmath_atomic_or_uint8(&PMATH_AS_PTR(obj)->flags8, PMATH_OBJECT_FLAGS8_VALID);
     pmath_unref(expr);
     return obj;
   }
-  if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(value, pmath_System_False)) {
     pmath_atomic_and_uint8(&PMATH_AS_PTR(obj)->flags8, (uint8_t)~PMATH_OBJECT_FLAGS8_VALID);
     pmath_unref(expr);
     return obj;

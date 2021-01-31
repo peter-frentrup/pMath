@@ -29,14 +29,11 @@
 #define SYMMETRIC             PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC
 #define THREADLOCAL           PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL
 
-PMATH_PRIVATE pmath_symbol_t _pmath_builtin_symbol_array[PMATH_BUILTIN_SYMBOL_COUNT];
 
-PMATH_API pmath_symbol_t pmath_symbol_builtin(int index) {
-  if(index < 0 || (size_t)index >= PMATH_BUILTIN_SYMBOL_COUNT)
-    return PMATH_NULL;
-    
-  return _pmath_builtin_symbol_array[index];
-}
+#define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)   PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
+#  include "symbols.inc"
+#undef PMATH_DECLARE_SYMBOL
+
 
 /*============================================================================*/
 //{ up/down/sub code hashtables ...
@@ -544,7 +541,7 @@ static pmath_t general_builtin_zerotwoarg(pmath_expr_t expr) {
 static pmath_t general_builtin_nofront(pmath_expr_t expr) {
   pmath_message(PMATH_NULL, "nofront", 0);
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 //} ============================================================================
@@ -931,15 +928,8 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   return TRUE;
 }
 
-#define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)   PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
-#  include "symbols.inc"
-#undef PMATH_DECLARE_SYMBOL
-
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   int i;
-  
-  for(i = 0; i < PMATH_BUILTIN_SYMBOL_COUNT; ++i)
-    _pmath_builtin_symbol_array[i] = PMATH_NULL;
     
   memset((void*)_code_tables, 0, CODE_TABLES_COUNT * sizeof(pmath_hashtable_t));
   
@@ -952,532 +942,12 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   }
   
 #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
-  
-#define NEW_SYMBOL(name)        pmath_symbol_get(PMATH_C_STRING(name), TRUE)
-#define NEW_SYSTEM_SYMBOL(name) NEW_SYMBOL("System`" name)
-  
-  //{ setting symbol names ...
-  VERIFY(   PMATH_SYMBOL_INTERNAL_CONDITION                  = NEW_SYMBOL("Internal`Condition"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG         = NEW_SYMBOL("Internal`CriticalMessageTag"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_GETTHREADID                = NEW_SYMBOL("Internal`GetThreadId"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_MESSAGETHROWN              = NEW_SYMBOL("Internal`MessageThrown"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK         = NEW_SYMBOL("Internal`$NamespacePathStack"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_NAMESPACESTACK             = NEW_SYMBOL("Internal`$NamespaceStack"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL              = NEW_SYMBOL("Internal`ParseRealBall"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLFROMMIDPOINTRADIUS = NEW_SYMBOL("Internal`RealBallFromMidpointRadius"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS             = NEW_SYMBOL("Internal`RealBallBounds"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS     = NEW_SYMBOL("Internal`RealBallMidpointRadius"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_SIGNBIT                    = NEW_SYMBOL("Internal`SignBit"))
-  VERIFY(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL              = NEW_SYMBOL("Internal`WriteRealBall"))
-  
-  VERIFY(   PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION  = NEW_SYMBOL("System`Utilities`GetSystemSyntaxInformation"))
-  
-  VERIFY(   PMATH_SYMBOL_ABORTED                          = NEW_SYSTEM_SYMBOL("$Aborted"))
-  VERIFY(   PMATH_SYMBOL_ABORT                            = NEW_SYSTEM_SYMBOL("Abort"))
-  VERIFY(   PMATH_SYMBOL_ABS                              = NEW_SYSTEM_SYMBOL("Abs"))
-  VERIFY(   PMATH_SYMBOL_ALL                              = NEW_SYSTEM_SYMBOL("All"))
-  VERIFY(   PMATH_SYMBOL_ALTERNATIVES                     = NEW_SYSTEM_SYMBOL("Alternatives"))
-  VERIFY(   PMATH_SYMBOL_AND                              = NEW_SYSTEM_SYMBOL("And"))
-  VERIFY(   PMATH_SYMBOL_APPEND                           = NEW_SYSTEM_SYMBOL("Append"))
-  VERIFY(   PMATH_SYMBOL_APPLICATIONFILENAME              = NEW_SYSTEM_SYMBOL("$ApplicationFileName"))
-  VERIFY(   PMATH_SYMBOL_APPLY                            = NEW_SYSTEM_SYMBOL("Apply"))
-  VERIFY(   PMATH_SYMBOL_ARCCOS                           = NEW_SYSTEM_SYMBOL("ArcCos"))
-  VERIFY(   PMATH_SYMBOL_ARCCOT                           = NEW_SYSTEM_SYMBOL("ArcCot"))
-  VERIFY(   PMATH_SYMBOL_ARCCSC                           = NEW_SYSTEM_SYMBOL("ArcCsc"))
-  VERIFY(   PMATH_SYMBOL_ARCSEC                           = NEW_SYSTEM_SYMBOL("ArcSec"))
-  VERIFY(   PMATH_SYMBOL_ARCSIN                           = NEW_SYSTEM_SYMBOL("ArcSin"))
-  VERIFY(   PMATH_SYMBOL_ARCTAN                           = NEW_SYSTEM_SYMBOL("ArcTan"))
-  VERIFY(   PMATH_SYMBOL_ARG                              = NEW_SYSTEM_SYMBOL("Arg"))
-  VERIFY(   PMATH_SYMBOL_ARRAY                            = NEW_SYSTEM_SYMBOL("Array"))
-  VERIFY(   PMATH_SYMBOL_ASSIGN                           = NEW_SYSTEM_SYMBOL("Assign"))
-  VERIFY(   PMATH_SYMBOL_ASSIGNDELAYED                    = NEW_SYSTEM_SYMBOL("AssignDelayed"))
-  VERIFY(   PMATH_SYMBOL_ASSOCIATIVE                      = NEW_SYSTEM_SYMBOL("Associative"))
-  VERIFY(   PMATH_SYMBOL_ATTRIBUTES                       = NEW_SYSTEM_SYMBOL("Attributes"))
-  VERIFY(   PMATH_SYMBOL_AUTOMATIC                        = NEW_SYSTEM_SYMBOL("Automatic"))
-  VERIFY(   PMATH_SYMBOL_BEGIN                            = NEW_SYSTEM_SYMBOL("Begin"))
-  VERIFY(   PMATH_SYMBOL_BEGINPACKAGE                     = NEW_SYSTEM_SYMBOL("BeginPackage"))
-  VERIFY(   PMATH_SYMBOL_BERNOULLIB                       = NEW_SYSTEM_SYMBOL("BernoulliB"))
-  VERIFY(   PMATH_SYMBOL_BINARYFORMAT                     = NEW_SYSTEM_SYMBOL("BinaryFormat"))
-  VERIFY(   PMATH_SYMBOL_BINARYREAD                       = NEW_SYSTEM_SYMBOL("BinaryRead"))
-  VERIFY(   PMATH_SYMBOL_BINARYREADLIST                   = NEW_SYSTEM_SYMBOL("BinaryReadList"))
-  VERIFY(   PMATH_SYMBOL_BINARYWRITE                      = NEW_SYSTEM_SYMBOL("BinaryWrite"))
-  VERIFY(   PMATH_SYMBOL_BINOMIAL                         = NEW_SYSTEM_SYMBOL("Binomial"))
-  VERIFY(   PMATH_SYMBOL_BITAND                           = NEW_SYSTEM_SYMBOL("BitAnd"))
-  VERIFY(   PMATH_SYMBOL_BITCLEAR                         = NEW_SYSTEM_SYMBOL("BitClear"))
-  VERIFY(   PMATH_SYMBOL_BITGET                           = NEW_SYSTEM_SYMBOL("BitGet"))
-  VERIFY(   PMATH_SYMBOL_BITLENGTH                        = NEW_SYSTEM_SYMBOL("BitLength"))
-  VERIFY(   PMATH_SYMBOL_BITNOT                           = NEW_SYSTEM_SYMBOL("BitNot"))
-  VERIFY(   PMATH_SYMBOL_BITOR                            = NEW_SYSTEM_SYMBOL("BitOr"))
-  VERIFY(   PMATH_SYMBOL_BITSET                           = NEW_SYSTEM_SYMBOL("BitSet"))
-  VERIFY(   PMATH_SYMBOL_BITSHIFTLEFT                     = NEW_SYSTEM_SYMBOL("BitShiftLeft"))
-  VERIFY(   PMATH_SYMBOL_BITSHIFTRIGHT                    = NEW_SYSTEM_SYMBOL("BitShiftRight"))
-  VERIFY(   PMATH_SYMBOL_BITXOR                           = NEW_SYSTEM_SYMBOL("BitXor"))
-  VERIFY(   PMATH_SYMBOL_BLOCK                            = NEW_SYSTEM_SYMBOL("Block"))
-  VERIFY(   PMATH_SYMBOL_BOLD                             = NEW_SYSTEM_SYMBOL("Bold"))
-  VERIFY(   PMATH_SYMBOL_BOOLE                            = NEW_SYSTEM_SYMBOL("Boole"))
-  VERIFY(   PMATH_SYMBOL_BREAK                            = NEW_SYSTEM_SYMBOL("Break"))
-  VERIFY(   PMATH_SYMBOL_BYTECOUNT                        = NEW_SYSTEM_SYMBOL("ByteCount"))
-  VERIFY(   PMATH_SYMBOL_BYTEORDERING                     = NEW_SYSTEM_SYMBOL("ByteOrdering"))
-  VERIFY(   PMATH_SYMBOL_BYTEORDERINGDEFAULT              = NEW_SYSTEM_SYMBOL("$ByteOrdering"))
-  VERIFY(   PMATH_SYMBOL_CANCELED                         = NEW_SYSTEM_SYMBOL("$Canceled"))
-  VERIFY(   PMATH_SYMBOL_CASES                            = NEW_SYSTEM_SYMBOL("Cases"))
-  VERIFY(   PMATH_SYMBOL_CATCH                            = NEW_SYSTEM_SYMBOL("Catch"))
-  VERIFY(   PMATH_SYMBOL_CEILING                          = NEW_SYSTEM_SYMBOL("Ceiling"))
-  VERIFY(   PMATH_SYMBOL_CHARACTER                        = NEW_SYSTEM_SYMBOL("Character"))
-  VERIFY(   PMATH_SYMBOL_CHARACTERENCODING                = NEW_SYSTEM_SYMBOL("CharacterEncoding"))
-  VERIFY(   PMATH_SYMBOL_CHARACTERENCODINGDEFAULT         = NEW_SYSTEM_SYMBOL("$CharacterEncoding"))
-  VERIFY(   PMATH_SYMBOL_CHARACTERS                       = NEW_SYSTEM_SYMBOL("Characters"))
-  VERIFY(   PMATH_SYMBOL_CHOP                             = NEW_SYSTEM_SYMBOL("Chop"))
-  VERIFY(   PMATH_SYMBOL_CLEAR                            = NEW_SYSTEM_SYMBOL("Clear"))
-  VERIFY(   PMATH_SYMBOL_CLEARATTRIBUTES                  = NEW_SYSTEM_SYMBOL("ClearAttributes"))
-  VERIFY(   PMATH_SYMBOL_CLOSE                            = NEW_SYSTEM_SYMBOL("Close"))
-  VERIFY(   PMATH_SYMBOL_COMMANDLINE                      = NEW_SYSTEM_SYMBOL("$CommandLine"))
-  VERIFY(   PMATH_SYMBOL_COMPLEMENT                       = NEW_SYSTEM_SYMBOL("Complement"))
-  VERIFY(   PMATH_SYMBOL_COMPLEX                          = NEW_SYSTEM_SYMBOL("Complex"))
-  VERIFY(   PMATH_SYMBOL_COMPLEXINFINITY                  = NEW_SYSTEM_SYMBOL("ComplexInfinity"))
-  VERIFY(   PMATH_SYMBOL_COMPRESS                         = NEW_SYSTEM_SYMBOL("Compress"))
-  VERIFY(   PMATH_SYMBOL_COMPRESSSTREAM                   = NEW_SYSTEM_SYMBOL("CompressStream"))
-  VERIFY(   PMATH_SYMBOL_CONDITION                        = NEW_SYSTEM_SYMBOL("Condition"))
-  VERIFY(   PMATH_SYMBOL_CONJUGATE                        = NEW_SYSTEM_SYMBOL("Conjugate"))
-  VERIFY(   PMATH_SYMBOL_CONSTANTARRAY                    = NEW_SYSTEM_SYMBOL("ConstantArray"))
-  VERIFY(   PMATH_SYMBOL_CONTINUE                         = NEW_SYSTEM_SYMBOL("Continue"))
-  VERIFY(   PMATH_SYMBOL_CONTROLACTIVE                    = NEW_SYSTEM_SYMBOL("ControlActive"))
-  VERIFY(   PMATH_SYMBOL_CONTROLACTIVESETTING             = NEW_SYSTEM_SYMBOL("$ControlActiveSetting"))
-  VERIFY(   PMATH_SYMBOL_COPYDIRECTORY                    = NEW_SYSTEM_SYMBOL("CopyDirectory"))
-  VERIFY(   PMATH_SYMBOL_COPYFILE                         = NEW_SYSTEM_SYMBOL("CopyFile"))
-  VERIFY(   PMATH_SYMBOL_COS                              = NEW_SYSTEM_SYMBOL("Cos"))
-  VERIFY(   PMATH_SYMBOL_COT                              = NEW_SYSTEM_SYMBOL("Cot"))
-  VERIFY(   PMATH_SYMBOL_CREATEDIRECTORY                  = NEW_SYSTEM_SYMBOL("CreateDirectory"))
-  VERIFY(   PMATH_SYMBOL_CREATEDOCUMENT                   = NEW_SYSTEM_SYMBOL("CreateDocument"))
-  VERIFY(   PMATH_SYMBOL_CROSS                            = NEW_SYSTEM_SYMBOL("Cross"))
-  VERIFY(   PMATH_SYMBOL_CSC                              = NEW_SYSTEM_SYMBOL("Csc"))
-  VERIFY(   PMATH_SYMBOL_CURRENTVALUE                     = NEW_SYSTEM_SYMBOL("CurrentValue"))
-  VERIFY(   PMATH_SYMBOL_DATARANGE                        = NEW_SYSTEM_SYMBOL("DataRange"))
-  VERIFY(   PMATH_SYMBOL_DECREMENT                        = NEW_SYSTEM_SYMBOL("Decrement"))
-  VERIFY(   PMATH_SYMBOL_DEEPHOLDALL                      = NEW_SYSTEM_SYMBOL("DeepHoldAll"))
-  VERIFY(   PMATH_SYMBOL_DEFAULT                          = NEW_SYSTEM_SYMBOL("Default"))
-  VERIFY(   PMATH_SYMBOL_DEFAULTRULES                     = NEW_SYSTEM_SYMBOL("DefaultRules"))
-  VERIFY(   PMATH_SYMBOL_DELETECONTENTS                   = NEW_SYSTEM_SYMBOL("DeleteContents"))
-  VERIFY(   PMATH_SYMBOL_DELETEDIRECTORY                  = NEW_SYSTEM_SYMBOL("DeleteDirectory"))
-  VERIFY(   PMATH_SYMBOL_DELETEFILE                       = NEW_SYSTEM_SYMBOL("DeleteFile"))
-  VERIFY(   PMATH_SYMBOL_DEPTH                            = NEW_SYSTEM_SYMBOL("Depth"))
-  VERIFY(   PMATH_SYMBOL_DET                              = NEW_SYSTEM_SYMBOL("Det"))
-  VERIFY(   PMATH_SYMBOL_DIALOG                           = NEW_SYSTEM_SYMBOL("Dialog"))
-  VERIFY(   PMATH_SYMBOL_DIGITCHARACTER                   = NEW_SYSTEM_SYMBOL("DigitCharacter"))
-  VERIFY(   PMATH_SYMBOL_DIMENSIONS                       = NEW_SYSTEM_SYMBOL("Dimensions"))
-  VERIFY(   PMATH_SYMBOL_DIRECTEDINFINITY                 = NEW_SYSTEM_SYMBOL("DirectedInfinity"))
-  VERIFY(   PMATH_SYMBOL_DIRECTIVE                        = NEW_SYSTEM_SYMBOL("Directive"))
-  VERIFY(   PMATH_SYMBOL_DIRECTORY                        = NEW_SYSTEM_SYMBOL("Directory"))
-  VERIFY(   PMATH_SYMBOL_DIRECTORYNAME                    = NEW_SYSTEM_SYMBOL("DirectoryName"))
-  VERIFY(   PMATH_SYMBOL_DIRECTORYSTACK                   = NEW_SYSTEM_SYMBOL("$DirectoryStack"))
-  VERIFY(   PMATH_SYMBOL_DIVIDEBY                         = NEW_SYSTEM_SYMBOL("DivideBy"))
-  VERIFY(   PMATH_SYMBOL_DO                               = NEW_SYSTEM_SYMBOL("Do"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENT                         = NEW_SYSTEM_SYMBOL("Document"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENTAPPLY                    = NEW_SYSTEM_SYMBOL("DocumentApply"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENTDELETE                   = NEW_SYSTEM_SYMBOL("DocumentDelete"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENTGET                      = NEW_SYSTEM_SYMBOL("DocumentGet"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENTREAD                     = NEW_SYSTEM_SYMBOL("DocumentRead"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENTWRITE                    = NEW_SYSTEM_SYMBOL("DocumentWrite"))
-  VERIFY(   PMATH_SYMBOL_DOCUMENTS                        = NEW_SYSTEM_SYMBOL("Documents"))
-  VERIFY(   PMATH_SYMBOL_DOT                              = NEW_SYSTEM_SYMBOL("Dot"))
-  VERIFY(   PMATH_SYMBOL_DOWNRULES                        = NEW_SYSTEM_SYMBOL("DownRules"))
-  VERIFY(   PMATH_SYMBOL_DROP                             = NEW_SYSTEM_SYMBOL("Drop"))
-  VERIFY(   PMATH_SYMBOL_E                                = NEW_SYSTEM_SYMBOL("E"))
-  VERIFY(   PMATH_SYMBOL_EMIT                             = NEW_SYSTEM_SYMBOL("Emit"))
-  VERIFY(   PMATH_SYMBOL_END                              = NEW_SYSTEM_SYMBOL("End"))
-  VERIFY(   PMATH_SYMBOL_ENDOFFILE                        = NEW_SYSTEM_SYMBOL("EndOfFile"))
-  VERIFY(   PMATH_SYMBOL_ENDOFLINE                        = NEW_SYSTEM_SYMBOL("EndOfLine"))
-  VERIFY(   PMATH_SYMBOL_ENDOFSTRING                      = NEW_SYSTEM_SYMBOL("EndOfString"))
-  VERIFY(   PMATH_SYMBOL_ENDPACKAGE                       = NEW_SYSTEM_SYMBOL("EndPackage"))
-  VERIFY(   PMATH_SYMBOL_ENVIRONMENT                      = NEW_SYSTEM_SYMBOL("Environment"))
-  VERIFY(   PMATH_SYMBOL_EQUAL                            = NEW_SYSTEM_SYMBOL("Equal"))
-  VERIFY(   PMATH_SYMBOL_EULERGAMMA                       = NEW_SYSTEM_SYMBOL("EulerGamma"))
-  VERIFY(   PMATH_SYMBOL_EVALUATE                         = NEW_SYSTEM_SYMBOL("Evaluate"))
-  VERIFY(   PMATH_SYMBOL_EVALUATEDELAYED                  = NEW_SYSTEM_SYMBOL("EvaluateDelayed"))
-  VERIFY(   PMATH_SYMBOL_EVALUATIONDOCUMENT               = NEW_SYSTEM_SYMBOL("EvaluationDocument"))
-  VERIFY(   PMATH_SYMBOL_EVALUATIONSEQUENCE               = NEW_SYSTEM_SYMBOL("EvaluationSequence"))
-  VERIFY(   PMATH_SYMBOL_EXCEPT                           = NEW_SYSTEM_SYMBOL("Except"))
-  VERIFY(   PMATH_SYMBOL_EXP                              = NEW_SYSTEM_SYMBOL("Exp"))
-  VERIFY(   PMATH_SYMBOL_EXPAND                           = NEW_SYSTEM_SYMBOL("Expand"))
-  VERIFY(   PMATH_SYMBOL_EXPANDALL                        = NEW_SYSTEM_SYMBOL("ExpandAll"))
-  VERIFY(   PMATH_SYMBOL_EXPRESSION                       = NEW_SYSTEM_SYMBOL("Expression"))
-  VERIFY(   PMATH_SYMBOL_EXTENDEDGCD                      = NEW_SYSTEM_SYMBOL("ExtendedGCD"))
-  VERIFY(   PMATH_SYMBOL_EXTRACT                          = NEW_SYSTEM_SYMBOL("Extract"))
-  VERIFY(   PMATH_SYMBOL_FACTORIAL                        = NEW_SYSTEM_SYMBOL("Factorial"))
-  VERIFY(   PMATH_SYMBOL_FACTORIAL2                       = NEW_SYSTEM_SYMBOL("Factorial2"))
-  VERIFY(   PMATH_SYMBOL_FAILED                           = NEW_SYSTEM_SYMBOL("$Failed"))
-  VERIFY(   PMATH_SYMBOL_FALSE                            = NEW_SYSTEM_SYMBOL("False"))
-  VERIFY(   PMATH_SYMBOL_FILE                             = NEW_SYSTEM_SYMBOL("File"))
-  VERIFY(   PMATH_SYMBOL_FILEBYTECOUNT                    = NEW_SYSTEM_SYMBOL("FileByteCount"))
-  VERIFY(   PMATH_SYMBOL_FILENAMES                        = NEW_SYSTEM_SYMBOL("FileNames"))
-  VERIFY(   PMATH_SYMBOL_FILETYPE                         = NEW_SYSTEM_SYMBOL("FileType"))
-  VERIFY(   PMATH_SYMBOL_FILTERRULES                      = NEW_SYSTEM_SYMBOL("FilterRules"))
-  VERIFY(   PMATH_SYMBOL_FINALLY                          = NEW_SYSTEM_SYMBOL("Finally"))
-  VERIFY(   PMATH_SYMBOL_FIND                             = NEW_SYSTEM_SYMBOL("Find"))
-  VERIFY(   PMATH_SYMBOL_FINDLIST                         = NEW_SYSTEM_SYMBOL("FindList"))
-  VERIFY(   PMATH_SYMBOL_FIRST                            = NEW_SYSTEM_SYMBOL("First"))
-  VERIFY(   PMATH_SYMBOL_FIXEDPOINT                       = NEW_SYSTEM_SYMBOL("FixedPoint"))
-  VERIFY(   PMATH_SYMBOL_FIXEDPOINTLIST                   = NEW_SYSTEM_SYMBOL("FixedPointList"))
-  VERIFY(   PMATH_SYMBOL_FLATTEN                          = NEW_SYSTEM_SYMBOL("Flatten"))
-  VERIFY(   PMATH_SYMBOL_FLOOR                            = NEW_SYSTEM_SYMBOL("Floor"))
-  VERIFY(   PMATH_SYMBOL_FOLD                             = NEW_SYSTEM_SYMBOL("Fold"))
-  VERIFY(   PMATH_SYMBOL_FOLDLIST                         = NEW_SYSTEM_SYMBOL("FoldList"))
-  VERIFY(   PMATH_SYMBOL_FOR                              = NEW_SYSTEM_SYMBOL("For"))
-  VERIFY(   PMATH_SYMBOL_FORMAT                           = NEW_SYSTEM_SYMBOL("Format"))
-  VERIFY(   PMATH_SYMBOL_FRACTIONALPART                   = NEW_SYSTEM_SYMBOL("FractionalPart"))
-  VERIFY(   PMATH_SYMBOL_FROMCHARACTERCODE                = NEW_SYSTEM_SYMBOL("FromCharacterCode"))
-  VERIFY(   PMATH_SYMBOL_FULLFORM                         = NEW_SYSTEM_SYMBOL("FullForm"))
-  VERIFY(   PMATH_SYMBOL_FUNCTION                         = NEW_SYSTEM_SYMBOL("Function"))
-  VERIFY(   PMATH_SYMBOL_GAMMA                            = NEW_SYSTEM_SYMBOL("Gamma"))
-  VERIFY(   PMATH_SYMBOL_GATHER                           = NEW_SYSTEM_SYMBOL("Gather"))
-  VERIFY(   PMATH_SYMBOL_GCD                              = NEW_SYSTEM_SYMBOL("GCD"))
-  VERIFY(   PMATH_SYMBOL_GENERAL                          = NEW_SYSTEM_SYMBOL("General"))
-  VERIFY(   PMATH_SYMBOL_GET                              = NEW_SYSTEM_SYMBOL("Get"))
-  VERIFY(   PMATH_SYMBOL_GOLDENRATIO                      = NEW_SYSTEM_SYMBOL("GoldenRatio"))
-  VERIFY(   PMATH_SYMBOL_GOTO                             = NEW_SYSTEM_SYMBOL("Goto"))
-  VERIFY(   PMATH_SYMBOL_GRAPHICS                         = NEW_SYSTEM_SYMBOL("Graphics"))
-  VERIFY(   PMATH_SYMBOL_GRAYLEVEL                        = NEW_SYSTEM_SYMBOL("GrayLevel"))
-  VERIFY(   PMATH_SYMBOL_GREATER                          = NEW_SYSTEM_SYMBOL("Greater"))
-  VERIFY(   PMATH_SYMBOL_GREATEREQUAL                     = NEW_SYSTEM_SYMBOL("GreaterEqual"))
-  VERIFY(   PMATH_SYMBOL_HASH                             = NEW_SYSTEM_SYMBOL("Hash"))
-  VERIFY(   PMATH_SYMBOL_HEAD                             = NEW_SYSTEM_SYMBOL("Head"))
-  VERIFY(   PMATH_SYMBOL_HEADS                            = NEW_SYSTEM_SYMBOL("Heads"))
-  VERIFY(   PMATH_SYMBOL_HISTORY                          = NEW_SYSTEM_SYMBOL("$History"))
-  VERIFY(   PMATH_SYMBOL_HISTORYLENGTH                    = NEW_SYSTEM_SYMBOL("$HistoryLength"))
-  VERIFY(   PMATH_SYMBOL_HOLD                             = NEW_SYSTEM_SYMBOL("Hold"))
-  VERIFY(   PMATH_SYMBOL_HOLDALL                          = NEW_SYSTEM_SYMBOL("HoldAll"))
-  VERIFY(   PMATH_SYMBOL_HOLDALLCOMPLETE                  = NEW_SYSTEM_SYMBOL("HoldAllComplete"))
-  VERIFY(   PMATH_SYMBOL_HOLDCOMPLETE                     = NEW_SYSTEM_SYMBOL("HoldComplete"))
-  VERIFY(   PMATH_SYMBOL_HOLDFIRST                        = NEW_SYSTEM_SYMBOL("HoldFirst"))
-  VERIFY(   PMATH_SYMBOL_HOLDFORM                         = NEW_SYSTEM_SYMBOL("HoldForm"))
-  VERIFY(   PMATH_SYMBOL_HOLDPATTERN                      = NEW_SYSTEM_SYMBOL("HoldPattern"))
-  VERIFY(   PMATH_SYMBOL_HOLDREST                         = NEW_SYSTEM_SYMBOL("HoldRest"))
-  VERIFY(   PMATH_SYMBOL_I                                = NEW_SYSTEM_SYMBOL("I"))
-  VERIFY(   PMATH_SYMBOL_IDENTICAL                        = NEW_SYSTEM_SYMBOL("Identical"))
-  VERIFY(   PMATH_SYMBOL_IDENTITY                         = NEW_SYSTEM_SYMBOL("Identity"))
-  VERIFY(   PMATH_SYMBOL_IF                               = NEW_SYSTEM_SYMBOL("If"))
-  VERIFY(   PMATH_SYMBOL_IGNORECASE                       = NEW_SYSTEM_SYMBOL("IgnoreCase"))
-  VERIFY(   PMATH_SYMBOL_IM                               = NEW_SYSTEM_SYMBOL("Im"))
-  VERIFY(   PMATH_SYMBOL_INCREMENT                        = NEW_SYSTEM_SYMBOL("Increment"))
-  VERIFY(   PMATH_SYMBOL_INEQUATION                       = NEW_SYSTEM_SYMBOL("Inequation"))
-  VERIFY(   PMATH_SYMBOL_INFINITY                         = NEW_SYSTEM_SYMBOL("Infinity"))
-  VERIFY(   PMATH_SYMBOL_INHERITED                        = NEW_SYSTEM_SYMBOL("Inherited"))
-  VERIFY(   PMATH_SYMBOL_INITIALDIRECTORY                 = NEW_SYSTEM_SYMBOL("$InitialDirectory"))
-  VERIFY(   PMATH_SYMBOL_INNER                            = NEW_SYSTEM_SYMBOL("Inner"))
-  VERIFY(   PMATH_SYMBOL_INPUT                            = NEW_SYSTEM_SYMBOL("$Input"))
-  VERIFY(   PMATH_SYMBOL_INPUTFORM                        = NEW_SYSTEM_SYMBOL("InputForm"))
-  VERIFY(   PMATH_SYMBOL_INTEGER                          = NEW_SYSTEM_SYMBOL("Integer"))
-  VERIFY(   PMATH_SYMBOL_INTEGERPART                      = NEW_SYSTEM_SYMBOL("IntegerPart"))
-  VERIFY(   PMATH_SYMBOL_INTERRUPT                        = NEW_SYSTEM_SYMBOL("Interrupt"))
-  VERIFY(   PMATH_SYMBOL_INTERSECTION                     = NEW_SYSTEM_SYMBOL("Intersection"))
-  VERIFY(   PMATH_SYMBOL_INTERVAL                         = NEW_SYSTEM_SYMBOL("Interval"))
-  VERIFY(   PMATH_SYMBOL_ISATOM                           = NEW_SYSTEM_SYMBOL("IsAtom"))
-  VERIFY(   PMATH_SYMBOL_ISCOMPLEX                        = NEW_SYSTEM_SYMBOL("IsComplex"))
-  VERIFY(   PMATH_SYMBOL_ISEVEN                           = NEW_SYSTEM_SYMBOL("IsEven"))
-  VERIFY(   PMATH_SYMBOL_ISEXACTNUMBER                    = NEW_SYSTEM_SYMBOL("IsExactNumber"))
-  VERIFY(   PMATH_SYMBOL_ISFLOAT                          = NEW_SYSTEM_SYMBOL("IsFloat"))
-  VERIFY(   PMATH_SYMBOL_ISFREEOF                         = NEW_SYSTEM_SYMBOL("IsFreeOf"))
-  VERIFY(   PMATH_SYMBOL_ISHELD                           = NEW_SYSTEM_SYMBOL("IsHeld"))
-  VERIFY(   PMATH_SYMBOL_ISIMAGINARY                      = NEW_SYSTEM_SYMBOL("IsImaginary"))
-  VERIFY(   PMATH_SYMBOL_ISINEXACTNUMBER                  = NEW_SYSTEM_SYMBOL("IsInexactNumber"))
-  VERIFY(   PMATH_SYMBOL_ISINTEGER                        = NEW_SYSTEM_SYMBOL("IsInteger"))
-  VERIFY(   PMATH_SYMBOL_ISMACHINENUMBER                  = NEW_SYSTEM_SYMBOL("IsMachineNumber"))
-  VERIFY(   PMATH_SYMBOL_ISNEGATIVE                       = NEW_SYSTEM_SYMBOL("IsNegative"))
-  VERIFY(   PMATH_SYMBOL_ISNONNEGATIVE                    = NEW_SYSTEM_SYMBOL("IsNonNegative"))
-  VERIFY(   PMATH_SYMBOL_ISNONPOSITIVE                    = NEW_SYSTEM_SYMBOL("IsNonPositive"))
-  VERIFY(   PMATH_SYMBOL_ISNUMBER                         = NEW_SYSTEM_SYMBOL("IsNumber"))
-  VERIFY(   PMATH_SYMBOL_ISNUMERIC                        = NEW_SYSTEM_SYMBOL("IsNumeric"))
-  VERIFY(   PMATH_SYMBOL_ISODD                            = NEW_SYSTEM_SYMBOL("IsOdd"))
-  VERIFY(   PMATH_SYMBOL_ISORDERED                        = NEW_SYSTEM_SYMBOL("IsOrdered"))
-  VERIFY(   PMATH_SYMBOL_ISPOSITIVE                       = NEW_SYSTEM_SYMBOL("IsPositive"))
-  VERIFY(   PMATH_SYMBOL_ISPRIME                          = NEW_SYSTEM_SYMBOL("IsPrime"))
-  VERIFY(   PMATH_SYMBOL_ISQUOTIENT                       = NEW_SYSTEM_SYMBOL("IsQuotient"))
-  VERIFY(   PMATH_SYMBOL_ISRATIONAL                       = NEW_SYSTEM_SYMBOL("IsRational"))
-  VERIFY(   PMATH_SYMBOL_ISREAL                           = NEW_SYSTEM_SYMBOL("IsReal"))
-  VERIFY(   PMATH_SYMBOL_ISSTRING                         = NEW_SYSTEM_SYMBOL("IsString"))
-  VERIFY(   PMATH_SYMBOL_ISSYMBOL                         = NEW_SYSTEM_SYMBOL("IsSymbol"))
-  VERIFY(   PMATH_SYMBOL_ISVALIDARGUMENTCOUNT             = NEW_SYSTEM_SYMBOL("IsValidArgumentCount"))
-  VERIFY(   PMATH_SYMBOL_ITALIC                           = NEW_SYSTEM_SYMBOL("Italic"))
-  VERIFY(   PMATH_SYMBOL_JACOBISYMBOL                     = NEW_SYSTEM_SYMBOL("JacobiSymbol"))
-  VERIFY(   PMATH_SYMBOL_JOIN                             = NEW_SYSTEM_SYMBOL("Join"))
-  VERIFY(   PMATH_SYMBOL_KRONECKERSYMBOL                  = NEW_SYSTEM_SYMBOL("KroneckerSymbol"))
-  VERIFY(   PMATH_SYMBOL_LABEL                            = NEW_SYSTEM_SYMBOL("Label"))
-  VERIFY(   PMATH_SYMBOL_LAST                             = NEW_SYSTEM_SYMBOL("Last"))
-  VERIFY(   PMATH_SYMBOL_LCM                              = NEW_SYSTEM_SYMBOL("LCM"))
-  VERIFY(   PMATH_SYMBOL_LEAFCOUNT                        = NEW_SYSTEM_SYMBOL("LeafCount"))
-  VERIFY(   PMATH_SYMBOL_LENGTH                           = NEW_SYSTEM_SYMBOL("Length"))
-  VERIFY(   PMATH_SYMBOL_LENGTHWHILE                      = NEW_SYSTEM_SYMBOL("LengthWhile"))
-  VERIFY(   PMATH_SYMBOL_LESS                             = NEW_SYSTEM_SYMBOL("Less"))
-  VERIFY(   PMATH_SYMBOL_LESSEQUAL                        = NEW_SYSTEM_SYMBOL("LessEqual"))
-  VERIFY(   PMATH_SYMBOL_LETTERCHARACTER                  = NEW_SYSTEM_SYMBOL("LetterCharacter"))
-  VERIFY(   PMATH_SYMBOL_LEVEL                            = NEW_SYSTEM_SYMBOL("Level"))
-  VERIFY(   PMATH_SYMBOL_LIST                             = NEW_SYSTEM_SYMBOL("List"))
-  VERIFY(   PMATH_SYMBOL_LISTABLE                         = NEW_SYSTEM_SYMBOL("Listable"))
-  VERIFY(   PMATH_SYMBOL_LISTCONVOLVE                     = NEW_SYSTEM_SYMBOL("ListConvolve"))
-  VERIFY(   PMATH_SYMBOL_LISTLINEPLOT                     = NEW_SYSTEM_SYMBOL("ListLinePlot"))
-  VERIFY(   PMATH_SYMBOL_LITERAL                          = NEW_SYSTEM_SYMBOL("Literal"))
-  VERIFY(   PMATH_SYMBOL_LOADLIBRARY                      = NEW_SYSTEM_SYMBOL("LoadLibrary"))
-  VERIFY(   PMATH_SYMBOL_LOCAL                            = NEW_SYSTEM_SYMBOL("Local"))
-  VERIFY(   PMATH_SYMBOL_LOG                              = NEW_SYSTEM_SYMBOL("Log"))
-  VERIFY(   PMATH_SYMBOL_LOGGAMMA                         = NEW_SYSTEM_SYMBOL("LogGamma"))
-  VERIFY(   PMATH_SYMBOL_LONGEST                          = NEW_SYSTEM_SYMBOL("Longest"))
-  VERIFY(   PMATH_SYMBOL_LONGFORM                         = NEW_SYSTEM_SYMBOL("LongForm"))
-  VERIFY(   PMATH_SYMBOL_LUDECOMPOSITION                  = NEW_SYSTEM_SYMBOL("LUDecomposition"))
-  VERIFY(   PMATH_SYMBOL_MACHINEEPSILON                   = NEW_SYSTEM_SYMBOL("$MachineEpsilon"))
-  VERIFY(   PMATH_SYMBOL_MACHINEPRECISION                 = NEW_SYSTEM_SYMBOL("MachinePrecision"))
-  VERIFY(   PMATH_SYMBOL_MACHINEPRECISION_APPROX          = NEW_SYSTEM_SYMBOL("$MachinePrecision"))
-  VERIFY(   PMATH_SYMBOL_MAKEBOXES                        = NEW_SYSTEM_SYMBOL("MakeBoxes"))
-  VERIFY(   PMATH_SYMBOL_MAKEEXPRESSION                   = NEW_SYSTEM_SYMBOL("MakeExpression"))
-  VERIFY(   PMATH_SYMBOL_MAP                              = NEW_SYSTEM_SYMBOL("Map"))
-  VERIFY(   PMATH_SYMBOL_MAPINDEXED                       = NEW_SYSTEM_SYMBOL("MapIndexed"))
-  VERIFY(   PMATH_SYMBOL_MATCH                            = NEW_SYSTEM_SYMBOL("Match"))
-  VERIFY(   PMATH_SYMBOL_MATRIXFORM                       = NEW_SYSTEM_SYMBOL("MatrixForm"))
-  VERIFY(   PMATH_SYMBOL_MAXEXTRAPRECISION                = NEW_SYSTEM_SYMBOL("$MaxExtraPrecision"))
-  VERIFY(   PMATH_SYMBOL_MAXMACHINENUMBER                 = NEW_SYSTEM_SYMBOL("$MaxMachineNumber"))
-  VERIFY(   PMATH_SYMBOL_MAXRECURSION                     = NEW_SYSTEM_SYMBOL("MaxRecursion"))
-  VERIFY(   PMATH_SYMBOL_MEMORYUSAGE                      = NEW_SYSTEM_SYMBOL("MemoryUsage"))
-  VERIFY(   PMATH_SYMBOL_MESSAGE                          = NEW_SYSTEM_SYMBOL("Message"))
-  VERIFY(   PMATH_SYMBOL_MESSAGECOUNT                     = NEW_SYSTEM_SYMBOL("$MessageCount"))
-  VERIFY(   PMATH_SYMBOL_MESSAGEGROUPS                    = NEW_SYSTEM_SYMBOL("$MessageGroups"))
-  VERIFY(   PMATH_SYMBOL_MESSAGENAME                      = NEW_SYSTEM_SYMBOL("MessageName"))
-  VERIFY(   PMATH_SYMBOL_MESSAGES                         = NEW_SYSTEM_SYMBOL("Messages"))
-  VERIFY(   PMATH_SYMBOL_MINMAX                           = NEW_SYSTEM_SYMBOL("MinMax"))
-  VERIFY(   PMATH_SYMBOL_MINMACHINENUMBER                 = NEW_SYSTEM_SYMBOL("$MinMachineNumber"))
-  VERIFY(   PMATH_SYMBOL_MOD                              = NEW_SYSTEM_SYMBOL("Mod"))
-  VERIFY(   PMATH_SYMBOL_MOST                             = NEW_SYSTEM_SYMBOL("Most"))
-  VERIFY(   PMATH_SYMBOL_N                                = NEW_SYSTEM_SYMBOL("N"))
-  VERIFY(   PMATH_SYMBOL_NAMES                            = NEW_SYSTEM_SYMBOL("Names"))
-  VERIFY(   PMATH_SYMBOL_CURRENTNAMESPACE                 = NEW_SYSTEM_SYMBOL("$Namespace"))
-  VERIFY(   PMATH_SYMBOL_NAMESPACE                        = NEW_SYSTEM_SYMBOL("Namespace"))
-  VERIFY(   PMATH_SYMBOL_NAMESPACEPATH                    = NEW_SYSTEM_SYMBOL("$NamespacePath"))
-  VERIFY(   PMATH_SYMBOL_NCACHE                           = NEW_SYSTEM_SYMBOL("NCache"))
-  VERIFY(   PMATH_SYMBOL_NEWMESSAGE                       = NEW_SYSTEM_SYMBOL("$NewMessage"))
-  VERIFY(   PMATH_SYMBOL_NEWSYMBOL                        = NEW_SYSTEM_SYMBOL("$NewSymbol"))
-  VERIFY(   PMATH_SYMBOL_NEWTASK                          = NEW_SYSTEM_SYMBOL("NewTask"))
-  VERIFY(   PMATH_SYMBOL_NEXTPRIME                        = NEW_SYSTEM_SYMBOL("NextPrime"))
-  VERIFY(   PMATH_SYMBOL_NHOLDALL                         = NEW_SYSTEM_SYMBOL("NHoldAll"))
-  VERIFY(   PMATH_SYMBOL_NHOLDFIRST                       = NEW_SYSTEM_SYMBOL("NHoldFirst"))
-  VERIFY(   PMATH_SYMBOL_NHOLDREST                        = NEW_SYSTEM_SYMBOL("NHoldRest"))
-  VERIFY(   PMATH_SYMBOL_NONE                             = NEW_SYSTEM_SYMBOL("None"))
-  VERIFY(   PMATH_SYMBOL_NORM                             = NEW_SYSTEM_SYMBOL("Norm"))
-  VERIFY(   PMATH_SYMBOL_NOT                              = NEW_SYSTEM_SYMBOL("Not"))
-  VERIFY(   PMATH_SYMBOL_NRULES                           = NEW_SYSTEM_SYMBOL("NRules"))
-  VERIFY(   PMATH_SYMBOL_NUMBER                           = NEW_SYSTEM_SYMBOL("Number"))
-  VERIFY(   PMATH_SYMBOL_NUMERICFUNCTION                  = NEW_SYSTEM_SYMBOL("NumericFunction"))
-  VERIFY(   PMATH_SYMBOL_OFF                              = NEW_SYSTEM_SYMBOL("Off"))
-  VERIFY(   PMATH_SYMBOL_ON                               = NEW_SYSTEM_SYMBOL("On"))
-  VERIFY(   PMATH_SYMBOL_ONEIDENTITY                      = NEW_SYSTEM_SYMBOL("OneIdentity"))
-  VERIFY(   PMATH_SYMBOL_OPENAPPEND                       = NEW_SYSTEM_SYMBOL("OpenAppend"))
-  VERIFY(   PMATH_SYMBOL_OPENREAD                         = NEW_SYSTEM_SYMBOL("OpenRead"))
-  VERIFY(   PMATH_SYMBOL_OPENWRITE                        = NEW_SYSTEM_SYMBOL("OpenWrite"))
-  VERIFY(   PMATH_SYMBOL_OPERATE                          = NEW_SYSTEM_SYMBOL("Operate"))
-  VERIFY(   PMATH_SYMBOL_OPTIONAL                         = NEW_SYSTEM_SYMBOL("Optional"))
-  VERIFY(   PMATH_SYMBOL_OPTIONS                          = NEW_SYSTEM_SYMBOL("Options"))
-  VERIFY(   PMATH_SYMBOL_OPTIONSPATTERN                   = NEW_SYSTEM_SYMBOL("OptionsPattern"))
-  VERIFY(   PMATH_SYMBOL_OPTIONVALUE                      = NEW_SYSTEM_SYMBOL("OptionValue"))
-  VERIFY(   PMATH_SYMBOL_OR                               = NEW_SYSTEM_SYMBOL("Or"))
-  VERIFY(   PMATH_SYMBOL_OUTPUTFORM                       = NEW_SYSTEM_SYMBOL("OutputForm"))
-  VERIFY(   PMATH_SYMBOL_OVERFLOW                         = NEW_SYSTEM_SYMBOL("Overflow"))
-  VERIFY(   PMATH_SYMBOL_OVERLAPS                         = NEW_SYSTEM_SYMBOL("Overlaps"))
-  VERIFY(   PMATH_SYMBOL_OWNRULES                         = NEW_SYSTEM_SYMBOL("OwnRules"))
-  VERIFY(   PMATH_SYMBOL_PACKAGES                         = NEW_SYSTEM_SYMBOL("$Packages"))
-  VERIFY(   PMATH_SYMBOL_PADLEFT                          = NEW_SYSTEM_SYMBOL("PadLeft"))
-  VERIFY(   PMATH_SYMBOL_PADRIGHT                         = NEW_SYSTEM_SYMBOL("PadRight"))
-  VERIFY(   PMATH_SYMBOL_PAGEWIDTH                        = NEW_SYSTEM_SYMBOL("PageWidth"))
-  VERIFY(   PMATH_SYMBOL_PAGEWIDTHDEFAULT                 = NEW_SYSTEM_SYMBOL("$PageWidth"))
-  VERIFY(   PMATH_SYMBOL_PARALLEL_RETURN                  = NEW_SYSTEM_SYMBOL("Parallel`Return"))
-  VERIFY(   PMATH_SYMBOL_PARALLELMAP                      = NEW_SYSTEM_SYMBOL("ParallelMap"))
-  VERIFY(   PMATH_SYMBOL_PARALLELMAPINDEXED               = NEW_SYSTEM_SYMBOL("ParallelMapIndexed"))
-  VERIFY(   PMATH_SYMBOL_PARALLELSCAN                     = NEW_SYSTEM_SYMBOL("ParallelScan"))
-  VERIFY(   PMATH_SYMBOL_PARALLELTRY                      = NEW_SYSTEM_SYMBOL("ParallelTry"))
-  VERIFY(   PMATH_SYMBOL_PARENTDIRECTORY                  = NEW_SYSTEM_SYMBOL("ParentDirectory"))
-  VERIFY(   PMATH_SYMBOL_PARENTHESIZEBOXES                = NEW_SYSTEM_SYMBOL("ParenthesizeBoxes"))
-  VERIFY(   PMATH_SYMBOL_PARSERARGUMENTS                  = NEW_SYSTEM_SYMBOL("ParserArguments"))
-  VERIFY(   PMATH_SYMBOL_PARSESYMBOLS                     = NEW_SYSTEM_SYMBOL("ParseSymbols"))
-  VERIFY(   PMATH_SYMBOL_PART                             = NEW_SYSTEM_SYMBOL("Part"))
-  VERIFY(   PMATH_SYMBOL_PARTITION                        = NEW_SYSTEM_SYMBOL("Partition"))
-  VERIFY(   PMATH_SYMBOL_PATH                             = NEW_SYSTEM_SYMBOL("Path"))
-  VERIFY(   PMATH_SYMBOL_PATHDEFAULT                      = NEW_SYSTEM_SYMBOL("$Path"))
-  VERIFY(   PMATH_SYMBOL_PATHNAMESEPARATOR                = NEW_SYSTEM_SYMBOL("$PathnameSeparator"))
-  VERIFY(   PMATH_SYMBOL_PATTERN                          = NEW_SYSTEM_SYMBOL("Pattern"))
-  VERIFY(   PMATH_SYMBOL_PATTERNSEQUENCE                  = NEW_SYSTEM_SYMBOL("PatternSequence"))
-  VERIFY(   PMATH_SYMBOL_PAUSE                            = NEW_SYSTEM_SYMBOL("Pause"))
-  VERIFY(   PMATH_SYMBOL_PI                               = NEW_SYSTEM_SYMBOL("Pi"))
-  VERIFY(   PMATH_SYMBOL_PIECEWISE                        = NEW_SYSTEM_SYMBOL("Piecewise"))
-  VERIFY(   PMATH_SYMBOL_PLAIN                            = NEW_SYSTEM_SYMBOL("Plain"))
-  VERIFY(   PMATH_SYMBOL_PLOT                             = NEW_SYSTEM_SYMBOL("Plot"))
-  VERIFY(   PMATH_SYMBOL_PLOTPOINTS                       = NEW_SYSTEM_SYMBOL("PlotPoints"))
-  VERIFY(   PMATH_SYMBOL_PLUS                             = NEW_SYSTEM_SYMBOL("Plus"))
-  VERIFY(   PMATH_SYMBOL_POLYGAMMA                        = NEW_SYSTEM_SYMBOL("PolyGamma"))
-  VERIFY(   PMATH_SYMBOL_POSITION                         = NEW_SYSTEM_SYMBOL("Position"))
-  VERIFY(   PMATH_SYMBOL_POSTDECREMENT                    = NEW_SYSTEM_SYMBOL("PostDecrement"))
-  VERIFY(   PMATH_SYMBOL_POSTINCREMENT                    = NEW_SYSTEM_SYMBOL("PostIncrement"))
-  VERIFY(   PMATH_SYMBOL_POWER                            = NEW_SYSTEM_SYMBOL("Power"))
-  VERIFY(   PMATH_SYMBOL_POWERMOD                         = NEW_SYSTEM_SYMBOL("PowerMod"))
-  VERIFY(   PMATH_SYMBOL_PRECISION                        = NEW_SYSTEM_SYMBOL("Precision"))
-  VERIFY(   PMATH_SYMBOL_PREPEND                          = NEW_SYSTEM_SYMBOL("Prepend"))
-  VERIFY(   PMATH_SYMBOL_PRINT                            = NEW_SYSTEM_SYMBOL("Print"))
-  VERIFY(   PMATH_SYMBOL_PROCESSID                        = NEW_SYSTEM_SYMBOL("$ProcessId"))
-  VERIFY(   PMATH_SYMBOL_PROCESSORCOUNT                   = NEW_SYSTEM_SYMBOL("$ProcessorCount"))
-  VERIFY(   PMATH_SYMBOL_PROCESSORTYPE                    = NEW_SYSTEM_SYMBOL("$ProcessorType"))
-  VERIFY(   PMATH_SYMBOL_PRODUCT                          = NEW_SYSTEM_SYMBOL("Product"))
-  VERIFY(   PMATH_SYMBOL_PROTECT                          = NEW_SYSTEM_SYMBOL("Protect"))
-  VERIFY(   PMATH_SYMBOL_PROTECTED                        = NEW_SYSTEM_SYMBOL("Protected"))
-  VERIFY(   PMATH_SYMBOL_PUREARGUMENT                     = NEW_SYSTEM_SYMBOL("PureArgument"))
-  VERIFY(   PMATH_SYMBOL_QRDECOMPOSITION                  = NEW_SYSTEM_SYMBOL("QRDecomposition"))
-  VERIFY(   PMATH_SYMBOL_QUANTILE                         = NEW_SYSTEM_SYMBOL("Quantile"))
-  VERIFY(   PMATH_SYMBOL_QUIT                             = NEW_SYSTEM_SYMBOL("Quit"))
-  VERIFY(   PMATH_SYMBOL_QUOTIENT                         = NEW_SYSTEM_SYMBOL("Quotient"))
-  VERIFY(   PMATH_SYMBOL_RANDOMINTEGER                    = NEW_SYSTEM_SYMBOL("RandomInteger"))
-  VERIFY(   PMATH_SYMBOL_RANDOMREAL                       = NEW_SYSTEM_SYMBOL("RandomReal"))
-  VERIFY(   PMATH_SYMBOL_RANGE                            = NEW_SYSTEM_SYMBOL("Range"))
-  VERIFY(   PMATH_SYMBOL_RATIONAL                         = NEW_SYSTEM_SYMBOL("Rational"))
-  VERIFY(   PMATH_SYMBOL_RAWBOXES                         = NEW_SYSTEM_SYMBOL("RawBoxes"))
-  VERIFY(   PMATH_SYMBOL_RE                               = NEW_SYSTEM_SYMBOL("Re"))
-  VERIFY(   PMATH_SYMBOL_READ                             = NEW_SYSTEM_SYMBOL("Read"))
-  VERIFY(   PMATH_SYMBOL_READLIST                         = NEW_SYSTEM_SYMBOL("ReadList"))
-  VERIFY(   PMATH_SYMBOL_READPROTECTED                    = NEW_SYSTEM_SYMBOL("ReadProtected"))
-  VERIFY(   PMATH_SYMBOL_REAL                             = NEW_SYSTEM_SYMBOL("Real"))
-  VERIFY(   PMATH_SYMBOL_RECORDLISTS                      = NEW_SYSTEM_SYMBOL("RecordLists"))
-  VERIFY(   PMATH_SYMBOL_REFRESH                          = NEW_SYSTEM_SYMBOL("Refresh"))
-  VERIFY(   PMATH_SYMBOL_REGATHER                         = NEW_SYSTEM_SYMBOL("ReGather"))
-  VERIFY(   PMATH_SYMBOL_REGULAREXPRESSION                = NEW_SYSTEM_SYMBOL("RegularExpression"))
-  VERIFY(   PMATH_SYMBOL_RELEASEHOLD                      = NEW_SYSTEM_SYMBOL("ReleaseHold"))
-  VERIFY(   PMATH_SYMBOL_REMOVE                           = NEW_SYSTEM_SYMBOL("Remove"))
-  VERIFY(   PMATH_SYMBOL_RENAMEDIRECTORY                  = NEW_SYSTEM_SYMBOL("RenameDirectory"))
-  VERIFY(   PMATH_SYMBOL_RENAMEFILE                       = NEW_SYSTEM_SYMBOL("RenameFile"))
-  VERIFY(   PMATH_SYMBOL_REPEATED                         = NEW_SYSTEM_SYMBOL("Repeated"))
-  VERIFY(   PMATH_SYMBOL_REPLACE                          = NEW_SYSTEM_SYMBOL("Replace"))
-  VERIFY(   PMATH_SYMBOL_REPLACELIST                      = NEW_SYSTEM_SYMBOL("ReplaceList"))
-  VERIFY(   PMATH_SYMBOL_REPLACEPART                      = NEW_SYSTEM_SYMBOL("ReplacePart"))
-  VERIFY(   PMATH_SYMBOL_REPLACEREPEATED                  = NEW_SYSTEM_SYMBOL("ReplaceRepeated"))
-  VERIFY(   PMATH_SYMBOL_RESCALE                          = NEW_SYSTEM_SYMBOL("Rescale"))
-  VERIFY(   PMATH_SYMBOL_RESETDIRECTORY                   = NEW_SYSTEM_SYMBOL("ResetDirectory"))
-  VERIFY(   PMATH_SYMBOL_REST                             = NEW_SYSTEM_SYMBOL("Rest"))
-  VERIFY(   PMATH_SYMBOL_RETURN                           = NEW_SYSTEM_SYMBOL("Return"))
-  VERIFY(   PMATH_SYMBOL_REVERSE                          = NEW_SYSTEM_SYMBOL("Reverse"))
-  VERIFY(   PMATH_SYMBOL_RGBCOLOR                         = NEW_SYSTEM_SYMBOL("RGBColor"))
-  VERIFY(   PMATH_SYMBOL_ROTATE                           = NEW_SYSTEM_SYMBOL("Rotate"))
-  VERIFY(   PMATH_SYMBOL_ROUND                            = NEW_SYSTEM_SYMBOL("Round"))
-  VERIFY(   PMATH_SYMBOL_ROW                              = NEW_SYSTEM_SYMBOL("Row"))
-  VERIFY(   PMATH_SYMBOL_RULE                             = NEW_SYSTEM_SYMBOL("Rule"))
-  VERIFY(   PMATH_SYMBOL_RULEDELAYED                      = NEW_SYSTEM_SYMBOL("RuleDelayed"))
-  VERIFY(   PMATH_SYMBOL_SAMETEST                         = NEW_SYSTEM_SYMBOL("SameTest"))
-  VERIFY(   PMATH_SYMBOL_SCAN                             = NEW_SYSTEM_SYMBOL("Scan"))
-  VERIFY(   PMATH_SYMBOL_SEC                              = NEW_SYSTEM_SYMBOL("Sec"))
-  VERIFY(   PMATH_SYMBOL_SECTIONPRINT                     = NEW_SYSTEM_SYMBOL("SectionPrint"))
-  VERIFY(   PMATH_SYMBOL_SEEDRANDOM                       = NEW_SYSTEM_SYMBOL("SeedRandom"))
-  VERIFY(   PMATH_SYMBOL_SELECT                           = NEW_SYSTEM_SYMBOL("Select"))
-  VERIFY(   PMATH_SYMBOL_SELECTEDDOCUMENT                 = NEW_SYSTEM_SYMBOL("SelectedDocument"))
-  VERIFY(   PMATH_SYMBOL_SEQUENCE                         = NEW_SYSTEM_SYMBOL("Sequence"))
-  VERIFY(   PMATH_SYMBOL_SETATTRIBUTES                    = NEW_SYSTEM_SYMBOL("SetAttributes"))
-  VERIFY(   PMATH_SYMBOL_SETDIRECTORY                     = NEW_SYSTEM_SYMBOL("SetDirectory"))
-  VERIFY(   PMATH_SYMBOL_SETOPTIONS                       = NEW_SYSTEM_SYMBOL("SetOptions"))
-  VERIFY(   PMATH_SYMBOL_SETPRECISION                     = NEW_SYSTEM_SYMBOL("SetPrecision"))
-  VERIFY(   PMATH_SYMBOL_SETSTREAMPOSITION                = NEW_SYSTEM_SYMBOL("SetStreamPosition"))
-  VERIFY(   PMATH_SYMBOL_SETTING                          = NEW_SYSTEM_SYMBOL("Setting"))
-  VERIFY(   PMATH_SYMBOL_SHALLOW                          = NEW_SYSTEM_SYMBOL("Shallow"))
-  VERIFY(   PMATH_SYMBOL_SHORT                            = NEW_SYSTEM_SYMBOL("Short"))
-  VERIFY(   PMATH_SYMBOL_SHORTEST                         = NEW_SYSTEM_SYMBOL("Shortest"))
-  VERIFY(   PMATH_SYMBOL_SHOWDEFINITION                   = NEW_SYSTEM_SYMBOL("ShowDefinition"))
-  VERIFY(   PMATH_SYMBOL_SIGN                             = NEW_SYSTEM_SYMBOL("Sign"))
-  VERIFY(   PMATH_SYMBOL_SIN                              = NEW_SYSTEM_SYMBOL("Sin"))
-  VERIFY(   PMATH_SYMBOL_SINGLEMATCH                      = NEW_SYSTEM_SYMBOL("SingleMatch"))
-  VERIFY(   PMATH_SYMBOL_SKELETON                         = NEW_SYSTEM_SYMBOL("Skeleton"))
-  VERIFY(   PMATH_SYMBOL_SORT                             = NEW_SYSTEM_SYMBOL("Sort"))
-  VERIFY(   PMATH_SYMBOL_SORTBY                           = NEW_SYSTEM_SYMBOL("SortBy"))
-  VERIFY(   PMATH_SYMBOL_SPECIAL                          = NEW_SYSTEM_SYMBOL("Special"))
-  VERIFY(   PMATH_SYMBOL_SQRT                             = NEW_SYSTEM_SYMBOL("Sqrt"))
-  VERIFY(   PMATH_SYMBOL_STACK                            = NEW_SYSTEM_SYMBOL("Stack"))
-  VERIFY(   PMATH_SYMBOL_STANDARDFORM                     = NEW_SYSTEM_SYMBOL("StandardForm"))
-  VERIFY(   PMATH_SYMBOL_STARTOFLINE                      = NEW_SYSTEM_SYMBOL("StartOfLine"))
-  VERIFY(   PMATH_SYMBOL_STARTOFSTRING                    = NEW_SYSTEM_SYMBOL("StartOfString"))
-  VERIFY(   PMATH_SYMBOL_STREAMPOSITION                   = NEW_SYSTEM_SYMBOL("StreamPosition"))
-  VERIFY(   PMATH_SYMBOL_STRING                           = NEW_SYSTEM_SYMBOL("String"))
-  VERIFY(   PMATH_SYMBOL_STRINGCASES                      = NEW_SYSTEM_SYMBOL("StringCases"))
-  VERIFY(   PMATH_SYMBOL_STRINGDROP                       = NEW_SYSTEM_SYMBOL("StringDrop"))
-  VERIFY(   PMATH_SYMBOL_STRINGEXPRESSION                 = NEW_SYSTEM_SYMBOL("StringExpression"))
-  VERIFY(   PMATH_SYMBOL_STRINGFORM                       = NEW_SYSTEM_SYMBOL("StringForm"))
-  VERIFY(   PMATH_SYMBOL_STRINGMATCH                      = NEW_SYSTEM_SYMBOL("StringMatch"))
-  VERIFY(   PMATH_SYMBOL_STRINGPOSITION                   = NEW_SYSTEM_SYMBOL("StringPosition"))
-  VERIFY(   PMATH_SYMBOL_STRINGREPLACE                    = NEW_SYSTEM_SYMBOL("StringReplace"))
-  VERIFY(   PMATH_SYMBOL_STRINGSPLIT                      = NEW_SYSTEM_SYMBOL("StringSplit"))
-  VERIFY(   PMATH_SYMBOL_STRINGTAKE                       = NEW_SYSTEM_SYMBOL("StringTake"))
-  VERIFY(   PMATH_SYMBOL_SUBRULES                         = NEW_SYSTEM_SYMBOL("SubRules"))
-  VERIFY(   PMATH_SYMBOL_SUM                              = NEW_SYSTEM_SYMBOL("Sum"))
-  VERIFY(   PMATH_SYMBOL_SWITCH                           = NEW_SYSTEM_SYMBOL("Switch"))
-  VERIFY(   PMATH_SYMBOL_SYMBOL                           = NEW_SYSTEM_SYMBOL("Symbol"))
-  VERIFY(   PMATH_SYMBOL_SYMBOLNAME                       = NEW_SYSTEM_SYMBOL("SymbolName"))
-  VERIFY(   PMATH_SYMBOL_SYMMETRIC                        = NEW_SYSTEM_SYMBOL("Symmetric"))
-  VERIFY(   PMATH_SYMBOL_SYNCHRONIZE                      = NEW_SYSTEM_SYMBOL("Synchronize"))
-  VERIFY(   PMATH_SYMBOL_SYNTAX                           = NEW_SYSTEM_SYMBOL("Syntax"))
-  VERIFY(   PMATH_SYMBOL_SYNTAXFORM                       = NEW_SYSTEM_SYMBOL("SyntaxForm"))
-  VERIFY(   PMATH_SYMBOL_SYNTAXINFORMATION                = NEW_SYSTEM_SYMBOL("SyntaxInformation"))
-  VERIFY(   PMATH_SYMBOL_SYSTEMCHARACTERENCODING          = NEW_SYSTEM_SYMBOL("$SystemCharacterEncoding"))
-  VERIFY(   PMATH_SYMBOL_SYSTEMID                         = NEW_SYSTEM_SYMBOL("$SystemId"))
-  VERIFY(   PMATH_SYMBOL_TABLE                            = NEW_SYSTEM_SYMBOL("Table"))
-  VERIFY(   PMATH_SYMBOL_TAGASSIGN                        = NEW_SYSTEM_SYMBOL("TagAssign"))
-  VERIFY(   PMATH_SYMBOL_TAGASSIGNDELAYED                 = NEW_SYSTEM_SYMBOL("TagAssignDelayed"))
-  VERIFY(   PMATH_SYMBOL_TAGUNASSIGN                      = NEW_SYSTEM_SYMBOL("TagUnassign"))
-  VERIFY(   PMATH_SYMBOL_TAKE                             = NEW_SYSTEM_SYMBOL("Take"))
-  VERIFY(   PMATH_SYMBOL_TAKEWHILE                        = NEW_SYSTEM_SYMBOL("TakeWhile"))
-  VERIFY(   PMATH_SYMBOL_TAN                              = NEW_SYSTEM_SYMBOL("Tan"))
-  VERIFY(   PMATH_SYMBOL_THREADID                         = NEW_SYSTEM_SYMBOL("$ThreadId"))
-  VERIFY(   PMATH_SYMBOL_THREADLOCAL                      = NEW_SYSTEM_SYMBOL("ThreadLocal"))
-  VERIFY(   PMATH_SYMBOL_TEMPORARY                        = NEW_SYSTEM_SYMBOL("Temporary"))
-  VERIFY(   PMATH_SYMBOL_TESTPATTERN                      = NEW_SYSTEM_SYMBOL("TestPattern"))
-  VERIFY(   PMATH_SYMBOL_THREAD                           = NEW_SYSTEM_SYMBOL("Thread"))
-  VERIFY(   PMATH_SYMBOL_THROUGH                          = NEW_SYSTEM_SYMBOL("Through"))
-  VERIFY(   PMATH_SYMBOL_THROW                            = NEW_SYSTEM_SYMBOL("Throw"))
-  VERIFY(   PMATH_SYMBOL_TIMECONSTRAINED                  = NEW_SYSTEM_SYMBOL("TimeConstrained"))
-  VERIFY(   PMATH_SYMBOL_TIMES                            = NEW_SYSTEM_SYMBOL("Times"))
-  VERIFY(   PMATH_SYMBOL_TIMESBY                          = NEW_SYSTEM_SYMBOL("TimesBy"))
-  VERIFY(   PMATH_SYMBOL_TIMING                           = NEW_SYSTEM_SYMBOL("Timing"))
-  VERIFY(   PMATH_SYMBOL_TOBOXES                          = NEW_SYSTEM_SYMBOL("ToBoxes"))
-  VERIFY(   PMATH_SYMBOL_TOCHARACTERCODE                  = NEW_SYSTEM_SYMBOL("ToCharacterCode"))
-  VERIFY(   PMATH_SYMBOL_TOFILENAME                       = NEW_SYSTEM_SYMBOL("ToFileName"))
-  VERIFY(   PMATH_SYMBOL_TOSTRING                         = NEW_SYSTEM_SYMBOL("ToString"))
-  VERIFY(   PMATH_SYMBOL_TRUE                             = NEW_SYSTEM_SYMBOL("True"))
-  VERIFY(   PMATH_SYMBOL_TRY                              = NEW_SYSTEM_SYMBOL("Try"))
-  VERIFY(   PMATH_SYMBOL_UNASSIGN                         = NEW_SYSTEM_SYMBOL("Unassign"))
-  VERIFY(   PMATH_SYMBOL_UNCOMPRESS                       = NEW_SYSTEM_SYMBOL("Uncompress"))
-  VERIFY(   PMATH_SYMBOL_UNCOMPRESSSTREAM                 = NEW_SYSTEM_SYMBOL("UncompressStream"))
-  VERIFY(   PMATH_SYMBOL_UNDEFINED                        = NEW_SYSTEM_SYMBOL("Undefined"))
-  VERIFY(   PMATH_SYMBOL_UNDERFLOW                        = NEW_SYSTEM_SYMBOL("Underflow"))
-  VERIFY(   PMATH_SYMBOL_UNEQUAL                          = NEW_SYSTEM_SYMBOL("Unequal"))
-  VERIFY(   PMATH_SYMBOL_UNEVALUATED                      = NEW_SYSTEM_SYMBOL("Unevaluated"))
-  VERIFY(   PMATH_SYMBOL_UNIDENTICAL                      = NEW_SYSTEM_SYMBOL("Unidentical"))
-  VERIFY(   PMATH_SYMBOL_UNION                            = NEW_SYSTEM_SYMBOL("Union"))
-  VERIFY(   PMATH_SYMBOL_UNITVECTOR                       = NEW_SYSTEM_SYMBOL("UnitVector"))
-  VERIFY(   PMATH_SYMBOL_UNPROTECT                        = NEW_SYSTEM_SYMBOL("Unprotect"))
-  VERIFY(   PMATH_SYMBOL_UPDATEINTERVAL                   = NEW_SYSTEM_SYMBOL("UpdateInterval"))
-  VERIFY(   PMATH_SYMBOL_UPRULES                          = NEW_SYSTEM_SYMBOL("UpRules"))
-  VERIFY(   PMATH_SYMBOL_WAIT                             = NEW_SYSTEM_SYMBOL("Wait"))
-  VERIFY(   PMATH_SYMBOL_WHICH                            = NEW_SYSTEM_SYMBOL("Which"))
-  VERIFY(   PMATH_SYMBOL_WHILE                            = NEW_SYSTEM_SYMBOL("While"))
-  VERIFY(   PMATH_SYMBOL_WHITESPACECHARACTER              = NEW_SYSTEM_SYMBOL("WhitespaceCharacter"))
-  VERIFY(   PMATH_SYMBOL_WITH                             = NEW_SYSTEM_SYMBOL("With"))
-  VERIFY(   PMATH_SYMBOL_WORD                             = NEW_SYSTEM_SYMBOL("Word"))
-  VERIFY(   PMATH_SYMBOL_WORDBOUNDARY                     = NEW_SYSTEM_SYMBOL("WordBoundary"))
-  VERIFY(   PMATH_SYMBOL_WORDCHARACTER                    = NEW_SYSTEM_SYMBOL("WordCharacter"))
-  VERIFY(   PMATH_SYMBOL_WORKINGPRECISION                 = NEW_SYSTEM_SYMBOL("WorkingPrecision"))
-  VERIFY(   PMATH_SYMBOL_WRITE                            = NEW_SYSTEM_SYMBOL("Write"))
-  VERIFY(   PMATH_SYMBOL_WRITESTRING                      = NEW_SYSTEM_SYMBOL("WriteString"))
-  VERIFY(   PMATH_SYMBOL_XOR                              = NEW_SYSTEM_SYMBOL("Xor"))
-  VERIFY(   PMATH_SYMBOL_ZETA                             = NEW_SYSTEM_SYMBOL("Zeta"))
-  
-#  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    VERIFY( SYM = NEW_SYMBOL(NAME) );
-#    include "symbols.inc"
-#  undef PMATH_DECLARE_SYMBOL
-  //} ... setting symbol names
-  
-#ifdef PMATH_DEBUG_LOG
-  for(i = 0; i < PMATH_BUILTIN_SYMBOL_COUNT; i++) {
-    if(pmath_is_null(_pmath_builtin_symbol_array[i]))
-      pmath_debug_print("BUILTIN SYMBOL #%d NOT USED\n", i);
-  }
-#endif
-  
+
+#define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    VERIFY( SYM = pmath_symbol_get(PMATH_C_STRING(NAME), TRUE) );
+#  include "symbols.inc"
+#undef PMATH_DECLARE_SYMBOL
+
+
   //{ binding C functions ...
 #define BIND(sym, func, use)  if(!pmath_register_code((sym), (func), (use))) goto FAIL;
 #define BIND_APPROX(sym, func) if(!pmath_register_approx_code((sym), (func))) goto FAIL;
@@ -1486,422 +956,422 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #define BIND_SUB(sym, func)    BIND((sym), (func), PMATH_CODE_USAGE_SUBCALL)
 #define BIND_UP(sym, func)     BIND((sym), (func), PMATH_CODE_USAGE_UPCALL)
   
-  BIND_EARLY(  PMATH_SYMBOL_PLUS,                             builtin_plus)
-  BIND_EARLY(  PMATH_SYMBOL_POWER,                            builtin_power)
-  BIND_EARLY(  PMATH_SYMBOL_TIMES,                            builtin_times)
+  BIND_EARLY(  pmath_System_Plus,                         builtin_plus)
+  BIND_EARLY(  pmath_System_Power,                        builtin_power)
+  BIND_EARLY(  pmath_System_Times,                        builtin_times)
   
-  BIND_SUB(    PMATH_SYMBOL_FUNCTION,                         builtin_call_function)
-  BIND_SUB(    PMATH_SYMBOL_ISHELD,                           builtin_call_isheld)
-  BIND_SUB(    pmath_System_LinearSolveFunction,              builtin_call_linearsolvefunction)
+  BIND_SUB(    pmath_System_Function,                     builtin_call_function)
+  BIND_SUB(    pmath_System_IsHeld,                       builtin_call_isheld)
+  BIND_SUB(    pmath_System_LinearSolveFunction,          builtin_call_linearsolvefunction)
   
-  BIND_UP(     PMATH_SYMBOL_NRULES,                           builtin_assign_symbol_rules)
-  BIND_UP(     PMATH_SYMBOL_ATTRIBUTES,                       builtin_assign_attributes)
-  BIND_UP(     pmath_System_DollarCurrentDirectory,           builtin_assign_currentdirectory)
-  BIND_UP(     PMATH_SYMBOL_CURRENTNAMESPACE,                 builtin_assign_namespace)
-  BIND_UP(     PMATH_SYMBOL_DEFAULT,                          builtin_assign_default)
-  BIND_UP(     PMATH_SYMBOL_DEFAULTRULES,                     builtin_assign_symbol_rules)
-  BIND_UP(     PMATH_SYMBOL_DOWNRULES,                        builtin_assign_symbol_rules)
-  BIND_UP(     PMATH_SYMBOL_ENVIRONMENT,                      builtin_assign_environment)
-  BIND_UP(     PMATH_SYMBOL_FORMAT,                           builtin_assign_makeboxes_or_format)
-  BIND_UP(     pmath_System_FormatRules,                      builtin_assign_symbol_rules)
-  BIND_UP(     PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,          builtin_assign_namespacepath)
-  BIND_UP(     PMATH_SYMBOL_ISNUMERIC,                        builtin_assign_isnumeric)
-  BIND_UP(     PMATH_SYMBOL_LIST,                             builtin_assign_list)
-  BIND_UP(     PMATH_SYMBOL_MAKEBOXES,                        builtin_assign_makeboxes_or_format)
-  BIND_UP(     PMATH_SYMBOL_MAXEXTRAPRECISION,                builtin_assign_maxextraprecision)
-  BIND_UP(     PMATH_SYMBOL_MESSAGENAME,                      builtin_assign_messagename)
-  BIND_UP(     PMATH_SYMBOL_MESSAGES,                         builtin_assign_messages)
-  BIND_UP(     PMATH_SYMBOL_NAMESPACEPATH,                    builtin_assign_namespacepath)
-  BIND_UP(     PMATH_SYMBOL_OPTIONS,                          builtin_assign_options)
-  BIND_UP(     PMATH_SYMBOL_OWNRULES,                         builtin_assign_ownrules)
-  BIND_UP(     PMATH_SYMBOL_PART,                             builtin_assign_part)
-  BIND_UP(     PMATH_SYMBOL_SETPRECISION,                     builtin_assign_setprecision)
-  BIND_UP(     PMATH_SYMBOL_SUBRULES,                         builtin_assign_symbol_rules)
-  BIND_UP(     PMATH_SYMBOL_SYNTAXINFORMATION,                builtin_assign_syntaxinformation)
-  BIND_UP(     PMATH_SYMBOL_UPRULES,                          builtin_assign_symbol_rules)
+  BIND_UP(     pmath_System_NRules,                       builtin_assign_symbol_rules)
+  BIND_UP(     pmath_System_Attributes,                   builtin_assign_attributes)
+  BIND_UP(     pmath_System_DollarCurrentDirectory,       builtin_assign_currentdirectory)
+  BIND_UP(     pmath_System_DollarNamespace,              builtin_assign_namespace)
+  BIND_UP(     pmath_System_Default,                      builtin_assign_default)
+  BIND_UP(     pmath_System_DefaultRules,                 builtin_assign_symbol_rules)
+  BIND_UP(     pmath_System_DownRules,                    builtin_assign_symbol_rules)
+  BIND_UP(     pmath_System_Environment,                  builtin_assign_environment)
+  BIND_UP(     pmath_System_Format,                       builtin_assign_makeboxes_or_format)
+  BIND_UP(     pmath_System_FormatRules,                  builtin_assign_symbol_rules)
+  BIND_UP(     pmath_Internal_DollarNamespaceStack,       builtin_assign_namespacepath)
+  BIND_UP(     pmath_System_IsNumeric,                    builtin_assign_isnumeric)
+  BIND_UP(     pmath_System_List,                         builtin_assign_list)
+  BIND_UP(     pmath_System_MakeBoxes,                    builtin_assign_makeboxes_or_format)
+  BIND_UP(     pmath_System_DollarMaxExtraPrecision,      builtin_assign_maxextraprecision)
+  BIND_UP(     pmath_System_MessageName,                  builtin_assign_messagename)
+  BIND_UP(     pmath_System_Messages,                     builtin_assign_messages)
+  BIND_UP(     pmath_System_DollarNamespacePath,          builtin_assign_namespacepath)
+  BIND_UP(     pmath_System_Options,                      builtin_assign_options)
+  BIND_UP(     pmath_System_OwnRules,                     builtin_assign_ownrules)
+  BIND_UP(     pmath_System_Part,                         builtin_assign_part)
+  BIND_UP(     pmath_System_SetPrecision,                 builtin_assign_setprecision)
+  BIND_UP(     pmath_System_SubRules,                     builtin_assign_symbol_rules)
+  BIND_UP(     pmath_System_SyntaxInformation,            builtin_assign_syntaxinformation)
+  BIND_UP(     pmath_System_UpRules,                      builtin_assign_symbol_rules)
   
-  BIND_UP(     pmath_System_ConditionalExpression,            builtin_operate_conditionalexpression)
-  BIND_UP(     PMATH_SYMBOL_UNDEFINED,                        builtin_operate_undefined)
+  BIND_UP(     pmath_System_ConditionalExpression,        builtin_operate_conditionalexpression)
+  BIND_UP(     pmath_System_Undefined,                    builtin_operate_undefined)
   
-  BIND_DOWN(   pmath_System_Private_GetRefCount,                 builtin_private_getrefcount)
-  BIND_DOWN(   pmath_System_Private_IsValid,                     builtin_private_isvalid)
-  BIND_DOWN(   pmath_System_Private_SetValid,                    builtin_private_setvalid)
+  BIND_DOWN(   pmath_System_Private_GetRefCount,          builtin_private_getrefcount)
+  BIND_DOWN(   pmath_System_Private_IsValid,              builtin_private_isvalid)
+  BIND_DOWN(   pmath_System_Private_SetValid,             builtin_private_setvalid)
   
-  BIND_DOWN(   pmath_Internal_AbortMessage,                      builtin_internal_abortmessage)
-  BIND_DOWN(   pmath_Internal_CopySign,                          builtin_internal_copysign)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG,         builtin_criticalmessagetag)
-  BIND_DOWN(   pmath_Internal_DynamicEvaluate,                   builtin_internal_dynamicevaluate)
-  BIND_DOWN(   pmath_Internal_DynamicEvaluateMultiple,           builtin_internal_dynamicevaluatemultiple)
-  BIND_DOWN(   pmath_Internal_DynamicRemove,                     builtin_internal_dynamicremove)
-  BIND_DOWN(   pmath_Internal_GetCurrentDirectory,               builtin_internal_getcurrentdirectory)
-  BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,               builtin_internal_getcurrentdynamicid)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_GETTHREADID,                builtin_getthreadid)
-  BIND_DOWN(   pmath_Internal_NextToward,                        builtin_internal_nexttoward)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_PARSEREALBALL,              builtin_internal_parserealball)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLFROMMIDPOINTRADIUS, builtin_internal_realballfrommidpointradius)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,             builtin_internal_realballbounds)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,     builtin_internal_realballmidpointradius)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_SIGNBIT,                    builtin_internal_signbit)
-  BIND_DOWN(   pmath_Internal_ThreadIdle,                        builtin_internal_threadidle)
-  BIND_DOWN(   pmath_Internal_TryEvaluateSecured,                builtin_internal_tryevaluatesecured)
-  BIND_DOWN(   PMATH_SYMBOL_INTERNAL_WRITEREALBALL,              builtin_internal_writerealball)
+  BIND_DOWN(   pmath_Internal_AbortMessage,               builtin_internal_abortmessage)
+  BIND_DOWN(   pmath_Internal_CopySign,                   builtin_internal_copysign)
+  BIND_DOWN(   pmath_Internal_CriticalMessageTag,         builtin_criticalmessagetag)
+  BIND_DOWN(   pmath_Internal_DynamicEvaluate,            builtin_internal_dynamicevaluate)
+  BIND_DOWN(   pmath_Internal_DynamicEvaluateMultiple,    builtin_internal_dynamicevaluatemultiple)
+  BIND_DOWN(   pmath_Internal_DynamicRemove,              builtin_internal_dynamicremove)
+  BIND_DOWN(   pmath_Internal_GetCurrentDirectory,        builtin_internal_getcurrentdirectory)
+  BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,        builtin_internal_getcurrentdynamicid)
+  BIND_DOWN(   pmath_Internal_GetThreadId,                builtin_getthreadid)
+  BIND_DOWN(   pmath_Internal_NextToward,                 builtin_internal_nexttoward)
+  BIND_DOWN(   pmath_Internal_ParseRealBall,              builtin_internal_parserealball)
+  BIND_DOWN(   pmath_Internal_RealBallBounds,             builtin_internal_realballbounds)
+  BIND_DOWN(   pmath_Internal_RealBallFromMidpointRadius, builtin_internal_realballfrommidpointradius)
+  BIND_DOWN(   pmath_Internal_RealBallMidpointRadius,     builtin_internal_realballmidpointradius)
+  BIND_DOWN(   pmath_Internal_SignBit,                    builtin_internal_signbit)
+  BIND_DOWN(   pmath_Internal_ThreadIdle,                 builtin_internal_threadidle)
+  BIND_DOWN(   pmath_Internal_TryEvaluateSecured,         builtin_internal_tryevaluatesecured)
+  BIND_DOWN(   pmath_Internal_WriteRealBall,              builtin_internal_writerealball)
   
-  BIND_DOWN(   pmath_Developer_FromPackedArray,          builtin_developer_frompackedarray)
-  BIND_DOWN(   pmath_Developer_GetDebugInfo,             builtin_developer_getdebuginfo)
-  BIND_DOWN(   pmath_Developer_HasBuiltinCode,           builtin_developer_hasbuiltincode)
-  BIND_DOWN(   pmath_Developer_IsPackedArray,            builtin_developer_ispackedarray)
-  BIND_DOWN(   pmath_Developer_SetDebugInfoAt,           builtin_developer_setdebuginfoat)
-  BIND_DOWN(   pmath_Developer_ToPackedArray,            builtin_developer_topackedarray)
+  BIND_DOWN(   pmath_Developer_FromPackedArray,           builtin_developer_frompackedarray)
+  BIND_DOWN(   pmath_Developer_GetDebugInfo,              builtin_developer_getdebuginfo)
+  BIND_DOWN(   pmath_Developer_HasBuiltinCode,            builtin_developer_hasbuiltincode)
+  BIND_DOWN(   pmath_Developer_IsPackedArray,             builtin_developer_ispackedarray)
+  BIND_DOWN(   pmath_Developer_SetDebugInfoAt,            builtin_developer_setdebuginfoat)
+  BIND_DOWN(   pmath_Developer_ToPackedArray,             builtin_developer_topackedarray)
   
-  BIND_DOWN(   PMATH_SYMBOL_ABORT,                       builtin_abort)
-  BIND_DOWN(   PMATH_SYMBOL_ABS,                         builtin_abs)
-  BIND_DOWN(   PMATH_SYMBOL_AND,                         builtin_and)
-  BIND_DOWN(   PMATH_SYMBOL_APPLY,                       builtin_apply)
-  BIND_DOWN(   PMATH_SYMBOL_APPEND,                      builtin_append)
-  BIND_DOWN(   PMATH_SYMBOL_ARG,                         builtin_arg)
-  BIND_DOWN(   PMATH_SYMBOL_ARRAY,                       builtin_array)
-  BIND_DOWN(   PMATH_SYMBOL_ASSIGN,                      builtin_assign)
-  BIND_DOWN(   PMATH_SYMBOL_ASSIGNDELAYED,               builtin_assign)
-  BIND_DOWN(   PMATH_SYMBOL_ATTRIBUTES,                  builtin_attributes)
-  BIND_DOWN(   pmath_System_BaseForm,                    builtin_baseform)
-  BIND_DOWN(   PMATH_SYMBOL_BEGIN,                       builtin_begin)
-  BIND_DOWN(   PMATH_SYMBOL_BEGINPACKAGE,                builtin_beginpackage)
-  BIND_DOWN(   PMATH_SYMBOL_BINARYREAD,                  builtin_binaryread)
-  BIND_DOWN(   PMATH_SYMBOL_BINARYREADLIST,              builtin_binaryreadlist)
-  BIND_DOWN(   PMATH_SYMBOL_BINARYWRITE,                 builtin_binarywrite)
-  BIND_DOWN(   PMATH_SYMBOL_BINOMIAL,                    builtin_binomial)
-  BIND_DOWN(   PMATH_SYMBOL_BITAND,                      builtin_bitand)
-  BIND_DOWN(   PMATH_SYMBOL_BITCLEAR,                    builtin_bitclear)
-  BIND_DOWN(   PMATH_SYMBOL_BITGET,                      builtin_bitget)
-  BIND_DOWN(   PMATH_SYMBOL_BITLENGTH,                   builtin_bitlength)
-  BIND_DOWN(   PMATH_SYMBOL_BITNOT,                      builtin_bitnot)
-  BIND_DOWN(   PMATH_SYMBOL_BITOR,                       builtin_bitor)
-  BIND_DOWN(   PMATH_SYMBOL_BITSET,                      builtin_bitset)
-  BIND_DOWN(   PMATH_SYMBOL_BITSHIFTLEFT,                builtin_bitshiftleft)
-  BIND_DOWN(   PMATH_SYMBOL_BITSHIFTRIGHT,               builtin_bitshiftright)
-  BIND_DOWN(   PMATH_SYMBOL_BITXOR,                      builtin_bitxor)
-  BIND_DOWN(   PMATH_SYMBOL_BLOCK,                       builtin_block)
-  BIND_DOWN(   PMATH_SYMBOL_BOOLE,                       builtin_boole)
-  BIND_DOWN(   PMATH_SYMBOL_BREAK,                       general_builtin_zeroonearg)
-  BIND_DOWN(   pmath_System_Button,                      builtin_button)
-  BIND_DOWN(   PMATH_SYMBOL_BYTECOUNT,                   builtin_bytecount)
-  BIND_DOWN(   PMATH_SYMBOL_CASES,                       builtin_cases)
-  BIND_DOWN(   PMATH_SYMBOL_CATCH,                       builtin_catch)
-  BIND_DOWN(   PMATH_SYMBOL_CEILING,                     builtin_round_functions)
-  BIND_DOWN(   PMATH_SYMBOL_CHARACTERS,                  builtin_characters)
-  BIND_DOWN(   PMATH_SYMBOL_CHOP,                        builtin_chop)
-  BIND_DOWN(   PMATH_SYMBOL_CLEAR,                       builtin_clear_or_clearall)
-  BIND_DOWN(   pmath_System_ClearAll,                    builtin_clear_or_clearall)
-  BIND_DOWN(   PMATH_SYMBOL_CLEARATTRIBUTES,             builtin_clearattributes)
-  BIND_DOWN(   pmath_System_Clock,                       builtin_clock)
-  BIND_DOWN(   PMATH_SYMBOL_CLOSE,                       builtin_close)
-  BIND_DOWN(   PMATH_SYMBOL_COMPLEMENT,                  builtin_complement)
-  BIND_DOWN(   PMATH_SYMBOL_COMPLEX,                     builtin_complex)
-  BIND_DOWN(   PMATH_SYMBOL_COMPRESS,                    builtin_compress)
-  BIND_DOWN(   PMATH_SYMBOL_COMPRESSSTREAM,              builtin_compressstream)
-  BIND_DOWN(   pmath_System_ConditionalExpression,       builtin_conditionalexpression)
-  BIND_DOWN(   PMATH_SYMBOL_CONJUGATE,                   builtin_conjugate)
-  BIND_DOWN(   PMATH_SYMBOL_CONSTANTARRAY,               builtin_constantarray)
-  BIND_DOWN(   PMATH_SYMBOL_CONTINUE,                    general_builtin_zeroonearg)
-  BIND_DOWN(   pmath_System_Count,                       builtin_count)
-  BIND_DOWN(   PMATH_SYMBOL_CREATEDOCUMENT,              general_builtin_nofront)
-  BIND_DOWN(   PMATH_SYMBOL_CURRENTVALUE,                general_builtin_nofront)
-  BIND_DOWN(   pmath_System_DateList,                    builtin_datelist)
-  BIND_DOWN(   PMATH_SYMBOL_DECREMENT,                   builtin_dec_or_inc_or_postdec_or_postinc)
-  BIND_DOWN(   PMATH_SYMBOL_DEFAULT,                     builtin_default)
-  BIND_DOWN(   PMATH_SYMBOL_DEFAULTRULES,                builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_DEPTH,                       builtin_depth)
-  BIND_DOWN(   PMATH_SYMBOL_DET,                         builtin_det)
-  BIND_DOWN(   pmath_System_DiagonalMatrix,              builtin_diagonalmatrix)
-  BIND_DOWN(   PMATH_SYMBOL_DIALOG,                      general_builtin_nofront)
-  BIND_DOWN(   PMATH_SYMBOL_DIMENSIONS,                  builtin_dimensions)
-  BIND_DOWN(   PMATH_SYMBOL_DIRECTEDINFINITY,            builtin_directedinfinity)
-  BIND_DOWN(   PMATH_SYMBOL_DIRECTORYNAME,               builtin_directoryname)
-  BIND_DOWN(   PMATH_SYMBOL_DIVIDEBY,                    builtin_divideby_or_timesby)
-  BIND_DOWN(   PMATH_SYMBOL_DO,                          builtin_do)
-  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTAPPLY,               general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTDELETE,              general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTGET,                 general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTREAD,                general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTWRITE,               general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_DOCUMENTS,                   general_builtin_nofront);
-  BIND_DOWN(   pmath_System_DocumentSave,                general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_DOT,                         builtin_dot)
-  BIND_DOWN(   PMATH_SYMBOL_DOWNRULES,                   builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_DROP,                        builtin_drop)
-  BIND_DOWN(   PMATH_SYMBOL_EMIT,                        builtin_emit)
-  BIND_DOWN(   PMATH_SYMBOL_END,                         builtin_end)
-  BIND_DOWN(   PMATH_SYMBOL_ENDPACKAGE,                  builtin_endpackage)
-  BIND_DOWN(   PMATH_SYMBOL_ENVIRONMENT,                 builtin_environment)
-  BIND_DOWN(   PMATH_SYMBOL_EQUAL,                       builtin_equal)
-  BIND_DOWN(   PMATH_SYMBOL_EVALUATE,                    builtin_evaluate)
-  BIND_DOWN(   PMATH_SYMBOL_EVALUATEDELAYED,             builtin_evaluatedelayed)
-  BIND_DOWN(   PMATH_SYMBOL_EVALUATIONDOCUMENT,          general_builtin_nofront)
-  BIND_DOWN(   PMATH_SYMBOL_EVALUATIONSEQUENCE,          builtin_evaluationsequence)
-  BIND_DOWN(   PMATH_SYMBOL_EXP,                         builtin_exp)
-  BIND_DOWN(   PMATH_SYMBOL_EXPAND,                      builtin_expand)
-  BIND_DOWN(   PMATH_SYMBOL_EXPANDALL,                   builtin_expandall)
-  BIND_DOWN(   PMATH_SYMBOL_EXTENDEDGCD,                 builtin_extendedgcd)
-  BIND_DOWN(   PMATH_SYMBOL_EXTRACT,                     builtin_extract)
-  BIND_DOWN(   PMATH_SYMBOL_FACTORIAL,                   builtin_factorial)
-  BIND_DOWN(   PMATH_SYMBOL_FACTORIAL2,                  builtin_factorial2)
-  BIND_DOWN(   PMATH_SYMBOL_FILENAMES,                   builtin_filenames)
-  BIND_DOWN(   PMATH_SYMBOL_FILETYPE,                    builtin_filetype)
-  BIND_DOWN(   PMATH_SYMBOL_FILTERRULES,                 builtin_filterrules)
-  BIND_DOWN(   PMATH_SYMBOL_FINALLY,                     builtin_finally)
-  BIND_DOWN(   PMATH_SYMBOL_FIND,                        builtin_find)
-  BIND_DOWN(   PMATH_SYMBOL_FINDLIST,                    builtin_findlist)
-  BIND_DOWN(   PMATH_SYMBOL_FIRST,                       builtin_first)
-  BIND_DOWN(   PMATH_SYMBOL_FIXEDPOINT,                  builtin_fixedpoint_and_fixedpointlist)
-  BIND_DOWN(   PMATH_SYMBOL_FIXEDPOINTLIST,              builtin_fixedpoint_and_fixedpointlist)
-  BIND_DOWN(   PMATH_SYMBOL_FLATTEN,                     builtin_flatten)
-  BIND_DOWN(   PMATH_SYMBOL_FLOOR,                       builtin_round_functions)
-  BIND_DOWN(   PMATH_SYMBOL_FOLD,                        builtin_fold)
-  BIND_DOWN(   PMATH_SYMBOL_FOLDLIST,                    builtin_foldlist)
-  BIND_DOWN(   PMATH_SYMBOL_FOR,                         builtin_for)
-  BIND_DOWN(   pmath_System_FormatRules,                 builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_FRACTIONALPART,              builtin_fractionalpart)
-  BIND_DOWN(   PMATH_SYMBOL_FROMCHARACTERCODE,           builtin_fromcharactercode)
-  BIND_DOWN(   pmath_System_FrontEndTokenExecute,        general_builtin_nofront)
-  BIND_DOWN(   PMATH_SYMBOL_FUNCTION,                    builtin_function)
-  BIND_DOWN(   PMATH_SYMBOL_GAMMA,                       builtin_gamma)
-  BIND_DOWN(   PMATH_SYMBOL_GATHER,                      builtin_gather)
-  BIND_DOWN(   PMATH_SYMBOL_GCD,                         builtin_gcd)
-  BIND_DOWN(   PMATH_SYMBOL_GET,                         builtin_get)
-  BIND_DOWN(   PMATH_SYMBOL_GOTO,                        general_builtin_onearg)
-  BIND_DOWN(   PMATH_SYMBOL_GREATER,                     builtin_greater)
-  BIND_DOWN(   PMATH_SYMBOL_GREATEREQUAL,                builtin_greaterequal)
-  BIND_DOWN(   PMATH_SYMBOL_HASH,                        builtin_hash)
-  BIND_DOWN(   PMATH_SYMBOL_HEAD,                        builtin_head)
-  BIND_DOWN(   PMATH_SYMBOL_HISTORY,                     builtin_history)
-  BIND_DOWN(   PMATH_SYMBOL_IDENTICAL,                   builtin_identical)
-  BIND_DOWN(   PMATH_SYMBOL_IDENTITY,                    builtin_evaluate)
-  BIND_DOWN(   pmath_System_IdentityMatrix,              builtin_identitymatrix)
-  BIND_DOWN(   PMATH_SYMBOL_IF,                          builtin_if)
-  BIND_DOWN(   PMATH_SYMBOL_IM,                          builtin_im)
-  BIND_DOWN(   PMATH_SYMBOL_INCREMENT,                   builtin_dec_or_inc_or_postdec_or_postinc)
-  BIND_DOWN(   PMATH_SYMBOL_INEQUATION,                  builtin_inequation)
-  BIND_DOWN(   PMATH_SYMBOL_INNER,                       builtin_inner)
-  BIND_DOWN(   PMATH_SYMBOL_INTEGERPART,                 builtin_round_functions)
-  BIND_DOWN(   PMATH_SYMBOL_INTERRUPT,                   general_builtin_nofront)
-  BIND_DOWN(   PMATH_SYMBOL_INTERSECTION,                builtin_intersection)
-  BIND_DOWN(   pmath_System_IsArray,                     builtin_isarray)
-  BIND_DOWN(   PMATH_SYMBOL_ISATOM,                      builtin_isatom)
-  BIND_DOWN(   PMATH_SYMBOL_ISCOMPLEX,                   builtin_iscomplex)
-  BIND_DOWN(   PMATH_SYMBOL_ISEVEN,                      builtin_iseven)
-  BIND_DOWN(   PMATH_SYMBOL_ISEXACTNUMBER,               builtin_isexactnumber)
-  BIND_DOWN(   PMATH_SYMBOL_ISFLOAT,                     builtin_isfloat)
-  BIND_DOWN(   PMATH_SYMBOL_ISFREEOF,                    builtin_isfreeof)
-  BIND_DOWN(   PMATH_SYMBOL_ISHELD,                      builtin_isheld)
-  BIND_DOWN(   PMATH_SYMBOL_ISIMAGINARY,                 builtin_isimaginary)
-  BIND_DOWN(   PMATH_SYMBOL_ISINEXACTNUMBER,             builtin_isinexactnumber)
-  BIND_DOWN(   PMATH_SYMBOL_ISINTEGER,                   builtin_isinteger)
-  BIND_DOWN(   PMATH_SYMBOL_ISMACHINENUMBER,             builtin_ismachinenumber)
-  BIND_DOWN(   pmath_System_IsMatrix,                    builtin_ismatrix)
-  BIND_DOWN(   PMATH_SYMBOL_ISNEGATIVE,                  builtin_ispos_or_isneg)
-  BIND_DOWN(   PMATH_SYMBOL_ISNONNEGATIVE,               builtin_ispos_or_isneg)
-  BIND_DOWN(   PMATH_SYMBOL_ISNONPOSITIVE,               builtin_ispos_or_isneg)
-  BIND_DOWN(   PMATH_SYMBOL_ISNUMBER,                    builtin_isnumber)
-  BIND_DOWN(   PMATH_SYMBOL_ISNUMERIC,                   builtin_isnumeric)
-  BIND_DOWN(   PMATH_SYMBOL_ISODD,                       builtin_isodd)
-  BIND_DOWN(   pmath_System_IsOption,                    builtin_isoption)
-  BIND_DOWN(   PMATH_SYMBOL_ISORDERED,                   builtin_isordered)
-  BIND_DOWN(   PMATH_SYMBOL_ISPOSITIVE,                  builtin_ispos_or_isneg)
-  BIND_DOWN(   PMATH_SYMBOL_ISPRIME,                     builtin_isprime)
-  BIND_DOWN(   PMATH_SYMBOL_ISQUOTIENT,                  builtin_isquotient)
-  BIND_DOWN(   PMATH_SYMBOL_ISRATIONAL,                  builtin_isrational)
-  BIND_DOWN(   PMATH_SYMBOL_ISREAL,                      builtin_isreal)
-  BIND_DOWN(   PMATH_SYMBOL_ISSTRING,                    builtin_isstring)
-  BIND_DOWN(   PMATH_SYMBOL_ISSYMBOL,                    builtin_issymbol)
-  BIND_DOWN(   PMATH_SYMBOL_ISVALIDARGUMENTCOUNT,        builtin_isvalidargumentcount)
-  BIND_DOWN(   pmath_System_IsVector,                    builtin_isvector)
-  BIND_DOWN(   PMATH_SYMBOL_JACOBISYMBOL,                builtin_jacobisymbol_and_kroneckersymbol)
-  BIND_DOWN(   PMATH_SYMBOL_JOIN,                        builtin_join)
-  BIND_DOWN(   pmath_System_Keys,                        builtin_keys)
-  BIND_DOWN(   PMATH_SYMBOL_KRONECKERSYMBOL,             builtin_jacobisymbol_and_kroneckersymbol)
-  BIND_DOWN(   PMATH_SYMBOL_LABEL,                       general_builtin_onearg)
-  BIND_DOWN(   PMATH_SYMBOL_LAST,                        builtin_last)
-  BIND_DOWN(   PMATH_SYMBOL_LCM,                         builtin_lcm)
-  BIND_DOWN(   PMATH_SYMBOL_LEAFCOUNT,                   builtin_leafcount)
-  BIND_DOWN(   PMATH_SYMBOL_LENGTH,                      builtin_length)
-  BIND_DOWN(   PMATH_SYMBOL_LENGTHWHILE,                 builtin_lengthwhile)
-  BIND_DOWN(   PMATH_SYMBOL_LESS,                        builtin_less)
-  BIND_DOWN(   PMATH_SYMBOL_LESSEQUAL,                   builtin_lessequal)
-  BIND_DOWN(   PMATH_SYMBOL_LEVEL,                       builtin_level)
-  BIND_DOWN(   pmath_System_LinearSolve,                 builtin_linearsolve)
-  BIND_DOWN(   PMATH_SYMBOL_LISTCONVOLVE,                builtin_listconvolve)
-  BIND_DOWN(   PMATH_SYMBOL_LOADLIBRARY,                 builtin_loadlibrary)
-  BIND_DOWN(   PMATH_SYMBOL_LOCAL,                       builtin_local)
-  BIND_DOWN(   PMATH_SYMBOL_LOG,                         builtin_log)
-  BIND_DOWN(   PMATH_SYMBOL_LOGGAMMA,                    builtin_loggamma)
-  BIND_DOWN(   pmath_System_Lookup,                      builtin_lookup)
-  BIND_DOWN(   PMATH_SYMBOL_LUDECOMPOSITION,             builtin_ludecomposition)
-  BIND_DOWN(   PMATH_SYMBOL_MAP,                         builtin_map)
-  BIND_DOWN(   PMATH_SYMBOL_MAPINDEXED,                  builtin_mapindexed)
-  BIND_DOWN(   pmath_System_MapThread,                   builtin_mapthread)
-  BIND_DOWN(   PMATH_SYMBOL_MAKEBOXES,                   builtin_makeboxes)
-  BIND_DOWN(   PMATH_SYMBOL_MAKEEXPRESSION,              builtin_makeexpression)
-  BIND_DOWN(   PMATH_SYMBOL_MATCH,                       builtin_match)
-  BIND_DOWN(   pmath_System_Max,                         builtin_max)
-  BIND_DOWN(   pmath_System_Mean,                        builtin_mean)
-  BIND_DOWN(   PMATH_SYMBOL_MEMORYUSAGE,                 builtin_memoryusage)
-  BIND_DOWN(   PMATH_SYMBOL_MESSAGE,                     builtin_message)
-  BIND_DOWN(   PMATH_SYMBOL_MESSAGECOUNT,                builtin_messagecount)
-  BIND_DOWN(   PMATH_SYMBOL_MESSAGENAME,                 builtin_messagename)
-  BIND_DOWN(   PMATH_SYMBOL_MESSAGES,                    builtin_messages)
-  BIND_DOWN(   pmath_System_Min,                         builtin_min)
-  BIND_DOWN(   PMATH_SYMBOL_MINMAX,                      builtin_minmax)
-  BIND_DOWN(   PMATH_SYMBOL_MOD,                         builtin_mod)
-  BIND_DOWN(   PMATH_SYMBOL_MOST,                        builtin_most)
-  BIND_DOWN(   PMATH_SYMBOL_N,                           builtin_approximate)
-  BIND_DOWN(   PMATH_SYMBOL_NAMES,                       builtin_names)
-  BIND_DOWN(   PMATH_SYMBOL_NAMESPACE,                   builtin_namespace)
-  BIND_DOWN(   pmath_System_Nest,                        builtin_nest)
-  BIND_DOWN(   pmath_System_NestList,                    builtin_nestlist)
-  BIND_DOWN(   pmath_System_NestWhile,                   builtin_nestwhile_and_nestwhilelist)
-  BIND_DOWN(   pmath_System_NestWhileList,               builtin_nestwhile_and_nestwhilelist)
-  BIND_DOWN(   PMATH_SYMBOL_NEWTASK,                     builtin_newtask)
-  BIND_DOWN(   PMATH_SYMBOL_NEXTPRIME,                   builtin_nextprime)
-  BIND_DOWN(   PMATH_SYMBOL_NOT,                         builtin_not)
-  BIND_DOWN(   PMATH_SYMBOL_NORM,                        builtin_norm)
-  BIND_DOWN(   PMATH_SYMBOL_NRULES,                      builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_OFF,                         builtin_on_or_off)
-  BIND_DOWN(   PMATH_SYMBOL_ON,                          builtin_on_or_off)
-  BIND_DOWN(   PMATH_SYMBOL_OR,                          builtin_or)
-  BIND_DOWN(   pmath_System_Ordering,                    builtin_ordering)
-  BIND_DOWN(   PMATH_SYMBOL_OPENAPPEND,                  builtin_open)
-  BIND_DOWN(   PMATH_SYMBOL_OPENREAD,                    builtin_open)
-  BIND_DOWN(   PMATH_SYMBOL_OPENWRITE,                   builtin_open)
-  BIND_DOWN(   PMATH_SYMBOL_OPERATE,                     builtin_operate)
-  BIND_DOWN(   PMATH_SYMBOL_OPTIONSPATTERN,              general_builtin_zeroonearg)
-  BIND_DOWN(   PMATH_SYMBOL_OPTIONS,                     builtin_options)
-  BIND_DOWN(   PMATH_SYMBOL_OPTIONVALUE,                 builtin_optionvalue)
-  BIND_DOWN(   PMATH_SYMBOL_OVERFLOW,                    general_builtin_zeroargs)
-  BIND_DOWN(   PMATH_SYMBOL_OWNRULES,                    builtin_ownrules)
-  BIND_DOWN(   PMATH_SYMBOL_PADLEFT,                     builtin_padleft_and_padright)
-  BIND_DOWN(   PMATH_SYMBOL_PADRIGHT,                    builtin_padleft_and_padright)
-  BIND_DOWN(   PMATH_SYMBOL_PARALLELMAP,                 builtin_parallelmap)
-  BIND_DOWN(   PMATH_SYMBOL_PARALLELMAPINDEXED,          builtin_parallelmapindexed)
-  BIND_DOWN(   PMATH_SYMBOL_PARALLELSCAN,                builtin_parallelscan)
-  BIND_DOWN(   PMATH_SYMBOL_PARALLELTRY,                 builtin_paralleltry)
-  BIND_DOWN(   PMATH_SYMBOL_PARENTDIRECTORY,             builtin_parentdirectory)
-  BIND_DOWN(   PMATH_SYMBOL_PARENTHESIZEBOXES,           builtin_parenthesizeboxes)
-  BIND_DOWN(   PMATH_SYMBOL_PART,                        builtin_part)
-  BIND_DOWN(   PMATH_SYMBOL_PARTITION,                   builtin_partition)
-  BIND_DOWN(   PMATH_SYMBOL_PAUSE,                       builtin_pause)
-  BIND_DOWN(   PMATH_SYMBOL_PIECEWISE,                   builtin_piecewise)
-  BIND_DOWN(   PMATH_SYMBOL_POLYGAMMA,                   builtin_polygamma)
-  BIND_DOWN(   PMATH_SYMBOL_POSITION,                    builtin_position)
-  BIND_DOWN(   PMATH_SYMBOL_POSTDECREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
-  BIND_DOWN(   PMATH_SYMBOL_POSTINCREMENT,               builtin_dec_or_inc_or_postdec_or_postinc)
-  BIND_DOWN(   PMATH_SYMBOL_POWERMOD,                    builtin_powermod)
-  BIND_DOWN(   PMATH_SYMBOL_PRECISION,                   builtin_precision)
-  BIND_DOWN(   PMATH_SYMBOL_PREPEND,                     builtin_prepend)
-  BIND_DOWN(   PMATH_SYMBOL_PRINT,                       builtin_print)
-  BIND_DOWN(   PMATH_SYMBOL_PRODUCT,                     builtin_product)
-  BIND_DOWN(   PMATH_SYMBOL_PROTECT,                     builtin_protect_or_unprotect)
-  BIND_DOWN(   PMATH_SYMBOL_QUANTILE,                    builtin_quantile)
-  BIND_DOWN(   PMATH_SYMBOL_QUOTIENT,                    builtin_quotient)
-  BIND_DOWN(   PMATH_SYMBOL_RANDOMINTEGER,               builtin_randominteger)
-  BIND_DOWN(   PMATH_SYMBOL_RANDOMREAL,                  builtin_randomreal)
-  BIND_DOWN(   PMATH_SYMBOL_RANGE,                       builtin_range)
-  BIND_DOWN(   PMATH_SYMBOL_RE,                          builtin_re)
-  BIND_DOWN(   PMATH_SYMBOL_READ,                        builtin_read)
-  BIND_DOWN(   PMATH_SYMBOL_READLIST,                    builtin_readlist)
-  BIND_DOWN(   PMATH_SYMBOL_REFRESH,                     builtin_refresh)
-  BIND_DOWN(   PMATH_SYMBOL_REGATHER,                    builtin_regather)
-  BIND_DOWN(   PMATH_SYMBOL_RELEASEHOLD,                 builtin_releasehold)
-  BIND_DOWN(   PMATH_SYMBOL_REMOVE,                      builtin_remove)
-  BIND_DOWN(   PMATH_SYMBOL_REPLACE,                     builtin_replace)
-  BIND_DOWN(   PMATH_SYMBOL_REPLACELIST,                 builtin_replacelist)
-  BIND_DOWN(   PMATH_SYMBOL_REPLACEPART,                 builtin_replacepart)
-  BIND_DOWN(   PMATH_SYMBOL_REPLACEREPEATED,             builtin_replace)
-  BIND_DOWN(   PMATH_SYMBOL_RESCALE,                     builtin_rescale)
-  BIND_DOWN(   PMATH_SYMBOL_RESETDIRECTORY,              builtin_resetdirectory)
-  BIND_DOWN(   PMATH_SYMBOL_REST,                        builtin_rest)
-  BIND_DOWN(   PMATH_SYMBOL_RETURN,                      general_builtin_zerotwoarg)
-  BIND_DOWN(   PMATH_SYMBOL_REVERSE,                     builtin_reverse)
-  BIND_DOWN(   pmath_System_Riffle,                      builtin_riffle)
-  BIND_DOWN(   PMATH_SYMBOL_ROUND,                       builtin_round_functions)
-  BIND_DOWN(   PMATH_SYMBOL_SCAN,                        builtin_scan)
-  BIND_DOWN(   PMATH_SYMBOL_SECTIONPRINT,                builtin_sectionprint)
-  BIND_DOWN(   PMATH_SYMBOL_SEEDRANDOM,                  builtin_seedrandom)
-  BIND_DOWN(   PMATH_SYMBOL_SELECT,                      builtin_select)
-  BIND_DOWN(   PMATH_SYMBOL_SELECTEDDOCUMENT,            general_builtin_nofront);
-  BIND_DOWN(   PMATH_SYMBOL_SETATTRIBUTES,               builtin_setattributes)
-  BIND_DOWN(   PMATH_SYMBOL_SETDIRECTORY,                builtin_setdirectory)
-  BIND_DOWN(   PMATH_SYMBOL_SETOPTIONS,                  builtin_setoptions)
-  BIND_DOWN(   PMATH_SYMBOL_SETPRECISION,                builtin_setprecision)
-  BIND_DOWN(   PMATH_SYMBOL_SETSTREAMPOSITION,           builtin_setstreamposition)
-  BIND_DOWN(   PMATH_SYMBOL_SHOWDEFINITION,              builtin_showdefinition)
-  BIND_DOWN(   PMATH_SYMBOL_SIGN,                        builtin_sign)
-  BIND_DOWN(   PMATH_SYMBOL_SINGLEMATCH,                 general_builtin_zeroonearg)
-  BIND_DOWN(   PMATH_SYMBOL_SORT,                        builtin_sort)
-  BIND_DOWN(   PMATH_SYMBOL_SORTBY,                      builtin_sortby)
-  BIND_DOWN(   pmath_System_Split,                       builtin_split)
-  BIND_DOWN(   PMATH_SYMBOL_SQRT,                        builtin_sqrt)
-  BIND_DOWN(   PMATH_SYMBOL_STACK,                       builtin_stack)
-  BIND_DOWN(   PMATH_SYMBOL_STREAMPOSITION,              builtin_streamposition)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGCASES,                 builtin_stringcases)
-  BIND_DOWN(   pmath_System_StringCount,                 builtin_stringcount)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGDROP,                  builtin_stringdrop)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGEXPRESSION,            builtin_stringexpression)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGMATCH,                 builtin_stringmatch)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGPOSITION,              builtin_stringposition)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGREPLACE,               builtin_stringreplace)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGSPLIT,                 builtin_stringsplit)
-  BIND_DOWN(   PMATH_SYMBOL_STRINGTAKE,                  builtin_stringtake)
-  BIND_DOWN(   pmath_System_StringToBoxes,               builtin_stringtoboxes)
-  BIND_DOWN(   pmath_System_StringToStream,              builtin_stringtostream)
-  BIND_DOWN(   PMATH_SYMBOL_SUM,                         builtin_sum)
-  BIND_DOWN(   PMATH_SYMBOL_SWITCH,                      builtin_switch)
-  BIND_DOWN(   PMATH_SYMBOL_SUBRULES,                    builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_SYMBOLNAME,                  builtin_symbolname)
-  BIND_DOWN(   PMATH_SYMBOL_SYNCHRONIZE,                 builtin_synchronize)
-  BIND_DOWN(   PMATH_SYMBOL_SYNTAXINFORMATION,           builtin_syntaxinformation)
-  BIND_DOWN(   PMATH_SYMBOL_TABLE,                       builtin_table)
-  BIND_DOWN(   PMATH_SYMBOL_TAGASSIGN,                   builtin_tagassign)
-  BIND_DOWN(   PMATH_SYMBOL_TAGASSIGNDELAYED,            builtin_tagassign)
-  BIND_DOWN(   PMATH_SYMBOL_TAGUNASSIGN,                 builtin_tagunassign)
-  BIND_DOWN(   PMATH_SYMBOL_TAKE,                        builtin_take)
-  BIND_DOWN(   PMATH_SYMBOL_TAKEWHILE,                   builtin_takewhile)
-  BIND_DOWN(   PMATH_SYMBOL_THREAD,                      builtin_thread)
-  BIND_DOWN(   PMATH_SYMBOL_THROUGH,                     builtin_through)
-  BIND_DOWN(   PMATH_SYMBOL_THROW,                       builtin_throw)
-  BIND_DOWN(   PMATH_SYMBOL_TIMECONSTRAINED,             builtin_timeconstrained)
-  BIND_DOWN(   PMATH_SYMBOL_TIMING,                      builtin_timing)
-  BIND_DOWN(   PMATH_SYMBOL_TIMESBY,                     builtin_divideby_or_timesby)
-  BIND_DOWN(   PMATH_SYMBOL_TOBOXES,                     builtin_toboxes)
-  BIND_DOWN(   PMATH_SYMBOL_TOCHARACTERCODE,             builtin_tocharactercode)
-  BIND_DOWN(   pmath_System_ToExpression,                builtin_toexpression)
-  BIND_DOWN(   PMATH_SYMBOL_TOFILENAME,                  builtin_tofilename)
-  BIND_DOWN(   PMATH_SYMBOL_TOSTRING,                    builtin_tostring)
-  BIND_DOWN(   pmath_System_Total,                       builtin_total)
-  BIND_DOWN(   PMATH_SYMBOL_TRY,                         builtin_try)
-  BIND_DOWN(   PMATH_SYMBOL_UNASSIGN,                    builtin_unassign)
-  BIND_DOWN(   PMATH_SYMBOL_UNCOMPRESS,                  builtin_uncompress)
-  BIND_DOWN(   PMATH_SYMBOL_UNCOMPRESSSTREAM,            builtin_uncompressstream)
-  BIND_DOWN(   PMATH_SYMBOL_UNDERFLOW,                   general_builtin_zeroargs)
-  BIND_DOWN(   PMATH_SYMBOL_UNEQUAL,                     builtin_unequal)
-  BIND_DOWN(   PMATH_SYMBOL_UNIDENTICAL,                 builtin_unidentical)
-  BIND_DOWN(   PMATH_SYMBOL_UNION,                       builtin_union)
-  BIND_DOWN(   PMATH_SYMBOL_UNITVECTOR,                  builtin_unitvector)
-  BIND_DOWN(   PMATH_SYMBOL_UNPROTECT,                   builtin_protect_or_unprotect)
-  BIND_DOWN(   pmath_System_Update,                      builtin_update)
-  BIND_DOWN(   PMATH_SYMBOL_UPRULES,                     builtin_symbol_rules)
-  BIND_DOWN(   PMATH_SYMBOL_WAIT,                        builtin_wait)
-  BIND_DOWN(   PMATH_SYMBOL_WHICH,                       builtin_which)
-  BIND_DOWN(   PMATH_SYMBOL_WHILE,                       builtin_while)
-  BIND_DOWN(   PMATH_SYMBOL_WITH,                        builtin_with)
-  BIND_DOWN(   PMATH_SYMBOL_WRITE,                       builtin_write)
-  BIND_DOWN(   PMATH_SYMBOL_WRITESTRING,                 builtin_writestring)
-  BIND_DOWN(   PMATH_SYMBOL_XOR,                         builtin_xor)
+  BIND_DOWN(   pmath_System_Abort,                        builtin_abort)
+  BIND_DOWN(   pmath_System_Abs,                          builtin_abs)
+  BIND_DOWN(   pmath_System_And,                          builtin_and)
+  BIND_DOWN(   pmath_System_Apply,                        builtin_apply)
+  BIND_DOWN(   pmath_System_Append,                       builtin_append)
+  BIND_DOWN(   pmath_System_Arg,                          builtin_arg)
+  BIND_DOWN(   pmath_System_Array,                        builtin_array)
+  BIND_DOWN(   pmath_System_Assign,                       builtin_assign)
+  BIND_DOWN(   pmath_System_AssignDelayed,                builtin_assign)
+  BIND_DOWN(   pmath_System_Attributes,                   builtin_attributes)
+  BIND_DOWN(   pmath_System_BaseForm,                     builtin_baseform)
+  BIND_DOWN(   pmath_System_Begin,                        builtin_begin)
+  BIND_DOWN(   pmath_System_BeginPackage,                 builtin_beginpackage)
+  BIND_DOWN(   pmath_System_BinaryRead,                   builtin_binaryread)
+  BIND_DOWN(   pmath_System_BinaryReadList,               builtin_binaryreadlist)
+  BIND_DOWN(   pmath_System_BinaryWrite,                  builtin_binarywrite)
+  BIND_DOWN(   pmath_System_Binomial,                     builtin_binomial)
+  BIND_DOWN(   pmath_System_BitAnd,                       builtin_bitand)
+  BIND_DOWN(   pmath_System_BitClear,                     builtin_bitclear)
+  BIND_DOWN(   pmath_System_BitGet,                       builtin_bitget)
+  BIND_DOWN(   pmath_System_BitLength,                    builtin_bitlength)
+  BIND_DOWN(   pmath_System_BitNot,                       builtin_bitnot)
+  BIND_DOWN(   pmath_System_BitOr,                        builtin_bitor)
+  BIND_DOWN(   pmath_System_BitSet,                       builtin_bitset)
+  BIND_DOWN(   pmath_System_BitShiftLeft,                 builtin_bitshiftleft)
+  BIND_DOWN(   pmath_System_BitShiftRight,                builtin_bitshiftright)
+  BIND_DOWN(   pmath_System_BitXor,                       builtin_bitxor)
+  BIND_DOWN(   pmath_System_Block,                        builtin_block)
+  BIND_DOWN(   pmath_System_Boole,                        builtin_boole)
+  BIND_DOWN(   pmath_System_Break,                        general_builtin_zeroonearg)
+  BIND_DOWN(   pmath_System_Button,                       builtin_button)
+  BIND_DOWN(   pmath_System_ByteCount,                    builtin_bytecount)
+  BIND_DOWN(   pmath_System_Cases,                        builtin_cases)
+  BIND_DOWN(   pmath_System_Catch,                        builtin_catch)
+  BIND_DOWN(   pmath_System_Ceiling,                      builtin_round_functions)
+  BIND_DOWN(   pmath_System_Characters,                   builtin_characters)
+  BIND_DOWN(   pmath_System_Chop,                         builtin_chop)
+  BIND_DOWN(   pmath_System_Clear,                        builtin_clear_or_clearall)
+  BIND_DOWN(   pmath_System_ClearAll,                     builtin_clear_or_clearall)
+  BIND_DOWN(   pmath_System_ClearAttributes,              builtin_clearattributes)
+  BIND_DOWN(   pmath_System_Clock,                        builtin_clock)
+  BIND_DOWN(   pmath_System_Close,                        builtin_close)
+  BIND_DOWN(   pmath_System_Complement,                   builtin_complement)
+  BIND_DOWN(   pmath_System_Complex,                      builtin_complex)
+  BIND_DOWN(   pmath_System_Compress,                     builtin_compress)
+  BIND_DOWN(   pmath_System_CompressStream,               builtin_compressstream)
+  BIND_DOWN(   pmath_System_ConditionalExpression,        builtin_conditionalexpression)
+  BIND_DOWN(   pmath_System_Conjugate,                    builtin_conjugate)
+  BIND_DOWN(   pmath_System_ConstantArray,                builtin_constantarray)
+  BIND_DOWN(   pmath_System_Continue,                     general_builtin_zeroonearg)
+  BIND_DOWN(   pmath_System_Count,                        builtin_count)
+  BIND_DOWN(   pmath_System_CreateDocument,               general_builtin_nofront)
+  BIND_DOWN(   pmath_System_CurrentValue,                 general_builtin_nofront)
+  BIND_DOWN(   pmath_System_DateList,                     builtin_datelist)
+  BIND_DOWN(   pmath_System_Decrement,                    builtin_dec_or_inc_or_postdec_or_postinc)
+  BIND_DOWN(   pmath_System_Default,                      builtin_default)
+  BIND_DOWN(   pmath_System_DefaultRules,                 builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Depth,                        builtin_depth)
+  BIND_DOWN(   pmath_System_Det,                          builtin_det)
+  BIND_DOWN(   pmath_System_DiagonalMatrix,               builtin_diagonalmatrix)
+  BIND_DOWN(   pmath_System_Dialog,                       general_builtin_nofront)
+  BIND_DOWN(   pmath_System_Dimensions,                   builtin_dimensions)
+  BIND_DOWN(   pmath_System_DirectedInfinity,             builtin_directedinfinity)
+  BIND_DOWN(   pmath_System_DirectoryName,                builtin_directoryname)
+  BIND_DOWN(   pmath_System_DivideBy,                     builtin_divideby_or_timesby)
+  BIND_DOWN(   pmath_System_Do,                           builtin_do)
+  BIND_DOWN(   pmath_System_DocumentApply,                general_builtin_nofront);
+  BIND_DOWN(   pmath_System_DocumentDelete,               general_builtin_nofront);
+  BIND_DOWN(   pmath_System_DocumentGet,                  general_builtin_nofront);
+  BIND_DOWN(   pmath_System_DocumentRead,                 general_builtin_nofront);
+  BIND_DOWN(   pmath_System_DocumentWrite,                general_builtin_nofront);
+  BIND_DOWN(   pmath_System_Documents,                    general_builtin_nofront);
+  BIND_DOWN(   pmath_System_DocumentSave,                 general_builtin_nofront);
+  BIND_DOWN(   pmath_System_Dot,                          builtin_dot)
+  BIND_DOWN(   pmath_System_DownRules,                    builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Drop,                         builtin_drop)
+  BIND_DOWN(   pmath_System_Emit,                         builtin_emit)
+  BIND_DOWN(   pmath_System_End,                          builtin_end)
+  BIND_DOWN(   pmath_System_EndPackage,                   builtin_endpackage)
+  BIND_DOWN(   pmath_System_Environment,                  builtin_environment)
+  BIND_DOWN(   pmath_System_Equal,                        builtin_equal)
+  BIND_DOWN(   pmath_System_Evaluate,                     builtin_evaluate)
+  BIND_DOWN(   pmath_System_EvaluateDelayed,              builtin_evaluatedelayed)
+  BIND_DOWN(   pmath_System_EvaluationDocument,           general_builtin_nofront)
+  BIND_DOWN(   pmath_System_EvaluationSequence,           builtin_evaluationsequence)
+  BIND_DOWN(   pmath_System_Exp,                          builtin_exp)
+  BIND_DOWN(   pmath_System_Expand,                       builtin_expand)
+  BIND_DOWN(   pmath_System_ExpandAll,                    builtin_expandall)
+  BIND_DOWN(   pmath_System_ExtendedGCD,                  builtin_extendedgcd)
+  BIND_DOWN(   pmath_System_Extract,                      builtin_extract)
+  BIND_DOWN(   pmath_System_Factorial,                    builtin_factorial)
+  BIND_DOWN(   pmath_System_Factorial2,                   builtin_factorial2)
+  BIND_DOWN(   pmath_System_FileNames,                    builtin_filenames)
+  BIND_DOWN(   pmath_System_FileType,                     builtin_filetype)
+  BIND_DOWN(   pmath_System_FilterRules,                  builtin_filterrules)
+  BIND_DOWN(   pmath_System_Finally,                      builtin_finally)
+  BIND_DOWN(   pmath_System_Find,                         builtin_find)
+  BIND_DOWN(   pmath_System_FindList,                     builtin_findlist)
+  BIND_DOWN(   pmath_System_First,                        builtin_first)
+  BIND_DOWN(   pmath_System_FixedPoint,                   builtin_fixedpoint_and_fixedpointlist)
+  BIND_DOWN(   pmath_System_FixedPointList,               builtin_fixedpoint_and_fixedpointlist)
+  BIND_DOWN(   pmath_System_Flatten,                      builtin_flatten)
+  BIND_DOWN(   pmath_System_Floor,                        builtin_round_functions)
+  BIND_DOWN(   pmath_System_Fold,                         builtin_fold)
+  BIND_DOWN(   pmath_System_FoldList,                     builtin_foldlist)
+  BIND_DOWN(   pmath_System_For,                          builtin_for)
+  BIND_DOWN(   pmath_System_FormatRules,                  builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_FractionalPart,               builtin_fractionalpart)
+  BIND_DOWN(   pmath_System_FromCharacterCode,            builtin_fromcharactercode)
+  BIND_DOWN(   pmath_System_FrontEndTokenExecute,         general_builtin_nofront)
+  BIND_DOWN(   pmath_System_Function,                     builtin_function)
+  BIND_DOWN(   pmath_System_Gamma,                        builtin_gamma)
+  BIND_DOWN(   pmath_System_Gather,                       builtin_gather)
+  BIND_DOWN(   pmath_System_GCD,                          builtin_gcd)
+  BIND_DOWN(   pmath_System_Get,                          builtin_get)
+  BIND_DOWN(   pmath_System_Goto,                         general_builtin_onearg)
+  BIND_DOWN(   pmath_System_Greater,                      builtin_greater)
+  BIND_DOWN(   pmath_System_GreaterEqual,                 builtin_greaterequal)
+  BIND_DOWN(   pmath_System_Hash,                         builtin_hash)
+  BIND_DOWN(   pmath_System_Head,                         builtin_head)
+  BIND_DOWN(   pmath_System_DollarHistory,                builtin_history)
+  BIND_DOWN(   pmath_System_Identical,                    builtin_identical)
+  BIND_DOWN(   pmath_System_Identity,                     builtin_evaluate)
+  BIND_DOWN(   pmath_System_IdentityMatrix,               builtin_identitymatrix)
+  BIND_DOWN(   pmath_System_If,                           builtin_if)
+  BIND_DOWN(   pmath_System_Im,                           builtin_im)
+  BIND_DOWN(   pmath_System_Increment,                    builtin_dec_or_inc_or_postdec_or_postinc)
+  BIND_DOWN(   pmath_System_Inequation,                   builtin_inequation)
+  BIND_DOWN(   pmath_System_Inner,                        builtin_inner)
+  BIND_DOWN(   pmath_System_IntegerPart,                  builtin_round_functions)
+  BIND_DOWN(   pmath_System_Interrupt,                    general_builtin_nofront)
+  BIND_DOWN(   pmath_System_Intersection,                 builtin_intersection)
+  BIND_DOWN(   pmath_System_IsArray,                      builtin_isarray)
+  BIND_DOWN(   pmath_System_IsAtom,                       builtin_isatom)
+  BIND_DOWN(   pmath_System_IsComplex,                    builtin_iscomplex)
+  BIND_DOWN(   pmath_System_IsEven,                       builtin_iseven)
+  BIND_DOWN(   pmath_System_IsExactNumber,                builtin_isexactnumber)
+  BIND_DOWN(   pmath_System_IsFloat,                      builtin_isfloat)
+  BIND_DOWN(   pmath_System_IsFreeOf,                     builtin_isfreeof)
+  BIND_DOWN(   pmath_System_IsHeld,                       builtin_isheld)
+  BIND_DOWN(   pmath_System_IsImaginary,                  builtin_isimaginary)
+  BIND_DOWN(   pmath_System_IsInexactNumber,              builtin_isinexactnumber)
+  BIND_DOWN(   pmath_System_IsInteger,                    builtin_isinteger)
+  BIND_DOWN(   pmath_System_IsMachineNumber,              builtin_ismachinenumber)
+  BIND_DOWN(   pmath_System_IsMatrix,                     builtin_ismatrix)
+  BIND_DOWN(   pmath_System_IsNegative,                   builtin_ispos_or_isneg)
+  BIND_DOWN(   pmath_System_IsNonNegative,                builtin_ispos_or_isneg)
+  BIND_DOWN(   pmath_System_IsNonPositive,                builtin_ispos_or_isneg)
+  BIND_DOWN(   pmath_System_IsNumber,                     builtin_isnumber)
+  BIND_DOWN(   pmath_System_IsNumeric,                    builtin_isnumeric)
+  BIND_DOWN(   pmath_System_IsOdd,                        builtin_isodd)
+  BIND_DOWN(   pmath_System_IsOption,                     builtin_isoption)
+  BIND_DOWN(   pmath_System_IsOrdered,                    builtin_isordered)
+  BIND_DOWN(   pmath_System_IsPositive,                   builtin_ispos_or_isneg)
+  BIND_DOWN(   pmath_System_IsPrime,                      builtin_isprime)
+  BIND_DOWN(   pmath_System_IsQuotient,                   builtin_isquotient)
+  BIND_DOWN(   pmath_System_IsRational,                   builtin_isrational)
+  BIND_DOWN(   pmath_System_IsReal,                       builtin_isreal)
+  BIND_DOWN(   pmath_System_IsString,                     builtin_isstring)
+  BIND_DOWN(   pmath_System_IsSymbol,                     builtin_issymbol)
+  BIND_DOWN(   pmath_System_IsValidArgumentCount,         builtin_isvalidargumentcount)
+  BIND_DOWN(   pmath_System_IsVector,                     builtin_isvector)
+  BIND_DOWN(   pmath_System_JacobiSymbol,                 builtin_jacobisymbol_and_kroneckersymbol)
+  BIND_DOWN(   pmath_System_Join,                         builtin_join)
+  BIND_DOWN(   pmath_System_Keys,                         builtin_keys)
+  BIND_DOWN(   pmath_System_KroneckerSymbol,              builtin_jacobisymbol_and_kroneckersymbol)
+  BIND_DOWN(   pmath_System_Label,                        general_builtin_onearg)
+  BIND_DOWN(   pmath_System_Last,                         builtin_last)
+  BIND_DOWN(   pmath_System_LCM,                          builtin_lcm)
+  BIND_DOWN(   pmath_System_LeafCount,                    builtin_leafcount)
+  BIND_DOWN(   pmath_System_Length,                       builtin_length)
+  BIND_DOWN(   pmath_System_LengthWhile,                  builtin_lengthwhile)
+  BIND_DOWN(   pmath_System_Less,                         builtin_less)
+  BIND_DOWN(   pmath_System_LessEqual,                    builtin_lessequal)
+  BIND_DOWN(   pmath_System_Level,                        builtin_level)
+  BIND_DOWN(   pmath_System_LinearSolve,                  builtin_linearsolve)
+  BIND_DOWN(   pmath_System_ListConvolve,                 builtin_listconvolve)
+  BIND_DOWN(   pmath_System_LoadLibrary,                  builtin_loadlibrary)
+  BIND_DOWN(   pmath_System_Local,                        builtin_local)
+  BIND_DOWN(   pmath_System_Log,                          builtin_log)
+  BIND_DOWN(   pmath_System_LogGamma,                     builtin_loggamma)
+  BIND_DOWN(   pmath_System_Lookup,                       builtin_lookup)
+  BIND_DOWN(   pmath_System_LUDecomposition,              builtin_ludecomposition)
+  BIND_DOWN(   pmath_System_Map,                          builtin_map)
+  BIND_DOWN(   pmath_System_MapIndexed,                   builtin_mapindexed)
+  BIND_DOWN(   pmath_System_MapThread,                    builtin_mapthread)
+  BIND_DOWN(   pmath_System_MakeBoxes,                    builtin_makeboxes)
+  BIND_DOWN(   pmath_System_MakeExpression,               builtin_makeexpression)
+  BIND_DOWN(   pmath_System_Match,                        builtin_match)
+  BIND_DOWN(   pmath_System_Max,                          builtin_max)
+  BIND_DOWN(   pmath_System_Mean,                         builtin_mean)
+  BIND_DOWN(   pmath_System_MemoryUsage,                  builtin_memoryusage)
+  BIND_DOWN(   pmath_System_Message,                      builtin_message)
+  BIND_DOWN(   pmath_System_DollarMessageCount,           builtin_messagecount)
+  BIND_DOWN(   pmath_System_MessageName,                  builtin_messagename)
+  BIND_DOWN(   pmath_System_Messages,                     builtin_messages)
+  BIND_DOWN(   pmath_System_Min,                          builtin_min)
+  BIND_DOWN(   pmath_System_MinMax,                       builtin_minmax)
+  BIND_DOWN(   pmath_System_Mod,                          builtin_mod)
+  BIND_DOWN(   pmath_System_Most,                         builtin_most)
+  BIND_DOWN(   pmath_System_N,                            builtin_approximate)
+  BIND_DOWN(   pmath_System_Names,                        builtin_names)
+  BIND_DOWN(   pmath_System_Namespace,                    builtin_namespace)
+  BIND_DOWN(   pmath_System_Nest,                         builtin_nest)
+  BIND_DOWN(   pmath_System_NestList,                     builtin_nestlist)
+  BIND_DOWN(   pmath_System_NestWhile,                    builtin_nestwhile_and_nestwhilelist)
+  BIND_DOWN(   pmath_System_NestWhileList,                builtin_nestwhile_and_nestwhilelist)
+  BIND_DOWN(   pmath_System_NewTask,                      builtin_newtask)
+  BIND_DOWN(   pmath_System_NextPrime,                    builtin_nextprime)
+  BIND_DOWN(   pmath_System_Not,                          builtin_not)
+  BIND_DOWN(   pmath_System_Norm,                         builtin_norm)
+  BIND_DOWN(   pmath_System_NRules,                       builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Off,                          builtin_on_or_off)
+  BIND_DOWN(   pmath_System_On,                           builtin_on_or_off)
+  BIND_DOWN(   pmath_System_Or,                           builtin_or)
+  BIND_DOWN(   pmath_System_Ordering,                     builtin_ordering)
+  BIND_DOWN(   pmath_System_OpenAppend,                   builtin_open)
+  BIND_DOWN(   pmath_System_OpenRead,                     builtin_open)
+  BIND_DOWN(   pmath_System_OpenWrite,                    builtin_open)
+  BIND_DOWN(   pmath_System_Operate,                      builtin_operate)
+  BIND_DOWN(   pmath_System_Options,                      builtin_options)
+  BIND_DOWN(   pmath_System_OptionsPattern,               general_builtin_zeroonearg)
+  BIND_DOWN(   pmath_System_OptionValue,                  builtin_optionvalue)
+  BIND_DOWN(   pmath_System_Overflow,                     general_builtin_zeroargs)
+  BIND_DOWN(   pmath_System_OwnRules,                     builtin_ownrules)
+  BIND_DOWN(   pmath_System_PadLeft,                      builtin_padleft_and_padright)
+  BIND_DOWN(   pmath_System_PadRight,                     builtin_padleft_and_padright)
+  BIND_DOWN(   pmath_System_ParallelMap,                  builtin_parallelmap)
+  BIND_DOWN(   pmath_System_ParallelMapIndexed,           builtin_parallelmapindexed)
+  BIND_DOWN(   pmath_System_ParallelScan,                 builtin_parallelscan)
+  BIND_DOWN(   pmath_System_ParallelTry,                  builtin_paralleltry)
+  BIND_DOWN(   pmath_System_ParentDirectory,              builtin_parentdirectory)
+  BIND_DOWN(   pmath_System_ParenthesizeBoxes,            builtin_parenthesizeboxes)
+  BIND_DOWN(   pmath_System_Part,                         builtin_part)
+  BIND_DOWN(   pmath_System_Partition,                    builtin_partition)
+  BIND_DOWN(   pmath_System_Pause,                        builtin_pause)
+  BIND_DOWN(   pmath_System_Piecewise,                    builtin_piecewise)
+  BIND_DOWN(   pmath_System_PolyGamma,                    builtin_polygamma)
+  BIND_DOWN(   pmath_System_Position,                     builtin_position)
+  BIND_DOWN(   pmath_System_PostDecrement,                builtin_dec_or_inc_or_postdec_or_postinc)
+  BIND_DOWN(   pmath_System_PostIncrement,                builtin_dec_or_inc_or_postdec_or_postinc)
+  BIND_DOWN(   pmath_System_PowerMod,                     builtin_powermod)
+  BIND_DOWN(   pmath_System_Precision,                    builtin_precision)
+  BIND_DOWN(   pmath_System_Prepend,                      builtin_prepend)
+  BIND_DOWN(   pmath_System_Print,                        builtin_print)
+  BIND_DOWN(   pmath_System_Product,                      builtin_product)
+  BIND_DOWN(   pmath_System_Protect,                      builtin_protect_or_unprotect)
+  BIND_DOWN(   pmath_System_Quantile,                     builtin_quantile)
+  BIND_DOWN(   pmath_System_Quotient,                     builtin_quotient)
+  BIND_DOWN(   pmath_System_RandomInteger,                builtin_randominteger)
+  BIND_DOWN(   pmath_System_RandomReal,                   builtin_randomreal)
+  BIND_DOWN(   pmath_System_Range,                        builtin_range)
+  BIND_DOWN(   pmath_System_Re,                           builtin_re)
+  BIND_DOWN(   pmath_System_Read,                         builtin_read)
+  BIND_DOWN(   pmath_System_ReadList,                     builtin_readlist)
+  BIND_DOWN(   pmath_System_Refresh,                      builtin_refresh)
+  BIND_DOWN(   pmath_System_ReGather,                     builtin_regather)
+  BIND_DOWN(   pmath_System_ReleaseHold,                  builtin_releasehold)
+  BIND_DOWN(   pmath_System_Remove,                       builtin_remove)
+  BIND_DOWN(   pmath_System_Replace,                      builtin_replace)
+  BIND_DOWN(   pmath_System_ReplaceList,                  builtin_replacelist)
+  BIND_DOWN(   pmath_System_ReplacePart,                  builtin_replacepart)
+  BIND_DOWN(   pmath_System_ReplaceRepeated,              builtin_replace)
+  BIND_DOWN(   pmath_System_Rescale,                      builtin_rescale)
+  BIND_DOWN(   pmath_System_ResetDirectory,               builtin_resetdirectory)
+  BIND_DOWN(   pmath_System_Rest,                         builtin_rest)
+  BIND_DOWN(   pmath_System_Return,                       general_builtin_zerotwoarg)
+  BIND_DOWN(   pmath_System_Reverse,                      builtin_reverse)
+  BIND_DOWN(   pmath_System_Riffle,                       builtin_riffle)
+  BIND_DOWN(   pmath_System_Round,                        builtin_round_functions)
+  BIND_DOWN(   pmath_System_Scan,                         builtin_scan)
+  BIND_DOWN(   pmath_System_SectionPrint,                 builtin_sectionprint)
+  BIND_DOWN(   pmath_System_SeedRandom,                   builtin_seedrandom)
+  BIND_DOWN(   pmath_System_Select,                       builtin_select)
+  BIND_DOWN(   pmath_System_SelectedDocument,             general_builtin_nofront);
+  BIND_DOWN(   pmath_System_SetAttributes,                builtin_setattributes)
+  BIND_DOWN(   pmath_System_SetDirectory,                 builtin_setdirectory)
+  BIND_DOWN(   pmath_System_SetOptions,                   builtin_setoptions)
+  BIND_DOWN(   pmath_System_SetPrecision,                 builtin_setprecision)
+  BIND_DOWN(   pmath_System_SetStreamPosition,            builtin_setstreamposition)
+  BIND_DOWN(   pmath_System_ShowDefinition,               builtin_showdefinition)
+  BIND_DOWN(   pmath_System_Sign,                         builtin_sign)
+  BIND_DOWN(   pmath_System_SingleMatch,                  general_builtin_zeroonearg)
+  BIND_DOWN(   pmath_System_Sort,                         builtin_sort)
+  BIND_DOWN(   pmath_System_SortBy,                       builtin_sortby)
+  BIND_DOWN(   pmath_System_Split,                        builtin_split)
+  BIND_DOWN(   pmath_System_Sqrt,                         builtin_sqrt)
+  BIND_DOWN(   pmath_System_Stack,                        builtin_stack)
+  BIND_DOWN(   pmath_System_StreamPosition,               builtin_streamposition)
+  BIND_DOWN(   pmath_System_StringCases,                  builtin_stringcases)
+  BIND_DOWN(   pmath_System_StringCount,                  builtin_stringcount)
+  BIND_DOWN(   pmath_System_StringDrop,                   builtin_stringdrop)
+  BIND_DOWN(   pmath_System_StringExpression,             builtin_stringexpression)
+  BIND_DOWN(   pmath_System_StringMatch,                  builtin_stringmatch)
+  BIND_DOWN(   pmath_System_StringPosition,               builtin_stringposition)
+  BIND_DOWN(   pmath_System_StringReplace,                builtin_stringreplace)
+  BIND_DOWN(   pmath_System_StringSplit,                  builtin_stringsplit)
+  BIND_DOWN(   pmath_System_StringTake,                   builtin_stringtake)
+  BIND_DOWN(   pmath_System_StringToBoxes,                builtin_stringtoboxes)
+  BIND_DOWN(   pmath_System_StringToStream,               builtin_stringtostream)
+  BIND_DOWN(   pmath_System_Sum,                          builtin_sum)
+  BIND_DOWN(   pmath_System_Switch,                       builtin_switch)
+  BIND_DOWN(   pmath_System_SubRules,                     builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_SymbolName,                   builtin_symbolname)
+  BIND_DOWN(   pmath_System_Synchronize,                  builtin_synchronize)
+  BIND_DOWN(   pmath_System_SyntaxInformation,            builtin_syntaxinformation)
+  BIND_DOWN(   pmath_System_Table,                        builtin_table)
+  BIND_DOWN(   pmath_System_TagAssign,                    builtin_tagassign)
+  BIND_DOWN(   pmath_System_TagAssignDelayed,             builtin_tagassign)
+  BIND_DOWN(   pmath_System_TagUnassign,                  builtin_tagunassign)
+  BIND_DOWN(   pmath_System_Take,                         builtin_take)
+  BIND_DOWN(   pmath_System_TakeWhile,                    builtin_takewhile)
+  BIND_DOWN(   pmath_System_Thread,                       builtin_thread)
+  BIND_DOWN(   pmath_System_Through,                      builtin_through)
+  BIND_DOWN(   pmath_System_Throw,                        builtin_throw)
+  BIND_DOWN(   pmath_System_TimeConstrained,              builtin_timeconstrained)
+  BIND_DOWN(   pmath_System_Timing,                       builtin_timing)
+  BIND_DOWN(   pmath_System_TimesBy,                      builtin_divideby_or_timesby)
+  BIND_DOWN(   pmath_System_ToBoxes,                      builtin_toboxes)
+  BIND_DOWN(   pmath_System_ToCharacterCode,              builtin_tocharactercode)
+  BIND_DOWN(   pmath_System_ToExpression,                 builtin_toexpression)
+  BIND_DOWN(   pmath_System_ToFileName,                   builtin_tofilename)
+  BIND_DOWN(   pmath_System_ToString,                     builtin_tostring)
+  BIND_DOWN(   pmath_System_Total,                        builtin_total)
+  BIND_DOWN(   pmath_System_Try,                          builtin_try)
+  BIND_DOWN(   pmath_System_Unassign,                     builtin_unassign)
+  BIND_DOWN(   pmath_System_Uncompress,                   builtin_uncompress)
+  BIND_DOWN(   pmath_System_UncompressStream,             builtin_uncompressstream)
+  BIND_DOWN(   pmath_System_Underflow,                    general_builtin_zeroargs)
+  BIND_DOWN(   pmath_System_Unequal,                      builtin_unequal)
+  BIND_DOWN(   pmath_System_Unidentical,                  builtin_unidentical)
+  BIND_DOWN(   pmath_System_Union,                        builtin_union)
+  BIND_DOWN(   pmath_System_UnitVector,                   builtin_unitvector)
+  BIND_DOWN(   pmath_System_Unprotect,                    builtin_protect_or_unprotect)
+  BIND_DOWN(   pmath_System_Update,                       builtin_update)
+  BIND_DOWN(   pmath_System_UpRules,                      builtin_symbol_rules)
+  BIND_DOWN(   pmath_System_Wait,                         builtin_wait)
+  BIND_DOWN(   pmath_System_Which,                        builtin_which)
+  BIND_DOWN(   pmath_System_While,                        builtin_while)
+  BIND_DOWN(   pmath_System_With,                         builtin_with)
+  BIND_DOWN(   pmath_System_Write,                        builtin_write)
+  BIND_DOWN(   pmath_System_WriteString,                  builtin_writestring)
+  BIND_DOWN(   pmath_System_Xor,                          builtin_xor)
   
-  BIND_APPROX( PMATH_SYMBOL_E,                 builtin_approximate_e);
-  BIND_APPROX( PMATH_SYMBOL_EULERGAMMA,        builtin_approximate_eulergamma);
-  BIND_APPROX( PMATH_SYMBOL_MACHINEPRECISION,  builtin_approximate_machineprecision);
-  BIND_APPROX( PMATH_SYMBOL_PI,                builtin_approximate_pi);
-  BIND_APPROX( PMATH_SYMBOL_POWER,             builtin_approximate_power);
+  BIND_APPROX( pmath_System_E,                            builtin_approximate_e);
+  BIND_APPROX( pmath_System_EulerGamma,                   builtin_approximate_eulergamma);
+  BIND_APPROX( pmath_System_MachinePrecision,             builtin_approximate_machineprecision);
+  BIND_APPROX( pmath_System_Pi,                           builtin_approximate_pi);
+  BIND_APPROX( pmath_System_Power,                        builtin_approximate_power);
   
 #undef BIND
 #undef BIND_APPROX
@@ -1918,183 +1388,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
 #  include "symbols.inc"
 #undef PMATH_DECLARE_SYMBOL
 
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CONDITION,          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG, HOLDALL | THREADLOCAL);
-  
-  SET_ATTRIB( PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION,  HOLDALL);
-  
-  SET_ATTRIB( PMATH_SYMBOL_ABORT,                            LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_ABS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_AND,                              ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_NRULES,                           HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOS,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCOT,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCCSC,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSEC,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCSIN,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARCTAN,                           DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ARG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_ASSIGN,                           HOLDFIRST | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_ASSIGNDELAYED,                    HOLDALL | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_ATTRIBUTES,                       HOLDFIRST | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BERNOULLIB,                       DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BINOMIAL,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_BITAND,                           ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_BITCLEAR,                         DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITGET,                           DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITLENGTH,                        DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITNOT,                           DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITOR,                            ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_BITSET,                           DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITSHIFTLEFT,                     DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITSHIFTRIGHT,                    DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_BITXOR,                           ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_BLOCK,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_BOOLE,                            DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_MAKEEXPRESSION,                   READPROTECTED);
-  SET_ATTRIB( PMATH_SYMBOL_CATCH,                            HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_CEILING,                          DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CHARACTERS,                       LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_CLEAR,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_CLEARATTRIBUTES,                  HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_CLOSE,                            LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_COMPLEX,                          DEFINITEFUNCTION | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CONDITION,                        HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_CONJUGATE,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_COS,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CONTROLACTIVE,                    HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_COT,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CSC,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_CURRENTNAMESPACE,                 THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_DECREMENT,                        HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_DEFAULTRULES,                     HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_DIALOG,                           HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_DIRECTORYSTACK,                   THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_DIVIDEBY,                         HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_DO,                               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_DOWNRULES,                        HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_DOT,                              ASSOCIATIVE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_EVALUATEDELAYED,                  HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_EVALUATIONSEQUENCE,               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_EXP,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_EXTENDEDGCD,                      DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_EXTRACT,                          NHOLDREST);
-  SET_ATTRIB( PMATH_SYMBOL_FINALLY,                          HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_FACTORIAL,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_FACTORIAL2,                       DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_FLOOR,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_FOR,                              HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_FRACTIONALPART,                   DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_FUNCTION,                         HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_GAMMA,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_GATHER,                           HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_GCD,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_HOLD,                             HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_HOLDCOMPLETE,                     HOLDALLCOMPLETE);
-  SET_ATTRIB( PMATH_SYMBOL_HOLDFORM,                         HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_HOLDPATTERN,                      HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_IF,                               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_IM,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_INCREMENT,                        HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_INPUT,                            THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_INTEGERPART,                      DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,      THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,          THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_INTERSECTION,                     ASSOCIATIVE | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_ISHELD,                           DEEPHOLDALL | HOLDALLCOMPLETE);
-  SET_ATTRIB( PMATH_SYMBOL_ISEVEN,                           LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_ISODD,                            LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_ISPRIME,                          LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_JACOBISYMBOL,                     DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_KRONECKERSYMBOL,                  DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_LCM,                              ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_LOCAL,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_LOG,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_LOGGAMMA,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_MAKEBOXES,                        HOLDALLCOMPLETE);
-  SET_ATTRIB( PMATH_SYMBOL_MAXEXTRAPRECISION,                THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_MESSAGE,                          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_MESSAGECOUNT,                     HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_MESSAGENAME,                      HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_MESSAGES,                         HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_MOD,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_NAMESPACE,                        HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_NAMESPACEPATH,                    THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_NCACHE,                           HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_NEWTASK,                          HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_NEXTPRIME,                        LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_OFF,                              HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_ON,                               HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_OR,                               ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_OVERFLOW,                         NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_OWNRULES,                         HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_PAGEWIDTHDEFAULT,                 THREADLOCAL);
-  SET_ATTRIB( PMATH_SYMBOL_PART,                             NHOLDREST);
-  SET_ATTRIB( PMATH_SYMBOL_PATTERN,                          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_PATTERNSEQUENCE,                  ASSOCIATIVE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_PIECEWISE,                        HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_PLUS,                             ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_POLYGAMMA,                        DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_POSTDECREMENT,                    HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_POSTINCREMENT,                    HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_POWER,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_POWERMOD,                         DEFINITEFUNCTION | LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_PRODUCT,                          HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_PROTECT,                          HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_PUREARGUMENT,                     NHOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_QUOTIENT,                         DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_RE,                               DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_REFRESH,                          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_REMOVE,                           HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_RESCALE,                          NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_RETURN,                           HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_ROUND,                            DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_RULE,                             SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_RULEDELAYED,                      HOLDREST | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_SEC,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SEQUENCE,                         ASSOCIATIVE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_SHOWDEFINITION,                   HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_SETATTRIBUTES,                    HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_SIGN,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SIN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_SQRT,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_STRINGEXPRESSION,                 ASSOCIATIVE | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_SUBRULES,                         HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_SUM,                              HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_SWITCH,                           HOLDREST);
-  SET_ATTRIB( PMATH_SYMBOL_SYMBOLNAME,                       HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_SYNCHRONIZE,                      HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_SYNTAXINFORMATION,                HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_TABLE,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_TAGASSIGN,                        HOLDALL | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_TAGASSIGNDELAYED,                 HOLDALL | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_TAGUNASSIGN,                      HOLDALL | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_TAN,                              DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_TESTPATTERN,                      HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_TIMECONSTRAINED,                  HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_TIMES,                            ASSOCIATIVE | DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_TIMESBY,                          HOLDFIRST);
-  SET_ATTRIB( PMATH_SYMBOL_TIMING,                           HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_TOBOXES,                          SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_TRY,                              HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_UNASSIGN,                         HOLDFIRST | SEQUENCEHOLD);
-  SET_ATTRIB( PMATH_SYMBOL_UNDERFLOW,                        NUMERICFUNCTION);
-  SET_ATTRIB( PMATH_SYMBOL_UNEVALUATED,                      HOLDALLCOMPLETE);
-  SET_ATTRIB( PMATH_SYMBOL_UNION,                            ASSOCIATIVE | ONEIDENTITY | SYMMETRIC);
-  SET_ATTRIB( PMATH_SYMBOL_UNPROTECT,                        HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_UPRULES,                          HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_WAIT,                             LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_WHICH,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_WHILE,                            HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_WITH,                             HOLDALL);
-  SET_ATTRIB( PMATH_SYMBOL_XOR,                              ASSOCIATIVE | DEFINITEFUNCTION | HOLDALL | ONEIDENTITY);
-  SET_ATTRIB( PMATH_SYMBOL_ZETA,                             DEFINITEFUNCTION | LISTABLE | NUMERICFUNCTION);
-  
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLBOUNDS,          LISTABLE);
-  SET_ATTRIB( PMATH_SYMBOL_INTERNAL_REALBALLMIDPOINTRADIUS,  LISTABLE);
-  
 #undef SET_ATTRIB
-
   //} ... setting attributes (except Protected attribute)
   
   if(!init_builtin_security_doormen()) goto FAIL;
@@ -2108,49 +1402,22 @@ FAIL:
 
   for(i = 0; i < CODE_TABLES_COUNT; ++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
-    
-  for(i = 0; i < PMATH_BUILTIN_SYMBOL_COUNT; ++i)
-    pmath_unref(_pmath_builtin_symbol_array[i]);
-    
+  
   return FALSE;
 }
 
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
-  int i;
-  
 #  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    if((ATTRIB) & PMATH_SYMBOL_ATTRIBUTE_PROTECTED)  pmath_symbol_set_attributes((SYM), pmath_symbol_get_attributes((SYM)) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
 #    include "symbols.inc"
 #  undef PMATH_DECLARE_SYMBOL
 
-#define PROTECT(sym) pmath_symbol_set_attributes(sym, pmath_symbol_get_attributes(sym) | PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
-  
-  for(i = 0; i < PMATH_BUILTIN_SYMBOL_COUNT; i++) {
-    PROTECT( _pmath_builtin_symbol_array[i] );
-  }
-  
-//  PROTECT( pmath_System_DollarMachineId );
-//  PROTECT( pmath_System_DollarSessionId );
-  
+
 #define UNPROTECT(sym) pmath_symbol_set_attributes(sym, pmath_symbol_get_attributes(sym) & ~PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
   
-  UNPROTECT( PMATH_SYMBOL_CHARACTERENCODINGDEFAULT);
-  UNPROTECT( PMATH_SYMBOL_CURRENTNAMESPACE);
-  UNPROTECT( PMATH_SYMBOL_HISTORY);
-  UNPROTECT( PMATH_SYMBOL_HISTORYLENGTH);
-  UNPROTECT( PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG);
-  UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK);
-  UNPROTECT( PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
-  UNPROTECT( PMATH_SYMBOL_MAXEXTRAPRECISION);
-  UNPROTECT( PMATH_SYMBOL_MESSAGECOUNT);
-  UNPROTECT( PMATH_SYMBOL_NAMESPACEPATH);
-  UNPROTECT( PMATH_SYMBOL_NEWMESSAGE);
-  UNPROTECT( PMATH_SYMBOL_NEWSYMBOL);
-  UNPROTECT( PMATH_SYMBOL_PAGEWIDTHDEFAULT);
-  UNPROTECT( PMATH_SYMBOL_PATHDEFAULT);
+  UNPROTECT( pmath_Internal_CriticalMessageTag);
   UNPROTECT( pmath_System_Subscript);
   UNPROTECT( pmath_System_Subsuperscript);
   UNPROTECT( pmath_System_Superscript);
-  UNPROTECT( PMATH_SYMBOL_SYSTEMCHARACTERENCODING);
   
 #undef UNPROTECT
 }
@@ -2164,7 +1431,4 @@ PMATH_PRIVATE void _pmath_symbol_builtins_done(void) {
 
   for(i = 0; i < CODE_TABLES_COUNT; ++i)
     pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
-    
-  for(i = 0; i < PMATH_BUILTIN_SYMBOL_COUNT; ++i)
-    pmath_unref(_pmath_builtin_symbol_array[i]);
 }

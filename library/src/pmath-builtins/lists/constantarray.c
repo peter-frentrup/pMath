@@ -12,6 +12,8 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 // frees c
 static pmath_t const_list(pmath_t c, size_t length) {
   pmath_expr_t expr;
@@ -26,7 +28,7 @@ static pmath_t const_list(pmath_t c, size_t length) {
     (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(c)->refcount), (intptr_t)length - 1);
   }
 
-  list->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+  list->items[0] = pmath_ref(pmath_System_List);
   for(i = length; i > 0; --i)
     list->items[i] = c;
 
@@ -104,9 +106,9 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
   }
 
   n = pmath_expr_get_item(expr, 2);
-  if(!pmath_is_expr_of(n, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(n, pmath_System_List)) {
     n = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_LIST), 1,
+          pmath_ref(pmath_System_List), 1,
           n);
   }
 
@@ -117,7 +119,7 @@ PMATH_PRIVATE pmath_t builtin_constantarray(pmath_expr_t expr) {
     ignore_array_elem = TRUE;
     c = pmath_to_packed_array(
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_LIST), 1,
+            pmath_ref(pmath_System_List), 1,
             c),
           PMATH_PACKED_INT32);
   }

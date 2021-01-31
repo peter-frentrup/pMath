@@ -63,6 +63,7 @@ static struct msg_queue_t *volatile sleeplist = NULL;
 static uint64_t win2unix_epoch;
 #endif
 
+extern pmath_symbol_t pmath_System_DollarAborted;
 extern pmath_symbol_t pmath_Internal_AbortMessage;
 
 /*============================================================================*/
@@ -499,10 +500,10 @@ void _pmath_msq_queue_handle_next(pmath_thread_t me) {
         
         if(pmath_aborting()) {
           pmath_unref(val);
-          val = pmath_ref(PMATH_SYMBOL_ABORTED);
+          val = pmath_ref(pmath_System_DollarAborted);
         }
         else if(pmath_same(val, PMATH_UNDEFINED))
-          val = pmath_ref(PMATH_SYMBOL_ABORTED);
+          val = pmath_ref(pmath_System_DollarAborted);
           
           
 //        pmath_debug_print("[ending abortable %p", PMATH_AS_PTR(msg->result));

@@ -4,6 +4,7 @@
 #include "pjvm.h"
 
 #include <math.h>
+#include <limits.h>
 #include <string.h>
 
 
@@ -27,6 +28,11 @@ extern pmath_symbol_t pjsym_Java_Type_Long;
 extern pmath_symbol_t pjsym_Java_Type_Short;
 
 extern pmath_symbol_t pjsym_System_BaseForm;
+extern pmath_symbol_t pjsym_System_DirectedInfinity;
+extern pmath_symbol_t pjsym_System_False;
+extern pmath_symbol_t pjsym_System_List;
+extern pmath_symbol_t pjsym_System_True;
+extern pmath_symbol_t pjsym_System_Undefined;
 
 // constants from pmath/util/Expr.java
 #define PJ_EXPR_CONVERT_DEFAULT        0
@@ -69,12 +75,12 @@ jstring pj_string_to_java(JNIEnv *env, pmath_string_t str) {
 static pmath_bool_t boolean_to_java(pmath_t obj, jvalue *value) {
   pmath_unref(obj);
   
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(obj, pjsym_System_True)) {
     value->z = JNI_TRUE;
     return TRUE;
   }
   
-  if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(obj, pjsym_System_False)) {
     value->z = JNI_FALSE;
     return TRUE;
   }
@@ -164,10 +170,10 @@ static pmath_bool_t double_to_java(pmath_t obj, jvalue *value) {
   if(pmath_is_float(obj)) {
     d = pmath_number_get_d(obj);
   }
-  else if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED) || pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 0)) {
+  else if(pmath_same(obj, pjsym_System_Undefined) || pmath_is_expr_of_len(obj, pjsym_System_DirectedInfinity, 0)) {
     d = NAN;
   }
-  else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_DIRECTEDINFINITY, 1)) {
+  else if(pmath_is_expr_of_len(obj, pjsym_System_DirectedInfinity, 1)) {
     pmath_t dir = pmath_expr_get_item(obj, 1);
     
     if(pmath_is_number(dir)) {
@@ -474,7 +480,7 @@ static jobject make_object_from_quotient(JNIEnv *env, jclass type, pmath_quotien
           (*env)->IsSameObject(env, type, java_lang_Object))
       {
         pmath_t num_den = pmath_expr_new_extended(
-                            pmath_ref(PMATH_SYMBOL_LIST), 2,
+                            pmath_ref(pjsym_System_List), 2,
                             pmath_rational_numerator(value),
                             pmath_rational_denominator(value));
         
@@ -857,7 +863,7 @@ static jobject make_object_from_list(JNIEnv *env, jclass type, pmath_expr_t list
       else if(pmath_is_string(first) && pmath_string_length(first) == 1) {
         result = make_char_array_from_elements(env, list);
       }
-      else if(pmath_same(first, PMATH_SYMBOL_TRUE) || pmath_same(first, PMATH_SYMBOL_FALSE)) {
+      else if(pmath_same(first, pjsym_System_True) || pmath_same(first, pjsym_System_False)) {
         result = make_boolean_array_from_elements(env, list);
       }
       
@@ -945,7 +951,7 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
   }
   
   item = pmath_expr_get_item(expr, 0);
-  if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+  if(pmath_same(item, pjsym_System_List)) {
     pmath_unref(item);
     return make_object_from_list(env, type, expr);
   }
@@ -1039,12 +1045,12 @@ static jobject make_object_from_expr(JNIEnv *env, jclass type, pmath_expr_t expr
 static jobject make_object_from_symbol(JNIEnv *env, jclass type, pmath_symbol_t sym) {
   pmath_string_t str;
   
-  if(pmath_same(sym, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(sym, pjsym_System_True)) {
     pmath_unref(sym);
     return make_object_from_bool(env, type, TRUE);
   }
   
-  if(pmath_same(sym, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(sym, pjsym_System_False)) {
     pmath_unref(sym);
     return make_object_from_bool(env, type, FALSE);
   }
@@ -1349,7 +1355,7 @@ static pmath_t make_value_from_java_Expr_and_delete_class(JNIEnv *env, jclass cl
           pmath_t num_den;
           val.l = data;
           num_den = pj_value_from_java(env, 'L', &val);
-          if(pmath_is_expr_of_len(num_den, PMATH_SYMBOL_LIST, 2)) {
+          if(pmath_is_expr_of_len(num_den, pjsym_System_List, 2)) {
             pmath_t num = pmath_expr_get_item(num_den, 1);
             pmath_t den = pmath_expr_get_item(num_den, 2);
             
@@ -1492,7 +1498,7 @@ pmath_t pj_value_from_java(JNIEnv *env, char type, const jvalue *value) {
 
       if(is_simple_array) {
         jsize len = (*env)->GetArrayLength(env, value->l);
-        pmath_t arr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
+        pmath_t arr = pmath_expr_new(pmath_ref(pjsym_System_List), (size_t)len);
         size_t item_size = 0;
         
         pj_exception_to_pmath(env);

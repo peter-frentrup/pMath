@@ -18,6 +18,16 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_Evaluate;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_Hold;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Return;
+extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_Unevaluated;
+
 // pmath_maxrecursion is in pmath-objects.h
 
 //#define DEBUG_LOG_EVAL
@@ -115,10 +125,10 @@ static pmath_t evaluate(
 static pmath_t handle_explicit_return(pmath_t expr) {
   pmath_t obj;
   
-  if(_pmath_contains_symbol(expr, PMATH_SYMBOL_RETURN))
+  if(_pmath_contains_symbol(expr, pmath_System_Return))
     expr = pmath_evaluate(expr);
     
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_RETURN)) {
+  if(pmath_is_expr_of(expr, pmath_System_Return)) {
     switch(pmath_expr_length(expr)) {
       case 0:
         pmath_unref(expr);
@@ -141,7 +151,7 @@ static pmath_t handle_explicit_return(pmath_t expr) {
           
           return pmath_expr_set_item(expr, 2,
                                      pmath_expr_new_extended(
-                                       pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                                       pmath_ref(pmath_System_Plus), 2,
                                        obj,
                                        PMATH_FROM_INT32(-1)));
         }
@@ -167,7 +177,7 @@ static pmath_expr_t evaluate_arguments(
   debug_info = pmath_get_debug_info(expr);
   item = pmath_expr_get_item(expr, 1);
   
-  if(!hold_first || pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
+  if(!hold_first || pmath_is_expr_of_len(item, pmath_System_Evaluate, 1)) {
     pmath_unref(item);
     item = pmath_expr_extract_item(expr, 1);
     
@@ -181,7 +191,7 @@ static pmath_expr_t evaluate_arguments(
     for(i = 2; i <= exprlen; ++i) {
       item = pmath_expr_get_item(expr, i);
       
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_EVALUATE, 1)) {
+      if(pmath_is_expr_of_len(item, pmath_System_Evaluate, 1)) {
         item = evaluate(item, current_thread);
         expr = pmath_expr_set_item(expr, i, item);
       }
@@ -210,12 +220,12 @@ static pmath_bool_t evaluator_thread_list_arguments(pmath_expr_t *expr) {
   for(i = exprlen; i > 0; --i) {
     item = pmath_expr_get_item(*expr, i);
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(item, pmath_System_List)) {
       pmath_bool_t error_message = TRUE;
       pmath_unref(item);
       
       *expr = _pmath_expr_thread(
-                *expr, PMATH_SYMBOL_LIST, 1, i, &error_message);
+                *expr, pmath_System_List, 1, i, &error_message);
                 
       if(error_message)
         _pmath_expr_update(*expr);
@@ -245,11 +255,11 @@ static pmath_expr_t evaluator_flatten_sequences(
     for(i = 1; i <= exprlen; ++i) {
       pmath_t item = pmath_expr_get_item(expr, i);
       
-      if(pmath_is_expr_of(item, PMATH_SYMBOL_SEQUENCE)) {
+      if(pmath_is_expr_of(item, pmath_System_Sequence)) {
         pmath_unref(item);
         expr = pmath_expr_flatten(
                  expr,
-                 pmath_ref(PMATH_SYMBOL_SEQUENCE),
+                 pmath_ref(pmath_System_Sequence),
                  PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
                  
         more = associative;
@@ -288,7 +298,7 @@ static pmath_expr_t evaluator_strip_unevaluated(
   for(i = 1; i <= exprlen; ++i) {
     item = pmath_expr_get_item(expr, i);
     
-    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+    if(pmath_is_expr_of_len(item, pmath_System_Unevaluated, 1)) {
       if(out_orig_expr_if_changed)
         *out_orig_expr_if_changed = pmath_ref(expr);
         
@@ -302,7 +312,7 @@ static pmath_expr_t evaluator_strip_unevaluated(
       for(++i; i <= exprlen; ++i) {
         item = pmath_expr_get_item(expr, i);
         
-        if(pmath_is_expr_of_len(item, PMATH_SYMBOL_UNEVALUATED, 1)) {
+        if(pmath_is_expr_of_len(item, pmath_System_Unevaluated, 1)) {
           expr = pmath_expr_set_item(
                    expr, i,
                    pmath_expr_get_item(
@@ -355,7 +365,7 @@ static pmath_t evaluate_expression(
       pmath_debug_print_object("", expr, "\n");
       
       pmath_message(
-        PMATH_SYMBOL_GENERAL, "reclim", 1,
+        pmath_System_General, "reclim", 1,
         PMATH_FROM_INT32(pmath_maxrecursion));
         
       current_thread->critical_messages = FALSE;
@@ -366,12 +376,12 @@ static pmath_t evaluate_expression(
       pmath_debug_print_object("", expr, "\n");
       pmath_throw(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_GENERAL),
+          pmath_ref(pmath_System_MessageName), 2,
+          pmath_ref(pmath_System_General),
           PMATH_C_STRING("reclim")));
     }
     
-    expr = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_HOLD), 1, expr);
+    expr = pmath_expr_new_extended(pmath_ref(pmath_System_Hold), 1, expr);
     _pmath_expr_update(expr);
     return expr;
   }

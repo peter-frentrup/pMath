@@ -16,6 +16,11 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_SetPrecision;
+
 PMATH_API
 double pmath_precision(pmath_t obj) { // will be freed
 // -HUGE_VAL = machine precision
@@ -221,7 +226,7 @@ START_SET_PRECISION:
   }
 
   sym = _pmath_topmost_symbol(obj);
-  if(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List)) {
     /* Rule out List(...) to be consistent with packed-array behaviour.
        Nobody should override SetPrecision({...}, ...) anyways.
      */
@@ -236,7 +241,7 @@ START_SET_PRECISION:
 
       if(!found) {
         result = pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_SETPRECISION), 2,
+                   pmath_ref(pmath_System_SetPrecision), 2,
                    pmath_ref(obj),
                    pmath_ref(data->prec_obj));
 

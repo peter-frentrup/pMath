@@ -84,20 +84,68 @@ static volatile enum {
 
 static pmath_atomic_t pmath_count = PMATH_ATOMIC_STATIC_INIT;
 
-extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
-extern pmath_symbol_t pmath_System_InputStream;
-extern pmath_symbol_t pmath_System_Missing;
-extern pmath_symbol_t pmath_System_OutputStream;
-extern pmath_symbol_t pmath_System_SystemException;
-
-extern pmath_symbol_t pmath_System_DollarCreatioDate;
+extern pmath_symbol_t pmath_System_DollarApplicationFileName;
+extern pmath_symbol_t pmath_System_DollarByteOrdering;
+extern pmath_symbol_t pmath_System_DollarCharacterEncoding;
+extern pmath_symbol_t pmath_System_DollarCommandLine;
+extern pmath_symbol_t pmath_System_DollarCreationDate;
 extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
 extern pmath_symbol_t pmath_System_DollarDialogLevel;
+extern pmath_symbol_t pmath_System_DollarDirectoryStack;
+extern pmath_symbol_t pmath_System_DollarHistoryLength;
+extern pmath_symbol_t pmath_System_DollarInitialDirectory;
+extern pmath_symbol_t pmath_System_DollarInput;
+extern pmath_symbol_t pmath_System_DollarLine;
+extern pmath_symbol_t pmath_System_DollarMachineEpsilon;
+extern pmath_symbol_t pmath_System_DollarMachineId;
+extern pmath_symbol_t pmath_System_DollarMachinePrecision;
+extern pmath_symbol_t pmath_System_DollarMaxExtraPrecision;
+extern pmath_symbol_t pmath_System_DollarMaxMachineNumber;
+extern pmath_symbol_t pmath_System_DollarMinMachineNumber;
+extern pmath_symbol_t pmath_System_DollarNamespace;
+extern pmath_symbol_t pmath_System_DollarNamespacePath;
+extern pmath_symbol_t pmath_System_DollarPackages;
+extern pmath_symbol_t pmath_System_DollarPageWidth;
+extern pmath_symbol_t pmath_System_DollarPath;
 extern pmath_symbol_t pmath_System_DollarPathListSeparator;
+extern pmath_symbol_t pmath_System_DollarPathnameSeparator;
+extern pmath_symbol_t pmath_System_DollarProcessId;
+extern pmath_symbol_t pmath_System_DollarProcessorCount;
+extern pmath_symbol_t pmath_System_DollarProcessorType;
+extern pmath_symbol_t pmath_System_DollarSessionId;
+extern pmath_symbol_t pmath_System_DollarSystemCharacterEncoding;
+extern pmath_symbol_t pmath_System_DollarSystemId;
 extern pmath_symbol_t pmath_System_DollarTimeZone;
 extern pmath_symbol_t pmath_System_DollarVersionList;
 extern pmath_symbol_t pmath_System_DollarVersionNumber;
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_ComplexInfinity;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_DirectoryName;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_Get;
+extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_LoadLibrary;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Missing;
+extern pmath_symbol_t pmath_System_OutputStream;
+extern pmath_symbol_t pmath_System_Overflow;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Repeated;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_SingleMatch;
+extern pmath_symbol_t pmath_System_SystemException;
+extern pmath_symbol_t pmath_System_Underflow;
+
+extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
+
+extern pmath_symbol_t pmath_Developer_DollarSystemInformation;
+
+extern pmath_symbol_t pmath_Internal_DollarNamespacePathStack;
+extern pmath_symbol_t pmath_Internal_DollarNamespaceStack;
 extern pmath_symbol_t pmath_Internal_GetCurrentDirectory;
 
 PMATH_PRIVATE
@@ -174,7 +222,7 @@ static void init_pagewidth(void) {
   if(width < 6)
     width = 6;
     
-  pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, PMATH_FROM_INT32(width));
+  pmath_symbol_set_value(pmath_System_DollarPageWidth, PMATH_FROM_INT32(width));
 }
 
 static pmath_expr_t get_exe_name(void) {
@@ -392,18 +440,17 @@ static void init_machine_process_session_ids(void) {
   _pmath_sha1_update(&ctx, (const uint8_t*)&now,        sizeof(now));
   _pmath_sha1_final(&digest.raw, &ctx);
   
-  PMATH_RUN_ARGS(
-    "$MachineId:= `1`; $ProcessId:=`2`; $SessionId:=`3`", 
-    "(sNo)", 
-    machine_id, 
-    process_id, 
-    pmath_integer_new_data(8, 1, 1, 0, 0, &digest.raw)); // only use the first 8 bytes of the SHA1 digest for $SessionId:
+  pmath_symbol_set_value(pmath_System_DollarMachineId, PMATH_C_STRING(machine_id));
+  pmath_symbol_set_value(pmath_System_DollarProcessId, pmath_integer_new_uiptr(process_id));
+  
+  // only use the first 8 bytes of the SHA1 digest for $SessionId:
+  pmath_symbol_set_value(pmath_System_DollarSessionId, pmath_integer_new_data(8, 1, 1, 0, 0, &digest.raw));
 }
 
 static pmath_expr_t get_system_information(void) {
-#  define SETTINGS_RULE(name, value)  pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RULE), 2, PMATH_C_STRING((name)), (value))
-#  define LIST1(a)     pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, (a))
-#  define LIST2(a, b)  pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, (a), (b))
+#  define SETTINGS_RULE(name, value)  pmath_expr_new_extended(pmath_ref(pmath_System_Rule), 2, PMATH_C_STRING((name)), (value))
+#  define LIST1(a)     pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, (a))
+#  define LIST2(a, b)  pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, (a), (b))
 
   pmath_expr_t compiler_info, gmp_info;
   
@@ -481,7 +528,7 @@ static pmath_expr_t get_system_information(void) {
       SETTINGS_RULE(
           "ThirdPartyLibraries",
           pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_LIST), 6,
+              pmath_ref(pmath_System_List), 6,
               gmp_info,
               SETTINGS_RULE("mpfr",  LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(mpfr_get_version())) )),
               SETTINGS_RULE("flint", LIST1( SETTINGS_RULE("Version", PMATH_C_STRING(FLINT_VERSION))      )),
@@ -730,60 +777,60 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       // Overflow()
       _pmath_object_overflow = pmath_expr_new(
-          pmath_ref(PMATH_SYMBOL_OVERFLOW), 0);
+          pmath_ref(pmath_System_Overflow), 0);
       _pmath_expr_update(_pmath_object_overflow);
       
       // Underflow()
       _pmath_object_underflow = pmath_expr_new(
-          pmath_ref(PMATH_SYMBOL_UNDERFLOW), 0);
+          pmath_ref(pmath_System_Underflow), 0);
       _pmath_expr_update(_pmath_object_underflow);
       
       // DirectedInfinity(1)
       _pmath_object_pos_infinity = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+          pmath_ref(pmath_System_DirectedInfinity), 1,
           PMATH_FROM_INT32(1));
       _pmath_expr_update(_pmath_object_pos_infinity);
       
       // DirectedInfinity(-1)
       _pmath_object_neg_infinity = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+          pmath_ref(pmath_System_DirectedInfinity), 1,
           PMATH_FROM_INT32(-1));
       _pmath_expr_update(_pmath_object_neg_infinity);
       
       // DirectedInfinity()
       _pmath_object_complex_infinity = pmath_expr_new(
-          pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 0);
+          pmath_ref(pmath_System_DirectedInfinity), 0);
       _pmath_expr_update(_pmath_object_complex_infinity);
       
       // Range(1, Automatic)
       _pmath_object_range_from_one = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RANGE), 2,
+          pmath_ref(pmath_System_Range), 2,
           PMATH_FROM_INT32(1),
-          pmath_ref(PMATH_SYMBOL_AUTOMATIC));
+          pmath_ref(pmath_System_Automatic));
       _pmath_expr_update(_pmath_object_range_from_one);
       
       // Range(0, Automatic)
       _pmath_object_range_from_zero = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RANGE), 2,
+          pmath_ref(pmath_System_Range), 2,
           PMATH_FROM_INT32(0),
-          pmath_ref(PMATH_SYMBOL_AUTOMATIC));
+          pmath_ref(pmath_System_Automatic));
       _pmath_expr_update(_pmath_object_range_from_zero);
       
       // SingleMatch()
       _pmath_object_singlematch = pmath_expr_new(
-          pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 0);
+          pmath_ref(pmath_System_SingleMatch), 0);
       _pmath_expr_update(_pmath_object_singlematch);
       
       // Repeated(SingleMatch(), Range(1, Automatic))
       _pmath_object_multimatch = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+          pmath_ref(pmath_System_Repeated), 2,
           pmath_ref(_pmath_object_singlematch),
           pmath_ref(_pmath_object_range_from_one));
       _pmath_expr_update(_pmath_object_multimatch);
       
       // Repeated(SingleMatch(), Range(0, Automatic))
       _pmath_object_zeromultimatch = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+          pmath_ref(pmath_System_Repeated), 2,
           pmath_ref(_pmath_object_singlematch),
           pmath_ref(_pmath_object_range_from_zero));
       _pmath_expr_update(_pmath_object_zeromultimatch);
@@ -797,33 +844,33 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       // List()
       _pmath_object_emptylist = pmath_expr_new(
-          pmath_ref(PMATH_SYMBOL_LIST), 0);
+          pmath_ref(pmath_System_List), 0);
       _pmath_expr_update(_pmath_object_emptylist);
       
       // MessageName(General, "stop")
       _pmath_object_stop_message = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_GENERAL),
+          pmath_ref(pmath_System_MessageName), 2,
+          pmath_ref(pmath_System_General),
           PMATH_C_STRING("stop"));
       //_pmath_expr_update(_pmath_object_stop_message);
       
 //    // MessageName(General, "newsym")
 //    _pmath_object_newsym_message = pmath_expr_new_extended(
-//      pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-//      pmath_ref(PMATH_SYMBOL_GENERAL),
+//      pmath_ref(pmath_System_MessageName), 2,
+//      pmath_ref(pmath_System_General),
 //      PMATH_C_STRING("newsym"));
 
       // MessageName(LoadLibrary, "load")
       _pmath_object_loadlibrary_load_message = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_LOADLIBRARY),
+          pmath_ref(pmath_System_MessageName), 2,
+          pmath_ref(pmath_System_LoadLibrary),
           PMATH_C_STRING("load"));
       //_pmath_expr_update(_pmath_object_loadlibrary_load_message);
       
       // MessageName(Get, "load")
       _pmath_object_get_load_message = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_GET),
+          pmath_ref(pmath_System_MessageName), 2,
+          pmath_ref(pmath_System_Get),
           PMATH_C_STRING("load"));
       //_pmath_expr_update(_pmath_object_get_load_message);
       
@@ -853,123 +900,109 @@ PMATH_API pmath_bool_t pmath_init(void) {
     _pmath_status = PMATH_STATUS_RUNNING;
     
     { // init threadlocal variables ...
-      // $NamespacePath:= {"System`"}
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_NAMESPACEPATH,
-          pmath_build_value("(s)", "System`"));
+      _pmath_symbol_set_global_value(pmath_System_DollarNamespacePath, pmath_build_value("(s)", "System`"));
+      _pmath_symbol_set_global_value(pmath_System_DollarNamespace,     PMATH_C_STRING("Global`"));
+      _pmath_symbol_set_global_value(pmath_System_DollarPackages,      pmath_build_value("(ss)", "System`", "Global`"));
           
-      // $Packages:= {"System`", "Global`"}
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_PACKAGES,
-          pmath_build_value("(ss)", "System`", "Global`"));
-          
-      // $Namespace:= "Global`"
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_CURRENTNAMESPACE,
-          PMATH_C_STRING("Global`"));
-          
-      // $DirectoryStack:= {}
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_DIRECTORYSTACK,
-          pmath_ref(_pmath_object_emptylist));
-          
-      // $Input:= ""
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_INPUT,
-          pmath_string_new(0));
-          
-      // Internal`$NamespacePathStack:= {}
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,
-          pmath_ref(_pmath_object_emptylist));
-          
-      // Internal`$NamespaceStack:= {}
-      _pmath_symbol_set_global_value(
-          PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,
-          pmath_ref(_pmath_object_emptylist));
-          
-      // System`BoxForm`$UseTextFormatting:= False
-      _pmath_symbol_set_global_value(
-          pmath_System_BoxForm_DollarUseTextFormatting,
-          pmath_ref(PMATH_SYMBOL_FALSE));
+      _pmath_symbol_set_global_value(pmath_System_DollarDirectoryStack,            pmath_ref(_pmath_object_emptylist));
+      _pmath_symbol_set_global_value(pmath_System_DollarInput,                     pmath_string_new(0));
+      _pmath_symbol_set_global_value(pmath_Internal_DollarNamespacePathStack,      pmath_ref(_pmath_object_emptylist));
+      _pmath_symbol_set_global_value(pmath_Internal_DollarNamespaceStack,          pmath_ref(_pmath_object_emptylist));
+      _pmath_symbol_set_global_value(pmath_System_BoxForm_DollarUseTextFormatting, pmath_ref(pmath_System_False));
         
-      // System`$CurrentDirectory::= Internal`GetCurrentDirectory()
+      _pmath_symbol_set_global_value(pmath_System_DollarHistoryLength,             PMATH_FROM_INT32(10));
+      _pmath_symbol_set_global_value(pmath_System_DollarLine,                      PMATH_FROM_INT32(0));
+      _pmath_symbol_set_global_value(pmath_System_DollarMaxExtraPrecision,         PMATH_FROM_INT32(50));
+      
       _pmath_symbol_set_global_value(
-        pmath_System_DollarCurrentDirectory,
+        pmath_System_DollarCurrentDirectory,  
         pmath_expr_new(pmath_ref(pmath_Internal_GetCurrentDirectory), 0));
+        
     }
     
     { // initialize runs ...
       init_machine_process_session_ids();
-      PMATH_RUN_ARGS("$ApplicationFileName:= `1`", "(o)", get_exe_name());
-      PMATH_RUN_ARGS("Developer`$SystemInformation:= `1`", "(o)", get_system_information());
+      pmath_symbol_set_value(pmath_System_DollarApplicationFileName,  get_exe_name());
       
       PMATH_RUN("$NewMessage:=Function({},,HoldFirst)");
       
-      PMATH_RUN("ComplexInfinity:=DirectedInfinity()");
+      pmath_symbol_set_value(pmath_System_ComplexInfinity, pmath_ref(_pmath_object_complex_infinity));
       PMATH_RUN("Infinity:=DirectedInfinity(1)");
       PMATH_RUN("I:=Complex(0,1)");
 #ifdef PMATH_OS_WIN32
       pmath_symbol_set_value(pmath_System_DollarPathListSeparator, PMATH_C_STRING(";"));
-      PMATH_RUN("$PathnameSeparator:=\"\\\\\"");
+      pmath_symbol_set_value(pmath_System_DollarPathnameSeparator, PMATH_C_STRING("\\"));
 #else
       pmath_symbol_set_value(pmath_System_DollarPathListSeparator, PMATH_C_STRING(":"));
-      PMATH_RUN("$PathnameSeparator:=\"/\"");
+      pmath_symbol_set_value(pmath_System_DollarPathnameSeparator, PMATH_C_STRING("/"));
 #endif
       
-      PMATH_RUN_ARGS("$InitialDirectory:=`1`", "(o)", _pmath_get_directory());
+      pmath_symbol_set_value(pmath_System_DollarCommandLine,      get_command_line());
+      pmath_symbol_set_value(pmath_System_DollarInitialDirectory, _pmath_get_directory());
       
-      PMATH_RUN_ARGS("$ByteOrdering:=`1`", "(i)", PMATH_BYTE_ORDER);
-      PMATH_RUN_ARGS(
-          "$CharacterEncoding:=$SystemCharacterEncoding:=`1`",
-          "(s)", _pmath_native_encoding);
-      PMATH_RUN_ARGS("$CommandLine:=`1`", "(o)", get_command_line());
-      PMATH_RUN("$HistoryLength:=10");
-      PMATH_RUN("$Line:=0");
+      {
+        pmath_string_t enc = PMATH_C_STRING(_pmath_native_encoding);
+        pmath_symbol_set_value(pmath_System_DollarCharacterEncoding,       pmath_ref(enc));
+        pmath_symbol_set_value(pmath_System_DollarSystemCharacterEncoding, enc);
+      }
       
-      PMATH_RUN_ARGS("$MachineEpsilon:=`1`",   "(f)", (double)DBL_EPSILON);
-      PMATH_RUN_ARGS("$MachinePrecision:=`1`", "(f)", (double)LOG10_2 * DBL_MANT_DIG);
-      PMATH_RUN_ARGS("$MaxMachineNumber:=`1`", "(f)", (double)DBL_MAX);
-      PMATH_RUN_ARGS("$MinMachineNumber:=`1`", "(f)", (double)DBL_MIN);
-      PMATH_RUN("$MaxExtraPrecision:=50");
+      pmath_symbol_set_value(pmath_Developer_DollarSystemInformation, get_system_information());
+      pmath_symbol_set_value(pmath_System_DollarByteOrdering,         PMATH_FROM_INT32(PMATH_BYTE_ORDER));
+      pmath_symbol_set_value(pmath_System_DollarMachineEpsilon,       PMATH_FROM_DOUBLE(DBL_EPSILON));
+      pmath_symbol_set_value(pmath_System_DollarMachinePrecision,     PMATH_FROM_DOUBLE(LOG10_2 * DBL_MANT_DIG));
+      pmath_symbol_set_value(pmath_System_DollarMaxMachineNumber,     PMATH_FROM_DOUBLE(DBL_MAX));
+      pmath_symbol_set_value(pmath_System_DollarMinMachineNumber,     PMATH_FROM_DOUBLE(DBL_MIN));
       
       PMATH_RUN("$MessageGroups:={\"Packing\" :> {General::punpack, General::punpack1}}");
       
       init_pagewidth();
       
-      PMATH_RUN("$Path:={\".\"}");
+      // $Path:= {"."}
+      pmath_symbol_set_value(
+        pmath_System_DollarPath, 
+        pmath_build_value("(s)", "."));
       
-      PMATH_RUN_ARGS("$ProcessorCount:=`1`", "(i)", _pmath_processor_count());
+      pmath_symbol_set_value(pmath_System_DollarProcessorCount, PMATH_FROM_INT32(_pmath_processor_count()));
       
       PMATH_RUN("$ThreadId::=Internal`GetThreadId()");
       
+      {
+        const char *system_id = (
 #ifdef PMATH_OS_WIN32
-      PMATH_RUN("$SystemId:=\"Windows\"");
+          "Windows"
 #elif defined(linux) || defined(__linux) || defined(__linux__)
-      PMATH_RUN("$SystemId:=\"Linux\"");
+          "Linux"
 #elif defined(sun) || defined(__sun)
-#if defined(__SVR4) || defined(__svr4__)
-      PMATH_RUN("$SystemId:=\"Solaris\"");
-#else
-      PMATH_RUN("$SystemId:=\"SunOS\"");
-#endif
+#  if defined(__SVR4) || defined(__svr4__)
+          "Solaris"
+#  else
+          "SunOS"
+#  endif
 #elif defined (__APPLE__)
-      PMATH_RUN("$SystemId:=\"MacOSX\"");
+          "MacOSX"
 #else
-      unknown operating system
+          unknown operating system
 #endif
+        );
+        pmath_symbol_set_value(pmath_System_DollarSystemId, PMATH_C_STRING(system_id));
+      }
       
+      {
+        const char *processor_type = (
 #ifdef PMATH_X86
-      PMATH_RUN("$ProcessorType:=\"x86\"");
+          "x86"
 #elif defined(PMATH_AMD64)
-      PMATH_RUN("$ProcessorType:=\"x86-64\"");
+          "x86-64"
 #elif defined(PMATH_SPARC32)
-      PMATH_RUN("$ProcessorType:=\"Sparc\"");
+          "Sparc"
 #elif defined(PMATH_SPARC64)
-      PMATH_RUN("$ProcessorType:=\"Sparc64\"");
+          "Sparc64"
 #else
-      unknown processor
+          unknown processor
 #endif
+        );
+        pmath_symbol_set_value(pmath_System_DollarProcessorType, PMATH_C_STRING(processor_type));
+      }
       
       pmath_symbol_set_value(pmath_System_DollarDialogLevel, PMATH_FROM_INT32(0));
       
@@ -1156,31 +1189,31 @@ PMATH_API pmath_bool_t pmath_init(void) {
     _pmath_symbol_builtins_protect_all();
     
     { // loading maininit.pmath
-      pmath_string_t exe = pmath_symbol_get_value(PMATH_SYMBOL_APPLICATIONFILENAME);
+      pmath_string_t exe = pmath_symbol_get_value(pmath_System_DollarApplicationFileName);
       
 #ifdef PMATH_OS_UNIX
-#define OS_SPECIFIC_PATH \
-  "{\"/etc/pmath\"," \
-  "\"/etc/local/pmath\"," \
-  "\"/usr/share/pmath\"," \
-  "\"/usr/local/share/pmath\"},"
+#  define OS_SPECIFIC_PATH           \
+      "{\"/etc/pmath\","             \
+      "\"/etc/local/pmath\","        \
+      "\"/usr/share/pmath\","        \
+      "\"/usr/local/share/pmath\"},"
 #elif defined(PMATH_OS_WIN32)
-#define OS_SPECIFIC_PATH \
-  "(If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&)(Environment(\"CommonProgramFiles\"))," \
-  "(If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&)(Environment(\"ProgramFiles\")),"
+#  define OS_SPECIFIC_PATH \
+      "(If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&)(Environment(\"CommonProgramFiles\"))," \
+      "(If(# =!= $Failed,{ToFileName(#,\"pmath\")},{})&)(Environment(\"ProgramFiles\")),"
 #else
-#define OS_SPECIFIC_PATH ""
+#  define OS_SPECIFIC_PATH ""
 #endif
       
       if(pmath_is_string(exe)) {
         exe = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_LIST), 1,
+            pmath_ref(pmath_System_List), 1,
             pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_DIRECTORYNAME), 1,
+                pmath_ref(pmath_System_DirectoryName), 1,
                 exe));
       }
       else {
-        exe = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+        exe = pmath_expr_new(pmath_ref(pmath_System_List), 0);
       }
       
       PMATH_RUN_ARGS("Get(\"maininit`\","

@@ -40,6 +40,9 @@
 #define MPFR_MANT(x) ((x)->_mpfr_d)
 
 
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE pmath_quotient_t _pmath_one_half; /* readonly */
 
 PMATH_PRIVATE pmath_t _pmath_object_overflow;          /* readonly */
@@ -947,7 +950,7 @@ pmath_t _pmath_float_exceptions(
     return x;
   
   if(arf_is_nan(arb_midref(PMATH_AS_ARB(x)))) {
-    result = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    result = pmath_ref(pmath_System_Undefined);
     pmath_message(PMATH_NULL, "indet", 1, pmath_ref(result));
   }
   else {
@@ -958,7 +961,7 @@ pmath_t _pmath_float_exceptions(
       inf_sign = arf_sgn(arb_midref(PMATH_AS_ARB(x)));
       
     result = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+               pmath_ref(pmath_System_DirectedInfinity), 1,
                PMATH_FROM_INT32(inf_sign));
     pmath_message(PMATH_NULL, "infy", 1, pmath_ref(result));
   }

@@ -6,6 +6,10 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Throw;
+extern pmath_symbol_t pmath_System_Unevaluated;
+
 PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr) {
   pmath_t  arg;
   
@@ -44,9 +48,9 @@ PMATH_PRIVATE pmath_t builtin_pause(pmath_expr_t expr) {
     // guard:= Throw(Unevaluated(guard))
     pmath_symbol_set_value(guard,
                            pmath_expr_new_extended(
-                             pmath_ref(PMATH_SYMBOL_THROW), 1,
+                             pmath_ref(pmath_System_Throw), 1,
                              pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
+                               pmath_ref(pmath_System_Unevaluated), 1,
                                pmath_ref(guard))));
                                
     mq = pmath_ref(current_thread->message_queue);// = pmath_thread_get_queue();

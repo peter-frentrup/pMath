@@ -17,7 +17,6 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/control-private.h>
 
 #include <limits.h>
 #include <string.h>
@@ -26,8 +25,19 @@
 #define MIN(A, B)  ((A) < (B) ? (A) : (B))
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_ByteOrdering;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_EndOfFile;
+extern pmath_symbol_t pmath_System_Expression;
+extern pmath_symbol_t pmath_System_HoldComplete;
+extern pmath_symbol_t pmath_System_Integer;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE int _pmath_get_byte_ordering(pmath_t head, pmath_expr_t options) {
-  pmath_t value = pmath_evaluate(pmath_option_value(head, PMATH_SYMBOL_BYTEORDERING, options));
+  pmath_t value = pmath_evaluate(pmath_option_value(head, pmath_System_ByteOrdering, options));
   
   if(pmath_is_int32(value)) {
     int i = PMATH_AS_INT32(value);
@@ -46,19 +56,19 @@ static pmath_t make_complex(pmath_t re, pmath_t im) {
   pmath_t re_inf;
   pmath_t im_inf;
   
-  if(pmath_same(re, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_same(re, pmath_System_Undefined)) {
     pmath_unref(im);
     return re;
   }
   
-  if(pmath_same(im, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_same(im, pmath_System_Undefined)) {
     pmath_unref(re);
     return im;
   }
   
   if(pmath_is_number(im) && pmath_is_number(re)) {
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_COMPLEX), 2, re, im);
+             pmath_ref(pmath_System_Complex), 2, re, im);
   }
   
   re_inf = _pmath_directed_infinity_direction(re);
@@ -74,9 +84,9 @@ static pmath_t make_complex(pmath_t re, pmath_t im) {
     im_inf = PMATH_FROM_INT32(0);
     
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+           pmath_ref(pmath_System_DirectedInfinity), 1,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+             pmath_ref(pmath_System_Complex), 2,
              re_inf,
              im_inf));
 }
@@ -246,7 +256,7 @@ static pmath_t binary_read_real16(
       return pmath_ref(_pmath_object_pos_infinity);
     }
     
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   val = pow(2, (int)uexp - 25);
@@ -295,7 +305,7 @@ static pmath_t binary_read_real32(
   }
   
   if(isnan(val)) {
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   return PMATH_FROM_DOUBLE(val);
@@ -345,7 +355,7 @@ static pmath_t binary_read_real64(
   }
   
   if(isnan(val)) {
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   return PMATH_FROM_DOUBLE(val);
@@ -417,7 +427,7 @@ static pmath_t binary_read_real128(
       
       pmath_unref(f);
       pmath_unref(mant);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      return pmath_ref(pmath_System_Undefined);
     }
     else {
       fmpz_t tmp;
@@ -438,7 +448,7 @@ static pmath_t binary_read_real128(
   
   pmath_unref(mant);
   pmath_unref(f);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t binary_read_real(
@@ -465,7 +475,7 @@ static pmath_t binary_read_real(
   }
   
   assert(0 && "invalid size");
-  return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  return pmath_ref(pmath_System_Undefined);
 }
 
 static pmath_t binary_read_simple(
@@ -538,7 +548,7 @@ static pmath_t binary_read_simple(
   }
   
   assert(0 && "unknown type");
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t read_terminated_string(pmath_t file) {
@@ -575,7 +585,7 @@ static pmath_t read_terminated_string(pmath_t file) {
   }
   
   pmath_unref(result);
-  return pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+  return pmath_ref(pmath_System_EndOfFile);
 }
 
 static pmath_bool_t binary_read(
@@ -583,7 +593,7 @@ static pmath_bool_t binary_read(
   pmath_t *type_value,
   int      byte_ordering
 ) {
-  if( pmath_same(*type_value, PMATH_SYMBOL_EXPRESSION) ||
+  if( pmath_same(*type_value, pmath_System_Expression) ||
       (pmath_is_string(*type_value) &&
        pmath_string_equals_latin1(*type_value, "Expression")))
   {
@@ -594,18 +604,18 @@ static pmath_bool_t binary_read(
     if(error) {
       // todo: error message
       pmath_unref(*type_value);
-      *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+      *type_value = pmath_ref(pmath_System_DollarFailed);
       return FALSE;
     }
     
     return TRUE;
   }
   
-  if(pmath_same(*type_value, PMATH_SYMBOL_INTEGER)) {
+  if(pmath_same(*type_value, pmath_System_Integer)) {
     pmath_unref(*type_value);
     *type_value = _pmath_deserialize_raw_integer(file);
     if(pmath_is_null(*type_value))
-      *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+      *type_value = pmath_ref(pmath_System_DollarFailed);
     return TRUE;
   }
   
@@ -626,7 +636,7 @@ static pmath_bool_t binary_read(
         
         pmath_unref(*type_value);
         if(pmath_file_read(file, buf, size, FALSE) < size) {
-          *type_value = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+          *type_value = pmath_ref(pmath_System_EndOfFile);
           return TRUE;
         }
         
@@ -635,8 +645,8 @@ static pmath_bool_t binary_read(
       }
     }
   }
-  else if( pmath_is_expr_of(*type_value, PMATH_SYMBOL_LIST) ||
-           pmath_is_expr_of(*type_value, PMATH_SYMBOL_HOLDCOMPLETE))
+  else if( pmath_is_expr_of(*type_value, pmath_System_List) ||
+           pmath_is_expr_of(*type_value, pmath_System_HoldComplete))
   {
     size_t i;
     
@@ -656,7 +666,7 @@ static pmath_bool_t binary_read(
   }
   
   pmath_message(PMATH_NULL, "format", 1, *type_value);
-  *type_value = pmath_ref(PMATH_SYMBOL_FAILED);
+  *type_value = pmath_ref(pmath_System_DollarFailed);
   return FALSE;
 }
 
@@ -696,7 +706,7 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr) {
     pmath_unref(expr);
     pmath_unref(type);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   file = pmath_expr_get_item(expr, 1);
@@ -705,7 +715,7 @@ PMATH_PRIVATE pmath_t builtin_binaryread(pmath_expr_t expr) {
     pmath_unref(type);
     pmath_unref(expr);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(byte_ordering == 0)
@@ -785,7 +795,7 @@ static pmath_t binary_read_int32_list(
   
   array = pmath_packed_array_new(blob, PMATH_PACKED_INT32, 1, &length, NULL, 0);
   if(append_eof_symbol) {
-    array = pmath_expr_append(array, 1, pmath_ref(PMATH_SYMBOL_ENDOFFILE));
+    array = pmath_expr_append(array, 1, pmath_ref(pmath_System_EndOfFile));
   }
   
   return array;
@@ -822,7 +832,7 @@ static pmath_t binary_read_list(
   }
   
   length = MIN(count, 128);
-  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), length);
+  result = pmath_expr_new(pmath_ref(pmath_System_List), length);
   result = pmath_expr_set_item(result, 1, item);
   
   i = 1;
@@ -901,7 +911,7 @@ PMATH_PRIVATE pmath_t builtin_binaryreadlist(pmath_expr_t expr) {
     pmath_unref(expr);
     pmath_unref(type);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   file = pmath_expr_get_item(expr, 1);
@@ -915,7 +925,7 @@ PMATH_PRIVATE pmath_t builtin_binaryreadlist(pmath_expr_t expr) {
     pmath_unref(type);
     pmath_unref(expr);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(byte_ordering == 0)

@@ -24,6 +24,8 @@
 #include <util/sharedptr.h>
 
 
+extern pmath_symbol_t richmath_System_List;
+
 using namespace richmath;
 
 #ifdef RICHMATH_USE_WIN32_FONT
@@ -416,7 +418,7 @@ Expr FontInfo::all_fonts() {
     int num_app_fonts = app_fonts ? app_fonts->nfont : 0;
     int num_sys_fonts = sys_fonts ? sys_fonts->nfont : 0;
     
-    Expr expr = MakeList((size_t)(num_app_fonts + num_sys_fonts));
+    Expr expr = MakeCall(Symbol(richmath_System_List), (size_t)(num_app_fonts + num_sys_fonts));
     
     if(app_fonts) {
       for(int i = 0; i < num_app_fonts; ++i) {

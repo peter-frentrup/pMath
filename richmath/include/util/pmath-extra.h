@@ -6,6 +6,15 @@
 #include <util/base.h>
 
 
+extern pmath_symbol_t richmath_System_Ceiling;
+extern pmath_symbol_t richmath_System_Floor;
+extern pmath_symbol_t richmath_System_Plus;
+extern pmath_symbol_t richmath_System_Power;
+extern pmath_symbol_t richmath_System_Round;
+extern pmath_symbol_t richmath_System_Rule;
+extern pmath_symbol_t richmath_System_RuleDelayed;
+extern pmath_symbol_t richmath_System_Times;
+
 namespace richmath {
   using namespace pmath; // bad style!!!
   
@@ -72,6 +81,35 @@ namespace richmath {
     private:
       pmath_span_array_t *_array;
   };
+
+  inline Expr Rule(       Expr l, Expr r) { return Expr(pmath_expr_new_extended(pmath_ref(richmath_System_Rule),        2, l.release(), r.release())); }
+  inline Expr RuleDelayed(Expr l, Expr r) { return Expr(pmath_expr_new_extended(pmath_ref(richmath_System_RuleDelayed), 2, l.release(), r.release())); }
+  
+  inline Expr Power(Expr x, Expr y) { return Call(Symbol(richmath_System_Power), PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(y)); }
+
+  inline Expr Sqrt(Expr x) { return Power(PMATH_CPP_MOVE(x), Rational(1, 2)); }
+  inline Expr Inv(Expr x) {  return Power(PMATH_CPP_MOVE(x), -1); }
+  
+  inline Expr Times(Expr x1, Expr x2) {                   return Call(Symbol(richmath_System_Times), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2)); }
+  inline Expr Times(Expr x1, Expr x2, Expr x3) {          return Call(Symbol(richmath_System_Times), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3)); }
+  inline Expr Times(Expr x1, Expr x2, Expr x3, Expr x4) { return Call(Symbol(richmath_System_Times), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3), PMATH_CPP_MOVE(x4)); }
+
+  inline Expr Divide(Expr x, Expr y) { return Times(PMATH_CPP_MOVE(x), Inv(PMATH_CPP_MOVE(y))); }
+
+  inline Expr Plus(Expr x1, Expr x2) {                   return Call(Symbol(richmath_System_Plus), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2)); }
+  inline Expr Plus(Expr x1, Expr x2, Expr x3) {          return Call(Symbol(richmath_System_Plus), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3)); }
+  inline Expr Plus(Expr x1, Expr x2, Expr x3, Expr x4) { return Call(Symbol(richmath_System_Plus), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3), PMATH_CPP_MOVE(x4)); }
+
+  inline Expr Minus(Expr x) {         return Times(-1, PMATH_CPP_MOVE(x)); }
+  inline Expr Minus(Expr x, Expr y) { return Plus(PMATH_CPP_MOVE(x), Minus(PMATH_CPP_MOVE(y))); }
+  
+  inline Expr Ceiling(Expr x) {         return Call(Symbol(richmath_System_Ceiling), PMATH_CPP_MOVE(x)); }
+  inline Expr Ceiling(Expr x, Expr a) { return Call(Symbol(richmath_System_Ceiling), PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(a)); }
+  inline Expr Floor(  Expr x) {         return Call(Symbol(richmath_System_Floor),   PMATH_CPP_MOVE(x)); }
+  inline Expr Floor(  Expr x, Expr a) { return Call(Symbol(richmath_System_Floor),   PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(a)); }
+  inline Expr Round(  Expr x) {         return Call(Symbol(richmath_System_Round),   PMATH_CPP_MOVE(x)); }
+  inline Expr Round(  Expr x, Expr a) { return Call(Symbol(richmath_System_Round),   PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(a)); }
+  
 }
 
 #endif // RICHMATH__UTIL__PMATH_EXTRA_H__INCLUDED

@@ -6,6 +6,8 @@ struct hypgeom_type_t {
   pmath_bool_t regularized;
 };
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Private_AutoSimplifyHypGeom;
 
 static void do_hypgeom_pfq(acb_t result, acb_ptr args, size_t nargs, slong prec, void *context) {
@@ -53,10 +55,10 @@ static pmath_t do_special_hypgeom_pfq(pmath_t expr, size_t p, size_t q, pmath_bo
     return expr;
     
   a_list = pmath_expr_get_item_range(expr, 1, p);
-  a_list = pmath_expr_set_item(a_list, 0, pmath_ref(PMATH_SYMBOL_LIST));
+  a_list = pmath_expr_set_item(a_list, 0, pmath_ref(pmath_System_List));
   
   b_list = pmath_expr_get_item_range(expr, p + 1, q);
-  b_list = pmath_expr_set_item(b_list, 0, pmath_ref(PMATH_SYMBOL_LIST));
+  b_list = pmath_expr_set_item(b_list, 0, pmath_ref(pmath_System_List));
   
   z = pmath_expr_get_item(expr, p + q + 1);
   
@@ -68,7 +70,7 @@ static pmath_t do_special_hypgeom_pfq(pmath_t expr, size_t p, size_t q, pmath_bo
         z);
         
   z = pmath_evaluate(z);
-  if(!pmath_same(z, PMATH_SYMBOL_FAILED)) {
+  if(!pmath_same(z, pmath_System_DollarFailed)) {
     pmath_unref(expr);
     return z;
   }
@@ -88,7 +90,7 @@ static pmath_t do_general_hypgeom_pfq_scalar(
   pmath_t args;
   size_t i;
   
-  if(!pmath_is_expr_of(a_list, PMATH_SYMBOL_LIST) || !pmath_is_expr_of(b_list, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(a_list, pmath_System_List) || !pmath_is_expr_of(b_list, pmath_System_List)) {
     pmath_unref(z);
     return expr;
   }
@@ -118,7 +120,7 @@ static pmath_t do_general_hypgeom_pfq_scalar(
            z);
   
   z = pmath_evaluate(z);
-  if(!pmath_same(z, PMATH_SYMBOL_FAILED)) {
+  if(!pmath_same(z, pmath_System_DollarFailed)) {
     pmath_unref(expr);
     return z;
   }
@@ -146,7 +148,7 @@ static pmath_t do_general_hypgeom_pfq(pmath_t expr, pmath_bool_t regularized) {
   b_list = pmath_expr_get_item(expr, 2);
   z = pmath_expr_get_item(expr, 3);
   
-  if(pmath_is_expr_of(z, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(z, pmath_System_List)) {
     size_t i;
     for(i = pmath_expr_length(z); i > 0; --i) {
       pmath_t zi = pmath_expr_get_item(z, i);

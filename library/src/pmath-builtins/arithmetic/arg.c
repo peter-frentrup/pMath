@@ -9,6 +9,13 @@
 #include <pmath-builtins/build-expr-private.h>
 
 
+extern pmath_symbol_t pmath_System_ArcTan;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_Pi;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE pmath_t builtin_arg(pmath_expr_t expr) {
   pmath_t z, re, im;
   
@@ -19,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_arg(pmath_expr_t expr) {
   
   z = pmath_expr_get_item(expr, 1);
   
-  if(pmath_is_float(z) || pmath_is_expr_of_len(z, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_float(z) || pmath_is_expr_of_len(z, pmath_System_Complex, 2)) {
     acb_t z_val;
     slong prec;
     pmath_bool_t is_machine_prec;
@@ -58,16 +65,16 @@ PMATH_PRIVATE pmath_t builtin_arg(pmath_expr_t expr) {
       
       if(re_sign < 0) {
         if(im_sign < 0)
-          return MINUS(ARCTAN(DIV(im, re)), pmath_ref(PMATH_SYMBOL_PI));
-        return PLUS(ARCTAN(DIV(im, re)), pmath_ref(PMATH_SYMBOL_PI));
+          return MINUS(ARCTAN(DIV(im, re)), pmath_ref(pmath_System_Pi));
+        return PLUS(ARCTAN(DIV(im, re)), pmath_ref(pmath_System_Pi));
       }
       if(re_sign == 0) {
         if(im_sign < 0)
-          return TIMES(QUOT(-1, 2), pmath_ref(PMATH_SYMBOL_PI));
+          return TIMES(QUOT(-1, 2), pmath_ref(pmath_System_Pi));
         else if(im_sign == 0)
           return INT(0);
         else
-          return TIMES(ONE_HALF, pmath_ref(PMATH_SYMBOL_PI));
+          return TIMES(ONE_HALF, pmath_ref(pmath_System_Pi));
       }
       return ARCTAN(DIV(im, re));
     }

@@ -4,6 +4,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_takewhile(pmath_expr_t expr) {
   /* TakeWhile(list, crit)
    */
@@ -34,7 +36,8 @@ PMATH_PRIVATE pmath_t builtin_takewhile(pmath_expr_t expr) {
     item = pmath_evaluate(item);
     pmath_unref(item);
     
-    if(!pmath_same(item, PMATH_SYMBOL_TRUE)) {
+    if(!pmath_same(item, pmath_System_True)) {
+      // TODO: warn when crit does not evaluate to True or False ?
       expr = pmath_expr_get_item_range(list, 1, i - 1);
       pmath_unref(list);
       pmath_unref(crit);

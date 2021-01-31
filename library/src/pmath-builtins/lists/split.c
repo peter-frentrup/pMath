@@ -7,6 +7,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr) {
   /* Split(list, test)
      Split(list)        == Split(expr, Identical)
@@ -106,7 +108,7 @@ PMATH_PRIVATE pmath_t builtin_split(pmath_expr_t expr) {
                                      pmath_ref(b)));
       pmath_unref(test_result);
       
-      if(!pmath_same(test_result, PMATH_SYMBOL_TRUE)) {
+      if(!pmath_same(test_result, pmath_System_True)) {
         pmath_unref(b);
         
         b = pmath_gather_end();

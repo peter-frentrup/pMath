@@ -13,7 +13,6 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
 #include <string.h>
@@ -22,6 +21,11 @@
 /* TODO: allow ReplacePart({{a, b, c}, {d, e}, {f}}, {~~~, -1} -> xx)
                                                            ==
  */
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Heads;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_True;
 
 struct multiindex_t {
   size_t length;
@@ -48,6 +52,8 @@ struct replace_info_t {
 
   uint8_t  heads_opt;
 };
+
+extern pmath_symbol_t pmath_System_Automatic;
 
 static pmath_bool_t resize_current_multiindex(struct replace_info_t *info, size_t length) {
   struct multiindex_t *mi;
@@ -125,7 +131,7 @@ static pmath_bool_t init_pattern_analyze(
   }
 
   memset(&inp, 0, sizeof(inp));
-  inp.parent_pat_head = PMATH_SYMBOL_LIST;
+  inp.parent_pat_head = pmath_System_List;
 
   for(i = info->depth; i > 0; --i) {
     inp.pat = pmath_expr_get_item(info->part_spec, i);
@@ -322,7 +328,7 @@ static pmath_expr_t to_multiindex_expr_large(size_t *indices, size_t count_indic
   pmath_expr_t expr;
   size_t i;
 
-  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), count_indices);
+  expr = pmath_expr_new(pmath_ref(pmath_System_List), count_indices);
   for(i = count_indices; i > 0; --i) {
     expr = pmath_expr_set_item(expr, i, pmath_integer_new_uiptr(indices[i - 1]));
   }
@@ -547,15 +553,15 @@ static pmath_t replace_part(
  */
 static pmath_expr_t prepare_repl_rules(pmath_t rules) {
   // ... -> rhs
-  if(_pmath_is_rule(rules)) {
+  if(pmath_is_rule(rules)) {
     pmath_t lhs = pmath_expr_get_item(rules, 1);
 
     // {...} -> rhs
-    if(pmath_is_expr_of(lhs, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(lhs, pmath_System_List)) {
       pmath_t item = pmath_expr_get_item(lhs, 1);
 
       // {{i1,j1,...}, {i2,j2,...}, ...} -> rhs   ~~>   {{i1,j1,...}->rhs, {i2,j2,...}->rhs, ...}
-      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+      if(pmath_is_expr_of(item, pmath_System_List)) {
         size_t i;
         pmath_unref(item);
 
@@ -576,14 +582,14 @@ static pmath_expr_t prepare_repl_rules(pmath_t rules) {
       pmath_unref(item);
       pmath_unref(lhs);
       // {i,j,...} -> rhs  ~~>  {{i,j,...} -> rhs}
-      return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
+      return pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, rules);
     }
 
     // i -> rhs  ~~>  {{i} -> rhs}
     rules = pmath_expr_set_item(rules, 1, PMATH_NULL);
-    lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, lhs);
+    lhs = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, lhs);
     rules = pmath_expr_set_item(rules, 1, lhs);
-    return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
+    return pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, rules);
   }
 
   // {... -> rhs1, ... -> rhs2, ...}
@@ -595,8 +601,8 @@ static pmath_expr_t prepare_repl_rules(pmath_t rules) {
       pmath_t lhs = pmath_expr_extract_item(rule, 1);
 
       // {..., i->rhs, ...}  ~~>  {..., {i}->rhs, ...}
-      if(!pmath_is_expr_of(lhs, PMATH_SYMBOL_LIST))
-        lhs = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, lhs);
+      if(!pmath_is_expr_of(lhs, pmath_System_List))
+        lhs = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, lhs);
 
       rule = pmath_expr_set_item(rule, 1, lhs);
       rules = pmath_expr_set_item(rules, i, rule);
@@ -635,19 +641,19 @@ PMATH_PRIVATE pmath_t builtin_replacepart(pmath_expr_t expr) {
     if(pmath_is_null(options))
       return expr;
 
-    heads_value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
+    heads_value = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
     pmath_unref(options);
 
-    if(pmath_same(heads_value, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(heads_value, pmath_System_True)) {
       heads_opt = OPT_HEADS_TRUE;
     }
-    else if(pmath_same(heads_value, PMATH_SYMBOL_FALSE)) {
+    else if(pmath_same(heads_value, pmath_System_False)) {
       heads_opt = OPT_HEADS_FALSE;
     }
-    else if(!pmath_same(heads_value, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(!pmath_same(heads_value, pmath_System_Automatic)) {
       pmath_message(
           PMATH_NULL, "opttfa", 2,
-          pmath_ref(PMATH_SYMBOL_HEADS),
+          pmath_ref(pmath_System_Heads),
           heads_value);
       return expr;
     }

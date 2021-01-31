@@ -18,6 +18,8 @@
 
 extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MakeBoxes;
 
 static pmath_bool_t has_param_placeholders(
   pmath_t box // wont be freed
@@ -282,10 +284,10 @@ pmath_t _pmath_stringform_to_boxes(
                              data.formated_params, i, PMATH_NULL);
                              
     item = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_LIST), 1,
+             pmath_ref(pmath_System_List), 1,
              pmath_evaluate(
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
+                 pmath_ref(pmath_System_MakeBoxes), 1,
                  item)));
                  
     data.formated_params = pmath_expr_set_item(

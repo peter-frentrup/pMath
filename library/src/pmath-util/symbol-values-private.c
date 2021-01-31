@@ -43,6 +43,11 @@ struct _pmath_multirule_t {
 #define rulecache_table_lock(rc)           ((pmath_hashtable_t)_pmath_atomic_lock_ptr(&((rc)->_table)))
 #define rulecache_table_unlock(rc, table)  _pmath_atomic_unlock_ptr(&((rc)->_table), (table));
 
+extern pmath_symbol_t pmath_System_HoldPattern;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_Internal_Condition;
+
 //{ constructors / destructors...
 
 static pmath_t create_multirule(void) {
@@ -577,11 +582,11 @@ static pmath_bool_t _pmath_multirule_find(
       if(_pmath_rhs_has_condition(&rule_body, TRUE)) {
         rule_body = pmath_evaluate(rule_body);
 
-        if(pmath_is_expr_of_len(rule_body, PMATH_SYMBOL_INTERNAL_CONDITION, 2)) {
+        if(pmath_is_expr_of_len(rule_body, pmath_Internal_Condition, 2)) {
           cond = pmath_expr_get_item(rule_body, 2);
           pmath_unref(cond);
 
-          if(pmath_same(cond, PMATH_SYMBOL_TRUE)) {
+          if(pmath_same(cond, pmath_System_True)) {
             pmath_unref(*inout);
             *inout = pmath_expr_get_item(rule_body, 1);
             pmath_unref(rule_body);
@@ -982,9 +987,9 @@ static void _pmath_multirules_emit(pmath_t rule) { // will be freed
 
     pmath_emit(
       pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,
+        pmath_ref(pmath_System_RuleDelayed), 2,
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
+          pmath_ref(pmath_System_HoldPattern), 1,
           _pmath_object_atomic_read(&_rule->pattern)),
         _pmath_object_atomic_read(&_rule->body)),
       PMATH_NULL);
@@ -1007,9 +1012,9 @@ void _pmath_symbol_value_emit(
   else if(!pmath_same(value, PMATH_UNDEFINED)){
     pmath_emit(
       pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,
+        pmath_ref(pmath_System_RuleDelayed), 2,
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
+          pmath_ref(pmath_System_HoldPattern), 1,
           pmath_ref(sym)),
         value),
       PMATH_NULL);
@@ -1031,9 +1036,9 @@ void _pmath_rule_table_emit(
     if(entry) {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2,
+          pmath_ref(pmath_System_RuleDelayed), 2,
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
+            pmath_ref(pmath_System_HoldPattern), 1,
             pmath_ref(entry->key)),
           pmath_ref(entry->value)),
         PMATH_NULL);

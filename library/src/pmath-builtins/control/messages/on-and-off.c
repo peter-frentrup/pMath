@@ -10,6 +10,15 @@
 #include <pmath-builtins/control/messages-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarMessageGroups;
+extern pmath_symbol_t pmath_System_Hold;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Message;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Off;
+extern pmath_symbol_t pmath_System_On;
+extern pmath_symbol_t pmath_System_Replace;
+
 // message will be freed.
 static void set_message_on_off(pmath_t message, pmath_bool_t on) {
   pmath_t head;
@@ -17,7 +26,7 @@ static void set_message_on_off(pmath_t message, pmath_bool_t on) {
   
   if(on) {
     if(default_off)
-      head = pmath_ref(PMATH_SYMBOL_ON);
+      head = pmath_ref(pmath_System_On);
     else
       head = PMATH_UNDEFINED;
   }
@@ -25,7 +34,7 @@ static void set_message_on_off(pmath_t message, pmath_bool_t on) {
     if(default_off)
       head = PMATH_UNDEFINED;
     else
-      head = pmath_ref(PMATH_SYMBOL_OFF);
+      head = pmath_ref(pmath_System_Off);
   }
   
   pmath_unref(
@@ -46,14 +55,14 @@ static void emit_messages_in_groups(pmath_t messages, int max_depth) {
     pmath_t held_group;
     
     held_group = pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_HOLD), 1,
+                   pmath_ref(pmath_System_Hold), 1,
                    messages);
                    
     messages = pmath_evaluate(
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_REPLACE), 3,
+                   pmath_ref(pmath_System_Replace), 3,
                    pmath_ref(held_group),
-                   pmath_ref(PMATH_SYMBOL_MESSAGEGROUPS),
+                   pmath_ref(pmath_System_DollarMessageGroups),
                    PMATH_FROM_INT32(1)));
                    
     if(pmath_equals(messages, held_group)) {
@@ -64,11 +73,11 @@ static void emit_messages_in_groups(pmath_t messages, int max_depth) {
     }
     
     pmath_unref(held_group);
-    if(pmath_is_expr_of(messages, PMATH_SYMBOL_HOLD))
-      messages = pmath_expr_set_item(messages, 0, pmath_ref(PMATH_SYMBOL_LIST));
+    if(pmath_is_expr_of(messages, pmath_System_Hold))
+      messages = pmath_expr_set_item(messages, 0, pmath_ref(pmath_System_List));
   }
   
-  if(max_depth > 0 && pmath_is_expr_of(messages, PMATH_SYMBOL_LIST)) {
+  if(max_depth > 0 && pmath_is_expr_of(messages, pmath_System_List)) {
     size_t i;
     size_t len = pmath_expr_length(messages);
     
@@ -107,7 +116,7 @@ static void set_all_messages_on_off(pmath_expr_t messages, pmath_bool_t on) {
     
     if(pmath_is_symbol(msg)) {
       msg = pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+              pmath_ref(pmath_System_MessageName), 2,
               msg,
               PMATH_NULL);
     }
@@ -115,7 +124,7 @@ static void set_all_messages_on_off(pmath_expr_t messages, pmath_bool_t on) {
     if(pmath_is_string(msg))
       msg = _pmath_messages_in_group(msg);
       
-    if(pmath_is_expr_of(msg, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(msg, pmath_System_List)) {
       set_all_messages_on_off(msg, on);
       continue;
     }
@@ -125,7 +134,7 @@ static void set_all_messages_on_off(pmath_expr_t messages, pmath_bool_t on) {
       continue;
     }
     
-    pmath_message(PMATH_SYMBOL_MESSAGE, "name", 1, msg);
+    pmath_message(pmath_System_Message, "name", 1, msg);
   }
   
   pmath_unref(messages);
@@ -143,6 +152,6 @@ PMATH_PRIVATE pmath_t builtin_on_or_off(pmath_expr_t expr) {
     return expr;
   }
   
-  set_all_messages_on_off(expr, pmath_is_expr_of(expr, PMATH_SYMBOL_ON));
+  set_all_messages_on_off(expr, pmath_is_expr_of(expr, pmath_System_On));
   return PMATH_NULL;
 }

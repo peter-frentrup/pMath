@@ -9,8 +9,6 @@
 using namespace richmath;
 using namespace std;
 
-extern pmath_symbol_t richmath_System_SliderBox;
-
 #ifdef _MSC_VER
 namespace std {
   static bool isnan(double d) {return _isnan(d);}
@@ -70,6 +68,11 @@ namespace richmath {
   };
 }
 
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Range;
+extern pmath_symbol_t richmath_System_SliderBox;
+
 //{ class SliderBox ...
 
 SliderBox::SliderBox()
@@ -108,7 +111,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   double new_range_step        = 0.0;
   bool   new_use_double_values = true;
   
-  if(new_range[0] == PMATH_SYMBOL_RANGE) {
+  if(new_range[0] == richmath_System_Range) {
     if(new_range.expr_length() == 2) {
       new_range_min = new_range[1].to_double(NAN);
       new_range_max = new_range[2].to_double(NAN);
@@ -132,7 +135,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     else
       return false;
   }
-  else if(new_range.expr_length() > 0 && new_range[0] == PMATH_SYMBOL_LIST) {
+  else if(new_range.expr_length() > 0 && new_range[0] == richmath_System_List) {
     new_range_min  = 1;
     new_range_max  = new_range.expr_length();
     new_range_step = 1;
@@ -468,13 +471,13 @@ bool SliderBox::Impl::approximately_equals(double val1, double val2) {
 }
 
 Expr SliderBox::Impl::position_to_value(double d, bool evaluate) {
-  if(self.range[0] == PMATH_SYMBOL_LIST)
+  if(self.range[0] == richmath_System_List)
     return self.range[(size_t)d];
   
   if(self.use_double_values)
     return Expr(d);
   
-  Expr result = Plus(self.range[1], Round(Minus(d, self.range[1]), self.range[3]));
+  Expr result = Plus(self.range[1], Call(Symbol(richmath_System_Round), Minus(d, self.range[1]), self.range[3]));
   if(evaluate)
     result = Application::interrupt_wait_cached(result, Application::dynamic_timeout);
   return result;
@@ -496,7 +499,7 @@ void SliderBox::Impl::finish_update_value() {
   
   Expr val;
   if(self.dynamic.get_value(&val)) {
-    if(self.range[0] == PMATH_SYMBOL_LIST) {
+    if(self.range[0] == richmath_System_List) {
       self.range_value = self.range_min;
       
       size_t i;
@@ -633,7 +636,7 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
 }
 
 ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
-  if(appearance == PMATH_SYMBOL_AUTOMATIC || appearance == strings::Slider)
+  if(appearance == richmath_System_Automatic || appearance == strings::Slider)
     return SliderHorzThumb;
 
   if(appearance == strings::DownArrow)

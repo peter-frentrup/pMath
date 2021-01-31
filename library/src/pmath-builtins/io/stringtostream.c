@@ -9,7 +9,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_PageWidth;
 
 PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
   /* StringToStream(text)
@@ -33,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
     return expr;
   
   page_width = pmath_evaluate(
-                 pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
+                 pmath_option_value(PMATH_NULL, pmath_System_PageWidth, options));
   pmath_unref(options);
   
   text = pmath_expr_get_item(expr, 1);
@@ -51,7 +53,7 @@ PMATH_PRIVATE pmath_t builtin_stringtostream(pmath_expr_t expr) {
   if(pmath_is_null(text_stream)) {
     pmath_unref(page_width);
     pmath_unref(text);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   // TODO: do not copy content via write but reference text directly

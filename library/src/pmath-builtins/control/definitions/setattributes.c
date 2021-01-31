@@ -7,6 +7,8 @@
 #include <pmath-builtins/control/definitions-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 // syms will be freed;
 static pmath_bool_t set_attributes(pmath_t syms, pmath_symbol_attributes_t mask) {
 
@@ -23,7 +25,7 @@ static pmath_bool_t set_attributes(pmath_t syms, pmath_symbol_attributes_t mask)
     return TRUE;
   }
   
-  if(pmath_is_expr_of(syms, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(syms, pmath_System_List)) {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(syms); ++i) {

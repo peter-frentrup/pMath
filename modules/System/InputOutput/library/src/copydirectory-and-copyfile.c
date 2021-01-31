@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-extern pmath_symbol_t pmath_System_Failed;
+extern pmath_symbol_t pmath_System_DollarFailed;
 
 #ifndef PMATH_OS_WIN32
 static pmath_bool_t copy_file_or_dir(
@@ -200,7 +200,7 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
           if(h2 != INVALID_HANDLE_VALUE) {
             CloseHandle(h2);
             pmath_message(PMATH_NULL, "filex", 1, name2);
-            name2 = pmath_ref(pmath_System_Failed);
+            name2 = pmath_ref(pmath_System_DollarFailed);
           }
           else {
             SHFILEOPSTRUCTW op;
@@ -222,13 +222,13 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
                 pmath_message(PMATH_NULL, "privv", 1, expr);
                 expr = PMATH_NULL;
                 pmath_unref(name2);
-                name2 = pmath_ref(pmath_System_Failed);
+                name2 = pmath_ref(pmath_System_DollarFailed);
                 
               default:
                 pmath_message(PMATH_NULL, "ioarg", 1, expr);
                 expr = PMATH_NULL;
                 pmath_unref(name2);
-                name2 = pmath_ref(pmath_System_Failed);
+                name2 = pmath_ref(pmath_System_DollarFailed);
             }
           }
         }
@@ -250,7 +250,7 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
               }
           }
           pmath_unref(name2);
-          name2 = pmath_ref(pmath_System_Failed);
+          name2 = pmath_ref(pmath_System_DollarFailed);
           CloseHandle(h);
         }
       }
@@ -272,7 +272,7 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
             }
         }
         pmath_unref(name2);
-        name2 = pmath_ref(pmath_System_Failed);
+        name2 = pmath_ref(pmath_System_DollarFailed);
       }
     }
     
@@ -289,7 +289,7 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
   
       if(stat(str2, &buf) == 0) {
         pmath_message(PMATH_NULL, "filex", 1, name2);
-        name2 = pmath_ref(pmath_System_Failed);
+        name2 = pmath_ref(pmath_System_DollarFailed);
       }
       else {
         if( stat(str1, &buf) == 0 &&
@@ -313,7 +313,7 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
                 expr = PMATH_NULL;
             }
             pmath_unref(name2);
-            name2 = pmath_ref(pmath_System_Failed);
+            name2 = pmath_ref(pmath_System_DollarFailed);
           }
         }
         else {
@@ -335,7 +335,7 @@ static pmath_t copy_directory_or_file(pmath_expr_t expr, pmath_bool_t is_directo
               }
           }
           pmath_unref(name2);
-          name2 = pmath_ref(pmath_System_Failed);
+          name2 = pmath_ref(pmath_System_DollarFailed);
         }
       }
     }

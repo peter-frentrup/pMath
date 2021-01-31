@@ -9,11 +9,17 @@
 
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/io-private.h>
 
 #include <string.h>
 
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Expression;
+extern pmath_symbol_t pmath_System_Integer;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Undefined;
 
 static pmath_bool_t binary_write(
   pmath_t  file,         // wont be freed
@@ -21,7 +27,7 @@ static pmath_bool_t binary_write(
   pmath_t  type,         // will be freed
   int      byte_ordering
 ) {
-  if( pmath_same(type, PMATH_SYMBOL_EXPRESSION) ||
+  if( pmath_same(type, pmath_System_Expression) ||
       (pmath_is_string(type) &&
        pmath_string_equals_latin1(type, "Expression")))
   {
@@ -31,7 +37,7 @@ static pmath_bool_t binary_write(
     return TRUE;
   }
   
-  if(pmath_same(type, PMATH_SYMBOL_INTEGER)) {
+  if(pmath_same(type, pmath_System_Integer)) {
     if(!pmath_is_integer(value)) {
       pmath_message(PMATH_NULL, "nocoerce", 2, value, type);
       return FALSE;
@@ -42,10 +48,10 @@ static pmath_bool_t binary_write(
     return TRUE;
   }
   
-  if(pmath_is_expr_of(value, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(value, pmath_System_List)) {
     size_t i;
     
-    if(pmath_is_expr_of(type, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(type, pmath_System_List)) {
       size_t tmax = pmath_expr_length(type);
       
       if(tmax == 0) {
@@ -572,7 +578,7 @@ static pmath_bool_t binary_write(
                   im_dir = 1;
               }
             }
-            else if(pmath_same(value, PMATH_SYMBOL_UNDEFINED))
+            else if(pmath_same(value, pmath_System_Undefined))
               re_dir = im_dir = 0;
               
             pmath_unref(re);
@@ -595,7 +601,7 @@ static pmath_bool_t binary_write(
               binary_write(
                 file,
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+                  pmath_ref(pmath_System_DirectedInfinity), 1,
                   PMATH_FROM_INT32(re_dir)),
                 pmath_ref(type),
                 byte_ordering);
@@ -603,7 +609,7 @@ static pmath_bool_t binary_write(
               binary_write(
                 file,
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+                  pmath_ref(pmath_System_DirectedInfinity), 1,
                   PMATH_FROM_INT32(re_dir)),
                 type,
                 byte_ordering);
@@ -796,7 +802,7 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr) {
       pmath_unref(expr);
       pmath_unref(type);
       pmath_unref(options);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
   }
   
@@ -806,7 +812,7 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr) {
     pmath_unref(type);
     pmath_unref(expr);
     pmath_unref(options);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   value = pmath_expr_get_item(expr, 2);
@@ -821,7 +827,7 @@ PMATH_PRIVATE pmath_t builtin_binarywrite(pmath_expr_t expr) {
   if(!binary_write(file, value, type, byte_ordering)) {
     pmath_file_flush(file);
     pmath_unref(file);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   pmath_file_flush(file);
   

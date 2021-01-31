@@ -4,6 +4,9 @@ using namespace pmath;
 using namespace pmath4eigen;
 
 
+extern pmath_symbol_t p4e_System_Complex;
+extern pmath_symbol_t p4e_System_List;
+
 bool MatrixKind::get_matrix_dimensions(
   const Expr &matrix,
   size_t     &rows,
@@ -28,13 +31,13 @@ bool MatrixKind::get_matrix_dimensions(
   if(rows == 0)
     return false;
     
-  if(matrix[0] != PMATH_SYMBOL_LIST)
+  if(matrix[0] != p4e_System_List)
     return false;
     
   Expr matrix_row = matrix[1];
   cols = matrix_row.expr_length();
   
-  if(matrix_row[0] != PMATH_SYMBOL_LIST)
+  if(matrix_row[0] != p4e_System_List)
     return false;
     
   for(size_t i = rows; i > 1; --i) {
@@ -43,7 +46,7 @@ bool MatrixKind::get_matrix_dimensions(
     if(matrix_row.expr_length() != cols)
       return false;
       
-    if(matrix_row[0] != PMATH_SYMBOL_LIST)
+    if(matrix_row[0] != p4e_System_List)
       return false;
       
   }
@@ -73,7 +76,7 @@ MatrixKind::Type MatrixKind::classify(const Expr &matrix) {
       if(elem.is_double())
         continue;
         
-      if(elem.expr_length() == 2 && elem[0] == PMATH_SYMBOL_COMPLEX) {
+      if(elem.expr_length() == 2 && elem[0] == p4e_System_Complex) {
         Expr re = elem[1];
         Expr im = elem[2];
         

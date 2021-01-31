@@ -9,8 +9,8 @@
 #include <pmath-util/memory.h>
 
 
+extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_SecurityException;
-
 
 static pmath_atomic_t _pmath_doorman_table;
 
@@ -92,7 +92,7 @@ pmath_bool_t pmath_security_check(pmath_security_level_t required_level, pmath_t
                   pmath_ref(pmath_System_SecurityException), 2,
                   _pmath_security_level_to_expr(required_level),
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 1,
+                    pmath_ref(pmath_System_HoldComplete), 1,
                     pmath_ref(message_arg)));
   }
   

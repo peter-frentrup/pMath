@@ -7,6 +7,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_Default;
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Method;
 
 PMATH_PRIVATE pmath_t builtin_seedrandom(pmath_expr_t expr) {
@@ -41,7 +44,7 @@ PMATH_PRIVATE pmath_t builtin_seedrandom(pmath_expr_t expr) {
     goto FAIL_OPTIONS;
     
   method = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Method, options));
-  if(pmath_same(method, PMATH_SYMBOL_DEFAULT)) {
+  if(pmath_same(method, pmath_System_Default)) {
     pmath_atomic_lock(&_pmath_rand_spinlock);
     {
       gmp_randclear(_pmath_randstate);
@@ -57,13 +60,13 @@ PMATH_PRIVATE pmath_t builtin_seedrandom(pmath_expr_t expr) {
     }
     pmath_atomic_unlock(&_pmath_rand_spinlock);
   }
-  else if(!pmath_same(method, PMATH_SYMBOL_AUTOMATIC)) {
+  else if(!pmath_same(method, pmath_System_Automatic)) {
     pmath_message(
       PMATH_NULL, "nogen", 2, 
       pmath_ref(method), 
       pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_LIST), 2,
-        pmath_ref(PMATH_SYMBOL_DEFAULT),
+        pmath_ref(pmath_System_List), 2,
+        pmath_ref(pmath_System_Default),
         PMATH_C_STRING("MersenneTwister")));
     goto FAIL_METHOD;
   }

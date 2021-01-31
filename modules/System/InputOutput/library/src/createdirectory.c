@@ -1,7 +1,7 @@
 #include "stdafx.h"
 
 
-extern pmath_symbol_t pmath_System_Failed;
+extern pmath_symbol_t pmath_System_DollarFailed;
 
 PMATH_PRIVATE pmath_t eval_System_CreateDirectory(pmath_expr_t expr) {
   /* CreateDirectory(name)
@@ -40,14 +40,14 @@ PMATH_PRIVATE pmath_t eval_System_CreateDirectory(pmath_expr_t expr) {
             pmath_message(PMATH_NULL, "privv", 1, expr);
             expr = PMATH_NULL;
             pmath_unref(name);
-            name = pmath_ref(pmath_System_Failed);
+            name = pmath_ref(pmath_System_DollarFailed);
             break;
 
           default:
             pmath_message(PMATH_NULL, "ioarg", 1, expr);
             expr = PMATH_NULL;
             pmath_unref(name);
-            name = pmath_ref(pmath_System_Failed);
+            name = pmath_ref(pmath_System_DollarFailed);
         }
       }
       else {
@@ -77,7 +77,7 @@ PMATH_PRIVATE pmath_t eval_System_CreateDirectory(pmath_expr_t expr) {
         }
 
         pmath_unref(name);
-        name = pmath_ref(pmath_System_Failed);
+        name = pmath_ref(pmath_System_DollarFailed);
       }
       else {
         name = pmath_to_absolute_file_name(name);

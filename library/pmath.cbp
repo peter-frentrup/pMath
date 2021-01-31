@@ -798,7 +798,6 @@
 		<Unit filename="include/pmath-builtins/all-symbols.h" />
 		<Unit filename="include/pmath-builtins/arithmetic-private.h" />
 		<Unit filename="include/pmath-builtins/build-expr-private.h" />
-		<Unit filename="include/pmath-builtins/control-private.h" />
 		<Unit filename="include/pmath-builtins/control/definitions-private.h" />
 		<Unit filename="include/pmath-builtins/control/flow-private.h" />
 		<Unit filename="include/pmath-builtins/control/messages-private.h" />

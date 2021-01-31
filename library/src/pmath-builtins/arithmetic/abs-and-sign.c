@@ -16,6 +16,15 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_Conjugate;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Sign;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
+
 /** Assumes that for expr == f(...), the following is true:
       f(f(x)) = f(x)
       f(x * y) = f(x) * f(y)
@@ -52,8 +61,8 @@ static pmath_t simplify_abs_sign(pmath_expr_t expr) {
     return x;
   }
   
-  if(pmath_same(xhead, PMATH_SYMBOL_TIMES)) {
-    pmath_expr_t extracted = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), xlen);
+  if(pmath_same(xhead, pmath_System_Times)) {
+    pmath_expr_t extracted = pmath_expr_new(pmath_ref(pmath_System_Times), xlen);
     size_t ei = 0;
     size_t i;
     
@@ -181,7 +190,7 @@ static pmath_t approximate_sign(pmath_t x) {
         return INT(0);
       }
     }
-    else if(pmath_is_expr_of_len(approx, PMATH_SYMBOL_COMPLEX, 2)) {
+    else if(pmath_is_expr_of_len(approx, pmath_System_Complex, 2)) {
       acb_t z;
       slong prec;
       pmath_bool_t is_machine_prec;
@@ -354,14 +363,13 @@ PMATH_PRIVATE pmath_t builtin_abs(pmath_expr_t expr) {
     return SQRT(PLUS(POW(re, INT(2)), POW(im, INT(2))));
   }
   
-  if(pmath_is_expr_of_len(x, PMATH_SYMBOL_CONJUGATE, 1)) {
-    expr = pmath_expr_set_item(expr, 1,
-                               pmath_expr_get_item(x, 1));
+  if(pmath_is_expr_of_len(x, pmath_System_Conjugate, 1)) {
+    expr = pmath_expr_set_item(expr, 1, pmath_expr_get_item(x, 1));
     pmath_unref(x);
     return expr;
   }
   
-  if(pmath_is_expr_of(x, PMATH_SYMBOL_DIRECTEDINFINITY)) {
+  if(pmath_is_expr_of(x, pmath_System_DirectedInfinity)) {
     pmath_unref(expr);
     pmath_unref(x);
     return pmath_ref(_pmath_object_pos_infinity);
@@ -449,11 +457,11 @@ PMATH_PRIVATE pmath_t builtin_sign(pmath_expr_t expr) {
       pmath_unref(expr);
       if(pmath_is_number(xinfdir) && pmath_number_sign(xinfdir) == 0) {
         pmath_unref(xinfdir);
-        return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+        return pmath_ref(pmath_System_Undefined);
       }
       
       return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_SIGN), 1,
+               pmath_ref(pmath_System_Sign), 1,
                xinfdir);
     }
   }

@@ -5,7 +5,9 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
 extern pmath_symbol_t pmath_System_DollarLine;
+extern pmath_symbol_t pmath_System_Plus;
 
 PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr) {
   pmath_t obj;
@@ -21,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_history(pmath_expr_t expr) {
     if(pmath_number_sign(obj) <= 0) {
       obj = pmath_evaluate(
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                pmath_ref(pmath_System_Plus), 2,
                 pmath_ref(pmath_System_DollarLine),
                 obj));
                 

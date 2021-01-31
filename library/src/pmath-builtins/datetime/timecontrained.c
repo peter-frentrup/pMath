@@ -9,6 +9,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarAborted;
+extern pmath_symbol_t pmath_System_Throw;
+extern pmath_symbol_t pmath_System_Unevaluated;
+
 PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr) {
   /** TimeConstrained(expr, t)            =  TimeConstrained(expr, t, $Aborted)
       TimeConstrained(expr, t, failexpr)
@@ -61,9 +65,9 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr) {
   // guard:= Throw(Unevaluated(guard))
   pmath_symbol_set_value(guard,
                          pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_THROW), 1,
+                           pmath_ref(pmath_System_Throw), 1,
                            pmath_expr_new_extended(
-                             pmath_ref(PMATH_SYMBOL_UNEVALUATED), 1,
+                             pmath_ref(pmath_System_Unevaluated), 1,
                              pmath_ref(guard))));
                              
   mq = pmath_ref(current_thread->message_queue);// = pmath_thread_get_queue();
@@ -82,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_timeconstrained(pmath_expr_t expr) {
     if(len == 3)
       obj = pmath_expr_get_item(expr, 3);
     else
-      obj = pmath_ref(PMATH_SYMBOL_ABORTED);
+      obj = pmath_ref(pmath_System_DollarAborted);
   }
   else if(!pmath_same(ex, PMATH_UNDEFINED)) // other error
     _pmath_thread_throw(current_thread, ex);

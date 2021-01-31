@@ -4,6 +4,10 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Names;
+
 PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr) {
   /* Remove("symbol1", "symbol2", ...)
    */
@@ -25,10 +29,10 @@ PMATH_PRIVATE pmath_t builtin_remove(pmath_expr_t expr) {
     else if(pmath_is_string(item)) {
       item = pmath_evaluate(
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_NAMES), 1,
+                 pmath_ref(pmath_System_Names), 1,
                  item));
                  
-      if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+      if(pmath_is_expr_of(item, pmath_System_List)) {
         size_t j;
         for(j = pmath_expr_length(item); j > 0; --j) {
           pmath_t name = pmath_expr_get_item(item, j);

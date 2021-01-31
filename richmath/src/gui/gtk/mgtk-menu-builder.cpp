@@ -20,6 +20,7 @@ using namespace richmath;
 
 
 extern pmath_symbol_t richmath_System_Delimiter;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
 
@@ -225,7 +226,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
       ++old_index;
       bool is_empty = true;
       
-      if(item_list[0] == PMATH_SYMBOL_LIST) {
+      if(item_list[0] == richmath_System_List) {
         for(Expr item : item_list.items()) {
           MenuItemType type = Menus::menu_item_type(item);
           if(type == MenuItemType::Invalid)
@@ -284,7 +285,7 @@ void MathGtkMenuBuilder::append_to(GtkMenuShell *menu, GtkAccelGroup *accel_grou
     return;
     
   Expr list = expr[2];
-  if(list[0] != PMATH_SYMBOL_LIST)
+  if(list[0] != richmath_System_List)
     return;
     
   for(size_t i = 1; i <= list.expr_length(); ++i) {
@@ -545,7 +546,7 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
     return false;
     
   Expr modifiers = expr[2];
-  if(modifiers[0] != PMATH_SYMBOL_LIST)
+  if(modifiers[0] != richmath_System_List)
     return false;
     
   int mods = 0;
@@ -640,7 +641,7 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
 }
 
 void MathGtkAccelerators::load(Expr expr) {
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  if(expr[0] != richmath_System_List)
     return;
     
   for(size_t i = 1; i <= expr.expr_length(); ++i) {

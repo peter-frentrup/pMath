@@ -8,6 +8,12 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Condition;
+extern pmath_symbol_t pmath_System_Emit;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_API void pmath_gather_begin(pmath_t pattern) {
   struct _pmath_gather_info_t *info;
   pmath_thread_t thread = pmath_thread_get_current();
@@ -18,7 +24,7 @@ PMATH_API void pmath_gather_begin(pmath_t pattern) {
 
   if(!_pmath_pattern_validate(pattern)) {
     pmath_unref(pattern);
-    pattern = pmath_expr_new_extended(PMATH_SYMBOL_CONDITION, 2, PMATH_NULL, pmath_ref(PMATH_SYMBOL_FALSE));
+    pattern = pmath_expr_new_extended(pmath_System_Condition, 2, PMATH_NULL, pmath_ref(pmath_System_False));
   }
   
   if(thread->gather_failed) {
@@ -67,7 +73,7 @@ PMATH_API pmath_expr_t pmath_gather_end(void) {
   pmath_unref(info->pattern);
   
   i = pmath_atomic_read_aquire(&info->value_count);
-  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), i);
+  result = pmath_expr_new(pmath_ref(pmath_System_List), i);
   ++i;
   
   while(NULL != (item = (void*)pmath_atomic_read_aquire(&info->emitted_values))) {
@@ -113,10 +119,10 @@ PMATH_API void pmath_emit(pmath_t object, pmath_t tag) {
     thread = thread->parent;
   }
   if(at_least_one_gather)
-    pmath_message(PMATH_SYMBOL_EMIT, "nogather2", 1, tag);
+    pmath_message(pmath_System_Emit, "nogather2", 1, tag);
   else {
     pmath_unref(tag);
-    pmath_message(PMATH_SYMBOL_EMIT, "nogather", 0);
+    pmath_message(pmath_System_Emit, "nogather", 0);
   }
   pmath_unref(object);
   pmath_mem_free(item);

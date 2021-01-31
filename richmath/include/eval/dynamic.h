@@ -4,6 +4,8 @@
 #include <boxes/box.h>
 
 extern pmath_symbol_t richmath_System_Dynamic;
+extern pmath_symbol_t richmath_System_PureArgument;
+extern pmath_symbol_t richmath_System_Unevaluated;
 
 namespace richmath {
   class Dynamic: public Base {
@@ -40,10 +42,10 @@ namespace richmath {
         size_t len = expr.expr_length();
         Expr head = expr[0];
         return (head == ::richmath_System_Dynamic && len >= 1) ||
-               (head == PMATH_SYMBOL_PUREARGUMENT && len == 1);
+               (head == richmath_System_PureArgument && len == 1);
       }
       bool is_unevaluated() {
-        return _expr.expr_length() == 1 && _expr[0] == PMATH_SYMBOL_UNEVALUATED;
+        return _expr.expr_length() == 1 && _expr[0] == richmath_System_Unevaluated;
       }
       
       AutoBoolValues synchronous_updating() { return _synchronous_updating; }

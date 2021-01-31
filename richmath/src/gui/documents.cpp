@@ -158,12 +158,24 @@ extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_SystemOpenDirectory;
 
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_CreateDocument;
+extern pmath_symbol_t richmath_System_Document;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_FileNames;
+extern pmath_symbol_t richmath_System_Infinity;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_MakeBoxes;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
+extern pmath_symbol_t richmath_System_TimeConstrained;
+extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath {
@@ -225,7 +237,7 @@ Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
     return boxes;
   
   if(boxes[0] != richmath_System_BoxData) {
-    boxes = Application::interrupt_wait(Call(Symbol(PMATH_SYMBOL_TOBOXES), std::move(boxes)));
+    boxes = Application::interrupt_wait(Call(Symbol(richmath_System_MakeBoxes), std::move(boxes))); // ToBoxes instead?
     boxes = Call(Symbol(richmath_System_BoxData), std::move(boxes));
   }
   
@@ -284,7 +296,7 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
     Expr helpfile = Call(
                       Symbol(richmath_Documentation_FindSymbolDocumentationByFullName), 
                       std::move(word));
-    helpfile = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED), std::move(helpfile), Application::button_timeout);
+    helpfile = Call(Symbol(richmath_System_TimeConstrained), std::move(helpfile), Application::button_timeout);
     helpfile = Evaluate(std::move(helpfile));
     
     if(helpfile.is_string()) {
@@ -327,7 +339,7 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
 //      Expr call = Call(
 //                    Symbol(richmath_Documentation_FindSymbolDocumentationByFullName), 
 //                    std::move(name));
-//      call = Call(Symbol(PMATH_SYMBOL_TIMECONSTRAINED), std::move(call), Application::button_timeout);
+//      call = Call(Symbol(richmath_System_TimeConstrained), std::move(call), Application::button_timeout);
 //      call = Evaluate(std::move(call));
 //      
 //      return FrontEndReference::from_pmath(std::move(call)).is_valid();
@@ -378,9 +390,9 @@ Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool crea
     return style_doc;
   
   Expr stylesheet = doc->get_style(StyleDefinitions);
-  if(create && stylesheet[0] != PMATH_SYMBOL_DOCUMENT) {
+  if(create && stylesheet[0] != richmath_System_Document) {
     stylesheet = Call(
-                   Symbol(PMATH_SYMBOL_DOCUMENT),
+                   Symbol(richmath_System_Document),
                    Call(
                      Symbol(richmath_System_Section),
                      Call(
@@ -391,7 +403,7 @@ Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool crea
     doc->style->set(StyleDefinitions, stylesheet);
   }
   
-  if(stylesheet[0] != PMATH_SYMBOL_DOCUMENT)
+  if(stylesheet[0] != richmath_System_Document)
     return nullptr;
   
   style_doc = Application::try_create_document(stylesheet);
@@ -535,14 +547,14 @@ Section *DocumentsImpl::find_style_definition(Document *style_doc, int index, St
 bool DocumentsImpl::find_style_definition_cmd(Expr cmd) {
   if(cmd[0] == richmath_FrontEnd_FindStyleDefinition) {
     cmd = richmath_eval_FrontEnd_FindStyleDefinition(std::move(cmd));
-    return cmd != PMATH_SYMBOL_FAILED;
+    return cmd != richmath_System_DollarFailed;
   }
   
   return false;
 }
 
 void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr expr) {
-  if(expr[0] == PMATH_SYMBOL_LIST) {
+  if(expr[0] == richmath_System_List) {
     for(auto item : expr.items())
       collect_selections(sels, std::move(item));
     return;
@@ -590,11 +602,11 @@ Expr DocumentCurrentValueProvider::get_DocumentDirectory(FrontEndObject *obj, Ex
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   String result = doc->native()->directory();
   if(!result.is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
+    return Symbol(richmath_System_None);
   return std::move(result); // Not literally the return type Expr, hence std::move.
 }
 
@@ -604,7 +616,7 @@ bool DocumentCurrentValueProvider::put_DocumentDirectory(FrontEndObject *obj, Ex
   if(!doc)
     return false;
     
-  if(rhs == PMATH_SYMBOL_NONE) {
+  if(rhs == richmath_System_None) {
     doc->native()->directory(String{});
     return true;
   }
@@ -625,11 +637,11 @@ Expr DocumentCurrentValueProvider::get_DocumentFileName(FrontEndObject *obj, Exp
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   String result = doc->native()->filename();
   if(!result.is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
+    return Symbol(richmath_System_None);
   return std::move(result); // Not literally the return type Expr, hence std::move.
 }
 
@@ -639,7 +651,7 @@ bool DocumentCurrentValueProvider::put_DocumentFileName(FrontEndObject *obj, Exp
   if(!doc)
     return false;
     
-  if(rhs == PMATH_SYMBOL_NONE) {
+  if(rhs == richmath_System_None) {
     doc->native()->filename(String{});
     return true;
   }
@@ -659,11 +671,11 @@ Expr DocumentCurrentValueProvider::get_DocumentFullFileName(FrontEndObject *obj,
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   String result = doc->native()->full_filename();
   if(!result.is_valid())
-    return Symbol(PMATH_SYMBOL_NONE);
+    return Symbol(richmath_System_None);
   return std::move(result); // Not literally the return type Expr, hence std::move.
 }
 
@@ -673,7 +685,7 @@ bool DocumentCurrentValueProvider::put_DocumentFullFileName(FrontEndObject *obj,
   if(!doc)
     return false;
     
-  if(rhs == PMATH_SYMBOL_NONE) {
+  if(rhs == richmath_System_None) {
     doc->native()->full_filename(String{});
     return true;
   }
@@ -700,7 +712,7 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
       return Expr(1);
     
     if(!isfinite(page_width_points))
-      return Symbol(PMATH_SYMBOL_INFINITY);
+      return Symbol(richmath_System_Infinity);
     
     int section_bracket_nesting = 0;
     
@@ -740,7 +752,7 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
       return Expr(1);
     
     if(!(chars_per_line < 0xFFFF))
-      return Symbol(PMATH_SYMBOL_INFINITY);
+      return Symbol(richmath_System_Infinity);
     
     return Expr((int)chars_per_line);
   }
@@ -825,7 +837,7 @@ bool StylesMenuImpl::set_style(Expr cmd) {
 Expr StylesMenuImpl::enum_styles_menu(Expr name) {
   const Array<StyleItem> &styles = cache.enum_styles();
   
-  Expr commands = MakeList((size_t)styles.length());
+  Expr commands = MakeCall(Symbol(richmath_System_List), (size_t)styles.length());
   for(int i = 0; i < styles.length(); ++i) {
     const StyleItem &item = styles[i];
     
@@ -858,7 +870,7 @@ bool StylesMenuImpl::find_style_definition(Expr submenu_cmd, Expr item_cmd) {
     
     Expr expr = Call(Symbol(richmath_FrontEnd_FindStyleDefinition), std::move(style_name));
     //expr = richmath_eval_FrontEnd_FindStyleDefinition(std::move(expr));
-    //return expr != PMATH_SYMBOL_FAILED;
+    //return expr != richmath_System_DollarFailed;
     Application::notify(ClientNotification::MenuCommand, std::move(expr));
     return true;
   }
@@ -992,7 +1004,7 @@ bool SelectDocumentMenuImpl::set_selected_document_cmd(Expr cmd) {
     return false;
   
   cmd = richmath_eval_FrontEnd_SetSelectedDocument(std::move(cmd));
-  if(cmd == PMATH_SYMBOL_FAILED)
+  if(cmd == richmath_System_DollarFailed)
     return false;
   
   return true;
@@ -1085,18 +1097,18 @@ bool OpenDocumentMenuImpl::document_open_cmd(Expr cmd) {
     return false;
   
   Expr result = richmath_eval_FrontEnd_DocumentOpen(std::move(cmd));
-  return result != PMATH_SYMBOL_FAILED;
+  return result != richmath_System_DollarFailed;
 }
 
 Expr OpenDocumentMenuImpl::enum_palettes_menu(Expr name) {
   Expr list = Application::interrupt_wait_cached(
                 Call(
-                  Symbol(PMATH_SYMBOL_FILENAMES), 
+                  Symbol(richmath_System_FileNames), 
                   Application::palette_search_path, 
                   String("*.pmathdoc")),
                  Application::dynamic_timeout);
   
-  if(list[0] == PMATH_SYMBOL_LIST) {
+  if(list[0] == richmath_System_List) {
     for(size_t i = 1; i <= list.expr_length(); ++i) {
       String full = list[i];
       String name = full;
@@ -1152,7 +1164,7 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
    */
   
   if(expr.expr_length() < 3)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   SelectionReference sel;
   {
@@ -1168,22 +1180,22 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
 //    Array<SelectionReference> sels;
 //    collect_selections(sels, expr[1]);
 //    if(sels.length() != 1)
-//      return Symbol(PMATH_SYMBOL_FAILED);
+//      return Symbol(richmath_System_DollarFailed);
 //    
 //    sel = std::move(sels[0]);
   }
   
   Box *anchor_box = sel.get();
   if(!anchor_box)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Document *owner_doc = anchor_box->find_parent<Document>(true);
   if(!owner_doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Document *popup_doc = owner_doc->native()->try_create_popup_window(sel);
   if(!popup_doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   // FIXME: this is duplicated in Application::try_create_document():
   Expr options(pmath_options_extract_ex(expr.get(), 3, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -1191,7 +1203,7 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
     popup_doc->style->add_pmath(options);
     
   Expr sections = expr[3];
-  if(sections[0] != PMATH_SYMBOL_LIST)
+  if(sections[0] != richmath_System_List)
     sections = List(sections);
     
   for(auto item : sections.items()) {
@@ -1210,11 +1222,11 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
   
   // TODO: respect window-related options (WindowTitle...)
   
-  expr.set(0, Symbol(PMATH_SYMBOL_CREATEDOCUMENT));
+  expr.set(0, Symbol(richmath_System_CreateDocument));
   Document *doc = Application::try_create_document(expr);
   
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   if(!doc->selectable())
     doc->select(nullptr, 0, 0);
@@ -1233,7 +1245,7 @@ Expr richmath_eval_FrontEnd_DocumentClose(Expr expr) {
   
   size_t exprlen = expr.expr_length();
   if(exprlen > 1)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   FrontEndReference docid = FrontEndReference::None;
   if(exprlen == 1) 
@@ -1243,7 +1255,7 @@ Expr richmath_eval_FrontEnd_DocumentClose(Expr expr) {
   
   Document *doc = FrontEndObject::find_cast<Document>(docid);
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   doc->native()->close();
   return Expr();
@@ -1257,7 +1269,7 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
    */
   size_t exprlen = expr.expr_length();
   if(exprlen > 1)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   AutoMemorySuspension mem_suspend;
   
@@ -1271,8 +1283,8 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
     DocumentsImpl::collect_selections(sels, expr[1]);
   }
   
-  if(sels.length() == 0 && expr[1][0] != PMATH_SYMBOL_LIST)
-    return Symbol(PMATH_SYMBOL_FAILED);
+  if(sels.length() == 0 && expr[1][0] != richmath_System_List)
+    return Symbol(richmath_System_DollarFailed);
   
   std::sort(sels.items(), sels.items() + sels.length());
   
@@ -1313,7 +1325,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
   
   size_t exprlen = expr.expr_length();
   if(exprlen > 1)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   FrontEndReference docid;
   if(exprlen == 1) {
@@ -1330,7 +1342,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
   
   Box *box = FrontEndObject::find_cast<Box>(docid);
   if(!box)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   return box->to_pmath(BoxOutputFlags::WithDebugInfo);
 }
@@ -1341,32 +1353,32 @@ Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {
   */
   size_t exprlen = expr.expr_length();
   if(exprlen < 1 || exprlen > 2)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   String filename{expr[1]};
   if(filename.is_null()) 
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   bool add_to_recent_documents = true;
   if(exprlen == 2) {
     Expr obj = expr[2];
-    if(obj == PMATH_SYMBOL_TRUE)
+    if(obj == richmath_System_True)
       add_to_recent_documents = true;
-    else if(obj == PMATH_SYMBOL_FALSE)
+    else if(obj == richmath_System_False)
       add_to_recent_documents = false;
     else
-      return Symbol(PMATH_SYMBOL_FAILED);
+      return Symbol(richmath_System_DollarFailed);
   }
   
   filename = FileSystem::to_existing_absolute_file_name(filename);
   if(filename.is_null()) 
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Document *doc = Application::find_open_document(filename);
   if(!doc) {
     doc = Application::open_new_document(filename);
     if(!doc)
-      return Symbol(PMATH_SYMBOL_FAILED);
+      return Symbol(richmath_System_DollarFailed);
     
     if(add_to_recent_documents)
       RecentDocuments::add(filename);
@@ -1395,7 +1407,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
    
   size_t exprlen = expr.expr_length();
   if(exprlen > 2)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Document *doc = nullptr;
   VolatileSelection sel;
@@ -1405,14 +1417,14 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
   if(exprlen == 0) {
     doc = Documents::current();
     if(!doc)
-      return Symbol(PMATH_SYMBOL_FAILED);
+      return Symbol(richmath_System_DollarFailed);
     
     sel = doc->selection_now();
   }
   else {
     style_name = String(expr[exprlen]);
     if(exprlen == 2 && !style_name)
-      return Symbol(PMATH_SYMBOL_FAILED);
+      return Symbol(richmath_System_DollarFailed);
     
     if(exprlen == 2 || !style_name) {
       auto id = FrontEndReference::from_pmath(expr[1]);
@@ -1426,19 +1438,19 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
     else {
       doc = Documents::current();
       if(!doc)
-        return Symbol(PMATH_SYMBOL_FAILED);
+        return Symbol(richmath_System_DollarFailed);
       
       sel = doc->selection_now();
     }
   }
   
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   if(!style_name) {
     style_name = DocumentsImpl::get_style_name_at(sel);
     if(!style_name)
-      return Symbol(PMATH_SYMBOL_FAILED);
+      return Symbol(richmath_System_DollarFailed);
   }
   
   int index = sel.start;
@@ -1450,7 +1462,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
     return result->to_pmath_id();
   
   if(!doc->stylesheet()->styles.search(style_name))
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   if(Document *style_doc = DocumentsImpl::open_private_style_definitions(doc, false)) {
     if(auto result = DocumentsImpl::find_style_definition(style_doc, style_doc->length(), style_name))
@@ -1460,7 +1472,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
   if(auto result = DocumentsImpl::find_style_definition(doc->get_own_style(StyleDefinitions, {}), style_name))
     return result->to_pmath_id();
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
@@ -1468,7 +1480,7 @@ Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
   if(doc)
     return doc->to_pmath_id();
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
@@ -1478,7 +1490,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
    */
   size_t exprlen = expr.expr_length();
   if(exprlen < 1 || exprlen > 2)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   auto docid = FrontEndReference::from_pmath(expr[1]);
   Box *docbox = FrontEndObject::find_cast<Box>(docid);
@@ -1498,7 +1510,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   
     if(selbox) {
       if(Document *seldoc = selbox->find_parent<Document>(true)) {
-        if(expr[1] == PMATH_SYMBOL_AUTOMATIC) 
+        if(expr[1] == richmath_System_Automatic) 
           doc = seldoc;
         
         if(seldoc == doc) 
@@ -1508,7 +1520,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   }
   
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   //Documents::current(doc);
   doc->native()->bring_to_front();

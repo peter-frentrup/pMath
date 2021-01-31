@@ -8,6 +8,12 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
+
+extern pmath_symbol_t pmath_System_Floor;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr) {
   /* Quotient(m, n) = Floor(m/n)
   
@@ -54,7 +60,7 @@ PMATH_PRIVATE pmath_t builtin_quotient(pmath_expr_t expr) {
   
   pmath_unref(expr);
   
-  return FUNC(pmath_ref(PMATH_SYMBOL_FLOOR), DIV(m, n));
+  return FUNC(pmath_ref(pmath_System_Floor), DIV(m, n));
 }
 
 PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr) {
@@ -106,5 +112,5 @@ PMATH_PRIVATE pmath_t builtin_mod(pmath_expr_t expr) {
     
   pmath_unref(expr);
   // Mod(m,n,d) = m - n * Quotient(m,n,d) = m - n * Floor((m-d)/n) = m - Floor(m-d, n)
-  return MINUS(m, FUNC2(pmath_ref(PMATH_SYMBOL_FLOOR), md, n));
+  return MINUS(m, FUNC2(pmath_ref(pmath_System_Floor), md, n));
 }

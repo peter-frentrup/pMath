@@ -13,9 +13,14 @@
 
 
 extern pmath_symbol_t pmath_System_LinearSolveFunction;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
 
 static pmath_bool_t is_zero(pmath_t x) {
-  if(pmath_is_expr_of(x, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(x, pmath_System_List)) {
     size_t i = pmath_expr_length(x);
 
     for(; i > 0; --i) {
@@ -36,7 +41,7 @@ static pmath_bool_t is_zero(pmath_t x) {
 }
 
 static pmath_t expand_times(pmath_t factor, pmath_t sum) {
-  if(pmath_is_expr_of(sum, PMATH_SYMBOL_PLUS)) {
+  if(pmath_is_expr_of(sum, pmath_System_Plus)) {
     size_t i = pmath_expr_length(sum);
 
     for(; i > 0; --i) {
@@ -132,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_linearsolve(pmath_expr_t expr) {
 
   if(exprlen == 2) {
     vector = pmath_expr_get_item(expr, 2);
-    if(!pmath_is_expr_of_len(vector, PMATH_SYMBOL_LIST, cols)) {
+    if(!pmath_is_expr_of_len(vector, pmath_System_List, cols)) {
       if(!pmath_is_expr(vector) && !pmath_is_symbol(vector))
         pmath_message(PMATH_NULL, "lslc", 0);
 
@@ -142,7 +147,7 @@ PMATH_PRIVATE pmath_t builtin_linearsolve(pmath_expr_t expr) {
     }
   }
   else {
-    vector = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), rows);
+    vector = pmath_expr_new(pmath_ref(pmath_System_List), rows);
 
     for(i = rows; i > 0; --i)
       vector = pmath_expr_set_item(vector, i, pmath_integer_new_siptr(i));
@@ -216,7 +221,7 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
   }
 
   headitem = pmath_expr_get_item(head, 2);
-  if(!pmath_is_expr_of_len(headitem, PMATH_SYMBOL_LIST, 3)) {
+  if(!pmath_is_expr_of_len(headitem, pmath_System_List, 3)) {
     pmath_unref(headitem);
     pmath_unref(head);
     pmath_unref(vector);
@@ -225,7 +230,7 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
 
   obj1 = pmath_expr_get_item(headitem, 1);
   pmath_unref(obj1);
-  if(!pmath_same(obj1, PMATH_SYMBOL_TRUE)) {
+  if(!pmath_same(obj1, pmath_System_True)) {
     // no LU decomposition, but original matrix given
     // never emited by current version of LinearSolve, so no need to handle here
     pmath_unref(headitem);
@@ -240,7 +245,7 @@ PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr) {
   headitem = pmath_expr_get_item(head, 1);
   pmath_unref(head);
 
-  if( !pmath_is_expr_of_len(headitem, PMATH_SYMBOL_LIST, 2) ||
+  if( !pmath_is_expr_of_len(headitem, pmath_System_List, 2) ||
       !_pmath_is_matrix(lumatrix, &rows, &cols, TRUE)       ||
       rows == 0                                             ||
       cols != rows                                          ||

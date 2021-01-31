@@ -6,6 +6,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr) {
   /* IsOrdered(f(a,b,...))
      IsOrdered(f(a,b,...), lessfn)
@@ -41,13 +44,13 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr) {
                                      
       pmath_unref(cmp);
       
-      if(!pmath_same(cmp, PMATH_SYMBOL_TRUE)) {
+      if(!pmath_same(cmp, pmath_System_True)) {
         pmath_unref(last);
         pmath_unref(current);
         pmath_unref(lessfn);
         pmath_unref(list);
         pmath_unref(expr);
-        return pmath_ref(PMATH_SYMBOL_FALSE);
+        return pmath_ref(pmath_System_False);
       }
       
       pmath_unref(last);
@@ -57,7 +60,7 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr) {
     pmath_unref(lessfn);
     pmath_unref(list);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   }
   
   last = pmath_expr_get_item(list, 1);
@@ -69,7 +72,7 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr) {
       pmath_unref(current);
       pmath_unref(list);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
+      return pmath_ref(pmath_System_False);
     }
     
     pmath_unref(last);
@@ -79,5 +82,5 @@ PMATH_PRIVATE pmath_t builtin_isordered(pmath_expr_t expr) {
   pmath_unref(last);
   pmath_unref(list);
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }

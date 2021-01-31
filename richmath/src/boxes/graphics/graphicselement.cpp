@@ -18,6 +18,7 @@ using namespace richmath;
 using namespace std;
 
 extern pmath_symbol_t richmath_System_LineBox;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_PointBox;
 
 namespace {
@@ -110,7 +111,7 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
       return ge;
   }
   
-  if(head == PMATH_SYMBOL_LIST) {
+  if(head == richmath_System_List) {
     auto coll = new GraphicsElementCollection;
     coll->load_from_object(expr, opts);
     return coll;
@@ -138,7 +139,7 @@ GraphicsElementCollection::~GraphicsElementCollection()
 }
 
 bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  if(expr[0] != richmath_System_List)
     return false;
   
   int oldlen = _items.length();
@@ -172,7 +173,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
 }
 
 void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) {
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  if(expr[0] != richmath_System_List)
     expr = List(expr);
     
   try_load_from_object(std::move(expr), opts);
@@ -217,7 +218,7 @@ void GraphicsElementCollection::paint(GraphicsBox *owner, Context &context) {
 }
 
 Expr GraphicsElementCollection::to_pmath(BoxOutputFlags flags) {
-  Expr result = MakeList((size_t)count());
+  Expr result = MakeCall(Symbol(richmath_System_List), (size_t)count());
   
   for(int i = 0; i < count(); ++i)
     result.set(i+1, item(i)->to_pmath(flags));

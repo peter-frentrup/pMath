@@ -7,6 +7,8 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 struct reverse_info_t {
   long levelmin;
   long levelmax;
@@ -83,7 +85,7 @@ PMATH_PRIVATE pmath_t builtin_reverse(pmath_expr_t expr) {
   if(exprlen == 2) {
     pmath_t levels = pmath_expr_get_item(expr, 2);
     
-    if(pmath_is_expr_of(levels, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(levels, pmath_System_List)) {
       size_t i;
       
       for(i = 1; i <= pmath_expr_length(levels); ++i) {

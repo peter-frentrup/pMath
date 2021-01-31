@@ -4,6 +4,9 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Plus;
+
 pmath_t builtin_total(pmath_expr_t expr) {
   /* Total(list)    = Plus @@ list
   
@@ -25,5 +28,5 @@ pmath_t builtin_total(pmath_expr_t expr) {
   }
   
   pmath_unref(expr);
-  return pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_PLUS));
+  return pmath_expr_set_item(item, 0, pmath_ref(pmath_System_Plus));
 }

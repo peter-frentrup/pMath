@@ -9,6 +9,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarAborted;
+
 struct custom_task_data {
   volatile pmath_t value;
 };
@@ -26,7 +28,7 @@ static void task_run(struct custom_task_data *data) {
   
   if(pmath_aborting()) {
     pmath_unref(value);
-    value = pmath_ref(PMATH_SYMBOL_ABORTED);
+    value = pmath_ref(pmath_System_DollarAborted);
   }
   data->value = value;
 }

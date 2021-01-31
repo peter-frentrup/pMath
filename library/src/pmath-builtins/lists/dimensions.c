@@ -9,6 +9,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_bool_t _pmath_is_vector(pmath_t v) {
   pmath_t item;
   size_t i;
@@ -16,14 +18,14 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_vector(pmath_t v) {
   if(pmath_is_packed_array(v))
     return pmath_packed_array_get_dimensions(v) == 1;
     
-  if(!pmath_is_expr_of(v, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(v, pmath_System_List))
     return FALSE;
     
   i = pmath_expr_length(v);
   for(; i > 0; --i) {
     item = pmath_expr_get_item(v, i);
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(item, pmath_System_List)) {
       pmath_unref(item);
       return FALSE;
     }
@@ -63,7 +65,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   }
   
   *cols = *rows = 0;
-  if(!pmath_is_expr_of(m, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(m, pmath_System_List))
     return FALSE;
     
   *rows = pmath_expr_length(m);
@@ -71,7 +73,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
     return TRUE;
     
   row = pmath_expr_get_item(m, 1);
-  if(!pmath_is_expr_of(row, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(row, pmath_System_List)) {
     pmath_unref(row);
     return FALSE;
   }
@@ -82,7 +84,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_matrix(
   for(i = *rows; i > 1; --i) {
     row = pmath_expr_get_item(m, i);
     
-    if( !pmath_is_expr_of_len(row, PMATH_SYMBOL_LIST, *cols) ||
+    if( !pmath_is_expr_of_len(row, pmath_System_List, *cols) ||
         (check_non_list_entries &&
          !_pmath_is_vector(row)))
     {
@@ -174,7 +176,7 @@ pmath_expr_t _pmath_sizes_to_expr(const size_t *sizes, size_t length) {
     pmath_expr_t list;
     pmath_t item;
     
-    list = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), length);
+    list = pmath_expr_new(pmath_ref(pmath_System_List), length);
     for(i = 0; i < length;) {
       item = pmath_integer_new_uiptr(sizes[i++]);
       list = pmath_expr_set_item(list, i, item);

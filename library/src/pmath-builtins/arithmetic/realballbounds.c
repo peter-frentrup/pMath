@@ -6,6 +6,9 @@
 #include <pmath-util/messages.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
   pmath_t x;
   
@@ -34,7 +37,7 @@ PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
     mag_zero(arb_radref(PMATH_AS_ARB(upper)));
     
     pmath_unref(x);
-    return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, lower, upper);
+    return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, lower, upper);
   }
   
   if(pmath_is_double(x)) {
@@ -61,9 +64,9 @@ PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
     return arr;
   }
   
-  if(pmath_is_number(x) || pmath_same(x, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_is_number(x) || pmath_same(x, pmath_System_Undefined)) {
     pmath_unref(expr);
-    return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, x, pmath_ref(x));
+    return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, x, pmath_ref(x));
   }
   
   if(_pmath_is_infinite(x)) {
@@ -71,7 +74,7 @@ PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
     
     if(pmath_same(infdir, PMATH_FROM_INT32(-1)) || pmath_same(infdir, PMATH_FROM_INT32(1))) {
       pmath_unref(expr);
-      return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, x, pmath_ref(x));
+      return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, x, pmath_ref(x));
     }
     
     pmath_unref(infdir);
@@ -79,7 +82,7 @@ PMATH_PRIVATE pmath_t builtin_internal_realballbounds(pmath_expr_t expr) {
     //pmath_unref(x);
     //pmath_unref(expr);
     //return pmath_expr_new_extended(
-    //         pmath_ref(PMATH_SYMBOL_LIST), 2, 
+    //         pmath_ref(pmath_System_List), 2, 
     //         pmath_ref(_pmath_object_neg_infinity), 
     //         pmath_ref(_pmath_object_pos_infinity));
     pmath_unref(x);

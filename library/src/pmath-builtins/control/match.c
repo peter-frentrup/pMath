@@ -4,6 +4,10 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_match(pmath_expr_t expr){
   /* Match(obj, pattern)
    */
@@ -26,9 +30,9 @@ PMATH_PRIVATE pmath_t builtin_match(pmath_expr_t expr){
   
   if(_pmath_pattern_match(obj, pat, NULL)){
     pmath_unref(obj);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   }
 
   pmath_unref(obj);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pmath_System_False);
 }

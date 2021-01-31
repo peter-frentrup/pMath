@@ -9,6 +9,10 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
+
 #ifdef _MSC_VER
 #  if _MSC_VER < 1800
 #    define copysign _copysign
@@ -135,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_internal_signbit(pmath_expr_t expr) {
     
   pmath_unref(expr);
   if(sb < 0)
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
     
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pmath_System_False);
 }

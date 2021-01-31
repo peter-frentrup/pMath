@@ -24,6 +24,8 @@
 
 #undef None
 
+extern pmath_symbol_t richmath_System_List;
+
 #if !GTK_CHECK_VERSION(2,22,0)
 static GdkDragAction gdk_drag_context_get_selected_action(GdkDragContext *context) {
   return context.action;
@@ -539,7 +541,7 @@ GtkMenu *MathGtkWidget::popup_menu(VolatileSelection src) {
     src.box = document();
   
   Expr menu_expr = src.box->get_finished_flatlist_style(ContextMenu);
-  if(menu_expr[0] == PMATH_SYMBOL_LIST && menu_expr.expr_length() > 0) {
+  if(menu_expr[0] == richmath_System_List && menu_expr.expr_length() > 0) {
     menu_expr = Call(Symbol(richmath_System_Menu), strings::Popup, std::move(menu_expr));
   }
   else

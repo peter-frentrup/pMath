@@ -23,6 +23,9 @@ namespace richmath {
   };
 }
 
+extern pmath_symbol_t richmath_System_DollarCanceled;
+extern pmath_symbol_t richmath_System_List;
+
 //{ class MathGtkFileDialog ...
 
 MathGtkFileDialog::MathGtkFileDialog(bool to_save)
@@ -60,7 +63,7 @@ void MathGtkFileDialog::set_title(String title) {
 }
 
 void MathGtkFileDialog::set_filter(Expr filter) {
-  if(filter.expr_length() == 0 || filter[0] != PMATH_SYMBOL_LIST)
+  if(filter.expr_length() == 0 || filter[0] != richmath_System_List)
     return;
     
   for(size_t i = 1; i <= filter.expr_length(); ++i) {
@@ -112,7 +115,7 @@ Expr MathGtkFileDialog::show_dialog() {
       }
   }
   
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 //} ... class MathGtkFileDialog
@@ -126,7 +129,7 @@ void MathGtkFileDialog::Impl::add_filter(Expr caption, Expr extensions) {
   if(extensions.is_string()) 
     extensions = List(extensions);
   
-  if(extensions.expr_length() >= 1 && extensions[0] == PMATH_SYMBOL_LIST) {
+  if(extensions.expr_length() >= 1 && extensions[0] == richmath_System_List) {
     bool all_strings = true;
     
     for(size_t j = extensions.expr_length(); j > 0; --j) {

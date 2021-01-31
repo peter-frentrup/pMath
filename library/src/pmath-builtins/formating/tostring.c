@@ -17,7 +17,18 @@
 
 
 extern pmath_symbol_t pmath_Developer_PackedArrayForm;
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_CharacterEncoding;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_FullForm;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_InputForm;
+extern pmath_symbol_t pmath_System_OutputForm;
+extern pmath_symbol_t pmath_System_PageWidth;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
+extern pmath_symbol_t pmath_System_Skeleton;
+extern pmath_symbol_t pmath_System_StandardForm;
+extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Whitespace;
 
 
@@ -346,7 +357,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     if(num_skip == 1) {
       pmath_unref(left->item);
       left->item = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                     pmath_ref(pmath_System_Skeleton), 1,
                      PMATH_FROM_INT32(1));
                      
       left->is_skeleton = TRUE;
@@ -354,7 +365,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     else if(left == span->down && !right->next) { // whole span
       pmath_unref(span->item);
       span->item = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                     pmath_ref(pmath_System_Skeleton), 1,
                      PMATH_FROM_INT32(num_skip));
       span->is_skeleton = TRUE;
     }
@@ -363,7 +374,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
       
       if(skip) {
         skip->item = pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                       pmath_ref(pmath_System_Skeleton), 1,
                        PMATH_FROM_INT32(num_skip));
         skip->owner       = span;
         skip->down        = left;
@@ -397,7 +408,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
     
     if(skip) {
       skip->item = pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                     pmath_ref(pmath_System_Skeleton), 1,
                      PMATH_FROM_INT32(span->end - span->start - 2 * (length / 2) + 6));
       skip->owner       = span;
       skip->down        = NULL;
@@ -413,7 +424,7 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
   else {
     pmath_unref(span->item);
     span->item = pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                   pmath_ref(pmath_System_Skeleton), 1,
                    PMATH_FROM_INT32(1));
     span->is_skeleton = TRUE;
   }
@@ -510,15 +521,15 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
 }
 
 static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pmath_t format_type) { // format_type will be freed
-  if(pmath_same(format_type, PMATH_SYMBOL_INPUTFORM)) 
+  if(pmath_same(format_type, pmath_System_InputForm)) 
     *flags = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_INPUTEXPR;
-  else if(pmath_same(format_type, PMATH_SYMBOL_FULLFORM))
+  else if(pmath_same(format_type, pmath_System_FullForm))
     *flags = PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR;
-  else if(pmath_same(format_type, PMATH_SYMBOL_OUTPUTFORM))
+  else if(pmath_same(format_type, pmath_System_OutputForm))
     *flags = 0;
-  else if(pmath_same(format_type, PMATH_SYMBOL_STANDARDFORM))
+  else if(pmath_same(format_type, pmath_System_StandardForm))
     *flags = 0;
-  else if(pmath_same(format_type, PMATH_SYMBOL_HOLDFORM))
+  else if(pmath_same(format_type, pmath_System_HoldForm))
     *flags = 0;
   else if(pmath_same(format_type, pmath_Developer_PackedArrayForm))
     *flags = PMATH_WRITE_OPTIONS_PACKEDARRAYFORM;
@@ -532,7 +543,7 @@ static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pma
 }
 
 static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags, pmath_t options) {
-  pmath_t enc = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
+  pmath_t enc = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_CharacterEncoding, options));
  
   if(pmath_is_string(enc)) {
     if(pmath_string_equals_latin1(enc, "Unicode")) {
@@ -547,7 +558,7 @@ static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags,
       return TRUE;
     }
   }
-  else if(pmath_same(enc, PMATH_SYMBOL_AUTOMATIC)) {
+  else if(pmath_same(enc, pmath_System_Automatic)) {
     pmath_unref(enc);
     return TRUE;
   }
@@ -559,19 +570,19 @@ static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags,
 static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_t options) {
   pmath_t whitespace = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Whitespace, options));
  
-  if(pmath_same(whitespace, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(whitespace, pmath_System_True)) {
     *flags &= ~PMATH_WRITE_OPTIONS_NOSPACES;
     pmath_unref(whitespace);
     return TRUE;
   }
   
-  if(pmath_same(whitespace, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(whitespace, pmath_System_False)) {
     *flags |= PMATH_WRITE_OPTIONS_NOSPACES;
     pmath_unref(whitespace);
     return TRUE;
   }
   
-  if(pmath_same(whitespace, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(whitespace, pmath_System_Automatic)) {
     if(*flags & PMATH_WRITE_OPTIONS_PREFERUNICODE)
       *flags|= PMATH_WRITE_OPTIONS_NOSPACES;
     
@@ -586,19 +597,19 @@ static pmath_bool_t apply_whitespace_option(pmath_write_options_t *flags, pmath_
 static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *flags, pmath_t options) {
   pmath_t fullstr = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_ShowStringCharacters, options));
  
-  if(pmath_same(fullstr, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(fullstr, pmath_System_True)) {
     *flags |= PMATH_WRITE_OPTIONS_FULLSTR;
     pmath_unref(fullstr);
     return TRUE;
   }
   
-  if(pmath_same(fullstr, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(fullstr, pmath_System_False)) {
     *flags &= ~PMATH_WRITE_OPTIONS_FULLSTR;
     pmath_unref(fullstr);
     return TRUE;
   }
   
-  if(pmath_same(fullstr, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(fullstr, pmath_System_Automatic)) {
     pmath_unref(fullstr);
     return TRUE;
   }
@@ -608,7 +619,7 @@ static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *fla
 }
 
 static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_t options) {
-  pmath_t page_width = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
+  pmath_t page_width = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_PageWidth, options));
   
   *page_width_or_negative = -1;
   
@@ -629,6 +640,6 @@ static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_
     return TRUE;
   }
   
-  pmath_message(PMATH_NULL, "ioppf", 2, pmath_ref(PMATH_SYMBOL_PAGEWIDTH), page_width);
+  pmath_message(PMATH_NULL, "ioppf", 2, pmath_ref(pmath_System_PageWidth), page_width);
   return FALSE;
 }

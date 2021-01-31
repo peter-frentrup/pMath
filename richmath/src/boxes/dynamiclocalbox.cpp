@@ -11,7 +11,10 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_Deinitialization;
 extern pmath_symbol_t richmath_System_DynamicLocalBox;
 extern pmath_symbol_t richmath_System_DynamicLocalValues;
+extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_Initialization;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_UnsavedVariables;
 
 //{ class DynamicLocalBox ...
@@ -23,7 +26,7 @@ DynamicLocalBox::DynamicLocalBox()
 
 DynamicLocalBox::~DynamicLocalBox() {
   if( _deinitialization.is_valid() &&
-      _deinitialization != PMATH_SYMBOL_NONE &&
+      _deinitialization != richmath_System_None &&
       !_init_call.is_valid())
   {
     // only call Deinitialization if the initialization was called
@@ -43,7 +46,7 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
     return false;
     
   Expr symbols = expr[1];
-  if(symbols[0] != PMATH_SYMBOL_LIST)
+  if(symbols[0] != richmath_System_List)
     return false;
     
   for(auto sym : symbols.items()) {
@@ -200,8 +203,8 @@ void DynamicLocalBox::emit_values(Expr symbol) {
                   Call(Symbol(richmath_FE_SymbolDefinitions), prepare_dynamic(symbol)),
                   Application::dynamic_timeout);
                   
-  if(rules[0] == PMATH_SYMBOL_HOLDCOMPLETE && rules.expr_length() > 0) {
-    rules.set(0, Symbol(PMATH_SYMBOL_LIST));
+  if(rules[0] == richmath_System_HoldComplete && rules.expr_length() > 0) {
+    rules.set(0, Symbol(richmath_System_List));
     Gather::emit(rules);
   }
 }

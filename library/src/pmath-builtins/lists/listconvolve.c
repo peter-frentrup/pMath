@@ -6,6 +6,11 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+
 static uintptr_t umod(intptr_t i, intptr_t m) {
   assert(m > 0);
   
@@ -26,7 +31,7 @@ static pmath_t padded_list_get_0(pmath_expr_t list, intptr_t i, pmath_t pad) {
   if(0 <= i && i < len)
     return pmath_expr_get_item(list, (size_t)i + 1);
   
-  if(!pmath_is_expr_of(pad, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(pad, pmath_System_List))
     return pmath_ref(pad);
   
   len = (intptr_t)pmath_expr_length(pad);
@@ -88,8 +93,8 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
   list = pmath_expr_get_item(expr, 1);
   ker  = pmath_expr_get_item(expr, 2);
   
-  if( !pmath_is_expr_of(list, PMATH_SYMBOL_LIST) ||
-      !pmath_is_expr_of(ker,  PMATH_SYMBOL_LIST))
+  if( !pmath_is_expr_of(list, pmath_System_List) ||
+      !pmath_is_expr_of(ker,  pmath_System_List))
   {
     pmath_message(PMATH_NULL, "kldims", 2, ker, list);
     return expr;
@@ -107,7 +112,7 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
           break;
       }
       
-      if(pmath_is_expr_of_len(k_obj, PMATH_SYMBOL_LIST, 2)) {
+      if(pmath_is_expr_of_len(k_obj, pmath_System_List, 2)) {
         pmath_t kL_obj = pmath_expr_get_item(k_obj, 1);
         pmath_t kR_obj = pmath_expr_get_item(k_obj, 2);
         
@@ -144,12 +149,12 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
   if(exprlen >= 5)
     times = pmath_expr_get_item(expr, 5);
   else
-    times = pmath_ref(PMATH_SYMBOL_TIMES);
+    times = pmath_ref(pmath_System_Times);
   
   if(exprlen >= 6)
     plus = pmath_expr_get_item(expr, 6);
   else
-    plus = pmath_ref(PMATH_SYMBOL_PLUS);
+    plus = pmath_ref(pmath_System_Plus);
   
   
   S = (intptr_t)pmath_expr_length(list);
@@ -169,7 +174,7 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
   if(end - start + 1 >= 0){
     intptr_t s, r;
     
-    expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)(end - start + 1));
+    expr = pmath_expr_new(pmath_ref(pmath_System_List), (size_t)(end - start + 1));
     
     for(s = start;s <= end;++s){
       pmath_t sum = pmath_expr_new(pmath_ref(plus), (size_t)R);
@@ -193,7 +198,7 @@ PMATH_PRIVATE pmath_t builtin_listconvolve(pmath_expr_t expr) {
   }
   else{
     pmath_message(PMATH_NULL, "nlen", 0);
-    expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+    expr = pmath_expr_new(pmath_ref(pmath_System_List), 0);
   }
   
   pmath_unref(list);

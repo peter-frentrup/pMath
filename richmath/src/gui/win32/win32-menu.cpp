@@ -18,6 +18,8 @@
 #include <resources.h>
 
 
+extern pmath_symbol_t richmath_System_List;
+
 using namespace richmath;
 
 #ifndef MAPVK_VK_TO_VSC
@@ -171,7 +173,7 @@ void Win32Menu::init_popupmenu(HMENU sub) {
         // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
         Expr new_items = Menus::generate_dynamic_submenu(id_to_command(list_id));
         
-        if(new_items.expr_length() == 0 || new_items[0] != PMATH_SYMBOL_LIST) {
+        if(new_items.expr_length() == 0 || new_items[0] != richmath_System_List) {
           mii.fMask |= MIIM_STRING | MIIM_STATE;
           mii.fState |= MFS_DISABLED;
           mii.dwTypeData = (wchar_t*)L"(empty)";
@@ -544,7 +546,7 @@ HMENU MenuItemBuilder::create_menu(Expr expr, bool is_popup) {
     return nullptr;
     
   expr = expr[2];
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  if(expr[0] != richmath_System_List)
     return nullptr;
   
   HMENU menu = is_popup ? CreatePopupMenu() : CreateMenu();
@@ -637,7 +639,7 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
     info->dwTypeData = (wchar_t*)L"(empty)";
     info->cch = 7;
   }
-  else if(sub_items[0] == PMATH_SYMBOL_LIST) {
+  else if(sub_items[0] == richmath_System_List) {
     info->fMask |= MIIM_SUBMENU;
     info->hSubMenu = create_menu(std::move(item), true);
   }
@@ -682,7 +684,7 @@ static bool set_accel_key(Expr expr, ACCEL *accel) {
     return false;
     
   Expr modifiers = expr[2];
-  if(modifiers[0] != PMATH_SYMBOL_LIST)
+  if(modifiers[0] != richmath_System_List)
     return false;
     
   accel->fVirt = 0;
@@ -894,7 +896,7 @@ static String accel_text(const ACCEL &accel) {
 }
 
 static HACCEL create_accel(Expr expr) {
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  if(expr[0] != richmath_System_List)
     return nullptr;
     
   Array<ACCEL> accel(expr.expr_length());

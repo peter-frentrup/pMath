@@ -258,11 +258,8 @@
 		<Unit filename="src/string-util.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/symbols.inc" />
 		<Unit filename="src/util.h" />
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

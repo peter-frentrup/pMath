@@ -1,5 +1,5 @@
-#ifndef __P4E__ARITHMETIC_EXPR_H__
-#define __P4E__ARITHMETIC_EXPR_H__
+#ifndef P4E__ARITHMETIC_EXPR_H__INCLUDED
+#define P4E__ARITHMETIC_EXPR_H__INCLUDED
 
 #include <pmath-cpp.h>
 #include <complex>
@@ -8,9 +8,7 @@
 namespace pmath4eigen {
   class ArithmeticExpr;
 
-#define P4E_DECL_FUNC(NAME)       \
-  inline const ArithmeticExpr     \
-  NAME(const ArithmeticExpr &x);
+#define P4E_DECL_FUNC(NAME)   inline const ArithmeticExpr NAME(ArithmeticExpr x);
 
   P4E_DECL_FUNC( abs  )
   P4E_DECL_FUNC( acos )
@@ -25,42 +23,45 @@ namespace pmath4eigen {
   P4E_DECL_FUNC( sqrt )
   P4E_DECL_FUNC( tan  )
 
-  inline const ArithmeticExpr
-  pow(const ArithmeticExpr &a, const ArithmeticExpr &b);
+  inline const ArithmeticExpr pow(ArithmeticExpr a, ArithmeticExpr b);
 }
 
 #include <Eigen/Core>
 
 /* ============================= Implementation ============================= */
 
+extern pmath_symbol_t p4e_System_Abs;
+extern pmath_symbol_t p4e_System_ArcCos;
+extern pmath_symbol_t p4e_System_ArcSin;
+extern pmath_symbol_t p4e_System_Conjugate;
+extern pmath_symbol_t p4e_System_Cos;
+extern pmath_symbol_t p4e_System_Equal;
+extern pmath_symbol_t p4e_System_Exp;
+extern pmath_symbol_t p4e_System_False;
+extern pmath_symbol_t p4e_System_Greater;
+extern pmath_symbol_t p4e_System_GreaterEqual;
+extern pmath_symbol_t p4e_System_Im;
+extern pmath_symbol_t p4e_System_Less;
+extern pmath_symbol_t p4e_System_LessEqual;
+extern pmath_symbol_t p4e_System_Log;
+extern pmath_symbol_t p4e_System_Plus;
+extern pmath_symbol_t p4e_System_Power;
+extern pmath_symbol_t p4e_System_Re;
+extern pmath_symbol_t p4e_System_Sin;
+extern pmath_symbol_t p4e_System_Sqrt;
+extern pmath_symbol_t p4e_System_Tan;
+extern pmath_symbol_t p4e_System_Times;
+extern pmath_symbol_t p4e_System_True;
+
 namespace pmath4eigen {
 
   class ArithmeticExpr: public pmath::Expr {
     public:
-      explicit ArithmeticExpr(const pmath::Expr &src)
-        : Expr(src)
-      {
-      }
-
-      ArithmeticExpr()
-        : Expr(0)
-      {
-      }
-
-      ArithmeticExpr(int i)
-        : Expr(i)
-      {
-      }
-
-      ArithmeticExpr(int64_t i)
-        : Expr(i)
-      {
-      }
-
-      ArithmeticExpr(double d)
-        : Expr(d)
-      {
-      }
+      explicit ArithmeticExpr(const pmath::Expr &src) : Expr(src) {}
+      ArithmeticExpr() : Expr(0) {}
+      ArithmeticExpr(int i) : Expr(i) {}
+      ArithmeticExpr(int64_t i) : Expr(i) {}
+      ArithmeticExpr(double d) : Expr(d) {      }
 
       explicit ArithmeticExpr(const ArithmeticExpr &re, const ArithmeticExpr &im)
         : Expr((im == 0) ? Expr(re) : pmath::Complex(re, im))
@@ -88,7 +89,7 @@ namespace pmath4eigen {
   {
     return ArithmeticExpr(
              pmath::Evaluate(
-               pmath::Plus(
+               pmath::Call(pmath::Symbol(p4e_System_Plus),
                  left,
                  right)));
   }
@@ -98,9 +99,9 @@ namespace pmath4eigen {
   {
     return ArithmeticExpr(
              pmath::Evaluate(
-               pmath::Minus(
+               pmath::Call(pmath::Symbol(p4e_System_Plus),
                  left,
-                 right)));
+                 pmath::Call(pmath::Symbol(p4e_System_Times), pmath::Expr(-1), right))));
   }
 
   inline const ArithmeticExpr
@@ -108,8 +109,7 @@ namespace pmath4eigen {
   {
     return ArithmeticExpr(
              pmath::Evaluate(
-               pmath::Minus(
-                 arg)));
+               pmath::Call(pmath::Symbol(p4e_System_Times), pmath::Expr(-1), arg)));
   }
 
   inline const ArithmeticExpr
@@ -117,7 +117,7 @@ namespace pmath4eigen {
   {
     return ArithmeticExpr(
              pmath::Evaluate(
-               pmath::Times(
+               pmath::Call(pmath::Symbol(p4e_System_Times),
                  left,
                  right)));
   }
@@ -127,9 +127,9 @@ namespace pmath4eigen {
   {
     return ArithmeticExpr(
              pmath::Evaluate(
-               pmath::Divide(
+               pmath::Call(pmath::Symbol(p4e_System_Times),
                  left,
-                 right)));
+                 pmath::Call(pmath::Symbol(p4e_System_Power), right, pmath::Expr(-1)))));
   }
 
   inline bool
@@ -140,10 +140,10 @@ namespace pmath4eigen {
 
     return pmath::Evaluate(
              pmath::Call(
-               pmath::Symbol(PMATH_SYMBOL_EQUAL),
+               pmath::Symbol(p4e_System_Equal),
                left,
                right)
-           ) == PMATH_SYMBOL_TRUE;
+           ) == p4e_System_True;
   }
 
   // not that (x != y) and (x == y) both may return false!
@@ -155,10 +155,10 @@ namespace pmath4eigen {
 
     return pmath::Evaluate(
              pmath::Call(
-               pmath::Symbol(PMATH_SYMBOL_EQUAL),
+               pmath::Symbol(p4e_System_Equal),
                left,
                right)
-           ) == PMATH_SYMBOL_FALSE;
+           ) == p4e_System_False;
   }
 
   inline bool
@@ -169,10 +169,10 @@ namespace pmath4eigen {
 
     return pmath::Evaluate(
              pmath::Call(
-               pmath::Symbol(PMATH_SYMBOL_LESS),
+               pmath::Symbol(p4e_System_Less),
                left,
                right)
-           ) == PMATH_SYMBOL_TRUE;
+           ) == p4e_System_True;
   }
 
   inline bool
@@ -183,10 +183,10 @@ namespace pmath4eigen {
 
     return pmath::Evaluate(
              pmath::Call(
-               pmath::Symbol(PMATH_SYMBOL_LESSEQUAL),
+               pmath::Symbol(p4e_System_LessEqual),
                left,
                right)
-           ) == PMATH_SYMBOL_TRUE;
+           ) == p4e_System_True;
   }
 
   inline bool
@@ -197,10 +197,10 @@ namespace pmath4eigen {
 
     return pmath::Evaluate(
              pmath::Call(
-               pmath::Symbol(PMATH_SYMBOL_GREATER),
+               pmath::Symbol(p4e_System_Greater),
                left,
                right)
-           ) == PMATH_SYMBOL_TRUE;
+           ) == p4e_System_True;
   }
 
   inline bool
@@ -211,10 +211,10 @@ namespace pmath4eigen {
 
     return pmath::Evaluate(
              pmath::Call(
-               pmath::Symbol(PMATH_SYMBOL_GREATEREQUAL),
+               pmath::Symbol(p4e_System_GreaterEqual),
                left,
                right)
-           ) == PMATH_SYMBOL_TRUE;
+           ) == p4e_System_True;
   }
 
 
@@ -242,44 +242,34 @@ namespace pmath4eigen {
     return *this = *this / other;
   }
 
-#define P4E_IMPL_FUNC(NAME, PMCPP_NAME)         \
-  inline const ArithmeticExpr                   \
-  NAME(const ArithmeticExpr &x)                 \
-  {                                             \
-    return ArithmeticExpr(                      \
-           pmath::Evaluate( PMCPP_NAME(x) ) );  \
+#define P4E_IMPL_EVAL(NAME, X, FX)                     \
+  inline const ArithmeticExpr NAME(ArithmeticExpr X) { \
+    return ArithmeticExpr(pmath::Evaluate( FX ) );     \
   }
 
-  P4E_IMPL_FUNC( abs,  pmath::Abs    )
-  P4E_IMPL_FUNC( acos, pmath::ArcCos )
-  P4E_IMPL_FUNC( asin, pmath::ArcSin )
-  P4E_IMPL_FUNC( cos,  pmath::Cos    )
-  P4E_IMPL_FUNC( exp,  pmath::Exp    )
-  P4E_IMPL_FUNC( imag, pmath::Im     )
-  P4E_IMPL_FUNC( log,  pmath::Log    )
-  P4E_IMPL_FUNC( real, pmath::Re     )
-  P4E_IMPL_FUNC( sin,  pmath::Sin    )
-  P4E_IMPL_FUNC( sqrt, pmath::Sqrt   )
-  P4E_IMPL_FUNC( tan,  pmath::Tan    )
+  P4E_IMPL_EVAL( abs,  x, pmath::Call(pmath::Symbol(p4e_System_Abs),    std::move(x)) )
+  P4E_IMPL_EVAL( acos, x, pmath::Call(pmath::Symbol(p4e_System_ArcCos), std::move(x)) )
+  P4E_IMPL_EVAL( asin, x, pmath::Call(pmath::Symbol(p4e_System_ArcSin), std::move(x)) )
+  P4E_IMPL_EVAL( cos,  x, pmath::Call(pmath::Symbol(p4e_System_Cos),    std::move(x)) )
+  P4E_IMPL_EVAL( exp,  x, pmath::Call(pmath::Symbol(p4e_System_Exp),    std::move(x)) )
+  P4E_IMPL_EVAL( imag, x, pmath::Call(pmath::Symbol(p4e_System_Im),     std::move(x)) )
+  P4E_IMPL_EVAL( log,  x, pmath::Call(pmath::Symbol(p4e_System_Log),    std::move(x)) )
+  P4E_IMPL_EVAL( real, x, pmath::Call(pmath::Symbol(p4e_System_Re),     std::move(x)) )
+  P4E_IMPL_EVAL( sin,  x, pmath::Call(pmath::Symbol(p4e_System_Sin),    std::move(x)) )
+  P4E_IMPL_EVAL( sqrt, x, pmath::Call(pmath::Symbol(p4e_System_Sqrt),   std::move(x)) )
+  P4E_IMPL_EVAL( tan,  x, pmath::Call(pmath::Symbol(p4e_System_Tan),    std::move(x)) )
 
-  inline const ArithmeticExpr
-  conj(const ArithmeticExpr &x)
-  {
+  inline const ArithmeticExpr conj(ArithmeticExpr x) {
     return ArithmeticExpr(
              pmath::Evaluate(
                pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_CONJUGATE),
-                 x)));
+                 pmath::Symbol(p4e_System_Conjugate), std::move(x))));
   }
 
-  inline const ArithmeticExpr
-  pow(const ArithmeticExpr &x, const ArithmeticExpr &y)
-  {
+  inline const ArithmeticExpr pow(ArithmeticExpr x, ArithmeticExpr y) {
     return ArithmeticExpr(
              pmath::Evaluate(
-               pmath::Power(
-                 x,
-                 y)));
+               pmath::Call(pmath::Symbol(p4e_System_Power), std::move(x), std::move(y))));
   }
 }
 
@@ -323,15 +313,17 @@ namespace Eigen {
       const pmath4eigen::ArithmeticExpr &x,
       const pmath4eigen::ArithmeticExpr &y)
     {
+      // FIXME: do approximate comparison for reals
+      
       // x == y  calls pmath_equals(x, y)
       // If x and y are numbers, x.compare(y) == 0 could be used, but that does
-      // not do apprximate comparision for doubles.
+      // not do approximate comparision for doubles.
       return pmath::Evaluate(
                pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_EQUAL),
+                 pmath::Symbol(p4e_System_Equal),
                  x,
                  y)
-             ) == PMATH_SYMBOL_TRUE;
+             ) == p4e_System_True;
     }
 
     inline bool
@@ -339,14 +331,16 @@ namespace Eigen {
       const pmath4eigen::ArithmeticExpr &x,
       const pmath4eigen::ArithmeticExpr &y)
     {
+      // FIXME: do approximate comparison for reals
+      
       // If x and y are numbers, x.compare(y) <= 0 could be used, but that does
-      // not do apprximate comparision for doubles.
+      // not do approximate comparision for doubles.
       return pmath::Evaluate(
                pmath::Call(
-                 pmath::Symbol(PMATH_SYMBOL_LESSEQUAL),
+                 pmath::Symbol(p4e_System_LessEqual),
                  x,
                  y)
-             ) == PMATH_SYMBOL_TRUE;
+             ) == p4e_System_True;
     }
 
 
@@ -360,20 +354,20 @@ namespace Eigen {
       {
         return Scalar(
                  pmath::Evaluate(
-                   pmath::Plus(
+                   pmath::Call(pmath::Symbol(p4e_System_Plus),
                      c,
-                     pmath::Times(
+                     pmath::Call(pmath::Symbol(p4e_System_Times),
                        x,
-                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y)))));
+                       pmath::Call(pmath::Symbol(p4e_System_Conjugate), y)))));
       }
 
       EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
       {
         return Scalar(
                  pmath::Evaluate(
-                   pmath::Times(
+                   pmath::Call(pmath::Symbol(p4e_System_Times),
                      x,
-                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y))));
+                     pmath::Call(pmath::Symbol(p4e_System_Conjugate), y))));
       }
     };
 
@@ -386,10 +380,10 @@ namespace Eigen {
       {
         return Scalar(
                  pmath::Evaluate(
-                   pmath::Plus(
+                   pmath::Call(pmath::Symbol(p4e_System_Plus),
                      c,
-                     pmath::Times(
-                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
+                     pmath::Call(pmath::Symbol(p4e_System_Times),
+                       pmath::Call(pmath::Symbol(p4e_System_Conjugate), x),
                        y))));
       }
 
@@ -397,8 +391,8 @@ namespace Eigen {
       {
         return Scalar(
                  pmath::Evaluate(
-                   pmath::Times(
-                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
+                   pmath::Call(pmath::Symbol(p4e_System_Times),
+                     pmath::Call(pmath::Symbol(p4e_System_Conjugate), x),
                      y)));
       }
     };
@@ -412,23 +406,23 @@ namespace Eigen {
       {
         return Scalar(
                  pmath::Evaluate(
-                   pmath::Plus(
+                   pmath::Call(pmath::Symbol(p4e_System_Plus),
                      c,
-                     pmath::Times(
-                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
-                       pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y)))));
+                     pmath::Call(pmath::Symbol(p4e_System_Times),
+                       pmath::Call(pmath::Symbol(p4e_System_Conjugate), x),
+                       pmath::Call(pmath::Symbol(p4e_System_Conjugate), y)))));
       }
 
       EIGEN_STRONG_INLINE Scalar pmul(const Scalar &x, const Scalar &y) const
       {
         return Scalar(
                  pmath::Evaluate(
-                   pmath::Times(
-                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), x),
-                     pmath::Call(pmath::Symbol(PMATH_SYMBOL_CONJUGATE), y))));
+                   pmath::Call(pmath::Symbol(p4e_System_Times),
+                     pmath::Call(pmath::Symbol(p4e_System_Conjugate), x),
+                     pmath::Call(pmath::Symbol(p4e_System_Conjugate), y))));
       }
     };
   }
 }
 
-#endif // __P4E__ARITHMETIC_EXPR_H__
+#endif // P4E__ARITHMETIC_EXPR_H__INCLUDED

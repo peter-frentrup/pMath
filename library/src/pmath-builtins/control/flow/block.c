@@ -12,6 +12,11 @@
 #include <pmath-builtins/control/definitions-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_Unassign;
+
 struct symbol_definition_t {
   struct symbol_definition_t    *next;
   
@@ -112,12 +117,12 @@ static void restore_definitions(struct symbol_definition_t *def) {
       
       if(pmath_same(old->value, PMATH_UNDEFINED)) {
         expr = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_UNASSIGN), 1, 
+                 pmath_ref(pmath_System_Unassign), 1, 
                  pmath_ref(old->symbol));
       }
       else if(pmath_is_evaluatable(old->value)) {
         expr = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
+                         pmath_ref(pmath_System_AssignDelayed), 2,
                          pmath_ref(old->symbol),
                          pmath_ref(old->value));
       }
@@ -149,8 +154,8 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
       continue;
     }
     
-    if( pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGNDELAYED, 2) ||
-        pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2))
+    if( pmath_is_expr_of_len(def, pmath_System_AssignDelayed, 2) ||
+        pmath_is_expr_of_len(def, pmath_System_Assign, 2))
     {
       pmath_t lhs = pmath_expr_get_item(def, 1);
       
@@ -172,7 +177,7 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
   for(i = 1; i <= pmath_expr_length(vars); ++i) {
     pmath_t def = pmath_expr_extract_item(vars, i);
     
-    if(pmath_is_expr_of_len(def, PMATH_SYMBOL_ASSIGN, 2)) {
+    if(pmath_is_expr_of_len(def, pmath_System_Assign, 2)) {
       pmath_t val = pmath_expr_extract_item(def, 2);
       
       val = pmath_evaluate(val);
@@ -207,7 +212,7 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
       
       pmath_unref(vars);
       pmath_unref(body);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     def->next = olddefs;

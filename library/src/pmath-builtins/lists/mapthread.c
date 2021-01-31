@@ -6,11 +6,13 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 static pmath_t mapthread(pmath_t array, pmath_t f, unsigned level) { // array will be freed; f wont
   size_t i, j, args, count;
   pmath_t result;
   
-  if(!pmath_is_expr_of(array, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(array, pmath_System_List)) {
     pmath_unref(array);
     return PMATH_NULL;
   }
@@ -24,7 +26,7 @@ static pmath_t mapthread(pmath_t array, pmath_t f, unsigned level) { // array wi
   args = pmath_expr_length(array);
   
   result = pmath_expr_get_item(array, 1);
-  if(!pmath_is_expr_of(result, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(result, pmath_System_List)) {
     pmath_unref(array);
     pmath_unref(result);
     return PMATH_NULL;
@@ -33,7 +35,7 @@ static pmath_t mapthread(pmath_t array, pmath_t f, unsigned level) { // array wi
   count = pmath_expr_length(result);
   
   for(i = 1; i <= count; ++i) {
-    pmath_t func = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), args);
+    pmath_t func = pmath_expr_new(pmath_ref(pmath_System_List), args);
     
     for(j = 1; j <= args; ++j) {
       pmath_t item = _pmath_matrix_get(array, j, i);
@@ -95,7 +97,7 @@ PMATH_PRIVATE pmath_t builtin_mapthread(pmath_expr_t expr) {
   }
   
   array = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(array, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(array, pmath_System_List)) {
     pmath_unref(array);
     pmath_message(PMATH_NULL, "list", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;

@@ -15,6 +15,14 @@
 #include <inttypes.h>
 
 
+extern pmath_symbol_t pmath_System_EndOfString;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IgnoreCase;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_StartOfString;
+extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_bool_t has_namespace_tick(pmath_t obj) {
   if(pmath_is_string(obj)) {
     int len = pmath_string_length(obj);
@@ -58,7 +66,7 @@ static pmath_t collect_names(struct _regex_t *regex) {
   pmath_gather_begin(PMATH_NULL);
   
   {
-    pmath_symbol_t sym = pmath_ref(PMATH_SYMBOL_LIST);
+    pmath_symbol_t sym = pmath_ref(pmath_System_List);
     do {
       pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(sym);
       
@@ -87,7 +95,7 @@ static pmath_t collect_names(struct _regex_t *regex) {
       }
       
       sym = pmath_symbol_iter_next(sym);
-    } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+    } while(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List));
     pmath_unref(sym);
   }
   
@@ -115,14 +123,14 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr) {
     if(pmath_is_null(options))
       return expr;
     
-    obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
-    if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+    obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
+    if(pmath_same(obj, pmath_System_True)) {
       pcre_options |= PCRE_CASELESS;
     }
-    else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+    else if(!pmath_same(obj, pmath_System_False)) {
       pmath_message(
         PMATH_NULL, "opttf", 2,
-        pmath_ref(PMATH_SYMBOL_IGNORECASE),
+        pmath_ref(pmath_System_IgnoreCase),
         obj);
       pmath_unref(options);
       return expr;
@@ -152,10 +160,10 @@ PMATH_PRIVATE pmath_t builtin_names(pmath_expr_t expr) {
       }
       else {
         pattern = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION), 3,
-                    pmath_ref(PMATH_SYMBOL_STARTOFSTRING),
+                    pmath_ref(pmath_System_StringExpression), 3,
+                    pmath_ref(pmath_System_StartOfString),
                     pattern,
-                    pmath_ref(PMATH_SYMBOL_ENDOFSTRING));
+                    pmath_ref(pmath_System_EndOfString));
       }
     }
     

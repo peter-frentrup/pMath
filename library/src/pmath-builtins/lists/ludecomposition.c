@@ -12,6 +12,14 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_Abs;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_bool_t is_zero(pmath_t x) {
   return pmath_is_number(x) && pmath_number_sign(x) == 0;
 }
@@ -251,7 +259,7 @@ static pmath_bool_t greater(pmath_t a, pmath_t b) {
   
   tmp = pmath_evaluate(GREATER(pmath_ref(a), pmath_ref(b)));
   pmath_unref(tmp);
-  return pmath_same(tmp, PMATH_SYMBOL_TRUE);
+  return pmath_same(tmp, pmath_System_True);
 }
 
 static pmath_t calc_abs(pmath_t x) { // will be freed
@@ -673,7 +681,7 @@ PMATH_PRIVATE pmath_t builtin_ludecomposition(pmath_expr_t expr) {
     pmath_message(PMATH_NULL, "sing", 1, pmath_ref(matrix));
   }
   
-  perm = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), rows);
+  perm = pmath_expr_new(pmath_ref(pmath_System_List), rows);
   for(cols = rows; cols > 0; --cols) {
     perm = pmath_expr_set_item(perm, cols, pmath_integer_new_uiptr(cols));
   }

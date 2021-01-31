@@ -16,6 +16,13 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarNewMessage;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_Message;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Syntax;
+
 PMATH_API void pmath_message(
   pmath_symbol_t symbol,
   const char *tag,
@@ -39,7 +46,7 @@ PMATH_API void pmath_message(
   
   // expr = Message(symbol::tag, ...)
   expr = pmath_expr_new(
-           pmath_ref(PMATH_SYMBOL_MESSAGE), 1 + argcount);
+           pmath_ref(pmath_System_Message), 1 + argcount);
            
   symbol = pmath_ref(symbol);
   
@@ -52,7 +59,7 @@ PMATH_API void pmath_message(
   expr = pmath_expr_set_item(
            expr, 1,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+             pmath_ref(pmath_System_MessageName), 2,
              symbol,
              PMATH_C_STRING(tag)));
              
@@ -60,7 +67,7 @@ PMATH_API void pmath_message(
     pmath_t item = va_arg(items, pmath_t);
     if(!pmath_is_evaluated(item))
       item = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_HOLDFORM), 1,
+               pmath_ref(pmath_System_HoldForm), 1,
                item);
                
     expr = pmath_expr_set_item(expr, 2 + i, item);
@@ -164,7 +171,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name) {
   int                            loop;
   
   if(!_pmath_is_valid_messagename(name)) {
-    pmath_message(PMATH_SYMBOL_MESSAGE, "name", 1, name);
+    pmath_message(pmath_System_Message, "name", 1, name);
     return PMATH_UNDEFINED;
   }
   
@@ -191,12 +198,12 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name) {
       }
     }
     
-    if(!pmath_same(sym, PMATH_SYMBOL_GENERAL)) {
+    if(!pmath_same(sym, pmath_System_General)) {
       pmath_t obj = PMATH_NULL;
-      rules = _pmath_symbol_get_rules(PMATH_SYMBOL_GENERAL, RULES_READ);
+      rules = _pmath_symbol_get_rules(pmath_System_General, RULES_READ);
       
       if(rules) {
-        name = pmath_expr_set_item(name, 1, pmath_ref(PMATH_SYMBOL_GENERAL));
+        name = pmath_expr_set_item(name, 1, pmath_ref(pmath_System_General));
         
         messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
         
@@ -217,7 +224,7 @@ PMATH_API pmath_string_t pmath_message_find_text(pmath_t name) {
     }
     
     if(loop == 0) {
-      pmath_t value = pmath_symbol_get_value(PMATH_SYMBOL_NEWMESSAGE);
+      pmath_t value = pmath_symbol_get_value(pmath_System_DollarNewMessage);
       
       if(pmath_same(value, PMATH_UNDEFINED))
         break;
@@ -251,12 +258,12 @@ static void syntax_error_bgn(
   start = pmath_string_part(pmath_ref(code), 0, eol - 0);
   if(pmath_is_null(filename)) {
     pmath_message(
-      PMATH_SYMBOL_SYNTAX, "bgn", 1,
+      pmath_System_Syntax, "bgn", 1,
       start);
   }
   else {
     pmath_message(
-      PMATH_SYMBOL_SYNTAX, "bgnf", 3,
+      pmath_System_Syntax, "bgnf", 3,
       start,
       PMATH_FROM_INT32(lines_before_code),
       filename);
@@ -269,7 +276,7 @@ static void syntax_error_more(
   int            lines_before_code
 ) {
   if(pmath_is_null(filename)) {
-    pmath_message(PMATH_SYMBOL_SYNTAX, "more", 0);
+    pmath_message(pmath_System_Syntax, "more", 0);
   }
   else {
     int             len = pmath_string_length(code);
@@ -280,7 +287,7 @@ static void syntax_error_more(
       if(str[i] == '\n')
         ++lines_before_code;
         
-    pmath_message(PMATH_SYMBOL_SYNTAX, "moref", 2,
+    pmath_message(pmath_System_Syntax, "moref", 2,
                   PMATH_FROM_INT32(lines_before_code),
                   filename);
   }
@@ -327,13 +334,13 @@ static void syntax_error_newl_or_nxt(
   
   if(pmath_is_null(filename)) {
     pmath_message(
-      PMATH_SYMBOL_SYNTAX, "nxt", 2,
+      pmath_System_Syntax, "nxt", 2,
       before,
       after);
   }
   else {
     pmath_message(
-      PMATH_SYMBOL_SYNTAX, "nxtf", 4,
+      pmath_System_Syntax, "nxtf", 4,
       before,
       after,
       PMATH_FROM_INT32(lines_before_code),

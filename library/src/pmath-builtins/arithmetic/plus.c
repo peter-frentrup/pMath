@@ -12,6 +12,11 @@
 #define MAX(x, y) ((x) >= (y) ? (x) : (y))
 
 
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_Infinity;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
 
 static pmath_integer_t _addmul_iii( // intA + intB * intC
   pmath_integer_t intA, // will be freed. not PMATH_NULL!
@@ -576,7 +581,7 @@ PMATH_PRIVATE void _pmath_split_summand(
     pmath_t head = pmath_expr_get_item(summand, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
+    if(pmath_same(head, pmath_System_Times)) {
       size_t len = pmath_expr_length(summand);
       
       if(len > 1) {
@@ -767,7 +772,7 @@ static pmath_bool_t try_add_infinities(pmath_t *a, pmath_t *b) {
         pmath_unref(binfdir);
         pmath_unref(*a);
         pmath_unref(*b);
-        *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+        *a = pmath_ref(pmath_System_Undefined);
         *b = PMATH_UNDEFINED;
         return TRUE;
       }
@@ -780,18 +785,18 @@ static pmath_bool_t try_add_infinities(pmath_t *a, pmath_t *b) {
     
     sum = pmath_evaluate(
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_PLUS), 2,
+              pmath_ref(pmath_System_Plus), 2,
               ainfdir,
               binfdir));
               
     if(pmath_equals(sum, PMATH_FROM_INT32(0))) {
       pmath_unref(sum);
-      pmath_message(PMATH_SYMBOL_INFINITY, "indet", 1,
+      pmath_message(pmath_System_Infinity, "indet", 1,
                     pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                      pmath_ref(pmath_System_Plus), 2,
                       *a,
                       *b));
-      *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      *a = pmath_ref(pmath_System_Undefined);
       *b = PMATH_UNDEFINED;
     }
     return TRUE;
@@ -828,9 +833,9 @@ static pmath_bool_t try_add_common_factors(pmath_t *a, pmath_t *b) {
     pmath_unref(*b);
     pmath_unref(restB);
     *a = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_TIMES), 2,
+           pmath_ref(pmath_System_Times), 2,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_PLUS), 2,
+             pmath_ref(pmath_System_Plus), 2,
              numFactorA,
              numFactorB),
            restA);

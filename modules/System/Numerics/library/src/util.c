@@ -1,6 +1,10 @@
 #include "stdafx.h"
 #include "util.h"
 
+
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE
 pmath_bool_t pnum_is_imaginary(pmath_t *z) {
   if(pmath_is_expr(*z)) {
@@ -8,7 +12,7 @@ pmath_bool_t pnum_is_imaginary(pmath_t *z) {
     pmath_t head = pmath_expr_get_item(*z, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
+    if(pmath_same(head, pmath_System_Times)) {
       size_t i;
       pmath_t x = pmath_expr_get_item(*z, 1);
       
@@ -29,7 +33,7 @@ pmath_bool_t pnum_is_imaginary(pmath_t *z) {
             head = pmath_expr_get_item(x, 0);
             pmath_unref(head);
             
-            if(pmath_same(head, PMATH_SYMBOL_COMPLEX)) {
+            if(pmath_same(head, pmath_System_Complex)) {
               pmath_t xx = pmath_expr_get_item(x, 1);
               
               if(pmath_equals(xx, PMATH_FROM_INT32(0))) {
@@ -58,7 +62,7 @@ pmath_bool_t pnum_is_imaginary(pmath_t *z) {
       return FALSE;
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEX) && len == 2) {
+    if(pmath_same(head, pmath_System_Complex) && len == 2) {
       pmath_t x = pmath_expr_get_item(*z, 1);
       
       if(pmath_equals(x, PMATH_FROM_INT32(0))) {

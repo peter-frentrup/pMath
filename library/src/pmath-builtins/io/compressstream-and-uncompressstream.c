@@ -10,6 +10,11 @@
 #include <zlib.h>
 
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Level;
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_bool_t init_window_bits(int *window_bits, pmath_expr_t options) {
   pmath_t name = PMATH_C_STRING("WindowBits");
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
@@ -26,7 +31,7 @@ static pmath_bool_t init_window_bits(int *window_bits, pmath_expr_t options) {
     return TRUE;
   }
   
-  if(pmath_same(value, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(value, pmath_System_Automatic)) {
     *window_bits = MAX_WBITS;
     pmath_unref(value);
     return TRUE;
@@ -40,14 +45,14 @@ static pmath_bool_t init_skip_header(pmath_bool_t *skip_header, pmath_bool_t com
   pmath_t name = PMATH_C_STRING(compress ? "RawDeflate" : "RawInflate");
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
   
-  if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(value, pmath_System_True)) {
     pmath_unref(name);
     pmath_unref(value);
     *skip_header = TRUE;
     return TRUE;
   }
   
-  if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(value, pmath_System_False)) {
     pmath_unref(name);
     pmath_unref(value);
     *skip_header = FALSE;
@@ -59,7 +64,7 @@ static pmath_bool_t init_skip_header(pmath_bool_t *skip_header, pmath_bool_t com
 }
 
 static pmath_bool_t init_level(struct pmath_compressor_settings_t *settings, pmath_expr_t options) {
-  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_LEVEL, options));
+  pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Level, options));
   
   if(pmath_is_int32(value)) {
     settings->level = PMATH_AS_INT32(value);
@@ -71,7 +76,7 @@ static pmath_bool_t init_level(struct pmath_compressor_settings_t *settings, pma
     return TRUE;
   }
   
-  if(pmath_same(value, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(value, pmath_System_Automatic)) {
     pmath_unref(value);
     settings->level = Z_DEFAULT_COMPRESSION;
     return TRUE;

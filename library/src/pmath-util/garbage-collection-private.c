@@ -11,6 +11,8 @@
 #include <pmath-util/symbol-values-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 #define GC_PASS_BITS   1u
 #define GC_PASS_COUNT  (1u << GC_PASS_BITS)
 #define GC_PASS_MASK   (GC_PASS_COUNT - 1u)
@@ -173,7 +175,7 @@ static pmath_bool_t gc_visit_limbo_dispatch_table(const struct _pmath_dispatch_t
 static void gc_init_all_refs(void) {
   pmath_symbol_t sym;
   
-  sym = pmath_ref(PMATH_SYMBOL_LIST);
+  sym = pmath_ref(pmath_System_List);
   do {
     if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
       gc_symbol_defs_visit(sym, gc_visit_ref, NULL);
@@ -181,7 +183,7 @@ static void gc_init_all_refs(void) {
     // TODO(?): else reset gc_refcount in case a symbol concurrently becomes Temporary?
 
     sym = pmath_symbol_iter_next(sym);
-  } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+  } while(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List));
   pmath_unref(sym);
 
   _pmath_dispatch_table_filter_limbo(gc_visit_limbo_dispatch_table, NULL);
@@ -230,7 +232,7 @@ static size_t gc_mark_possibly_dead_or_alive_unvisited(void) { // returns num_po
   size_t num_possibly_dead = 0;
   pmath_symbol_t sym;
   
-  sym = pmath_ref(PMATH_SYMBOL_LIST);
+  sym = pmath_ref(pmath_System_List);
   do {
     if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
       struct _pmath_gc_t *gc_obj;
@@ -244,7 +246,7 @@ static size_t gc_mark_possibly_dead_or_alive_unvisited(void) { // returns num_po
       }
     }
     sym = pmath_symbol_iter_next(sym);
-  } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+  } while(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List));
   pmath_unref(sym);
   
   return num_possibly_dead;
@@ -277,7 +279,7 @@ static size_t gc_propagate_life_step(void) { // returns num_resurrected (possibl
   struct _pmath_gc_propagate_life_context_t context;
   context.num_resurrected = 0;
   
-  sym = pmath_ref(PMATH_SYMBOL_LIST);
+  sym = pmath_ref(pmath_System_List);
   do {
     if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
       struct _pmath_gc_t *gc_obj = (void *)PMATH_AS_PTR(sym);
@@ -293,7 +295,7 @@ static size_t gc_propagate_life_step(void) { // returns num_resurrected (possibl
       }
     }
     sym = pmath_symbol_iter_next(sym);
-  } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+  } while(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List));
   pmath_unref(sym);
   
   return context.num_resurrected;
@@ -305,7 +307,7 @@ static void gc_clear_all_possibly_dead_symbols(size_t num_possibly_dead) {
   if(num_possibly_dead == 0)
     return;
   
-  sym = pmath_ref(PMATH_SYMBOL_LIST);
+  sym = pmath_ref(pmath_System_List);
   do {
     if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
       struct _pmath_gc_t *gc_obj;
@@ -341,7 +343,7 @@ static void gc_clear_all_possibly_dead_symbols(size_t num_possibly_dead) {
     }
     
     sym = pmath_symbol_iter_next(sym);
-  } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+  } while(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List));
   pmath_unref(sym);
 }
 
@@ -378,7 +380,7 @@ static enum pmath_visit_result_t gc_visit_all_alive(pmath_t obj, void *dummy) {
 //  return PMATH_VISIT_NORMAL;
 //}
 //static void gc_debug_check_all_refs(void) { // (debug) check that all gc_refs are set to the previous pass
-//  pmath_symbol_t sym = pmath_ref(PMATH_SYMBOL_LIST);
+//  pmath_symbol_t sym = pmath_ref(pmath_System_List);
 //  do {
 //    if(pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY) {
 //      struct _pmath_symbol_rules_t *rules;
@@ -395,7 +397,7 @@ static enum pmath_visit_result_t gc_visit_all_alive(pmath_t obj, void *dummy) {
 //    }
 //
 //    sym = pmath_symbol_iter_next(sym);
-//  } while(!pmath_is_null(sym) && !pmath_same(sym, PMATH_SYMBOL_LIST));
+//  } while(!pmath_is_null(sym) && !pmath_same(sym, pmath_System_List));
 //  pmath_unref(sym);
 //}
 //#endif

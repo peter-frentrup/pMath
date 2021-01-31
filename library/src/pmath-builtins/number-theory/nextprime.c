@@ -8,6 +8,9 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_Ceiling;
+extern pmath_symbol_t pmath_System_Plus;
+
 PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr) {
   /* NextPrime(p)
    */
@@ -24,9 +27,9 @@ PMATH_PRIVATE pmath_t builtin_nextprime(pmath_expr_t expr) {
   if(!pmath_is_integer(n)) {
     n = pmath_evaluate(
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_PLUS), 2,
+            pmath_ref(pmath_System_Plus), 2,
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_CEILING), 1, n),
+              pmath_ref(pmath_System_Ceiling), 1, n),
             PMATH_FROM_INT32(-1)));
   }
   

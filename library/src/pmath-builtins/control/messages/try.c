@@ -12,10 +12,21 @@
 #include <pmath-builtins/control/messages-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_DownRules;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_HoldPattern;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_Internal_CriticalMessageTag;
+extern pmath_symbol_t pmath_Internal_MessageThrown;
+
 static void make_critical_message(pmath_t msg, pmath_t tag) { // msg will be freed, tag wont
   if(pmath_is_symbol(msg)) {
     msg = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+            pmath_ref(pmath_System_MessageName), 2,
             msg,
             pmath_ref(_pmath_object_singlematch));
   }
@@ -23,21 +34,21 @@ static void make_critical_message(pmath_t msg, pmath_t tag) { // msg will be fre
     pmath_t sym = pmath_expr_get_item(msg, 1);
     pmath_unref(sym);
     
-    if(pmath_same(sym, PMATH_SYMBOL_GENERAL))
+    if(pmath_same(sym, pmath_System_General))
       msg = pmath_expr_set_item(msg, 1, pmath_ref(_pmath_object_singlematch));
   }
   
   // Internal`CriticalMessageTag(HoldPattern(msg)):= tag
   msg = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_HOLDPATTERN), 1,
+          pmath_ref(pmath_System_HoldPattern), 1,
           msg);
           
   msg = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG), 1,
+          pmath_ref(pmath_Internal_CriticalMessageTag), 1,
           msg);
           
   msg = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
+          pmath_ref(pmath_System_AssignDelayed), 2,
           msg,
           pmath_ref(tag));
           
@@ -50,7 +61,7 @@ static void make_all_messages_critical(pmath_t messages, pmath_t tag) { // messa
     return;
   }
   
-  if(pmath_is_expr_of(messages, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(messages, pmath_System_List)) {
     size_t i;
     size_t len = pmath_expr_length(messages);
     
@@ -73,7 +84,7 @@ static pmath_t check_messages(pmath_t messages) { // messages will be freed
   if(_pmath_is_valid_messagename(messages))
     return messages;
     
-  if(pmath_is_expr_of(messages, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(messages, pmath_System_List)) {
     size_t i;
     size_t len = pmath_expr_length(messages);
     
@@ -101,7 +112,7 @@ static pmath_t generate_message_tag(void) {
   intptr_t val = pmath_atomic_fetch_add(&message_tag_value, 1);
   
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_INTERNAL_MESSAGETHROWN), 1,
+           pmath_ref(pmath_Internal_MessageThrown), 1,
            pmath_integer_new_siptr(val));
 }
 
@@ -150,7 +161,7 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   }
   else {
     messages = PMATH_NULL;
-    failexpr = pmath_ref(PMATH_SYMBOL_FAILED);
+    failexpr = pmath_ref(pmath_System_DollarFailed);
   }
   
   body = pmath_expr_get_item(expr, 1);
@@ -163,8 +174,8 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
 
   old_downrules = pmath_evaluate(
                     pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_DOWNRULES), 1,
-                      pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG)));
+                      pmath_ref(pmath_System_DownRules), 1,
+                      pmath_ref(pmath_Internal_CriticalMessageTag)));
                       
   if(exprlen == 3) {
     make_all_messages_critical(messages, tag);
@@ -175,11 +186,11 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
     pmath_t tmp;
     
     tmp = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG), 1,
+            pmath_ref(pmath_Internal_CriticalMessageTag), 1,
             pmath_ref(_pmath_object_singlematch));
             
     tmp = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+            pmath_ref(pmath_System_Assign), 2,
             tmp,
             pmath_ref(tag));
             
@@ -214,11 +225,11 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
     pmath_t tmp;
     
     tmp = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_DOWNRULES), 1,
-            pmath_ref(PMATH_SYMBOL_INTERNAL_CRITICALMESSAGETAG));
+            pmath_ref(pmath_System_DownRules), 1,
+            pmath_ref(pmath_Internal_CriticalMessageTag));
             
     tmp = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+            pmath_ref(pmath_System_Assign), 2,
             tmp,
             old_downrules);
             

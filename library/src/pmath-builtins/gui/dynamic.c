@@ -8,9 +8,12 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
+extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_Dynamic;
+extern pmath_symbol_t pmath_System_EvaluationSequence;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_None;
 extern pmath_symbol_t pmath_Internal_DynamicEvaluate;
 extern pmath_symbol_t pmath_System_TrackedSymbols;
 
@@ -91,7 +94,7 @@ static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
   for(i = pmath_expr_length(dynamic); i >= start; --i) {
     pmath_t item = pmath_expr_get_item(dynamic, i);
     
-    if(_pmath_is_rule(item)) {
+    if(pmath_is_rule(item)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       
@@ -100,12 +103,12 @@ static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
         
         pmath_unref(item);
         
-        if(pmath_same(ts, PMATH_SYMBOL_AUTOMATIC)) {
+        if(pmath_same(ts, pmath_System_Automatic)) {
           pmath_unref(ts);
           return PMATH_UNDEFINED;
         }
         
-        if(pmath_same(ts, PMATH_SYMBOL_NONE)) {
+        if(pmath_same(ts, pmath_System_None)) {
           pmath_unref(ts);
           return PMATH_NULL;
         }
@@ -113,7 +116,7 @@ static pmath_t find_tracked_symbols(pmath_t dynamic, size_t start) {
         return ts;
       }
     }
-    else if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    else if(pmath_is_expr_of(item, pmath_System_List)) {
       pmath_t ts = find_tracked_symbols(item, 1);
       
       if(!pmath_same(ts, PMATH_UNDEFINED)) {
@@ -149,7 +152,7 @@ static pmath_t replace_dynamic(
       
       if(!pmath_same(ts, PMATH_UNDEFINED)) {
         return pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), 2,
+                 pmath_ref(pmath_System_EvaluationSequence), 2,
                  pmath_expr_new_extended(
                    pmath_ref(pmath_Internal_DynamicEvaluate), 2,
                    ts,
@@ -221,7 +224,7 @@ PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(pmath_expr_t expr) {
       continue;
     }
     
-    if(pmath_is_expr_of(id_obj, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(id_obj, pmath_System_List)) {
       pmath_unref(builtin_internal_dynamicremove(id_obj));
       continue;
     }

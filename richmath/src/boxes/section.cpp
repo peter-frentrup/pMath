@@ -13,10 +13,18 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_BoxData;
-extern pmath_symbol_t richmath_System_TextData;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_HoldComplete;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_MakeExpression;
+extern pmath_symbol_t richmath_System_MessageName;
+extern pmath_symbol_t richmath_System_ParseSymbols;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_StyleData;
+extern pmath_symbol_t richmath_System_TextData;
+extern pmath_symbol_t richmath_System_Try;
 
 namespace richmath { namespace strings {
   extern String Edit;
@@ -54,7 +62,7 @@ Section *Section::create_from_object(const Expr expr) {
       section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
     else if(content[0] == richmath_System_StyleData)
       section = Box::try_create<StyleDataSection>(expr, BoxInputFlags::Default);
-    else if(content[0] == richmath_System_TextData || content.is_string() || content[0] == PMATH_SYMBOL_LIST)
+    else if(content[0] == richmath_System_TextData || content.is_string() || content[0] == richmath_System_List)
       section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
     else
       section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
@@ -766,7 +774,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(content[0] == richmath_System_TextData)
     content = content[1];
   
-  if(!content.is_string() && content[0] != PMATH_SYMBOL_LIST)
+  if(!content.is_string() && content[0] != richmath_System_List)
     return false;
     
   Expr options(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
@@ -816,25 +824,25 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
   if(false && has(flags, BoxOutputFlags::NoNewSymbols)) {
     // todo: wrap in Quiet(...)
     result = Call(
-               Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+               Symbol(richmath_System_MakeExpression),
                std::move(result),
-               Rule(Symbol(PMATH_SYMBOL_PARSESYMBOLS), Symbol(PMATH_SYMBOL_FALSE)));
+               Rule(Symbol(richmath_System_ParseSymbols), Symbol(richmath_System_False)));
     
     if(original) {
       result = Call(
-                 Symbol(PMATH_SYMBOL_TRY), 
+                 Symbol(richmath_System_Try), 
                  std::move(result),
-                 Symbol(PMATH_SYMBOL_FAILED),
+                 Symbol(richmath_System_DollarFailed),
                  List(
                    Call(
-                     Symbol(PMATH_SYMBOL_MESSAGENAME), 
-                     Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+                     Symbol(richmath_System_MessageName), 
+                     Symbol(richmath_System_MakeExpression),
                      strings::nonewsym)));
     }
   }
   else{
     result = Call(
-               Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+               Symbol(richmath_System_MakeExpression),
                std::move(result));
   }
   
@@ -843,11 +851,11 @@ Expr EditSection::to_pmath(BoxOutputFlags flags) {
              Application::edit_interrupt_timeout);
   
   if(original) {
-    if(result == PMATH_SYMBOL_FAILED) 
+    if(result == richmath_System_DollarFailed) 
       result = original->to_pmath(flags);
   }
   
-  if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
+  if(result.expr_length() == 1 && result[0] == richmath_System_HoldComplete) {
     return result[1];
   }
   

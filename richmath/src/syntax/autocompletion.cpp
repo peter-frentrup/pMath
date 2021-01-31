@@ -15,7 +15,13 @@ extern pmath_symbol_t richmath_FE_AutoCompleteFile;
 extern pmath_symbol_t richmath_FE_AutoCompleteOther;
 
 extern pmath_symbol_t richmath_System_ComplexStringBox;
+extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_Keys;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_MakeBoxes;
+extern pmath_symbol_t richmath_System_MakeExpression;
+extern pmath_symbol_t richmath_System_String;
+extern pmath_symbol_t richmath_System_Try;
 
 using namespace richmath;
 
@@ -136,7 +142,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     }
     
     expr = g.end();
-    expr = Expr{pmath_expr_flatten(expr.release(), pmath_ref(PMATH_SYMBOL_LIST), 1)};
+    expr = Expr{pmath_expr_flatten(expr.release(), pmath_ref(richmath_System_List), 1)};
   }
   
   expr = Application::interrupt_wait_cached(
@@ -146,7 +152,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
              alias),
            Application::button_timeout);
            
-  if(expr[0] != PMATH_SYMBOL_LIST || expr.expr_length() == 0)
+  if(expr[0] != richmath_System_List || expr.expr_length() == 0)
     return false;
     
   {
@@ -183,7 +189,7 @@ bool AutoCompletion::Private::start_alias(LogicalDirection direction) {
     expr = g.end();
   }
   
-  if(expr[0] != PMATH_SYMBOL_LIST || expr.expr_length() == 0)
+  if(expr[0] != richmath_System_List || expr.expr_length() == 0)
     return false;
     
   current_boxes_list = expr;
@@ -213,7 +219,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   bool have_filename_sep = false;
   
   if(InputFieldBox *inp = dynamic_cast<InputFieldBox *>(seq->parent())) {
-    if(inp->input_type == PMATH_SYMBOL_STRING) {
+    if(inp->input_type == richmath_System_String) {
       if(seq->count() > 0)
         return false;
         
@@ -266,7 +272,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
                  str),
                Application::button_timeout);
                
-      if(expr[0] != PMATH_SYMBOL_LIST || expr.expr_length() == 0)
+      if(expr[0] != richmath_System_List || expr.expr_length() == 0)
         return false;
         
       document->move_to(seq, seq->length(), false);
@@ -371,12 +377,12 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   }
   
   expr = Call(
-           Symbol(PMATH_SYMBOL_TRY),
+           Symbol(richmath_System_Try),
            Call(
-             Symbol(PMATH_SYMBOL_MAKEEXPRESSION),
+             Symbol(richmath_System_MakeExpression),
              Call(Symbol(richmath_System_ComplexStringBox), str)));
   expr = Evaluate(expr);
-  if(expr.expr_length() != 1 || expr[0] != PMATH_SYMBOL_HOLDCOMPLETE)
+  if(expr.expr_length() != 1 || expr[0] != richmath_System_HoldComplete)
     return false;
     
   str = String(expr[1]);
@@ -389,7 +395,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
              str),
            Application::button_timeout);
            
-  if(expr[0] != PMATH_SYMBOL_LIST || expr.expr_length() == 0)
+  if(expr[0] != richmath_System_List || expr.expr_length() == 0)
     return false;
     
   // enquote
@@ -398,7 +404,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
     if(!s.is_valid())
       return false;
       
-    Expr boxes = Evaluate(Call(Symbol(PMATH_SYMBOL_MAKEBOXES), s));
+    Expr boxes = Evaluate(Call(Symbol(richmath_System_MakeBoxes), s));
     if(boxes.expr_length() != 1 || boxes[0] != richmath_System_ComplexStringBox)
       return false;
       
@@ -449,7 +455,7 @@ bool AutoCompletion::Private::start_symbol(LogicalDirection direction) {
                            text),
                          Application::button_timeout);
                          
-  if(current_boxes_list[0] != PMATH_SYMBOL_LIST || current_boxes_list.expr_length() == 0) {
+  if(current_boxes_list[0] != richmath_System_List || current_boxes_list.expr_length() == 0) {
     current_boxes_list = Expr();
     delete span;
     return false;

@@ -4,6 +4,8 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_SetterBox;
 
 namespace richmath { namespace strings {
@@ -152,10 +154,10 @@ Expr SetterBox::to_literal() {
   if(is_down)
     return value;
   
-  if(value == PMATH_SYMBOL_FALSE)
-    return Symbol(PMATH_SYMBOL_NONE);
+  if(value == richmath_System_False)
+    return Symbol(richmath_System_None);
   
-  return Symbol(PMATH_SYMBOL_FALSE);
+  return Symbol(richmath_System_False);
 }
 
 VolatileSelection SetterBox::dynamic_to_literal(int start, int end) {

@@ -27,7 +27,7 @@
 
 
 #ifdef _MSC_VER
-#define snprintf sprintf_s
+#  define snprintf sprintf_s
 #endif
 
 #ifdef __PMATH_DEBUG_H__
@@ -46,9 +46,7 @@ static void _on_long_wait(int line, double start, double end) {
 }
 
 #else
-
-#define PMATH_DEBUG_TIMING(CODE)  do{ CODE }while(0)
-
+#  define PMATH_DEBUG_TIMING(CODE)  do{ CODE }while(0)
 #endif
 
 struct _pmath_symbol_t {
@@ -82,7 +80,15 @@ struct _pmath_symbol_t {
   pmath_atomic_t ignore_dynamic_id;
 };
 
+extern pmath_symbol_t pmath_System_DollarNamespace;
+extern pmath_symbol_t pmath_System_DollarNamespacePath;
+extern pmath_symbol_t pmath_System_DollarNewSymbol;
 extern pmath_symbol_t pmath_System_Degree;
+extern pmath_symbol_t pmath_System_E;
+extern pmath_symbol_t pmath_System_I;
+extern pmath_symbol_t pmath_System_Infinity;
+extern pmath_symbol_t pmath_System_Pi;
+extern pmath_symbol_t pmath_System_Remove;
 
 //{ global symbol table ...
 static pmath_atomic_t global_symbol_table_lock = PMATH_ATOMIC_STATIC_INIT;
@@ -312,21 +318,21 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
         
       case 0x03C0:
         pmath_unref(name);
-        return pmath_ref(PMATH_SYMBOL_PI);
+        return pmath_ref(pmath_System_Pi);
         
       case 0x212F:
       case 0x2147:
         pmath_unref(name);
-        return pmath_ref(PMATH_SYMBOL_E);
+        return pmath_ref(pmath_System_E);
         
       case 0x2148:
       case 0x2149:
         pmath_unref(name);
-        return pmath_ref(PMATH_SYMBOL_I);
+        return pmath_ref(pmath_System_I);
         
       case 0x221E:
         pmath_unref(name);
-        return pmath_ref(PMATH_SYMBOL_INFINITY);
+        return pmath_ref(pmath_System_Infinity);
     }
   }
   
@@ -393,7 +399,7 @@ PMATH_API pmath_symbol_t pmath_symbol_get(
     }
     
     if(_pmath_is_running()) {
-      pmath_t newsym = pmath_symbol_get_value(PMATH_SYMBOL_NEWSYMBOL);
+      pmath_t newsym = pmath_symbol_get_value(pmath_System_DollarNewSymbol);
       
       if(!pmath_is_null(newsym)) {
         const uint16_t *buf = pmath_string_buffer(&name);
@@ -545,7 +551,7 @@ static pmath_symbol_t find_short_symbol(
   }
   
   symbol = find_symbol_in_namespace(
-             pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE)),
+             pmath_evaluate(pmath_ref(pmath_System_DollarNamespace)),
              name,
              FALSE);
              
@@ -554,7 +560,7 @@ static pmath_symbol_t find_short_symbol(
     return symbol;
   }
   
-  namespaces = pmath_evaluate(pmath_ref(PMATH_SYMBOL_NAMESPACEPATH));
+  namespaces = pmath_evaluate(pmath_ref(pmath_System_DollarNamespacePath));
   if(pmath_is_expr(namespaces)) {
     size_t len = pmath_expr_length(namespaces);
     size_t i;
@@ -576,7 +582,7 @@ static pmath_symbol_t find_short_symbol(
   
   if(create) {
     symbol = find_symbol_in_namespace(
-               pmath_evaluate(pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE)),
+               pmath_evaluate(pmath_ref(pmath_System_DollarNamespace)),
                name,
                TRUE);
   }
@@ -1005,7 +1011,7 @@ void pmath_symbol_remove(pmath_symbol_t symbol) {
     
     attr = pmath_symbol_get_attributes(symbol);
     if(attr & PMATH_SYMBOL_ATTRIBUTE_PROTECTED) {
-      pmath_message(PMATH_SYMBOL_REMOVE, "rmptc", 1, symbol);
+      pmath_message(pmath_System_Remove, "rmptc", 1, symbol);
       return;
     }
     
@@ -1211,7 +1217,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbols_init(void) {
   
   global_symbol_table = pmath_ht_create(
                           &symbol_table_class,
-                          PMATH_BUILTIN_SYMBOL_COUNT);
+                          5000);
   if(!global_symbol_table)
     goto FAIL_GLOBAL_SYMBOL_TABLE;
     

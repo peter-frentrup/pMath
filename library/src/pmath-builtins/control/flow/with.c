@@ -7,6 +7,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_List;
+
 static pmath_bool_t do_with(
   pmath_t *body, 
   pmath_t lhs,       // will be freed
@@ -21,11 +25,11 @@ static pmath_bool_t do_with(
     return TRUE;
   }
   
-  if(pmath_is_expr_of(lhs, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(lhs, pmath_System_List)) {
     size_t len = pmath_expr_length(lhs);
     size_t i;
     
-    if(!pmath_is_expr_of_len(value, PMATH_SYMBOL_LIST, len)) {
+    if(!pmath_is_expr_of_len(value, pmath_System_List, len)) {
       pmath_message(PMATH_NULL, "incomp", 2, lhs, value);
       return FALSE;
     }
@@ -66,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr) {
   }
   
   symbols = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(symbols, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(symbols, pmath_System_List)) {
     pmath_message(PMATH_NULL, "nolist", 1, symbols);
     return expr;
   }
@@ -82,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr) {
   for(i = 1; i <= len; ++i) {
     pmath_t defi = pmath_expr_get_item(symbols, i);
     
-    if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGN, 2)) {
+    if(pmath_is_expr_of_len(defi, pmath_System_Assign, 2)) {
       pmath_t lhs = pmath_expr_get_item(defi, 1);
       pmath_t value = pmath_evaluate(pmath_expr_get_item(defi, 2));
       if(!do_with(&body, lhs, value, symbols, defi)) {
@@ -92,7 +96,7 @@ PMATH_PRIVATE pmath_t builtin_with(pmath_expr_t expr) {
         return expr;
       }
     }
-    else if(pmath_is_expr_of_len(defi, PMATH_SYMBOL_ASSIGNDELAYED, 2)) {
+    else if(pmath_is_expr_of_len(defi, pmath_System_AssignDelayed, 2)) {
       pmath_t lhs = pmath_expr_get_item(defi, 1);
       pmath_t value = pmath_expr_get_item(defi, 2);
       if(!do_with(&body, lhs, value, symbols, defi)) {

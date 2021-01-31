@@ -9,6 +9,8 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_Internal_ParallelReturn;
+
 struct parallel_scan_info_t {
   pmath_t function;
   long levelmin;
@@ -38,7 +40,7 @@ static void parallel_scan(struct parallel_scan_info_t *info) {
       _pmath_thread_throw(
         info->parent,
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_PARALLEL_RETURN), 1,
+          pmath_ref(pmath_Internal_ParallelReturn), 1,
           info2.result));
     }
     else {
@@ -51,7 +53,7 @@ static void parallel_scan(struct parallel_scan_info_t *info) {
           _pmath_thread_throw(
             info->parent,
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_PARALLEL_RETURN), 1,
+              pmath_ref(pmath_Internal_ParallelReturn), 1,
               info2.result));
           break;
         }
@@ -143,7 +145,7 @@ PMATH_PRIVATE pmath_t builtin_parallelscan(pmath_expr_t expr) {
         pmath_unref(obj);
         obj = PMATH_NULL;
         
-        if(pmath_is_expr_of_len(exception, PMATH_SYMBOL_PARALLEL_RETURN, 1)) {
+        if(pmath_is_expr_of_len(exception, pmath_Internal_ParallelReturn, 1)) {
           obj = pmath_expr_get_item(exception, 1);
           pmath_unref(exception);
           scan_returns_value = TRUE;

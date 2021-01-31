@@ -53,10 +53,74 @@ PMATH_STATIC_ASSERT(sizeof(struct _pmath_expr_part_t) == 72);
 
 PMATH_STATIC_ASSERT(sizeof(PMATH_GC_FLAGS32(((struct _pmath_gc_t*)NULL))) == 4);
 
+extern pmath_symbol_t pmath_System_Alternatives;
+extern pmath_symbol_t pmath_System_And;
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BaseForm;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_ComplexInfinity;
+extern pmath_symbol_t pmath_System_Condition;
+extern pmath_symbol_t pmath_System_Decrement;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_DivideBy;
+extern pmath_symbol_t pmath_System_Equal;
+extern pmath_symbol_t pmath_System_EvaluationSequence;
+extern pmath_symbol_t pmath_System_FullForm;
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_Graphics;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_GreaterEqual;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_Identical;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_Inequation;
+extern pmath_symbol_t pmath_System_Infinity;
+extern pmath_symbol_t pmath_System_InputForm;
+extern pmath_symbol_t pmath_System_Less;
+extern pmath_symbol_t pmath_System_LessEqual;
 extern pmath_symbol_t pmath_System_LinearSolveFunction;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_LongForm;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_System_Not;
+extern pmath_symbol_t pmath_System_Optional;
+extern pmath_symbol_t pmath_System_Or;
+extern pmath_symbol_t pmath_System_OutputForm;
+extern pmath_symbol_t pmath_System_Part;
+extern pmath_symbol_t pmath_System_Pattern;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_PostDecrement;
+extern pmath_symbol_t pmath_System_PostIncrement;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_PureArgument;
+extern pmath_symbol_t pmath_System_Shallow;
+extern pmath_symbol_t pmath_System_Short;
+extern pmath_symbol_t pmath_System_SingleMatch;
+extern pmath_symbol_t pmath_System_Skeleton;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_RawBoxes;
+extern pmath_symbol_t pmath_System_Repeated;
+extern pmath_symbol_t pmath_System_Row;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_StandardForm;
+extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_StringForm;
+extern pmath_symbol_t pmath_System_TagAssign;
+extern pmath_symbol_t pmath_System_TagAssignDelayed;
+extern pmath_symbol_t pmath_System_TestPattern;
+extern pmath_symbol_t pmath_System_Thread;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_TimesBy;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
+extern pmath_symbol_t pmath_System_Unequal;
+extern pmath_symbol_t pmath_System_Unidentical;
 
+extern pmath_symbol_t pmath_System_DollarPageWidth;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 
 extern pmath_symbol_t pmath_Developer_PackedArrayForm;
@@ -955,7 +1019,7 @@ PMATH_API pmath_expr_t pmath_expr_remove_all(
       case PMATH_PACKED_DOUBLE:
         if(pmath_is_double(rem))
           break;
-        if(pmath_same(rem, PMATH_SYMBOL_UNDEFINED))
+        if(pmath_same(rem, pmath_System_Undefined))
           break;
         if(pmath_equals(rem, _pmath_object_pos_infinity))
           break;
@@ -1440,7 +1504,7 @@ static pmath_bool_t flatten_calc_newlen(
       continue;
     }
 
-//    if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
+//    if(pmath_is_packed_array(expr) && pmath_same(head, pmath_System_List)) {
 //      size_t        dims  = pmath_packed_array_get_dimensions(expr);
 //      const size_t *sizes = pmath_packed_array_get_sizes();
 //
@@ -1590,7 +1654,7 @@ PMATH_API pmath_expr_t pmath_expr_flatten(
     return expr;
   }
 
-  if(pmath_is_packed_array(expr) && pmath_same(head, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_packed_array(expr) && pmath_same(head, pmath_System_List)) {
     pmath_unref(head);
     return _pmath_packed_array_flatten(expr, depth);
   }
@@ -1945,7 +2009,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
             pmath_unref(arg);
             if(show_message) {
               *error_message = TRUE;
-              pmath_message(PMATH_SYMBOL_THREAD, "len", 1, pmath_ref(expr));
+              pmath_message(pmath_System_Thread, "len", 1, pmath_ref(expr));
             }
             return expr;
           }
@@ -1987,7 +2051,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
     list = _pmath_expr_map(list, 1, SIZE_MAX, thread_one_arg_callback, &context);
 
     if(can_eval) {
-      if(pmath_same(head, PMATH_SYMBOL_LIST))
+      if(pmath_same(head, pmath_System_List))
         _pmath_expr_update(list);
     }
 
@@ -2035,7 +2099,7 @@ PMATH_PRIVATE pmath_expr_t _pmath_expr_thread(
   expr = PMATH_FROM_PTR((void *)result);
 
   if(can_eval) {
-    if(pmath_same(head, PMATH_SYMBOL_LIST))
+    if(pmath_same(head, pmath_System_List))
       _pmath_expr_update(expr);
   }
 
@@ -2077,9 +2141,7 @@ static pmath_bool_t has_changed(
   return FALSE;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(
-  pmath_expr_t expr
-) {
+PMATH_PRIVATE pmath_bool_t _pmath_expr_is_updated(pmath_expr_t expr) {
   size_t i, len;
   _pmath_timer_t current_time;
 
@@ -2151,11 +2213,11 @@ static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
   const pmath_t *a_items;
   const pmath_t *b_items;
 
-  if(pmath_same(ua->items[0], PMATH_SYMBOL_COMPLEX)) {
-    if(!pmath_same(ub->items[0], PMATH_SYMBOL_COMPLEX))
+  if(pmath_same(ua->items[0], pmath_System_Complex)) {
+    if(!pmath_same(ub->items[0], pmath_System_Complex))
       return -1;
   }
-  else if(pmath_same(ub->items[0], PMATH_SYMBOL_COMPLEX))
+  else if(pmath_same(ub->items[0], pmath_System_Complex))
     return +1;
 
   if(ua->length < ub->length)  return -1;
@@ -2238,7 +2300,7 @@ int _pmath_compare_exprsym(pmath_t a, pmath_t b) {
           case PMATH_TYPE_SHIFT_SYMBOL: {
               struct _pmath_expr_t *ua = (void *)PMATH_AS_PTR(a);
 
-              if(pmath_same(ua->items[0], PMATH_SYMBOL_COMPLEX))
+              if(pmath_same(ua->items[0], pmath_System_Complex))
                 return -1;
 
               return +1;
@@ -2608,16 +2670,16 @@ static void write_expr_ex(
 
     thread->numberbase = oldbase;
   }
-  else if(pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY)) {
+  else if(pmath_same(head, pmath_System_DirectedInfinity)) {
     if(exprlen == 0) {
-      _pmath_write_impl(info, PMATH_SYMBOL_COMPLEXINFINITY);
+      _pmath_write_impl(info, pmath_System_ComplexInfinity);
     }
     else if(exprlen == 1) {
       pmath_t direction;
 
       direction = pmath_expr_get_item(expr, 1);
       if(pmath_equals(direction, PMATH_FROM_INT32(1))) {
-        _pmath_write_impl(info, PMATH_SYMBOL_INFINITY);
+        _pmath_write_impl(info, pmath_System_Infinity);
       }
       else if(pmath_equals(direction, PMATH_FROM_INT32(-1))) {
         if(priority > PREC_FACTOR)
@@ -2625,7 +2687,7 @@ static void write_expr_ex(
         else
           WRITE_CSTR("-");
 
-        _pmath_write_impl(info, PMATH_SYMBOL_INFINITY);
+        _pmath_write_impl(info, pmath_System_Infinity);
 
         if(priority > PREC_FACTOR)
           WRITE_CSTR(")");
@@ -2639,7 +2701,7 @@ static void write_expr_ex(
     else
       goto FULLFORM;
   }
-  else if(pmath_same(head, PMATH_SYMBOL_FULLFORM)) {
+  else if(pmath_same(head, pmath_System_FullForm)) {
     pmath_t item;
     int old_options = info->options;
 
@@ -2652,7 +2714,7 @@ static void write_expr_ex(
     info->options = old_options;
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_INPUTFORM)) {
+  else if(pmath_same(head, pmath_System_InputForm)) {
     pmath_t item;
     int old_options = info->options;
 
@@ -2665,9 +2727,9 @@ static void write_expr_ex(
     info->options = old_options;
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_HOLDFORM)   ||
-          pmath_same(head, PMATH_SYMBOL_OUTPUTFORM) ||
-          pmath_same(head, PMATH_SYMBOL_STANDARDFORM))
+  else if(pmath_same(head, pmath_System_HoldForm)   ||
+          pmath_same(head, pmath_System_OutputForm) ||
+          pmath_same(head, pmath_System_StandardForm))
   {
     pmath_t item;
     if(exprlen != 1)
@@ -2695,7 +2757,7 @@ static void write_expr_ex(
 
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_LONGFORM)) {
+  else if(pmath_same(head, pmath_System_LongForm)) {
     pmath_t item;
     int old_options = info->options;
 
@@ -2721,7 +2783,7 @@ static void write_expr_ex(
     info->options = old_options;
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_STRINGFORM)) {
+  else if(pmath_same(head, pmath_System_StringForm)) {
     if(!_pmath_stringform_write(info, expr)) {
       goto FULLFORM;
     }
@@ -2748,10 +2810,10 @@ static void write_expr_ex(
     if(priority > PMATH_PREC_REL)
       WRITE_CSTR(")");
   }
-  else if(pmath_same(head, PMATH_SYMBOL_GRAPHICS)) {
+  else if(pmath_same(head, pmath_System_Graphics)) {
     WRITE_CSTR("<< Graphics >>");
   }
-  else if(pmath_same(head, PMATH_SYMBOL_RAWBOXES)) {
+  else if(pmath_same(head, pmath_System_RawBoxes)) {
     pmath_t item;
 
     if(exprlen != 1)
@@ -2759,14 +2821,14 @@ static void write_expr_ex(
 
     item = pmath_symbol_get_value(pmath_System_BoxForm_DollarUseTextFormatting);
     pmath_unref(item);
-    if(pmath_same(item, PMATH_SYMBOL_TRUE))
+    if(pmath_same(item, pmath_System_True))
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
     _pmath_write_boxes(info, item);
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_ROW)) {
+  else if(pmath_same(head, pmath_System_Row)) {
     pmath_expr_t list;
     pmath_t obj;
     size_t i, listlen;
@@ -2782,7 +2844,7 @@ static void write_expr_ex(
 
     obj = pmath_expr_get_item(list, 0);
     pmath_unref(obj);
-    if(!pmath_same(obj, PMATH_SYMBOL_LIST)) {
+    if(!pmath_same(obj, pmath_System_List)) {
       pmath_unref(list);
       goto FULLFORM;
     }
@@ -2815,7 +2877,7 @@ static void write_expr_ex(
     }
     pmath_unref(list);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_SHALLOW)) {
+  else if(pmath_same(head, pmath_System_Shallow)) {
     pmath_t item;
     size_t maxdepth = 4;
     size_t maxlength = 10;
@@ -2832,7 +2894,7 @@ static void write_expr_ex(
       else if(pmath_equals(item, _pmath_object_pos_infinity)) {
         maxdepth = SIZE_MAX;
       }
-      else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)) {
+      else if(pmath_is_expr_of_len(item, pmath_System_List, 2)) {
         pmath_t obj = pmath_expr_get_item(item, 1);
 
         if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) >= 0) {
@@ -2879,7 +2941,7 @@ static void write_expr_ex(
 
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_SHORT)) {
+  else if(pmath_same(head, pmath_System_Short)) {
     pmath_t item;
     double pagewidth = 72;
     double lines = 1;
@@ -2909,7 +2971,7 @@ static void write_expr_ex(
       pmath_unref(item);
     }
 
-    item = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+    item = pmath_evaluate(pmath_ref(pmath_System_DollarPageWidth));
     if(pmath_equals(item, _pmath_object_pos_infinity)) {
       pagewidth = HUGE_VAL;
     }
@@ -2931,7 +2993,7 @@ static void write_expr_ex(
 
     pmath_unref(item);
   }
-  else if(pmath_same(head, PMATH_SYMBOL_SKELETON)) {
+  else if(pmath_same(head, pmath_System_Skeleton)) {
     pmath_t item;
 
     if(exprlen != 1)
@@ -2947,12 +3009,12 @@ static void write_expr_ex(
   }
 else INPUTFORM:
     if(exprlen == 2 && /*=========================================*/
-        (pmath_same(head, PMATH_SYMBOL_ASSIGN)        ||
-         pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED) ||
-         pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
-         pmath_same(head, PMATH_SYMBOL_DIVIDEBY)      ||
-         pmath_same(head, PMATH_SYMBOL_INCREMENT)     ||
-         pmath_same(head, PMATH_SYMBOL_TIMESBY)))
+        (pmath_same(head, pmath_System_Assign)        ||
+         pmath_same(head, pmath_System_AssignDelayed) ||
+         pmath_same(head, pmath_System_Decrement)     ||
+         pmath_same(head, pmath_System_DivideBy)      ||
+         pmath_same(head, pmath_System_Increment)     ||
+         pmath_same(head, pmath_System_TimesBy)))
     {
       pmath_t lhs, rhs;
 
@@ -2964,11 +3026,11 @@ else INPUTFORM:
 
       write_ex(info, PMATH_PREC_ASS + 1, lhs);
 
-      if(     pmath_same(head, PMATH_SYMBOL_ASSIGN))         write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
-      else if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
-      else if(pmath_same(head, PMATH_SYMBOL_DECREMENT))      write_spaced_operator2(info, FALSE, TRUE, 0, "-=");
-      else if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY))       write_spaced_operator2(info, FALSE, TRUE, 0, "/=");
-      else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))      write_spaced_operator2(info, FALSE, TRUE, 0, "+=");
+      if(     pmath_same(head, pmath_System_Assign))         write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
+      else if(pmath_same(head, pmath_System_AssignDelayed))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
+      else if(pmath_same(head, pmath_System_Decrement))      write_spaced_operator2(info, FALSE, TRUE, 0, "-=");
+      else if(pmath_same(head, pmath_System_DivideBy))       write_spaced_operator2(info, FALSE, TRUE, 0, "/=");
+      else if(pmath_same(head, pmath_System_Increment))      write_spaced_operator2(info, FALSE, TRUE, 0, "+=");
       else                                                   write_spaced_operator2(info, FALSE, TRUE, 0, "*=");
 
       write_ex(info, PMATH_PREC_ASS, rhs);
@@ -2979,10 +3041,10 @@ else INPUTFORM:
       if(priority > PMATH_PREC_ASS)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_DECREMENT)     ||
-            pmath_same(head, PMATH_SYMBOL_INCREMENT)     ||
-            pmath_same(head, PMATH_SYMBOL_POSTDECREMENT) ||
-            pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))
+    else if(pmath_same(head, pmath_System_Decrement)     ||
+            pmath_same(head, pmath_System_Increment)     ||
+            pmath_same(head, pmath_System_PostDecrement) ||
+            pmath_same(head, pmath_System_PostIncrement))
     {
       pmath_t arg;
 
@@ -2992,21 +3054,21 @@ else INPUTFORM:
       if(priority > PMATH_PREC_INC)
         WRITE_CSTR("(");
 
-      if(pmath_same(head, PMATH_SYMBOL_DECREMENT))  WRITE_CSTR("--");
-      else if(pmath_same(head, PMATH_SYMBOL_INCREMENT))  WRITE_CSTR("++");
+      if(     pmath_same(head, pmath_System_Decrement))  WRITE_CSTR("--");
+      else if(pmath_same(head, pmath_System_Increment))  WRITE_CSTR("++");
 
       arg = pmath_expr_get_item(expr, 1);
       write_ex(info, PMATH_PREC_INC + 1, arg);
       pmath_unref(arg);
 
-      if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  WRITE_CSTR("--");
-      else if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  WRITE_CSTR("++");
+      if(     pmath_same(head, pmath_System_PostDecrement))  WRITE_CSTR("--");
+      else if(pmath_same(head, pmath_System_PostIncrement))  WRITE_CSTR("++");
 
       if(priority > PMATH_PREC_INC)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN) ||
-            pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+    else if(pmath_same(head, pmath_System_TagAssign) ||
+            pmath_same(head, pmath_System_TagAssignDelayed))
     {
       pmath_t obj;
 
@@ -3026,7 +3088,7 @@ else INPUTFORM:
       write_ex(info, PMATH_PREC_ASS + 1, obj);
       pmath_unref(obj);
 
-      if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
+      if(pmath_same(head, pmath_System_TagAssign))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
       else                                          write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
 
       obj = pmath_expr_get_item(expr, 3);
@@ -3036,8 +3098,8 @@ else INPUTFORM:
       if(priority > PMATH_PREC_ASS)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_RULE) ||
-            pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
+    else if(pmath_same(head, pmath_System_Rule) ||
+            pmath_same(head, pmath_System_RuleDelayed))
     {
       pmath_t lhs, rhs;
 
@@ -3052,10 +3114,8 @@ else INPUTFORM:
 
       write_ex(info, PMATH_PREC_RULE + 1, lhs);
 
-      if(pmath_same(head, PMATH_SYMBOL_RULE))
-        write_spaced_operator(info, PMATH_CHAR_RULE,        "->");
-      else
-        write_spaced_operator(info, PMATH_CHAR_RULEDELAYED, ":>");
+      if(pmath_same(head, pmath_System_Rule)) write_spaced_operator(info, PMATH_CHAR_RULE,        "->");
+      else                                    write_spaced_operator(info, PMATH_CHAR_RULEDELAYED, ":>");
 
       write_ex(info, PMATH_PREC_RULE, rhs);
 
@@ -3065,7 +3125,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_RULE)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+    else if(pmath_same(head, pmath_System_List)) {
       size_t i;
 
       WRITE_CSTR("{");
@@ -3082,7 +3142,7 @@ else INPUTFORM:
 
       WRITE_CSTR("}");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_STRINGEXPRESSION)) {
+    else if(pmath_same(head, pmath_System_StringExpression)) {
       pmath_t item;
       size_t i;
 
@@ -3104,7 +3164,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_STR)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_EVALUATIONSEQUENCE)) {
+    else if(pmath_same(head, pmath_System_EvaluationSequence)) {
       pmath_t item;
       size_t i;
 
@@ -3135,7 +3195,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_ANY)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES)) {
+    else if(pmath_same(head, pmath_System_Alternatives)) {
       pmath_t item;
       size_t i;
 
@@ -3157,7 +3217,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_ALT)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_OR)) {
+    else if(pmath_same(head, pmath_System_Or)) {
       pmath_t item;
       size_t i;
 
@@ -3179,7 +3239,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_OR)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_AND)) {
+    else if(pmath_same(head, pmath_System_And)) {
       pmath_t item;
       size_t i;
 
@@ -3201,7 +3261,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_AND)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_NOT)) {
+    else if(pmath_same(head, pmath_System_Not)) {
       pmath_t item;
 
       if(exprlen != 1)
@@ -3217,7 +3277,7 @@ else INPUTFORM:
       if(priority > PREC_NOT)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_IDENTICAL)) {
+    else if(pmath_same(head, pmath_System_Identical)) {
       pmath_t item;
       size_t i;
 
@@ -3239,7 +3299,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL)) {
+    else if(pmath_same(head, pmath_System_Unidentical)) {
       pmath_t item;
       size_t i;
 
@@ -3261,12 +3321,12 @@ else INPUTFORM:
       if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_LESS)         ||
-            pmath_same(head, PMATH_SYMBOL_LESSEQUAL)    ||
-            pmath_same(head, PMATH_SYMBOL_GREATER)      ||
-            pmath_same(head, PMATH_SYMBOL_GREATEREQUAL) ||
-            pmath_same(head, PMATH_SYMBOL_EQUAL)        ||
-            pmath_same(head, PMATH_SYMBOL_UNEQUAL))
+    else if(pmath_same(head, pmath_System_Less)         ||
+            pmath_same(head, pmath_System_LessEqual)    ||
+            pmath_same(head, pmath_System_Greater)      ||
+            pmath_same(head, pmath_System_GreaterEqual) ||
+            pmath_same(head, pmath_System_Equal)        ||
+            pmath_same(head, pmath_System_Unequal))
     {
       pmath_t item;
       uint16_t uni_op;
@@ -3276,12 +3336,12 @@ else INPUTFORM:
       if(exprlen < 2)
         goto FULLFORM;
 
-      if(     pmath_same(head, PMATH_SYMBOL_LESS))         { uni_op = '<';    ascii_op = "<";  }
-      else if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))    { uni_op = 0x2264; ascii_op = "<="; }
-      else if(pmath_same(head, PMATH_SYMBOL_GREATER))      { uni_op = '>';    ascii_op = ">";  }
-      else if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL)) { uni_op = 0x2265; ascii_op = ">="; }
-      else if(pmath_same(head, PMATH_SYMBOL_EQUAL))        { uni_op = '=';    ascii_op = "=";  }
-      else if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))      { uni_op = 0x2260; ascii_op = "!="; }
+      if(     pmath_same(head, pmath_System_Less))         { uni_op = '<';    ascii_op = "<";  }
+      else if(pmath_same(head, pmath_System_LessEqual))    { uni_op = 0x2264; ascii_op = "<="; }
+      else if(pmath_same(head, pmath_System_Greater))      { uni_op = '>';    ascii_op = ">";  }
+      else if(pmath_same(head, pmath_System_GreaterEqual)) { uni_op = 0x2265; ascii_op = ">="; }
+      else if(pmath_same(head, pmath_System_Equal))        { uni_op = '=';    ascii_op = "=";  }
+      else if(pmath_same(head, pmath_System_Unequal))      { uni_op = 0x2260; ascii_op = "!="; }
       else                                                 { uni_op = 0;      ascii_op = "<<?>>"; }
 
       if(priority > PMATH_PREC_REL)
@@ -3299,7 +3359,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_INEQUATION)) {
+    else if(pmath_same(head, pmath_System_Inequation)) {
       pmath_t item;
       size_t i;
 
@@ -3309,14 +3369,14 @@ else INPUTFORM:
       for(i = 2; i < exprlen; i+= 2) {
         item = pmath_expr_get_item(expr, i);
         pmath_unref(item);
-        if( !pmath_same(item, PMATH_SYMBOL_LESS) &&
-            !pmath_same(item, PMATH_SYMBOL_LESSEQUAL) &&
-            !pmath_same(item, PMATH_SYMBOL_GREATER) &&
-            !pmath_same(item, PMATH_SYMBOL_GREATEREQUAL) &&
-            !pmath_same(item, PMATH_SYMBOL_EQUAL) &&
-            !pmath_same(item, PMATH_SYMBOL_UNEQUAL) &&
-            !pmath_same(item, PMATH_SYMBOL_IDENTICAL) &&
-            !pmath_same(item, PMATH_SYMBOL_UNIDENTICAL))
+        if( !pmath_same(item, pmath_System_Less) &&
+            !pmath_same(item, pmath_System_LessEqual) &&
+            !pmath_same(item, pmath_System_Greater) &&
+            !pmath_same(item, pmath_System_GreaterEqual) &&
+            !pmath_same(item, pmath_System_Equal) &&
+            !pmath_same(item, pmath_System_Unequal) &&
+            !pmath_same(item, pmath_System_Identical) &&
+            !pmath_same(item, pmath_System_Unidentical))
         {
           goto FULLFORM;
         }
@@ -3332,14 +3392,14 @@ else INPUTFORM:
       exprlen /= 2;
       for(i = 1; i <= exprlen; i++) {
         item = pmath_expr_get_item(expr, 2 * i);
-        if(     pmath_same(item, PMATH_SYMBOL_LESS))          write_spaced_operator(info, '<',    "<");
-        else if(pmath_same(item, PMATH_SYMBOL_LESSEQUAL))     write_spaced_operator(info, 0x2264, "<=");
-        else if(pmath_same(item, PMATH_SYMBOL_GREATER))       write_spaced_operator(info, '>',    ">");
-        else if(pmath_same(item, PMATH_SYMBOL_GREATEREQUAL))  write_spaced_operator(info, 0x2265, ">=");
-        else if(pmath_same(item, PMATH_SYMBOL_EQUAL))         write_spaced_operator(info, '=',    "=");
-        else if(pmath_same(item, PMATH_SYMBOL_UNEQUAL))       write_spaced_operator(info, 0x2260, "!=");
-        else if(pmath_same(item, PMATH_SYMBOL_IDENTICAL))     write_spaced_operator(info, 0,      "===");
-        else if(pmath_same(item, PMATH_SYMBOL_UNIDENTICAL))   write_spaced_operator(info, 0,      "=!=");
+        if(     pmath_same(item, pmath_System_Less))          write_spaced_operator(info, '<',    "<");
+        else if(pmath_same(item, pmath_System_LessEqual))     write_spaced_operator(info, 0x2264, "<=");
+        else if(pmath_same(item, pmath_System_Greater))       write_spaced_operator(info, '>',    ">");
+        else if(pmath_same(item, pmath_System_GreaterEqual))  write_spaced_operator(info, 0x2265, ">=");
+        else if(pmath_same(item, pmath_System_Equal))         write_spaced_operator(info, '=',    "=");
+        else if(pmath_same(item, pmath_System_Unequal))       write_spaced_operator(info, 0x2260, "!=");
+        else if(pmath_same(item, pmath_System_Identical))     write_spaced_operator(info, 0,      "===");
+        else if(pmath_same(item, pmath_System_Unidentical))   write_spaced_operator(info, 0,      "=!=");
         else                                                  write_spaced_operator(info, 0,      "<<?>>");
         pmath_unref(item);
 
@@ -3351,7 +3411,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_REL)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_PLUS)) {
+    else if(pmath_same(head, pmath_System_Plus)) {
       struct _writer_hook_data_t sum_writer_data;
       struct pmath_write_ex_t    hook_info;
       size_t i;
@@ -3379,7 +3439,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_ADD)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_TIMES)) {
+    else if(pmath_same(head, pmath_System_Times)) {
       struct _writer_hook_data_t  product_writer_data;
       struct pmath_write_ex_t     hook_info;
       pmath_t item;
@@ -3433,7 +3493,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_MUL)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_POWER)) {
+    else if(pmath_same(head, pmath_System_Power)) {
       struct _writer_hook_data_t  division_writer_data;
       struct pmath_write_ex_t     hook_info;
       pmath_t base, exponent;
@@ -3514,7 +3574,7 @@ else INPUTFORM:
       pmath_unref(base);
       pmath_unref(exponent);
     }
-    else if(pmath_same(head, PMATH_SYMBOL_RANGE)) {
+    else if(pmath_same(head, pmath_System_Range)) {
       pmath_t item;
       if(exprlen < 2 || exprlen > 3)
         goto FULLFORM;
@@ -3523,14 +3583,14 @@ else INPUTFORM:
         WRITE_CSTR("(");
 
       item = pmath_expr_get_item(expr, 1);
-      if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
+      if(exprlen > 2 || !pmath_same(item, pmath_System_Automatic))
         write_ex(info, PMATH_PREC_RANGE + 1, item);
       pmath_unref(item);
 
       write_spaced_operator(info, 0, "..");
 
       item = pmath_expr_get_item(expr, 2);
-      if(exprlen > 2 || !pmath_same(item, PMATH_SYMBOL_AUTOMATIC))
+      if(exprlen > 2 || !pmath_same(item, pmath_System_Automatic))
         write_ex(info, PMATH_PREC_RANGE + 1, item);
       pmath_unref(item);
 
@@ -3545,7 +3605,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_RANGE)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_PART)) {
+    else if(pmath_same(head, pmath_System_Part)) {
       pmath_t item;
       size_t i;
 
@@ -3567,7 +3627,7 @@ else INPUTFORM:
       }
       WRITE_CSTR("]");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_MESSAGENAME)) {
+    else if(pmath_same(head, pmath_System_MessageName)) {
       pmath_t symbol;
       pmath_t tag;
 
@@ -3595,7 +3655,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_CALL)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_COMPLEX)) {
+    else if(pmath_same(head, pmath_System_Complex)) {
       pmath_number_t re, im;
       pmath_bool_t lparen = FALSE;
 
@@ -3644,7 +3704,7 @@ else INPUTFORM:
       pmath_unref(re);
       pmath_unref(im);
     }
-    else if(pmath_same(head, PMATH_SYMBOL_PATTERN)) {
+    else if(pmath_same(head, pmath_System_Pattern)) {
       pmath_t sym, pat;
 
       if(exprlen != 2)
@@ -3672,7 +3732,7 @@ else INPUTFORM:
       else {
         pmath_bool_t default_pattern = TRUE;
 
-        if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+        if(pmath_is_expr_of_len(pat, pmath_System_SingleMatch, 1)) {
           pmath_t type = pmath_expr_get_item(pat, 1);
 
           WRITE_CSTR("~");
@@ -3684,11 +3744,11 @@ else INPUTFORM:
           pmath_unref(type);
           default_pattern = FALSE;
         }
-        else if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_REPEATED, 2)) {
+        else if(pmath_is_expr_of_len(pat, pmath_System_Repeated, 2)) {
           pmath_t rep   = pmath_expr_get_item(pat, 1);
           pmath_t range = pmath_expr_get_item(pat, 2);
 
-          if(pmath_is_expr_of_len(rep, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+          if(pmath_is_expr_of_len(rep, pmath_System_SingleMatch, 1)) {
             pmath_t type = pmath_expr_get_item(rep, 1);
 
             if(pmath_equals(range, _pmath_object_range_from_one)) {
@@ -3731,7 +3791,7 @@ else INPUTFORM:
       pmath_unref(sym);
       pmath_unref(pat);
     }
-    else if(pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) {
+    else if(pmath_same(head, pmath_System_TestPattern)) {
       pmath_t item;
 
       if(exprlen != 2)
@@ -3753,7 +3813,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_TEST)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_CONDITION)) {
+    else if(pmath_same(head, pmath_System_Condition)) {
       pmath_t item;
 
       if(exprlen != 2)
@@ -3775,7 +3835,7 @@ else INPUTFORM:
       if(priority > PMATH_PREC_COND)
         WRITE_CSTR(")");
     }
-    else if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH)) {
+    else if(pmath_same(head, pmath_System_SingleMatch)) {
       if(exprlen == 0) {
         WRITE_CSTR("~");
       }
@@ -3790,7 +3850,7 @@ else INPUTFORM:
       else
         goto FULLFORM;
     }
-    else if(pmath_same(head, PMATH_SYMBOL_REPEATED)) {
+    else if(pmath_same(head, pmath_System_Repeated)) {
       pmath_t pattern, range;
 
       if(exprlen != 2)
@@ -3803,7 +3863,7 @@ else INPUTFORM:
         if(pmath_equals(pattern, _pmath_object_singlematch)) {
           WRITE_CSTR("~~");
         }
-        else if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+        else if(pmath_is_expr_of_len(pattern, pmath_System_SingleMatch, 1)) {
           pmath_t type = pmath_expr_get_item(pattern, 1);
 
           WRITE_CSTR("~~:");
@@ -3826,7 +3886,7 @@ else INPUTFORM:
         if(pmath_equals(pattern, _pmath_object_singlematch)) {
           WRITE_CSTR("~~~");
         }
-        else if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+        else if(pmath_is_expr_of_len(pattern, pmath_System_SingleMatch, 1)) {
           pmath_t type = pmath_expr_get_item(pattern, 1);
 
           WRITE_CSTR("~~~:");
@@ -3854,7 +3914,7 @@ else INPUTFORM:
       pmath_unref(pattern);
       pmath_unref(range);
     }
-    else if(pmath_same(head, PMATH_SYMBOL_FUNCTION)) {
+    else if(pmath_same(head, pmath_System_Function)) {
       pmath_t body;
 
       if(exprlen != 1)
@@ -3880,7 +3940,7 @@ else INPUTFORM:
           WRITE_CSTR(" &");
       }
     }
-//  else if(pmath_same(head, PMATH_SYMBOL_SEQUENCE)){
+//  else if(pmath_same(head, pmath_System_Sequence)) {
 //    pmath_t item;
 //    size_t i;
 //
@@ -3898,7 +3958,7 @@ else INPUTFORM:
 //
 //    WRITE_CSTR(")");
 //  }
-    else if(pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)) {
+    else if(pmath_same(head, pmath_System_PureArgument)) {
       pmath_t item;
 
       if(exprlen != 1)
@@ -3917,12 +3977,12 @@ else INPUTFORM:
         if(priority > PMATH_PREC_CALL)
           WRITE_CSTR(")");
       }
-      else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RANGE, 2)) {
+      else if(pmath_is_expr_of_len(item, pmath_System_Range, 2)) {
         pmath_t a = pmath_expr_get_item(item, 1);
         pmath_t b = pmath_expr_get_item(item, 2);
         pmath_unref(b);
 
-        if( pmath_same(b, PMATH_SYMBOL_AUTOMATIC) &&
+        if( pmath_same(b, pmath_System_Automatic) &&
             pmath_is_integer(a)                   &&
             pmath_number_sign(a) > 0)
         {
@@ -3950,7 +4010,7 @@ else INPUTFORM:
 
       pmath_unref(item);
     }
-    else if(pmath_same(head, PMATH_SYMBOL_OPTIONAL)) {
+    else if(pmath_same(head, pmath_System_Optional)) {
       pmath_t item;
       pmath_t sub_item;
 
@@ -3958,7 +4018,7 @@ else INPUTFORM:
         goto FULLFORM;
 
       item = pmath_expr_get_item(expr, 1);
-      if(!pmath_is_expr_of_len(item, PMATH_SYMBOL_PATTERN, 2)) {
+      if(!pmath_is_expr_of_len(item, pmath_System_Pattern, 2)) {
         pmath_unref(item);
         goto FULLFORM;
       }

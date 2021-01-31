@@ -9,6 +9,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_Hold;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MessageName;
+
 static void synchronize_callback(void *block) {
   *(pmath_t*)block = pmath_evaluate(*(pmath_t*)block);
 }
@@ -37,7 +42,7 @@ static void multi_synchronize_callback(void *p) {
       data->me->critical_messages = TRUE;
       
       pmath_message(
-        PMATH_SYMBOL_GENERAL, "reclim", 1,
+        pmath_System_General, "reclim", 1,
         PMATH_FROM_INT32(pmath_maxrecursion));
         
       data->me->critical_messages = FALSE;
@@ -46,13 +51,13 @@ static void multi_synchronize_callback(void *p) {
     else {
       pmath_throw(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_GENERAL),
+          pmath_ref(pmath_System_MessageName), 2,
+          pmath_ref(pmath_System_General),
           PMATH_C_STRING("reclim")));
     }
     
     data->block = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_HOLD), 1,
+                    pmath_ref(pmath_System_Hold), 1,
                     data->block);
     _pmath_expr_update(data->block);
   }
@@ -87,7 +92,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr) {
   sync = pmath_expr_get_item(expr, 1);
   block = pmath_expr_get_item(expr, 2);
   
-  if(pmath_is_expr_of(sync, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(sync, pmath_System_List)) {
     multi_syncronize_data_t data;
     size_t i;
     
@@ -97,7 +102,7 @@ PMATH_PRIVATE pmath_t builtin_synchronize(pmath_expr_t expr) {
       if(!pmath_is_symbol(synci)) {
         pmath_message(PMATH_NULL, "sym", 2, synci,
                       pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_LIST), 2,
+                        pmath_ref(pmath_System_List), 2,
                         PMATH_FROM_INT32(1),
                         pmath_integer_new_uiptr(i)));
         pmath_unref(sync);

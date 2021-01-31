@@ -10,6 +10,10 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Row;
+extern pmath_symbol_t pmath_System_SectionPrint;
+
 static void write_to_file(void *file, const char *cstr) {
   fwrite(cstr, 1, strlen(cstr), (FILE*)file);
 }
@@ -44,14 +48,14 @@ PMATH_PRIVATE pmath_t builtin_sectionprint(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_print(pmath_expr_t expr) {
-  expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_LIST));
+  expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_List));
   
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_ROW), 1,
+           pmath_ref(pmath_System_Row), 1,
            expr);
            
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_SECTIONPRINT), 2,
+           pmath_ref(pmath_System_SectionPrint), 2,
            PMATH_C_STRING("Print"),
            expr);
 }

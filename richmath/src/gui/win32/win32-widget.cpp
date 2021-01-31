@@ -68,6 +68,10 @@ namespace richmath { namespace strings {
   extern String rows;
 }}
 
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_RawBoxes;
+
 #ifdef NDEBUG
 #  define DEBUG_as_bool  false
 #else
@@ -1023,7 +1027,7 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
   
   SharedPtr<Win32Menu> popup_menu;
   Expr context_menu = src.box->get_finished_flatlist_style(ContextMenu);
-  if(context_menu[0] == PMATH_SYMBOL_LIST && context_menu.expr_length() > 0) {
+  if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
     popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
   }
   if(!popup_menu)
@@ -1805,7 +1809,7 @@ void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL p
       
       if(desc.is_list_of_rules()) {
         if(Expr image = desc.lookup(strings::Image, {})) {
-          if(image == PMATH_SYMBOL_AUTOMATIC) {
+          if(image == richmath_System_Automatic) {
             //drop_image = DROPIMAGE_INVALID;
           }
           else if(image == strings::Copy)      drop_image = DROPIMAGE_COPY;
@@ -1862,7 +1866,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
         break;
       }
       
-      if(local_data_object->source_content[0] == PMATH_SYMBOL_RAWBOXES && local_data_object->source_content.expr_length() == 1) {
+      if(local_data_object->source_content[0] == richmath_System_RawBoxes && local_data_object->source_content.expr_length() == 1) {
         box_data = local_data_object->source_content[1];
         break;
       }

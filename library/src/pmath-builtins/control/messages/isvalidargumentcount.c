@@ -5,6 +5,10 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
   /* IsValidArgumentCount(head, len, min, max)
    */
@@ -29,7 +33,7 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
       
       if(z_min <= z_len && z_len <= z_max) {
         pmath_unref(expr);
-        expr = pmath_ref(PMATH_SYMBOL_TRUE);
+        expr = pmath_ref(pmath_System_True);
       }
       else {
         pmath_thread_t thread = pmath_thread_get_current();
@@ -44,13 +48,13 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
         }
         
         pmath_unref(expr);
-        expr = pmath_ref(PMATH_SYMBOL_FALSE);
+        expr = pmath_ref(pmath_System_False);
       }
     }
     else if(pmath_equals(max, _pmath_object_pos_infinity)) {
       if(z_min <= z_len) {
         pmath_unref(expr);
-        expr = pmath_ref(PMATH_SYMBOL_TRUE);
+        expr = pmath_ref(pmath_System_True);
       }
       else {
         pmath_thread_t thread = pmath_thread_get_current();
@@ -64,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_isvalidargumentcount(pmath_expr_t expr) {
         }
         
         pmath_unref(expr);
-        expr = pmath_ref(PMATH_SYMBOL_FALSE);
+        expr = pmath_ref(pmath_System_False);
       }
     }
   }

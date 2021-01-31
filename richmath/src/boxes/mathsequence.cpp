@@ -50,6 +50,7 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_CheckboxBox;
@@ -63,6 +64,7 @@ extern pmath_symbol_t richmath_System_GraphicsBox;
 extern pmath_symbol_t richmath_System_GridBox;
 extern pmath_symbol_t richmath_System_InputFieldBox;
 extern pmath_symbol_t richmath_System_InterpretationBox;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_OpenerBox;
 extern pmath_symbol_t richmath_System_OverscriptBox;
 extern pmath_symbol_t richmath_System_PaneBox;
@@ -1427,7 +1429,7 @@ static Box *create_box(Expr expr, BoxInputFlags options) {
     
   Expr head = expr[0];
   
-  if(head == PMATH_SYMBOL_LIST || head == richmath_System_ComplexStringBox) {
+  if(head == richmath_System_List || head == richmath_System_ComplexStringBox) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
       return create_box(expr, options);
@@ -1953,11 +1955,11 @@ pmath_string_t MathSequence::Impl::syntaxform_or_null(Box *box) {
     return pmath_ref(uo->base()->text().get_as_string());
   
   if(auto obo = dynamic_cast<OwnerBox*>(box)) {
-    Expr syntax_form = obo->get_own_style(SyntaxForm, Symbol(PMATH_SYMBOL_AUTOMATIC));
+    Expr syntax_form = obo->get_own_style(SyntaxForm, Symbol(richmath_System_Automatic));
     if(syntax_form.is_string()) 
       return syntax_form.release();
     
-    if(syntax_form == PMATH_SYMBOL_AUTOMATIC || obo->get_own_style(StripOnInput, false)) {
+    if(syntax_form == richmath_System_Automatic || obo->get_own_style(StripOnInput, false)) {
       auto content = obo->content();
       if(content->length() == 1 && content->text()[0] == PMATH_CHAR_BOX) 
         return syntaxform_or_null(content->item(0));
@@ -2085,7 +2087,7 @@ pmath_t MathSequence::Impl::add_debug_info(
 
 pmath_t MathSequence::Impl::remove_null_tokens(pmath_t boxes) {
   while(true) {
-    if(pmath_is_expr_of(boxes, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(boxes, richmath_System_List)) {
       size_t first = 1;
       size_t length = pmath_expr_length(boxes);
       size_t last = length;

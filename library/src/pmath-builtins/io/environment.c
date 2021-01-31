@@ -20,6 +20,9 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_Environment;
+extern pmath_symbol_t pmath_System_Rule;
+
 PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr) {
   pmath_t name;
 
@@ -55,7 +58,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr) {
 
             pmath_emit(
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_RULE), 2,
+                pmath_ref(pmath_System_Rule), 2,
                 name,
                 value),
               PMATH_NULL);
@@ -90,7 +93,7 @@ PMATH_PRIVATE pmath_t builtin_environment(pmath_expr_t expr) {
 
           pmath_emit(
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_RULE), 2,
+              pmath_ref(pmath_System_Rule), 2,
               name,
               value),
             PMATH_NULL);
@@ -159,7 +162,7 @@ PMATH_PRIVATE pmath_t builtin_assign_environment(pmath_expr_t expr) {
     return expr;
 
   if( !pmath_same(tag, PMATH_UNDEFINED) ||
-      !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ENVIRONMENT, 1))
+      !pmath_is_expr_of_len(lhs, pmath_System_Environment, 1))
   {
     pmath_unref(tag);
     pmath_unref(lhs);

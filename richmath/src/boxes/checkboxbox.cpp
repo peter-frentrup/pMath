@@ -3,6 +3,9 @@
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_CheckboxBox;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_True;
 
 namespace richmath {
   namespace strings {
@@ -38,7 +41,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() >= 2) {
     Expr _values = expr[2];
     
-    if(_values.expr_length() != 2 || _values[0] != PMATH_SYMBOL_LIST) {
+    if(_values.expr_length() != 2 || _values[0] != richmath_System_List) {
       _values = Expr();
       options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
     }
@@ -71,7 +74,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     }
   }
   else {
-    dynamic = Symbol(PMATH_SYMBOL_FALSE);
+    dynamic = Symbol(richmath_System_False);
   }
   
   finish_load_from_object(std::move(expr));
@@ -106,7 +109,7 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   Gather::emit(val);
   
   if(values.is_null())
-    Gather::emit(List(Symbol(PMATH_SYMBOL_FALSE), Symbol(PMATH_SYMBOL_TRUE)));
+    Gather::emit(List(Symbol(richmath_System_False), Symbol(richmath_System_True)));
   else
     Gather::emit(values);
     
@@ -150,7 +153,7 @@ Expr CheckboxBox::to_literal() {
       if(values.expr_length() == 2)
         return values[2];
       else
-        return Symbol(PMATH_SYMBOL_TRUE);
+        return Symbol(richmath_System_True);
       
     case CheckboxUnchecked:
     case OpenerTriangleClosed:
@@ -158,7 +161,7 @@ Expr CheckboxBox::to_literal() {
       if(values.expr_length() == 2)
         return values[1];
       else
-        return Symbol(PMATH_SYMBOL_FALSE);
+        return Symbol(richmath_System_False);
     
     default:
       break;
@@ -174,10 +177,10 @@ VolatileSelection CheckboxBox::dynamic_to_literal(int start, int end) {
 
 ContainerType CheckboxBox::calc_type(Expr result) {
   if(values.is_null()) {
-    if(result == PMATH_SYMBOL_FALSE)
+    if(result == richmath_System_False)
       return CheckboxUnchecked;
       
-    if(result == PMATH_SYMBOL_TRUE)
+    if(result == richmath_System_True)
       return CheckboxChecked;
   }
   
@@ -232,16 +235,16 @@ void CheckboxBox::click() {
 
 Expr CheckboxBox::Impl::next_value_when_clicked() {
   if(self.type == CheckboxChecked) {
-    if(self.values.expr_length() == 2 && self.values[0] == PMATH_SYMBOL_LIST)
+    if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
       return self.values[1];
     else
-      return Symbol(PMATH_SYMBOL_FALSE);
+      return Symbol(richmath_System_False);
   }
   else {
-    if(self.values.expr_length() == 2 && self.values[0] == PMATH_SYMBOL_LIST)
+    if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
       return self.values[2];
     else
-      return Symbol(PMATH_SYMBOL_TRUE);
+      return Symbol(richmath_System_True);
   }
 }
 

@@ -8,6 +8,14 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_SyntaxInformation;
+extern pmath_symbol_t pmath_System_TagAssign;
+extern pmath_symbol_t pmath_System_TagAssignDelayed;
+extern pmath_symbol_t pmath_System_TagUnassign;
+extern pmath_symbol_t pmath_System_Utilities_GetSystemSyntaxInformation;
+
 PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr) {
   pmath_t tag;
   pmath_t lhs;
@@ -20,7 +28,7 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr) {
   if(!assignment)
     return expr;
     
-  if( !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_SYNTAXINFORMATION, 1) ||
+  if( !pmath_is_expr_of_len(lhs, pmath_System_SyntaxInformation, 1) ||
       !pmath_same(tag, PMATH_UNDEFINED))
   {
     pmath_unref(tag);
@@ -41,15 +49,15 @@ PMATH_PRIVATE pmath_t builtin_assign_syntaxinformation(pmath_expr_t expr) {
   if(pmath_same(rhs, PMATH_UNDEFINED)) {
     pmath_unref(expr);
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TAGUNASSIGN), 2,
+             pmath_ref(pmath_System_TagUnassign), 2,
              sym,
              lhs);
   }
   
   if(assignment < 0)
-    tag = pmath_ref(PMATH_SYMBOL_TAGASSIGNDELAYED);
+    tag = pmath_ref(pmath_System_TagAssignDelayed);
   else
-    tag = pmath_ref(PMATH_SYMBOL_TAGASSIGN);
+    tag = pmath_ref(pmath_System_TagAssign);
     
   pmath_unref(expr);
   return pmath_expr_new_extended(
@@ -82,11 +90,11 @@ PMATH_PRIVATE pmath_t builtin_syntaxinformation(pmath_expr_t expr) {
     pmath_unref(sym);
     
   expr = pmath_expr_set_item(expr, 0,
-                             pmath_ref(PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION));
+                             pmath_ref(pmath_System_Utilities_GetSystemSyntaxInformation));
                              
   expr = pmath_evaluate(expr);
-  if( pmath_same(expr, PMATH_SYMBOL_FAILED) ||
-      pmath_is_expr_of(expr, PMATH_SYMBOL_UTILITIES_GETSYSTEMSYNTAXINFORMATION))
+  if( pmath_same(expr, pmath_System_DollarFailed) ||
+      pmath_is_expr_of(expr, pmath_System_Utilities_GetSystemSyntaxInformation))
   {
     pmath_unref(expr);
     return pmath_ref(_pmath_object_emptylist);

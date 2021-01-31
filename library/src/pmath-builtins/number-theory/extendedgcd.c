@@ -3,6 +3,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 pmath_t builtin_extendedgcd(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);
   size_t i, j;
@@ -12,12 +14,12 @@ pmath_t builtin_extendedgcd(pmath_expr_t expr) {
   if(exprlen == 0) {
     pmath_unref(expr);
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_LIST), 2,
+             pmath_ref(pmath_System_List), 2,
              PMATH_FROM_INT32(0),
-             pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0));
+             pmath_expr_new(pmath_ref(pmath_System_List), 0));
   }
   
-  factors = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), exprlen);
+  factors = pmath_expr_new(pmath_ref(pmath_System_List), exprlen);
   result = pmath_expr_get_item(expr, 1);
   if(pmath_is_int32(result))
     result = _pmath_create_mp_int(PMATH_AS_INT32(result));
@@ -42,7 +44,7 @@ pmath_t builtin_extendedgcd(pmath_expr_t expr) {
     }
     
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_LIST), 2,
+             pmath_ref(pmath_System_List), 2,
              _pmath_mp_int_normalize(result),
              factors);
   }
@@ -104,7 +106,7 @@ pmath_t builtin_extendedgcd(pmath_expr_t expr) {
   
   pmath_unref(expr);
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_LIST), 2,
+           pmath_ref(pmath_System_List), 2,
            _pmath_mp_int_normalize(result),
            factors);
 }

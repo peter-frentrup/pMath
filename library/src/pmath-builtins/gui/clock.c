@@ -16,6 +16,13 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_Floor;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_Internal_DynamicUpdated;
 
 static pmath_bool_t is_positive_infinity(pmath_t obj) {
@@ -96,7 +103,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
   }
 
   obj = pmath_expr_get_item(expr, 1);
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_RANGE)) {
+  if(pmath_is_expr_of(obj, pmath_System_Range)) {
     size_t objlen = pmath_expr_length(obj);
 
     if(objlen == 2) {
@@ -138,7 +145,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
   backwards = FALSE;
   obj = pmath_evaluate(GREATER(pmath_ref(min), pmath_ref(max)));
   pmath_unref(obj);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(obj, pmath_System_True)) {
     backwards = TRUE;
 
     obj = min;
@@ -179,7 +186,7 @@ PMATH_PRIVATE pmath_t builtin_clock(pmath_expr_t expr) {
   }
   else {
     obj = PLUS(INT(1),
-               FUNC(pmath_ref(PMATH_SYMBOL_FLOOR),
+               FUNC(pmath_ref(pmath_System_Floor),
                     DIV(MINUS(pmath_ref(max), pmath_ref(min)), obj)));
 
     obj = pmath_evaluate(obj);

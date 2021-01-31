@@ -8,6 +8,10 @@
 #include <pmath-util/messages.h>
 
 
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Syntax;
+extern pmath_symbol_t pmath_System_Times;
+
 static int digit_value(uint16_t ch) {
   if(ch >= '0' && ch <= '9')
     return ch - '0';
@@ -543,12 +547,12 @@ PMATH_PRIVATE pmath_t _pmath_parse_number(pmath_string_t string) {
     }
     else if(index == 0) {
       pmath_message(
-        PMATH_SYMBOL_SYNTAX, "bgn", 1,
+        pmath_System_Syntax, "bgn", 1,
         string);
     }
     else {
       pmath_message(
-        PMATH_SYMBOL_SYNTAX, "nxt", 2,
+        pmath_System_Syntax, "nxt", 2,
         pmath_string_part(pmath_ref(string), 0, index),
         pmath_string_part(pmath_ref(string), index, INT_MAX));
       pmath_unref(string);

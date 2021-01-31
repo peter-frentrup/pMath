@@ -74,6 +74,8 @@ extern pmath_symbol_t richmath_System_DollarPageWidth;
 
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonFunction;
+extern pmath_symbol_t richmath_System_Identity;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Method;
 extern pmath_symbol_t richmath_System_Section;
 
@@ -166,7 +168,7 @@ static void message_dialog(const char *title, const char *content) {
 static void load_fonts() {
   Expr font_files = Expr{pmath_symbol_get_value(richmath_FE_DollarPrivateStartupFontFiles)};
   
-  if(font_files[0] == PMATH_SYMBOL_LIST) {
+  if(font_files[0] == richmath_System_List) {
     for(auto item : font_files.items()) {
       if(FontInfo::add_private_font(String { item })) {
         pmath_debug_print_object("add private font ", item.get(), "\n");
@@ -195,7 +197,7 @@ static void load_math_shapers() {
   SharedPtr<MathShaper> shaper;
   SharedPtr<MathShaper> def;
   
-  if(prefered_fonts[0] == PMATH_SYMBOL_LIST) {
+  if(prefered_fonts[0] == richmath_System_List) {
     for(String s : prefered_fonts.items()) {
       shaper = MathShaper::available_shapers[s];
       
@@ -303,7 +305,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(InputAutoReplacements,     List());
   
   Stylesheet::Default->base->set(SectionLabel,              "");
-  Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(PMATH_SYMBOL_IDENTITY));
+  Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(richmath_System_Identity));
   
   Stylesheet::Default->base->set_pmath(Method,
                                        Expr(pmath_option_value(
@@ -318,7 +320,7 @@ static void init_stylesheet() {
                                         PMATH_UNDEFINED)));
                                         
 //  Stylesheet::Default->base->set(FontFeatures,
-//                                 List(Rule(String("ssty"), Symbol(PMATH_SYMBOL_AUTOMATIC))));
+//                                 List(Rule(String("ssty"), Symbol(richmath_System_Automatic))));
 
 //  Stylesheet::Default->base->set(GeneratedSectionStyles,
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));

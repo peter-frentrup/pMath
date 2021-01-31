@@ -21,7 +21,6 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
 #include <pmath-builtins/build-expr-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -34,8 +33,16 @@ const uint16_t char_RightCeiling = 0x2309;
 const uint16_t char_LeftFloor    = 0x230A;
 const uint16_t char_RightFloor   = 0x230B;
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Alternatives;
+extern pmath_symbol_t pmath_System_And;
+extern pmath_symbol_t pmath_System_Apply;
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BoxRotation;
 extern pmath_symbol_t pmath_System_BracketingBar;
+extern pmath_symbol_t pmath_System_Ceiling;
 extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
@@ -43,8 +50,12 @@ extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_CompressedData;
+extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Congruent;
+extern pmath_symbol_t pmath_System_Cross;
 extern pmath_symbol_t pmath_System_CupCap;
+extern pmath_symbol_t pmath_System_Decrement;
+extern pmath_symbol_t pmath_System_Dot;
 extern pmath_symbol_t pmath_System_DotEqual;
 extern pmath_symbol_t pmath_System_DoubleDownArrow;
 extern pmath_symbol_t pmath_System_DoubleLeftArrow;
@@ -58,10 +69,20 @@ extern pmath_symbol_t pmath_System_DoubleUpperLeftArrow;
 extern pmath_symbol_t pmath_System_DoubleUpperRightArrow;
 extern pmath_symbol_t pmath_System_DownArrow;
 extern pmath_symbol_t pmath_System_DoubleBracketingBar;
+extern pmath_symbol_t pmath_System_DivideBy;
 extern pmath_symbol_t pmath_System_Element;
+extern pmath_symbol_t pmath_System_Equal;
+extern pmath_symbol_t pmath_System_EvaluationSequence;
+extern pmath_symbol_t pmath_System_Factorial;
+extern pmath_symbol_t pmath_System_Factorial2;
+extern pmath_symbol_t pmath_System_Floor;
 extern pmath_symbol_t pmath_System_FractionBox;
 extern pmath_symbol_t pmath_System_FrameBox;
 extern pmath_symbol_t pmath_System_Framed;
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_Get;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_GreaterEqual;
 extern pmath_symbol_t pmath_System_GreaterEqualLess;
 extern pmath_symbol_t pmath_System_GreaterFullEqual;
 extern pmath_symbol_t pmath_System_GreaterGreater;
@@ -71,22 +92,34 @@ extern pmath_symbol_t pmath_System_Grid;
 extern pmath_symbol_t pmath_System_GridBox;
 extern pmath_symbol_t pmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t pmath_System_GridBoxRowSpacing;
+extern pmath_symbol_t pmath_System_HoldAllComplete;
+extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_HumpDownHump;
 extern pmath_symbol_t pmath_System_HumpEqual;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_Identical;
+extern pmath_symbol_t pmath_System_Inequation;
 extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_InterpretationFunction;
+extern pmath_symbol_t pmath_System_Intersection;
 extern pmath_symbol_t pmath_System_LeftArrow;
 extern pmath_symbol_t pmath_System_LeftRightArrow;
 extern pmath_symbol_t pmath_System_LeftTriangle;
 extern pmath_symbol_t pmath_System_LeftTriangleEqual;
+extern pmath_symbol_t pmath_System_Less;
+extern pmath_symbol_t pmath_System_LessEqual;
 extern pmath_symbol_t pmath_System_LessEqualGreater;
 extern pmath_symbol_t pmath_System_LessFullEqual;
 extern pmath_symbol_t pmath_System_LessGreater;
 extern pmath_symbol_t pmath_System_LessLess;
 extern pmath_symbol_t pmath_System_LessTilde;
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_LowerLeftArrow;
 extern pmath_symbol_t pmath_System_LowerRightArrow;
+extern pmath_symbol_t pmath_System_MakeExpression;
+extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_MinusPlus;
+extern pmath_symbol_t pmath_System_Not;
 extern pmath_symbol_t pmath_System_NotCongruent;
 extern pmath_symbol_t pmath_System_NotCupCap;
 extern pmath_symbol_t pmath_System_NotElement;
@@ -114,20 +147,42 @@ extern pmath_symbol_t pmath_System_NotSupersetEqual;
 extern pmath_symbol_t pmath_System_NotTildeEqual;
 extern pmath_symbol_t pmath_System_NotTildeFullEqual;
 extern pmath_symbol_t pmath_System_NotTildeTilde;
+extern pmath_symbol_t pmath_System_Optional;
+extern pmath_symbol_t pmath_System_Or;
 extern pmath_symbol_t pmath_System_Overscript;
 extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_ParserArguments;
+extern pmath_symbol_t pmath_System_ParseSymbols;
+extern pmath_symbol_t pmath_System_Part;
+extern pmath_symbol_t pmath_System_Pattern;
+extern pmath_symbol_t pmath_System_Piecewise;
 extern pmath_symbol_t pmath_System_Placeholder;
+extern pmath_symbol_t pmath_System_Plus;
 extern pmath_symbol_t pmath_System_PlusMinus;
+extern pmath_symbol_t pmath_System_PostDecrement;
+extern pmath_symbol_t pmath_System_PostIncrement;
+extern pmath_symbol_t pmath_System_Power;
 extern pmath_symbol_t pmath_System_Precedes;
 extern pmath_symbol_t pmath_System_PrecedesEqual;
 extern pmath_symbol_t pmath_System_PrecedesTilde;
+extern pmath_symbol_t pmath_System_PureArgument;
 extern pmath_symbol_t pmath_System_RadicalBox;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_RawBoxes;
+extern pmath_symbol_t pmath_System_Repeated;
 extern pmath_symbol_t pmath_System_ReverseElement;
 extern pmath_symbol_t pmath_System_RightTriangle;
 extern pmath_symbol_t pmath_System_RightTriangleEqual;
+extern pmath_symbol_t pmath_System_Rotate;
 extern pmath_symbol_t pmath_System_RotationBox;
 extern pmath_symbol_t pmath_System_RowSpacing;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_ShowDefinition;
+extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_StringExpression;
 extern pmath_symbol_t pmath_System_Style;
 extern pmath_symbol_t pmath_System_StyleBox;
 extern pmath_symbol_t pmath_System_Subscript;
@@ -143,15 +198,27 @@ extern pmath_symbol_t pmath_System_Superset;
 extern pmath_symbol_t pmath_System_SupersetEqual;
 extern pmath_symbol_t pmath_System_Surd;
 extern pmath_symbol_t pmath_System_SurdForm;
+extern pmath_symbol_t pmath_System_Symbol;
+extern pmath_symbol_t pmath_System_TagAssign;
+extern pmath_symbol_t pmath_System_TagAssignDelayed;
 extern pmath_symbol_t pmath_System_TagBox;
+extern pmath_symbol_t pmath_System_TagUnassign;
 extern pmath_symbol_t pmath_System_TemplateBox;
+extern pmath_symbol_t pmath_System_TestPattern;
 extern pmath_symbol_t pmath_System_TildeEqual;
 extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_TimesBy;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Unassign;
 extern pmath_symbol_t pmath_System_Underoverscript;
 extern pmath_symbol_t pmath_System_UnderoverscriptBox;
 extern pmath_symbol_t pmath_System_Underscript;
 extern pmath_symbol_t pmath_System_UnderscriptBox;
+extern pmath_symbol_t pmath_System_Unequal;
+extern pmath_symbol_t pmath_System_Unidentical;
+extern pmath_symbol_t pmath_System_Union;
 extern pmath_symbol_t pmath_System_UpArrow;
 extern pmath_symbol_t pmath_System_UpDownArrow;
 extern pmath_symbol_t pmath_System_UpperLeftArrow;
@@ -252,7 +319,7 @@ static pmath_t make_range(pmath_expr_t boxes); // a..b   a..b..c  with any of (a
 static pmath_t make_multiplication(pmath_expr_t boxes);
 
 #define HOLDCOMPLETE(result) pmath_expr_new_extended(\
-    pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 1, result)
+    pmath_ref(pmath_System_HoldComplete), 1, result)
 
 // evaluates MakeExpression(box) but also retains debug information
 PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
@@ -260,12 +327,12 @@ PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
   
   box = pmath_evaluate(
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box));
+            pmath_ref(pmath_System_MakeExpression), 1, box));
             
   if(pmath_is_null(debug_info))
     return box;
     
-  if(!pmath_is_expr_of(box, PMATH_SYMBOL_HOLDCOMPLETE)) {
+  if(!pmath_is_expr_of(box, pmath_System_HoldComplete)) {
     pmath_unref(debug_info);
     return box;
   }
@@ -306,7 +373,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
   if(exprlen != 1) {
     pmath_message_argxxx(exprlen, 1, 1);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   box = pmath_expr_get_item(expr, 1);
@@ -327,7 +394,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     
     exprlen = pmath_expr_length(expr);
     
-    if(!pmath_same(head, PMATH_SYMBOL_LIST)) {
+    if(!pmath_same(head, pmath_System_List)) {
       // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
       if(pmath_is_null(head))
         return make_implicit_evaluation_sequence(expr);
@@ -347,7 +414,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(pmath_same(head, pmath_System_GridBox))
         return make_expression_from_gridbox(expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE))
+      if(pmath_same(head, pmath_System_HoldComplete))
         return expr;
         
       if(pmath_same(head, pmath_System_InterpretationBox))
@@ -381,13 +448,12 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return make_expression_from_underoverscriptbox(expr);
         
       pmath_message(PMATH_NULL, "inv", 1, expr);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     if(exprlen == 0) {
       pmath_unref(expr);
-      return pmath_expr_new(
-               pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+      return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
     }
     
     firstchar  = unichar_at(expr, 1);
@@ -406,17 +472,17 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       uint16_t lastchar = unichar_at(expr, exprlen);
       
       if(lastchar == '}')
-        return make_matchfix(expr, PMATH_SYMBOL_LIST);
+        return make_matchfix(expr, pmath_System_List);
         
       if(lastchar == PMATH_CHAR_RIGHTINVISIBLEBRACKET)
-        return make_matchfix(expr, PMATH_SYMBOL_PIECEWISE);
+        return make_matchfix(expr, pmath_System_Piecewise);
     }
     
     if(firstchar == char_LeftCeiling && unichar_at(expr, exprlen) == char_RightCeiling)
-      return make_matchfix(expr, PMATH_SYMBOL_CEILING);
+      return make_matchfix(expr, pmath_System_Ceiling);
       
     if(firstchar == char_LeftFloor && unichar_at(expr, exprlen) == char_RightFloor)
-      return make_matchfix(expr, PMATH_SYMBOL_FLOOR);
+      return make_matchfix(expr, pmath_System_Floor);
       
     if(firstchar == PMATH_CHAR_LEFTBRACKETINGBAR && unichar_at(expr, exprlen) == PMATH_CHAR_RIGHTBRACKETINGBAR)
       return make_matchfix(expr, pmath_System_BracketingBar);
@@ -433,7 +499,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       return make_evaluation_sequence(expr);
       
     if(exprlen == 1)
-      return pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
+      return pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_MakeExpression));
       
     // ?x  and  ?x:v
     if(firstchar == '?')
@@ -443,23 +509,23 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(exprlen == 2) {
       // x &
       if(secondchar == '&')
-        return make_from_first_box(expr, PMATH_SYMBOL_FUNCTION);
+        return make_from_first_box(expr, pmath_System_Function);
         
       // x!
       if(secondchar == '!')
-        return make_from_first_box(expr, PMATH_SYMBOL_FACTORIAL);
+        return make_from_first_box(expr, pmath_System_Factorial);
         
       // x!!
       if(is_string_at(expr, 2, "!!"))
-        return make_from_first_box(expr, PMATH_SYMBOL_FACTORIAL2);
+        return make_from_first_box(expr, pmath_System_Factorial2);
         
       // x++
       if(is_string_at(expr, 2, "++"))
-        return make_from_first_box(expr, PMATH_SYMBOL_POSTINCREMENT);
+        return make_from_first_box(expr, pmath_System_PostIncrement);
         
       // x--
       if(is_string_at(expr, 2, "--"))
-        return make_from_first_box(expr, PMATH_SYMBOL_POSTDECREMENT);
+        return make_from_first_box(expr, pmath_System_PostDecrement);
         
       // p**
       if(is_string_at(expr, 2, "**"))
@@ -478,15 +544,15 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return make_unary_minus(expr);
         
       if(firstchar == PMATH_CHAR_PIECEWISE)
-        return make_from_second_box(expr, PMATH_SYMBOL_PIECEWISE);
+        return make_from_second_box(expr, pmath_System_Piecewise);
         
       // !x
       if(firstchar == '!' || firstchar == 0x00AC)
-        return make_from_second_box(expr, PMATH_SYMBOL_NOT);
+        return make_from_second_box(expr, pmath_System_Not);
         
       // #x
       if(firstchar == '#')
-        return make_from_second_box(expr, PMATH_SYMBOL_PUREARGUMENT);
+        return make_from_second_box(expr, pmath_System_PureArgument);
         
       // ##x
       if(is_string_at(expr, 1, "##"))
@@ -494,19 +560,19 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // ++x
       if(is_string_at(expr, 1, "++"))
-        return make_from_second_box(expr, PMATH_SYMBOL_INCREMENT);
+        return make_from_second_box(expr, pmath_System_Increment);
         
       // --x
       if(is_string_at(expr, 1, "--"))
-        return make_from_second_box(expr, PMATH_SYMBOL_DECREMENT);
+        return make_from_second_box(expr, pmath_System_Decrement);
         
       // ??x
       if(is_string_at(expr, 1, "??"))
-        return make_text_line(expr, PMATH_SYMBOL_SHOWDEFINITION);
+        return make_text_line(expr, pmath_System_ShowDefinition);
         
       // <<x
       if(is_string_at(expr, 1, "<<"))
-        return make_text_line(expr, PMATH_SYMBOL_GET);
+        return make_text_line(expr, pmath_System_Get);
         
       // ~x
       if(firstchar == '~')
@@ -573,59 +639,59 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // lhs:=rhs
       if(secondchar == PMATH_CHAR_ASSIGN)
-        return make_binary(expr, PMATH_SYMBOL_ASSIGN);
+        return make_binary(expr, pmath_System_Assign);
         
       // lhs::=rhs
       if(secondchar == PMATH_CHAR_ASSIGNDELAYED)
-        return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
+        return make_binary(expr, pmath_System_AssignDelayed);
         
       // lhs->rhs
       if(secondchar == PMATH_CHAR_RULE)
-        return make_binary(expr, PMATH_SYMBOL_RULE);
+        return make_binary(expr, pmath_System_Rule);
         
       // lhs:>rhs
       if(secondchar == PMATH_CHAR_RULEDELAYED)
-        return make_binary(expr, PMATH_SYMBOL_RULEDELAYED);
+        return make_binary(expr, pmath_System_RuleDelayed);
         
       // p?f
       if(secondchar == '?')
-        return make_binary(expr, PMATH_SYMBOL_TESTPATTERN);
+        return make_binary(expr, pmath_System_TestPattern);
         
       // lhs:=rhs
       if(is_string_at(expr, 2, ":="))
-        return make_binary(expr, PMATH_SYMBOL_ASSIGN);
+        return make_binary(expr, pmath_System_Assign);
         
       // lhs::=rhs
       if(is_string_at(expr, 2, "::="))
-        return make_binary(expr, PMATH_SYMBOL_ASSIGNDELAYED);
+        return make_binary(expr, pmath_System_AssignDelayed);
         
       // lhs->rhs
       if(is_string_at(expr, 2, "->"))
-        return make_binary(expr, PMATH_SYMBOL_RULE);
+        return make_binary(expr, pmath_System_Rule);
         
       // lhs:>rhs
       if(is_string_at(expr, 2, ":>"))
-        return make_binary(expr, PMATH_SYMBOL_RULEDELAYED);
+        return make_binary(expr, pmath_System_RuleDelayed);
         
       // lhs+=rhs
       if(is_string_at(expr, 2, "+="))
-        return make_binary(expr, PMATH_SYMBOL_INCREMENT);
+        return make_binary(expr, pmath_System_Increment);
         
       // lhs-=rhs
       if(is_string_at(expr, 2, "-="))
-        return make_binary(expr, PMATH_SYMBOL_DECREMENT);
+        return make_binary(expr, pmath_System_Decrement);
         
       // lhs*=rhs
       if(is_string_at(expr, 2, "*="))
-        return make_binary(expr, PMATH_SYMBOL_TIMESBY);
+        return make_binary(expr, pmath_System_TimesBy);
         
       // lhs/=rhs
       if(is_string_at(expr, 2, "/="))
-        return make_binary(expr, PMATH_SYMBOL_DIVIDEBY);
+        return make_binary(expr, pmath_System_DivideBy);
         
       // p/?cond
       if(is_string_at(expr, 2, "/?"))
-        return make_binary(expr, PMATH_SYMBOL_CONDITION);
+        return make_binary(expr, pmath_System_Condition);
     }
     
     // ~x:t  ~~x:t  ~~~x:t
@@ -672,7 +738,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // a ++ b ++ ...
       if(is_string_at(expr, 2, "++"))
-        return make_infix_unchecked(expr, PMATH_SYMBOL_STRINGEXPRESSION);
+        return make_infix_unchecked(expr, pmath_System_StringExpression);
         
       // relations ...
       head = relation_at(expr, 2);
@@ -761,7 +827,7 @@ static pmath_bool_t is_empty_box(pmath_expr_t box) {
   if(pmath_is_string(box))
     return pmath_string_length(box) == 0;
   
-  return pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 0);
+  return pmath_is_expr_of_len(box, pmath_System_List, 0);
 }
 
 static pmath_bool_t string_equals(pmath_string_t str, const char *cstr) {
@@ -814,7 +880,7 @@ static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i) {
     return is_linebreak;
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(obj, pmath_System_List)) {
     size_t objlen = pmath_expr_length(obj);
     for(size_t i = objlen; i > 0; --i) {
       if(!are_linebreaks_only_at(obj, i)) {
@@ -869,7 +935,7 @@ static pmath_bool_t parse(pmath_t *box) {
   
   *box = pmath_evaluate(
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, *box));
+             pmath_ref(pmath_System_MakeExpression), 1, *box));
              
   if(!pmath_is_expr(*box)) {
     pmath_unref(*box);
@@ -881,7 +947,7 @@ static pmath_bool_t parse(pmath_t *box) {
   obj = pmath_expr_get_item(*box, 0);
   pmath_unref(obj);
   
-  if(!pmath_same(obj, PMATH_SYMBOL_HOLDCOMPLETE)) {
+  if(!pmath_same(obj, pmath_System_HoldComplete)) {
     pmath_message(PMATH_NULL, "inv", 1, *box);
     pmath_unref(debug_info);
     *box = PMATH_NULL;
@@ -889,7 +955,7 @@ static pmath_bool_t parse(pmath_t *box) {
   }
   
   if(pmath_expr_length(*box) != 1) {
-    *box = pmath_expr_set_item(*box, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+    *box = pmath_expr_set_item(*box, 0, pmath_ref(pmath_System_Sequence));
     *box = pmath_try_set_debug_info(*box, debug_info);
     return TRUE;
   }
@@ -925,16 +991,16 @@ static void handle_row_error_at(pmath_expr_t expr, size_t i) {
   if(i == 1) {
     pmath_message(PMATH_NULL, "bgn", 1,
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_RAWBOXES), 1,
+                    pmath_ref(pmath_System_RawBoxes), 1,
                     pmath_ref(expr)));
   }
   else {
     pmath_message(PMATH_NULL, "nxt", 2,
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_RAWBOXES), 1,
+                    pmath_ref(pmath_System_RawBoxes), 1,
                     pmath_expr_get_item_range(expr, 1, i - 1)),
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_RAWBOXES), 1,
+                    pmath_ref(pmath_System_RawBoxes), 1,
                     pmath_expr_get_item_range(expr, i, SIZE_MAX)));
   }
 }
@@ -961,8 +1027,8 @@ static pmath_t parse_at(pmath_expr_t expr, size_t i) {
 static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr) {
   pmath_t call_helper = pmath_expr_new_extended(pmath_ref(helper), 1, pmath_ref(*expr));
   call_helper = pmath_evaluate(call_helper);
-  if(pmath_is_expr_of(call_helper, PMATH_SYMBOL_HOLDCOMPLETE) ||
-      pmath_same(call_helper, PMATH_SYMBOL_FAILED))
+  if(pmath_is_expr_of(call_helper, pmath_System_HoldComplete) ||
+      pmath_same(call_helper, pmath_System_DollarFailed))
   {
     pmath_unref(*expr);
     *expr = call_helper;
@@ -975,18 +1041,18 @@ static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr) 
 
 static pmath_symbol_t inset_operator(uint16_t ch) { // do not free result!
   switch(ch) {
-    case '|': return PMATH_SYMBOL_ALTERNATIVES;
-//    case ':': return PMATH_SYMBOL_PATTERN;
-//    case '?': return PMATH_SYMBOL_TESTPATTERN;
-    case '^': return PMATH_SYMBOL_POWER;
+    case '|': return pmath_System_Alternatives;
+//    case ':': return pmath_System_Pattern;
+//    case '?': return pmath_System_TestPattern;
+    case '^': return pmath_System_Power;
     
-    case 0x00B7: return PMATH_SYMBOL_DOT;
+    case 0x00B7: return pmath_System_Dot;
     
-//    case PMATH_CHAR_RULE:        return PMATH_SYMBOL_RULE;
-//    case PMATH_CHAR_RULEDELAYED: return PMATH_SYMBOL_RULEDELAYED;
+//    case PMATH_CHAR_RULE:        return pmath_System_Rule;
+//    case PMATH_CHAR_RULEDELAYED: return pmath_System_RuleDelayed;
 
-//    case PMATH_CHAR_ASSIGN:        return PMATH_SYMBOL_ASSIGN;
-//    case PMATH_CHAR_ASSIGNDELAYED: return PMATH_SYMBOL_ASSIGNDELAYED;
+//    case PMATH_CHAR_ASSIGN:        return pmath_System_Assign;
+//    case PMATH_CHAR_ASSIGNDELAYED: return pmath_System_AssignDelayed;
 
     case 0x2190: return pmath_System_LeftArrow;
     case 0x2191: return pmath_System_UpArrow;
@@ -1014,19 +1080,19 @@ static pmath_symbol_t inset_operator(uint16_t ch) { // do not free result!
     
     case 0x2213: return pmath_System_MinusPlus;
     
-//    case 0x2227: return PMATH_SYMBOL_AND;
-//    case 0x2228: return PMATH_SYMBOL_OR;
-    case 0x2229: return PMATH_SYMBOL_INTERSECTION;
-    case 0x222A: return PMATH_SYMBOL_UNION;
+//    case 0x2227: return pmath_System_And;
+//    case 0x2228: return pmath_System_Or;
+    case 0x2229: return pmath_System_Intersection;
+    case 0x222A: return pmath_System_Union;
     
     case 0x2236: return pmath_System_Colon;
     
     case 0x2295: return pmath_System_CirclePlus;
     case 0x2297: return pmath_System_CircleTimes;
     
-    case 0x22C5: return PMATH_SYMBOL_DOT;
+    case 0x22C5: return pmath_System_Dot;
     
-    case 0x2A2F: return PMATH_SYMBOL_CROSS;
+    case 0x2A2F: return pmath_System_Cross;
   }
   return PMATH_NULL;
 }
@@ -1036,16 +1102,16 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i) { // do not free 
   
   switch(ch) {
     case 0:
-      if(is_string_at(expr, i, "<="))  return PMATH_SYMBOL_LESSEQUAL;
-      if(is_string_at(expr, i, ">="))  return PMATH_SYMBOL_GREATEREQUAL;
-      if(is_string_at(expr, i, "!="))  return PMATH_SYMBOL_UNEQUAL;
-      if(is_string_at(expr, i, "===")) return PMATH_SYMBOL_IDENTICAL;
-      if(is_string_at(expr, i, "=!=")) return PMATH_SYMBOL_UNIDENTICAL;
+      if(is_string_at(expr, i, "<="))  return pmath_System_LessEqual;
+      if(is_string_at(expr, i, ">="))  return pmath_System_GreaterEqual;
+      if(is_string_at(expr, i, "!="))  return pmath_System_Unequal;
+      if(is_string_at(expr, i, "===")) return pmath_System_Identical;
+      if(is_string_at(expr, i, "=!=")) return pmath_System_Unidentical;
       return PMATH_NULL;
       
-    case '<': return PMATH_SYMBOL_LESS;
-    case '>': return PMATH_SYMBOL_GREATER;
-    case '=': return PMATH_SYMBOL_EQUAL;
+    case '<': return pmath_System_Less;
+    case '>': return pmath_System_Greater;
+    case '=': return pmath_System_Equal;
   }
   
   switch(ch) {
@@ -1071,12 +1137,12 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i) { // do not free 
   }
   
   switch(ch) {
-    case 0x2260: return PMATH_SYMBOL_UNEQUAL;
+    case 0x2260: return pmath_System_Unequal;
     case 0x2261: return pmath_System_Congruent;
     case 0x2262: return pmath_System_NotCongruent;
     
-    case 0x2264: return PMATH_SYMBOL_LESSEQUAL;
-    case 0x2265: return PMATH_SYMBOL_GREATEREQUAL;
+    case 0x2264: return pmath_System_LessEqual;
+    case 0x2265: return pmath_System_GreaterEqual;
     case 0x2266: return pmath_System_LessFullEqual;
     case 0x2267: return pmath_System_GreaterFullEqual;
     
@@ -1143,7 +1209,7 @@ static void emit_grid_options(pmath_expr_t options) { // options wont be freed
   for(i = 1; i <= pmath_expr_length(options); ++i) {
     pmath_t item = pmath_expr_get_item(options, i);
     
-    if(_pmath_is_rule(item)) {
+    if(pmath_is_rule(item)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       
@@ -1163,7 +1229,7 @@ static void emit_grid_options(pmath_expr_t options) { // options wont be freed
       continue;
     }
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(item, pmath_System_List)) {
       emit_grid_options(item);
       pmath_unref(item);
       continue;
@@ -1234,15 +1300,15 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
   pmath_expr_t options = pmath_options_extract(expr, 1);
   
   if(!pmath_is_null(options)) {
-    pmath_t args = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PARSERARGUMENTS, options);
-    pmath_t syms = pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PARSESYMBOLS,    options);
+    pmath_t args = pmath_option_value(PMATH_NULL, pmath_System_ParserArguments, options);
+    pmath_t syms = pmath_option_value(PMATH_NULL, pmath_System_ParseSymbols,    options);
     pmath_t box;
     
-    if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
+    if(!pmath_same(args, pmath_System_Automatic)) {
       args = pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args);
     }
     
-    if(!pmath_same(syms, PMATH_SYMBOL_AUTOMATIC)) {
+    if(!pmath_same(syms, pmath_System_Automatic)) {
       syms = pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms);
     }
     
@@ -1251,13 +1317,13 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     expr = _pmath_makeexpression_with_debuginfo(box);
     
     pmath_unref(options);
-    if(!pmath_same(args, PMATH_SYMBOL_AUTOMATIC)) {
+    if(!pmath_same(args, pmath_System_Automatic)) {
       pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSERARGUMENTS, args));
     }
     else
       pmath_unref(args);
       
-    if(!pmath_same(syms, PMATH_SYMBOL_AUTOMATIC)) {
+    if(!pmath_same(syms, pmath_System_Automatic)) {
       pmath_unref(pmath_thread_local_save(PMATH_THREAD_KEY_PARSESYMBOLS, syms));
     }
     else
@@ -1285,7 +1351,7 @@ static pmath_t get_parser_argument_from_string(pmath_string_t string) { // will 
   args = pmath_thread_local_load(PMATH_THREAD_KEY_PARSERARGUMENTS);
   if(!pmath_is_expr(args)) {
     pmath_message(PMATH_NULL, "inv", 1, string);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
     //return HOLDCOMPLETE(args);
   }
   
@@ -1328,7 +1394,7 @@ static pmath_t make_expression_from_name_token(pmath_string_t string) {
   
   if(i < len) {
     pmath_message(PMATH_NULL, "inv", 1, string);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   obj = pmath_thread_local_load(PMATH_THREAD_KEY_PARSESYMBOLS);
@@ -1336,7 +1402,7 @@ static pmath_t make_expression_from_name_token(pmath_string_t string) {
   
   obj = pmath_symbol_find(
           pmath_ref(string),
-          pmath_same(obj, PMATH_SYMBOL_TRUE) || pmath_same(obj, PMATH_UNDEFINED));
+          pmath_same(obj, pmath_System_True) || pmath_same(obj, PMATH_UNDEFINED));
           
   if(!pmath_is_null(obj)) {
     pmath_unref(string);
@@ -1345,7 +1411,7 @@ static pmath_t make_expression_from_name_token(pmath_string_t string) {
   
   pmath_message(PMATH_NULL, "nonewsym", 1, pmath_ref(string));
   return HOLDCOMPLETE(pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
+                        pmath_ref(pmath_System_Symbol), 1,
                         string));
 }
 
@@ -1408,7 +1474,7 @@ static pmath_t make_expression_from_string_token(pmath_string_t string) {
   }
   pmath_unref(result);
   pmath_message(PMATH_NULL, "inv", 1, string);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_string_t unescape_chars(pmath_string_t str) {
@@ -1468,8 +1534,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   if(len == 0) {
     pmath_unref(string);
-    return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
   }
   
   if(str[0] == '"')
@@ -1484,8 +1549,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   len = pmath_string_length( string);
   if(len == 0) {
     pmath_unref(string);
-    return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
   }
   
   tok = pmath_token_analyse(str, 1, NULL);
@@ -1493,7 +1557,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
     pmath_number_t result = _pmath_parse_number(string);
     
     if(pmath_is_null(result))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
       
     return HOLDCOMPLETE(result);
   }
@@ -1507,7 +1571,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
     
     obj = pmath_symbol_find(
             pmath_ref(string),
-            pmath_same(obj, PMATH_SYMBOL_TRUE) || pmath_same(obj, PMATH_UNDEFINED));
+            pmath_same(obj, pmath_System_True) || pmath_same(obj, PMATH_UNDEFINED));
             
     if(!pmath_is_null(obj)) {
       pmath_unref(string);
@@ -1515,7 +1579,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
     }
     
     return HOLDCOMPLETE(pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_SYMBOL), 1,
+                          pmath_ref(pmath_System_Symbol), 1,
                           string));
   }
   
@@ -1523,22 +1587,21 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   
   if(tok == PMATH_TOK_NEWLINE || tok == PMATH_TOK_SPACE) {
     pmath_unref(string);
-    return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
   }
   
   if(len == 1 && str[0] == '#') {
     pmath_unref(string);
     return HOLDCOMPLETE(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+               pmath_ref(pmath_System_PureArgument), 1,
                PMATH_FROM_INT32(1)));
   }
   
   if(len == 1 && str[0] == ',') {
     pmath_unref(string);
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 2,
+             pmath_ref(pmath_System_HoldComplete), 2,
              PMATH_NULL,
              PMATH_NULL);
   }
@@ -1552,7 +1615,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
     pmath_unref(string);
     return HOLDCOMPLETE(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+               pmath_ref(pmath_System_PureArgument), 1,
                pmath_ref(_pmath_object_range_from_one)));
   }
   
@@ -1565,9 +1628,9 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
     pmath_unref(string);
     return HOLDCOMPLETE(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RANGE), 2,
-               pmath_ref(PMATH_SYMBOL_AUTOMATIC),
-               pmath_ref(PMATH_SYMBOL_AUTOMATIC)));
+               pmath_ref(pmath_System_Range), 2,
+               pmath_ref(pmath_System_Automatic),
+               pmath_ref(pmath_System_Automatic)));
   }
   
   if(len == 3 && str[0] == '~' && str[1] == '~' && str[2] == '~') {
@@ -1581,7 +1644,7 @@ static pmath_t make_expression_from_string(pmath_string_t string) { // will be f
   }
   
   pmath_message(PMATH_NULL, "inv", 1, string);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_string_t box_as_string(pmath_t box) {
@@ -1593,7 +1656,7 @@ static pmath_string_t box_as_string(pmath_t box) {
       if(len >= 1 && buf[0] == '"') {
         pmath_t held_string = make_expression_from_string_token(pmath_ref(box));
         
-        if( pmath_is_expr_of_len(held_string, PMATH_SYMBOL_HOLDCOMPLETE, 1)) {
+        if( pmath_is_expr_of_len(held_string, pmath_System_HoldComplete, 1)) {
           pmath_t str = pmath_expr_get_item(held_string, 1);
           pmath_unref(held_string);
           
@@ -1665,7 +1728,7 @@ static pmath_t make_expression_from_compresseddata(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
@@ -1693,7 +1756,7 @@ static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_framebox(pmath_expr_t box) {
@@ -1712,7 +1775,7 @@ static pmath_t make_expression_from_framebox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_gridbox(pmath_expr_t box) {
@@ -1728,7 +1791,7 @@ static pmath_t make_expression_from_gridbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_gridbox_column(pmath_t box, pmath_expr_t gridbox) {
@@ -1771,7 +1834,7 @@ static pmath_t make_expression_from_gridbox_column(pmath_t box, pmath_expr_t gri
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_interpretationbox(pmath_expr_t box) {
@@ -1789,7 +1852,7 @@ static pmath_t make_expression_from_interpretationbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
@@ -1801,7 +1864,7 @@ static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
     
     if(parse(&base) && parse(&over)) {
       pmath_t result;
-      if(pmath_is_expr_of_len(over, PMATH_SYMBOL_SEQUENCE, 0)) {
+      if(pmath_is_expr_of_len(over, pmath_System_Sequence, 0)) {
         pmath_unref(over);
         result = base;
       }
@@ -1816,7 +1879,7 @@ static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
@@ -1827,7 +1890,7 @@ static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
     pmath_t options = pmath_options_extract(box, 2);
     if(!pmath_is_null(options)) {
       pmath_t surdform = pmath_option_value(pmath_System_RadicalBox, pmath_System_SurdForm, options);
-      is_surd = pmath_same(surdform, PMATH_SYMBOL_TRUE);
+      is_surd = pmath_same(surdform, pmath_System_True);
       pmath_unref(surdform);
       pmath_unref(options);
       
@@ -1853,7 +1916,7 @@ static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
@@ -1876,7 +1939,7 @@ static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
         return wrap_hold_with_debuginfo_from(
                  box,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_ROTATE), 2,
+                   pmath_ref(pmath_System_Rotate), 2,
                    content,
                    angle));
       }
@@ -1884,7 +1947,7 @@ static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
@@ -1895,7 +1958,7 @@ static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
     pmath_t options = pmath_options_extract(box, 1);
     if(!pmath_is_null(options)) {
       pmath_t surdform = pmath_option_value(pmath_System_SqrtBox, pmath_System_SurdForm, options);
-      is_surd = pmath_same(surdform, PMATH_SYMBOL_TRUE);
+      is_surd = pmath_same(surdform, pmath_System_True);
       pmath_unref(surdform);
       pmath_unref(options);
       
@@ -1917,7 +1980,7 @@ static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_stylebox(pmath_expr_t box) {
@@ -1936,7 +1999,7 @@ static pmath_t make_expression_from_stylebox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
@@ -2010,7 +2073,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
   
 FAILED:
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
@@ -2023,10 +2086,10 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
     size_t i;
     size_t argcount;
     
-    if(!pmath_is_expr_of(args, PMATH_SYMBOL_LIST)) {
+    if(!pmath_is_expr_of(args, pmath_System_List)) {
       pmath_unref(args);
       pmath_message(PMATH_NULL, "inv", 1, box);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     argcount = pmath_expr_length(args);
@@ -2037,18 +2100,18 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
                pmath_ref(box)),
              pmath_integer_new_uiptr(argcount));
     func = pmath_evaluate(func);
-    if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
+    if(pmath_is_expr_of_len(func, pmath_System_Function, 1)) {
       pmath_t body = pmath_expr_get_item(func, 1);
       pmath_unref(func);
       func = pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_FUNCTION), 3,
+               pmath_ref(pmath_System_Function), 3,
                PMATH_NULL,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                 pmath_ref(pmath_System_MakeExpression), 1,
                  body),
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_LIST), 1,
-                 pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE)));
+                 pmath_ref(pmath_System_List), 1,
+                 pmath_ref(pmath_System_HoldAllComplete)));
       
       pmath_unref(box);
       box = pmath_expr_set_item(args, 0, func);
@@ -2060,7 +2123,7 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
     if(pmath_is_string(tag)) {
       pmath_unref(box);
       if(argcount > 1) {
-        box = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), argcount + (argcount - 1));
+        box = pmath_expr_new(pmath_ref(pmath_System_List), argcount + (argcount - 1));
         box = pmath_expr_set_item(box, 1, pmath_expr_get_item(args, 1));
         for(i = 1; i < argcount; ++i) {
           box = pmath_expr_set_item(box, 2 * i, PMATH_C_STRING(","));
@@ -2070,13 +2133,13 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
         args = box;
       }
       box = pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_LIST), 4,
+              pmath_ref(pmath_System_List), 4,
               tag,
               PMATH_C_STRING("("),
               args,
               PMATH_C_STRING(")"));
       box = pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+              pmath_ref(pmath_System_MakeExpression), 1,
               box);
       return box;
     }
@@ -2085,7 +2148,7 @@ static pmath_t make_expression_from_templatebox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
@@ -2097,7 +2160,7 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
     
     if(parse(&base) && parse(&under)) {
       pmath_t result;
-      if(pmath_is_expr_of_len(under, PMATH_SYMBOL_SEQUENCE, 0)) {
+      if(pmath_is_expr_of_len(under, pmath_System_Sequence, 0)) {
         pmath_unref(under);
         result = base;
       }
@@ -2112,7 +2175,7 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
@@ -2125,16 +2188,16 @@ static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
     
     if(parse(&base) && parse(&under) && parse(&over)) {
       pmath_t result;
-      if(pmath_is_expr_of_len(under, PMATH_SYMBOL_SEQUENCE, 0)) {
+      if(pmath_is_expr_of_len(under, pmath_System_Sequence, 0)) {
         pmath_unref(under);
-        if(pmath_is_expr_of_len(over, PMATH_SYMBOL_SEQUENCE, 0)) {
+        if(pmath_is_expr_of_len(over, pmath_System_Sequence, 0)) {
           pmath_unref(over);
           result = base;
         }
         else
           result = pmath_expr_new_extended(pmath_ref(pmath_System_Overscript), 2, base, over);
       }
-      else if(pmath_is_expr_of_len(over, PMATH_SYMBOL_SEQUENCE, 0)) {
+      else if(pmath_is_expr_of_len(over, pmath_System_Sequence, 0)) {
         pmath_unref(over);
         result = pmath_expr_new_extended(pmath_ref(pmath_System_Underscript), 2, base, under);
       }
@@ -2152,7 +2215,7 @@ static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
   }
   
   pmath_message(PMATH_NULL, "inv", 1, box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // (x)
@@ -2163,18 +2226,18 @@ static pmath_t make_parenthesis(pmath_expr_t boxes) {
   if(exprlen == 2) {
     pmath_unref(boxes);
     return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+             pmath_ref(pmath_System_HoldComplete), 0);
   }
   
   if(exprlen > 3) {
     pmath_message(PMATH_NULL, "inv", 1, boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   box = pmath_expr_get_item(boxes, 2);
   pmath_unref(boxes);
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box);
+           pmath_ref(pmath_System_MakeExpression), 1, box);
 }
 
 // a,b,c ...
@@ -2189,7 +2252,7 @@ static pmath_t make_comma_sequence(pmath_expr_t expr) {
     
     if(is_parse_error(prev)) {
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     i = 2;
   }
@@ -2209,7 +2272,7 @@ static pmath_t make_comma_sequence(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "inv", 1, expr);
       pmath_unref(pmath_gather_end());
       pmath_unref(prev);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     else {
       last_was_comma = FALSE;
@@ -2217,7 +2280,7 @@ static pmath_t make_comma_sequence(pmath_expr_t expr) {
       if(is_parse_error(prev)) {
         pmath_unref(expr);
         pmath_unref(pmath_gather_end());
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
     }
     ++i;
@@ -2227,7 +2290,7 @@ static pmath_t make_comma_sequence(pmath_expr_t expr) {
   pmath_unref(expr);
   return pmath_expr_set_item(
            pmath_gather_end(), 0,
-           pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE));
+           pmath_ref(pmath_System_HoldComplete));
 }
 
 // a; b; c\[RawNewline]d ...
@@ -2246,8 +2309,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
     
   if(i > exprlen) {
     pmath_unref(boxes);
-    return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
   }
   
   if(i == exprlen) {
@@ -2255,7 +2317,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
     pmath_unref(boxes);
     
     if(is_parse_error(prev))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
       
     return HOLDCOMPLETE(prev);
   }
@@ -2281,7 +2343,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
       pmath_message(PMATH_NULL, "inv", 1, boxes);
       pmath_unref(pmath_gather_end());
       pmath_unref(prev);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     else {
       last_was_semicolon = FALSE;
@@ -2289,7 +2351,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
       if(is_parse_error(prev)) {
         pmath_unref(boxes);
         pmath_unref(pmath_gather_end());
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
     }
     ++i;
@@ -2300,7 +2362,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
            boxes,
            pmath_expr_set_item(
              pmath_gather_end(), 0,
-             pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE)));
+             pmath_ref(pmath_System_EvaluationSequence)));
 }
 
 // implicit evaluation sequence (newlines -> head = /\/ = PMATH_NULL) ...
@@ -2311,10 +2373,10 @@ static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
   exprlen = pmath_expr_length(boxes);
   if(exprlen == 0) {
     pmath_unref(boxes);
-    return pmath_expr_new(pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 0);
+    return pmath_expr_new(pmath_ref(pmath_System_HoldComplete), 0);
   }
   
-  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), exprlen);
+  result = pmath_expr_new(pmath_ref(pmath_System_EvaluationSequence), exprlen);
   
   for(i = 1; i <= exprlen; ++i) {
     pmath_t box = pmath_expr_get_item(boxes, i);
@@ -2322,7 +2384,7 @@ static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
     if(!parse(&box)) {
       pmath_unref(box);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     result = pmath_expr_set_item(result, i, box);
@@ -2339,7 +2401,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
     size_t exprlen = pmath_expr_length(boxes);
     
     box = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+            pmath_ref(pmath_System_Pattern), 2,
             box,
             pmath_ref(_pmath_object_singlematch));
             
@@ -2347,7 +2409,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
       return wrap_hold_with_debuginfo_from(
                boxes,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_OPTIONAL), 1,
+                 pmath_ref(pmath_System_Optional), 1,
                  box));
     }
     
@@ -2358,7 +2420,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
         return wrap_hold_with_debuginfo_from(
                  boxes,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_OPTIONAL), 2,
+                   pmath_ref(pmath_System_Optional), 2,
                    box,
                    value));
       }
@@ -2368,7 +2430,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_from_first_box(
@@ -2386,7 +2448,7 @@ static pmath_t make_from_first_box(
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_from_second_box(
@@ -2404,7 +2466,7 @@ static pmath_t make_from_second_box(
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
@@ -2414,7 +2476,7 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
   
   if(exprlen == 2) {
     pmath_unref(boxes);
-    if(pmath_same(sym, PMATH_SYMBOL_LIST))
+    if(pmath_same(sym, pmath_System_List))
       return HOLDCOMPLETE(pmath_ref(_pmath_object_emptylist));
     else
       return HOLDCOMPLETE(pmath_expr_new(pmath_ref(sym), 0));
@@ -2422,7 +2484,7 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
   
   if(exprlen != 3) {
     pmath_message(PMATH_NULL, "inv", 1, boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 2));
@@ -2435,7 +2497,7 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
   
   pmath_unref(boxes);
   pmath_unref(args);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_binary(
@@ -2447,13 +2509,13 @@ static pmath_t make_binary(
   if(!is_parse_error(lhs)) {
     pmath_t rhs;
     
-    if( pmath_same(sym, PMATH_SYMBOL_ASSIGN) &&
+    if( pmath_same(sym, pmath_System_Assign) &&
         unichar_at(boxes, 3) == '.')
     {
       return wrap_hold_with_debuginfo_from(
                boxes,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_UNASSIGN), 1,
+                 pmath_ref(pmath_System_Unassign), 1,
                  lhs));
     }
     
@@ -2471,7 +2533,7 @@ static pmath_t make_binary(
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_infix_unchecked(
@@ -2490,7 +2552,7 @@ static pmath_t make_infix_unchecked(
     if(is_parse_error(arg)) {
       pmath_unref(result);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     result = pmath_expr_set_item(result, i + 1, arg);
@@ -2511,7 +2573,7 @@ static pmath_t make_infix(
     if(!pmath_same(inset_operator(unichar_at(boxes, i)), sym)) {
       handle_row_error_at(boxes, i);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
   }
   
@@ -2534,7 +2596,7 @@ static pmath_t make_relation(
       
       if(is_parse_error(arg)) {
         pmath_unref(boxes);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       result = pmath_expr_set_item(result, 1, arg);
@@ -2545,7 +2607,7 @@ static pmath_t make_relation(
           handle_row_error_at(boxes, i - 1);
           pmath_unref(boxes);
           pmath_unref(result);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
+          return pmath_ref(pmath_System_DollarFailed);
         }
         
         result = pmath_expr_set_item(result, i - 1, pmath_ref(rel));
@@ -2554,7 +2616,7 @@ static pmath_t make_relation(
         if(is_parse_error(arg)) {
           pmath_unref(boxes);
           pmath_unref(result);
-          return pmath_ref(PMATH_SYMBOL_FAILED);
+          return pmath_ref(pmath_System_DollarFailed);
         }
         
         result = pmath_expr_set_item(result, i, arg);
@@ -2564,7 +2626,7 @@ static pmath_t make_relation(
                boxes,
                pmath_expr_set_item(
                  result, 0,
-                 pmath_ref(PMATH_SYMBOL_INEQUATION)));
+                 pmath_ref(pmath_System_Inequation)));
     }
   }
   
@@ -2576,7 +2638,7 @@ static pmath_t make_relation(
     if(is_parse_error(arg)) {
       pmath_unref(result);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     result = pmath_expr_set_item(result, i + 1, arg);
@@ -2596,14 +2658,14 @@ static pmath_t make_repeated_pattern(
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+               pmath_ref(pmath_System_Repeated), 2,
                box,
                range));
   }
   
   pmath_unref(boxes);
   pmath_unref(range);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // +x
@@ -2611,7 +2673,7 @@ static pmath_t make_unary_plus(pmath_expr_t boxes) {
   pmath_t box = pmath_expr_get_item(boxes, 2);
   pmath_unref(boxes);
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1, box);
+           pmath_ref(pmath_System_MakeExpression), 1, box);
 }
 
 // -x
@@ -2628,13 +2690,13 @@ static pmath_t make_unary_minus(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_TIMES), 2,
+               pmath_ref(pmath_System_Times), 2,
                PMATH_FROM_INT32(-1),
                box));
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // ##1
@@ -2643,23 +2705,23 @@ static pmath_t make_pure_argument_range(pmath_expr_t boxes) {
   
   if(is_parse_error(box)) {
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(pmath_is_integer(box)) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+               pmath_ref(pmath_System_PureArgument), 1,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                 pmath_ref(pmath_System_Range), 2,
                  box,
-                 pmath_ref(PMATH_SYMBOL_AUTOMATIC))));
+                 pmath_ref(pmath_System_Automatic))));
   }
   
   pmath_unref(box);
   pmath_message(PMATH_NULL, "inv", 1, boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // ??name  <<file
@@ -2675,7 +2737,7 @@ static pmath_t make_text_line(
   {
     if(!parse(&box)) {
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
   }
   
@@ -2697,14 +2759,14 @@ static pmath_t make_named_match(
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+               pmath_ref(pmath_System_Pattern), 2,
                box,
                range));
   }
   
   pmath_unref(boxes);
   pmath_unref(range);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box) {
@@ -2726,7 +2788,7 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
   pmath_unref(boxes);
   pmath_unref(base);
   pmath_unref(exp);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
@@ -2748,7 +2810,7 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
       pmath_t head = pmath_expr_get_item(idx, 0);
       pmath_unref(head);
       
-      if(pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE)) {
+      if(pmath_same(head, pmath_System_HoldComplete)) {
         size_t exprlen = pmath_expr_length(idx) + 1;
         
         pmath_t result = pmath_expr_new(
@@ -2775,7 +2837,7 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
     
   pmath_unref(boxes);
   pmath_unref(base);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscript_box) {
@@ -2802,7 +2864,7 @@ static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscri
   boxes = pmath_try_set_debug_info(boxes, pmath_ref(debug_info));
   
   boxes = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_LIST), 2,
+            pmath_ref(pmath_System_List), 2,
             boxes,
             pmath_expr_new_extended(
               pmath_ref(pmath_System_SuperscriptBox), 1,
@@ -2810,7 +2872,7 @@ static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscri
   boxes = pmath_try_set_debug_info(boxes, debug_info);
   
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+           pmath_ref(pmath_System_MakeExpression), 1,
            boxes);
 }
 
@@ -2829,7 +2891,7 @@ static pmath_t make_simple_dot_call(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // a.f(args)
@@ -2839,14 +2901,14 @@ static pmath_t make_dot_call(pmath_expr_t boxes) {
   arg1 = parse_at(boxes, 1);
   if(is_parse_error(arg1)) {
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   f = parse_at(boxes, 3);
   if(is_parse_error(f)) {
     pmath_unref(arg1);
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 5));
@@ -2877,7 +2939,7 @@ static pmath_t make_dot_call(pmath_expr_t boxes) {
   pmath_unref(f);
   pmath_unref(args);
   pmath_message(PMATH_NULL, "inv", 1, boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // f @ a
@@ -2897,7 +2959,7 @@ static pmath_t make_prefix_call(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // a // f
@@ -2917,7 +2979,7 @@ static pmath_t make_postfix_call(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // f()
@@ -2929,7 +2991,7 @@ static pmath_t make_argumentless_call(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // f(args)
@@ -2949,7 +3011,7 @@ static pmath_t make_simple_call(pmath_expr_t boxes) {
   
   pmath_unref(args);
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // x:p   ~:t  ~~:t  ~~~:t
@@ -2960,14 +3022,14 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
   box = parse_at(boxes, 3);
   if(is_parse_error(box)) {
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(firstchar == '~') {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 1,
+               pmath_ref(pmath_System_SingleMatch), 1,
                box));
   }
   
@@ -2975,9 +3037,9 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+               pmath_ref(pmath_System_Repeated), 2,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 1,
+                 pmath_ref(pmath_System_SingleMatch), 1,
                  box),
                pmath_ref(_pmath_object_range_from_one)));
   }
@@ -2986,9 +3048,9 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+               pmath_ref(pmath_System_Repeated), 2,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 1,
+                 pmath_ref(pmath_System_SingleMatch), 1,
                  box),
                pmath_ref(_pmath_object_range_from_zero)));
   }
@@ -2999,14 +3061,14 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+               pmath_ref(pmath_System_Pattern), 2,
                x,
                box));
   }
   
   pmath_unref(boxes);
   pmath_unref(box);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // args |-> body
@@ -3017,21 +3079,21 @@ static pmath_t make_arrow_function(pmath_expr_t boxes) {
     pmath_t body = parse_at(boxes, 3);
     
     if(!is_parse_error(body)) {
-      if(pmath_is_expr_of(args, PMATH_SYMBOL_SEQUENCE)) {
+      if(pmath_is_expr_of(args, pmath_System_Sequence)) {
         args = pmath_expr_set_item(
                  args, 0,
-                 pmath_ref(PMATH_SYMBOL_LIST));
+                 pmath_ref(pmath_System_List));
       }
       else {
         args = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_LIST), 1,
+                 pmath_ref(pmath_System_List), 1,
                  args);
       }
       
       return wrap_hold_with_debuginfo_from(
                boxes,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_FUNCTION), 2,
+                 pmath_ref(pmath_System_Function), 2,
                  args,
                  body));
     }
@@ -3040,7 +3102,7 @@ static pmath_t make_arrow_function(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // f @@ list
@@ -3054,7 +3116,7 @@ static pmath_t make_apply(pmath_expr_t boxes) {
       return wrap_hold_with_debuginfo_from(
                boxes,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_APPLY), 2,
+                 pmath_ref(pmath_System_Apply), 2,
                  list,
                  f));
     }
@@ -3063,7 +3125,7 @@ static pmath_t make_apply(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // sym::tag
@@ -3073,7 +3135,7 @@ static pmath_t make_message_name(pmath_expr_t boxes) {
   
   if(pmath_is_null(tag)) {
     pmath_message(PMATH_NULL, "inv", 1, boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   sym = parse_at(boxes, 1);
@@ -3081,14 +3143,14 @@ static pmath_t make_message_name(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+               pmath_ref(pmath_System_MessageName), 2,
                sym,
                tag));
   }
   
   pmath_unref(tag);
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // ~x:t  ~~x:t  ~~~x:t
@@ -3098,24 +3160,24 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
   x = parse_at(boxes, 2);
   if(is_parse_error(x)) {
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   t = parse_at(boxes, 4);
   if(is_parse_error(t)) {
     pmath_unref(x);
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(unichar_at(boxes, 1) == '~') {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+               pmath_ref(pmath_System_Pattern), 2,
                x,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 1,
+                 pmath_ref(pmath_System_SingleMatch), 1,
                  t)));
   }
   
@@ -3123,12 +3185,12 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+               pmath_ref(pmath_System_Pattern), 2,
                x,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+                 pmath_ref(pmath_System_Repeated), 2,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 1,
+                   pmath_ref(pmath_System_SingleMatch), 1,
                    t),
                  pmath_ref(_pmath_object_range_from_one))));
   }
@@ -3137,12 +3199,12 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
     return wrap_hold_with_debuginfo_from(
              boxes,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_PATTERN), 2,
+               pmath_ref(pmath_System_Pattern), 2,
                x,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_REPEATED), 2,
+                 pmath_ref(pmath_System_Repeated), 2,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_SINGLEMATCH), 1,
+                   pmath_ref(pmath_System_SingleMatch), 1,
                    t),
                  pmath_ref(_pmath_object_range_from_zero))));
   }
@@ -3150,21 +3212,21 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
   pmath_unref(x);
   pmath_unref(t);
   pmath_message(PMATH_NULL, "inv", 1, boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // tag/: lhs:= rhs   tag/: lhs::= rhs
 static pmath_t make_tag_assignment(pmath_expr_t boxes) {
   pmath_t tag, head;
   
-  if(     unichar_at(boxes, 4) == PMATH_CHAR_ASSIGN)        head = PMATH_SYMBOL_TAGASSIGN;
-  else if(unichar_at(boxes, 4) == PMATH_CHAR_ASSIGNDELAYED) head = PMATH_SYMBOL_TAGASSIGNDELAYED;
-  else if(is_string_at(boxes, 4, ":="))                     head = PMATH_SYMBOL_TAGASSIGN;
-  else if(is_string_at(boxes, 4, "::="))                    head = PMATH_SYMBOL_TAGASSIGNDELAYED;
+  if(     unichar_at(boxes, 4) == PMATH_CHAR_ASSIGN)        head = pmath_System_TagAssign;
+  else if(unichar_at(boxes, 4) == PMATH_CHAR_ASSIGNDELAYED) head = pmath_System_TagAssignDelayed;
+  else if(is_string_at(boxes, 4, ":="))                     head = pmath_System_TagAssign;
+  else if(is_string_at(boxes, 4, "::="))                    head = pmath_System_TagAssignDelayed;
   else {
     handle_row_error_at(boxes, 4);
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   tag = parse_at(boxes, 1);
@@ -3174,13 +3236,13 @@ static pmath_t make_tag_assignment(pmath_expr_t boxes) {
     if(!is_parse_error(lhs)) {
       pmath_t rhs;
       
-      if( pmath_same(head, PMATH_SYMBOL_TAGASSIGN) &&
+      if( pmath_same(head, pmath_System_TagAssign) &&
           unichar_at(boxes, 5) == '.')
       {
         return wrap_hold_with_debuginfo_from(
                  boxes,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_TAGUNASSIGN), 2,
+                   pmath_ref(pmath_System_TagUnassign), 2,
                    tag,
                    lhs));
       }
@@ -3203,7 +3265,7 @@ static pmath_t make_tag_assignment(pmath_expr_t boxes) {
   }
   
   pmath_unref(boxes);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // a + b - c ...
@@ -3214,14 +3276,14 @@ static pmath_t make_plus(pmath_expr_t boxes) {
   
   if(is_parse_error(arg)) {
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   exprlen = pmath_expr_length(boxes);
   
   result = pmath_expr_set_item(
              pmath_expr_new(
-               pmath_ref(PMATH_SYMBOL_PLUS),
+               pmath_ref(pmath_System_Plus),
                (1 + exprlen) / 2),
              1,
              arg);
@@ -3233,7 +3295,7 @@ static pmath_t make_plus(pmath_expr_t boxes) {
     if(is_parse_error(arg)) {
       pmath_unref(result);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     ch = unichar_at(boxes, 2 * i);
@@ -3243,7 +3305,7 @@ static pmath_t make_plus(pmath_expr_t boxes) {
       }
       else {
         arg = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                pmath_ref(pmath_System_Times), 2,
                 PMATH_FROM_INT32(-1),
                 arg);
       }
@@ -3253,7 +3315,7 @@ static pmath_t make_plus(pmath_expr_t boxes) {
       pmath_unref(result);
       handle_row_error_at(boxes, 2 * i);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     result = pmath_expr_set_item(result, i + 1, arg);
@@ -3281,18 +3343,18 @@ static pmath_t make_division(pmath_expr_t boxes) {
     if(tokprec != PMATH_PREC_DIV) {
       handle_row_error_at(boxes, i);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
   }
   
-  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), (1 + exprlen) / 2);
+  result = pmath_expr_new(pmath_ref(pmath_System_Times), (1 + exprlen) / 2);
   for(i = 0; i <= exprlen / 2; ++i) {
     pmath_t arg = parse_at(boxes, 2 * i + 1);
     
     if(is_parse_error(arg)) {
       pmath_unref(result);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     if(i > 0) {
@@ -3348,13 +3410,13 @@ static pmath_t make_and(pmath_expr_t boxes) {
       pmath_unref(op);
       handle_row_error_at(boxes, i);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     pmath_unref(op);
   }
   
-  return make_infix_unchecked(boxes, PMATH_SYMBOL_AND);
+  return make_infix_unchecked(boxes, pmath_System_And);
 }
 
 // a || b || c ...
@@ -3373,13 +3435,13 @@ static pmath_t make_or(pmath_expr_t boxes) {
       pmath_unref(op);
       handle_row_error_at(boxes, i);
       pmath_unref(boxes);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     pmath_unref(op);
   }
   
-  return make_infix_unchecked(boxes, PMATH_SYMBOL_OR);
+  return make_infix_unchecked(boxes, pmath_System_Or);
 }
 
 // l[args]
@@ -3390,7 +3452,7 @@ static pmath_t make_part(pmath_expr_t boxes) {
   list = parse_at(boxes, 1);
   if(is_parse_error(list)) {
     pmath_unref(boxes);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 3));
@@ -3400,7 +3462,7 @@ static pmath_t make_part(pmath_expr_t boxes) {
     
     pmath_expr_t result = pmath_expr_set_item(
                             pmath_expr_new(
-                              pmath_ref(PMATH_SYMBOL_PART),
+                              pmath_ref(pmath_System_Part),
                               argslen + 1),
                             1, list);
                             
@@ -3416,7 +3478,7 @@ static pmath_t make_part(pmath_expr_t boxes) {
   pmath_unref(boxes);
   pmath_unref(list);
   pmath_unref(args);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 // a..b   a..b..c  with any of (a,b,c) optional
@@ -3433,7 +3495,7 @@ static pmath_t make_range(pmath_expr_t boxes) {
   for(i = 1; i <= exprlen; ++i) {
     if(is_string_at(boxes, i, "..")) {
       if(!have_arg)
-        pmath_emit(pmath_ref(PMATH_SYMBOL_AUTOMATIC), PMATH_NULL);
+        pmath_emit(pmath_ref(pmath_System_Automatic), PMATH_NULL);
         
       have_arg = FALSE;
     }
@@ -3442,20 +3504,20 @@ static pmath_t make_range(pmath_expr_t boxes) {
         pmath_unref(pmath_gather_end());
         handle_row_error_at(boxes, i);
         pmath_unref(boxes);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       have_arg = TRUE;
       
       if(are_linebreaks_only_at(boxes, i))
-        arg = pmath_ref(PMATH_SYMBOL_AUTOMATIC);
+        arg = pmath_ref(pmath_System_Automatic);
       else
         arg = parse_at(boxes, i);
         
       if(is_parse_error(arg)) {
         pmath_unref(boxes);
         pmath_unref(pmath_gather_end());
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       pmath_emit(arg, PMATH_NULL);
@@ -3463,10 +3525,10 @@ static pmath_t make_range(pmath_expr_t boxes) {
   }
   
   if(!have_arg)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_AUTOMATIC), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_Automatic), PMATH_NULL);
     
   result = pmath_gather_end();
-  result = pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_RANGE));
+  result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_Range));
   return wrap_hold_with_debuginfo_from(boxes, result);
 }
 
@@ -3484,7 +3546,7 @@ static pmath_t make_multiplication(pmath_expr_t boxes) {
     if(is_parse_error(box)) {
       pmath_unref(boxes);
       pmath_unref(pmath_gather_end());
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     pmath_emit(box, PMATH_NULL);
     
@@ -3499,5 +3561,5 @@ static pmath_t make_multiplication(pmath_expr_t boxes) {
            boxes,
            pmath_expr_set_item(
              pmath_gather_end(), 0,
-             pmath_ref(PMATH_SYMBOL_TIMES)));
+             pmath_ref(pmath_System_Times)));
 }

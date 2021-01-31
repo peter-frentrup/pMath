@@ -5,6 +5,8 @@
 #include <pmath-builtins/io-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+
 static const uint16_t newline = '\n';
 
 PMATH_PRIVATE pmath_t builtin_write(pmath_expr_t expr) {
@@ -24,7 +26,7 @@ PMATH_PRIVATE pmath_t builtin_write(pmath_expr_t expr) {
   if(!_pmath_file_check(file, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_TEXT)) {
     pmath_unref(file);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   // locking?
@@ -61,7 +63,7 @@ PMATH_PRIVATE pmath_t builtin_writestring(pmath_expr_t expr) {
   if(!_pmath_file_check(file, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_TEXT)) {
     pmath_unref(file);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   // locking?

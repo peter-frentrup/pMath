@@ -14,7 +14,6 @@
 #include <pmath-util/memory.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/io-private.h>
 
@@ -29,8 +28,10 @@
 
 
 extern pmath_symbol_t pmath_System_ComplexStringBox;
-extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_False;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_OverscriptBox;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
 extern pmath_symbol_t pmath_System_SubscriptBox;
 extern pmath_symbol_t pmath_System_SubsuperscriptBox;
@@ -608,7 +609,7 @@ static pmath_bool_t is_single_token(pmath_t box) {
     return TRUE;
 
   if( pmath_is_expr_of(box, PMATH_NULL) ||
-      pmath_is_expr_of(box, PMATH_SYMBOL_LIST))
+      pmath_is_expr_of(box, pmath_System_List))
   {
     pmath_t part;
     pmath_bool_t result;
@@ -749,7 +750,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     return;
   }
 
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(box, pmath_System_List)) {
     size_t i;
     size_t boxlen = pmath_expr_length(box);
 
@@ -800,14 +801,14 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
     for(i = pmath_expr_length(box); i > 1; --i) {
       pmath_t option = pmath_expr_get_item(box, i);
 
-      if(_pmath_is_rule(option)) {
+      if(pmath_is_rule(option)) {
         pmath_t lhs = pmath_expr_get_item(option, 1);
         pmath_t rhs = pmath_expr_get_item(option, 2);
         pmath_unref(lhs);
         pmath_unref(rhs);
 
         if(pmath_same(lhs, pmath_System_ShowStringCharacters))
-          hide_string_characters = pmath_same(rhs, PMATH_SYMBOL_FALSE);
+          hide_string_characters = pmath_same(rhs, pmath_System_False);
       }
 
       pmath_unref(option);

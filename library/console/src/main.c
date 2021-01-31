@@ -14,9 +14,30 @@
 
 static void os_init(void);
 
-static pmath_symbol_t pmath_Language_SourceLocation = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_BoxData          = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_Section          = PMATH_STATIC_NULL;
+#define PMATH_SYSTEM_SYMBOL_X( sym )         X( pmath_System_ ## sym       , "System`" #sym )
+#define PMATH_SYSTEM_DOLLAR_SYMBOL_X( sym )  X( pmath_System_Dollar ## sym , "System`$" #sym )
+#define PMATH_LANGUAGE_SYMBOL_X( sym )       X( pmath_Language_ ## sym     , "Language`" #sym )
+#define PMATH_SYMBOLS_X                      \
+  PMATH_LANGUAGE_SYMBOL_X( SourceLocation  ) \
+  PMATH_SYSTEM_DOLLAR_SYMBOL_X( PageWidth ) \
+  PMATH_SYSTEM_SYMBOL_X( BoxData         ) \
+  PMATH_SYSTEM_SYMBOL_X( Dialog          ) \
+  PMATH_SYSTEM_SYMBOL_X( HoldComplete    ) \
+  PMATH_SYSTEM_SYMBOL_X( Interrupt       ) \
+  PMATH_SYSTEM_SYMBOL_X( List            ) \
+  PMATH_SYSTEM_SYMBOL_X( MakeExpression  ) \
+  PMATH_SYSTEM_SYMBOL_X( Quit            ) \
+  PMATH_SYSTEM_SYMBOL_X( Range           ) \
+  PMATH_SYSTEM_SYMBOL_X( RawBoxes        ) \
+  PMATH_SYSTEM_SYMBOL_X( Return          ) \
+  PMATH_SYSTEM_SYMBOL_X( Row             ) \
+  PMATH_SYSTEM_SYMBOL_X( Section         ) \
+  PMATH_SYSTEM_SYMBOL_X( SectionPrint    ) \
+  PMATH_SYSTEM_SYMBOL_X( Sequence        )
+
+#define X( SYM, NAME )  PMATH_PRIVATE pmath_symbol_t SYM = PMATH_STATIC_NULL;
+  PMATH_SYMBOLS_X
+#undef X
 
 #ifdef PMATH_OS_WIN32
 #  include <io.h>
@@ -222,7 +243,7 @@ static void interrupt_daemon(void *dummy) {
     mq = get_main_mq();
     pmath_thread_send(
       mq,
-      pmath_expr_new(pmath_ref(PMATH_SYMBOL_INTERRUPT), 0));
+      pmath_expr_new(pmath_ref(pmath_System_Interrupt), 0));
     pmath_unref(mq);
   }
 }
@@ -284,7 +305,7 @@ static void handle_options(int argc, const char **argv) {
 }
 
 static pmath_t check_dialog_return(pmath_t result) { // result wont be freed
-  if( pmath_is_expr_of(result, PMATH_SYMBOL_RETURN) &&
+  if( pmath_is_expr_of(result, pmath_System_Return) &&
       pmath_expr_length(result) <= 1)
   {
     return pmath_expr_get_item(result, 1);
@@ -372,7 +393,7 @@ static pmath_t add_debug_info(
                  pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->filename),
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                   pmath_ref(pmath_System_Range), 2,
                    pmath_build_value("(ii)", start_line, start_column),
                    pmath_build_value("(ii)", end_line,   end_column)));
                    
@@ -438,10 +459,10 @@ static pmath_t dialog(pmath_t first_eval) {
         
         obj = pmath_evaluate(
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                  pmath_ref(pmath_System_MakeExpression), 1,
                   obj));
                   
-        if(pmath_is_expr_of(obj, PMATH_SYMBOL_HOLDCOMPLETE)) {
+        if(pmath_is_expr_of(obj, pmath_System_HoldComplete)) {
           if(pmath_expr_length(obj) == 1) {
             pmath_t tmp = obj;
             obj = pmath_expr_get_item(tmp, 1);
@@ -449,7 +470,7 @@ static pmath_t dialog(pmath_t first_eval) {
           }
           else {
             obj = pmath_expr_set_item(
-                    obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+                    obj, 0, pmath_ref(pmath_System_Sequence));
           }
           
           obj = pmath_try_set_debug_info(obj, debug_info);
@@ -603,7 +624,7 @@ static void interrupt_callback(void *dummy) {
       mq = get_main_mq();
       pmath_thread_send(
         mq,
-        pmath_expr_new(pmath_ref(PMATH_SYMBOL_DIALOG), 0));
+        pmath_expr_new(pmath_ref(pmath_System_Dialog), 0));
       pmath_unref(mq);
       break;
     }
@@ -703,8 +724,8 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     pmath_t sections = pmath_expr_get_item(expr, 1);
     size_t i;
     
-    if(!pmath_is_expr_of(sections, PMATH_SYMBOL_LIST))
-      sections = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, sections);
+    if(!pmath_is_expr_of(sections, pmath_System_List))
+      sections = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, sections);
     
     for(i = 1; i <= pmath_expr_length(sections); ++i) {
       pmath_t item = pmath_expr_get_item(sections, i);
@@ -716,9 +737,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
         
         pmath_unref(item);
         if(pmath_is_expr_of(boxes, pmath_System_BoxData)) 
-          item = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_RAWBOXES));
+          item = pmath_expr_set_item(boxes, 0, pmath_ref(pmath_System_RawBoxes));
         else
-          item = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, boxes);
+          item = pmath_expr_new_extended(pmath_ref(pmath_System_RawBoxes), 1, boxes);
       }
       
       write_output(indent, item);
@@ -748,8 +769,8 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     pmath_unref(expr);
     expr = PMATH_NULL;
     
-    row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
-    row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
+    row = pmath_expr_set_item(row, 0, pmath_ref(pmath_System_List));
+    row = pmath_expr_new_extended(pmath_ref(pmath_System_Row), 1, row);
     
     write_output(indent, row);
     pmath_unref(row);
@@ -762,7 +783,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
 }
 
 static void init_console_width(void) {
-  pmath_t pw = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+  pmath_t pw = pmath_evaluate(pmath_ref(pmath_System_DollarPageWidth));
   
   if(pmath_is_int32(pw))
     console_width = PMATH_AS_INT32(pw) - 1;
@@ -771,24 +792,24 @@ static void init_console_width(void) {
 }
 
 static pmath_bool_t init_pmath_bindings() {
-  pmath_Language_SourceLocation = pmath_symbol_get(PMATH_C_STRING("Language`SourceLocation"), FALSE);
-  pmath_System_BoxData          = pmath_symbol_get(PMATH_C_STRING("System`BoxData"), FALSE);
-  pmath_System_Section          = pmath_symbol_get(PMATH_C_STRING("System`Section"), FALSE);
+#define X( SYM, NAME )  SYM = pmath_symbol_get(PMATH_C_STRING( NAME ), FALSE);
+  PMATH_SYMBOLS_X
+#undef X
   
-  return !pmath_is_null(pmath_Language_SourceLocation) &&
-         !pmath_is_null(pmath_System_BoxData) &&
-         !pmath_is_null(pmath_System_Section) &&
-         pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
-         pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) &&
-         pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) &&
-         pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0);
+#define X( SYM, NAME )  !pmath_is_null( SYM ) &&
+  return PMATH_SYMBOLS_X
+         pmath_register_code(pmath_System_Dialog,       builtin_dialog,       0) &&
+         pmath_register_code(pmath_System_Interrupt,    builtin_interrupt,    0) &&
+         pmath_register_code(pmath_System_Quit,         builtin_quit,         0) &&
+         pmath_register_code(pmath_System_SectionPrint, builtin_sectionprint, 0);
+#undef X
 }
 
 static void done_pmath_bindings(void) {
   // FIXME: race condition when another thread still runs
-  pmath_unref(pmath_Language_SourceLocation); pmath_Language_SourceLocation = PMATH_NULL;
-  pmath_unref(pmath_System_BoxData);          pmath_System_BoxData          = PMATH_NULL;
-  pmath_unref(pmath_System_Section);          pmath_System_Section          = PMATH_NULL;
+#define X( SYM, NAME )  pmath_unref( SYM ); SYM = PMATH_NULL;
+  PMATH_SYMBOLS_X
+#undef X
 }
 
 int main(int argc, const char **argv) {

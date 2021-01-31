@@ -66,11 +66,30 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarAborted;
+extern pmath_symbol_t richmath_System_DollarApplicationFileName;
+extern pmath_symbol_t richmath_System_DollarControlActiveSetting;
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_DollarSessionId;
-
+extern pmath_symbol_t richmath_System_Abort;
+extern pmath_symbol_t richmath_System_Assign;
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_EvaluationSequence;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_HoldComplete;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_OpenRead;
+extern pmath_symbol_t richmath_System_OpenWrite;
+extern pmath_symbol_t richmath_System_RawBoxes;
 extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SetAttributes;
+extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_System_WindowTitle;
+
+extern pmath_symbol_t richmath_FE_DollarPaletteSearchPath;
+extern pmath_symbol_t richmath_FE_DollarStylesheetDirectory;
 
 namespace richmath { namespace strings {
   extern String EmptyString;
@@ -308,11 +327,11 @@ void Application::notify(ClientNotification type, Expr data) {
 
 Expr Application::notify_wait(ClientNotification type, Expr data) {
   if(pmath_atomic_read_aquire(&state) == Quitting)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   if(is_running_on_gui_thread()) {
     notify(type, data);
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   }  
   
   pmath_t result = PMATH_UNDEFINED;
@@ -463,7 +482,7 @@ void Application::gui_print_section(Expr expr) {
                                   base_style_name,
                                   rules));
                                   
-            if(base_style != PMATH_SYMBOL_FAILED) {
+            if(base_style != richmath_System_DollarFailed) {
               sect->style->remove(BaseStyleName);
               sect->style->add_pmath(base_style);
             }
@@ -497,7 +516,7 @@ void Application::gui_print_section(Expr expr) {
       if(boxes[0] == richmath_System_BoxData)
         boxes = boxes[1];
         
-      expr = Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes);
+      expr = Call(Symbol(richmath_System_RawBoxes), boxes);
     }
     
     printf("\n");
@@ -518,19 +537,19 @@ static void update_control_active(bool value) {
   if(value) {
     Application::interrupt_wait(
       /*Parse("FE`$ControlActiveSymbol:= True; Print(FE`$ControlActiveSymbol)")*/
-      Call(Symbol(PMATH_SYMBOL_ASSIGN),
+      Call(Symbol(richmath_System_Assign),
            Symbol(richmath_FE_DollarControlActive),
-           Symbol(PMATH_SYMBOL_TRUE)));
+           Symbol(richmath_System_True)));
   }
   else {
     Application::interrupt_wait(
       /*Parse("FE`$ControlActive:= False; SetAttributes($ControlActiveSetting,{}); Print(FE`$ControlActive)")*/
-      Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE),
-           Call(Symbol(PMATH_SYMBOL_ASSIGN),
+      Call(Symbol(richmath_System_EvaluationSequence),
+           Call(Symbol(richmath_System_Assign),
                 Symbol(richmath_FE_DollarControlActive),
-                Symbol(PMATH_SYMBOL_FALSE)),
-           Call(Symbol(PMATH_SYMBOL_SETATTRIBUTES),
-                Symbol(PMATH_SYMBOL_CONTROLACTIVESETTING),
+                Symbol(richmath_System_False)),
+           Call(Symbol(richmath_System_SetAttributes),
+                Symbol(richmath_System_DollarControlActiveSetting),
                 List())));
   }
 }
@@ -573,11 +592,11 @@ void Application::init() {
   if(!front_end_session)
     front_end_session = new FrontEndSession(nullptr);
   
-  application_filename = String(Evaluate(Symbol(PMATH_SYMBOL_APPLICATIONFILENAME)));
+  application_filename = String(Evaluate(Symbol(richmath_System_DollarApplicationFileName)));
   application_directory = FileSystem::get_directory_path(application_filename);
     
-  stylesheet_path_base = String(Evaluate(Parse("FE`$StylesheetDirectory")));
-  palette_search_path = Evaluate(Parse("FE`$PaletteSearchPath"));
+  stylesheet_path_base = String(Evaluate(Symbol(richmath_FE_DollarStylesheetDirectory)));
+  palette_search_path = Evaluate(Symbol(richmath_FE_DollarPaletteSearchPath));
   session_id = Evaluate(Symbol(richmath_System_DollarSessionId));
   
   total_time_waited_for_gui = 0.0;
@@ -653,7 +672,7 @@ int Application::run() {
 }
 
 void Application::done() {
-  Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->async_interrupt(Call(Symbol(richmath_System_Abort)));
   
   while(session) {
     SharedPtr<Job> job;
@@ -663,7 +682,7 @@ void Application::done() {
         job->dequeued();
     }
     
-    Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+    Server::local_server->async_interrupt(Call(Symbol(richmath_System_Abort)));
     //Server::local_server->abort_all();
     
     session = session->next;
@@ -783,7 +802,7 @@ void Application::abort_all_jobs() {
     }
   }
   
-  Server::local_server->async_interrupt(Call(Symbol(PMATH_SYMBOL_ABORT)));
+  Server::local_server->async_interrupt(Call(Symbol(richmath_System_Abort)));
   //Server::local_server->abort_all();
 }
 
@@ -926,7 +945,7 @@ Document *Application::try_create_document(Expr data) {
       doc->style->add_pmath(options);
       
     Expr sections = data[1];
-    if(sections[0] != PMATH_SYMBOL_LIST)
+    if(sections[0] != richmath_System_List)
       sections = List(sections);
     
     for(auto item : sections.items()) {
@@ -975,14 +994,14 @@ Document *Application::open_new_document(String full_filename) {
                           
                           
       if( held_boxes.expr_length() == 1 &&
-          held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
+          held_boxes[0] == richmath_System_HoldComplete &&
           doc->try_load_from_object(held_boxes[1], BoxInputFlags::Default))
       {
         break;
       }
     }
     
-    ReadableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENREAD), full_filename)));
+    ReadableTextFile file(Evaluate(Call(Symbol(richmath_System_OpenRead), full_filename)));
     String s;
     
     while(!pmath_aborting() && file.status() == PMATH_FILE_OK) {
@@ -1023,7 +1042,7 @@ Expr Application::run_filedialog(Expr data) {
     ++argi;
   }
   
-  if(data[argi][0] == PMATH_SYMBOL_LIST) {
+  if(data[argi][0] == richmath_System_List) {
     filter = data[argi];
     ++argi;
   }
@@ -1042,7 +1061,7 @@ Expr Application::run_filedialog(Expr data) {
     }
   }
   
-  Expr result = Symbol(PMATH_SYMBOL_FAILED);
+  Expr result = Symbol(richmath_System_DollarFailed);
   AutoGuiWait timer;
   
 #if RICHMATH_USE_WIN32_GUI
@@ -1164,12 +1183,12 @@ Expr Application::interrupt_wait_cached(Expr expr, double seconds) {
     return *cached;
     
   Expr result = interrupt_wait(expr, seconds);
-  if( result != PMATH_SYMBOL_ABORTED &&
-      result != PMATH_SYMBOL_FAILED)
+  if( result != richmath_System_DollarAborted &&
+      result != richmath_System_DollarFailed)
   {
     eval_cache.set(expr, result);
   }
-  else if(result == PMATH_SYMBOL_ABORTED) {
+  else if(result == richmath_System_DollarAborted) {
 #ifdef RICHMATH_USE_WIN32_GUI
     MessageBeep(-1);
 #endif
@@ -1329,7 +1348,7 @@ static void cnt_end(Expr data) {
   }
   
   bool more = false;
-  if(data == PMATH_SYMBOL_ABORTED) {
+  if(data == richmath_System_DollarAborted) {
     while(session->jobs.get(&job)) {
       if(job) {
         job->end();
@@ -1516,7 +1535,7 @@ namespace {
           doc = Documents::current();
           
         if(!doc)
-          return Symbol(PMATH_SYMBOL_FAILED);
+          return Symbol(richmath_System_DollarFailed);
         
         Document *owner_doc = doc->native()->owner_document();
         if(owner_doc)
@@ -1524,7 +1543,7 @@ namespace {
           
         Expr filename = data[2];
         
-        if(!filename.is_string() && filename != PMATH_SYMBOL_NONE)
+        if(!filename.is_string() && filename != richmath_System_None)
           filename = doc->native()->full_filename();
           
         if(!filename.is_string()) {
@@ -1557,11 +1576,11 @@ namespace {
         }
         
         if(!filename.is_string())
-          return Symbol(PMATH_SYMBOL_FAILED);
+          return Symbol(richmath_System_DollarFailed);
           
-        WriteableTextFile file(Evaluate(Call(Symbol(PMATH_SYMBOL_OPENWRITE), filename)));
+        WriteableTextFile file(Evaluate(Call(Symbol(richmath_System_OpenWrite), filename)));
         if(!file.is_file())
-          return Symbol(PMATH_SYMBOL_FAILED);
+          return Symbol(richmath_System_DollarFailed);
           
         Expr boxes = doc->to_pmath(BoxOutputFlags::Default);
         
@@ -1631,7 +1650,7 @@ Expr Application::save(Document *doc) {
   if(doc)
     return SaveOperation::do_save(List(doc->to_pmath_id()));
   else
-    return SaveOperation::do_save(List(Symbol(PMATH_SYMBOL_AUTOMATIC))); 
+    return SaveOperation::do_save(List(Symbol(richmath_System_Automatic))); 
 }
 
 static void execute(ClientNotificationData &cn) {
@@ -1711,7 +1730,7 @@ Expr richmath_eval_FrontEnd_EvaluationBox(Expr expr) {
   if(box)
     return box->to_pmath_id();
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr richmath_eval_FrontEnd_EvaluationDocument(Expr expr) {
@@ -1731,5 +1750,5 @@ Expr richmath_eval_FrontEnd_EvaluationDocument(Expr expr) {
   if(doc)
     return doc->to_pmath_id();
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }

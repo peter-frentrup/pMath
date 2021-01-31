@@ -13,7 +13,6 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/io-private.h>
 
 #include <limits.h>
@@ -29,6 +28,16 @@
 
 #include <pcre.h>
 
+
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_EndOfString;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IgnoreCase;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Literal;
+extern pmath_symbol_t pmath_System_StartOfString;
+extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_True;
 
 static void emit_directory_entries(
   struct _regex_t    *regex,
@@ -213,7 +222,7 @@ static void emit_directory_entries(
     }
 #endif
   }
-  else if(pmath_is_expr_of(directory, PMATH_SYMBOL_LIST)) {
+  else if(pmath_is_expr_of(directory, pmath_System_List)) {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(directory); ++i) {
@@ -233,7 +242,7 @@ static pmath_t prepare_filename_form(pmath_t obj) {
                "(o)", obj));
   }
   
-  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_LITERAL, 1)) {
+  if(pmath_is_expr_of_len(obj, pmath_System_Literal, 1)) {
     pmath_t s = pmath_expr_get_item(obj, 1);
     
     if(pmath_is_string(s)) {
@@ -245,7 +254,7 @@ static pmath_t prepare_filename_form(pmath_t obj) {
     return obj;
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(obj, pmath_System_List)) {
     size_t i;
     for(i = pmath_expr_length(obj); i > 0; --i) {
       obj = pmath_expr_set_item(
@@ -304,20 +313,20 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
     if(pmath_is_null(options))
       return expr;
       
-    option_value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
+    option_value = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
     pmath_unref(options);
-    if(pmath_same(option_value, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(option_value, pmath_System_True)) {
       pcre_options = PCRE_CASELESS;
     }
-    else if(pmath_same(option_value, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(pmath_same(option_value, pmath_System_Automatic)) {
 #ifdef PMATH_OS_WIN32
       pcre_options = PCRE_CASELESS;
 #endif
     }
-    else if(!pmath_same(option_value, PMATH_SYMBOL_FALSE)) {
+    else if(!pmath_same(option_value, pmath_System_False)) {
       pmath_message(
         PMATH_NULL, "opttfa", 2,
-        pmath_ref(PMATH_SYMBOL_IGNORECASE),
+        pmath_ref(pmath_System_IgnoreCase),
         option_value);
       pmath_unref(directory);
       return expr;
@@ -335,10 +344,10 @@ PMATH_PRIVATE pmath_t builtin_filenames(pmath_expr_t expr) {
   
   form = prepare_filename_form(form);
   form = pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION), 3,
-    pmath_ref(PMATH_SYMBOL_STARTOFSTRING),
+    pmath_ref(pmath_System_StringExpression), 3,
+    pmath_ref(pmath_System_StartOfString),
     form,
-    pmath_ref(PMATH_SYMBOL_ENDOFSTRING));
+    pmath_ref(pmath_System_EndOfString));
   
   regex = _pmath_regex_compile(form, pcre_options);
   

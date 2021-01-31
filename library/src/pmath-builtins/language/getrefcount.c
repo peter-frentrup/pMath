@@ -1,7 +1,9 @@
 #include <pmath-core/expressions.h>
-#include <pmath-core/numbers.h>
+#include <pmath-core/numbers-private.h>
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Infinity;
 
 PMATH_PRIVATE pmath_t builtin_private_getrefcount(pmath_expr_t expr) {
   pmath_t item;
@@ -14,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_private_getrefcount(pmath_expr_t expr) {
   if(pmath_is_pointer(item)) 
     expr = pmath_integer_new_siptr(pmath_refcount(item));
   else 
-    expr = pmath_ref(PMATH_SYMBOL_INFINITY);
+    expr = pmath_ref(_pmath_object_pos_infinity);
   
   pmath_unref(item);
   return expr;

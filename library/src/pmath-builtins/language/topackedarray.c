@@ -5,6 +5,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_Integer;
+extern pmath_symbol_t pmath_System_Real;
+
 PMATH_PRIVATE pmath_t builtin_developer_topackedarray(pmath_expr_t expr) {
 /* Developer`ToPackedArray(expr)
    Developer`ToPackedArray(expr, type)
@@ -24,11 +28,11 @@ PMATH_PRIVATE pmath_t builtin_developer_topackedarray(pmath_expr_t expr) {
     pmath_t type = pmath_expr_get_item(expr, 2);
     pmath_unref(type);
     
-    if(pmath_same(type, PMATH_SYMBOL_AUTOMATIC))
+    if(pmath_same(type, pmath_System_Automatic))
       expected_type = 0;
-    else if(pmath_same(type, PMATH_SYMBOL_INTEGER))
+    else if(pmath_same(type, pmath_System_Integer))
       expected_type = PMATH_PACKED_INT32;
-    else if(pmath_same(type, PMATH_SYMBOL_REAL))
+    else if(pmath_same(type, pmath_System_Real))
       expected_type = PMATH_PACKED_DOUBLE;
     else
       return expr;

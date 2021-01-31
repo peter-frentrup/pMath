@@ -10,6 +10,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_t builtin_gather(pmath_expr_t expr) {
   /* Gather(expr, pattern)
      Gather(expr)           = Gather(expr, ~)
@@ -33,7 +35,7 @@ PMATH_PRIVATE pmath_t builtin_gather(pmath_expr_t expr) {
   
   pmath_unref(expr);
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_LIST), 2, eval, list);
+           pmath_ref(pmath_System_List), 2, eval, list);
 }
 
 PMATH_PRIVATE pmath_t builtin_regather(pmath_expr_t expr) {

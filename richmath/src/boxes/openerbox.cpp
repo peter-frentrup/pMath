@@ -3,7 +3,9 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_OpenerBox;
+extern pmath_symbol_t richmath_System_True;
 
 namespace richmath {
   namespace strings {
@@ -116,12 +118,12 @@ Expr OpenerBox::to_literal() {
     case CheckboxChecked:
     case OpenerTriangleOpened:
     case RadioButtonChecked:
-      return Symbol(PMATH_SYMBOL_TRUE);
+      return Symbol(richmath_System_True);
       
     case CheckboxUnchecked:
     case OpenerTriangleClosed:
     case RadioButtonUnchecked:
-      return Symbol(PMATH_SYMBOL_FALSE);
+      return Symbol(richmath_System_False);
     
     default:
       break;
@@ -136,7 +138,7 @@ VolatileSelection OpenerBox::dynamic_to_literal(int start, int end) {
 }
 
 ContainerType OpenerBox::calc_type(Expr result) {
-  if(result == PMATH_SYMBOL_TRUE)
+  if(result == richmath_System_True)
     return OpenerTriangleOpened;
   
   return OpenerTriangleClosed;
@@ -182,9 +184,9 @@ void OpenerBox::click() {
 
 Expr OpenerBox::Impl::next_value_when_clicked() {
   if(self.type == OpenerTriangleOpened) 
-    return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(richmath_System_False);
   else 
-    return Symbol(PMATH_SYMBOL_TRUE);
+    return Symbol(richmath_System_True);
 }
 
 //} ... class OpenerBox::Impl

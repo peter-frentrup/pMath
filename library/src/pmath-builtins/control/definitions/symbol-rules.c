@@ -10,14 +10,21 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/control-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_DefaultRules;
+extern pmath_symbol_t pmath_System_DownRules;
 extern pmath_symbol_t pmath_System_FormatRules;
+extern pmath_symbol_t pmath_System_HoldPattern;
+extern pmath_symbol_t pmath_System_NRules;
+extern pmath_symbol_t pmath_System_OwnRules;
+extern pmath_symbol_t pmath_System_SubRules;
+extern pmath_symbol_t pmath_System_UpRules;
 
 PMATH_PRIVATE
 pmath_t _pmath_extract_holdpattern(pmath_t pat) {
-  if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_HOLDPATTERN, 1)) {
+  if(pmath_is_expr_of_len(pat, pmath_System_HoldPattern, 1)) {
     pmath_t result = pmath_expr_get_item(pat, 1);
     pmath_unref(pat);
     return result;
@@ -45,7 +52,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_OWNRULES, 1)) {
+  if(!pmath_is_expr_of_len(lhs, pmath_System_OwnRules, 1)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -61,7 +68,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -76,7 +83,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -84,7 +91,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
     pmath_message(PMATH_NULL, "wrsym", 1, sym);
     pmath_unref(lhs);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(pmath_same(rhs, PMATH_UNDEFINED)) {
@@ -94,7 +101,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
     return PMATH_NULL;
   }
   
-  if(_pmath_is_rule(rhs)) {
+  if(pmath_is_rule(rhs)) {
     pmath_t rule_rhs;
     pmath_locked_t value;
     
@@ -148,7 +155,7 @@ PMATH_PRIVATE pmath_t builtin_assign_ownrules(pmath_expr_t expr) {
   pmath_unref(sym);
   pmath_message(PMATH_NULL, "vlist", 2, lhs, rhs);
   
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
@@ -174,12 +181,12 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
   else
     kind = PMATH_NULL;
     
-  if( !pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES) &&
-      !pmath_same(kind, PMATH_SYMBOL_DOWNRULES)    &&
+  if( !pmath_same(kind, pmath_System_DefaultRules) &&
+      !pmath_same(kind, pmath_System_DownRules)    &&
       !pmath_same(kind, pmath_System_FormatRules)  &&
-      !pmath_same(kind, PMATH_SYMBOL_NRULES)       &&
-      !pmath_same(kind, PMATH_SYMBOL_SUBRULES)     &&
-      !pmath_same(kind, PMATH_SYMBOL_UPRULES))
+      !pmath_same(kind, pmath_System_NRules)       &&
+      !pmath_same(kind, pmath_System_SubRules)     &&
+      !pmath_same(kind, pmath_System_UpRules))
   {
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -197,7 +204,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
       
       pmath_unref(expr);
       if(pmath_same(rhs, PMATH_UNDEFINED))
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       return rhs;
     }
     
@@ -220,7 +227,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -230,15 +237,15 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
     pmath_unref(lhs);
     pmath_unref(rhs);
     pmath_unref(sym);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
-  if(     pmath_same(kind, PMATH_SYMBOL_DEFAULTRULES)) rc = &rules->default_rules;
-  else if(pmath_same(kind, PMATH_SYMBOL_DOWNRULES))    rc = &rules->down_rules;
+  if(     pmath_same(kind, pmath_System_DefaultRules)) rc = &rules->default_rules;
+  else if(pmath_same(kind, pmath_System_DownRules))    rc = &rules->down_rules;
   else if(pmath_same(kind, pmath_System_FormatRules))  rc = &rules->format_rules;
-  else if(pmath_same(kind, PMATH_SYMBOL_NRULES))       rc = &rules->approx_rules;
-  else if(pmath_same(kind, PMATH_SYMBOL_SUBRULES))     rc = &rules->sub_rules;
-  else if(pmath_same(kind, PMATH_SYMBOL_UPRULES))      rc = &rules->up_rules;
+  else if(pmath_same(kind, pmath_System_NRules))       rc = &rules->approx_rules;
+  else if(pmath_same(kind, pmath_System_SubRules))     rc = &rules->sub_rules;
+  else if(pmath_same(kind, pmath_System_UpRules))      rc = &rules->up_rules;
   else {
     rc = NULL;
     assert(0 && "unexpected kind of rule");
@@ -252,7 +259,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
     return PMATH_NULL;
   }
   
-  if(_pmath_is_rule(rhs)) {
+  if(pmath_is_rule(rhs)) {
     pmath_t rule_rhs;
     
     pmath_unref(lhs);
@@ -298,7 +305,7 @@ PMATH_PRIVATE pmath_t builtin_assign_symbol_rules(pmath_expr_t expr) {
   
   pmath_message(PMATH_NULL, "vlist", 2, lhs, rhs);
   pmath_unref(sym);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pmath_System_DollarFailed);
 }
 
 PMATH_PRIVATE pmath_t builtin_ownrules(pmath_expr_t expr) {
@@ -363,12 +370,12 @@ PMATH_PRIVATE pmath_t builtin_symbol_rules(pmath_expr_t expr) {
   rules = _pmath_symbol_get_rules(sym, RULES_READ);
   
   if(rules) {
-    if(     pmath_same(head, PMATH_SYMBOL_DEFAULTRULES)) _pmath_rulecache_emit(&rules->default_rules);
-    else if(pmath_same(head, PMATH_SYMBOL_DOWNRULES))    _pmath_rulecache_emit(&rules->down_rules);
+    if(     pmath_same(head, pmath_System_DefaultRules)) _pmath_rulecache_emit(&rules->default_rules);
+    else if(pmath_same(head, pmath_System_DownRules))    _pmath_rulecache_emit(&rules->down_rules);
     else if(pmath_same(head, pmath_System_FormatRules))  _pmath_rulecache_emit(&rules->format_rules);
-    else if(pmath_same(head, PMATH_SYMBOL_NRULES))       _pmath_rulecache_emit(&rules->approx_rules);
-    else if(pmath_same(head, PMATH_SYMBOL_SUBRULES))     _pmath_rulecache_emit(&rules->sub_rules);
-    else if(pmath_same(head, PMATH_SYMBOL_UPRULES))      _pmath_rulecache_emit(&rules->up_rules);
+    else if(pmath_same(head, pmath_System_NRules))       _pmath_rulecache_emit(&rules->approx_rules);
+    else if(pmath_same(head, pmath_System_SubRules))     _pmath_rulecache_emit(&rules->sub_rules);
+    else if(pmath_same(head, pmath_System_UpRules))      _pmath_rulecache_emit(&rules->up_rules);
   }
   
   track_symbol(sym);

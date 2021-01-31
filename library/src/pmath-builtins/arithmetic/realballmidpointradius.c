@@ -11,6 +11,11 @@
 #include <pmath-util/option-helpers.h>
 
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Undefined;
+extern pmath_symbol_t pmath_System_WorkingPrecision;
+
 PMATH_PRIVATE pmath_t builtin_internal_realballfrommidpointradius(pmath_expr_t expr) {
   /* Internal`RealBallFromMidpointRadius(mid, rad, WorkingPrecision -> Automatic)
      Internal`RealBallFromMidpointRadius({mid, rad})
@@ -27,7 +32,7 @@ PMATH_PRIVATE pmath_t builtin_internal_realballfrommidpointradius(pmath_expr_t e
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 2)) {
+  if(pmath_is_expr_of_len(obj, pmath_System_List, 2)) {
     mid = pmath_expr_get_item(obj, 1);
     rad = pmath_expr_get_item(obj, 2);
     pmath_unref(obj);
@@ -63,9 +68,9 @@ PMATH_PRIVATE pmath_t builtin_internal_realballfrommidpointradius(pmath_expr_t e
     return expr;
   }
   
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_WORKINGPRECISION, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_WorkingPrecision, options));
   pmath_unref(options);
-  if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(obj, pmath_System_Automatic)) {
     if(pmath_is_mpfloat(mid)) {
       precision = PMATH_AS_ARB_WORKING_PREC(mid);
     }
@@ -147,7 +152,7 @@ PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr)
     mag_zero(arb_radref(PMATH_AS_ARB(rad)));
     
     pmath_unref(x);
-    return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, mid, rad);
+    return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, mid, rad);
   }
   
   if(pmath_is_double(x)) {
@@ -178,12 +183,12 @@ PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr)
   
   if(pmath_is_number(x)) {
     pmath_unref(expr);
-    return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, x, PMATH_FROM_INT32(0));
+    return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, x, PMATH_FROM_INT32(0));
   }
   
-  if(pmath_same(x, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_same(x, pmath_System_Undefined)) {
     pmath_unref(expr);
-    return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, x, pmath_ref(x));
+    return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, x, pmath_ref(x));
   }
   
   if(_pmath_is_infinite(x)) {
@@ -191,14 +196,14 @@ PMATH_PRIVATE pmath_t builtin_internal_realballmidpointradius(pmath_expr_t expr)
     
     if(pmath_same(infdir, PMATH_FROM_INT32(-1)) || pmath_same(infdir, PMATH_FROM_INT32(1))) {
       pmath_unref(expr);
-      return pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, x, PMATH_FROM_INT32(0));
+      return pmath_expr_new_extended(pmath_ref(pmath_System_List), 2, x, PMATH_FROM_INT32(0));
     }
     
     pmath_unref(infdir);
     /* DirectedInfinity(0) represents a complex infinity, not only a real infinity */
     //pmath_unref(expr);
     //return pmath_expr_new_extended(
-    //         pmath_ref(PMATH_SYMBOL_LIST), 2,
+    //         pmath_ref(pmath_System_List), 2,
     //         x,
     //         pmath_ref(_pmath_object_pos_infinity));
     pmath_unref(x);

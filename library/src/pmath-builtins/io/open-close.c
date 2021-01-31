@@ -34,8 +34,23 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_DollarCharacterEncoding;
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_BinaryFormat;
+extern pmath_symbol_t pmath_System_CharacterEncoding;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_File;
+extern pmath_symbol_t pmath_System_FileType;
 extern pmath_symbol_t pmath_System_InputStream;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_OpenAppend;
+extern pmath_symbol_t pmath_System_OpenRead;
+extern pmath_symbol_t pmath_System_OpenWrite;
 extern pmath_symbol_t pmath_System_OutputStream;
+extern pmath_symbol_t pmath_System_PageWidth;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_True;
 
 
 static pmath_bool_t eq_caseless(const char *s1, const char *s2) {
@@ -255,7 +270,7 @@ static pmath_t open_bin_file(
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_file_check(pmath_t file, int properties) {
-  if(pmath_is_expr_of(file, PMATH_SYMBOL_LIST) &&
+  if(pmath_is_expr_of(file, pmath_System_List) &&
       (properties & OPEN_READ) == 0)
   {
     pmath_bool_t result = TRUE;
@@ -302,7 +317,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
   pmath_t *streams,
   int      properties
 ) {
-  if( pmath_is_expr_of(*streams, PMATH_SYMBOL_LIST) &&
+  if( pmath_is_expr_of(*streams, pmath_System_List) &&
       (properties & OPEN_READ) == 0)
   {
     pmath_bool_t result = TRUE;
@@ -324,21 +339,21 @@ PMATH_PRIVATE pmath_bool_t _pmath_open_tmp(
     pmath_t expr;
     
     if(properties & PMATH_FILE_PROP_READ)
-      head = pmath_ref(PMATH_SYMBOL_OPENREAD);
+      head = pmath_ref(pmath_System_OpenRead);
     else
-      head = pmath_ref(PMATH_SYMBOL_OPENWRITE);
+      head = pmath_ref(pmath_System_OpenWrite);
       
     expr = pmath_expr_new_extended(
              head, 2,
              *streams,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_BINARYFORMAT),
-               pmath_ref((properties & PMATH_FILE_PROP_BINARY) ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+               pmath_ref(pmath_System_Rule), 2,
+               pmath_ref(pmath_System_BinaryFormat),
+               pmath_ref((properties & PMATH_FILE_PROP_BINARY) ? pmath_System_True : pmath_System_False)));
                
     *streams = builtin_open(expr);
     
-    if(pmath_same(*streams, PMATH_SYMBOL_FAILED))
+    if(pmath_same(*streams, pmath_System_DollarFailed))
       return FALSE;
       
     return TRUE;
@@ -508,12 +523,12 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   }
   
   { // BinaryFormat
-    pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_BINARYFORMAT, options));
+    pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_BinaryFormat, options));
     
-    if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(value, pmath_System_True)) {
       binary_format = TRUE;
     }
-    else if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+    else if(pmath_same(value, pmath_System_False)) {
       binary_format = FALSE;
     }
     else {
@@ -521,7 +536,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       pmath_unref(options);
       pmath_message(
         PMATH_NULL, "opttf", 2,
-        pmath_ref(PMATH_SYMBOL_BINARYFORMAT),
+        pmath_ref(pmath_System_BinaryFormat),
         value);
       return expr;
     }
@@ -533,9 +548,9 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     pmath_t head = pmath_expr_get_item(expr, 0);
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_OPENAPPEND))
+    if(pmath_same(head, pmath_System_OpenAppend))
       kind = OPEN_APPEND;
-    else if(pmath_same(head, PMATH_SYMBOL_OPENWRITE))
+    else if(pmath_same(head, pmath_System_OpenWrite))
       kind = OPEN_WRITE;
     else
       kind = OPEN_READ;
@@ -553,21 +568,21 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
         pmath_message(PMATH_NULL, "iow", 1, filename);
         pmath_unref(expr);
         pmath_unref(options);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       if(!pmath_file_test(filename, PMATH_FILE_PROP_WRITE | PMATH_FILE_PROP_BINARY)) {
         pmath_message(PMATH_NULL, "iob", 1, filename);
         pmath_unref(expr);
         pmath_unref(options);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       if(binary_format) {
         pmath_message(PMATH_NULL, "text", 1, filename);
         pmath_unref(expr);
         pmath_unref(options);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
     }
     else if(kind == OPEN_READ) {
@@ -575,21 +590,21 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
         pmath_message(PMATH_NULL, "ior", 1, filename);
         pmath_unref(expr);
         pmath_unref(options);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       if(!pmath_file_test(filename, PMATH_FILE_PROP_READ | PMATH_FILE_PROP_BINARY)) {
         pmath_message(PMATH_NULL, "iob", 1, filename);
         pmath_unref(expr);
         pmath_unref(options);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
       
       if(binary_format) {
         pmath_message(PMATH_NULL, "text", 1, filename);
         pmath_unref(expr);
         pmath_unref(options);
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       }
     }
   }
@@ -604,9 +619,9 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   
   { // CharacterEncoding
     encoding = pmath_evaluate(
-                 pmath_option_value(PMATH_NULL, PMATH_SYMBOL_CHARACTERENCODING, options));
+                 pmath_option_value(PMATH_NULL, pmath_System_CharacterEncoding, options));
                  
-    if( !pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC) &&
+    if( !pmath_same(encoding, pmath_System_Automatic) &&
         !pmath_is_string(encoding))
     {
       pmath_message(PMATH_NULL, "charcode", 1, encoding);
@@ -618,24 +633,24 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   
   if(kind != OPEN_READ) { // PageWidth
     page_width = pmath_evaluate(
-                   pmath_option_value(PMATH_NULL, PMATH_SYMBOL_PAGEWIDTH, options));
+                   pmath_option_value(PMATH_NULL, pmath_System_PageWidth, options));
   }
   
   if(kind == OPEN_READ && pmath_is_string(filename)) {
     pmath_t type = pmath_evaluate(
                      pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_FILETYPE), 1,
+                       pmath_ref(pmath_System_FileType), 1,
                        pmath_ref(filename)));
                        
     pmath_unref(type);
-    if(!pmath_same(type, PMATH_SYMBOL_FILE))
+    if(!pmath_same(type, pmath_System_File))
       unbuffered = TRUE;
   }
   
   if( !binary_format     &&
       !unbuffered        &&
       kind != OPEN_WRITE &&
-      pmath_same(encoding, PMATH_SYMBOL_AUTOMATIC))
+      pmath_same(encoding, pmath_System_Automatic))
   { // check for byte order mark
     size_t count;
     uint8_t buf[4];
@@ -679,7 +694,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
   
   if(!pmath_is_string(encoding)) {
     pmath_unref(encoding);
-    encoding = pmath_evaluate(pmath_ref(PMATH_SYMBOL_CHARACTERENCODINGDEFAULT));
+    encoding = pmath_evaluate(pmath_ref(pmath_System_DollarCharacterEncoding));
     
     if(!pmath_is_string(encoding)) {
       pmath_unref(encoding);
@@ -710,7 +725,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     pmath_unref(filename);
     pmath_unref(page_width);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(unbuffered)
@@ -765,7 +780,7 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
       pmath_unref(filename);
       pmath_unref(page_width);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
   }
   else {

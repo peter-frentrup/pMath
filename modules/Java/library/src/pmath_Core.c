@@ -11,6 +11,8 @@
 extern pmath_symbol_t pjsym_Java_Internal_Failed; 
 extern pmath_symbol_t pjsym_Java_Internal_CallFromJava; 
 extern pmath_symbol_t pjsym_Java_Internal_Succeeded; 
+extern pmath_symbol_t pjsym_System_List; 
+extern pmath_symbol_t pjsym_System_Throw; 
 
 
 pmath_t pj_eval_Java_Internal_CallFromJava(pmath_t expr) {
@@ -28,7 +30,7 @@ pmath_t pj_eval_Java_Internal_CallFromJava(pmath_t expr) {
     return PMATH_NULL;
   }
   
-  if(pmath_is_string(code) && pmath_is_expr_of(args, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_string(code) && pmath_is_expr_of(args, pjsym_System_List)) {
     pmath_t old_parser_arguments = pmath_thread_local_save(
                                      PMATH_THREAD_KEY_PARSERARGUMENTS, args);
     args = PMATH_NULL;
@@ -56,7 +58,7 @@ pmath_t pj_eval_Java_Internal_CallFromJava(pmath_t expr) {
                
 //    pmath_thread_send(mq,
 //      pmath_expr_new_extended(
-//        pmath_ref(PMATH_SYMBOL_THROW), 1,
+//        pmath_ref(pjsym_System_Throw), 1,
 //        exception));
   }
   else {

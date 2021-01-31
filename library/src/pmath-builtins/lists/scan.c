@@ -9,6 +9,10 @@
 #include <pmath-builtins/control/flow-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Heads;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE
 pmath_bool_t _pmath_scan(
   struct _pmath_scan_info_t *info,
@@ -83,15 +87,15 @@ PMATH_PRIVATE pmath_t builtin_scan(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
     
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
+  if(pmath_same(obj, pmath_System_True)) {
     info.with_heads = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_unref(options);
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_HEADS),
+      pmath_ref(pmath_System_Heads),
       obj);
     return expr;
   }

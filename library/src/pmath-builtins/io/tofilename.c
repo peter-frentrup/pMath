@@ -10,12 +10,15 @@
 
 
 #ifdef PMATH_OS_WIN32
-#define PATH_SEP  '\\'
-#define IS_PATH_SEP(c)  ((c) == '\\' || (c) == '/')
+#  define PATH_SEP  '\\'
+#  define IS_PATH_SEP(c)  ((c) == '\\' || (c) == '/')
 #else
-#define PATH_SEP  '/'
-#define IS_PATH_SEP(c)  ((c) == '/')
+#  define PATH_SEP  '/'
+#  define IS_PATH_SEP(c)  ((c) == '/')
 #endif
+
+
+extern pmath_symbol_t pmath_System_List;
 
 PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr) {
   pmath_string_t result;
@@ -44,7 +47,7 @@ PMATH_PRIVATE pmath_t builtin_tofilename(pmath_expr_t expr) {
         ++len;
     }
   }
-  else if(pmath_is_expr_of(dir, PMATH_SYMBOL_LIST)) {
+  else if(pmath_is_expr_of(dir, pmath_System_List)) {
     size_t i;
     for(i = pmath_expr_length(dir); i > 0; --i) {
       sub = pmath_expr_get_item(dir, i);

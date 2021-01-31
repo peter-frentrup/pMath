@@ -10,6 +10,11 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_Expand;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+
 /* The Berkowitz algorithm.
    input: an n*n matrix A.
    output: a list with the n+1 coefficients of its characteristic polynomial
@@ -20,10 +25,10 @@ static pmath_t berkowitz(pmath_expr_t A) { // A wont be freed
   size_t i, j, k, r, mi;
   const size_t n = pmath_expr_length(A);
   
-  C    = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n + 1);
-  S    = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n + 1);
-  Q    = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n + 1);
-  Vect = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n + 1);
+  C    = pmath_expr_new(pmath_ref(pmath_System_List), n + 1);
+  S    = pmath_expr_new(pmath_ref(pmath_System_List), n + 1);
+  Q    = pmath_expr_new(pmath_ref(pmath_System_List), n + 1);
+  Vect = pmath_expr_new(pmath_ref(pmath_System_List), n + 1);
   
   // C[1]:= Vect[1]:= -1;   Vect[2]:= A[1,1]
   C    = pmath_expr_set_item(C,    1, PMATH_FROM_INT32(-1));
@@ -41,7 +46,7 @@ static pmath_t berkowitz(pmath_expr_t A) { // A wont be freed
     
     for(i = 1; i <= r - 2; ++i) {
       // C[i+2]:= Sum(A[r,k] * S[k], k->1..r-1)
-      sum = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), r - 1);
+      sum = pmath_expr_new(pmath_ref(pmath_System_Plus), r - 1);
       for(k = 1; k < r; ++k) {
         sum = pmath_expr_set_item(sum, k,
                                   TIMES(_pmath_matrix_get(A, r, k), pmath_expr_get_item(S, k)));
@@ -51,7 +56,7 @@ static pmath_t berkowitz(pmath_expr_t A) { // A wont be freed
       
       for(j = 1; j < r; ++j) {
         // Q[j]:= Sum(A[j,k] * S[k], k->1..r-1)
-        sum = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), r - 1);
+        sum = pmath_expr_new(pmath_ref(pmath_System_Plus), r - 1);
         for(k = 1; k <= r - 1; ++k) {
           sum = pmath_expr_set_item(sum, k,
                                     TIMES(_pmath_matrix_get(A, j, k), pmath_expr_get_item(S, k)));
@@ -67,7 +72,7 @@ static pmath_t berkowitz(pmath_expr_t A) { // A wont be freed
     }
     
     // C[r+1]:= Sum(A[r,j] * S[j], j->1..r-1)
-    sum = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), r - 1);
+    sum = pmath_expr_new(pmath_ref(pmath_System_Plus), r - 1);
     for(j = 1; j < r; ++j) {
       sum = pmath_expr_set_item(sum, j,
                                 TIMES(_pmath_matrix_get(A, r, j), pmath_expr_get_item(S, j)));
@@ -78,7 +83,7 @@ static pmath_t berkowitz(pmath_expr_t A) { // A wont be freed
     for(i = 1; i <= r + 1; ++i) {
       // Q[i]:= Sum(C[i+1-j] * Vect[j], j->1..Min(i,r))
       mi = i < r ? i : r;
-      sum = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), mi);
+      sum = pmath_expr_new(pmath_ref(pmath_System_Plus), mi);
       for(j = 1; j <= mi; ++j) {
         sum = pmath_expr_set_item(sum, j,
                                   TIMES(pmath_expr_get_item(C, i + 1 - j), pmath_expr_get_item(Vect, j)));
@@ -195,16 +200,16 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
   sign = 1;
 
   sumlen = EVAL_TRIGGER; k = 1;
-  sum = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), sumlen);
+  sum = pmath_expr_new(pmath_ref(pmath_System_Plus), sumlen);
   for(j = 1;!pmath_aborting();++j){
     pmath_t mul;
 
     if(sign < 0){
-      mul = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), n+1);
+      mul = pmath_expr_new(pmath_ref(pmath_System_Times), n+1);
       mul = pmath_expr_set_item(mul, n+1, PMATH_FROM_INT32(-1));
     }
     else
-      mul = pmath_expr_new(pmath_ref(PMATH_SYMBOL_TIMES), n);
+      mul = pmath_expr_new(pmath_ref(pmath_System_Times), n);
 
     for(i = 0;i < n;++i){
       mul = pmath_expr_set_item(
@@ -216,7 +221,7 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
     if(k == sumlen){
       sum = pmath_evaluate(sum);
 
-      if(pmath_is_expr_of(sum, PMATH_SYMBOL_PLUS)){
+      if(pmath_is_expr_of(sum, pmath_System_Plus)){
         k = pmath_expr_length(sum) + 1;
         sumlen = 2 * k;// + EVAL_TRIGGER;
         sum = pmath_expr_resize(sum, sumlen);
@@ -225,7 +230,7 @@ static pmath_t symbolic_det(pmath_expr_t matrix){ // matrix will be freed
         pmath_t old = sum;
         sumlen = EVAL_TRIGGER;
         k = 2;
-        sum = pmath_expr_new(pmath_ref(PMATH_SYMBOL_PLUS), sumlen);
+        sum = pmath_expr_new(pmath_ref(pmath_System_Plus), sumlen);
         sum = pmath_expr_set_item(sum, 1, old);
       }
     }
@@ -322,10 +327,10 @@ PMATH_PRIVATE pmath_t builtin_det(pmath_expr_t expr) {
     pmath_unref(matrix);
     expr = pmath_expr_set_item(
              pmath_gather_end(), 0,
-             pmath_ref(PMATH_SYMBOL_TIMES));
+             pmath_ref(pmath_System_Times));
   }
   
   return pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_EXPAND), 1,
+           pmath_ref(pmath_System_Expand), 1,
            expr);
 }

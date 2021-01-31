@@ -259,7 +259,7 @@ pmath_t pmath_symbol_get_value(pmath_symbol_t symbol);
    This function ignores the Protected-attribute. You should only use it during
    symbol initialization and/or when you want to store non-evaluatable values
    in a symbol. In all other cases, evaluate an expression with the head
-   PMATH_SYMBOL_ASSIGN or PMATH_SYMBOL_ASSIGNDELAYED.
+   System`Assign or System`AssignDelayed.
  */
 PMATH_API
 void pmath_symbol_set_value(
@@ -314,14 +314,16 @@ void pmath_symbol_remove(pmath_symbol_t symbol);
    \return The next symbol.
 
    To actually iterate through the whole list, use the following pattern:
-   
-       pmath_symbol_t iter = pmath_ref(PMATH_SYMBOL_LIST);
-       do{
+       
+       //static pmath_symbol_t pmath_System_List = pmath_symbol_get(PMATH_C_STRING("System`List"), FALSE);
+       ...
+       pmath_symbol_t iter = pmath_ref(pmath_System_List);
+       do {
        
          ... loop body here ...
        
          iter = pmath_symbol_iter_next(iter);
-       }while(iter && !pmath_same(iter, PMATH_SYMBOL_LIST));
+       }while(iter && !pmath_same(iter, pmath_System_List));
        pmath_unref(iter);
  */
 PMATH_API pmath_symbol_t pmath_symbol_iter_next(pmath_symbol_t old);

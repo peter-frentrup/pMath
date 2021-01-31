@@ -14,6 +14,11 @@ extern pmath_symbol_t pjsym_Java_Internal_CallFromJavaWithContext;
 extern pmath_symbol_t pjsym_Java_Internal_Failed;
 extern pmath_symbol_t pjsym_Java_Internal_Succeeded;
 
+extern pmath_symbol_t pjsym_System_DollarNamespace;
+extern pmath_symbol_t pjsym_System_DollarNamespacePath;
+extern pmath_symbol_t pjsym_System_List;
+extern pmath_symbol_t pjsym_System_ParserArguments;
+extern pmath_symbol_t pjsym_System_Rule;
 extern pmath_symbol_t pjsym_System_ToExpression;
 
 PMATH_PRIVATE
@@ -37,15 +42,15 @@ pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
   pmath_unref(expr);
   expr = PMATH_NULL;
   
-  old_ns = pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE);
+  old_ns = pmath_symbol_get_value(pjsym_System_DollarNamespace);
   if(pmath_is_string(ns) && !pmath_equals(old_ns, ns)) 
-    pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE, ns);
+    pmath_symbol_set_value(pjsym_System_DollarNamespace, ns);
   else
     pmath_unref(ns);
   
-  old_ns_path = pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH);
+  old_ns_path = pmath_symbol_get_value(pjsym_System_DollarNamespacePath);
   if(pmath_is_string(ns_path) && !pmath_equals(old_ns_path, ns_path)) 
-    pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, ns_path);
+    pmath_symbol_set_value(pjsym_System_DollarNamespacePath, ns_path);
   else
     pmath_unref(ns_path);
   
@@ -59,8 +64,8 @@ pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
              pmath_ref(pjsym_System_ToExpression), 2,
              code,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
-               pmath_ref(PMATH_SYMBOL_PARSERARGUMENTS),
+               pmath_ref(pjsym_System_Rule), 2,
+               pmath_ref(pjsym_System_ParserArguments),
                args));
   }
   
@@ -76,11 +81,11 @@ pmath_t pj_eval_Java_Internal_CallFromJavaWithContext(pmath_t expr) {
   
   exception = pmath_catch();
   
-  ns = pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACE);
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACE, old_ns);
+  ns = pmath_symbol_get_value(pjsym_System_DollarNamespace);
+  pmath_symbol_set_value(pjsym_System_DollarNamespace, old_ns);
   
-  ns_path = pmath_symbol_get_value(PMATH_SYMBOL_NAMESPACEPATH);
-  pmath_symbol_set_value(PMATH_SYMBOL_NAMESPACEPATH, old_ns_path);
+  ns_path = pmath_symbol_get_value(pjsym_System_DollarNamespacePath);
+  pmath_symbol_set_value(pjsym_System_DollarNamespacePath, old_ns_path);
   
   if(!pmath_same(exception, PMATH_UNDEFINED)) {
     pmath_unref(expr);
@@ -200,7 +205,7 @@ static void set_context(JNIEnv *env, jobject context, pmath_t ns, pmath_t ns_pat
       set_hidden_string_field(env, context, "namespace", ns);
       ns = PMATH_NULL;
     }
-    if(pmath_is_expr_of(ns_path, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(ns_path, pjsym_System_List)) {
       set_hidden_object_field_from_pmath(env, context, "namespacePath", "[Ljava/lang/String;", ns_path);
       ns_path = PMATH_NULL;
     }

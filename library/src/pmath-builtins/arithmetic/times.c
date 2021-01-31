@@ -14,6 +14,13 @@
 #define MAX(x, y) ((x) >= (y) ? (x) : (y))
 
 
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Infinity;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
+
 static pmath_rational_t _mul_qi(
   pmath_quotient_t quotA, // will be freed. not PMATH_NULL!
   pmath_integer_t  intB   // will be freed. not PMATH_NULL!
@@ -294,7 +301,7 @@ static void split_factor(
   pmath_t *out_num_power,
   pmath_t *out_rest_power
 ) {
-  if(pmath_is_expr_of_len(factor, PMATH_SYMBOL_POWER, 2)) {
+  if(pmath_is_expr_of_len(factor, pmath_System_Power, 2)) {
     pmath_t exponent = pmath_expr_get_item(factor, 2);
     *out_base        = pmath_expr_get_item(factor, 1);
     _pmath_split_summand(exponent, out_num_power, out_rest_power);
@@ -348,8 +355,8 @@ static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
     pmath_t binfdir = _pmath_directed_infinity_direction(*b);
     
     if(!pmath_is_null(binfdir)) {
-      pmath_message(PMATH_SYMBOL_INFINITY, "indet", 1, TIMES(*a, *b));
-      *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      pmath_message(pmath_System_Infinity, "indet", 1, TIMES(*a, *b));
+      *a = pmath_ref(pmath_System_Undefined);
       *b = PMATH_UNDEFINED;
       pmath_unref(binfdir);
       return TRUE;
@@ -361,7 +368,7 @@ static pmath_bool_t try_multiply_real_number_to(pmath_number_t *a, pmath_t *b) {
   }
   
   if( pmath_equals(*a, INT(-1)) &&
-      pmath_is_expr_of(*b, PMATH_SYMBOL_PLUS))
+      pmath_is_expr_of(*b, pmath_System_Plus))
   {
     size_t i;
     
@@ -452,9 +459,9 @@ static pmath_bool_t try_multiply_infinities(pmath_t *a, pmath_t *b) {
   if(!pmath_is_null(infdir)) {
     pmath_unref(*a);
     *a = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+           pmath_ref(pmath_System_DirectedInfinity), 1,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TIMES), 2,
+             pmath_ref(pmath_System_Times), 2,
              infdir,
              *b));
     *b = PMATH_UNDEFINED;
@@ -465,9 +472,9 @@ static pmath_bool_t try_multiply_infinities(pmath_t *a, pmath_t *b) {
   if(!pmath_is_null(infdir)) {
     pmath_unref(*b);
     *a = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_DIRECTEDINFINITY), 1,
+           pmath_ref(pmath_System_DirectedInfinity), 1,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TIMES), 2,
+             pmath_ref(pmath_System_Times), 2,
              infdir,
              *a));
     *b = PMATH_UNDEFINED;
@@ -481,13 +488,13 @@ static pmath_bool_t try_multiply_infinities(pmath_t *a, pmath_t *b) {
 // exponent wont be freed
 static pmath_t expand_product_power(pmath_t base, pmath_t exponent) {
   if(pmath_same(exponent, INT(1))) {
-    if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES))
+    if(pmath_is_expr_of(base, pmath_System_Times))
       return pmath_ref(base);
       
-    return FUNC(pmath_ref(PMATH_SYMBOL_TIMES), pmath_ref(base));
+    return FUNC(pmath_ref(pmath_System_Times), pmath_ref(base));
   }
   
-  if(pmath_is_expr_of(base, PMATH_SYMBOL_TIMES)) {
+  if(pmath_is_expr_of(base, pmath_System_Times)) {
     pmath_t result = pmath_ref(base);
     size_t i;
     
@@ -500,7 +507,7 @@ static pmath_t expand_product_power(pmath_t base, pmath_t exponent) {
     return result;
   }
   
-  return FUNC(pmath_ref(PMATH_SYMBOL_TIMES),
+  return FUNC(pmath_ref(pmath_System_Times),
               POW(pmath_ref(base), pmath_ref(exponent)));
 }
 
@@ -513,8 +520,8 @@ static pmath_bool_t try_multiply_common_powers(pmath_t *a, pmath_t *b) {
   pmath_t restPowerB;
   
   // x^a y^a = (x y)^a, if x, y are real
-  if( pmath_is_expr_of_len(*a, PMATH_SYMBOL_POWER, 2) &&
-      pmath_is_expr_of_len(*b, PMATH_SYMBOL_POWER, 2))
+  if( pmath_is_expr_of_len(*a, pmath_System_Power, 2) &&
+      pmath_is_expr_of_len(*b, pmath_System_Power, 2))
   {
     numPowerA = pmath_expr_get_item(*a, 2);
     numPowerB = pmath_expr_get_item(*b, 2);
@@ -550,8 +557,8 @@ static pmath_bool_t try_multiply_common_powers(pmath_t *a, pmath_t *b) {
         pmath_is_integer(numPowerB) &&
         (!pmath_same(numPowerA, INT(1)) || !pmath_same(numPowerB, INT(1))))
     {
-      pmath_bool_t a_is_product = pmath_is_expr_of(baseA, PMATH_SYMBOL_TIMES);
-      pmath_bool_t b_is_product = pmath_is_expr_of(baseB, PMATH_SYMBOL_TIMES);
+      pmath_bool_t a_is_product = pmath_is_expr_of(baseA, pmath_System_Times);
+      pmath_bool_t b_is_product = pmath_is_expr_of(baseB, pmath_System_Times);
       
       if(a_is_product || b_is_product) {
         pmath_t expanded_a = expand_product_power(baseA, numPowerA);
@@ -809,7 +816,7 @@ static pmath_bool_t try_multiply_overflow(pmath_t *a, pmath_t *b) {
   {
     pmath_unref(*a);
     pmath_unref(*b);
-    *a = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    *a = pmath_ref(pmath_System_Undefined);
     *b = PMATH_UNDEFINED;
     return TRUE;
   }

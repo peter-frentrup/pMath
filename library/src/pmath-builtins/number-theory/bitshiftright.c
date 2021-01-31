@@ -6,6 +6,9 @@
 #include <pmath-builtins/build-expr-private.h>
 
 
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+
 pmath_t builtin_bitshiftright(pmath_expr_t expr) {
   pmath_mpint_t   num;
   pmath_integer_t count;

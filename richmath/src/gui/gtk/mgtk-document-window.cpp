@@ -31,6 +31,8 @@ namespace richmath { namespace strings {
   extern String Docked;
 }}
 
+extern pmath_symbol_t richmath_System_DollarFailed;
+
 static const int SnapDistance = 4;
 
 class richmath::MathGtkDocumentWindowImpl {
@@ -983,7 +985,7 @@ bool MathGtkDocumentWindow::on_delete(GdkEvent *e) {
     
     switch(answer) {
       case YesNoCancel::Yes:
-        if(Application::save(document()) == PMATH_SYMBOL_FAILED)
+        if(Application::save(document()) == richmath_System_DollarFailed)
           return true;
         break;
       

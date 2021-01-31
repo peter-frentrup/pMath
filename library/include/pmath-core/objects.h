@@ -459,6 +459,13 @@ PMATH_API
 PMATH_ATTRIBUTE_PURE
 pmath_bool_t pmath_is_evaluated(pmath_t obj);
 
+/**\brief Test whether an object is a rule expression.
+   \memberof pmath_t
+   \param obj Any pMath object. It will *not* be freed.
+   \return TRUE if \a obj is a pmath_expr_t of length 2 with head Rule or RuleDelayed.
+ */
+PMATH_API pmath_bool_t pmath_is_rule(pmath_t obj);
+
 /**\brief Get the byte count of an object
    \memberof pmath_t
    \param obj The object. It wont be freed

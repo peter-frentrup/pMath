@@ -9,6 +9,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Default;
+
 PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
   struct _pmath_symbol_rules_t *rules;
   pmath_t tag;
@@ -19,7 +23,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if( !pmath_is_expr_of(lhs, PMATH_SYMBOL_DEFAULT) ||
+  if( !pmath_is_expr_of(lhs, pmath_System_Default) ||
       pmath_expr_length(lhs) < 1                   ||
       pmath_expr_length(lhs) > 3)
   {
@@ -38,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -53,7 +57,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -63,7 +67,7 @@ PMATH_PRIVATE pmath_t builtin_assign_default(pmath_expr_t expr) {
   if(!rules) {
     pmath_unref(lhs);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   _pmath_rulecache_change(&rules->default_rules, lhs, rhs);

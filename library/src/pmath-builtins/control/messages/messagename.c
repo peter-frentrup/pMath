@@ -9,6 +9,12 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
+
+extern pmath_t pmath_System_DollarFailed;
+extern pmath_t pmath_System_DollarNewMessage;
+extern pmath_t pmath_System_Message;
+extern pmath_t pmath_System_MessageName;
+
 PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   pmath_t obj;
   
@@ -17,7 +23,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_valid_messagename(pmath_t msg){
   
   obj = pmath_expr_get_item(msg, 0);
   pmath_unref(obj);
-  if(!pmath_same(obj, PMATH_SYMBOL_MESSAGENAME))
+  if(!pmath_same(obj, pmath_System_MessageName))
     return FALSE;
   
   obj = pmath_expr_get_item(msg, 1);
@@ -70,11 +76,11 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   
   if(!pmath_same(tag, PMATH_UNDEFINED) 
   && !pmath_same(tag, sym)){
-    pmath_message(PMATH_SYMBOL_MESSAGE, "tag", 3, tag, lhs, sym);
+    pmath_message(pmath_System_Message, "tag", 3, tag, lhs, sym);
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -88,13 +94,13 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
     pmath_unref(lhs);
     
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
   if(!pmath_same(rhs, PMATH_UNDEFINED)
   && !pmath_is_string(rhs)){
-    pmath_message(PMATH_SYMBOL_MESSAGE, "str", 1, pmath_ref(rhs));
+    pmath_message(pmath_System_Message, "str", 1, pmath_ref(rhs));
     
     pmath_unref(lhs);
     
@@ -157,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_messagename(pmath_expr_t expr){
   }
   
   if(!_pmath_is_valid_messagename(expr)){
-    pmath_message(PMATH_SYMBOL_MESSAGE, "name", 1, pmath_ref(expr));
+    pmath_message(pmath_System_Message, "name", 1, pmath_ref(expr));
     pmath_unref(sym);
     return expr;
   }
@@ -184,7 +190,7 @@ PMATH_PRIVATE pmath_t builtin_messagename(pmath_expr_t expr){
     }
     
     if(loop == 0){
-      pmath_t value = pmath_symbol_get_value(PMATH_SYMBOL_NEWMESSAGE);
+      pmath_t value = pmath_symbol_get_value(pmath_System_DollarNewMessage);
       
       if(pmath_same(value, PMATH_UNDEFINED))
         break;

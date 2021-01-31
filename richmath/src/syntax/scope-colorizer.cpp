@@ -10,6 +10,11 @@
 
 #include <climits>
 
+extern pmath_symbol_t richmath_System_Alternatives;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Options;
+extern pmath_symbol_t richmath_System_Syntax;
 extern pmath_symbol_t richmath_FE_SymbolInfo;
 
 using namespace richmath;
@@ -82,11 +87,11 @@ namespace richmath {
                              Symbol(richmath_FE_SymbolInfo),
                              name));
                              
-            if(syminfo == PMATH_SYMBOL_FALSE)
+            if(syminfo == richmath_System_False)
               style = GlyphStyleNewSymbol;
-            else if(syminfo == PMATH_SYMBOL_ALTERNATIVES)
+            else if(syminfo == richmath_System_Alternatives)
               style = GlyphStyleShadowError;
-            else if(syminfo == PMATH_SYMBOL_SYNTAX)
+            else if(syminfo == richmath_System_Syntax)
               style = GlyphStyleSyntaxError;
             // True, Function
           }
@@ -1159,10 +1164,10 @@ namespace richmath {
         
         if(arg_count > info.maxargs) {
           Expr options = Application::interrupt_wait_cached(
-                           Call(Symbol(PMATH_SYMBOL_OPTIONS), name));
+                           Call(Symbol(richmath_System_Options), name));
                            
           if( options.expr_length() == 0 ||
-              options[0] != PMATH_SYMBOL_LIST)
+              options[0] != richmath_System_List)
           {
             mark_excess_args(call, info.maxargs);
             return;

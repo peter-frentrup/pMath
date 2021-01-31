@@ -6,6 +6,8 @@
 #  error NAME_pack_and_free_to not defined
 #endif
 
+extern pmath_symbol_t pmath_System_List;
+
 
 static void NAME_pack_and_free_to(TO_TYPE)(pmath_t expr, TO_TYPE **location) {              
   if(pmath_is_packed_array(expr)) {                                                         
@@ -30,7 +32,7 @@ static void NAME_pack_and_free_to(TO_TYPE)(pmath_t expr, TO_TYPE **location) {
     return;                                                                                 
   }                                                                                         
                                                                                             
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {                                                                 
+  if(pmath_is_expr_of(expr, pmath_System_List)) {                                                                 
     size_t len = pmath_expr_length(expr);                                                   
     size_t i;                                                                               
                                                                                             

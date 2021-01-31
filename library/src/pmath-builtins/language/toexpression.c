@@ -6,17 +6,23 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
+extern pmath_symbol_t pmath_System_DollarFailed;
 extern pmath_symbol_t pmath_System_DynamicLocalBox;
 extern pmath_symbol_t pmath_System_FractionBox;
 extern pmath_symbol_t pmath_System_FrameBox;
 extern pmath_symbol_t pmath_System_GridBox;
+extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MakeExpression;
 extern pmath_symbol_t pmath_System_OverscriptBox;
 extern pmath_symbol_t pmath_System_RadicalBox;
 extern pmath_symbol_t pmath_System_RotationBox;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_Sequence;
 extern pmath_symbol_t pmath_System_SqrtBox;
 extern pmath_symbol_t pmath_System_SubscriptBox;
 extern pmath_symbol_t pmath_System_SubsuperscriptBox;
@@ -27,6 +33,7 @@ extern pmath_symbol_t pmath_System_StyleBox;
 extern pmath_symbol_t pmath_System_TagBox;
 extern pmath_symbol_t pmath_System_TooltipBox;
 extern pmath_symbol_t pmath_System_TransformationBox;
+extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_UnderoverscriptBox;
 extern pmath_symbol_t pmath_System_UnderscriptBox;
 
@@ -67,7 +74,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
   head = pmath_expr_get_item(boxes, 0);
   pmath_unref(head);
   
-  if( pmath_same(head, PMATH_SYMBOL_LIST) ||
+  if( pmath_same(head, pmath_System_List) ||
       pmath_is_null(head))
   {
     size_t i;
@@ -79,7 +86,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
       if(pmath_string_equals_latin1(item, "/*")) {
         pmath_unref(item);
         pmath_unref(boxes);
-        return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+        return pmath_expr_new(pmath_ref(pmath_System_List), 0);
       }
       
       if( pmath_string_equals_latin1(item, "<<") ||
@@ -97,7 +104,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
       boxes = pmath_expr_set_item(boxes, i, PMATH_NULL);
       
       item = remove_whitespace_from_boxes(item);
-      if( pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 0) ||
+      if( pmath_is_expr_of_len(item, pmath_System_List, 0) ||
           pmath_is_expr_of_len(item, PMATH_NULL, 0))
       {
         remove_empty = TRUE;
@@ -114,8 +121,8 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
     return boxes;
   }
   
-  if( pmath_same(head, PMATH_SYMBOL_RULE) ||
-      pmath_same(head, PMATH_SYMBOL_RULEDELAYED))
+  if( pmath_same(head, pmath_System_Rule) ||
+      pmath_same(head, pmath_System_RuleDelayed))
   {
     return boxes;
   }
@@ -187,7 +194,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
       pmath_t strip = pmath_evaluate(pmath_option_value(head, pmath_System_StripOnInput, options));
                         
       pmath_unref(strip);
-      if(pmath_same(strip, PMATH_SYMBOL_TRUE)) {
+      if(pmath_same(strip, pmath_System_True)) {
         strip = pmath_expr_get_item(boxes, 1);
         pmath_unref(options);
         pmath_unref(boxes);
@@ -248,14 +255,14 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
              code);
              
     code = pmath_evaluate(code);
-    if(pmath_same(code, PMATH_SYMBOL_FAILED)) {
+    if(pmath_same(code, pmath_System_DollarFailed)) {
       pmath_unref(expr);
       pmath_unref(head);
       return code;
     }
     
     expr = pmath_expr_set_item(expr, 1, code);
-    expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
+    expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_MakeExpression));
     
     expr = pmath_evaluate(expr);
   }
@@ -264,12 +271,12 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
     code = remove_whitespace_from_boxes(code);
     
     expr = pmath_expr_set_item(expr, 1, code);
-    expr = pmath_expr_set_item(expr, 0, pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION));
+    expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_MakeExpression));
     
     expr = pmath_evaluate(expr);
   }
   
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_HOLDCOMPLETE)) {
+  if(pmath_is_expr_of(expr, pmath_System_HoldComplete)) {
     if(pmath_expr_length(expr) == 1) {
       pmath_t content = pmath_expr_get_item(expr, 1);
       pmath_unref(expr);
@@ -287,7 +294,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
     }
     
     if(pmath_same(head, PMATH_UNDEFINED))
-      head = pmath_ref(PMATH_SYMBOL_SEQUENCE);
+      head = pmath_ref(pmath_System_Sequence);
       
     expr = pmath_expr_set_item(expr, 0, head);
   }

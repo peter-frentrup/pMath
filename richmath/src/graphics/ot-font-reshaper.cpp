@@ -12,6 +12,12 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_Inherited;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_True;
+
 //{ class FontFeatureSet ...
 
 FontFeatureSet::FontFeatureSet()
@@ -70,7 +76,7 @@ void FontFeatureSet::add(const FontFeatureSet &other) {
 void FontFeatureSet::add(Expr features) {
   // { "liga", "ssty"->1, ... }
   
-  if(features[0] != PMATH_SYMBOL_LIST)
+  if(features[0] != richmath_System_List)
     return;
     
   for(size_t i = 1; i <= features.expr_length(); ++i) {
@@ -95,22 +101,22 @@ void FontFeatureSet::add(Expr features) {
             continue;
           }
           
-          if(value == PMATH_SYMBOL_TRUE) {
+          if(value == richmath_System_True) {
             set_feature(tag, 1);
             continue;
           }
           
-          if(value == PMATH_SYMBOL_FALSE) {
+          if(value == richmath_System_False) {
             set_feature(tag, 0);
             continue;
           }
           
-          if(value == PMATH_SYMBOL_AUTOMATIC) {
+          if(value == richmath_System_Automatic) {
             set_feature(tag, -1);
             continue;
           }
           
-          if(value == PMATH_SYMBOL_INHERITED)
+          if(value == richmath_System_Inherited)
             continue;
         }
       }

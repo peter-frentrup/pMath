@@ -12,6 +12,9 @@ struct stack_to_list_t {
   pmath_t location_key;
 } _stack_to_list_t;
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Rule;
+
 static pmath_bool_t walk_stack_count(pmath_t head, void *p) {
   struct stack_to_list_t *data = (struct stack_to_list_t*)p;
   
@@ -24,9 +27,9 @@ static pmath_bool_t walk_stack_store(pmath_t head, pmath_t debug_info, void *p) 
   
   if(!data->first) {
     pmath_t entry = pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_LIST), 1,
+                      pmath_ref(pmath_System_List), 1,
                       pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_RULE), 2,
+                        pmath_ref(pmath_System_Rule), 2,
                         pmath_ref(data->head_key),
                         pmath_ref(head)));
                         
@@ -34,7 +37,7 @@ static pmath_bool_t walk_stack_store(pmath_t head, pmath_t debug_info, void *p) 
       entry = pmath_expr_append(
                 entry, 1,
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_RULE), 2,
+                  pmath_ref(pmath_System_Rule), 2,
                   pmath_ref(data->location_key),
                   pmath_ref(debug_info)));
     }
@@ -68,7 +71,7 @@ PMATH_PRIVATE pmath_t builtin_stack(pmath_expr_t expr) {
   pmath_walk_stack(walk_stack_count, &data);
   
   data.current--;
-  data.list = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), data.current);
+  data.list = pmath_expr_new(pmath_ref(pmath_System_List), data.current);
   pmath_walk_stack_2(walk_stack_store, &data);
   
   pmath_unref(data.head_key);

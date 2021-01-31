@@ -11,8 +11,14 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_All;
 extern pmath_symbol_t pmath_System_Key;
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Missing;
+extern pmath_symbol_t pmath_System_Part;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Sequence;
 
 static pmath_bool_t part(
   pmath_expr_t  *list,
@@ -107,7 +113,7 @@ static pmath_bool_t part(
     // end-recursion: return part(list, position, position_start + 1);
   }
   
-  if(pmath_is_expr_of(pos, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(pos, pmath_System_List)) {
     size_t poslen = pmath_expr_length(pos);
     
     for(i = 1; i <= poslen; ++i) {
@@ -189,7 +195,7 @@ PMATH_PRIVATE pmath_t builtin_extract(pmath_expr_t expr) {
   
   part_spec = pmath_expr_get_item(expr, 2);
   
-  if(!pmath_is_expr_of(part_spec, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(part_spec, pmath_System_List))
     part_spec = pmath_build_value("(o)", part_spec);
     
   list = pmath_expr_get_item(expr, 1);
@@ -309,7 +315,7 @@ static pmath_t assign_part(
                                assign_part(index, position, position_start + 1, new_value, error));
   }
   
-  if(pmath_is_expr_of(index, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(index, pmath_System_List)) {
     size_t i;
     size_t indexlen = pmath_expr_length(index);
     
@@ -341,7 +347,7 @@ static pmath_t assign_part(
       
       pmath_unref(subindex);
       
-      if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, indexlen)) {
+      if(pmath_is_expr_of_len(new_value, pmath_System_List, indexlen)) {
         pmath_t item     = pmath_expr_get_item(list,      list_i);
         pmath_t new_item = pmath_expr_get_item(new_value, i);
         
@@ -364,8 +370,8 @@ static pmath_t assign_part(
     return list;
   }
   
-  if( pmath_same(index, PMATH_SYMBOL_ALL) ||
-      pmath_is_expr_of(index, PMATH_SYMBOL_RANGE))
+  if( pmath_same(index, pmath_System_All) ||
+      pmath_is_expr_of(index, pmath_System_Range))
   {
     pmath_expr_t overlay;
     long start_index;
@@ -391,7 +397,7 @@ static pmath_t assign_part(
       }
       
       len = pmath_expr_length(overlay);
-      if(pmath_is_expr_of_len(new_value, PMATH_SYMBOL_LIST, len)) {
+      if(pmath_is_expr_of_len(new_value, pmath_System_List, len)) {
         for(i = 1; i <= len; ++i) {
           pmath_t item     = pmath_expr_extract_item(overlay,  i);
           pmath_t new_item = pmath_expr_get_item(    new_value, i);
@@ -413,7 +419,7 @@ static pmath_t assign_part(
         }
       }
       
-      overlay = pmath_expr_set_item(overlay, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      overlay = pmath_expr_set_item(overlay, 0, pmath_ref(pmath_System_List));
     }
     else
       overlay = pmath_ref(new_value);
@@ -473,7 +479,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
   sym = pmath_expr_get_item(lhs, 0);
   pmath_unref(sym);
   
-  if(pmath_same(sym, PMATH_SYMBOL_PART)) {
+  if(pmath_same(sym, pmath_System_Part)) {
     size_t i;
     
     pmath_unref(expr);
@@ -497,7 +503,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
       pmath_message(PMATH_NULL, "keydel", 2, item, lhs);
       pmath_unref(tag);
       pmath_unref(lhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     pmath_unref(item);
@@ -507,7 +513,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
   if(!pmath_is_symbol(sym)) {
     pmath_message(PMATH_NULL, "sym", 1, sym,
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_LIST), 2,
+                    pmath_ref(pmath_System_List), 2,
                     PMATH_FROM_INT32(pmath_same(tag, PMATH_UNDEFINED) ? 1 : 2),
                     PMATH_FROM_INT32(1)));
     pmath_unref(tag);
@@ -515,7 +521,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
     
     if(assignment < 0) {
       pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     return rhs;
@@ -528,7 +534,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
     
     if(assignment < 0) {
       pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     return rhs;
@@ -540,7 +546,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
   
   lhs = pmath_expr_flatten(
           lhs,
-          pmath_ref(PMATH_SYMBOL_SEQUENCE),
+          pmath_ref(pmath_System_Sequence),
           PMATH_EXPRESSION_FLATTEN_MAX_DEPTH);
   error = FALSE;
   list = assign_part(list, lhs, 2, rhs, &error);
@@ -552,7 +558,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
     
     if(assignment < 0) {
       pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     return rhs;
@@ -563,7 +569,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(pmath_expr_t expr) {
     
     if(assignment < 0) {
       pmath_unref(rhs);
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     }
     
     return rhs;

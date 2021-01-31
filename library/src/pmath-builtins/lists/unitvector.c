@@ -5,6 +5,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_t builtin_unitvector(pmath_expr_t expr) {
   size_t exprlen = pmath_expr_length(expr);
   size_t n, k, i;
@@ -42,7 +44,7 @@ PMATH_PRIVATE pmath_t builtin_unitvector(pmath_expr_t expr) {
   }
   
   pmath_unref(expr);
-  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n);
+  expr = pmath_expr_new(pmath_ref(pmath_System_List), n);
   for(i = n; i > 0; --i)
     expr = pmath_expr_set_item(expr, i, PMATH_FROM_INT32(0));
     

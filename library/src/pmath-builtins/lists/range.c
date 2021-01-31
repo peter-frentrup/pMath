@@ -10,6 +10,14 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_All;
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_Floor;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE pmath_bool_t extract_number(
   pmath_t number,
   size_t  max,
@@ -62,10 +70,10 @@ PMATH_PRIVATE pmath_bool_t extract_range(
   size_t       *max,
   pmath_bool_t  change_min_on_number
 ) {
-  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
+  if(pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
     pmath_t obj = pmath_expr_get_item(range, 1);
 
-    if( !pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) &&
+    if( !pmath_same(obj, pmath_System_Automatic) &&
         !extract_number(obj, *max, min))
     {
       pmath_unref(obj);
@@ -74,7 +82,7 @@ PMATH_PRIVATE pmath_bool_t extract_range(
     pmath_unref(obj);
 
     obj = pmath_expr_get_item(range, 2);
-    if( !pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) &&
+    if( !pmath_same(obj, pmath_System_Automatic) &&
         !extract_number(obj, *max, max))
     {
       pmath_unref(obj);
@@ -110,7 +118,7 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
   *start = *delta = PMATH_NULL;
   *count = 0;
 
-  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
+  if(pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
     *start = pmath_expr_get_item(range, 1);
     *delta = INT(1);
 
@@ -119,7 +127,7 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
                   INT(1),
                   NEG(pmath_ref(*start)));
   }
-  else if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)) {
+  else if(pmath_is_expr_of_len(range, pmath_System_Range, 3)) {
     *start = pmath_expr_get_item(range, 1);
     *delta = pmath_expr_get_item(range, 3);
     
@@ -141,7 +149,7 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
     count_obj = pmath_ref(range);
   }
 
-  count_obj = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_FLOOR), count_obj));
+  count_obj = pmath_evaluate(FUNC(pmath_ref(pmath_System_Floor), count_obj));
 
   if(!pmath_is_int32(count_obj)) {
     pmath_unref(count_obj);
@@ -164,7 +172,7 @@ pmath_bool_t _pmath_extract_longrange(
   long    *end,
   long    *step
 ) {
-  if(pmath_same(range, PMATH_SYMBOL_ALL)) {
+  if(pmath_same(range, pmath_System_All)) {
     *start = 1;
     *end   = -1;
     *step  = 1;
@@ -185,7 +193,7 @@ pmath_bool_t _pmath_extract_longrange(
     return TRUE;
   }
 
-  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
+  if(pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
     pmath_t a = pmath_expr_get_item(range, 1);
     pmath_t b = pmath_expr_get_item(range, 2);
     *step = 1;
@@ -193,7 +201,7 @@ pmath_bool_t _pmath_extract_longrange(
     if(pmath_is_int32(a)) {
       *start = PMATH_AS_INT32(a);
     }
-    else if(pmath_same(a, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(pmath_same(a, pmath_System_Automatic)) {
       *start = 1;
     }
     else {
@@ -205,7 +213,7 @@ pmath_bool_t _pmath_extract_longrange(
     if(pmath_is_int32(b)) {
       *end = PMATH_AS_INT32(b);
     }
-    else if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(pmath_same(b, pmath_System_Automatic)) {
       *end = -1;
     }
     else {
@@ -219,7 +227,7 @@ pmath_bool_t _pmath_extract_longrange(
     return TRUE;
   }
 
-  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 3)) {
+  if(pmath_is_expr_of_len(range, pmath_System_Range, 3)) {
     pmath_t a = pmath_expr_get_item(range, 1);
     pmath_t b = pmath_expr_get_item(range, 2);
     pmath_t c = pmath_expr_get_item(range, 3);
@@ -237,7 +245,7 @@ pmath_bool_t _pmath_extract_longrange(
     if(pmath_is_int32(a)) {
       *start = PMATH_AS_INT32(a);
     }
-    else if(pmath_same(a, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(pmath_same(a, pmath_System_Automatic)) {
       *start = 1;
     }
     else {
@@ -250,7 +258,7 @@ pmath_bool_t _pmath_extract_longrange(
     if(pmath_is_int32(b)) {
       *end = PMATH_AS_INT32(b);
     }
-    else if(pmath_same(b, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(pmath_same(b, pmath_System_Automatic)) {
       *end = -1;
     }
     else {

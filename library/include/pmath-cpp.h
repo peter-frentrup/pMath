@@ -240,71 +240,35 @@ namespace pmath {
       bool is_blob()         const throw() { return pmath_is_blob(_obj); }
       bool is_packed_array() const throw() { return pmath_is_packed_array(_obj); }
       
-      bool is_pointer_of(pmath_type_t type) const throw() {
-        return pmath_is_pointer_of(_obj, type);
-      }
+      bool is_pointer_of(pmath_type_t type) const throw() { return pmath_is_pointer_of(_obj, type); }
       
-      bool is_evaluated() const throw() {
-        return pmath_is_evaluated(_obj);
-      }
-      
-      bool is_rule() const throw() {
-        if(expr_length() != 2)
-          return false;
-          
-        Expr head = (*this)[0];
-        if(pmath_same(head._obj, PMATH_SYMBOL_RULE))
-          return true;
-          
-        if(pmath_same(head._obj, PMATH_SYMBOL_RULEDELAYED))
-          return true;
-          
-        return false;
-      }
-
-      bool is_list_of_rules() const throw() {
-        return pmath_is_list_of_rules(_obj);
-      }
+      bool is_evaluated() const throw() {     return pmath_is_evaluated(_obj); }
+      bool is_rule() const throw() {          return pmath_is_rule(_obj); }
+      bool is_list_of_rules() const throw() { return pmath_is_list_of_rules(_obj); }
       
       /**\brief Get a hash value. */
-      unsigned int hash() const throw() {
-        return pmath_hash(_obj);
-      }
+      unsigned int hash() const throw() { return pmath_hash(_obj); }
       
       /**\brief Check for identity. The pMath === operator. */
-      bool operator==(const Expr &other) const throw() {
-        return pmath_equals(_obj, other._obj);
-      }
+      bool operator==(const Expr &other) const throw() { return pmath_equals(_obj, other._obj); }
       
       /**\brief Check for non-identity. The pMath =!= operator. */
-      bool operator!=(const Expr &other) const throw() {
-        return !pmath_equals(_obj, other._obj);
-      }
+      bool operator!=(const Expr &other) const throw() { return !pmath_equals(_obj, other._obj); }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      int compare(const Expr &other) const throw() {
-        return pmath_compare(_obj, other._obj);
-      }
+      int compare(const Expr &other) const throw() { return pmath_compare(_obj, other._obj); }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator<(const Expr &other) const throw() {
-        return compare(other) < 0;
-      }
+      bool operator<(const Expr &other) const throw() { return compare(other) < 0; }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator<=(const Expr &other) const throw() {
-        return compare(other) <= 0;
-      }
+      bool operator<=(const Expr &other) const throw() { return compare(other) <= 0; }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator>(const Expr &other) const throw() {
-        return compare(other) > 0;
-      }
+      bool operator>(const Expr &other) const throw() { return compare(other) > 0; }
       
       /**\brief Compare with another Expr. See pmath_compare() */
-      bool operator>=(const Expr &other) const throw() {
-        return compare(other) >= 0;
-      }
+      bool operator>=(const Expr &other) const throw() { return compare(other) >= 0; }
       
       /**\brief Return the pmath_t and discard it. Caller must pmath_unref() it. */
       PMATH_ATTRIBUTE_USE_RESULT
@@ -925,10 +889,9 @@ namespace pmath {
   
   inline Expr Ref(pmath_t o)           { return Expr(pmath_ref(o)); }
   inline Expr Symbol(pmath_symbol_t h) { return Ref(h); }
-  inline Expr SymbolPi()               { return Symbol(PMATH_SYMBOL_PI); }
   
-  inline Expr MakeList(size_t len) { return Expr(pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len)); }
-  
+  inline Expr MakeCall(Expr h, size_t len) { return Expr(pmath_expr_new(h.release(), len)); }
+
   inline Expr Call(Expr h) {
     return Expr(pmath_expr_new(h.release(), 0));
   }
@@ -961,104 +924,53 @@ namespace pmath {
   }
   
   inline Expr List() {
-    return Call(Symbol(PMATH_SYMBOL_LIST));
+    return Expr(pmath_build_value("()"));
   }
   inline Expr List(Expr x1) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, x1.release()));
+    return Expr(pmath_build_value("(o)", x1.release()));
   }
   inline Expr List(Expr x1, Expr x2) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 2, x1.release(), x2.release()));
+    return Expr(pmath_build_value("(oo)", x1.release(), x2.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 3, x1.release(), x2.release(), x3.release()));
+    return Expr(pmath_build_value("(ooo)", x1.release(), x2.release(), x3.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 4, x1.release(), x2.release(), x3.release(), x4.release()));
+    return Expr(pmath_build_value("(oooo)", x1.release(), x2.release(), x3.release(), x4.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 5, x1.release(), x2.release(), x3.release(), x4.release(), x5.release()));
+    return Expr(pmath_build_value("(ooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 6, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release()));
+    return Expr(pmath_build_value("(oooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 7, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release()));
+    return Expr(pmath_build_value("(ooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 8, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release()));
+    return Expr(pmath_build_value("(oooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 9, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release()));
+    return Expr(pmath_build_value("(ooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 10, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release()));
+    return Expr(pmath_build_value("(oooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 11, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release()));
+    return Expr(pmath_build_value("(ooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 12, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release()));
+    return Expr(pmath_build_value("(oooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 13, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release()));
+    return Expr(pmath_build_value("(ooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13, Expr x14) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 14, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release()));
+    return Expr(pmath_build_value("(oooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release()));
   }
   inline Expr List(Expr x1, Expr x2, Expr x3, Expr x4, Expr x5, Expr x6, Expr x7, Expr x8, Expr x9, Expr x10, Expr x11, Expr x12, Expr x13, Expr x14, Expr x15) {
-    return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 15, x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release(), x15.release()));
+    return Expr(pmath_build_value("(ooooooooooooooo)", x1.release(), x2.release(), x3.release(), x4.release(), x5.release(), x6.release(), x7.release(), x8.release(), x9.release(), x10.release(), x11.release(), x12.release(), x13.release(), x14.release(), x15.release()));
   }
-  
-  inline Expr Rule(       Expr l, Expr r) { return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RULE),        2, l.release(), r.release())); }
-  inline Expr RuleDelayed(Expr l, Expr r) { return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RULEDELAYED), 2, l.release(), r.release())); }
-  
-  inline Expr Power(Expr x, Expr y) { return Expr(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_POWER), 2, x.release(), y.release())); }
-
-  inline Expr Sqrt(Expr x) { return Power(PMATH_CPP_MOVE(x), Rational(1, 2)); }
-  inline Expr Inv(Expr x) {  return Power(PMATH_CPP_MOVE(x), -1); }
-  
-  inline Expr Exp(Expr x) { return Power(Symbol(PMATH_SYMBOL_E), PMATH_CPP_MOVE(x)); }
-  
-  inline Expr Log(Expr x) {         return Call(Symbol(PMATH_SYMBOL_LOG), PMATH_CPP_MOVE(x)); }
-  inline Expr Log(Expr b, Expr x) { return Call(Symbol(PMATH_SYMBOL_LOG), PMATH_CPP_MOVE(b), PMATH_CPP_MOVE(x)); }
-
-  inline Expr Sin(   Expr x) { return Call(Symbol(PMATH_SYMBOL_SIN), PMATH_CPP_MOVE(x)); }
-  inline Expr Cos(   Expr x) { return Call(Symbol(PMATH_SYMBOL_COS), PMATH_CPP_MOVE(x)); }
-  inline Expr Tan(   Expr x) { return Call(Symbol(PMATH_SYMBOL_TAN), PMATH_CPP_MOVE(x)); }
-  inline Expr ArcSin(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARCSIN), PMATH_CPP_MOVE(x)); }
-  inline Expr ArcCos(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARCCOS), PMATH_CPP_MOVE(x)); }
-  inline Expr ArcTan(Expr x) { return Call(Symbol(PMATH_SYMBOL_ARCTAN), PMATH_CPP_MOVE(x)); }
-
-  inline Expr Times(Expr x1, Expr x2) {                   return Call(Symbol(PMATH_SYMBOL_TIMES), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2)); }
-  inline Expr Times(Expr x1, Expr x2, Expr x3) {          return Call(Symbol(PMATH_SYMBOL_TIMES), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3)); }
-  inline Expr Times(Expr x1, Expr x2, Expr x3, Expr x4) { return Call(Symbol(PMATH_SYMBOL_TIMES), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3), PMATH_CPP_MOVE(x4)); }
-
-  inline Expr Divide(Expr x, Expr y) { return Times(PMATH_CPP_MOVE(x), Inv(PMATH_CPP_MOVE(y))); }
-
-  inline Expr Plus(Expr x1, Expr x2) {                   return Call(Symbol(PMATH_SYMBOL_PLUS), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2)); }
-  inline Expr Plus(Expr x1, Expr x2, Expr x3) {          return Call(Symbol(PMATH_SYMBOL_PLUS), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3)); }
-  inline Expr Plus(Expr x1, Expr x2, Expr x3, Expr x4) { return Call(Symbol(PMATH_SYMBOL_PLUS), PMATH_CPP_MOVE(x1), PMATH_CPP_MOVE(x2), PMATH_CPP_MOVE(x3), PMATH_CPP_MOVE(x4)); }
-
-  inline Expr Minus(Expr x) {         return Times(-1, PMATH_CPP_MOVE(x)); }
-  inline Expr Minus(Expr x, Expr y) { return Plus(PMATH_CPP_MOVE(x), Minus(PMATH_CPP_MOVE(y))); }
-  
-  inline Expr Abs( Expr x) { return Call(Symbol(PMATH_SYMBOL_ABS),  PMATH_CPP_MOVE(x)); }
-  inline Expr Arg( Expr x) { return Call(Symbol(PMATH_SYMBOL_ARG),  PMATH_CPP_MOVE(x)); }
-  inline Expr Sign(Expr x) { return Call(Symbol(PMATH_SYMBOL_SIGN), PMATH_CPP_MOVE(x)); }
-  inline Expr Re(  Expr x) { return Call(Symbol(PMATH_SYMBOL_RE),   PMATH_CPP_MOVE(x)); }
-  inline Expr Im(  Expr x) { return Call(Symbol(PMATH_SYMBOL_IM),   PMATH_CPP_MOVE(x)); }
-  
-  inline Expr Ceiling(Expr x) {         return Call(Symbol(PMATH_SYMBOL_CEILING), PMATH_CPP_MOVE(x)); }
-  inline Expr Ceiling(Expr x, Expr a) { return Call(Symbol(PMATH_SYMBOL_CEILING), PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(a)); }
-  inline Expr Floor(  Expr x) {         return Call(Symbol(PMATH_SYMBOL_FLOOR),   PMATH_CPP_MOVE(x)); }
-  inline Expr Floor(  Expr x, Expr a) { return Call(Symbol(PMATH_SYMBOL_FLOOR),   PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(a)); }
-  inline Expr Round(  Expr x) {         return Call(Symbol(PMATH_SYMBOL_ROUND),   PMATH_CPP_MOVE(x)); }
-  inline Expr Round(  Expr x, Expr a) { return Call(Symbol(PMATH_SYMBOL_ROUND),   PMATH_CPP_MOVE(x), PMATH_CPP_MOVE(a)); }
-  
-  inline Expr Quotient(Expr m, Expr n) {         return Call(Symbol(PMATH_SYMBOL_QUOTIENT), PMATH_CPP_MOVE(m), PMATH_CPP_MOVE(n)); }
-  inline Expr Quotient(Expr m, Expr n, Expr d) { return Call(Symbol(PMATH_SYMBOL_QUOTIENT), PMATH_CPP_MOVE(m), PMATH_CPP_MOVE(n), PMATH_CPP_MOVE(d)); }
-  inline Expr Mod(     Expr m, Expr n) {         return Call(Symbol(PMATH_SYMBOL_MOD),      PMATH_CPP_MOVE(m), PMATH_CPP_MOVE(n)); }
-  inline Expr Mod(     Expr m, Expr n, Expr d) { return Call(Symbol(PMATH_SYMBOL_MOD),      PMATH_CPP_MOVE(m), PMATH_CPP_MOVE(n), PMATH_CPP_MOVE(d)); }
   
   inline Expr Evaluate(Expr x) { return Expr(pmath_evaluate(x.release())); }
   

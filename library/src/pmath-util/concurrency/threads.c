@@ -43,6 +43,9 @@ PMATH_PRIVATE pmath_atomic_t _pmath_abort_reasons = PMATH_ATOMIC_STATIC_INIT;
 
 static pmath_atomic_t aborting = PMATH_ATOMIC_STATIC_INIT;
 
+extern pmath_symbol_t pmath_System_DollarMessageCount;
+extern pmath_symbol_t pmath_System_Throw;
+
 /*============================================================================*/
 
 PMATH_API pmath_thread_t pmath_thread_get_current(void) {
@@ -449,7 +452,7 @@ PMATH_API pmath_bool_t pmath_continue_after_abort(void) {
   
   pmath_unref(pmath_catch());
   
-  _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT, FALSE);
+  _pmath_clear(pmath_System_DollarMessageCount, FALSE);
   return was_set;
 }
 
@@ -562,7 +565,7 @@ PMATH_PRIVATE void _pmath_thread_clean(pmath_bool_t final) {
           _pmath_thread_throw(thread->parent, exception);
         }
         else if(_pmath_is_running()) {
-          pmath_message(PMATH_SYMBOL_THROW, "nocatch", 1, exception);
+          pmath_message(pmath_System_Throw, "nocatch", 1, exception);
         }
       }
     }

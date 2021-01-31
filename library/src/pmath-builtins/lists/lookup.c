@@ -5,13 +5,13 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/lists-private.h>
 
 
 PMATH_PRIVATE pmath_t _pmath_string_keyabsent;  /* readonly */
 
 extern pmath_symbol_t pmath_System_Key;
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Missing;
 
 static pmath_t peel_off_key_head(pmath_t key) {
@@ -33,7 +33,7 @@ static pmath_t missing_key_result(
     return pmath_ref(default_value);
   }
   
-  if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(key, pmath_System_List)) {
     size_t len = pmath_expr_length(key);
     size_t i;
     for(i = len; i > 0; --i) {
@@ -57,7 +57,7 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
   size_t i, len;
   pmath_t obj;
   
-  if(!pmath_is_expr_of(rules, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(rules, pmath_System_List)) {
     *failure_flag = TRUE;
     pmath_unref(rules);
     pmath_unref(key);
@@ -71,7 +71,7 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
   }
   
   obj = pmath_expr_get_item(rules, 1);
-  if(_pmath_is_rule(obj)) {
+  if(pmath_is_rule(obj)) {
     pmath_unref(obj);
     
     if(!pmath_is_list_of_rules(rules)) {
@@ -81,7 +81,7 @@ static pmath_t lookup(pmath_t rules, pmath_t key, pmath_t default_value, pmath_b
       return PMATH_NULL;
     }
     
-    if(pmath_is_expr_of(key, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(key, pmath_System_List)) {
       len = pmath_expr_length(key);
       for(i = 1; i <= len && !*failure_flag; ++i) {
         obj = pmath_expr_extract_item(key, i);

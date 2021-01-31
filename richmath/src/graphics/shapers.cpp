@@ -16,15 +16,15 @@
 #  error no support for font backend
 #endif
 
-static float divide(float n, float d, float fail = 0) {
-  return d == 0 ? fail : n / d;
-}
+
+extern pmath_symbol_t richmath_FE_DollarFallbackFonts;
+extern pmath_symbol_t richmath_System_List;
 
 using namespace richmath;
 
-
-extern pmath_symbol_t richmath_FE_DollarFallbackFonts;
-
+static float divide(float n, float d, float fail = 0) {
+  return d == 0 ? fail : n / d;
+}
 
 class FontKey {
   public:
@@ -258,7 +258,7 @@ FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
   if(++fallback_shaper_count == 1) {
     default_fallback_fontlist = Expr{pmath_symbol_get_value(richmath_FE_DollarFallbackFonts)};
     
-    if(default_fallback_fontlist[0] != PMATH_SYMBOL_LIST)
+    if(default_fallback_fontlist[0] != richmath_System_List)
       default_fallback_fontlist = Expr();
   }
 }

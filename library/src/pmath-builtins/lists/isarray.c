@@ -9,6 +9,10 @@
 #include <pmath-language/patterns-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_bool_t all_nonlists(pmath_expr_t expr, size_t level) {
   if(level > 0) {
     size_t i;
@@ -25,7 +29,7 @@ static pmath_bool_t all_nonlists(pmath_expr_t expr, size_t level) {
     return TRUE;
   }
   
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(expr, pmath_System_List)) {
     pmath_unref(expr);
     return FALSE;
   }
@@ -52,7 +56,7 @@ static pmath_bool_t all(pmath_expr_t expr, size_t level, pmath_t test) {
   
   test = pmath_evaluate(pmath_expr_new_extended(pmath_ref(test), 1, expr));
   pmath_unref(test);
-  return pmath_same(test, PMATH_SYMBOL_TRUE);
+  return pmath_same(test, pmath_System_True);
 }
 
 PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
@@ -70,10 +74,10 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(obj, pmath_System_List)) {
     pmath_unref(obj);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   dims = _pmath_dimensions(obj, SIZE_MAX);
@@ -82,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
   if(!all_nonlists(pmath_ref(obj), levels)) {
     pmath_unref(obj);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   if(exprlen >= 2) {
@@ -100,7 +104,7 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
       pmath_unref(obj);
       pmath_unref(levels_obj);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
+      return pmath_ref(pmath_System_False);
     }
     
     pmath_unref(levels_obj);
@@ -111,7 +115,7 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
       if(!all(obj, levels, pat)) {
         pmath_unref(pat);
         pmath_unref(expr);
-        return pmath_ref(PMATH_SYMBOL_FALSE);
+        return pmath_ref(pmath_System_False);
       }
       
       obj = PMATH_NULL;
@@ -121,7 +125,7 @@ PMATH_PRIVATE pmath_t builtin_isarray(pmath_expr_t expr) {
   
   pmath_unref(obj);
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }
 
 PMATH_PRIVATE pmath_t builtin_ismatrix(pmath_expr_t expr) {
@@ -138,10 +142,10 @@ PMATH_PRIVATE pmath_t builtin_ismatrix(pmath_expr_t expr) {
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(obj, pmath_System_List)) {
     pmath_unref(obj);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   dims = _pmath_dimensions(obj, SIZE_MAX);
@@ -150,7 +154,7 @@ PMATH_PRIVATE pmath_t builtin_ismatrix(pmath_expr_t expr) {
   if(levels != 2 || !all_nonlists(pmath_ref(obj), levels)) {
     pmath_unref(obj);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   if(exprlen >= 2) {
@@ -159,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_ismatrix(pmath_expr_t expr) {
     if(!all(obj, levels, test)) {
       pmath_unref(test);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
+      return pmath_ref(pmath_System_False);
     }
     
     obj = PMATH_NULL;
@@ -168,7 +172,7 @@ PMATH_PRIVATE pmath_t builtin_ismatrix(pmath_expr_t expr) {
   
   pmath_unref(obj);
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }
 
 PMATH_PRIVATE pmath_t builtin_isvector(pmath_expr_t expr) {
@@ -185,10 +189,10 @@ PMATH_PRIVATE pmath_t builtin_isvector(pmath_expr_t expr) {
   }
   
   obj = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(obj, pmath_System_List)) {
     pmath_unref(obj);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   dims = _pmath_dimensions(obj, SIZE_MAX);
@@ -197,7 +201,7 @@ PMATH_PRIVATE pmath_t builtin_isvector(pmath_expr_t expr) {
   if(levels != 1 || !all_nonlists(pmath_ref(obj), levels)) {
     pmath_unref(obj);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FALSE);
+    return pmath_ref(pmath_System_False);
   }
   
   if(exprlen >= 2) {
@@ -206,7 +210,7 @@ PMATH_PRIVATE pmath_t builtin_isvector(pmath_expr_t expr) {
     if(!all(obj, levels, test)) {
       pmath_unref(test);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
+      return pmath_ref(pmath_System_False);
     }
     
     obj = PMATH_NULL;
@@ -215,5 +219,5 @@ PMATH_PRIVATE pmath_t builtin_isvector(pmath_expr_t expr) {
   
   pmath_unref(obj);
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }

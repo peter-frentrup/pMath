@@ -5,7 +5,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_ConditionalExpression;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
 
 PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr) {
   pmath_t value, test;
@@ -18,19 +22,19 @@ PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr) {
   value = pmath_expr_get_item(expr, 1);
   test  = pmath_expr_get_item(expr, 2);
   
-  if(pmath_same(test, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(test, pmath_System_True)) {
     pmath_unref(test);
     pmath_unref(expr);
     return value;
   }
   
-  if( pmath_same(test, PMATH_SYMBOL_FALSE) ||
-      pmath_same(test, PMATH_SYMBOL_UNDEFINED))
+  if( pmath_same(test, pmath_System_False) ||
+      pmath_same(test, pmath_System_Undefined))
   {
     pmath_unref(value);
     pmath_unref(test);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   if(pmath_is_expr_of_len(value, pmath_System_ConditionalExpression, 2)) {
@@ -38,7 +42,7 @@ PMATH_PRIVATE pmath_t builtin_conditionalexpression(pmath_expr_t expr) {
     
     pmath_unref(expr);
     test = pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_AND), 2,
+             pmath_ref(pmath_System_And), 2,
              test,
              inner_test);
     value = pmath_expr_set_item(value, 2, test);
@@ -81,7 +85,7 @@ PMATH_PRIVATE pmath_t builtin_operate_conditionalexpression(pmath_expr_t expr) {
   }
   
   if(pmath_expr_length(item) > 1) {
-    item = pmath_expr_set_item(item, 0, pmath_ref(PMATH_SYMBOL_AND));
+    item = pmath_expr_set_item(item, 0, pmath_ref(pmath_System_And));
   }
   else {
     pmath_t tmp = pmath_expr_get_item(item, 1);
@@ -105,7 +109,7 @@ PMATH_PRIVATE pmath_t builtin_operate_undefined(pmath_expr_t expr) {
   {
     pmath_unref(head);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   pmath_unref(head);

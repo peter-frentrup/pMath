@@ -22,6 +22,8 @@ namespace richmath { namespace strings {
   extern String EmptyString;
 }}
 
+extern pmath_symbol_t richmath_System_List;
+
 // using U+FFFC OBJECT REPLACEMENT CHARACTER instead of PMATH_CHAR_BOX (U+FDD0),
 // Because U+FDD0 is an invalid unicode character and Pango treats it as three
 // invalid bytes => 3 glyphs instead of one.
@@ -592,7 +594,7 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   if(object.is_string())
     object = expand_string_boxes(String(object));
     
-  if(object[0] == PMATH_SYMBOL_LIST) {
+  if(object[0] == richmath_System_List) {
     for(size_t i = 1; i <= object.expr_length(); ++i) 
       Impl(*this).append_object(object[i], options);
   }

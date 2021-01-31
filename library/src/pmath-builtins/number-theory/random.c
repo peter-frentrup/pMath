@@ -11,8 +11,12 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/arithmetic-private.h>
-#include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_RandomReal;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_WorkingPrecision;
 
 struct random_int_info_t {
   mpz_ptr min;
@@ -65,7 +69,7 @@ static pmath_expr_t make_array(
     if(!list)
       return PMATH_NULL;
       
-    list->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+    list->items[0] = pmath_ref(pmath_System_List);
     for(i = 1; i <= *lengths; ++i)
       list->items[i] = make_array(dimensions - 1, lengths + 1, context, generator);
       
@@ -81,7 +85,7 @@ static pmath_expr_t make_array(
 
 // range will be freed
 static void get_range_min_max(pmath_t range, pmath_t *min, pmath_t *max) {
-  if(pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
+  if(pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
     *min = pmath_expr_get_item(range, 1);
     *max = pmath_expr_get_item(range, 2);
     pmath_unref(range);
@@ -110,7 +114,7 @@ static pmath_bool_t convert_lengths(
     return TRUE;
   }
   
-  if(pmath_is_expr_of(dims, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(dims, pmath_System_List)) {
     size_t len = pmath_expr_length(dims);
     size_t i;
     
@@ -364,8 +368,8 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   
   opt = pmath_evaluate(
           pmath_option_value(
-            PMATH_SYMBOL_RANDOMREAL,
-            PMATH_SYMBOL_WORKINGPRECISION,
+            pmath_System_RandomReal,
+            pmath_System_WorkingPrecision,
             options));
   pmath_unref(options);
   
@@ -384,7 +388,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
   
   if(!pmath_is_float(min) || !pmath_is_float(max)) {
     pmath_t range = pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                      pmath_ref(pmath_System_Range), 2,
                       min, max);
                       
     pmath_message(
@@ -420,7 +424,7 @@ PMATH_PRIVATE pmath_t builtin_randomreal(pmath_expr_t expr) {
       pmath_t wprec;
       
       if(mp_info.bit_prec == -HUGE_VAL)
-        wprec = pmath_ref(PMATH_SYMBOL_WORKINGPRECISION);
+        wprec = pmath_ref(pmath_System_WorkingPrecision);
       else
         wprec = PMATH_FROM_DOUBLE(LOG10_2 * mp_info.bit_prec);
         

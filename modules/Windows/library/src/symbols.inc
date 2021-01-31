@@ -1,0 +1,75 @@
+// You should pre-define P4WIN_DECLARE_SYMBOL(sym, name_str)
+
+#ifndef P4WIN_DECLARE_SYMBOL
+#  error P4WIN_DECLARE_SYMBOL(sym, name_str) must be defined
+#endif
+
+#define P4WIN_DECLARE_SYSTEM_SYMBOL(name) \
+  P4WIN_DECLARE_SYMBOL( \
+    p4win_System_ ## name, \
+    "System`" #name \
+  )
+
+#define P4WIN_DECLARE_SYSTEM_DOLLAR_SYMBOL(name) \
+  P4WIN_DECLARE_SYMBOL( \
+    p4win_System_Dollar ## name, \
+    "System`$" #name \
+  )
+
+#define P4WIN_DECLARE_WINDOWS_SYMBOL(name) \
+  P4WIN_DECLARE_SYMBOL( \
+    p4win_Windows_ ## name, \
+    "Windows`" #name \
+  )
+
+#define P4WIN_DECLARE_WINDOWS_DOLLAR_VAR(name) \
+  P4WIN_DECLARE_SYMBOL( \
+    p4win_Windows_Dollar ## name, \
+    "Windows`$" #name \
+  )
+
+#define P4WIN_DECLARE_WINDOWS_INTERNAL_SYMBOL(name) \
+  P4WIN_DECLARE_SYMBOL( \
+    p4win_Windows_Internal_ ## name, \
+    "Windows`Internal`" #name \
+  )
+
+#define P4WIN_DECLARE_WINDOWS_PRIVATE_SYMBOL(name) \
+  P4WIN_DECLARE_SYMBOL( \
+    p4win_Windows_Private_ ## name, \
+    "Windows`Private`" #name \
+  )
+
+P4WIN_DECLARE_SYSTEM_DOLLAR_SYMBOL( Failed )
+
+P4WIN_DECLARE_SYSTEM_SYMBOL( Automatic )
+P4WIN_DECLARE_SYSTEM_SYMBOL( CreateDirectory )
+P4WIN_DECLARE_SYSTEM_SYMBOL( Expand )
+P4WIN_DECLARE_SYSTEM_SYMBOL( False )
+P4WIN_DECLARE_SYSTEM_SYMBOL( Head )
+P4WIN_DECLARE_SYSTEM_SYMBOL( Hold )
+P4WIN_DECLARE_SYSTEM_SYMBOL( List )
+P4WIN_DECLARE_SYSTEM_SYMBOL( None )
+P4WIN_DECLARE_SYSTEM_SYMBOL( Rule )
+P4WIN_DECLARE_SYSTEM_SYMBOL( True )
+
+P4WIN_DECLARE_WINDOWS_SYMBOL( CommandLineToArgv )
+P4WIN_DECLARE_WINDOWS_SYMBOL( RegGetValue )
+P4WIN_DECLARE_WINDOWS_SYMBOL( RegEnumKeys )
+P4WIN_DECLARE_WINDOWS_SYMBOL( RegEnumValues )
+P4WIN_DECLARE_WINDOWS_SYMBOL( ShellExecute )
+P4WIN_DECLARE_WINDOWS_SYMBOL( SHGetKnownFolderPath )
+P4WIN_DECLARE_WINDOWS_SYMBOL( Win64Version )
+
+P4WIN_DECLARE_WINDOWS_DOLLAR_VAR( ComMultiThreadedAppartment )
+
+P4WIN_DECLARE_WINDOWS_INTERNAL_SYMBOL( ComInitializer )
+
+P4WIN_DECLARE_WINDOWS_PRIVATE_SYMBOL( GetAllKnownFolders )
+
+
+#undef P4WIN_DECLARE_SYSTEM_SYMBOL
+#undef P4WIN_DECLARE_WINDOWS_SYMBOL
+#undef P4WIN_DECLARE_WINDOWS_DOLLAR_VAR
+#undef P4WIN_DECLARE_WINDOWS_INTERNAL_SYMBOL
+#undef P4WIN_DECLARE_WINDOWS_PRIVATE_SYMBOL

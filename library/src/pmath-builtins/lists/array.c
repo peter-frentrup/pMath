@@ -12,6 +12,10 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Sequence;
+
 PMATH_PRIVATE
 pmath_symbol_t _pmath_topmost_symbol(pmath_t obj) { // obj wont be freed
   if(pmath_is_symbol(obj))
@@ -73,7 +77,7 @@ static pmath_t array(struct _array_data_t *data) {
         if(data->evaluate_immediately) {
           ind = pmath_evaluate(ind);
           
-          if(!has_sequence && pmath_is_expr_of(ind, PMATH_SYMBOL_SEQUENCE))
+          if(!has_sequence && pmath_is_expr_of(ind, pmath_System_Sequence))
             has_sequence = TRUE;
         }
         
@@ -99,7 +103,7 @@ static pmath_t array(struct _array_data_t *data) {
         if(data->evaluate_immediately) {
           ind = pmath_evaluate(ind);
           
-          if(!has_sequence && pmath_is_expr_of(ind, PMATH_SYMBOL_SEQUENCE))
+          if(!has_sequence && pmath_is_expr_of(ind, pmath_System_Sequence))
             has_sequence = TRUE;
         }
         
@@ -276,7 +280,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
       }
     }
     
-    expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
+    expr = pmath_expr_new(pmath_ref(pmath_System_List), len);
     if(!pmath_is_null(expr) && len > 0) {
       expr = pmath_expr_set_item(expr, 1, pmath_ref(data.start));
       
@@ -300,9 +304,9 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
   }
   
   data.dims = pmath_expr_get_item(expr, 2);
-  if(!pmath_is_expr_of(data.dims, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(data.dims, pmath_System_List))
     data.dims = pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_LIST), 1,
+                  pmath_ref(pmath_System_List), 1,
                   data.dims);
                   
   data.depth = pmath_expr_length(data.dims);
@@ -322,7 +326,7 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
   data.start_is_list = FALSE;
   if(exprlen >= 3) {
     data.start = pmath_expr_get_item(expr, 3);
-    if(pmath_is_expr_of(data.start, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(data.start, pmath_System_List)) {
       if(pmath_expr_length(data.start) != data.depth) {
         pmath_message(PMATH_NULL, "plen", 2, data.dims, data.start);
         return expr;
@@ -338,13 +342,13 @@ PMATH_PRIVATE pmath_t builtin_array(pmath_expr_t expr) {
   if(exprlen == 4)
     data.head = pmath_expr_get_item(expr, 4);
   else
-    data.head = pmath_ref(PMATH_SYMBOL_LIST);
+    data.head = pmath_ref(pmath_System_List);
     
   data.dim = 1;
   data.index = pmath_expr_new(PMATH_NULL, data.depth);
   pmath_unref(expr);
   
-  if(pmath_same(data.head, PMATH_SYMBOL_LIST)) {
+  if(pmath_same(data.head, pmath_System_List)) {
     data.evaluate_immediately = TRUE;
     data.mark_as_updated      = TRUE;
   }

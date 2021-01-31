@@ -16,6 +16,9 @@ namespace {
   };
 }
 
+extern pmath_symbol_t richmath_System_Inherited;
+extern pmath_symbol_t richmath_System_SingleMatch;
+
 static bool StyleName_is_FontSize(StyleOptionName name);
 
 template<typename T>
@@ -117,7 +120,7 @@ Expr StyledObject::get_style(ObjectStyleOptionName n) {
 Expr StyledObject::get_pmath_style(StyleOptionName n) {
   return Impl(*this).get_style(
            n,
-           Symbol(PMATH_SYMBOL_INHERITED),
+           Symbol(richmath_System_Inherited),
            Stylesheet_get_pmath::impl);
 }
 
@@ -217,7 +220,7 @@ FrontEndSession::FrontEndSession(StyledObject *owner)
 
 Expr FrontEndSession::allowed_options() {
   // {~ -> Inherited}
-  return List(Rule(Call(Symbol(PMATH_SYMBOL_SINGLEMATCH)), Symbol(PMATH_SYMBOL_INHERITED)));
+  return List(Rule(Call(Symbol(richmath_System_SingleMatch)), Symbol(richmath_System_Inherited)));
 }
 
 void FrontEndSession::dynamic_updated() {

@@ -4,7 +4,6 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/control/flow-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -16,6 +15,10 @@ struct sum_prod_data_t {
   pmath_t body;
   pmath_t func;
 };
+
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
 
 static void init(size_t count, pmath_symbol_t sym, void *p) {
   struct sum_prod_data_t *data = (struct sum_prod_data_t*)p;
@@ -32,7 +35,7 @@ static pmath_bool_t next(void *p) {
                      data->result,
                      pmath_ref(data->body)));
                      
-  return !pmath_same(data->result, PMATH_SYMBOL_UNDEFINED);
+  return !pmath_same(data->result, pmath_System_Undefined);
 }
 
 
@@ -47,7 +50,7 @@ pmath_t builtin_sum(pmath_expr_t expr) {
   }
   
   iter = pmath_expr_get_item(expr, 2);
-  if(_pmath_is_rule(iter)) {
+  if(pmath_is_rule(iter)) {
     pmath_t range = pmath_expr_get_item(iter, 2);
     pmath_t start = PMATH_NULL;
     pmath_t delta = PMATH_NULL;
@@ -81,7 +84,7 @@ pmath_t builtin_sum(pmath_expr_t expr) {
     
   data.is_valid = FALSE;
   data.result   = PMATH_FROM_INT32(0);
-  data.func     = PMATH_SYMBOL_PLUS;
+  data.func     = pmath_System_Plus;
   
   _pmath_iterate(iter, init, next, &data);
   
@@ -106,7 +109,7 @@ pmath_t builtin_product(pmath_expr_t expr) {
   }
   
   iter = pmath_expr_get_item(expr, 2);
-  if(_pmath_is_rule(iter)) {
+  if(pmath_is_rule(iter)) {
     pmath_t range = pmath_expr_get_item(iter, 2);
     pmath_t start = PMATH_NULL;
     pmath_t delta = PMATH_NULL;
@@ -140,7 +143,7 @@ pmath_t builtin_product(pmath_expr_t expr) {
     
   data.is_valid = FALSE;
   data.result   = PMATH_FROM_INT32(1);
-  data.func     = PMATH_SYMBOL_TIMES;
+  data.func     = pmath_System_Times;
   
   _pmath_iterate(iter, init, next, &data);
   

@@ -5,8 +5,6 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/messages.h>
 
-#include <pmath-builtins/control-private.h>
-
 PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr) {
   /* Throw(expr)
    */
@@ -15,17 +13,6 @@ PMATH_PRIVATE pmath_t builtin_throw(pmath_expr_t expr) {
     return expr;
   }
   
-//  #ifdef PMATH_DEBUG_LOG
-//  {
-//    pmath_t stack = pmath_evaluate(pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0));
-//
-//    pmath_debug_print_object("[", expr, "");
-//    pmath_debug_print_object(" during ", stack, "]\n");
-//
-//    pmath_unref(stack);
-//  }
-//  #endif
-
   pmath_throw(pmath_expr_get_item(expr, 1));
   pmath_unref(expr);
   return PMATH_NULL;
@@ -53,7 +40,7 @@ PMATH_PRIVATE pmath_t builtin_catch(pmath_expr_t expr) {
     for(i = 2; i <= len; ++i) {
       pmath_t rule = pmath_expr_get_item(expr, i);
       
-      if(_pmath_is_rule(rule)) {
+      if(pmath_is_rule(rule)) {
         pmath_t pattern = pmath_expr_get_item(rule, 1);
         pmath_t rhs;
         if(!_pmath_pattern_validate(pattern)) {

@@ -12,10 +12,16 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/io-private.h>
 
 #include <pcre.h>
+
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_EndOfFile;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IgnoreCase;
+extern pmath_symbol_t pmath_System_True;
 
 PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr) {
   /* Find(file, regex)
@@ -39,13 +45,13 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr) {
     return expr;
     
   pcre_options = 0;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
   pmath_unref(options);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(obj, pmath_System_True)) {
     pcre_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
+  else if(!pmath_same(obj, pmath_System_False)) {
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(pmath_System_IgnoreCase), obj);
     return expr;
   }
   pmath_unref(obj);
@@ -60,7 +66,7 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr) {
     pmath_unref(file);
     pmath_unref(expr);
     _pmath_regex_unref(regex);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(expr);
@@ -69,7 +75,7 @@ PMATH_PRIVATE pmath_t builtin_find(pmath_expr_t expr) {
   if(_pmath_regex_init_capture(regex, &capture)) {
     while(!pmath_aborting()) {
       if(pmath_file_status(file) != PMATH_FILE_OK) {
-        obj = pmath_ref(PMATH_SYMBOL_ENDOFFILE);
+        obj = pmath_ref(pmath_System_EndOfFile);
         break;
       }
       
@@ -133,13 +139,13 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr) {
     return expr;
     
   pcre_options = 0;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
   pmath_unref(options);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(obj, pmath_System_True)) {
     pcre_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
-    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(PMATH_SYMBOL_IGNORECASE), obj);
+  else if(!pmath_same(obj, pmath_System_False)) {
+    pmath_message(PMATH_NULL, "opttf", 2, pmath_ref(pmath_System_IgnoreCase), obj);
     return expr;
   }
   pmath_unref(obj);
@@ -159,7 +165,7 @@ PMATH_PRIVATE pmath_t builtin_findlist(pmath_expr_t expr) {
     pmath_unref(file);
     pmath_unref(expr);
     _pmath_regex_unref(regex);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(expr);

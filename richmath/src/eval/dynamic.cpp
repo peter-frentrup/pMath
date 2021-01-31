@@ -9,7 +9,17 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarAborted;
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Assign;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_EvaluationSequence;
+extern pmath_symbol_t richmath_System_Hold;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_SynchronousUpdating;
+extern pmath_symbol_t richmath_System_Temporary;
+extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_Internal_DynamicEvaluateMultiple;
 
 
@@ -49,19 +59,19 @@ static Expr eval_sequence(Expr e1, Expr e2, Expr e3) {
   if(e1.is_null()) {
     if(e2.is_null())
       return e3;
-    return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e2), std::move(e3));
+    return Call(Symbol(richmath_System_EvaluationSequence), std::move(e2), std::move(e3));
   }
   
   if(e2.is_null()) {
     if(e3.is_null())
       return e1;
-    return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e1), std::move(e3));
+    return Call(Symbol(richmath_System_EvaluationSequence), std::move(e1), std::move(e3));
   }
   
   if(e3.is_null()) 
-    return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e1), std::move(e2));
+    return Call(Symbol(richmath_System_EvaluationSequence), std::move(e1), std::move(e2));
   
-  return Call(Symbol(PMATH_SYMBOL_EVALUATIONSEQUENCE), std::move(e1), std::move(e2), std::move(e3));
+  return Call(Symbol(richmath_System_EvaluationSequence), std::move(e1), std::move(e2), std::move(e3));
 }
 
 //{ class Dynamic ...
@@ -119,9 +129,9 @@ Expr Dynamic::operator=(Expr expr) {
                 richmath_System_SynchronousUpdating,
                 options.get()));
                 
-      if(su == PMATH_SYMBOL_TRUE)
+      if(su == richmath_System_True)
         _synchronous_updating = AutoBoolTrue;
-      else if(su == PMATH_SYMBOL_AUTOMATIC)
+      else if(su == richmath_System_Automatic)
         _synchronous_updating = AutoBoolAutomatic;
       else
         _synchronous_updating = AutoBoolFalse;
@@ -165,7 +175,7 @@ bool Dynamic::get_value(Expr *result, Expr job_info) {
 //{ class Dynamic::Impl ...
 
 bool Dynamic::Impl::is_template_slot(Expr expr, int *index) {
-  if(expr[0] == PMATH_SYMBOL_PUREARGUMENT && expr.expr_length() == 1) {
+  if(expr[0] == richmath_System_PureArgument && expr.expr_length() == 1) {
     Expr arg = expr[1];
     if(arg.is_int32()) {
       if(index) 
@@ -222,23 +232,23 @@ bool Dynamic::Impl::find_template_box_dynamic(Box *box, int i, Expr *source, Tem
 }
 
 void Dynamic::Impl::get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post) {
-  *pre    = Symbol(PMATH_SYMBOL_NONE);
-  *middle = Symbol(PMATH_SYMBOL_NONE);
-  *post   = Symbol(PMATH_SYMBOL_NONE);
+  *pre    = Symbol(richmath_System_None);
+  *middle = Symbol(richmath_System_None);
+  *post   = Symbol(richmath_System_None);
   
   if(expr[0] != richmath_System_Dynamic)
     return;
   
   if(expr.expr_length() < 2) {
-    *middle = Symbol(PMATH_SYMBOL_AUTOMATIC);
+    *middle = Symbol(richmath_System_Automatic);
     return;
   }
   
   Expr fun = expr[2];
-  if(fun[0] != PMATH_SYMBOL_LIST) {
+  if(fun[0] != richmath_System_List) {
     *middle = std::move(fun);
-    if(*middle == PMATH_SYMBOL_TEMPORARY)
-      *post = Symbol(PMATH_SYMBOL_AUTOMATIC);
+    if(*middle == richmath_System_Temporary)
+      *post = Symbol(richmath_System_Automatic);
     return;
   }
   
@@ -278,10 +288,10 @@ bool Dynamic::Impl::has_pre_or_post_assignment() {
     return false;
   
   Expr fun = self._expr[2];
-  if(fun == PMATH_SYMBOL_TEMPORARY)
+  if(fun == richmath_System_Temporary)
     return true;
   
-  if(fun[0] != PMATH_SYMBOL_LIST)
+  if(fun[0] != richmath_System_List)
     return false;
   
   return fun.expr_length() > 1;
@@ -308,14 +318,14 @@ bool Dynamic::Impl::has_temporary_assignment() {
   Expr middle;
   Expr post;
   get_assignment_functions(self._expr, &pre, &middle, &post);
-  return middle == PMATH_SYMBOL_TEMPORARY;
+  return middle == richmath_System_Temporary;
 }
 
 static Expr make_assignment_call(Expr func, Expr name, Expr value) {
-  if(func == PMATH_SYMBOL_AUTOMATIC)
-    return Call(Symbol(PMATH_SYMBOL_ASSIGN), std::move(name), std::move(value));
+  if(func == richmath_System_Automatic)
+    return Call(Symbol(richmath_System_Assign), std::move(name), std::move(value));
   
-  if(func == PMATH_SYMBOL_NONE)
+  if(func == richmath_System_None)
     return Expr();
   
   return Call(std::move(func), std::move(value), std::move(name));
@@ -384,7 +394,7 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
     run = eval_sequence(pre_run, middle_run, post_run);
   }
   else if(middle)
-    run = Call(Symbol(PMATH_SYMBOL_ASSIGN), name, value);
+    run = Call(Symbol(richmath_System_Assign), name, value);
   
   if(run.is_null())
     return;
@@ -451,7 +461,7 @@ Expr Dynamic::Impl::get_value_now() {
   Expr call = get_value_unevaluated(&is_dynamic);
   
   if(!is_dynamic) {
-    if(call.expr_length() == 1 && call[0] == PMATH_SYMBOL_UNEVALUATED)
+    if(call.expr_length() == 1 && call[0] == richmath_System_Unevaluated)
       return call[1];
     return call;
   }
@@ -468,7 +478,7 @@ Expr Dynamic::Impl::get_value_now() {
   Dynamic::current_observer_id = old_eval_id;
   
   if(value == PMATH_UNDEFINED)
-    return Symbol(PMATH_SYMBOL_ABORTED);
+    return Symbol(richmath_System_DollarAborted);
     
   return value;
 }
@@ -542,18 +552,18 @@ Expr richmath_eval_FrontEnd_PrepareDynamicEvaluation(Expr expr) {
       FrontEnd`PrepareDynamicEvaluation(Automatic,           Dynamic(...))
    */
   if(expr.expr_length() != 2)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Box *box = nullptr;
-  if(expr[1] == PMATH_SYMBOL_AUTOMATIC)
+  if(expr[1] == richmath_System_Automatic)
     box = Application::get_evaluation_box();
   else
     box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]));
   
   if(box)
-    return Call(Symbol(PMATH_SYMBOL_HOLD), Dynamic(box, expr[2]).get_value_unevaluated());
+    return Call(Symbol(richmath_System_Hold), Dynamic(box, expr[2]).get_value_unevaluated());
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr richmath_eval_FrontEnd_AssignDynamicValue(Expr expr) {
@@ -561,10 +571,10 @@ Expr richmath_eval_FrontEnd_AssignDynamicValue(Expr expr) {
       FrontEnd`AssignDynamicValue(Automatic,           Dynamic(...), value)
    */
   if(expr.expr_length() != 3)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Box *box = nullptr;
-  if(expr[1] == PMATH_SYMBOL_AUTOMATIC)
+  if(expr[1] == richmath_System_Automatic)
     box = Application::get_evaluation_box();
   else
     box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]));
@@ -574,5 +584,5 @@ Expr richmath_eval_FrontEnd_AssignDynamicValue(Expr expr) {
     return Expr();
   }
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }

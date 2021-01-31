@@ -7,24 +7,28 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_DollarAborted;
+extern pmath_symbol_t richmath_System_DollarDialogLevel;
+extern pmath_symbol_t richmath_System_DollarLine;
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_Dialog;
+extern pmath_symbol_t richmath_System_Return;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_SectionLabel;
+extern pmath_symbol_t richmath_System_ToBoxes;
 extern pmath_symbol_t richmath_System_ToExpression;
-
-extern pmath_symbol_t richmath_System_DollarDialogLevel;
-extern pmath_symbol_t richmath_System_DollarLine;
+extern pmath_symbol_t richmath_System_True;
 
 namespace richmath { namespace strings {
   extern String Output;
 }}
 
-Expr richmath::to_boxes(Expr obj) {
+Expr richmath::evaluate_to_boxes(Expr obj) {
   return Expr(
            pmath_evaluate(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
+               pmath_ref(richmath_System_ToBoxes), 1,
                pmath_ref(obj.get()))));
 }
 
@@ -35,17 +39,17 @@ Expr richmath::generate_section(String style, Expr boxes) {
   Gather::emit(style);
   
   Gather::emit(
-    Rule(Symbol(richmath_System_SectionGenerated), Symbol(PMATH_SYMBOL_TRUE)));
+    Rule(Symbol(richmath_System_SectionGenerated), Symbol(richmath_System_True)));
     
   if(style == strings::Output) {
     Expr line = Application::interrupt_wait(Symbol(richmath_System_DollarLine));
     Expr dlvl = Application::interrupt_wait(Symbol(richmath_System_DollarDialogLevel));
     
     if(line == PMATH_UNDEFINED)
-      line = Symbol(PMATH_SYMBOL_ABORTED);
+      line = Symbol(richmath_System_DollarAborted);
       
     if(dlvl == PMATH_UNDEFINED)
-      dlvl = Symbol(PMATH_SYMBOL_ABORTED);
+      dlvl = Symbol(richmath_System_DollarAborted);
       
     String label = String("out [");
     if(dlvl == PMATH_FROM_INT32(1))
@@ -264,7 +268,7 @@ Expr LocalServer::dialog(Data *me, Expr firsteval) {
     Application::notify(ClientNotification::StartSession, Expr());
     
     firsteval = Expr(pmath_evaluate(firsteval.release()));
-    if( firsteval[0] == PMATH_SYMBOL_RETURN &&
+    if( firsteval[0] == richmath_System_Return &&
         firsteval.expr_length() <= 1)
     {
       result = firsteval[1];
@@ -286,7 +290,7 @@ Expr LocalServer::dialog(Data *me, Expr firsteval) {
         if(rk == Token::Aborted) {
           // clear remaining tokens:
           while(me->tokens.get(&token)) {
-            Application::notify(ClientNotification::End, Symbol(PMATH_SYMBOL_ABORTED));
+            Application::notify(ClientNotification::End, Symbol(richmath_System_DollarAborted));
           }
         }
       }
@@ -309,7 +313,7 @@ Expr LocalServer::dialog(Data *me, Expr firsteval) {
 void LocalServer::thread_proc(void *arg) {
   Data *me = (Data *)arg;
   
-  pmath_register_code(PMATH_SYMBOL_DIALOG, builtin_dialog, PMATH_CODE_USAGE_DOWNCALL);
+  pmath_register_code(richmath_System_Dialog, builtin_dialog, PMATH_CODE_USAGE_DOWNCALL);
   
   while(!pmath_atomic_read_aquire(&me->do_quit)) {
     pmath_thread_sleep();
@@ -323,7 +327,7 @@ void LocalServer::thread_proc(void *arg) {
       if(rk == Token::Aborted) {
         // clear remaining tokens:
         while(me->tokens.get(&token)) {
-          Application::notify(ClientNotification::End, Symbol(PMATH_SYMBOL_ABORTED));
+          Application::notify(ClientNotification::End, Symbol(richmath_System_DollarAborted));
         }
       }
     }
@@ -358,9 +362,9 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
                        result.release()),
                      &aborted));
                      
-        if( return_from_dialog               &&
-            !aborted                         &&
-            result[0] == PMATH_SYMBOL_RETURN &&
+        if( return_from_dialog                  &&
+            !aborted                            &&
+            result[0] == richmath_System_Return &&
             result.expr_length() <= 1)
         {
           *return_from_dialog = result[1];
@@ -368,7 +372,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
           break;
         }
         
-        Application::notify_wait(ClientNotification::ReturnBox, to_boxes(result));
+        Application::notify_wait(ClientNotification::ReturnBox, evaluate_to_boxes(result));
       }
     }
     else {
@@ -379,16 +383,16 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
                           pmath_ref(object.get())),
                         &aborted));
                         
-      if( return_from_dialog               &&
-          !aborted                         &&
-          result[0] == PMATH_SYMBOL_RETURN &&
+      if( return_from_dialog                  &&
+          !aborted                            &&
+          result[0] == richmath_System_Return &&
           result.expr_length() <= 1)
       {
         *return_from_dialog = result[1];
         rkind = Returned;
       }
       else
-        Application::notify_wait(ClientNotification::ReturnBox, to_boxes(result));
+        Application::notify_wait(ClientNotification::ReturnBox, evaluate_to_boxes(result));
     }
   }
   else {
@@ -399,9 +403,9 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
                       
     pmath_debug_print_object("\n[token result=", result.get(), "]\n");
     
-    if( return_from_dialog               &&
-        !aborted                         &&
-        result[0] == PMATH_SYMBOL_RETURN &&
+    if( return_from_dialog                  &&
+        !aborted                            &&
+        result[0] == richmath_System_Return &&
         result.expr_length() <= 1)
     {
       *return_from_dialog = result[1];
@@ -414,7 +418,7 @@ LocalServer::Token::ResultKind LocalServer::Token::execute(Expr *return_from_dia
   if(aborted) {
     pmath_debug_print("\n[Aborted token]\n");
     //pmath_resume_all();
-    Application::notify(ClientNotification::End, Symbol(PMATH_SYMBOL_ABORTED));
+    Application::notify(ClientNotification::End, Symbol(richmath_System_DollarAborted));
     rkind = Aborted;
   }
   else {

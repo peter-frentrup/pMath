@@ -10,9 +10,6 @@
 
 using namespace richmath;
 
-extern pmath_symbol_t richmath_System_BoxData;
-extern pmath_symbol_t richmath_System_ButtonBox;
-
 
 namespace richmath { namespace strings {
   extern String Button;
@@ -20,6 +17,11 @@ namespace richmath { namespace strings {
   extern String Queued;
 }}
 
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_ButtonBox;
+extern pmath_symbol_t richmath_System_Inherited;
 
 //{ class AbstractButtonBox ...
 
@@ -152,10 +154,10 @@ void ButtonBox::click() {
   fn = prepare_dynamic(std::move(fn));
   
   bool has_data;
-  Expr data = get_own_style(ButtonData, Symbol(PMATH_SYMBOL_INHERITED));
-  if(data == PMATH_SYMBOL_INHERITED) {
+  Expr data = get_own_style(ButtonData, Symbol(richmath_System_Inherited));
+  if(data == richmath_System_Inherited) {
     has_data = false;
-    data = Symbol(PMATH_SYMBOL_AUTOMATIC);
+    data = Symbol(richmath_System_Automatic);
   }
   else {
     has_data = true;
@@ -191,7 +193,7 @@ void ButtonBox::click() {
       break;
     
     default:
-      arg1 = Symbol(PMATH_SYMBOL_FAILED);
+      arg1 = Symbol(richmath_System_DollarFailed);
       break;
   }
   

@@ -12,8 +12,16 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_All;
+extern pmath_symbol_t pmath_System_FixedPointList;
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_NestWhileList;
-
+extern pmath_symbol_t pmath_System_Not;
+extern pmath_symbol_t pmath_System_PureArgument;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_SameTest;
+extern pmath_symbol_t pmath_System_True;
 
 static pmath_t nestwhile(
   pmath_t func,       // wont be freed
@@ -95,7 +103,7 @@ static pmath_t nestwhile(
       return obj;
     }
     
-    if(!pmath_same(tmp, PMATH_SYMBOL_TRUE))
+    if(!pmath_same(tmp, pmath_System_True))
       break;
       
     obj = pmath_evaluate(pmath_expr_new_extended(pmath_ref(func), 1, obj));
@@ -160,10 +168,10 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr) {
     if(pmath_is_int32(obj) && PMATH_AS_INT32(obj) > 0) {
       m = mmin = PMATH_AS_INT32(obj);
     }
-    else if(pmath_same(obj, PMATH_SYMBOL_ALL)) {
+    else if(pmath_same(obj, pmath_System_All)) {
       m = INTPTR_MAX;
     }
-    else if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RANGE, 2)) {
+    else if(pmath_is_expr_of_len(obj, pmath_System_Range, 2)) {
       pmath_t tmp = pmath_expr_get_item(obj, 1);
       
       if(pmath_is_int32(tmp) && PMATH_AS_INT32(tmp) >= 0) {
@@ -256,7 +264,7 @@ PMATH_PRIVATE pmath_t builtin_nestwhile_and_nestwhilelist(pmath_expr_t expr) {
       }
       else {
         pmath_unref(obj);
-        obj = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+        obj = pmath_expr_new(pmath_ref(pmath_System_List), 0);
       }
     }
   }
@@ -278,7 +286,7 @@ PMATH_PRIVATE pmath_t builtin_fixedpoint_and_fixedpointlist(pmath_expr_t expr) {
   pmath_t f, x, test;
   size_t last_nonoption = 2;
   intptr_t max = INTPTR_MAX;
-  pmath_bool_t generate_list = pmath_is_expr_of(expr, PMATH_SYMBOL_FIXEDPOINTLIST);
+  pmath_bool_t generate_list = pmath_is_expr_of(expr, pmath_System_FixedPointList);
   
   if(pmath_expr_length(expr) < 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 3);
@@ -304,17 +312,17 @@ PMATH_PRIVATE pmath_t builtin_fixedpoint_and_fixedpointlist(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
     
-  test = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_SAMETEST, options));
+  test = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_SameTest, options));
   pmath_unref(options);
   
   test = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_FUNCTION), 1,
+           pmath_ref(pmath_System_Function), 1,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_NOT), 1,
+             pmath_ref(pmath_System_Not), 1,
              pmath_expr_new_extended(
                test, 1,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_PUREARGUMENT), 1,
+                 pmath_ref(pmath_System_PureArgument), 1,
                  pmath_ref(_pmath_object_range_from_one)))));
                  
   f = pmath_expr_get_item(expr, 1);

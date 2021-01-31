@@ -9,8 +9,6 @@
 
 using namespace richmath;
 
-extern pmath_symbol_t richmath_System_InputFieldBox;
-
 static ContainerType parse_inputfield_appearance(Expr expr);
 
 namespace richmath {namespace strings {
@@ -22,6 +20,22 @@ namespace richmath {namespace strings {
   extern String InputField;
 }}
 
+extern pmath_symbol_t richmath_System_DollarAborted;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Expression;
+extern pmath_symbol_t richmath_System_Hold;
+extern pmath_symbol_t richmath_System_HoldComplete;
+extern pmath_symbol_t richmath_System_InputFieldBox;
+extern pmath_symbol_t richmath_System_MakeBoxes;
+extern pmath_symbol_t richmath_System_MakeExpression;
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_Number;
+extern pmath_symbol_t richmath_System_RawBoxes;
+extern pmath_symbol_t richmath_System_Sequence;
+extern pmath_symbol_t richmath_System_String;
+extern pmath_symbol_t richmath_System_ToString;
+extern pmath_symbol_t richmath_System_Try;
+
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
@@ -31,7 +45,7 @@ InputFieldBox::InputFieldBox(MathSequence *content)
     frame_x(0)
 {
   dynamic.init(this, Expr());
-  input_type = Symbol(PMATH_SYMBOL_EXPRESSION);
+  input_type = Symbol(richmath_System_Expression);
   reset_style();
   cx = 0;
 }
@@ -130,34 +144,34 @@ void InputFieldBox::paint_content(Context &context) {
         
       invalidated = true;
       
-      if(input_type == PMATH_SYMBOL_NUMBER) {
+      if(input_type == richmath_System_Number) {
         if(result.is_number()) {
-          result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
+          result = Call(Symbol(richmath_System_MakeBoxes), result);
           result = Application::interrupt_wait(result, Application::dynamic_timeout);
         }
         else
           result = strings::EmptyString;
       }
-      else if(input_type == PMATH_SYMBOL_STRING) {
+      else if(input_type == richmath_System_String) {
         if(!result.is_string())
           result = strings::EmptyString;
       }
-      else if(input_type[0] == PMATH_SYMBOL_HOLD) { // Hold(Expression)
-        if(result.expr_length() == 1 && result[0] == PMATH_SYMBOL_HOLD)
-          result.set(0, Symbol(PMATH_SYMBOL_MAKEBOXES));
+      else if(input_type[0] == richmath_System_Hold) { // Hold(Expression)
+        if(result.expr_length() == 1 && result[0] == richmath_System_Hold)
+          result.set(0, Symbol(richmath_System_MakeBoxes));
         else
-          result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
+          result = Call(Symbol(richmath_System_MakeBoxes), result);
           
         result = Application::interrupt_wait(result, Application::dynamic_timeout);
       }
-      else if(input_type != PMATH_SYMBOL_RAWBOXES) {
-        result = Call(Symbol(PMATH_SYMBOL_MAKEBOXES), result);
+      else if(input_type != richmath_System_RawBoxes) {
+        result = Call(Symbol(richmath_System_MakeBoxes), result);
         result = Application::interrupt_wait(result, Application::dynamic_timeout);
       }
       
       if(result.is_null())
         result = strings::EmptyString;
-      else if(result == PMATH_UNDEFINED || result == PMATH_SYMBOL_ABORTED)
+      else if(result == PMATH_UNDEFINED || result == richmath_System_DollarAborted)
         result = strings::DollarAborted;
         
       bool was_parent = is_parent_of(context.selection.get());
@@ -446,24 +460,24 @@ void InputFieldBox::on_key_press(uint32_t unichar) {
 bool InputFieldBox::assign_dynamic() {
   invalidated = false;
   
-  if(input_type == PMATH_SYMBOL_EXPRESSION || input_type[0] == PMATH_SYMBOL_HOLD) { // Expression or Hold(Expression)
+  if(input_type == richmath_System_Expression || input_type[0] == richmath_System_Hold) { // Expression or Hold(Expression)
     Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
     
-    Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
-                      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes),
-                      Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
+    Expr value = Call(Symbol(richmath_System_Try),
+                      Call(Symbol(richmath_System_MakeExpression), boxes),
+                      Call(Symbol(richmath_System_RawBoxes), boxes));
                       
     value = Evaluate(value);
     
-    if(value[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
-      if(input_type[0] == PMATH_SYMBOL_HOLD) {
-        value.set(0, Symbol(PMATH_SYMBOL_HOLD));
+    if(value[0] == richmath_System_HoldComplete) {
+      if(input_type[0] == richmath_System_Hold) {
+        value.set(0, Symbol(richmath_System_Hold));
       }
       else {
         if(value.expr_length() == 1)
           value = value[1];
         else
-          value.set(0, Symbol(PMATH_SYMBOL_SEQUENCE));
+          value.set(0, Symbol(richmath_System_Sequence));
       }
     }
     
@@ -471,16 +485,16 @@ bool InputFieldBox::assign_dynamic() {
     return true;
   }
   
-  if(input_type == PMATH_SYMBOL_NUMBER) {
+  if(input_type == richmath_System_Number) {
     Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
     
-    Expr value = Call(Symbol(PMATH_SYMBOL_TRY),
-                      Call(Symbol(PMATH_SYMBOL_MAKEEXPRESSION), boxes));
+    Expr value = Call(Symbol(richmath_System_Try),
+                      Call(Symbol(richmath_System_MakeExpression), boxes));
                       
     value = Evaluate(value);
     
-    if( value[0] == PMATH_SYMBOL_HOLDCOMPLETE &&
-        value.expr_length() == 1              &&
+    if( value[0] == richmath_System_HoldComplete &&
+        value.expr_length() == 1                 &&
         value[1].is_number())
     {
       dynamic.assign(value[1]);
@@ -490,21 +504,21 @@ bool InputFieldBox::assign_dynamic() {
     return false;
   }
   
-  if(input_type == PMATH_SYMBOL_RAWBOXES) {
+  if(input_type == richmath_System_RawBoxes) {
     Expr boxes = _content->to_pmath(BoxOutputFlags::Default);
     
     dynamic.assign(boxes);
     return true;
   }
   
-  if(input_type == PMATH_SYMBOL_STRING) {
+  if(input_type == richmath_System_String) {
     if(_content->count() > 0) {
       Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
       
-      Expr value = Call(Symbol(PMATH_SYMBOL_TOSTRING),
-                        Call(Symbol(PMATH_SYMBOL_RAWBOXES), boxes));
+      Expr value = Call(Symbol(richmath_System_ToString),
+                        Call(Symbol(richmath_System_RawBoxes), boxes));
                         
-      value = Evaluate(value);
+      value = Evaluate(value); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly
       
       dynamic.assign(value);
       if(!dynamic.is_dynamic())
@@ -538,10 +552,10 @@ static ContainerType parse_inputfield_appearance(Expr expr) {
     return InputField;
   }
   
-  if(expr == PMATH_SYMBOL_NONE)
+  if(expr == richmath_System_None)
     return NoContainerType;
     
-  if(expr == PMATH_SYMBOL_AUTOMATIC)
+  if(expr == richmath_System_Automatic)
     return InputField;
   
   return InputField;

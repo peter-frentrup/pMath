@@ -6,6 +6,10 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_All;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_None;
+
 PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr) {
   /* Thread(f(args), head, rangespec)
      Thread(f(args))              = Thread(f(args), List, 0..)
@@ -33,10 +37,10 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr) {
   end = pmath_expr_length(fst);
   if(exprlen == 3) {
     pmath_t part = pmath_expr_get_item(expr, 3);
-    if(pmath_same(part, PMATH_SYMBOL_ALL)) {
+    if(pmath_same(part, pmath_System_All)) {
       /* do nothing */
     }
-    else if(pmath_same(part, PMATH_SYMBOL_NONE)) {
+    else if(pmath_same(part, pmath_System_None)) {
       start = end = end + 1;
     }
     else if(!extract_range(part, &start, &end, TRUE)) {
@@ -50,7 +54,7 @@ PMATH_PRIVATE pmath_t builtin_thread(pmath_expr_t expr) {
   if(exprlen >= 2)
     head = pmath_expr_get_item(expr, 2);
   else
-    head = pmath_ref(PMATH_SYMBOL_LIST);
+    head = pmath_ref(pmath_System_List);
     
   pmath_unref(expr);
   fst = _pmath_expr_thread(fst, head, start, end, FALSE);

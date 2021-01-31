@@ -2,6 +2,9 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_t builtin_characters(pmath_expr_t expr) {
   /* Characters(string)
    */
@@ -19,7 +22,7 @@ PMATH_PRIVATE pmath_t builtin_characters(pmath_expr_t expr) {
     
     pmath_unref(expr);
     expr = pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_LIST),
+             pmath_ref(pmath_System_List),
              (size_t)pmath_string_length(string));
              
     for(i = pmath_expr_length(expr); i > 0; --i)

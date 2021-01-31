@@ -14,6 +14,14 @@
 #include <pcre.h>
 
 
+extern pmath_symbol_t pmath_System_EndOfString;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IgnoreCase;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_StartOfString;
+extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_True;
+
 static pmath_t stringmatch(
   pmath_t          obj,      // will be freed
   struct _regex_t *regex
@@ -36,10 +44,10 @@ static pmath_t stringmatch(
     
     pmath_unref(obj);
     _pmath_regex_free_capture(&capture);
-    return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
+    return pmath_ref(result ? pmath_System_True : pmath_System_False);
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(obj, pmath_System_List)) {
     size_t i;
     for(i = 1; i <= pmath_expr_length(obj); ++i) {
       pmath_t item = pmath_expr_get_item(obj, i);
@@ -82,14 +90,14 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr) {
     return expr;
     
   pcre_options = 0;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
+  if(pmath_same(obj, pmath_System_True)) {
     pcre_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_IGNORECASE),
+      pmath_ref(pmath_System_IgnoreCase),
       obj);
     pmath_unref(options);
     return expr;
@@ -99,10 +107,10 @@ PMATH_PRIVATE pmath_t builtin_stringmatch(pmath_expr_t expr) {
   
   obj = pmath_expr_get_item(expr, 2);
   obj = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION), 3,
-          pmath_ref(PMATH_SYMBOL_STARTOFSTRING), 
+          pmath_ref(pmath_System_StringExpression), 3,
+          pmath_ref(pmath_System_StartOfString), 
           obj,
-          pmath_ref(PMATH_SYMBOL_ENDOFSTRING));
+          pmath_ref(pmath_System_EndOfString));
   
   regex = _pmath_regex_compile(obj, pcre_options);
   if(!regex)

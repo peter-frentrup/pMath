@@ -5,6 +5,14 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_Decrement;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_PostDecrement;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr) {
   /* PostIncrement(x)   =  x++
      PostIncrement(x, y)
@@ -40,17 +48,17 @@ PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr
   
   if(exprlen == 2) {
     delta = pmath_expr_get_item(expr, 2);
-    if( pmath_same(head, PMATH_SYMBOL_DECREMENT) ||
-        pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))
+    if( pmath_same(head, pmath_System_Decrement) ||
+        pmath_same(head, pmath_System_PostDecrement))
     {
       delta = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                pmath_ref(pmath_System_Times), 2,
                 PMATH_FROM_INT32(-1),
                 delta);
     }
   }
-  else if( pmath_same(head, PMATH_SYMBOL_DECREMENT) ||
-           pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))
+  else if( pmath_same(head, pmath_System_Decrement) ||
+           pmath_same(head, pmath_System_PostDecrement))
   {
     delta = PMATH_FROM_INT32(-1);
   }
@@ -60,15 +68,15 @@ PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr
   pmath_unref(expr);
   
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+           pmath_ref(pmath_System_Assign), 2,
            lhs,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_PLUS), 2,
+             pmath_ref(pmath_System_Plus), 2,
              pmath_ref(lhs_eval),
              delta));
              
-  if( pmath_same(head, PMATH_SYMBOL_DECREMENT) ||
-      pmath_same(head, PMATH_SYMBOL_INCREMENT))
+  if( pmath_same(head, pmath_System_Decrement) ||
+      pmath_same(head, pmath_System_Increment))
   {
     pmath_unref(lhs_eval);
     return expr;

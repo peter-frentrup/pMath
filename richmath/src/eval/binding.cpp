@@ -24,13 +24,26 @@ using namespace richmath;
 
 //{ pmath functions ...
 
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_Dialog;
+extern pmath_symbol_t richmath_System_DocumentApply;
 extern pmath_symbol_t richmath_System_DocumentSave;
+extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_FrontEndTokenExecute;
+extern pmath_symbol_t richmath_System_Interrupt;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_MakeBoxes;
+extern pmath_symbol_t richmath_System_Return;
+extern pmath_symbol_t richmath_System_Row;
+extern pmath_symbol_t richmath_System_Rule;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_System_SectionGenerated;
+extern pmath_symbol_t richmath_System_SectionPrint;
+extern pmath_symbol_t richmath_System_Stack;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
+extern pmath_symbol_t richmath_System_True;
 
 extern pmath_symbol_t richmath_FE_FileOpenDialog;
 extern pmath_symbol_t richmath_FrontEnd_KernelExecute;
@@ -185,13 +198,13 @@ static bool init_symbols() {
 
   BIND_DOWN(richmath_Internal_DynamicUpdated,  builtin_internal_dynamicupdated)
   
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTAPPLY,            builtin_documentapply_or_documentwrite)
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTREAD,             builtin_documentread)
-  BIND_DOWN(PMATH_SYMBOL_DOCUMENTWRITE,            builtin_documentapply_or_documentwrite)
+  BIND_DOWN(richmath_System_DocumentApply,         builtin_documentapply_or_documentwrite)
+  BIND_DOWN(richmath_System_DocumentRead,          builtin_documentread)
+  BIND_DOWN(richmath_System_DocumentWrite,         builtin_documentapply_or_documentwrite)
   BIND_DOWN(richmath_System_DocumentSave,          builtin_documentsave)
   BIND_DOWN(richmath_System_FrontEndTokenExecute,  builtin_frontendtokenexecute)
-  BIND_DOWN(PMATH_SYMBOL_INTERRUPT,                builtin_interrupt)
-  BIND_DOWN(PMATH_SYMBOL_SECTIONPRINT,             builtin_sectionprint)
+  BIND_DOWN(richmath_System_Interrupt,             builtin_interrupt)
+  BIND_DOWN(richmath_System_SectionPrint,          builtin_sectionprint)
   
   BIND_DOWN(richmath_FE_CallFrontEnd,        builtin_callfrontend)
   BIND_DOWN(richmath_FE_FileOpenDialog,      builtin_filedialog)
@@ -261,11 +274,11 @@ bool richmath::init_bindings() {
   Menus::register_command(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
   Menus::register_command(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
   
-  Menus::register_command(Symbol(PMATH_SYMBOL_DOCUMENTAPPLY),  document_apply_cmd,  can_document_write);
-  Menus::register_command(Symbol(PMATH_SYMBOL_DOCUMENTWRITE),  document_write_cmd,  can_document_write);
+  Menus::register_command(Symbol(richmath_System_DocumentApply),  document_apply_cmd,  can_document_write);
+  Menus::register_command(Symbol(richmath_System_DocumentWrite),  document_write_cmd,  can_document_write);
   
   Menus::register_command(Symbol(richmath_FE_CopySpecial),   copy_special_cmd, can_copy_cut);
-  Menus::register_command(Symbol(PMATH_SYMBOL_RULE),         set_style_cmd,    can_set_style);
+  Menus::register_command(Symbol(richmath_System_Rule),      set_style_cmd,    can_set_style);
   Menus::register_command(Symbol(richmath_FE_ScopedCommand), do_scoped_cmd,    can_do_scoped);
   
   Menus::register_command(Symbol(richmath_FrontEnd_KernelExecute), do_kernelexecute_cmd);
@@ -306,11 +319,11 @@ static pmath_t builtin_callfrontend(pmath_expr_t expr) {
   
   if(exprlen == 2) {
     item = pmath_expr_get_item(expr, 2);
-    if(pmath_same(item, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(item, richmath_System_True)) {
       pmath_unref(item);
       waiting = true;
     }
-    else if(pmath_same(item, PMATH_SYMBOL_FALSE)) {
+    else if(pmath_same(item, richmath_System_False)) {
       pmath_unref(item);
       waiting = false;
     }
@@ -411,13 +424,13 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
     }
     else {
       boxes = pmath_expr_get_item_range(expr, 2, SIZE_MAX);
-      boxes = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_LIST));
-      boxes = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 2, boxes, PMATH_C_STRING(" "));
+      boxes = pmath_expr_set_item(boxes, 0, pmath_ref(richmath_System_List));
+      boxes = pmath_expr_new_extended(pmath_ref(richmath_System_Row), 2, boxes, PMATH_C_STRING(" "));
     }
     
     boxes = pmath_evaluate(
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
+                pmath_ref(richmath_System_MakeBoxes), 1, // ToBoxes instead?
                 boxes));
     
     sections = pmath_expr_new_extended(
@@ -427,9 +440,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                    boxes),
                  style,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_RULE), 2,
+                   pmath_ref(richmath_System_Rule), 2,
                    pmath_ref(richmath_System_SectionGenerated),
-                   pmath_ref(PMATH_SYMBOL_TRUE)));
+                   pmath_ref(richmath_System_True)));
   }
   else
     sections = pmath_expr_get_item(expr, 1);
@@ -437,8 +450,8 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
   pmath_unref(expr);
   expr = PMATH_NULL;
   
-  if(!pmath_is_expr_of(sections, PMATH_SYMBOL_LIST))
-    sections = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, sections);
+  if(!pmath_is_expr_of(sections, richmath_System_List))
+    sections = pmath_expr_new_extended(pmath_ref(richmath_System_List), 1, sections);
   
   for(size_t i = 1; i <= pmath_expr_length(sections); ++i) {
     pmath_t sect = pmath_expr_get_item(sections, i);
@@ -450,7 +463,7 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
       if(!pmath_is_string(content)) {
         content = pmath_evaluate(
                     pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_TOBOXES), 1,
+                      pmath_ref(richmath_System_MakeBoxes), 1, // ToBoxes instead?
                       content));
         content = pmath_expr_new_extended(
                     pmath_ref(richmath_System_BoxData), 1,
@@ -461,9 +474,9 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                pmath_ref(richmath_System_Section), 2,
                content,
                pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_RULE), 2,
+                 pmath_ref(richmath_System_Rule), 2,
                  pmath_ref(richmath_System_SectionGenerated),
-                 pmath_ref(PMATH_SYMBOL_TRUE)));
+                 pmath_ref(richmath_System_True)));
     }
     
     Application::notify_wait(ClientNotification::PrintSection, Expr(sect));
@@ -480,7 +493,7 @@ static pmath_t builtin_interrupt(pmath_expr_t expr) {
   }
   
   pmath_unref(expr); 
-  expr = pmath_evaluate(pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0));
+  expr = pmath_evaluate(pmath_expr_new(pmath_ref(richmath_System_Stack), 0));
   
   if(Application::is_running_on_gui_thread()) 
     expr = ask_interrupt(Expr(expr)).release();
@@ -741,7 +754,7 @@ static MenuCommandStatus can_section_split(Expr cmd) {
 }
 
 static bool has_style(Box *box, StyleOptionName name, Expr rhs) {
-  if(rhs == PMATH_SYMBOL_INHERITED) {
+  if(rhs == richmath_System_Inherited) {
     if(!box->style)
       return true;
     
@@ -884,7 +897,7 @@ static bool cut_cmd(Expr cmd) {
 
 static bool do_kernelexecute_cmd(Expr cmd) {
   cmd = richmath_eval_FrontEnd_KernelExecute(std::move(cmd));
-  return cmd != PMATH_SYMBOL_FAILED;
+  return cmd != richmath_System_DollarFailed;
 }
 
 static bool do_scoped_cmd(Expr cmd) {
@@ -1113,7 +1126,7 @@ static bool evaluate_sections_cmd(Expr cmd) {
   }
   
   if(cmd == strings::EvaluateSectionsAndReturn) {
-    Application::add_job(new EvaluationJob(Call(Symbol(PMATH_SYMBOL_RETURN))));
+    Application::add_job(new EvaluationJob(Call(Symbol(richmath_System_Return))));
   }
   
   return true;
@@ -1123,7 +1136,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
   if(Application::is_idle())
     return false;
     
-  Application::async_interrupt(Call(Symbol(PMATH_SYMBOL_DIALOG)));
+  Application::async_interrupt(Call(Symbol(richmath_System_Dialog)));
   
   return true;
 }
@@ -1283,14 +1296,11 @@ static bool insert_underscript_cmd(Expr cmd) {
 }
 
 static bool interrupt_cmd(Expr cmd) {
-  Application::async_interrupt(Call(Symbol(PMATH_SYMBOL_INTERRUPT)));
+  Application::async_interrupt(Call(Symbol(richmath_System_Interrupt)));
   return true;
 }
 
 static bool new_cmd(Expr cmd) {
-//  Application::notify(
-//    ClientNotification::CreateDocument,
-//    Call(Symbol(PMATH_SYMBOL_CREATEDOCUMENT), List()));
   Document *doc = Application::try_create_document();
   if(!doc)
     return false;
@@ -1317,7 +1327,7 @@ static bool open_cmd(Expr cmd) {
   if(filenames.is_string())
     filenames = List(filenames);
     
-  if(filenames[0] != PMATH_SYMBOL_LIST)
+  if(filenames[0] != richmath_System_List)
     return false;
     
   for(size_t i = 1; i <= filenames.expr_length(); ++i) {
@@ -1397,14 +1407,14 @@ static bool save_cmd(Expr cmd) {
   if(!doc->get_style(Saveable, true))
     return false;
   
-  Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_AUTOMATIC)));
+  Application::notify_wait(ClientNotification::Save, List(Symbol(richmath_System_Automatic), Symbol(richmath_System_Automatic)));
   
   // TODO: check whether the document has a filename that has enough permissions...
   return true;
 }
 
 static bool saveas_cmd(Expr cmd) {
-  Application::notify_wait(ClientNotification::Save, List(Symbol(PMATH_SYMBOL_AUTOMATIC), Symbol(PMATH_SYMBOL_NONE)));
+  Application::notify_wait(ClientNotification::Save, List(Symbol(richmath_System_Automatic), Symbol(richmath_System_None)));
   
   return true;
 }
@@ -1471,7 +1481,7 @@ static bool set_style_cmd(Expr cmd) {
   if(Menus::current_scope == MenuCommandScope::Document) {
     if(cmd.is_rule() && cmd[1] == richmath_System_StyleDefinitions) {
       if(Expr style_def = doc->get_own_style(StyleDefinitions)) {
-        if(style_def[0] == PMATH_SYMBOL_DOCUMENT) {
+        if(style_def[0] == richmath_System_Document) {
           if(ask_remove_private_style_definitions(doc) != YesNoCancel::Yes)
             return false;
           
@@ -1526,7 +1536,7 @@ static bool similar_section_below_cmd(Expr cmd) {
 
 static bool subsession_evaluate_sections_cmd(Expr cmd) {
   Application::async_interrupt(
-    Call(Symbol(PMATH_SYMBOL_DIALOG),
+    Call(Symbol(richmath_System_Dialog),
          Call(Symbol(richmath_System_FrontEndTokenExecute),
               strings::EvaluateSectionsAndReturn)));
               

@@ -29,6 +29,12 @@ static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
 #endif
 
 
+extern pmath_symbol_t pmath_System_Integer;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Real;
+extern pmath_symbol_t pmath_System_Row;
+extern pmath_symbol_t pmath_System_Skeleton;
+extern pmath_symbol_t pmath_System_Undefined;
 extern pmath_symbol_t pmath_Developer_PackedArrayForm;
 
 /* -------------------------------------------------------------------------- */
@@ -259,7 +265,7 @@ static unsigned int hash_double(double d) {
   if(d < 0)
     return pmath_hash(_pmath_object_neg_infinity);
     
-  return pmath_hash(PMATH_SYMBOL_UNDEFINED);
+  return pmath_hash(pmath_System_Undefined);
 }
 
 static unsigned int hash_packed_array_of_double(
@@ -271,7 +277,7 @@ static unsigned int hash_packed_array_of_double(
   
   const uint8_t *ptr = data;
   
-  unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
+  unsigned hash = pmath_hash(pmath_System_List);
   
   hash = _pmath_incremental_hash(&hash, sizeof(hash), 0);
   
@@ -293,7 +299,7 @@ static unsigned int hash_packed_array_of_int32(
   
   const uint8_t *ptr = data;
   
-  unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
+  unsigned hash = pmath_hash(pmath_System_List);
   pmath_t dummy = PMATH_FROM_INT32(0);
   
   hash = _pmath_incremental_hash(&hash, sizeof(hash), 0);
@@ -321,7 +327,7 @@ static unsigned int hash_packed_array_part(
     size_t step = ARRAY_STEPS(array)[level];
     const uint8_t *ptr = data;
     
-    unsigned hash = pmath_hash(PMATH_SYMBOL_LIST);
+    unsigned hash = pmath_hash(pmath_System_List);
     hash = _pmath_incremental_hash(&hash, sizeof(hash), 0);
     
     for(; nums > 0; --nums, ptr += step) {
@@ -555,25 +561,25 @@ pmath_t _pmath_packed_array_form(pmath_packed_array_t packed_array) {
   
   switch(pmath_packed_array_get_element_type(packed_array)) {
     case PMATH_PACKED_DOUBLE:
-      type_expr = pmath_ref(PMATH_SYMBOL_REAL);
+      type_expr = pmath_ref(pmath_System_Real);
       break;
       
     case PMATH_PACKED_INT32:
-      type_expr = pmath_ref(PMATH_SYMBOL_INTEGER);
+      type_expr = pmath_ref(pmath_System_Integer);
       break;
       
     default:
-      type_expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      type_expr = pmath_ref(pmath_System_Undefined);
       break;
   }
   
   dim_expr = _pmath_dimensions(packed_array, SIZE_MAX);
   dim_expr = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_ROW), 2,
+      pmath_ref(pmath_System_Row), 2,
       dim_expr,
       PMATH_C_STRING(","));
   dim_expr = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+      pmath_ref(pmath_System_Skeleton), 1,
       dim_expr);
       
   return pmath_expr_new_extended(
@@ -1113,7 +1119,7 @@ pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type) 
       if(d < 0)
         return pmath_ref(_pmath_object_neg_infinity);
         
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      return pmath_ref(pmath_System_Undefined);
       
     case PMATH_PACKED_INT32:
       return PMATH_FROM_INT32(*(int32_t *)data);
@@ -1138,7 +1144,7 @@ pmath_t _pmath_packed_array_get_item(
     
   _array = (void *)PMATH_AS_PTR(array);
   if(index == 0)
-    return pmath_ref(PMATH_SYMBOL_LIST);
+    return pmath_ref(pmath_System_List);
     
   sizes = ARRAY_SIZES(_array);
   steps = ARRAY_STEPS(_array);
@@ -1220,8 +1226,8 @@ pmath_expr_t _pmath_packed_array_get_item_range(
     if(expr == NULL)
       return PMATH_NULL;
       
-    expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
-    expr->items[1] = pmath_ref(PMATH_SYMBOL_LIST);
+    expr->items[0] = pmath_ref(pmath_System_List);
+    expr->items[1] = pmath_ref(pmath_System_List);
     for(i = 1; i < length; ++i)
       expr->items[i + 1] = _pmath_packed_array_get_item(array, i);
       
@@ -1278,7 +1284,7 @@ pmath_expr_t _pmath_packed_array_set_item(
     
   _array = (void *)PMATH_AS_PTR(array);
   if(index == 0) {
-    if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(item, pmath_System_List)) {
       pmath_unref(item);
       return array;
     }
@@ -1311,7 +1317,7 @@ pmath_expr_t _pmath_packed_array_set_item(
           if(pmath_is_double(item)) {
             as_double = PMATH_AS_DOUBLE(item);
           }
-          else if(pmath_same(item, PMATH_SYMBOL_UNDEFINED)) {
+          else if(pmath_same(item, pmath_System_Undefined)) {
             as_double = NAN;
           }
           else if(pmath_equals(item, _pmath_object_pos_infinity)) {
@@ -1378,7 +1384,7 @@ pmath_expr_t _pmath_packed_array_set_item(
   }
   
   if(!pmath_is_packed_array(item) &&
-      pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, sizes[0]))
+      pmath_is_expr_of_len(item, pmath_System_List, sizes[0]))
   {
     item = pmath_to_packed_array(item, 0);
   }
@@ -1511,7 +1517,7 @@ pmath_expr_t unpack_array(pmath_packed_array_t array, pmath_bool_t recursive, pm
     return PMATH_NULL;
   }
   
-  expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+  expr->items[0] = pmath_ref(pmath_System_List);
   for(i = 1; i <= length; ++i)
     expr->items[i] = _pmath_packed_array_get_item(array, i);
     
@@ -1553,7 +1559,7 @@ static int packable_element_type(pmath_t expr, int expected_type) {
     return type_combination_matrix[PMATH_PACKED_INT32][expected_type];
     
   if(pmath_is_double(expr) ||
-      pmath_same(expr, PMATH_SYMBOL_UNDEFINED) ||
+      pmath_same(expr, pmath_System_Undefined) ||
       pmath_equals(expr, _pmath_object_pos_infinity) ||
       pmath_equals(expr, _pmath_object_neg_infinity))
   {
@@ -1580,7 +1586,7 @@ static int packable_element_type(pmath_t expr, int expected_type) {
     item = pmath_expr_get_item(expr, 0);
     pmath_unref(item);
     
-    if(!pmath_same(item, PMATH_SYMBOL_LIST))
+    if(!pmath_same(item, pmath_System_List))
       return 0;
       
     item = pmath_expr_get_item(expr, len);
@@ -1616,7 +1622,7 @@ static size_t packable_dimensions(pmath_t expr) {
     return _array->dimensions;
   }
   
-  if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(expr, pmath_System_List)) {
     pmath_t item;
     size_t result;
     
@@ -1688,7 +1694,7 @@ static void NAME_pack_and_free_element_to(double)(pmath_t expr, double *location
     return;
   }
   
-  if(pmath_same(expr, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_same(expr, pmath_System_Undefined)) {
     *location = NAN;
     pmath_unref(expr);
     return;
@@ -1943,7 +1949,7 @@ size_t _pmath_packed_array_find_sorted(
     }
   }
   else {
-    if(!pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, sizes[0]))
+    if(!pmath_is_expr_of_len(item, pmath_System_List, sizes[0]))
       return 0;
   }
   
@@ -2119,8 +2125,8 @@ pmath_expr_t _pmath_packed_array_map(
       
       start = 1;
       
-      item = (*func)(pmath_ref(PMATH_SYMBOL_LIST), 0, context);
-      if(!pmath_same(item, PMATH_SYMBOL_LIST)) {
+      item = (*func)(pmath_ref(pmath_System_List), 0, context);
+      if(!pmath_same(item, pmath_System_List)) {
         pmath_t expr = pmath_expr_set_item(array, 0, item);
         
         return _pmath_expr_map(expr, start, end, func, context);

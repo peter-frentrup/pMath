@@ -7,12 +7,14 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 // list will be freed, wrap_head won't
 pmath_t get_keys(pmath_t list, pmath_t wrap_head) {
   pmath_dispatch_table_t disp;
   size_t i;
   
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(list, pmath_System_List)) {
     pmath_message(PMATH_NULL, "reps", 1, list); // Mma gives General::invrl
     return PMATH_NULL;
   }

@@ -10,7 +10,6 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
 #include <pcre.h>
 
@@ -18,6 +17,15 @@
 #define SR_EMIT_EMPTY         2
 #define SR_EMIT_EMPTY_BOUNDS  4
 
+
+extern pmath_symbol_t pmath_System_All;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IgnoreCase;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_RegularExpression;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_True;
 
 static pmath_t stringreplace(
   pmath_t              obj,           // will be freed
@@ -111,14 +119,13 @@ static pmath_t stringreplace(
     pmath_unref(obj);
     obj = pmath_gather_end();
     if(!(options & SR_EMIT_LIST)) {
-      obj = pmath_expr_set_item(obj, 0,
-                                pmath_ref(PMATH_SYMBOL_STRINGEXPRESSION));
+      obj = pmath_expr_set_item(obj, 0, pmath_ref(pmath_System_StringExpression));
     }
     
     return obj;
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(obj, pmath_System_List)) {
     size_t i;
     for(i = 1; i <= pmath_expr_length(obj); ++i) {
       pmath_t item = pmath_expr_get_item(obj, i);
@@ -153,9 +160,9 @@ static pmath_t replace_all(
   struct _capture_t   *capture_list;
   size_t               count, i;
   
-  if(!pmath_is_expr_of(rules, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(rules, pmath_System_List)) {
     rules = pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_LIST), 1,
+              pmath_ref(pmath_System_List), 1,
               rules);
   }
   
@@ -174,7 +181,7 @@ static pmath_t replace_all(
       pmath_t rule_i = pmath_expr_get_item(rules, i + 1);
       pmath_t lhs, rhs;
       
-      if(!_pmath_is_rule(rule_i)) {
+      if(!pmath_is_rule(rule_i)) {
         pmath_message(PMATH_NULL, "srep", 1, rule_i);
         pmath_unref(rules);
         pmath_unref(obj);
@@ -272,14 +279,14 @@ PMATH_PRIVATE pmath_t builtin_stringreplace(pmath_expr_t expr) {
     return expr;
     
   regex_options = 0;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
+  if(pmath_same(obj, pmath_System_True)) {
     regex_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_IGNORECASE),
+      pmath_ref(pmath_System_IgnoreCase),
       obj);
     pmath_unref(options);
     return expr;
@@ -318,7 +325,7 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
       max_matches = PMATH_AS_INT32(obj) - 1;
       last_nonoption = 3;
     }
-    else if(pmath_same(obj, PMATH_SYMBOL_ALL)) {
+    else if(pmath_same(obj, pmath_System_All)) {
       sr_options |= SR_EMIT_EMPTY_BOUNDS;
       last_nonoption = 3;
     }
@@ -344,14 +351,14 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
     return expr;
     
   regex_options = 0;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
+  if(pmath_same(obj, pmath_System_True)) {
     regex_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_IGNORECASE),
+      pmath_ref(pmath_System_IgnoreCase),
       obj);
     pmath_unref(options);
     return expr;
@@ -362,23 +369,23 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
   
   if(pmath_expr_length(expr) == 1) {
     rules = pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_RULE), 2,
+              pmath_ref(pmath_System_Rule), 2,
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_REGULAREXPRESSION), 1,
+                pmath_ref(pmath_System_RegularExpression), 1,
                 PMATH_C_STRING("\\s+")),
               PMATH_UNDEFINED);
   }
   else {
     rules = pmath_expr_get_item(expr, 2);
-    if(pmath_is_expr_of(rules, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(rules, pmath_System_List)) {
       size_t i;
       for(i = pmath_expr_length(rules); i > 0; --i) {
         pmath_t rule = pmath_expr_get_item(rules, i);
         
-        if(!_pmath_is_rule(rule)) {
+        if(!pmath_is_rule(rule)) {
           rules = pmath_expr_set_item(rules, i,
                                       pmath_expr_new_extended(
-                                        pmath_ref(PMATH_SYMBOL_RULE), 2,
+                                        pmath_ref(pmath_System_Rule), 2,
                                         rule,
                                         PMATH_UNDEFINED));
         }
@@ -386,9 +393,9 @@ PMATH_PRIVATE pmath_t builtin_stringsplit(pmath_expr_t expr) {
           pmath_unref(rule);
       }
     }
-    else if(!_pmath_is_rule(rules)) {
+    else if(!pmath_is_rule(rules)) {
       rules = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_RULE), 2,
+                pmath_ref(pmath_System_Rule), 2,
                 rules,
                 PMATH_UNDEFINED);
     }

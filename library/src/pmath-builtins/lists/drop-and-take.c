@@ -8,6 +8,12 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_All;
+extern pmath_symbol_t pmath_System_Drop;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_None;
+extern pmath_symbol_t pmath_System_Take;
+
 struct sequence_t {
   long start;
   long end;
@@ -26,12 +32,12 @@ static pmath_bool_t convert_take_positions(
   for(i = exprstart; i <= exprlen; ++i) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(pmath_same(item, PMATH_SYMBOL_ALL)) {
+    if(pmath_same(item, pmath_System_All)) {
       pos[i - exprstart].start = 1;
       pos[i - exprstart].end   = -1;
       pos[i - exprstart].step  = 1;
     }
-    else if(pmath_same(item, PMATH_SYMBOL_NONE)) {
+    else if(pmath_same(item, pmath_System_None)) {
       pos[i - exprstart].start = 1;
       pos[i - exprstart].end   = 0;
       pos[i - exprstart].step  = 1;
@@ -136,7 +142,7 @@ static pmath_bool_t drop(
     return TRUE;
   }
   
-  pmath_message(PMATH_SYMBOL_DROP, "drop", 3,
+  pmath_message(pmath_System_Drop, "drop", 3,
                 pmath_integer_new_slong(pos->start),
                 pmath_integer_new_slong(pos->end),
                 pmath_ref(*obj));
@@ -174,7 +180,7 @@ static pmath_bool_t take(
     return TRUE;
   }
   
-  pmath_message(PMATH_SYMBOL_TAKE, "take", 3,
+  pmath_message(pmath_System_Take, "take", 3,
                 pmath_integer_new_slong(pos->start),
                 pmath_integer_new_slong(pos->end),
                 pmath_ref(*obj));
@@ -254,7 +260,7 @@ pmath_bool_t _pmath_expr_try_overlay(
     size_t len = (u_end - u_start + u_step) / u_step;
     size_t i;
     
-    if(!pmath_is_expr_of_len(values, PMATH_SYMBOL_LIST, len)) {
+    if(!pmath_is_expr_of_len(values, pmath_System_List, len)) {
       for(i = 1; u_start <= u_end; u_start += u_step, ++i) {
         *list = pmath_expr_set_item(*list, u_start,
                                     pmath_ref(values));

@@ -26,16 +26,19 @@ static bool mgtk_system_open_directory(String dir);
 static char *filename_to_g_uri(String filename);
 #endif
 
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_List;
+
 Expr richmath_eval_FrontEnd_SystemOpenDirectory(Expr expr) {
   /** FrontEnd`SystemOpenDirectory(filename)
       FrontEnd`SystemOpenDirectory(dir, {file1, file2, ...})
    */
   if(expr.expr_length() < 1 || expr.expr_length() > 2) 
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   String dir = expr[1];
   if(!dir)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   if(dir.length() > 0)
     dir = FileSystem::to_existing_absolute_file_name(std::move(dir));
@@ -59,14 +62,14 @@ Expr richmath_eval_FrontEnd_SystemOpenDirectory(Expr expr) {
   if(system_open_directory(std::move(dir), std::move(items)))
     return {};
   else
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
 }
 
 static bool system_open_directory(String dir, Expr items) {
   if(!dir)
     return false;
   
-  if(items[0] != PMATH_SYMBOL_LIST)
+  if(items[0] != richmath_System_List)
     return false;
   
   if(dir.length() == 0) {

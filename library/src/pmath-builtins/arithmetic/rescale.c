@@ -6,8 +6,13 @@
 #include <pmath-builtins/build-expr-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Max;
 extern pmath_symbol_t pmath_System_Min;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Times;
 
 PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
   /* Rescale(x, min..max, xmin..xmax)
@@ -24,7 +29,7 @@ PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
   
   x = pmath_expr_get_item(expr, 1);
   if(exprlen == 1) {
-    if(!pmath_is_expr_of(x, PMATH_SYMBOL_LIST)) {
+    if(!pmath_is_expr_of(x, pmath_System_List)) {
       pmath_message(PMATH_NULL, "nargs", 0);
       pmath_unref(x);
       return expr;
@@ -38,7 +43,7 @@ PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
   else if(exprlen >= 2) {
     pmath_t range = pmath_expr_get_item(expr, 2);
     
-    if(!pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
+    if(!pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
       pmath_unref(x);
       pmath_message(PMATH_NULL, "rtwo", 2, range, PMATH_FROM_INT32(2));
       return expr;
@@ -51,7 +56,7 @@ PMATH_PRIVATE pmath_t builtin_rescale(pmath_expr_t expr) {
     if(exprlen == 3) {
       range = pmath_expr_get_item(expr, 3);
       
-      if(!pmath_is_expr_of_len(range, PMATH_SYMBOL_RANGE, 2)) {
+      if(!pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
         pmath_unref(x);
         pmath_message(PMATH_NULL, "rtwo", 2, range, PMATH_FROM_INT32(3));
         return expr;

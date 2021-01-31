@@ -17,10 +17,14 @@
       assert(a); \
     }}while(0)
 
+extern pmath_symbol_t richmath_System_DollarAborted;
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Antialiasing;
 extern pmath_symbol_t richmath_System_Appearance;
 extern pmath_symbol_t richmath_System_AspectRatio;
+extern pmath_symbol_t richmath_System_Assign;
 extern pmath_symbol_t richmath_System_AutoDelete;
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_AutoNumberFormating;
 extern pmath_symbol_t richmath_System_AutoSpacing;
 extern pmath_symbol_t richmath_System_Axes;
@@ -28,6 +32,7 @@ extern pmath_symbol_t richmath_System_AxesOrigin;
 extern pmath_symbol_t richmath_System_Background;
 extern pmath_symbol_t richmath_System_BaselinePosition;
 extern pmath_symbol_t richmath_System_BaseStyle;
+extern pmath_symbol_t richmath_System_Bold;
 extern pmath_symbol_t richmath_System_BorderRadius;
 extern pmath_symbol_t richmath_System_BoxRotation;
 extern pmath_symbol_t richmath_System_BoxTransformation;
@@ -46,9 +51,12 @@ extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultReturnCreatedSectionStyle;
 extern pmath_symbol_t richmath_System_DisplayFunction;
 extern pmath_symbol_t richmath_System_DockedSections;
+extern pmath_symbol_t richmath_System_Document;
+extern pmath_symbol_t richmath_System_DownRules;
 extern pmath_symbol_t richmath_System_Editable;
 extern pmath_symbol_t richmath_System_Enabled;
 extern pmath_symbol_t richmath_System_Evaluatable;
+extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_FillBoxOptions;
 extern pmath_symbol_t richmath_System_FillBoxWeight;
 extern pmath_symbol_t richmath_System_FontColor;
@@ -62,29 +70,43 @@ extern pmath_symbol_t richmath_System_FrameBoxOptions;
 extern pmath_symbol_t richmath_System_FrameStyle;
 extern pmath_symbol_t richmath_System_FrameTicks;
 extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_Function;
 extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
 extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
+extern pmath_symbol_t richmath_System_GrayLevel;
+extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_Hue;
 extern pmath_symbol_t richmath_System_ImageSize;
 extern pmath_symbol_t richmath_System_ImageSizeAction;
+extern pmath_symbol_t richmath_System_Inherited;
 extern pmath_symbol_t richmath_System_InputAliases;
 extern pmath_symbol_t richmath_System_InputAutoReplacements;
 extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
+extern pmath_symbol_t richmath_System_Italic;
 extern pmath_symbol_t richmath_System_LanguageCategory;
 extern pmath_symbol_t richmath_System_LineBreakWithin;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Magnification;
 extern pmath_symbol_t richmath_System_MathFontFamily;
 extern pmath_symbol_t richmath_System_MenuCommandKey;
 extern pmath_symbol_t richmath_System_MenuSortingValue;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_NCache;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Opacity;
 extern pmath_symbol_t richmath_System_PaneBoxOptions;
 extern pmath_symbol_t richmath_System_PanelBoxOptions;
 extern pmath_symbol_t richmath_System_Placeholder;
+extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
+extern pmath_symbol_t richmath_System_PureArgument;
+extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
+extern pmath_symbol_t richmath_System_RGBColor;
+extern pmath_symbol_t richmath_System_Rule;
+extern pmath_symbol_t richmath_System_RuleDelayed;
 extern pmath_symbol_t richmath_System_Saveable;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
@@ -120,6 +142,8 @@ extern pmath_symbol_t richmath_System_TextShadow;
 extern pmath_symbol_t richmath_System_Ticks;
 extern pmath_symbol_t richmath_System_Tooltip;
 extern pmath_symbol_t richmath_System_TrackedSymbols;
+extern pmath_symbol_t richmath_System_True;
+extern pmath_symbol_t richmath_System_Unassign;
 extern pmath_symbol_t richmath_System_Visible;
 extern pmath_symbol_t richmath_System_WholeSectionGroupOpener;
 extern pmath_symbol_t richmath_System_WindowFrame;
@@ -162,10 +186,10 @@ bool richmath::get_factor_of_scaled(Expr expr, double *value) {
     return false;
   
   Expr val = expr[1];
-  if(val[0] == PMATH_SYMBOL_NCACHE)
+  if(val[0] == richmath_System_NCache)
     val = val[2];
   
-  if(val[0] == PMATH_SYMBOL_LIST && val.expr_length() == 1)
+  if(val[0] == richmath_System_List && val.expr_length() == 1)
     val = val[1];
   
   if(val.is_number()) {
@@ -641,7 +665,7 @@ bool StyleImpl::add_pmath(Expr options, bool amend) {
   if(allow_strings && options.is_string()) 
     return set_pmath_string(BaseStyleName, String(options));
   
-  if(options[0] == PMATH_SYMBOL_LIST) {
+  if(options[0] == richmath_System_List) {
     bool old_allow_strings = allow_strings;
     allow_strings = false;
     
@@ -683,16 +707,16 @@ bool StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     any_change = remove_dynamic(n);
     
-  if(obj == PMATH_SYMBOL_FALSE)
+  if(obj == richmath_System_False)
     return raw_set_int(n, AutoBoolFalse) || any_change;
   
-  if(obj == PMATH_SYMBOL_TRUE)
+  if(obj == richmath_System_True)
     return raw_set_int(n, AutoBoolTrue) || any_change;
   
-  if(obj == PMATH_SYMBOL_AUTOMATIC)
+  if(obj == richmath_System_Automatic)
     return raw_set_int(n, AutoBoolAutomatic) || any_change;
   
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_int(n) || any_change;
     
   if(n.is_literal() && Dynamic::is_dynamic(obj))
@@ -708,13 +732,13 @@ bool StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     any_change = remove_dynamic(n);
     
-  if(obj == PMATH_SYMBOL_FALSE)
+  if(obj == richmath_System_False)
     return raw_set_int(n, false) || any_change;
     
-  if(obj == PMATH_SYMBOL_TRUE)
+  if(obj == richmath_System_True)
     return raw_set_int(n, true) || any_change;
     
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_int(n) || any_change;
     
   if(n.is_literal() && Dynamic::is_dynamic(obj))
@@ -735,7 +759,7 @@ bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
   if(c.is_valid() || c.is_none())
     return raw_set_color(n, c) || any_change;
   
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_color(n) || any_change;
     
   if(n.is_literal() && Dynamic::is_dynamic(obj))
@@ -754,13 +778,13 @@ bool StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
   if(obj.is_number())
     return raw_set_float(n, obj.to_double()) || any_change;
   
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_float(n) || any_change;
   
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
   
-  if(obj[0] == PMATH_SYMBOL_NCACHE) {
+  if(obj[0] == richmath_System_NCache) {
     any_change = raw_set_float(n, obj[2].to_double()) || any_change;
     
     if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
@@ -788,7 +812,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     any_change = remove_dynamic(Bottom) || any_change;
   }
   
-  if(obj == PMATH_SYMBOL_TRUE) {
+  if(obj == richmath_System_True) {
     any_change = raw_set_float(Left,   1.0) || any_change;
     any_change = raw_set_float(Right,  1.0) || any_change;
     any_change = raw_set_float(Top,    1.0) || any_change;
@@ -796,7 +820,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj == PMATH_SYMBOL_FALSE) {
+  if(obj == richmath_System_False) {
     any_change = raw_set_float(Left,   0.0) || any_change;
     any_change = raw_set_float(Right,  0.0) || any_change;
     any_change = raw_set_float(Top,    0.0) || any_change;
@@ -813,7 +837,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if( obj.is_expr() && obj[0] == PMATH_SYMBOL_LIST) {
+  if( obj.is_expr() && obj[0] == richmath_System_List) {
     if(obj.expr_length() == 4) {
       any_change = set_pmath_float(Left,   obj[1]) || any_change;
       any_change = set_pmath_float(Right,  obj[2]) || any_change;
@@ -829,7 +853,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
         any_change = raw_set_float(Right, f) || any_change;
       }
       else if(obj[1].is_expr() &&
-              obj[1][0] == PMATH_SYMBOL_LIST &&
+              obj[1][0] == richmath_System_List &&
               obj[1].expr_length() == 2)
       {
         any_change = set_pmath_float(Left,  obj[1][1]) || any_change;
@@ -842,7 +866,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
         any_change = raw_set_float(Bottom, f) || any_change;
       }
       else if(obj[2].is_expr() &&
-              obj[2][0] == PMATH_SYMBOL_LIST &&
+              obj[2][0] == richmath_System_List &&
               obj[2].expr_length() == 2)
       {
         any_change = set_pmath_float(Top,    obj[2][1]) || any_change;
@@ -854,7 +878,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj == PMATH_SYMBOL_INHERITED) {
+  if(obj == richmath_System_Inherited) {
     any_change = raw_remove_float(Left)   || any_change;
     any_change = raw_remove_float(Right)  || any_change;
     any_change = raw_remove_float(Top)    || any_change;
@@ -881,7 +905,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     any_change = remove_dynamic(Vertical)   || any_change;
   }
   
-  if(obj == PMATH_SYMBOL_AUTOMATIC) {
+  if(obj == richmath_System_Automatic) {
     any_change = raw_remove_float(n) || any_change;
     
     any_change = raw_set_float(Horizontal, ImageSizeAutomatic) || any_change;
@@ -898,15 +922,15 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj[0] == PMATH_SYMBOL_LIST && obj.expr_length() == 2) {
+  if(obj[0] == richmath_System_List && obj.expr_length() == 2) {
     any_change = raw_remove_float(n) || any_change;
     
-    if(obj[1] == PMATH_SYMBOL_AUTOMATIC)
+    if(obj[1] == richmath_System_Automatic)
       any_change = raw_set_float(Horizontal, ImageSizeAutomatic) || any_change;
     else
       any_change = set_pmath_float(Horizontal, obj[1]) || any_change;
       
-    if(obj[2] == PMATH_SYMBOL_AUTOMATIC)
+    if(obj[2] == richmath_System_Automatic)
       any_change = raw_set_float(Vertical, ImageSizeAutomatic) || any_change;
     else
       any_change = set_pmath_float(Vertical, obj[2]) || any_change;
@@ -914,7 +938,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj == PMATH_SYMBOL_INHERITED) {
+  if(obj == richmath_System_Inherited) {
     any_change = raw_remove_float(n)          || any_change;
     any_change = raw_remove_float(Horizontal) || any_change;
     any_change = raw_remove_float(Vertical)   || any_change;
@@ -936,7 +960,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
-  if(obj[0] == PMATH_SYMBOL_NCACHE) {
+  if(obj[0] == richmath_System_NCache) {
     any_change = set_pmath_size(n, obj[2]) || any_change;
     
     if(n.is_literal()) // TODO: do not treat NCache as Dynamic, but as Definition
@@ -968,7 +992,7 @@ bool StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
     return raw_set_string(n, String(obj)) || any_change;
   }
   
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_string(n) || any_change;
   
   if(n.is_literal() && Dynamic::is_dynamic(obj))
@@ -984,7 +1008,7 @@ bool StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     any_change = remove_dynamic(n);
   
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_expr(n) || any_change;
   
   if(n.is_literal() && Dynamic::is_dynamic(obj))
@@ -1008,7 +1032,7 @@ bool StyleImpl::set_pmath_flatlist(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     any_change = remove_dynamic(n);
   
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_expr(n) || any_change;
   
   if(n.is_literal()) {
@@ -1033,7 +1057,7 @@ bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
   if(n.is_literal())
     any_change = remove_dynamic(n);
     
-  if(obj == PMATH_SYMBOL_INHERITED)
+  if(obj == richmath_System_Inherited)
     return raw_remove_int(n) || any_change;
   
   if(n.is_literal() && Dynamic::is_dynamic(obj))
@@ -1053,7 +1077,7 @@ bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
   assert(key_converter.is_valid());
   
   bool any_change = false;
-  if(obj[0] == PMATH_SYMBOL_LIST) {
+  if(obj[0] == richmath_System_List) {
     for(size_t i = 1; i <= obj.expr_length(); ++i) {
       Expr rule = obj[i];
       
@@ -1061,7 +1085,7 @@ bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
         Expr lhs = rule[1];
         Expr rhs = rule[2];
         
-//        if(rhs == PMATH_SYMBOL_INHERITED)
+//        if(rhs == richmath_System_Inherited)
 //          continue;
 
         StyleOptionName sub_key = StyleOptionName{key_converter->to_int(lhs)};
@@ -1093,11 +1117,11 @@ bool StyleImpl::set_pmath_by_unknown_key(Expr lhs, Expr rhs, bool amend) {
     }
     
     Expr eval;
-    if(rhs == PMATH_SYMBOL_INHERITED) {
-      eval = Call(Symbol(PMATH_SYMBOL_UNASSIGN), Call(sym, lhs));
+    if(rhs == richmath_System_Inherited) {
+      eval = Call(Symbol(richmath_System_Unassign), Call(sym, lhs));
     }
     else {
-      eval = Call(Symbol(PMATH_SYMBOL_ASSIGN), Call(sym, lhs), rhs);
+      eval = Call(Symbol(richmath_System_Assign), Call(sym, lhs), rhs);
     }
     
     Evaluate(eval);
@@ -1109,7 +1133,7 @@ bool StyleImpl::set_pmath_by_unknown_key(Expr lhs, Expr rhs, bool amend) {
     if(StyleInformation::get_type(key) == StyleType::AnyFlatList) {
       // Reset the style so that calling CurrentValue(...):= {..., Inherited, ...} multiple times
       // will not repeatedly fill in the previous value.
-      if(rhs != PMATH_SYMBOL_INHERITED) {
+      if(rhs != richmath_System_Inherited) {
         any_change = raw_remove_expr(key) || any_change;
       }
     }
@@ -1118,10 +1142,10 @@ bool StyleImpl::set_pmath_by_unknown_key(Expr lhs, Expr rhs, bool amend) {
 }
 
 Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) {
-  if(newer == PMATH_SYMBOL_INHERITED)
+  if(newer == richmath_System_Inherited)
     return older;
     
-  if(older == PMATH_SYMBOL_INHERITED)
+  if(older == richmath_System_Inherited)
     return newer;
     
   StyleType type = StyleInformation::get_type(key);
@@ -1146,16 +1170,16 @@ Expr StyleImpl::merge_style_values(StyleOptionName key, Expr newer, Expr older) 
 }
 
 Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr older) { // ignores all rules in older, whose keys do not appear in newer
-  if(newer == PMATH_SYMBOL_INHERITED)
+  if(newer == richmath_System_Inherited)
     return older;
     
-  if(older == PMATH_SYMBOL_INHERITED)
+  if(older == richmath_System_Inherited)
     return newer;
     
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
   STYLE_ASSERT(key_converter.is_valid());
   
-  if(newer[0] == PMATH_SYMBOL_LIST) {
+  if(newer[0] == richmath_System_List) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr rule = newer[i];
       
@@ -1172,7 +1196,7 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
       }
       else {
         pmath_debug_print_object("[unknown sub-option ", lhs.get(), "]\n");
-        if(rhs == PMATH_SYMBOL_INHERITED)
+        if(rhs == richmath_System_Inherited)
           new_rhs = inherited_ruleset_member(older, lhs);
       }
       
@@ -1187,18 +1211,18 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
 }
 
 Expr StyleImpl::merge_tuple_members(Expr newer, Expr older) {
-  if(newer == PMATH_SYMBOL_INHERITED)
+  if(newer == richmath_System_Inherited)
     return older;
     
-  if(older == PMATH_SYMBOL_INHERITED)
+  if(older == richmath_System_Inherited)
     return newer;
     
-  if(newer[0] == PMATH_SYMBOL_LIST && older[0] == PMATH_SYMBOL_LIST && newer.expr_length() == older.expr_length()) {
+  if(newer[0] == richmath_System_List && older[0] == richmath_System_List && newer.expr_length() == older.expr_length()) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr item = newer[i];
-      if(item == PMATH_SYMBOL_INHERITED)
+      if(item == richmath_System_Inherited)
         newer.set(i, older[i]);
-      else if(item[0] == PMATH_SYMBOL_LIST)
+      else if(item[0] == richmath_System_List)
         newer.set(i, merge_tuple_members(item, older[i]));
     }
     return newer;
@@ -1210,7 +1234,7 @@ Expr StyleImpl::merge_tuple_members(Expr newer, Expr older) {
 }
 
 Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
-  if(newer[0] == PMATH_SYMBOL_LIST) {
+  if(newer[0] == richmath_System_List) {
     if(newer.expr_length() == 2)
       return merge_tuple_members(newer, List(inherited_margin_leftright(older), inherited_margin_topbottom(older)));
       
@@ -1220,12 +1244,12 @@ Expr StyleImpl::merge_margin_values(Expr newer, Expr older) {
 }
 
 Expr StyleImpl::merge_flatlist_members(Expr newer, Expr older) {
-  if(newer[0] == PMATH_SYMBOL_LIST) {
+  if(newer[0] == richmath_System_List) {
     bool need_flatten = false;
     for(size_t i = newer.expr_length(); i > 0; --i) {
       Expr item = newer[i];
-      if(item == PMATH_SYMBOL_INHERITED) {
-        if(older[0] == PMATH_SYMBOL_LIST) {
+      if(item == richmath_System_Inherited) {
+        if(older[0] == richmath_System_List) {
           if(older.expr_length() == 1) {
             newer.set(i, older[1]);
           }
@@ -1240,11 +1264,11 @@ Expr StyleImpl::merge_flatlist_members(Expr newer, Expr older) {
         continue;
       }
       if(!need_flatten)
-        need_flatten = item[0] == PMATH_SYMBOL_LIST;
+        need_flatten = item[0] == richmath_System_List;
     }
 
     if(need_flatten)
-      newer = Expr{pmath_expr_flatten(newer.release(), pmath_ref(PMATH_SYMBOL_LIST), 1)};
+      newer = Expr{pmath_expr_flatten(newer.release(), pmath_ref(richmath_System_List), 1)};
     
     return newer;
   }
@@ -1270,13 +1294,13 @@ Expr StyleImpl::finish_style_merge(StyleOptionName key, Expr value) {
 }
 
 Expr StyleImpl::finish_ruleset_merge(StyleOptionName key, Expr value) {
-  if(value == PMATH_SYMBOL_INHERITED)
+  if(value == richmath_System_Inherited)
     return List();
   
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
   STYLE_ASSERT(key_converter.is_valid());
   
-  if(value[0] == PMATH_SYMBOL_LIST) {
+  if(value[0] == richmath_System_List) {
     for(size_t i = value.expr_length(); i > 0; --i) {
       Expr rule = value[i];
       
@@ -1312,20 +1336,20 @@ Expr StyleImpl::finish_flatlist_merge(StyleOptionName key, Expr value) {
 Expr StyleImpl::inherited_tuple_member(Expr inherited, int index) {
   assert(index >= 1);
   
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if((size_t)index <= inherited.expr_length())
       return inherited[index];
   }
   
-  if(inherited != PMATH_SYMBOL_INHERITED) {
+  if(inherited != richmath_System_Inherited) {
     pmath_debug_print("[Warning: partial redefition of item %d", index);
     pmath_debug_print_object(" of ", inherited.get(), "]\n");
   }
-  return Symbol(PMATH_SYMBOL_INHERITED);
+  return Symbol(richmath_System_Inherited);
 }
 
 Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     size_t len = inherited.expr_length();
     for(size_t i = 1; i <= len; ++i) {
       Expr item = inherited[i];
@@ -1333,16 +1357,16 @@ Expr StyleImpl::inherited_ruleset_member(Expr inherited, Expr key) {
         return item[2];
     }
   }
-  else if(inherited != PMATH_SYMBOL_INHERITED) {
+  else if(inherited != richmath_System_Inherited) {
     pmath_debug_print_object("[Warning: partial redefition of rule ", key.get(), "");
     pmath_debug_print_object(" of ", inherited.get(), "]\n");
   }
   
-  return Symbol(PMATH_SYMBOL_INHERITED);
+  return Symbol(richmath_System_Inherited);
 }
 
 Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(std::move(inherited), 1);
   }
@@ -1351,7 +1375,7 @@ Expr StyleImpl::inherited_margin_leftright(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_left(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 1), 1);
   }
@@ -1360,7 +1384,7 @@ Expr StyleImpl::inherited_margin_left(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_right(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 1), 2);
   }
@@ -1369,7 +1393,7 @@ Expr StyleImpl::inherited_margin_right(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(std::move(inherited), 2);
   }
@@ -1378,7 +1402,7 @@ Expr StyleImpl::inherited_margin_topbottom(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_top(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 2), 1);
   }
@@ -1387,7 +1411,7 @@ Expr StyleImpl::inherited_margin_top(Expr inherited) {
 }
 
 Expr StyleImpl::inherited_margin_bottom(Expr inherited) {
-  if(inherited[0] == PMATH_SYMBOL_LIST) {
+  if(inherited[0] == richmath_System_List) {
     if(inherited.expr_length() == 2)
       return inherited_tuple_member(inherited_tuple_member(std::move(inherited), 2), 2);
   }
@@ -1402,7 +1426,7 @@ Expr StyleImpl::prepare_inherited(StyleOptionName n) const {
     default: break;
   }
 
-  return Symbol(PMATH_SYMBOL_INHERITED);
+  return Symbol(richmath_System_Inherited);
 }
 
 Expr StyleImpl::prepare_inherited_size(StyleOptionName n) const {
@@ -1412,17 +1436,17 @@ Expr StyleImpl::prepare_inherited_size(StyleOptionName n) const {
   Expr horz;
   bool have_horz = raw_get_expr(Horizontal.to_dynamic(), &horz);
   if(!have_horz)
-    horz = Symbol(PMATH_SYMBOL_INHERITED);
+    horz = Symbol(richmath_System_Inherited);
     
   Expr vert;
   bool have_vert = raw_get_expr(Vertical.to_dynamic(), &vert);
   if(!have_vert)
-    vert = Symbol(PMATH_SYMBOL_INHERITED);
+    vert = Symbol(richmath_System_Inherited);
     
   if(have_horz || have_vert)
     return List(horz, vert);
   
-  return Symbol(PMATH_SYMBOL_INHERITED);
+  return Symbol(richmath_System_Inherited);
 }
 
 Expr StyleImpl::prepare_inherited_ruleset(StyleOptionName n) const {
@@ -1445,7 +1469,7 @@ Expr StyleImpl::prepare_inherited_ruleset(StyleOptionName n) const {
   
   Expr e = g.end();
   if(all_inherited)
-    return Symbol(PMATH_SYMBOL_INHERITED);
+    return Symbol(richmath_System_Inherited);
     
   e.sort();
   return e;
@@ -1461,7 +1485,7 @@ void StyleImpl::emit_definition(StyleOptionName n) const {
   }
   
   e = raw_get_pmath(n, prepare_inherited(n));
-  if(e == PMATH_SYMBOL_INHERITED)
+  if(e == richmath_System_Inherited)
     return;
     
   if(StyleInformation::needs_ruledelayed(e))
@@ -1521,14 +1545,14 @@ Expr StyleImpl::raw_get_pmath_bool_auto(StyleOptionName n, Expr inherited) const
   if(raw_get_int(n, &i)) {
     switch(i) {
       case AutoBoolFalse:
-        return Symbol(PMATH_SYMBOL_FALSE);
+        return Symbol(richmath_System_False);
         
       case AutoBoolTrue:
-        return Symbol(PMATH_SYMBOL_TRUE);
+        return Symbol(richmath_System_True);
         
       case AutoBoolAutomatic:
       default:
-        return Symbol(PMATH_SYMBOL_AUTOMATIC);
+        return Symbol(richmath_System_Automatic);
     }
   }
   
@@ -1541,9 +1565,9 @@ Expr StyleImpl::raw_get_pmath_bool(StyleOptionName n, Expr inherited) const {
   int i;
   if(raw_get_int(n, &i)) {
     if(i)
-      return Symbol(PMATH_SYMBOL_TRUE);
+      return Symbol(richmath_System_True);
       
-    return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(richmath_System_False);
   }
   
   return inherited;
@@ -1633,7 +1657,7 @@ Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { //
     if(h > 0)
       horz = Number(h);
     else
-      horz = Symbol(PMATH_SYMBOL_AUTOMATIC);
+      horz = Symbol(richmath_System_Automatic);
   }
   else
     horz = inherited_tuple_member(inherited, 1);
@@ -1648,7 +1672,7 @@ Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { //
     if(v > 0)
       vert = Number(v);
     else
-      vert = Symbol(PMATH_SYMBOL_AUTOMATIC);
+      vert = Symbol(richmath_System_Automatic);
   }
   else
     vert = inherited_tuple_member(inherited, 2);
@@ -1719,7 +1743,7 @@ Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
     Expr inherited_value = inherited_ruleset_member(inherited, entry.key);
     Expr value = raw_get_pmath(StyleOptionName{entry.value}, inherited_value);
     
-    if(value != PMATH_SYMBOL_INHERITED) {
+    if(value != richmath_System_Inherited) {
       Gather::emit(Rule(entry.key, value));
       
       if(value != inherited_value)
@@ -1832,7 +1856,7 @@ void Style::merge(SharedPtr<Style> other) {
 }
 
 bool Style::contains_inherited(Expr expr) {
-  if(expr == PMATH_SYMBOL_INHERITED)
+  if(expr == richmath_System_Inherited)
     return true;
     
   if(expr.is_expr() && !expr.is_packed_array()) {
@@ -2107,7 +2131,7 @@ Expr Style::get_pmath(StyleOptionName key) const {
   // STYLE_ASSERT(key.is_literal())
   
   register_observer();
-  Expr result = Symbol(PMATH_SYMBOL_INHERITED);
+  Expr result = Symbol(richmath_System_Inherited);
   result = StyleImpl::of(*this).raw_get_pmath(key.to_volatile(), result);
   result = StyleImpl::of(*this).raw_get_pmath(key, result);
   return result;
@@ -2245,7 +2269,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   
   Expr e;
   if(get(UnknownOptions, &e)) {
-    Expr rules = Evaluate(Call(Symbol(PMATH_SYMBOL_DOWNRULES), e));
+    Expr rules = Evaluate(Call(Symbol(richmath_System_DownRules), e));
     
     for(size_t i = 1; i <= rules.expr_length(); ++i) {
       Expr rule = rules[i];
@@ -2254,7 +2278,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
       lhs = lhs[1];       //                    x
       
       if(rule[2].is_evaluated())
-        rule.set(0, Symbol(PMATH_SYMBOL_RULE));
+        rule.set(0, Symbol(richmath_System_Rule));
         
       rule.set(1, lhs);
       Gather::emit(rule);
@@ -2308,7 +2332,7 @@ namespace richmath {
         // TODO: detect stack overflow/infinite recursion
         
         while(expr.is_expr()) {
-          if(expr[0] == PMATH_SYMBOL_DOCUMENT) {
+          if(expr[0] == richmath_System_Document) {
             expr = expr[1];
             continue;
           }
@@ -2318,7 +2342,7 @@ namespace richmath {
             continue;
           }
           
-          if(expr[0] == PMATH_SYMBOL_LIST) {
+          if(expr[0] == richmath_System_List) {
             size_t len = expr.expr_length();
             for(size_t i = 1; i < len; ++i) {
               internal_add(expr[i]);
@@ -2444,7 +2468,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
   }
   
   for(const auto &e : dynamic_styles.entries()) {
-    if(e.value != PMATH_SYMBOL_ABORTED && !Dynamic::is_dynamic(e.value)) {
+    if(e.value != richmath_System_DollarAborted && !Dynamic::is_dynamic(e.value)) {
       StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
       s_impl.set_pmath(key, e.value);
     }
@@ -2514,7 +2538,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
                           Application::stylesheet_path_base + expr),
                         Application::button_timeout);
                         
-    if(held_boxes.expr_length() == 1 && held_boxes[0] == PMATH_SYMBOL_HOLDCOMPLETE) {
+    if(held_boxes.expr_length() == 1 && held_boxes[0] == richmath_System_HoldComplete) {
       stylesheet = new Stylesheet();
       stylesheet->base = Stylesheet::Default->base;
       stylesheet->register_as(expr);
@@ -2525,7 +2549,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
     return nullptr;
   }
   
-  if(expr[0] == PMATH_SYMBOL_DOCUMENT) {
+  if(expr[0] == richmath_System_Document) {
     SharedPtr<Stylesheet> stylesheet = new Stylesheet();
     stylesheet->base = Stylesheet::Default->base;
     stylesheet->reload(expr);
@@ -2608,7 +2632,7 @@ bool Stylesheet::get(SharedPtr<Style> s, StringStyleOptionName n, String *value)
 bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
   if(StyleInformation::get_type(n) == StyleType::AnyFlatList) {
     Expr result = get_pmath(s, n);
-    if(result != PMATH_SYMBOL_INHERITED) {
+    if(result != richmath_System_Inherited) {
       *value = std::move(result);
       return true;
     }
@@ -2618,7 +2642,7 @@ bool Stylesheet::get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr *value) {
 }
 
 Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
-  Expr result = Symbol(PMATH_SYMBOL_INHERITED);
+  Expr result = Symbol(richmath_System_Inherited);
   
   for(int count = 20; count && s && Style::contains_inherited(result); --count) {
     result = Style::merge_style_values(n, std::move(result), s->get_pmath(n));
@@ -2988,7 +3012,7 @@ void StyleInformation::add_enum(IntStyleOptionName key, const Expr &name, Shared
 }
 
 void StyleInformation::add_to_ruleset(StyleOptionName key, const Expr &name) {
-  if(name[0] == PMATH_SYMBOL_LIST && name.expr_length() == 2) {
+  if(name[0] == richmath_System_List && name.expr_length() == 2) {
     Expr super_name = name[1];
     Expr sub_name   = name[2];
     
@@ -3021,16 +3045,16 @@ void StyleInformation::add_ruleset_head(StyleOptionName key, const Expr &symbol)
 Expr StyleInformation::get_current_style_value(FrontEndObject *obj, Expr item) {
   auto styled_obj = dynamic_cast<StyledObject*>(obj);
   if(!styled_obj)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
 
-  if(item[0] == PMATH_SYMBOL_LIST && item.expr_length() == 1)
+  if(item[0] == richmath_System_List && item.expr_length() == 1)
     item = item[1];
     
   StyleOptionName key = Style::get_key(item);
   if(key.is_valid()) 
     return styled_obj->get_pmath_style(key);
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -3038,7 +3062,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(!styled_obj)
     return false;
   
-  if(item[0] == PMATH_SYMBOL_LIST && item.expr_length() == 1)
+  if(item[0] == richmath_System_List && item.expr_length() == 1)
     item = item[1];
     
   StyleOptionName key = Style::get_key(item);
@@ -3046,12 +3070,12 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
     return false;
   
   Expr opts = styled_obj->allowed_options();
-  if(item[0] == PMATH_SYMBOL_LIST) {
+  if(item[0] == richmath_System_List) {
     Expr rhs = opts.lookup(item[1], Expr{PMATH_UNDEFINED});
     if(rhs == PMATH_UNDEFINED)
       return false;
     
-//    if(rhs[0] == PMATH_SYMBOL_LIST) {
+//    if(rhs[0] == richmath_System_List) {
 //      // TODO: check further items ...
 //    }
   }
@@ -3059,7 +3083,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
     return false;
   
   if(!styled_obj->style) {
-    if(rhs == PMATH_SYMBOL_INHERITED)
+    if(rhs == richmath_System_Inherited)
       return true;
     
     styled_obj->style = new Style();
@@ -3069,8 +3093,8 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   if(StyleInformation::get_type(key) == StyleType::AnyFlatList) {
     // Reset the style so that calling CurrentValue(...):= {..., Inherited, ...} multiple times
     // will not repeatedly fill in the previous value.
-    if(rhs != PMATH_SYMBOL_INHERITED) {
-      any_change = styled_obj->style->set_pmath(key, Symbol(PMATH_SYMBOL_INHERITED)) || any_change;
+    if(rhs != richmath_System_Inherited) {
+      any_change = styled_obj->style->set_pmath(key, Symbol(richmath_System_Inherited)) || any_change;
     }
   }
   any_change = styled_obj->style->set_pmath(key, std::move(rhs)) || any_change;
@@ -3082,11 +3106,11 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
 }
 
 bool StyleInformation::is_list_with_inherited(Expr expr) {
-  if(expr[0] != PMATH_SYMBOL_LIST)
+  if(expr[0] != richmath_System_List)
     return false;
   
   for(auto e : expr.items())
-    if(e == PMATH_SYMBOL_INHERITED)
+    if(e == richmath_System_Inherited)
       return true;
   
   return false;
@@ -3106,18 +3130,18 @@ bool StyleInformation::needs_ruledelayed(Expr expr) {
     return false;
     
   Expr head = expr[0];
-  if(head == richmath_System_Dynamic || head == PMATH_SYMBOL_FUNCTION)
+  if(head == richmath_System_Dynamic || head == richmath_System_Function)
     return false;
     
-  if( head == PMATH_SYMBOL_LIST ||
-      head == PMATH_SYMBOL_RANGE ||
-      head == PMATH_SYMBOL_NCACHE ||
-      head == PMATH_SYMBOL_PUREARGUMENT ||
-      head == PMATH_SYMBOL_RULE ||
-      head == PMATH_SYMBOL_RULEDELAYED ||
-      head == PMATH_SYMBOL_GRAYLEVEL ||
+  if( head == richmath_System_List ||
+      head == richmath_System_Range ||
+      head == richmath_System_NCache ||
+      head == richmath_System_PureArgument ||
+      head == richmath_System_Rule ||
+      head == richmath_System_RuleDelayed ||
+      head == richmath_System_GrayLevel ||
       head == richmath_System_Hue ||
-      head == PMATH_SYMBOL_RGBCOLOR)
+      head == richmath_System_RGBColor)
   {
     for(size_t i = expr.expr_length(); i > 0; --i) {
       if(needs_ruledelayed(expr[i]))
@@ -3132,10 +3156,10 @@ bool StyleInformation::needs_ruledelayed(Expr expr) {
 //} ... class StyleInformation
 
 ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
-  _int_to_expr.default_value = Symbol(PMATH_SYMBOL_AUTOMATIC);
+  _int_to_expr.default_value = Symbol(richmath_System_Automatic);
   _expr_to_int.default_value = -1;//PushButton;
   
-  add(NoContainerType,      Symbol(PMATH_SYMBOL_NONE));
+  add(NoContainerType,      Symbol(richmath_System_None));
   add(FramelessButton,      strings::Frameless);
   add(GenericButton,        String("Generic"));
   add(PushButton,           String("DialogBox"));
@@ -3161,7 +3185,7 @@ ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() 
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(ButtonSourceAutomatic,      Symbol(PMATH_SYMBOL_AUTOMATIC));
+  add(ButtonSourceAutomatic,      Symbol(richmath_System_Automatic));
   add(ButtonSourceButtonBox,      Symbol(richmath_System_ButtonBox));
   add(ButtonSourceButtonContents, Symbol(richmath_System_ButtonContents));
   add(ButtonSourceButtonData,     Symbol(richmath_System_ButtonData));
@@ -3172,16 +3196,16 @@ FontSlantStyleConverter::FontSlantStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(FontSlantPlain,  Symbol(PMATH_SYMBOL_PLAIN));
-  add(FontSlantItalic, Symbol(PMATH_SYMBOL_ITALIC));
+  add(FontSlantPlain,  Symbol(richmath_System_Plain));
+  add(FontSlantItalic, Symbol(richmath_System_Italic));
 }
 
 FontWeightStyleConverter::FontWeightStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(FontWeightPlain, Symbol(PMATH_SYMBOL_PLAIN));
-  add(FontWeightBold,  Symbol(PMATH_SYMBOL_BOLD));
+  add(FontWeightPlain, Symbol(richmath_System_Plain));
+  add(FontWeightBold,  Symbol(richmath_System_Bold));
 }
 
 ImageSizeActionStyleConverter::ImageSizeActionStyleConverter() : EnumStyleConverter() {
@@ -3197,7 +3221,7 @@ MenuCommandKeyStyleConverter::MenuCommandKeyStyleConverter() : EnumStyleConverte
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(0,   Symbol(PMATH_SYMBOL_NONE));
+  add(0,   Symbol(richmath_System_None));
   add('1', String("1"));
   add('2', String("2"));
   add('3', String("3"));
@@ -3213,7 +3237,7 @@ MenuSortingValueStyleConverter::MenuSortingValueStyleConverter() : EnumStyleConv
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(0, Symbol(PMATH_SYMBOL_NONE));
+  add(0, Symbol(richmath_System_None));
 }
 
 bool MenuSortingValueStyleConverter::is_valid_key(int val) {
@@ -3225,7 +3249,7 @@ bool MenuSortingValueStyleConverter::is_valid_expr(Expr expr) {
     int value = PMATH_AS_INT32(expr.get());
     return value >= 0;
   }
-  return expr == PMATH_SYMBOL_NONE;
+  return expr == richmath_System_None;
 }
     
 int MenuSortingValueStyleConverter::to_int(Expr expr) {
@@ -3248,7 +3272,7 @@ WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(WindowFrameNone,    Symbol(PMATH_SYMBOL_NONE));
+  add(WindowFrameNone,    Symbol(richmath_System_None));
   add(WindowFrameNormal,  strings::Normal);
   add(WindowFrameDialog,  String("Dialog"));
   add(WindowFramePalette, String("Palette"));

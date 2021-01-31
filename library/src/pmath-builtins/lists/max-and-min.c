@@ -11,8 +11,11 @@
 #include <pmath-builtins/logic-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Max;
 extern pmath_symbol_t pmath_System_Min;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
 
 static double minf(double a, double b) {
   if(a <= b)
@@ -293,7 +296,7 @@ static void minmax(pmath_t item, pmath_t *optout_min, pmath_t *optout_max) { // 
     packed_array_minmax(item, optout_min, optout_max);
     return;
   }
-  if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(item, pmath_System_List)) {
     list_minmax(item, optout_min, optout_max);
     return;
   }
@@ -309,7 +312,7 @@ PMATH_PRIVATE pmath_t builtin_max(pmath_expr_t expr) {
     return expr;
     
   if(pmath_is_expr_of(expr, pmath_System_Max)) 
-    expr = pmath_expr_flatten(expr, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
+    expr = pmath_expr_flatten(expr, pmath_ref(pmath_System_List), SIZE_MAX);
     
   return expr;
 }
@@ -321,7 +324,7 @@ PMATH_PRIVATE pmath_t builtin_min(pmath_expr_t expr) {
     return expr;
     
   if(pmath_is_expr_of(expr, pmath_System_Max)) 
-    expr = pmath_expr_flatten(expr, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
+    expr = pmath_expr_flatten(expr, pmath_ref(pmath_System_List), SIZE_MAX);
     
   return expr;
 }
@@ -345,7 +348,7 @@ PMATH_PRIVATE pmath_t builtin_minmax(pmath_expr_t expr) {
   if(exprlen == 2) {
     pmath_t err = pmath_expr_get_item(expr, 2);
     pmath_t min_err, max_err;
-    if(pmath_is_expr_of_len(err, PMATH_SYMBOL_LIST, 2)) {
+    if(pmath_is_expr_of_len(err, pmath_System_List, 2)) {
       min_err = pmath_expr_get_item(err, 1);
       max_err = pmath_expr_get_item(err, 2);
       pmath_unref(err);
@@ -361,7 +364,7 @@ PMATH_PRIVATE pmath_t builtin_minmax(pmath_expr_t expr) {
   
   pmath_unref(expr);
   return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_LIST), 2,
+    pmath_ref(pmath_System_List), 2,
     min, 
     max);
 }

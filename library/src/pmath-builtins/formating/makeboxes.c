@@ -19,7 +19,6 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/formating-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -36,18 +35,34 @@ const int PMATH_PREC_INC_OUT = PMATH_PREC_RANGE + 1;
 
 extern pmath_symbol_t pmath_Developer_PackedArrayForm;
 
+extern pmath_symbol_t pmath_System_DollarPageWidth;
+extern pmath_symbol_t pmath_System_DollarFailed;
+
+extern pmath_symbol_t pmath_System_Alternatives;
+extern pmath_symbol_t pmath_System_And;
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
 extern pmath_symbol_t pmath_System_AutoDelete;
+extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_AutoNumberFormating;
 extern pmath_symbol_t pmath_System_BaseForm;
+extern pmath_symbol_t pmath_System_Bold;
 extern pmath_symbol_t pmath_System_BoxRotation;
 extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_ComplexInfinity;
 extern pmath_symbol_t pmath_System_ComplexStringBox;
+extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Congruent;
+extern pmath_symbol_t pmath_System_Cross;
 extern pmath_symbol_t pmath_System_CupCap;
+extern pmath_symbol_t pmath_System_Decrement;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Dot;
 extern pmath_symbol_t pmath_System_DotEqual;
 extern pmath_symbol_t pmath_System_DoubleDownArrow;
 extern pmath_symbol_t pmath_System_DoubleLeftArrow;
@@ -60,14 +75,28 @@ extern pmath_symbol_t pmath_System_DoubleUpDownArrow;
 extern pmath_symbol_t pmath_System_DoubleUpperLeftArrow;
 extern pmath_symbol_t pmath_System_DoubleUpperRightArrow;
 extern pmath_symbol_t pmath_System_DownArrow;
+extern pmath_symbol_t pmath_System_DivideBy;
+extern pmath_symbol_t pmath_System_E;
 extern pmath_symbol_t pmath_System_Element;
+extern pmath_symbol_t pmath_System_Equal;
+extern pmath_symbol_t pmath_System_EvaluationSequence;
+extern pmath_symbol_t pmath_System_Factorial;
+extern pmath_symbol_t pmath_System_Factorial2;
+extern pmath_symbol_t pmath_System_False;
 extern pmath_symbol_t pmath_System_FontColor;
 extern pmath_symbol_t pmath_System_FontSize;
 extern pmath_symbol_t pmath_System_FontSlant;
 extern pmath_symbol_t pmath_System_FontWeight;
+extern pmath_symbol_t pmath_System_Format;
 extern pmath_symbol_t pmath_System_FractionBox;
 extern pmath_symbol_t pmath_System_FrameBox;
 extern pmath_symbol_t pmath_System_Framed;
+extern pmath_symbol_t pmath_System_FullForm;
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_Graphics;
+extern pmath_symbol_t pmath_System_GrayLevel;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_GreaterEqual;
 extern pmath_symbol_t pmath_System_GreaterEqualLess;
 extern pmath_symbol_t pmath_System_GreaterFullEqual;
 extern pmath_symbol_t pmath_System_GreaterGreater;
@@ -77,23 +106,38 @@ extern pmath_symbol_t pmath_System_Grid;
 extern pmath_symbol_t pmath_System_GridBox;
 extern pmath_symbol_t pmath_System_GridBoxColumnSpacing;
 extern pmath_symbol_t pmath_System_GridBoxRowSpacing;
+extern pmath_symbol_t pmath_System_HoldForm;
 extern pmath_symbol_t pmath_System_HumpDownHump;
 extern pmath_symbol_t pmath_System_HumpEqual;
+extern pmath_symbol_t pmath_System_Identical;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_Inequation;
+extern pmath_symbol_t pmath_System_Infinity;
+extern pmath_symbol_t pmath_System_InputForm;
 extern pmath_symbol_t pmath_System_Interpretation;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_Italic;
 extern pmath_symbol_t pmath_System_LeftArrow;
 extern pmath_symbol_t pmath_System_LeftRightArrow;
 extern pmath_symbol_t pmath_System_LeftTriangle;
 extern pmath_symbol_t pmath_System_LeftTriangleEqual;
+extern pmath_symbol_t pmath_System_Less;
+extern pmath_symbol_t pmath_System_LessEqual;
 extern pmath_symbol_t pmath_System_LessEqualGreater;
 extern pmath_symbol_t pmath_System_LessFullEqual;
 extern pmath_symbol_t pmath_System_LessGreater;
 extern pmath_symbol_t pmath_System_LessLess;
 extern pmath_symbol_t pmath_System_LessTilde;
 extern pmath_symbol_t pmath_System_LinearSolveFunction;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_LongForm;
 extern pmath_symbol_t pmath_System_LowerLeftArrow;
 extern pmath_symbol_t pmath_System_LowerRightArrow;
+extern pmath_symbol_t pmath_System_MakeBoxes;
+extern pmath_symbol_t pmath_System_MatrixForm;
+extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_MinusPlus;
+extern pmath_symbol_t pmath_System_Not;
 extern pmath_symbol_t pmath_System_NotCongruent;
 extern pmath_symbol_t pmath_System_NotCupCap;
 extern pmath_symbol_t pmath_System_NotElement;
@@ -121,20 +165,47 @@ extern pmath_symbol_t pmath_System_NotSupersetEqual;
 extern pmath_symbol_t pmath_System_NotTildeEqual;
 extern pmath_symbol_t pmath_System_NotTildeFullEqual;
 extern pmath_symbol_t pmath_System_NotTildeTilde;
+extern pmath_symbol_t pmath_System_Optional;
+extern pmath_symbol_t pmath_System_Or;
+extern pmath_symbol_t pmath_System_OutputForm;
 extern pmath_symbol_t pmath_System_Overscript;
 extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_Pattern;
+extern pmath_symbol_t pmath_System_Pi;
+extern pmath_symbol_t pmath_System_Piecewise;
 extern pmath_symbol_t pmath_System_Placeholder;
+extern pmath_symbol_t pmath_System_Plain;
+extern pmath_symbol_t pmath_System_Plus;
 extern pmath_symbol_t pmath_System_PlusMinus;
+extern pmath_symbol_t pmath_System_PostDecrement;
+extern pmath_symbol_t pmath_System_PostIncrement;
+extern pmath_symbol_t pmath_System_Power;
 extern pmath_symbol_t pmath_System_Precedes;
 extern pmath_symbol_t pmath_System_PrecedesEqual;
 extern pmath_symbol_t pmath_System_PrecedesTilde;
+extern pmath_symbol_t pmath_System_PureArgument;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Repeated;
 extern pmath_symbol_t pmath_System_ReverseElement;
+extern pmath_symbol_t pmath_System_RGBColor;
 extern pmath_symbol_t pmath_System_RightTriangle;
 extern pmath_symbol_t pmath_System_RightTriangleEqual;
+extern pmath_symbol_t pmath_System_Rotate;
 extern pmath_symbol_t pmath_System_RotationBox;
+extern pmath_symbol_t pmath_System_Row;
 extern pmath_symbol_t pmath_System_RowSpacing;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_Shallow;
+extern pmath_symbol_t pmath_System_Short;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
+extern pmath_symbol_t pmath_System_SingleMatch;
+extern pmath_symbol_t pmath_System_Skeleton;
 extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_StandardForm;
+extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_StringForm;
 extern pmath_symbol_t pmath_System_StripOnInput;
 extern pmath_symbol_t pmath_System_Style;
 extern pmath_symbol_t pmath_System_StyleBox;
@@ -151,15 +222,24 @@ extern pmath_symbol_t pmath_System_Superscript;
 extern pmath_symbol_t pmath_System_SuperscriptBox;
 extern pmath_symbol_t pmath_System_Superset;
 extern pmath_symbol_t pmath_System_SupersetEqual;
+extern pmath_symbol_t pmath_System_Switch;
+extern pmath_symbol_t pmath_System_TagAssign;
+extern pmath_symbol_t pmath_System_TagAssignDelayed;
 extern pmath_symbol_t pmath_System_TagBox;
 extern pmath_symbol_t pmath_System_TemplateBox;
+extern pmath_symbol_t pmath_System_TestPattern;
 extern pmath_symbol_t pmath_System_TildeEqual;
 extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_TimesBy;
+extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Underoverscript;
 extern pmath_symbol_t pmath_System_UnderoverscriptBox;
 extern pmath_symbol_t pmath_System_Underscript;
 extern pmath_symbol_t pmath_System_UnderscriptBox;
+extern pmath_symbol_t pmath_System_Unequal;
+extern pmath_symbol_t pmath_System_Unidentical;
 extern pmath_symbol_t pmath_System_UpArrow;
 extern pmath_symbol_t pmath_System_UpDownArrow;
 extern pmath_symbol_t pmath_System_UpperLeftArrow;
@@ -192,7 +272,7 @@ static pmath_token_t box_token_analyse(pmath_t box, int *prec) { // box will be 
     return tok;
   }
   
-  if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)        ||
+  if( pmath_is_expr_of_len(box, pmath_System_List, 1)        ||
       pmath_is_expr_of(box, pmath_System_OverscriptBox)      ||
       pmath_is_expr_of(box, pmath_System_UnderscriptBox)     ||
       pmath_is_expr_of(box, pmath_System_UnderoverscriptBox) ||
@@ -233,7 +313,7 @@ static int box_token_prefix_prec(pmath_t box, int defprec) { // box will be free
     return prec;
   }
   
-  if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 1)               ||
+  if( pmath_is_expr_of_len(box, pmath_System_List, 1)               ||
       pmath_is_expr_of_len(box, pmath_System_OverscriptBox, 2)      ||
       pmath_is_expr_of_len(box, pmath_System_UnderscriptBox, 2)     ||
       pmath_is_expr_of_len(box, pmath_System_UnderoverscriptBox, 3) ||
@@ -259,7 +339,7 @@ static int expr_precedence(pmath_t box, int *pos) { // box wont be freed
   
   *pos = 0; // infix or other by default
   
-  if(pmath_is_expr_of(box, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(box, pmath_System_List)) {
     size_t len = pmath_expr_length(box);
     
     if(len <= 1) {
@@ -454,11 +534,11 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
 #define  RET_CH(C)  do{ int         retc = (C); return pmath_build_value("c", retc); }while(0)
 #define  RET_ST(S)  do{ const char *rets = (S); return pmath_build_value("s", rets); }while(0)
 
-  if(pmath_same(head, PMATH_SYMBOL_EQUAL))        RET_CH('=');
-  if(pmath_same(head, PMATH_SYMBOL_LESS))         RET_CH('<');
-  if(pmath_same(head, PMATH_SYMBOL_GREATER))      RET_CH('>');
-  if(pmath_same(head, PMATH_SYMBOL_IDENTICAL))    RET_ST("===");
-  if(pmath_same(head, PMATH_SYMBOL_UNIDENTICAL))  RET_ST("=!=");
+  if(pmath_same(head, pmath_System_Equal))        RET_CH('=');
+  if(pmath_same(head, pmath_System_Less))         RET_CH('<');
+  if(pmath_same(head, pmath_System_Greater))      RET_CH('>');
+  if(pmath_same(head, pmath_System_Identical))    RET_ST("===");
+  if(pmath_same(head, pmath_System_Unidentical))  RET_ST("=!=");
   
   if(boxform < BOXFORM_OUTPUT) {
     if(pmath_same(head, pmath_System_Element))               RET_CH(0x2208);
@@ -481,12 +561,12 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
     if(pmath_same(head, pmath_System_HumpEqual))             RET_CH(0x224F);
     if(pmath_same(head, pmath_System_DotEqual))              RET_CH(0x2250);
     
-    if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))               RET_CH(0x2260);
+    if(pmath_same(head, pmath_System_Unequal))               RET_CH(0x2260);
     if(pmath_same(head, pmath_System_Congruent))             RET_CH(0x2261);
     if(pmath_same(head, pmath_System_NotCongruent))          RET_CH(0x2262);
     
-    if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))             RET_CH(0x2264);
-    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))          RET_CH(0x2265);
+    if(pmath_same(head, pmath_System_LessEqual))             RET_CH(0x2264);
+    if(pmath_same(head, pmath_System_GreaterEqual))          RET_CH(0x2265);
     if(pmath_same(head, pmath_System_LessFullEqual))         RET_CH(0x2266);
     if(pmath_same(head, pmath_System_GreaterFullEqual))      RET_CH(0x2267);
     
@@ -541,9 +621,9 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
     
   }
   else {
-    if(pmath_same(head, PMATH_SYMBOL_UNEQUAL))       RET_ST("!=");
-    if(pmath_same(head, PMATH_SYMBOL_LESSEQUAL))     RET_ST("<=");
-    if(pmath_same(head, PMATH_SYMBOL_GREATEREQUAL))  RET_ST(">=");
+    if(pmath_same(head, pmath_System_Unequal))       RET_ST("!=");
+    if(pmath_same(head, pmath_System_LessEqual))     RET_ST("<=");
+    if(pmath_same(head, pmath_System_GreaterEqual))  RET_ST(">=");
     
     if(boxform < BOXFORM_INPUT) {
       if(pmath_same(head, pmath_System_Colon))   RET_CH(':');
@@ -560,22 +640,22 @@ static pmath_t relation(pmath_symbol_t head, int boxform) { // head wont be free
 #define  RET_CH(C,P)  do{ int         retc = (C); *prec = (P); return pmath_build_value("c", retc); }while(0)
 #define  RET_ST(S,P)  do{ const char *rets = (S); *prec = (P); return pmath_build_value("s", rets); }while(0)
 static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // head wont be freed
-//  if(pmath_same(head, PMATH_SYMBOL_SEQUENCE))            RET_CH(',',  PMATH_PREC_SEQ);
-//  if(pmath_same(head, PMATH_SYMBOL_EVALUATIONSEQUENCE))  RET_CH(';',  PMATH_PREC_EVAL);
-  if(pmath_same(head, PMATH_SYMBOL_STRINGEXPRESSION))    RET_ST("++", PMATH_PREC_STR);
-  if(pmath_same(head, PMATH_SYMBOL_ALTERNATIVES))        RET_CH('|',  PMATH_PREC_ALT);
+//  if(pmath_same(head, pmath_System_Sequence))            RET_CH(',',  PMATH_PREC_SEQ);
+//  if(pmath_same(head, pmath_System_EvaluationSequence))  RET_CH(';',  PMATH_PREC_EVAL);
+  if(pmath_same(head, pmath_System_StringExpression))    RET_ST("++", PMATH_PREC_STR);
+  if(pmath_same(head, pmath_System_Alternatives))        RET_CH('|',  PMATH_PREC_ALT);
   
   if(boxform < BOXFORM_OUTPUT) {
-    if(pmath_same(head, PMATH_SYMBOL_AND))                   RET_CH(0x2227, PMATH_PREC_AND);
-    if(pmath_same(head, PMATH_SYMBOL_OR))                    RET_CH(0x2228, PMATH_PREC_AND);
+    if(pmath_same(head, pmath_System_And))                   RET_CH(0x2227, PMATH_PREC_AND);
+    if(pmath_same(head, pmath_System_Or))                    RET_CH(0x2228, PMATH_PREC_AND);
     
     if(pmath_same(head, pmath_System_CirclePlus))            RET_CH(0x2A2F, PMATH_PREC_CIRCADD);
     if(pmath_same(head, pmath_System_CircleTimes))           RET_CH(0x2A2F, PMATH_PREC_CIRCMUL);
     if(pmath_same(head, pmath_System_PlusMinus))             RET_CH(0x00B1, PMATH_PREC_PLUMI);
     if(pmath_same(head, pmath_System_MinusPlus))             RET_CH(0x2213, PMATH_PREC_PLUMI);
     
-    if(pmath_same(head, PMATH_SYMBOL_DOT))                   RET_CH(0x22C5, PMATH_PREC_MIDDOT);  //0x00B7
-    if(pmath_same(head, PMATH_SYMBOL_CROSS))                 RET_CH(0x2A2F, PMATH_PREC_CROSS);
+    if(pmath_same(head, pmath_System_Dot))                   RET_CH(0x22C5, PMATH_PREC_MIDDOT);  //0x00B7
+    if(pmath_same(head, pmath_System_Cross))                 RET_CH(0x2A2F, PMATH_PREC_CROSS);
     
     if(pmath_same(head, pmath_System_LeftArrow))             RET_CH(0x2190, PMATH_PREC_ARROW);
     if(pmath_same(head, pmath_System_UpArrow))               RET_CH(0x2191, PMATH_PREC_ARROW);
@@ -601,8 +681,8 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
     
   }
   else {
-    if(pmath_same(head, PMATH_SYMBOL_AND))  RET_ST("&&", PMATH_PREC_AND);
-    if(pmath_same(head, PMATH_SYMBOL_OR))   RET_ST("||", PMATH_PREC_AND);
+    if(pmath_same(head, pmath_System_And))  RET_ST("&&", PMATH_PREC_AND);
+    if(pmath_same(head, pmath_System_Or))   RET_ST("||", PMATH_PREC_AND);
   }
   
   *prec = PMATH_PREC_REL;
@@ -611,17 +691,17 @@ static pmath_t simple_nary(pmath_symbol_t head, int *prec, int boxform) { // hea
 
 static pmath_t simple_prefix(pmath_symbol_t head, int *prec, int boxform) { // head wont be freed
 
-  if(pmath_same(head, PMATH_SYMBOL_INCREMENT))     RET_ST("++", PMATH_PREC_INC_OUT);
-  if(pmath_same(head, PMATH_SYMBOL_DECREMENT))     RET_ST("--", PMATH_PREC_INC_OUT);
+  if(pmath_same(head, pmath_System_Increment))     RET_ST("++", PMATH_PREC_INC_OUT);
+  if(pmath_same(head, pmath_System_Decrement))     RET_ST("--", PMATH_PREC_INC_OUT);
   
   if(boxform < BOXFORM_OUTPUT) {
-    if(pmath_same(head, PMATH_SYMBOL_NOT))  RET_CH(0x00AC, PMATH_PREC_REL);
+    if(pmath_same(head, pmath_System_Not))  RET_CH(0x00AC, PMATH_PREC_REL);
     
     if(pmath_same(head, pmath_System_PlusMinus))    RET_CH(0x00B1, PMATH_PREC_PLUMI);
     if(pmath_same(head, pmath_System_MinusPlus))    RET_CH(0x2213, PMATH_PREC_PLUMI);
   }
   else {
-    if(pmath_same(head, PMATH_SYMBOL_NOT))  RET_CH('!', PMATH_PREC_REL);
+    if(pmath_same(head, pmath_System_Not))  RET_CH('!', PMATH_PREC_REL);
   }
   
   return PMATH_NULL;
@@ -629,11 +709,11 @@ static pmath_t simple_prefix(pmath_symbol_t head, int *prec, int boxform) { // h
 
 static pmath_t simple_postfix(pmath_symbol_t head, int *prec, int boxform) { // head wont be freed
 
-  if(pmath_same(head, PMATH_SYMBOL_FUNCTION))       RET_CH('&',  PMATH_PREC_FUNC);
-  if(pmath_same(head, PMATH_SYMBOL_FACTORIAL))      RET_CH('!',  PMATH_PREC_FAC);
-  if(pmath_same(head, PMATH_SYMBOL_FACTORIAL2))     RET_ST("!!", PMATH_PREC_FAC);
-  if(pmath_same(head, PMATH_SYMBOL_POSTINCREMENT))  RET_ST("++", PMATH_PREC_INC_OUT);
-  if(pmath_same(head, PMATH_SYMBOL_POSTDECREMENT))  RET_ST("--", PMATH_PREC_INC_OUT);
+  if(pmath_same(head, pmath_System_Function))       RET_CH('&',  PMATH_PREC_FUNC);
+  if(pmath_same(head, pmath_System_Factorial))      RET_CH('!',  PMATH_PREC_FAC);
+  if(pmath_same(head, pmath_System_Factorial2))     RET_ST("!!", PMATH_PREC_FAC);
+  if(pmath_same(head, pmath_System_PostIncrement))  RET_ST("++", PMATH_PREC_INC_OUT);
+  if(pmath_same(head, pmath_System_PostDecrement))  RET_ST("--", PMATH_PREC_INC_OUT);
   
   return PMATH_NULL;
 }
@@ -648,27 +728,27 @@ static pmath_t simple_binary(pmath_symbol_t head, int *leftprec, int *rightprec,
 #define  RET_ST_L(S, L)  RET_ST(S, L, (L)+1)
 #define  RET_ST_R(S, R)  RET_ST(S, (R)+1, R)
 
-  if(pmath_same(head, PMATH_SYMBOL_INCREMENT))   RET_ST_R("+=", PMATH_PREC_MODY);
-  if(pmath_same(head, PMATH_SYMBOL_DECREMENT))   RET_ST_R("-=", PMATH_PREC_MODY);
-  if(pmath_same(head, PMATH_SYMBOL_TIMESBY))     RET_ST_R("*=", PMATH_PREC_MODY);
-  if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY))    RET_ST_R("/=", PMATH_PREC_MODY);
-  if(pmath_same(head, PMATH_SYMBOL_CONDITION))   RET_ST_L("/?", PMATH_PREC_COND);
-  if(pmath_same(head, PMATH_SYMBOL_TESTPATTERN)) RET_CH_L('?',  PMATH_PREC_TEST);
-  if(pmath_same(head, PMATH_SYMBOL_MESSAGENAME)) RET_ST_L("::", PMATH_PREC_CALL);
+  if(pmath_same(head, pmath_System_Increment))   RET_ST_R("+=", PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_Decrement))   RET_ST_R("-=", PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_TimesBy))     RET_ST_R("*=", PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_DivideBy))    RET_ST_R("/=", PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_Condition))   RET_ST_L("/?", PMATH_PREC_COND);
+  if(pmath_same(head, pmath_System_TestPattern)) RET_CH_L('?',  PMATH_PREC_TEST);
+  if(pmath_same(head, pmath_System_MessageName)) RET_ST_L("::", PMATH_PREC_CALL);
   
   if(boxform < BOXFORM_OUTPUT) {
-    if(pmath_same(head, PMATH_SYMBOL_ASSIGN))         RET_CH_R(PMATH_CHAR_ASSIGN,        PMATH_PREC_ASS);
-    if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  RET_CH_R(PMATH_CHAR_ASSIGNDELAYED, PMATH_PREC_ASS);
+    if(pmath_same(head, pmath_System_Assign))         RET_CH_R(PMATH_CHAR_ASSIGN,        PMATH_PREC_ASS);
+    if(pmath_same(head, pmath_System_AssignDelayed))  RET_CH_R(PMATH_CHAR_ASSIGNDELAYED, PMATH_PREC_ASS);
     
-    if(pmath_same(head, PMATH_SYMBOL_RULE))           RET_CH_R(PMATH_CHAR_RULE,        PMATH_PREC_RULE);
-    if(pmath_same(head, PMATH_SYMBOL_RULEDELAYED))    RET_CH_R(PMATH_CHAR_RULEDELAYED, PMATH_PREC_RULE);
+    if(pmath_same(head, pmath_System_Rule))           RET_CH_R(PMATH_CHAR_RULE,        PMATH_PREC_RULE);
+    if(pmath_same(head, pmath_System_RuleDelayed))    RET_CH_R(PMATH_CHAR_RULEDELAYED, PMATH_PREC_RULE);
   }
   else {
-    if(pmath_same(head, PMATH_SYMBOL_ASSIGN))         RET_ST_R(":=",  PMATH_PREC_ASS);
-    if(pmath_same(head, PMATH_SYMBOL_ASSIGNDELAYED))  RET_ST_R("::=", PMATH_PREC_ASS);
+    if(pmath_same(head, pmath_System_Assign))         RET_ST_R(":=",  PMATH_PREC_ASS);
+    if(pmath_same(head, pmath_System_AssignDelayed))  RET_ST_R("::=", PMATH_PREC_ASS);
     
-    if(pmath_same(head, PMATH_SYMBOL_RULE))           RET_ST_R("->", PMATH_PREC_RULE);
-    if(pmath_same(head, PMATH_SYMBOL_RULEDELAYED))    RET_ST_R(":>", PMATH_PREC_RULE);
+    if(pmath_same(head, pmath_System_Rule))           RET_ST_R("->", PMATH_PREC_RULE);
+    if(pmath_same(head, pmath_System_RuleDelayed))    RET_ST_R(":>", PMATH_PREC_RULE);
   }
   
   {
@@ -708,11 +788,11 @@ static int _pmath_symbol_to_precedence(pmath_t head) { // head wont be freed
   if(!pmath_is_null(op))
     return prec;
     
-  if(pmath_same(head, PMATH_SYMBOL_SEQUENCE)) return PMATH_PREC_SEQ;
-  if(pmath_same(head, PMATH_SYMBOL_RANGE))    return PMATH_PREC_RANGE;
-  if(pmath_same(head, PMATH_SYMBOL_PLUS))     return PMATH_PREC_ADD;
-  if(pmath_same(head, PMATH_SYMBOL_TIMES))    return PMATH_PREC_MUL;
-  if(pmath_same(head, PMATH_SYMBOL_POWER))    return PMATH_PREC_POW;
+  if(pmath_same(head, pmath_System_Sequence)) return PMATH_PREC_SEQ;
+  if(pmath_same(head, pmath_System_Range))    return PMATH_PREC_RANGE;
+  if(pmath_same(head, pmath_System_Plus))     return PMATH_PREC_ADD;
+  if(pmath_same(head, pmath_System_Times))    return PMATH_PREC_MUL;
+  if(pmath_same(head, pmath_System_Power))    return PMATH_PREC_POW;
   
   return PMATH_PREC_PRIM;
 }
@@ -786,7 +866,7 @@ static pmath_t nary_to_boxes(
 // *box = {"-", x}     -->  *box = x      and return value is "-"
 // otherwise *box unchanged and return value is PMATH_NULL
 static pmath_t extract_minus(pmath_t *box) {
-  if(pmath_is_expr_of_len(*box, PMATH_SYMBOL_LIST, 2)) {
+  if(pmath_is_expr_of_len(*box, pmath_System_List, 2)) {
     pmath_t minus = pmath_expr_get_item(*box, 1);
     
     if( pmath_is_string(minus) &&
@@ -806,7 +886,7 @@ static pmath_t extract_minus(pmath_t *box) {
 
 // x^-n  ==>  x^n
 static pmath_bool_t negate_exponent(pmath_t *obj) {
-  if(pmath_is_expr_of_len(*obj, PMATH_SYMBOL_POWER, 2)) {
+  if(pmath_is_expr_of_len(*obj, pmath_System_Power, 2)) {
     pmath_t exp = pmath_expr_get_item(*obj, 2);
     
     if(pmath_equals(exp, PMATH_FROM_INT32(-1))) {
@@ -847,17 +927,17 @@ static pmath_bool_t is_char_at(pmath_expr_t expr, size_t i, uint16_t ch) {
 }
 
 static pmath_bool_t is_minus(pmath_t box) {
-  return pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 2) && is_char_at(box, 1, '-');
+  return pmath_is_expr_of_len(box, pmath_System_List, 2) && is_char_at(box, 1, '-');
 }
 
 static pmath_bool_t is_inversion(pmath_t box) {
-  return pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 3) &&
+  return pmath_is_expr_of_len(box, pmath_System_List, 3) &&
          is_char_at(box, 2, '/')                         &&
          is_char_at(box, 1, '1');
 }
 
 static pmath_t remove_paren(pmath_t box) {
-  if( pmath_is_expr_of_len(box, PMATH_SYMBOL_LIST, 3) &&
+  if( pmath_is_expr_of_len(box, pmath_System_List, 3) &&
       is_char_at(box, 1, '(') &&
       is_char_at(box, 3, ')'))
   {
@@ -881,7 +961,7 @@ static uint16_t first_char(pmath_t box) {
     pmath_t item = pmath_expr_get_item(box, 0);
     pmath_unref(item);
     
-    if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(item, pmath_System_List)) {
       uint16_t result;
       
       item = pmath_expr_get_item(box, 1);
@@ -908,7 +988,7 @@ static uint16_t last_char(pmath_t box) {
     pmath_t item = pmath_expr_get_item(box, 0);
     pmath_unref(item);
     
-    if(pmath_same(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_same(item, pmath_System_List)) {
       uint16_t result;
       
       item = pmath_expr_get_item(box, pmath_expr_length(box));
@@ -931,13 +1011,13 @@ static void emit_num_den(pmath_expr_t product) { // product will be freed
   for(i = 1; i <= pmath_expr_length(product); ++i) {
     pmath_t factor = pmath_expr_get_item(product, i);
     
-    if(pmath_is_expr_of(factor, PMATH_SYMBOL_TIMES)) {
+    if(pmath_is_expr_of(factor, pmath_System_Times)) {
       emit_num_den(factor);
       continue;
     }
     
     if(negate_exponent(&factor)) {
-      if(pmath_is_expr_of(factor, PMATH_SYMBOL_TIMES)) {
+      if(pmath_is_expr_of(factor, pmath_System_Times)) {
         size_t j;
         for(j = 1; j <= pmath_expr_length(factor); ++j) {
           pmath_emit(pmath_expr_get_item(factor, j), DEN_TAG);
@@ -1035,7 +1115,7 @@ static pmath_t complex_to_boxes(
         
         return object_to_boxes(thread,
                                pmath_expr_new_extended(
-                                 pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                                 pmath_ref(pmath_System_Times), 2,
                                  im,
                                  expr));
       }
@@ -1046,7 +1126,7 @@ static pmath_t complex_to_boxes(
       
       return object_to_boxes(thread,
                              pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                               pmath_ref(pmath_System_Plus), 2,
                                re,
                                expr));
     }
@@ -1066,7 +1146,7 @@ static pmath_t directedinfinity_to_boxes(
       pmath_unref(expr);
       pmath_unref(dir);
       
-      return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_INFINITY));
+      return object_to_boxes(thread, pmath_ref(pmath_System_Infinity));
     }
     
     if(pmath_equals(dir, PMATH_FROM_INT32(-1))) {
@@ -1075,12 +1155,12 @@ static pmath_t directedinfinity_to_boxes(
       
       return object_to_boxes(thread,
                              pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                               pmath_ref(pmath_System_Times), 2,
                                PMATH_FROM_INT32(-1),
-                               pmath_ref(PMATH_SYMBOL_INFINITY)));
+                               pmath_ref(pmath_System_Infinity)));
     }
     
-    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+    if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
       pmath_t x = pmath_expr_get_item(dir, 1);
       
       if(pmath_equals(x, PMATH_FROM_INT32(0))) {
@@ -1094,12 +1174,12 @@ static pmath_t directedinfinity_to_boxes(
           
           return object_to_boxes(thread,
                                  pmath_expr_new_extended(
-                                   pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                                   pmath_ref(pmath_System_Times), 2,
                                    pmath_expr_new_extended(
-                                     pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                                     pmath_ref(pmath_System_Complex), 2,
                                      PMATH_FROM_INT32(0),
                                      PMATH_FROM_INT32(1)),
-                                   pmath_ref(PMATH_SYMBOL_INFINITY)));
+                                   pmath_ref(pmath_System_Infinity)));
         }
         
         if(pmath_equals(x, PMATH_FROM_INT32(-1))) {
@@ -1109,12 +1189,12 @@ static pmath_t directedinfinity_to_boxes(
           
           return object_to_boxes(thread,
                                  pmath_expr_new_extended(
-                                   pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                                   pmath_ref(pmath_System_Times), 2,
                                    pmath_expr_new_extended(
-                                     pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                                     pmath_ref(pmath_System_Complex), 2,
                                      PMATH_FROM_INT32(0),
                                      PMATH_FROM_INT32(-1)),
-                                   pmath_ref(PMATH_SYMBOL_INFINITY)));
+                                   pmath_ref(pmath_System_Infinity)));
         }
       }
       
@@ -1125,7 +1205,7 @@ static pmath_t directedinfinity_to_boxes(
   }
   else if(pmath_expr_length(expr) == 0) {
     pmath_unref(expr);
-    return object_to_boxes(thread, pmath_ref(PMATH_SYMBOL_COMPLEXINFINITY));
+    return object_to_boxes(thread, pmath_ref(pmath_System_ComplexInfinity));
   }
   
   return call_to_boxes(thread, expr);
@@ -1226,7 +1306,7 @@ static pmath_t optional_to_boxes(
   if(pmath_expr_length(expr) == 1) {
     pmath_t pattern = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_PATTERN, 2)) {
+    if(pmath_is_expr_of_len(pattern, pmath_System_Pattern, 2)) {
       pmath_t name = pmath_expr_get_item(pattern, 1);
       pmath_t sub  = pmath_expr_get_item(pattern, 2);
       
@@ -1250,7 +1330,7 @@ static pmath_t optional_to_boxes(
   else if(pmath_expr_length(expr) == 2) {
     pmath_t pattern = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_PATTERN, 2)) {
+    if(pmath_is_expr_of_len(pattern, pmath_System_Pattern, 2)) {
       pmath_t name = pmath_expr_get_item(pattern, 1);
       pmath_t sub  = pmath_expr_get_item(pattern, 2);
       pmath_t value = pmath_expr_get_item(expr, 2);
@@ -1301,7 +1381,7 @@ static pmath_t pattern_to_boxes(
         return pmath_build_value("so", "~", name);
       }
       
-      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+      if(pmath_is_expr_of_len(pat, pmath_System_SingleMatch, 1)) {
         pmath_t type = pmath_expr_get_item(pat, 1);
         
         pmath_unref(pat);
@@ -1323,10 +1403,10 @@ static pmath_t pattern_to_boxes(
         return pmath_build_value("so", "~~~", name);
       }
       
-      if(pmath_is_expr_of_len(pat, PMATH_SYMBOL_REPEATED, 2)) {
+      if(pmath_is_expr_of_len(pat, pmath_System_Repeated, 2)) {
         pmath_t rep = pmath_expr_get_item(pat, 1);
         
-        if(pmath_is_expr_of_len(rep, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+        if(pmath_is_expr_of_len(rep, pmath_System_SingleMatch, 1)) {
           pmath_t range = pmath_expr_get_item(pat, 2);
           
           if(pmath_equals(range, _pmath_object_range_from_one)) {
@@ -1451,7 +1531,7 @@ static pmath_t power_to_boxes(
       }
       else {
         expr = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_LIST), 4,
+                 pmath_ref(pmath_System_List), 4,
                  PMATH_C_STRING("Sqrt"),
                  PMATH_C_STRING("("),
                  object_to_boxes(thread, base),
@@ -1571,12 +1651,12 @@ static pmath_t pureargument_to_boxes(
       return pmath_build_value("(so)", "#", object_to_boxes(thread, item));
     }
     
-    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RANGE, 2)) {
+    if(pmath_is_expr_of_len(item, pmath_System_Range, 2)) {
       pmath_t a = pmath_expr_get_item(item, 1);
       pmath_t b = pmath_expr_get_item(item, 2);
       pmath_unref(b);
       
-      if( pmath_same(b, PMATH_SYMBOL_AUTOMATIC) &&
+      if( pmath_same(b, pmath_System_Automatic) &&
           pmath_is_integer(a)                   &&
           pmath_number_sign(a) > 0)
       {
@@ -1632,7 +1712,7 @@ static pmath_t repeated_to_boxes(
         return PMATH_C_STRING("~~");
       }
       
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+      if(pmath_is_expr_of_len(item, pmath_System_SingleMatch, 1)) {
         pmath_t type = pmath_expr_get_item(item, 1);
         
         pmath_unref(item);
@@ -1659,7 +1739,7 @@ static pmath_t repeated_to_boxes(
         return PMATH_C_STRING("~~~");
       }
       
-      if(pmath_is_expr_of_len(item, PMATH_SYMBOL_SINGLEMATCH, 1)) {
+      if(pmath_is_expr_of_len(item, pmath_System_SingleMatch, 1)) {
         pmath_t type = pmath_expr_get_item(item, 1);
         
         pmath_unref(item);
@@ -1806,15 +1886,15 @@ static pmath_t tagassign_to_boxes(
   if(len == 3) {
     op = PMATH_NULL;
     if(thread->boxform < BOXFORM_OUTPUT) {
-      if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))
+      if(pmath_same(head, pmath_System_TagAssign))
         op = pmath_build_value("c", PMATH_CHAR_ASSIGN);
-      else if(pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+      else if(pmath_same(head, pmath_System_TagAssignDelayed))
         op = pmath_build_value("c", PMATH_CHAR_ASSIGNDELAYED);
     }
     else {
-      if(pmath_same(head, PMATH_SYMBOL_TAGASSIGN))
+      if(pmath_same(head, pmath_System_TagAssign))
         op = PMATH_C_STRING(":=");
-      else if(pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+      else if(pmath_same(head, pmath_System_TagAssignDelayed))
         op = PMATH_C_STRING("::=");
     }
     
@@ -1991,7 +2071,7 @@ static pmath_t times_to_boxes(
         pmath_unref(tmp);
       }
       else
-        den = pmath_expr_set_item(den, 0, pmath_ref(PMATH_SYMBOL_TIMES));
+        den = pmath_expr_set_item(den, 0, pmath_ref(pmath_System_Times));
         
       if(pmath_expr_length(num) == 0) {
         pmath_unref(num);
@@ -2003,7 +2083,7 @@ static pmath_t times_to_boxes(
         pmath_unref(tmp);
       }
       else
-        num = pmath_expr_set_item(num, 0, pmath_ref(PMATH_SYMBOL_TIMES));
+        num = pmath_expr_set_item(num, 0, pmath_ref(pmath_System_Times));
         
       num = object_to_boxes(thread, num);
       den = object_to_boxes(thread, den);
@@ -2086,7 +2166,7 @@ static pmath_t column_to_boxes(
   if(pmath_expr_length(expr) == 1) {
     pmath_t list = pmath_expr_get_item(expr, 1);
     
-    if( pmath_is_expr_of(list, PMATH_SYMBOL_LIST) &&
+    if( pmath_is_expr_of(list, pmath_System_List) &&
         pmath_expr_length(list) > 0)
     {
       size_t i;
@@ -2096,7 +2176,7 @@ static pmath_t column_to_boxes(
       for(i = pmath_expr_length(list); i > 0; --i) {
         list = pmath_expr_set_item(list, i,
                                    pmath_expr_new_extended(
-                                     pmath_ref(PMATH_SYMBOL_LIST), 1,
+                                     pmath_ref(pmath_System_List), 1,
                                      object_to_boxes(
                                        thread,
                                        pmath_expr_get_item(list, i))));
@@ -2125,7 +2205,7 @@ static void emit_gridbox_options(
   for(i = start; i <= pmath_expr_length(expr); ++i) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(_pmath_is_rule(item)) {
+    if(pmath_is_rule(item)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       
@@ -2145,7 +2225,7 @@ static void emit_gridbox_options(
       continue;
     }
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(item, pmath_System_List)) {
       emit_gridbox_options(item, 1);
       pmath_unref(item);
       continue;
@@ -2228,7 +2308,7 @@ static pmath_t fullform(
       
       comma = PMATH_C_STRING(",");
       
-      result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 2 * len - 1);
+      result = pmath_expr_new(pmath_ref(pmath_System_List), 2 * len - 1);
       
       result = pmath_expr_set_item(
                  result, 1,
@@ -2294,13 +2374,13 @@ static pmath_t fullform_to_boxes(
              pmath_ref(pmath_System_StyleBox), 3,
              result,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(pmath_System_Rule), 2,
                pmath_ref(pmath_System_AutoDelete),
-               pmath_ref(PMATH_SYMBOL_TRUE)),
+               pmath_ref(pmath_System_True)),
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(pmath_System_Rule), 2,
                pmath_ref(pmath_System_ShowStringCharacters),
-               pmath_ref(PMATH_SYMBOL_TRUE)));
+               pmath_ref(pmath_System_True)));
   }
   
   return call_to_boxes(thread, expr);
@@ -2339,17 +2419,17 @@ static pmath_t inputform_to_boxes(
              pmath_ref(pmath_System_StyleBox), 4,
              result,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(pmath_System_Rule), 2,
                pmath_ref(pmath_System_AutoDelete),
-               pmath_ref(PMATH_SYMBOL_TRUE)),
+               pmath_ref(pmath_System_True)),
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(pmath_System_Rule), 2,
                pmath_ref(pmath_System_AutoNumberFormating),
-               pmath_ref(PMATH_SYMBOL_FALSE)),
+               pmath_ref(pmath_System_False)),
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(pmath_System_Rule), 2,
                pmath_ref(pmath_System_ShowStringCharacters),
-               pmath_ref(PMATH_SYMBOL_TRUE)));
+               pmath_ref(pmath_System_True)));
   }
   
   return call_to_boxes(thread, expr);
@@ -2381,7 +2461,7 @@ static pmath_t linearsolvefunction_to_boxes(
 ) {
   if(pmath_expr_length(expr) == 2) {
     pmath_t skeleton = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_SKELETON), 1,
+                         pmath_ref(pmath_System_Skeleton), 1,
                          PMATH_FROM_INT32(1));
                          
     expr = pmath_expr_set_item(expr, 2, skeleton);
@@ -2439,7 +2519,7 @@ static pmath_t matrixform(
     return pmath_build_value("sos", "(", obj, ")");
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(obj, pmath_System_List)) {
     size_t i;
     
     rows = pmath_expr_length(obj);
@@ -2536,7 +2616,7 @@ static pmath_t row_to_boxes(
   if(len == 1) {
     pmath_t list = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(list, pmath_System_List)) {
       size_t i;
       
       pmath_unref(expr); 
@@ -2564,7 +2644,7 @@ static pmath_t row_to_boxes(
   else if(len == 2) {
     pmath_t list = pmath_expr_get_item(expr, 1);
     
-    if(pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(list, pmath_System_List)) {
       pmath_t delim = pmath_expr_get_item(expr, 2);
       size_t i;
       
@@ -2616,7 +2696,7 @@ static pmath_t shallow_to_boxes(
     else if(pmath_equals(item, _pmath_object_pos_infinity)) {
       maxdepth = SIZE_MAX;
     }
-    else if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LIST, 2)) {
+    else if(pmath_is_expr_of_len(item, pmath_System_List, 2)) {
       // {maxdepth, maxlength}
       pmath_t obj = pmath_expr_get_item(item, 1);
       
@@ -2703,7 +2783,7 @@ static pmath_t short_to_boxes(
   else if(pmath_expr_length(expr) != 1)
     return call_to_boxes(thread, expr);
     
-  item = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+  item = pmath_evaluate(pmath_ref(pmath_System_DollarPageWidth));
   if(pmath_equals(item, _pmath_object_pos_infinity)) {
     pmath_unref(item);
     item = pmath_expr_get_item(expr, 1);
@@ -2760,36 +2840,36 @@ static pmath_bool_t emit_stylebox_options(
   for(i = start; i <= pmath_expr_length(expr); ++i) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(pmath_same(item, PMATH_SYMBOL_BOLD)) {
+    if(pmath_same(item, pmath_System_Bold)) {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontWeight),
           item),
         PMATH_NULL);
       continue;
     }
     
-    if(pmath_same(item, PMATH_SYMBOL_ITALIC)) {
+    if(pmath_same(item, pmath_System_Italic)) {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontSlant),
           item),
         PMATH_NULL);
       continue;
     }
     
-    if(pmath_same(item, PMATH_SYMBOL_PLAIN)) {
+    if(pmath_same(item, pmath_System_Plain)) {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontSlant),
           pmath_ref(item)),
         PMATH_NULL);
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontWeight),
           item),
         PMATH_NULL);
@@ -2799,14 +2879,14 @@ static pmath_bool_t emit_stylebox_options(
     if(pmath_is_number(item)) {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontSize),
           item),
         PMATH_NULL);
       continue;
     }
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(item, pmath_System_List)) {
       if(!emit_stylebox_options(expr, 1, info)) {
         pmath_unref(item);
         return FALSE;
@@ -2816,19 +2896,19 @@ static pmath_bool_t emit_stylebox_options(
       continue;
     }
     
-    if( pmath_is_expr_of_len(item, PMATH_SYMBOL_GRAYLEVEL, 1) ||
-        pmath_is_expr_of_len(item, PMATH_SYMBOL_RGBCOLOR, 3))
+    if( pmath_is_expr_of_len(item, pmath_System_GrayLevel, 1) ||
+        pmath_is_expr_of_len(item, pmath_System_RGBColor, 3))
     {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontColor),
           item),
         PMATH_NULL);
       continue;
     }
     
-    if(_pmath_is_rule(item)) {
+    if(pmath_is_rule(item)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       
@@ -2876,9 +2956,9 @@ static pmath_t style_to_boxes(
     if(!info.have_explicit_strip_on_input) {
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RULE), 2,
+          pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_StripOnInput),
-          pmath_ref(PMATH_SYMBOL_FALSE)),
+          pmath_ref(pmath_System_False)),
         PMATH_NULL);
     }
     
@@ -3037,7 +3117,7 @@ static pmath_t rotate_to_boxes(
              pmath_ref(pmath_System_RotationBox), 2,
              obj,
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_RULE), 2,
+               pmath_ref(pmath_System_Rule), 2,
                pmath_ref(pmath_System_BoxRotation),
                angle));
   }
@@ -3214,52 +3294,52 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
     
     pmath_unref(head);
     
-    if(pmath_same(head, PMATH_SYMBOL_COMPLEX))
+    if(pmath_same(head, pmath_System_Complex))
       return complex_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_DIRECTEDINFINITY))
+    if(pmath_same(head, pmath_System_DirectedInfinity))
       return directedinfinity_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_EVALUATIONSEQUENCE))
+    if(pmath_same(head, pmath_System_EvaluationSequence))
       return evaluationsequence_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_INEQUATION))
+    if(pmath_same(head, pmath_System_Inequation))
       return inequation_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_LIST))
+    if(pmath_same(head, pmath_System_List))
       return list_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_OPTIONAL))
+    if(pmath_same(head, pmath_System_Optional))
       return optional_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_PATTERN))
+    if(pmath_same(head, pmath_System_Pattern))
       return pattern_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_PLUS))
+    if(pmath_same(head, pmath_System_Plus))
       return plus_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_POWER))
+    if(pmath_same(head, pmath_System_Power))
       return power_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_PUREARGUMENT))
+    if(pmath_same(head, pmath_System_PureArgument))
       return pureargument_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_RANGE))
+    if(pmath_same(head, pmath_System_Range))
       return range_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_REPEATED))
+    if(pmath_same(head, pmath_System_Repeated))
       return repeated_to_boxes(thread, expr);
       
-    if(pmath_same(head, PMATH_SYMBOL_SINGLEMATCH))
+    if(pmath_same(head, pmath_System_SingleMatch))
       return singlematch_to_boxes(thread, expr);
       
-    if( pmath_same(head, PMATH_SYMBOL_TAGASSIGN) ||
-        pmath_same(head, PMATH_SYMBOL_TAGASSIGNDELAYED))
+    if( pmath_same(head, pmath_System_TagAssign) ||
+        pmath_same(head, pmath_System_TagAssignDelayed))
     {
       return tagassign_to_boxes(thread, expr);
     }
     
-    if(pmath_same(head, PMATH_SYMBOL_TIMES))
+    if(pmath_same(head, pmath_System_Times))
       return times_to_boxes(thread, expr);
       
     /*------------------------------------------------------------------------*/
@@ -3270,15 +3350,15 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, pmath_System_Column))
         return column_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_FULLFORM))
+      if(pmath_same(head, pmath_System_FullForm))
         return fullform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_GRAPHICS)) {
+      if(pmath_same(head, pmath_System_Graphics)) {
         expr = pmath_expr_new_extended(
                  pmath_ref(pmath_System_Interpretation), 2,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_SKELETON), 1,
-                   pmath_ref(PMATH_SYMBOL_GRAPHICS)),
+                   pmath_ref(pmath_System_Skeleton), 1,
+                   pmath_ref(pmath_System_Graphics)),
                  expr);
                  
         return expr_to_boxes(thread, expr);
@@ -3287,10 +3367,10 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, pmath_System_Grid))
         return grid_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_HOLDFORM))
+      if(pmath_same(head, pmath_System_HoldForm))
         return holdform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_INPUTFORM))
+      if(pmath_same(head, pmath_System_InputForm))
         return inputform_to_boxes(thread, expr);
         
       if(pmath_same(head, pmath_System_Interpretation))
@@ -3299,31 +3379,31 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(pmath_same(head, pmath_System_LinearSolveFunction))
         return linearsolvefunction_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_LONGFORM))
+      if(pmath_same(head, pmath_System_LongForm))
         return longform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_MATRIXFORM))
+      if(pmath_same(head, pmath_System_MatrixForm))
         return matrixform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_OUTPUTFORM))
+      if(pmath_same(head, pmath_System_OutputForm))
         return outputform_to_boxes(thread, expr);
         
       if(pmath_same(head, pmath_Developer_PackedArrayForm))
         return packedarrayform_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_ROW))
+      if(pmath_same(head, pmath_System_Row))
         return row_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_SHALLOW))
+      if(pmath_same(head, pmath_System_Shallow))
         return shallow_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_SHORT))
+      if(pmath_same(head, pmath_System_Short))
         return short_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_SKELETON))
+      if(pmath_same(head, pmath_System_Skeleton))
         return skeleton_to_boxes(thread, expr);
         
-      if(pmath_same(head, PMATH_SYMBOL_STRINGFORM)) {
+      if(pmath_same(head, pmath_System_StringForm)) {
         pmath_t res = _pmath_stringform_to_boxes(thread, expr);
         
         if(!pmath_is_null(res)) {
@@ -3360,16 +3440,16 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
         if(pmath_same(head, pmath_System_Framed))
           return framed_to_boxes(thread, expr);
           
-        if(pmath_same(head, PMATH_SYMBOL_PIECEWISE))
+        if(pmath_same(head, pmath_System_Piecewise))
           return piecewise_to_boxes(thread, expr);
           
-        if(pmath_same(head, PMATH_SYMBOL_ROTATE))
+        if(pmath_same(head, pmath_System_Rotate))
           return rotate_to_boxes(thread, expr);
           
-        if(pmath_same(head, PMATH_SYMBOL_STANDARDFORM))
+        if(pmath_same(head, pmath_System_StandardForm))
           return standardform_to_boxes(thread, expr);
           
-        if(pmath_same(head, PMATH_SYMBOL_SWITCH))
+        if(pmath_same(head, pmath_System_Switch))
           return switch_to_boxes(thread, expr);
           
         if(pmath_same(head, pmath_System_Placeholder))
@@ -3408,7 +3488,7 @@ static pmath_bool_t user_make_boxes(pmath_t *obj) {
       if(rules) {
         pmath_t debug_info = pmath_get_debug_info(*obj);
         pmath_t result     = pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
+                               pmath_ref(pmath_System_MakeBoxes), 1,
                                pmath_ref(*obj));
                                
         if(_pmath_rulecache_find(&rules->format_rules, &result)) {
@@ -3553,7 +3633,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
       if(!pmath_same(format, PMATH_UNDEFINED)) {
         format = pmath_evaluate(
                    pmath_expr_new_extended(
-                     pmath_ref(PMATH_SYMBOL_MAKEBOXES), 1,
+                     pmath_ref(pmath_System_MakeBoxes), 1,
                      format));
         
         obj = pmath_expr_new_extended(
@@ -3569,17 +3649,17 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
           pmath_string_t s = PMATH_NULL;
           
           if(thread->boxform < BOXFORM_OUTPUT) {
-            if(pmath_same(obj, PMATH_SYMBOL_PI)) {
+            if(pmath_same(obj, pmath_System_Pi)) {
               pmath_unref(obj);
               return pmath_build_value("c", 0x03C0);
             }
             
-            if(pmath_same(obj, PMATH_SYMBOL_E)) {
+            if(pmath_same(obj, pmath_System_E)) {
               pmath_unref(obj);
               return pmath_build_value("c", 0x2147);
             }
             
-            if(pmath_same(obj, PMATH_SYMBOL_INFINITY)) {
+            if(pmath_same(obj, pmath_System_Infinity)) {
               pmath_unref(obj);
               return pmath_build_value("c", 0x221E);
             }
@@ -3660,7 +3740,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
           }
           else {
             result = pmath_expr_new_extended(
-                       pmath_ref(PMATH_SYMBOL_LIST), 3,
+                       pmath_ref(pmath_System_List), 3,
                        n,
                        PMATH_C_STRING("/"),
                        d);
@@ -3734,8 +3814,8 @@ PMATH_PRIVATE pmath_t builtin_makeboxes(pmath_expr_t expr) {
 
 static pmath_t strip_pattern_condition(pmath_t expr) {
   for(;;) {
-    if( pmath_is_expr_of_len(expr, PMATH_SYMBOL_CONDITION, 2) ||
-        pmath_is_expr_of_len(expr, PMATH_SYMBOL_TESTPATTERN, 2))
+    if( pmath_is_expr_of_len(expr, pmath_System_Condition, 2) ||
+        pmath_is_expr_of_len(expr, pmath_System_TestPattern, 2))
     {
       pmath_t arg = pmath_expr_get_item(expr, 1);
       
@@ -3766,8 +3846,8 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_MAKEBOXES, 1) &&
-      !pmath_is_expr_of_len(lhs, PMATH_SYMBOL_FORMAT, 1))
+  if(!pmath_is_expr_of_len(lhs, pmath_System_MakeBoxes, 1) &&
+      !pmath_is_expr_of_len(lhs, pmath_System_Format, 1))
   {
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -3796,7 +3876,7 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
       pmath_unref(out_tag);
       pmath_unref(expr);
       if(pmath_same(rhs, PMATH_UNDEFINED))
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       return rhs;
       
     case SYM_SEARCH_ALTERNATIVES:
@@ -3805,7 +3885,7 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
       pmath_unref(out_tag);
       pmath_unref(expr);
       if(pmath_same(rhs, PMATH_UNDEFINED))
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       return rhs;
       
     case SYM_SEARCH_TOODEEP:
@@ -3813,7 +3893,7 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
       pmath_unref(tag);
       pmath_unref(expr);
       if(pmath_same(rhs, PMATH_UNDEFINED))
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
       return rhs;
   }
   
@@ -3823,7 +3903,7 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
 //
 //    pmath_unref(expr);
 //    if(pmath_same(rhs, PMATH_UNDEFINED))
-//      return pmath_ref(PMATH_SYMBOL_FAILED);
+//      return pmath_ref(pmath_System_DollarFailed);
 //    return rhs;
 //  }
 
@@ -3836,7 +3916,7 @@ PMATH_PRIVATE pmath_t builtin_assign_makeboxes_or_format(pmath_expr_t expr) {
   if(!rules) {
     pmath_unref(lhs);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   _pmath_rulecache_change(&rules->format_rules, lhs, rhs);

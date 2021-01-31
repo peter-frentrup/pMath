@@ -10,8 +10,14 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
-#include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Options;
+extern pmath_symbol_t pmath_System_True;
 
 PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   struct _pmath_symbol_rules_t *rules;
@@ -26,7 +32,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   if(!assignment)
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_OPTIONS, 1)) {
+  if(!pmath_is_expr_of_len(lhs, pmath_System_Options, 1)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -51,7 +57,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
       
       pmath_unref(expr);
       if(pmath_same(rhs, PMATH_UNDEFINED))
-        return pmath_ref(PMATH_SYMBOL_FAILED);
+        return pmath_ref(pmath_System_DollarFailed);
         
       if(assignment < 0) {
         pmath_unref(rhs);
@@ -70,7 +76,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -80,7 +86,7 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
   if(!rules) {
     pmath_unref(lhs);
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(assignment < 0) {
@@ -107,9 +113,9 @@ PMATH_PRIVATE pmath_t builtin_isoption(pmath_expr_t expr) {
   pmath_unref(expr);
   
   if(pmath_is_set_of_options(arg))
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
     
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pmath_System_False);
 }
 
 static
@@ -121,13 +127,13 @@ pmath_bool_t check_set_of_options(pmath_t expr) {
     return FALSE;
   }
   
-  if(_pmath_is_rule(expr))
+  if(pmath_is_rule(expr))
     return TRUE;
   
   if(pmath_is_list_of_rules(expr))
     return TRUE;
     
-  if(!pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(expr, pmath_System_List)) {
     pmath_message(PMATH_NULL, "rep", 1, pmath_ref(expr));
     return FALSE;
   }
@@ -182,14 +188,14 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr) {
   
   pmath_unref(expr);
   //default_opts = _pmath_options_from_expr(func);
-  default_opts = pmath_evaluate(pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_OPTIONS), 1, pmath_ref(func)));
+  default_opts = pmath_evaluate(pmath_expr_new_extended(pmath_ref(pmath_System_Options), 1, pmath_ref(func)));
   
   if(!pmath_same(extra, PMATH_UNDEFINED)) {
     if(check_set_of_options(extra))
       _pmath_options_check_subset_of(extra, default_opts, "optnf", func);
   }
   
-  if(pmath_is_expr_of(name, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(name, pmath_System_List)) {
     pmath_t name_list = name;
     size_t i;
     
@@ -277,9 +283,9 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
     names = pmath_expr_get_item(expr, 2);
     pmath_unref(expr);
     
-    if(!pmath_is_expr_of(names, PMATH_SYMBOL_LIST)) {
+    if(!pmath_is_expr_of(names, pmath_System_List)) {
       names = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_LIST), 1,
+                pmath_ref(pmath_System_List), 1,
                 names);
     }
     
@@ -304,7 +310,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
 //      for(j = 1; j <= pmath_expr_length(options); ++j) {
 //        pmath_t rule = pmath_expr_get_item(options, j);
 //
-//        if(_pmath_is_rule(rule)) {
+//        if(pmath_is_rule(rule)) {
 //          pmath_t lhs = pmath_expr_get_item(rule, 1);
 //
 //          if(pmath_equals(lhs, name)) {
@@ -346,7 +352,7 @@ PMATH_PRIVATE pmath_t builtin_options(pmath_expr_t expr) {
   pmath_unref(sym);
   
   if(pmath_is_expr(options))
-    options = pmath_expr_flatten(options, pmath_ref(PMATH_SYMBOL_LIST), SIZE_MAX);
+    options = pmath_expr_flatten(options, pmath_ref(pmath_System_List), SIZE_MAX);
     
   return options;
 }
@@ -359,7 +365,7 @@ static pmath_expr_t set_option(
   size_t i;
   pmath_t lhs;
   
-  if(!_pmath_is_rule(rule)) {
+  if(!pmath_is_rule(rule)) {
     pmath_message(PMATH_NULL, "reps", 1, rule);
     
     pmath_unref(options);
@@ -413,7 +419,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr) {
   
   options = pmath_evaluate(
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_OPTIONS), 1,
+                pmath_ref(pmath_System_Options), 1,
                 pmath_ref(sym)));
                 
   if(!pmath_is_list_of_rules(options))
@@ -422,7 +428,7 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr) {
   for(i = 2; i <= len; ++i) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(pmath_is_expr_of(item, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(item, pmath_System_List)) {
       size_t j;
       
       for(j = 1; j <= pmath_expr_length(item); ++j) {
@@ -450,9 +456,9 @@ PMATH_PRIVATE pmath_t builtin_setoptions(pmath_expr_t expr) {
   
   pmath_unref(expr);
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+           pmath_ref(pmath_System_Assign), 2,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_OPTIONS), 1,
+             pmath_ref(pmath_System_Options), 1,
              sym),
            options);
            

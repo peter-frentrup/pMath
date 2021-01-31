@@ -4,10 +4,17 @@
 using namespace richmath;
 
 
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Except;
+extern pmath_symbol_t richmath_System_FilterRules;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Options;
+extern pmath_symbol_t richmath_System_Union;
+
 Expr richmath_eval_FrontEnd_Options(Expr expr) {
   size_t len = expr.expr_length();
   if(len < 1 || len > 2)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   auto ref = FrontEndReference::from_pmath(expr[1]);
   auto obj = FrontEndObject::find_cast<StyledObject>(ref);
@@ -39,22 +46,22 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
       if(auto box = dynamic_cast<Box*>(obj)) {
         Expr sym = box->to_pmath_symbol();
         if(sym.is_symbol())
-          default_options = Call(Symbol(PMATH_SYMBOL_OPTIONS), std::move(sym));
+          default_options = Call(Symbol(richmath_System_Options), std::move(sym));
       }
       
       if(default_options) {
         need_filter = true;
-        options = Call(Symbol(PMATH_SYMBOL_UNION),
+        options = Call(Symbol(richmath_System_Union),
                     options,
-                    Call(Symbol(PMATH_SYMBOL_FILTERRULES),
+                    Call(Symbol(richmath_System_FilterRules),
                          std::move(default_options),
-                         Call(Symbol(PMATH_SYMBOL_EXCEPT),
+                         Call(Symbol(richmath_System_Except),
                               options)));
       }
     }
     
     if(len == 2 && need_filter) {
-      expr.set(0, Symbol(PMATH_SYMBOL_OPTIONS));
+      expr.set(0, Symbol(richmath_System_Options));
       expr.set(1, std::move(options));
       return expr;
     }
@@ -62,19 +69,19 @@ Expr richmath_eval_FrontEnd_Options(Expr expr) {
     return options;
   }
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
   if(expr.expr_length() < 1)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   auto ref = FrontEndReference::from_pmath(expr[1]);
   auto obj = FrontEndObject::find_cast<ActiveStyledObject>(ref);
   
   if(obj) {
     Expr options = Expr(pmath_expr_get_item_range(expr.get(), 2, SIZE_MAX));
-    options.set(0, Symbol(PMATH_SYMBOL_LIST));
+    options.set(0, Symbol(richmath_System_List));
     
     if(!obj->style)
       obj->style = new Style();
@@ -85,5 +92,5 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
     return options;
   }
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }

@@ -10,7 +10,15 @@
 #define EQUAL_IGNORECASE(BUF, LEN, STR) \
   (CSTR_EQUAL == CompareStringW(LOCALE_INVARIANT, NORM_IGNORECASE, BUF, LEN, STR, sizeof(STR)/sizeof(STR[0])))
 
-extern const pmath_symbol_t *Windows_Win64Version;
+
+extern pmath_symbol_t p4win_System_DollarFailed;
+extern pmath_symbol_t p4win_System_Automatic;
+extern pmath_symbol_t p4win_System_Expand;
+extern pmath_symbol_t p4win_System_False;
+extern pmath_symbol_t p4win_System_Hold;
+extern pmath_symbol_t p4win_System_None;
+extern pmath_symbol_t p4win_System_True;
+extern pmath_symbol_t p4win_Windows_Win64Version;
 
 
 pmath_string_t registry_split_subkey(HKEY *out_base, pmath_string_t fullname) {
@@ -56,26 +64,26 @@ pmath_bool_t registry_set_wow64_access_option(REGSAM *inout_acces_rights, pmath_
   if(pmath_is_null(options))
     return FALSE;
     
-  opt = pmath_evaluate(pmath_option_value(PMATH_NULL, *Windows_Win64Version, options));
+  opt = pmath_evaluate(pmath_option_value(PMATH_NULL, p4win_Windows_Win64Version, options));
   
-  if(pmath_same(opt, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(opt, p4win_System_True)) {
     *inout_acces_rights |= KEY_WOW64_64KEY;
     pmath_unref(opt);
     return TRUE;
   }
   
-  if(pmath_same(opt, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(opt, p4win_System_False)) {
     *inout_acces_rights |= KEY_WOW64_32KEY;
     pmath_unref(opt);
     return TRUE;
   }
   
-  if(pmath_same(opt, PMATH_SYMBOL_AUTOMATIC)) {
+  if(pmath_same(opt, p4win_System_Automatic)) {
     pmath_unref(opt);
     return TRUE;
   }
   
-  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(*Windows_Win64Version), opt);
+  pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(p4win_Windows_Win64Version), opt);
   return FALSE;
 }
 
@@ -84,13 +92,13 @@ static pmath_bool_t set_noexpand_flag(DWORD *inout_flags, pmath_t options) {
   if(pmath_is_null(options))
     return FALSE;
     
-  opt = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_EXPAND, options));
+  opt = pmath_evaluate(pmath_option_value(PMATH_NULL, p4win_System_Expand, options));
   
-  if(pmath_same(opt, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(opt, p4win_System_False)) {
     *inout_flags |= RRF_NOEXPAND;
   }
-  else if(!pmath_same(opt, PMATH_SYMBOL_TRUE)) {
-    pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(PMATH_SYMBOL_EXPAND), opt);
+  else if(!pmath_same(opt, p4win_System_True)) {
+    pmath_message(PMATH_NULL, "opttfa", 2, pmath_ref(p4win_System_Expand), opt);
     return FALSE;
   }
   
@@ -149,7 +157,7 @@ static pmath_t stringlist_to_pmath(const wchar_t *str, DWORD size_in_bytes) {
 static pmath_t reg_data_to_pmath(DWORD type, const void *data, DWORD size) {
   switch(type) {
     case REG_NONE:
-      return pmath_ref(PMATH_SYMBOL_NONE);
+      return pmath_ref(p4win_System_None);
       
     case REG_SZ:
     case REG_EXPAND_SZ:
@@ -157,7 +165,7 @@ static pmath_t reg_data_to_pmath(DWORD type, const void *data, DWORD size) {
       
     case REG_LINK:
       return pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_HOLD), 1, // TODO: use some designate "Link" head instead of "Hold"
+               pmath_ref(p4win_System_Hold), 1, // TODO: use some designate "Link" head instead of "Hold"
                pmath_string_insert_ucs2(PMATH_NULL, 0, data, (int)size - 1));
                
     case REG_BINARY:
@@ -177,7 +185,7 @@ static pmath_t reg_data_to_pmath(DWORD type, const void *data, DWORD size) {
   }
   
   pmath_message(PMATH_NULL, "type", 1, pmath_integer_new_ui32(type));
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(p4win_System_DollarFailed);
 }
 
 pmath_t windows_RegGetValue(pmath_expr_t expr) {
@@ -302,5 +310,5 @@ FAIL_OPENKEY:
   pmath_unref(value_name);
   if(data != default_data)
     pmath_mem_free(data);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(p4win_System_DollarFailed);
 }

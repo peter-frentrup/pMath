@@ -16,6 +16,11 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Heads;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_True;
+
 struct index_t {
   struct index_t *next;
   
@@ -246,7 +251,7 @@ static pmath_expr_t index_to_expr(struct index_t *idx) {
   if(!expr)
     return PMATH_NULL;
     
-  expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+  expr->items[0] = pmath_ref(pmath_System_List);
   for(i = 1; idx != NULL; idx = idx->next, ++i) {
     expr->items[i] = pmath_integer_new_uiptr(idx->i);
   }
@@ -268,7 +273,7 @@ static pmath_expr_t index_lists_to_expr(struct index_lists_t *ids) {
   if(!expr)
     return PMATH_NULL;
     
-  expr->items[0] = pmath_ref(PMATH_SYMBOL_LIST);
+  expr->items[0] = pmath_ref(pmath_System_List);
   for(i = 1; ids != NULL; ids = ids->next, ++i) {
     expr->items[i] = index_to_expr(ids->list);
   }
@@ -386,19 +391,19 @@ PMATH_PRIVATE pmath_t builtin_position(pmath_expr_t expr) {
     return expr;
   }
   
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
+  if(pmath_same(obj, pmath_System_True)) {
     info.with_heads = TRUE;
   }
-  else if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(pmath_same(obj, pmath_System_False)) {
     info.with_heads = FALSE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_unref(info.pattern);
     pmath_unref(options);
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_HEADS),
+      pmath_ref(pmath_System_Heads),
       obj);
     return expr;
   }

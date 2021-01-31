@@ -7,6 +7,8 @@
 #include <windows.h>
 
 
+extern pmath_symbol_t p4win_System_List;
+
 static pmath_t enum_subkeys(HKEY key, pmath_string_t key_path) {
   wchar_t small_buffer[16];
   wchar_t *data = small_buffer;
@@ -107,7 +109,7 @@ pmath_t windows_RegEnumKeys(pmath_expr_t expr) {
   pmath_unref(expr);
   if(!check_succeeded_win32(error_code)) {
     pmath_unref(key_name);
-    return pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0);
+    return pmath_expr_new(pmath_ref(p4win_System_List), 0);
   }
   
   expr = enum_subkeys(key, key_name);

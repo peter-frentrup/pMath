@@ -29,6 +29,11 @@ namespace richmath {
   };
 }
 
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Inherited;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
+
 //{ class Context ...
 
 Context::Context()
@@ -158,14 +163,14 @@ float Context::get_script_size(float oldem) {
 }
 
 void Context::set_script_size_multis(Expr expr) {
-  if(expr == PMATH_SYMBOL_AUTOMATIC || expr.is_null()) {
+  if(expr == richmath_System_Automatic || expr.is_null()) {
     math_shaper->get_script_size_multis(&script_size_multis);
 //    script_size_multis.length(1);
 //    script_size_multis[0] = 0.71;
     return;
   }
   
-  if(expr[0] == PMATH_SYMBOL_LIST) {
+  if(expr[0] == richmath_System_List) {
     script_size_multis.length(expr.expr_length());
     for(size_t i = 0; i < expr.expr_length(); ++i) {
       script_size_multis[i] = expr[i + 1].to_double();
@@ -241,15 +246,15 @@ void Context::draw_text_shadow(
 void Context::draw_with_text_shadows(Box *box, Expr shadows) {
   // shadows = {{dx,dy,color,r},...}   r is optional
   
-  if(canvas().show_only_text && shadows == PMATH_SYMBOL_NONE)
+  if(canvas().show_only_text && shadows == richmath_System_None)
     return;
     
   Color c = canvas().get_color();
-  if(shadows[0] == PMATH_SYMBOL_LIST) {
+  if(shadows[0] == richmath_System_List) {
     for(size_t i = 1; i <= shadows.expr_length(); ++i) {
       Expr shadow = shadows[i];
       
-      if( shadow[0] == PMATH_SYMBOL_LIST &&
+      if( shadow[0] == richmath_System_List &&
           shadow.expr_length() >= 3 &&
           shadow.expr_length() <= 4)
       {
@@ -329,7 +334,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
       if(auto math_shaper = MathShaper::available_shapers.search(s))
         ctx.math_shaper = *math_shaper;
     }
-    else if(expr[0] == PMATH_SYMBOL_LIST) {
+    else if(expr[0] == richmath_System_List) {
       for(const auto &item : expr.items()) {
         s = String(item);
         
@@ -353,7 +358,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
         ctx.text_shaper = fts;
       }
     }
-    else if(expr[0] == PMATH_SYMBOL_LIST) {
+    else if(expr[0] == richmath_System_List) {
       if(expr.expr_length() == 0) {
         ctx.text_shaper = ctx.math_shaper;
       }
@@ -371,7 +376,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
               FallbackTextShaper::add_or_create(fts, TextShaper::find(s, fs));
             }
           }
-          else if(item == PMATH_SYMBOL_INHERITED) {
+          else if(item == richmath_System_Inherited) {
             FallbackTextShaper::add_or_create(fts, ctx.text_shaper);
           }
         }

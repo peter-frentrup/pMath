@@ -47,9 +47,17 @@ namespace richmath {
   };
 }
 
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_Hold;
+extern pmath_symbol_t richmath_System_HoldComplete;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Selectable;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
+extern pmath_symbol_t richmath_System_True;
 
 Hashtable<Expr, Expr (*)(FrontEndObject*, Expr)>       CurrentValueImpl::providers;
 Hashtable<Expr, bool (*)(FrontEndObject*, Expr, Expr)> CurrentValueImpl::setters;
@@ -93,18 +101,18 @@ Expr CurrentValue::get(Expr item) {
 
 Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
   auto func = Impl::providers[item];
-  if(!func && item[0] == PMATH_SYMBOL_LIST)
+  if(!func && item[0] == richmath_System_List)
     func = Impl::providers[item[1]];
     
   if(!func)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
     
   return func(obj, std::move(item));
 }
 
 bool CurrentValue::put(FrontEndObject *obj, Expr item, Expr rhs) {
   auto func = Impl::setters[item];
-  if(!func && item[0] == PMATH_SYMBOL_LIST)
+  if(!func && item[0] == richmath_System_List)
     func = Impl::setters[item[1]];
     
   if(!func)
@@ -139,7 +147,7 @@ bool CurrentValue::register_provider(
 //{ class CurrentValueImpl ...
 
 FrontEndObject *CurrentValueImpl::object(Expr obj) {
-  if(obj == PMATH_SYMBOL_AUTOMATIC)
+  if(obj == richmath_System_Automatic)
     return Application::get_evaluation_box();
   
   return FrontEndObject::find(FrontEndReference::from_pmath(std::move(obj)));
@@ -156,11 +164,11 @@ Expr CurrentValueImpl::get_CurrentValueProviders(FrontEndObject *obj, Expr item)
 Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {
   Box *box = dynamic_cast<Box*>(obj);
   if(!box)
-    return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(richmath_System_False);
     
   Document *doc = box->find_parent<Document>(true);
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(richmath_System_False);
     
   if(auto observer_id = Dynamic::current_observer_id) {
     // ensure that get/set of InternalUsesCurrentValueOfMouseOver below will not cause reevaluation
@@ -188,15 +196,15 @@ Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {
     mo = mo->parent();
     
   if(mo)
-    return Symbol(PMATH_SYMBOL_TRUE);
-  return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(richmath_System_True);
+  return Symbol(richmath_System_False);
 }
 
 Expr CurrentValueImpl::get_DocumentScreenDpi(FrontEndObject *obj, Expr item) {
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   return Expr(doc->native()->dpi());
 }
@@ -215,24 +223,24 @@ Expr CurrentValueImpl::get_ControlFont_data(FrontEndObject *obj, Expr item) {
   if(item == strings::ControlsFontSize)
     return style->get_pmath(FontSize);
     
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr CurrentValueImpl::get_SectionGroupOpen(FrontEndObject *obj, Expr item) {
   Box *box = dynamic_cast<Box*>(obj);
   Section *sec = box ? box->find_parent<Section>(true) : nullptr;
   if(!sec)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   SectionList *slist = dynamic_cast<SectionList*>(sec->parent());
   if(!slist)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   int close_rel = slist->group_info(sec->index()).close_rel;
   if(close_rel < 0)
-    return Symbol(PMATH_SYMBOL_TRUE);
+    return Symbol(richmath_System_True);
   else
-    return Symbol(PMATH_SYMBOL_FALSE);
+    return Symbol(richmath_System_False);
 }
 
 bool CurrentValueImpl::put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs) {
@@ -245,12 +253,12 @@ bool CurrentValueImpl::put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr
   if(!slist)
     return false;
   
-  if(rhs == PMATH_SYMBOL_TRUE) {
+  if(rhs == richmath_System_True) {
     slist->set_open_close_group(sec->index(), true);
     return true;
   }
   
-  if(rhs == PMATH_SYMBOL_FALSE) {
+  if(rhs == richmath_System_False) {
     slist->set_open_close_group(sec->index(), false);
     return true;
   }
@@ -260,7 +268,7 @@ bool CurrentValueImpl::put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr
 
 Expr CurrentValueImpl::get_Selectable(FrontEndObject *obj, Expr item) {
   if(Box *box = dynamic_cast<Box*>(obj)) 
-    return box->selectable() ? Symbol(PMATH_SYMBOL_TRUE) : Symbol(PMATH_SYMBOL_FALSE);
+    return box->selectable() ? Symbol(richmath_System_True) : Symbol(richmath_System_False);
   
   return Style::get_current_style_value(obj, std::move(item));
 }
@@ -268,22 +276,22 @@ Expr CurrentValueImpl::get_Selectable(FrontEndObject *obj, Expr item) {
 Expr CurrentValueImpl::get_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
   Expr cmd = Menus::selected_item_command();
   if(cmd.is_null())
-    return Symbol(PMATH_SYMBOL_NONE);
+    return Symbol(richmath_System_None);
   
-  return Call(Symbol(PMATH_SYMBOL_HOLD), std::move(cmd));
+  return Call(Symbol(richmath_System_Hold), std::move(cmd));
 }
 
 Expr CurrentValueImpl::get_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Document *owner = doc->native()->owner_document();
   while(!owner) {
     doc = doc->native()->working_area_document();
     if(!doc)
-      return Symbol(PMATH_SYMBOL_NONE);
+      return Symbol(richmath_System_None);
     
     owner = doc->native()->owner_document();
   }
@@ -298,17 +306,17 @@ Expr richmath_eval_FrontEnd_AssignCurrentValue(Expr expr) {
    */
   
   if(expr.expr_length() != 3)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Expr rhs = expr[3];
-  if(rhs[0] != PMATH_SYMBOL_HOLDCOMPLETE || rhs.expr_length() != 1)
-    return Symbol(PMATH_SYMBOL_FAILED);
+  if(rhs[0] != richmath_System_HoldComplete || rhs.expr_length() != 1)
+    return Symbol(richmath_System_DollarFailed);
   
   rhs = rhs[1];
   if(CurrentValue::put(CurrentValueImpl::object(expr[1]), expr[2], rhs))
     return rhs;
   
-  return Symbol(PMATH_SYMBOL_FAILED);
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr richmath_eval_FrontEnd_CurrentValue(Expr expr) {
@@ -316,7 +324,7 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr) {
       FrontEnd`CurrentValue(Automatic, item)
    */
   if(expr.expr_length() != 2)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   return CurrentValue::get(CurrentValueImpl::object(expr[1]), expr[2]);
 }

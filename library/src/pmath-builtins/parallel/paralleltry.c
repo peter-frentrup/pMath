@@ -11,6 +11,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_Internal_ParallelReturn;
+
 struct parallel_try_info_t {
   pmath_thread_t parent;
   pmath_t        function;
@@ -42,7 +46,7 @@ static void parallel_try(void *ptr) {
               obj);
       obj = pmath_evaluate(obj);
       
-      if( !pmath_same(obj, PMATH_SYMBOL_FAILED) &&
+      if( !pmath_same(obj, pmath_System_DollarFailed) &&
           !pmath_thread_aborting(thread))
       {
         size_t ri = (size_t)pmath_atomic_fetch_add(&info->result_index, +1);
@@ -52,7 +56,7 @@ static void parallel_try(void *ptr) {
           
           _pmath_thread_throw(
             info->parent,
-            pmath_ref(PMATH_SYMBOL_PARALLEL_RETURN));
+            pmath_ref(pmath_Internal_ParallelReturn));
             
           break;
         }
@@ -110,7 +114,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr) {
   else
     info.results_count = 1;
     
-  result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), info.results_count);
+  result = pmath_expr_new(pmath_ref(pmath_System_List), info.results_count);
   if(pmath_is_null(result)) {
     pmath_unref(expr);
     return PMATH_NULL;
@@ -165,7 +169,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr) {
   
   exception = pmath_catch();
   if( !pmath_same(exception, PMATH_UNDEFINED) &&
-      !pmath_same(exception, PMATH_SYMBOL_PARALLEL_RETURN))
+      !pmath_same(exception, pmath_Internal_ParallelReturn))
   {
     pmath_throw(exception);
   }
@@ -192,7 +196,7 @@ PMATH_PRIVATE pmath_t builtin_paralleltry(pmath_expr_t expr) {
     }
     
     pmath_unref(result);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   if(exprlen == 2) {

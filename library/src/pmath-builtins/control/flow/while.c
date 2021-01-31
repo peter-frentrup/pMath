@@ -5,6 +5,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/flow-private.h>
 
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_while(pmath_expr_t expr) {
   /* While(cond, block)
    */
@@ -17,11 +21,16 @@ PMATH_PRIVATE pmath_t builtin_while(pmath_expr_t expr) {
   while(!pmath_thread_aborting(thread)) {
     pmath_t body;
     pmath_t condition = pmath_evaluate(pmath_expr_get_item(expr, 1));
+    
+    if(!pmath_same(condition, pmath_System_True)) {
+      if(!pmath_same(condition, pmath_System_False)) {
+        pmath_message(PMATH_NULL, "cond", 1, pmath_ref(condition));
+      }
+      pmath_unref(condition);
+      break;
+    }
     pmath_unref(condition);
     
-    if(!pmath_same(condition, PMATH_SYMBOL_TRUE))
-      break;
-      
     body = pmath_expr_get_item(expr, 2);
     if(_pmath_run(&body)) {
       pmath_unref(expr);

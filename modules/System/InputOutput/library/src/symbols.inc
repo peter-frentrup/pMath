@@ -12,9 +12,9 @@
     pmath_System_ ## name, \
     "System`" #name \
   )
-#define PIO_DECLARE_SYSTEM_DOLARSYMBOL(name) \
+#define PIO_DECLARE_SYSTEM_DOLLAR_SYMBOL(name) \
   PMATH_IO_SYMBOL( \
-    pmath_System_ ## name, \
+    pmath_System_Dollar ## name, \
     "System`$" #name \
   )
 #define PIO_DECLARE_SYSTEM_FUNC(name) \
@@ -49,7 +49,7 @@ PIO_DECLARE_SYSTEM_SYMBOL(   Rule            )
 PIO_DECLARE_SYSTEM_SYMBOL(   Special         )
 PIO_DECLARE_SYSTEM_SYMBOL(   True            )
 
-PIO_DECLARE_SYSTEM_DOLARSYMBOL( Failed )
+PIO_DECLARE_SYSTEM_DOLLAR_SYMBOL( Failed )
 
 PIO_DECLARE_SYSTEM_FUNC(     CopyDirectory    )
 PIO_DECLARE_SYSTEM_FUNC(     CopyFile         )

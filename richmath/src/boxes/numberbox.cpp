@@ -27,6 +27,8 @@ namespace richmath { namespace strings {
   extern String EmptyString;
 }}
 
+extern pmath_symbol_t richmath_System_List;
+
 using namespace richmath;
 
 static const int DefaultMachinePrecisionDigits = 6;
@@ -438,7 +440,7 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
     return s;
   }
   
-  if(boxes[0] == PMATH_SYMBOL_LIST) {
+  if(boxes[0] == richmath_System_List) {
     pmath_t old_debug_info = pmath_get_debug_info(boxes.get());
     for(size_t i = 0; i <= boxes.expr_length(); ++i) {
       boxes.set(i, prepare_boxes(boxes[i]));

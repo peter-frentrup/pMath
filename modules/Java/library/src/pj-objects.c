@@ -16,6 +16,16 @@ extern pmath_symbol_t pjsym_Java_JavaField;
 extern pmath_symbol_t pjsym_Java_JavaObject;
 extern pmath_symbol_t pjsym_Java_JavaNew;
 
+extern pmath_symbol_t pjsym_System_DollarFailed;
+extern pmath_symbol_t pjsym_System_Abort;
+extern pmath_symbol_t pjsym_System_Assign;
+extern pmath_symbol_t pjsym_System_False;
+extern pmath_symbol_t pjsym_System_Finally;
+extern pmath_symbol_t pjsym_System_Message;
+extern pmath_symbol_t pjsym_System_MessageName;
+extern pmath_symbol_t pjsym_System_Throw;
+extern pmath_symbol_t pjsym_System_True;
+
 
 //{ p2j_objects Hashtable implementation ...
 struct obj_entry_t {
@@ -361,29 +371,29 @@ PMATH_ATTRIBUTE_USE_RESULT
 pmath_t wrap_exception_result(pmath_symbol_t head, pmath_t exception) {
   if(pmath_same(exception, PMATH_ABORT_EXCEPTION)) {
     return pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_ABORT), 0);
+             pmath_ref(pjsym_System_Abort), 0);
   }
   
   if(pmath_is_evaluatable(exception) || pmath_is_magic(exception)) {
     pmath_t do_throw = pmath_expr_new_extended(
-                         pmath_ref(PMATH_SYMBOL_THROW), 1,
+                         pmath_ref(pjsym_System_Throw), 1,
                          pmath_ref(exception));
     pmath_t message_name = pmath_expr_new_extended(
-                             pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
+                             pmath_ref(pjsym_System_MessageName), 2,
                              pmath_ref(head),
                              PMATH_C_STRING("ex"));
     pmath_t do_message = pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_MESSAGE), 2,
+                           pmath_ref(pjsym_System_Message), 2,
                            message_name,
                            exception);
     return pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_FINALLY), 2,
+             pmath_ref(pjsym_System_Finally), 2,
              do_message, 
              do_throw);
   }
   
   pmath_unref(exception);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pjsym_System_DollarFailed);
 }
 
 PMATH_PRIVATE pmath_t pj_eval_Java_IsJavaObject(pmath_expr_t expr) {
@@ -408,11 +418,11 @@ PMATH_PRIVATE pmath_t pj_eval_Java_IsJavaObject(pmath_expr_t expr) {
   
   if(pj_object_is_java(env, obj)) {
     pmath_unref(obj);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pjsym_System_True);
   }
   
   pmath_unref(obj);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pjsym_System_False);
 }
 
 PMATH_PRIVATE pmath_t pj_eval_Java_InstanceOf(pmath_expr_t expr) {
@@ -424,7 +434,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_InstanceOf(pmath_expr_t expr) {
     return expr;
   }
   
-  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  result = pmath_ref(pjsym_System_DollarFailed);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -436,9 +446,9 @@ PMATH_PRIVATE pmath_t pj_eval_Java_InstanceOf(pmath_expr_t expr) {
       if(clazz) {
         pmath_unref(result);
         if((*env)->IsInstanceOf(env, obj, clazz))
-          result = pmath_ref(PMATH_SYMBOL_TRUE);
+          result = pmath_ref(pjsym_System_True);
         else
-          result = pmath_ref(PMATH_SYMBOL_FALSE);
+          result = pmath_ref(pjsym_System_False);
           
         (*env)->DeleteLocalRef(env, clazz);
       }
@@ -468,7 +478,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_ParentClass(pmath_expr_t expr) {
     return expr;
   }
   
-  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  result = pmath_ref(pjsym_System_DollarFailed);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -508,7 +518,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaClassAsObject(pmath_expr_t expr) {
     return expr;
   }
   
-  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  result = pmath_ref(pjsym_System_DollarFailed);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -556,7 +566,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_Internal_JavaCall(pmath_expr_t expr) {
   
   pmath_debug_print("[Java`Internal`JavaCall ...]\n");
   
-  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  result = pmath_ref(pjsym_System_DollarFailed);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -631,7 +641,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaCall(pmath_expr_t expr) {
   if(!jvmti || !env) {
     pmath_unref(pjvm);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   companion = pj_thread_get_companion(&jthread_obj);
@@ -643,7 +653,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaCall(pmath_expr_t expr) {
       
     pmath_unref(expr);
     pmath_unref(pjvm);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   result_key = pmath_expr_new(pmath_ref(pjsym_Java_Internal_Return), 0);
@@ -704,7 +714,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_Internal_JavaNew(pmath_expr_t expr) {
   pmath_t exception;
   pmath_t companion = pj_thread_get_companion(NULL);
   
-  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  result = pmath_ref(pjsym_System_DollarFailed);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -771,7 +781,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaNew(pmath_expr_t expr) {
   if(!jvmti || !env) {
     pmath_unref(pjvm);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   companion = pj_thread_get_companion(&jthread_obj);
@@ -783,7 +793,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaNew(pmath_expr_t expr) {
       
     pmath_unref(expr);
     pmath_unref(pjvm);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   result_key = pmath_expr_new(pmath_ref(pjsym_Java_Internal_Return), 0);
@@ -846,7 +856,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaField(pmath_expr_t expr) {
     return expr;
   }
   
-  result = pmath_ref(PMATH_SYMBOL_FAILED);
+  result = pmath_ref(pjsym_System_DollarFailed);
   pjvm_ensure_started();
   env = pjvm_get_env();
   if(env && (*env)->EnsureLocalCapacity(env, 2) == 0) {
@@ -890,7 +900,7 @@ PMATH_PRIVATE pmath_t pj_eval_upcall_Java_JavaField(pmath_expr_t expr) {
   pmath_t lhs;
   pmath_bool_t success;
   
-  if(!pmath_is_expr_of_len(expr, PMATH_SYMBOL_ASSIGN, 2))
+  if(!pmath_is_expr_of_len(expr, pjsym_System_Assign, 2))
     return expr;
     
   lhs = pmath_expr_get_item(expr, 1);
@@ -942,7 +952,7 @@ PMATH_PRIVATE pmath_t pj_eval_upcall_Java_JavaField(pmath_expr_t expr) {
   }
   
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(pjsym_System_DollarFailed);
 }
 
 PMATH_PRIVATE void pj_objects_clear_cache(void) {

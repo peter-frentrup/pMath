@@ -25,6 +25,8 @@ namespace richmath { namespace strings {
   extern String EmptyString;
 }}
 
+extern pmath_symbol_t richmath_System_List;
+
 namespace {
   class TrackedSelection {
     public:
@@ -421,7 +423,7 @@ namespace {
         size_t expr_len = expr.expr_length();
         int count = se->count();
         
-        if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr[0] == PMATH_SYMBOL_LIST)) {
+        if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr[0] == richmath_System_List)) {
           for(int i = 0; i < count; ++i) {
             Expr item = expr[(size_t)i + 1];
             SelectionReference item_source = SelectionReference::from_debug_info_of(item);
@@ -499,7 +501,7 @@ namespace {
           return;
         }
         
-        if(expr[0] == PMATH_SYMBOL_LIST) {
+        if(expr[0] == richmath_System_List) {
           const char *o_buf = seq->text_buffer().buffer();
           int o_pos = 0;
           int o_len = seq->length();
@@ -654,9 +656,6 @@ static bool begin_edit_section(
   edit->swap_id(section);
   
   Expr obj(section->to_pmath(BoxOutputFlags::WithDebugInfo));
-  
-  //Expr tmp = Call(Symbol(PMATH_SYMBOL_FULLFORM), obj);
-  //pmath_debug_print_object("\n fullform: ", tmp.get(), "\n");
   
   PrintTracking pt;
   pt.selections.add(old_locations.length(), old_locations.items());

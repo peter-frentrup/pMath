@@ -5,6 +5,8 @@
 #include <pmath-builtins/control/flow-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 struct iterate_table_data_t {
   pmath_t      body;
   pmath_bool_t started;
@@ -15,7 +17,7 @@ struct iterate_table_data_t {
 static void init_table(size_t count, pmath_symbol_t sym, void *p) {
   struct iterate_table_data_t *data = p;
   data->started = TRUE;
-  data->result = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), count);
+  data->result = pmath_expr_new(pmath_ref(pmath_System_List), count);
 }
 
 static pmath_bool_t table_next(void *p) {

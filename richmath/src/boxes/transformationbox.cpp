@@ -21,6 +21,7 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_BoxRotation;
 extern pmath_symbol_t richmath_System_BoxTransformation;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_RotationBox;
 extern pmath_symbol_t richmath_System_TransformationBox;
 
@@ -255,11 +256,11 @@ bool TransformationBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 bool TransformationBox::matrix(Expr m) {
   if(m.expr_length() == 2         &&
-      m[0] == PMATH_SYMBOL_LIST    &&
+      m[0] == richmath_System_List    &&
       m[1].expr_length() == 2      &&
-      m[1][0] == PMATH_SYMBOL_LIST &&
+      m[1][0] == richmath_System_List &&
       m[2].expr_length() == 2      &&
-      m[2][0] == PMATH_SYMBOL_LIST)
+      m[2][0] == richmath_System_List)
   {
     _matrix = m;
     mat.xx =   _matrix[1][1].to_double();

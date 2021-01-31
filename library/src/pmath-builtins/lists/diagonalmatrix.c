@@ -9,6 +9,8 @@
 #include <string.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 static pmath_bool_t has_inexact_machine_number(pmath_expr_t vector) {
   size_t i;
 
@@ -29,7 +31,7 @@ static pmath_bool_t has_inexact_machine_number(pmath_expr_t vector) {
     }
   }
 
-  assert(pmath_is_expr_of(vector, PMATH_SYMBOL_LIST));
+  assert(pmath_is_expr_of(vector, pmath_System_List));
 
   for(i = pmath_expr_length(vector);i > 0;--i) {
     pmath_t item = pmath_expr_get_item(vector, i);
@@ -63,9 +65,9 @@ static pmath_packed_array_t slow_diagonal_matrix(
     len += (size_t)diag;
 
 
-  mat = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
+  mat = pmath_expr_new(pmath_ref(pmath_System_List), len);
   for(i = len; i > 0; --i) {
-    pmath_t row = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), len);
+    pmath_t row = pmath_expr_new(pmath_ref(pmath_System_List), len);
 
     if(diag >= 0) {
       size_t k = i + (size_t)diag;
@@ -177,7 +179,7 @@ PMATH_PRIVATE pmath_t builtin_diagonalmatrix(pmath_expr_t expr) {
   }
 
   list = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(list, pmath_System_List)) {
     pmath_unref(list);
     return expr;
   }

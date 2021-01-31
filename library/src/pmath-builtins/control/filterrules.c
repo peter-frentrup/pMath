@@ -5,18 +5,21 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
+
+extern pmath_symbol_t pmath_System_Alternatives;
+extern pmath_symbol_t pmath_System_Except;
+extern pmath_symbol_t pmath_System_List;
 
 static pmath_t prepare_pattern(pmath_t pattern){ // will be freed
-  if(pmath_is_expr_of(pattern, PMATH_SYMBOL_LIST)){
+  if(pmath_is_expr_of(pattern, pmath_System_List)){
     size_t i;
-    pattern = pmath_expr_set_item(pattern, 0, pmath_ref(PMATH_SYMBOL_ALTERNATIVES));
+    pattern = pmath_expr_set_item(pattern, 0, pmath_ref(pmath_System_Alternatives));
     
     for(i = pmath_expr_length(pattern);i > 0;--i){
       pmath_t rule = pmath_expr_get_item(pattern, i);
       
-      if(_pmath_is_rule(rule)){
+      if(pmath_is_rule(rule)){
         pattern = pmath_expr_set_item(pattern, i,
           pmath_expr_get_item(rule, 1));
       }
@@ -27,19 +30,19 @@ static pmath_t prepare_pattern(pmath_t pattern){ // will be freed
     return pattern;
   }
   
-  if(_pmath_is_rule(pattern)){
+  if(pmath_is_rule(pattern)){
     pmath_t tmp = pmath_expr_get_item(pattern, 1);
     pmath_unref(pattern);
     return tmp;
   }
   
-  if(pmath_is_expr_of_len(pattern, PMATH_SYMBOL_EXCEPT, 1)){
+  if(pmath_is_expr_of_len(pattern, pmath_System_Except, 1)){
     pmath_t sub = pmath_expr_get_item(pattern, 1);
     pmath_unref(pattern);
     
     sub = prepare_pattern(sub);
     pattern = pmath_expr_new_extended(
-      pmath_ref(PMATH_SYMBOL_EXCEPT), 1,
+      pmath_ref(pmath_System_Except), 1,
       sub);
     return pattern;
   }
@@ -57,8 +60,8 @@ PMATH_PRIVATE pmath_t builtin_filterrules(pmath_expr_t expr){
   }
   
   rules = pmath_expr_get_item(expr, 1);
-  if(_pmath_is_rule(rules)){
-    rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
+  if(pmath_is_rule(rules)){
+    rules = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, rules);
   }
   else if(!pmath_is_list_of_rules(rules)){
     pmath_message(PMATH_NULL, "reps", 1, rules);

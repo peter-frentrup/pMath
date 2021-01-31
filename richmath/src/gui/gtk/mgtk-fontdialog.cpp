@@ -10,6 +10,9 @@ using namespace richmath;
 using namespace pmath;
 
 
+extern pmath_symbol_t richmath_System_DollarCanceled;
+extern pmath_symbol_t richmath_System_List;
+
 //{ class MathGtkFontDialog ...
 
 #if GTK_MAJOR_VERSION >= 3
@@ -44,7 +47,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
     if(initial_style->get(FontFamilies, &families)) {
       String family(families);
       
-      if(families[0] == PMATH_SYMBOL_LIST){
+      if(families[0] == richmath_System_List) {
         for(size_t i = 1;i <= families.expr_length();++i){
           family = String(families[i]);
           
@@ -125,12 +128,9 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
       }
   }
 
-  //if(err)
-  //  return Symbol(PMATH_SYMBOL_ABORTED);
-
   gtk_widget_destroy(GTK_WIDGET(dialog));
 
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 #else
@@ -180,7 +180,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
     if(initial_style->get(FontFamilies, &families)) {
       String family(families);
       
-      if(families[0] == PMATH_SYMBOL_LIST){
+      if(families[0] == richmath_System_List){
         for(size_t i = 1;i <= families.expr_length();++i){
           String fam(families[i]);
           
@@ -268,12 +268,9 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
       }
   }
 
-  //if(err)
-  //  return Symbol(PMATH_SYMBOL_ABORTED);
-
   gtk_widget_destroy(GTK_WIDGET(dialog));
 
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 #endif

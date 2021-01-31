@@ -12,6 +12,17 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_Abs;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_EulerGamma;
+extern pmath_symbol_t pmath_System_Gamma;
+extern pmath_symbol_t pmath_System_Log;
+extern pmath_symbol_t pmath_System_Pi;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_Undefined;
+
 static pmath_integer_t factorial(unsigned long n) {
   if(n == 0)
     return INT(1);
@@ -74,7 +85,7 @@ static pmath_bool_t try_gamma_of_infinity(pmath_t *expr, pmath_t z) {
   if(pmath_same(dir, INT(-1))) {
     pmath_unref(dir);
     pmath_unref(*expr);
-    *expr = pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    *expr = pmath_ref(pmath_System_Undefined);
     return TRUE;
   }
   if(pmath_same(dir, INT(0))) {
@@ -83,7 +94,7 @@ static pmath_bool_t try_gamma_of_infinity(pmath_t *expr, pmath_t z) {
     *expr = pmath_ref(_pmath_object_complex_infinity);
     return TRUE;
   }
-  if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(dir, 1);
     if(pmath_same(re, INT(0))) {
       pmath_unref(re);
@@ -169,7 +180,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
             pmath_unref(den);
             pmath_unref(z);
             pmath_unref(expr);
-            return SQRT(pmath_ref(PMATH_SYMBOL_PI));
+            return SQRT(pmath_ref(pmath_System_Pi));
           }
           
           // Gamma(n + 1/2) = (2n-1)!! / 2^n * Sqrt(Pi),   num = 2n+1
@@ -181,7 +192,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
             pmath_unref(den);
             pmath_unref(z);
             pmath_unref(expr);
-            return TIMES3(num, POW(INT(2), INT(-n)), SQRT(pmath_ref(PMATH_SYMBOL_PI)));
+            return TIMES3(num, POW(INT(2), INT(-n)), SQRT(pmath_ref(pmath_System_Pi)));
           }
         }
         else {
@@ -194,7 +205,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
             pmath_unref(den);
             pmath_unref(z);
             pmath_unref(expr);
-            return TIMES3(INV(num), POW(INT(-2), INT(n)), SQRT(pmath_ref(PMATH_SYMBOL_PI)));
+            return TIMES3(INV(num), POW(INT(-2), INT(n)), SQRT(pmath_ref(pmath_System_Pi)));
           }
         }
       }
@@ -216,7 +227,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
       pmath_unref(dir);
       pmath_unref(z);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      return pmath_ref(pmath_System_Undefined);
     }
     if(pmath_same(dir, INT(0))) {
       pmath_unref(dir);
@@ -224,7 +235,7 @@ PMATH_PRIVATE pmath_t builtin_gamma(pmath_expr_t expr) {
       pmath_unref(expr);
       return pmath_ref(_pmath_object_complex_infinity);
     }
-    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+    if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
       pmath_t re = pmath_expr_get_item(dir, 1);
       if(pmath_same(re, INT(0))) {
         pmath_unref(re);
@@ -276,11 +287,11 @@ PMATH_PRIVATE pmath_t builtin_loggamma(pmath_expr_t expr) {
         /* LogGamm(x) = Log(Abs(Gamma(x))) + I * Pi * Floor(x) for x < 0
          */
         //pmath_t floor = pmath_expr_new_extended(
-        //  pmath_ref(PMATH_SYMBOL_FLOOR), 1,
+        //  pmath_ref(pmath_System_Floor), 1,
         //  pmath_ref(z));
         pmath_t floor = MINUS(pmath_ref(z), ONE_HALF); // = Floor(z)
         
-        return PLUS(TIMES3(COMPLEX(INT(0), INT(1)), pmath_ref(PMATH_SYMBOL_PI), floor), LOG(ABS(GAMMA(z))));
+        return PLUS(TIMES3(COMPLEX(INT(0), INT(1)), pmath_ref(pmath_System_Pi), floor), LOG(ABS(GAMMA(z))));
       } 
       
       return LOG(GAMMA(z));
@@ -352,7 +363,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr) {
           z = _add_nn(z, QUOT(1, k));
         }
         
-        return MINUS(z, pmath_ref(PMATH_SYMBOL_EULERGAMMA));
+        return MINUS(z, pmath_ref(pmath_System_EulerGamma));
       }
       pmath_unref(z); // not necessary
       pmath_unref(expr);
@@ -400,7 +411,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr) {
             z = _add_nn(z, QUOT(2, k));
           }
           
-          return PLUS3(z, NEG(pmath_ref(PMATH_SYMBOL_EULERGAMMA)), TIMES(INT(-2), LOG(INT(2))));
+          return PLUS3(z, NEG(pmath_ref(pmath_System_EulerGamma)), TIMES(INT(-2), LOG(INT(2))));
         }
       }
       
@@ -425,7 +436,7 @@ PMATH_PRIVATE pmath_t builtin_polygamma(pmath_expr_t expr) {
       pmath_unref(dir);
       pmath_unref(expr);
       pmath_unref(z);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      return pmath_ref(pmath_System_Undefined);
     }
     pmath_unref(dir);
   }
@@ -500,7 +511,7 @@ PMATH_PRIVATE pmath_t builtin_factorial(pmath_expr_t expr) {
   AS_GAMMA:
     n = pmath_evaluate(GAMMA(PLUS(n, INT(1))));
     
-    if(!pmath_is_expr_of(n, PMATH_SYMBOL_GAMMA)) {
+    if(!pmath_is_expr_of(n, pmath_System_Gamma)) {
       pmath_unref(expr);
       return n;
     }
@@ -591,14 +602,14 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr) {
                   POW(
                     INT(2),
                     PLUS(pmath_ref(n), INT(1))),
-                  pmath_ref(PMATH_SYMBOL_PI))),
+                  pmath_ref(pmath_System_Pi))),
               GAMMA(
                 PLUS(
                   TIMES(ONE_HALF, pmath_ref(n)),
                   INT(1)))));
                   
     pmath_unref(n);
-    if(!pmath_is_expr_of(res, PMATH_SYMBOL_GAMMA)) {
+    if(!pmath_is_expr_of(res, pmath_System_Gamma)) {
       pmath_unref(expr);
       return res;
     }
@@ -618,9 +629,9 @@ PMATH_PRIVATE pmath_t builtin_factorial2(pmath_expr_t expr) {
       pmath_unref(dir);
       pmath_unref(expr);
       pmath_unref(n);
-      return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      return pmath_ref(pmath_System_Undefined);
     }
-    if(pmath_is_expr_of_len(dir, PMATH_SYMBOL_COMPLEX, 2)) {
+    if(pmath_is_expr_of_len(dir, pmath_System_Complex, 2)) {
       pmath_t re = pmath_expr_get_item(dir, 1);
       if(pmath_same(re, INT(0))) {
         pmath_unref(re);

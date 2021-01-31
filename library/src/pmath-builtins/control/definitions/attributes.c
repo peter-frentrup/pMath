@@ -12,8 +12,29 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Associative;
+extern pmath_symbol_t pmath_System_Attributes;
+extern pmath_symbol_t pmath_System_DeepHoldAll;
 extern pmath_symbol_t pmath_System_DefiniteFunction;
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_HoldAll;
+extern pmath_symbol_t pmath_System_HoldAllComplete;
+extern pmath_symbol_t pmath_System_HoldFirst;
+extern pmath_symbol_t pmath_System_HoldRest;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Listable;
+extern pmath_symbol_t pmath_System_NHoldAll;
+extern pmath_symbol_t pmath_System_NHoldFirst;
+extern pmath_symbol_t pmath_System_NHoldRest;
+extern pmath_symbol_t pmath_System_NumericFunction;
+extern pmath_symbol_t pmath_System_OneIdentity;
+extern pmath_symbol_t pmath_System_Protected;
+extern pmath_symbol_t pmath_System_ReadProtected;
 extern pmath_symbol_t pmath_System_SequenceHold;
+extern pmath_symbol_t pmath_System_Symmetric;
+extern pmath_symbol_t pmath_System_Temporary;
+extern pmath_symbol_t pmath_System_ThreadLocal;
 
 PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
   pmath_symbol_attributes_t *attr,
@@ -24,8 +45,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
     size_t i;
     pmath_t item = pmath_expr_get_item(obj, 0);
     pmath_unref(item);
-    if(!pmath_same(item, PMATH_SYMBOL_LIST)) {
-      pmath_message(PMATH_SYMBOL_ATTRIBUTES, "noattr", 1, pmath_ref(obj));
+    if(!pmath_same(item, pmath_System_List)) {
+      pmath_message(pmath_System_Attributes, "noattr", 1, pmath_ref(obj));
       return FALSE;
     }
     
@@ -45,27 +66,27 @@ PMATH_PRIVATE pmath_bool_t _pmath_get_attributes(
     return TRUE;
   }
   
-  if(     pmath_same(obj, PMATH_SYMBOL_NHOLDALL))             *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDALL;
-  else if(pmath_same(obj, PMATH_SYMBOL_NHOLDFIRST))           *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST;
-  else if(pmath_same(obj, PMATH_SYMBOL_NHOLDREST))            *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDREST;
-  else if(pmath_same(obj, PMATH_SYMBOL_ASSOCIATIVE))          *attr = PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE;
-  else if(pmath_same(obj, PMATH_SYMBOL_DEEPHOLDALL))          *attr = PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL;
+  if(     pmath_same(obj, pmath_System_NHoldAll))             *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDALL;
+  else if(pmath_same(obj, pmath_System_NHoldFirst))           *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST;
+  else if(pmath_same(obj, pmath_System_NHoldRest))            *attr = PMATH_SYMBOL_ATTRIBUTE_NHOLDREST;
+  else if(pmath_same(obj, pmath_System_Associative))          *attr = PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE;
+  else if(pmath_same(obj, pmath_System_DeepHoldAll))          *attr = PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL;
   else if(pmath_same(obj, pmath_System_DefiniteFunction))     *attr = PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION;
-  else if(pmath_same(obj, PMATH_SYMBOL_HOLDALL))              *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALL;
-  else if(pmath_same(obj, PMATH_SYMBOL_HOLDALLCOMPLETE))      *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE;
-  else if(pmath_same(obj, PMATH_SYMBOL_HOLDFIRST))            *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST;
-  else if(pmath_same(obj, PMATH_SYMBOL_HOLDREST))             *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDREST;
-  else if(pmath_same(obj, PMATH_SYMBOL_LISTABLE))             *attr = PMATH_SYMBOL_ATTRIBUTE_LISTABLE;
-  else if(pmath_same(obj, PMATH_SYMBOL_NUMERICFUNCTION))      *attr = PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION;
-  else if(pmath_same(obj, PMATH_SYMBOL_ONEIDENTITY))          *attr = PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY;
-  else if(pmath_same(obj, PMATH_SYMBOL_PROTECTED))            *attr = PMATH_SYMBOL_ATTRIBUTE_PROTECTED;
-  else if(pmath_same(obj, PMATH_SYMBOL_READPROTECTED))        *attr = PMATH_SYMBOL_ATTRIBUTE_READPROTECTED;
+  else if(pmath_same(obj, pmath_System_HoldAll))              *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALL;
+  else if(pmath_same(obj, pmath_System_HoldAllComplete))      *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE;
+  else if(pmath_same(obj, pmath_System_HoldFirst))            *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST;
+  else if(pmath_same(obj, pmath_System_HoldRest))             *attr = PMATH_SYMBOL_ATTRIBUTE_HOLDREST;
+  else if(pmath_same(obj, pmath_System_Listable))             *attr = PMATH_SYMBOL_ATTRIBUTE_LISTABLE;
+  else if(pmath_same(obj, pmath_System_NumericFunction))      *attr = PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION;
+  else if(pmath_same(obj, pmath_System_OneIdentity))          *attr = PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY;
+  else if(pmath_same(obj, pmath_System_Protected))            *attr = PMATH_SYMBOL_ATTRIBUTE_PROTECTED;
+  else if(pmath_same(obj, pmath_System_ReadProtected))        *attr = PMATH_SYMBOL_ATTRIBUTE_READPROTECTED;
   else if(pmath_same(obj, pmath_System_SequenceHold))         *attr = PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD;
-  else if(pmath_same(obj, PMATH_SYMBOL_SYMMETRIC))            *attr = PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC;
-  else if(pmath_same(obj, PMATH_SYMBOL_TEMPORARY))            *attr = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
-  else if(pmath_same(obj, PMATH_SYMBOL_THREADLOCAL))          *attr = PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL;
+  else if(pmath_same(obj, pmath_System_Symmetric))            *attr = PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC;
+  else if(pmath_same(obj, pmath_System_Temporary))            *attr = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
+  else if(pmath_same(obj, pmath_System_ThreadLocal))          *attr = PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL;
   else {
-    pmath_message(PMATH_SYMBOL_ATTRIBUTES, "noattr", 1, pmath_ref(obj));
+    pmath_message(pmath_System_Attributes, "noattr", 1, pmath_ref(obj));
     return FALSE;
   }
   
@@ -81,7 +102,7 @@ pmath_symbol_attributes_t _pmath_get_function_attributes(pmath_t head)
   if(pmath_is_symbol(head))
     return pmath_symbol_get_attributes(head);
   
-  if(pmath_is_expr_of_len(head, PMATH_SYMBOL_FUNCTION, 3)) {
+  if(pmath_is_expr_of_len(head, pmath_System_Function, 3)) {
     pmath_t attrib_obj = pmath_expr_get_item(head, 3);
         
     if(_pmath_get_attributes(&attrib, attrib_obj)) {
@@ -116,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr) {
   if(!_pmath_is_assignment(expr, &tag, &lhs, &rhs))
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ATTRIBUTES, 1)) {
+  if(!pmath_is_expr_of_len(lhs, pmath_System_Attributes, 1)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -132,7 +153,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr) {
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -147,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_assign_attributes(pmath_expr_t expr) {
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -205,61 +226,61 @@ PMATH_PRIVATE pmath_t builtin_attributes(pmath_expr_t expr) {
   
   //{ emit attributes ...
   if(attr & PMATH_SYMBOL_ATTRIBUTE_ASSOCIATIVE)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_ASSOCIATIVE), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_Associative), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_DEEPHOLDALL)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_DEEPHOLDALL), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_DeepHoldAll), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_DEFINITEFUNCTION)
     pmath_emit(pmath_ref(pmath_System_DefiniteFunction), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST) {
     if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDALL), PMATH_NULL);
+      pmath_emit(pmath_ref(pmath_System_HoldAll), PMATH_NULL);
     else
-      pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDFIRST), PMATH_NULL);
+      pmath_emit(pmath_ref(pmath_System_HoldFirst), PMATH_NULL);
   }
   else if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDREST)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDREST), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_HoldRest), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_HOLDALLCOMPLETE), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_HoldAllComplete), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_LISTABLE)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_LISTABLE), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_Listable), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDFIRST) {
     if(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)
-      pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDALL), PMATH_NULL);
+      pmath_emit(pmath_ref(pmath_System_NHoldAll), PMATH_NULL);
     else
-      pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDFIRST), PMATH_NULL);
+      pmath_emit(pmath_ref(pmath_System_NHoldFirst), PMATH_NULL);
   }
   else if(attr & PMATH_SYMBOL_ATTRIBUTE_NHOLDREST)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_NHOLDREST), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_NHoldRest), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_NUMERICFUNCTION)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_NUMERICFUNCTION), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_NumericFunction), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_ONEIDENTITY)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_ONEIDENTITY), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_OneIdentity), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_PROTECTED)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_PROTECTED), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_Protected), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_READPROTECTED), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_ReadProtected), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_SEQUENCEHOLD)
     pmath_emit(pmath_ref(pmath_System_SequenceHold), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_SYMMETRIC)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_SYMMETRIC), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_Symmetric), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_TEMPORARY)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_TEMPORARY), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_Temporary), PMATH_NULL);
     
   if(attr & PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL)
-    pmath_emit(pmath_ref(PMATH_SYMBOL_THREADLOCAL), PMATH_NULL);
+    pmath_emit(pmath_ref(pmath_System_ThreadLocal), PMATH_NULL);
   //}
   
   return pmath_gather_end();

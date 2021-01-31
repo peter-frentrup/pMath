@@ -7,7 +7,8 @@
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_BoxData;
-
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 
 //{ class SectionOrnament ...
 
@@ -26,7 +27,7 @@ bool SectionOrnament::reload_if_necessary(Expr expr, BoxInputFlags flags) {
     return false;
   
   _expr = expr;
-  if(expr.is_null() || expr == PMATH_SYMBOL_NONE) {
+  if(expr.is_null() || expr == richmath_System_None) {
     if(!_box)
       return false;
     
@@ -43,7 +44,7 @@ bool SectionOrnament::reload_if_necessary(Expr expr, BoxInputFlags flags) {
     _box = nullptr;
   }
   
-  if(expr.is_string() || expr[0] == PMATH_SYMBOL_LIST) {
+  if(expr.is_string() || expr[0] == richmath_System_List) {
     auto seq = new TextSequence();
     seq->load_from_object(expr, flags);
     _box = seq;

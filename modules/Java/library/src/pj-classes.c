@@ -38,6 +38,10 @@ extern pmath_symbol_t pjsym_Java_Type_Int;
 extern pmath_symbol_t pjsym_Java_Type_Long;
 extern pmath_symbol_t pjsym_Java_Type_Short;
 
+extern pmath_symbol_t pjsym_System_DollarFailed;
+extern pmath_symbol_t pjsym_System_Join;
+extern pmath_symbol_t pjsym_System_List;
+extern pmath_symbol_t pjsym_System_Union;
 
 
 //{ cms2id Hashtable implementation ...
@@ -615,7 +619,7 @@ static pmath_expr_t cache_methods(
       goto FAIL_JTYPES;
       
     jlen2 = (*env)->GetArrayLength(env, jtypes);
-    params = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)jlen2);
+    params = pmath_expr_new(pmath_ref(pjsym_System_List), (size_t)jlen2);
     if(pj_exception_to_pmath(env))
       goto FAIL_PARAMS;
       
@@ -640,7 +644,7 @@ static pmath_expr_t cache_methods(
     cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
     if(cache_entry) {
       cache_entry->class_method_signature = pmath_expr_new_extended(
-                                              pmath_ref(PMATH_SYMBOL_LIST), 3,
+                                              pmath_ref(pjsym_System_List), 3,
                                               pmath_ref(info->class_name),
                                               pmath_ref(name),
                                               pmath_ref(params));
@@ -663,7 +667,7 @@ static pmath_expr_t cache_methods(
     
     if(!pmath_aborting()) {
       pmath_t key = pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_LIST), 2,
+                      pmath_ref(pjsym_System_List), 2,
                       pmath_ref(info->class_name),
                       pmath_ref(name));
                       
@@ -682,7 +686,7 @@ static pmath_expr_t cache_methods(
         if(cache_entry) {
           cache_entry->class_method_signature = pmath_ref(key);
           cache_entry->info                   = pmath_expr_new_extended(
-                                                  pmath_ref(PMATH_SYMBOL_LIST), 1,
+                                                  pmath_ref(pjsym_System_List), 1,
                                                   pmath_ref(params));
           cache_entry->mid                    = 0;
           cache_entry->fid                    = 0;
@@ -793,7 +797,7 @@ static pmath_expr_t cache_fields(
     cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
     if(cache_entry) {
       cache_entry->class_method_signature = pmath_expr_new_extended(
-                                              pmath_ref(PMATH_SYMBOL_LIST), 2,
+                                              pmath_ref(pjsym_System_List), 2,
                                               pmath_ref(info->class_name),
                                               pmath_ref(name));
       cache_entry->info                   = pmath_ref(type);
@@ -889,15 +893,15 @@ void pj_class_cache_members(JNIEnv *env, jclass clazz) {
     
   members = pmath_evaluate(
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_JOIN), 2,
+                pmath_ref(pjsym_System_Join), 2,
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_UNION), 1,
+                  pmath_ref(pjsym_System_Union), 1,
                   pmath_ref(methods)),
                 pmath_ref(fields)));
                 
   if( !pmath_aborting() &&
       !(*env)->ExceptionCheck(env) &&
-      pmath_is_expr_of(members, PMATH_SYMBOL_LIST))
+      pmath_is_expr_of(members, pjsym_System_List))
   {
     cache_entry = pmath_mem_alloc(sizeof(struct pmath2id_t));
     
@@ -953,7 +957,7 @@ pmath_t pj_class_call_method(
     pj_exception_to_pmath(env);
     pmath_unref(name);
     pmath_unref(args);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   if(is_static)
@@ -966,7 +970,7 @@ pmath_t pj_class_call_method(
   num_args = (jint)pmath_expr_length(args);
   
   key = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_LIST), 2,
+          pmath_ref(pjsym_System_List), 2,
           class_name,
           pmath_ref(name));
           
@@ -982,7 +986,7 @@ pmath_t pj_class_call_method(
   }
   pmath_atomic_unlock(&cms2id_lock);
   
-  if( !pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST) ||
+  if( !pmath_is_expr_of(signatures, pjsym_System_List) ||
       !pmath_is_string(name) ||
       pmath_string_equals_latin1(name, "<init>"))
   {
@@ -995,7 +999,7 @@ pmath_t pj_class_call_method(
     if(!is_static)
       (*env)->DeleteLocalRef(env, clazz);
       
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   key = pmath_expr_append(key, 1, NULL);
@@ -1169,7 +1173,7 @@ pmath_t pj_class_call_method(
                         pj_class_get_nice_name(env, clazz));
     }
     else {
-      args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      args = pmath_expr_set_item(args, 0, pmath_ref(pjsym_System_List));
       
       pj_thread_message(msg_thread,
                         pjsym_Java_Java, "argx", 3,
@@ -1180,7 +1184,7 @@ pmath_t pj_class_call_method(
     
     name = PMATH_UNDEFINED;
     args = PMATH_UNDEFINED;
-    result = pmath_ref(PMATH_SYMBOL_FAILED);
+    result = pmath_ref(pjsym_System_DollarFailed);
   }
   
   if(!is_static)
@@ -1222,7 +1226,7 @@ jobject pj_class_new_object(
   num_args = (jint)pmath_expr_length(args);
   
   key = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_LIST), 2,
+          pmath_ref(pjsym_System_List), 2,
           class_name,
           PMATH_C_STRING("<init>"));
           
@@ -1237,7 +1241,7 @@ jobject pj_class_new_object(
   }
   pmath_atomic_unlock(&cms2id_lock);
   
-  if(!pmath_is_expr_of(signatures, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(signatures, pjsym_System_List)) {
     // should not happen: every Java Class has a constructor <init>
     pj_thread_message(msg_thread,
                       pjsym_Java_JavaNew, "fail", 1,
@@ -1300,7 +1304,7 @@ jobject pj_class_new_object(
                         pj_class_get_nice_name(env, clazz));
     }
     else {
-      args = pmath_expr_set_item(args, 0, pmath_ref(PMATH_SYMBOL_LIST));
+      args = pmath_expr_set_item(args, 0, pmath_ref(pjsym_System_List));
       pj_thread_message(msg_thread,
                         pjsym_Java_JavaNew, "argx", 2,
                         pj_class_get_nice_name(env, clazz),
@@ -1334,7 +1338,7 @@ pmath_t pj_class_get_field(
   if(!env || !obj || (*env)->EnsureLocalCapacity(env, 1) != 0) {
     pj_exception_to_pmath(env);
     pmath_unref(name);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   if(is_static)
@@ -1346,7 +1350,7 @@ pmath_t pj_class_get_field(
   class_name = pj_class_get_name(env, clazz);
   
   key = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_LIST), 2,
+          pmath_ref(pjsym_System_List), 2,
           pmath_ref(class_name),
           pmath_ref(name));
           
@@ -1371,7 +1375,7 @@ pmath_t pj_class_get_field(
                   class_name);
     if(!is_static)
       (*env)->DeleteLocalRef(env, clazz);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pjsym_System_DollarFailed);
   }
   
   result = PMATH_NULL;
@@ -1430,7 +1434,7 @@ pmath_t pj_class_get_field(
   }
   else if(is_static) {
     /* error: trying to get non-static field without an object */
-    result = pmath_ref(PMATH_SYMBOL_FAILED);
+    result = pmath_ref(pjsym_System_DollarFailed);
   }
   else {
     switch(return_type) {
@@ -1527,7 +1531,7 @@ pmath_bool_t pj_class_set_field(
   class_name = pj_class_get_name(env, clazz);
   
   key = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_LIST), 2,
+          pmath_ref(pjsym_System_List), 2,
           pmath_ref(class_name),
           pmath_ref(name));
           

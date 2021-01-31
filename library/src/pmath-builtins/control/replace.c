@@ -15,6 +15,20 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_Condition;
+extern pmath_symbol_t pmath_System_Emit;
+extern pmath_symbol_t pmath_System_EvaluationSequence;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Heads;
+extern pmath_symbol_t pmath_System_If;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_LessEqual;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Replace;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_RuleDelayed;
+extern pmath_symbol_t pmath_System_True;
+
 typedef struct {
   pmath_bool_t with_heads; // currently not set (allways FALSE)
   long         levelmin;
@@ -56,16 +70,16 @@ static pmath_t apply_rule_list(
   return obj;
 }
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_rule(pmath_t rule) {
-  if(!pmath_is_expr(rule))
+PMATH_API pmath_bool_t pmath_is_rule(pmath_t obj) {
+  if(!pmath_is_expr(obj))
     return FALSE;
-  else if(pmath_expr_length(rule) != 2)
+  else if(pmath_expr_length(obj) != 2)
     return FALSE;
   else {
-    pmath_t head = pmath_expr_get_item(rule, 0);
+    pmath_t head = pmath_expr_get_item(obj, 0);
     pmath_unref(head);
-    return pmath_same(head, PMATH_SYMBOL_RULE) ||
-           pmath_same(head, PMATH_SYMBOL_RULEDELAYED);
+    return pmath_same(head, pmath_System_Rule) ||
+           pmath_same(head, pmath_System_RuleDelayed);
   }
 }
 
@@ -117,7 +131,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
 
   rules = pmath_expr_get_item(expr, 2);
   if(!pmath_is_list_of_rules(rules)) {
-    rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
+    rules = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, rules);
 
     if(!pmath_is_list_of_rules(rules)) {
       pmath_message(PMATH_NULL, "reps", 1, rules);
@@ -137,16 +151,16 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
     return expr;
   }
 
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
+  if(pmath_same(obj, pmath_System_True)) {
     info.with_heads = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_unref(rules);
     pmath_unref(options);
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_HEADS),
+      pmath_ref(pmath_System_Heads),
       obj);
     return expr;
   }
@@ -155,7 +169,7 @@ PMATH_PRIVATE pmath_t builtin_replace(pmath_expr_t expr) {
 
   obj = pmath_expr_get_item(expr, 0);
   pmath_unref(obj);
-  if(pmath_same(obj, PMATH_SYMBOL_REPLACE)) {
+  if(pmath_same(obj, pmath_System_Replace)) {
     obj = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
 
@@ -195,9 +209,9 @@ static pmath_expr_t add_maxcount_condition(
   pmath_symbol_set_value(counter, PMATH_FROM_INT32(0));
 
   counter_ok = pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_LESSEQUAL), 2,
+                 pmath_ref(pmath_System_LessEqual), 2,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
+                   pmath_ref(pmath_System_Increment), 1,
                    counter),
                  maxcount);
 
@@ -207,18 +221,18 @@ static pmath_expr_t add_maxcount_condition(
     pmath_t rhs = pmath_expr_get_item(rule, 2);
 
     lhs = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_CONDITION), 2,
+            pmath_ref(pmath_System_Condition), 2,
             lhs,
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_IF), 3,
+              pmath_ref(pmath_System_If), 3,
               pmath_ref(counter_ok),
               pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_EVALUATIONSEQUENCE), 2,
+                pmath_ref(pmath_System_EvaluationSequence), 2,
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_EMIT), 1,
+                  pmath_ref(pmath_System_Emit), 1,
                   rhs),
-                pmath_ref(PMATH_SYMBOL_FALSE)),
-              pmath_ref(PMATH_SYMBOL_TRUE)));
+                pmath_ref(pmath_System_False)),
+              pmath_ref(pmath_System_True)));
 
     rule  = pmath_expr_set_item(rule, 1, lhs);
     rules = pmath_expr_set_item(rules, i, rule);
@@ -272,7 +286,7 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr) {
 
   rules = pmath_expr_get_item(expr, 2);
   if(!pmath_is_list_of_rules(rules)) {
-    rules = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, rules);
+    rules = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, rules);
 
     if(!pmath_is_list_of_rules(rules)) {
       pmath_message(PMATH_NULL, "reps", 1, rules);
@@ -288,16 +302,16 @@ PMATH_PRIVATE pmath_t builtin_replacelist(pmath_expr_t expr) {
     return expr;
   }
 
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
+  if(pmath_same(obj, pmath_System_True)) {
     info.with_heads = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_unref(rules);
     pmath_unref(options);
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_HEADS),
+      pmath_ref(pmath_System_Heads),
       obj);
     return expr;
   }

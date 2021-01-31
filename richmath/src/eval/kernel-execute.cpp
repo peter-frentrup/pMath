@@ -13,8 +13,9 @@ namespace richmath { namespace strings {
   extern String Queued;
 }}
 
-extern pmath_symbol_t richmath_FrontEnd_KernelExecute;
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_FrontEnd_KernelExecute;
 
 Expr richmath_eval_FrontEnd_KernelExecute(Expr expr) {
   /*  FrontEnd`KernelExecute(expr)
@@ -26,11 +27,11 @@ Expr richmath_eval_FrontEnd_KernelExecute(Expr expr) {
    */
   size_t exprlen = expr.expr_length();
   if(exprlen < 1)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_FAIL));
   if(!options)
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   
   Box *src = Application::get_evaluation_box();
   if(!src) {
@@ -56,6 +57,6 @@ Expr richmath_eval_FrontEnd_KernelExecute(Expr expr) {
     return {};
   }
   else {
-    return Symbol(PMATH_SYMBOL_FAILED);
+    return Symbol(richmath_System_DollarFailed);
   }
 }

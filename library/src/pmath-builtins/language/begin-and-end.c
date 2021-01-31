@@ -16,6 +16,15 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_DollarNamespace;
+extern pmath_symbol_t pmath_System_DollarNamespacePath;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_MessageName;
+extern pmath_symbol_t pmath_Internal_DollarNamespacePathStack;
+extern pmath_symbol_t pmath_Internal_DollarNamespaceStack;
+
 PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name) {
   const uint16_t *buf;
   int len, i;
@@ -50,7 +59,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name) {
 PMATH_PRIVATE pmath_bool_t _pmath_is_namespace_list(pmath_t list) {
   size_t i;
 
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(list, pmath_System_List))
     return FALSE;
 
   for(i = pmath_expr_length(list); i > 0; --i) {
@@ -70,7 +79,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_is_namespace_list(pmath_t list) {
 static pmath_bool_t is_namespace_listlist(pmath_t list) {
   size_t i;
 
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(list, pmath_System_List))
     return FALSE;
 
   for(i = pmath_expr_length(list); i > 0; --i) {
@@ -98,7 +107,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr) {
   if(!kind)
     return expr;
 
-  if(!pmath_same(lhs, PMATH_SYMBOL_CURRENTNAMESPACE)) {
+  if(!pmath_same(lhs, pmath_System_DollarNamespace)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -115,7 +124,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr) {
       return PMATH_NULL;
 
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
 
@@ -128,7 +137,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr) {
   }
 
   if(!_pmath_is_namespace(rhs)) {
-    pmath_message(PMATH_SYMBOL_CURRENTNAMESPACE, "nsset", 1, pmath_ref(rhs));
+    pmath_message(pmath_System_DollarNamespace, "nsset", 1, pmath_ref(rhs));
     pmath_unref(expr);
 
     if(kind < 0)
@@ -150,8 +159,8 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr) {
   if(!kind)
     return expr;
 
-  if( !pmath_same(lhs, PMATH_SYMBOL_NAMESPACEPATH) &&
-      !pmath_same(lhs, PMATH_SYMBOL_INTERNAL_NAMESPACESTACK))
+  if( !pmath_same(lhs, pmath_System_DollarNamespacePath) &&
+      !pmath_same(lhs, pmath_Internal_DollarNamespaceStack))
   {
     pmath_unref(tag);
     pmath_unref(lhs);
@@ -169,7 +178,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr) {
       return PMATH_NULL;
 
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
 
@@ -236,8 +245,8 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr) {
   }
   pmath_unref(expr);
 
-  oldns   = pmath_thread_local_load(PMATH_SYMBOL_CURRENTNAMESPACE);
-  nsstack = pmath_thread_local_load(PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
+  oldns   = pmath_thread_local_load(pmath_System_DollarNamespace);
+  nsstack = pmath_thread_local_load(pmath_Internal_DollarNamespaceStack);
 
   if( !_pmath_is_namespace(oldns)        ||
       !_pmath_is_namespace_list(nsstack) ||
@@ -264,12 +273,12 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr) {
 
   pmath_unref(
     pmath_thread_local_save(
-      PMATH_SYMBOL_CURRENTNAMESPACE,
+      pmath_System_DollarNamespace,
       ns));
 
   pmath_unref(
     pmath_thread_local_save(
-      PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,
+      pmath_Internal_DollarNamespaceStack,
       nsstack));
 
   return oldns;
@@ -350,8 +359,8 @@ static void check_name_clashes(pmath_string_t new_namespace) {
   pmath_symbol_t current;
 
   msg = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_MESSAGENAME), 2,
-          pmath_ref(PMATH_SYMBOL_GENERAL),
+          pmath_ref(pmath_System_MessageName), 2,
+          pmath_ref(pmath_System_General),
           PMATH_C_STRING("shdw"));
 
   if(!_pmath_message_is_on(msg)) {
@@ -360,7 +369,7 @@ static void check_name_clashes(pmath_string_t new_namespace) {
   }
 
   pmath_unref(msg);
-  current = pmath_ref(PMATH_SYMBOL_LIST);
+  current = pmath_ref(pmath_System_List);
   do {
     pmath_string_t name = pmath_symbol_name(current);
 
@@ -378,7 +387,7 @@ static void check_name_clashes(pmath_string_t new_namespace) {
         while(len > 0 && buf[len] != '`')
           --len;
 
-        pmath_message(PMATH_SYMBOL_GENERAL, "shdw", 3,
+        pmath_message(pmath_System_General, "shdw", 3,
                       pmath_ref(name),
                       pmath_build_value("(oo)",
                                         pmath_string_part(name, 0, len + 1),
@@ -392,7 +401,7 @@ static void check_name_clashes(pmath_string_t new_namespace) {
     pmath_unref(name);
 
     current = pmath_symbol_iter_next(current);
-  } while(!pmath_is_null(current) && !pmath_same(current, PMATH_SYMBOL_LIST));
+  } while(!pmath_is_null(current) && !pmath_same(current, pmath_System_List));
 
   pmath_unref(current);
 }
@@ -407,9 +416,9 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
   }
   pmath_unref(expr);
 
-  oldns       = pmath_thread_local_load(PMATH_SYMBOL_CURRENTNAMESPACE);
-  nspathstack = pmath_thread_local_load(PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK);
-  nsstack     = pmath_thread_local_load(PMATH_SYMBOL_INTERNAL_NAMESPACESTACK);
+  oldns       = pmath_thread_local_load(pmath_System_DollarNamespace);
+  nspathstack = pmath_thread_local_load(pmath_Internal_DollarNamespacePathStack);
+  nsstack     = pmath_thread_local_load(pmath_Internal_DollarNamespaceStack);
 
   if( !_pmath_is_namespace(oldns)         ||
       !is_namespace_listlist(nspathstack) ||
@@ -453,20 +462,9 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
 
   check_name_clashes(oldns);
 
-  pmath_unref(
-    pmath_thread_local_save(
-      PMATH_SYMBOL_CURRENTNAMESPACE,
-      ns));
-
-  pmath_unref(
-    pmath_thread_local_save(
-      PMATH_SYMBOL_INTERNAL_NAMESPACEPATHSTACK,
-      nspathstack));
-
-  pmath_unref(
-    pmath_thread_local_save(
-      PMATH_SYMBOL_INTERNAL_NAMESPACESTACK,
-      nsstack));
+  pmath_unref(pmath_thread_local_save(pmath_System_DollarNamespace,            ns));
+  pmath_unref(pmath_thread_local_save(pmath_Internal_DollarNamespacePathStack, nspathstack));
+  pmath_unref(pmath_thread_local_save(pmath_Internal_DollarNamespaceStack,     nsstack));
 
   PMATH_RUN_ARGS(
     "$NamespacePath:= Prepend(Select(`1`, # =!= `2` &), `2`)",

@@ -4,6 +4,9 @@
 
 #include <math.h>
 
+
+extern pmath_symbol_t pjsym_System_Get;
+
 #ifndef PMATH_OS_WIN32
 static char *JNU_GetStringNativeChars(JNIEnv *env, jstring jstr) {
   jbyteArray bytes = NULL;
@@ -143,7 +146,7 @@ void pj_companion_run_init(void) {
   
   companion = pj_thread_get_companion(NULL);
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_GET), 1,
+           pmath_ref(pjsym_System_Get), 1,
            PMATH_C_STRING("Java`"));
   expr = pmath_thread_send_wait(companion, expr, HUGE_VAL, NULL, NULL);
   pmath_unref(companion);

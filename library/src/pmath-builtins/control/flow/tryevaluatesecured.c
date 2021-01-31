@@ -5,6 +5,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_HoldComplete;
+
 PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr) {
   /* Internal`TryEvaluateSecured(expr, level)
    */
@@ -28,6 +30,6 @@ PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr) {
   
   obj = pmath_evaluate_secured(obj, level);
   
-  obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_HOLDCOMPLETE), 1, obj);
+  obj = pmath_expr_new_extended(pmath_ref(pmath_System_HoldComplete), 1, obj);
   return obj;
 }

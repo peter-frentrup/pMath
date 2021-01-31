@@ -12,10 +12,20 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_Ceiling;
+extern pmath_symbol_t pmath_System_Floor;
+extern pmath_symbol_t pmath_System_FractionalPart;
+extern pmath_symbol_t pmath_System_Less;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
+
 static pmath_bool_t is_quant_list(pmath_t q) {
   int q_class;
   
-  if(pmath_is_expr_of(q, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(q, pmath_System_List)) {
     size_t i;
     
     for(i = pmath_expr_length(q); i > 0; --i) {
@@ -45,7 +55,7 @@ static pmath_bool_t is_real(pmath_t q) {
 static pmath_bool_t is_real_vector(pmath_t x) {
   size_t i;
   
-  if(!pmath_is_expr_of(x, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(x, pmath_System_List))
     return FALSE;
     
   for(i = pmath_expr_length(x); i > 0; --i) {
@@ -68,7 +78,7 @@ static pmath_bool_t is_real_matrix(pmath_t x, size_t *rows, size_t *cols) {
   
   *rows = *cols = 0;
   
-  if(!pmath_is_expr_of(x, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(x, pmath_System_List))
     return FALSE;
     
   *rows = pmath_expr_length(x);
@@ -87,7 +97,7 @@ static pmath_bool_t is_real_matrix(pmath_t x, size_t *rows, size_t *cols) {
   for(i = *rows - 1; i > 0; --i) {
     xi = pmath_expr_get_item(x, i);
     
-    if( !pmath_is_expr_of_len(xi, PMATH_SYMBOL_LIST, *cols) ||
+    if( !pmath_is_expr_of_len(xi, pmath_System_List, *cols) ||
         !is_real_vector(xi))
     {
       pmath_unref(xi);
@@ -115,11 +125,11 @@ static int cmp_less(const pmath_t *a, const pmath_t *b) {
   if(pmath_equals(*a, *b))
     return 0;
     
-  tmp = FUNC2(pmath_ref(PMATH_SYMBOL_LESS), pmath_ref(*a), pmath_ref(*b));
+  tmp = FUNC2(pmath_ref(pmath_System_Less), pmath_ref(*a), pmath_ref(*b));
   tmp = pmath_evaluate(tmp);
   pmath_unref(tmp);
   
-  if(pmath_same(tmp, PMATH_SYMBOL_TRUE))
+  if(pmath_same(tmp, pmath_System_True))
     return -1;
   return 1;
 }
@@ -139,7 +149,7 @@ static pmath_t get_item(pmath_expr_t list, pmath_t idx) { // int_index will be f
     return pmath_expr_get_item(list, (size_t)i);
   }
   
-  if(pmath_is_expr_of(idx, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(idx, pmath_System_List)) {
     size_t i;
     for(i = pmath_expr_length(idx); i > 0; --i) {
       pmath_t idx_i = pmath_expr_extract_item(idx, i);
@@ -167,14 +177,14 @@ static pmath_t get_item(pmath_expr_t list, pmath_t idx) { // int_index will be f
   }
   
   pmath_unref(idx);
-  return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+  return pmath_ref(pmath_System_Undefined);
 }
 
 // all arguments will be freed
 static pmath_t quantile(pmath_expr_t sorted_list, pmath_t qi, pmath_t c, pmath_t d) {
   pmath_t fi, ci, val_f, val_c;
   
-  assert(pmath_is_expr_of(sorted_list, PMATH_SYMBOL_LIST));
+  assert(pmath_is_expr_of(sorted_list, pmath_System_List));
   
   //list = _pmath_expr_sort_ex(list, cmp);
   //qi = PLUS(pmath_ref(a), pmath_ref(q), PLUS(INT(n) + pmath_ref(b)));
@@ -186,15 +196,15 @@ static pmath_t quantile(pmath_expr_t sorted_list, pmath_t qi, pmath_t c, pmath_t
     return val_c;
   }
   
-  fi = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_FLOOR),   pmath_ref(qi)));
-  ci = pmath_evaluate(FUNC(pmath_ref(PMATH_SYMBOL_CEILING), pmath_ref(qi)));
+  fi = pmath_evaluate(FUNC(pmath_ref(pmath_System_Floor),   pmath_ref(qi)));
+  ci = pmath_evaluate(FUNC(pmath_ref(pmath_System_Ceiling), pmath_ref(qi)));
   
   val_f = get_item(sorted_list, fi);
   val_c = get_item(sorted_list, ci);
   pmath_unref(sorted_list);
   
   if(!pmath_same(d, INT(0)))
-    c = PLUS(c, TIMES(d, FUNC(pmath_ref(PMATH_SYMBOL_FRACTIONALPART), pmath_ref(qi))));
+    c = PLUS(c, TIMES(d, FUNC(pmath_ref(pmath_System_FractionalPart), pmath_ref(qi))));
     
   pmath_unref(qi);
   
@@ -285,9 +295,9 @@ pmath_t builtin_quantile(pmath_expr_t expr) {
       qi = pmath_evaluate(qi);
       
       pmath_unref(expr);
-      expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), cols);
+      expr = pmath_expr_new(pmath_ref(pmath_System_List), cols);
       for(j = cols; j > 0; --j) {
-        pmath_expr_t sub = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), rows);
+        pmath_expr_t sub = pmath_expr_new(pmath_ref(pmath_System_List), rows);
         size_t i;
         
         for(i = rows; i > 0; --i)

@@ -6,6 +6,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_t builtin_fold(pmath_expr_t expr) {
   /* Fold(list, f, x)      === FoldList(list, f, x)[-1]
    */
@@ -68,7 +70,7 @@ PMATH_PRIVATE pmath_t builtin_foldlist(pmath_expr_t expr) {
   pmath_unref(expr);
   
   result = pmath_expr_new(
-             pmath_ref(PMATH_SYMBOL_LIST),
+             pmath_ref(pmath_System_List),
              pmath_expr_length(list) + 1);
              
   for(i = 1; i <= pmath_expr_length(list); ++i) {

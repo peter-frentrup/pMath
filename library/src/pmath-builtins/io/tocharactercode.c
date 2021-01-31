@@ -20,6 +20,9 @@
 #endif
 
 
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_None;
+
 static pmath_expr_t string_to_utf16_codes(pmath_string_t str, iconv_t dummy) { // str will be freed
   const uint16_t *buf = pmath_string_buffer(&str);
   int             len = pmath_string_length(str);
@@ -145,13 +148,13 @@ static pmath_expr_t string_to_iconv_bytes(pmath_string_t str, iconv_t cd) {
       }
       
       if(err == EILSEQ) { // invalid input byte
-        result = pmath_expr_append(result, 1, pmath_ref(PMATH_SYMBOL_NONE));
+        result = pmath_expr_append(result, 1, pmath_ref(pmath_System_None));
         
         ++inbuf;
         --inbytesleft;
       }
       else if(err == EINVAL) { // incomplete input
-        result = pmath_expr_append(result, 1, pmath_ref(PMATH_SYMBOL_NONE));
+        result = pmath_expr_append(result, 1, pmath_ref(pmath_System_None));
         break;
       }
       else if(err == E2BIG) { // output buffer too small
@@ -223,7 +226,7 @@ PMATH_PRIVATE pmath_t builtin_tocharactercode(pmath_expr_t expr) {
   if(cd)
     iconv_close(cd);
     
-  if(pmath_is_expr_of(code, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(code, pmath_System_List)) {
     size_t i;
     for(i = pmath_expr_length(code); i > 0; --i) {
       pmath_t item = pmath_expr_extract_item(code, i);

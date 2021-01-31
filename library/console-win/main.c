@@ -19,14 +19,37 @@
 
 static void os_init(void);
 
-static pmath_symbol_t pmath_Language_SourceLocation = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_BoxData          = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_Button           = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_ButtonBox        = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_ButtonFunction   = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_Section          = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_Tooltip          = PMATH_STATIC_NULL;
-static pmath_symbol_t pmath_System_TooltipBox       = PMATH_STATIC_NULL;
+#define PMATH_SYSTEM_SYMBOL_X( sym )         X( pmath_System_ ## sym       , "System`" #sym )
+#define PMATH_SYSTEM_DOLLAR_SYMBOL_X( sym )  X( pmath_System_Dollar ## sym , "System`$" #sym )
+#define PMATH_LANGUAGE_SYMBOL_X( sym )       X( pmath_Language_ ## sym     , "Language`" #sym )
+#define PMATH_SYMBOLS_X                      \
+  PMATH_LANGUAGE_SYMBOL_X( SourceLocation  ) \
+  PMATH_SYSTEM_DOLLAR_SYMBOL_X( PageWidth ) \
+  PMATH_SYSTEM_SYMBOL_X( BoxData         ) \
+  PMATH_SYSTEM_SYMBOL_X( Button          ) \
+  PMATH_SYSTEM_SYMBOL_X( ButtonBox       ) \
+  PMATH_SYSTEM_SYMBOL_X( ButtonFunction  ) \
+  PMATH_SYSTEM_SYMBOL_X( Dialog          ) \
+  PMATH_SYSTEM_SYMBOL_X( Function        ) \
+  PMATH_SYSTEM_SYMBOL_X( HoldComplete    ) \
+  PMATH_SYSTEM_SYMBOL_X( Interrupt       ) \
+  PMATH_SYSTEM_SYMBOL_X( List            ) \
+  PMATH_SYSTEM_SYMBOL_X( MakeExpression  ) \
+  PMATH_SYSTEM_SYMBOL_X( Quit            ) \
+  PMATH_SYSTEM_SYMBOL_X( Range           ) \
+  PMATH_SYSTEM_SYMBOL_X( RawBoxes        ) \
+  PMATH_SYSTEM_SYMBOL_X( Return          ) \
+  PMATH_SYSTEM_SYMBOL_X( Row             ) \
+  PMATH_SYSTEM_SYMBOL_X( Section         ) \
+  PMATH_SYSTEM_SYMBOL_X( SectionPrint    ) \
+  PMATH_SYSTEM_SYMBOL_X( Sequence        ) \
+  PMATH_SYSTEM_SYMBOL_X( ShowDefinition  ) \
+  PMATH_SYSTEM_SYMBOL_X( Tooltip         ) \
+  PMATH_SYSTEM_SYMBOL_X( TooltipBox      )
+
+#define X( SYM, NAME )  static pmath_symbol_t SYM = PMATH_STATIC_NULL;
+  PMATH_SYMBOLS_X
+#undef X
 
 #ifdef PMATH_OS_WIN32
 #  include <io.h>
@@ -391,7 +414,7 @@ static pmath_expr_t get_all_char_names(void) {
     
     nc_data = pmath_get_char_names(&nc_count);
     
-    all_char_names = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), nc_count);
+    all_char_names = pmath_expr_new(pmath_ref(pmath_System_List), nc_count);
     
     for(i = 0; i < nc_count; ++i) {
       all_char_names = pmath_expr_set_item(
@@ -424,7 +447,7 @@ static wchar_t **try_convert_matches(pmath_t list, const wchar_t *prefix, int pr
   
   assert(prefix_len >= 0);
   
-  if(!pmath_is_expr_of(list, PMATH_SYMBOL_LIST))
+  if(!pmath_is_expr_of(list, pmath_System_List))
     return NULL;
     
   if(pmath_expr_length(list) == 0)
@@ -736,7 +759,7 @@ static pmath_bool_t is_helpline_token(pmath_string_t str) {
 static pmath_string_t action_to_input_string(pmath_t action) { // `action` will be freed
   pmath_string_t str;
   
-  if(pmath_is_expr_of_len(action, PMATH_SYMBOL_SHOWDEFINITION, 1)) { // produce ??text instead of ShowDefinition("text")
+  if(pmath_is_expr_of_len(action, pmath_System_ShowDefinition, 1)) { // produce ??text instead of ShowDefinition("text")
     str = pmath_expr_get_item(action, 1);
     if(pmath_is_string(str) && is_helpline_token(str)) {
       pmath_unref(action);
@@ -793,7 +816,7 @@ static pmath_t find_button_function(pmath_expr_t expr, size_t first_option) {
   for(i = first_option;i <= len;++i) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
-    if(pmath_is_expr_of_len(item, PMATH_SYMBOL_RULE, 2) || pmath_is_expr_of_len(item, PMATH_SYMBOL_RULEDELAYED, 2)) {
+    if(pmath_is_rule(item)) {
       pmath_t lhs = pmath_expr_get_item(item, 1);
       pmath_unref(lhs);
       if(pmath_same(lhs, pmath_System_ButtonFunction)) {
@@ -813,7 +836,7 @@ static pmath_t button_function_to_action(pmath_t func) {
   if(pmath_is_null(func))
     return func;
   
-  if(pmath_is_expr_of_len(func, PMATH_SYMBOL_FUNCTION, 1)) {
+  if(pmath_is_expr_of_len(func, pmath_System_Function, 1)) {
     pmath_t body = pmath_expr_get_item(func, 1);
     pmath_unref(func);
     return body;
@@ -845,7 +868,7 @@ static void pre_write_button_box(struct styled_writer_info_t *info, pmath_t obj,
     
     if(pmath_is_expr_of(label_box, pmath_System_TooltipBox) && pmath_expr_length(label_box) >= 2) {
       pmath_t tooltip_obj = pmath_expr_get_item(label_box, 2);
-      tooltip_obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, tooltip_obj);
+      tooltip_obj = pmath_expr_new_extended(pmath_ref(pmath_System_RawBoxes), 1, tooltip_obj);
       
       pmath_write(tooltip_obj, 0, concat_to_string, &tooltip_str);
       pmath_unref(tooltip_obj);
@@ -882,7 +905,7 @@ static void styled_pre_write(void *user, pmath_t obj, pmath_write_options_t opti
   }
   
   if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
-    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+    if(pmath_is_expr_of_len(obj, pmath_System_RawBoxes, 1))
       info->raw_boxes_write_depth++;
   }
   
@@ -900,7 +923,7 @@ static void styled_post_write(void *user, pmath_t obj, pmath_write_options_t opt
     info->raw_boxes_write_depth--;
   
   if(!(options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR))) {
-    if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+    if(pmath_is_expr_of_len(obj, pmath_System_RawBoxes, 1))
       info->raw_boxes_write_depth--;
   }
   
@@ -981,7 +1004,7 @@ static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write
   if(pmath_is_expr_of(obj, pmath_System_Button) && pmath_expr_length(obj) >= 2) 
     return button_formatter(sw, obj, info);
   
-  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_RAWBOXES, 1))
+  if(pmath_is_expr_of_len(obj, pmath_System_RawBoxes, 1))
     return rawboxes_formatter(sw, obj, info);
   
   if(sw->formatting_allow_raw_boxes) {
@@ -1134,7 +1157,7 @@ static void interrupt_daemon(void *dummy) {
     mq = get_main_mq();
     pmath_thread_send(
       mq,
-      pmath_expr_new(pmath_ref(PMATH_SYMBOL_INTERRUPT), 0));
+      pmath_expr_new(pmath_ref(pmath_System_Interrupt), 0));
     pmath_unref(mq);
   }
 }
@@ -1210,7 +1233,7 @@ static void handle_options(int argc, const char **argv) {
 }
 
 static pmath_t check_dialog_return(pmath_t result) { // result wont be freed
-  if( pmath_is_expr_of(result, PMATH_SYMBOL_RETURN) &&
+  if( pmath_is_expr_of(result, pmath_System_Return) &&
       pmath_expr_length(result) <= 1)
   {
     return pmath_expr_get_item(result, 1);
@@ -1246,7 +1269,7 @@ static pmath_t add_debug_info(
                  pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->filename),
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                   pmath_ref(pmath_System_Range), 2,
                    pmath_build_value("(ii)", start_line, start_column),
                    pmath_build_value("(ii)", end_line,   end_column)));
                    
@@ -1327,10 +1350,10 @@ static pmath_t dialog(pmath_t first_eval) {
         
         obj = pmath_evaluate(
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_MAKEEXPRESSION), 1,
+                  pmath_ref(pmath_System_MakeExpression), 1,
                   obj));
                   
-        if(pmath_is_expr_of(obj, PMATH_SYMBOL_HOLDCOMPLETE)) {
+        if(pmath_is_expr_of(obj, pmath_System_HoldComplete)) {
           if(pmath_expr_length(obj) == 1) {
             pmath_t tmp = obj;
             obj = pmath_expr_get_item(tmp, 1);
@@ -1338,7 +1361,7 @@ static pmath_t dialog(pmath_t first_eval) {
           }
           else {
             obj = pmath_expr_set_item(
-                    obj, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+                    obj, 0, pmath_ref(pmath_System_Sequence));
           }
           
           obj = pmath_try_set_debug_info(obj, debug_info);
@@ -1492,7 +1515,7 @@ static void interrupt_callback(void *dummy) {
       mq = get_main_mq();
       pmath_thread_send(
         mq,
-        pmath_expr_new(pmath_ref(PMATH_SYMBOL_DIALOG), 0));
+        pmath_expr_new(pmath_ref(pmath_System_Dialog), 0));
       pmath_unref(mq);
       break;
     }
@@ -1615,8 +1638,8 @@ static void sectionprint_callback(void *arg) {
     pmath_t sections = pmath_expr_get_item(expr, 1);
     size_t i;
     
-    if(!pmath_is_expr_of(sections, PMATH_SYMBOL_LIST))
-      sections = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_LIST), 1, sections);
+    if(!pmath_is_expr_of(sections, pmath_System_List))
+      sections = pmath_expr_new_extended(pmath_ref(pmath_System_List), 1, sections);
     
     for(i = 1; i <= pmath_expr_length(sections); ++i) {
       pmath_t item = pmath_expr_get_item(sections, i);
@@ -1628,9 +1651,9 @@ static void sectionprint_callback(void *arg) {
         
         pmath_unref(item);
         if(pmath_is_expr_of(boxes, pmath_System_BoxData)) 
-          item = pmath_expr_set_item(boxes, 0, pmath_ref(PMATH_SYMBOL_RAWBOXES));
+          item = pmath_expr_set_item(boxes, 0, pmath_ref(pmath_System_RawBoxes));
         else
-          item = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_RAWBOXES), 1, boxes);
+          item = pmath_expr_new_extended(pmath_ref(pmath_System_RawBoxes), 1, boxes);
       }
       
       convert_style(style, default_color, &indent, &color);
@@ -1672,8 +1695,8 @@ static void sectionprint_callback(void *arg) {
     pmath_unref(expr);
     *expr_ptr = PMATH_NULL;
     
-    row = pmath_expr_set_item(row, 0, pmath_ref(PMATH_SYMBOL_LIST));
-    row = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ROW), 1, row);
+    row = pmath_expr_set_item(row, 0, pmath_ref(pmath_System_List));
+    row = pmath_expr_new_extended(pmath_ref(pmath_System_Row), 1, row);
     
     write_output(indent, row);
     pmath_unref(row);
@@ -1706,14 +1729,14 @@ static void init_console_width(void) {
         last_true_width = width;
         if(console_width != width) {
           console_width = width;
-          pmath_symbol_set_value(PMATH_SYMBOL_PAGEWIDTHDEFAULT, PMATH_FROM_INT32(console_width));
+          pmath_symbol_set_value(pmath_System_DollarPageWidth, PMATH_FROM_INT32(console_width));
         }
         return;
       }
     }
   }
 #endif
-  pw = pmath_evaluate(pmath_ref(PMATH_SYMBOL_PAGEWIDTHDEFAULT));
+  pw = pmath_evaluate(pmath_ref(pmath_System_DollarPageWidth));
   
   if(pmath_is_int32(pw)) 
     console_width = PMATH_AS_INT32(pw);
@@ -1722,38 +1745,24 @@ static void init_console_width(void) {
 }
 
 static pmath_bool_t init_pmath_bindings(void) {
-  pmath_Language_SourceLocation = pmath_symbol_get(PMATH_C_STRING("Language`SourceLocation"), FALSE);
-  pmath_System_BoxData          = pmath_symbol_get(PMATH_C_STRING("System`BoxData"),          FALSE);
-  pmath_System_Button           = pmath_symbol_get(PMATH_C_STRING("System`Button"),           FALSE);
-  pmath_System_ButtonBox        = pmath_symbol_get(PMATH_C_STRING("System`ButtonBox"),        FALSE);
-  pmath_System_ButtonFunction   = pmath_symbol_get(PMATH_C_STRING("System`ButtonFunction"),   FALSE);
-  pmath_System_Section          = pmath_symbol_get(PMATH_C_STRING("System`Section"),          FALSE);
-  pmath_System_Tooltip          = pmath_symbol_get(PMATH_C_STRING("System`Tooltip"),          FALSE);
-  pmath_System_TooltipBox       = pmath_symbol_get(PMATH_C_STRING("System`TooltipBox"),       FALSE);
+#define X( SYM, NAME )  SYM = pmath_symbol_get(PMATH_C_STRING( NAME ), FALSE);
+  PMATH_SYMBOLS_X
+#undef X
   
-  return !pmath_is_null(pmath_Language_SourceLocation) &&
-         !pmath_is_null(pmath_System_BoxData) &&
-         !pmath_is_null(pmath_System_Button) &&
-         !pmath_is_null(pmath_System_ButtonBox) &&
-         !pmath_is_null(pmath_System_ButtonFunction) &&
-         !pmath_is_null(pmath_System_Section) &&
-         !pmath_is_null(pmath_System_Tooltip) &&
-         !pmath_is_null(pmath_System_TooltipBox) &&
-         pmath_register_code(PMATH_SYMBOL_DIALOG,       builtin_dialog,       0) &&
-         pmath_register_code(PMATH_SYMBOL_INTERRUPT,    builtin_interrupt,    0) &&
-         pmath_register_code(PMATH_SYMBOL_QUIT,         builtin_quit,         0) &&
-         pmath_register_code(PMATH_SYMBOL_SECTIONPRINT, builtin_sectionprint, 0);
+#define X( SYM, NAME )  !pmath_is_null( SYM ) &&
+  return PMATH_SYMBOLS_X
+         pmath_register_code(pmath_System_Dialog,       builtin_dialog,       0) &&
+         pmath_register_code(pmath_System_Interrupt,    builtin_interrupt,    0) &&
+         pmath_register_code(pmath_System_Quit,         builtin_quit,         0) &&
+         pmath_register_code(pmath_System_SectionPrint, builtin_sectionprint, 0);
+#undef X
 }
 
 static void done_pmath_bindings(void) {
-  pmath_unref(pmath_Language_SourceLocation); pmath_Language_SourceLocation = PMATH_NULL;
-  pmath_unref(pmath_System_BoxData);          pmath_System_BoxData          = PMATH_NULL;
-  pmath_unref(pmath_System_Button);           pmath_System_Button           = PMATH_NULL;
-  pmath_unref(pmath_System_ButtonBox);        pmath_System_ButtonBox        = PMATH_NULL;
-  pmath_unref(pmath_System_ButtonFunction);   pmath_System_ButtonFunction   = PMATH_NULL;
-  pmath_unref(pmath_System_Section);          pmath_System_Section          = PMATH_NULL;
-  pmath_unref(pmath_System_Tooltip);          pmath_System_Tooltip          = PMATH_NULL;
-  pmath_unref(pmath_System_TooltipBox);       pmath_System_TooltipBox       = PMATH_NULL;
+  // FIXME: race condition when another thread still runs
+#define X( SYM, NAME )  pmath_unref( SYM ); SYM = PMATH_NULL;
+  PMATH_SYMBOLS_X
+#undef X
 }
 
 int main(int argc, const char **argv) {

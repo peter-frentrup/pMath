@@ -2,7 +2,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_False;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_RadioButtonBox;
+extern pmath_symbol_t richmath_System_True;
 
 namespace richmath { namespace strings {
   extern String RadioButton;
@@ -33,7 +36,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     new_value = expr[2];
   }
   else {
-    new_value = Symbol(PMATH_SYMBOL_TRUE);
+    new_value = Symbol(richmath_System_True);
   }
   
   /* now success is guaranteed */
@@ -48,7 +51,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     }
   }
   else
-    dynamic = Symbol(PMATH_SYMBOL_FALSE);
+    dynamic = Symbol(richmath_System_False);
     
   reset_style();
   style->add_pmath(options);
@@ -104,7 +107,7 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   }
   
   Expr result = gather.end();
-  if(value == PMATH_SYMBOL_TRUE && result.expr_length() == 2) {
+  if(value == richmath_System_True && result.expr_length() == 2) {
     return Call(Symbol(richmath_System_RadioButtonBox), dynamic.expr());
   }
   
@@ -137,10 +140,10 @@ Expr RadioButtonBox::to_literal() {
       break;
   }
   
-  if(value == PMATH_SYMBOL_FALSE)
-    return Symbol(PMATH_SYMBOL_NONE);
+  if(value == richmath_System_False)
+    return Symbol(richmath_System_None);
   
-  return Symbol(PMATH_SYMBOL_FALSE);
+  return Symbol(richmath_System_False);
 }
 
 VolatileSelection RadioButtonBox::dynamic_to_literal(int start, int end) {

@@ -9,6 +9,7 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_DollarCanceled;
 
 //{ class MathGtkColorDialog ...
 
@@ -66,7 +67,7 @@ static Expr color_chooser_dialog_show(Color initialcolor) {
   
   gtk_widget_destroy(GTK_WIDGET(dialog));
   
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 #endif
@@ -140,7 +141,7 @@ static Expr color_selection_dialog_show(Color initialcolor) {
   
   gtk_widget_destroy(GTK_WIDGET(dialog));
 
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 Expr MathGtkColorDialog::show(Color initialcolor) {

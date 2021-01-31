@@ -8,6 +8,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
+
+extern pmath_symbol_t pmath_System_Function;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_PureArgument;
+
 // retains debug-info
 static pmath_t replace_purearg(
   pmath_t      function,  // will be freed
@@ -24,7 +29,7 @@ static pmath_t replace_purearg(
   head       = pmath_expr_get_item(function, 0);
   len        = pmath_expr_length(function);
   
-  if(pmath_same(head, PMATH_SYMBOL_FUNCTION)) {
+  if(pmath_same(head, pmath_System_Function)) {
     pmath_unref(head);
     if(len == 1) {
       pmath_unref(debug_info);
@@ -39,7 +44,7 @@ static pmath_t replace_purearg(
       return function;
     }
   }
-  else if(len == 1 && pmath_same(head, PMATH_SYMBOL_PUREARGUMENT)) {
+  else if(len == 1 && pmath_same(head, pmath_System_PureArgument)) {
     pmath_bool_t reverse;
     pmath_t pos = pmath_expr_get_item(function, 1);
     size_t min = 1;
@@ -130,7 +135,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr) {
   
   head_head = pmath_expr_get_item(head, 0);
   pmath_unref(head_head);
-  if(!pmath_same(head_head, PMATH_SYMBOL_FUNCTION)) {
+  if(!pmath_same(head_head, pmath_System_Function)) {
     pmath_unref(head);
     return expr;
   }
@@ -186,7 +191,7 @@ PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr) {
       return body;
     }
     
-    if(pmath_is_expr_of(params, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(params, pmath_System_List)) {
       size_t i;
       
       if(pmath_expr_length(params) > exprlen) {
@@ -260,7 +265,7 @@ PMATH_PRIVATE pmath_t builtin_function(pmath_expr_t expr) {
       p = pmath_expr_get_item(params, 0);
       pmath_unref(p);
       
-      if(!pmath_same(p, PMATH_SYMBOL_LIST)) {
+      if(!pmath_same(p, pmath_System_List)) {
         pmath_message(PMATH_NULL, "par", 2, params, pmath_ref(expr));
         
         return expr;

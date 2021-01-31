@@ -3,6 +3,9 @@
 #include <pmath.h>
 
 
+extern pmath_symbol_t p4win_System_DollarFailed;
+extern pmath_symbol_t p4win_System_List;
+
 // the inverse of CommandLineToArgvW
 pmath_t try_compose_arguments(pmath_expr_t list) { // frees list; return a string or PMATH_UNDEFINED
   pmath_string_t result = PMATH_NULL;
@@ -82,10 +85,10 @@ pmath_t windows_CommandLineToArgv(pmath_expr_t expr) {
   
   if(!argv) {
     check_succeeded_win32(GetLastError());
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(p4win_System_DollarFailed);
   }
   
-  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)argc);
+  expr = pmath_expr_new(pmath_ref(p4win_System_List), (size_t)argc);
   for(i = 0;i < argc;++i) {
     str = pmath_string_insert_ucs2(PMATH_NULL, 0, argv[i], -1);
     expr = pmath_expr_set_item(expr, (size_t)i + 1, str);

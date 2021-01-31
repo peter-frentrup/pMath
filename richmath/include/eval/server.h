@@ -6,7 +6,7 @@
 
 
 namespace richmath {
-  Expr to_boxes(Expr obj);
+  Expr evaluate_to_boxes(Expr obj);
   Expr generate_section(String style, Expr boxes);
   
   class Server: public Shareable {

@@ -12,6 +12,13 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IsNumeric;
+extern pmath_symbol_t pmath_System_N;
+extern pmath_symbol_t pmath_System_True;
+
 static void destroy_symset_entry(void *p) {
   pmath_t entry = PMATH_FROM_PTR(p);
   
@@ -199,7 +206,7 @@ static int _simple_real_class(pmath_t obj) {
     return PMATH_CLASS_REAL;
   }
   
-  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(obj, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(obj, 1);
     pmath_t im = pmath_expr_get_item(obj, 2);
     
@@ -280,7 +287,7 @@ PMATH_PRIVATE int _pmath_number_class(pmath_t obj) {
           
         if(prec >= maxprec) {
           pmath_message(
-            PMATH_SYMBOL_N, "meprec", 2,
+            pmath_System_N, "meprec", 2,
             _pmath_from_precision(me->max_extra_precision),
             pmath_ref(obj));
           break;
@@ -354,7 +361,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
   if(!assignment)
     return expr;
     
-  if(!pmath_is_expr_of_len(lhs, PMATH_SYMBOL_ISNUMERIC, 1)) {
+  if(!pmath_is_expr_of_len(lhs, pmath_System_IsNumeric, 1)) {
     pmath_unref(tag);
     pmath_unref(lhs);
     pmath_unref(rhs);
@@ -370,7 +377,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
     
     pmath_unref(expr);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
@@ -382,17 +389,17 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
     
     pmath_unref(sym);
     if(pmath_same(rhs, PMATH_UNDEFINED))
-      return pmath_ref(PMATH_SYMBOL_FAILED);
+      return pmath_ref(pmath_System_DollarFailed);
     return rhs;
   }
   
-  if( !pmath_same(rhs, PMATH_SYMBOL_TRUE) &&
-      !pmath_same(rhs, PMATH_SYMBOL_FALSE) &&
+  if( !pmath_same(rhs, pmath_System_True) &&
+      !pmath_same(rhs, pmath_System_False) &&
       !pmath_same(rhs, PMATH_UNDEFINED))
   {
     pmath_unref(sym);
     pmath_message(
-      PMATH_SYMBOL_ISNUMERIC, "set", 2,
+      pmath_System_IsNumeric, "set", 2,
       lhs,
       pmath_ref(rhs));
       
@@ -400,7 +407,7 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
       return rhs;
       
     pmath_unref(rhs);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(lhs);
@@ -408,11 +415,11 @@ PMATH_PRIVATE pmath_t builtin_assign_isnumeric(pmath_expr_t expr) {
   table = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&numeric_symbols);
   
   entry = pmath_ht_search(table, PMATH_AS_PTR(sym));
-  if(!entry && pmath_same(rhs, PMATH_SYMBOL_TRUE)) {
+  if(!entry && pmath_same(rhs, pmath_System_True)) {
     entry = pmath_ht_insert(table, PMATH_AS_PTR(sym));
     sym = PMATH_NULL;
   }
-  else if(entry && !pmath_same(rhs, PMATH_SYMBOL_TRUE)) {
+  else if(entry && !pmath_same(rhs, pmath_System_True)) {
     entry = pmath_ht_remove(table, PMATH_AS_PTR(sym));
   }
   
@@ -443,7 +450,7 @@ PMATH_PRIVATE pmath_t builtin_isnumeric(pmath_expr_t expr) {
   result = pmath_is_numeric(obj);
   pmath_unref(obj);
   
-  return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
+  return pmath_ref(result ? pmath_System_True : pmath_System_False);
 }
 
 /*============================================================================*/

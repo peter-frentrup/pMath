@@ -10,7 +10,6 @@
 #include <pmath-util/messages.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
 
 #define EVAL_CODE_ARGS(code, format, ...) \
@@ -18,18 +17,35 @@
                   pmath_parse_string_args( \
                       (code), (format), __VA_ARGS__))
 
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_Attributes;
+extern pmath_symbol_t pmath_System_DefaultRules;
+extern pmath_symbol_t pmath_System_DownRules;
 extern pmath_symbol_t pmath_System_FormatRules;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_HoldPattern;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Names;
+extern pmath_symbol_t pmath_System_NRules;
+extern pmath_symbol_t pmath_System_OwnRules;
+extern pmath_symbol_t pmath_System_SectionPrint;
+extern pmath_symbol_t pmath_System_SubRules;
+extern pmath_symbol_t pmath_System_TagAssign;
+extern pmath_symbol_t pmath_System_TagAssignDelayed;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_UpRules;
 extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 extern pmath_symbol_t pmath_System_Private_PrepareUsageLine;
 extern pmath_symbol_t pmath_System_Private_PrepareDefinitionLine;
 
 static void print_definition_line(pmath_t expr) { // expr will be freed
-  expr = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_HOLDFORM), 1, expr);
+  expr = pmath_expr_new_extended(pmath_ref(pmath_System_HoldForm), 1, expr);
   expr = pmath_expr_new_extended(
            pmath_ref(pmath_System_Private_PrepareDefinitionLine), 1,
            expr);
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_SECTIONPRINT), 2,
+           pmath_ref(pmath_System_SectionPrint), 2,
            PMATH_C_STRING("Print"),
            expr);
   pmath_unref(pmath_evaluate(expr));
@@ -53,7 +69,7 @@ static void print_rule_defs(
     pmath_t rhs        = pmath_expr_get_item(rule_i, 2);
     pmath_unref(rule_i);
     
-    if(pmath_is_expr_of_len(lhs, PMATH_SYMBOL_HOLDPATTERN, 1)) {
+    if(pmath_is_expr_of_len(lhs, pmath_System_HoldPattern, 1)) {
       rule_i = pmath_expr_get_item(lhs, 1);
       pmath_unref(lhs);
       lhs = rule_i;
@@ -63,14 +79,14 @@ static void print_rule_defs(
       if(pmath_is_evaluated(rhs)) {
         print_definition_line(
           pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_TAGASSIGN), 3, 
+            pmath_ref(pmath_System_TagAssign), 3, 
             pmath_ref(sym), 
             lhs, 
             rhs));
       }
       else {
         print_definition_line(
-          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_TAGASSIGNDELAYED), 3, 
+          pmath_expr_new_extended(pmath_ref(pmath_System_TagAssignDelayed), 3, 
           pmath_ref(sym), 
           lhs, 
           rhs));
@@ -79,13 +95,13 @@ static void print_rule_defs(
     else {
       if(pmath_is_evaluated(rhs)) {
         print_definition_line(
-          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+          pmath_expr_new_extended(pmath_ref(pmath_System_Assign), 2,
           lhs, 
           rhs));
       }
       else {
         print_definition_line(
-          pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
+          pmath_expr_new_extended(pmath_ref(pmath_System_AssignDelayed), 2,
           lhs, 
           rhs));
       }
@@ -113,11 +129,11 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     
     expr = pmath_evaluate(
              pmath_expr_new_extended(
-               pmath_ref(PMATH_SYMBOL_NAMES), 1,
+               pmath_ref(pmath_System_Names), 1,
                pmath_ref(obj)));
                
     sym = PMATH_NULL;
-    if(pmath_is_expr_of(expr, PMATH_SYMBOL_LIST)) {
+    if(pmath_is_expr_of(expr, pmath_System_List)) {
       switch(pmath_expr_length(expr)) {
         case 0: break;
         
@@ -147,7 +163,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   }
   
   obj = pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_SECTIONPRINT), 2,
+          pmath_ref(pmath_System_SectionPrint), 2,
           PMATH_C_STRING("PrintUsage"),
           pmath_expr_new_extended(
             pmath_ref(pmath_System_Private_PrepareUsageLine), 1, 
@@ -163,21 +179,21 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
    */
   name = pmath_symbol_name(sym);
   
-  obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ATTRIBUTES), 1, pmath_ref(name));
+  obj = pmath_expr_new_extended(pmath_ref(pmath_System_Attributes), 1, pmath_ref(name));
   obj = pmath_evaluate(obj);
-  if(!pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 0)) {
+  if(!pmath_is_expr_of_len(obj, pmath_System_List, 0)) {
     
     print_definition_line(
-      pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+      pmath_expr_new_extended(pmath_ref(pmath_System_Assign), 2,
       pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_ATTRIBUTES), 1,
+        pmath_ref(pmath_System_Attributes), 1,
         pmath_ref(sym)), 
       obj));
   }
   else
     pmath_unref(obj);
     
-  obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DEFAULTRULES), 1, pmath_ref(name));
+  obj = pmath_expr_new_extended(pmath_ref(pmath_System_DefaultRules), 1, pmath_ref(name));
   obj = pmath_evaluate(obj);
   print_rule_defs(sym, obj, FALSE);
   
@@ -185,21 +201,21 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
   
     pmath_t old_use_text_formatting = pmath_thread_local_save(
       pmath_System_BoxForm_DollarUseTextFormatting, 
-      pmath_ref(PMATH_SYMBOL_TRUE));
+      pmath_ref(pmath_System_True));
     
-    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_NRULES), 1, pmath_ref(name));
+    obj = pmath_expr_new_extended(pmath_ref(pmath_System_NRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
-    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_DOWNRULES), 1, pmath_ref(name));
+    obj = pmath_expr_new_extended(pmath_ref(pmath_System_DownRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
-    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_SUBRULES), 1, pmath_ref(name));
+    obj = pmath_expr_new_extended(pmath_ref(pmath_System_SubRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, FALSE);
     
-    obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_UPRULES), 1, pmath_ref(name));
+    obj = pmath_expr_new_extended(pmath_ref(pmath_System_UpRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
     print_rule_defs(sym, obj, TRUE);
     
@@ -213,14 +229,14 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
         if(pmath_is_evaluated(obj)) {
           print_definition_line(
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_ASSIGN), 2, 
+              pmath_ref(pmath_System_Assign), 2, 
               pmath_ref(sym), 
               obj));
         }
         else {
           print_definition_line(
             pmath_expr_new_extended(
-              pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2, 
+              pmath_ref(pmath_System_AssignDelayed), 2, 
                 pmath_ref(sym), 
                 obj));
         }
@@ -228,7 +244,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
       else {
         pmath_unref(obj);
         
-        obj = pmath_expr_new_extended(pmath_ref(PMATH_SYMBOL_OWNRULES), 1, pmath_ref(name));
+        obj = pmath_expr_new_extended(pmath_ref(pmath_System_OwnRules), 1, pmath_ref(name));
         obj = pmath_evaluate(obj);
         print_rule_defs(sym, obj, FALSE);
       }

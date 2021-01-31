@@ -13,6 +13,7 @@ extern pmath_symbol_t richmath_System_Baseline;
 extern pmath_symbol_t richmath_System_Bottom;
 extern pmath_symbol_t richmath_System_Center;
 extern pmath_symbol_t richmath_System_GridBox;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Top;
 
@@ -198,7 +199,7 @@ bool ExpandableOwnerBox::expand(const BoxSize &size) {
 //{ ... class InlineSequenceBox
 
 bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
-  if(expr[0] == PMATH_SYMBOL_LIST) {
+  if(expr[0] == richmath_System_List) {
     _content->load_from_object(expr, options);
     
     finish_load_from_object(std::move(expr));
@@ -317,7 +318,7 @@ float OwnerBox::Impl::calculate_baseline(float em, Expr baseline_pos) const {
     }
   }
   
-  // baseline_pos == PMATH_SYMBOL_AUTOMATIC
+  // baseline_pos == richmath_System_Automatic
   return 0;
 }
 

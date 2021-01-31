@@ -9,6 +9,9 @@
 
 #include <string.h>
 
+
+extern pmath_symbol_t pmath_System_List;
+
 static pmath_t stringdrop(
   pmath_t str,   // will be freed
   pmath_t expr,  // wont be freed
@@ -85,7 +88,7 @@ static pmath_t stringdrop(
     return pmath_expr_set_item(pmath_ref(expr), 1, str);
   }
   
-  if(pmath_is_expr_of(str, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(str, pmath_System_List)) {
     size_t i;
     
     for(i = 1; i <= pmath_expr_length(str); ++i) {

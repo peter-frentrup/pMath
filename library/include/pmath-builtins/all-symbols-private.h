@@ -9,8 +9,6 @@
 
 struct _pmath_thread_t;
 
-#define PMATH_SYMBOL_BUILTIN(index)  _pmath_builtin_symbol_array[(index)]
-
 /* EARLYCALL is like DOWNCALL, except that the builtin code is run before any
    user-defined rule. So one cannot override the default function implementation
    e.g. with Unprotect(Plus);2+2:= 5
@@ -25,8 +23,6 @@ static const pmath_code_usage_t PMATH_CODE_USAGE_EARLYCALL = (pmath_code_usage_t
    PMATH_CODE_USAGE_XXX. So this cannot be used with _pmath_run_code().
  */
 static const pmath_code_usage_t PMATH_CODE_USAGE_APPROX = (pmath_code_usage_t)4;
-
-extern PMATH_PRIVATE pmath_symbol_t _pmath_builtin_symbol_array[];
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_have_code(
@@ -50,7 +46,5 @@ pmath_bool_t _pmath_run_approx_code(
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void);
-
-#define PMATH_BUILTIN_SYMBOL_COUNT  506
 
 #endif /* __PMATH_BUILTINS__SYMBOLS_PRIVATE_H__ */

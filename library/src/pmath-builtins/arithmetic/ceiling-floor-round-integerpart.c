@@ -11,6 +11,14 @@
 #include <pmath-builtins/build-expr-private.h>
 
 
+extern pmath_symbol_t pmath_System_Ceiling;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_Floor;
+extern pmath_symbol_t pmath_System_IntegerPart;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Round;
+extern pmath_symbol_t pmath_System_Times;
+
 static void _pmath_round_arf_to_nearest(arf_t result, const arf_t x) {
   if(arf_is_int(x)) {
     arf_set(result, x);
@@ -101,7 +109,7 @@ static pmath_bool_t try_round_inexact(pmath_t *x, arf_func_t round_func) {
   if(pmath_is_mpfloat(*x))
     return try_arb_to_integer(x, PMATH_AS_ARB(*x), PMATH_AS_ARB_WORKING_PREC(*x), round_func);
     
-  if(pmath_is_expr_of_len(*x, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(*x, pmath_System_Complex, 2)) {
     pmath_t re = pmath_expr_get_item(*x, 1);
     pmath_t im = pmath_expr_get_item(*x, 2);
     
@@ -164,16 +172,16 @@ static pmath_bool_t try_round_numeric(pmath_t *x, arf_func_t round_func) {
 
 
 static arf_func_t get_rounding_function(pmath_t head) {
-  if(pmath_same(head, PMATH_SYMBOL_CEILING))
+  if(pmath_same(head, pmath_System_Ceiling))
     return arf_ceil;
     
-  if(pmath_same(head, PMATH_SYMBOL_FLOOR))
+  if(pmath_same(head, pmath_System_Floor))
     return arf_floor;
     
-  if(pmath_same(head, PMATH_SYMBOL_INTEGERPART))
+  if(pmath_same(head, pmath_System_IntegerPart))
     return _pmath_integerpart_arf;
     
-  /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */
+  /*if(pmath_same(head, pmath_System_Round)) */
   return _pmath_round_arf_to_nearest;
 }
 
@@ -203,25 +211,25 @@ static pmath_integer_t round_q(pmath_quotient_t x, pmath_t head) {
   assert(pmath_is_mpint(num));
   assert(pmath_is_mpint(den));
   
-  if(pmath_same(head, PMATH_SYMBOL_CEILING)) {
+  if(pmath_same(head, pmath_System_Ceiling)) {
     mpz_cdiv_q(
       PMATH_AS_MPZ(result),
       PMATH_AS_MPZ(num),
       PMATH_AS_MPZ(den));
   }
-  else if(pmath_same(head, PMATH_SYMBOL_FLOOR)) {
+  else if(pmath_same(head, pmath_System_Floor)) {
     mpz_fdiv_q(
       PMATH_AS_MPZ(result),
       PMATH_AS_MPZ(num),
       PMATH_AS_MPZ(den));
   }
-  else if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+  else if(pmath_same(head, pmath_System_IntegerPart)) {
     mpz_tdiv_q(
       PMATH_AS_MPZ(result),
       PMATH_AS_MPZ(num),
       PMATH_AS_MPZ(den));
   }
-  else { /*if(pmath_same(head, PMATH_SYMBOL_ROUND)) */
+  else { /*if(pmath_same(head, pmath_System_Round)) */
     pmath_bool_t even;
     int cmp;
     pmath_mpint_t rem  = _pmath_create_mp_int(0);
@@ -331,7 +339,7 @@ PMATH_PRIVATE pmath_t builtin_round_functions(pmath_expr_t expr) {
     return expr;
   }
   
-  if(pmath_same(head, PMATH_SYMBOL_INTEGERPART)) {
+  if(pmath_same(head, pmath_System_IntegerPart)) {
     pmath_unref(head);
     pmath_unref(x);
     pmath_message_argxxx(len, 1, 1);

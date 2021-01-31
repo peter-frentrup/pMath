@@ -6,6 +6,9 @@
 #include <pmath-builtins/number-theory-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 // product of all primes up to 97
 #define PRODUCT_OF_SMALL_PRIMES_HEX \
   "1bc0946e5bb173bc25c4b8131ab1026"
@@ -130,12 +133,12 @@ PMATH_PRIVATE pmath_t builtin_isprime(pmath_expr_t expr) {
     pmath_bool_t result = _pmath_integer_is_prime(n);
     pmath_unref(expr);
     pmath_unref(n);
-    return pmath_ref(result ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE);
+    return pmath_ref(result ? pmath_System_True : pmath_System_False);
   }
   
   pmath_unref(n);
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pmath_System_False);
 }
 
 /*============================================================================*/

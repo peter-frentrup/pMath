@@ -18,10 +18,15 @@
 #endif
 
 
-extern pmath_symbol_t pjsym_Java_JavaException;
-extern pmath_symbol_t pjsym_Java_JavaStartVM;
 extern pmath_symbol_t pjsym_Java_DollarDefaultClassPath;
 extern pmath_symbol_t pjsym_Java_DollarJavaVMLibraryName;
+extern pmath_symbol_t pjsym_Java_JavaException;
+extern pmath_symbol_t pjsym_Java_JavaStartVM;
+
+extern pmath_symbol_t pjsym_System_DollarFailed;
+extern pmath_symbol_t pjsym_System_False;
+extern pmath_symbol_t pjsym_System_List;
+extern pmath_symbol_t pjsym_System_True;
 
 static pmath_messages_t jvm_main_mq = PMATH_STATIC_NULL;
 pmath_t pjvm_auto_detach_key = PMATH_STATIC_NULL; // initialized/freed in main.c
@@ -208,7 +213,7 @@ static pmath_custom_t create_pjvm(JavaVM *jvm) {
     return PMATH_NULL;
   }
   
-  //pmath_symbol_set_value(PJ_SYMBOL_ISJAVARUNNING, pmath_ref(PMATH_SYMBOL_TRUE));
+  //pmath_symbol_set_value(PJ_SYMBOL_ISJAVARUNNING, pmath_ref(pjsym_System_True));
   
   return pmath_custom_new(d, pjvm_destructor);
 }
@@ -412,7 +417,7 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
               pmath_ref(pjsym_Java_JavaException), 3,
               pj_object_from_java(env, jex),
               PMATH_C_STRING(""),
-              pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0));
+              pmath_expr_new(pmath_ref(pjsym_System_List), 0));
               
       if(JNI_OK == (*env)->EnsureLocalCapacity(env, 5)) {
         jclass ex_class = (*env)->GetObjectClass(env, jex);
@@ -446,7 +451,7 @@ pmath_bool_t pj_exception_to_pmath(JNIEnv *env) {
                 if(jarr) {
                   jsize i;
                   jsize len = (*env)->GetArrayLength(env, jarr);
-                  pmath_t stack = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), (size_t)len);
+                  pmath_t stack = pmath_expr_new(pmath_ref(pjsym_System_List), (size_t)len);
                   clear_exception(env);
                   
                   for(i = 0; i < len; ++i) {
@@ -641,9 +646,9 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaIsRunning(pmath_expr_t expr) {
   pmath_unref(expr);
   
   if(pjvm_java_is_running())
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pjsym_System_True);
     
-  return pmath_ref(PMATH_SYMBOL_FALSE);
+  return pmath_ref(pjsym_System_False);
 }
 
 static char *prepare_initial_classpath();
@@ -779,7 +784,7 @@ PMATH_PRIVATE pmath_t pj_eval_Java_JavaStartVM(pmath_expr_t expr) {
   
   pjvm = pjvm_try_get();
   pmath_unref(pjvm);
-  return pmath_is_null(pjvm) ? pmath_ref(PMATH_SYMBOL_FAILED) : PMATH_NULL;
+  return pmath_is_null(pjvm) ? pmath_ref(pjsym_System_DollarFailed) : PMATH_NULL;
 }
 
 PMATH_PRIVATE pmath_bool_t pjvm_init(void) {
@@ -808,7 +813,7 @@ static char *prepare_initial_classpath(void) {
   if(pmath_is_string(cp))
     cp = pmath_build_value("(o)", cp);
     
-  if( pmath_is_expr_of(cp, PMATH_SYMBOL_LIST) &&
+  if( pmath_is_expr_of(cp, pjsym_System_List) &&
       pmath_expr_length(cp) > 0)
   {
     pmath_string_t s = PMATH_C_STRING("-Djava.class.path=");

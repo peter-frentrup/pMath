@@ -34,6 +34,7 @@ namespace richmath { namespace strings {
   extern String ShowHideMenu_label;
 }}
 
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_System_Delimiter;
@@ -557,11 +558,7 @@ class richmath::Win32GlassDock: public Win32Dock {
       //// TMT_GLOWINTENSITY = 2429
       //Win32Themes::GetThemeInt(theme, part, state, 2429, &glow_intensity);
       
-      Expr color = Call(
-                     Symbol(PMATH_SYMBOL_RGBCOLOR), 
-                     ( col_bgr        & 0xFF) / 255.0, 
-                     ((col_bgr >>  8) & 0xFF) / 255.0, 
-                     ((col_bgr >> 16) & 0xFF) / 255.0);
+      Expr color = Color::from_bgr24(col_bgr).to_pmath();
       
       double radius = glow_size * 0.5 * 0.75;
       return List(
@@ -1180,7 +1177,7 @@ void Win32DocumentWindow::on_close() {
     
     switch(answer) {
       case YesNoCancel::Yes:
-        if(Application::save(document()) == PMATH_SYMBOL_FAILED)
+        if(Application::save(document()) == richmath_System_DollarFailed)
           return;
         break;
       

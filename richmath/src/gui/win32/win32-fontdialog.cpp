@@ -10,6 +10,8 @@
 using namespace richmath;
 using namespace pmath;
 
+extern pmath_symbol_t richmath_System_DollarCanceled;
+extern pmath_symbol_t richmath_System_List;
 
 //{ class Win32FontDialog ...
 
@@ -32,7 +34,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     if(initial_style->get(FontFamilies, &families)) {
       String family(families);
       
-      if(families[0] == PMATH_SYMBOL_LIST){
+      if(families[0] == richmath_System_List){
         for(size_t i = 1;i <= families.expr_length();++i){
           family = String(families[i]);
           
@@ -109,11 +111,10 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     return g.end();
   }
   
-  DWORD err = CommDlgExtendedError();
-  if(err)
-    return Symbol(PMATH_SYMBOL_ABORTED);
+  if(DWORD err = CommDlgExtendedError())
+    pmath_debug_print("[CommDlgExtendedError %d]", err);
     
-  return Symbol(PMATH_SYMBOL_CANCELED);
+  return Symbol(richmath_System_DollarCanceled);
 }
 
 //} ... class Win32FontDialog

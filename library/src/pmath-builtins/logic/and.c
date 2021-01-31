@@ -5,7 +5,13 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE pmath_t builtin_and(pmath_expr_t expr) {
+// FIXME: what should Undefined && False give ?
+
   pmath_bool_t have_null = FALSE;
   size_t i, elen;
   
@@ -13,14 +19,14 @@ PMATH_PRIVATE pmath_t builtin_and(pmath_expr_t expr) {
   if(elen > 1) {
     for(i = 0; i <= elen; i++) {
       pmath_t item = pmath_evaluate(pmath_expr_get_item(expr, i));
-      if( pmath_same(item, PMATH_SYMBOL_FALSE) ||
-          pmath_same(item, PMATH_SYMBOL_UNDEFINED))
+      if( pmath_same(item, pmath_System_False) ||
+          pmath_same(item, pmath_System_Undefined))
       {
         pmath_unref(expr);
         return item;
       }
       
-      if(pmath_same(item, PMATH_SYMBOL_TRUE)) {
+      if(pmath_same(item, pmath_System_True)) {
         expr = pmath_expr_set_item(expr, i, PMATH_NULL);
         have_null = TRUE;
       }
@@ -41,5 +47,5 @@ PMATH_PRIVATE pmath_t builtin_and(pmath_expr_t expr) {
   }
   
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }

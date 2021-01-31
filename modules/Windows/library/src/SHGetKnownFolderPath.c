@@ -7,6 +7,12 @@
 #include <shlobj.h>
 
 
+extern pmath_symbol_t p4win_System_DollarFailed;
+extern pmath_symbol_t p4win_System_CreateDirectory;
+extern pmath_symbol_t p4win_System_False;
+extern pmath_symbol_t p4win_System_Rule;
+extern pmath_symbol_t p4win_System_True;
+
 struct name_and_folderid_t {
   const char *name;
   const KNOWNFOLDERID id;
@@ -214,7 +220,7 @@ pmath_t windows_GetAllKnownFolders(pmath_expr_t expr) {
   for(;current != end; ++current) {
     pmath_emit(
       pmath_expr_new_extended(
-        pmath_ref(PMATH_SYMBOL_RULE), 2,
+        pmath_ref(p4win_System_Rule), 2,
         PMATH_C_STRING(current->name),
         guid_to_string(&current->id)), 
       PMATH_NULL);
@@ -231,11 +237,11 @@ static
 pmath_bool_t get_option_boolean(pmath_symbol_t name, pmath_t more, pmath_bool_t *error) {
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, more));
   
-  if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(value, p4win_System_True)) {
     pmath_unref(value);
     return TRUE;
   }
-  if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(value, p4win_System_False)) {
     pmath_unref(value);
     return FALSE;
   }
@@ -292,17 +298,17 @@ pmath_t windows_SHGetKnownFolderPath(pmath_expr_t expr) {
   if(pmath_is_null(options)) 
     return expr;
   
-  if(get_option_boolean(PMATH_SYMBOL_CREATEDIRECTORY, options, &options_error))
+  if(get_option_boolean(p4win_System_CreateDirectory, options, &options_error))
     flags |= KF_FLAG_CREATE;
   pmath_unref(options);
   
   pmath_unref(expr);
   result = NULL;
   if(!check_succeeded(SHGetKnownFolderPath(id, flags, NULL, &result)))
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(p4win_System_DollarFailed);
   
   if(!result)
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(p4win_System_DollarFailed);
     
   name = pmath_string_insert_ucs2(PMATH_NULL, 0, result, -1);
   CoTaskMemFree(result);

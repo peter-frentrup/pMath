@@ -13,6 +13,13 @@
 #include <limits.h>
 
 
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Heads;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE int _pmath_object_in_levelspec(
   pmath_t obj,
   long levelmin,
@@ -59,13 +66,13 @@ pmath_bool_t _pmath_extract_levels(
     return TRUE;
   }
 
-  if(pmath_is_expr_of_len(levelspec, PMATH_SYMBOL_RANGE, 2)) {
+  if(pmath_is_expr_of_len(levelspec, pmath_System_Range, 2)) {
     pmath_t obj = pmath_expr_get_item(levelspec, 1);
 
     if(pmath_is_int32(obj)) {
       *levelmin = PMATH_AS_INT32(obj);
     }
-    else if(pmath_same(obj, PMATH_SYMBOL_AUTOMATIC)) {
+    else if(pmath_same(obj, pmath_System_Automatic)) {
       *levelmin = 1;
     }
     else {
@@ -79,7 +86,7 @@ pmath_bool_t _pmath_extract_levels(
     if(pmath_is_int32(obj)) {
       *levelmax = PMATH_AS_INT32(obj);
     }
-    else if( pmath_same(obj, PMATH_SYMBOL_AUTOMATIC) ||
+    else if( pmath_same(obj, pmath_System_Automatic) ||
              pmath_equals(obj, _pmath_object_pos_infinity))
     {
       *levelmax = LONG_MAX;
@@ -164,13 +171,13 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr) {
 
     if(pmath_is_set_of_options(head)) {
       pmath_unref(head);
-      head = pmath_ref(PMATH_SYMBOL_LIST);
+      head = pmath_ref(pmath_System_List);
     }
     else
       last_nonoption = 3;
   }
   else
-    head = pmath_ref(PMATH_SYMBOL_LIST);
+    head = pmath_ref(pmath_System_List);
 
   options = pmath_options_extract(expr, last_nonoption);
   if(pmath_is_null(options)) {
@@ -178,16 +185,16 @@ PMATH_PRIVATE pmath_t builtin_level(pmath_expr_t expr) {
     return expr;
   }
 
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_HEADS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Heads, options));
+  if(pmath_same(obj, pmath_System_True)) {
     info.with_heads = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_unref(options);
     pmath_unref(head);
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_HEADS),
+      pmath_ref(pmath_System_Heads),
       obj);
     return expr;
   }

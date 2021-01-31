@@ -17,7 +17,6 @@
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 
 
@@ -25,7 +24,23 @@
 #  define va_copy(dst, src) do{ dst = (src); }while(0)
 #endif
 
+extern pmath_symbol_t pmath_System_DollarAborted;
+extern pmath_symbol_t pmath_System_DollarHistory;
+extern pmath_symbol_t pmath_System_DollarHistoryLength;
 extern pmath_symbol_t pmath_System_DollarLine;
+extern pmath_symbol_t pmath_System_DollarMessageCount;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Increment;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Throw;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Unassign;
+extern pmath_symbol_t pmath_System_Undefined;
 
 
 PMATH_API pmath_bool_t pmath_is_expr_of(pmath_t obj, pmath_symbol_t head) {
@@ -65,8 +80,8 @@ static pmath_t next_value(const char **format, va_list *args) {
   switch(*(*format)++) {
     case 'b': {
         if(va_arg(*args, int))
-          return pmath_ref(PMATH_SYMBOL_TRUE);
-        return pmath_ref(PMATH_SYMBOL_FALSE);
+          return pmath_ref(pmath_System_True);
+        return pmath_ref(pmath_System_False);
       }
       
     case 'i': return pmath_integer_new_slong(va_arg(*args, int));
@@ -123,7 +138,7 @@ static pmath_t next_value(const char **format, va_list *args) {
         if(d < 0)
           return pmath_ref(_pmath_object_neg_infinity);
                    
-      } return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+      } return pmath_ref(pmath_System_Undefined);
       
     case 'o': return va_arg(*args, pmath_t);
     
@@ -201,7 +216,7 @@ static pmath_t next_value(const char **format, va_list *args) {
         }
         
         return pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_COMPLEX), 2,
+                 pmath_ref(pmath_System_Complex), 2,
                  real,
                  imag);
       }
@@ -222,10 +237,10 @@ static pmath_t next_value(const char **format, va_list *args) {
         }
         
         return pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                 pmath_ref(pmath_System_Times), 2,
                  num,
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_POWER), 2,
+                   pmath_ref(pmath_System_Power), 2,
                    den,
                    PMATH_FROM_INT32(-1)));
       }
@@ -362,7 +377,7 @@ static void warn_uncaught_exception(void) {
   if( !pmath_same(exception, PMATH_UNDEFINED) &&
       !pmath_same(exception, PMATH_ABORT_EXCEPTION))
   {
-    pmath_message(PMATH_SYMBOL_THROW, "nocatch", 1, exception);
+    pmath_message(pmath_System_Throw, "nocatch", 1, exception);
   }
 }
 
@@ -377,7 +392,7 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
   // Increment($Line)
   pmath_unref(pmath_evaluate(
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_INCREMENT), 1,
+                  pmath_ref(pmath_System_Increment), 1,
                   pmath_ref(pmath_System_DollarLine))));
                   
   warn_uncaught_exception();
@@ -387,7 +402,7 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
   
   if(pmath_aborting()) {
     pmath_unref(output);
-    output = pmath_ref(PMATH_SYMBOL_ABORTED);
+    output = pmath_ref(pmath_System_DollarAborted);
   }
   warn_uncaught_exception();
   did_abort = pmath_continue_after_abort() || did_abort;
@@ -395,9 +410,9 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
   // $History($Line)::= output  [output is already evaluated]
   pmath_unref(pmath_evaluate(
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_ASSIGNDELAYED), 2,
+                  pmath_ref(pmath_System_AssignDelayed), 2,
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_HISTORY), 1,
+                    pmath_ref(pmath_System_DollarHistory), 1,
                     pmath_ref(pmath_System_DollarLine)),
                   pmath_ref(output))));
                   
@@ -407,16 +422,16 @@ pmath_t pmath_session_execute(pmath_t input, pmath_bool_t *aborted) {
   // $History($Line - $HistoryLength):= .
   pmath_unref(pmath_evaluate(
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_UNASSIGN), 1,
+                  pmath_ref(pmath_System_Unassign), 1,
                   pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_HISTORY), 1,
+                    pmath_ref(pmath_System_DollarHistory), 1,
                     pmath_expr_new_extended(
-                      pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                      pmath_ref(pmath_System_Plus), 2,
                       pmath_ref(pmath_System_DollarLine),
                       pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_TIMES), 2,
+                        pmath_ref(pmath_System_Times), 2,
                         PMATH_FROM_INT32(-1),
-                        pmath_ref(PMATH_SYMBOL_HISTORYLENGTH)))))));
+                        pmath_ref(pmath_System_DollarHistoryLength)))))));
                         
   pmath_collect_temporary_symbols();
   
@@ -447,13 +462,13 @@ pmath_t pmath_session_start(void) {
     return PMATH_NULL;
   }
   
-  _pmath_clear(PMATH_SYMBOL_MESSAGECOUNT, FALSE);
+  _pmath_clear(pmath_System_DollarMessageCount, FALSE);
   return pmath_build_value("(ooo)", old_dlvl, old_line, old_msgcnt);
 }
 
 PMATH_API
 void pmath_session_end(pmath_t old_state) {
-  if(pmath_is_expr_of_len(old_state, PMATH_SYMBOL_LIST, 3)) {
+  if(pmath_is_expr_of_len(old_state, pmath_System_List, 3)) {
 //    pmath_debug_print_object("\nend session -> ", old_state, "\n");
     PMATH_RUN_ARGS(
       "$DialogLevel:= `1`;"

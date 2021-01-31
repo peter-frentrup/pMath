@@ -56,6 +56,8 @@ namespace {
   static DataObject *_currently_dragged_data_object = nullptr;
 }
 
+extern pmath_symbol_t richmath_System_MakeBoxes;
+
 static HGLOBAL GlobalClone(HGLOBAL hglobIn) {
   HGLOBAL hglobOut = NULL;
 
@@ -269,7 +271,7 @@ STDMETHODIMP DataObject::GetData(FORMATETC *pFormatEtc, STGMEDIUM *pMedium) {
   if(!source_content.is_null()) {
     if(pFormatEtc->cfFormat == Win32Clipboard::AtomBoxesText) {
       String text = Application::interrupt_wait(
-                      Call(Symbol(PMATH_SYMBOL_MAKEBOXES), source_content),
+                      Call(Symbol(richmath_System_MakeBoxes), source_content),
                       Application::edit_interrupt_timeout
                     ).to_string(PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM);
       
@@ -964,7 +966,7 @@ Expr DataObject::get_global_data_dropfiles(HGLOBAL hglb) {
     size_t size = GlobalSize(hglb);
     
     if(sizeof(DROPFILES) < size && data->pFiles < size) {
-      list = MakeList(0);
+      list = List();
       if(data->fWide) {
         const wchar_t *s = (const wchar_t*)(((const char *)data) + data->pFiles);
         const wchar_t *end = (const wchar_t*)(((const char *)data) + size);

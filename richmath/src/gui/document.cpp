@@ -28,12 +28,6 @@
 
 using namespace richmath;
 
-extern pmath_symbol_t richmath_System_DocumentObject;
-extern pmath_symbol_t richmath_System_Section;
-extern pmath_symbol_t richmath_System_SectionGroup;
-
-extern pmath_symbol_t richmath_FE_SectionsToBoxes;
-
 namespace richmath { namespace strings {
   extern String Document;
   extern String DollarFailed;
@@ -41,6 +35,19 @@ namespace richmath { namespace strings {
   extern String NaturalLanguage;
   extern String PlainText;
 }}
+
+extern pmath_symbol_t richmath_System_DollarAborted;
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_All;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Document;
+extern pmath_symbol_t richmath_System_DocumentObject;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_Section;
+extern pmath_symbol_t richmath_System_SectionGroup;
+
+extern pmath_symbol_t richmath_FE_SectionsToBoxes;
 
 bool richmath::DebugFollowMouse     = false;
 bool richmath::DebugSelectionBounds = false;
@@ -358,11 +365,11 @@ StyledObject *Document::style_parent() {
 }
 
 bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
-  if(expr[0] != PMATH_SYMBOL_DOCUMENT)
+  if(expr[0] != richmath_System_Document)
     return false;
     
   Expr sections_expr = expr[1];
-  if(sections_expr[0] != PMATH_SYMBOL_LIST)
+  if(sections_expr[0] != richmath_System_List)
     return false;
     
   Expr options_expr { pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY) };
@@ -373,7 +380,7 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
   style->add_pmath(std::move(options_expr));
   load_stylesheet();
   
-  sections_expr = Call(Symbol(richmath_System_SectionGroup), std::move(sections_expr), Symbol(PMATH_SYMBOL_ALL));
+  sections_expr = Call(Symbol(richmath_System_SectionGroup), std::move(sections_expr), Symbol(richmath_System_All));
   
   int pos = 0;
   insert_pmath(&pos, std::move(sections_expr), count());
@@ -965,10 +972,10 @@ void Document::on_key_press(uint32_t unichar) {
           AbstractSequenceSection *new_sect;
           SharedPtr<Style>         new_style = new Style();
           
-          Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
-          if(new_style_expr == PMATH_SYMBOL_AUTOMATIC) 
-            new_style_expr = get_group_style(sect->index(), DefaultNewSectionStyle, Symbol(PMATH_SYMBOL_AUTOMATIC));
-          if(new_style_expr == PMATH_SYMBOL_AUTOMATIC)
+          Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(richmath_System_Automatic));
+          if(new_style_expr == richmath_System_Automatic) 
+            new_style_expr = get_group_style(sect->index(), DefaultNewSectionStyle, Symbol(richmath_System_Automatic));
+          if(new_style_expr == richmath_System_Automatic)
             new_style_expr = sect->get_own_style(BaseStyleName);
 
           new_style->add_pmath(std::move(new_style_expr));
@@ -2057,7 +2064,7 @@ void Document::paste_from_binary(String mimetype, Expr file) {
 }
 
 void Document::paste_from_filenames(Expr list_of_files, bool import_contents) {
-  if(list_of_files[0] != PMATH_SYMBOL_LIST) {
+  if(list_of_files[0] != richmath_System_List) {
     native()->beep();
     return;
   }
@@ -2077,8 +2084,8 @@ void Document::paste_from_filenames(Expr list_of_files, bool import_contents) {
     if(content_boxes.is_null())
       continue;
     
-    if(content_boxes == PMATH_SYMBOL_FAILED)       content_boxes = strings::DollarFailed;
-    else if(content_boxes == PMATH_SYMBOL_ABORTED) content_boxes = strings::DollarAborted;
+    if(     content_boxes == richmath_System_DollarFailed)  content_boxes = strings::DollarFailed;
+    else if(content_boxes == richmath_System_DollarAborted) content_boxes = strings::DollarAborted;
     
     paste_from_boxes(content_boxes);
   }
@@ -2203,7 +2210,7 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
   AutoValueReset<MenuCommandScope> auto_reset(Menus::current_scope);
   Menus::current_scope = MenuCommandScope::Selection;
   
-  if(scope == PMATH_SYMBOL_DOCUMENT) {
+  if(scope == richmath_System_Document) {
     Menus::current_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
@@ -2237,7 +2244,7 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
   AutoValueReset<MenuCommandScope> auto_reset(Menus::current_scope);
   Menus::current_scope = MenuCommandScope::Selection;
   
-  if(scope == PMATH_SYMBOL_DOCUMENT) {
+  if(scope == richmath_System_Document) {
     Menus::current_scope = MenuCommandScope::Document;
     new_sel.set(this, 0, 0);
   }
@@ -3391,7 +3398,7 @@ Expr Document::get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item)
   FrontEndReference ref = mouse_history.observable_mouseover_box_id;
   Box *box = FrontEndObject::find_cast<Box>(ref);
   if(!box)
-    return Symbol(PMATH_SYMBOL_NONE);
+    return Symbol(richmath_System_None);
   
   if(dynamic_cast<AbstractSequence*>(box) && box->parent())
     box = box->parent();
@@ -3673,7 +3680,7 @@ Expr Document::to_pmath(BoxOutputFlags flags) {
   Expr content = SectionList::to_pmath(flags);
   if(content[0] == richmath_System_SectionGroup) {
     Expr inner = content[1];
-    if(inner.expr_length() == 1 && inner[0] == PMATH_SYMBOL_LIST)
+    if(inner.expr_length() == 1 && inner[0] == richmath_System_List)
       content = inner[1];
   }
   
@@ -3682,8 +3689,12 @@ Expr Document::to_pmath(BoxOutputFlags flags) {
   style->emit_to_pmath(false);
   
   Expr e = g.end();
-  e.set(0, Symbol(PMATH_SYMBOL_DOCUMENT));
+  e.set(0, Symbol(richmath_System_Document));
   return e;
+}
+
+Expr Document::to_pmath_symbol() {
+  return Symbol(richmath_System_Document);
 }
 
 Expr Document::to_pmath_id() {
@@ -4242,7 +4253,7 @@ bool Document::Impl::prepare_insert() {
     Expr style_expr = self.get_group_style(
                         self.context.selection.start - 1,
                         DefaultNewSectionStyle,
-                        Symbol(PMATH_SYMBOL_FAILED));
+                        Symbol(richmath_System_DollarFailed));
                         
     SharedPtr<Style> section_style = new Style(style_expr);
     

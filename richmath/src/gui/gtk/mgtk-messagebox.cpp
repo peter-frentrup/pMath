@@ -9,14 +9,19 @@
 
 using namespace richmath;
 
-extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
-extern pmath_symbol_t richmath_FE_CallFrontEnd;
-extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
-
 namespace richmath { namespace strings {
   extern String Head;
   extern String Location;
 }}
+
+extern pmath_symbol_t richmath_System_Abort;
+extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Dialog;
+extern pmath_symbol_t richmath_System_Function;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
+extern pmath_symbol_t richmath_FE_CallFrontEnd;
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 namespace {
   class MathGtkHyperlinks {
@@ -199,7 +204,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
       content+= hyperlinks.register_hyperlink_action(
                   Call(Symbol(richmath_FE_CallFrontEnd),
                     Call(Symbol(richmath_FrontEnd_SetSelectedDocument),
-                    Symbol(PMATH_SYMBOL_AUTOMATIC),
+                    Symbol(richmath_System_Automatic),
                     sect->id().to_pmath())));
       content+= "\">";
       content+= sect->get_own_style(SectionLabel, "?");
@@ -208,7 +213,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   }
   
   String details;
-  if(stack[0] == PMATH_SYMBOL_LIST && stack.expr_length() > 1) {
+  if(stack[0] == richmath_System_List && stack.expr_length() > 1) {
     Expr default_name = String("?");
     
     for(size_t i = stack.expr_length() - 1; i > 0; --i) {
@@ -223,7 +228,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
       if(frame.try_lookup(strings::Location, location)) {
         location = Application::interrupt_wait(Call(Symbol(richmath_Developer_DebugInfoOpenerFunction), std::move(location)));
         
-        if(location[0] == PMATH_SYMBOL_FUNCTION) {
+        if(location[0] == richmath_System_Function) {
           if(location.expr_length() == 1)
             location = location[1];
           else
@@ -278,8 +283,8 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   
   gtk_widget_destroy(dialog);
   switch(result) {
-    case ResponseAbort:           return Call(Symbol(PMATH_SYMBOL_ABORT));
-    case ResponseEnterSubsession: return Call(Symbol(PMATH_SYMBOL_DIALOG));
+    case ResponseAbort:           return Call(Symbol(richmath_System_Abort));
+    case ResponseEnterSubsession: return Call(Symbol(richmath_System_Dialog));
   }
   
   return Expr();

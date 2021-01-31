@@ -5,6 +5,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 PMATH_PRIVATE pmath_t builtin_identitymatrix(pmath_expr_t expr) {
   /* IdentityMatrix(n)
    */
@@ -27,9 +29,9 @@ PMATH_PRIVATE pmath_t builtin_identitymatrix(pmath_expr_t expr) {
   
   n = PMATH_AS_INT32(n_obj);
   
-  expr = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n);
+  expr = pmath_expr_new(pmath_ref(pmath_System_List), n);
   for(i = n; i > 0; --i) {
-    pmath_t row = pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), n);
+    pmath_t row = pmath_expr_new(pmath_ref(pmath_System_List), n);
     
     for(j = 1; j < i; ++j)
       row = pmath_expr_set_item(row, j, PMATH_FROM_INT32(0));

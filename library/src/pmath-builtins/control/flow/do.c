@@ -9,7 +9,11 @@
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 #include <pmath-builtins/control/flow-private.h>
-#include <pmath-builtins/control-private.h>
+
+
+extern pmath_symbol_t pmath_System_Floor;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Plus;
 
 static void set_value_untracked(pmath_symbol_t sym, pmath_t value) {
   pmath_thread_t thread = pmath_thread_get_current();
@@ -39,7 +43,7 @@ PMATH_PRIVATE void _pmath_iterate(
     pmath_unref(iter);
   }
   
-  if(_pmath_is_rule(iter)) {
+  if(pmath_is_rule(iter)) {
     pmath_t                   start = PMATH_NULL;
     pmath_t                   delta = PMATH_NULL;
     pmath_symbol_t            sym;
@@ -63,7 +67,7 @@ PMATH_PRIVATE void _pmath_iterate(
       
       count = pmath_expr_length(range);
       
-      if(pmath_same(head, PMATH_SYMBOL_LIST)) {
+      if(pmath_same(head, pmath_System_List)) {
         size_t i;
         
         pmath_unref(iter);
@@ -125,7 +129,7 @@ PMATH_PRIVATE void _pmath_iterate(
       
       start = pmath_evaluate(
                 pmath_expr_new_extended(
-                  pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                  pmath_ref(pmath_System_Plus), 2,
                   start,
                   pmath_ref(delta)));
     }
@@ -141,7 +145,7 @@ PMATH_PRIVATE void _pmath_iterate(
   
   iter = pmath_evaluate(
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_FLOOR), 1,
+             pmath_ref(pmath_System_Floor), 1,
              iter));
              
   if(!pmath_is_int32(iter)) {

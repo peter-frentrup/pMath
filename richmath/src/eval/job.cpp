@@ -12,12 +12,14 @@
 
 using namespace richmath;
 
-extern pmath_symbol_t richmath_System_DollarDialogLevel;
-extern pmath_symbol_t richmath_System_DollarLine;
-
 namespace richmath { namespace strings {
   extern String Output;
 }}
+
+extern pmath_symbol_t richmath_System_DollarDialogLevel;
+extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_DollarLine;
+extern pmath_symbol_t richmath_System_Identity;
 
 //{ class EvaluationPosition ...
 
@@ -128,7 +130,7 @@ bool InputJob::start() {
   
   Expr boxes = section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);
-  if(eval_fun != PMATH_SYMBOL_IDENTITY)
+  if(eval_fun != richmath_System_Identity)
     boxes = Call(std::move(eval_fun), std::move(boxes));
   
   Server::local_server->run_boxes(std::move(boxes));
@@ -139,7 +141,7 @@ bool InputJob::start() {
 }
 
 void InputJob::returned(Expr expr) {
-  returned_boxes(to_boxes(expr));
+  returned_boxes(evaluate_to_boxes(expr));
 }
 
 void InputJob::returned_boxes(Expr expr) {
@@ -257,7 +259,7 @@ bool ReplacementJob::start() {
   
   Expr boxes = sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo, selection_start, selection_end);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);
-  if(eval_fun != PMATH_SYMBOL_IDENTITY)
+  if(eval_fun != richmath_System_Identity)
     boxes = Call(std::move(eval_fun), std::move(boxes));
   
   Server::local_server->run_boxes(std::move(boxes));
@@ -284,12 +286,12 @@ void ReplacementJob::end() {
     section->invalidate();
   }
   
-  if( have_result                   &&
-      result != PMATH_SYMBOL_FAILED &&
-      doc                           &&
-      section                       &&
-      sequence                      &&
-      section->parent() == doc      &&
+  if( have_result                            &&
+      result != richmath_System_DollarFailed &&
+      doc                                    &&
+      section                                &&
+      sequence                               &&
+      section->parent() == doc               &&
       selection_end <= sequence->length())
   {
     sequence->remove(selection_start, selection_end);

@@ -5,6 +5,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
+
 PMATH_PRIVATE pmath_t builtin_boole(pmath_expr_t expr) {
   pmath_t obj;
   
@@ -15,19 +19,19 @@ PMATH_PRIVATE pmath_t builtin_boole(pmath_expr_t expr) {
   
   obj = pmath_expr_get_item(expr, 1);
   pmath_unref(obj);
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(obj, pmath_System_True)) {
     pmath_unref(expr);
     return PMATH_FROM_INT32(1);
   }
   
-  if(pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(obj, pmath_System_False)) {
     pmath_unref(expr);
     return PMATH_FROM_INT32(0);
   }
   
-  if(pmath_same(obj, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_same(obj, pmath_System_Undefined)) {
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_UNDEFINED);
+    return pmath_ref(pmath_System_Undefined);
   }
   
   return expr;

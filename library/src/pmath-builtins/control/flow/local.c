@@ -7,6 +7,10 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_List;
+
 static pmath_bool_t make_local(
   pmath_t *body,
   pmath_t *sym 
@@ -21,7 +25,7 @@ static pmath_bool_t make_local(
     return TRUE;
   }
   
-  if(pmath_is_expr_of(*sym, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(*sym, pmath_System_List)) {
     size_t i;
     for(i = pmath_expr_length(*sym); i > 0; --i) {
       pmath_t sym_i = pmath_expr_get_item(*sym, i);
@@ -54,7 +58,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr) {
   }
   
   symbols = pmath_expr_get_item(expr, 1);
-  if(!pmath_is_expr_of(symbols, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(symbols, pmath_System_List)) {
     pmath_message(PMATH_NULL, "lvlist", 1, symbols);
     return expr;
   }
@@ -74,7 +78,7 @@ PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr) {
       pmath_t sym = pmath_expr_get_item(defi, 0);
       pmath_unref(sym);
       
-      if( (!pmath_same(sym, PMATH_SYMBOL_ASSIGN) && !pmath_same(sym, PMATH_SYMBOL_ASSIGNDELAYED)) ||
+      if( (!pmath_same(sym, pmath_System_Assign) && !pmath_same(sym, pmath_System_AssignDelayed)) ||
           pmath_expr_length(defi) != 2)
       {
         pmath_unref(body);

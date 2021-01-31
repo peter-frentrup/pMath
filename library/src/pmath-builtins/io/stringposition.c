@@ -10,10 +10,16 @@
 #include <pmath-util/option-helpers.h>
 
 #include <pmath-builtins/all-symbols-private.h>
-#include <pmath-builtins/control-private.h>
 
 #include <pcre.h>
 
+
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_IgnoreCase;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Overlaps;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_True;
 
 static pmath_t stringposition(
   pmath_t            obj,      // will be freed
@@ -41,7 +47,7 @@ static pmath_t stringposition(
       
       pmath_emit(
         pmath_expr_new_extended(
-          pmath_ref(PMATH_SYMBOL_RANGE), 2,
+          pmath_ref(pmath_System_Range), 2,
           PMATH_FROM_INT32(/* offset + */ capture->ovector[0] + 1),
           PMATH_FROM_INT32(/* offset + */ capture->ovector[1])),
         PMATH_NULL);
@@ -58,7 +64,7 @@ static pmath_t stringposition(
     return pmath_gather_end();
   }
   
-  if(pmath_is_expr_of(obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(obj, pmath_System_List)) {
     size_t i;
     for(i = 1; i <= pmath_expr_length(obj); ++i) {
       pmath_t item = pmath_expr_get_item(obj, i);
@@ -121,14 +127,14 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr) {
     return expr;
     
   regex_options = 0;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_IGNORECASE, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_IgnoreCase, options));
+  if(pmath_same(obj, pmath_System_True)) {
     regex_options |= PCRE_CASELESS;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_IGNORECASE),
+      pmath_ref(pmath_System_IgnoreCase),
       obj);
     pmath_unref(options);
     return expr;
@@ -136,14 +142,14 @@ PMATH_PRIVATE pmath_t builtin_stringposition(pmath_expr_t expr) {
   pmath_unref(obj);
   
   overlaps = FALSE;
-  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, PMATH_SYMBOL_OVERLAPS, options));
-  if(pmath_same(obj, PMATH_SYMBOL_TRUE)) {
+  obj = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Overlaps, options));
+  if(pmath_same(obj, pmath_System_True)) {
     overlaps = TRUE;
   }
-  else if(!pmath_same(obj, PMATH_SYMBOL_FALSE)) {
+  else if(!pmath_same(obj, pmath_System_False)) {
     pmath_message(
       PMATH_NULL, "opttf", 2,
-      pmath_ref(PMATH_SYMBOL_IGNORECASE),
+      pmath_ref(pmath_System_Overlaps),
       obj);
     pmath_unref(options);
     return expr;

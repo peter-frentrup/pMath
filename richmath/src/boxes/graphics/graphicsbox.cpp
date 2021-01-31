@@ -36,13 +36,21 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_System_All;
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Axis;
 extern pmath_symbol_t richmath_System_Baseline;
 extern pmath_symbol_t richmath_System_Bottom;
 extern pmath_symbol_t richmath_System_Center;
+extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_GraphicsBox;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_NCache;
+extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Top;
+extern pmath_symbol_t richmath_System_True;
 
 namespace richmath { namespace strings {
   extern String Graphics;
@@ -473,19 +481,19 @@ void GraphicsBox::calculate_size(const float *optional_expand_width) {
 void GraphicsBox::try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy) {
   Expr e = get_own_style(AxesOrigin);
   
-  if(e[0] == PMATH_SYMBOL_NCACHE)
+  if(e[0] == richmath_System_NCache)
     e = e[2];
     
-  if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
+  if(e[0] == richmath_System_List && e.expr_length() == 2) {
     Expr sub = e[1];
-    if(sub[0] == PMATH_SYMBOL_NCACHE)
+    if(sub[0] == richmath_System_NCache)
       sub = sub[2];
       
     if(sub.is_number())
       *ox = sub.to_double();
       
     sub = e[2];
-    if(sub[0] == PMATH_SYMBOL_NCACHE)
+    if(sub[0] == richmath_System_NCache)
       sub = sub[2];
       
     if(sub.is_number())
@@ -527,26 +535,24 @@ void GraphicsBox::calculate_axes_origin(const GraphicsBounds &bounds, double *ox
 GraphicsBounds GraphicsBox::calculate_plotrange() {
   GraphicsBounds bounds;
   
-  Expr plot_range = get_own_style(PlotRange, Symbol(PMATH_SYMBOL_AUTOMATIC));
+  Expr plot_range = get_own_style(PlotRange, Symbol(richmath_System_Automatic));
   
-  if(plot_range[0] == PMATH_SYMBOL_NCACHE)
+  if(plot_range[0] == richmath_System_NCache)
     plot_range = plot_range[2];
     
-  if( plot_range[0] == PMATH_SYMBOL_LIST &&
+  if( plot_range[0] == richmath_System_List &&
       plot_range.expr_length() == 2)
   {
     Expr xrange = plot_range[1];
     Expr yrange = plot_range[2];
     
-    if( xrange[0] == PMATH_SYMBOL_RANGE &&
-        xrange.expr_length() == 2)
-    {
+    if(xrange[0] == richmath_System_Range && xrange.expr_length() == 2) {
       Expr xmin = xrange[1];
-      if(xmin[0] == PMATH_SYMBOL_NCACHE)
+      if(xmin[0] == richmath_System_NCache)
         xmin = xmin[2];
         
       Expr xmax = xrange[2];
-      if(xmax[0] == PMATH_SYMBOL_NCACHE)
+      if(xmax[0] == richmath_System_NCache)
         xmax = xmax[2];
         
       if(xmin.is_number() && xmax.is_number()) {
@@ -555,15 +561,13 @@ GraphicsBounds GraphicsBox::calculate_plotrange() {
       }
     }
     
-    if( yrange[0] == PMATH_SYMBOL_RANGE &&
-        yrange.expr_length() == 2)
-    {
+    if(yrange[0] == richmath_System_Range && yrange.expr_length() == 2) {
       Expr ymin = yrange[1];
-      if(ymin[0] == PMATH_SYMBOL_NCACHE)
+      if(ymin[0] == richmath_System_NCache)
         ymin = ymin[2];
         
       Expr ymax = yrange[2];
-      if(ymax[0] == PMATH_SYMBOL_NCACHE)
+      if(ymax[0] == richmath_System_NCache)
         ymax = ymax[2];
         
       if(ymin.is_number() && ymax.is_number()) {
@@ -643,10 +647,10 @@ bool GraphicsBox::have_frame(bool *left, bool *right, bool *bottom, bool *top) {
   
   Expr e = get_own_style(Frame);
   
-  if(e == PMATH_SYMBOL_FALSE || e == PMATH_SYMBOL_NONE)
+  if(e == richmath_System_False || e == richmath_System_None)
     return false;
     
-  if(e == PMATH_SYMBOL_TRUE || e == PMATH_SYMBOL_ALL) {
+  if(e == richmath_System_True || e == richmath_System_All) {
     *left   = true;
     *right  = true;
     *bottom = true;
@@ -654,30 +658,30 @@ bool GraphicsBox::have_frame(bool *left, bool *right, bool *bottom, bool *top) {
     return true;
   }
   
-  if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
+  if(e[0] == richmath_System_List && e.expr_length() == 2) {
     Expr sub = e[1];
-    if(sub == PMATH_SYMBOL_TRUE) {
+    if(sub == richmath_System_True) {
       *left   = true;
       *right  = true;
     }
-    else if(sub[0] == PMATH_SYMBOL_LIST && sub.expr_length() == 2) {
-      if(sub[1] == PMATH_SYMBOL_TRUE)
+    else if(sub[0] == richmath_System_List && sub.expr_length() == 2) {
+      if(sub[1] == richmath_System_True)
         *left = true;
         
-      if(sub[2] == PMATH_SYMBOL_TRUE)
+      if(sub[2] == richmath_System_True)
         *right = true;
     }
     
     sub = e[2];
-    if(sub == PMATH_SYMBOL_TRUE) {
+    if(sub == richmath_System_True) {
       *bottom = true;
       *top    = true;
     }
-    else if(sub[0] == PMATH_SYMBOL_LIST && sub.expr_length() == 2) {
-      if(sub[1] == PMATH_SYMBOL_TRUE)
+    else if(sub[0] == richmath_System_List && sub.expr_length() == 2) {
+      if(sub[1] == richmath_System_True)
         *bottom = true;
         
-      if(sub[2] == PMATH_SYMBOL_TRUE)
+      if(sub[2] == richmath_System_True)
         *top = true;
     }
     
@@ -693,20 +697,20 @@ bool GraphicsBox::have_axes(bool *x, bool *y) {
   
   Expr e = get_own_style(Axes);
   
-  if(e == PMATH_SYMBOL_FALSE)
+  if(e == richmath_System_False)
     return false;
     
-  if(e == PMATH_SYMBOL_TRUE) {
+  if(e == richmath_System_True) {
     *x = true;
     *y = true;
     return true;
   }
   
-  if(e[0] == PMATH_SYMBOL_LIST && e.expr_length() == 2) {
-    if(e[1] == PMATH_SYMBOL_TRUE)
+  if(e[0] == richmath_System_List && e.expr_length() == 2) {
+    if(e[1] == richmath_System_True)
       *x = true;
       
-    if(e[2] == PMATH_SYMBOL_TRUE)
+    if(e[2] == richmath_System_True)
       *y = true;
       
     return *x || *y;
@@ -721,19 +725,19 @@ Expr GraphicsBox::generate_default_ticks(double min, double max, bool with_label
              "FE`Graphics`DefaultTickBoxes(`1`, `2`, `3`)",
              min,
              max,
-             Symbol(with_labels ? PMATH_SYMBOL_TRUE : PMATH_SYMBOL_FALSE)));
+             Symbol(with_labels ? richmath_System_True : richmath_System_False)));
 }
 
 Expr GraphicsBox::generate_ticks(const GraphicsBounds &bounds, enum AxisIndex part) {
   Expr ticks = get_ticks(bounds, part);
   
-  if(ticks[0] == PMATH_SYMBOL_LIST)
+  if(ticks[0] == richmath_System_List)
     return ticks;
     
-  if(ticks == PMATH_SYMBOL_NONE)
+  if(ticks == richmath_System_None)
     return List();
     
-  if(ticks == PMATH_SYMBOL_ALL) {
+  if(ticks == richmath_System_All) {
     switch(part) {
       case AxisIndexX:
       case AxisIndexBottom:
@@ -747,7 +751,7 @@ Expr GraphicsBox::generate_ticks(const GraphicsBounds &bounds, enum AxisIndex pa
     }
   }
   
-  if(ticks == PMATH_SYMBOL_AUTOMATIC) {
+  if(ticks == richmath_System_Automatic) {
     switch(part) {
       case AxisIndexX:
       case AxisIndexBottom:
@@ -773,24 +777,24 @@ Expr GraphicsBox::get_ticks(const GraphicsBounds &bounds, enum AxisIndex part) {
   switch(part) {
     case AxisIndexX:
     case AxisIndexY:
-      e = get_own_style(Ticks, Symbol(PMATH_SYMBOL_AUTOMATIC));
+      e = get_own_style(Ticks, Symbol(richmath_System_Automatic));
       break;
       
     case AxisIndexLeft:
     case AxisIndexRight:
     case AxisIndexBottom:
     case AxisIndexTop:
-      e = get_own_style(FrameTicks, Symbol(PMATH_SYMBOL_AUTOMATIC));
+      e = get_own_style(FrameTicks, Symbol(richmath_System_Automatic));
       break;
   }
   
-  if(e[0] == PMATH_SYMBOL_NCACHE)
+  if(e[0] == richmath_System_NCache)
     e = e[2];
     
-  if(e == PMATH_SYMBOL_TRUE)
-    return Symbol(PMATH_SYMBOL_AUTOMATIC);
+  if(e == richmath_System_True)
+    return Symbol(richmath_System_Automatic);
     
-  if(e[0] == PMATH_SYMBOL_LIST) {
+  if(e[0] == richmath_System_List) {
     if(e.expr_length() != 2)
       return List();
       
@@ -810,10 +814,10 @@ Expr GraphicsBox::get_ticks(const GraphicsBounds &bounds, enum AxisIndex part) {
         break;
     }
     
-    if(sub[0] == PMATH_SYMBOL_NCACHE)
+    if(sub[0] == richmath_System_NCache)
       sub = sub[2];
       
-    if(sub[0] == PMATH_SYMBOL_LIST) {
+    if(sub[0] == richmath_System_List) {
       if(sub.expr_length() != 2)
         return List();
         
@@ -1403,7 +1407,7 @@ float GraphicsBox::Impl::calculate_ascent_for_baseline_position(float em, Expr b
     }
   }
   
-  //if(baseline_pos == PMATH_SYMBOL_AUTOMATIC) 
+  //if(baseline_pos == richmath_System_Automatic) 
   //  return 0.5f * height + 0.25f * em; // TODO: use actual math axis from font
   //
   return self._extents.ascent;

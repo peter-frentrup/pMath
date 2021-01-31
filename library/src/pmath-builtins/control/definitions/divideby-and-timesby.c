@@ -5,6 +5,12 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Assign;
+extern pmath_symbol_t pmath_System_DivideBy;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Times;
+
 PMATH_PRIVATE pmath_t builtin_divideby_or_timesby(pmath_expr_t expr) {
   /* DivideBy(x, y)     =  x/= y
     TimesByBy(x, y)     =  x*= y
@@ -34,18 +40,18 @@ PMATH_PRIVATE pmath_t builtin_divideby_or_timesby(pmath_expr_t expr) {
   
   rhs = pmath_expr_get_item(expr, 2);
   pmath_unref(expr);
-  if(pmath_same(head, PMATH_SYMBOL_DIVIDEBY)) {
+  if(pmath_same(head, pmath_System_DivideBy)) {
     rhs = pmath_expr_new_extended(
-            pmath_ref(PMATH_SYMBOL_POWER), 2,
+            pmath_ref(pmath_System_Power), 2,
             rhs,
             PMATH_FROM_INT32(-1));
   }
   
   expr = pmath_expr_new_extended(
-           pmath_ref(PMATH_SYMBOL_ASSIGN), 2,
+           pmath_ref(pmath_System_Assign), 2,
            lhs,
            pmath_expr_new_extended(
-             pmath_ref(PMATH_SYMBOL_TIMES), 2,
+             pmath_ref(pmath_System_Times), 2,
              lhs_eval,
              rhs));
              

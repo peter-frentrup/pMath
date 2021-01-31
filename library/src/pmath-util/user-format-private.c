@@ -12,6 +12,8 @@
 #include <pmath-util/symbol-values-private.h>
 
 
+extern pmath_symbol_t pmath_System_Format;
+
 PMATH_PRIVATE
 pmath_t _pmath_get_user_format(pmath_t obj) {
   if(pmath_is_symbol(obj) || pmath_is_expr(obj)) {
@@ -25,7 +27,7 @@ pmath_t _pmath_get_user_format(pmath_t obj) {
       if(rules) {
         pmath_t debug_info = pmath_get_debug_info(obj);
         pmath_t result     = pmath_expr_new_extended(
-                               pmath_ref(PMATH_SYMBOL_FORMAT), 1,
+                               pmath_ref(pmath_System_Format), 1,
                                pmath_ref(obj));
                                
         if(_pmath_rulecache_find(&rules->format_rules, &result)) {
@@ -67,7 +69,7 @@ pmath_bool_t _pmath_write_user_format(struct pmath_write_ex_t *info, pmath_t obj
       me->evaldepth = 0;
       me->critical_messages = TRUE;
       
-      pmath_message(PMATH_SYMBOL_FORMAT, "forml", 0);
+      pmath_message(pmath_System_Format, "forml", 0);
       
       me->critical_messages = FALSE;
       me->evaldepth = old_evaldepth;

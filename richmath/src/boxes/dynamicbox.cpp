@@ -13,6 +13,7 @@
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_DynamicBox;
+extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_Internal_DynamicRemove;
 
 //{ class AbstractDynamicBox ...
@@ -74,7 +75,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   reset_style();
-  if(options_expr[0] == PMATH_SYMBOL_LIST) {
+  if(options_expr[0] == richmath_System_List) {
     if(!style)
       style = new Style();
     style->add_pmath(options_expr);

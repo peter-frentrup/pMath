@@ -1,6 +1,9 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_True;
+
 PMATH_PRIVATE pmath_t builtin_identical(pmath_expr_t expr) {
   pmath_t prev;
   size_t i, len;
@@ -8,7 +11,7 @@ PMATH_PRIVATE pmath_t builtin_identical(pmath_expr_t expr) {
   len = pmath_expr_length(expr);
   if(len <= 1) {
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   }
   
   prev = pmath_expr_get_item(expr, 1);
@@ -19,7 +22,7 @@ PMATH_PRIVATE pmath_t builtin_identical(pmath_expr_t expr) {
       pmath_unref(prev);
       pmath_unref(next);
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_FALSE);
+      return pmath_ref(pmath_System_False);
     }
     
     pmath_unref(prev);
@@ -28,7 +31,7 @@ PMATH_PRIVATE pmath_t builtin_identical(pmath_expr_t expr) {
   pmath_unref(prev);
   pmath_unref(expr);
   
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }
 
 PMATH_PRIVATE pmath_t builtin_unidentical(pmath_expr_t expr) {
@@ -42,7 +45,7 @@ PMATH_PRIVATE pmath_t builtin_unidentical(pmath_expr_t expr) {
         pmath_unref(a);
         pmath_unref(b);
         pmath_unref(expr);
-        return pmath_ref(PMATH_SYMBOL_FALSE);
+        return pmath_ref(pmath_System_False);
       }
       pmath_unref(b);
     }
@@ -50,5 +53,5 @@ PMATH_PRIVATE pmath_t builtin_unidentical(pmath_expr_t expr) {
   }
   pmath_unref(expr);
   
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }

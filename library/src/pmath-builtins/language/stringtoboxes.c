@@ -11,8 +11,14 @@
 #include <string.h>
 
 
-extern pmath_symbol_t pmath_Language_SourceLocation;
+extern pmath_symbol_t pmath_System_DollarFailed;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Range;
+extern pmath_symbol_t pmath_System_Rule;
+extern pmath_symbol_t pmath_System_String;
+extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Whitespace;
+extern pmath_symbol_t pmath_Language_SourceLocation;
 
 static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
   pmath_bool_t *have_critical = flag;
@@ -58,7 +64,7 @@ static pmath_t add_string_debug_info(
                  pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->debug_source),
                  pmath_expr_new_extended(
-                   pmath_ref(PMATH_SYMBOL_RANGE), 2,
+                   pmath_ref(pmath_System_Range), 2,
                    pmath_integer_new_si32(start->index + 1),
                    pmath_integer_new_si32(end->index)));
                    
@@ -71,13 +77,13 @@ static pmath_bool_t handle_whitespace_option(
 ) {
   // Whitespace->False ==> PMATH_BFS_PARSEABLE flag set
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_Whitespace, options));
-  if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(value, pmath_System_False)) {
     data->settings.flags |= PMATH_BFS_PARSEABLE;
     pmath_unref(value);
     return TRUE;
   }
   
-  if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(value, pmath_System_True)) {
     data->settings.flags &= ~PMATH_BFS_PARSEABLE;
     pmath_unref(value);
     return TRUE;
@@ -98,13 +104,13 @@ static pmath_bool_t handle_ignoresyntaxerrors_option(
   pmath_t name= PMATH_C_STRING("IgnoreSyntaxErrors");
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
   pmath_unref(name);
-  if(pmath_same(value, PMATH_SYMBOL_FALSE)) {
+  if(pmath_same(value, pmath_System_False)) {
     *result = FALSE;
     pmath_unref(value);
     return TRUE;
   }
   
-  if(pmath_same(value, PMATH_SYMBOL_TRUE)) {
+  if(pmath_same(value, pmath_System_True)) {
     *result = TRUE;
     pmath_unref(value);
     return TRUE;
@@ -126,7 +132,7 @@ static void handle_tokens_option(
   pmath_t name= PMATH_C_STRING("Tokens");
   pmath_t value = pmath_evaluate(pmath_option_value(PMATH_NULL, name, options));
   pmath_unref(name);
-  if(pmath_same(value, PMATH_SYMBOL_STRING)) {
+  if(pmath_same(value, pmath_System_String)) {
     data->token_decorator = PMATH_UNDEFINED;
     pmath_unref(value);
     return;
@@ -152,7 +158,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
   if(pmath_expr_length(expr) < 1) {
     pmath_message_argxxx(pmath_expr_length(expr), 1, 1);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   code = pmath_expr_get_item(expr, 1);
@@ -165,7 +171,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
   if(pmath_is_null(options)) {
     pmath_unref(expr);
     pmath_unref(code);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   memset(&data, 0, sizeof(data));
@@ -178,7 +184,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
     pmath_unref(code);
     pmath_unref(data.token_decorator);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   handle_tokens_option(&data, options);
@@ -188,7 +194,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
     pmath_unref(code);
     pmath_unref(data.token_decorator);
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   pmath_unref(options);
@@ -207,13 +213,13 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
     pmath_span_array_free(arr);
     pmath_unref(code);
     pmath_unref(data.token_decorator);
-    return pmath_ref(PMATH_SYMBOL_FAILED);
+    return pmath_ref(pmath_System_DollarFailed);
   }
   
   
   data.debug_source = pmath_expr_new_extended(
-                        pmath_ref(PMATH_SYMBOL_RULE), 2,
-                        pmath_ref(PMATH_SYMBOL_STRING),
+                        pmath_ref(pmath_System_Rule), 2,
+                        pmath_ref(pmath_System_String),
                         pmath_ref(code));
                         
   result = pmath_boxes_from_spans_ex(arr, code, &data.settings);

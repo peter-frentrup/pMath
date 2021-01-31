@@ -11,6 +11,8 @@
 
 
 extern pmath_symbol_t pmath_System_ClearAll;
+extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_Names;
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be freed
@@ -63,10 +65,10 @@ PMATH_PRIVATE pmath_t builtin_clear_or_clearall(pmath_expr_t expr) {
     else if(pmath_is_string(item)) {
       pmath_t known = pmath_evaluate(
                         pmath_expr_new_extended(
-                          pmath_ref(PMATH_SYMBOL_NAMES), 1,
+                          pmath_ref(pmath_System_Names), 1,
                           item));
                           
-      if( pmath_is_expr_of(known, PMATH_SYMBOL_LIST) &&
+      if( pmath_is_expr_of(known, pmath_System_List) &&
           pmath_expr_length(known) > 0)
       {
         size_t j;

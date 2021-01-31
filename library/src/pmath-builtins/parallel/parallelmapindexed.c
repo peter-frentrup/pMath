@@ -12,6 +12,8 @@
 #include <pmath-builtins/lists-private.h>
 
 
+extern pmath_symbol_t pmath_System_List;
+
 struct parallel_map_info_t {
   struct _pmath_map_info_t info;
   pmath_thread_t     parent;
@@ -32,7 +34,7 @@ static void parallel_map_indexed(struct parallel_map_info_t *info) {
                          &info->info,
                          info->items[i],
                          pmath_expr_new_extended(
-                           pmath_ref(PMATH_SYMBOL_LIST), 1,
+                           pmath_ref(pmath_System_List), 1,
                            pmath_integer_new_uiptr(i))));
                            
     i = pmath_atomic_fetch_add(&info->index, -1);
@@ -44,7 +46,7 @@ static void parallel_map_indexed(struct parallel_map_info_t *info) {
                            &info->info,
                            info->items[i],
                            pmath_expr_new_extended(
-                             pmath_ref(PMATH_SYMBOL_LIST), 1,
+                             pmath_ref(pmath_System_List), 1,
                              pmath_integer_new_uiptr(i))));
                              
       i = pmath_atomic_fetch_add(&info->index, -1);
@@ -163,7 +165,7 @@ PMATH_PRIVATE pmath_t builtin_parallelmapindexed(pmath_expr_t expr) {
   }
   else if(reldepth > 0) {
     pmath_message(PMATH_NULL, "nopar1", 1, expr);
-    obj = _pmath_map_indexed(&info.info, obj, pmath_expr_new(pmath_ref(PMATH_SYMBOL_LIST), 0));
+    obj = _pmath_map_indexed(&info.info, obj, pmath_expr_new(pmath_ref(pmath_System_List), 0));
   }
   else
     pmath_unref(expr);

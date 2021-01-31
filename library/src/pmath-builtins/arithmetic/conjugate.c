@@ -9,6 +9,17 @@
 #include <pmath-builtins/build-expr-private.h>
 #include <pmath-builtins/number-theory-private.h>
 
+
+extern pmath_symbol_t pmath_System_Abs;
+extern pmath_symbol_t pmath_System_Complex;
+extern pmath_symbol_t pmath_System_Conjugate;
+extern pmath_symbol_t pmath_System_DirectedInfinity;
+extern pmath_symbol_t pmath_System_Im;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Power;
+extern pmath_symbol_t pmath_System_Re;
+extern pmath_symbol_t pmath_System_Times;
+
 static pmath_bool_t try_conjugate(pmath_t *z);
 
 static pmath_t force_conjugate(pmath_t z){
@@ -16,7 +27,7 @@ static pmath_t force_conjugate(pmath_t z){
     return z;
   
   return pmath_expr_new_extended(
-    pmath_ref(PMATH_SYMBOL_CONJUGATE), 1,
+    pmath_ref(pmath_System_Conjugate), 1,
     z);
 }
 
@@ -36,21 +47,21 @@ static pmath_bool_t try_conjugate(pmath_t *z) {
     return TRUE;
   }
   
-  if( pmath_is_expr_of_len(*z, PMATH_SYMBOL_RE, 1) ||
-      pmath_is_expr_of_len(*z, PMATH_SYMBOL_IM, 1) ||
-      pmath_is_expr_of_len(*z, PMATH_SYMBOL_ABS, 1))
+  if( pmath_is_expr_of_len(*z, pmath_System_Re, 1) ||
+      pmath_is_expr_of_len(*z, pmath_System_Im, 1) ||
+      pmath_is_expr_of_len(*z, pmath_System_Abs, 1))
   {
     return TRUE;
   }
   
-  if(pmath_is_expr_of_len(*z, PMATH_SYMBOL_COMPLEX, 2)) {
+  if(pmath_is_expr_of_len(*z, pmath_System_Complex, 2)) {
     pmath_t im = pmath_expr_get_item(*z, 2);
     *z = pmath_expr_set_item(*z, 2, NEG(im));
     return TRUE;
   }
   
-  if( pmath_is_expr_of(*z, PMATH_SYMBOL_PLUS) ||
-      pmath_is_expr_of(*z, PMATH_SYMBOL_TIMES))
+  if( pmath_is_expr_of(*z, pmath_System_Plus) ||
+      pmath_is_expr_of(*z, pmath_System_Times))
   {
     size_t i;
     size_t len = pmath_expr_length(*z);
@@ -96,13 +107,13 @@ static pmath_bool_t try_conjugate(pmath_t *z) {
                             pmath_expr_get_item(*z, 0));
                             
             unevaluated = pmath_expr_new_extended(
-                            pmath_ref(PMATH_SYMBOL_CONJUGATE), 1,
+                            pmath_ref(pmath_System_Conjugate), 1,
                             unevaluated);
           }
           else
             unevaluated = pmath_expr_set_item(
                             unevaluated, 0,
-                            pmath_ref(PMATH_SYMBOL_CONJUGATE));
+                            pmath_ref(pmath_System_Conjugate));
                             
           *z = pmath_expr_set_item(*z, last_unevaluated, unevaluated);
           *z = _pmath_expr_shrink_associative(*z, PMATH_UNDEFINED);
@@ -117,7 +128,7 @@ static pmath_bool_t try_conjugate(pmath_t *z) {
     }
   }
   
-  if(pmath_is_expr_of_len(*z, PMATH_SYMBOL_POWER, 2)){
+  if(pmath_is_expr_of_len(*z, pmath_System_Power, 2)){
     pmath_t exponent = pmath_expr_get_item(*z, 2);
     
     if(pmath_is_integer(exponent)){
@@ -133,13 +144,13 @@ static pmath_bool_t try_conjugate(pmath_t *z) {
     pmath_unref(exponent);
   }
   
-  if(pmath_is_expr_of(*z, PMATH_SYMBOL_DIRECTEDINFINITY)) {
+  if(pmath_is_expr_of(*z, pmath_System_DirectedInfinity)) {
     if(pmath_expr_length(*z) == 1) {
       pmath_t dir = pmath_expr_extract_item(*z, 1);
       
       if(!try_conjugate(&dir)) {
         dir = pmath_expr_new_extended(
-                pmath_ref(PMATH_SYMBOL_CONJUGATE), 1,
+                pmath_ref(pmath_System_Conjugate), 1,
                 dir);
       }
       

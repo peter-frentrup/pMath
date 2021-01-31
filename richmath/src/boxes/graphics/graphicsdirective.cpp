@@ -5,7 +5,10 @@
 
 using namespace richmath;
 
+extern pmath_symbol_t richmath_System_Directive;
+extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_Hue;
+extern pmath_symbol_t richmath_System_RGBColor;
 
 //{ class GraphicsDirective ...
 
@@ -21,16 +24,16 @@ GraphicsDirective::GraphicsDirective(Expr expr)
 }
 
 bool GraphicsDirective::is_graphics_directive(Expr expr) {
-  if(expr[0] == PMATH_SYMBOL_DIRECTIVE)
+  if(expr[0] == richmath_System_Directive)
     return true;
   
-  if(expr[0] == PMATH_SYMBOL_RGBCOLOR)
+  if(expr[0] == richmath_System_RGBColor)
     return true;
   
   if(expr[0] == richmath_System_Hue)
     return true;
   
-  if(expr[0] == PMATH_SYMBOL_GRAYLEVEL)
+  if(expr[0] == richmath_System_GrayLevel)
     return true;
   
   return false;
@@ -62,13 +65,13 @@ void GraphicsDirective::paint(GraphicsBox *owner, Context &context) {
 }
 
 void GraphicsDirective::apply(Expr directive, Context &context) {
-  if(directive[0] == PMATH_SYMBOL_DIRECTIVE) {
+  if(directive[0] == richmath_System_Directive) {
     for(auto item : directive.items())
       apply(item, context);
     return;
   }
   
-  if(directive[0] == PMATH_SYMBOL_RGBCOLOR || directive[0] == richmath_System_Hue || directive[0] == PMATH_SYMBOL_GRAYLEVEL) {
+  if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
     if(Color c = Color::from_pmath(directive)) {
       context.canvas().set_color(c);
     }

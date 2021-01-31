@@ -18,6 +18,20 @@
 #define MIN(a, b)  (((a) < (b)) ? (a) : (b))
 
 
+extern pmath_symbol_t pmath_System_And;
+extern pmath_symbol_t pmath_System_Equal;
+extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_Greater;
+extern pmath_symbol_t pmath_System_GreaterEqual;
+extern pmath_symbol_t pmath_System_Less;
+extern pmath_symbol_t pmath_System_LessEqual;
+extern pmath_symbol_t pmath_System_N;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Times;
+extern pmath_symbol_t pmath_System_True;
+extern pmath_symbol_t pmath_System_Undefined;
+extern pmath_symbol_t pmath_System_Unequal;
+
 static pmath_bool_t check_complex_is_real(pmath_t z, pmath_t *out_re_only) {
   pmath_t im;
   
@@ -371,7 +385,7 @@ int _pmath_numeric_order(pmath_t prev, pmath_t next, int directions) {
         pmath_unref(n_diff);
         if(prec >= maxprec) {
           pmath_message(
-            PMATH_SYMBOL_N, "meprec", 2,
+            pmath_System_N, "meprec", 2,
             _pmath_from_precision(me->max_extra_precision),
             pmath_ref(diff));
           break;
@@ -403,7 +417,7 @@ static pmath_t ordered(
     
     start = 1;
     prev = pmath_expr_get_item(expr, 1);
-    if(pmath_same(prev, PMATH_SYMBOL_UNDEFINED)) {
+    if(pmath_same(prev, pmath_System_Undefined)) {
       pmath_unref(expr);
       return prev;
     }
@@ -417,7 +431,7 @@ static pmath_t ordered(
         pmath_unref(next);
         pmath_unref(prev);
         pmath_unref(expr);
-        return pmath_ref(PMATH_SYMBOL_FALSE);
+        return pmath_ref(pmath_System_False);
       }
       
       if(test == TRUE) {
@@ -436,7 +450,7 @@ static pmath_t ordered(
         
       pmath_unref(prev);
       prev = next;
-      if(pmath_same(prev, PMATH_SYMBOL_UNDEFINED)) {
+      if(pmath_same(prev, pmath_System_Undefined)) {
         pmath_unref(expr);
         return prev;
       }
@@ -445,7 +459,7 @@ static pmath_t ordered(
     pmath_unref(prev);
     if(start >= len) {
       pmath_unref(expr);
-      return pmath_ref(PMATH_SYMBOL_TRUE);
+      return pmath_ref(pmath_System_True);
     }
     
     if(prev_was_true) {
@@ -470,7 +484,7 @@ static pmath_t ordered(
   }
   
   pmath_unref(expr);
-  return pmath_ref(PMATH_SYMBOL_TRUE);
+  return pmath_ref(pmath_System_True);
 }
 
 PMATH_PRIVATE pmath_t builtin_less(pmath_expr_t expr) {
@@ -501,14 +515,14 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
   len = pmath_expr_length(expr);
   if(len <= 1) {
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   }
   
   for(i = 1; i < len; i++) {
     size_t j;
     
     a = pmath_expr_get_item(expr, i);
-    if(pmath_same(a, PMATH_SYMBOL_UNDEFINED)) {
+    if(pmath_same(a, pmath_System_Undefined)) {
       pmath_unref(expr);
       return a;
     }
@@ -520,7 +534,7 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
         pmath_unref(a);
         pmath_unref(b);
         pmath_unref(expr);
-        return pmath_ref(PMATH_SYMBOL_FALSE);
+        return pmath_ref(pmath_System_False);
       }
       if (equal == FALSE) {
         have_marker = TRUE;
@@ -532,7 +546,7 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
   }
   
   a = pmath_expr_get_item(expr, len);
-  if(pmath_same(a, PMATH_SYMBOL_UNDEFINED)) {
+  if(pmath_same(a, pmath_System_Undefined)) {
     pmath_unref(expr);
     return a;
   }
@@ -546,54 +560,54 @@ PMATH_PRIVATE pmath_t builtin_unequal(pmath_expr_t expr) {
 
 // note that this gives 0 for Unequal. Do not specify 0 for _pmath_numeric_order()!
 static int relation_direction(pmath_t rel) {
-  if(pmath_same(rel, PMATH_SYMBOL_EQUAL))        return PMATH_DIRECTION_EQUAL;
-  if(pmath_same(rel, PMATH_SYMBOL_LESS))         return PMATH_DIRECTION_LESS;
-  if(pmath_same(rel, PMATH_SYMBOL_LESSEQUAL))    return PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL;
-  if(pmath_same(rel, PMATH_SYMBOL_GREATER))      return PMATH_DIRECTION_GREATER;
-  if(pmath_same(rel, PMATH_SYMBOL_GREATEREQUAL)) return PMATH_DIRECTION_GREATER | PMATH_DIRECTION_EQUAL;
+  if(pmath_same(rel, pmath_System_Equal))        return PMATH_DIRECTION_EQUAL;
+  if(pmath_same(rel, pmath_System_Less))         return PMATH_DIRECTION_LESS;
+  if(pmath_same(rel, pmath_System_LessEqual))    return PMATH_DIRECTION_LESS | PMATH_DIRECTION_EQUAL;
+  if(pmath_same(rel, pmath_System_Greater))      return PMATH_DIRECTION_GREATER;
+  if(pmath_same(rel, pmath_System_GreaterEqual)) return PMATH_DIRECTION_GREATER | PMATH_DIRECTION_EQUAL;
   return 0;
 }
 
 static pmath_t combine_relations(pmath_t rel1, pmath_t rel2) {
-  if(pmath_same(rel1, PMATH_SYMBOL_EQUAL))
+  if(pmath_same(rel1, pmath_System_Equal))
     return rel2;
     
-  if(pmath_same(rel2, PMATH_SYMBOL_EQUAL))
+  if(pmath_same(rel2, pmath_System_Equal))
     return rel1;
     
-  if( pmath_same(rel1, PMATH_SYMBOL_UNEQUAL) ||
-      pmath_same(rel2, PMATH_SYMBOL_UNEQUAL))
+  if( pmath_same(rel1, pmath_System_Unequal) ||
+      pmath_same(rel2, pmath_System_Unequal))
   {
     return PMATH_NULL;
   }
   
-  if(pmath_same(rel1, PMATH_SYMBOL_LESS)) {
-    if( pmath_same(rel2, PMATH_SYMBOL_LESS) ||
-        pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
+  if(pmath_same(rel1, pmath_System_Less)) {
+    if( pmath_same(rel2, pmath_System_Less) ||
+        pmath_same(rel2, pmath_System_LessEqual))
     {
       return rel1;
     }
   }
   
-  if(pmath_same(rel1, PMATH_SYMBOL_LESSEQUAL)) {
-    if( pmath_same(rel2, PMATH_SYMBOL_LESS) ||
-        pmath_same(rel2, PMATH_SYMBOL_LESSEQUAL))
+  if(pmath_same(rel1, pmath_System_LessEqual)) {
+    if( pmath_same(rel2, pmath_System_Less) ||
+        pmath_same(rel2, pmath_System_LessEqual))
     {
       return rel2;
     }
   }
   
-  if(pmath_same(rel1, PMATH_SYMBOL_GREATER)) {
-    if( pmath_same(rel2, PMATH_SYMBOL_GREATER) ||
-        pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
+  if(pmath_same(rel1, pmath_System_Greater)) {
+    if( pmath_same(rel2, pmath_System_Greater) ||
+        pmath_same(rel2, pmath_System_GreaterEqual))
     {
       return rel1;
     }
   }
   
-  if(pmath_same(rel1, PMATH_SYMBOL_GREATEREQUAL)) {
-    if( pmath_same(rel2, PMATH_SYMBOL_GREATER) ||
-        pmath_same(rel2, PMATH_SYMBOL_GREATEREQUAL))
+  if(pmath_same(rel1, pmath_System_GreaterEqual)) {
+    if( pmath_same(rel2, pmath_System_Greater) ||
+        pmath_same(rel2, pmath_System_GreaterEqual))
     {
       return rel2;
     }
@@ -606,7 +620,7 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
   pmath_bool_t prev_was_true = TRUE;
   pmath_bool_t have_marker = FALSE;
   pmath_t prev;
-  pmath_t prev_relation = pmath_ref(PMATH_SYMBOL_EQUAL);
+  pmath_t prev_relation = pmath_ref(pmath_System_Equal);
   int direction;
   size_t i, len;
   
@@ -616,7 +630,7 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
     
   if(len == 1) {
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_TRUE);
+    return pmath_ref(pmath_System_True);
   }
   if(len == 3) {
     pmath_t result = pmath_expr_new_extended(
@@ -640,8 +654,8 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
                        pmath_ref(prev),
                        pmath_ref(next)));
                        
-    if( pmath_same(test, PMATH_SYMBOL_FALSE) ||
-        pmath_same(test, PMATH_SYMBOL_UNDEFINED))
+    if( pmath_same(test, pmath_System_False) ||
+        pmath_same(test, pmath_System_Undefined))
     {
       pmath_unref(relation);
       pmath_unref(prev);
@@ -650,7 +664,7 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
       return test;
     }
     
-    if(pmath_same(test, PMATH_SYMBOL_TRUE)) {
+    if(pmath_same(test, pmath_System_True)) {
       if(prev_was_true) {
         pmath_t new_relation = combine_relations(prev_relation, relation);
         
@@ -697,13 +711,13 @@ PMATH_PRIVATE pmath_t builtin_inequation(pmath_expr_t expr) {
         pmath_unref(next);
         pmath_unref(expr);
         return pmath_expr_new_extended(
-                 pmath_ref(PMATH_SYMBOL_AND), 2,
+                 pmath_ref(pmath_System_And), 2,
                  until_here,
                  rest);
       }
     }
     
-    prev_was_true = pmath_same(test, PMATH_SYMBOL_TRUE);
+    prev_was_true = pmath_same(test, pmath_System_True);
     pmath_unref(test);
     pmath_unref(prev_relation);
     prev_relation = relation;

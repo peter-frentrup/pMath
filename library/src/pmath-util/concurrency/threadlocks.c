@@ -53,6 +53,10 @@ struct _pmath_threadlock_t {
   pmath_atomic_t      refcount;
 };
 
+extern pmath_symbol_t pmath_System_DollarThreadId;
+extern pmath_symbol_t pmath_System_General;
+extern pmath_symbol_t pmath_System_Stack;
+
 static struct _pmath_stack_t  unused_threadlocks;
 
 static __inline void destroy_all_unused_threadlocks(void) {
@@ -202,13 +206,12 @@ PMATH_API void pmath_thread_call_locked(
           me->waiting_lock = NULL;
           
           pmath_message(
-            PMATH_SYMBOL_GENERAL, "deadlock", 2,
-            pmath_evaluate(pmath_ref(PMATH_SYMBOL_THREADID)),
-            pmath_evaluate(pmath_expr_new(pmath_ref(PMATH_SYMBOL_STACK), 0)));
+            pmath_System_General, "deadlock", 2,
+            pmath_evaluate(pmath_ref(pmath_System_DollarThreadId)),
+            pmath_evaluate(pmath_expr_new(pmath_ref(pmath_System_Stack), 0)));
             
           //pthread_mutex_unlock(long_waiting_mutex);
           
-          //pmath_throw(pmath_ref(PMATH_SYMBOL_FAILED));
           pmath_throw(PMATH_ABORT_EXCEPTION); // abort this thread
           
           goto CLEANUP;

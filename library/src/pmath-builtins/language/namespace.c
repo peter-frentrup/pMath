@@ -5,6 +5,8 @@
 #include <pmath-builtins/all-symbols-private.h>
 
 
+extern pmath_symbol_t pmath_System_DollarNamespace;
+
 PMATH_PRIVATE pmath_t builtin_namespace(pmath_expr_t expr) {
   /* Namespace()
      Namespace(sym)
@@ -14,7 +16,7 @@ PMATH_PRIVATE pmath_t builtin_namespace(pmath_expr_t expr) {
   
   if(exprlen == 0) {
     pmath_unref(expr);
-    return pmath_ref(PMATH_SYMBOL_CURRENTNAMESPACE);
+    return pmath_ref(pmath_System_DollarNamespace);
   }
   
   if(exprlen != 1) {

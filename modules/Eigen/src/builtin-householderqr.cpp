@@ -8,6 +8,7 @@ using namespace pmath;
 using namespace pmath4eigen;
 using namespace Eigen;
 
+extern pmath_symbol_t p4e_System_DollarFailed;
 
 template<typename MatrixType>
 static Expr householderqr(Expr &matrix_expr, size_t rows, size_t cols)
@@ -74,5 +75,5 @@ pmath_t p4e_builtin_householderqr(pmath_expr_t _expr)
   }
   
   pmath_debug_print("[%s: unexpected classification %d]\n", __func__, (int)type);
-  return pmath_ref(PMATH_SYMBOL_FAILED);
+  return pmath_ref(p4e_System_DollarFailed);
 }

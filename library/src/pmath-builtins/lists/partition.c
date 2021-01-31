@@ -11,8 +11,9 @@
 #include <string.h>
 
 
-#define ceildiv(x, y) (((x) + (y) - 1) / (y))
+extern pmath_symbol_t pmath_System_List;
 
+#define ceildiv(x, y) (((x) + (y) - 1) / (y))
 
 static pmath_bool_t next(
   long       *in_i,    // all 0-indexed
@@ -294,7 +295,7 @@ static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
     return n;
   }
   
-  if(pmath_is_expr_of(n_obj, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(n_obj, pmath_System_List)) {
     *depth = (long)pmath_expr_length(n_obj);
     
     if(*depth > 0) {
@@ -345,7 +346,7 @@ static pmath_bool_t get_d(
     return TRUE;
   }
   
-  if(pmath_is_expr_of_len(d_obj, PMATH_SYMBOL_LIST, (size_t)depth)) {
+  if(pmath_is_expr_of_len(d_obj, pmath_System_List, (size_t)depth)) {
     long i;
     
     for(i = 0; i < depth; ++i) {
@@ -403,7 +404,7 @@ static pmath_bool_t set_overhang(
     return TRUE;
   }
   
-  if(pmath_is_expr_of(overhang, PMATH_SYMBOL_LIST)) {
+  if(pmath_is_expr_of(overhang, pmath_System_List)) {
     if(pmath_expr_length(overhang) != (size_t)depth) {
       pmath_message(PMATH_NULL, "ohpdm", 2,
                     pmath_integer_new_uiptr(pmath_expr_length(overhang)),
@@ -446,7 +447,7 @@ static pmath_bool_t set_leftright_overhang(
   long    *right,
   long     depth
 ) {
-  if(pmath_is_expr_of_len(obj, PMATH_SYMBOL_LIST, 2)) {
+  if(pmath_is_expr_of_len(obj, pmath_System_List, 2)) {
     if(!set_overhang(obj, pmath_expr_get_item(obj, 1), left, depth))
       return FALSE;
       
@@ -509,16 +510,16 @@ static pmath_expr_t make_padding(
 ) {
   pmath_t dim_obj;
   
-  if(!pmath_is_expr_of(pad, PMATH_SYMBOL_LIST)) {
-    pad = embed(PMATH_SYMBOL_LIST, pad, depth);
+  if(!pmath_is_expr_of(pad, pmath_System_List)) {
+    pad = embed(pmath_System_List, pad, depth);
     return pad;
   }
   
   dim_obj = _pmath_dimensions(pad, (size_t)depth);
   
-  if(!pmath_is_expr_of(dim_obj, PMATH_SYMBOL_LIST)) {
+  if(!pmath_is_expr_of(dim_obj, pmath_System_List)) {
     pmath_unref(dim_obj);
-    pad = embed(PMATH_SYMBOL_LIST, pad, depth);
+    pad = embed(pmath_System_List, pad, depth);
     return pad;
   }
   
@@ -526,7 +527,7 @@ static pmath_expr_t make_padding(
     long level = (long)pmath_expr_length(dim_obj);
     
     pad = embed_at(
-            PMATH_SYMBOL_LIST,
+            pmath_System_List,
             pad,
             level,
             depth - level);
@@ -547,7 +548,7 @@ static int get_dimensions(
   pmath_t dim_obj = _pmath_dimensions(array, (size_t)depth);
   size_t i;
   
-  if(!pmath_is_expr_of_len(dim_obj, PMATH_SYMBOL_LIST, (size_t)depth)) {
+  if(!pmath_is_expr_of_len(dim_obj, pmath_System_List, (size_t)depth)) {
     pmath_message(PMATH_NULL, "pdep", 2,
                   pmath_integer_new_slong(depth),
                   dim_obj);

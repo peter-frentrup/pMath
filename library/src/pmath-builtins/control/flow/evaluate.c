@@ -9,16 +9,29 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+
+extern pmath_symbol_t pmath_System_Break;
+extern pmath_symbol_t pmath_System_Continue;
+extern pmath_symbol_t pmath_System_Goto;
+extern pmath_symbol_t pmath_System_Hold;
+extern pmath_symbol_t pmath_System_HoldComplete;
+extern pmath_symbol_t pmath_System_HoldForm;
+extern pmath_symbol_t pmath_System_HoldPattern;
+extern pmath_symbol_t pmath_System_Label;
+extern pmath_symbol_t pmath_System_Plus;
+extern pmath_symbol_t pmath_System_Return;
+extern pmath_symbol_t pmath_System_Sequence;
+
 PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out) {
   *in_out = pmath_evaluate(*in_out);
   if(pmath_is_expr(*in_out)) {
     pmath_t head = pmath_expr_get_item(*in_out, 0);
     pmath_unref(head);
     
-    if( pmath_same(head, PMATH_SYMBOL_CONTINUE) ||
-        pmath_same(head, PMATH_SYMBOL_BREAK))
+    if( pmath_same(head, pmath_System_Continue) ||
+        pmath_same(head, pmath_System_Break))
     {
-      pmath_bool_t do_break = pmath_same(head, PMATH_SYMBOL_BREAK);
+      pmath_bool_t do_break = pmath_same(head, pmath_System_Break);
       
       pmath_t counter = pmath_expr_get_item(*in_out, 1);
       if( pmath_is_integer(counter) &&
@@ -26,7 +39,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out) {
       {
         do_break = TRUE;
         counter = pmath_expr_new_extended(
-                    pmath_ref(PMATH_SYMBOL_PLUS), 2,
+                    pmath_ref(pmath_System_Plus), 2,
                     counter,
                     PMATH_FROM_INT32(-1));
         *in_out = pmath_expr_set_item(*in_out, 1, counter);
@@ -40,8 +53,8 @@ PMATH_PRIVATE pmath_bool_t _pmath_run(pmath_t *in_out) {
       return do_break;
     }
     
-    if( pmath_same(head, PMATH_SYMBOL_RETURN) ||
-        pmath_same(head, PMATH_SYMBOL_GOTO))
+    if( pmath_same(head, pmath_System_Return) ||
+        pmath_same(head, pmath_System_Goto))
     {
       return TRUE;
     }
@@ -104,10 +117,10 @@ static pmath_t release_hold(pmath_t expr) {
     pmath_bool_t must_flatten;
     pmath_t head = pmath_expr_get_item(expr, 0);
     
-    if( pmath_same(head, PMATH_SYMBOL_HOLD)         ||
-        pmath_same(head, PMATH_SYMBOL_HOLDCOMPLETE) ||
-        pmath_same(head, PMATH_SYMBOL_HOLDFORM)     ||
-        pmath_same(head, PMATH_SYMBOL_HOLDPATTERN))
+    if( pmath_same(head, pmath_System_Hold)         ||
+        pmath_same(head, pmath_System_HoldComplete) ||
+        pmath_same(head, pmath_System_HoldForm)     ||
+        pmath_same(head, pmath_System_HoldPattern))
     {
       pmath_unref(head);
       return pmath_expr_set_item(expr, 0, PMATH_UNDEFINED);
@@ -121,7 +134,7 @@ static pmath_t release_hold(pmath_t expr) {
         head = arg;
       }
       else
-        head = pmath_expr_set_item(head, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+        head = pmath_expr_set_item(head, 0, pmath_ref(pmath_System_Sequence));
     }
     
     must_flatten = FALSE;
@@ -174,7 +187,7 @@ PMATH_PRIVATE pmath_t builtin_releasehold(pmath_expr_t expr) {
       return arg;
     }
     
-    return pmath_expr_set_item(result, 0, pmath_ref(PMATH_SYMBOL_SEQUENCE));
+    return pmath_expr_set_item(result, 0, pmath_ref(pmath_System_Sequence));
   }
   
   return result;
@@ -205,18 +218,18 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr) {
       pmath_t head = pmath_expr_get_item(result, 0);
       pmath_unref(head);
       
-      if( pmath_same(head, PMATH_SYMBOL_BREAK)    ||
-          pmath_same(head, PMATH_SYMBOL_CONTINUE) ||
-          pmath_same(head, PMATH_SYMBOL_RETURN))
+      if( pmath_same(head, pmath_System_Break)    ||
+          pmath_same(head, pmath_System_Continue) ||
+          pmath_same(head, pmath_System_Return))
       {
         pmath_unref(expr);
         return result;
       }
       
-      if(pmath_same(head, PMATH_SYMBOL_LABEL)) {
+      if(pmath_same(head, pmath_System_Label)) {
         have_label = TRUE;
       }
-      else if( pmath_same(head, PMATH_SYMBOL_GOTO) &&
+      else if( pmath_same(head, pmath_System_Goto) &&
                pmath_expr_length(result) == 1)
       {
         pmath_t lbl = pmath_expr_get_item(result, 1);
@@ -225,7 +238,7 @@ PMATH_PRIVATE pmath_t builtin_evaluationsequence(pmath_expr_t expr) {
         for(j = have_label ? 1 : i + 1; j <= len; ++j) {
           pmath_t item = pmath_expr_get_item(expr, j);
           
-          if(pmath_is_expr_of_len(item, PMATH_SYMBOL_LABEL, 1)) {
+          if(pmath_is_expr_of_len(item, pmath_System_Label, 1)) {
             head = pmath_expr_get_item(item, 1);
             
             if(pmath_equals(head, lbl)) {
