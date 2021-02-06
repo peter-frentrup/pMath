@@ -146,7 +146,7 @@ namespace pmath4eigen {
       pmath::Expr row_expr = pmath::MakeCall(pmath::Symbol(p4e_System_List), matrix.cols());
 
       for(size_t c = matrix.cols(); c > 0; --c) {
-        row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
+        row_expr.set(c, ComplexExpr(matrix.derived()(r - 1, c - 1)));
       }
 
       expr.set(r, row_expr);
@@ -162,7 +162,7 @@ namespace pmath4eigen {
       pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
 
       for(size_t c = matrix.cols(); c > 0; --c) {
-        row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
+        row_expr.set(c, ComplexExpr(matrix.derived()(r - 1, c - 1)));
       }
 
       expr.set(r, row_expr);
@@ -177,7 +177,7 @@ namespace pmath4eigen {
     pmath::Expr expr = Converter::const_matrix(
                          matrix.rows(),
                          matrix.cols(),
-                         ArithmeticExpr(ScalarType(0)));
+                         ComplexExpr(ScalarType(0)));
 
     from_eigen(expr, matrix);
 
@@ -194,7 +194,7 @@ namespace pmath4eigen {
         pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
 
         for(size_t c = matrix.cols(); c > r; --c) {
-          row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
+          row_expr.set(c, ComplexExpr(matrix.derived()(r - 1, c - 1)));
         }
 
         expr.set(r, row_expr);
@@ -212,7 +212,7 @@ namespace pmath4eigen {
       Converter::Triangle<Eigen::StrictlyUpper>::from_eigen(expr, matrix);
 
       for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
-        expr.set(r, r, ArithmeticExpr(matrix.derived()(r - 1, r - 1)));
+        expr.set(r, r, ComplexExpr(matrix.derived()(r - 1, r - 1)));
       }
     }
 
@@ -243,7 +243,7 @@ namespace pmath4eigen {
         pmath::Expr row_expr(pmath_expr_extract_item(expr.get(), r));
 
         for(size_t c = r; c > 0; --c) {
-          row_expr.set(c, ArithmeticExpr(matrix.derived()(r - 1, c - 1)));
+          row_expr.set(c, ComplexExpr(matrix.derived()(r - 1, c - 1)));
         }
 
         expr.set(r, row_expr);
@@ -261,7 +261,7 @@ namespace pmath4eigen {
       Converter::Triangle<Eigen::StrictlyLower>::from_eigen(expr, matrix);
 
       for(size_t r = Converter::diagonalSize(matrix); r > 0; --r) {
-        expr.set(r, r, ArithmeticExpr(matrix.derived()(r - 1, r - 1)));
+        expr.set(r, r, ComplexExpr(matrix.derived()(r - 1, r - 1)));
       }
     }
 
@@ -309,12 +309,12 @@ namespace pmath4eigen {
 
     return std::numeric_limits<double>::quiet_NaN();
   }
-
-  template<>
-  inline ArithmeticExpr Converter::to_scalar< ArithmeticExpr >(const pmath::Expr &e)
-  {
-    return ArithmeticExpr(e);
-  }
+  
+  #define P4E_IMPL_Converter__to_scalar(TYPE) \
+    template<> inline TYPE Converter::to_scalar< TYPE >(const pmath::Expr &e) { return TYPE(e); }
+    
+  P4E_IMPL_Converter__to_scalar(ComplexExpr)
+  P4E_IMPL_Converter__to_scalar(RealExpr)
 
   template<typename Derived>
   inline pmath::Expr Converter::list_from_permutation(const Eigen::PermutationBase<Derived> &perm)
@@ -344,7 +344,7 @@ namespace pmath4eigen {
     pmath::Expr list = pmath::MakeCall(pmath::Symbol(p4e_System_List), vec.size());
 
     for(size_t i = vec.size(); i > 0; --i)
-      list.set(i, ArithmeticExpr(vec(i - 1)));
+      list.set(i, ComplexExpr(vec(i - 1)));
 
     return list;
   }
