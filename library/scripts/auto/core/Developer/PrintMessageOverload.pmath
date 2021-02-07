@@ -7,9 +7,9 @@ Developer`PrintErrorDetails
 
 Begin("Developer`Private`")
 
-$errorId:= 0
-Function nextErrorId() {
-	Synchronize({$errorId}, $errorId+= 1; $errorId)
+$errorID:= 0
+Function nextErrorID() {
+	Synchronize({$errorID}, $errorID+= 1; $errorID)
 }
 
 $overloadMessagePrint:= False
@@ -28,7 +28,7 @@ Function PrintMessageOverload(~expr) {
 	% the overloading/implementation of SectionPrint("Message", ~). So the stack outside 
 	% SectionPrint("Message", ~) is stack[..-3]
 	With(stack:= Stack())
-	With(eid:= nextErrorId())
+	With(eid:= nextErrorID())
 	PrintErrorDetails(eid)::=
 		Block({$overloadMessagePrint:= False},
 			SectionPrint("Message", Row @ {errorButton(eid), "\n", expr, "\n at ", stack[..-3].Reverse.Map(stackEntryForm).Row("\n at ")})

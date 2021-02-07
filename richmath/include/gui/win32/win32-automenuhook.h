@@ -17,7 +17,7 @@ namespace richmath {
     LocateItemSource,
   };
 
-  enum class SpecialCommandId : DWORD {
+  enum class SpecialCommandID : DWORD {
     None = 0,
     Select,
     Remove,

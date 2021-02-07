@@ -31,7 +31,7 @@ Protect($PaletteSearchPath)
 $Path:= Prepend($Path, $FrontEndDirectory)
 
 
-If($SystemId === "Windows") {
+If($SystemID === "Windows") {
 	<<Windows`
 }
 
@@ -44,7 +44,7 @@ Protect($FallbackFonts)
 $PrivateStartupFontFiles:= $ApplicationFileName.DirectoryName.FileNames({"*.otf", "*.ttf"})
 
 Function mmaInstallPaths() {
-	If($SystemId === "Windows") {
+	If($SystemID === "Windows") {
 		Local(win64ver)
 		
 		Do(win64ver -> {True, False}) {

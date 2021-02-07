@@ -97,7 +97,7 @@ extern pmath_symbol_t pmath_System_DollarInitialDirectory;
 extern pmath_symbol_t pmath_System_DollarInput;
 extern pmath_symbol_t pmath_System_DollarLine;
 extern pmath_symbol_t pmath_System_DollarMachineEpsilon;
-extern pmath_symbol_t pmath_System_DollarMachineId;
+extern pmath_symbol_t pmath_System_DollarMachineID;
 extern pmath_symbol_t pmath_System_DollarMachinePrecision;
 extern pmath_symbol_t pmath_System_DollarMaxExtraPrecision;
 extern pmath_symbol_t pmath_System_DollarMaxMachineNumber;
@@ -109,12 +109,12 @@ extern pmath_symbol_t pmath_System_DollarPageWidth;
 extern pmath_symbol_t pmath_System_DollarPath;
 extern pmath_symbol_t pmath_System_DollarPathListSeparator;
 extern pmath_symbol_t pmath_System_DollarPathnameSeparator;
-extern pmath_symbol_t pmath_System_DollarProcessId;
+extern pmath_symbol_t pmath_System_DollarProcessID;
 extern pmath_symbol_t pmath_System_DollarProcessorCount;
 extern pmath_symbol_t pmath_System_DollarProcessorType;
-extern pmath_symbol_t pmath_System_DollarSessionId;
+extern pmath_symbol_t pmath_System_DollarSessionID;
 extern pmath_symbol_t pmath_System_DollarSystemCharacterEncoding;
-extern pmath_symbol_t pmath_System_DollarSystemId;
+extern pmath_symbol_t pmath_System_DollarSystemID;
 extern pmath_symbol_t pmath_System_DollarTimeZone;
 extern pmath_symbol_t pmath_System_DollarVersionList;
 extern pmath_symbol_t pmath_System_DollarVersionNumber;
@@ -440,11 +440,11 @@ static void init_machine_process_session_ids(void) {
   _pmath_sha1_update(&ctx, (const uint8_t*)&now,        sizeof(now));
   _pmath_sha1_final(&digest.raw, &ctx);
   
-  pmath_symbol_set_value(pmath_System_DollarMachineId, PMATH_C_STRING(machine_id));
-  pmath_symbol_set_value(pmath_System_DollarProcessId, pmath_integer_new_uiptr(process_id));
+  pmath_symbol_set_value(pmath_System_DollarMachineID, PMATH_C_STRING(machine_id));
+  pmath_symbol_set_value(pmath_System_DollarProcessID, pmath_integer_new_uiptr(process_id));
   
-  // only use the first 8 bytes of the SHA1 digest for $SessionId:
-  pmath_symbol_set_value(pmath_System_DollarSessionId, pmath_integer_new_data(8, 1, 1, 0, 0, &digest.raw));
+  // only use the first 8 bytes of the SHA1 digest for $SessionID:
+  pmath_symbol_set_value(pmath_System_DollarSessionID, pmath_integer_new_data(8, 1, 1, 0, 0, &digest.raw));
 }
 
 static pmath_expr_t get_system_information(void) {
@@ -964,7 +964,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       pmath_symbol_set_value(pmath_System_DollarProcessorCount, PMATH_FROM_INT32(_pmath_processor_count()));
       
-      PMATH_RUN("$ThreadId::=Internal`GetThreadId()");
+      PMATH_RUN("$ThreadID::=Internal`GetThreadID()");
       
       {
         const char *system_id = (
@@ -984,7 +984,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
           unknown operating system
 #endif
         );
-        pmath_symbol_set_value(pmath_System_DollarSystemId, PMATH_C_STRING(system_id));
+        pmath_symbol_set_value(pmath_System_DollarSystemID, PMATH_C_STRING(system_id));
       }
       
       {
@@ -1113,7 +1113,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       PMATH_RUN("Options(DeleteDirectory):={DeleteContents->False}");
       
       PMATH_RUN("Options(FileNames):={IgnoreCase->Automatic}");
-      PMATH_RUN("Options(FileNameSplit):={OperatingSystem:>$SystemId}");
+      PMATH_RUN("Options(FileNameSplit):={OperatingSystem:>$SystemID}");
       
       PMATH_RUN(
           "Options(Find):="

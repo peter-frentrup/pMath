@@ -509,10 +509,10 @@ void MenuItemBuilder::add_remove_menu(int delta) {
     cmd_to_id.default_value = 0;
     
     add_command(SC_CLOSE, String("Close"));
-    add_command((UINT)SpecialCommandId::None, {});
-    add_command((UINT)SpecialCommandId::Select, {});
-    add_command((UINT)SpecialCommandId::Remove, {});
-    add_command((UINT)SpecialCommandId::GoToDefinition, {});
+    add_command((UINT)SpecialCommandID::None, {});
+    add_command((UINT)SpecialCommandID::Select, {});
+    add_command((UINT)SpecialCommandID::Remove, {});
+    add_command((UINT)SpecialCommandID::GoToDefinition, {});
   }
   
   num_menus += delta;

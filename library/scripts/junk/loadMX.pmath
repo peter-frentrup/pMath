@@ -60,7 +60,7 @@ Function readMagicUI32(~mx, ~val, ~errsym) {
 % Returns an array of constants
 %
 Function doStage1(~mx) {
-	Local(constantCache, numConsts, typeId, subTypeId, val, i, len, sgn, exp, prec1, prec2, total, dims)
+	Local(constantCache, numConsts, typeID, subTypeID, val, i, len, sgn, exp, prec1, prec2, total, dims)
 	If(!mx.readMagicString("Stage 1", doStage1)) {
 		Return({})
 	}
@@ -68,9 +68,9 @@ Function doStage1(~mx) {
 	numConsts:= mx.BinaryRead("UnsignedInteger32")
 	constantCache:= ConstantArray($Failed, numConsts)
 	Do(i -> numConsts) {
-		typeId:= mx.BinaryRead("Integer32");
+		typeID:= mx.BinaryRead("Integer32");
 		
-		Switch(typeId) {
+		Switch(typeID) {
 			Case(-1) {
 				constantCache[i]:= mx.BinaryRead("Real64")
 			}
@@ -78,15 +78,15 @@ Function doStage1(~mx) {
 				constantCache[i]:= mx.BinaryRead("Integer32")
 			}
 			Case(-3) { % packed array of ...
-				subTypeId:= mx.BinaryRead("Integer32")
-				Switch(subTypeId) {
+				subTypeID:= mx.BinaryRead("Integer32")
+				Switch(subTypeID) {
 					Case(2) { % packed array of Integer32
 						len:= mx.BinaryRead("UnsignedInteger32")
 						total:= mx.BinaryRead("UnsignedInteger32")
 						dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
 						
 						If(Times @@ dims =!= total) {
-							Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims) 
+							Message(doStage1::"dimtotal", i, typeID, subTypeID, total, dims) 
 							Break()
 						}
 						
@@ -99,7 +99,7 @@ Function doStage1(~mx) {
 						dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
 						
 						If(Times @@ dims =!= total) {
-							Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims) 
+							Message(doStage1::"dimtotal", i, typeID, subTypeID, total, dims) 
 							Break()
 						}
 						
@@ -112,7 +112,7 @@ Function doStage1(~mx) {
 						dims:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
 						
 						If(Times @@ dims =!= total) {
-							Message(doStage1::"dimtotal", i, typeId, subTypeId, total, dims) 
+							Message(doStage1::"dimtotal", i, typeID, subTypeID, total, dims) 
 							Break()
 						}
 						
@@ -120,7 +120,7 @@ Function doStage1(~mx) {
 						constantCache[i]:= val
 					}
 					Case(~) {
-						Message(doStage1::"arrtyp", i, typeId, subTypeId); 
+						Message(doStage1::"arrtyp", i, typeID, subTypeID); 
 						Break();
 					}
 				}
@@ -132,7 +132,7 @@ Function doStage1(~mx) {
 				len:= mx.BinaryRead("UnsignedInteger32")
 				sgn:= mx.BinaryRead("UnsignedInteger32") % 0 or 1
 				If(sgn =!= 0 && sgn =!= 1) {
-					Message(doStage1::"invsign", i, typeId, sgn) 
+					Message(doStage1::"invsign", i, typeID, sgn) 
 					Break()
 				}
 				val:= mx.BinaryRead(ConstantArray("UnsignedInteger32", len))
@@ -146,7 +146,7 @@ Function doStage1(~mx) {
 				len:= mx.BinaryRead("UnsignedInteger32")
 				sgn:= mx.BinaryRead("UnsignedInteger32") % 0 or 1
 				If(sgn =!= 0 && sgn =!= 1) {
-					Message(doStage1::"invsign", i, typeId, sgn) 
+					Message(doStage1::"invsign", i, typeID, sgn) 
 					Break()
 				}
 				exp:= mx.BinaryRead("Integer32") 
@@ -162,7 +162,7 @@ Function doStage1(~mx) {
 				constantCache[i]:= val
 			}
 			Case(~) {
-				Message(doStage1::"invtyp", BaseForm(mx.StreamPosition, 16), i, typeId); 
+				Message(doStage1::"invtyp", BaseForm(mx.StreamPosition, 16), i, typeID); 
 				mx.SetStreamPosition(mx.StreamPosition - 4);
 				Break();
 			}
@@ -272,21 +272,21 @@ Function doExpr(~mx, ~exprIndex, ~constantCache, ~symbolCache) {
 }
 
 Function doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache) {
-	Local(typeId, ptr)
-	typeId:= mx.BinaryRead("Integer32")
-	Switch(typeId) {
+	Local(typeID, ptr)
+	typeID:= mx.BinaryRead("Integer32")
+	Switch(typeID) {
 		Case(0 | 2 | 6 | 7) { % i32, real, string, packed
 			ptr:= mx.BinaryRead("UnsignedInteger32")
 			If(ptr > constantCache.Length || ptr < 1) {
-				Message(doStage3::invconst, exprIndex, itemIndex, typeId, ptr)
+				Message(doStage3::invconst, exprIndex, itemIndex, typeID, ptr)
 				Return($Failed)
 			}
-			Return(MxConst(constantCache[ptr], ptr, typeId))
+			Return(MxConst(constantCache[ptr], ptr, typeID))
 		}
 		Case(4) { % expr
 			ptr:= mx.BinaryRead("UnsignedInteger32");
 			If(ptr >= exprIndex || ptr < 1) {
-				Message(doStage3::invexpr, exprIndex, itemIndex, typeId, ptr)
+				Message(doStage3::invexpr, exprIndex, itemIndex, typeID, ptr)
 				Return($Failed)
 			}
 			Return(MxExpr(ptr)); % exprCache(ptr)
@@ -294,14 +294,14 @@ Function doExprPart(~mx, ~exprIndex, ~itemIndex, ~constantCache, ~symbolCache) {
 		Case(5) { % symbol
 			ptr:= mx.BinaryRead("UnsignedInteger32")
 			If(ptr > symbolCache.Length || ptr < 1) {
-				Message(doStage3::invsym, exprIndex, itemIndex, typeId, ptr)
+				Message(doStage3::invsym, exprIndex, itemIndex, typeID, ptr)
 				Return($Failed)
 			}
 			Return(MxSym(symbolCache[ptr, 1] ++ symbolCache[ptr, 2], ptr))
 		}
 	}
-	Message(doStage3::"typeId", exprIndex, itemIndex, typeId)
-	Return(MxOther(typeId, mx.BinaryRead("UnsignedInteger32")))
+	Message(doStage3::"typeID", exprIndex, itemIndex, typeID)
+	Return(MxOther(typeID, mx.BinaryRead("UnsignedInteger32")))
 }
 
 %

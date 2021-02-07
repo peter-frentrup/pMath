@@ -29,15 +29,15 @@ Function TestCompiler({~~~args}, {~resultType, ~argumentTypes:List}, ~body) {
 	}
 	
 	resetVisited()
-	code:= Gather(emitCodeId(v))[2]
+	code:= Gather(emitCodeID(v))[2]
 	code.Scan(registerSideEffects)
 	
 	resetVisited()
-	code:= Gather(emitCodeId(v))[2]
+	code:= Gather(emitCodeID(v))[2]
 	code.Reverse.Scan(inferTypes)
 	
 	resetVisited()
-	code:= Gather(emitCodeId(v))[2]
+	code:= Gather(emitCodeID(v))[2]
 	
 	Print(Column({"Code:", Grid(code.Map(asNiceCode))}))
 	v
@@ -65,7 +65,7 @@ $AllTypes:= {
 	}
 
 
-Attributes($varId):=        {ThreadLocal}
+Attributes($varID):=        {ThreadLocal}
 Attributes($namedVars):=    {ThreadLocal}
 Attributes(opCodeOf):=      {ThreadLocal}
 Attributes(typeOf):=        {ThreadLocal}
@@ -79,9 +79,9 @@ Attributes(visited):=       {ThreadLocal}
 
 Function resetCompiler() {
 	Local(logging:=True, x)
-	Clear($varId, $namedVars, opCodeOf, typeOf, varArgsOf, extraArgsOf, constValueOf);
+	Clear($varID, $namedVars, opCodeOf, typeOf, varArgsOf, extraArgsOf, constValueOf);
 	$namedVars:= {};
-	$varId:= 0;
+	$varID:= 0;
 	resetSideEffects();
 	resetVisited();
 }
@@ -96,10 +96,10 @@ Function resetVisited() {
 	visited(~):= False;
 }
 
-Function emitCodeId(~i:Integer) {
+Function emitCodeID(~i:Integer) {
 	If(!visited(i)) {
 		visited(i):= True;
-		varArgsOf(i).Scan(emitCodeId);
+		varArgsOf(i).Scan(emitCodeID);
 		Emit(i)
 	}
 }
@@ -116,7 +116,7 @@ isConstExpr(~e)::= IsFreeOf(HoldComplete, Alternatives @@ $namedVars.Map(#.Apply
 
 
 Function newCode(~type, ~opcode, ~args:List, ~extra:List) {
-	With(id:= ++$varId)
+	With(id:= ++$varID)
 	typeOf(id):=      type;
 	opCodeOf(id):=    opcode;
 	varArgsOf(id):=   args;

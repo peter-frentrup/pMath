@@ -661,7 +661,7 @@ Document({
               {/\/(ButtonBox(
                  StyleBox(ComplexStringBox("\"$ControlActiveSetting\""), 
                   FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), 
-                " "), /\/(ButtonBox(ComplexStringBox("\"$ProcessId\"")), " "), 
+                " "), /\/(ButtonBox(ComplexStringBox("\"$ProcessID\"")), " "), 
                /\/(ButtonBox(ComplexStringBox("\"LightGray\"")), " ")}, {
                /\/(ButtonBox(ComplexStringBox("\"$CreationDate\"")), " "), 
                /\/(ButtonBox(ComplexStringBox("\"$ProcessorCount\"")), " "), 
@@ -674,10 +674,10 @@ Document({
                   "\"$SystemCharacterEncoding\"")), " "), 
                /\/(ButtonBox(ComplexStringBox("\"LightOrange\"")), " ")}, {
                /\/(ButtonBox(ComplexStringBox("\"$HistoryLength\"")), " "), 
-               /\/(ButtonBox(ComplexStringBox("\"$SystemId\"")), " "), 
+               /\/(ButtonBox(ComplexStringBox("\"$SystemID\"")), " "), 
                /\/(ButtonBox(ComplexStringBox("\"LightPink\"")), " ")}, {
                /\/(ButtonBox(ComplexStringBox("\"$InitialDirectory\"")), " "), 
-               /\/(ButtonBox(ComplexStringBox("\"$ThreadId\"")), " "), 
+               /\/(ButtonBox(ComplexStringBox("\"$ThreadID\"")), " "), 
                /\/(ButtonBox(ComplexStringBox("\"LightPurple\"")), " ")}, {
                /\/(ButtonBox(ComplexStringBox("\"$Input\"")), " "), 
                /\/(ButtonBox(ComplexStringBox("\"$TimeZone\"")), " "), 

@@ -8,7 +8,7 @@ Begin("Developer`Private`")
 
 Options(OpenTextFile):= {Line->Automatic, Column->Automatic}
 Function OpenTextFile(~filename:String, opts:OptionsPattern()) {
-	If($SystemId === "Windows") {
+	If($SystemID === "Windows") {
 		With(path:= $NamespacePath)
 		Block({$NamespacePath:= path}, Get("Windows`"))
 		Return(Windows`Editors`OpenTextFile(filename, opts))

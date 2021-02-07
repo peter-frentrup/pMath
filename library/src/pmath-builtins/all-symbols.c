@@ -1005,7 +1005,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_DynamicRemove,              builtin_internal_dynamicremove)
   BIND_DOWN(   pmath_Internal_GetCurrentDirectory,        builtin_internal_getcurrentdirectory)
   BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,        builtin_internal_getcurrentdynamicid)
-  BIND_DOWN(   pmath_Internal_GetThreadId,                builtin_getthreadid)
+  BIND_DOWN(   pmath_Internal_GetThreadID,                builtin_getthreadid)
   BIND_DOWN(   pmath_Internal_NextToward,                 builtin_internal_nexttoward)
   BIND_DOWN(   pmath_Internal_ParseRealBall,              builtin_internal_parserealball)
   BIND_DOWN(   pmath_Internal_RealBallBounds,             builtin_internal_realballbounds)

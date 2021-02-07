@@ -35,8 +35,8 @@ namespace richmath {
   class Win32MenuItemPopupMenu {
     public:
       static HMENU create_popup_for(Expr list_cmd, Expr cmd);
-      static void append(HMENU menu, SpecialCommandId id, String text, UINT flags = MF_ENABLED);
-      static SpecialCommandId show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd);
+      static void append(HMENU menu, SpecialCommandID id, String text, UINT flags = MF_ENABLED);
+      static SpecialCommandID show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd);
   };
 }
 
@@ -219,20 +219,20 @@ void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DW
   self._mouse_notifications = old_mouse_notifications;
   
   switch(id) {
-    case SpecialCommandId::None: break;
+    case SpecialCommandID::None: break;
     
-    case SpecialCommandId::Select:
+    case SpecialCommandID::Select:
       self.exit_info.cmd    = cmd_id;
       self.exit_info.reason = MenuExitReason::ExplicitCmd;
       EndMenu();
       return;
     
-    case SpecialCommandId::Remove: 
+    case SpecialCommandID::Remove: 
       if(Menus::remove_dynamic_submenu_item(std::move(subitems_cmd), std::move(cmd))) 
         Win32Menu::init_popupmenu(menu);
       break;
     
-    case SpecialCommandId::GoToDefinition:
+    case SpecialCommandID::GoToDefinition:
       self.exit_info.cmd      = cmd_id;
       self.exit_info.list_cmd = subitems_cmd_id;
       self.exit_info.reason   = MenuExitReason::LocateItemSource;
@@ -362,7 +362,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   
   //select_label+= '\t';
   //select_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_RETURN);
-  append(menu, SpecialCommandId::Select, std::move(select_label));
+  append(menu, SpecialCommandID::Select, std::move(select_label));
   
   if(Menus::has_submenu_item_locator(list_cmd)) {
     String gotodef_label;
@@ -378,7 +378,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
     
     gotodef_label+= '\t';
     gotodef_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F12);
-    append(menu, SpecialCommandId::GoToDefinition, std::move(gotodef_label), flags);
+    append(menu, SpecialCommandID::GoToDefinition, std::move(gotodef_label), flags);
   }
   
   if(Menus::has_submenu_item_deleter(list_cmd)) {
@@ -390,26 +390,26 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
     
     remove_label+= '\t';
     remove_label+= Win32AcceleratorTable::accel_text(FVIRTKEY, VK_DELETE);
-    append(menu, SpecialCommandId::Remove, std::move(remove_label));
+    append(menu, SpecialCommandID::Remove, std::move(remove_label));
   }
   
-  //append(menu, SpecialCommandId::None, String("Help\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F1), MF_DISABLED | MF_GRAYED);
+  //append(menu, SpecialCommandID::None, String("Help\t") + Win32AcceleratorTable::accel_text(FVIRTKEY, VK_F1), MF_DISABLED | MF_GRAYED);
   
-  SetMenuDefaultItem(menu, (UINT)SpecialCommandId::Select, FALSE);
+  SetMenuDefaultItem(menu, (UINT)SpecialCommandID::Select, FALSE);
   return menu;
 }
 
-void Win32MenuItemPopupMenu::append(HMENU menu, SpecialCommandId id, String text, UINT flags) {
+void Win32MenuItemPopupMenu::append(HMENU menu, SpecialCommandID id, String text, UINT flags) {
   text+= String::FromChar(0);
   if(const uint16_t *buf = text.buffer()) {
     AppendMenuW(menu, MF_STRING | flags, (UINT_PTR)id, (const wchar_t*)buf);
   }
 }
 
-SpecialCommandId Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd) {
+SpecialCommandID Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Expr list_cmd, Expr cmd) {
   HMENU popup = create_popup_for(std::move(list_cmd), std::move(cmd));
   if(!popup)
-    return SpecialCommandId::None;
+    return SpecialCommandID::None;
   
   UINT flags = TPM_RECURSE | TPM_RETURNCMD;
   if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
@@ -429,13 +429,13 @@ SpecialCommandId Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Ex
   
   if(!id) {
     if(exit_info.handle_after_exit())
-      return SpecialCommandId::None;
+      return SpecialCommandID::None;
     
     if(exit_info.reason == MenuExitReason::ExplicitCmd)
       id = exit_info.cmd;
   }
   
-  return (SpecialCommandId)id;
+  return (SpecialCommandID)id;
 }
 
 //} ... class Win32MenuItemPopupMenu

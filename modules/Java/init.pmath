@@ -74,7 +74,7 @@ ImplementJavaClass::usage:= "ImplementJavaClass(\(StyleBox(\"class\", \"Arg\")\)
 
 
 Local(path) {
-	If($SystemId === "Windows") {
+	If($SystemID === "Windows") {
 		path:= Environment("ProgramFiles").StringSplit($PathListSeparator)
 		
 		path:= path.FileNames("Java")
@@ -87,7 +87,7 @@ Local(path) {
 		Unprotect($JavaInstalledVMs)
 		$JavaInstalledVMs:= path
 		Protect($JavaInstalledVMs)
-	} Else If($SystemId === "Linux") {
+	} Else If($SystemID === "Linux") {
 		Local(arch)
 		
 		If($ProcessorType === "x86-64") {
@@ -184,8 +184,8 @@ AutoLoad(Hold(EvaluateJavaBox, RunJavaSection),
 Protect(Constructors, Methods, Fields, ImplementJavaClass, EvaluateJavaBox, RunJavaSection)
 
 LoadLibrary(ToFileName(
-	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
-	If($SystemId === "Windows",
+	{DirectoryName($Input), "bin", $SystemID, $ProcessorType},
+	If($SystemID === "Windows",
 		"pmath-java.dll",
 		"pmath-java.so")))
 

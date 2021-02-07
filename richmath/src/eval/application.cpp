@@ -70,7 +70,7 @@ extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarApplicationFileName;
 extern pmath_symbol_t richmath_System_DollarControlActiveSetting;
 extern pmath_symbol_t richmath_System_DollarFailed;
-extern pmath_symbol_t richmath_System_DollarSessionId;
+extern pmath_symbol_t richmath_System_DollarSessionID;
 extern pmath_symbol_t richmath_System_Abort;
 extern pmath_symbol_t richmath_System_Assign;
 extern pmath_symbol_t richmath_System_Automatic;
@@ -597,7 +597,7 @@ void Application::init() {
     
   stylesheet_path_base = String(Evaluate(Symbol(richmath_FE_DollarStylesheetDirectory)));
   palette_search_path = Evaluate(Symbol(richmath_FE_DollarPaletteSearchPath));
-  session_id = Evaluate(Symbol(richmath_System_DollarSessionId));
+  session_id = Evaluate(Symbol(richmath_System_DollarSessionID));
   
   total_time_waited_for_gui = 0.0;
 }

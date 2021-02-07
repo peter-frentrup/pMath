@@ -255,7 +255,7 @@ pmath_bool_t get_option_boolean(pmath_symbol_t name, pmath_t more, pmath_bool_t 
 }
 
 pmath_t windows_SHGetKnownFolderPath(pmath_expr_t expr) {
-  /* SHGetKnownFolderPath(knownFolderId)
+  /* SHGetKnownFolderPath(knownFolderID)
      
      options:
       CreateDirectory -> False

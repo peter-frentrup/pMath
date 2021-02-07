@@ -53,7 +53,7 @@ struct _pmath_threadlock_t {
   pmath_atomic_t      refcount;
 };
 
-extern pmath_symbol_t pmath_System_DollarThreadId;
+extern pmath_symbol_t pmath_System_DollarThreadID;
 extern pmath_symbol_t pmath_System_General;
 extern pmath_symbol_t pmath_System_Stack;
 
@@ -207,7 +207,7 @@ PMATH_API void pmath_thread_call_locked(
           
           pmath_message(
             pmath_System_General, "deadlock", 2,
-            pmath_evaluate(pmath_ref(pmath_System_DollarThreadId)),
+            pmath_evaluate(pmath_ref(pmath_System_DollarThreadID)),
             pmath_evaluate(pmath_expr_new(pmath_ref(pmath_System_Stack), 0)));
             
           //pthread_mutex_unlock(long_waiting_mutex);

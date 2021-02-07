@@ -3,8 +3,8 @@ BeginPackage("System`Numerics`")
 
 % Print("Load pmath-numerics.dll")
 LoadLibrary(ToFileName(
-	{DirectoryName($Input), "bin", $SystemId, $ProcessorType},
-	If($SystemId === "Windows",
+	{DirectoryName($Input), "bin", $SystemID, $ProcessorType},
+	If($SystemID === "Windows",
 		"pmath-numerics.dll",
 		"pmath-numerics.so")))
 

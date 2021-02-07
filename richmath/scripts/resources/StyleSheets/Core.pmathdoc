@@ -362,7 +362,7 @@ Document({
                         Dynamic(
                          If(CurrentValue(CurrentValue({TemplateSlot, 1}), 
                             WindowTitle) === $Failed, Gray, 
-                          If(CurrentValue(FrontEndObject($SessionId, 
+                          If(CurrentValue(FrontEndObject($SessionID, 
                               FE`Private`dyn), "MouseOver") === True, Blue, 
                            Inherited))))), SetSelectedDocument(
                       CurrentValue({TemplateSlot, 1})), 
@@ -370,7 +370,7 @@ Document({
                 ShowAutoStyles -> False, 
                 FontColor -> 
                  Dynamic(If(Match(CurrentValue({TemplateSlot, 1}), 
-                    FrontEndObject($SessionId, ~)), Inherited, Gray))) &), 
+                    FrontEndObject($SessionID, ~)), Inherited, Gray))) &), 
              InterpretationFunction -> (
                {"DocumentObject", "(", InterpretationBox("", #1), ")"} &)}), 
           Section(StyleData("FrontEndObject"), 
@@ -383,20 +383,20 @@ Document({
                     Button(Panel(Style(CurrentValue({TemplateSlot, 2}), 
                        FontColor -> 
                         Dynamic(If(CurrentValue({TemplateSlot, 1}) === 
-                           $SessionId, 
-                          If(CurrentValue(FrontEndObject($SessionId, 
+                           $SessionID, 
+                          If(CurrentValue(FrontEndObject($SessionID, 
                               FE`Private`dyn), "MouseOver") === True, Blue, 
                            Inherited), Gray)))), 
                      Replace({CurrentValue({TemplateSlot, 1}), 
                        CurrentValue({TemplateSlot, 2})}, {
-                        $SessionId, ~FE`Private`id:Integer} :> 
+                        $SessionID, ~FE`Private`id:Integer} :> 
                        SetSelectedDocument(Automatic, 
-                        FrontEndObject($SessionId, FE`Private`id))), 
+                        FrontEndObject($SessionID, FE`Private`id))), 
                      Enabled -> Dynamic(CurrentValue({TemplateSlot, 1}) === 
-                        $SessionId), ButtonFrame -> "Frameless")))), ")"}, 
+                        $SessionID), ButtonFrame -> "Frameless")))), ")"}, 
                 ShowAutoStyles -> False, 
                 FontColor -> 
-                 Dynamic(If(CurrentValue({TemplateSlot, 1}) === $SessionId, 
+                 Dynamic(If(CurrentValue({TemplateSlot, 1}) === $SessionID, 
                    Inherited, Gray))) &), InterpretationFunction -> (
                {"FrontEndObject", "(", {InterpretationBox("", #1), ",", 
                  InterpretationBox("", #2)}, ")"} &)}), 
