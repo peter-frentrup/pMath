@@ -14,6 +14,7 @@ namespace richmath {
       
       static void context_source_deleted(StyledObject *obj);
       static void set_context(String context);
+      static Expr prepare_set_context(String context);
       static Section *find_section_group_header(Section *section);
       static String resolve_context(StyledObject *obj);
   };

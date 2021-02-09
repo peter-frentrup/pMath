@@ -113,7 +113,7 @@ bool InputJob::start() {
   
   doc->move_to(doc, i);
   
-  EvaluationContexts::set_context(EvaluationContexts::resolve_context(section));
+  set_context();
   {
     Expr line_and_dlvl = Application::interrupt_wait(
       List(
@@ -168,6 +168,16 @@ void InputJob::dequeued() {
   }
 }
 
+void InputJob::set_context() {
+  auto obj = FrontEndObject::find(_position.box_id);
+  if(!obj)
+    obj = FrontEndObject::find(_position.section_id);
+  if(!obj)
+    obj = FrontEndObject::find(_position.document_id);
+  
+  EvaluationContexts::set_context(EvaluationContexts::resolve_context(dynamic_cast<StyledObject*>(obj)));
+}
+
 //} ... class InputJob
 
 //{ class EvaluationJob ...
@@ -183,6 +193,7 @@ EvaluationJob::EvaluationJob(Expr expr, Box *box)
 bool EvaluationJob::start() {
   auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
   
+  set_context();
   Server::local_server->run(_expr);
   
   if(doc)
@@ -208,6 +219,8 @@ DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, Box *box)
 }
 
 bool DynamicEvaluationJob::start() {
+  set_context();
+  
   old_observer_id = Dynamic::current_observer_id;
   Dynamic::current_observer_id = _position.box_id;
   return EvaluationJob::start();
@@ -262,6 +275,8 @@ bool ReplacementJob::start() {
     
     return false;
   }
+  
+  set_context();
   
   Expr boxes = sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo, selection_start, selection_end);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);

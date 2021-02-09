@@ -1,6 +1,7 @@
 #include <eval/dynamic.h>
 
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <eval/job.h>
 
 #include <boxes/templatebox.h>
@@ -400,6 +401,10 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
     return;
   
   run = dyn_source->prepare_dynamic(run);
+  
+  if(Expr set_ctx = EvaluationContexts::prepare_set_context(EvaluationContexts::resolve_context(self.owner())))
+    run = Call(Symbol(richmath_System_EvaluationSequence), set_ctx, std::move(run));
+  
   Application::interrupt_wait_for_interactive(run, self._owner, Application::dynamic_timeout);
 }
 
@@ -470,6 +475,9 @@ Expr Dynamic::Impl::get_value_now() {
     self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
+  if(Expr set_ctx = EvaluationContexts::prepare_set_context(EvaluationContexts::resolve_context(self.owner())))
+    call = Call(Symbol(richmath_System_EvaluationSequence), set_ctx, std::move(call));
+  
   auto old_eval_id = Dynamic::current_observer_id;
   Dynamic::current_observer_id = self._owner->id();
   
@@ -535,9 +543,9 @@ bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
   if(sync != AutoBoolFalse || !self.is_dynamic()) {
     if(result)
       *result = get_value_now();
-    else
+    else 
       get_value_now();
-      
+    
     return true;
   }
   

@@ -75,16 +75,20 @@ void EvaluationContexts::context_source_deleted(StyledObject *obj) {
 }
 
 void EvaluationContexts::set_context(String context) {
+  if(auto expr = prepare_set_context(context))
+    Application::interrupt_wait(expr);
+}
+
+Expr EvaluationContexts::prepare_set_context(String context) {
   if(!context.is_namespace())
-    return;
+    return Expr();
   
   if(context == Impl::current_context)
-    return;
+    return Expr();
   
-  Application::interrupt_wait(
-    Call(Symbol(richmath_FE_Private_SwitchEvaluationContext), Impl::current_context, context));
-  
-  Impl::current_context = std::move(context);
+  auto old_ctx = std::move(Impl::current_context);
+  Impl::current_context = context;
+  return Call(Symbol(richmath_FE_Private_SwitchEvaluationContext), std::move(old_ctx), std::move(context));
 }
 
 Section *EvaluationContexts::find_section_group_header(Section *section) {
@@ -136,6 +140,20 @@ String EvaluationContexts::resolve_context(StyledObject *obj) {
   }
   
   return strings::Global_namespace;
+}
+
+static Expr replace_symbol_context(Expr expr, String old_ctx, String new_ctx) {
+  if(old_ctx.is_namespace() && new_ctx.is_namespace()) {
+    SymbolNamespaceReplacer repl(old_ctx, new_ctx);
+    
+    if(new_ctx == strings::DollarEvaluationContext_namespace) {
+      repl.extra_attributes = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
+      //repl.copy_old_attributes = true;
+    }
+    
+    return Expr(repl.run(expr.release()));
+  }
+  return expr;
 }
 
 //} ... class EvaluationContexts

@@ -60,6 +60,9 @@ namespace richmath {
       virtual void returned_boxes(Expr expr) override;
       virtual void end() override;
       virtual void dequeued() override;
+    
+    protected:
+      void set_context();
   };
   
   class EvaluationJob: public InputJob {
