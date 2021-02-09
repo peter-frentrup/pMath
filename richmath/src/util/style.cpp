@@ -56,6 +56,7 @@ extern pmath_symbol_t richmath_System_DownRules;
 extern pmath_symbol_t richmath_System_Editable;
 extern pmath_symbol_t richmath_System_Enabled;
 extern pmath_symbol_t richmath_System_Evaluatable;
+extern pmath_symbol_t richmath_System_EvaluationContext;
 extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_FillBoxOptions;
 extern pmath_symbol_t richmath_System_FillBoxWeight;
@@ -1813,6 +1814,9 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
     return;
   }
   
+  int old_defines_eval_ctx = false;
+  style->get(InternalDefinesEvaluationContext, &old_defines_eval_ctx);
+  
   int old_has_pending_dynamic = 0;
   style->get(InternalHasPendingDynamic, &old_has_pending_dynamic);
   
@@ -1823,6 +1827,10 @@ void Style::reset(SharedPtr<Style> &style, String base_style_name) {
   style->set(BaseStyleName, base_style_name);
   if(!base_style_name.is_null())
     style->set(InternalHasNewBaseStyle, true);
+  
+  if(old_defines_eval_ctx)
+    style->set(InternalDefinesEvaluationContext, true);
+  
   if(!old_has_pending_dynamic && old_base_style_name == base_style_name)
     style->remove(InternalHasPendingDynamic);
 }
@@ -2181,6 +2189,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Editable);
   impl.emit_definition(Enabled);
   impl.emit_definition(Evaluatable);
+  impl.emit_definition(EvaluationContext);
   impl.emit_definition(ExcessOrMissingArgumentStyle);
   impl.emit_definition(FillBoxOptions);
   impl.emit_definition(FillBoxWeight);
@@ -2863,34 +2872,35 @@ void StyleInformation::add_style() {
     
     add(StyleType::Any,             Appearance,                       Symbol( richmath_System_Appearance));
     add(StyleType::Any,             Axes,                             Symbol( richmath_System_Axes));
-    add(StyleType::Any,             Ticks,                            Symbol( richmath_System_Ticks));
-    add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
-    add(StyleType::Any,             FrameStyle,                       Symbol( richmath_System_FrameStyle));
-    add(StyleType::Any,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
     add(StyleType::Any,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
     add(StyleType::Any,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
-    add(StyleType::Any,             ButtonData,                       Symbol( richmath_System_ButtonData));
-    add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
-    add(StyleType::Any,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
-    add(StyleType::Any,             TextShadow,                       Symbol( richmath_System_TextShadow));
-    add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
-    add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
-    add(StyleType::Any,             TrackedSymbols,                   Symbol( richmath_System_TrackedSymbols));
+    add(StyleType::Any,             BorderRadius,                     Symbol( richmath_System_BorderRadius));
     add(StyleType::Any,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
     add(StyleType::Any,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
-    add(StyleType::Any,             PlotRange,                        Symbol( richmath_System_PlotRange));
-    add(StyleType::Any,             BorderRadius,                     Symbol( richmath_System_BorderRadius));
+    add(StyleType::Any,             ButtonData,                       Symbol( richmath_System_ButtonData));
+    add(StyleType::Any,             ButtonFunction,                   Symbol( richmath_System_ButtonFunction));
     add(StyleType::Any,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
     add(StyleType::Any,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
     add(StyleType::Any,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));
     add(StyleType::Any,             DisplayFunction,                  Symbol( richmath_System_DisplayFunction));
-    add(StyleType::Any,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
-    add(StyleType::Any,             SyntaxForm,                       Symbol( richmath_System_SyntaxForm));
-    add(StyleType::Any,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
-    add(StyleType::Any,             Tooltip,                          Symbol( richmath_System_Tooltip));
+    add(StyleType::Any,             EvaluationContext,                Symbol( richmath_System_EvaluationContext));
+    add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
+    add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
+    add(StyleType::Any,             FrameStyle,                       Symbol( richmath_System_FrameStyle));
+    add(StyleType::Any,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
     add(StyleType::Any,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
+    add(StyleType::Any,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
+    add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
+    add(StyleType::Any,             PlotRange,                        Symbol( richmath_System_PlotRange));
+    add(StyleType::Any,             ScriptSizeMultipliers,            Symbol( richmath_System_ScriptSizeMultipliers));
     add(StyleType::Any,             SectionDingbat,                   Symbol( richmath_System_SectionDingbat));
     add(StyleType::Any,             SectionEvaluationFunction,        Symbol( richmath_System_SectionEvaluationFunction));
+    add(StyleType::Any,             StyleDefinitions,                 Symbol( richmath_System_StyleDefinitions));
+    add(StyleType::Any,             SyntaxForm,                       Symbol( richmath_System_SyntaxForm));
+    add(StyleType::Any,             TextShadow,                       Symbol( richmath_System_TextShadow));
+    add(StyleType::Any,             Ticks,                            Symbol( richmath_System_Ticks));
+    add(StyleType::Any,             Tooltip,                          Symbol( richmath_System_Tooltip));
+    add(StyleType::Any,             TrackedSymbols,                   Symbol( richmath_System_TrackedSymbols));
     
     add(StyleType::AnyFlatList, ContextMenu,               Symbol( richmath_System_ContextMenu));
     

@@ -267,21 +267,61 @@ Document({
                {"CurrentValue", "(", ComplexStringBox(
                  "\"CurrentValueProviders\""), ")"}, ".", "Select", "(", 
                "IsString", ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData({"{", {ComplexStringBox("\"ControlsFontSlant\""), 
-                ",", ComplexStringBox("\"DocumentFileName\""), ",", 
-                ComplexStringBox("\"ControlsFontFamily\""), ",", 
-                ComplexStringBox("\"DocumentDirectory\""), ",", 
-                ComplexStringBox("\"ControlsFontWeight\""), ",", 
+            Section(BoxData({"{", {ComplexStringBox("\"SyntaxErrorStyle\""), 
+                ",", ComplexStringBox("\"StyleDefinitionsOwner\""), ",", 
+                ComplexStringBox("\"InlineAutoCompletionStyle\""), ",", 
+                ComplexStringBox("\"DocumentFileName\""), ",", 
                 ComplexStringBox("\"SectionGroupOpen\""), ",", 
+                ComplexStringBox("\"CommentStyle\""), ",", 
+                ComplexStringBox("\"OccurenceHighlightStyle\""), ",", 
+                ComplexStringBox("\"SectionInsertionPointColor\""), ",", 
+                ComplexStringBox("\"SymbolShadowingStyle\""), ",", 
                 ComplexStringBox("\"SelectedMenuCommand\""), ",", 
-                ComplexStringBox("\"StyleDefinitionsOwner\""), ",", 
-                ComplexStringBox("\"DocumentFullFileName\""), ",", 
+                ComplexStringBox("\"ControlsFontSlant\""), ",", 
                 ComplexStringBox("\"MouseOver\""), ",", 
+                ComplexStringBox("\"TemplateSlotCount\""), ",", 
                 ComplexStringBox("\"DocumentScreenDpi\""), ",", 
+                ComplexStringBox("\"PatternVariableStyle\""), ",", 
+                ComplexStringBox("\"ResolvedEvaluationContext\""), ",", 
+                ComplexStringBox("\"FunctionNameStyle\""), ",", 
+                ComplexStringBox("\"ControlsFontSize\""), ",", 
+                ComplexStringBox("\"MatchingBracketHighlightStyle\""), ",", 
+                ComplexStringBox("\"CharacterNameStyle\""), ",", 
+                ComplexStringBox("\"ControlsFontFamily\""), ",", 
+                ComplexStringBox("\"LocalVariableStyle\""), ",", 
+                ComplexStringBox("\"LocalScopeConflictStyle\""), ",", 
+                ComplexStringBox("\"MouseOverBox\""), ",", 
                 ComplexStringBox("\"CurrentValueProviders\""), ",", 
-                ComplexStringBox("\"ControlsFontSize\"")}, "}"}), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-          SectionGroup({
+                ComplexStringBox("\"StringStyle\""), ",", 
+                ComplexStringBox("\"ControlsFontWeight\""), ",", 
+                ComplexStringBox("\"KeywordSymbolStyle\""), ",", 
+                ComplexStringBox("\"ExcessOrMissingArgumentStyle\""), ",", 
+                ComplexStringBox("\"FunctionLocalVariableStyle\""), ",", 
+                ComplexStringBox("\"ImplicitOperatorStyle\""), ",", 
+                ComplexStringBox("\"DocumentDirectory\""), ",", 
+                ComplexStringBox("\"DocumentFullFileName\""), ",", 
+                ComplexStringBox("\"PageWidthCharacters\""), ",", 
+                ComplexStringBox("\"UnknownOptionStyle\""), ",", 
+                ComplexStringBox("\"UndefinedSymbolStyle\"")}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"Resolve the current ", 
+               TemplateBox({"EvaluationContext"}, "ReferenceHyperlink"), 
+               " to its default namespace:"}), "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Dynamic", "(", {
+                  "{", {{"CurrentValue", "(", "EvaluationContext", ")"}, ",", {
+                    "CurrentValue", "(", ComplexStringBox(
+                     "\"ResolvedEvaluationContext\""), ")"}}, "}"}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(DynamicBox(
+                 ToBoxes({CurrentValue(EvaluationContext), 
+                   CurrentValue("ResolvedEvaluationContext")}))), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(TextData({"Extract a ", TemplateBox({"TemplateBox"}, 
@@ -310,11 +350,12 @@ Document({
                           ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({SqrtBox("5")}, "MyTag", 
-                 DisplayFunction -> (PanelBox({
-                   FrameBox(#1), "\n", 
-                   DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 1}))), "\n", 
-                   ButtonBox("Reset", ButtonFunction -> ((CurrentValue({
-                      TemplateSlot, 1}):= SqrtBox("2")) &))}) &))), "Output", 
+                 DisplayFunction -> (
+                   PanelBox({FrameBox(#1), "\n", 
+                     DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 1}))), 
+                     "\n", ButtonBox("Reset", ButtonFunction -> (
+                        (CurrentValue({TemplateSlot, 1}):= 
+                         SqrtBox("2")) &))}) &))), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -340,12 +381,12 @@ Document({
                            ")"}, ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({"a", "b"}, "MyTag", 
-                 DisplayFunction -> (PanelBox({
-                   FrameBox(#1), " ", FrameBox(#2), " ", 
-                   DynamicBox(
-                    ToBoxes(CurrentValue("TemplateSlotCount")))}) &))), 
+                 DisplayFunction -> (
+                   PanelBox({FrameBox(#1), " ", FrameBox(#2), " ", 
+                     DynamicBox(
+                      ToBoxes(CurrentValue("TemplateSlotCount")))}) &))), 
                "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
+               SectionLabel -> "out [1]:")}, All)}, All)}, All)}, All), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section(
          TextData({"Unlike ", TemplateBox({"Options"}, "ReferenceHyperlink"), 

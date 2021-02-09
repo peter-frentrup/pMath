@@ -2,7 +2,7 @@
 % Front end initialization -- Stage 1
 %
 % This file is executed on the main (GUI) thread before the GUI system is initialized and thus 
-% C++ functions from richmath.exe are connected.
+% before C++ functions from richmath.exe are connected.
 %
 BeginPackage("FE`")
 
@@ -126,6 +126,7 @@ AutoLoad(Hold(FE`Import`FileNamesDropDescription, FE`Import`PasteFileNameContent
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "symbol-info.pmath"))
+Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "eval-contexts.pmath"))
 
 FE`SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
 

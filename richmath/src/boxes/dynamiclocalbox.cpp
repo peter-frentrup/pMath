@@ -186,7 +186,7 @@ Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
 
 Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
   expr = Expr(internal_replace_symbols(expr.release(), _public_symbols, _private_symbols));
-  return AbstractDynamicBox::prepare_dynamic(expr);
+  return AbstractDynamicBox::prepare_dynamic(std::move(expr));
 }
 
 void DynamicLocalBox::ensure_init() {

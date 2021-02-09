@@ -25,12 +25,10 @@ PMATH_PRIVATE pmath_t builtin_if(pmath_expr_t expr) {
     return onTrue;
   }
   else if(pmath_same(condition, pmath_System_False)) {
-    if(len >= 3) {
-      pmath_t onFalse = pmath_expr_get_item(expr, 3);
-      pmath_unref(condition);
-      pmath_unref(expr);
-      return onFalse;
-    }
+    pmath_t onFalse = pmath_expr_get_item(expr, 3);
+    pmath_unref(condition);
+    pmath_unref(expr);
+    return onFalse;
   }
   else if(len == 4) {
     pmath_t onUnknown = pmath_expr_get_item(expr, 4);

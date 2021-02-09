@@ -6,6 +6,7 @@
 #include <boxes/mathsequence.h>
 #include <boxes/textsequence.h>
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
 
@@ -50,6 +51,9 @@ Section::Section(SharedPtr<Style> _style)
 }
 
 Section::~Section() {
+  int defines_eval_ctx = false;
+  if(style && style->get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
+    EvaluationContexts::context_source_deleted(this);
 }
 
 Section *Section::create_from_object(const Expr expr) {

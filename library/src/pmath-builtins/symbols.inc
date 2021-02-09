@@ -300,6 +300,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Erfi,                               DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( EulerGamma,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Evaluate,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( EvaluationBox,                      0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( EvaluationContext,                  0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( EvaluationDocument,                 0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( EvaluationSequence,                 HOLDALL )
 PMATH_DECLARE_SYSTEM_SYMBOL( Evaluatable,                        0 )

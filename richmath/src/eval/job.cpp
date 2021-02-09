@@ -5,6 +5,7 @@
 
 #include <eval/application.h>
 #include <eval/dynamic.h>
+#include <eval/eval-contexts.h>
 #include <eval/server.h>
 
 #include <gui/document.h>
@@ -112,9 +113,14 @@ bool InputJob::start() {
   
   doc->move_to(doc, i);
   
+  EvaluationContexts::set_context(EvaluationContexts::resolve_context(section));
   {
-    Expr line = Application::interrupt_wait(Plus(Symbol(richmath_System_DollarLine), 1));
-    Expr dlvl = Application::interrupt_wait(Symbol(richmath_System_DollarDialogLevel));
+    Expr line_and_dlvl = Application::interrupt_wait(
+      List(
+        Plus(Symbol(richmath_System_DollarLine), 1),
+        Symbol(richmath_System_DollarDialogLevel)));
+    Expr line = line_and_dlvl[1];
+    Expr dlvl = line_and_dlvl[2];
     
     String label = String("in [");
     if(dlvl == PMATH_FROM_INT32(1))

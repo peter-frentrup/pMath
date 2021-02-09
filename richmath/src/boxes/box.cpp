@@ -411,7 +411,7 @@ VolatileSelection Box::normalize_selection(int start, int end) {
 
 Expr Box::prepare_dynamic(Expr expr) {
   if(auto par = parent())
-    return par->prepare_dynamic(expr);
+    return par->prepare_dynamic(std::move(expr));
   return expr;
 }
 

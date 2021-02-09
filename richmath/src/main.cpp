@@ -17,6 +17,7 @@
 #include <boxes/mathsequence.h>
 #include <eval/binding.h>
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <eval/server.h>
 #include <graphics/config-shaper.h>
 #include <graphics/ot-math-shaper.h>
@@ -66,6 +67,10 @@
 #  define snprintf sprintf_s
 #endif
 
+
+namespace richmath { namespace strings {
+  extern String Global_namespace;
+}}
 
 using namespace richmath;
 
@@ -304,6 +309,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(InputAliases,              List());
   Stylesheet::Default->base->set(InputAutoReplacements,     List());
   
+  Stylesheet::Default->base->set(EvaluationContext,         strings::Global_namespace);
   Stylesheet::Default->base->set(SectionLabel,              "");
   Stylesheet::Default->base->set(SectionEvaluationFunction, Symbol(richmath_System_Identity));
   
@@ -388,6 +394,7 @@ int main(int argc, char **argv) {
   
   Application::init();
   Server::init_local_server();
+  EvaluationContexts::init();
   
   GeneralSyntaxInfo::std = new GeneralSyntaxInfo;
   
@@ -506,6 +513,7 @@ QUIT:
   
   GeneralSyntaxInfo::std = nullptr;
   
+  EvaluationContexts::done();
   Application::done();
   
 #ifdef RICHMATH_USE_WIN32_GUI

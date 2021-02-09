@@ -16,6 +16,7 @@
 #include <boxes/underoverscriptbox.h>
 
 #include <eval/binding.h>
+#include <eval/eval-contexts.h>
 
 #include <gui/clipboard.h>
 #include <gui/documents.h>
@@ -358,6 +359,10 @@ Document::Document()
 
 Document::~Document() {
   Impl(*this).close_all_popup_windows();
+  
+  int defines_eval_ctx = false;
+  if(style && style->get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
+    EvaluationContexts::context_source_deleted(this);
 }
 
 StyledObject *Document::style_parent() {

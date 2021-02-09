@@ -3342,3 +3342,54 @@ pmath_t pmath_parse_string_args(
                 
   return result;
 }
+
+PMATH_API pmath_bool_t pmath_is_namespace(pmath_t name) {
+  const uint16_t *buf;
+  int len, i;
+  pmath_token_t tok;
+
+  if(!pmath_is_string(name))
+    return FALSE;
+
+  len = pmath_string_length(name);
+  buf = pmath_string_buffer(&name);
+
+  if(len < 2 || buf[len - 1] != '`' || buf[0] == '`')
+    return FALSE;
+
+  for(i = 0; i < len - 1; ++i) {
+    if(buf[i] == '`') {
+      ++i;
+      tok = pmath_token_analyse(buf + i, 1, NULL);
+      if(tok != PMATH_TOK_NAME)
+        return FALSE;
+    }
+    else {
+      tok = pmath_token_analyse(buf + i, 1, NULL);
+      if(tok != PMATH_TOK_DIGIT && tok != PMATH_TOK_NAME)
+        return FALSE;
+    }
+  }
+
+  return TRUE;
+}
+
+PMATH_API pmath_bool_t pmath_is_namespace_list(pmath_t list) {
+  size_t i;
+
+  if(!pmath_is_expr_of(list, pmath_System_List))
+    return FALSE;
+
+  for(i = pmath_expr_length(list); i > 0; --i) {
+    pmath_t name = pmath_expr_get_item(list, i);
+
+    if(!pmath_is_namespace(name)) {
+      pmath_unref(name);
+      return FALSE;
+    }
+
+    pmath_unref(name);
+  }
+
+  return TRUE;
+}

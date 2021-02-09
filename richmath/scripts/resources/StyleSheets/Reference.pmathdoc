@@ -9,7 +9,9 @@ Document({
         Section(StyleData("Document"), Background -> GrayLevel(1), 
          FontColor -> GrayLevel(0), Saveable -> False)}, All), 
       SectionGroup({Section("Section styles", "Section"), 
-        Section(StyleData("Output"), SectionLabel -> "out:")}, All), 
+        Section(StyleData("Input"), EvaluationContext -> SectionGroup), 
+        Section(StyleData("Output"), SectionLabel -> "out:"), 
+        Section(StyleData("Print"), SectionLabel -> "")}, All), 
       SectionGroup({Section(StyleData("ObjectName"), BaseStyle -> "Section", 
          FontColor -> RGBColor(0, 0.502`, 0.125`), FontSize -> 22, 
          FontWeight -> Bold, SectionFrame -> {0, 0, 0, 0}, 
@@ -23,34 +25,38 @@ Document({
       SectionGroup({Section(StyleData("CollapseSection"), 
          Background -> GrayLevel(0.90200000000000002`), 
          BaseStyle -> "Section", FontColor -> RGBColor(0, 0.502`, 0.125`), 
-         ReturnCreatesNewSection -> True, SectionDingbat :> OpenerBox(
-          Dynamic(CurrentValue("SectionGroupOpen"))), 
+         ReturnCreatesNewSection -> True, 
+         SectionDingbat :> 
+          OpenerBox(Dynamic(CurrentValue("SectionGroupOpen"))), 
          SectionFrame -> {0, 0, 0.5`, 0.5`}, 
          SectionFrameColor -> GrayLevel(0.59999999999999998`), 
          SectionFrameMargins -> {17, Inherited, Inherited, Inherited}, 
          SectionMargins -> {0, 0, 0, 0}, ShowSectionBracket -> False, 
          WholeSectionGroupOpener -> True), 
         Section(StyleData("SectionHeaderSpacer"), FontSize -> 2, 
-         SectionGroupPrecedence -> -45, SectionMargins -> {Inherited, 
-          Inherited, 4, 4}, SectionLabel -> "", ShowSectionBracket -> False), 
+         SectionGroupPrecedence -> -45, 
+         SectionMargins -> {Inherited, Inherited, 4, 4}, SectionLabel -> "", 
+         ShowSectionBracket -> False), 
         SectionGroup({Section(StyleData("SectionFooterSpacer"), FontSize -> 2, 
-           SectionGroupPrecedence -> -45, SectionMargins -> {Inherited, 
-            Inherited, 4, 4}, SectionLabel -> "", 
+           SectionGroupPrecedence -> -45, 
+           SectionMargins -> {Inherited, Inherited, 4, 4}, SectionLabel -> "", 
            ShowSectionBracket -> False), Section(StyleData("NotesSection"), 
            BaseStyle -> "CollapseSection", DefaultNewSectionStyle -> "Notes", 
            DefaultReturnCreatedSectionStyle -> "NotesSectionHeaderSpacer", 
-           ReturnCreatesNewSection -> True, SectionFrame -> {Inherited, 
-            Inherited, Inherited, 0}), 
+           ReturnCreatesNewSection -> True, 
+           SectionFrame -> {Inherited, Inherited, Inherited, 0}), 
           Section(StyleData("NotesSectionHeaderSpacer"), 
            BaseStyle -> "SectionHeaderSpacer", 
-           ReturnCreatesNewSection -> True, SectionFrame -> {Inherited, 
-            Inherited, 0.5`, Inherited}, SectionFrameColor -> GrayLevel(
-            0.59999999999999998`), SectionFrameMargins -> {0, 0, 4, 0}, 
+           ReturnCreatesNewSection -> True, 
+           SectionFrame -> {Inherited, Inherited, 0.5`, Inherited}, 
+           SectionFrameColor -> GrayLevel(0.59999999999999998`), 
+           SectionFrameMargins -> {0, 0, 4, 0}, 
            SectionMargins -> {0, 0, 0, Inherited}), 
           Section(StyleData("Notes"), BaseStyle -> "Text", 
            DefaultNewSectionStyle -> "Notes", MenuSortingValue -> 1600, 
-           ReturnCreatesNewSection -> True, SectionDingbat :> StyleBox(
-            "\"\[U+25AA]\"", FontColor -> GrayLevel(0.5`)), 
+           ReturnCreatesNewSection -> True, 
+           SectionDingbat :> StyleBox("\"\[U+25AA]\"", 
+             FontColor -> GrayLevel(0.5`)), 
            SectionMargins -> {35, Inherited, 5, 5}, 
            ShowSectionBracket -> Automatic), 
           Section(StyleData("2ColumnTableNotes"), BaseStyle -> "Text", 
@@ -64,8 +70,8 @@ Document({
              BaseStyle -> "Subsection", DefaultNewSectionStyle -> 
               "ExampleText", FontColor -> RGBColor(0, 0.502`, 0.125`), 
              MenuCommandKey -> "4", MenuSortingValue -> 1210, 
-             SectionDingbat :> OpenerBox(
-              Dynamic(CurrentValue("SectionGroupOpen"))), 
+             SectionDingbat :> 
+              OpenerBox(Dynamic(CurrentValue("SectionGroupOpen"))), 
              SectionMargins -> {35, Inherited, Inherited, Inherited}, 
              ShowSectionBracket -> Automatic, 
              WholeSectionGroupOpener -> True), 
@@ -73,21 +79,23 @@ Document({
                BaseStyle -> "Subsubsection", DefaultNewSectionStyle -> 
                 "ExampleText", FontColor -> RGBColor(0, 0.502`, 0.125`), 
                MenuCommandKey -> "5", MenuSortingValue -> 1220, 
-               SectionDingbat :> OpenerBox(
-                Dynamic(CurrentValue("SectionGroupOpen"))), 
+               SectionDingbat :> 
+                OpenerBox(Dynamic(CurrentValue("SectionGroupOpen"))), 
                SectionMargins -> {45, Inherited, Inherited, Inherited}, 
                ShowSectionBracket -> Automatic, 
                WholeSectionGroupOpener -> True), 
               Section(StyleData("ExampleText"), BaseStyle -> "Text", 
                DefaultNewSectionStyle -> "Input", MenuCommandKey -> "7", 
-               MenuSortingValue -> 1400, SectionMargins -> {Inherited, 
-                Inherited, 6, 4}, ShowSectionBracket -> Automatic), 
-              SectionGroup({Section(StyleData("ExampleDelimiter"), 
+               MenuSortingValue -> 1400, SectionMargins -> {
+                 Inherited, Inherited, 6, 4}, ShowSectionBracket -> 
+                Automatic), SectionGroup({
+                Section(StyleData("ExampleDelimiter"), 
                  DefaultNewSectionStyle -> "ExampleText", Evaluatable -> True, 
                  FontSize -> 2, MenuCommandKey -> "6", 
-                 MenuSortingValue -> 1300, SectionFrame -> {Inherited, 
-                  Inherited, 0.25`, Inherited}, SectionFrameColor -> GrayLevel(
-                  0.70199999999999996`), SectionGroupPrecedence -> -25, 
+                 MenuSortingValue -> 1300, 
+                 SectionFrame -> {Inherited, Inherited, 0.25`, Inherited}, 
+                 SectionFrameColor -> GrayLevel(0.70199999999999996`), 
+                 SectionGroupPrecedence -> -25, 
                  SectionMargins -> {35, Inherited, 8, 4}, SectionLabel -> "", 
                  ShowSectionBracket -> Automatic), 
                 Section(StyleData("SeeAlsoSection"), 
@@ -101,77 +109,100 @@ Document({
          All)}, All), SectionGroup({Section("Box styles", "Section"), 
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
           Section(StyleData("UsageReference"), 
-           TemplateBoxOptions -> {DisplayFunction -> (DynamicBox(
-             Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
-               ParseSymbols -> False), HoldComplete(~FE`Private`sym:Symbol) :> 
-               ToBoxes(Documentation`PrepareUsageSection(
-                FE`Private`sym::"usage"))), Selectable -> True) &)}), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               DynamicBox(
+                Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
+                  ParseSymbols -> False), 
+                 HoldComplete(~FE`Private`sym:Symbol) :> 
+                  ToBoxes(Documentation`PrepareUsageSection(
+                    FE`Private`sym::"usage"))), Selectable -> True) &)}), 
           SectionGroup({Section("Hyperlinks", "Subsubsection"), 
             Section(StyleData("ReferenceHyperlink"), 
-             TemplateBoxOptions :> {DisplayFunction -> (StyleBox(
-               ComplexStringBox({
-                 "\"", ButtonBox(#1, ButtonFunction -> (With({
-                    FE`Private`file:= 
-                     Documentation`FindSymbolDocumentationByFullName(
-                     CurrentValue({TemplateSlot, 1}))}, 
-                   If(IsString(FE`Private`file), 
-                    FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
-                      False)))) &), BaseStyle -> "Text", 
-                  ButtonFrame -> "Frameless"), "\""}), 
-               FontColor -> Dynamic(
-                With({
-                  FE`Private`file:= 
-                   Documentation`FindSymbolDocumentationByFullName(
-                   CurrentValue({TemplateSlot, 1}))}, 
-                 If(FE`Private`file === None, RGBColor(0.80000000000000004`, 
-                   0, 0), RGBColor(0, 0, 0.80000000000000004`)))), 
-               ShowAutoStyles -> False) &), Tooltip -> DynamicBox(
-               Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
-                 ParseSymbols -> False), 
-                HoldComplete(~FE`Private`sym:Symbol) :> ToBoxes(
-                 FE`Private`sym::"usage")))}), 
+             TemplateBoxOptions :> {
+               DisplayFunction -> (
+                 StyleBox(ComplexStringBox({
+                    "\"", ButtonBox(#1, ButtonFunction -> (
+                       With({
+                         FE`Private`file:= 
+                          Documentation`FindSymbolDocumentationByFullName(
+                           CurrentValue({TemplateSlot, 1}))}, 
+                        If(IsString(FE`Private`file), 
+                         FE`CallFrontEnd(FrontEnd`DocumentOpen(
+                           FE`Private`file, False)))) &), BaseStyle -> "Text", 
+                     ButtonFrame -> "Frameless"), "\""}), 
+                  FontColor -> 
+                   Dynamic(
+                    With({
+                      FE`Private`file:= 
+                       Documentation`FindSymbolDocumentationByFullName(
+                        CurrentValue({TemplateSlot, 1}))}, 
+                     If(FE`Private`file === None, 
+                      RGBColor(0.80000000000000004`, 0, 0), 
+                      RGBColor(0, 0, 0.80000000000000004`)))), 
+                  ShowAutoStyles -> False) &), 
+               Tooltip -> DynamicBox(
+                 Replace(MakeExpression(CurrentValue({TemplateSlot, 1}), 
+                   ParseSymbols -> False), 
+                  HoldComplete(~FE`Private`sym:Symbol) :> 
+                   ToBoxes(FE`Private`sym::"usage")))}), 
             Section(StyleData("NamedCharacterHyperlink"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-               ComplexStringBox({"\"\\\\[", #1, "]\""}), 
-               FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-               ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
-           All), SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 StyleBox(ComplexStringBox({"\"\\\\[", #1, "]\""}), 
+                  FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+                  ShowStringCharacters -> False, 
+                  ShowAutoStyles -> False) &)})}, All), 
+          SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
             Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
-              DisplayFunction -> (StyleBox(
-               FrameBox(ComplexStringBox({"\"", #1, "\""}), 
-                BorderRadius -> 2.5`, Background -> GrayLevel(
-                 0.96499999999999997`)), "ControlStyle", 
-               FontSize -> Dynamic(0.80000000000000004`*CurrentValue(
-                 FontSize)), FontColor -> GrayLevel(
-                0.35999999999999999`)) &)}), 
+               DisplayFunction -> (
+                 StyleBox(FrameBox(ComplexStringBox({"\"", #1, "\""}), 
+                   BorderRadius -> 2.5`, 
+                   Background -> GrayLevel(0.96499999999999997`)), 
+                  "ControlStyle", FontSize -> 
+                   Dynamic(0.80000000000000004`*CurrentValue(FontSize)), 
+                  FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("KeyEventDelimiter"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-               ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
-               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 StyleBox(ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
+                  FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("AliasDelimiterKeyEvent"), 
-             TemplateBoxOptions -> {DisplayFunction -> (TemplateBox({
-                " \[AliasIndicator] "}, "KeyEvent") &)}), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 TemplateBox({" \[AliasIndicator] "}, "KeyEvent") &)}), 
             Section(StyleData("ControlKeyEvent"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-                ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
-                  "+", TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 StyleBox({
+                   ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
+                     "+", TemplateBox({#1}, "KeyEvent"), "\""})}, 
+                  "ControlStyle", FontColor -> 
+                   GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("AltKeyEvent"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-                ComplexStringBox({"\"", TemplateBox({"Alt"}, "KeyEvent"), "+", 
-                  TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 StyleBox({
+                   ComplexStringBox({"\"", TemplateBox({"Alt"}, "KeyEvent"), 
+                     "+", TemplateBox({#1}, "KeyEvent"), "\""})}, 
+                  "ControlStyle", FontColor -> 
+                   GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("ShiftKeyEvent"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-                ComplexStringBox({"\"", TemplateBox({"Shift"}, "KeyEvent"), 
-                  "+", TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 StyleBox({
+                   ComplexStringBox({"\"", TemplateBox({"Shift"}, "KeyEvent"), 
+                     "+", TemplateBox({#1}, "KeyEvent"), "\""})}, 
+                  "ControlStyle", FontColor -> 
+                   GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("ControlShiftKeyEvent"), 
-             TemplateBoxOptions -> {DisplayFunction -> (StyleBox({
-                ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
-                  "+", TemplateBox({"Shift"}, "KeyEvent"), "+", 
-                  TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
-               FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
+             TemplateBoxOptions -> {
+               DisplayFunction -> (
+                 StyleBox({
+                   ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
+                     "+", TemplateBox({"Shift"}, "KeyEvent"), "+", 
+                     TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+                  FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("Title"), MenuSortingValue -> None), 
             Section(StyleData("Subtitle"), MenuSortingValue -> None), 
             Section(StyleData("Subsubtitle"), MenuSortingValue -> None), 

@@ -16,7 +16,4 @@ PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box);
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x);
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name);
-PMATH_PRIVATE pmath_bool_t _pmath_is_namespace_list(pmath_t list);
-
 #endif /* __PMATH_BUILTINS__LANGUAGE_PRIVATE_H__ */

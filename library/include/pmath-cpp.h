@@ -245,6 +245,9 @@ namespace pmath {
       bool is_evaluated() const throw() {     return pmath_is_evaluated(_obj); }
       bool is_rule() const throw() {          return pmath_is_rule(_obj); }
       bool is_list_of_rules() const throw() { return pmath_is_list_of_rules(_obj); }
+
+      bool is_namespace() const throw() {      return pmath_is_namespace(_obj); }
+      bool is_namespace_list() const throw() { return pmath_is_namespace_list(_obj); }
       
       /**\brief Get a hash value. */
       unsigned int hash() const throw() { return pmath_hash(_obj); }

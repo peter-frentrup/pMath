@@ -39,6 +39,7 @@ Options(CreateDocument):= Options(Document):= {
     DockedSections -> Inherited,
     Editable -> Inherited,
     Enabled -> Automatic,
+    EvaluationContext -> "Global`",
     "ExcessOrMissingArgumentStyle" -> Inherited,
     FillBoxOptions -> Inherited,
     FontColor -> Inherited,
@@ -274,6 +275,7 @@ Options(Section):= {
     DockedSections -> Inherited,
     Editable -> True,
     Evaluatable -> False,
+    EvaluationContext -> "Global`",
     "ExcessOrMissingArgumentStyle" -> { FontColor -> Inherited },
     FillBoxOptions -> {
         FillBoxWeight -> 1,

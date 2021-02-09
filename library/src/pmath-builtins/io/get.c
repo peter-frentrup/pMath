@@ -312,7 +312,7 @@ PMATH_PRIVATE pmath_t builtin_get(pmath_expr_t expr) {
   pmath_unref(expr); expr = PMATH_NULL;
   
   
-  if(_pmath_is_namespace(name)) {
+  if(pmath_is_namespace(name)) {
     pmath_string_t fname;
     uint16_t *buf;
     size_t i;

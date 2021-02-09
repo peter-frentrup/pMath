@@ -25,57 +25,6 @@ extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_Internal_DollarNamespacePathStack;
 extern pmath_symbol_t pmath_Internal_DollarNamespaceStack;
 
-PMATH_PRIVATE pmath_bool_t _pmath_is_namespace(pmath_t name) {
-  const uint16_t *buf;
-  int len, i;
-  pmath_token_t tok;
-
-  if(!pmath_is_string(name))
-    return FALSE;
-
-  len = pmath_string_length(name);
-  buf = pmath_string_buffer(&name);
-
-  if(len < 2 || buf[len - 1] != '`' || buf[0] == '`')
-    return FALSE;
-
-  for(i = 0; i < len - 1; ++i) {
-    if(buf[i] == '`') {
-      ++i;
-      tok = pmath_token_analyse(buf + i, 1, NULL);
-      if(tok != PMATH_TOK_NAME)
-        return FALSE;
-    }
-    else {
-      tok = pmath_token_analyse(buf + i, 1, NULL);
-      if(tok != PMATH_TOK_DIGIT && tok != PMATH_TOK_NAME)
-        return FALSE;
-    }
-  }
-
-  return TRUE;
-}
-
-PMATH_PRIVATE pmath_bool_t _pmath_is_namespace_list(pmath_t list) {
-  size_t i;
-
-  if(!pmath_is_expr_of(list, pmath_System_List))
-    return FALSE;
-
-  for(i = pmath_expr_length(list); i > 0; --i) {
-    pmath_t name = pmath_expr_get_item(list, i);
-
-    if(!_pmath_is_namespace(name)) {
-      pmath_unref(name);
-      return FALSE;
-    }
-
-    pmath_unref(name);
-  }
-
-  return TRUE;
-}
-
 static pmath_bool_t is_namespace_listlist(pmath_t list) {
   size_t i;
 
@@ -85,7 +34,7 @@ static pmath_bool_t is_namespace_listlist(pmath_t list) {
   for(i = pmath_expr_length(list); i > 0; --i) {
     pmath_t name = pmath_expr_get_item(list, i);
 
-    if(!_pmath_is_namespace_list(name)) {
+    if(!pmath_is_namespace_list(name)) {
       pmath_unref(name);
       return FALSE;
     }
@@ -136,7 +85,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespace(pmath_expr_t expr) {
     return PMATH_NULL;
   }
 
-  if(!_pmath_is_namespace(rhs)) {
+  if(!pmath_is_namespace(rhs)) {
     pmath_message(pmath_System_DollarNamespace, "nsset", 1, pmath_ref(rhs));
     pmath_unref(expr);
 
@@ -190,7 +139,7 @@ PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr) {
     return PMATH_NULL;
   }
 
-  if(!_pmath_is_namespace_list(rhs)) {
+  if(!pmath_is_namespace_list(rhs)) {
     pmath_message(lhs, "nslist", 1, pmath_ref(rhs));
     pmath_unref(lhs);
     pmath_unref(expr);
@@ -219,7 +168,7 @@ PMATH_PRIVATE pmath_t builtin_begin(pmath_expr_t expr) {
   }
 
   ns = pmath_expr_get_item(expr, 1);
-  if(!_pmath_is_namespace(ns)) {
+  if(!pmath_is_namespace(ns)) {
     pmath_unref(ns);
     pmath_message(PMATH_NULL, "ns", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
@@ -248,8 +197,8 @@ PMATH_PRIVATE pmath_t builtin_end(pmath_expr_t expr) {
   oldns   = pmath_thread_local_load(pmath_System_DollarNamespace);
   nsstack = pmath_thread_local_load(pmath_Internal_DollarNamespaceStack);
 
-  if( !_pmath_is_namespace(oldns)        ||
-      !_pmath_is_namespace_list(nsstack) ||
+  if( !pmath_is_namespace(oldns)        ||
+      !pmath_is_namespace_list(nsstack) ||
       pmath_expr_length(nsstack) == 0)
   {
     pmath_unref(oldns);
@@ -296,7 +245,7 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr) {
   }
 
   package = pmath_expr_get_item(expr, 1);
-  if(!_pmath_is_namespace(package)) {
+  if(!pmath_is_namespace(package)) {
     pmath_unref(package);
     pmath_message(PMATH_NULL, "ns", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
     return expr;
@@ -305,10 +254,10 @@ PMATH_PRIVATE pmath_t builtin_beginpackage(pmath_expr_t expr) {
   if(exprlen == 2) {
     nspath = pmath_expr_get_item(expr, 2);
 
-    if(_pmath_is_namespace(nspath)) {
+    if(pmath_is_namespace(nspath)) {
       nspath = pmath_build_value("(o)", nspath);
     }
-    else if(!_pmath_is_namespace_list(nspath)) {
+    else if(!pmath_is_namespace_list(nspath)) {
       pmath_unref(package);
       pmath_unref(nspath);
       pmath_message(PMATH_NULL, "nsls", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
@@ -420,10 +369,10 @@ PMATH_PRIVATE pmath_t builtin_endpackage(pmath_expr_t expr) {
   nspathstack = pmath_thread_local_load(pmath_Internal_DollarNamespacePathStack);
   nsstack     = pmath_thread_local_load(pmath_Internal_DollarNamespaceStack);
 
-  if( !_pmath_is_namespace(oldns)         ||
+  if( !pmath_is_namespace(oldns)         ||
       !is_namespace_listlist(nspathstack) ||
       pmath_expr_length(nspathstack) == 0 ||
-      !_pmath_is_namespace_list(nsstack)  ||
+      !pmath_is_namespace_list(nsstack)  ||
       pmath_expr_length(nsstack) == 0)
   {
     pmath_unref(oldns);

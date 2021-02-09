@@ -88,6 +88,7 @@ namespace richmath {
     InternalHasNewBaseStyle,
     InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver, // ObserverKindXXX
+    InternalDefinesEvaluationContext, // bool
     LineBreakWithin,
     MenuCommandKey,
     MenuSortingValue,
@@ -237,6 +238,7 @@ namespace richmath {
     MathFontFamily,
     UnknownOptions,
     TrackedSymbols,
+    EvaluationContext,
     
     ButtonData,
     ButtonFunction,

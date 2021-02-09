@@ -380,9 +380,17 @@ pmath_t pmath_parse_string_args(
  */
 #define PMATH_RUN_ARGS(code, format, ...) \
   pmath_unref( \
-               pmath_evaluate( \
-                               pmath_parse_string_args( \
-                                   (code), (format), __VA_ARGS__)))
+    pmath_evaluate( \
+      pmath_parse_string_args( \
+        (code), (format), __VA_ARGS__)))
+
+/**\brief Test whether an object is a string representing a valid pMath namespace.
+ */
+PMATH_API pmath_bool_t pmath_is_namespace(pmath_t name);
+
+/**\brief Test whether an object is a list of valid pMath namespace names.
+ */
+PMATH_API pmath_bool_t pmath_is_namespace_list(pmath_t list);
 
 /** @} */
 

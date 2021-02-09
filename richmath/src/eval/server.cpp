@@ -42,8 +42,12 @@ Expr richmath::generate_section(String style, Expr boxes) {
     Rule(Symbol(richmath_System_SectionGenerated), Symbol(richmath_System_True)));
     
   if(style == strings::Output) {
-    Expr line = Application::interrupt_wait(Symbol(richmath_System_DollarLine));
-    Expr dlvl = Application::interrupt_wait(Symbol(richmath_System_DollarDialogLevel));
+    Expr line_and_dlvl = Application::interrupt_wait(
+      List(
+        Symbol(richmath_System_DollarLine),
+        Symbol(richmath_System_DollarDialogLevel)));
+    Expr line = line_and_dlvl[1];
+    Expr dlvl = line_and_dlvl[2];
     
     if(line == PMATH_UNDEFINED)
       line = Symbol(richmath_System_DollarAborted);

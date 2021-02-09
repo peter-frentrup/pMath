@@ -1,0 +1,57 @@
+Begin("FE`")
+
+Begin("FE`Private`")
+
+
+Function SwitchEvaluationContext(~oldctx:String, ~newctx:String) {
+    ToExpression(StringReplace(
+        "FE`Private`SwitchEvaluationContextImpl(`1`, AAA, `2`, BBB)",
+        {   "AAA" -> oldctx ++ "Private`SavedContextInfo",
+            "BBB" -> newctx ++ "Private`SavedContextInfo"}),
+        ParserArguments -> {oldctx, newctx})
+}
+
+
+Function SwitchEvaluationContextImpl(~oldctx, ~oldsave, ~newctx, ~newsave) {
+    oldsave("$History"):=       DownRules($History)
+    oldsave("$Line"):=          $Line
+    oldsave("$MessageCount"):=  DownRules($MessageCount)
+    oldsave("$Namespace"):=     $Namespace
+    oldsave("$NamespacePath"):= $NamespacePath
+    
+    If(!IsString(newsave("$Namespace"))) {
+        newsave("$History"):= {}
+        newsave("$Line"):= 0
+        newsave("$MessageCount"):= {}
+        newsave("$Namespace"):= newctx
+        newsave("$NamespacePath"):= {"System`"}
+    }
+
+    DownRules($History):=      newsave("$History")
+    $Line:=                    newsave("$Line")
+    DownRules($MessageCount):= newsave("$MessageCount")
+    $Namespace:=               newsave("$Namespace")
+    $NamespacePath:=           newsave("$NamespacePath")
+
+    If(oldsave("$Line") =!= newsave("$Line")) {
+        % TODO: incorporate $DialogLevel
+        CurrentValue(EvaluationBox(),SectionLabel):= StringForm("in [`1`]:", newsave("$Line")).ToString
+    }
+}
+
+
+Function DeleteEvaluationContext(~ctx:String) {
+    ToExpression(StringReplace(
+        "FE`Private`DeleteEvaluationContextImpl(`1`, AAA)",
+        {"AAA" -> ctx ++ "Private`SavedContextInfo"}),
+        ParserArguments -> {ctx})
+}
+
+Function DeleteEvaluationContextImpl(~ctx, ~save) {
+    ClearAll(save)
+    Names(ctx ++ ~~~).Scan(Function(SetAttributes(#, Temporary)))
+}
+
+End()
+
+End()
