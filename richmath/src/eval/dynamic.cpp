@@ -49,6 +49,7 @@ namespace richmath {
     public:
       void assign(Expr value, bool pre, bool middle, bool post);
       
+      Expr get_prepared_dynamic(bool *is_dynamic);
       Expr get_value_unevaluated();
       Expr get_value_unevaluated(bool *is_dynamic);
       Expr get_value_now();
@@ -173,6 +174,12 @@ void Dynamic::get_value_later(Expr job_info) {
 
 bool Dynamic::get_value(Expr *result, Expr job_info) {
   return Impl(*this).get_value(result, std::move(job_info));
+}
+
+bool Dynamic::is_dynamic_of(Expr sym) {
+  bool is_dyn;
+  Expr dyn = Impl(*this).get_prepared_dynamic(&is_dyn);
+  return is_dyn && dyn[0] == richmath_System_Dynamic && dyn[1] == sym;
 }
 
 //} ... class Dynamic
@@ -421,6 +428,17 @@ Expr Dynamic::Impl::get_value_unevaluated() {
 }
 
 Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
+  Expr expr = get_prepared_dynamic(is_dynamic);
+  if(!*is_dynamic)
+    return expr;
+  
+  return Call(
+           Symbol(richmath_Internal_DynamicEvaluateMultiple),
+           std::move(expr),
+           self._owner->id().to_pmath_raw());
+}
+
+Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
   Box *dyn_source = self._owner;
   Expr dyn_expr = self._expr;
   
@@ -463,11 +481,7 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
   
   *is_dynamic = true;
   dyn_expr = dyn_source->prepare_dynamic(std::move(dyn_expr));
-  dyn_expr = EvaluationContexts::prepare_namespace_for(std::move(dyn_expr), dyn_source);
-  return Call(
-           Symbol(richmath_Internal_DynamicEvaluateMultiple),
-           std::move(dyn_expr),
-           self._owner->id().to_pmath_raw());
+  return EvaluationContexts::prepare_namespace_for(std::move(dyn_expr), dyn_source);
 }
 
 Expr Dynamic::Impl::get_value_now() {

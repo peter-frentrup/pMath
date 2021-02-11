@@ -58,6 +58,7 @@ namespace richmath {
       
       float thumb_width;
       float channel_width;
+      bool is_initialized;
       bool have_drawn;
       bool mouse_over_thumb;
       bool use_double_values;

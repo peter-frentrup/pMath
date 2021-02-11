@@ -34,6 +34,7 @@ namespace richmath {
       Box *owner() { return _owner; }
       Expr expr() const {  return _expr;  }
       
+      bool is_dynamic_of(Expr sym);
       bool is_dynamic() { return is_dynamic(_expr); }
       static bool is_dynamic(Expr expr) {
         if(!expr.is_expr())

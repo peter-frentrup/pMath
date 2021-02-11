@@ -83,6 +83,7 @@ SliderBox::SliderBox()
     range_value(0.5),
     thumb_width(1),
     channel_width(1),
+    is_initialized(false),
     have_drawn(false),
     mouse_over_thumb(false),
     use_double_values(true)
@@ -155,8 +156,9 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    dynamic     = expr[1];
-    must_update = true;
+    dynamic        = expr[1];
+    must_update    = true;
+    is_initialized = false;
   }
   
   reset_style();
@@ -497,17 +499,25 @@ void SliderBox::Impl::finish_update_value() {
     
   self.must_update = false;
   
+  bool was_initialized = self.is_initialized;
+  self.is_initialized = true;
+  
   Expr val;
   if(self.dynamic.get_value(&val)) {
-    if(self.range[0] == richmath_System_List) {
+    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+      self.range_value = 0;
+      assign_dynamic_value(self.range_value, true, true, true);
+    }
+    else if(self.range[0] == richmath_System_List) {
       self.range_value = self.range_min;
       
       size_t i;
-      for(i = 1; i <= self.range.expr_length(); ++i)
+      for(i = 1; i <= self.range.expr_length(); ++i) {
         if(self.range[i] == val) {
           self.range_value = i;
           break;
         }
+      }
     }
     else {
       self.range_value = val.to_double(NAN);
