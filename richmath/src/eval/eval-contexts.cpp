@@ -8,14 +8,17 @@
 
 
 namespace richmath { namespace strings {
-  extern String DollarEvaluationContext_namespace;
+  extern String DollarContext_namespace;
   extern String Global_namespace;
+  extern String System_namespace;
 }}
 
 extern pmath_symbol_t richmath_System_Document;
+extern pmath_symbol_t richmath_System_EvaluationSequence;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
 extern pmath_symbol_t richmath_FE_Private_DeleteEvaluationContext;
+extern pmath_symbol_t richmath_FE_Private_EvaluationContextBlock;
 extern pmath_symbol_t richmath_FE_Private_SwitchEvaluationContext;
 
 using namespace richmath;
@@ -43,6 +46,24 @@ namespace richmath {
       
     public:
       static String current_context;
+  };
+}
+
+namespace {
+  class SymbolNamespaceReplacer {
+    public:
+      SymbolNamespaceReplacer(String old_ns, String new_ns);
+      
+      pmath_t run(pmath_t expr);
+      
+      pmath_symbol_attributes_t extra_attributes = 0;
+      bool copy_old_attributes = false;
+      
+    private:
+      const uint16_t *old_ns_buf;
+      int             old_ns_len;
+      String old_ns;
+      String new_ns;
   };
 }
 
@@ -75,8 +96,8 @@ void EvaluationContexts::context_source_deleted(StyledObject *obj) {
 }
 
 void EvaluationContexts::set_context(String context) {
-  if(auto expr = prepare_set_context(context))
-    Application::interrupt_wait(expr);
+  if(auto set_ctx = prepare_set_context(context))
+    Application::interrupt_wait(std::move(set_ctx));
 }
 
 Expr EvaluationContexts::prepare_set_context(String context) {
@@ -88,7 +109,13 @@ Expr EvaluationContexts::prepare_set_context(String context) {
   
   auto old_ctx = std::move(Impl::current_context);
   Impl::current_context = context;
+  pmath_debug_print_object("[prepare_set_context ", old_ctx.get(), "");
+  pmath_debug_print_object(" -> ", context.get(), "]\n");
   return Call(Symbol(richmath_FE_Private_SwitchEvaluationContext), std::move(old_ctx), std::move(context));
+}
+
+Expr EvaluationContexts::make_context_block(Expr expr, String context) {
+  return Call(Symbol(richmath_FE_Private_EvaluationContextBlock), std::move(expr), std::move(context));
 }
 
 Section *EvaluationContexts::find_section_group_header(Section *section) {
@@ -142,11 +169,29 @@ String EvaluationContexts::resolve_context(StyledObject *obj) {
   return strings::Global_namespace;
 }
 
-static Expr replace_symbol_context(Expr expr, String old_ctx, String new_ctx) {
-  if(old_ctx.is_namespace() && new_ctx.is_namespace()) {
-    SymbolNamespaceReplacer repl(old_ctx, new_ctx);
+Expr EvaluationContexts::prepare_namespace_for_current_context(Expr expr) {
+  return replace_symbol_namespace(std::move(expr), strings::DollarContext_namespace, Impl::current_context);
+}
+
+Expr EvaluationContexts::prepare_namespace_for(Expr expr, StyledObject *obj) {
+  return replace_symbol_namespace(std::move(expr), strings::DollarContext_namespace, resolve_context(obj));
+}
+
+String EvaluationContexts::current() {
+  return Impl::current_context;
+}
+
+Expr EvaluationContexts::replace_symbol_namespace(Expr expr, String old_ns, String new_ns) {
+  if(old_ns == new_ns)
+    return expr;
+  
+  if(old_ns == strings::System_namespace)
+    return expr;
+
+  if(old_ns.is_namespace() && new_ns.is_namespace()) {
+    SymbolNamespaceReplacer repl(old_ns, new_ns);
     
-    if(new_ctx == strings::DollarEvaluationContext_namespace) {
+    if(new_ns == strings::DollarContext_namespace) {
       repl.extra_attributes = PMATH_SYMBOL_ATTRIBUTE_TEMPORARY;
       //repl.copy_old_attributes = true;
     }
@@ -189,3 +234,63 @@ String EvaluationContexts::Impl::generate_context_name(StyledObject *obj) {
 }
 
 //} ... class EvaluationContexts::Impl
+
+//{ class SymbolNamespaceReplacer ...
+
+SymbolNamespaceReplacer::SymbolNamespaceReplacer(String old_ns, String new_ns)
+ : old_ns{old_ns},
+   old_ns_buf{old_ns.buffer()},
+   old_ns_len{old_ns.length()},
+   new_ns{new_ns}
+{
+}
+
+pmath_t SymbolNamespaceReplacer::run(pmath_t expr) {
+  if(pmath_is_symbol(expr)) {
+    pmath_string_t name = pmath_symbol_name(expr);
+    
+    int len = pmath_string_length(name);
+    if(old_ns_len < len) {
+      const uint16_t *name_buf = pmath_string_buffer(&name);
+      if(memcmp(name_buf, old_ns_buf, (size_t)old_ns_len * sizeof(uint16_t)) == 0) {
+        name = pmath_string_part(name, old_ns_len, -1);
+        name = pmath_string_concat(pmath_ref(new_ns.get()), name);
+        
+        pmath_symbol_t newsym = pmath_symbol_find(name, TRUE);
+        name = PMATH_NULL;
+        
+        if(copy_old_attributes) {
+          pmath_symbol_set_attributes(newsym, pmath_symbol_get_attributes(expr) | extra_attributes);
+        }
+        
+        if(extra_attributes) {
+          pmath_symbol_set_attributes(newsym, pmath_symbol_get_attributes(newsym) | extra_attributes);
+        }
+        
+        pmath_unref(expr);
+        expr = newsym;
+      }
+    }
+    
+    pmath_unref(name);
+    return expr;
+  }
+  
+  if(pmath_is_expr(expr)) {
+    if(pmath_is_packed_array(expr))
+      return expr;
+    
+    size_t len = pmath_expr_length(expr);
+    for(size_t i = 0; i <= len; ++i) {
+      pmath_t item = pmath_expr_extract_item(expr, i);
+      item = run(item);
+      expr = pmath_expr_set_item(expr, i, item);
+    }
+    
+    return expr;
+  }
+  
+  return expr;
+}
+
+//} ... class SymbolNamespaceReplacer

@@ -1,7 +1,8 @@
 /* pMath Document */
 
 Document({
-  SectionGroup({Section({"Tabbed document ", DynamicBox(ToBoxes(Global`idx))}, 
+  SectionGroup({
+    Section(TextData({"Tabbed document ", DynamicBox(ToBoxes($Context`idx))}), 
      "Title"), 
     Section(
      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
@@ -17,7 +18,7 @@ Document({
                            "\n", {
                             "{", {
                              {"Setter", "(", {
-                               {"Dynamic", "(", {"idx", ",", {
+                               {"Dynamic", "(", {"$Context`idx", ",", {
                                   "{", {"Automatic", ",", "None", ",", 
                                    "Automatic"}, "}"}}, ")"}, ",", "1", ",", 
                                ComplexStringBox("\"Tab 1\""), ",", {
@@ -25,7 +26,7 @@ Document({
                                  ComplexStringBox(
                                   "\"TabHeadAbuttingRight\"")}}}, ")"}, ",", {
                               "\n", {"Setter", "(", {
-                                {"Dynamic", "(", {"idx", ",", {
+                                {"Dynamic", "(", {"$Context`idx", ",", {
                                    "{", {"Automatic", ",", "None", ",", 
                                     "Automatic"}, "}"}}, ")"}, ",", "2", ",", 
                                 ComplexStringBox("\"Tab 2\""), ",", {
@@ -33,7 +34,7 @@ Document({
                                   ComplexStringBox(
                                    "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
                              ",", {"\n", {"Setter", "(", {
-                                {"Dynamic", "(", {"idx", ",", {
+                                {"Dynamic", "(", {"$Context`idx", ",", {
                                    "{", {"Automatic", ",", "None", ",", 
                                     "Automatic"}, "}"}}, ")"}, ",", "3", ",", 
                                 ComplexStringBox("\"Tab 3\""), ",", {
@@ -41,7 +42,7 @@ Document({
                                   ComplexStringBox(
                                    "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
                              ",", {"\n", {"Setter", "(", {
-                                {"Dynamic", "(", {"idx", ",", {
+                                {"Dynamic", "(", {"$Context`idx", ",", {
                                    "{", {"Automatic", ",", "None", ",", 
                                     "Automatic"}, "}"}}, ")"}, ",", "4", ",", 
                                 ComplexStringBox("\"Tab 4\""), ",", {
@@ -63,27 +64,30 @@ Document({
                 "{", {{"{", {"0", ",", "0"}, "}"}, ",", {
                   "{", {"Inherited", ",", "0"}, "}"}}, "}"}}}, ")"}}, "}"}}}, 
         ")"}, ";"}), "Input", SectionLabel -> "in [1]:")}, All)}, 
- DockedSections :> {"TopGlass" -> Section(
-   BoxData(
-    FillBox(
-     PanelBox(TemplateBox({ComplexStringBox("\" \""), 
-        TagBox(
-         GridBox({
-           {SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 1, 
-             ComplexStringBox("\"Tab 1\""), 
-             ButtonFrame -> "TabHeadAbuttingRight"), 
-            SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 2, 
-             ComplexStringBox("\"Tab 2\""), 
-             ButtonFrame -> "TabHeadAbuttingLeftRight"), 
-            SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 3, 
-             ComplexStringBox("\"Tab 3\""), 
-             ButtonFrame -> "TabHeadAbuttingLeftRight"), 
-            SetterBox(Dynamic(Global`idx, {Automatic, None, Automatic}), 4, 
-             ComplexStringBox("\"Tab 4\""), 
-             ButtonFrame -> "TabHeadAbuttingLeft"), 
-            ComplexStringBox("\"  \""), ButtonBox(ComplexStringBox("\"+\""), 
-             ButtonFunction -> (/\/ &), ButtonFrame -> "TabHead"), 
-            ComplexStringBox("\" \"")}}, GridBoxColumnSpacing -> 0), "Grid"), 
-        FillBox("")}, "RowDefault"), Appearance -> "TabHead"), 
-     StripOnInput -> False)), "Docked", SectionFrameMargins -> {{0, 0}, {
-     Inherited, 0}})}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+ DockedSections :> {
+   "TopGlass" -> 
+    Section(
+     BoxData(
+      FillBox(
+       PanelBox(TemplateBox({ComplexStringBox("\" \""), 
+          TagBox(
+           GridBox({
+             {SetterBox(Dynamic($Context`idx, {Automatic, None, Automatic}), 
+               1, ComplexStringBox("\"Tab 1\""), 
+               ButtonFrame -> "TabHeadAbuttingRight"), 
+              SetterBox(Dynamic($Context`idx, {Automatic, None, Automatic}), 
+               2, ComplexStringBox("\"Tab 2\""), 
+               ButtonFrame -> "TabHeadAbuttingLeftRight"), 
+              SetterBox(Dynamic($Context`idx, {Automatic, None, Automatic}), 
+               3, ComplexStringBox("\"Tab 3\""), 
+               ButtonFrame -> "TabHeadAbuttingLeftRight"), 
+              SetterBox(Dynamic($Context`idx, {Automatic, None, Automatic}), 
+               4, ComplexStringBox("\"Tab 4\""), 
+               ButtonFrame -> "TabHeadAbuttingLeft"), 
+              ComplexStringBox("\"  \""), ButtonBox(ComplexStringBox("\"+\""), 
+               ButtonFunction -> (/\/ &), ButtonFrame -> "TabHead"), 
+              ComplexStringBox("\" \"")}}, GridBoxColumnSpacing -> 0), 
+           "Grid"), FillBox("")}, "RowDefault"), Appearance -> "TabHead"), 
+       StripOnInput -> False)), "Docked", 
+     SectionFrameMargins -> {{0, 0}, {Inherited, 0}})}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

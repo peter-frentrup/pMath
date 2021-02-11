@@ -89,47 +89,49 @@ Document({
                    "\n", {"BorderRadius", "\[Rule]", {
                      "Dynamic", "(", "radii", ")"}}}, ",", {
                    "Background", "\[Rule]", "Yellow"}}, ")"}}}, "\n"}}}, 
-           ")"}), "Input"), 
-        Section(BoxData(DynamicLocalBox({Global`radii}, 
+           ")"}), "Input", SectionLabel -> "in [1]:"), 
+        Section(BoxData(DynamicLocalBox({$Context`radii}, 
            FrameBox(
             TagBox(
              GridBox({{ComplexStringBox("\"\""), ComplexStringBox("\"x\""), 
                 ComplexStringBox("\"y\""), ComplexStringBox("\"both\"")}, {
                 ComplexStringBox("\"top left\""), 
-                SliderBox(Dynamic(Global`radii[1, 1]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Global`radii[1, 2]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Min(Global`radii[1]), (
-                   Global`radii[1]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                SliderBox(Dynamic($Context`radii[1, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic($Context`radii[1, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min($Context`radii[1]), (
+                    $Context`radii[1]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
                 ComplexStringBox("\"top right\""), 
-                SliderBox(Dynamic(Global`radii[2, 1]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Global`radii[2, 2]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Min(Global`radii[2]), (
-                   Global`radii[2]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                SliderBox(Dynamic($Context`radii[2, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic($Context`radii[2, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min($Context`radii[2]), (
+                    $Context`radii[2]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
                 ComplexStringBox("\"bottom right\""), 
-                SliderBox(Dynamic(Global`radii[3, 1]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Global`radii[3, 2]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Min(Global`radii[3]), (
-                   Global`radii[3]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                SliderBox(Dynamic($Context`radii[3, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic($Context`radii[3, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min($Context`radii[3]), (
+                    $Context`radii[3]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
                 ComplexStringBox("\"bottom left\""), 
-                SliderBox(Dynamic(Global`radii[4, 1]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Global`radii[4, 2]), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Min(Global`radii[4]), (
-                   Global`radii[4]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
+                SliderBox(Dynamic($Context`radii[4, 1]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic($Context`radii[4, 2]), 0 .. 30 .. 1), 
+                SliderBox(Dynamic(Min($Context`radii[4]), (
+                    $Context`radii[4]:= {#1, #1}) &), 0 .. 30 .. 1)}, {
                 ComplexStringBox("\"\""), 
-                SliderBox(Dynamic(Min(Global`radii[All, 1]), (
-                   Global`radii[All, 1]:= {#1, #1, #1, #1}) &), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Min(Global`radii[All, 2]), (
-                   Global`radii[All, 2]:= {#1, #1, #1, #1}) &), 0 .. 30 .. 1), 
-                SliderBox(Dynamic(Min(Global`radii), (
-                   Global`radii:= {{#1, #1}, {#1, #1}, {#1, #1}, {
-                    #1, #1}}) &), 0 .. 30 .. 1)}, {
+                SliderBox(Dynamic(Min($Context`radii[All, 1]), (
+                    $Context`radii[All, 1]:= {#1, #1, #1, #1}) &), 
+                 0 .. 30 .. 1), SliderBox(Dynamic(Min($Context`radii[All, 2]), 
+                  ($Context`radii[All, 2]:= {#1, #1, #1, #1}) &), 
+                 0 .. 30 .. 1), SliderBox(Dynamic(Min($Context`radii), (
+                    $Context`radii:= {{#1, #1}, {#1, #1}, {#1, #1}, {
+                      #1, #1}}) &), 0 .. 30 .. 1)}, {
                 ComplexStringBox("\"\""), {"BorderRadius", "\[Rule]", 
-                 DynamicBox(ToBoxes(Global`radii))}, "\[SpanFromLeft]", 
-                "\[SpanFromLeft]"}}), "Grid"), Background -> RGBColor(1, 1, 
-             0), BorderRadius -> Dynamic(Global`radii)), 
-           Initialization :> None, Deinitialization :> None, 
-           UnsavedVariables :> {}, DynamicLocalValues :> {{
-             OwnRules(Global`radii):= {HoldPattern(Global`radii) :> {{5, 5}, {
-                5, 5}, {5, 5}, {5, 5}}}}})), "Output", 
+                 DynamicBox(ToBoxes($Context`radii))}, "\[SpanFromLeft]", 
+                "\[SpanFromLeft]"}}), "Grid"), 
+            Background -> RGBColor(1, 1, 0), 
+            BorderRadius -> Dynamic($Context`radii)), Initialization :> None, 
+           Deinitialization :> None, UnsavedVariables :> {}, 
+           DynamicLocalValues :> {
+             {OwnRules($Context`radii):= {
+                HoldPattern($Context`radii) :> {
+                  {5, 5}, {5, 5}, {5, 5}, {5, 5}}}}})), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, All)}, 
    All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

@@ -6,12 +6,12 @@ Document({
      BoxData(TemplateBox({
         SliderBox(
          Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), 
-           GrayLevel(~Global`g) :> Global`g), (
-           CurrentValue(EvaluationDocument(), Background):= GrayLevel(#1)) &), 
-         0 .. 1), ButtonBox(ComplexStringBox("\"Reset\""), 
+           GrayLevel(~$Context`g) :> $Context`g), (
+            CurrentValue(EvaluationDocument(), Background):= 
+            GrayLevel(#1)) &), 0 .. 1), 
+        ButtonBox(ComplexStringBox("\"Reset\""), 
          ButtonFunction -> ((CurrentValue(EvaluationDocument(), Background):= 
-          Inherited) &))}, "RowDefault")), "Output", SectionGenerated -> True, 
-     SectionLabel -> "out [1]:"), 
+            Inherited) &))}, "RowDefault")), "Input"), 
     Section(
      BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
           "{", {"WindowFrame", "\[Rule]", ComplexStringBox("\"Single\"")}, 
@@ -50,22 +50,21 @@ Document({
     SectionGroup({
       Section(BoxData({"DynamicLocal", "(", {
           {"{", {"x", "\[Assign]", ComplexStringBox("\"\"")}, "}"}, ",", {
-           "{", {
-            {"SimplePopup", "(", {ComplexStringBox("\"Enter value ...\""), 
+           "{", {{"SimplePopup", "(", {ComplexStringBox("\"Enter text ...\""), 
               ",", {"Row", "(", {"{", {ComplexStringBox("\"content: \""), ",", 
                  {"InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
                    "String"}, ")"}}, "}"}, ")"}}, ")"}, ",", {
              "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
-       SectionLabel -> "in [5]:"), 
-      Section(BoxData(DynamicLocalBox({Global`x}, {
-          "{", {TemplateBox({ComplexStringBox("\"Enter value ...\""), 
+       SectionLabel -> "in [9]:"), 
+      Section(BoxData(DynamicLocalBox({$Context`x}, {
+          "{", {TemplateBox({ComplexStringBox("\"Enter text ...\""), 
              TemplateBox({ComplexStringBox("\"content: \""), 
-               InputFieldBox(Dynamic(Global`x), String)}, "RowDefault")}, 
-            "SimplePopup"), ",", DynamicBox(ToBoxes(Global`x))}, "}"}, 
+               InputFieldBox(Dynamic($Context`x), String)}, "RowDefault")}, 
+            "SimplePopup"), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
          Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {{
-           OwnRules(Global`x):= {HoldPattern(Global`x) :> ""}}})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+         UnsavedVariables :> {}, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> "hello ?"}}})), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           ComplexStringBox("\"BesselJ plot\""), ",", {
@@ -225,10 +224,10 @@ Document({
                  9.6428571428571423`, 0.12984337316946581`}, {
                  10.0`, 0.043472746168859655`}})}}}, {
             AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-            Axes -> True, PlotRange -> NCache({
-              0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, {
-              0.0` .. 10.0`, -0.34612429616257212` .. 
-               0.58186520139010445`})})}, "SimplePopup")), "Output", 
+            Axes -> True, PlotRange -> 
+             NCache({0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, {
+               0.0` .. 10.0`, -0.34612429616257212` .. 
+                0.58186520139010445`})})}, "SimplePopup")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
@@ -393,10 +392,10 @@ Document({
                   9.6428571428571423`, 0.12984337316946581`}, {
                   10.0`, 0.043472746168859655`}})}}}, {
              AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-             Axes -> True, PlotRange -> NCache({
-               0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, {
-               0.0` .. 10.0`, -0.34612429616257212` .. 
-                0.58186520139010445`})}), Appearance -> "Popup"), 
+             Axes -> True, PlotRange -> 
+              NCache({0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, 
+               {0.0` .. 10.0`, -0.34612429616257212` .. 
+                 0.58186520139010445`})}), Appearance -> "Popup"), 
           WindowFrame -> None}, "SimplePopup")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
     SectionGroup({
@@ -410,22 +409,28 @@ Document({
           PanelBox(ComplexStringBox("\"Tada\""), Appearance -> "Popup"), 
           WindowFrame -> None}, "SimplePopup")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [8]:")}, All)}, All)}, 
- StyleDefinitions :> Document({
-   SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
-     SectionGroup({Section("Box styles", "Section"), 
-       SectionGroup({Section("TemplateBox styles", "Subsection"), 
-         Section(StyleData("SimplePopup"), 
-          TemplateBoxOptions -> {DisplayFunction -> (DynamicLocalBox({
-             FE`Private`popup}, ButtonBox(#1, 
-             ButtonFunction -> (Replace(CurrentValue(FE`Private`popup, 
-               Visible), {True :> (CurrentValue(FE`Private`popup, Visible):= 
-                False), False :> (CurrentValue(FE`Private`popup, Visible):= 
-                True), $Failed :> (FE`Private`popup:= FE`AttachBoxes(
-                EvaluationBox(), Bottom, BoxData(TemplateSlot(2)), 
-                WindowFrame -> Dynamic(
-                 Lookup({Inherited -> "ThinFrame", 
-                   ~FE`Private`x :> FE`Private`x}, 
-                  CurrentValue({TemplateSlot, 
-                    Key(WindowFrame)})))))}) &))) &)})}, All)}, All)}, All)}, 
-  StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
- Visible -> True)
+ StyleDefinitions :> 
+  Document({
+    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+      SectionGroup({Section("Box styles", "Section"), 
+        SectionGroup({Section("TemplateBox styles", "Subsection"), 
+          Section(StyleData("SimplePopup"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               DynamicLocalBox({FE`Private`popup}, 
+                ButtonBox(#1, ButtonFunction -> (
+                   Replace(CurrentValue(FE`Private`popup, Visible), {
+                     True :> (CurrentValue(FE`Private`popup, Visible):= 
+                       False), False :> (
+                       CurrentValue(FE`Private`popup, Visible):= True), 
+                     $Failed :> (FE`Private`popup:= 
+                       FE`AttachBoxes(EvaluationBox(), Bottom, 
+                        BoxData(TemplateSlot(2)), 
+                        WindowFrame -> 
+                         Dynamic(
+                          Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
+                             FE`Private`x}, CurrentValue({
+                             TemplateSlot, 
+                             Key(WindowFrame)})))))}) &))) &)})}, All)}, 
+       All)}, All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+   Visible -> True), Visible -> True)

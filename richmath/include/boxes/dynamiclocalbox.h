@@ -6,6 +6,7 @@
 
 namespace richmath {
   class DynamicLocalBox final : public AbstractDynamicBox {
+      class Impl;
     protected:
       virtual ~DynamicLocalBox();
     public:
@@ -20,10 +21,6 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Expr prepare_dynamic(Expr expr) override;
-      
-    protected:
-      void ensure_init();
-      void emit_values(Expr symbol);
       
     private:
       Expr _public_symbols;

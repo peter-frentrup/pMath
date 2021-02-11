@@ -6,7 +6,7 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
            "Appearance", "\[Rule]", ComplexStringBox(
             "\"ToggleSwitchUnchecked\"")}}, ")"}), "Input", 
        SectionLabel -> "in [1]:"), 
-      Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1, 
+      Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1, 
          Appearance -> "ToggleSwitchUnchecked")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
     SectionGroup({
@@ -14,21 +14,21 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
            "Appearance", "\[Rule]", ComplexStringBox(
             "\"ToggleSwitchChecked\"")}}, ")"}), "Input", 
        SectionLabel -> "in [2]:"), 
-      Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1, 
+      Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1, 
          Appearance -> "ToggleSwitchChecked")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
-    Section(
-     BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "c", ")"}, "}"}, 
-         ",", ComplexStringBox("\"ToggleSwitch\"")}, ")"}, ".", "RawBoxes"}), 
-     "Input", SectionLabel -> "in [13]:"), 
     SectionGroup({
-      Section(BoxData(TemplateBox({Dynamic(Global`c)}, "ToggleSwitch")), 
-       "Input"), 
       Section(
-       BoxData(StyleBox({"ToggleSwitch", "(", {"Dynamic", "(", "c", ")"}, 
-          ")"}, AutoDelete -> True, AutoNumberFormating -> False, 
-         ShowStringCharacters -> True)), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [16]:")}, All), 
+       BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "c", ")"}, "}"}, 
+           ",", ComplexStringBox("\"ToggleSwitch\"")}, ")"}, ".", 
+         "RawBoxes"}), "Input", SectionLabel -> "in [3]:"), 
+      Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch")), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+    SectionGroup({
+      Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch")), 
+       "Input", SectionLabel -> "in [4]:"), 
+      Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch")), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
     SectionGroup({
       Section(
        BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "c", ")"}, "}"}, 
@@ -89,36 +89,38 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                       "\"ToggleSwitchChecked\"")}, ",", {
                      "~", "\[Rule]", ComplexStringBox(
                       "\"ToggleSwitchUnchecked\"")}}, "}"}, ")"}, ")"}}}, 
-              ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), "Input"), 
-      Section(BoxData(TemplateBox({Dynamic(Global`c)}, "ToggleSwitch", 
-         DisplayFunction -> (SliderBox(
-          Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
-             True -> 1, False -> 0, ~ -> 0.5`}), {
-            None, Temporary, If((0 < #1 < 1) === True, 
-             With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
-              If(FE`Private`state === True || FE`Private`state === False, 
-               CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
-               CurrentValue({TemplateSlot, 1}):= (#1 >= 0.5`) === True;)), 
-             CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True) &}), 0 .. 1, 
-          ContinuousAction -> False, Appearance -> Dynamic(
-           Replace(CurrentValue({TemplateSlot, 1}), {
-             True -> "ToggleSwitchChecked", 
-             ~ -> "ToggleSwitchUnchecked"}))) &))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
+              ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
+       SectionLabel -> "in [5]:"), 
+      Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch", 
+         DisplayFunction -> (
+           SliderBox(Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
+               True -> 1, False -> 0, ~ -> 0.5`}), {
+              None, Temporary, 
+              If((0 < #1 < 1) === True, 
+                With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
+                 If(FE`Private`state === True || FE`Private`state === False, 
+                  CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
+                  CurrentValue({TemplateSlot, 1}):= (#1 >= 0.5`) === True)), 
+                CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True) &}), 
+            0 .. 1, ContinuousAction -> False, 
+            Appearance -> Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
+                True -> "ToggleSwitchChecked", ~ -> 
+                 "ToggleSwitchUnchecked"}))) &))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
     SectionGroup({Section(BoxData({"Dynamic", "(", "c", ")"}), "Input", 
-       SectionLabel -> "in [4]:"), 
-      Section(BoxData(DynamicBox(ToBoxes(Global`c))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+       SectionLabel -> "in [6]:"), 
+      Section(BoxData(DynamicBox(ToBoxes($Context`c))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"Checkbox", "(", {"Dynamic", "(", "c", ")"}, ")"}), 
-       "Input", SectionLabel -> "in [5]:"), 
-      Section(BoxData(CheckboxBox(Dynamic(Global`c))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+       "Input", SectionLabel -> "in [1]:"), 
+      Section(BoxData(CheckboxBox(Dynamic($Context`c))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
     Section(BoxData({"c", "\[Assign]", "."}), "Input", 
-     SectionLabel -> "in [10]:"), 
+     SectionLabel -> "in [1]:"), 
     SectionGroup({Section("Other state values", "Section"), 
       Section(BoxData({"ccc", "\[Assign]", "."}), "Input", 
-       SectionLabel -> "in [20]:"), 
+       SectionLabel -> "in [9]:"), 
       SectionGroup({
         Section(
          BoxData({
@@ -126,10 +128,10 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
              {"{", {{"Dynamic", "(", "ccc", ")"}, ",", {
                 "{", {"111", ",", "222"}, "}"}}, "}"}, ",", 
              ComplexStringBox("\"ToggleSwitch2\"")}, ")"}, ".", "RawBoxes"}), 
-         "Input", SectionLabel -> "in [17]:"), 
-        Section(BoxData(TemplateBox({Dynamic(Global`ccc), {111, 222}}, 
+         "Input", SectionLabel -> "in [10]:"), 
+        Section(BoxData(TemplateBox({Dynamic($Context`ccc), {111, 222}}, 
            "ToggleSwitch2")), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [17]:")}, All), 
+         SectionLabel -> "out [10]:")}, All), 
       SectionGroup({
         Section(
          BoxData({
@@ -248,41 +250,47 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                             ComplexStringBox("\"ToggleSwitchUnchecked\""), 
                             "\n"}}, "}"}}}, "\n"}}, "}"}}, ")"}}}, ")"}, 
                ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
-         SectionLabel -> "in [10]:"), 
-        Section(BoxData(TemplateBox({Dynamic(Global`ccc), {111, 222}}, 
-           "ToggleSwitch2", DisplayFunction -> (SliderBox(
-            Dynamic(With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
-              With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
-               Replace(FE`Private`state, {FE`Private`values[2] -> 1, 
-                 FE`Private`values[1] -> 0, ~ -> 0.5`}))), {
-              None, Temporary, If((0 < #1 < 1) === True, 
+         SectionLabel -> "in [11]:"), 
+        Section(BoxData(TemplateBox({Dynamic($Context`ccc), {111, 222}}, 
+           "ToggleSwitch2", DisplayFunction -> (
+             SliderBox(
+              Dynamic(
                With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                 With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
-                 If(FE`Private`state === FE`Private`values[1], 
-                  CurrentValue({TemplateSlot, 1}):= FE`Private`values[2], 
-                  If(FE`Private`state === FE`Private`values[2], 
-                   CurrentValue({TemplateSlot, 1}):= FE`Private`values[1], 
-                   If((#1 >= 0.5`) === True, CurrentValue({TemplateSlot, 1}):= 
+                 Replace(FE`Private`state, {FE`Private`values[2] -> 1, 
+                   FE`Private`values[1] -> 0, ~ -> 0.5`}))), {
+                None, Temporary, 
+                If((0 < #1 < 1) === True, 
+                  With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
+                   With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
+                    If(FE`Private`state === FE`Private`values[1], 
+                     CurrentValue({TemplateSlot, 1}):= FE`Private`values[2], 
+                     If(FE`Private`state === FE`Private`values[2], 
+                      CurrentValue({TemplateSlot, 1}):= FE`Private`values[1], 
+                      If((#1 >= 0.5`) === True, 
+                       CurrentValue({TemplateSlot, 1}):= FE`Private`values[2], 
+                       CurrentValue({TemplateSlot, 1}):= 
+                        FE`Private`values[1]))))), 
+                  With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
+                   If((#1 = 1) === True, CurrentValue({TemplateSlot, 1}):= 
                      FE`Private`values[2], CurrentValue({TemplateSlot, 1}):= 
-                     FE`Private`values[1]))))), 
-               With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
-                If((#1 = 1) === True, CurrentValue({TemplateSlot, 1}):= 
-                  FE`Private`values[2], CurrentValue({TemplateSlot, 1}):= 
-                  FE`Private`values[1]))) &}), 0 .. 1, 
-            ContinuousAction -> False, Appearance -> Dynamic(
-             With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
-              With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
-               If(FE`Private`state === FE`Private`values[2], 
-                "ToggleSwitchChecked", "ToggleSwitchUnchecked"))))) &))), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [10]:")}, 
+                     FE`Private`values[1]))) &}), 0 .. 1, 
+              ContinuousAction -> False, 
+              Appearance -> 
+               Dynamic(
+                With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
+                 With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
+                  If(FE`Private`state === FE`Private`values[2], 
+                   "ToggleSwitchChecked", "ToggleSwitchUnchecked"))))) &))), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
        All), SectionGroup({
         Section(BoxData({"Checkbox", "(", {{"Dynamic", "(", "ccc", ")"}, ",", {
              "{", {"111", ",", "222"}, "}"}}, ")"}), "Input", 
          SectionLabel -> "in [12]:"), 
-        Section(BoxData(CheckboxBox(Dynamic(Global`ccc), {111, 222})), 
+        Section(BoxData(CheckboxBox(Dynamic($Context`ccc), {111, 222})), 
          "Output", SectionGenerated -> True, SectionLabel -> "out [12]:")}, 
        All), SectionGroup({Section(BoxData({"Dynamic", "(", "ccc", ")"}), 
-         "Input", SectionLabel -> "in [11]:"), 
-        Section(BoxData(DynamicBox(ToBoxes(Global`ccc))), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [11]:")}, All)}, 
+         "Input", SectionLabel -> "in [13]:"), 
+        Section(BoxData(DynamicBox(ToBoxes($Context`ccc))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [13]:")}, All)}, 
      All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

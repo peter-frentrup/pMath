@@ -3,10 +3,30 @@
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
 #include <eval/binding.h>
+#include <eval/eval-contexts.h>
 
-extern pmath_symbol_t richmath_FE_SymbolDefinitions;
 
-using namespace richmath;
+namespace richmath {
+  class DynamicLocalBox::Impl {
+    public:
+      Impl(DynamicLocalBox &self) : self{self} {}
+      
+      void ensure_init();
+      static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms);
+      
+      Expr collect_definitions();
+      
+    private:
+      void emit_values(Expr symbol, String eval_ctx);
+      
+    private:
+      DynamicLocalBox &self;
+  };
+  
+  namespace strings {
+    extern String DollarContext_namespace;
+  }
+}
 
 extern pmath_symbol_t richmath_System_Deinitialization;
 extern pmath_symbol_t richmath_System_DynamicLocalBox;
@@ -16,6 +36,9 @@ extern pmath_symbol_t richmath_System_Initialization;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_UnsavedVariables;
+extern pmath_symbol_t richmath_FE_SymbolDefinitions;
+
+using namespace richmath;
 
 //{ class DynamicLocalBox ...
 
@@ -29,8 +52,15 @@ DynamicLocalBox::~DynamicLocalBox() {
       _deinitialization != richmath_System_None &&
       !_init_call.is_valid())
   {
-    // only call Deinitialization if the initialization was called
-    Application::interrupt_wait(prepare_dynamic(_deinitialization), Application::dynamic_timeout);
+    // TODO: only call Deinitialization if the initialization was called
+    // FIXME: prepare_dynamic and prepare_namespace_for must be performed when the box is still alive and has its parent structure set up.
+    Application::interrupt_wait(
+      EvaluationContexts::make_context_block(
+        EvaluationContexts::prepare_namespace_for(
+          prepare_dynamic(_deinitialization), 
+          this),
+        EvaluationContexts::resolve_context(this)), 
+      Application::dynamic_timeout);
   }
 }
 
@@ -109,14 +139,65 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags options) {
 }
 
 void DynamicLocalBox::paint(Context &context) {
-  ensure_init();
+  Impl(*this).ensure_init();
   
   AbstractDynamicBox::paint(context);
   
   // todo: fetch variables from Server, maybe after each paint()
 }
 
-static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
+Expr DynamicLocalBox::to_pmath_symbol() {
+  return Symbol(richmath_System_DynamicLocalBox); 
+}
+      
+Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
+  Impl(*this).ensure_init();
+  
+  if(has(flags, BoxOutputFlags::Literal))
+    return content()->to_pmath(flags);
+    
+  Gather g;
+  
+  Gather::emit(_public_symbols);
+  Gather::emit(content()->to_pmath(flags));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_Initialization),   _initialization));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_Deinitialization), _deinitialization));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_UnsavedVariables), _unsaved_variables));
+  Gather::emit(RuleDelayed(Symbol(richmath_System_DynamicLocalValues), Impl(*this).collect_definitions()));
+  
+  Expr expr = g.end();
+  expr.set(0, Symbol(richmath_System_DynamicLocalBox));
+  return expr;
+}
+
+Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
+  expr = Expr(Impl::internal_replace_symbols(expr.release(), _public_symbols, _private_symbols));
+  return AbstractDynamicBox::prepare_dynamic(std::move(expr));
+}
+
+//} ... class DynamicLocalBox
+
+//{ class DynamicLocalBox::Impl ...
+
+void DynamicLocalBox::Impl::ensure_init() {
+  if(self._init_call.is_valid()) {
+    String ctx = EvaluationContexts::resolve_context(&self);
+    
+    Application::interrupt_wait_for(
+      EvaluationContexts::make_context_block(
+        EvaluationContexts::replace_symbol_namespace(
+          self.prepare_dynamic(std::move(self._init_call)), 
+          strings::DollarContext_namespace, 
+          ctx),
+        ctx),
+      &self, 
+      Application::dynamic_timeout);
+    
+    self._init_call = Expr();
+  }
+}
+
+pmath_t DynamicLocalBox::Impl::internal_replace_symbols(pmath_t expr, const Expr &old_syms, const Expr &new_syms) {
   if(pmath_is_symbol(expr)) {
     for(size_t i = old_syms.expr_length();i > 0;--i) {
       if(old_syms[i] == expr) {
@@ -140,67 +221,40 @@ static pmath_t internal_replace_symbols(pmath_t expr, const Expr &old_syms, cons
   return expr;
 }
 
-Expr DynamicLocalBox::to_pmath_symbol() {
-  return Symbol(richmath_System_DynamicLocalBox); 
-}
-      
-Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
-  ensure_init();
+Expr DynamicLocalBox::Impl::collect_definitions() {
+  String ctx = EvaluationContexts::resolve_context(&self);
   
-  if(has(flags, BoxOutputFlags::Literal))
-    return content()->to_pmath(flags);
-    
   Gather g;
   
-  Gather::emit(_public_symbols);
-  Gather::emit(content()->to_pmath(flags));
-  Gather::emit(RuleDelayed(Symbol(richmath_System_Initialization),   _initialization));
-  Gather::emit(RuleDelayed(Symbol(richmath_System_Deinitialization), _deinitialization));
-  Gather::emit(RuleDelayed(Symbol(richmath_System_UnsavedVariables), _unsaved_variables));
-  
-  {
-    Gather g2;
-    
-    for(auto sym : _public_symbols.items()) {
-      for(auto unsaved : _unsaved_variables.items_reverse()) {
-        if(unsaved == sym) {
-          sym = Expr();
-          break;
-        }
+  for(auto sym : self._public_symbols.items()) {
+    for(auto unsaved : self._unsaved_variables.items_reverse()) {
+      if(unsaved == sym) {
+        sym = Expr();
+        break;
       }
-      
-      if(sym.is_valid())
-        emit_values(sym);
     }
     
-    Expr values = g2.end();
-    values = AbstractDynamicBox::prepare_dynamic(values);
-    values = Expr(internal_replace_symbols(values.release(), _private_symbols, _public_symbols));
-    Gather::emit(RuleDelayed(Symbol(richmath_System_DynamicLocalValues), values));
+    if(sym.is_valid())
+      Impl(*this).emit_values(std::move(sym), ctx);
   }
   
-  Expr expr = g.end();
-  expr.set(0, Symbol(richmath_System_DynamicLocalBox));
-  return expr;
+  Expr values = g.end();
+  values = EvaluationContexts::replace_symbol_namespace(std::move(values), ctx, strings::DollarContext_namespace);
+  
+  values = self.prepare_dynamic(std::move(values));
+  values = Expr(Impl::internal_replace_symbols(values.release(), self._private_symbols, self._public_symbols));
+  return values;
 }
 
-Expr DynamicLocalBox::prepare_dynamic(Expr expr) {
-  expr = Expr(internal_replace_symbols(expr.release(), _public_symbols, _private_symbols));
-  return AbstractDynamicBox::prepare_dynamic(std::move(expr));
-}
-
-void DynamicLocalBox::ensure_init() {
-  if(_init_call.is_valid()) {
-    Application::interrupt_wait_for(prepare_dynamic(_init_call), this, Application::dynamic_timeout);
-    _init_call = Expr();
-  }
-}
-
-void DynamicLocalBox::emit_values(Expr symbol) {
+void DynamicLocalBox::Impl::emit_values(Expr symbol, String eval_ctx) {
   // todo: fetch variables from Server, maybe after each paint()
   
   Expr rules =  Application::interrupt_wait(
-                  Call(Symbol(richmath_FE_SymbolDefinitions), prepare_dynamic(symbol)),
+                  Call(Symbol(richmath_FE_SymbolDefinitions), 
+                    EvaluationContexts::replace_symbol_namespace(
+                      self.prepare_dynamic(std::move(symbol)), 
+                      strings::DollarContext_namespace, 
+                      eval_ctx)),
                   Application::dynamic_timeout);
                   
   if(rules[0] == richmath_System_HoldComplete && rules.expr_length() > 0) {
@@ -209,4 +263,4 @@ void DynamicLocalBox::emit_values(Expr symbol) {
   }
 }
 
-//} ... class DynamicLocalBox
+//} ... class DynamicLocalBox::Impl

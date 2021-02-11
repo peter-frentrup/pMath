@@ -23,41 +23,34 @@ Document({
          "{", {
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition -> Top), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
-             "Top"}, Row({"BaselinePosition: ", Top}))), ",", 
-          ComplexStringBox("\"a\""), ",", 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), "Top"}, 
+            "RowDefault")), ",", ComplexStringBox("\"a\""), ",", 
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition -> Center), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
-             "Center"}, Row({"BaselinePosition: ", Center}))), ",", 
-          ComplexStringBox("\"a\""), ",", 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), "Center"}, 
+            "RowDefault")), ",", ComplexStringBox("\"a\""), ",", 
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition -> Axis), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
-             "Axis"}, Row({"BaselinePosition: ", Axis}))), ",", 
-          ComplexStringBox("\"a\""), ",", 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), "Axis"}, 
+            "RowDefault")), ",", ComplexStringBox("\"a\""), ",", 
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition -> Bottom), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
-             "Bottom"}, Row({"BaselinePosition: ", Bottom}))), ",", 
-          ComplexStringBox("\"a\""), ",", 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), "Bottom"}, 
+            "RowDefault")), ",", ComplexStringBox("\"a\""), ",", 
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition :> Scaled(-0.5`)), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), {
-              "Scaled", "(", {{"-", "0.5`"}}, ")"}}, Row({
-             "BaselinePosition: ", Scaled(-0.5`)}))), ",", 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), {
+              "Scaled", "(", {{"-", "0.5`"}}, ")"}}, "RowDefault")), ",", 
           ComplexStringBox("\"a\""), ",", 
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition -> 1), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), 
-             "1"}, Row({"BaselinePosition: ", 1}))), ",", 
-          ComplexStringBox("\"a\""), ",", 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), "1"}, 
+            "RowDefault")), ",", ComplexStringBox("\"a\""), ",", 
           TooltipBox(TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
              BaselinePosition -> {-1, 2}), "Grid"), 
-           InterpretationBox({ComplexStringBox("\"BaselinePosition: \""), {
-              "{", {{"-", "1"}, ",", "2"}, "}"}}, Row({
-             "BaselinePosition: ", {-1, 2}})))}, "}"}), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+           TemplateBox({ComplexStringBox("\"BaselinePosition: \""), {
+              "{", {{"-", "1"}, ",", "2"}, "}"}}, "RowDefault"))}, "}"}), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
     SectionGroup({Section("Scaled(\[Ellipsis])", "Subsection"), 
       Section(
        "Scaled(0) means Bottom, Scaled(0.5) means Center and Scaled(1) means \
@@ -76,14 +69,14 @@ Document({
          BoxData({
            "{", {
             PanelBox(
-             TagBox(GridBox({{SliderBox(Dynamic(Global`s), -1 .. 2)}, {
-                 InterpretationBox({SetterBox(Dynamic(Global`s), 0, "0"), 
-                   "\[InvisibleSpace]", SetterBox(Dynamic(Global`s), 0.5`, 
+             TagBox(GridBox({{SliderBox(Dynamic($Context`s), -1 .. 2)}, {
+                 InterpretationBox({SetterBox(Dynamic($Context`s), 0, "0"), 
+                   "\[InvisibleSpace]", SetterBox(Dynamic($Context`s), 0.5`, 
                     "0.5`"), "\[InvisibleSpace]", 
-                   SetterBox(Dynamic(Global`s), 1, "1")}, 
-                  SetterBar(Dynamic(Global`s), {0, 0.5`, 1}), 
+                   SetterBox(Dynamic($Context`s), 1, "1")}, 
+                  SetterBar(Dynamic($Context`s), {0, 0.5`, 1}), 
                   Editable -> False)}}), "Column")), ",", 
-            DynamicBox(ToBoxes(Global`s))}, "}"}), "Output", 
+            DynamicBox(ToBoxes($Context`s))}, "}"}), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
       SectionGroup({
         Section(
@@ -97,7 +90,7 @@ Document({
         Section(
          BoxData({
            "{", {"a", ",", TagBox(GridBox({{"a", "b"}, {"c", "d"}}, 
-              BaselinePosition -> Dynamic(Scaled(Global`s))), "Grid"), ",", 
+              BaselinePosition -> Dynamic(Scaled($Context`s))), "Grid"), ",", 
             "b"}, "}"}), "Output", SectionGenerated -> True, 
          SectionLabel -> "out [3]:")}, All)}, All), 
     SectionGroup({Section("Align at specific grid rows/items", "Subsection"), 
@@ -121,10 +114,10 @@ Document({
          "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, 
        All)}, All), SectionGroup({
       Section("Align with reference point", "Subsection"), 
-      Section({"The syntax ", {"BaselinePosition", "\[Rule]", {
-          "(", {"pos", "\[Rule]", "ref"}, ")"}}, 
-        " adjusts the baseline such that a vertical position in the grid \
-        matches a reference position of surrounding text."}, "Text"), 
+      Section(TextData({"The syntax ", {"BaselinePosition", "\[Rule]", {
+           "(", {"pos", "\[Rule]", "ref"}, ")"}}, 
+         " adjusts the baseline such that a vertical position in the grid \
+         matches a reference position of surrounding text."}), "Text"), 
       SectionGroup({
         Section(
          BoxData({
@@ -156,7 +149,8 @@ Document({
              ")"}}}), "Input", SectionLabel -> "in [6]:"), 
         Section(
          BoxData({
-           GraphicsBox({{Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
+           GraphicsBox({
+             {RGBColor(0.75`, 0, 0), {
                LineBox(CompressedData(
                  "1:c$,hwd0dUz9}!R6bCW0]@f0<-Hd0w5>wPRUQ^Z&!,!tl0Le?RvBwG]IBq2\
                  0WstJ,ADM?cyWG&GiB[tPgCcn?Qzdz2,%U_>2_k6$KbDndbE2wCd$OS=DP*oS\
@@ -223,11 +217,12 @@ Document({
                  ,G_VJ!fE<Qy=91{B7Zlf-J!<#Jfg1&Izi,jaSrbr57GJ_(Vcxe%y#Wu&tb70w\
                  5ml#lngNPP=h1+%yJt;O83TAi%54SwexYoTmm[aADK]fs-bK%?8L1r&ctOgww\
                  7^EG9d8(<f]&8DtdS4su[Q-=&H+$Lrn}[#Utaf*45^9)ye89Cv695xmQ^qNRk\
-                 tbr2Qgi-!]~~~"))}}}, AspectRatio -> NCache(1/GoldenRatio, 
-             0.61803398874989479`), Axes -> True, 
+                 tbr2Qgi-!]~~~"))}}}, AspectRatio -> 
+             NCache(1/GoldenRatio, 0.61803398874989479`), Axes -> True, 
             AxesOrigin -> NCache({0, 0}, {0.0`, 0.0`}), 
             BaselinePosition -> Axis -> Axis, PlotRange -> All), "+", 
-           GraphicsBox({{Directive(RGBColor(0.75`, 0, 0), PlotStyle), {
+           GraphicsBox({
+             {RGBColor(0.75`, 0, 0), {
                LineBox(CompressedData(
                  "1:c$,hxdst2R8VB&&d%KjRj9KLt5<[#Y#2_uiDBTb$8fn]3G&qdw#0ix,R8w\
                  rZRTL%3mI_Itl*-^xn50t3r9!$n-*?Y>&U!ub$2{MUXaC;y{@(RlYmsT_mMLU\
@@ -310,8 +305,8 @@ Document({
                  =nN=giw^{Jo0E23IU8,F?Vvf[=L>nmPR}8AU<ZH};O(J9odtLL{$TrI3z*=!Z\
                  NMuJ,u<>3;sWT=^*en-FZ%vq<$3[[{%mX&yOh2^SXCPUr<;w375dQk2WxvUUA\
                  fhoj&@t=,-80!4H#E>Xhn-ZeSfg)xDSX@nR*<G0aUQXH7xL}cA!m&ywzy^UoE\
-                 %VZ]~~~"))}}}, AspectRatio -> NCache(1/GoldenRatio, 
-             0.61803398874989479`), Axes -> True, 
+                 %VZ]~~~"))}}}, AspectRatio -> 
+             NCache(1/GoldenRatio, 0.61803398874989479`), Axes -> True, 
             AxesOrigin -> NCache({0, 0}, {0.0`, 0.0`}), 
             BaselinePosition -> Axis -> Axis, PlotRange -> All)}), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [6]:")}, All)}, All)}, 

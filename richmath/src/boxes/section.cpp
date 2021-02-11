@@ -42,9 +42,9 @@ Section::Section(SharedPtr<Style> _style)
     top_margin(3),
     bottom_margin(3),
     unfilled_width(0),
+    evaluating(0),
     must_resize(true),
     visible(true),
-    evaluating(false),
     dialog_start(false)
 {
   style = _style.release();

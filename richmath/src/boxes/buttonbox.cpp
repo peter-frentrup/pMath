@@ -4,6 +4,7 @@
 
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <eval/job.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -202,8 +203,11 @@ void ButtonBox::click() {
   // These should better be accessed via some CurrendValue() mechanism.
   fn = Call(std::move(fn), std::move(arg1), std::move(data));
   
+  fn = EvaluationContexts::prepare_namespace_for(std::move(fn), this);
+  
   String method = get_own_style(Method);
   if(method == strings::Preemptive) {
+    fn = EvaluationContexts::prepare_namespace_for(std::move(fn), this);
     Application::interrupt_wait_for_interactive(std::move(fn), this, Application::button_timeout);
   }
   else if(method == strings::Queued) {

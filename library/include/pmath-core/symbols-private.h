@@ -50,6 +50,18 @@ void _pmath_symbol_set_global_value( // used in init
 PMATH_PRIVATE
 void _pmath_symbol_track_dynamic(pmath_symbol_t symbol, intptr_t id);
 
+/** Replace a symbol's current tracker id and return the previous value.
+    
+    This can be used to temporarily disable tracking changes to the symbol. Its typical usage pattern is:
+    <code>
+    id = _pmath_symbol_hard_reset_tracker(symbol, 0);
+    // ... evaluate, preferrably without tracking symbol changes ...
+    _pmath_symbol_lost_dynamic_tracker(symbol, 0, id);
+    </code>
+ */
+PMATH_PRIVATE
+intptr_t _pmath_symbol_hard_reset_tracker(pmath_symbol_t symbol, intptr_t id);
+
 /** Inform a symbol that one of it's trackers is removed.
     
     \param symbol A pMath symbol.

@@ -19,7 +19,7 @@
 
 /**\brief Allocate some amount of memory.
    \param size The number of bytes to be allocated.
-   \return A pointer to a block of mamory of at least size bytes or NULL.
+   \return A pointer to a block of memory of at least size bytes or NULL.
 
    You must free the result with pmath_mem_free() or indirectly via
    pmath_mem_realloc().
@@ -28,9 +28,21 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 void *pmath_mem_alloc(size_t size);
 
+/**\brief Allocate and zero-initialize an array.
+   \param num  The number entries of the array.
+   \param size The size of a single entry in the array.
+   \return A pointer to a zero-initialized block of memory of at least num * size bytes or NULL.
+
+   You must free the result with pmath_mem_free() or indirectly via
+   pmath_mem_realloc().
+ */
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+void *pmath_mem_calloc(size_t num, size_t size);
+
 ///**\brief Allocate some amount of memory with alignment.
 //   \param size The number of bytes to be allocated.
-//   \return A pointer to a block of mamory of at least size bytes or NULL.
+//   \return A pointer to a block of memory of at least size bytes or NULL.
 //
 //   You must free the result with pmath_memalign_free() or indirectly via
 //   pmath_mem_realloc().

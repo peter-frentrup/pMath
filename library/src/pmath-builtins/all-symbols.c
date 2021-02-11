@@ -275,10 +275,11 @@ PMATH_PRIVATE pmath_t builtin_button( pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_clock(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_refresh(pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(        pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(    pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(          pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluate(             pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_getcurrentdynamicid(         pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_dynamicevaluatemultiple(     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_dynamicremove(               pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_suppressdynamictrackingblock(pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/io/ ...
 PMATH_PRIVATE pmath_t builtin_assign_currentdirectory(pmath_expr_t expr);
@@ -997,24 +998,25 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Private_IsValid,              builtin_private_isvalid)
   BIND_DOWN(   pmath_System_Private_SetValid,             builtin_private_setvalid)
   
-  BIND_DOWN(   pmath_Internal_AbortMessage,               builtin_internal_abortmessage)
-  BIND_DOWN(   pmath_Internal_CopySign,                   builtin_internal_copysign)
-  BIND_DOWN(   pmath_Internal_CriticalMessageTag,         builtin_criticalmessagetag)
-  BIND_DOWN(   pmath_Internal_DynamicEvaluate,            builtin_internal_dynamicevaluate)
-  BIND_DOWN(   pmath_Internal_DynamicEvaluateMultiple,    builtin_internal_dynamicevaluatemultiple)
-  BIND_DOWN(   pmath_Internal_DynamicRemove,              builtin_internal_dynamicremove)
-  BIND_DOWN(   pmath_Internal_GetCurrentDirectory,        builtin_internal_getcurrentdirectory)
-  BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,        builtin_internal_getcurrentdynamicid)
-  BIND_DOWN(   pmath_Internal_GetThreadID,                builtin_getthreadid)
-  BIND_DOWN(   pmath_Internal_NextToward,                 builtin_internal_nexttoward)
-  BIND_DOWN(   pmath_Internal_ParseRealBall,              builtin_internal_parserealball)
-  BIND_DOWN(   pmath_Internal_RealBallBounds,             builtin_internal_realballbounds)
-  BIND_DOWN(   pmath_Internal_RealBallFromMidpointRadius, builtin_internal_realballfrommidpointradius)
-  BIND_DOWN(   pmath_Internal_RealBallMidpointRadius,     builtin_internal_realballmidpointradius)
-  BIND_DOWN(   pmath_Internal_SignBit,                    builtin_internal_signbit)
-  BIND_DOWN(   pmath_Internal_ThreadIdle,                 builtin_internal_threadidle)
-  BIND_DOWN(   pmath_Internal_TryEvaluateSecured,         builtin_internal_tryevaluatesecured)
-  BIND_DOWN(   pmath_Internal_WriteRealBall,              builtin_internal_writerealball)
+  BIND_DOWN(   pmath_Internal_AbortMessage,                 builtin_internal_abortmessage)
+  BIND_DOWN(   pmath_Internal_CopySign,                     builtin_internal_copysign)
+  BIND_DOWN(   pmath_Internal_CriticalMessageTag,           builtin_criticalmessagetag)
+  BIND_DOWN(   pmath_Internal_DynamicEvaluate,              builtin_internal_dynamicevaluate)
+  BIND_DOWN(   pmath_Internal_DynamicEvaluateMultiple,      builtin_internal_dynamicevaluatemultiple)
+  BIND_DOWN(   pmath_Internal_DynamicRemove,                builtin_internal_dynamicremove)
+  BIND_DOWN(   pmath_Internal_GetCurrentDirectory,          builtin_internal_getcurrentdirectory)
+  BIND_DOWN(   pmath_Internal_GetCurrentDynamicID,          builtin_internal_getcurrentdynamicid)
+  BIND_DOWN(   pmath_Internal_GetThreadID,                  builtin_getthreadid)
+  BIND_DOWN(   pmath_Internal_NextToward,                   builtin_internal_nexttoward)
+  BIND_DOWN(   pmath_Internal_ParseRealBall,                builtin_internal_parserealball)
+  BIND_DOWN(   pmath_Internal_RealBallBounds,               builtin_internal_realballbounds)
+  BIND_DOWN(   pmath_Internal_RealBallFromMidpointRadius,   builtin_internal_realballfrommidpointradius)
+  BIND_DOWN(   pmath_Internal_RealBallMidpointRadius,       builtin_internal_realballmidpointradius)
+  BIND_DOWN(   pmath_Internal_SignBit,                      builtin_internal_signbit)
+  BIND_DOWN(   pmath_Internal_SuppressDynamicTrackingBlock, builtin_internal_suppressdynamictrackingblock)
+  BIND_DOWN(   pmath_Internal_ThreadIdle,                   builtin_internal_threadidle)
+  BIND_DOWN(   pmath_Internal_TryEvaluateSecured,           builtin_internal_tryevaluatesecured)
+  BIND_DOWN(   pmath_Internal_WriteRealBall,                builtin_internal_writerealball)
   
   BIND_DOWN(   pmath_Developer_FromPackedArray,           builtin_developer_frompackedarray)
   BIND_DOWN(   pmath_Developer_GetDebugInfo,              builtin_developer_getdebuginfo)

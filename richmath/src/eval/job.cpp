@@ -65,25 +65,20 @@ InputJob::InputJob(MathSection *section)
   : Job()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-  if(section && !section->evaluating) {
-    _position = EvaluationPosition(section);
-  }
+  _position = EvaluationPosition(section);
 }
 
 void InputJob::enqueued() {
   auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
   
   if(auto section = dynamic_cast<Section*>(Box::find(_position.section_id))) {
-    if(section->evaluating) {
-      _position = EvaluationPosition(nullptr);
-    }
-    else {
+    section->evaluating++;
+    if(section->evaluating == 1) {
       if(doc) {
         doc->move_to(doc, section->index() + 1);
       }
       
-      section->evaluating = true;
-      section->invalidate();
+      section->invalidate(); // request_repaint_all doeas not always cover the section bracket ?!?
     }
   }
 }
@@ -94,8 +89,9 @@ bool InputJob::start() {
   
   if(!section || !doc || section->parent() != doc) {
     if(section) {
-      section->evaluating = false;
-      section->invalidate();
+      section->evaluating--;
+      if(!section->evaluating)
+        section->invalidate(); // request_repaint_all doeas not always cover the section bracket ?!?
     }
     
     return false;
@@ -139,6 +135,7 @@ bool InputJob::start() {
   if(eval_fun != richmath_System_Identity)
     boxes = Call(std::move(eval_fun), std::move(boxes));
   
+  boxes = EvaluationContexts::prepare_namespace_for_current_context(std::move(boxes));
   Server::local_server->run_boxes(std::move(boxes));
   
   doc->native()->running_state_changed();
@@ -163,8 +160,9 @@ void InputJob::end() {
 
 void InputJob::dequeued() {
   if(auto section = dynamic_cast<MathSection *>(Box::find(_position.section_id))) {
-    section->evaluating = false;
-    section->request_repaint_all();
+    section->evaluating--;
+    if(!section->evaluating)
+      section->invalidate(); // request_repaint_all doeas not always cover the section bracket ?!?
   }
 }
 
@@ -194,6 +192,8 @@ bool EvaluationJob::start() {
   auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
   
   set_context();
+  
+  //Server::local_server->run(EvaluationContexts::prepare_evaluation(_expr));
   Server::local_server->run(_expr);
   
   if(doc)
@@ -269,8 +269,9 @@ bool ReplacementJob::start() {
       !sequence->get_style(Editable))
   {
     if(section) {
-      section->evaluating = false;
-      section->invalidate();
+      section->evaluating--;
+      if(!section->evaluating)
+        section->invalidate(); // request_repaint_all doeas not always cover the section bracket ?!?
     }
     
     return false;
@@ -283,6 +284,7 @@ bool ReplacementJob::start() {
   if(eval_fun != richmath_System_Identity)
     boxes = Call(std::move(eval_fun), std::move(boxes));
   
+  boxes = EvaluationContexts::prepare_namespace_for_current_context(std::move(boxes));
   Server::local_server->run_boxes(std::move(boxes));
     
   doc->native()->running_state_changed();
@@ -303,8 +305,9 @@ void ReplacementJob::end() {
   auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
   
   if(section) {
-    section->evaluating = false;
-    section->invalidate();
+    section->evaluating--;
+    if(!section->evaluating)
+      section->invalidate(); // request_repaint_all doeas not always cover the section bracket ?!?
   }
   
   if( have_result                            &&

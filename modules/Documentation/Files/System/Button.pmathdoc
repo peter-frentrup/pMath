@@ -64,10 +64,8 @@ Document({
             Section(BoxData(TemplateBox({"1"}, "RowDefault")), "Print", 
              SectionGenerated -> True), 
             Section(BoxData(TemplateBox({"2"}, "RowDefault")), "Print", 
-             SectionGenerated -> True), 
-            Section(BoxData(TemplateBox({"3"}, "RowDefault")), "Print", 
              SectionGenerated -> True), Section(BoxData("$Aborted"), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
           Section("Vertically align buttons:", "ExampleText"), 
@@ -117,7 +115,7 @@ Document({
             Section(
              BoxData(ButtonBox(StyleBox(ComplexStringBox("\"More ...\""), 
                 FontColor -> Dynamic(If(CurrentValue("MouseOver"), Red, 
-                  Blue)), StripOnInput -> False), ButtonFrame -> "Frameless", 
+                   Blue)), StripOnInput -> False), ButtonFrame -> "Frameless", 
                ButtonFunction -> (Print("... possiblities") &))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
@@ -216,22 +214,22 @@ Document({
                GridBox({
                  {"True", 
                   PanelBox(TemplateBox({
-                     ButtonBox("Automatic", ButtonFunction -> (Print(
-                       RandomReal()) &), Enabled -> Automatic), 
-                     ButtonBox("True", ButtonFunction -> (Print(
-                       RandomReal()) &), Enabled -> True), 
-                     ButtonBox("False", ButtonFunction -> (Print(
-                       RandomReal()) &), Enabled -> False)}, "RowDefault"), 
-                   Enabled -> True)}, {
+                     ButtonBox("Automatic", ButtonFunction -> (
+                        Print(RandomReal()) &), Enabled -> Automatic), 
+                     ButtonBox("True", ButtonFunction -> (
+                        Print(RandomReal()) &), Enabled -> True), 
+                     ButtonBox("False", ButtonFunction -> (
+                        Print(RandomReal()) &), Enabled -> False)}, 
+                    "RowDefault"), Enabled -> True)}, {
                   "False", 
                   PanelBox(TemplateBox({
-                     ButtonBox("Automatic", ButtonFunction -> (Print(
-                       RandomReal()) &), Enabled -> Automatic), 
-                     ButtonBox("True", ButtonFunction -> (Print(
-                       RandomReal()) &), Enabled -> True), 
-                     ButtonBox("False", ButtonFunction -> (Print(
-                       RandomReal()) &), Enabled -> False)}, "RowDefault"), 
-                   Enabled -> False)}}), "Grid")), "Output", 
+                     ButtonBox("Automatic", ButtonFunction -> (
+                        Print(RandomReal()) &), Enabled -> Automatic), 
+                     ButtonBox("True", ButtonFunction -> (
+                        Print(RandomReal()) &), Enabled -> True), 
+                     ButtonBox("False", ButtonFunction -> (
+                        Print(RandomReal()) &), Enabled -> False)}, 
+                    "RowDefault"), Enabled -> False)}}), "Grid")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          1), SectionGroup({Section("Method", "ExampleSubsection"), 
           Section(TextData({"The default setting ", 
@@ -245,9 +243,9 @@ Document({
                   "Print", "(", ComplexStringBox("\"Stop\""), ")"}}}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(ButtonBox(ComplexStringBox("\"Too long\""), 
-               ButtonFunction -> ((Print("Start"); Pause(10); Print(
-                "Stop")) &))), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [1]:")}, All), 
+               ButtonFunction -> (
+                 (Print("Start"); Pause(10); Print("Stop")) &))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
@@ -270,8 +268,9 @@ Document({
               Section(
                BoxData({
                  "{", {ButtonBox(ComplexStringBox("\"Start\""), 
-                   ButtonFunction -> (Do(Print(Global`i); Pause(1), 
-                    Global`i -> 10) &), Method -> "Queued"), ",", 
+                   ButtonFunction -> (
+                     Do(Print($Context`i); Pause(1), $Context`i -> 10) &), 
+                   Method -> "Queued"), ",", 
                   ButtonBox(ComplexStringBox("\"Stop\""), 
                    ButtonFunction -> (Abort() &), Method -> "Preemptive")}, 
                  "}"}), "Output", SectionGenerated -> True, 

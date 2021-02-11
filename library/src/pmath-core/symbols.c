@@ -986,6 +986,18 @@ void _pmath_symbol_track_dynamic(
 }
 
 PMATH_PRIVATE
+intptr_t _pmath_symbol_hard_reset_tracker(pmath_symbol_t symbol, intptr_t id) {
+  struct _pmath_symbol_t *sym_ptr = (struct _pmath_symbol_t *)PMATH_AS_PTR(symbol);
+  
+  if(PMATH_UNLIKELY(!sym_ptr))
+    return 0;
+  
+  assert(pmath_is_symbol(symbol));
+  
+  return pmath_atomic_fetch_set(&sym_ptr->current_dynamic_id, id);
+}
+
+PMATH_PRIVATE
 void _pmath_symbol_lost_dynamic_tracker(pmath_symbol_t symbol, intptr_t oldid, intptr_t other_tracker_id) {
   struct _pmath_symbol_t *sym_ptr = (struct _pmath_symbol_t *)PMATH_AS_PTR(symbol);
   
@@ -993,11 +1005,8 @@ void _pmath_symbol_lost_dynamic_tracker(pmath_symbol_t symbol, intptr_t oldid, i
     return;
 
   assert(pmath_is_symbol(symbol));
-
-  if(pmath_atomic_read_aquire(&sym_ptr->current_dynamic_id) == oldid) {
-    pmath_atomic_write_release(&sym_ptr->current_dynamic_id, other_tracker_id);
-    return;
-  }
+  
+  pmath_atomic_compare_and_set(&sym_ptr->current_dynamic_id, oldid, other_tracker_id);
 }
 
 /*----------------------------------------------------------------------------*/

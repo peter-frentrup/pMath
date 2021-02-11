@@ -26,13 +26,14 @@ Document({
                        {"GridBox", "(", {
                          {"{", {
                            "{", {{"FillBox", "(", {"InputFieldBox", "(", {
-                               {"Dynamic", "(", "searchString", ")"}, ",", 
-                               "String", ",", {"Appearance", "\[Rule]", 
+                               {"Dynamic", "(", "$Context`searchString", ")"}, 
+                               ",", "String", ",", {"Appearance", "\[Rule]", 
                                 ComplexStringBox("\"AddressBand\"")}}, ")"}, 
                              ")"}, ",", {"ButtonBox", "(", {
                               ComplexStringBox("\"\\\" Go \\\"\""), ",", {
                                "ButtonFunction", "\[Rule]", " ", {
-                                "(", {{"(", {"searchString", "\[Assign]", {
+                                "(", {
+                                 {"(", {"$Context`searchString", "\[Assign]", {
                                     "ToString", "@", {
                                      "{", {{"EvaluationDocument", "(", ")"}, 
                                       ",", {"SelectedDocument", "(", ")"}}, 
@@ -54,7 +55,7 @@ Document({
     SectionGroup({
       Section(BoxData({"Dynamic", "(", {"Framed", "(", "searchString", ")"}, 
          ")"}), "Input", SectionLabel -> "in [2]:"), 
-      Section(BoxData(DynamicBox(ToBoxes(Framed(Global`searchString)))), 
+      Section(BoxData(DynamicBox(ToBoxes(Framed($Context`searchString)))), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
     Section(
      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
@@ -85,30 +86,35 @@ Document({
                                   "#", "True"}})}}}, "\n"}}}, ")"}, "&"}, 
                        "\n"}}}, ")"}, ",", {{"-", "1"}, "..", "1"}}, ")"}}, 
                 "}"}, ")"}, ",", ComplexStringBox("\"Docked\"")}, ")"}}, 
-           "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [2]:")}, All)}, 
- DockedSections :> {"Bottom" -> {}, "BottomGlass" -> Section(
-   BoxData({ButtonBox("\"A Button\"", ButtonFrame -> "Palette"), FillBox(" "), 
-     SliderBox(
-      Dynamic(Log(2, CurrentValue(EvaluationDocument(), Magnification)), 
-       If(IsNumber(#1), CurrentValue(EvaluationDocument(), Magnification):= 2^
-         Piecewise({{0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
-           #1, True}})) &), -1 .. 1)}), "Docked"), "Top" -> {}, 
-  "TopGlass" -> {
-   Section(
-    BoxData({
-      ComplexStringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack", 
-        BaselinePosition -> Center -> Axis), 
-       ButtonBox("", ButtonFrame -> "NavigationForward", 
-        BaselinePosition -> Center -> Axis, Enabled -> False), " ", 
-       FillBox(
-        PanelBox(
-         GridBox({
-           {FillBox(InputFieldBox(Dynamic(Global`searchString), String, 
-              Appearance -> "AddressBand")), 
-            ButtonBox("\" Go \"", ButtonFunction -> ((Global`searchString:= 
-              ToString({EvaluationDocument(), SelectedDocument()})) &), 
-             ButtonFrame -> "AddressBandGo"), 
-            ButtonBox("\" \[Ellipsis] \"", ButtonFrame -> "AddressBandGo")}}, 
-          GridBoxColumnSpacing -> 0), Appearance -> "AddressBand")), "\"")}), 
-    "Docked", LineBreakWithin -> False)}}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+           "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [3]:")}, All)}, 
+ DockedSections :> {"Bottom" -> {}, 
+   "BottomGlass" -> 
+    Section(BoxData({ButtonBox("\"A Button\"", ButtonFrame -> "Palette"), 
+       FillBox(" "), 
+       SliderBox(
+        Dynamic(Log(2, CurrentValue(EvaluationDocument(), Magnification)), 
+         If(IsNumber(#1), CurrentValue(EvaluationDocument(), Magnification):= 
+            2^Piecewise({
+               {0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
+                #1, True}})) &), -1 .. 1)}), "Docked"), "Top" -> {}, 
+   "TopGlass" -> {
+     Section(
+      BoxData({
+        ComplexStringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack", 
+          BaselinePosition -> Center -> Axis), 
+         ButtonBox("", ButtonFrame -> "NavigationForward", 
+          BaselinePosition -> Center -> Axis, Enabled -> False), " ", 
+         FillBox(
+          PanelBox(
+           GridBox({
+             {FillBox(InputFieldBox(Dynamic($Context`searchString), String, 
+                Appearance -> "AddressBand")), 
+              ButtonBox("\" Go \"", ButtonFunction -> (
+                 ($Context`searchString:= 
+                  ToString({EvaluationDocument(), SelectedDocument()})) &), 
+               ButtonFrame -> "AddressBandGo"), 
+              ButtonBox("\" \[Ellipsis] \"", 
+               ButtonFrame -> "AddressBandGo")}}, GridBoxColumnSpacing -> 0), 
+           Appearance -> "AddressBand")), "\"")}), "Docked", 
+      LineBreakWithin -> False)}}, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True)

@@ -10,6 +10,10 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String DollarContext_namespace;
+}}
+
 extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Assign;
@@ -369,8 +373,12 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
     //if(!value.is_evaluated())
     //  value = Application::interrupt(value, Application::dynamic_timeout);
     
-    if(middle)
-      self._expr = value;
+    if(middle) {
+      self._expr = EvaluationContexts::replace_symbol_namespace(
+                     std::move(value), 
+                     EvaluationContexts::resolve_context(self._owner),
+                     strings::DollarContext_namespace);
+    }
     
     self._owner->dynamic_updated();
     return;
@@ -400,12 +408,11 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
   if(run.is_null())
     return;
   
-  run = dyn_source->prepare_dynamic(run);
+  run = dyn_source->prepare_dynamic(std::move(run));
+  run = EvaluationContexts::prepare_namespace_for(std::move(run), dyn_source);
+  run = EvaluationContexts::make_context_block(std::move(run), EvaluationContexts::resolve_context(self.owner()));
   
-  if(Expr set_ctx = EvaluationContexts::prepare_set_context(EvaluationContexts::resolve_context(self.owner())))
-    run = Call(Symbol(richmath_System_EvaluationSequence), set_ctx, std::move(run));
-  
-  Application::interrupt_wait_for_interactive(run, self._owner, Application::dynamic_timeout);
+  Application::interrupt_wait_for_interactive(std::move(run), self._owner, Application::dynamic_timeout);
 }
 
 Expr Dynamic::Impl::get_value_unevaluated() {
@@ -433,8 +440,8 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
         dyn._expr  = std::move(source);
       }
       
-      dyn_expr = dyn._expr;
-      if(dyn._expr[0] != richmath_System_Dynamic) {
+      dyn_expr = std::move(dyn._expr);
+      if(dyn_expr[0] != richmath_System_Dynamic) {
         /* Note that dynamic changes in the find_template_box_dynamic-chain above would not be visible 
            for self._owner and would thus break its dynamic updating facility.
            This scenario can happen if a TemplateBox in the chain (a parent of self._owner)
@@ -444,17 +451,19 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
         source_template->register_observer(self._owner->id());
         
         *is_dynamic = false;
-        return dyn_expr;
+        return EvaluationContexts::prepare_namespace_for(std::move(dyn_expr), dyn._owner);
       }
+      
     }
   }
   else if(!self.is_dynamic()) {
     *is_dynamic = false;
-    return self._expr;
+    return EvaluationContexts::prepare_namespace_for(self._expr, self._owner);
   }
   
   *is_dynamic = true;
   dyn_expr = dyn_source->prepare_dynamic(std::move(dyn_expr));
+  dyn_expr = EvaluationContexts::prepare_namespace_for(std::move(dyn_expr), dyn_source);
   return Call(
            Symbol(richmath_Internal_DynamicEvaluateMultiple),
            std::move(dyn_expr),
@@ -474,14 +483,13 @@ Expr Dynamic::Impl::get_value_now() {
   if(self._owner->style) {
     self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
   }
-  
-  if(Expr set_ctx = EvaluationContexts::prepare_set_context(EvaluationContexts::resolve_context(self.owner())))
-    call = Call(Symbol(richmath_System_EvaluationSequence), set_ctx, std::move(call));
+
+  call = EvaluationContexts::make_context_block(std::move(call), EvaluationContexts::resolve_context(self.owner()));
   
   auto old_eval_id = Dynamic::current_observer_id;
   Dynamic::current_observer_id = self._owner->id();
   
-  Expr value = Application::interrupt_wait_for(call, self._owner, Application::dynamic_timeout);
+  Expr value = Application::interrupt_wait_for(std::move(call), self._owner, Application::dynamic_timeout);
                  
   Dynamic::current_observer_id = old_eval_id;
   

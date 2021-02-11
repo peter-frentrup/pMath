@@ -408,8 +408,8 @@ Document({
                   FE`Private`opts:= 
                    Replace(Try(MakeExpression(CurrentValue({TemplateSlot, 1}), 
                       ParseSymbols -> False)), {
-                     HoldComplete(~Global`s:Symbol) :> 
-                      Options(Unevaluated(Global`s)), ~ -> {}})}, 
+                     HoldComplete(~FE`Private`s:Symbol) :> 
+                      Options(Unevaluated(FE`Private`s)), ~ -> {}})}, 
                  System`BoxForm`MakeSimpleSummaryBox(InputStream, {
                    File -> Replace(FileNameSplit(Lookup(FE`Private`opts, File, 
                        "")), {{} -> "\[LongDash]", ~FE`Private`path:List :> 
@@ -429,8 +429,8 @@ Document({
                   FE`Private`opts:= 
                    Replace(Try(MakeExpression(CurrentValue({TemplateSlot, 1}), 
                       ParseSymbols -> False)), {
-                     HoldComplete(~Global`s:Symbol) :> 
-                      Options(Unevaluated(Global`s)), ~ -> {}})}, 
+                     HoldComplete(~FE`Private`s:Symbol) :> 
+                      Options(Unevaluated(FE`Private`s)), ~ -> {}})}, 
                  System`BoxForm`MakeSimpleSummaryBox(OutputStream, {
                    File -> Replace(FileNameSplit(Lookup(FE`Private`opts, File, 
                        "")), {{} -> "\[LongDash]", ~FE`Private`path:List :> 

@@ -3,42 +3,85 @@ Begin("FE`")
 Begin("FE`Private`")
 
 
+FE`Private`DeleteEvaluationContext
+FE`Private`EvaluationContextBlock
+FE`Private`SwitchEvaluationContext
+
+
 Function SwitchEvaluationContext(~oldctx:String, ~newctx:String) {
-    ToExpression(StringReplace(
-        "FE`Private`SwitchEvaluationContextImpl(`1`, AAA, `2`, BBB)",
-        {   "AAA" -> oldctx ++ "Private`SavedContextInfo",
-            "BBB" -> newctx ++ "Private`SavedContextInfo"}),
-        ParserArguments -> {oldctx, newctx})
+    Refresh(
+        ToExpression(StringReplace(
+            "FE`Private`SwitchEvaluationContextImpl(`1`, AAA, `2`, BBB)",
+            {   "AAA" -> oldctx ++ "Private`SavedContextInfo",
+                "BBB" -> newctx ++ "Private`SavedContextInfo"}),
+            ParserArguments -> {oldctx, newctx}),
+        None)
 }
 
 
 Function SwitchEvaluationContextImpl(~oldctx, ~oldsave, ~newctx, ~newsave) {
-    oldsave("$History"):=       DownRules($History)
-    oldsave("$Line"):=          $Line
-    oldsave("$MessageCount"):=  DownRules($MessageCount)
-    oldsave("$Namespace"):=     $Namespace
-    oldsave("$NamespacePath"):= $NamespacePath
+    StoreEvaluationContext(oldctx, oldsave)
     
     If(!IsString(newsave("$Namespace"))) {
-        newsave("$History"):= {}
-        newsave("$Line"):= 0
-        newsave("$MessageCount"):= {}
-        newsave("$Namespace"):= newctx
-        newsave("$NamespacePath"):= {"System`"}
+        CreateEvaluationContext(newctx, newsave)
     }
 
-    DownRules($History):=      newsave("$History")
-    $Line:=                    newsave("$Line")
-    DownRules($MessageCount):= newsave("$MessageCount")
-    $Namespace:=               newsave("$Namespace")
-    $NamespacePath:=           newsave("$NamespacePath")
-
+    LoadEvaluationContext(newctx, newsave)
+    
     If(oldsave("$Line") =!= newsave("$Line")) {
         % TODO: incorporate $DialogLevel
         CurrentValue(EvaluationBox(),SectionLabel):= StringForm("in [`1`]:", newsave("$Line")).ToString
     }
 }
 
+Function CreateEvaluationContext(~ctx, ~save) {
+    save("$History"):= {}
+    save("$Line"):= 0
+    save("$MessageCount"):= {}
+    save("$Namespace"):= ctx
+    save("$NamespacePath"):= {"System`"}
+}
+
+Function LoadEvaluationContext(~ctx, ~save) {
+    DownRules($History):=      save("$History")
+    $Line:=                    save("$Line")
+    DownRules($MessageCount):= save("$MessageCount")
+    $Namespace:=               save("$Namespace")
+    $NamespacePath:=           save("$NamespacePath")
+}
+
+Function StoreEvaluationContext(~ctx, ~save) {
+    save("$History"):=       DownRules($History)
+    save("$Line"):=          $Line
+    save("$MessageCount"):=  DownRules($MessageCount)
+    save("$Namespace"):=     $Namespace
+    save("$NamespacePath"):= $NamespacePath
+}
+
+Attributes(EvaluationContextBlock):= {HoldAllComplete}
+Function EvaluationContextBlock(~expr, ~ctx:String) {
+    ToExpression(StringReplace(
+        "FE`Private`EvaluationContextBlockImpl(`1`, `2`, AAA)",
+        {"AAA" -> ctx ++ "Private`SavedContextInfo"}),
+        ParserArguments -> {HoldComplete(expr), ctx})
+}
+
+Function EvaluationContextBlockImpl(HoldComplete(~expr), ~ctx, ~save) {
+    If(!IsString(save("$Namespace"))) {
+        CreateEvaluationContext(ctx, save)
+    }
+
+    Block({$History, $Line, $MessageCount, $Namespace, $NamespacePath},
+        Internal`SuppressDynamicTrackingBlock({$History, $Line, $MessageCount, $Namespace, $NamespacePath},
+            LoadEvaluationContext(ctx, save)
+        )
+        Try {
+            expr
+        } Finally {
+            StoreEvaluationContext(ctx, save)
+        }
+    )
+}
 
 Function DeleteEvaluationContext(~ctx:String) {
     ToExpression(StringReplace(

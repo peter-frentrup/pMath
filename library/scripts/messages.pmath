@@ -135,7 +135,9 @@ BaseForm::basf:= Internal`WriteRealBall::basf:= "Requested base `1` should be an
 BinaryRead::format:= BinaryReadList::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."
 
-Block::lvsym:= "Local variable specification `1` contains `2`, which is not a symbol or an assignment to a symbol."
+Block::vlist:= Internal`SuppressDynamicTrackingBlock::vlist:= "Variable definition `1` is not a list."
+Block::vsym:= "Variable specification `1` contains `2`, which is not a symbol or an assignment to a symbol."
+Internal`SuppressDynamicTrackingBlock::vsym:= "Variable specification `1` contains `2`, which is not a symbol."
 
 Break::nofwd:= Continue::nofwd:= "No surrounding For, While or Do found for `1`."
 

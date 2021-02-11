@@ -7,11 +7,12 @@ Document({
        "Usage")}, All), SectionGroup({
       Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"OpenerView"}, "ReferenceHyperlink"), "(", 
-          StyleBox("list", "Arg"), ", ", TemplateBox({"Dynamic"}, 
-           "ReferenceHyperlink"), "(", StyleBox("s", "Arg"), 
-          ")) takes the opener state to be specified by the dynamically \
-          updated current value of ", StyleBox("s", "Arg"), "."}, "Notes")}, 
+        Section(TextData({TemplateBox({"OpenerView"}, "ReferenceHyperlink"), 
+           "(", StyleBox("list", "Arg"), ", ", 
+           TemplateBox({"Dynamic"}, "ReferenceHyperlink"), "(", 
+           StyleBox("s", "Arg"), 
+           ")) takes the opener state to be specified by the dynamically \
+           updated current value of ", StyleBox("s", "Arg"), "."}), "Notes")}, 
        All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -33,8 +34,8 @@ Document({
            All)}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
         SectionGroup({Section("OpenerView content", "ExampleSubsection"), 
-          Section({TemplateBox({"OpenerView"}, "ReferenceHyperlink"), 
-            " can contain any expression:"}, "ExampleText"), 
+          Section(TextData({TemplateBox({"OpenerView"}, "ReferenceHyperlink"), 
+             " can contain any expression:"}), "ExampleText"), 
           SectionGroup({
             Section(BoxData({"OpenerView", "(", {
                 "{", {{"Sin", "(", "x", ")"}, ",", {
@@ -209,16 +210,18 @@ Document({
                        9.2857142857142865`, 0.13861588967258465`}, {
                        10.0`, -0.54402111088936977`}})}}}, {
                   AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-                  Axes -> True, PlotRange -> NCache({
-                    0 .. 10, -0.99999670384065387` .. 0.99999589764495611`}, {
-                    0.0` .. 10.0`, -0.99999670384065387` .. 
-                     0.99999589764495611`})}), False}, "OpenerView")), 
+                  Axes -> True, PlotRange -> 
+                   NCache({0 .. 10, -0.99999670384065387` .. 
+                      0.99999589764495611`}, {
+                     0.0` .. 10.0`, -0.99999670384065387` .. 
+                      0.99999589764495611`})}), False}, "OpenerView")), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({TemplateBox({"OpenerView"}, "ReferenceHyperlink"), 
-              " can be nested:"}, "ExampleText"), 
+            Section(
+             TextData({TemplateBox({"OpenerView"}, "ReferenceHyperlink"), 
+               " can be nested:"}), "ExampleText"), 
             SectionGroup({
               Section(BoxData({"OpenerView", "(", {
                   "{", {{"OpenerView", "(", {"{", {"a", ",", "b"}, "}"}, ")"}, 
@@ -231,9 +234,9 @@ Document({
                  "OpenerView")), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
         SectionGroup({Section("OpenerView control", "ExampleSubsection"), 
-          Section({"Connect an ", TemplateBox({"OpenerView"}, 
-             "ReferenceHyperlink"), " to a ", 
-            TemplateBox({"Checkbox"}, "ReferenceHyperlink"), ":"}, 
+          Section(TextData({"Connect an ", TemplateBox({"OpenerView"}, 
+              "ReferenceHyperlink"), " to a ", 
+             TemplateBox({"Checkbox"}, "ReferenceHyperlink"), ":"}), 
            "ExampleText"), SectionGroup({
             Section(
              BoxData({
@@ -253,8 +256,8 @@ Document({
                     "b", SuperscriptBox("3")}, "+", {
                     "3", "a", " ", {"b", SuperscriptBox("2")}}, "+", {
                     "3", "b", " ", {"a", SuperscriptBox("2")}}}, 
-                  Dynamic(Global`s)}, "OpenerView"), ",", 
-                CheckboxBox(Dynamic(Global`s))}, "}"}), "Output", 
+                  Dynamic($Context`s)}, "OpenerView"), ",", 
+                CheckboxBox(Dynamic($Context`s))}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          1)}, 1), SectionGroup({Section("Neat examples", "ExampleSection"), 
         Section("An interactive directory tree view:", "ExampleText"), 
@@ -302,16 +305,18 @@ Document({
           Section(BoxData(TemplateBox({ComplexStringBox("\"scripts\""), 
               DynamicBox(
                ToBoxes(
-                With({Global`entries$:= FileNames(
-                   "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
-                   \\scripts\\", "*")}, If(Global`entries$ === {}, 
+                With({
+                  $Context`entries$:= 
+                   FileNames(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\", "*")}, If($Context`entries$ === {}, 
                   Skeleton("empty"), 
-                  Column(Map(Global`entries$, Global`fileTreeItem)))))), 
+                  Column(Map($Context`entries$, $Context`fileTreeItem)))))), 
               False}, "OpenerView")), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [2]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Opener"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"TabView"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"Opener"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"TabView"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

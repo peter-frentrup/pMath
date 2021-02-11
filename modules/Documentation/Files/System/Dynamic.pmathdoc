@@ -6,34 +6,36 @@ Document({
       Section(BoxData(TemplateBox({"Dynamic"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
-          " has attribute ", TemplateBox({"HoldFirst"}, "ReferenceHyperlink"), 
-          " and only evaluates its first argument when needed for display."}, 
-         "Notes"), Section({"The update function specifications ", 
-          StyleBox("f", "Arg"), ", ", StyleBox({"f", SubscriptBox("pre")}, 
-           "Arg"), " and ", StyleBox({"f", SubscriptBox("post")}, "Arg"), 
-          " may also take special values such as ", 
-          TemplateBox({"Automatic"}, "ReferenceHyperlink"), ", ", 
-          TemplateBox({"None"}, "ReferenceHyperlink"), " or ", 
-          TemplateBox({"Temporary"}, "ReferenceHyperlink"), "."}, "Notes")}, 
+        Section(TextData({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
+           " has attribute ", TemplateBox({"HoldFirst"}, 
+            "ReferenceHyperlink"), 
+           " and only evaluates its first argument when needed for \
+           display."}), "Notes"), 
+        Section(TextData({"The update function specifications ", 
+           StyleBox("f", "Arg"), ", ", StyleBox({"f", SubscriptBox("pre")}, 
+            "Arg"), " and ", StyleBox({"f", SubscriptBox("post")}, "Arg"), 
+           " may also take special values such as ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"None"}, "ReferenceHyperlink"), " or ", 
+           TemplateBox({"Temporary"}, "ReferenceHyperlink"), "."}), "Notes")}, 
        All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(DynamicBox(ToBoxes(Global`x))), "Output", 
+          Section(BoxData(DynamicBox(ToBoxes($Context`x))), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        Section({"Assign a value to ", StyleBox("x", "Arg"), 
-          " to update the above output:"}, "ExampleText"), 
+        Section(TextData({"Assign a value to ", StyleBox("x", "Arg"), 
+           " to update the above output:"}), "ExampleText"), 
         SectionGroup({Section(BoxData({"x", "\[Assign]", "5"}), "Input", 
            SectionLabel -> "in [2]:"), Section(BoxData("5"), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
-        Section({"Tie the value of ", StyleBox("x", "Arg"), " to a ", 
-          TemplateBox({"Slider"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
-        SectionGroup({
+        Section(TextData({"Tie the value of ", StyleBox("x", "Arg"), " to a ", 
+           TemplateBox({"Slider"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
           Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
            "Input", SectionLabel -> "in [3]:"), 
-          Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1)), "Output", 
+          Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1)), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
        All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Only update a value upon release of the mouse:", 
@@ -44,8 +46,8 @@ Document({
                 ")"}, ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(
-           BoxData({"{", {SliderBox(Dynamic(Global`x, Temporary), 0 .. 1), 
-              ",", DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+           BoxData({"{", {SliderBox(Dynamic($Context`x, Temporary), 0 .. 1), 
+              ",", DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -69,79 +71,81 @@ Document({
             Section(
              BoxData({
                "{", {
-                SliderBox(Dynamic(Global`x, {(Print("pre"); Global`x:= #1) &, 
-                   Automatic, (Print("post"); Global`x:= #1) &}), 0 .. 1), 
-                ",", DynamicBox(ToBoxes(Global`x))}, "}"}), "Output", 
+                SliderBox(Dynamic($Context`x, {
+                   (Print("pre"); $Context`x:= #1) &, Automatic, (
+                     Print("post"); $Context`x:= #1) &}), 0 .. 1), ",", 
+                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("SynchronousUpdating", "ExampleSubsection"), 
-          Section({"With the default setting ", 
-            TemplateBox({"SynchronousUpdating"}, "ReferenceHyperlink"), 
-            " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
-            ", updated values are retrieved synchronously when updating the \
-            front-end, interrupting other evaluations if necessary. \
-            Long-running calculations cause the front-end to become \
-            unresponsive and will be aborted after a timeout."}, 
+          Section(TextData({"With the default setting ", 
+             TemplateBox({"SynchronousUpdating"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+             ", updated values are retrieved synchronously when updating the \
+             front-end, interrupting other evaluations if necessary. \
+             Long-running calculations cause the front-end to become \
+             unresponsive and will be aborted after a timeout."}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Slider", "(", {"Dynamic", "(", "a", ")"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(SliderBox(Dynamic(Global`a), 0 .. 1)), "Output", 
+            Section(BoxData(SliderBox(Dynamic($Context`a), 0 .. 1)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(BoxData({"Dynamic", "(", {
                 {{"Pause", "(", "0.5", ")"}, ";", "a"}, ",", {
                  "SynchronousUpdating", "\[Rule]", "True"}}, ")"}), "Input", 
              SectionLabel -> "in [2]:"), 
-            Section(BoxData(DynamicBox(ToBoxes(Pause(0.5`); Global`a), 
+            Section(BoxData(DynamicBox(ToBoxes(Pause(0.5`); $Context`a), 
                SynchronousUpdating -> True)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"With ", TemplateBox({"SynchronousUpdating"}, 
-               "ReferenceHyperlink"), " \[Rule] ", 
-              TemplateBox({"False"}, "ReferenceHyperlink"), 
-              ", necessary re-evaluations are instead enqueued for later \
-              evaluation:"}, "ExampleText"), 
+            Section(TextData({"With ", TemplateBox({"SynchronousUpdating"}, 
+                "ReferenceHyperlink"), " \[Rule] ", 
+               TemplateBox({"False"}, "ReferenceHyperlink"), 
+               ", necessary re-evaluations are instead enqueued for later \
+               evaluation:"}), "ExampleText"), 
             SectionGroup({
               Section(BoxData({"Slider", "(", {"Dynamic", "(", "b", ")"}, 
-                 ")"}), "Input", SectionLabel -> "in [1]:"), 
-              Section(BoxData(SliderBox(Dynamic(Global`b), 0 .. 1)), "Output", 
-               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+                 ")"}), "Input", SectionLabel -> "in [6]:"), 
+              Section(BoxData(SliderBox(Dynamic($Context`b), 0 .. 1)), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [6]:")}, All), 
             SectionGroup({
               Section(BoxData({"Dynamic", "(", {
                   {{"Pause", "(", "0.5", ")"}, ";", "b"}, ",", {
                    "SynchronousUpdating", "\[Rule]", "False"}}, ")"}), 
-               "Input", SectionLabel -> "in [2]:"), 
-              Section(BoxData(DynamicBox(ToBoxes(Pause(0.5`); Global`b), 
+               "Input", SectionLabel -> "in [11]:"), 
+              Section(BoxData(DynamicBox(ToBoxes(Pause(0.5`); $Context`b), 
                  SynchronousUpdating -> False)), "Output", 
-               SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+               SectionGenerated -> True, SectionLabel -> "out [11]:")}, All)}, 
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"The setting ", TemplateBox({"SynchronousUpdating"}, 
-               "ReferenceHyperlink"), " \[Rule] ", 
-              TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
-              " causes synchronous updates during interactive manipulations \
-              and otherwise enqueues the calculations."}, "ExampleText")}, 
+            Section(TextData({"The setting ", 
+               TemplateBox({"SynchronousUpdating"}, "ReferenceHyperlink"), 
+               " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+               " causes synchronous updates during interactive manipulations \
+               and otherwise enqueues the calculations."}), "ExampleText")}, 
            All)}, 1), SectionGroup({
           Section("TrackedSymbols", "ExampleSubsection"), 
-          Section({"With the default setting ", 
-            TemplateBox({"TrackedSymbols"}, "ReferenceHyperlink"), 
-            " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
-            ", symbols that contribute directly or indirectly to a value are \
-            tracked automatically for updates:"}, "ExampleText"), 
+          Section(TextData({"With the default setting ", 
+             TemplateBox({"TrackedSymbols"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+             ", symbols that contribute directly or indirectly to a value are \
+             tracked automatically for updates:"}), "ExampleText"), 
           SectionGroup({
             Section(
              BoxData({"{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
                 ",", {"Slider", "(", {"Dynamic", "(", "y", ")"}, ")"}, ",", {
                  "Dynamic", "(", {"{", {"x", ",", "y"}, "}"}, ")"}}, "}"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData({"{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
-                SliderBox(Dynamic(Global`y), 0 .. 1), ",", 
-                DynamicBox(ToBoxes({Global`x, Global`y}))}, "}"}), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-          Section("Use an explicit list of symbols to be tracked:", 
+            Section(BoxData({"{", {SliderBox(Dynamic($Context`x), 0 .. 1), 
+                ",", SliderBox(Dynamic($Context`y), 0 .. 1), ",", 
+                DynamicBox(ToBoxes({$Context`x, $Context`y}))}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), Section("Use an explicit list of symbols to be tracked:", 
            "ExampleText"), SectionGroup({
             Section(
              BoxData({"{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
@@ -149,10 +153,10 @@ Document({
                  "Dynamic", "(", {{"{", {"x", ",", "y"}, "}"}, ",", {
                    "TrackedSymbols", "\[RuleDelayed]", {"{", "x", "}"}}}, 
                  ")"}}, "}"}), "Input", SectionLabel -> "in [2]:"), 
-            Section(BoxData({"{", {SliderBox(Dynamic(Global`x), 0 .. 1), ",", 
-                SliderBox(Dynamic(Global`y), 0 .. 1), ",", 
-                DynamicBox(ToBoxes({Global`x, Global`y}), 
-                 TrackedSymbols :> {Global`x})}, "}"}), "Output", 
+            Section(BoxData({"{", {SliderBox(Dynamic($Context`x), 0 .. 1), 
+                ",", SliderBox(Dynamic($Context`y), 0 .. 1), ",", 
+                DynamicBox(ToBoxes({$Context`x, $Context`y}), 
+                 TrackedSymbols :> {$Context`x})}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
          1)}, 1), SectionGroup({Section("Possible Issues", "ExampleSection"), 
         SectionGroup({Section("Dynamic Order of Evaluation", 
@@ -169,16 +173,16 @@ Document({
                   "None"}, ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(DynamicBox(
-               ToBoxes(Global`x; Refresh(RandomReal(), None)))), "Output", 
+               ToBoxes($Context`x; Refresh(RandomReal(), None)))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
              SectionLabel -> "in [2]:"), 
-            Section(BoxData(DynamicBox(ToBoxes(Global`x))), "Output", 
+            Section(BoxData(DynamicBox(ToBoxes($Context`x))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
           SectionGroup({
             Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
              "Input", SectionLabel -> "in [3]:"), 
-            Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1)), "Output", 
+            Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
           SectionGroup({
             Section(BoxData({"Dynamic", "(", {
@@ -187,13 +191,14 @@ Document({
                  "Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}}, ")"}), 
              "Input", SectionLabel -> "in [4]:"), 
             Section(
-             BoxData(DynamicBox(ToBoxes(If(Global`x >= 0.5`, Global`x:= 0.5`); 
-                 Slider(Dynamic(Global`x))))), "Output", 
+             BoxData(DynamicBox(
+               ToBoxes(If($Context`x >= 0.5`, $Context`x:= 0.5`); 
+                 Slider(Dynamic($Context`x))))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
           SectionGroup({
             Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
              "Input", SectionLabel -> "in [5]:"), 
-            Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1)), "Output", 
+            Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -211,16 +216,17 @@ Document({
                "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData(TemplateBox({
-                  DynamicBox(ToBoxes(If(Global`y >= 0.5`, Global`y:= 0.5`); 
-                     "")), SliderBox(Dynamic(Global`y), 0 .. 1)}, 
-                 "RowDefault")), "Output", SectionGenerated -> True, 
+                  DynamicBox(
+                   ToBoxes(If($Context`y >= 0.5`, $Context`y:= 0.5`); "")), 
+                  SliderBox(Dynamic($Context`y), 0 .. 1)}, "RowDefault")), 
+               "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"DynamicLocal"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Slider"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Refresh"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ControlActive"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"DynamicLocal"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Slider"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Refresh"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ControlActive"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

@@ -47,9 +47,10 @@ namespace richmath {
       float bottom_margin;
       float unfilled_width;
       
+      int evaluating;
+      
       bool must_resize;
       bool visible;
-      bool evaluating;
       bool dialog_start;
       
     private:

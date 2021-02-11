@@ -19,34 +19,35 @@ Document({
                    ",", {"Background", "\[Rule]", {
                      "GrayLevel", "(", "#", ")"}}}, ")"}}, ")"}, ")"}}, ")"}, 
             ",", {"0", "..", "1"}}, ")"}), "Input", 
-         SectionLabel -> "in [7]:"), 
+         SectionLabel -> "in [1]:"), 
         Section(
          BoxData(
           SliderBox(
            Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), {
-              GrayLevel(~Global`x) :> Global`x}), 
+              GrayLevel(~$Context`x) :> $Context`x}), 
             If(0 <= #1 <= 1, SetOptions(EvaluationDocument(), 
-              Background -> GrayLevel(#1))) &), 0 .. 1)), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [7]:")}, 2), 
+               Background -> GrayLevel(#1))) &), 0 .. 1)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
       SectionGroup({Section("Document styles", "Section"), 
         Section(StyleData("Document"), Background -> GrayLevel(0), 
-         "CharacterNameStyle" -> {FontColor -> RGBColor(0.14999999999999999`, 
-           0.67500000000000004`, 0.66700000000000004`)}, 
-         "CommentStyle" -> {FontColor -> RGBColor(0, 0.70199999999999996`, 
-           0)}, FontColor -> GrayLevel(1), "FunctionLocalVariableStyle" -> {
-          FontColor -> RGBColor(0.435`, 0.68999999999999995`, 
-           0.67000000000000004`)}, "FunctionNameStyle" -> {
-          FontColor -> RGBColor(0.52500000000000002`, 0.63`, 
-           0.84999999999999998`)}, "KeywordSymbolStyle" -> {
-          FontColor -> RGBColor(1, 0.82699999999999996`, 
-           0.23499999999999999`)}, "LocalVariableStyle" -> {
-          FontColor -> RGBColor(0.46300000000000002`, 0.73699999999999999`, 
-           0.54500000000000004`)}, "PatternVariableStyle" -> {
-          FontColor -> RGBColor(0.46300000000000002`, 0.73699999999999999`, 
-           0.54500000000000004`)}, "StringStyle" -> {
-          FontColor -> GrayLevel(0.60399999999999998`)}, 
-         "UndefinedSymbolStyle" -> {FontColor -> RGBColor(0.314`, 1, 
-           0.14000000000000001`)})}, All), 
+         "CharacterNameStyle" -> {
+           FontColor -> RGBColor(0.14999999999999999`, 0.67500000000000004`, 
+             0.66700000000000004`)}, "CommentStyle" -> {
+           FontColor -> RGBColor(0, 0.70199999999999996`, 0)}, 
+         FontColor -> GrayLevel(1), "FunctionLocalVariableStyle" -> {
+           FontColor -> RGBColor(0.435`, 0.68999999999999995`, 
+             0.67000000000000004`)}, "FunctionNameStyle" -> {
+           FontColor -> RGBColor(0.52500000000000002`, 0.63`, 
+             0.84999999999999998`)}, "KeywordSymbolStyle" -> {
+           FontColor -> RGBColor(1, 0.82699999999999996`, 
+             0.23499999999999999`)}, "LocalVariableStyle" -> {
+           FontColor -> RGBColor(0.46300000000000002`, 0.73699999999999999`, 
+             0.54500000000000004`)}, "PatternVariableStyle" -> {
+           FontColor -> RGBColor(0.46300000000000002`, 0.73699999999999999`, 
+             0.54500000000000004`)}, "StringStyle" -> {
+           FontColor -> GrayLevel(0.60399999999999998`)}, 
+         "UndefinedSymbolStyle" -> {
+           FontColor -> RGBColor(0.314`, 1, 0.14000000000000001`)})}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Edit"), AutoSpacing -> True, 
          FontColor -> GrayLevel(1), LanguageCategory -> "pMath", 

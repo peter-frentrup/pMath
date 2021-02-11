@@ -96,16 +96,16 @@ Document({
                "{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}, ",", {
              "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
        SectionLabel -> "in [6]:"), 
-      Section(BoxData(DynamicLocalBox({Global`x}, {
-          "{", {InterpretationBox({SetterBox(Dynamic(Global`x), 1, "1"), 
-             "\[InvisibleSpace]", SetterBox(Dynamic(Global`x), 2, "2"), 
-             "\[InvisibleSpace]", SetterBox(Dynamic(Global`x), 3, "3")}, 
-            SetterBar(Dynamic(Global`x), {1, 2, 3}), Editable -> False), ",", 
-           DynamicBox(ToBoxes(Global`x))}, "}"}, Initialization :> None, 
-         Deinitialization :> None, UnsavedVariables :> {}, 
-         DynamicLocalValues :> {{
-           OwnRules(Global`x):= {HoldPattern(Global`x) :> 1}}})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+      Section(BoxData(DynamicLocalBox({$Context`x}, {
+          "{", {InterpretationBox({SetterBox(Dynamic($Context`x), 1, "1"), 
+             "\[InvisibleSpace]", SetterBox(Dynamic($Context`x), 2, "2"), 
+             "\[InvisibleSpace]", SetterBox(Dynamic($Context`x), 3, "3")}, 
+            SetterBar(Dynamic($Context`x), {1, 2, 3}), Editable -> False), 
+           ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
+         Initialization :> None, Deinitialization :> None, 
+         UnsavedVariables :> {}, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> 1}}})), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"DynamicLocal", "(", {
           {"{", {"x", "\[Assign]", "1"}, "}"}, ",", {
@@ -114,19 +114,19 @@ Document({
                "Enabled", "\[Rule]", "False"}}, ")"}, ",", {
              "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
        SectionLabel -> "in [7]:"), 
-      Section(BoxData(DynamicLocalBox({Global`x}, {
+      Section(BoxData(DynamicLocalBox({$Context`x}, {
           "{", {
            InterpretationBox({
-             SetterBox(Dynamic(Global`x), 1, "1", Enabled -> False), 
-             "\[InvisibleSpace]", SetterBox(Dynamic(Global`x), 2, "2", 
+             SetterBox(Dynamic($Context`x), 1, "1", Enabled -> False), 
+             "\[InvisibleSpace]", SetterBox(Dynamic($Context`x), 2, "2", 
               Enabled -> False), "\[InvisibleSpace]", 
-             SetterBox(Dynamic(Global`x), 3, "3", Enabled -> False)}, 
-            SetterBar(Dynamic(Global`x), {1, 2, 3}, Enabled -> False), 
-            Editable -> False), ",", DynamicBox(ToBoxes(Global`x))}, "}"}, 
+             SetterBox(Dynamic($Context`x), 3, "3", Enabled -> False)}, 
+            SetterBar(Dynamic($Context`x), {1, 2, 3}, Enabled -> False), 
+            Editable -> False), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
          Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {{
-           OwnRules(Global`x):= {HoldPattern(Global`x) :> 1}}})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+         UnsavedVariables :> {}, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> 1}}})), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
     SectionGroup({
       Section(BoxData({"Table", "(", {{"Checkbox", "(", "c", ")"}, ",", {
            "c", "\[Rule]", {"{", {"True", ",", "False", ",", "Undefined"}, 
@@ -149,101 +149,101 @@ Document({
     SectionGroup({
       Section(BoxData({"Table", "(", {{"ToggleSwitch", "(", "c", ")"}, ",", {
            "c", "\[Rule]", {"{", {"True", ",", "False", ",", "Undefined"}, 
-            "}"}}}, ")"}), "Input", SectionLabel -> "in [7]:"), 
+            "}"}}}, ")"}), "Input", SectionLabel -> "in [10]:"), 
       Section(BoxData({"{", {TemplateBox({True}, "ToggleSwitch"), ",", 
           TemplateBox({False}, "ToggleSwitch"), ",", 
           TemplateBox({Undefined}, "ToggleSwitch")}, "}"}), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
     SectionGroup({
       Section(
        BoxData({"Table", "(", {
           {"ToggleSwitch", "(", {"c", ",", {"Enabled", "\[Rule]", "False"}}, 
            ")"}, ",", {"c", "\[Rule]", {
             "{", {"True", ",", "False", ",", "Undefined"}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [13]:"), 
+       "Input", SectionLabel -> "in [11]:"), 
       Section(
        BoxData({"{", {TemplateBox({True, Enabled -> False}, "ToggleSwitch"), 
           ",", TemplateBox({False, Enabled -> False}, "ToggleSwitch"), ",", 
           TemplateBox({Undefined, Enabled -> False}, "ToggleSwitch")}, "}"}), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [13]:")}, 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
      All), SectionGroup({
       Section(BoxData({"Table", "(", {{"RadioButton", "(", "c", ")"}, ",", {
            "c", "\[Rule]", {"{", {"True", ",", "False"}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [10]:"), 
+       "Input", SectionLabel -> "in [12]:"), 
       Section(
        BoxData({"{", {RadioButtonBox(True), ",", RadioButtonBox(False)}, 
          "}"}), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [10]:")}, All), 
+       SectionLabel -> "out [12]:")}, All), 
     SectionGroup({
       Section(
        BoxData({"Table", "(", {
           {"RadioButton", "(", {"c", ",", "True", ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}, ",", {
            "c", "\[Rule]", {"{", {"True", ",", "False"}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [11]:"), 
+       "Input", SectionLabel -> "in [13]:"), 
       Section(BoxData({"{", {RadioButtonBox(True, True, Enabled -> False), 
           ",", RadioButtonBox(False, True, Enabled -> False)}, "}"}), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [13]:")}, 
      All), SectionGroup({
       Section(BoxData({"Table", "(", {{"Opener", "(", "c", ")"}, ",", {
            "c", "\[Rule]", {"{", {"False", ",", "True"}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [12]:"), 
+       "Input", SectionLabel -> "in [14]:"), 
       Section(BoxData({"{", {OpenerBox(False), ",", OpenerBox(True)}, "}"}), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [12]:")}, 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [14]:")}, 
      All), SectionGroup({
       Section(
        BoxData({"Table", "(", {
           {"Opener", "(", {"c", ",", {"Enabled", "\[Rule]", "False"}}, ")"}, 
           ",", {"c", "\[Rule]", {"{", {"False", ",", "True"}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [13]:"), 
+       "Input", SectionLabel -> "in [15]:"), 
       Section(BoxData({"{", {OpenerBox(False, Enabled -> False), ",", 
           OpenerBox(True, Enabled -> False)}, "}"}), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [13]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [15]:")}, All), 
     SectionGroup({
       Section(BoxData({"Tooltip", "(", {
           {"Panel", "(", ComplexStringBox("\"abc\""), ")"}, ",", 
           ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
-       SectionLabel -> "in [14]:"), 
+       SectionLabel -> "in [16]:"), 
       Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"abc\"")), 
          ComplexStringBox("\"Tip\""))), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [14]:")}, All), 
+       SectionLabel -> "out [16]:")}, All), 
     SectionGroup({
       Section(BoxData({"Tooltip", "(", {
           {"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}, ",", 
           ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
-       SectionLabel -> "in [15]:"), 
+       SectionLabel -> "in [17]:"), 
       Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"abc\""), 
           Enabled -> False), ComplexStringBox("\"Tip\""))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [15]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
     SectionGroup({
       Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
            "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, ")"}), 
-       "Input", SectionLabel -> "in [16]:"), 
+       "Input", SectionLabel -> "in [18]:"), 
       Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 
          Appearance -> "Popup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [16]:")}, All), 
+       SectionLabel -> "out [18]:")}, All), 
     SectionGroup({
       Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
            "Appearance", "\[Rule]", ComplexStringBox("\"Tooltip\"")}}, ")"}), 
-       "Input", SectionLabel -> "in [17]:"), 
+       "Input", SectionLabel -> "in [19]:"), 
       Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 
          Appearance -> "Tooltip")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [17]:")}, All), 
+       SectionLabel -> "out [19]:")}, All), 
     SectionGroup({Section("Input Field", "Subsection"), 
       SectionGroup({
         Section(BoxData({"InputField", "(", {
             ComplexStringBox("\"Hallo\""), ",", "String"}, ")"}), "Input", 
-         SectionLabel -> "in [18]:"), 
+         SectionLabel -> "in [20]:"), 
         Section(BoxData(InputFieldBox("Hallo", String)), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [18]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [20]:")}, All), 
       SectionGroup({
         Section(BoxData({"InputField", "(", {
             ComplexStringBox("\"Hallo\""), ",", "String", ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
-         SectionLabel -> "in [19]:"), 
+         SectionLabel -> "in [21]:"), 
         Section(BoxData(InputFieldBox("Hallo", String, Enabled -> False)), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [19]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [21]:")}, 
        All), SectionGroup({
         Section(
          BoxData({"Panel", "(", {
@@ -257,7 +257,7 @@ Document({
                     ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, 
                "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
              "Appearance", "\[Rule]", ComplexStringBox("\"AddressBand\"")}}, 
-           ")"}), "Input", SectionLabel -> "in [20]:"), 
+           ")"}), "Input", SectionLabel -> "in [22]:"), 
         Section(
          BoxData(
           PanelBox(
@@ -267,18 +267,18 @@ Document({
                ButtonBox(ComplexStringBox("\"Go\""), 
                 ButtonFrame -> "AddressBandGo")}}, GridBoxColumnSpacing -> 0), 
             "Grid"), Appearance -> "AddressBand")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [20]:")}, All)}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [22]:")}, All)}, All), 
     SectionGroup({Section("Tab view", "Subsection"), 
       SectionGroup({
         Section(BoxData({"TabView", "(", {
             "{", {{"a", "\[Rule]", {"a", SuperscriptBox("2")}}, ",", {
               "b", "\[Rule]", {"b", SuperscriptBox("2")}}}, "}"}, ")"}), 
-         "Input", SectionLabel -> "in [21]:"), 
+         "Input", SectionLabel -> "in [23]:"), 
         Section(
          BoxData(TemplateBox({
             {"a" -> {"a", SuperscriptBox("2")}, 
              "b" -> {"b", SuperscriptBox("2")}}, 1}, "TabView")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [21]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [23]:")}, All), 
       SectionGroup({
         Section(BoxData({"DynamicLocal", "(", {
             {"{", {"idx", "\[Assign]", "1"}, "}"}, ",", {
@@ -346,26 +346,26 @@ Document({
                       "\n", {"Appearance", "\[Rule]", 
                        ComplexStringBox("\"TabBody\"")}}}, ")"}, "}"}}}, "}"}, 
                ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input", 
-         SectionLabel -> "in [22]:"), 
-        Section(BoxData(DynamicLocalBox({Global`idx}, 
+         SectionLabel -> "in [24]:"), 
+        Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
             GridBox({
               {PanelBox(
                 TagBox(
                  GridBox({
-                   {SetterBox(Dynamic(Global`idx, {
+                   {SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 1, 
                      ComplexStringBox("\"Tab 1\""), 
                      ButtonFrame -> "TabHeadAbuttingRight"), 
-                    SetterBox(Dynamic(Global`idx, {
+                    SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 2, 
                      ComplexStringBox("\"Tab 2\""), 
                      ButtonFrame -> "TabHeadAbuttingLeftRight"), 
-                    SetterBox(Dynamic(Global`idx, {
+                    SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 3, 
                      ComplexStringBox("\"Tab 3\""), 
                      ButtonFrame -> "TabHeadAbuttingLeftRight"), 
-                    SetterBox(Dynamic(Global`idx, {
+                    SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 4, 
                      ComplexStringBox("\"Tab 4\""), 
                      ButtonFrame -> "TabHeadAbuttingLeft"), 
@@ -379,11 +379,11 @@ Document({
                   2 -> ComplexStringBox("\"content 2\""), 
                   3 -> ComplexStringBox("\"content 3\""), 
                   4 -> ComplexStringBox("\"content 4\"")}, 
-                 Dynamic(Global`idx)), Appearance -> "TabBody")}}, 
+                 Dynamic($Context`idx)), Appearance -> "TabBody")}}, 
              GridBoxRowSpacing -> 0), "Grid"), Initialization :> None, 
            Deinitialization :> None, UnsavedVariables :> {}, 
-           DynamicLocalValues :> {{
-             OwnRules(Global`idx):= {HoldPattern(Global`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [22]:")}, 
+           DynamicLocalValues :> {
+             {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [24]:")}, 
        All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
  Visible -> True)

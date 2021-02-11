@@ -549,7 +549,7 @@ PMATH_API void *pmath_mem_alloc(size_t size) {
   return p;
 }
 
-static void *pmath_mem_calloc(size_t num, size_t size) {
+PMATH_PRIVATE void *pmath_mem_calloc(size_t num, size_t size) {
   void *result;
   pmath_bool_t error = FALSE;
   size_t total_size = _pmath_mul_size(num, size, &error);

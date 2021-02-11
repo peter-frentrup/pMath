@@ -359,7 +359,7 @@ namespace richmath {
       /// Adjust the to be selected range.
       virtual VolatileSelection normalize_selection(int start, int end);
       
-      /// Modify an expression before it gets evaluated in a child box' Dynamic() context. 
+      /// Modify an expression before it gets evaluated, e.g. in a child box' Dynamic() context. 
       virtual Expr prepare_dynamic(Expr expr);
 
       /// Notifies that a Dynamic value changed which this box is tracking.

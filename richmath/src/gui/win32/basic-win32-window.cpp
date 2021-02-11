@@ -917,7 +917,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
-    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+//    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
     if(Win32Themes::DwmGetWindowAttribute) {
       RECT rect = {};
@@ -975,7 +975,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
-    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+//    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
     if(Win32Themes::DwmGetWindowAttribute) {
       if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT)))) {

@@ -1158,6 +1158,9 @@
 		<Unit filename="src/pmath-builtins/gui/refresh.c">
 			<Option compilerVar="CC" />
 		</Unit>
+		<Unit filename="src/pmath-builtins/gui/suppress-dynamic-tracking-block.c">
+			<Option compilerVar="CC" />
+		</Unit>
 		<Unit filename="src/pmath-builtins/io/binaryread.c">
 			<Option compilerVar="CC" />
 		</Unit>

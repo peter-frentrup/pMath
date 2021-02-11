@@ -46,6 +46,7 @@
 #include <eval/binding.h>
 #include <eval/current-value.h>
 #include <eval/dynamic.h>
+#include <eval/eval-contexts.h>
 #include <eval/job.h>
 #include <eval/server.h>
 
@@ -93,6 +94,7 @@ extern pmath_symbol_t richmath_FE_DollarStylesheetDirectory;
 
 namespace richmath { namespace strings {
   extern String EmptyString;
+  extern String DollarContext_namespace;
   extern String Text;
 }}
 
@@ -400,6 +402,19 @@ void Application::gui_print_section(Expr expr) {
   
   Document *doc = FrontEndObject::find_cast<Document>(pos.document_id);
   Section *sect = FrontEndObject::find_cast<Section>( pos.section_id);
+  
+  String ctx;
+  if(sect)
+    ctx = EvaluationContexts::resolve_context(sect);
+  else if(doc)
+    ctx = EvaluationContexts::resolve_context(doc);
+  else
+    ctx = EvaluationContexts::current();
+  
+  expr = EvaluationContexts::replace_symbol_namespace(
+           std::move(expr), 
+           ctx,
+           strings::DollarContext_namespace);
   
   if(doc && doc->get_own_style(Editable)) {
     int index;

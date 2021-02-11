@@ -20,14 +20,15 @@ Document({
                      "}"}}, ")"}, ")"}, ",", {"Background", "\[Rule]", {
                    "Dynamic", "(", "col", ")"}}}, ")"}, ",", {
                 "Dynamic", "(", "x", ")"}}, "}"})), "Input", 
-           SectionLabel -> "in [6]:"), 
+           SectionLabel -> "in [1]:"), 
           Section(
            BoxData({
              "{", {
-              StyleBox(SliderBox(Dynamic(Global`x, {
-                  (Global`col:= Green) &, Automatic, (Global`col:= Blue) &}), 
-                0 .. 1), Background -> Dynamic(Global`col), 
-               StripOnInput -> False), ",", DynamicBox(ToBoxes(Global`x))}, 
-             "}"}), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [7]:")}, All)}, All)}, All)}, All)}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+              StyleBox(SliderBox(Dynamic($Context`x, {
+                  ($Context`col:= Green) &, Automatic, (
+                    $Context`col:= Blue) &}), 0 .. 1), 
+               Background -> Dynamic($Context`col), StripOnInput -> False), 
+              ",", DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
+ Visible -> True)
