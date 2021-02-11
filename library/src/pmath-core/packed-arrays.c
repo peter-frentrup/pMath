@@ -35,7 +35,7 @@ extern pmath_symbol_t pmath_System_Real;
 extern pmath_symbol_t pmath_System_Row;
 extern pmath_symbol_t pmath_System_Skeleton;
 extern pmath_symbol_t pmath_System_Undefined;
-extern pmath_symbol_t pmath_Developer_PackedArrayForm;
+extern pmath_symbol_t pmath_Developer_FromPackedArray;
 
 /* -------------------------------------------------------------------------- */
 
@@ -1486,11 +1486,11 @@ static void unpack_array_message(pmath_packed_array_t array){
   pmath_t dimensions = _pmath_dimensions(array, SIZE_MAX);
   
   if(pmath_is_symbol(caller)) {
-    pmath_message(pmath_Developer_PackedArrayForm, "punpack", 2, caller, dimensions);
+    pmath_message(pmath_Developer_FromPackedArray, "punpack", 2, caller, dimensions);
   }
   else {
     pmath_unref(caller);
-    pmath_message(pmath_Developer_PackedArrayForm, "punpack1", 1, dimensions);
+    pmath_message(pmath_Developer_FromPackedArray, "punpack1", 1, dimensions);
   }
 }
 
