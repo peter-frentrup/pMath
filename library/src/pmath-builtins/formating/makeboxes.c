@@ -48,6 +48,7 @@ extern pmath_symbol_t pmath_System_AutoNumberFormating;
 extern pmath_symbol_t pmath_System_BaseForm;
 extern pmath_symbol_t pmath_System_Bold;
 extern pmath_symbol_t pmath_System_BoxRotation;
+extern pmath_symbol_t pmath_System_ButtonBox;
 extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
@@ -83,6 +84,7 @@ extern pmath_symbol_t pmath_System_EvaluationSequence;
 extern pmath_symbol_t pmath_System_Factorial;
 extern pmath_symbol_t pmath_System_Factorial2;
 extern pmath_symbol_t pmath_System_False;
+extern pmath_symbol_t pmath_System_FillBox;
 extern pmath_symbol_t pmath_System_FontColor;
 extern pmath_symbol_t pmath_System_FontSize;
 extern pmath_symbol_t pmath_System_FontSlant;
@@ -170,6 +172,8 @@ extern pmath_symbol_t pmath_System_Or;
 extern pmath_symbol_t pmath_System_OutputForm;
 extern pmath_symbol_t pmath_System_Overscript;
 extern pmath_symbol_t pmath_System_OverscriptBox;
+extern pmath_symbol_t pmath_System_PaneBox;
+extern pmath_symbol_t pmath_System_PanelBox;
 extern pmath_symbol_t pmath_System_Pattern;
 extern pmath_symbol_t pmath_System_Pi;
 extern pmath_symbol_t pmath_System_Piecewise;
@@ -184,6 +188,7 @@ extern pmath_symbol_t pmath_System_Precedes;
 extern pmath_symbol_t pmath_System_PrecedesEqual;
 extern pmath_symbol_t pmath_System_PrecedesTilde;
 extern pmath_symbol_t pmath_System_PureArgument;
+extern pmath_symbol_t pmath_System_RadicalBox;
 extern pmath_symbol_t pmath_System_Range;
 extern pmath_symbol_t pmath_System_Repeated;
 extern pmath_symbol_t pmath_System_ReverseElement;
@@ -197,6 +202,7 @@ extern pmath_symbol_t pmath_System_RowSpacing;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_RuleDelayed;
 extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_SetterBox;
 extern pmath_symbol_t pmath_System_Shallow;
 extern pmath_symbol_t pmath_System_Short;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
@@ -233,6 +239,8 @@ extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
 extern pmath_symbol_t pmath_System_Times;
 extern pmath_symbol_t pmath_System_TimesBy;
+extern pmath_symbol_t pmath_System_TooltipBox;
+extern pmath_symbol_t pmath_System_TransformationBox;
 extern pmath_symbol_t pmath_System_True;
 extern pmath_symbol_t pmath_System_Underoverscript;
 extern pmath_symbol_t pmath_System_UnderoverscriptBox;
@@ -248,11 +256,7 @@ extern pmath_symbol_t pmath_System_UpperRightArrow;
 
 //{ operator precedence of boxes ...
 
-static pmath_token_t pmath_token_analyse_output(
-  const uint16_t *str,
-  int             len,
-  int            *prec)
-{
+static pmath_token_t pmath_token_analyse_output(const uint16_t *str, int len, int *prec) {
   pmath_token_t tok = pmath_token_analyse(str, len, prec);
   
   if(prec && *prec == PMATH_PREC_INC)
@@ -2128,10 +2132,37 @@ static pmath_t times_to_boxes(
 
 //{ boxforms valid for OutputForm ...
 
-static pmath_t baseform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t baseform_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t column_to_boxes(             pmath_thread_t thread, pmath_expr_t expr);
+static void emit_gridbox_options(pmath_expr_t expr, size_t start); // expr wont be freed
+static pmath_t grid_to_boxes(               pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t fullform(                    pmath_thread_t thread, pmath_t obj);
+static pmath_t fullform_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t holdform_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t inputform_to_boxes(          pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t strip_interpretation_boxes(pmath_t expr);
+static pmath_t interpretation_to_boxes(     pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t linearsolvefunction_to_boxes(pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t longform_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t matrixform(                  pmath_thread_t thread, pmath_t obj);
+static pmath_t matrixform_to_boxes(         pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t outputform_to_boxes(         pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t packedarrayform_to_boxes(    pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t row_to_boxes(                pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t shallow_to_boxes(            pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t skeleton_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
+
+struct emit_stylebox_options_info_t {
+  pmath_bool_t have_explicit_strip_on_input;
+};
+
+static pmath_bool_t emit_stylebox_options(pmath_expr_t expr, size_t start, struct emit_stylebox_options_info_t *info); // expr wont be freed
+
+static pmath_t style_to_boxes(                    pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t underscript_or_overscript_to_boxes(pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t underoverscript_to_boxes(          pmath_thread_t thread, pmath_expr_t expr);
+
+static pmath_t baseform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 2) {
     pmath_t base = pmath_expr_get_item(expr, 2);
     pmath_t item;
@@ -2159,10 +2190,7 @@ static pmath_t baseform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t column_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t column_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr wont be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t list = pmath_expr_get_item(expr, 1);
     
@@ -2196,10 +2224,7 @@ static pmath_t column_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static void emit_gridbox_options(
-  pmath_expr_t expr, // wont be freed
-  size_t       start
-) {
+static void emit_gridbox_options(pmath_expr_t expr, size_t start) { // expr wont be freed
   size_t i;
   
   for(i = start; i <= pmath_expr_length(expr); ++i) {
@@ -2235,10 +2260,7 @@ static void emit_gridbox_options(
   }
 }
 
-static pmath_t grid_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t grid_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) >= 1) {
     pmath_expr_t obj = pmath_options_extract(expr, 1);
     
@@ -2293,10 +2315,7 @@ static pmath_t grid_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t fullform(
-  pmath_thread_t thread,
-  pmath_t        obj     // will be freed
-) {
+static pmath_t fullform(pmath_thread_t thread, pmath_t obj) { // obj will be freed
   if(pmath_is_expr(obj)) {
     pmath_expr_t result;
     size_t len;
@@ -2354,10 +2373,7 @@ static pmath_t fullform(
   return object_to_boxes(thread, obj);
 }
 
-static pmath_t fullform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t fullform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t result;
     uint8_t old_boxform = thread->boxform;
@@ -2386,10 +2402,7 @@ static pmath_t fullform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t holdform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t holdform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t obj = pmath_expr_get_item(expr, 1);
     
@@ -2401,10 +2414,7 @@ static pmath_t holdform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t inputform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t inputform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t result;
     uint8_t old_boxform = thread->boxform;
@@ -2435,10 +2445,78 @@ static pmath_t inputform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t interpretation_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t strip_interpretation_boxes(pmath_t expr) {
+  if(pmath_is_expr(expr)) {
+    size_t first_box;
+    size_t last_box;
+    size_t len = pmath_expr_length(expr);
+    pmath_t head = pmath_expr_get_item(expr, 0);
+    pmath_unref(head);
+    
+    if(pmath_same(head, pmath_System_InterpretationBox) && len == 2) {
+      pmath_t box = pmath_expr_extract_item(expr, 1);
+      pmath_unref(expr);
+      return strip_interpretation_boxes(box);
+      //return pmath_expr_set_item(expr, 2, PMATH_NULL);
+    }
+    
+    // TODO: PaneSelectorBox, TemplateBox
+    
+    if(      pmath_same(head, pmath_System_ComplexStringBox)  || 
+             pmath_same(head, pmath_System_List)              || 
+             pmath_same(head, PMATH_NULL))
+    {
+      first_box = 1;
+      last_box = len;
+    }
+    else if( pmath_same(head, pmath_System_ButtonBox)         ||
+             pmath_same(head, pmath_System_FillBox)           ||
+             pmath_same(head, pmath_System_FrameBox)          ||
+             pmath_same(head, pmath_System_GridBox)           ||
+             pmath_same(head, pmath_System_PaneBox)           ||
+             pmath_same(head, pmath_System_PanelBox)          ||
+             pmath_same(head, pmath_System_RotationBox)       ||
+             pmath_same(head, pmath_System_SqrtBox)           ||
+             pmath_same(head, pmath_System_SubscriptBox)      ||
+             pmath_same(head, pmath_System_SuperscriptBox)    ||
+             pmath_same(head, pmath_System_TagBox)            ||
+             pmath_same(head, pmath_System_TransformationBox))
+    {
+      first_box = 1;
+      last_box = 1;
+    }
+    else if( pmath_same(head, pmath_System_OverscriptBox)     ||
+             pmath_same(head, pmath_System_RadicalBox)        ||
+             pmath_same(head, pmath_System_SubsuperscriptBox) ||
+             pmath_same(head, pmath_System_TooltipBox)        ||
+             pmath_same(head, pmath_System_UnderscriptBox))
+    {
+      first_box = 1;
+      last_box = 2;
+    }
+    else if( pmath_same(head, pmath_System_UnderoverscriptBox)) {
+      first_box = 1;
+      last_box = 3;
+    }
+    else if( pmath_same(head, pmath_System_SetterBox)) {
+      first_box = 3;
+      last_box = 3;
+    }
+    else {
+      first_box = 1;
+      last_box = 0;
+    }
+    
+    for(; first_box <= last_box; ++first_box) {
+      pmath_t box = pmath_expr_extract_item(expr, first_box);
+      box = strip_interpretation_boxes(box);
+      expr = pmath_expr_set_item(expr, first_box, box);
+    }
+  }
+  return expr;
+}
+
+static pmath_t interpretation_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 2) {
     pmath_t form  = pmath_expr_get_item(expr, 1);
     pmath_t value = pmath_expr_get_item(expr, 2);
@@ -2448,17 +2526,14 @@ static pmath_t interpretation_to_boxes(
     
     return pmath_expr_new_extended(
              pmath_ref(pmath_System_InterpretationBox), 2,
-             form,
+             strip_interpretation_boxes(form),
              value);
   }
   
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t linearsolvefunction_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t linearsolvefunction_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 2) {
     pmath_t skeleton = pmath_expr_new_extended(
                          pmath_ref(pmath_System_Skeleton), 1,
@@ -2470,10 +2545,7 @@ static pmath_t linearsolvefunction_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t longform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t longform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t obj = pmath_expr_get_item(expr, 1);
     pmath_bool_t old_longform = thread->longform;
@@ -2489,10 +2561,7 @@ static pmath_t longform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t matrixform(
-  pmath_thread_t thread,
-  pmath_t        obj     // will be freed
-) {
+static pmath_t matrixform(pmath_thread_t thread, pmath_t obj) { // obj will be freed
   size_t rows, cols;
   
   if(_pmath_is_matrix(obj, &rows, &cols, FALSE) && rows > 0 && cols > 0) {
@@ -2548,10 +2617,7 @@ static pmath_t matrixform(
   return object_to_boxes(thread, obj);
 }
 
-static pmath_t matrixform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t matrixform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t obj;
     
@@ -2564,10 +2630,7 @@ static pmath_t matrixform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t outputform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t outputform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t result;
     uint8_t old_boxform = thread->boxform;
@@ -2579,17 +2642,14 @@ static pmath_t outputform_to_boxes(
     
     return pmath_expr_new_extended(
              pmath_ref(pmath_System_InterpretationBox), 2,
-             result,
+             strip_interpretation_boxes(result),
              expr);
   }
   
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t packedarrayform_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t packedarrayform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t obj = pmath_expr_get_item(expr, 1);
     pmath_bool_t old_paf = thread->use_packedarrayform_boxes;
@@ -2605,10 +2665,7 @@ static pmath_t packedarrayform_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t row_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t row_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   size_t len = pmath_expr_length(expr);
   
   assert(thread != NULL);
@@ -2679,10 +2736,7 @@ static pmath_t row_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t shallow_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t shallow_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   pmath_t item;
   size_t maxdepth = 4;
   size_t maxlength = 10;
@@ -2747,10 +2801,7 @@ static pmath_t shallow_to_boxes(
   return object_to_boxes(thread, item);
 }
 
-static pmath_t short_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t short_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   pmath_t item;
   double pagewidth = 72;
   double lines = 1;
@@ -2808,10 +2859,7 @@ static pmath_t short_to_boxes(
   return _pmath_shorten_boxes(item, (long)pagewidth);
 }
 
-static pmath_t skeleton_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t skeleton_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_expr_t obj = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
@@ -2826,15 +2874,7 @@ static pmath_t skeleton_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-struct emit_stylebox_options_info_t {
-  pmath_bool_t have_explicit_strip_on_input;
-};
-
-static pmath_bool_t emit_stylebox_options(
-  pmath_expr_t                         expr,  // wont be freed
-  size_t                               start,
-  struct emit_stylebox_options_info_t *info
-) {
+static pmath_bool_t emit_stylebox_options(pmath_expr_t expr, size_t start, struct emit_stylebox_options_info_t *info) { // expr wont be freed
   size_t i;
   
   for(i = start; i <= pmath_expr_length(expr); ++i) {
@@ -2932,10 +2972,7 @@ static pmath_bool_t emit_stylebox_options(
   return TRUE;
 }
 
-static pmath_t style_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t style_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   size_t len = pmath_expr_length(expr);
   
   if(len >= 1) {
@@ -2969,10 +3006,7 @@ static pmath_t style_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t underscript_or_overscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t underscript_or_overscript_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 2) {
     pmath_t head = pmath_expr_get_item(expr, 0);
     pmath_t base = pmath_expr_get_item(expr, 1);
@@ -2998,10 +3032,7 @@ static pmath_t underscript_or_overscript_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
-static pmath_t underoverscript_to_boxes(
-  pmath_thread_t thread,
-  pmath_expr_t   expr    // will be freed
-) {
+static pmath_t underoverscript_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 3) {
     pmath_t base  = pmath_expr_get_item(expr, 1);
     pmath_t under = pmath_expr_get_item(expr, 2);
@@ -3638,7 +3669,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         
         obj = pmath_expr_new_extended(
                 pmath_ref(pmath_System_InterpretationBox), 2,
-                format,
+                strip_interpretation_boxes(format),
                 obj);
         return pmath_evaluate(obj);
       }
@@ -3782,7 +3813,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
     
     return pmath_expr_new_extended(
              pmath_ref(pmath_System_InterpretationBox), 2,
-             boxes,
+             strip_interpretation_boxes(boxes),
              obj);
   }
 }

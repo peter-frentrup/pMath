@@ -97,14 +97,12 @@ Document({
                    CheckboxBox(Undefined)}, "RowDefault")}, {
                  TemplateBox({1, {1, 2, 3}}, "RadioButtonBarSimple")}, {
                  TagBox(DynamicLocalBox({System`Private`GuiBoxes`var}, 
-                   InterpretationBox(InterpretationBox({
-                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, "1"), 
-                      "\[InvisibleSpace]", 
-                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, "2"), 
-                      "\[InvisibleSpace]", 
-                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
-                       "3")}, SetterBar(Dynamic(System`Private`GuiBoxes`var), {
-                       1, 2, 3}), Editable -> False), 
+                   InterpretationBox({
+                     SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, "1"), 
+                     "\[InvisibleSpace]", 
+                     SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, "2"), 
+                     "\[InvisibleSpace]", 
+                     SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, "3")}, 
                     SetterBar(System`Private`GuiBoxes`var, {1, 2, 3}), 
                     Editable -> False), Initialization :> None, 
                    Deinitialization :> None, UnsavedVariables :> {}, 
@@ -165,16 +163,14 @@ Document({
                     CheckboxBox(Undefined)}, "RowDefault")}, {
                   TemplateBox({1, {1, 2, 3}}, "RadioButtonBarSimple")}, {
                   TagBox(DynamicLocalBox({System`Private`GuiBoxes`var}, 
-                    InterpretationBox(InterpretationBox({
-                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, 
-                        "1"), "\[InvisibleSpace]", 
-                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, 
-                        "2"), "\[InvisibleSpace]", 
-                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
-                        "3")}, SetterBar(Dynamic(System`Private`GuiBoxes`var), 
-                       {1, 2, 3}), Editable -> False), 
-                     SetterBar(System`Private`GuiBoxes`var, {1, 2, 3}), 
-                     Editable -> False), Initialization :> None, 
+                    InterpretationBox({
+                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 1, "1"), 
+                      "\[InvisibleSpace]", 
+                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 2, "2"), 
+                      "\[InvisibleSpace]", 
+                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
+                       "3")}, SetterBar(System`Private`GuiBoxes`var, {
+                       1, 2, 3}), Editable -> False), Initialization :> None, 
                     Deinitialization :> None, UnsavedVariables :> {}, 
                     DynamicLocalValues :> {
                       {OwnRules(System`Private`GuiBoxes`var):= {
