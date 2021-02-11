@@ -911,7 +911,6 @@ void GraphicsBox::paint(Context &context) {
   float h = _extents.height();
   
   if(!cached_bitmap.is_valid() || !cached_bitmap->is_compatible(context.canvas())) {
-    Canvas *old_canvas = &context.canvas();
     cached_bitmap = new Buffer(context.canvas(), CAIRO_FORMAT_ARGB32, _extents);
     if(!cached_bitmap->canvas()) 
       cached_bitmap = nullptr;

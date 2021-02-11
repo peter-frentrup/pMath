@@ -607,7 +607,6 @@ void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_valu
     }
   }
   
-  float h = self._extents.height();
   ControlPainter::std->draw_container(
     ControlContext::find(&self),
     context.canvas(),

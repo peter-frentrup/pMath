@@ -801,7 +801,7 @@ TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box, bool same_documen
   int nesting = 0;
   int max_doc_recursion = 10;
   while(box) {
-    if(auto slot = dynamic_cast<TemplateBoxSlot*>(box)) {
+    if(dynamic_cast<TemplateBoxSlot*>(box)) {
       ++nesting;
     }
     else if(auto tb = dynamic_cast<TemplateBox*>(box)) {

@@ -797,7 +797,7 @@ Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
 }
 
 Box *GridBox::move_logical(LogicalDirection direction, bool jumping, int *index) {
-  if(*index < count() || *index == count() && direction == LogicalDirection::Backward)
+  if(*index < count() || (*index == count() && direction == LogicalDirection::Backward))
     return base::move_logical(direction, jumping, index);
   
   if(*index > length() && direction == LogicalDirection::Backward) { // from outside backwards
@@ -1150,7 +1150,7 @@ void GridBox::ensure_valid_boxes() {
 }
 
 GridSelectionStrategy GridBox::best_selection_strategy_for_drag_source(const VolatileSelection &sel) {
-  if(auto seq = dynamic_cast<AbstractSequence*>(sel.box)) {
+  if(dynamic_cast<AbstractSequence*>(sel.box)) {
     if(auto grid = dynamic_cast<GridBox*>(sel.contained_box())) {
       return GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOrGaps, grid->rows(), grid->cols());
     }
