@@ -1,5 +1,6 @@
 #include <boxes/sliderbox.h>
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
@@ -21,6 +22,7 @@ namespace std {
 
 namespace richmath {
   namespace strings {
+    extern String DollarContext_namespace;
     extern String DownArrow;
     extern String Slider;
     extern String ToggleSwitchChecked;
@@ -505,22 +507,29 @@ void SliderBox::Impl::finish_update_value() {
   Expr val;
   if(self.dynamic.get_value(&val)) {
     if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
-      self.range_value = 0;
+      self.range_value = self.range_min;
       assign_dynamic_value(self.range_value, true, true, true);
     }
-    else if(self.range[0] == richmath_System_List) {
-      self.range_value = self.range_min;
+    else{
+      val = EvaluationContexts::replace_symbol_namespace(
+              std::move(val), 
+              EvaluationContexts::resolve_context(&self), 
+              strings::DollarContext_namespace);
       
-      size_t i;
-      for(i = 1; i <= self.range.expr_length(); ++i) {
-        if(self.range[i] == val) {
-          self.range_value = i;
-          break;
+      if(self.range[0] == richmath_System_List) {
+        self.range_value = self.range_min;
+        
+        size_t i;
+        for(i = 1; i <= self.range.expr_length(); ++i) {
+          if(self.range[i] == val) {
+            self.range_value = i;
+            break;
+          }
         }
       }
-    }
-    else {
-      self.range_value = val.to_double(NAN);
+      else {
+        self.range_value = val.to_double(NAN);
+      }
     }
   }
 }
