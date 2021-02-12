@@ -1,4 +1,5 @@
 #include <boxes/openerbox.h>
+#include <eval/eval-contexts.h>
 
 
 using namespace richmath;
@@ -9,6 +10,7 @@ extern pmath_symbol_t richmath_System_True;
 
 namespace richmath {
   namespace strings {
+    extern String DollarContext_namespace;
     extern String Opener;
   }
   
@@ -16,7 +18,10 @@ namespace richmath {
     public:
       Impl(OpenerBox &_self) : self(_self) {}
       
+      void finish_update_value();
       Expr next_value_when_clicked();
+      ContainerType calc_type(Expr result);
+      Expr to_literal();
       
     private:
       OpenerBox &self;
@@ -27,7 +32,8 @@ namespace richmath {
 
 OpenerBox::OpenerBox()
   : base(OpenerTriangleClosed),
-    mouse_down_value(PMATH_UNDEFINED)
+    mouse_down_value(PMATH_UNDEFINED),
+    is_initialized(false)
 {
   dynamic.init(this, Expr());
 }
@@ -50,8 +56,9 @@ bool OpenerBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   Expr dyn_expr = expr[1];
   if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    must_update = true;
-    dynamic = dyn_expr;
+    dynamic        = dyn_expr;
+    must_update    = true;
+    is_initialized = false;
   }
   
   finish_load_from_object(std::move(expr));
@@ -59,14 +66,7 @@ bool OpenerBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void OpenerBox::paint(Context &context) {
-  if(must_update) {
-    must_update = false;
-    
-    Expr val;
-    if(dynamic.get_value(&val))
-      type = calc_type(val);
-  }
-  
+  Impl(*this).finish_update_value();
   base::paint(context);
 }
 
@@ -79,7 +79,7 @@ Expr OpenerBox::to_pmath(BoxOutputFlags flags) {
   
   Expr val;
   if(has(flags, BoxOutputFlags::Literal))
-    val = to_literal();
+    val = Impl(*this).to_literal();
   else
     val = dynamic.expr();
     
@@ -105,43 +105,14 @@ void OpenerBox::reset_style() {
 }
 
 void OpenerBox::dynamic_finished(Expr info, Expr result) {
-  type = calc_type(result);
+  type = Impl(*this).calc_type(result);
   
   request_repaint_all();
 }
 
-Expr OpenerBox::to_literal() {
-  if(!dynamic.is_dynamic())
-    return dynamic.expr();
-  
-  switch(type) {
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
-      return Symbol(richmath_System_True);
-      
-    case CheckboxUnchecked:
-    case OpenerTriangleClosed:
-    case RadioButtonUnchecked:
-      return Symbol(richmath_System_False);
-    
-    default:
-      break;
-  }
-  
-  return dynamic.get_value_now();
-}
-
 VolatileSelection OpenerBox::dynamic_to_literal(int start, int end) {
-  dynamic = to_literal();
+  dynamic = Impl(*this).to_literal();
   return {this, start, end};
-}
-
-ContainerType OpenerBox::calc_type(Expr result) {
-  if(result == richmath_System_True)
-    return OpenerTriangleOpened;
-  
-  return OpenerTriangleClosed;
 }
 
 void OpenerBox::on_mouse_down(MouseEvent &event) {
@@ -182,11 +153,72 @@ void OpenerBox::click() {
 
 //{ class OpenerBox::Impl ...
 
+void OpenerBox::Impl::finish_update_value() {
+  if(!self.must_update)
+    return;
+  
+  self.must_update = false;
+  
+  bool was_initialized = self.is_initialized;
+  self.is_initialized = true;
+  
+  Expr val;
+  if(self.dynamic.get_value(&val)) {
+    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+      val = Symbol(richmath_System_False);
+      
+      self.dynamic.assign(val, true, true, true);
+    }
+    else {
+      val = EvaluationContexts::replace_symbol_namespace(
+              std::move(val), 
+              EvaluationContexts::resolve_context(&self), 
+              strings::DollarContext_namespace);
+    }
+
+    self.type = calc_type(val);
+  }
+}
+
 Expr OpenerBox::Impl::next_value_when_clicked() {
   if(self.type == OpenerTriangleOpened) 
     return Symbol(richmath_System_False);
   else 
     return Symbol(richmath_System_True);
+}
+
+ContainerType OpenerBox::Impl::calc_type(Expr result) {
+  if(result == richmath_System_True)
+    return OpenerTriangleOpened;
+  
+  return OpenerTriangleClosed;
+}
+
+Expr OpenerBox::Impl::to_literal() {
+  if(!self.dynamic.is_dynamic())
+    return self.dynamic.expr();
+  
+  switch(self.type) {
+    case CheckboxChecked:
+    case OpenerTriangleOpened:
+    case RadioButtonChecked:
+      return Symbol(richmath_System_True);
+      
+    case CheckboxUnchecked:
+    case OpenerTriangleClosed:
+    case RadioButtonUnchecked:
+      return Symbol(richmath_System_False);
+    
+    default:
+      break;
+  }
+  
+  Expr val = self.dynamic.get_value_now();
+  val = EvaluationContexts::replace_symbol_namespace(
+          std::move(val),
+          EvaluationContexts::resolve_context(&self),
+          strings::DollarContext_namespace);
+  return val;
 }
 
 //} ... class OpenerBox::Impl

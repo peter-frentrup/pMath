@@ -30,12 +30,9 @@ namespace richmath {
       virtual void click() override;
       
     private:
-      ContainerType calc_type(Expr result);
-      Expr to_literal();
-      
-    private:
       Dynamic dynamic;
-      Expr mouse_down_value;
+      Expr    mouse_down_value;
+      bool    is_initialized;
   };
 }
 
