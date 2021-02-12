@@ -7,6 +7,7 @@
 
 namespace richmath {
   class SetterBox final : public AbstractButtonBox {
+      class Impl;
       using base = AbstractButtonBox;
     public:
       explicit SetterBox(MathSequence *content = nullptr);
@@ -36,12 +37,10 @@ namespace richmath {
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SetterBox; }
     
     private:
-      Expr to_literal();
-    
-    private:
       Dynamic dynamic;
       Expr    value;
       
+      bool is_initialized;
       bool must_update;
       bool is_down;
   };

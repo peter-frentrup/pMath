@@ -1,6 +1,7 @@
 #include <boxes/setterbox.h>
 
 #include <boxes/mathsequence.h>
+#include <eval/eval-contexts.h>
 
 using namespace richmath;
 
@@ -8,14 +9,29 @@ extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_SetterBox;
 
-namespace richmath { namespace strings {
-  extern String Setter;
-}}
+namespace richmath { 
+  class SetterBox::Impl {
+    public:
+      Impl(SetterBox &self) : self{self} {}
+      
+      void finish_update_value();
+      Expr to_literal();
+    
+    private:
+      SetterBox &self;
+  };
+
+  namespace strings {
+    extern String DollarContext_namespace;
+    extern String Setter;
+  }
+}
 
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
   : base(content, PaletteButton),
+    is_initialized(false),
     must_update(true),
     is_down(false)
 {
@@ -37,8 +53,9 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    must_update = true;
-    dynamic     = expr[1];
+    dynamic        = expr[1];
+    must_update    = true;
+    is_initialized = false;
   }
   
   value   = expr[2];
@@ -68,15 +85,7 @@ ControlState SetterBox::calc_state(Context &context) {
 }
 
 void SetterBox::paint(Context &context) {
-  if(must_update) {
-    must_update = false;
-    
-    Expr dyn_val;
-    if(dynamic.get_value(&dyn_val)) {
-      is_down = (dyn_val == value);
-    }
-  }
-  
+  Impl(*this).finish_update_value();
   base::paint(context);
 }
 
@@ -88,7 +97,7 @@ Expr SetterBox::to_pmath(BoxOutputFlags flags) {
   Gather g;
   
   if(has(flags, BoxOutputFlags::Literal))
-    g.emit(to_literal());
+    g.emit(Impl(*this).to_literal());
   else
     g.emit(dynamic.expr());
   
@@ -147,23 +156,53 @@ void SetterBox::dynamic_finished(Expr info, Expr result) {
   }
 }
 
-Expr SetterBox::to_literal() {
-  if(!dynamic.is_dynamic())
-    return dynamic.expr();
-  
-  if(is_down)
-    return value;
-  
-  if(value == richmath_System_False)
-    return Symbol(richmath_System_None);
-  
-  return Symbol(richmath_System_False);
-}
-
 VolatileSelection SetterBox::dynamic_to_literal(int start, int end) {
-  dynamic = to_literal();
+  dynamic = Impl(*this).to_literal();
   return {this, start, end};
 }
 
 //} ... class SetterBox
 
+//{ class SetterBox::Impl ...
+
+void SetterBox::Impl::finish_update_value() {
+  if(!self.must_update)
+    return;
+    
+  self.must_update = false;
+  
+  bool was_initialized = self.is_initialized;
+  self.is_initialized = true;
+  
+  Expr val;
+  if(self.dynamic.get_value(&val)) {
+    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+      val = self.value;
+      self.dynamic.assign(val, true, true, true);
+    }
+    else {
+      val = EvaluationContexts::replace_symbol_namespace(
+              std::move(val), 
+              EvaluationContexts::resolve_context(&self), 
+              strings::DollarContext_namespace);
+    }
+
+    self.is_down = (val == self.value);
+  }
+
+}
+
+Expr SetterBox::Impl::to_literal() {
+  if(!self.dynamic.is_dynamic())
+    return self.dynamic.expr();
+  
+  if(self.is_down)
+    return self.value;
+  
+  if(self.value == richmath_System_False)
+    return Symbol(richmath_System_None);
+  
+  return Symbol(richmath_System_False);
+}
+
+//} ... class SetterBox::Impl
