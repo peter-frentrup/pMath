@@ -42,19 +42,22 @@ namespace richmath {
       
     public:
       static void get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post);
-      
+      static Expr make_assignment_call(Expr func, Expr name, Expr value);
+
       bool has_pre_or_post_assignment();
       bool has_temporary_assignment();
     
-    public:
       void assign(Expr value, bool pre, bool middle, bool post);
       
-      Expr get_prepared_dynamic(bool *is_dynamic);
+      bool is_dynamic_of(Expr sym);
       Expr get_value_unevaluated();
       Expr get_value_unevaluated(bool *is_dynamic);
       Expr get_value_now();
       void get_value_later(Expr job_info);
       bool get_value(Expr *result, Expr job_info);
+    
+    private:
+      Expr get_prepared_dynamic(bool *is_dynamic);
     
     private:
       Dynamic &self;
@@ -177,9 +180,7 @@ bool Dynamic::get_value(Expr *result, Expr job_info) {
 }
 
 bool Dynamic::is_dynamic_of(Expr sym) {
-  bool is_dyn;
-  Expr dyn = Impl(*this).get_prepared_dynamic(&is_dyn);
-  return is_dyn && dyn[0] == richmath_System_Dynamic && dyn[1] == sym;
+  return Impl(*this).is_dynamic_of(std::move(sym));
 }
 
 //} ... class Dynamic
@@ -333,7 +334,7 @@ bool Dynamic::Impl::has_temporary_assignment() {
   return middle == richmath_System_Temporary;
 }
 
-static Expr make_assignment_call(Expr func, Expr name, Expr value) {
+Expr Dynamic::Impl::make_assignment_call(Expr func, Expr name, Expr value) {
   if(func == richmath_System_Automatic)
     return Call(Symbol(richmath_System_Assign), std::move(name), std::move(value));
   
@@ -420,6 +421,12 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
   run = EvaluationContexts::make_context_block(std::move(run), EvaluationContexts::resolve_context(self.owner()));
   
   Application::interrupt_wait_for_interactive(std::move(run), self._owner, Application::dynamic_timeout);
+}
+
+bool Dynamic::Impl::is_dynamic_of(Expr sym) {
+  bool is_dyn;
+  Expr dyn = get_prepared_dynamic(&is_dyn);
+  return is_dyn && dyn[0] == richmath_System_Dynamic && dyn[1] == sym;
 }
 
 Expr Dynamic::Impl::get_value_unevaluated() {
