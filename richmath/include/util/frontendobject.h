@@ -45,7 +45,7 @@ namespace richmath {
       uint32_t _id;
   };
 
-  class FrontEndObject: public virtual Base {
+  class FrontEndObject: public Base {
     public:
       FrontEndObject();
       virtual ~FrontEndObject();

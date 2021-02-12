@@ -295,14 +295,14 @@ namespace richmath {
       static GridSelectionStrategy selection_strategy;
       static GridSelectionStrategy best_selection_strategy_for_drag_source(const VolatileSelection &sel);
       
-    protected:
-      float rowspacing;
-      float colspacing;
-    
     private:
       void need_pos_vectors();
       void ensure_valid_boxes();
       
+    protected:
+      float rowspacing;
+      float colspacing;
+    
     private:
       Matrix<GridItem*> items;
       Array<float> xpos;
