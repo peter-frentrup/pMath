@@ -136,17 +136,17 @@ Document({
              BoxData({
                "{", {
                 {"Table", "(", {
-                  {"RadioButton", "(", {{"Dynamic", "(", "y", ")"}, ",", "v"}, 
+                  {"RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", "v"}, 
                    ")"}, ",", {"v", "\[Rule]", {
                     "{", {"a", ",", "b", ",", "c"}, "}"}}}, ")"}, ",", {
-                 "Dynamic", "(", "y", ")"}}, "}"}), "Input", 
+                 "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
              SectionLabel -> "in [2]:"), 
             Section(
              BoxData({
-               "{", {{"{", {RadioButtonBox(Dynamic($Context`y), $Context`a), 
-                  ",", RadioButtonBox(Dynamic($Context`y), $Context`b), ",", 
-                  RadioButtonBox(Dynamic($Context`y), $Context`c)}, "}"}, ",", 
-                DynamicBox(ToBoxes($Context`y))}, "}"}), "Output", 
+               "{", {{"{", {RadioButtonBox(Dynamic($Context`x), $Context`a), 
+                  ",", RadioButtonBox(Dynamic($Context`x), $Context`b), ",", 
+                  RadioButtonBox(Dynamic($Context`x), $Context`c)}, "}"}, ",", 
+                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
