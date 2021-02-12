@@ -18,8 +18,8 @@ namespace richmath {
     public:
       Impl(CheckboxBox &_self) : self(_self) {}
       
+      void finish_update_value();
       Expr next_value_when_clicked();
-      
       ContainerType calc_type(Expr result);
       Expr to_literal();
       
@@ -32,7 +32,8 @@ namespace richmath {
 
 CheckboxBox::CheckboxBox()
   : base(CheckboxIndeterminate),
-    mouse_down_value(PMATH_UNDEFINED)
+    mouse_down_value(PMATH_UNDEFINED),
+    is_initialized(false)
 {
   dynamic.init(this, Expr());
 }
@@ -74,8 +75,9 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() >= 1) {
     Expr dyn_expr = expr[1];
     if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
-      must_update = true;
-      dynamic = dyn_expr;
+      dynamic        = dyn_expr;
+      must_update    = true;
+      is_initialized = false;
     }
   }
   else {
@@ -87,14 +89,7 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void CheckboxBox::paint(Context &context) {
-  if(must_update) {
-    must_update = false;
-    
-    Expr val;
-    if(dynamic.get_value(&val))
-      type = Impl(*this).calc_type(val);
-  }
-  
+  Impl(*this).finish_update_value();
   base::paint(context);
 }
 
@@ -189,6 +184,36 @@ void CheckboxBox::click() {
 //} ... class CheckboxBox
 
 //{ class CheckboxBox::Impl ...
+
+void CheckboxBox::Impl::finish_update_value() {
+  if(!self.must_update)
+    return;
+  
+  self.must_update = false;
+  
+  bool was_initialized = self.is_initialized;
+  self.is_initialized = true;
+  
+  Expr val;
+  if(self.dynamic.get_value(&val)) {
+    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+      if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
+        val = self.values[1];
+      else
+        val = Symbol(richmath_System_False);
+      
+      self.dynamic.assign(val, true, true, true);
+    }
+    else {
+      val = EvaluationContexts::replace_symbol_namespace(
+              std::move(val), 
+              EvaluationContexts::resolve_context(&self), 
+              strings::DollarContext_namespace);
+    }
+
+    self.type = calc_type(val);
+  }
+}
 
 Expr CheckboxBox::Impl::next_value_when_clicked() {
   if(self.type == CheckboxChecked) {
