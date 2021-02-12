@@ -47,11 +47,11 @@ namespace richmath {
       ContainerType old_type;
       ControlState  old_state;
       
-      bool mouse_inside;
-      bool mouse_left_down;
-      bool mouse_middle_down;
-      bool mouse_right_down;
-      bool must_update;
+      bool mouse_inside : 1;
+      bool mouse_left_down : 1;
+      bool mouse_middle_down : 1;
+      bool mouse_right_down : 1;
+      bool must_update : 1;
   };
 }
 

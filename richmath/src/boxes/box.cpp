@@ -101,9 +101,9 @@ void AutoMemorySuspension::resume_deletions() {
 
 Box::Box()
   : ActiveStyledObject(),
-    _extents(0, 0, 0),
     _parent_or_limbo_next(nullptr),
-    _index(0)
+    _index(0),
+    _extents(0, 0, 0)
 {
 }
 

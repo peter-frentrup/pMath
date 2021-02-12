@@ -455,9 +455,9 @@ namespace richmath {
       void finish_load_from_object(Expr expr);
       
     protected:
-      BoxSize             _extents;
       TintedPtr<Box, Box> _parent_or_limbo_next;
       int                 _index;
+      BoxSize             _extents;
   };
   
   class DummyBox: public Box {
