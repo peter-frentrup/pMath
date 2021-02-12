@@ -1,4 +1,5 @@
 #include <boxes/checkboxbox.h>
+#include <eval/eval-contexts.h>
 
 using namespace richmath;
 
@@ -9,6 +10,7 @@ extern pmath_symbol_t richmath_System_True;
 
 namespace richmath {
   namespace strings {
+    extern String DollarContext_namespace;
     extern String Checkbox;
   }
 
@@ -17,6 +19,9 @@ namespace richmath {
       Impl(CheckboxBox &_self) : self(_self) {}
       
       Expr next_value_when_clicked();
+      
+      ContainerType calc_type(Expr result);
+      Expr to_literal();
       
     private:
       CheckboxBox &self;
@@ -87,7 +92,7 @@ void CheckboxBox::paint(Context &context) {
     
     Expr val;
     if(dynamic.get_value(&val))
-      type = calc_type(val);
+      type = Impl(*this).calc_type(val);
   }
   
   base::paint(context);
@@ -102,7 +107,7 @@ Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
   
   Expr val;
   if(has(flags, BoxOutputFlags::Literal))
-    val = to_literal();
+    val = Impl(*this).to_literal();
   else
     val = dynamic.expr();
     
@@ -137,62 +142,14 @@ void CheckboxBox::reset_style() {
 }
 
 void CheckboxBox::dynamic_finished(Expr info, Expr result) {
-  type = calc_type(result);
+  type = Impl(*this).calc_type(result);
   
   request_repaint_all();
 }
 
-Expr CheckboxBox::to_literal() {
-  if(!dynamic.is_dynamic())
-    return dynamic.expr();
-  
-  switch(type) {
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
-      if(values.expr_length() == 2)
-        return values[2];
-      else
-        return Symbol(richmath_System_True);
-      
-    case CheckboxUnchecked:
-    case OpenerTriangleClosed:
-    case RadioButtonUnchecked:
-      if(values.expr_length() == 2)
-        return values[1];
-      else
-        return Symbol(richmath_System_False);
-    
-    default:
-      break;
-  }
-  
-  return dynamic.get_value_now();
-}
-
 VolatileSelection CheckboxBox::dynamic_to_literal(int start, int end) {
-  dynamic = to_literal();
+  dynamic = Impl(*this).to_literal();
   return {this, start, end};
-}
-
-ContainerType CheckboxBox::calc_type(Expr result) {
-  if(values.is_null()) {
-    if(result == richmath_System_False)
-      return CheckboxUnchecked;
-      
-    if(result == richmath_System_True)
-      return CheckboxChecked;
-  }
-  
-  if(values.expr_length() == 2) {
-    if(result == values[1])
-      return CheckboxUnchecked;
-      
-    if(result == values[2])
-      return CheckboxChecked;
-  }
-  
-  return CheckboxIndeterminate;
 }
 
 void CheckboxBox::on_mouse_down(MouseEvent &event) {
@@ -246,6 +203,59 @@ Expr CheckboxBox::Impl::next_value_when_clicked() {
     else
       return Symbol(richmath_System_True);
   }
+}
+
+ContainerType CheckboxBox::Impl::calc_type(Expr result) {
+  if(self.values.is_null()) {
+    if(result == richmath_System_False)
+      return CheckboxUnchecked;
+      
+    if(result == richmath_System_True)
+      return CheckboxChecked;
+  }
+  
+  if(self.values.expr_length() == 2) {
+    if(result == self.values[1])
+      return CheckboxUnchecked;
+      
+    if(result == self.values[2])
+      return CheckboxChecked;
+  }
+  
+  return CheckboxIndeterminate;
+}
+
+Expr CheckboxBox::Impl::to_literal() {
+  if(!self.dynamic.is_dynamic())
+    return self.dynamic.expr();
+  
+  switch(self.type) {
+    case CheckboxChecked:
+    case OpenerTriangleOpened:
+    case RadioButtonChecked:
+      if(self.values.expr_length() == 2)
+        return self.values[2];
+      else
+        return Symbol(richmath_System_True);
+      
+    case CheckboxUnchecked:
+    case OpenerTriangleClosed:
+    case RadioButtonUnchecked:
+      if(self.values.expr_length() == 2)
+        return self.values[1];
+      else
+        return Symbol(richmath_System_False);
+    
+    default:
+      break;
+  }
+  
+  Expr val = self.dynamic.get_value_now();
+  val = EvaluationContexts::replace_symbol_namespace(
+          std::move(val),
+          EvaluationContexts::resolve_context(&self),
+          strings::DollarContext_namespace);
+  return val;
 }
 
 //} ... class CheckboxBox::Impl

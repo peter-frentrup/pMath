@@ -31,10 +31,6 @@ namespace richmath {
       virtual void click() override;
       
     protected:
-      ContainerType calc_type(Expr result);
-      Expr to_literal();
-      
-    protected:
       Dynamic dynamic;
       Expr    values;
       Expr    mouse_down_value;
