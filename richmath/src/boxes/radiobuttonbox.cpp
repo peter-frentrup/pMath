@@ -1,4 +1,5 @@
 #include <boxes/radiobuttonbox.h>
+#include <eval/eval-contexts.h>
 
 using namespace richmath;
 
@@ -7,15 +8,31 @@ extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_RadioButtonBox;
 extern pmath_symbol_t richmath_System_True;
 
-namespace richmath { namespace strings {
-  extern String RadioButton;
-}}
+namespace richmath { 
+  class RadioButtonBox::Impl {
+    public:
+      Impl(RadioButtonBox &self) : self{self} {}
+      
+      void finish_update_value();
+      ContainerType calc_type(Expr result);
+      Expr to_literal();
+    
+    private:
+      RadioButtonBox &self;
+  };
+
+  namespace strings {
+    extern String DollarContext_namespace;
+    extern String RadioButton;
+  }
+}
 
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
   : base(RadioButtonUnchecked),
-    first_paint(true)
+    first_paint(true),
+    is_initialized(false)
 {
   dynamic.init(this, Expr());
 }
@@ -46,8 +63,9 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() >= 1) {
     Expr dyn_expr = expr[1];
     if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
-      must_update = true;
-      dynamic = dyn_expr;
+      dynamic        = dyn_expr;
+      must_update    = true;
+      is_initialized = false;
     }
   }
   else
@@ -61,15 +79,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void RadioButtonBox::paint(Context &context) {
-  if(must_update) {
-    must_update = false;
-    
-    Expr val;
-    if(dynamic.get_value(&val)) {
-      type = calc_type(val);
-      //pmath_debug_print("[%d RadioButtonBox::paint: calc_type -> %d]\n", id(), (int)type);
-    }
-  }
+  Impl(*this).finish_update_value();
   
   if(type == RadioButtonChecked || first_paint) {
     old_type = type;
@@ -89,7 +99,7 @@ Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
   
   Expr val;
   if(has(flags, BoxOutputFlags::Literal))
-    val = to_literal();
+    val = Impl(*this).to_literal();
   else
     val = dynamic.expr();
     
@@ -120,42 +130,14 @@ void RadioButtonBox::reset_style() {
 }
 
 void RadioButtonBox::dynamic_finished(Expr info, Expr result) {
-  type = calc_type(result);
-  //pmath_debug_print("[%d RadioButtonBox::dynamic_finished: calc_type -> %d]\n", id(), (int)type);
+  type = Impl(*this).calc_type(result);
   
   request_repaint_all();
 }
 
-Expr RadioButtonBox::to_literal() {
-  if(!dynamic.is_dynamic())
-    return dynamic.expr();
-  
-  switch(type) {
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
-      return value;
-    
-    default:
-      break;
-  }
-  
-  if(value == richmath_System_False)
-    return Symbol(richmath_System_None);
-  
-  return Symbol(richmath_System_False);
-}
-
 VolatileSelection RadioButtonBox::dynamic_to_literal(int start, int end) {
-  dynamic = to_literal();
+  dynamic = Impl(*this).to_literal();
   return {this, start, end};
-}
-
-ContainerType RadioButtonBox::calc_type(Expr result) {
-  if(result == value)
-    return RadioButtonChecked;
-    
-  return RadioButtonUnchecked;
 }
 
 void RadioButtonBox::on_mouse_down(MouseEvent &event) {
@@ -173,3 +155,60 @@ void RadioButtonBox::click() {
 }
 
 //} ... class RadioButtonBox
+
+//{ class RadioButtonBox::Impl ...
+
+void RadioButtonBox::Impl::finish_update_value() {
+  if(!self.must_update) 
+    return;
+  
+  self.must_update = false;
+  
+  bool was_initialized = self.is_initialized;
+  self.is_initialized = true;
+  
+  Expr val;
+  if(self.dynamic.get_value(&val)) {
+    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+      val = self.value;
+      self.dynamic.assign(val, true, true, true);
+    }
+    else {
+      val = EvaluationContexts::replace_symbol_namespace(
+              std::move(val), 
+              EvaluationContexts::resolve_context(&self), 
+              strings::DollarContext_namespace);
+    }
+
+    self.type = calc_type(val);
+  }
+}
+
+ContainerType RadioButtonBox::Impl::calc_type(Expr result) {
+  if(result == self.value)
+    return RadioButtonChecked;
+    
+  return RadioButtonUnchecked;
+}
+
+Expr RadioButtonBox::Impl::to_literal() {
+  if(!self.dynamic.is_dynamic())
+    return self.dynamic.expr();
+  
+  switch(self.type) {
+    case CheckboxChecked:
+    case OpenerTriangleOpened:
+    case RadioButtonChecked:
+      return self.value;
+    
+    default:
+      break;
+  }
+  
+  if(self.value == richmath_System_False)
+    return Symbol(richmath_System_None);
+  
+  return Symbol(richmath_System_False);
+}
+
+//} ... class RadioButtonBox::Impl
