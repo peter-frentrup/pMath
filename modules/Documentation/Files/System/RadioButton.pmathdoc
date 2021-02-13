@@ -45,12 +45,13 @@ Document({
           Section(TextData({"Dynamically change the value of ", 
              StyleBox("x", "Arg"), ":"}), "ExampleText"), 
           SectionGroup({
-            Section(BoxData({{"x", "\[Assign]", "1"}, ";", {
-                "{", {{"RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", 
-                   "1"}, ")"}, ",", {"RadioButton", "(", {
-                   {"Dynamic", "(", "x", ")"}, ",", "2"}, ")"}, ",", {
-                  "RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", "3"}, 
-                  ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}}), "Input", 
+            Section(
+             BoxData({
+               "{", {{"RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", 
+                  "1"}, ")"}, ",", {"RadioButton", "(", {
+                  {"Dynamic", "(", "x", ")"}, ",", "2"}, ")"}, ",", {
+                 "RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", "3"}, 
+                 ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(BoxData({"{", {RadioButtonBox(Dynamic($Context`x), 1), 
                 ",", RadioButtonBox(Dynamic($Context`x), 2), ",", 
@@ -81,10 +82,11 @@ Document({
            " uses ", TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
            " with the same dynamic variable:"}), "ExampleText"), 
         SectionGroup({
-          Section(BoxData({{"x", "\[Assign]", "1"}, ";", {
-              "{", {{"RadioButtonBar", "(", {{"Dynamic", "(", "x", ")"}, ",", {
-                  "{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}, ",", {
-                "Dynamic", "(", "x", ")"}}, "}"}}), "Input", 
+          Section(
+           BoxData({
+             "{", {{"RadioButtonBar", "(", {{"Dynamic", "(", "x", ")"}, ",", {
+                 "{", {"1", ",", "2", ",", "3"}, "}"}}, ")"}, ",", {
+               "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(
            BoxData({
@@ -93,19 +95,20 @@ Document({
              "}"}), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
-          Section(BoxData({{"y", "\[Assign]", "1"}, ";", {
-              "{", {
-               {"Table", "(", {
-                 {"RadioButton", "(", {{"Dynamic", "(", "y", ")"}, ",", "v"}, 
-                  ")"}, ",", {"v", "\[Rule]", {"{", {"1", ",", "2", ",", "3"}, 
-                   "}"}}}, ")"}, ",", {"Dynamic", "(", "y", ")"}}, "}"}}), 
+          Section(
+           BoxData({
+             "{", {
+              {"Table", "(", {
+                {"RadioButton", "(", {{"Dynamic", "(", "x", ")"}, ",", "v"}, 
+                 ")"}, ",", {"v", "\[Rule]", {"{", {"1", ",", "2", ",", "3"}, 
+                  "}"}}}, ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}), 
            "Input", SectionLabel -> "in [2]:"), 
           Section(
            BoxData({
-             "{", {{"{", {RadioButtonBox(Dynamic($Context`y), 1), ",", 
-                RadioButtonBox(Dynamic($Context`y), 2), ",", 
-                RadioButtonBox(Dynamic($Context`y), 3)}, "}"}, ",", 
-              DynamicBox(ToBoxes($Context`y))}, "}"}), "Output", 
+             "{", {{"{", {RadioButtonBox(Dynamic($Context`x), 1), ",", 
+                RadioButtonBox(Dynamic($Context`x), 2), ",", 
+                RadioButtonBox(Dynamic($Context`x), 3)}, "}"}, ",", 
+              DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 

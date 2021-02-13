@@ -1,0 +1,98 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Checkbox", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Checkbox"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details and Options", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({{TemplateBox({"Checkbox"}, "ReferenceHyperlink"), 
+            "(", ")"}, " is equivalent to ", {
+            TemplateBox({"Checkbox"}, "ReferenceHyperlink"), "(", 
+            TemplateBox({"False"}, "ReferenceHyperlink"), ")"}, "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Default states of a ", 
+           TemplateBox({"Checkbox"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"{", {{"Checkbox", "(", "False", ")"}, ",", {
+               "Checkbox", "(", "True", ")"}}, "}"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {CheckboxBox(False), ",", CheckboxBox(True)}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use custom values for states:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Checkbox", "(", {"1", ",", {"{", {"1", ",", "2"}, "}"}}, 
+                 ")"}, ",", {"Checkbox", "(", {
+                  "2", ",", {"{", {"1", ",", "2"}, "}"}}, ")"}, ",", {
+                 "Checkbox", "(", {"3", ",", {"{", {"1", ",", "2"}, "}"}}, 
+                 ")"}}, "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {CheckboxBox(1, {1, 2}), ",", 
+                CheckboxBox(2, {1, 2}), ",", CheckboxBox(3, {1, 2})}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Dynamically change a value:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
+                 "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {CheckboxBox(Dynamic($Context`x)), ",", 
+                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section(TextData({"Disable interactive manipulation with ", {
+              TemplateBox({"Enabled"}, "ReferenceHyperlink"), "\[Rule]", 
+              TemplateBox({"False"}, "ReferenceHyperlink")}, ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {
+                {"Checkbox", "(", {"False", ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}, ",", {
+                 "Checkbox", "(", {"True", ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {CheckboxBox(False, {False, True}, Enabled -> False), ",", 
+                CheckboxBox(True, {False, True}, Enabled -> False)}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Opener"}, "ReferenceHyperlink"), 
+           " and ", TemplateBox({"ToggleSwitch"}, "ReferenceHyperlink"), 
+           " are alternatives for ", TemplateBox({"Checkbox"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"{", {{"Opener", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+              ",", {"ToggleSwitch", "(", {"Dynamic", "(", "x", ")"}, ")"}, 
+              ",", {"Checkbox", "(", {"Dynamic", "(", "x", ")"}, ")"}}, "}"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {OpenerBox(Dynamic($Context`x)), ",", 
+              TemplateBox({Dynamic($Context`x)}, "ToggleSwitch"), ",", 
+              CheckboxBox(Dynamic($Context`x))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Opener"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ToggleSwitch"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"RadioButton"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Button"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
