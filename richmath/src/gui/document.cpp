@@ -4225,6 +4225,9 @@ bool Document::Impl::is_inside_selection(const VolatileSelection &sub, bool was_
   if(!self.selection_box())
     return false;
   
+  if(self.selection_length() == 0)
+    return false;
+  
   if(sub.box && sub.box != &self && sub.start == sub.end) {
     if(was_inside_start)
       return self.selection_now().visually_contains(VolatileSelection(sub.box, sub.start, sub.start + 1));
