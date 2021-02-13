@@ -194,24 +194,27 @@ void CheckboxBox::Impl::finish_update_value() {
   self.is_initialized(true);
   
   Expr val;
-  if(self.dynamic.get_value(&val)) {
-    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
-      if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
-        val = self.values[1];
-      else
-        val = Symbol(richmath_System_False);
-      
-      self.dynamic.assign(val, true, true, true);
-    }
-    else {
-      val = EvaluationContexts::replace_symbol_namespace(
-              std::move(val), 
-              EvaluationContexts::resolve_context(&self), 
-              strings::DollarContext_namespace);
-    }
-
-    self.type = calc_type(val);
+  if(!self.dynamic.get_value(&val))
+    return;
+    
+  if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+    if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
+      val = self.values[1];
+    else
+      val = Symbol(richmath_System_False);
+    
+    self.dynamic.assign(val, true, true, true);
+    
+    if(!self.dynamic.get_value(&val)) 
+      return;
   }
+  
+  val = EvaluationContexts::replace_symbol_namespace(
+          std::move(val), 
+          EvaluationContexts::resolve_context(&self), 
+          strings::DollarContext_namespace);
+
+  self.type = calc_type(val);
 }
 
 Expr CheckboxBox::Impl::next_value_when_clicked() {

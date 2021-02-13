@@ -502,32 +502,35 @@ void SliderBox::Impl::finish_update_value() {
   self.is_initialized(true);
   
   Expr val;
-  if(self.dynamic.get_value(&val)) {
-    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
-      self.range_value = self.range_min;
-      assign_dynamic_value(self.range_value, true, true, true);
-    }
-    else{
-      val = EvaluationContexts::replace_symbol_namespace(
-              std::move(val), 
-              EvaluationContexts::resolve_context(&self), 
-              strings::DollarContext_namespace);
-      
-      if(self.range[0] == richmath_System_List) {
-        self.range_value = self.range_min;
-        
-        size_t i;
-        for(i = 1; i <= self.range.expr_length(); ++i) {
-          if(self.range[i] == val) {
-            self.range_value = i;
-            break;
-          }
-        }
+  if(!self.dynamic.get_value(&val)) 
+    return;
+  
+  if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+    self.range_value = self.range_min;
+    assign_dynamic_value(self.range_value, true, true, true);
+    
+    if(!self.dynamic.get_value(&val))
+      return;
+  }
+    
+  val = EvaluationContexts::replace_symbol_namespace(
+          std::move(val), 
+          EvaluationContexts::resolve_context(&self), 
+          strings::DollarContext_namespace);
+  
+  if(self.range[0] == richmath_System_List) {
+    self.range_value = self.range_min;
+    
+    size_t i;
+    for(i = 1; i <= self.range.expr_length(); ++i) {
+      if(self.range[i] == val) {
+        self.range_value = i;
+        break;
       }
-      else {
-        self.range_value = val.to_double(NAN);
-      }
     }
+  }
+  else {
+    self.range_value = val.to_double(NAN);
   }
 }
 

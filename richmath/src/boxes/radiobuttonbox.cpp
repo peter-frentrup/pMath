@@ -167,20 +167,23 @@ void RadioButtonBox::Impl::finish_update_value() {
   self.is_initialized(true);
   
   Expr val;
-  if(self.dynamic.get_value(&val)) {
-    if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
-      val = self.value;
-      self.dynamic.assign(val, true, true, true);
-    }
-    else {
-      val = EvaluationContexts::replace_symbol_namespace(
-              std::move(val), 
-              EvaluationContexts::resolve_context(&self), 
-              strings::DollarContext_namespace);
-    }
-
-    self.type = calc_type(val);
+  if(!self.dynamic.get_value(&val))
+    return;
+    
+  if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
+    val = self.value;
+    self.dynamic.assign(val, true, true, true);
+    
+    if(!self.dynamic.get_value(&val))
+      return;
   }
+
+  val = EvaluationContexts::replace_symbol_namespace(
+          std::move(val), 
+          EvaluationContexts::resolve_context(&self), 
+          strings::DollarContext_namespace);
+
+  self.type = calc_type(val);
 }
 
 ContainerType RadioButtonBox::Impl::calc_type(Expr result) {
