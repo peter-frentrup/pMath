@@ -8,11 +8,11 @@ namespace richmath {
   class AbstractButtonBox: public ContainerWidgetBox {
       using base = ContainerWidgetBox;
     protected:
-      explicit AbstractButtonBox(MathSequence *content = nullptr, ContainerType _type = PushButton);
+      explicit AbstractButtonBox(MathSequence *content = nullptr, ContainerType _type = ContainerType::PushButton);
     
       virtual void resize_default_baseline(Context &context) override;
       
-      virtual ContainerType default_container_type() { return PushButton; }
+      virtual ContainerType default_container_type() { return ContainerType::PushButton; }
       
     public:
       virtual bool expand(const BoxSize &size) override;

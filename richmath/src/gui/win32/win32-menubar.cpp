@@ -850,7 +850,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         *result = CDRF_DODEFAULT;
                       
                       bool hot_tracking = true;
-                      ControlState state = Normal;
+                      ControlState state = ControlState::Normal;
                       if(GetForegroundWindow() == _window->hwnd()) {
                         BOOL ht;
                         if(SystemParametersInfoW(SPI_GETHOTTRACKING, 0, &ht, FALSE))
@@ -894,21 +894,21 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
                         
                         if((info.fsState & TBSTATE_CHECKED) || (draw->nmcd.uItemState & CDIS_CHECKED)) {
                           if(hot_tracking && (int)draw->nmcd.dwItemSpec == hot_item)
-                            state = PressedHovered;
+                            state = ControlState::PressedHovered;
                           else
-                            state = Pressed;
+                            state = ControlState::Pressed;
                         }
                         else if(hot_tracking && (int)draw->nmcd.dwItemSpec == hot_item)
-                          state = Hovered; // Hot
+                          state = ControlState::Hovered; // ControlState::Hot
                       }
                       else {
                         if( current_item == (int)draw->nmcd.dwItemSpec ||
                             next_item == (int)draw->nmcd.dwItemSpec) 
                         {
-                          state = Pressed;
+                          state = ControlState::Pressed;
                         }
                         else if(hot_tracking && hot_item == (int)draw->nmcd.dwItemSpec) 
-                          state = Hovered;
+                          state = ControlState::Hovered;
                       }
                       
                       Win32ControlPainter::win32_painter.draw_menubar_itembg(
@@ -1090,8 +1090,8 @@ bool Win32Menubar::Impl::try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF c
       
       const wchar_t *symbol;
       switch(state) {
-        case Pressed:        symbol = PinnedSymbol; break;
-        case PressedHovered: symbol = UnpinSymbol; break;
+        case ControlState::Pressed:        symbol = PinnedSymbol; break;
+        case ControlState::PressedHovered: symbol = UnpinSymbol; break;
         default:             symbol = PinSymbol; break;
       }
       

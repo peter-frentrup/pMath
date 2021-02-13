@@ -71,7 +71,7 @@ MathGtkAttachedPopupWindow::MathGtkAttachedPopupWindow(Document *owner, Box *anc
   _hscrollbar{nullptr},
   _vscrollbar{nullptr},
   _content_area{new MathGtkPopupContentArea(this, owner, anchor)},
-  _appearance{NoContainerType},
+  _appearance{ContainerType::None},
   _active{false}
 {
 }
@@ -186,13 +186,13 @@ void MathGtkAttachedPopupWindow::invalidate_options() {
   switch(content()->get_own_style(WindowFrame)) {
     default: 
     case WindowFrameNone: 
-      _appearance = NoContainerType;
+      _appearance = ContainerType::None;
       gtk_widget_set_app_paintable(_widget, false);
       gtk_container_set_border_width(GTK_CONTAINER(_widget), 0);
       break;
       
     case WindowFrameThin:
-      _appearance = PopupPanel;
+      _appearance = ContainerType::PopupPanel;
       gtk_widget_set_app_paintable(_widget, true);
       gtk_container_set_border_width(GTK_CONTAINER(_widget), 1);
       break;
@@ -399,7 +399,7 @@ bool MathGtkAttachedPopupWindow::on_draw(cairo_t *cr) {
     rect.add_rect_path(canvas);
     canvas.clip();
     
-    ControlPainter::std->draw_container(*this, canvas, _appearance, Normal, rect);
+    ControlPainter::std->draw_container(*this, canvas, _appearance, ControlState::Normal, rect);
   }
   
   return false;

@@ -18,7 +18,7 @@ namespace richmath { namespace strings {
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
   : AbstractStyleBox(content),
     type(_type),
-    old_state(Normal),
+    old_state(ControlState::Normal),
     mouse_inside(false),
     mouse_left_down(false),
     mouse_middle_down(false),
@@ -30,23 +30,23 @@ ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *conten
 
 ControlState ContainerWidgetBox::calc_state(Context &context) {
   if(!enabled())
-    return Disabled;
+    return ControlState::Disabled;
   
   if(context.selection.id == id() && context.active)
-    return Pressed;
+    return ControlState::Pressed;
     
   if(context.clicked_box_id == id() && mouse_left_down) {
     if(mouse_inside)
-      return PressedHovered;
+      return ControlState::PressedHovered;
       
-    return Pressed;
+    return ControlState::Pressed;
   }
   
   Box *mo = FrontEndObject::find_cast<Box>(context.mouseover_box_id);
   if(mo && mo->mouse_sensitive() == this)
-    return Hovered;
+    return ControlState::Hovered;
     
-  return Normal;
+  return ControlState::Normal;
 }
 
 void ContainerWidgetBox::resize_default_baseline(Context &context) {
@@ -132,7 +132,7 @@ void ContainerWidgetBox::paint(Context &context) {
   if(very_transparent || !context.canvas().show_only_text)
     base::paint(context);
     
-  if(type == FramelessButton && state == PressedHovered) {
+  if(type == ContainerType::FramelessButton && state == ControlState::PressedHovered) {
     context.canvas().save();
     {
     /* Workaround for Cairo/win32 1.10.0 bug (fixed in 1.12.0?):

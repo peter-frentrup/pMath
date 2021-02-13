@@ -78,7 +78,7 @@ extern pmath_symbol_t richmath_System_SliderBox;
 //{ class SliderBox ...
 
 SliderBox::SliderBox()
-  : EmptyWidgetBox(SliderHorzThumb),
+  : EmptyWidgetBox(ContainerType::HorizontalSliderThumb),
     range_min(0.0),
     range_max(1.0),
     range_step(0.0),
@@ -178,15 +178,15 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 ControlState SliderBox::calc_state(Context &context) {
   if(!enabled())
-    return Disabled;
+    return ControlState::Disabled;
   
   if(mouse_left_down)
-    return PressedHovered;
+    return ControlState::PressedHovered;
     
   if(mouse_inside && mouse_over_thumb)
-    return Hovered;
+    return ControlState::Hovered;
     
-  return Normal;
+  return ControlState::Normal;
 }
 
 bool SliderBox::expand(const BoxSize &size) {
@@ -655,32 +655,32 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
 
 ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
   if(appearance == richmath_System_Automatic || appearance == strings::Slider)
-    return SliderHorzThumb;
+    return ContainerType::HorizontalSliderThumb;
 
   if(appearance == strings::DownArrow)
-    return SliderHorzDownArrowThumb;
+    return ContainerType::HorizontalSliderDownArrowButton;
   
   if(appearance == strings::ToggleSwitchChecked)
-    return ToggleSwitchThumbChecked;
+    return ContainerType::ToggleSwitchThumbChecked;
 
   if(appearance == strings::ToggleSwitchUnchecked)
-    return ToggleSwitchThumbUnchecked;
+    return ContainerType::ToggleSwitchThumbUnchecked;
 
   if(appearance == strings::UpArrow)
-    return SliderHorzUpArrowThumb;
+    return ContainerType::HorizontalSliderUpArrowButton;
 
-  return SliderHorzThumb;
+  return ContainerType::HorizontalSliderThumb;
 }
 
 ContainerType SliderBox::Impl::channel_for_thumb(ContainerType thumb) {
   switch(thumb) {
-    case SliderHorzDownArrowThumb:
-    case SliderHorzThumb:
-    case SliderHorzUpArrowThumb:     return SliderHorzChannel;
-    case ToggleSwitchThumbChecked:   return ToggleSwitchChannelChecked;
-    case ToggleSwitchThumbUnchecked: return ToggleSwitchChannelUnchecked;
+    case ContainerType::HorizontalSliderDownArrowButton:
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::HorizontalSliderUpArrowButton:     return ContainerType::HorizontalSliderChannel;
+    case ContainerType::ToggleSwitchThumbChecked:   return ContainerType::ToggleSwitchChannelChecked;
+    case ContainerType::ToggleSwitchThumbUnchecked: return ContainerType::ToggleSwitchChannelUnchecked;
     
-    default: return NoContainerType;
+    default: return ContainerType::None;
   }
 }
 

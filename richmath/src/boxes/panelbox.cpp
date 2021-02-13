@@ -27,7 +27,7 @@ static ContainerType parse_panel_appearance(Expr expr);
 //{ class PanelBox ...
 
 PanelBox::PanelBox(MathSequence *content)
-  : ContainerWidgetBox(PanelControl, content)
+  : ContainerWidgetBox(ContainerType::Panel, content)
 {
 }
 
@@ -57,17 +57,17 @@ bool PanelBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 ControlState PanelBox::calc_state(Context &context) {
   if(!enabled())
-    return Disabled;
+    return ControlState::Disabled;
   
   if(selection_inside) {
     if(mouse_inside)
-      return PressedHovered;
+      return ControlState::PressedHovered;
       
-    return Pressed;
+    return ControlState::Pressed;
   }
   
   if(mouse_inside)
-    return Hot;
+    return ControlState::Hot;
   
   return base::calc_state(context);
 }
@@ -145,34 +145,34 @@ static ContainerType parse_panel_appearance(Expr expr) {
     String s = std::move(expr);
     
     if(s == strings::Framed)
-      return PanelControl;
+      return ContainerType::Panel;
     
     if(s == strings::Frameless)
-      return NoContainerType;
+      return ContainerType::None;
     
     if(s == strings::AddressBand)
-      return AddressBandBackground;
+      return ContainerType::AddressBandBackground;
     
     if(s == strings::Popup)
-      return PopupPanel;
+      return ContainerType::PopupPanel;
     
     if(s == strings::TabBody)
-      return TabBodyBackground;
+      return ContainerType::TabBodyBackground;
     
     if(s == strings::TabHead)
-      return TabHeadBackground;
+      return ContainerType::TabHeadBackground;
     
     if(s == strings::Tooltip)
-      return TooltipWindow;
+      return ContainerType::TooltipWindow;
     
-    return PanelControl;
+    return ContainerType::Panel;
   }
   
   if(expr == richmath_System_None)
-    return NoContainerType;
+    return ContainerType::None;
     
   if(expr == richmath_System_Automatic)
-    return PanelControl;
+    return ContainerType::Panel;
   
-  return PanelControl;
+  return ContainerType::Panel;
 }

@@ -30,7 +30,7 @@ namespace richmath {
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
-  : base(content, PaletteButton),
+  : base(content, ContainerType::PaletteButton),
     is_initialized(false),
     must_update(true),
     is_down(false)
@@ -73,14 +73,14 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 ControlState SetterBox::calc_state(Context &context) {
   if(is_down) {
     //if(mouse_inside)
-    return PressedHovered;
+    return ControlState::PressedHovered;
     
-    //return Pressed;
+    //return ControlState::Pressed;
   }
   
   ControlState state = base::calc_state(context);
-  //if(state == Normal)
-  //  return Hovered;
+  //if(state == ControlState::Normal)
+  //  return ControlState::Hovered;
   return state;
 }
 

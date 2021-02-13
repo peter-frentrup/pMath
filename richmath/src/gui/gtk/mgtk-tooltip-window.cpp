@@ -228,7 +228,7 @@ void MathGtkTooltipWindow::Impl::update_shape() {
   cairo_t *cr = cairo_create(surface);
   {
     Canvas canvas(cr);
-    MathGtkControlPainter::gtk_painter.draw_container(self, canvas, TooltipWindow, Normal, RectangleF(0, 0, w, h));
+    MathGtkControlPainter::gtk_painter.draw_container(self, canvas, ContainerType::TooltipWindow, ControlState::Normal, RectangleF(0, 0, w, h));
   }
   cairo_destroy(cr);
   

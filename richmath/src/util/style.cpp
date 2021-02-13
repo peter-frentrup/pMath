@@ -224,6 +224,9 @@ namespace {
   
   struct ButtonFrameStyleConverter: public EnumStyleConverter {
     ButtonFrameStyleConverter();
+    
+    protected:
+      void add(ContainerType val, Expr expr) { EnumStyleConverter::add((int)val, std::move(expr)); }
   };
   
   struct ButtonSourceStyleConverter: public EnumStyleConverter {
@@ -3167,28 +3170,28 @@ bool StyleInformation::needs_ruledelayed(Expr expr) {
 
 ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Symbol(richmath_System_Automatic);
-  _expr_to_int.default_value = -1;//PushButton;
+  _expr_to_int.default_value = -1;//ContainerType::PushButton;
   
-  add(NoContainerType,      Symbol(richmath_System_None));
-  add(FramelessButton,      strings::Frameless);
-  add(GenericButton,        String("Generic"));
-  add(PushButton,           String("DialogBox"));
-  add(DefaultPushButton,    String("Defaulted"));
-  add(PaletteButton,        String("Palette"));
-  add(AddressBandGoButton,  String("AddressBandGo"));
-  add(ListViewItemSelected, String("ListViewItemSelected"));
-  add(ListViewItem,         String("ListViewItem"));
+  add(ContainerType::None,                 Symbol(richmath_System_None));
+  add(ContainerType::FramelessButton,      strings::Frameless);
+  add(ContainerType::GenericButton,        String("Generic"));
+  add(ContainerType::PushButton,           String("DialogBox"));
+  add(ContainerType::DefaultPushButton,    String("Defaulted"));
+  add(ContainerType::PaletteButton,        String("Palette"));
+  add(ContainerType::AddressBandGoButton,  String("AddressBandGo"));
+  add(ContainerType::ListViewItemSelected, String("ListViewItemSelected"));
+  add(ContainerType::ListViewItem,         String("ListViewItem"));
   
-  add(OpenerTriangleClosed, String("OpenerTriangleClosed"));
-  add(OpenerTriangleOpened, String("OpenerTriangleOpened"));
+  add(ContainerType::OpenerTriangleClosed, String("OpenerTriangleClosed"));
+  add(ContainerType::OpenerTriangleOpened, String("OpenerTriangleOpened"));
   
-  add(NavigationBack,       String("NavigationBack"));
-  add(NavigationForward,    String("NavigationForward"));
+  add(ContainerType::NavigationBack,       String("NavigationBack"));
+  add(ContainerType::NavigationForward,    String("NavigationForward"));
   
-  add(TabHeadAbuttingRight,     String("TabHeadAbuttingRight"));
-  add(TabHeadAbuttingLeftRight, String("TabHeadAbuttingLeftRight"));
-  add(TabHeadAbuttingLeft,      String("TabHeadAbuttingLeft"));
-  add(TabHead,                  strings::TabHead);
+  add(ContainerType::TabHeadAbuttingRight,     String("TabHeadAbuttingRight"));
+  add(ContainerType::TabHeadAbuttingLeftRight, String("TabHeadAbuttingLeftRight"));
+  add(ContainerType::TabHeadAbuttingLeft,      String("TabHeadAbuttingLeft"));
+  add(ContainerType::TabHead,                  strings::TabHead);
 }
 
 ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() {

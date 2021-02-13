@@ -283,10 +283,10 @@ void Win32ControlPainter::calc_container_size(
   BoxSize        *extents // in/out
 ) {
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(control, type, Normal, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(control, type, ControlState::Normal, &theme_part, &theme_state);
   
   switch(type) {
-    case InputField: {
+    case ContainerType::InputField: {
         if(theme) {
           extents->width +=   3;
           extents->ascent +=  1.5;
@@ -301,7 +301,7 @@ void Win32ControlPainter::calc_container_size(
         round_extents(canvas, extents);
       } return;
       
-    case AddressBandInputField: {
+    case ContainerType::AddressBandInputField: {
         if(theme) {
           extents->width +=   1.5;
           extents->ascent +=  0.75;
@@ -316,7 +316,7 @@ void Win32ControlPainter::calc_container_size(
         round_extents(canvas, extents);
       } return;
     
-    case AddressBandBackground: 
+    case ContainerType::AddressBandBackground: 
       if(!theme) {
         extents->width +=   1.5;
         extents->ascent +=  0.75;
@@ -326,14 +326,14 @@ void Win32ControlPainter::calc_container_size(
       }
       break;
       
-    case ListViewItem:
-    case ListViewItemSelected:
+    case ContainerType::ListViewItem:
+    case ContainerType::ListViewItemSelected:
       ControlPainter::calc_container_size(control, canvas, type, extents);
       round_extents(canvas, extents);
       return;
     
-    case PanelControl:
-    case PopupPanel:
+    case ContainerType::Panel:
+    case ContainerType::PopupPanel:
       if(theme && Win32Themes::GetThemeMargins) {
         extents->width +=   9.0;
         extents->ascent +=  4.5;
@@ -341,7 +341,7 @@ void Win32ControlPainter::calc_container_size(
       }
       break;
       
-    case ProgressIndicatorBackground: {
+    case ContainerType::ProgressIndicatorBackground: {
         if(theme && Win32Themes::GetThemePartSize) {
           SIZE size;
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
@@ -353,7 +353,7 @@ void Win32ControlPainter::calc_container_size(
         }
       } break;
       
-    case ProgressIndicatorBar: {
+    case ContainerType::ProgressIndicatorBar: {
         if(!theme || theme_part != 5) {
           extents->width -=   4.5;
           extents->ascent -=  2.25;
@@ -362,7 +362,7 @@ void Win32ControlPainter::calc_container_size(
         round_extents(canvas, extents);
       } return;
       
-    case SliderHorzChannel: {
+    case ContainerType::HorizontalSliderChannel: {
         extents->width = 8 * extents->height();
         
         float dx = 0;
@@ -378,9 +378,9 @@ void Win32ControlPainter::calc_container_size(
         extents->descent = 0;
       } return;
       
-    case SliderHorzThumb:
-    case SliderHorzDownArrowThumb:
-    case SliderHorzUpArrowThumb: {
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::HorizontalSliderDownArrowButton:
+    case ContainerType::HorizontalSliderUpArrowButton: {
         if(theme && Win32Themes::GetThemePartSize) {
           SIZE size;
           if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
@@ -394,7 +394,7 @@ void Win32ControlPainter::calc_container_size(
         }
       } break;
       
-    case TooltipWindow: {
+    case ContainerType::TooltipWindow: {
         if(!theme) {
           extents->width +=   6;
           extents->ascent +=  3;
@@ -404,13 +404,13 @@ void Win32ControlPainter::calc_container_size(
         }
       } break;
     
-    case NavigationBack:
-    case NavigationForward: 
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward: 
       if(theme && Win32Themes::GetThemePartSize) {
         SIZE size;
         if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
           /* For the Navigation parts, TS_TRUE on 144 DPI monitor gives 45x45 and on
-             96 PDI monitor gives 30, so here the TS_TRUE size is not in terms of the primary monitor DPI (unlike PushButton?)
+             96 PDI monitor gives 30, so here the TS_TRUE size is not in terms of the primary monitor DPI (unlike ContainerType::PushButton?)
            */
           int dpi = control.dpi();
           double scale = 72.0 / dpi;
@@ -423,7 +423,7 @@ void Win32ControlPainter::calc_container_size(
       }
       break;
       
-    case TabHeadBackground:
+    case ContainerType::TabHeadBackground:
       return;
     
     default: break;
@@ -459,7 +459,7 @@ void Win32ControlPainter::calc_container_size(
         extents->descent = size.cy * 0.75 - extents->ascent;
       }
       
-      if(type == TabBodyBackground) {
+      if(type == ContainerType::TabBodyBackground) {
         if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, theme_part, theme_state, 3601, nullptr, &mar))) {
           extents->ascent-= 0.75f * mar.cyTopHeight;
         }
@@ -480,10 +480,10 @@ void Win32ControlPainter::calc_container_radii(
   BoxRadius      *radii
 ) {
   int theme_part, theme_state;
-  HANDLE theme = get_control_theme(control, type, Normal, &theme_part, &theme_state);
+  HANDLE theme = get_control_theme(control, type, ControlState::Normal, &theme_part, &theme_state);
   
   switch(type) {
-    case TooltipWindow: {
+    case ContainerType::TooltipWindow: {
         if(!theme || Win32Themes::is_windows_8_or_newer()) {
           *radii = BoxRadius(0);
           return;
@@ -504,8 +504,8 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
   if(is_very_transparent(control, type, state))
     return Color::None;
     
-  if(type == AddressBandBackground)
-    type = AddressBandInputField;
+  if(type == ContainerType::AddressBandBackground)
+    type = ContainerType::AddressBandInputField;
   
   int theme_part, theme_state;
   HANDLE theme = get_control_theme(control, type, state, &theme_part, &theme_state);
@@ -513,12 +513,12 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
   if(theme && Win32Themes::GetThemeColor) {
     COLORREF col = 0;
     
-    if(type == AddressBandInputField) {
+    if(type == ContainerType::AddressBandInputField) {
       theme = w32cp_cache.addressband_edit_theme(control.dpi(), control.is_using_dark_mode());
       theme_part = 1; // EP_EDITTEXT
       theme_state = 1; // ETS_NORMAL
     }
-    else if(type == InputField) {
+    else if(type == ContainerType::InputField) {
       theme_part = 1; // EP_EDITTEXT
       theme_state = 1; // ETS_NORMAL
     }
@@ -543,57 +543,57 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
   }
   
   switch(type) {
-    case NoContainerType:
-    case FramelessButton:
-    case GenericButton:
+    case ContainerType::None:
+    case ContainerType::FramelessButton:
+    case ContainerType::GenericButton:
       return ControlPainter::control_font_color(control, type, state);
     
-    case PopupPanel:
+    case ContainerType::PopupPanel:
       return control.is_using_dark_mode() ? Color::White : Win32ControlPainterImpl::get_sys_color(COLOR_BTNTEXT);
     
-    case AddressBandGoButton:
-    case PushButton:
-    case DefaultPushButton:
-    case PaletteButton:
-    case PanelControl:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead:
-    case TabBodyBackground: {
+    case ContainerType::AddressBandGoButton:
+    case ContainerType::PushButton:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::PaletteButton:
+    case ContainerType::Panel:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead:
+    case ContainerType::TabBodyBackground: {
         if(Win32ControlPainterImpl::dark_mode_is_fake(type) && control.is_using_dark_mode()) {
           return Color::White;
         }
         return Win32ControlPainterImpl::get_sys_color(COLOR_BTNTEXT);
       } break;
     
-    case ListViewItem:
-      if(state == Normal)
+    case ContainerType::ListViewItem:
+      if(state == ControlState::Normal)
         return Color::None;
       else
-        return Win32ControlPainterImpl::get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+        return Win32ControlPainterImpl::get_sys_color(state == ControlState::Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
-    case AddressBandInputField: // AddressBandBackground
-    case InputField:
-      return Win32ControlPainterImpl::get_sys_color(state == Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
+    case ContainerType::AddressBandInputField: // ContainerType::AddressBandBackground
+    case ContainerType::InputField:
+      return Win32ControlPainterImpl::get_sys_color(state == ControlState::Disabled ? COLOR_GRAYTEXT : COLOR_WINDOWTEXT);
     
-    case ListViewItemSelected:
+    case ContainerType::ListViewItemSelected:
       return Win32ControlPainterImpl::get_sys_color(COLOR_HIGHLIGHTTEXT);
       
-    case TooltipWindow:
+    case ContainerType::TooltipWindow:
       return Win32ControlPainterImpl::get_sys_color(COLOR_INFOTEXT);
       
-    case SliderHorzChannel:
-    case SliderHorzThumb:
-    case SliderHorzDownArrowThumb:
-    case SliderHorzUpArrowThumb:
-    case ProgressIndicatorBackground:
-    case ProgressIndicatorBar:
-    case CheckboxUnchecked:
-    case CheckboxChecked:
-    case CheckboxIndeterminate:
-    case RadioButtonUnchecked:
-    case RadioButtonChecked:
+    case ContainerType::HorizontalSliderChannel:
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::HorizontalSliderDownArrowButton:
+    case ContainerType::HorizontalSliderUpArrowButton:
+    case ContainerType::ProgressIndicatorBackground:
+    case ContainerType::ProgressIndicatorBar:
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::CheckboxIndeterminate:
+    case ContainerType::RadioButtonUnchecked:
+    case ContainerType::RadioButtonChecked:
       break;
   }
   
@@ -602,17 +602,17 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
 
 bool Win32ControlPainter::is_very_transparent(ControlContext &control, ContainerType type, ControlState state) {
   switch(type) {
-    case NoContainerType:
-    case FramelessButton:
-    case GenericButton:
-    case AddressBandInputField:
+    case ContainerType::None:
+    case ContainerType::FramelessButton:
+    case ContainerType::GenericButton:
+    case ContainerType::AddressBandInputField:
       return ControlPainter::is_very_transparent(control, type, state);
     
-    case ListViewItem:
-      return state == Normal;
+    case ContainerType::ListViewItem:
+      return state == ControlState::Normal;
       
-    case PaletteButton:
-    case AddressBandGoButton: {
+    case ContainerType::PaletteButton:
+    case ContainerType::AddressBandGoButton: {
         if(!Win32Themes::GetThemeBool)
           return false;
           
@@ -657,20 +657,20 @@ void Win32ControlPainter::draw_container(
   RectangleF      rect
 ) {
   switch(type) {
-    case NoContainerType:
-    case FramelessButton:
-    case GenericButton:
+    case ContainerType::None:
+    case ContainerType::FramelessButton:
+    case ContainerType::GenericButton:
       ControlPainter::generic_painter.draw_container(
         control, canvas, type, state, rect);
       return;
       
-    case ListViewItem:
-      if(state == Normal)
+    case ContainerType::ListViewItem:
+      if(state == ControlState::Normal)
         return;
       break;
     
-    case AddressBandInputField:
-      if(state == Normal || state == Hovered)
+    case ContainerType::AddressBandInputField:
+      if(state == ControlState::Normal || state == ControlState::Hovered)
         return;
       break;
      
@@ -692,17 +692,17 @@ void Win32ControlPainter::draw_container(
   }
   
   switch(type) {
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead: {
-        if(state != Pressed && state != PressedHovered) {
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead: {
+        if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
           rect.y+=      1.5f;
           rect.height-= 1.5f;
           
           if(y_scale > 0) {
             int _part, _state;
-            if(HANDLE theme = get_control_theme(control, TabHeadBackground, Normal, &_part, &_state)) {
+            if(HANDLE theme = get_control_theme(control, ContainerType::TabHeadBackground, ControlState::Normal, &_part, &_state)) {
               Win32Themes::MARGINS mar;
               // 3601 = TMT_SIZINGMARGINS
               if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
@@ -715,13 +715,13 @@ void Win32ControlPainter::draw_container(
         }
       } break;
     
-    case TabHeadBackground: {
+    case ContainerType::TabHeadBackground: {
         rect.y+= rect.height;
         rect.height = 0;
         
         if(y_scale > 0) {
           int _part, _state;
-          if(HANDLE theme = get_control_theme(control, TabHeadBackground, Normal, &_part, &_state)) {
+          if(HANDLE theme = get_control_theme(control, ContainerType::TabHeadBackground, ControlState::Normal, &_part, &_state)) {
             Win32Themes::MARGINS mar;
             // 3601 = TMT_SIZINGMARGINS
             if(SUCCEEDED(Win32Themes::GetThemeMargins(theme, nullptr, _part, _state, 3601, nullptr, &mar))) {
@@ -740,7 +740,7 @@ void Win32ControlPainter::draw_container(
     return;
   
   switch(type) {
-    case PopupPanel: {
+    case ContainerType::PopupPanel: {
         CanvasAutoSave saved(canvas);
         Color c = canvas.get_color();
         rect.add_rect_path(canvas, false);
@@ -756,19 +756,19 @@ void Win32ControlPainter::draw_container(
   
   if(Win32Themes::is_app_themed()) {
     switch(type) {
-      case ToggleSwitchChannelUnchecked: 
+      case ContainerType::ToggleSwitchChannelUnchecked: 
         Win32ControlPainterImpl::draw_toggle_switch_channel(canvas, rect, state, false, control.is_using_dark_mode());
         return;
         
-      case ToggleSwitchChannelChecked: 
+      case ContainerType::ToggleSwitchChannelChecked: 
         Win32ControlPainterImpl::draw_toggle_switch_channel(canvas, rect, state, true, control.is_using_dark_mode());
         return;
       
-      case ToggleSwitchThumbUnchecked: 
+      case ContainerType::ToggleSwitchThumbUnchecked: 
         Win32ControlPainterImpl::draw_toggle_switch_thumb(canvas, rect, state, false, control.is_using_dark_mode());
         return;
         
-      case ToggleSwitchThumbChecked: 
+      case ContainerType::ToggleSwitchThumbChecked: 
         Win32ControlPainterImpl::draw_toggle_switch_thumb(canvas, rect, state, true, control.is_using_dark_mode());
         return;
     }
@@ -858,24 +858,24 @@ void Win32ControlPainter::draw_container(
     bool two_times = false;
     if(canvas.glass_background) {
       switch(type) {
-        case PaletteButton: {
-          if(state == Normal)
-            state = Hovered;
-          else if(state == Hovered)
+        case ContainerType::PaletteButton: {
+          if(state == ControlState::Normal)
+            state = ControlState::Hovered;
+          else if(state == ControlState::Hovered)
             two_times = true;
         } break;
           
-        //case CheckboxUnchecked:
-        //case CheckboxChecked:
-        //case CheckboxIndeterminate:
-        //case RadioButtonUnchecked:
-        //case RadioButtonChecked:
-        //case OpenerTriangleClosed:
-        //case OpenerTriangleOpened:
-        //case SliderHorzChannel:
-        //case SliderHorzThumb:
-        case NavigationBack:
-        case NavigationForward: 
+        //case ContainerType::CheckboxUnchecked:
+        //case ContainerType::CheckboxChecked:
+        //case ContainerType::CheckboxIndeterminate:
+        //case ContainerType::RadioButtonUnchecked:
+        //case ContainerType::RadioButtonChecked:
+        //case ContainerType::OpenerTriangleClosed:
+        //case ContainerType::OpenerTriangleOpened:
+        //case ContainerType::HorizontalSliderChannel:
+        //case ContainerType::HorizontalSliderThumb:
+        case ContainerType::NavigationBack:
+        case ContainerType::NavigationForward: 
           if(!canvas.show_only_text) {
             cairo_surface_t *tmp = cairo_win32_surface_create_with_dib(CAIRO_FORMAT_ARGB32, w, h);
             
@@ -946,11 +946,11 @@ void Win32ControlPainter::draw_container(
     }
     
     switch(type) {
-      case TabHeadBackground: {
+      case ContainerType::TabHeadBackground: {
           irect.top = irect.bottom - margins.cyTopHeight;
           irect.bottom+= margins.cyBottomHeight;
         } break;
-      case TabBodyBackground: {
+      case ContainerType::TabBodyBackground: {
           irect.top-= margins.cyTopHeight;
         } break;
     }
@@ -1011,41 +1011,41 @@ void Win32ControlPainter::draw_container(
     irect.bottom = dc_y + h;
     
     switch(type) {
-      case NoContainerType:
-      case FramelessButton:
+      case ContainerType::None:
+      case ContainerType::FramelessButton:
         break;
       
       default: 
-        if(state == Pressed) {
+        if(state == ControlState::Pressed) {
           if(!control.is_focused_widget())
-            state = Normal;
+            state = ControlState::Normal;
         }
-        else if(state == PressedHovered) {
+        else if(state == ControlState::PressedHovered) {
           if(!control.is_focused_widget())
-            state = Hovered;
+            state = ControlState::Hovered;
         }
         break;
     }
     
     switch(type) {
-      case NoContainerType:
-      case FramelessButton:
+      case ContainerType::None:
+      case ContainerType::FramelessButton:
         break;
         
-      case AddressBandGoButton:
-      case PaletteButton: {
+      case ContainerType::AddressBandGoButton:
+      case ContainerType::PaletteButton: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
-          if(state == PressedHovered)
+          if(state == ControlState::PressedHovered)
             DrawEdge(dc, &irect, BDR_SUNKENOUTER, BF_RECT);
-          else if(state == Hovered)
+          else if(state == ControlState::Hovered)
             DrawEdge(dc, &irect, BDR_RAISEDINNER, BF_RECT);
         } break;
         
-      case DefaultPushButton:
-      case GenericButton:
-      case PushButton: {
-          if(type == DefaultPushButton) {
+      case ContainerType::DefaultPushButton:
+      case ContainerType::GenericButton:
+      case ContainerType::PushButton: {
+          if(type == ContainerType::DefaultPushButton) {
             FrameRect(dc, &irect, (HBRUSH)GetStockObject(BLACK_BRUSH));
             
             InflateRect(&irect, -1, -1);
@@ -1053,7 +1053,7 @@ void Win32ControlPainter::draw_container(
           
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
-          if(state == PressedHovered) {
+          if(state == ControlState::PressedHovered) {
             DrawEdge(dc, &irect, EDGE_SUNKEN, BF_RECT);
           }
           else {
@@ -1067,7 +1067,7 @@ void Win32ControlPainter::draw_container(
 //          _state);
         } break;
         
-      case InputField: {
+      case ContainerType::InputField: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_WINDOW + 1));
           
           DrawEdge(
@@ -1077,8 +1077,8 @@ void Win32ControlPainter::draw_container(
             BF_RECT);
         } break;
         
-      case AddressBandInputField: {
-          if(state == Pressed || state == PressedHovered) {
+      case ContainerType::AddressBandInputField: {
+          if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
             FillRect(dc, &irect, (HBRUSH)(COLOR_WINDOW + 1));
             DrawEdge(
               dc,
@@ -1088,7 +1088,7 @@ void Win32ControlPainter::draw_container(
           }
         } break;
         
-      case AddressBandBackground: {
+      case ContainerType::AddressBandBackground: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           DrawEdge(
@@ -1098,7 +1098,7 @@ void Win32ControlPainter::draw_container(
             BF_RECT);
         } break;
         
-      case TooltipWindow: {
+      case ContainerType::TooltipWindow: {
           FrameRect(dc, &irect, GetSysColorBrush(COLOR_WINDOWFRAME));
           
           InflateRect(&irect, -1, -1);
@@ -1106,22 +1106,22 @@ void Win32ControlPainter::draw_container(
           FillRect(dc, &irect, (HBRUSH)(COLOR_INFOBK + 1));
         } break;
         
-      case ListViewItem:
+      case ContainerType::ListViewItem:
         FillRect(dc, &irect, (HBRUSH)(COLOR_WINDOW + 1));
         break;
         
-      case ListViewItemSelected:
+      case ContainerType::ListViewItemSelected:
         FillRect(dc, &irect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
         break;
       
-      case PanelControl:
+      case ContainerType::Panel:
         FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
         DrawEdge(dc, &irect, BDR_RAISEDOUTER, BF_RECT);
         break;
       
-      case ProgressIndicatorBackground:
-      case SliderHorzChannel:
-      case ToggleSwitchChannelUnchecked: {
+      case ContainerType::ProgressIndicatorBackground:
+      case ContainerType::HorizontalSliderChannel:
+      case ContainerType::ToggleSwitchChannelUnchecked: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           DrawEdge(
@@ -1131,7 +1131,7 @@ void Win32ControlPainter::draw_container(
             BF_RECT);
         } break;
         
-      case ToggleSwitchChannelChecked: {
+      case ContainerType::ToggleSwitchChannelChecked: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_HIGHLIGHT + 1));
           
           DrawEdge(
@@ -1141,7 +1141,7 @@ void Win32ControlPainter::draw_container(
             BF_RECT);
         } break;
         
-      case ProgressIndicatorBar: {
+      case ContainerType::ProgressIndicatorBar: {
           int chunk = (irect.bottom - irect.top) / 2;
           RECT chunk_rect = irect;
           
@@ -1164,7 +1164,7 @@ void Win32ControlPainter::draw_container(
           }
         } break;
         
-      case SliderHorzThumb: {
+      case ContainerType::HorizontalSliderThumb: {
           DrawFrameControl(
             dc,
             &irect,
@@ -1172,7 +1172,7 @@ void Win32ControlPainter::draw_container(
             DFCS_BUTTONPUSH);
         } break;
       
-      case SliderHorzDownArrowThumb: {
+      case ContainerType::HorizontalSliderDownArrowButton: {
           RECT tmp = irect;
           int h = (tmp.right - tmp.left) / 2;
           
@@ -1193,7 +1193,7 @@ void Win32ControlPainter::draw_container(
           DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
         } break;
         
-      case SliderHorzUpArrowThumb: {
+      case ContainerType::HorizontalSliderUpArrowButton: {
           RECT tmp = irect;
           int h = (tmp.right - tmp.left) / 2;
           
@@ -1214,8 +1214,8 @@ void Win32ControlPainter::draw_container(
           DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
         } break;
         
-      case ToggleSwitchThumbChecked:
-      case ToggleSwitchThumbUnchecked: {
+      case ContainerType::ToggleSwitchThumbChecked:
+      case ContainerType::ToggleSwitchThumbUnchecked: {
           InflateRect(&irect, -2, -1);
           DrawFrameControl(
             dc,
@@ -1224,17 +1224,17 @@ void Win32ControlPainter::draw_container(
             DFCS_BUTTONPUSH);
         } break;
         
-      case CheckboxUnchecked:
-      case CheckboxChecked:
-      case CheckboxIndeterminate: {
+      case ContainerType::CheckboxUnchecked:
+      case ContainerType::CheckboxChecked:
+      case ContainerType::CheckboxIndeterminate: {
           UINT _state = DFCS_BUTTONCHECK;
           
-          if(type == CheckboxChecked)       _state |= DFCS_CHECKED;
-          if(type == CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
+          if(type == ContainerType::CheckboxChecked)       _state |= DFCS_CHECKED;
+          if(type == ContainerType::CheckboxIndeterminate) _state = DFCS_BUTTON3STATE | DFCS_CHECKED;
           
           switch(state) {
-            case Disabled:       _state |= DFCS_INACTIVE; break;
-            case PressedHovered: _state |= DFCS_PUSHED;   break;
+            case ControlState::Disabled:       _state |= DFCS_INACTIVE; break;
+            case ControlState::PressedHovered: _state |= DFCS_PUSHED;   break;
             default: break;
           }
           
@@ -1245,15 +1245,15 @@ void Win32ControlPainter::draw_container(
             _state);
         } break;
         
-      case RadioButtonUnchecked:
-      case RadioButtonChecked: {
+      case ContainerType::RadioButtonUnchecked:
+      case ContainerType::RadioButtonChecked: {
           UINT _state = DFCS_BUTTONRADIO;
           
-          if(type == RadioButtonChecked)    _state |= DFCS_CHECKED;
+          if(type == ContainerType::RadioButtonChecked)    _state |= DFCS_CHECKED;
           
           switch(state) {
-            case Disabled:       _state |= DFCS_INACTIVE; break;
-            case PressedHovered: _state |= DFCS_PUSHED;   break;
+            case ControlState::Disabled:       _state |= DFCS_INACTIVE; break;
+            case ControlState::PressedHovered: _state |= DFCS_PUSHED;   break;
             default: break;
           }
           
@@ -1278,13 +1278,13 @@ void Win32ControlPainter::draw_container(
             _state);
         } break;
       
-      case OpenerTriangleClosed:
-      case OpenerTriangleOpened:
+      case ContainerType::OpenerTriangleClosed:
+      case ContainerType::OpenerTriangleOpened:
         ControlPainter::draw_container(control, canvas, type, state, rect);
         return;
         
-      case NavigationBack:
-      case NavigationForward: {
+      case ContainerType::NavigationBack:
+      case ContainerType::NavigationForward: {
           int rw = irect.right - irect.left;
           int rh = irect.bottom - irect.top;
           int cx = irect.left + rw/2;
@@ -1297,22 +1297,22 @@ void Win32ControlPainter::draw_container(
           irect.bottom = irect.top + rh;
           
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
-          if(state == PressedHovered)
+          if(state == ControlState::PressedHovered)
             DrawEdge(dc, &irect, BDR_SUNKENOUTER, BF_RECT);
-          else if(state == Hovered)
+          else if(state == ControlState::Hovered)
             DrawEdge(dc, &irect, BDR_RAISEDINNER, BF_RECT);
           
           need_vector_overlay = true;
         } break;
       
-      case TabHeadAbuttingRight:
-      case TabHeadAbuttingLeftRight:
-      case TabHeadAbuttingLeft:
-      case TabHead: {
+      case ContainerType::TabHeadAbuttingRight:
+      case ContainerType::TabHeadAbuttingLeftRight:
+      case ContainerType::TabHeadAbuttingLeft:
+      case ContainerType::TabHead: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
           DWORD flags = 0;
-          if(state == Disabled)
+          if(state == ControlState::Disabled)
             flags |= BF_MONO;
           
           RECT edge = irect;
@@ -1335,8 +1335,8 @@ void Win32ControlPainter::draw_container(
           
         } break;
       
-      case TabHeadBackground: {
-          if(state == Disabled)
+      case ContainerType::TabHeadBackground: {
+          if(state == ControlState::Disabled)
             DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT | BF_MONO);
           else
             DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_TOP | BF_RIGHT);
@@ -1344,8 +1344,8 @@ void Win32ControlPainter::draw_container(
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
         } break;
       
-      case TabBodyBackground: {
-          if(state == Disabled)
+      case ContainerType::TabBodyBackground: {
+          if(state == ControlState::Disabled)
             DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT | BF_MONO);
           else
             DrawEdge(dc, &irect, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_ADJUST | BF_LEFT | BF_BOTTOM | BF_RIGHT);
@@ -1396,20 +1396,20 @@ void Win32ControlPainter::draw_container(
   
   if(need_vector_overlay) {
     switch(type) {
-      case NavigationBack:
-      case NavigationForward: {
+      case ContainerType::NavigationBack:
+      case ContainerType::NavigationForward: {
           float cx = rect.x + rect.width/2;
           float cy = rect.y + rect.height/2;
           rect.width = rect.height = std::min(rect.width, rect.height);
           rect.x = cx - rect.width/2;
           rect.y = cy - rect.height/2;
           
-          if(state == PressedHovered) {
+          if(state == ControlState::PressedHovered) {
             rect.x+= 0.75;
             rect.y+= 0.75;
           }
           
-          if(type == NavigationForward) {
+          if(type == ContainerType::NavigationForward) {
             rect.x+= rect.width;
             rect.width = -rect.width;
           }
@@ -1431,7 +1431,7 @@ void Win32ControlPainter::draw_container(
           Color fill_col;
           Color stroke_col;
           switch(state) {
-            case Disabled:
+            case ControlState::Disabled:
               fill_col = Win32ControlPainterImpl::get_sys_color(COLOR_BTNFACE);
               stroke_col = Win32ControlPainterImpl::get_sys_color(COLOR_GRAYTEXT);
               break;
@@ -1472,16 +1472,16 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
   ControlContext &control = ControlContext::find(FrontEndObject::find_cast<Box>(widget_id));
   
   bool repeat = false;
-  if(type2 == DefaultPushButton && state1 == Normal && state2 == Normal) {
+  if(type2 == ContainerType::DefaultPushButton && state1 == ControlState::Normal && state2 == ControlState::Normal) {
     if(control.is_foreground_window()) {
-      state2 = Hot;
+      state2 = ControlState::Hot;
       repeat = true;
     }
   }
   
-  if( state1 == Normal                      &&
-      (state2 == Hot || state2 == Hovered)  &&
-      type2 == PaletteButton)
+  if( state1 == ControlState::Normal                      &&
+      (state2 == ControlState::Hot || state2 == ControlState::Hovered)  &&
+      type2 == ContainerType::PaletteButton)
   {
     return nullptr;
   }
@@ -1499,14 +1499,14 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     return nullptr;
   
   switch(type2) {
-    case PushButton:
-    case DefaultPushButton:
-    case PaletteButton:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead: {
-        if(state2 == PressedHovered/* || state1 == Normal*/)
+    case ContainerType::PushButton:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::PaletteButton:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead: {
+        if(state2 == ControlState::PressedHovered/* || state1 == ControlState::Normal*/)
           return nullptr;
       } break;
   }
@@ -1522,7 +1522,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     RectangleF rect1 = rect;
     rect1.x = p0.x;
     
-    if(type2 == InputField) // bigger buffer for glow rectangle
+    if(type2 == ContainerType::InputField) // bigger buffer for glow rectangle
       rect1.grow(4.5, 4.5);
     
     SharedPtr<LinearTransition> anim = new LinearTransition(
@@ -1580,16 +1580,16 @@ Vector2F Win32ControlPainter::container_content_offset(
 
 bool Win32ControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
-    case FramelessButton:
-    case NoContainerType:
-    case PanelControl:
-    case PopupPanel:
-    case TabBodyBackground:
-    case TabHeadBackground:
-    case TooltipWindow:
+    case ContainerType::FramelessButton:
+    case ContainerType::None:
+    case ContainerType::Panel:
+    case ContainerType::PopupPanel:
+    case ContainerType::TabBodyBackground:
+    case ContainerType::TabHeadBackground:
+    case ContainerType::TooltipWindow:
       return false;
     
-    case GenericButton:
+    case ContainerType::GenericButton:
       return ControlPainter::container_hover_repaint(control, type);
   }
   
@@ -1660,7 +1660,7 @@ void Win32ControlPainter::paint_scrollbar_part(
   ControlState        state,
   RectangleF          rect
 ) {
-  if(part == ScrollbarNowhere)
+  if(part == ScrollbarPart::Nowhere)
     return;
   
   rect.pixel_align(canvas, false);
@@ -1735,69 +1735,69 @@ void Win32ControlPainter::paint_scrollbar_part(
     int _state = 0;
     
     switch(part) {
-      case ScrollbarUpLeft:
-      case ScrollbarDownRight:
+      case ScrollbarPart::UpLeft:
+      case ScrollbarPart::DownRight:
         _part = 1; // SBP_ARROWBTN
         break;
         
-      case ScrollbarThumb: {
-          if(dir == ScrollbarHorizontal)
+      case ScrollbarPart::Thumb: {
+          if(dir == ScrollbarDirection::Horizontal)
             _part = 2;
           else
             _part = 3;
         } break;
         
-      case ScrollbarLowerRange: {
-          if(dir == ScrollbarHorizontal)
+      case ScrollbarPart::LowerRange: {
+          if(dir == ScrollbarDirection::Horizontal)
             _part = 4;
           else
             _part = 6;
         } break;
         
-      case ScrollbarUpperRange: {
-          if(dir == ScrollbarHorizontal)
+      case ScrollbarPart::UpperRange: {
+          if(dir == ScrollbarDirection::Horizontal)
             _part = 5;
           else
             _part = 7;
         } break;
         
-      case ScrollbarNowhere:
-      case ScrollbarSizeGrip: _part = 10; break;
+      case ScrollbarPart::Nowhere:
+      case ScrollbarPart::SizeGrip: _part = 10; break;
     }
     
     if(_part == 1) { // arrow button
       switch(state) {
-        case Disabled:        _state = 4; break;
-        case PressedHovered:  _state = 3; break;
-        case Hovered:         _state = 2; break;
-        case Hot:
-        case Pressed:
-        case Normal:          _state = 1; break;
+        case ControlState::Disabled:        _state = 4; break;
+        case ControlState::PressedHovered:  _state = 3; break;
+        case ControlState::Hovered:         _state = 2; break;
+        case ControlState::Hot:
+        case ControlState::Pressed:
+        case ControlState::Normal:          _state = 1; break;
         
         default: ;
       }
       
       if(_state) {
-        if(dir == ScrollbarHorizontal) {
-          if(part == ScrollbarDownRight)
+        if(dir == ScrollbarDirection::Horizontal) {
+          if(part == ScrollbarPart::DownRight)
             _state += 12;
           else
             _state += 8;
         }
         else {
-          if(part == ScrollbarDownRight)
+          if(part == ScrollbarPart::DownRight)
             _state += 4;
         }
       }
       else {
-        if(dir == ScrollbarHorizontal) {
-          if(part == ScrollbarDownRight)
+        if(dir == ScrollbarDirection::Horizontal) {
+          if(part == ScrollbarPart::DownRight)
             _state = 20;
           else
             _state = 19;
         }
         else {
-          if(part == ScrollbarDownRight)
+          if(part == ScrollbarPart::DownRight)
             _state = 18;
           else
             _state = 17;
@@ -1809,12 +1809,12 @@ void Win32ControlPainter::paint_scrollbar_part(
     }
     else { // thumbs, ranges
       switch(state) {
-        case Pressed:
-        case Normal:         _state = 1; break;
-        case Hot:            _state = 2; break;
-        case PressedHovered: _state = 3; break;
-        case Disabled:       _state = 4; break;
-        case Hovered:        _state = 5; break;
+        case ControlState::Pressed:
+        case ControlState::Normal:         _state = 1; break;
+        case ControlState::Hot:            _state = 2; break;
+        case ControlState::PressedHovered: _state = 3; break;
+        case ControlState::Disabled:       _state = 4; break;
+        case ControlState::Hovered:        _state = 5; break;
       }
     }
     
@@ -1826,8 +1826,8 @@ void Win32ControlPainter::paint_scrollbar_part(
       &irect,
       0);
       
-    if(part == ScrollbarThumb) {
-      if(dir == ScrollbarHorizontal) {
+    if(part == ScrollbarPart::Thumb) {
+      if(dir == ScrollbarDirection::Horizontal) {
         if(rect.width >= rect.height) {
           Win32Themes::DrawThemeBackground(
             scrollbar_theme,
@@ -1859,23 +1859,23 @@ void Win32ControlPainter::paint_scrollbar_part(
     bool bg = false;
     
     switch(part) {
-      case ScrollbarUpLeft: {
-          if(dir == ScrollbarHorizontal)
+      case ScrollbarPart::UpLeft: {
+          if(dir == ScrollbarDirection::Horizontal)
             _state = DFCS_SCROLLLEFT;
           else
             _state = DFCS_SCROLLUP;
         } break;
         
-      case ScrollbarDownRight: {
-          if(dir == ScrollbarHorizontal)
+      case ScrollbarPart::DownRight: {
+          if(dir == ScrollbarDirection::Horizontal)
             _state = DFCS_SCROLLRIGHT;
           else
             _state = DFCS_SCROLLDOWN;
         } break;
         
-      case ScrollbarSizeGrip: _state = DFCS_SCROLLSIZEGRIP; break;
+      case ScrollbarPart::SizeGrip: _state = DFCS_SCROLLSIZEGRIP; break;
       
-      case ScrollbarThumb:
+      case ScrollbarPart::Thumb:
         _type = DFC_BUTTON;
         _state = DFCS_BUTTONPUSH;
         break;
@@ -1885,10 +1885,10 @@ void Win32ControlPainter::paint_scrollbar_part(
     
     if(!bg) {
       switch(state) {
-        case PressedHovered:  _state |= DFCS_PUSHED;   break;
-        case Hot:
-        case Hovered:         _state |= DFCS_HOT;      break;
-        case Disabled:        _state |= DFCS_INACTIVE; break;
+        case ControlState::PressedHovered:  _state |= DFCS_PUSHED;   break;
+        case ControlState::Hot:
+        case ControlState::Hovered:         _state |= DFCS_HOT;      break;
+        case ControlState::Disabled:        _state |= DFCS_INACTIVE; break;
         default: break;
       }
       
@@ -1993,9 +1993,9 @@ void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       
     int _state;
     switch(state) {
-      case Hovered:        _state = 2; break;
-      case Pressed:        _state = 3; break;
-      case PressedHovered: _state = 3; break;
+      case ControlState::Hovered:        _state = 2; break;
+      case ControlState::Pressed:        _state = 3; break;
+      case ControlState::PressedHovered: _state = 3; break;
       default:             _state = 1; break;
     }
     
@@ -2012,14 +2012,14 @@ void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
   }
   
 FALLBACK:
-  if(state == Normal) 
+  if(state == ControlState::Normal) 
     return;
   
   UINT edge;
   switch(state) {
-    case Hovered:        edge = BDR_RAISEDINNER; break;
-    case Pressed:        edge = BDR_SUNKENOUTER; break;
-    case PressedHovered: edge = BDR_SUNKENOUTER; break;
+    case ControlState::Hovered:        edge = BDR_RAISEDINNER; break;
+    case ControlState::Pressed:        edge = BDR_SUNKENOUTER; break;
+    case ControlState::PressedHovered: edge = BDR_SUNKENOUTER; break;
     default:             edge = 0; break;
   }
   RECT edge_rect = *rect;
@@ -2059,74 +2059,74 @@ HANDLE Win32ControlPainter::get_control_theme(
   HANDLE theme = nullptr;
   
   switch(type) {
-    case PushButton:
-    case DefaultPushButton:
-    case CheckboxUnchecked:
-    case CheckboxChecked:
-    case CheckboxIndeterminate:
-    case RadioButtonUnchecked:
-    case RadioButtonChecked: 
+    case ContainerType::PushButton:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::CheckboxIndeterminate:
+    case ContainerType::RadioButtonUnchecked:
+    case ContainerType::RadioButtonChecked: 
       theme = w32cp_cache.button_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
-    case PaletteButton: 
+    case ContainerType::PaletteButton: 
       theme = w32cp_cache.toolbar_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
-    case InputField: 
+    case ContainerType::InputField: 
       theme = w32cp_cache.edit_theme(control.dpi(), control.is_using_dark_mode());
       break;
     
-    case AddressBandBackground:
+    case ContainerType::AddressBandBackground:
       theme = w32cp_cache.addressband_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
-    case AddressBandInputField: 
+    case ContainerType::AddressBandInputField: 
       theme = w32cp_cache.addressband_combobox_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
-    case AddressBandGoButton:
+    case ContainerType::AddressBandGoButton:
       theme = w32cp_cache.toolbar_go_theme(control.dpi());
       break;
       
-    case ListViewItem:
-    case ListViewItemSelected:
+    case ContainerType::ListViewItem:
+    case ContainerType::ListViewItemSelected:
       theme = w32cp_cache.explorer_listview_theme(control.dpi(), control.is_using_dark_mode());
       break;
     
-    case OpenerTriangleClosed:
-    case OpenerTriangleOpened:
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::OpenerTriangleOpened:
       theme = w32cp_cache.explorer_treeview_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
-    case PanelControl:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead:
-    case TabHeadBackground:
-    case TabBodyBackground:
+    case ContainerType::Panel:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead:
+    case ContainerType::TabHeadBackground:
+    case ContainerType::TabBodyBackground:
       theme = w32cp_cache.tab_theme(control.dpi());
       break;
     
-    case ProgressIndicatorBackground:
-    case ProgressIndicatorBar:
+    case ContainerType::ProgressIndicatorBackground:
+    case ContainerType::ProgressIndicatorBar:
       theme = w32cp_cache.progress_theme(control.dpi());
       break;
     
-    case SliderHorzChannel:
-    case SliderHorzThumb: 
-    case SliderHorzDownArrowThumb: 
-    case SliderHorzUpArrowThumb: 
+    case ContainerType::HorizontalSliderChannel:
+    case ContainerType::HorizontalSliderThumb: 
+    case ContainerType::HorizontalSliderDownArrowButton: 
+    case ContainerType::HorizontalSliderUpArrowButton: 
       theme = w32cp_cache.slider_theme(control.dpi());
       break;
       
-    case TooltipWindow: 
+    case ContainerType::TooltipWindow: 
       theme = w32cp_cache.tooltip_theme(control.dpi(), control.is_using_dark_mode());
       break;
       
-    case NavigationBack: 
-    case NavigationForward: 
+    case ContainerType::NavigationBack: 
+    case ContainerType::NavigationForward: 
       theme = w32cp_cache.navigation_theme(control.dpi(), control.is_using_dark_mode());
       break;
     
@@ -2137,47 +2137,47 @@ HANDLE Win32ControlPainter::get_control_theme(
     return nullptr;
   
   switch(type) {
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead:
       break;
     
     default:
-      if(state == Pressed) {
+      if(state == ControlState::Pressed) {
         if(!control.is_focused_widget())
-          state = Normal;
+          state = ControlState::Normal;
       }
-      else if(state == PressedHovered) {
+      else if(state == ControlState::PressedHovered) {
         if(!control.is_focused_widget())
-          state = Hovered;
+          state = ControlState::Hovered;
       }
       break;
   }
   
   switch(type) {
-    case GenericButton:
-    case PushButton:
-    case DefaultPushButton:
-    case AddressBandGoButton:
-    case PaletteButton: {
+    case ContainerType::GenericButton:
+    case ContainerType::PushButton:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::AddressBandGoButton:
+    case ContainerType::PaletteButton: {
         *theme_part = 1;//BP_PUSHBUTTON / TP_BUTTON
         
         switch(state) {
-          case Disabled:        *theme_state = 4; break;
-          case PressedHovered:  *theme_state = 3; break;
-          case Hovered:         *theme_state = 2; break;
-          case Hot: {
-              if(type == DefaultPushButton) {
+          case ControlState::Disabled:        *theme_state = 4; break;
+          case ControlState::PressedHovered:  *theme_state = 3; break;
+          case ControlState::Hovered:         *theme_state = 2; break;
+          case ControlState::Hot: {
+              if(type == ContainerType::DefaultPushButton) {
                 *theme_state = 6;
               }
               else
                 *theme_state = 2;
             } break;
             
-          case Pressed:
-          case Normal:
-            if(type == DefaultPushButton) {
+          case ControlState::Pressed:
+          case ControlState::Normal:
+            if(type == ContainerType::DefaultPushButton) {
               *theme_state = 5;
             }
             else
@@ -2185,82 +2185,82 @@ HANDLE Win32ControlPainter::get_control_theme(
         }
       } break;
       
-    case AddressBandInputField: {
+    case ContainerType::AddressBandInputField: {
         *theme_part = 4;//CP_BORDER
         
         switch(state) {
-          case Normal:         *theme_state = 1; break;
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case Pressed:
-          case PressedHovered: *theme_state = 3; break; // = focused
-          case Disabled:       *theme_state = 4; break;
+          case ControlState::Normal:         *theme_state = 1; break;
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::Pressed:
+          case ControlState::PressedHovered: *theme_state = 3; break; // = focused
+          case ControlState::Disabled:       *theme_state = 4; break;
         }
       } break;
       
-    case InputField: {
+    case ContainerType::InputField: {
         *theme_part = 6;//EP_EDITBORDER_NOSCROLL
         
         switch(state) {
-          case Normal:         *theme_state = 1; break;
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case Pressed:
-          case PressedHovered: *theme_state = 3; break; // = focused
-          case Disabled:       *theme_state = 4; break;
+          case ControlState::Normal:         *theme_state = 1; break;
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::Pressed:
+          case ControlState::PressedHovered: *theme_state = 3; break; // = focused
+          case ControlState::Disabled:       *theme_state = 4; break;
         }
       } break;
     
-    case AddressBandBackground: {
+    case ContainerType::AddressBandBackground: {
         *theme_part = 1; // ABBACKGROUND
         
         switch(state) {
-          case Normal:         *theme_state = 1; break;
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case Pressed:
-          case PressedHovered: *theme_state = 4; break; // = focused
-          case Disabled:       *theme_state = 3; break;
+          case ControlState::Normal:         *theme_state = 1; break;
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::Pressed:
+          case ControlState::PressedHovered: *theme_state = 4; break; // = focused
+          case ControlState::Disabled:       *theme_state = 3; break;
         }
       } break;
     
-    case ListViewItem: {
+    case ContainerType::ListViewItem: {
         *theme_part = 1;//LVP_LISTITEM
         
         switch(state) {
-          case Normal:          theme = nullptr; break; // the LISS_NORMAL part (1) has a border
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case Pressed:
-          case PressedHovered: *theme_state = 3; break;
-          case Disabled:        theme = nullptr; break; // the LISS_DISABLED part (4) has a border
+          case ControlState::Normal:          theme = nullptr; break; // the LISS_NORMAL part (1) has a border
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::Pressed:
+          case ControlState::PressedHovered: *theme_state = 3; break;
+          case ControlState::Disabled:        theme = nullptr; break; // the LISS_DISABLED part (4) has a border
         }
       } break;
       
-    case ListViewItemSelected: {
+    case ContainerType::ListViewItemSelected: {
         *theme_part = 1;//LVP_LISTITEM
         
         switch(state) {
-          case Pressed:
-          case Normal:         *theme_state = 3; break;
-          case Hot:
-          case Hovered:        *theme_state = 6; break;
-          case PressedHovered: *theme_state = 6; break;
-          case Disabled:       *theme_state = 5; break;
+          case ControlState::Pressed:
+          case ControlState::Normal:         *theme_state = 3; break;
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 6; break;
+          case ControlState::PressedHovered: *theme_state = 6; break;
+          case ControlState::Disabled:       *theme_state = 5; break;
         }
       } break;
       
-    case TooltipWindow: {
+    case ContainerType::TooltipWindow: {
         *theme_part  = 1; // TTP_STANDARD
         *theme_state = 1;
       } break;
     
-    case PanelControl: {
+    case ContainerType::Panel: {
         *theme_part  = 9; // TABP_PANE
         *theme_state = 0;
       } break;
     
-    case ProgressIndicatorBackground: {
+    case ContainerType::ProgressIndicatorBackground: {
         if(Win32Themes::IsThemePartDefined(theme, 11, 0))
           *theme_part = 11; // PP_TRANSPARENTBAR
         else
@@ -2269,7 +2269,7 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_state = 1;
       } break;
       
-    case ProgressIndicatorBar: {
+    case ContainerType::ProgressIndicatorBar: {
         if(Win32Themes::IsThemePartDefined(theme, 5, 0))
           *theme_part = 5; // PP_FILL
         else
@@ -2278,145 +2278,145 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_state = 1;
       } break;
       
-    case SliderHorzChannel: {
+    case ContainerType::HorizontalSliderChannel: {
         *theme_part  = 1; // TKP_TRACK
         *theme_state = 1;
       } break;
       
-    case SliderHorzThumb:
-    case SliderHorzDownArrowThumb:
-    case SliderHorzUpArrowThumb: {
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::HorizontalSliderDownArrowButton:
+    case ContainerType::HorizontalSliderUpArrowButton: {
         switch(type) {
           default:
-          case SliderHorzThumb:          *theme_part = 3; break; // TKP_THUMB
-          case SliderHorzDownArrowThumb: *theme_part = 4; break; // TKP_THUMBBOTTOM
-          case SliderHorzUpArrowThumb:   *theme_part = 5; break; // TKP_THUMBTOP
+          case ContainerType::HorizontalSliderThumb:          *theme_part = 3; break; // TKP_THUMB
+          case ContainerType::HorizontalSliderDownArrowButton: *theme_part = 4; break; // TKP_THUMBBOTTOM
+          case ContainerType::HorizontalSliderUpArrowButton:   *theme_part = 5; break; // TKP_THUMBTOP
         }
         switch(state) {
-          case Normal:         *theme_state = 1; break;
-          case Pressed:        *theme_state = 4; break;
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case PressedHovered: *theme_state = 3; break;
-          case Disabled:       *theme_state = 5; break;
+          case ControlState::Normal:         *theme_state = 1; break;
+          case ControlState::Pressed:        *theme_state = 4; break;
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::PressedHovered: *theme_state = 3; break;
+          case ControlState::Disabled:       *theme_state = 5; break;
         }
       } break;
       
-    case CheckboxUnchecked: {
+    case ContainerType::CheckboxUnchecked: {
         *theme_part = 3; // BP_CHECKBOX
         switch(state) {
-          case Normal:         *theme_state = 1; break;
-          case Pressed:
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case PressedHovered: *theme_state = 3; break;
-          case Disabled:       *theme_state = 4; break;
+          case ControlState::Normal:         *theme_state = 1; break;
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::PressedHovered: *theme_state = 3; break;
+          case ControlState::Disabled:       *theme_state = 4; break;
         }
       } break;
       
-    case CheckboxChecked: {
+    case ContainerType::CheckboxChecked: {
         *theme_part = 3; // BP_CHECKBOX
         switch(state) {
-          case Normal:         *theme_state = 5; break;
-          case Pressed:
-          case Hot:
-          case Hovered:        *theme_state = 6; break;
-          case PressedHovered: *theme_state = 7; break;
-          case Disabled:       *theme_state = 8; break;
+          case ControlState::Normal:         *theme_state = 5; break;
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 6; break;
+          case ControlState::PressedHovered: *theme_state = 7; break;
+          case ControlState::Disabled:       *theme_state = 8; break;
         }
       } break;
       
-    case CheckboxIndeterminate: {
+    case ContainerType::CheckboxIndeterminate: {
         *theme_part = 3; // BP_CHECKBOX
         switch(state) {
-          case Normal:         *theme_state = 9; break;
-          case Pressed:
-          case Hot:
-          case Hovered:        *theme_state = 10; break;
-          case PressedHovered: *theme_state = 11; break;
-          case Disabled:       *theme_state = 12; break;
+          case ControlState::Normal:         *theme_state = 9; break;
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 10; break;
+          case ControlState::PressedHovered: *theme_state = 11; break;
+          case ControlState::Disabled:       *theme_state = 12; break;
         }
       } break;
       
-    case RadioButtonUnchecked: {
+    case ContainerType::RadioButtonUnchecked: {
         *theme_part = 2; // BP_RADIOBUTTON
         switch(state) {
-          case Normal:         *theme_state = 1; break;
-          case Pressed:
-          case Hot:
-          case Hovered:        *theme_state = 2; break;
-          case PressedHovered: *theme_state = 3; break;
-          case Disabled:       *theme_state = 4; break;
+          case ControlState::Normal:         *theme_state = 1; break;
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break;
+          case ControlState::PressedHovered: *theme_state = 3; break;
+          case ControlState::Disabled:       *theme_state = 4; break;
         }
       } break;
       
-    case RadioButtonChecked: {
+    case ContainerType::RadioButtonChecked: {
         *theme_part = 2; // BP_RADIOBUTTON
         switch(state) {
-          case Normal:         *theme_state = 5; break;
-          case Pressed:
-          case Hot:
-          case Hovered:        *theme_state = 6; break;
-          case PressedHovered: *theme_state = 7; break;
-          case Disabled:       *theme_state = 8; break;
+          case ControlState::Normal:         *theme_state = 5; break;
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 6; break;
+          case ControlState::PressedHovered: *theme_state = 7; break;
+          case ControlState::Disabled:       *theme_state = 8; break;
         }
       } break;
     
-    case OpenerTriangleClosed: {
+    case ContainerType::OpenerTriangleClosed: {
         *theme_state = 1; // GLPS_CLOSED / HGLPS_CLOSED
         switch(state) {
-          case Disabled:
-          case Normal:         *theme_part = 2; break; // TVP_GLYPH
-          case Pressed:
-          case Hot:
-          case Hovered:        
-          case PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
+          case ControlState::Disabled:
+          case ControlState::Normal:         *theme_part = 2; break; // TVP_GLYPH
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        
+          case ControlState::PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
         }
       } break;
       
-    case OpenerTriangleOpened: {
+    case ContainerType::OpenerTriangleOpened: {
         *theme_state = 2; // GLPS_OPENED / HGLPS_OPENED
         switch(state) {
-          case Disabled:
-          case Normal:         *theme_part = 2; break; // TVP_GLYPH
-          case Pressed:
-          case Hot:
-          case Hovered:        
-          case PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
+          case ControlState::Disabled:
+          case ControlState::Normal:         *theme_part = 2; break; // TVP_GLYPH
+          case ControlState::Pressed:
+          case ControlState::Hot:
+          case ControlState::Hovered:        
+          case ControlState::PressedHovered: *theme_part = 4; break; // TVP_HOTGLYPH
         }
       } break;
     
-    case NavigationBack:
-    case NavigationForward: {
-        *theme_part = type == NavigationBack ? 1 : 2; // NAV_BACKBUTTON, NAV_FORWARDBUTTON
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward: {
+        *theme_part = type == ContainerType::NavigationBack ? 1 : 2; // NAV_BACKBUTTON, NAV_FORWARDBUTTON
         *theme_state = 1; // NAV_BB_NORMAL
         switch(state) {
-          case Disabled:       *theme_state = 4; break; // NAV_BB_DISABLED
-          case Normal:
-          case Pressed:        *theme_state = 1; break; // NAV_BB_NORMAL
-          case Hot:
-          case Hovered:        *theme_state = 2; break; // NAV_BB_HOT
-          case PressedHovered: *theme_state = 3; break; // NAV_BB_PRESSED
+          case ControlState::Disabled:       *theme_state = 4; break; // NAV_BB_DISABLED
+          case ControlState::Normal:
+          case ControlState::Pressed:        *theme_state = 1; break; // NAV_BB_NORMAL
+          case ControlState::Hot:
+          case ControlState::Hovered:        *theme_state = 2; break; // NAV_BB_HOT
+          case ControlState::PressedHovered: *theme_state = 3; break; // NAV_BB_PRESSED
         }
     } break;
     
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead: {
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead: {
         *theme_state = 1; // TIS_NORMAL
         switch(state) {
-          case Disabled:       *theme_state = 4; break; // TIS_DISABLED
-          case Normal:         *theme_state = 1; break; // TIS_NORMAL
-          case Hot:            *theme_state = 1; break; // TIS_NORMAL
-          case Hovered:        *theme_state = 2; break; // TIS_HOT
-          case Pressed:        *theme_state = 3; break; // TIS_SELECTED
-          case PressedHovered: *theme_state = 3; break; // TIS_SELECTED
+          case ControlState::Disabled:       *theme_state = 4; break; // TIS_DISABLED
+          case ControlState::Normal:         *theme_state = 1; break; // TIS_NORMAL
+          case ControlState::Hot:            *theme_state = 1; break; // TIS_NORMAL
+          case ControlState::Hovered:        *theme_state = 2; break; // TIS_HOT
+          case ControlState::Pressed:        *theme_state = 3; break; // TIS_SELECTED
+          case ControlState::PressedHovered: *theme_state = 3; break; // TIS_SELECTED
         }
     } break;
     
-    case TabHeadBackground: 
-    case TabBodyBackground: {
+    case ContainerType::TabHeadBackground: 
+    case ContainerType::TabBodyBackground: {
         *theme_part = 9; // TABP_PANE  // TODO: combine with TABP_BODY ....
         *theme_state = 0;
     } break;
@@ -2425,16 +2425,16 @@ HANDLE Win32ControlPainter::get_control_theme(
   }
   
   switch(type) {
-    case TabHead: // Windows 10: TABP_TABITEM has no line on the left, looks exactly like TABP_TABITEMBOTHEDGE
+    case ContainerType::TabHead: // Windows 10: TABP_TABITEM has no line on the left, looks exactly like TABP_TABITEMBOTHEDGE
       //*theme_part = 1; // TABP_TABITEM
       //break;
-    case TabHeadAbuttingRight: 
+    case ContainerType::TabHeadAbuttingRight: 
       *theme_part = 2; // TABP_TABITEMLEFTEDGE
       break;
-    case TabHeadAbuttingLeft:
+    case ContainerType::TabHeadAbuttingLeft:
       *theme_part = 3; // TABP_TABITEMRIGHTEDGE
       break;
-    case TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
       *theme_part = 4; // TABP_TABITEMBOTHEDGE
       break;
   }
@@ -2456,15 +2456,15 @@ Color Win32ControlPainterImpl::get_sys_color(int index) {
 
 bool Win32ControlPainterImpl::dark_mode_is_fake(ContainerType type) {
   switch(type) {
-    case ProgressIndicatorBackground:
-    case SliderHorzChannel:
-    case PanelControl:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead:
-    case TabHeadBackground:
-    case TabBodyBackground:
+    case ContainerType::ProgressIndicatorBackground:
+    case ContainerType::HorizontalSliderChannel:
+    case ContainerType::Panel:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead:
+    case ContainerType::TabHeadBackground:
+    case ContainerType::TabBodyBackground:
       return true;
     
     default: return false;
@@ -2488,19 +2488,19 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
       accent = get_sys_color(COLOR_HIGHLIGHT);
     
     switch(state) {
-      case Normal:         canvas.set_color(accent); break;
-      case Hovered:        canvas.set_color(Color::blend(accent, Color::White, 0.25)); break;
-      case Pressed:        
-      case PressedHovered: canvas.set_color(Color::blend(accent, Color::Black, 0.25)); break;
-      case Disabled:       canvas.set_color(Color::Black, 0.5); break;
+      case ControlState::Normal:         canvas.set_color(accent); break;
+      case ControlState::Hovered:        canvas.set_color(Color::blend(accent, Color::White, 0.25)); break;
+      case ControlState::Pressed:        
+      case ControlState::PressedHovered: canvas.set_color(Color::blend(accent, Color::Black, 0.25)); break;
+      case ControlState::Disabled:       canvas.set_color(Color::Black, 0.5); break;
     }
   }
   else {
     Color fg = dark ? Color::White : Color::Black;
     
     switch(state) {
-      case Pressed:
-      case PressedHovered:
+      case ControlState::Pressed:
+      case ControlState::PressedHovered:
         canvas.set_color(fg, 0.4);
         canvas.fill_preserve();
         break;
@@ -2511,11 +2511,11 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
     rect.add_round_rect_path(canvas, radii, true);
     
     switch(state) {
-      case Normal:         canvas.set_color(fg, 0.6); break;
-      case Hovered:        canvas.set_color(fg, 0.8); break;
-      case Pressed:        
-      case PressedHovered: canvas.set_color(fg); break;
-      case Disabled:       canvas.set_color(fg, 0.5); break;
+      case ControlState::Normal:         canvas.set_color(fg, 0.6); break;
+      case ControlState::Hovered:        canvas.set_color(fg, 0.8); break;
+      case ControlState::Pressed:        
+      case ControlState::PressedHovered: canvas.set_color(fg); break;
+      case ControlState::Disabled:       canvas.set_color(fg, 0.5); break;
     }
   }
   canvas.fill();

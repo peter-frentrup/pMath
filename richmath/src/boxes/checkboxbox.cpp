@@ -31,7 +31,7 @@ namespace richmath {
 //{ class CheckboxBox ...
 
 CheckboxBox::CheckboxBox()
-  : base(CheckboxIndeterminate),
+  : base(ContainerType::CheckboxIndeterminate),
     mouse_down_value(PMATH_UNDEFINED),
     is_initialized(false)
 {
@@ -216,7 +216,7 @@ void CheckboxBox::Impl::finish_update_value() {
 }
 
 Expr CheckboxBox::Impl::next_value_when_clicked() {
-  if(self.type == CheckboxChecked) {
+  if(self.type == ContainerType::CheckboxChecked) {
     if(self.values.expr_length() == 2 && self.values[0] == richmath_System_List)
       return self.values[1];
     else
@@ -233,21 +233,21 @@ Expr CheckboxBox::Impl::next_value_when_clicked() {
 ContainerType CheckboxBox::Impl::calc_type(Expr result) {
   if(self.values.is_null()) {
     if(result == richmath_System_False)
-      return CheckboxUnchecked;
+      return ContainerType::CheckboxUnchecked;
       
     if(result == richmath_System_True)
-      return CheckboxChecked;
+      return ContainerType::CheckboxChecked;
   }
   
   if(self.values.expr_length() == 2) {
     if(result == self.values[1])
-      return CheckboxUnchecked;
+      return ContainerType::CheckboxUnchecked;
       
     if(result == self.values[2])
-      return CheckboxChecked;
+      return ContainerType::CheckboxChecked;
   }
   
-  return CheckboxIndeterminate;
+  return ContainerType::CheckboxIndeterminate;
 }
 
 Expr CheckboxBox::Impl::to_literal() {
@@ -255,17 +255,17 @@ Expr CheckboxBox::Impl::to_literal() {
     return self.dynamic.expr();
   
   switch(self.type) {
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::OpenerTriangleOpened:
+    case ContainerType::RadioButtonChecked:
       if(self.values.expr_length() == 2)
         return self.values[2];
       else
         return Symbol(richmath_System_True);
       
-    case CheckboxUnchecked:
-    case OpenerTriangleClosed:
-    case RadioButtonUnchecked:
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::RadioButtonUnchecked:
       if(self.values.expr_length() == 2)
         return self.values[1];
       else

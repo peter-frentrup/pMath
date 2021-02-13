@@ -30,7 +30,7 @@ namespace richmath {
 //{ class RadioButtonBox ...
 
 RadioButtonBox::RadioButtonBox()
-  : base(RadioButtonUnchecked),
+  : base(ContainerType::RadioButtonUnchecked),
     first_paint(true),
     is_initialized(false)
 {
@@ -81,7 +81,7 @@ bool RadioButtonBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 void RadioButtonBox::paint(Context &context) {
   Impl(*this).finish_update_value();
   
-  if(type == RadioButtonChecked || first_paint) {
+  if(type == ContainerType::RadioButtonChecked || first_paint) {
     old_type = type;
     animation = nullptr;
   }
@@ -186,9 +186,9 @@ void RadioButtonBox::Impl::finish_update_value() {
 
 ContainerType RadioButtonBox::Impl::calc_type(Expr result) {
   if(result == self.value)
-    return RadioButtonChecked;
+    return ContainerType::RadioButtonChecked;
     
-  return RadioButtonUnchecked;
+  return ContainerType::RadioButtonUnchecked;
 }
 
 Expr RadioButtonBox::Impl::to_literal() {
@@ -196,9 +196,9 @@ Expr RadioButtonBox::Impl::to_literal() {
     return self.dynamic.expr();
   
   switch(self.type) {
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::OpenerTriangleOpened:
+    case ContainerType::RadioButtonChecked:
       return self.value;
     
     default:

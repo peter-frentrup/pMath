@@ -12,8 +12,8 @@ namespace richmath {
   class Canvas;
   class Style;
   
-  enum ContainerType {
-    NoContainerType,
+  enum class ContainerType : uint8_t {
+    None,
     FramelessButton,
     GenericButton,
     PushButton,
@@ -26,7 +26,7 @@ namespace richmath {
     TooltipWindow,
     ListViewItem,
     ListViewItemSelected,
-    PanelControl,
+    Panel,
     PopupPanel,
     TabHeadAbuttingRight,
     TabHeadAbuttingLeftRight,
@@ -36,10 +36,10 @@ namespace richmath {
     TabBodyBackground,
     
     // not really a container:
-    SliderHorzChannel,
-    SliderHorzThumb,
-    SliderHorzUpArrowThumb,
-    SliderHorzDownArrowThumb,
+    HorizontalSliderChannel,
+    HorizontalSliderThumb,
+    HorizontalSliderUpArrowButton,
+    HorizontalSliderDownArrowButton,
     ToggleSwitchChannelChecked,
     ToggleSwitchThumbChecked,
     ToggleSwitchChannelUnchecked,
@@ -57,22 +57,22 @@ namespace richmath {
     NavigationForward
   };
   
-  enum ScrollbarPart {
-    ScrollbarNowhere,
-    ScrollbarUpLeft,
-    ScrollbarLowerRange,
-    ScrollbarThumb,
-    ScrollbarUpperRange,
-    ScrollbarDownRight,
-    ScrollbarSizeGrip
+  enum class ScrollbarPart : uint8_t {
+    Nowhere,
+    UpLeft,
+    LowerRange,
+    Thumb,
+    UpperRange,
+    DownRight,
+    SizeGrip
   };
   
-  enum ScrollbarDirection {
-    ScrollbarHorizontal,
-    ScrollbarVertical
+  enum class ScrollbarDirection : uint8_t {
+    Horizontal,
+    Vertical
   };
   
-  enum ControlState {
+  enum class ControlState : uint8_t {
     Normal,         // mouse avay, not pressed
     Hovered,        // mouse over, not pressed
     Hot,            // mouse over other part of the widget (possibly pressed there)
@@ -114,7 +114,7 @@ namespace richmath {
       virtual Color control_font_color(ControlContext &control, ContainerType type, ControlState state);
       
       static bool is_static_background(ContainerType type) {
-        return type == NoContainerType || type == PanelControl;
+        return type == ContainerType::None || type == ContainerType::Panel;
       }
       
       virtual bool is_very_transparent(ControlContext &control, ContainerType type, ControlState state);

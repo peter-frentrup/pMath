@@ -62,7 +62,7 @@ void AbstractButtonBox::on_mouse_down(MouseEvent &event) {
 void AbstractButtonBox::on_mouse_move(MouseEvent &event) {
   if(mouse_inside && enabled()) {
     if(Document *doc = find_parent<Document>(false)) {
-      if(type == FramelessButton)
+      if(type == ContainerType::FramelessButton)
         doc->native()->set_cursor(CursorType::Finger);
       else
         doc->native()->set_cursor(CursorType::Default);

@@ -39,7 +39,7 @@ extern pmath_symbol_t richmath_System_Try;
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(MathSequence *content)
-  : base(InputField, content),
+  : base(ContainerType::InputField, content),
     must_update(true),
     invalidated(false),
     frame_x(0)
@@ -78,13 +78,13 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 ControlState InputFieldBox::calc_state(Context &context) {
   if(!enabled())
-    return Disabled;
+    return ControlState::Disabled;
   
   if(selection_inside) {
     if(mouse_inside)
-      return PressedHovered;
+      return ControlState::PressedHovered;
       
-    return Pressed;
+    return ControlState::Pressed;
   }
   
   return base::calc_state(context);
@@ -541,22 +541,22 @@ static ContainerType parse_inputfield_appearance(Expr expr) {
     String s = std::move(expr);
     
     if(s == strings::Frameless)
-      return NoContainerType;
+      return ContainerType::None;
     
     if(s == strings::Framed)
-      return InputField;
+      return ContainerType::InputField;
     
     if(s == strings::AddressBand)
-      return AddressBandInputField;
+      return ContainerType::AddressBandInputField;
     
-    return InputField;
+    return ContainerType::InputField;
   }
   
   if(expr == richmath_System_None)
-    return NoContainerType;
+    return ContainerType::None;
     
   if(expr == richmath_System_Automatic)
-    return InputField;
+    return ContainerType::InputField;
   
-  return InputField;
+  return ContainerType::InputField;
 }

@@ -358,9 +358,9 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         ControlPainter::std->paint_scrollbar_part(
           *this,
           canvas,
-          ScrollbarSizeGrip,
-          ScrollbarHorizontal,
-          Normal,
+          ScrollbarPart::SizeGrip,
+          ScrollbarDirection::Horizontal,
+          ControlState::Normal,
           {win_size.x - sb, win_size.y - sb, sb, sb});
         canvas.restore();
       }

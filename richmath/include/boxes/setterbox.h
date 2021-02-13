@@ -32,7 +32,7 @@ namespace richmath {
       virtual VolatileSelection dynamic_to_literal(int start, int end) override;
     
     protected:
-      virtual ContainerType default_container_type() override { return PaletteButton; }
+      virtual ContainerType default_container_type() override { return ContainerType::PaletteButton; }
     
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SetterBox; }
     

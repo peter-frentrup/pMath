@@ -235,9 +235,9 @@ void MathGtkControlPainter::calc_container_size(
     int min_height = 0;
     
     switch(type) {
-      case DefaultPushButton:
-      case PushButton:
-      case PaletteButton:
+      case ContainerType::DefaultPushButton:
+      case ContainerType::PushButton:
+      case ContainerType::PaletteButton:
         if(extents->ascent < canvas.get_font_size() * 0.75f)
           extents->ascent = canvas.get_font_size() * 0.75f;
           
@@ -245,7 +245,7 @@ void MathGtkControlPainter::calc_container_size(
           extents->descent = canvas.get_font_size() * 0.25f;
         break;
       
-      case AddressBandInputField: {
+      case ContainerType::AddressBandInputField: {
           GtkBorder border;
           gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
           extents->ascent +=  0.75f * border.top;
@@ -259,7 +259,7 @@ void MathGtkControlPainter::calc_container_size(
         } 
         return;
         
-      case AddressBandBackground: {
+      case ContainerType::AddressBandBackground: {
           GtkBorder border;
           //gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &border);
           //extents->ascent +=  0.75f * border.top;
@@ -273,11 +273,11 @@ void MathGtkControlPainter::calc_container_size(
         } 
         return;
         
-      case CheckboxUnchecked:
-      case CheckboxChecked:
-      case CheckboxIndeterminate:
-      case RadioButtonUnchecked:
-      case RadioButtonChecked: {
+      case ContainerType::CheckboxUnchecked:
+      case ContainerType::CheckboxChecked:
+      case ContainerType::CheckboxIndeterminate:
+      case ContainerType::RadioButtonUnchecked:
+      case ContainerType::RadioButtonChecked: {
 //          int size;
 //          gtk_style_context_get_style(gtk_ctx, "indicator-size", &size, nullptr);
 //          
@@ -290,8 +290,8 @@ void MathGtkControlPainter::calc_container_size(
           extents->descent = 0;
         } break;
       
-      case OpenerTriangleClosed:
-      case OpenerTriangleOpened: {
+      case ContainerType::OpenerTriangleClosed:
+      case ContainerType::OpenerTriangleOpened: {
           int size;
           gtk_style_context_get_style(gtk_ctx, "expander-size", &size, nullptr);
           
@@ -301,15 +301,15 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
       
-      case PanelControl:
-      case PopupPanel: {
+      case ContainerType::Panel:
+      case ContainerType::PopupPanel: {
           extents->width +=   12.0;
           extents->ascent +=  6.0;
           extents->descent += 6.0;
         }
         return;
       
-      case SliderHorzChannel: {
+      case ContainerType::HorizontalSliderChannel: {
           // TODO: calculate implicitly from minimum scale>contents>trough>slider height (18+2 for border), taking margins (-9 top and bottom) into account and add trough border (1 top and bottom)
           extents->width = 8 * extents->height();
           float h = 4 * 0.75f;
@@ -318,9 +318,9 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
         
-      case SliderHorzThumb:
-      case SliderHorzDownArrowThumb:
-      case SliderHorzUpArrowThumb: {
+      case ContainerType::HorizontalSliderThumb:
+      case ContainerType::HorizontalSliderDownArrowButton:
+      case ContainerType::HorizontalSliderUpArrowButton: {
           gtk_style_context_get(gtk_ctx, GTK_STATE_FLAG_NORMAL, "min-width", &min_width, nullptr); // GTK >= 3.20.0
           if(min_width <= 0)
             gtk_style_context_get_style(gtk_ctx, "slider-width", &min_width, nullptr);
@@ -335,7 +335,7 @@ void MathGtkControlPainter::calc_container_size(
         }
         break;
         
-//      case ProgressIndicatorBackground: {
+//      case ContainerType::ProgressIndicatorBackground: {
 //          //extents->ascent *= 0.5;
 //          //extents->descent *= 0.5;
 //          
@@ -352,7 +352,7 @@ void MathGtkControlPainter::calc_container_size(
 //        }
 //        return;
         
-      case ProgressIndicatorBar: {
+      case ContainerType::ProgressIndicatorBar: {
           GtkBorder padding;
           gtk_style_context_get_padding(gtk_ctx, GTK_STATE_FLAG_NORMAL, &padding);
           
@@ -362,8 +362,8 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
         
-      case NavigationBack:
-      case NavigationForward:  {
+      case ContainerType::NavigationBack:
+      case ContainerType::NavigationForward:  {
           int w, h;
           gtk_icon_size_lookup(GTK_ICON_SIZE_SMALL_TOOLBAR, &w, &h);
           
@@ -373,12 +373,12 @@ void MathGtkControlPainter::calc_container_size(
         } 
         break;
       
-      case TabHeadBackground: return;
+      case ContainerType::TabHeadBackground: return;
       
-      case ToggleSwitchChannelChecked:
-      case ToggleSwitchChannelUnchecked: {
+      case ContainerType::ToggleSwitchChannelChecked:
+      case ContainerType::ToggleSwitchChannelUnchecked: {
           GtkBorder thumb_border = {};
-          if(GtkStyleContext *thumb_ctx = get_control_theme(control, type == ToggleSwitchChannelChecked ? ToggleSwitchThumbChecked : ToggleSwitchThumbUnchecked)) {
+          if(GtkStyleContext *thumb_ctx = get_control_theme(control, type == ContainerType::ToggleSwitchChannelChecked ? ContainerType::ToggleSwitchThumbChecked : ContainerType::ToggleSwitchThumbUnchecked)) {
             gtk_style_context_get(thumb_ctx, GTK_STATE_FLAG_NORMAL, "min-width", &min_width, nullptr); // GTK >= 3.20.0
             if(min_width <= 0)
               gtk_style_context_get_style(thumb_ctx, "slider-width", &min_width, nullptr);
@@ -407,8 +407,8 @@ void MathGtkControlPainter::calc_container_size(
         }
         return;
       
-      case ToggleSwitchThumbChecked:
-      case ToggleSwitchThumbUnchecked: {
+      case ContainerType::ToggleSwitchThumbChecked:
+      case ContainerType::ToggleSwitchThumbUnchecked: {
           gtk_style_context_get(gtk_ctx, GTK_STATE_FLAG_NORMAL, "min-width", &min_width, nullptr); // GTK >= 3.20.0
           if(min_width <= 0)
             gtk_style_context_get_style(gtk_ctx, "slider-width", &min_width, nullptr);
@@ -488,8 +488,8 @@ Color MathGtkControlPainter::control_font_color(ControlContext &control, Contain
  
 bool MathGtkControlPainter::is_very_transparent(ControlContext &control, ContainerType type, ControlState state) {
   switch(type) {
-    case PaletteButton:
-      return state == Normal;
+    case ContainerType::PaletteButton:
+      return state == ControlState::Normal;
       
     default:
       break;
@@ -505,12 +505,12 @@ void MathGtkControlPainter::draw_container(
   RectangleF      rect
 ) {
   switch(type) {
-    case PaletteButton:
-      if(state == Normal)
+    case ContainerType::PaletteButton:
+      if(state == ControlState::Normal)
         return;
       break;
     
-    case AddressBandInputField: return;
+    case ContainerType::AddressBandInputField: return;
     
     default: break;
   }
@@ -545,10 +545,10 @@ Vector2F MathGtkControlPainter::container_content_offset(
   ControlState    state)
 {
   switch(type) {
-    case PushButton:
-    case DefaultPushButton:
-    case PaletteButton:
-      if(state == PressedHovered) {
+    case ContainerType::PushButton:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::PaletteButton:
+      if(state == ControlState::PressedHovered) {
         if(GtkStyleContext *control = get_control_theme(ControlContext::dummy, type)) {
           int dx, dy;
           
@@ -570,13 +570,13 @@ Vector2F MathGtkControlPainter::container_content_offset(
  
 bool MathGtkControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
-    case FramelessButton:
-    case NoContainerType:
-    case PanelControl:
-    case PopupPanel:
-    case TabBodyBackground:
-    case TabHeadBackground:
-    case TooltipWindow:
+    case ContainerType::FramelessButton:
+    case ContainerType::None:
+    case ContainerType::Panel:
+    case ContainerType::PopupPanel:
+    case ContainerType::TabBodyBackground:
+    case ContainerType::TabHeadBackground:
+    case ContainerType::TooltipWindow:
       return false;
     
     default:
@@ -589,7 +589,7 @@ bool MathGtkControlPainter::container_hover_repaint(ControlContext &control, Con
 }
  
 void MathGtkControlPainter::system_font_style(ControlContext &control, Style *style) {
-  GtkStyleContext *gsc = get_control_theme(control, PushButton, true);
+  GtkStyleContext *gsc = get_control_theme(control, ContainerType::PushButton, true);
   
   if(!gsc) {
     ControlPainter::system_font_style(control, style);
@@ -630,58 +630,58 @@ GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &contro
   
   style_observations.register_observer();
   switch(type) {
-    case NoContainerType:
-    case FramelessButton:
-    case GenericButton:
+    case ContainerType::None:
+    case ContainerType::FramelessButton:
+    case ContainerType::GenericButton:
       break;
       
-    case PushButton:                  return painter_cache_for(control).push_button_context();
-    case DefaultPushButton:           return painter_cache_for(control).default_push_button_context();
+    case ContainerType::PushButton:                  return painter_cache_for(control).push_button_context();
+    case ContainerType::DefaultPushButton:           return painter_cache_for(control).default_push_button_context();
       
-    case NavigationBack:
-    case NavigationForward:
-    case PaletteButton:               return painter_cache_for(control).tool_button_context();
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward:
+    case ContainerType::PaletteButton:               return painter_cache_for(control).tool_button_context();
     
-    case AddressBandGoButton:         return painter_cache_for(control).input_field_button_context();
+    case ContainerType::AddressBandGoButton:         return painter_cache_for(control).input_field_button_context();
       
-    case InputField:
-    case AddressBandInputField:
-    case AddressBandBackground:       return painter_cache_for(control).input_field_context();
+    case ContainerType::InputField:
+    case ContainerType::AddressBandInputField:
+    case ContainerType::AddressBandBackground:       return painter_cache_for(control).input_field_context();
       
-    case CheckboxUnchecked:
-    case CheckboxChecked:
-    case CheckboxIndeterminate:       return painter_cache_for(control).checkbox_context();
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::CheckboxIndeterminate:       return painter_cache_for(control).checkbox_context();
       
-    case RadioButtonUnchecked:
-    case RadioButtonChecked:          return painter_cache_for(control).radio_button_context();
+    case ContainerType::RadioButtonUnchecked:
+    case ContainerType::RadioButtonChecked:          return painter_cache_for(control).radio_button_context();
     
-    case PanelControl:                return painter_cache_for(control).panel_context();
-    case PopupPanel:                  return painter_cache_for(control).popup_panel_context();
-    case ProgressIndicatorBackground: return painter_cache_for(control).progress_bar_trough_context();
-    case ProgressIndicatorBar:        return painter_cache_for(control).progress_bar_context();
-    case SliderHorzChannel:           return painter_cache_for(control).slider_channel_context();
-    case SliderHorzThumb:             return painter_cache_for(control).slider_thumb_context();
-    case SliderHorzDownArrowThumb:    return painter_cache_for(control).slider_thumb_down_arrow_context();
-    case SliderHorzUpArrowThumb:      return painter_cache_for(control).slider_thumb_up_arrow_context();
-    case TooltipWindow:               return painter_cache_for(control).tooltip_context();
-    case ListViewItem:                return painter_cache_for(control).list_item_context();
-    case ListViewItemSelected:        return painter_cache_for(control).list_item_selected_context();
+    case ContainerType::Panel:                return painter_cache_for(control).panel_context();
+    case ContainerType::PopupPanel:                  return painter_cache_for(control).popup_panel_context();
+    case ContainerType::ProgressIndicatorBackground: return painter_cache_for(control).progress_bar_trough_context();
+    case ContainerType::ProgressIndicatorBar:        return painter_cache_for(control).progress_bar_context();
+    case ContainerType::HorizontalSliderChannel:           return painter_cache_for(control).slider_channel_context();
+    case ContainerType::HorizontalSliderThumb:             return painter_cache_for(control).slider_thumb_context();
+    case ContainerType::HorizontalSliderDownArrowButton:    return painter_cache_for(control).slider_thumb_down_arrow_context();
+    case ContainerType::HorizontalSliderUpArrowButton:      return painter_cache_for(control).slider_thumb_up_arrow_context();
+    case ContainerType::TooltipWindow:               return painter_cache_for(control).tooltip_context();
+    case ContainerType::ListViewItem:                return painter_cache_for(control).list_item_context();
+    case ContainerType::ListViewItemSelected:        return painter_cache_for(control).list_item_selected_context();
     
-    case OpenerTriangleClosed:
-    case OpenerTriangleOpened:        return painter_cache_for(control).expander_arrow_context();
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::OpenerTriangleOpened:        return painter_cache_for(control).expander_arrow_context();
     
-    case TabBodyBackground:           return painter_cache_for(control).tab_body_context();
-    case TabHeadBackground:           return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_background_context();
+    case ContainerType::TabBodyBackground:           return painter_cache_for(control).tab_body_context();
+    case ContainerType::TabHeadBackground:           return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_background_context();
     
-    case TabHead:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_context();
+    case ContainerType::TabHead:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:         return foreground ? painter_cache_for(control).tab_head_label_context() : painter_cache_for(control).tab_head_context();
     
-    case ToggleSwitchChannelChecked:
-    case ToggleSwitchChannelUnchecked: return painter_cache_for(control).toggle_switch_channel_context();
-    case ToggleSwitchThumbChecked:
-    case ToggleSwitchThumbUnchecked: return painter_cache_for(control).toggle_switch_thumb_context();
+    case ContainerType::ToggleSwitchChannelChecked:
+    case ContainerType::ToggleSwitchChannelUnchecked: return painter_cache_for(control).toggle_switch_channel_context();
+    case ContainerType::ToggleSwitchThumbChecked:
+    case ContainerType::ToggleSwitchThumbUnchecked: return painter_cache_for(control).toggle_switch_thumb_context();
     
     default:
       break;
@@ -696,65 +696,65 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
     result = GTK_STATE_FLAG_BACKDROP;
   
   switch(type) {
-    case PanelControl:
-    case PopupPanel:
+    case ContainerType::Panel:
+    case ContainerType::PopupPanel:
       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
     
-    case CheckboxUnchecked:
-    case OpenerTriangleClosed:
-    case RadioButtonUnchecked:
-    case ToggleSwitchChannelUnchecked:
-    case ToggleSwitchThumbUnchecked:
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::RadioButtonUnchecked:
+    case ContainerType::ToggleSwitchChannelUnchecked:
+    case ContainerType::ToggleSwitchThumbUnchecked:
       break;
     
-    case ListViewItem: {
+    case ContainerType::ListViewItem: {
         switch(state) {
-          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Hovered:        
-          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Pressed:        
-          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
+          case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case ControlState::PressedHovered: return (GtkStateFlags)( (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Hovered:        
+          case ControlState::Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Pressed:        
+          case ControlState::Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
-    case ToggleSwitchChannelChecked:
-    case ToggleSwitchThumbChecked: {
+    case ContainerType::CheckboxChecked:
+    case ContainerType::OpenerTriangleOpened:
+    case ContainerType::RadioButtonChecked:
+    case ContainerType::ToggleSwitchChannelChecked:
+    case ContainerType::ToggleSwitchThumbChecked: {
         switch(state) {
-          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Hovered:        
-          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Pressed:        
-          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_NORMAL );
+          case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Hovered:        
+          case ControlState::Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Pressed:        
+          case ControlState::Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
-    case ListViewItemSelected: {
+    case ContainerType::ListViewItemSelected: {
         switch(state) {
-          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Hovered:        
-          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Pressed:        
-          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_NORMAL );
+          case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Hovered:        
+          case ControlState::Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Pressed:        
+          case ControlState::Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
-    case TabHead:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft: {
+    case ContainerType::TabHead:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft: {
         switch(state) {
-          case Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
-          case PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Hovered:        
-          case Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_PRELIGHT );
-          case Pressed:        return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED );
-          case Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
+          case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_INSENSITIVE );
+          case ControlState::PressedHovered: return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Hovered:        
+          case ControlState::Hot:            return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_PRELIGHT );
+          case ControlState::Pressed:        return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_CHECKED );
+          case ControlState::Normal:         return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_NORMAL );
         }
       } break;
     
@@ -763,53 +763,53 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
   }
   
   switch(state) {
-    case Hovered:
-    case Hot:
+    case ControlState::Hovered:
+    case ControlState::Hot:
       result|= (int)GTK_STATE_FLAG_PRELIGHT;
       break;
       
-    case Pressed:
+    case ControlState::Pressed:
       result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED;
       if(control.is_focused_widget())
         result|= (int)GTK_STATE_FLAG_FOCUSED;
       break;
       
-    case PressedHovered:
+    case ControlState::PressedHovered:
       result|= (int)GTK_STATE_FLAG_ACTIVE | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_PRELIGHT;
       if(control.is_focused_widget())
         result|= (int)GTK_STATE_FLAG_FOCUSED;
       break;
       
-    case Disabled:
+    case ControlState::Disabled:
       result|= (int)GTK_STATE_FLAG_INSENSITIVE;
       break;
       
-    case Normal:
+    case ControlState::Normal:
     default:
       result|= (int)GTK_STATE_FLAG_NORMAL;
       break;
   }
   
   switch(type) {
-    case AddressBandBackground:
-    case AddressBandGoButton:
-    case AddressBandInputField:
-    case DefaultPushButton:
-    case InputField:
-    case NavigationBack:
-    case NavigationForward:
-    case PaletteButton:
-    case PushButton:
-    case TabBodyBackground:
-    case TabHeadBackground:
-    //case TabHead:
-    //case TabHeadAbuttingRight:
-    //case TabHeadAbuttingLeftRight:
-    //case TabHeadAbuttingLeft: 
+    case ContainerType::AddressBandBackground:
+    case ContainerType::AddressBandGoButton:
+    case ContainerType::AddressBandInputField:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::InputField:
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward:
+    case ContainerType::PaletteButton:
+    case ContainerType::PushButton:
+    case ContainerType::TabBodyBackground:
+    case ContainerType::TabHeadBackground:
+    //case ContainerType::TabHead:
+    //case ContainerType::TabHeadAbuttingRight:
+    //case ContainerType::TabHeadAbuttingLeftRight:
+    //case ContainerType::TabHeadAbuttingLeft: 
       result &= ~(int)GTK_STATE_FLAG_SELECTED;
       break;
       
-    case CheckboxIndeterminate:
+    case ContainerType::CheckboxIndeterminate:
       result |= (int)GTK_STATE_FLAG_INCONSISTENT;
       break;
       
@@ -919,27 +919,27 @@ void MathGtkStyleContextCache::render_container(
   gtk_style_context_set_state(ctx, flags);
   
   switch(type) {
-    case CheckboxUnchecked:
-    case CheckboxChecked:
-    case CheckboxIndeterminate:
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::CheckboxIndeterminate:
       render_all_common_inset(ctx, canvas, rect);
       gtk_render_check(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
       break;
       
-    case RadioButtonUnchecked:
-    case RadioButtonChecked:
+    case ContainerType::RadioButtonUnchecked:
+    case ContainerType::RadioButtonChecked:
       render_all_common_inset(ctx, canvas, rect);
       gtk_render_option(ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
       break;
       
-    case OpenerTriangleClosed:
-    case OpenerTriangleOpened:
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::OpenerTriangleOpened:
       //gtk_render_background(ctx, canvas.cairo(), x, y, width, height);
       gtk_render_expander(  ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
       break;
     
-    case NavigationBack:
-    case NavigationForward: {
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward: {
         float cx = rect.x + rect.width/2;
         float cy = rect.y + rect.height/2;
         rect.width = rect.height = std::min(rect.width, rect.height);
@@ -955,7 +955,7 @@ void MathGtkStyleContextCache::render_container(
         gtk_icon_size_lookup(GTK_ICON_SIZE_SMALL_TOOLBAR, &w, &h);
         int icon_size = std::min(w, h);
         
-        GtkIconInfo *icon_info = gtk_icon_theme_lookup_icon(icon_theme, type == NavigationBack ? "go-previous-symbolic" : "go-next-symbolic", icon_size, (GtkIconLookupFlags)0);
+        GtkIconInfo *icon_info = gtk_icon_theme_lookup_icon(icon_theme, type == ContainerType::NavigationBack ? "go-previous-symbolic" : "go-next-symbolic", icon_size, (GtkIconLookupFlags)0);
         GdkPixbuf *pixbuf = gtk_icon_info_load_symbolic_for_context(icon_info, ctx, nullptr, nullptr);
         g_object_unref(icon_info);
         
@@ -964,7 +964,7 @@ void MathGtkStyleContextCache::render_container(
         canvas.restore();
         gdk_pixbuf_unref(pixbuf);
         
-//          if(GtkIconSet *icon = gtk_icon_factory_lookup_default(type == NavigationBack ? "go-previous" : "go-next")) {
+//          if(GtkIconSet *icon = gtk_icon_factory_lookup_default(type == ContainerType::NavigationBack ? "go-previous" : "go-next")) {
 //            GdkPixbuf *pixbuf = gtk_icon_set_render_icon_pixbuf(icon, ctx, GTK_ICON_SIZE_SMALL_TOOLBAR);
 //            
 //            gtk_render_icon(ctx, canvas.cairo(), pixbuf, cx - w, cy - h);
@@ -973,7 +973,7 @@ void MathGtkStyleContextCache::render_container(
 //          }
       } break;
     
-    case TabBodyBackground: {
+    case ContainerType::TabBodyBackground: {
         //gtk_style_context_get_border(ctx, GTK_STATE_FLAG_NORMAL, &border);
         GtkBorder border = get_all_border_padding(ctx);
         
@@ -983,10 +983,10 @@ void MathGtkStyleContextCache::render_container(
         render_all_common_inset_const(ctx, canvas, rect);
       } break;
     
-    case TabHead:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft: {
+    case ContainerType::TabHead:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft: {
         GtkBorder margin;
         gtk_style_context_get_margin(ctx, flags, &margin);
         

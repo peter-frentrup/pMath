@@ -216,7 +216,7 @@ void Win32AttachedPopupWindow::paint_background(Canvas &canvas) {
 ////  GetClientRect(_hwnd, &rect);
 //  GetWindowRect(_hwnd, &rect); OffsetRect(&rect, -rect.left, -rect.top);
 //  ControlPainter::std->draw_container(
-//    *this, canvas, PopupPanel, Normal, 
+//    *this, canvas, ContainerType::PopupPanel, ControlState::Normal, 
 //    RectangleF{Point(rect.left, rect.top), Point(rect.right, rect.bottom)});
   canvas.set_color(Win32ControlPainter::win32_painter.win32_button_face_color(is_using_dark_mode()));
   canvas.paint();

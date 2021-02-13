@@ -103,17 +103,17 @@ void ControlPainter::calc_container_size(
   BoxSize        *extents // in/out
 ) {
   switch(type) {
-    case NoContainerType:
-    case FramelessButton: 
-    case TabHeadBackground: break;
+    case ContainerType::None:
+    case ContainerType::FramelessButton: 
+    case ContainerType::TabHeadBackground: break;
     
-    case GenericButton:
-    case PushButton:
-    case PaletteButton:
-    case AddressBandGoButton:
-    case TooltipWindow:
-    case ListViewItem:
-    case ListViewItemSelected: {
+    case ContainerType::GenericButton:
+    case ContainerType::PushButton:
+    case ContainerType::PaletteButton:
+    case ContainerType::AddressBandGoButton:
+    case ContainerType::TooltipWindow:
+    case ContainerType::ListViewItem:
+    case ContainerType::ListViewItemSelected: {
         if(extents->ascent < canvas.get_font_size() * 0.75f)
           extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
           
@@ -125,7 +125,7 @@ void ControlPainter::calc_container_size(
         extents->descent += 2.25;
       } break;
       
-    case DefaultPushButton: {
+    case ContainerType::DefaultPushButton: {
         if(extents->ascent < canvas.get_font_size() * 0.75f)
           extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
           
@@ -137,62 +137,62 @@ void ControlPainter::calc_container_size(
         extents->descent += 3.0;
       } break;
       
-    case InputField: {
+    case ContainerType::InputField: {
         extents->width +=   6.0;
         extents->ascent +=  3.0;
         extents->descent += 3.0;
       } break;
     
-    case AddressBandInputField: {
+    case ContainerType::AddressBandInputField: {
         extents->width +=   3.0;
         extents->ascent +=  2.25;
         extents->descent += 2.25;
       } break;
     
-    case AddressBandBackground: {
+    case ContainerType::AddressBandBackground: {
         extents->width +=   3.0;
         extents->ascent +=  0.75;
         extents->descent += 0.75;
       } break;
       
-    case PopupPanel:
-    case PanelControl: {
+    case ContainerType::PopupPanel:
+    case ContainerType::Panel: {
         extents->width +=   12.0;
         extents->ascent +=  6.0;
         extents->descent += 6.0;
       } break;
     
-    case SliderHorzChannel: {
+    case ContainerType::HorizontalSliderChannel: {
         extents->width   = 8 * extents->height();
         extents->ascent  = 3.0;
         extents->descent = 1.0;
       } break;
       
-    case SliderHorzDownArrowThumb:
-    case SliderHorzThumb:
-    case SliderHorzUpArrowThumb: {
+    case ContainerType::HorizontalSliderDownArrowButton:
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::HorizontalSliderUpArrowButton: {
         extents->width = extents->height() / 2;
       } break;
     
-    case ToggleSwitchChannelChecked:
-    case ToggleSwitchChannelUnchecked: {
+    case ContainerType::ToggleSwitchChannelChecked:
+    case ContainerType::ToggleSwitchChannelUnchecked: {
         extents->ascent+= 0.75f;
         extents->descent+= 0.75f;
         extents->width = 2 * extents->height();
       } break;
       
-    case ToggleSwitchThumbChecked:
-    case ToggleSwitchThumbUnchecked: {
+    case ContainerType::ToggleSwitchThumbChecked:
+    case ContainerType::ToggleSwitchThumbUnchecked: {
         extents->width = extents->height() + 1.5f;
       } break;
       
-    case ProgressIndicatorBackground: {
+    case ContainerType::ProgressIndicatorBackground: {
         extents->ascent = 1 * canvas.get_font_size();
         extents->descent = 0;
         //extents->width = extents->height() * 15;
       } break;
       
-    case ProgressIndicatorBar: {
+    case ContainerType::ProgressIndicatorBar: {
 //      extents->ascent *= 0.5;
 //      extents->descent*= 0.5;
 //      extents->width = extents->height() * 15;
@@ -202,39 +202,39 @@ void ControlPainter::calc_container_size(
         extents->width  -= 1.5;
       } break;
       
-    case CheckboxUnchecked:
-    case CheckboxChecked:
-    case CheckboxIndeterminate: {
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::CheckboxIndeterminate: {
         extents->width   = 13 * 0.75;
         extents->ascent  = extents->width * 0.75;
         extents->descent = extents->width * 0.25;
       } break;
       
-    case RadioButtonUnchecked:
-    case RadioButtonChecked: {
+    case ContainerType::RadioButtonUnchecked:
+    case ContainerType::RadioButtonChecked: {
         extents->width   = 16 * 0.75;
         extents->ascent  = extents->width * 0.75;
         extents->descent = extents->width * 0.25;
       } break;
     
-    case OpenerTriangleClosed:
-    case OpenerTriangleOpened: {
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::OpenerTriangleOpened: {
         extents->width   = 16 * 0.75;
         extents->ascent  = extents->width * 0.75;
         extents->descent = extents->width * 0.25;
       } break;
     
-    case NavigationBack:
-    case NavigationForward:  {
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward:  {
         extents->width   = std::max(20 * 0.75,        (double)extents->width);
         extents->ascent  = std::max(20 * 0.75 * 0.75, (double)extents->ascent);
         extents->descent = std::max(20 * 0.75 * 0.25, (double)extents->descent);
       } break;
       
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead: {
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead: {
         if(extents->ascent < canvas.get_font_size() * 0.75f)
           extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
           
@@ -246,7 +246,7 @@ void ControlPainter::calc_container_size(
         extents->descent += 1.5;
       } break;
     
-    case TabBodyBackground: {
+    case ContainerType::TabBodyBackground: {
         extents->width +=   12.0;
         extents->ascent +=  4.5;
         extents->descent += 6.0;
@@ -267,22 +267,22 @@ Color ControlPainter::control_font_color(ControlContext &control, ContainerType 
   if(is_very_transparent(control, type, state))
     return Color::None;
   
-  if(state == Disabled)
+  if(state == ControlState::Disabled)
     return GrayTextColor;
   
-  if(type == ListViewItemSelected)
+  if(type == ContainerType::ListViewItemSelected)
     return Color::White;
     
   return Color::Black;
 }
 
 bool ControlPainter::is_very_transparent(ControlContext &control, ContainerType type, ControlState state) {
-  return type == NoContainerType || 
-         type == FramelessButton || 
-         type == AddressBandInputField || 
-         type == OpenerTriangleClosed ||
-         type == OpenerTriangleOpened ||
-         type == TabHeadBackground;
+  return type == ContainerType::None || 
+         type == ContainerType::FramelessButton || 
+         type == ContainerType::AddressBandInputField || 
+         type == ContainerType::OpenerTriangleClosed ||
+         type == ContainerType::OpenerTriangleOpened ||
+         type == ContainerType::TabHeadBackground;
 }
 
 void ControlPainter::draw_container(
@@ -300,21 +300,21 @@ void ControlPainter::draw_container(
   canvas.save();
   
   switch(type) {
-    case NoContainerType:
-    case FramelessButton: break;
+    case ContainerType::None:
+    case ContainerType::FramelessButton: break;
     
-    case GenericButton:
-    case PushButton:
-    case PaletteButton:
-      ControlPainterImpl::paint_frame(canvas, rect, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+    case ContainerType::GenericButton:
+    case ContainerType::PushButton:
+    case ContainerType::PaletteButton:
+      ControlPainterImpl::paint_frame(canvas, rect, state == ControlState::PressedHovered, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
     
-    case AddressBandGoButton:
-      ControlPainterImpl::paint_frame(canvas, rect.enlarged_by(0, -0.75), state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+    case ContainerType::AddressBandGoButton:
+      ControlPainterImpl::paint_frame(canvas, rect.enlarged_by(0, -0.75), state == ControlState::PressedHovered, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
       break;
       
-    case DefaultPushButton: {
-        ControlPainterImpl::paint_frame(canvas, rect, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+    case ContainerType::DefaultPushButton: {
+        ControlPainterImpl::paint_frame(canvas, rect, state == ControlState::PressedHovered, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
         
         rect.add_rect_path(canvas, false);
         rect.grow(0.75, 0.75);
@@ -326,16 +326,16 @@ void ControlPainter::draw_container(
         canvas.set_color(c);
       } break;
       
-    case InputField:
-    case AddressBandBackground:
-      ControlPainterImpl::paint_frame(canvas, rect, true, state != Disabled, Color::White);
+    case ContainerType::InputField:
+    case ContainerType::AddressBandBackground:
+      ControlPainterImpl::paint_frame(canvas, rect, true, state != ControlState::Disabled, Color::White);
       break;
       
-    case TooltipWindow:
+    case ContainerType::TooltipWindow:
       ControlPainterImpl::paint_frame(canvas, rect, false, false, Color::from_rgb24(0xFFF4C1));
       break;
       
-    case ListViewItem: {
+    case ContainerType::ListViewItem: {
         Color c = canvas.get_color();
         rect.add_rect_path(canvas);
         canvas.set_color(Color::White);
@@ -343,7 +343,7 @@ void ControlPainter::draw_container(
         canvas.set_color(c);
       } break;
       
-    case ListViewItemSelected: {
+    case ContainerType::ListViewItemSelected: {
         Color c = canvas.get_color();
         rect.add_rect_path(canvas);
         canvas.set_color(Color::from_rgb24(0x0099ff));
@@ -351,60 +351,60 @@ void ControlPainter::draw_container(
         canvas.set_color(c);
       } break;
     
-    case PanelControl:
+    case ContainerType::Panel:
       ControlPainterImpl::paint_frame(canvas, rect, false, true);
       break;
     
-    case PopupPanel: 
+    case ContainerType::PopupPanel: 
       ControlPainterImpl::paint_popup_panel(canvas, rect);
       break;
     
-    case SliderHorzChannel:
-      ControlPainterImpl::paint_frame(canvas, rect, true, state != Disabled);
+    case ContainerType::HorizontalSliderChannel:
+      ControlPainterImpl::paint_frame(canvas, rect, true, state != ControlState::Disabled);
       break;
       
-    case SliderHorzThumb:
-      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, false, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor, state != Disabled);
+    case ContainerType::HorizontalSliderThumb:
+      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
       break;
     
-    case SliderHorzDownArrowThumb:
-      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, true, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor, state != Disabled);
+    case ContainerType::HorizontalSliderDownArrowButton:
+      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, true, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
       break;
     
-    case SliderHorzUpArrowThumb:
-      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, true, false, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor, state != Disabled);
+    case ContainerType::HorizontalSliderUpArrowButton:
+      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, true, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
       break;
     
-    case ToggleSwitchChannelUnchecked:
-      ControlPainterImpl::paint_frame(canvas, rect, true, state != Disabled, ButtonColor);
+    case ContainerType::ToggleSwitchChannelUnchecked:
+      ControlPainterImpl::paint_frame(canvas, rect, true, state != ControlState::Disabled, ButtonColor);
       rect.x+= rect.width - rect.height;
       rect.width = rect.height;
       ControlPainterImpl::paint_checkbox_cross(canvas, rect, Color::Black);
       break;
     
-    case ToggleSwitchChannelChecked:
-      ControlPainterImpl::paint_frame(canvas, rect, true, state != Disabled, ButtonHoverColor);
+    case ContainerType::ToggleSwitchChannelChecked:
+      ControlPainterImpl::paint_frame(canvas, rect, true, state != ControlState::Disabled, ButtonHoverColor);
       rect.width = rect.height;
       ControlPainterImpl::paint_checkbox_mark(canvas, rect, Color::Black);
       break;
       
-    case ToggleSwitchThumbUnchecked: {
+    case ContainerType::ToggleSwitchThumbUnchecked: {
       rect.grow(-0.75f, 0);
       rect.pixel_align(canvas, false);
-      ControlPainterImpl::paint_frame(canvas, rect, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+      ControlPainterImpl::paint_frame(canvas, rect, false, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
     } break;
       
-    case ToggleSwitchThumbChecked: {
+    case ContainerType::ToggleSwitchThumbChecked: {
       rect.grow(-0.75f, 0);
       rect.pixel_align(canvas, false);
-      ControlPainterImpl::paint_frame(canvas, rect, false, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonColor : ButtonHoverColor);
+      ControlPainterImpl::paint_frame(canvas, rect, false, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonColor : ButtonHoverColor);
     } break;
       
-    case ProgressIndicatorBackground:
+    case ContainerType::ProgressIndicatorBackground:
       ControlPainterImpl::paint_frame(canvas, rect, true, true);
       break;
       
-    case ProgressIndicatorBar: {
+    case ContainerType::ProgressIndicatorBar: {
         rect.grow(-1.5, -1.5);
         
         if(rect.width > 0) {
@@ -416,16 +416,16 @@ void ControlPainter::draw_container(
         }
       } break;
       
-    case CheckboxUnchecked:
-      if(state == Disabled)
+    case ContainerType::CheckboxUnchecked:
+      if(state == ControlState::Disabled)
         ControlPainterImpl::paint_frame(canvas, rect, true, true);
       else
         ControlPainterImpl::paint_frame(canvas, rect, true, true, Color::White);
         
       break;
       
-    case CheckboxChecked: {
-        if(state == Disabled) {
+    case ContainerType::CheckboxChecked: {
+        if(state == ControlState::Disabled) {
           ControlPainterImpl::paint_frame(canvas, rect, true, true);
           ControlPainterImpl::paint_checkbox_mark(canvas, rect, Button3DDarkColor);
         }
@@ -435,8 +435,8 @@ void ControlPainter::draw_container(
         }
       } break;
       
-    case CheckboxIndeterminate: {
-        if(state == Disabled) {
+    case ContainerType::CheckboxIndeterminate: {
+        if(state == ControlState::Disabled) {
           ControlPainterImpl::paint_frame(canvas, rect, true, true);
           ControlPainterImpl::paint_checkbox_indeterminate_mark(canvas, rect, Button3DDarkColor);
         }
@@ -447,15 +447,15 @@ void ControlPainter::draw_container(
         
       } break;
       
-    case RadioButtonUnchecked: {
-        if(state == Disabled) 
+    case ContainerType::RadioButtonUnchecked: {
+        if(state == ControlState::Disabled) 
           ControlPainterImpl::paint_radio_button_background(canvas, rect, ButtonColor);
         else 
           ControlPainterImpl::paint_radio_button_background(canvas, rect, Color::White);
       } break;
     
-    case RadioButtonChecked: {
-        if(state == Disabled) {
+    case ContainerType::RadioButtonChecked: {
+        if(state == ControlState::Disabled) {
           ControlPainterImpl::paint_radio_button_background(canvas, rect, ButtonColor);
           ControlPainterImpl::paint_radio_button_mark(      canvas, rect, Button3DDarkColor);
         }
@@ -465,50 +465,50 @@ void ControlPainter::draw_container(
         }
       } break;
   
-    case OpenerTriangleClosed: {
-        if(state == Disabled) 
+    case ContainerType::OpenerTriangleClosed: {
+        if(state == ControlState::Disabled) 
           ControlPainterImpl::paint_opener_triangle_closed(canvas, rect, Button3DDarkColor);
         else 
           ControlPainterImpl::paint_opener_triangle_closed(canvas, rect, Color::Black);
       } break;
       
-    case OpenerTriangleOpened: {
-        if(state == Disabled) 
+    case ContainerType::OpenerTriangleOpened: {
+        if(state == ControlState::Disabled) 
           ControlPainterImpl::paint_opener_triangle_opened(canvas, rect, Button3DDarkColor);
         else 
           ControlPainterImpl::paint_opener_triangle_opened(canvas, rect, Color::Black);
       } break;
       
-    case NavigationBack:
-    case NavigationForward: {
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward: {
         Point center = rect.center();
         rect.width = rect.height = std::min(rect.width, rect.height);
         rect.x = center.x - rect.width/2;
         rect.y = center.y - rect.height/2;
         
-        ControlPainterImpl::paint_frame(canvas, rect, state == PressedHovered, state != Disabled, (state == Hovered || state == PressedHovered) ? ButtonHoverColor : ButtonColor);
+        ControlPainterImpl::paint_frame(canvas, rect, state == ControlState::PressedHovered, state != ControlState::Disabled, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor);
         
-        if(state == PressedHovered) {
+        if(state == ControlState::PressedHovered) {
           rect.x+= 0.75;
           rect.y+= 0.75;
         }
         
-        if(type == NavigationForward) {
+        if(type == ContainerType::NavigationForward) {
           rect.x+= rect.width;
           rect.width = -rect.width;
         }
         
-        if(state == Disabled)
+        if(state == ControlState::Disabled)
           ControlPainterImpl::paint_navigation_back_arrow(canvas, rect, Button3DDarkColor, ButtonColor);
         else
           ControlPainterImpl::paint_navigation_back_arrow(canvas, rect, Color::Black, Color::White);
       } break;
     
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead: {
-        if(state != Pressed && state != PressedHovered) {
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead: {
+        if(state != ControlState::Pressed && state != ControlState::PressedHovered) {
           rect.grow(0, -1.5);
         }
         
@@ -518,13 +518,13 @@ void ControlPainter::draw_container(
         
         float dxleft;
         float dxright;
-        if(state == Pressed || state == PressedHovered) {
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered) {
           dxleft = 1.5f;
           dxright = 1.5f;
         }
         else {
-          dxleft  = (type == TabHeadAbuttingLeft  || type == TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
-          dxright = (type == TabHeadAbuttingRight || type == TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+          dxleft  = (type == ContainerType::TabHeadAbuttingLeft  || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
+          dxright = (type == ContainerType::TabHeadAbuttingRight || type == ContainerType::TabHeadAbuttingLeftRight) ? 0.75f : 1.5f;
         }
         
         inner.x+= dxleft;
@@ -532,7 +532,7 @@ void ControlPainter::draw_container(
         
         Color old_color = canvas.get_color();
         ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
-        if(state == Hovered)
+        if(state == ControlState::Hovered)
           canvas.set_color(ButtonHoverColor);
         else
           canvas.set_color(ButtonColor);
@@ -543,7 +543,7 @@ void ControlPainter::draw_container(
         canvas.set_color(old_color);
       } break;
     
-    case TabHeadBackground: {
+    case ContainerType::TabHeadBackground: {
         rect.y+= rect.height - 1.5f;
         rect.height = 1.5f;
         
@@ -555,7 +555,7 @@ void ControlPainter::draw_container(
         ControlPainterImpl::paint_edge(canvas, rect, inner, Button3DLightColor, Button3DDarkColor);
       } break;
     
-    case TabBodyBackground: {
+    case ContainerType::TabBodyBackground: {
         RectangleF inner = rect;
         inner.x+= 1.5f;
         inner.width-= 3.0f;
@@ -593,24 +593,24 @@ Vector2F ControlPainter::container_content_offset(
   ControlState    state
 ) {
   switch(type) {
-    case GenericButton:
-    case PushButton:
-    case DefaultPushButton: {
-        if(state == PressedHovered) 
+    case ContainerType::GenericButton:
+    case ContainerType::PushButton:
+    case ContainerType::DefaultPushButton: {
+        if(state == ControlState::PressedHovered) 
           return {0.75f, 0.75f};
       } break;
     
-    case PaletteButton:
-    case AddressBandGoButton: {
-        if(state == PressedHovered) 
+    case ContainerType::PaletteButton:
+    case ContainerType::AddressBandGoButton: {
+        if(state == ControlState::PressedHovered) 
           return {0.75f, 0.0f};
       } break;
     
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead: {
-        if(state == Pressed || state == PressedHovered)
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead: {
+        if(state == ControlState::Pressed || state == ControlState::PressedHovered)
           return {0.0f, -1.5f};
       } break;
     
@@ -622,19 +622,19 @@ Vector2F ControlPainter::container_content_offset(
 
 bool ControlPainter::container_hover_repaint(ControlContext &control, ContainerType type) {
   switch(type) {
-    case DefaultPushButton:
-    case GenericButton:
-    case NavigationBack:
-    case NavigationForward:
-    case PaletteButton:
-    case PushButton:
-    case SliderHorzThumb:
-    case TabHeadAbuttingRight:
-    case TabHeadAbuttingLeftRight:
-    case TabHeadAbuttingLeft:
-    case TabHead:
-    case ToggleSwitchThumbChecked:
-    case ToggleSwitchThumbUnchecked:
+    case ContainerType::DefaultPushButton:
+    case ContainerType::GenericButton:
+    case ContainerType::NavigationBack:
+    case ContainerType::NavigationForward:
+    case ContainerType::PaletteButton:
+    case ContainerType::PushButton:
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::TabHeadAbuttingRight:
+    case ContainerType::TabHeadAbuttingLeftRight:
+    case ContainerType::TabHeadAbuttingLeft:
+    case ContainerType::TabHead:
+    case ContainerType::ToggleSwitchThumbChecked:
+    case ContainerType::ToggleSwitchThumbUnchecked:
       return true;
     
     default:
@@ -727,11 +727,11 @@ void ControlPainter::paint_scrollbar_part(
   Color c = canvas.get_color();
   
   switch(part) {
-    case ScrollbarNowhere:
+    case ScrollbarPart::Nowhere:
       return;
       
-    case ScrollbarLowerRange:
-    case ScrollbarUpperRange: {
+    case ScrollbarPart::LowerRange:
+    case ScrollbarPart::UpperRange: {
         canvas.set_color(ButtonColor);
         rect.add_rect_path(canvas);
         canvas.fill();
@@ -739,7 +739,7 @@ void ControlPainter::paint_scrollbar_part(
         canvas.set_color(c);
       } return;
       
-    case ScrollbarSizeGrip: {
+    case ScrollbarPart::SizeGrip: {
         canvas.save();
         
         Point p1, p2, p3;
@@ -786,26 +786,26 @@ void ControlPainter::paint_scrollbar_part(
         canvas.restore();
       } return;
       
-    case ScrollbarUpLeft:
-    case ScrollbarDownRight:
-    case ScrollbarThumb: {
-        draw_container(control, canvas, PushButton, state, rect);
+    case ScrollbarPart::UpLeft:
+    case ScrollbarPart::DownRight:
+    case ScrollbarPart::Thumb: {
+        draw_container(control, canvas, ContainerType::PushButton, state, rect);
       } break;
   }
   
-  Point mp = rect.center() + container_content_offset(control, PushButton, state);
+  Point mp = rect.center() + container_content_offset(control, ContainerType::PushButton, state);
   
   canvas.set_color(Color::Black);
   
-  if(dir == ScrollbarHorizontal) {
-    if(part == ScrollbarUpLeft) {
+  if(dir == ScrollbarDirection::Horizontal) {
+    if(part == ScrollbarPart::UpLeft) {
       mp.x += rect.width / 6;
       canvas.move_to(mp.x - rect.width / 4, mp.y);
       canvas.line_to(mp.x, mp.y - rect.height / 4);
       canvas.line_to(mp.x, mp.y + rect.height / 4);
       canvas.fill();
     }
-    else if(part == ScrollbarDownRight) {
+    else if(part == ScrollbarPart::DownRight) {
       mp.x -= rect.width / 6;
       canvas.move_to(mp.x + rect.width / 4, mp.y);
       canvas.line_to(mp.x, mp.y - rect.height / 4);
@@ -814,14 +814,14 @@ void ControlPainter::paint_scrollbar_part(
     }
   }
   else {
-    if(part == ScrollbarUpLeft) {
+    if(part == ScrollbarPart::UpLeft) {
       mp.y += rect.width / 6;
       canvas.move_to(mp.x, mp.y - rect.height / 4);
       canvas.line_to(mp.x + rect.width / 4, mp.y);
       canvas.line_to(mp.x - rect.width / 4, mp.y);
       canvas.fill();
     }
-    else if(part == ScrollbarDownRight) {
+    else if(part == ScrollbarPart::DownRight) {
       mp.y -= rect.width / 6;
       canvas.move_to(mp.x, mp.y + rect.height / 4);
       canvas.line_to(mp.x + rect.width / 4, mp.y);
@@ -884,28 +884,28 @@ ScrollbarPart ControlPainter::mouse_to_scrollbar_part(
   float rel_page_size
 ) {
   if(rel_mouse < 0)
-    return ScrollbarNowhere;
+    return ScrollbarPart::Nowhere;
     
   if(rel_mouse > scrollbar_height)
-    return ScrollbarSizeGrip;
+    return ScrollbarPart::SizeGrip;
     
   float lower, thumb, upper, down;
   scrollbar_part_pos(0, scrollbar_height, track_pos, rel_page_size,
                      &lower, &thumb, &upper, &down);
                      
   if(rel_mouse <= lower)
-    return ScrollbarUpLeft;
+    return ScrollbarPart::UpLeft;
     
   if(rel_mouse < thumb)
-    return ScrollbarLowerRange;
+    return ScrollbarPart::LowerRange;
     
   if(rel_mouse <= upper)
-    return ScrollbarThumb;
+    return ScrollbarPart::Thumb;
     
   if(rel_mouse < down)
-    return ScrollbarUpperRange;
+    return ScrollbarPart::UpperRange;
     
-  return ScrollbarDownRight;
+  return ScrollbarPart::DownRight;
 }
 
 void ControlPainter::paint_scrollbar(
@@ -920,68 +920,68 @@ void ControlPainter::paint_scrollbar(
 ) {
   float lower, thumb, upper, down;
   
-  ControlState upleft_state    = Normal;
-  ControlState lower_state     = Normal;
-  ControlState thumb_state     = Normal;
-  ControlState upper_state     = Normal;
-  ControlState downright_state = Normal;
+  ControlState upleft_state    = ControlState::Normal;
+  ControlState lower_state     = ControlState::Normal;
+  ControlState thumb_state     = ControlState::Normal;
+  ControlState upper_state     = ControlState::Normal;
+  ControlState downright_state = ControlState::Normal;
   
-  if(state == Disabled) {
-    upleft_state = lower_state = thumb_state = upper_state = downright_state = Disabled;
+  if(state == ControlState::Disabled) {
+    upleft_state = lower_state = thumb_state = upper_state = downright_state = ControlState::Disabled;
   }
-  else if(mouseover_part != ScrollbarSizeGrip
-          && mouseover_part != ScrollbarNowhere) {
-    upleft_state = lower_state = thumb_state = upper_state = downright_state = Hovered;
+  else if(mouseover_part != ScrollbarPart::SizeGrip
+          && mouseover_part != ScrollbarPart::Nowhere) {
+    upleft_state = lower_state = thumb_state = upper_state = downright_state = ControlState::Hovered;
     
-    if(state != Pressed)
-      state = Hovered;//Hot;
+    if(state != ControlState::Pressed)
+      state = ControlState::Hovered;//ControlState::Hot;
       
     switch(mouseover_part) {
-      case ScrollbarUpLeft:     upleft_state    = state; break;
-      case ScrollbarLowerRange: lower_state     = state; break;
-      case ScrollbarThumb:      thumb_state     = state; break;
-      case ScrollbarUpperRange: upper_state     = state; break;
-      case ScrollbarDownRight:  downright_state = state; break;
+      case ScrollbarPart::UpLeft:     upleft_state    = state; break;
+      case ScrollbarPart::LowerRange: lower_state     = state; break;
+      case ScrollbarPart::Thumb:      thumb_state     = state; break;
+      case ScrollbarPart::UpperRange: upper_state     = state; break;
+      case ScrollbarPart::DownRight:  downright_state = state; break;
       default: ;
     }
   }
   
-  if(dir == ScrollbarHorizontal) {
+  if(dir == ScrollbarDirection::Horizontal) {
     scrollbar_part_pos(0, rect.width, track_pos, rel_page_size,
                        &lower, &thumb, &upper, &down);
                        
-    paint_scrollbar_part(control, canvas, ScrollbarUpLeft, dir, upleft_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::UpLeft, dir, upleft_state,
                          {rect.x, rect.y, lower, rect.height});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarLowerRange, dir, lower_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::LowerRange, dir, lower_state,
                          {rect.x + lower, rect.y, thumb - lower, rect.height});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarThumb, dir, thumb_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::Thumb, dir, thumb_state,
                          {rect.x + thumb, rect.y, upper - thumb, rect.height});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarUpperRange, dir, upper_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::UpperRange, dir, upper_state,
                          {rect.x + upper, rect.y, down - upper, rect.height});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarDownRight, dir, downright_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::DownRight, dir, downright_state,
                          {rect.x + down, rect.y, rect.width - down, rect.height});
   }
   else {
     scrollbar_part_pos(0, rect.height, track_pos, rel_page_size,
                        &lower, &thumb, &upper, &down);
                        
-    paint_scrollbar_part(control, canvas, ScrollbarUpLeft, dir, upleft_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::UpLeft, dir, upleft_state,
                          {rect.x, rect.y, rect.width, lower});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarLowerRange, dir, lower_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::LowerRange, dir, lower_state,
                          {rect.x, rect.y + lower, rect.width, thumb - lower});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarThumb, dir, thumb_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::Thumb, dir, thumb_state,
                          {rect.x, rect.y + thumb, rect.width, upper - thumb});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarUpperRange, dir, upper_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::UpperRange, dir, upper_state,
                          {rect.x, rect.y + upper, rect.width, down - upper});
                          
-    paint_scrollbar_part(control, canvas, ScrollbarDownRight, dir, downright_state,
+    paint_scrollbar_part(control, canvas, ScrollbarPart::DownRight, dir, downright_state,
                          {rect.x, rect.y + down, rect.width, rect.height - down});
   }
 }

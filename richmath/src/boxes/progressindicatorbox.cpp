@@ -99,8 +99,8 @@ void ProgressIndicatorBox::resize(Context &context) {
   _extents.descent = 0;
   _extents.width   = 6 * em * 1.5;
   
-  ControlPainter::std->calc_container_size(*this, context.canvas(), ProgressIndicatorBackground, &_extents);
-  //ControlPainter::std->calc_container_size(*this, context.canvas(), ProgressIndicatorBar, &size);
+  ControlPainter::std->calc_container_size(*this, context.canvas(), ContainerType::ProgressIndicatorBackground, &_extents);
+  //ControlPainter::std->calc_container_size(*this, context.canvas(), ContainerType::ProgressIndicatorBar, &size);
   
   float h = _extents.height();
   _extents.ascent = 0.25 * em + 0.5 * h;
@@ -127,12 +127,12 @@ void ProgressIndicatorBox::paint(Context &context) {
   ControlPainter::std->draw_container(
     *this,
     context.canvas(),
-    ProgressIndicatorBackground,
-    Normal,
+    ContainerType::ProgressIndicatorBackground,
+    ControlState::Normal,
     _extents.to_rectangle(pos));
     
   double p = 0;
-  ControlState state = Normal;
+  ControlState state = ControlState::Normal;
   
   if(range_min <= range_value && range_value <= range_max && range_max - range_min > 0) {
     p = (range_value - range_min) / (range_max - range_min);
@@ -148,13 +148,13 @@ void ProgressIndicatorBox::paint(Context &context) {
   ControlPainter::std->calc_container_size(
     *this,
     context.canvas(),
-    ProgressIndicatorBar,
+    ContainerType::ProgressIndicatorBar,
     &content_size);
     
   ControlPainter::std->draw_container(
     *this,
     context.canvas(),
-    ProgressIndicatorBar,
+    ContainerType::ProgressIndicatorBar,
     state,
     RectangleF(
       pos.x + (_extents.width - content_size.width) / 2,

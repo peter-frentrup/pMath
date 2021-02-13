@@ -31,7 +31,7 @@ namespace richmath {
 //{ class OpenerBox ...
 
 OpenerBox::OpenerBox()
-  : base(OpenerTriangleClosed),
+  : base(ContainerType::OpenerTriangleClosed),
     mouse_down_value(PMATH_UNDEFINED),
     is_initialized(false)
 {
@@ -181,7 +181,7 @@ void OpenerBox::Impl::finish_update_value() {
 }
 
 Expr OpenerBox::Impl::next_value_when_clicked() {
-  if(self.type == OpenerTriangleOpened) 
+  if(self.type == ContainerType::OpenerTriangleOpened) 
     return Symbol(richmath_System_False);
   else 
     return Symbol(richmath_System_True);
@@ -189,9 +189,9 @@ Expr OpenerBox::Impl::next_value_when_clicked() {
 
 ContainerType OpenerBox::Impl::calc_type(Expr result) {
   if(result == richmath_System_True)
-    return OpenerTriangleOpened;
+    return ContainerType::OpenerTriangleOpened;
   
-  return OpenerTriangleClosed;
+  return ContainerType::OpenerTriangleClosed;
 }
 
 Expr OpenerBox::Impl::to_literal() {
@@ -199,14 +199,14 @@ Expr OpenerBox::Impl::to_literal() {
     return self.dynamic.expr();
   
   switch(self.type) {
-    case CheckboxChecked:
-    case OpenerTriangleOpened:
-    case RadioButtonChecked:
+    case ContainerType::CheckboxChecked:
+    case ContainerType::OpenerTriangleOpened:
+    case ContainerType::RadioButtonChecked:
       return Symbol(richmath_System_True);
       
-    case CheckboxUnchecked:
-    case OpenerTriangleClosed:
-    case RadioButtonUnchecked:
+    case ContainerType::CheckboxUnchecked:
+    case ContainerType::OpenerTriangleClosed:
+    case ContainerType::RadioButtonUnchecked:
       return Symbol(richmath_System_False);
     
     default:
