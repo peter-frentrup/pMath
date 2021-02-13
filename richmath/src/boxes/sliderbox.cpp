@@ -84,12 +84,9 @@ SliderBox::SliderBox()
     range_step(0.0),
     range_value(0.5),
     thumb_width(1),
-    channel_width(1),
-    is_initialized(false),
-    have_drawn(false),
-    mouse_over_thumb(false),
-    use_double_values(true)
+    channel_width(1)
 {
+  use_double_values(true);
   dynamic.init(this, Expr());
 }
 
@@ -158,9 +155,9 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    dynamic        = expr[1];
-    must_update    = true;
-    is_initialized = false;
+    dynamic = expr[1];
+    must_update(true);
+    is_initialized(false);
   }
   
   reset_style();
@@ -170,7 +167,7 @@ bool SliderBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   range_min         = new_range_min;
   range_max         = new_range_max;
   range_step        = new_range_step;
-  use_double_values = new_use_double_values;
+  use_double_values(new_use_double_values);
   
   finish_load_from_object(std::move(expr));
   return true;
@@ -180,10 +177,10 @@ ControlState SliderBox::calc_state(Context &context) {
   if(!enabled())
     return ControlState::Disabled;
   
-  if(mouse_left_down)
+  if(mouse_left_down())
     return ControlState::PressedHovered;
     
-  if(mouse_inside && mouse_over_thumb)
+  if(mouse_inside() && mouse_over_thumb())
     return ControlState::Hovered;
     
   return ControlState::Normal;
@@ -229,7 +226,7 @@ void SliderBox::paint(Context &context) {
   
   double old_value = range_value;
   
-  have_drawn = true;
+  have_drawn(true);
   Impl(*this).finish_update_value();
   
   Point pos = context.canvas().current_pos();
@@ -283,10 +280,10 @@ VolatileSelection SliderBox::mouse_selection(Point pos, bool *was_inside_start) 
 }
 
 void SliderBox::dynamic_updated() {
-  if(must_update)
+  if(must_update())
     return;
     
-  must_update = true;
+  must_update(true);
   
   if(style) 
     style->flag_pending_dynamic();
@@ -313,7 +310,7 @@ void SliderBox::on_mouse_exit() {
 void SliderBox::on_mouse_down(MouseEvent &event) {
   base::on_mouse_down(event);
   
-  if(mouse_left_down && enabled()) {
+  if(mouse_left_down() && enabled()) {
     event.set_origin(this);
     
     if(dynamic.is_dynamic())
@@ -337,7 +334,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
   if(enabled()) {
     event.set_origin(this);
     
-    if(mouse_left_down) {
+    if(mouse_left_down()) {
       double val = Impl(*this).mouse_to_val(event.position.x);
       
       if(!Impl(*this).approximately_equals(val, range_value)) {
@@ -355,10 +352,10 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
     else {
       float tx = Impl(*this).calc_thumb_pos(range_value);
       
-      bool old_mot = mouse_over_thumb;
-      mouse_over_thumb = (tx <= event.position.x && event.position.x <= tx + thumb_width);
+      bool old_mot = mouse_over_thumb();
+      mouse_over_thumb(tx <= event.position.x && event.position.x <= tx + thumb_width);
       
-      if(old_mot != mouse_over_thumb)
+      if(old_mot != mouse_over_thumb())
         request_repaint_all();
     }
   }
@@ -385,7 +382,7 @@ void SliderBox::on_mouse_up(MouseEvent &event) {
 
 void SliderBox::on_mouse_cancel() {
   if(dynamic.has_temporary_assignment()) {
-    must_update = true;
+    must_update(true);
     request_repaint_all();
   }
   
@@ -478,7 +475,7 @@ Expr SliderBox::Impl::position_to_value(double d, bool evaluate) {
   if(self.range[0] == richmath_System_List)
     return self.range[(size_t)d];
   
-  if(self.use_double_values)
+  if(self.use_double_values())
     return Expr(d);
   
   Expr result = Plus(self.range[1], Call(Symbol(richmath_System_Round), Minus(d, self.range[1]), self.range[3]));
@@ -488,21 +485,21 @@ Expr SliderBox::Impl::position_to_value(double d, bool evaluate) {
 }
 
 void SliderBox::Impl::assign_dynamic_value(double d, bool pre, bool middle, bool post) {
-  if(!self.have_drawn)
+  if(!self.have_drawn())
     return;
     
-  self.have_drawn = false;
+  self.have_drawn(false);
   self.dynamic.assign(position_to_value(d, false), pre, middle, post);
 }
 
 void SliderBox::Impl::finish_update_value() {
-  if(!self.must_update)
+  if(!self.must_update())
     return;
     
-  self.must_update = false;
+  self.must_update(false);
   
-  bool was_initialized = self.is_initialized;
-  self.is_initialized = true;
+  bool was_initialized = self.is_initialized();
+  self.is_initialized(true);
   
   Expr val;
   if(self.dynamic.get_value(&val)) {

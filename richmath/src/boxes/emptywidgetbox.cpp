@@ -18,11 +18,7 @@ EmptyWidgetBox::EmptyWidgetBox(ContainerType _type)
     type(_type),
     old_type(_type),
     old_state(ControlState::Normal),
-    mouse_inside(false),
-    mouse_left_down(false),
-    mouse_middle_down(false),
-    mouse_right_down(false),
-    must_update(true)
+    flags((1u << MustUpdateBit))
 {
 }
 
@@ -33,8 +29,8 @@ ControlState EmptyWidgetBox::calc_state(Context &context) {
   if(context.selection.id == id() && context.active)
     return ControlState::Pressed;
     
-  if(context.clicked_box_id == id() && mouse_left_down) {
-    if(mouse_inside)
+  if(context.clicked_box_id == id() && mouse_left_down()) {
+    if(mouse_inside())
       return ControlState::PressedHovered;
       
     return ControlState::Pressed;
@@ -133,10 +129,10 @@ void EmptyWidgetBox::paint(Context &context) {
 }
 
 void EmptyWidgetBox::dynamic_updated() {
-  if(must_update)
+  if(must_update())
     return;
     
-  must_update = true;
+  must_update(true);
   request_repaint_all();
 }
 
@@ -146,10 +142,10 @@ VolatileSelection EmptyWidgetBox::mouse_selection(Point pos, bool *was_inside_st
 }
 
 void EmptyWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(*this, type) && enabled())
+  if(!mouse_inside() && ControlPainter::std->container_hover_repaint(*this, type) && enabled())
     request_repaint_all();
     
-  mouse_inside = true;
+  mouse_inside(true);
   base::on_mouse_enter();
 }
 
@@ -157,7 +153,7 @@ void EmptyWidgetBox::on_mouse_exit() {
   if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(*this, type) && enabled())
     request_repaint_all();
     
-  mouse_inside = false;
+  mouse_inside(false);
   base::on_mouse_exit();
 }
 
@@ -167,17 +163,17 @@ void EmptyWidgetBox::on_mouse_down(MouseEvent &event) {
   
   event.set_origin(this);
   
-  mouse_left_down   = mouse_left_down   || event.left;
-  mouse_middle_down = mouse_middle_down || event.middle;
-  mouse_right_down  = mouse_right_down  || event.right;
-  mouse_inside      = _extents.to_rectangle().contains(event.position);
+  if(event.left)   mouse_left_down(true);
+  if(event.middle) mouse_middle_down(true);
+  if(event.right)  mouse_right_down(true);
+  mouse_inside(_extents.to_rectangle().contains(event.position));
   
   if(event.left)
     request_repaint_all();
 }
 
 void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
-  if(mouse_inside) {
+  if(mouse_inside()) {
     if(Document *doc = find_parent<Document>(false))
       doc->native()->set_cursor(CursorType::Default);
   }
@@ -189,29 +185,31 @@ void EmptyWidgetBox::on_mouse_move(MouseEvent &event) {
   
   bool mi = _extents.to_rectangle().contains(event.position);
   
-  if(mi != mouse_inside)
+  if(mi != mouse_inside())
     request_repaint_all();
     
-  mouse_inside = mi;
+  mouse_inside(mi);
 }
 
 void EmptyWidgetBox::on_mouse_up(MouseEvent &event) {
   if(event.left && enabled()) {
     request_repaint_all();
     
-    if(mouse_inside && mouse_left_down)
+    if(mouse_inside() && mouse_left_down())
       click();
   }
   
-  mouse_left_down   = mouse_left_down   && !event.left;
-  mouse_middle_down = mouse_middle_down && !event.middle;
-  mouse_right_down  = mouse_right_down  && !event.right;
+  if(event.left)   mouse_left_down(false);
+  if(event.middle) mouse_middle_down(false);
+  if(event.right)  mouse_right_down(false);
 }
 
 void EmptyWidgetBox::on_mouse_cancel() {
   request_repaint_all();
   
-  mouse_left_down = mouse_middle_down = mouse_right_down = false;
+  mouse_left_down(false);
+  mouse_middle_down(false);
+  mouse_right_down(false);
 }
 
 void EmptyWidgetBox::click() {

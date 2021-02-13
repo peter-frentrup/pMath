@@ -32,8 +32,7 @@ namespace richmath {
 
 OpenerBox::OpenerBox()
   : base(ContainerType::OpenerTriangleClosed),
-    mouse_down_value(PMATH_UNDEFINED),
-    is_initialized(false)
+    mouse_down_value(PMATH_UNDEFINED)
 {
   dynamic.init(this, Expr());
 }
@@ -56,9 +55,9 @@ bool OpenerBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   Expr dyn_expr = expr[1];
   if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    dynamic        = dyn_expr;
-    must_update    = true;
-    is_initialized = false;
+    dynamic = dyn_expr;
+    must_update(true);
+    is_initialized(false);
   }
   
   finish_load_from_object(std::move(expr));
@@ -154,13 +153,13 @@ void OpenerBox::click() {
 //{ class OpenerBox::Impl ...
 
 void OpenerBox::Impl::finish_update_value() {
-  if(!self.must_update)
+  if(!self.must_update())
     return;
   
-  self.must_update = false;
+  self.must_update(false);
   
-  bool was_initialized = self.is_initialized;
-  self.is_initialized = true;
+  bool was_initialized = self.is_initialized();
+  self.is_initialized(true);
   
   Expr val;
   if(self.dynamic.get_value(&val)) {

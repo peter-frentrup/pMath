@@ -58,10 +58,22 @@ namespace richmath {
       
       float thumb_width;
       float channel_width;
-      bool is_initialized;
-      bool have_drawn;
-      bool mouse_over_thumb;
-      bool use_double_values;
+      
+      enum {
+        HaveDrawnBit = base::NumFlagsBits,
+        MouseOverThumbBit,
+        UseDoubleValuesBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= 8 * sizeof(flags), "");
+      
+      bool have_drawn() {           return get_flag(HaveDrawnBit); }
+      void have_drawn(bool value) {        set_flag(HaveDrawnBit, value); }
+      bool mouse_over_thumb() {     return get_flag(MouseOverThumbBit); }
+      void mouse_over_thumb(bool value) {  set_flag(MouseOverThumbBit, value); }
+      bool use_double_values() {    return get_flag(UseDoubleValuesBit); }
+      void use_double_values(bool value) { set_flag(UseDoubleValuesBit, value); }
   };
 }
 

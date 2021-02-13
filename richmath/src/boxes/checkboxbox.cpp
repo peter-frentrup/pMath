@@ -32,8 +32,7 @@ namespace richmath {
 
 CheckboxBox::CheckboxBox()
   : base(ContainerType::CheckboxIndeterminate),
-    mouse_down_value(PMATH_UNDEFINED),
-    is_initialized(false)
+    mouse_down_value(PMATH_UNDEFINED)
 {
   dynamic.init(this, Expr());
 }
@@ -75,9 +74,9 @@ bool CheckboxBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() >= 1) {
     Expr dyn_expr = expr[1];
     if(dynamic.expr() != dyn_expr || has(opts, BoxInputFlags::ForceResetDynamic)) {
-      dynamic        = dyn_expr;
-      must_update    = true;
-      is_initialized = false;
+      dynamic = dyn_expr;
+      must_update(true);
+      is_initialized(false);
     }
   }
   else {
@@ -186,13 +185,13 @@ void CheckboxBox::click() {
 //{ class CheckboxBox::Impl ...
 
 void CheckboxBox::Impl::finish_update_value() {
-  if(!self.must_update)
+  if(!self.must_update())
     return;
   
-  self.must_update = false;
+  self.must_update(false);
   
-  bool was_initialized = self.is_initialized;
-  self.is_initialized = true;
+  bool was_initialized = self.is_initialized();
+  self.is_initialized(true);
   
   Expr val;
   if(self.dynamic.get_value(&val)) {

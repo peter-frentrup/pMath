@@ -32,7 +32,6 @@ namespace richmath {
     private:
       Dynamic dynamic;
       Expr    mouse_down_value;
-      bool    is_initialized;
   };
 }
 
