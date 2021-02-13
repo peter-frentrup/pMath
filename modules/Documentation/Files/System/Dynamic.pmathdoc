@@ -68,16 +68,70 @@ Document({
                        {"x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ")"}, 
                 ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(
-             BoxData({
-               "{", {
-                SliderBox(Dynamic($Context`x, {
-                   (Print("pre"); $Context`x:= #1) &, Automatic, (
-                     Print("post"); $Context`x:= #1) &}), 0 .. 1), ",", 
-                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
-         All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
-        SectionGroup({Section("SynchronousUpdating", "ExampleSubsection"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 "{", {
+                  SliderBox(Dynamic($Context`x, {
+                     (Print("pre"); $Context`x:= #1) &, Automatic, (
+                       Print("post"); $Context`x:= #1) &}), 0 .. 1), ",", 
+                  DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:"), 
+              Section(BoxData(TemplateBox({ComplexStringBox("\"pre\"")}, 
+                 "RowDefault")), "Print", SectionGenerated -> True), 
+              Section(BoxData(TemplateBox({ComplexStringBox("\"post\"")}, 
+                 "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Deinitialization", "ExampleSubsection"), 
+          Section(TextData({"Perform some cleanup operation when the ", 
+             TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
+             " box gets destructed:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Dynamic", "(", {
+                {"RandomReal", "(", ")"}, ",", {
+                 "Initialization", "\[RuleDelayed]", {
+                  "(", {"state", "\[Assign]", ComplexStringBox("\"init\"")}, 
+                  ")"}}, ",", {"Deinitialization", "\[RuleDelayed]", {
+                  "(", {"state", "\[Assign]", ComplexStringBox("\"done\"")}, 
+                  ")"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(DynamicBox(ToBoxes(RandomReal()), 
+               Deinitialization :> ($Context`state:= "done"), 
+               Initialization :> ($Context`state:= "init"))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section("Remove the above output and observe the changed state:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Dynamic", "(", "state", ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData(DynamicBox(ToBoxes($Context`state))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         1), SectionGroup({Section("Initialization", "ExampleSubsection"), 
+          Section(
+           "Function definitions are lost when a front-end session is \
+           closed:", "ExampleText"), 
+          Section(BoxData({{"f", "(", {"~", "x"}, ")"}, "\[AssignDelayed]", {
+              "x", SuperscriptBox("2")}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          SectionGroup({
+            Section(BoxData({"Dynamic", "(", {"f", "(", "10", ")"}, ")"}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(DynamicBox(ToBoxes($Context`f(10)))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+          Section(TextData({"Inititalize a symbol when the ", 
+             TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
+             " is first shown:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Dynamic", "(", {
+                {"g", "(", "10", ")"}, ",", {
+                 "Initialization", "\[RuleDelayed]", {
+                  "(", {{"g", "(", {"~", "x"}, ")"}, "\[AssignDelayed]", {
+                    "x", SuperscriptBox("2")}}, ")"}}}, ")"}), "Input", 
+             SectionLabel -> "in [3]:"), 
+            Section(BoxData(DynamicBox(ToBoxes($Context`g(10)), 
+               Initialization :> ($Context`g(~$Context`x)::= $Context`x^2))), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+           All)}, 1), SectionGroup({
+          Section("SynchronousUpdating", "ExampleSubsection"), 
           Section(TextData({"With the default setting ", 
              TemplateBox({"SynchronousUpdating"}, "ReferenceHyperlink"), 
              " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 

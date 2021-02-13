@@ -101,6 +101,8 @@ Options(Checkbox):= Options(CheckboxBox):= {
 
 Options(Dynamic):= Options(DynamicBox):= {
     %BaselinePosition -> Automatic,
+    Deinitialization -> None,
+    Initialization -> None,
     SynchronousUpdating -> True,
     Selectable -> Automatic,
     TrackedSymbols -> Automatic }
@@ -201,6 +203,8 @@ Options(Style):= Options(StyleBox):= {
     "CharacterNameStyle" -> Inherited,
     "CommentStyle" -> Inherited,
     ContextMenu -> Inherited,
+    DynamicBoxOptions -> Inherited,
+    DynamicLocalBoxOptions -> Inherited,
     Editable -> Inherited,
     Enabled -> Automatic,
     "ExcessOrMissingArgumentStyle" -> Inherited,
@@ -273,6 +277,17 @@ Options(Section):= {
     DefaultNewSectionStyle -> Inherited,
     DefaultReturnCreatedSectionStyle -> Inherited,
     DockedSections -> Inherited,
+    DynamicBoxOptions -> {
+        Deinitialization -> None,
+        Initialization -> None,
+        SynchronousUpdating -> True,
+        Selectable -> Automatic,
+        TrackedSymbols -> Automatic },
+    DynamicLocalBoxOptions -> {
+        Deinitialization -> None,
+        Initialization -> None,
+        DynamicLocalValues -> Automatic,
+        UnsavedVariables -> {} },
     Editable -> True,
     Evaluatable -> False,
     EvaluationContext -> "Global`",

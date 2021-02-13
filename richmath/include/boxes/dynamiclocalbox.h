@@ -6,6 +6,7 @@
 
 namespace richmath {
   class DynamicLocalBox final : public AbstractDynamicBox {
+      using base = AbstractDynamicBox;
       class Impl;
     protected:
       virtual ~DynamicLocalBox();
@@ -22,15 +23,12 @@ namespace richmath {
       
       virtual Expr prepare_dynamic(Expr expr) override;
       
+    protected:
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::DynamicLocalBox; }
+
     private:
       Expr _public_symbols;
       Expr _private_symbols;
-      
-      Expr _initialization;
-      Expr _deinitialization;
-      Expr _unsaved_variables;
-      
-      Expr _init_call;
   };
 }
 

@@ -7,16 +7,23 @@
 
 namespace richmath {
   class AbstractDynamicBox: public OwnerBox {
-    protected:
-      virtual ~AbstractDynamicBox();
+      using base = OwnerBox;
     public:
       virtual VolatileSelection dynamic_to_literal(int start, int end) override;
       
+      virtual void reset_style() override;
+      
+      virtual void paint(Context &context) override;
+      
     protected:
       explicit AbstractDynamicBox();
+      virtual ~AbstractDynamicBox();
+      
+      void ensure_init();
   };
   
   class DynamicBox final : public AbstractDynamicBox {
+      using base = AbstractDynamicBox;
     protected:
       virtual ~DynamicBox();
     public:
@@ -37,6 +44,7 @@ namespace richmath {
       
     protected:
       virtual void resize_default_baseline(Context &context) override;
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::DynamicBox; }
       
     public:
       Dynamic dynamic;

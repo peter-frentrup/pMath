@@ -56,8 +56,7 @@ Document({
                     DynamicBox(ToBoxes(Plot(Sin($Context`n*$Context`x), 
                        $Context`x -> 0 .. 2*Pi, 
                        MaxRecursion -> ControlActive(0, 4))))}}), "Column")), 
-               Initialization :> None, Deinitialization :> None, 
-               UnsavedVariables :> {}, DynamicLocalValues :> {
+               DynamicLocalValues :> {
                  {OwnRules($Context`n):= {HoldPattern($Context`n) :> 1}}})), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All), SectionGroup({
@@ -83,8 +82,7 @@ Document({
                      ToBoxes(ControlActive(Sin($Context`n*$Context`x), 
                        Plot(Sin($Context`n*$Context`x), 
                         $Context`x -> 0 .. 2*Pi))))}}), "Column")), 
-               Initialization :> None, Deinitialization :> None, 
-               UnsavedVariables :> {}, DynamicLocalValues :> {
+               DynamicLocalValues :> {
                  {OwnRules($Context`n):= {HoldPattern($Context`n) :> 1}}})), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All)}, All), 
@@ -106,9 +104,8 @@ Document({
           Section(BoxData(DynamicLocalBox({$Context`x}, {
               "{", {SliderBox(Dynamic($Context`x), 0 .. 1), ",", 
                DynamicBox(ToBoxes(ControlActive("active", "inactive")))}, 
-              "}"}, Initialization :> None, Deinitialization :> None, 
-             UnsavedVariables :> {}, DynamicLocalValues :> {
-               {OwnRules($Context`x):= {HoldPattern($Context`x) :> 0.0`}}})), 
+              "}"}, DynamicLocalValues :> {
+               {OwnRules($Context`x):= {HoldPattern($Context`x) :> 0}}})), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All), Section(TextData({"A reference to the modified variable ", 
            StyleBox("x", "Arg"), " triggers ", 
@@ -126,8 +123,7 @@ Document({
               "{", {SliderBox(Dynamic($Context`x), 0 .. 1), ",", 
                DynamicBox(
                 ToBoxes({$Context`x, ControlActive("active", "inactive")}))}, 
-              "}"}, Initialization :> None, Deinitialization :> None, 
-             UnsavedVariables :> {}, DynamicLocalValues :> {
+              "}"}, DynamicLocalValues :> {
                {OwnRules($Context`x):= {HoldPattern($Context`x) :> 0}}})), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
          All), SectionGroup({
@@ -153,9 +149,7 @@ Document({
                 "{", {SliderBox(Dynamic($Context`x), 0 .. 10 .. 1), ",", 
                  DynamicBox(ToBoxes({RandomReal(), $Context`x, 
                     If($Context`x > 5, ControlActive("active", "inactive"), 
-                     "no final eval")}))}, "}"}, Initialization :> None, 
-               Deinitialization :> None, UnsavedVariables :> {}, 
-               DynamicLocalValues :> {
+                     "no final eval")}))}, "}"}, DynamicLocalValues :> {
                  {OwnRules($Context`x):= {HoldPattern($Context`x) :> 0}}})), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 

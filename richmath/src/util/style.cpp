@@ -49,10 +49,14 @@ extern pmath_symbol_t richmath_System_ContinuousAction;
 extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultReturnCreatedSectionStyle;
+extern pmath_symbol_t richmath_System_Deinitialization;
 extern pmath_symbol_t richmath_System_DisplayFunction;
 extern pmath_symbol_t richmath_System_DockedSections;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_DownRules;
+extern pmath_symbol_t richmath_System_DynamicBoxOptions;
+extern pmath_symbol_t richmath_System_DynamicLocalBoxOptions;
+extern pmath_symbol_t richmath_System_DynamicLocalValues;
 extern pmath_symbol_t richmath_System_Editable;
 extern pmath_symbol_t richmath_System_Enabled;
 extern pmath_symbol_t richmath_System_Evaluatable;
@@ -81,6 +85,7 @@ extern pmath_symbol_t richmath_System_Hue;
 extern pmath_symbol_t richmath_System_ImageSize;
 extern pmath_symbol_t richmath_System_ImageSizeAction;
 extern pmath_symbol_t richmath_System_Inherited;
+extern pmath_symbol_t richmath_System_Initialization;
 extern pmath_symbol_t richmath_System_InputAliases;
 extern pmath_symbol_t richmath_System_InputAutoReplacements;
 extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
@@ -145,6 +150,7 @@ extern pmath_symbol_t richmath_System_Tooltip;
 extern pmath_symbol_t richmath_System_TrackedSymbols;
 extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_System_Unassign;
+extern pmath_symbol_t richmath_System_UnsavedVariables;
 extern pmath_symbol_t richmath_System_Visible;
 extern pmath_symbol_t richmath_System_WholeSectionGroupOpener;
 extern pmath_symbol_t richmath_System_WindowFrame;
@@ -2187,8 +2193,12 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(DefaultDuplicateSectionStyle);
   impl.emit_definition(DefaultNewSectionStyle);
   impl.emit_definition(DefaultReturnCreatedSectionStyle);
+  impl.emit_definition(Deinitialization);
   impl.emit_definition(DisplayFunction);
   impl.emit_definition(DockedSections);
+  impl.emit_definition(DynamicBoxOptions);
+  impl.emit_definition(DynamicLocalBoxOptions);
+  impl.emit_definition(DynamicLocalValues);
   impl.emit_definition(Editable);
   impl.emit_definition(Enabled);
   impl.emit_definition(Evaluatable);
@@ -2214,6 +2224,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ImageSizeCommon);
   impl.emit_definition(ImageSizeAction);
   impl.emit_definition(ImplicitOperatorStyle);
+  impl.emit_definition(Initialization);
   impl.emit_definition(InlineAutoCompletionStyle);
   impl.emit_definition(InputAliases);
   impl.emit_definition(InputAutoReplacements);
@@ -2274,6 +2285,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(TrackedSymbols);
   impl.emit_definition(UndefinedSymbolStyle);
   impl.emit_definition(UnknownOptionStyle);
+  impl.emit_definition(UnsavedVariables);
   impl.emit_definition(Visible);
   impl.emit_definition(WholeSectionGroupOpener);
   impl.emit_definition(WindowFrame);
@@ -2682,6 +2694,8 @@ void StyleInformation::add_style() {
     add_ruleset_head(CharacterNameStyle,            strings::CharacterNameStyle);
     add_ruleset_head(CommentStyle,                  strings::CommentStyle);
     add_ruleset_head(DockedSections,                Symbol( richmath_System_DockedSections));
+    add_ruleset_head(DynamicBoxOptions,             Symbol( richmath_System_DynamicBoxOptions));
+    add_ruleset_head(DynamicLocalBoxOptions,        Symbol( richmath_System_DynamicLocalBoxOptions));
     add_ruleset_head(ExcessOrMissingArgumentStyle,  strings::ExcessOrMissingArgumentStyle);
     add_ruleset_head(FillBoxOptions,                Symbol( richmath_System_FillBoxOptions));
     add_ruleset_head(FrameBoxOptions,               Symbol( richmath_System_FrameBoxOptions));
@@ -2809,6 +2823,9 @@ void StyleInformation::add_style() {
     add(StyleType::AutoBool,        ButtonBoxDefaultContentPadding,   List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ContentPadding)));
     add(StyleType::AutoBool,        ButtonBoxDefaultEnabled,          List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_Enabled)));
     
+    add(StyleType::AutoBool,        DynamicBoxDefaultSelectable,          List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_Selectable)));
+    add(StyleType::AutoBool,        DynamicBoxDefaultSynchronousUpdating, List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_SynchronousUpdating)));
+    
     add(StyleType::AutoBool,        FrameBoxDefaultContentPadding,    List(Symbol(richmath_System_FrameBoxOptions), Symbol(richmath_System_ContentPadding)));
     
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
@@ -2885,13 +2902,16 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             DefaultDuplicateSectionStyle,     Symbol( richmath_System_DefaultDuplicateSectionStyle));
     add(StyleType::Any,             DefaultNewSectionStyle,           Symbol( richmath_System_DefaultNewSectionStyle));
     add(StyleType::Any,             DefaultReturnCreatedSectionStyle, Symbol( richmath_System_DefaultReturnCreatedSectionStyle));
+    add(StyleType::Any,             Deinitialization,                 Symbol( richmath_System_Deinitialization));
     add(StyleType::Any,             DisplayFunction,                  Symbol( richmath_System_DisplayFunction));
+    add(StyleType::Any,             DynamicLocalValues,               Symbol( richmath_System_DynamicLocalValues));
     add(StyleType::Any,             EvaluationContext,                Symbol( richmath_System_EvaluationContext));
     add(StyleType::Any,             FontFeatures,                     Symbol( richmath_System_FontFeatures));
     add(StyleType::Any,             Frame,                            Symbol( richmath_System_Frame));
     add(StyleType::Any,             FrameStyle,                       Symbol( richmath_System_FrameStyle));
     add(StyleType::Any,             FrameTicks,                       Symbol( richmath_System_FrameTicks));
     add(StyleType::Any,             GeneratedSectionStyles,           Symbol( richmath_System_GeneratedSectionStyles));
+    add(StyleType::Any,             Initialization,                   Symbol( richmath_System_Initialization));
     add(StyleType::Any,             InterpretationFunction,           Symbol( richmath_System_InterpretationFunction));
     add(StyleType::Any,             MathFontFamily,                   Symbol( richmath_System_MathFontFamily));
     add(StyleType::Any,             PlotRange,                        Symbol( richmath_System_PlotRange));
@@ -2920,6 +2940,15 @@ void StyleInformation::add_style() {
     add(StyleType::Any, ButtonBoxDefaultBaselinePosition, List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_BaselinePosition)));
     add(StyleType::Any, ButtonBoxDefaultButtonData,       List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonData)));
     add(StyleType::Any, ButtonBoxDefaultButtonFunction,   List(Symbol(richmath_System_ButtonBoxOptions), Symbol(richmath_System_ButtonFunction)));
+    
+    add(StyleType::Any, DynamicBoxDefaultDeinitialization, List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_Deinitialization)));
+    add(StyleType::Any, DynamicBoxDefaultInitialization,   List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_Initialization)));
+    add(StyleType::Any, DynamicBoxDefaultTrackedSymbols,   List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_TrackedSymbols)));
+    
+    add(StyleType::Any, DynamicLocalBoxDefaultDeinitialization,   List(Symbol(richmath_System_DynamicLocalBoxOptions), Symbol(richmath_System_Deinitialization)));
+    add(StyleType::Any, DynamicLocalBoxDefaultDynamicLocalValues, List(Symbol(richmath_System_DynamicLocalBoxOptions), Symbol(richmath_System_DynamicLocalValues)));
+    add(StyleType::Any, DynamicLocalBoxDefaultInitialization,     List(Symbol(richmath_System_DynamicLocalBoxOptions), Symbol(richmath_System_Initialization)));
+    add(StyleType::Any, DynamicLocalBoxDefaultUnsavedVariables,   List(Symbol(richmath_System_DynamicLocalBoxOptions), Symbol(richmath_System_UnsavedVariables)));
     
     add(StyleType::Any, FrameBoxDefaultBaselinePosition,  List(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_BaselinePosition)));
     add(StyleType::Any, FrameBoxDefaultBorderRadius,      List(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_BorderRadius)));

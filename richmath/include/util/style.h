@@ -14,15 +14,17 @@ namespace richmath {
   
   enum class DefaultStyleOptionOffsets {
     None = 0,
-    ButtonBox     = 0x00100000,
-    FillBox       = 0x00200000,
-    FrameBox      = 0x00300000,
-    InputFieldBox = 0x00400000,
-    PaneBox       = 0x00500000,
-    PanelBox      = 0x00600000,
-    SetterBox     = 0x00700000,
-    SliderBox     = 0x00800000,
-    TemplateBox   = 0x00900000,
+    ButtonBox       = 0x00100000,
+    DynamicBox      = 0x00200000,
+    DynamicLocalBox = 0x00300000,
+    FillBox         = 0x00400000,
+    FrameBox        = 0x00500000,
+    InputFieldBox   = 0x00600000,
+    PaneBox         = 0x00700000,
+    PanelBox        = 0x00800000,
+    SetterBox       = 0x00900000,
+    SliderBox       = 0x00A00000,
+    TemplateBox     = 0x00B00000,
   };
   
   enum AutoBoolValues {
@@ -120,6 +122,9 @@ namespace richmath {
     ButtonBoxDefaultEnabled        = Enabled        + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFrame    = ButtonFrame    + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonSource   = ButtonSource   + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
+    DynamicBoxDefaultSelectable          = Selectable          + (int)DefaultStyleOptionOffsets::DynamicBox,
+    DynamicBoxDefaultSynchronousUpdating = SynchronousUpdating + (int)DefaultStyleOptionOffsets::DynamicBox,
     
     FillBoxDefaultStripOnInput = StripOnInput + (int)DefaultStyleOptionOffsets::FillBox,
     
@@ -237,7 +242,6 @@ namespace richmath {
     FontFeatures,
     MathFontFamily,
     UnknownOptions,
-    TrackedSymbols,
     EvaluationContext,
     
     ButtonData,
@@ -266,6 +270,8 @@ namespace richmath {
     InputAutoReplacements, // StyleType::AnyFlatList
     
     ButtonBoxOptions,
+    DynamicBoxOptions,
+    DynamicLocalBoxOptions,
     FillBoxOptions,
     FrameBoxOptions,
     InputFieldBoxOptions,
@@ -274,6 +280,13 @@ namespace richmath {
     SetterBoxOptions,
     SliderBoxOptions,
     TemplateBoxOptions,
+    
+    InternalDeinitialization,
+    Deinitialization,
+    Initialization,
+    TrackedSymbols,
+    DynamicLocalValues,
+    UnsavedVariables,
     
     DisplayFunction,
     InterpretationFunction,
@@ -311,6 +324,15 @@ namespace richmath {
     ButtonBoxDefaultBaselinePosition         = BaselinePosition       + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonData               = ButtonData             + (int)DefaultStyleOptionOffsets::ButtonBox,
     ButtonBoxDefaultButtonFunction           = ButtonFunction         + (int)DefaultStyleOptionOffsets::ButtonBox,
+    
+    DynamicBoxDefaultDeinitialization        = Deinitialization       + (int)DefaultStyleOptionOffsets::DynamicBox,
+    DynamicBoxDefaultInitialization          = Initialization         + (int)DefaultStyleOptionOffsets::DynamicBox,
+    DynamicBoxDefaultTrackedSymbols          = TrackedSymbols         + (int)DefaultStyleOptionOffsets::DynamicBox,
+    
+    DynamicLocalBoxDefaultDeinitialization   = Deinitialization       + (int)DefaultStyleOptionOffsets::DynamicLocalBox,
+    DynamicLocalBoxDefaultInitialization     = Initialization         + (int)DefaultStyleOptionOffsets::DynamicLocalBox,
+    DynamicLocalBoxDefaultUnsavedVariables   = UnsavedVariables       + (int)DefaultStyleOptionOffsets::DynamicLocalBox,
+    DynamicLocalBoxDefaultDynamicLocalValues = DynamicLocalValues     + (int)DefaultStyleOptionOffsets::DynamicLocalBox,
     
     FrameBoxDefaultBorderRadius              = BorderRadius           + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultBaselinePosition          = BaselinePosition       + (int)DefaultStyleOptionOffsets::FrameBox,

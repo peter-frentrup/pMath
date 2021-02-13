@@ -39,7 +39,7 @@ namespace richmath {
       String get_own_style(StringStyleOptionName n);
       Expr   get_own_style(ObjectStyleOptionName n);
       
-      StyleOptionName get_default_key(StyleOptionName n) { return StyleOptionName { (int)get_default_styles_offset() + (int)n }; }
+      StyleOptionName       get_default_key(StyleOptionName n) {       return StyleOptionName { (int)get_default_styles_offset() + (int)n }; }
       ColorStyleOptionName  get_default_key(ColorStyleOptionName n) {  return (ColorStyleOptionName) get_default_key(StyleOptionName{n}); }
       IntStyleOptionName    get_default_key(IntStyleOptionName n) {    return (IntStyleOptionName)   get_default_key(StyleOptionName{n}); }
       FloatStyleOptionName  get_default_key(FloatStyleOptionName n) {  return (FloatStyleOptionName) get_default_key(StyleOptionName{n}); }

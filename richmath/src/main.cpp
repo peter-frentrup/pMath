@@ -114,6 +114,7 @@ extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_Identity;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Method;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Section;
 
 extern pmath_symbol_t richmath_FE_DollarMathShapers;
@@ -164,7 +165,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(InputFieldBox)             == 128, ""); // (88) + 2 (bools, should fit superclass end padding ?!?) + 2 UNUSED PADDING BYTES + 4 + 24 + 8
     static_assert(sizeof(AbstractDynamicBox)        ==  64, "");
     static_assert(sizeof(DynamicBox)                ==  96, ""); // (64) + 24 + 2 (bools) + 6 UNUSED PADDING BYTES
-    static_assert(sizeof(DynamicLocalBox)           == 112, ""); // (64) + 6*8
+    static_assert(sizeof(DynamicLocalBox)           ==  80, ""); // (64) + 2*8
     static_assert(sizeof(FillBox)                   ==  72, ""); // (64) + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(FractionBox)               ==  72, ""); // (48) + 8 + 8 + 4 + 4
     static_assert(sizeof(FrameBox)                  ==  72, ""); // (64) + 4 + 4 UNUSED PADDING BYTES
@@ -234,7 +235,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(InputFieldBox)             ==  88, ""); // (56) + 2 (bools, should fit superclass end padding ?!?) + 2 UNUSED PADDING BYTES + 4 + 16 + 8
     static_assert(sizeof(AbstractDynamicBox)        ==  44, "");
     static_assert(sizeof(DynamicBox)                ==  72, ""); // (44) + 4 UNUSED PADDING BYTES + 16 + 2 (bools) + 6 UNUSED PADDING BYTES
-    static_assert(sizeof(DynamicLocalBox)           ==  96, ""); // (44) + 4 UNUSED PADDING BYTES + 6*8
+    static_assert(sizeof(DynamicLocalBox)           ==  64, ""); // (44) + 4 UNUSED PADDING BYTES + 2*8
     static_assert(sizeof(FillBox)                   ==  48, ""); // (44) + 4
     static_assert(sizeof(FractionBox)               ==  48, ""); // (32) + 4 + 4 + 4 + 4
     static_assert(sizeof(FrameBox)                  ==  48, ""); // (44) + 4
@@ -491,6 +492,9 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(FontFamilies,              List());
   Stylesheet::Default->base->set(InputAliases,              List());
   Stylesheet::Default->base->set(InputAutoReplacements,     List());
+  
+  Stylesheet::Default->base->set_pmath(Initialization,   Symbol(richmath_System_None));
+  Stylesheet::Default->base->set_pmath(Deinitialization, Symbol(richmath_System_None));
   
   Stylesheet::Default->base->set(EvaluationContext,         strings::Global_namespace);
   Stylesheet::Default->base->set(SectionLabel,              "");

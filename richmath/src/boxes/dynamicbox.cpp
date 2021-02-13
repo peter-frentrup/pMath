@@ -3,6 +3,7 @@
 #include <boxes/dynamiclocalbox.h>
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <eval/job.h>
 #include <eval/observable.h>
 #include <graphics/context.h>
@@ -12,8 +13,13 @@
 
 using namespace richmath;
 
+namespace richmath { namespace strings {
+  extern String DollarContext_namespace;
+}}
+
 extern pmath_symbol_t richmath_System_DynamicBox;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_Internal_DynamicRemove;
 
 //{ class AbstractDynamicBox ...
@@ -21,9 +27,14 @@ extern pmath_symbol_t richmath_Internal_DynamicRemove;
 AbstractDynamicBox::AbstractDynamicBox()
   : OwnerBox()
 {
+  if(!style) style = new Style();
 }
 
 AbstractDynamicBox::~AbstractDynamicBox() {
+  if(Expr deinit = get_own_style(InternalDeinitialization)) {
+    if(deinit != richmath_System_None)
+      Application::interrupt_wait(std::move(deinit), Application::dynamic_timeout);
+  }
 }
 
 VolatileSelection AbstractDynamicBox::dynamic_to_literal(int start, int end) {
@@ -42,12 +53,59 @@ VolatileSelection AbstractDynamicBox::dynamic_to_literal(int start, int end) {
   return {seq, start, end};
 }
 
+void AbstractDynamicBox::reset_style() {
+  style->clear();
+}
+
+void AbstractDynamicBox::paint(Context &context) {
+  ensure_init();
+  base::paint(context);
+}
+
+void AbstractDynamicBox::ensure_init() {
+  if(get_own_style(InternalDeinitialization))
+    return;
+    
+  String ctx = EvaluationContexts::resolve_context(this);
+  
+  Expr deinit = get_own_style(Deinitialization);
+  deinit = EvaluationContexts::make_context_block(
+                  EvaluationContexts::replace_symbol_namespace(
+                    prepare_dynamic(std::move(deinit)),
+                    strings::DollarContext_namespace, 
+                    ctx),
+                  ctx);
+  if(deinit)
+    style->set(InternalDeinitialization, std::move(deinit));
+  else
+    style->set(InternalDeinitialization, Symbol(richmath_System_None));
+  
+  Expr init_call = get_own_style(Initialization);
+  if(init_call == richmath_System_None)
+    init_call = Expr();
+  
+  if(Expr vars = get_own_style(DynamicLocalValues))
+    init_call = List(std::move(vars), std::move(init_call));
+  
+  if(init_call) {
+    init_call = EvaluationContexts::make_context_block(
+                  EvaluationContexts::replace_symbol_namespace(
+                    prepare_dynamic(
+                      std::move(init_call)), 
+                    strings::DollarContext_namespace, 
+                    ctx),
+                  ctx);
+    
+    Application::interrupt_wait_for(std::move(init_call), this, Application::dynamic_timeout);
+  }
+}
+
 //} ... class AbstractDynamicBox
 
 //{ class DynamicBox ...
 
 DynamicBox::DynamicBox()
-  : AbstractDynamicBox(),
+  : base(),
   must_update(true),
   must_resize(false)
 {
@@ -69,23 +127,21 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr.expr_length() < 1) 
     return false;
     
-  Expr options_expr = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
-  if(options_expr.is_null())
+  Expr options = Expr(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(options.is_null())
     return false;
     
   /* now success is guaranteed */
   reset_style();
-  if(options_expr[0] == richmath_System_List) {
-    if(!style)
-      style = new Style();
-    style->add_pmath(options_expr);
+  if(options[0] == richmath_System_List) {
+    style->add_pmath(options);
   }
   
   expr.set(0, Symbol(richmath_System_Dynamic)); // TODO: update the Dynamic expr when a style changes
   
   if(dynamic.expr() != expr || has(opts, BoxInputFlags::ForceResetDynamic)){
-    must_update = true;
     dynamic     = expr;
+    must_update = true;
   }
   
   finish_load_from_object(std::move(expr));
@@ -93,7 +149,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void DynamicBox::resize_default_baseline(Context &context) {
-  AbstractDynamicBox::resize_default_baseline(context);
+  base::resize_default_baseline(context);
   must_resize = false;
   
   if(_extents.width <= 0)
@@ -108,12 +164,12 @@ void DynamicBox::resize_default_baseline(Context &context) {
 void DynamicBox::paint_content(Context &context) {
   if(must_resize) {
     context.canvas().save();
-    AbstractDynamicBox::resize(context);
+    base::resize(context);
     must_resize = false;
     context.canvas().restore();
   }
   
-  AbstractDynamicBox::paint_content(context);
+  base::paint_content(context);
   
   if(must_update) {
     must_update = false;
@@ -137,15 +193,10 @@ Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
   
-  Expr expr = dynamic.expr();
-  if(style) {
-    Gather g;
-    
-    Gather::emit(expr[1]);
-    style->emit_to_pmath(false);
-    
-    expr = g.end();
-  }
+  Gather g;
+  Gather::emit(dynamic.expr()[1]);
+  style->emit_to_pmath(false);
+  Expr expr = g.end();
   
   expr.set(0, Symbol(richmath_System_DynamicBox));
   return expr;
