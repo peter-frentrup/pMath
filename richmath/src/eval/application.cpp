@@ -89,6 +89,7 @@ extern pmath_symbol_t richmath_System_SetAttributes;
 extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_System_WindowTitle;
 
+extern pmath_symbol_t richmath_FE_DollarControlActive;
 extern pmath_symbol_t richmath_FE_DollarPaletteSearchPath;
 extern pmath_symbol_t richmath_FE_DollarStylesheetDirectory;
 
@@ -442,10 +443,12 @@ void Application::gui_print_section(Expr expr) {
           int start = doc->selection_start();
           int end   = doc->selection_end();
           
-          if(start > index) --start;
-          if(end > index)   --end;
-          
-          doc->select(doc, start, end);
+          if(index < start || index < end) {
+            if(start > index) --start;
+            if(end > index)   --end;
+            
+            doc->select(doc, start, end);
+          }
         }
         
         doc->remove(index, index + 1);
@@ -518,10 +521,12 @@ void Application::gui_print_section(Expr expr) {
         int s = doc->selection_start();
         int e = doc->selection_end();
         
-        if(s >= index) ++s;
-        if(e >= index) ++e;
-        
-        doc->select(doc, s, e);
+        if(index <= s || index <= e) {
+          if(s >= index) ++s;
+          if(e >= index) ++e;
+          
+          doc->select(doc, s, e);
+        }
       }
     }
   }
@@ -539,8 +544,6 @@ void Application::gui_print_section(Expr expr) {
     printf("\n");
   }
 }
-
-extern pmath_symbol_t richmath_FE_DollarControlActive;
 
 static void update_control_active(bool value) {
   static bool original_value = false;
