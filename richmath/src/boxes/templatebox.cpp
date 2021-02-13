@@ -3,6 +3,7 @@
 
 #include <eval/application.h>
 #include <eval/dynamic.h>
+#include <eval/eval-contexts.h>
 
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -13,6 +14,7 @@ using namespace pmath;
 
 namespace richmath{ namespace strings {
   extern String DollarFailed;
+  extern String HeldTemplateSlot;
 }}
 
 extern pmath_symbol_t richmath_System_DollarFailed;
@@ -655,6 +657,28 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlotCount(FrontEndObject *obj
     return Symbol(richmath_System_DollarFailed);
   
   return Expr(tb->arguments.expr_length());
+}
+
+Expr TemplateBoxSlot::get_current_value_of_HeldTemplateSlot(FrontEndObject *obj, Expr item) {
+  if(item[0] != richmath_System_List)
+    return Symbol(richmath_System_DollarFailed);
+  
+  if(item[1] != strings::HeldTemplateSlot)
+    return Symbol(richmath_System_DollarFailed);
+  
+  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  if(!tb)
+    return Symbol(richmath_System_DollarFailed);
+  
+  // TODO: register observer only for requested index
+  tb->register_observer();
+  
+  Expr expr = tb->arguments;
+  for(size_t depth = 2; depth <= item.expr_length(); ++depth) 
+    expr = CurrentValueOfTemplateSlot::get_next(std::move(expr), item[depth], depth == 2);
+  
+  expr = EvaluationContexts::prepare_namespace_for(std::move(expr), tb);
+  return Call(Symbol(richmath_System_HoldComplete), std::move(expr));
 }
 
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item) {

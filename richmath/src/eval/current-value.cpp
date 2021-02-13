@@ -20,6 +20,7 @@ namespace richmath {
     extern String ControlsFontWeight;
     extern String CurrentValueProviders;
     extern String DocumentScreenDpi;
+    extern String HeldTemplateSlot;
     extern String MouseOver;
     extern String MouseOverBox;
     extern String SectionGroupOpen;
@@ -86,6 +87,7 @@ void CurrentValue::init() {
   register_provider(strings::StyleDefinitionsOwner,       Impl::get_StyleDefinitionsOwner);
   register_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
   register_provider(strings::TemplateSlotCount,           TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
+  register_provider(strings::HeldTemplateSlot,            TemplateBoxSlot::get_current_value_of_HeldTemplateSlot);
   register_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot,
                                                           TemplateBoxSlot::put_current_value_of_TemplateSlot);
 }

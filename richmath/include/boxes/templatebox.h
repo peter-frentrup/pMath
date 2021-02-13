@@ -95,6 +95,7 @@ namespace richmath {
       virtual void on_finish_editing() override;
       
       static Expr get_current_value_of_TemplateSlotCount(FrontEndObject *obj, Expr item);
+      static Expr get_current_value_of_HeldTemplateSlot(FrontEndObject *obj, Expr item);
       static Expr get_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item);
       static bool put_current_value_of_TemplateSlot(FrontEndObject *obj, Expr item, Expr rhs);
 
