@@ -1,106 +1,111 @@
 /* pMath Document */
 
 Document({
-  SectionGroup({
-    SectionGroup({Section("Insert", "Subsection"), 
-      SectionGroup({Section("Hyperlinks", "Subsubsection"), 
-        Section(
-         BoxData(
-          FillBox(ButtonBox(TemplateBox({"Reference"}, "ReferenceHyperlink"), 
-            BaseStyle -> "Paste", ButtonData :> TemplateBox({
-              "\[SelectionPlaceholder]"}, "ReferenceHyperlink")))), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(TemplateBox({"NamedCharacter"}, 
-             "NamedCharacterHyperlink"), BaseStyle -> "Paste", 
-            ButtonData :> TemplateBox({"\[SelectionPlaceholder]"}, 
-             "NamedCharacterHyperlink")))), "Text")}, All), 
-      SectionGroup({Section("Keyboard", "Subsubsection"), 
-        Section(
-         BoxData({
-           FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-              "KeyEvent"), BaseStyle -> "Paste")), 
-           FillBox(ButtonBox(TemplateBox({}, "AliasDelimiterKeyEvent"), 
-             BaseStyle -> "Paste"))}), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ControlKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ShiftKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-             "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, All), 
-      SectionGroup({Section("Other", "Subsubsection"), 
-        Section(
-         BoxData(FillBox(ButtonBox(ComplexStringBox("\"Math in Text\""), 
-            ButtonFunction -> (DocumentApply(SelectedDocument(), 
+  SectionGroup({Section("Insert", "Subsection"), 
+    SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+      Section(
+       BoxData(
+        FillBox(ButtonBox(TemplateBox({"Reference"}, "ReferenceHyperlink"), 
+          BaseStyle -> "Paste", 
+          ButtonData :> TemplateBox({"\[SelectionPlaceholder]"}, 
+            "ReferenceHyperlink")))), "Text"), 
+      Section(
+       BoxData(FillBox(ButtonBox(TemplateBox({"NamedCharacter"}, 
+           "NamedCharacterHyperlink"), BaseStyle -> "Paste", 
+          ButtonData :> TemplateBox({"\[SelectionPlaceholder]"}, 
+            "NamedCharacterHyperlink")))), "Text")}, All), 
+    SectionGroup({Section("Keyboard", "Subsubsection"), 
+      Section(
+       BoxData({
+         FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+            "KeyEvent"), BaseStyle -> "Paste")), 
+         FillBox(ButtonBox(TemplateBox({}, "AliasDelimiterKeyEvent"), 
+           BaseStyle -> "Paste"))}), "Text"), 
+      Section(
+       BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+           "ControlKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
+      Section(
+       BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+           "ShiftKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
+      Section(
+       BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+           "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, All), 
+    SectionGroup({Section("Other", "Subsubsection"), 
+      Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Math in Text\""), 
+          ButtonFunction -> (
+            DocumentApply(SelectedDocument(), 
              "\({\"\[SelectionPlaceholder]\"}\)") &)))), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Italic\""), 
-             "TI"), ButtonFunction -> (DocumentApply(SelectedDocument(), 
+      Section(
+       BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Italic\""), 
+           "TI"), ButtonFunction -> (
+            DocumentApply(SelectedDocument(), 
              StyleBox("\[SelectionPlaceholder]", "TI")) &)))), "Text"), 
-        Section(
-         BoxData(
-          FillBox(ButtonBox(ComplexStringBox("\"", StyleBox("Arg", "Arg"), 
-             " Style\""), ButtonFunction -> (DocumentApply(SelectedDocument(), 
+      Section(
+       BoxData(
+        FillBox(ButtonBox(ComplexStringBox("\"", StyleBox("Arg", "Arg"), 
+           " Style\""), ButtonFunction -> (
+            DocumentApply(SelectedDocument(), 
              StyleBox("\[SelectionPlaceholder]", "Arg")) &)))), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(StyleBox({"Small", " ", "Caps"}, 
-             FontFeatures -> {"smcp"}), ButtonFunction -> (DocumentApply(
-             SelectedDocument(), StyleBox("\[SelectionPlaceholder]", 
+      Section(
+       BoxData(FillBox(ButtonBox(StyleBox({"Small", " ", "Caps"}, 
+           FontFeatures -> {"smcp"}), ButtonFunction -> (
+            DocumentApply(SelectedDocument(), 
+             StyleBox("\[SelectionPlaceholder]", 
               FontFeatures -> {"smcp"})) &)))), "Text")}, All), 
-      SectionGroup({Section("Sections", "Subsubsection"), 
+    SectionGroup({Section("Sections", "Subsubsection"), 
+      Section(
+       BoxData(FillBox(ButtonBox(ComplexStringBox("\"Example Delimiter\""), 
+          BaseStyle -> "Paste", 
+          ButtonData :> 
+           Section(BoxData(InterpretationBox("", $Line:= 0;, 
+              Editable -> False)), "ExampleDelimiter")))), "Text"), 
+      Section(
+       BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Scope\""), 
+           "ExampleSection"), BaseStyle -> "Paste", 
+          ButtonData :> SectionGroup({Section("Scope", "ExampleSection"), 
+             Section("XXX", "ExampleText")}, All)))), "Text"), 
+      Section(
+       BoxData(
+        FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Example Subsection\""), 
+           "ExampleSubsection"), BaseStyle -> "Paste", 
+          ButtonData :> SectionGroup({Section("XXX", "ExampleSubsection"), 
+             Section("XXX", "ExampleText")}, All)))), "Text")}, All)}, All)}, 
+ StyleDefinitions :> 
+  Document({
+    SectionGroup({
+      Section(StyleData(StyleDefinitions -> "Reference.pmathdoc")), 
+      Section(StyleData(StyleDefinitions -> "Palette.pmathdoc")), 
+      SectionGroup({Section("Section styles", "Section"), 
+        Section(StyleData("Subsection"), 
+         SectionDingbat :> 
+          OpenerBox(Dynamic(CurrentValue("SectionGroupOpen"))), 
+         SectionMargins -> {0, 0, 5, 5}, Selectable -> False, 
+         WholeSectionGroupOpener -> True), Section(StyleData("Subsubsection"), 
+         SectionDingbat :> 
+          OpenerBox(Dynamic(CurrentValue("SectionGroupOpen"))), 
+         SectionMargins -> {25, 5, 5, 5}, Selectable -> False, 
+         WholeSectionGroupOpener -> True), 
+        Section(StyleData("Text"), ButtonBoxOptions -> {
+           ButtonFrame -> "Palette"}, SectionMargins -> {0, 0, 0, 0})}, All), 
+      SectionGroup({Section("Box styles", "Section"), 
         Section(
-         BoxData(FillBox(ButtonBox(ComplexStringBox("\"Example Delimiter\""), 
-            BaseStyle -> "Paste", ButtonData :> Section(
-             BoxData(InterpretationBox("", $Line:= 0;, Editable -> False)), 
-             "ExampleDelimiter")))), "Text"), 
-        Section(
-         BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Scope\""), 
-             "ExampleSection"), BaseStyle -> "Paste", 
-            ButtonData :> SectionGroup({Section("Scope", "ExampleSection"), 
-              Section("XXX", "ExampleText")}, All)))), "Text"), 
-        Section(
-         BoxData(
-          FillBox(
-           ButtonBox(StyleBox(ComplexStringBox("\"Example Subsection\""), 
-             "ExampleSubsection"), BaseStyle -> "Paste", 
-            ButtonData :> SectionGroup({Section("XXX", "ExampleSubsection"), 
-              Section("XXX", "ExampleText")}, All)))), "Text")}, All)}, All), 
-    SectionGroup({Section("Actions", "Subsection"), 
-      Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Reset $Line\""), 
-          ButtonFunction -> (($Line:= 0) &)))), "Text")}, All)}, All)}, 
- StyleDefinitions :> Document({
-   SectionGroup({Section(StyleData(StyleDefinitions -> "Reference.pmathdoc")), 
-     Section(StyleData(StyleDefinitions -> "Palette.pmathdoc")), 
-     SectionGroup({Section("Section styles", "Section"), 
-       Section(StyleData("Subsection"), SectionDingbat :> OpenerBox(
-         Dynamic(CurrentValue("SectionGroupOpen"))), 
-        SectionMargins -> {0, 0, 5, 5}, Selectable -> False, 
-        WholeSectionGroupOpener -> True), Section(StyleData("Subsubsection"), 
-        SectionDingbat :> OpenerBox(
-         Dynamic(CurrentValue("SectionGroupOpen"))), 
-        SectionMargins -> {25, 5, 5, 5}, Selectable -> False, 
-        WholeSectionGroupOpener -> True), Section(StyleData("Text"), 
-        ButtonBoxOptions -> {ButtonFrame -> "Palette"}, 
-        SectionMargins -> {0, 0, 0, 0})}, All), 
-     SectionGroup({Section("Box styles", "Section"), 
-       Section(
-        TextData({
-          "The following styles mimic those of the \[HighSixDoubleQuote]", 
-          TemplateBox({"Reference.pmathdoc"}, "StylesheetHyperlink"), 
-          "\[HighNineDoubleQuote]:"}), "Text"), 
-       SectionGroup({Section("Hyperlinks", "Subsubsection"), 
-         Section(StyleData("ReferenceHyperlink"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-            ComplexStringBox({"\"", #1, "\""}), "Text", 
-            FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-            ShowAutoStyles -> False) &)}), 
-         Section(StyleData("NamedCharacterHyperlink"), 
-          TemplateBoxOptions -> {DisplayFunction -> (StyleBox(
-            ComplexStringBox({"\"\\\\[", #1, "]\""}), 
-            FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-            ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
-        All)}, All)}, All)}, StyleDefinitions -> 
-   "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True, 
+         TextData({
+           "The following styles mimic those of the \[HighSixDoubleQuote]", 
+           TemplateBox({"Reference.pmathdoc"}, "StylesheetHyperlink"), 
+           "\[HighNineDoubleQuote]:"}), "Text"), 
+        SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+          Section(StyleData("ReferenceHyperlink"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               StyleBox(ComplexStringBox({"\"", #1, "\""}), "Text", 
+                FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+                ShowAutoStyles -> False) &)}), 
+          Section(StyleData("NamedCharacterHyperlink"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               StyleBox(ComplexStringBox({"\"\\\\[", #1, "]\""}), 
+                FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+                ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
+         All)}, All)}, All)}, StyleDefinitions -> 
+    "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True, 
  WindowTitle -> "Documentation Tools")
