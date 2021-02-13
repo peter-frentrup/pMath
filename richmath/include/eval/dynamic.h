@@ -55,8 +55,8 @@ namespace richmath {
       static FrontEndReference current_observer_id;
       
     private:
-      Box *_owner;
       Expr _expr;
+      Box *_owner;
       
       AutoBoolValues _synchronous_updating;
   };
