@@ -416,6 +416,7 @@ Function evenTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(y =!= z) {        Return( fun(x + z Pi) ) }
     Return($Failed)
 }
+evenTrig2PiOfSum(~~~):= $Failed
 
 oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
     oddTrig2PiOfSum(fun, cofun, x + y * Pi/180)
@@ -428,6 +429,7 @@ Function oddTrig2PiOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(y =!= z) {        Return( fun(x + z Pi) ) }
     Return($Failed)
 }
+oddTrig2PiOfSum(~~~):= $Failed
 
 tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) Degree)::=
     tanLikeOfSum(fun, cofun, x + y * Pi/180)
@@ -439,6 +441,7 @@ Function tanLikeOfSum(~fun, ~cofun, ~x + (?y ? IsRational) * Pi) {
     If(y =!= z) {        Return( fun(x + z Pi) ) }
     Return($Failed)
 }
+tanLikeOfSum(~~~):= $Failed
 
 arcTanOfSum(~):= $Failed
 arcTanOfSum(2-Sqrt(3)):= Pi/12
