@@ -132,12 +132,15 @@ void Context::draw_selection_path() {
   else {
     canvas().save();
     {
-      canvas().clip_preserve();
-      
       canvas().set_color(active ? SelectionColor : InactiveSelectionColor, SelectionFillAlpha); //ControlPainter::std->selection_color()
-      canvas().paint();
+      canvas().fill_preserve();
       
       canvas().reset_matrix();
+      RectangleF clip_rect = canvas().clip_extents();
+      clip_rect.grow(1.0f);
+      
+      clip_rect.add_rect_path(canvas(), true);
+      canvas().clip_preserve();
       cairo_set_line_width(canvas().cairo(), 2.0);
       canvas().set_color(active ? SelectionColor : InactiveSelectionColor);
       canvas().stroke();
