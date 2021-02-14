@@ -1,0 +1,56 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("True", "ObjectName"), 
+      Section(BoxData(TemplateBox({"True"}, "UsageReference")), "Usage"), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Many relations automatically simplity:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"Cos", "(", {"5", "-", SqrtBox("2")}, ")"}, "<", {
+              "1", "+", SqrtBox("2")}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("True"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use a conditional:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"If", "(", {"True", ",", "x", ",", "y"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("x"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(
+         TextData({
+           "Due to automatic interval arithmetic, not all numeric relations \
+           simplify to ", TemplateBox({"True"}, "ReferenceHyperlink"), " or ", 
+           TemplateBox({"False"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({{"N", "(", {"1", ",", "5"}, ")"}, "<", {
+              "N", "(", {{"1", "+", {"10", SuperscriptBox({"-", "10"})}}, ",", 
+               "5"}, ")"}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"1.000000[+/-0.0]`5", "<", 
+             "1.000000000[+/-1.17*^-10]`10"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section("Using rational numbers, this relation can be decided:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({"1", "<", {
+              "1", "+", {"10", SuperscriptBox({"-", "10"})}}}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData("True"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"False"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"If"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Boole"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Undefined"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"All"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Automatic"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
