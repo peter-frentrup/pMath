@@ -18,11 +18,14 @@ namespace {
   };
 }
 
+extern pmath_symbol_t richmath_System_Directive;
 extern pmath_symbol_t richmath_System_Dynamic;
 extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_ReplacePart;
 extern pmath_symbol_t richmath_System_Rule;
+extern pmath_symbol_t richmath_System_RuleDelayed;
 extern pmath_symbol_t richmath_Internal_DynamicEvaluateMultiple;
 
 namespace richmath {
@@ -230,11 +233,6 @@ size_t PartialDynamic::Impl::collect_dynamic_positions(Array<int32_t> &all_flat,
 }
 
 size_t PartialDynamic::Impl::collect_dynamic_positions(Array<int32_t> &all_flat, LinkedList<int32_t> *cur, int32_t cur_depth, Expr expr) {
-  if(expr[0] == richmath_System_Dynamic) {
-    append_pos(all_flat, cur, cur_depth);
-    return 1;
-  }
-  
   if(!expr.is_expr())
     return 0;
   
@@ -245,14 +243,32 @@ size_t PartialDynamic::Impl::collect_dynamic_positions(Array<int32_t> &all_flat,
   if(exprlen >= INT32_MAX)
     return 0;
   
-  LinkedList<int32_t> next;
-  size_t count = 0;
-  next.next = cur;
-  for(next.value = 1; next.value <= (int32_t)exprlen; ++next.value) {
-    count+= collect_dynamic_positions(all_flat, &next, cur_depth + 1, expr[next.value]);
+  Expr head = expr[0];
+  if(head == richmath_System_Dynamic || head == richmath_System_PureArgument) {
+    append_pos(all_flat, cur, cur_depth);
+    return 1;
   }
   
-  return count;
+  LinkedList<int32_t> next;
+  next.next = cur;
+  
+  if(head == richmath_System_Rule || head == richmath_System_RuleDelayed) {
+    next.value = 2;
+    return collect_dynamic_positions(all_flat, &next, cur_depth + 1, expr[next.value]);
+  }
+  
+  if( head == richmath_System_List      || 
+      head == richmath_System_Directive || 
+      head == richmath_System_HoldComplete) 
+  {
+    size_t count = 0;
+    for(next.value = 1; next.value <= (int32_t)exprlen; ++next.value) {
+      count+= collect_dynamic_positions(all_flat, &next, cur_depth + 1, expr[next.value]);
+    }
+    return count;
+  }
+  
+  return 0;
 }
 
 void PartialDynamic::Impl::append_pos(Array<int32_t> &all_flat, LinkedList<int32_t> *cur, int32_t cur_depth) {
