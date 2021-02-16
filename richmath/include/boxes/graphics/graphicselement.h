@@ -1,9 +1,9 @@
 #ifndef RICHMATH__BOXES__GRAPHICS__GRAPHICSELEMENT_H__INCLUDED
 #define RICHMATH__BOXES__GRAPHICS__GRAPHICSELEMENT_H__INCLUDED
 
-#include <util/base.h>
 #include <util/array.h>
 #include <util/pmath-extra.h>
+#include <util/styled-object.h>
 
 #include <cairo.h>
 
@@ -31,15 +31,12 @@ namespace richmath {
       double ymax;
   };
   
-  class GraphicsElement: public Base {
-    protected:
-      virtual ~GraphicsElement();
-      static void delete_owned(GraphicsElement *child) { assert(child != nullptr); delete child; }
-
+  class GraphicsElement: public StyledObject {
+      friend class GraphicsElementCollection;
     public:
-      static GraphicsElement *create(Expr expr, BoxInputFlags opts);
+      virtual StyledObject *style_parent() final override { return _style_parent_or_limbo_next.as_normal(); }
       
-      void safe_destroy() { delete this; }
+      static GraphicsElement *create(Expr expr, BoxInputFlags opts);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) = 0;
       
@@ -47,10 +44,24 @@ namespace richmath {
       virtual void paint(GraphicsBox *owner, Context &context) = 0;
       virtual Expr to_pmath(BoxOutputFlags flags) = 0;
       
+      virtual void dynamic_updated() override;
+      
     protected:
       GraphicsElement();
-      
+      virtual ~GraphicsElement();
+      void delete_owned(GraphicsElement *child) { 
+        RICHMATH_ASSERT(child != nullptr);
+        child->safe_destroy();
+      }
+
       void finish_load_from_object(Expr expr) {}
+      
+      void style_parent(StyledObject *sp) { if(_style_parent_or_limbo_next.is_normal()) _style_parent_or_limbo_next.set_to_normal(sp); }
+      virtual FrontEndObject *next_in_limbo() final override { return _style_parent_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(FrontEndObject *next) final override;
+      
+    private:
+      TintedPtr<StyledObject, FrontEndObject> _style_parent_or_limbo_next;
   };
   
   class GraphicsElementCollection: public GraphicsElement {
@@ -59,7 +70,7 @@ namespace richmath {
     protected:
       virtual ~GraphicsElementCollection();
     public:
-      GraphicsElementCollection();
+      GraphicsElementCollection(StyledObject *owner);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       void load_from_object(Expr expr, BoxInputFlags opts);

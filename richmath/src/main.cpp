@@ -192,13 +192,13 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(StyleDataSection)          == 136, ""); // (128) + 8
     static_assert(sizeof(AxisTicks)                 == 192, ""); // (48) + 4*16 + 4 + 9*4 + 3*8 + 8 + 1 (bool) + 7 UNUSED PADDING BYTES
     static_assert(sizeof(GraphicsBounds)            ==  80, ""); // 6*8 + 4*8
-    static_assert(sizeof(GraphicsElement)           ==   8, "");
-    static_assert(sizeof(GraphicsElementCollection) ==  24, ""); // 8 + 16
-    static_assert(sizeof(GraphicsBox)               == 176, ""); // (48) + 4 + 7*4 + 6*8 + 24 + 8 + 8 + 2 (bools) + 6 UNUSED PADDING BYTES
-    static_assert(sizeof(GraphicsDirective)         ==  16, ""); // (8) + 8
-    static_assert(sizeof(LineBox)                   ==  32, ""); // (8) + 8 + 16
+    static_assert(sizeof(GraphicsElement)           ==  24, ""); // (16) + 8
+    static_assert(sizeof(GraphicsElementCollection) ==  40, ""); // (24) + 16
+    static_assert(sizeof(GraphicsBox)               == 192, ""); // (48) + 4 + 7*4 + 6*8 + 40 + 8 + 8 + 2 (bools) + 6 UNUSED PADDING BYTES
+    static_assert(sizeof(GraphicsDirective)         ==  32, ""); // (24) + 8
+    static_assert(sizeof(LineBox)                   ==  48, ""); // (24) + 8 + 16
     static_assert(sizeof(DoubleMatrix)              ==  40, ""); // 8 + 3*8 + 8
-    static_assert(sizeof(PointBox)                  ==  56, ""); // (8) + 8 + 40
+    static_assert(sizeof(PointBox)                  ==  72, ""); // (24) + 8 + 40
 #  elif defined(PMATH_32BIT)
     static_assert(sizeof(Array<void*>)              ==  12, ""); // 4 + 4 + 4
     static_assert(sizeof(Array<bool>)               ==  12, ""); // 4 + 4 + 4
@@ -262,13 +262,13 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(StyleDataSection)          == 120, ""); // (112) + 8
     static_assert(sizeof(AxisTicks)                 == 160, ""); // (32) + 4*12 + 4 + 9*4 + 3*8 + 8 + 1 (bool) + 7 UNUSED PADDING BYTES
     static_assert(sizeof(GraphicsBounds)            ==  80, ""); // 6*8 + 4*8
-    static_assert(sizeof(GraphicsElement)           ==   4, "");
-    static_assert(sizeof(GraphicsElementCollection) ==  16, ""); // 4 + 12
-    static_assert(sizeof(GraphicsBox)               == 120, ""); // (32) + 4 + 7*4 + 6*4 + 16 + 8 + 4 + 2 (bools) + 2 UNUSED PADDING BYTES
-    static_assert(sizeof(GraphicsDirective)         ==  16, ""); // (4) + 4 UNUSED PADDING BYTES + 8
-    static_assert(sizeof(LineBox)                   ==  32, ""); // (4) + 4 UNUSED PADDING BYTES + 8 + 12 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(GraphicsElement)           ==  12, ""); // (8) + 4
+    static_assert(sizeof(GraphicsElementCollection) ==  24, ""); // (12) + 12
+    static_assert(sizeof(GraphicsBox)               == 128, ""); // (32) + 4 + 7*4 + 6*4 + 24 + 8 + 4 + 2 (bools) + 2 UNUSED PADDING BYTES
+    static_assert(sizeof(GraphicsDirective)         ==  24, ""); // (12) + 4 UNUSED PADDING BYTES + 8
+    static_assert(sizeof(LineBox)                   ==  40, ""); // (12) + 4 UNUSED PADDING BYTES + 8 + 12 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(DoubleMatrix)              ==  24, ""); // 8 + 3*4 + 4
-    static_assert(sizeof(PointBox)                  ==  40, ""); // (4) + 4 UNUSED PADDING BYTES + 8 + 24
+    static_assert(sizeof(PointBox)                  ==  48, ""); // (12) + 4 UNUSED PADDING BYTES + 8 + 24
 #  endif
 #endif
 

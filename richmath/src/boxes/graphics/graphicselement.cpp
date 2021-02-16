@@ -90,7 +90,7 @@ void GraphicsBounds::add_point(double elem_x, double elem_y) {
 //{ class GraphicsElement ...
 
 GraphicsElement::GraphicsElement()
-  : Base()
+  : StyledObject()
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -112,7 +112,7 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   }
   
   if(head == richmath_System_List) {
-    auto coll = new GraphicsElementCollection;
+    auto coll = new GraphicsElementCollection(nullptr);
     coll->load_from_object(expr, opts);
     return coll;
   }
@@ -123,13 +123,29 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   return new DummyGraphicsElement(expr);
 }
 
+void GraphicsElement::dynamic_updated() {
+  StyledObject *prev = style_parent();
+  
+  while(dynamic_cast<GraphicsDirective*>(prev))
+    prev = prev->style_parent();
+  
+  if(prev)
+    prev->dynamic_updated();
+}
+
+void GraphicsElement::next_in_limbo(FrontEndObject *next) { 
+  RICHMATH_ASSERT( _style_parent_or_limbo_next.is_normal() );
+  _style_parent_or_limbo_next.set_to_tinted(next);
+}
+
 //} ...class GraphicsElement
 
 //{ class GraphicsElementCollection ...
 
-GraphicsElementCollection::GraphicsElementCollection()
+GraphicsElementCollection::GraphicsElementCollection(StyledObject *owner)
   : base()
 {
+  style_parent(owner);
 }
 
 GraphicsElementCollection::~GraphicsElementCollection()
@@ -145,27 +161,35 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
   int oldlen = _items.length();
   int newlen = (int)expr.expr_length();
   
+  StyledObject *sty_par = this;
   for(int i = 0; i < newlen && i < oldlen; ++i) {
     Expr             elem_expr = expr[i + 1];
     GraphicsElement *elem      = _items[i];
     
     if(!elem->try_load_from_object(elem_expr, opts)) {
-      elem->safe_destroy();
+      delete_owned(elem);
       elem = GraphicsElement::create(elem_expr, opts);
+      elem->style_parent(sty_par);
       _items.set(i, elem);
     }
+    
+    if(dynamic_cast<GraphicsDirective*>(elem))
+      sty_par = elem;
   }
   
   for(int i = newlen; i < oldlen; ++i)
-    _items[i]->safe_destroy();
+    delete_owned(_items[i]);
     
   _items.length(newlen);
   
   for(int i = oldlen; i < newlen; ++i) {
     Expr             elem_expr = expr[i + 1];
     GraphicsElement *elem      = GraphicsElement::create(elem_expr, opts);
-    
+    elem->style_parent(sty_par);
     _items.set(i, elem);
+    
+    if(dynamic_cast<GraphicsDirective*>(elem))
+      sty_par = elem;
   }
   
   finish_load_from_object(std::move(expr));
@@ -180,24 +204,57 @@ void GraphicsElementCollection::load_from_object(Expr expr, BoxInputFlags opts) 
 }
 
 void GraphicsElementCollection::add(GraphicsElement *g) {
-  assert(g != nullptr);
+  RICHMATH_ASSERT(g != nullptr);
+  RICHMATH_ASSERT(g->style_parent() == nullptr);
   
+  StyledObject *sty_par;
+  if(int len = _items.length()) {
+    auto last_elem = _items[len - 1];
+    sty_par = dynamic_cast<GraphicsDirective*>(last_elem) ? last_elem : last_elem->style_parent();
+  }
+  else
+    sty_par = this;
+  
+  g->style_parent(sty_par);
   _items.add(g);
 }
 
 void GraphicsElementCollection::insert(int i, GraphicsElement *g) {
-  assert(g != nullptr);
+  RICHMATH_ASSERT(0 <= i);
+  RICHMATH_ASSERT(i <= count());
+  RICHMATH_ASSERT(g != nullptr);
+  RICHMATH_ASSERT(g->style_parent() == nullptr);
   
-  assert(0 <= i);
-  assert(i <= count());
+  StyledObject *sty_par;
+  if(i > 0) {
+    auto last_elem = _items[i - 1];
+    sty_par = dynamic_cast<GraphicsDirective*>(last_elem) ? last_elem : last_elem->style_parent();
+  }
+  else
+    sty_par = this;
+  
+  g->style_parent(sty_par);
   _items.insert(i, 1, &g);
+  
+  if(i + 1 < _items.length()) {
+    if(dynamic_cast<GraphicsDirective*>(g))
+      _items[i + 1]->style_parent(g);
+  }
 }
 
 void GraphicsElementCollection::remove(int i) {
-  assert(0 <= i);
-  assert(i < count());
+  RICHMATH_ASSERT(0 <= i);
+  RICHMATH_ASSERT(i < count());
   
-  _items[i]->safe_destroy();
+  auto elem = _items[i];
+  if(i + 1 < _items.length()) {
+    auto next_elem = _items[i+1];
+    
+    if(next_elem->style_parent() == elem)
+      next_elem->style_parent(elem->style_parent());
+  }
+  
+  delete_owned(elem);
   _items.remove(i, 1);
 }
 

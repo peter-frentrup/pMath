@@ -104,6 +104,7 @@ GraphicsBox::GraphicsBox()
     mouse_over_part(GraphicsPartNone),
     mouse_down_x(0),
     mouse_down_y(0),
+    elements(this),
     user_has_changed_size(false),
     is_currently_resizing(false)
 {
