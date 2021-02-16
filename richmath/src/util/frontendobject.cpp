@@ -109,6 +109,38 @@ Expr FrontEndReference::to_pmath() const {
 
 //} ... class FrontEndReference
 
+//{ class AutoMemorySuspension ...
+
+static int deletion_suspensions = 0;
+static FrontEndObject *object_limbo = nullptr;
+
+bool AutoMemorySuspension::are_deletions_suspended() {
+  return deletion_suspensions > 0;
+}
+
+void AutoMemorySuspension::suspend_deletions() {
+  ++deletion_suspensions;
+}
+
+void AutoMemorySuspension::resume_deletions() {
+  if(--deletion_suspensions > 0)
+    return;
+    
+  int count = 0;
+  while(object_limbo) {
+    FrontEndObject *tmp = object_limbo;
+    object_limbo = tmp->next_in_limbo();
+    
+    delete tmp;
+    ++count;
+  }
+  
+  if(count > 0)
+    fprintf(stderr, "[deleted %d objects from limbo]\n", count);
+}
+
+//} ... class AutoMemorySuspension
+
 //{ class FrontEndObject ...
 
 FrontEndObject::FrontEndObject()
@@ -121,6 +153,11 @@ FrontEndObject::FrontEndObject()
 }
 
 FrontEndObject::~FrontEndObject() {
+#ifdef RICHMATH_DEBUG_MEMORY
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    fprintf(stderr, "[warning: delete %s during memory suspension]\n", get_debug_tag());
+  }
+#endif
   TheCache.table.remove(_id);
 }
 
@@ -139,6 +176,17 @@ void FrontEndObject::swap_id(FrontEndObject *other) {
     TheCache.table.set(other->_id, other);
     TheCache.table.set(this->_id,  this);
   }
+}
+
+void FrontEndObject::safe_destroy() {
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    RICHMATH_ASSERT( next_in_limbo() == nullptr );
+    next_in_limbo(object_limbo);
+    RICHMATH_ASSERT( next_in_limbo() == object_limbo );
+    object_limbo = this;
+    return;
+  }
+  delete this;
 }
 
 //} ... class FrontEndObject

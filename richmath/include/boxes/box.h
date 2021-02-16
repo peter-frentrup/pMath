@@ -6,7 +6,6 @@
 #include <util/selections.h>
 #include <util/sharedptr.h>
 #include <util/styled-object.h>
-#include <util/tintedptr.h>
 
 #include <functional>
 
@@ -145,38 +144,12 @@ namespace richmath {
     }
   };
   
-  /** Suspending deletions of Boxes.
-  
-      While destruction suspended is in effect, boxes will be remembered in a free
-      list (the limbo). When destruction mode is resumed, all objects in the limbo are
-      actually deleted.
-  
-      During mouse_down()/paint()/... handlers, the document might change.
-      This could cause a parent box to be removed. Since it is still referenced
-      on the stack, such a box should not be wiped out until the call stack is clean.
-  
-      Hence, the widget which forwards all calls to Box/Document should suppress
-      destruction of Boxes during event handling.
-   */
-  class AutoMemorySuspension {
-    public:
-      AutoMemorySuspension() { suspend_deletions(); }
-      ~AutoMemorySuspension() { resume_deletions(); }
-      
-      static bool are_deletions_suspended();
-      
-    private:
-      static void suspend_deletions();
-      static void resume_deletions();
-  };
-  
   class Box: public ActiveStyledObject {
-      friend class AutoMemorySuspension;
     protected:
       virtual ~Box();
       void delete_owned(Box *child) { 
         if(child) {
-          assert(child->parent() == this || child->parent() == nullptr);
+          RICHMATH_ASSERT(child->parent() == this || child->parent() == nullptr);
           child->safe_destroy();
         }
       }
@@ -196,12 +169,6 @@ namespace richmath {
       ///
       /// This calls item(i)->after_insertion() for all child boxes item(i) whose index() is >= start and < end.
       void after_insertion(int start, int end);
-      
-      /// Mark the box for deletion.
-      ///
-      /// You should normally use this function instead of delete.
-      /// \see AutoMemorySuspension
-      void safe_destroy();
       
       template<class T>
       static T *try_create(Expr expr, BoxInputFlags options) {
@@ -459,10 +426,13 @@ namespace richmath {
       
       void finish_load_from_object(Expr expr);
       
+      virtual FrontEndObject *next_in_limbo() final override { return _parent_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(FrontEndObject *next) final override;
+      
     protected:
-      TintedPtr<Box, Box> _parent_or_limbo_next;
-      int                 _index;
-      BoxSize             _extents;
+      TintedPtr<Box, FrontEndObject> _parent_or_limbo_next;
+      int                            _index;
+      BoxSize                        _extents;
   };
   
   class DummyBox: public Box {

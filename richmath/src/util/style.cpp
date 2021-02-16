@@ -2511,7 +2511,10 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
   return true;
 }
 
-Stylesheet::Stylesheet() : Shareable() {
+Stylesheet::Stylesheet() 
+: Shareable(),
+  _limbo_next(nullptr)
+{
 }
 
 Stylesheet::~Stylesheet() {

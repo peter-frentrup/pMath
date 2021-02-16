@@ -69,7 +69,7 @@ namespace {
       static Expr get_WindowTitle(FrontEndObject *obj, Expr item);
   };
   
-  class StylesMenuImpl : public FrontEndObject {
+  class StylesMenuImpl final : public FrontEndObject {
     public:
       static void init();
       static void done();
@@ -81,7 +81,11 @@ namespace {
       static Expr enum_styles_menu(Expr name);
       
       static bool find_style_definition(Expr submenu_cmd, Expr item_cmd);
-      
+    
+    protected:
+      virtual FrontEndObject *next_in_limbo() final override { return nullptr; }
+      virtual void next_in_limbo(FrontEndObject *next) override { RICHMATH_ASSERT(0 && "not supported"); }
+    
     private:
       StylesMenuImpl();
       

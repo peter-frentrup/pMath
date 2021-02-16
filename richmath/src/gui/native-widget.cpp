@@ -13,14 +13,8 @@ namespace richmath {
     public:
       NativeWidgetImpl(NativeWidget &_self) : self(_self) {}
       
-      void finish_idle_after_edit() {
-        self._idle_after_edit = nullptr;
-        self.on_idle_after_edit();
-      }
-      
-      void abort_idle_after_edit() {
-        self._idle_after_edit = nullptr;
-      }
+      void finish_idle_after_edit();
+      void abort_idle_after_edit();
       
     private:
       NativeWidget &self;
@@ -138,6 +132,7 @@ NativeWidget::NativeWidget(Document *doc)
 NativeWidget::~NativeWidget() {
   if(_document)
     _document->_native = dummy;
+  NativeWidgetImpl(*this).abort_idle_after_edit();
   delete _document;
 }
 
@@ -237,12 +232,14 @@ CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
 }
 
 void NativeWidget::on_editing() {
-  if(_idle_after_edit) {
-    _idle_after_edit->reset_timer();
+  if(TimedEvent *ev = _idle_after_edit_or_limbo_next.as_normal()) {
+    ev->reset_timer();
   }
-  else {
-    _idle_after_edit = new IdleAfterEditEvent(id());
-    register_timed_event(_idle_after_edit);
+  else if(_idle_after_edit_or_limbo_next.is_normal()) {
+    SharedPtr<TimedEvent> ev = new IdleAfterEditEvent(id());
+    ev->ref();
+    _idle_after_edit_or_limbo_next.set_to_normal(ev.ptr());
+    register_timed_event(ev);
   }
 }
 
@@ -360,3 +357,25 @@ Context *NativeWidget::document_context() {
 SelectionReference &NativeWidget::drag_source_reference() {
   return _document->drag_source;
 }
+
+void NativeWidget::next_in_limbo(FrontEndObject *next) {
+  RICHMATH_ASSERT( _idle_after_edit_or_limbo_next.is_normal() );
+  NativeWidgetImpl(*this).abort_idle_after_edit();
+  _idle_after_edit_or_limbo_next.set_to_tinted(next);
+}
+      
+//{ class NativeWidgetImpl ...
+
+void NativeWidgetImpl::finish_idle_after_edit() {
+  abort_idle_after_edit();
+  self.on_idle_after_edit();
+}
+
+void NativeWidgetImpl::abort_idle_after_edit() {
+  if(TimedEvent *ev = self._idle_after_edit_or_limbo_next.as_normal()) {
+    self._idle_after_edit_or_limbo_next.set_to_normal(nullptr);
+    ev->unref();
+  }
+}
+      
+//} ... class NativeWidgetImpl

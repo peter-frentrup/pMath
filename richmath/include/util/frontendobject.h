@@ -43,8 +43,34 @@ namespace richmath {
     private:
       uint32_t _id;
   };
+  
+  /** Suspending deletions of objects.
+  
+      While destruction suspended is in effect, objects will be remembered in a free
+      list (the limbo). When destruction mode is resumed, all objects in the limbo are
+      actually deleted.
+  
+      During Box mouse_down()/paint()/... handlers, the document might change.
+      This could cause a parent box to be removed. Since it is still referenced
+      on the stack, such a box should not be wiped out until the call stack is clean.
+  
+      Hence, the widget which forwards all calls to Box/Document should suppress
+      destruction of objects during event handling.
+   */
+  class AutoMemorySuspension {
+    public:
+      AutoMemorySuspension() { suspend_deletions(); }
+      ~AutoMemorySuspension() { resume_deletions(); }
+      
+      static bool are_deletions_suspended();
+      
+    private:
+      static void suspend_deletions();
+      static void resume_deletions();
+  };
 
   class FrontEndObject: public Base {
+      friend class AutoMemorySuspension;
     public:
       FrontEndObject();
       virtual ~FrontEndObject();
@@ -61,6 +87,12 @@ namespace richmath {
       
       void swap_id(FrontEndObject *other);
       
+      /// Mark the object for deletion.
+      ///
+      /// You should normally use this function instead of delete.
+      /// \see AutoMemorySuspension
+      void safe_destroy();
+      
       /// Notifies that a Dynamic value changed which this object is tracking.
       virtual void dynamic_updated() = 0;
     
@@ -72,7 +104,11 @@ namespace richmath {
       /// \param info   The info argument given to the corresponding DynamicEvaluationJob. Usually null.
       /// \param result The evaluation result.
       virtual void dynamic_finished(Expr info, Expr result) {}
-      
+    
+    protected:
+      virtual FrontEndObject *next_in_limbo() = 0;
+      virtual void next_in_limbo(FrontEndObject *next) = 0;
+    
     private:
       FrontEndReference _id;
   };

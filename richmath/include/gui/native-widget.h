@@ -5,6 +5,7 @@
 
 #include <gui/control-painter.h>
 #include <util/selections.h>
+#include <util/tintedptr.h>
 
 
 namespace richmath {
@@ -151,16 +152,19 @@ namespace richmath {
       
       SelectionReference &drag_source_reference();
     
+      virtual FrontEndObject *next_in_limbo() final override { return _idle_after_edit_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(FrontEndObject *next) final override;
+    
     protected:
       float _custom_scale_factor;
       ObservableValue<int> _dpi;
       
     private:
-      Document                           *_document;
-      ObservableValue<FrontEndReference>  _source_box;
-      FrontEndReference                   _owner_document;
-      FrontEndReference                   _stylesheet_document;
-      SharedPtr<TimedEvent>               _idle_after_edit;
+      Document                             *_document;
+      ObservableValue<FrontEndReference>    _source_box;
+      FrontEndReference                     _owner_document;
+      FrontEndReference                     _stylesheet_document;
+      TintedPtr<TimedEvent, FrontEndObject> _idle_after_edit_or_limbo_next;
   };
   
   static const float ScaleDefault = 1.f;

@@ -568,7 +568,11 @@ namespace richmath {
       Hashset<FrontEndReference>::KeyEnum enum_users() const {
         return users.keys();
       }
-      
+    
+    protected:
+      virtual FrontEndObject *next_in_limbo() final override { return _limbo_next; }
+      virtual void next_in_limbo(FrontEndObject *next) final override { RICHMATH_ASSERT(!_limbo_next); _limbo_next = next; }
+    
     public:
       static SharedPtr<Stylesheet> Default;
       
@@ -584,6 +588,7 @@ namespace richmath {
     private:
       Expr _name;
       Expr _loaded_definition;
+      FrontEndObject *_limbo_next;
   };
 };
 

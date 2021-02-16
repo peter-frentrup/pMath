@@ -4,6 +4,7 @@
 
 #include <util/frontendobject.h>
 #include <util/style.h>
+#include <util/tintedptr.h>
 
 
 namespace richmath {
@@ -70,14 +71,18 @@ namespace richmath {
     public:
       explicit FrontEndSession(StyledObject *owner);
       
-      virtual StyledObject *style_parent() final override { return _owner; }
+      virtual StyledObject *style_parent() final override { return _owner_or_limbo_next.as_normal(); }
       virtual Expr allowed_options() override;
       virtual bool changes_children_style() override { return true; }
       
       virtual void dynamic_updated() override;
+    
+    protected:
+      virtual FrontEndObject *next_in_limbo() final override { return _owner_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(FrontEndObject *next) final override;
       
     private:
-      StyledObject *_owner;
+      TintedPtr<StyledObject, FrontEndObject> _owner_or_limbo_next;
   };
 }
 

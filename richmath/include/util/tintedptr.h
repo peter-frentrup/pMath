@@ -33,6 +33,9 @@ namespace richmath {
       Normal *as_normal() const { return is_normal() ? (Normal*)pointer() : nullptr; }
       Tinted *as_tinted() const { return is_tinted() ? (Tinted*)pointer() : nullptr; }
       
+      void set_to_normal(Normal *normal) { *this = TintedPtr(normal); }
+      void set_to_tinted(Tinted *tinted) { *this = FromTinted(tinted); }
+      
     private:
       uintptr_t _data;
   };

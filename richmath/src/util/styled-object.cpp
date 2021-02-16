@@ -212,7 +212,7 @@ void StyledObject::reset_style() {
 
 FrontEndSession::FrontEndSession(StyledObject *owner)
   : base{},
-    _owner{owner}
+    _owner_or_limbo_next{owner}
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   style = new Style();
@@ -224,6 +224,11 @@ Expr FrontEndSession::allowed_options() {
 }
 
 void FrontEndSession::dynamic_updated() {
+}
+
+void FrontEndSession::next_in_limbo(FrontEndObject *next) {
+  RICHMATH_ASSERT( _owner_or_limbo_next.is_normal() );
+  _owner_or_limbo_next.set_to_tinted(next);
 }
 
 //} ... class FrontEndSession
