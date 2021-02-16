@@ -44,7 +44,9 @@ namespace richmath {
       virtual void paint(GraphicsBox *owner, Context &context) = 0;
       virtual Expr to_pmath(BoxOutputFlags flags) = 0;
       
-      virtual void dynamic_updated() override;
+      void request_repaint_all();
+      virtual void dynamic_updated() override { request_repaint_all(); }
+      virtual Expr prepare_dynamic(Expr expr) override;
       
     protected:
       GraphicsElement();
@@ -63,6 +65,8 @@ namespace richmath {
     private:
       TintedPtr<StyledObject, FrontEndObject> _style_parent_or_limbo_next;
   };
+  
+  class GraphicsDirectiveBase: public GraphicsElement {};
   
   class GraphicsElementCollection: public GraphicsElement {
       using base = GraphicsElement;

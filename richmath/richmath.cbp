@@ -794,6 +794,7 @@
 		<Unit filename="include/eval/eval-contexts.h" />
 		<Unit filename="include/eval/job.h" />
 		<Unit filename="include/eval/observable.h" />
+		<Unit filename="include/eval/partial-dynamic.h" />
 		<Unit filename="include/eval/server.h" />
 		<Unit filename="include/graphics/animation.h" />
 		<Unit filename="include/graphics/buffer.h" />
@@ -1320,6 +1321,7 @@
 		<Unit filename="src/eval/kernel-execute.cpp" />
 		<Unit filename="src/eval/observable.cpp" />
 		<Unit filename="src/eval/option-functions.cpp" />
+		<Unit filename="src/eval/partial-dynamic.cpp" />
 		<Unit filename="src/eval/server.cpp" />
 		<Unit filename="src/eval/strings.inc" />
 		<Unit filename="src/eval/symbols.inc" />

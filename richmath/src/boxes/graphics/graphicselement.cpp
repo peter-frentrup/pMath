@@ -3,6 +3,7 @@
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/pointbox.h>
 #include <boxes/graphics/linebox.h>
+#include <boxes/box.h>
 
 #include <graphics/context.h>
 
@@ -123,14 +124,22 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
   return new DummyGraphicsElement(expr);
 }
 
-void GraphicsElement::dynamic_updated() {
+void GraphicsElement::request_repaint_all() {
+  if(Box *owner = Box::find_nearest_box(this)) {
+    owner->request_repaint_all();
+  }
+}
+
+Expr GraphicsElement::prepare_dynamic(Expr expr) {
   StyledObject *prev = style_parent();
   
   while(dynamic_cast<GraphicsDirective*>(prev))
     prev = prev->style_parent();
   
   if(prev)
-    prev->dynamic_updated();
+    return prev->prepare_dynamic(std::move(expr));
+  
+  return expr;
 }
 
 void GraphicsElement::next_in_limbo(FrontEndObject *next) { 
@@ -173,7 +182,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
       _items.set(i, elem);
     }
     
-    if(dynamic_cast<GraphicsDirective*>(elem))
+    if(dynamic_cast<GraphicsDirectiveBase*>(elem))
       sty_par = elem;
   }
   
@@ -188,7 +197,7 @@ bool GraphicsElementCollection::try_load_from_object(Expr expr, BoxInputFlags op
     elem->style_parent(sty_par);
     _items.set(i, elem);
     
-    if(dynamic_cast<GraphicsDirective*>(elem))
+    if(dynamic_cast<GraphicsDirectiveBase*>(elem))
       sty_par = elem;
   }
   
@@ -210,7 +219,7 @@ void GraphicsElementCollection::add(GraphicsElement *g) {
   StyledObject *sty_par;
   if(int len = _items.length()) {
     auto last_elem = _items[len - 1];
-    sty_par = dynamic_cast<GraphicsDirective*>(last_elem) ? last_elem : last_elem->style_parent();
+    sty_par = dynamic_cast<GraphicsDirectiveBase*>(last_elem) ? last_elem : last_elem->style_parent();
   }
   else
     sty_par = this;
@@ -228,7 +237,7 @@ void GraphicsElementCollection::insert(int i, GraphicsElement *g) {
   StyledObject *sty_par;
   if(i > 0) {
     auto last_elem = _items[i - 1];
-    sty_par = dynamic_cast<GraphicsDirective*>(last_elem) ? last_elem : last_elem->style_parent();
+    sty_par = dynamic_cast<GraphicsDirectiveBase*>(last_elem) ? last_elem : last_elem->style_parent();
   }
   else
     sty_par = this;
@@ -237,7 +246,7 @@ void GraphicsElementCollection::insert(int i, GraphicsElement *g) {
   _items.insert(i, 1, &g);
   
   if(i + 1 < _items.length()) {
-    if(dynamic_cast<GraphicsDirective*>(g))
+    if(dynamic_cast<GraphicsDirectiveBase*>(g))
       _items[i + 1]->style_parent(g);
   }
 }
