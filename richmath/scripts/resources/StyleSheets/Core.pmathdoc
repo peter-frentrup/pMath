@@ -147,11 +147,10 @@ Document({
         Section(StyleData("Framed"), FrameBoxOptions -> {
            ContentPadding -> True}), Section(StyleData("Button"), 
          BaseStyle -> "ControlStyle", ButtonBoxOptions -> {
-           ContentPadding -> True}), Section(StyleData("Checkbox"), 
-         BaseStyle -> "ControlStyle"), Section(StyleData("InputField"), 
-         BaseStyle -> "ControlStyle", ShowStringCharacters -> True), 
-        Section(StyleData("Pane"), PaneBoxOptions -> {
-           BaselinePosition -> Center -> Axis, 
+           ContentPadding -> True}), Section(StyleData("Checkbox")), 
+        Section(StyleData("InputField"), BaseStyle -> "ControlStyle", 
+         ShowStringCharacters -> True), Section(StyleData("Pane"), 
+         PaneBoxOptions -> {BaselinePosition -> Center -> Axis, 
            ImageSizeAction -> "ShrinkToFit"}), 
         Section(StyleData("Panel"), BaseStyle -> "ControlStyle", 
          PanelBoxOptions -> {ContentPadding -> True}), 
@@ -160,11 +159,10 @@ Document({
          Background -> RGBColor(1, 0.97299999999999998`, 
            0.80000000000000004`), FontColor -> GrayLevel(0.502`), 
          FontSize -> 9, Placeholder -> True, ShowAutoStyles -> False, 
-         ShowStringCharacters -> False), Section(StyleData("RadioButton"), 
-         BaseStyle -> "ControlStyle"), Section(StyleData("Setter"), 
-         BaseStyle -> "ControlStyle", SetterBoxOptions -> {
-           ButtonFrame -> "Palette", ContentPadding -> True}), 
-        Section(StyleData("Slider"), BaseStyle -> "ControlStyle"), 
+         ShowStringCharacters -> False), Section(StyleData("RadioButton")), 
+        Section(StyleData("Setter"), BaseStyle -> "ControlStyle", 
+         SetterBoxOptions -> {ButtonFrame -> "Palette", 
+           ContentPadding -> True}), Section(StyleData("Slider")), 
         Section(StyleData("TabViewLabel"), BaseStyle -> "ControlStyle"), 
         Section(StyleData("TabView"), BaseStyle -> "ControlStyle")}, All), 
       SectionGroup({Section("Button styles", "Subsection"), 
