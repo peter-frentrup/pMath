@@ -24,26 +24,27 @@ extern pmath_symbol_t richmath_System_Identity;
 
 //{ class EvaluationPosition ...
 
-EvaluationPosition::EvaluationPosition(FrontEndReference _doc, FrontEndReference _sect, FrontEndReference _box)
-  : document_id(_doc),
-    section_id(_sect),
-    box_id(_box)
+EvaluationPosition::EvaluationPosition(FrontEndReference doc, FrontEndReference sect, FrontEndReference obj)
+  : document_id(doc),
+    section_id(sect),
+    object_id(obj)
 {
 }
 
-EvaluationPosition::EvaluationPosition(Box *box)
+EvaluationPosition::EvaluationPosition(FrontEndObject *obj)
   : document_id(FrontEndReference::None),
     section_id(FrontEndReference::None),
-    box_id(FrontEndReference::None)
+    object_id(FrontEndReference::None)
 {
-  if(box) {
-    box_id = box->id();
-    
-    Document *doc = box->find_parent<Document>(true);
-    document_id = doc ? doc->id() : FrontEndReference::None;
-    
-    Section *sect = box->find_parent<Section>(true);
-    section_id = sect ? sect->id() : FrontEndReference::None;
+  if(obj) {
+    object_id = obj->id();
+
+    if(Section *sect = Box::find_nearest_parent<Section>(obj)) {
+      section_id = sect->id();
+      
+      if(Document *doc = sect->find_parent<Document>(false))
+        document_id = doc->id();
+    }
   }
 }
 
@@ -167,7 +168,7 @@ void InputJob::dequeued() {
 }
 
 void InputJob::set_context() {
-  auto obj = FrontEndObject::find(_position.box_id);
+  auto obj = FrontEndObject::find(_position.object_id);
   if(!obj)
     obj = FrontEndObject::find(_position.section_id);
   if(!obj)
@@ -180,12 +181,12 @@ void InputJob::set_context() {
 
 //{ class EvaluationJob ...
 
-EvaluationJob::EvaluationJob(Expr expr, Box *box)
-  : InputJob(0),
+EvaluationJob::EvaluationJob(Expr expr, FrontEndObject *obj)
+  : InputJob(nullptr),
     _expr(expr)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
-  _position = EvaluationPosition(box);
+  _position = EvaluationPosition(obj);
 }
 
 bool EvaluationJob::start() {
@@ -210,8 +211,8 @@ void EvaluationJob::end() {
 
 //{ class DynamicEvaluationJob ...
 
-DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, Box *box)
-  : EvaluationJob(expr, box),
+DynamicEvaluationJob::DynamicEvaluationJob(Expr info, Expr expr, FrontEndObject *obj)
+  : EvaluationJob(expr, obj),
     _info(info),
     old_observer_id(FrontEndReference::None)
 {
@@ -222,7 +223,7 @@ bool DynamicEvaluationJob::start() {
   set_context();
   
   old_observer_id = Dynamic::current_observer_id;
-  Dynamic::current_observer_id = _position.box_id;
+  Dynamic::current_observer_id = _position.object_id;
   return EvaluationJob::start();
 }
 
@@ -232,10 +233,8 @@ void DynamicEvaluationJob::end() {
 }
 
 void DynamicEvaluationJob::returned(Expr expr) {
-  Box *box = FrontEndObject::find_cast<Box>(_position.box_id);
-  
-  if(box)
-    box->dynamic_finished(_info, expr);
+  if(auto obj = FrontEndObject::find(_position.object_id))
+    obj->dynamic_finished(_info, expr);
 }
 
 //} ... class DynamicEvaluationJob
@@ -259,7 +258,7 @@ ReplacementJob::ReplacementJob(MathSequence *seq, int start, int end)
 bool ReplacementJob::start() {
   auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
   auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
-  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
+  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.object_id));
   
   if( !section                           ||
       !doc                               ||
@@ -302,7 +301,7 @@ void ReplacementJob::returned_boxes(Expr expr) {
 void ReplacementJob::end() {
   auto doc = dynamic_cast<Document*>(Box::find(_position.document_id));
   auto section = dynamic_cast<Section*>(Box::find(_position.section_id));
-  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.box_id));
+  auto sequence = dynamic_cast<MathSequence*>(Box::find(_position.object_id));
   
   if(section) {
     section->evaluating--;

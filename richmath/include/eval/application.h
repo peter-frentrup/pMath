@@ -51,12 +51,12 @@ namespace richmath {
       static void done();
       
       static void add_job(SharedPtr<Job> job);
-      static Box *find_current_job();
+      static FrontEndObject *find_current_job();
       static bool remove_job(Box *input_box, bool only_check_possibility);
       static void abort_all_jobs();
       
-      static Box      *get_evaluation_box();
-      static Expr      run_filedialog(Expr data);
+      static FrontEndObject *get_evaluation_object();
+      static Expr            run_filedialog(Expr data);
       
       /* These may return nullptr (no gui available ...)
          The document will not be visible, call its invalidate_options() to
@@ -70,15 +70,15 @@ namespace richmath {
       static Document *open_new_document(String filename);
       
       static bool is_idle();
-      static bool is_running_job_for(Box *box);
+      static bool is_running_job_for(Box *section_or_document);
       
       static void async_interrupt(Expr expr);
       
-      static void with_evaluation_box(Box *box, void(*callback)(void*), void *arg);
+      static void with_evaluation_box(FrontEndObject *obj, void(*callback)(void*), void *arg);
       
       template<typename Func>
-      static void with_evaluation_box(Box *box, Func func) {
-        with_evaluation_box(box, [](void *_func) { (*(Func*)_func)(); }, &func);
+      static void with_evaluation_box(FrontEndObject *obj, Func func) {
+        with_evaluation_box(obj, [](void *_func) { (*(Func*)_func)(); }, &func);
       }
       
       static Expr interrupt_wait(Expr expr, double seconds);
@@ -87,8 +87,8 @@ namespace richmath {
       static Expr interrupt_wait_cached(Expr expr, double seconds);
       static Expr interrupt_wait_cached(Expr expr);
       
-      static Expr interrupt_wait_for(Expr expr, Box *box, double seconds);
-      static Expr interrupt_wait_for_interactive(Expr expr, Box *box, double seconds);
+      static Expr interrupt_wait_for(Expr expr, FrontEndObject *obj, double seconds);
+      static Expr interrupt_wait_for_interactive(Expr expr, FrontEndObject *obj, double seconds);
             
       static void delay_dynamic_updates(bool delay);
       

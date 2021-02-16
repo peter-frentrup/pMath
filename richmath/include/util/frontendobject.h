@@ -1,8 +1,7 @@
 #ifndef RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED
 #define RICHMATH__UTIL__FRONTENDOBJECT_H__INCLUDED
 
-#include <pmath-cpp.h>
-
+#include <util/pmath-extra.h>
 #include <util/hashtable.h>
 
 
@@ -16,11 +15,11 @@ namespace richmath {
       bool is_valid() const { return !!_id; }
       explicit operator bool() const { return is_valid(); }
       
-      static FrontEndReference from_pmath(pmath::Expr expr);
-      static FrontEndReference from_pmath_raw(pmath::Expr expr);
+      static FrontEndReference from_pmath(Expr expr);
+      static FrontEndReference from_pmath_raw(Expr expr);
       
-      pmath::Expr to_pmath() const;
-      pmath::Expr to_pmath_raw() const { return pmath::Expr((int32_t)_id); }
+      Expr to_pmath() const;
+      Expr to_pmath_raw() const { return Expr((int32_t)_id); }
       
       friend bool operator==(const FrontEndReference &left, const FrontEndReference &right) { return left._id == right._id; }
       friend bool operator!=(const FrontEndReference &left, const FrontEndReference &right) { return left._id != right._id; }
@@ -51,7 +50,7 @@ namespace richmath {
       virtual ~FrontEndObject();
       
       FrontEndReference id() { return _id; }
-      virtual pmath::Expr to_pmath_id() { return _id.to_pmath(); }
+      virtual Expr to_pmath_id() { return _id.to_pmath(); }
       
       static FrontEndObject *find(FrontEndReference id);
       
@@ -62,8 +61,18 @@ namespace richmath {
       
       void swap_id(FrontEndObject *other);
       
+      /// Notifies that a Dynamic value changed which this object is tracking.
       virtual void dynamic_updated() = 0;
     
+      /// Modify an expression before it gets evaluated. 
+      virtual Expr prepare_dynamic(Expr expr) { return expr; }
+
+      /// An asynchronous dynamic evaluation was finished.
+      ///
+      /// \param info   The info argument given to the corresponding DynamicEvaluationJob. Usually null.
+      /// \param result The evaluation result.
+      virtual void dynamic_finished(Expr info, Expr result) {}
+      
     private:
       FrontEndReference _id;
   };

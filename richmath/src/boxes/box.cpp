@@ -194,6 +194,23 @@ Box *Box::common_parent(Box *a, Box *b) {
   return a;
 }
 
+Box *Box::find_nearest_box(FrontEndObject *obj) {
+  Box *box = dynamic_cast<Box*>(obj);
+  if(box)
+    return box;
+  
+  auto tmp = dynamic_cast<StyledObject*>(obj);
+  while(tmp) {
+    box = dynamic_cast<Box*>(tmp);
+    if(box)
+      return box;
+      
+    tmp = tmp->style_parent();
+  }
+  
+  return nullptr;
+}
+
 Box *Box::next_box(LogicalDirection direction, Box *restrict_to_parent) {
   return BoxNavigation::next_box(this, direction, restrict_to_parent);
 }

@@ -33,7 +33,7 @@ Expr richmath_eval_FrontEnd_KernelExecute(Expr expr) {
   if(!options)
     return Symbol(richmath_System_DollarFailed);
   
-  Box *src = Application::get_evaluation_box();
+  FrontEndObject *src = Application::get_evaluation_object();
   if(!src) {
     if(auto doc = Documents::current()) {
       src = doc->selection_box();

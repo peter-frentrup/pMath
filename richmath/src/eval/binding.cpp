@@ -666,10 +666,10 @@ static MenuCommandStatus can_evaluate_sections(Expr cmd) {
 }
 
 static MenuCommandStatus can_find_evaluating_section(Expr cmd) {
-  Box *box = Application::find_current_job();
+  Box *box = Box::find_nearest_box(Application::find_current_job());
   if(!box)
     return MenuCommandStatus(false);
-    
+  
   Section *sect = box->find_parent<Section>(true);
   if(!sect)
     return MenuCommandStatus(false);
@@ -1155,9 +1155,9 @@ static bool expand_selection_cmd(Expr cmd) {
 }
 
 static bool find_evaluating_section(Expr cmd) {
-  Box *box = Application::find_current_job();
   Document *current_doc = Documents::current();
-  
+
+  Box *box = Box::find_nearest_box(Application::find_current_job());
   if(!box) {
     if(current_doc)
       current_doc->native()->beep();

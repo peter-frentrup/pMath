@@ -8,7 +8,7 @@
 #include <util/sharedptr.h>
 
 namespace richmath {
-  class Box;
+  class StyledObject;
   
   bool get_factor_of_scaled(Expr expr, double *value);
   
@@ -533,7 +533,7 @@ namespace richmath {
       
       Expr get_pmath(SharedPtr<Style> s, StyleOptionName n);
       
-      bool update_dynamic(SharedPtr<Style> s, Box *parent);
+      bool update_dynamic(SharedPtr<Style> s, StyledObject *parent);
       
       Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(std::move(s), n, &fallback_result); return fallback_result; }
       int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(std::move(s), n, &fallback_result); return fallback_result; }

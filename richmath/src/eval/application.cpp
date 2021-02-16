@@ -161,7 +161,7 @@ static void execute(ClientNotificationData &cn);
 
 static pmath_atomic_t     print_pos_lock = PMATH_ATOMIC_STATIC_INIT;
 static EvaluationPosition print_pos;
-static FrontEndReference  current_evaluation_box_id;
+static FrontEndReference  current_evaluation_object_id;
 
 static EvaluationPosition old_job_print_pos;
 static Expr               main_message_queue;
@@ -741,7 +741,7 @@ void Application::add_job(SharedPtr<Job> job) {
   }
 }
 
-Box *Application::find_current_job() {
+FrontEndObject *Application::find_current_job() {
   assert(main_message_queue == Expr(pmath_thread_get_queue()));
   
   Session *s = session.ptr();
@@ -752,17 +752,17 @@ Box *Application::find_current_job() {
   if(s) {
     EvaluationPosition pos = s->current_job->position();
     
-    Box *box = FrontEndObject::find_cast<Box>(pos.box_id);
-    if(box)
-      return box;
+    FrontEndObject *obj = FrontEndObject::find(pos.object_id);
+    if(obj)
+      return obj;
       
-    box = FrontEndObject::find_cast<Box>(pos.section_id);
-    if(box)
-      return box;
+    obj = FrontEndObject::find(pos.section_id);
+    if(obj)
+      return obj;
       
-    box = FrontEndObject::find_cast<Box>(pos.document_id);
-    if(box)
-      return box;
+    obj = FrontEndObject::find(pos.document_id);
+    if(obj)
+      return obj;
   }
   
   return nullptr;
@@ -824,16 +824,16 @@ void Application::abort_all_jobs() {
   //Server::local_server->abort_all();
 }
 
-Box *Application::get_evaluation_box() {
-  //Box *box = FrontEndObject::find_cast<Box>(Dynamic::current_observer_id);
-  Box *box = FrontEndObject::find_cast<Box>(current_evaluation_box_id);
+FrontEndObject *Application::get_evaluation_object() {
+  //FrontEndObject *obj = FrontEndObject::find(Dynamic::current_observer_id);
+  FrontEndObject *obj = FrontEndObject::find(current_evaluation_object_id);
   
-  if(box)
-    return box;
+  if(obj)
+    return obj;
     
-  box = Application::find_current_job();
-  if(box)
-    return box;
+  obj = Application::find_current_job();
+  if(obj)
+    return obj;
     
   EvaluationPosition pos;
   pmath_atomic_lock(&print_pos_lock);
@@ -842,17 +842,17 @@ Box *Application::get_evaluation_box() {
   }
   pmath_atomic_unlock(&print_pos_lock);
   
-  box = FrontEndObject::find_cast<Box>(pos.box_id);
-  if(box)
-    return box;
+  obj = FrontEndObject::find(pos.object_id);
+  if(obj)
+    return obj;
     
-  box = FrontEndObject::find_cast<Box>(pos.section_id);
-  if(box)
-    return box;
+  obj = FrontEndObject::find(pos.section_id);
+  if(obj)
+    return obj;
     
-  box = FrontEndObject::find_cast<Box>(pos.document_id);
-  if(box)
-    return box;
+  obj = FrontEndObject::find(pos.document_id);
+  if(obj)
+    return obj;
     
   return nullptr;
 }
@@ -1103,17 +1103,15 @@ bool Application::is_idle() {
   return !is_executing_for_sth && !session->current_job.is_valid();
 }
 
-bool Application::is_running_job_for(Box *box) {
-  if(!box)
+bool Application::is_running_job_for(Box *section_or_document) {
+  if(!section_or_document)
     return false;
-    
-  Section *sect = box->find_parent<Section>(true);
   
-  SharedPtr<Session> s = session;
-  if(sect) {
+  if(dynamic_cast<Section*>(section_or_document)) {
+    SharedPtr<Session> s = session;
     while(s) {
       SharedPtr<Job> job = s->current_job;
-      if(job && job->position().section_id == box->id())
+      if(job && job->position().section_id == section_or_document->id())
         return true;
         
       s = s->next;
@@ -1122,12 +1120,15 @@ bool Application::is_running_job_for(Box *box) {
     return false;
   }
   
-  while(s) {
-    SharedPtr<Job> job = s->current_job;
-    if(job && job->position().document_id == box->id())
-      return true;
-      
-    s = s->next;
+  if(dynamic_cast<Document*>(section_or_document)) {
+    SharedPtr<Session> s = session;
+    while(s) {
+      SharedPtr<Job> job = s->current_job;
+      if(job && job->position().document_id == section_or_document->id())
+        return true;
+        
+      s = s->next;
+    }
   }
   
   return false;
@@ -1223,29 +1224,30 @@ Expr Application::interrupt_wait_cached(Expr expr) {
   return interrupt_wait_cached(expr, interrupt_timeout);
 }
 
-void Application::with_evaluation_box(Box *box, void(*callback)(void*), void *arg) {
-  AutoValueReset<FrontEndReference> auto_reset_eval_box(current_evaluation_box_id);
-  current_evaluation_box_id = box ? box->id() : FrontEndReference::None;
+void Application::with_evaluation_box(FrontEndObject *obj, void(*callback)(void*), void *arg) {
+  AutoValueReset<FrontEndReference> auto_reset(current_evaluation_object_id);
+  current_evaluation_object_id = obj ? obj->id() : FrontEndReference::None;
   
   callback(arg);
 }
 
-Expr Application::interrupt_wait_for(Expr expr, Box *box, double seconds) {
-  auto old_current_evaluation_box_id = current_evaluation_box_id;
+Expr Application::interrupt_wait_for(Expr expr, FrontEndObject *obj, double seconds) {
+  auto old_evaluation_object_id = current_evaluation_object_id;
   auto old_is_executing_for_sth = is_executing_for_sth;
-  current_evaluation_box_id = box ? box->id() : FrontEndReference::None;
+  
+  current_evaluation_object_id = obj ? obj->id() : FrontEndReference::None;
   is_executing_for_sth = true;
   
   Expr result = interrupt_wait(expr, seconds);
   
-  current_evaluation_box_id = old_current_evaluation_box_id;
-  is_executing_for_sth      = old_is_executing_for_sth;
+  current_evaluation_object_id = old_evaluation_object_id;
+  is_executing_for_sth         = old_is_executing_for_sth;
   
   return result;
 }
 
-Expr Application::interrupt_wait_for_interactive(Expr expr, Box *box, double seconds) {
-  EvaluationPosition old_print_pos(box);
+Expr Application::interrupt_wait_for_interactive(Expr expr, FrontEndObject *obj, double seconds) {
+  EvaluationPosition old_print_pos(obj);
   
   pmath_atomic_lock(&print_pos_lock);
   {
@@ -1254,7 +1256,7 @@ Expr Application::interrupt_wait_for_interactive(Expr expr, Box *box, double sec
   }
   pmath_atomic_unlock(&print_pos_lock);
   
-  Expr result = interrupt_wait_for(std::move(expr), box, seconds);
+  Expr result = interrupt_wait_for(std::move(expr), obj, seconds);
 
   pmath_atomic_lock(&print_pos_lock);
   {
@@ -1431,9 +1433,9 @@ static void cnt_printsection(Expr data) {
 }
 
 static Expr cnt_callfrontend(Expr data) {
-  AutoValueReset<FrontEndReference> auto_reset_eval(current_evaluation_box_id);
+  AutoValueReset<FrontEndReference> auto_reset_eval(current_evaluation_object_id);
   if(FrontEndReference source = FrontEndReference::from_pmath_raw(data[0])) 
-    current_evaluation_box_id = source;
+    current_evaluation_object_id = source;
   
   Expr expr = data[1];
   data = {};
@@ -1744,9 +1746,8 @@ Expr richmath_eval_FrontEnd_EvaluationBox(Expr expr) {
   if(expr.expr_length() != 0)
     return expr;
   
-  Box *box = Application::get_evaluation_box();
-  if(box)
-    return box->to_pmath_id();
+  if(FrontEndObject *obj = Application::get_evaluation_object())
+    return obj->to_pmath_id();
   
   return Symbol(richmath_System_DollarFailed);
 }
@@ -1755,11 +1756,7 @@ Expr richmath_eval_FrontEnd_EvaluationDocument(Expr expr) {
   if(expr.expr_length() != 0)
     return expr;
   
-  Box *box = Application::get_evaluation_box();
-  Document *doc = nullptr;
-  if(box)
-    doc = box->find_parent<Document>(true);
-  
+  Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(doc) {
     if(auto working_doc = doc->native()->working_area_document())
       doc = working_doc;

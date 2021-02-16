@@ -14,20 +14,20 @@ namespace richmath {
   
   class EvaluationPosition {
     public:
-      EvaluationPosition(FrontEndReference _doc, FrontEndReference _sect, FrontEndReference _box);
-      explicit EvaluationPosition(Box *box = nullptr);
+      EvaluationPosition(FrontEndReference doc, FrontEndReference sect, FrontEndReference obj);
+      explicit EvaluationPosition(FrontEndObject *obj = nullptr);
       
       friend void swap(EvaluationPosition &left, EvaluationPosition &right) {
         using std::swap;
         swap(left.document_id, right.document_id);
         swap(left.section_id,  right.section_id);
-        swap(left.box_id,      right.box_id);
+        swap(left.object_id,   right.object_id);
       }
       
     public:
       FrontEndReference document_id;
       FrontEndReference section_id;
-      FrontEndReference box_id;
+      FrontEndReference object_id;
   };
   
   class Job: public Shareable {
@@ -67,7 +67,7 @@ namespace richmath {
   
   class EvaluationJob: public InputJob {
     public:
-      explicit EvaluationJob(Expr expr, Box *box = nullptr);
+      explicit EvaluationJob(Expr expr, FrontEndObject *obj = nullptr);
       
       virtual bool start() override;
       virtual void end() override;
@@ -78,7 +78,7 @@ namespace richmath {
   
   class DynamicEvaluationJob: public EvaluationJob {
     public:
-      explicit DynamicEvaluationJob(Expr info, Expr expr, Box *box);
+      explicit DynamicEvaluationJob(Expr info, Expr expr, FrontEndObject *obj);
       
       virtual bool start() override;
       virtual void end() override;

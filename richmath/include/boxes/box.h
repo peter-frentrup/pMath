@@ -238,6 +238,17 @@ namespace richmath {
       
       static Box *common_parent(Box *a, Box *b);
       
+      static Box *find_nearest_box(FrontEndObject *obj);
+      
+      template<class T>
+      static T *find_nearest_parent(FrontEndObject *obj, bool selfincluding = true) {
+        Box *box = find_nearest_box(obj);
+        if(!box)
+          return nullptr;
+        
+        return box->find_parent<T>(selfincluding || box != obj);
+      }
+      
       /// Get the next box after/before this one.
       /// \param direction          The search direction.
       /// \param restrict_to_parent (Optional) If set, restrict search to the sub-tree of child-nodes of that box.
@@ -360,16 +371,10 @@ namespace richmath {
       virtual VolatileSelection normalize_selection(int start, int end);
       
       /// Modify an expression before it gets evaluated, e.g. in a child box' Dynamic() context. 
-      virtual Expr prepare_dynamic(Expr expr);
+      virtual Expr prepare_dynamic(Expr expr) override;
 
       /// Notifies that a Dynamic value changed which this box is tracking.
       virtual void dynamic_updated() override;
-      
-      /// An asynchronous dynamic evaluation was finished.
-      ///
-      /// \param info   The info argument given to the corresponding DynamicEvaluationJob. Usually null.
-      /// \param result The evaluation result.
-      virtual void dynamic_finished(Expr info, Expr result) {}
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) = 0;
       

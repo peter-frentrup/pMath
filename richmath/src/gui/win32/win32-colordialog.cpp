@@ -33,7 +33,7 @@ Expr Win32ColorDialog::show(Color initialcolor) {
     
   data.lpCustColors = custom_colors; // todo: save these at application exit
   
-  Box *box = Application::get_evaluation_box();
+  Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   if(!box)
     box = Documents::current();
   

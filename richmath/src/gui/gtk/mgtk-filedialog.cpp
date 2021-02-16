@@ -168,14 +168,7 @@ void MathGtkFileDialog::Impl::add_filter(Expr caption, Expr extensions) {
 }
 
 GtkWindow *MathGtkFileDialog::Impl::get_parent_window() {
-  Box *box = Application::get_evaluation_box();
-  if(!box)
-    box = Documents::current();
-    
-  if(!box)
-    return nullptr;
-    
-  Document *doc = box->find_parent<Document>(true);
+  Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
     return nullptr;
     

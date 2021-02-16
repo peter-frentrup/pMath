@@ -78,7 +78,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     data.Flags |= CF_NOSTYLESEL;
   }
   
-  Box *box = Application::get_evaluation_box();
+  Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   if(!box)
     box = Documents::current();
     

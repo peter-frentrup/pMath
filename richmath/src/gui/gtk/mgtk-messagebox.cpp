@@ -148,11 +148,8 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   MathGtkHyperlinks hyperlinks;
   GtkWindow *owner_window = nullptr;
   
-  Document *doc = nullptr;
-  Box *box = Application::find_current_job();
-  if(box)
-    doc = box->find_parent<Document>(true);
-  
+  Box *box = Box::find_nearest_box(Application::get_evaluation_object());
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
     doc = Documents::current();
   

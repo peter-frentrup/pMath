@@ -1,9 +1,12 @@
 #include <util/style.h>
 
-#include <gui/control-painter.h>
+#include <boxes/box.h>
+
 #include <eval/application.h>
 #include <eval/current-value.h>
 #include <eval/dynamic.h>
+
+#include <gui/control-painter.h>
 
 #include <util/filesystem.h>
 
@@ -2347,7 +2350,7 @@ namespace richmath {
           currently_loading.remove(self._name);
       }
       
-      bool update_dynamic(SharedPtr<Style> s, Box *parent);
+      bool update_dynamic(SharedPtr<Style> s, StyledObject *parent);
       
     private:
       static Hashset<Expr> currently_loading;
@@ -2434,7 +2437,7 @@ namespace richmath {
   Hashset<Expr> StylesheetImpl::currently_loading;
 }
 
-bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
+bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
   if(!s || !parent)
     return false;
     
@@ -2498,10 +2501,12 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, Box *parent) {
     }
   }
   
-  if(resize)
-    parent->invalidate();
-  else
-    parent->request_repaint_all();
+  if(auto box = dynamic_cast<Box*>(parent)) {
+    if(resize)
+      box->invalidate();
+    else
+      box->request_repaint_all();
+  }
     
   return true;
 }
@@ -2677,7 +2682,7 @@ Expr Stylesheet::get_pmath(SharedPtr<Style> s, StyleOptionName n) {
   return result;
 }
 
-bool Stylesheet::update_dynamic(SharedPtr<Style> s, Box *parent) {
+bool Stylesheet::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
   return StylesheetImpl(*this).update_dynamic(s, parent);
 }
 

@@ -1,21 +1,24 @@
 #ifndef __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
 #define __PMATHRICHMATH__EVAL__DYNAMIC_H__INCLUDED
 
-#include <boxes/box.h>
+#include <util/pmath-extra.h>
+#include <util/style.h>
 
 extern pmath_symbol_t richmath_System_Dynamic;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_Unevaluated;
 
 namespace richmath {
+  class StyledObject;
+  
   class Dynamic: public Base {
       class Impl;
     public:
       Dynamic();
-      Dynamic(Box *owner, Expr expr);
+      Dynamic(StyledObject *owner, Expr expr);
       
       // when default constructor is used, init() must be called before use
-      void init(Box *owner, Expr expr);
+      void init(StyledObject *owner, Expr expr);
       
       Expr operator=(Expr expr);
       
@@ -31,7 +34,7 @@ namespace richmath {
       bool get_value(Expr *result) { return get_value(result, Expr()); }
       bool get_value(Expr *result, Expr job_info);
       
-      Box *owner() { return _owner; }
+      StyledObject *owner() { return _owner; }
       Expr expr() const {  return _expr;  }
       
       bool is_dynamic_of(Expr sym);
@@ -56,11 +59,11 @@ namespace richmath {
       
     private:
       Expr _expr;
-      Box *_owner;
+      StyledObject *_owner;
       
       AutoBoolValues _synchronous_updating;
   };
-
+  
   class AutoResetCurrentObserver {
     public:
       AutoResetCurrentObserver()

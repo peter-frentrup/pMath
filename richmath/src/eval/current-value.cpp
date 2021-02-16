@@ -98,7 +98,7 @@ void CurrentValue::done() {
 }
 
 Expr CurrentValue::get(Expr item) {
-  return get(Application::get_evaluation_box(), std::move(item));
+  return get(Application::get_evaluation_object(), std::move(item));
 }
 
 Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
@@ -150,7 +150,7 @@ bool CurrentValue::register_provider(
 
 FrontEndObject *CurrentValueImpl::object(Expr obj) {
   if(obj == richmath_System_Automatic)
-    return Application::get_evaluation_box();
+    return Application::get_evaluation_object();
   
   return FrontEndObject::find(FrontEndReference::from_pmath(std::move(obj)));
 }

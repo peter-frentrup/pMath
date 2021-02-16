@@ -5,6 +5,7 @@
 #include <eval/job.h>
 
 #include <boxes/templatebox.h>
+#include <util/styled-object.h>
 
 #include <gui/document.h>
 
@@ -38,7 +39,7 @@ namespace richmath {
       bool find_template_box_dynamic(Expr *source, TemplateBox **source_template, int *source_index);
     
     private:
-      static bool find_template_box_dynamic(Box *box, int i, Expr *source, TemplateBox **source_template, int *source_index);
+      static bool find_template_box_dynamic(StyledObject *obj, int i, Expr *source, TemplateBox **source_template, int *source_index);
       
     public:
       static void get_assignment_functions(Expr expr, Expr *pre, Expr *middle, Expr *post);
@@ -95,7 +96,7 @@ Dynamic::Dynamic()
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
-Dynamic::Dynamic(Box *owner, Expr expr)
+Dynamic::Dynamic(StyledObject *owner, Expr expr)
   : Base(),
   _owner(nullptr),
   _synchronous_updating(AutoBoolFalse)
@@ -104,7 +105,7 @@ Dynamic::Dynamic(Box *owner, Expr expr)
   init(owner, expr);
 }
 
-void Dynamic::init(Box *owner, Expr expr) {
+void Dynamic::init(StyledObject *owner, Expr expr) {
   assert(_owner == nullptr && owner != nullptr);
   
   _owner = owner;
@@ -211,13 +212,13 @@ bool Dynamic::Impl::find_template_box_dynamic(Expr *source, TemplateBox **source
   return false;
 }
 
-bool Dynamic::Impl::find_template_box_dynamic(Box *box, int i, Expr *source, TemplateBox **source_template, int *source_index) {
-  if(i == 0 || !box)
+bool Dynamic::Impl::find_template_box_dynamic(StyledObject *obj, int i, Expr *source, TemplateBox **source_template, int *source_index) {
+  if(i == 0 || !obj)
     return false;
   
-  box = box->parent();
-  while(box) {
-    if(TemplateBox *template_box = dynamic_cast<TemplateBox*>(box)) {
+  obj = obj->style_parent();
+  while(obj) {
+    if(TemplateBox *template_box = dynamic_cast<TemplateBox*>(obj)) {
       int num_arg = (int)template_box->arguments.expr_length();
       
       if(i < 0)
@@ -232,13 +233,13 @@ bool Dynamic::Impl::find_template_box_dynamic(Box *box, int i, Expr *source, Tem
       return true;
     }
     
-    if(TemplateBoxSlot *slot = dynamic_cast<TemplateBoxSlot*>(box)) {
-      box = slot->find_owner();
-      if(!box)
+    if(TemplateBoxSlot *slot = dynamic_cast<TemplateBoxSlot*>(obj)) {
+      obj = slot->find_owner();
+      if(!obj)
         break;
     }
     
-    box = box->parent();
+    obj = obj->style_parent();
   }
   
   return false;
@@ -345,7 +346,7 @@ Expr Dynamic::Impl::make_assignment_call(Expr func, Expr name, Expr value) {
 }
 
 void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
-  Box *dyn_source = self._owner;
+  StyledObject *dyn_source = self._owner;
   Expr dyn_expr = self._expr;
   
   int i;
@@ -361,7 +362,7 @@ void Dynamic::Impl::assign(Expr value, bool pre, bool middle, bool post) {
       while(Impl(dyn).find_template_box_dynamic(&source, &source_template, &source_index)) {
         //dyn.init(source_template, source);
         dyn_source = source_template;
-        dyn._owner = std::move(source_template);
+        dyn._owner = source_template;
         dyn._expr  = std::move(source);
       }
       
@@ -446,7 +447,7 @@ Expr Dynamic::Impl::get_value_unevaluated(bool *is_dynamic) {
 }
 
 Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
-  Box *dyn_source = self._owner;
+  StyledObject *dyn_source = self._owner;
   Expr dyn_expr = self._expr;
   
   int i;
@@ -461,7 +462,7 @@ Expr Dynamic::Impl::get_prepared_dynamic(bool *is_dynamic) {
       while(Impl(dyn).find_template_box_dynamic(&source, &source_template, nullptr)) {
         //dyn.init(source_template, source);
         dyn_source = source_template;
-        dyn._owner = std::move(source_template);
+        dyn._owner = source_template;
         dyn._expr  = std::move(source);
       }
       
@@ -501,8 +502,8 @@ Expr Dynamic::Impl::get_value_now() {
     return call;
   }
   
-  if(self._owner->style) {
-    self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
+  if(auto style = self._owner->own_style()) {
+    style->remove(InternalUsesCurrentValueOfMouseOver);
   }
 
   call = EvaluationContexts::make_context_block(std::move(call), EvaluationContexts::resolve_context(self.owner()));
@@ -529,8 +530,8 @@ void Dynamic::Impl::get_value_later(Expr job_info) {
     return;
   }
   
-  if(self._owner->style) {
-    self._owner->style->remove(InternalUsesCurrentValueOfMouseOver);
+  if(auto style = self._owner->own_style()) {
+    style->remove(InternalUsesCurrentValueOfMouseOver);
   }
   
   Application::add_job(new DynamicEvaluationJob(std::move(job_info), std::move(call), self._owner));
@@ -565,7 +566,7 @@ bool Dynamic::Impl::get_value(Expr *result, Expr job_info) {
   
   if(sync == AutoBoolAutomatic) {
     sync = AutoBoolTrue;
-    if(auto doc = self._owner->find_parent<Document>(true))
+    if(Document *doc = Box::find_nearest_parent<Document>(self._owner))
       sync = doc->is_mouse_down() ? AutoBoolTrue : AutoBoolFalse;
   }
   
@@ -591,14 +592,14 @@ Expr richmath_eval_FrontEnd_PrepareDynamicEvaluation(Expr expr) {
   if(expr.expr_length() != 2)
     return Symbol(richmath_System_DollarFailed);
   
-  Box *box = nullptr;
+  StyledObject *obj = nullptr;
   if(expr[1] == richmath_System_Automatic)
-    box = Application::get_evaluation_box();
+    obj = dynamic_cast<StyledObject*>(Application::get_evaluation_object());
   else
-    box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]));
+    obj = FrontEndObject::find_cast<StyledObject>(FrontEndReference::from_pmath(expr[1]));
   
-  if(box)
-    return Call(Symbol(richmath_System_Hold), Dynamic(box, expr[2]).get_value_unevaluated());
+  if(obj)
+    return Call(Symbol(richmath_System_Hold), Dynamic(obj, expr[2]).get_value_unevaluated());
   
   return Symbol(richmath_System_DollarFailed);
 }
@@ -610,14 +611,14 @@ Expr richmath_eval_FrontEnd_AssignDynamicValue(Expr expr) {
   if(expr.expr_length() != 3)
     return Symbol(richmath_System_DollarFailed);
   
-  Box *box = nullptr;
+  StyledObject *obj = nullptr;
   if(expr[1] == richmath_System_Automatic)
-    box = Application::get_evaluation_box();
+    obj = dynamic_cast<StyledObject*>(Application::get_evaluation_object());
   else
-    box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]));
+    obj = FrontEndObject::find_cast<StyledObject>(FrontEndReference::from_pmath(expr[1]));
   
-  if(box) {
-    Dynamic(box, expr[2]).assign(expr[3]);
+  if(obj) {
+    Dynamic(obj, expr[2]).assign(expr[3]);
     return Expr();
   }
   

@@ -227,7 +227,7 @@ Expr Win32FileDialog::Impl::show_dialog() {
 }
 
 HWND Win32FileDialog::Impl::get_dialog_owner() {
-  Box *box = Application::get_evaluation_box();
+  Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   if(!box)
     box = Documents::current();
     
