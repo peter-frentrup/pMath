@@ -161,6 +161,7 @@ extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath { namespace strings {
   extern String CharacterNameStyle;
+  extern String Color;
   extern String CommentStyle;
   extern String ExcessOrMissingArgumentStyle;
   extern String Frameless;
@@ -2189,6 +2190,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ButtonFunction);
   impl.emit_definition(ButtonSource);
   impl.emit_definition(CharacterNameStyle);
+  //impl.emit_definition(ColorForGraphics);
   impl.emit_definition(CommentStyle);
   impl.emit_definition(ContentPadding);
   impl.emit_definition(ContextMenu);
@@ -2776,6 +2778,7 @@ void StyleInformation::add_style() {
     add_enum(WindowFrame,      Symbol( richmath_System_WindowFrame),      new WindowFrameStyleConverter);
     
     add(StyleType::Color,           Background,                          Symbol( richmath_System_Background));
+    add(StyleType::Color,           ColorForGraphics,                    strings::Color);
     add(StyleType::Color,           FontColor,                           Symbol( richmath_System_FontColor));
     add(StyleType::Color,           SectionFrameColor,                   Symbol( richmath_System_SectionFrameColor));
     

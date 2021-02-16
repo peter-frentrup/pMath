@@ -48,6 +48,7 @@ namespace richmath {
   
   enum ColorStyleOptionName {
     Background = 0x00000,
+    ColorForGraphics,
     FontColor,
     SectionFrameColor,
     

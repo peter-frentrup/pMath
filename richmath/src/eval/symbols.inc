@@ -57,6 +57,12 @@
     "FE`Import`" #NAME \
   )
   
+#define RICHMATH_DECLARE_FE_GRAPHICS_SYMBOL(NAME) \
+  RICHMATH_DECLARE_SYMBOL( \
+    richmath_FE_Graphics_ ## NAME, \
+    "FE`Graphics`" #NAME \
+  )
+  
 #define RICHMATH_DECLARE_FE_PRIVATE_SYMBOL(NAME) \
   RICHMATH_DECLARE_SYMBOL( \
     richmath_FE_Private_ ## NAME, \
@@ -409,6 +415,9 @@ RICHMATH_DECLARE_FE_SYMBOL( CopySpecial )
 RICHMATH_DECLARE_FE_SYMBOL( AutoCompleteName )
 RICHMATH_DECLARE_FE_SYMBOL( AutoCompleteFile )
 RICHMATH_DECLARE_FE_SYMBOL( AutoCompleteOther )
+
+RICHMATH_DECLARE_FE_GRAPHICS_SYMBOL( DefaultAxesOrigin )
+RICHMATH_DECLARE_FE_GRAPHICS_SYMBOL( DefaultTickBoxes )
 
 RICHMATH_DECLARE_FE_IMPORT_SYMBOL( FileNamesDropDescription )
 

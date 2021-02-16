@@ -429,6 +429,7 @@ static void init_stylesheet() {
   
   Stylesheet::Default->base = new Style;
   Stylesheet::Default->base->set(Background,             Color::None);
+  Stylesheet::Default->base->set(ColorForGraphics,       Color::Black);
   Stylesheet::Default->base->set(FontColor,              Color::None);
   Stylesheet::Default->base->set(SectionFrameColor,      Color::None);
   

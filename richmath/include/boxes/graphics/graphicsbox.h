@@ -26,7 +26,6 @@ namespace richmath {
   
   class GraphicsBox final : public Box {
       class Impl;
-    protected:
       virtual ~GraphicsBox();
     public:
       GraphicsBox();
@@ -71,7 +70,7 @@ namespace richmath {
       virtual void on_mouse_move(MouseEvent &event) override;
       virtual void on_mouse_up(MouseEvent &event) override;
       
-    protected:
+    private:
       int   mouse_over_part; // GraphicsPartXXX
       float mouse_down_x;
       float mouse_down_y;
@@ -90,24 +89,6 @@ namespace richmath {
       
       bool user_has_changed_size;
       bool is_currently_resizing;
-      
-    protected:
-      void calculate_size(const float *optional_expand_width = 0);
-      
-      void try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
-      void calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
-      
-      GraphicsBounds calculate_plotrange();
-      bool have_frame(bool *left, bool *right, bool *bottom, bool *top);
-      bool have_axes(bool *x, bool *y);
-      
-      Expr generate_default_ticks(double min, double max, bool with_labels);
-      Expr generate_ticks(const GraphicsBounds &bounds, AxisIndex part);
-      Expr get_ticks(const GraphicsBounds &bounds, AxisIndex part);
-      
-      bool set_axis_ends(AxisIndex part, const GraphicsBounds &bounds); // true if ends changed
-      
-      void resize_axes(Context &context);
   };
 }
 

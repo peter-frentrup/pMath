@@ -133,7 +133,8 @@ void GraphicsDirective::Impl::apply_to_style(Expr directive, Style &style) {
   
   if(directive[0] == richmath_System_RGBColor || directive[0] == richmath_System_Hue || directive[0] == richmath_System_GrayLevel) {
     if(Color c = Color::from_pmath(directive)) {
-      style.set(FontColor, c);
+      style.set(ColorForGraphics, c);
+      style.set(FontColor,        c);
     }
     return;
   }
@@ -149,6 +150,7 @@ bool GraphicsDirective::Impl::change_directives(Expr new_directives) {
     return false;
   
   self._latest_directives = new_directives;
+  self._style->clear();
   apply_to_style(std::move(new_directives), *self._style.ptr());
   return true;
 }
