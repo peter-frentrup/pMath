@@ -126,8 +126,7 @@ Section *EvaluationContexts::find_section_group_header(Section *section) {
   if(!slist)
     return nullptr;
   
-  int i = section->index();
-  i = slist->group_info(i).first; // index of owner of section.
+  int i = section->group_info().first; // index of owner of section.
   
   if(i < 0)
     return nullptr;

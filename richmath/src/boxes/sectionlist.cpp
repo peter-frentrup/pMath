@@ -37,7 +37,7 @@ SectionList::SectionList()
     section_bracket_width(8),
     section_bracket_right_margin(2),
     _scrollx(0),
-    _must_resize_group_info(false)
+    _must_recalc_group_info(false)
 {
 }
 
@@ -67,7 +67,7 @@ void SectionList::resize(Context &context) {
       float w  = _sections[i]->extents().width;
       float uw = _sections[i]->unfilled_width;
       if(get_own_style(ShowSectionBracket, true)) {
-        int nesting = _group_info[i].nesting;
+        int nesting = _sections[i]->_group_info.nesting;
         if(nesting > 0) {
           w +=  section_bracket_right_margin + section_bracket_width * nesting;
           uw += section_bracket_right_margin + section_bracket_width * nesting;
@@ -91,7 +91,7 @@ void SectionList::resize(Context &context) {
 }
 
 void SectionList::finish_resize(Context &context) {
-  if(_must_resize_group_info) {
+  if(_must_recalc_group_info) {
     recalc_group_info();
     update_group_nesting();
     update_section_visibility();
@@ -223,12 +223,12 @@ Expr SectionList::to_pmath(BoxOutputFlags flags, int start, int end) {
 
 void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
   while(start < end) {
-    if(_group_info[start].end == start) {
+    if(_sections[start]->_group_info.end == start) {
       Gather::emit(_sections[start]->to_pmath(flags));
       ++start;
     }
     else {
-      int e = _group_info[start].end + 1;
+      int e = _sections[start]->_group_info.end + 1;
       if(e > end)
         e = end;
         
@@ -240,10 +240,10 @@ void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
       
       Expr group = g.end();
       Expr open;
-      if( _group_info[start].close_rel >= 0 &&
-          _group_info[start].close_rel <= e)
+      if( _sections[start]->_group_info.close_rel >= 0 &&
+          _sections[start]->_group_info.close_rel <= e)
       {
-        open = Expr(_group_info[start].close_rel + 1);
+        open = Expr(_sections[start]->_group_info.close_rel + 1);
       }
       else
         open = Symbol(richmath_System_All);
@@ -329,15 +329,15 @@ Box *SectionList::move_vertical(
     int next_group = s;
     while(next_group >= 0) {
       int group_start = next_group;
-      next_group =  _group_info[group_start].first;
+      next_group = _sections[group_start]->_group_info.first;
       
       assert(next_group < group_start);
       
-      if(_group_info[group_start].close_rel >= 0) { // group is closed
+      if(_sections[group_start]->_group_info.close_rel >= 0) { // group is closed
         if(called_from_child) // step out of group
           s = group_start;
         else
-          s = group_start + _group_info[group_start].close_rel;
+          s = group_start + _sections[group_start]->_group_info.close_rel;
       }
     }
   }
@@ -350,15 +350,15 @@ Box *SectionList::move_vertical(
     int next_group = s;
     while(next_group >= 0) {
       int group_start = next_group;
-      next_group =  _group_info[group_start].first;
+      next_group =  _sections[group_start]->_group_info.first;
       
       assert(next_group < group_start);
       
-      if(_group_info[group_start].close_rel >= 0) { // group is closed
+      if(_sections[group_start]->_group_info.close_rel >= 0) { // group is closed
         if(called_from_child) // step out of group
-          s = _group_info[group_start].end;
+          s = _sections[group_start]->_group_info.end;
         else // step into group
-          s = group_start + _group_info[group_start].close_rel;
+          s = group_start + _sections[group_start]->_group_info.close_rel;
       }
     }
     
@@ -395,11 +395,11 @@ VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start
     if(_sections[start]->visible) {
       if(pos.y <= _sections[start]->y_offset + _sections[start]->top_margin) {
         int group_start = 0;
-        if(_group_info[start].end > start) { // this starts a group
+        if(_sections[start]->_group_info.end > start) { // this starts a group
           group_start = start;
         }
-        else if(_group_info[start].first >= 0) {
-          group_start = _group_info[start].first;
+        else if(_sections[start]->_group_info.first >= 0) {
+          group_start = _sections[start]->_group_info.first;
         }
         
         int lastvis = start - 1;
@@ -408,17 +408,17 @@ VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start
           
         int end = start = lastvis + 1;
         
-        if(border_level >= 0 && border_level < _group_info[start].nesting) {
-          int d = _group_info[start].nesting - border_level;
+        if(border_level >= 0 && border_level < _sections[start]->_group_info.nesting) {
+          int d = _sections[start]->_group_info.nesting - border_level;
           
-          if(_group_info[start].end > start)
+          if(_sections[start]->_group_info.end > start)
             d -= 1;
           
           while(d-- > 0 && start >= 0)
-            start = _group_info[start].first;
+            start = _sections[start]->_group_info.first;
             
           if(start >= 0) {
-            end = _group_info[start].end + 1;
+            end = _sections[start]->_group_info.end + 1;
           }
           else {
             start = 0;
@@ -430,10 +430,10 @@ VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start
       }
       
       if(pos.y < _sections[start]->y_offset + _sections[start]->extents().height() - _sections[start]->bottom_margin) {
-        if(border_level >= 0 && border_level <= _group_info[start].nesting) {
-          int d = _group_info[start].nesting - border_level;
+        if(border_level >= 0 && border_level <= _sections[start]->_group_info.nesting) {
+          int d = _sections[start]->_group_info.nesting - border_level;
           
-          if(_group_info[start].end > start) {
+          if(_sections[start]->_group_info.end > start) {
             if(d == 0) 
               return { this, start, start + 1 };
             
@@ -441,10 +441,10 @@ VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start
           }
           
           while(d-- > 0 && start >= 0)
-            start = _group_info[start].first;
+            start = _sections[start]->_group_info.first;
             
           if(start >= 0) 
-            return { this, start, _group_info[start].end + 1 };
+            return { this, start, _sections[start]->_group_info.end + 1 };
           else
             return { this, 0, _sections.length() };
         }
@@ -500,32 +500,32 @@ VolatileSelection SectionList::normalize_selection(int start, int end) {
 void SectionList::set_open_close_group(int i, bool open) {
   if(open) {
     while(i >= 0) {
-      _group_info[i].close_rel = -1;
-      i = _group_info[i].first;
+      _sections[i]->_group_info.close_rel = -1;
+      i = _sections[i]->_group_info.first;
     }
     
     update_section_visibility();
     return;
   }
   
-  if(_group_info[i].end > i) {
-    _group_info[i].close_rel = 0;
+  if(_sections[i]->_group_info.end > i) {
+    _sections[i]->_group_info.close_rel = 0;
       
     update_section_visibility();
   }
-  else if(_group_info[i].first >= 0) {
-    _group_info[_group_info[i].first].close_rel = i - _group_info[i].first;
+  else if(_sections[i]->_group_info.first >= 0) {
+    _sections[_sections[i]->_group_info.first]->_group_info.close_rel = i - _sections[i]->_group_info.first;
       
     update_section_visibility();
   }
 }
 
 void SectionList::toggle_open_close_group(int i) {
-  if(_group_info[i].end > i) {
-    set_open_close_group(i, _group_info[i].close_rel >= 0);
+  if(_sections[i]->_group_info.end > i) {
+    set_open_close_group(i, _sections[i]->_group_info.close_rel >= 0);
   }
-  else if(_group_info[i].first >= 0) {
-    set_open_close_group(i, _group_info[_group_info[i].first].close_rel >= 0);
+  else if(_sections[i]->_group_info.first >= 0) {
+    set_open_close_group(i, _sections[_sections[i]->_group_info.first]->_group_info.close_rel >= 0);
   }
 }
 
@@ -560,7 +560,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     }
     
     if(*pos < overwrite_until_index) {
-      int e = _group_info[*pos].end;
+      int e = _sections[*pos]->_group_info.end;
       
       if(e >= *pos && e < overwrite_until_index) 
         overwrite_until_index = e + 1;
@@ -575,7 +575,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
     }
     
     if(start < _sections.length() && close_rel >= 0) {
-      _group_info[start].close_rel = close_rel;
+      _sections[start]->_group_info.close_rel = close_rel;
     }
   }
   else {
@@ -583,7 +583,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       Section *section = _sections[*pos];
       
       if(section->try_load_from_object(boxes, BoxInputFlags::Default)) {
-        _group_info[*pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+        _sections[*pos]->_group_info.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
         
         ++*pos;
         return;
@@ -595,10 +595,11 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       _sections.insert(*pos, 1, &section);
       adopt(section, *pos);
       
-      SectionGroupInfo sgi;
-      sgi.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
-      sgi.close_rel  = -1; // open
-      _group_info.insert_swap(*pos, 1, &sgi);
+      section->_group_info.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+      section->_group_info.nesting = 0;
+      section->_group_info.first = -1;
+      section->_group_info.end = -1;
+      section->_group_info.close_rel  = -1; // open
       
       ++*pos;
       
@@ -631,10 +632,12 @@ void SectionList::insert(int pos, Section *section) {
   
   for(int i = pos; i < _sections.length(); ++i)
     adopt(_sections[i], i);
-    
-  SectionGroupInfo sgi;
-  sgi.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
-  _group_info.insert_swap(pos, 1, &sgi);
+
+  section->_group_info.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+  section->_group_info.nesting = 0;
+  section->_group_info.first = -1;
+  section->_group_info.end = -1;
+  section->_group_info.close_rel  = -1; // open
   
   recalc_group_info();
   update_group_nesting();
@@ -652,8 +655,8 @@ Section *SectionList::swap(int pos, Section *section) {
   _sections[pos] = section;
   adopt(section, pos);
   abandon(old);
-  
-  _group_info[pos].precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
+
+  section->_group_info.precedence = section->get_own_style(SectionGroupPrecedence, 0.0);
   recalc_group_info();
   update_group_nesting();
   set_open_close_group(pos, true);
@@ -681,7 +684,6 @@ void SectionList::internal_remove(int start, int end) {
   }
   
   _sections.remove(start, end - start);
-  _group_info.remove(start, end - start);
 }
 
 
@@ -702,11 +704,11 @@ Box *SectionList::remove(int *index) {
 }
 
 void SectionList::recalc_group_info() {
-  _must_resize_group_info = false;
+  _must_recalc_group_info = false;
   
   int pos = 0;
-  while(pos < _group_info.length()) {
-    _group_info[pos].first = -1;
+  while(pos < _sections.length()) {
+    _sections[pos]->_group_info.first = -1;
     recalc_group_info_part(&pos);
   }
 }
@@ -715,24 +717,24 @@ void SectionList::recalc_group_info_part(int *pos) {
   int start = *pos;
   ++*pos;
   
-  while( *pos < _group_info.length() &&
-         _group_info[start].precedence < _group_info[*pos].precedence)
+  while( *pos < _sections.length() &&
+         _sections[start]->_group_info.precedence < _sections[*pos]->_group_info.precedence)
   {
-    _group_info[*pos].first = start;
+    _sections[*pos]->_group_info.first = start;
     recalc_group_info_part(pos);
   }
   
-  _group_info[start].end = *pos - 1;
+  _sections[start]->_group_info.end = *pos - 1;
 }
 
 void SectionList::update_group_nesting() {
   int pos = 0;
-  while(pos < _group_info.length())
+  while(pos < _sections.length())
     update_group_nesting_part(&pos, 1);
 }
 
 void SectionList::update_group_nesting_part(int *pos, int current_nesting) {
-  int end = _group_info[*pos].end;
+  int end = _sections[*pos]->_group_info.end;
   int my_nesting = current_nesting;
   
   if(_sections[*pos]->get_style(ShowSectionBracket, false)) {
@@ -744,12 +746,12 @@ void SectionList::update_group_nesting_part(int *pos, int current_nesting) {
   else
     my_nesting = current_nesting - 1;
     
-  if(_group_info[*pos].nesting != my_nesting) {
+  if(_sections[*pos]->_group_info.nesting != my_nesting) {
     if(_sections[*pos]->get_own_style(LineBreakWithin, true)) {
       _sections[*pos]->invalidate();
     }
   }
-  _group_info[*pos].nesting = my_nesting;
+  _sections[*pos]->_group_info.nesting = my_nesting;
   
   ++*pos;
   while(*pos <= end)
@@ -759,12 +761,12 @@ void SectionList::update_group_nesting_part(int *pos, int current_nesting) {
 void SectionList::update_section_visibility() {
   int pos = 0;
   while(pos < _sections.length()) {
-    if(_group_info[pos].end != pos) {
+    if(_sections[pos]->_group_info.end != pos) {
       int start = pos;
-      if(_group_info[start].close_rel >= 0 &&
-          _group_info[start].close_rel <= _group_info[start].end - start)
+      if(_sections[start]->_group_info.close_rel >= 0 &&
+          _sections[start]->_group_info.close_rel <= _sections[start]->_group_info.end - start)
       {
-        while(pos < start + _group_info[start].close_rel) {
+        while(pos < start + _sections[start]->_group_info.close_rel) {
           if(_sections[pos]->visible) {
             invalidate();
             _sections[pos]->visible = false;
@@ -778,7 +780,7 @@ void SectionList::update_section_visibility() {
         }
         
         ++pos;
-        while(pos <= _group_info[start].end) {
+        while(pos <= _sections[start]->_group_info.end) {
           if(_sections[pos]->visible) {
             invalidate();
             _sections[pos]->visible = false;
@@ -789,7 +791,7 @@ void SectionList::update_section_visibility() {
         continue;
       }
       
-      _group_info[start].close_rel = -1;
+      _sections[start]->_group_info.close_rel = -1;
     }
     
     if(!_sections[pos]->visible) {
@@ -845,7 +847,7 @@ void SectionList::resize_section(Context &context, int i) {
   float old_scww = context.section_content_window_width;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    int nesting = _group_info[i].nesting;
+    int nesting = _sections[i]->_group_info.nesting;
     if(nesting > 0) {
       context.width                        -= section_bracket_right_margin + section_bracket_width * nesting;
       context.section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
@@ -855,9 +857,9 @@ void SectionList::resize_section(Context &context, int i) {
   auto sect = _sections[i];
   sect->resize(context);
   auto precedence = sect->get_own_style(SectionGroupPrecedence, 0.0);
-  if(precedence != _group_info[i].precedence) {
-    _group_info[i].precedence = precedence;
-    _must_resize_group_info = true;
+  if(precedence != _sections[i]->_group_info.precedence) {
+    _sections[i]->_group_info.precedence = precedence;
+    _must_recalc_group_info = true;
   }
   
   context.width                        = old_w;
@@ -870,7 +872,7 @@ float SectionList::get_content_scroll_correction_x(int i) {
   float content_window_width = _window_width;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    int nesting = _group_info[i].nesting;
+    int nesting = _sections[i]->_group_info.nesting;
     if(nesting > 0) {
       content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
     }
@@ -894,7 +896,7 @@ void SectionList::paint_section(Context &context, int i) {
   //_scrollx = scrollx;
   
   if(get_own_style(ShowSectionBracket, true)) {
-    int nesting = _group_info[i].nesting;
+    int nesting = _sections[i]->_group_info.nesting;
     if(nesting > 0) {
       context.width                        -= section_bracket_right_margin + section_bracket_width * nesting;
       context.section_content_window_width -= section_bracket_right_margin + section_bracket_width * nesting;
@@ -918,7 +920,7 @@ void SectionList::paint_section(Context &context, int i) {
   }
   
   if(get_own_style(ShowSectionBracket, true)) {
-    int nesting = _group_info[i].nesting;
+    int nesting = _sections[i]->_group_info.nesting;
     if(nesting > 0) {
       w -= section_bracket_right_margin + section_bracket_width * nesting;
     }
@@ -971,7 +973,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
       
     float x1 = right
                - section_bracket_right_margin
-               - section_bracket_width * _group_info[i].nesting;
+               - section_bracket_width * _sections[i]->_group_info.nesting;
                
     float x2 = x1 + section_bracket_width;
     float y1 = top + _sections[i]->top_margin;
@@ -986,12 +988,12 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
         context.selection.end > i) 
     {
       int start = i;
-      if(_group_info[i].end > i)
+      if(_sections[i]->_group_info.end > i)
         ++sel_depth;
         
-      while(start >= context.selection.start && _group_info[start].end < context.selection.end) {
+      while(start >= context.selection.start && _sections[start]->_group_info.end < context.selection.end) {
         ++sel_depth;
-        start = _group_info[start].first;
+        start = _sections[start]->_group_info.first;
       }
     }
     
@@ -1021,7 +1023,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
     style = BorderDefault;
     int start = i;
     while(start >= 0) {
-      int end = _group_info[start].end;
+      int end = _sections[start]->_group_info.end;
       
       if(start < end) {
         float pixel = section_bracket_width / 8;
@@ -1029,7 +1031,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
         x2 = x1 + section_bracket_width;
         x1 += pixel;
         
-        if(_group_info[start].close_rel + start == s) {
+        if(_sections[start]->_group_info.close_rel + start == s) {
           if(start < s)
             style |= BorderTopArrow;
             
@@ -1052,7 +1054,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
         
         switch(_sections[start]->get_style(ShowSectionBracket)) {
           case AutoBoolAutomatic:
-            if(context.selection.id == id() && context.selection.start <= start && context.selection.end > _group_info[start].end)
+            if(context.selection.id == id() && context.selection.start <= start && context.selection.end > _sections[start]->_group_info.end)
               paint_single_section_bracket(context, x1, y1, x2, y2, style);
             break;
             
@@ -1094,7 +1096,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
         }
       }
       
-      start = _group_info[start].first;
+      start = _sections[start]->_group_info.first;
     }
   }
 }

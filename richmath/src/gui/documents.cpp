@@ -725,7 +725,7 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
       output_style = section->style;
       
       if(section->parent() == doc) {
-        section_bracket_nesting = doc->group_info(section->index()).nesting;
+        section_bracket_nesting = section->group_info().nesting;
       }
     }
       

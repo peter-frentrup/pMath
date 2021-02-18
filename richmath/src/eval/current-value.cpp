@@ -234,11 +234,7 @@ Expr CurrentValueImpl::get_SectionGroupOpen(FrontEndObject *obj, Expr item) {
   if(!sec)
     return Symbol(richmath_System_DollarFailed);
   
-  SectionList *slist = dynamic_cast<SectionList*>(sec->parent());
-  if(!slist)
-    return Symbol(richmath_System_DollarFailed);
-  
-  int close_rel = slist->group_info(sec->index()).close_rel;
+  int close_rel = sec->group_info().close_rel;
   if(close_rel < 0)
     return Symbol(richmath_System_True);
   else

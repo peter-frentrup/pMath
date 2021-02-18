@@ -9,8 +9,48 @@ namespace richmath {
   class MathSequence;
   class TextSequence;
   
+  /* Every section has a SectionGroupPrecedence (SGP) option to specify how deep
+     it will be nested in the section groups. When a section X is followed by a
+     section Y, three possible situations arise:
+  
+     [ notation:
+       First(X) = SectionGroupInfo.first for section X
+       LFirst   = previous group start (index of the first section in the
+                  current group).
+     ]
+  
+     SGP(X) < SGP(Y): A new group starts with X. First(Y) = X, First(X) = LFirst
+  
+     SGP(X) = SGP(Y): X and Y are both in the current group.
+                      First(X) = First(Y) = LFirst
+  
+     SGP(X) > SGP(Y): The previous group ends with X. A new group starts with Y.
+                      First(X) = LFirst, First(Y) = the last section Z with
+                      SGP(Z) < SGP(Y) or Y itself iff there is no such section.
+                      LFIG:= -1
+  
+   */
+  class SectionGroupInfo {
+    public:
+      SectionGroupInfo()
+        : precedence(0.0),
+        nesting(0),
+        first(-1),
+        end(-1),
+        close_rel(-1)
+      {
+      }
+      
+      float precedence;
+      int nesting;
+      int first;                      // always < section index, may be -1
+      int end;                        // index of last section of the group that starts here
+      ObservableValue<int> close_rel; // group closed => rel. index of the only open section, else: -1
+  };
+  
   class Section: public Box {
       using base = Box;
+      friend class SectionList;
     protected:
       virtual ~Section();
     public:
@@ -41,6 +81,8 @@ namespace richmath {
       
       virtual bool changes_children_style() override { return true; }
       
+      const SectionGroupInfo &group_info() { return _group_info; }
+      
     public:
       float y_offset;
       float top_margin;
@@ -54,6 +96,7 @@ namespace richmath {
       bool dialog_start;
       
     private:
+      SectionGroupInfo  _group_info; // Managed by SectionList parent() only
       Array<GlyphInfo>  label_glyphs;
       String            label_string;
   };

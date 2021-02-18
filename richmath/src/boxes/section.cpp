@@ -662,7 +662,7 @@ Box *AbstractSequenceSection::mouse_sensitive() {
 void AbstractSequenceSection::on_mouse_up(MouseEvent &event) {
   if(SectionList *slist = dynamic_cast<SectionList*>(parent())) {
     if(get_own_style(WholeSectionGroupOpener)) {
-      if(slist->group_info(_index).end > _index)
+      if(group_info().end > _index)
         slist->toggle_open_close_group(_index);
       
       return;
