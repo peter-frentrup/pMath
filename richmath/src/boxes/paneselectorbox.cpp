@@ -98,7 +98,7 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
       val = val[1];
     
     if(i - 1 == _current_selection && _cases[i - 1] != val)
-      _must_update = true;
+      must_update(true);
     
     _cases[i - 1] = std::move(val);
     _panes[i - 1]->load_from_object(rule[2], opts);
@@ -109,13 +109,13 @@ bool PaneSelectorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   Expr selector = expr[2];
   if(_dynamic.expr() != selector || has(opts, BoxInputFlags::ForceResetDynamic)){
-    _must_update = true;
+    must_update(true);
     _dynamic     = selector;
   }
   
   if(_current_selection < 0 || _current_selection >= _panes.length()) {
     _current_selection = _cases.length();
-    _must_update = true;
+    must_update(true);
   }
   
   finish_load_from_object(std::move(expr));
@@ -181,8 +181,8 @@ void PaneSelectorBox::paint(Context &context) {
     cc.end();
   }
   
-  if(_must_update) {
-    _must_update = false;
+  if(must_update()) {
+    must_update(false);
     
     Expr result;
     if(_dynamic.get_value(&result)) 
@@ -204,10 +204,10 @@ VolatileSelection PaneSelectorBox::dynamic_to_literal(int start, int end) {
 }
 
 void PaneSelectorBox::dynamic_updated() {
-  if(_must_update)
+  if(must_update())
     return;
     
-  _must_update = true;
+  must_update(true);
   request_repaint_all();
 }
 

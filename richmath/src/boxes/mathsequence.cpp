@@ -302,11 +302,8 @@ namespace richmath {
 //{ class MathSequence ...
 
 MathSequence::MathSequence()
-  : AbstractSequence(),
-    str(""),
-    boxes_invalid(false),
-    spans_invalid(false),
-    auto_indent(false)
+  : base(),
+    str("")
 {
 }
 
@@ -384,7 +381,7 @@ void MathSequence::resize(Context &context) {
   ensure_spans_valid();
   
   em = context.canvas().get_font_size();
-  auto_indent = context.math_spacing;
+  auto_indent(context.math_spacing);
   
   float old_scww = context.section_content_window_width;
   context.section_content_window_width = HUGE_VAL;
@@ -1173,10 +1170,10 @@ int MathSequence::find_string_start(int pos_inside_string, int *next_after_strin
 }
 
 void MathSequence::ensure_boxes_valid() {
-  if(!boxes_invalid)
+  if(!boxes_invalid())
     return;
     
-  boxes_invalid = false;
+  boxes_invalid(false);
   const uint16_t *buf = str.buffer();
   int len = str.length();
   int box = 0;
@@ -1186,10 +1183,10 @@ void MathSequence::ensure_boxes_valid() {
 }
 
 void MathSequence::ensure_spans_valid() {
-  if(!spans_invalid)
+  if(!spans_invalid())
     return;
     
-  spans_invalid = false;
+  spans_invalid(false);
   
   ScanData data;
   data.sequence    = this;
@@ -1277,8 +1274,8 @@ int MathSequence::insert(int pos, uint16_t chr) {
   if(chr == PMATH_CHAR_BOX) 
     return insert(pos, new ErrorBox(String::FromChar(chr)));
   
-  spans_invalid = true;
-  boxes_invalid = true;
+  spans_invalid(true);
+  boxes_invalid(true);
   str.insert(pos, &chr, 1);
   invalidate();
   return pos + 1;
@@ -1323,8 +1320,8 @@ int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {
   }
   str.insert(pos, ucs2, len);
   
-  spans_invalid = true;
-  boxes_invalid = true;
+  spans_invalid(true);
+  boxes_invalid(true);
   invalidate();
   return pos + len;
 }
@@ -1333,8 +1330,8 @@ int MathSequence::insert(int pos, const char *latin1, int len) {
   if(len < 0)
     len = strlen(latin1);
   
-  spans_invalid = true;
-  boxes_invalid = true;
+  spans_invalid(true);
+  boxes_invalid(true);
   str.insert(pos, latin1, len);
   invalidate();
   return pos + len;
@@ -1356,8 +1353,8 @@ int MathSequence::insert(int pos, Box *box) {
   
   ensure_boxes_valid();
   
-  spans_invalid = true;
-  boxes_invalid = true;
+  spans_invalid(true);
+  boxes_invalid(true);
   uint16_t ch = PMATH_CHAR_BOX;
   str.insert(pos, &ch, 1);
   adopt(box, pos);
@@ -1372,7 +1369,7 @@ int MathSequence::insert(int pos, Box *box) {
 void MathSequence::remove(int start, int end) {
   ensure_boxes_valid();
   
-  spans_invalid = true;
+  spans_invalid(true);
   
   int i = 0;
   while(i < boxes.length() && boxes[i]->index() < start)
@@ -1382,7 +1379,7 @@ void MathSequence::remove(int start, int end) {
   while(j < boxes.length() && boxes[j]->index() < end)
     boxes[j++]->safe_destroy();
     
-  boxes_invalid = i < boxes.length();
+  boxes_invalid(i < boxes.length());
   boxes.remove(i, j - i);
   str.remove(start, end - start);
   invalidate();
@@ -1790,7 +1787,7 @@ void MathSequence::load_from_object(Expr object, BoxInputFlags options) {
   
   spans         = new_spans.extract_array();
   str           = String(new_string);
-  boxes_invalid = true;
+  boxes_invalid(true);
   
   finish_load_from_object(std::move(object));
 }
@@ -1887,7 +1884,7 @@ int MathSequence::get_box(int index, int guide) {
 }
 
 float MathSequence::indention_width(int i) {
-  if(!auto_indent)
+  if(!auto_indent())
     return 0.0f;
   
   float f = i * em / 2;

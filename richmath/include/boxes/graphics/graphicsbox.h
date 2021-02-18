@@ -25,6 +25,7 @@ namespace richmath {
   };
   
   class GraphicsBox final : public Box {
+      using base = Box;
       class Impl;
       virtual ~GraphicsBox();
     public:
@@ -69,7 +70,22 @@ namespace richmath {
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;
       virtual void on_mouse_up(MouseEvent &event) override;
+    
+    protected:
+      enum {
+        UserHasChangedSizeBit = base::NumFlagsBits,
+        IsCurrentlyResizingBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
+    private:
+      bool user_has_changed_size() {         return get_flag(UserHasChangedSizeBit); }
+      void user_has_changed_size(bool value) {   change_flag(UserHasChangedSizeBit, value); }
+      bool is_currently_resizing() {       return get_flag(IsCurrentlyResizingBit); }
+      void is_currently_resizing(bool value) { change_flag(IsCurrentlyResizingBit, value); }
+    
     private:
       int   mouse_over_part; // GraphicsPartXXX
       float mouse_down_x;
@@ -83,12 +99,9 @@ namespace richmath {
       float em;
       AxisTicks *ticks[6]; // indexd by enum AxisIndex
       
+      SharedPtr<Buffer>         cached_bitmap;
       GraphicsElementCollection elements;
       Expr                      error_boxes_expr;
-      SharedPtr<Buffer>         cached_bitmap;
-      
-      bool user_has_changed_size;
-      bool is_currently_resizing;
   };
 }
 

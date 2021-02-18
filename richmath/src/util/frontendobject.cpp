@@ -145,7 +145,8 @@ void AutoMemorySuspension::resume_deletions() {
 
 FrontEndObject::FrontEndObject()
   : Base(),
-    _id{ TheCache.generate_next_id() }
+    _id{ TheCache.generate_next_id() },
+    _flags{ 0 }
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   

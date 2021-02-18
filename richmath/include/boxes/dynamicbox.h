@@ -45,13 +45,23 @@ namespace richmath {
     protected:
       virtual void resize_default_baseline(Context &context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::DynamicBox; }
+    
+    protected:
+      enum {
+        MustUpdateBit = base::NumFlagsBits,
+        MustResizeBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool must_update() {       return get_flag(MustUpdateBit); }
+      void must_update(bool value) { change_flag(MustUpdateBit, value); }
+      bool must_resize() {       return get_flag(MustResizeBit); }
+      void must_resize(bool value) { change_flag(MustResizeBit, value); }
       
     public:
       Dynamic dynamic;
-      
-    protected:
-      bool must_update;
-      bool must_resize;
   };
 };
 

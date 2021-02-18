@@ -18,12 +18,7 @@ namespace richmath { namespace strings {
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
   : AbstractStyleBox(content),
     type(_type),
-    old_state(ControlState::Normal),
-    mouse_inside(false),
-    mouse_left_down(false),
-    mouse_middle_down(false),
-    mouse_right_down(false),
-    selection_inside(false)
+    old_state(ControlState::Normal)
 {
   reset_style(); // caution: this does not call the derived reset_style(), but our implementation below
 }
@@ -35,8 +30,8 @@ ControlState ContainerWidgetBox::calc_state(Context &context) {
   if(context.selection.id == id() && context.active)
     return ControlState::Pressed;
     
-  if(context.clicked_box_id == id() && mouse_left_down) {
-    if(mouse_inside)
+  if(context.clicked_box_id == id() && mouse_left_down()) {
+    if(mouse_inside())
       return ControlState::PressedHovered;
       
     return ControlState::Pressed;
@@ -157,10 +152,10 @@ void ContainerWidgetBox::reset_style() {
 }
 
 void ContainerWidgetBox::on_mouse_enter() {
-  if(!mouse_inside && ControlPainter::std->container_hover_repaint(*this, type) && enabled())
+  if(!mouse_inside() && ControlPainter::std->container_hover_repaint(*this, type) && enabled())
     request_repaint_all();
     
-  mouse_inside = true;
+  mouse_inside(true);
   base::on_mouse_enter();
 }
 
@@ -168,7 +163,7 @@ void ContainerWidgetBox::on_mouse_exit() {
   if(/*mouse_inside && */ControlPainter::std->container_hover_repaint(*this, type) && enabled())
     request_repaint_all();
     
-  mouse_inside = false;
+  mouse_inside(false);
   base::on_mouse_exit();
 }
 
@@ -178,10 +173,10 @@ void ContainerWidgetBox::on_mouse_down(MouseEvent &event) {
     
   event.set_origin(this);
   
-  mouse_left_down   = mouse_left_down   || event.left;
-  mouse_middle_down = mouse_middle_down || event.middle;
-  mouse_right_down  = mouse_right_down  || event.right;
-  mouse_inside      = _extents.to_rectangle().contains(event.position);
+  if(event.left)   mouse_left_down(true);
+  if(event.middle) mouse_middle_down(true);
+  if(event.right)  mouse_right_down(true);
+  mouse_inside(_extents.to_rectangle().contains(event.position));
                  
   request_repaint_all();
 }
@@ -193,33 +188,35 @@ void ContainerWidgetBox::on_mouse_move(MouseEvent &event) {
   event.set_origin(this);
   
   bool mi = _extents.to_rectangle().contains(event.position);
-  if(mi != mouse_inside)
+  if(mi != mouse_inside())
     request_repaint_all();
     
-  mouse_inside = mi;
+  mouse_inside(mi);
 }
 
 void ContainerWidgetBox::on_mouse_up(MouseEvent &event) {
   if(enabled())
     request_repaint_all();
   
-  mouse_left_down   = mouse_left_down   && !event.left;
-  mouse_middle_down = mouse_middle_down && !event.middle;
-  mouse_right_down  = mouse_right_down  && !event.right;
+  if(event.left)   mouse_left_down(false);
+  if(event.middle) mouse_middle_down(false);
+  if(event.right)  mouse_right_down(false);
 }
 
 void ContainerWidgetBox::on_mouse_cancel() {
   if(enabled())
     request_repaint_all();
   
-  mouse_left_down = mouse_middle_down = mouse_right_down = false;
+  mouse_left_down(false);
+  mouse_middle_down(false);
+  mouse_right_down(false);
 }
 
 void ContainerWidgetBox::on_enter() {
   if(!ControlPainter::is_static_background(type))
     request_repaint_all();
   
-  selection_inside = true;
+  selection_inside(true);
   base::on_enter();
 }
 
@@ -227,7 +224,7 @@ void ContainerWidgetBox::on_exit() {
   if(!ControlPainter::is_static_background(type))
     request_repaint_all();
   
-  selection_inside = false;
+  selection_inside(false);
   base::on_exit();
 }
 

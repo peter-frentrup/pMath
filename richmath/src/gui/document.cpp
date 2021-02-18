@@ -3471,7 +3471,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
       else {
         must_resize_min = count();
         for(int i = 0;i < length();++i)
-          section(i)->must_resize = true;
+          section(i)->must_resize(true);
       }
     }
   
@@ -3512,7 +3512,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     
     int i = 0;
     while(i < length() && _extents.descent <= page_rect.top()) {
-      if(section(i)->must_resize) // || i == sel_sect)
+      if(section(i)->must_resize()) // || i == sel_sect)
         resize_section(context, i);
         
       Impl(*this).after_resize_section(i);
@@ -3524,7 +3524,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
       first_visible_section = 0;
       
     while(i < length() && _extents.descent <= page_rect.bottom()) {
-      if(section(i)->must_resize) // || i == sel_sect)
+      if(section(i)->must_resize()) // || i == sel_sect)
         resize_section(context, i);
         
       Impl(*this).after_resize_section(i);
@@ -3534,7 +3534,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     int last_visible_section = i - 1;
     
     while(i < length()) {
-      if(section(i)->must_resize) {
+      if(section(i)->must_resize()) {
         bool resi = (i == sel_sect || i < must_resize_min);
         
         if(!resi && auto_scroll) {
@@ -3791,7 +3791,7 @@ void Document::Impl::raw_select(Box *box, int start, int end) {
 void Document::Impl::after_resize_section(int i) {
   Section *sect = self.section(i);
   sect->y_offset = self._extents.descent;
-  if(sect->visible) {
+  if(sect->visible()) {
     self._extents.descent += sect->extents().descent;
     
     float w  = sect->extents().width;

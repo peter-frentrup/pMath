@@ -1,5 +1,5 @@
-#ifndef __RICHMATH__BOXES__SETTERBOX_H__INCLUDED
-#define __RICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#ifndef RICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#define RICHMATH__BOXES__SETTERBOX_H__INCLUDED
 
 #include <boxes/buttonbox.h>
 #include <eval/dynamic.h>
@@ -36,14 +36,27 @@ namespace richmath {
     
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SetterBox; }
     
+    protected:
+      enum {
+        IsInitializedBit = base::NumFlagsBits,
+        MustUpdateBit,
+        IsDownBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool is_initialized() {            return get_flag(IsInitializedBit); }
+      void is_initialized(bool value) {      change_flag(IsInitializedBit, value); }
+      bool must_update() {               return get_flag(MustUpdateBit); }
+      void must_update(bool value) {         change_flag(MustUpdateBit, value); }
+      bool is_down() {                   return get_flag(IsDownBit); }
+      void is_down(bool value) {             change_flag(IsDownBit, value); }
+      
     private:
       Dynamic dynamic;
       Expr    value;
-      
-      bool is_initialized;
-      bool must_update;
-      bool is_down;
   };
 };
 
-#endif // __RICHMATH__BOXES__SETTERBOX_H__INCLUDED
+#endif // RICHMATH__BOXES__SETTERBOX_H__INCLUDED

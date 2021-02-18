@@ -8,6 +8,7 @@ namespace richmath {
   class MathSequence;
   
   class UnderoverscriptBox final : public Box {
+      using BaseClass = Box;
     protected:
       virtual ~UnderoverscriptBox();
     public:
@@ -47,7 +48,21 @@ namespace richmath {
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrixn) override;
+    
+    protected:
+      enum {
+        OverscriptIsStretchedBit = BaseClass::NumFlagsBits,
+        UnderscriptIsStretchedBit,
         
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool overscript_is_stretched() {        return get_flag(OverscriptIsStretchedBit); }
+      void overscript_is_stretched(bool value) {  change_flag(OverscriptIsStretchedBit, value); }
+      bool underscript_is_stretched() {       return get_flag(UnderscriptIsStretchedBit); }
+      void underscript_is_stretched(bool value) { change_flag(UnderscriptIsStretchedBit, value); }
+    
     private:
       MathSequence *_base;
       MathSequence *_underscript;
@@ -56,10 +71,6 @@ namespace richmath {
       float    _base_offset_x;
       Vector2F _underscript_offset;
       Vector2F _overscript_offset;
-      
-//      float ou_displacement;
-      bool _overscript_is_stretched;
-      bool _underscript_is_stretched;
   };
 }
 

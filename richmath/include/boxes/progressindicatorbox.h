@@ -8,6 +8,7 @@
 
 namespace richmath {
   class ProgressIndicatorBox final : public Box, public ControlContext {
+      using base = Box;
     protected:
       virtual ~ProgressIndicatorBox();
     public:
@@ -45,6 +46,20 @@ namespace richmath {
     private:
       Expr to_literal();
     
+    protected:
+      enum {
+        MustUpdateBit = base::NumFlagsBits,
+        HaveDrawnBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool must_update() {       return get_flag(MustUpdateBit); }
+      void must_update(bool value) { change_flag(MustUpdateBit, value); }
+      bool have_drawn() {        return get_flag(HaveDrawnBit); }
+      void have_drawn(bool value) {  change_flag(HaveDrawnBit, value); }
+    
     private:
       double range_min;
       double range_max;
@@ -53,8 +68,6 @@ namespace richmath {
       Dynamic dynamic;
       
       SharedPtr<BoxAnimation> animation;
-      bool must_update;
-      bool have_drawn;
   };
 };
 

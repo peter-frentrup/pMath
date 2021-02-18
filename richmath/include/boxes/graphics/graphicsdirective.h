@@ -30,12 +30,22 @@ namespace richmath {
     private:
       GraphicsDirective();
       GraphicsDirective(Expr expr);
+    
+    private:
+      enum {
+        MustUpdateBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+    
+      bool must_update() {       return get_flag(MustUpdateBit); }
+      void must_update(bool value) { change_flag(MustUpdateBit, value); }
       
     private:
       SharedPtr<Style> _style;
       PartialDynamic   _dynamic;
       Expr             _latest_directives;
-      bool             _must_update : 1;
   };
 }
 

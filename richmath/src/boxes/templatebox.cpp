@@ -110,8 +110,7 @@ static T *search_next_box(Box *start, LogicalDirection direction, Box *stop_pare
 //{ class TemplateBox ...
 
 TemplateBox::TemplateBox()
-  : base(),
-    _is_content_loaded(false)
+  : base()
 {
   style = new Style();
 }
@@ -135,7 +134,7 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   bool change_args = arguments != args;
   arguments = args;
   _tag = tag;
-  _is_content_loaded = false;
+  is_content_loaded(false);
   style->clear();
   style->add_pmath(options);
   style->set_pmath(BaseStyleName, tag);
@@ -328,9 +327,9 @@ void TemplateBox::paint_content(Context &context) {
   base::paint_content(context);
   
   Expr dispfun = get_own_style(DisplayFunction);
-  if(!_is_content_loaded || dispfun != _cached_display_function) {
+  if(!is_content_loaded() || dispfun != _cached_display_function) {
     TemplateBoxImpl(*this).load_content(dispfun);
-    _is_content_loaded = true;
+    is_content_loaded(true);
     if(find_parent<Document>(false))
       base::after_insertion();
       
@@ -340,9 +339,9 @@ void TemplateBox::paint_content(Context &context) {
 
 void TemplateBox::after_insertion() {
   Expr dispfun = get_own_style(DisplayFunction);
-  if(!_is_content_loaded || dispfun != _cached_display_function) {
+  if(!is_content_loaded() || dispfun != _cached_display_function) {
     TemplateBoxImpl(*this).load_content(dispfun);
-    _is_content_loaded = true;
+    is_content_loaded(true);
   }
   
   base::after_insertion();
@@ -464,9 +463,7 @@ Expr TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr ite
 
 TemplateBoxSlot::TemplateBoxSlot()
   : base(),
-    _argument(0),
-    _is_content_loaded(false),
-    _has_changed_content(false)
+    _argument(0)
 {
 }
 
@@ -489,7 +486,7 @@ bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr arg = expr[1];
   if(arg.is_int32()) {
     _argument = PMATH_AS_INT32(arg.get());
-    _is_content_loaded = false;
+    is_content_loaded(false);
     
     finish_load_from_object(std::move(expr));
     return true;
@@ -604,8 +601,8 @@ float TemplateBoxSlot::fill_weight() {
 void TemplateBoxSlot::invalidate() {
   base::invalidate();
   
-  if(_is_content_loaded)
-    _has_changed_content = true;
+  if(is_content_loaded())
+    has_changed_content(true);
 }
 
 void TemplateBoxSlot::resize_default_baseline(Context &context) {
@@ -623,7 +620,7 @@ void TemplateBoxSlot::resize_default_baseline(Context &context) {
 void TemplateBoxSlot::paint_content(Context &context) {
   base::paint_content(context);
   
-  if(!_is_content_loaded) {
+  if(!is_content_loaded()) {
     invalidate();
     TemplateBoxSlotImpl(*this).reload_content();
     if(find_parent<Document>(false))
@@ -632,19 +629,19 @@ void TemplateBoxSlot::paint_content(Context &context) {
 }
 
 void TemplateBoxSlot::after_insertion() {
-  if(!_is_content_loaded) 
+  if(!is_content_loaded()) 
     TemplateBoxSlotImpl(*this).reload_content();
   
   base::after_insertion();
 }
 
 void TemplateBoxSlot::on_exit() {
-  if(_has_changed_content)
+  if(has_changed_content())
     TemplateBoxSlotImpl(*this).assign_content();
 }
 
 void TemplateBoxSlot::on_finish_editing() {
-  if(_has_changed_content)
+  if(has_changed_content())
     TemplateBoxSlotImpl(*this).assign_content();
 }
 
@@ -862,8 +859,8 @@ void TemplateBoxSlotImpl::reload_content() {
   }
   
   self.content()->load_from_object(get_content(), flags);
-  self._is_content_loaded = true;
-  self._has_changed_content = false;
+  self.is_content_loaded(true);
+  self.has_changed_content(false);
 }
 
 Expr TemplateBoxSlotImpl::get_content() {
@@ -881,7 +878,7 @@ Expr TemplateBoxSlotImpl::get_content() {
 }
 
 void TemplateBoxSlotImpl::assign_content() {
-  self._has_changed_content = false;
+  self.has_changed_content(false);
   
   TemplateBox *tb = self.find_owner();
   if(!tb)

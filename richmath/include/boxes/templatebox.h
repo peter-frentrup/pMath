@@ -49,13 +49,23 @@ namespace richmath {
       virtual void resize_default_baseline(Context &context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
       
+    private:
+      enum {
+        IsContentLoadedBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool is_content_loaded() {         return get_flag(IsContentLoadedBit); }
+      void is_content_loaded(bool value) {   change_flag(IsContentLoadedBit, value); }
+    
     public:
       Expr arguments;
       
     private:
       Expr _tag;
       Expr _cached_display_function;
-      bool _is_content_loaded;
   };
   
   class TemplateBoxSlot final : public ExpandableOwnerBox {
@@ -102,10 +112,21 @@ namespace richmath {
     protected:
       virtual void resize_default_baseline(Context &context) override;
     
+      enum {
+        IsContentLoadedBit = base::NumFlagsBits,
+        HasChangedContentBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool is_content_loaded() {         return get_flag(IsContentLoadedBit); }
+      void is_content_loaded(bool value) {   change_flag(IsContentLoadedBit, value); }
+      bool has_changed_content() {       return get_flag(HasChangedContentBit); }
+      void has_changed_content(bool value) { change_flag(HasChangedContentBit, value); }
+    
     private:
       int _argument;
-      bool _is_content_loaded;
-      bool _has_changed_content;
   };
 }
 

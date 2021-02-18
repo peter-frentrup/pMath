@@ -30,12 +30,10 @@ namespace richmath {
 //{ class SetterBox ...
 
 SetterBox::SetterBox(MathSequence *content)
-  : base(content, ContainerType::PaletteButton),
-    is_initialized(false),
-    must_update(true),
-    is_down(false)
+  : base(content, ContainerType::PaletteButton)
 {
   dynamic.init(this, Expr());
+  must_update(true);
 }
 
 bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -53,13 +51,13 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    dynamic        = expr[1];
-    must_update    = true;
-    is_initialized = false;
+    dynamic = expr[1];
+    must_update(true);
+    is_initialized(false);
   }
   
-  value   = expr[2];
-  is_down = (!dynamic.is_dynamic() && dynamic.expr() == value);
+  value = expr[2];
+  is_down(!dynamic.is_dynamic() && dynamic.expr() == value);
   
   _content->load_from_object(expr[3], opts);
   
@@ -71,8 +69,8 @@ bool SetterBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 ControlState SetterBox::calc_state(Context &context) {
-  if(is_down) {
-    //if(mouse_inside)
+  if(is_down()) {
+    //if(mouse_inside()
     return ControlState::PressedHovered;
     
     //return ControlState::Pressed;
@@ -135,23 +133,23 @@ void SetterBox::click() {
     return;
     
   dynamic.assign(value, false, true, true);
-  is_down = true;
+  is_down(true); // TODO: reset if assignment fails
   request_repaint_all();
 }
 
 void SetterBox::dynamic_updated() {
-  if(must_update)
+  if(must_update())
     return;
     
-  must_update = true;
+  must_update(true);
   request_repaint_all();
 }
 
 void SetterBox::dynamic_finished(Expr info, Expr result) {
   bool new_is_down = result == value;
   
-  if(is_down != new_is_down) {
-    is_down = new_is_down;
+  if(is_down() != new_is_down) {
+    is_down(new_is_down);
     request_repaint_all();
   }
 }
@@ -166,13 +164,13 @@ VolatileSelection SetterBox::dynamic_to_literal(int start, int end) {
 //{ class SetterBox::Impl ...
 
 void SetterBox::Impl::finish_update_value() {
-  if(!self.must_update)
+  if(!self.must_update())
     return;
     
-  self.must_update = false;
+  self.must_update(false);
   
-  bool was_initialized = self.is_initialized;
-  self.is_initialized = true;
+  bool was_initialized = self.is_initialized();
+  self.is_initialized(true);
   
   Expr val;
   if(!self.dynamic.get_value(&val))
@@ -191,14 +189,14 @@ void SetterBox::Impl::finish_update_value() {
           EvaluationContexts::resolve_context(&self), 
           strings::DollarContext_namespace);
 
-  self.is_down = (val == self.value);
+  self.is_down(val == self.value);
 }
 
 Expr SetterBox::Impl::to_literal() {
   if(!self.dynamic.is_dynamic())
     return self.dynamic.expr();
   
-  if(self.is_down)
+  if(self.is_down())
     return self.value;
   
   if(self.value == richmath_System_False)

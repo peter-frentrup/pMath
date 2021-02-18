@@ -37,15 +37,33 @@ namespace richmath {
       virtual void resize_default_baseline(Context &context) override;
       
     protected:
+    
+      enum {
+        MouseInsideBit = base::NumFlagsBits,
+        MouseLeftDownBit,
+        MouseMiddleDownBit,
+        MouseRightDownBit,
+        SelectionInsideBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool mouse_inside() {            return get_flag(MouseInsideBit); }
+      void mouse_inside(bool value) {      change_flag(MouseInsideBit, value); }
+      bool mouse_left_down() {         return get_flag(MouseLeftDownBit); }
+      void mouse_left_down(bool value) {   change_flag(MouseLeftDownBit, value); }
+      bool mouse_middle_down() {       return get_flag(MouseMiddleDownBit); }
+      void mouse_middle_down(bool value) { change_flag(MouseMiddleDownBit, value); }
+      bool mouse_right_down() {        return get_flag(MouseRightDownBit); }
+      void mouse_right_down(bool value) {  change_flag(MouseRightDownBit, value); }
+      bool selection_inside() {        return get_flag(SelectionInsideBit); }
+      void selection_inside(bool value) {  change_flag(SelectionInsideBit, value); }
+    
+    protected:
       SharedPtr<BoxAnimation> animation;
       ContainerType type;
       ControlState  old_state;
-      
-      bool mouse_inside      : 1;
-      bool mouse_left_down   : 1;
-      bool mouse_middle_down : 1;
-      bool mouse_right_down  : 1;
-      bool selection_inside  : 1;
   };
 }
 

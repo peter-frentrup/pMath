@@ -39,6 +39,7 @@ namespace richmath {
      It uses Pango for text layout. For math, use class MathSequence.
    */
   class TextSequence final : public AbstractSequence {
+      using base = AbstractSequence;
       class Impl;
     protected:
       virtual ~TextSequence();
@@ -108,16 +109,27 @@ namespace richmath {
       
       void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
       void line_extents(int line, float *x, float *y, BoxSize *size);
+    
+    private:
+      enum {
+        BoxesInvalidBit = base::NumFlagsBits,
+        TextInvalidBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
+      void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
+      bool text_invalid() {       return get_flag(TextInvalidBit); }
+      void text_invalid(bool value) { change_flag(TextInvalidBit, value); }
       
     private:
-      Array<Box*>  boxes;
       TextBuffer   text;
+      Array<Box*>  boxes;
       Array<int>   line_y_corrections;
       
       PangoLayout *_layout;
-      
-      bool boxes_invalid;
-      bool text_invalid;
   };
 }
 

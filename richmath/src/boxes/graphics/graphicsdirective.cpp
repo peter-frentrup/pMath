@@ -28,16 +28,14 @@ namespace richmath {
 GraphicsDirective::GraphicsDirective()
   : base(),
     _style(new Style()),
-    _dynamic(this, Expr()),
-    _must_update(false)
+    _dynamic(this, Expr())
 {
 }
 
 GraphicsDirective::GraphicsDirective(Expr expr)
   : base(),
     _style(new Style()),
-    _dynamic(this, expr),
-    _must_update(false)
+    _dynamic(this, expr)
 {
 }
 
@@ -65,7 +63,7 @@ bool GraphicsDirective::try_load_from_object(Expr expr, BoxInputFlags opts) {
     _style->clear();
     _dynamic = expr;
     _latest_directives = Expr();
-    _must_update = true;
+    must_update(true);
   }
   
   finish_load_from_object(std::move(expr));
@@ -84,8 +82,8 @@ GraphicsDirective *GraphicsDirective::try_create(Expr expr, BoxInputFlags opts) 
 }
 
 void GraphicsDirective::paint(GraphicsBox *owner, Context &context) {
-  if(_must_update) {
-    _must_update = false;
+  if(must_update()) {
+    must_update(false);
     
     Expr new_directives;
     if(_dynamic.get_value(&new_directives, Expr())) 
@@ -111,7 +109,7 @@ void GraphicsDirective::apply(Expr directive, Context &context) {
 }
 
 void GraphicsDirective::dynamic_updated() {
-  _must_update = true;
+  must_update(true);
   base::dynamic_updated();
 }
 

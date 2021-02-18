@@ -40,10 +40,9 @@ extern pmath_symbol_t richmath_System_Try;
 
 InputFieldBox::InputFieldBox(MathSequence *content)
   : base(ContainerType::InputField, content),
-    must_update(true),
-    invalidated(false),
     frame_x(0)
 {
+  must_update(true);
   dynamic.init(this, Expr());
   input_type = Symbol(richmath_System_Expression);
   reset_style();
@@ -64,9 +63,9 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   /* now success is guaranteed */
   
   if(dynamic.expr() != expr[1] || input_type != expr[2] || has(opts, BoxInputFlags::ForceResetDynamic)) {
-    dynamic     = expr[1];
-    input_type  = expr[2];
-    must_update = true;
+    dynamic = expr[1];
+    input_type = expr[2];
+    must_update(true);
   }
   
   reset_style();
@@ -80,8 +79,8 @@ ControlState InputFieldBox::calc_state(Context &context) {
   if(!enabled())
     return ControlState::Disabled;
   
-  if(selection_inside) {
-    if(mouse_inside)
+  if(selection_inside()) {
+    if(mouse_inside())
       return ControlState::PressedHovered;
       
     return ControlState::Pressed;
@@ -133,8 +132,8 @@ void InputFieldBox::resize_default_baseline(Context &context) {
 }
 
 void InputFieldBox::paint_content(Context &context) {
-  if(must_update) {
-    must_update = false;
+  if(must_update()) {
+    must_update(false);
     
     Expr result;
     if(dynamic.get_value(&result)) {
@@ -142,7 +141,7 @@ void InputFieldBox::paint_content(Context &context) {
       if(get_style(AutoNumberFormating))
         opt |= BoxInputFlags::FormatNumbers;
         
-      invalidated = true;
+      invalidated(true);
       
       if(input_type == richmath_System_Number) {
         if(result.is_number()) {
@@ -192,14 +191,14 @@ void InputFieldBox::paint_content(Context &context) {
       }
       
       invalidate();
-      invalidated = false;
+      invalidated(false);
     }
   }
   
   float x, y;
   context.canvas().current_pos(&x, &y);
   
-  if(invalidated) {
+  if(invalidated()) {
     context.canvas().save();
     
     float cx = x + _extents.width;
@@ -288,7 +287,7 @@ Expr InputFieldBox::to_pmath_symbol() {
 }
 
 Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
-  if(invalidated)
+  if(invalidated())
     assign_dynamic();
     
   Gather g;
@@ -311,10 +310,10 @@ Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void InputFieldBox::dynamic_updated() {
-  if(must_update)
+  if(must_update())
     return;
     
-  must_update = true;
+  must_update(true);
   request_repaint_all();
 }
 
@@ -325,7 +324,7 @@ void InputFieldBox::dynamic_finished(Expr info, Expr result) {
     
   content()->load_from_object(result, opt);
   invalidate();
-  invalidated = false;
+  invalidated(false);
 }
 
 VolatileSelection InputFieldBox::dynamic_to_literal(int start, int end) {
@@ -340,10 +339,10 @@ VolatileSelection InputFieldBox::dynamic_to_literal(int start, int end) {
 void InputFieldBox::invalidate() {
   base::invalidate();
   
-  if(invalidated)
+  if(invalidated())
     return;
     
-  invalidated = true;
+  invalidated(true);
   if(get_own_style(ContinuousAction, false)) {
     assign_dynamic();
   }
@@ -393,12 +392,12 @@ void InputFieldBox::on_enter() {
 void InputFieldBox::on_exit() {
   base::on_exit();
   
-  if(invalidated && enabled())
+  if(invalidated() && enabled())
     assign_dynamic();
 }
 
 void InputFieldBox::on_finish_editing() {
-  if(invalidated && enabled())
+  if(invalidated() && enabled())
     assign_dynamic();
     
   base::on_finish_editing();
@@ -411,14 +410,14 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
   switch(event.key) {
     case SpecialKey::Return:
     
-      if(!invalidated)
+      if(!invalidated())
         dynamic_updated();
         
       if(!assign_dynamic()) {
         if(auto doc = find_parent<Document>(false))
           doc->native()->beep();
           
-        must_update = true;
+        must_update(true);
       }
       
       event.key = SpecialKey::Unknown;
@@ -458,7 +457,7 @@ void InputFieldBox::on_key_press(uint32_t unichar) {
 }
 
 bool InputFieldBox::assign_dynamic() {
-  invalidated = false;
+  invalidated(false);
   
   if(input_type == richmath_System_Expression || input_type[0] == richmath_System_Hold) { // Expression or Hold(Expression)
     Expr boxes = _content->to_pmath(BoxOutputFlags::Parseable);
@@ -522,7 +521,7 @@ bool InputFieldBox::assign_dynamic() {
       
       dynamic.assign(value);
       if(!dynamic.is_dynamic())
-        must_update = true;
+        must_update(true);
     }
     else {
       dynamic.assign(_content->text());

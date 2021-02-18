@@ -1290,7 +1290,7 @@ static void cnt_startsession() {
                       session->current_job->position().section_id);
                       
     if(sect) {
-      sect->dialog_start = true;
+      sect->dialog_start(true);
       sect->request_repaint_all();
     }
   }
@@ -1314,7 +1314,7 @@ static void cnt_endsession() {
                       session->current_job->position().section_id);
                       
     if(sect) {
-      sect->dialog_start = false;
+      sect->dialog_start(false);
       sect->request_repaint_all();
     }
   }

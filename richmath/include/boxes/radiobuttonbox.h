@@ -37,10 +37,10 @@ namespace richmath {
         
         NumFlagsBits
       };
-      static_assert(NumFlagsBits <= 8 * sizeof(flags), "");
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool first_paint() {           return get_flag(FirstPaintBit); }
-      void first_paint(bool value) { return set_flag(FirstPaintBit, value); }
+      bool first_paint() {       return get_flag(FirstPaintBit); }
+      void first_paint(bool value) { change_flag(FirstPaintBit, value); }
   };
 }
 

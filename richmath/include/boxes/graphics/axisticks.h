@@ -7,6 +7,7 @@
 
 namespace richmath {
   class AxisTicks final : public Box {
+      using base = Box;
     protected:
       virtual ~AxisTicks();
     public:
@@ -48,6 +49,9 @@ namespace richmath {
         float  *x,
         float  *y);
         
+      bool axis_hidden() {         return get_flag(AxisHiddenBit); }
+      void axis_hidden(bool value) {   change_flag(AxisHiddenBit, value); }
+    
     protected:
       void set_count(int new_count);
       
@@ -67,7 +71,15 @@ namespace richmath {
         float height,
         float dx,
         float dy);
+    
+    protected:
+      enum {
+        AxisHiddenBit = base::NumFlagsBits,
         
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
     private:
       Array<AbstractSequence*>  _labels;
       Array<double>             _positions;
@@ -89,7 +101,6 @@ namespace richmath {
       double end_position;
       double ignore_label_position;
       Expr _expr;
-      bool axis_hidden;
   };
 }
 

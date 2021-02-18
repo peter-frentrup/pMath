@@ -23,6 +23,7 @@ namespace richmath {
      For normal text, use class TextSequence.
    */
   class MathSequence final : public AbstractSequence {
+      using base = AbstractSequence;
       class Impl;
     protected:
       virtual ~MathSequence();
@@ -113,17 +114,30 @@ namespace richmath {
       float indention_width(int i);
       float font_size() { return em; }
       float line_spacing() { return 0.3f * em; }
+    
+    private:
+      enum {
+        BoxesInvalidBit = base::NumFlagsBits,
+        SpansInvalidBit,
+        AutoIndentBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
+      void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
+      bool spans_invalid() {       return get_flag(SpansInvalidBit); }
+      void spans_invalid(bool value) { change_flag(SpansInvalidBit, value); }
+      bool auto_indent() {         return get_flag(AutoIndentBit); }
+      void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
       
     private:
-      Array<Box *>     boxes;
       String           str;
-      SpanArray        spans;
+      Array<Box *>     boxes;
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
-      
-      bool boxes_invalid : 1;
-      bool spans_invalid : 1;
-      bool auto_indent : 1;
+      SpanArray        spans;
   };
   
   

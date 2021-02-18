@@ -105,10 +105,9 @@ void AbstractDynamicBox::ensure_init() {
 //{ class DynamicBox ...
 
 DynamicBox::DynamicBox()
-  : base(),
-  must_update(true),
-  must_resize(false)
+  : base()
 {
+  must_update(true);
   dynamic.init(this, Expr());
 }
 
@@ -140,8 +139,8 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   expr.set(0, Symbol(richmath_System_Dynamic)); // TODO: update the Dynamic expr when a style changes
   
   if(dynamic.expr() != expr || has(opts, BoxInputFlags::ForceResetDynamic)){
-    dynamic     = expr;
-    must_update = true;
+    dynamic = expr;
+    must_update(true);
   }
   
   finish_load_from_object(std::move(expr));
@@ -150,7 +149,7 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 void DynamicBox::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
-  must_resize = false;
+  must_resize(false);
   
   if(_extents.width <= 0)
     _extents.width = 0.75;
@@ -162,17 +161,17 @@ void DynamicBox::resize_default_baseline(Context &context) {
 }
 
 void DynamicBox::paint_content(Context &context) {
-  if(must_resize) {
+  if(must_resize()) {
     context.canvas().save();
     base::resize(context);
-    must_resize = false;
+    must_resize(false);
     context.canvas().restore();
   }
   
   base::paint_content(context);
   
-  if(must_update) {
-    must_update = false;
+  if(must_update()) {
+    must_update(false);
     
     if(style) {
       dynamic.synchronous_updating((AutoBoolValues)get_own_style(SynchronousUpdating, dynamic.synchronous_updating()));
@@ -203,10 +202,10 @@ Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void DynamicBox::dynamic_updated() {
-  if(must_update)
+  if(must_update())
     return;
     
-  must_update = true;
+  must_update(true);
   request_repaint_all();
 }
 
@@ -219,7 +218,7 @@ void DynamicBox::dynamic_finished(Expr info, Expr result) {
   if(find_parent<Document>(false))
     content()->after_insertion();
   
-  must_resize = true;
+  must_resize(true);
   invalidate();
 }
 

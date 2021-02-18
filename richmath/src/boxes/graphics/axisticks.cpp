@@ -67,7 +67,7 @@ static void get_tick_length(Expr expr, float *plen, float *nlen) {
 //{ class AxisTicks ...
 
 AxisTicks::AxisTicks()
-  : Box(),
+  : base(),
     start_x(0),
     start_y(0),
     end_x(0),
@@ -79,8 +79,7 @@ AxisTicks::AxisTicks()
     extra_offset(0),
     start_position(0),
     end_position(0),
-    ignore_label_position(NAN),
-    axis_hidden(false)
+    ignore_label_position(NAN)
 {
 }
 

@@ -62,8 +62,20 @@ namespace richmath {
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::InputFieldBox; }
       
     protected:
-      bool must_update;
-      bool invalidated;
+      enum {
+        InvalidatedBit = base::NumFlagsBits,
+        MustUpdateBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool invalidated() {       return get_flag(InvalidatedBit); }
+      void invalidated(bool value) { change_flag(InvalidatedBit, value); }
+      bool must_update() {       return get_flag(MustUpdateBit); }
+      void must_update(bool value) { change_flag(MustUpdateBit, value); }
+      
+    protected:
       float frame_x;
       
     public:

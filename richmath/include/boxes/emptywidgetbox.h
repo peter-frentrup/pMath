@@ -47,10 +47,8 @@ namespace richmath {
       ContainerType old_type;
       ControlState  old_state;
       
-      unsigned flags;
-      
       enum {
-        MouseInsideBit = 0,
+        MouseInsideBit = base::NumFlagsBits,
         MouseLeftDownBit,
         MouseMiddleDownBit,
         MouseRightDownBit,
@@ -60,23 +58,21 @@ namespace richmath {
         
         NumFlagsBits
       };
-      static_assert(NumFlagsBits <= 8 * sizeof(flags), "");
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool get_flag(unsigned i) { return (flags & (1u << i)) != 0; }
-      void set_flag(unsigned i, bool value) { if(value) { flags |= (1u << i); } else { flags &= ~(1u << i); } }
-      bool mouse_inside() {         return get_flag(MouseInsideBit); }
-      void mouse_inside(bool value) {      set_flag(MouseInsideBit, value); }
-      bool mouse_left_down() {      return get_flag(MouseLeftDownBit); }
-      void mouse_left_down(bool value) {   set_flag(MouseLeftDownBit, value); }
-      bool mouse_middle_down() {    return get_flag(MouseMiddleDownBit); }
-      void mouse_middle_down(bool value) { set_flag(MouseMiddleDownBit, value); }
-      bool mouse_right_down() {     return get_flag(MouseRightDownBit); }
-      void mouse_right_down(bool value) {  set_flag(MouseRightDownBit, value); }
-      bool must_update() {          return get_flag(MustUpdateBit); }
-      void must_update(bool value) {       set_flag(MustUpdateBit, value); }
+      bool mouse_inside() {            return get_flag(MouseInsideBit); }
+      void mouse_inside(bool value) {      change_flag(MouseInsideBit, value); }
+      bool mouse_left_down() {         return get_flag(MouseLeftDownBit); }
+      void mouse_left_down(bool value) {   change_flag(MouseLeftDownBit, value); }
+      bool mouse_middle_down() {       return get_flag(MouseMiddleDownBit); }
+      void mouse_middle_down(bool value) { change_flag(MouseMiddleDownBit, value); }
+      bool mouse_right_down() {        return get_flag(MouseRightDownBit); }
+      void mouse_right_down(bool value) {  change_flag(MouseRightDownBit, value); }
+      bool must_update() {             return get_flag(MustUpdateBit); }
+      void must_update(bool value) {       change_flag(MustUpdateBit, value); }
       
-      bool is_initialized() {           return get_flag(IsInitializedBit); }
-      void is_initialized(bool value) { return set_flag(IsInitializedBit, value); }
+      bool is_initialized() {          return get_flag(IsInitializedBit); }
+      void is_initialized(bool value) {    change_flag(IsInitializedBit, value); }
   };
 }
 

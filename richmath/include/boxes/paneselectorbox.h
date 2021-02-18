@@ -52,12 +52,22 @@ namespace richmath {
     private:
       Expr to_literal();
     
+    protected:
+      enum {
+        MustUpdateBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool must_update() {       return get_flag(MustUpdateBit); }
+      void must_update(bool value) { change_flag(MustUpdateBit, value); }
+    
     private:
       Array<Expr>          _cases;
       Array<MathSequence*> _panes;
       Dynamic              _dynamic;
       int                  _current_selection;
-      bool                 _must_update      : 1;
   };
 }
 

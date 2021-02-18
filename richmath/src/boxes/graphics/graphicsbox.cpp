@@ -125,9 +125,7 @@ GraphicsBox::GraphicsBox()
     mouse_over_part(GraphicsPartNone),
     mouse_down_x(0),
     mouse_down_y(0),
-    elements(this),
-    user_has_changed_size(false),
-    is_currently_resizing(false)
+    elements(this)
 {
   reset_style();
   
@@ -188,7 +186,7 @@ bool GraphicsBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void GraphicsBox::reset_user_options() {
-  user_has_changed_size = false;
+  user_has_changed_size(false);
   if(style) {
     style->remove(ImageSizeHorizontal);
     style->remove(ImageSizeVertical);
@@ -198,7 +196,7 @@ void GraphicsBox::reset_user_options() {
 
 void GraphicsBox::set_user_default_options(Expr rules) {
   if(rules.expr_length() > 0) {
-    user_has_changed_size = true;
+    user_has_changed_size(true);
     
     SharedPtr<Style> old_style = style;
     style = new Style();
@@ -209,7 +207,7 @@ void GraphicsBox::set_user_default_options(Expr rules) {
 }
 
 Expr GraphicsBox::get_user_options() {
-  if(!user_has_changed_size)
+  if(!user_has_changed_size())
     return List();
     
   Gather g;
@@ -248,12 +246,12 @@ bool GraphicsBox::expand(const BoxSize &size) {
 }
 
 void GraphicsBox::invalidate() {
-  if(!is_currently_resizing)
+  if(!is_currently_resizing())
     Box::invalidate();
 }
 
 bool GraphicsBox::request_repaint(const RectangleF &rect) {
-  if(is_currently_resizing)
+  if(is_currently_resizing())
     return false;
     
   cached_bitmap = nullptr;
@@ -261,7 +259,7 @@ bool GraphicsBox::request_repaint(const RectangleF &rect) {
 }
 
 void GraphicsBox::resize(Context &context) {
-  is_currently_resizing = true;
+  is_currently_resizing(true);
   cached_bitmap = nullptr;
   
   em = context.canvas().get_font_size();
@@ -275,7 +273,7 @@ void GraphicsBox::resize(Context &context) {
   
   Impl(*this).calculate_size();
   
-  is_currently_resizing = false;
+  is_currently_resizing(false);
 }
 
 void GraphicsBox::paint(Context &context) {
@@ -341,7 +339,7 @@ void GraphicsBox::paint(Context &context) {
           context.canvas().set_color(Color::Black);
           
           for(int axis = 0; axis < 6; ++axis) {
-            if(!ticks[axis]->axis_hidden) {
+            if(!ticks[axis]->axis_hidden()) {
               float x1 = ticks[axis]->start_x + x;
               float y1 = ticks[axis]->start_y + y;
               float x2 = ticks[axis]->end_x   + x;
@@ -358,7 +356,7 @@ void GraphicsBox::paint(Context &context) {
           }
           
           for(int axis = 0; axis < 6; ++axis) {
-            if(!ticks[axis]->axis_hidden) {
+            if(!ticks[axis]->axis_hidden()) {
               context.canvas().move_to(x, y);
               ticks[axis]->paint(context);
             }
@@ -616,7 +614,7 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
         style->set(ImageSizeVertical,   ImageSizeAutomatic);
       }
       
-      user_has_changed_size = true;
+      user_has_changed_size(true);
       invalidate();
       
       mouse_down_x += w - _extents.width;
@@ -990,7 +988,7 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
   else {
     self.ticks[AxisIndexX]->ignore_label_position = NAN;
     
-    self.ticks[AxisIndexY]->axis_hidden = true;
+    self.ticks[AxisIndexY]->axis_hidden(true);
   }
   
   if(valid_oy) {
@@ -999,7 +997,7 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
   else {
     self.ticks[AxisIndexY]->ignore_label_position = NAN;
     
-    self.ticks[AxisIndexX]->axis_hidden = true;
+    self.ticks[AxisIndexX]->axis_hidden(true);
   }
   
   if(valid_ox && ty >= h - self.margin_bottom - self.ticks[AxisIndexX]->extra_offset / 2)
@@ -1402,7 +1400,7 @@ void GraphicsBox::Impl::resize_axes(Context &context) {
       &have_axis[AxisIndexY]);
       
     for(int part = 0; part < 6; ++part)
-      self.ticks[part]->axis_hidden = !have_axis[part];
+      self.ticks[part]->axis_hidden(!have_axis[part]);
       
     if(any_frame) {
       have_axis[AxisIndexX] = false;

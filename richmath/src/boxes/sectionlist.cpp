@@ -61,7 +61,7 @@ void SectionList::resize(Context &context) {
     resize_section(context, i);
     
     _sections[i]->y_offset = _extents.descent;
-    if(_sections[i]->visible) {
+    if(_sections[i]->visible()) {
       _extents.descent += _sections[i]->extents().height();
       
       float w  = _sections[i]->extents().width;
@@ -392,7 +392,7 @@ VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start
   
   int start = 0;
   while(start < _sections.length()) {
-    if(_sections[start]->visible) {
+    if(_sections[start]->visible()) {
       if(pos.y <= _sections[start]->y_offset + _sections[start]->top_margin) {
         int group_start = 0;
         if(_sections[start]->_group_info.end > start) { // this starts a group
@@ -403,7 +403,7 @@ VolatileSelection SectionList::mouse_selection(Point pos, bool *was_inside_start
         }
         
         int lastvis = start - 1;
-        while(lastvis >= group_start && !_sections[lastvis]->visible)
+        while(lastvis >= group_start && !_sections[lastvis]->visible())
           --lastvis;
           
         int end = start = lastvis + 1;
@@ -767,23 +767,23 @@ void SectionList::update_section_visibility() {
           _sections[start]->_group_info.close_rel <= _sections[start]->_group_info.end - start)
       {
         while(pos < start + _sections[start]->_group_info.close_rel) {
-          if(_sections[pos]->visible) {
+          if(_sections[pos]->visible()) {
             invalidate();
-            _sections[pos]->visible = false;
+            _sections[pos]->visible(false);
           }
           ++pos;
         }
         
-        if(!_sections[pos]->visible) {
+        if(!_sections[pos]->visible()) {
           invalidate();
-          _sections[pos]->visible = true;
+          _sections[pos]->visible(true);
         }
         
         ++pos;
         while(pos <= _sections[start]->_group_info.end) {
-          if(_sections[pos]->visible) {
+          if(_sections[pos]->visible()) {
             invalidate();
-            _sections[pos]->visible = false;
+            _sections[pos]->visible(false);
           }
           ++pos;
         }
@@ -794,9 +794,9 @@ void SectionList::update_section_visibility() {
       _sections[start]->_group_info.close_rel = -1;
     }
     
-    if(!_sections[pos]->visible) {
+    if(!_sections[pos]->visible()) {
       invalidate();
-      _sections[pos]->visible = true;
+      _sections[pos]->visible(true);
     }
     ++pos;
   }
@@ -888,7 +888,7 @@ float SectionList::get_content_scroll_correction_x(int i) {
 }
 
 void SectionList::paint_section(Context &context, int i) {
-  if(_sections[i]->must_resize)
+  if(_sections[i]->must_resize())
     _sections[i]->resize(context);
     
   float old_w    = context.width;
@@ -906,7 +906,7 @@ void SectionList::paint_section(Context &context, int i) {
   context.width                        = old_w;
   context.section_content_window_width = old_scww;
   
-  if(!_sections[i]->visible)
+  if(!_sections[i]->visible())
     return;
     
   float scroll_cor_x = get_content_scroll_correction_x(i);
@@ -956,7 +956,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
     if(_sections[i]->evaluating)
       style = style + BorderEval;
       
-    if(_sections[i]->dialog_start)
+    if(_sections[i]->dialog_start())
       style = style + BorderSession;
       
     if(!_sections[i]->get_style(Editable))

@@ -60,7 +60,7 @@ void AbstractButtonBox::on_mouse_down(MouseEvent &event) {
 }
 
 void AbstractButtonBox::on_mouse_move(MouseEvent &event) {
-  if(mouse_inside && enabled()) {
+  if(mouse_inside() && enabled()) {
     if(Document *doc = find_parent<Document>(false)) {
       if(type == ContainerType::FramelessButton)
         doc->native()->set_cursor(CursorType::Finger);
@@ -76,7 +76,7 @@ void AbstractButtonBox::on_mouse_up(MouseEvent &event) {
   if(event.left && enabled()) {
     request_repaint_all();
     
-    if(mouse_inside && mouse_left_down)
+    if(mouse_inside() && mouse_left_down())
       click();
   }
   

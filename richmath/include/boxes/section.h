@@ -82,7 +82,17 @@ namespace richmath {
       virtual bool changes_children_style() override { return true; }
       
       const SectionGroupInfo &group_info() { return _group_info; }
-      
+    
+    protected:
+      enum {
+        MustResizeBit = base::NumFlagsBits,
+        VisibleBit,
+        DialogStartBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+    
     public:
       float y_offset;
       float top_margin;
@@ -91,10 +101,13 @@ namespace richmath {
       
       int evaluating;
       
-      bool must_resize;
-      bool visible;
-      bool dialog_start;
-      
+      bool must_resize() {        return get_flag(MustResizeBit); }
+      void must_resize(bool value) {  change_flag(MustResizeBit, value); }
+      bool visible() {            return get_flag(VisibleBit); }
+      void visible(bool value) {      change_flag(VisibleBit, value); }
+      bool dialog_start() {       return get_flag(DialogStartBit); }
+      void dialog_start(bool value) { change_flag(DialogStartBit, value); }
+    
     private:
       SectionGroupInfo  _group_info; // Managed by SectionList parent() only
       Array<GlyphInfo>  label_glyphs;

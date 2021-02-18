@@ -109,8 +109,22 @@ namespace richmath {
       virtual FrontEndObject *next_in_limbo() = 0;
       virtual void next_in_limbo(FrontEndObject *next) = 0;
     
+      bool get_flag(unsigned i) { return (_flags & (1u << i)) != 0; }
+      void change_flag(unsigned i, bool value) { if(value) { set_flag(i); } else { clear_flag(i); } }
+      void set_flag(unsigned i) {    _flags |=  (1u << i); }
+      void clear_flag(unsigned i) {  _flags &= ~(1u << i);}
     private:
       FrontEndReference _id;
+      unsigned          _flags;
+    
+    protected:
+      enum {
+        NumFlagsBits = 0
+      };
+      
+      enum {
+        MaximumFlagsBits = 8 * sizeof(_flags)
+      };
   };
   
   // http://en.wikibooks.org/wiki/More_C%2B%2B_Idioms/Nifty_Counter

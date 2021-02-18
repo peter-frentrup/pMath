@@ -159,10 +159,22 @@ namespace richmath {
       virtual void resize_default_baseline(Context &context) override;
       
     protected:
+      enum {
+        ReallySpanFromLeftBit = base::NumFlagsBits,
+        ReallySpanFromAboveBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool really_span_from_left() {        return get_flag(ReallySpanFromLeftBit); }
+      void really_span_from_left(bool value) {  change_flag(ReallySpanFromLeftBit, value); }
+      bool really_span_from_above() {       return get_flag(ReallySpanFromAboveBit); }
+      void really_span_from_above(bool value) { change_flag(ReallySpanFromAboveBit, value); }
+    
+    protected:
       int _span_right;
       int _span_down;
-      bool _really_span_from_left;
-      bool _really_span_from_above;
   };
   
   class GridSelectionStrategy {

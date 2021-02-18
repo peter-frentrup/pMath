@@ -66,14 +66,14 @@ namespace richmath {
         
         NumFlagsBits
       };
-      static_assert(NumFlagsBits <= 8 * sizeof(flags), "");
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool have_drawn() {           return get_flag(HaveDrawnBit); }
-      void have_drawn(bool value) {        set_flag(HaveDrawnBit, value); }
-      bool mouse_over_thumb() {     return get_flag(MouseOverThumbBit); }
-      void mouse_over_thumb(bool value) {  set_flag(MouseOverThumbBit, value); }
-      bool use_double_values() {    return get_flag(UseDoubleValuesBit); }
-      void use_double_values(bool value) { set_flag(UseDoubleValuesBit, value); }
+      bool have_drawn() {              return get_flag(HaveDrawnBit); }
+      void have_drawn(bool value) {        change_flag(HaveDrawnBit, value); }
+      bool mouse_over_thumb() {        return get_flag(MouseOverThumbBit); }
+      void mouse_over_thumb(bool value) {  change_flag(MouseOverThumbBit, value); }
+      bool use_double_values() {       return get_flag(UseDoubleValuesBit); }
+      void use_double_values(bool value) { change_flag(UseDoubleValuesBit, value); }
   };
 }
 

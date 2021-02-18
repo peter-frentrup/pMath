@@ -25,13 +25,12 @@ namespace std {
 //{ class ProgressIndicatorBox ...
 
 ProgressIndicatorBox::ProgressIndicatorBox()
-  : Box(),
+  : base(),
     range_min(0.0),
     range_max(1.0),
-    range_value(0.5),
-    must_update(true),
-    have_drawn(false)
+    range_value(0.5)
 {
+  must_update(true);
   dynamic.init(this, Expr());
 }
 
@@ -73,7 +72,7 @@ bool ProgressIndicatorBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(dynamic.expr() != expr[1] || has(opts, BoxInputFlags::ForceResetDynamic)) {
     dynamic = expr[1];
-    must_update = true;
+    must_update(true);
   }
   
   if(style) {
@@ -112,10 +111,10 @@ void ProgressIndicatorBox::paint(Context &context) {
   if(context.canvas().show_only_text)
     return;
   
-  have_drawn = true;
+  have_drawn(true);
   
-  if(must_update) {
-    must_update = false;
+  if(must_update()) {
+    must_update(false);
     
     Expr val;
     if(dynamic.get_value(&val)) {
@@ -186,10 +185,10 @@ VolatileSelection ProgressIndicatorBox::mouse_selection(Point pos, bool *was_ins
 }
 
 void ProgressIndicatorBox::dynamic_updated() {
-  if(must_update)
+  if(must_update())
     return;
     
-  must_update = true;
+  must_update(true);
   request_repaint_all();
 }
 

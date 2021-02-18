@@ -59,14 +59,14 @@ ControlState PanelBox::calc_state(Context &context) {
   if(!enabled())
     return ControlState::Disabled;
   
-  if(selection_inside) {
-    if(mouse_inside)
+  if(selection_inside()) {
+    if(mouse_inside())
       return ControlState::PressedHovered;
       
     return ControlState::Pressed;
   }
   
-  if(mouse_inside)
+  if(mouse_inside())
     return ControlState::Hot;
   
   return base::calc_state(context);

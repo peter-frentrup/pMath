@@ -17,9 +17,9 @@ EmptyWidgetBox::EmptyWidgetBox(ContainerType _type)
   : Box(),
     type(_type),
     old_type(_type),
-    old_state(ControlState::Normal),
-    flags((1u << MustUpdateBit))
+    old_state(ControlState::Normal)
 {
+  set_flag(MustUpdateBit);
 }
 
 ControlState EmptyWidgetBox::calc_state(Context &context) {

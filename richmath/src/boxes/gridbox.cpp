@@ -59,9 +59,7 @@ extern pmath_symbol_t richmath_System_Top;
 GridItem::GridItem()
   : base(),
     _span_right(0),
-    _span_down(0),
-    _really_span_from_left(false),
-    _really_span_from_above(false)
+    _span_down(0)
 {
   _content->insert(0, PMATH_CHAR_PLACEHOLDER);
 }
@@ -88,8 +86,8 @@ void GridItem::resize_default_baseline(Context &context) {
   context.smaller_fraction_parts = smf;
   _span_right = 0;
   _span_down = 0;
-  _really_span_from_left = false;
-  _really_span_from_above = false;
+  really_span_from_left(false);
+  really_span_from_above(false);
 }
 
 Expr GridItem::to_pmath(BoxOutputFlags flags) {
@@ -440,7 +438,7 @@ void GridBox::paint(Context &context) {
     for(int iy = 0; iy < items.rows(); ++iy) {
       GridItem *gi = item(iy, ix);
       
-      if(!gi->_really_span_from_left && !gi->_really_span_from_above) {
+      if(!gi->really_span_from_left() && !gi->really_span_from_above()) {
         context.canvas().move_to(
           x + xpos[ix],
           y + ypos[iy] + gi->extents().ascent - _extents.ascent);
@@ -899,10 +897,10 @@ VolatileSelection GridBox::mouse_selection(Point pos, bool *was_inside_start) {
   while(row < num_rows - 1 && ypos[row + 1] <= pos.y)
     ++row;
     
-  while(row > 0 && item(row, col)->_really_span_from_above)
+  while(row > 0 && item(row, col)->really_span_from_above())
     --row;
     
-  while(col > 0 && item(row, col)->_really_span_from_left)
+  while(col > 0 && item(row, col)->really_span_from_left())
     --col;
     
   GridItem *gi = item(row, col);
@@ -1191,7 +1189,7 @@ int GridBox::Impl::resize_items(Context &context) {
         while(x + gi->_span_right < self.cols() &&
               self.item(y, x + gi->_span_right)->span_from_left())
         {
-          self.item(y, x + gi->_span_right)->_really_span_from_left = true;
+          self.item(y, x + gi->_span_right)->really_span_from_left(true);
           gi->_span_right++;
         }
         gi->_span_right--;
@@ -1205,7 +1203,7 @@ int GridBox::Impl::resize_items(Context &context) {
               goto END_DOWN;
               
           for(int i = x + gi->_span_right; i >= x; --i)
-            self.item(y + gi->_span_down, i)->_really_span_from_above = true;
+            self.item(y + gi->_span_down, i)->really_span_from_above(true);
             
           gi->_span_down++;
         }
@@ -1234,10 +1232,10 @@ void GridBox::Impl::simple_spacing(float em) {
     for(int y = 0; y < self.rows(); ++y) {
       GridItem *gi = self.item(y, x);
       
-      if(gi->_really_span_from_left) {
-        if(x + 1 == self.cols() || !self.item(y, x + 1)->_really_span_from_left) {
+      if(gi->really_span_from_left()) {
+        if(x + 1 == self.cols() || !self.item(y, x + 1)->really_span_from_left()) {
           int basex = x - 1;
-          while(self.item(y, basex)->_really_span_from_left) {
+          while(self.item(y, basex)->really_span_from_left()) {
             --basex;
           }
           
@@ -1247,7 +1245,7 @@ void GridBox::Impl::simple_spacing(float em) {
         }
       }
       else if(!gi->_span_right &&
-              !gi->_really_span_from_above &&
+              !gi->really_span_from_above() &&
               w < gi->extents().width)
       {
         w = gi->extents().width;
@@ -1271,8 +1269,8 @@ void GridBox::Impl::simple_spacing(float em) {
       GridItem *gi = self.item(y, x);
       
       if( !gi->_span_down &&
-          !gi->_really_span_from_left &&
-          !gi->_really_span_from_above)
+          !gi->really_span_from_left() &&
+          !gi->really_span_from_above())
       {
         gi->extents().bigger_y(&a, &d);
       }
@@ -1360,9 +1358,9 @@ void GridBox::Impl::expand_colspans(int span_count) {
             for(int y2 = 0; y2 < self.rows(); ++y2) {
               GridItem *gi2 = self.item(y2, x + gi->_span_right);
               
-              if( !gi2->_span_right            &&
-                  !gi2->_really_span_from_left &&
-                  !gi2->_really_span_from_above)
+              if( !gi2->_span_right             &&
+                  !gi2->really_span_from_left() &&
+                  !gi2->really_span_from_above())
               {
                 BoxSize size = gi2->extents();
                 size.width += delta;
@@ -1421,10 +1419,10 @@ void GridBox::Impl::expand_rowspans(int span_count) {
             for(int x2 = 0; x2 < self.cols(); ++x2) {
               GridItem *gi2 = self.item(y + gi->_span_down, x2);
               
-              if( !gi2->_span_right            &&
-                  !gi2->_span_down             &&
-                  !gi2->_really_span_from_left &&
-                  !gi2->_really_span_from_above)
+              if( !gi2->_span_right             &&
+                  !gi2->_span_down              &&
+                  !gi2->really_span_from_left() &&
+                  !gi2->really_span_from_above())
               {
                 BoxSize size = gi2->extents();
                 size.ascent +=  delta / 2;

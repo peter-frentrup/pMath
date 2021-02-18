@@ -42,12 +42,11 @@ Section::Section(SharedPtr<Style> _style)
     top_margin(3),
     bottom_margin(3),
     unfilled_width(0),
-    evaluating(0),
-    must_resize(true),
-    visible(true),
-    dialog_start(false)
+    evaluating(0)
 {
-  style = _style.release();
+  style = std::move(_style);
+  must_resize(true);
+  visible(true);
 }
 
 Section::~Section() {
@@ -179,26 +178,26 @@ VolatileSelection Section::get_highlight_child(const VolatileSelection &src) {
   if(src.box == this)
     return src;
     
-  if(!visible)
+  if(!visible())
     return VolatileSelection{nullptr, 0};
     
   return base::get_highlight_child(src);
 }
 
 bool Section::request_repaint(const RectangleF &rect) {
-  if(visible)
+  if(visible())
     return base::request_repaint(rect);
   return false;
 }
 
 bool Section::visible_rect(RectangleF &rect, Box *top_most) {
-  if(visible)
+  if(visible())
     return base::visible_rect(rect, top_most);
   return false;
 }
 
 void Section::invalidate() {
-  must_resize = true;
+  must_resize(true);
   base::invalidate();
 }
 
@@ -283,7 +282,7 @@ bool ErrorSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 void ErrorSection::resize(Context &context) {
-  must_resize = false;
+  must_resize(false);
   
   top_margin    = get_style(SectionMarginTop);
   bottom_margin = get_style(SectionMarginBottom);
@@ -357,7 +356,7 @@ int AbstractSequenceSection::count() {
 }
       
 void AbstractSequenceSection::resize(Context &context) {
-  must_resize = false;
+  must_resize(false);
   
   float old_scww = context.section_content_window_width;
   ContextState cc(context);
@@ -749,7 +748,7 @@ bool MathSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _content->load_from_object(content, opts);
   
-  must_resize = true;
+  must_resize(true);
   finish_load_from_object(std::move(expr));
   return true;
 }
@@ -799,7 +798,7 @@ bool TextSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   _content->load_from_object(content, opts);
   
-  must_resize = true;
+  must_resize(true);
   finish_load_from_object(std::move(expr));
   return true;
 }
@@ -913,7 +912,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
                  Application::button_timeout);
   _content->load_from_object(boxes, opts);
   
-  must_resize = true;
+  must_resize(true);
   finish_load_from_object(std::move(expr));
   return true;
 }

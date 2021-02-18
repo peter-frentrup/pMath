@@ -268,7 +268,7 @@ namespace richmath {
 //{ class TextSequence ...
 
 TextSequence::TextSequence()
-  : AbstractSequence(),
+  : base(),
     text(0, 0),
     _layout(PangoContextUtil::create_layout())
 {
@@ -327,7 +327,7 @@ void TextSequence::resize(Context &context) {
   for(auto box : boxes)
     box->resize(context);
     
-  text_invalid = true;
+  text_invalid(true);
   ensure_text_valid();
   
   PangoContext *pango = pango_layout_get_context(_layout);
@@ -588,8 +588,8 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   boxes.length(0);
   text.remove(0, text.length());
   
-  boxes_invalid = true;
-  text_invalid = true;
+  boxes_invalid(true);
+  text_invalid(true);
   
   if(object.is_string())
     object = expand_string_boxes(String(object));
@@ -605,10 +605,10 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
 }
 
 void TextSequence::ensure_boxes_valid() {
-  if(!boxes_invalid)
+  if(!boxes_invalid())
     return;
     
-  boxes_invalid = false;
+  boxes_invalid(false);
   if(boxes.length() == 0)
     return;
     
@@ -626,10 +626,10 @@ void TextSequence::ensure_boxes_valid() {
 void TextSequence::ensure_text_valid() {
   ensure_boxes_valid();
   
-  if(!text_invalid)
+  if(!text_invalid())
     return;
     
-  text_invalid = false;
+  text_invalid(false);
   pango_layout_set_text(_layout, text.buffer(), text.length());
   
   PangoRectangle rect = {0, 0, 0, 0};
@@ -683,8 +683,8 @@ int TextSequence::insert(int pos, const char *utf8, int len) {
       ++start_search;
   }
   
-  boxes_invalid = true;
-  text_invalid = true;
+  boxes_invalid(true);
+  text_invalid(true);
   invalidate();
   return pos;
 }
@@ -712,8 +712,8 @@ int TextSequence::insert(int pos, const String &s) {
       ++start_search;
   }
   
-  boxes_invalid = true;
-  text_invalid = true;
+  boxes_invalid(true);
+  text_invalid(true);
   invalidate();
   return pos;
 }
@@ -730,8 +730,8 @@ int TextSequence::insert(int pos, Box *box) {
   
   ensure_boxes_valid();
   
-  boxes_invalid = true;
-  text_invalid = true;
+  boxes_invalid(true);
+  text_invalid(true);
   
   int newpos = text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
   adopt(box, pos);
@@ -777,8 +777,8 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
     start = next + Utf8BoxCharLen;
   }
   
-  boxes_invalid = true;
-  text_invalid = true;
+  boxes_invalid(true);
+  text_invalid(true);
   invalidate();
   return pos;
 }
@@ -787,7 +787,7 @@ int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
   if(auto ts = dynamic_cast<TextSequence *>(seq))
     return insert(pos, ts, start, end);
     
-  return AbstractSequence::insert(pos, seq, start, end);
+  return base::insert(pos, seq, start, end);
 }
 
 void TextSequence::remove(int start, int end) {
@@ -806,8 +806,8 @@ void TextSequence::remove(int start, int end) {
   while(j < boxes.length() && boxes[j]->index() < end)
     boxes[j++]->safe_destroy();
     
-  boxes_invalid = i < boxes.length();
-  text_invalid = start < end;
+  boxes_invalid(i < boxes.length());
+  text_invalid(start < end);
   boxes.remove(i, j - i);
   text.remove(start, end - start);
   invalidate();
@@ -1269,7 +1269,7 @@ void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
         ++next;
         
       self.text.insert(self.text.length(), s.part(start, next - start));
-      self.text_invalid = true;
+      self.text_invalid(true);
       
       start = next + 1;
     }
