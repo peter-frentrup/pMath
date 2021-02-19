@@ -41,7 +41,7 @@ If($SystemID === "Windows") {
 $FallbackFonts:= {"pMathFallback", "Asana Math", "Arial Unicode MS", "Unifont"}
 Protect($FallbackFonts)
 
-$PrivateStartupFontFiles:= $ApplicationFileName.DirectoryName.FileNames({"*.otf", "*.ttf"})
+$PrivateStartupFontFiles:= $ApplicationFileName.DirectoryName.FileNames({"*.otf", "*.ttc", "*.ttf"})
 
 Function mmaInstallPaths() {
 	If($SystemID === "Windows") {
