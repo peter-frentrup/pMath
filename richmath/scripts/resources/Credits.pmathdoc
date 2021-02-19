@@ -3,9 +3,9 @@
 Document({
   SectionGroup({Section("Credits", "Title"), 
     SectionGroup({Section("pMath", "Subsubsection"), 
-      Section({"Copyright \[Copyright] 2005-2020, Peter Frentrup (", 
-        TemplateBox({{"peter_frentrup", "@", {"gmx", ".", "de"}}}, 
-         "Hyperlink"), ")\nAll rights reserved. "}, "Text"), 
+      Section(TextData({"Copyright \[Copyright] 2005-2021, Peter Frentrup (", 
+         TemplateBox({{"peter_frentrup", "@", {"gmx", ".", "de"}}}, 
+          "Hyperlink"), ")\nAll rights reserved. "}), "Text"), 
       Section(
        "Redistribution and use in binary forms, with or without modification, \
        are permitted provided that the following conditions are met:", 
@@ -55,6 +55,14 @@ Document({
         Section(
          "http://flintlib.org/\nLicensed under the GNU Lesser General Public \
          License (LGPL) version 2.1 or later", "Text")}, All), 
+      SectionGroup({Section("GFS Neohellenic Math font", "Subsubsection"), 
+        Section(
+         "https://greekfontsociety-gfs.gr/typefaces/Math\nCopyright \
+         \[Copyright] 2016 by George D. Matthiopoulos \[Dash] GFS.\nCopyright \
+         \[Copyright] 2016 for the MATH Table&Spacing by Antonis Tsolomitis \
+         \[Dash] University of the Aegean, Department of Mathematics.\nThe \
+         font is released under the latest OFL license, and it is available \
+         from the GFS site.", "Text")}, All), 
       SectionGroup({Section("GNU Multiple Precision Arithmetic Library (GMP)", 
          "Subsubsection"), 
         Section(
@@ -254,12 +262,13 @@ Document({
           Section(
            "TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION", 
            "Subsubsection"), 
-          Section({StyleBox(ComplexStringBox("\"0.\""), FontWeight -> Bold), 
-            " This License Agreement applies to any software library which \
-            contains a notice placed by the copyright holder or other \
-            authorized party saying it may be distributed under the terms of \
-            this Library General Public License (also called \"this \
-            License\"). Each licensee is addressed as \"you\". "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"0.\""), FontWeight -> Bold), 
+             " This License Agreement applies to any software library which \
+             contains a notice placed by the copyright holder or other \
+             authorized party saying it may be distributed under the terms of \
+             this Library General Public License (also called \"this \
+             License\"). Each licensee is addressed as \"you\". "}), "Text"), 
           Section(
            "A \"library\" means a collection of software functions and/or data \
            prepared so as to be conveniently linked with application programs \
@@ -289,49 +298,55 @@ Document({
            a tool for writing it). Whether that is true depends on what the \
            Library does and what the program that uses the Library does. ", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"1.\""), FontWeight -> Bold), 
-            " You may copy and distribute verbatim copies of the Library's \
-            complete source code as you receive it, in any medium, provided \
-            that you conspicuously and appropriately publish on each copy an \
-            appropriate copyright notice and disclaimer of warranty; keep \
-            intact all the notices that refer to this License and to the \
-            absence of any warranty; and distribute a copy of this License \
-            along with the Library. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"1.\""), FontWeight -> Bold), 
+             " You may copy and distribute verbatim copies of the Library's \
+             complete source code as you receive it, in any medium, provided \
+             that you conspicuously and appropriately publish on each copy an \
+             appropriate copyright notice and disclaimer of warranty; keep \
+             intact all the notices that refer to this License and to the \
+             absence of any warranty; and distribute a copy of this License \
+             along with the Library. "}), "Text"), 
           Section(
            "You may charge a fee for the physical act of transferring a copy, \
            and you may at your option offer warranty protection in exchange \
            for a fee. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"2.\""), FontWeight -> Bold), 
-            " You may modify your copy or copies of the Library or any portion \
-            of it, thus forming a work based on the Library, and copy and \
-            distribute such modifications or work under the terms of Section 1 \
-            above, provided that you also meet all of these conditions: "}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " The modified work must itself be a software library. "}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " You must cause the files modified to carry prominent notices \
-            stating that you changed the files and the date of any change. "}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " You must cause the whole of the work to be licensed at no charge \
-            to all third parties under the terms of this License. "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " If a facility in the modified Library refers to a function or a \
-            table of data to be supplied by an application program that uses \
-            the facility, other than as an argument passed when the facility \
-            is invoked, then you must make a good faith effort to ensure that, \
-            in the event an application does not supply such function or \
-            table, the facility still operates, and performs whatever part of \
-            its purpose remains meaningful. \n(For example, a function in a \
-            library to compute square roots has a purpose that is entirely \
-            well-defined independent of the application. Therefore, Subsection \
-            2d requires that any application-supplied function or table used \
-            by this function must be optional: if the application does not \
-            supply it, the square root function must still compute square \
-            roots.)"}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"2.\""), FontWeight -> Bold), 
+             " You may modify your copy or copies of the Library or any \
+             portion of it, thus forming a work based on the Library, and copy \
+             and distribute such modifications or work under the terms of \
+             Section 1 above, provided that you also meet all of these \
+             conditions: "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " The modified work must itself be a software library. "}), 
+           "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " You must cause the files modified to carry prominent notices \
+             stating that you changed the files and the date of any change. \
+             "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " You must cause the whole of the work to be licensed at no \
+             charge to all third parties under the terms of this License. "}), 
+           "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " If a facility in the modified Library refers to a function or a \
+             table of data to be supplied by an application program that uses \
+             the facility, other than as an argument passed when the facility \
+             is invoked, then you must make a good faith effort to ensure \
+             that, in the event an application does not supply such function \
+             or table, the facility still operates, and performs whatever part \
+             of its purpose remains meaningful. \n(For example, a function in \
+             a library to compute square roots has a purpose that is entirely \
+             well-defined independent of the application. Therefore, \
+             Subsection 2d requires that any application-supplied function or \
+             table used by this function must be optional: if the application \
+             does not supply it, the square root function must still compute \
+             square roots.)"}), "Text"), 
           Section(
            "These requirements apply to the modified work as a whole. If \
            identifiable sections of that work are not derived from the \
@@ -353,15 +368,17 @@ Document({
            Library with the Library (or with a work based on the Library) on a \
            volume of a storage or distribution medium does not bring the other \
            work under the scope of this License. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"3.\""), FontWeight -> Bold), 
-            " You may opt to apply the terms of the ordinary GNU General \
-            Public License instead of this License to a given copy of the \
-            Library. To do this, you must alter all the notices that refer to \
-            this License, so that they refer to the ordinary GNU General \
-            Public License, version 2, instead of to this License. (If a newer \
-            version than version 2 of the ordinary GNU General Public License \
-            has appeared, then you can specify that version instead if you \
-            wish.) Do not make any other change in these notices. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"3.\""), FontWeight -> Bold), 
+             " You may opt to apply the terms of the ordinary GNU General \
+             Public License instead of this License to a given copy of the \
+             Library. To do this, you must alter all the notices that refer to \
+             this License, so that they refer to the ordinary GNU General \
+             Public License, version 2, instead of to this License. (If a \
+             newer version than version 2 of the ordinary GNU General Public \
+             License has appeared, then you can specify that version instead \
+             if you wish.) Do not make any other change in these notices. "}), 
+           "Text"), 
           Section(
            "Once this change is made in a given copy, it is irreversible for \
            that copy, so the ordinary GNU General Public License applies to \
@@ -370,14 +387,15 @@ Document({
           Section(
            "This option is useful when you wish to copy part of the code of \
            the Library into a program that is not a library. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"4.\""), FontWeight -> Bold), 
-            " You may copy and distribute the Library (or a portion or \
-            derivative of it, under Section 2) in object code or executable \
-            form under the terms of Sections 1 and 2 above provided that you \
-            accompany it with the complete corresponding machine-readable \
-            source code, which must be distributed under the terms of Sections \
-            1 and 2 above on a medium customarily used for software \
-            interchange. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"4.\""), FontWeight -> Bold), 
+             " You may copy and distribute the Library (or a portion or \
+             derivative of it, under Section 2) in object code or executable \
+             form under the terms of Sections 1 and 2 above provided that you \
+             accompany it with the complete corresponding machine-readable \
+             source code, which must be distributed under the terms of \
+             Sections 1 and 2 above on a medium customarily used for software \
+             interchange. "}), "Text"), 
           Section(
            "If distribution of object code is made by offering access to copy \
            from a designated place, then offering equivalent access to copy \
@@ -385,13 +403,14 @@ Document({
            distribute the source code, even though third parties are not \
            compelled to copy the source along with the object code. ", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"5.\""), FontWeight -> Bold), 
-            " A program that contains no derivative of any portion of the \
-            Library, but is designed to work with the Library by being \
-            compiled or linked with it, is called a \"work that uses the \
-            Library\". Such a work, in isolation, is not a derivative work of \
-            the Library, and therefore falls outside the scope of this \
-            License. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"5.\""), FontWeight -> Bold), 
+             " A program that contains no derivative of any portion of the \
+             Library, but is designed to work with the Library by being \
+             compiled or linked with it, is called a \"work that uses the \
+             Library\". Such a work, in isolation, is not a derivative work of \
+             the Library, and therefore falls outside the scope of this \
+             License. "}), "Text"), 
           Section(
            "However, linking a \"work that uses the Library\" with the Library \
            creates an executable that is a derivative of the Library (because \
@@ -421,13 +440,14 @@ Document({
            6. Any executables containing that work also fall under Section 6, \
            whether or not they are linked directly with the Library itself. ", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"6.\""), FontWeight -> Bold), 
-            " As an exception to the Sections above, you may also compile or \
-            link a \"work that uses the Library\" with the Library to produce \
-            a work containing portions of the Library, and distribute that \
-            work under terms of your choice, provided that the terms permit \
-            modification of the work for the customer's own use and reverse \
-            engineering for debugging such modifications. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"6.\""), FontWeight -> Bold), 
+             " As an exception to the Sections above, you may also compile or \
+             link a \"work that uses the Library\" with the Library to produce \
+             a work containing portions of the Library, and distribute that \
+             work under terms of your choice, provided that the terms permit \
+             modification of the work for the customer's own use and reverse \
+             engineering for debugging such modifications. "}), "Text"), 
           Section(
            "You must give prominent notice with each copy of the work that the \
            Library is used in it and that the Library and its use are covered \
@@ -436,34 +456,34 @@ Document({
            the copyright notice for the Library among them, as well as a \
            reference directing the user to the copy of this License. Also, you \
            must do one of these things: ", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Accompany the work with the complete corresponding \
-            machine-readable source code for the Library including whatever \
-            changes were used in the work (which must be distributed under \
-            Sections 1 and 2 above); and, if the work is an executable linked \
-            with the Library, with the complete machine-readable \"work that \
-            uses the Library\", as object code and/or source code, so that the \
-            user can modify the Library and then relink to produce a modified \
-            executable containing the modified Library. (It is understood that \
-            the user who changes the contents of definitions files in the \
-            Library will not necessarily be able to recompile the application \
-            to use the modified definitions.) "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Accompany the work with a written offer, valid for at least \
-            three years, to give the same user the materials specified in \
-            Subsection 6a, above, for a charge no more than the cost of \
-            performing this distribution. "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " If distribution of the work is made by offering access to copy \
-            from a designated place, offer equivalent access to copy the above \
-            specified materials from the same place. "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " Verify that the user has already received a copy of these \
-            materials or that you have already sent this user a copy. "}, 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Accompany the work with the complete corresponding \
+             machine-readable source code for the Library including whatever \
+             changes were used in the work (which must be distributed under \
+             Sections 1 and 2 above); and, if the work is an executable linked \
+             with the Library, with the complete machine-readable \"work that \
+             uses the Library\", as object code and/or source code, so that \
+             the user can modify the Library and then relink to produce a \
+             modified executable containing the modified Library. (It is \
+             understood that the user who changes the contents of definitions \
+             files in the Library will not necessarily be able to recompile \
+             the application to use the modified definitions.) "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Accompany the work with a written offer, valid for at least \
+             three years, to give the same user the materials specified in \
+             Subsection 6a, above, for a charge no more than the cost of \
+             performing this distribution. "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " If distribution of the work is made by offering access to copy \
+             from a designated place, offer equivalent access to copy the \
+             above specified materials from the same place. "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " Verify that the user has already received a copy of these \
+             materials or that you have already sent this user a copy. "}), 
            "Text"), 
           Section(
            "For an executable, the required form of the \"work that uses the \
@@ -480,67 +500,74 @@ Document({
            accompany the operating system. Such a contradiction means you \
            cannot use both them and the Library together in an executable that \
            you distribute. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"7.\""), FontWeight -> Bold), 
-            " You may place library facilities that are a work based on the \
-            Library side-by-side in a single library together with other \
-            library facilities not covered by this License, and distribute \
-            such a combined library, provided that the separate distribution \
-            of the work based on the Library and of the other library \
-            facilities is otherwise permitted, and provided that you do these \
-            two things: "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Accompany the combined library with a copy of the same work \
-            based on the Library, uncombined with any other library \
-            facilities. This must be distributed under the terms of the \
-            Sections above. "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Give prominent notice with the combined library of the fact that \
-            part of it is a work based on the Library, and explaining where to \
-            find the accompanying uncombined form of the same work. "}, 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"7.\""), FontWeight -> Bold), 
+             " You may place library facilities that are a work based on the \
+             Library side-by-side in a single library together with other \
+             library facilities not covered by this License, and distribute \
+             such a combined library, provided that the separate distribution \
+             of the work based on the Library and of the other library \
+             facilities is otherwise permitted, and provided that you do these \
+             two things: "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Accompany the combined library with a copy of the same work \
+             based on the Library, uncombined with any other library \
+             facilities. This must be distributed under the terms of the \
+             Sections above. "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Give prominent notice with the combined library of the fact \
+             that part of it is a work based on the Library, and explaining \
+             where to find the accompanying uncombined form of the same work. \
+             "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"8.\""), FontWeight -> Bold), 
+             " You may not copy, modify, sublicense, link with, or distribute \
+             the Library except as expressly provided under this License. Any \
+             attempt otherwise to copy, modify, sublicense, link with, or \
+             distribute the Library is void, and will automatically terminate \
+             your rights under this License. However, parties who have \
+             received copies, or rights, from you under this License will not \
+             have their licenses terminated so long as such parties remain in \
+             full compliance. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"9.\""), FontWeight -> Bold), 
+             " You are not required to accept this License, since you have not \
+             signed it. However, nothing else grants you permission to modify \
+             or distribute the Library or its derivative works. These actions \
+             are prohibited by law if you do not accept this License. \
+             Therefore, by modifying or distributing the Library (or any work \
+             based on the Library), you indicate your acceptance of this \
+             License to do so, and all its terms and conditions for copying, \
+             distributing or modifying the Library or works based on it. "}), 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"8.\""), FontWeight -> Bold), 
-            " You may not copy, modify, sublicense, link with, or distribute \
-            the Library except as expressly provided under this License. Any \
-            attempt otherwise to copy, modify, sublicense, link with, or \
-            distribute the Library is void, and will automatically terminate \
-            your rights under this License. However, parties who have received \
-            copies, or rights, from you under this License will not have their \
-            licenses terminated so long as such parties remain in full \
-            compliance. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"9.\""), FontWeight -> Bold), 
-            " You are not required to accept this License, since you have not \
-            signed it. However, nothing else grants you permission to modify \
-            or distribute the Library or its derivative works. These actions \
-            are prohibited by law if you do not accept this License. \
-            Therefore, by modifying or distributing the Library (or any work \
-            based on the Library), you indicate your acceptance of this \
-            License to do so, and all its terms and conditions for copying, \
-            distributing or modifying the Library or works based on it. "}, 
-           "Text"), 
-          Section({StyleBox(ComplexStringBox("\"10.\""), FontWeight -> Bold), 
-            " Each time you redistribute the Library (or any work based on the \
-            Library), the recipient automatically receives a license from the \
-            original licensor to copy, distribute, link with or modify the \
-            Library subject to these terms and conditions. You may not impose \
-            any further restrictions on the recipients' exercise of the rights \
-            granted herein. You are not responsible for enforcing compliance \
-            by third parties to this License. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"11.\""), FontWeight -> Bold), 
-            " If, as a consequence of a court judgment or allegation of patent \
-            infringement or for any other reason (not limited to patent \
-            issues), conditions are imposed on you (whether by court order, \
-            agreement or otherwise) that contradict the conditions of this \
-            License, they do not excuse you from the conditions of this \
-            License. If you cannot distribute so as to satisfy simultaneously \
-            your obligations under this License and any other pertinent \
-            obligations, then as a consequence you may not distribute the \
-            Library at all. For example, if a patent license would not permit \
-            royalty-free redistribution of the Library by all those who \
-            receive copies directly or indirectly through you, then the only \
-            way you could satisfy both it and this License would be to refrain \
-            entirely from distribution of the Library. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"10.\""), 
+              FontWeight -> Bold), 
+             " Each time you redistribute the Library (or any work based on \
+             the Library), the recipient automatically receives a license from \
+             the original licensor to copy, distribute, link with or modify \
+             the Library subject to these terms and conditions. You may not \
+             impose any further restrictions on the recipients' exercise of \
+             the rights granted herein. You are not responsible for enforcing \
+             compliance by third parties to this License. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"11.\""), 
+              FontWeight -> Bold), 
+             " If, as a consequence of a court judgment or allegation of \
+             patent infringement or for any other reason (not limited to \
+             patent issues), conditions are imposed on you (whether by court \
+             order, agreement or otherwise) that contradict the conditions of \
+             this License, they do not excuse you from the conditions of this \
+             License. If you cannot distribute so as to satisfy simultaneously \
+             your obligations under this License and any other pertinent \
+             obligations, then as a consequence you may not distribute the \
+             Library at all. For example, if a patent license would not permit \
+             royalty-free redistribution of the Library by all those who \
+             receive copies directly or indirectly through you, then the only \
+             way you could satisfy both it and this License would be to \
+             refrain entirely from distribution of the Library. "}), "Text"), 
           Section(
            "If any portion of this section is held invalid or unenforceable \
            under any particular circumstance, the balance of the section is \
@@ -560,21 +587,25 @@ Document({
           Section(
            "This section is intended to make thoroughly clear what is believed \
            to be a consequence of the rest of this License. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"12.\""), FontWeight -> Bold), 
-            " If the distribution and/or use of the Library is restricted in \
-            certain countries either by patents or by copyrighted interfaces, \
-            the original copyright holder who places the Library under this \
-            License may add an explicit geographical distribution limitation \
-            excluding those countries, so that distribution is permitted only \
-            in or among countries not thus excluded. In such case, this \
-            License incorporates the limitation as if written in the body of \
-            this License. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"13.\""), FontWeight -> Bold), 
-            " The Free Software Foundation may publish revised and/or new \
-            versions of the Library General Public License from time to time. \
-            Such new versions will be similar in spirit to the present \
-            version, but may differ in detail to address new problems or \
-            concerns. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"12.\""), 
+              FontWeight -> Bold), 
+             " If the distribution and/or use of the Library is restricted in \
+             certain countries either by patents or by copyrighted interfaces, \
+             the original copyright holder who places the Library under this \
+             License may add an explicit geographical distribution limitation \
+             excluding those countries, so that distribution is permitted only \
+             in or among countries not thus excluded. In such case, this \
+             License incorporates the limitation as if written in the body of \
+             this License. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"13.\""), 
+              FontWeight -> Bold), 
+             " The Free Software Foundation may publish revised and/or new \
+             versions of the Library General Public License from time to time. \
+             Such new versions will be similar in spirit to the present \
+             version, but may differ in detail to address new problems or \
+             concerns. "}), "Text"), 
           Section(
            "Each version is given a distinguishing version number. If the \
            Library specifies a version number of this License which applies to \
@@ -583,38 +614,44 @@ Document({
            published by the Free Software Foundation. If the Library does not \
            specify a license version number, you may choose any version ever \
            published by the Free Software Foundation. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"14.\""), FontWeight -> Bold), 
-            " If you wish to incorporate parts of the Library into other free \
-            programs whose distribution conditions are incompatible with \
-            these, write to the author to ask for permission. For software \
-            which is copyrighted by the Free Software Foundation, write to the \
-            Free Software Foundation; we sometimes make exceptions for this. \
-            Our decision will be guided by the two goals of preserving the \
-            free status of all derivatives of our free software and of \
-            promoting the sharing and reuse of software generally. "}, 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"14.\""), 
+              FontWeight -> Bold), 
+             " If you wish to incorporate parts of the Library into other free \
+             programs whose distribution conditions are incompatible with \
+             these, write to the author to ask for permission. For software \
+             which is copyrighted by the Free Software Foundation, write to \
+             the Free Software Foundation; we sometimes make exceptions for \
+             this. Our decision will be guided by the two goals of preserving \
+             the free status of all derivatives of our free software and of \
+             promoting the sharing and reuse of software generally. "}), 
            "Text"), Section("NO WARRANTY", "Text", FontWeight -> Bold), 
-          Section({StyleBox(ComplexStringBox("\"15.\""), FontWeight -> Bold), 
-            " BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO \
-            WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE \
-            LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS \
-            AND/OR OTHER PARTIES PROVIDE THE LIBRARY \"AS IS\" WITHOUT \
-            WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT \
-            NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND \
-            FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE \
-            QUALITY AND PERFORMANCE OF THE LIBRARY IS WITH YOU. SHOULD THE \
-            LIBRARY PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY \
-            SERVICING, REPAIR OR CORRECTION. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"16.\""), FontWeight -> Bold), 
-            " IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN \
-            WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY \
-            MODIFY AND/OR REDISTRIBUTE THE LIBRARY AS PERMITTED ABOVE, BE \
-            LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, \
-            INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR \
-            INABILITY TO USE THE LIBRARY (INCLUDING BUT NOT LIMITED TO LOSS OF \
-            DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU \
-            OR THIRD PARTIES OR A FAILURE OF THE LIBRARY TO OPERATE WITH ANY \
-            OTHER SOFTWARE), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN \
-            ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"15.\""), 
+              FontWeight -> Bold), 
+             " BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO \
+             WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE \
+             LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT \
+             HOLDERS AND/OR OTHER PARTIES PROVIDE THE LIBRARY \"AS IS\" \
+             WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, \
+             INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF \
+             MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE \
+             RISK AS TO THE QUALITY AND PERFORMANCE OF THE LIBRARY IS WITH \
+             YOU. SHOULD THE LIBRARY PROVE DEFECTIVE, YOU ASSUME THE COST OF \
+             ALL NECESSARY SERVICING, REPAIR OR CORRECTION. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"16.\""), 
+              FontWeight -> Bold), 
+             " IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN \
+             WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY \
+             MODIFY AND/OR REDISTRIBUTE THE LIBRARY AS PERMITTED ABOVE, BE \
+             LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, \
+             INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR \
+             INABILITY TO USE THE LIBRARY (INCLUDING BUT NOT LIMITED TO LOSS \
+             OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY \
+             YOU OR THIRD PARTIES OR A FAILURE OF THE LIBRARY TO OPERATE WITH \
+             ANY OTHER SOFTWARE), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN \
+             ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. "}), "Text"), 
           Section("END OF TERMS AND CONDITIONS", "Text")}, All)}, All), 
       SectionGroup({
         Section(
@@ -743,12 +780,13 @@ Document({
           Section(
            "TERMS AND CONDITIONS FOR COPYING, DISTRIBUTION AND MODIFICATION", 
            "Subsubsection"), 
-          Section({StyleBox(ComplexStringBox("\"0.\""), FontWeight -> Bold), 
-            " This License Agreement applies to any software library or other \
-            program which contains a notice placed by the copyright holder or \
-            other authorized party saying it may be distributed under the \
-            terms of this Lesser General Public License (also called \"this \
-            License\"). Each licensee is addressed as \"you\". "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"0.\""), FontWeight -> Bold), 
+             " This License Agreement applies to any software library or other \
+             program which contains a notice placed by the copyright holder or \
+             other authorized party saying it may be distributed under the \
+             terms of this Lesser General Public License (also called \"this \
+             License\"). Each licensee is addressed as \"you\". "}), "Text"), 
           Section(
            "A \"library\" means a collection of software functions and/or data \
            prepared so as to be conveniently linked with application programs \
@@ -778,49 +816,55 @@ Document({
            a tool for writing it). Whether that is true depends on what the \
            Library does and what the program that uses the Library does. ", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"1.\""), FontWeight -> Bold), 
-            " You may copy and distribute verbatim copies of the Library's \
-            complete source code as you receive it, in any medium, provided \
-            that you conspicuously and appropriately publish on each copy an \
-            appropriate copyright notice and disclaimer of warranty; keep \
-            intact all the notices that refer to this License and to the \
-            absence of any warranty; and distribute a copy of this License \
-            along with the Library. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"1.\""), FontWeight -> Bold), 
+             " You may copy and distribute verbatim copies of the Library's \
+             complete source code as you receive it, in any medium, provided \
+             that you conspicuously and appropriately publish on each copy an \
+             appropriate copyright notice and disclaimer of warranty; keep \
+             intact all the notices that refer to this License and to the \
+             absence of any warranty; and distribute a copy of this License \
+             along with the Library. "}), "Text"), 
           Section(
            "You may charge a fee for the physical act of transferring a copy, \
            and you may at your option offer warranty protection in exchange \
            for a fee. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"2.\""), FontWeight -> Bold), 
-            " You may modify your copy or copies of the Library or any portion \
-            of it, thus forming a work based on the Library, and copy and \
-            distribute such modifications or work under the terms of Section 1 \
-            above, provided that you also meet all of these conditions: "}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " The modified work must itself be a software library."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " You must cause the files modified to carry prominent notices \
-            stating that you changed the files and the date of any change."}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " You must cause the whole of the work to be licensed at no charge \
-            to all third parties under the terms of this License."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " If a facility in the modified Library refers to a function or a \
-            table of data to be supplied by an application program that uses \
-            the facility, other than as an argument passed when the facility \
-            is invoked, then you must make a good faith effort to ensure that, \
-            in the event an application does not supply such function or \
-            table, the facility still operates, and performs whatever part of \
-            its purpose remains meaningful.\n(For example, a function in a \
-            library to compute square roots has a purpose that is entirely \
-            well-defined independent of the application. Therefore, Subsection \
-            2d requires that any application-supplied function or table used \
-            by this function must be optional: if the application does not \
-            supply it, the square root function must still compute square \
-            roots.)"}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"2.\""), FontWeight -> Bold), 
+             " You may modify your copy or copies of the Library or any \
+             portion of it, thus forming a work based on the Library, and copy \
+             and distribute such modifications or work under the terms of \
+             Section 1 above, provided that you also meet all of these \
+             conditions: "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " The modified work must itself be a software library."}), 
+           "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " You must cause the files modified to carry prominent notices \
+             stating that you changed the files and the date of any \
+             change."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " You must cause the whole of the work to be licensed at no \
+             charge to all third parties under the terms of this License."}), 
+           "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " If a facility in the modified Library refers to a function or a \
+             table of data to be supplied by an application program that uses \
+             the facility, other than as an argument passed when the facility \
+             is invoked, then you must make a good faith effort to ensure \
+             that, in the event an application does not supply such function \
+             or table, the facility still operates, and performs whatever part \
+             of its purpose remains meaningful.\n(For example, a function in a \
+             library to compute square roots has a purpose that is entirely \
+             well-defined independent of the application. Therefore, \
+             Subsection 2d requires that any application-supplied function or \
+             table used by this function must be optional: if the application \
+             does not supply it, the square root function must still compute \
+             square roots.)"}), "Text"), 
           Section(
            "These requirements apply to the modified work as a whole. If \
            identifiable sections of that work are not derived from the \
@@ -842,15 +886,17 @@ Document({
            Library with the Library (or with a work based on the Library) on a \
            volume of a storage or distribution medium does not bring the other \
            work under the scope of this License. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"3.\""), FontWeight -> Bold), 
-            " You may opt to apply the terms of the ordinary GNU General \
-            Public License instead of this License to a given copy of the \
-            Library. To do this, you must alter all the notices that refer to \
-            this License, so that they refer to the ordinary GNU General \
-            Public License, version 2, instead of to this License. (If a newer \
-            version than version 2 of the ordinary GNU General Public License \
-            has appeared, then you can specify that version instead if you \
-            wish.) Do not make any other change in these notices. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"3.\""), FontWeight -> Bold), 
+             " You may opt to apply the terms of the ordinary GNU General \
+             Public License instead of this License to a given copy of the \
+             Library. To do this, you must alter all the notices that refer to \
+             this License, so that they refer to the ordinary GNU General \
+             Public License, version 2, instead of to this License. (If a \
+             newer version than version 2 of the ordinary GNU General Public \
+             License has appeared, then you can specify that version instead \
+             if you wish.) Do not make any other change in these notices. "}), 
+           "Text"), 
           Section(
            "Once this change is made in a given copy, it is irreversible for \
            that copy, so the ordinary GNU General Public License applies to \
@@ -859,14 +905,15 @@ Document({
           Section(
            "This option is useful when you wish to copy part of the code of \
            the Library into a program that is not a library. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"4.\""), FontWeight -> Bold), 
-            " You may copy and distribute the Library (or a portion or \
-            derivative of it, under Section 2) in object code or executable \
-            form under the terms of Sections 1 and 2 above provided that you \
-            accompany it with the complete corresponding machine-readable \
-            source code, which must be distributed under the terms of Sections \
-            1 and 2 above on a medium customarily used for software \
-            interchange. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"4.\""), FontWeight -> Bold), 
+             " You may copy and distribute the Library (or a portion or \
+             derivative of it, under Section 2) in object code or executable \
+             form under the terms of Sections 1 and 2 above provided that you \
+             accompany it with the complete corresponding machine-readable \
+             source code, which must be distributed under the terms of \
+             Sections 1 and 2 above on a medium customarily used for software \
+             interchange. "}), "Text"), 
           Section(
            "If distribution of object code is made by offering access to copy \
            from a designated place, then offering equivalent access to copy \
@@ -874,13 +921,14 @@ Document({
            distribute the source code, even though third parties are not \
            compelled to copy the source along with the object code. ", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"5.\""), FontWeight -> Bold), 
-            " A program that contains no derivative of any portion of the \
-            Library, but is designed to work with the Library by being \
-            compiled or linked with it, is called a \"work that uses the \
-            Library\". Such a work, in isolation, is not a derivative work of \
-            the Library, and therefore falls outside the scope of this \
-            License. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"5.\""), FontWeight -> Bold), 
+             " A program that contains no derivative of any portion of the \
+             Library, but is designed to work with the Library by being \
+             compiled or linked with it, is called a \"work that uses the \
+             Library\". Such a work, in isolation, is not a derivative work of \
+             the Library, and therefore falls outside the scope of this \
+             License. "}), "Text"), 
           Section(
            "However, linking a \"work that uses the Library\" with the Library \
            creates an executable that is a derivative of the Library (because \
@@ -910,13 +958,14 @@ Document({
            6. Any executables containing that work also fall under Section 6, \
            whether or not they are linked directly with the Library itself. ", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"6.\""), FontWeight -> Bold), 
-            " As an exception to the Sections above, you may also combine or \
-            link a \"work that uses the Library\" with the Library to produce \
-            a work containing portions of the Library, and distribute that \
-            work under terms of your choice, provided that the terms permit \
-            modification of the work for the customer's own use and reverse \
-            engineering for debugging such modifications. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"6.\""), FontWeight -> Bold), 
+             " As an exception to the Sections above, you may also combine or \
+             link a \"work that uses the Library\" with the Library to produce \
+             a work containing portions of the Library, and distribute that \
+             work under terms of your choice, provided that the terms permit \
+             modification of the work for the customer's own use and reverse \
+             engineering for debugging such modifications. "}), "Text"), 
           Section(
            "You must give prominent notice with each copy of the work that the \
            Library is used in it and that the Library and its use are covered \
@@ -925,44 +974,44 @@ Document({
            the copyright notice for the Library among them, as well as a \
            reference directing the user to the copy of this License. Also, you \
            must do one of these things: ", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Accompany the work with the complete corresponding \
-            machine-readable source code for the Library including whatever \
-            changes were used in the work (which must be distributed under \
-            Sections 1 and 2 above); and, if the work is an executable linked \
-            with the Library, with the complete machine-readable \"work that \
-            uses the Library\", as object code and/or source code, so that the \
-            user can modify the Library and then relink to produce a modified \
-            executable containing the modified Library. (It is understood that \
-            the user who changes the contents of definitions files in the \
-            Library will not necessarily be able to recompile the application \
-            to use the modified definitions.)"}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Use a suitable shared library mechanism for linking with the \
-            Library. A suitable mechanism is one that (1) uses at run time a \
-            copy of the library already present on the user's computer system, \
-            rather than copying library functions into the executable, and (2) \
-            will operate properly with a modified version of the library, if \
-            the user installs one, as long as the modified version is \
-            interface-compatible with the version that the work was made \
-            with."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " Accompany the work with a written offer, valid for at least \
-            three years, to give the same user the materials specified in \
-            Subsection 6a, above, for a charge no more than the cost of \
-            performing this distribution."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " If distribution of the work is made by offering access to copy \
-            from a designated place, offer equivalent access to copy the above \
-            specified materials from the same place."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
-             FontWeight -> Bold), 
-            " Verify that the user has already received a copy of these \
-            materials or that you have already sent this user a copy."}, 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Accompany the work with the complete corresponding \
+             machine-readable source code for the Library including whatever \
+             changes were used in the work (which must be distributed under \
+             Sections 1 and 2 above); and, if the work is an executable linked \
+             with the Library, with the complete machine-readable \"work that \
+             uses the Library\", as object code and/or source code, so that \
+             the user can modify the Library and then relink to produce a \
+             modified executable containing the modified Library. (It is \
+             understood that the user who changes the contents of definitions \
+             files in the Library will not necessarily be able to recompile \
+             the application to use the modified definitions.)"}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Use a suitable shared library mechanism for linking with the \
+             Library. A suitable mechanism is one that (1) uses at run time a \
+             copy of the library already present on the user's computer \
+             system, rather than copying library functions into the \
+             executable, and (2) will operate properly with a modified version \
+             of the library, if the user installs one, as long as the modified \
+             version is interface-compatible with the version that the work \
+             was made with."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " Accompany the work with a written offer, valid for at least \
+             three years, to give the same user the materials specified in \
+             Subsection 6a, above, for a charge no more than the cost of \
+             performing this distribution."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " If distribution of the work is made by offering access to copy \
+             from a designated place, offer equivalent access to copy the \
+             above specified materials from the same place."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
+              FontWeight -> Bold), 
+             " Verify that the user has already received a copy of these \
+             materials or that you have already sent this user a copy."}), 
            "Text"), 
           Section(
            "For an executable, the required form of the \"work that uses the \
@@ -979,67 +1028,74 @@ Document({
            accompany the operating system. Such a contradiction means you \
            cannot use both them and the Library together in an executable that \
            you distribute. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"7.\""), FontWeight -> Bold), 
-            " You may place library facilities that are a work based on the \
-            Library side-by-side in a single library together with other \
-            library facilities not covered by this License, and distribute \
-            such a combined library, provided that the separate distribution \
-            of the work based on the Library and of the other library \
-            facilities is otherwise permitted, and provided that you do these \
-            two things: "}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Accompany the combined library with a copy of the same work \
-            based on the Library, uncombined with any other library \
-            facilities. This must be distributed under the terms of the \
-            Sections above."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Give prominent notice with the combined library of the fact that \
-            part of it is a work based on the Library, and explaining where to \
-            find the accompanying uncombined form of the same work."}, 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"7.\""), FontWeight -> Bold), 
+             " You may place library facilities that are a work based on the \
+             Library side-by-side in a single library together with other \
+             library facilities not covered by this License, and distribute \
+             such a combined library, provided that the separate distribution \
+             of the work based on the Library and of the other library \
+             facilities is otherwise permitted, and provided that you do these \
+             two things: "}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Accompany the combined library with a copy of the same work \
+             based on the Library, uncombined with any other library \
+             facilities. This must be distributed under the terms of the \
+             Sections above."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Give prominent notice with the combined library of the fact \
+             that part of it is a work based on the Library, and explaining \
+             where to find the accompanying uncombined form of the same \
+             work."}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"8.\""), FontWeight -> Bold), 
+             " You may not copy, modify, sublicense, link with, or distribute \
+             the Library except as expressly provided under this License. Any \
+             attempt otherwise to copy, modify, sublicense, link with, or \
+             distribute the Library is void, and will automatically terminate \
+             your rights under this License. However, parties who have \
+             received copies, or rights, from you under this License will not \
+             have their licenses terminated so long as such parties remain in \
+             full compliance. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"9.\""), FontWeight -> Bold), 
+             " You are not required to accept this License, since you have not \
+             signed it. However, nothing else grants you permission to modify \
+             or distribute the Library or its derivative works. These actions \
+             are prohibited by law if you do not accept this License. \
+             Therefore, by modifying or distributing the Library (or any work \
+             based on the Library), you indicate your acceptance of this \
+             License to do so, and all its terms and conditions for copying, \
+             distributing or modifying the Library or works based on it. "}), 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"8.\""), FontWeight -> Bold), 
-            " You may not copy, modify, sublicense, link with, or distribute \
-            the Library except as expressly provided under this License. Any \
-            attempt otherwise to copy, modify, sublicense, link with, or \
-            distribute the Library is void, and will automatically terminate \
-            your rights under this License. However, parties who have received \
-            copies, or rights, from you under this License will not have their \
-            licenses terminated so long as such parties remain in full \
-            compliance. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"9.\""), FontWeight -> Bold), 
-            " You are not required to accept this License, since you have not \
-            signed it. However, nothing else grants you permission to modify \
-            or distribute the Library or its derivative works. These actions \
-            are prohibited by law if you do not accept this License. \
-            Therefore, by modifying or distributing the Library (or any work \
-            based on the Library), you indicate your acceptance of this \
-            License to do so, and all its terms and conditions for copying, \
-            distributing or modifying the Library or works based on it. "}, 
-           "Text"), 
-          Section({StyleBox(ComplexStringBox("\"10.\""), FontWeight -> Bold), 
-            " Each time you redistribute the Library (or any work based on the \
-            Library), the recipient automatically receives a license from the \
-            original licensor to copy, distribute, link with or modify the \
-            Library subject to these terms and conditions. You may not impose \
-            any further restrictions on the recipients' exercise of the rights \
-            granted herein. You are not responsible for enforcing compliance \
-            by third parties with this License. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"11.\""), FontWeight -> Bold), 
-            " If, as a consequence of a court judgment or allegation of patent \
-            infringement or for any other reason (not limited to patent \
-            issues), conditions are imposed on you (whether by court order, \
-            agreement or otherwise) that contradict the conditions of this \
-            License, they do not excuse you from the conditions of this \
-            License. If you cannot distribute so as to satisfy simultaneously \
-            your obligations under this License and any other pertinent \
-            obligations, then as a consequence you may not distribute the \
-            Library at all. For example, if a patent license would not permit \
-            royalty-free redistribution of the Library by all those who \
-            receive copies directly or indirectly through you, then the only \
-            way you could satisfy both it and this License would be to refrain \
-            entirely from distribution of the Library. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"10.\""), 
+              FontWeight -> Bold), 
+             " Each time you redistribute the Library (or any work based on \
+             the Library), the recipient automatically receives a license from \
+             the original licensor to copy, distribute, link with or modify \
+             the Library subject to these terms and conditions. You may not \
+             impose any further restrictions on the recipients' exercise of \
+             the rights granted herein. You are not responsible for enforcing \
+             compliance by third parties with this License. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"11.\""), 
+              FontWeight -> Bold), 
+             " If, as a consequence of a court judgment or allegation of \
+             patent infringement or for any other reason (not limited to \
+             patent issues), conditions are imposed on you (whether by court \
+             order, agreement or otherwise) that contradict the conditions of \
+             this License, they do not excuse you from the conditions of this \
+             License. If you cannot distribute so as to satisfy simultaneously \
+             your obligations under this License and any other pertinent \
+             obligations, then as a consequence you may not distribute the \
+             Library at all. For example, if a patent license would not permit \
+             royalty-free redistribution of the Library by all those who \
+             receive copies directly or indirectly through you, then the only \
+             way you could satisfy both it and this License would be to \
+             refrain entirely from distribution of the Library. "}), "Text"), 
           Section(
            "If any portion of this section is held invalid or unenforceable \
            under any particular circumstance, the balance of the section is \
@@ -1059,21 +1115,25 @@ Document({
           Section(
            "This section is intended to make thoroughly clear what is believed \
            to be a consequence of the rest of this License. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"12.\""), FontWeight -> Bold), 
-            " If the distribution and/or use of the Library is restricted in \
-            certain countries either by patents or by copyrighted interfaces, \
-            the original copyright holder who places the Library under this \
-            License may add an explicit geographical distribution limitation \
-            excluding those countries, so that distribution is permitted only \
-            in or among countries not thus excluded. In such case, this \
-            License incorporates the limitation as if written in the body of \
-            this License. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"13.\""), FontWeight -> Bold), 
-            " The Free Software Foundation may publish revised and/or new \
-            versions of the Lesser General Public License from time to time. \
-            Such new versions will be similar in spirit to the present \
-            version, but may differ in detail to address new problems or \
-            concerns. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"12.\""), 
+              FontWeight -> Bold), 
+             " If the distribution and/or use of the Library is restricted in \
+             certain countries either by patents or by copyrighted interfaces, \
+             the original copyright holder who places the Library under this \
+             License may add an explicit geographical distribution limitation \
+             excluding those countries, so that distribution is permitted only \
+             in or among countries not thus excluded. In such case, this \
+             License incorporates the limitation as if written in the body of \
+             this License. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"13.\""), 
+              FontWeight -> Bold), 
+             " The Free Software Foundation may publish revised and/or new \
+             versions of the Lesser General Public License from time to time. \
+             Such new versions will be similar in spirit to the present \
+             version, but may differ in detail to address new problems or \
+             concerns. "}), "Text"), 
           Section(
            "Each version is given a distinguishing version number. If the \
            Library specifies a version number of this License which applies to \
@@ -1082,38 +1142,44 @@ Document({
            published by the Free Software Foundation. If the Library does not \
            specify a license version number, you may choose any version ever \
            published by the Free Software Foundation. ", "Text"), 
-          Section({StyleBox(ComplexStringBox("\"14.\""), FontWeight -> Bold), 
-            " If you wish to incorporate parts of the Library into other free \
-            programs whose distribution conditions are incompatible with \
-            these, write to the author to ask for permission. For software \
-            which is copyrighted by the Free Software Foundation, write to the \
-            Free Software Foundation; we sometimes make exceptions for this. \
-            Our decision will be guided by the two goals of preserving the \
-            free status of all derivatives of our free software and of \
-            promoting the sharing and reuse of software generally. "}, 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"14.\""), 
+              FontWeight -> Bold), 
+             " If you wish to incorporate parts of the Library into other free \
+             programs whose distribution conditions are incompatible with \
+             these, write to the author to ask for permission. For software \
+             which is copyrighted by the Free Software Foundation, write to \
+             the Free Software Foundation; we sometimes make exceptions for \
+             this. Our decision will be guided by the two goals of preserving \
+             the free status of all derivatives of our free software and of \
+             promoting the sharing and reuse of software generally. "}), 
            "Text"), Section("NO WARRANTY", "Text", FontWeight -> Bold), 
-          Section({StyleBox(ComplexStringBox("\"15.\""), FontWeight -> Bold), 
-            " BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO \
-            WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE \
-            LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT HOLDERS \
-            AND/OR OTHER PARTIES PROVIDE THE LIBRARY \"AS IS\" WITHOUT \
-            WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, INCLUDING, BUT \
-            NOT LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND \
-            FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE RISK AS TO THE \
-            QUALITY AND PERFORMANCE OF THE LIBRARY IS WITH YOU. SHOULD THE \
-            LIBRARY PROVE DEFECTIVE, YOU ASSUME THE COST OF ALL NECESSARY \
-            SERVICING, REPAIR OR CORRECTION. "}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"16.\""), FontWeight -> Bold), 
-            " IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN \
-            WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY \
-            MODIFY AND/OR REDISTRIBUTE THE LIBRARY AS PERMITTED ABOVE, BE \
-            LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, \
-            INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR \
-            INABILITY TO USE THE LIBRARY (INCLUDING BUT NOT LIMITED TO LOSS OF \
-            DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY YOU \
-            OR THIRD PARTIES OR A FAILURE OF THE LIBRARY TO OPERATE WITH ANY \
-            OTHER SOFTWARE), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN \
-            ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. "}, "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"15.\""), 
+              FontWeight -> Bold), 
+             " BECAUSE THE LIBRARY IS LICENSED FREE OF CHARGE, THERE IS NO \
+             WARRANTY FOR THE LIBRARY, TO THE EXTENT PERMITTED BY APPLICABLE \
+             LAW. EXCEPT WHEN OTHERWISE STATED IN WRITING THE COPYRIGHT \
+             HOLDERS AND/OR OTHER PARTIES PROVIDE THE LIBRARY \"AS IS\" \
+             WITHOUT WARRANTY OF ANY KIND, EITHER EXPRESSED OR IMPLIED, \
+             INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES OF \
+             MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE. THE ENTIRE \
+             RISK AS TO THE QUALITY AND PERFORMANCE OF THE LIBRARY IS WITH \
+             YOU. SHOULD THE LIBRARY PROVE DEFECTIVE, YOU ASSUME THE COST OF \
+             ALL NECESSARY SERVICING, REPAIR OR CORRECTION. "}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"16.\""), 
+              FontWeight -> Bold), 
+             " IN NO EVENT UNLESS REQUIRED BY APPLICABLE LAW OR AGREED TO IN \
+             WRITING WILL ANY COPYRIGHT HOLDER, OR ANY OTHER PARTY WHO MAY \
+             MODIFY AND/OR REDISTRIBUTE THE LIBRARY AS PERMITTED ABOVE, BE \
+             LIABLE TO YOU FOR DAMAGES, INCLUDING ANY GENERAL, SPECIAL, \
+             INCIDENTAL OR CONSEQUENTIAL DAMAGES ARISING OUT OF THE USE OR \
+             INABILITY TO USE THE LIBRARY (INCLUDING BUT NOT LIMITED TO LOSS \
+             OF DATA OR DATA BEING RENDERED INACCURATE OR LOSSES SUSTAINED BY \
+             YOU OR THIRD PARTIES OR A FAILURE OF THE LIBRARY TO OPERATE WITH \
+             ANY OTHER SOFTWARE), EVEN IF SUCH HOLDER OR OTHER PARTY HAS BEEN \
+             ADVISED OF THE POSSIBILITY OF SUCH DAMAGES. "}), "Text"), 
           Section("END OF TERMS AND CONDITIONS", "Text")}, All)}, All), 
       SectionGroup({
         Section("GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007", 
@@ -1357,32 +1423,33 @@ Document({
            to produce it from the Program, in the form of source code under \
            the terms of section 4, provided that you also meet all of these \
            conditions:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " The work must carry prominent notices stating that you modified \
-            it, and giving a relevant date."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " The work must carry prominent notices stating that it is \
-            released under this License and any conditions added under section \
-            7. This requirement modifies the requirement in section 4 to \
-            \[HighSixDoubleQuote]keep intact all \
-            notices\[HighNineDoubleQuote]."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " You must license the entire work, as a whole, under this License \
-            to anyone who comes into possession of a copy. This License will \
-            therefore apply, along with any applicable section 7 additional \
-            terms, to the whole of the work, and all its parts, regardless of \
-            how they are packaged. This License gives no permission to license \
-            the work in any other way, but it does not invalidate such \
-            permission if you have separately received it."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " If the work has interactive user interfaces, each must display \
-            Appropriate Legal Notices; however, if the Program has interactive \
-            interfaces that do not display Appropriate Legal Notices, your \
-            work need not make them do so."}, "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " The work must carry prominent notices stating that you modified \
+             it, and giving a relevant date."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " The work must carry prominent notices stating that it is \
+             released under this License and any conditions added under \
+             section 7. This requirement modifies the requirement in section 4 \
+             to \[HighSixDoubleQuote]keep intact all \
+             notices\[HighNineDoubleQuote]."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " You must license the entire work, as a whole, under this \
+             License to anyone who comes into possession of a copy. This \
+             License will therefore apply, along with any applicable section 7 \
+             additional terms, to the whole of the work, and all its parts, \
+             regardless of how they are packaged. This License gives no \
+             permission to license the work in any other way, but it does not \
+             invalidate such permission if you have separately received \
+             it."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " If the work has interactive user interfaces, each must display \
+             Appropriate Legal Notices; however, if the Program has \
+             interactive interfaces that do not display Appropriate Legal \
+             Notices, your work need not make them do so."}), "Text"), 
           Section(
            "A compilation of a covered work with other separate and \
            independent works, which are not by their nature extensions of the \
@@ -1402,52 +1469,54 @@ Document({
            of sections 4 and 5, provided that you also convey the \
            machine-readable Corresponding Source under the terms of this \
            License, in one of these ways:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Convey the object code in, or embodied in, a physical product \
-            (including a physical distribution medium), accompanied by the \
-            Corresponding Source fixed on a durable physical medium \
-            customarily used for software interchange."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Convey the object code in, or embodied in, a physical product \
-            (including a physical distribution medium), accompanied by a \
-            written offer, valid for at least three years and valid for as \
-            long as you offer spare parts or customer support for that product \
-            model, to give anyone who possesses the object code either (1) a \
-            copy of the Corresponding Source for all the software in the \
-            product that is covered by this License, on a durable physical \
-            medium customarily used for software interchange, for a price no \
-            more than your reasonable cost of physically performing this \
-            conveying of source, or (2) access to copy the Corresponding \
-            Source from a network server at no charge."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " Convey individual copies of the object code with a copy of the \
-            written offer to provide the Corresponding Source. This \
-            alternative is allowed only occasionally and noncommercially, and \
-            only if you received the object code with such an offer, in accord \
-            with subsection 6b."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " Convey the object code by offering access from a designated \
-            place (gratis or for a charge), and offer equivalent access to the \
-            Corresponding Source in the same way through the same place at no \
-            further charge. You need not require recipients to copy the \
-            Corresponding Source along with the object code. If the place to \
-            copy the object code is a network server, the Corresponding Source \
-            may be on a different server (operated by you or a third party) \
-            that supports equivalent copying facilities, provided you maintain \
-            clear directions next to the object code saying where to find the \
-            Corresponding Source. Regardless of what server hosts the \
-            Corresponding Source, you remain obligated to ensure that it is \
-            available for as long as needed to satisfy these requirements."}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
-             FontWeight -> Bold), 
-            " Convey the object code using peer-to-peer transmission, provided \
-            you inform other peers where the object code and Corresponding \
-            Source of the work are being offered to the general public at no \
-            charge under subsection 6d."}, "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Convey the object code in, or embodied in, a physical product \
+             (including a physical distribution medium), accompanied by the \
+             Corresponding Source fixed on a durable physical medium \
+             customarily used for software interchange."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Convey the object code in, or embodied in, a physical product \
+             (including a physical distribution medium), accompanied by a \
+             written offer, valid for at least three years and valid for as \
+             long as you offer spare parts or customer support for that \
+             product model, to give anyone who possesses the object code \
+             either (1) a copy of the Corresponding Source for all the \
+             software in the product that is covered by this License, on a \
+             durable physical medium customarily used for software \
+             interchange, for a price no more than your reasonable cost of \
+             physically performing this conveying of source, or (2) access to \
+             copy the Corresponding Source from a network server at no \
+             charge."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " Convey individual copies of the object code with a copy of the \
+             written offer to provide the Corresponding Source. This \
+             alternative is allowed only occasionally and noncommercially, and \
+             only if you received the object code with such an offer, in \
+             accord with subsection 6b."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " Convey the object code by offering access from a designated \
+             place (gratis or for a charge), and offer equivalent access to \
+             the Corresponding Source in the same way through the same place \
+             at no further charge. You need not require recipients to copy the \
+             Corresponding Source along with the object code. If the place to \
+             copy the object code is a network server, the Corresponding \
+             Source may be on a different server (operated by you or a third \
+             party) that supports equivalent copying facilities, provided you \
+             maintain clear directions next to the object code saying where to \
+             find the Corresponding Source. Regardless of what server hosts \
+             the Corresponding Source, you remain obligated to ensure that it \
+             is available for as long as needed to satisfy these \
+             requirements."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
+              FontWeight -> Bold), 
+             " Convey the object code using peer-to-peer transmission, \
+             provided you inform other peers where the object code and \
+             Corresponding Source of the work are being offered to the general \
+             public at no charge under subsection 6d."}), "Text"), 
           Section(
            "A separable portion of the object code, whose source code is \
            excluded from the Corresponding Source as a System Library, need \
@@ -1531,35 +1600,36 @@ Document({
            you add to a covered work, you may (if authorized by the copyright \
            holders of that material) supplement the terms of this License with \
            terms:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Disclaiming warranty or limiting liability differently from the \
-            terms of sections 15 and 16 of this License; or"}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Requiring preservation of specified reasonable legal notices or \
-            author attributions in that material or in the Appropriate Legal \
-            Notices displayed by works containing it; or"}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " Prohibiting misrepresentation of the origin of that material, or \
-            requiring that modified versions of such material be marked in \
-            reasonable ways as different from the original version; or"}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), 
-            " Limiting the use for publicity purposes of names of licensors or \
-            authors of the material; or"}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
-             FontWeight -> Bold), 
-            " Declining to grant rights under trademark law for use of some \
-            trade names, trademarks, or service marks; or"}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"f)\""), 
-             FontWeight -> Bold), 
-            " Requiring indemnification of licensors and authors of that \
-            material by anyone who conveys the material (or modified versions \
-            of it) with contractual assumptions of liability to the recipient, \
-            for any liability that these contractual assumptions directly \
-            impose on those licensors and authors."}, "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Disclaiming warranty or limiting liability differently from the \
+             terms of sections 15 and 16 of this License; or"}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Requiring preservation of specified reasonable legal notices or \
+             author attributions in that material or in the Appropriate Legal \
+             Notices displayed by works containing it; or"}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " Prohibiting misrepresentation of the origin of that material, \
+             or requiring that modified versions of such material be marked in \
+             reasonable ways as different from the original version; or"}), 
+           "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), 
+             " Limiting the use for publicity purposes of names of licensors \
+             or authors of the material; or"}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
+              FontWeight -> Bold), 
+             " Declining to grant rights under trademark law for use of some \
+             trade names, trademarks, or service marks; or"}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"f)\""), 
+              FontWeight -> Bold), 
+             " Requiring indemnification of licensors and authors of that \
+             material by anyone who conveys the material (or modified versions \
+             of it) with contractual assumptions of liability to the \
+             recipient, for any liability that these contractual assumptions \
+             directly impose on those licensors and authors."}), "Text"), 
           Section(
            "All other non-permissive additional terms are considered \
            \[HighSixDoubleQuote]further restrictions\[HighNineDoubleQuote] \
@@ -1883,16 +1953,16 @@ Document({
            Application that uses the facility (other than as an argument \
            passed when the facility is invoked), then you may convey a copy of \
            the modified version:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " under this License, provided that you make a good faith effort \
-            to ensure that, in the event an Application does not supply the \
-            function or data, the facility still operates, and performs \
-            whatever part of its purpose remains meaningful, or"}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " under the GNU GPL, with none of the additional permissions of \
-            this License applicable to that copy."}, "Text")}, All), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " under this License, provided that you make a good faith effort \
+             to ensure that, in the event an Application does not supply the \
+             function or data, the facility still operates, and performs \
+             whatever part of its purpose remains meaningful, or"}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " under the GNU GPL, with none of the additional permissions of \
+             this License applicable to that copy."}), "Text")}, All), 
         SectionGroup({
           Section(
            "3. Object Code Incorporating Material from Library Header Files.", 
@@ -1905,15 +1975,15 @@ Document({
            structure layouts and accessors, or small macros, inline functions \
            and templates (ten or fewer lines in length), you do both of the \
            following:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Give prominent notice with each copy of the object code that the \
-            Library is used in it and that the Library and its use are covered \
-            by this License."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Accompany the object code with a copy of the GNU GPL and this \
-            license document."}, "Text")}, All), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Give prominent notice with each copy of the object code that \
+             the Library is used in it and that the Library and its use are \
+             covered by this License."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Accompany the object code with a copy of the GNU GPL and this \
+             license document."}), "Text")}, All), 
         SectionGroup({Section("4. Combined Works.", "Subsubsection"), 
           Section(
            "You may convey a Combined Work under terms of your choice that, \
@@ -1921,51 +1991,53 @@ Document({
            portions of the Library contained in the Combined Work and reverse \
            engineering for debugging such modifications, if you also do each \
            of the following:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Give prominent notice with each copy of the Combined Work that \
-            the Library is used in it and that the Library and its use are \
-            covered by this License."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Accompany the Combined Work with a copy of the GNU GPL and this \
-            license document."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
-             FontWeight -> Bold), 
-            " For a Combined Work that displays copyright notices during \
-            execution, include the copyright notice for the Library among \
-            these notices, as well as a reference directing the user to the \
-            copies of the GNU GPL and this license document."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
-             FontWeight -> Bold), " Do one of the following: "}, "Text"), 
-          Section({"\[RawTab]\[RawTab]", StyleBox(ComplexStringBox("\"0)\""), 
-             FontWeight -> Bold), 
-            " Convey the Minimal Corresponding Source under the terms of this \
-            License, and the Corresponding Application Code in a form suitable \
-            for, and under terms that permit, the user to recombine or relink \
-            the Application with a modified version of the Linked Version to \
-            produce a modified Combined Work, in the manner specified by \
-            section 6 of the GNU GPL for conveying Corresponding Source."}, 
-           "Text"), Section({"\[RawTab]\[RawTab]", 
-            StyleBox(ComplexStringBox("\"1)\""), FontWeight -> Bold), 
-            " Use a suitable shared library mechanism for linking with the \
-            Library. A suitable mechanism is one that (a) uses at run time a \
-            copy of the Library already present on the user's computer system, \
-            and (b) will operate properly with a modified version of the \
-            Library that is interface-compatible with the Linked Version."}, 
-           "Text"), Section({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
-             FontWeight -> Bold), 
-            " Provide Installation Information, but only if you would \
-            otherwise be required to provide such information under section 6 \
-            of the GNU GPL, and only to the extent that such information is \
-            necessary to install and execute a modified version of the \
-            Combined Work produced by recombining or relinking the Application \
-            with a modified version of the Linked Version. (If you use option \
-            4d0, the Installation Information must accompany the Minimal \
-            Corresponding Source and Corresponding Application Code. If you \
-            use option 4d1, you must provide the Installation Information in \
-            the manner specified by section 6 of the GNU GPL for conveying \
-            Corresponding Source.)"}, "Text")}, All), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Give prominent notice with each copy of the Combined Work that \
+             the Library is used in it and that the Library and its use are \
+             covered by this License."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Accompany the Combined Work with a copy of the GNU GPL and this \
+             license document."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"c)\""), 
+              FontWeight -> Bold), 
+             " For a Combined Work that displays copyright notices during \
+             execution, include the copyright notice for the Library among \
+             these notices, as well as a reference directing the user to the \
+             copies of the GNU GPL and this license document."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"d)\""), 
+              FontWeight -> Bold), " Do one of the following: "}), "Text"), 
+          Section(TextData({"\[RawTab]\[RawTab]", 
+             StyleBox(ComplexStringBox("\"0)\""), FontWeight -> Bold), 
+             " Convey the Minimal Corresponding Source under the terms of this \
+             License, and the Corresponding Application Code in a form \
+             suitable for, and under terms that permit, the user to recombine \
+             or relink the Application with a modified version of the Linked \
+             Version to produce a modified Combined Work, in the manner \
+             specified by section 6 of the GNU GPL for conveying Corresponding \
+             Source."}), "Text"), 
+          Section(TextData({"\[RawTab]\[RawTab]", 
+             StyleBox(ComplexStringBox("\"1)\""), FontWeight -> Bold), 
+             " Use a suitable shared library mechanism for linking with the \
+             Library. A suitable mechanism is one that (a) uses at run time a \
+             copy of the Library already present on the user's computer \
+             system, and (b) will operate properly with a modified version of \
+             the Library that is interface-compatible with the Linked \
+             Version."}), "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"e)\""), 
+              FontWeight -> Bold), 
+             " Provide Installation Information, but only if you would \
+             otherwise be required to provide such information under section 6 \
+             of the GNU GPL, and only to the extent that such information is \
+             necessary to install and execute a modified version of the \
+             Combined Work produced by recombining or relinking the \
+             Application with a modified version of the Linked Version. (If \
+             you use option 4d0, the Installation Information must accompany \
+             the Minimal Corresponding Source and Corresponding Application \
+             Code. If you use option 4d1, you must provide the Installation \
+             Information in the manner specified by section 6 of the GNU GPL \
+             for conveying Corresponding Source.)"}), "Text")}, All), 
         SectionGroup({Section("5. Combined Libraries.", "Subsubsection"), 
           Section(
            "You may place library facilities that are a work based on the \
@@ -1973,17 +2045,18 @@ Document({
            library facilities that are not Applications and are not covered by \
            this License, and convey such a combined library under terms of \
            your choice, if you do both of the following:", "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
-             FontWeight -> Bold), 
-            " Accompany the combined library with a copy of the same work \
-            based on the Library, uncombined with any other library \
-            facilities, conveyed under the terms of this License."}, "Text"), 
-          Section({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
-             FontWeight -> Bold), 
-            " Give prominent notice with the combined library that part of it \
-            is a work based on the Library, and explaining where to find the \
-            accompanying uncombined form of the same work."}, "Text")}, All), 
-        SectionGroup({
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"a)\""), 
+              FontWeight -> Bold), 
+             " Accompany the combined library with a copy of the same work \
+             based on the Library, uncombined with any other library \
+             facilities, conveyed under the terms of this License."}), 
+           "Text"), 
+          Section(TextData({"\[RawTab]", StyleBox(ComplexStringBox("\"b)\""), 
+              FontWeight -> Bold), 
+             " Give prominent notice with the combined library that part of it \
+             is a work based on the Library, and explaining where to find the \
+             accompanying uncombined form of the same work."}), "Text")}, 
+         All), SectionGroup({
           Section(
            "6. Revised Versions of the GNU Lesser General Public License.", 
            "Subsubsection"), 
@@ -2061,35 +2134,40 @@ Document({
            embed, modify, redistribute, and sell modified and unmodified \
            copies of the Font Software, subject to the following conditions:", 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"1)\""), FontWeight -> Bold), 
-            " Neither the Font Software nor any of its individual components, \
-            in Original or Modified Versions, may be sold by itself."}, 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"1)\""), FontWeight -> Bold), 
+             " Neither the Font Software nor any of its individual components, \
+             in Original or Modified Versions, may be sold by itself."}), 
            "Text"), 
-          Section({StyleBox(ComplexStringBox("\"2)\""), FontWeight -> Bold), 
-            " Original or Modified Versions of the Font Software may be \
-            bundled, redistributed and/or sold with any software, provided \
-            that each copy contains the above copyright notice and this \
-            license. These can be included either as stand-alone text files, \
-            human-readable headers or in the appropriate machine-readable \
-            metadata fields within text or binary files as long as those \
-            fields can be easily viewed by the user."}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"3)\""), FontWeight -> Bold), 
-            " No Modified Version of the Font Software may use the Reserved \
-            Font Name(s) unless explicit written permission is granted by the \
-            corresponding Copyright Holder. This restriction only applies to \
-            the primary font name as presented to the users."}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"4)\""), FontWeight -> Bold), 
-            " The name(s) of the Copyright Holder(s) or the Author(s) of the \
-            Font Software shall not be used to promote, endorse or advertise \
-            any Modified Version, except to acknowledge the contribution(s) of \
-            the Copyright Holder(s) and the Author(s) or with their explicit \
-            written permission."}, "Text"), 
-          Section({StyleBox(ComplexStringBox("\"5)\""), FontWeight -> Bold), 
-            " The Font Software, modified or unmodified, in part or in whole, \
-            must be distributed entirely under this license, and must not be \
-            distributed under any other license. The requirement for fonts to \
-            remain under this license does not apply to any document created \
-            using the Font Software."}, "Text")}, All), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"2)\""), FontWeight -> Bold), 
+             " Original or Modified Versions of the Font Software may be \
+             bundled, redistributed and/or sold with any software, provided \
+             that each copy contains the above copyright notice and this \
+             license. These can be included either as stand-alone text files, \
+             human-readable headers or in the appropriate machine-readable \
+             metadata fields within text or binary files as long as those \
+             fields can be easily viewed by the user."}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"3)\""), FontWeight -> Bold), 
+             " No Modified Version of the Font Software may use the Reserved \
+             Font Name(s) unless explicit written permission is granted by the \
+             corresponding Copyright Holder. This restriction only applies to \
+             the primary font name as presented to the users."}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"4)\""), FontWeight -> Bold), 
+             " The name(s) of the Copyright Holder(s) or the Author(s) of the \
+             Font Software shall not be used to promote, endorse or advertise \
+             any Modified Version, except to acknowledge the contribution(s) \
+             of the Copyright Holder(s) and the Author(s) or with their \
+             explicit written permission."}), "Text"), 
+          Section(
+           TextData({StyleBox(ComplexStringBox("\"5)\""), FontWeight -> Bold), 
+             " The Font Software, modified or unmodified, in part or in whole, \
+             must be distributed entirely under this license, and must not be \
+             distributed under any other license. The requirement for fonts to \
+             remain under this license does not apply to any document created \
+             using the Font Software."}), "Text")}, All), 
         SectionGroup({Section("Termination", "Subsubsection"), 
           Section(
            "This license becomes null and void if any of the above conditions \
