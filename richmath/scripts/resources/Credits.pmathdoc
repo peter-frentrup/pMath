@@ -4,8 +4,9 @@ Document({
   SectionGroup({Section("Credits", "Title"), 
     SectionGroup({Section("pMath", "Subsubsection"), 
       Section(TextData({"Copyright \[Copyright] 2005-2021, Peter Frentrup (", 
-         TemplateBox({{"peter_frentrup", "@", {"gmx", ".", "de"}}}, 
-          "Hyperlink"), ")\nAll rights reserved. "}), "Text"), 
+         TemplateBox({ComplexStringBox("\"peter_frentrup@gmx.de\""), 
+           "mailto:peter_frentrup@gmx.de"}, "HyperlinkURL"), 
+         ")\nAll rights reserved. "}), "Text"), 
       Section(
        "Redistribution and use in binary forms, with or without modification, \
        are permitted provided that the following conditions are met:", 
@@ -38,58 +39,84 @@ Document({
          "Arb \[Dash] a C library for arbitrary-precision ball arithmetic", 
          "Subsubsection"), 
         Section(
-         "http://arblib.org/\nLicensed under the GNU Lesser General Public \
-         License (LGPL) version 2.1 or later", "Text")}, All), 
+         TextData({TemplateBox({ComplexStringBox("\"http://arblib.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Lesser General Public License (LGPL) \
+           version 2.1 or later"}), "Text")}, All), 
       SectionGroup({Section("Asana Math font", "Subsubsection"), 
         Section(
-         "http://www.ctan.org/tex-archive/fonts/Asana-Math/\nCopyright \
-         \[Copyright] 2011, Apostolos Syropoulos\nThe \
-         \[HighSixDoubleQuote]Asana Math\[HighNineDoubleQuote] font is \
-         licensed under the SIL Open Font License, version 1.1", "Text")}, 
+         TextData({
+           TemplateBox({
+             ComplexStringBox(
+              "\"http://www.ctan.org/tex-archive/fonts/Asana-Math/\"")}, 
+            "HyperlinkURL"), 
+           "\nCopyright \[Copyright] 2011, Apostolos Syropoulos\nThe \
+           \[HighSixDoubleQuote]Asana Math\[HighNineDoubleQuote] font is \
+           licensed under the SIL Open Font License, version 1.1"}), "Text")}, 
        All), SectionGroup({Section("Cairo", "Subsubsection"), 
         Section(
-         "http://cairographics.org/\nLicensed under the GNU Lesser General \
-         Public License (LGPL) version 2.1", "Text")}, All), 
+         TextData({
+           TemplateBox({ComplexStringBox("\"http://cairographics.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Lesser General Public License (LGPL) \
+           version 2.1"}), "Text")}, All), 
       SectionGroup({Section("FLINT \[Dash] Fast Library for Number Theory", 
          "Subsubsection"), 
         Section(
-         "http://flintlib.org/\nLicensed under the GNU Lesser General Public \
-         License (LGPL) version 2.1 or later", "Text")}, All), 
+         TextData({TemplateBox({ComplexStringBox("\"http://flintlib.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Lesser General Public License (LGPL) \
+           version 2.1 or later"}), "Text")}, All), 
       SectionGroup({Section("GFS Neohellenic Math font", "Subsubsection"), 
         Section(
-         "https://greekfontsociety-gfs.gr/typefaces/Math\nCopyright \
-         \[Copyright] 2016 by George D. Matthiopoulos \[Dash] GFS.\nCopyright \
-         \[Copyright] 2016 for the MATH Table&Spacing by Antonis Tsolomitis \
-         \[Dash] University of the Aegean, Department of Mathematics.\nThe \
-         font is released under the latest OFL license, and it is available \
-         from the GFS site.", "Text")}, All), 
+         TextData({
+           TemplateBox({
+             ComplexStringBox(
+              "\"https://greekfontsociety-gfs.gr/typefaces/Math\"")}, 
+            "HyperlinkURL"), 
+           "\nCopyright \[Copyright] 2016 by George D. Matthiopoulos \[Dash] \
+           GFS.\nCopyright \[Copyright] 2016 for the MATH Table&Spacing by \
+           Antonis Tsolomitis \[Dash] University of the Aegean, Department of \
+           Mathematics.\nThe font is released under the latest OFL license, \
+           and it is available from the GFS site."}), "Text")}, All), 
       SectionGroup({Section("GNU Multiple Precision Arithmetic Library (GMP)", 
          "Subsubsection"), 
         Section(
-         "http://gmplib.org/\nLicensed under the GNU Lesser General Public \
-         License (LGPL) version 3", "Text")}, All), 
+         TextData({TemplateBox({ComplexStringBox("\"http://gmplib.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Lesser General Public License (LGPL) \
+           version 3"}), "Text")}, All), 
       SectionGroup({Section("GNU MPFR Library", "Subsubsection"), 
         Section(
-         "http://gmplib.org/\nLicensed under the GNU Lesser General Public \
-         License (LGPL) version 3", "Text")}, All), 
+         TextData({TemplateBox({ComplexStringBox("\"http://www.mpfr.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Lesser General Public License (LGPL) \
+           version 3"}), "Text")}, All), 
       SectionGroup({Section("GTK+", "Subsubsection"), 
         Section(
-         "http://www.gtk.org/\nLicensed under the GNU Lesser General Public \
-         License (LGPL) version 3", "Text")}, All), 
+         TextData({TemplateBox({ComplexStringBox("\"http://www.gtk.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Lesser General Public License (LGPL) \
+           version 3"}), "Text")}, All), 
       SectionGroup({Section("Pango", "Subsubsection"), 
         Section(
-         "http://www.pango.org/\nLicensed under the GNU Library General Public \
-         License (LGPL) version 2.0", "Text")}, All), 
+         TextData({
+           TemplateBox({ComplexStringBox("\"http://www.pango.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nLicensed under the GNU Library General Public License (LGPL) \
+           version 2.0"}), "Text")}, All), 
       SectionGroup({
         Section("PCRE \[Dash] Perl Compatible Regular Expressions", 
          "Subsubsection"), 
         Section(
-         "http://pcre.org/\nRegular Expression and other string matching \
-         support relies on the PCRE library package, which is open source, \
-         written by Philip Hazel, and Copyright \[Copyright] 1997 - 2003 \
-         University of Cambridge, England.\nRelease 8 of PCRE is distributed \
-         under the terms of the \[HighSixDoubleQuote]BSD\[HighNineDoubleQuote] \
-         licence, as specified below.", "Text"), 
+         TextData({TemplateBox({ComplexStringBox("\"http://pcre.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nRegular Expression and other string matching support relies on \
+           the PCRE library package, which is open source, written by Philip \
+           Hazel, and Copyright \[Copyright] 1997 - 2003 University of \
+           Cambridge, England.\nRelease 8 of PCRE is distributed under the \
+           terms of the \[HighSixDoubleQuote]BSD\[HighNineDoubleQuote] \
+           licence, as specified below."}), "Text"), 
         Section("THE \[HighSixDoubleQuote]BSD\[HighNineDoubleQuote] LICENCE", 
          "Text"), 
         Section(
@@ -125,8 +152,10 @@ Document({
          EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.", "Text")}, All), 
       SectionGroup({Section("zlib", "Subsubsection"), 
         Section(
-         "http://zlib.net/\nCopyright (C) 1995-2012 Jean-loup Gailly and Mark \
-         Adler", "Text"), 
+         TextData({TemplateBox({ComplexStringBox("\"http://zlib.net/\"")}, 
+            "HyperlinkURL"), 
+           "\nCopyright (C) 1995-2012 Jean-loup Gailly and Mark Adler"}), 
+         "Text"), 
         Section(
          "This software is provided 'as-is', without any express or implied \
          warranty.  In no event will the authors be held liable for any \
@@ -1185,10 +1214,12 @@ Document({
         Section("GNU GENERAL PUBLIC LICENSE, Version 3, 29 June 2007", 
          "Subsection"), 
         Section(
-         "Copyright \[Copyright] 2007 Free Software Foundation, Inc. \
-         <http://fsf.org/>\nEveryone is permitted to copy and distribute \
-         verbatim copies of this license document, but changing it is not \
-         allowed.", "Text"), 
+         TextData({
+           "Copyright \[Copyright] 2007 Free Software Foundation, Inc. ", 
+           TemplateBox({ComplexStringBox("\"http://fsf.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nEveryone is permitted to copy and distribute verbatim copies of \
+           this license document, but changing it is not allowed."}), "Text"), 
         SectionGroup({Section("Preamble", "Subsubsection"), 
           Section(
            "The GNU General Public License is a free, copyleft license for \
@@ -1893,10 +1924,12 @@ Document({
         Section("GNU LESSER GENERAL PUBLIC LICENSE, Version 3, 29 June 2007", 
          "Subsection"), 
         Section(
-         "Copyright \[Copyright] 2007 Free Software Foundation, Inc. \
-         <http://fsf.org/>\nEveryone is permitted to copy and distribute \
-         verbatim copies of this license document, but changing it is not \
-         allowed.", "Text"), 
+         TextData({
+           "Copyright \[Copyright] 2007 Free Software Foundation, Inc. ", 
+           TemplateBox({ComplexStringBox("\"http://fsf.org/\"")}, 
+            "HyperlinkURL"), 
+           "\nEveryone is permitted to copy and distribute verbatim copies of \
+           this license document, but changing it is not allowed."}), "Text"), 
         Section(
          "This version of the GNU Lesser General Public License incorporates \
          the terms and conditions of version 3 of the GNU General Public \
@@ -2086,9 +2119,10 @@ Document({
            version for the Library.", "Text")}, All)}, All), 
       SectionGroup({Section("SIL OPEN FONT LICENSE, Version 1.1", 
          "Subsection"), 
-        Section(
-         "Version 1.1 \[Dash] 26 February 2007\nhttp://scripts.sil.org/OFL", 
-         "Text"), SectionGroup({Section("Preamble", "Subsubsection"), 
+        Section(TextData({"Version 1.1 \[Dash] 26 February 2007\n", 
+           TemplateBox({ComplexStringBox("\"http://scripts.sil.org/OFL\"")}, 
+            "HyperlinkURL")}), "Text"), 
+        SectionGroup({Section("Preamble", "Subsubsection"), 
           Section(
            "The goals of the Open Font License (OFL) are to stimulate \
            worldwide development of collaborative font projects, to support \

@@ -513,7 +513,26 @@ Document({
              Tooltip -> ComplexStringBox({
                 "\"Browse to ", 
                 DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 2}))), 
-                "\""})}), Section(StyleData("ShowMoreDocumentationHyperlink"), 
+                "\""})}), Section(StyleData("HyperlinkURL"), 
+           TemplateBoxOptions :> {
+             DisplayFunction -> (
+               StyleBox(ButtonBox(#1, ButtonFunction -> (SystemOpen(#1) &), 
+                 ButtonData -> 
+                  Dynamic(Replace(CurrentValue({TemplateSlot, 2}), 
+                    $Failed :> StringReplace(
+                      ToString(RawBoxes(CurrentValue({TemplateSlot, 1}))), {
+                       "\"" -> "", "\\\\" -> "\\"}))), BaseStyle -> ""), 
+                BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
+                   "HyperlinkActive", "Hyperlink")), 
+                ShowStringCharacters -> False, ShowAutoStyles -> False) &), 
+             InterpretationFunction -> (
+               {"Hyperlink", "(", {#1, ",", InterpretationBox(, #2)}, ")"} &), 
+             Tooltip -> DynamicBox(
+               ToBoxes(Dynamic(Replace(CurrentValue({TemplateSlot, 2}), 
+                  $Failed :> StringReplace(
+                    ToString(RawBoxes(CurrentValue({TemplateSlot, 1}))), {
+                     "\"" -> "", "\\\\" -> "\\"})))))}), 
+          Section(StyleData("ShowMoreDocumentationHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
                StyleBox(ButtonBox("\" \[RightGuillemet] \"", 
