@@ -1,6 +1,7 @@
 #include <util/styled-object.h>
 
-#include <boxes/box.h>
+#include <gui/common-document-windows.h>
+#include <gui/document.h>
 
 
 using namespace richmath;
@@ -224,6 +225,11 @@ Expr FrontEndSession::allowed_options() {
 }
 
 void FrontEndSession::dynamic_updated() {
+}
+
+void FrontEndSession::on_style_changed(bool layout_affected) {
+  for(auto win : CommonDocumentWindow::All)
+    win->content()->on_style_changed(layout_affected);
 }
 
 void FrontEndSession::next_in_limbo(FrontEndObject *next) {

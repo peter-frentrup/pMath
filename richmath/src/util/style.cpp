@@ -2503,13 +2503,7 @@ bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
     }
   }
   
-  if(auto box = dynamic_cast<Box*>(parent)) {
-    if(resize)
-      box->invalidate();
-    else
-      box->request_repaint_all();
-  }
-    
+  parent->on_style_changed(resize);
   return true;
 }
 
@@ -3153,7 +3147,7 @@ bool StyleInformation::put_current_style_value(FrontEndObject *obj, Expr item, E
   any_change = styled_obj->style->set_pmath(key, std::move(rhs)) || any_change;
   
   if(any_change)
-    styled_obj->invalidate_options();
+    styled_obj->on_style_changed(Style::modifies_size(key));
   
   return true;
 }

@@ -1308,7 +1308,7 @@ static bool new_cmd(Expr cmd) {
   if(Document *cur = Documents::current()) {
     doc->native()->try_set_menubar(cur->native()->has_menubar());
   }
-  doc->invalidate_options();
+  doc->on_style_changed(true);
   doc->native()->bring_to_front();
   
   return true;
@@ -1492,8 +1492,7 @@ static bool set_style_cmd(Expr cmd) {
     }
     
     doc->style->add_pmath(cmd);
-    doc->invalidate_options();
-    doc->invalidate();
+    doc->on_style_changed(true);
     return true;
   }
   

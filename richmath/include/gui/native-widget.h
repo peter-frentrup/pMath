@@ -67,7 +67,7 @@ namespace richmath {
       virtual void hide_tooltip() = 0;
       
       /* May return nullptr (no gui or floating popup windows available ...)
-         The document will not be visible, call its invalidate_options() to
+         The document will not be visible, call its on_style_changed(true) to
          recognize the "Visible" style option.
       */
       virtual Document *try_create_popup_window(const SelectionReference &anchor) { return nullptr; }

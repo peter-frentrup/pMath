@@ -389,6 +389,7 @@ static void load_math_shapers() {
   
   SharedPtr<MathShaper> shaper;
   SharedPtr<MathShaper> def;
+  String def_name;
   
   if(prefered_fonts[0] == richmath_System_List) {
     for(String s : prefered_fonts.items()) {
@@ -400,7 +401,7 @@ static void load_math_shapers() {
 #endif
         
         shaper = OTMathShaper::try_register(s);
-        if(shaper.is_valid()) {
+        if(shaper) {
           MathShaper::available_shapers.set(s, shaper);
           
 #ifdef PMATH_DEBUG_LOG
@@ -410,20 +411,23 @@ static void load_math_shapers() {
         }
       }
       
-      if(shaper && !def)
+      if(shaper && !def) {
         def = shaper;
+        def_name = s;
+      }
     }
   }
   
-  if(def) {
-    MathShaper::available_shapers.default_value = def;
-  }
-  else {
+  if(!def) {
     for(const auto &e : MathShaper::available_shapers.entries()) {
-      MathShaper::available_shapers.default_value = e.value;
+      def = e.value;
+      def_name = e.key;
       break;
     }
   }
+  
+  Application::front_end_session->style->set(MathFontFamily, def_name);
+  MathShaper::available_shapers.default_value = def;
 }
 
 static void init_stylesheet() {
@@ -667,7 +671,7 @@ int main(int argc, char **argv) {
       main_doc->move_horizontal(LogicalDirection::Forward,  true);
       main_doc->move_horizontal(LogicalDirection::Backward, false);
       
-      main_doc->invalidate_options();
+      main_doc->on_style_changed(true);
     }
   
     if(main_doc) {

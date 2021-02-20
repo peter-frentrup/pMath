@@ -416,8 +416,8 @@ void Document::invalidate() {
   Box::invalidate();
 }
 
-void Document::invalidate_options() {
-  if(get_own_style(InternalRequiresChildResize)) {
+void Document::on_style_changed(bool layout_affected) {
+  if(layout_affected || get_own_style(InternalRequiresChildResize)) {
     style->set(InternalRequiresChildResize, false);
     invalidate_all();
   }
@@ -427,8 +427,10 @@ void Document::invalidate_options() {
     
     native()->invalidate_options();
   }
-  else
-    Box::invalidate_options();
+//  else
+//    Box::on_style_changed(layout_affected);
+  else if(!layout_affected)
+    request_repaint_all();
 }
 
 void Document::invalidate_all() {
@@ -3456,13 +3458,8 @@ void Document::reset_style() {
 
 void Document::paint_resize(Canvas &canvas, bool resize_only) {
   context.with_canvas(canvas, [&]() {
-    if(update_dynamic_styles(context)) {
-      if(get_own_style(InternalHasModifiedWindowOption)) {
-        style->set(InternalHasModifiedWindowOption, false);
-        native()->invalidate_options();
-      }
-    }
-
+    update_dynamic_styles(context);
+    
     if(get_own_style(InternalRequiresChildResize)) {
       style->set(InternalRequiresChildResize, false);
       if(resize_only) {
@@ -3478,6 +3475,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     additional_selection.length(0);
     
     ContextState cc(context);
+    cc.begin(Application::front_end_session->style);
     cc.begin(style);
     
     RectangleF page_rect{ native()->scroll_pos(), native()->page_size() };

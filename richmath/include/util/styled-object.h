@@ -49,6 +49,9 @@ namespace richmath {
       
       virtual void reset_style();
       
+      /// A style option changed.
+      virtual void on_style_changed(bool layout_affected) {}
+      
     protected:
       virtual DefaultStyleOptionOffsets get_default_styles_offset() { return DefaultStyleOptionOffsets::None; }
   };
@@ -61,9 +64,6 @@ namespace richmath {
       virtual SharedPtr<Style> own_style() final override { return style; };
       
       virtual Expr allowed_options() = 0;
-      
-      /// A style option changed.
-      virtual void invalidate_options() {}
   };
   
   class FrontEndSession : public ActiveStyledObject {
@@ -77,6 +77,8 @@ namespace richmath {
       
       virtual void dynamic_updated() override;
     
+      virtual void on_style_changed(bool layout_affected) override;
+      
     protected:
       virtual FrontEndObject *next_in_limbo() final override { return _owner_or_limbo_next.as_tinted(); }
       virtual void next_in_limbo(FrontEndObject *next) final override;

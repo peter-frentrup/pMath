@@ -441,8 +441,11 @@ void Box::invalidate() {
     par->invalidate();
 }
 
-void Box::invalidate_options() {
-  invalidate();
+void Box::on_style_changed(bool layout_affected) {
+  if(layout_affected)
+    invalidate();
+  else
+    request_repaint_all();
 }
 
 bool Box::edit_selection(SelectionReference &selection) {

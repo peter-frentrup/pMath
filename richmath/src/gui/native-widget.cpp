@@ -248,7 +248,7 @@ void NativeWidget::on_idle_after_edit() {
   if(owner && owner->native()->stylesheet_document() == _document) {
     Expr expr = _document->to_pmath(BoxOutputFlags::Default | BoxOutputFlags::NoNewSymbols);
     owner->style->set_pmath(StyleDefinitions, expr);
-    owner->invalidate_options();
+    owner->on_style_changed(true); // TODO: check if a layout-style was changed
   }
 }
 

@@ -32,6 +32,7 @@ namespace richmath {
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Inherited;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_MathFontFamily;
 extern pmath_symbol_t richmath_System_None;
 
 //{ class Context ...
@@ -361,6 +362,9 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
         ctx.text_shaper = fts;
       }
     }
+    else if(expr == richmath_System_MathFontFamily) {
+      ctx.text_shaper = ctx.math_shaper;
+    }
     else if(expr[0] == richmath_System_List) {
       if(expr.expr_length() == 0) {
         ctx.text_shaper = ctx.math_shaper;
@@ -378,6 +382,9 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
                 
               FallbackTextShaper::add_or_create(fts, TextShaper::find(s, fs));
             }
+          }
+          else if(item == richmath_System_MathFontFamily) {
+            FallbackTextShaper::add_or_create(fts, ctx.math_shaper);
           }
           else if(item == richmath_System_Inherited) {
             FallbackTextShaper::add_or_create(fts, ctx.text_shaper);

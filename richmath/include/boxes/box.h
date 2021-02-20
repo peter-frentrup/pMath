@@ -360,12 +360,9 @@ namespace richmath {
 
       /// Something inside this box changed and needs a resize().
       virtual void invalidate();
-
-      /// A style option changed. Calls invalidate().
-      ///
-      /// TODO: Refactor to be more efficient, need not always call invalidate(),
-      ///       sometimes only need request_repaint_all(), depending on option.
-      virtual void invalidate_options() override;
+      
+      /// A style option changed. Calls invalidate() or request_repaint_all(), depending on layout_affected.
+      virtual void on_style_changed(bool layout_affected) override;
 
       /// Perform any cleanup before the user edits the selection or block the operation.
       /// 

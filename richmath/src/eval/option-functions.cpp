@@ -87,7 +87,7 @@ Expr richmath_eval_FrontEnd_SetOptions(Expr expr) {
       obj->style = new Style();
       
     obj->style->add_pmath(options, false);
-    obj->invalidate_options();
+    obj->on_style_changed(true); // TODO: check if only non-layout options were affected
     
     return options;
   }

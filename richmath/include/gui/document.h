@@ -52,7 +52,7 @@ namespace richmath {
       virtual bool request_repaint(const RectangleF &rect) override;
       virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       virtual void invalidate() override;
-      virtual void invalidate_options() override;
+      virtual void on_style_changed(bool layout_affected) override;
       void invalidate_all();
       
       virtual bool changes_children_style() override { return true; }

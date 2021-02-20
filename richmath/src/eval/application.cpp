@@ -974,8 +974,6 @@ Document *Application::try_create_document(Expr data) {
   
   if(!doc->selectable())
     doc->select(nullptr, 0, 0);
-    
-  //doc->invalidate_options();
   
   return doc;
 }
@@ -1038,7 +1036,7 @@ Document *Application::open_new_document(String full_filename) {
     
   doc->style->set(Visible,                         true);
   doc->style->set(InternalHasModifiedWindowOption, true);
-  doc->invalidate_options();
+  doc->on_style_changed(true);
   //doc->native()->bring_to_front();
   return doc;
 }
@@ -1656,7 +1654,7 @@ namespace {
             
             doc->style->set(InternalLastStyleDefinitions, Expr());
             doc->style->set(InternalHasModifiedWindowOption, true);
-            doc->invalidate_options();
+            doc->on_style_changed(true);
           }
           else {
             // ???

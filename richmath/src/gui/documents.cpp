@@ -417,8 +417,8 @@ Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool crea
   if(!doc->native()->stylesheet_document(style_doc))
     doc->native()->beep();
   
-  doc->invalidate_options();
-  style_doc->invalidate_options();
+  doc->on_style_changed(true);
+  style_doc->on_style_changed(true);
   return style_doc;
 }
 
@@ -1216,7 +1216,7 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
   }
   
   owner_doc->attach_popup_window(sel, popup_doc);
-  popup_doc->invalidate_options();
+  popup_doc->on_style_changed(true);
   return popup_doc->to_pmath_id();
 }
 
@@ -1235,7 +1235,7 @@ Expr richmath_eval_FrontEnd_CreateDocument(Expr expr) {
   if(!doc->selectable())
     doc->select(nullptr, 0, 0);
     
-  doc->invalidate_options();
+  doc->on_style_changed(true);
   if(doc->selectable())
     doc->native()->bring_to_front();
   
