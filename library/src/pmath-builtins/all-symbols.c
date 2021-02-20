@@ -1331,6 +1331,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_SymbolName,                   builtin_symbolname)
   BIND_DOWN(   pmath_System_Synchronize,                  builtin_synchronize)
   BIND_DOWN(   pmath_System_SyntaxInformation,            builtin_syntaxinformation)
+  BIND_DOWN(   pmath_System_SystemOpen,                   general_builtin_nofront)
   BIND_DOWN(   pmath_System_Table,                        builtin_table)
   BIND_DOWN(   pmath_System_TagAssign,                    builtin_tagassign)
   BIND_DOWN(   pmath_System_TagAssignDelayed,             builtin_tagassign)

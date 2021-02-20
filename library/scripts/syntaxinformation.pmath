@@ -562,6 +562,7 @@
 {"Synchronize", {"ArgumentCount" -> 2}},
 {"SyntaxInformation", {"ArgumentCount" -> 1}},
 {"SystemException", {"ArgumentCount" -> 1}},
+{"SystemOpen", {"ArgumentCount" -> 1}},
 {"Table", {"ArgumentCount" -> 2.., "LocalVariables" -> {"Table", 2..}}},
 {"TabView", {"ArgumentCount" -> 1..2}},
 {"TagAssign", {"ArgumentCount" -> 3}},

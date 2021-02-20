@@ -276,7 +276,7 @@ static bool mgtk_system_open_uri_raw(const char *uri) {
            nullptr);
 #else
   return gtk_show_uri(
-           wid ? gtk_window_get_screen(owner_window) : nullptr,
+           owner_window ? gtk_window_get_screen(owner_window) : nullptr,
            uri,
            GDK_CURRENT_TIME,
            nullptr);
