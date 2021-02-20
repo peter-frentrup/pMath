@@ -24,6 +24,7 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
 extern pmath_symbol_t richmath_FE_CallFrontEnd;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+extern pmath_symbol_t richmath_FrontEnd_SystemOpenDirectory;
 
 namespace {
   class TaskDialogConfig: public TASKDIALOGCONFIG {
@@ -154,6 +155,68 @@ YesNoCancel richmath::win32_ask_remove_private_style_definitions(Document *doc) 
     case IDNO:  return YesNoCancel::No;
     default:    return YesNoCancel::Cancel;
   }
+}
+
+bool richmath::win32_ask_open_suspicious_system_file(String path) {
+  const wchar_t *title = L"Richmath";
+  
+  TASKDIALOG_BUTTON buttons[] = {
+    { IDYES, L"&Open anyway" },
+    { IDNO,  L"Do &not open suspicious file" }
+  };
+  
+  TaskDialogConfig config;
+  config.hInstance = GetModuleHandleW(nullptr);
+  config.dwFlags = TDF_ALLOW_DIALOG_CANCELLATION | TDF_USE_COMMAND_LINKS | TDF_POSITION_RELATIVE_TO_WINDOW | TDF_ENABLE_HYPERLINKS;
+  config.pszMainIcon = MAKEINTRESOURCEW(ICO_APP_MAIN);
+  config.pszWindowTitle = title;
+  config.pszMainInstruction = L"Open suspicous file?";
+  //config.pszContent = str;
+  config.cButtons = sizeof(buttons) / sizeof(buttons[0]);
+  config.pButtons = buttons;
+  config.nDefaultButton = IDNO;
+  
+  String rich_question;
+  rich_question = String("The file ") + String::FromChar(0x201C);
+  rich_question+= "<a href=\"";
+  rich_question+= config.register_hyperlink_action(
+                    Call(
+                      Symbol(richmath_FE_CallFrontEnd), 
+                      Call(
+                        Symbol(richmath_FrontEnd_SystemOpenDirectory), 
+                        path)));
+  rich_question+= "\">";
+  rich_question+= path;
+  rich_question+= "</a>";
+  rich_question+= String::FromChar(0x201D) + " has an unrecognized file extension.\n";
+  rich_question+= "Do you really want to open it?";
+  rich_question+= String::FromChar(0);
+  
+  config.pszContent = (const wchar_t*)rich_question.buffer();
+  
+  Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
+  if(!doc)
+    doc = Documents::current();
+  
+  if(doc) {
+    if(Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native())) {
+      config.dark_mode = wid->has_dark_background();
+      config.hwndParent = wid->hwnd();
+      while(auto parent = GetParent(config.hwndParent))
+        config.hwndParent = parent;
+    }
+  }
+  
+  int result = 0;
+  if(!HRbool(try_TaskDialogIndirect(&config, &result, nullptr, nullptr))) {
+    result = MessageBoxW(
+               config.hwndParent, 
+               config.pszContent, 
+               title, 
+               MB_YESNO | MB_TASKMODAL);
+  }
+  
+  return result == IDYES;
 }
 
 Expr richmath::win32_ask_interrupt(Expr stack) {

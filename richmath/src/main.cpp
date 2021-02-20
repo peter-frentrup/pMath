@@ -387,13 +387,12 @@ static void load_math_shapers() {
   
   Expr prefered_fonts = Expr{pmath_symbol_get_value(richmath_FE_DollarMathShapers)};
   
-  SharedPtr<MathShaper> shaper;
   SharedPtr<MathShaper> def;
   String def_name;
   
   if(prefered_fonts[0] == richmath_System_List) {
     for(String s : prefered_fonts.items()) {
-      shaper = MathShaper::available_shapers[s];
+      SharedPtr<MathShaper> shaper = MathShaper::available_shapers[s];
       
       if(!shaper) {
 #ifdef PMATH_DEBUG_LOG

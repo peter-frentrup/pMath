@@ -11,6 +11,7 @@
 namespace richmath {
   YesNoCancel mgtk_ask_save(Document *doc, String question);
   YesNoCancel mgtk_ask_remove_private_style_definitions(Document *doc);
+  bool mgtk_ask_open_suspicious_system_file(String path);
   Expr mgtk_ask_interrupt(Expr stack);
 }
 

@@ -1326,6 +1326,7 @@
 		<Unit filename="src/eval/strings.inc" />
 		<Unit filename="src/eval/symbols.inc" />
 		<Unit filename="src/eval/system-open-directory.cpp" />
+		<Unit filename="src/eval/system-open.cpp" />
 		<Unit filename="src/graphics/animation.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />
 		<Unit filename="src/graphics/cairostream.cpp" />

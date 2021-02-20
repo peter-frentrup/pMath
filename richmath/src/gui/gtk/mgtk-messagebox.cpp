@@ -22,6 +22,7 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
 extern pmath_symbol_t richmath_FE_CallFrontEnd;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
+extern pmath_symbol_t richmath_FrontEnd_SystemOpenDirectory;
 
 namespace {
   class MathGtkHyperlinks {
@@ -53,15 +54,9 @@ static GtkWidget *make_left_aligned(GtkWidget *widget) {
 
 YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
   GtkWindow *owner_window = nullptr;
-  
   if(doc) {
-    MathGtkWidget *mwid = dynamic_cast<MathGtkWidget*>(doc->native());
-    GtkWidget *wid = nullptr;
-    if(mwid) 
-      wid = mwid->widget();
-    
-    if(wid) {
-      GtkWidget *toplevel = gtk_widget_get_toplevel(wid);
+    if(MathGtkWidget *mwid = dynamic_cast<MathGtkWidget*>(doc->native())) {
+      GtkWidget *toplevel = gtk_widget_get_toplevel(mwid->widget());
       if(gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
         owner_window = GTK_WINDOW(toplevel);
     }
@@ -102,15 +97,9 @@ YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
 
 YesNoCancel richmath::mgtk_ask_remove_private_style_definitions(Document *doc) {
   GtkWindow *owner_window = nullptr;
-  
   if(doc) {
-    MathGtkWidget *mwid = dynamic_cast<MathGtkWidget*>(doc->native());
-    GtkWidget *wid = nullptr;
-    if(mwid) 
-      wid = mwid->widget();
-    
-    if(wid) {
-      GtkWidget *toplevel = gtk_widget_get_toplevel(wid);
+    if(MathGtkWidget *mwid = dynamic_cast<MathGtkWidget*>(doc->native())) {
+      GtkWidget *toplevel = gtk_widget_get_toplevel(mwid->widget());
       if(gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
         owner_window = GTK_WINDOW(toplevel);
     }
@@ -144,6 +133,79 @@ YesNoCancel richmath::mgtk_ask_remove_private_style_definitions(Document *doc) {
   }
 }
 
+bool richmath::mgtk_ask_open_suspicious_system_file(String path) {
+  MathGtkHyperlinks hyperlinks;
+  GtkWindow *owner_window = nullptr;
+  
+  Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
+  if(!doc)
+    doc = Documents::current();
+  
+  if(MathGtkWidget *mwid = doc ? dynamic_cast<MathGtkWidget*>(doc->native()) : nullptr) {
+    GtkWidget *toplevel = gtk_widget_get_toplevel(mwid->widget());
+    if(gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
+      owner_window = GTK_WINDOW(toplevel);
+  }
+  
+  GtkWidget *dialog = gtk_dialog_new_with_buttons(
+    "Richmath",
+    owner_window,
+    GtkDialogFlags(GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT),
+    "_Open anyway",
+    GTK_RESPONSE_YES,
+    "Do _not open suspicious file",
+    GTK_RESPONSE_NO,
+    nullptr);
+  
+  gtk_dialog_set_default_response(GTK_DIALOG(dialog), GTK_RESPONSE_NO);
+  
+  GtkWidget *caption_label = gtk_label_new("<big><b>Open suspicous file?</b></big>");
+  gtk_label_set_use_markup(GTK_LABEL(caption_label), TRUE);
+  GtkWidget *desctiption_label = nullptr;
+  
+  GtkWidget *content_box = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+  //gtk_container_set_border_width(GTK_CONTAINER(content_box), 5);
+  gtk_box_set_spacing(GTK_BOX(content_box), 5);
+  
+  //gtk_box_pack_end(GTK_BOX(content_box), caption_label, TRUE, TRUE, 0);
+  gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(caption_label));
+  
+  String rich_question;
+  rich_question = String("The file ") + String::FromChar(0x201C);
+  rich_question+= "<a href=\"";
+  rich_question+= hyperlinks.register_hyperlink_action(
+                    Call(
+                      Symbol(richmath_FE_CallFrontEnd), 
+                      Call(
+                        Symbol(richmath_FrontEnd_SystemOpenDirectory), 
+                        path)));
+  rich_question+= "\">";
+  rich_question+= path;
+  rich_question+= "</a>";
+  rich_question+= String::FromChar(0x201D) + " has an unrecognized file extension.\n";
+  rich_question+= "Do you really want to open it?";
+  rich_question+= String::FromChar(0);
+  
+  if(rich_question) {
+    if(char *utf8 = pmath_string_to_utf8(rich_question.get(), nullptr)) {
+      desctiption_label = gtk_label_new("");
+      gtk_label_set_markup(GTK_LABEL(desctiption_label), utf8);
+      pmath_mem_free(utf8);
+      
+      gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(desctiption_label));
+      
+      hyperlinks.connect(desctiption_label);
+    }
+  }
+  
+  gtk_widget_show_all(GTK_WIDGET(content_box));
+  
+  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  
+  gtk_widget_destroy(dialog);
+  return result == GTK_RESPONSE_YES;
+}
+
 Expr richmath::mgtk_ask_interrupt(Expr stack) {
   MathGtkHyperlinks hyperlinks;
   GtkWindow *owner_window = nullptr;
@@ -154,15 +216,9 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
     doc = Documents::current();
   
   if(MathGtkWidget *mwid = doc ? dynamic_cast<MathGtkWidget*>(doc->native()) : nullptr) {
-    GtkWidget *wid = nullptr;
-    if(mwid) 
-      wid = mwid->widget();
-    
-    if(wid) {
-      GtkWidget *toplevel = gtk_widget_get_toplevel(wid);
-      if(gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
-        owner_window = GTK_WINDOW(toplevel);
-    }
+    GtkWidget *toplevel = gtk_widget_get_toplevel(mwid->widget());
+    if(gtk_widget_is_toplevel(toplevel) && GTK_IS_WINDOW(toplevel))
+      owner_window = GTK_WINDOW(toplevel);
   }
   
   const int ResponseAbort = 1;
@@ -216,7 +272,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
     for(size_t i = stack.expr_length() - 1; i > 0; --i) {
       Expr frame = stack[i];
       
-      if(details.is_string())
+      if(details)
         details+= "\n";
       
       String name = frame.lookup(strings::Head, default_name).to_string();
@@ -244,7 +300,6 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   }
   
   if(content.is_string()) {
-    content+= String::FromChar(0);
     if(char *utf8 = pmath_string_to_utf8(content.get(), nullptr)) {
       desctiption_label = gtk_label_new("");
       gtk_label_set_markup(GTK_LABEL(desctiption_label), utf8);
@@ -256,8 +311,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
     }
   }
   
-  if(details.is_string()) {
-    details+= String::FromChar(0);
+  if(details) {
     if(char *utf8 = pmath_string_to_utf8(details.get(), nullptr)) {
       details_section = gtk_expander_new_with_mnemonic("Stack _trace:");
       GtkWidget *details_label = gtk_label_new("");

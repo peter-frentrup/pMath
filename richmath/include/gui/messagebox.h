@@ -12,6 +12,7 @@ namespace richmath {
   
   YesNoCancel ask_save(Document *doc);
   YesNoCancel ask_remove_private_style_definitions(Document *doc);
+  bool ask_open_suspicious_system_file(String path);
   Expr ask_interrupt(Expr stack);
 }
 

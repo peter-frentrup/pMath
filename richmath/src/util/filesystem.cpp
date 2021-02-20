@@ -1,5 +1,14 @@
 #include <util/filesystem.h>
 
+#ifdef RICHMATH_USE_WIN32_GUI
+#  include <gui/win32/ole/combase.h>
+#  include <shellapi.h>
+#  include <shlwapi.h>
+#endif
+
+#ifdef RICHMATH_USE_GTK_GUI
+#  include <gtk/gtk.h>
+#endif
 
 using namespace richmath;
 
@@ -124,5 +133,86 @@ String FileSystem::extract_directory_path(String *filename) {
     return strings::EmptyString;
 }
 
+String FileSystem::get_uri_scheme(String uri) {
+  int len = uri.length();
+  const uint16_t *buf = uri.buffer();
+  
+  if(len < 2)
+    return String();
+  
+  if( (buf[0] >= 'a' && buf[0] <= 'z') ||
+      (buf[0] >= 'A' && buf[0] <= 'Z'))
+  {
+    int i = 1;
+    while(i < len) {
+      if( (buf[i] >= 'a' && buf[i] <= 'z') || 
+          (buf[i] >= 'A' && buf[i] <= 'Z') ||
+          (buf[i] >= '0' && buf[i] <= '9') ||
+          buf[i] == '+' || buf[i] == '-' || buf[i] == '.') 
+      {
+        ++i;
+        continue;
+      }
+      else  break;
+    }
+    
+    if(i < len && buf[i] == ':')
+      return uri.part(0, i);
+  }
+  
+  return String();
+}
+
+String FileSystem::get_local_path_from_uri(String uri) {
+  if(const uint16_t *uri_buf = uri.buffer()) {
+    int uri_len = uri.length();
+    if(uri_len == 0)
+      return String();
+    
+    for(int i = 0; i < uri_len; ++i) {
+      if(uri_buf[i] <= (uint16_t)' ' || uri_buf[i] > 0x7F)
+        return String();
+    }
+  }
+  else
+    return String();
+  
+#if defined(RICHMATH_USE_WIN32_GUI)
+  {
+    uri+= String::FromChar(0);
+    if(const uint16_t *uri_buf = uri.buffer()) {
+      pmath_string_t path = pmath_string_new_raw(uri.length() + 20);
+      uint16_t *path_buf;
+      int path_capacity;
+      if(pmath_string_begin_write(&path, &path_buf, &path_capacity)) {
+        DWORD cch_path = (DWORD)path_capacity;
+        if(HRbool(PathCreateFromUrlW((const wchar_t*)uri_buf, (wchar_t*)path_buf, &cch_path, 0))) {
+          return String(pmath_string_part(path, 0, (int)cch_path));
+        }
+      }
+      pmath_unref(path);
+    }
+  }
+#elif defined(RICHMATH_USE_GTK_GUI)
+  {
+    if(char *uri_ascii = pmath_string_to_utf8(uri.get(), nullptr)) {
+      String path;
+      
+      if(char *s = g_filename_from_uri(uri_ascii, nullptr, nullptr)) {
+#ifdef WIN32
+        path = String(pmath_string_from_utf8(s, -1));
+#else
+        path = String(pmath_string_from_native(s, -1));
+#endif
+        g_free(s);
+      }
+      
+      pmath_mem_free(uri_ascii);
+      return path;
+    }
+  }
+#endif
+  return String();
+}
 
 //} ... class FileSystem

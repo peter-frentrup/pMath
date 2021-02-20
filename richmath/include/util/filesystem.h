@@ -14,6 +14,9 @@ namespace richmath {
     static String extract_directory_path(String *filename);
 
     static String get_directory_path(String filename) { return extract_directory_path(&filename); }
+    
+    static String get_uri_scheme(String uri);
+    static String get_local_path_from_uri(String uri);
   };
 }
 
