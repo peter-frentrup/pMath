@@ -333,6 +333,20 @@ static int find_char_name_end(const wchar_t *buffer, int pos, int len) {
   return pos;
 }
 
+static int find_name_start(const wchar_t *buffer, int pos) {
+  while(pos > 0 && (pmath_char_is_digit(buffer[pos - 1]) || pmath_char_is_name(buffer[pos - 1])))
+    --pos;
+  
+  return pos;
+}
+
+static int find_name_end(const wchar_t *buffer, int pos, int len) {
+  while(pos < len && (pmath_char_is_digit(buffer[pos]) || pmath_char_is_name(buffer[pos])))
+    ++pos;
+  
+  return pos;
+}
+
 static int find_string_start(const wchar_t *buffer, int pos) {
   pmath_bool_t is_in_string = FALSE;
   int i;
@@ -615,7 +629,32 @@ static BOOL key_event_filter_for_pmath(void *context, const KEY_EVENT_RECORD *er
   if(er->bKeyDown) {
     switch(er->wVirtualKeyCode) {
       case VK_F1:
-        PMATH_RUN("System`Con`PrintHelpMessage()");
+        {
+          int pos, anchor;
+          int start, end;
+          int length;
+          const wchar_t *buffer = hyper_console_get_current_input(&length);
+          hyper_console_get_current_selection(&pos, &anchor);
+          
+          if(pos < anchor) {
+            start = pos;
+            end = anchor;
+          }
+          else if(anchor < pos) {
+            start = anchor;
+            end = pos;
+          }
+          else {
+            start = find_name_start(buffer, pos);
+            end = find_name_end(buffer, pos, length);
+          }
+          
+          if(start < end) {
+            PMATH_RUN_ARGS("System`ShowDefinition(`1`)", "(U#)", buffer + start, end - start);
+          }
+          else
+            PMATH_RUN("System`Con`PrintHelpMessage()");
+        }
         return TRUE;
         
       case VK_OEM_PERIOD:
