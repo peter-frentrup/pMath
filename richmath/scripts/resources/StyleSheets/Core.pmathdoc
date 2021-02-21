@@ -166,6 +166,13 @@ Document({
         Section(StyleData("TabViewLabel"), BaseStyle -> "ControlStyle"), 
         Section(StyleData("TabView"), BaseStyle -> "ControlStyle")}, All), 
       SectionGroup({Section("Button styles", "Subsection"), 
+        Section(StyleData("Hyperlink"), 
+         ButtonBoxOptions -> {ButtonFrame -> "Frameless"}, 
+         FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+         TemplateBoxOptions -> {
+           DisplayFunction -> (
+             StyleBox(ComplexStringBox({"\"", #1, "\""}), 
+              ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
         Section(StyleData("Paste"), BaseStyle -> "Button", 
          ButtonBoxOptions -> {
            ButtonFunction -> (DocumentApply(SelectedDocument(), #1) &)})}, 
@@ -490,14 +497,8 @@ Document({
                {"Row", "(", {{"{", {TemplateSlotSequence(##3, ",")}, "}"}, 
                  ",", #2}, ")"} &)})}, All), 
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
-          Section(StyleData("Hyperlink"), 
-           ButtonBoxOptions -> {ButtonFrame -> "Frameless"}, 
-           FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-           TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox(ComplexStringBox({"\"", #1, "\""}), 
-                ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
           Section(StyleData("HyperlinkActive"), BaseStyle -> "Hyperlink", 
+           ShowAutoStyles -> False, 
            FontColor -> RGBColor(0.80000000000000004`, 0.502`, 
              0.10199999999999999`)), Section(StyleData("DirectoryHyperlink"), 
            TemplateBoxOptions :> {
@@ -516,22 +517,15 @@ Document({
                 "\""})}), Section(StyleData("HyperlinkURL"), 
            TemplateBoxOptions :> {
              DisplayFunction -> (
-               StyleBox(ButtonBox(#1, ButtonFunction -> (SystemOpen(#1) &), 
-                 ButtonData -> 
-                  Dynamic(Replace(CurrentValue({TemplateSlot, 2}), 
-                    $Failed :> StringReplace(
-                      ToString(RawBoxes(CurrentValue({TemplateSlot, 1}))), {
-                       "\"" -> "", "\\\\" -> "\\"}))), BaseStyle -> ""), 
-                BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
-                   "HyperlinkActive", "Hyperlink")), 
-                ShowStringCharacters -> False, ShowAutoStyles -> False) &), 
-             InterpretationFunction -> (
+               ButtonBox(StyleBox(#1, 
+                 BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
+                    "HyperlinkActive", Inherited)), 
+                 ShowStringCharacters -> False, ShowAutoStyles -> False), 
+                ButtonFunction -> (SystemOpen(#1) &), ButtonData -> #2, 
+                BaseStyle -> "Hyperlink") &), InterpretationFunction -> (
                {"Hyperlink", "(", {#1, ",", InterpretationBox(, #2)}, ")"} &), 
              Tooltip -> DynamicBox(
-               ToBoxes(Dynamic(Replace(CurrentValue({TemplateSlot, 2}), 
-                  $Failed :> StringReplace(
-                    ToString(RawBoxes(CurrentValue({TemplateSlot, 1}))), {
-                     "\"" -> "", "\\\\" -> "\\"})))))}), 
+               ToBoxes(CurrentValue({TemplateSlot, 2})))}), 
           Section(StyleData("ShowMoreDocumentationHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
@@ -561,11 +555,11 @@ Document({
                      StringExpression(FE`Private`str))}, 
                  With({FE`Private`path:= ToFileName(FE`$StylesheetDirectory, 
                      FE`Private`content)}, 
-                  TooltipBox(StyleBox(ButtonBox(ToBoxes(FE`Private`content), 
-                     ButtonFrame -> "Frameless", 
-                     ButtonFunction -> (DocumentOpen(FE`Private`path) &)), 
-                    BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
-                       "HyperlinkActive", "StylesheetHyperlink"))), 
+                  TooltipBox(ButtonBox(StyleBox(ToBoxes(FE`Private`content), 
+                     BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
+                        "HyperlinkActive", "StylesheetHyperlink"))), 
+                    BaseStyle -> "Hyperlink", ButtonFunction -> (
+                      DocumentOpen(#1) &), ButtonData -> FE`Private`path), 
                    ToBoxes(FE`Private`path))))) &)})}, All), 
         SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 

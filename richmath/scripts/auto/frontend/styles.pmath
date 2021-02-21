@@ -15,16 +15,10 @@ MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::=
     )
     
 Function MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String))) {
-    With(path:= ToFileName(FE`$StylesheetDirectory, name))
     asStyleDataExampleBox(
         ComplexStringBox(
             "\"Include definitions from stylesheet \[HighSixDoubleQuote]", 
-            TooltipBox(
-                ButtonBox(
-                    StyleBox(name, FontColor -> RGBColor(0, 0, 0.5)), 
-                    ButtonFrame -> "Frameless",
-                    ButtonFunction -> Function(DocumentOpen(path))),
-                ToBoxes @ path),
+            TemplateBox({name}, "StylesheetHyperlink"),
             "\[HighNineDoubleQuote]\""),
         name
     )
