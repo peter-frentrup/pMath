@@ -286,7 +286,7 @@ static bool mgtk_system_open_uri_raw(const char *uri) {
 #endif
 
 static bool contains_character_in_range(String s, uint16_t ch_min, uint16_t ch_max) {
-  int len;
+  int len = s.length();
   const uint16_t *buf = s.buffer();
   for(int i = 0; i < len; ++i) {
     if(buf[i] >= ch_min && buf[i] <= ch_max)
