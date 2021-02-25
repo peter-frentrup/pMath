@@ -1346,7 +1346,8 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         tokens->in_line_comment = TRUE;
     /* fall through */
     case '@':
-    case '.': { //  @  @@  @@@  @@@@  .  ..  ...  .... etc.
+    case '\'':
+    case '.': { //  @  @@  @@@  @@@@  '  ''  '''  ''''  .  ..  ...  .... etc.
         ++tokens->pos;
         while( tokens->pos < tokens->len &&
                tokens->str[tokens->pos] == tokens->str[tokens->pos - 1])
@@ -1382,6 +1383,7 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
     /* fall through */
     default:
       scan_next_as_name(tokens, parser);
+      break;
   }
   
 END_SCAN:
