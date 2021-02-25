@@ -4145,7 +4145,9 @@ int MathSequence::Impl::EnlargeSpace::get_string_end(int pos) {
 
 void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
-//  const uint16_t *buf = str.buffer();
+
+  if(self.lines.length() == 0) // resize() not yet called
+    return;
 
   if(start > self.glyphs.length())
     start = self.glyphs.length();
