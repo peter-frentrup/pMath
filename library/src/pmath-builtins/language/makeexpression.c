@@ -491,7 +491,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       return make_matchfix(expr, pmath_System_DoubleBracketingBar);
       
     // comma sepearted list ...
-    if(firstchar == ',' || secondchar == ',')
+    if(firstchar == ',' || secondchar == ',' || firstchar == PMATH_CHAR_INVISIBLECOMMA || secondchar == PMATH_CHAR_INVISIBLECOMMA)
       return make_comma_sequence(expr);
       
     // evaluation sequence ...
@@ -536,7 +536,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
         
       // +x
-      if(firstchar == '+')
+      if(firstchar == '+' || firstchar == PMATH_CHAR_INVISIBLEPLUS)
         return make_unary_plus(expr);
         
       // -x
@@ -706,7 +706,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
     if(exprlen & 1) {
       int tokprec;
       
-      if(secondchar == '+' || secondchar == '-')
+      if(secondchar == '+' || secondchar == '-' || secondchar == PMATH_CHAR_INVISIBLEPLUS)
         return make_plus(expr);
         
       // single character infix operators (except + - * / && || and relations) ...
@@ -787,7 +787,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &expr))
         return expr;
     }
-    else if(secondchar != '*' && secondchar != 0x00D7) {
+    else if(secondchar != '*' && secondchar != PMATH_CHAR_TIMES && secondchar != PMATH_CHAR_INVISIBLETIMES) {
       if(try_parse_helper(pmath_System_Private_MakeJuxtapositionExpression, &expr))
         return expr;
     }
@@ -2243,7 +2243,8 @@ static pmath_t make_parenthesis(pmath_expr_t boxes) {
 // a,b,c ...
 static pmath_t make_comma_sequence(pmath_expr_t expr) {
   pmath_t prev = PMATH_NULL;
-  pmath_bool_t last_was_comma = unichar_at(expr, 1) == ',';
+  uint16_t ch = unichar_at(expr, 1);
+  pmath_bool_t last_was_comma = ch == ',' || ch == PMATH_CHAR_INVISIBLECOMMA;
   size_t i;
   size_t exprlen = pmath_expr_length(expr);
   
@@ -2262,7 +2263,8 @@ static pmath_t make_comma_sequence(pmath_expr_t expr) {
   pmath_gather_begin(PMATH_NULL);
   
   while(i <= exprlen) {
-    if(unichar_at(expr, i) == ',') {
+    ch = unichar_at(expr, i);
+    if(ch == ',' || ch == PMATH_CHAR_INVISIBLECOMMA) {
       last_was_comma = TRUE;
       pmath_emit(prev, PMATH_NULL);
       prev = PMATH_NULL;
@@ -3310,7 +3312,7 @@ static pmath_t make_plus(pmath_expr_t boxes) {
                 arg);
       }
     }
-    else if(ch != '+') {
+    else if(ch != '+' && ch != PMATH_CHAR_INVISIBLEPLUS) {
       pmath_unref(arg);
       pmath_unref(result);
       handle_row_error_at(boxes, 2 * i);
@@ -3551,7 +3553,7 @@ static pmath_t make_multiplication(pmath_expr_t boxes) {
     pmath_emit(box, PMATH_NULL);
     
     ch = (i + 1 >= exprlen) ? 0 : unichar_at(boxes, i + 1);
-    if(ch == '*' || ch == 0x00D7 || ch == ' ')
+    if(ch == ' ' || ch == '*' || ch == PMATH_CHAR_TIMES || ch == PMATH_CHAR_INVISIBLETIMES)
       i += 2;
     else
       ++i;
