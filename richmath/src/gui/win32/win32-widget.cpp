@@ -849,6 +849,14 @@ void Win32Widget::on_hscroll(WORD kind, WORD thumbPos) {
     ScrollWindow(_hwnd, xPos - si.nPos, 0, &norect, &norect);
     invalidate();
   }
+  else {
+    /*  During WM_GESTURE, Windows 10 will *post* instead of *send* WM_HSCROLL messages
+        (with SB_THUMBTRACK and with SB_THUMBPOSITION).
+        That way, GetScrollInfo above will already get the updated new position, so that 
+        si.nPos == yPos. But we still need to redraw the window.
+     */
+    invalidate();
+  }
 }
 
 void Win32Widget::on_vscroll(WORD kind, WORD thumbPos) {
@@ -901,6 +909,14 @@ void Win32Widget::on_vscroll(WORD kind, WORD thumbPos) {
   if(si.nPos != yPos) {
     RECT norect = {0, 0, 0, 0};
     ScrollWindow(_hwnd, 0, yPos - si.nPos, &norect, &norect);
+    invalidate();
+  }
+  else {
+    /*  During WM_GESTURE, Windows 10 will *post* instead of *send* WM_VSCROLL messages
+        (with SB_THUMBTRACK and with SB_THUMBPOSITION).
+        That way, GetScrollInfo above will already get the updated new position, so that 
+        si.nPos == yPos. But we still need to redraw the window.
+     */
     invalidate();
   }
 }
