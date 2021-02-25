@@ -3620,6 +3620,14 @@ void MathSequence::Impl::EnlargeSpace::run() {
     int ee = e;
     if(op[ii] == PMATH_CHAR_BOX)
       find_box_token(op, ii, ee, box);
+    
+    if( buf[i] == PMATH_CHAR_INVISIBLECALL || 
+        buf[i] == PMATH_CHAR_INVISIBLETIMES || 
+        buf[i] == PMATH_CHAR_INVISIBLECOMMA ||
+        buf[i] == PMATH_CHAR_INVISIBLEPLUS)
+    {
+      continue;
+    }
       
     int prec;
     pmath_token_t tok = pmath_token_analyse(op + ii, ee - ii + 1, &prec);
