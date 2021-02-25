@@ -155,6 +155,7 @@ extern pmath_symbol_t pmath_System_ParserArguments;
 extern pmath_symbol_t pmath_System_ParseSymbols;
 extern pmath_symbol_t pmath_System_Part;
 extern pmath_symbol_t pmath_System_Pattern;
+extern pmath_symbol_t pmath_System_PatternSequence;
 extern pmath_symbol_t pmath_System_Piecewise;
 extern pmath_symbol_t pmath_System_Placeholder;
 extern pmath_symbol_t pmath_System_Plus;
@@ -239,8 +240,10 @@ static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i);
 static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i);
 
 #define is_parse_error(x)  pmath_is_magic(x)
-static pmath_bool_t parse(pmath_t *box);
-static pmath_t parse_at(pmath_expr_t expr, size_t i);
+static pmath_bool_t parse(    pmath_t *box);
+static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq); // seq wont be freed
+static pmath_t parse_at(    pmath_expr_t expr, size_t i);
+static pmath_t parse_seq_at(pmath_expr_t expr, size_t i, pmath_symbol_t seq);
 static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr);
 
 static pmath_t wrap_hold_with_debuginfo_from(pmath_t boxes_with_debuginfo, pmath_t result); // arguments be freed
@@ -282,13 +285,14 @@ static pmath_t make_comma_sequence(pmath_expr_t expr); // a,b,c ...
 static pmath_t make_evaluation_sequence(pmath_expr_t boxes); // a; b; c\[RawNewline]d ...
 static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes);
 static pmath_t make_optional_pattern(pmath_expr_t boxes); // ?x  ?x:v
-static pmath_t make_from_first_box( pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
-static pmath_t make_from_second_box(pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
-static pmath_t make_matchfix(       pmath_expr_t boxes, pmath_symbol_t sym); // {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
-static pmath_t make_binary(         pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
-static pmath_t make_infix_unchecked(pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
-static pmath_t make_infix(          pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
-static pmath_t make_relation(       pmath_expr_t boxes, pmath_symbol_t rel); // boxes will be freed, sym won't
+static pmath_t make_from_first_box(  pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_from_second_box( pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_matchfix(        pmath_expr_t boxes, pmath_symbol_t sym); // {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
+static pmath_t make_binary(          pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_pattern_op_other(pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_infix_unchecked( pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_infix(           pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_relation(        pmath_expr_t boxes, pmath_symbol_t rel); // boxes will be freed, sym won't
 static pmath_t make_repeated_pattern(pmath_expr_t boxes, pmath_t range); // x**  x***
 static pmath_t make_unary_plus(pmath_expr_t boxes); // +x
 static pmath_t make_unary_minus(pmath_expr_t boxes); // -x
@@ -643,15 +647,15 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // lhs->rhs
       if(secondchar == PMATH_CHAR_RULE)
-        return make_binary(expr, pmath_System_Rule);
+        return make_pattern_op_other(expr, pmath_System_Rule);
         
       // lhs:>rhs
       if(secondchar == PMATH_CHAR_RULEDELAYED)
-        return make_binary(expr, pmath_System_RuleDelayed);
+        return make_pattern_op_other(expr, pmath_System_RuleDelayed);
         
       // p?f
       if(secondchar == '?')
-        return make_binary(expr, pmath_System_TestPattern);
+        return make_pattern_op_other(expr, pmath_System_TestPattern);
         
       // lhs:=rhs
       if(is_string_at(expr, 2, ":="))
@@ -663,11 +667,11 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // lhs->rhs
       if(is_string_at(expr, 2, "->"))
-        return make_binary(expr, pmath_System_Rule);
+        return make_pattern_op_other(expr, pmath_System_Rule);
         
       // lhs:>rhs
       if(is_string_at(expr, 2, ":>"))
-        return make_binary(expr, pmath_System_RuleDelayed);
+        return make_pattern_op_other(expr, pmath_System_RuleDelayed);
         
       // lhs+=rhs
       if(is_string_at(expr, 2, "+="))
@@ -687,7 +691,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // p/?cond
       if(is_string_at(expr, 2, "/?"))
-        return make_binary(expr, pmath_System_Condition);
+        return make_pattern_op_other(expr, pmath_System_Condition);
         
       // arg // f
       if(is_string_at(expr, 2, "//"))
@@ -933,6 +937,10 @@ static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i) {
 }
 
 static pmath_bool_t parse(pmath_t *box) {
+  return parse_seq(box, pmath_System_Sequence);
+}
+
+static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq) {
 // *box = PMATH_NULL if result is FALSE
   pmath_t obj;
   pmath_t debug_info = pmath_get_debug_info(*box);
@@ -959,7 +967,7 @@ static pmath_bool_t parse(pmath_t *box) {
   }
   
   if(pmath_expr_length(*box) != 1) {
-    *box = pmath_expr_set_item(*box, 0, pmath_ref(pmath_System_Sequence));
+    *box = pmath_expr_set_item(*box, 0, pmath_ref(seq));
     *box = pmath_try_set_debug_info(*box, debug_info);
     return TRUE;
   }
@@ -1010,6 +1018,10 @@ static void handle_row_error_at(pmath_expr_t expr, size_t i) {
 }
 
 static pmath_t parse_at(pmath_expr_t expr, size_t i) {
+  return parse_seq_at(expr, i, pmath_System_Sequence);
+}
+
+static pmath_t parse_seq_at(pmath_expr_t expr, size_t i, pmath_symbol_t seq) {
   pmath_t result = pmath_expr_get_item(expr, i);
   
   if(pmath_is_string(result)) {
@@ -1022,7 +1034,7 @@ static pmath_t parse_at(pmath_expr_t expr, size_t i) {
     return result;
   }
   
-  if(parse(&result))
+  if(parse_seq(&result, seq))
     return result;
     
   return PMATH_UNDEFINED;
@@ -2542,6 +2554,27 @@ static pmath_t make_binary(
   return pmath_ref(pmath_System_DollarFailed);
 }
 
+static pmath_t make_pattern_op_other(pmath_expr_t boxes, pmath_symbol_t sym) { // boxes will be freed, sym won't
+  pmath_t pat = parse_seq_at(boxes, 1, pmath_System_PatternSequence);
+  
+  if(!is_parse_error(pat)) {
+    pmath_t other = parse_at(boxes, 3);
+    if(!is_parse_error(other)) {
+      return wrap_hold_with_debuginfo_from(
+               boxes,
+               pmath_expr_new_extended(
+                 pmath_ref(sym), 2,
+                 pat,
+                 other));
+    }
+    
+    pmath_unref(pat);
+  }
+  
+  pmath_unref(boxes);
+  return pmath_ref(pmath_System_DollarFailed);
+}
+
 static pmath_t make_infix_unchecked(
   pmath_expr_t boxes,  // will be freed
   pmath_symbol_t sym  // wont be freed
@@ -2953,12 +2986,15 @@ static pmath_t make_prefix_call(pmath_expr_t boxes) {
   pmath_t f = parse_at(boxes, 1);
   
   if(!is_parse_error(f)) {
-    pmath_t arg = parse_at(boxes, 3);
+    pmath_t arg = parse_seq_at(boxes, 3, PMATH_MAGIC_PATTERN_SEQUENCE);
     
     if(!is_parse_error(arg)) {
-      return wrap_hold_with_debuginfo_from(
-               boxes,
-               pmath_expr_new_extended(f, 1, arg));
+      if(pmath_is_expr_of(arg, PMATH_MAGIC_PATTERN_SEQUENCE)) 
+        arg = pmath_expr_set_item(arg, 0, f);
+      else
+        arg = pmath_expr_new_extended(f, 1, arg);
+        
+      return wrap_hold_with_debuginfo_from(boxes, arg);
     }
     
     pmath_unref(f);
