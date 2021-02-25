@@ -26,8 +26,6 @@ extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_Off;
 extern pmath_symbol_t pmath_System_Sequence;
 
-//{ spans ...
-
 struct _pmath_span_t {
   int next_offset;
   int end;
@@ -49,26 +47,193 @@ struct _pmath_span_array_t {
 };
 
 
+struct scanner_t {
+  const uint16_t            *str;
+  int                        len;
+  int                        pos;
+  pmath_span_array_t        *spans;
+  
+  unsigned comment_level: 31;
+  unsigned in_line_comment: 1;
+  
+  //pmath_bool_t in_comment;
+  pmath_bool_t in_string;
+  pmath_bool_t have_error;
+};
+
+struct parser_t {
+  pmath_string_t code;
+  int fencelevel;
+  int stack_size;
+  
+  
+  pmath_string_t    (*read_line)(void *);
+  pmath_bool_t      (*subsuperscriptbox_at_index)(int, void *);
+  pmath_string_t    (*underoverscriptbox_at_index)(int, void *);
+  void              (*error)(pmath_string_t, int, void *, pmath_bool_t); //does not free 1st arg
+  void               *data;
+  
+  struct scanner_t tokens;
+  
+  pmath_bool_t stack_error;
+  pmath_bool_t tokenizing;
+  int          last_space_start;
+};
+
+
+struct group_t {
+  pmath_span_array_t                 *spans;
+  pmath_string_t                      string;
+  const uint16_t                     *str;
+  //int                                 pos;
+  struct pmath_text_position_t        tp;
+  struct pmath_text_position_t        tp_before_whitespace;
+  struct pmath_boxes_from_spans_ex_t  settings;
+};
+
+struct ungroup_t {
+  pmath_span_array_t  *spans;
+  uint16_t            *str;
+  int                  pos;
+  void               (*make_box)(int, pmath_t, void *);
+  void                *data;
+  pmath_bool_t         split_tokens;
+  
+  int comment_level;
+};
+
+
+
 #define ADDRESS_OF_FIRST_SPAN(ARR) \
   ((struct _pmath_span_t*) ROUND_UP( (size_t)&(ARR)->items[(ARR)->length] , sizeof(struct _pmath_span_t) ))
 
 #define OFFSET_OF_FIRST_SPAN(LEN) \
   ROUND_UP( (size_t)&((struct _pmath_span_array_t*)0)->items[(LEN)] , sizeof(struct _pmath_span_t) )
 
-  
-static pmath_span_t *span_at(pmath_span_array_t *spans, int pos) {
-  size_t span_index = spans->items[pos].span_index;
-  if(span_index == 0)
-    return NULL;
-  
-  return ADDRESS_OF_FIRST_SPAN(spans) + (span_index - 1);
-}
+static pmath_span_t *span_at(pmath_span_array_t *spans, int pos);
+static size_t next_power_of_2(size_t x);
+static pmath_span_array_t *create_span_array(int length, int spans_capacity);
+static pmath_span_array_t *enlarge_span_array(pmath_span_array_t *span_array, int extra_len, int extra_spans);
+static pmath_span_t *alloc_span(pmath_span_array_t **span_array, unsigned *new_index);
+
+
+static void span(struct scanner_t *tokens, int start);
+static void handle_error(     struct parser_t *parser);
+static pmath_bool_t enter(    struct parser_t *parser);
+static void         leave(    struct parser_t *parser);
+static int next_token_pos(    struct parser_t *parser);
+static pmath_bool_t read_more(struct parser_t *parser);
+static void skip_space(       struct parser_t *parser, int span_start, pmath_bool_t optional);
+static void skip_to(          struct parser_t *parser, int span_start, int next, pmath_bool_t optional);
+static pmath_token_t scan_next_escaped_char(        struct scanner_t *tokens, struct parser_t *parser, uint32_t *chr);
+static void          scan_next_backtick_insertion(  struct scanner_t *tokens, struct parser_t *parser);
+static pmath_bool_t  scan_next_string(              struct scanner_t *tokens, struct parser_t *parser);
+static pmath_bool_t  scan_number_base_specifier(    struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_float_decimal_digits_rest(struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_float_base36_digits_rest( struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_precision_specifier(      struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_number_exponent(          struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_number_radius(            struct scanner_t *tokens, struct parser_t *parser, pmath_bool_t is_base36);
+static void          scan_next_number(              struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_next_as_name(             struct scanner_t *tokens, struct parser_t *parser);
+static void          scan_next(                     struct scanner_t *tokens, struct parser_t *parser);
+static pmath_token_t token_analyse(   struct parser_t *parser, int next, int *prec);
+static int  prefix_precedence(        struct parser_t *parser, int next, int defprec);
+static pmath_bool_t same_token(       struct parser_t *parser, int last_start, int last_next, int cur_next);
+static pmath_bool_t plusplus_is_infix(struct parser_t *parser, int next);
+static void skip_prim_newline(          struct parser_t *parser, pmath_bool_t prim_optional);
+static void skip_prim_newline_impl(     struct parser_t *parser, int next);
+static int  parse_prim_after_newline(   struct parser_t *parser, pmath_bool_t prim_optional);
+static void parse_prim(                 struct parser_t *parser, pmath_bool_t prim_optional);
+static void parse_rest(                 struct parser_t *parser, int lhs_start, int min_prec);
+static void parse_sequence(             struct parser_t *parser);
+static void parse_skip_until_rightfence(struct parser_t *parser);
+static void parse_textline(             struct parser_t *parser);
+
+static void increment_text_position_to(struct group_t *group, int end);
+static void increment_text_position(   struct group_t *group);
+static void check_tp_before_whitespace(struct group_t *group, int end);
+static void skip_whitespace(struct group_t *group);
+static void write_to_str(pmath_string_t *result, const uint16_t *data, int len);
+static void emit_span(pmath_span_t *span, struct group_t *group);
+
+static int ungrouped_string_length(pmath_t box);
+static void ungroup(struct ungroup_t *g, pmath_t box);
+
+
+//{ spans ...
 
 PMATH_API pmath_span_t *pmath_span_at(pmath_span_array_t *spans, int pos) {
   if(!spans || pos < 0 || pos >= spans->length)
     return NULL;
     
   return span_at(spans, pos);
+}
+
+PMATH_API void pmath_span_array_free(pmath_span_array_t *spans) {
+  if(!spans)
+    return;
+  
+  pmath_mem_free(spans);
+}
+
+PMATH_API int pmath_span_array_length(pmath_span_array_t *spans) {
+  if(!spans)
+    return 0;
+  assert(spans->length > 0);
+  return spans->length;
+}
+
+PMATH_API pmath_bool_t pmath_span_array_is_token_end(
+  pmath_span_array_t *spans,
+  int pos
+) {
+  if(!spans || pos < 0 || pos >= spans->length) {
+    pmath_debug_print("[pmath_span_array_is_token_end: out of bounds]\n");
+    return TRUE;
+  }
+  
+  if(pos + 1 == spans->length) {
+    if(!spans->items[pos].is_token_end) {
+      pmath_debug_print("[missing token_end flag at end of span array]\n");
+    }
+    
+    return TRUE;
+  }
+  
+  return spans->items[pos].is_token_end != 0;
+}
+
+PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
+  pmath_span_array_t *spans,
+  int pos
+) {
+  if(!spans || pos < 0 || pos >= spans->length)
+    return FALSE;
+    
+  return spans->items[pos].is_operand_start != 0;
+}
+
+PMATH_API pmath_span_t *pmath_span_next(pmath_span_t *span) {
+  if(!span)
+    return NULL;
+  if(span->next_offset == 0)
+    return NULL;
+  return span + span->next_offset;
+}
+
+PMATH_API int pmath_span_end(pmath_span_t *span) {
+  if(!span)
+    return 0;
+  return span->end;
+}
+
+static pmath_span_t *span_at(pmath_span_array_t *spans, int pos) {
+  size_t span_index = spans->items[pos].span_index;
+  if(span_index == 0)
+    return NULL;
+  
+  return ADDRESS_OF_FIRST_SPAN(spans) + (span_index - 1);
 }
 
 static size_t next_power_of_2(size_t x) {
@@ -181,100 +346,77 @@ static pmath_span_t *alloc_span(pmath_span_array_t **span_array, unsigned *new_i
   return span;
 }
 
-PMATH_API void pmath_span_array_free(pmath_span_array_t *spans) {
-  if(!spans)
-    return;
-  
-  pmath_mem_free(spans);
-}
-
-PMATH_API int pmath_span_array_length(pmath_span_array_t *spans) {
-  if(!spans)
-    return 0;
-  assert(spans->length > 0);
-  return spans->length;
-}
-
-PMATH_API pmath_bool_t pmath_span_array_is_token_end(
-  pmath_span_array_t *spans,
-  int pos
-) {
-  if(!spans || pos < 0 || pos >= spans->length) {
-    pmath_debug_print("[pmath_span_array_is_token_end: out of bounds]\n");
-    return TRUE;
-  }
-  
-  if(pos + 1 == spans->length) {
-    if(!spans->items[pos].is_token_end) {
-      pmath_debug_print("[missing token_end flag at end of span array]\n");
-    }
-    
-    return TRUE;
-  }
-  
-  return spans->items[pos].is_token_end != 0;
-}
-
-PMATH_API pmath_bool_t pmath_span_array_is_operand_start(
-  pmath_span_array_t *spans,
-  int pos
-) {
-  if(!spans || pos < 0 || pos >= spans->length)
-    return FALSE;
-    
-  return spans->items[pos].is_operand_start != 0;
-}
-
-PMATH_API pmath_span_t *pmath_span_next(pmath_span_t *span) {
-  if(!span)
-    return NULL;
-  if(span->next_offset == 0)
-    return NULL;
-  return span + span->next_offset;
-}
-
-PMATH_API int pmath_span_end(pmath_span_t *span) {
-  if(!span)
-    return 0;
-  return span->end;
-}
-
 //} ... spans
 
-struct scanner_t {
-  const uint16_t            *str;
-  int                        len;
-  int                        pos;
-  pmath_span_array_t        *spans;
-  
-  unsigned comment_level: 31;
-  unsigned in_line_comment: 1;
-  
-  //pmath_bool_t in_comment;
-  pmath_bool_t in_string;
-  pmath_bool_t have_error;
-};
-
-struct parser_t {
-  pmath_string_t code;
-  int fencelevel;
-  int stack_size;
-  
-  
-  pmath_string_t    (*read_line)(void *);
-  pmath_bool_t      (*subsuperscriptbox_at_index)(int, void *);
-  pmath_string_t    (*underoverscriptbox_at_index)(int, void *);
-  void              (*error)(pmath_string_t, int, void *, pmath_bool_t); //does not free 1st arg
-  void               *data;
-  
-  struct scanner_t tokens;
-  
-  pmath_bool_t stack_error;
-  pmath_bool_t tokenizing;
-  int          last_space_start;
-};
-
 //{ parsing ...
+
+PMATH_API pmath_span_array_t *pmath_spans_from_string(
+  pmath_string_t   *code,
+  pmath_string_t  (*line_reader)(void *),
+  pmath_bool_t    (*subsuperscriptbox_at_index)(int, void *),
+  pmath_string_t  (*underoverscriptbox_at_index)(int, void *),
+  void            (*error)(  pmath_string_t, int, void *, pmath_bool_t), //does not free 1st arg
+  void             *data
+) {
+  struct parser_t parser;
+  
+  parser.code = *code;
+  parser.tokens.str = pmath_string_buffer(&parser.code);
+  parser.tokens.len = pmath_string_length(parser.code);
+  parser.tokens.pos = 0;
+  parser.tokens.spans = create_span_array(parser.tokens.len, 0);
+  parser.fencelevel = 0;
+  parser.stack_size = 0;
+  
+  if(!parser.tokens.spans)
+    return NULL;
+    
+  parser.read_line                   = line_reader;
+  parser.subsuperscriptbox_at_index  = subsuperscriptbox_at_index;
+  parser.underoverscriptbox_at_index = underoverscriptbox_at_index;
+  parser.error                       = error;
+  parser.data                        = data;
+  parser.tokens.comment_level        = 0;
+  parser.tokens.in_string            = FALSE;
+  parser.tokens.have_error           = FALSE;
+  parser.stack_error                 = FALSE;
+  parser.last_space_start            = 0;
+    
+  parser.tokenizing = TRUE;
+  while(parser.tokens.pos < parser.tokens.len)
+    scan_next(&parser.tokens, &parser);
+  parser.tokens.pos = 0;
+  parser.tokens.comment_level = 0;
+  parser.tokens.in_string  = FALSE;
+  parser.tokenizing = FALSE;
+  
+  if(parser.tokens.have_error) {
+    skip_space(&parser, -1, FALSE);
+  }
+  else {
+    parser.tokens.have_error = TRUE;
+    skip_space(&parser, -1, FALSE);
+    parser.tokens.have_error = FALSE;
+  }
+  
+  while(parser.tokens.pos < parser.tokens.len) {
+    int tmp = parser.tokens.pos;
+    parse_sequence(&parser);
+    
+    if(parser.tokens.pos < parser.tokens.len) {
+      if(parser.tokens.str[parser.tokens.pos] == '\n')
+        skip_to(&parser, -1, next_token_pos(&parser), TRUE);
+      else
+        handle_error(&parser);
+    }
+    
+    if(tmp == parser.tokens.pos)
+      skip_to(&parser, -1, next_token_pos(&parser), FALSE);
+  }
+  
+  *code = parser.code;
+  return parser.tokens.spans;
+}
 
 static void span(struct scanner_t *tokens, int start) {
   int i, end;
@@ -346,15 +488,6 @@ static void leave(struct parser_t *parser) {
   --parser->stack_size;
 }
 
-static void scan_next(struct scanner_t *tokens, struct parser_t *parser);
-
-static void parse_sequence(struct parser_t *parser);
-static void skip_prim_newline(struct parser_t *parser, pmath_bool_t prim_optional);
-static int parse_prim_after_newline(struct parser_t *parser, pmath_bool_t prim_optional);
-static void parse_prim(    struct parser_t *parser, pmath_bool_t prim_optional);
-static void parse_rest(    struct parser_t *parser, int lhs_start, int min_prec);
-static void parse_textline(struct parser_t *parser);
-
 static int next_token_pos(struct parser_t *parser) {
   int next;
   struct _pmath_span_t *span;
@@ -381,8 +514,6 @@ static int next_token_pos(struct parser_t *parser) {
     
   return next;
 }
-
-static void skip_to(struct parser_t *parser, int span_start, int next, pmath_bool_t optional);
 
 static pmath_bool_t read_more(struct parser_t *parser) {
   pmath_string_t newline;
@@ -667,7 +798,6 @@ static void scan_next_backtick_insertion(struct scanner_t *tokens, struct parser
 }
 
 // returns whether goto END_SCAN should be executed
-PMATH_ATTRIBUTE_USE_RESULT
 static pmath_bool_t scan_next_string(struct scanner_t *tokens, struct parser_t *parser) {
   int k;
   int start;
@@ -1259,79 +1389,7 @@ END_SCAN:
     tokens->spans->items[tokens->pos - 1].is_token_end = TRUE;
 }
 
-PMATH_API pmath_span_array_t *pmath_spans_from_string(
-  pmath_string_t   *code,
-  pmath_string_t  (*line_reader)(void *),
-  pmath_bool_t    (*subsuperscriptbox_at_index)(int, void *),
-  pmath_string_t  (*underoverscriptbox_at_index)(int, void *),
-  void            (*error)(  pmath_string_t, int, void *, pmath_bool_t), //does not free 1st arg
-  void             *data
-) {
-  struct parser_t parser;
-  
-  parser.code = *code;
-  parser.tokens.str = pmath_string_buffer(&parser.code);
-  parser.tokens.len = pmath_string_length(parser.code);
-  parser.tokens.pos = 0;
-  parser.tokens.spans = create_span_array(parser.tokens.len, 0);
-  parser.fencelevel = 0;
-  parser.stack_size = 0;
-  
-  if(!parser.tokens.spans)
-    return NULL;
-    
-  parser.read_line                   = line_reader;
-  parser.subsuperscriptbox_at_index  = subsuperscriptbox_at_index;
-  parser.underoverscriptbox_at_index = underoverscriptbox_at_index;
-  parser.error                       = error;
-  parser.data                        = data;
-  parser.tokens.comment_level        = 0;
-  parser.tokens.in_string            = FALSE;
-  parser.tokens.have_error           = FALSE;
-  parser.stack_error                 = FALSE;
-  parser.last_space_start            = 0;
-    
-  parser.tokenizing = TRUE;
-  while(parser.tokens.pos < parser.tokens.len)
-    scan_next(&parser.tokens, &parser);
-  parser.tokens.pos = 0;
-  parser.tokens.comment_level = 0;
-  parser.tokens.in_string  = FALSE;
-  parser.tokenizing = FALSE;
-  
-  if(parser.tokens.have_error) {
-    skip_space(&parser, -1, FALSE);
-  }
-  else {
-    parser.tokens.have_error = TRUE;
-    skip_space(&parser, -1, FALSE);
-    parser.tokens.have_error = FALSE;
-  }
-  
-  while(parser.tokens.pos < parser.tokens.len) {
-    int tmp = parser.tokens.pos;
-    parse_sequence(&parser);
-    
-    if(parser.tokens.pos < parser.tokens.len) {
-      if(parser.tokens.str[parser.tokens.pos] == '\n')
-        skip_to(&parser, -1, next_token_pos(&parser), TRUE);
-      else
-        handle_error(&parser);
-    }
-    
-    if(tmp == parser.tokens.pos)
-      skip_to(&parser, -1, next_token_pos(&parser), FALSE);
-  }
-  
-  *code = parser.code;
-  return parser.tokens.spans;
-}
-
-static pmath_token_t token_analyse(
-  struct parser_t *parser,
-  int              next,
-  int             *prec
-) {
+static pmath_token_t token_analyse(struct parser_t *parser, int next, int *prec) {
   if(parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX && parser->underoverscriptbox_at_index) {
     pmath_string_t str = parser->underoverscriptbox_at_index(parser->tokens.pos, parser->data);
     
@@ -1353,11 +1411,7 @@ static pmath_token_t token_analyse(
            prec);
 }
 
-static int prefix_precedence(
-  struct parser_t *parser,
-  int              next,
-  int              defprec
-) {
+static int prefix_precedence(struct parser_t *parser, int next, int defprec) {
   if(parser->tokens.str[parser->tokens.pos] == PMATH_CHAR_BOX && parser->underoverscriptbox_at_index) {
     pmath_string_t str = parser->underoverscriptbox_at_index(parser->tokens.pos, parser->data);
     
@@ -1378,12 +1432,7 @@ static int prefix_precedence(
            defprec);
 }
 
-static pmath_bool_t same_token(
-  struct parser_t *parser,
-  int              last_start,
-  int              last_next,
-  int              cur_next
-) {
+static pmath_bool_t same_token(struct parser_t *parser, int last_start, int last_next, int cur_next) {
   const uint16_t *buf = parser->tokens.str;
   int cur_start = parser->tokens.pos;
   int cur_len   = cur_next  - cur_start;
@@ -1418,101 +1467,6 @@ static pmath_bool_t plusplus_is_infix(struct parser_t *parser, int next) {
   return result;
 }
 
-static void parse_skip_until_rightfence(struct parser_t *parser) {
-  pmath_token_t tok;
-  int start;
-  int next;
-  int fences;
-  
-  start = parser->tokens.pos;
-  next  = next_token_pos(parser);
-  fences = 0;
-  
-  while(next != parser->tokens.pos) {
-    tok = token_analyse(parser, next, NULL);
-    
-    if(tok == PMATH_TOK_RIGHT) {
-      --fences;
-      if(fences < 0)
-        break;
-    }
-    
-    if( tok == PMATH_TOK_LEFT ||
-        tok == PMATH_TOK_LEFTCALL)
-    {
-      ++fences;
-    }
-    
-    skip_to(parser, -1, next, TRUE);
-    
-    next = next_token_pos(parser);
-  }
-  
-  span(&parser->tokens, start);
-}
-
-static void parse_sequence(struct parser_t *parser) {
-  pmath_token_t tok;
-  int last;
-  int start;
-  int next;
-  
-  if(!enter(parser)) {
-    parse_skip_until_rightfence(parser);
-    return;
-  }
-  
-  start = last = parser->tokens.pos;
-  next  = next_token_pos(parser);
-  
-  while(next != parser->tokens.pos) {
-    tok = token_analyse(parser, next, NULL);
-    
-    if( tok == PMATH_TOK_RIGHT      ||
-        tok == PMATH_TOK_COMMENTEND ||
-        tok == PMATH_TOK_SPACE)
-    {
-      break;
-    }
-    
-    if(tok == PMATH_TOK_NEWLINE && parser->fencelevel == 0)
-      break;
-      
-    parse_prim(parser, FALSE);
-    parse_rest(parser, start, PMATH_PREC_ANY);
-    
-    if(parser->tokens.pos == last) {
-      skip_to(parser, -1, next, TRUE);
-    }
-    
-    last = parser->tokens.pos;
-    next = next_token_pos(parser);
-  }
-  
-  span(&parser->tokens, start);
-  leave(parser);
-}
-
-static void skip_prim_newline_impl(struct parser_t *parser, int next) {
-  pmath_token_t tok;
-  int start;
-  
-  start = parser->tokens.pos;
-  
-  parser->tokens.spans->items[start].is_operand_start = TRUE;
-  for(;;) {
-    skip_to(parser, -1, next, FALSE);
-    next = next_token_pos(parser);
-    
-    if(next == parser->tokens.pos)
-      break;
-      
-    tok = token_analyse(parser, next, NULL);
-    if(tok != PMATH_TOK_NEWLINE)
-      break;
-  }
-}
-
 static void skip_prim_newline(struct parser_t *parser, pmath_bool_t prim_optional) {
   pmath_token_t tok;
   int next;
@@ -1532,6 +1486,26 @@ static void skip_prim_newline(struct parser_t *parser, pmath_bool_t prim_optiona
       return;
       
     skip_prim_newline_impl(parser, next);
+  }
+}
+
+static void skip_prim_newline_impl(struct parser_t *parser, int next) {
+  pmath_token_t tok;
+  int start;
+  
+  start = parser->tokens.pos;
+  
+  parser->tokens.spans->items[start].is_operand_start = TRUE;
+  for(;;) {
+    skip_to(parser, -1, next, FALSE);
+    next = next_token_pos(parser);
+    
+    if(next == parser->tokens.pos)
+      break;
+      
+    tok = token_analyse(parser, next, NULL);
+    if(tok != PMATH_TOK_NEWLINE)
+      break;
   }
 }
 
@@ -2196,6 +2170,81 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
   leave(parser);
 }
 
+static void parse_sequence(struct parser_t *parser) {
+  pmath_token_t tok;
+  int last;
+  int start;
+  int next;
+  
+  if(!enter(parser)) {
+    parse_skip_until_rightfence(parser);
+    return;
+  }
+  
+  start = last = parser->tokens.pos;
+  next  = next_token_pos(parser);
+  
+  while(next != parser->tokens.pos) {
+    tok = token_analyse(parser, next, NULL);
+    
+    if( tok == PMATH_TOK_RIGHT      ||
+        tok == PMATH_TOK_COMMENTEND ||
+        tok == PMATH_TOK_SPACE)
+    {
+      break;
+    }
+    
+    if(tok == PMATH_TOK_NEWLINE && parser->fencelevel == 0)
+      break;
+      
+    parse_prim(parser, FALSE);
+    parse_rest(parser, start, PMATH_PREC_ANY);
+    
+    if(parser->tokens.pos == last) {
+      skip_to(parser, -1, next, TRUE);
+    }
+    
+    last = parser->tokens.pos;
+    next = next_token_pos(parser);
+  }
+  
+  span(&parser->tokens, start);
+  leave(parser);
+}
+
+static void parse_skip_until_rightfence(struct parser_t *parser) {
+  pmath_token_t tok;
+  int start;
+  int next;
+  int fences;
+  
+  start = parser->tokens.pos;
+  next  = next_token_pos(parser);
+  fences = 0;
+  
+  while(next != parser->tokens.pos) {
+    tok = token_analyse(parser, next, NULL);
+    
+    if(tok == PMATH_TOK_RIGHT) {
+      --fences;
+      if(fences < 0)
+        break;
+    }
+    
+    if( tok == PMATH_TOK_LEFT ||
+        tok == PMATH_TOK_LEFTCALL)
+    {
+      ++fences;
+    }
+    
+    skip_to(parser, -1, next, TRUE);
+    
+    next = next_token_pos(parser);
+  }
+  
+  span(&parser->tokens, start);
+}
+
 static void parse_textline(struct parser_t *parser) {
   pmath_token_t tok;
   int i;
@@ -2264,15 +2313,71 @@ static void parse_textline(struct parser_t *parser) {
 
 //{ group spans ...
 
-struct group_t {
-  pmath_span_array_t                 *spans;
-  pmath_string_t                      string;
-  const uint16_t                     *str;
-  //int                                 pos;
-  struct pmath_text_position_t        tp;
-  struct pmath_text_position_t        tp_before_whitespace;
-  struct pmath_boxes_from_spans_ex_t  settings;
-};
+PMATH_API pmath_t pmath_boxes_from_spans(
+  pmath_span_array_t   *spans,
+  pmath_string_t        string,
+  pmath_bool_t          parseable,
+  pmath_t             (*box_at_index)(int, void *),
+  void                 *data
+) {
+  struct pmath_boxes_from_spans_ex_t settings;
+  
+  memset(&settings, 0, sizeof(settings));
+  settings.size         = sizeof(settings);
+  settings.data         = data;
+  settings.box_at_index = box_at_index;
+  
+  if(parseable)
+    settings.flags = PMATH_BFS_PARSEABLE;
+    
+  return pmath_boxes_from_spans_ex(spans, string, &settings);
+}
+
+PMATH_API
+PMATH_ATTRIBUTE_USE_RESULT
+pmath_t pmath_boxes_from_spans_ex(
+  pmath_span_array_t                 *spans,
+  pmath_string_t                      string, // wont be freed
+  struct pmath_boxes_from_spans_ex_t *settings
+) {
+  struct group_t group;
+  pmath_expr_t result;
+  
+  if(!spans || spans->length != pmath_string_length(string))
+    return PMATH_C_STRING("");//pmath_ref(_pmath_object_emptylist);
+    
+  group.spans                 = spans;
+  group.string                = string;
+  group.str                   = pmath_string_buffer(&string);
+  
+  //group.pos                   = 0;
+  memset(&group.tp, 0, sizeof(group.tp));
+  
+  memset(&group.settings, 0, sizeof(group.settings));
+  if(settings) {
+    group.settings.size = settings->size;
+    if(group.settings.size > sizeof(group.settings))
+      group.settings.size  = sizeof(group.settings);
+      
+    memcpy(&group.settings, settings, group.settings.size);
+  }
+  
+  pmath_gather_begin(PMATH_NULL);
+  
+  if(group.settings.flags & PMATH_BFS_PARSEABLE)
+    skip_whitespace(&group);
+    
+  while(group.tp.index < spans->length)
+    emit_span(span_at(spans, group.tp.index), &group);
+    
+  result = pmath_expr_set_item(pmath_gather_end(), 0, PMATH_NULL);
+  if(pmath_expr_length(result) == 1) {
+    pmath_t tmp = pmath_expr_get_item(result, 1);
+    pmath_unref(result);
+    return tmp;
+  }
+  return result;
+}
 
 static void increment_text_position_to(struct group_t *group, int end) {
   if(group->tp.index > end) {
@@ -2651,86 +2756,48 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
   }
 }
 
-PMATH_API pmath_t pmath_boxes_from_spans(
-  pmath_span_array_t   *spans,
-  pmath_string_t        string,
-  pmath_bool_t          parseable,
-  pmath_t             (*box_at_index)(int, void *),
-  void                 *data
-) {
-  struct pmath_boxes_from_spans_ex_t settings;
-  
-  memset(&settings, 0, sizeof(settings));
-  settings.size         = sizeof(settings);
-  settings.data         = data;
-  settings.box_at_index = box_at_index;
-  
-  if(parseable)
-    settings.flags = PMATH_BFS_PARSEABLE;
-    
-  return pmath_boxes_from_spans_ex(spans, string, &settings);
-}
-
-PMATH_API
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_boxes_from_spans_ex(
-  pmath_span_array_t                 *spans,
-  pmath_string_t                      string, // wont be freed
-  struct pmath_boxes_from_spans_ex_t *settings
-) {
-  struct group_t group;
-  pmath_expr_t result;
-  
-  if(!spans || spans->length != pmath_string_length(string))
-    return PMATH_C_STRING("");//pmath_ref(_pmath_object_emptylist);
-    
-  group.spans                 = spans;
-  group.string                = string;
-  group.str                   = pmath_string_buffer(&string);
-  
-  //group.pos                   = 0;
-  memset(&group.tp, 0, sizeof(group.tp));
-  
-  memset(&group.settings, 0, sizeof(group.settings));
-  if(settings) {
-    group.settings.size = settings->size;
-    if(group.settings.size > sizeof(group.settings))
-      group.settings.size  = sizeof(group.settings);
-      
-    memcpy(&group.settings, settings, group.settings.size);
-  }
-  
-  pmath_gather_begin(PMATH_NULL);
-  
-  if(group.settings.flags & PMATH_BFS_PARSEABLE)
-    skip_whitespace(&group);
-    
-  while(group.tp.index < spans->length)
-    emit_span(span_at(spans, group.tp.index), &group);
-    
-  result = pmath_expr_set_item(pmath_gather_end(), 0, PMATH_NULL);
-  if(pmath_expr_length(result) == 1) {
-    pmath_t tmp = pmath_expr_get_item(result, 1);
-    pmath_unref(result);
-    return tmp;
-  }
-  return result;
-}
-
 //} ... group spans
 
 //{ ungroup span_array ...
 
-typedef struct {
-  pmath_span_array_t  *spans;
-  uint16_t            *str;
-  int                  pos;
-  void               (*make_box)(int, pmath_t, void *);
-  void                *data;
-  pmath_bool_t         split_tokens;
+PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
+  pmath_t          boxes,  // will be freed
+  pmath_string_t  *result_string,
+  void           (*make_box)(int, pmath_t, void *),
+  void            *data
+) {
+  struct ungroup_t g;
   
-  int comment_level;
-} _pmath_ungroup_t;
+  assert(result_string);
+  
+  g.spans = create_span_array(ungrouped_string_length(boxes), 0);
+  if(!g.spans) {
+    pmath_unref(boxes);
+    *result_string = pmath_string_new(0);
+    return NULL;
+  }
+  
+  *result_string = PMATH_FROM_PTR(_pmath_new_string_buffer(g.spans->length));
+  if(pmath_is_null(*result_string)) {
+    pmath_span_array_free(g.spans);
+    return NULL;
+  }
+  
+  g.str           = (uint16_t *)pmath_string_buffer(result_string);
+  g.pos           = 0;
+  g.make_box      = make_box;
+  g.data          = data;
+  g.split_tokens  = TRUE;
+  g.comment_level = 0;
+  
+  ungroup(&g, boxes);
+  
+  if(g.spans->length > 0)
+    g.spans->items[0].is_operand_start = TRUE;
+    
+  assert(g.pos == g.spans->length);
+  return g.spans;
+}
 
 static int ungrouped_string_length(pmath_t box) { // box wont be freed
   if(pmath_is_string(box)) {
@@ -2803,10 +2870,7 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
   return 1;
 }
 
-static void ungroup(
-  _pmath_ungroup_t *g,
-  pmath_t           box // will be freed
-) {
+static void ungroup(struct ungroup_t *g, pmath_t box) { // box will be freed
   if(pmath_is_string(box)) {
     const uint16_t *str;
     int len, i, j, start;
@@ -3056,116 +3120,11 @@ static void ungroup(
   g->str[g->pos++] = PMATH_CHAR_BOX;
 }
 
-PMATH_API pmath_span_array_t *pmath_spans_from_boxes(
-  pmath_t          boxes,  // will be freed
-  pmath_string_t  *result_string,
-  void           (*make_box)(int, pmath_t, void *),
-  void            *data
-) {
-  _pmath_ungroup_t g;
-  
-  assert(result_string);
-  
-  g.spans = create_span_array(ungrouped_string_length(boxes), 0);
-  if(!g.spans) {
-    pmath_unref(boxes);
-    *result_string = pmath_string_new(0);
-    return NULL;
-  }
-  
-  *result_string = PMATH_FROM_PTR(_pmath_new_string_buffer(g.spans->length));
-  if(pmath_is_null(*result_string)) {
-    pmath_span_array_free(g.spans);
-    return NULL;
-  }
-  
-  g.str           = (uint16_t *)pmath_string_buffer(result_string);
-  g.pos           = 0;
-  g.make_box      = make_box;
-  g.data          = data;
-  g.split_tokens  = TRUE;
-  g.comment_level = 0;
-  
-  ungroup(&g, boxes);
-  
-  if(g.spans->length > 0)
-    g.spans->items[0].is_operand_start = TRUE;
-    
-  assert(g.pos == g.spans->length);
-  return g.spans;
-}
-
 //} ... ungroup spans
 
-static void quiet_syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
-  pmath_bool_t *have_critical = flag;
-  
-  if(critical)
-    *have_critical = TRUE;
-}
-
-static pmath_t quiet_parse(pmath_t str) {
-  pmath_bool_t error_flag = FALSE;
-  pmath_t result;
-  pmath_span_array_t *spans;
-  struct pmath_boxes_from_spans_ex_t settings;
-  pmath_t message_name;
-  pmath_t on_off;
-  
-  spans = pmath_spans_from_string(
-            &str,
-            NULL,
-            NULL,
-            NULL,
-            quiet_syntax_error,
-            &error_flag);
-            
-  if(error_flag) {
-    pmath_span_array_free(spans);
-    pmath_unref(str);
-    return PMATH_UNDEFINED;
-  }
-  
-  memset(&settings, 0, sizeof(settings));
-  settings.size  = sizeof(settings);
-  settings.flags = PMATH_BFS_PARSEABLE;
-  
-  result = pmath_boxes_from_spans_ex(spans, str, &settings);
-  
-  pmath_span_array_free(spans);
-  pmath_unref(str);
-  
-  message_name = pmath_expr_new_extended(
-                   pmath_ref(pmath_System_MessageName), 2,
-                   pmath_ref(pmath_System_MakeExpression),
-                   PMATH_C_STRING("inv"));
-                   
-  // Off(MakeExpression::inv)
-  on_off = pmath_thread_local_save(
-             message_name,
-             pmath_ref(pmath_System_Off));
-             
-  result = pmath_evaluate(
-             pmath_expr_new_extended(
-               pmath_ref(pmath_System_MakeExpression), 1,
-               result));
-               
-  pmath_unref(
-    pmath_thread_local_save(
-      message_name,
-      on_off));
-      
-  pmath_unref(message_name);
-  
-  if(pmath_is_expr_of_len(result, pmath_System_HoldComplete, 1)) {
-    pmath_t value = pmath_expr_get_item(result, 1);
-    pmath_unref(result);
-    return value;
-  }
-  
-  pmath_unref(result);
-  return PMATH_UNDEFINED;
-}
+static pmath_t quiet_parse(pmath_t str);
+static void quiet_syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical);
+static void syntax_error(      pmath_string_t code, int pos, void *flag, pmath_bool_t critical);
 
 PMATH_API
 pmath_t pmath_string_expand_boxes(
@@ -3255,16 +3214,6 @@ HAVE_STH_TO_EXPAND:
       return result;
     }
   }
-}
-
-static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
-  pmath_bool_t *have_critical = flag;
-  
-  if(!*have_critical)
-    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
-    
-  if(critical)
-    *have_critical = TRUE;
 }
 
 PMATH_API pmath_t pmath_parse_string(
@@ -3392,4 +3341,84 @@ PMATH_API pmath_bool_t pmath_is_namespace_list(pmath_t list) {
   }
 
   return TRUE;
+}
+
+static pmath_t quiet_parse(pmath_t str) {
+  pmath_bool_t error_flag = FALSE;
+  pmath_t result;
+  pmath_span_array_t *spans;
+  struct pmath_boxes_from_spans_ex_t settings;
+  pmath_t message_name;
+  pmath_t on_off;
+  
+  spans = pmath_spans_from_string(
+            &str,
+            NULL,
+            NULL,
+            NULL,
+            quiet_syntax_error,
+            &error_flag);
+            
+  if(error_flag) {
+    pmath_span_array_free(spans);
+    pmath_unref(str);
+    return PMATH_UNDEFINED;
+  }
+  
+  memset(&settings, 0, sizeof(settings));
+  settings.size  = sizeof(settings);
+  settings.flags = PMATH_BFS_PARSEABLE;
+  
+  result = pmath_boxes_from_spans_ex(spans, str, &settings);
+  
+  pmath_span_array_free(spans);
+  pmath_unref(str);
+  
+  message_name = pmath_expr_new_extended(
+                   pmath_ref(pmath_System_MessageName), 2,
+                   pmath_ref(pmath_System_MakeExpression),
+                   PMATH_C_STRING("inv"));
+                   
+  // Off(MakeExpression::inv)
+  on_off = pmath_thread_local_save(
+             message_name,
+             pmath_ref(pmath_System_Off));
+             
+  result = pmath_evaluate(
+             pmath_expr_new_extended(
+               pmath_ref(pmath_System_MakeExpression), 1,
+               result));
+               
+  pmath_unref(
+    pmath_thread_local_save(
+      message_name,
+      on_off));
+      
+  pmath_unref(message_name);
+  
+  if(pmath_is_expr_of_len(result, pmath_System_HoldComplete, 1)) {
+    pmath_t value = pmath_expr_get_item(result, 1);
+    pmath_unref(result);
+    return value;
+  }
+  
+  pmath_unref(result);
+  return PMATH_UNDEFINED;
+}
+
+static void quiet_syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
+  pmath_bool_t *have_critical = flag;
+  
+  if(critical)
+    *have_critical = TRUE;
+}
+
+static void syntax_error(pmath_string_t code, int pos, void *flag, pmath_bool_t critical) {
+  pmath_bool_t *have_critical = flag;
+  
+  if(!*have_critical)
+    pmath_message_syntax_error(code, pos, PMATH_NULL, 0);
+    
+  if(critical)
+    *have_critical = TRUE;
 }
