@@ -31,7 +31,7 @@ Function FindSymbolDocumentationByFullName(~fullname:String) {
 Function FindSymbolDocumentationByNamespaceAndName(~namespace:String, ~name:String) {
     % TODO: check that name is actually a valid symbol and does not contain invalid characters
     With(dirs:= $DocumentationPath.Map(Function(ToFileName@Prepend(namespace.StringSplit("`"), #))))
-    With(files:= dirs.FileNames(name ++ ".pmathdoc"))
+    With(files:= dirs.FileNames(name ++ ".pmathdoc", IgnoreCase -> True))
     If(files === {}) {
         None
     } Else {
