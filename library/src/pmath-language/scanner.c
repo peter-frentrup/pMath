@@ -1329,14 +1329,33 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
       } break;
       
     case '?':
-    case '|':
-    case '&': { //  ?  ??  |  ||  &  &&
+    case '&': { //  ?  ??  &  &&
         ++tokens->pos;
         
         if( tokens->pos < tokens->len &&
             tokens->str[tokens->pos] == tokens->str[tokens->pos - 1]) //  ??  ||  &&
         {
           ++tokens->pos;
+        }
+      } break;
+    
+    case '|': { //  |  ||  |->
+        ++tokens->pos;
+        
+        if(tokens->pos == tokens->len)
+          break;
+        
+        if(tokens->str[tokens->pos] == '|') {
+          ++tokens->pos;
+          break; // ||
+        }
+        
+        if( tokens->pos + 1 < tokens->len &&
+            tokens->str[tokens->pos]     == '-' &&
+            tokens->str[tokens->pos + 1] == '>') 
+        {
+          tokens->pos+= 2;
+          break; // |->
         }
       } break;
       

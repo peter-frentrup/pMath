@@ -4,6 +4,7 @@
 		":=" -> "\[Assign]",
 		":>" -> "\[RuleDelayed]",
 		"::=" -> "\[AssignDelayed]",
+		"|->" -> "\[Function]",
 		"!=" -> "\[NotEqual]",
 		"<=" -> "\[LessEqual]",
 		">=" -> "\[GreaterEqual]",

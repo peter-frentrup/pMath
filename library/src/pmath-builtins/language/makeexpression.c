@@ -613,10 +613,6 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(secondchar == '@' || secondchar == PMATH_CHAR_INVISIBLECALL)
         return make_prefix_call(expr);
         
-      // arg // f
-      if(is_string_at(expr, 2, "//"))
-        return make_postfix_call(expr);
-        
       // f()
       if(secondchar == '(' && unichar_at(expr, 3) == ')')
         return make_argumentless_call(expr);
@@ -692,6 +688,14 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // p/?cond
       if(is_string_at(expr, 2, "/?"))
         return make_binary(expr, pmath_System_Condition);
+        
+      // arg // f
+      if(is_string_at(expr, 2, "//"))
+        return make_postfix_call(expr);
+        
+      // args |-> body
+      if(is_string_at(expr, 2, "|->"))
+        return make_arrow_function(expr);
     }
     
     // ~x:t  ~~x:t  ~~~x:t
