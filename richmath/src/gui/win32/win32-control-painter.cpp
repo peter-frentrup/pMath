@@ -378,6 +378,22 @@ void Win32ControlPainter::calc_container_size(
         extents->descent = 0;
       } return;
       
+    case ContainerType::VerticalSliderChannel: {
+        extents->ascent = 8 * extents->height();
+        extents->descent = 0;
+        
+        float dx = 4;
+        float dy = 0;
+        if(theme && Win32Themes::GetThemePartSize) {
+          SIZE size;
+          if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
+            dy = size.cy;
+          }
+        }
+        canvas.device_to_user_dist(&dx, &dy);
+        extents->width = max(fabs(dx), fabs(dy));
+      } return;
+      
     case ContainerType::HorizontalSliderThumb:
     case ContainerType::HorizontalSliderDownArrowButton:
     case ContainerType::HorizontalSliderUpArrowButton: {
@@ -388,6 +404,23 @@ void Win32ControlPainter::calc_container_size(
             extents->descent = 0;
             //extents->width = 0.75 * size.cx;
             extents->width = 0.5 * extents->height();
+            round_extents(canvas, extents);
+            return;
+          }
+        }
+      } break;
+      
+    case ContainerType::VerticalSliderThumb:
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderRightArrowButton: {
+        if(theme && Win32Themes::GetThemePartSize) {
+          SIZE size;
+          if(SUCCEEDED(Win32Themes::GetThemePartSize(theme, nullptr, theme_part, theme_state, nullptr, Win32Themes::TS_TRUE, &size))) {
+            // TKP_THUMBVERT wrongly gives same TS_TRUE size as TKP_THUMB, so we play safe and use max(cx, cy)
+            extents->width = 0.75 * std::max(size.cx, size.cy); // 0.75 * size.cx;
+            //extents->width = 0.75 * size.cx;
+            extents->ascent = 0.5 * extents->width;
+            extents->descent = 0;
             round_extents(canvas, extents);
             return;
           }
@@ -587,6 +620,10 @@ Color Win32ControlPainter::control_font_color(ControlContext &control, Container
     case ContainerType::HorizontalSliderThumb:
     case ContainerType::HorizontalSliderDownArrowButton:
     case ContainerType::HorizontalSliderUpArrowButton:
+    case ContainerType::VerticalSliderChannel:
+    case ContainerType::VerticalSliderThumb:
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderRightArrowButton:
     case ContainerType::ProgressIndicatorBackground:
     case ContainerType::ProgressIndicatorBar:
     case ContainerType::CheckboxUnchecked:
@@ -1121,6 +1158,7 @@ void Win32ControlPainter::draw_container(
       
       case ContainerType::ProgressIndicatorBackground:
       case ContainerType::HorizontalSliderChannel:
+      case ContainerType::VerticalSliderChannel:
       case ContainerType::ToggleSwitchChannelUnchecked: {
           FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
           
@@ -1164,7 +1202,8 @@ void Win32ControlPainter::draw_container(
           }
         } break;
         
-      case ContainerType::HorizontalSliderThumb: {
+      case ContainerType::HorizontalSliderThumb:
+      case ContainerType::VerticalSliderThumb: {
           DrawFrameControl(
             dc,
             &irect,
@@ -1176,42 +1215,68 @@ void Win32ControlPainter::draw_container(
           RECT tmp = irect;
           int h = (tmp.right - tmp.left) / 2;
           
-          irect.bottom-= 2;
-          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
-          irect.bottom+= 2;
-          
           tmp.bottom-= h;
-          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_RIGHT | BF_TOP);
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_RIGHT | BF_TOP | BF_MIDDLE);
           
           tmp.bottom = irect.bottom;
           tmp.top = tmp.bottom - h;
           tmp.right = tmp.left + h;
-          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_LEFT);
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_LEFT | BF_MIDDLE);
           
           tmp.left = tmp.right;
           tmp.right = irect.right;
-          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_LEFT);
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_LEFT | BF_MIDDLE);
         } break;
         
       case ContainerType::HorizontalSliderUpArrowButton: {
           RECT tmp = irect;
           int h = (tmp.right - tmp.left) / 2;
           
-          irect.top+= 2;
-          FillRect(dc, &irect, (HBRUSH)(COLOR_BTNFACE + 1));
-          irect.top-= 2;
-          
           tmp.top+= h;
-          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_RIGHT | BF_BOTTOM);
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_RIGHT | BF_BOTTOM | BF_MIDDLE);
           
           tmp.top    = irect.top;
           tmp.bottom = tmp.top + h;
           tmp.right = tmp.left + h;
-          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_RIGHT);
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_RIGHT | BF_MIDDLE);
           
           tmp.left = tmp.right;
           tmp.right = irect.right;
-          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_RIGHT);
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_RIGHT | BF_MIDDLE);
+        } break;
+        
+      case ContainerType::VerticalSliderLeftArrowButton: {
+          RECT tmp = irect;
+          int h = (tmp.bottom - tmp.top) / 2;
+          
+          tmp.left+= h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER,  BF_RIGHT | BF_TOP | BF_BOTTOM | BF_MIDDLE);
+          
+          tmp.left  = irect.left;
+          tmp.right = tmp.left + h;
+          tmp.bottom = tmp.top + h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_RIGHT | BF_MIDDLE);
+          
+          tmp.top = tmp.bottom;
+          tmp.bottom = irect.bottom;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_TOP | BF_LEFT | BF_MIDDLE);
+        } break;
+      
+      case ContainerType::VerticalSliderRightArrowButton: {
+          RECT tmp = irect;
+          int h = (tmp.bottom - tmp.top) / 2;
+          
+          tmp.right-= h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_LEFT | BF_TOP | BF_BOTTOM | BF_MIDDLE);
+          
+          tmp.right = irect.right;
+          tmp.left = tmp.right - h;
+          tmp.bottom = tmp.top + h;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_RIGHT | BF_MIDDLE);
+          
+          tmp.top = tmp.bottom;
+          tmp.bottom = irect.bottom;
+          DrawEdge(dc, &tmp, BDR_RAISEDINNER | BDR_RAISEDOUTER, BF_DIAGONAL | BF_BOTTOM | BF_LEFT | BF_MIDDLE);
         } break;
         
       case ContainerType::ToggleSwitchThumbChecked:
@@ -2118,6 +2183,10 @@ HANDLE Win32ControlPainter::get_control_theme(
     case ContainerType::HorizontalSliderThumb: 
     case ContainerType::HorizontalSliderDownArrowButton: 
     case ContainerType::HorizontalSliderUpArrowButton: 
+    case ContainerType::VerticalSliderChannel:
+    case ContainerType::VerticalSliderThumb: 
+    case ContainerType::VerticalSliderLeftArrowButton: 
+    case ContainerType::VerticalSliderRightArrowButton: 
       theme = w32cp_cache.slider_theme(control.dpi());
       break;
       
@@ -2283,14 +2352,25 @@ HANDLE Win32ControlPainter::get_control_theme(
         *theme_state = 1;
       } break;
       
+    case ContainerType::VerticalSliderChannel: {
+        *theme_part  = 2; // TKP_TRACKVERT
+        *theme_state = 1;
+      } break;
+      
     case ContainerType::HorizontalSliderThumb:
     case ContainerType::HorizontalSliderDownArrowButton:
-    case ContainerType::HorizontalSliderUpArrowButton: {
+    case ContainerType::HorizontalSliderUpArrowButton:
+    case ContainerType::VerticalSliderThumb:
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderRightArrowButton: {
         switch(type) {
           default:
-          case ContainerType::HorizontalSliderThumb:          *theme_part = 3; break; // TKP_THUMB
+          case ContainerType::HorizontalSliderThumb:           *theme_part = 3; break; // TKP_THUMB
           case ContainerType::HorizontalSliderDownArrowButton: *theme_part = 4; break; // TKP_THUMBBOTTOM
           case ContainerType::HorizontalSliderUpArrowButton:   *theme_part = 5; break; // TKP_THUMBTOP
+          case ContainerType::VerticalSliderThumb:             *theme_part = 6; break; // TKP_THUMBVERT
+          case ContainerType::VerticalSliderLeftArrowButton:   *theme_part = 7; break; // TKP_THUMBLEFT
+          case ContainerType::VerticalSliderRightArrowButton:  *theme_part = 8; break; // TKP_THUMBRIGHT
         }
         switch(state) {
           case ControlState::Normal:         *theme_state = 1; break;

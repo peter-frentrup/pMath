@@ -4,6 +4,7 @@
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
+#include <algorithm>
 #include <cmath>
 #include <limits>
 
@@ -16,6 +17,14 @@ namespace std {
 }
 #endif
 
+#ifdef min
+#  undef min
+#endif
+
+#ifdef max
+#  undef max
+#endif
+
 #ifndef NAN
 #  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
@@ -24,10 +33,14 @@ namespace richmath {
   namespace strings {
     extern String DollarContext_namespace;
     extern String DownArrow;
+    extern String Horizontal;
+    extern String LeftArrow;
+    extern String RightArrow;
     extern String Slider;
     extern String ToggleSwitchChecked;
     extern String ToggleSwitchUnchecked;
     extern String UpArrow;
+    extern String Vertical;
   }
   
   class SliderBox::Impl {
@@ -37,10 +50,18 @@ namespace richmath {
       Impl(SliderBox &self) : self(self) {}
       
     public:
-      double mouse_to_val(double mouse_x);
+      bool is_vertical() { return is_vertical(self.type); }
+      static bool is_vertical(ContainerType type);
       
-      float calc_thumb_pos(double val);
+      double mouse_to_val(Point p);
+      Point calc_thumb_pos(double val);
+      Vector2F thumb_size();
       
+    private:
+      double mouse_to_val_scalar(double x, double min_x, double max_x);
+      float calc_thumb_pos_scalar(double val, double max_pos);
+      
+    public:
       bool approximately_equals(double val1, double val2);
       
       Expr position_to_value(double d, bool evaluate);
@@ -203,18 +224,32 @@ void SliderBox::resize(Context &context) {
   BoxSize size = _extents;
   ControlPainter::std->calc_container_size(*this, context.canvas(), type, &size);
   
-  thumb_width = size.width;
-  _extents.ascent  = size.ascent;
-  _extents.descent = size.descent;
+  if(Impl(*this).is_vertical()) {
+    thumb_width = size.height();
+    _extents.width = size.width;
+  }
+  else {
+    thumb_width = size.width;
+    _extents.ascent  = size.ascent;
+    _extents.descent = size.descent;
+  }
   
   size = _extents;
   ControlPainter::std->calc_container_size(*this, context.canvas(), Impl::channel_for_thumb(type), &size);
-  channel_width = size.height();
+  
+  if(Impl(*this).is_vertical()) {
+    channel_width = size.width;
+    _extents.ascent  = size.ascent;
+    _extents.descent = size.descent;
+  }
+  else {
+    channel_width = size.height();
+    _extents.width   = size.width;
+  }
   
   float h = _extents.height();
   _extents.ascent = 0.25 * em + 0.5 * h;
   _extents.descent = h - _extents.ascent;
-  _extents.width   = size.width;
 }
 
 void SliderBox::paint(Context &context) {
@@ -315,8 +350,8 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
     
     if(dynamic.is_dynamic())
       Application::activated_control(this);
-      
-    double val = Impl(*this).mouse_to_val(event.position.x);
+    
+    double val = Impl(*this).mouse_to_val(event.position);
     
     bool has_pre = dynamic.has_pre_or_post_assignment();
     if(has_pre || !Impl(*this).approximately_equals(val, range_value)) {
@@ -335,7 +370,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
     event.set_origin(this);
     
     if(mouse_left_down()) {
-      double val = Impl(*this).mouse_to_val(event.position.x);
+      double val = Impl(*this).mouse_to_val(event.position);
       
       if(!Impl(*this).approximately_equals(val, range_value)) {
         if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) {
@@ -350,10 +385,11 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
       }
     }
     else {
-      float tx = Impl(*this).calc_thumb_pos(range_value);
+      RectangleF thumb_rect(Impl(*this).calc_thumb_pos(range_value), Impl(*this).thumb_size());
+      thumb_rect.y-= _extents.ascent;
       
       bool old_mot = mouse_over_thumb();
-      mouse_over_thumb(tx <= event.position.x && event.position.x <= tx + thumb_width);
+      mouse_over_thumb(thumb_rect.contains(event.position));
       
       if(old_mot != mouse_over_thumb())
         request_repaint_all();
@@ -364,7 +400,7 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
 void SliderBox::on_mouse_up(MouseEvent &event) {
   if(event.left && enabled()) {
     event.set_origin(this);
-    double val = Impl(*this).mouse_to_val(event.position.x);
+    double val = Impl(*this).mouse_to_val(event.position);
     if( //!Impl(*this).approximately_equals(val, range_value) ||
         dynamic.synchronous_updating() == AutoBoolAutomatic ||
         !get_own_style(ContinuousAction, true) ||
@@ -393,16 +429,37 @@ void SliderBox::on_mouse_cancel() {
 
 //{ class SliderBox::Impl ...
 
-double SliderBox::Impl::mouse_to_val(double mouse_x) {
-  mouse_x -= self.thumb_width / 2;
-  if(mouse_x < 0)
-    mouse_x = 0;
-  if(mouse_x > self._extents.width - self.thumb_width)
-    mouse_x = self._extents.width - self.thumb_width;
+bool SliderBox::Impl::is_vertical(ContainerType type) {
+  switch(type) {
+    case ContainerType::VerticalSliderChannel:
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderRightArrowButton:
+    case ContainerType::VerticalSliderThumb:
+      return true;
+    
+    default:
+      return false;
+  }
+}
+
+double SliderBox::Impl::mouse_to_val(Point p) {
+  float t_half = 0.5f * self.thumb_width;
+  
+  if(is_vertical()) 
+    return mouse_to_val_scalar(self._extents.descent - p.y, t_half, self._extents.height() - t_half);
+  else
+    return mouse_to_val_scalar(p.x, t_half, self._extents.width - t_half);
+}
+
+double SliderBox::Impl::mouse_to_val_scalar(double x, double min_x, double max_x) {
+  if(x < min_x)
+    x = min_x;
+  if(x > max_x)
+    x = max_x;
     
   double val;
   if(self.range_min != self.range_max) {
-    val = (mouse_x / (self._extents.width - self.thumb_width)) * (self.range_max - self.range_min);
+    val = ((x - min_x) / (max_x - min_x)) * (self.range_max - self.range_min);
     
     if(self.range_step != 0) {
       val = self.range_min + round(val / self.range_step) * self.range_step;
@@ -425,18 +482,34 @@ double SliderBox::Impl::mouse_to_val(double mouse_x) {
   return val;
 }
 
-float SliderBox::Impl::calc_thumb_pos(double val) {
+Point SliderBox::Impl::calc_thumb_pos(double val) {
+  if(is_vertical()) {
+    float h = self._extents.height() - self.thumb_width;
+    return Point(0.0f, h - calc_thumb_pos_scalar(val, h));
+  }
+  else
+    return Point(calc_thumb_pos_scalar(val, self._extents.width - self.thumb_width), 0.0f);
+}
+
+Vector2F SliderBox::Impl::thumb_size() {
+  if(is_vertical())
+    return Vector2F(self._extents.width, self.thumb_width);
+  else
+    return Vector2F(self.thumb_width, self._extents.height());
+}
+
+float SliderBox::Impl::calc_thumb_pos_scalar(double val, double max_pos) {
   if(std::isnan(val))
-    return self._extents.width / 2 - self.thumb_width / 2;
+    return max_pos / 2;
     
   if(self.range_min < self.range_max) {
     if(val < self.range_min)
       return 0;
       
     if(val > self.range_max)
-      return self._extents.width - self.thumb_width;
+      return max_pos;
       
-    return (val - self.range_min) / (self.range_max - self.range_min) * (self._extents.width - self.thumb_width);
+    return (val - self.range_min) / (self.range_max - self.range_min) * max_pos;
   }
   
   if(self.range_min > self.range_max) {
@@ -444,20 +517,18 @@ float SliderBox::Impl::calc_thumb_pos(double val) {
       return 0;
       
     if(val > self.range_min)
-      return self._extents.width - self.thumb_width;
+      return max_pos;
       
-    return (val - self.range_min) / (self.range_max - self.range_min) * (self._extents.width - self.thumb_width);
+    return (val - self.range_min) / (self.range_max - self.range_min) * max_pos;
   }
   
-  return self._extents.width / 2 - self.thumb_width / 2;
+  return max_pos / 2;
 }
 
 bool SliderBox::Impl::approximately_equals(double val1, double val2) {
-  double mouse_x_1 = calc_thumb_pos(val1);
-  double mouse_x_2 = calc_thumb_pos(val2);
-  double dx = mouse_x_1 - mouse_x_2;
+  Vector2F delta = calc_thumb_pos(val1) - calc_thumb_pos(val2);
   
-  if(dx == 0)
+  if(delta.x == 0 && delta.y == 0)
     return true;
   
   cairo_matrix_t mat;
@@ -465,7 +536,8 @@ bool SliderBox::Impl::approximately_equals(double val1, double val2) {
   
   self.transformation(nullptr, &mat);
   
-  double dy = 0.0;
+  double dx = delta.x;
+  double dy = delta.y;
   cairo_matrix_transform_distance(&mat, &dx, &dy);
   
   return dx * dx + dy * dy < 0.5; // 0.75 is one pixel; TODO: use document's DPI
@@ -554,14 +626,15 @@ void SliderBox::Impl::paint_error_indicator_if_necessary(Canvas &canvas, Point p
 }
 
 void SliderBox::Impl::paint_error_indicator(Canvas &canvas, Point pos) {
-  float rx = pos.x + self._extents.width / 2;
-  float h = self._extents.height();
+  Point center = pos + Vector2F(self._extents.width / 2, self._extents.height() / 2);
+  float radius = std::min(self._extents.width, self._extents.height()) * 0.5f;
+  Vector2F dir = is_vertical() ? Vector2F(0, -radius/3) : Vector2F(-radius/3, 0);
   
   Color old_color = canvas.get_color();
   canvas.save();
   canvas.set_color(Color::from_rgb24(0xFF0000), 0.2);
   for(int i = -2; i <= 2; ++i) {
-    canvas.arc(rx + i * h / 6, pos.y + h / 2, h / 2, 0, 2 * M_PI, false);
+    canvas.arc(center + i * dir, radius, 0, 2 * M_PI, false);
     canvas.fill();
   }
   canvas.restore();
@@ -569,14 +642,23 @@ void SliderBox::Impl::paint_error_indicator(Canvas &canvas, Point pos) {
 }
 
 void SliderBox::Impl::paint_underflow_indicator(Canvas &canvas, Point pos) {
-  float h = self._extents.height();
-  float rx = pos.x + h / 2;
+  float radius = std::min(self._extents.width, self._extents.height()) * 0.5f;
+  Point center;
+  Vector2F dir;
+  if(is_vertical()) {
+    center = pos + Vector2F(self._extents.width/2, self._extents.height() - radius);
+    dir = Vector2F(0, -radius/3);
+  }
+  else {
+    center = pos + Vector2F(radius, self._extents.height()/2);
+    dir = Vector2F(radius/3, 0);
+  }
   
   Color old_color = canvas.get_color();
   canvas.save();
   canvas.set_color(Color::from_rgb24(0xFF0000), 0.2);
   for(int i = 0; i <= 2; ++i) {
-    canvas.arc(rx + i * h / 6, pos.y + h / 2, h / 2, 0, 2 * M_PI, false);
+    canvas.arc(center + i * dir, radius, 0, 2 * M_PI, false);
     canvas.fill();
   }
   canvas.restore();
@@ -584,14 +666,23 @@ void SliderBox::Impl::paint_underflow_indicator(Canvas &canvas, Point pos) {
 }
 
 void SliderBox::Impl::paint_overflow_indicator(Canvas &canvas, Point pos) {
-  float h = self._extents.height();
-  float rx = pos.x + self._extents.width - h / 2;
+  float radius = std::min(self._extents.width, self._extents.height()) * 0.5f;
+  Point center;
+  Vector2F dir;
+  if(is_vertical()) {
+    center = pos + Vector2F(self._extents.width/2, radius);
+    dir = Vector2F(0, -radius/3);
+  }
+  else {
+    center = pos + Vector2F(self._extents.width - radius, self._extents.height()/2);
+    dir = Vector2F(radius/3, 0);
+  }
   
   Color old_color = canvas.get_color();
   canvas.save();
   canvas.set_color(Color::from_rgb24(0xFF0000), 0.2);
   for(int i = -2; i <= 0; ++i) {
-    canvas.arc(rx + i * h / 6, pos.y + h / 2, h / 2, 0, 2 * M_PI, false);
+    canvas.arc(center + i * dir, radius, 0, 2 * M_PI, false);
     canvas.fill();
   }
   canvas.restore();
@@ -599,17 +690,29 @@ void SliderBox::Impl::paint_overflow_indicator(Canvas &canvas, Point pos) {
 }
 
 void SliderBox::Impl::paint_channel(Canvas &canvas, Point pos, ControlState state) {
-  float h = self._extents.height();
+  RectangleF rect;
+  if(is_vertical()) {
+    float w = self._extents.width;
+    rect = {
+      pos.x + w / 2 - self.channel_width / 2,
+      pos.y,
+      self.channel_width,
+      self._extents.height()};
+  }
+  else {
+    float h = self._extents.height();
+    rect = {
+      pos.x,
+      pos.y + h / 2 - self.channel_width / 2,
+      self._extents.width,
+      self.channel_width};
+  }
   ControlPainter::std->draw_container(
     ControlContext::find(&self),
     canvas,
     Impl::channel_for_thumb(self.type),
     state,
-    RectangleF(
-      pos.x,
-      pos.y + h / 2 - self.channel_width / 2,
-      self._extents.width,
-      self.channel_width));
+    rect);
 }
 
 void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_value, ControlState new_state) {
@@ -632,10 +735,8 @@ void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_valu
     self.type,
     new_state,
     RectangleF(
-      pos.x + calc_thumb_pos(self.range_value),
-      pos.y,
-      self.thumb_width,
-      self._extents.height()));
+      Vector2F(pos) + calc_thumb_pos(self.range_value),
+      thumb_size()));
 }
 
 SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, Point pos, ControlState state1, ControlState state2) {
@@ -647,14 +748,12 @@ SharedPtr<BoxAnimation> SliderBox::Impl::create_thumb_animation(Canvas &canvas, 
            state1,
            state2,
            RectangleF{
-             pos.x + calc_thumb_pos(self.range_value),
-             pos.y,
-             self.thumb_width,
-             self._extents.height()});
+             Vector2F(pos) + calc_thumb_pos(self.range_value),
+             thumb_size()});
 }
 
 ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
-  if(appearance == richmath_System_Automatic || appearance == strings::Slider)
+  if(appearance == richmath_System_Automatic || appearance == strings::Slider || appearance == strings::Horizontal)
     return ContainerType::HorizontalSliderThumb;
 
   if(appearance == strings::DownArrow)
@@ -668,6 +767,15 @@ ContainerType SliderBox::Impl::parse_thumb_appearance(Expr appearance) {
 
   if(appearance == strings::UpArrow)
     return ContainerType::HorizontalSliderUpArrowButton;
+    
+  if(appearance == strings::Vertical)
+    return ContainerType::VerticalSliderThumb;
+
+  if(appearance == strings::LeftArrow)
+    return ContainerType::VerticalSliderLeftArrowButton;
+
+  if(appearance == strings::RightArrow)
+    return ContainerType::VerticalSliderRightArrowButton;
 
   return ContainerType::HorizontalSliderThumb;
 }
@@ -676,9 +784,12 @@ ContainerType SliderBox::Impl::channel_for_thumb(ContainerType thumb) {
   switch(thumb) {
     case ContainerType::HorizontalSliderDownArrowButton:
     case ContainerType::HorizontalSliderThumb:
-    case ContainerType::HorizontalSliderUpArrowButton:     return ContainerType::HorizontalSliderChannel;
-    case ContainerType::ToggleSwitchThumbChecked:   return ContainerType::ToggleSwitchChannelChecked;
-    case ContainerType::ToggleSwitchThumbUnchecked: return ContainerType::ToggleSwitchChannelUnchecked;
+    case ContainerType::HorizontalSliderUpArrowButton:  return ContainerType::HorizontalSliderChannel;
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderThumb:
+    case ContainerType::VerticalSliderRightArrowButton: return ContainerType::VerticalSliderChannel;
+    case ContainerType::ToggleSwitchThumbChecked:       return ContainerType::ToggleSwitchChannelChecked;
+    case ContainerType::ToggleSwitchThumbUnchecked:     return ContainerType::ToggleSwitchChannelUnchecked;
     
     default: return ContainerType::None;
   }

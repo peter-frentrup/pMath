@@ -42,16 +42,17 @@ namespace {
         bool              enabled,
         Color             background_color = ButtonColor);
       
-      static void paint_checkbox_cross(             Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_checkbox_mark(              Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_checkbox_indeterminate_mark(Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_navigation_back_arrow(Canvas &canvas, const RectangleF &rect, Color stroke_col, Color fill_col);
-      static void paint_opener_triangle_closed(     Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_opener_triangle_opened(     Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_popup_panel(Canvas &canvas, RectangleF rect);
-      static void paint_radio_button_background(    Canvas &canvas, const RectangleF &rect, Color inner_color);
-      static void paint_radio_button_mark(          Canvas &canvas, const RectangleF &rect, Color color);
-      static void paint_slider_thumb_background(    Canvas &canvas, const RectangleF &rect, bool top_triangle, bool bottom_triangle, Color inner_color, bool enabled);
+      static void paint_checkbox_cross(              Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_checkbox_mark(               Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_checkbox_indeterminate_mark( Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_navigation_back_arrow(       Canvas &canvas, const RectangleF &rect, Color stroke_col, Color fill_col);
+      static void paint_opener_triangle_closed(      Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_opener_triangle_opened(      Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_popup_panel(Canvas &canvas,  RectangleF rect);
+      static void paint_radio_button_background(     Canvas &canvas, const RectangleF &rect, Color inner_color);
+      static void paint_radio_button_mark(           Canvas &canvas, const RectangleF &rect, Color color);
+      static void paint_horz_slider_thumb_background(Canvas &canvas, const RectangleF &rect, bool top_triangle, bool bottom_triangle, Color inner_color, bool enabled);
+      static void paint_vert_slider_thumb_background(Canvas &canvas, const RectangleF &rect, bool left_triangle, bool right_triangle, Color inner_color, bool enabled);
   };
 }
 
@@ -172,6 +173,20 @@ void ControlPainter::calc_container_size(
     case ContainerType::HorizontalSliderThumb:
     case ContainerType::HorizontalSliderUpArrowButton: {
         extents->width = extents->height() / 2;
+      } break;
+    
+    case ContainerType::VerticalSliderChannel: {
+        float h = 8 * extents->height();
+        extents->ascent = 0.5f * h + 0.25 * canvas.get_font_size();
+        extents->descent = h - extents->ascent;
+        extents->width   = 4.0;
+      } break;
+      
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderThumb:
+    case ContainerType::VerticalSliderRightArrowButton: {
+        extents->ascent = extents->width / 2;
+        extents->descent = 0;
       } break;
     
     case ContainerType::ToggleSwitchChannelChecked:
@@ -360,19 +375,32 @@ void ControlPainter::draw_container(
       break;
     
     case ContainerType::HorizontalSliderChannel:
+    case ContainerType::VerticalSliderChannel:
       ControlPainterImpl::paint_frame(canvas, rect, true, state != ControlState::Disabled);
       break;
       
     case ContainerType::HorizontalSliderThumb:
-      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
+      ControlPainterImpl::paint_horz_slider_thumb_background(canvas, rect, false, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
       break;
     
     case ContainerType::HorizontalSliderDownArrowButton:
-      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, false, true, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
+      ControlPainterImpl::paint_horz_slider_thumb_background(canvas, rect, false, true, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
       break;
     
     case ContainerType::HorizontalSliderUpArrowButton:
-      ControlPainterImpl::paint_slider_thumb_background(canvas, rect, true, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
+      ControlPainterImpl::paint_horz_slider_thumb_background(canvas, rect, true, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
+      break;
+      
+    case ContainerType::VerticalSliderThumb:
+      ControlPainterImpl::paint_vert_slider_thumb_background(canvas, rect, false, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
+      break;
+      
+    case ContainerType::VerticalSliderLeftArrowButton:
+      ControlPainterImpl::paint_vert_slider_thumb_background(canvas, rect, true, false, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
+      break;
+      
+    case ContainerType::VerticalSliderRightArrowButton:
+      ControlPainterImpl::paint_vert_slider_thumb_background(canvas, rect, false, true, (state == ControlState::Hovered || state == ControlState::PressedHovered) ? ButtonHoverColor : ButtonColor, state != ControlState::Disabled);
       break;
     
     case ContainerType::ToggleSwitchChannelUnchecked:
@@ -1246,7 +1274,7 @@ void ControlPainterImpl::paint_radio_button_mark(Canvas &canvas, const Rectangle
   canvas.set_color(old_color);
 }
 
-void ControlPainterImpl::paint_slider_thumb_background(Canvas &canvas, const RectangleF &rect, bool top_triangle, bool bottom_triangle, Color inner_color, bool enabled) {
+void ControlPainterImpl::paint_horz_slider_thumb_background(Canvas &canvas, const RectangleF &rect, bool top_triangle, bool bottom_triangle, Color inner_color, bool enabled) {
   float h = rect.width/2;
   float d = enabled ? 1.5f : 0.75f;
   
@@ -1334,6 +1362,99 @@ void ControlPainterImpl::paint_slider_thumb_background(Canvas &canvas, const Rec
       canvas.line_to(rect.right() - d, rect.top() + h);
     else 
       canvas.line_to(rect.top_right() + Vector2F(-d, d));
+    
+    canvas.fill();
+  }
+  
+  canvas.set_color(old_color);
+}
+
+void ControlPainterImpl::paint_vert_slider_thumb_background(Canvas &canvas, const RectangleF &rect, bool left_triangle, bool right_triangle, Color inner_color, bool enabled) {
+  float h = rect.height/2;
+  float d = enabled ? 1.5f : 0.75f;
+  
+  Color old_color = canvas.get_color();
+  
+  if(inner_color) {
+    canvas.set_color(inner_color);
+    
+    if(left_triangle) {
+      canvas.move_to(rect.left() + h, rect.bottom());
+      canvas.line_to(rect.left(),     rect.top() + h);
+      canvas.line_to(rect.left() + h, rect.top());
+    }
+    else {
+      canvas.move_to(rect.bottom_left());
+      canvas.line_to(rect.top_left());
+    }
+    
+    if(right_triangle) {
+      canvas.line_to(rect.right() - h, rect.top());
+      canvas.line_to(rect.right(),     rect.top() + h);
+      canvas.line_to(rect.right() - h, rect.bottom());
+    }
+    else {
+      canvas.line_to(rect.top_right());
+      canvas.line_to(rect.bottom_right());
+    }
+    
+    canvas.fill();
+  }
+  
+  canvas.set_color(Button3DLightColor);
+  {
+    if(left_triangle) {
+      canvas.move_to(rect.left() + h, rect.top() + d);
+      canvas.line_to(rect.left() + d, rect.top() + h);
+      canvas.line_to(rect.left(),     rect.top() + h);
+      canvas.line_to(rect.left() + h, rect.top());
+    }
+    else {
+      canvas.move_to(rect.left() + d, rect.top() + d);
+      canvas.line_to(rect.left() + d, rect.bottom() - d);
+      canvas.line_to(rect.left(),     rect.bottom());
+      canvas.line_to(rect.left(),     rect.top());
+    }
+    
+    if(right_triangle) {
+      canvas.line_to(rect.right() - h, rect.top());
+      canvas.line_to(rect.right(),     rect.top() + h);
+      canvas.line_to(rect.right() - d, rect.top() + h);
+      canvas.line_to(rect.right() - h, rect.top() + d);
+    }
+    else {
+      canvas.line_to(rect.right(),     rect.top());
+      canvas.line_to(rect.right() - d, rect.top() + d);
+    }
+    
+    canvas.fill();
+  }
+  
+  canvas.set_color(Button3DDarkColor);
+  {
+    if(left_triangle) {
+      canvas.move_to(rect.left() + h, rect.bottom() - d);
+      canvas.line_to(rect.left() + d, rect.top() + h);
+      canvas.line_to(rect.left(),     rect.top() + h);
+      canvas.line_to(rect.left() + h, rect.bottom());
+    }
+    else {
+      canvas.move_to(rect.left() + d, rect.bottom() - d);
+      canvas.line_to(rect.left(),     rect.bottom());
+    }
+    
+    if(right_triangle) {
+      canvas.line_to(rect.right() - h, rect.bottom());
+      canvas.line_to(rect.right(),     rect.top() + h);
+      canvas.line_to(rect.right() - d, rect.top() + h);
+      canvas.line_to(rect.right() - h, rect.bottom() - d);
+    }
+    else {
+      canvas.line_to(rect.right(),     rect.bottom());
+      canvas.line_to(rect.right(),     rect.top());
+      canvas.line_to(rect.right() - d, rect.top() + d);
+      canvas.line_to(rect.right() - d, rect.bottom() - d);
+    }
     
     canvas.fill();
   }

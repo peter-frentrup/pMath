@@ -1,4 +1,4 @@
-/* pMath Document */
+﻿/* pMath Document */
 
 Document({
   SectionGroup({
@@ -70,7 +70,7 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section("Change the appearance dnamically:", "ExampleText"), 
+            Section("Change the appearance dynamically:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"Slider", "(", {
                   {"Dynamic", "(", "x", ")"}, ",", {
@@ -87,6 +87,26 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
+            Section("Vertical sliders:", "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"Table", "(", {
+                  {"Slider", "(", {"0.5", ",", {
+                     "Appearance", "\[Rule]", "a"}}, ")"}, ",", {
+                   "a", "\[Rule]", {"{", {ComplexStringBox("\"Vertical\""), 
+                     ",", ComplexStringBox("\"RightArrow\""), ",", 
+                     ComplexStringBox("\"LeftArrow\"")}, "}"}}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {SliderBox(0.82776421440972225`, 0 .. 1, 
+                   Appearance -> "Vertical"), ",", 
+                  SliderBox(0.5`, 0 .. 1, Appearance -> "RightArrow"), ",", 
+                  SliderBox(0.5`, 0 .. 1, Appearance -> "LeftArrow")}, "}"}), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
             Section("A slider that appears like a toggle switch:", 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Table", "(", {
@@ -98,7 +118,7 @@ Document({
                  ")"}), "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
-                 "{", {SliderBox(0.5`, 0 .. 1, 
+                 "{", {SliderBox(0.50740750630696618`, 0 .. 1, 
                    Appearance -> "ToggleSwitchChecked"), ",", 
                   SliderBox(0.5`, 0 .. 1, 
                    Appearance -> "ToggleSwitchUnchecked")}, "}"}), "Output", 
@@ -220,6 +240,7 @@ Document({
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(
-       TextData({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink")}), 
-       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
- Visible -> True)
+       TextData({TemplateBox({"ProgressIndicator"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ToggleSwitch"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
