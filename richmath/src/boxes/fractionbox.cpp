@@ -61,14 +61,17 @@ Box *FractionBox::item(int i) {
   return _denominator;
 }
 
+int FractionBox::child_script_level(int index, const int *opt_ambient_script_level) {
+  int ambient_level = Box::child_script_level(0, opt_ambient_script_level);
+  return 1 + ambient_level;
+}
+
 void FractionBox::resize(Context &context) {
   float old_width         = context.width;
   float old_fs            = context.canvas().get_font_size();
-  int   old_script_indent = context.script_indent;
+  int   old_script_level = context.script_level;
   
-  if(context.smaller_fraction_parts) {
-    context.script_indent++;
-  }
+  context.script_level = child_script_level(0, &context.script_level);
   
   context.canvas().set_font_size(context.get_script_size(old_fs));
   
@@ -90,7 +93,7 @@ void FractionBox::resize(Context &context) {
   _extents.ascent  = _numerator->extents().ascent    - num_y;
   _extents.descent = _denominator->extents().descent + den_y;
   
-  context.script_indent = old_script_indent;
+  context.script_level = old_script_level;
 }
 
 void FractionBox::paint(Context &context) {

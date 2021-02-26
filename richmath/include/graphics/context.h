@@ -81,7 +81,7 @@ namespace richmath {
       
       uint16_t multiplication_sign;
       
-      int          script_indent;
+      int          script_level;
       float        script_size_min;
       Array<float> script_size_multis;
       
@@ -93,7 +93,6 @@ namespace richmath {
       bool show_auto_styles : 1;
       bool show_string_characters : 1;
       bool math_spacing : 1;
-      bool smaller_fraction_parts : 1;
       bool single_letter_italics : 1;
       bool boxchar_fallback_enabled : 1;
       
@@ -121,6 +120,7 @@ namespace richmath {
       // always set in begin():
       Color                        old_cursor_color;
       Color                        old_color;
+      int                          old_script_level;
       float                        old_fontsize;
       float                        old_width;
       SharedPtr<MathShaper>        old_math_shaper;

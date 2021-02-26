@@ -365,7 +365,7 @@ void AbstractSequenceSection::resize(Context &context) {
   // take document option if not set for this Section alone:
   context.show_auto_styles = get_style(ShowAutoStyles);
   
-  context.script_indent = 0;
+  context.script_level = 0; // TODO: use ScriptLevel style
   
   top_margin    = get_style(SectionMarginTop);
   bottom_margin = get_style(SectionMarginBottom);

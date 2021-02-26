@@ -1290,7 +1290,7 @@ void SimpleMathShaper::accent_positions(
     
   bool is_integral = pmath_char_is_integral(base_char);
   
-  if(context.script_indent > 0 && is_integral) {
+  if(context.script_level > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,

@@ -188,6 +188,44 @@ Box *Box::next_child_or_null(int index, LogicalDirection direction) {
   return nullptr;
 }
 
+int Box::child_script_level(int index, const int *opt_ambient_script_level) {
+  int ambient_script_level;
+  if(style) {
+    auto all = stylesheet();
+    if(all) {
+      if(all->get(style, ScriptLevel, &ambient_script_level))
+        return ambient_script_level;
+      
+      auto defn = get_default_key(ScriptLevel);
+      if(defn != ScriptLevel) {
+        if(all->get(style, defn, &ambient_script_level))
+          return true;
+        
+        StyledObject *obj = style_parent();
+        while(obj) {
+          if(obj->changes_children_style()) {
+            if(all->get(style, defn, &ambient_script_level))
+              return ambient_script_level;
+          }
+          
+          obj = obj->style_parent();
+        }
+      }
+    }
+    else if(style->get(ScriptLevel, &ambient_script_level))
+      return ambient_script_level;
+  }
+  
+  if(opt_ambient_script_level)
+    ambient_script_level = *opt_ambient_script_level;
+  else if(auto p = parent())
+    ambient_script_level = p->child_script_level(_index, nullptr);
+  else
+    ambient_script_level = 0;
+  
+  return ambient_script_level;
+}
+
 bool Box::update_dynamic_styles(Context &context) {
   if(context.stylesheet)
     return context.stylesheet->update_dynamic(style, this);

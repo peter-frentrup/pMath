@@ -85,6 +85,23 @@ int RadicalBox::count() {
   return 1 + (_exponent ? 1 : 0);
 }
 
+int RadicalBox::child_script_level(int index, const int *opt_ambient_script_level) {
+  if(index != 1)
+    return Box::child_script_level(index, opt_ambient_script_level);
+  
+  // For the exponent:
+  int ambient_script_level = Box::child_script_level(-1, opt_ambient_script_level);
+  
+  if(ambient_script_level < 1)
+    ambient_script_level = 1;
+  
+  /* http://www.ntg.nl/maps/38/04.pdf: LuaTeX sets the radical degree in 
+     \scriptscriptstyle 
+     Microsoft's Math Input Panel seems to do the same.
+   */
+  return ambient_script_level + 2;
+}
+
 void RadicalBox::resize(Context &context) {
   _radicand->resize(context);
   
@@ -101,13 +118,9 @@ void RadicalBox::resize(Context &context) {
     
   if(_exponent) {
     float old_fs = context.canvas().get_font_size();
-    int old_script_indent = context.script_indent;
+    int old_script_level = context.script_level;
     
-    /* http://www.ntg.nl/maps/38/04.pdf: LuaTeX sets the radical degree in 
-       \scriptscriptstyle 
-       Microsoft's Math Input Panel seems to do the same.
-     */
-    context.script_indent+= 2;
+    context.script_level = child_script_level(_exponent->index(), &context.script_level);
     
     small_em = context.get_script_size(old_fs);
     context.canvas().set_font_size(small_em);
@@ -115,7 +128,7 @@ void RadicalBox::resize(Context &context) {
     _exponent->resize(context);
     
     context.canvas().set_font_size(old_fs);
-    context.script_indent = old_script_indent;
+    context.script_level = old_script_level;
     
     if(_extents.ascent < _exponent->extents().height() - _exponent_offset.y)
       _extents.ascent = _exponent->extents().height() - _exponent_offset.y;

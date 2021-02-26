@@ -21,15 +21,20 @@ extern pmath_symbol_t richmath_System_Inherited;
 extern pmath_symbol_t richmath_System_SingleMatch;
 
 static bool StyleName_is_FontSize(StyleOptionName name);
+static bool StyleName_is_ScriptLevel(StyleOptionName name);
 
 template<typename T>
 static bool StyledObject_get_FontSize(StyledObject &self, T *result);
 
-template<>
-bool StyledObject_get_FontSize(StyledObject &self, Color *result) { return false; }
+template<> bool StyledObject_get_FontSize(StyledObject &self, Color *result) { return false; }
+template<> bool StyledObject_get_FontSize(StyledObject &self, String *result) { return false; }
 
-template<>
-bool StyledObject_get_FontSize(StyledObject &self, String *result) { return false; }
+template<typename T>
+static bool StyledObject_get_ScriptLevel(StyledObject &self, T *result);
+
+template<> bool StyledObject_get_ScriptLevel(StyledObject &self, Color *result) { return false; }
+template<> bool StyledObject_get_ScriptLevel(StyledObject &self, float *result) { return false; }
+template<> bool StyledObject_get_ScriptLevel(StyledObject &self, String *result) { return false; }
 
 template<class T>
 static T *StyledObject_find_style_parent(StyledObject &self, bool selfincluding);
@@ -284,6 +289,10 @@ T StyledObject::Impl::get_style(
     if(StyledObject_get_FontSize(self, &result))
       return result;
   }
+  else if(StyleName_is_ScriptLevel(n)) {
+    if(StyledObject_get_ScriptLevel(self, &result))
+      return result;
+  }
   
   StyledObject *obj = self.style_parent();
   while(obj) {
@@ -327,10 +336,23 @@ static bool StyleName_is_FontSize(StyleOptionName name) {
   return name == FloatStyleOptionName::FontSize;
 }
 
+static bool StyleName_is_ScriptLevel(StyleOptionName name) {
+  return name == IntStyleOptionName::ScriptLevel;
+}
+
 template<typename T>
 static bool StyledObject_get_FontSize(StyledObject &self, T *result) {
   if(auto seq = StyledObject_find_style_parent<AbstractSequence>(self, true)) {
     *result = seq->get_em();
+    return true;
+  }
+  return false;
+}
+
+template<typename T>
+static bool StyledObject_get_ScriptLevel(StyledObject &self, T *result) {
+  if(auto box = StyledObject_find_style_parent<Box>(self, true)) {
+    *result = box->child_script_level(-1, nullptr);
     return true;
   }
   return false;

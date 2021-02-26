@@ -239,6 +239,7 @@ namespace richmath {
       virtual float fill_weight() { return 0.0f; }
       const BoxSize &extents() { return _extents; }
       
+      virtual int child_script_level(int index, const int *opt_ambient_script_level);
       virtual bool expand(const BoxSize &size) { return false; }
       bool update_dynamic_styles(Context &context);
       virtual void resize(Context &context) = 0;

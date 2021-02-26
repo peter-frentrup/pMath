@@ -110,7 +110,8 @@ Document({
        All), Section(StyleData("Text"), 
        FontFamily -> {"Georgia", "Constantia", "Times New Roman"}, 
        LanguageCategory -> "NaturalLanguage", MenuCommandKey -> "7", 
-       MenuSortingValue -> 1400, SectionMargins -> {50, Inherited, 7, 7}, 
+       MenuSortingValue -> 1400, ScriptLevel -> 1, 
+       SectionMargins -> {50, Inherited, 7, 7}, 
        ShowStringCharacters -> False), Section(StyleData("Item"), 
        BaseStyle -> "Text", MenuSortingValue -> 1600, 
        ReturnCreatesNewSection -> True, SectionDingbat -> "\[Bullet]", 
@@ -498,9 +499,9 @@ Document({
                  ",", #2}, ")"} &)})}, All), 
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("HyperlinkActive"), BaseStyle -> "Hyperlink", 
-           ShowAutoStyles -> False, 
            FontColor -> RGBColor(0.80000000000000004`, 0.502`, 
-             0.10199999999999999`)), Section(StyleData("DirectoryHyperlink"), 
+             0.10199999999999999`), ShowAutoStyles -> False), 
+          Section(StyleData("DirectoryHyperlink"), 
            TemplateBoxOptions :> {
              DisplayFunction -> (
                StyleBox(ButtonBox(ComplexStringBox({"\"", #1, "\""}), 

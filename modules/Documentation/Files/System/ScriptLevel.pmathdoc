@@ -1,0 +1,159 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("ScriptLevel", "ObjectName"), 
+      Section(BoxData(TemplateBox({"ScriptLevel"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({{TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), 
+            "\[Rule]", "0"}, " is used for stand-alone formulas."}), "Notes"), 
+        Section(TextData({{TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), 
+            "\[Rule]", "1"}, 
+           " is used for in-line formulas in blocks of text."}), "Notes"), 
+        Section(
+         TextData({"With ", TemplateBox({"ScriptLevel"}, 
+            "ReferenceHyperlink"), " \[Rule] ", StyleBox("n", "Arg"), " for ", 
+           {StyleBox("n", "Arg"), "\[GreaterEqual]", "2"}, ", ", 
+           TemplateBox({"ScriptSizeMultipliers"}, "ReferenceHyperlink"), 
+           " is used to determine the ", TemplateBox({"FontSize"}, 
+            "ReferenceHyperlink"), " of nested expressions."}), "Notes"), 
+        Section(TextData({"Constructs like ", 
+           TemplateBox({"SuperscriptBox"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"FractionBox"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"RadicalBox"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"GridBox"}, "ReferenceHyperlink"), 
+           ", etc. automatically increase ", 
+           TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), "."}), 
+         "Notes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         TextData({"The ", TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), 
+           " changes within nested sub- and superscripts:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {{"Superscript", "(", {
+                "#", ",", {"Subsuperscript", "(", {"#", ",", "#", ",", "#"}, 
+                 ")"}}, ")"}, "&"}, "@", {"Dynamic", "(", {
+               "Framed", "(", {"CurrentValue", "(", "ScriptLevel", ")"}, ")"}, 
+              ")"}}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+             SuperscriptBox({
+               DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+               SubsuperscriptBox(
+                DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))))})}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"Fraction numerators and denomiators also affect ", 
+             TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               {{"HoldForm", "(", {
+                  "#", "+", {"#", "/", {
+                    "(", {"#", "+", {
+                      "#", "/", {
+                       "(", {"#", "+", {
+                         "#", "/", {"(", {"#", "+", "\[Ellipsis]"}, ")"}}}, 
+                       ")"}}}, ")"}}}, ")"}, "&"}, "@", {
+                "Dynamic", "(", {"Framed", "(", {
+                  "CurrentValue", "(", "ScriptLevel", ")"}, ")"}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+               "+", FractionBox(
+                DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), {
+                 DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), "+", 
+                 FractionBox(DynamicBox(
+                   ToBoxes(Framed(CurrentValue(ScriptLevel)))), {
+                   DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                   "+", FractionBox(
+                    DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), {
+                     DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                     "+", "\[Ellipsis]"})})})}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Radicals change ", 
+             TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), 
+             " for the exponent:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {{"Surd", "(", {{"Surd", "(", {"#", ",", "#"}, ")"}, ",", {
+                   "Surd", "(", {"#", ",", "#"}, ")"}}, ")"}, "&"}, "@", {
+                "Dynamic", "(", {"Framed", "(", {
+                  "CurrentValue", "(", "ScriptLevel", ")"}, ")"}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(RadicalBox(
+               RadicalBox(DynamicBox(
+                 ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                SurdForm -> True), 
+               RadicalBox(DynamicBox(
+                 ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                SurdForm -> True), SurdForm -> True)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("", "SectionFooterSpacer"), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Grids use ", {
+              TemplateBox({"ScriptLevel"}, "ReferenceHyperlink"), "\[Rule]", 
+              "1"}, " for the items:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {{"HoldForm", "(", {
+                  "#", "+", {"MatrixForm", "(", {
+                    "{", {
+                     {"{", {"#", ",", {"MatrixForm", "(", {
+                         "{", {
+                          {"{", {"#", ",", {"MatrixForm", "(", {
+                              "{", {{"{", {"#", ",", "#"}, "}"}, ",", {
+                                "{", {"#", ",", "#"}, "}"}}, "}"}, ")"}}, 
+                           "}"}, ",", {"{", {"#", ",", "#"}, "}"}}, "}"}, 
+                        ")"}}, "}"}, ",", {"{", {"#", ",", "#"}, "}"}}, "}"}, 
+                   ")"}}, ")"}, "&"}, "@", {"Dynamic", "(", {
+                 "Framed", "(", {"CurrentValue", "(", "ScriptLevel", ")"}, 
+                 ")"}, ")"}}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+               "+", {
+                "(", 
+                GridBox({
+                  {DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), {
+                    "(", GridBox({
+                      {DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                       {"(", GridBox({
+                          {DynamicBox(
+                            ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                           DynamicBox(
+                            ToBoxes(Framed(CurrentValue(ScriptLevel))))}, {
+                           DynamicBox(
+                            ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                           DynamicBox(
+                            ToBoxes(Framed(CurrentValue(ScriptLevel))))}}), 
+                        ")"}}, {
+                       DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                       DynamicBox(
+                        ToBoxes(Framed(CurrentValue(ScriptLevel))))}}), ")"}}, 
+                  {DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel)))), 
+                   DynamicBox(ToBoxes(Framed(CurrentValue(ScriptLevel))))}}), 
+                ")"}}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, All)}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"ScriptSizeMultipliers"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

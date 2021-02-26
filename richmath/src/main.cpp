@@ -109,6 +109,7 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_DollarFrontEndSession;
 extern pmath_symbol_t richmath_System_DollarPageWidth;
 
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_ButtonFunction;
 extern pmath_symbol_t richmath_System_Identity;
@@ -527,6 +528,9 @@ static void init_stylesheet() {
 //                                 Parse("{~FE`Private`style :> FE`Private`style}"));
 
 //  Stylesheet::Default->styles.set("SystemResetStyle", Stylesheet::Default->base);
+
+  Application::front_end_session->style->set(ScriptLevel,           0);
+  Application::front_end_session->style->set(ScriptSizeMultipliers, Symbol(richmath_System_Automatic));
 }
 
 static bool have_visible_documents() {

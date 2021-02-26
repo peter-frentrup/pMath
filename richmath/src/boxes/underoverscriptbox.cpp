@@ -136,16 +136,29 @@ int UnderoverscriptBox::count() {
   return 1 + (_underscript ? 1 : 0) + (_overscript ? 1 : 0);
 }
 
+int UnderoverscriptBox::child_script_level(int index, const int *opt_ambient_script_level) {
+  if(index <= 0)
+    return Box::child_script_level(index, opt_ambient_script_level);
+  
+  // For underscript or overscript:
+  int ambient_script_level = Box::child_script_level(-1, opt_ambient_script_level);
+  
+  if(ambient_script_level < 1)
+    ambient_script_level = 1;
+  
+  return ambient_script_level + 1;
+}
+
 void UnderoverscriptBox::resize(Context &context) {
   float old_w = context.width;
   context.width = HUGE_VAL;
   
   _base->resize(context);
   
-  int old_script_indent = context.script_indent;
-  float old_fs = context.canvas().get_font_size();
+  int old_script_level = context.script_level;
+  context.script_level = child_script_level(1, &context.script_level);
   
-  context.script_indent++;
+  float old_fs = context.canvas().get_font_size();
   float em = context.get_script_size(old_fs);
   context.canvas().set_font_size(em);
   
@@ -196,7 +209,7 @@ void UnderoverscriptBox::resize(Context &context) {
     _base->stretch_horizontal(context, w + 0.6f * em);
   }
   
-  context.script_indent = old_script_indent;
+  context.script_level = old_script_level;
   after_items_resize(context);
 }
 

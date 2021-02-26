@@ -271,6 +271,7 @@ namespace richmath {
       void remove_rows(int yindex, int count);
       void remove_cols(int xindex, int count);
       
+      virtual int child_script_level(int index, const int *opt_ambient_script_level) final override;
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;

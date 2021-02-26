@@ -236,6 +236,7 @@ Options(Style):= Options(StyleBox):= {
     PanelBoxOptions -> Inherited,
     "PatternVariableStyle" -> Inherited,
     Placeholder -> Inherited,
+    ScriptLevel -> Inherited,
     ScriptSizeMultipliers -> Inherited,
     Selectable -> Inherited,
     SetterBoxOptions -> Inherited,
@@ -347,6 +348,7 @@ Options(Section):= {
     Placeholder -> Automatic,    % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections
+    ScriptLevel -> Inherited,
     ScriptSizeMultipliers -> Automatic,
     SectionDingbat -> None,
     SectionEditDuplicate -> Inherited,

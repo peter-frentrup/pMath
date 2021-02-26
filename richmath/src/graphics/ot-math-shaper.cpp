@@ -955,7 +955,7 @@ void OTMathShaper::accent_positions(
   bool is_integral = pmath_char_is_integral(base_char);
   
   // actually do subscript/superscript
-  if(context.script_indent > 0 && is_integral) {
+  if(context.script_level > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
@@ -1085,7 +1085,7 @@ void OTMathShaper::script_positions(
       *sub_y = -impl->consts.subscript_top_max.value * pt + sub->extents().ascent;
   }
   
-  if(context.script_indent > 0)
+  if(context.script_level > 0)
     *super_y = -impl->consts.superscript_shift_up_cramped.value * pt;
   else
     *super_y = -impl->consts.superscript_shift_up.value * pt;
@@ -1203,7 +1203,7 @@ void OTMathShaper::shape_fraction(
   rule_y1 -= impl->consts.fraction_rule_thickness.value * pt / 2;
   rule_y2 += impl->consts.fraction_rule_thickness.value * pt / 2;
   
-  if(context.script_indent > 0) {
+  if(context.script_level > 0) {
     num_gap = impl->consts.fraction_numerator_gap_min.value   * pt;
     den_gap = impl->consts.fraction_denominator_gap_min.value * pt;
     
@@ -1304,7 +1304,7 @@ void OTMathShaper::shape_radical(
   
   float rule = impl->consts.radical_rule_thickness.value * pt;
   float gap;
-  if(context.script_indent > 0)
+  if(context.script_level > 0)
     gap = impl->consts.radical_vertical_gap.value * pt;
   else
     gap = impl->consts.radical_display_style_vertical_gap.value * pt;
@@ -2063,7 +2063,7 @@ void OTMathShaperImpl::vertical_stretch_char(
     result->vertical_centered = 1;
     
     int i = 0;
-    if(context.script_indent == 0) {
+    if(context.script_level == 0) {
       if(pmath_char_is_integral(ch) || pmath_char_maybe_bigop(ch))
         i = 1;
     }

@@ -118,6 +118,7 @@ extern pmath_symbol_t richmath_System_Rule;
 extern pmath_symbol_t richmath_System_RuleDelayed;
 extern pmath_symbol_t richmath_System_Saveable;
 extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_ScriptLevel;
 extern pmath_symbol_t richmath_System_ScriptSizeMultipliers;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionDingbat;
@@ -388,6 +389,7 @@ namespace richmath {
       bool set_pmath_bool_auto( StyleOptionName n, Expr obj);
       bool set_pmath_bool(      StyleOptionName n, Expr obj);
       bool set_pmath_color(     StyleOptionName n, Expr obj);
+      bool set_pmath_int(       StyleOptionName n, Expr obj);
       bool set_pmath_float(     StyleOptionName n, Expr obj);
       bool set_pmath_margin(    StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
       bool set_pmath_size(      StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
@@ -431,6 +433,7 @@ namespace richmath {
       Expr raw_get_pmath_bool_auto( StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_bool(      StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_color(     StyleOptionName n, Expr inherited) const;
+      Expr raw_get_pmath_int(       StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_float(     StyleOptionName n, Expr inherited) const;
       Expr raw_get_pmath_margin(    StyleOptionName n, Expr inherited) const; // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
       Expr raw_get_pmath_size(      StyleOptionName n, Expr inherited) const; // n + {0,1,2} ~= {Common, Horizontal, Vertical}
@@ -630,6 +633,10 @@ bool StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
       any_change = set_pmath_color(n, obj);
       break;
       
+    case StyleType::Integer:
+      any_change = set_pmath_int(n, obj);
+      break;
+      
     case StyleType::Number:
       any_change = set_pmath_float(n, obj);
       break;
@@ -775,6 +782,25 @@ bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
   
   if(obj == richmath_System_Inherited)
     return raw_remove_color(n) || any_change;
+    
+  if(n.is_literal() && Dynamic::is_dynamic(obj))
+    return set_dynamic(n, obj) || any_change;
+  
+  return any_change;
+}
+
+bool StyleImpl::set_pmath_int(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_int(n));
+  
+  bool any_change = false;
+  if(n.is_literal())
+    any_change = remove_dynamic(n);
+  
+  if(obj.is_int32())
+    return raw_set_int(n, PMATH_AS_INT32(obj.get())) || any_change;
+  
+  if(obj == richmath_System_Inherited)
+    return raw_remove_int(n) || any_change;
     
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
@@ -1524,6 +1550,9 @@ Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
     case StyleType::Color:
       return raw_get_pmath_color(key, std::move(inherited));
       
+    case StyleType::Integer:
+      return raw_get_pmath_int(key, std::move(inherited));
+      
     case StyleType::Number:
       return raw_get_pmath_float(key, std::move(inherited));
       
@@ -1593,6 +1622,16 @@ Expr StyleImpl::raw_get_pmath_color(StyleOptionName n, Expr inherited) const {
   Color c;
   if(raw_get_color(n, &c))
     return c.to_pmath();
+    
+  return inherited;
+}
+
+Expr StyleImpl::raw_get_pmath_int(StyleOptionName n, Expr inherited) const {
+  STYLE_ASSERT(is_for_int(n));
+  
+  int i;
+  if(raw_get_int(n, &i))
+    return Expr(i);
     
   return inherited;
 }
@@ -2254,6 +2293,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(PlotRange);
   impl.emit_definition(ReturnCreatesNewSection);
   impl.emit_definition(Saveable);
+  impl.emit_definition(ScriptLevel);
   impl.emit_definition(ScriptSizeMultipliers);
   impl.emit_definition(SectionDingbat);
   impl.emit_definition(SectionEditDuplicate);
@@ -2811,6 +2851,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            Placeholder,                      Symbol( richmath_System_Placeholder));
     add(StyleType::Bool,            ReturnCreatesNewSection,          Symbol( richmath_System_ReturnCreatesNewSection));
     add(StyleType::Bool,            Saveable,                         Symbol( richmath_System_Saveable));
+    add(StyleType::Integer,         ScriptLevel,                      Symbol( richmath_System_ScriptLevel));
     add(StyleType::Bool,            SectionEditDuplicate,             Symbol( richmath_System_SectionEditDuplicate));
     add(StyleType::Bool,            SectionEditDuplicateMakesCopy,    Symbol( richmath_System_SectionEditDuplicateMakesCopy));
     add(StyleType::Bool,            SectionGenerated,                 Symbol( richmath_System_SectionGenerated));

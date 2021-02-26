@@ -2830,7 +2830,7 @@ void MathSequence::Impl::apply_glyph_substitutions(Context &context) {
     
   int old_ssty_feature_value = context.fontfeatures.feature_value(FontFeatureSet::TAG_ssty);
   if(old_ssty_feature_value < 0)
-    context.fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context.script_indent);
+    context.fontfeatures.set_feature(FontFeatureSet::TAG_ssty, context.script_level);
     
   /* TODO: infer script ("math") and language ("dflt") from style/context.
    */
@@ -3571,7 +3571,7 @@ void MathSequence::Impl::EnlargeSpace::run_text_space_characters() {
 void MathSequence::Impl::EnlargeSpace::run() {
   run_text_space_characters();
   
-  if(context.script_indent > 0 || !context.math_spacing)
+  if(context.script_level > 0 || !context.math_spacing)
     return;
     
   int box = 0;

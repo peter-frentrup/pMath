@@ -25,6 +25,7 @@ namespace richmath {
       virtual Box *item(int i) override;
       virtual int count() override;
       
+      virtual int child_script_level(int index, const int *opt_ambient_script_level) final override;
       virtual void resize(Context &context) override;
       void after_items_resize(Context &context);
       virtual void colorize_scope(SyntaxState &state) override;

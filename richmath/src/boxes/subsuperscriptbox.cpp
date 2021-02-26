@@ -115,11 +115,20 @@ int SubsuperscriptBox::count() {
   return (_subscript ? 1 : 0) + (_superscript ? 1 : 0);
 }
 
+int SubsuperscriptBox::child_script_level(int index, const int *opt_ambient_script_level) {
+  int ambient_script_level = Box::child_script_level(-1, opt_ambient_script_level);
+  
+  if(ambient_script_level < 1)
+    ambient_script_level = 1;
+  
+  return ambient_script_level + 1;
+}
+
 void SubsuperscriptBox::resize(Context &context) {
   float old_w = context.width;
   float old_fs = context.canvas().get_font_size();
-  int old_script_indent = context.script_indent;
-  context.script_indent++;
+  int old_script_level = context.script_level;
+  context.script_level = child_script_level(0, &context.script_level);
   
   context.width = HUGE_VAL;
   
@@ -132,7 +141,7 @@ void SubsuperscriptBox::resize(Context &context) {
   if(_superscript)
     _superscript->resize(context);
     
-  context.script_indent = old_script_indent;
+  context.script_level = old_script_level;
   context.canvas().set_font_size(old_fs);
   context.width = old_w;
   

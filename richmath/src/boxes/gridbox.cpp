@@ -78,16 +78,12 @@ bool GridItem::expand(const BoxSize &size) {
 }
 
 void GridItem::resize_default_baseline(Context &context) {
-  bool smf = context.smaller_fraction_parts;
-  context.smaller_fraction_parts = true;
-  
-  base::resize_default_baseline(context);
-  
-  context.smaller_fraction_parts = smf;
   _span_right = 0;
   _span_down = 0;
   really_span_from_left(false);
   really_span_from_above(false);
+  
+  base::resize_default_baseline(context);
 }
 
 Expr GridItem::to_pmath(BoxOutputFlags flags) {
@@ -340,6 +336,16 @@ void GridBox::remove_cols(int xindex, int count) {
   invalidate();
 }
 
+int GridBox::child_script_level(int index, const int *opt_ambient_script_level) {
+  int ambient_level = Box::child_script_level(0, opt_ambient_script_level);
+  
+  // TODO: implement AllowScriptLevelChange style
+  if(ambient_level < 1)
+    ambient_level = 1;
+  
+  return ambient_level;
+}
+
 bool GridBox::expand(const BoxSize &size) {
   if(size.width < _extents.width)
     return false;
@@ -414,6 +420,9 @@ void GridBox::resize(Context &context) {
   rowspacing *= get_style(GridBoxRowSpacing);
   colspacing *= get_style(GridBoxColumnSpacing);
   
+  int old_script_level = context.script_level;
+  context.script_level = child_script_level(0, &context.script_level);
+  
   float w = context.width;
   context.width = Infinity;
   int span_count = Impl(*this).resize_items(context);
@@ -424,6 +433,8 @@ void GridBox::resize(Context &context) {
   Impl(*this).expand_rowspans(span_count);
   
   Impl(*this).adjust_baseline(em);
+  
+  context.script_level = old_script_level;
 }
 
 void GridBox::paint(Context &context) {

@@ -46,14 +46,13 @@ Context::Context()
     cursor_color(Color::Black),
     syntax(GeneralSyntaxInfo::std),
     multiplication_sign(0x00D7),
-    script_indent(0),
+    script_level(0),
     script_size_min(5),
     mouseover_box_id(FrontEndReference::None),
     clicked_box_id(FrontEndReference::None),
     show_auto_styles(true),
     show_string_characters(true),
     math_spacing(true),
-    smaller_fraction_parts(false),
     single_letter_italics(true),
     boxchar_fallback_enabled(true),
     active(true)
@@ -153,12 +152,12 @@ void Context::draw_selection_path() {
 float Context::get_script_size(float oldem) {
   float em;
   
-  if(script_indent < 1 || script_size_multis.length() == 0)
+  if(script_level < 2 || script_size_multis.length() == 0)
     em = oldem;
-  else if(script_indent > script_size_multis.length())
-    em = script_size_multis[script_size_multis.length() - 1] * oldem;
+  else if(script_level - 2 < script_size_multis.length())
+    em = script_size_multis[script_level - 2] * oldem;
   else
-    em = script_size_multis[script_indent - 1] * oldem;
+    em = script_size_multis[script_size_multis.length() - 1] * oldem;
     
   if(em < script_size_min)
     return oldem; // script_size_min;
@@ -290,6 +289,7 @@ void ContextState::begin(SharedPtr<Style> style) {
   old_width                  = ctx.width;
   old_math_shaper            = ctx.math_shaper;
   old_text_shaper            = ctx.text_shaper;
+  old_script_level           = ctx.script_level;
   old_syntax                 = ctx.syntax;
   old_math_spacing           = ctx.math_spacing;
   old_show_auto_styles       = ctx.show_auto_styles;
@@ -417,6 +417,10 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
     ctx.width = Infinity;
   }
   
+  if(ctx.stylesheet->get(style, ScriptLevel, &i)) {
+    ctx.script_level = i;
+  }
+  
   if(ctx.stylesheet->get(style, ScriptSizeMultipliers, &expr)) {
     using std::swap;
     swap(old_script_size_multis, ctx.script_size_multis);
@@ -468,6 +472,7 @@ void ContextState::end() {
   ctx.canvas().set_color(      old_color);
   ctx.canvas().set_font_size(  old_fontsize);
   ctx.width                  = old_width;
+  ctx.script_level           = old_script_level;
   ctx.show_string_characters = old_show_string_characters;
   ctx.show_auto_styles       = old_show_auto_styles;
   ctx.math_spacing           = old_math_spacing;
