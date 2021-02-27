@@ -64,6 +64,7 @@ extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_ComplexInfinity;
 extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Decrement;
+extern pmath_symbol_t pmath_System_Derivative;
 extern pmath_symbol_t pmath_System_DirectedInfinity;
 extern pmath_symbol_t pmath_System_DivideBy;
 extern pmath_symbol_t pmath_System_Equal;
@@ -2535,8 +2536,8 @@ static void division_writer(
 
 /* Hook in the given writer function and place stars as multilication signs when
    needed (before (,[,{ ) or a space otherwise.
-   => times(a,b) becomes "a b",
-      times(a,plus(b,c)) becomes "a*(b+c)".
+   => Times(a,b) becomes "a b",
+      Times(a,Plus(b,c)) becomes "a*(b+c)".
  */
 static void product_writer(
   void           *user,
@@ -2590,7 +2591,7 @@ static void product_writer(
 
 /* Hook in the given writer function and place plus or minus signs
    appropriately.
-   => plus(a,times(-2,b)) becomes "a - 2 b" instead of "a + -2 b".
+   => Plus(a,Times(-2,b)) becomes "a - 2 b" instead of "a + -2 b".
  */
 static void sum_writer(
   void           *user,
@@ -3006,6 +3007,39 @@ static void write_expr_ex(
     WRITE_CSTR(">>");
 
     pmath_unref(item);
+  }
+  else if(pmath_is_expr_of_len(head, pmath_System_Derivative, 1)) {
+    const uint16_t primes[] = {'\'', '\'', '\''};
+    pmath_t item;
+    int order = 0;
+    
+    if(exprlen != 1)
+      goto FULLFORM;
+    
+    item = pmath_expr_get_item(head, 1);
+    if(pmath_is_int32(item)) {
+      order = PMATH_AS_INT32(item);
+    }
+    else {
+      pmath_unref(item);
+      goto FULLFORM;
+    }
+    
+    if(order < 1 || order > (int)(sizeof(primes)/sizeof(primes[0])))
+      goto FULLFORM;
+    
+    
+    if(priority > PMATH_PREC_DIFF)
+      WRITE_CSTR("(");
+
+    item = pmath_expr_get_item(expr, 1);
+    write_ex(info, PMATH_PREC_DIFF + 1, item);
+    pmath_unref(item);
+    
+    info->write(info->user, primes, order);
+    
+    if(priority > PMATH_PREC_DIFF)
+      WRITE_CSTR(")");
   }
 else INPUTFORM:
     if(exprlen == 2 && /*=========================================*/

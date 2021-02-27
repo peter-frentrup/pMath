@@ -1,6 +1,7 @@
 #include <pmath-core/expressions-private.h>
 
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/emit-and-gather.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
@@ -149,6 +150,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
                             pmath_ref(name)));
     
     if(!pmath_is_null(throw_tag)) {
+      pmath_debug_print_object("[critical message ", expr, "]\n");
       pmath_unref(expr);//pmath_unref(pmath_evaluate(expr));
       pmath_unref(name);
       pmath_throw(throw_tag);
