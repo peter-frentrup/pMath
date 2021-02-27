@@ -2925,6 +2925,26 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
     NO_DERIVATIVE: ;
     }
     
+    if(pmath_is_expr_of(exp, pmath_System_TagBox)) {
+      pmath_t tag = pmath_expr_get_item(exp, 2);
+      pmath_unref(tag);
+      
+      if(pmath_same(tag, pmath_System_Derivative)) {
+        if(parse(&exp)) 
+          return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(exp, 1, base));
+      
+        pmath_unref(boxes);
+        pmath_unref(base);
+        pmath_unref(exp);
+        return pmath_ref(pmath_System_DollarFailed);
+      }
+      
+      // TODO: InverseFunction
+      
+      // Note that Mma parses SuperscriptBox("f", TagBox(..., g)) as g(f^...) for other symbols g
+      // and SuperscriptBox("f", TagBox(..., "g")) as f^(g(...)) for string tags "g"
+    }
+    
     if(parse(&exp)) {
       return wrap_hold_with_debuginfo_from(boxes, POW(base, exp));
     }
