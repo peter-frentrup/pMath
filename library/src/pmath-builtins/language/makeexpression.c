@@ -55,6 +55,7 @@ extern pmath_symbol_t pmath_System_Congruent;
 extern pmath_symbol_t pmath_System_Cross;
 extern pmath_symbol_t pmath_System_CupCap;
 extern pmath_symbol_t pmath_System_Decrement;
+extern pmath_symbol_t pmath_System_Derivative;
 extern pmath_symbol_t pmath_System_Dot;
 extern pmath_symbol_t pmath_System_DotEqual;
 extern pmath_symbol_t pmath_System_DoubleDownArrow;
@@ -235,6 +236,7 @@ static uint16_t unichar_at(pmath_expr_t expr, size_t i);
 static pmath_bool_t is_empty_box(pmath_expr_t box);
 static pmath_bool_t is_string_at(pmath_expr_t expr, size_t i, const char *str);
 static pmath_bool_t string_equals(pmath_string_t str, const char *cstr);
+static pmath_bool_t string_equals_char_repeated(pmath_string_t str, uint16_t ch);
 static pmath_bool_t are_linebreaks_only_at(pmath_expr_t expr, size_t i);
 static pmath_bool_t is_subsuperscript_at(pmath_expr_t expr, size_t i);
 static pmath_bool_t is_underoverscript_at(pmath_expr_t expr, size_t i);
@@ -246,7 +248,7 @@ static pmath_t parse_at(    pmath_expr_t expr, size_t i);
 static pmath_t parse_seq_at(pmath_expr_t expr, size_t i, pmath_symbol_t seq);
 static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr);
 
-static pmath_t wrap_hold_with_debuginfo_from(pmath_t boxes_with_debuginfo, pmath_t result); // arguments be freed
+static pmath_t wrap_hold_with_debuginfo_from(pmath_t boxes_with_debuginfo, pmath_t result); // both arguments be freed
 static void handle_row_error_at(pmath_expr_t expr, size_t i);
 
 static pmath_symbol_t inset_operator(uint16_t ch); // do not free result!
@@ -285,6 +287,7 @@ static pmath_t make_comma_sequence(pmath_expr_t expr); // a,b,c ...
 static pmath_t make_evaluation_sequence(pmath_expr_t boxes); // a; b; c\[RawNewline]d ...
 static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes);
 static pmath_t make_optional_pattern(pmath_expr_t boxes); // ?x  ?x:v
+static pmath_t make_derivative(      pmath_expr_t boxes, int order);
 static pmath_t make_from_first_box(  pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
 static pmath_t make_from_second_box( pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
 static pmath_t make_matchfix(        pmath_expr_t boxes, pmath_symbol_t sym); // {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
@@ -511,6 +514,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       
     // x& x! x++ x-- x.. p** p*** +x -x !x #x ++x --x ..x ??x <<x ~x ~~x ~~~x
     if(exprlen == 2) {
+      pmath_string_t str;
+      
       // x &
       if(secondchar == '&')
         return make_from_first_box(expr, pmath_System_Function);
@@ -518,27 +523,58 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // x!
       if(secondchar == '!')
         return make_from_first_box(expr, pmath_System_Factorial);
+      
+      // f'
+      if(secondchar == '\'')
+        return make_derivative(expr, 1);
+      
+      str = pmath_expr_get_item(expr, 2);
+      if(pmath_is_string(str)) {
+        // x!!
+        if(string_equals(str, "!!")) {
+          pmath_unref(str);
+          return make_from_first_box(expr, pmath_System_Factorial2);
+        }
         
-      // x!!
-      if(is_string_at(expr, 2, "!!"))
-        return make_from_first_box(expr, pmath_System_Factorial2);
+        // x++
+        if(string_equals(str, "++")) {
+          pmath_unref(str);
+          return make_from_first_box(expr, pmath_System_PostIncrement);
+        }
         
-      // x++
-      if(is_string_at(expr, 2, "++"))
-        return make_from_first_box(expr, pmath_System_PostIncrement);
+        // x--
+        if(string_equals(str, "--")) {
+          pmath_unref(str);
+          return make_from_first_box(expr, pmath_System_PostDecrement);
+        }
         
-      // x--
-      if(is_string_at(expr, 2, "--"))
-        return make_from_first_box(expr, pmath_System_PostDecrement);
+        // p**  p***
+        if(string_equals_char_repeated(str, '*')) {
+          int len = pmath_string_length(str);
+          
+          // p**
+          if(len == 2) {
+            pmath_unref(str);
+            return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_one));
+          }
+            
+          // p***
+          if(len == 3) {
+            pmath_unref(str);
+            return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
+          }
+        }
         
-      // p**
-      if(is_string_at(expr, 2, "**"))
-        return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_one));
-        
-      // p***
-      if(is_string_at(expr, 2, "***"))
-        return make_repeated_pattern(expr, pmath_ref(_pmath_object_range_from_zero));
-        
+        // f''  f'''  f''''  etc.
+        if(string_equals_char_repeated(str, '\'')) {
+          int len = pmath_string_length(str);
+          pmath_unref(str);
+          return make_derivative(expr, len);
+        }
+      }
+      pmath_unref(str);
+      str = PMATH_NULL;
+      
       // +x
       if(firstchar == '+' || firstchar == PMATH_CHAR_INVISIBLEPLUS)
         return make_unary_plus(expr);
@@ -557,7 +593,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // #x
       if(firstchar == '#')
         return make_from_second_box(expr, pmath_System_PureArgument);
-        
+      
       // ##x
       if(is_string_at(expr, 1, "##"))
         return make_pure_argument_range(expr);
@@ -849,6 +885,22 @@ static pmath_bool_t string_equals(pmath_string_t str, const char *cstr) {
     if(*buf++ != *cstr++)
       return FALSE;
       
+  return TRUE;
+}
+
+static pmath_bool_t string_equals_char_repeated(pmath_string_t str, uint16_t ch) {
+  int i;
+  int len = pmath_string_length(str);
+  const uint16_t *buf = pmath_string_buffer(&str);
+  
+  if(len < 1)
+    return FALSE;
+  
+  for(i = 0; i < len; ++i) {
+    if(buf[i] != ch)
+      return FALSE;
+  }
+  
   return TRUE;
 }
 
@@ -2451,6 +2503,29 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
   return pmath_ref(pmath_System_DollarFailed);
 }
 
+static pmath_t make_derivative(pmath_expr_t boxes, int order) {
+  pmath_t box = parse_at(boxes, 1);
+  
+  if(!is_parse_error(box)) {
+    pmath_t snd = pmath_expr_get_item(boxes, 2);
+    pmath_t snd_debug_info = pmath_get_debug_info(snd);
+    pmath_unref(snd);
+    snd = pmath_expr_new_extended(
+            pmath_ref(pmath_System_Derivative), 1,
+            PMATH_FROM_INT32(order));
+    snd = pmath_try_set_debug_info(snd, snd_debug_info);
+    
+    return wrap_hold_with_debuginfo_from(
+             boxes,
+             pmath_expr_new_extended(
+               snd, 1,
+               box));
+  }
+  
+  pmath_unref(boxes);
+  return pmath_ref(pmath_System_DollarFailed);
+}
+
 static pmath_t make_from_first_box(
   pmath_expr_t   boxes,   // will be freed
   pmath_symbol_t sym      // wont be freed
@@ -2820,8 +2895,39 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
     return boxes;
   }
   
-  if(parse(&base) && parse(&exp)) {
-    return wrap_hold_with_debuginfo_from(boxes, POW(base, exp));
+  if(parse(&base)) {
+    if(pmath_is_string(exp)) {
+      pmath_string_t exp_debug_info;
+      int order = 0;
+      int len = pmath_string_length(exp);
+      const uint16_t *exp_buf = pmath_string_buffer(&exp);
+      int i;
+      for(i = 0; i < len; ++i) {
+        switch(exp_buf[i]) {
+          case 0x2032: order+= 1; break; // \[Prime]
+          case 0x2033: order+= 2; break; // \[DoublePrime]
+          case 0x2034: order+= 3; break; // \[TriplePrime]
+          case 0x2035: order+= 1; break; // \[ReversedPrime]
+          case 0x2036: order+= 2; break; // \[ReversedDoublePrime]
+          case 0x2037: order+= 3; break; // \[ReversedTriplePrime]
+          case 0x2057: order+= 4; break; // \[QuadruplePrime]
+          default: 
+            goto NO_DERIVATIVE;
+        }
+      }
+      exp_debug_info = pmath_get_debug_info(exp);
+      pmath_unref(exp);
+      exp = pmath_expr_new_extended(
+              pmath_ref(pmath_System_Derivative), 1,
+              PMATH_FROM_INT32(order));
+      exp = pmath_try_set_debug_info(exp, exp_debug_info);
+      return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(exp, 1, base));
+    NO_DERIVATIVE: ;
+    }
+    
+    if(parse(&exp)) {
+      return wrap_hold_with_debuginfo_from(boxes, POW(base, exp));
+    }
   }
   
   pmath_unref(boxes);

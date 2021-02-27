@@ -230,6 +230,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( DeleteDirectory,                    0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( DeleteFile,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Delimiter,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Depth,                              0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( Derivative,                         NHOLDALL ) // TODO: also DEEPHOLDALL to allow HoldAll f in Derivative(...)(f)(...) ?
 PMATH_DECLARE_SYSTEM_SYMBOL( Det,                                0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( DiagonalMatrix,                     0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Dialog,                             HOLDALL )
