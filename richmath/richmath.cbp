@@ -789,6 +789,7 @@
 		<Unit filename="include/boxes/underoverscriptbox.h" />
 		<Unit filename="include/eval/application.h" />
 		<Unit filename="include/eval/binding.h" />
+		<Unit filename="include/eval/cubic-bezier-easing-function.h" />
 		<Unit filename="include/eval/current-value.h" />
 		<Unit filename="include/eval/dynamic.h" />
 		<Unit filename="include/eval/eval-contexts.h" />
@@ -1314,6 +1315,7 @@
 		<Unit filename="src/boxes/underoverscriptbox.cpp" />
 		<Unit filename="src/eval/application.cpp" />
 		<Unit filename="src/eval/binding.cpp" />
+		<Unit filename="src/eval/cubic-bezier-easing-function.cpp" />
 		<Unit filename="src/eval/current-value.cpp" />
 		<Unit filename="src/eval/dynamic.cpp" />
 		<Unit filename="src/eval/eval-contexts.cpp" />

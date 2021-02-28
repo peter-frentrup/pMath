@@ -1,0 +1,64 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("CubicBezierFunction", "Title"), 
+    SectionGroup({
+      Section(BoxData({"ListLinePlot", "@", {
+          "With", "(", {
+           {"{", {"xs", "\[Assign]", {
+              "Array", "(", {"0.0", "..", "1.0", "..", "0.01"}, ")"}}, "}"}, 
+           ",", {"Transpose", "@", {
+             "{", {"xs", ",", {"FE`CallFrontEnd", "(", {
+                "FrontEnd`EvaluateCubicBezierFunction", "(", {
+                 "0.25", ",", "0", ",", "0.25", ",", "1", ",", "xs"}, ")"}, 
+               ")"}}, "}"}}}, ")"}}), "Input", SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData({{"Developer`FromPackedArray", "::", 
+          ComplexStringBox("\"punpack\"")}, "\[Colon]", 
+         TemplateBox({
+           InterpretationBox(ComplexStringBox(
+             "\"Unpacking array with dimensions ", {{"{", {"2"}, "}"}}, 
+             " in call to ", {"Part"}, ".\""), 
+            StringForm("Unpacking array with dimensions `2` in call to `1`.", 
+             Part, {2}))}, "RowDefault")}), "Message", 
+       SectionGenerated -> True), 
+      Section(
+       BoxData(GraphicsBox({
+          {RGBColor(0.75`, 0, 0), {
+            LineBox(CompressedData(
+              "1:c$,g^dsxkP9LM$5V+k!SUzep3+hXywX)bMi)DXE[%B?5Kt!PB)QE29V4]xmA<\
+              (A4^Yl@CjPDNT-AyJ*eDW#j*mg]ko=l$K}@%!sMuUF6SdwYG)Nwl!YF%hDzFg25t\
+              LxY0neeW]IKPXtVvM@Cjvc><;yAQ$)e5Lgnw[)ZtN!E}w9GP&#g@pNgJd&jQa?}L\
+              Yoqb8P1y8ZvP&+Xtnq<l4zkNns3?^am-rpZ5>Eym^o*{WH2[}$;QN}]pq}J95(kx\
+              SUkgx*3g!h]w+0%CAh]by_lCTD^n,j*2JV^,x$$0[zqDjd2-k(I$x;V03Q0Xxeox\
+              shDjs*@jPbR4i-&bWG6i=cHIEIb7MDlLOg1qd^vm}W5?Y$y&&Gs6ezeRpb*@8q8w\
+              &2N_kCx=<Zf4g{yCsw825x+N(Xn)r-WTFsJ,GPLVFzA}d0r*CWo1ZHhnDFidV=@E\
+              lR;7+zP;Cp03C_X-kX0W$qvV^W>r1UBw-Jp(QKSi7RlG%7aG>bTqn^RybacMon(1\
+              gy;b(?91;%TlW_pqysin,M&}U-BheT9Al7?>Wa9@t#*S;3Pr?!05M]@Whh+Pg*[4\
+              Ji3rKtg{ss0Smt?G=tw-^{w@5gF2N{<em,75xKit=5#T^p;!Beq6H%ZRayBz7#R7\
+              heVxCvs)Cz<1HD0Ns+M8X;T1on;jyo6@Qs(bfHd<#D6p>aY5B(s[3tn4(rn8Xn9d\
+              h93jU!od+zm,x!Vkr1-opFP1k+kzG*wwqWo,fs-*VyOVJZ,sB?c-;akr)Pk9}y*K\
+              V1(4%JY7y=1o&#]{]eOgHtx$l9{Pa9Nbv5)W!V;zydG!yys6_u67JwxI2Y!NU*uG\
+              !oo7A<+<(6Dxl6KA,_H)6ZjVTe18;[(D&h{O2kG*Qm,?yd?,B*u^R<qDeE!K?1Bp\
+              rC9yrH)BqOJp,-nQ,Q@]#$Q07IODtc{SQbEEK{4mb<K1s1G)Ty9>,804BT!3Pd@q\
+              U3btNklU%mA;%xiilXiECB!fVmg=7KB?uGGkoX$)[Salkf)bgC0t,&o_Y+KgwY41\
+              7478e3%FNSo$vMTSdYbd^tMNlic<;)x]xn^SR)ijoWNpMslf1t3J-Jn9m2lf_}7M\
+              x}+Au&!{Hh2R_?4tXDaYt7)FpErt0)aDlEKaQ[IpH8xgHNCbdS!M-uiU3{f$tsnE\
+              n;IZh9,DusXh@%?jf#5H&pUekZOmdvju7<=iaCdb0kmRxvx1H^0G7knngnedyCo$\
+              L2E}z%+cmw)m9,}#f60Zj4E5L_h{]wXO^[uU%UB6lqVc>hvEpw4[M{fvWz6!ho!!\
+              p-s&kgoWW*!dSA3YoR,%^agc{DR$V*;@m2gc$=l*?]_I@Xa,t3)w^W8oZTQ#fQHi\
+              [gx4;3z9d4k)$Pk2=C)qY]k,11vmlq>k!wm&Il!@^Q#4{KhOWEjFtsu]i8>+>T0;\
+              j}w*VuNuT+yAr,TeimX;#@J4NEOsh!4flq{;zdharbe>Zr9>x$@tEYqUWQpq(^%}\
+              LVj*r63(cm@>2B35B9+h[85Yl%*L]>zVFQVMN?72oRgu(XZOmEc#A3e^K8T4$M&j\
+              (2EvB(Jpu,2-LKarT_W0chWpPLeQ)E,n*Z<3PZZ%OXqLuJOXDn,>vf3Sx!XieAIE\
+              2Q+G<2PQdLfIWO1wg8EVAai2BtQ$IIhGPr1pelKbs%FIbi;jM643gXpMy?@[%L79\
+              g8?68W9_dn3%)5ra>$clyF6DH6$nK>ubWsv-nksNaV(%>(PwfN9V9Oqr_wM#-i1n\
+              EQ=)[EY2x05W&@wOlXr=QN4-91tqqspEi<H^MBCF{VbA{C,E8A#@Am9dK=5)q7r=\
+              (TpfQ$XY@W1pTr_Xi8Tn0MQu,h?Z;PHTvp;1f@ASh_ljpTb6IGV=!xL!,QMRDIW_\
+              Pu3#[3%2#!T!x=pfoIg4]9vJo5$>ou-Ahbk62CAuKE29gm6m%S*jXOXEy0D@z&v9\
+              R*&>c3cAQ$ma2SX4Qu$u=)oWGi8b;GXi2,ux34J6^NMQNkC&vCx)0sWp4UB3Fqd1\
+              jiz2YQ*ccZ&[<_q9uZBq<0_w0[IW3lm~~~"))}}}, 
+         AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+         Axes -> True)), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [1]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

@@ -1,5 +1,6 @@
 #include <boxes/sliderbox.h>
 #include <eval/application.h>
+#include <eval/cubic-bezier-easing-function.h>
 #include <eval/eval-contexts.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
@@ -740,7 +741,7 @@ void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_valu
       
       SharedPtr<BoxRepaintEvent> ev = new BoxRepaintEvent(self.id(), 0.0);
       if(ev->register_event()) {
-        current_value = self.animation_start_value + (current_value - self.animation_start_value) * duration / max_duration;
+        current_value = self.animation_start_value + CubicBezierEasingFunction::EaseOut(current_value - self.animation_start_value) * duration / max_duration;
       }
       else {
         self.animation_start_value = current_value;
