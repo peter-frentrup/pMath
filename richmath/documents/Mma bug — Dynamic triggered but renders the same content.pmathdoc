@@ -1,0 +1,57 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    Section(
+     "Mma bug \[LongDash] Dynamic triggered but renders the same content", 
+     "Title"), 
+    Section(
+     TextData({
+       TemplateBox({
+         ComplexStringBox(
+          "\"https://mathematica.stackexchange.com/questions/166011/dynamic-tr\
+          iggered-but-renders-the-same-content\""), 
+         "https://mathematica.stackexchange.com/questions/166011/dynamic-trigg\
+         ered-but-renders-the-same-content"}, "HyperlinkURL")}), "Text"), 
+    SectionGroup({Section(BoxData({"trigger", "\[Assign]", "True"}), "Input", 
+       SectionLabel -> "in [1]:"), Section(BoxData("True"), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    Section(BoxData({{"panel", "(", ")"}, "\[AssignDelayed]", " ", {
+        "DynamicLocal", "(", {{"{", "x", "}"}, ",", {
+          "Framed", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
+          "Initialization", "\[RuleDelayed]", {
+           "(", {"x", "\[Assign]", {"RandomReal", "(", ")"}}, ")"}}}, ")"}}), 
+     "Input", SectionLabel -> "in [2]:"), 
+    SectionGroup({
+      Section(
+       BoxData({"Column", "@", {
+          "{", {
+           {"\n", {"Button", "(", {ComplexStringBox("\"redo\""), ",", {
+               "trigger", "\[Assign]", {"!", "trigger"}}, ",", {
+               "Method", "\[Rule]", ComplexStringBox("\"Queued\"")}}, ")"}}, 
+           ",", {"\n", {"Dynamic", "(", "trigger", ")"}}, ",", {
+            "\n", {"Dynamic", "(", {{"trigger", ";", {"panel", "(", ")"}}, 
+              ",", {"TrackedSymbols", "\[RuleDelayed]", {
+                "{", "trigger", "}"}}}, ")"}}, ",", {
+            "\n", {
+             {"Dynamic", "(", {
+               {"trigger", ";", {"{", {{"RandomReal", "(", ")"}, ",", {
+                   "panel", "(", ")"}}, "}"}}, ",", {
+                "TrackedSymbols", "\[RuleDelayed]", {"{", "trigger", "}"}}}, 
+              ")"}, "\n"}}}, "}"}}), "Input", SectionLabel -> "in [3]:"), 
+      Section(
+       BoxData(
+        TagBox(
+         GridBox({
+           {ButtonBox(ComplexStringBox("\"redo\""), 
+             ButtonFunction -> (($Context`trigger:= !$Context`trigger) &), 
+             Method -> "Queued")}, {DynamicBox(ToBoxes($Context`trigger))}, {
+            DynamicBox(ToBoxes($Context`trigger; $Context`panel()), 
+             TrackedSymbols :> {$Context`trigger})}, {
+            DynamicBox(ToBoxes($Context`trigger; {
+                RandomReal(), $Context`panel()}), 
+             TrackedSymbols :> {$Context`trigger})}}), "Column")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [3]:"), 
+      Section(BoxData("True"), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [11]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

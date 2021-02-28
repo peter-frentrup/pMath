@@ -47,9 +47,10 @@ Function DynamicLocal(
 	HoldComplete(
 		head(heldlocalsyms), 
 		content, 
-		DynamicLocalValues :> vals
-	).Replace(
-		{head(HoldComplete(~~~x))                   :> {x}, 
+		DynamicLocalValues :> vals,
+		opt
+	).Replace({
+			head(HoldComplete(~~~x))                   :> {x}, 
 			(DynamicLocalValues :> HoldComplete(~~~s)) :> (DynamicLocalValues :> {s})}
 	).Replace(
 		repsyms, 
