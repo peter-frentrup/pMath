@@ -150,7 +150,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(CheckboxBox)               == 112, ""); // (72) + 24 + 8 + 8
     static_assert(sizeof(OpenerBox)                 == 104, ""); // (72) + 24 + 8
     static_assert(sizeof(RadioButtonBox)            == 104, ""); // (72) + 24 + 8
-    static_assert(sizeof(SliderBox)                 == 144, ""); // (72) + 4*8 + 8 + 24 + 4 + 4
+    static_assert(sizeof(SliderBox)                 == 160, ""); // (72) + 6*8 + 8 + 24 + 4 + 4
     static_assert(sizeof(OwnerBox)                  ==  64, ""); // (48) + 8 + 4 + 4
     static_assert(sizeof(ExpandableOwnerBox)        ==  64, "");
     static_assert(sizeof(InlineSequenceBox)         ==  64, "");
@@ -222,7 +222,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(CheckboxBox)               ==  80, ""); // (48) + 16 + 8 + 8
     static_assert(sizeof(OpenerBox)                 ==  72, ""); // (48) + 16 + 8
     static_assert(sizeof(RadioButtonBox)            ==  72, ""); // (48) + 16 + 8
-    static_assert(sizeof(SliderBox)                 == 112, ""); // (48) + 4*8 + 8 + 16 + 4 + 4
+    static_assert(sizeof(SliderBox)                 == 128, ""); // (48) + 6*8 + 8 + 16 + 4 + 4
     static_assert(sizeof(OwnerBox)                  ==  48, ""); // (36) + 4 + 4 + 4
     static_assert(sizeof(ExpandableOwnerBox)        ==  48, "");
     static_assert(sizeof(InlineSequenceBox)         ==  48, "");

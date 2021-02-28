@@ -36,6 +36,8 @@ namespace richmath {
         ControlState    state,
         RectangleF      rect) override;
     
+      virtual bool enable_animations() override;
+      
       virtual Vector2F container_content_offset(
         ControlContext &control, 
         ContainerType   type,

@@ -45,7 +45,7 @@
 #define TID_ANIMATE        2
 #define TID_BLINKCURSOR    3
 
-#define ANIMATION_DELAY  (50)
+#define ANIMATION_DELAY  (16)
 
 using namespace richmath;
 

@@ -572,7 +572,17 @@ void MathGtkControlPainter::draw_container(
   
   ControlPainter::draw_container(control, canvas, type, state, rect);
 }
- 
+
+bool MathGtkControlPainter::enable_animations() {
+  GtkSettings settings = gtk_settings_get_default();
+  if(!settings)
+    return false;
+  
+  gboolean animations = FALSE;
+  g_object_get(settings, "gtk-enable-animations", &animations, NULL);
+  return !!animations;
+}
+
 Vector2F MathGtkControlPainter::container_content_offset(
   ControlContext &control, 
   ContainerType   type,

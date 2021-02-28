@@ -130,6 +130,8 @@ namespace richmath {
         ControlState    state,
         RectangleF      rect);
         
+      virtual bool enable_animations() { return true; }
+        
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
         Canvas            &canvas,

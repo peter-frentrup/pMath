@@ -53,6 +53,8 @@ namespace richmath {
       double range_max;
       double range_step;
       double range_value;
+      double animation_start_value;
+      double animation_start_time;
       Expr range;
       Dynamic dynamic;
       

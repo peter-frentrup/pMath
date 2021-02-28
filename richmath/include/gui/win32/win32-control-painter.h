@@ -39,7 +39,9 @@ namespace richmath {
         ContainerType   type,
         ControlState    state,
         RectangleF      rect) override;
-        
+      
+      virtual bool enable_animations() override;
+      
       virtual SharedPtr<BoxAnimation> control_transition(
         FrontEndReference  widget_id,
         Canvas            &canvas,

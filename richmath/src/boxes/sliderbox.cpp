@@ -69,6 +69,8 @@ namespace richmath {
       void assign_dynamic_value(double d, bool pre, bool middle, bool post);
       
       void finish_update_value();
+      double translate_range_value(Expr val);
+      void set_range_value(double value);
       
       void paint_error_indicator_if_necessary(Canvas &canvas, Point pos);
       
@@ -104,6 +106,8 @@ SliderBox::SliderBox()
     range_max(1.0),
     range_step(0.0),
     range_value(0.5),
+    animation_start_value(0.5),
+    animation_start_time(0.0),
     thumb_width(1),
     channel_width(1)
 {
@@ -327,10 +331,12 @@ void SliderBox::dynamic_updated() {
 }
 
 void SliderBox::dynamic_finished(Expr info, Expr result) {
-  double new_value = result.to_double(NAN);
+  double new_value = Impl(*this).translate_range_value(std::move(result));
   
-  if(range_value != new_value)
+  if(range_value != new_value) {
+    Impl(*this).set_range_value(new_value);
     request_repaint_all();
+  }
 }
 
 VolatileSelection SliderBox::dynamic_to_literal(int start, int end) {
@@ -358,7 +364,7 @@ void SliderBox::on_mouse_down(MouseEvent &event) {
       if(has_pre || get_own_style(ContinuousAction, true)) 
         Impl(*this).assign_dynamic_value(val, true, true, false);
       else
-        range_value = val;
+        Impl(*this).set_range_value(val);
     }
   }
 }
@@ -376,10 +382,10 @@ void SliderBox::on_mouse_move(MouseEvent &event) {
         if(dynamic.has_pre_or_post_assignment() || get_own_style(ContinuousAction, true)) {
           Impl(*this).assign_dynamic_value(val, false, true, false);
           if(dynamic.has_temporary_assignment())
-            range_value = val;
+            Impl(*this).set_range_value(val);
         }
         else
-          range_value = val;
+          Impl(*this).set_range_value(val);
           
         request_repaint_all();
       }
@@ -578,7 +584,7 @@ void SliderBox::Impl::finish_update_value() {
     return;
   
   if(!was_initialized && val.is_symbol() && self.dynamic.is_dynamic_of(val)) {
-    self.range_value = self.range_min;
+    set_range_value(self.range_min);
     assign_dynamic_value(self.range_value, true, true, true);
     
     if(!self.dynamic.get_value(&val))
@@ -590,20 +596,28 @@ void SliderBox::Impl::finish_update_value() {
           EvaluationContexts::resolve_context(&self), 
           strings::DollarContext_namespace);
   
+  set_range_value(translate_range_value(std::move(val)));
+}
+
+double SliderBox::Impl::translate_range_value(Expr val) {
   if(self.range[0] == richmath_System_List) {
-    self.range_value = self.range_min;
-    
     size_t i;
     for(i = 1; i <= self.range.expr_length(); ++i) {
       if(self.range[i] == val) {
-        self.range_value = i;
-        break;
+        return i;
       }
     }
+    
+    return self.range_min;
   }
-  else {
-    self.range_value = val.to_double(NAN);
-  }
+  
+  return val.to_double(NAN);
+}
+
+void SliderBox::Impl::set_range_value(double value) {
+  self.animation_start_value = self.range_value;
+  self.animation_start_time = pmath_tickcount();
+  self.range_value = value;
 }
 
 Expr SliderBox::Impl::to_literal() {
@@ -716,7 +730,28 @@ void SliderBox::Impl::paint_channel(Canvas &canvas, Point pos, ControlState stat
 }
 
 void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_value, ControlState new_state) {
-  if(old_value == self.range_value) {
+  double current_value = self.range_value;
+  
+  if(current_value != self.animation_start_value && isfinite(self.animation_start_value)) {
+    double now = pmath_tickcount();
+    double duration = now - self.animation_start_time;
+    double max_duration = ControlPainter::std->enable_animations() ? 0.1 : 0.0;
+    if(0.0 <= duration && duration < max_duration) {
+      
+      SharedPtr<BoxRepaintEvent> ev = new BoxRepaintEvent(self.id(), 0.0);
+      if(ev->register_event()) {
+        current_value = self.animation_start_value + (current_value - self.animation_start_value) * duration / max_duration;
+      }
+      else {
+        self.animation_start_value = current_value;
+      }
+    }
+    else {
+      self.animation_start_value = current_value;
+    }
+  }
+  
+  if(old_value == current_value) {
     if(new_state != self.old_state || !self.animation) {
       self.animation = create_thumb_animation(context.canvas(), pos, self.old_state, new_state);
     }
@@ -735,7 +770,7 @@ void SliderBox::Impl::animate_thumb(Context &context, Point pos, double old_valu
     self.type,
     new_state,
     RectangleF(
-      Vector2F(pos) + calc_thumb_pos(self.range_value),
+      Vector2F(pos) + calc_thumb_pos(current_value),
       thumb_size()));
 }
 

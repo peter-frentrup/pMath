@@ -49,7 +49,7 @@ extern pmath_symbol_t richmath_System_Menu;
 
 using namespace richmath;
 
-#define ANIMATION_DELAY  (50)
+#define ANIMATION_DELAY  (16)
 static bool animation_running = false;
 Hashset<SharedPtr<TimedEvent>> animations;
 
