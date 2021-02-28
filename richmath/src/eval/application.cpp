@@ -1524,13 +1524,22 @@ namespace {
       static String guess_best_title(Document *doc) {
         assert(doc != nullptr);
         
+        Section *best_section = nullptr;
+        float lowest_precedence = Infinity;
+        
         for(int i = 0; i < doc->count(); ++i) {
           Section *sec = doc->section(i);
-          String stylename = sec->get_style(BaseStyleName);
-          if(stylename.equals("Title"))
-            return section_to_string(sec);
+          if(sec->group_info().precedence < lowest_precedence) {
+            lowest_precedence = sec->group_info().precedence;
+            best_section = sec;
+          }
+          
+          if(i < sec->group_info().end)
+            i = sec->group_info().end;
         }
         
+        if(best_section)
+          return section_to_string(best_section);
         return String();
       }
       
@@ -1572,6 +1581,10 @@ namespace {
             
             if(initialfile.is_null()) {
               String title = guess_best_title(doc);
+              
+              if(!FileSystem::is_filename_without_directory(title))
+                title = String();
+              
               if(title.length() == 0)
                 title = String("untitled");
               initialfile = std::move(title) + ".pmathdoc";
