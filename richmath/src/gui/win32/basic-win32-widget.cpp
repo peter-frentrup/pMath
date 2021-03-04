@@ -1,9 +1,9 @@
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/ole/dataobject.h>
+#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-touch.h>
 #include <gui/win32/win32-clipboard.h>
-#include <gui/win32/win32-highdpi.h>
-#include <gui/win32/win32-themes.h>
-#include <gui/win32/win32-touch.h>
 #include <boxes/box.h>
 #include <resources.h>
 

@@ -1,4 +1,4 @@
-#include <gui/win32/stylus/stylusutil.h>
+#include <gui/win32/api/stylusutil.h>
 
 #include <cstdio>
 #include <guiddef.h>

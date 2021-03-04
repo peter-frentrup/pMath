@@ -25,6 +25,7 @@ namespace richmath {
       
       friend Vector2F operator+(Vector2F left, const Vector2F &right) { return left+= right; }
       friend Vector2F operator-(Vector2F left, const Vector2F &right) { return left-= right; }
+      friend Vector2F operator-(Vector2F vec) { vec.x = -vec.x; vec.y = -vec.y; return vec; }
       friend Vector2F operator*(Vector2F vec, float factor) { return vec*= factor; }
       friend Vector2F operator*(float factor, Vector2F vec) { return vec*= factor; }
       friend Vector2F operator/(Vector2F vec, float divisor) { return vec/= divisor; }

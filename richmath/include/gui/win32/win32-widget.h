@@ -7,8 +7,9 @@
 
 #include <gui/document.h>
 #include <gui/native-widget.h>
+#include <gui/win32/api/stylusutil.h>
+#include <gui/win32/api/win32-hd-trackpad.h>
 #include <gui/win32/basic-win32-widget.h>
-#include <gui/win32/stylus/stylusutil.h>
 
 
 namespace richmath {
@@ -116,6 +117,7 @@ namespace richmath {
       bool is_dragging;
       bool is_drop_over;
       
+      HiDefTrackpadHandler hd_trackpad_handler;
       ComBase<IRealTimeStylus> stylus;
       
     protected:

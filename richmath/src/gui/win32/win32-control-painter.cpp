@@ -2,12 +2,22 @@
 
 #include <gui/win32/win32-control-painter.h>
 
+#include <boxes/box.h>
+#include <eval/observable.h>
+#include <graphics/context.h>
+#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
+#include <gui/win32/basic-win32-widget.h>
+#include <util/array.h>
+#include <util/style.h>
+
 #include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cwchar>
 
 #include <windows.h>
+#include <cairo-win32.h>
 
 #ifdef min
 #  undef min
@@ -16,16 +26,6 @@
 #  undef max
 #endif
 
-#include <cairo-win32.h>
-
-#include <boxes/box.h>
-#include <eval/observable.h>
-#include <graphics/context.h>
-#include <gui/win32/basic-win32-widget.h>
-#include <gui/win32/win32-highdpi.h>
-#include <gui/win32/win32-themes.h>
-#include <util/array.h>
-#include <util/style.h>
 
 #ifndef WM_DWMCOMPOSITIONCHANGED
 #define WM_DWMCOMPOSITIONCHANGED   0x031E

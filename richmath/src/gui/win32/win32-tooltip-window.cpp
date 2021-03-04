@@ -1,11 +1,15 @@
 #include <gui/win32/win32-tooltip-window.h>
-#include <gui/common-tooltips.h>
 
 #include <boxes/mathsequence.h>
 #include <boxes/section.h>
 
-#include <gui/win32/win32-highdpi.h>
-#include <gui/win32/win32-themes.h>
+#include <gui/common-tooltips.h>
+#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
+
+#include <algorithm>
+#include <cmath>
+#include <cstdio>
 
 #ifdef max
 #  undef max
@@ -13,10 +17,6 @@
 #ifdef min
 #  undef min
 #endif
-
-#include <algorithm>
-#include <cmath>
-#include <cstdio>
 
 
 using namespace richmath;

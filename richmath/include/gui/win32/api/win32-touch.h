@@ -1,5 +1,5 @@
-#ifndef RICHMATH__GUI__WIN32__WIN32_TOUCH_H__INCLUDED
-#define RICHMATH__GUI__WIN32__WIN32_TOUCH_H__INCLUDED
+#ifndef RICHMATH__GUI__WIN32__API__WIN32_TOUCH_H__INCLUDED
+#define RICHMATH__GUI__WIN32__API__WIN32_TOUCH_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -74,6 +74,14 @@ namespace richmath {
         INPUT_MESSAGE_ORIGIN_ID   originId;
       };
       
+      enum POINTER_INPUT_TYPE {
+        PT_POINTER  = 1,   // Generic pointer
+        PT_TOUCH    = 2,   // Touch
+        PT_PEN      = 3,   // Pen
+        PT_MOUSE    = 4,   // Mouse
+        PT_TOUCHPAD = 5,   // Touchpad
+      };
+
     public:
       static BOOL (WINAPI *GetGestureInfo)(HANDLE, PGESTUREINFO);
       static BOOL (WINAPI *CloseGestureInfoHandle)(HANDLE);
@@ -87,6 +95,8 @@ namespace richmath {
       
       static BOOL (WINAPI *GetCurrentInputMessageSource)(INPUT_MESSAGE_SOURCE*);
       static BOOL (WINAPI *EnableMouseInPointer)(BOOL fEnable);
+      
+      static BOOL (WINAPI *GetPointerType)(UINT32, POINTER_INPUT_TYPE*);
       
       static DeviceKind get_mouse_message_source(int *id) {
         return get_mouse_message_source(id, ::GetMessageExtraInfo());
@@ -173,4 +183,4 @@ namespace richmath {
 }
 
 
-#endif // RICHMATH__GUI__WIN32__WIN32_TOUCH_H__INCLUDED
+#endif // RICHMATH__GUI__WIN32__API__WIN32_TOUCH_H__INCLUDED

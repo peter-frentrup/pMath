@@ -1,6 +1,6 @@
 #include <gui/win32/win32-scrollbar-overlay.h>
 
-#include <gui/win32/win32-themes.h>
+#include <gui/win32/api/win32-themes.h>
 
 using namespace richmath;
 

@@ -1,4 +1,4 @@
-#include <gui/win32/win32-touch.h>
+#include <gui/win32/api/win32-touch.h>
 
 
 using namespace richmath;
@@ -14,6 +14,7 @@ BOOL (WINAPI * Win32Touch::GetTouchInputInfo)(HANDLE, UINT, PTOUCHINPUT, int) = 
 BOOL (WINAPI * Win32Touch::CloseTouchInputHandle)(HANDLE) = nullptr;
 BOOL (WINAPI * Win32Touch::GetCurrentInputMessageSource)(INPUT_MESSAGE_SOURCE*) = nullptr;
 BOOL (WINAPI * Win32Touch::EnableMouseInPointer)(BOOL) = nullptr;
+BOOL (WINAPI * Win32Touch::GetPointerType)(UINT32, POINTER_INPUT_TYPE*) = nullptr;
 
 HMODULE Win32Touch::user32 = nullptr;
 
@@ -72,6 +73,9 @@ Win32Touch::Win32Touch()
     
     EnableMouseInPointer = (BOOL (WINAPI *)(BOOL))
                            GetProcAddress(user32, "EnableMouseInPointer");
+    
+    GetPointerType = (BOOL (WINAPI *)(UINT32, POINTER_INPUT_TYPE*))
+                     GetProcAddress(user32, "GetPointerType");
   }
 }
 

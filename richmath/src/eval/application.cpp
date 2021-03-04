@@ -19,10 +19,10 @@
 
 
 #ifdef RICHMATH_USE_WIN32_GUI
+#  include <gui/win32/api/win32-highdpi.h>
 #  include <gui/win32/basic-win32-widget.h>
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-filedialog.h>
-#  include <gui/win32/win32-highdpi.h>
 #  include <gui/win32/win32-menu.h>
 #endif
 

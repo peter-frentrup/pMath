@@ -7,7 +7,7 @@
 #include <gui/menus.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-clipboard.h>
-#include <gui/win32/win32-themes.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
 #include <gui/win32/ole/droptarget.h>

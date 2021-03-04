@@ -958,6 +958,51 @@
 		<Unit filename="include/gui/messagebox.h" />
 		<Unit filename="include/gui/native-widget.h" />
 		<Unit filename="include/gui/recent-documents.h" />
+		<Unit filename="include/gui/win32/api/stylusutil.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/api/win32-hd-trackpad.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/api/win32-highdpi.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/api/win32-themes.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/api/win32-touch.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/basic-win32-widget.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1048,15 +1093,6 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
-		<Unit filename="include/gui/win32/stylus/stylusutil.h">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-		</Unit>
 		<Unit filename="include/gui/win32/win32-attached-popup-window.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1129,15 +1165,6 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-highdpi.h">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-		</Unit>
 		<Unit filename="include/gui/win32/win32-menu.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1183,25 +1210,7 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
-		<Unit filename="include/gui/win32/win32-themes.h">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-		</Unit>
 		<Unit filename="include/gui/win32/win32-tooltip-window.h">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-		</Unit>
-		<Unit filename="include/gui/win32/win32-touch.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
@@ -1500,6 +1509,51 @@
 		<Unit filename="src/gui/messagebox.cpp" />
 		<Unit filename="src/gui/native-widget.cpp" />
 		<Unit filename="src/gui/recent-documents.cpp" />
+		<Unit filename="src/gui/win32/api/stylusutil.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/api/win32-hd-trackpad.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/api/win32-highdpi.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/api/win32-themes.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/api/win32-touch.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="src/gui/win32/basic-win32-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1581,15 +1635,6 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
-		<Unit filename="src/gui/win32/stylus/stylusutil.cpp">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-		</Unit>
 		<Unit filename="src/gui/win32/win32-attached-popup-window.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1662,15 +1707,6 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-highdpi.cpp">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-		</Unit>
 		<Unit filename="src/gui/win32/win32-menu.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1716,25 +1752,7 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
-		<Unit filename="src/gui/win32/win32-themes.cpp">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-		</Unit>
 		<Unit filename="src/gui/win32/win32-tooltip-window.cpp">
-			<Option target="Windows-GCC-Debug-x86" />
-			<Option target="Windows-GCC-Debug-x86-Freetype" />
-			<Option target="Windows-GCC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x86" />
-			<Option target="Windows-MSVC-Release-x86" />
-			<Option target="Windows-MSVC-Debug-x64" />
-			<Option target="Windows-MSVC-Release-x64" />
-		</Unit>
-		<Unit filename="src/gui/win32/win32-touch.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

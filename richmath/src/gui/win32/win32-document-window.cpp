@@ -11,14 +11,14 @@
 #include <gui/control-painter.h>
 #include <gui/documents.h>
 #include <gui/messagebox.h>
+#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
-#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-menubar.h>
 #include <gui/win32/win32-recent-documents.h>
 #include <gui/win32/win32-scrollbar-overlay.h>
-#include <gui/win32/win32-themes.h>
 #include <resources.h>
 
 #ifndef WM_MOUSEHWHEEL

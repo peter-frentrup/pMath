@@ -1,4 +1,4 @@
-#include <gui/win32/win32-highdpi.h>
+#include <gui/win32/api/win32-highdpi.h>
 
 #include <gui/win32/ole/combase.h>
 

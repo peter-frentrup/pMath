@@ -1,18 +1,19 @@
-#include <cmath>
-#include <cstdio>
-#include <cairo-win32.h>
+#include <gui/win32/basic-win32-window.h>
 
 #include <graphics/canvas.h>
-#include <gui/win32/basic-win32-window.h>
+#include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
-#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-widget.h>
 
 #include <eval/application.h>
 #include <resources.h>
+
+#include <cmath>
+#include <cstdio>
+#include <cairo-win32.h>
 
 
 using namespace richmath;

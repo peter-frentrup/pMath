@@ -9,7 +9,7 @@
 #include <gui/common-document-windows.h>
 #include <gui/win32/ole/virtual-desktops.h>
 #include <gui/win32/basic-win32-widget.h>
-#include <gui/win32/win32-themes.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/control-painter.h>
 #include <util/hashtable.h>
 

@@ -1,5 +1,5 @@
-#ifndef __GUI__WIN32__STYLUS__STYLUSUTIL_H_
-#define __GUI__WIN32__STYLUS__STYLUSUTIL_H_
+#ifndef RICHMATH__GUI__WIN32__API__STYLUSUTIL_H__INCLUDED
+#define RICHMATH__GUI__WIN32__API__STYLUSUTIL_H__INCLUDED
 
 #ifndef RICHMATH_USE_WIN32_GUI
 #  error this header is win32 specific
@@ -24,4 +24,4 @@ namespace richmath {
   };
 }
 
-#endif // __GUI__WIN32__STYLUS__STYLUSUTIL_H_
+#endif // RICHMATH__GUI__WIN32__API__STYLUSUTIL_H__INCLUDED

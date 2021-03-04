@@ -2,7 +2,7 @@
 
 #include <eval/application.h>
 #include <gui/documents.h>
-#include <gui/win32/win32-themes.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/win32-widget.h>
 
 #include <windows.h>

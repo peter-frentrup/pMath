@@ -1,6 +1,3 @@
-#define WINVER 0x501
-#define _WIN32_IE 0x600
-
 #include <gui/win32/win32-menubar.h>
 
 #include <algorithm>
@@ -12,12 +9,12 @@
 
 #include <util/array.h>
 #include <eval/application.h>
+#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
 #include <gui/win32/win32-menu.h>
-#include <gui/win32/win32-highdpi.h>
-#include <gui/win32/win32-themes.h>
 #include <resources.h>
 
 #ifndef TPM_NOANIMATION

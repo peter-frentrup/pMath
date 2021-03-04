@@ -1,7 +1,7 @@
 #define WINVER  0x603
 
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/win32-widget.h>
-#include <gui/win32/win32-themes.h>
 
 #include <climits>
 #include <cmath>
@@ -19,13 +19,13 @@
 #include <gui/control-painter.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
+#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-touch.h>
 #include <gui/win32/win32-attached-popup-window.h>
 #include <gui/win32/win32-automenuhook.h>
 #include <gui/win32/win32-clipboard.h>
-#include <gui/win32/win32-highdpi.h>
 #include <gui/win32/win32-menu.h>
 #include <gui/win32/win32-tooltip-window.h>
-#include <gui/win32/win32-touch.h>
 #include <util/autovaluereset.h>
 
 #include <resources.h>
@@ -41,9 +41,9 @@
 #  define SPI_GETWHEELSCROLLCHARS   0x006C
 #endif
 
-#define TID_SCROLL         1
-#define TID_ANIMATE        2
-#define TID_BLINKCURSOR    3
+const struct {} TimerIdScroll; 
+const struct {} TimerIdAnimate; 
+const struct {} TimerIdBlinkCursor; 
 
 #define ANIMATION_DELAY  (16)
 
@@ -169,6 +169,7 @@ void Win32Widget::after_construction() {
     }
   }
   
+  hd_trackpad_handler.init(hwnd(), this);
   stylus = StylusUtil::create_stylus_for_window(_hwnd);
   if(stylus) {
     if(auto stylus3 = stylus.as<IRealTimeStylus3>()) {
@@ -463,7 +464,7 @@ bool Win32Widget::register_timed_event(SharedPtr<TimedEvent> event) {
     
   animations.add(event);
   if(!animation_running) {
-    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
+    animation_running = 0 != SetTimer(_hwnd, (UINT_PTR)&TimerIdAnimate, ANIMATION_DELAY, nullptr);
     
     if(!animation_running) {
       animations.remove(event);
@@ -596,7 +597,7 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
       document()->selection_length() == 0 &&
       GetCaretBlinkTime() != INFINITE)
   {
-    SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
+    SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
   }
   
   canvas.scale(1 / scale_factor(), 1 / scale_factor());
@@ -927,7 +928,7 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
     
   bool may_start_scrolling = !scrolling;
   if(scrolling) {
-    KillTimer(_hwnd, TID_SCROLL);
+    KillTimer(_hwnd, (UINT_PTR)&TimerIdScroll);
     scrolling = false;
     invalidate();
   }
@@ -955,7 +956,7 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
         Point sp = scroll_pos();
         mouse_down_event = event;
         mouse_down_event.position = Point{(event.position - scroll_pos()) * scale_factor()};
-        SetTimer(_hwnd, TID_SCROLL, 20, 0);
+        SetTimer(_hwnd, (UINT_PTR)&TimerIdScroll, 20, 0);
         if(event.middle)
           invalidate();
       }
@@ -987,7 +988,7 @@ void Win32Widget::on_mouseup(MouseEvent &event) {
   
   if(scrolling && already_scrolled) {
     scrolling = false;
-    KillTimer(_hwnd, TID_SCROLL);
+    KillTimer(_hwnd, (UINT_PTR)&TimerIdScroll);
     if(mouse_down_event.middle)
       invalidate();
   }
@@ -1467,9 +1468,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       case WM_POINTERWHEEL: {
           pmath_debug_print("[WM_POINTERWHEEL]");
         } break;
-      case DM_POINTERHITTEST: {
-          pmath_debug_print("[DM_POINTERHITTEST]");
-        } break;
+        
+      case DM_POINTERHITTEST: hd_trackpad_handler.on_pointer_hit_test(wParam); break;
+      
       case WM_POINTERDOWN: {
           if(Win32Touch::GetCurrentInputMessageSource) {
             Win32Touch::INPUT_MESSAGE_SOURCE ims = {};
@@ -1486,103 +1487,102 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
       
       case WM_TIMER: {
-          switch(wParam) {
-            case TID_SCROLL: {
-                if(scrolling) {
-                  POINT mouse;
-                  GetCursorPos(&mouse);
-                  ScreenToClient(_hwnd, &mouse);
-                  
-                  Vector2F delta;
-                  if(mouse_down_event.middle) {
-                    if(abs(mouse.x - mouse_down_event.position.x) > 10)
-                      delta.x = abs(mouse.x - mouse_down_event.position.x) / 4;
-                      
-                    if(abs(mouse.y - mouse_down_event.position.y) > 10)
-                      delta.y = abs(mouse.y - mouse_down_event.position.y) / 4;
-                      
-                    delta.x /= scale_factor();
-                    delta.y /= scale_factor();
-                    
-                    if(mouse.x < mouse_down_event.position.x)
-                      delta.x = -delta.x;
-                      
-                    if(mouse.y < mouse_down_event.position.y)
-                      delta.y = -delta.y;
-                  }
-                  else if(mouse_down_event.left) {
-                    RECT rect;
-                    GetClientRect(_hwnd, &rect);
-                    
-                    if(mouse.x < 0)
-                      delta.x = mouse.x / 4;
-                    else if(mouse.x > rect.right)
-                      delta.x = (mouse.x - rect.right) / 4;
-                      
-                    if(mouse.y < 0)
-                      delta.y = mouse.y / 4;
-                    else if(mouse.y > rect.bottom)
-                      delta.y = (mouse.y - rect.bottom) / 4;
-                  }
-                  
-                  if(delta != Vector2F(0, 0)) {
-                    scroll_by(delta);
-                    
-                    MouseEvent event;
-                    
-                    event.left   = (GetKeyState(VK_LBUTTON) & ~1);
-                    event.middle = (GetKeyState(VK_MBUTTON) & ~1);
-                    event.right  = (GetKeyState(VK_RBUTTON) & ~1);
-                    
-                    event.position.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
-                    event.position.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
-                    
-                    event.position.x /= scale_factor();
-                    event.position.y /= scale_factor();
-                    
-                    on_mousemove(event);
-                  }
-                }
-                else
-                  KillTimer(_hwnd, TID_SCROLL);
-              } break;
+          if(wParam == (UINT_PTR)&TimerIdScroll) {
+            if(scrolling) {
+              POINT mouse;
+              GetCursorPos(&mouse);
+              ScreenToClient(_hwnd, &mouse);
               
-            case TID_ANIMATE: {
-                KillTimer(_hwnd, TID_ANIMATE);
-                animation_running = 0;
-                
-                for(auto e : animations.deletable_entries()) {
-                  if(e.key->min_wait_seconds <= e.key->timer()) {
-                    auto anim = e.key;
-                    e.delete_self();
-                    anim->execute_event();
-                  }
-                  else if(!animation_running) {
-                    animation_running = 0 != SetTimer(_hwnd, TID_ANIMATE, ANIMATION_DELAY, nullptr);
-                    
-                    if(!animation_running) {
-                      auto anim = e.key;
-                      e.delete_self();
-                      anim->execute_event();
-                    }
-                  }
-                }
-              } break;
-              
-            case TID_BLINKCURSOR: {
-                KillTimer(_hwnd, TID_BLINKCURSOR);
-                
-                Context *ctx = document_context();
-                if(_hwnd != GetFocus())
-                  ctx->old_selection = ctx->selection;
-                else if(ctx->old_selection == ctx->selection || is_mouse_down())
-                  ctx->old_selection.id = FrontEndReference::None;
-                else
-                  ctx->old_selection = ctx->selection;
+              Vector2F delta;
+              if(mouse_down_event.middle) {
+                if(abs(mouse.x - mouse_down_event.position.x) > 10)
+                  delta.x = abs(mouse.x - mouse_down_event.position.x) / 4;
                   
-                if(Box *box = ctx->selection.get())
-                  box->request_repaint_range(ctx->selection.start, ctx->selection.end);
-              } break;
+                if(abs(mouse.y - mouse_down_event.position.y) > 10)
+                  delta.y = abs(mouse.y - mouse_down_event.position.y) / 4;
+                  
+                delta.x /= scale_factor();
+                delta.y /= scale_factor();
+                
+                if(mouse.x < mouse_down_event.position.x)
+                  delta.x = -delta.x;
+                  
+                if(mouse.y < mouse_down_event.position.y)
+                  delta.y = -delta.y;
+              }
+              else if(mouse_down_event.left) {
+                RECT rect;
+                GetClientRect(_hwnd, &rect);
+                
+                if(mouse.x < 0)
+                  delta.x = mouse.x / 4;
+                else if(mouse.x > rect.right)
+                  delta.x = (mouse.x - rect.right) / 4;
+                  
+                if(mouse.y < 0)
+                  delta.y = mouse.y / 4;
+                else if(mouse.y > rect.bottom)
+                  delta.y = (mouse.y - rect.bottom) / 4;
+              }
+              
+              if(delta != Vector2F(0, 0)) {
+                scroll_by(delta);
+                
+                MouseEvent event;
+                
+                event.left   = (GetKeyState(VK_LBUTTON) & ~1);
+                event.middle = (GetKeyState(VK_MBUTTON) & ~1);
+                event.right  = (GetKeyState(VK_RBUTTON) & ~1);
+                
+                event.position.x = mouse.x + GetScrollPos(_hwnd, SB_HORZ);
+                event.position.y = mouse.y + GetScrollPos(_hwnd, SB_VERT);
+                
+                event.position.x /= scale_factor();
+                event.position.y /= scale_factor();
+                
+                on_mousemove(event);
+              }
+            }
+            else
+              KillTimer(_hwnd, (UINT_PTR)&TimerIdScroll);
+          }
+          else if(wParam == (UINT_PTR)&TimerIdAnimate) {
+            KillTimer(_hwnd, (UINT_PTR)&TimerIdAnimate);
+            animation_running = 0;
+            
+            for(auto e : animations.deletable_entries()) {
+              if(e.key->min_wait_seconds <= e.key->timer()) {
+                auto anim = e.key;
+                e.delete_self();
+                anim->execute_event();
+              }
+              else if(!animation_running) {
+                animation_running = 0 != SetTimer(_hwnd, (UINT_PTR)&TimerIdAnimate, ANIMATION_DELAY, nullptr);
+                
+                if(!animation_running) {
+                  auto anim = e.key;
+                  e.delete_self();
+                  anim->execute_event();
+                }
+              }
+            }
+          }
+          else if(wParam == (UINT_PTR)&TimerIdBlinkCursor) {
+            KillTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor);
+            
+            Context *ctx = document_context();
+            if(_hwnd != GetFocus())
+              ctx->old_selection = ctx->selection;
+            else if(ctx->old_selection == ctx->selection || is_mouse_down())
+              ctx->old_selection.id = FrontEndReference::None;
+            else
+              ctx->old_selection = ctx->selection;
+              
+            if(Box *box = ctx->selection.get())
+              box->request_repaint_range(ctx->selection.start, ctx->selection.end);
+          }
+          else if(wParam == (UINT_PTR)&hd_trackpad_handler.TimerId) {
+            hd_trackpad_handler.on_timer();
           }
         } return 0;
         
@@ -1646,7 +1646,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             sel_box->request_repaint_range(ctx->selection.start, ctx->selection.end);
             
             if(GetCaretBlinkTime() != INFINITE)
-              SetTimer(_hwnd, TID_BLINKCURSOR, GetCaretBlinkTime(), nullptr);
+              SetTimer(_hwnd, (UINT_PTR)&TimerIdBlinkCursor, GetCaretBlinkTime(), nullptr);
           }
         } return 0;
       

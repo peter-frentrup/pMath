@@ -1,8 +1,8 @@
 #include <gui/win32/win32-attached-popup-window.h>
 
 #include <gui/documents.h>
+#include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/win32-control-painter.h>
-#include <gui/win32/win32-highdpi.h>
 
 #ifdef max
 #  undef max
