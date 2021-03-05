@@ -21,7 +21,7 @@ namespace richmath {
       static LRESULT CALLBACK menu_hook_proc(int code, WPARAM wParam, LPARAM lParam);
       
     public:
-      void handle_mouse_movement(UINT message, WPARAM wParam, POINT pt);
+      bool handle_mouse_movement(UINT message, WPARAM wParam, POINT pt);
       void handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt);
       bool handle_key_down(DWORD keycode);
       
@@ -105,22 +105,25 @@ Win32AutoMenuHook::~Win32AutoMenuHook() {
 }
 
 bool Win32AutoMenuHook::handle(MSG &msg) {
-  {
-    const int len = 20;
-    char clsname[len];
-    GetClassNameA(msg.hwnd, clsname, len);
-    clsname[len-1] = '\0';
-    if(0 == strcmp(clsname, MenuWindowClass))
-      pmath_debug_print("[Win32AutoMenuHook msg 0x%x for menu window %p]\n", msg.message, msg.hwnd);
-  }
+//  {
+//    const int len = 20;
+//    char clsname[len];
+//    GetClassNameA(msg.hwnd, clsname, len);
+//    clsname[len-1] = '\0';
+////    if(0 == strcmp(clsname, MenuWindowClass)) {
+//      if(msg.message != WM_TIMER) {
+//        pmath_debug_print("[Win32AutoMenuHook hwnd=%p (%s) msg 0x%x w=%x l=%x]\n", 
+//          msg.hwnd, clsname, msg.message, msg.wParam, msg.lParam);
+//      }
+////    }
+//  }
   
   switch(msg.message) {
     case WM_LBUTTONDOWN:
     case WM_LBUTTONUP:
     case WM_MOUSEMOVE: 
       // Strangely, lParam is in screen coordinates during the message hook.
-      Impl(*this).handle_mouse_movement(msg.message, msg.wParam, dword_to_point(msg.lParam));
-      break;
+      return Impl(*this).handle_mouse_movement(msg.message, msg.wParam, dword_to_point(msg.lParam));
     
     // WM_MENURBUTTONUP is not sent through the hook, so we handle WM_RBUTTONUP instead
     case WM_RBUTTONUP: {
@@ -184,15 +187,29 @@ LRESULT CALLBACK Win32AutoMenuHook::Impl::menu_hook_proc(int code, WPARAM h_wPar
   return CallNextHookEx(0, code, h_wParam, h_lParam);
 }
 
-void Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam, POINT pt) {
-  const int len = 20;
-  char hover_name[len];
+bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam, POINT pt) {
   HWND hover_wnd = WindowFromPoint(pt);
-  GetClassNameA(hover_wnd, hover_name, len);
-  hover_name[len-1] = '\0';
+  HWND menu_window = nullptr;
+  for(HWND hwnd = hover_wnd; hwnd; hwnd = GetAncestor(hwnd, GA_PARENT)) {
+    const int len = 20;
+    char class_name[len];
+    GetClassNameA(hwnd, class_name, len);
+    class_name[len-1] = '\0';
+    
+    if(0 == strcmp(class_name, MenuWindowClass)) {
+      menu_window = hwnd;
+      break;
+    }
+  }
   
-  bool is_over_menu = 0 == strcmp(hover_name, MenuWindowClass);
-  if(!is_over_menu) {
+  bool handled = false;
+  bool is_over_menu = menu_window != nullptr;
+  if(is_over_menu) {
+    if(menu_window != hover_wnd) { // hover_wnd is a child of the menu window, e.g. our menu item slider
+      handled = Win32Menu::handle_child_window_mouse_message(menu_window, hover_wnd, message, wParam, pt);
+    }
+  }
+  else {
     if(self._is_over_menu) {
       HMENU menu = self._current_popup;
       int item = find_hilite_menuitem(&menu);
@@ -208,6 +225,7 @@ void Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam,
   }
   
   self._is_over_menu = is_over_menu;
+  return handled;
 }
 
 void Win32AutoMenuHook::Impl::handle_popup(HMENU menu, DWORD subitems_cmd_id, DWORD cmd_id, POINT pt) {

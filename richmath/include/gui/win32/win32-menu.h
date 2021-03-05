@@ -34,6 +34,8 @@ namespace richmath {
       static LRESULT on_menudrag(WPARAM wParam, LPARAM lParam);
       static LRESULT on_menugetobject(WPARAM wParam, LPARAM lParam);
       
+      static bool handle_child_window_mouse_message(HWND hwnd_menu, HWND hwnd_child, UINT msg, WPARAM wParam, const POINT &screen_pt);
+      
     public:
       static SharedPtr<Win32Menu>  main_menu;
       static bool                  use_dark_mode;
