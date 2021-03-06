@@ -23,7 +23,7 @@
 #  include <gui/win32/basic-win32-widget.h>
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/win32-filedialog.h>
-#  include <gui/win32/win32-menu.h>
+#  include <gui/win32/menus/win32-menu.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI

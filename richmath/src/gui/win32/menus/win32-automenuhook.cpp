@@ -1,7 +1,7 @@
-#include <gui/win32/win32-automenuhook.h>
+#include <gui/win32/menus/win32-automenuhook.h>
 
 #include <gui/win32/api/win32-highdpi.h>
-#include <gui/win32/win32-menu.h>
+#include <gui/win32/menus/win32-menu.h>
 
 #include <gui/menus.h>
 
