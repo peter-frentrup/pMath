@@ -1004,6 +1004,10 @@ void NumericMenuItemRegion::apply_slider_pos(HMENU menu, int pos) {
   
   // TBM_SETPOSNOTIFY exists since Windows 7
   SendMessageW(slider, TBM_SETPOS, TRUE, (LPARAM)pos);
+  
+  DWORD style = GetWindowLongW(slider, GWL_STYLE);
+  if(style & TBS_NOTHUMB)
+    SetWindowLongW(slider, GWL_STYLE, style & ~TBS_NOTHUMB);
 }
 
 //} ... class NumericMenuItemRegion
@@ -1168,6 +1172,7 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
             obj = sel;
         }
         
+        DWORD style = GetWindowLongW(reg->slider, GWL_STYLE);
         if(obj) {
           StyleOptionName key = Style::get_key(reg->lhs);
           StyleType type = Style::get_type(key);
@@ -1175,14 +1180,21 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
             float val = obj->get_style((FloatStyleOptionName)key, NAN);
             Array<float> values;
             if(!std::isnan(val) && reg->collect_float_values(values, menu)) {
-              float rel_idx = NumericMenuItemRegion::interpolation_index(values, val, true);
+              float rel_idx = NumericMenuItemRegion::interpolation_index(values, val, false);
               if(0 <= rel_idx && rel_idx <= values.length() - 1) {
                 int slider_pos = (int)round(rel_idx * 100);
                 SendMessageW(reg->slider, TBM_SETPOS, TRUE, (LPARAM)slider_pos);
+                if(style & TBS_NOTHUMB)
+                  SetWindowLongW(reg->slider, GWL_STYLE, style & ~TBS_NOTHUMB);
+                
+                continue;
               }
             }
           }
         }
+        
+        if(!(style & TBS_NOTHUMB))
+          SetWindowLongW(reg->slider, GWL_STYLE, style | TBS_NOTHUMB);
       }
     }
   }
