@@ -4,10 +4,9 @@
 #include <eval/application.h>
 #include <eval/observable.h>
 
-#include <gui/documents.h>
-#include <gui/document.h>
 #include <gui/menus.h>
 #include <gui/win32/menus/win32-automenuhook.h>
+#include <gui/win32/menus/win32-menu-gutter-slider.h>
 #include <gui/win32/win32-clipboard.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-themes.h>
@@ -19,27 +18,6 @@
 #include <util/hashtable.h>
 
 #include <resources.h>
-
-#include <algorithm>
-#include <cmath>
-#include <limits>
-
-#ifdef _MSC_VER
-namespace std {
-  static bool isnan(double d) {return _isnan(d);}
-}
-#endif
-
-#ifdef min
-#  undef min
-#endif
-#ifdef max
-#  undef max
-#endif
-
-#ifndef NAN
-#  define NAN  (std::numeric_limits<double>::quiet_NaN())
-#endif
 
 
 using namespace richmath;
@@ -131,40 +109,6 @@ namespace {
       LONG refcount;
   };
   
-  class NumericMenuItemRegion {
-    public:
-      NumericMenuItemRegion();
-      ~NumericMenuItemRegion();
-      NumericMenuItemRegion(const NumericMenuItemRegion&) = delete;
-      NumericMenuItemRegion &operator=(const NumericMenuItemRegion&) = delete;
-      
-      void delete_all();
-      static void delete_all(NumericMenuItemRegion *reg);
-      
-      void update_slider_rect(HWND hwnd, HMENU menu);
-      static void update_all_slider_rects(NumericMenuItemRegion *reg, HWND hwnd, HMENU menu);
-      
-      void calc_rect(RECT *rect, HWND hwnd, HMENU menu);
-      bool collect_float_values(Array<float> &values, HMENU menu);
-      static float interpolation_index(const Array<float> &values, float val, bool clip);
-      static float interpolation_value(const Array<float> &values, float index);
-      
-      bool handle_slider_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu);
-      int slider_pos_from_point(const POINT &pt);
-      void apply_slider_pos(HMENU menu, int pos);
-      
-    public:
-      Expr lhs;
-      Expr scope;
-      int start_index;
-      int end_index;
-      
-      HWND slider;
-      NumericMenuItemRegion *next;
-      
-      static const int ScaleFactor = 100;
-  };
-  
   class StaticMenuOverride {
     public:
       static void ensure_init();
@@ -193,7 +137,7 @@ namespace {
     private:
       Hashtable<HWND, HMENU> popup_window_to_menu; // essentially same as SendMessage(hwnd, MN_GETHMENU, 0, 0)
       Hashtable<HMENU, HWND> menu_to_popup_window;
-      Hashtable<HWND, NumericMenuItemRegion*> popup_window_regions;
+      Hashtable<HWND, MenuItemOverlay*> popup_window_overlays;
       HMENU initializing_popup_menu;
   };
 }
@@ -204,12 +148,10 @@ static Hashtable<DWORD, String> id_to_shortcut_text;
 
 
 extern pmath_symbol_t richmath_System_Delimiter;
-extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_Inherited;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
-extern pmath_symbol_t richmath_System_Section;
 
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
@@ -744,274 +686,6 @@ STDMETHODIMP_(ULONG) MenuDropTarget::Release(void) {
 
 //} ... class MenuDropTarget
 
-//{ class NumericMenuItemRegion ...
-
-NumericMenuItemRegion::NumericMenuItemRegion()
-: start_index{-1},
-  end_index{-1},
-  slider{nullptr},
-  next{nullptr}
-{
-}
-
-NumericMenuItemRegion::~NumericMenuItemRegion() {
-  if(slider)
-    DestroyWindow(slider);
-}
-
-void NumericMenuItemRegion::delete_all() {
-  delete_all(this);
-}
-
-void NumericMenuItemRegion::delete_all(NumericMenuItemRegion *reg) {
-  while(auto tmp = reg) {
-    reg = reg->next;
-    delete tmp;
-  }
-}
-
-void NumericMenuItemRegion::update_slider_rect(HWND hwnd, HMENU menu) {
-  RECT rect;
-  calc_rect(&rect, hwnd, menu);
-  
-  if(!slider) {
-    INITCOMMONCONTROLSEX icc = {sizeof(icc)};
-    icc.dwICC = ICC_BAR_CLASSES;
-    InitCommonControlsEx(&icc);
-    
-    slider = CreateWindowExW(
-               WS_EX_NOACTIVATE,
-               TRACKBAR_CLASSW,
-               L"menu item slider",
-               WS_CHILD | WS_VISIBLE | TBS_VERT | TBS_BOTH | TBS_NOTICKS,
-               rect.left,
-               rect.top,
-               rect.right - rect.left,
-               rect.bottom - rect.top,
-               hwnd,
-               nullptr,
-               nullptr,
-               nullptr);
-    
-    SendMessageW(slider, TBM_SETRANGE, false, MAKELPARAM(0, (end_index - start_index) * ScaleFactor));
-    
-    DWORD hwnd_exstyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
-    DWORD hwnd_style   = GetWindowLongW(hwnd, GWL_STYLE);
-    pmath_debug_print("[menu hwnd style 0x%x  exstyle 0x%x]", hwnd_style, hwnd_exstyle);
-    hwnd_style |= WS_CLIPCHILDREN;
-    
-    SetWindowLongW(hwnd, GWL_STYLE, hwnd_style);
-  }
-  else {
-    MoveWindow(
-      slider,
-      rect.left,
-      rect.top,
-      rect.right - rect.left,
-      rect.bottom - rect.top,
-      TRUE);
-  }
-
-  pmath_debug_print_object("[region for ", lhs.get(), "");
-  pmath_debug_print(" from index %d to %d, slider=%p @ (%d,%d) %d x %d]\n", 
-    start_index, 
-    end_index,
-    slider,
-    rect.left, 
-    rect.top,
-    rect.right - rect.left,
-    rect.bottom - rect.top);
-}
-
-void NumericMenuItemRegion::update_all_slider_rects(NumericMenuItemRegion *reg, HWND hwnd, HMENU menu) {
-  for(; reg; reg = reg->next)
-    reg->update_slider_rect(hwnd, menu);
-}
-
-void NumericMenuItemRegion::calc_rect(RECT *rect, HWND hwnd, HMENU menu) {
-  *rect = {0,0,0,0};
-  
-  int menu_item_height = 16;
-  bool first = true;
-  for(int i = start_index; i <= end_index; ++i) {
-    RECT item_rect;
-    if(GetMenuItemRect(nullptr, menu, (UINT)i, &item_rect)) {
-      if(first) {
-        *rect = item_rect;
-        menu_item_height = item_rect.bottom - item_rect.top;
-        first = false;
-      }
-      else
-        UnionRect(rect, rect, &item_rect);
-    }
-  }
-  
-  rect->right = rect->left + menu_item_height;
-  
-  MapWindowPoints(nullptr, hwnd, (POINT*)rect, 2);
-}
-
-bool NumericMenuItemRegion::collect_float_values(Array<float> &values, HMENU menu) {
-  values.length(end_index - start_index + 1);
-  for(int i = 0; i < values.length(); ++i) {
-    MENUITEMINFOW mii = { sizeof(mii) };
-    mii.fMask = MIIM_ID;
-    if(!GetMenuItemInfoW(menu, start_index + i, TRUE, &mii))
-      return false;
-    
-    Expr cmd = Win32Menu::id_to_command(mii.wID);
-    if(cmd[0] == richmath_FE_ScopedCommand)
-      cmd = cmd[1];
-    
-    if(!cmd.is_rule())
-      return false;
-    
-    Expr rhs = cmd[2];
-    if(rhs.is_number()) {
-      values[i] = rhs.to_double();
-    }
-    else if(rhs == richmath_System_Inherited) {
-      // Magnification -> Inherited
-      values[i] = 1;
-    }
-    else
-      return false;
-  }
-  
-  return true;
-}
-
-float NumericMenuItemRegion::interpolation_index(const Array<float> &values, float val, bool clip) {
-  float prev = NAN;
-  for(int i = 0; i < values.length(); ++i) {
-    float cur = values[i];
-    if(val == cur)
-      return i;
-    
-    float rel = (cur - val) / (cur - prev);
-    if(0 <= rel && rel <= 1) 
-      return i - rel;
-    
-    prev = cur;
-  }
-  
-  if(clip) {
-    if(values.length() >= 2) {
-      if(values[0] < values[1]) {
-        if(val < values[0])
-          return 0;
-        else
-          return values.length() - 1;
-      }
-      else {
-        if(val > values[0])
-          return values.length() - 1;
-        else
-          return 0;
-      }
-    }
-  }
-  return NAN;
-}
-
-bool NumericMenuItemRegion::handle_slider_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
- 
-  int pos = slider_pos_from_point(pt);
-//  pmath_debug_print("[mouse msg %x over menu slider: w=%x pos %d]\n", msg, wParam, pos);
-  
-  if(!(wParam & MK_SHIFT)) {
-    int nearest = ((pos + ScaleFactor/2)/ScaleFactor) * ScaleFactor;
-    if(nearest - ScaleFactor/4 < pos && pos < nearest + ScaleFactor/4)
-      pos = nearest;
-  }
-  
-  if(pos == SendMessageW(slider, TBM_GETPOS, 0, 0))
-    return false;
-  
-  switch(msg) {
-    case WM_MOUSEMOVE: 
-      if(wParam & MK_LBUTTON) {
-        apply_slider_pos(menu, pos);
-      }
-      break;
-    
-    case WM_LBUTTONDOWN: apply_slider_pos(menu, pos); break;
-    case WM_LBUTTONUP:   apply_slider_pos(menu, pos); break;
-  }
-  
-  return false;
-}
-
-int NumericMenuItemRegion::slider_pos_from_point(const POINT &pt) {
-  RECT channel_rect = {};
-  RECT thumb_rect = {};
-  
-  SendMessageW(slider, TBM_GETCHANNELRECT, 0, (LPARAM)&channel_rect);
-  // Work around windows bug (e.g. on Windows 10, 1909): TBM_GETCHANNELRECT acts as if TBS_HORZ was given
-  if(channel_rect.right - channel_rect.left > channel_rect.bottom - channel_rect.top) {
-    using std::swap;
-    swap(channel_rect.left,  channel_rect.top);
-    swap(channel_rect.right, channel_rect.bottom);
-  }
-  int channel_length = channel_rect.bottom - channel_rect.top;
-  
-  SendMessageW(slider, TBM_GETTHUMBRECT, 0, (LPARAM)&thumb_rect);
-  int thumb_thickness = thumb_rect.bottom - thumb_rect.top;
-  
-  if(channel_length > thumb_thickness) {
-    int thumb_pos_px = pt.y - (channel_rect.top + thumb_thickness/2);
-    if(thumb_pos_px < 0)
-      thumb_pos_px = 0;
-    else if(thumb_pos_px > channel_length - thumb_thickness)
-      thumb_pos_px = channel_length - thumb_thickness;
-    
-    int range_min = 0; //SendMessageW(slider, TBM_GETRANGEMIN, 0, 0);
-    int range_max = (end_index - start_index) * ScaleFactor; // SendMessageW(slider, TBM_GETRANGEMAX, 0, 0);
-    return range_min + MulDiv(thumb_pos_px, range_max - range_min, channel_length - thumb_thickness);
-  }
-  else
-    return 0;
-}
-
-void NumericMenuItemRegion::apply_slider_pos(HMENU menu, int pos) {
-  Array<float> values;
-  if(!collect_float_values(values, menu))
-    return;
-  
-  int i = pos / ScaleFactor;
-  if(i < 0 || i >= values.length())
-    return;
-  
-  float val;
-  if(pos == i * ScaleFactor) {
-    val = values[i];
-  }
-  else {
-    if(i + 1 >= values.length())
-      return;
-    
-    float v0 = values[i];
-    float v1 = values[i+1];
-    val = v0 + ((v1 - v0) * (pos - i * ScaleFactor)) / ScaleFactor;
-  }
-  
-  Expr cmd = Rule(lhs, val);
-  if(scope)
-    cmd = Call(Symbol(richmath_FE_ScopedCommand), std::move(cmd), scope);
-  
-  if(!Menus::run_command_now(std::move(cmd)))
-    return;
-  
-  // TBM_SETPOSNOTIFY exists since Windows 7
-  SendMessageW(slider, TBM_SETPOS, TRUE, (LPARAM)pos);
-  
-  DWORD style = GetWindowLongW(slider, GWL_STYLE);
-  if(style & TBS_NOTHUMB)
-    SetWindowLongW(slider, GWL_STYLE, style & ~TBS_NOTHUMB);
-}
-
-//} ... class NumericMenuItemRegion
-
 //{ class StaticMenuOverride ...
 
 StaticMenuOverride StaticMenuOverride::singleton;
@@ -1051,12 +725,12 @@ bool StaticMenuOverride::handle_child_window_mouse_message(HWND hwnd_menu, HWND 
 //  SendMessageW(hwnd_child, msg, wParam, MAKELPARAM(pt.x, pt.y));
 //  pmath_debug_print("[... msg for slider]");
 //  return true;
-  for(auto reg = singleton.popup_window_regions[hwnd_menu]; reg; reg = reg->next) {
-    if(reg->slider == hwnd_child) {
+  for(auto reg = singleton.popup_window_overlays[hwnd_menu]; reg; reg = reg->next) {
+    if(reg->control == hwnd_child) {
       POINT pt = screen_pt;
-      ScreenToClient(reg->slider, &pt);
+      ScreenToClient(reg->control, &pt);
       if(HMENU menu = singleton.popup_window_to_menu[hwnd_menu]) {
-        return reg->handle_slider_mouse_message(msg, wParam, pt, menu);
+        return reg->handle_mouse_message(msg, wParam, pt, menu);
       }
     }
   }
@@ -1078,12 +752,12 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
   Expr region_lhs;
   Expr region_scope;
   
-  NumericMenuItemRegion *new_regions = nullptr;
-  NumericMenuItemRegion **first_reg_pos = popup_window_regions.search(hwnd);
-  if(!first_reg_pos)
-    first_reg_pos = &new_regions;
+  MenuItemOverlay *new_overlays = nullptr;
+  MenuItemOverlay **first_overlay_ptr = popup_window_overlays.search(hwnd);
+  if(!first_overlay_ptr)
+    first_overlay_ptr = &new_overlays;
   
-  NumericMenuItemRegion **next_reg_pos = first_reg_pos;
+  MenuItemOverlay **next_overlay_ptr = first_overlay_ptr;
   
   for(int i = 0; i < count; ++i) {
     Expr scope;
@@ -1114,14 +788,18 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
     if(region_start >= 0) {
       if(region_lhs != lhs || region_scope != scope) {
         if(region_start + 1 < i) {
-          if(!*next_reg_pos)
-            *next_reg_pos = new NumericMenuItemRegion();
+          MenuGutterSlider *reg = dynamic_cast<MenuGutterSlider*>(*next_overlay_ptr);
+          if(!reg) {
+            reg = new MenuGutterSlider();
+            reg->next = *next_overlay_ptr;
+            *next_overlay_ptr = reg;
+          }
           
-          (*next_reg_pos)->lhs         = region_lhs;
-          (*next_reg_pos)->scope       = region_scope;
-          (*next_reg_pos)->start_index = region_start;
-          (*next_reg_pos)->end_index   = i - 1;
-          next_reg_pos = &((*next_reg_pos)->next);
+          reg->lhs         = region_lhs;
+          reg->scope       = region_scope;
+          reg->start_index = region_start;
+          reg->end_index   = i - 1;
+          next_overlay_ptr = &(reg->next);
         }
         
         region_start = -1;
@@ -1136,66 +814,34 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
   }
   
   if(0 <= region_start && region_start + 1 < count) {
-    if(!*next_reg_pos)
-      *next_reg_pos = new NumericMenuItemRegion();
-
-    (*next_reg_pos)->lhs         = region_lhs;
-    (*next_reg_pos)->scope       = region_scope;
-    (*next_reg_pos)->start_index = region_start;
-    (*next_reg_pos)->end_index   = count-1;
-    next_reg_pos = &((*next_reg_pos)->next);
+    MenuGutterSlider *reg = dynamic_cast<MenuGutterSlider*>(*next_overlay_ptr);
+    if(!reg) {
+      reg = new MenuGutterSlider();
+      reg->next = *next_overlay_ptr;
+      *next_overlay_ptr = reg;
+    }
+    
+    reg->lhs         = region_lhs;
+    reg->scope       = region_scope;
+    reg->start_index = region_start;
+    reg->end_index   = count-1;
+    next_overlay_ptr = &(reg->next);
   }
   
-  if(auto rest = *next_reg_pos) {
-    *next_reg_pos = nullptr;
+  if(auto rest = *next_overlay_ptr) {
+    *next_overlay_ptr = nullptr;
     rest->delete_all();
   }
   
-  if(new_regions) {
-    NumericMenuItemRegion::delete_all(popup_window_regions[hwnd]);
-    popup_window_regions.set(hwnd, new_regions);
+  if(new_overlays) {
+    MenuGutterSlider::delete_all(popup_window_overlays[hwnd]);
+    popup_window_overlays.set(hwnd, new_overlays);
   }
   
-  if(*first_reg_pos) {
-    NumericMenuItemRegion::update_all_slider_rects(*first_reg_pos, hwnd, menu);
-    
-    if(Document *doc = Documents::current()) {
-      for(auto reg = *first_reg_pos; reg; reg = reg->next) {
-        StyledObject *obj = nullptr;
-        if(reg->scope == richmath_System_Document) {
-          obj = doc;
-        }
-        else if(Box *sel = doc->selection_box()) {
-          if(reg->scope == richmath_System_Section)
-            obj = sel->find_parent<Section>(true);
-          else
-            obj = sel;
-        }
-        
-        DWORD style = GetWindowLongW(reg->slider, GWL_STYLE);
-        if(obj) {
-          StyleOptionName key = Style::get_key(reg->lhs);
-          StyleType type = Style::get_type(key);
-          if(type == StyleType::Number) {
-            float val = obj->get_style((FloatStyleOptionName)key, NAN);
-            Array<float> values;
-            if(!std::isnan(val) && reg->collect_float_values(values, menu)) {
-              float rel_idx = NumericMenuItemRegion::interpolation_index(values, val, false);
-              if(0 <= rel_idx && rel_idx <= values.length() - 1) {
-                int slider_pos = (int)round(rel_idx * 100);
-                SendMessageW(reg->slider, TBM_SETPOS, TRUE, (LPARAM)slider_pos);
-                if(style & TBS_NOTHUMB)
-                  SetWindowLongW(reg->slider, GWL_STYLE, style & ~TBS_NOTHUMB);
-                
-                continue;
-              }
-            }
-          }
-        }
-        
-        if(!(style & TBS_NOTHUMB))
-          SetWindowLongW(reg->slider, GWL_STYLE, style | TBS_NOTHUMB);
-      }
+  if(*first_overlay_ptr) {
+    for(auto overlay = *first_overlay_ptr; overlay; overlay = overlay->next) {
+      overlay->update_rect(hwnd, menu);
+      overlay->initialize(hwnd, menu);
     }
   }
 }
@@ -1210,13 +856,13 @@ void StaticMenuOverride::on_ncdestroy(HWND hwnd) {
   popup_window_to_menu.remove(hwnd);
   menu_to_popup_window.remove(menu);
   
-  if(auto regions = popup_window_regions[hwnd]) {
-    popup_window_regions.remove(hwnd);
+  if(auto overlays = popup_window_overlays[hwnd]) {
+    popup_window_overlays.remove(hwnd);
     
-    for(auto reg = regions; reg; reg = reg->next)
-      reg->slider = nullptr; // already freed by parent window
+    for(auto ov = overlays; ov; ov = ov->next)
+      ov->control = nullptr; // already freed by parent window
     
-    regions->delete_all();
+    overlays->delete_all();
   }
 }
 
@@ -1229,23 +875,20 @@ LRESULT StaticMenuOverride::on_find_menuwindow_from_point(HWND hwnd, WPARAM wPar
 //    pos.x, pos.y, localpos.x, localpos.y, 
 //    wParam);
   
-  if(auto regs = popup_window_regions[hwnd]) {
-    for(auto reg = regs; reg; reg = reg->next) {
-      RECT slider_rect;
-      if(reg->slider && GetWindowRect(reg->slider, &slider_rect)) {
-        if(PtInRect(&slider_rect, pos)) {
+  if(auto overlays = popup_window_overlays[hwnd]) {
+    for(auto ov = overlays; ov; ov = ov->next) {
+      RECT overlay_rect;
+      if(ov->control && GetWindowRect(ov->control, &overlay_rect)) {
+        if(PtInRect(&overlay_rect, pos)) {
           if(wParam)
             *(DWORD*)wParam = (DWORD)(-1);
-          //pmath_debug_print("[-> slider %p, return %p @wparam=-1]\n", reg->slider, hwnd);
           return (LRESULT)hwnd;
         }
       }
     }
   }
   
-  LRESULT result = default_wnd_proc(hwnd, MN_FINDMENUWINDOWFROMPOINT, wParam, lParam);
-  //pmath_debug_print("[-> 0x%x, @wparam=0x%x]\n", result, wParam ? *(unsigned*)wParam : 0);
-  return result;
+  return default_wnd_proc(hwnd, MN_FINDMENUWINDOWFROMPOINT, wParam, lParam);
 }
 
 LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
@@ -1268,8 +911,10 @@ LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
   switch(msg) {
     case WM_CREATE:    on_create(hwnd); break;
     case WM_NCDESTROY: on_ncdestroy(hwnd); break;
+    
     case WM_WINDOWPOSCHANGED: 
-      NumericMenuItemRegion::update_all_slider_rects(popup_window_regions[hwnd], hwnd, menu);
+      for(auto overlay = popup_window_overlays[hwnd]; overlay; overlay = overlay->next)
+        overlay->update_rect(hwnd, menu);
       break;
     
     case WM_PRINT: lParam |= PRF_CHILDREN; break;
