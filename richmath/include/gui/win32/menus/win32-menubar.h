@@ -47,15 +47,15 @@ namespace richmath {
       void resized();
       bool callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM lParam);
       
+      void kill_focus();
+      void set_focus(int item);
+      void show_menu(int item); // 1-based
+      void show_sysmenu();
+      
     private:
       void on_dpi_changed(int new_dpi);
       void reload_image_list();
       
-      void show_menu(int item);
-      void show_sysmenu();
-      
-      void kill_focus();
-      void set_focus(int item);
       
     private:
       MenuAppearence _appearence;

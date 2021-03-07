@@ -790,7 +790,7 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
         else if(cmd == strings::SearchMenuItems) {
           auto search = dynamic_cast<Win32MenuSearchOverlay*>(*next_overlay_ptr);
           if(!search) {
-            search = new Win32MenuSearchOverlay();
+            search = new Win32MenuSearchOverlay(menu);
             search->next = *next_overlay_ptr;
             *next_overlay_ptr = search;
           }

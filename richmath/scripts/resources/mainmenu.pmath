@@ -115,7 +115,6 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Menu("Opened Windows", "MenuListWindows")
 		}),
 	Menu("&Help", {
-		%MenuItem("Search", "SearchMenuItems"),
 		Menu("Search", "MenuListSearchCommands"),
 		MenuItem("&Find Selected Function", "OpenSelectionHelp"),
 		With({file:= ToFileName({$FrontEndDirectory,"resources"},"Credits.pmathdoc")},

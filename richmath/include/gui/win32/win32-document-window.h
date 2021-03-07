@@ -50,6 +50,8 @@ namespace richmath {
       bool has_menubar();
       bool try_set_menubar(bool visible);
       
+      Win32Menubar *menubar() { return _menubar; }
+      
       bool            is_palette() {   return _window_frame == WindowFramePalette; }
       WindowFrameType window_frame() { return _window_frame; }
       
@@ -70,9 +72,9 @@ namespace richmath {
       Win32Dock        *_bottom_area;
       Win32GlassDock   *_bottom_glass_area;
       
-      Win32Menubar *menubar;
+      Win32Menubar     *_menubar;
       
-      WindowFrameType _window_frame;
+      WindowFrameType   _window_frame;
       bool creation;
       
     protected:

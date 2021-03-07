@@ -11,6 +11,7 @@ namespace richmath {
   class Win32MenuSearchOverlay : public Win32CustomMenuOverlay {
       class Impl;
     public:
+      Win32MenuSearchOverlay(HMENU menu);
       ~Win32MenuSearchOverlay();
       
       static void init();
@@ -23,6 +24,9 @@ namespace richmath {
     protected:
       virtual bool on_create(CREATESTRUCTW *args) override;
       virtual void on_paint(HDC hdc) override;
+    
+    private:
+      HMENU menu;
   };
 }
 

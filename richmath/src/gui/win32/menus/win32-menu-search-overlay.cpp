@@ -4,8 +4,12 @@
 #include <gui/win32/api/win32-themes.h>
 #include <gui/win32/ole/combase.h>
 #include <gui/win32/menus/win32-menu.h>
+#include <gui/win32/menus/win32-menubar.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-document-window.h>
 #include <gui/menus.h>
+#include <gui/documents.h>
+#include <gui/document.h>
 
 #include <algorithm>
 
@@ -40,10 +44,8 @@ namespace {
       MenuSearch(String query);
       
       void collect_menu_matches(Array<SearchResult> &results, HMENU menu, String prefix);
-    
-    private:
       static bool contains_search_menu_list(HMENU menu);
-      
+    
     private:
       String query;
   };
@@ -57,6 +59,7 @@ namespace richmath {
       static void update_query(String str, HMENU menu);
       
     private:
+      static bool do_open_help_menu(Expr cmd);
       static Expr get_search_commands(Expr name);
     
     public:
@@ -76,6 +79,11 @@ extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
 
 //{ class Win32MenuSearchOverlay ...
+
+Win32MenuSearchOverlay::Win32MenuSearchOverlay(HMENU menu)
+: menu{menu}
+{
+}
 
 Win32MenuSearchOverlay::~Win32MenuSearchOverlay() {
   Impl::current_query = String();
@@ -194,7 +202,9 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   }
   SetTextColor(hdc, text_color);
   
-  if(String str = text()) {
+  rect.left+= 1;
+  String str = text();
+  if(str.length() > 0) {
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
     if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
       if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))
@@ -203,18 +213,45 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     
     UINT flags = DT_LEFT | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE;
     
-    rect.left+= 1;
     DrawTextW(hdc, (const wchar_t*)str.buffer(), str.length(), &rect, flags);
     
     DrawTextW(hdc, (const wchar_t*)str.buffer(), str.length(), &rect, flags | DT_CALCRECT);
     
     rect.left = rect.right;
-    rect.right+= 1;
-    InflateRect(&rect, 0, -1);
-    SetDCBrushColor(hdc, text_color);
-    FillRect(hdc, &rect, (HBRUSH)GetStockObject(DC_BRUSH));
-    //FillRect(hdc, &rect, (HBRUSH)(1 + COLOR_WINDOWTEXT));
   }
+  else {
+    NONCLIENTMETRICSW ncm = {sizeof(ncm)};
+    if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
+      ncm.lfMenuFont.lfItalic = TRUE;
+      if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))
+        oldfont = (HFONT)SelectObject(hdc, font);
+    }
+    
+    SetTextColor(hdc, GetSysColor(COLOR_GRAYTEXT));
+    wchar_t hint[200];
+    MENUITEMINFOW mii = {sizeof(mii)};
+    mii.fMask = MIIM_STRING;
+    mii.cch = sizeof(hint)/sizeof(hint[0]);
+    mii.dwTypeData = hint;
+    if(GetMenuItemInfoW(menu, start_index, TRUE, &mii)) {
+      int tabpos = 0;
+      while(tabpos < mii.cch && hint[tabpos] != '\t')
+        ++tabpos;
+      
+      DrawTextW(hdc, hint, tabpos, &rect, DT_LEFT | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
+      
+      rect.right-= 1;
+      DrawTextW(hdc, hint + tabpos, mii.cch - tabpos, &rect, DT_RIGHT | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
+    }
+    
+    
+  }
+  
+  rect.right = rect.left + 1;
+  InflateRect(&rect, 0, -1);
+  SetDCBrushColor(hdc, text_color);
+  FillRect(hdc, &rect, (HBRUSH)GetStockObject(DC_BRUSH));
+  //FillRect(hdc, &rect, (HBRUSH)(1 + COLOR_WINDOWTEXT));
   
   if(oldfont)
     DeleteObject(SelectObject(hdc, oldfont));
@@ -227,7 +264,39 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
 String Win32MenuSearchOverlay::Impl::current_query;
 
 void Win32MenuSearchOverlay::Impl::init() {
+  Menus::register_command(strings::SearchMenuItems, do_open_help_menu);
   Menus::register_dynamic_submenu(strings::MenuListSearchCommands, get_search_commands);
+}
+
+bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
+  Document *doc = Documents::current();
+  if(!doc)
+    return false;
+  
+  auto wid = dynamic_cast<Win32Widget*>(doc->native());
+  if(!wid)
+    return false;
+  
+  auto win = wid->find_parent<Win32DocumentWindow>();
+  if(!win || !win->menubar())
+    return false;
+  
+  HMENU menu = win->menubar()->menu()->hmenu();
+  int count = GetMenuItemCount(menu);
+  for(int i = count-1; i >= 0; --i) {
+    MENUITEMINFOW mii = {sizeof(mii)};
+    mii.fMask = MIIM_SUBMENU;
+    if(GetMenuItemInfoW(menu, i, TRUE, &mii)) {
+      if(mii.hSubMenu && MenuSearch::contains_search_menu_list(mii.hSubMenu)) {
+        win->menubar()->set_focus(i + 1);
+        win->menubar()->show_menu(i + 1);
+        win->menubar()->kill_focus();
+        return true;
+      }
+    }
+  }
+  
+  return false;
 }
 
 Expr Win32MenuSearchOverlay::Impl::get_search_commands(Expr name) {

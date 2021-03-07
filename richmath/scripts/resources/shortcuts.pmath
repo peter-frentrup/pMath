@@ -79,6 +79,8 @@ FE`Private`shortcuts:= {
 	MenuItem(KeyEvent("Pause", {KeyControl}),           "EvaluatorInterrupt"),
 	%MenuItem(KeyEvent("Esc", {KeyAlt}),                 "RemoveFromEvaluationQueue"),
 
+	MenuItem(KeyEvent("F1", {KeyControl}),              "SearchMenuItems"),
+	MenuItem(KeyEvent("?", {KeyAlt}),                   "SearchMenuItems"),
 	MenuItem(KeyEvent("F1", {}),                        "OpenSelectionHelp")
 	}
 

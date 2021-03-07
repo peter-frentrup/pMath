@@ -632,7 +632,7 @@ Win32DocumentWindow::Win32DocumentWindow(
   _working_area(nullptr),
   _bottom_area(nullptr),
   _bottom_glass_area(nullptr),
-  menubar(nullptr),
+  _menubar(nullptr),
   creation(true),
   _window_frame(WindowFrameNormal)
 {
@@ -684,7 +684,7 @@ void Win32DocumentWindow::after_construction() {
   SetWindowTextW(_bottom_area->hwnd(),       L"BottomArea");
   SetWindowTextW(_bottom_glass_area->hwnd(), L"BottomGlassArea");
   
-  menubar = new Win32Menubar(
+  _menubar = new Win32Menubar(
     this, _hwnd,
     Win32Menu::main_menu);
     
@@ -734,7 +734,7 @@ void Win32DocumentWindow::after_construction() {
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
-  menubar->destroy();            menubar = nullptr;
+  _menubar->destroy();           _menubar = nullptr;
   _top_glass_area->destroy();    _top_glass_area = nullptr;
   _top_area->destroy();          _top_area = nullptr;
   _bottom_area->destroy();       _bottom_area = nullptr;
@@ -794,7 +794,7 @@ void Win32DocumentWindow::update_dark_mode() {
 void Win32DocumentWindow::use_dark_mode(bool dark_mode) {
   base::use_dark_mode(dark_mode);
   
-  menubar->use_dark_mode(dark_mode);
+  _menubar->use_dark_mode(dark_mode);
 }
 
 void Win32DocumentWindow::rearrange() {
@@ -806,7 +806,7 @@ void Win32DocumentWindow::rearrange() {
   
 #define PARTCOUNT  6
   HWND widgets[PARTCOUNT];
-  widgets[0] = menubar->hwnd();
+  widgets[0] = _menubar->hwnd();
   widgets[1] = _top_glass_area->hwnd();
   widgets[2] = _top_area->hwnd();
   widgets[3] = _working_area->hwnd();
@@ -815,7 +815,7 @@ void Win32DocumentWindow::rearrange() {
   
   int new_ys[PARTCOUNT + 1] = {0};
   new_ys[0] = rect.top;
-  new_ys[1] = new_ys[0] + menubar->best_height();
+  new_ys[1] = new_ys[0] + _menubar->best_height();
   new_ys[2] = new_ys[1] + _top_glass_area->height();
   new_ys[3] = new_ys[2] + _top_area->height();
   
@@ -897,7 +897,7 @@ void Win32DocumentWindow::rearrange() {
   
   if(glass_enabled()) {
     widgets[0] = _top_glass_area->hwnd();
-    widgets[1] = menubar->hwnd();
+    widgets[1] = _menubar->hwnd();
     
     new_ys[1] = new_ys[0] + _top_glass_area->height();
     
@@ -980,7 +980,7 @@ void Win32DocumentWindow::rearrange() {
     _bottom_glass_area->invalidate();
   }
   
-  menubar->resized();
+  _menubar->resized();
 }
 
 void Win32DocumentWindow::invalidate_options() {
@@ -1041,15 +1041,15 @@ void Win32DocumentWindow::reset_title() {
 }
 
 bool Win32DocumentWindow::can_toggle_menubar() {
-  return menubar->appearence() == MenuAppearence::AutoShow;
+  return _menubar->appearence() == MenuAppearence::AutoShow;
 }
 
 bool Win32DocumentWindow::has_menubar() {
-  return menubar->is_pinned();
+  return _menubar->is_pinned();
 }
 
 bool Win32DocumentWindow::try_set_menubar(bool visible) {
-  return menubar->toggle_pin(visible);
+  return _menubar->toggle_pin(visible);
 }
 
 void Win32DocumentWindow::window_frame(WindowFrameType type) {
@@ -1076,9 +1076,9 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         style    |= WS_OVERLAPPEDWINDOW;
         
         if(glass_enabled())
-          menubar->appearence(MenuAppearence::AutoShow);
+          _menubar->appearence(MenuAppearence::AutoShow);
         else
-          menubar->appearence(MenuAppearence::Show);
+          _menubar->appearence(MenuAppearence::Show);
       }
       break;
       
@@ -1094,7 +1094,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
         style    |= WS_OVERLAPPED | WS_CAPTION | WS_SYSMENU | WS_THICKFRAME;
         
-        menubar->appearence(MenuAppearence::Hide);
+        _menubar->appearence(MenuAppearence::Hide);
       }
       break;
       
@@ -1110,7 +1110,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         style    &= ~(WS_POPUP | WS_BORDER | WS_MAXIMIZEBOX | WS_MINIMIZEBOX);
         style    |= WS_CAPTION | WS_SYSMENU;
         
-        menubar->appearence(MenuAppearence::Hide);
+        _menubar->appearence(MenuAppearence::Hide);
       }
       break;
       
@@ -1126,7 +1126,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         style    &= ~(WS_OVERLAPPEDWINDOW | WS_BORDER);
         style    |= WS_POPUP;
         
-        menubar->appearence(MenuAppearence::Hide);
+        _menubar->appearence(MenuAppearence::Hide);
       }
       break;
       
@@ -1142,7 +1142,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
         style    &= ~WS_OVERLAPPEDWINDOW;
         style    |= WS_POPUP | WS_BORDER;
         
-        menubar->appearence(MenuAppearence::Hide);
+        _menubar->appearence(MenuAppearence::Hide);
       }
       break;
   }
@@ -1165,8 +1165,8 @@ bool Win32DocumentWindow::is_closed() {
 
 void Win32DocumentWindow::on_setting_changed() {
   RECT rect;
-  if(GetClientRect(menubar->hwnd(), &rect)) {
-    if(rect.bottom - rect.top != menubar->best_height())
+  if(GetClientRect(_menubar->hwnd(), &rect)) {
+    if(rect.bottom - rect.top != _menubar->best_height())
       rearrange();
   }
 }
@@ -1199,11 +1199,11 @@ void Win32DocumentWindow::on_theme_changed() {
   base::on_theme_changed();
   
   if(window_frame() != WindowFrameNormal)
-    menubar->appearence(MenuAppearence::Hide);
+    _menubar->appearence(MenuAppearence::Hide);
   else if(glass_enabled())
-    menubar->appearence(MenuAppearence::AutoShow);
+    _menubar->appearence(MenuAppearence::AutoShow);
   else
-    menubar->appearence(MenuAppearence::Show);
+    _menubar->appearence(MenuAppearence::Show);
     
   DWORD style_ex = GetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE);
   if( (Win32Themes::IsCompositionActive &&
@@ -1224,7 +1224,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
   LRESULT result = 0;
   
   if(!initializing()) {
-    if(menubar->callback(&result, message, wParam, lParam))
+    if(_menubar->callback(&result, message, wParam, lParam))
       return result;
       
     switch(message) {
