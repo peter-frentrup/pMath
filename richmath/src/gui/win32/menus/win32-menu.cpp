@@ -940,9 +940,9 @@ LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
   HMENU menu = popup_window_to_menu[hwnd];
   if(!menu && initializing_popup_menu) {
     menu = initializing_popup_menu;
-    initializing_popup_menu = nullptr;
     on_menu_connected(hwnd, menu);
   }
+  initializing_popup_menu = nullptr;
   
 //  if(msg != WM_TIMER && msg != MN_SELECTITEM) {
 //    pmath_debug_print("[menu hwnd=%p menu=%p msg=0x%x, w=%x, l=%x]\n", hwnd, menu, msg, wParam, lParam);
