@@ -1,5 +1,6 @@
 #include <gui/win32/menus/win32-menu-gutter-slider.h>
 #include <gui/win32/menus/win32-menu.h>
+#include <gui/win32/api/win32-themes.h>
 
 #include <gui/documents.h>
 #include <gui/document.h>
@@ -30,13 +31,15 @@ extern pmath_symbol_t richmath_System_Section;
 
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 
-//{ class MenuGutterSlider ...
+//{ class Win32MenuGutterSlider ...
 
-void MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
+void Win32MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
   RECT rect;
-  calc_rect(rect, hwnd, menu, MenuItemOverlay::OnlyGutter);
+  bool valid_rect = calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::OnlyGutter);
   
   if(!control) {
+    prepare_menu_window_for_children(hwnd);
+    
     INITCOMMONCONTROLSEX icc = {sizeof(icc)};
     icc.dwICC = ICC_BAR_CLASSES;
     InitCommonControlsEx(&icc);
@@ -55,16 +58,12 @@ void MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
                 nullptr,
                 nullptr);
     
+    if(Win32Themes::SetWindowTheme && Win32Menu::use_dark_mode)
+      Win32Themes::SetWindowTheme(control, L"DarkMode", nullptr);
+    
     SendMessageW(control, TBM_SETRANGE, false, MAKELPARAM(0, (end_index - start_index) * ScaleFactor));
-    
-    DWORD hwnd_exstyle = GetWindowLongW(hwnd, GWL_EXSTYLE);
-    DWORD hwnd_style   = GetWindowLongW(hwnd, GWL_STYLE);
-    pmath_debug_print("[menu hwnd style 0x%x  exstyle 0x%x]", hwnd_style, hwnd_exstyle);
-    hwnd_style |= WS_CLIPCHILDREN;
-    
-    SetWindowLongW(hwnd, GWL_STYLE, hwnd_style);
   }
-  else {
+  else if(valid_rect) {
     MoveWindow(
       control,
       rect.left,
@@ -75,7 +74,7 @@ void MenuGutterSlider::update_rect(HWND hwnd, HMENU menu) {
   }
 }
 
-void MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
+void Win32MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
   if(!control)
     return;
   
@@ -117,7 +116,7 @@ void MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
   }
 }
 
-bool MenuGutterSlider::collect_float_values(Array<float> &values, HMENU menu) {
+bool Win32MenuGutterSlider::collect_float_values(Array<float> &values, HMENU menu) {
   values.length(end_index - start_index + 1);
   for(int i = 0; i < values.length(); ++i) {
     MENUITEMINFOW mii = { sizeof(mii) };
@@ -147,7 +146,7 @@ bool MenuGutterSlider::collect_float_values(Array<float> &values, HMENU menu) {
   return true;
 }
 
-float MenuGutterSlider::interpolation_index(const Array<float> &values, float val, bool clip) {
+float Win32MenuGutterSlider::interpolation_index(const Array<float> &values, float val, bool clip) {
   float prev = NAN;
   for(int i = 0; i < values.length(); ++i) {
     float cur = values[i];
@@ -180,7 +179,7 @@ float MenuGutterSlider::interpolation_index(const Array<float> &values, float va
   return NAN;
 }
 
-bool MenuGutterSlider::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
+bool Win32MenuGutterSlider::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
   
   int pos = slider_pos_from_point(pt);
 //  pmath_debug_print("[mouse msg %x over menu slider: w=%x pos %d]\n", msg, wParam, pos);
@@ -192,7 +191,7 @@ bool MenuGutterSlider::handle_mouse_message(UINT msg, WPARAM wParam, const POINT
   }
   
   if(pos == SendMessageW(control, TBM_GETPOS, 0, 0))
-    return false;
+    return true;
   
   switch(msg) {
     case WM_MOUSEMOVE: 
@@ -205,10 +204,10 @@ bool MenuGutterSlider::handle_mouse_message(UINT msg, WPARAM wParam, const POINT
     case WM_LBUTTONUP:   apply_slider_pos(menu, pos); break;
   }
   
-  return false;
+  return true;
 }
 
-int MenuGutterSlider::slider_pos_from_point(const POINT &pt) {
+int Win32MenuGutterSlider::slider_pos_from_point(const POINT &pt) {
   RECT channel_rect = {};
   RECT thumb_rect = {};
   
@@ -239,7 +238,7 @@ int MenuGutterSlider::slider_pos_from_point(const POINT &pt) {
     return 0;
 }
 
-void MenuGutterSlider::apply_slider_pos(HMENU menu, int pos) {
+void Win32MenuGutterSlider::apply_slider_pos(HMENU menu, int pos) {
   Array<float> values;
   if(!collect_float_values(values, menu))
     return;
@@ -276,4 +275,4 @@ void MenuGutterSlider::apply_slider_pos(HMENU menu, int pos) {
     SetWindowLongW(control, GWL_STYLE, style & ~TBS_NOTHUMB);
 }
 
-//} ... class MenuGutterSlider
+//} ... class Win32MenuGutterSlider

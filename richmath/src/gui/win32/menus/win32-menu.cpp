@@ -7,8 +7,9 @@
 #include <gui/menus.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu-gutter-slider.h>
+#include <gui/win32/menus/win32-menu-search-overlay.h>
 #include <gui/win32/win32-clipboard.h>
-#include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/win32-control-painter.h>
 #include <gui/win32/api/win32-themes.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
@@ -121,6 +122,7 @@ namespace {
     
     private:
       StaticMenuOverride();
+      ~StaticMenuOverride();
     
     private:
       LRESULT (CALLBACK * default_wnd_proc)(HWND, UINT, WPARAM, LPARAM);
@@ -128,6 +130,7 @@ namespace {
       void on_init_popupmenu(HWND hwnd, HMENU menu);
       void on_create(HWND hwnd);
       void on_ncdestroy(HWND hwnd);
+      LRESULT on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control);
       LRESULT on_find_menuwindow_from_point(HWND hwnd, WPARAM wParam, LPARAM lParam);
       LRESULT on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
       
@@ -137,8 +140,10 @@ namespace {
     private:
       Hashtable<HWND, HMENU> popup_window_to_menu; // essentially same as SendMessage(hwnd, MN_GETHMENU, 0, 0)
       Hashtable<HMENU, HWND> menu_to_popup_window;
-      Hashtable<HWND, MenuItemOverlay*> popup_window_overlays;
+      Hashtable<HWND, Win32MenuItemOverlay*> popup_window_overlays;
       HMENU initializing_popup_menu;
+      HBRUSH light_background_brush;
+      HBRUSH dark_background_brush;
   };
 }
 
@@ -691,9 +696,16 @@ STDMETHODIMP_(ULONG) MenuDropTarget::Release(void) {
 StaticMenuOverride StaticMenuOverride::singleton;
 
 StaticMenuOverride::StaticMenuOverride() 
-: initializing_popup_menu{nullptr},
-  default_wnd_proc{nullptr}
+: default_wnd_proc{nullptr},
+  initializing_popup_menu{nullptr},
+  light_background_brush{nullptr},
+  dark_background_brush{nullptr}
 {
+}
+
+StaticMenuOverride::~StaticMenuOverride() {
+  if(light_background_brush) DeleteObject(light_background_brush);
+  if(dark_background_brush)  DeleteObject(dark_background_brush);
 }
 
 void StaticMenuOverride::ensure_init() {
@@ -719,30 +731,17 @@ void StaticMenuOverride::init_popupmenu(HMENU sub) {
 }
 
 bool StaticMenuOverride::handle_child_window_mouse_message(HWND hwnd_menu, HWND hwnd_child, UINT msg, WPARAM wParam, const POINT &screen_pt) {
-//  pmath_debug_print("[msg for slider ...]");
-//  POINT pt = screen_pt;
-//  ScreenToClient(hwnd_child, &pt);
-//  SendMessageW(hwnd_child, msg, wParam, MAKELPARAM(pt.x, pt.y));
-//  pmath_debug_print("[... msg for slider]");
-//  return true;
-  for(auto reg = singleton.popup_window_overlays[hwnd_menu]; reg; reg = reg->next) {
-    if(reg->control == hwnd_child) {
+  for(auto overlay = singleton.popup_window_overlays[hwnd_menu]; overlay; overlay = overlay->next) {
+    if(overlay->control == hwnd_child) {
       POINT pt = screen_pt;
-      ScreenToClient(reg->control, &pt);
+      ScreenToClient(overlay->control, &pt);
       if(HMENU menu = singleton.popup_window_to_menu[hwnd_menu]) {
-        return reg->handle_mouse_message(msg, wParam, pt, menu);
+        return overlay->handle_mouse_message(msg, wParam, pt, menu);
       }
+      break;
     }
   }
   return false;
-}
-
-void StaticMenuOverride::on_menu_connected(HWND hwnd, HMENU menu) {
-  menu_to_popup_window.set(menu, hwnd);
-  popup_window_to_menu.set(hwnd, menu);
-//  pmath_debug_print("[menu %p uses hwnd=%p]\n", menu, hwnd);
-  
-  on_init_popupmenu(hwnd, menu);
 }
 
 void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
@@ -752,12 +751,12 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
   Expr region_lhs;
   Expr region_scope;
   
-  MenuItemOverlay *new_overlays = nullptr;
-  MenuItemOverlay **first_overlay_ptr = popup_window_overlays.search(hwnd);
+  Win32MenuItemOverlay *new_overlays = nullptr;
+  Win32MenuItemOverlay **first_overlay_ptr = popup_window_overlays.search(hwnd);
   if(!first_overlay_ptr)
     first_overlay_ptr = &new_overlays;
   
-  MenuItemOverlay **next_overlay_ptr = first_overlay_ptr;
+  Win32MenuItemOverlay **next_overlay_ptr = first_overlay_ptr;
   
   for(int i = 0; i < count; ++i) {
     Expr scope;
@@ -788,18 +787,18 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
     if(region_start >= 0) {
       if(region_lhs != lhs || region_scope != scope) {
         if(region_start + 1 < i) {
-          MenuGutterSlider *reg = dynamic_cast<MenuGutterSlider*>(*next_overlay_ptr);
-          if(!reg) {
-            reg = new MenuGutterSlider();
-            reg->next = *next_overlay_ptr;
-            *next_overlay_ptr = reg;
+          auto slider = dynamic_cast<Win32MenuGutterSlider*>(*next_overlay_ptr);
+          if(!slider) {
+            slider = new Win32MenuGutterSlider();
+            slider->next = *next_overlay_ptr;
+            *next_overlay_ptr = slider;
           }
           
-          reg->lhs         = region_lhs;
-          reg->scope       = region_scope;
-          reg->start_index = region_start;
-          reg->end_index   = i - 1;
-          next_overlay_ptr = &(reg->next);
+          slider->lhs         = region_lhs;
+          slider->scope       = region_scope;
+          slider->start_index = region_start;
+          slider->end_index   = i - 1;
+          next_overlay_ptr = &(slider->next);
         }
         
         region_start = -1;
@@ -814,18 +813,18 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
   }
   
   if(0 <= region_start && region_start + 1 < count) {
-    MenuGutterSlider *reg = dynamic_cast<MenuGutterSlider*>(*next_overlay_ptr);
-    if(!reg) {
-      reg = new MenuGutterSlider();
-      reg->next = *next_overlay_ptr;
-      *next_overlay_ptr = reg;
+    auto slider = dynamic_cast<Win32MenuGutterSlider*>(*next_overlay_ptr);
+    if(!slider) {
+      slider = new Win32MenuGutterSlider();
+      slider->next = *next_overlay_ptr;
+      *next_overlay_ptr = slider;
     }
     
-    reg->lhs         = region_lhs;
-    reg->scope       = region_scope;
-    reg->start_index = region_start;
-    reg->end_index   = count-1;
-    next_overlay_ptr = &(reg->next);
+    slider->lhs         = region_lhs;
+    slider->scope       = region_scope;
+    slider->start_index = region_start;
+    slider->end_index   = count-1;
+    next_overlay_ptr = &(slider->next);
   }
   
   if(auto rest = *next_overlay_ptr) {
@@ -834,7 +833,7 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
   }
   
   if(new_overlays) {
-    MenuGutterSlider::delete_all(popup_window_overlays[hwnd]);
+    Win32MenuGutterSlider::delete_all(popup_window_overlays[hwnd]);
     popup_window_overlays.set(hwnd, new_overlays);
   }
   
@@ -866,14 +865,30 @@ void StaticMenuOverride::on_ncdestroy(HWND hwnd) {
   }
 }
 
+void StaticMenuOverride::on_menu_connected(HWND hwnd, HMENU menu) {
+  menu_to_popup_window.set(menu, hwnd);
+  popup_window_to_menu.set(hwnd, menu);
+//  pmath_debug_print("[menu %p uses hwnd=%p]\n", menu, hwnd);
+  
+  on_init_popupmenu(hwnd, menu);
+}
+
+LRESULT StaticMenuOverride::on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control) {
+  Color col = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
+  SetBkColor(hdc, col.to_bgr24());
+  SetTextColor(hdc, Win32Menu::use_dark_mode ? RGB(255,255,255) : RGB(0,0,0));
+  
+  HBRUSH *brush_ptr = Win32Menu::use_dark_mode ? &dark_background_brush : &light_background_brush;
+  if(!*brush_ptr) {
+    *brush_ptr = CreateSolidBrush(col.to_bgr24());
+  }
+  return (LRESULT)*brush_ptr;
+}
+
 LRESULT StaticMenuOverride::on_find_menuwindow_from_point(HWND hwnd, WPARAM wParam, LPARAM lParam) {
   POINT pos { (short)LOWORD(lParam), (short)HIWORD(lParam) };
   POINT localpos = pos;
   ScreenToClient(hwnd, &localpos);
-  
-//  pmath_debug_print("[menu find from point %d,%d = %d,%d wparam=%p]", 
-//    pos.x, pos.y, localpos.x, localpos.y, 
-//    wParam);
   
   if(auto overlays = popup_window_overlays[hwnd]) {
     for(auto ov = overlays; ov; ov = ov->next) {
@@ -894,19 +909,14 @@ LRESULT StaticMenuOverride::on_find_menuwindow_from_point(HWND hwnd, WPARAM wPar
 LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
   HMENU menu = popup_window_to_menu[hwnd];
   if(!menu && initializing_popup_menu) {
-//    if(menu_to_popup_window[initializing_popup_menu]) {
-//      pmath_debug_print("[menu %p is already using window %p ?!?]\n", initializing_popup_menu, hwnd);
-//    }
-    
     menu = initializing_popup_menu;
     initializing_popup_menu = nullptr;
     on_menu_connected(hwnd, menu);
-    
-//    HMENU hm = (HMENU)default_wnd_proc(hwnd, MN_GETHMENU, 0, 0);
-//    pmath_debug_print("[hwnd %p MN_GETHMENU -> %p]\n", hwnd, hm);
   }
-//  if(msg != WM_TIMER && msg != MN_SELECTITEM)
+  
+//  if(msg != WM_TIMER && msg != MN_SELECTITEM) {
 //    pmath_debug_print("[menu hwnd=%p menu=%p msg=0x%x, w=%x, l=%x]\n", hwnd, menu, msg, wParam, lParam);
+//  }
   
   switch(msg) {
     case WM_CREATE:    on_create(hwnd); break;
@@ -916,6 +926,8 @@ LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
       for(auto overlay = popup_window_overlays[hwnd]; overlay; overlay = overlay->next)
         overlay->update_rect(hwnd, menu);
       break;
+    
+    case WM_CTLCOLORSTATIC: return on_ctlcolorstatic(hwnd, (HDC)wParam, (HWND)lParam);
     
     case WM_PRINT: lParam |= PRF_CHILDREN; break;
     
