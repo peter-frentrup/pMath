@@ -130,6 +130,7 @@ namespace {
       void on_init_popupmenu(HWND hwnd, HMENU menu);
       void on_create(HWND hwnd);
       void on_ncdestroy(HWND hwnd);
+      LRESULT on_char(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM lParam);
       LRESULT on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control);
       LRESULT on_find_menuwindow_from_point(HWND hwnd, WPARAM wParam, LPARAM lParam);
       LRESULT on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -151,6 +152,9 @@ static Hashtable<Expr,  DWORD>  cmd_to_id;
 static Hashtable<DWORD, Expr>   id_to_cmd;
 static Hashtable<DWORD, String> id_to_shortcut_text;
 
+namespace richmath { namespace strings {
+  extern String SearchMenuItems;
+}}
 
 extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_Inherited;
@@ -394,6 +398,8 @@ void MenuItemBuilder::add_remove_menu(int delta) {
     add_command((UINT)SpecialCommandID::Select, {});
     add_command((UINT)SpecialCommandID::Remove, {});
     add_command((UINT)SpecialCommandID::GoToDefinition, {});
+    
+    Win32MenuSearchOverlay::init();
   }
   
   num_menus += delta;
@@ -781,6 +787,18 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
             lhs = Expr();
           }
         }
+        else if(cmd == strings::SearchMenuItems) {
+          auto search = dynamic_cast<Win32MenuSearchOverlay*>(*next_overlay_ptr);
+          if(!search) {
+            search = new Win32MenuSearchOverlay();
+            search->next = *next_overlay_ptr;
+            *next_overlay_ptr = search;
+          }
+          
+          search->start_index = i;
+          search->end_index   = i;
+          next_overlay_ptr = &(search->next);
+        }
       }
     }
     
@@ -873,6 +891,16 @@ void StaticMenuOverride::on_menu_connected(HWND hwnd, HMENU menu) {
   on_init_popupmenu(hwnd, menu);
 }
 
+LRESULT StaticMenuOverride::on_char(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM lParam) {
+  //TODO: ask current menu item first
+  
+  for(auto overlay = singleton.popup_window_overlays[hwnd]; overlay; overlay = overlay->next) {
+    if(overlay->handle_char_message(wParam, lParam, menu)) 
+      return 0;
+  }
+  return default_wnd_proc(hwnd, MN_FINDMENUWINDOWFROMPOINT, wParam, lParam);
+}
+
 LRESULT StaticMenuOverride::on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control) {
   Color col = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
   SetBkColor(hdc, col.to_bgr24());
@@ -907,6 +935,8 @@ LRESULT StaticMenuOverride::on_find_menuwindow_from_point(HWND hwnd, WPARAM wPar
 }
 
 LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam) {
+  static char delayed_resize = 0;
+  
   HMENU menu = popup_window_to_menu[hwnd];
   if(!menu && initializing_popup_menu) {
     menu = initializing_popup_menu;
@@ -923,10 +953,26 @@ LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
     case WM_NCDESTROY: on_ncdestroy(hwnd); break;
     
     case WM_WINDOWPOSCHANGED: 
-      for(auto overlay = popup_window_overlays[hwnd]; overlay; overlay = overlay->next)
-        overlay->update_rect(hwnd, menu);
+      KillTimer(hwnd, (UINT_PTR)&delayed_resize);
+      SetTimer(hwnd, (UINT_PTR)&delayed_resize, 0, nullptr);
       break;
     
+    case WM_TIMER: 
+      if(wParam == (WPARAM)&delayed_resize) {
+        KillTimer(hwnd, wParam);
+        {
+          RECT r;
+          if(!menu || !GetMenuItemRect(nullptr, menu, 0, &r)) {
+            SetTimer(hwnd, (UINT_PTR)&delayed_resize, 50, nullptr);
+            break;
+          }
+        }
+        for(auto overlay = popup_window_overlays[hwnd]; overlay; overlay = overlay->next)
+          overlay->update_rect(hwnd, menu);
+      }
+      break;
+    
+    case WM_CHAR:           return on_char(hwnd, menu, wParam, lParam);
     case WM_CTLCOLORSTATIC: return on_ctlcolorstatic(hwnd, (HDC)wParam, (HWND)lParam);
     
     case WM_PRINT: lParam |= PRF_CHILDREN; break;

@@ -1030,6 +1030,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/gui/win32/menus/win32-custom-menu-overlay.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu-gutter-slider.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1040,6 +1049,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="include/gui/win32/menus/win32-menu-item-overlays.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="include/gui/win32/menus/win32-menu-search-overlay.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />
@@ -1599,6 +1617,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="src/gui/win32/menus/win32-custom-menu-overlay.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu-gutter-slider.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1609,6 +1636,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/menus/win32-menu-item-overlays.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/menus/win32-menu-search-overlay.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

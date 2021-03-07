@@ -129,7 +129,7 @@ Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "symbol-info.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "eval-contexts.pmath"))
 
 FE`SectionsToBoxes(~b)::= ReplaceRepeated(b, {Section(BoxData(~x), ~~~) :> {x, "\n"}, Section(~x, ~~~) :> {x, "\n"}, SectionGroup(~x, ~) :> x})
-
+FE`Private`SubStringMatch(~str:String, ~sub:String)::= StringPosition(str, sub, 1, IgnoreCase -> True).Replace({{~a..~b} :> b-a+1, ~ -> 0})
 
 End()
 

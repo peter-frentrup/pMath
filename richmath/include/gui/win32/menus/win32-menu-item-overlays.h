@@ -10,7 +10,7 @@
 #include <util/pmath-extra.h>
 
 namespace richmath {
-  class MenuItemOverlay : public Base {
+  class Win32MenuItemOverlay : public Base {
     public:
       enum Area {
         All,
@@ -18,20 +18,25 @@ namespace richmath {
         OnlyContentArea,
       };
     public:
-      MenuItemOverlay();
-      virtual ~MenuItemOverlay();
+      Win32MenuItemOverlay();
+      virtual ~Win32MenuItemOverlay();
     
       void delete_all();
-      static void delete_all(MenuItemOverlay *first_overlay);
+      static void delete_all(Win32MenuItemOverlay *first_overlay);
       
       virtual void update_rect(HWND hwnd, HMENU menu) = 0;
       virtual void initialize(HWND hwnd, HMENU menu) {}
+      
+      virtual bool handle_char_message(WPARAM wParam, LPARAM lParam, HMENU menu);
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu);
       
-      void calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area);
+      bool calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area);
+      
+    protected:
+      void prepare_menu_window_for_children(HWND hwnd);
       
     public:
-      MenuItemOverlay *next;
+      Win32MenuItemOverlay *next;
       HWND             control;
       int              start_index;
       int              end_index;

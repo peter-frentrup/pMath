@@ -230,6 +230,7 @@ bool richmath::init_bindings() {
   
   Menus::init();
   
+  Menus::register_command(Symbol(richmath_System_DollarFailed), [](Expr cmd) { return false;},       [](Expr cmd) { return MenuCommandStatus(false); });
   Menus::register_command(String("New"),                        new_cmd);
   Menus::register_command(String("Open"),                       open_cmd);
   Menus::register_command(String("Save"),                       save_cmd,                            can_save);

@@ -3,9 +3,9 @@
 
 using namespace richmath;
 
-//{ class MenuItemOverlay ...
+//{ class Win32MenuItemOverlay ...
 
-MenuItemOverlay::MenuItemOverlay()
+Win32MenuItemOverlay::Win32MenuItemOverlay()
 : next{nullptr},
   control{nullptr},
   start_index{-1},
@@ -14,27 +14,31 @@ MenuItemOverlay::MenuItemOverlay()
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
-MenuItemOverlay::~MenuItemOverlay() {
+Win32MenuItemOverlay::~Win32MenuItemOverlay() {
   if(control)
     DestroyWindow(control);
 }
 
-void MenuItemOverlay::delete_all() {
+void Win32MenuItemOverlay::delete_all() {
   delete_all(this);
 }
 
-void MenuItemOverlay::delete_all(MenuItemOverlay *first_overlay) {
+void Win32MenuItemOverlay::delete_all(Win32MenuItemOverlay *first_overlay) {
   while(auto tmp = first_overlay) {
     first_overlay = first_overlay->next;
     delete tmp;
   }
 }
 
-bool MenuItemOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
+bool Win32MenuItemOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, HMENU menu) {
   return false;
 }
 
-void MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area) {
+bool Win32MenuItemOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
+  return false;
+}
+
+bool Win32MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area) {
   rect = {0,0,0,0};
   
   int menu_item_height = 16;
@@ -50,6 +54,8 @@ void MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area) {
       else
         UnionRect(&rect, &rect, &item_rect);
     }
+    else 
+      return false;
   }
   
   switch(area) {
@@ -67,6 +73,17 @@ void MenuItemOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu, Area area) {
   }
   
   MapWindowPoints(nullptr, hwnd, (POINT*)&rect, 2);
+  
+  pmath_debug_print("[menu overlay %d..%d: %d %d  %d x %d]\n",
+    start_index, end_index,
+    rect.left, rect.top, rect.right - rect.left, rect.bottom - rect.top);
+  return true;
 }
 
-//} ... class MenuItemOverlay
+void Win32MenuItemOverlay::prepare_menu_window_for_children(HWND hwnd) {
+  DWORD style = GetWindowLongW(hwnd, GWL_STYLE);
+  if(!(style & WS_CLIPCHILDREN))
+    SetWindowLongW(hwnd, GWL_STYLE, style | WS_CLIPCHILDREN);
+}
+
+//} ... class Win32MenuItemOverlay
