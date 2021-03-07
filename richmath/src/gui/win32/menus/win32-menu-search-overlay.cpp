@@ -13,6 +13,9 @@
 
 #include <algorithm>
 
+
+#define MN_SELECTITEM   0x01E5
+
 using namespace richmath;
 
 namespace {
@@ -116,6 +119,9 @@ bool Win32MenuSearchOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, H
   }
   
   Impl::update_query(str, menu);
+  if(str.length() > 0) {
+    SendMessageW(GetAncestor(control, GA_PARENT), MN_SELECTITEM, end_index + 1, 0);
+  }
   text(std::move(str));
   InvalidateRect(control, nullptr, false);
   return true;
