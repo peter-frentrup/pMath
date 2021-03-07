@@ -103,15 +103,28 @@ LRESULT Win32CustomMenuOverlay::on_wndproc(UINT message, WPARAM wParam, LPARAM l
     case WM_CREATE: return on_create((CREATESTRUCTW*)lParam) ? 0 : (LRESULT)(-1);
     
     case WM_PRINT:
-    case WM_PRINTCLIENT: 
-      on_paint((HDC)wParam);
-      return 0;
+    case WM_PRINTCLIENT: {
+      HDC hdc = (HDC)wParam;
+      HBRUSH oldbrush = nullptr;
+      HBRUSH brush = (HBRUSH)SendMessageW(GetParent(control), WM_CTLCOLORSTATIC, (WPARAM)hdc, (LPARAM)control);
+      if(brush)
+        oldbrush = (HBRUSH)SelectObject(hdc, brush);
+      
+      on_paint(hdc);
+      
+      if(oldbrush)
+        (void)SelectObject(hdc, oldbrush);
+    } return 0;
     case WM_PAINT: {
         PAINTSTRUCT paintStruct;
-        HDC dc = BeginPaint(control, &paintStruct);
-        SetLayout(dc, 0);
-        SendMessageW(GetParent(control), WM_CTLCOLORSTATIC, (WPARAM)dc, (LPARAM)control);
-        on_paint(dc);
+        HDC hdc = BeginPaint(control, &paintStruct);
+        SetLayout(hdc, 0);
+        HBRUSH brush = (HBRUSH)SendMessageW(GetParent(control), WM_CTLCOLORSTATIC, (WPARAM)hdc, (LPARAM)control);
+        if(brush)
+          SelectObject(hdc, brush);
+        
+        on_paint(hdc);
+        
         EndPaint(control, &paintStruct);
       } return 0;
   }

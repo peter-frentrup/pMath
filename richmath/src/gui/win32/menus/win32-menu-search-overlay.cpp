@@ -1,7 +1,11 @@
 #include <gui/win32/menus/win32-menu-search-overlay.h>
-#include <gui/win32/menus/win32-menu.h>
-#include <gui/menus.h>
+
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
+#include <gui/win32/ole/combase.h>
+#include <gui/win32/menus/win32-menu.h>
+#include <gui/win32/win32-control-painter.h>
+#include <gui/menus.h>
 
 #include <algorithm>
 
@@ -86,10 +90,9 @@ bool Win32MenuSearchOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
 //  int cx = Win32HighDpi::get_system_metrics_for_dpi(SM_CXMENUCHECK, dpi);
 //  pmath_debug_print("[SM_CXMENUCHECK = %d @ %d dpi]\n", cx, dpi);
   
-  if(!Win32MenuItemOverlay::calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::OnlyContentArea))
+  if(!Win32MenuItemOverlay::calc_rect(rect, hwnd, menu, Win32MenuItemOverlay::All))
     return false;
   
-  InflateRect(&rect, -1, -1);
   return true;
 }
 
@@ -124,13 +127,73 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   RECT rect;
   GetClientRect(control, &rect);
   
-  DrawEdge(hdc, &rect, BDR_SUNKEN, BF_RECT | BF_ADJUST);
-  FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOW+1));
-  SetTextColor(hdc, GetSysColor(COLOR_WINDOWTEXT));
+  SetBkMode(hdc, TRANSPARENT);
+  
+  HBRUSH brush = (HBRUSH)SelectObject(hdc, GetStockObject(NULL_BRUSH));
+  (void)SelectObject(hdc, brush);
+  
+  FillRect(hdc, &rect, brush);
+  //Rectangle(hdc, rect.left, rect.top, rect.right, rect.bottom);
   
   HFONT oldfont = nullptr;
   
-  SetBkMode(hdc, TRANSPARENT);
+  RECT icon_rect = rect;
+  icon_rect.right = icon_rect.left + rect.bottom - rect.top;
+  {
+    LOGFONTW lf = {};
+    const wchar_t name[] = L"Segoe UI Symbol";
+    memcpy(lf.lfFaceName, name, sizeof(name));
+    
+    lf.lfHeight = icon_rect.bottom - icon_rect.top;
+    if(HFONT font = CreateFontIndirectW(&lf)) {
+      oldfont = (HFONT)SelectObject(hdc, font);
+      
+      // U+1F50D LEFT-POINTING MAGNIFYING GLASS
+      DrawTextW(hdc, L"\xD83D\xDD0D", -1, &icon_rect, DT_CENTER | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
+    }
+  }
+  
+  if(oldfont) {
+    DeleteObject(SelectObject(hdc, oldfont));
+    oldfont = nullptr;
+  }
+  
+  rect.left = icon_rect.right;
+  
+  class MenuControlContext : public ControlContext {
+    public:
+      virtual bool is_foreground_window() override { return true; }
+      virtual bool is_focused_widget() override { return true; }
+      virtual bool is_using_dark_mode() override { return Win32Menu::use_dark_mode; }
+      virtual int dpi() override { return _dpi; }
+      
+      MenuControlContext(int _dpi) : _dpi{_dpi} {}
+      
+    private:
+      int _dpi;
+  } cc(Win32HighDpi::get_dpi_for_window(control));
+  
+  int theme_part;
+  int theme_state;
+  HTHEME theme = Win32ControlPainter::win32_painter.get_control_theme(cc, ContainerType::InputField, ControlState::Pressed, &theme_part, &theme_state);
+  
+  InflateRect(&rect, -1, -1);
+  
+  COLORREF text_color = 0;
+  if(theme) {
+    HRreport(Win32Themes::DrawThemeBackground(theme, hdc, theme_part, theme_state, &rect, nullptr));
+    //HRreport(Win32Themes::GetThemeBackgroundContentRect(theme, hdc, theme_part, theme_state, &rect, &rect));
+    InflateRect(&rect, -2, -2);
+    text_color = Win32ControlPainter::win32_painter.control_font_color(
+                   cc, ContainerType::InputField, ControlState::Pressed).to_bgr24();
+  }
+  else {
+    DrawEdge(hdc, &rect, BDR_SUNKEN, BF_RECT | BF_ADJUST);
+    FillRect(hdc, &rect, (HBRUSH)(1 + COLOR_WINDOW));
+    text_color = GetSysColor(COLOR_WINDOWTEXT);
+  }
+  SetTextColor(hdc, text_color);
+  
   if(String str = text()) {
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
     if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
@@ -148,7 +211,9 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     rect.left = rect.right;
     rect.right+= 1;
     InflateRect(&rect, 0, -1);
-    FillRect(hdc, &rect, (HBRUSH)(COLOR_WINDOWTEXT));
+    SetDCBrushColor(hdc, text_color);
+    FillRect(hdc, &rect, (HBRUSH)GetStockObject(DC_BRUSH));
+    //FillRect(hdc, &rect, (HBRUSH)(1 + COLOR_WINDOWTEXT));
   }
   
   if(oldfont)
