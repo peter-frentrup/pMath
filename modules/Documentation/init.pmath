@@ -1,6 +1,7 @@
 BeginPackage("Documentation`")
 
 $DocumentationPath
+FindDocumentationPages
 FindSymbolDocumentation
 FindSymbolDocumentationByFullName
 FindSymbolDocumentationByNamespaceAndName
@@ -12,6 +13,30 @@ Begin("Documentation`Private`")
 
 
 $DocumentationPath:= {ToFileName(DirectoryName($Input), "Files")}
+
+
+Function FindDocumentationPages(~part:String) {
+    Flatten@{
+        $DocumentationPath.FileNames("System"
+            ).FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True
+            ).Map(Function(FileNameSplit(#).Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True) -> #)),
+        $DocumentationPath.FileNames(~~~s /? s =!= "System").Map(
+            Function({
+                #.FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True
+                    ).Map(Function(
+                        With({path:= FileNameSplit(#)},
+                            path[-2] ++ path.Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True)
+                        ) -> #)),
+                #.FileNames("*").FileNames(~~~ ++ part ++ ~~~ ++ ".pmathdoc", IgnoreCase->True
+                    ).Map(Function(
+                        With({path:= FileNameSplit(#)},
+                            path[-3] ++ path[-2] ++ path.Last.StringReplace(".pmathdoc" ++ EndOfString -> "", IgnoreCase -> True)
+                        ) -> #))
+            })
+        )
+    }
+}
+
 
 Attributes(FindSymbolDocumentation):= {HoldAllComplete}
 FindSymbolDocumentation(~s:Symbol)::=

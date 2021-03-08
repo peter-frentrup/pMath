@@ -79,7 +79,10 @@ namespace richmath { namespace strings {
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_MenuItem;
+
+extern pmath_symbol_t richmath_Documentation_FindDocumentationPages;
 extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
+extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
 //{ class Win32MenuSearchOverlay ...
 
@@ -249,8 +252,6 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
       rect.right-= 1;
       DrawTextW(hdc, hint + tabpos, mii.cch - tabpos, &rect, DT_RIGHT | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
     }
-    
-    
   }
   
   rect.right = rect.left + 1;
@@ -317,14 +318,36 @@ Expr Win32MenuSearchOverlay::Impl::get_search_commands(Expr name) {
     
     std::sort(results.items(), results.items() + results.length());
     
-    int max_results = 15;
+    int max_results = 10;
     for(auto &res : results) {
-      Gather::emit(std::move(res.item));
       if(max_results-- == 0)
         break;
+      Gather::emit(std::move(res.item));
     }
     
-    if(results.length() == 0) {
+    Expr docu_pages = Application::interrupt_wait(
+                        Call(Symbol(richmath_Documentation_FindDocumentationPages), current_query));
+    
+    bool need_delimiter = results.length() > 0;
+    max_results = 10;
+    for(Expr label_and_file : docu_pages.items()) {
+      if(max_results-- == 0)
+        break;
+      
+      if(need_delimiter) {
+        Gather::emit(Symbol(richmath_System_Delimiter));
+        need_delimiter = false;
+      }
+      
+      if(label_and_file.is_rule()) {
+        Gather::emit(
+          Call(Symbol(richmath_System_MenuItem), 
+            String(label_and_file[1]) + String::FromUcs2((const uint16_t*)L" \x2013 Documenation"), 
+            Call(Symbol(richmath_FrontEnd_DocumentOpen), label_and_file[2])));
+      }
+    }
+    
+    if(results.length() == 0 && docu_pages.expr_length() == 0) {
       Gather::emit(Call(Symbol(richmath_System_MenuItem), strings::SearchMenuNoMatch_label, Symbol(richmath_System_DollarFailed)));
     }
     
