@@ -25,7 +25,7 @@ namespace richmath {
       }
       PropertyVariant(String s) {
         s+= String::FromChar(0);
-        InitPropVariantFromString((const wchar_t*)s.buffer(), &value);
+        InitPropVariantFromString(s.buffer_wchar(), &value);
       }
       
       friend void swap(PropertyVariant &left, PropertyVariant &right) noexcept {

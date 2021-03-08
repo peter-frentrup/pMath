@@ -89,7 +89,7 @@ void Win32RecentDocuments::add(String path) {
     return;
     
   path += String::FromChar(0);
-  const wchar_t *str = (const wchar_t*)path.buffer();
+  const wchar_t *str = path.buffer_wchar();
   if(!str)
     return;
     
@@ -209,7 +209,7 @@ static HRESULT jump_list_remove(String path) {
        (void**)app_dest.get_address_of()));
   
   path += String::FromChar(0);
-  const wchar_t *buf = (const wchar_t*)path.buffer();
+  const wchar_t *buf = path.buffer_wchar();
   if(!buf)
     return E_OUTOFMEMORY;
   
@@ -348,7 +348,7 @@ HRESULT FileAssociationRegistry::set_shortcut_app_user_model_id(String shortcut_
   
   static_assert(sizeof(OLECHAR) == sizeof(wchar_t), "OLE2ANSI must not be defined");
   
-  HR(file->Load((const wchar_t*)shortcut_path.buffer(), STGM_READWRITE));
+  HR(file->Load(shortcut_path.buffer_wchar(), STGM_READWRITE));
   
   ComBase<IPropertyStore> props = link.as<IPropertyStore>();
   if(!props)

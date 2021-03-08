@@ -420,8 +420,8 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
 
 void Win32MenuItemPopupMenu::append(HMENU menu, SpecialCommandID id, String text, UINT flags) {
   text+= String::FromChar(0);
-  if(const uint16_t *buf = text.buffer()) {
-    AppendMenuW(menu, MF_STRING | flags, (UINT_PTR)id, (const wchar_t*)buf);
+  if(const wchar_t *buf = text.buffer_wchar()) {
+    AppendMenuW(menu, MF_STRING | flags, (UINT_PTR)id, buf);
   }
 }
 

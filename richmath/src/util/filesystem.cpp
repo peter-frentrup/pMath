@@ -180,13 +180,13 @@ String FileSystem::get_local_path_from_uri(String uri) {
 #if defined(RICHMATH_USE_WIN32_GUI)
   {
     uri+= String::FromChar(0);
-    if(const uint16_t *uri_buf = uri.buffer()) {
+    if(const wchar_t *uri_buf = uri.buffer_wchar()) {
       pmath_string_t path = pmath_string_new_raw(uri.length() + 20);
       uint16_t *path_buf;
       int path_capacity;
       if(pmath_string_begin_write(&path, &path_buf, &path_capacity)) {
         DWORD cch_path = (DWORD)path_capacity;
-        if(HRbool(PathCreateFromUrlW((const wchar_t*)uri_buf, (wchar_t*)path_buf, &cch_path, 0))) {
+        if(HRbool(PathCreateFromUrlW(uri_buf, (wchar_t*)path_buf, &cch_path, 0))) {
           return String(pmath_string_part(path, 0, (int)cch_path));
         }
       }

@@ -800,7 +800,7 @@ namespace {
     return true;
   }
   static bool copy_string(wchar_t *dst, size_t dstsize, const String &src) {
-    return copy_string(dst, dstsize, (const wchar_t*)src.buffer(), (size_t)src.length());
+    return copy_string(dst, dstsize, src.buffer_wchar(), (size_t)src.length());
   }
 }
 

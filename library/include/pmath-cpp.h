@@ -16,12 +16,29 @@
 #  endif
 #endif
 
+#ifdef PMATH_OS_WIN32
+#  define PMATH_CPP_WCHAR_IS_U16
+#endif
+
 #ifdef PMATH_CPP_USE_RVALUE_REF
 #  include <utility>
 #  define PMATH_CPP_MOVE(m)   std::move(m)
 #else
 #  define PMATH_CPP_MOVE(m)   m
 #endif
+
+#ifdef PMATH_CPP_WCHAR_IS_U16
+static_assert(sizeof(wchar_t) == sizeof(uint16_t), "");
+#endif
+
+#ifdef __cpp_unicode_characters
+static_assert(sizeof(char16_t) == sizeof(uint16_t), "");
+#endif
+
+#ifdef __cpp_char8_t
+static_assert(sizeof(char8_t) == sizeof(char), "");
+#endif
+
 
 /**\defgroup cpp_binding C++ Binding
 
@@ -591,6 +608,11 @@ namespace pmath {
       static String FromUcs2(const uint16_t *ucs2, int len = -1) throw() {
         return String(pmath_string_insert_ucs2(PMATH_NULL, 0, ucs2, len));
       }
+#ifdef PMATH_CPP_WCHAR_IS_U16
+      static String FromWide(const wchar_t *wcs, int len = -1) throw() {
+        return FromUcs2((const uint16_t*)wcs, len);
+      }
+#endif
       
       /**\brief Construct from a single unicode character. */
       static String FromChar(unsigned int unicode) throw() {
@@ -618,6 +640,18 @@ namespace pmath {
       static String FromUtf8(const char *utf8, int len = -1) throw() {
         return String(pmath_string_from_utf8(utf8, len));
       }
+#ifdef __cpp_char8_t
+      static String FromUtf8(const char8_t *utf8, int len = -1) throw() {
+        static_assert(sizeof(char8_t) == sizeof(char), "");
+        return FromUtf8((const char*)utf8, len);
+      }
+#endif
+
+#ifdef __cpp_unicode_characters
+      static String FromUtf16(const char16_t *utf16, int len = -1) throw() {
+        return FromUcs2((const uint16_t*)utf16, len);
+      }
+#endif
       
       String &operator=(const String &src) throw() {
         Expr::operator=(src);
@@ -649,6 +683,12 @@ namespace pmath {
         return *this;
       }
       
+      /**\brief Append a single latin1 character. */
+      String &operator+=(const char ch) throw() {
+        _obj = pmath_string_insert_latin1(_obj, INT_MAX, &ch, 1);
+        return *this;
+      }
+      
       /**\brief Append a UTF-16-string. */
       String &operator+=(const uint16_t *ucs2) throw() {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, ucs2, -1);
@@ -660,6 +700,28 @@ namespace pmath {
         _obj = pmath_string_insert_ucs2(_obj, INT_MAX, &ch, 1);
         return *this;
       }
+
+#ifdef PMATH_CPP_WCHAR_IS_U16
+      String &operator+=(const wchar_t *wcs) throw() {
+        _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)wcs, -1);
+        return *this;
+      }
+      String &operator+=(const wchar_t wc) throw() {
+        _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)&wc, 1);
+        return *this;
+      }
+#endif
+
+#ifdef __cpp_unicode_characters
+      String &operator+=(const char16_t *utf16) throw() {
+        _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)utf16, -1);
+        return *this;
+      }
+      String &operator+=(char16_t ch) throw() {
+        _obj = pmath_string_insert_ucs2(_obj, INT_MAX, (const uint16_t*)&ch, 1);
+        return *this;
+      }
+#endif
       
       /**\brief Concatenate two strings. */
       String operator+(const String &other) const throw() {
@@ -699,6 +761,40 @@ namespace pmath {
                         &ch,
                         1));
       }
+
+#ifdef PMATH_CPP_WCHAR_IS_U16
+      String operator+(const wchar_t *wcs) const throw() {
+        return String(pmath_string_insert_ucs2(
+                        (pmath_string_t)pmath_ref(_obj),
+                        INT_MAX,
+                        (const uint16_t*)wcs,
+                        -1));
+      }
+      String operator+(wchar_t wc) const throw() {
+        return String(pmath_string_insert_ucs2(
+                        (pmath_string_t)pmath_ref(_obj),
+                        INT_MAX,
+                        (const uint16_t*)&wc,
+                        1));
+      }
+#endif
+
+#ifdef __cpp_unicode_characters
+      String operator+(const char16_t *utf16) const throw() {
+        return String(pmath_string_insert_ucs2(
+                        (pmath_string_t)pmath_ref(_obj),
+                        INT_MAX,
+                        (const uint16_t*)utf16,
+                        -1));
+      }
+      String operator+(char16_t ch) const throw() {
+        return String(pmath_string_insert_ucs2(
+                        (pmath_string_t)pmath_ref(_obj),
+                        INT_MAX,
+                        (const uint16_t*)&ch,
+                        1));
+      }
+#endif
       
       /**\brief Get string part. */
       String part(int start, int length = -1) const throw() {
@@ -723,6 +819,18 @@ namespace pmath {
       bool starts_with(const uint16_t *ucs2, int len = -1) const throw() {
         return starts_with_buffer(ucs2, len);
       }
+
+#ifdef __cpp_unicode_characters
+      bool starts_with(const char16_t *utf16, int len = -1) const throw() {
+        return starts_with_buffer(utf16, len);
+      }
+#endif
+
+#ifdef PMATH_CPP_WCHAR_IS_U16
+      bool starts_with(const wchar_t *wcs, int len = -1) const throw() {
+        return starts_with_buffer(wcs, len);
+      }
+#endif
       
       /**\brief Insert a substring. Changes the object itself. */
       void insert(int pos, const String &other) throw() {
@@ -741,6 +849,18 @@ namespace pmath {
       void insert(int pos, const uint16_t *ucs2, int len = -1) throw() {
         _obj = pmath_string_insert_ucs2(_obj, pos, ucs2, len);
       }
+      
+#ifdef __cpp_unicode_characters
+      void insert(int pos, const char16_t *utf16, int len = -1) throw() {
+        _obj = pmath_string_insert_ucs2(_obj, pos, (const uint16_t*)utf16, len);
+      }
+#endif
+
+#ifdef PMATH_CPP_WCHAR_IS_U16
+      void insert(int pos, const wchar_t *wcs, int len = -1) throw() {
+        _obj = pmath_string_insert_ucs2(_obj, pos, (const uint16_t*)wcs, len);
+      }
+#endif
       
       /**\brief Remove a substring. Changes the object itself. */
       void remove(int start, int length) throw() {
@@ -779,6 +899,14 @@ namespace pmath {
       const uint16_t *buffer() const throw() {
         return pmath_string_buffer(const_cast<pmath_string_t *>(&_obj));
       }
+      
+#ifdef __cpp_unicode_characters
+      const char16_t *buffer_char16() const throw() { return (const char16_t *)buffer(); }
+#endif
+
+#ifdef PMATH_CPP_WCHAR_IS_U16
+      const wchar_t *buffer_wchar() const throw() { return (const wchar_t *)buffer(); }
+#endif
       
       /**\brief Get a single character or U+0000 on error. */
       uint16_t operator[](int i) const throw() {

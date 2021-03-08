@@ -136,7 +136,7 @@ static bool allow_file_extension_of(String path) {
 #ifdef RICHMATH_USE_WIN32_GUI
     {
       ext+= String::FromChar(0);
-      const wchar_t *ext_buf = (const wchar_t*)ext.buffer();
+      const wchar_t *ext_buf = ext.buffer_wchar();
       if(!ext_buf)
         return false;
         
@@ -209,7 +209,7 @@ static bool win32_shell_execute_ex(String uri) {
   }
   
   uri+= String::FromChar(0);
-  info.lpFile = (const wchar_t*)uri.buffer();
+  info.lpFile = uri.buffer_wchar();
   if(!info.lpFile)
     return false;
   

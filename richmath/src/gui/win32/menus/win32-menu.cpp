@@ -472,7 +472,7 @@ void MenuItemBuilder::update_items(HMENU sub) {
         if(new_items.expr_length() == 0 || new_items[0] != richmath_System_List) {
           mii.fMask |= MIIM_STRING | MIIM_STATE;
           mii.fState |= MFS_DISABLED;
-          mii.dwTypeData = (wchar_t*)L"(empty)";
+          mii.dwTypeData = const_cast<wchar_t*>(L"(empty)");
           mii.cch = 7;
           
           if(mii.hSubMenu) {
@@ -544,7 +544,7 @@ void MenuItemBuilder::update_items(HMENU sub) {
           mii.dwItemData = list_id;
           mii.wID = list_id;
           mii.fState |= MFS_DISABLED;
-          mii.dwTypeData = (wchar_t*)L"(empty)";
+          mii.dwTypeData = const_cast<wchar_t*>(L"(empty)");
           mii.cch = 7;
           
           if(mii.hSubMenu) {
@@ -656,7 +656,7 @@ bool MenuItemBuilder::init_submenu_info(MENUITEMINFOW *info, Expr item, String *
     info->wID = get_or_create_command_id(sub_items);
     info->dwItemData = info->wID; // dwItemData != 0 means that this item is dynamically generated from the menu item command of that id
     info->fState |= MFS_DISABLED;
-    info->dwTypeData = (wchar_t*)L"(empty)";
+    info->dwTypeData = const_cast<wchar_t*>(L"(empty)");
     info->cch = 7;
   }
   else if(sub_items[0] == richmath_System_List) {

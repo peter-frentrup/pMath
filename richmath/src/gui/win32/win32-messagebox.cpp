@@ -71,7 +71,7 @@ HRESULT try_TaskDialogIndirect(const TASKDIALOGCONFIG *pTaskConfig, int *pnButto
 
 YesNoCancel richmath::win32_ask_save(Document *doc, String question) {
   question+= String::FromChar(0);
-  const wchar_t *str = (const wchar_t*)question.buffer();
+  const wchar_t *str = question.buffer_wchar();
   if(!str)
     str = L"Save changes?";
   
@@ -192,7 +192,7 @@ bool richmath::win32_ask_open_suspicious_system_file(String path) {
   rich_question+= "Do you really want to open it?";
   rich_question+= String::FromChar(0);
   
-  config.pszContent = (const wchar_t*)rich_question.buffer();
+  config.pszContent = rich_question.buffer_wchar();
   
   Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
@@ -299,12 +299,12 @@ Expr richmath::win32_ask_interrupt(Expr stack) {
   
   if(content.is_string()) {
     content+= String::FromChar(0);
-    config.pszContent = (const wchar_t*)content.buffer();
+    config.pszContent = content.buffer_wchar();
   }
   
   if(details.is_string()) {
     details+= String::FromChar(0);
-    config.pszExpandedInformation = (const wchar_t*)details.buffer();
+    config.pszExpandedInformation = details.buffer_wchar();
     config.pszExpandedControlText = L"&Details";
   }
   

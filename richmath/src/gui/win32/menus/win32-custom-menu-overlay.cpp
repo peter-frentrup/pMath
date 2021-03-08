@@ -90,8 +90,8 @@ void Win32CustomMenuOverlay::text(String str) {
     return;
   
   str += String::FromChar(0);
-  if(const uint16_t *buf = str.buffer())
-    SetWindowTextW(control, (const wchar_t*)buf);
+  if(const wchar_t *buf = str.buffer_wchar())
+    SetWindowTextW(control, buf);
 }
 
 bool Win32CustomMenuOverlay::on_create(CREATESTRUCTW *args) {

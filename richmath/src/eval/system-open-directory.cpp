@@ -104,7 +104,7 @@ static HRESULT win32_system_open_directory(String dir, Expr items) {
     return E_OUTOFMEMORY;
   
   ComHashPtr<ITEMIDLIST> folder_pidl;
-  HR(CreateSimplePidl(find_data, (const wchar_t*)dir.buffer(), folder_pidl.get_address_of()));
+  HR(CreateSimplePidl(find_data, dir.buffer_wchar(), folder_pidl.get_address_of()));
   
   ComBase<IShellFolder> folder;
   HR(SHBindToObject(nullptr, folder_pidl.get(), nullptr, IID_PPV_ARGS(folder.get_address_of())));
@@ -115,7 +115,7 @@ static HRESULT win32_system_open_directory(String dir, Expr items) {
     ComHashPtr<ITEMIDLIST> idl;
     name+= String::FromChar(0);
     if(name) {
-      if(HRbool(folder->ParseDisplayName(nullptr, nullptr, (wchar_t*)name.buffer(), nullptr, idl.get_address_of(), nullptr))) {
+      if(HRbool(folder->ParseDisplayName(nullptr, nullptr, const_cast<wchar_t*>(name.buffer_wchar()), nullptr, idl.get_address_of(), nullptr))) {
         item_idls.add(std::move(idl));
       }
     }

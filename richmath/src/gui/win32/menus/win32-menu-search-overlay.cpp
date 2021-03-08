@@ -222,9 +222,9 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     
     UINT flags = DT_LEFT | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE;
     
-    DrawTextW(hdc, (const wchar_t*)str.buffer(), str.length(), &rect, flags);
+    DrawTextW(hdc, str.buffer_wchar(), str.length(), &rect, flags);
     
-    DrawTextW(hdc, (const wchar_t*)str.buffer(), str.length(), &rect, flags | DT_CALCRECT);
+    DrawTextW(hdc, str.buffer_wchar(), str.length(), &rect, flags | DT_CALCRECT);
     
     rect.left = rect.right;
   }

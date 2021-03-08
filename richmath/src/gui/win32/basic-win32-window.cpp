@@ -1658,7 +1658,7 @@ static BOOL CALLBACK redraw_glass_callback(HWND hwnd, LPARAM lParam) {
 void BasicWin32Window::finish_apply_title(String displayed_title) {
   displayed_title+= String::FromChar(0);
   
-  const wchar_t *str = (const wchar_t*)displayed_title.buffer();
+  const wchar_t *str = displayed_title.buffer_wchar();
   if(str)
     SetWindowTextW(_hwnd, str);
 }
