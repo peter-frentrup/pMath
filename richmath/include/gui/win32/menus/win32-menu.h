@@ -15,6 +15,8 @@
 
 
 namespace richmath {
+  struct MenuSearchResult;
+  
   class Win32Menu: public Shareable {
     public:
       explicit Win32Menu(Expr expr, bool is_popup);
@@ -27,6 +29,8 @@ namespace richmath {
       
       static void init_popupmenu(HMENU sub);
       static Expr selected_item_command();
+      
+      static int find_hilite_menuitem(HMENU *menu, bool recursive = true);
       
       static void on_menuselect(WPARAM wParam, LPARAM lParam);
       static LRESULT on_menudrag(WPARAM wParam, LPARAM lParam);

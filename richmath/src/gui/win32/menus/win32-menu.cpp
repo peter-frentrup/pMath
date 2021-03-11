@@ -203,6 +203,28 @@ Expr Win32Menu::selected_item_command() {
   return Win32Menu::id_to_command(MenuItemBuilder::selected_menu_item_id);
 }
 
+int Win32Menu::find_hilite_menuitem(HMENU *menu, bool recursive) {
+  for(int i = 0; i < GetMenuItemCount(*menu); ++i) {
+    UINT state = GetMenuState(*menu, i, MF_BYPOSITION);
+    
+    if(state & MF_HILITE) {
+      if(recursive && (state & MF_POPUP)) {
+        HMENU old = *menu;
+        *menu = GetSubMenu(*menu, i);
+        int result = find_hilite_menuitem(menu, recursive);
+        if(result >= 0)
+          return result;
+          
+        *menu = old;
+      }
+    
+      return i;
+    }
+  }
+  
+  return -1;
+}
+
 void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
   HMENU menu = (HMENU)lParam;
   UINT item_or_index = LOWORD(wParam);

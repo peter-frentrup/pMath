@@ -7,11 +7,8 @@
 #include <gui/win32/menus/win32-menubar.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-document-window.h>
-#include <gui/menus.h>
 #include <gui/documents.h>
 #include <gui/document.h>
-
-#include <algorithm>
 
 
 #define MN_SELECTITEM   0x01E5
@@ -19,34 +16,11 @@
 using namespace richmath;
 
 namespace {
-  struct SearchResult {
-    int quality = 0;
-    int index;
-    Expr item;
-    
-    SearchResult() : quality(0) {}
-    SearchResult(int quality, int index, Expr item) : quality{quality}, index{index}, item{std::move(item)} {}
-    
-    friend bool operator<(const SearchResult &left, const SearchResult &right) {
-      if(left.quality > right.quality)
-        return true;
-      if(left.quality < right.quality)
-        return false;
-      
-      if(left.index < right.index)
-        return true;
-      if(left.index > right.index)
-        return false;
-      
-      return left.item < right.item;
-    }
-  };
-  
   class MenuSearch {
     public:
       MenuSearch(String query);
       
-      void collect_menu_matches(Array<SearchResult> &results, HMENU menu, String prefix);
+      void collect_menu_matches(Array<MenuSearchResult> &results, HMENU menu, String prefix);
       static bool contains_search_menu_list(HMENU menu);
     
     private:
@@ -63,26 +37,18 @@ namespace richmath {
       
     private:
       static bool do_open_help_menu(Expr cmd);
-      static Expr get_search_commands(Expr name);
-    
-    public:
-      static String current_query;
   };
 }
 
 namespace richmath { namespace strings {
-  extern String SearchMenuNoMatch_label;
   extern String MenuListSearchCommands;
   extern String SearchMenuItems;
 }}
 
-extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_MenuItem;
 
-extern pmath_symbol_t richmath_Documentation_FindDocumentationPages;
 extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
-extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 
 //{ class Win32MenuSearchOverlay ...
 
@@ -91,12 +57,12 @@ Win32MenuSearchOverlay::Win32MenuSearchOverlay(HMENU menu)
 {
 }
 
-Win32MenuSearchOverlay::~Win32MenuSearchOverlay() {
-  Impl::current_query = String();
-}
-
 void Win32MenuSearchOverlay::init() {
   Impl::init();
+}
+
+void Win32MenuSearchOverlay::collect_menu_matches(Array<MenuSearchResult> &results, String query, HMENU menu, String prefix) {
+  MenuSearch(std::move(query)).collect_menu_matches(results, menu, std::move(prefix));
 }
 
 bool Win32MenuSearchOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
@@ -113,12 +79,32 @@ bool Win32MenuSearchOverlay::calc_rect(RECT &rect, HWND hwnd, HMENU menu) {
 bool Win32MenuSearchOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, HMENU menu) {
   String str = text();
   
-  if(wParam == 8) {
+  if(wParam == '\b') {
     if(str.length() > 0)
       str = str.part(0, str.length() - 1);
   }
   else if(wParam >= L' ') {
     str+= String::FromChar(wParam);
+  }
+  else {
+    if(wParam == '\t') {
+      HMENU sel_menu = menu;
+      int old_sel = Win32Menu::find_hilite_menuitem(&sel_menu, false);
+      if(old_sel < 0)
+        old_sel = end_index;
+      
+      int count = GetMenuItemCount(menu);
+      for(int i = old_sel + 1; i < count - 1; ++i) {
+        DWORD state = GetMenuState(menu, (UINT)i, MF_BYPOSITION);
+        if(state & MF_SEPARATOR) {
+          SendMessageW(GetAncestor(control, GA_PARENT), MN_SELECTITEM, i + 1, 0);
+          return true;
+        }
+      }
+      
+      SendMessageW(GetAncestor(control, GA_PARENT), MN_SELECTITEM, end_index + 1, 0);
+    } 
+    return true;
   }
   
   Impl::update_query(str, menu);
@@ -135,8 +121,7 @@ bool Win32MenuSearchOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const
 }
 
 bool Win32MenuSearchOverlay::on_create(CREATESTRUCTW *args) {
-  //text("Hello");
-  text(Impl::current_query);
+  text(Menus::current_menu_search_text());
   return true;
 }
 
@@ -243,7 +228,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     mii.cch = sizeof(hint)/sizeof(hint[0]);
     mii.dwTypeData = hint;
     if(GetMenuItemInfoW(menu, start_index, TRUE, &mii)) {
-      int tabpos = 0;
+      unsigned tabpos = 0;
       while(tabpos < mii.cch && hint[tabpos] != '\t')
         ++tabpos;
       
@@ -268,11 +253,8 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
 
 //{ class Win32MenuSearchOverlay::Impl ...
 
-String Win32MenuSearchOverlay::Impl::current_query;
-
 void Win32MenuSearchOverlay::Impl::init() {
   Menus::register_command(strings::SearchMenuItems, do_open_help_menu);
-  Menus::register_dynamic_submenu(strings::MenuListSearchCommands, get_search_commands);
 }
 
 bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
@@ -306,62 +288,11 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
   return false;
 }
 
-Expr Win32MenuSearchOverlay::Impl::get_search_commands(Expr name) {
-  Gather g;
-  
-  Gather::emit(Call(Symbol(richmath_System_MenuItem), String("Search"), strings::SearchMenuItems));
-  if(current_query.length() > 0) {
-    //Gather::emit(Call(Symbol(richmath_System_MenuItem), current_query, Expr()));
-    
-    Array<SearchResult> results;
-    MenuSearch(current_query).collect_menu_matches(results, Win32Menu::main_menu->hmenu(), String());
-    
-    std::sort(results.items(), results.items() + results.length());
-    
-    int max_results = 10;
-    for(auto &res : results) {
-      if(max_results-- == 0)
-        break;
-      Gather::emit(std::move(res.item));
-    }
-    
-    Expr docu_pages = Application::interrupt_wait(
-                        Call(Symbol(richmath_Documentation_FindDocumentationPages), current_query));
-    
-    bool need_delimiter = results.length() > 0;
-    max_results = 10;
-    for(Expr label_and_file : docu_pages.items()) {
-      if(max_results-- == 0)
-        break;
-      
-      if(need_delimiter) {
-        Gather::emit(Symbol(richmath_System_Delimiter));
-        need_delimiter = false;
-      }
-      
-      if(label_and_file.is_rule()) {
-        Gather::emit(
-          Call(Symbol(richmath_System_MenuItem), 
-            String(label_and_file[1]) + String::FromUcs2((const uint16_t*)L" \x2013 Documenation"), 
-            Call(Symbol(richmath_FrontEnd_DocumentOpen), label_and_file[2])));
-      }
-    }
-    
-    if(results.length() == 0 && docu_pages.expr_length() == 0) {
-      Gather::emit(Call(Symbol(richmath_System_MenuItem), strings::SearchMenuNoMatch_label, Symbol(richmath_System_DollarFailed)));
-    }
-    
-    Gather::emit(Symbol(richmath_System_Delimiter));
-  }
-  
-  return g.end();
-}
-
 void Win32MenuSearchOverlay::Impl::update_query(String str, HMENU menu) {
-  if(current_query == str)
+  if(Menus::current_menu_search_text() == str)
     return;
   
-  current_query = str;
+  Menus::current_menu_search_text(str);
   Win32Menu::init_popupmenu(menu);
 }
 
@@ -374,7 +305,7 @@ MenuSearch::MenuSearch(String query)
 {
 }
 
-void MenuSearch::collect_menu_matches(Array<SearchResult> &results, HMENU menu, String prefix) {
+void MenuSearch::collect_menu_matches(Array<MenuSearchResult> &results, HMENU menu, String prefix) {
   if(contains_search_menu_list(menu))
     return;
   
@@ -438,7 +369,7 @@ void MenuSearch::collect_menu_matches(Array<SearchResult> &results, HMENU menu, 
       int num_matches = PMATH_AS_INT32(matches.get());
       if(num_matches > 0) {
         results.add(
-          SearchResult{
+          MenuSearchResult{
             num_matches, 
             results.length(), 
             Call(Symbol(richmath_System_MenuItem), label, Win32Menu::id_to_command(mii.wID))});

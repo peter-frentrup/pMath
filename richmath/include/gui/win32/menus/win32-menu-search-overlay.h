@@ -6,15 +6,17 @@
 #endif
 
 #include <gui/win32/menus/win32-custom-menu-overlay.h>
+#include <gui/menus.h>
 
 namespace richmath {
   class Win32MenuSearchOverlay : public Win32CustomMenuOverlay {
       class Impl;
     public:
       Win32MenuSearchOverlay(HMENU menu);
-      ~Win32MenuSearchOverlay();
       
       static void init();
+      
+      static void collect_menu_matches(Array<MenuSearchResult> &results, String query, HMENU menu, String prefix);
       
       virtual bool calc_rect(RECT &rect, HWND hwnd, HMENU menu) override;
       

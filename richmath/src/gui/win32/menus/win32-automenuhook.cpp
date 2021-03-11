@@ -49,7 +49,6 @@ extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 static const char MenuWindowClass[] = "#32768";
 
-static int find_hilite_menuitem(HMENU *menu);
 static int find_hilite_menuitem_cmd(HMENU *menu, DWORD *list_cmd, DWORD *cmd);
 static int find_hilite_menuitem_cmd(HMENU *menu, Expr *list_cmd, Expr *cmd);
 
@@ -212,7 +211,7 @@ bool Win32AutoMenuHook::Impl::handle_mouse_movement(UINT message, WPARAM wParam,
   else {
     if(self._is_over_menu) {
       HMENU menu = self._current_popup;
-      int item = find_hilite_menuitem(&menu);
+      int item = Win32Menu::find_hilite_menuitem(&menu);
       
       if(item < 0)
         Win32Menu::on_menuselect(0xFFFF0000U, (LPARAM)self._current_popup);
@@ -310,7 +309,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
     
     case VK_LEFT: if(self._allow_leave_left) {
         HMENU menu = self._current_popup;
-        int item = find_hilite_menuitem(&menu);
+        int item = Win32Menu::find_hilite_menuitem(&menu);
         
         if(menu == self._current_popup) {
           self.exit_info.reason = MenuExitReason::LeftKey;
@@ -321,7 +320,7 @@ bool Win32AutoMenuHook::Impl::handle_key_down(DWORD keycode) {
       
     case VK_RIGHT: if(self._allow_leave_right) {
         HMENU menu = self._current_popup;
-        int item = find_hilite_menuitem(&menu);
+        int item = Win32Menu::find_hilite_menuitem(&menu);
         
         if(item < 0 || (GetMenuState(menu, item, MF_BYPOSITION) & MF_POPUP) == 0) {
           self.exit_info.reason = MenuExitReason::RightKey;
@@ -459,30 +458,8 @@ SpecialCommandID Win32MenuItemPopupMenu::show_popup_for(HWND owner, POINT pt, Ex
 
 //} ... class Win32MenuItemPopupMenu
 
-static int find_hilite_menuitem(HMENU *menu) {
-  for(int i = 0; i < GetMenuItemCount(*menu); ++i) {
-    UINT state = GetMenuState(*menu, i, MF_BYPOSITION);
-    
-    if(state & MF_HILITE) {
-      if(state & MF_POPUP) {
-        HMENU old = *menu;
-        *menu = GetSubMenu(*menu, i);
-        int result = find_hilite_menuitem(menu);
-        if(result >= 0)
-          return result;
-          
-        *menu = old;
-      }
-    
-      return i;
-    }
-  }
-  
-  return -1;
-}
-
 static int find_hilite_menuitem_cmd(HMENU *menu, DWORD *list_cmd, DWORD *cmd) {
-  int item = find_hilite_menuitem(menu);
+  int item = Win32Menu::find_hilite_menuitem(menu);
   
   if(*menu && item >= 0) {
     MENUITEMINFOW info;

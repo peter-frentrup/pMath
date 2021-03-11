@@ -12,7 +12,8 @@ namespace richmath {
     RadioButton,
     Delimiter,
     SubMenu,
-    InlineMenu
+    InlineMenu,
+    SearchBox,
   };
 
   class MenuCommandStatus {
@@ -31,6 +32,29 @@ namespace richmath {
   enum class MenuCommandScope {
     Selection,
     Document
+  };
+  
+  struct MenuSearchResult {
+    int quality = 0;
+    int index;
+    Expr item;
+    
+    MenuSearchResult() : quality(0) {}
+    MenuSearchResult(int quality, int index, Expr item) : quality{quality}, index{index}, item{std::move(item)} {}
+    
+    friend bool operator<(const MenuSearchResult &left, const MenuSearchResult &right) {
+      if(left.quality > right.quality)
+        return true;
+      if(left.quality < right.quality)
+        return false;
+      
+      if(left.index < right.index)
+        return true;
+      if(left.index > right.index)
+        return false;
+      
+      return left.item < right.item;
+    }
   };
   
   class Menus {
@@ -68,6 +92,9 @@ namespace richmath {
       
       static MenuItemType menu_item_type(Expr item);
       static MenuItemType command_type(Expr cmd);
+      
+      static void current_menu_search_text(String text);
+      static String current_menu_search_text();
   };
 }
 

@@ -4,24 +4,34 @@
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/menus/win32-menu.h>
+#  include <gui/win32/menus/win32-menu-search-overlay.h>
 #endif
 
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-menu-builder.h>
 #endif
 
+#include <algorithm>
+
 
 using namespace richmath;
 
 namespace richmath { namespace strings {
+  extern String SearchMenuNoMatch_label;
+  extern String MenuListSearchCommands;
+  extern String SearchMenuItems;
   extern String ShowHideMenu;
 }}
 
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
+
+extern pmath_symbol_t richmath_Documentation_FindDocumentationPages;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
+extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 static Hashtable<Expr, bool              ( *)(Expr)>       menu_commands;
@@ -31,11 +41,15 @@ static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_ite
 static Hashtable<Expr, bool              ( *)(Expr, Expr)> dynamic_menu_list_item_locators;
 static Hashtable<Expr, MenuCommandStatus ( *)(Expr, Expr)> dynamic_menu_list_item_locator_testers;
 
+static String current_query;
+static Expr get_search_commands(Expr name);
+
 //{ class Menus ...
 
 MenuCommandScope Menus::current_scope = MenuCommandScope::Selection;
 
 void Menus::init() {
+  register_dynamic_submenu(strings::MenuListSearchCommands, get_search_commands);
 }
 
 void Menus::done() {
@@ -45,6 +59,7 @@ void Menus::done() {
   dynamic_menu_list_item_deleters.clear();
   dynamic_menu_list_item_locators.clear();
   dynamic_menu_list_item_locator_testers.clear();
+  current_query = String();
 }
 
 void Menus::run_command_async(Expr cmd) {
@@ -245,6 +260,9 @@ MenuItemType Menus::command_type(Expr cmd) {
     
     if(cmd == strings::ShowHideMenu)
       return MenuItemType::CheckButton;
+    
+    if(cmd == strings::SearchMenuItems)
+      return MenuItemType::SearchBox;
   }
   
   if(cmd.is_rule()) // style->value  is a simple setter (does not toggle)
@@ -256,4 +274,68 @@ MenuItemType Menus::command_type(Expr cmd) {
   return MenuItemType::Normal;
 }
 
+void Menus::current_menu_search_text(String text) {
+  current_query = text;
+}
+
+String Menus::current_menu_search_text() {
+  return current_query;
+}
+
 //} ... class Menus
+
+static Expr get_search_commands(Expr name) {
+  Gather g;
+  
+  Gather::emit(Call(Symbol(richmath_System_MenuItem), String("Search"), strings::SearchMenuItems));
+  if(current_query.length() > 0) {
+    //Gather::emit(Call(Symbol(richmath_System_MenuItem), current_query, Expr()));
+    
+    Array<MenuSearchResult> results;
+#ifdef RICHMATH_USE_WIN32_GUI
+    if(auto mm = Win32Menu::main_menu) {
+      //mm->find_menu_items(results, current_query);
+      Win32MenuSearchOverlay::collect_menu_matches(results, current_query, mm->hmenu(), String());
+    }
+#endif
+    
+    std::sort(results.items(), results.items() + results.length());
+    
+    int max_results = 10;
+    for(auto &res : results) {
+      if(max_results-- == 0)
+        break;
+      Gather::emit(std::move(res.item));
+    }
+    
+    Expr docu_pages = Application::interrupt_wait(
+                        Call(Symbol(richmath_Documentation_FindDocumentationPages), current_query));
+    
+    bool need_delimiter = results.length() > 0;
+    max_results = 10;
+    for(Expr label_and_file : docu_pages.items()) {
+      if(max_results-- == 0)
+        break;
+      
+      if(need_delimiter) {
+        Gather::emit(Symbol(richmath_System_Delimiter));
+        need_delimiter = false;
+      }
+      
+      if(label_and_file.is_rule()) {
+        Gather::emit(
+          Call(Symbol(richmath_System_MenuItem), 
+            String(label_and_file[1]) + String::FromUcs2((const uint16_t*)L" \x2013 Documenation"), 
+            Call(Symbol(richmath_FrontEnd_DocumentOpen), label_and_file[2])));
+      }
+    }
+    
+    if(results.length() == 0 && docu_pages.expr_length() == 0) {
+      Gather::emit(Call(Symbol(richmath_System_MenuItem), strings::SearchMenuNoMatch_label, Symbol(richmath_System_DollarFailed)));
+    }
+    
+    Gather::emit(Symbol(richmath_System_Delimiter));
+  }
+  
+  return g.end();
+}
