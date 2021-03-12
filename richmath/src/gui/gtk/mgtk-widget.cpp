@@ -561,13 +561,7 @@ GtkMenu *MathGtkWidget::popup_menu(VolatileSelection src) {
     //MathGtkAccelerators::connect_all(accel_group, src.box->id());
     g_object_unref(accel_group);
     
-    gtk_widget_add_events(GTK_WIDGET(_popup_menu), GDK_STRUCTURE_MASK);
-    
-    void *doc_id_as_ptr = FrontEndReference::unsafe_cast_to_pointer(document()->id());
-    g_signal_connect(GTK_WIDGET(_popup_menu), "map-event",       G_CALLBACK(MathGtkMenuBuilder::on_map_menu),       doc_id_as_ptr);
-    g_signal_connect(GTK_WIDGET(_popup_menu), "unmap-event",     G_CALLBACK(MathGtkMenuBuilder::on_unmap_menu),     doc_id_as_ptr);
-    g_signal_connect(GTK_WIDGET(_popup_menu), "key-press-event", G_CALLBACK(MathGtkMenuBuilder::on_menu_key_press), doc_id_as_ptr);
-  
+    MathGtkMenuBuilder::connect_events(GTK_MENU(_popup_menu), document()->id());
   }
   
   return GTK_MENU(_popup_menu);

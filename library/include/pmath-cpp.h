@@ -899,6 +899,18 @@ namespace pmath {
       const uint16_t *buffer() const throw() {
         return pmath_string_buffer(const_cast<pmath_string_t *>(&_obj));
       }
+
+      template<typename Func>
+      bool edit(Func func) {
+        uint16_t *buf;
+        int len;
+        if(pmath_string_begin_write(&_obj, &buf, &len)) {
+          func(buf, len);
+          pmath_string_end_write(&_obj, &buf);
+          return true;
+        }
+        return false;
+      }
       
 #ifdef __cpp_unicode_characters
       const char16_t *buffer_char16() const throw() { return (const char16_t *)buffer(); }

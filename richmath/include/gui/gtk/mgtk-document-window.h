@@ -71,7 +71,9 @@ namespace richmath {
       bool has_menubar();
       bool try_set_menubar(bool visible);
       
-      void reset_window_frame(){ window_frame(_window_frame); }
+      GtkWidget *menubar() { return _menu_bar; }
+      
+      void reset_window_frame() { window_frame(_window_frame); }
       void set_gravity();
       void set_initial_rect(int x, int y, int w, int h);
       

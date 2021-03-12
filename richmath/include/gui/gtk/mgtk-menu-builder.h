@@ -12,21 +12,24 @@
 #include <util/array.h>
 #include <util/frontendobject.h>
 
+#include <gui/menus.h>
+
 
 namespace richmath {
   using namespace pmath; // bad style!!!
   
   class MathGtkMenuBuilder {
+      class Impl;
     public:
       MathGtkMenuBuilder();
       explicit MathGtkMenuBuilder(Expr _expr);
       
       void append_to(GtkMenuShell *menu, GtkAccelGroup *accel_group, FrontEndReference evalution_box_id);
       
-      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
-      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
-      static gboolean on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+      static void connect_events(GtkMenu *menu, FrontEndReference doc_id);
       static void expand_inline_lists(GtkMenu *menu, FrontEndReference id);
+      
+      static void collect_menu_matches(Array<MenuSearchResult> &results, String query, GtkMenuShell *menu, String prefix, FrontEndReference doc_id);
       
       static void done();
       static Expr selected_item_command();

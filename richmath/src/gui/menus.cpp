@@ -9,7 +9,10 @@
 
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-menu-builder.h>
+#  include <gui/gtk/mgtk-document-window.h>
 #endif
+
+#include <gui/documents.h>
 
 #include <algorithm>
 
@@ -296,6 +299,16 @@ static Expr get_search_commands(Expr name) {
     if(auto mm = Win32Menu::main_menu) {
       //mm->find_menu_items(results, current_query);
       Win32MenuSearchOverlay::collect_menu_matches(results, current_query, mm->hmenu(), String());
+    }
+#endif
+#ifdef RICHMATH_USE_GTK_GUI
+    if(auto doc = Documents::current()) {
+      if(auto wid = dynamic_cast<MathGtkWidget*>(doc->native())) {
+        GtkWidget *toplevel = gtk_widget_get_toplevel(wid->widget());
+        if(auto win = dynamic_cast<MathGtkDocumentWindow*>(BasicGtkWidget::from_widget(toplevel))) {
+          MathGtkMenuBuilder::collect_menu_matches(results, current_query, GTK_MENU_SHELL(win->menubar()), String(), doc->id());
+        }
+      }
     }
 #endif
     

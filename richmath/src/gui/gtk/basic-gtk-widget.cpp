@@ -68,22 +68,6 @@ BasicGtkWidget::~BasicGtkWidget() {
   add_remove_window(-1);
 }
 
-BasicGtkWidget *BasicGtkWidget::parent() {
-  if(!_widget)
-    return nullptr;
-    
-  GtkWidget *wid = gtk_widget_get_parent(_widget);
-  
-  while(wid) {
-    if(auto parent = static_cast<BasicGtkWidget*>(g_object_get_data(G_OBJECT(wid), widget_key)))
-      return parent;
-      
-    wid = gtk_widget_get_parent(wid);
-  }
-  
-  return nullptr;
-}
-
 BasicGtkWidget *BasicGtkWidget::from_widget(GtkWidget *wid) {
   if(!wid)
     return nullptr;

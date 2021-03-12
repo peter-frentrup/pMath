@@ -41,21 +41,11 @@ namespace richmath {
     public:
       GtkWidget *widget() { return _widget; }
       
-      BasicGtkWidget *parent();
       static BasicGtkWidget *from_widget(GtkWidget *wid);
       
-      template<class T>
-      T *find_parent() {
-        BasicGtkWidget *p = parent();
-        while(p) {
-          T *t = dynamic_cast<T*>(p);
-          if(t)
-            return t;
-            
-          p = p->parent();
-        }
-        
-        return 0;
+      template<typename Func>
+      static void container_foreach(GtkContainer *container, Func func) {
+        gtk_container_foreach(container, [](GtkWidget *child, void *_func) { (*(Func*)_func)(child); }, &func);
       }
       
     protected:

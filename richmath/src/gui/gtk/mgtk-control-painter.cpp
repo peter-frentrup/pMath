@@ -574,7 +574,7 @@ void MathGtkControlPainter::draw_container(
 }
 
 bool MathGtkControlPainter::enable_animations() {
-  GtkSettings settings = gtk_settings_get_default();
+  GtkSettings *settings = gtk_settings_get_default();
   if(!settings)
     return false;
   
