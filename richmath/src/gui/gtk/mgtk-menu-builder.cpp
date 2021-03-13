@@ -4,8 +4,9 @@
 #include <eval/binding.h>
 #include <eval/observable.h>
 
-#include <gui/menus.h>
 #include <gui/gtk/mgtk-document-window.h>
+#include <gui/documents.h>
+#include <gui/menus.h>
 
 #include <util/hashtable.h>
 
@@ -99,10 +100,12 @@ namespace {
   
   class MathGtkMenuSearch {
     public:
-      static void init();
+      static void ensure_init();
       
       static GtkWidget *create(FrontEndReference doc_id);
       static void init_item(GtkMenuItem *menu_item);
+      
+      static bool contains_search_menu_list(GtkMenuShell *menu);
       
       static bool on_menu_key_press(GdkEventKey *event, GtkWidget *menu_item, FrontEndReference doc_id);
       static bool on_menu_key_release(GdkEventKey *event, GtkWidget *menu_item, FrontEndReference doc_id);
@@ -113,7 +116,8 @@ namespace {
       static void on_text_changed(GtkEditable *entry, void *doc_id_as_ptr);
       
       static GtkWidget *get_entry(GtkWidget *menu_item);
-    
+      
+      static bool do_open_help_menu(Expr cmd);
   };
 }
 
@@ -126,8 +130,6 @@ namespace richmath {
       static gboolean on_menu_key_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_button_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_button_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
-      
-      static bool contains_search_menu_list(GtkMenuShell *menu);
   };
 }
 
@@ -151,7 +153,7 @@ MathGtkMenuBuilder::MathGtkMenuBuilder() {
 MathGtkMenuBuilder::MathGtkMenuBuilder(Expr _expr)
   : expr(_expr)
 {
-  MathGtkMenuSearch::init();
+  MathGtkMenuSearch::ensure_init();
 }
 
 void MathGtkMenuBuilder::done() {
@@ -242,7 +244,7 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
 }
 
 void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, String query, GtkMenuShell *menu, String prefix, FrontEndReference doc_id) {
-  if(Impl::contains_search_menu_list(menu))
+  if(MathGtkMenuSearch::contains_search_menu_list(menu))
     return;
   
   if(GTK_IS_MENU(menu))
@@ -251,7 +253,7 @@ void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, 
   BasicGtkWidget::container_foreach(
     GTK_CONTAINER(menu), 
     [&](GtkWidget *menu_item) {
-      if(GTK_IS_MENU_ITEM(menu_item)) {
+      if(GTK_IS_MENU_ITEM(menu_item) && !GTK_IS_SEPARATOR_MENU_ITEM(menu_item)) {
         const char *utf8 = gtk_menu_item_get_label(GTK_MENU_ITEM(menu_item));
         
         String label = prefix + String::FromUtf8(utf8);
@@ -453,19 +455,6 @@ gboolean MathGtkMenuBuilder::Impl::on_menu_button_release(GtkWidget *menu, GdkEv
   }
   
   return false;
-}
-
-bool MathGtkMenuBuilder::Impl::contains_search_menu_list(GtkMenuShell *menu) {
-  bool found = false;
-  BasicGtkWidget::container_foreach(
-    GTK_CONTAINER(menu), 
-    [&](GtkWidget *menu_item) {
-      if(!found) {
-        if(strings::MenuListSearchCommands == MenuItemBuilder::inline_menu_list_data(menu_item))
-          found = true;
-      }
-    });
-  return found;
 }
 
 //} ... class MathGtkMenuBuilder::Impl
@@ -927,12 +916,13 @@ void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, FrontEndRefere
 
 //{ class MathGtkMenuSearch ...
 
-void MathGtkMenuSearch::init() {
+void MathGtkMenuSearch::ensure_init() {
   static bool initialized = false;
   if(initialized)
     return;
   
   initialized = true;
+  Menus::register_command(strings::SearchMenuItems, do_open_help_menu);
 }
 
 GtkWidget *MathGtkMenuSearch::create(FrontEndReference doc_id) {
@@ -963,6 +953,19 @@ void MathGtkMenuSearch::init_item(GtkMenuItem *menu_item) {
     else
       gtk_entry_set_text(GTK_ENTRY(entry), "");
   }
+}
+
+bool MathGtkMenuSearch::contains_search_menu_list(GtkMenuShell *menu) {
+  bool found = false;
+  BasicGtkWidget::container_foreach(
+    GTK_CONTAINER(menu), 
+    [&](GtkWidget *menu_item) {
+      if(!found) {
+        if(strings::MenuListSearchCommands == MenuItemBuilder::inline_menu_list_data(menu_item))
+          found = true;
+      }
+    });
+  return found;
 }
 
 bool MathGtkMenuSearch::on_menu_key_press(GdkEventKey *event, GtkWidget *menu_item, FrontEndReference doc_id) {
@@ -1059,6 +1062,68 @@ GtkWidget *MathGtkMenuSearch::get_entry(GtkWidget *menu_item) {
     & entry);
   
   return entry;
+}
+
+bool MathGtkMenuSearch::do_open_help_menu(Expr cmd) {
+  auto doc = Documents::current();
+  if(!doc)
+    return false;
+    
+  auto wid = dynamic_cast<MathGtkWidget*>(doc->native());
+  if(!wid)
+    return false;
+  
+  GtkWidget *toplevel = gtk_widget_get_toplevel(wid->widget());
+  auto win = dynamic_cast<MathGtkDocumentWindow*>(BasicGtkWidget::from_widget(toplevel));
+  if(!win)
+    return false;
+  
+  bool found = false;
+  BasicGtkWidget::container_foreach(
+    GTK_CONTAINER(win->menubar()),
+    [&](GtkWidget *child) {
+      if(found || !GTK_IS_MENU_ITEM(child))
+        return;
+      
+      GtkWidget *sub = gtk_menu_item_get_submenu(GTK_MENU_ITEM(child));
+      if(!sub)
+        return;
+      
+      if(MathGtkMenuSearch::contains_search_menu_list(GTK_MENU_SHELL(sub))) {
+        /* gtk_menu_shell_activate_item() works on Windows (Gtk2),
+           but not on Linux (WSL, Xming, Gtk2 and Gtk3).
+           Emitting "activate-current" works on both systems.
+         */
+        
+        gtk_widget_grab_focus(win->menubar());
+        gtk_menu_shell_select_item(GTK_MENU_SHELL(win->menubar()), child);
+        //gtk_menu_shell_activate_item(GTK_MENU_SHELL(win->menubar()), child, false);
+        g_signal_emit_by_name(GTK_MENU_SHELL(win->menubar()), "activate-current", FALSE);
+        found = true;
+        return;
+      }
+      
+      // Maybe the help menu is inside the overflow menu. Dig one level deeper:
+      BasicGtkWidget::container_foreach(
+        GTK_CONTAINER(sub),
+        [&](GtkWidget *grandchild) {
+          if(found || !GTK_IS_MENU_ITEM(grandchild))
+            return;
+            
+          GtkWidget *subsub = gtk_menu_item_get_submenu(GTK_MENU_ITEM(grandchild));
+          if(!subsub)
+            return;
+          
+          if(MathGtkMenuSearch::contains_search_menu_list(GTK_MENU_SHELL(subsub))) {
+            gtk_widget_grab_focus(win->menubar());
+            gtk_menu_shell_select_item(GTK_MENU_SHELL(win->menubar()), child);
+            g_signal_emit_by_name(     GTK_MENU_SHELL(win->menubar()), "activate-current", FALSE);
+            gtk_menu_shell_select_item(GTK_MENU_SHELL(sub), grandchild);
+            g_signal_emit_by_name(     GTK_MENU_SHELL(sub), "activate-current", FALSE);
+            found = true;
+          }
+        });
+    });
 }
 
 //} ... class MathGtkMenuSearch
