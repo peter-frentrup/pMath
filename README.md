@@ -1,9 +1,9 @@
 # pMath #
 
-Copyright © Peter Frentrup, 2005-2020
+Copyright © Peter Frentrup, 2005-2021
 
 *pMath* is an experimental computer algebra system/programming language.
-Some concepts are similar to [Mathematica][] (usage of pattern matching, everything is an expression), but with improved syntax.
+Some concepts are similar to [Mathematica][] (usage of pattern matching, everything is an expression, automatic data-binding with Dynamic), but with improved syntax.
 Development takes place on [BitBucket](https://bitbucket.org/pfrentrup/pmath).
 
 ![screenshot](richmath/resources/images/screenshot.png)
@@ -11,7 +11,7 @@ Development takes place on [BitBucket](https://bitbucket.org/pfrentrup/pmath).
 ## Build ##
 
 The [Code::Blocks][] IDE is used for development.
-Supported compilers are Visual C++ 2015 (Windows, recommended) and GCC (Windows, Unix).
+Supported compilers are Microsoft Visual C++ (Windows, recommended) and GCC (Windows, Unix).
 
 ### Prerequisites ###
 When opening `pmath.workspace` for the first time, Code::Blocks will ask for many Global Variables. These correspond to required prebuild libraries. The variable names are of the form *name_32* or *name_64* for 32 and 64 bit flavors, respectively. You may choose to either only set the 32 bit versions or only the 64 bit versions or both. 
