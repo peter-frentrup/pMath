@@ -1,9 +1,4 @@
-﻿Row({Button("Math in Text",DocumentApply(SelectedDocument(),"\({\"\[SelectionPlaceholder]\"}\)")),
-	Button("italic",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","TI"))),
-	Button("Arg Style",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]","Arg"))),
-	Button("Small Caps",DocumentApply(SelectedDocument(),StyleBox("\[SelectionPlaceholder]",FontFeatures->{"smcp"})))})
-
-- richmath: support convex combinations of certain options, like FontSize -> 1.5 * FontSize + 1 or
+﻿- richmath: support convex combinations of certain options, like FontSize -> 1.5 * FontSize + 1 or
 	FontSize -> 1.5 * Inherited + 1
 	
 ? pmath: make N(...) use adaptive precision tracking through RealInterval
@@ -66,10 +61,6 @@
 
 - pmath: implement Together(...) 
 
-- pmath: generate a message when unpacking a packed array
-
-- richmath: ask to save before closing
-	
 - richmath: Why is the end column of debug-info so large?? See "InspectBoxes - Test.pmathdoc"
 	This does not occur in test.exe ?!?
 
@@ -127,8 +118,6 @@
 - BUG: MSVC-richmath crashes/hangs on CTRL-C
 	(seems to be connected with fully optimized build, pmath_file_create_compressor and pmath_serialize)
 
-- pmath: implement ArcSinh, ArcCosh, ArcTanh, ArcCsch, ArcSech, ArcCoth
-
 - pmath: Sin(Infinity) ---> Interval(-1 .. 1) and so on
 
 - richmath: add options for Section/Style to manipulate
@@ -141,8 +130,6 @@
    " after a number gives prime (or only after a digit?)
    " after anything else gives right quotation mark
    analogous for '
-
-- richmath: support Interrupt()
 
 - richmath: add DocumentEventActions
 
@@ -239,8 +226,6 @@
 - add Outer()
 
 ? add IsRule(), IsRuleList(), IsRuleOrRuleList(), IsMatch(p)()
-
-- add ascii syntax for \mapsto character: x |-> f(x)
 
 ? add symbol "Rational" and make rational numbers match ~(~,~)  (items: Rational, numerator, denominator).
 
