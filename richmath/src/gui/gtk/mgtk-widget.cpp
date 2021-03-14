@@ -1081,6 +1081,7 @@ static SpecialKey keyval_to_special_key(guint keyval) {
     case GDK_Linefeed:
     case GDK_Return:
     case GDK_KP_Enter:        return SpecialKey::Return;
+    case GDK_ISO_Left_Tab: // shift+tab
     case GDK_Tab:             return SpecialKey::Tab;
     case GDK_Escape:          return SpecialKey::Escape;
     case GDK_F1:              return SpecialKey::F1;
@@ -1101,7 +1102,6 @@ static SpecialKey keyval_to_special_key(guint keyval) {
 
 bool MathGtkWidget::on_key_press(GdkEvent *e) {
   GdkEventKey *event = &e->key;
-  GdkModifierType mod = (GdkModifierType)0;
   
   ignore_key_release = false;
   
@@ -1128,17 +1128,11 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return true;
   }
   
-  {
-    GdkWindow *w = gtk_widget_get_window(_widget);
-    
-    gdk_window_get_pointer(w, nullptr, nullptr, &mod);
-  }
-  
   SpecialKeyEvent ske;
   ske.key = keyval_to_special_key(event->keyval);
-  ske.ctrl  = 0 != (mod & GDK_CONTROL_MASK);
-  ske.alt   = 0 != (mod & GDK_MOD1_MASK);
-  ske.shift = 0 != (mod & GDK_SHIFT_MASK);
+  ske.ctrl  = 0 != (event->state & GDK_CONTROL_MASK);
+  ske.alt   = 0 != (event->state & GDK_MOD1_MASK);
+  ske.shift = 0 != (event->state & GDK_SHIFT_MASK);
   if(ske.key != SpecialKey::Unknown) {
     document()->key_down(ske);
   }
@@ -1187,7 +1181,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     return true;
   }
   
-  if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (mod & GDK_SHIFT_MASK))) {
+  if(event->keyval == GDK_Menu || (event->keyval == GDK_F10 && (event->state & GDK_SHIFT_MASK))) {
     auto src = document()->selection_now();
     if(!src.box)
       src = VolatileSelection(document(), 0);
@@ -1221,7 +1215,6 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
 
 bool MathGtkWidget::on_key_release(GdkEvent *e) {
   GdkEventKey *event = &e->key;
-  GdkModifierType mod = (GdkModifierType)0;
   
   if(ignore_key_release)
     return true;
@@ -1229,18 +1222,12 @@ bool MathGtkWidget::on_key_release(GdkEvent *e) {
   if(gtk_im_context_filter_keypress(_im_context, event))
     return true;
     
-  {
-    GdkWindow *w = gtk_widget_get_window(_widget);
-    
-    gdk_window_get_pointer(w, nullptr, nullptr, &mod);
-  }
-  
   SpecialKeyEvent ske;
   ske.key = keyval_to_special_key(event->keyval);
   if(ske.key != SpecialKey::Unknown) {
-    ske.ctrl  = 0 != (mod & GDK_CONTROL_MASK);
-    ske.alt   = 0 != (mod & GDK_MOD1_MASK);
-    ske.shift = 0 != (mod & GDK_SHIFT_MASK);
+    ske.ctrl  = 0 != (event->state & GDK_CONTROL_MASK);
+    ske.alt   = 0 != (event->state & GDK_MOD1_MASK);
+    ske.shift = 0 != (event->state & GDK_SHIFT_MASK);
     document()->key_up(ske);
   }
   
