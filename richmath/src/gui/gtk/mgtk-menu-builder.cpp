@@ -112,11 +112,11 @@ namespace {
       
       static void on_menu_unmap(GtkWidget *menu_item);
       
+      static GtkWidget *get_entry(GtkWidget *menu_item);
+      
     private:
       static void on_text_changed(GtkEditable *entry, void *doc_id_as_ptr);
       static void select_next_group(GtkMenuShell *menu, LogicalDirection direction);
-      
-      static GtkWidget *get_entry(GtkWidget *menu_item);
       
       static bool do_open_help_menu(Expr cmd);
   };
@@ -631,8 +631,15 @@ void MenuItemBuilder::set_label(GtkMenuItem *menu_item, String label) {
       if(str[i] == '&')
         str[i] = '_';
     }
-    gtk_menu_item_set_use_underline(GTK_MENU_ITEM(menu_item), TRUE);
-    gtk_menu_item_set_label(GTK_MENU_ITEM(menu_item), str);
+    if(GtkWidget *entry = MathGtkMenuSearch::get_entry(GTK_WIDGET(menu_item))) {
+#if GTK_CHECK_VERSION(3, 2, 0)
+      gtk_entry_set_placeholder_text(GTK_ENTRY(entry), str);
+#endif
+    }
+    else {
+      gtk_menu_item_set_use_underline(GTK_MENU_ITEM(menu_item), TRUE);
+      gtk_menu_item_set_label(GTK_MENU_ITEM(menu_item), str);
+    }
     pmath_mem_free(str);
   }
 }
@@ -929,15 +936,29 @@ void MathGtkMenuSearch::ensure_init() {
 GtkWidget *MathGtkMenuSearch::create(FrontEndReference doc_id) {
   GtkWidget *menu_item = gtk_menu_item_new();
   
-  GtkWidget *label = gtk_bin_get_child(GTK_BIN(menu_item));
-  gtk_widget_hide(label);
+  if(GtkWidget *label = gtk_bin_get_child(GTK_BIN(menu_item))) {
+    gtk_container_remove(GTK_CONTAINER(menu_item), label);
+  }
     
   auto entry = gtk_entry_new();
-  gtk_container_add(GTK_CONTAINER(menu_item), entry);
-  gtk_widget_show(entry);
-  
   g_signal_connect(GTK_EDITABLE(entry), "changed", G_CALLBACK(on_text_changed), FrontEndReference::unsafe_cast_to_pointer(doc_id));
-
+//#if GTK_MAJOR_VERSION >= 3
+//  {
+//    auto overlay = gtk_overlay_new();
+//    gtk_container_add(GTK_CONTAINER(overlay), entry);
+//    auto label = gtk_accel_label_new("xyz");
+//    g_object_set(
+//      G_OBJECT(label), 
+//      "halign", GTK_ALIGN_FILL,
+//      "valign", GTK_ALIGN_CENTER, 
+//      nullptr);
+//    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), label);
+//    entry = overlay;
+//  }
+//#endif
+  gtk_container_add(GTK_CONTAINER(menu_item), entry);
+  gtk_widget_show_all(entry);
+  
   return menu_item;
 }
 
@@ -1135,8 +1156,26 @@ GtkWidget *MathGtkMenuSearch::get_entry(GtkWidget *menu_item) {
       if(*entry_ptr)
         return;
       
-      if(GTK_IS_ENTRY(child))
+      if(GTK_IS_ENTRY(child)) {
         *entry_ptr = child;
+        return;
+      }
+      
+      if(GTK_IS_CONTAINER(child)) {
+        gtk_container_foreach(
+          GTK_CONTAINER(child),
+          [](GtkWidget *grandchild, void *_entry_ptr) {
+            GtkWidget **entry_ptr = (GtkWidget**)_entry_ptr;
+            if(*entry_ptr)
+              return;
+            
+            if(GTK_IS_ENTRY(grandchild)) {
+              *entry_ptr = grandchild;
+              return;
+            }
+          },
+          _entry_ptr);
+      }
     },
     & entry);
   
