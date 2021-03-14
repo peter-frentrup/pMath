@@ -114,6 +114,7 @@ namespace {
       
     private:
       static void on_text_changed(GtkEditable *entry, void *doc_id_as_ptr);
+      static void select_next_group(GtkMenuShell *menu, LogicalDirection direction);
       
       static GtkWidget *get_entry(GtkWidget *menu_item);
       
@@ -977,6 +978,10 @@ bool MathGtkMenuSearch::on_menu_key_press(GdkEventKey *event, GtkWidget *menu_it
     case GDK_Return:
     case GDK_Escape:
       return false;
+    
+    case GDK_ISO_Left_Tab: // shift+tab
+    case GDK_Tab:
+      return true;
   }
   
   if(GtkWidget *entry = get_entry(menu_item)) {
@@ -996,6 +1001,13 @@ bool MathGtkMenuSearch::on_menu_key_release(GdkEventKey *event, GtkWidget *menu_
     case GDK_Return:
     case GDK_Escape:
       return false;
+    
+    case GDK_ISO_Left_Tab: // shift+tab
+    case GDK_Tab:
+      select_next_group(
+        GTK_MENU_SHELL(gtk_widget_get_ancestor(menu_item, GTK_TYPE_MENU_SHELL)), 
+        (event->state & GDK_SHIFT_MASK) ? LogicalDirection::Backward : LogicalDirection::Forward);
+      return true;
   }
   
   if(GtkWidget *entry = get_entry(menu_item)) {
@@ -1045,6 +1057,73 @@ void MathGtkMenuSearch::on_text_changed(GtkEditable *entry, void *doc_id_as_ptr)
       }
     }
   }
+}
+
+void MathGtkMenuSearch::select_next_group(GtkMenuShell *menu, LogicalDirection direction) {
+#if GTK_MAJOR_VERSION < 3
+  GtkWidget *current = GTK_WIDGET(MenuItemBuilder::selected_item());// GTK_IS_MENU(menu) ? gtk_menu_get_active(GTK_MENU(menu)) : nullptr;
+#else
+  GtkWidget *current = gtk_menu_shell_get_selected_item(menu);
+#endif
+  GtkWidget *first_group_item = nullptr;
+  GtkWidget *last_group_item_before = nullptr;
+  GtkWidget *first_group_item_after = nullptr;
+  GtkWidget *last_group_item = nullptr;
+  bool have_group_start = true;
+  bool found_current_selection = false;
+  
+  BasicGtkWidget::container_foreach(
+    GTK_CONTAINER(menu),
+    [&](GtkWidget *child) {
+      if(!gtk_widget_is_drawable(child)) 
+        return;
+      
+      if(GTK_IS_SEPARATOR_MENU_ITEM(child)) {
+        have_group_start = true;
+        return;
+      }
+      
+      if(!GTK_IS_MENU_ITEM(child))
+        return;
+      
+      if(!gtk_widget_is_sensitive(child) || get_entry(child)) 
+        return;
+      
+      if(child == current) {
+        found_current_selection = true;
+        have_group_start = false;
+        return;
+      }
+      
+      if(!have_group_start)
+        return;
+      
+      have_group_start = false;
+      
+      last_group_item = child;
+      if(!first_group_item) {
+        first_group_item = child;
+      }
+      
+      if(found_current_selection) {
+        if(!first_group_item_after) {
+          first_group_item_after = child;
+        }
+      }
+      else {
+        last_group_item_before = child;
+      }
+    });
+  
+  if(!first_group_item_after) first_group_item_after = first_group_item;
+  if(!last_group_item_before) last_group_item_before = last_group_item;
+    
+  if(direction == LogicalDirection::Forward) {
+    if(first_group_item_after)
+      gtk_menu_shell_select_item(menu, first_group_item_after);
+  }
+  else if(last_group_item_before)
+    gtk_menu_shell_select_item(menu, last_group_item_before);
 }
 
 GtkWidget *MathGtkMenuSearch::get_entry(GtkWidget *menu_item) {
