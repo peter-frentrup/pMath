@@ -33,6 +33,7 @@ namespace richmath { namespace strings {
   extern String Document;
   extern String DollarFailed;
   extern String DollarAborted;
+  extern String FrontEndSession;
   extern String NaturalLanguage;
   extern String PlainText;
 }}
@@ -2232,6 +2233,10 @@ MenuCommandStatus Document::can_do_scoped(Expr cmd, Expr scope) {
       
     new_sel.set(box, 0, 0);
   }
+  else if(scope == strings::FrontEndSession) {
+    Menus::current_scope = MenuCommandScope::FrontEndSession;
+    new_sel.set(this, 0, 0);
+  }
   
   if(!new_sel.get())
     return false;
@@ -2265,6 +2270,10 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
     }
       
     new_sel.set(box, 0, 0);
+  }
+  else if(scope == strings::FrontEndSession) {
+    Menus::current_scope = MenuCommandScope::FrontEndSession;
+    new_sel.set(this, 0, 0);
   }
   
   if(!new_sel.get())

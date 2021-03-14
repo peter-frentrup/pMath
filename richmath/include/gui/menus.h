@@ -31,7 +31,8 @@ namespace richmath {
   
   enum class MenuCommandScope {
     Selection,
-    Document
+    Document,
+    FrontEndSession,
   };
   
   struct MenuSearchResult {

@@ -8,6 +8,7 @@
 #include <eval/application.h>
 #include <eval/job.h>
 #include <gui/clipboard.h>
+#include <gui/common-document-windows.h>
 #include <gui/documents.h>
 #include <gui/document.h>
 #include <gui/menus.h>
@@ -84,7 +85,7 @@ static MenuCommandStatus can_set_style(Expr cmd);
 static MenuCommandStatus can_similar_section_below(Expr cmd);
 static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd);
 
-static bool has_style(Box *box, StyleOptionName name, Expr rhs);
+static bool has_style(ActiveStyledObject *box, StyleOptionName name, Expr rhs);
 //} ... menu command availability checkers
 
 //{ menu commands ...
@@ -754,54 +755,60 @@ static MenuCommandStatus can_section_split(Expr cmd) {
   return MenuCommandStatus(doc->split_section(false));
 }
 
-static bool has_style(Box *box, StyleOptionName name, Expr rhs) {
+static bool has_style(ActiveStyledObject *obj, StyleOptionName name, Expr rhs) {
   if(rhs == richmath_System_Inherited) {
-    if(!box->style)
+    if(!obj->style)
       return true;
     
-    return box->style->get_pmath(name) == rhs;
+    return obj->style->get_pmath(name) == rhs;
   }
 
-  return box->get_pmath_style(name) == rhs;
+  return obj->get_pmath_style(name) == rhs;
 }
 
 static MenuCommandStatus can_set_style(Expr cmd) {
-  Document *doc = Documents::current();
-  if(!doc)
-    return MenuCommandStatus(false);
-    
-  Box *sel = doc->selection_box();
-  
-  MenuCommandStatus status(sel && sel->get_style(Editable));
-  
   StyleOptionName lhs_key = Style::get_key(cmd[1]);
   if(!lhs_key.is_valid())
-    return status;
-    
+    return MenuCommandStatus(false);
+  
+  MenuCommandStatus status(true);
+  
   Expr rhs = cmd[2];
-  if(status.enabled) {
-    if(lhs_key == MathFontFamily) {
-      if(rhs.is_string())
-         status.enabled = MathShaper::available_shapers.search(String(rhs));
-    }
+  if(lhs_key == MathFontFamily) {
+    if(rhs.is_string())
+       status.enabled = MathShaper::available_shapers.search(String(rhs));
   }
-
+  
+  Document *doc = Documents::current();
+  ActiveStyledObject *obj;
+  if(Menus::current_scope == MenuCommandScope::FrontEndSession)
+    obj = Application::front_end_session;
+  else if(doc)
+    obj = doc->selection_box();
+  else
+    return MenuCommandStatus(false);
+  
+  if(!obj)
+    return MenuCommandStatus(false);
+  
+  if(status.enabled)
+    status.enabled = obj->get_style(Editable);
+  
   if(Menus::current_scope == MenuCommandScope::Document) {
     status.checked = has_style(doc, lhs_key, rhs);
-    
     return status;
   }
   
-  if(sel && cmd.is_rule()) {
+  if(obj && cmd.is_rule()) {
     int start = doc->selection_start();
     int end   = doc->selection_end();
     
     if(start < end) {
-      if(sel == doc) {
+      if(obj == doc) {
         status.checked = true;
         
         for(int i = start; i < end; ++i) {
-          status.checked = has_style(sel->item(i), lhs_key, rhs);
+          status.checked = has_style(doc->item(i), lhs_key, rhs);
           if(!status.checked)
             break;
         }
@@ -810,7 +817,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
       }
     }
 
-    status.checked = has_style(sel, lhs_key, rhs);
+    status.checked = has_style(obj, lhs_key, rhs);
   }
   
   return status;
@@ -1475,6 +1482,14 @@ static bool select_all_cmd(Expr cmd) {
 }
 
 static bool set_style_cmd(Expr cmd) {
+  if(Menus::current_scope == MenuCommandScope::FrontEndSession) {
+    Application::front_end_session->style->add_pmath(cmd);
+    for(auto win : CommonDocumentWindow::All) {
+      win->content()->on_style_changed(true);
+    }
+    return true;
+  }
+  
   Document *doc = Documents::current();
   if(!doc)
     return false;

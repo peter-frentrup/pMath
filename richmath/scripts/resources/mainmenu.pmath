@@ -67,22 +67,18 @@ FE`Private`mainmenu:= Menu("pMath", {
 			Menu("Styles", "MenuListStyles")
 			}),
 		Menu("St&ylesheet", {
-			MenuItem("Default",               FE`ScopedCommand(StyleDefinitions->"Default.pmathdoc", Document)),
+			MenuItem("Default",               FE`ScopedCommand(StyleDefinitions->"Default.pmathdoc",        Document)),
 			MenuItem("InvertedColors",        FE`ScopedCommand(StyleDefinitions->"InvertedColors.pmathdoc", Document))
 			}),
 		MenuItem("Edit Sty&lesheet ...",       "EditStyleDefinitions"),
-		Menu("Math &Font", Join({
-				MenuItem("Inherited", FE`ScopedCommand(MathFontFamily -> Inherited, Document)),
-				Delimiter
-			},
+		Menu("Math &Font",
 			$MathShapers.Join({
 				"Mathematica 10 Mono",
 				"Mathematica 10 Serif",
 				"Mathematica 10 Sans",
 				"Mathematica Mono",
 				"Mathematica Serif"
-			}).Map(MenuItem(#,             FE`ScopedCommand(MathFontFamily -> #, Document)) &),
-			))
+			}).Map(MenuItem(#, FE`ScopedCommand(MathFontFamily -> #, "FrontEndSession")) &))
 		}),
 	Menu("E&valuation", {
 		MenuItem("&Evaluate Sections",                    "EvaluateSections"),
