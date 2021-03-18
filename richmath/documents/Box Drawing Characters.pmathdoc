@@ -1,0 +1,76 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Box Drawing Characters", "Title"), 
+    Section(TextData({"This document has custom ", 
+       ButtonBox(StyleBox(ComplexStringBox("\"style definitions\""), 
+         BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), "HyperlinkActive", 
+            Inherited))), BaseStyle -> "Hyperlink", 
+        ButtonFunction -> (FrontEndTokenExecute("EditStyleDefinitions") &)), 
+       "."}), "Text"), 
+    Section(BoxData(ComplexStringBox("\"\[U+2500]", 
+       GridBox({{"\[U+256D]", FillBox("\[U+2500]", StripOnInput -> False), 
+          "\[U+256E]"}, {"\[U+2524]", "aaaa", "\[U+251C]"}, {
+          "\[U+2570]", FillBox("\[U+2500]", StripOnInput -> False), 
+          "\[U+256F]"}}, BaselinePosition -> 2, GridBoxColumnSpacing -> 0, 
+        GridBoxRowSpacing -> 0), "\[U+2500]", 
+       GridBox({
+         {"\[U+256D]", {"\[U+2500]", 
+           GridBox({{"\[U+256D]", FillBox("\[U+2500]", StripOnInput -> False), 
+              "\[U+256E]"}, {"\[U+2524]", "aa", 
+              "\[U+251C]\[U+2500]\[U+2500]\[U+2500]"}, {
+              "\[U+2570]", FillBox("\[U+2500]", StripOnInput -> False), 
+              "\[U+256F]"}}, BaselinePosition -> 2, GridBoxColumnSpacing -> 0, 
+            GridBoxRowSpacing -> 0)}, "\[U+256E]"}, {
+          "\[U+253C]", 
+          GridBox({{"\[U+256D]", FillBox("\[U+2500]", StripOnInput -> False), 
+             "\[U+256E]"}, {"\[U+2524]", "aaaa", "\[U+251C]"}, {
+             "\[U+2570]", FillBox("\[U+2500]", StripOnInput -> False), 
+             "\[U+256F]"}}, BaselinePosition -> 2, GridBoxColumnSpacing -> 0, 
+           GridBoxRowSpacing -> 0), "\[U+253C]"}, {
+          "\[U+2570]", {"\[U+2500]\[U+2500]\[U+2500]", /\/, 
+           GridBox({{"\[U+256D]", FillBox("\[U+2500]", StripOnInput -> False), 
+              "\[U+256E]"}, {"\[U+2524]", "aaa", "\[U+251C]"}, {
+              "\[U+2570]", FillBox("\[U+2500]", StripOnInput -> False), 
+              "\[U+256F]"}}, BaselinePosition -> 2, GridBoxColumnSpacing -> 0, 
+            GridBoxRowSpacing -> 0)}, "\[U+256F]"}}, BaselinePosition -> 2, 
+        GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "\"")), "Input", 
+     FontFamily -> {"Segoe UI Symbol", Inherited}), 
+    SectionGroup({
+      Section(
+       BoxData({{"TemplateBox", "(", {{"{", ComplexStringBox("\"x\""), "}"}, 
+           ",", ComplexStringBox("\"FlowBox\"")}, ")"}, ".", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [5]:"), 
+      Section(BoxData(TemplateBox({"x"}, "FlowBox")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"TemplateBox", "(", {{"{", "}"}, ",", 
+           ComplexStringBox("\"HorizontalExtender\"")}, ")"}, ".", 
+         "RawBoxes"}), "Input", SectionLabel -> "in [6]:"), 
+      Section(BoxData(TemplateBox({}, "HorizontalExtender")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+    Section(TextData({TemplateBox({"1234"}, "FlowBox"), "\[U+2500]", 
+       TemplateBox({SqrtBox("123")}, "FlowBox")}), "Text")}, All)}, 
+ StyleDefinitions :> 
+  Document({
+    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+      Section(StyleData("FlowBox"), TemplateBoxOptions -> {
+         DisplayFunction -> (
+           StyleBox(ComplexStringBox({
+              "\"", GridBox({{"\[U+256D]", FillBox("\[U+2500]"), "\[U+256E]"}, 
+                {"\[U+2524]", #1, "\[U+251C]"}, {
+                 "\[U+2570]", FillBox("\[U+2500]"), "\[U+256F]"}}, 
+               BaselinePosition -> 2, GridBoxColumnSpacing -> 0, 
+               GridBoxRowSpacing -> 0), "\""}), 
+            FontFamily -> {"Segoe UI Symbol", Inherited}, 
+            ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
+      Section(StyleData("HorizontalExtender"), 
+       TemplateBoxOptions -> {
+         DisplayFunction -> (
+           FillBox(StyleBox("\"\[U+2500]\"", 
+             FontFamily -> {"Segoe UI Symbol", Inherited}, 
+             ShowStringCharacters -> False, ShowAutoStyles -> False)) &)})}, 
+     All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+   Visible -> True), Visible -> True)
