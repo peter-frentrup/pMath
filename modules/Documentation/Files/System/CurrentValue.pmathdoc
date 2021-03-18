@@ -268,43 +268,82 @@ Document({
                  "\"CurrentValueProviders\""), ")"}, ".", "Select", "(", 
                "IsString", ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({"{", {ComplexStringBox("\"SyntaxErrorStyle\""), 
-                ",", ComplexStringBox("\"StyleDefinitionsOwner\""), ",", 
-                ComplexStringBox("\"InlineAutoCompletionStyle\""), ",", 
+                ",", ComplexStringBox("\"InlineAutoCompletionStyle\""), ",", 
                 ComplexStringBox("\"DocumentFileName\""), ",", 
+                ComplexStringBox("\"PatternVariableStyle\""), ",", 
                 ComplexStringBox("\"SectionGroupOpen\""), ",", 
+                ComplexStringBox("\"HeldTemplateSlot\""), ",", 
                 ComplexStringBox("\"CommentStyle\""), ",", 
                 ComplexStringBox("\"OccurenceHighlightStyle\""), ",", 
                 ComplexStringBox("\"SectionInsertionPointColor\""), ",", 
                 ComplexStringBox("\"SymbolShadowingStyle\""), ",", 
+                ComplexStringBox("\"DocumentScreenDpi\""), ",", 
                 ComplexStringBox("\"SelectedMenuCommand\""), ",", 
+                ComplexStringBox("\"StyleDefinitionsOwner\""), ",", 
                 ComplexStringBox("\"ControlsFontSlant\""), ",", 
                 ComplexStringBox("\"MouseOver\""), ",", 
                 ComplexStringBox("\"TemplateSlotCount\""), ",", 
-                ComplexStringBox("\"DocumentScreenDpi\""), ",", 
-                ComplexStringBox("\"PatternVariableStyle\""), ",", 
                 ComplexStringBox("\"ResolvedEvaluationContext\""), ",", 
-                ComplexStringBox("\"FunctionNameStyle\""), ",", 
+                ComplexStringBox("\"DebugFollowMouse\""), ",", 
                 ComplexStringBox("\"ControlsFontSize\""), ",", 
                 ComplexStringBox("\"MatchingBracketHighlightStyle\""), ",", 
                 ComplexStringBox("\"CharacterNameStyle\""), ",", 
-                ComplexStringBox("\"ControlsFontFamily\""), ",", 
                 ComplexStringBox("\"LocalVariableStyle\""), ",", 
                 ComplexStringBox("\"LocalScopeConflictStyle\""), ",", 
+                ComplexStringBox("\"DebugSelectionBounds\""), ",", 
                 ComplexStringBox("\"MouseOverBox\""), ",", 
                 ComplexStringBox("\"CurrentValueProviders\""), ",", 
-                ComplexStringBox("\"StringStyle\""), ",", 
                 ComplexStringBox("\"ControlsFontWeight\""), ",", 
                 ComplexStringBox("\"KeywordSymbolStyle\""), ",", 
                 ComplexStringBox("\"ExcessOrMissingArgumentStyle\""), ",", 
+                ComplexStringBox("\"Color\""), ",", 
                 ComplexStringBox("\"FunctionLocalVariableStyle\""), ",", 
+                ComplexStringBox("\"FunctionNameStyle\""), ",", 
                 ComplexStringBox("\"ImplicitOperatorStyle\""), ",", 
                 ComplexStringBox("\"DocumentDirectory\""), ",", 
                 ComplexStringBox("\"DocumentFullFileName\""), ",", 
                 ComplexStringBox("\"PageWidthCharacters\""), ",", 
+                ComplexStringBox("\"ControlsFontFamily\""), ",", 
+                ComplexStringBox("\"DebugColorizeChanges\""), ",", 
+                ComplexStringBox("\"StringStyle\""), ",", 
                 ComplexStringBox("\"UnknownOptionStyle\""), ",", 
                 ComplexStringBox("\"UndefinedSymbolStyle\"")}, "}"}), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All), SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Investigate front-end graphics issues interactively:", 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({
+                 {{"{", {ComplexStringBox("\"DebugColorizeChanges\""), ",", 
+                    ComplexStringBox("\"DebugFollowMouse\""), ",", 
+                    ComplexStringBox("\"DebugSelectionBounds\"")}, "}"}, ".", 
+                  "Map", "(", {
+                   {"{", {{"ToggleSwitch", "(", {
+                       "Dynamic", "(", {"CurrentValue", "(", {
+                         "$FrontEndSession", ",", "#"}, ")"}, ")"}, ")"}, ",", 
+                     "#"}, "}"}, "&"}, ")"}, ".", "Grid"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                TagBox(
+                 GridBox({
+                   {TemplateBox({
+                      Dynamic(CurrentValue($FrontEndSession, 
+                        "DebugColorizeChanges"))}, "ToggleSwitch"), 
+                    ComplexStringBox("\"DebugColorizeChanges\"")}, {
+                    TemplateBox({
+                      Dynamic(CurrentValue($FrontEndSession, 
+                        "DebugFollowMouse"))}, "ToggleSwitch"), 
+                    ComplexStringBox("\"DebugFollowMouse\"")}, {
+                    TemplateBox({
+                      Dynamic(CurrentValue($FrontEndSession, 
+                        "DebugSelectionBounds"))}, "ToggleSwitch"), 
+                    ComplexStringBox("\"DebugSelectionBounds\"")}}), "Grid")), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(TextData({"Resolve the current ", 
