@@ -176,6 +176,7 @@ namespace richmath { namespace strings {
   extern String MatchingBracketHighlightStyle;
   extern String Normal;
   extern String OccurenceHighlightStyle;
+  extern String Palette;
   extern String PatternVariableStyle;
   extern String SectionInsertionPointColor;
   extern String StringStyle;
@@ -3252,7 +3253,7 @@ ButtonFrameStyleConverter::ButtonFrameStyleConverter() : EnumStyleConverter() {
   add(ContainerType::GenericButton,        String("Generic"));
   add(ContainerType::PushButton,           String("DialogBox"));
   add(ContainerType::DefaultPushButton,    String("Defaulted"));
-  add(ContainerType::PaletteButton,        String("Palette"));
+  add(ContainerType::PaletteButton,        strings::Palette);
   add(ContainerType::AddressBandGoButton,  String("AddressBandGo"));
   add(ContainerType::ListViewItemSelected, String("ListViewItemSelected"));
   add(ContainerType::ListViewItem,         String("ListViewItem"));
@@ -3363,6 +3364,6 @@ WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   add(WindowFrameNone,    Symbol(richmath_System_None));
   add(WindowFrameNormal,  strings::Normal);
   add(WindowFrameDialog,  String("Dialog"));
-  add(WindowFramePalette, String("Palette"));
+  add(WindowFramePalette, strings::Palette);
   add(WindowFrameThin,    String("ThinFrame"));
 }
