@@ -82,16 +82,19 @@ namespace richmath {
     AutoSpacing,
     ContentPadding,
     ContinuousAction,
+    DebugColorizeChanges, // bool
+    DebugFollowMouse,     // bool
+    DebugSelectionBounds, // bool
     Editable,
     Enabled, // AutoBoolXXX
     Evaluatable,
     ImageSizeAction, // ImageSizeActionXXX
+    InternalDefinesEvaluationContext, // bool
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,
     InternalHasNewBaseStyle,
     InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver, // ObserverKindXXX
-    InternalDefinesEvaluationContext, // bool
     LineBreakWithin,
     MenuCommandKey,
     MenuSortingValue,

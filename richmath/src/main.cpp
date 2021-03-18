@@ -529,6 +529,14 @@ static void init_stylesheet() {
 
 //  Stylesheet::Default->styles.set("SystemResetStyle", Stylesheet::Default->base);
 
+  Application::front_end_session->style->set(DebugFollowMouse, false);
+  Application::front_end_session->style->set(DebugSelectionBounds, false);
+#ifdef NDEBUG
+  Application::front_end_session->style->set(DebugColorizeChanges, false);
+#else
+  Application::front_end_session->style->set(DebugColorizeChanges, true);
+#endif
+
   Application::front_end_session->style->set(ScriptLevel,           0);
   Application::front_end_session->style->set(ScriptSizeMultipliers, Symbol(richmath_System_Automatic));
 }

@@ -2113,6 +2113,7 @@ bool Style::modifies_size(StyleOptionName style_name) {
   switch((int)style_name) {
     case AutoDelete:
     case ContinuousAction:
+    case DebugColorizeChanges:
     case Editable:
     case Enabled:
     case Evaluatable:
@@ -2845,6 +2846,9 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            AutoSpacing,                      Symbol( richmath_System_AutoSpacing));
     add(StyleType::Bool,            ContentPadding,                   Symbol( richmath_System_ContentPadding));
     add(StyleType::Bool,            ContinuousAction,                 Symbol( richmath_System_ContinuousAction));
+    add(StyleType::Bool,            DebugColorizeChanges,             String("DebugColorizeChanges"));
+    add(StyleType::Bool,            DebugFollowMouse,                 String("DebugFollowMouse"));
+    add(StyleType::Bool,            DebugSelectionBounds,             String("DebugSelectionBounds"));
     add(StyleType::Bool,            Editable,                         Symbol( richmath_System_Editable));
     add(StyleType::AutoBool,        Enabled,                          Symbol( richmath_System_Enabled));
     add(StyleType::Bool,            Evaluatable,                      Symbol( richmath_System_Evaluatable));

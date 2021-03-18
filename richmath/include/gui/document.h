@@ -15,9 +15,6 @@ namespace richmath {
   class NativeWidget;
   class SpecialKeyEvent;
   
-  extern bool DebugFollowMouse;
-  extern bool DebugSelectionBounds;
-  
   enum class DragStatus : uint8_t {
     Idle,
     MayDrag,

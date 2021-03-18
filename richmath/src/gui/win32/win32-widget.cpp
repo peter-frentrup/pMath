@@ -72,25 +72,6 @@ extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_RawBoxes;
 
-#ifdef NDEBUG
-#  define DEBUG_as_bool  false
-#else
-#  define DEBUG_as_bool  true
-#endif
-bool DebugColorizeChanges = DEBUG_as_bool;
-
-const float DebugColorAlpha = 0.08;
-const Color DebugColors[] = {
-  Color::from_rgb24(0xFF0000),
-  Color::from_rgb24(0x00FF00),
-  Color::from_rgb24(0x0000FF),
-  Color::from_rgb24(0xFF00FF),
-  Color::from_rgb24(0xFFFF00),
-  Color::from_rgb24(0x00FFFF),
-};
-const size_t NumDebugColors = sizeof(DebugColors) / sizeof(DebugColors[0]);
-size_t next_debug_color_index = 0;
-
 SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
   switch(vkey) {
     case VK_LEFT:     return SpecialKey::Left;
@@ -750,13 +731,6 @@ void Win32Widget::on_paint(HDC dc, bool from_wmpaint) {
     }
     
     paint_canvas(canvas, !from_wmpaint);
-    
-    if(from_wmpaint && DebugColorizeChanges) {
-      next_debug_color_index = (next_debug_color_index + 1) % NumDebugColors;
-      canvas.set_color(DebugColors[next_debug_color_index], DebugColorAlpha);
-      cairo_set_operator(cr, CAIRO_OPERATOR_OVER);
-      canvas.paint();
-    }
   }
   cairo_destroy(cr);
   cairo_surface_flush(target);

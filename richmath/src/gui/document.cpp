@@ -51,15 +51,24 @@ extern pmath_symbol_t richmath_System_SectionGroup;
 
 extern pmath_symbol_t richmath_FE_SectionsToBoxes;
 
-bool richmath::DebugFollowMouse     = false;
-bool richmath::DebugSelectionBounds = false;
+static const double MaxFlashingCursorRadius = 9;  /* points */
+static const double MaxFlashingCursorTime = 0.15; /* seconds */
 
 static const Color DebugFollowMouseInStringColor = Color::from_rgb(0.5, 0, 1);
 static const Color DebugFollowMouseColor         = Color::from_rgb(1, 0, 0);
 static const Color DebugSelectionBoundsColor     = Color::from_rgb(0.5, 0.5, 0.5);
 
-static const double MaxFlashingCursorRadius = 9;  /* points */
-static const double MaxFlashingCursorTime = 0.15; /* seconds */
+const float DebugColorAlpha = 0.08;
+const Color DebugColors[] = {
+  Color::from_rgb24(0xFF0000),
+  Color::from_rgb24(0x00FF00),
+  Color::from_rgb24(0x0000FF),
+  Color::from_rgb24(0xFF00FF),
+  Color::from_rgb24(0xFFFF00),
+  Color::from_rgb24(0x00FFFF),
+};
+const size_t NumDebugColors = sizeof(DebugColors) / sizeof(DebugColors[0]);
+size_t next_debug_color_index = 0;
 
 namespace {
   static class MouseHistory {
@@ -490,7 +499,7 @@ void Document::mouse_exit() {
     mouse_history.observable_mouseover_box_id = FrontEndReference::None;
   }
   
-  if(DebugFollowMouse) {
+  if(get_style(DebugFollowMouse, false)) {
     mouse_history.debug_move_sel.reset();
     invalidate();
   }
@@ -592,7 +601,7 @@ void Document::mouse_move(MouseEvent &event) {
     bool was_inside_start;
     VolatileSelection receiver_sel = mouse_selection(event.position, &was_inside_start);
     
-    if(DebugFollowMouse && !mouse_history.debug_move_sel.equals(receiver_sel)) {
+    if(get_style(DebugFollowMouse, false) && !mouse_history.debug_move_sel.equals(receiver_sel)) {
       mouse_history.debug_move_sel.set(receiver_sel);
       invalidate();
     }
@@ -3593,7 +3602,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
         }
       }
       
-      if(DebugFollowMouse) {
+      if(get_style(DebugFollowMouse, false)) {
         if(VolatileSelection ms = mouse_history.debug_move_sel.get_all()) {
           ms.add_path(canvas);
           if(ms.is_inside_string())
@@ -3604,7 +3613,7 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
         }
       }
       
-      if(DebugSelectionBounds) {
+      if(get_style(DebugSelectionBounds, false)) {
         if(VolatileSelection sel = selection_now()) {
           canvas.save();
           {
@@ -3648,6 +3657,13 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
           }
           canvas.restore();
         }
+      }
+      
+      if(get_style(DebugColorizeChanges, false)) {
+        next_debug_color_index = (next_debug_color_index + 1) % NumDebugColors;
+        canvas.set_color(DebugColors[next_debug_color_index], DebugColorAlpha);
+        cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_OVER);
+        canvas.paint();
       }
       
       if(auto_scroll) {
