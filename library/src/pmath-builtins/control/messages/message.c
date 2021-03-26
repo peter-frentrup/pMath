@@ -120,14 +120,14 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
     
     thread->current_dynamic_id = 0;
     count = pmath_evaluate(
-                      pmath_expr_new_extended(
-                        pmath_ref(pmath_System_Increment), 1,
-                        pmath_expr_new_extended(
-                          pmath_ref(pmath_System_DollarMessageCount), 1,
-                          pmath_ref(name))));
+              pmath_expr_new_extended(
+                pmath_ref(pmath_System_Increment), 1,
+                pmath_expr_new_extended(
+                  pmath_ref(pmath_System_DollarMessageCount), 1,
+                  pmath_ref(name))));
     thread->current_dynamic_id = old_dynamic_id;
 
-    if(pmath_is_int32(count)) {
+    if(pmath_is_int32(count) && _pmath_message_is_on(_pmath_object_stop_message)) {
       long cnt = PMATH_AS_INT32(count);
       
       stop_msg = cnt == max_message_count;
