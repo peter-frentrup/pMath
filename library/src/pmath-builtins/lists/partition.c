@@ -1,5 +1,6 @@
 #include <pmath-core/expressions-private.h>
 #include <pmath-core/numbers.h>
+#include <pmath-core/packed-arrays.h>
 
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
@@ -114,16 +115,13 @@ static pmath_expr_t set_divmod_part(
   else
     l = 1 + out_i[k - depth] % n[k - depth];
     
-  subarray = pmath_expr_get_item(array, (size_t)l);
-  array = pmath_expr_set_item(array, (size_t)l, PMATH_NULL);
-  
+  subarray = pmath_expr_extract_item(array, (size_t)l);
   subarray = set_divmod_part(subarray, out_i, n, k + 1, depth, item);
-  
   return pmath_expr_set_item(array, (size_t)l, subarray);
 }
 
-static pmath_expr_t make_deep_array(
-  pmath_t head, // wont be freed
+static pmath_expr_t make_similar_deep_array(
+  pmath_t arr, // wont be freed
   const long *blocks,
   const long *n,
   long k,
@@ -135,15 +133,34 @@ static pmath_expr_t make_deep_array(
   if(k >= 2 * depth)
     return PMATH_NULL;
     
-  if(k < depth)
-    result = pmath_expr_new(pmath_ref(head), (size_t)blocks[k]);
-  else
-    result = pmath_expr_new(pmath_ref(head), (size_t)n[k - depth]);
+  if(pmath_is_packed_array(arr)) {
+    pmath_packed_type_t elem_type = pmath_packed_array_get_element_type(arr);
+    size_t dims = (size_t)(2 * depth - k);
+    size_t *sizes = pmath_mem_calloc(dims, sizeof(size_t));
+    if(!sizes)
+      return PMATH_NULL;
     
-  for(i = pmath_expr_length(result); i > 0; --i) {
-    result = pmath_expr_set_item(
-               result, i,
-               make_deep_array(head, blocks, n, k + 1, depth));
+    for(i = k; i < depth; ++i)
+      sizes[i - k] = (size_t)blocks[i];
+    for(i = k > depth ? k : depth; i < 2 * depth; ++i)
+      sizes[i - k] = (size_t)n[i - depth];
+    
+    result = pmath_packed_array_new(PMATH_NULL, elem_type, dims, sizes, NULL, 0);
+    pmath_mem_free(sizes);
+    return result;
+  }
+  
+  if(k < depth)
+    result = pmath_expr_new(pmath_expr_get_item(arr, 0), (size_t)blocks[k]);
+  else
+    result = pmath_expr_new(pmath_expr_get_item(arr, 0), (size_t)n[k - depth]);
+    
+  if(k < 2 * depth) {
+    for(i = pmath_expr_length(result); i > 0; --i) {
+      result = pmath_expr_set_item(
+                 result, i,
+                 make_similar_deep_array(arr, blocks, n, k + 1, depth));
+    }
   }
   
   return result;
@@ -214,18 +231,25 @@ static pmath_expr_t partition(
 ) {
   pmath_expr_t result = PMATH_NULL;
   pmath_t item;
-  long *in_i   = (long *)pmath_mem_alloc(depth * sizeof(long));
-  long *out_i  = (long *)pmath_mem_alloc(depth * sizeof(long));
-  long *blocks = (long *)pmath_mem_alloc(depth * sizeof(long));
-  long k, r, rr;
+  long *in_i;
+  long *out_i;
+  long *blocks;
   
   pmath_bool_t have_undef = FALSE;
   
   if(depth <= 0)
     return pmath_ref(array);
-    
+  
+  in_i   = (long *)pmath_mem_calloc(depth, sizeof(long));
+  out_i  = (long *)pmath_mem_calloc(depth, sizeof(long));
+  blocks = (long *)pmath_mem_calloc(depth, sizeof(long));
+  
   if(dim && n && d && left && right && in_i && out_i && blocks) {
+    long k;
     for(k = 0; k < depth; ++k) {
+      long r;
+      long rr;
+      
       if(left[k] < 0)
         left[k] = n[k] + left[k];
       else
@@ -248,9 +272,7 @@ static pmath_expr_t partition(
         --blocks[k];
     }
     
-    item = pmath_expr_get_item(array, 0);
-    result = make_deep_array(item, blocks, n, 0, depth);
-    pmath_unref(item);
+    result = make_similar_deep_array(array, blocks, n, 0, depth);
     
     memset(out_i, 0, depth * sizeof(long));
     
@@ -276,7 +298,8 @@ static pmath_expr_t partition(
   return result;
 }
 
-static long *get_n( // free it with pmath_mem_free(n, depth * sizeof(long))
+// result must be freed
+static long *get_n( 
   pmath_t n_obj,    // wont be freed
   long *depth       // -1 on error
 ) {
