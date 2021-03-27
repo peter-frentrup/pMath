@@ -118,7 +118,7 @@ static pmath_t stringdrop(
 
 PMATH_PRIVATE pmath_t builtin_stringdrop(pmath_expr_t expr) {
   pmath_t obj;
-  long start, end, step;
+  struct _pmath_range_t range;
   
   if(pmath_expr_length(expr) != 2) {
     pmath_message_argxxx(pmath_expr_length(expr), 2, 2);
@@ -126,7 +126,7 @@ PMATH_PRIVATE pmath_t builtin_stringdrop(pmath_expr_t expr) {
   }
   
   obj = pmath_expr_get_item(expr, 2);
-  if(!_pmath_extract_longrange(obj, &start, &end, &step)) {
+  if(!_pmath_extract_longrange(obj, &range)) {
     pmath_unref(obj);
     pmath_message(PMATH_NULL, "seqs", 2, PMATH_FROM_INT32(2), pmath_ref(expr));
     return expr;
@@ -134,7 +134,7 @@ PMATH_PRIVATE pmath_t builtin_stringdrop(pmath_expr_t expr) {
   
   pmath_unref(obj);
   obj = pmath_expr_get_item(expr, 1);
-  obj = stringdrop(obj, expr, start, end, step);
+  obj = stringdrop(obj, expr, range.start, range.end, range.step);
   
   if(pmath_same(obj, PMATH_UNDEFINED))
     return expr;

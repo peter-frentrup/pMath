@@ -6,6 +6,7 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/build-expr-private.h>
+#include <pmath-builtins/lists-private.h>
 
 #include <limits.h>
 
@@ -166,43 +167,38 @@ PMATH_PRIVATE pmath_bool_t extract_delta_range(
 }
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_extract_longrange(
-  pmath_t  range,
-  long    *start,
-  long    *end,
-  long    *step
-) {
-  if(pmath_same(range, pmath_System_All)) {
-    *start = 1;
-    *end   = -1;
-    *step  = 1;
+pmath_bool_t _pmath_extract_longrange(pmath_t obj, struct _pmath_range_t *range) {
+  if(pmath_same(obj, pmath_System_All)) {
+    range->start = 1;
+    range->end   = -1;
+    range->step  = 1;
     return TRUE;
   }
 
-  if(pmath_is_int32(range)) {
-    *end  = PMATH_AS_INT32(range);
-    *step = 1;
+  if(pmath_is_int32(obj)) {
+    range->end  = PMATH_AS_INT32(obj);
+    range->step = 1;
 
-    if(*end < 0) {
-      *start = *end;
-      *end   = -1;
+    if(range->end < 0) {
+      range->start = range->end;
+      range->end   = -1;
     }
     else
-      *start = 1;
+      range->start = 1;
 
     return TRUE;
   }
 
-  if(pmath_is_expr_of_len(range, pmath_System_Range, 2)) {
-    pmath_t a = pmath_expr_get_item(range, 1);
-    pmath_t b = pmath_expr_get_item(range, 2);
-    *step = 1;
+  if(pmath_is_expr_of_len(obj, pmath_System_Range, 2)) {
+    pmath_t a = pmath_expr_get_item(obj, 1);
+    pmath_t b = pmath_expr_get_item(obj, 2);
+    range->step = 1;
 
     if(pmath_is_int32(a)) {
-      *start = PMATH_AS_INT32(a);
+      range->start = PMATH_AS_INT32(a);
     }
     else if(pmath_same(a, pmath_System_Automatic)) {
-      *start = 1;
+      range->start = 1;
     }
     else {
       pmath_unref(a);
@@ -211,10 +207,10 @@ pmath_bool_t _pmath_extract_longrange(
     }
 
     if(pmath_is_int32(b)) {
-      *end = PMATH_AS_INT32(b);
+      range->end = PMATH_AS_INT32(b);
     }
     else if(pmath_same(b, pmath_System_Automatic)) {
-      *end = -1;
+      range->end = -1;
     }
     else {
       pmath_unref(a);
@@ -227,13 +223,13 @@ pmath_bool_t _pmath_extract_longrange(
     return TRUE;
   }
 
-  if(pmath_is_expr_of_len(range, pmath_System_Range, 3)) {
-    pmath_t a = pmath_expr_get_item(range, 1);
-    pmath_t b = pmath_expr_get_item(range, 2);
-    pmath_t c = pmath_expr_get_item(range, 3);
+  if(pmath_is_expr_of_len(obj, pmath_System_Range, 3)) {
+    pmath_t a = pmath_expr_get_item(obj, 1);
+    pmath_t b = pmath_expr_get_item(obj, 2);
+    pmath_t c = pmath_expr_get_item(obj, 3);
 
     if(pmath_is_int32(c)) {
-      *step = PMATH_AS_INT32(c);
+      range->step = PMATH_AS_INT32(c);
     }
     else {
       pmath_unref(a);
@@ -243,10 +239,10 @@ pmath_bool_t _pmath_extract_longrange(
     }
 
     if(pmath_is_int32(a)) {
-      *start = PMATH_AS_INT32(a);
+      range->start = PMATH_AS_INT32(a);
     }
     else if(pmath_same(a, pmath_System_Automatic)) {
-      *start = 1;
+      range->start = 1;
     }
     else {
       pmath_unref(a);
@@ -256,10 +252,10 @@ pmath_bool_t _pmath_extract_longrange(
     }
 
     if(pmath_is_int32(b)) {
-      *end = PMATH_AS_INT32(b);
+      range->end = PMATH_AS_INT32(b);
     }
     else if(pmath_same(b, pmath_System_Automatic)) {
-      *end = -1;
+      range->end = -1;
     }
     else {
       pmath_unref(a);

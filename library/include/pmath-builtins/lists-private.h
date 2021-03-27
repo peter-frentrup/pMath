@@ -12,6 +12,18 @@
    src/pmath-builtins/lists/
  */
 
+struct _pmath_range_t {
+  long start;
+  long end;
+  long step;
+};
+
+struct _pmath_urange_t {
+  size_t start;
+  size_t end;
+  size_t step;
+};
+
 extern PMATH_PRIVATE pmath_t _pmath_string_keyabsent;
 
 PMATH_PRIVATE pmath_t _pmath_object_head(pmath_t obj); // obj wont be freed
@@ -68,26 +80,16 @@ pmath_bool_t extract_delta_range(
   size_t  *count);
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_extract_longrange(
-  pmath_t  range,
-  long    *start,
-  long    *end,
-  long    *step);
+pmath_bool_t _pmath_extract_longrange(pmath_t obj, struct _pmath_range_t *range);
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_expr_try_take( 
-  pmath_expr_t *list, 
-  long          start,
-  long          end,
-  long          step);
+pmath_bool_t _pmath_convert_start_end_step(struct _pmath_urange_t *upos, const struct _pmath_range_t *pos, size_t length);
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_expr_try_overlay( 
-  pmath_expr_t *list, 
-  pmath_t       values, // wont be freed
-  long          start,
-  long          end,
-  long          step);
+pmath_bool_t _pmath_expr_try_take(pmath_expr_t *list, const struct _pmath_range_t *pos);
+
+PMATH_PRIVATE
+pmath_bool_t _pmath_expr_try_overlay(pmath_expr_t *list, pmath_t values, const struct _pmath_range_t *pos); // values wont be freed
 
 PMATH_PRIVATE
 pmath_symbol_t _pmath_topmost_symbol(pmath_t obj); // obj wont be freed
