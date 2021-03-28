@@ -2208,35 +2208,45 @@ _pmath_timer_t _pmath_expr_last_change(pmath_expr_t expr) {
 /* pMath object functions ... */
 
 static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
-  struct _pmath_expr_t *ua = (void *)PMATH_AS_PTR(a);
-  struct _pmath_expr_t *ub = (void *)PMATH_AS_PTR(b);
   size_t i;
+  size_t a_len;
+  size_t b_len;
   const pmath_t *a_items;
   const pmath_t *b_items;
+  pmath_t a_head = pmath_expr_get_item(a, 0);
+  pmath_t b_head = pmath_expr_get_item(b, 0);
+  int cmp;
 
-  if(pmath_same(ua->items[0], pmath_System_Complex)) {
-    if(!pmath_same(ub->items[0], pmath_System_Complex))
+  if(pmath_same(a_head, pmath_System_Complex)) {
+    if(!pmath_same(b_head, pmath_System_Complex)) {
+      pmath_unref(a_head);
+      pmath_unref(b_head);
       return -1;
+    }
   }
-  else if(pmath_same(ub->items[0], pmath_System_Complex))
+  else if(pmath_same(b_head, pmath_System_Complex)) {
+    pmath_unref(a_head);
+    pmath_unref(b_head);
     return +1;
+  }
+  
+  a_len = pmath_expr_length(a);
+  b_len = pmath_expr_length(b);
+  if(a_len < b_len) return -1;
+  if(a_len > b_len) return +1;
 
-  if(ua->length < ub->length)  return -1;
-  if(ua->length > ub->length)  return +1;
-
+  cmp = pmath_compare(a_head, b_head);
+  pmath_unref(a_head);
+  pmath_unref(b_head);
+  if(cmp != 0) 
+    return cmp;
+  
   a_items = pmath_expr_read_item_data(a);
   b_items = pmath_expr_read_item_data(b);
 
   if(a_items != NULL && b_items != NULL) {
-    int cmp;
-
-    // compare heads
-    cmp = pmath_compare(ua->items[0], ub->items[0]);
-    if(cmp != 0)
-      return cmp;
-
     // compare arguments
-    for(i = 0; i < ua->length; ++i) {
+    for(i = 0; i < a_len; ++i) {
       cmp = pmath_compare(a_items[i], b_items[i]);
 
       if(cmp != 0)
@@ -2244,7 +2254,7 @@ static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
     }
   }
   else {
-    for(i = 0; i <= ua->length; ++i) {
+    for(i = 0; i <= a_len; ++i) {
       pmath_t itema = pmath_expr_get_item(a, i);
       pmath_t itemb = pmath_expr_get_item(b, i);
 
