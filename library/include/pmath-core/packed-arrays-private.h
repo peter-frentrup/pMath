@@ -12,6 +12,8 @@
 PMATH_PRIVATE
 pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type);
 
+PMATH_PRIVATE
+pmath_blob_t _pmath_packed_array_get_blob(pmath_packed_array_t array);
 
 PMATH_PRIVATE 
 PMATH_ATTRIBUTE_PURE 

@@ -1129,6 +1129,17 @@ pmath_t _pmath_packed_element_unbox(const void *data, pmath_packed_type_t type) 
 }
 
 PMATH_PRIVATE
+pmath_blob_t _pmath_packed_array_get_blob(pmath_packed_array_t array) {
+  struct _pmath_packed_array_t *_array;
+  
+  if(PMATH_UNLIKELY(pmath_is_null(array)))
+    return PMATH_NULL;
+  
+  _array = (void *)PMATH_AS_PTR(array);
+  return pmath_ref(PMATH_FROM_PTR(_array->blob));
+}
+
+PMATH_PRIVATE
 PMATH_ATTRIBUTE_PURE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t _pmath_packed_array_get_item(
@@ -1468,7 +1479,7 @@ pmath_expr_t _pmath_packed_array_set_item(
     return array;
   }
   
-  pmath_debug_print_object("[unpack array: List expected, but ", item, " given]\n");
+  pmath_debug_print_object("[unpack array: ", item, " given]\n");
   
   return pmath_expr_set_item(
       _pmath_expr_unpack_array(array, FALSE),
