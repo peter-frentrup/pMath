@@ -198,9 +198,19 @@ Expr PointBox::to_pmath(BoxOutputFlags flags) {
     return _uncompressed_expr;
     
   Expr data = _uncompressed_expr[1];
-  size_t size = pmath_object_bytecount(data.get());
+  bool should_compress = false;
+  if(data[0] == richmath_System_List && data.expr_length() > 1) {
+    if(data.is_packed_array() && pmath_packed_array_get_element_type(data.get()) == PMATH_PACKED_DOUBLE) {
+      should_compress = true;
+    }
+  }
   
-  if(size > 4096) {
+  if(!should_compress) {
+    size_t size = pmath_object_bytecount(data.get());
+    should_compress = size > 4096;
+  }
+  
+  if(should_compress) {
     data = Call(
       Symbol(richmath_System_CompressedData), 
       Expr{ pmath_compress_to_string(data.release()) });
