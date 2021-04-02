@@ -60,6 +60,7 @@ extern pmath_symbol_t pmath_System_AssignDelayed;
 extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BaseForm;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_ColonForm;
 extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_ComplexInfinity;
 extern pmath_symbol_t pmath_System_Condition;
@@ -2818,6 +2819,28 @@ static void write_expr_ex(
       pmath_unref(item);
     }
 
+    if(priority > PMATH_PREC_REL)
+      WRITE_CSTR(")");
+  }
+  else if(pmath_same(head, pmath_System_ColonForm)) {
+    pmath_t item;
+
+    if(exprlen != 2)
+      goto FULLFORM;
+
+    if(priority > PMATH_PREC_REL)
+      WRITE_CSTR("(");
+    
+    item = pmath_expr_get_item(expr, 1);
+    write_ex(info, PMATH_PREC_REL + 1, item);
+    pmath_unref(item);
+    
+    WRITE_CSTR(": ");
+
+    item = pmath_expr_get_item(expr, 2);
+    write_ex(info, PMATH_PREC_REL, item);
+    pmath_unref(item);
+    
     if(priority > PMATH_PREC_REL)
       WRITE_CSTR(")");
   }

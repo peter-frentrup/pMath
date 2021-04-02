@@ -74,6 +74,7 @@
 {"Clock", {"ArgumentCount" -> 0..3}},
 {"Close", {"ArgumentCount" -> 1}},
 {"Colon", {"ArgumentCount" -> 2..}},
+{"ColonForm", {"ArgumentCount" -> 2}},
 {"Column", {"ArgumentCount" -> 1}},
 {"Complement", {"ArgumentCount" -> 1..}},
 {"Complex", {"ArgumentCount" -> 2}},

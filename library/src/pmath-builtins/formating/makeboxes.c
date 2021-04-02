@@ -50,6 +50,7 @@ extern pmath_symbol_t pmath_System_ButtonBox;
 extern pmath_symbol_t pmath_System_CircleTimes;
 extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_ColonForm;
 extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_Complex;
@@ -845,6 +846,10 @@ static pmath_t simple_binary(pmath_symbol_t head, int *leftprec, int *rightprec,
     
     if(pmath_same(head, pmath_System_Rule))           RET_ST_R("->", PMATH_PREC_RULE);
     if(pmath_same(head, pmath_System_RuleDelayed))    RET_ST_R(":>", PMATH_PREC_RULE);
+  }
+  
+  if(boxform < BOXFORM_INPUT) {
+    if(pmath_same(head, pmath_System_ColonForm)) RET_ST_L(": ", PMATH_PREC_REL);
   }
   
   {
