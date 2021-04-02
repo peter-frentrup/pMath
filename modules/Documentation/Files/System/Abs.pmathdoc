@@ -1,0 +1,117 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Abs", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Abs"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         "Mathematical function suitable for numeric and symbolic \
+         computations.", "Notes"), 
+        Section(TextData({"For certain special arguments, ", 
+           TemplateBox({"Abs"}, "ReferenceHyperlink"), 
+           " automatically evaluates to exact values."}), "Notes"), 
+        Section(TextData({TemplateBox({"Abs"}, "ReferenceHyperlink"), 
+           " can be evaluated to arbitrary numerical precision."}), "Notes"), 
+        Section(TextData({TemplateBox({"Abs"}, "ReferenceHyperlink"), 
+           " automatically threads over lists."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({Section(BoxData({"Abs", "(", {"-", "3"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("3"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Absolute value of a complex number:", "ExampleText"), 
+          SectionGroup({Section(BoxData({"Abs", "(", {"1", "+", "I"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(SqrtBox("2")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Make a plot of the absulute value function on an interval:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Plot", "(", {{"Abs", "(", "x", ")"}, ",", {
+                 "x", "\[Rule]", {{"-", "2"}, "..", "2"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(GraphicsBox({
+                {RGBColor(0.75`, 0, 0), {
+                  LineBox(CompressedData(
+                    "1:c$,I(ze,(D7>2{krHDu<L4uS[B)t_WA}gSGNWKuPjaExZMMOlT=-,k=\
+                    UAj6thy>[-QTi815r^U@{S#bTupmgcZVp,(+J3)I@A5wH!_DR7obRAeTmk\
+                    x!^_1Vf-,U;ltj[-l?BYQM$O,sccs9@@_Qz@G>a=smo,hbpXHu?yvnQcX>\
+                    ,^[3&1Y[flTZ}Ut-t)mo,i>DKj=F*>,5qz{iyAdJqi8AEJOKN>sJmSl+]Y\
+                    TJ>dYtfci_V#]eU-q,vf2YL^2D74==MdmKP,Y<@,UHU}&[%@0d,#{q<@,4\
+                    OpY4j};_Yf_sWKo]MVEp?m&2*c(#q*ghA@XY)tsU;2}jF,{o{#9@QVbuLA\
+                    If(OsI>y{D$flnM)G_{l0xrIIPNC*+ztEQwV8Z=N{b&L_ci+-QB*3JvzNL\
+                    #!fGP7oTlyyxpl&}1O-X=;,F,8P1ZbMC*rq4IwE00hqy(5TU$sL,fR_0uH\
+                    UtSUXVa70&?LaT,nC^Q0=!ng?L(OWZ,AMk5GO!ec7NYzJ,#&!5Bz>aVoB^\
+                    bze}x=7JKOTE)pwZKl>ex#H!fuexD<;Ciec1J{0*EYz8]$"))}}}, 
+               AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+               Axes -> True, PlotRange -> NCache({-2 .. 2, 0 .. 2.0`}, {
+                  -2.0` .. 2.0`, 0.0` .. 2.0`}))), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Evaluate numerically:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"Abs", "(", {"1.0", "-", "I"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("1.4142135623730949`"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Evaluate to arbitrary precision:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"N", "(", {{"Abs", "(", {"1", "-", "I"}, ")"}, 
+                ",", "30"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              "1.41421356237309504880168872420969807856967187537694807317668[+\
+              /-1.00*^-60]`60"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Abs"}, "ReferenceHyperlink"), 
+             " threads over lists and matrices:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"Abs", "(", {
+                "{", {{"-", "2"}, ",", "I", ",", "1", ",", "0", ",", {
+                  {"-", "6"}, "I"}}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"2", ",", "1", ",", "1", ",", "0", ",", 
+                "6"}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section("Basic transforms are automatically applied:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Abs", "(", {"2", "\[Pi]", " ", "x"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"2", "\[Pi]", " ", {"Abs", "(", "x", ")"}}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData({"Abs", "(", {"Abs", "(", "x", ")"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData({"Abs", "(", "x", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({Section(BoxData({"Abs", "(", {"I", " ", "x"}, ")"}), 
+           "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData({"Abs", "(", "x", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"AbsArg"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Arg"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Sign"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Complex"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"I"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
