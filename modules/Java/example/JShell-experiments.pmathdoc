@@ -224,7 +224,7 @@ Document({
               "RawBoxes", "@", {"ButtonBox", "(", {
                 {"MakeBoxes", "(", {"Short", "(", "errbox", ")"}, ")"}, ",", {
                  "ButtonFunction", "\[Rule]", {
-                  "Developer`DebugInfoOpenerFunction", "(", {
+                  "Developer`SourceLocationOpenerFunction", "(", {
                    "Developer`GetDebugInfo", "(", "errbox", ")"}, ")"}}, ",", {
                  "ButtonFrame", "\[Rule]", 
                  ComplexStringBox("\"Frameless\"")}}, ")"}}}, ")"}, ";", 

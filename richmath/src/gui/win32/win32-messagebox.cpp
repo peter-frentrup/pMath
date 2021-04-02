@@ -21,7 +21,7 @@ extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Dialog;
 extern pmath_symbol_t richmath_System_Function;
 extern pmath_symbol_t richmath_System_List;
-extern pmath_symbol_t richmath_Developer_DebugInfoOpenerFunction;
+extern pmath_symbol_t richmath_Developer_SourceLocationOpenerFunction;
 extern pmath_symbol_t richmath_FE_CallFrontEnd;
 extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_FrontEnd_SystemOpenDirectory;
@@ -262,7 +262,7 @@ Expr richmath::win32_ask_interrupt(Expr stack) {
       bool have_link = false;
       Expr location {};
       if(frame.try_lookup(strings::Location, location)) {
-        location = Application::interrupt_wait(Call(Symbol(richmath_Developer_DebugInfoOpenerFunction), std::move(location)));
+        location = Application::interrupt_wait(Call(Symbol(richmath_Developer_SourceLocationOpenerFunction), std::move(location)));
         
         if(location[0] == richmath_System_Function) {
           if(location.expr_length() == 1)

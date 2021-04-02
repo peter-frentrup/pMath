@@ -25,10 +25,10 @@ SetAttributes($PageWidth, ThreadLocal)
 
 
 
-Unprotect(Developer`DebugInfoOpenerFunction)
-Developer`DebugInfoOpenerFunction(src: Language`SourceLocation(~:FrontEndObject, ~:Range))::= 
+Unprotect(Developer`SourceLocationOpenerFunction)
+Developer`SourceLocationOpenerFunction(src: Language`SourceLocation(~:FrontEndObject, ~:Range))::= 
 	Function(SetSelectedDocument(Automatic, src))
-Protect(Developer`DebugInfoOpenerFunction)
+Protect(Developer`SourceLocationOpenerFunction)
 
 
 If(Length($CommandLine) > 1 && StringMatch($CommandLine[2], ~~~ ++ ".png" ++ EndOfString)) {

@@ -18,7 +18,7 @@ toNiceInfo(Language`SourceLocation(~file, ~s .. ~e))::=
 toNiceInfo(~x)::= x
 
 Function wrapHyperlinkBox(~content, ~source) {
-	With(func := DebugInfoOpenerFunction(source))
+	With(func := SourceLocationOpenerFunction(source))
 	If(func === None) {
 		Return( content )
 	}
