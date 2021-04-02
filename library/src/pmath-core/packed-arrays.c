@@ -29,6 +29,9 @@ static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
 #endif
 
 
+#define PMATH_PACKED_ARRAY_FLAG_NO_PUNPACK_MESSAGE   0x01
+
+
 extern pmath_symbol_t pmath_System_Integer;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Real;
@@ -225,6 +228,7 @@ struct _pmath_packed_array_t {
   uint8_t                   element_type;
   uint8_t                   dimensions;
   uint8_t                   non_continuous_dimensions_count;
+  pmath_atomic_uint8_t      flags8;
   
   pmath_atomic_uint32_t     cached_hash;
   
@@ -248,6 +252,7 @@ static void destroy_packed_array(pmath_t a) {
 static void reset_packed_array_caches(struct _pmath_packed_array_t *arr) {
   pmath_atomic_write_uint8_release(&arr->inherited.flags8, 0);
   pmath_atomic_write_uint16_release(&arr->inherited.flags16, 0);
+  pmath_atomic_write_uint8_release(&arr->flags8, 0);
   pmath_atomic_write_uint32_release(&arr->cached_hash, 0);
 }
 
@@ -1494,7 +1499,7 @@ pmath_expr_t _pmath_packed_array_set_item(
 // array won't be freed.
 static void unpack_array_message(pmath_packed_array_t array){
   pmath_t caller = pmath_current_head();
-  pmath_t dimensions = _pmath_dimensions(array, SIZE_MAX);
+  pmath_t dimensions = _pmath_dimensions(array, SIZE_MAX);  
   
   if(pmath_is_symbol(caller)) {
     pmath_message(pmath_Developer_FromPackedArray, "punpack", 2, caller, dimensions);
@@ -1519,8 +1524,10 @@ pmath_expr_t unpack_array(pmath_packed_array_t array, pmath_bool_t recursive, pm
   
   length = ARRAY_SIZES(_array)[0];
   
-  if(!quiet)
-    unpack_array_message(array);
+  if(!quiet) {
+    if(0 == (pmath_atomic_read_uint8_aquire(&_array->flags8) & PMATH_PACKED_ARRAY_FLAG_NO_PUNPACK_MESSAGE))
+      unpack_array_message(array);
+  }
   
   expr = _pmath_expr_new_noinit(length);
   if(PMATH_UNLIKELY(expr == NULL)) {
@@ -1529,9 +1536,18 @@ pmath_expr_t unpack_array(pmath_packed_array_t array, pmath_bool_t recursive, pm
   }
   
   expr->items[0] = pmath_ref(pmath_System_List);
-  for(i = 1; i <= length; ++i)
+  for(i = 1; i <= length; ++i) 
     expr->items[i] = _pmath_packed_array_get_item(array, i);
-    
+  
+  if(_array->dimensions > 1) {
+    for(i = 1; i <= length; ++i) {
+      if(pmath_is_packed_array(expr->items[i])) { // could be PMATH_NULL on error
+        struct _pmath_packed_array_t *subarr = (void*)PMATH_AS_PTR(expr->items[i]);
+        pmath_atomic_or_uint8(&subarr->flags8, PMATH_PACKED_ARRAY_FLAG_NO_PUNPACK_MESSAGE);
+      }
+    }
+  }
+  
   if(recursive && _array->dimensions > 1) {
     // items are all packed arrays (or PMATH_NULL on error)
     
