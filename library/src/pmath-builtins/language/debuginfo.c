@@ -20,11 +20,15 @@ PMATH_PRIVATE pmath_t builtin_developer_getdebuginfo(pmath_expr_t expr) {
   for(i = 2; i <= exprlen; ++i) {
     pmath_t index = pmath_expr_get_item(expr, i);
     
-    if( pmath_is_int32(index) &&
-        PMATH_AS_INT32(index) >= 0 &&
-        pmath_is_expr(obj))
-    {
-      pmath_t tmp = pmath_expr_get_item(obj, (size_t)PMATH_AS_INT32(index));
+    if(pmath_is_int32(index) && pmath_is_expr(obj)) {
+      pmath_t tmp;
+      size_t k;
+      if(PMATH_AS_INT32(index) >= 0)
+        k = (size_t)PMATH_AS_INT32(index);
+      else
+        k = pmath_expr_length(obj) + (size_t)PMATH_AS_INT32(index);
+      
+      tmp = pmath_expr_get_item(obj, k);
       pmath_unref(obj);
       
       obj = tmp;
