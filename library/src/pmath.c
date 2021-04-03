@@ -101,6 +101,7 @@ extern pmath_symbol_t pmath_System_DollarMachineID;
 extern pmath_symbol_t pmath_System_DollarMachinePrecision;
 extern pmath_symbol_t pmath_System_DollarMaxExtraPrecision;
 extern pmath_symbol_t pmath_System_DollarMaxMachineNumber;
+extern pmath_symbol_t pmath_System_DollarMessagePrePrint;
 extern pmath_symbol_t pmath_System_DollarMinMachineNumber;
 extern pmath_symbol_t pmath_System_DollarNamespace;
 extern pmath_symbol_t pmath_System_DollarNamespacePath;
@@ -144,6 +145,7 @@ extern pmath_symbol_t pmath_System_BoxForm_DollarUseTextFormatting;
 
 extern pmath_symbol_t pmath_Developer_DollarSystemInformation;
 
+extern pmath_symbol_t pmath_Internal_DollarMessageFormatter;
 extern pmath_symbol_t pmath_Internal_DollarNamespacePathStack;
 extern pmath_symbol_t pmath_Internal_DollarNamespaceStack;
 extern pmath_symbol_t pmath_Internal_GetCurrentDirectory;
@@ -921,6 +923,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     }
     
     { // initialize runs ...
+      pmath_symbol_set_value(pmath_Internal_DollarMessageFormatter, pmath_ref(pmath_System_Automatic));
+      
       init_machine_process_session_ids();
       pmath_symbol_set_value(pmath_System_DollarApplicationFileName,  get_exe_name());
       

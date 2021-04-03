@@ -10,9 +10,18 @@
 
 #include <pmath-builtins/all-symbols-private.h>
 
+#include <limits.h>
+#include <stdio.h>
+
+#ifdef _MSC_VER
+#  define snprintf sprintf_s
+#endif
+
 
 extern pmath_symbol_t pmath_System_DollarMessageCount;
-extern pmath_symbol_t pmath_System_Colon;
+extern pmath_symbol_t pmath_System_DollarMessagePrePrint;
+extern pmath_symbol_t pmath_System_Automatic;
+extern pmath_symbol_t pmath_System_ColonForm;
 extern pmath_symbol_t pmath_System_General;
 extern pmath_symbol_t pmath_System_HoldForm;
 extern pmath_symbol_t pmath_System_Increment;
@@ -23,6 +32,7 @@ extern pmath_symbol_t pmath_System_On;
 extern pmath_symbol_t pmath_System_Row;
 extern pmath_symbol_t pmath_System_SectionPrint;
 extern pmath_symbol_t pmath_System_StringForm;
+extern pmath_symbol_t pmath_Internal_DollarMessageFormatter;
 extern pmath_symbol_t pmath_Internal_CriticalMessageTag;
 
 static const int max_message_count = 3;
@@ -93,16 +103,18 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   /* Message(symbol::tag, arg1, arg2, ...)
    */
   pmath_t name;
+  pmath_t head;
   pmath_string_t text;
   pmath_bool_t stop_msg = FALSE;
   pmath_thread_t thread = pmath_thread_get_current();
   intptr_t old_dynamic_id;
+  size_t exprlen = pmath_expr_length(expr);
 
   if(!thread)
     return expr;
 
-  if(pmath_expr_length(expr) < 1) {
-    pmath_message_argxxx(pmath_expr_length(expr), 1, SIZE_MAX);
+  if(exprlen < 1) {
+    pmath_message_argxxx(exprlen, 1, SIZE_MAX);
     return expr;
   }
   
@@ -166,49 +178,48 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
     return PMATH_NULL;
   }
   
-  pmath_gather_begin(PMATH_NULL);
-  
-//  pmath_emit(
-//    pmath_expr_new_extended(
-//      pmath_ref(pmath_System_HoldForm), 1,
-//      pmath_ref(name)),
-//    PMATH_NULL);
-//
-//  pmath_emit(PMATH_C_STRING(": "), PMATH_NULL);
-
-  if(!pmath_is_null(text)) {
-    expr = pmath_expr_set_item(
-             expr, 0,
-             pmath_ref(pmath_System_StringForm));
-             
-    expr = pmath_expr_set_item(expr, 1, text);
+  if(pmath_is_null(text)) {
+    text = PMATH_C_STRING("-- Message text not found --");
     
-    pmath_emit(expr, PMATH_NULL);
-  }
-  else {
-    pmath_emit(PMATH_C_STRING("-- Message text not found --"), PMATH_NULL);
-    
-    if(pmath_expr_length(expr) > 1) {
+    if(exprlen > 1) {
       size_t i;
       
-      pmath_emit(PMATH_C_STRING(" ("), PMATH_NULL);
-      pmath_emit(pmath_expr_get_item(expr, 2), PMATH_NULL);
-      for(i = 3; i <= pmath_expr_length(expr); ++i) {
-        pmath_emit(PMATH_C_STRING(","), PMATH_NULL);
-        pmath_emit(pmath_expr_get_item(expr, i), PMATH_NULL);
+      text = pmath_string_insert_latin1(text, INT_MAX, " (`1`", 5);
+      
+      for(i = 3; i <= exprlen; ++i) {
+        char buf[10];
+        snprintf(buf, sizeof(buf), ", `%d`", (int)i - 1);
+        text = pmath_string_insert_latin1(text, INT_MAX, buf, -1);
       }
-      pmath_emit(PMATH_C_STRING(")"), PMATH_NULL);
+      
+      text = pmath_string_insert_latin1(text, INT_MAX, ")", 1);
     }
-    
-    pmath_unref(expr);
   }
   
-  expr = pmath_gather_end();
+  expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_StringForm));
+  expr = pmath_expr_set_item(expr, 1, text);
+  
+  head = pmath_evaluate(pmath_ref(pmath_System_DollarMessagePrePrint));
+  if(!pmath_same(head, pmath_System_Automatic) && !pmath_same(head, pmath_System_DollarMessagePrePrint)) {
+    size_t i;
+    for(i = 2; i <= exprlen; ++i) {
+      expr = pmath_expr_set_item(
+               expr, i, 
+               pmath_expr_new_extended(
+                 pmath_ref(head), 1, 
+                 pmath_expr_extract_item(expr, i)));
+    }
+  }
+  pmath_unref(head);
+  
+  head = pmath_evaluate(pmath_ref(pmath_Internal_DollarMessageFormatter));
+  if(pmath_same(head, pmath_System_Automatic) || pmath_same(head, pmath_System_DollarMessagePrePrint)) {
+    pmath_unref(head);
+    head = pmath_ref(pmath_System_ColonForm);
+  }
+  
   expr = pmath_expr_new_extended(
-           pmath_ref(pmath_System_Row), 1,
-           expr);
-  expr = pmath_expr_new_extended(
-           pmath_ref(pmath_System_Colon), 2,
+           head, 2,
            pmath_expr_new_extended(
              pmath_ref(pmath_System_HoldForm), 1,
              pmath_ref(name)),
