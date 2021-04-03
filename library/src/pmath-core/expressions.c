@@ -2457,8 +2457,10 @@ static void write_ex(
     if(info->pre_write)
       info->pre_write(info->user, obj, info->options);
     
-    if(!info->custom_writer || !info->custom_writer(info->user, obj, info))
-      write_expr_ex(info, priority, obj);
+    if(!info->custom_writer || !info->custom_writer(info->user, obj, info)) {
+      if(!_pmath_write_user_format(info, obj))
+        write_expr_ex(info, priority, obj);
+    }
     
     if(info->post_write)
       info->post_write(info->user, obj, info->options);
