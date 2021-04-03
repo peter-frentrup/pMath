@@ -117,6 +117,9 @@ withDebugInfoOf(~result, ~boxes)::=
 		result.SetDebugInfoAt(debugInfo, 1))
 
 
+extendSourceLocationEnd(Language`SourceLocation(~name, ~from..~), Language`SourceLocation(~name, ~..~to))::= Language`SourceLocation(name, from..to)
+extendSourceLocationEnd(~main, ~)::= main
+
 Unprotect(System`Private`MakeJuxtapositionExpression)
 
 STARTBLOCK
@@ -130,7 +133,7 @@ composeHeldEvaluationSequence(h: HoldComplete(~))::= h
 composeHeldEvaluationSequence(h: HoldComplete(~~))::= composeHeldExpr(EvaluationSequence, h)
 
 finishBlock(~heldStatements: List)::= heldStatements.Replace(
-	BLOCK(~head, ~~~heldargs) :> composeHeldExpr(head, heldargs),
+	BLOCK(~debugInfo, ~head, ~~~heldargs) :> composeHeldExpr(head, heldargs).SetDebugInfoAt(debugInfo, 1),
 	1).Apply(HoldComplete).Flatten(1)
 
 makeBlockExpression()::= HoldComplete(/\/)
@@ -144,8 +147,10 @@ makeBlockExpression(~boxes)::=
 			},
 			If(Length(nonNullStmts) = 0, Return(HoldComplete(/\/)));
 			With({groupedStmts:= nonNullStmts.ReplaceRepeated(
-					{Longest(~~~pre), STARTBLOCK(~head, ~~~init), ~~~post} :> 
-						{pre, BLOCK(head, init, composeHeldEvaluationSequence({post}.finishBlock))},
+					{Longest(~~~pre), STARTBLOCK(~startDebugInfo, ~head, ~~~init), ~~~post} :> 
+						{pre, 
+							BLOCK(extendSourceLocationEnd(startDebugInfo, debugInfo), 
+								head, init, composeHeldEvaluationSequence({post}.finishBlock))},
 					0).finishBlock
 				},
 				
@@ -160,10 +165,10 @@ makeBlockExpression(~boxes)::=
 
 emitMakeStatements({}):= /\/
 emitMakeStatements({~boxes})::= emitMakeStatements(boxes)
-emitMakeStatements({"With", "(", ~vars, ")"})::= 
-	Emit @ STARTBLOCK(With, MakeExpression({"{", vars, "}"}))
-emitMakeStatements({"Local", "(", ~vars, ")"})::= 
-	Emit @ STARTBLOCK(Local, MakeExpression({"{", vars, "}"}))
+emitMakeStatements(box: {"With", "(", ~vars, ")"})::= 
+	Emit @ STARTBLOCK(GetDebugInfo(box), With, MakeExpression({"{", vars, "}"}).withDebugInfoOf(vars))
+emitMakeStatements(box: {"Local", "(", ~vars, ")"})::= 
+	Emit @ STARTBLOCK(GetDebugInfo(box), Local, MakeExpression({"{", vars, "}"}).withDebugInfoOf(vars))
 emitMakeStatements(stmts: {~~~, ";" | "\[RawNewline]", ~~~})::= stmts.Map(emitMakeStatements)
 emitMakeStatements(";")::= Emit @ HoldComplete(/\/)
 emitMakeStatements("\[RawNewline]")::= /\/
