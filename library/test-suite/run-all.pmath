@@ -121,12 +121,14 @@ AssertHead(~~~args) /? IsValidArgumentCount(AssertHead, Length @ HoldComplete(ar
 
 Off(General::stop)
 
-defaultMessageFormat:= Internal`$MessageFormat
-If(defaultMessageFormat === Automatic || HoldComplete @@ {defaultMessageFormat} === HoldComplete(Internal`$MessageFormat)) {
-	defaultMessageFormat:= ColonForm
+defaultMessageFormatter:= Internal`$MessageFormatter
+If(defaultMessageFormatter === Automatic || HoldComplete @@ {defaultMessageFormatter} === HoldComplete(Internal`$MessageFormatter)) {
+	defaultMessageFormatter:= ColonForm
 }
 $canQuit:= True
-Internal`$MessageFormat:= Function(, $canQuit:= False; defaultMessageFormat(##))
+With(defaultMessageFormatter:= defaultMessageFormatter) {
+	Internal`$MessageFormatter:= Function(, $canQuit:= False; defaultMessageFormatter(##))
+}
 
 testFiles:= $Input.DirectoryName.ToFileName("tests").FileNames("*.pmath")
 
@@ -147,6 +149,6 @@ End();
 
 EndPackage();
 
-If($canQuit) {
+If(TestSuite`Private`$canQuit) {
 	Quit()
 }
