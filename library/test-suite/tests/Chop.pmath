@@ -1,7 +1,9 @@
 
-AssertEqual(Chop(10.0^-10), 0)
+AssertEqual(Chop(10.0^-9), 10.0^-9)
 
-AssertEqual(Chop(10^-10), 10^-10)
+AssertEqual(Chop(10.0^-11), 0)
+
+AssertEqual(Chop(10^-11), 10^-11)
 
 AssertEqual(Chop({-1.0, 0.0, 0.000001, -1.0*^-17}), {-1.0, 0, 0.000001, 0})
 
