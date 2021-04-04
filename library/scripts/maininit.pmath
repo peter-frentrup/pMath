@@ -51,9 +51,11 @@ AutoLoad(~heldall:Hold, ~file)::=
 				Local({success:= False}, 
 					(
 						AutoLoadContinue(heldall, ~hs):=.; 
-						AutoLoadFinish(heldall, heldsymbol, file);
-						success:= True;
-						Return(ReleaseHold @ heldsymbol)
+						Block({$Namespace:= $Namespace, $NamespacePath:= $NamespacePath},
+							AutoLoadFinish(heldall, heldsymbol, file);
+							success:= True;
+							Return(ReleaseHold @ heldsymbol)
+						)
 					).Finally(
 						% re-register if loading was aborted
 						If(!success, Clear @@ heldall; AutoLoad(heldall, file))
