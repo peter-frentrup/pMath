@@ -427,6 +427,22 @@ pmath_bool_t pmath_integer_fits_ui64(pmath_integer_t integer);
  */
 #define pmath_integer_fits_uiptr(integer)  PMATH_CONCAT(pmath_integer_fits_ui, PMATH_BITSIZE)(integer)
 
+/**\brief Check whether a pMath integer fits into an slong.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return TRUE iff the value is small enough.
+   \hideinitializer
+ */
+#define pmath_integer_fits_slong(integer) PMATH_CONCAT(pmath_integer_fits_si, PMATH_LONG_BITSIZE)(integer)
+
+/**\brief Check whether a pMath integer fits into an ulong.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return TRUE iff the value is small enough.
+   \hideinitializer
+ */
+#define pmath_integer_fits_ulong(integer) PMATH_CONCAT(pmath_integer_fits_ui, PMATH_LONG_BITSIZE)(integer)
+
 /**\brief Convert a pMath integer to a signed long int.
    \memberof pmath_integer_t
    \param integer A pMath integer. It wont be freed.
@@ -490,6 +506,26 @@ uint64_t pmath_integer_get_ui64(pmath_integer_t integer);
    \see pmath_integer_fits_uiptr
  */
 #define pmath_integer_get_uiptr  PMATH_CONCAT(pmath_integer_get_ui, PMATH_BITSIZE)
+
+/**\brief Convert a pMath integer to a slong.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return The integer's value if it fits.
+   \hideinitializer
+
+   \see pmath_integer_fits_slong
+ */
+#define pmath_integer_get_slong  PMATH_CONCAT(pmath_integer_get_si, PMATH_LONG_BITSIZE)
+
+/**\brief Convert a pMath integer to a ulong.
+   \memberof pmath_integer_t
+   \param integer A pMath integer. It wont be freed.
+   \return The integer's value if it fits.
+   \hideinitializer
+
+   \see pmath_integer_fits_ulong
+ */
+#define pmath_integer_get_ulong  PMATH_CONCAT(pmath_integer_get_ui, PMATH_LONG_BITSIZE)
 
 /**\brief Convert a pMath number to a double.
    \memberof pmath_number_t

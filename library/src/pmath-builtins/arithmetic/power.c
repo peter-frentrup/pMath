@@ -345,12 +345,24 @@ static pmath_t integer_root(const fmpz_t base, const ulong radix, const fmpz_t e
     }
     if(r > 0) {
       pmath_t factor;
+      pmath_t new_exp;
+      
       fmpz_mul_ui(tmp, reduced_exp, r);
-      factor = POW(
-                 _pmath_integer_from_fmpz(&factors->p[i]),
-                 pmath_rational_new(
-                   _pmath_integer_from_fmpz(tmp),
-                   pmath_integer_new_uiptr(radix)));
+      new_exp = pmath_rational_new(_pmath_integer_from_fmpz(tmp), pmath_integer_new_uiptr(radix));
+      if(!*any_simplifications) {
+        if(r > 1) {
+          *any_simplifications = TRUE;
+        }
+        else {
+          pmath_t new_exp_den = pmath_rational_denominator(new_exp);
+          if(pmath_integer_fits_ulong(new_exp_den) && pmath_integer_get_ulong(new_exp_den) != radix)
+            *any_simplifications = TRUE;
+          
+          pmath_unref(new_exp_den);
+        }
+      }
+      
+      factor = POW(_pmath_integer_from_fmpz(&factors->p[i]), new_exp);
       pmath_emit(factor, PMATH_NULL);
     }
   }
