@@ -119,6 +119,15 @@ Function AssertHead(~value, ~head) {
 AssertHead(~~~args) /? IsValidArgumentCount(AssertHead, Length @ HoldComplete(args), 2, 2)::= $Failed
 
 
+Off(General::stop)
+
+defaultMessageFormat:= Internal`$MessageFormat
+If(defaultMessageFormat === Automatic || HoldComplete @@ {defaultMessageFormat} === HoldComplete(Internal`$MessageFormat)) {
+	defaultMessageFormat:= ColonForm
+}
+$canQuit:= True
+Internal`$MessageFormat:= Function(, $canQuit:= False; defaultMessageFormat(##))
+
 testFiles:= $Input.DirectoryName.ToFileName("tests").FileNames("*.pmath")
 
 Do(i -> 1..Length(testFiles)) {
@@ -137,3 +146,7 @@ Do(i -> 1..Length(testFiles)) {
 End();
 
 EndPackage();
+
+If($canQuit) {
+	Quit()
+}
