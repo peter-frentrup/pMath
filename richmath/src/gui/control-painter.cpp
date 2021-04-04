@@ -115,24 +115,12 @@ void ControlPainter::calc_container_size(
     case ContainerType::TooltipWindow:
     case ContainerType::ListViewItem:
     case ContainerType::ListViewItemSelected: {
-        if(extents->ascent < canvas.get_font_size() * 0.75f)
-          extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
-          
-        if(extents->descent < canvas.get_font_size() * 0.25f)
-          extents->descent = canvas.get_font_size() * 0.25f;// - extents->descent;
-          
         extents->width +=   4.5;
         extents->ascent +=  2.25;
         extents->descent += 2.25;
       } break;
       
     case ContainerType::DefaultPushButton: {
-        if(extents->ascent < canvas.get_font_size() * 0.75f)
-          extents->ascent = canvas.get_font_size() * 0.75f;// - extents->ascent;
-          
-        if(extents->descent < canvas.get_font_size() * 0.25f)
-          extents->descent = canvas.get_font_size() * 0.25f;// - extents->descent;
-          
         extents->width +=   6.0;
         extents->ascent +=  3.0;
         extents->descent += 3.0;

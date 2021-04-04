@@ -486,10 +486,9 @@ void Win32ControlPainter::calc_container_size(
         extents->width = 0.75 * size.cx;
         
       if(extents->height() < 0.75 * size.cy) {
-        float axis = 0.4 * canvas.get_font_size();
-        
-        extents->ascent  = size.cy * 0.75 / 2 + axis;
-        extents->descent = size.cy * 0.75 - extents->ascent;
+        float extra = 0.75 * size.cy - extents->height();
+        extents->ascent  += 0.5f * extra;
+        extents->descent += 0.5f * extra;
       }
       
       if(type == ContainerType::TabBodyBackground) {
