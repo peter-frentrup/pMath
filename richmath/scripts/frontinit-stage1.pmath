@@ -114,6 +114,8 @@ AutoLoad(Hold(FE`FontDialog, FE`ColorDialog),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "dialogs.pmath"));
 AutoLoad(Hold(ShowDefinition), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "showdefinition.pmath"));
+AutoLoad(Hold(FE`MenuMessageFormatter),
+	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "menu-message-formatter.pmath"))
 AutoLoad(Hold(FE`Styles`MakeStyleDataBoxes, FE`Styles`$DefaultDisplayFunction, FE`Styles`$DefaultDisplayFunctionTooltip), 
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "styles.pmath"));
 
@@ -122,6 +124,7 @@ AutoLoad(Hold(FE`Graphics`DefaultAxesOrigin, FE`Graphics`DefaultTickBoxes),
 AutoLoad(Hold(FE`Import`FileNamesDropDescription, FE`Import`PasteFileNameContentBoxes),
 	ToFileName({$FrontEndDirectory, "auto", "frontend"}, "import.pmath"));
 
+Internal`$MessageFormatter::= FE`MenuMessageFormatter
 
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "autocompletion.pmath"))
 Get(ToFileName({$FrontEndDirectory, "auto", "frontend"}, "boxestotext.pmath"))

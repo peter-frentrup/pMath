@@ -1,0 +1,20 @@
+Begin("FE`")
+
+Begin("FE`Private`")
+
+Function FE`MenuMessageFormatter(~heldname,~msg){
+    With(stack:= Stack())
+
+    ColonForm(Row({
+        RawBoxes(TemplateBox({
+                MessageName -> heldname,
+                Message -> msg,
+                Stack -> stack[..-2]},
+            "MessageMenuButton")),
+        heldname}),
+        msg)
+}
+
+End()
+
+End()

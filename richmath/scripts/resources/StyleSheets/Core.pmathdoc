@@ -208,6 +208,26 @@ Document({
                {"\[LeftBracketingBar]", #1, "\[RightBracketingBar]"} &), 
              Tooltip -> Automatic})}, All), 
         SectionGroup({Section("Controls", "Subsubsection"), 
+          Section(StyleData("MessageMenuButton"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               ButtonBox("\[Ellipsis]", ContentPadding -> False, 
+                BaselinePosition -> Center -> Axis, 
+                ButtonFunction -> (
+                  CreateDocument({
+                    Section(
+                     BoxData(ToBoxes(CurrentValue({
+                         TemplateSlot, Key(MessageName)}))), "Section"), 
+                    Section(
+                     BoxData(ToBoxes(CurrentValue({
+                         TemplateSlot, Key(Message)}))), "Message"), 
+                    SectionGroup(
+                     Map(
+                      Reverse(Replace(CurrentValue({
+                          TemplateSlot, Key(Stack)}), $Failed -> {})), 
+                      Section(
+                        BoxData(ToBoxes(Developer`Private`stackEntryForm(
+                           #1))), "Output") &))}) &)) &)}), 
           Section(StyleData("OpenerView"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (

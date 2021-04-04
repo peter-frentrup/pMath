@@ -1,7 +1,7 @@
 
 BeginPackage("Developer`")
 
-Developer`PrintMessageOverload
+Developer`ConsoleMessageFormatter
 Developer`DescribeLocation
 Developer`PrintErrorDetails
 
@@ -12,33 +12,17 @@ Function nextErrorID() {
 	Synchronize({$errorID}, $errorID+= 1; $errorID)
 }
 
-$overloadMessagePrint:= False
-SetAttributes($overloadMessagePrint, ThreadLocal)
+Internal`$MessageFormatter := ConsoleMessageFormatter
 
-Unprotect(SectionPrint)
-SectionPrint("Message", ~expr) /? $overloadMessagePrint ::= 
-	Block({$overloadMessagePrint:= False},
-		PrintMessageOverload(expr)
-	)
-Protect(SectionPrint)
-
-
-Function PrintMessageOverload(~expr) {
-	% stack ends with {..., Block, With} where With comes from here and Block comes from
-	% the overloading/implementation of SectionPrint("Message", ~). So the stack outside 
-	% SectionPrint("Message", ~) is stack[..-3]
+Function ConsoleMessageFormatter(~heldname, ~msg) {
+ 	% stack ends with {..., With} where With comes from here
 	With(stack:= Stack())
 	With(eid:= nextErrorID())
 	PrintErrorDetails(eid)::=
-		Block({$overloadMessagePrint:= False},
-			SectionPrint("Message", Row @ {errorButton(eid), "\n", expr, "\n at ", stack[..-3].Reverse.Map(stackEntryForm).Row("\n at ")})
-		)
-	SectionPrint("Message", Row @ {expr, " ", errorButton(eid)})
+		SectionPrint("Message", Row @ {errorButton(eid), "\n", ColonForm(heldname, msg), "\n at ", stack[..-2].Reverse.Map(stackEntryForm).Row("\n at ")})
+	
+	ColonForm(heldname, Row({msg, errorButton(eid)}, " "))
 }
-
-Protect(PrintMessageOverload)
-
-$overloadMessagePrint:= True
 
 errorButton(~eid)::= Row @ {"[",eid,"]"}
 
@@ -55,7 +39,7 @@ Function stackEntryForm(OptionsPattern()) {
 }
 
 Unprotect(Language`SourceLocation)
-Format(~di:Language`SourceLocation)::= With({fmt:= DescribeLocation(di)}, fmt /? fmt =!= $Failed )
+Format(~src:Language`SourceLocation)::= With({fmt:= DescribeLocation(src)}, fmt /? fmt =!= $Failed )
 Protect(Language`SourceLocation)
 
 
@@ -65,13 +49,15 @@ Function DescribeLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {
+	With(pathElements:= FileNameSplit(filename))
+	With(fileDesc:= If(Length(pathElements) >= 2, StringForm("`1` (`2`)", pathElements[-1], ToFileName(pathElements[..-2])), filename))
 	If(fromLine === toLine) {
 		If(fromColumn === toColumn) {
-			Return( Row @ {"line ", fromLine, ":", fromColumn, " of ", filename} )
+			Return( StringForm("line `1`:`2` of `3`", fromLine, fromColumn, fileDesc) )
 		}
-		Return( Row @ {"line ", fromLine, ": ", fromColumn, "..", toColumn, " of ", filename} )
+		Return( StringForm("line `1`: `2`..`3` of `4`", fromLine, fromColumn, toColumn, fileDesc) )
 	}
-	Return( Row @ {"lines ", fromLine, ":", fromColumn, " .. ", toLine, ":", toColumn, " of ", filename} )
+	Return( StringForm("lines `1`:`2` .. `3`:`4` of `5`", fromLine, fromColumn, toLine, toColumn, fileDesc) )
 }
 
 
