@@ -28,6 +28,55 @@ namespace richmath {
       int end;
   };
   
+  template<typename T> class ArrayView {
+    public:
+      using self_type = ArrayView<T>;
+      using value_type = T;
+      using iterator = value_type*;
+      using const_iterator = const value_type*;
+    
+    public:
+      explicit ArrayView(int length, T *items) : _items(items), _length(length) { ARRAY_ASSERT(length >= 0); }
+      
+      template<int N>
+      ArrayView(T items[N]) : _items(items), _length(N) {}
+      
+      int length() const { return _length; }
+      
+      iterator begin() { return iterator(_items); }
+      iterator end() {   return iterator(_items + _length); }
+      const_iterator begin() const { return const_iterator(_items); }
+      const_iterator end() const {   return const_iterator(_items + _length); }
+      
+      T &get(int i) const {
+        ARRAY_ASSERT(i >= 0);
+        ARRAY_ASSERT(i < _length);
+        return _items[i];
+      }
+      
+      template<class S>
+      T &set(int i, const S &t) {
+        ARRAY_ASSERT(i >= 0);
+        ARRAY_ASSERT(i < _length);
+        return _items[i] = t;
+      }
+      
+      T &set(int i, T &&t) {
+        ARRAY_ASSERT(i >= 0);
+        ARRAY_ASSERT(i < _length);
+        return _items[i] = std::move(t);
+      }
+      
+      T &operator[](int i) const { return get(i); }
+      
+      T *items() {             return _items; }
+      const T *items() const { return _items; }
+      
+    private:
+      T *_items;
+      int _length;
+  };
+  
   template<typename T> class Array {
     public:
       using self_type = Array<T>;
@@ -35,16 +84,23 @@ namespace richmath {
       using iterator = value_type*;
       using const_iterator = const value_type*;
     public:
-      Array(const Array &src)
-        : _length(src._length),
-        _capacity(best_capacity(src._length)),
+      Array(ArrayView<T> src)
+        : _length(src.length()),
+        _capacity(best_capacity(src.length())),
         _items(nullptr)
       {
         if(_length > 0)
           _items = new T[_capacity];
           
+        const T *src_items = src.items();
         for(int i = 0; i < _length; ++i)
-          _items[i] = src._items[i];
+          _items[i] = src_items[i];
+      }
+      
+      Array(const Array &src)
+        : _length{0}, _capacity{0}, _items{nullptr}
+      {
+        *this = ArrayView<const T>(src);
       }
       
       Array(Array &&src)
@@ -83,21 +139,24 @@ namespace richmath {
         return *this;
       }
       
+      Array &operator=(ArrayView<const T> other) {
+        length(other.length());
+        const T *other_items = other.items();
+        for(int i = 0; i < _length; ++i)
+          _items[i] = other_items[i];
+        return *this;
+      }
+      
+      operator       ArrayView<T>() {             return ArrayView<T>(      _length, _items); }
+      operator const ArrayView<const T>() const { return ArrayView<const T>(_length, _items); }
+      
       int length()   const { return _length;   }
       int capacity() const { return _capacity; }
       
-      iterator begin() {
-        return iterator(_items);
-      }
-      iterator end() {
-        return iterator(_items + _length);
-      }
-      const_iterator begin() const {
-        return const_iterator(_items);
-      }
-      const_iterator end() const {
-        return const_iterator(_items + _length);
-      }
+      iterator begin() { return iterator(_items); }
+      iterator end() {   return iterator(_items + _length); }
+      const_iterator begin() const { return const_iterator(_items); }
+      const_iterator end() const {   return const_iterator(_items + _length); }
       
       Array<T> &length(int newlen) {
         using std::swap;
@@ -131,16 +190,15 @@ namespace richmath {
         return *this;
       }
       
-      T &operator[](int i) const {
-        return get(i);
-      }
+      T &operator[](int i) const { return get(i); }
       
-//      const T &operator[](int i) const {
-//        return get(i);
-//      }
+//      const T &operator[](int i) const { return get(i); }
 
-      Array<T> operator[](const Range &range) const {
-        return Array<T>(range.end - range.start + 1, _items + range.start);
+      ArrayView<T> operator[](const Range &range) const {
+        ARRAY_ASSERT(range.start >= 0);
+        ARRAY_ASSERT(range.end < _length);
+        ARRAY_ASSERT(range.end - range.start + 1 >= 0);
+        return ArrayView<T>(range.end - range.start + 1, _items + range.start);
       }
       
 //      const T &get(int i) const {
@@ -183,12 +241,20 @@ namespace richmath {
         return *this;
       }
       
+//      template<class S>
+//      Array<T> &add(int inslen, const S *insitems) {
+//        ARRAY_ASSERT(inslen >= 0);
+//        length(_length + inslen);
+//        for(int i = 0; i < inslen; ++i)
+//          _items[_length - inslen + i] = insitems[i];
+//        return *this;
+//      }
+      
       template<class S>
-      Array<T> &add(int inslen, const S *insitems) {
-        ARRAY_ASSERT(inslen >= 0);
-        length(_length + inslen);
-        for(int i = 0; i < inslen; ++i)
-          _items[_length - inslen + i] = insitems[i];
+      Array<T> &add_all(ArrayView<S> ins) {
+        length(_length + ins.length());
+        for(int i = 0; i < ins.length(); ++i)
+          _items[_length - ins.length() + i] = ins[i];
         return *this;
       }
       
@@ -229,6 +295,11 @@ namespace richmath {
       }
       
       template<class S>
+      Array<T> &insert(int start, ArrayView<S> ins) {
+        return insert(start, ins.length(), ins.items());
+      }
+      
+      template<class S>
       Array<T> &insert_swap(int start, int inslen, S *insitems) {
         using std::swap;
         
@@ -266,7 +337,7 @@ namespace richmath {
         return remove(range.start, range.end -  range.start + 1);
       }
       
-      T *items() {              return _items; }
+      T *items() {             return _items; }
       const T *items() const { return _items; }
       
       static int best_capacity(int min) {

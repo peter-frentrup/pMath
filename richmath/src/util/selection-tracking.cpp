@@ -615,19 +615,19 @@ namespace {
 
 static bool begin_edit_section(
   Section *section, 
-  const Array<LocationReference> &old_locations,
+  ArrayView<const LocationReference> old_locations,
   Hashtable<LocationReference, SelectionReference> &found_locations);
   
 static bool finish_edit_section(
   EditSection *edit, 
-  const Array<LocationReference> &old_locations,
+  ArrayView<const LocationReference> old_locations,
   Hashtable<LocationReference, SelectionReference> &found_locations);
 
 static void mask_box_chars(String &string);
   
 bool richmath::toggle_edit_section(
   Section *section, 
-  const Array<LocationReference> &old_locations,
+  ArrayView<const LocationReference> old_locations,
   Hashtable<LocationReference, SelectionReference> &found_locations
 ) {
   if(auto edit = dynamic_cast<EditSection*>(section))
@@ -640,7 +640,7 @@ bool richmath::toggle_edit_section(
 
 static bool begin_edit_section(
   Section *section, 
-  const Array<LocationReference> &old_locations,
+  ArrayView<const LocationReference> old_locations,
   Hashtable<LocationReference, SelectionReference> &found_locations
 ) {
   SectionList *parent = dynamic_cast<SectionList*>(section->parent());
@@ -658,7 +658,7 @@ static bool begin_edit_section(
   Expr obj(section->to_pmath(BoxOutputFlags::WithDebugInfo));
   
   PrintTracking pt;
-  pt.selections.add(old_locations.length(), old_locations.items());
+  pt.selections.add_all(old_locations);
   
   pt.write(obj, 
            PMATH_WRITE_OPTIONS_FULLSTR | 
@@ -682,7 +682,7 @@ static bool begin_edit_section(
   
 static bool finish_edit_section(
   EditSection *edit, 
-  const Array<LocationReference> &old_locations,
+  ArrayView<const LocationReference> old_locations,
   Hashtable<LocationReference, SelectionReference> &found_locations
 ) {
   SectionList *parent = dynamic_cast<SectionList*>(edit->parent());
@@ -698,7 +698,7 @@ static bool finish_edit_section(
   
   BoxTracking bt;
   
-  bt.selections.add(old_locations.length(), old_locations.items());
+  bt.selections.add_all(old_locations);
   
   bt.for_new_boxes_in([&] {
     Section *sect = edit->original;

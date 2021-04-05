@@ -10,7 +10,7 @@ namespace richmath {
   
   bool toggle_edit_section(
     Section *section, 
-    const Array<LocationReference> &old_locations,
+    ArrayView<const LocationReference> old_locations,
     Hashtable<LocationReference, SelectionReference> &found_locations);
 }
 
