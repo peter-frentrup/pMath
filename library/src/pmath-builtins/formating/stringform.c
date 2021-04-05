@@ -211,27 +211,6 @@ pmath_bool_t _pmath_stringform_write(
   }
   
   data.formated_params = pmath_expr_get_item_range(stringform, 2, SIZE_MAX);
-  
-  for(i = 1; i <= pmath_expr_length(data.formated_params); ++i) {
-    pmath_t item = pmath_expr_get_item(data.formated_params, i);
-    pmath_string_t str = PMATH_NULL;
-    
-    pmath_write(
-      item,
-      info->options,
-      _pmath_write_to_string,
-      &str);
-      
-    pmath_unref(item);
-    
-    if(pmath_is_null(str))
-      str = pmath_string_new(0);
-      
-    data.formated_params = pmath_expr_set_item(
-                             data.formated_params, i,
-                             str);
-  }
-  
   data.current_param = 1;
   
   result = string_form(format, &data);
