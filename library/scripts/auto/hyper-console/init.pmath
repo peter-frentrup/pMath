@@ -1,12 +1,14 @@
 
 BeginPackage("System`Con`")
 
-$HaveHyperlinks:= True
-
 PrintWelcomeMessage
 PrintHelpMessage
 
 Begin("System`Con`Private`")
+
+Unprotect($HyperlinksSupported)
+$HyperlinksSupported:= True
+Protect($HyperlinksSupported)
 
 Unprotect(ShowDefinition)
 Function ShowDefinition(~s:String) {
@@ -15,28 +17,6 @@ Function ShowDefinition(~s:String) {
 }
 Protect(ShowDefinition)
 
-
-Attributes($DescribeLocationOverload):= {ThreadLocal}
-$DescribeLocationOverload:= True
-
-Function Developer`DescribeLocation(
-	src: Language`SourceLocation(
-		~filename:String, 
-		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
-) Where($DescribeLocationOverload) {
-	Block({$DescribeLocationOverload:= False}, 
-	Block {
-		With(label:= Developer`DescribeLocation(src))
-		With(func:= Developer`SourceLocationOpenerFunction(src))
-		
-		If(func =!= None) {
-			Return(Button(label, func()).Replace(HoldPattern(Function(~body)()) :> body))
-		}
-		Return(label)
-	})
-}
-
-Developer`Private`errorButton(~eid)::= Button(Row @ {"[",eid,"]"}, Developer`PrintErrorDetails(eid))
 
 Function PrintWelcomeMessage() {
     Print("Welcome to pMath.");

@@ -93,6 +93,7 @@ extern pmath_symbol_t pmath_System_DollarCurrentDirectory;
 extern pmath_symbol_t pmath_System_DollarDialogLevel;
 extern pmath_symbol_t pmath_System_DollarDirectoryStack;
 extern pmath_symbol_t pmath_System_DollarHistoryLength;
+extern pmath_symbol_t pmath_System_DollarHyperlinksSupported;
 extern pmath_symbol_t pmath_System_DollarInitialDirectory;
 extern pmath_symbol_t pmath_System_DollarInput;
 extern pmath_symbol_t pmath_System_DollarLine;
@@ -923,7 +924,8 @@ PMATH_API pmath_bool_t pmath_init(void) {
     }
     
     { // initialize runs ...
-      pmath_symbol_set_value(pmath_Internal_DollarMessageFormatter, pmath_ref(pmath_System_Automatic));
+      pmath_symbol_set_value(pmath_System_DollarHyperlinksSupported, pmath_ref(pmath_System_False));
+      pmath_symbol_set_value(pmath_Internal_DollarMessageFormatter,    pmath_ref(pmath_System_Automatic));
       
       init_machine_process_session_ids();
       pmath_symbol_set_value(pmath_System_DollarApplicationFileName,  get_exe_name());

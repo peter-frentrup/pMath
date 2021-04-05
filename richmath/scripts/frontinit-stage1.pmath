@@ -31,6 +31,11 @@ Protect($PaletteSearchPath)
 $Path:= Prepend($Path, $FrontEndDirectory)
 
 
+Unprotect($HyperlinksSupported)
+$HyperlinksSupported:= True
+Protect($HyperlinksSupported)
+
+
 If($SystemID === "Windows") {
 	<<Windows`
 }

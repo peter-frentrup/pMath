@@ -24,7 +24,15 @@ Function ConsoleMessageFormatter(~heldname, ~msg) {
 	ColonForm(heldname, Row({msg, errorButton(eid)}, " "))
 }
 
-errorButton(~eid)::= Row @ {"[",eid,"]"}
+Function errorButton(~eid) {
+	With(label:= Row @ {"[",eid,"]"})
+
+	If($HyperlinksSupported) {
+		Button(label, Developer`PrintErrorDetails(eid), BaseStyle -> "Hyperlink")
+	} Else {
+		label
+	}
+}
 
 Options(stackEntryForm)::= {"Head" -> "?", "Location" -> None}
 Function stackEntryForm(OptionsPattern()) {
@@ -32,10 +40,9 @@ Function stackEntryForm(OptionsPattern()) {
 	With(location:= OptionValue("Location"))
 	
 	If(location === None) {
-		Return @ head
-	} Else {
-		Return @ Row @ {head, " in ", location}
+		Return( head )
 	}
+	Return( Row @ {head, " in ", location} )
 }
 
 Unprotect(Language`SourceLocation)
@@ -45,19 +52,24 @@ Protect(Language`SourceLocation)
 
 DescribeLocation(~expr)::= $Failed
 Function DescribeLocation(
-	Language`SourceLocation(
+	src: Language`SourceLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {
 	With(pathElements:= FileNameSplit(filename))
-	With(fileDesc:= If(Length(pathElements) >= 2, StringForm("`1` (`2`)", pathElements[-1], ToFileName(pathElements[..-2])), filename))
+	With(shortname:= If(Length(pathElements) >= 2, pathElements[-1], filename))
+	With(makeLongDesc:= If(Length(pathElements) >= 2, Function(StringForm("`1` (`2`)", #, ToFileName(pathElements[..-2]))), Identity))
+	With(func:= If($HyperlinksSupported, Developer`SourceLocationOpenerFunction(src), None))
+	
+	With(makeButton:= If(func =!= None, Function(Button(#, func(), BaseStyle->"Hyperlink")).Replace(HoldPattern(Function(~body)()) :> body), Identity))
+
 	If(fromLine === toLine) {
 		If(fromColumn === toColumn) {
-			Return( StringForm("line `1`:`2` of `3`", fromLine, fromColumn, fileDesc) )
+			Return( makeLongDesc @ makeButton @ StringForm("line `1`:`2` of `3`", fromLine, fromColumn, shortname) )
 		}
-		Return( StringForm("line `1`: `2`..`3` of `4`", fromLine, fromColumn, toColumn, fileDesc) )
+		Return( makeLongDesc @ makeButton @ StringForm("line `1`: `2`..`3` of `4`", fromLine, fromColumn, toColumn, shortname) )
 	}
-	Return( StringForm("lines `1`:`2` .. `3`:`4` of `5`", fromLine, fromColumn, toLine, toColumn, fileDesc) )
+	Return( makeLongDesc @ makeButton @ StringForm("lines `1`:`2` .. `3`:`4` of `5`", fromLine, fromColumn, toLine, toColumn, shortname) )
 }
 
 
