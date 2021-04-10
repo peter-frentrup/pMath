@@ -2,7 +2,9 @@
 #define RICHMATH__UTIL__ARRAY_H__INCLUDED
 
 #include <cassert>
+#include <cstddef>
 #include <cstring>
+#include <new>
 #include <utility>
 
 #define ARRAY_ASSERT(a) \
@@ -78,60 +80,64 @@ namespace richmath {
   };
   
   template<typename T> class Array {
+    private:
+      struct DataHeader {
+        int capacity;
+        int length;
+        T items[1];
+      };
     public:
       using self_type = Array<T>;
       using value_type = T;
       using iterator = value_type*;
       using const_iterator = const value_type*;
     public:
-      Array(ArrayView<T> src)
-        : _length(src.length()),
-        _capacity(best_capacity(src.length())),
-        _items(nullptr)
+      Array(ArrayView<const T> src)
+        : _items(nullptr)
       {
-        if(_length > 0)
-          _items = new T[_capacity];
+        if(src.length() > 0)
+          length(src.length());
           
         const T *src_items = src.items();
-        for(int i = 0; i < _length; ++i)
+        for(int i = 0; i < src.length(); ++i)
           _items[i] = src_items[i];
       }
       
       Array(const Array &src)
-        : _length{0}, _capacity{0}, _items{nullptr}
+        : _items{nullptr}
       {
         *this = ArrayView<const T>(src);
       }
       
       Array(Array &&src)
-        : _length{0}, _capacity{0}, _items{nullptr}
+        : _items{nullptr}
       {
         swap(*this, src);
       }
       
       explicit Array(int length = 0)
-        : _length(length),
-        _capacity(best_capacity(length)),
-        _items(nullptr)
+        : _items(nullptr)
       {
-        ARRAY_ASSERT(_length >= 0);
-        if(_capacity > 0)
-          _items = new T[(size_t)_capacity];
+        ARRAY_ASSERT(length >= 0);
+        if(length > 0) {
+          this->length(length);
+        }
       }
       
-      Array(int length, T *src)
-        : _length(length),
-        _capacity(best_capacity(length)),
-        _items(nullptr)
+      Array(int length, const T *src)
+        : _items(nullptr)
       {
-        ARRAY_ASSERT(_length >= 0);
-        if(_length > 0)
-          _items = new T[_capacity];
-        memcpy(_items, src, _length * sizeof(T));
+        ARRAY_ASSERT(length >= 0);
+        if(length > 0) {
+          this->length(length);
+          for(int i = 0; i < length; ++i)
+            _items[i] = src[i];
+        }
       }
       
       ~Array() {
-        delete[] _items;
+        if(_items)
+          deallocate(header());
       }
       
       Array &operator=(Array other) {
@@ -140,53 +146,67 @@ namespace richmath {
       }
       
       Array &operator=(ArrayView<const T> other) {
-        length(other.length());
         const T *other_items = other.items();
-        for(int i = 0; i < _length; ++i)
+        if((uintptr_t)_items < (uintptr_t)&other_items[other.length()] && (uintptr_t)other_items < (uintptr_t)&_items[length()]) {
+          *this = Array(other);
+          return *this;
+        }
+        
+        length(other.length());
+        for(int i = 0; i < other.length(); ++i)
           _items[i] = other_items[i];
         return *this;
       }
       
-      operator       ArrayView<T>() {             return ArrayView<T>(      _length, _items); }
-      operator const ArrayView<const T>() const { return ArrayView<const T>(_length, _items); }
+      operator       ArrayView<T>() {             return ArrayView<T>(      length(), _items); }
+      operator const ArrayView<const T>() const { return ArrayView<const T>(length(), _items); }
       
-      int length()   const { return _length;   }
-      int capacity() const { return _capacity; }
+      int length()   const { return _items ? header()->length : 0;   }
+      int capacity() const { return _items ? header()->capacity : 0; }
       
       iterator begin() { return iterator(_items); }
-      iterator end() {   return iterator(_items + _length); }
+      iterator end() {   return iterator(_items + length()); }
       const_iterator begin() const { return const_iterator(_items); }
-      const_iterator end() const {   return const_iterator(_items + _length); }
+      const_iterator end() const {   return const_iterator(_items + length()); }
       
       Array<T> &length(int newlen) {
         using std::swap;
         
         ARRAY_ASSERT(newlen >= 0);
-        if(newlen > _capacity) {
-          //while(newlen > _capacity)
-          //  _capacity*= 2;
-          _capacity = best_capacity(newlen);
-          T *newitems = new T[_capacity];
-          for(int i = 0; i < _length; ++i)
-            swap(newitems[i], _items[i]);
-            
-          delete[] _items;
-          _items = newitems;
+        if(newlen > capacity()) {
+          DataHeader *new_header = allocate(best_capacity(newlen));
+          ARRAY_ASSERT(new_header != nullptr);
+          
+          new_header->length = newlen;
+          int oldlen = length();
+          for(int i = 0; i < oldlen; ++i)
+            swap(new_header->items[i], _items[i]);
+          
+          deallocate(header());
+          _items = &new_header->items[0];
+          
+          ARRAY_ASSERT(header() == new_header);
+          ARRAY_ASSERT(length() == newlen);
         }
-        _length = newlen;
+        else if(auto head = header()) {
+          head->length = newlen;
+        }
+        else {
+          ARRAY_ASSERT(newlen == 0);
+        }
         return *this;
       }
       
       Array<T> &length(int newlen, const T &default_value) {
-        int oldlen = _length;
+        int oldlen = length();
         length(newlen);
-        for(int i = oldlen; i < _length; ++i)
+        for(int i = oldlen; i < length(); ++i)
           _items[i] = default_value;
         return *this;
       }
       
       Array<T> &zeromem() {
-        memset(_items, 0, _length * sizeof(T));
+        memset(_items, 0, length() * sizeof(T));
         return *this;
       }
       
@@ -196,78 +216,69 @@ namespace richmath {
 
       ArrayView<T> operator[](const Range &range) const {
         ARRAY_ASSERT(range.start >= 0);
-        ARRAY_ASSERT(range.end < _length);
+        ARRAY_ASSERT(range.end < length());
         ARRAY_ASSERT(range.end - range.start + 1 >= 0);
         return ArrayView<T>(range.end - range.start + 1, _items + range.start);
       }
       
 //      const T &get(int i) const {
 //        ARRAY_ASSERT(i >= 0);
-//        ARRAY_ASSERT(i < _length);
+//        ARRAY_ASSERT(i < length());
 //        return _items[i];
 //      }
 
       T &get(int i) const {
         ARRAY_ASSERT(i >= 0);
-        ARRAY_ASSERT(i < _length);
+        ARRAY_ASSERT(i < length());
         return _items[i];
       }
       
       template<class S>
       Array<T> &set(int i, const S &t) {
         ARRAY_ASSERT(i >= 0);
-        ARRAY_ASSERT(i < _length);
+        ARRAY_ASSERT(i < length());
         _items[i] = t;
         return *this;
       }
       
       Array<T> &set(int i, T &&t) {
         ARRAY_ASSERT(i >= 0);
-        ARRAY_ASSERT(i < _length);
+        ARRAY_ASSERT(i < length());
         _items[i] = std::move(t);
         return *this;
       }
       
       template<class S>
       Array<T> &add(const S &t) {
-        length(_length + 1);
-        _items[_length - 1] = t;
+        length(length() + 1);
+        _items[length() - 1] = t;
         return *this;
       }
       
       Array<T> &add(T &&t) {
-        length(_length + 1);
-        _items[_length - 1] = std::move(t);
+        length(length() + 1);
+        _items[length() - 1] = std::move(t);
         return *this;
       }
       
-//      template<class S>
-//      Array<T> &add(int inslen, const S *insitems) {
-//        ARRAY_ASSERT(inslen >= 0);
-//        length(_length + inslen);
-//        for(int i = 0; i < inslen; ++i)
-//          _items[_length - inslen + i] = insitems[i];
-//        return *this;
-//      }
-      
       template<class S>
       Array<T> &add_all(ArrayView<S> ins) {
-        length(_length + ins.length());
+        length(length() + ins.length());
         for(int i = 0; i < ins.length(); ++i)
-          _items[_length - ins.length() + i] = ins[i];
+          _items[length() - ins.length() + i] = ins[i];
         return *this;
       }
       
       Array<T> &insert(int start, int inslen) {
         ARRAY_ASSERT(start >= 0);
-        ARRAY_ASSERT(start <= _length);
+        ARRAY_ASSERT(start <= length());
         ARRAY_ASSERT(inslen >= 0);
         if(inslen == 0)
           return *this;
           
-        length(_length + inslen);
+        length(length() + inslen);
         
-        for(int i = _length - 1; i >= start + inslen; --i)
+        for(int i = length() - 1; i >= start + inslen; --i)
           _items[i] = _items[i - inslen];
           
         return *this;
@@ -278,14 +289,14 @@ namespace richmath {
         using std::swap;
         
         ARRAY_ASSERT(start >= 0);
-        ARRAY_ASSERT(start <= _length);
+        ARRAY_ASSERT(start <= length());
         ARRAY_ASSERT(inslen >= 0);
         if(inslen == 0)
           return *this;
           
-        length(_length + inslen);
+        length(length() + inslen);
         
-        for(int i = _length - 1; i >= start + inslen; --i)
+        for(int i = length() - 1; i >= start + inslen; --i)
           swap(_items[i], _items[i - inslen]);
           
         for(int i = 0; i < inslen; ++i)
@@ -304,14 +315,14 @@ namespace richmath {
         using std::swap;
         
         ARRAY_ASSERT(start >= 0);
-        ARRAY_ASSERT(start <= _length);
+        ARRAY_ASSERT(start <= length());
         ARRAY_ASSERT(inslen >= 0);
         if(inslen == 0)
           return *this;
           
-        length(_length + inslen);
+        length(length() + inslen);
         
-        for(int i = _length - 1; i >= start + inslen; --i)
+        for(int i = length() - 1; i >= start + inslen; --i)
           swap(_items[i], _items[i - inslen]);
           
         for(int i = 0; i < inslen; ++i)
@@ -325,12 +336,12 @@ namespace richmath {
         
         ARRAY_ASSERT(start >= 0);
         ARRAY_ASSERT(remlen >= 0);
-        ARRAY_ASSERT(start + remlen <= _length);
+        ARRAY_ASSERT(start + remlen <= length());
         
-        for(int i = start + remlen; i < _length; ++i)
+        for(int i = start + remlen; i < length(); ++i)
           swap(_items[i - remlen], _items[i]);
           
-        return length(_length - remlen);
+        return length(length() - remlen);
       }
       
       Array<T> &remove(const Range &range) {
@@ -343,23 +354,52 @@ namespace richmath {
       static int best_capacity(int min) {
         if(min <= 0)
           return 0;
+        
+        int header = offsetof(DataHeader, items) / sizeof(T);
+        
         int result = 1;
-        while(result < min)
+        while(result < header + min)
           result *= 2;
           
-        return result;
+        return result - header;
       }
       
       friend void swap(Array &left, Array &right) {
         using std::swap;
         
-        swap(left._length,   right._length);
-        swap(left._capacity, right._capacity);
-        swap(left._items,    right._items);
+        swap(left._items, right._items);
       }
+    
     private:
-      int  _length;
-      int  _capacity;
+      DataHeader *header() const { return _items ? (DataHeader*)((uintptr_t)(void*)_items - offsetof(DataHeader, items)) : nullptr; }
+      
+      static DataHeader *allocate(int capacity) {
+        ARRAY_ASSERT(capacity > 0);
+        if(auto header = (DataHeader*)malloc(offsetof(DataHeader, items) + sizeof(T) * capacity)) {
+          header->capacity = capacity;
+          header->length = capacity;
+          for(int i = 0; i < capacity; ++i)
+            new(&header->items[i]) T;
+          
+          return header;
+        }
+        return nullptr;
+      }
+      
+      static void deallocate(DataHeader *header) {
+        if(!header)
+          return;
+        
+        for(int i = 0; i < header->capacity; ++i) {
+          // cope for non-class T
+          struct Wrapper { T elem; };
+          ((Wrapper*)(&header->items[i]))->~Wrapper();
+        }
+        
+        free(header);
+      }
+      
+    private:
       T   *_items;
   };
 }

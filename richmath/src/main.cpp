@@ -131,9 +131,9 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
 
 #ifdef NDEBUG
 #  if defined(PMATH_64BIT)
-    static_assert(sizeof(Array<void*>)              ==  16, ""); // 4 + 4 + 8
-    static_assert(sizeof(Array<bool>)               ==  16, ""); // 4 + 4 + 8
-    static_assert(sizeof(Matrix<void*>)             ==  24, ""); // 16 + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(Array<void*>)              ==  8,  "");
+    static_assert(sizeof(Array<bool>)               ==  8,  "");
+    static_assert(sizeof(Matrix<void*>)             ==  16, ""); // 8 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(Dynamic)                   ==  24, ""); // 8 + 8 + 4 (enum where 1 byte would suffice) + 4 PADDING BYTES AT END
     static_assert(sizeof(PartialDynamic)            ==  24, ""); // 8 + 8 + 8
     static_assert(sizeof(FrontEndReference)         ==   4, "");
@@ -143,9 +143,9 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(BoxSize)                   ==  12, ""); // 3*4
     static_assert(sizeof(Box)                       ==  48, ""); // (24) + 8 + 4 + 12
     static_assert(sizeof(AbstractSequence)          ==  56, ""); // (48) + 4 + 4 UNUSED PADDING BYTES AT END
-    static_assert(sizeof(MathSequence)              == 120, ""); // (56) + 8 + 3*16 + 8
+    static_assert(sizeof(MathSequence)              ==  96, ""); // (56) + 8 + 3*8 + 8
     static_assert(sizeof(TextBuffer)                ==  16, ""); // 4 + 4 + 8
-    static_assert(sizeof(TextSequence)              == 112, ""); // (56) + 16 + 16 + 16 + 8
+    static_assert(sizeof(TextSequence)              ==  96, ""); // (56) + 16 + 8 + 8 + 8
     static_assert(sizeof(EmptyWidgetBox)            ==  72, ""); // (48 + 8) + 8 + 3*1 + 5 UNUSED PADDING BYTES
     static_assert(sizeof(CheckboxBox)               == 112, ""); // (72) + 24 + 8 + 8
     static_assert(sizeof(OpenerBox)                 == 104, ""); // (72) + 24 + 8
@@ -172,13 +172,13 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(FractionBox)               ==  72, ""); // (48) + 8 + 8 + 4 + 4
     static_assert(sizeof(FrameBox)                  ==  72, ""); // (64) + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(GridItem)                  ==  72, ""); // (64) + 4 + 4
-    static_assert(sizeof(GridBox)                   == 112, ""); // (48) + 4 + 4 + 24 + 16 + 16
+    static_assert(sizeof(GridBox)                   ==  88, ""); // (48) + 4 + 4 + 16 + 8 + 8
     static_assert(sizeof(AbstractTransformationBox) == 112, ""); // (64) + 6*8
     static_assert(sizeof(RotationBox)               == 120, ""); // (112) + 8
     static_assert(sizeof(TransformationBox)         == 120, ""); // (112) + 8
     static_assert(sizeof(PaneBox)                   == 112, "");
     static_assert(sizeof(PanelBox)                  ==  88, "");
-    static_assert(sizeof(PaneSelectorBox)           == 112, ""); // (48) + 16 + 16 + 24 + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(PaneSelectorBox)           ==  96, ""); // (48) + 8 + 8 + 24 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(ProgressIndicatorBox)      == 120, ""); // (48 + 8) + 3*8 + 8 + 24 + 8
     static_assert(sizeof(RadicalBox)                ==  96, ""); // (48) + 8 + 8 + 12 + 4 + 4 + 2*4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(SubsuperscriptBox)         ==  88, ""); // (48) + 8 + 8 + 2*4 + 2*4 + 4 + 4 UNUSED PADDING BYTES
@@ -186,26 +186,26 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(TemplateBox)               ==  88, ""); // (0 + 64) + 8 + 8 + 8
     static_assert(sizeof(TemplateBoxSlot)           ==  72, ""); // (64) + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(SectionGroupInfo)          ==  20, ""); // 4 + 3*4 + 4
-    static_assert(sizeof(Section)                   == 112, ""); // (48) + 4*4 + 4 + 20 + 16 + 8
+    static_assert(sizeof(Section)                   == 104, ""); // (48) + 4*4 + 4 + 20 + 8 + 8
     static_assert(sizeof(SectionOrnament)           ==  16, ""); // 8 + 8
-    static_assert(sizeof(AbstractSequenceSection)   == 144, ""); // (112) + 8 + 16 + 4 + 4
-    static_assert(sizeof(MathSection)               == 144, "");
-    static_assert(sizeof(TextSection)               == 144, "");
-    static_assert(sizeof(EditSection)               == 152, ""); // (144) + 8
-    static_assert(sizeof(StyleDataSection)          == 152, ""); // (144) + 8
-    static_assert(sizeof(AxisTicks)                 == 184, ""); // (48) + 4*16 + 4 + 9*4 + 3*8 + 8
+    static_assert(sizeof(AbstractSequenceSection)   == 136, ""); // (104) + 8 + 16 + 4 + 4
+    static_assert(sizeof(MathSection)               == 136, "");
+    static_assert(sizeof(TextSection)               == 136, "");
+    static_assert(sizeof(EditSection)               == 144, ""); // (136) + 8
+    static_assert(sizeof(StyleDataSection)          == 144, ""); // (136) + 8
+    static_assert(sizeof(AxisTicks)                 == 152, ""); // (48) + 4*8 + 4 + 9*4 + 3*8 + 8
     static_assert(sizeof(GraphicsBounds)            ==  80, ""); // 6*8 + 4*8
     static_assert(sizeof(GraphicsElement)           ==  24, ""); // (16) + 8
-    static_assert(sizeof(GraphicsElementCollection) ==  40, ""); // (24) + 16
-    static_assert(sizeof(GraphicsBox)               == 184, ""); // (48) + 4 + 7*4 + 6*8 + 8 + 40 + 8
+    static_assert(sizeof(GraphicsElementCollection) ==  32, ""); // (24) + 8
+    static_assert(sizeof(GraphicsBox)               == 176, ""); // (48) + 4 + 7*4 + 6*8 + 8 + 32 + 8
     static_assert(sizeof(GraphicsDirective)         ==  64, ""); // (24) + 8 + 24 + 8
-    static_assert(sizeof(LineBox)                   ==  48, ""); // (24) + 8 + 16
+    static_assert(sizeof(LineBox)                   ==  40, ""); // (24) + 8 + 8
     static_assert(sizeof(DoubleMatrix)              ==  40, ""); // 8 + 3*8 + 8
     static_assert(sizeof(PointBox)                  ==  72, ""); // (24) + 8 + 40
 #  elif defined(PMATH_32BIT)
-    static_assert(sizeof(Array<void*>)              ==  12, ""); // 4 + 4 + 4
-    static_assert(sizeof(Array<bool>)               ==  12, ""); // 4 + 4 + 4
-    static_assert(sizeof(Matrix<void*>)             ==  16, ""); // 12 + 4
+    static_assert(sizeof(Array<void*>)              ==  4,  "");
+    static_assert(sizeof(Array<bool>)               ==  4,  "");
+    static_assert(sizeof(Matrix<void*>)             ==  8, ""); // 4 + 4
     static_assert(sizeof(Dynamic)                   ==  16, ""); // 8 + 4 + 4 (enum where 1 byte would suffice)
     static_assert(sizeof(PartialDynamic)            ==  24, ""); // 8 + 8 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(FrontEndReference)         ==   4, "");
@@ -215,9 +215,9 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(BoxSize)                   ==  12, ""); // 3*4
     static_assert(sizeof(Box)                       ==  36, ""); // (16) + 12 + 4 + 4
     static_assert(sizeof(AbstractSequence)          ==  40, ""); // (36) + 4
-    static_assert(sizeof(MathSequence)              ==  88, ""); // (40) + 8 + 3*12 + 4
+    static_assert(sizeof(MathSequence)              ==  64, ""); // (40) + 8 + 3*4 + 4
     static_assert(sizeof(TextBuffer)                ==  12, ""); // 4 + 4 + 4
-    static_assert(sizeof(TextSequence)              ==  80, ""); // (40) + 12 + 12 + 12 + 4
+    static_assert(sizeof(TextSequence)              ==  64, ""); // (40) + 12 + 4 + 4 + 4
     static_assert(sizeof(EmptyWidgetBox)            ==  48, ""); // (32 + 4) + 4 + 3*1 + 1 UNUSED PADDING BTYE + 4
     static_assert(sizeof(CheckboxBox)               ==  80, ""); // (48) + 16 + 8 + 8
     static_assert(sizeof(OpenerBox)                 ==  72, ""); // (48) + 16 + 8
@@ -244,13 +244,13 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(FractionBox)               ==  52, ""); // (36) + 4 + 4 + 4 + 4
     static_assert(sizeof(FrameBox)                  ==  52, ""); // (48) + 4
     static_assert(sizeof(GridItem)                  ==  56, ""); // (48) + 4 + 4
-    static_assert(sizeof(GridBox)                   ==  84, ""); // (36) + 4 + 4 + 16 + 12 + 12
+    static_assert(sizeof(GridBox)                   ==  60, ""); // (36) + 4 + 4 + 8 + 4 + 4
     static_assert(sizeof(AbstractTransformationBox) ==  96, ""); // (48) + 6*8
     static_assert(sizeof(RotationBox)               == 104, ""); // (96) + 8
     static_assert(sizeof(TransformationBox)         == 104, ""); // (96) + 8
     static_assert(sizeof(PaneBox)                   ==  96, "");
     static_assert(sizeof(PanelBox)                  ==  60, "");
-    static_assert(sizeof(PaneSelectorBox)           ==  88, ""); // (36) + 12 + 12 + 4 UNUSED PADDING BYTES + 16 + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(PaneSelectorBox)           ==  72, ""); // (36) + 4 + 4 + 4 UNUSED PADDING BYTES + 16 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(ProgressIndicatorBox)      ==  96, ""); // (36 + 4) + 3*8 + 8 + 16 + 4 + 2 (bools) + 2 UNUSED PADDING BYTES
     static_assert(sizeof(RadicalBox)                ==  72, ""); // (36) + 4 + 4 + 12 + 4 + 4 + 2*4
     static_assert(sizeof(SubsuperscriptBox)         ==  64, ""); // (36) + 4 + 4 + 2*4 + 2*4 + 4
@@ -258,20 +258,20 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(TemplateBox)               ==  72, ""); // (0 + 48) + 8 + 8 + 8
     static_assert(sizeof(TemplateBoxSlot)           ==  52, ""); // (48) + 4
     static_assert(sizeof(SectionGroupInfo)          ==  20, ""); // 4 + 3*4 + 4
-    static_assert(sizeof(Section)                   ==  96, ""); // (36) + 4*4 + 4 + 20 + 12 + 8
+    static_assert(sizeof(Section)                   ==  88, ""); // (36) + 4*4 + 4 + 20 + 4 + 8
     static_assert(sizeof(SectionOrnament)           ==  16, ""); // 4 + 4 UNUSED PADDING BYTES + 8
-    static_assert(sizeof(AbstractSequenceSection)   == 128, ""); // (96) + 4 + 4 UNUSED PADDING BYTES + 16 + 4 + 4
-    static_assert(sizeof(MathSection)               == 128, "");
-    static_assert(sizeof(TextSection)               == 128, "");
-    static_assert(sizeof(EditSection)               == 136, ""); // (128) + 4 + 4 UNUSED PADDING BYTES
-    static_assert(sizeof(StyleDataSection)          == 136, ""); // (128) + 8
-    static_assert(sizeof(AxisTicks)                 == 160, ""); // (36) + 4*12 + 4 + 9*4 + 4 UNUSED PADDING BYTES + 3*8 + 8
+    static_assert(sizeof(AbstractSequenceSection)   == 120, ""); // (88) + 4 + 4 UNUSED PADDING BYTES + 16 + 4 + 4
+    static_assert(sizeof(MathSection)               == 120, "");
+    static_assert(sizeof(TextSection)               == 120, "");
+    static_assert(sizeof(EditSection)               == 128, ""); // (120) + 4 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(StyleDataSection)          == 128, ""); // (120) + 8
+    static_assert(sizeof(AxisTicks)                 == 128, ""); // (36) + 4*4 + 4 + 9*4 + 4 UNUSED PADDING BYTES + 3*8 + 8
     static_assert(sizeof(GraphicsBounds)            ==  80, ""); // 6*8 + 4*8
     static_assert(sizeof(GraphicsElement)           ==  16, ""); // (12) + 4
-    static_assert(sizeof(GraphicsElementCollection) ==  28, ""); // (16) + 12
-    static_assert(sizeof(GraphicsBox)               == 136, ""); // (36) + 4 + 7*4 + 6*4 + 4 + 28 + 4 UNUSED PADDING BYTES + 8
+    static_assert(sizeof(GraphicsElementCollection) ==  20, ""); // (16) + 4
+    static_assert(sizeof(GraphicsBox)               == 128, ""); // (36) + 4 + 7*4 + 6*4 + 4 + 20 + 4 UNUSED PADDING BYTES + 8
     static_assert(sizeof(GraphicsDirective)         ==  56, ""); // (16) + 4 + 4 UNUSED PADDING BYTES + 24 + 8
-    static_assert(sizeof(LineBox)                   ==  40, ""); // (16) + 8 + 12 + 4 UNUSED PADDING BYTES
+    static_assert(sizeof(LineBox)                   ==  32, ""); // (16) + 8 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(DoubleMatrix)              ==  24, ""); // 8 + 3*4 + 4
     static_assert(sizeof(PointBox)                  ==  48, ""); // (16) + 8 + 24
 #  endif

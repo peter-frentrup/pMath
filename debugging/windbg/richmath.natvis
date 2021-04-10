@@ -1,12 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <AutoVisualizer xmlns="http://schemas.microsoft.com/vstudio/debugger/natvis/2010">
 	<Type Name="richmath::Array&lt;*&gt;">
-		<DisplayString>{{ length={_length} }}</DisplayString>
+		<DisplayString>{{ length={_items ? ((DataHeader*)((uintptr_t)_items - (uintptr_t)&amp;((DataHeader*)0)-&gt;items[0]))-&gt;length : 0} }}</DisplayString>
 		<Expand>
-			<Item Name="capacity" ExcludeView="simple">_capacity</Item>
-			<Item Name="length" ExcludeView="simple">_length</Item>
+			<Item Name="capacity" ExcludeView="simple">_items ? ((DataHeader*)((uintptr_t)_items - (uintptr_t)&amp;((DataHeader*)0)-&gt;items[0]))-&gt;capacity : 0</Item>
+			<Item Name="length"   ExcludeView="simple">_items ? ((DataHeader*)((uintptr_t)_items - (uintptr_t)&amp;((DataHeader*)0)-&gt;items[0]))-&gt;length : 0</Item>
 			<ArrayItems>
-				<Size>_length</Size>
+				<Size>_items ? ((DataHeader*)((uintptr_t)_items - (uintptr_t)&amp;((DataHeader*)0)-&gt;items[0]))-&gt;length : 0</Size>
 				<ValuePointer>_items</ValuePointer>
 			</ArrayItems>
 		</Expand>
