@@ -1580,10 +1580,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           }
         } return 0;
         
-      case WM_CHAR: if(!is_drop_over) {
-          if(wParam == 0xFFFF)
+      case WM_CHAR:
+      case WM_UNICHAR: if(!is_drop_over) {
+          if(wParam == UNICODE_NOCHAR)
             return 1;
-            
+          
+          static uint32_t current_high = 0;
+          
           if((wParam == ' ' ||
               wParam == '\r' ||
               wParam == '\n') &&
@@ -1591,12 +1594,32 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
                (GetKeyState(VK_MENU) & ~1) ||
                (GetKeyState(VK_SHIFT) & ~1)))
           {
+            current_high = 0;
             return 0;
           }
           
-          if(wParam == '\t')
+          if(wParam == '\t') {
+            current_high = 0;
             return 0;
-            
+          }
+
+          if(current_high && wParam <= 0xFFFFU && is_utf16_low(wParam)) {
+            uint32_t unichar = 0x10000 | ((current_high & 0x03FF) << 10) | (wParam & 0x03FF);
+            current_high = 0;
+            document()->key_press(unichar);
+            return 0;
+          }
+
+          if(current_high) {
+            document()->key_press(current_high);
+            current_high = 0;
+          }
+          
+          if(wParam <= 0xFFFFU && is_utf16_high(wParam)) {
+            current_high = wParam;
+            return 0;
+          }
+
           document()->key_press(wParam);
         } return 0;
         

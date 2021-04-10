@@ -70,7 +70,7 @@ namespace richmath {
       
       void key_down(SpecialKeyEvent &event);
       void key_up(SpecialKeyEvent &event);
-      void key_press(uint16_t unicode);
+      void key_press(uint32_t unicode);
       
       virtual Box *mouse_sensitive() override { return this; }
       virtual void on_mouse_down(MouseEvent &event) override;

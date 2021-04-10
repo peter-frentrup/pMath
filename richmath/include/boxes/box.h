@@ -468,7 +468,7 @@ namespace richmath {
       
       virtual void ensure_boxes_valid() = 0;
       
-      virtual int insert(int pos, uint16_t chr) { return insert(pos, String::FromChar(chr)); }
+      virtual int insert(int pos, uint32_t chr) { return insert(pos, String::FromChar(chr)); }
       virtual int insert(int pos, AbstractSequence *seq, int start, int end);
       
       virtual int insert(int pos, const String &s) = 0;

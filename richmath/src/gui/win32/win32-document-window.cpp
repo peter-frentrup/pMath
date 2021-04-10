@@ -1351,6 +1351,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         
       case WM_KEYDOWN:
       case WM_CHAR:
+      case WM_UNICHAR:
       case WM_KEYUP:
         return SendMessageW(_working_area->hwnd(), message, wParam, lParam);
     }

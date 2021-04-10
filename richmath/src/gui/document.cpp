@@ -687,7 +687,7 @@ void Document::key_up(SpecialKeyEvent &event) {
   }
 }
 
-void Document::key_press(uint16_t unicode) {
+void Document::key_press(uint32_t unicode) {
   native()->hide_tooltip();
   
   if(unicode == '\r') {
@@ -1020,9 +1020,7 @@ void Document::on_key_press(uint32_t unichar) {
   }
   
   // handle parenthesis surrounding of selections:
-  if( context.selection.start < context.selection.end &&
-      unichar < 0xFFFF)
-  {
+  if( context.selection.start < context.selection.end && unichar < 0xFFFF) {
     int prec;
     uint16_t ch = (uint16_t)unichar;
     String selstr;
@@ -1094,8 +1092,6 @@ void Document::on_key_press(uint32_t unichar) {
   }
   
   if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
-    MathSequence *mseq = dynamic_cast<MathSequence *>(seq);
-    
     bool was_inside_string = Impl(*this).is_inside_string();
     bool was_inside_alias  = Impl(*this).is_inside_alias();
     
@@ -1107,6 +1103,7 @@ void Document::on_key_press(uint32_t unichar) {
     int newpos = seq->insert(oldpos, unichar);
     move_to(seq, newpos);
     
+    MathSequence *mseq = dynamic_cast<MathSequence *>(seq);
     if(mseq && !was_inside_string && !was_inside_alias) {
       // handle "\alias" macros:
       if(unichar == ' '/* && !was_inside_string*/) {

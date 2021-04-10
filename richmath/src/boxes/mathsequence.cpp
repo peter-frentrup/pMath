@@ -1123,14 +1123,15 @@ void MathSequence::child_transformation(
 VolatileSelection MathSequence::normalize_selection(int start, int end) {
   if(start <= 0)
     start = 0;
-  else if(is_utf16_high(str[start - 1]))
-    --start;
   
   if(end >= str.length())
     end = str.length();
-  else if(is_utf16_low(str[end]))
+  else if(is_utf16_low(str[end])) {
     ++end;
-    
+    if(start > 0 && is_utf16_high(str[start - 1]))
+      --start;
+  }
+
   return {this, start, end};
 }
 
@@ -1270,15 +1271,27 @@ int MathSequence::matching_fence(int pos) {
 
 //{ insert/remove ...
 
-int MathSequence::insert(int pos, uint16_t chr) {
+int MathSequence::insert(int pos, uint32_t chr) {
   if(chr == PMATH_CHAR_BOX) 
     return insert(pos, new ErrorBox(String::FromChar(chr)));
   
   spans_invalid(true);
   boxes_invalid(true);
-  str.insert(pos, &chr, 1);
-  invalidate();
-  return pos + 1;
+  if(chr <= 0xFFFF) {
+    uint16_t u16 = (uint16_t)chr;
+    str.insert(pos, &u16, 1);
+    invalidate();
+    return pos + 1;
+  }
+  else {
+    uint16_t u16[2];
+    chr -= 0x10000;
+    u16[0] = 0xD800 | (chr >> 10);
+    u16[1] = 0xDC00 | (chr & 0x3FF);
+    str.insert(pos, u16, 2);
+    invalidate();
+    return pos + 2;
+  }
 }
 
 int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {

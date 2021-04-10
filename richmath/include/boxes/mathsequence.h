@@ -83,7 +83,7 @@ namespace richmath {
       int matching_fence(int pos); // -1 on error
       
     public:
-      virtual int insert(int pos, uint16_t chr) override;
+      virtual int insert(int pos, uint32_t chr) override;
       int insert(int pos, const uint16_t *ucs2, int len);
       int insert(int pos, const char *latin1, int len);
       virtual int insert(int pos, const String &s) override;
