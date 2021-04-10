@@ -29,7 +29,7 @@ namespace {
       }
       
       unsigned add(const char *data, int size) {
-        all_data.add(size, data);
+        all_data.add_all(ArrayView<const char>(size, data));
         end_pointers.add(all_data.length());
         return (unsigned)(end_pointers.length() - 1);
       }
