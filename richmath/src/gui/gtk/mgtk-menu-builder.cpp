@@ -242,6 +242,27 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
         gtk_widget_hide(menu_item);
     }
   }
+  
+  BasicGtkWidget::container_foreach(
+    GTK_CONTAINER(menu), 
+    [&](GtkWidget *menu_item) {
+      if(!GTK_IS_MENU_ITEM(menu_item))
+        return;
+      if(Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_item))) {
+        MenuCommandStatus status = Menus::test_command_status(cmd);
+        gtk_widget_set_sensitive(menu_item, status.enabled);
+          
+        if(GTK_IS_CHECK_MENU_ITEM(menu_item)) {
+          // emits "activate" signal if toggled
+          ignore_activate_signal = true;
+          gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), status.checked);
+          ignore_activate_signal = false;
+        }
+        else if(status.checked) {
+          pmath_debug_print_object("[cannot display checked status for menu item: ", cmd.get(), "]\n");
+        }
+      }
+    });
 }
 
 void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, String query, GtkMenuShell *menu, String prefix, FrontEndReference doc_id) {
@@ -652,19 +673,6 @@ void MenuItemBuilder::init_command(GtkMenuItem *menu_item, Expr item) {
   if(char *accel_path_str = pmath_string_to_utf8(accel_path.get(), nullptr)) {
     gtk_menu_item_set_accel_path(menu_item, accel_path_str);
     pmath_mem_free(accel_path_str);
-  }
-  
-  MenuCommandStatus status = Menus::test_command_status(cmd);
-  gtk_widget_set_sensitive(GTK_WIDGET(menu_item), status.enabled);
-  
-  if(GTK_IS_CHECK_MENU_ITEM(menu_item)) {
-    // emits "activate" signal if toggled
-    ignore_activate_signal = true;
-    gtk_check_menu_item_set_active(GTK_CHECK_MENU_ITEM(menu_item), status.checked);
-    ignore_activate_signal = false;
-  }
-  else if(status.checked) {
-    pmath_debug_print_object("[cannot display checked status for menu item: ", cmd.get(), "]\n");
   }
 }
 

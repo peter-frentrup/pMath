@@ -1293,7 +1293,6 @@ void MathGtkDocumentWindowImpl::connect_menubar_signals() {
             "map-event", 
             G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))([](GtkWidget *sender, GdkEvent *ev, void *_self) -> gboolean {
               MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
-              pmath_debug_print("[menu: map]\n");
               Impl(self).on_auto_hide_menu(false);
               return FALSE;
             })), &self);
@@ -1302,7 +1301,6 @@ void MathGtkDocumentWindowImpl::connect_menubar_signals() {
             "unmap-event", 
             G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))([](GtkWidget *sender, GdkEvent *ev, void *_self) -> gboolean {
               MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
-              pmath_debug_print("[menu: unmap]\n");
               Impl(self).on_auto_hide_menu(true);
               return FALSE;
             })), &self);
