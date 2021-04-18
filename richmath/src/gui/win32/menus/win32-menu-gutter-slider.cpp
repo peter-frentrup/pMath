@@ -260,7 +260,7 @@ StyledObject *Win32MenuGutterSlider::Impl::resolve_scope(Document *doc) {
     return nullptr;
   
   if(Box *sel = doc->selection_box()) {
-    if(scope == richmath_System_Section)
+    if(self.scope == richmath_System_Section)
       return sel->find_parent<Section>(true);
     else
       return sel;
