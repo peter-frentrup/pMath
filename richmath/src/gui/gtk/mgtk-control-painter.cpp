@@ -54,8 +54,8 @@ class MathGtkStyleContextCache {
     GtkStyleContext *horz_slider_thumb_up_arrow_context() {    return init_context_once(_horz_slider_thumb_up_arrow_context,    []() { return make_slider_thumb_context(  false, true, false); }); }
     GtkStyleContext *vert_slider_channel_context() {           return init_context_once(_vert_slider_channel_context,           []() { return make_slider_channel_context(true); }); }
     GtkStyleContext *vert_slider_thumb_context() {             return init_context_once(_vert_slider_thumb_context,             []() { return make_slider_thumb_context(  true, false, false); }); }
-    GtkStyleContext *vert_slider_thumb_left_arrow_context() {  return init_context_once(_vert_slider_thumb_left_arrow_context,  []() { return make_slider_thumb_context(  true, false, true); }); }
-    GtkStyleContext *vert_slider_thumb_right_arrow_context() { return init_context_once(_vert_slider_thumb_right_arrow_context, []() { return make_slider_thumb_context(  true, true, false); }); }
+    GtkStyleContext *vert_slider_thumb_left_arrow_context() {  return init_context_once(_vert_slider_thumb_left_arrow_context,  []() { return make_slider_thumb_context(  true, true,  false); }); }
+    GtkStyleContext *vert_slider_thumb_right_arrow_context() { return init_context_once(_vert_slider_thumb_right_arrow_context, []() { return make_slider_thumb_context(  true, false, true); }); }
     GtkStyleContext *tab_body_context() {                return init_context_once(_tab_body_context,                make_tab_body_context); }
     GtkStyleContext *tab_head_background_context() {     return init_context_once(_tab_head_background_context,     make_tab_head_background_context); }
     GtkStyleContext *tab_head_context() {                return init_context_once(_tab_head_context,                []() { return make_tab_head_context(false, false); }); }
