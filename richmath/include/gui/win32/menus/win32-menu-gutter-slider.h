@@ -9,14 +9,13 @@
 
 namespace richmath {
   class Win32MenuGutterSlider : public Win32MenuItemOverlay {
+      class Impl;
     public:
       virtual void update_rect(HWND hwnd, HMENU menu) override;
       virtual void initialize(HWND hwnd, HMENU menu) override;
       virtual bool handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) override;
       
       bool collect_float_values(Array<float> &values, HMENU menu);
-      static float interpolation_index(const Array<float> &values, float val, bool clip);
-      static float interpolation_value(const Array<float> &values, float index);
       
       int slider_pos_from_point(const POINT &pt);
       void apply_slider_pos(HMENU menu, int pos);

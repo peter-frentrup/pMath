@@ -793,6 +793,7 @@
 		<Unit filename="include/eval/current-value.h" />
 		<Unit filename="include/eval/dynamic.h" />
 		<Unit filename="include/eval/eval-contexts.h" />
+		<Unit filename="include/eval/interpolation.h" />
 		<Unit filename="include/eval/job.h" />
 		<Unit filename="include/eval/observable.h" />
 		<Unit filename="include/eval/partial-dynamic.h" />
@@ -1364,6 +1365,7 @@
 		<Unit filename="src/eval/current-value.cpp" />
 		<Unit filename="src/eval/dynamic.cpp" />
 		<Unit filename="src/eval/eval-contexts.cpp" />
+		<Unit filename="src/eval/interpolation.cpp" />
 		<Unit filename="src/eval/job.cpp" />
 		<Unit filename="src/eval/kernel-execute.cpp" />
 		<Unit filename="src/eval/observable.cpp" />

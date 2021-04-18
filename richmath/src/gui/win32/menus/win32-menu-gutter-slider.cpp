@@ -5,9 +5,9 @@
 #include <gui/documents.h>
 #include <gui/document.h>
 
-#include <commctrl.h>
+#include <eval/interpolation.h>
 
-#include <algorithm>
+#include <commctrl.h>
 #include <cmath>
 #include <limits>
 
@@ -22,7 +22,6 @@ namespace std {
 #  define NAN  (std::numeric_limits<double>::quiet_NaN())
 #endif
 
-
 using namespace richmath;
 
 extern pmath_symbol_t richmath_System_Document;
@@ -30,6 +29,18 @@ extern pmath_symbol_t richmath_System_Inherited;
 extern pmath_symbol_t richmath_System_Section;
 
 extern pmath_symbol_t richmath_FE_ScopedCommand;
+
+namespace richmath {
+  class Win32MenuGutterSlider::Impl {
+    public:
+      Impl(Win32MenuGutterSlider &self);
+      
+      StyledObject *resolve_scope(Document *doc);
+      
+    private:
+      Win32MenuGutterSlider &self;
+  };
+}
 
 //{ class Win32MenuGutterSlider ...
 
@@ -79,26 +90,15 @@ void Win32MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
     return;
   
   if(Document *doc = Documents::current()) {
-    StyledObject *obj = nullptr;
-    if(scope == richmath_System_Document) {
-      obj = doc;
-    }
-    else if(Box *sel = doc->selection_box()) {
-      if(scope == richmath_System_Section)
-        obj = sel->find_parent<Section>(true);
-      else
-        obj = sel;
-    }
-    
     DWORD style = GetWindowLongW(control, GWL_STYLE);
-    if(obj) {
+    if(StyledObject *obj = Impl(*this).resolve_scope(doc)) {
       StyleOptionName key = Style::get_key(lhs);
       StyleType type = Style::get_type(key);
       if(type == StyleType::Number) {
         float val = obj->get_style((FloatStyleOptionName)key, NAN);
         Array<float> values;
         if(!std::isnan(val) && collect_float_values(values, menu)) {
-          float rel_idx = interpolation_index(values, val, false);
+          float rel_idx = Interpolation::interpolation_index(values, val, false);
           if(0 <= rel_idx && rel_idx <= values.length() - 1) {
             int slider_pos = (int)round(rel_idx * 100);
             SendMessageW(control, TBM_SETPOS, TRUE, (LPARAM)slider_pos);
@@ -144,39 +144,6 @@ bool Win32MenuGutterSlider::collect_float_values(Array<float> &values, HMENU men
   }
   
   return true;
-}
-
-float Win32MenuGutterSlider::interpolation_index(const Array<float> &values, float val, bool clip) {
-  float prev = NAN;
-  for(int i = 0; i < values.length(); ++i) {
-    float cur = values[i];
-    if(val == cur)
-      return i;
-    
-    float rel = (cur - val) / (cur - prev);
-    if(0 <= rel && rel <= 1) 
-      return i - rel;
-    
-    prev = cur;
-  }
-  
-  if(clip) {
-    if(values.length() >= 2) {
-      if(values[0] < values[1]) {
-        if(val < values[0])
-          return 0;
-        else
-          return values.length() - 1;
-      }
-      else {
-        if(val > values[0])
-          return values.length() - 1;
-        else
-          return 0;
-      }
-    }
-  }
-  return NAN;
 }
 
 bool Win32MenuGutterSlider::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
@@ -276,3 +243,30 @@ void Win32MenuGutterSlider::apply_slider_pos(HMENU menu, int pos) {
 }
 
 //} ... class Win32MenuGutterSlider
+
+//{ class Win32MenuGutterSlider::Impl ...
+
+Win32MenuGutterSlider::Impl::Impl(Win32MenuGutterSlider &self)
+ : self{self}
+{
+}
+
+// same as MathGtkMenuSliderRegion::resolve_scope()
+StyledObject *Win32MenuGutterSlider::Impl::resolve_scope(Document *doc) {
+  if(self.scope == richmath_System_Document) 
+    return doc;
+  
+  if(!doc)
+    return nullptr;
+  
+  if(Box *sel = doc->selection_box()) {
+    if(scope == richmath_System_Section)
+      return sel->find_parent<Section>(true);
+    else
+      return sel;
+  }
+  
+  return nullptr;
+}
+
+//} ... class Win32MenuGutterSlider::Impl
