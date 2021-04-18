@@ -2,8 +2,12 @@
 
 #include <eval/application.h>
 #include <eval/binding.h>
+#include <eval/interpolation.h>
 #include <eval/observable.h>
 
+#include <graphics/canvas.h>
+
+#include <gui/gtk/mgtk-control-painter.h>
 #include <gui/gtk/mgtk-document-window.h>
 #include <gui/documents.h>
 #include <gui/menus.h>
@@ -16,6 +20,19 @@
 #  include <gdk/gdkkeysyms.h>
 #endif
 
+#include <cmath>
+#include <limits>
+
+#ifdef _MSC_VER
+namespace std {
+  static bool isnan(double d) {return _isnan(d);}
+}
+#endif
+
+#ifndef NAN
+#  define NAN  (std::numeric_limits<double>::quiet_NaN())
+#endif
+
 
 using namespace richmath;
 
@@ -26,9 +43,12 @@ namespace richmath { namespace strings {
 }}
 
 extern pmath_symbol_t richmath_System_Delimiter;
+extern pmath_symbol_t richmath_System_Document;
+extern pmath_symbol_t richmath_System_Inherited;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
+extern pmath_symbol_t richmath_System_Section;
 
 extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
 
@@ -120,6 +140,44 @@ namespace {
       
       static bool do_open_help_menu(Expr cmd);
   };
+  
+  class MathGtkMenuSliderRegion {
+    public:
+      void paint(GtkWidget *menu, Canvas &canvas, FrontEndReference ref);
+      
+      void get_allocation(GtkAllocation *rect);
+      
+    private:
+      StyledObject *resolve_scope(Document *doc);
+      bool collect_float_values(Array<float> &values);
+      
+    public:
+      Expr scope;
+      Expr lhs;
+      Array<GtkWidget*> menu_items;
+  };
+  
+  class MathGtkMenuGutterSliders : public Base {
+    public:
+      MathGtkMenuGutterSliders();
+      
+    public:
+      static void connect(GtkMenu *menu, FrontEndReference doc_id);
+      
+      static void menu_gutter_sliders(GtkWidget *menu, MathGtkMenuGutterSliders *gutters);
+      static MathGtkMenuGutterSliders *menu_gutter_sliders(GtkWidget *menu);
+      
+    private:
+      static gboolean menu_expose_callback(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+      static gboolean menu_draw_callback(  GtkWidget *menu, cairo_t *cr, void *eval_box_id_as_ptr);
+      void on_menu_draw(GtkWidget *menu, Canvas &canvas, FrontEndReference ref);
+    
+    public:
+      Array<MathGtkMenuSliderRegion> regions;
+      
+    private:
+      static const char *data_key;
+  };
 }
 
 namespace richmath {
@@ -132,16 +190,6 @@ namespace richmath {
       static gboolean on_menu_button_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_button_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
   };
-}
-
-static void collect_container_children(GtkContainer *container, Array<GtkWidget*> &array) {
-  gtk_container_foreach(
-    container, 
-    [](GtkWidget *item, void *_array) {
-      Array<GtkWidget*> *array = (Array<GtkWidget*>*)_array;
-      array->add(item);
-    }, 
-    &array);
 }
 
 //{ class MathGtkMenuBuilder ...
@@ -165,6 +213,8 @@ void MathGtkMenuBuilder::done() {
 void MathGtkMenuBuilder::connect_events(GtkMenu *menu, FrontEndReference doc_id) {
   gtk_widget_add_events(GTK_WIDGET(menu), GDK_STRUCTURE_MASK);
   
+  MathGtkMenuGutterSliders::connect(menu, doc_id);
+  
   g_signal_connect(menu, "map-event",            G_CALLBACK(Impl::on_map_menu),            FrontEndReference::unsafe_cast_to_pointer(doc_id));
   g_signal_connect(menu, "unmap-event",          G_CALLBACK(Impl::on_unmap_menu),          FrontEndReference::unsafe_cast_to_pointer(doc_id));
   g_signal_connect(menu, "key-press-event",      G_CALLBACK(Impl::on_menu_key_press),      FrontEndReference::unsafe_cast_to_pointer(doc_id));
@@ -177,8 +227,12 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
   GtkAccelGroup *accel_group = gtk_menu_get_accel_group(menu);
   
   Array<GtkWidget*> old_menu_items;
-  collect_container_children(GTK_CONTAINER(menu), old_menu_items);
-  
+  BasicGtkWidget::container_foreach(
+    GTK_CONTAINER(menu), 
+    [&](GtkWidget *item) {
+      old_menu_items.add(item);
+    });
+    
   int old_index = 0;
   int num_insertions = 0;
   for(; old_index < old_menu_items.length() ; ++old_index) {
@@ -263,6 +317,75 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
         }
       }
     });
+  
+  MathGtkMenuGutterSliders *gutter_sliders = MathGtkMenuGutterSliders::menu_gutter_sliders(GTK_WIDGET(menu));
+  if(gutter_sliders)
+    gutter_sliders->regions.length(0);
+  
+  MathGtkMenuSliderRegion region;
+  
+  bool has_gutter_sliders = false;
+  BasicGtkWidget::container_foreach(
+    GTK_CONTAINER(menu), 
+    [&](GtkWidget *menu_item) {
+      if(!GTK_IS_MENU_ITEM(menu_item))
+        return;
+      
+      if(!gtk_widget_is_drawable(menu_item))
+        return;
+      
+      Expr scope;
+      Expr lhs;
+      if(Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_item))) {
+        if(cmd[0] == richmath_FE_ScopedCommand) {
+          scope = cmd[2];
+          cmd = cmd[1];
+        }
+        
+        if(cmd.is_rule()) {
+          lhs = cmd[1];
+          
+          Expr rhs = cmd[2];
+          if(!rhs.is_number() && rhs != richmath_System_Inherited) {
+            // Inherited is used in Magnification->Inherited for 100%
+            lhs = Expr();
+          }
+        }
+      }
+      
+      if(region.menu_items.length() > 0) {
+        if(region.lhs != lhs || region.scope != scope) {
+          if(region.menu_items.length() > 1) {
+            if(!gutter_sliders)
+              gutter_sliders = new MathGtkMenuGutterSliders();
+            
+            gutter_sliders->regions.add(std::move(region));
+          }
+          
+          region = MathGtkMenuSliderRegion();
+        }
+        else
+          region.menu_items.add(menu_item);
+      }
+      
+      if(lhs) {
+        if(region.menu_items.length() == 0) {
+          region.lhs = lhs;
+          region.scope = scope;
+        }
+        
+        region.menu_items.add(menu_item);
+      }
+    });
+  
+  if(region.menu_items.length() > 1) {
+    if(!gutter_sliders)
+      gutter_sliders = new MathGtkMenuGutterSliders();
+   
+    gutter_sliders->regions.add(std::move(region));
+  }
+  
+  MathGtkMenuGutterSliders::menu_gutter_sliders(GTK_WIDGET(menu), gutter_sliders);
 }
 
 void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, String query, GtkMenuShell *menu, String prefix, FrontEndReference doc_id) {
@@ -680,6 +803,7 @@ void MenuItemBuilder::init_sub_menu(GtkMenuItem *menu_item, Expr item, GtkAccelG
   set_label(menu_item, String(item[1]));
   
   GtkWidget *submenu = gtk_menu_new();
+//  gtk_menu_shell_append(GTK_MENU_SHELL(submenu), gtk_tearoff_menu_item_new());
   
   MathGtkMenuBuilder::connect_events(GTK_MENU(submenu), for_document_window_id);
   
@@ -1250,6 +1374,249 @@ bool MathGtkMenuSearch::do_open_help_menu(Expr cmd) {
           }
         });
     });
+  
+  return true;
 }
 
 //} ... class MathGtkMenuSearch
+
+//{ class MathGtkMenuSliderRegion ...
+
+void MathGtkMenuSliderRegion::paint(GtkWidget *menu, Canvas &canvas, FrontEndReference ref) {
+  if(menu_items.length() == 0)
+    return;
+  
+  GtkAllocation rect;
+  get_allocation(&rect);
+  
+  canvas.save();
+  {
+    #if GTK_MAJOR_VERSION >= 3
+    {
+      GtkStyleContext *style_ctx = gtk_widget_get_style_context(menu);
+      GtkBorder padding = {0,0,0,0};
+      gtk_style_context_get_padding(style_ctx, GTK_STATE_FLAG_NORMAL, &padding);
+      
+      canvas.translate(padding.left, padding.top);
+    }
+    #endif
+    
+    auto doc = FrontEndObject::find_cast<Document>(ref);
+    NativeWidget *doc_window = doc ? doc->native() : NativeWidget::dummy;
+    
+    struct DummyContext : public ControlContext {
+      virtual bool is_foreground_window() override { return true; }
+      virtual bool is_focused_widget() override {    return true; }
+      virtual bool is_using_dark_mode() override {   return doc_window->is_using_dark_mode(); }
+      virtual int dpi() override {                   return doc_window->dpi(); }
+      
+      NativeWidget *doc_window;
+      
+      DummyContext(NativeWidget *doc_window) : doc_window{doc_window} {}
+    } ctx {doc_window};
+    
+    #if GTK_MAJOR_VERSION >= 3
+    {
+      //gtk_style_apply_default_background(gtk_widget_get_style(menu), )
+      GtkStyleContext *style_ctx = gtk_widget_get_style_context(menu);
+      gtk_render_background(style_ctx, canvas.cairo(), rect.x, rect.y, rect.width, rect.height);
+    }
+    #endif
+    
+    RectangleF gutter_rect(rect.x, rect.y, rect.width, rect.height);
+    
+    const ContainerType thumb = ContainerType::VerticalSliderRightArrowButton;
+    BoxSize thumb_extents{gutter_rect.width - 4, gutter_rect.height - 4, 0.0f};
+    MathGtkControlPainter::gtk_painter.calc_container_size(ctx, canvas, thumb, &thumb_extents);
+    
+//    canvas.translate(rect.x, rect.y);
+//    canvas.scale(0.75, 0.75);
+//    RectangleF gutter_rect(Point(0, 0), Vector2F(rect.width, rect.height) / 0.75);
+
+    float y1 = rect.y;
+    float y2 = rect.y + rect.height;
+    
+    GtkAllocation item_rect{0,0,0,0};
+    
+    gtk_widget_get_allocation(menu_items[0], &item_rect);
+    y1 = y1 + (item_rect.height - thumb_extents.height()) / 2;
+    
+    gtk_widget_get_allocation(menu_items[menu_items.length() - 1], &item_rect);
+    y2 = y2 - (item_rect.height - thumb_extents.height()) / 2;
+    
+    RectangleF channel_rect(rect.x + rect.width/2 - 2, y1, 4, y2 - y1);
+    
+    MathGtkControlPainter::gtk_painter.draw_container(
+      ctx, canvas, ContainerType::VerticalSliderChannel, ControlState::Normal, channel_rect);
+    
+    if(auto obj = resolve_scope(doc)) {
+      StyleOptionName key = Style::get_key(lhs);
+      StyleType type = Style::get_type(key);
+      if(type == StyleType::Number) {
+        float val = obj->get_style((FloatStyleOptionName)key, NAN);
+        Array<float> values;
+        if(!std::isnan(val) && collect_float_values(values)) {
+          float rel_idx = Interpolation::interpolation_index(values, val, false);
+          if(0 <= rel_idx && rel_idx <= values.length() - 1) {
+            int index_before = (int)rel_idx;
+            
+            gtk_widget_get_allocation(menu_items[index_before], &item_rect);
+            
+            float thumb_center_y = item_rect.y + 0.5f * item_rect.height + (rel_idx - index_before) * item_rect.height;
+            
+            MathGtkControlPainter::gtk_painter.draw_container(
+              ctx, canvas, thumb, ControlState::Normal, 
+              RectangleF(
+                rect.x + 0.5f * (gutter_rect.width - thumb_extents.width), 
+                thumb_center_y - 0.5f * thumb_extents.height(), 
+                thumb_extents.width, 
+                thumb_extents.height()));
+          }
+        }
+      }
+    }
+  }
+  canvas.restore();
+}
+
+void MathGtkMenuSliderRegion::get_allocation(GtkAllocation *rect) {
+  if(menu_items.length() == 0) {
+    *rect = {0,0,0,0};
+    return;
+  }
+  
+  gtk_widget_get_allocation(menu_items[0], rect);
+  
+  GtkAllocation end_rect;
+  gtk_widget_get_allocation(menu_items[menu_items.length() - 1], &end_rect);
+  
+  rect->height = end_rect.y + end_rect.height - rect->y;
+  
+  GtkAllocation label_rect = {0,0,0,0};
+  gtk_widget_get_allocation(gtk_bin_get_child(GTK_BIN(menu_items[0])), &label_rect);
+  
+  rect->width = label_rect.x;
+  
+  rect->x     += 1;
+  rect->width -= 2;
+  rect->y     += 1;
+  rect->height-= 2;
+}
+
+StyledObject *MathGtkMenuSliderRegion::resolve_scope(Document *doc) {
+  // same as Win32MenuGutterSlider::Impl::resolve_scope()
+
+  if(scope == richmath_System_Document) 
+    return doc;
+  
+  if(!doc)
+    return nullptr;
+  
+  if(Box *sel = doc->selection_box()) {
+    if(scope == richmath_System_Section)
+      return sel->find_parent<Section>(true);
+    else
+      return sel;
+  }
+  
+  return nullptr;
+}
+
+bool MathGtkMenuSliderRegion::collect_float_values(Array<float> &values) {
+  // similar to Win32MenuGutterSlider::collect_float_values()
+
+  values.length(menu_items.length());
+  for(int i = 0; i < menu_items.length(); ++i) {
+    Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_items[i]));
+    if(cmd[0] == richmath_FE_ScopedCommand)
+      cmd = cmd[1];
+    
+    if(!cmd.is_rule())
+      return false;
+    
+    Expr rhs = cmd[2];
+    if(rhs.is_number()) {
+      values[i] = rhs.to_double();
+    }
+    else if(rhs == richmath_System_Inherited) {
+      // Magnification -> Inherited
+      values[i] = 1;
+    }
+    else
+      return false;
+  }
+  
+  return true;
+}
+
+//} ... class MathGtkMenuSliderRegion
+
+//{ class MathGtkMenuGutterSliders ...
+
+const char *MathGtkMenuGutterSliders::data_key = "richmath:menu_gutter_sliders";
+
+MathGtkMenuGutterSliders::MathGtkMenuGutterSliders()
+  : Base()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+}
+
+void MathGtkMenuGutterSliders::menu_gutter_sliders(GtkWidget *menu, MathGtkMenuGutterSliders *gutters) {
+  if(auto old = menu_gutter_sliders(menu)) {
+    if(old == gutters)
+      return;
+  }
+  
+  g_object_set_data_full(
+    G_OBJECT(menu), 
+    data_key,
+    gutters,
+    [](void *data) { delete (MathGtkMenuGutterSliders*)data; });
+}
+
+MathGtkMenuGutterSliders *MathGtkMenuGutterSliders::menu_gutter_sliders(GtkWidget *menu) {
+  return (MathGtkMenuGutterSliders*)g_object_get_data(G_OBJECT(menu), data_key);
+}
+
+void MathGtkMenuGutterSliders::connect(GtkMenu *menu, FrontEndReference doc_id) {
+  #if GTK_MAJOR_VERSION >= 3
+    g_signal_connect_after(menu, "draw", G_CALLBACK(MathGtkMenuGutterSliders::menu_draw_callback), FrontEndReference::unsafe_cast_to_pointer(doc_id));
+  #else
+    gtk_widget_add_events(GTK_WIDGET(menu), GDK_EXPOSURE_MASK);
+    g_signal_connect_after(menu, "expose-event", G_CALLBACK(MathGtkMenuGutterSliders::menu_expose_callback), FrontEndReference::unsafe_cast_to_pointer(doc_id));
+  #endif
+}
+
+gboolean MathGtkMenuGutterSliders::menu_expose_callback(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr) {
+  GdkEventExpose *event = &e->expose;
+  
+  cairo_t *cr = gdk_cairo_create(event->window);
+  
+  cairo_move_to(cr, event->area.x, event->area.y);
+  cairo_rel_line_to(cr, event->area.width, 0);
+  cairo_rel_line_to(cr, 0, event->area.height);
+  cairo_rel_line_to(cr, -event->area.width, 0);
+  cairo_close_path(cr);
+  cairo_clip(cr);
+  
+  gboolean result = menu_draw_callback(menu, cr, eval_box_id_as_ptr);
+  cairo_destroy(cr);
+  
+  return result;
+}
+
+gboolean MathGtkMenuGutterSliders::menu_draw_callback(GtkWidget *menu, cairo_t *cr, void *eval_box_id_as_ptr) {
+  if(auto sliders = menu_gutter_sliders(menu)) {
+    Canvas canvas(cr);
+    sliders->on_menu_draw(menu, canvas, FrontEndReference::unsafe_cast_from_pointer(eval_box_id_as_ptr));
+  }
+  
+  return false;
+}
+
+void MathGtkMenuGutterSliders::on_menu_draw(GtkWidget *menu, Canvas &canvas, FrontEndReference ref) {
+  for(auto &region : regions)
+    region.paint(menu, canvas, ref);
+}
+
+//} ... class MathGtkMenuGutterSliders

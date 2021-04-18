@@ -1130,9 +1130,6 @@ void MathGtkDocumentWindowImpl::add_remove_window(int delta) {
           "menuitem.menubar-pin:checked > label {"
           "  background-image: -gtk-icontheme('go-up-symbolic');"
           "}"
-          //"menuitem.menubar-pin > label {"
-          //"  opacity:0.5;"
-          //"}"
         ), -1,
         nullptr);
       
@@ -1273,7 +1270,7 @@ void MathGtkDocumentWindowImpl::connect_scrollbar_overlay_signals() {
 #if GTK_MAJOR_VERSION >= 3
   g_signal_connect_after(self._vscrollbar, "draw", G_CALLBACK(scrollbar_draw_callback), &self);
 #else
-  gtk_widget_set_events(self._vscrollbar, gtk_widget_get_events(self._vscrollbar) | GDK_EXPOSURE_MASK);
+  gtk_widget_add_events(self._vscrollbar, GDK_EXPOSURE_MASK);
   g_signal_connect_after(self._vscrollbar, "expose-event", G_CALLBACK(scrollbar_expose_callback), &self);
 #endif
 }
