@@ -143,13 +143,22 @@ namespace {
   
   class MathGtkMenuSliderRegion {
     public:
-      void paint(GtkWidget *menu, Canvas &canvas, FrontEndReference ref);
+      void paint(GtkWidget *menu, Canvas &canvas, FrontEndReference id);
       
       void get_allocation(GtkAllocation *rect);
       
+      bool on_menu_button_press(GtkWidget *menu, GdkEvent *e, FrontEndReference id);
+      bool on_menu_button_release(GtkWidget *menu, GdkEvent *e, FrontEndReference id);
+      bool on_menu_motion_notify(GtkWidget *menu, GdkEvent *e, FrontEndReference id);
+      
     private:
       StyledObject *resolve_scope(Document *doc);
+      
+      static bool try_get_rhs_value(Expr cmd, float *value);
       bool collect_float_values(Array<float> &values);
+      
+      bool value_index_from_point(int y, int *index, float *rel_offset);
+      void apply_slider_pos(GtkWidget *menu, FrontEndReference id, int index, float rel_offset);
       
     public:
       Expr scope;
@@ -167,13 +176,18 @@ namespace {
       static void menu_gutter_sliders(GtkWidget *menu, MathGtkMenuGutterSliders *gutters);
       static MathGtkMenuGutterSliders *menu_gutter_sliders(GtkWidget *menu);
       
+      bool on_menu_button_press(GtkWidget *menu, GdkEvent *e, FrontEndReference id);
+      bool on_menu_button_release(GtkWidget *menu, GdkEvent *e, FrontEndReference id);
+      bool on_menu_motion_notify(GtkWidget *menu, GdkEvent *e, FrontEndReference id);
+      
     private:
       static gboolean menu_expose_callback(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean menu_draw_callback(  GtkWidget *menu, cairo_t *cr, void *eval_box_id_as_ptr);
-      void on_menu_draw(GtkWidget *menu, Canvas &canvas, FrontEndReference ref);
+      void on_menu_draw(GtkWidget *menu, Canvas &canvas, FrontEndReference id);
     
     public:
       Array<MathGtkMenuSliderRegion> regions;
+      int grabbed_region_index;
       
     private:
       static const char *data_key;
@@ -183,12 +197,13 @@ namespace {
 namespace richmath {
   class MathGtkMenuBuilder::Impl {
     public:
-      static gboolean on_map_menu(GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
-      static gboolean on_unmap_menu(GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
-      static gboolean on_menu_key_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
-      static gboolean on_menu_key_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
-      static gboolean on_menu_button_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+      static gboolean on_map_menu(           GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
+      static gboolean on_unmap_menu(         GtkWidget *menu, GdkEventAny *event, void *eval_box_id_as_ptr);
+      static gboolean on_menu_key_press(     GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+      static gboolean on_menu_key_release(   GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+      static gboolean on_menu_button_press(  GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_button_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+      static gboolean on_menu_motion_notify( GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
   };
 }
 
@@ -221,6 +236,7 @@ void MathGtkMenuBuilder::connect_events(GtkMenu *menu, FrontEndReference doc_id)
   g_signal_connect(menu, "key-release-event",    G_CALLBACK(Impl::on_menu_key_release),    FrontEndReference::unsafe_cast_to_pointer(doc_id));
   g_signal_connect(menu, "button-press-event",   G_CALLBACK(Impl::on_menu_button_press),   FrontEndReference::unsafe_cast_to_pointer(doc_id));
   g_signal_connect(menu, "button-release-event", G_CALLBACK(Impl::on_menu_button_release), FrontEndReference::unsafe_cast_to_pointer(doc_id));
+  g_signal_connect(menu, "motion-notify-event",  G_CALLBACK(Impl::on_menu_motion_notify),  FrontEndReference::unsafe_cast_to_pointer(doc_id));
 }
 
 void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id) {
@@ -364,8 +380,6 @@ void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id
           
           region = MathGtkMenuSliderRegion();
         }
-        else
-          region.menu_items.add(menu_item);
       }
       
       if(lhs) {
@@ -577,8 +591,12 @@ gboolean MathGtkMenuBuilder::Impl::on_menu_key_release(GtkWidget *menu, GdkEvent
 }
 
 gboolean MathGtkMenuBuilder::Impl::on_menu_button_press(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr) {
-  GtkWidget *wid = gtk_get_event_widget(e);
+  if(auto gutter_sliders = MathGtkMenuGutterSliders::menu_gutter_sliders(menu)) {
+    if(gutter_sliders->on_menu_button_press(menu, e, FrontEndReference::unsafe_cast_from_pointer(eval_box_id_as_ptr)))
+      return true;
+  }
   
+  GtkWidget *wid = gtk_get_event_widget(e);
   if(GTK_IS_MENU_ITEM(wid)) {
     Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(wid));
     
@@ -590,8 +608,29 @@ gboolean MathGtkMenuBuilder::Impl::on_menu_button_press(GtkWidget *menu, GdkEven
 }
 
 gboolean MathGtkMenuBuilder::Impl::on_menu_button_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr) {
-  GtkWidget *wid = gtk_get_event_widget(e);
+  if(auto gutter_sliders = MathGtkMenuGutterSliders::menu_gutter_sliders(menu)) {
+    if(gutter_sliders->on_menu_button_release(menu, e, FrontEndReference::unsafe_cast_from_pointer(eval_box_id_as_ptr)))
+      return true;
+  }
   
+  GtkWidget *wid = gtk_get_event_widget(e);
+  if(GTK_IS_MENU_ITEM(wid)) {
+    Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(wid));
+    
+    if(cmd == strings::SearchMenuItems)
+      return true;
+  }
+  
+  return false;
+}
+
+gboolean MathGtkMenuBuilder::Impl::on_menu_motion_notify(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr) {
+  if(auto gutter_sliders = MathGtkMenuGutterSliders::menu_gutter_sliders(menu)) {
+    if(gutter_sliders->on_menu_motion_notify(menu, e, FrontEndReference::unsafe_cast_from_pointer(eval_box_id_as_ptr)))
+      return true;
+  }
+  
+  GtkWidget *wid = gtk_get_event_widget(e);
   if(GTK_IS_MENU_ITEM(wid)) {
     Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(wid));
     
@@ -1382,7 +1421,7 @@ bool MathGtkMenuSearch::do_open_help_menu(Expr cmd) {
 
 //{ class MathGtkMenuSliderRegion ...
 
-void MathGtkMenuSliderRegion::paint(GtkWidget *menu, Canvas &canvas, FrontEndReference ref) {
+void MathGtkMenuSliderRegion::paint(GtkWidget *menu, Canvas &canvas, FrontEndReference id) {
   if(menu_items.length() == 0)
     return;
   
@@ -1401,7 +1440,7 @@ void MathGtkMenuSliderRegion::paint(GtkWidget *menu, Canvas &canvas, FrontEndRef
     }
     #endif
     
-    auto doc = FrontEndObject::find_cast<Document>(ref);
+    auto doc = FrontEndObject::find_cast<Document>(id);
     NativeWidget *doc_window = doc ? doc->native() : NativeWidget::dummy;
     
     struct DummyContext : public ControlContext {
@@ -1503,6 +1542,87 @@ void MathGtkMenuSliderRegion::get_allocation(GtkAllocation *rect) {
   rect->height-= 2;
 }
 
+bool MathGtkMenuSliderRegion::on_menu_button_press(GtkWidget *menu, GdkEvent *e, FrontEndReference id) {
+  auto event = &e->button;
+  
+  GtkWidget *wid = gtk_get_event_widget(e);
+  if(!GTK_IS_MENU_ITEM(wid))
+    return true;
+  
+  GtkAllocation wid_rect;
+  gtk_widget_get_allocation(wid, &wid_rect);
+  
+  int y = event->y + wid_rect.y;
+  
+  int index;
+  float rel_offset;
+  if(value_index_from_point(y, &index, &rel_offset)) {
+    if((event->state & GDK_SHIFT_MASK) == 0) {
+      if(fabsf(rel_offset) < 0.25f)
+        rel_offset = 0.0f;
+    }
+  
+    apply_slider_pos(menu, id, index, rel_offset);
+  }
+  
+  return true;
+}
+
+bool MathGtkMenuSliderRegion::on_menu_button_release(GtkWidget *menu, GdkEvent *e, FrontEndReference id) {
+  auto event = &e->button;
+  
+  GtkWidget *wid = gtk_get_event_widget(e);
+  if(!GTK_IS_MENU_ITEM(wid))
+    return true;
+  
+  GtkAllocation wid_rect;
+  gtk_widget_get_allocation(wid, &wid_rect);
+  
+  int y = event->y + wid_rect.y;
+  
+  int index;
+  float rel_offset;
+  if(value_index_from_point(y, &index, &rel_offset)) {
+    if((event->state & GDK_SHIFT_MASK) == 0) {
+      if(fabsf(rel_offset) < 0.25f)
+        rel_offset = 0.0f;
+    }
+    
+    apply_slider_pos(menu, id, index, rel_offset);
+  }
+  
+  return true;
+}
+
+bool MathGtkMenuSliderRegion::on_menu_motion_notify(GtkWidget *menu, GdkEvent *e, FrontEndReference id) {
+  auto event = &e->motion;
+  
+  if((event->state & GDK_BUTTON1_MASK) == 0)
+    return false;
+  
+  GtkWidget *wid = gtk_get_event_widget(e);
+  if(!GTK_IS_MENU_ITEM(wid))
+    return true;
+  
+  GtkAllocation wid_rect;
+  gtk_widget_get_allocation(wid, &wid_rect);
+  
+  int y = event->y + wid_rect.y;
+  
+  int index;
+  float rel_offset;
+  if(value_index_from_point(y, &index, &rel_offset)) {
+    if((event->state & GDK_SHIFT_MASK) == 0) {
+      if(fabsf(rel_offset) < 0.25f)
+        rel_offset = 0.0f;
+    }
+  
+    apply_slider_pos(menu, id, index, rel_offset);
+  }
+  
+  return true;
+}
+
 StyledObject *MathGtkMenuSliderRegion::resolve_scope(Document *doc) {
   // same as Win32MenuGutterSlider::Impl::resolve_scope()
 
@@ -1522,31 +1642,107 @@ StyledObject *MathGtkMenuSliderRegion::resolve_scope(Document *doc) {
   return nullptr;
 }
 
+bool MathGtkMenuSliderRegion::try_get_rhs_value(Expr cmd, float *value) {
+  *value = NAN;
+  
+  if(cmd[0] == richmath_FE_ScopedCommand)
+    cmd = cmd[1];
+
+  if(!cmd.is_rule())
+    return false;
+  
+  Expr rhs = cmd[2];
+  if(rhs.is_number()) {
+    *value = rhs.to_double();
+    return true;
+  }
+  
+  if(rhs == richmath_System_Inherited) {
+    // Magnification -> Inherited
+    *value = 1;
+    return true;
+  }
+  
+  return false;
+}
+
 bool MathGtkMenuSliderRegion::collect_float_values(Array<float> &values) {
   // similar to Win32MenuGutterSlider::collect_float_values()
 
   values.length(menu_items.length());
   for(int i = 0; i < menu_items.length(); ++i) {
-    Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_items[i]));
-    if(cmd[0] == richmath_FE_ScopedCommand)
-      cmd = cmd[1];
-    
-    if(!cmd.is_rule())
+    float val;
+    if(!try_get_rhs_value(MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_items[i])), &val))
       return false;
-    
-    Expr rhs = cmd[2];
-    if(rhs.is_number()) {
-      values[i] = rhs.to_double();
-    }
-    else if(rhs == richmath_System_Inherited) {
-      // Magnification -> Inherited
-      values[i] = 1;
-    }
-    else
-      return false;
+      
+    values[i] = val;
   }
   
   return true;
+}
+
+bool MathGtkMenuSliderRegion::value_index_from_point(int y, int *index, float *rel_offset) {
+  int previous_bottom = 0;
+  
+  *index      = -1;
+  *rel_offset = 0.0f;
+  
+  for(int i = 0; i < menu_items.length(); ++i) {
+    GtkAllocation item_rect;
+    
+    gtk_widget_get_allocation(menu_items[i], &item_rect);
+    
+    int center = item_rect.y + item_rect.height / 2;
+    int bottom = item_rect.y + item_rect.height;
+    
+    if(i == 0) {
+      previous_bottom = item_rect.y;
+      if(y < item_rect.y)
+        break;
+    }
+    
+    if(y <= item_rect.y + item_rect.height) {
+      *rel_offset = (y - center) /((float)bottom - previous_bottom);
+      if(i == 0 && *rel_offset < 0)
+        *rel_offset = 0;
+      
+      if(i == menu_items.length() - 1 && *rel_offset > 0)
+        *rel_offset = 0;
+      
+      *index = i;
+      return true;
+    }
+    
+    previous_bottom = bottom;
+  }
+  
+  return false;
+}
+
+void MathGtkMenuSliderRegion::apply_slider_pos(GtkWidget *menu, FrontEndReference id, int index, float rel_offset) {
+  Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_items[index]));
+  
+  if(rel_offset != 0) {
+    float value;
+    if(!try_get_rhs_value(cmd, &value))
+      return;
+    
+    int other_index = index + ((rel_offset > 0) ? 1 : -1);
+    float other_value;
+    if(!try_get_rhs_value(MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_items[other_index])), &other_value))
+      return;
+    
+    value+= fabsf(rel_offset) * (other_value - value);
+    cmd = Rule(lhs, value);
+    if(scope)
+      cmd = Call(Symbol(richmath_FE_ScopedCommand), std::move(cmd), scope);
+  }
+  
+  if(!Menus::run_command_now(std::move(cmd)))
+    return;
+  
+  //expand_inline_lists(GTK_MENU(menu), id);
+  gtk_widget_queue_draw(menu);
 }
 
 //} ... class MathGtkMenuSliderRegion
@@ -1556,7 +1752,8 @@ bool MathGtkMenuSliderRegion::collect_float_values(Array<float> &values) {
 const char *MathGtkMenuGutterSliders::data_key = "richmath:menu_gutter_sliders";
 
 MathGtkMenuGutterSliders::MathGtkMenuGutterSliders()
-  : Base()
+  : Base(),
+    grabbed_region_index(-1)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
@@ -1587,6 +1784,55 @@ void MathGtkMenuGutterSliders::connect(GtkMenu *menu, FrontEndReference doc_id) 
   #endif
 }
 
+bool MathGtkMenuGutterSliders::on_menu_button_press(GtkWidget *menu, GdkEvent *e, FrontEndReference id) {
+  auto event = &e->button;
+  
+  GtkWidget *wid = gtk_get_event_widget(e);
+  if(!GTK_IS_MENU_ITEM(wid))
+    return false;
+  
+  GtkAllocation wid_rect;
+  gtk_widget_get_allocation(wid, &wid_rect);
+  
+  int x = event->x + wid_rect.x;
+  int y = event->y + wid_rect.y;
+  
+  grabbed_region_index = -1;
+  for(int i = 0; i < regions.length(); ++i) {
+    GtkAllocation rect;
+    regions[i].get_allocation(&rect);
+    
+    if( rect.x <= x && x <= rect.x + rect.width &&
+        rect.y <= y && y <= rect.y + rect.height)
+    {
+      grabbed_region_index = i;
+      break;
+    }
+  }
+  
+  if(grabbed_region_index >= 0 && grabbed_region_index < regions.length())
+    return regions[grabbed_region_index].on_menu_button_press(menu, e, id);
+  
+  return false;
+}
+
+bool MathGtkMenuGutterSliders::on_menu_button_release(GtkWidget *menu, GdkEvent *e, FrontEndReference id) {
+  int i = grabbed_region_index;
+  grabbed_region_index = -1;
+  
+  if(i >= 0 && i < regions.length()) 
+    return regions[i].on_menu_button_release(menu, e, id);
+  
+  return false;
+}
+
+bool MathGtkMenuGutterSliders::on_menu_motion_notify(GtkWidget *menu, GdkEvent *e, FrontEndReference id) {
+  if(grabbed_region_index >= 0 && grabbed_region_index < regions.length())
+    return regions[grabbed_region_index].on_menu_motion_notify(menu, e, id);
+  
+  return false;
+}
+
 gboolean MathGtkMenuGutterSliders::menu_expose_callback(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr) {
   GdkEventExpose *event = &e->expose;
   
@@ -1614,9 +1860,9 @@ gboolean MathGtkMenuGutterSliders::menu_draw_callback(GtkWidget *menu, cairo_t *
   return false;
 }
 
-void MathGtkMenuGutterSliders::on_menu_draw(GtkWidget *menu, Canvas &canvas, FrontEndReference ref) {
+void MathGtkMenuGutterSliders::on_menu_draw(GtkWidget *menu, Canvas &canvas, FrontEndReference id) {
   for(auto &region : regions)
-    region.paint(menu, canvas, ref);
+    region.paint(menu, canvas, id);
 }
 
 //} ... class MathGtkMenuGutterSliders
