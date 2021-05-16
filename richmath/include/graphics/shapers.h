@@ -4,6 +4,7 @@
 #define CHAR_LINE_CONTINUATION  0xF3B1
 
 #include <graphics/canvas.h>
+#include <graphics/glyphs.h>
 #include <graphics/rectangle.h>
 
 #include <util/array.h>
@@ -12,65 +13,6 @@
 
 
 namespace richmath {
-  enum {
-    GlyphStyleNone,
-    GlyphStyleImplicit,
-    GlyphStyleString,
-    GlyphStyleComment,
-    GlyphStyleParameter,
-    GlyphStyleLocal,
-    GlyphStyleScopeError,
-    GlyphStyleNewSymbol,
-    GlyphStyleShadowError,
-    GlyphStyleSyntaxError,
-    GlyphStyleSpecialUse,
-    GlyphStyleExcessOrMissingArg,
-    GlyphStyleInvalidOption,
-    GlyphStyleSpecialStringPart,
-    GlyphStyleKeyword,
-    GlyphStyleFunctionCall
-  };
-  
-  enum {
-    FontSlantPlain = 1,
-    FontSlantItalic = 2
-  };
-  
-  enum {
-    FontsPerGlyphCount = (1 << 5)
-  };
-  
-  struct GlyphInfo {
-    enum {
-      MaxRelOverlap = ((1 << 4) - 1)
-    };
-    struct ExtendersAndOverlap {
-      unsigned num_extenders: 12;
-      unsigned rel_overlap: 4;
-    };
-    
-    float right;
-    float x_offset;
-    union {
-      uint16_t            index;
-      ExtendersAndOverlap ext;
-    };
-    unsigned style:              4; // GlyphStyleXXX
-    
-    unsigned fontinfo:           5;
-    
-    unsigned slant:              2; // 0=default, otherwise FontSlantXXX
-    
-    unsigned composed:           1;
-    unsigned horizontal_stretch: 1;
-    unsigned is_normal_text:     1;
-    unsigned missing_after:      1;
-    unsigned vertical_centered:  1; // glyph ink center = math_axis above baseline; does not work when composed=1
-  };
-  
-  const uint16_t IgnoreGlyph = 0x0000;
-  const uint16_t UnknownGlyph = 0xFFFF;
-  
   class Context;
   
   class BoxSize {

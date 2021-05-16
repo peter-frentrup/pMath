@@ -807,6 +807,7 @@
 		<Unit filename="include/graphics/context.h" />
 		<Unit filename="include/graphics/fonts.h" />
 		<Unit filename="include/graphics/ft-shaper.h" />
+		<Unit filename="include/graphics/glyphs.h" />
 		<Unit filename="include/graphics/ot-font-reshaper.h" />
 		<Unit filename="include/graphics/ot-math-shaper.h" />
 		<Unit filename="include/graphics/paint-hook.h" />
@@ -1385,6 +1386,7 @@
 		<Unit filename="src/graphics/context.cpp" />
 		<Unit filename="src/graphics/fonts.cpp" />
 		<Unit filename="src/graphics/ft-shaper.cpp" />
+		<Unit filename="src/graphics/glyphs.cpp" />
 		<Unit filename="src/graphics/ot-font-reshaper.cpp" />
 		<Unit filename="src/graphics/ot-math-shaper.cpp" />
 		<Unit filename="src/graphics/paint-hook.cpp" />
