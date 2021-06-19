@@ -4,6 +4,7 @@
 
 #include <pmath-util/concurrency/atomic.h>
 #include <pmath-util/concurrency/threads-private.h>
+#include <pmath-util/debug.h>
 #include <pmath-util/evaluation.h>
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
@@ -165,8 +166,10 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   }
   
   body = pmath_expr_get_item(expr, 1);
-  pmath_unref(expr);
-  
+#ifdef NDEBUG
+  pmath_unref(expr); expr = PMATH_NULL;
+#endif
+
   tag = generate_message_tag();
   
   old_dynamic_id = thread->current_dynamic_id;
@@ -206,11 +209,15 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   exception = _pmath_thread_catch(thread);
   if(!pmath_same(exception, PMATH_UNDEFINED)) {
     if(pmath_equals(exception, tag)) {
+      pmath_debug_print_object("[stopped ", expr, "]\n");
       pmath_unref(body);
       pmath_unref(exception);
       body = failexpr;
       failexpr = PMATH_NULL;
       exception = PMATH_UNDEFINED;
+    }
+    else {
+      pmath_debug_print_object("[throw through ", expr, "]\n");
     }
   }
   
@@ -240,5 +247,6 @@ PMATH_PRIVATE pmath_t builtin_try(pmath_expr_t expr) {
   if(!pmath_same(exception, PMATH_UNDEFINED))
     _pmath_thread_throw(thread, exception);
     
+  pmath_unref(expr);
   return body;
 }
