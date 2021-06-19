@@ -1026,6 +1026,8 @@ Document *Application::open_new_document(String full_filename) {
       s += file.readline();
     }
     
+    file.close();
+    
     if(s) {
       int pos = 0;
       Expr section_expr = Call(Symbol(richmath_System_Section), s, strings::Text);
