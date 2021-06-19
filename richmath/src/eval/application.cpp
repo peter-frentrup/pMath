@@ -1026,9 +1026,11 @@ Document *Application::open_new_document(String full_filename) {
       s += file.readline();
     }
     
-    int pos = 0;
-    Expr section_expr = Call(Symbol(richmath_System_Section), s, strings::Text);
-    doc->insert_pmath(&pos, section_expr);
+    if(s) {
+      int pos = 0;
+      Expr section_expr = Call(Symbol(richmath_System_Section), s, strings::Text);
+      doc->insert_pmath(&pos, section_expr);
+    }
   } while(false);
 
   if(!doc->selectable())
