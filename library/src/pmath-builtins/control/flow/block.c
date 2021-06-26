@@ -264,25 +264,26 @@ static void untracked_restore_definitions(struct symbol_definition_t *def) {
        implement additional external storage. 
        We call the associated C-code here.
      */
-    if( _pmath_have_code(old->symbol, PMATH_CODE_USAGE_UPCALL) &&
-        !(old->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED))
-    {
-      pmath_t expr;
-      
-      if(pmath_same(old->value, PMATH_UNDEFINED)) {
-        expr = pmath_expr_new_extended(
-                 pmath_ref(pmath_System_Unassign), 1, 
-                 pmath_ref(old->symbol));
+    if(old->rules && !(old->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED)) {
+      pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&old->rules->up_call);
+      if(func) {
+        pmath_t expr;
+        
+        if(pmath_same(old->value, PMATH_UNDEFINED)) {
+          expr = pmath_expr_new_extended(
+                   pmath_ref(pmath_System_Unassign), 1, 
+                   pmath_ref(old->symbol));
+        }
+        else if(pmath_is_evaluatable(old->value)) {
+          expr = pmath_expr_new_extended(
+                           pmath_ref(pmath_System_AssignDelayed), 2,
+                           pmath_ref(old->symbol),
+                           pmath_ref(old->value));
+        }
+        
+        _pmath_run_code(pmath_thread_get_current(), old->symbol, PMATH_CODE_USAGE_UPCALL, &expr);
+        pmath_unref(expr);
       }
-      else if(pmath_is_evaluatable(old->value)) {
-        expr = pmath_expr_new_extended(
-                         pmath_ref(pmath_System_AssignDelayed), 2,
-                         pmath_ref(old->symbol),
-                         pmath_ref(old->value));
-      }
-      
-      _pmath_run_code(pmath_thread_get_current(), old->symbol, PMATH_CODE_USAGE_UPCALL, &expr);
-      pmath_unref(expr);
     }
   
     _pmath_symbol_lost_dynamic_tracker(old->symbol, 0, sym_tracker_id);

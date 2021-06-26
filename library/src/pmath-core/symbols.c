@@ -286,16 +286,7 @@ intptr_t _pmath_symbol_self_refcount(pmath_symbol_t symbol) {
   
   if(rules)
     _pmath_symbol_rules_visit(rules, count_symbol_callback, &counter);
-    
-  if(_pmath_have_code(symbol, PMATH_CODE_USAGE_DOWNCALL))
-    ++counter.count;
-    
-  if(_pmath_have_code(symbol, PMATH_CODE_USAGE_UPCALL))
-    ++counter.count;
-    
-  if(_pmath_have_code(symbol, PMATH_CODE_USAGE_SUBCALL))
-    ++counter.count;
-    
+  
   return counter.count;
 }
 
@@ -1053,18 +1044,6 @@ static void destroy_symbol(pmath_t s) {
 #ifdef PMATH_DEBUG_LOG
       if(pmath_atomic_read_aquire(&_pmath_debug_current_gc_symbol) == (intptr_t)symbol){
         pmath_debug_print_object("\n[symbol still used by GC: ", s , "]\n");
-      }
-      
-      if(_pmath_have_code(s, PMATH_CODE_USAGE_DOWNCALL)) {
-        pmath_debug_print_object("\n[symbol still used in DOWNCALL: ", s , "]\n");
-      }
-      
-      if(_pmath_have_code(s, PMATH_CODE_USAGE_SUBCALL)) {
-        pmath_debug_print_object("\n[symbol still used in SUBCALL: ", s , "]\n");
-      }
-      
-      if(_pmath_have_code(s, PMATH_CODE_USAGE_UPCALL)) {
-        pmath_debug_print_object("\n[symbol still used in UPCALL: ", s , "]\n");
       }
 #endif
       

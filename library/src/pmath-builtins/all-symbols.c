@@ -1,5 +1,7 @@
 #include <pmath-builtins/all-symbols-private.h>
 
+#include <pmath-core/symbols-private.h>
+
 #include <pmath-util/concurrency/atomic-private.h>
 #include <pmath-util/concurrency/threads-private.h>
 #include <pmath-util/debug.h>
@@ -7,6 +9,7 @@
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
 #include <pmath-util/security-private.h>
+#include <pmath-util/symbol-values-private.h>
 
 #include <string.h>
 
@@ -36,63 +39,6 @@
 
 
 /*============================================================================*/
-//{ up/down/sub code hashtables ...
-
-typedef struct {
-  pmath_symbol_t   key;
-  void           (*function)();
-} func_entry_t;
-
-#define CODE_TABLES_COUNT  5
-
-static pmath_atomic_t _code_tables[CODE_TABLES_COUNT]; // index: pmath_code_usage_t
-
-#define LOCK_CODE_TABLE(USAGE)           (pmath_hashtable_t)_pmath_atomic_lock_ptr(&_code_tables[(USAGE)])
-#define UNLOCK_CODE_TABLE(USAGE, TABLE)  _pmath_atomic_unlock_ptr(&_code_tables[(USAGE)], (TABLE))
-
-static void destroy_func_entry(void *e) {
-  func_entry_t *entry = (func_entry_t*)e;
-  pmath_unref(entry->key);
-  pmath_mem_free(entry);
-}
-
-static unsigned int hash_func_entry(void *e) {
-  func_entry_t *entry = (func_entry_t*)e;
-  return _pmath_hash_pointer(PMATH_AS_PTR(entry->key));
-}
-
-static pmath_bool_t func_entry_keys_equal(
-  void *e1,
-  void *e2
-) {
-  func_entry_t *entry1 = (func_entry_t*)e1;
-  func_entry_t *entry2 = (func_entry_t*)e2;
-  return pmath_same(entry1->key, entry2->key);
-}
-
-static unsigned int hash_func_key(void *k) {
-  pmath_symbol_t key = *(pmath_t*)k;
-  return pmath_hash(key);
-}
-
-static pmath_bool_t func_entry_equals_key(
-  void *e,
-  void *k
-) {
-  func_entry_t   *entry = (func_entry_t*)e;
-  pmath_symbol_t  key   = *(pmath_t*)k;
-  return pmath_same(entry->key, key);
-}
-
-static const pmath_ht_class_t function_table_class = {
-  destroy_func_entry,
-  hash_func_entry,
-  func_entry_keys_equal,
-  hash_func_key,
-  func_entry_equals_key
-};
-
-//} ============================================================================
 
 //{ builtins from src/pmath-builtins/arithmetic/ ...
 PMATH_PRIVATE pmath_t builtin_abs(             pmath_expr_t expr);
@@ -548,48 +494,35 @@ static pmath_t general_builtin_nofront(pmath_expr_t expr) {
 //} ============================================================================
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_have_code(
-  pmath_t            key, // wont be freed
-  pmath_code_usage_t usage
-) {
-  void              *entry;
-  pmath_hashtable_t  table;
-  
-  if((unsigned)usage >= CODE_TABLES_COUNT)
-    return FALSE;
-    
-  table = LOCK_CODE_TABLE(usage);
-  
-  entry = pmath_ht_search(table, &key);
-  
-  UNLOCK_CODE_TABLE(usage, table);
-  
-  return entry != NULL;
-}
-
-PMATH_PRIVATE
 pmath_bool_t _pmath_run_code(
   struct _pmath_thread_t *current_thread,
-  pmath_t                 key,   // wont be freed
+  pmath_symbol_t          symbol,   // wont be freed
   pmath_code_usage_t      usage,
   pmath_t                *in_out
 ) {
-  func_entry_t         *entry;
-  pmath_hashtable_t     table;
-  pmath_builtin_func_t  func = NULL;
+  // TODO: remove this function, move to evaluation.c
+  
+  struct _pmath_symbol_rules_t *rules;
+  pmath_builtin_func_t          func = NULL;
+  
+  if(pmath_is_null(symbol))
+    return FALSE;
   
   if(!current_thread)
     return FALSE;
   
-  assert((unsigned)usage <= (unsigned)PMATH_CODE_USAGE_EARLYCALL);
+  rules = _pmath_symbol_get_rules(symbol, RULES_READ);
+  if(!rules)
+    return FALSE;
   
-  table = LOCK_CODE_TABLE(usage);
-  
-  entry = pmath_ht_search(table, &key);
-  if(entry)
-    func = (pmath_builtin_func_t)entry->function;
-    
-  UNLOCK_CODE_TABLE(usage, table);
+  switch(usage) {
+    case PMATH_CODE_USAGE_EARLYCALL: func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->early_call); break;
+    case PMATH_CODE_USAGE_UPCALL:    func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->up_call);    break;
+    case PMATH_CODE_USAGE_DOWNCALL:  func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->down_call);  break;
+    case PMATH_CODE_USAGE_SUBCALL:   func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->sub_call);   break;
+    default:
+      return FALSE;
+  }
   
   if(func && !pmath_aborting()) {
     if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level)) {
@@ -608,24 +541,26 @@ pmath_bool_t _pmath_run_code(
 PMATH_PRIVATE
 pmath_bool_t _pmath_run_approx_code(
   struct _pmath_thread_t *current_thread,
-  pmath_t                 key,   // wont be freed
+  pmath_symbol_t          symbol,   // wont be freed
   pmath_t                *in_out,
   double                  prec
 ) {
-  func_entry_t         *entry;
-  pmath_hashtable_t     table;
-  pmath_bool_t        (*func)(pmath_t*, double) = NULL;
+  // TODO: remove this function
+  
+  struct _pmath_symbol_rules_t  *rules;
+  pmath_bool_t                 (*func)(pmath_t*, double) = NULL;
+  
+  if(pmath_is_null(symbol))
+    return FALSE;
   
   if(!current_thread)
     return FALSE;
   
-  table = LOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX);
+  rules = _pmath_symbol_get_rules(symbol, RULES_READ);
+  if(!rules)
+    return FALSE;
   
-  entry = pmath_ht_search(table, &key);
-  if(entry)
-    func = (pmath_bool_t(*)(pmath_t*, double))entry->function;
-    
-  UNLOCK_CODE_TABLE(PMATH_CODE_USAGE_APPROX, table);
+  func = (void*)pmath_atomic_read_aquire(&rules->approx_call);
   
   if(func) {
     if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level)) {
@@ -647,36 +582,25 @@ pmath_bool_t pmath_register_code(
   pmath_builtin_func_t   func,
   pmath_code_usage_t     usage
 ) {
-  func_entry_t       *entry;
-  pmath_hashtable_t   table;
+  struct _pmath_symbol_rules_t *rules;
   
-  if((unsigned)usage >= CODE_TABLES_COUNT)
+  if(pmath_is_null(symbol))
     return FALSE;
-    
-  if(func) {
-    entry = (func_entry_t*)pmath_mem_alloc(sizeof(func_entry_t));
-    if(!entry)
+  
+  rules = _pmath_symbol_get_rules(symbol, RULES_WRITEOPTIONS);
+  if(!rules)
+    return FALSE;
+  
+  switch(usage) {
+    case PMATH_CODE_USAGE_EARLYCALL: pmath_atomic_write_release(&rules->early_call,  (intptr_t)func); break;
+    case PMATH_CODE_USAGE_DOWNCALL:  pmath_atomic_write_release(&rules->down_call,   (intptr_t)func); break;
+    case PMATH_CODE_USAGE_UPCALL:    pmath_atomic_write_release(&rules->up_call,     (intptr_t)func); break;
+    case PMATH_CODE_USAGE_SUBCALL:   pmath_atomic_write_release(&rules->sub_call,    (intptr_t)func); break;
+    case PMATH_CODE_USAGE_APPROX:    pmath_atomic_write_release(&rules->approx_call, (intptr_t)func); break;
+    default:
       return FALSE;
-      
-    entry->key      = pmath_ref(symbol);
-    entry->function = (void(*)())func;
   }
-  else
-    entry = NULL;
-    
-  table = LOCK_CODE_TABLE(usage);
   
-  if(entry)
-    entry = pmath_ht_insert(table, entry);
-  else
-    entry = pmath_ht_remove(table, &symbol);
-    
-  UNLOCK_CODE_TABLE(usage, table);
-  
-  
-  if(entry)
-    destroy_func_entry(entry);
-    
   return TRUE;
 }
 
@@ -930,18 +854,6 @@ static pmath_bool_t init_builtin_security_doormen(void) {
 }
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
-  int i;
-    
-  memset((void*)_code_tables, 0, CODE_TABLES_COUNT * sizeof(pmath_hashtable_t));
-  
-  for(i = 0; i < CODE_TABLES_COUNT; ++i) {
-    pmath_hashtable_t table = pmath_ht_create(&function_table_class, 0);
-    if(!table)
-      goto FAIL;
-      
-    pmath_atomic_write_release(&_code_tables[i], (intptr_t)table);
-  }
-  
 #define VERIFY(X)  do{ pmath_t tmp = (X); if(pmath_is_null(tmp)) goto FAIL; }while(0);
 
 #define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    VERIFY( SYM = pmath_symbol_get(PMATH_C_STRING(NAME), TRUE) );
@@ -1403,9 +1315,6 @@ FAIL:
 #    include "symbols.inc"
 #  undef PMATH_DECLARE_SYMBOL
 
-  for(i = 0; i < CODE_TABLES_COUNT; ++i)
-    pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
-  
   return FALSE;
 }
 
@@ -1426,12 +1335,7 @@ PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void) {
 }
 
 PMATH_PRIVATE void _pmath_symbol_builtins_done(void) {
-  int i;
-  
 #  define PMATH_DECLARE_SYMBOL(SYM, NAME, ATTRIB)    pmath_unref(SYM); SYM = PMATH_NULL;
 #    include "symbols.inc"
 #  undef PMATH_DECLARE_SYMBOL
-
-  for(i = 0; i < CODE_TABLES_COUNT; ++i)
-    pmath_ht_destroy((pmath_hashtable_t)pmath_atomic_read_aquire(&_code_tables[i]));
 }

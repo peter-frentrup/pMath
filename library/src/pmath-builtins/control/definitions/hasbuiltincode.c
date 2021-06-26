@@ -1,8 +1,11 @@
-#include <pmath-util/helpers.h>
-#include <pmath-util/messages.h>
+#include <pmath-core/symbols-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
+
+#include <pmath-util/helpers.h>
+#include <pmath-util/messages.h>
+#include <pmath-util/symbol-values-private.h>
 
 
 extern pmath_symbol_t pmath_System_DownRules;
@@ -29,6 +32,17 @@ static pmath_code_usage_t kind_to_usage(pmath_symbol_t kind) {
   return (pmath_code_usage_t)(-1);
 }
 
+static pmath_bool_t has_code(const struct _pmath_symbol_rules_t *rules, pmath_code_usage_t kind) {
+  switch(kind) {
+    case PMATH_CODE_USAGE_EARLYCALL:
+    case PMATH_CODE_USAGE_DOWNCALL: return 0 != pmath_atomic_read_aquire(&rules->early_call) ||
+                                           0 != pmath_atomic_read_aquire(&rules->down_call);
+    case PMATH_CODE_USAGE_UPCALL:   return 0 != pmath_atomic_read_aquire(&rules->up_call);
+    case PMATH_CODE_USAGE_SUBCALL:  return 0 != pmath_atomic_read_aquire(&rules->sub_call);
+    case PMATH_CODE_USAGE_APPROX:   return 0 != pmath_atomic_read_aquire(&rules->approx_call);
+  }
+  return FALSE;
+}
 
 PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
   /* Developer`HasBuiltinCode(symbol)
@@ -43,6 +57,7 @@ PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
       General::fnsym
    */
   
+  struct _pmath_symbol_rules_t *rules;
   size_t exprlen;
   pmath_t sym, kind;
   pmath_code_usage_t usage;
@@ -65,13 +80,21 @@ PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
     return expr;
   }
   
+  rules = _pmath_symbol_get_rules(sym, RULES_READ);
+  if(!rules) {
+    pmath_unref(expr);
+    pmath_unref(sym);
+    return pmath_ref(pmath_System_False);
+  }
+  
   if(exprlen == 1) {
     pmath_unref(expr);
     
-    if( _pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL) ||
-        _pmath_have_code(sym, PMATH_CODE_USAGE_UPCALL) ||
-        _pmath_have_code(sym, PMATH_CODE_USAGE_SUBCALL) ||
-        _pmath_have_code(sym, PMATH_CODE_USAGE_APPROX))
+    if( 0 != pmath_atomic_read_aquire(&rules->early_call) ||
+        0 != pmath_atomic_read_aquire(&rules->up_call) ||
+        0 != pmath_atomic_read_aquire(&rules->down_call) ||
+        0 != pmath_atomic_read_aquire(&rules->sub_call) ||
+        0 != pmath_atomic_read_aquire(&rules->approx_call))
     {
       pmath_unref(sym);
       return pmath_ref(pmath_System_True);
@@ -98,7 +121,7 @@ PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
       }
       
       pmath_unref(sub_kind);
-      if(_pmath_have_code(sym, usage)) {
+      if(has_code(rules, usage)) {
         pmath_unref(kind);
         pmath_unref(sym);
         return pmath_ref(pmath_System_True);
@@ -118,7 +141,7 @@ PMATH_PRIVATE pmath_t builtin_developer_hasbuiltincode(pmath_expr_t expr) {
   }
   
   pmath_unref(kind);
-  if(_pmath_have_code(sym, usage)) {
+  if(has_code(rules, usage)) {
     pmath_unref(sym);
     return pmath_ref(pmath_System_True);
   }

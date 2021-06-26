@@ -212,19 +212,6 @@ static pmath_bool_t gc_did_see_all_refs(pmath_symbol_t sym) { // sym won't be fr
   // one reference is held by sym
   ++gc_refs;
 
-  if(gc_refs < actual_refs && actual_refs <= gc_refs + 3) {
-    if(_pmath_have_code(sym, PMATH_CODE_USAGE_DOWNCALL))
-      ++gc_refs;
-
-    if(_pmath_have_code(sym, PMATH_CODE_USAGE_UPCALL))
-      ++gc_refs;
-
-    if(_pmath_have_code(sym, PMATH_CODE_USAGE_SUBCALL))
-      ++gc_refs;
-      
-    // TODO: PMATH_CODE_USAGE_APPROX
-  }
-
   return gc_refs == actual_refs;
 }
 

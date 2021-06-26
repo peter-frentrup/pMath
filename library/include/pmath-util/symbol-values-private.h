@@ -15,7 +15,7 @@ struct _pmath_rulecache_t { // do not access members directly, init all with PMA
   pmath_locked_t  _more;  // _pmath_multirule_t
 };
 
-struct _pmath_symbol_rules_t { // init all with PMATH_NULL
+struct _pmath_symbol_rules_t {
   struct _pmath_rulecache_t  up_rules;      // ~(~~~,f,~~~), ~(~~~,f(~~~),~~~)
   struct _pmath_rulecache_t  down_rules;    // f(~~~)
   struct _pmath_rulecache_t  sub_rules;     // f(~~~)(~~~)...
@@ -24,6 +24,12 @@ struct _pmath_symbol_rules_t { // init all with PMATH_NULL
   struct _pmath_rulecache_t  format_rules;  // MakeBoxes(~~~)
   
   pmath_atomic_t _messages; // this is a pmath_hashtable_t of class pmath_ht_obj_class
+  
+  pmath_atomic_t early_call;  // pmath_builtin_func_t
+  pmath_atomic_t up_call;     // pmath_builtin_func_t
+  pmath_atomic_t down_call;   // pmath_builtin_func_t
+  pmath_atomic_t sub_call;    // pmath_builtin_func_t
+  pmath_atomic_t approx_call; 
 };
 
 struct _pmath_symbol_rules_entry_t {

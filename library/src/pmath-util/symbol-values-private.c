@@ -148,6 +148,12 @@ void _pmath_symbol_rules_copy(
     pmath_atomic_write_release(&dst->format_rules._table,  0);
 
     pmath_atomic_write_release(&dst->_messages, 0);
+    
+    pmath_atomic_write_release(&dst->early_call,  0);
+    pmath_atomic_write_release(&dst->down_call,   0);
+    pmath_atomic_write_release(&dst->up_call,     0);
+    pmath_atomic_write_release(&dst->sub_call,    0);
+    pmath_atomic_write_release(&dst->approx_call, 0);
     return;
   }
 
@@ -165,6 +171,20 @@ void _pmath_symbol_rules_copy(
     (intptr_t)pmath_ht_copy(src_messages, _pmath_object_entry_copy_func));
 
   _pmath_atomic_unlock_ptr(&src->_messages, src_messages);
+  
+  {
+    intptr_t early_call  = pmath_atomic_read_aquire(&src->early_call);
+    intptr_t up_call     = pmath_atomic_read_aquire(&src->up_call);
+    intptr_t down_call   = pmath_atomic_read_aquire(&src->down_call);
+    intptr_t sub_call    = pmath_atomic_read_aquire(&src->sub_call);
+    intptr_t approx_call = pmath_atomic_read_aquire(&src->approx_call);
+    
+    pmath_atomic_write_release(&dst->early_call,  early_call);
+    pmath_atomic_write_release(&dst->up_call,     up_call);
+    pmath_atomic_write_release(&dst->down_call,   down_call);
+    pmath_atomic_write_release(&dst->sub_call,    sub_call);
+    pmath_atomic_write_release(&dst->approx_call, approx_call);
+  }
 }
 
 static void destroy_multirule(pmath_t p) {
@@ -972,6 +992,12 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules) {
   _pmath_atomic_unlock_ptr(&rules->_messages, NULL);
 
   pmath_ht_destroy(messages);
+  
+  pmath_atomic_write_release(&rules->early_call,  0);
+  pmath_atomic_write_release(&rules->up_call,     0);
+  pmath_atomic_write_release(&rules->down_call,   0);
+  pmath_atomic_write_release(&rules->sub_call,    0);
+  pmath_atomic_write_release(&rules->approx_call, 0);
 }
 
 //} ============================================================================

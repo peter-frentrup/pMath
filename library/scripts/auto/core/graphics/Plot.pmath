@@ -79,9 +79,10 @@ Function getRangeList(~ys) {
 }
 
 Function initData(~f, ~xmin .. ~xmax, ~numPoints, ~prec) {
-	With(ts:= Array(0 .. numPoints - 1) / (numPoints - 1))
-	With(xs:= N(SetPrecision(xmax ts + xmin (1 - ts), prec), prec))
-	Return(xs.Map({#, f(#)} &))
+	With(xs:= Array(N(SetPrecision(xmin .. xmax .. (xmax - xmin)/(numPoints - 1), prec), prec)))
+	% TODO: improve Map so that it does not unpack below:
+	Return(xs.Map({#, f(#)} &).Developer`ToPackedArray)
+	%Return(xs.Map({#, f(#)} &))
 }
 
 Function calcCosines(~xys, ~xmin .. ~xmax) {
@@ -106,7 +107,7 @@ Function cosMinFunction(~stepNumber, ~numPoints) {
 Function refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber) {
 	With(cosines:= calcCosines(xys, xrange))
 	With(cosMax:= Cos(5.0 Degree))
-	With(cosMin:= cosMinFunction(stepNumber, Length(xs)))
+	With(cosMin:= cosMinFunction(stepNumber, Length(xys)))
 	
 	Local(is, newxs)
 	is:= Flatten @ Position(cosines, ~ ? (cosMin <= # <= cosMax &), 1..1, Heads -> False);
@@ -126,7 +127,11 @@ Function refineData(~f, ~xrange, ~xys, ~prec, ~stepNumber) {
 	% 	100.0 Length(is) / Length(cosines)));
 	is:= Union(is, is + 1);
 	
-	newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec);
+	% TODO: avoid unpacking xys in Part below:
+	newxs:= N(SetPrecision(xys[is, 1] / 2 + xys[is + 1, 1] / 2, prec), prec)%.Developer`ToPackedArray;
+	
+	% TODO: improve Map so that it does not unpack below:
+	%Return(newxs.Map({#, f(#)} &).Developer`ToPackedArray)
 	Return(newxs.Map({#, f(#)} &))
 }
 
@@ -140,7 +145,12 @@ Function generateData(~f, ~xrange, ~numPoints, ~prec, ~maxrecurs) {
 		If(newxys === {}) {
 			Break()
 		}
-		xys:= SortBy(Join(xys, newxys), First);
+
+		% TODO: improve SortBy so that it does not unpack below:
+		%xys:= SortBy(Join(xys, newxys), First).Developer`ToPackedArray;
+
+		% TODO: improve SortBy so that it does not unpack below:
+		xys:= Sort(Join(xys, newxys))%.Developer`ToPackedArray;
 	}
 	Return(xys);
 }

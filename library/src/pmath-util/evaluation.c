@@ -417,8 +417,9 @@ static pmath_t evaluate_expression(
              hold_first,
              hold_rest);
              
-    if(apply_rules) {
-      if(_pmath_have_code(head, PMATH_CODE_USAGE_EARLYCALL)) {
+    if(apply_rules && pmath_is_symbol(head)) {
+      rules = _pmath_symbol_get_rules(head, RULES_READ);
+      if(rules && pmath_atomic_read_aquire(&rules->early_call) != 0) {
         expr_changes = _pmath_expr_last_change(expr);
         
         if(_pmath_run_code(current_thread, head, PMATH_CODE_USAGE_EARLYCALL, &expr)) {
