@@ -15,7 +15,7 @@ void pmath_atomic_barrier(void){
 }
 
 PMATH_FORCE_INLINE
-uint8_t pmath_atomic_read_uint8_aquire(pmath_atomic_uint8_t *atom){
+uint8_t pmath_atomic_read_uint8_aquire(const pmath_atomic_uint8_t *atom){
 //  return (uint8_t)__atomic_load_1(&atom->_data, __ATOMIC_ACQUIRE);
 
   uint8_t data = atom->_data;
@@ -24,7 +24,7 @@ uint8_t pmath_atomic_read_uint8_aquire(pmath_atomic_uint8_t *atom){
 }
 
 PMATH_FORCE_INLINE
-uint16_t pmath_atomic_read_uint16_aquire(pmath_atomic_uint16_t *atom){
+uint16_t pmath_atomic_read_uint16_aquire(const pmath_atomic_uint16_t *atom){
 //  return (uint16_t)__atomic_load_2(&atom->_data, __ATOMIC_ACQUIRE);
 
   uint16_t data = atom->_data;
@@ -33,7 +33,7 @@ uint16_t pmath_atomic_read_uint16_aquire(pmath_atomic_uint16_t *atom){
 }
 
 PMATH_FORCE_INLINE
-uint32_t pmath_atomic_read_uint32_aquire(pmath_atomic_uint32_t *atom){
+uint32_t pmath_atomic_read_uint32_aquire(const pmath_atomic_uint32_t *atom){
 //  return (uint32_t)__atomic_load_4(&atom->_data, __ATOMIC_ACQUIRE);
 
   uint32_t data = atom->_data;
@@ -42,7 +42,7 @@ uint32_t pmath_atomic_read_uint32_aquire(pmath_atomic_uint32_t *atom){
 }
 
 PMATH_FORCE_INLINE
-intptr_t pmath_atomic_read_aquire(pmath_atomic_t *atom){
+intptr_t pmath_atomic_read_aquire(const pmath_atomic_t *atom){
 //#if PMATH_BITSIZE == 64
 //  return (intptr_t)__atomic_load_8(&atom->_data, __ATOMIC_ACQUIRE); // all reads or writes below this line keep below it
 //#elif PMATH_BITSIZE == 32
