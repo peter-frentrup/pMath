@@ -24,11 +24,18 @@ static pmath_t get_default_options(pmath_t head) {
     
   rules = _pmath_symbol_get_rules(head, RULES_READ);
   if(rules) {
-    pmath_t result = pmath_expr_new_extended(
-                       pmath_ref(pmath_System_Options), 1, pmath_ref(head));
-                       
+    pmath_t result;
+    result = pmath_ref(pmath_System_Options);
+    
     if(_pmath_rulecache_find(&rules->default_rules, &result))
       return result;
+      
+//    pmath_unref(result);
+//    result = pmath_expr_new_extended(
+//                       pmath_ref(pmath_System_Options), 1, pmath_ref(head));
+//                       
+//    if(_pmath_rulecache_find(&rules->default_rules, &result))
+//      return result;
       
     pmath_unref(result);
     return pmath_ref(_pmath_object_emptylist);

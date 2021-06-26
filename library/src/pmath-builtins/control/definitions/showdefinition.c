@@ -28,6 +28,7 @@ extern pmath_symbol_t pmath_System_HoldPattern;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Names;
 extern pmath_symbol_t pmath_System_NRules;
+extern pmath_symbol_t pmath_System_Options;
 extern pmath_symbol_t pmath_System_OwnRules;
 extern pmath_symbol_t pmath_System_SectionPrint;
 extern pmath_symbol_t pmath_System_SubRules;
@@ -54,7 +55,8 @@ static void print_definition_line(pmath_t expr) { // expr will be freed
 static void print_rule_defs(
   pmath_symbol_t  sym,   // wont be freed
   pmath_t         rules, // will be freed
-  pmath_bool_t    tagged
+  pmath_bool_t    tagged,
+  pmath_bool_t    special_option_handling
 ) {
   size_t i;
   
@@ -73,6 +75,11 @@ static void print_rule_defs(
       rule_i = pmath_expr_get_item(lhs, 1);
       pmath_unref(lhs);
       lhs = rule_i;
+    }
+    
+    if(special_option_handling) {
+      if(pmath_same(lhs, pmath_System_Options)) 
+        lhs = pmath_expr_new_extended(lhs, 1, pmath_ref(sym));
     }
     
     if(tagged) {
@@ -195,7 +202,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     
   obj = pmath_expr_new_extended(pmath_ref(pmath_System_DefaultRules), 1, pmath_ref(name));
   obj = pmath_evaluate(obj);
-  print_rule_defs(sym, obj, FALSE);
+  print_rule_defs(sym, obj, FALSE, TRUE);
   
   if((pmath_symbol_get_attributes(sym) & PMATH_SYMBOL_ATTRIBUTE_READPROTECTED) == 0) {
   
@@ -205,23 +212,23 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
     
     obj = pmath_expr_new_extended(pmath_ref(pmath_System_NRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
-    print_rule_defs(sym, obj, FALSE);
+    print_rule_defs(sym, obj, FALSE, FALSE);
     
     obj = pmath_expr_new_extended(pmath_ref(pmath_System_DownRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
-    print_rule_defs(sym, obj, FALSE);
+    print_rule_defs(sym, obj, FALSE, FALSE);
     
     obj = pmath_expr_new_extended(pmath_ref(pmath_System_SubRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
-    print_rule_defs(sym, obj, FALSE);
+    print_rule_defs(sym, obj, FALSE, FALSE);
     
     obj = pmath_expr_new_extended(pmath_ref(pmath_System_UpRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
-    print_rule_defs(sym, obj, TRUE);
+    print_rule_defs(sym, obj, TRUE, FALSE);
     
     obj = pmath_expr_new_extended(pmath_ref(pmath_System_FormatRules), 1, pmath_ref(name));
     obj = pmath_evaluate(obj);
-    print_rule_defs(sym, obj, FALSE);
+    print_rule_defs(sym, obj, FALSE, FALSE);
     
     obj = pmath_symbol_get_value(sym);
     if(!pmath_same(obj, PMATH_UNDEFINED)) {
@@ -246,7 +253,7 @@ PMATH_PRIVATE pmath_t builtin_showdefinition(pmath_expr_t expr) {
         
         obj = pmath_expr_new_extended(pmath_ref(pmath_System_OwnRules), 1, pmath_ref(name));
         obj = pmath_evaluate(obj);
-        print_rule_defs(sym, obj, FALSE);
+        print_rule_defs(sym, obj, FALSE, FALSE);
       }
     }
     

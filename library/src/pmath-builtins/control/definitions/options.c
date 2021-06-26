@@ -89,6 +89,9 @@ PMATH_PRIVATE pmath_t builtin_assign_options(pmath_expr_t expr) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
+  pmath_unref(lhs);
+  lhs = pmath_ref(pmath_System_Options);
+  
   if(assignment < 0) {
     _pmath_rulecache_change(&rules->default_rules, lhs, rhs);
     return PMATH_NULL;
