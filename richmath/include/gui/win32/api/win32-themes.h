@@ -369,6 +369,9 @@ namespace richmath {
       static bool is_windows_10_1809_or_newer() { return Win32Themes::check_osversion(10, 0, 17763); }
       static bool is_windows_10_1903_or_newer() { return Win32Themes::check_osversion(10, 0, 18362); }
       static bool is_windows_10_1909_or_newer() { return Win32Themes::check_osversion(10, 0, 18363); }
+      static bool is_windows_10_20H1_or_newer() { return Win32Themes::check_osversion(10, 0, 19041); }
+      static bool is_windows_10_20H2_or_newer() { return Win32Themes::check_osversion(10, 0, 19042); }
+      static bool is_windows_10_21H1_or_newer() { return Win32Themes::check_osversion(10, 0, 19043); }
       
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
