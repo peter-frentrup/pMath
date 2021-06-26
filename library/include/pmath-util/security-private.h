@@ -12,9 +12,9 @@
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_security_check_builtin(
-  pmath_builtin_func_t   func, 
-  pmath_expr_t           expr, 
-  pmath_security_level_t current_level); // must be pmath_thread_geT_current()->security_level
+  void                   *func, // usually a pmath_builtin_func_t or pmath_approx_func_t 
+  pmath_expr_t            expr, 
+  pmath_security_level_t  current_level); // must be pmath_thread_get_current()->security_level
 
 
 PMATH_PRIVATE

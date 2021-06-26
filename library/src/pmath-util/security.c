@@ -116,9 +116,9 @@ pmath_t pmath_evaluate_secured(pmath_t expr, pmath_security_level_t max_allowed_
 
 PMATH_API
 pmath_bool_t pmath_security_register_doorman(
-  pmath_builtin_func_t          func, 
-  pmath_security_level_t        min_level, 
-  pmath_security_doorman_func_t certifier
+  void                          *func, 
+  pmath_security_level_t         min_level, 
+  pmath_security_doorman_func_t  certifier
 ) {
   struct _pmath_doorman_entry_t *entry;
   pmath_hashtable_t              table;
@@ -155,9 +155,9 @@ pmath_bool_t pmath_security_register_doorman(
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_security_check_builtin(
-  pmath_builtin_func_t   func, 
-  pmath_expr_t           expr, 
-  pmath_security_level_t current_level
+  void                   *func, 
+  pmath_expr_t            expr, 
+  pmath_security_level_t  current_level
 ) {
   pmath_hashtable_t table;
   pmath_security_level_t        required_level = PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED;

@@ -59,9 +59,9 @@ typedef enum {
    to pmath_security_check() is necessary and TRUE may be returned directly.
  */
 typedef pmath_bool_t (*pmath_security_doorman_func_t)(
-  pmath_builtin_func_t   func,
-  pmath_expr_t           expr, 
-  pmath_security_level_t min_level);
+  void                   *func,
+  pmath_expr_t            expr, 
+  pmath_security_level_t  min_level);
 
 
 /**\brief Check that a required security level is available.
@@ -94,7 +94,7 @@ pmath_t pmath_evaluate_secured(pmath_t expr, pmath_security_level_t max_allowed_
 
 
 /**\brief Register a security checker for a built-in C function.
-   \param func      A function rgistered with pmath_register_code().
+   \param func      A function rgistered with pmath_register_code() or pmath_register_approx_code().
    \param min_level The required secuirity level to allow evaluating \a func.
    \param certifier An optional callback that checks whether \a func can be called without breaking security.
    \return Whether the registration succeeded.
@@ -104,9 +104,9 @@ pmath_t pmath_evaluate_secured(pmath_t expr, pmath_security_level_t max_allowed_
  */
 PMATH_API
 pmath_bool_t pmath_security_register_doorman(
-  pmath_builtin_func_t          func, 
-  pmath_security_level_t        min_level, 
-  pmath_security_doorman_func_t certifier);
+  void                          *func, 
+  pmath_security_level_t         min_level, 
+  pmath_security_doorman_func_t  certifier);
 
 
 /** @} */
