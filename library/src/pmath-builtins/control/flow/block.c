@@ -6,6 +6,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/security-private.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -267,6 +268,7 @@ static void untracked_restore_definitions(struct symbol_definition_t *def) {
     if(old->rules && !(old->attributes & PMATH_SYMBOL_ATTRIBUTE_PROTECTED)) {
       pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&old->rules->up_call);
       if(func) {
+        pmath_thread_t me = pmath_thread_get_current();
         pmath_t expr;
         
         if(pmath_same(old->value, PMATH_UNDEFINED)) {
@@ -281,7 +283,10 @@ static void untracked_restore_definitions(struct symbol_definition_t *def) {
                            pmath_ref(old->value));
         }
         
-        _pmath_run_code(pmath_thread_get_current(), old->symbol, PMATH_CODE_USAGE_UPCALL, &expr);
+        if(me && _pmath_security_check_builtin(func, expr, me->security_level)) {
+          expr = func(expr);
+        }
+        
         pmath_unref(expr);
       }
     }

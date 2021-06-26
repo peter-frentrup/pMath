@@ -25,11 +25,12 @@ struct _pmath_symbol_rules_t {
   
   pmath_atomic_t _messages; // this is a pmath_hashtable_t of class pmath_ht_obj_class
   
+  // Check with _pmath_security_check_builtin() before calling: 
   pmath_atomic_t early_call;  // pmath_builtin_func_t
   pmath_atomic_t up_call;     // pmath_builtin_func_t
   pmath_atomic_t down_call;   // pmath_builtin_func_t
   pmath_atomic_t sub_call;    // pmath_builtin_func_t
-  pmath_atomic_t approx_call; 
+  pmath_atomic_t approx_call; // pmath_approx_func_t
 };
 
 struct _pmath_symbol_rules_entry_t {

@@ -15,6 +15,13 @@
  */
 typedef pmath_t (*pmath_builtin_func_t)(pmath_expr_t expr);
 
+/**\brief Prototype of a built-in approximation function.
+   \param obj  Pointer to the pMath object that is to be approximated. The function should modify it.
+   \param prec The precision (in bits).
+   \return Whether the function perfomed an approximation.
+ */
+typedef pmath_bool_t (*pmath_approx_func_t)(pmath_t *obj, double prec);
+
 /**\brief Constants determining when to call a binded function.
    Let f be the pMath symbol.
 
@@ -66,8 +73,8 @@ pmath_bool_t pmath_register_code(
  */
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
-  pmath_symbol_t   symbol,
-  pmath_bool_t   (*func)(pmath_t *, double));
+  pmath_symbol_t       symbol,
+  pmath_approx_func_t  func);
 
 /** @} */
 

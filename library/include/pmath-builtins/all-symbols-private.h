@@ -21,23 +21,10 @@ struct _pmath_thread_t;
 
 
 /* PMATH_CODE_USAGE_APPROX uses a different calling convention than the other
-   PMATH_CODE_USAGE_XXX. So this cannot be used with _pmath_run_code().
+   PMATH_CODE_USAGE_XXX.
  */
 #define PMATH_CODE_USAGE_APPROX ((pmath_code_usage_t)4)
 
-PMATH_PRIVATE
-pmath_bool_t _pmath_run_code(
-  struct _pmath_thread_t *current_thread,
-  pmath_symbol_t          symbol,  // wont be freed
-  pmath_code_usage_t      usage,
-  pmath_t                *in_out); // must be pmath_expr_t on input!
-
-PMATH_PRIVATE
-pmath_bool_t _pmath_run_approx_code(
-  struct _pmath_thread_t *current_thread,
-  pmath_symbol_t          symbol,   // wont be freed
-  pmath_t                *in_out,
-  double                  prec);
 
 PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void);
 PMATH_PRIVATE void _pmath_symbol_builtins_protect_all(void);

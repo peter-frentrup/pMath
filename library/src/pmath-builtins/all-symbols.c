@@ -8,7 +8,7 @@
 #include <pmath-util/hash/hashtables-private.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
-#include <pmath-util/security-private.h>
+#include <pmath-util/security.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <string.h>
@@ -493,89 +493,6 @@ static pmath_t general_builtin_nofront(pmath_expr_t expr) {
 
 //} ============================================================================
 
-PMATH_PRIVATE
-pmath_bool_t _pmath_run_code(
-  struct _pmath_thread_t *current_thread,
-  pmath_symbol_t          symbol,   // wont be freed
-  pmath_code_usage_t      usage,
-  pmath_t                *in_out
-) {
-  // TODO: remove this function, move to evaluation.c
-  
-  struct _pmath_symbol_rules_t *rules;
-  pmath_builtin_func_t          func = NULL;
-  
-  if(pmath_is_null(symbol))
-    return FALSE;
-  
-  if(!current_thread)
-    return FALSE;
-  
-  rules = _pmath_symbol_get_rules(symbol, RULES_READ);
-  if(!rules)
-    return FALSE;
-  
-  switch(usage) {
-    case PMATH_CODE_USAGE_EARLYCALL: func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->early_call); break;
-    case PMATH_CODE_USAGE_UPCALL:    func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->up_call);    break;
-    case PMATH_CODE_USAGE_DOWNCALL:  func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->down_call);  break;
-    case PMATH_CODE_USAGE_SUBCALL:   func = (pmath_builtin_func_t)pmath_atomic_read_aquire(&rules->sub_call);   break;
-    default:
-      return FALSE;
-  }
-  
-  if(func && !pmath_aborting()) {
-    if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level)) {
-      if(!_pmath_security_check_builtin(func, *in_out, current_thread->security_level))
-        return FALSE;
-    }
-    
-    *in_out = func(*in_out);
-    
-    return TRUE;
-  }
-  
-  return FALSE;
-}
-
-PMATH_PRIVATE
-pmath_bool_t _pmath_run_approx_code(
-  struct _pmath_thread_t *current_thread,
-  pmath_symbol_t          symbol,   // wont be freed
-  pmath_t                *in_out,
-  double                  prec
-) {
-  // TODO: remove this function
-  
-  struct _pmath_symbol_rules_t  *rules;
-  pmath_bool_t                 (*func)(pmath_t*, double) = NULL;
-  
-  if(pmath_is_null(symbol))
-    return FALSE;
-  
-  if(!current_thread)
-    return FALSE;
-  
-  rules = _pmath_symbol_get_rules(symbol, RULES_READ);
-  if(!rules)
-    return FALSE;
-  
-  func = (void*)pmath_atomic_read_aquire(&rules->approx_call);
-  
-  if(func) {
-    if(!PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level)) {
-      if(!_pmath_security_check_builtin((void*)func, *in_out, current_thread->security_level))
-        return FALSE;
-    }
-    
-    return func(in_out, prec);
-  }
-  
-  return FALSE;
-}
-
-/*----------------------------------------------------------------------------*/
-
 PMATH_API
 pmath_bool_t pmath_register_code(
   pmath_symbol_t         symbol,
@@ -596,7 +513,6 @@ pmath_bool_t pmath_register_code(
     case PMATH_CODE_USAGE_DOWNCALL:  pmath_atomic_write_release(&rules->down_call,   (intptr_t)func); break;
     case PMATH_CODE_USAGE_UPCALL:    pmath_atomic_write_release(&rules->up_call,     (intptr_t)func); break;
     case PMATH_CODE_USAGE_SUBCALL:   pmath_atomic_write_release(&rules->sub_call,    (intptr_t)func); break;
-    case PMATH_CODE_USAGE_APPROX:    pmath_atomic_write_release(&rules->approx_call, (intptr_t)func); break;
     default:
       return FALSE;
   }
@@ -606,13 +522,20 @@ pmath_bool_t pmath_register_code(
 
 PMATH_API
 pmath_bool_t pmath_register_approx_code(
-  pmath_symbol_t   symbol,
-  pmath_bool_t   (*func)(pmath_t*, double)
+  pmath_symbol_t       symbol,
+  pmath_approx_func_t  func
 ) {
-  return pmath_register_code(
-           symbol,
-           (pmath_builtin_func_t)func,
-           PMATH_CODE_USAGE_APPROX);
+  struct _pmath_symbol_rules_t *rules;
+  
+  if(pmath_is_null(symbol))
+    return FALSE;
+  
+  rules = _pmath_symbol_get_rules(symbol, RULES_WRITEOPTIONS);
+  if(!rules)
+    return FALSE;
+  
+  pmath_atomic_write_release(&rules->approx_call, (intptr_t)func);
+  return TRUE;
 }
 
 /*============================================================================*/

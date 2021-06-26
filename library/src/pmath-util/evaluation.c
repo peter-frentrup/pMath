@@ -10,6 +10,7 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/memory.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/security-private.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -45,6 +46,9 @@ static void debug_indent(void) {
     pmath_debug_print("  ");
 }
 #endif
+
+PMATH_FORCE_INLINE
+pmath_bool_t can_trust_function(pmath_thread_t current_thread, pmath_expr_t expr, pmath_builtin_func_t func);
 
 static pmath_t evaluate_expression(
   pmath_expr_t   expr,    // will be freed
@@ -337,7 +341,7 @@ static pmath_t evaluate_expression(
   pmath_bool_t   apply_rules
 ) {
   struct _pmath_stack_info_t     stack_frame;
-  struct _pmath_symbol_rules_t  *rules;
+  struct _pmath_symbol_rules_t  *head_sym_rules;
   pmath_symbol_t                 head;
   pmath_symbol_t                 head_sym;
   pmath_symbol_attributes_t      attr;
@@ -396,12 +400,16 @@ static pmath_t evaluate_expression(
   expr             = pmath_expr_set_item(expr, 0, pmath_ref(head));
   stack_frame.head = pmath_ref(head);
   head_sym         = _pmath_topmost_symbol(head);
+  head_sym_rules   = NULL;
   
   exprlen               = pmath_expr_length(expr);
   expr_with_unevaluated = PMATH_NULL;
   
   attr = _pmath_get_function_attributes(head);
   hold_complete = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDALLCOMPLETE) != 0;
+  
+  if(apply_rules && !pmath_is_null(head_sym))
+    head_sym_rules = _pmath_symbol_get_rules(head_sym, RULES_READ);
   
   if(!hold_complete) {
     pmath_bool_t hold_first    = (attr & PMATH_SYMBOL_ATTRIBUTE_HOLDFIRST)    != 0;
@@ -416,19 +424,16 @@ static pmath_t evaluate_expression(
              current_thread,
              hold_first,
              hold_rest);
-             
-    if(apply_rules && pmath_is_symbol(head)) {
-      rules = _pmath_symbol_get_rules(head, RULES_READ);
-      if(rules && pmath_atomic_read_aquire(&rules->early_call) != 0) {
+    
+    if(apply_rules && pmath_same(head, head_sym) && head_sym_rules) {
+      pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&head_sym_rules->early_call);
+      
+      if(func && can_trust_function(current_thread, expr, func)) {
         expr_changes = _pmath_expr_last_change(expr);
         
-        if(_pmath_run_code(current_thread, head, PMATH_CODE_USAGE_EARLYCALL, &expr)) {
-          if( !pmath_is_expr(expr) ||
-              expr_changes != _pmath_expr_last_change(expr))
-          {
-            goto FINISH;
-          }
-        }
+        expr = func(expr);
+        if(!pmath_is_expr(expr) || expr_changes != _pmath_expr_last_change(expr))
+          goto FINISH;
       }
     }
     
@@ -468,6 +473,7 @@ static pmath_t evaluate_expression(
         pmath_unref(item);
         
         if(!pmath_is_null(sym)) {
+          struct _pmath_symbol_rules_t *rules;
           rules = _pmath_symbol_get_rules(sym, RULES_READ);
           
           if(rules) {
@@ -487,21 +493,18 @@ static pmath_t evaluate_expression(
   }
   
   if(apply_rules) {
-    if(!pmath_is_null(head_sym)) { // down/sub rules ...
-      rules = _pmath_symbol_get_rules(head_sym, RULES_READ);
-      if(rules) {
-        pmath_unref(stack_frame.head);
-        stack_frame.head = pmath_ref(head_sym);
-        if(pmath_same(head_sym, head)) {
-          if(_pmath_rulecache_find(&rules->down_rules, &expr)) {
-            expr = handle_explicit_return(expr);
-            goto FINISH;
-          }
-        }
-        else if(_pmath_rulecache_find(&rules->sub_rules, &expr)) {
+    if(head_sym_rules) { // down/sub rules ...
+      pmath_unref(stack_frame.head);
+      stack_frame.head = pmath_ref(head_sym);
+      if(pmath_same(head_sym, head)) {
+        if(_pmath_rulecache_find(&head_sym_rules->down_rules, &expr)) {
           expr = handle_explicit_return(expr);
           goto FINISH;
         }
+      }
+      else if(_pmath_rulecache_find(&head_sym_rules->sub_rules, &expr)) {
+        expr = handle_explicit_return(expr);
+        goto FINISH;
       }
     }
     
@@ -516,15 +519,21 @@ static pmath_t evaluate_expression(
         pmath_unref(item);
         
         if(!pmath_is_null(sym)) {
-          pmath_unref(stack_frame.head);
-          stack_frame.head = pmath_ref(sym);
+          struct _pmath_symbol_rules_t *rules;
           
-          if(_pmath_run_code(current_thread, sym, PMATH_CODE_USAGE_UPCALL, &expr)) {
-            if(!pmath_is_expr(expr) ||
-                expr_changes != _pmath_expr_last_change(expr))
-            {
-              pmath_unref(sym);
-              goto FINISH;
+          rules = _pmath_symbol_get_rules(sym, RULES_READ);
+          if(rules) {
+            pmath_builtin_func_t func = (void*)pmath_atomic_read_aquire(&rules->up_call);
+            
+            if(func && can_trust_function(current_thread, expr, func)) {
+              pmath_unref(stack_frame.head);
+              stack_frame.head = pmath_ref(sym);
+              
+              expr = func(expr);
+              if(!pmath_is_expr(expr) || expr_changes != _pmath_expr_last_change(expr)) {
+                pmath_unref(sym);
+                goto FINISH;
+              }
             }
           }
           
@@ -533,31 +542,23 @@ static pmath_t evaluate_expression(
       }
     }
     
-    if(pmath_same(head_sym, head)) { // down code
-      pmath_unref(stack_frame.head);
-      stack_frame.head = pmath_ref(head_sym);
+    if(head_sym_rules) { // down or sub code
+      pmath_builtin_func_t func;
       
-      if(_pmath_run_code(current_thread, head_sym, PMATH_CODE_USAGE_DOWNCALL, &expr)) {
-        if( !pmath_is_expr(expr) ||
-            expr_changes != _pmath_expr_last_change(expr))
-        {
+      if(pmath_same(head_sym, head))
+        func = (void*)pmath_atomic_read_aquire(&head_sym_rules->down_call);
+      else
+        func = (void*)pmath_atomic_read_aquire(&head_sym_rules->sub_call);
+      
+      if(func && can_trust_function(current_thread, expr, func)) {
+        pmath_unref(stack_frame.head);
+        stack_frame.head = pmath_ref(head_sym);
+        
+        expr = func(expr);
+        if(!pmath_is_expr(expr) || expr_changes != _pmath_expr_last_change(expr))
           goto FINISH;
-        }
       }
     }
-    else { // sub code
-      pmath_unref(stack_frame.head);
-      stack_frame.head = pmath_ref(head_sym);
-      
-      if(_pmath_run_code(current_thread, head_sym, PMATH_CODE_USAGE_SUBCALL, &expr)) {
-        if( !pmath_is_expr(expr) ||
-            expr_changes != _pmath_expr_last_change(expr))
-        {
-          goto FINISH;
-        }
-      }
-    }
-    
     
     assert(pmath_is_expr(expr));
     assert(expr_changes == _pmath_expr_last_change(expr));
@@ -625,6 +626,14 @@ static pmath_t evaluate_symbol(
     
   pmath_unref(value);
   return PMATH_UNDEFINED;
+}
+
+PMATH_FORCE_INLINE
+pmath_bool_t can_trust_function(pmath_thread_t current_thread, pmath_expr_t expr, pmath_builtin_func_t func) {
+  if(PMATH_SECURITY_REQUIREMENT_MATCHES_LEVEL(PMATH_SECURITY_LEVEL_EVERYTHING_ALLOWED, current_thread->security_level))
+    return TRUE;
+  
+  return _pmath_security_check_builtin(func, expr, current_thread->security_level);
 }
 
 PMATH_API

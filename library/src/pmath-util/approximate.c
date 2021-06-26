@@ -8,6 +8,7 @@
 #include <pmath-util/evaluation.h>
 #include <pmath-util/debug.h>
 #include <pmath-util/messages.h>
+#include <pmath-util/security-private.h>
 #include <pmath-util/symbol-values-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
@@ -233,6 +234,8 @@ START_SET_PRECISION:
 
     struct _pmath_symbol_rules_t  *rules;
     pmath_t result;
+    pmath_approx_func_t func;
+    pmath_thread_t me;
 
     rules = _pmath_symbol_get_rules(sym, RULES_READ);
 
@@ -261,18 +264,17 @@ START_SET_PRECISION:
       }
 
       pmath_unref(result);
-    }
-
-    if(_pmath_run_approx_code(pmath_thread_get_current(), sym, &obj, data->prec)) {
-//      if(pmath_is_expr(obj))
-//        obj = pmath_evaluate(obj);
-//
-//      if(!pmath_is_float(obj)) {
-//        pmath_debug_print_object("[floating point number expected, but ", obj , " given]\n");
-//      }
-
-      pmath_unref(sym);
-      return obj;
+      
+      func = (void*)pmath_atomic_read_aquire(&rules->approx_call);
+      if(func) {
+        me = pmath_thread_get_current();
+        if(me && _pmath_security_check_builtin(func, obj, me->security_level)) {
+          if(func(&obj, data->prec)) {
+            pmath_unref(sym);
+            return obj;
+          }
+        }
+      }
     }
 
     pmath_unref(sym);
