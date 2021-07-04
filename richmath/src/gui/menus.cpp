@@ -339,7 +339,7 @@ static Expr get_search_commands(Expr name) {
       if(label_and_file.is_rule()) {
         Gather::emit(
           Call(Symbol(richmath_System_MenuItem), 
-            String(label_and_file[1]) + String::FromUcs2((const uint16_t*)L" \x2013 Documentation"), 
+            String(label_and_file[1]) + String::FromUtf16(u" \x2013 Documentation"), 
             Call(Symbol(richmath_FrontEnd_DocumentOpen), label_and_file[2], Symbol(richmath_System_False))));
       }
     }
