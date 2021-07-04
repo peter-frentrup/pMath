@@ -169,7 +169,7 @@ static HRESULT jump_list_to_menu_list(Expr *result) {
     
     if(auto shell_item = obj.as<IShellItem>()) {
       Expr menu_item;
-      if(HRbool(shell_item_to_menu_item(std::move(shell_item), &menu_item, i))) {
+      if(HRbool(shell_item_to_menu_item(std::move(shell_item), &menu_item, found))) {
         ++found;
         Gather::emit(std::move(menu_item));
         continue;
@@ -178,7 +178,7 @@ static HRESULT jump_list_to_menu_list(Expr *result) {
     
     if(auto shell_link = obj.as<IShellLinkW>()) {
       Expr menu_item;
-      if(HRbool(shell_link_to_menu_item(std::move(shell_link), &menu_item, i))) {
+      if(HRbool(shell_link_to_menu_item(std::move(shell_link), &menu_item, found))) {
         ++found;
         Gather::emit(std::move(menu_item));
         continue;
