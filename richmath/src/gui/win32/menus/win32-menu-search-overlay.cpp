@@ -279,7 +279,6 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
       if(mii.hSubMenu && MenuSearch::contains_search_menu_list(mii.hSubMenu)) {
         win->menubar()->set_focus(i + 1);
         win->menubar()->show_menu(i + 1);
-        win->menubar()->kill_focus();
         return true;
       }
     }
