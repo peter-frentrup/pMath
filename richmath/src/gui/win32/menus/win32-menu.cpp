@@ -920,7 +920,7 @@ LRESULT StaticMenuOverride::on_char(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM
     if(overlay->handle_char_message(wParam, lParam, menu)) 
       return 0;
   }
-  return default_wnd_proc(hwnd, MN_FINDMENUWINDOWFROMPOINT, wParam, lParam);
+  return default_wnd_proc(hwnd, WM_CHAR, wParam, lParam);
 }
 
 LRESULT StaticMenuOverride::on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control) {
