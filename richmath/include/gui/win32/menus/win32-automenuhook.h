@@ -54,6 +54,7 @@ namespace richmath {
       bool _allow_leave_left;
       bool _allow_leave_right;
       bool _is_over_menu;
+      bool _ignore_syschar;
       
     public:
       MenuExitInfo exit_info;

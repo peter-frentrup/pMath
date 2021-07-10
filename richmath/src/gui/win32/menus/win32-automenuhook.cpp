@@ -94,7 +94,8 @@ Win32AutoMenuHook::Win32AutoMenuHook(HMENU tracked_popup, HWND owner, HWND mouse
     _mouse_notifications(mouse_notifications),
     _allow_leave_left(allow_leave_left),
     _allow_leave_right(allow_leave_right),
-    _is_over_menu(false)
+    _is_over_menu(false),
+    _ignore_syschar(true)
 {
   Impl::push(this);
 }
@@ -138,6 +139,13 @@ bool Win32AutoMenuHook::handle(MSG &msg) {
       } break;
     
     case WM_KEYDOWN: return Impl(*this).handle_key_down(msg.wParam);
+    
+    case WM_SYSCHAR: 
+      if(_ignore_syschar) {
+        _ignore_syschar = false;
+        return true;
+      }
+      break;
   }
   
   return false;
