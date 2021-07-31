@@ -139,6 +139,7 @@ namespace richmath {
       
       virtual DWORD preferred_drop_effect(IDataObject *data_object) override;
       virtual DWORD drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effects) override;
+      virtual DWORD ask_drop_effect(IDataObject *data_object, POINTL ptl, DWORD effect, DWORD allowed_effects) override;
       virtual void apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) override;
       virtual void do_drop_data(IDataObject *data_object, DWORD effect) override;
       virtual void position_drop_cursor(POINTL ptl) override;

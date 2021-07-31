@@ -498,6 +498,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(DockedSectionsBottomGlass, List());
   Stylesheet::Default->base->set(DockedSectionsTop,         List());
   Stylesheet::Default->base->set(DockedSectionsTopGlass,    List());
+  Stylesheet::Default->base->set(DragDropContextMenu,       List());
   Stylesheet::Default->base->set(FontFamilies,              List());
   Stylesheet::Default->base->set(InputAliases,              List());
   Stylesheet::Default->base->set(InputAutoReplacements,     List());

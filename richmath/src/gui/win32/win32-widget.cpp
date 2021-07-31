@@ -54,6 +54,10 @@ namespace richmath { namespace strings {
   extern String column;
   extern String columns;
   extern String Copy;
+  extern String DragDropContextMenu;
+  extern String DropCopyHere;
+  extern String DropMoveHere;
+  extern String DropLinkHere;
   extern String Image;
   extern String Insert;
   extern String Insert_placeholder;
@@ -70,6 +74,7 @@ namespace richmath { namespace strings {
 
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_RawBoxes;
 
 SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
@@ -318,7 +323,8 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
     drop_source->set_drag_image_from_window(nullptr);
   
   GridBox::selection_strategy = GridBox::best_selection_strategy_for_drag_source(src);
-  HRESULT res = data_object->do_drag_drop(drop_source, effect, &effect);
+  HRESULT res = HRreport(data_object->do_drag_drop(drop_source, effect, &effect));
+  pmath_debug_print("[do_drag_drop -> 0x%x]\n", res);
   GridBox::selection_strategy = GridSelectionStrategy::ContentsOnly;
   
   // TODO: is it clear that src was not deleted during do_drag_drop?
@@ -1740,6 +1746,67 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
     return DROPEFFECT_NONE;
     
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
+}
+
+DWORD Win32Widget::ask_drop_effect(IDataObject *data_object, POINTL ptl, DWORD effect, DWORD allowed_effects) {
+  {
+    AutoMemorySuspension ams;
+    SetFocus(_hwnd);
+    
+    StyledObject *dst_obj = document()->selection_box();
+    if(!dst_obj)
+      dst_obj = document();
+    
+    SharedPtr<Win32Menu> popup_menu;
+    Expr context_menu = dst_obj->get_finished_flatlist_style(DragDropContextMenu);
+    if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
+      popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
+    }
+    
+    if(popup_menu) {
+      HMENU menu = popup_menu->hmenu();
+      
+      POINT pt = {(int) ptl.x, (int)ptl.y };
+  
+      MenuExitInfo exit_info;
+      DWORD cmd;
+      {
+        Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
+        Win32Menu::use_dark_mode = is_using_dark_mode();
+        cmd = TrackPopupMenuEx(
+                menu,
+                TPM_RETURNCMD | TPM_LEFTALIGN, // Note: not dependent on SM_MENUDROPALIGNMENT system metrics
+                pt.x,
+                pt.y,
+                _hwnd,
+                nullptr);
+        
+        exit_info = menu_hook.exit_info;
+      }
+      
+      if(!cmd && !exit_info.handle_after_exit()) {
+        if(exit_info.reason == MenuExitReason::ExplicitCmd)
+          cmd = exit_info.cmd;
+      }
+      
+      if(!cmd)
+        return DROPEFFECT_NONE;
+      
+      Expr cmd_expr = Win32Menu::id_to_command(cmd);
+      // TODO: these should be implemented like other commands, then return DROPEFFECT_NONE to stop automatic handling
+      if(cmd_expr == strings::DropCopyHere) 
+        return DROPEFFECT_COPY;
+      else if(cmd_expr == strings::DropMoveHere)
+        return DROPEFFECT_MOVE;
+      else if(cmd_expr == strings::DropLinkHere)
+        return DROPEFFECT_LINK;
+      else if(cmd_expr == richmath_System_None)
+        return DROPEFFECT_NONE;
+        
+      //return ...
+    }
+  }
+  return BasicWin32Widget::ask_drop_effect(data_object, ptl, effect, allowed_effects);
 }
 
 void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {

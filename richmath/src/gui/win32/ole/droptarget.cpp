@@ -13,7 +13,8 @@ DropTarget::DropTarget()
     _preferred_drop_format(0),
     _has_drag_image(false),
     _can_have_drop_descriptions(false),
-    _did_set_drop_description(false)
+    _did_set_drop_description(false),
+    _right_mouse_drag(false)
 {
   CoCreateInstance(
     CLSID_DragDropHelper, nullptr, CLSCTX_INPROC_SERVER, 
@@ -53,6 +54,7 @@ STDMETHODIMP DropTarget::DragEnter(IDataObject *data_object, DWORD key_state, PO
   _can_have_drop_descriptions = (flags & DSH_ALLOWDROPDESCRIPTIONTEXT) != 0;
   
   _preferred_drop_effect = preferred_drop_effect(data_object);
+  _right_mouse_drag = (key_state & MK_RBUTTON) != 0;
   
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
@@ -80,6 +82,7 @@ STDMETHODIMP DropTarget::DragEnter(IDataObject *data_object, DWORD key_state, PO
 STDMETHODIMP DropTarget::DragOver(DWORD key_state, POINTL pt, DWORD *effect) {
   _did_set_drop_description = false;
   
+  _right_mouse_drag = (key_state & MK_RBUTTON) != 0;
   if(_preferred_drop_effect != DROPEFFECT_NONE) {
     *effect = drop_effect(key_state, pt, *effect);
     position_drop_cursor(pt);
@@ -122,21 +125,25 @@ STDMETHODIMP DropTarget::DragLeave() {
 // IDropTarget::Drop
 //
 STDMETHODIMP DropTarget::Drop(IDataObject *data_object, DWORD key_state, POINTL pt, DWORD *effect) {
+  DWORD allowed_effects = *effect;
+  
   position_drop_cursor(pt);
   
   if(_preferred_drop_effect != DROPEFFECT_NONE) 
-    *effect = drop_effect(key_state, pt, *effect);
+    *effect = drop_effect(key_state, pt, allowed_effects);
   else 
-    *effect = DROPEFFECT_NONE;
+    *effect = _preferred_drop_effect;
   
   if(_drop_target_helper) {
     POINT small_pt = {pt.x, pt.y};
     _drop_target_helper->Drop(data_object, &small_pt, *effect);
   }
   
-  if(_preferred_drop_effect != DROPEFFECT_NONE) {
-    // TODO: if key_state & MK_RBUTTON, show a popup-menu and ask fo the action
-    
+  if(_right_mouse_drag) { // (key_state & MK_RBUTTON) is already 0 (mouse was released)
+    *effect = ask_drop_effect(data_object, pt, *effect, allowed_effects);
+  }
+  
+  if(*effect != DROPEFFECT_NONE) {
     do_drop_data(data_object, *effect);
   }
     
@@ -167,6 +174,10 @@ DWORD DropTarget::drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects)
     if(allowed_effects & DROPEFFECT_MOVE) effect = DROPEFFECT_MOVE;
   }
   
+  return effect;
+}
+
+DWORD DropTarget::ask_drop_effect(IDataObject *data_object, POINTL pt, DWORD effect, DWORD allowed_effects) {
   return effect;
 }
 

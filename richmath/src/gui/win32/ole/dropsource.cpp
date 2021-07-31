@@ -142,7 +142,7 @@ STDMETHODIMP DropSource::QueryContinueDrag(BOOL fEscapePressed, DWORD grfKeyStat
   if(fEscapePressed)
     return DRAGDROP_S_CANCEL;
     
-  if((grfKeyState & MK_LBUTTON) == 0)
+  if((grfKeyState & (MK_LBUTTON | MK_RBUTTON)) == 0)
     return DRAGDROP_S_DROP;
     
   return S_OK;

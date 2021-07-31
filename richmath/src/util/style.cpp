@@ -164,6 +164,7 @@ namespace richmath { namespace strings {
   extern String CharacterNameStyle;
   extern String Color;
   extern String CommentStyle;
+  extern String DragDropContextMenu;
   extern String ExcessOrMissingArgumentStyle;
   extern String Frameless;
   extern String FunctionLocalVariableStyle;
@@ -2242,6 +2243,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Deinitialization);
   impl.emit_definition(DisplayFunction);
   impl.emit_definition(DockedSections);
+  impl.emit_definition(DragDropContextMenu);
   impl.emit_definition(DynamicBoxOptions);
   impl.emit_definition(DynamicLocalBoxOptions);
   impl.emit_definition(DynamicLocalValues);
@@ -2977,6 +2979,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             TrackedSymbols,                   Symbol( richmath_System_TrackedSymbols));
     
     add(StyleType::AnyFlatList, ContextMenu,               Symbol( richmath_System_ContextMenu));
+    add(StyleType::AnyFlatList, DragDropContextMenu,       strings::DragDropContextMenu);
     
     add(StyleType::AnyFlatList, DockedSectionsTop,         List(Symbol(richmath_System_DockedSections), String("Top")));
     add(StyleType::AnyFlatList, DockedSectionsTopGlass,    List(Symbol(richmath_System_DockedSections), String("TopGlass")));
