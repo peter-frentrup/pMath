@@ -5,6 +5,7 @@
 #  error this header is win32 specific
 #endif
 
+#include <gui/dragdrophandler.h>
 #include <gui/win32/ole/combase.h>
 
 #include <shlobj.h>
@@ -50,15 +51,14 @@ namespace richmath {
     protected:
       virtual DWORD preferred_drop_effect(IDataObject *data_object);
       virtual DWORD drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects);
-      virtual DWORD ask_drop_effect(IDataObject *data_object, POINTL pt, DWORD effect, DWORD allowed_effects);
       virtual void apply_drop_description(DWORD effect, DWORD key_state, POINTL pt);
+      virtual void ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effect, DWORD allowed_effects);
       virtual void do_drop_data(IDataObject *data_object, DWORD effect);
       virtual void position_drop_cursor(POINTL pt);
       void clear_drop_description();
       void set_drop_description(DROPIMAGETYPE image, const pmath::String &insert, const pmath::String &message);
       
       virtual HWND &hwnd() = 0;
-      
   };
 }
 

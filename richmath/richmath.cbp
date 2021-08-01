@@ -830,6 +830,7 @@
 		<Unit filename="include/gui/control-painter.h" />
 		<Unit filename="include/gui/document.h" />
 		<Unit filename="include/gui/documents.h" />
+		<Unit filename="include/gui/dragdrophandler.h" />
 		<Unit filename="include/gui/font-dialog.h" />
 		<Unit filename="include/gui/gtk/basic-gtk-widget.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1203,6 +1204,15 @@
 			<Option target="Windows-MSVC-Debug-x64" />
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
+		<Unit filename="include/gui/win32/win32-dragdrophandler.h">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
 		<Unit filename="include/gui/win32/win32-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
@@ -1409,6 +1419,7 @@
 		<Unit filename="src/gui/control-painter.cpp" />
 		<Unit filename="src/gui/document.cpp" />
 		<Unit filename="src/gui/documents.cpp" />
+		<Unit filename="src/gui/dragdrophandler.cpp" />
 		<Unit filename="src/gui/font-dialog.cpp" />
 		<Unit filename="src/gui/gtk/basic-gtk-widget.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
@@ -1775,6 +1786,15 @@
 			<Option target="Windows-MSVC-Release-x64" />
 		</Unit>
 		<Unit filename="src/gui/win32/win32-document-window.cpp">
+			<Option target="Windows-GCC-Debug-x86" />
+			<Option target="Windows-GCC-Debug-x86-Freetype" />
+			<Option target="Windows-GCC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x86" />
+			<Option target="Windows-MSVC-Release-x86" />
+			<Option target="Windows-MSVC-Debug-x64" />
+			<Option target="Windows-MSVC-Release-x64" />
+		</Unit>
+		<Unit filename="src/gui/win32/win32-dragdrophandler.cpp">
 			<Option target="Windows-GCC-Debug-x86" />
 			<Option target="Windows-GCC-Debug-x86-Freetype" />
 			<Option target="Windows-GCC-Release-x86" />

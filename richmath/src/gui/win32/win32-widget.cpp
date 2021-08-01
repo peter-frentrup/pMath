@@ -25,6 +25,7 @@
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/win32-attached-popup-window.h>
 #include <gui/win32/win32-clipboard.h>
+#include <gui/win32/win32-dragdrophandler.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <util/autovaluereset.h>
 
@@ -1753,76 +1754,6 @@ DWORD Win32Widget::drop_effect(DWORD key_state, POINTL ptl, DWORD allowed_effect
   return BasicWin32Widget::drop_effect(key_state, ptl, allowed_effects);
 }
 
-DWORD Win32Widget::ask_drop_effect(IDataObject *data_object, POINTL ptl, DWORD effect, DWORD allowed_effects) {
-  {
-    AutoMemorySuspension ams;
-    SetFocus(_hwnd);
-    
-    StyledObject *dst_obj = document()->selection_box();
-    if(!dst_obj)
-      dst_obj = document();
-    
-    SharedPtr<Win32Menu> popup_menu;
-    Expr context_menu = dst_obj->get_finished_flatlist_style(DragDropContextMenu);
-    if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
-      popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
-    }
-    
-    if(popup_menu) {
-      HMENU menu = popup_menu->hmenu();
-      
-      DWORD def_cmd = -1;
-      switch(effect) {
-        case DROPEFFECT_COPY: def_cmd = Win32Menu::command_to_id(strings::DropCopyHere); break;
-        case DROPEFFECT_MOVE: def_cmd = Win32Menu::command_to_id(strings::DropMoveHere); break;
-        case DROPEFFECT_LINK: def_cmd = Win32Menu::command_to_id(strings::DropLinkHere); break;
-      }
-      SetMenuDefaultItem(menu, def_cmd, FALSE);
-      
-      POINT pt = {(int) ptl.x, (int)ptl.y };
-  
-      MenuExitInfo exit_info;
-      DWORD cmd;
-      {
-        Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
-        Win32Menu::use_dark_mode = is_using_dark_mode();
-        cmd = TrackPopupMenuEx(
-                menu,
-                TPM_RETURNCMD | TPM_LEFTALIGN, // Note: not dependent on SM_MENUDROPALIGNMENT system metrics
-                pt.x,
-                pt.y,
-                _hwnd,
-                nullptr);
-        
-        exit_info = menu_hook.exit_info;
-      }
-      
-      if(!cmd && !exit_info.handle_after_exit()) {
-        if(exit_info.reason == MenuExitReason::ExplicitCmd)
-          cmd = exit_info.cmd;
-      }
-      
-      if(!cmd)
-        return DROPEFFECT_NONE;
-      
-      Expr cmd_expr = Win32Menu::id_to_command(cmd);
-      // TODO: these should be implemented like other commands, then return DROPEFFECT_NONE to stop automatic handling
-      // TODO: also, these should be automatically enabled/disabled based on `allowed_effects`
-      if(cmd_expr == strings::DropCopyHere) 
-        return DROPEFFECT_COPY;
-      else if(cmd_expr == strings::DropMoveHere)
-        return DROPEFFECT_MOVE;
-      else if(cmd_expr == strings::DropLinkHere)
-        return DROPEFFECT_LINK;
-      else if(cmd_expr == richmath_System_None)
-        return DROPEFFECT_NONE;
-        
-      //return ...
-    }
-  }
-  return BasicWin32Widget::ask_drop_effect(data_object, ptl, effect, allowed_effects);
-}
-
 void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {
   DROPIMAGETYPE drop_image = DROPIMAGE_INVALID;
   
@@ -1933,6 +1864,69 @@ void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL p
   //set_drop_description(DROPIMAGE_INVALID, strings::EmptyString, strings::EmptyString);
 }
 
+void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effect, DWORD allowed_effects) {
+  AutoMemorySuspension ams;
+  SetFocus(_hwnd);
+  
+  StyledObject *dst_obj = document()->selection_box();
+  if(!dst_obj)
+    dst_obj = document();
+  
+  SharedPtr<Win32Menu> popup_menu;
+  Expr context_menu = dst_obj->get_finished_flatlist_style(DragDropContextMenu);
+  if(context_menu[0] == richmath_System_List && context_menu.expr_length() > 0) {
+    popup_menu = new Win32Menu(Call(Symbol(richmath_System_Menu), strings::Popup, std::move(context_menu)), true);
+  }
+  
+  if(!popup_menu) {
+    do_drop_data(data_object, *effect);
+    return;
+  }
+  
+  HMENU menu = popup_menu->hmenu();
+  
+  DWORD def_cmd = -1;
+  switch(*effect) {
+    case DROPEFFECT_COPY: def_cmd = Win32Menu::command_to_id(strings::DropCopyHere); break;
+    case DROPEFFECT_MOVE: def_cmd = Win32Menu::command_to_id(strings::DropMoveHere); break;
+    case DROPEFFECT_LINK: def_cmd = Win32Menu::command_to_id(strings::DropLinkHere); break;
+  }
+  SetMenuDefaultItem(menu, def_cmd, FALSE);
+  
+  *effect = DROPEFFECT_NONE;
+  
+  ComBase<IDataObject> data; data.copy(data_object);
+  SharedPtr<Win32DragDropHandler> current_handler = new Win32DragDropHandler(std::move(data), allowed_effects);
+  current_handler->used_effect_ptr = effect;
+  
+  MenuExitInfo exit_info;
+  DWORD cmd;
+  {
+    Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
+    Win32Menu::use_dark_mode = is_using_dark_mode();
+    cmd = TrackPopupMenuEx(
+            menu,
+            TPM_RETURNCMD | TPM_LEFTALIGN, // Note: not dependent on SM_MENUDROPALIGNMENT system metrics
+            pt.x,
+            pt.y,
+            _hwnd,
+            nullptr);
+    
+    exit_info = menu_hook.exit_info;
+  }
+  
+  if(!cmd && !exit_info.handle_after_exit()) {
+    if(exit_info.reason == MenuExitReason::ExplicitCmd)
+      cmd = exit_info.cmd;
+  }
+  
+  if(cmd) {
+    Application::with_evaluation_box(dst_obj, [&](){ callback(WM_COMMAND, cmd, 0); });
+  }
+  
+  current_handler->used_effect_ptr = nullptr;
+}
+
 void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   AutoMemorySuspension ams;
   SetFocus(_hwnd);
@@ -2038,7 +2032,7 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
   if(!box_data.is_null() || !text_data.is_null() || !files_data.is_null()) {
     VolatileSelection sel = document()->selection_now();
     
-    if(effect & DROPEFFECT_MOVE && is_dragging) {
+    if((effect & DROPEFFECT_MOVE) && is_dragging) {
       if(SelectionReference drag_src = drag_source_reference()) {
         drag_source_reference().reset();
         
@@ -2056,8 +2050,6 @@ void Win32Widget::do_drop_data(IDataObject *data_object, DWORD effect) {
     if(sel.box == document()->selection_box()) 
       document()->select(sel.box, sel.start, document()->selection_end());
   }
-  
-  DragLeave();
 }
 
 void Win32Widget::position_drop_cursor(POINTL ptl) {

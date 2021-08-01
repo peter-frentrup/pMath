@@ -133,21 +133,21 @@ STDMETHODIMP DropTarget::Drop(IDataObject *data_object, DWORD key_state, POINTL 
     *effect = drop_effect(key_state, pt, allowed_effects);
   else 
     *effect = DROPEFFECT_NONE;
-  
+    
   if(_drop_target_helper) {
     POINT small_pt = {pt.x, pt.y};
     _drop_target_helper->Drop(data_object, &small_pt, *effect);
   }
   
   if(_right_mouse_drag) { // (key_state & MK_RBUTTON) is already 0 (mouse was released)
-    *effect = ask_drop_effect(data_object, pt, *effect, allowed_effects);
+    ask_drop_data(data_object, pt, effect, allowed_effects);
   }
-  
-  if(*effect != DROPEFFECT_NONE) {
+  else if(*effect != DROPEFFECT_NONE) {
     do_drop_data(data_object, *effect);
   }
   
   _dragging.reset();
+  DragLeave();
   return S_OK;
 }
 
@@ -177,11 +177,11 @@ DWORD DropTarget::drop_effect(DWORD key_state, POINTL pt, DWORD allowed_effects)
   return effect;
 }
 
-DWORD DropTarget::ask_drop_effect(IDataObject *data_object, POINTL pt, DWORD effect, DWORD allowed_effects) {
-  return effect;
+void DropTarget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {
 }
 
-void DropTarget::apply_drop_description(DWORD effect, DWORD key_state, POINTL pt) {
+void DropTarget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effect, DWORD allowed_effects) {
+  do_drop_data(data_object, *effect);
 }
 
 void DropTarget::do_drop_data(IDataObject *data_object, DWORD effect) {
@@ -212,3 +212,4 @@ void DropTarget::set_drop_description(DROPIMAGETYPE image, const String &insert,
 }
 
 //} ... class DropTarget
+
