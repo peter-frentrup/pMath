@@ -330,7 +330,7 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
   // TODO: is it clear that src was not deleted during do_drag_drop?
   Document *doc = src.box->find_parent<Document>(true);
   
-  if(res == DRAGDROP_S_DROP) {
+  if(res == DRAGDROP_S_DROP && effect != DROPEFFECT_NONE) {
     if(effect & DROPEFFECT_MOVE) {
       VolatileSelection new_src = drag_source_reference().get_all();
       
@@ -340,6 +340,11 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
           beep();
       }
     }
+  }
+  else {
+    VolatileSelection new_src = drag_source_reference().get_all();
+    if(new_src && new_src.end <= new_src.box->length() && doc)
+      doc->select(new_src);
   }
   
   data_object->Release();
@@ -1766,6 +1771,14 @@ DWORD Win32Widget::ask_drop_effect(IDataObject *data_object, POINTL ptl, DWORD e
     if(popup_menu) {
       HMENU menu = popup_menu->hmenu();
       
+      DWORD def_cmd = -1;
+      switch(effect) {
+        case DROPEFFECT_COPY: def_cmd = Win32Menu::command_to_id(strings::DropCopyHere); break;
+        case DROPEFFECT_MOVE: def_cmd = Win32Menu::command_to_id(strings::DropMoveHere); break;
+        case DROPEFFECT_LINK: def_cmd = Win32Menu::command_to_id(strings::DropLinkHere); break;
+      }
+      SetMenuDefaultItem(menu, def_cmd, FALSE);
+      
       POINT pt = {(int) ptl.x, (int)ptl.y };
   
       MenuExitInfo exit_info;
@@ -1794,6 +1807,7 @@ DWORD Win32Widget::ask_drop_effect(IDataObject *data_object, POINTL ptl, DWORD e
       
       Expr cmd_expr = Win32Menu::id_to_command(cmd);
       // TODO: these should be implemented like other commands, then return DROPEFFECT_NONE to stop automatic handling
+      // TODO: also, these should be automatically enabled/disabled based on `allowed_effects`
       if(cmd_expr == strings::DropCopyHere) 
         return DROPEFFECT_COPY;
       else if(cmd_expr == strings::DropMoveHere)

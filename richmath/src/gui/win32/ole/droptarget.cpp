@@ -132,7 +132,7 @@ STDMETHODIMP DropTarget::Drop(IDataObject *data_object, DWORD key_state, POINTL 
   if(_preferred_drop_effect != DROPEFFECT_NONE) 
     *effect = drop_effect(key_state, pt, allowed_effects);
   else 
-    *effect = _preferred_drop_effect;
+    *effect = DROPEFFECT_NONE;
   
   if(_drop_target_helper) {
     POINT small_pt = {pt.x, pt.y};
@@ -146,7 +146,7 @@ STDMETHODIMP DropTarget::Drop(IDataObject *data_object, DWORD key_state, POINTL 
   if(*effect != DROPEFFECT_NONE) {
     do_drop_data(data_object, *effect);
   }
-    
+  
   _dragging.reset();
   return S_OK;
 }
