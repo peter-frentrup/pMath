@@ -4,6 +4,7 @@
 #include <eval/binding.h>
 #include <gui/gtk/mgtk-attached-popup-window.h>
 #include <gui/gtk/mgtk-clipboard.h>
+#include <gui/gtk/mgtk-dragdrophandler.h>
 #include <gui/gtk/mgtk-icons.h>
 #include <gui/gtk/mgtk-menu-builder.h>
 #include <gui/gtk/mgtk-tooltip-window.h>
@@ -192,18 +193,11 @@ MathGtkWidget::~MathGtkWidget() {
   g_object_unref(_im_context);
   _im_context = nullptr;
   
-  if(_popup_menu) {
-    g_object_unref(_popup_menu);
-    _popup_menu = nullptr;
-  }
-  
   add_remove_widget(-1);
 }
 
 void MathGtkWidget::after_construction() {
   BasicGtkWidget::after_construction();
-  
-  _popup_menu = nullptr;
   
   gtk_widget_set_events(_widget, GDK_ALL_EVENTS_MASK);
   gtk_widget_set_can_focus(_widget, TRUE);
@@ -529,42 +523,28 @@ bool MathGtkWidget::register_timed_event(SharedPtr<TimedEvent> event) {
   return true;
 }
 
-void MathGtkWidget::popup_detached(GtkWidget *attach_widget, GtkMenu *menu) {
-  auto wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(attach_widget));
-  
-  if(wid && wid->_popup_menu != nullptr && GTK_MENU(wid->_popup_menu) == menu)
-    wid->_popup_menu = nullptr;
-}
-
-GtkMenu *MathGtkWidget::popup_menu(VolatileSelection src) {
+GtkMenu *MathGtkWidget::create_popup_menu(VolatileSelection src, ObjectStyleOptionName style_name) {
   if(!src.box)
     src.box = document();
   
-  Expr menu_expr = src.box->get_finished_flatlist_style(ContextMenu);
+  Expr menu_expr = src.box->get_finished_flatlist_style(style_name);
   if(menu_expr[0] == richmath_System_List && menu_expr.expr_length() > 0) {
     menu_expr = Call(Symbol(richmath_System_Menu), strings::Popup, std::move(menu_expr));
   }
   else
     return nullptr;
   
-  if(_popup_menu) {
-    g_object_unref(_popup_menu);
-    _popup_menu = nullptr;
-  }
+  GtkMenu *new_popup_menu = GTK_MENU(gtk_menu_new());
+  g_object_ref_sink(new_popup_menu);
   
-  if(!_popup_menu) {
-    _popup_menu = gtk_menu_new();
-    gtk_menu_attach_to_widget(GTK_MENU(_popup_menu), _widget, MathGtkWidget::popup_detached);
-    
-    GtkAccelGroup *accel_group = gtk_accel_group_new();
-    MathGtkMenuBuilder(menu_expr).append_to(GTK_MENU_SHELL(_popup_menu), accel_group, src.box->id());
-    //MathGtkAccelerators::connect_all(accel_group, src.box->id());
-    g_object_unref(accel_group);
-    
-    MathGtkMenuBuilder::connect_events(GTK_MENU(_popup_menu), document()->id());
-  }
+  GtkAccelGroup *accel_group = gtk_accel_group_new();
+  MathGtkMenuBuilder(menu_expr).append_to(GTK_MENU_SHELL(new_popup_menu), accel_group, src.box->id());
+  //MathGtkAccelerators::connect_all(accel_group, src.box->id());
+  g_object_unref(accel_group);
   
-  return GTK_MENU(_popup_menu);
+  MathGtkMenuBuilder::connect_events(new_popup_menu, document()->id());
+  
+  return new_popup_menu;
 }
 
 static void adjustment_value_changed(
@@ -786,21 +766,26 @@ bool MathGtkWidget::on_drag_motion(GdkDragContext *context, int x, int y, guint 
     GdkModifierType mask;
     gdk_window_get_pointer(gtk_widget_get_window(_widget), nullptr, nullptr, &mask);
     
-    GdkDragAction allowed_actions = gdk_drag_context_get_actions(context);
-    
-    if(self_is_source) {
-      if(allowed_actions & GDK_ACTION_MOVE)
-        action = GDK_ACTION_MOVE;
+    if(mask & (GDK_MOD1_MASK | GDK_BUTTON2_MASK)) { // ALT+drag  or  middle mouse button drag
+      action = GDK_ACTION_ASK;
+    }
+    else {
+      GdkDragAction allowed_actions = gdk_drag_context_get_actions(context);
+      
+      if(self_is_source) {
+        if(allowed_actions & GDK_ACTION_MOVE)
+          action = GDK_ACTION_MOVE;
+        else
+          action = allowed_actions & GDK_ACTION_COPY;
+      }
       else
         action = allowed_actions & GDK_ACTION_COPY;
+      
+      if(mask & GDK_CONTROL_MASK)
+        action = allowed_actions & GDK_ACTION_COPY;
+      else if(mask & GDK_SHIFT_MASK)
+        action = allowed_actions & GDK_ACTION_MOVE;
     }
-    else
-      action = allowed_actions & GDK_ACTION_COPY;
-    
-    if(mask & GDK_CONTROL_MASK)
-      action = allowed_actions & GDK_ACTION_COPY;
-    else if(mask & GDK_SHIFT_MASK)
-      action = allowed_actions & GDK_ACTION_MOVE;
   }
   
   gdk_drag_status(context, (GdkDragAction)action, time);
@@ -821,33 +806,56 @@ bool MathGtkWidget::on_drag_drop(GdkDragContext *context, int x, int y, guint ti
   
   if(!may_drop_into(dst, source_widget == _widget))
     return false;
+  
+  GdkDragAction action = gdk_drag_context_get_selected_action(context);
+  if(action == GDK_ACTION_ASK) {
+    if(auto menu = create_popup_menu(dst, DragDropContextMenu)) {
+      g_object_set_data_full(
+        G_OBJECT(menu), 
+        "richmath-drag-drop-handler", 
+        new MathGtkDragDropHandler(context), 
+        [](void *p) { if(p) static_cast<MathGtkDragDropHandler*>(p)->unref(); });
+      
+      // Note that gtk_menu_popup does not block.
+      bring_to_front();
+      gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, time);
+      g_object_unref(menu);
+      return true;
+    }
+  }
     
   GdkAtom target = gtk_drag_dest_find_target(_widget, context, nullptr);
   if(target != GDK_NONE) {
-    bool need_data = true;
-    if(MathGtkWidget *wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(source_widget))) {
-      if(SelectionReference drag_src = wid->drag_source_reference()) {
-        Expr boxes = drag_src.get_all().to_pmath(BoxOutputFlags::Default);
-        
-        if(gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE) {
-          drag_source_reference().reset();
-          document()->remove_selection(drag_src);
-        }
-      
-        document()->paste_from_boxes(boxes);
-        need_data = false;
-        gtk_drag_finish(context, TRUE, gdk_drag_context_get_selected_action(context) == GDK_ACTION_MOVE, time);
-      }
-    }
-    
-    if(need_data)
-      gtk_drag_get_data(_widget, context, target, time);
+    do_drop_data(context, action, target, time);
   }
   else
     gtk_drag_finish(context, FALSE, FALSE, time);
     
   bring_to_front();
   return true;
+}
+
+void MathGtkWidget::do_drop_data(GdkDragContext *context, GdkDragAction action, GdkAtom target, guint time) {
+  GtkWidget *source_widget = gtk_drag_get_source_widget(context);
+  
+  bool need_data = true;
+  if(MathGtkWidget *wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget(source_widget))) {
+    if(SelectionReference drag_src = wid->drag_source_reference()) {
+      Expr boxes = drag_src.get_all().to_pmath(BoxOutputFlags::Default);
+      
+      if(action == GDK_ACTION_MOVE) {
+        drag_source_reference().reset();
+        document()->remove_selection(drag_src);
+      }
+    
+      document()->paste_from_boxes(boxes);
+      need_data = false;
+      gtk_drag_finish(context, TRUE, action == GDK_ACTION_MOVE, time);
+    }
+  }
+  
+  if(need_data)
+    gtk_drag_get_data(_widget, context, target, time);
 }
 
 void MathGtkWidget::paint_background(Canvas &canvas) {
@@ -1186,8 +1194,9 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     if(!src.box)
       src = VolatileSelection(document(), 0);
     
-    if(auto menu = popup_menu(src)) {
+    if(auto menu = create_popup_menu(src)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
+      g_object_unref(menu);
     }
   }
   
@@ -1263,8 +1272,9 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
     if(!src.box)
       src = VolatileSelection(document(), 0);
     
-    if(auto menu = popup_menu(src)) {
+    if(auto menu = create_popup_menu(src)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, event->button, event->time);
+      g_object_unref(menu);
     }
   }
   

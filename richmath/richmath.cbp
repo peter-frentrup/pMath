@@ -887,6 +887,15 @@
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
 		</Unit>
+		<Unit filename="include/gui/gtk/mgtk-dragdrophandler.h">
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86" />
+			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x86-Gtk3" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
+		</Unit>
 		<Unit filename="include/gui/gtk/mgtk-filedialog.h">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />
 			<Option target="Windows-GCC-Debug-x86-Gtk3" />
@@ -1483,6 +1492,15 @@
 			<Option target="Linux-GCC-Debug-x64" />
 			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+		</Unit>
+		<Unit filename="src/gui/gtk/mgtk-dragdrophandler.cpp">
+			<Option target="Windows-GCC-Debug-x86-Gtk2" />
+			<Option target="Windows-GCC-Debug-x86-Gtk3" />
+			<Option target="Windows-GCC-Debug-x64-Gtk3" />
+			<Option target="Linux-GCC-Debug-x86" />
+			<Option target="Linux-GCC-Debug-x64" />
+			<Option target="Linux-GCC-Debug-x86-Gtk3" />
+			<Option target="Linux-GCC-Debug-x64-Gtk3" />
 		</Unit>
 		<Unit filename="src/gui/gtk/mgtk-filedialog.cpp">
 			<Option target="Windows-GCC-Debug-x86-Gtk2" />

@@ -80,6 +80,8 @@ namespace richmath {
       
       GtkIMContext *im_context() { return _im_context; }
       
+      void do_drop_data(GdkDragContext *context, GdkDragAction action, GdkAtom target, guint time);
+      
     public:
       bool _autohide_vertical_scrollbar;
       
@@ -98,7 +100,6 @@ namespace richmath {
       
       MathGtkCursors cursors;
       
-      GtkWidget     *_popup_menu;
       GtkAdjustment *_hadjustment;
       GtkAdjustment *_vadjustment;
       GtkIMContext  *_im_context;
@@ -182,8 +183,6 @@ namespace richmath {
         return self->on_drag_drop(drag_context, x, y, time);
       }
       
-      static void popup_detached(GtkWidget *attach_widget, GtkMenu *menu);
-      
     protected:
       virtual void update_im_cursor_location();
       
@@ -215,7 +214,7 @@ namespace richmath {
       virtual bool on_leave_notify(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);
       
-      GtkMenu *popup_menu(VolatileSelection src);
+      GtkMenu *create_popup_menu(VolatileSelection src, ObjectStyleOptionName style_name = ContextMenu);
       
       virtual void do_set_current_document() {}
       static gboolean blink_caret(gpointer id_as_ptr);
