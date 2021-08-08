@@ -17,6 +17,10 @@
 namespace richmath {
   struct MenuSearchResult;
   
+  struct Win32MenuSelector {
+    virtual void init_popupmenu(HWND menu_wnd, HMENU menu) = 0;
+  };
+  
   class Win32Menu: public Shareable {
     public:
       explicit Win32Menu(Expr expr, bool is_popup);
@@ -41,6 +45,7 @@ namespace richmath {
     public:
       static SharedPtr<Win32Menu>  main_menu;
       static bool                  use_dark_mode;
+      static Win32MenuSelector    *menu_selector;
       
     private:
       HMENU _hmenu;

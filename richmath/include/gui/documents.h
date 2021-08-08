@@ -23,6 +23,7 @@ namespace richmath {
       static void current(Document *document);
       
       static Expr make_section_boxes(Expr boxes, Document *doc);
+      static bool locate_document_from_command(Expr item_cmd);
   };
   
 }

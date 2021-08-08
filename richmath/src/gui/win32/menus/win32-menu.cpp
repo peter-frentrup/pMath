@@ -169,6 +169,7 @@ extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 
 SharedPtr<Win32Menu>  Win32Menu::main_menu;
 bool                  Win32Menu::use_dark_mode = false;
+Win32MenuSelector    *Win32Menu::menu_selector = nullptr;
 
 Win32Menu::Win32Menu(Expr expr, bool is_popup)
   : Shareable()
@@ -883,6 +884,9 @@ void StaticMenuOverride::on_init_popupmenu(HWND hwnd, HMENU menu) {
       overlay->initialize(hwnd, menu);
     }
   }
+  
+  if(Win32Menu::menu_selector)
+    Win32Menu::menu_selector->init_popupmenu(hwnd, menu);
 }
 
 void StaticMenuOverride::on_create(HWND hwnd) {

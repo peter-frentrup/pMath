@@ -10,18 +10,25 @@
 #include <gui/documents.h>
 #include <gui/document.h>
 
+#include <util/autovaluereset.h>
 
-#define MN_SELECTITEM   0x01E5
+#define MN_OPENHIERARCHY    0x01E3
+#define MN_SELECTITEM       0x01E5
 
 using namespace richmath;
 
 namespace {
+  struct IndexAndMenu {
+    int index;
+    HMENU menu;
+  };
   class MenuSearch {
     public:
       MenuSearch(String query);
       
       void collect_menu_matches(Array<MenuSearchResult> &results, HMENU menu, String prefix);
       static bool contains_search_menu_list(HMENU menu);
+      static bool find_menu_item(Array<IndexAndMenu> &path, DWORD id, DWORD exclude_list_id);
     
     private:
       String query;
@@ -37,6 +44,8 @@ namespace richmath {
       
     private:
       static bool do_open_help_menu(Expr cmd);
+      static bool open_menu_hierarchy(Expr item_cmd);
+      static bool locate_menu_item_source(Expr submenu_cmd, Expr item_cmd);
   };
 }
 
@@ -255,6 +264,16 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
 
 void Win32MenuSearchOverlay::Impl::init() {
   Menus::register_command(strings::SearchMenuItems, do_open_help_menu);
+  
+  Menus::register_submenu_item_locator(strings::MenuListSearchCommands, locate_menu_item_source);
+}
+
+void Win32MenuSearchOverlay::Impl::update_query(String str, HMENU menu) {
+  if(Menus::current_menu_search_text() == str)
+    return;
+  
+  Menus::current_menu_search_text(str);
+  Win32Menu::init_popupmenu(menu);
 }
 
 bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
@@ -277,7 +296,7 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
     mii.fMask = MIIM_SUBMENU;
     if(GetMenuItemInfoW(menu, i, TRUE, &mii)) {
       if(mii.hSubMenu && MenuSearch::contains_search_menu_list(mii.hSubMenu)) {
-        win->menubar()->set_focus(i + 1);
+        win->menubar()->set_focus(i);
         win->menubar()->show_menu(i + 1);
         return true;
       }
@@ -287,12 +306,77 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
   return false;
 }
 
-void Win32MenuSearchOverlay::Impl::update_query(String str, HMENU menu) {
-  if(Menus::current_menu_search_text() == str)
-    return;
+bool Win32MenuSearchOverlay::Impl::open_menu_hierarchy(Expr item_cmd) {
+  Document *doc = Documents::current();
+  if(!doc)
+    return false;
   
-  Menus::current_menu_search_text(str);
-  Win32Menu::init_popupmenu(menu);
+  auto wid = dynamic_cast<Win32Widget*>(doc->native());
+  if(!wid)
+    return false;
+  
+  auto win = wid->find_parent<Win32DocumentWindow>();
+  if(!win || !win->menubar())
+    return false;
+  
+  DWORD id = Win32Menu::command_to_id(item_cmd);
+  if(!id)
+    return false;
+  
+  struct OpenSubmenu final : public Win32MenuSelector {
+    Array<IndexAndMenu> path;
+    int current_level;
+    
+    virtual void init_popupmenu(HWND menu_wnd, HMENU menu) override {
+      if(current_level + 1 >= path.length())
+        return;
+      
+      if(menu != path[current_level].menu)
+        return;
+      
+      ++current_level;
+      
+      int index = path[current_level].index;
+      PostMessageW(menu_wnd, MN_SELECTITEM, index, 0);
+      
+      if(path[current_level].menu && path[current_level].menu == GetSubMenu(menu, index)) {
+        PostMessageW(menu_wnd, MN_OPENHIERARCHY, 0, 0);
+      }
+    }
+    
+  } opener;
+  
+  HMENU menu = win->menubar()->menu()->hmenu();
+  opener.path.add({-1, menu});
+  
+  if(!MenuSearch::find_menu_item(opener.path, id, Win32Menu::command_to_id(strings::MenuListSearchCommands)))
+    return false;
+  
+  if(opener.path.length() < 1)
+    return false;
+  
+  AutoValueReset<Win32MenuSelector*> avr(Win32Menu::menu_selector);
+  
+  opener.current_level = 1;
+  if(GetSubMenu(menu, opener.path[1].index) != opener.path[1].menu)
+    return false;
+  
+  Win32Menu::menu_selector = &opener;
+  
+  win->menubar()->set_focus(opener.path[1].index);
+  win->menubar()->show_menu(opener.path[1].index + 1);
+  
+  return true;
+}
+
+bool Win32MenuSearchOverlay::Impl::locate_menu_item_source(Expr submenu_cmd, Expr item_cmd) {
+  if(open_menu_hierarchy(item_cmd))
+    return true;
+  
+  if(Documents::locate_document_from_command(item_cmd))
+    return true;
+  
+  return false;
 }
 
 //} ... class Win32MenuSearchOverlay::Impl
@@ -314,9 +398,6 @@ void MenuSearch::collect_menu_matches(Array<MenuSearchResult> &results, HMENU me
   
   for(int i = 0; i < count; ++i) {
     MENUITEMINFOW mii = {sizeof(mii)};
-    mii.fMask = MIIM_FTYPE;
-    if(!GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))
-      continue;
     
     mii.fMask = MIIM_FTYPE | MIIM_STRING | MIIM_ID | MIIM_SUBMENU;
     if(!GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))
@@ -391,6 +472,41 @@ bool MenuSearch::contains_search_menu_list(HMENU menu) {
     }
   }
   
+  return false;
+}
+
+bool MenuSearch::find_menu_item(Array<IndexAndMenu> &path, DWORD id, DWORD exclude_list_id) {
+  int level = path.length();
+  if(level <= 0 || level > 4)
+    return false;
+  
+  HMENU menu = path[level-1].menu;
+  int count = GetMenuItemCount(menu);
+  path.add({0, nullptr});
+  
+  for(int i = 0; i < count; ++i) {
+    {
+      MENUITEMINFOW mii = {sizeof(mii)};
+      mii.fMask = MIIM_ID | MIIM_SUBMENU | MIIM_DATA;
+      if(!GetMenuItemInfoW(menu, (UINT)i, TRUE, &mii))
+        continue;
+      
+      if(mii.dwItemData == exclude_list_id)
+        continue;
+      
+      path[level].index = i;
+      path[level].menu = mii.hSubMenu;
+      if(id == mii.wID)
+        return true;
+    }
+    
+    if(path[level].menu) {
+      if(find_menu_item(path, id, exclude_list_id))
+        return true;
+    }
+  }
+  
+  path.length(level);
   return false;
 }
 

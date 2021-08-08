@@ -250,6 +250,18 @@ Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
               doc ? doc->get_own_style(DefaultNewSectionStyle, strings::Input) : strings::Input);
 }
 
+bool Documents::locate_document_from_command(Expr item_cmd) {
+  if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
+    String path{ item_cmd[1] };
+    if(path.length() > 0) {
+      Expr expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), path);
+      expr = Evaluate(std::move(expr));
+      return expr.is_null();
+    }
+  }
+  return false;
+}
+
 //} ... class Documents
 
 //{ class DocumentsImpl ...
@@ -1141,15 +1153,7 @@ Expr OpenDocumentMenuImpl::enum_recent_documents_menu(Expr name) {
 }
 
 bool OpenDocumentMenuImpl::locate_document(Expr submenu_cmd, Expr item_cmd) {
-  if(item_cmd.expr_length() >= 1 && item_cmd[0] == richmath_FrontEnd_DocumentOpen) {
-    String path{ item_cmd[1] };
-    if(path.length() > 0) {
-      Expr expr = Call(Symbol(richmath_FrontEnd_SystemOpenDirectory), path);
-      expr = Evaluate(std::move(expr));
-      return expr.is_null();
-    }
-  }
-  return false;
+  return Documents::locate_document_from_command(std::move(item_cmd));
 }
 
 bool OpenDocumentMenuImpl::remove_recent_document(Expr submenu_cmd, Expr item_cmd) {
