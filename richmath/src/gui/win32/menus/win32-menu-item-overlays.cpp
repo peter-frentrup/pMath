@@ -34,6 +34,10 @@ bool Win32MenuItemOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, HME
   return false;
 }
 
+bool Win32MenuItemOverlay::handle_keydown_message(WPARAM wParam, LPARAM lParam, HMENU menu) {
+  return false;
+}
+
 bool Win32MenuItemOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
   return false;
 }

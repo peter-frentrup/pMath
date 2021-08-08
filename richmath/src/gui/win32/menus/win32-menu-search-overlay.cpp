@@ -125,6 +125,20 @@ bool Win32MenuSearchOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, H
   return true;
 }
 
+bool Win32MenuSearchOverlay::handle_keydown_message(WPARAM wParam, LPARAM lParam, HMENU menu) {
+  switch(wParam) {
+    case VK_ESCAPE:
+      if(Menus::current_menu_search_text().length() == 0)
+        return false;
+      
+      Impl::update_query(String(), menu);
+      text(String());
+      InvalidateRect(control, nullptr, false);
+      return true;
+  }
+  return false;
+}
+
 bool Win32MenuSearchOverlay::handle_mouse_message(UINT msg, WPARAM wParam, const POINT &pt, HMENU menu) {
   return true;
 }

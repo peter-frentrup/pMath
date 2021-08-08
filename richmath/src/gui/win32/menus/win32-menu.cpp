@@ -130,7 +130,8 @@ namespace {
       void on_init_popupmenu(HWND hwnd, HMENU menu);
       void on_create(HWND hwnd);
       void on_ncdestroy(HWND hwnd);
-      LRESULT on_char(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM lParam);
+      LRESULT on_char(   HWND hwnd, HMENU menu, WPARAM wParam, LPARAM lParam);
+      LRESULT on_keydown(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM lParam);
       LRESULT on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control);
       LRESULT on_find_menuwindow_from_point(HWND hwnd, WPARAM wParam, LPARAM lParam);
       LRESULT on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARAM lParam);
@@ -927,6 +928,16 @@ LRESULT StaticMenuOverride::on_char(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM
   return default_wnd_proc(hwnd, WM_CHAR, wParam, lParam);
 }
 
+LRESULT StaticMenuOverride::on_keydown(HWND hwnd, HMENU menu, WPARAM wParam, LPARAM lParam) {
+  //TODO: ask current menu item first
+  
+  for(auto overlay = singleton.popup_window_overlays[hwnd]; overlay; overlay = overlay->next) {
+    if(overlay->handle_keydown_message(wParam, lParam, menu)) 
+      return 0;
+  }
+  return default_wnd_proc(hwnd, WM_KEYDOWN, wParam, lParam);
+}
+
 LRESULT StaticMenuOverride::on_ctlcolorstatic(HWND hwnd, HDC hdc, HWND control) {
   Color col = Win32ControlPainter::win32_painter.win32_button_face_color(Win32Menu::use_dark_mode);
   SetBkColor(hdc, col.to_bgr24());
@@ -998,7 +1009,8 @@ LRESULT StaticMenuOverride::on_wndproc(HWND hwnd, UINT msg, WPARAM wParam, LPARA
       }
       break;
     
-    case WM_CHAR:           return on_char(hwnd, menu, wParam, lParam);
+    case WM_CHAR:           return on_char(   hwnd, menu, wParam, lParam);
+    case WM_KEYDOWN:        return on_keydown(hwnd, menu, wParam, lParam);
     case WM_CTLCOLORSTATIC: return on_ctlcolorstatic(hwnd, (HDC)wParam, (HWND)lParam);
     
     case WM_PRINT: lParam |= PRF_CHILDREN; break;
