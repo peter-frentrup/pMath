@@ -115,16 +115,16 @@ bool Win32HighDpi::get_nonclient_metrics_for_dpi(NONCLIENTMETRICSW *nonclient_me
   if(SystemParametersInfoForDpi) {
     return !!SystemParametersInfoForDpi(
       SPI_GETNONCLIENTMETRICS,
-      sizeof(nonclient_metrics),
-      &nonclient_metrics,
+      sizeof(*nonclient_metrics),
+      nonclient_metrics,
       FALSE,
       (UINT)dpi);
   }
   else {
     return !!SystemParametersInfoW(
       SPI_GETNONCLIENTMETRICS,
-      sizeof(nonclient_metrics),
-      &nonclient_metrics,
+      sizeof(*nonclient_metrics),
+      nonclient_metrics,
       FALSE);
   }
 }

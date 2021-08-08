@@ -209,7 +209,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   String str = text();
   if(str.length() > 0) {
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
-    if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
+    if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, cc.dpi())) {
       if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))
         oldfont = (HFONT)SelectObject(hdc, font);
     }
@@ -224,7 +224,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   }
   else {
     NONCLIENTMETRICSW ncm = {sizeof(ncm)};
-    if(SystemParametersInfoW(SPI_GETNONCLIENTMETRICS, sizeof(ncm), &ncm, FALSE)) {
+    if(Win32HighDpi::get_nonclient_metrics_for_dpi(&ncm, cc.dpi())) {
       ncm.lfMenuFont.lfItalic = TRUE;
       if(HFONT font = CreateFontIndirectW(&ncm.lfMenuFont))
         oldfont = (HFONT)SelectObject(hdc, font);
