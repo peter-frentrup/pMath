@@ -41,6 +41,10 @@ namespace richmath {
   };
 }
 
+namespace richmath { namespace strings {
+  extern String MenuListSearchCommands;
+}}
+
 HHOOK              Win32AutoMenuHook::Impl::the_hook = nullptr;
 Win32AutoMenuHook *Win32AutoMenuHook::Impl::current = nullptr;
 
@@ -392,7 +396,9 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   
   if(Menus::has_submenu_item_locator(list_cmd)) {
     String gotodef_label;
-    if(cmd[0] == richmath_FrontEnd_DocumentOpen || cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+    if(list_cmd == strings::MenuListSearchCommands)
+      gotodef_label = String("Go to Definition");
+    else if(cmd[0] == richmath_FrontEnd_DocumentOpen || cmd[0] == richmath_FrontEnd_SetSelectedDocument)
       gotodef_label = String("Open containing folder");
     else
       gotodef_label = String("Go to Definition");
