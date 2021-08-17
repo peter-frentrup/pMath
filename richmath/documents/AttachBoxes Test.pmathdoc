@@ -61,10 +61,10 @@ Document({
              TemplateBox({ComplexStringBox("\"content: \""), 
                InputFieldBox(Dynamic($Context`x), String)}, "RowDefault")}, 
             "SimplePopup"), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
-         Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {
-           {OwnRules($Context`x):= {HoldPattern($Context`x) :> "hello ?"}}})), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+         Deinitialization -> None, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> "hello ?"}}}, 
+         Initialization -> None, UnsavedVariables -> {})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           ComplexStringBox("\"BesselJ plot\""), ",", {
@@ -408,12 +408,49 @@ Document({
       Section(BoxData(TemplateBox({ComplexStringBox("\"Panelled popup\""), 
           PanelBox(ComplexStringBox("\"Tada\""), Appearance -> "Popup"), 
           WindowFrame -> None}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All)}, All)}, 
+       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"RawBoxes", "@", {
+          "TemplateBox", "(", {
+           {"{", {ComplexStringBox("\"\\\"label\\\"\""), ",", {
+              "{", {{"Section", "(", {ComplexStringBox("\"The caption\""), 
+                 ",", ComplexStringBox("\"Subsection\""), ",", {
+                  "LineBreakWithin", "\[Rule]", "False"}}, ")"}, ",", {
+                "SectionGroup", "(", {
+                 {"Table", "(", {
+                   {"Section", "(", {
+                     {"ToString", "@", {"StringForm", "(", {
+                        ComplexStringBox("\"Text `1`, that will wrap\""), ",", 
+                        "i"}, ")"}}, ",", ComplexStringBox("\"Text\"")}, ")"}, 
+                   ",", {"i", "\[Rule]", "10"}}, ")"}, ",", "All"}, ")"}}, 
+              "}"}}, "}"}, ",", ComplexStringBox("\"SectionsPopup\"")}, 
+          ")"}}), "Input", SectionLabel -> "in [17]:"), 
+      Section(
+       BoxData(TemplateBox({
+          "\"label\"", {Section("The caption", "Subsection", 
+            LineBreakWithin -> False), 
+           SectionGroup({Section("Text 1, that will wrap", "Text"), 
+             Section("Text 2, that will wrap", "Text"), 
+             Section("Text 3, that will wrap", "Text"), 
+             Section("Text 4, that will wrap", "Text"), 
+             Section("Text 5, that will wrap", "Text"), 
+             Section("Text 6, that will wrap", "Text"), 
+             Section("Text 7, that will wrap", "Text"), 
+             Section("Text 8, that will wrap", "Text"), 
+             Section("Text 9, that will wrap", "Text"), 
+             Section("Text 10, that will wrap", "Text")}, All)}}, 
+         "SectionsPopup")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [17]:")}, All)}, All)}, 
  StyleDefinitions :> 
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
       SectionGroup({Section("Box styles", "Section"), 
         SectionGroup({Section("TemplateBox styles", "Subsection"), 
+          Section(
+           TextData({
+             "\"SimplePopup\" only supports inline boxes but not multiple \
+             sections, because its uses \"BoxData(", {
+              "TemplateSlot", "(", "2", ")"}, ")\""}), "Text"), 
           Section(StyleData("SimplePopup"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
@@ -426,6 +463,23 @@ Document({
                      $Failed :> (FE`Private`popup:= 
                        FE`AttachBoxes(EvaluationBox(), Bottom, 
                         BoxData(TemplateSlot(2)), 
+                        WindowFrame -> 
+                         Dynamic(
+                          Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
+                             FE`Private`x}, CurrentValue({
+                             TemplateSlot, Key(WindowFrame)})))))}) &))) &)}), 
+          Section(StyleData("SectionsPopup"), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               DynamicLocalBox({FE`Private`popup}, 
+                ButtonBox(#1, ButtonFunction -> (
+                   Replace(CurrentValue(FE`Private`popup, Visible), {
+                     True :> (CurrentValue(FE`Private`popup, Visible):= 
+                       False), False :> (
+                       CurrentValue(FE`Private`popup, Visible):= True), 
+                     $Failed :> (FE`Private`popup:= 
+                       FE`AttachBoxes(EvaluationBox(), Bottom, 
+                        CurrentValue({TemplateSlot, 2}), 
                         WindowFrame -> 
                          Dynamic(
                           Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
