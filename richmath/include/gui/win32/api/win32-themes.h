@@ -66,11 +66,20 @@ namespace richmath {
         DWMWA_FREEZE_REPRESENTATION = 15,
         DWMWA_PASSIVE_UPDATE_MODE = 16,
         
+        DWMWA_USE_HOSTBACKDROPBRUSH = 17,
+        
         // undocumented, since Windows 10, Redstone 5 (1809, November 2018, Build 17763):
         DWMWA_USE_IMMERSIVE_DARK_MODE_old = 19,
         
         // undocumented, since 1909 (build 18363) (? net checked, but not yet available in 1903, i.e. build 18362):
         DWMWA_USE_IMMERSIVE_DARK_MODE_new = 20,
+        
+        // Windows 11:
+        DWMWA_WINDOW_CORNER_PREFERENCE = 33,       // WINDOW_CORNER_PREFERENCE, Controls the policy that rounds top-level window corners
+        DWMWA_BORDER_COLOR = 34,                   // COLORREF, The color of the thin border around a top-level window
+        DWMWA_CAPTION_COLOR = 35,                  // COLORREF, The color of the caption
+        DWMWA_TEXT_COLOR = 36,                     // COLORREF, The color of the caption text
+        DWMWA_VISIBLE_FRAME_BORDER_THICKNESS = 37, // UINT, width of the visible border around a thick frame window
       };
       
       // like DWMWINDOWATTRIBUTE, except some tweaks, see http://undoc.airesoft.co.uk/user32.dll/GetWindowCompositionAttribute.php
@@ -160,6 +169,14 @@ namespace richmath {
         ULONGLONG cPixelsDrawn;
         DWM_FRAME_COUNT cBuffersEmpty;
       } DWM_TIMING_INFO;
+      
+      // Since Windows 11
+      enum DWM_WINDOW_CORNER_PREFERENCE {
+        DWMWCP_DEFAULT = 0,
+        DWMWCP_DONOTROUND = 1,
+        DWMWCP_ROUND = 2,
+        DWMWCP_ROUNDSMALL = 3
+      };
       
       typedef enum _BP_BUFFERFORMAT {
         BPBF_COMPATIBLEBITMAP,
