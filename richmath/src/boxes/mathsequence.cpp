@@ -394,15 +394,13 @@ void MathSequence::resize(Context &context) {
   if(context.show_auto_styles) {
     ScopeColorizer colorizer(*this);
     
-    pos = 0;
-    while(pos < glyphs.length())
-      colorizer.comments_colorize_span(spans[pos], &pos);
+    colorizer.comments_colorize();
       
     pos = 0;
-    while(pos < glyphs.length()) {
+    while(pos < length()) {
       SpanExpr *se = new SpanExpr(pos, spans[pos], this);
       
-      if(se->count() == 0 || !se->item_as_text(0).equals("/*")) {
+      if(se->count() == 0 || !is_comment_start_at(buffer_view(se->item_as_text(0)))) {
         colorizer.syntax_colorize_spanexpr(        se);
         colorizer.arglist_errors_colorize_spanexpr(se, em * RefErrorIndictorHeight);
       }

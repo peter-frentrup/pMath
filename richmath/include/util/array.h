@@ -37,7 +37,6 @@ namespace richmath {
       using self_type = ArrayView<T>;
       using value_type = T;
       using iterator = value_type*;
-      using const_iterator = const value_type*;
     
     public:
       explicit ArrayView(int length, T *items) : _items(items), _length(length) { ARRAY_ASSERT(length >= 0); }
@@ -45,14 +44,12 @@ namespace richmath {
       template<int N>
       ArrayView(T items[N]) : _items(items), _length(N) {}
       
-      int length() const { return _length; }
+      int length() { return _length; }
       
       iterator begin() { return iterator(_items); }
       iterator end() {   return iterator(_items + _length); }
-      const_iterator begin() const { return const_iterator(_items); }
-      const_iterator end() const {   return const_iterator(_items + _length); }
       
-      T &get(int i) const {
+      T &get(int i) { 
         ARRAY_ASSERT(i >= 0);
         ARRAY_ASSERT(i < _length);
         return _items[i];
@@ -71,10 +68,15 @@ namespace richmath {
         return _items[i] = std::move(t);
       }
       
-      T &operator[](int i) const { return get(i); }
+      T &operator[](int i) { return get(i); }
       
-      T *items() {             return _items; }
-      const T *items() const { return _items; }
+      T *items() { return _items; }
+      
+      ArrayView<T> part(int start) {
+        ARRAY_ASSERT(start >= 0);
+        ARRAY_ASSERT(start < _length);
+        return ArrayView<T>(_length - start, _items + start);
+      }
       
     private:
       T *_items;
@@ -160,8 +162,8 @@ namespace richmath {
         return *this;
       }
       
-      operator       ArrayView<T>() {             return ArrayView<T>(      length(), _items); }
-      operator const ArrayView<const T>() const { return ArrayView<const T>(length(), _items); }
+      operator ArrayView<T>() {             return ArrayView<T>(      length(), _items); }
+      operator ArrayView<const T>() const { return ArrayView<const T>(length(), _items); }
       
       int length()   const { return _items ? header()->length : 0;   }
       int capacity() const { return _items ? header()->capacity : 0; }
@@ -216,7 +218,14 @@ namespace richmath {
       
 //      const T &operator[](int i) const { return get(i); }
 
-      ArrayView<T> operator[](const Range &range) const {
+      ArrayView<const T> operator[](const Range &range) const {
+        ARRAY_ASSERT(range.start >= 0);
+        ARRAY_ASSERT(range.end < length());
+        ARRAY_ASSERT(range.end - range.start + 1 >= 0);
+        return ArrayView<const T>(range.end - range.start + 1, _items + range.start);
+      }
+      
+      ArrayView<T> operator[](const Range &range) {
         ARRAY_ASSERT(range.start >= 0);
         ARRAY_ASSERT(range.end < length());
         ARRAY_ASSERT(range.end - range.start + 1 >= 0);

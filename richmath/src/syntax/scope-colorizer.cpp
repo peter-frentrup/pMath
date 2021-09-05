@@ -31,12 +31,11 @@ namespace {
       void paint_until(uint8_t style, int next_index) { check_before(next_index); while(_index < next_index) { put_style(style); ++_index; } }
       void move_to(int next_index) { check_before(next_index); _index = next_index; }
       
-      void check_before(int next_index) const {
-        if(next_index < _index) {
-          pmath_debug_print("[Painter::check_before failed: %d not before %d", _index, next_index);
-          pmath_debug_print_object(" in :", _seq.text().get(), "]\n");
-        }
-      }
+      #ifdef NDEBUG
+      void check_before(int next_index) const {}
+      #else
+      void check_before(int next_index) const;
+      #endif
       
     private:
       MathSequence           &_seq;
@@ -54,7 +53,7 @@ namespace {
     public:
       ScopeColorizerImpl(MathSequence &sequence, SyntaxState &state);
       
-      void scope_colorize_spanexpr(SpanExpr *se);
+      void colorize_spanexpr(SpanExpr *se);
       
     private:
       int length() { return str.length(); }
@@ -93,10 +92,11 @@ namespace {
   
   class ErrorColorizerImpl {
     private:
-      float  error_indicator_height;
+      float   error_indicator_height;
+      Painter painter;
       
     public:
-      ErrorColorizerImpl(float _error_indicator_height);
+      ErrorColorizerImpl(MathSequence &sequence, float _error_indicator_height);
       
       void arglist_errors_colorize_spanexpr(SpanExpr *se);
       
@@ -114,8 +114,19 @@ namespace {
   
   class SyntaxColorizerImpl {
     public:
-      static void colorize_quoted_string(SpanExpr *se);
-      static bool colorize_single_token(SpanExpr *se);
+      SyntaxColorizerImpl(MathSequence &seq);
+      
+      void colorize_spanexpr(SpanExpr *se);
+      void colorize_quoted_string(SpanExpr *se);
+      bool colorize_single_token(SpanExpr *se);
+      
+      void comments_colorize_span(Span span);
+      void comments_colorize_until(int end);
+    
+    private:
+      Painter                    painter;
+      const SpanArray           &spans;
+      ArrayView<const uint16_t>  text;
   };
 }
 
@@ -129,74 +140,20 @@ ScopeColorizer::ScopeColorizer(MathSequence &sequence)
 }
 
 void ScopeColorizer::scope_colorize_spanexpr(SyntaxState &state, SpanExpr *se) {
-  ScopeColorizerImpl(sequence, state).scope_colorize_spanexpr(se);
+  ScopeColorizerImpl(sequence, state).colorize_spanexpr(se);
 }
 
 
-void ScopeColorizer::comments_colorize_span(Span span, int *pos) {
-  const uint16_t         *buf     = sequence.text().buffer();
-  const uint16_t         *buf_end = buf + sequence.text().length();
-  const Array<GlyphInfo> &glyphs  = sequence.glyph_array();
-  const SpanArray        &spans   = sequence.span_array();
-  
-  if(!span) {
-    if(is_comment_start_at(buf + *pos, buf_end)) {
-      while(*pos < glyphs.length() && !spans.is_token_end(*pos)) {
-        glyphs[*pos].style = GlyphStyleComment;
-        ++*pos;
-      }
-      
-      glyphs[*pos].style = GlyphStyleComment;
-      ++*pos;
-    }
-    else {
-      while(*pos < glyphs.length() && !spans.is_token_end(*pos))
-        ++*pos;
-        
-      ++*pos;
-    }
-    return;
-  }
-  
-  if(!span.next()) {
-    if(is_comment_start_at(buf + *pos, buf_end)) {
-      for(; *pos <= span.end(); ++*pos)
-        glyphs[*pos].style = GlyphStyleComment;
-        
-      return;
-    }
-  }
-  
-  comments_colorize_span(span.next(), pos);
-  
-  while(*pos <= span.end())
-    comments_colorize_span(spans[*pos], pos);
+void ScopeColorizer::comments_colorize() {
+  SyntaxColorizerImpl(sequence).comments_colorize_until(sequence.length());
 }
 
 void ScopeColorizer::syntax_colorize_spanexpr(SpanExpr *se) {
-  const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
-  
-  SyntaxColorizerImpl::colorize_quoted_string(se);
-  if(SyntaxColorizerImpl::colorize_single_token(se))
-    return;
-    
-  if( se->count() == 3 &&
-      se->item_as_text(1).equals("::") &&
-      se->item(2)->count() == 0)
-  {
-    for(int i = se->item_pos(2); i <= se->end(); ++i)
-      glyphs[i].style = GlyphStyleString;
-      
-    syntax_colorize_spanexpr(se->item(0));
-    return;
-  }
-  
-  for(int i = 0; i < se->count(); ++i)
-    syntax_colorize_spanexpr(se->item(i));
+  SyntaxColorizerImpl(sequence).colorize_spanexpr(se);
 }
 
 void ScopeColorizer::arglist_errors_colorize_spanexpr(SpanExpr *se, float error_indicator_height) {
-  ErrorColorizerImpl(error_indicator_height).arglist_errors_colorize_spanexpr(se);
+  ErrorColorizerImpl(sequence, error_indicator_height).arglist_errors_colorize_spanexpr(se);
 }
 
 //} ... class ScopeColorizer
@@ -211,7 +168,7 @@ inline ScopeColorizerImpl::ScopeColorizerImpl(MathSequence &sequence, SyntaxStat
 {
 }
 
-void ScopeColorizerImpl::scope_colorize_spanexpr(SpanExpr *se) {
+void ScopeColorizerImpl::colorize_spanexpr(SpanExpr *se) {
   assert(se != 0);
   
   if(se->count() == 0) { // identifiers   #   ~
@@ -344,7 +301,7 @@ void ScopeColorizerImpl::scope_colorize_spanexpr(SpanExpr *se) {
   for(int i = 0; i < se->count(); ++i) {
     SpanExpr *sub = se->item(i);
     
-    scope_colorize_spanexpr(sub);
+    colorize_spanexpr(sub);
   }
 }
 
@@ -584,7 +541,7 @@ void ScopeColorizerImpl::colorize_pure_function(SpanExpr *se) { // body &
   bool old_in_function = state.in_function;
   state.in_function = true;
   
-  scope_colorize_spanexpr(se->item(0));
+  colorize_spanexpr(se->item(0));
   
   state.in_function = old_in_function;
 }
@@ -598,7 +555,7 @@ void ScopeColorizerImpl::colorize_mapsto_function(SpanExpr *se) {
   state.new_scope();
   
   SpanExpr *sub = se->item(0);
-  scope_colorize_spanexpr(sub);
+  colorize_spanexpr(sub);
   
   if( sub->count() == 3 &&
       sub->item_as_char(0) == '(' &&
@@ -623,7 +580,7 @@ void ScopeColorizerImpl::colorize_mapsto_function(SpanExpr *se) {
   }
   
   if(se->count() == 3) {
-    scope_colorize_spanexpr(se->item(2));
+    colorize_spanexpr(se->item(2));
   }
   else {
     painter.move_to(se->item_pos(1));
@@ -656,7 +613,7 @@ void ScopeColorizerImpl::colorize_pattern_name(SpanExpr *se) { // name:pat
   for(int i = 0; i < se->count(); ++i) {
     SpanExpr *sub = se->item(i);
     
-    scope_colorize_spanexpr(sub);
+    colorize_spanexpr(sub);
   }
   
   symbol_colorize(se->item_pos(0), SymbolKind::Parameter);
@@ -685,7 +642,7 @@ void ScopeColorizerImpl::colorize_optional_value_pattern(SpanExpr *se) { // ?nam
   for(int i = 0; i < se->count(); ++i) {
     SpanExpr *sub = se->item(i);
     
-    scope_colorize_spanexpr(sub);
+    colorize_spanexpr(sub);
   }
   
   int end;
@@ -709,7 +666,7 @@ void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed)
   bool old_in_pattern = state.in_pattern;
   state.in_pattern = true;
   
-  scope_colorize_spanexpr(se->item(0));
+  colorize_spanexpr(se->item(0));
   
   state.in_pattern = old_in_pattern;
   
@@ -717,7 +674,7 @@ void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed)
     state.current_pos = next_scope;
     
   if(se->count() == 3) {
-    scope_colorize_spanexpr(se->item(2));
+    colorize_spanexpr(se->item(2));
   }
   else {
     painter.move_to(se->item_pos(1));
@@ -731,7 +688,7 @@ void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed)
 void ScopeColorizerImpl::colorize_tag_assignment(SpanExpr * se, bool delayed) { // x/:y:=z   x/:y::=z
   assert(se->count() >= 4 && se->count() <= 5);
   
-  scope_colorize_spanexpr(se->item(0));
+  colorize_spanexpr(se->item(0));
   
   SharedPtr<ScopePos> next_scope = state.new_scope();
   state.new_scope();
@@ -739,7 +696,7 @@ void ScopeColorizerImpl::colorize_tag_assignment(SpanExpr * se, bool delayed) { 
   bool old_in_pattern = state.in_pattern;
   state.in_pattern = true;
   
-  scope_colorize_spanexpr(se->item(2));
+  colorize_spanexpr(se->item(2));
   
   state.in_pattern = old_in_pattern;
   
@@ -747,7 +704,7 @@ void ScopeColorizerImpl::colorize_tag_assignment(SpanExpr * se, bool delayed) { 
     state.current_pos = next_scope;
     
   if(se->count() == 5) {
-    scope_colorize_spanexpr(se->item(4));
+    colorize_spanexpr(se->item(4));
   }
   else {
     painter.move_to(se->item_pos(3));
@@ -789,7 +746,7 @@ bool ScopeColorizerImpl::colorize_integral(SpanExpr *se) { // \[Integral] ... \[
         pmath_char_is_name(dx->item_first_char(1)))
     {
       for(int i = 0; i < se->count() - 1; ++i)
-        scope_colorize_spanexpr(se->item(i));
+        colorize_spanexpr(se->item(i));
         
       SharedPtr<ScopePos> next_scope = state.new_scope();
       state.new_scope();
@@ -797,7 +754,7 @@ bool ScopeColorizerImpl::colorize_integral(SpanExpr *se) { // \[Integral] ... \[
       symbol_colorize(dx->item_pos(1), SymbolKind::Special);
       
       for(int i = 0; i < integrand->count() - 1; ++i)
-        scope_colorize_spanexpr(integrand->item(i));
+        colorize_spanexpr(integrand->item(i));
         
       state.current_pos = next_scope;
       return true;
@@ -839,7 +796,7 @@ bool ScopeColorizerImpl::colorize_bigop(SpanExpr *se) {
         init->item_as_char(1) == '='                &&
         pmath_char_is_name(init->item_first_char(0)))
     {
-      scope_colorize_spanexpr(se->item(next_item - 1));
+      colorize_spanexpr(se->item(next_item - 1));
       
       SharedPtr<ScopePos> next_scope = state.new_scope();
       state.new_scope();
@@ -847,7 +804,7 @@ bool ScopeColorizerImpl::colorize_bigop(SpanExpr *se) {
       ScopeColorizerImpl(*bigop_init, state).symbol_colorize(init->item_pos(0), SymbolKind::Special);
       
       for(int i = next_item; i < se->count(); ++i)
-        scope_colorize_spanexpr(se->item(i));
+        colorize_spanexpr(se->item(i));
         
       state.current_pos = next_scope;
       delete init;
@@ -868,7 +825,7 @@ void ScopeColorizerImpl::colorize_localspec_call(SpanExpr *se, const SyntaxInfor
   if(arg_count < 1)
     return;
     
-  scope_colorize_spanexpr(call.function_argument(1));
+  colorize_spanexpr(call.function_argument(1));
   
   SharedPtr<ScopePos> next_scope = state.new_scope();
   state.new_scope();
@@ -876,13 +833,13 @@ void ScopeColorizerImpl::colorize_localspec_call(SpanExpr *se, const SyntaxInfor
   symdeflist_colorize_spanexpr(call.function_argument(1), SymbolKind::LocalSymbol);
   
   if(arg_count >= 2) {
-    scope_colorize_spanexpr(call.function_argument(2));
+    colorize_spanexpr(call.function_argument(2));
   }
   
   state.current_pos = next_scope;
   
   for(int i = 3; i <= arg_count; ++i)
-    scope_colorize_spanexpr(call.function_argument(i));
+    colorize_spanexpr(call.function_argument(i));
 }
 
 void ScopeColorizerImpl::colorize_functionspec_call(SpanExpr *se, const SyntaxInformation &info) {
@@ -896,13 +853,13 @@ void ScopeColorizerImpl::colorize_functionspec_call(SpanExpr *se, const SyntaxIn
     bool old_in_function = state.in_function;
     state.in_function = true;
     
-    scope_colorize_spanexpr(call.function_argument(1));
+    colorize_spanexpr(call.function_argument(1));
     
     state.in_function = old_in_function;
     return;
   }
   
-  scope_colorize_spanexpr(call.function_argument(1));
+  colorize_spanexpr(call.function_argument(1));
   
   SharedPtr<ScopePos> next_scope = state.new_scope();
   state.new_scope();
@@ -912,12 +869,12 @@ void ScopeColorizerImpl::colorize_functionspec_call(SpanExpr *se, const SyntaxIn
   else
     symdeflist_colorize_spanexpr(call.function_argument(1), SymbolKind::Parameter);
     
-  scope_colorize_spanexpr(call.function_argument(2));
+  colorize_spanexpr(call.function_argument(2));
   
   state.current_pos = next_scope;
   
   for(int i = 3; i < arg_count; ++i)
-    scope_colorize_spanexpr(call.function_argument(i));
+    colorize_spanexpr(call.function_argument(i));
 }
 
 void ScopeColorizerImpl::colorize_tablespec_call(SpanExpr *se, const SyntaxInformation &info) {
@@ -939,15 +896,15 @@ void ScopeColorizerImpl::colorize_tablespec_call(SpanExpr *se, const SyntaxInfor
       painter.move_to(arg_j->start());
       painter.paint_until(GlyphStyleNone, arg_j->end());
         
-      scope_colorize_spanexpr(arg_j);
+      colorize_spanexpr(arg_j);
     }
   }
   
   for(int i = 1; i < info.locals_min && i <= arg_count; ++i)
-    scope_colorize_spanexpr(call.function_argument(i));
+    colorize_spanexpr(call.function_argument(i));
     
   for(int i = info.locals_max; i < arg_count; ++i)
-    scope_colorize_spanexpr(call.function_argument(i + 1));
+    colorize_spanexpr(call.function_argument(i + 1));
     
   state.current_pos = next_scope;
 }
@@ -958,7 +915,7 @@ void ScopeColorizerImpl::colorize_simple_call(SpanExpr *head_name, SpanExpr *se)
   String name = head_name->as_text();
   SyntaxInformation info(name);
   
-  scope_colorize_spanexpr(se->item(0));
+  colorize_spanexpr(se->item(0));
   
   switch(info.locals_form) {
     case LocalVariableForm::LocalSpec:
@@ -980,7 +937,7 @@ void ScopeColorizerImpl::colorize_simple_call(SpanExpr *head_name, SpanExpr *se)
   for(int i = 1; i < se->count(); ++i) {
     SpanExpr *sub = se->item(i);
     
-    scope_colorize_spanexpr(sub);
+    colorize_spanexpr(sub);
   }
 }
 
@@ -999,7 +956,7 @@ void ScopeColorizerImpl::colorize_block_body_line(SpanExpr *se, SharedPtr<ScopeP
   }
   
   if(se->count() < 2) {
-    scope_colorize_spanexpr(se);
+    colorize_spanexpr(se);
     return;
   }
   
@@ -1015,12 +972,12 @@ void ScopeColorizerImpl::colorize_block_body_line(SpanExpr *se, SharedPtr<ScopeP
     return;
   }
   
-  scope_colorize_spanexpr(se);
+  colorize_spanexpr(se);
 }
 
 void ScopeColorizerImpl::colorize_block_body(SpanExpr *se) {
   if(se->count() < 2 || !FunctionCallSpan::is_list(se)) {
-    scope_colorize_spanexpr(se);
+    colorize_spanexpr(se);
     return;
   }
   
@@ -1039,7 +996,7 @@ void ScopeColorizerImpl::replacement_special_colorize_spanexpr(SpanExpr *se) {
 }
 
 void ScopeColorizerImpl::colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
-  scope_colorize_spanexpr(head.span());
+  colorize_spanexpr(head.span());
   colorize_keyword(head.function_head());
   
   if(!scope_after_block)
@@ -1065,7 +1022,7 @@ void ScopeColorizerImpl::colorize_scoping_block(FunctionCallSpan &head, SpanExpr
 }
 
 void ScopeColorizerImpl::colorize_if_blocks(FunctionCallSpan &head, SpanExpr *se) {
-  scope_colorize_spanexpr(head.span());
+  colorize_spanexpr(head.span());
   colorize_keyword(head.function_head());
   
   for(int i = 1; i < se->count(); ++i) {
@@ -1081,7 +1038,7 @@ void ScopeColorizerImpl::colorize_if_blocks(FunctionCallSpan &head, SpanExpr *se
       FunctionCallSpan else_if(item);
       name = span_as_name(else_if.function_head());
       if(name && name->equals("If")) {
-        scope_colorize_spanexpr(item);
+        colorize_spanexpr(item);
         colorize_keyword(name);
         continue;
       }
@@ -1107,7 +1064,7 @@ void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
           return;
         }
         if(name->equals("While") || name->equals("Switch") || name->equals("Case") || name->equals("If")) {
-          scope_colorize_spanexpr(head_call.span());
+          colorize_spanexpr(head_call.span());
           colorize_keyword(head_call.function_head());
           colorize_block_body(se->item(1));
           return;
@@ -1135,13 +1092,13 @@ void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
       bool old_in_pattern = state.in_pattern;
       state.in_pattern = true;
       
-      scope_colorize_spanexpr(se->item(1)); // name(...)
+      colorize_spanexpr(se->item(1)); // name(...)
       
       state.in_pattern = old_in_pattern;
       
       for(int i = 2; i < se->count() - 1; ++i) {
         SpanExpr *item = se->item(i);
-        scope_colorize_spanexpr(item); // Where(...)
+        colorize_spanexpr(item); // Where(...)
         
         if(FunctionCallSpan::is_simple_call(item)) {
           FunctionCallSpan more_call(item);
@@ -1184,8 +1141,9 @@ void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
 
 //{ class ErrorColorizerImpl ...
 
-inline ErrorColorizerImpl::ErrorColorizerImpl(float _error_indicator_height)
-  : error_indicator_height(_error_indicator_height)
+inline ErrorColorizerImpl::ErrorColorizerImpl(MathSequence &sequence, float _error_indicator_height)
+  : painter(sequence),
+    error_indicator_height(_error_indicator_height)
 {
 }
 
@@ -1246,13 +1204,8 @@ void ErrorColorizerImpl::unknown_option_colorize_spanexpr(SpanExpr *se, Expr opt
           return;
       }
       
-      int name_start = se->item(0)->start();
-      int name_end   = se->item(0)->end();
-      
-      const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
-      
-      for(int i = name_start; i <= name_end; ++i)
-        glyphs[i].style = GlyphStyleInvalidOption;
+      painter.move_to(se->item(0)->start());
+      painter.paint_until(GlyphStyleInvalidOption, se->item(0)->end() + 1);
     }
   }
 }
@@ -1272,32 +1225,22 @@ void ErrorColorizerImpl::add_missing_indicator(SpanExpr *span_before) {
 }
 
 void ErrorColorizerImpl::mark_excess_args(FunctionCallSpan &call, int max_args) {
-  const Array<GlyphInfo> &glyphs = call.span()->sequence()->glyph_array();
-  
-  int end = call.arguments_span()->end();
-  int start;
-  
   if(max_args == 0) {
-    start = call.arguments_span()->start();
-    
     if(call.is_complex_call()) {
-      int arg1_start = call.function_argument(1)->start();
-      int arg1_end   = call.function_argument(1)->end();
-      
-      for(int pos = arg1_start; pos <= arg1_end; ++pos)
-        glyphs[pos].style = GlyphStyleExcessOrMissingArg;
+      painter.move_to(call.function_argument(1)->start());
+      painter.paint_until(GlyphStyleExcessOrMissingArg, call.function_argument(1)->end() + 1);
     }
+    
+    painter.move_to(call.arguments_span()->start());
   }
   else if(max_args == 1 && call.is_complex_call()) {
-    start = call.arguments_span()->start();
+    painter.move_to(call.arguments_span()->start());
   }
   else {
-    start = call.function_argument(max_args)->end() + 1;
+    painter.move_to(call.function_argument(max_args)->end() + 1);
   }
   
-  for(int pos = start; pos <= end; ++pos)
-    glyphs[pos].style = GlyphStyleExcessOrMissingArg;
-    
+  painter.paint_until(GlyphStyleExcessOrMissingArg, call.arguments_span()->end() + 1);
   return;
 }
 
@@ -1305,23 +1248,22 @@ void ErrorColorizerImpl::colorize_name(SpanExpr *se, unsigned style) {
   if(!se)
     return;
     
-  const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
-  for(int i = se->start(); i <= se->end(); ++i)
-    glyphs[i].style = style;
+  painter.move_to(se->start());
+  painter.paint_until(style, se->end() + 1);
 }
 
 void ErrorColorizerImpl::arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se) {
   if(!FunctionCallSpan::is_call(se))
     return;
     
-  FunctionCallSpan        call      = se;
-  SpanExpr               *head_name = span_as_name(call.function_head());
-  const Array<GlyphInfo> &glyphs    = se->sequence()->glyph_array();
+  FunctionCallSpan  call      = se;
+  SpanExpr         *head_name = span_as_name(call.function_head());
   
   if(!head_name)
     return;
-    
-  if(GlyphStyleNone != glyphs[head_name->start()].style)
+  
+  painter.move_to(head_name->start());
+  if(painter.get_style() != GlyphStyleNone)
     return;
     
   String name = head_name->as_text();
@@ -1479,6 +1421,33 @@ void ErrorColorizerImpl::colorize_block_errors(SpanExpr *se) {
 
 //{ class SyntaxColorizerImpl ...
 
+SyntaxColorizerImpl::SyntaxColorizerImpl(MathSequence &seq)
+  : painter(seq),
+    spans(seq.span_array()),
+    text(buffer_view(seq.text()))
+{
+}
+
+void SyntaxColorizerImpl::colorize_spanexpr(SpanExpr *se) {
+  colorize_quoted_string(se);
+  if(colorize_single_token(se))
+    return;
+  
+  if( se->count() == 3 &&
+      se->item_as_text(1).equals("::") &&
+      se->item(2)->count() == 0)
+  {
+    painter.move_to(se->item_pos(2));
+    painter.paint_until(GlyphStyleString, se->end() + 1);
+      
+    colorize_spanexpr(se->item(0));
+    return;
+  }
+  
+  for(int i = 0; i < se->count(); ++i)
+    colorize_spanexpr(se->item(i));
+}
+
 void SyntaxColorizerImpl::colorize_quoted_string(SpanExpr *se) {
   if(se->first_char() != '"')
     return;
@@ -1486,35 +1455,32 @@ void SyntaxColorizerImpl::colorize_quoted_string(SpanExpr *se) {
   if(se->count() != 0 && se->item_pos(0) == se->start())
     return;
     
-  const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
-  for(int i = 1 + se->start(); i < se->end(); ++i) {
-    if(se->sequence()->text()[i] == '\\') {
-      const uint16_t *buf = se->sequence()->text().buffer() + i;
-      int maxlen = se->end() - i;
+  auto text = buffer_view(se->sequence()->text());
+  painter.move_to(1 + se->start());
+  for(int i = 1 + se->start(); i < se->end();) {
+    if(text[i] == '\\') {
+      painter.paint_until(GlyphStyleString, i);
+      
+      auto rest_text = text.part(i);
       uint32_t encoded_char;
-      const uint16_t *next = pmath_char_parse(buf, maxlen, &encoded_char);
+      const uint16_t *next = pmath_char_parse(rest_text.items(), rest_text.length(), &encoded_char);
       
-      int len = next - buf;
-      for(int j = 0; j < len; ++j)
-        glyphs[i + j].style = GlyphStyleSpecialStringPart;
-        
-      i += len - 1;
-      
-      continue;
+      i += next - rest_text.items();
+      painter.paint_until(GlyphStyleSpecialStringPart, i);
     }
-    
-    glyphs[i].style = GlyphStyleString;
+    else
+      ++i;
   }
   
-  if(se->sequence()->text()[se->end()] != '"')
-    glyphs[se->end()].style = GlyphStyleString;
+  if(text[se->end()] == '"')
+    painter.paint_until(GlyphStyleString, se->end());
+  else
+    painter.paint_until(GlyphStyleString, se->end()+1);
 }
 
 bool SyntaxColorizerImpl::colorize_single_token(SpanExpr *se) {
   if(se->count() > 0)
     return false;
-    
-  const Array<GlyphInfo> &glyphs = se->sequence()->glyph_array();
   
   uint16_t ch = se->as_char();
   if(pmath_char_is_left(ch)) {
@@ -1524,7 +1490,8 @@ bool SyntaxColorizerImpl::colorize_single_token(SpanExpr *se) {
         !pmath_char_is_right(parent->item_as_char(parent->count() - 1)))
     {
       if(pmath_right_fence(se->as_char()) != 0) {
-        glyphs[se->start()].style = GlyphStyleSyntaxError;
+        painter.move_to(se->start());
+        painter.paint_until(GlyphStyleSyntaxError, se->start() + 1);
         return true;
       }
     }
@@ -1536,19 +1503,66 @@ bool SyntaxColorizerImpl::colorize_single_token(SpanExpr *se) {
     SpanExpr *parent = se->parent();
     
     if(!parent) {
-      glyphs[se->start()].style = GlyphStyleSyntaxError;
+      painter.move_to(se->start());
+      painter.paint_until(GlyphStyleSyntaxError, se->start() + 1);
       return true;
     }
     
     for(int i = parent->count() - 1; i >= 0; --i)
       if(pmath_right_fence(parent->item_as_char(i)) == ch)
         return true;
-        
-    glyphs[se->start()].style = GlyphStyleSyntaxError;
+    
+    painter.move_to(se->start());
+    painter.paint_until(GlyphStyleSyntaxError, se->start() + 1);
     return true;
   }
   
   return true;
 }
 
+void SyntaxColorizerImpl::comments_colorize_span(Span span) {
+  if(!span) {
+    int next_token = painter.index();
+    while(next_token < text.length() && !spans.is_token_end(next_token)) {
+      ++next_token;
+    }
+    ++next_token;
+
+    if(is_comment_start_at(text.part(painter.index())))
+      painter.paint_until(GlyphStyleComment, next_token);
+    else 
+      painter.move_to(next_token);
+    
+    return;
+  }
+  
+  if(!span.next()) {
+    if(is_comment_start_at(text.part(painter.index()))) {
+      painter.paint_until(GlyphStyleComment, span.end() + 1);
+      return;
+    }
+  }
+  
+  comments_colorize_span(span.next());
+  comments_colorize_until(span.end() + 1);
+}
+
+void SyntaxColorizerImpl::comments_colorize_until(int end) {
+  while(painter.index() < end)
+    comments_colorize_span(spans[painter.index()]);
+}
+
 //} ... class SyntaxColorizerImpl
+
+//{ class Painter ...
+
+#ifndef NDEBUG
+void Painter::check_before(int next_index) const {
+  if(next_index < _index) {
+    pmath_debug_print("[Painter::check_before failed: %d not before %d", _index, next_index);
+    pmath_debug_print_object(" in :", _seq.text().get(), "]\n");
+  }
+}
+#endif
+
+//} ... class Painter

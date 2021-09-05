@@ -3,6 +3,7 @@
 
 #include <pmath-cpp.h>
 
+#include <util/array.h>
 #include <util/base.h>
 
 
@@ -18,18 +19,15 @@ extern pmath_symbol_t richmath_System_Times;
 namespace richmath {
   using namespace pmath; // bad style!!!
   
-  inline bool is_utf16_high(uint16_t c) {
-    return (c & 0xFC00) == 0xD800;
-  }
-  
-  inline bool is_utf16_low(uint16_t c) {
-    return (c & 0xFC00) == 0xDC00;
-  }
+  inline bool is_utf16_high(uint16_t c) { return (c & 0xFC00) == 0xD800; }
+  inline bool is_utf16_low(uint16_t c) {  return (c & 0xFC00) == 0xDC00; }
   
   // 0xFFFFFFFFU on error
   uint32_t unicode_to_utf32(String s);
   
   Expr expand_string_boxes(String s);
+  
+  inline ArrayView<const uint16_t> buffer_view(String s) { return ArrayView<const uint16_t>(s.length(), s.buffer()); }
   
   class Span {
     public:

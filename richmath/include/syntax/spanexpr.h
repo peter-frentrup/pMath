@@ -258,7 +258,7 @@ namespace richmath {
       Array<SpanExpr*> _items;
   };
   
-  bool is_comment_start_at(const uint16_t *str, const uint16_t *buf_end);
+  bool is_comment_start_at(ArrayView<const uint16_t> str);
   SpanExpr *span_as_name(SpanExpr *span);
   
   class SequenceSpan { // a,b,c

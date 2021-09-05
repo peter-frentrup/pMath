@@ -66,8 +66,7 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   int last_non_newline_length = 0;
   _items_pos.length(0);
   
-  const uint16_t *str     = sequence->text().buffer();
-  const uint16_t *str_end = str + sequence->text().length();
+  ArrayView<const uint16_t> str = buffer_view(sequence->text());
   
   if(str[_start] == '"' && _span && !_span.next()) {
     // strings contain no expressions
@@ -81,7 +80,7 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
     if(_span.next()) {
       pos = _span.next().end() + 1;
       
-      if(!is_comment_start_at(str + prev, str_end)) {
+      if(!is_comment_start_at(str.part(prev))) {
         _items_pos.add(prev);
         last_non_newline_length = _items_pos.length();
       }
@@ -103,7 +102,7 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
       if(sequence->span_array()[pos]) {
         pos = sequence->span_array()[pos].end() + 1;
         
-        if(!is_comment_start_at(str + prev, str_end)) {
+        if(!is_comment_start_at(str.part(prev))) {
           _items_pos.add(prev);
           last_non_newline_length = _items_pos.length();
         }
@@ -646,14 +645,14 @@ Box *SpanExpr::item_as_box(int i) {
 
 //} ... class SpanExpr
 
-bool richmath::is_comment_start_at(const uint16_t *str, const uint16_t *buf_end) {
-  if(buf_end <= str)
+bool richmath::is_comment_start_at(ArrayView<const uint16_t> str) {
+  if(str.length() <= 0)
     return false;
   
-  if(*str == '%')
+  if(str[0] == '%')
     return true;
   
-  if(str + 1 < buf_end && str[0] == '/' && str[1] == '*')
+  if(str.length() >= 2 && str[0] == '/' && str[1] == '*')
     return true;
   
   return false;

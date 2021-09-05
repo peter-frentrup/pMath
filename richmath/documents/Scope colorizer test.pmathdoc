@@ -9,7 +9,10 @@ Document({
        "\[AssignDelayed]", {"x", "+", SqrtBox("y")}}), "Input"), 
     Section(BoxData({{"f", "(", {"?", "x", ":", "1"}, ")"}, 
        "\[AssignDelayed]", {"x", "+", SqrtBox("x")}}), "Input"), 
-    Section(BoxData({"Sin", "(", {"x", ",", "y"}, ")"}), "Input"), 
+    Section(BoxData(/\/({"Sin", "(", {"x", ",", "y"}, ")"}, "\n", {
+        "%", {"Sin", "(", {"x", ",", "y"}, ")"}})), "Input"), 
+    Section(BoxData(/\/({"Sin", "(", ")"}, "\n", {"%", {"Sin", "("}})), 
+     "Input"), 
     Section(BoxData({{"Do", "(", {"n", "\[Rule]", {"5", "..", "n"}}, ")"}, {
         "{", {"Print", "(", "n", ")"}, "}"}}), "Input"), 
     Section(BoxData({{"Local", "(", {"x", ",", {"y", "\[Assign]", "x"}}, ")"}, 
@@ -17,5 +20,15 @@ Document({
     Section(
      BoxData({
        {"With", "(", {{"x", "\[Assign]", "y"}, ",", {"y", "\[Assign]", "x"}}, 
-        ")"}, {"{", SqrtBox({"x", "+", "y"}), "}"}}), "Input")}, All)}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+        ")"}, {"{", SqrtBox({"x", "+", "y"}), "}"}}), "Input"), 
+    Section(BoxData({"f", "(", ComplexStringBox("\"some\\ntext", 
+        SqrtBox("333"), "\""), ")", " ", {"%", {"comment", SqrtBox("2")}}}), 
+     "Input"), Section(BoxData({"f", "(", {"\n", {"%", {"f", "("}}}}), 
+     "Input"), Section(BoxData(/\/("g", ")", "\n", {"%", "g", ")"})), 
+     "Input"), 
+    Section(BoxData({UnderoverscriptBox("\[Sum]", {"n", "=", "1"}, 
+        "\[Infinity]"), {"a", SubscriptBox("n")}}), "Input"), 
+    Section(BoxData({{"F", "(", {"~", "b"}, ")"}, "\[AssignDelayed]", {
+        "\[Integral]", SubsuperscriptBox("a", "b"), {
+         {"f", "(", "x", ")"}, {"\[DifferentialD]", "x"}}}}), "Input")}, 
+   All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

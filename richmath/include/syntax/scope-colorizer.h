@@ -14,7 +14,7 @@ namespace richmath {
       
       void scope_colorize_spanexpr(SyntaxState &state, SpanExpr *se);
       
-      void comments_colorize_span(Span span, int *pos);
+      void comments_colorize();
       
       void syntax_colorize_spanexpr(SpanExpr *se);
       
