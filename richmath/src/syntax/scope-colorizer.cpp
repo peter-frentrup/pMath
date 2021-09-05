@@ -20,11 +20,35 @@ extern pmath_symbol_t richmath_FE_SymbolInfo;
 using namespace richmath;
 
 namespace {
+  class Painter {
+    public:
+      explicit Painter(MathSequence &seq) : _seq(seq), _glyphs(seq.glyph_array()), _index(0) {}
+      
+      int index() const { return _index; }
+      uint8_t get_style() const { return _glyphs[_index].style; }
+      void put_style(uint8_t style) { _glyphs[_index].style = style; }
+      
+      void paint_until(uint8_t style, int next_index) { check_before(next_index); while(_index < next_index) { put_style(style); ++_index; } }
+      void move_to(int next_index) { check_before(next_index); _index = next_index; }
+      
+      void check_before(int next_index) const {
+        if(next_index < _index) {
+          pmath_debug_print("[Painter::check_before failed: %d not before %d", _index, next_index);
+          pmath_debug_print_object(" in :", _seq.text().get(), "]\n");
+        }
+      }
+      
+    private:
+      MathSequence           &_seq;
+      const Array<GlyphInfo> &_glyphs;
+      int                     _index;
+  };
+  
   class ScopeColorizerImpl {
     private:
       MathSequence           &sequence;
       SyntaxState            &state;
-      const Array<GlyphInfo> &glyphs;
+      Painter                 painter;
       const String           &str;
       
     public:
@@ -33,6 +57,9 @@ namespace {
       void scope_colorize_spanexpr(SpanExpr *se);
       
     private:
+      int length() { return str.length(); }
+      
+      bool prepare_symbol_colorization(int start, SymbolKind kind, int &end, uint8_t &style);
       int symbol_colorize(int start, SymbolKind kind);
       void symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "x"  "x:=y"
       void symdeflist_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "{symdefs ...}"
@@ -179,7 +206,7 @@ void ScopeColorizer::arglist_errors_colorize_spanexpr(SpanExpr *se, float error_
 inline ScopeColorizerImpl::ScopeColorizerImpl(MathSequence &sequence, SyntaxState &state)
   : sequence(sequence),
     state(state),
-    glyphs(sequence.glyph_array()),
+    painter(sequence),
     str(sequence.text())
 {
 }
@@ -224,9 +251,8 @@ void ScopeColorizerImpl::scope_colorize_spanexpr(SpanExpr *se) {
   if(se->count() >= 2 && se->count() <= 3) { // ~:t   x:p   x->y   x:=y   integrals   bigops
     if(se->item_as_char(1) == ':') {
       if(se->item_first_char(0) == '~') {
-        for(int i = se->start(); i <= se->end(); ++i)
-          glyphs[i].style = GlyphStyleParameter;
-          
+        painter.move_to(se->start());
+        painter.paint_until(GlyphStyleParameter, se->end() + 1);
         return;
       }
       
@@ -323,29 +349,42 @@ void ScopeColorizerImpl::scope_colorize_spanexpr(SpanExpr *se) {
 }
 
 int ScopeColorizerImpl::symbol_colorize(int start, SymbolKind kind) {
+  int end;
+  uint8_t style;
+  if(prepare_symbol_colorization(start, kind, end, style)) {
+    painter.move_to(start);
+    painter.paint_until(style, end);
+  }
+  return end;
+}
+
+bool ScopeColorizerImpl::prepare_symbol_colorization(int start, SymbolKind kind, int &end, uint8_t &style) {
   const SpanArray &spans = sequence.span_array();
   
-  int end = start;
-  while(end < glyphs.length() && !spans.is_token_end(end))
+  style = GlyphStyleNone;
+  end = start;
+  while(end < length() && !spans.is_token_end(end))
     ++end;
   ++end;
   
   if(sequence.is_placeholder(start) && start + 1 == end)
-    return end;
+    return false;
     
-  if( glyphs[start].style != GlyphStyleNone      &&
-      glyphs[start].style != GlyphStyleParameter &&
-      glyphs[start].style != GlyphStyleLocal     &&
-      glyphs[start].style != GlyphStyleNewSymbol &&
-      glyphs[start].style != GlyphStyleFunctionCall)
-  {
-    return end;
+  painter.move_to(start);
+  switch(painter.get_style()) {
+    case GlyphStyleNone:
+    case GlyphStyleParameter:
+    case GlyphStyleLocal:
+    case GlyphStyleNewSymbol:
+    case GlyphStyleFunctionCall:
+      break;
+    default:
+      return false;
   }
   
   String name(str.part(start, end - start));
   
   SharedPtr<SymbolInfo> info = state.local_symbols[name];
-  uint8_t style = GlyphStyleNone;
   
   if(kind == SymbolKind::Global) {
     while(info) {
@@ -355,7 +394,7 @@ int ScopeColorizerImpl::symbol_colorize(int start, SymbolKind kind) {
           case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
           case SymbolKind::Parameter:    style = GlyphStyleParameter;  break;
           case SymbolKind::Error:        style = GlyphStyleScopeError; break;
-          default: ;
+          default: break;
         }
         
         break;
@@ -434,18 +473,11 @@ int ScopeColorizerImpl::symbol_colorize(int start, SymbolKind kind) {
       case SymbolKind::LocalSymbol:  style = GlyphStyleLocal;      break;
       case SymbolKind::Special:      style = GlyphStyleSpecialUse; break;
       case SymbolKind::Parameter:    style = GlyphStyleParameter;  break;
-      default:           return end;
+      default: return false;
     }
   }
   
-  for(int i = start; i < end; ++i)
-    glyphs[i].style = style;
-    
-//  if(style == GlyphStyleParameter)
-//    for(int i = start;i < end;++i)
-//      glyphs[i].slant = FontSlantItalic;
-
-  return end;
+  return true;
 }
 
 void ScopeColorizerImpl::symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind) { // "x"  "x:=y"
@@ -493,18 +525,22 @@ void ScopeColorizerImpl::colorize_keyword(SpanExpr *se) {
   se = span_as_name(se);
   if(!se)
     return;
-    
-  for(int i = se->start(); i <= se->end(); ++i)
-    glyphs[i].style = GlyphStyleKeyword;
+  
+  painter.move_to(se->start());
+  painter.paint_until(GlyphStyleKeyword, se->end() + 1);
 }
 
 void ScopeColorizerImpl::colorize_identifier(SpanExpr *se) { // identifiers   #   ~
   assert(se->count() == 0);
   
-  if( glyphs[se->start()].style != GlyphStyleNone &&
-      glyphs[se->start()].style != GlyphStyleFunctionCall)
-  {
-    return;
+  painter.move_to(se->start());
+  switch(painter.get_style()) {
+    case GlyphStyleNone:
+    case GlyphStyleFunctionCall:
+      break;
+    
+    default:
+      return;
   }
   
   if(se->is_box()) {
@@ -518,22 +554,16 @@ void ScopeColorizerImpl::colorize_identifier(SpanExpr *se) { // identifiers   # 
   }
   
   if(se->first_char() == '#') {
-    uint8_t style;
     if(state.in_function)
-      style = GlyphStyleParameter;
+      painter.paint_until(GlyphStyleParameter, se->end() + 1);
     else
-      style = GlyphStyleScopeError;
-      
-    for(int i = se->start(); i <= se->end(); ++i)
-      glyphs[i].style = style;
-      
+      painter.paint_until(GlyphStyleScopeError, se->end() + 1);
+    
     return;
   }
   
   if(se->first_char() == '~' && state.in_pattern) {
-    for(int i = se->start(); i <= se->end(); ++i)
-      glyphs[i].style = GlyphStyleParameter;
-      
+    painter.paint_until(GlyphStyleParameter, se->end() + 1);
     return;
   }
 }
@@ -541,14 +571,11 @@ void ScopeColorizerImpl::colorize_identifier(SpanExpr *se) { // identifiers   # 
 void ScopeColorizerImpl::colorize_pure_argument(SpanExpr *se) { // #x
   assert(se->count() == 2);
   
-  uint8_t style;
+  painter.move_to(se->start());
   if(state.in_function)
-    style = GlyphStyleParameter;
+    painter.paint_until(GlyphStyleParameter, se->end() + 1);
   else
-    style = GlyphStyleScopeError;
-    
-  for(int i = se->start(); i <= se->end(); ++i)
-    glyphs[i].style = style;
+    painter.paint_until(GlyphStyleScopeError, se->end() + 1);
 }
 
 void ScopeColorizerImpl::colorize_pure_function(SpanExpr *se) { // body &
@@ -599,8 +626,8 @@ void ScopeColorizerImpl::colorize_mapsto_function(SpanExpr *se) {
     scope_colorize_spanexpr(se->item(2));
   }
   else {
-    for(int i = se->item_pos(1); i <= se->item(1)->end(); ++i)
-      glyphs[i].style = GlyphStyleSyntaxError;
+    painter.move_to(se->item_pos(1));
+    painter.paint_until(GlyphStyleSyntaxError, se->item(1)->end() + 1);
   }
   
   state.current_pos = next_scope;
@@ -611,11 +638,13 @@ void ScopeColorizerImpl::colorize_simple_pattern_name(SpanExpr *se) { // ~x   ?x
   
   if(!state.in_pattern)
     return;
-    
-  symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
   
-  for(int i = se->item_pos(0); i < se->item_pos(1); ++i)
-    glyphs[i].style = glyphs[se->item_pos(1)].style;
+  int end;
+  uint8_t style;
+  if(prepare_symbol_colorization(se->item_pos(1), SymbolKind::Parameter, end, style)) {
+    painter.move_to(se->item_pos(0));
+    painter.paint_until(GlyphStyleParameter, end);
+  }
 }
 
 void ScopeColorizerImpl::colorize_pattern_name(SpanExpr *se) { // name:pat
@@ -638,11 +667,13 @@ void ScopeColorizerImpl::colorize_typed_pattern(SpanExpr *se) { // ~name:type
   
   if(!state.in_pattern)
     return;
-    
-  symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
   
-  for(int i = se->item_pos(0); i <= se->end(); ++i)
-    glyphs[i].style = glyphs[se->item_pos(1)].style;
+  int end;
+  uint8_t style;
+  if(prepare_symbol_colorization(se->item_pos(1), SymbolKind::Parameter, end, style)) {
+    painter.move_to(se->item_pos(0));
+    painter.paint_until(GlyphStyleParameter, se->end() + 1);
+  }
 }
 
 void ScopeColorizerImpl::colorize_optional_value_pattern(SpanExpr *se) { // ?name:value
@@ -657,11 +688,12 @@ void ScopeColorizerImpl::colorize_optional_value_pattern(SpanExpr *se) { // ?nam
     scope_colorize_spanexpr(sub);
   }
   
-  symbol_colorize(se->item_pos(1), SymbolKind::Parameter);
-  
-  int pos1 = se->item_pos(1);
-  for(int i = se->item_pos(0); i < pos1; ++i)
-    glyphs[i].style = glyphs[pos1].style;
+  int end;
+  uint8_t style;
+  if(prepare_symbol_colorization(se->item_pos(1), SymbolKind::Parameter, end, style)) {
+    painter.move_to(se->item_pos(0));
+    painter.paint_until(GlyphStyleParameter, end);
+  }
 }
 
 void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed) {
@@ -688,8 +720,8 @@ void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed)
     scope_colorize_spanexpr(se->item(2));
   }
   else {
-    for(int i = se->item_pos(1); i <= se->item(1)->end(); ++i)
-      glyphs[i].style = GlyphStyleSyntaxError;
+    painter.move_to(se->item_pos(1));
+    painter.paint_until(GlyphStyleSyntaxError, se->item(1)->end() + 1);
   }
   
   if(delayed)
@@ -718,8 +750,8 @@ void ScopeColorizerImpl::colorize_tag_assignment(SpanExpr * se, bool delayed) { 
     scope_colorize_spanexpr(se->item(4));
   }
   else {
-    for(int i = se->item_pos(3); i <= se->item(3)->end(); ++i)
-      glyphs[i].style = GlyphStyleSyntaxError;
+    painter.move_to(se->item_pos(3));
+    painter.paint_until(GlyphStyleSyntaxError, se->item(3)->end() + 1);
   }
   
   if(delayed)
@@ -904,8 +936,8 @@ void ScopeColorizerImpl::colorize_tablespec_call(SpanExpr *se, const SyntaxInfor
     for(int j = i + 1; j <= info.locals_max && j <= arg_count; ++j) {
       SpanExpr *arg_j = call.function_argument(j);
       
-      for(int p = arg_j->start(); p <= arg_j->end(); ++p)
-        glyphs[p].style = GlyphStyleNone;
+      painter.move_to(arg_j->start());
+      painter.paint_until(GlyphStyleNone, arg_j->end());
         
       scope_colorize_spanexpr(arg_j);
     }

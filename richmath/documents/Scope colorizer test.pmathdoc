@@ -1,0 +1,21 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Scope colorizer test", "Title"), 
+    Section(BoxData("global"), "Input"), Section(BoxData("True"), "Input"), 
+    Section(BoxData({{"f", "(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, 
+       "\[Assign]", {"x", "+", SqrtBox("y")}}), "Input"), 
+    Section(BoxData({{"f", "(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, 
+       "\[AssignDelayed]", {"x", "+", SqrtBox("y")}}), "Input"), 
+    Section(BoxData({{"f", "(", {"?", "x", ":", "1"}, ")"}, 
+       "\[AssignDelayed]", {"x", "+", SqrtBox("x")}}), "Input"), 
+    Section(BoxData({"Sin", "(", {"x", ",", "y"}, ")"}), "Input"), 
+    Section(BoxData({{"Do", "(", {"n", "\[Rule]", {"5", "..", "n"}}, ")"}, {
+        "{", {"Print", "(", "n", ")"}, "}"}}), "Input"), 
+    Section(BoxData({{"Local", "(", {"x", ",", {"y", "\[Assign]", "x"}}, ")"}, 
+       {"{", {"x", "+", SqrtBox("y")}, "}"}}), "Input"), 
+    Section(
+     BoxData({
+       {"With", "(", {{"x", "\[Assign]", "y"}, ",", {"y", "\[Assign]", "x"}}, 
+        ")"}, {"{", SqrtBox({"x", "+", "y"}), "}"}}), "Input")}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
