@@ -27,7 +27,7 @@ namespace richmath {
   
   Expr expand_string_boxes(String s);
   
-  inline ArrayView<const uint16_t> buffer_view(String s) { return ArrayView<const uint16_t>(s.length(), s.buffer()); }
+  inline ArrayView<const uint16_t> buffer_view(const String &s) { return ArrayView<const uint16_t>(s.length(), s.buffer()); }
   
   class Span {
     public:
