@@ -7,7 +7,7 @@
 
 
 namespace richmath {
-  enum {
+  enum SyntaxGlyphStyle {
     GlyphStyleNone,
     GlyphStyleImplicit,
     GlyphStyleString,
@@ -32,7 +32,7 @@ namespace richmath {
   };
   
   enum {
-    FontsPerGlyphCount = (1 << 5)
+    NumFontsPerGlyph = (1 << 5)
   };
   
   struct GlyphInfo {
@@ -50,7 +50,7 @@ namespace richmath {
       uint16_t            index;
       ExtendersAndOverlap ext;
     };
-    unsigned style:              4; // GlyphStyleXXX
+    unsigned _unused:            4;
     
     unsigned fontinfo:           5;
     

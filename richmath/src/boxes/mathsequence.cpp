@@ -380,6 +380,8 @@ void MathSequence::resize(Context &context) {
   float old_scww = context.section_content_window_width;
   context.section_content_window_width = HUGE_VAL;
   
+  semantic_styles.clear();
+  
   // TODO: resize_span should append glyphs to the glyph array, updating 
   // a glyph-to-text-index array and 
   // a glyph-to-sequence-box array.
@@ -541,6 +543,7 @@ void MathSequence::paint(Context &context) {
       float glyph_left = 0;
       int box = 0;
       int pos = 0;
+      auto iter = semantic_styles.begin();
       
       if(line > 0)
         pos = lines[line - 1].end;
@@ -553,32 +556,9 @@ void MathSequence::paint(Context &context) {
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
-//#ifndef NDEBUG
-//        {
-//          int old_color = context.canvas().get_color();
-//          context.canvas().save();
-//          context.canvas().set_color(0x808080);
-//          
-//          for(int i = 0; i < lines[line].indent; ++i) {
-//            context.canvas().move_to(
-//              x0 + i * (x_extra - x0) / lines[line].indent,
-//              y + lines[line].ascent);
-//            context.canvas().rel_line_to(0, -0.75);
-//          }
-//          context.canvas().stroke();
-//          
-//          context.canvas().set_color(old_color);
-//          context.canvas().restore();
-//        }
-//#endif
-        
         if(pos > 0)
           x_extra -= glyphs[pos - 1].right;
         
-//        if(pos < glyphs.length()) {
-//          if(pos > 0 && buf[pos-1] != '\n')
-//            x_extra -= glyphs[pos].x_offset;
-//        }
         y += lines[line].ascent;
         
         for(; pos < lines[line].end; ++pos) {
@@ -587,8 +567,9 @@ void MathSequence::paint(Context &context) {
             continue;
           }
           
-          if(have_style || glyphs[pos].style) {
-            Color color = context.syntax->glyph_style_colors[glyphs[pos].style];
+          iter.rewind_to(pos);
+          if(have_style || iter.get()) {
+            Color color = context.syntax->glyph_style_colors[iter.get() & 0x0F];
             
             context.canvas().set_color(color);
             have_style = color != default_color;
@@ -611,23 +592,6 @@ void MathSequence::paint(Context &context) {
             }
           }
           
-//          #ifndef NDEBUG
-//          if(spans.is_operand_start(pos)){
-//            context.canvas().save();
-//
-//            context.canvas().move_to(glyph_left + x_extra + glyphs[pos].x_offset, y - 1.5);
-//            context.canvas().rel_line_to(0, 3);
-//            context.canvas().rel_line_to(3, 0);
-//
-//            context.canvas().set_color(0x008000);
-//            context.canvas().hair_stroke();
-//
-//            context.canvas().set_color(default_color);
-//            context.canvas().restore();
-//          }
-//          #endif
-
-
           if(buf[pos] == PMATH_CHAR_BOX) {
             while(boxes[box]->index() < pos)
               ++box;
@@ -1993,9 +1957,8 @@ void MathSequence::Impl::syntax_error(pmath_string_t code, int pos, void *_data,
   int             len = pmath_string_length(code);
   
   if(err) {
-    if(pos < data->sequence->glyphs.length()
-        && data->sequence->glyphs.length() > pos) {
-      data->sequence->glyphs[pos].style = GlyphStyleSyntaxError;
+    if(pos < data->sequence->length()) {
+      data->sequence->semantic_styles.find(pos).reset_range(GlyphStyleSyntaxError, 1);
     }
   }
   else if(pos < len && buf[pos] == '\n') { // new line character interpreted as multiplication
@@ -3758,7 +3721,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
               space_left = space_right = self.em * 3 / 18;
               
               //if(context.show_auto_styles)
-              iter_start.current_glyph().style = GlyphStyleImplicit;
+              iter_start.semantic_style_iter().reset_range(GlyphStyleImplicit, 1); // would invalidate later iters ...
             }
           }
           else {
@@ -3982,7 +3945,7 @@ void MathSequence::Impl::EnlargeSpace::show_tab_character(const GlyphIterator &p
       &pos.current_glyph());
       
     pos.current_glyph().x_offset = (width - pos.current_glyph().right) / 2;
-    pos.current_glyph().style = GlyphStyleImplicit;
+    pos.semantic_style_iter().reset_range(GlyphStyleImplicit, 1);
   }
   else {
     pos.current_glyph().index = 0;

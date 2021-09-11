@@ -108,7 +108,7 @@ namespace {
         }
         
         if(expr.is_string()) {
-          uint16_t res = ps2g[font & (FontsPerGlyphCount - 1)][String(expr)];
+          uint16_t res = ps2g[font & (NumFontsPerGlyph - 1)][String(expr)];
           
 //        if(!res){
 //          pmath_debug_print_object("Unknown glyph ", expr.get(), "");
@@ -122,12 +122,12 @@ namespace {
       }
       
       void clear() {
-        for(int i = 0; i < FontsPerGlyphCount; ++i)
+        for(int i = 0; i < NumFontsPerGlyph; ++i)
           ps2g[i].clear();
       }
       
     public:
-      Hashtable<String, uint16_t> ps2g[FontsPerGlyphCount];
+      Hashtable<String, uint16_t> ps2g[NumFontsPerGlyph];
       cairo_surface_t *surface;
       cairo_t         *cr;
       Context          context;
@@ -758,7 +758,7 @@ namespace richmath {
           return false;
         }
         
-        if(math_fontnames.length() + text_fontnames.length() > FontsPerGlyphCount / 2) {
+        if(math_fontnames.length() + text_fontnames.length() > NumFontsPerGlyph / 2) {
           printf("[%s, %d]", FUNC_NAME, __LINE__);
           return false;
         }

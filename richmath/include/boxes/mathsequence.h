@@ -2,7 +2,7 @@
 #define RICHMATH__BOXES__SEQUENCE_H__INCLUDED
 
 #include <boxes/box.h>
-#include <util/array.h>
+#include <util/rle-array.h>
 #include <syntax/syntax-state.h>
 
 
@@ -99,10 +99,11 @@ namespace richmath {
       
       virtual void load_from_object(Expr object, BoxInputFlags options) override;
       
-      const String           &text() {        return str;    }
-      const SpanArray        &span_array() {  return spans;  }
-      const Array<Line>      &line_array() {  return lines;  }
-      const Array<GlyphInfo> &glyph_array() { return glyphs; }
+      const String               &text() {        return str;    }
+      const SpanArray            &span_array() {  return spans;  }
+      const Array<Line>          &line_array() {  return lines;  }
+      const Array<GlyphInfo>     &glyph_array() { return glyphs; }
+      RleArray<SyntaxGlyphStyle> &semantic_styles_array() { return semantic_styles; }
       
       bool stretch_horizontal(Context &context, float width);
       
@@ -137,6 +138,7 @@ namespace richmath {
       Array<Box *>     boxes;
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
+      RleArray<SyntaxGlyphStyle> semantic_styles;
       SpanArray        spans;
   };
   

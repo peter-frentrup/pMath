@@ -57,6 +57,7 @@ namespace richmath {
       const RleArrayIterator &operator++() { return *this+= 1; }
       
       void increment(int steps);
+      void rewind_to(int new_index);
       
       rle_array_type &array() { return *_array; }
       
@@ -110,6 +111,14 @@ namespace richmath {
       
       ++_group;
     }
+  }
+  
+  template<typename A>
+  void RleArrayIterator<A>::rewind_to(int new_index) {
+    if(new_index < _index) 
+      *this = _array->find(new_index);
+    else
+      increment(new_index - _index);
   }
   
   /// Invalidates other iterators for the array.

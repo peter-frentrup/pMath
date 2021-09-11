@@ -22,43 +22,38 @@ using namespace richmath;
 namespace {
   class Painter {
     public:
-      explicit Painter(MathSequence &seq) : _seq(seq), _glyphs(seq.glyph_array()), _index(0) {}
+      explicit Painter(MathSequence &seq);
       
-      int index() const { return _index; }
-      uint8_t get_style() const { return _glyphs[_index].style; }
-      void put_style(uint8_t style) { _glyphs[_index].style = style; }
+      int index() const { return _iter.index(); }
+      SyntaxGlyphStyle get_style() const { return _iter.get(); }
       
-      void paint_until(uint8_t style, int next_index) { check_before(next_index); while(_index < next_index) { put_style(style); ++_index; } }
-      void move_to(int next_index) { check_before(next_index); _index = next_index; }
-      
-      #ifdef NDEBUG
-      void check_before(int next_index) const {}
-      #else
-      void check_before(int next_index) const;
-      #endif
+      void paint_until(SyntaxGlyphStyle style, int next_index);
+      void move_to(int next_index);
       
     private:
-      MathSequence           &_seq;
-      const Array<GlyphInfo> &_glyphs;
-      int                     _index;
+      using iterator_type = RleArray<SyntaxGlyphStyle>::iterator_type;
+      
+      MathSequence               &_seq_debug;
+      const Array<GlyphInfo>     &_glyphs; // obsolete
+      iterator_type               _iter;
   };
   
   class ScopeColorizerImpl {
     private:
-      MathSequence           &sequence;
-      SyntaxState            &state;
-      Painter                 painter;
-      const String           &str;
+      MathSequence  &sequence;
+      SyntaxState   &state;
+      Painter        painter;
+      const String  &str;
       
     public:
-      ScopeColorizerImpl(MathSequence &sequence, SyntaxState &state);
+      explicit ScopeColorizerImpl(MathSequence &sequence, SyntaxState &state);
       
       void colorize_spanexpr(SpanExpr *se);
       
     private:
       int length() { return str.length(); }
       
-      bool prepare_symbol_colorization(int start, SymbolKind kind, int &end, uint8_t &style);
+      bool prepare_symbol_colorization(int start, SymbolKind kind, int &end, SyntaxGlyphStyle &style);
       int symbol_colorize(int start, SymbolKind kind);
       void symdef_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "x"  "x:=y"
       void symdeflist_colorize_spanexpr(SpanExpr *se, SymbolKind kind); // "{symdefs ...}"
@@ -96,7 +91,7 @@ namespace {
       Painter painter;
       
     public:
-      ErrorColorizerImpl(MathSequence &sequence, float _error_indicator_height);
+      explicit ErrorColorizerImpl(MathSequence &sequence, float _error_indicator_height);
       
       void arglist_errors_colorize_spanexpr(SpanExpr *se);
       
@@ -104,7 +99,7 @@ namespace {
       void unknown_option_colorize_spanexpr(SpanExpr *se, Expr options);
       void add_missing_indicator(SpanExpr *span_before);
       void mark_excess_args(FunctionCallSpan &call, int max_args);
-      void colorize_name(SpanExpr *se, unsigned style);
+      void colorize_name(SpanExpr *se, SyntaxGlyphStyle style);
       void arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se);
       void get_block_head_argument_counts(SpanExpr *name, int &argmin, int &argmax);
       void colorize_block_body_line_errors(SpanExpr *se);
@@ -114,7 +109,7 @@ namespace {
   
   class SyntaxColorizerImpl {
     public:
-      SyntaxColorizerImpl(MathSequence &seq);
+      explicit SyntaxColorizerImpl(MathSequence &seq);
       
       void colorize_spanexpr(SpanExpr *se);
       void colorize_quoted_string(SpanExpr *se);
@@ -307,7 +302,7 @@ void ScopeColorizerImpl::colorize_spanexpr(SpanExpr *se) {
 
 int ScopeColorizerImpl::symbol_colorize(int start, SymbolKind kind) {
   int end;
-  uint8_t style;
+  SyntaxGlyphStyle style;
   if(prepare_symbol_colorization(start, kind, end, style)) {
     painter.move_to(start);
     painter.paint_until(style, end);
@@ -315,7 +310,7 @@ int ScopeColorizerImpl::symbol_colorize(int start, SymbolKind kind) {
   return end;
 }
 
-bool ScopeColorizerImpl::prepare_symbol_colorization(int start, SymbolKind kind, int &end, uint8_t &style) {
+bool ScopeColorizerImpl::prepare_symbol_colorization(int start, SymbolKind kind, int &end, SyntaxGlyphStyle &style) {
   const SpanArray &spans = sequence.span_array();
   
   style = GlyphStyleNone;
@@ -597,7 +592,7 @@ void ScopeColorizerImpl::colorize_simple_pattern_name(SpanExpr *se) { // ~x   ?x
     return;
   
   int end;
-  uint8_t style;
+  SyntaxGlyphStyle style;
   if(prepare_symbol_colorization(se->item_pos(1), SymbolKind::Parameter, end, style)) {
     painter.move_to(se->item_pos(0));
     painter.paint_until(GlyphStyleParameter, end);
@@ -626,7 +621,7 @@ void ScopeColorizerImpl::colorize_typed_pattern(SpanExpr *se) { // ~name:type
     return;
   
   int end;
-  uint8_t style;
+  SyntaxGlyphStyle style;
   if(prepare_symbol_colorization(se->item_pos(1), SymbolKind::Parameter, end, style)) {
     painter.move_to(se->item_pos(0));
     painter.paint_until(GlyphStyleParameter, se->end() + 1);
@@ -646,7 +641,7 @@ void ScopeColorizerImpl::colorize_optional_value_pattern(SpanExpr *se) { // ?nam
   }
   
   int end;
-  uint8_t style;
+  SyntaxGlyphStyle style;
   if(prepare_symbol_colorization(se->item_pos(1), SymbolKind::Parameter, end, style)) {
     painter.move_to(se->item_pos(0));
     painter.paint_until(GlyphStyleParameter, end);
@@ -1244,7 +1239,7 @@ void ErrorColorizerImpl::mark_excess_args(FunctionCallSpan &call, int max_args) 
   return;
 }
 
-void ErrorColorizerImpl::colorize_name(SpanExpr *se, unsigned style) {
+void ErrorColorizerImpl::colorize_name(SpanExpr *se, SyntaxGlyphStyle style) {
   if(!se)
     return;
     
@@ -1556,13 +1551,29 @@ void SyntaxColorizerImpl::comments_colorize_until(int end) {
 
 //{ class Painter ...
 
-#ifndef NDEBUG
-void Painter::check_before(int next_index) const {
-  if(next_index < _index) {
-    pmath_debug_print("[Painter::check_before failed: %d not before %d", _index, next_index);
-    pmath_debug_print_object(" in :", _seq.text().get(), "]\n");
-  }
+inline Painter::Painter(MathSequence &seq)
+  : _seq_debug(seq), 
+    _glyphs(seq.glyph_array()), 
+    _iter(seq.semantic_styles_array().find(0)) 
+{
 }
-#endif
+
+void Painter::paint_until(SyntaxGlyphStyle style, int next_index) {
+  int length = next_index - index();
+  if(length <= 0)
+    return;
+  
+  _iter.reset_range(style, length);
+  _iter+= length;
+}
+
+void Painter::move_to(int next_index) {
+  if(next_index < index()) {
+    pmath_debug_print("[Painter::move_to needs to rewind from %d to %d", index(), next_index);
+    pmath_debug_print_object(" in :", _seq_debug.text().get(), "]\n");
+  }
+  
+  _iter.rewind_to(next_index);
+}
 
 //} ... class Painter

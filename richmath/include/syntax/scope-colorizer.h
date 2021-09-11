@@ -2,6 +2,7 @@
 #define RICHMATH__SYNTAX__SCOPE_COLORIZER_H__INCLUDED
 
 #include <syntax/syntax-state.h>
+#include <graphics/glyphs.h>
 
 
 namespace richmath {

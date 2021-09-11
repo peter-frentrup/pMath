@@ -30,5 +30,7 @@ Document({
         "\[Infinity]"), {"a", SubscriptBox("n")}}), "Input"), 
     Section(BoxData({{"F", "(", {"~", "b"}, ")"}, "\[AssignDelayed]", {
         "\[Integral]", SubsuperscriptBox("a", "b"), {
-         {"f", "(", "x", ")"}, {"\[DifferentialD]", "x"}}}}), "Input")}, 
+         {"f", "(", "x", ")"}, {"\[DifferentialD]", "x"}}}}), "Input"), 
+    Section(BoxData({"a", " ", {"(", {"b", "+", "c"}, ")"}}), "Input"), 
+    Section(BoxData(/\/("\[RawTab]", {"tab", "\[RawTab]", "tab"})), "Input")}, 
    All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

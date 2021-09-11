@@ -372,7 +372,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
       else {
         SharedPtr<FallbackTextShaper> fts = nullptr;
         
-        int max_fallbacks = FontsPerGlyphCount / 2;
+        int max_fallbacks = NumFontsPerGlyph / 2;
         
         for(auto item : expr.items()) {
           if(String s = item) {

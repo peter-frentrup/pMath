@@ -583,7 +583,7 @@ void OTMathShaper::decode_token(
         }
         
         r[0].missing_after = result->missing_after;
-        r[0].style         = result->style;
+        //r[0].style         = result->style;
         memcpy(result, r, sizeof(GlyphInfo));
         return;
       }
