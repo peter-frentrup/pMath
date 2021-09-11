@@ -2,6 +2,26 @@
 
 Document({
   SectionGroup({Section("Math Shaper Test", "Title"), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {
+          "SetterBar", "(", {
+           {"Dynamic", "(", {"CurrentValue", "(", {
+              {"EvaluationDocument", "(", ")"}, ",", "MathFontFamily"}, ")"}, 
+            ")"}, ",", {
+            {"CurrentValue", "(", ComplexStringBox("\"AvailableMathFonts\""), 
+             ")"}, ".", "Map", "(", {"s", "\[Function]", {
+              "(", {"s", "\[Rule]", {
+                "Style", "(", {"s", ",", {"FontFamily", "\[Rule]", "s"}}, 
+                ")"}}, ")"}}, ")"}}, ")"}, ")"}), "Input", 
+       SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData(
+        DynamicBox(
+         ToBoxes(SetterBar(Dynamic(CurrentValue(EvaluationDocument(), 
+             MathFontFamily)), Map(CurrentValue("AvailableMathFonts"), 
+            Function({$Context`s}, 
+             $Context`s -> Style($Context`s, FontFamily -> $Context`s))))))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
     Section(
      BoxData(
       /\/({
