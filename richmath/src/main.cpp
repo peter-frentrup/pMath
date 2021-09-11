@@ -13,6 +13,7 @@
 #include <cmath>
 #include <cstdio>
 
+#include <util/rle-array.h>
 #include <boxes/graphics/axisticks.h>
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/graphics/graphicsdirective.h>
@@ -133,6 +134,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
 #  if defined(PMATH_64BIT)
     static_assert(sizeof(Array<void*>)              ==  8,  "");
     static_assert(sizeof(Array<bool>)               ==  8,  "");
+    static_assert(sizeof(RleArray<void*>)           ==  8,  "");
     static_assert(sizeof(Matrix<void*>)             ==  16, ""); // 8 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(Dynamic)                   ==  24, ""); // 8 + 8 + 4 (enum where 1 byte would suffice) + 4 PADDING BYTES AT END
     static_assert(sizeof(PartialDynamic)            ==  24, ""); // 8 + 8 + 8
@@ -205,6 +207,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
 #  elif defined(PMATH_32BIT)
     static_assert(sizeof(Array<void*>)              ==  4,  "");
     static_assert(sizeof(Array<bool>)               ==  4,  "");
+    static_assert(sizeof(RleArray<void*>)           ==  4,  "");
     static_assert(sizeof(Matrix<void*>)             ==  8, ""); // 4 + 4
     static_assert(sizeof(Dynamic)                   ==  16, ""); // 8 + 4 + 4 (enum where 1 byte would suffice)
     static_assert(sizeof(PartialDynamic)            ==  24, ""); // 8 + 8 + 4 + 4 UNUSED PADDING BYTES
@@ -552,6 +555,8 @@ static bool have_visible_documents() {
 }
 
 int main(int argc, char **argv) {
+  debug_test_rle_array();
+  
   os_init();
   
 #ifdef RICHMATH_USE_GTK_GUI
