@@ -2371,35 +2371,28 @@ bool MathSequence::Impl::hstretch_lines( // return whether there was any height 
     width = window_width;
   }
   
-  const uint16_t *buf = self.str.buffer();
-  
-  int box = 0;
-  int start = 0;
-  
-  float delta_x = 0;
-  for(int line = 0; line < self.lines.length(); line++) {
-    float total_fill_weight = 0;
-    float white = 0;
+  float delta_x = 0.0f;
+  GlyphIterator start{self};
+  for(int line = 0; line < self.lines.length(); ++line) {
+    float total_fill_weight = 0.0f;
+    float white = 0.0f;
     
-    int oldbox = box;
-    for(int pos = start; pos < self.lines[line].end; ++pos) {
-      if(buf[pos] == PMATH_CHAR_BOX) {
-        while(self.boxes[box]->index() < pos)
-          ++box;
-          
-        float weight = self.boxes[box]->fill_weight();
+    auto next = start;
+    for(; next.glyph_index() < self.lines[line].end; next.move_next_glyph()) {
+      if(auto filler = next.current_box()) {
+        float weight = filler->fill_weight();
         if(weight > 0) {
           total_fill_weight += weight;
-          white += self.boxes[box]->extents().width;
+          white += filler->extents().width;
         }
       }
       
-      self.glyphs[pos].right += delta_x;
+      next.current_glyph().right += delta_x;
     }
     
     float line_width = self.indention_width(line);
-    if(start > 0)
-      line_width -= self.glyphs[start - 1].right;
+    if(start.glyph_index() > 0)
+      line_width -= self.glyphs[start.glyph_index() - 1].right;
     if(self.lines[line].end > 0)
       line_width += self.glyphs[self.lines[line].end - 1].right;
       
@@ -2409,13 +2402,8 @@ bool MathSequence::Impl::hstretch_lines( // return whether there was any height 
         
         white += width - line_width;
         
-        box = oldbox;
-        for(int pos = start; pos < self.lines[line].end; ++pos) {
-          if(buf[pos] == PMATH_CHAR_BOX) {
-            while(self.boxes[box]->index() < pos)
-              ++box;
-              
-            Box *filler = self.boxes[box];
+        for(auto pos = start; pos.glyph_index() < self.lines[line].end; pos.move_next_glyph()) {
+          if(auto filler = pos.current_box()) {
             float weight = filler->fill_weight();
             if(weight > 0) {
               BoxSize size = filler->extents();
@@ -2429,15 +2417,12 @@ bool MathSequence::Impl::hstretch_lines( // return whether there was any height 
               auto fd = filler->extents().descent;
               has_any_height_change = has_any_height_change || size.ascent != fa || size.descent != fd;
               
-              if(self.lines[line].ascent < fa) 
-                self.lines[line].ascent = fa;
-                
-              if(self.lines[line].descent < fd) 
-                self.lines[line].descent = fd;
+              if(self.lines[line].ascent  < fa) self.lines[line].ascent = fa;
+              if(self.lines[line].descent < fd) self.lines[line].descent = fd;
             }
           }
           
-          self.glyphs[pos].right += dx;
+          pos.current_glyph().right += dx;
         }
         
         delta_x += dx;
@@ -2448,7 +2433,7 @@ bool MathSequence::Impl::hstretch_lines( // return whether there was any height 
     if(*unfilled_width < line_width)
       *unfilled_width = line_width;
       
-    start = self.lines[line].end;
+    start = next;
   }
   return has_any_height_change;
 }
