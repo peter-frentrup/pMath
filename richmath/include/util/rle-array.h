@@ -37,7 +37,7 @@ namespace richmath {
     }
   };
   
-  /// Forward iterator through a run-length encoded array (RleArray).
+  /// Iterator through a run-length encoded array (RleArray).
   template<typename A>
   class RleArrayIterator {
       friend A;
@@ -52,11 +52,17 @@ namespace richmath {
       void reset_range(value_type val, int length); // invalidates other iterators
       
       value_type operator*() const { return get(); }
-      friend const RleArrayIterator &operator+(RleArrayIterator left, int steps) { return left+= steps; }
-      const RleArrayIterator &operator+=(int steps) { increment(steps); return *this; }
-      const RleArrayIterator &operator++() { return *this+= 1; }
+      friend RleArrayIterator operator+(RleArrayIterator left, int steps) { return left+= steps; }
+      friend RleArrayIterator operator-(RleArrayIterator left, int steps) { return left-= steps; }
+      const RleArrayIterator &operator+=(int steps) { rewind_to(_index + steps); return *this; }
+      const RleArrayIterator &operator-=(int steps) { rewind_to(_index - steps); return *this; }
+      const RleArrayIterator &operator++() { increment(1); return *this; }
+      const RleArrayIterator &operator--() { decrement(1); return *this; }
       
-      void increment(int steps);
+      void increment(int steps) { increment_to(_index + steps); }
+      void increment_to(int new_index);
+      void decrement(int steps) { increment_to(_index - steps); }
+      void decrement_to(int new_index);
       void rewind_to(int new_index);
       
       rle_array_type &array() { return *_array; }
@@ -86,24 +92,30 @@ namespace richmath {
       using const_iterator_type = RleArrayIterator<const self_type>;
       
     public:
-      iterator_type       begin()       { return       iterator_type(*this, -1, 0); }
-      const_iterator_type begin() const { return const_iterator_type(*this, -1, 0); }
+      iterator_type       begin()       {  return       iterator_type(*this, starts_non_default() ? 0 : -1, 0); }
+      const_iterator_type begin() const {  return const_iterator_type(*this, starts_non_default() ? 0 : -1, 0); }
+      const_iterator_type cbegin() const { return const_iterator_type(*this, starts_non_default() ? 0 : -1, 0); }
       iterator_type       find(int index)       { return begin() + index; }
       const_iterator_type find(int index) const { return begin() + index; }
       void clear() { groups.length(0); }
     
       T group_start_value(int group) const { return group < 0 ? Def::initial() : groups[group].next_value; }
       int group_start_index(int group) const { return group < 0 ? 0 : groups[group].first_index; }
+      
+      bool starts_non_default() const { return groups.length() > 0 && groups[0].first_index == 0; }
     
     public:
       Array<entry_type> groups;
   };
+  
+  template<typename T, typename Def=DefaultValue<T>>
+  using RleLinearPredictorArray = RleArray<T, LinearPredictor<T>, Def>;
 
   template<typename A>
-  void RleArrayIterator<A>::increment(int steps)  {
-    ARRAY_ASSERT(steps >= 0);
+  void RleArrayIterator<A>::increment_to(int new_index) {
+    ARRAY_ASSERT(new_index >= _index);
     
-    _index += steps;
+    _index = new_index;
     while(_group + 1 < _array->groups.length()) {
       int next_group_start = _array->groups[_group + 1].first_index;
       if(_index < next_group_start)
@@ -114,11 +126,33 @@ namespace richmath {
   }
   
   template<typename A>
-  void RleArrayIterator<A>::rewind_to(int new_index) {
-    if(new_index < _index) 
-      *this = _array->find(new_index);
+  void RleArrayIterator<A>::decrement_to(int new_index) {
+    ARRAY_ASSERT(new_index >= 0);
+    
+    _index = new_index;
+    while(_group >= 0 && _index < _array->groups[_group].first_index)
+      --_group;
+  }
+  
+  template<typename A>
+  inline void RleArrayIterator<A>::rewind_to(int new_index) {
+    if(new_index < _index) {
+      //*this = _array->find(new_index);
+      decrement_to(new_index);
+    }
+    else {
+      increment_to(new_index);
+    }
+  }
+  
+  template<typename A>
+  inline bool RleArrayIterator<A>::find_next_run(int &next_run_index) {
+    if(_group + 1 < _array->groups.length()) {
+      next_run_index = _array->groups[_group + 1].first_index;
+      return true;
+    }
     else
-      increment(new_index - _index);
+      return false;
   }
   
   /// Invalidates other iterators for the array.
@@ -140,8 +174,7 @@ namespace richmath {
     if(length == 0)
       return;
     
-    auto next = *this;
-    next.increment(length);
+    auto next = *this + length;
     
     entry_type next_entry = {next.get(), next.index()};
     
