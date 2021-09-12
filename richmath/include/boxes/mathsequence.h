@@ -99,12 +99,13 @@ namespace richmath {
       
       virtual void load_from_object(Expr object, BoxInputFlags options) override;
       
-      const String               &text() {        return str;    }
-      const SpanArray            &span_array() {  return spans;  }
-      const Array<Line>          &line_array() {  return lines;  }
-      const Array<GlyphInfo>     &glyph_array() { return glyphs; }
-      RleArray<SyntaxGlyphStyle> &semantic_styles_array() { return semantic_styles; }
-      
+      const String                        &text() {        return str;    }
+      const SpanArray                     &span_array() {  return spans;  }
+      const Array<Line>                   &line_array() {  return lines;  }
+      const Array<GlyphInfo>              &glyph_array() { return glyphs; }
+      RleArray<SyntaxGlyphStyle>          &semantic_styles_array() { return semantic_styles; }
+      RleArrayIterator<const RleLinearPredictorArray<int>> glyph_to_text_iter() { return glyph_to_text.cbegin(); }
+   
       bool stretch_horizontal(Context &context, float width);
       
       virtual int get_line(int index, int guide = 0) override; // 0, 1, ...
@@ -138,7 +139,8 @@ namespace richmath {
       Array<Box *>     boxes;
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
-      RleArray<SyntaxGlyphStyle> semantic_styles;
+      RleArray<SyntaxGlyphStyle>   semantic_styles;
+      RleLinearPredictorArray<int> glyph_to_text;
       SpanArray        spans;
   };
   

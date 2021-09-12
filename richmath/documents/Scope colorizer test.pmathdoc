@@ -32,5 +32,18 @@ Document({
         "\[Integral]", SubsuperscriptBox("a", "b"), {
          {"f", "(", "x", ")"}, {"\[DifferentialD]", "x"}}}}), "Input"), 
     Section(BoxData({"a", " ", {"(", {"b", "+", "c"}, ")"}}), "Input"), 
-    Section(BoxData(/\/("\[RawTab]", {"tab", "\[RawTab]", "tab"})), "Input")}, 
-   All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+    Section(BoxData(/\/("\[RawTab]", {"tab", "\[RawTab]", "tab"})), "Input"), 
+    SectionGroup({Section(BoxData(ComplexStringBox("\"Text with 3 Spaces\"")), 
+       "Input", SectionLabel -> "in [1]:"), 
+      Section(BoxData(ComplexStringBox("\"Text with 3 Spaces\"")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({"Style", "(", {ComplexStringBox("\"Text with 3 Spaces\""), 
+          ",", {"FontFamily", "\[Rule]", 
+           ComplexStringBox("\"Comic Sans MS\"")}}, ")"}), "Input", 
+       SectionLabel -> "in [2]:"), 
+      Section(BoxData(StyleBox(ComplexStringBox("\"Text with 3 Spaces\""), 
+         FontFamily -> "Comic Sans MS", StripOnInput -> False)), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

@@ -3,22 +3,47 @@
 
 using namespace richmath;
 
+namespace richmath {
+  class GlyphIterator::Impl {
+    public:
+      Impl(GlyphIterator &self) : self{self} {}
+      
+      static int index_in_sequence(MathSequence *parent, Box *other);
+    
+    private:
+      GlyphIterator &self;
+  };
+}
+
 //{ class GlyphIterator ...
 
+GlyphIterator::GlyphIterator(MathSequence &seq)
+  : _owning_seq{&seq},
+    _current_seq{nullptr},
+    _current_buf{nullptr},
+    g2t_iter{seq.glyph_to_text_iter()},
+    _semantic_style_iter{seq.semantic_styles_array().begin()},
+    _next_box_index{0},
+    _current_char{0}
+{
+  move_next_glyph();
+}
+
 void GlyphIterator::move_next_glyph() {
-  if(_glyph_index >= _owning_seq->glyph_array().length())
+  if(glyph_index() >= _owning_seq->glyph_array().length())
     return;
   
-  ++_glyph_index;
+  if(_current_seq)
+    ++g2t_iter;
   
   if(_current_seq != _owning_seq) { // _owning_seq->glyph_to_seq[_glyph_index]
     _current_seq = _owning_seq;
     _current_buf = _current_seq->text().buffer();
   }
-  ++_text_index; // _text_index = _owning_seq->glyph_to_text[_glyph_index]
   
-  if(_text_index < text_buffer_length()) {
-    _current_char = _current_buf[_text_index];
+  int ti = text_index();
+  if(ti < text_buffer_length()) {
+    _current_char = _current_buf[ti];
   }
   else {
     _current_char = 0;
@@ -38,7 +63,7 @@ void GlyphIterator::skip_to_glyph_after_text_pos(MathSequence *seq, int pos) {
   //   |         is requested position (`pos` inside `seq`)
   
   while(has_more_glyphs()) {
-    int pos_in_cur = seq == current_sequence() ? pos : index_in_sequence(current_sequence(), seq);
+    int pos_in_cur = seq == current_sequence() ? pos : Impl::index_in_sequence(current_sequence(), seq);
     if(pos_in_cur >= 0) { // [ccc[sss]ccc]
       if(text_index() >= pos_in_cur) // [ccc[ss|s]ccc^ccc]  or  [ccc[sss|]^ccc]
         return;
@@ -66,36 +91,56 @@ void GlyphIterator::skip_to_glyph_after_current_text_pos(int pos) {
   assert(0 <= pos);
   assert(pos <= seq->length());
   
-  // slow: linear search
+//  // slow: linear search
+//  while(has_more_glyphs()) {
+//    if(current_sequence() == seq) {
+//      if(text_index() >= pos)
+//        return;
+//    }
+//    else {
+//      int pos_in_seq = index_in_sequence(seq, current_sequence());
+//      if(pos_in_seq < 0) // not inside seq any more
+//        return;
+//      
+//      if(pos_in_seq >= pos) // inside nested sequence after pos
+//        return;
+//    }
+//    move_next_glyph();
+//  }
+//  return;
+
   while(has_more_glyphs()) {
-    if(current_sequence() == seq) {
-      if(text_index() >= pos)
-        return;
+    // TODO: check that current_sequence() remains seq  and skip it otherwise
+    int next_run = glyph_count();
+    int i;
+    if(g2t_iter.find_next_run(i) && i < next_run) next_run = i;
+    
+    int run_length = next_run - glyph_index();
+    ARRAY_ASSERT(run_length > 0);
+    
+    int delta = pos - text_index();
+    if(delta < 0) {
+      pmath_debug_print("[text pos %d skipped]\n", pos);
+      break;
     }
-    else {
-      int pos_in_seq = index_in_sequence(seq, current_sequence());
-      if(pos_in_seq < 0) // not inside seq any more
-        return;
-      
-      if(pos_in_seq >= pos) // inside nested sequence after pos
-        return;
+    
+    if(delta < run_length) {
+      g2t_iter.increment(delta);
+      break;
     }
-    move_next_glyph();
+    g2t_iter.increment(run_length);
   }
 }
 
 void GlyphIterator::move_token_end() {
-  if(_glyph_index >= _owning_seq->glyph_array().length())
+  if(glyph_index() >= _owning_seq->glyph_array().length())
     return;
   
-  while(_text_index < text_buffer_length()) {
-    _current_char = _current_buf[_text_index];
-    if(text_span_array().is_token_end(_text_index)) 
-      break;
-    
-    ++_text_index;
-    ++_glyph_index; // TODO: repeat until glyph points to new _text_index;
-  }
+  int ti = text_index();
+  while(ti < text_buffer_length() && !text_span_array().is_token_end(ti))
+    ++ti;
+  
+  skip_to_glyph_after_current_text_pos(ti);
 }
 
 void GlyphIterator::move_deepest_span_end() {
@@ -120,22 +165,7 @@ int GlyphIterator::index_in_sequence(MathSequence *parent) {
   if(parent == _current_seq)
     return text_index();
   
-  return index_in_sequence(parent, _current_seq);
-}
-
-int GlyphIterator::index_in_sequence(MathSequence *parent, Box *other) {
-  assert(parent);
-  
-  int index = -1;
-  while(other && other != parent) {
-    index = other->index();
-    other = other->parent();
-  }
-  
-  if(other)
-    return index;
-  else
-    return -1;
+  return Impl::index_in_sequence(parent, _current_seq);
 }
 
 Box *GlyphIterator::current_box() const {
@@ -176,3 +206,22 @@ Box *GlyphIterator::current_box() const {
 }
 
 //} ... class GlyphIterator
+
+//{ class GlyphIterator::Impl ...
+
+int GlyphIterator::Impl::index_in_sequence(MathSequence *parent, Box *other) {
+  assert(parent);
+  
+  int index = -1;
+  while(other && other != parent) {
+    index = other->index();
+    other = other->parent();
+  }
+  
+  if(other)
+    return index;
+  else
+    return -1;
+}
+
+//} ... class GlyphIterator::Impl

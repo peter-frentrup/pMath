@@ -5,18 +5,22 @@
 
 namespace richmath {  
   class GlyphIterator {
+      class Impl;
     public:
       using style_iter_t = RleArray<SyntaxGlyphStyle>::iterator_type;
       
     public:
-      int glyph_index() const { return _glyph_index; }
-      int text_index() const { return _text_index; }
+      int glyph_index() const { return g2t_iter.index(); }
+      int text_index() const { return g2t_iter.get(); }
       
       // caution: methods may invalidate later iterators.
-      style_iter_t semantic_style_iter() const { _semantic_style_iter.rewind_to(_text_index); return _semantic_style_iter; }
+      style_iter_t semantic_style_iter() const { _semantic_style_iter.rewind_to(text_index()); return _semantic_style_iter; }
       
-      bool has_more_glyphs() const { return _glyph_index < _owning_seq->glyph_array().length(); }
+      bool has_more_glyphs() const { return glyph_index() < glyph_count(); }
       bool is_operand_start() const { return has_more_glyphs() && text_span_array().is_operand_start(text_index()); }
+      bool is_at_token_end() const {  return has_more_glyphs() && text_span_array().is_token_end(text_index()); }
+      
+      int glyph_count() const { return _owning_seq->glyph_array().length(); }
       
       uint16_t   current_char() const { return _current_char; }
       Box       *current_box() const;
@@ -44,31 +48,14 @@ namespace richmath {
       void move_deepest_span_end();
       
     private:
-      static int index_in_sequence(MathSequence *parent, Box *other);
-      
-    private:
       MathSequence *_owning_seq;
       MathSequence *_current_seq;
       const uint16_t *_current_buf;
-      int _glyph_index;
-      int _text_index;
+      RleArrayIterator<const RleLinearPredictorArray<int>> g2t_iter;
       mutable style_iter_t  _semantic_style_iter;
       mutable int _next_box_index;
       uint16_t _current_char;
   };
-  
-  inline GlyphIterator::GlyphIterator(MathSequence &seq)
-  : _owning_seq{&seq},
-    _current_seq{nullptr},
-    _current_buf{nullptr},
-    _glyph_index{-1},
-    _text_index{-1},
-    _semantic_style_iter{seq.semantic_styles_array().begin()},
-    _next_box_index{0},
-    _current_char{0}
-  {
-    move_next_glyph();
-  }
 
   inline void GlyphIterator::move_next_token() {
     move_token_end();

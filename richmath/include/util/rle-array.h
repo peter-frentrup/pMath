@@ -65,6 +65,8 @@ namespace richmath {
       void decrement_to(int new_index);
       void rewind_to(int new_index);
       
+      bool find_next_run(int &next_run_index);
+      
       rle_array_type &array() { return *_array; }
       
     private:

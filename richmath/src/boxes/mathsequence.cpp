@@ -112,9 +112,7 @@ namespace {
     int start;
     int end;
   };
-}
-
-namespace richmath {
+  
   class BreakPositionWithPenalty {
     public:
       BreakPositionWithPenalty()
@@ -136,6 +134,13 @@ namespace richmath {
       double penalty;
   };
   
+  struct GlyphHeights {
+    float ascent;
+    float descent;
+  };
+}
+
+namespace richmath {
   class MathSequence::Impl {
     private:
       MathSequence &self;
@@ -162,24 +167,56 @@ namespace richmath {
       static pmath_t remove_null_tokens(pmath_t boxes);
       //}
       
-      //{ vertical stretching
+      //{ get vertical size
     public:
       void box_size(Context &context, const GlyphIterator &pos, float *a, float *d);
       void boxes_size(Context &context, GlyphIterator start, const GlyphIterator &end, float *a, float *d);
       //}
       
-      //{ basic sizing
+      //{ generate glyphs
     public:
-      void resize_span(Context &context, Span span, int *pos, int *box);
-      void stretch_span(
-        Context &context,
-        Span     span,
-        int     *pos,
-        int     *box,
-        float    *core_ascent,
-        float    *core_descent,
-        float    *ascent,
-        float    *descent);
+      void generate_glyphs(Context &context);
+      
+    private:
+      class GlyphGenerator {
+        public:
+          using g2t_t = RleArray<int, LinearPredictor<int>>;
+          using g2t_iter_t = g2t_t::iterator_type;
+        public:
+          GlyphGenerator(MathSequence &self);
+        
+          void resize_span(Context &context, Span span, int *pos, int *box);
+          
+        private:
+          void append_text_glyph_run(Context &context, int pos, int count);
+          void append_box_glyphs(Context &context, Box *box);
+          void append_glyphs(int pos, int count);
+          
+        private:
+          MathSequence &self;
+          g2t_iter_t    g2t_iter;
+      };
+      //}
+      
+      //{ vertical stretching
+    public:
+      void stretch_all_vertical(Context &context);
+      
+    private:
+      class VerticalStretcher {
+        public:
+          explicit VerticalStretcher(Context &context, MathSequence &seq);
+          
+          void stretch_all(GlyphHeights &core_heights, GlyphHeights &heights);
+          
+        private:
+          void stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights);
+          void stretch_span(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights);
+          
+        private:
+          Context       &context;
+          GlyphIterator  iter;
+      };
       //}
       
       //{ OpenType substitutions
@@ -368,9 +405,6 @@ bool MathSequence::expand(const BoxSize &size) {
 }
 
 void MathSequence::resize(Context &context) {
-  glyphs.length(str.length());
-  glyphs.zeromem();
-  
   ensure_boxes_valid();
   ensure_spans_valid();
   
@@ -382,15 +416,7 @@ void MathSequence::resize(Context &context) {
   
   semantic_styles.clear();
   
-  // TODO: resize_span should append glyphs to the glyph array, updating 
-  // a glyph-to-text-index array and 
-  // a glyph-to-sequence-box array.
-  // Both arrays should be compressed.
-  int box = 0;
-  int pos = 0;
-  while(pos < glyphs.length())
-    Impl(*this).resize_span(context, spans[pos], &pos, &box);
-    
+  Impl(*this).generate_glyphs(context);
   Impl(*this).apply_glyph_substitutions(context);
   
   if(context.show_auto_styles) {
@@ -398,7 +424,7 @@ void MathSequence::resize(Context &context) {
     
     colorizer.comments_colorize();
       
-    pos = 0;
+    int pos = 0;
     while(pos < length()) {
       SpanExpr *se = new SpanExpr(pos, spans[pos], this);
       
@@ -413,11 +439,6 @@ void MathSequence::resize(Context &context) {
   }
   
   if(context.math_spacing) {
-    float ca = 0;
-    float cd = 0;
-    float a = 0;
-    float d = 0;
-    
     if(glyphs.length() == 1 && !dynamic_cast<UnderoverscriptBox *>(parent()))
     {
       pmath_token_t tok = pmath_token_analyse(str.buffer(), 1, nullptr);
@@ -425,8 +446,7 @@ void MathSequence::resize(Context &context) {
       if(tok == PMATH_TOK_INTEGRAL || tok == PMATH_TOK_PREFIX) {
         context.math_shaper->vertical_stretch_char(
           context,
-          a,
-          d,
+          0, 0,
           true,
           str[0],
           &glyphs[0]);
@@ -438,30 +458,19 @@ void MathSequence::resize(Context &context) {
           glyphs[0],
           &size.ascent,
           &size.descent);
-          
-        size.bigger_y(&ca, &cd);
-        size.bigger_y(&a,  &d);
       }
-      else {
-        box = 0;
-        pos = 0;
-        while(pos < glyphs.length())
-          Impl(*this).stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
-      }
+      else 
+        Impl(*this).stretch_all_vertical(context);
     }
-    else {
-      box = 0;
-      pos = 0;
-      while(pos < glyphs.length())
-        Impl(*this).stretch_span(context, spans[pos], &pos, &box, &ca, &cd, &a, &d);
-    }
+    else 
+      Impl(*this).stretch_all_vertical(context);
   }
   Impl(*this).enlarge_space(context);
   
   {
     _extents.width = 0;
     const uint16_t *buf = str.buffer();
-    for(pos = 0; pos < glyphs.length(); ++pos)
+    for(int pos = 0; pos < glyphs.length(); ++pos)
       if(buf[pos] == '\n')
         glyphs[pos].right = _extents.width;
       else
@@ -2135,492 +2144,23 @@ void MathSequence::Impl::boxes_size(Context &context, GlyphIterator start, const
   }
 }
 
-void MathSequence::Impl::resize_span(Context &context, Span span, int *pos, int *box) {
-  if(!span) {
-    if(self.str[*pos] == PMATH_CHAR_BOX) {
-      self.boxes[*box]->resize(context);
-      
-      self.glyphs[*pos].right = self.boxes[*box]->extents().width;
-      self.glyphs[*pos].composed = 1;
-      ++*box;
-      ++*pos;
-      return;
-    }
-    
-    int next  = *pos;
-    while(next < self.glyphs.length() && !self.spans.is_token_end(next))
-      ++next;
-      
-    if(next < self.glyphs.length())
-      ++next;
-      
-    const uint16_t *buf = self.str.buffer();
-    
-    if(context.math_spacing) {
-      context.math_shaper->decode_token(
-        context,
-        next - *pos,
-        buf + *pos,
-        self.glyphs.items() + *pos);
-    }
-    else {
-      context.text_shaper->decode_token(
-        context,
-        next - *pos,
-        buf + *pos,
-        self.glyphs.items() + *pos);
-        
-      for(int i = *pos; i < next; ++i) {
-        if(self.glyphs[i].index) {
-          self.glyphs[i].is_normal_text = 1;
-        }
-        else {
-          context.math_shaper->decode_token(
-            context,
-            1,
-            buf + i,
-            self.glyphs.items() + i);
-        }
-      }
-    }
-    
-    *pos = next;
-    return;
-  }
+void MathSequence::Impl::generate_glyphs(Context &context) {
+  self.glyph_to_text.clear();
+  self.glyphs.length(0);
   
-  if(!span.next() && self.str[*pos] == '"') {
-    const uint16_t *buf = self.str.buffer();
-    int end = span.end();
-    if(!context.show_string_characters) {
-      ++*pos;
-      if(buf[end] == '"')
-        --end;
-    }
-    else {
-      context.math_shaper->decode_token(
-        context,
-        1,
-        buf + *pos,
-        self.glyphs.items() + *pos);
-        
-      if(buf[end] == '"')
-        context.math_shaper->decode_token(
-          context,
-          1,
-          buf + end,
-          self.glyphs.items() + end);
-    }
-    
-    bool old_math_styling = context.math_spacing;
-    context.math_spacing = false;
-    
-    while(*pos <= end) {
-      if(buf[*pos] == PMATH_CHAR_BOX) {
-        self.boxes[*box]->resize(context);
-        self.glyphs[*pos].right = self.boxes[*box]->extents().width;
-        self.glyphs[*pos].composed = 1;
-        ++*box;
-        ++*pos;
-      }
-      else {
-        int next = *pos;
-        while(next <= end && !self.spans.is_token_end(next))
-          ++next;
-        ++next;
-        
-        if(!context.show_string_characters && buf[*pos] == '\\')
-          ++*pos;
-          
-        context.text_shaper->decode_token(
-          context,
-          next - *pos,
-          buf + *pos,
-          self.glyphs.items() + *pos);
-          
-        for(int i = *pos; i < next; ++i) {
-          self.glyphs[i].is_normal_text = 1;
-        }
-        
-        *pos = next;
-      }
-    }
-    
-    context.math_spacing = old_math_styling;
-    
-    *pos = span.end() + 1;
-  }
-  else {
-    resize_span(context, span.next(), pos, box);
-    while(*pos <= span.end())
-      resize_span(context, self.spans[*pos], pos, box);
-  }
+  GlyphGenerator gen(self);
+  int box = 0;
+  int pos = 0;
+  const int len = self.length();
+  while(pos < len)
+    gen.resize_span(context, self.spans[pos], &pos, &box);
 }
 
-void MathSequence::Impl::stretch_span(
-  Context &context,
-  Span     span,
-  int     *pos,
-  int     *box,
-  float    *core_ascent,
-  float    *core_descent,
-  float    *ascent,
-  float    *descent
-) {
-  const uint16_t *buf = self.str.buffer();
-  
-  if(span) {
-    int start = *pos;
-    if(!span.next()) {
-      uint16_t ch = buf[start];
-      
-      if(ch == '"') {
-        for(; *pos <= span.end(); ++*pos) {
-          if(buf[*pos] == PMATH_CHAR_BOX)
-            ++*box;
-        }
-        
-        return;
-      }
-      
-      if(ch == PMATH_CHAR_BOX) {
-        auto underover = dynamic_cast<UnderoverscriptBox*>(self.boxes[*box]);
-        if(underover && underover->base()->length() == 1)
-          ch = underover->base()->str[0];
-      }
-      
-      if(pmath_char_is_left(ch)) {
-        float ca = 0;
-        float cd = 0;
-        float a = 0;
-        float d = 0;
-        
-        ++*pos;
-        while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
-          stretch_span(context, self.spans[*pos], pos, box, &ca, &cd, &a, &d);
-          
-        float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
-        float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
-        
-        float new_ca = ca + overhang_a;
-        float new_cd = cd + overhang_d;
-        
-        bool full_stretch = true;
-        if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
-          if(ch == '{' && buf[*pos] == '}')
-            full_stretch = false;
-          
-          context.math_shaper->vertical_stretch_char(
-            context, new_ca, new_cd, full_stretch, buf[*pos], &self.glyphs[*pos]);
-            
-          ++*pos;
-        }
-        
-        context.math_shaper->vertical_stretch_char(
-          context, new_ca, new_cd, full_stretch, buf[start], &self.glyphs[start]);
-          
-        if(*ascent < a)
-          *ascent = a;
-          
-        if(*core_ascent < new_ca)
-          *core_ascent = new_ca;
-          
-        if(*descent < d)
-          *descent = d;
-          
-        if(*core_descent < new_cd)
-          *core_descent = new_cd;
-      }
-      else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
-        float a = 0;
-        float d = 0;
-        int startbox = *box;
-        
-        if(buf[start] == PMATH_CHAR_BOX) {
-          assert(dynamic_cast<UnderoverscriptBox *>(self.boxes[startbox]) != 0);
-          
-          ++*pos;
-          ++*box;
-        }
-        else {
-          ++*pos;
-          
-          if( *pos < self.glyphs.length() &&
-              buf[*pos] == PMATH_CHAR_BOX)
-          {
-            if(dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox])) {
-              ++*box;
-              ++*pos;
-            }
-          }
-        }
-        
-        while(*pos <= span.end())
-          stretch_span(context, self.spans[*pos], pos, box, &a, &d, ascent, descent);
-          
-        if(buf[start] == PMATH_CHAR_BOX) {
-          auto underover = dynamic_cast<UnderoverscriptBox*>(self.boxes[startbox]);
-          
-          assert(underover != 0);
-          
-          context.math_shaper->vertical_stretch_char(
-            context,
-            a,
-            d,
-            true,
-            underover->base()->str[0],
-            &underover->base()->glyphs[0]);
-            
-          context.math_shaper->vertical_glyph_size(
-            context,
-            underover->base()->str[0],
-            underover->base()->glyphs[0],
-            &underover->base()->_extents.ascent,
-            &underover->base()->_extents.descent);
-            
-          underover->base()->_extents.width = underover->base()->glyphs[0].right;
-          
-          underover->after_items_resize(context);
-          
-          self.glyphs[start].right = underover->extents().width;
-          
-          underover->base()->extents().bigger_y(core_ascent, core_descent);
-          underover->extents().bigger_y(ascent, descent);
-        }
-        else {
-          context.math_shaper->vertical_stretch_char(
-            context,
-            a,
-            d,
-            true,
-            buf[start],
-            &self.glyphs[start]);
-            
-          BoxSize size;
-          context.math_shaper->vertical_glyph_size(
-            context,
-            buf[start],
-            self.glyphs[start],
-            &size.ascent,
-            &size.descent);
-            
-          size.bigger_y(core_ascent, core_descent);
-          size.bigger_y(ascent,      descent);
-          
-          if( start + 1 < self.glyphs.length() &&
-              buf[start + 1] == PMATH_CHAR_BOX)
-          {
-            if(auto subsup = dynamic_cast<SubsuperscriptBox *>(self.boxes[startbox])) {
-              subsup->stretch(context, size);
-              subsup->extents().bigger_y(ascent, descent);
-              
-              subsup->adjust_x(context, buf[start], self.glyphs[start]);
-            }
-          }
-        }
-        
-        if(*core_ascent < a)
-          *core_ascent = a;
-        if(*core_descent < d)
-          *core_descent = d;
-      }
-      else
-        stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
-    }
-    else
-      stretch_span(context, span.next(), pos, box, core_ascent, core_descent, ascent, descent);
-      
-    if( *pos <= span.end() &&
-        buf[*pos] == '/' &&
-        self.spans.is_token_end(*pos))
-    {
-      start = *pos;
-      
-      ++*pos;
-      while(*pos <= span.end())
-        stretch_span(context, self.spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
-        
-      context.math_shaper->vertical_stretch_char(
-        context,
-        *core_ascent  - 0.1 * self.em,
-        *core_descent - 0.1 * self.em,
-        true,
-        buf[start],
-        &self.glyphs[start]);
-        
-      BoxSize size;
-      context.math_shaper->vertical_glyph_size(
-        context,
-        buf[start],
-        self.glyphs[start],
-        &size.ascent,
-        &size.descent);
-        
-      size.bigger_y(core_ascent, core_descent);
-      size.bigger_y(ascent,      descent);
-    }
-    
-    while(*pos <= span.end() && (!pmath_char_is_left(buf[*pos]) || self.spans[*pos]))
-      stretch_span(context, self.spans[*pos], pos, box, core_ascent, core_descent, ascent, descent);
-      
-    if(*pos < span.end()) {
-      start = *pos;
-      
-      float ca = 0;
-      float cd = 0;
-      float a = 0;
-      float d = 0;
-      
-      ++*pos;
-      while(*pos <= span.end() && !pmath_char_is_right(buf[*pos]))
-        stretch_span(context, self.spans[*pos], pos, box, &ca, &cd, &a, &d);
-        
-      float overhang_a = (a - ca) * UnderoverscriptOverhangCoverage;
-      float overhang_d = (d - cd) * UnderoverscriptOverhangCoverage;
-      
-      float new_ca = ca + overhang_a;
-      float new_cd = cd + overhang_d;
-      
-      if(*pos <= span.end() && pmath_char_is_right(buf[*pos])) {
-        context.math_shaper->vertical_stretch_char(
-          context, new_ca, new_cd, false, buf[*pos], &self.glyphs[*pos]);
-          
-        ++*pos;
-      }
-      
-      context.math_shaper->vertical_stretch_char(
-        context, new_ca, new_cd, false, buf[start], &self.glyphs[start]);
-        
-      if(*ascent < a)
-        *ascent = a;
-        
-      if(*core_ascent < new_ca)
-        *core_ascent = new_ca;
-        
-      if(*descent < d)
-        *descent = d;
-        
-      if(*core_descent < new_cd)
-        *core_descent = new_cd;
-        
-      while(*pos <= span.end()) {
-        stretch_span(
-          context,
-          self.spans[*pos],
-          pos,
-          box,
-          core_ascent,
-          core_descent,
-          ascent, descent);
-      }
-    }
-    
-    return;
-  }
-  
-  if(buf[*pos] == PMATH_CHAR_BOX) {
-    auto subsup = dynamic_cast<SubsuperscriptBox*>(self.boxes[*box]);
-    
-    if(subsup && *pos > 0) {
-      if(buf[*pos - 1] == PMATH_CHAR_BOX) {
-        subsup->stretch(context, self.boxes[*box - 1]->extents());
-      }
-      else {
-        BoxSize size;
-        
-        context.math_shaper->vertical_glyph_size(
-          context, buf[*pos - 1], self.glyphs[*pos - 1],
-          &size.ascent, &size.descent);
-          
-        subsup->stretch(context, size);
-        subsup->adjust_x(context, buf[*pos - 1], self.glyphs[*pos - 1]);
-      }
-      
-      subsup->extents().bigger_y(ascent,      descent);
-      subsup->extents().bigger_y(core_ascent, core_descent);
-    }
-    else {
-      if(auto underover = dynamic_cast<UnderoverscriptBox *>(self.boxes[*box])) {
-        uint16_t ch = 0;
-        
-        if(underover->base()->length() == 1)
-          ch = underover->base()->text()[0];
-          
-        if( self.spans.is_operand_start(*pos) &&
-            (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)))
-        {
-          context.math_shaper->vertical_stretch_char(
-            context,
-            0,
-            0,
-            true,
-            underover->base()->str[0],
-            &underover->base()->glyphs[0]);
-            
-          context.math_shaper->vertical_glyph_size(
-            context,
-            underover->base()->str[0],
-            underover->base()->glyphs[0],
-            &underover->base()->_extents.ascent,
-            &underover->base()->_extents.descent);
-            
-          underover->base()->_extents.width = underover->base()->glyphs[0].right;
-          
-          underover->after_items_resize(context);
-          
-          self.glyphs[*pos].right = underover->extents().width;
-        }
-        
-        underover->base()->extents().bigger_y(core_ascent, core_descent);
-      }
-      else
-        self.boxes[*box]->extents().bigger_y(core_ascent, core_descent);
-    }
-    
-    self.boxes[*box]->extents().bigger_y(ascent, descent);
-    ++*box;
-    ++*pos;
-    return;
-  }
-  
-  if( self.spans.is_operand_start(*pos) &&
-      self.length() > 1 &&
-      (pmath_char_maybe_bigop(buf[*pos]) || pmath_char_is_integral(buf[*pos])))
-  {
-    context.math_shaper->vertical_stretch_char(
-      context,
-      0,
-      0,
-      true,
-      buf[*pos],
-      &self.glyphs[*pos]);
-      
-    BoxSize size;
-    context.math_shaper->vertical_glyph_size(
-      context,
-      buf[*pos],
-      self.glyphs[*pos],
-      &size.ascent,
-      &size.descent);
-      
-    size.bigger_y(core_ascent, core_descent);
-    size.bigger_y(ascent,      descent);
-    
-    ++*pos;
-    return;
-  }
-  
-  do {
-    context.math_shaper->vertical_glyph_size(
-      context, buf[*pos], self.glyphs[*pos], core_ascent, core_descent);
-    ++*pos;
-  } while(*pos < self.str.length() && !self.spans.is_token_end(*pos - 1));
-  
-  if(*ascent < *core_ascent)
-    *ascent = *core_ascent;
-  if(*descent < *core_descent)
-    *descent = *core_descent;
+void MathSequence::Impl::stretch_all_vertical(Context &context) {
+  GlyphHeights core_heights{};
+  GlyphHeights heights{};
+  VerticalStretcher(context, self).stretch_all(core_heights, heights);
 }
-
 
 void MathSequence::Impl::substitute_glyphs(
   Context              &context,
@@ -3485,6 +3025,508 @@ void MathSequence::Impl::calculate_total_extents_from_lines() {
 }
 
 //} ... class MathSequence::Impl
+
+//{ class MathSequence::Impl::GlyphGenerator ...
+
+MathSequence::Impl::GlyphGenerator::GlyphGenerator(MathSequence &self)
+  : self{self},
+    g2t_iter{self.glyph_to_text.begin()}
+{
+}
+
+void MathSequence::Impl::GlyphGenerator::resize_span(Context &context, Span span, int *pos, int *box) {
+  if(!span) {
+    if(self.str[*pos] == PMATH_CHAR_BOX) {
+      append_box_glyphs(context, self.boxes[*box]);
+      ++*box;
+      ++*pos;
+      return;
+    }
+    
+    const int len = self.length();
+    int next  = *pos;
+    while(next < len && !self.spans.is_token_end(next))
+      ++next;
+      
+    if(next < len)
+      ++next;
+      
+    append_text_glyph_run(context, *pos, next - *pos);
+    
+    *pos = next;
+    return;
+  }
+  
+  if(!span.next() && self.str[*pos] == '"') {
+    const uint16_t *buf = self.str.buffer();
+    int end = span.end();
+    if(!context.show_string_characters) {
+      ++*pos;
+      if(buf[end] == '"')
+        --end;
+    }
+    else {
+      append_text_glyph_run(context, *pos, 1);
+      
+      ++*pos;
+        
+      if(*pos <= end && buf[end] == '"') {
+        --end;
+      }
+    }
+    
+    bool old_math_styling = context.math_spacing;
+    context.math_spacing = false;
+    
+    while(*pos <= end) {
+      if(buf[*pos] == PMATH_CHAR_BOX) {
+        append_box_glyphs(context, self.boxes[*box]);
+        ++*box;
+        ++*pos;
+      }
+      else {
+        int next = *pos;
+        while(next <= end && !self.spans.is_token_end(next))
+          ++next;
+        ++next;
+        
+        if(!context.show_string_characters && buf[*pos] == '\\')
+          ++*pos;
+        
+        append_text_glyph_run(context, *pos, next - *pos);
+        
+        *pos = next;
+      }
+    }
+    
+    context.math_spacing = old_math_styling;
+    
+    if(context.show_string_characters && *pos == span.end()) { // trailing "
+      append_text_glyph_run(context, *pos, 1);
+    }
+    
+    *pos = span.end() + 1;
+  }
+  else {
+    resize_span(context, span.next(), pos, box);
+    while(*pos <= span.end())
+      resize_span(context, self.spans[*pos], pos, box);
+  }
+}
+
+void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, Box *box) {
+  box->resize(context);
+      
+  GlyphInfo gi {};
+  gi.right = box->extents().width;
+  gi.composed = 1;
+  self.glyphs.add(gi);
+}
+
+void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context, int pos, int count) {
+  const uint16_t *buf = self.str.buffer();
+  
+  int glyph_start = self.glyphs.length();
+  if(context.math_spacing) {
+    append_glyphs(pos, count);
+    context.math_shaper->decode_token(
+      context,
+      count,
+      buf + pos,
+      self.glyphs.items() + glyph_start);
+  }
+  else {
+    append_glyphs(pos, count);
+    context.text_shaper->decode_token(
+      context,
+      count,
+      buf + pos,
+      self.glyphs.items() + glyph_start);
+      
+    for(int i = glyph_start; i < self.glyphs.length(); ++i) {
+      if(self.glyphs[i].index) {
+        self.glyphs[i].is_normal_text = 1;
+      }
+      else {
+        context.math_shaper->decode_token(
+          context,
+          1,
+          buf + pos + (i - glyph_start),
+          self.glyphs.items() + i);
+      }
+    }
+  }
+}
+
+void MathSequence::Impl::GlyphGenerator::append_glyphs(int pos, int count) {
+  ARRAY_ASSERT(count >= 0);
+  
+  int old_len = self.glyphs.length();
+  
+  self.glyphs.length(old_len + count);
+  memset(self.glyphs.items() + old_len, 0, sizeof(self.glyphs[0]) * count);
+  
+  g2t_iter.rewind_to(old_len);
+  g2t_iter.reset_rest(pos);
+}
+
+//} ... class MathSequence::Impl::GlyphGenerator
+
+//{ class MathSequence::Impl::VerticalStretcher ...
+
+MathSequence::Impl::VerticalStretcher::VerticalStretcher(Context &context, MathSequence &seq)
+  : context{context},
+    iter{seq}
+{
+}
+
+void MathSequence::Impl::VerticalStretcher::stretch_all(GlyphHeights &core_heights, GlyphHeights &heights) {
+  while(iter.has_more_glyphs())
+    stretch_outermost_span(core_heights, heights);
+}
+
+void MathSequence::Impl::VerticalStretcher::stretch_outermost_span(GlyphHeights &core_heights, GlyphHeights &heights) {
+  ARRAY_ASSERT(iter.has_more_glyphs());
+  stretch_span(iter.current_sequence(), iter.text_span_array()[iter.text_index()], core_heights, heights);
+}
+
+void MathSequence::Impl::VerticalStretcher::stretch_span(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
+  if(span) {
+    if(!span.next()) {
+      uint16_t ch = iter.current_char();
+      
+      if(ch == '"') {
+        iter.skip_to_glyph_after_current_text_pos(span.end() + 1);
+        return;
+      }
+      
+      if(auto box = iter.current_box()) {
+        auto underover = dynamic_cast<UnderoverscriptBox*>(box);
+        if(underover && underover->base()->length() == 1 && underover->base()->glyph_array().length() == 1)
+          ch = underover->base()->str[0];
+      }
+      
+      auto start_iter = iter;
+        
+      if(pmath_char_is_left(ch)) {
+        GlyphHeights inner_core_heights {};
+        GlyphHeights inner_heights {};
+        
+        iter.move_next_token();
+        while(iter.index_in_sequence(span_seq) <= span.end() && !pmath_char_is_right(iter.current_char())) {
+          stretch_outermost_span(inner_core_heights, inner_heights);
+        }
+        
+        float overhang_a = (inner_heights.ascent - inner_core_heights.ascent) * UnderoverscriptOverhangCoverage;
+        float overhang_d = (inner_heights.descent - inner_core_heights.descent) * UnderoverscriptOverhangCoverage;
+        
+        float new_ca = inner_heights.ascent + overhang_a;
+        float new_cd = inner_heights.descent + overhang_d;
+        
+        bool full_stretch = true;
+        if(iter.index_in_sequence(span_seq) <= span.end()) {
+          uint16_t end_ch = iter.current_char();
+          
+          if(pmath_char_is_right(end_ch)) {
+            if(ch == '{' && end_ch == '}')
+              full_stretch = false;
+            
+            context.math_shaper->vertical_stretch_char(
+              context, new_ca, new_cd, full_stretch, end_ch, &iter.current_glyph());
+              
+            iter.move_next_token();
+          }
+        }
+        
+        // caution: ch might come from an UnderOverscriptBox
+        context.math_shaper->vertical_stretch_char(
+          context, new_ca, new_cd, full_stretch, ch, &start_iter.current_glyph());
+          
+        if(heights.ascent  < inner_heights.ascent)  heights.ascent  = inner_heights.ascent;
+        if(heights.descent < inner_heights.descent) heights.descent = inner_heights.descent;
+          
+        if(core_heights.ascent  < new_ca) core_heights.ascent  = new_ca;
+        if(core_heights.descent < new_cd) core_heights.descent = new_cd;
+      }
+      else if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) {
+        GlyphHeights inner_core_heights {};
+        
+        UnderoverscriptBox *underover = nullptr;
+        SubsuperscriptBox *subsuper = nullptr;
+        if(auto box = iter.current_box()) {
+          underover = dynamic_cast<UnderoverscriptBox*>(box);
+          ARRAY_ASSERT(underover != nullptr); // otherwise ch would be a CHAR_BOX, see above.
+          iter.move_next_token();
+        }
+        else {
+          iter.move_next_token();
+          if(auto box = iter.current_box()) { // Note: checking iter.has_more_glyphs() not neccessary
+            subsuper = dynamic_cast<SubsuperscriptBox *>(box);
+            if(subsuper)
+              iter.move_next_token();
+          }
+        }
+        
+        while(iter.index_in_sequence(span_seq) <= span.end()) {
+          stretch_outermost_span(inner_core_heights, heights);
+        }
+        
+        if(underover) {
+          ARRAY_ASSERT(underover->base()->glyph_array().length() == 1);
+          
+          GlyphInfo &gi = underover->base()->glyph_array()[0];
+          
+          context.math_shaper->vertical_stretch_char(
+            context,
+            inner_core_heights.ascent,
+            inner_core_heights.descent,
+            true, 
+            ch, &gi);
+            
+          context.math_shaper->vertical_glyph_size(
+            context, ch, gi,
+            &underover->base()->_extents.ascent,
+            &underover->base()->_extents.descent);
+            
+          underover->base()->_extents.width = gi.right;
+          
+          underover->after_items_resize(context);
+          
+          start_iter.current_glyph().right = underover->extents().width;
+          
+          underover->base()->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+          underover->extents().bigger_y(             &heights.ascent,      &heights.descent);
+        }
+        else {
+          GlyphInfo &gi = start_iter.current_glyph();
+          
+          context.math_shaper->vertical_stretch_char(
+            context,
+            inner_core_heights.ascent,
+            inner_core_heights.descent,
+            true,
+            ch, &gi);
+            
+          BoxSize size;
+          context.math_shaper->vertical_glyph_size(
+            context, ch, gi,
+            &size.ascent,
+            &size.descent);
+            
+          size.bigger_y(&core_heights.ascent, &core_heights.descent);
+          size.bigger_y(     &heights.ascent,      &heights.descent);
+          
+          if(subsuper) {
+            subsuper->stretch(context, size);
+            subsuper->extents().bigger_y(&heights.ascent, &heights.descent);
+            
+            subsuper->adjust_x(context, ch, gi);
+          }
+        }
+        
+        if(core_heights.ascent  < inner_core_heights.ascent)  core_heights.ascent  = inner_core_heights.ascent;
+        if(core_heights.descent < inner_core_heights.descent) core_heights.descent = inner_core_heights.descent;
+      }
+      else
+        stretch_span(span_seq, span.next(), core_heights, heights);
+    }
+    else
+      stretch_span(span_seq, span.next(), core_heights, heights);
+    
+    if(iter.has_more_glyphs() && iter.current_char() == '/' && iter.is_at_token_end()) {
+      uint16_t ch = '/';
+      auto division_iter = iter;
+      //start = *pos;
+      
+      iter.move_next_token();
+      while(iter.index_in_sequence(span_seq) <= span.end())
+        stretch_outermost_span(core_heights, heights);
+      
+      GlyphInfo &gi = division_iter.current_glyph();
+      
+      context.math_shaper->vertical_stretch_char(
+        context,
+        core_heights.ascent  - 0.1 * span_seq->em,
+        core_heights.descent - 0.1 * span_seq->em,
+        true,
+        ch, &gi);
+        
+      BoxSize size;
+      context.math_shaper->vertical_glyph_size(
+        context,
+        ch, gi,
+        &size.ascent,
+        &size.descent);
+        
+      size.bigger_y(&core_heights.ascent, &core_heights.descent);
+      size.bigger_y(     &heights.ascent,      &heights.descent);
+    }
+    
+    while(iter.index_in_sequence(span_seq) <= span.end()) {
+      if(pmath_char_is_left(iter.current_char())) {
+        // NOTE: old code checked if there was a span starting here instead of looking for operand start
+        if(!iter.is_operand_start())
+          break; // opening parenthesis in function call "f(..." or "x.f(..."
+      }
+      stretch_outermost_span(core_heights, heights);
+    }
+    
+    if(iter.index_in_sequence(span_seq) < span.end()) {
+      auto call_paren_start = iter;
+      
+      GlyphHeights inner_core_heights {};
+      GlyphHeights inner_heights {};
+      
+      iter.move_next_token();
+      while(iter.index_in_sequence(span_seq) <= span.end() && !pmath_char_is_right(iter.current_char()))
+        stretch_outermost_span(core_heights, heights);
+      
+      float overhang_a = (inner_heights.ascent - inner_core_heights.ascent) * UnderoverscriptOverhangCoverage;
+      float overhang_d = (inner_heights.descent - inner_core_heights.descent) * UnderoverscriptOverhangCoverage;
+      
+      float new_ca = inner_heights.ascent  + overhang_a;
+      float new_cd = inner_heights.descent + overhang_d;
+      
+      if(iter.index_in_sequence(span_seq) <= span.end()) { // closing parenthesis
+        context.math_shaper->vertical_stretch_char(
+          context, new_ca, new_cd, false, iter.current_char(), &iter.current_glyph());
+        
+        iter.move_next_token();
+      }
+      
+      context.math_shaper->vertical_stretch_char(
+        context, new_ca, new_cd, false, call_paren_start.current_char(), &call_paren_start.current_glyph());
+        
+      if(heights.ascent  < inner_heights.ascent)  heights.ascent  = inner_heights.ascent;
+      if(heights.descent < inner_heights.descent) heights.descent = inner_heights.descent;
+        
+      if(core_heights.ascent  < new_ca) core_heights.ascent  = new_ca;
+      if(core_heights.descent < new_cd) core_heights.descent = new_cd;
+        
+      while(iter.index_in_sequence(span_seq) <= span.end())
+        stretch_outermost_span(core_heights, heights);
+    }
+    
+    return;
+  }
+  
+  if(auto box = iter.current_box()) {
+    auto subsup = dynamic_cast<SubsuperscriptBox*>(box);
+    
+    if(subsup && iter.glyph_index() > 0 && iter.text_index() > 0) {
+      // Caution: can the previous glyph still belong to a different text buffer ?
+      uint16_t prev_ch = iter.text_buffer()[iter.text_index() - 1];
+      if(prev_ch == PMATH_CHAR_BOX) {
+        ARRAY_ASSERT(box->index() > 0);
+        ARRAY_ASSERT(box->parent() == iter.current_sequence());
+        
+        Box *prev_box = iter.current_sequence()->item(box->index() - 1);
+        ARRAY_ASSERT(prev_box->index() == iter.text_index() - 1);
+        
+        subsup->stretch(context, prev_box->extents());
+      }
+      else {
+        BoxSize size;
+        
+        GlyphInfo &prev_glyph = *(&iter.current_glyph() - 1);
+        
+        context.math_shaper->vertical_glyph_size(
+          context, prev_ch, prev_glyph,
+          &size.ascent, &size.descent);
+          
+        subsup->stretch(context, size);
+        subsup->adjust_x(context, prev_ch, prev_glyph);
+      }
+      
+      subsup->extents().bigger_y(&heights.ascent,      &heights.descent);
+      subsup->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+    }
+    else if(auto underover = dynamic_cast<UnderoverscriptBox *>(box)) {
+      uint16_t ch = 0;
+      
+      if(underover->base()->length() == 1 && underover->base()->glyph_array().length() == 1)
+        ch = underover->base()->text()[0];
+        
+      if(iter.is_operand_start() && (pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch))) { // bigop that starts no span
+        GlyphInfo &gi = underover->base()->glyph_array()[0];
+        
+        context.math_shaper->vertical_stretch_char(
+          context, 0, 0,
+          true,
+          ch, &gi);
+          
+        context.math_shaper->vertical_glyph_size(
+          context, ch, gi,
+          &underover->base()->_extents.ascent,
+          &underover->base()->_extents.descent);
+          
+        underover->base()->_extents.width = gi.right;
+        
+        underover->after_items_resize(context);
+        
+        iter.current_glyph().right = underover->extents().width;
+      }
+      
+      underover->base()->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+    }
+    else
+      box->extents().bigger_y(&core_heights.ascent, &core_heights.descent);
+    
+    
+    box->extents().bigger_y(&heights.ascent, &heights.descent);
+    iter.move_next_token();
+    return;
+  }
+  
+  if(iter.is_operand_start() && iter.text_buffer_length() > 1) {
+    uint16_t ch = iter.current_char();
+    if(pmath_char_maybe_bigop(ch) || pmath_char_is_integral(ch)) { // bigop that starts no span
+      GlyphInfo &gi = iter.current_glyph();
+      
+      context.math_shaper->vertical_stretch_char(
+        context, 0, 0,
+        true,
+        ch, &gi);
+        
+      GlyphHeights size;
+      context.math_shaper->vertical_glyph_size(
+        context, ch, gi,
+        &size.ascent,
+        &size.descent);
+        
+      if(core_heights.ascent  < size.ascent)  core_heights.ascent  = size.ascent;
+      if(core_heights.descent < size.descent) core_heights.descent = size.descent;
+      if(     heights.ascent  < size.ascent)       heights.ascent  = size.ascent;
+      if(     heights.descent < size.descent)      heights.descent = size.descent;
+      
+      iter.move_next_token();
+      return;
+    }
+  }
+  
+  int next_token = iter.text_index();
+  while(next_token < iter.text_buffer_length()) {
+    if(iter.text_span_array().is_token_end(next_token)) {
+      ++next_token;
+      break;
+    }
+    
+    ++next_token;
+  }
+  
+  ARRAY_ASSERT(iter.text_index() < next_token);
+  
+  while(iter.index_in_sequence(span_seq) < next_token) {
+    context.math_shaper->vertical_glyph_size(
+      context, iter.current_char(), iter.current_glyph(), &core_heights.ascent, &core_heights.descent);
+    iter.move_next_glyph();
+  };
+  
+  if(heights.ascent  < core_heights.ascent)  heights.ascent  = core_heights.ascent;
+  if(heights.descent < core_heights.descent) heights.descent = core_heights.descent;
+}
+
+//} ... class MathSequence::Impl::VerticalStretcher
 
 //{ class MathSequence::Impl::EnlargeSpace ...
 
