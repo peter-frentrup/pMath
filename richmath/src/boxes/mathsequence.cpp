@@ -116,20 +116,20 @@ namespace {
   class BreakPositionWithPenalty {
     public:
       BreakPositionWithPenalty()
-        : text_position(-1),
+        : glyph_position(-1),
           prev_break_index(-1),
           penalty(Infinity)
       {
       }
       
-      BreakPositionWithPenalty(int tpos, int prev, double pen)
-        : text_position(tpos),
+      BreakPositionWithPenalty(int glyph_position, int prev, double pen)
+        : glyph_position(glyph_position),
           prev_break_index(prev),
           penalty(pen)
       {}
       
     public:
-      int text_position; // after that character is a break
+      int glyph_position;
       int prev_break_index;
       double penalty;
   };
@@ -284,33 +284,61 @@ namespace richmath {
       
       //{ line breaking/indentation
     private:
-      /* indention_array[i]: indention of the next line, if there is a line break
-         before the i-th character.
-       */
-      static Array<int> indention_array;
+      class IndentLines {
+        public:
+          explicit IndentLines(MathSequence &seq);
+          
+          void visit_all();
+          
+        private:
+          void visit_span(      MathSequence *span_seq, Span span, int depth);
+          void visit_token(     MathSequence *span_seq, int depth);
+          void visit_string(    MathSequence *span_seq, Span span, int depth);
+          void visit_block_body(MathSequence *span_seq, Span span, int depth);
+          
+        public:
+          /* indention_array[i]: indention of the next line, if there is a line break
+             before the i-th glyph.
+           */
+          static Array<int> indention_array;
+        
+        private:
+          GlyphIterator iter;
+      };
       
-      /* penalty_array[i]: A penalty value, which is used to decide whether a line
-         break should be placed after (testme: before???) the i-th character.
-         The higher this value is, the lower is the probability of a line break after
-         character i.
-       */
-      static Array<double> penalty_array;
-      
-      static const double DepthPenalty;
-      static const double WordPenalty;
-      static const double BestLineWidth;
-      static const double LineWidthFactor;
+      class PenalizeBreaks {
+        public:
+          explicit PenalizeBreaks(MathSequence &seq);
+          
+          void visit_all();
+          
+        private:
+          void visit_span(      MathSequence *span_seq, Span span, int depth);
+          void visit_token(     MathSequence *span_seq, int depth);
+          void visit_string(MathSequence *span_seq, Span span, int depth);
+          void visit_block_body(MathSequence *span_seq, Span span, int depth);
+         
+        public:
+          /* penalty_array[i]: A penalty value, which is used to decide whether a line
+             break should be placed after the i-th glyph. The higher this value is, 
+             the lower is the probability of a line break after glyph i.
+           */
+          static Array<double> penalty_array;
+          
+          static const double DepthPenalty;
+          static const double WordPenalty;
+          static const double BestLineWidth;
+          static const double LineWidthFactor;
+          
+        private:
+          GlyphIterator iter;
+      };
       
       static Array<BreakPositionWithPenalty>  break_array;
       static Array<int>                       break_result;
       
     private:
-      int fill_block_body_penalty_array(Span span, int depth, int pos, int *box);
-      int fill_penalty_array(Span span, int depth, int pos, int *box);
-      int fill_string_indentation(Span span, int depth, int pos);
-      int fill_block_body_indention_array(Span span, int depth, int pos);
-      int fill_indention_array(Span span, int depth, int pos);
-      void new_line(int pos, unsigned int indent, bool continuation = false);
+      void new_line(int glyph_index, unsigned int indent, bool continuation = false);
       
     public:
       void split_lines(Context &context);
@@ -321,14 +349,6 @@ namespace richmath {
       
       void selection_path(Context *opt_context, Canvas &canvas, int start, int end);
   };
-  
-  Array<int>    MathSequence::Impl::indention_array(0);
-  Array<double> MathSequence::Impl::penalty_array(0);
-  
-  const double MathSequence::Impl::DepthPenalty = 1.0;
-  const double MathSequence::Impl::WordPenalty = 100.0;//2.0;
-  const double MathSequence::Impl::BestLineWidth = 0.95;
-  const double MathSequence::Impl::LineWidthFactor = 2.0;
   
   Array<BreakPositionWithPenalty>  MathSequence::Impl::break_array(0);
   Array<int>                       MathSequence::Impl::break_result(0);
@@ -474,12 +494,14 @@ void MathSequence::resize(Context &context) {
   
   {
     _extents.width = 0;
-    const uint16_t *buf = str.buffer();
-    for(int pos = 0; pos < glyphs.length(); ++pos)
-      if(buf[pos] == '\n')
-        glyphs[pos].right = _extents.width;
+    GlyphIterator iter{*this};
+    for(GlyphIterator iter{*this}; iter.has_more_glyphs(); iter.move_next_glyph()) {
+      GlyphInfo &gi = iter.current_glyph();
+      if(iter.current_char() == '\n')
+        gi.right = _extents.width;
       else
-        glyphs[pos].right = _extents.width += glyphs[pos].right;
+        gi.right = _extents.width += gi.right;
+    }
   }
   
   lines.length(1);
@@ -2432,351 +2454,18 @@ bool MathSequence::Impl::hstretch_lines( // return whether there was any height 
 }
 
 
-int MathSequence::Impl::fill_block_body_penalty_array(Span span, int depth, int pos, int *box) {
-  if(!span)
-    return fill_penalty_array(span, depth, pos, box);
-    
-  int next = fill_penalty_array(span, depth, pos, box);
-  
-  const uint16_t *buf = self.str.buffer();
-  if(buf[next - 1] == ')' && next >= 2) {
-    penalty_array[next - 2] = MAX(0, penalty_array[next - 1] - 2 * DepthPenalty);
-  }
-  
-  return next;
-}
-
-int MathSequence::Impl::fill_penalty_array(Span span, int depth, int pos, int *box) {
-  const uint16_t *buf = self.str.buffer();
-  
-  if(!span) {
-    if(pos > 0) {
-      if( buf[pos] == ',' ||
-          buf[pos] == ';' ||
-          buf[pos] == ':' ||
-          buf[pos] == PMATH_CHAR_ASSIGN ||
-          buf[pos] == PMATH_CHAR_ASSIGNDELAYED)
-      {
-        penalty_array[pos - 1] += DepthPenalty;
-        //--depth;
-      }
-      
-      if( buf[pos] == 0xA0   /* \[NonBreakingSpace] */ ||
-          buf[pos] == 0x2011 /* non breaking hyphen */ ||
-          buf[pos] == 0x2060 /* \[NonBreak] */)
-      {
-        penalty_array[pos - 1] = Infinity;
-        penalty_array[pos]   = Infinity;
-        ++pos;
-      }
-    }
-    
-    if(buf[pos] == PMATH_CHAR_BOX && pos > 0) {
-      self.ensure_boxes_valid();
-      
-      while(self.boxes[*box]->index() < pos)
-        ++*box;
-        
-      if(dynamic_cast<SubsuperscriptBox *>(self.boxes[*box])) {
-        penalty_array[pos - 1] = Infinity;
-        return pos + 1;
-      }
-      
-      if( self.spans.is_operand_start(pos - 1) &&
-          dynamic_cast<GridBox *>(self.boxes[*box]))
-      {
-        if(pos > 0 && self.spans.is_operand_start(pos - 1)) {
-          if(buf[pos - 1] == PMATH_CHAR_PIECEWISE) {
-            penalty_array[pos - 1] = Infinity;
-            return pos + 1;
-          }
-          
-          pmath_token_t tok = pmath_token_analyse(buf + pos - 1, 1, nullptr);
-          
-          if(tok == PMATH_TOK_LEFT || tok == PMATH_TOK_LEFTCALL)
-            penalty_array[pos - 1] = Infinity;
-        }
-        
-        if(pos + 1 < self.glyphs.length()) {
-          pmath_token_t tok = pmath_token_analyse(buf + pos + 1, 1, nullptr);
-          
-          if(tok == PMATH_TOK_RIGHT)
-            penalty_array[pos] = Infinity;
-          return pos + 1;
-        }
-      }
-    }
-    
-    if(!self.spans.is_operand_start(pos))
-      depth++;
-      
-    if(buf[pos] == ' ') {
-      penalty_array[pos] += depth * DepthPenalty;
-      
-      return pos + 1;
-    }
-    
-    while(pos < self.spans.length() && !self.spans.is_token_end(pos)) {
-      penalty_array[pos] += depth * DepthPenalty + WordPenalty;
-      ++pos;
-    }
-    
-    if(pos < self.spans.length()) {
-      penalty_array[pos] += depth * DepthPenalty;
-      ++pos;
-    }
-    
-    return pos;
-  }
-  
-  ++depth;
-  
-  int (Impl::*fpa)(Span, int, int, int*) = &Impl::fill_penalty_array;
-  {
-    SpanExpr span_expr(pos, span, &self);
-    if(BlockSpan::maybe_block(&span_expr))
-      fpa = &Impl::fill_block_body_penalty_array;
-  }
-  
-  int next = (this->*fpa)(span.next(), depth, pos, box);
-  
-  if(pmath_char_is_left(buf[pos])) {
-    penalty_array[pos] += WordPenalty + DepthPenalty;
-  }
-  
-  if(buf[pos] == '"' && !span.next()) {
-    ++depth;
-    
-    penalty_array[pos] = Infinity;
-    
-    bool last_was_special = false;
-    while(next < span.end()) {
-      pmath_token_t tok = pmath_token_analyse(buf + next, 1, nullptr);
-      penalty_array[next] += depth * DepthPenalty + WordPenalty;
-      
-      switch(tok) {
-        case PMATH_TOK_SPACE:
-          penalty_array[next] -= WordPenalty;
-          last_was_special = false;
-          break;
-          
-        case PMATH_TOK_STRING:
-          last_was_special = false;
-          break;
-          
-        case PMATH_TOK_NAME:
-        case PMATH_TOK_NAME2:
-        case PMATH_TOK_DIGIT:
-          if(last_was_special)
-            penalty_array[next - 1] -= WordPenalty;
-          last_was_special = false;
-          break;
-          
-        default:
-          last_was_special = true;
-          break;
-      }
-      
-      ++next;
-    }
-    return next;
-  }
-  
-  int func_depth = depth - 1;
-  float inc_penalty = 0.0;
-  float dec_penalty = 0.0;
-  while(next <= span.end()) {
-    switch(buf[next]) {
-      case ';': dec_penalty = DepthPenalty; break;
-      
-      case PMATH_CHAR_ASSIGN:
-      case PMATH_CHAR_ASSIGNDELAYED:
-      case PMATH_CHAR_RULE:
-      case PMATH_CHAR_RULEDELAYED:   inc_penalty = DepthPenalty; break;
-      
-      case ':': {
-          if( (next + 2 <= span.end() &&  buf[next + 1] == ':' && buf[next + 2] == '=') ||
-              (next + 1 <= span.end() && (buf[next + 1] == '>' || buf[next + 1] == '=')))
-          {
-            inc_penalty = DepthPenalty;
-          }
-        } break;
-        
-      case '-': {
-          if(next + 1 <= span.end() && (buf[next + 1] == '>' || buf[next + 1] == '='))
-            inc_penalty = DepthPenalty;
-        } break;
-        
-      case '+': {
-          if(next + 1 <= span.end() && buf[next + 1] == '=')
-            inc_penalty = DepthPenalty;
-        } break;
-        
-      default:
-        if(pmath_char_is_left(buf[next])) {
-          if(self.spans.is_operand_start(next))
-            penalty_array[next] += WordPenalty;
-          else
-            penalty_array[next - 1] += WordPenalty;
-            
-          depth = func_depth;
-        }
-        else if(pmath_char_is_right(buf[next])) {
-          penalty_array[next - 1] += WordPenalty;
-        }
-    }
-    
-    next = (this->*fpa)(self.spans[next], depth, next, box);
-  }
-  
-  inc_penalty -= dec_penalty;
-  if(inc_penalty != 0) {
-    for(; pos < next; ++pos)
-      penalty_array[pos] += inc_penalty;
-  }
-  
-  return next;
-}
-
-int MathSequence::Impl::fill_string_indentation(Span span, int depth, int pos) {
-  const uint16_t *buf = self.str.buffer();
-  
-  assert(buf[pos] == '\"');
-  assert(span);
-  assert(!span.next());
-  
-  int next = fill_indention_array(span.next(), depth + 1, pos);
-  indention_array[pos] = depth;
-  
-  while(next <= span.end()) {
-    if(next > 0 && buf[next - 1] == '\n') {
-      indention_array[next] = depth;
-      ++next;
-    }
-    else {
-      next = fill_indention_array(self.spans[next], depth + 1, next);
-    }
-  }
-  
-  return next;
-}
-
-int MathSequence::Impl::fill_block_body_indention_array(Span span, int depth, int pos) {
-  if(!span)
-    return fill_indention_array(span, depth, pos);
-    
-  int next = fill_indention_array(span, depth, pos);
-  
-  const uint16_t *buf = self.str.buffer();
-  if(buf[pos] == '{' && buf[next - 1] == '}' && !span.next()) {
-    /* Unindent closing brace of a block.
-         Block {
-           body
-         }
-       instead of
-         Block {
-           body
-           }
-     */
-    indention_array[next - 1] = MAX(0, depth - 1);
-  }
-  else if(buf[next - 1] == ')') {
-    /* Unindent closing parenthesis of a block header.
-         If(
-           cond
-         ) {
-           body
-         }
-       instead of
-         If(
-           cond
-           ) {
-           body
-         }
-     */
-    indention_array[next - 1] = MAX(0, depth - 1);
-  }
-  
-  return next;
-}
-
-int MathSequence::Impl::fill_indention_array(Span span, int depth, int pos) {
-  const uint16_t *buf = self.str.buffer();
-  
-  if(!span) {
-    indention_array[pos] = depth;
-    
-    ++pos;
-    if(pos == self.spans.length() || self.spans.is_token_end(pos - 1))
-      return pos;
-      
-    ++depth;
-    do {
-      indention_array[pos] = depth;
-      ++pos;
-    } while(pos < self.spans.length() && !self.spans.is_token_end(pos - 1));
-    
-    return pos;
-  }
-  
-  if(buf[pos] == '\"' && !span.next())
-    return fill_string_indentation(span, depth, pos);
-    
-  int (Impl::*fia)(Span, int, int) = &Impl::fill_indention_array;
-  
-  {
-    SpanExpr span_expr(pos, span, &self);
-    if(BlockSpan::maybe_block(&span_expr))
-      fia = &Impl::fill_block_body_indention_array;
-  }
-  
-  int inner_depth = depth + 1;
-  if(buf[pos] == '\n' && !span.next())
-    inner_depth = depth;
-  
-  int next = (this->*fia)(span.next(), inner_depth, pos);
-  
-  bool prev_simple = false;
-  bool ends_with_newline = false;
-  bool inner_newline = false;
-  while(next <= span.end()) {
-    Span sub = self.spans[next];
-    if((buf[next] == ';' || buf[next] == '\n') && !sub && !prev_simple)
-      inner_newline = true;
-      
-    ends_with_newline = buf[next] == '\n' && !sub;
-    prev_simple = !sub;
-    next = (this->*fia)(sub, inner_depth, next);
-  }
-  
-  if(ends_with_newline) {
-    /* span = {{foo...}, "\n"}.  Treat as {foo...} */
-    for(int i = pos; i < next; ++i)
-      indention_array[i] = MAX(0, indention_array[i] - 1);
-    return next;
-  }
-  
-  indention_array[pos] = depth;
-  if(inner_newline) {
-    for(int i = pos + 1; i < next; ++i)
-      indention_array[i] = MAX(0, indention_array[i] - 1);
-  }
-  
-  return next;
-}
-
-void MathSequence::Impl::new_line(int pos, unsigned int indent, bool continuation) {
+void MathSequence::Impl::new_line(int glyph_index, unsigned int indent, bool continuation) {
   int len = self.lines.length();
-  if( self.lines[len - 1].end < pos ||
-      pos == 0 ||
-      (len >= 2 && self.lines[len - 2].end >= pos))
+  if( self.lines[len - 1].end < glyph_index ||
+      glyph_index == 0 ||
+      (len >= 2 && self.lines[len - 2].end >= glyph_index))
   {
     return;
   }
   
   self.lines.length(len + 1);
   self.lines[len].end = self.lines[len - 1].end;
-  self.lines[len - 1].end = pos;
+  self.lines[len - 1].end = glyph_index;
   self.lines[len - 1].continuation = continuation;
   
   self.lines[len].ascent = self.lines[len].descent = 0;
@@ -2789,85 +2478,67 @@ void MathSequence::Impl::new_line(int pos, unsigned int indent, bool continuatio
 void MathSequence::Impl::split_lines(Context &context) {
   if(self.glyphs.length() == 0)
     return;
-    
-  const uint16_t *buf = self.str.buffer();
   
-  if(self.glyphs[self.glyphs.length() - 1].right <= context.width) {
-    bool have_newline = false;
-    
-    for(int i = 0; i < self.glyphs.length(); ++i)
-      if(buf[i] == '\n') {
-        have_newline = true;
-        break;
-      }
-      
-    if(!have_newline)
-      return;
-  }
+  IndentLines::indention_array.length(self.glyphs.length() + 1);
+  IndentLines::indention_array.zeromem();
+  IndentLines(self).visit_all();
+  IndentLines::indention_array[self.glyphs.length()] = IndentLines::indention_array[self.glyphs.length() - 1];
   
-  indention_array.length(self.glyphs.length() + 1);
-  penalty_array.length(self.glyphs.length());
+  PenalizeBreaks::penalty_array.length(self.glyphs.length());
+  PenalizeBreaks::penalty_array.zeromem();
+  PenalizeBreaks(self).visit_all();
   
-  indention_array.zeromem();
-  penalty_array.zeromem();
-  
-  int pos = 0;
-  while(pos < self.glyphs.length())
-    pos = fill_indention_array(self.spans[pos], 0, pos);
-    
-  indention_array[self.glyphs.length()] = indention_array[self.glyphs.length() - 1];
-  
-  int box = 0;
-  pos = 0;
-  while(pos < self.glyphs.length())
-    pos = fill_penalty_array(self.spans[pos], 0, pos, &box);
-    
-  if(buf[self.glyphs.length() - 1] != '\n')
-    penalty_array[self.glyphs.length() - 1] = HUGE_VAL;
+  //if(buf[self.glyphs.length() - 1] != '\n')
+  PenalizeBreaks::penalty_array[self.glyphs.length() - 1] = HUGE_VAL;
     
   self._extents.width = context.width;
-  for(int start_of_paragraph = 0; start_of_paragraph < self.glyphs.length();) {
-    int end_of_paragraph = start_of_paragraph + 1;
-    while(end_of_paragraph < self.glyphs.length()
-          && buf[end_of_paragraph - 1] != '\n')
-      ++end_of_paragraph;
-      
-    break_array.length(0);
-    break_array.add(BreakPositionWithPenalty(start_of_paragraph - 1, 0, 0.0));
+  for(GlyphIterator start_of_paragraph{self}; start_of_paragraph.has_more_glyphs();) {
+    auto end_of_paragraph = start_of_paragraph;
     
-    for(pos = start_of_paragraph; pos < end_of_paragraph; ++pos) {
-      float xend = self.glyphs[pos].right;
+    bool end_with_nl = false;
+    while(end_of_paragraph.has_more_glyphs()) {
+      if(end_of_paragraph.current_char() == '\n') {
+        end_with_nl = true;
+        end_of_paragraph.move_next_glyph();
+        break;
+      }
+      end_of_paragraph.move_next_glyph();
+    }
+    
+    break_array.length(0);
+    break_array.add(BreakPositionWithPenalty(start_of_paragraph.glyph_index() - 1, 0, 0.0));
+    
+    for(auto pos = start_of_paragraph; pos.glyph_index() < end_of_paragraph.glyph_index(); pos.move_next_glyph()) {
+      float xend = pos.current_glyph().right;
       
       int current = break_array.length();
-      break_array.add(BreakPositionWithPenalty(pos, -1, Infinity));
+      break_array.add(BreakPositionWithPenalty(pos.glyph_index(), -1, Infinity));
+      //break_array.add(BreakPositionWithPenalty(pos, -1, PenalizeBreaks::penalty_array[pos.glyph_index()]));
       
       for(int i = current - 1; i >= 0; --i) {
         float xstart    = 0;
         float indention = 0;
         double penalty  = break_array[i].penalty;
-        if(break_array[i].text_position >= 0) {
-          int tp = break_array[i].text_position;
-          xstart    = self.glyphs[tp].right;
-          indention = self.indention_width(indention_array[tp + 1]);
-          penalty  += penalty_array[tp];
+        if(break_array[i].glyph_position >= 0) {
+          int gp = break_array[i].glyph_position;
+          xstart    = self.glyphs[gp].right;
+          indention = self.indention_width(IndentLines::indention_array[gp + 1]);
+          penalty  += PenalizeBreaks::penalty_array[gp];
         }
         
-        if(xend - xstart + indention > context.width
-            && i + 1 < current)
+        if(xend - xstart + indention > context.width && i + 1 < current)
           break;
           
-        double best = context.width * BestLineWidth;
-        if( pos + 1 < end_of_paragraph ||
-            best < xend - xstart + indention)
-        {
-          double factor = 0;
+        double best = context.width * PenalizeBreaks::BestLineWidth;
+        if(pos.glyph_index() + 1 < end_of_paragraph.glyph_index() || best < xend - xstart + indention) {
+          double factor = 0.0;
           if(context.width > 0)
-            factor = LineWidthFactor / context.width;
+            factor = PenalizeBreaks::LineWidthFactor / context.width;
           double rel_amplitude = ((xend - xstart + indention) - best) * factor;
           penalty += rel_amplitude * rel_amplitude;
         }
         
-        if(!(penalty >= break_array[current].penalty)) {
+        if(penalty < break_array[current].penalty) {
           break_array[current].penalty = penalty;
           break_array[current].prev_break_index = i;
         }
@@ -2875,12 +2546,13 @@ void MathSequence::Impl::split_lines(Context &context) {
     }
     
     int mini = break_array.length() - 1;
-    for(int i = mini - 1; i >= 0 && break_array[i].text_position + 1 == end_of_paragraph; --i) {
-      if(break_array[i].penalty < break_array[mini].penalty)
-        mini = i;
-    }
+// TODO: What is this code meant for:
+//    for(int i = mini - 1; i >= 0 && break_array[i].glyph_position + 1 == end_of_paragraph.glyph_index(); --i) {
+//      if(break_array[i].penalty < break_array[mini].penalty)
+//        mini = i;
+//    }
     
-    if(buf[end_of_paragraph - 1] != '\n')
+    if(mini >= 0 && !end_with_nl)
       mini = break_array[mini].prev_break_index;
       
     break_result.length(0);
@@ -2889,16 +2561,21 @@ void MathSequence::Impl::split_lines(Context &context) {
       
     for(int i = break_result.length() - 1; i >= 0; --i) {
       int j = break_result[i];
-      pos = break_array[j].text_position;
+      GlyphIterator pos{self};
+      pos.skip_to_glyph(break_array[j].glyph_position);
       
-      while(pos + 1 < end_of_paragraph && buf[pos + 1] == ' ')
-        ++pos;
-        
-      if(pos < end_of_paragraph) {
+      bool continuation = !pos.is_at_token_end();
+      while(pos.glyph_index() < end_of_paragraph.glyph_index()) {
+        pos.move_next_glyph();
+        if(pos.current_char() != ' ')
+          break;
+      }
+       
+      if(pos.glyph_index() <= end_of_paragraph.glyph_index()) {
         new_line(
-          pos + 1,
-          indention_array[pos + 1],
-          !self.spans.is_token_end(pos));
+          pos.glyph_index(),
+          IndentLines::indention_array[pos.glyph_index()],
+          continuation);
       }
     }
     
@@ -2910,18 +2587,19 @@ void MathSequence::Impl::split_lines(Context &context) {
   //    aaaaaaaaaaaaaa
   //    ............bbbbb
   // when the window is resized.
-  box = 0;
+  GlyphIterator prev(self);
   for(int line = 0; line < self.lines.length() - 1; ++line) {
-    if(self.lines[line].end > 0 && buf[self.lines[line].end - 1] == PMATH_CHAR_BOX) {
-      while(self.boxes[box]->index() < self.lines[line].end - 1)
-        ++box;
-        
-      Box *filler = self.boxes[box];
+    if(self.lines[line].end == 0)
+      continue;
+    
+    prev.skip_to_glyph(self.lines[line].end - 1);
+    if(Box *filler = prev.current_box()) {
       if(filler->fill_weight() > 0) {
-        if( buf[self.lines[line].end] == PMATH_CHAR_BOX &&
-            self.boxes[box + 1]->fill_weight() > 0)
-        {
-          continue;
+        auto next = prev;
+        next.move_next_glyph();
+        if(Box *next_filler = next.current_box()) {
+          if(next_filler->fill_weight() > 0)
+            continue;
         }
         
         float w = self.glyphs[self.lines[line + 1].end - 1].right - self.glyphs[self.lines[line].end - 1].right;
@@ -3540,16 +3218,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_nonspan_box(Box *box, GlyphH
 }
 
 void MathSequence::Impl::VerticalStretcher::size_nonspan_token(MathSequence *span_seq, GlyphHeights &heights) {
-  int next_token = iter.text_index();
-  while(next_token < iter.text_buffer_length()) {
-    if(iter.text_span_array().is_token_end(next_token)) {
-      ++next_token;
-      break;
-    }
-    
-    ++next_token;
-  }
-  
+  int next_token = iter.find_next_token();
   ARRAY_ASSERT(iter.text_index() < next_token);
   
   while(iter.index_in_sequence(span_seq) < next_token) {
@@ -4256,3 +3925,448 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
 }
 
 //} ... class MathSequence::Impl::EnlargeSpace
+
+//{ class MathSequence::Impl::IndentLines ...
+  
+Array<int> MathSequence::Impl::IndentLines::indention_array(0);
+
+MathSequence::Impl::IndentLines::IndentLines(MathSequence &span_seq) 
+  : iter{span_seq}
+{
+}
+
+void MathSequence::Impl::IndentLines::visit_all() {
+  auto seq = iter.outermost_sequence();
+  while(iter.has_more_glyphs()) {
+    visit_span(seq, seq->span_array()[iter.index_in_sequence(seq)], 0);
+  }
+}
+
+void MathSequence::Impl::IndentLines::visit_span(MathSequence *span_seq, Span span, int depth) {
+  if(!span) {
+    visit_token(span_seq, depth);
+    return;
+  }
+  
+  if(iter.current_char() == '"' && iter.current_sequence() == span_seq && !span.next()) {
+    visit_string(span_seq, span, depth);
+    return;
+  }
+  
+  void (IndentLines::*visitor)(MathSequence*, Span, int) = &IndentLines::visit_span;
+  {
+    SpanExpr span_expr(iter.index_in_sequence(span_seq), span, span_seq);
+    if(BlockSpan::maybe_block(&span_expr))
+      visitor = &IndentLines::visit_block_body;
+  }
+  
+  int start = iter.glyph_index();
+  int inner_depth = depth + 1;
+  if(iter.current_char() == '\n' && !span.next())
+    inner_depth = depth;
+  
+  (this->*visitor)(span_seq, span.next(), inner_depth);
+  
+  bool prev_simple = false;
+  bool ends_with_newline = false;
+  bool inner_newline = false;
+  while(iter.has_more_glyphs()) {
+    int pos = iter.index_in_sequence(span_seq);
+    if(pos > span.end())
+      break;
+    
+    Span sub = span_seq->span_array()[pos];
+    uint16_t ch = iter.current_char();
+    if((ch == ';' || ch == '\n') && !sub && !prev_simple)
+      inner_newline = true;
+      
+    ends_with_newline = ch == '\n' && !sub;
+    prev_simple = !sub;
+    (this->*visitor)(span_seq, sub, inner_depth);
+  }
+  
+  if(ends_with_newline) {
+    // Have span = {{foo...}, "\n"}. Treat it like {foo...}
+    for(int i = start; i < iter.glyph_index(); ++i)
+      indention_array[i] = MAX(0, indention_array[i] - 1);
+    return;
+  }
+  
+  indention_array[start] = depth;
+  if(inner_newline) {
+    for(int i = start + 1; i < iter.glyph_index(); ++i)
+      indention_array[i] = MAX(0, indention_array[i] - 1);
+  }
+}
+
+void MathSequence::Impl::IndentLines::visit_token(MathSequence *span_seq, int depth) {
+  if(iter.current_sequence() != span_seq) {
+    auto inner = iter.current_sequence();
+    while(inner) {
+      auto outer = inner->find_parent<MathSequence>(false);
+      if(outer == span_seq)
+        break;
+      
+      inner = outer;
+    }
+    
+    ARRAY_ASSERT(inner);
+    ARRAY_ASSERT(inner != span_seq);
+    ARRAY_ASSERT(inner->length() > 0);
+    
+    ++depth;
+    while(iter.index_in_sequence(inner) < inner->length()) {
+      visit_span(inner, inner->span_array()[iter.index_in_sequence(inner)], depth);
+    }
+  }
+  else {
+    int next_token = iter.find_next_token();
+    
+    indention_array[iter.glyph_index()] = depth;
+    iter.move_next_glyph();
+    
+    ++depth;
+    while(iter.index_in_sequence(span_seq) < next_token) {
+      indention_array[iter.glyph_index()] = depth;
+      iter.move_next_glyph();
+    }
+  }
+}
+
+void MathSequence::Impl::IndentLines::visit_string(MathSequence *span_seq, Span span, int depth) {
+  ARRAY_ASSERT(iter.current_char() == '"');
+  ARRAY_ASSERT(span);
+  ARRAY_ASSERT(!span.next());
+  ARRAY_ASSERT(iter.current_sequence() == span_seq);
+  
+  int start = iter.glyph_index();
+  iter.skip_to_glyph_after_text_pos(span_seq, iter.text_index() + 1);
+  
+  indention_array[start] = depth;
+  for(int i = start + 1; i < iter.glyph_index(); ++i)
+    indention_array[i] = depth + 1;
+  
+  while(iter.has_more_glyphs()) {
+    int pos = iter.index_in_sequence(span_seq);
+    if(pos > span.end())
+      break;
+    
+    if(iter.text_index() > 0 && iter.text_buffer()[iter.text_index() - 1] == '\n') {
+      indention_array[iter.glyph_index()] = depth;
+      iter.move_next_glyph();
+    }
+    else {
+      visit_span(span_seq, span_seq->span_array()[pos], depth + 1);
+    }
+  }
+}
+
+void MathSequence::Impl::IndentLines::visit_block_body(MathSequence *span_seq, Span span, int depth) {
+  uint16_t start_char = iter.current_char();
+  
+  visit_span(span_seq, span, depth);
+  if(!span)
+    return;
+  
+  uint16_t last_char = 0;
+  if(iter.text_index() > 0)
+    last_char = iter.text_buffer()[iter.text_index() - 1];
+  
+  if(start_char == '{' && last_char == '}' && !span.next()) {
+    /* Unindent closing brace of a block.
+         Block {
+           body
+         }
+       instead of
+         Block {
+           body
+           }
+     */
+    indention_array[iter.glyph_index() - 1] = MAX(0, depth - 1);
+  }
+  else if(last_char == ')') {
+    /* Unindent closing parenthesis of a block header.
+         If(
+           cond
+         ) {
+           body
+         }
+       instead of
+         If(
+           cond
+           ) {
+           body
+         }
+     */
+    indention_array[iter.glyph_index() - 1] = MAX(0, depth - 1);
+  }
+}
+
+//} ... MathSequence::Impl::IndentLines
+
+//{ class MathSequence::Impl::PenalizeBreaks ...
+
+Array<double> MathSequence::Impl::PenalizeBreaks::penalty_array(0);
+
+const double MathSequence::Impl::PenalizeBreaks::DepthPenalty = 1.0;
+const double MathSequence::Impl::PenalizeBreaks::WordPenalty = 100.0;//2.0;
+const double MathSequence::Impl::PenalizeBreaks::BestLineWidth = 0.95;
+const double MathSequence::Impl::PenalizeBreaks::LineWidthFactor = 2.0;
+
+MathSequence::Impl::PenalizeBreaks::PenalizeBreaks(MathSequence &span_seq) 
+  : iter{span_seq}
+{
+}
+
+void MathSequence::Impl::PenalizeBreaks::visit_all() {
+  auto seq = iter.outermost_sequence();
+  while(iter.has_more_glyphs()) {
+    visit_span(seq, seq->span_array()[iter.index_in_sequence(seq)], 0);
+  }
+}
+
+void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span span, int depth) {
+  if(!span) {
+    visit_token(span_seq, depth);
+    return;
+  }
+  
+  if(iter.current_char() == '"' && iter.current_sequence() == span_seq && !span.next()) {
+    visit_string(span_seq, span, depth);
+    return;
+  }
+  
+  int func_depth = depth;
+  ++depth;
+  
+  void (PenalizeBreaks::*visitor)(MathSequence*, Span, int) = &PenalizeBreaks::visit_span;
+  {
+    SpanExpr span_expr(iter.index_in_sequence(span_seq), span, span_seq);
+    if(BlockSpan::maybe_block(&span_expr))
+      visitor = &PenalizeBreaks::visit_block_body;
+  }
+  
+  int start = iter.glyph_index();
+  if(pmath_char_is_left(iter.current_char())) {
+    penalty_array[start] += WordPenalty + DepthPenalty;
+  }
+  
+  (this->*visitor)(span_seq, span.next(), depth);
+  
+  float inc_penalty = 0.0;
+  float dec_penalty = 0.0;
+  while(iter.index_in_sequence(span_seq) <= span.end()) {
+    switch(iter.current_char()) {
+      case ';': dec_penalty = DepthPenalty; break;
+      
+      case PMATH_CHAR_ASSIGN:
+      case PMATH_CHAR_ASSIGNDELAYED:
+      case PMATH_CHAR_RULE:
+      case PMATH_CHAR_RULEDELAYED:   inc_penalty = DepthPenalty; break;
+      
+      case ':': {
+          auto tok_buf = iter.find_token();
+          if( (tok_buf.length() == 3 && tok_buf[1] == ':' && tok_buf[2] == '=') ||
+              (tok_buf.length() == 2 && (tok_buf[1] == '>' || tok_buf[1] == '=')))
+          {
+            inc_penalty = DepthPenalty;
+          }
+        } break;
+        
+      case '-': {
+          auto tok_buf = iter.find_token();
+          if(tok_buf.length() == 2 && (tok_buf[1] == '>' || tok_buf[1] == '='))
+            inc_penalty = DepthPenalty;
+        } break;
+        
+      case '+': {
+          auto tok_buf = iter.find_token();
+          if(tok_buf.length() == 2 && tok_buf[1] == '=')
+            inc_penalty = DepthPenalty;
+        } break;
+        
+      default:
+        if(pmath_char_is_left(iter.current_char())) {
+          if(iter.is_operand_start())
+            penalty_array[iter.glyph_index()] += WordPenalty;
+          else
+            penalty_array[iter.glyph_index() - 1] += WordPenalty;
+            
+          depth = func_depth;
+        }
+        else if(pmath_char_is_right(iter.current_char())) {
+          penalty_array[iter.glyph_index() - 1] += WordPenalty;
+        }
+    }
+    
+    (this->*visitor)(span_seq, span_seq->span_array()[iter.index_in_sequence(span_seq)], depth);
+  }
+  
+  inc_penalty -= dec_penalty;
+  if(inc_penalty != 0) {
+    for(int i = start; i < iter.glyph_index(); ++i)
+      penalty_array[i] += inc_penalty;
+  }
+}
+
+void MathSequence::Impl::PenalizeBreaks::visit_string(MathSequence *span_seq, Span span, int depth) {
+  ARRAY_ASSERT(iter.current_char() == '"');
+  ARRAY_ASSERT(span);
+  ARRAY_ASSERT(!span.next());
+  ARRAY_ASSERT(iter.current_sequence() == span_seq);
+  
+  // Indenting by 2 seems to be the outcome of the old code:
+  depth += 2;
+  
+  penalty_array[iter.glyph_index()] = Infinity;
+  
+  bool last_was_special = false;
+  
+  while(iter.has_more_glyphs()) {
+    int pos = iter.index_in_sequence(span_seq);
+    if(pos >= span.end())
+      break;
+    
+    uint16_t ch = iter.current_char();
+    pmath_token_t tok = pmath_token_analyse(&ch, 1, nullptr);
+    
+    penalty_array[iter.glyph_index()] += depth * DepthPenalty + WordPenalty;
+    
+    switch(tok) {
+      case PMATH_TOK_SPACE:
+        penalty_array[iter.glyph_index()] -= WordPenalty;
+        last_was_special = false;
+        break;
+        
+      case PMATH_TOK_STRING:
+        last_was_special = false;
+        break;
+        
+      case PMATH_TOK_NAME:
+      case PMATH_TOK_NAME2:
+      case PMATH_TOK_DIGIT:
+        if(last_was_special)
+          penalty_array[iter.glyph_index() - 1] -= WordPenalty;
+        last_was_special = false;
+        break;
+        
+      default:
+        last_was_special = true;
+        break;
+    }
+    
+    iter.move_next_glyph();
+  }
+}
+  
+void MathSequence::Impl::PenalizeBreaks::visit_token(MathSequence *span_seq, int depth) {
+  if(iter.current_sequence() != span_seq) {
+    auto inner = iter.current_sequence();
+    while(inner) {
+      auto outer = inner->find_parent<MathSequence>(false);
+      if(outer == span_seq)
+        break;
+      
+      inner = outer;
+    }
+    
+    ARRAY_ASSERT(inner);
+    ARRAY_ASSERT(inner != span_seq);
+    ARRAY_ASSERT(inner->length() > 0);
+    
+    ++depth;
+    while(iter.index_in_sequence(inner) < inner->length()) {
+      visit_span(inner, inner->span_array()[iter.index_in_sequence(inner)], depth);
+    }
+    return;
+  }
+  
+  if(iter.glyph_index() > 0) {
+    uint16_t ch = iter.current_char();
+    if( ch == ',' ||
+        ch == ';' ||
+        ch == ':' ||
+        ch == PMATH_CHAR_ASSIGN ||
+        ch == PMATH_CHAR_ASSIGNDELAYED)
+    {
+      penalty_array[iter.glyph_index() - 1] += DepthPenalty;
+      //--depth;
+    }
+    
+    if( ch == 0xA0   /* \[NonBreakingSpace] */ ||
+        ch == 0x2011 /* non breaking hyphen */ ||
+        ch == 0x2060 /* \[NonBreak] */)
+    {
+      penalty_array[iter.glyph_index() - 1] = Infinity;
+      penalty_array[iter.glyph_index()]     = Infinity;
+      iter.move_next_glyph();
+      return;
+    }
+    
+    if(auto box = iter.current_box()) {
+      if(dynamic_cast<SubsuperscriptBox *>(box)) {
+        penalty_array[iter.glyph_index() - 1] = Infinity;
+        iter.move_next_glyph();
+        return;
+      }
+      
+      if(dynamic_cast<GridBox *>(box)) {
+        // Do not break between \[Piecewise] and GridBox or around GridBox when .
+        // FIXME: Check only works when \[Piecewise] and GridBox are in the same MathSequence.
+        // FIXME: Check should be done when visiting \[Piecewise], not here, when visiting the GridBox.
+        if(iter.text_index() > 0 && iter.text_span_array().is_operand_start(iter.text_index() - 1)) {
+          uint16_t prev_char = iter.text_buffer()[iter.text_index() - 1];
+          if(pmath_char_is_left(prev_char)) {
+            penalty_array[iter.glyph_index() - 1] = Infinity;
+          }
+        }
+        
+        iter.move_next_glyph();
+        if(iter.has_more_glyphs() && pmath_char_is_right(iter.current_char())) {
+          penalty_array[iter.glyph_index() - 1] = Infinity;
+        }
+        
+        return;
+      }
+    }
+  }
+  
+  if(!iter.is_operand_start())
+    ++depth;
+    
+  if(iter.current_char() == ' ') {
+    penalty_array[iter.glyph_index()] += depth * DepthPenalty;
+    iter.move_next_glyph();
+    return;
+  }
+  
+  int token_end = iter.find_token_end();
+  
+  while(iter.index_in_sequence(span_seq) < token_end) {
+    penalty_array[iter.glyph_index()] += depth * DepthPenalty + WordPenalty;
+    iter.move_next_glyph();
+  }
+  
+  if(iter.has_more_glyphs()) {
+    penalty_array[iter.glyph_index()] += depth * DepthPenalty;
+    iter.move_next_glyph();
+  }
+}
+
+void MathSequence::Impl::PenalizeBreaks::visit_block_body(MathSequence *span_seq, Span span, int depth) {
+  if(!span) {
+    visit_token(span_seq, depth);
+    return;
+  }
+  
+  visit_span(span_seq, span, depth);
+  
+  if(iter.text_index() >= 2 && iter.glyph_index() >= 2) {
+    uint16_t prev_char = iter.text_buffer()[iter.text_index() - 1];
+    if(prev_char == ')') {
+      penalty_array[iter.glyph_index() - 2] = MAX(0, penalty_array[iter.glyph_index() - 1] - 2 * DepthPenalty);
+    }
+  }
+}
+
+//} ... class MathSequence::Impl::PenalizeBreaks

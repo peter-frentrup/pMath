@@ -26,15 +26,19 @@ GlyphIterator::GlyphIterator(MathSequence &seq)
     _next_box_index{0},
     _current_char{0}
 {
-  move_next_glyph();
+  skip_glyphs(0);
 }
 
-void GlyphIterator::move_next_glyph() {
+void GlyphIterator::skip_glyphs(int count) {
+  ARRAY_ASSERT(count >= 0);
+  
   if(glyph_index() >= _owning_seq->glyph_array().length())
     return;
   
-  if(_current_seq)
-    ++g2t_iter;
+  if(count > _owning_seq->glyph_array().length() - glyph_index())
+    count = _owning_seq->glyph_array().length() - glyph_index();
+  
+  g2t_iter+= count;
   
   if(_current_seq != _owning_seq) { // _owning_seq->glyph_to_seq[_glyph_index]
     _current_seq = _owning_seq;
@@ -136,11 +140,7 @@ void GlyphIterator::move_token_end() {
   if(glyph_index() >= _owning_seq->glyph_array().length())
     return;
   
-  int ti = text_index();
-  while(ti < text_buffer_length() && !text_span_array().is_token_end(ti))
-    ++ti;
-  
-  skip_to_glyph_after_current_text_pos(ti);
+  skip_to_glyph_after_current_text_pos(find_token_end());
 }
 
 void GlyphIterator::move_deepest_span_end() {
@@ -166,6 +166,23 @@ int GlyphIterator::index_in_sequence(MathSequence *parent) {
     return text_index();
   
   return Impl::index_in_sequence(parent, _current_seq);
+}
+
+int GlyphIterator::find_token_end() const {
+  int ti = text_index();
+  while(ti < text_buffer_length() && !text_span_array().is_token_end(ti))
+    ++ti;
+  
+  return ti;
+}
+
+int GlyphIterator::find_next_token() const {
+  int ti = find_token_end();
+  
+  if(ti < text_buffer_length())
+    ++ti;
+    
+  return ti;
 }
 
 Box *GlyphIterator::current_box() const {

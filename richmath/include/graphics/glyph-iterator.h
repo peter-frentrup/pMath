@@ -26,6 +26,8 @@ namespace richmath {
       Box       *current_box() const;
       GlyphInfo &current_glyph() const { return _owning_seq->glyph_array()[glyph_index()]; }
       
+      MathSequence *outermost_sequence() const { return _owning_seq; }
+      
       MathSequence *current_sequence() const { return _current_seq; }
       const uint16_t *text_buffer() const { return _current_buf; }
       const SpanArray &text_span_array() const { return _current_seq->span_array(); }
@@ -37,10 +39,17 @@ namespace richmath {
       const uint16_t *text_at_glyph() const { return text_buffer() + text_index(); }
       const uint16_t *text_end() const { return text_buffer() + text_buffer_length(); }
       
+      ArrayView<const uint16_t> find_token() const { return ArrayView<const uint16_t>{find_next_token() - text_index(), text_at_glyph()}; }
+      
+      int find_token_end() const;
+      int find_next_token() const;
+      
     public:
       explicit GlyphIterator(MathSequence &seq);
       
-      void move_next_glyph();
+      void move_next_glyph() { skip_glyphs(1); }
+      void skip_glyphs(int count);
+      void skip_to_glyph(int new_glyph_index) { skip_glyphs(new_glyph_index - glyph_index()); }
       void skip_to_glyph_after_text_pos(MathSequence *seq, int pos);
       void skip_to_glyph_after_current_text_pos(int pos);
       void move_token_end();
