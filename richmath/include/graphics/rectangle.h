@@ -86,6 +86,12 @@ namespace richmath {
         : x(pos.x), y(pos.y), width(size.x), height(size.y)
       {}
       
+      RectangleF &operator+=(const Vector2F &delta) { x+= delta.x; y+= delta.y; return *this; }
+      RectangleF &operator-=(const Vector2F &delta) { x-= delta.x; y-= delta.y; return *this; }
+      
+      friend RectangleF operator+(RectangleF rect, const Vector2F &vec) { return rect+= vec; }
+      friend RectangleF operator-(RectangleF rect, const Vector2F &vec) { return rect-= vec; }
+      
       void normalize();
       void normalize_to_zero();
       void pixel_align(Canvas &canvas, bool tostroke, int direction = 0); // -1 = inside, 0 = nearest, +1 = outside

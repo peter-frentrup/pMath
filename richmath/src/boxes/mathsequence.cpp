@@ -176,27 +176,35 @@ namespace richmath {
       //{ generate glyphs
     public:
       void generate_glyphs(Context &context);
+      MathSequence &outermost_span();
       GlyphIterator glyph_iterator();
       
     private:
       class GlyphGenerator {
         public:
-          using g2t_t = RleArray<int, LinearPredictor<int>>;
-          using g2t_iter_t = g2t_t::iterator_type;
+          using g2t_t   = RleLinearPredictorArray<int>;
+          using g2seq_t = RleArray<MathSequence*>;
+          using g2t_iter_t   = g2t_t::iterator_type;
+          using g2seq_iter_t = g2seq_t::iterator_type;
         public:
-          GlyphGenerator(MathSequence &self);
-        
-          void resize_span(Context &context, Span span, int *pos, int *box);
+          GlyphGenerator(MathSequence &owner);
+          
+          void append_all(Context &context);
           
         private:
-          void append_text_glyph_run(Context &context, int pos, int count);
-          void append_box_glyphs(Context &context, Box *box);
-          void append_glyphs(int pos, int count);
+          void append_all(Context &context, MathSequence &seq);
+          void append_span(Context &context, MathSequence &span_seq, Span span, int *pos, int *box);
+          void append_text_glyph_run(Context &context, MathSequence &seq, int pos, int count);
+          void append_box_glyphs(    Context &context, Box *box);
+          void append_empty_glyphs(MathSequence &seq, int pos, int count);
           
         private:
-          MathSequence &self;
+          MathSequence &owner;
           g2t_iter_t    g2t_iter;
+          g2seq_iter_t  g2seq_iter;
       };
+      
+      MathSequence &parent_outermost_span();
       //}
       
       //{ vertical stretching
@@ -348,6 +356,7 @@ namespace richmath {
       void calculate_line_heights(Context &context);
       void calculate_total_extents_from_lines();
       
+      Vector2F total_offest_to_index(int index);
       void selection_path(Context *opt_context, Canvas &canvas, int start, int end);
   };
   
@@ -431,6 +440,7 @@ bool MathSequence::expand(const BoxSize &size) {
 }
 
 void MathSequence::resize(Context &context) {
+  inline_span(false);
   ensure_boxes_valid();
   ensure_spans_valid();
   
@@ -550,6 +560,11 @@ void MathSequence::paint(Context &context) {
   
   Color default_color = context.canvas().get_color();
   SharedPtr<MathShaper> default_math_shaper = context.math_shaper;
+  
+  for(auto box : boxes) {
+    //if(box->as_inline_span())
+      box->paint_inline(context);
+  }
   
   {
     context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
@@ -699,15 +714,27 @@ void MathSequence::paint(Context &context) {
     }
     
     // TODO: handle case where selection is an embedded in-line sequence
-    if(context.selection.get() == this && !context.canvas().show_only_text) {
-      context.canvas().move_to(x0, y0);
+    if(!context.canvas().show_only_text) {
+      MathSequence *inline_sel = nullptr;
+      if(context.selection.get() == this) {
+        inline_sel = this;
+      }
+      else if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())) {
+        if(&Impl(*seq).outermost_span() == this)
+          inline_sel = seq;
+      }
       
-      selection_path(
-        context,
-        context.selection.start,
-        context.selection.end);
+      if(inline_sel) {
+        context.canvas().move_to(x0, y0);
         
-      context.draw_selection_path();
+        Impl(*inline_sel).selection_path(
+          &context,
+          context.canvas(),
+          context.selection.start,
+          context.selection.end);
+          
+        context.draw_selection_path();
+      }
     }
   }
   
@@ -716,12 +743,10 @@ void MathSequence::paint(Context &context) {
 }
 
 void MathSequence::selection_path(Canvas &canvas, int start, int end) {
-  // TODO: handle case where this is in-line in another sequence.
   Impl(*this).selection_path(nullptr, canvas, start, end);
 }
 
 void MathSequence::selection_path(Context &context, int start, int end) {
-  // TODO: handle case where this is in-line in another sequence.
   Impl(*this).selection_path(&context, context.canvas(), start, end); 
 }
 
@@ -902,6 +927,7 @@ Box *MathSequence::move_vertical(
   float x = *index_rel_x;
   
   GlyphIterator iter = Impl(*this).glyph_iterator();
+  MathSequence     &outer  = *iter.outermost_sequence();
   Array<Line>      &lines  = iter.outermost_sequence()->lines;
   Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
     
@@ -913,7 +939,7 @@ Box *MathSequence::move_vertical(
       ++line;
       
     if(iter.glyph_index() > 0) {
-      x += glyphs[iter.glyph_index() - 1].right + indention_width(lines[line].indent);
+      x += glyphs[iter.glyph_index() - 1].right + outer.indention_width(lines[line].indent);
       if(line > 0)
         x -= glyphs[lines[line - 1].end - 1].right;
     }
@@ -931,7 +957,7 @@ Box *MathSequence::move_vertical(
   if(dstline >= 0 && dstline < lines.length()) {
     ensure_boxes_valid();
     
-    float l = indention_width(lines[dstline].indent);
+    float l = outer.indention_width(lines[dstline].indent);
     if(dstline > 0) {
       iter.move_to_glyph(lines[dstline - 1].end);
       l -= glyphs[lines[dstline - 1].end - 1].right;
@@ -964,9 +990,9 @@ Box *MathSequence::move_vertical(
         iter = prev;
     }
     
-    *index_rel_x = x - indention_width(lines[dstline].indent);
+    *index_rel_x = x - outer.indention_width(lines[dstline].indent);
     if(iter.glyph_index() == lines[dstline].end && dstline < lines.length() - 1) {
-      *index_rel_x += indention_width(lines[dstline + 1].indent);
+      *index_rel_x += outer.indention_width(lines[dstline + 1].indent);
     }
     else if(iter.glyph_index() > 0) {
       *index_rel_x -= glyphs[iter.glyph_index() - 1].right;
@@ -985,9 +1011,9 @@ Box *MathSequence::move_vertical(
     return iter.current_sequence();
   }
   
-  if(auto par = parent()) {
+  if(auto par = outer.parent()) {
     *index_rel_x = x;
-    *index = _index;
+    *index = outer.index();
     return par->move_vertical(direction, index_rel_x, index, true);
   }
   
@@ -1034,8 +1060,11 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
   pos.x -= indention_width(lines[line].indent);
   if(pos.x < 0) {
     *was_inside_start = false;
-    int i = start.index_in_sequence(this);
-    return { this, i, i };
+    int i = start.index_in_sequence(this, -1);
+    if(i >= 0)
+      return { this, i, i };
+    else
+      return { this, 0, length() };
   }
   
   float line_start = 0;
@@ -1097,41 +1126,68 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
 }
 
 void MathSequence::child_transformation(int index, cairo_matrix_t *matrix) {
-  GlyphIterator iter = Impl(*this).glyph_iterator();
-  iter.skip_forward_to_glyph_after_text_pos(this, index);
+  auto delta = Impl(*this).total_offest_to_index(index);
   
-  Array<Line>      &lines  = iter.outermost_sequence()->lines;
-  Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
-  
-  if(lines.length() == 0)
-    return;
-    
-  float x = 0;
-  float y = 0;
-  
-  int l = 0;
-  while(l + 1 < lines.length() && lines[l].end <= iter.glyph_index()) {
-    y += lines[l].descent + line_spacing() + lines[l + 1].ascent;
-    ++l;
-  }
-  
-  x += indention_width(lines[l].indent);
-  
-  if(iter.has_more_glyphs()) {
-    if(iter.current_box())
-      x += iter.current_glyph().x_offset;
-  }
-  
-  if(iter.glyph_index() > 0) {
-    x += glyphs[iter.glyph_index() - 1].right;
-    
-    if(l > 0 && lines[l - 1].end > 0) {
-      x -= glyphs[lines[l - 1].end - 1].right;
+  if(inline_span()) {
+    int i = this->index();
+    Box* box = parent();
+    while(box) {
+      if(auto seq = dynamic_cast<MathSequence*>(box)) {
+        delta-= Impl(*seq).total_offest_to_index(i);
+        break;
+      }
+      i = box->index();
+      box = box->parent();
     }
   }
   
-  // TODO: handle case where this is an in-line box.
-  cairo_matrix_translate(matrix, x, y);
+  cairo_matrix_translate(matrix, delta.x, delta.y);
+}
+
+bool MathSequence::request_repaint(const RectangleF &rect) {
+  if(inline_span()) {
+    MathSequence &outer = Impl(*this).outermost_span();
+    
+    Vector2F delta = Impl(*this).total_offest_to_index(0);
+    
+    return outer.request_repaint(rect + delta);
+  }
+  
+  return base::request_repaint(rect);
+}
+
+bool MathSequence::request_repaint_range(int start, int end) {
+//  return base::request_repaint_range(start, end);
+  int l1, l2;
+  
+  l1 = l2 = get_line(start);
+  if(start != end)
+    l2 = get_line(end, l1);
+  
+  Point p1(Impl(*this).total_offest_to_index(start));
+  
+  Point p2;
+  if(start == end) 
+    p2 = p1;
+  else 
+    p2 = Point(Impl(*this).total_offest_to_index(end));
+  
+  float a1, d1;
+  get_line_heights(l1, &a1, &d1);
+  
+  MathSequence &outer = Impl(*this).outermost_span();
+  
+  if(l1 == l2)
+    return outer.request_repaint({p1.x, p1.y - a1, p2.x - p1.x, a1 + d1});
+             
+  float a2, d2;
+  get_line_heights(l2, &a2, &d2);
+  
+  bool result = true;
+  result = outer.request_repaint({p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}) || result;
+  result = outer.request_repaint({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1}) || result;
+  result = outer.request_repaint({0.0f, p2.y - a2, p2.x, a2 + d2}) || result;
+  return result;
 }
 
 VolatileSelection MathSequence::normalize_selection(int start, int end) {
@@ -1844,8 +1900,7 @@ int MathSequence::get_line(int index, int guide) {
   GlyphIterator iter = Impl(*this).glyph_iterator();
   iter.skip_forward_to_glyph_after_text_pos(this, index);
   
-  Array<Line>      &lines  = iter.outermost_sequence()->lines;
-  Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
+  Array<Line> &lines = iter.outermost_sequence()->lines;
   
   if(guide >= lines.length())
     guide = lines.length() - 1;
@@ -1876,7 +1931,7 @@ int MathSequence::get_line(int index, int guide) {
 }
 
 void MathSequence::get_line_heights(int line, float *ascent, float *descent) {
-  // TODO: Handle case where this is an in-line box.
+  Array<Line> &lines = Impl(*this).outermost_span().lines;
   
   if(length() == 0) {
     *ascent  = 0.75f * em;
@@ -2201,18 +2256,29 @@ void MathSequence::Impl::boxes_size(Context &context, GlyphIterator start, const
 
 void MathSequence::Impl::generate_glyphs(Context &context) {
   self.glyph_to_text.clear();
+  self.glyph_to_inline_sequence.clear();
   self.glyphs.length(0);
   
-  GlyphGenerator gen(self);
-  int box = 0;
-  int pos = 0;
-  const int len = self.length();
-  while(pos < len)
-    gen.resize_span(context, self.spans[pos], &pos, &box);
+  GlyphGenerator(self).append_all(context);
+}
+
+inline MathSequence &MathSequence::Impl::outermost_span() {
+  return self.inline_span() ? parent_outermost_span() : self;
+}
+
+inline MathSequence &MathSequence::Impl::parent_outermost_span() {
+  for(Box *box = self.parent(); box; box = box->parent()) {
+    if(auto seq = dynamic_cast<MathSequence*>(box)) {
+      if(!seq->inline_span())
+        return *seq;
+    }
+  }
+  
+  return self;
 }
 
 inline GlyphIterator MathSequence::Impl::glyph_iterator() {
-  return GlyphIterator{self}; // TODO: handle case that self is in-line in another sequence.
+  return GlyphIterator{outermost_span()};
 }
 
 void MathSequence::Impl::stretch_all_vertical(Context &context) {
@@ -2231,8 +2297,6 @@ void MathSequence::Impl::substitute_glyphs(
 ) {
   if(features.empty())
     return;
-  
-  const int end = self.glyphs.length();
   
   //const uint16_t *buf = self.str.buffer();
   cairo_text_extents_t cte;
@@ -2725,37 +2789,50 @@ void MathSequence::Impl::calculate_total_extents_from_lines() {
 
 //{ class MathSequence::Impl::GlyphGenerator ...
 
-MathSequence::Impl::GlyphGenerator::GlyphGenerator(MathSequence &self)
-  : self{self},
-    g2t_iter{self.glyph_to_text.begin()}
+MathSequence::Impl::GlyphGenerator::GlyphGenerator(MathSequence &owner)
+  : owner{owner},
+    g2t_iter{owner.glyph_to_text.begin()},
+    g2seq_iter{owner.glyph_to_inline_sequence.begin()}
 {
 }
 
-void MathSequence::Impl::GlyphGenerator::resize_span(Context &context, Span span, int *pos, int *box) {
+inline void MathSequence::Impl::GlyphGenerator::append_all(Context &context) {
+  append_all(context, owner);
+}
+
+void MathSequence::Impl::GlyphGenerator::append_all(Context &context, MathSequence &seq) {
+  int box = 0;
+  int pos = 0;
+  const int len = seq.length();
+  while(pos < len)
+    append_span(context, seq, seq.spans[pos], &pos, &box);
+}
+
+void MathSequence::Impl::GlyphGenerator::append_span(Context &context, MathSequence &span_seq, Span span, int *pos, int *box) {
   if(!span) {
-    if(self.str[*pos] == PMATH_CHAR_BOX) {
-      append_box_glyphs(context, self.boxes[*box]);
+    if(span_seq.str[*pos] == PMATH_CHAR_BOX) {
+      append_box_glyphs(context, span_seq.boxes[*box]);
       ++*box;
       ++*pos;
       return;
     }
     
-    const int len = self.length();
+    const int len = span_seq.length();
     int next  = *pos;
-    while(next < len && !self.spans.is_token_end(next))
+    while(next < len && !span_seq.spans.is_token_end(next))
       ++next;
       
     if(next < len)
       ++next;
       
-    append_text_glyph_run(context, *pos, next - *pos);
+    append_text_glyph_run(context, span_seq, *pos, next - *pos);
     
     *pos = next;
     return;
   }
   
-  if(!span.next() && self.str[*pos] == '"') {
-    const uint16_t *buf = self.str.buffer();
+  if(!span.next() && span_seq.str[*pos] == '"') {
+    const uint16_t *buf = span_seq.str.buffer();
     int end = span.end();
     if(!context.show_string_characters) {
       ++*pos;
@@ -2763,7 +2840,7 @@ void MathSequence::Impl::GlyphGenerator::resize_span(Context &context, Span span
         --end;
     }
     else {
-      append_text_glyph_run(context, *pos, 1);
+      append_text_glyph_run(context, span_seq, *pos, 1);
       
       ++*pos;
         
@@ -2777,20 +2854,20 @@ void MathSequence::Impl::GlyphGenerator::resize_span(Context &context, Span span
     
     while(*pos <= end) {
       if(buf[*pos] == PMATH_CHAR_BOX) {
-        append_box_glyphs(context, self.boxes[*box]);
+        append_box_glyphs(context, span_seq.boxes[*box]);
         ++*box;
         ++*pos;
       }
       else {
         int next = *pos;
-        while(next <= end && !self.spans.is_token_end(next))
+        while(next <= end && !span_seq.spans.is_token_end(next))
           ++next;
         ++next;
         
         if(!context.show_string_characters && buf[*pos] == '\\')
           ++*pos;
         
-        append_text_glyph_run(context, *pos, next - *pos);
+        append_text_glyph_run(context, span_seq, *pos, next - *pos);
         
         *pos = next;
       }
@@ -2799,72 +2876,85 @@ void MathSequence::Impl::GlyphGenerator::resize_span(Context &context, Span span
     context.math_spacing = old_math_styling;
     
     if(context.show_string_characters && *pos == span.end()) { // trailing "
-      append_text_glyph_run(context, *pos, 1);
+      append_text_glyph_run(context, span_seq, *pos, 1);
     }
     
     *pos = span.end() + 1;
   }
   else {
-    resize_span(context, span.next(), pos, box);
+    append_span(context, span_seq, span.next(), pos, box);
     while(*pos <= span.end())
-      resize_span(context, self.spans[*pos], pos, box);
+      append_span(context, span_seq, span_seq.spans[*pos], pos, box);
   }
 }
 
 void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, Box *box) {
+  if(auto sub = box->as_inline_span()) {
+    box->resize_inline(context);
+    sub->em = owner.get_em();
+    sub->inline_span(true);
+    sub->ensure_boxes_valid();
+    sub->ensure_spans_valid();
+    append_all(context, *sub);
+    return;
+  }
+  
   box->resize(context);
       
   GlyphInfo gi {};
   gi.right = box->extents().width;
   gi.composed = 1;
-  self.glyphs.add(gi);
+  owner.glyphs.add(gi);
 }
 
-void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context, int pos, int count) {
-  const uint16_t *buf = self.str.buffer();
+void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context, MathSequence &seq, int pos, int count) {
+  const uint16_t *buf = seq.str.buffer();
   
-  int glyph_start = self.glyphs.length();
+  int glyph_start = owner.glyphs.length();
   if(context.math_spacing) {
-    append_glyphs(pos, count);
+    append_empty_glyphs(seq, pos, count);
     context.math_shaper->decode_token(
       context,
       count,
       buf + pos,
-      self.glyphs.items() + glyph_start);
+      owner.glyphs.items() + glyph_start);
   }
   else {
-    append_glyphs(pos, count);
+    append_empty_glyphs(seq, pos, count);
     context.text_shaper->decode_token(
       context,
       count,
       buf + pos,
-      self.glyphs.items() + glyph_start);
+      owner.glyphs.items() + glyph_start);
       
-    for(int i = glyph_start; i < self.glyphs.length(); ++i) {
-      if(self.glyphs[i].index) {
-        self.glyphs[i].is_normal_text = 1;
+    for(int i = glyph_start; i < owner.glyphs.length(); ++i) {
+      if(owner.glyphs[i].index) {
+        owner.glyphs[i].is_normal_text = 1;
       }
       else {
         context.math_shaper->decode_token(
           context,
           1,
           buf + pos + (i - glyph_start),
-          self.glyphs.items() + i);
+          owner.glyphs.items() + i);
       }
     }
   }
 }
 
-void MathSequence::Impl::GlyphGenerator::append_glyphs(int pos, int count) {
+void MathSequence::Impl::GlyphGenerator::append_empty_glyphs(MathSequence &seq, int pos, int count) {
   ARRAY_ASSERT(count >= 0);
   
-  int old_len = self.glyphs.length();
+  int old_len = owner.glyphs.length();
   
-  self.glyphs.length(old_len + count);
-  memset(self.glyphs.items() + old_len, 0, sizeof(self.glyphs[0]) * count);
+  owner.glyphs.length(old_len + count);
+  memset(owner.glyphs.items() + old_len, 0, sizeof(owner.glyphs[0]) * count);
   
   g2t_iter.rewind_to(old_len);
   g2t_iter.reset_rest(pos);
+  
+  g2seq_iter.rewind_to(old_len);
+  g2seq_iter.reset_rest(&seq == &owner ? nullptr : &seq);
 }
 
 //} ... class MathSequence::Impl::GlyphGenerator
@@ -2939,8 +3029,10 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
   if(!span.next()) {
     uint16_t ch = iter.current_char();
     
+    int span_end = span.end();
+    
     if(ch == '"') {
-      iter.skip_forward_to_glyph_after_current_text_pos(span.end() + 1);
+      iter.skip_forward_to_glyph_after_current_text_pos(span_end + 1);
       return;
     }
     
@@ -2957,7 +3049,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
       GlyphHeights inner_heights {};
       
       iter.move_next_token();
-      while(iter.index_in_sequence(span_seq) <= span.end() && !pmath_char_is_right(iter.current_char())) {
+      while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !pmath_char_is_right(iter.current_char())) {
         stretch_outermost_span(inner_core_heights, inner_heights);
       }
       
@@ -2968,7 +3060,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
       float new_cd = inner_heights.descent + overhang_d;
       
       bool full_stretch = true;
-      if(iter.index_in_sequence(span_seq) <= span.end()) {
+      if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
         uint16_t end_ch = iter.current_char();
         
         if(pmath_char_is_right(end_ch)) {
@@ -3011,7 +3103,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
         }
       }
       
-      while(iter.index_in_sequence(span_seq) <= span.end()) {
+      while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
         stretch_outermost_span(inner_core_heights, heights);
       }
       
@@ -3091,8 +3183,9 @@ void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathS
   
   auto division_iter = iter;
   
+  int span_end = span.end();
   iter.move_next_token();
-  while(iter.index_in_sequence(span_seq) <= span.end())
+  while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end)
     stretch_outermost_span(core_heights, heights);
   
   GlyphInfo &gi = division_iter.current_glyph();
@@ -3116,7 +3209,8 @@ void MathSequence::Impl::VerticalStretcher::try_stretch_division_span_rest(MathS
 }
 
 void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span_seq, Span span, GlyphHeights &core_heights, GlyphHeights &heights) {
-  while(iter.index_in_sequence(span_seq) <= span.end()) {
+  int span_end = span.end();
+  while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) {
     if(pmath_char_is_left(iter.current_char())) {
       // NOTE: old code checked if there was a span starting here instead of looking for operand start
       if(!iter.is_operand_start())
@@ -3125,14 +3219,14 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span
     stretch_outermost_span(core_heights, heights);
   }
   
-  if(iter.index_in_sequence(span_seq) < span.end()) {
+  if(iter.index_in_sequence(span_seq, span_end + 1) < span_end) {
     auto call_paren_start = iter;
     
     GlyphHeights inner_core_heights {};
     GlyphHeights inner_heights {};
     
     iter.move_next_token();
-    while(iter.index_in_sequence(span_seq) <= span.end() && !pmath_char_is_right(iter.current_char()))
+    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end && !pmath_char_is_right(iter.current_char()))
       stretch_outermost_span(core_heights, heights);
     
     float overhang_a = (inner_heights.ascent - inner_core_heights.ascent) * UnderoverscriptOverhangCoverage;
@@ -3141,7 +3235,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span
     float new_ca = inner_heights.ascent  + overhang_a;
     float new_cd = inner_heights.descent + overhang_d;
     
-    if(iter.index_in_sequence(span_seq) <= span.end()) { // closing parenthesis
+    if(iter.index_in_sequence(span_seq, span_end + 1) <= span_end) { // closing parenthesis
       context.math_shaper->vertical_stretch_char(
         context, new_ca, new_cd, false, iter.current_char(), &iter.current_glyph());
       
@@ -3157,7 +3251,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_rest(MathSequence *span
     if(core_heights.ascent  < new_ca) core_heights.ascent  = new_ca;
     if(core_heights.descent < new_cd) core_heights.descent = new_cd;
       
-    while(iter.index_in_sequence(span_seq) <= span.end())
+    while(iter.index_in_sequence(span_seq, span_end + 1) <= span_end)
       stretch_outermost_span(core_heights, heights);
   }
 }
@@ -3235,7 +3329,7 @@ void MathSequence::Impl::VerticalStretcher::size_nonspan_token(MathSequence *spa
   int next_token = iter.find_next_token();
   ARRAY_ASSERT(iter.text_index() < next_token);
   
-  while(iter.index_in_sequence(span_seq) < next_token) {
+  while(iter.index_in_sequence(span_seq, next_token) < next_token) {
     context.math_shaper->vertical_glyph_size(
       context, iter.current_char(), iter.current_glyph(), &heights.ascent, &heights.descent);
     iter.move_next_glyph();
@@ -3786,11 +3880,49 @@ pmath_token_t MathSequence::Impl::EnlargeSpace::get_box_start_token(Box *box) {
   return PMATH_TOK_NAME2;
 }
 
+Vector2F MathSequence::Impl::total_offest_to_index(int index) {
+  GlyphIterator iter = glyph_iterator();
+  iter.skip_forward_to_glyph_after_text_pos(&self, index);
+  
+  MathSequence     &outer  = outermost_span();
+  Array<Line>      &lines  = iter.outermost_sequence()->lines;
+  Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
+  
+  if(lines.length() == 0)
+    return {0.0f, 0.0f};
+    
+  float x = 0;
+  float y = 0;
+  
+  int l = 0;
+  while(l + 1 < lines.length() && lines[l].end <= iter.glyph_index()) {
+    y += lines[l].descent + outer.line_spacing() + lines[l + 1].ascent;
+    ++l;
+  }
+  
+  x += outer.indention_width(lines[l].indent);
+  
+  if(iter.has_more_glyphs()) {
+    if(iter.current_box())
+      x += iter.current_glyph().x_offset;
+  }
+  
+  if(iter.glyph_index() > 0) {
+    x += glyphs[iter.glyph_index() - 1].right;
+    
+    if(l > 0 && lines[l - 1].end > 0) {
+      x -= glyphs[lines[l - 1].end - 1].right;
+    }
+  }
+  
+  return {x, y};
+}
 
 void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
-
-  if(self.lines.length() == 0) // resize() not yet called
+  MathSequence &owner = outermost_span();
+  
+  if(owner.lines.length() == 0) // resize() not yet called
     return;
 
   if(start > self.length())
@@ -3798,9 +3930,11 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
   if(end > self.length())
     end = self.length();
   
-  GlyphIterator iter_before_start(self);
+  GlyphIterator iter_before_start(owner);
   if(start > 0)
     iter_before_start.skip_forward_to_glyph_after_text_pos(&self, start - 1);
+  else
+    iter_before_start.skip_forward_to_glyph_after_text_pos(&self, start);
   
   GlyphIterator iter_start = iter_before_start;
   iter_start.skip_forward_to_glyph_after_text_pos(&self, start);
@@ -3810,52 +3944,52 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
   
   canvas.current_pos(&x0, &y0);
   
-  y0 -= self.lines[0].ascent;
+  y0 -= owner.lines[0].ascent;
   y1 = y0;
   
   int startline = 0;
-  while(startline < self.lines.length() && iter_start.glyph_index() >= self.lines[startline].end) {
-    y1 += self.lines[startline].ascent + self.lines[startline].descent + self.line_spacing();
+  while(startline < owner.lines.length() && iter_start.glyph_index() >= owner.lines[startline].end) {
+    y1 += owner.lines[startline].ascent + owner.lines[startline].descent + owner.line_spacing();
     ++startline;
   }
   
-  if(startline == self.lines.length()) {
+  if(startline == owner.lines.length()) {
     --startline;
-    y1 -= self.lines[startline].ascent + self.lines[startline].descent + self.line_spacing();
+    y1 -= owner.lines[startline].ascent + owner.lines[startline].descent + owner.line_spacing();
   }
   
   y2 = y1;
   int endline = startline;
-  while(endline < self.lines.length() && iter_end.glyph_index() > self.lines[endline].end) {
-    y2 += self.lines[endline].ascent + self.lines[endline].descent + self.line_spacing();
+  while(endline < owner.lines.length() && iter_end.glyph_index() > owner.lines[endline].end) {
+    y2 += owner.lines[endline].ascent + owner.lines[endline].descent + owner.line_spacing();
     ++endline;
   }
   
-  if(endline == self.lines.length()) {
+  if(endline == owner.lines.length()) {
     --endline;
-    y2 -= self.lines[endline].ascent + self.lines[endline].descent + self.line_spacing();
+    y2 -= owner.lines[endline].ascent + owner.lines[endline].descent + owner.line_spacing();
   }
   
   x1 = x0;
   if(iter_start.glyph_index() > 0)
-    x1 += self.glyphs[iter_start.glyph_index() - 1].right;
+    x1 += owner.glyphs[iter_start.glyph_index() - 1].right;
     
   if(startline > 0)
-    x1 -= self.glyphs[self.lines[startline - 1].end - 1].right;
+    x1 -= owner.glyphs[owner.lines[startline - 1].end - 1].right;
     
-  x1 += self.indention_width(self.lines[startline].indent);
+  x1 += owner.indention_width(owner.lines[startline].indent);
   
   x2 = x0;
   if(iter_end.glyph_index() > 0)
-    x2 += self.glyphs[iter_end.glyph_index() - 1].right;
+    x2 += owner.glyphs[iter_end.glyph_index() - 1].right;
     
   if(endline > 0)
-    x2 -= self.glyphs[self.lines[endline - 1].end - 1].right;
+    x2 -= owner.glyphs[owner.lines[endline - 1].end - 1].right;
     
-  x2 += self.indention_width(self.lines[endline].indent);
+  x2 += owner.indention_width(owner.lines[endline].indent);
   
   if(endline == startline) {
-    float a = 0.5 * self.em;
+    float a = 0.5 * owner.em;
     float d = 0;
     
     if(opt_context) {
@@ -3868,11 +4002,11 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
       }
     }
     else {
-      a = self.lines[startline].ascent;
-      d = self.lines[startline].descent;
+      a = owner.lines[startline].ascent;
+      d = owner.lines[startline].descent;
     }
     
-    y1 += self.lines[startline].ascent;
+    y1 += owner.lines[startline].ascent;
     y2 = y1 + d + 1;
     y1 -= a + 1;
     
@@ -3889,8 +4023,8 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
   else {
     y2 = y1;
     for(int line = startline; line <= endline; ++line)
-      y2 += self.lines[line].ascent + self.lines[line].descent + self.line_spacing();
-    y2 -= self.line_spacing();
+      y2 += owner.lines[line].ascent + owner.lines[line].descent + owner.line_spacing();
+    y2 -= owner.line_spacing();
     
     /*    1----3
           |    |
@@ -3902,15 +4036,15 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
     
     float x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8;
     
-    x3 = x4 = x0 + self._extents.width;
+    x3 = x4 = x0 + owner._extents.width;
     x5 = x2;
     x6 = x7 = x0;
     x8 = x1;
     
     y3 = y1;
-    y4 = y5 = y2 - self.lines[endline].ascent - self.lines[endline].descent - self.line_spacing() / 2;
+    y4 = y5 = y2 - owner.lines[endline].ascent - owner.lines[endline].descent - owner.line_spacing() / 2;
     y6 = y2;
-    y7 = y8 = y1 + self.lines[startline].ascent + self.lines[startline].descent + self.line_spacing() / 2;
+    y7 = y8 = y1 + owner.lines[startline].ascent + owner.lines[startline].descent + owner.line_spacing() / 2;
     
     canvas.align_point(&x1, &y1, false);
     canvas.align_point(&x2, &y2, false);
@@ -3947,7 +4081,7 @@ MathSequence::Impl::IndentLines::IndentLines(MathSequence &span_seq)
 void MathSequence::Impl::IndentLines::visit_all() {
   auto seq = iter.outermost_sequence();
   while(iter.has_more_glyphs()) {
-    visit_span(seq, seq->span_array()[iter.index_in_sequence(seq)], 0);
+    visit_span(seq, seq->span_array()[iter.index_in_sequence(seq, -1)], 0);
   }
 }
 
@@ -3964,9 +4098,12 @@ void MathSequence::Impl::IndentLines::visit_span(MathSequence *span_seq, Span sp
   
   void (IndentLines::*visitor)(MathSequence*, Span, int) = &IndentLines::visit_span;
   {
-    SpanExpr span_expr(iter.index_in_sequence(span_seq), span, span_seq);
-    if(BlockSpan::maybe_block(&span_expr))
-      visitor = &IndentLines::visit_block_body;
+    int pos = iter.index_in_sequence(span_seq, -1);
+    if(pos >= 0) {
+      SpanExpr span_expr(pos, span, span_seq);
+      if(BlockSpan::maybe_block(&span_expr))
+        visitor = &IndentLines::visit_block_body;
+    }
   }
   
   int start = iter.glyph_index();
@@ -3976,12 +4113,13 @@ void MathSequence::Impl::IndentLines::visit_span(MathSequence *span_seq, Span sp
   
   (this->*visitor)(span_seq, span.next(), inner_depth);
   
+  int span_end = span.end();
   bool prev_simple = false;
   bool ends_with_newline = false;
   bool inner_newline = false;
   while(iter.has_more_glyphs()) {
-    int pos = iter.index_in_sequence(span_seq);
-    if(pos > span.end())
+    int pos = iter.index_in_sequence(span_seq, span_end + 1);
+    if(pos > span_end)
       break;
     
     Span sub = span_seq->span_array()[pos];
@@ -4019,13 +4157,19 @@ void MathSequence::Impl::IndentLines::visit_token(MathSequence *span_seq, int de
       inner = outer;
     }
     
+    int inner_length = inner->length();
+    
     ARRAY_ASSERT(inner);
     ARRAY_ASSERT(inner != span_seq);
-    ARRAY_ASSERT(inner->length() > 0);
+    ARRAY_ASSERT(inner_length > 0);
     
-    ++depth;
-    while(iter.index_in_sequence(inner) < inner->length()) {
-      visit_span(inner, inner->span_array()[iter.index_in_sequence(inner)], depth);
+    //++depth;
+    while(iter.has_more_glyphs()) {
+      int i = iter.index_in_sequence(inner, inner_length);
+      if(i >= inner_length)
+        break;
+      
+      visit_span(inner, inner->span_array()[i], depth);
     }
   }
   else {
@@ -4035,7 +4179,7 @@ void MathSequence::Impl::IndentLines::visit_token(MathSequence *span_seq, int de
     iter.move_next_glyph();
     
     ++depth;
-    while(iter.index_in_sequence(span_seq) < next_token) {
+    while(iter.index_in_sequence(span_seq, next_token) < next_token) {
       indention_array[iter.glyph_index()] = depth;
       iter.move_next_glyph();
     }
@@ -4055,9 +4199,10 @@ void MathSequence::Impl::IndentLines::visit_string(MathSequence *span_seq, Span 
   for(int i = start + 1; i < iter.glyph_index(); ++i)
     indention_array[i] = depth + 1;
   
+  int span_end = span.end();
   while(iter.has_more_glyphs()) {
-    int pos = iter.index_in_sequence(span_seq);
-    if(pos > span.end())
+    int pos = iter.index_in_sequence(span_seq, span_end + 1);
+    if(pos > span_end)
       break;
     
     if(iter.text_index() > 0 && iter.text_buffer()[iter.text_index() - 1] == '\n') {
@@ -4130,7 +4275,11 @@ MathSequence::Impl::PenalizeBreaks::PenalizeBreaks(MathSequence &span_seq)
 void MathSequence::Impl::PenalizeBreaks::visit_all() {
   auto seq = iter.outermost_sequence();
   while(iter.has_more_glyphs()) {
-    visit_span(seq, seq->span_array()[iter.index_in_sequence(seq)], 0);
+    int i = iter.index_in_sequence(seq, -1);
+    if(i < 0)
+      break;
+    
+    visit_span(seq, seq->span_array()[i], 0);
   }
 }
 
@@ -4150,9 +4299,12 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
   
   void (PenalizeBreaks::*visitor)(MathSequence*, Span, int) = &PenalizeBreaks::visit_span;
   {
-    SpanExpr span_expr(iter.index_in_sequence(span_seq), span, span_seq);
-    if(BlockSpan::maybe_block(&span_expr))
-      visitor = &PenalizeBreaks::visit_block_body;
+    int pos = iter.index_in_sequence(span_seq, -1);
+    if(pos >= 0) {
+      SpanExpr span_expr(pos, span, span_seq);
+      if(BlockSpan::maybe_block(&span_expr))
+        visitor = &PenalizeBreaks::visit_block_body;
+    }
   }
   
   int start = iter.glyph_index();
@@ -4162,9 +4314,14 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
   
   (this->*visitor)(span_seq, span.next(), depth);
   
+  int span_end = span.end();
   float inc_penalty = 0.0;
   float dec_penalty = 0.0;
-  while(iter.index_in_sequence(span_seq) <= span.end()) {
+  while(iter.has_more_glyphs()) {
+    int index_in_seq = iter.index_in_sequence(span_seq, span_end + 1);
+    if(index_in_seq > span_end)
+      break;
+    
     switch(iter.current_char()) {
       case ';': dec_penalty = DepthPenalty; break;
       
@@ -4208,7 +4365,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_span(MathSequence *span_seq, Span
         }
     }
     
-    (this->*visitor)(span_seq, span_seq->span_array()[iter.index_in_sequence(span_seq)], depth);
+    (this->*visitor)(span_seq, span_seq->span_array()[index_in_seq], depth);
   }
   
   inc_penalty -= dec_penalty;
@@ -4230,10 +4387,11 @@ void MathSequence::Impl::PenalizeBreaks::visit_string(MathSequence *span_seq, Sp
   penalty_array[iter.glyph_index()] = Infinity;
   
   bool last_was_special = false;
+  int span_end = span.end();
   
   while(iter.has_more_glyphs()) {
-    int pos = iter.index_in_sequence(span_seq);
-    if(pos >= span.end())
+    int pos = iter.index_in_sequence(span_seq, span_end + 1);
+    if(pos >= span_end)
       break;
     
     uint16_t ch = iter.current_char();
@@ -4279,13 +4437,18 @@ void MathSequence::Impl::PenalizeBreaks::visit_token(MathSequence *span_seq, int
       inner = outer;
     }
     
+    int inner_length = inner->length();
+    
     ARRAY_ASSERT(inner);
     ARRAY_ASSERT(inner != span_seq);
-    ARRAY_ASSERT(inner->length() > 0);
+    ARRAY_ASSERT(inner_length > 0);
     
     ++depth;
-    while(iter.index_in_sequence(inner) < inner->length()) {
-      visit_span(inner, inner->span_array()[iter.index_in_sequence(inner)], depth);
+    while(iter.has_more_glyphs()) {
+      int i = iter.index_in_sequence(inner, inner_length);
+      if(i >= inner_length)
+        break;
+      visit_span(inner, inner->span_array()[i], depth);
     }
     return;
   }
@@ -4351,7 +4514,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_token(MathSequence *span_seq, int
   
   int token_end = iter.find_token_end();
   
-  while(iter.index_in_sequence(span_seq) < token_end) {
+  while(iter.index_in_sequence(span_seq, token_end) < token_end) {
     penalty_array[iter.glyph_index()] += depth * DepthPenalty + WordPenalty;
     iter.move_next_glyph();
   }

@@ -17,6 +17,8 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual MathSequence *as_inline_span() override { return content(); }
+      
       virtual bool edit_selection(SelectionReference &selection) override;
       virtual bool selectable(int i = -1) override;
       virtual VolatileSelection normalize_selection(int start, int end) override;
@@ -86,6 +88,8 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr prepare_dynamic(Expr expr) override;
+      
+      virtual MathSequence *as_inline_span() override { return content(); }
       
       virtual bool edit_selection(SelectionReference &selection) override;
       virtual bool selectable(int i = -1) override;

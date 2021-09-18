@@ -101,12 +101,6 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void DynamicLocalBox::paint(Context &context) {
-  base::paint(context);
-  
-  // todo: fetch variables from Server, maybe after each paint()
-}
-
 Expr DynamicLocalBox::to_pmath_symbol() {
   return Symbol(richmath_System_DynamicLocalBox); 
 }

@@ -681,6 +681,7 @@ VolatileSelection AbstractSequence::dynamic_to_literal(int start, int end) {
 }
 
 bool AbstractSequence::request_repaint_range(int start, int end) {
+  // TODO: Move this to TextSequence, because MathSequence now has its own implementation.
   int l1, l2;
   
   l1 = l2 = get_line(start);

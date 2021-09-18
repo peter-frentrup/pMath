@@ -160,6 +160,28 @@ void DynamicBox::resize_default_baseline(Context &context) {
   }
 }
 
+void DynamicBox::paint_inline(Context &context) {
+  if(must_resize()) {
+    //context.canvas().save();
+    //base::resize(context);
+    must_resize(false);
+    //context.canvas().restore();
+  }
+  
+  if(must_update()) {
+    must_update(false);
+    
+    if(style) {
+      dynamic.synchronous_updating((AutoBoolValues)get_own_style(SynchronousUpdating, dynamic.synchronous_updating()));
+      // TODO: update TrackedSymbols setting inside dynamic from our style
+    }
+    
+    Expr result;
+    if(dynamic.get_value(&result)) 
+      dynamic_finished(Expr(), result);
+  }
+}
+
 void DynamicBox::paint_content(Context &context) {
   if(must_resize()) {
     context.canvas().save();

@@ -25,17 +25,18 @@ namespace richmath {
       
       uint16_t   current_char() const { return _current_char; }
       Box       *current_box() const;
-      GlyphInfo &current_glyph() const { return _owning_seq->glyph_array()[glyph_index()]; }
+      GlyphInfo &current_glyph() const { return all_glyphs()[glyph_index()]; }
       
+      const Array<GlyphInfo> &all_glyphs() const { return _owning_seq->glyph_array(); };
       MathSequence *outermost_sequence() const { return _owning_seq; }
       
-      MathSequence *current_sequence() const { return _current_seq; }
+      MathSequence *current_sequence() const { auto seq = g2seq_iter.get(); return seq ? seq : _owning_seq; }
       const uint16_t *text_buffer() const { return _current_buf; }
-      const SpanArray &text_span_array() const { return _current_seq->span_array(); }
+      const SpanArray &text_span_array() const { return current_sequence()->span_array(); }
       
-      int index_in_sequence(MathSequence *parent);
+      int index_in_sequence(MathSequence *parent, int fallback);
       
-      int text_buffer_length() const { return _current_seq->length(); }
+      int text_buffer_length() const { return current_sequence()->length(); }
       
       const uint16_t *text_at_glyph() const { return text_buffer() + text_index(); }
       const uint16_t *text_end() const { return text_buffer() + text_buffer_length(); }
@@ -59,9 +60,9 @@ namespace richmath {
       
     private:
       MathSequence *_owning_seq;
-      MathSequence *_current_seq;
       const uint16_t *_current_buf;
       RleArrayIterator<const RleLinearPredictorArray<int>> g2t_iter;
+      RleArrayIterator<const RleArray<MathSequence*>>      g2seq_iter;
       mutable style_iter_t  _semantic_style_iter;
       mutable int _next_box_index;
       uint16_t _current_char;

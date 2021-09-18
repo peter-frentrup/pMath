@@ -70,6 +70,9 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
+      virtual bool request_repaint(const RectangleF &rect) override;
+      virtual bool request_repaint_range(int start, int end) override;
+      
       virtual VolatileSelection normalize_selection(int start, int end) override;
       
       int find_string_start(int pos_inside_string, int *next_after_string = 0); // returns -1 on failure
@@ -105,7 +108,8 @@ namespace richmath {
       const Array<Line>                   &line_array() {  return lines;  }
       const Array<GlyphInfo>              &glyph_array() { return glyphs; }
       RleArray<SyntaxGlyphStyle>          &semantic_styles_array() { return semantic_styles; }
-      RleArrayIterator<const RleLinearPredictorArray<int>> glyph_to_text_iter() { return glyph_to_text.cbegin(); }
+      RleArrayIterator<const RleLinearPredictorArray<int>> glyph_to_text_iter() {            return glyph_to_text.cbegin(); }
+      RleArrayIterator<const RleArray<MathSequence*>>      glyph_to_inline_sequence_iter() { return glyph_to_inline_sequence.cbegin(); }
    
       bool stretch_horizontal(Context &context, float width);
       
@@ -123,6 +127,7 @@ namespace richmath {
         BoxesInvalidBit = base::NumFlagsBits,
         SpansInvalidBit,
         AutoIndentBit,
+        InlineSpanBit,
         
         NumFlagsBits
       };
@@ -134,6 +139,8 @@ namespace richmath {
       void spans_invalid(bool value) { change_flag(SpansInvalidBit, value); }
       bool auto_indent() {         return get_flag(AutoIndentBit); }
       void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
+      bool inline_span() {         return get_flag(InlineSpanBit); }
+      void inline_span(bool value) {   change_flag(InlineSpanBit, value); }
       
     private:
       String           str;
@@ -142,6 +149,7 @@ namespace richmath {
       Array<Line>      lines;
       RleArray<SyntaxGlyphStyle>   semantic_styles; // uses text index, not glyph index
       RleLinearPredictorArray<int> glyph_to_text;
+      RleArray<MathSequence*>      glyph_to_inline_sequence;
       SpanArray        spans;
   };
   

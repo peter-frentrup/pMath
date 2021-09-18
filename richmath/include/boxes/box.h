@@ -17,6 +17,7 @@ namespace richmath {
   };
   
   class Box;
+  class MathSequence;
   class SyntaxState;
   
   enum class DeviceKind : char {
@@ -225,6 +226,8 @@ namespace richmath {
       /// Find a child box after/before a given index.
       Box *next_child_or_null(int index, LogicalDirection direction);
       
+      virtual MathSequence *as_inline_span() { return nullptr; }
+      
       /// Get the i-th child box for i bewteen 0 to count()-1.
       ///
       /// Note that i does not necessarily correspond to index() of the returned box.
@@ -242,8 +245,10 @@ namespace richmath {
       virtual int child_script_level(int index, const int *opt_ambient_script_level);
       virtual bool expand(const BoxSize &size) { return false; }
       bool update_dynamic_styles(Context &context);
+      virtual void resize_inline(Context &context) {}
       virtual void resize(Context &context) = 0;
       virtual void colorize_scope(SyntaxState &state);
+      virtual void paint_inline(Context &context) {}
       virtual void paint(Context &context) = 0;
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src);
       virtual void selection_path(Canvas &canvas, int start, int end);
