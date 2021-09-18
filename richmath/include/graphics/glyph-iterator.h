@@ -15,6 +15,7 @@ namespace richmath {
       
       // caution: methods may invalidate later iterators.
       style_iter_t semantic_style_iter() const { _semantic_style_iter.rewind_to(text_index()); return _semantic_style_iter; }
+      SyntaxGlyphStyle semantic_style() const { return semantic_style_iter().get(); }
       
       bool has_more_glyphs() const { return glyph_index() < glyph_count(); }
       bool is_operand_start() const { return has_more_glyphs() && text_span_array().is_operand_start(text_index()); }

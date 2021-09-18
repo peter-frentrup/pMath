@@ -30,10 +30,7 @@ GlyphIterator::GlyphIterator(MathSequence &seq)
 }
 
 void GlyphIterator::skip_glyphs(int count) {
-  ARRAY_ASSERT(count >= 0);
-  
-  if(glyph_index() >= _owning_seq->glyph_array().length())
-    return;
+  ARRAY_ASSERT(count >= 0 || glyph_index() + count >= 0);
   
   if(count > _owning_seq->glyph_array().length() - glyph_index())
     count = _owning_seq->glyph_array().length() - glyph_index();
@@ -55,8 +52,8 @@ void GlyphIterator::skip_glyphs(int count) {
 }
 
 void GlyphIterator::skip_to_glyph_after_text_pos(MathSequence *seq, int pos) {
-  if(!has_more_glyphs())
-    return;
+  assert(0 <= pos);
+  assert(pos <= seq->length());
   
   // In the scematics below we use the following notation:
   //   [ and ]   begin and end of a sequence
@@ -87,9 +84,6 @@ void GlyphIterator::skip_to_glyph_after_text_pos(MathSequence *seq, int pos) {
 }
 
 void GlyphIterator::skip_to_glyph_after_current_text_pos(int pos) {
-  if(!has_more_glyphs())
-    return;
-  
   MathSequence *seq = current_sequence();
   
   assert(0 <= pos);
@@ -113,14 +107,16 @@ void GlyphIterator::skip_to_glyph_after_current_text_pos(int pos) {
 //  }
 //  return;
 
-  while(has_more_glyphs()) {
+  for(;;) {
     // TODO: check that current_sequence() remains seq  and skip it otherwise
     int next_run = glyph_count();
     int i;
     if(g2t_iter.find_next_run(i) && i < next_run) next_run = i;
     
     int run_length = next_run - glyph_index();
-    ARRAY_ASSERT(run_length > 0);
+    ARRAY_ASSERT(run_length >= 0);
+    if(run_length == 0)
+      break;
     
     int delta = pos - text_index();
     if(delta < 0) {
