@@ -3251,8 +3251,6 @@ void MathSequence::Impl::EnlargeSpace::run() {
   bool last_was_space  = false;
   bool last_was_left   = false;
   
-  int string_end_glyph_index = -1;
-  
   for(GlyphIterator iter_next{self}; iter_next.has_more_glyphs();) {
     GlyphIterator iter_start = iter_next;
     iter_next.move_token_end();
@@ -3263,15 +3261,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
     skip_subsuperscript(iter_end);
     
     if(iter_start.current_char() == '\t') {
-      show_tab_character(iter_start, iter_start.glyph_index() <= string_end_glyph_index);
-      continue;
-    }
-    
-    if(string_end_glyph_index < iter_start.glyph_index() && iter_start.current_char() == '"') {
-      GlyphIterator string_end = iter_start;
-      string_end.move_deepest_span_end();
-      string_end_glyph_index = string_end.glyph_index();
-      last_was_factor = false;
+      show_tab_character(iter_start, iter_start.current_glyph().is_normal_text);
       continue;
     }
     
@@ -3281,7 +3271,12 @@ void MathSequence::Impl::EnlargeSpace::run() {
       continue;
     }
     
-    if(iter_start.glyph_index() <= string_end_glyph_index || in_alias || !iter_end.has_more_glyphs())
+    if(iter_start.current_glyph().is_normal_text) {
+      last_was_factor = false;
+      continue;
+    }
+    
+    if(iter_start.current_glyph().is_normal_text || in_alias || !iter_end.has_more_glyphs())
       continue;
       
     if( iter_start.current_char() == PMATH_CHAR_INVISIBLECALL || 
