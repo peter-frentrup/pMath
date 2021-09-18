@@ -87,8 +87,8 @@ namespace {
   
   class ErrorColorizerImpl {
     private:
-      float   error_indicator_height;
       Painter painter;
+      float   error_indicator_height;
       
     public:
       explicit ErrorColorizerImpl(MathSequence &sequence, float _error_indicator_height);
