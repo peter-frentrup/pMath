@@ -27,8 +27,9 @@ namespace richmath {
   
   Expr expand_string_boxes(String s);
   
-  inline ArrayView<const uint16_t> buffer_view(const String &s) { return ArrayView<const uint16_t>(s.length(), s.buffer()); }
-  
+  inline ArrayView<const uint16_t> buffer_view(const String &s) {         return ArrayView<const uint16_t>(s.length(),             s.buffer()); }
+  inline ArrayView<const uint16_t> buffer_view(const pmath_string_t &s) { return ArrayView<const uint16_t>(pmath_string_length(s), pmath_string_buffer(&s)); }
+    
   class Span {
     public:
       Span(pmath_span_t *data): _data(data) {}
