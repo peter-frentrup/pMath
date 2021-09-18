@@ -26,16 +26,16 @@ GlyphIterator::GlyphIterator(MathSequence &seq)
     _next_box_index{0},
     _current_char{0}
 {
-  skip_glyphs(0);
+  move_by_glyphs(0);
 }
 
-void GlyphIterator::skip_glyphs(int count) {
-  ARRAY_ASSERT(count >= 0 || glyph_index() + count >= 0);
+void GlyphIterator::move_by_glyphs(int delta) {
+  ARRAY_ASSERT(delta >= 0 || glyph_index() + delta >= 0);
   
-  if(count > _owning_seq->glyph_array().length() - glyph_index())
-    count = _owning_seq->glyph_array().length() - glyph_index();
+  if(delta > _owning_seq->glyph_array().length() - glyph_index())
+    delta = _owning_seq->glyph_array().length() - glyph_index();
   
-  g2t_iter+= count;
+  g2t_iter+= delta;
   
   if(_current_seq != _owning_seq) { // _owning_seq->glyph_to_seq[_glyph_index]
     _current_seq = _owning_seq;
@@ -51,7 +51,7 @@ void GlyphIterator::skip_glyphs(int count) {
   }
 }
 
-void GlyphIterator::skip_to_glyph_after_text_pos(MathSequence *seq, int pos) {
+void GlyphIterator::skip_forward_to_glyph_after_text_pos(MathSequence *seq, int pos) {
   assert(0 <= pos);
   assert(pos <= seq->length());
   
@@ -70,20 +70,20 @@ void GlyphIterator::skip_to_glyph_after_text_pos(MathSequence *seq, int pos) {
         return;
       
       // [cc^c[ss|s]ccc]
-      skip_to_glyph_after_current_text_pos(pos_in_cur);
+      skip_forward_to_glyph_after_current_text_pos(pos_in_cur);
       // [ccc[^ss|s]ccc]
       // or
       // [ccc[|]^ccc]
     }
     else {
       // [ooo[cc^c]ooo[ss|s]ooo]  or  [ooo[ss|s]ooo[cc^c]ooo]
-      skip_to_glyph_after_current_text_pos(_current_seq->length());
+      skip_forward_to_glyph_after_current_text_pos(_current_seq->length());
       // [ooo[ccc]^ooo[ss|s]ooo]  or  [ooo[ss|s]ooo[ccc]^ooo]
     }
   }
 }
 
-void GlyphIterator::skip_to_glyph_after_current_text_pos(int pos) {
+void GlyphIterator::skip_forward_to_glyph_after_current_text_pos(int pos) {
   MathSequence *seq = current_sequence();
   
   assert(0 <= pos);
@@ -136,7 +136,7 @@ void GlyphIterator::move_token_end() {
   if(glyph_index() >= _owning_seq->glyph_array().length())
     return;
   
-  skip_to_glyph_after_current_text_pos(find_token_end());
+  skip_forward_to_glyph_after_current_text_pos(find_token_end());
 }
 
 void GlyphIterator::move_deepest_span_end() {
@@ -154,7 +154,7 @@ void GlyphIterator::move_deepest_span_end() {
       break;
     span = next;
   }
-  skip_to_glyph_after_current_text_pos(span.end());
+  skip_forward_to_glyph_after_current_text_pos(span.end());
 }
 
 int GlyphIterator::index_in_sequence(MathSequence *parent) {

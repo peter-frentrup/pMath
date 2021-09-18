@@ -48,11 +48,11 @@ namespace richmath {
     public:
       explicit GlyphIterator(MathSequence &seq);
       
-      void move_next_glyph() { skip_glyphs(1); }
-      void skip_glyphs(int count);
-      void skip_to_glyph(int new_glyph_index) { skip_glyphs(new_glyph_index - glyph_index()); }
-      void skip_to_glyph_after_text_pos(MathSequence *seq, int pos);
-      void skip_to_glyph_after_current_text_pos(int pos);
+      void move_next_glyph() { move_by_glyphs(1); }
+      void move_by_glyphs(int delta);
+      void move_to_glyph(int new_glyph_index) { move_by_glyphs(new_glyph_index - glyph_index()); }
+      void skip_forward_to_glyph_after_text_pos(MathSequence *seq, int pos);
+      void skip_forward_to_glyph_after_current_text_pos(int pos);
       void move_token_end();
       void move_next_token();
       void move_deepest_span_end();

@@ -582,7 +582,7 @@ void MathSequence::paint(Context &context) {
       GlyphIterator iter{*this};
       
       if(line > 0)
-        iter.skip_to_glyph(lines[line - 1].end);
+        iter.move_to_glyph(lines[line - 1].end);
         
       if(iter.glyph_index() > 0)
         glyph_left = glyphs[iter.glyph_index() - 1].right;
@@ -908,7 +908,7 @@ Box *MathSequence::move_vertical(
   Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
     
   if(*index >= 0) {
-    iter.skip_to_glyph_after_text_pos(this, *index);
+    iter.skip_forward_to_glyph_after_text_pos(this, *index);
     
     line = 0;
     while(line < lines.length() - 1 && lines[line].end <= iter.glyph_index())
@@ -935,11 +935,11 @@ Box *MathSequence::move_vertical(
     
     float l = indention_width(lines[dstline].indent);
     if(dstline > 0) {
-      iter.skip_to_glyph(lines[dstline - 1].end);
+      iter.move_to_glyph(lines[dstline - 1].end);
       l -= glyphs[lines[dstline - 1].end - 1].right;
     }
     else
-      iter.skip_to_glyph(0);
+      iter.move_to_glyph(0);
     
     while(iter.glyph_index() < lines[dstline].end && iter.current_glyph().right + l < x)
       iter.move_next_glyph();
@@ -961,7 +961,7 @@ Box *MathSequence::move_vertical(
     
     if(iter.glyph_index() > 0 && iter.has_more_glyphs() && iter.glyph_index() == lines[dstline].end) {
       auto prev = iter;
-      prev.skip_glyphs(-1);
+      prev.move_by_glyphs(-1);
       if(direction == LogicalDirection::Backward || prev.current_char() == '\n')
         iter = prev;
     }
@@ -1013,7 +1013,7 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
   }
   
   if(line > 0)
-    start.skip_to_glyph(lines[line - 1].end);
+    start.move_to_glyph(lines[line - 1].end);
     
   pos.x -= indention_width(lines[line].indent);
   if(pos.x < 0) {
@@ -1069,7 +1069,7 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
   
   if(start.glyph_index() > 0) {
     auto prev = start;
-    prev.skip_glyphs(-1);
+    prev.move_by_glyphs(-1);
     if(prev.current_char() == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
       start = prev;
     }
@@ -1082,7 +1082,7 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
 
 void MathSequence::child_transformation(int index, cairo_matrix_t *matrix) {
   GlyphIterator iter = Impl(*this).glyph_iterator();
-  iter.skip_to_glyph_after_text_pos(this, index);
+  iter.skip_forward_to_glyph_after_text_pos(this, index);
   
   Array<Line>      &lines  = iter.outermost_sequence()->lines;
   Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
@@ -1826,7 +1826,7 @@ bool MathSequence::stretch_horizontal(Context &context, float width) {
 
 int MathSequence::get_line(int index, int guide) {
   GlyphIterator iter = Impl(*this).glyph_iterator();
-  iter.skip_to_glyph_after_text_pos(this, index);
+  iter.skip_forward_to_glyph_after_text_pos(this, index);
   
   Array<Line>      &lines  = iter.outermost_sequence()->lines;
   Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
@@ -2014,7 +2014,7 @@ void MathSequence::Impl::syntax_error(pmath_string_t code, int pos, void *_data,
         data->sequence->glyphs.length() > pos
     ) {
       GlyphIterator iter = Impl(*data->sequence).glyph_iterator();
-      iter.skip_to_glyph_after_text_pos(data->sequence, pos);
+      iter.skip_forward_to_glyph_after_text_pos(data->sequence, pos);
       if(iter.has_more_glyphs())
         iter.current_glyph().missing_after = true;
     }
@@ -2563,7 +2563,7 @@ void MathSequence::Impl::split_lines(Context &context) {
     for(int i = break_result.length() - 1; i >= 0; --i) {
       int j = break_result[i];
       GlyphIterator pos{self};
-      pos.skip_to_glyph(break_array[j].glyph_position);
+      pos.move_to_glyph(break_array[j].glyph_position);
       
       bool continuation = !pos.is_at_token_end();
       while(pos.glyph_index() < end_of_paragraph.glyph_index()) {
@@ -2593,7 +2593,7 @@ void MathSequence::Impl::split_lines(Context &context) {
     if(self.lines[line].end == 0)
       continue;
     
-    prev.skip_to_glyph(self.lines[line].end - 1);
+    prev.move_to_glyph(self.lines[line].end - 1);
     if(Box *filler = prev.current_box()) {
       if(filler->fill_weight() > 0) {
         auto next = prev;
@@ -2924,7 +2924,7 @@ void MathSequence::Impl::VerticalStretcher::stretch_span_start(MathSequence *spa
     uint16_t ch = iter.current_char();
     
     if(ch == '"') {
-      iter.skip_to_glyph_after_current_text_pos(span.end() + 1);
+      iter.skip_forward_to_glyph_after_current_text_pos(span.end() + 1);
       return;
     }
     
@@ -3789,13 +3789,13 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
   
   GlyphIterator iter_before_start(self);
   if(start > 0)
-    iter_before_start.skip_to_glyph_after_text_pos(&self, start - 1);
+    iter_before_start.skip_forward_to_glyph_after_text_pos(&self, start - 1);
   
   GlyphIterator iter_start = iter_before_start;
-  iter_start.skip_to_glyph_after_text_pos(&self, start);
+  iter_start.skip_forward_to_glyph_after_text_pos(&self, start);
   
   GlyphIterator iter_end = iter_start;
-  iter_end.skip_to_glyph_after_text_pos(&self, end);
+  iter_end.skip_forward_to_glyph_after_text_pos(&self, end);
   
   canvas.current_pos(&x0, &y0);
   
@@ -4038,7 +4038,7 @@ void MathSequence::Impl::IndentLines::visit_string(MathSequence *span_seq, Span 
   ARRAY_ASSERT(iter.current_sequence() == span_seq);
   
   int start = iter.glyph_index();
-  iter.skip_to_glyph_after_text_pos(span_seq, iter.text_index() + 1);
+  iter.skip_forward_to_glyph_after_text_pos(span_seq, iter.text_index() + 1);
   
   indention_array[start] = depth;
   for(int i = start + 1; i < iter.glyph_index(); ++i)
