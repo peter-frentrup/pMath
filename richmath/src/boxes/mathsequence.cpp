@@ -898,7 +898,6 @@ Box *MathSequence::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  
   int line, dstline;
   float x = *index_rel_x;
   
@@ -916,7 +915,7 @@ Box *MathSequence::move_vertical(
     if(iter.glyph_index() > 0) {
       x += glyphs[iter.glyph_index() - 1].right + indention_width(lines[line].indent);
       if(line > 0)
-        x -= glyphs[lines[iter.glyph_index() - 1].end - 1].right;
+        x -= glyphs[lines[line - 1].end - 1].right;
     }
     dstline = direction == LogicalDirection::Forward ? line + 1 : line - 1;
   }
