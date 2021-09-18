@@ -529,13 +529,12 @@ void MathSequence::resize(Context &context) {
 }
 
 void MathSequence::colorize_scope(SyntaxState &state) {
-  assert(glyphs.length() == spans.length());
-  assert(glyphs.length() == str.length());
+  ensure_spans_valid();
   
   ScopeColorizer colorizer(*this);
   
   int pos = 0;
-  while(pos < glyphs.length()) {
+  while(pos < length()) {
     SpanExpr *se = new SpanExpr(pos, spans[pos], this);
     
     colorizer.scope_colorize_spanexpr(state, se);
