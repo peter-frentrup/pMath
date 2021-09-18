@@ -139,7 +139,7 @@ namespace richmath {
       Array<Box *>     boxes;
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
-      RleArray<SyntaxGlyphStyle>   semantic_styles;
+      RleArray<SyntaxGlyphStyle>   semantic_styles; // uses text index, not glyph index
       RleLinearPredictorArray<int> glyph_to_text;
       SpanArray        spans;
   };

@@ -176,6 +176,7 @@ namespace richmath {
       //{ generate glyphs
     public:
       void generate_glyphs(Context &context);
+      GlyphIterator glyph_iterator();
       
     private:
       class GlyphGenerator {
@@ -558,8 +559,6 @@ void MathSequence::paint(Context &context) {
     float y = y0;
     if(lines.length() > 0)
       y -= lines[0].ascent;
-      
-    const uint16_t *buf = str.buffer();
     
     double clip_x1, clip_y1, clip_x2, clip_y2;
     context.canvas().clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
@@ -577,47 +576,47 @@ void MathSequence::paint(Context &context) {
     
     if(line < lines.length()) {
       float glyph_left = 0;
-      int box = 0;
-      int pos = 0;
-      auto iter = semantic_styles.begin();
+      //int box = 0;
+      //int pos = 0;
+      //auto iter = semantic_styles.begin();
+      GlyphIterator iter{*this};
       
       if(line > 0)
-        pos = lines[line - 1].end;
+        iter.skip_to_glyph(lines[line - 1].end);
         
-      if(pos > 0)
-        glyph_left = glyphs[pos - 1].right;
+      if(iter.glyph_index() > 0)
+        glyph_left = glyphs[iter.glyph_index() - 1].right;
         
       bool have_style = false;
       bool have_slant = false;
       for(; line < lines.length() && y < clip_y2; ++line) {
         float x_extra = x0 + indention_width(lines[line].indent);
         
-        if(pos > 0)
-          x_extra -= glyphs[pos - 1].right;
+        if(iter.glyph_index() > 0)
+          x_extra -= glyphs[iter.glyph_index() - 1].right;
         
         y += lines[line].ascent;
         
-        for(; pos < lines[line].end; ++pos) {
-          if(buf[pos] == '\n') {
-            glyph_left = glyphs[pos].right;
+        for(; iter.glyph_index() < lines[line].end; iter.move_next_glyph()) {
+          if(iter.current_char() == '\n') {
+            glyph_left = iter.current_glyph().right;
             continue;
           }
           
-          iter.rewind_to(pos);
-          if(have_style || iter.get()) {
-            Color color = context.syntax->glyph_style_colors[iter.get() & 0x0F];
+          if(have_style || iter.semantic_style()) {
+            Color color = context.syntax->glyph_style_colors[iter.semantic_style() & 0x0F];
             
             context.canvas().set_color(color);
             have_style = color != default_color;
           }
           
-          if(have_slant || glyphs[pos].slant) {
-            if(glyphs[pos].slant == FontSlantItalic) {
+          if(have_slant || iter.current_glyph().slant) {
+            if(iter.current_glyph().slant == FontSlantItalic) {
               context.math_shaper = default_math_shaper->set_style(
                                       default_math_shaper->get_style() + Italic);
               have_slant = true;
             }
-            else if(glyphs[pos].slant == FontSlantPlain) {
+            else if(iter.current_glyph().slant == FontSlantPlain) {
               context.math_shaper = default_math_shaper->set_style(
                                       default_math_shaper->get_style() - Italic);
               have_slant = true;
@@ -628,44 +627,37 @@ void MathSequence::paint(Context &context) {
             }
           }
           
-          if(buf[pos] == PMATH_CHAR_BOX) {
-            while(boxes[box]->index() < pos)
-              ++box;
-              
-            context.canvas().move_to(glyph_left + x_extra + glyphs[pos].x_offset, y);
+          if(auto box = iter.current_box()) {
+            context.canvas().move_to(glyph_left + x_extra + iter.current_glyph().x_offset, y);
             
-            boxes[box]->paint(context);
+            box->paint(context);
             
             context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
-            ++box;
           }
-          else if(glyphs[pos].index ||
-                  glyphs[pos].composed ||
-                  glyphs[pos].horizontal_stretch)
-          {
-            if(glyphs[pos].is_normal_text) {
+          else if(iter.current_glyph().index || iter.current_glyph().composed || iter.current_glyph().horizontal_stretch) {
+            if(iter.current_glyph().is_normal_text) {
               context.text_shaper->show_glyph(
                 context,
                 Point{glyph_left + x_extra, y},
-                buf[pos],
-                glyphs[pos]);
+                iter.current_char(),
+                iter.current_glyph());
             }
             else {
               context.math_shaper->show_glyph(
                 context,
                 Point{glyph_left + x_extra, y},
-                buf[pos],
-                glyphs[pos]);
+                iter.current_char(),
+                iter.current_glyph());
             }
           }
           
-          if(glyphs[pos].missing_after) {
+          if(iter.current_glyph().missing_after) {
             float d = em * RefErrorIndictorHeight * 2 / 3.0f;
             float dd = d / 4;
             
-            context.canvas().move_to(glyphs[pos].right + x_extra, y + em / 8);
-            if(pos + 1 < glyphs.length())
-              context.canvas().rel_move_to(glyphs[pos + 1].x_offset / 2, 0);
+            context.canvas().move_to(iter.current_glyph().right + x_extra, y + em / 8);
+            if(iter.glyph_index() + 1 < glyphs.length())
+              context.canvas().rel_move_to(glyphs[iter.glyph_index() + 1].x_offset / 2, 0);
               
             context.canvas().rel_line_to(-d, d);
             context.canvas().rel_line_to(dd, dd);
@@ -682,7 +674,7 @@ void MathSequence::paint(Context &context) {
             have_style = true;
           }
           
-          glyph_left = glyphs[pos].right;
+          glyph_left = iter.current_glyph().right;
         }
         
         if(lines[line].continuation) {
@@ -707,6 +699,7 @@ void MathSequence::paint(Context &context) {
       
     }
     
+    // TODO: handle case where selection is an embedded in-line sequence
     if(context.selection.get() == this && !context.canvas().show_only_text) {
       context.canvas().move_to(x0, y0);
       
@@ -724,10 +717,12 @@ void MathSequence::paint(Context &context) {
 }
 
 void MathSequence::selection_path(Canvas &canvas, int start, int end) {
+  // TODO: handle case where this is in-line in another sequence.
   Impl(*this).selection_path(nullptr, canvas, start, end);
 }
 
-void MathSequence::selection_path(Context &context, int start, int end) { 
+void MathSequence::selection_path(Context &context, int start, int end) {
+  // TODO: handle case where this is in-line in another sequence.
   Impl(*this).selection_path(&context, context.canvas(), start, end); 
 }
 
@@ -904,19 +899,25 @@ Box *MathSequence::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
+  
   int line, dstline;
   float x = *index_rel_x;
   
+  GlyphIterator iter = Impl(*this).glyph_iterator();
+  Array<Line>      &lines  = iter.outermost_sequence()->lines;
+  Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
+    
   if(*index >= 0) {
+    iter.skip_to_glyph_after_text_pos(this, *index);
+    
     line = 0;
-    while(line < lines.length() - 1
-          && lines[line].end <= *index)
+    while(line < lines.length() - 1 && lines[line].end <= iter.glyph_index())
       ++line;
       
-    if(*index > 0) {
-      x += glyphs[*index - 1].right + indention_width(lines[line].indent);
+    if(iter.glyph_index() > 0) {
+      x += glyphs[iter.glyph_index() - 1].right + indention_width(lines[line].indent);
       if(line > 0)
-        x -= glyphs[lines[line - 1].end - 1].right;
+        x -= glyphs[lines[iter.glyph_index() - 1].end - 1].right;
     }
     dstline = direction == LogicalDirection::Forward ? line + 1 : line - 1;
   }
@@ -930,59 +931,60 @@ Box *MathSequence::move_vertical(
   }
   
   if(dstline >= 0 && dstline < lines.length()) {
-    int i = 0;
+    ensure_boxes_valid();
+    
     float l = indention_width(lines[dstline].indent);
     if(dstline > 0) {
-      i = lines[dstline - 1].end;
+      iter.skip_to_glyph(lines[dstline - 1].end);
       l -= glyphs[lines[dstline - 1].end - 1].right;
     }
+    else
+      iter.skip_to_glyph(0);
     
-    while(i < lines[dstline].end
-          && glyphs[i].right + l < x)
-      ++i;
+    while(iter.glyph_index() < lines[dstline].end && iter.current_glyph().right + l < x)
+      iter.move_next_glyph();
       
-    if(i < lines[dstline].end
-        && str[i] != PMATH_CHAR_BOX) {
-      if( (i == 0 && l +  glyphs[i].right                      / 2 <= x) ||
-          (i >  0 && l + (glyphs[i].right + glyphs[i - 1].right) / 2 <= x))
-        ++i;
-        
-      if(is_utf16_high(str[i - 1]))
-        --i;
-      else if(is_utf16_low(str[i]))
-        ++i;
+    if(iter.glyph_index() < lines[dstline].end && iter.current_char() != PMATH_CHAR_BOX) {
+      if( (iter.glyph_index() == 0 && l +  iter.current_glyph().right                                         / 2 <= x) ||
+          (iter.glyph_index() >  0 && l + (iter.current_glyph().right + glyphs[iter.glyph_index() - 1].right) / 2 <= x)
+      ) {
+        iter.move_next_glyph();
+      }
+      
+//      if(is_utf16_high(str[i - 1]))
+//        --i;
+//      else if(is_utf16_low(str[i]))
+//        ++i;
+      if(is_utf16_low(iter.current_char()))
+        iter.move_next_glyph();
     }
     
-    if(i > 0
-        && i < glyphs.length()
-        && i == lines[dstline].end
-        && (direction == LogicalDirection::Backward || str[i - 1] == '\n'))
-      --i;
-      
+    if(iter.glyph_index() > 0 && iter.has_more_glyphs() && iter.glyph_index() == lines[dstline].end) {
+      auto prev = iter;
+      prev.skip_glyphs(-1);
+      if(direction == LogicalDirection::Backward || prev.current_char() == '\n')
+        iter = prev;
+    }
+    
     *index_rel_x = x - indention_width(lines[dstline].indent);
-    if(i == lines[dstline].end && dstline < lines.length() - 1) {
+    if(iter.glyph_index() == lines[dstline].end && dstline < lines.length() - 1) {
       *index_rel_x += indention_width(lines[dstline + 1].indent);
     }
-    else if(i > 0) {
-      *index_rel_x -= glyphs[i - 1].right;
+    else if(iter.glyph_index() > 0) {
+      *index_rel_x -= glyphs[iter.glyph_index() - 1].right;
       if(dstline > 0)
         *index_rel_x += glyphs[lines[dstline - 1].end - 1].right;
     }
     
-    if(i < glyphs.length()
-        && str[i] == PMATH_CHAR_BOX
-        && *index_rel_x > 0
-        && x < glyphs[i].right + l) {
-      ensure_boxes_valid();
-      int b = 0;
-      while(boxes[b]->index() < i)
-        ++b;
-      *index = -1;
-      return boxes[b]->move_vertical(direction, index_rel_x, index, false);
+    if(auto box = iter.current_box()) {
+      if(*index_rel_x > 0 && x < iter.current_glyph().right + l) {
+        *index = -1;
+        return box->move_vertical(direction, index_rel_x, index, false);
+      }
     }
     
-    *index = i;
-    return this;
+    *index = iter.text_index();
+    return iter.current_sequence();
   }
   
   if(auto par = parent()) {
@@ -997,6 +999,10 @@ Box *MathSequence::move_vertical(
 VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   
+  GlyphIterator start = Impl(*this).glyph_iterator();
+  Array<Line>      &lines  = start.outermost_sequence()->lines;
+  Array<GlyphInfo> &glyphs = start.outermost_sequence()->glyphs;
+  
   if(lines.length() == 0) 
     return { this, 0, 0 };
   
@@ -1006,113 +1012,109 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
     ++line;
   }
   
-  int start;
   if(line > 0)
-    start = lines[line - 1].end;
-  else
-    start = 0;
+    start.skip_to_glyph(lines[line - 1].end);
     
-  const uint16_t *buf = str.buffer();
-  
   pos.x -= indention_width(lines[line].indent);
   if(pos.x < 0) {
     *was_inside_start = false;
-    return { this, start, start };
+    int i = start.index_in_sequence(this);
+    return { this, i, i };
   }
   
   float line_start = 0;
-  if(start > 0)
-    line_start += glyphs[start - 1].right;
+  if(start.glyph_index() > 0)
+    line_start += glyphs[start.glyph_index() - 1].right;
     
-  while(start < lines[line].end) {
-    if(pos.x <= glyphs[start].right - line_start) {
+  ensure_boxes_valid();
+  
+  while(start.glyph_index() < lines[line].end) {
+    if(pos.x <= start.current_glyph().right - line_start) {
       float prev = 0;
-      if(start > 0)
-        prev = glyphs[start - 1].right;
+      if(start.glyph_index() > 0)
+        prev = glyphs[start.glyph_index() - 1].right;
         
-      if(is_placeholder(start)) {
+      if(start.current_sequence()->is_placeholder(start.text_index())) {
         *was_inside_start = true;
-        return { this, start, start + 1 };
+        return { start.current_sequence(), start.text_index(), start.text_index() + 1 };
       }
       
-      if(buf[start] == PMATH_CHAR_BOX) {
-        ensure_boxes_valid();
-        int b = 0;
-        while(b < boxes.length() && boxes[b]->index() < start)
-          ++b;
-          
-        float xoff = glyphs[start].x_offset;
-        if(pos.x > prev - line_start + xoff + boxes[b]->extents().width) {
+      if(auto box = start.current_box()) {
+        float xoff = start.current_glyph().x_offset;
+        if(pos.x > prev - line_start + xoff + box->extents().width) {
           *was_inside_start = false;
-          return { this, start + 1, start + 1 };
+          return { start.current_sequence(), start.text_index() + 1, start.text_index() + 1 };
         }
         
         if(pos.x < prev - line_start + xoff) {
           *was_inside_start = false;
-          return { this, start, start };
+          return { start.current_sequence(), start.text_index(), start.text_index() };
         }
         
-        return boxes[b]->mouse_selection(
+        return box->mouse_selection(
                  pos - Vector2F(prev - line_start + xoff, 0),
                  was_inside_start);
       }
       
-      if(line_start + pos.x > (prev + glyphs[start].right) / 2) {
+      if(line_start + pos.x > (prev + start.current_glyph().right) / 2) {
         *was_inside_start = false;
-        return { this, start + 1, start + 1 };
+        return { start.current_sequence(), start.text_index() + 1, start.text_index() + 1 };
       }
       
-      return { this, start, start };
+      return { start.current_sequence(), start.text_index(), start.text_index() };
     }
     
-    ++start;
+    start.move_next_glyph();
   }
   
-  if(start > 0) {
-    if(buf[start - 1] == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
-      --start;
+  if(start.glyph_index() > 0) {
+    auto prev = start;
+    prev.skip_glyphs(-1);
+    if(prev.current_char() == '\n' && (line == 0 || lines[line - 1].end != lines[line].end)) {
+      start = prev;
     }
-    else if(buf[start - 1] == ' ' && start < glyphs.length())
-      --start;
+    else if(prev.current_char() == ' ')
+      start = prev;
   }
   
-  return { this, start, start };
+  return { start.current_sequence(), start.text_index(), start.text_index() };
 }
 
-void MathSequence::child_transformation(
-  int             index,
-  cairo_matrix_t *matrix
-) {
-  if(lines.length() == 0 || index > glyphs.length())
+void MathSequence::child_transformation(int index, cairo_matrix_t *matrix) {
+  GlyphIterator iter = Impl(*this).glyph_iterator();
+  iter.skip_to_glyph_after_text_pos(this, index);
+  
+  Array<Line>      &lines  = iter.outermost_sequence()->lines;
+  Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
+  
+  if(lines.length() == 0)
     return;
     
   float x = 0;
   float y = 0;
   
   int l = 0;
-  while(l + 1 < lines.length() && lines[l].end <= index) {
+  while(l + 1 < lines.length() && lines[l].end <= iter.glyph_index()) {
     y += lines[l].descent + line_spacing() + lines[l + 1].ascent;
     ++l;
   }
   
   x += indention_width(lines[l].indent);
   
-  if(index < glyphs.length()) {
-    if(str[index] == PMATH_CHAR_BOX)
-      x += glyphs[index].x_offset;
+  if(iter.has_more_glyphs()) {
+    if(iter.current_box())
+      x += iter.current_glyph().x_offset;
   }
   
-  if(index > 0) {
-    x += glyphs[index - 1].right;
+  if(iter.glyph_index() > 0) {
+    x += glyphs[iter.glyph_index() - 1].right;
     
     if(l > 0 && lines[l - 1].end > 0) {
       x -= glyphs[lines[l - 1].end - 1].right;
-      
-//      if(lines[l - 1].end < glyphs.length())
-//        x -= glyphs[lines[l - 1].end].x_offset;
     }
   }
   
+  // TODO: handle case where this is an in-line box.
   cairo_matrix_translate(matrix, x, y);
 }
 
@@ -1823,6 +1825,12 @@ bool MathSequence::stretch_horizontal(Context &context, float width) {
 }
 
 int MathSequence::get_line(int index, int guide) {
+  GlyphIterator iter = Impl(*this).glyph_iterator();
+  iter.skip_to_glyph_after_text_pos(this, index);
+  
+  Array<Line>      &lines  = iter.outermost_sequence()->lines;
+  Array<GlyphInfo> &glyphs = iter.outermost_sequence()->glyphs;
+  
   if(guide >= lines.length())
     guide = lines.length() - 1;
   if(guide < 0)
@@ -1830,9 +1838,9 @@ int MathSequence::get_line(int index, int guide) {
     
   int line = guide;
   
-  if(line < lines.length() && lines[line].end > index) {
+  if(line < lines.length() && lines[line].end > iter.glyph_index()) {
     while(line > 0) {
-      if(lines[line - 1].end <= index)
+      if(lines[line - 1].end <= iter.glyph_index())
         return line;
         
       --line;
@@ -1842,7 +1850,7 @@ int MathSequence::get_line(int index, int guide) {
   }
   
   while(line < lines.length()) {
-    if(lines[line].end > index)
+    if(lines[line].end > iter.glyph_index())
       return line;
       
     ++line;
@@ -1852,6 +1860,8 @@ int MathSequence::get_line(int index, int guide) {
 }
 
 void MathSequence::get_line_heights(int line, float *ascent, float *descent) {
+  // TODO: Handle case where this is an in-line box.
+  
   if(length() == 0) {
     *ascent  = 0.75f * em;
     *descent = 0.25f * em;
@@ -1988,23 +1998,25 @@ void MathSequence::Impl::syntax_error(pmath_string_t code, int pos, void *_data,
   
   if(!data->sequence->get_style(ShowAutoStyles))
     return;
-    
-  const uint16_t *buf = pmath_string_buffer(&code);
-  int             len = pmath_string_length(code);
   
+  ArrayView<const uint16_t> buf = buffer_view(code);
   if(err) {
     if(pos < data->sequence->length()) {
       data->sequence->semantic_styles.find(pos).reset_range(GlyphStyleSyntaxError, 1);
     }
   }
-  else if(pos < len && buf[pos] == '\n') { // new line character interpreted as multiplication
+  else if(pos < buf.length() && buf[pos] == '\n') { // new line character interpreted as multiplication
     while(pos > 0 && buf[pos] == '\n')
       --pos;
       
-    if(pos >= 0
-        && pos < data->sequence->glyphs.length()
-        && data->sequence->glyphs.length() > pos) {
-      data->sequence->glyphs[pos].missing_after = true;
+    if( pos >= 0 && 
+        pos < data->sequence->glyphs.length() && 
+        data->sequence->glyphs.length() > pos
+    ) {
+      GlyphIterator iter = Impl(*data->sequence).glyph_iterator();
+      iter.skip_to_glyph_after_text_pos(data->sequence, pos);
+      if(iter.has_more_glyphs())
+        iter.current_glyph().missing_after = true;
     }
   }
 }
@@ -2181,6 +2193,10 @@ void MathSequence::Impl::generate_glyphs(Context &context) {
   const int len = self.length();
   while(pos < len)
     gen.resize_span(context, self.spans[pos], &pos, &box);
+}
+
+inline GlyphIterator MathSequence::Impl::glyph_iterator() {
+  return GlyphIterator{self}; // TODO: handle case that self is in-line in another sequence.
 }
 
 void MathSequence::Impl::stretch_all_vertical(Context &context) {
@@ -2598,43 +2614,40 @@ void MathSequence::Impl::split_lines(Context &context) {
 }
 
 void MathSequence::Impl::calculate_line_heights(Context &context) {
-  const uint16_t *buf = self.str.buffer();
   int line = 0;
-  int pos = 0;
-  int box = 0;
+  GlyphIterator iter{self};
   if(self.lines.length() > 1) {
     self.lines[0].ascent  = 0.75f * self.em;
     self.lines[0].descent = 0.25f * self.em;
   }
-  while(pos < self.glyphs.length()) {
-    if(pos == self.lines[line].end) {
+  while(iter.has_more_glyphs()) {
+    if(iter.glyph_index() == self.lines[line].end) {
       ++line;
       self.lines[line].ascent  = 0.75f * self.em;
       self.lines[line].descent = 0.25f * self.em;
     }
     
-    if(buf[pos] == PMATH_CHAR_BOX) {
-      self.boxes[box]->extents().bigger_y(&self.lines[line].ascent, &self.lines[line].descent);
-      ++box;
+    if(auto box = iter.current_box()) {
+      box->extents().bigger_y(&self.lines[line].ascent, &self.lines[line].descent);
     }
-    else if(self.glyphs[pos].is_normal_text) {
+    else if(iter.current_glyph().is_normal_text) {
       context.text_shaper->vertical_glyph_size(
         context,
-        buf[pos],
-        self.glyphs[pos],
+        iter.current_char(),
+        iter.current_glyph(),
         &self.lines[line].ascent,
         &self.lines[line].descent);
     }
     else {
       context.math_shaper->vertical_glyph_size(
         context,
-        buf[pos],
-        self.glyphs[pos],
+        iter.current_char(),
+        iter.current_glyph(),
         &self.lines[line].ascent,
         &self.lines[line].descent);
     }
     
-    ++pos;
+    iter.move_next_glyph();
   }
   
   if(line + 1 < self.lines.length()) {
