@@ -994,6 +994,24 @@ Box *MathSequence::move_vertical(
   return this;
 }
 
+void MathSequence::select_nearby_placeholder(int *start, int *end, float *index_rel_x) {
+  if(*start != *end)
+    return;
+  
+  if(is_placeholder(*start - 1)) {
+    --*start;
+    auto iter = Impl(*this).glyph_iterator();
+    iter.skip_forward_to_glyph_after_text_pos(this, *start);
+    
+    if(iter.has_more_glyphs())
+      *index_rel_x += iter.current_glyph().right;
+    if(iter.glyph_index() > 0)
+      iter.all_glyphs()[iter.glyph_index() - 1].right;
+  }
+  else if(is_placeholder(*start))
+    ++*end;
+}
+
 VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_start) {
   *was_inside_start = true;
   

@@ -1410,14 +1410,7 @@ void Document::move_vertical(
   new_sel.box = new_sel.box->move_vertical(direction, &best_index_rel_x, &new_sel.start, false);
   new_sel.end = new_sel.start;
   if(auto seq = dynamic_cast<MathSequence *>(new_sel.box)) {
-    if(seq->is_placeholder(new_sel.start - 1)) {
-      --new_sel.start;
-      best_index_rel_x += seq->glyph_array()[new_sel.start].right;
-      if(new_sel.start > 0)
-        best_index_rel_x -= seq->glyph_array()[new_sel.start - 1].right;
-    }
-    else if(seq->is_placeholder(new_sel.start))
-      ++new_sel.end;
+    seq->select_nearby_placeholder(&new_sel.start, &new_sel.end, &best_index_rel_x);
   }
   
   float tmp = best_index_rel_x;
@@ -3670,16 +3663,6 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
         auto_scroll = false;
         if(VolatileSelection box_range = sel_last.get_all())
           box_range.box->scroll_to(canvas, box_range);
-      }
-      
-      if(selection_length() == 1 && best_index_rel_x == 0) {
-        if(auto seq = dynamic_cast<MathSequence *>(selection_box())) {
-          best_index_rel_x = seq->glyph_array()[selection_end() - 1].right;
-          if(selection_start() > 0)
-            best_index_rel_x -= seq->glyph_array()[selection_start() - 1].right;
-            
-          best_index_rel_x /= 2;
-        }
       }
       
       canvas.translate(page_rect.x, page_rect.y);

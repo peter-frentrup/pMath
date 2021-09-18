@@ -62,6 +62,7 @@ namespace richmath {
         float            *index_rel_x,
         int              *index,
         bool              called_from_child) override;
+      void select_nearby_placeholder(int *start, int *end, float *index_rel_x);
         
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
