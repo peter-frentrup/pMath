@@ -1785,7 +1785,7 @@ void Win32Widget::apply_drop_description(DWORD effect, DWORD key_state, POINTL p
           desc_message = strings::Insert_placeholder;
         }
         else if(effect == DROPEFFECT_MOVE) {
-          if(drag_src.box == dst_grid && dst_rect.cols() == 0 || dst_rect.rows() == 0) {
+          if(drag_src.box == dst_grid && (dst_rect.cols() == 0 || dst_rect.rows() == 0)) {
             if(src_rect.cols() == dst_grid->cols() || src_rect.rows() == dst_grid->rows()) {
               desc_message = strings::Reorder_placeholder;
               may_be_singular = false;
