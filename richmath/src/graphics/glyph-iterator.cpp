@@ -182,6 +182,9 @@ void GlyphIterator::move_deepest_span_end() {
 }
 
 int GlyphIterator::index_in_sequence(MathSequence *parent, int fallback) {
+  if(!has_more_glyphs())
+    return fallback;
+  
   auto sub = current_sequence();
   if(parent == sub)
     return text_index();
