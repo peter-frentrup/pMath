@@ -1092,12 +1092,12 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
         float xoff = start.current_glyph().x_offset;
         if(pos.x > prev - line_start + xoff + box->extents().width) {
           *was_inside_start = false;
-          return { start.current_sequence(), start.text_index() + 1, start.text_index() + 1 };
+          return { start.current_sequence(), start.text_index(), start.text_index() + 1 };
         }
         
         if(pos.x < prev - line_start + xoff) {
           *was_inside_start = false;
-          return { start.current_sequence(), start.text_index(), start.text_index() };
+          return { start.current_sequence(), start.text_index() };
         }
         
         return box->mouse_selection(
@@ -1107,10 +1107,10 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
       
       if(line_start + pos.x > (prev + start.current_glyph().right) / 2) {
         *was_inside_start = false;
-        return { start.current_sequence(), start.text_index() + 1, start.text_index() + 1 };
+        return { start.current_sequence(), start.text_index(), start.text_index() + 1 };
       }
       
-      return { start.current_sequence(), start.text_index(), start.text_index() };
+      return { start.current_sequence(), start.text_index() };
     }
     
     start.move_next_glyph();
@@ -1126,7 +1126,10 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
       start = prev;
   }
   
-  return { start.current_sequence(), start.text_index(), start.text_index() };
+  if(start.has_more_glyphs())
+    return { start.current_sequence(), start.text_index() };
+  else
+    return { this, length() };
 }
 
 void MathSequence::child_transformation(int index, cairo_matrix_t *matrix) {
