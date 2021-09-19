@@ -3270,10 +3270,10 @@ void MathSequence::Impl::VerticalStretcher::stretch_nonspan_box(Box *box, GlyphH
     // Caution: can the previous glyph still belong to a different text buffer ?
     uint16_t prev_ch = iter.text_buffer()[iter.text_index() - 1];
     if(prev_ch == PMATH_CHAR_BOX) {
-      ARRAY_ASSERT(box->index() > 0);
       ARRAY_ASSERT(box->parent() == iter.current_sequence());
       
-      Box *prev_box = iter.current_sequence()->item(box->index() - 1);
+      int b = iter.current_sequence()->get_box(iter.text_index() - 1);
+      Box *prev_box = iter.current_sequence()->item(b);
       ARRAY_ASSERT(prev_box->index() == iter.text_index() - 1);
       
       subsup->stretch(context, prev_box->extents());
