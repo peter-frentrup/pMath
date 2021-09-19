@@ -415,13 +415,19 @@ float MathSequence::fill_weight() {
 }
 
 bool MathSequence::expand(const BoxSize &size) {
-  if(boxes.length() == 1 && glyphs.length() == 1 && str.length() == 1) {
-    if(boxes[0]->expand(size)) {
-      _extents = boxes[0]->extents();
-      glyphs[0].right  = _extents.width;
-      lines[0].ascent  = _extents.ascent;
-      lines[0].descent = _extents.descent;
-      return true;
+  if(inline_span())
+    return false;
+  
+  if(glyphs.length() == 1) {
+    GlyphIterator iter = Impl(*this).glyph_iterator();
+    if(auto box = iter.current_box()) {
+      if(box->expand(size)) {
+        _extents = box->extents();
+        glyphs[0].right  = _extents.width;
+        lines[0].ascent  = _extents.ascent;
+        lines[0].descent = _extents.descent;
+        return true;
+      }
     }
   }
   else {
