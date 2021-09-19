@@ -1,0 +1,96 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Echo", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Echo"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Echo"}, "ReferenceHyperlink"), 
+           " can output arbitrary mathematical expressions."}), "Notes"), 
+        Section(TextData({TemplateBox({"Echo"}, "ReferenceHyperlink"), 
+           " uses style \"Echo\" for the generated sections."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Echo an intermediate result during a calculation:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({{"Echo", "(", {"1", "+", "2"}, ")"}, 
+             SuperscriptBox("3")}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData("3"), "Echo", SectionGenerated -> True), 
+          Section(BoxData("27"), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use a label:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"Echo", "(", {{"1", "+", "2"}, ",", 
+                 ComplexStringBox("\"sum: \"")}, ")"}, SuperscriptBox("3")}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({" ", " ", ComplexStringBox("\"sum: \""), 
+                "3"}, "RowWithSeparators")), "Echo", 
+             SectionGenerated -> True), Section(BoxData("27"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           "Wrap the displayed expression without changing the return value:", 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               {"Echo", "(", {{"1", "+", "2"}, ",", 
+                 ComplexStringBox("\"sum: \""), ",", "Framed"}, ")"}, 
+               SuperscriptBox("3")}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(TemplateBox({" ", " ", ComplexStringBox("\"sum: \""), 
+                FrameBox("3")}, "RowWithSeparators")), "Echo", 
+             SectionGenerated -> True), Section(BoxData("27"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section(TextData({"In contrast, wrapping the ", 
+             StyleBox("expr", "Arg"), " will change the result:"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({{"Echo", "(", {"Framed", "(", {"1", "+", "2"}, ")"}, 
+                ")"}, SuperscriptBox("3")}), "Input", 
+             SectionLabel -> "in [2]:"), Section(BoxData(FrameBox("3")), 
+             "Echo", SectionGenerated -> True), 
+            Section(BoxData({FrameBox("3"), SuperscriptBox("3")}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Print"}, "ReferenceHyperlink"), 
+           " can output complex expressions:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {{"Echo", "(", {
+                {"(", {SqrtBox({"1", "+", SqrtBox("x")}), "-", 
+                  SqrtBox({"1", "+", "4"})}, ")"}, "/", "3"}, ")"}, 
+              SuperscriptBox("2")}, "//", "Expand"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData(FractionBox({SqrtBox({"1", "+", SqrtBox("x")}), "-", 
+              SqrtBox("5")}, "3")), "Echo", SectionGenerated -> True), 
+          Section(BoxData({FractionBox("2", "3"), "+", 
+             FractionBox(SqrtBox("x"), "9"), "-", 
+             FractionBox({"2", SqrtBox("5"), " ", 
+               SqrtBox({"1", "+", SqrtBox("x")})}, "9")}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({TemplateBox({"EchoFunction"}, "ReferenceHyperlink"), 
+           " allows to wrap the display without a label:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{{"EchoFunction", "(", "Framed", ")"}, "(", {
+               "1", "+", "2"}, ")"}, SuperscriptBox("3")}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData(FrameBox("3")), "Echo", 
+           SectionGenerated -> True), Section(BoxData("27"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Print"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"EchoFunction"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
