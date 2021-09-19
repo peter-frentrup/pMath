@@ -358,6 +358,8 @@ namespace richmath {
       
       Vector2F total_offest_to_index(int index);
       void selection_path(Context *opt_context, Canvas &canvas, int start, int end);
+      
+      void run_paint_hooks(Context &context, PaintHookManager &hooks);
   };
   
   Array<BreakPositionWithPenalty>  MathSequence::Impl::break_array(0);
@@ -568,19 +570,19 @@ void MathSequence::before_paint_inline(Context &context) {
 }
 
 void MathSequence::paint(Context &context) {
-  float x0, y0;
-  context.canvas().current_pos(&x0, &y0);
+  Point p0 = context.canvas().current_pos();
   
   Color default_color = context.canvas().get_color();
   SharedPtr<MathShaper> default_math_shaper = context.math_shaper;
   
   before_paint_inline(context);
   
+  context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+  
+  Impl(*this).run_paint_hooks(context, context.pre_paint_hooks);
+  
   {
-    context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
-    AutoCallPaintHooks auto_hooks(this, context);
-    
-    float y = y0;
+    float y = p0.y;
     if(lines.length() > 0)
       y -= lines[0].ascent;
     
@@ -614,7 +616,7 @@ void MathSequence::paint(Context &context) {
       bool have_style = false;
       bool have_slant = false;
       for(; line < lines.length() && y < clip_y2; ++line) {
-        float x_extra = x0 + indention_width(lines[line].indent);
+        float x_extra = p0.x + indention_width(lines[line].indent);
         
         if(iter.glyph_index() > 0)
           x_extra -= glyphs[iter.glyph_index() - 1].right;
@@ -723,7 +725,6 @@ void MathSequence::paint(Context &context) {
       
     }
     
-    // TODO: handle case where selection is an embedded in-line sequence
     if(!context.canvas().show_only_text) {
       MathSequence *inline_sel = nullptr;
       if(context.selection.get() == this) {
@@ -735,7 +736,7 @@ void MathSequence::paint(Context &context) {
       }
       
       if(inline_sel) {
-        context.canvas().move_to(x0, y0);
+        context.canvas().move_to(p0);
         
         Impl(*inline_sel).selection_path(
           &context,
@@ -747,6 +748,9 @@ void MathSequence::paint(Context &context) {
       }
     }
   }
+  
+  context.canvas().move_to(p0);
+  Impl(*this).run_paint_hooks(context, context.post_paint_hooks);
   
   context.canvas().set_color(default_color);
   context.math_shaper = default_math_shaper;
@@ -4078,6 +4082,14 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, in
     canvas.line_to(x7, y7);
     canvas.line_to(x8, y8);
     canvas.close_path();
+  }
+}
+
+void MathSequence::Impl::run_paint_hooks(Context &context, PaintHookManager &hooks) {
+  hooks.run(&self, context);
+  for(auto box : self.boxes) {
+    if(auto seq = box->as_inline_span())
+      hooks.run(seq, context);
   }
 }
 
