@@ -131,37 +131,44 @@ Document({
                 "\[SpanFromAbove]"}, {
                 FillBox(ComplexStringBox("\" + \""), StripOnInput -> False), 
                 "\[SpanFromAbove]"}}), "Grid")), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
-      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), SectionGroup({Section("Possible Issues", "ExampleSection"), 
         Section(TextData({TemplateBox({"Filler"}, "ReferenceHyperlink"), 
-           " may not expand to the whole line when it is wrapped in an ", 
-           TemplateBox({"InterpretationBox"}, "ReferenceHyperlink"), ", ", 
-           TemplateBox({"TagBox"}, "ReferenceHyperlink"), ", etc.:"}), 
+           " may not expand to the whole line when it is wrapped in a ", 
+           TemplateBox({"Style"}, "ReferenceHyperlink"), 
+           " or related low-level constructs (", 
+           TemplateBox({"StyleBox"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"TagBox"}, "ReferenceHyperlink"), ", etc.):"}), 
          "ExampleText"), SectionGroup({
           Section(
-           BoxData({"Row", "(", {
-              "{", {ComplexStringBox("\"Introduction\""), ",", {
-                "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
-               ComplexStringBox("\"1\"")}, "}"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
-          Section(BoxData(TemplateBox({ComplexStringBox("\"Introduction\""), 
-              FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
-              ComplexStringBox("\"1\"")}, "RowDefault")), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        Section(TextData({"Wrap the outer box in ", 
+           BoxData({
+             {"Row", "(", {"{", {ComplexStringBox("\"Introduction\""), ",", {
+                 "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
+                ComplexStringBox("\"1\"")}, "}"}, ")"}, ".", "Style", "(", 
+             "Red", ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(StyleBox(TemplateBox({ComplexStringBox("\"Introduction\""), 
+               FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
+               ComplexStringBox("\"1\"")}, "RowDefault"), 
+             FontColor -> RGBColor(1, 0, 0), StripOnInput -> False)), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section(TextData({"Wrap the outer box in ", 
            TemplateBox({"Filler"}, "ReferenceHyperlink"), " too:"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData({"Filler", "(", {
-              "Row", "(", {"{", {ComplexStringBox("\"Introduction\""), ",", {
-                 "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
-                ComplexStringBox("\"1\"")}, "}"}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [2]:"), 
+              {"Row", "(", {"{", {ComplexStringBox("\"Introduction\""), ",", {
+                  "Filler", "(", ComplexStringBox("\" . \""), ")"}, ",", 
+                 ComplexStringBox("\"1\"")}, "}"}, ")"}, ".", "Style", "(", 
+              "Red", ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
           Section(
-           BoxData(FillBox(TemplateBox({ComplexStringBox("\"Introduction\""), 
-               FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
-               ComplexStringBox("\"1\"")}, "RowDefault"), 
+           BoxData(
+            FillBox(
+             StyleBox(TemplateBox({ComplexStringBox("\"Introduction\""), 
+                FillBox(ComplexStringBox("\" . \""), StripOnInput -> False), 
+                ComplexStringBox("\"1\"")}, "RowDefault"), 
+              FontColor -> RGBColor(1, 0, 0), StripOnInput -> False), 
              StripOnInput -> False)), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [2]:")}, All)}, 1), 
+           SectionLabel -> "out [2]:")}, All)}, All), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Grid"}, "ReferenceHyperlink"), 
