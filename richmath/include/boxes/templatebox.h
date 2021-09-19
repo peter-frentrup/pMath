@@ -6,6 +6,9 @@
 
 
 namespace richmath {
+  class TemplateBoxImpl;
+  class TemplateBoxSlotImpl;
+  
   class TemplateBox final : public Observable, public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
       friend class TemplateBoxImpl;
