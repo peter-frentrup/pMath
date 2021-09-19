@@ -48,6 +48,12 @@ Box *OwnerBox::item(int i) {
   return _content;
 }
 
+void OwnerBox::resize_inline(Context &context) {
+  cx = 0;
+  cy = 0;
+  base::resize_inline(context);
+}
+
 void OwnerBox::resize_default_baseline(Context &context) {
   _content->resize(context);
   _extents = _content->extents();
@@ -62,6 +68,12 @@ void OwnerBox::adjust_baseline_after_resize(Context &context) {
 float OwnerBox::calculate_scaled_baseline(double scale) const {
   //return -_extents.descent * (1 - scale) + _extents.ascent * scale
   return (float)(-(double)_extents.descent + scale * (double)(_extents.ascent + _extents.descent));
+}
+
+void OwnerBox::before_paint_inline(Context &context) {
+  update_dynamic_styles(context);
+  
+  base::before_paint_inline(context);
 }
 
 void OwnerBox::paint(Context &context) {
