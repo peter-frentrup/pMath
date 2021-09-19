@@ -1056,35 +1056,40 @@ VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_star
   PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
   pango_layout_iter_free(iter);
   
-  int i, tr;
+  int i, trailing;
   pango_layout_line_x_to_index(
     line,
     pango_units_from_double(pos.x - line_x),
-    &i, &tr);
+    &i, &trailing);
     
   if(text.is_box_at(i)) {
+    int pango_x;
+    pango_layout_line_index_to_x(line, i, 0, &pango_x);
+    
     ensure_boxes_valid();
     
     int b = 0;
     while(boxes[b]->index() < i)
       ++b;
+    
+    Box *box = boxes[b];
+    
+    auto px = pos.x - (line_x + pango_units_to_double(pango_x));
+    if(trailing == 0 || px <= box->extents().width + 0.375f) {
+      pos.y -= line_y;
+      pos.x = px;
       
-    int pango_x;
-    pango_layout_line_index_to_x(line, i, 0, &pango_x);
-    
-    pos.y -= line_y;
-    pos.x -= line_x + pango_units_to_double(pango_x);
-    
-    return boxes[b]->mouse_selection(pos, was_inside_start);
+      return box->mouse_selection(pos, was_inside_start);
+    }
   }
   
   int x_pos;
-  pango_layout_line_index_to_x(line, i, tr > 0, &x_pos);
-  *was_inside_start = (0 <= pos.x && (tr == 0 || pango_units_to_double(x_pos) < pos.x));
+  pango_layout_line_index_to_x(line, i, trailing > 0, &x_pos);
+  *was_inside_start = (0 <= pos.x && (trailing == 0 || pango_units_to_double(x_pos) < pos.x));
   char *s     = text.buffer() + i;
   char *s_end = text.buffer() + text.length();
   
-  while(tr-- > 0)
+  while(trailing-- > 0)
     s = g_utf8_find_next_char(s, s_end);
     
   if(s)
