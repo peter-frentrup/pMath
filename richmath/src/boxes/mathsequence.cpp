@@ -195,7 +195,7 @@ namespace richmath {
           void append_all(Context &context, MathSequence &seq);
           void append_span(Context &context, MathSequence &span_seq, Span span, int *pos, int *box);
           void append_text_glyph_run(Context &context, MathSequence &seq, int pos, int count);
-          void append_box_glyphs(    Context &context, Box *box);
+          void append_box_glyphs(    Context &context, MathSequence &seq, int pos, Box *box);
           void append_empty_glyphs(MathSequence &seq, int pos, int count);
           
         private:
@@ -554,6 +554,13 @@ void MathSequence::colorize_scope(SyntaxState &state) {
   }
 }
 
+void MathSequence::before_paint_inline(Context &context) {
+  for(auto box : boxes) {
+    if(box->as_inline_span())
+      box->before_paint_inline(context);
+  }
+}
+
 void MathSequence::paint(Context &context) {
   float x0, y0;
   context.canvas().current_pos(&x0, &y0);
@@ -561,10 +568,7 @@ void MathSequence::paint(Context &context) {
   Color default_color = context.canvas().get_color();
   SharedPtr<MathShaper> default_math_shaper = context.math_shaper;
   
-  for(auto box : boxes) {
-    //if(box->as_inline_span())
-      box->paint_inline(context);
-  }
+  before_paint_inline(context);
   
   {
     context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
@@ -2811,7 +2815,7 @@ void MathSequence::Impl::GlyphGenerator::append_all(Context &context, MathSequen
 void MathSequence::Impl::GlyphGenerator::append_span(Context &context, MathSequence &span_seq, Span span, int *pos, int *box) {
   if(!span) {
     if(span_seq.str[*pos] == PMATH_CHAR_BOX) {
-      append_box_glyphs(context, span_seq.boxes[*box]);
+      append_box_glyphs(context, span_seq, *pos, span_seq.boxes[*box]);
       ++*box;
       ++*pos;
       return;
@@ -2854,7 +2858,7 @@ void MathSequence::Impl::GlyphGenerator::append_span(Context &context, MathSeque
     
     while(*pos <= end) {
       if(buf[*pos] == PMATH_CHAR_BOX) {
-        append_box_glyphs(context, span_seq.boxes[*box]);
+        append_box_glyphs(context, span_seq, *pos, span_seq.boxes[*box]);
         ++*box;
         ++*pos;
       }
@@ -2888,7 +2892,7 @@ void MathSequence::Impl::GlyphGenerator::append_span(Context &context, MathSeque
   }
 }
 
-void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, Box *box) {
+void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, MathSequence &seq, int pos, Box *box) {
   if(auto sub = box->as_inline_span()) {
     box->resize_inline(context);
     sub->em = owner.get_em();
@@ -2900,11 +2904,12 @@ void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, Box
   }
   
   box->resize(context);
-      
-  GlyphInfo gi {};
+  
+  append_empty_glyphs(seq, pos, 1);
+  GlyphInfo &gi = owner.glyphs[owner.glyphs.length() - 1];
+  
   gi.right = box->extents().width;
   gi.composed = 1;
-  owner.glyphs.add(gi);
 }
 
 void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context, MathSequence &seq, int pos, int count) {

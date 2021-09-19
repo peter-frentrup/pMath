@@ -33,7 +33,7 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual MathSequence *as_inline_span() override { return content(); }
-      virtual void paint_inline(Context &context) override;
+      virtual void before_paint_inline(Context &context) override;
       virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;

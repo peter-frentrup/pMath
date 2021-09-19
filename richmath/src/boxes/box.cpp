@@ -1,4 +1,5 @@
 #include <boxes/box.h>
+#include <boxes/mathsequence.h>
 
 #include <eval/application.h>
 
@@ -238,6 +239,11 @@ void Box::colorize_scope(SyntaxState &state) {
     item(i)->colorize_scope(state);
 }
 
+void Box::before_paint_inline(Context &context) {
+  for(int i = 0; i < count(); ++i)
+    item(i)->before_paint_inline(context);
+}
+
 VolatileSelection Box::get_highlight_child(const VolatileSelection &src) {
   if(auto par = parent())
     return par->get_highlight_child(src);
@@ -435,6 +441,10 @@ VolatileSelection Box::dynamic_to_literal(int start, int end) {
 }
 
 bool Box::request_repaint_all() {
+  if(auto seq = as_inline_span()) {
+    if(seq->inline_span()) 
+      return seq->request_repaint_all();
+  }
   return request_repaint(_extents.to_rectangle());
 }
 

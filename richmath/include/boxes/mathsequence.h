@@ -43,6 +43,7 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
       virtual void resize(Context &context) override;
       virtual void colorize_scope(SyntaxState &state) override;
+      virtual void before_paint_inline(Context &context) override;
       virtual void paint(Context &context) override;
       
       virtual void selection_path(Canvas &canvas,   int start, int end) override;
@@ -121,6 +122,8 @@ namespace richmath {
       float indention_width(int i);
       float font_size() { return em; }
       float line_spacing() { return 0.3f * em; }
+      
+      bool inline_span() { return get_flag(InlineSpanBit); }
     
     private:
       enum {
@@ -139,7 +142,6 @@ namespace richmath {
       void spans_invalid(bool value) { change_flag(SpansInvalidBit, value); }
       bool auto_indent() {         return get_flag(AutoIndentBit); }
       void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
-      bool inline_span() {         return get_flag(InlineSpanBit); }
       void inline_span(bool value) {   change_flag(InlineSpanBit, value); }
       
     private:

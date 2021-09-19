@@ -9,6 +9,7 @@ namespace richmath {
   class TemplateBox final : public Observable, public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
       friend class TemplateBoxImpl;
+      using Impl = TemplateBoxImpl;
       
     public:
       TemplateBox();
@@ -35,6 +36,7 @@ namespace richmath {
         int              *index,        // [in/out], -1 if called from parent
         bool              called_from_child) override;
       
+      virtual void before_paint_inline(Context &context) override;
       virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
@@ -61,6 +63,8 @@ namespace richmath {
       
       bool is_content_loaded() {         return get_flag(IsContentLoadedBit); }
       void is_content_loaded(bool value) {   change_flag(IsContentLoadedBit, value); }
+      
+      void base_after_insertion() { base::after_insertion(); }
     
     public:
       Expr arguments;
@@ -73,6 +77,7 @@ namespace richmath {
   class TemplateBoxSlot final : public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
       friend class TemplateBoxSlotImpl;
+      using Impl = TemplateBoxSlotImpl;
       
     public:
       TemplateBoxSlot();
@@ -103,6 +108,7 @@ namespace richmath {
       
       virtual float fill_weight() override;
       virtual void invalidate() override;
+      virtual void before_paint_inline(Context &context) override;
       virtual void paint_content(Context &context) override;
       
       virtual void on_exit() override;
@@ -128,6 +134,8 @@ namespace richmath {
       void is_content_loaded(bool value) {   change_flag(IsContentLoadedBit, value); }
       bool has_changed_content() {       return get_flag(HasChangedContentBit); }
       void has_changed_content(bool value) { change_flag(HasChangedContentBit, value); }
+    
+      void base_after_insertion() { base::after_insertion(); }
     
     private:
       int _argument;

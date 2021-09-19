@@ -42,6 +42,8 @@ namespace richmath {
     public:
       TemplateBoxImpl(TemplateBox &_self);
       
+      void ensure_content_loaded();
+      
       void load_content(Expr dispfun);
       static bool is_valid_display_function(Expr dispfun);
       Expr display_function_body(Expr dispfun);
@@ -60,6 +62,7 @@ namespace richmath {
       static TemplateBox *find_owner(Box *box, bool same_document_only) { return find_owner_or_self(box->parent(), same_document_only); }
       static TemplateBox *find_owner_or_self(Box *box, bool same_document_only = false);
       
+      void ensure_content_loaded();
       void reload_content();
       Expr get_content();
       
@@ -316,6 +319,11 @@ void TemplateBox::resize_default_baseline(Context &context) {
   }
 }
 
+void TemplateBox::before_paint_inline(Context &context) {
+  Impl(*this).ensure_content_loaded();
+  base::before_paint_inline(context);
+}
+
 void TemplateBox::paint_content(Context &context) {
 //  if(must_resize) {
 //    context.canvas().save();
@@ -326,21 +334,13 @@ void TemplateBox::paint_content(Context &context) {
 
   base::paint_content(context);
   
-  Expr dispfun = get_own_style(DisplayFunction);
-  if(!is_content_loaded() || dispfun != _cached_display_function) {
-    TemplateBoxImpl(*this).load_content(dispfun);
-    is_content_loaded(true);
-    if(find_parent<Document>(false))
-      base::after_insertion();
-      
-    invalidate();
-  }
+  Impl(*this).ensure_content_loaded();
 }
 
 void TemplateBox::after_insertion() {
   Expr dispfun = get_own_style(DisplayFunction);
   if(!is_content_loaded() || dispfun != _cached_display_function) {
-    TemplateBoxImpl(*this).load_content(dispfun);
+    Impl(*this).load_content(dispfun);
     is_content_loaded(true);
   }
   
@@ -403,7 +403,7 @@ void TemplateBox::on_mouse_enter() {
   if(auto doc = find_parent<Document>(false)) {
     Expr tooltip;
     
-    if(TemplateBoxImpl::is_valid_display_function(_cached_display_function)) {
+    if(Impl::is_valid_display_function(_cached_display_function)) {
       tooltip = { get_own_style(Tooltip) };
       
       if(tooltip.is_null() || tooltip == richmath_System_None)
@@ -426,7 +426,7 @@ void TemplateBox::on_mouse_enter() {
 
 void TemplateBox::on_mouse_exit() {
   if(auto doc = find_parent<Document>(false)) {
-    if(TemplateBoxImpl::is_valid_display_function(_cached_display_function)) {
+    if(Impl::is_valid_display_function(_cached_display_function)) {
       Expr tooltip { get_own_style(Tooltip) };
       
       if(tooltip.is_null() || tooltip == richmath_System_None)
@@ -438,7 +438,7 @@ void TemplateBox::on_mouse_exit() {
 }
 
 void TemplateBox::reset_argument(int index, Expr new_arg) {
-  TemplateBoxImpl(*this).reset_argument(index, std::move(new_arg));
+  Impl(*this).reset_argument(index, std::move(new_arg));
 }
 
 Expr TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item) {
@@ -468,15 +468,15 @@ TemplateBoxSlot::TemplateBoxSlot()
 }
 
 TemplateBox *TemplateBoxSlot::find_owner() {
-  return TemplateBoxSlotImpl::find_owner(this, false);
+  return Impl::find_owner(this, false);
 }
 
 TemplateBox *TemplateBoxSlot::find_owner_in_same_document() {
-  return TemplateBoxSlotImpl::find_owner(this, true);
+  return Impl::find_owner(this, true);
 }
 
 Expr TemplateBoxSlot::prepare_boxes(Expr boxes) {
-  return TemplateBoxSlotImpl::prepare_boxes(boxes);
+  return Impl::prepare_boxes(boxes);
 }
 
 bool TemplateBoxSlot::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -617,39 +617,38 @@ void TemplateBoxSlot::resize_default_baseline(Context &context) {
   }
 }
 
+void TemplateBoxSlot::before_paint_inline(Context &context) {
+  Impl(*this).ensure_content_loaded();
+  base::before_paint_inline(context);
+}
+
 void TemplateBoxSlot::paint_content(Context &context) {
   base::paint_content(context);
-  
-  if(!is_content_loaded()) {
-    invalidate();
-    TemplateBoxSlotImpl(*this).reload_content();
-    if(find_parent<Document>(false))
-      base::after_insertion();
-  }
+  Impl(*this).ensure_content_loaded();
 }
 
 void TemplateBoxSlot::after_insertion() {
   if(!is_content_loaded()) 
-    TemplateBoxSlotImpl(*this).reload_content();
+    Impl(*this).reload_content();
   
   base::after_insertion();
 }
 
 void TemplateBoxSlot::on_exit() {
   if(has_changed_content())
-    TemplateBoxSlotImpl(*this).assign_content();
+    Impl(*this).assign_content();
 }
 
 void TemplateBoxSlot::on_finish_editing() {
   if(has_changed_content())
-    TemplateBoxSlotImpl(*this).assign_content();
+    Impl(*this).assign_content();
 }
 
 Expr TemplateBoxSlot::get_current_value_of_TemplateSlotCount(FrontEndObject *obj, Expr item) {
   if(!item.is_string())
     return Symbol(richmath_System_DollarFailed);
   
-  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
   if(!tb)
     return Symbol(richmath_System_DollarFailed);
   
@@ -663,7 +662,7 @@ Expr TemplateBoxSlot::get_current_value_of_HeldTemplateSlot(FrontEndObject *obj,
   if(item[1] != strings::HeldTemplateSlot)
     return Symbol(richmath_System_DollarFailed);
   
-  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
   if(!tb)
     return Symbol(richmath_System_DollarFailed);
   
@@ -685,7 +684,7 @@ Expr TemplateBoxSlot::get_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   if(item[1] != richmath_System_TemplateSlot)
     return Symbol(richmath_System_DollarFailed);
   
-  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
   if(!tb)
     return Symbol(richmath_System_DollarFailed);
   
@@ -710,7 +709,7 @@ bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
   if(item[1] != richmath_System_TemplateSlot)
     return false;
   
-  TemplateBox *tb = TemplateBoxSlotImpl::find_owner_or_self(dynamic_cast<Box*>(obj));
+  TemplateBox *tb = Impl::find_owner_or_self(dynamic_cast<Box*>(obj));
   if(!tb)
     return false;
   
@@ -741,6 +740,18 @@ bool TemplateBoxSlot::put_current_value_of_TemplateSlot(FrontEndObject *obj, Exp
 TemplateBoxImpl::TemplateBoxImpl(TemplateBox &_self)
   : self(_self)
 {
+}
+
+void TemplateBoxImpl::ensure_content_loaded() {
+  Expr dispfun = self.get_own_style(DisplayFunction);
+  if(!self.is_content_loaded() || dispfun != self._cached_display_function) {
+    load_content(dispfun);
+    self.is_content_loaded(true);
+    if(self.find_parent<Document>(false))
+      self.base_after_insertion();
+      
+    self.invalidate();
+  }
 }
 
 void TemplateBoxImpl::load_content(Expr dispfun) {
@@ -844,6 +855,15 @@ TemplateBox *TemplateBoxSlotImpl::find_owner_or_self(Box *box, bool same_documen
     box = box->parent();
   }
   return nullptr;
+}
+
+void TemplateBoxSlotImpl::ensure_content_loaded() {
+  if(!self.is_content_loaded()) {
+    self.invalidate();
+    reload_content();
+    if(self.find_parent<Document>(false))
+      self.base_after_insertion();
+  }
 }
 
 void TemplateBoxSlotImpl::reload_content() {

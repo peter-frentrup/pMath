@@ -248,7 +248,7 @@ namespace richmath {
       virtual void resize_inline(Context &context) {}
       virtual void resize(Context &context) = 0;
       virtual void colorize_scope(SyntaxState &state);
-      virtual void paint_inline(Context &context) {}
+      virtual void before_paint_inline(Context &context);
       virtual void paint(Context &context) = 0;
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src);
       virtual void selection_path(Canvas &canvas, int start, int end);
