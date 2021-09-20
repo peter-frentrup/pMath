@@ -3279,29 +3279,22 @@ void MathSequence::Impl::VerticalStretcher::stretch_nonspan_box(Box *box, GlyphH
 
   auto subsup = dynamic_cast<SubsuperscriptBox*>(box);
   
-  if(subsup && iter.glyph_index() > 0 && iter.text_index() > 0) {
-    // Caution: can the previous glyph still belong to a different text buffer ?
-    uint16_t prev_ch = iter.text_buffer()[iter.text_index() - 1];
-    if(prev_ch == PMATH_CHAR_BOX) {
-      ARRAY_ASSERT(box->parent() == iter.current_sequence());
-      
-      int b = iter.current_sequence()->get_box(iter.text_index() - 1);
-      Box *prev_box = iter.current_sequence()->item(b);
-      ARRAY_ASSERT(prev_box->index() == iter.text_index() - 1);
-      
+  if(subsup && iter.glyph_index() > 0) {
+    GlyphIterator prev = iter;
+    prev.move_by_glyphs(-1);
+    
+    if(auto prev_box = prev.current_box()) {
       subsup->stretch(context, prev_box->extents());
     }
     else {
       BoxSize size;
       
-      GlyphInfo &prev_glyph = *(&iter.current_glyph() - 1);
-      
       context.math_shaper->vertical_glyph_size(
-        context, prev_ch, prev_glyph,
+        context, prev.current_char(), prev.current_glyph(),
         &size.ascent, &size.descent);
         
       subsup->stretch(context, size);
-      subsup->adjust_x(context, prev_ch, prev_glyph);
+      subsup->adjust_x(context, prev.current_char(), prev.current_glyph());
     }
     
     subsup->extents().bigger_y(&heights.ascent,      &heights.descent);
