@@ -470,10 +470,20 @@ bool Box::visible_rect(RectangleF &rect, Box *top_most) {
   if(this == top_most)
     return true;
   
-  if(!_extents.to_rectangle().overlaps(rect, 0.0001))
-    return false;
+  if(auto seq = as_inline_span()) {
+    if(seq->inline_span()) { // i.e. layout is up to date.
+      // seq is a child of this box, but we avoid infinite recursion because 
+      // MathSequence::visible_rect() checks for inline_span().
+      return seq->visible_rect(rect, top_most);
+    }
+  }
   
-  if(auto par = parent()) {
+  if(!_extents.to_rectangle().overlaps(rect, 0.0001)) {
+    // Note that inline-span boxes have empty/invalid _extents, but these are checked above.
+    return false;
+  }
+  
+  if(auto par = parent()) { // TODO: simplify for inline_span MathSequence ...
     cairo_matrix_t matrix;
     cairo_matrix_init_identity(&matrix);
     transformation(par, &matrix);

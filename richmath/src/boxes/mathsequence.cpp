@@ -1207,6 +1207,27 @@ bool MathSequence::request_repaint_range(int start, int end) {
   return result;
 }
 
+bool MathSequence::visible_rect(RectangleF &rect, Box *top_most) {
+  if(inline_span()) {
+    MathSequence &outer = Impl(*this).outermost_span();
+    
+    if(top_most && outer.is_parent_of(top_most)) {
+      cairo_matrix_t matrix;
+      cairo_matrix_init_identity(&matrix);
+      transformation(top_most, &matrix);
+      Canvas::transform_rect_inline(matrix, rect);
+      return top_most->visible_rect(rect, top_most);
+    }
+    
+    Vector2F delta = Impl(*this).total_offest_to_index(0);
+    
+    rect+= delta;
+    return outer.visible_rect(rect, top_most);
+  }
+  
+  return base::visible_rect(rect, top_most);
+}
+
 VolatileSelection MathSequence::normalize_selection(int start, int end) {
   if(start <= 0)
     start = 0;
