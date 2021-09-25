@@ -57,6 +57,11 @@ void AbstractDynamicBox::reset_style() {
   style->clear();
 }
 
+void AbstractDynamicBox::before_paint_inline(Context &context) {
+  ensure_init();
+  base::before_paint_inline(context);
+}
+
 void AbstractDynamicBox::paint(Context &context) {
   ensure_init();
   base::paint(context);
@@ -164,6 +169,7 @@ void DynamicBox::before_paint_inline(Context &context) {
   if(must_resize()) {
     //context.canvas().save();
     //base::resize(context);
+    invalidate();
     must_resize(false);
     //context.canvas().restore();
   }

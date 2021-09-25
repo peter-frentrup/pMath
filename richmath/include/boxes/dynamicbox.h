@@ -13,6 +13,7 @@ namespace richmath {
       
       virtual void reset_style() override;
       
+      virtual void before_paint_inline(Context &context) override;
       virtual void paint(Context &context) override;
       
     protected:
