@@ -2379,9 +2379,9 @@ HANDLE Win32ControlPainter::get_control_theme(
           case ContainerType::VerticalSliderRightArrowButton:  *theme_part = 8; break; // TKP_THUMBRIGHT
         }
         switch(state) {
+          case ControlState::Hot:
           case ControlState::Normal:         *theme_state = 1; break;
           case ControlState::Pressed:        *theme_state = 4; break;
-          case ControlState::Hot:
           case ControlState::Hovered:        *theme_state = 2; break;
           case ControlState::PressedHovered: *theme_state = 3; break;
           case ControlState::Disabled:       *theme_state = 5; break;
@@ -2575,7 +2575,8 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
     
     switch(state) {
       case ControlState::Normal:         canvas.set_color(accent); break;
-      case ControlState::Hovered:        canvas.set_color(Color::blend(accent, Color::White, 0.25)); break;
+      case ControlState::Hovered:
+      case ControlState::Hot:            canvas.set_color(Color::blend(accent, Color::White, 0.25)); break;
       case ControlState::Pressed:        
       case ControlState::PressedHovered: canvas.set_color(Color::blend(accent, Color::Black, 0.25)); break;
       case ControlState::Disabled:       canvas.set_color(Color::Black, 0.5); break;
@@ -2590,6 +2591,7 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
         canvas.set_color(fg, 0.4);
         canvas.fill_preserve();
         break;
+      default: break;
     }
     
     rect.grow(-0.75, -0.75);
@@ -2598,7 +2600,8 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
     
     switch(state) {
       case ControlState::Normal:         canvas.set_color(fg, 0.6); break;
-      case ControlState::Hovered:        canvas.set_color(fg, 0.8); break;
+      case ControlState::Hovered:
+      case ControlState::Hot:            canvas.set_color(fg, 0.8); break;
       case ControlState::Pressed:        
       case ControlState::PressedHovered: canvas.set_color(fg); break;
       case ControlState::Disabled:       canvas.set_color(fg, 0.5); break;

@@ -206,9 +206,12 @@ ControlState SliderBox::calc_state(Context &context) {
   if(mouse_left_down())
     return ControlState::PressedHovered;
     
-  if(mouse_inside() && mouse_over_thumb())
-    return ControlState::Hovered;
-    
+  if(mouse_inside()) {
+    if(mouse_over_thumb())
+      return ControlState::Hovered;
+    return ControlState::Hot;
+  }
+  
   return ControlState::Normal;
 }
 

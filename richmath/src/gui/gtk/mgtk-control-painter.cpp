@@ -781,6 +781,17 @@ GtkStateFlags MathGtkControlPainter::get_state_flags(ControlContext &control, Co
         }
       } break;
     
+    case ContainerType::HorizontalSliderThumb:
+    case ContainerType::HorizontalSliderUpArrowButton:
+    case ContainerType::HorizontalSliderDownArrowButton:
+    case ContainerType::VerticalSliderChannel:
+    case ContainerType::VerticalSliderThumb:
+    case ContainerType::VerticalSliderLeftArrowButton:
+    case ContainerType::VerticalSliderRightArrowButton: {
+        if(state == ControlState::Hot) // the mouse is somewhere else over the slider
+          state = ControlState::Normal;
+      } break;
+       
     case ContainerType::ListViewItemSelected: {
         switch(state) {
           case ControlState::Disabled:       return (GtkStateFlags)( result | (int)GTK_STATE_FLAG_SELECTED | (int)GTK_STATE_FLAG_INSENSITIVE );
