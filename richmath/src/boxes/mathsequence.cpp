@@ -1164,10 +1164,14 @@ void MathSequence::child_transformation(int index, cairo_matrix_t *matrix) {
 bool MathSequence::request_repaint(const RectangleF &rect) {
   if(inline_span()) {
     MathSequence &outer = Impl(*this).outermost_span();
-    
-    Vector2F delta = Impl(*this).total_offest_to_index(0);
-    
-    return outer.request_repaint(rect + delta);
+    if(&outer != this) {
+      // inconsitent inline_span() flag. Probably this box was just edited.
+      inline_span(false);
+      
+      Vector2F delta = Impl(*this).total_offest_to_index(0);
+      
+      return outer.request_repaint(rect + delta);
+    }
   }
   
   return base::request_repaint(rect);
@@ -2312,6 +2316,7 @@ inline MathSequence &MathSequence::Impl::parent_outermost_span() {
     }
   }
   
+  //pmath_debug_print("[inconstistent inline_span() flag]\n");
   return self;
 }
 
