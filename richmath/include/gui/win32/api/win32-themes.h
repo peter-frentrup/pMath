@@ -71,7 +71,7 @@ namespace richmath {
         // undocumented, since Windows 10, Redstone 5 (1809, November 2018, Build 17763):
         DWMWA_USE_IMMERSIVE_DARK_MODE_old = 19,
         
-        // undocumented, since 1909 (build 18363) (? net checked, but not yet available in 1903, i.e. build 18362):
+        // Since 1909 (build 18363) (? net checked, but not yet available in 1903, i.e. build 18362):
         DWMWA_USE_IMMERSIVE_DARK_MODE_new = 20,
         
         // Windows 11:
@@ -100,7 +100,7 @@ namespace richmath {
         ThemeAttributes = 10,
         NCRenderingExiled = 11,
         NCAdornmentInfo = 12,
-        ExcludedFromLivePreview = 13,
+        ExcludedFromLivePreview = 13, // BOOL
         VideoOverlayActive = 14,
         ForceActiveWindowAppearance = 15,
         DisallowPeek = 16,
@@ -119,6 +119,11 @@ namespace richmath {
         ExcludeFromDDA = 24,
         PassiveUpdateMode = 25,
         UseDarkModeColors = 26,
+        
+        // Since Windows 11 (?, because of "corner" ...):
+        CornerStyle = 27,
+        PartColor = 28,
+        DisableMoveSizeFeedback = 29,
       };
       
       struct WINCOMPATTRDATA {
@@ -389,6 +394,7 @@ namespace richmath {
       static bool is_windows_10_20H1_or_newer() { return Win32Themes::check_osversion(10, 0, 19041); }
       static bool is_windows_10_20H2_or_newer() { return Win32Themes::check_osversion(10, 0, 19042); }
       static bool is_windows_10_21H1_or_newer() { return Win32Themes::check_osversion(10, 0, 19043); }
+      static bool is_windows_11_or_newer() {      return Win32Themes::check_osversion(10, 0, 22000); }
       
       static DWORD get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active);
       
