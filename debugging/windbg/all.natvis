@@ -697,6 +697,20 @@
 		</Expand>
 	</Type>
 	
+	<Type Name="richmath::TintedPtr&lt;*&gt;">
+		<DisplayString Condition="_data == 0">nullptr</DisplayString>
+		<DisplayString Condition="(_data &amp; 1) == 0">{*($T1*)_data}</DisplayString>
+		<DisplayString Condition="(_data &amp; 1) == 1">{*($T2*)((_data / 2) * 2)}</DisplayString>
+		<Expand>
+			<Synthetic Name="kind">
+				<DisplayString Condition="(_data &amp; 1) == 0">normal ({"$T1",sb})</DisplayString>
+				<DisplayString Condition="(_data &amp; 1) == 0">tinted ({"$T2",sb})</DisplayString>
+			</Synthetic>
+			<ExpandedItem Condition="(_data &amp; 1) == 0 &amp;&amp; _data != 0">*($T1*)_data</ExpandedItem>
+			<ExpandedItem Condition="(_data &amp; 1) != 0">*($T2*)((_data / 2) * 2)</ExpandedItem>
+		</Expand>
+	</Type>
+	
 	<Type Name="richmath::SpanExpr">
 		<DisplayString Condition="_sequence != 0 &amp;&amp; (_sequence-&gt;str._obj.s.tag == 0x7FF30000 || _sequence-&gt;str._obj.s.tag == 0x7FF40000 || _sequence-&gt;str._obj.s.tag == 0x7FF50000)"
 		>[{_start} .. {_end}]: {(wchar_t*)_sequence-&gt;str._obj.s.u.as_chars + _start,[_end-_start+1]na}</DisplayString>
