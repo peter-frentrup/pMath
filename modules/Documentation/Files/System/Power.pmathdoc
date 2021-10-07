@@ -1,0 +1,186 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Power (^)", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Power"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         "Mathematical function suitable for numeric and symbolic \
+         computations.", "Notes"), 
+        Section(TextData({"For certain special arguments, ", 
+           TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " automatically evaluates to exact values."}), "Notes"), 
+        Section(TextData({"For complex numbers ", StyleBox("x", "Arg"), 
+           " and ", StyleBox("y", "Arg"), ", ", 
+           TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " gives the pricipal value of ", {
+            "\[ExponentialE]", SuperscriptBox({
+              "y", " ", {"log", "(", "x", ")"}})}, "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " can be evaluated to arbitrary numerical precision."}), "Notes"), 
+        Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " automatically threads over lists."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        SectionGroup({Section(BoxData({"2", "^", "100"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData("1267650600228229401496703205376"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Enter as a subscript with ", 
+             TemplateBox({"^"}, "ControlKeyEvent"), ":"}), "ExampleText"), 
+          SectionGroup({Section(BoxData({"2", SuperscriptBox("100")}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("1267650600228229401496703205376"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Enter in ", TemplateBox({"FullForm"}, 
+              "ReferenceHyperlink"), ":"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Power", "(", {"2", ",", "100"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData("1267650600228229401496703205376"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+             " automatically threads over lists:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({{"{", {"1", ",", "2", ",", "3", ",", "4"}, "}"}, 
+               "^", "2"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"1", ",", "4", ",", "9", ",", "16"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), Section("Using a list of exponents:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"3", "^", {"{", {"1", ",", "2", ",", "3", ",", "4"}, 
+                "}"}}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {"3", ",", "9", ",", "27", ",", "81"}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All), 
+          Section("With lists for base and exponent:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({{"{", {"x", ",", "y", ",", "z"}, "}"}, "^", {
+                "{", {"a", ",", "b", ",", "c"}, "}"}}), "Input", 
+             SectionLabel -> "in [3]:"), 
+            Section(BoxData({"{", {{"x", SuperscriptBox("a")}, ",", {
+                 "y", SuperscriptBox("b")}, ",", {"z", SuperscriptBox("c")}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [3]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " automatically simplifies exact values:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"24", "^", {"(", {"1", "/", "3"}, ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"2", {"3", SuperscriptBox({"1", "/", "3"})}}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Get a numerical approximation:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"N", "(", {"24", "^", {"(", {"1", "/", "3"}, ")"}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("2.8844991406148166`"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section("24.0 is treated immediately as an approximate number:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"24.0", "^", {"(", {"1", "/", "3"}, ")"}}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData("2.8844991406148166`"), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+             " threads elementwise over lists and matrices:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"(", GridBox({{"1", "2"}, {"x", "3"}}), ")"}, 
+               SuperscriptBox("4")}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {{"{", {"1", ",", "16"}, "}"}, ",", {
+                 "{", {{"x", SuperscriptBox("4")}, ",", "81"}, "}"}}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section("Equivalent forms for square roots:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"{", {{"x", "^", {"(", {"1", "/", "2"}, ")"}}, ",", 
+              {"Sqrt", "(", "x", ")"}, ",", SqrtBox("x")}, "}"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {SqrtBox("x"), ",", SqrtBox("x"), ",", 
+              SqrtBox("x")}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Powers of roots are automatically simplified:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"(", {"z", "^", {"(", {"1", "/", "3"}, ")"}}, 
+                ")"}, "^", "3"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData("z"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Roots of powers cannot automatically be simplified:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"(", {"z", "^", "3"}, ")"}, "^", {
+                "(", {"1", "/", "3"}, ")"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({{"z", SuperscriptBox("3")}, 
+               SuperscriptBox({"1", "/", "3"})}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({{"(", {{"(", {"-", "1"}, ")"}, "^", "3"}, ")"}, 
+               "^", {"(", {"1", "/", "3"}, ")"}}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({{"(", {"-", "1"}, ")"}, 
+               SuperscriptBox({"1", "/", "3"})}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+           " computes principal roots:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"(", {"-", "1"}, ")"}, "^", {
+              "(", {"1", "/", "3"}, ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({{"(", {"-", "1"}, ")"}, 
+             SuperscriptBox({"1", "/", "3"})}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"N", "(", {"$History", "(", {"-", "1"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"0.5`", "+", {"0.86602540378443849`", " ", 
+              "\[ImaginaryI]"}}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(
+           TextData({"Use ", TemplateBox({"Surd"}, "ReferenceHyperlink"), 
+             " to compute real-valued roots instead:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Surd", "(", {{"-", "1"}, ",", "3"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"-", "1"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Exp"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Log"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Surd"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
