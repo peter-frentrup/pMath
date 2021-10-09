@@ -634,6 +634,7 @@ PMATH_PRIVATE void _pmath_thread_free(pmath_thread_t thread) {
   
   if(!pmath_same(thread->exception, PMATH_UNDEFINED)) {
     (void)pmath_atomic_fetch_add(&_pmath_abort_reasons, -1);
+    pmath_unref(thread->exception);
   }
   
   //free_stack(thread->stack_info);
