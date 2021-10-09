@@ -1018,7 +1018,7 @@ void pmath_symbol_remove(pmath_symbol_t symbol) {
     pmath_symbol_set_attributes(
       symbol,
       attr | PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_REMOVED);
-    _pmath_clear(symbol, TRUE);
+    _pmath_clear(symbol, PMATH_CLEAR_ALL_RULES);
     
     pmath_unref(symbol);
   }

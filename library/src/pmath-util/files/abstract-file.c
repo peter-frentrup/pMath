@@ -835,7 +835,7 @@ pmath_bool_t pmath_file_close(pmath_t file) {
          pmath_custom_has_destructor(custom, destroy_text_file)))
     {
       pmath_symbol_set_attributes(file, PMATH_SYMBOL_ATTRIBUTE_TEMPORARY);
-      success = _pmath_clear(file, TRUE);
+      success = _pmath_clear(file, PMATH_CLEAR_ALL_RULES);
     }
     
     pmath_unref(custom);

@@ -165,9 +165,10 @@ PMATH_PRIVATE pmath_t builtin_internal_tryevaluatesecured(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_function(     pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_call_function(pmath_expr_t expr);
 
-PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_local(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_with( pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_block(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_internal_blockuserdefinitions(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_local(                        pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_with(                         pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_if(       pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_do(       pmath_expr_t expr);
@@ -834,6 +835,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Private_SetValid,             builtin_private_setvalid)
   
   BIND_DOWN(   pmath_Internal_AbortMessage,                 builtin_internal_abortmessage)
+  BIND_DOWN(   pmath_Internal_BlockUserDefinitions,         builtin_internal_blockuserdefinitions)
   BIND_DOWN(   pmath_Internal_CopySign,                     builtin_internal_copysign)
   BIND_DOWN(   pmath_Internal_CriticalMessageTag,           builtin_criticalmessagetag)
   BIND_DOWN(   pmath_Internal_DynamicEvaluate,              builtin_internal_dynamicevaluate)

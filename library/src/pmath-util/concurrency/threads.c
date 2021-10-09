@@ -452,7 +452,7 @@ PMATH_API pmath_bool_t pmath_continue_after_abort(void) {
   
   pmath_unref(pmath_catch());
   
-  _pmath_clear(pmath_System_DollarMessageCount, FALSE);
+  _pmath_clear(pmath_System_DollarMessageCount, PMATH_CLEAR_BASIC_RULES);
   return was_set;
 }
 

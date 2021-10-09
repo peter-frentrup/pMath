@@ -462,7 +462,7 @@ pmath_t pmath_session_start(void) {
     return PMATH_NULL;
   }
   
-  _pmath_clear(pmath_System_DollarMessageCount, FALSE);
+  _pmath_clear(pmath_System_DollarMessageCount, PMATH_CLEAR_BASIC_RULES);
   return pmath_build_value("(ooo)", old_dlvl, old_line, old_msgcnt);
 }
 

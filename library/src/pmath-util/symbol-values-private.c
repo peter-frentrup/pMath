@@ -993,6 +993,17 @@ void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules) {
 
   pmath_ht_destroy(messages);
   
+//  pmath_atomic_write_release(&rules->early_call,  0);
+//  pmath_atomic_write_release(&rules->up_call,     0);
+//  pmath_atomic_write_release(&rules->down_call,   0);
+//  pmath_atomic_write_release(&rules->sub_call,    0);
+//  pmath_atomic_write_release(&rules->approx_call, 0);
+}
+
+PMATH_PRIVATE
+void _pmath_symbol_rules_clear_code(struct _pmath_symbol_rules_t *rules) {
+  assert(rules != NULL);
+
   pmath_atomic_write_release(&rules->early_call,  0);
   pmath_atomic_write_release(&rules->up_call,     0);
   pmath_atomic_write_release(&rules->down_call,   0);

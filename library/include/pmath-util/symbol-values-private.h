@@ -152,6 +152,10 @@ PMATH_PRIVATE
 PMATH_ATTRIBUTE_NONNULL(1)
 void _pmath_symbol_rules_clear(struct _pmath_symbol_rules_t *rules);
 
+PMATH_PRIVATE
+PMATH_ATTRIBUTE_NONNULL(1)
+void _pmath_symbol_rules_clear_code(struct _pmath_symbol_rules_t *rules);
+
 /*============================================================================*/
 
 PMATH_PRIVATE

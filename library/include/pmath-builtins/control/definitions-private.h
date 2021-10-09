@@ -22,9 +22,16 @@ pmath_bool_t _pmath_get_attributes(
 
 PMATH_PRIVATE
 pmath_symbol_attributes_t _pmath_get_function_attributes(pmath_t head);
- 
+
+enum _pmath_clear_flags_t {
+  PMATH_CLEAR_BASIC_RULES      = 1,
+  PMATH_CLEAR_ALL_RULES        = 2,
+  PMATH_CLEAR_BASIC_ATTRIBUTES = 4,
+  PMATH_CLEAR_BUILTIN_CODE     = 8,
+};
+
 PMATH_PRIVATE
-pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all); // wont be freed
+pmath_bool_t _pmath_clear(pmath_symbol_t sym, enum _pmath_clear_flags_t flags); // wont be freed
 
 
 #define ALL_RULES     0

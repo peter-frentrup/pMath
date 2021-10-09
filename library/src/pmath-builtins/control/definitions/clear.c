@@ -15,7 +15,7 @@ extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Names;
 
 PMATH_PRIVATE
-pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be freed
+pmath_bool_t _pmath_clear(pmath_symbol_t sym, enum _pmath_clear_flags_t flags) { // sym wont be freed
   struct _pmath_symbol_rules_t  *rules;
   
   if(!_pmath_symbol_assign_value(sym, pmath_ref(sym), PMATH_UNDEFINED))
@@ -27,10 +27,10 @@ pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be
   if(rules) {
     rules = _pmath_symbol_get_rules(sym, RULES_WRITE);
     if(rules) {
-      if(all) {
+      if(flags & PMATH_CLEAR_ALL_RULES) {
         _pmath_symbol_rules_clear(rules);
       }
-      else {
+      if(flags & PMATH_CLEAR_BASIC_RULES) {
         // not clearing default_rules and messages
         
         _pmath_rulecache_clear(&rules->up_rules);
@@ -39,10 +39,13 @@ pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be
         _pmath_rulecache_clear(&rules->approx_rules);
         _pmath_rulecache_clear(&rules->format_rules);
       }
+      if(flags & PMATH_CLEAR_BUILTIN_CODE) {
+        _pmath_symbol_rules_clear_code(rules);
+      }
     }
   }
   
-  if(all) {
+  if(flags & PMATH_CLEAR_BASIC_ATTRIBUTES) {
     // clear all attributes except Temporary and ThreadLocal, if they exist
     pmath_symbol_attributes_t attr = pmath_symbol_get_attributes(sym);
     pmath_symbol_set_attributes(sym, attr & (PMATH_SYMBOL_ATTRIBUTE_TEMPORARY | PMATH_SYMBOL_ATTRIBUTE_THREADLOCAL | PMATH_SYMBOL_ATTRIBUTE_REMOVED));
@@ -52,14 +55,18 @@ pmath_bool_t _pmath_clear(pmath_symbol_t sym, pmath_bool_t all) { // sym wont be
 }
 
 PMATH_PRIVATE pmath_t builtin_clear_or_clearall(pmath_expr_t expr) {
-  pmath_bool_t all = pmath_is_expr_of(expr, pmath_System_ClearAll);
   size_t i;
+  enum _pmath_clear_flags_t clear_flags;
+  if(pmath_is_expr_of(expr, pmath_System_ClearAll))
+    clear_flags = PMATH_CLEAR_ALL_RULES | PMATH_CLEAR_BASIC_ATTRIBUTES;
+  else
+    clear_flags = PMATH_CLEAR_BASIC_RULES;
   
   for(i = 1; i <= pmath_expr_length(expr); ++i) {
     pmath_t item = pmath_expr_get_item(expr, i);
     
     if(pmath_is_symbol(item)) {
-      _pmath_clear(item, all);
+      _pmath_clear(item, clear_flags);
       pmath_unref(item);
     }
     else if(pmath_is_string(item)) {
@@ -75,7 +82,7 @@ PMATH_PRIVATE pmath_t builtin_clear_or_clearall(pmath_expr_t expr) {
         for(j = pmath_expr_length(known); j > 0; --j) {
           pmath_t sym = pmath_symbol_get(
                           pmath_expr_get_item(known, j), FALSE);
-          _pmath_clear(sym, all);
+          _pmath_clear(sym, clear_flags);
           pmath_unref(sym);
         }
         

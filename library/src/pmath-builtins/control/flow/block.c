@@ -28,15 +28,26 @@ struct symbol_definition_t {
   pmath_symbol_attributes_t      attributes;
 };
 
-static struct symbol_definition_t *untracked_get_definition_and_clear(pmath_symbol_t sym);
+static struct symbol_definition_t *untracked_get_definition_and_clear(pmath_symbol_t sym, enum _pmath_clear_flags_t clear_flags);
 static void untracked_restore_definitions(struct symbol_definition_t *def);
 static void destroy_definitions(struct symbol_definition_t *def);
 
 static pmath_bool_t check_block_vars(pmath_t vars);
 static pmath_t eval_assignments_rhs(pmath_t vars); 
 
+static pmath_t block_impl(pmath_expr_t expr, enum _pmath_clear_flags_t clear_flags);
+
 PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
+  return block_impl(expr, PMATH_CLEAR_ALL_RULES | PMATH_CLEAR_BASIC_ATTRIBUTES | PMATH_CLEAR_BUILTIN_CODE);
+}
+
+PMATH_PRIVATE pmath_t builtin_internal_blockuserdefinitions(pmath_expr_t expr) {
+  return block_impl(expr, PMATH_CLEAR_ALL_RULES | PMATH_CLEAR_BASIC_ATTRIBUTES);
+}
+
+static pmath_t block_impl(pmath_expr_t expr, enum _pmath_clear_flags_t clear_flags) {
   /* Block({x1:= v1, x2:= v2, x3, ...}, body)
+     Internal`BlockUserDefinitions(...)
    */
   pmath_t vars, body, ex;
   struct symbol_definition_t *olddefs = NULL;
@@ -78,7 +89,7 @@ PMATH_PRIVATE pmath_t builtin_block(pmath_expr_t expr) {
       assert(pmath_is_symbol(sym));
     }
     
-    def = untracked_get_definition_and_clear(sym);
+    def = untracked_get_definition_and_clear(sym, clear_flags);
     pmath_unref(sym);
     
     if(!def) {
@@ -187,7 +198,7 @@ static pmath_t eval_assignments_rhs(pmath_t vars) {
   return vars;
 }
 
-static struct symbol_definition_t *untracked_get_definition_and_clear(pmath_symbol_t sym) {
+static struct symbol_definition_t *untracked_get_definition_and_clear(pmath_symbol_t sym, enum _pmath_clear_flags_t clear_flags) {
   struct symbol_definition_t *def;
   struct _pmath_symbol_rules_t *old_rules;
   intptr_t tracker_id;
@@ -219,7 +230,7 @@ static struct symbol_definition_t *untracked_get_definition_and_clear(pmath_symb
   
   pmath_symbol_set_attributes(sym, def->attributes & ~PMATH_SYMBOL_ATTRIBUTE_PROTECTED);
   pmath_symbol_set_value(sym, PMATH_UNDEFINED);
-  _pmath_clear(sym, TRUE); // also clears most other attributes
+  _pmath_clear(sym, clear_flags); // also clears most attributes
   
   _pmath_symbol_lost_dynamic_tracker(sym, 0, tracker_id);
   

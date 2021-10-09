@@ -1002,6 +1002,7 @@ PMATH_DECLARE_DEVELOPER_SYMBOL( SetDebugInfoAt,                  0 )
 PMATH_DECLARE_DEVELOPER_SYMBOL( ToPackedArray,                   0 )
 
 PMATH_DECLARE_INTERNAL_SYMBOL( AbortMessage,                     HOLDALLCOMPLETE )
+PMATH_DECLARE_INTERNAL_SYMBOL( BlockUserDefinitions,             HOLDALL )
 PMATH_DECLARE_INTERNAL_SYMBOL( Condition,                        HOLDFIRST )
 PMATH_DECLARE_INTERNAL_SYMBOL( CopySign,                         0 )
 PMATH_DECLARE_INTERNAL_SYMBOL( CriticalMessageTag,               HOLDALL | THREADLOCAL )
