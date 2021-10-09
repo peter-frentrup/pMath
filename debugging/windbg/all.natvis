@@ -438,6 +438,11 @@
 			<Item Name="format">format_rules</Item>
 			<Item      Name="messages" Condition="_messages._data != 0">(pmath.dll!_pmath_hashtable_t*)_messages._data,view(EntriesOnly)</Item>
 			<Synthetic Name="messages" Condition="_messages._data == 0"><DisplayString>none</DisplayString></Synthetic>
+			<Item Name="early_call">(pmath.dll!pmath_builtin_func_t)early_call._data</Item>
+			<Item Name="up_call"   >(pmath.dll!pmath_builtin_func_t)up_call._data</Item>
+			<Item Name="down_call" >(pmath.dll!pmath_builtin_func_t)down_call._data</Item>
+			<Item Name="sub_call"  >(pmath.dll!pmath_builtin_func_t)sub_call._data</Item>
+			<Item Name="approx_call">(pmath.dll!pmath_approx_func_t)approx_call._data</Item>
 		</Expand>
 	</Type>
 	<Type Name="_pmath_rulecache_t">
@@ -468,31 +473,31 @@
 					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
 						<Exec>iFound = iFound + 1</Exec>
 						<If Condition="klass == &amp;pmath.dll!pmath_ht_obj_class">
-							<Item Name="[{(*(_pmath_object_entry_t*)*pBucket).key}]">*(_pmath_object_entry_t*)*pBucket</Item>
+							<Item Name="[{(*(pmath.dll!_pmath_object_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_object_entry_t*)*pBucket</Item>
 						</If>
 						<Elseif Condition="klass == &amp;pmath.dll!pmath_ht_obj_int_class">
-							<Item Name="[{(*(_pmath_object_int_entry_t*)*pBucket).key}]">*(_pmath_object_int_entry_t*)*pBucket</Item>
+							<Item Name="[{(*(pmath.dll!_pmath_object_int_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_object_int_entry_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!_pmath_symbol_rules_ht_class">
-							<Item Name="[{(*(_pmath_symbol_rules_entry_t*)*pBucket).key}]">*(_pmath_symbol_rules_entry_t*)*pBucket</Item>
+							<Item Name="[{(*(pmath.dll!_pmath_symbol_rules_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_symbol_rules_entry_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!hashtable_int_obj_class">
-							<Item Name="[{(*(int_object_entry_t*)*pBucket).key}]">(*(int_object_entry_t*)*pBucket).value</Item>
+							<Item Name="[{(*(pmath.dll!int_object_entry_t*)*pBucket).key}]">(*(pmath.dll!int_object_entry_t*)*pBucket).value</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!id2symbols_class">
-							<Item Name="[{(*(id2symbols_t*)*pBucket).id}]">*(id2symbols_t*)*pBucket</Item>
+							<Item Name="[{(*(pmath.dll!id2symbols_t*)*pBucket).id}]">*(pmath.dll!id2symbols_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!symbol2ids_class">
-							<Item Name="[{(*(symbol2ids_t*)*pBucket).symbol}]">*(symbol2ids_t*)*pBucket</Item>
+							<Item Name="[{(*(pmath.dll!symbol2ids_t*)*pBucket).symbol}]">*(pmath.dll!symbol2ids_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!dispatch_table_cache_class">
-							<Item Name="&lt;{iFound}&gt;">(_pmath_dispatch_table_t*)*pBucket</Item>
+							<Item Name="&lt;{iFound}&gt;">(pmath.dll!_pmath_dispatch_table_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!doorman_table_class">
-							<Item Name="[{(*(_pmath_doorman_entry_t*)*pBucket).key}]">*(_pmath_doorman_entry_t*)*pBucket</Item>
+							<Item Name="[{(*(pmath.dll!_pmath_doorman_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_doorman_entry_t*)*pBucket</Item>
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!function_table_class">
-							<Item Name="[{(*(func_entry_t*)*pBucket).key}]">(*(func_entry_t*)*pBucket).function</Item>
+							<Item Name="[{(*(pmath.dll!func_entry_t*)*pBucket).key}]">(*(pmath.dll!func_entry_t*)*pBucket).function</Item>
 						</Elseif>
 						<Else>
 							<Item Name="&lt;{iFound}&gt;">*pBucket</Item>
