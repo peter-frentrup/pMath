@@ -1117,7 +1117,7 @@ VolatileSelection MathSequence::mouse_selection(Point pos, bool *was_inside_star
       
       if(line_start + pos.x > (prev + start.current_glyph().right) / 2) {
         *was_inside_start = false;
-        return { start.current_sequence(), start.text_index(), start.text_index() + 1 };
+        return { start.current_sequence(), start.text_index() + 1 };
       }
       
       return { start.current_sequence(), start.text_index() };
