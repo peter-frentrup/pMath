@@ -71,7 +71,9 @@ Function EvaluationContextBlockImpl(HoldComplete(~expr), ~ctx, ~save) {
         CreateEvaluationContext(ctx, save)
     }
 
-    Block({$History, $Line, $MessageCount, $Namespace, $NamespacePath},
+    % Using Internal`BlockUserDefinitions that resets all rules like Block but keeps associated C code.
+    % This is necessary in order to keep default $MessageCount(...) = 0 and to keep assignment checks for $Namespace, $NamespacePath
+    Internal`BlockUserDefinitions({$History, $Line, $MessageCount, $Namespace, $NamespacePath},
         Internal`SuppressDynamicTrackingBlock({$History, $Line, $MessageCount, $Namespace, $NamespacePath},
             LoadEvaluationContext(ctx, save)
         )
