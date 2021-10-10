@@ -1165,12 +1165,13 @@ bool MathSequence::request_repaint(const RectangleF &rect) {
   if(inline_span()) {
     MathSequence &outer = Impl(*this).outermost_span();
     if(&outer != this) {
-      // inconsitent inline_span() flag. Probably this box was just edited.
-      inline_span(false);
-      
       Vector2F delta = Impl(*this).total_offest_to_index(0);
       
       return outer.request_repaint(rect + delta);
+    }
+    else {
+      // inconsitent inline_span() flag. Probably this box was just edited.
+      inline_span(false);
     }
   }
   
