@@ -50,6 +50,7 @@ namespace richmath {
 }
 
 namespace richmath { namespace strings {
+  extern String EmptyString;
   extern String MenuListSearchCommands;
   extern String SearchMenuItems;
 }}
@@ -303,6 +304,7 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
   if(!win || !win->menubar())
     return false;
   
+  Menus::current_menu_search_text(strings::EmptyString);
   HMENU menu = win->menubar()->menu()->hmenu();
   int count = GetMenuItemCount(menu);
   for(int i = count-1; i >= 0; --i) {

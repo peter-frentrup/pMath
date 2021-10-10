@@ -38,6 +38,7 @@ using namespace richmath;
 
 
 namespace richmath { namespace strings {
+  extern String EmptyString;
   extern String MenuListSearchCommands;
   extern String SearchMenuItems;
 }}
@@ -1368,6 +1369,7 @@ bool MathGtkMenuSearch::do_open_help_menu(Expr cmd) {
     return false;
   
   bool found = false;
+  Menus::current_menu_search_text(strings::EmptyString);
   BasicGtkWidget::container_foreach(
     GTK_CONTAINER(win->menubar()),
     [&](GtkWidget *child) {
