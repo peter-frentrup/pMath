@@ -3402,11 +3402,12 @@ void MathSequence::Impl::EnlargeSpace::run() {
   for(GlyphIterator iter_next{self}; iter_next.has_more_glyphs();) {
     GlyphIterator iter_start = iter_next;
     iter_next.move_token_end();
+    
+    italic_correction(iter_next);
+    skip_subsuperscript(iter_next);
+
     GlyphIterator iter_end = iter_next;
     iter_next.move_next_glyph();
-    
-    italic_correction(iter_end);
-    skip_subsuperscript(iter_end);
     
     if(iter_start.current_char() == '\t') {
       show_tab_character(iter_start, iter_start.current_glyph().is_normal_text);
