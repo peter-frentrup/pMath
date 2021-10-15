@@ -370,43 +370,8 @@ namespace richmath {
 //{ class MathSequence ...
 
 MathSequence::MathSequence()
-  : base(),
-    str("")
+  : base()
 {
-}
-
-MathSequence::~MathSequence() {
-  for(int i = 0; i < boxes.length(); ++i)
-    delete_owned(boxes[i]);
-}
-
-Box *MathSequence::item(int i) {
-  ensure_boxes_valid();
-  return boxes[i];
-}
-
-String MathSequence::raw_substring(int start, int length) {
-  assert(start >= 0);
-  assert(length >= 0);
-  assert(start + length <= str.length());
-  
-  return str.part(start, length);
-}
-
-uint32_t MathSequence::char_at(int pos) {
-  if(pos < 0 || pos > str.length())
-    return 0;
-    
-  const uint16_t *buf = str.buffer();
-  
-  if(is_utf16_high(buf[pos]) && is_utf16_low((buf[pos + 1]))) {
-    uint32_t hi = buf[pos];
-    uint32_t lo = buf[pos + 1];
-    
-    return 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
-  }
-  
-  return buf[pos];
 }
 
 float MathSequence::fill_weight() {
@@ -1283,19 +1248,6 @@ int MathSequence::find_string_start(int pos_inside_string, int *next_after_strin
   return -1;
 }
 
-void MathSequence::ensure_boxes_valid() {
-  if(!boxes_invalid())
-    return;
-    
-  boxes_invalid(false);
-  const uint16_t *buf = str.buffer();
-  int len = str.length();
-  int box = 0;
-  for(int i = 0; i < len; ++i)
-    if(buf[i] == PMATH_CHAR_BOX)
-      adopt(boxes[box++], i);
-}
-
 void MathSequence::ensure_spans_valid() {
   if(!spans_invalid())
     return;
@@ -1317,30 +1269,6 @@ void MathSequence::ensure_spans_valid() {
             Impl::underoverscriptbox_at_index,
             Impl::syntax_error,
             &data);
-}
-
-bool MathSequence::is_placeholder() {
-  return str.length() == 1 && is_placeholder(0);
-}
-
-bool MathSequence::is_placeholder(int i) {
-  if(i < 0 || i >= str.length())
-    return false;
-    
-  if(str[i] == PMATH_CHAR_PLACEHOLDER || str[i] == PMATH_CHAR_SELECTIONPLACEHOLDER)
-    return true;
-    
-  if(str[i] == PMATH_CHAR_BOX) {
-    ensure_boxes_valid();
-    int b = 0;
-    
-    while(boxes[b]->index() < i)
-      ++b;
-      
-    return boxes[b]->get_own_style(Placeholder);
-  }
-  
-  return false;
 }
 
 int MathSequence::matching_fence(int pos) {
@@ -1381,153 +1309,6 @@ int MathSequence::matching_fence(int pos) {
   
   return -1;
 }
-
-//{ insert/remove ...
-
-int MathSequence::insert(int pos, uint32_t chr) {
-  if(chr == PMATH_CHAR_BOX) 
-    return insert(pos, new ErrorBox(String::FromChar(chr)));
-  
-  spans_invalid(true);
-  boxes_invalid(true);
-  if(chr <= 0xFFFF) {
-    uint16_t u16 = (uint16_t)chr;
-    str.insert(pos, &u16, 1);
-    invalidate();
-    return pos + 1;
-  }
-  else {
-    uint16_t u16[2];
-    chr -= 0x10000;
-    u16[0] = 0xD800 | (chr >> 10);
-    u16[1] = 0xDC00 | (chr & 0x3FF);
-    str.insert(pos, u16, 2);
-    invalidate();
-    return pos + 2;
-  }
-}
-
-int MathSequence::insert(int pos, const uint16_t *ucs2, int len) {
-  if(len < 0) {
-    len = 0;
-    const uint16_t *buf = ucs2;
-    while(*buf++)
-      ++len;
-  }
-  
-  int boxpos = 0;
-  while(boxpos < len && ucs2[boxpos] != PMATH_CHAR_BOX)
-    ++boxpos;
-  
-  if(boxpos < len) {
-    ensure_boxes_valid();
-    
-    int b = 0;
-    while(b < boxes.length() && boxes[b]->index() < pos)
-      ++b;
-    
-    while(boxpos < len) {
-      ++boxpos;
-      str.insert(pos, ucs2, boxpos);
-      
-      pos+= boxpos;
-      ucs2+= boxpos;
-      len-= boxpos;
-      
-      Box *box = new ErrorBox(String::FromChar(PMATH_CHAR_BOX));
-      adopt(box, pos - 1);
-      boxes.insert(b, 1, &box);
-      ++b;
-      
-      boxpos = 0;
-      while(boxpos < len && ucs2[boxpos] != PMATH_CHAR_BOX)
-        ++boxpos;
-    }
-  }
-  str.insert(pos, ucs2, len);
-  
-  spans_invalid(true);
-  boxes_invalid(true);
-  invalidate();
-  return pos + len;
-}
-
-int MathSequence::insert(int pos, const char *latin1, int len) {
-  if(len < 0)
-    len = strlen(latin1);
-  
-  spans_invalid(true);
-  boxes_invalid(true);
-  str.insert(pos, latin1, len);
-  invalidate();
-  return pos + len;
-}
-
-int MathSequence::insert(int pos, const String &s) {
-  return insert(pos, s.buffer(), s.length());
-}
-
-int MathSequence::insert(int pos, Box *box) {
-  if(pos > length())
-    pos = length();
-    
-  if(MathSequence *sequence = dynamic_cast<MathSequence *>(box)) {
-    pos = insert(pos, sequence, 0, sequence->length());
-    sequence->safe_destroy();
-    return pos;
-  }
-  
-  ensure_boxes_valid();
-  
-  spans_invalid(true);
-  boxes_invalid(true);
-  uint16_t ch = PMATH_CHAR_BOX;
-  str.insert(pos, &ch, 1);
-  adopt(box, pos);
-  int i = 0;
-  while(i < boxes.length() && boxes[i]->index() < pos)
-    ++i;
-  boxes.insert(i, 1, &box);
-  invalidate();
-  return pos + 1;
-}
-
-void MathSequence::remove(int start, int end) {
-  ensure_boxes_valid();
-  
-  spans_invalid(true);
-  
-  int i = 0;
-  while(i < boxes.length() && boxes[i]->index() < start)
-    ++i;
-    
-  int j = i;
-  while(j < boxes.length() && boxes[j]->index() < end)
-    boxes[j++]->safe_destroy();
-    
-  boxes_invalid(i < boxes.length());
-  boxes.remove(i, j - i);
-  str.remove(start, end - start);
-  invalidate();
-}
-
-Box *MathSequence::remove(int *index) {
-  remove(*index, *index + 1);
-  return this;
-}
-
-Box *MathSequence::extract_box(int boxindex) {
-  Box *box = boxes[boxindex];
-  
-  DummyBox *dummy = new DummyBox();
-  adopt(dummy, box->index());
-  boxes.set(boxindex, dummy);
-  
-  abandon(box);
-  return box;
-}
-
-////} ... insert/remove
 
 template <class T>
 static Box *create_or_error(Expr expr, BoxInputFlags options) {

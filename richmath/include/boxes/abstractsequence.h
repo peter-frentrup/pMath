@@ -9,7 +9,7 @@ namespace richmath {
     protected:
       virtual ~AbstractSequence();
     public:
-      AbstractSequence();
+      explicit AbstractSequence();
       
       virtual AbstractSequence *create_similar() = 0;
       
@@ -43,6 +43,61 @@ namespace richmath {
       
     protected:
       ObservableValue<float> em;
+  };
+  
+  // TODO: merge with AbstractSequence as soon as TextSequence switches to UTF-16 via BasicSequence (issue #122)
+  class BasicSequence: public AbstractSequence {
+      using base = AbstractSequence;
+    protected:
+      virtual ~BasicSequence();
+    public:
+      explicit BasicSequence();
+      
+      virtual Box *item(int i) final override;
+      virtual int count() final override {  return boxes.length(); }
+      virtual int length() final override { return str.length(); }
+      
+      virtual String raw_substring(int start, int length) final override;
+      virtual uint32_t char_at(int pos) final override; // return 0 on Out-Of-Range
+      
+      virtual void ensure_boxes_valid() final override;
+      
+      bool is_placeholder();
+      virtual bool is_placeholder(int i) final override;
+      
+      virtual int insert(int pos, uint32_t chr) final override;
+      int insert(int pos, const uint16_t *ucs2, int len);
+      int insert(int pos, const char *latin1, int len);
+      virtual int insert(int pos, const String &s) final override;
+      virtual int insert(int pos, Box *box) final override;
+      virtual int insert(int pos, AbstractSequence *seq, int start, int end) final override {
+        return base::insert(pos, seq, start, end);
+      }
+      
+      virtual void remove(int start, int end) final override;
+      virtual Box *remove(int *index) final override;
+      
+      virtual Box *extract_box(int boxindex) final override;
+      
+      const String &text() { return str; }
+      
+    protected:
+      enum {
+        BoxesInvalidBit = base::NumFlagsBits,
+        SpansInvalidBit,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
+      void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
+      bool spans_invalid() {       return get_flag(SpansInvalidBit); }
+      void spans_invalid(bool value) { change_flag(SpansInvalidBit, value); }
+      
+    protected:
+      String       str;
+      Array<Box *> boxes;
   };
 }
 

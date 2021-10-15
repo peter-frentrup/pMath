@@ -22,22 +22,13 @@ namespace richmath {
   /* This is a box containing math.
      For normal text, use class TextSequence.
    */
-  class MathSequence final : public AbstractSequence {
-      using base = AbstractSequence;
+  class MathSequence final : public BasicSequence {
+      using base = BasicSequence;
       class Impl;
-    protected:
-      virtual ~MathSequence();
     public:
-      MathSequence();
+      explicit MathSequence();
       
       virtual AbstractSequence *create_similar() override { return new MathSequence(); }
-      
-      virtual Box *item(int i) override;
-      virtual int count() override {      return boxes.length(); }
-      virtual int length() override {     return str.length(); }
-      
-      virtual String raw_substring(int start, int length) override;
-      virtual uint32_t char_at(int pos) override; // return 0 on Out-Of-Range
       
       virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;
@@ -80,32 +71,12 @@ namespace richmath {
       int find_string_start(int pos_inside_string, int *next_after_string = 0); // returns -1 on failure
       bool is_inside_string(int pos) { return find_string_start(pos) >= 0; }
       
-      virtual void ensure_boxes_valid() override;
       void ensure_spans_valid();
-      
-      bool is_placeholder();
-      virtual bool is_placeholder(int i) override;
       
       int matching_fence(int pos); // -1 on error
       
-    public:
-      virtual int insert(int pos, uint32_t chr) override;
-      int insert(int pos, const uint16_t *ucs2, int len);
-      int insert(int pos, const char *latin1, int len);
-      virtual int insert(int pos, const String &s) override;
-      virtual int insert(int pos, Box *box) override;
-      virtual int insert(int pos, AbstractSequence *seq, int start, int end) override {
-        return AbstractSequence::insert(pos, seq, start, end);
-      }
-      
-      virtual void remove(int start, int end) override;
-      virtual Box *remove(int *index) override;
-      
-      virtual Box *extract_box(int boxindex) override;
-      
       virtual void load_from_object(Expr object, BoxInputFlags options) override;
       
-      const String                        &text() {        return str;    }
       const SpanArray                     &span_array() {  return spans;  }
       const Array<Line>                   &line_array() {  return lines;  }
       const Array<GlyphInfo>              &glyph_array() { return glyphs; }
@@ -128,26 +99,18 @@ namespace richmath {
     
     private:
       enum {
-        BoxesInvalidBit = base::NumFlagsBits,
-        SpansInvalidBit,
-        AutoIndentBit,
+        AutoIndentBit = base::NumFlagsBits,
         InlineSpanBit,
         
         NumFlagsBits
       };
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
-      void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
-      bool spans_invalid() {       return get_flag(SpansInvalidBit); }
-      void spans_invalid(bool value) { change_flag(SpansInvalidBit, value); }
       bool auto_indent() {         return get_flag(AutoIndentBit); }
       void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
       void inline_span(bool value) {   change_flag(InlineSpanBit, value); }
       
     private:
-      String           str;
-      Array<Box *>     boxes;
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
       RleArray<SyntaxGlyphStyle>   semantic_styles; // uses text index, not glyph index
