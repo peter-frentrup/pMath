@@ -3,7 +3,7 @@
 
 #include <pango/pangocairo.h>
 
-#include <boxes/box.h>
+#include <boxes/abstractsequence.h>
 
 
 namespace richmath {

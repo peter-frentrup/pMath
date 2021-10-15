@@ -6,6 +6,7 @@
 
 
 namespace richmath {
+  class AbstractSequence;
   class MathSequence;
   class TextSequence;
   

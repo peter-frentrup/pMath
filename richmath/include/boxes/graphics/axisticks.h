@@ -1,7 +1,7 @@
 #ifndef RICHMATH__BOXES__GRAPHICS__AXISTICKS_H__INCLUDED
 #define RICHMATH__BOXES__GRAPHICS__AXISTICKS_H__INCLUDED
 
-#include <boxes/box.h>
+#include <boxes/abstractsequence.h>
 #include <util/array.h>
 
 

@@ -1,7 +1,7 @@
 #ifndef RICHMATH__BOXES__SEQUENCE_H__INCLUDED
 #define RICHMATH__BOXES__SEQUENCE_H__INCLUDED
 
-#include <boxes/box.h>
+#include <boxes/abstractsequence.h>
 #include <util/rle-array.h>
 #include <syntax/syntax-state.h>
 

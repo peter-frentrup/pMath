@@ -1,5 +1,6 @@
 #include <util/styled-object.h>
 
+#include <boxes/abstractsequence.h>
 #include <gui/common-document-windows.h>
 #include <gui/document.h>
 
