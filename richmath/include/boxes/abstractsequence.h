@@ -78,6 +78,7 @@ namespace richmath {
       virtual Box *remove(int *index) final override;
       
       virtual Box *extract_box(int boxindex) final override;
+      int get_box(int index, int guide = 0);
       
       const String &text() { return str; }
       

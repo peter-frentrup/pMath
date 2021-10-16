@@ -354,4 +354,29 @@ Box *BasicSequence::extract_box(int boxindex) {
 
 //} ... insert/remove
 
+int BasicSequence::get_box(int index, int guide) {
+  assert(str[index] == PMATH_CHAR_BOX);
+  
+  ensure_boxes_valid();
+  if(guide < 0)
+    guide = 0;
+    
+  for(int box = guide; box < boxes.length(); ++box) {
+    if(boxes[box]->index() == index)
+      return box;
+  }
+  
+  
+  if(guide >= boxes.length())
+    guide = boxes.length();
+    
+  for(int box = 0; box < guide; ++box) {
+    if(boxes[box]->index() == index)
+      return box;
+  }
+  
+  assert(0 && "no box found at index.");
+  return -1;
+}
+
 //} ... class BasicSequence

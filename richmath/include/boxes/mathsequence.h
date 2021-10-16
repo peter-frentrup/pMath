@@ -90,7 +90,6 @@ namespace richmath {
       
       virtual void get_line_heights(int line, float *ascent, float *descent) override;
       
-      int get_box(int index, int guide = 0);
       float indention_width(int i);
       float font_size() { return em; }
       float line_spacing() { return 0.3f * em; }

@@ -1772,31 +1772,6 @@ void MathSequence::get_line_heights(int line, float *ascent, float *descent) {
   *descent = lines[line].descent;
 }
 
-int MathSequence::get_box(int index, int guide) {
-  assert(str[index] == PMATH_CHAR_BOX);
-  
-  ensure_boxes_valid();
-  if(guide < 0)
-    guide = 0;
-    
-  for(int box = guide; box < boxes.length(); ++box) {
-    if(boxes[box]->index() == index)
-      return box;
-  }
-  
-  
-  if(guide >= boxes.length())
-    guide = boxes.length();
-    
-  for(int box = 0; box < guide; ++box) {
-    if(boxes[box]->index() == index)
-      return box;
-  }
-  
-  assert(0 && "no box found at index.");
-  return -1;
-}
-
 float MathSequence::indention_width(int i) {
   if(!auto_indent())
     return 0.0f;
