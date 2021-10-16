@@ -1249,10 +1249,10 @@ int MathSequence::find_string_start(int pos_inside_string, int *next_after_strin
 }
 
 void MathSequence::ensure_spans_valid() {
-  if(!spans_invalid())
+  if(!text_changed())
     return;
     
-  spans_invalid(false);
+  text_changed(false);
   
   ScanData data;
   data.sequence    = this;

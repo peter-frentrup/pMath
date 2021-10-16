@@ -85,7 +85,7 @@ namespace richmath {
     protected:
       enum {
         BoxesInvalidBit = base::NumFlagsBits,
-        SpansInvalidBit,
+        TextChangedBit,
         
         NumFlagsBits
       };
@@ -93,8 +93,8 @@ namespace richmath {
       
       bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
       void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
-      bool spans_invalid() {       return get_flag(SpansInvalidBit); }
-      void spans_invalid(bool value) { change_flag(SpansInvalidBit, value); }
+      bool text_changed() {        return get_flag(TextChangedBit); }
+      void text_changed(bool value) {  change_flag(TextChangedBit, value); }
       
     protected:
       String       str;

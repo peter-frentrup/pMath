@@ -327,7 +327,7 @@ void TextSequence::resize(Context &context) {
   for(auto box : boxes)
     box->resize(context);
     
-  text_invalid(true);
+  text_changed(true);
   ensure_text_valid();
   
   PangoContext *pango = pango_layout_get_context(_layout);
@@ -589,7 +589,7 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   text.remove(0, text.length());
   
   boxes_invalid(true);
-  text_invalid(true);
+  text_changed(true);
   
   if(object.is_string())
     object = expand_string_boxes(String(object));
@@ -626,10 +626,10 @@ void TextSequence::ensure_boxes_valid() {
 void TextSequence::ensure_text_valid() {
   ensure_boxes_valid();
   
-  if(!text_invalid())
+  if(!text_changed())
     return;
     
-  text_invalid(false);
+  text_changed(false);
   pango_layout_set_text(_layout, text.buffer(), text.length());
   
   PangoRectangle rect = {0, 0, 0, 0};
@@ -684,7 +684,7 @@ int TextSequence::insert(int pos, const char *utf8, int len) {
   }
   
   boxes_invalid(true);
-  text_invalid(true);
+  text_changed(true);
   invalidate();
   return pos;
 }
@@ -713,7 +713,7 @@ int TextSequence::insert(int pos, const String &s) {
   }
   
   boxes_invalid(true);
-  text_invalid(true);
+  text_changed(true);
   invalidate();
   return pos;
 }
@@ -731,7 +731,7 @@ int TextSequence::insert(int pos, Box *box) {
   ensure_boxes_valid();
   
   boxes_invalid(true);
-  text_invalid(true);
+  text_changed(true);
   
   int newpos = text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
   adopt(box, pos);
@@ -778,7 +778,7 @@ int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
   }
   
   boxes_invalid(true);
-  text_invalid(true);
+  text_changed(true);
   invalidate();
   return pos;
 }
@@ -807,7 +807,7 @@ void TextSequence::remove(int start, int end) {
     boxes[j++]->safe_destroy();
     
   boxes_invalid(i < boxes.length());
-  text_invalid(start < end);
+  text_changed(start < end);
   boxes.remove(i, j - i);
   text.remove(start, end - start);
   invalidate();
@@ -1274,7 +1274,7 @@ void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
         ++next;
         
       self.text.insert(self.text.length(), s.part(start, next - start));
-      self.text_invalid(true);
+      self.text_changed(true);
       
       start = next + 1;
     }

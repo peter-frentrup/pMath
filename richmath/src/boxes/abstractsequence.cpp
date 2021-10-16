@@ -211,7 +211,7 @@ int BasicSequence::insert(int pos, uint32_t chr) {
   if(chr == PMATH_CHAR_BOX) 
     return insert(pos, new ErrorBox(String::FromChar(chr)));
   
-  spans_invalid(true);
+  text_changed(true);
   boxes_invalid(true);
   if(chr <= 0xFFFF) {
     uint16_t u16 = (uint16_t)chr;
@@ -269,7 +269,7 @@ int BasicSequence::insert(int pos, const uint16_t *ucs2, int len) {
   }
   str.insert(pos, ucs2, len);
   
-  spans_invalid(true);
+  text_changed(true);
   boxes_invalid(true);
   invalidate();
   return pos + len;
@@ -279,7 +279,7 @@ int BasicSequence::insert(int pos, const char *latin1, int len) {
   if(len < 0)
     len = strlen(latin1);
   
-  spans_invalid(true);
+  text_changed(true);
   boxes_invalid(true);
   str.insert(pos, latin1, len);
   invalidate();
@@ -304,7 +304,7 @@ int BasicSequence::insert(int pos, Box *box) {
   
   ensure_boxes_valid();
   
-  spans_invalid(true);
+  text_changed(true);
   boxes_invalid(true);
   uint16_t ch = PMATH_CHAR_BOX;
   str.insert(pos, &ch, 1);
@@ -320,7 +320,7 @@ int BasicSequence::insert(int pos, Box *box) {
 void BasicSequence::remove(int start, int end) {
   ensure_boxes_valid();
   
-  spans_invalid(true);
+  text_changed(true);
   
   int i = 0;
   while(i < boxes.length() && boxes[i]->index() < start)

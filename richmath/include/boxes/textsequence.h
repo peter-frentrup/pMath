@@ -113,7 +113,7 @@ namespace richmath {
     private:
       enum {
         BoxesInvalidBit = base::NumFlagsBits,
-        TextInvalidBit,
+        TextChangedBit,
         
         NumFlagsBits
       };
@@ -121,8 +121,8 @@ namespace richmath {
       
       bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
       void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
-      bool text_invalid() {       return get_flag(TextInvalidBit); }
-      void text_invalid(bool value) { change_flag(TextInvalidBit, value); }
+      bool text_changed() {        return get_flag(TextChangedBit); }
+      void text_changed(bool value) {  change_flag(TextChangedBit, value); }
       
     private:
       TextBuffer   text;
