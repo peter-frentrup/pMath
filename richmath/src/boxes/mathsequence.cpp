@@ -187,7 +187,7 @@ namespace richmath {
           using g2t_iter_t   = g2t_t::iterator_type;
           using g2seq_iter_t = g2seq_t::iterator_type;
         public:
-          GlyphGenerator(MathSequence &owner);
+          explicit GlyphGenerator(MathSequence &owner);
           
           void append_all(Context &context);
           
@@ -3454,11 +3454,11 @@ void MathSequence::Impl::EnlargeSpace::group_number_digits(const GlyphIterator &
   
   float half_space_width = self.em / 10; // total: em/5 = thin space
   
-  const uint16_t *buf = start.text_buffer();
+  const uint16_t *buf = start.text_buffer_raw();
   
   int end = end_inclusive.text_index();
   
-  assert(buf == end_inclusive.text_buffer());
+  assert(buf == end_inclusive.text_buffer_raw());
   assert(start.text_index() <= end);
   assert(end < start.text_buffer_length());
   
@@ -3597,7 +3597,7 @@ void MathSequence::Impl::EnlargeSpace::show_tab_character(const GlyphIterator &p
 }
 
 ArrayView<const uint16_t> MathSequence::Impl::EnlargeSpace::get_effective_token(const GlyphIterator &start, const GlyphIterator &tok_end) {
-  assert(start.text_buffer() == tok_end.text_buffer());
+  assert(start.text_buffer_raw() == tok_end.text_buffer_raw());
   assert(start.text_index() <= tok_end.text_index());
   assert(tok_end.text_index() < start.text_buffer_length());
   
@@ -4008,7 +4008,7 @@ void MathSequence::Impl::IndentLines::visit_string(MathSequence *span_seq, Span 
     if(pos > span_end)
       break;
     
-    if(iter.text_index() > 0 && iter.text_buffer()[iter.text_index() - 1] == '\n') {
+    if(iter.text_index() > 0 && iter.text_buffer_raw()[iter.text_index() - 1] == '\n') {
       indention_array[iter.glyph_index()] = depth;
       iter.move_next_glyph();
     }
@@ -4027,7 +4027,7 @@ void MathSequence::Impl::IndentLines::visit_block_body(MathSequence *span_seq, S
   
   uint16_t last_char = 0;
   if(iter.text_index() > 0)
-    last_char = iter.text_buffer()[iter.text_index() - 1];
+    last_char = iter.text_buffer_raw()[iter.text_index() - 1];
   
   if(start_char == '{' && last_char == '}' && !span.next()) {
     /* Unindent closing brace of a block.
@@ -4290,7 +4290,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_token(MathSequence *span_seq, int
         // FIXME: Check only works when \[Piecewise] and GridBox are in the same MathSequence.
         // FIXME: Check should be done when visiting \[Piecewise], not here, when visiting the GridBox.
         if(iter.text_index() > 0 && iter.text_span_array().is_operand_start(iter.text_index() - 1)) {
-          uint16_t prev_char = iter.text_buffer()[iter.text_index() - 1];
+          uint16_t prev_char = iter.text_buffer_raw()[iter.text_index() - 1];
           if(pmath_char_is_left(prev_char)) {
             penalty_array[iter.glyph_index() - 1] = Infinity;
           }
@@ -4337,7 +4337,7 @@ void MathSequence::Impl::PenalizeBreaks::visit_block_body(MathSequence *span_seq
   visit_span(span_seq, span, depth);
   
   if(iter.text_index() >= 2 && iter.glyph_index() >= 2) {
-    uint16_t prev_char = iter.text_buffer()[iter.text_index() - 1];
+    uint16_t prev_char = iter.text_buffer_raw()[iter.text_index() - 1];
     if(prev_char == ')') {
       penalty_array[iter.glyph_index() - 2] = MAX(0, penalty_array[iter.glyph_index() - 1] - 2 * DepthPenalty);
     }

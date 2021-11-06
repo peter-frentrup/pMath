@@ -31,7 +31,7 @@ namespace richmath {
       const Array<GlyphInfo> &all_glyphs() const { return _basic_iter.outermost_sequence()->glyph_array(); };
       MathSequence *outermost_sequence() const { return _basic_iter.outermost_sequence(); }
       
-      const uint16_t            *text_buffer()    const { return _basic_iter.text_buffer(); }
+      const uint16_t            *text_buffer_raw()    const { return _basic_iter.text_buffer_raw(); }
       int                        text_buffer_length() const { return _basic_iter.text_buffer_length(); }
       ArrayView<const uint16_t>  text_view() const {          return _basic_iter.text_view(); }
       
@@ -39,8 +39,8 @@ namespace richmath {
       
       int index_in_sequence(MathSequence *other, int fallback) { return _basic_iter.index_in_sequence(other, fallback, glyph_count()); }
       
-      const uint16_t *text_at_glyph() const { return text_buffer() + text_index(); }
-      const uint16_t *text_end() const { return text_buffer() + text_buffer_length(); }
+      const uint16_t *text_at_glyph() const { return text_buffer_raw() + text_index(); }
+      const uint16_t *text_end() const { return text_buffer_raw() + text_buffer_length(); }
       
       ArrayView<const uint16_t> find_token() const { return ArrayView<const uint16_t>{find_next_token() - text_index(), text_at_glyph()}; }
       
