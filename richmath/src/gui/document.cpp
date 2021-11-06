@@ -4408,9 +4408,7 @@ void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequ
           }
         }
         
-        MathSequence *sel = grid->item(
-                              rect.y.start + ins_rows - 1,
-                              rect.x.start + ins_cols - 1)->content();
+        auto *sel = grid->item(rect.y.start + ins_rows - 1, rect.x.start + ins_cols - 1)->content();
                               
         self.move_to(sel, sel->length());
         grid->invalidate();
@@ -4432,7 +4430,7 @@ void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequ
     }
   }
   
-  MathSequence *item_content = grid->item(rect.y.start, rect.x.start)->content();
+  auto item_content = grid->item(rect.y.start, rect.x.start)->content();
   item_content->remove(0, 1);
   item_content->insert(0, seq); seq = nullptr;
   self.move_to(item_content, item_content->length());

@@ -101,6 +101,10 @@ bool DynamicLocalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+MathSequence *DynamicLocalBox::as_inline_span() {
+  return dynamic_cast<MathSequence*>(content());
+}
+
 Expr DynamicLocalBox::to_pmath_symbol() {
   return Symbol(richmath_System_DynamicLocalBox); 
 }

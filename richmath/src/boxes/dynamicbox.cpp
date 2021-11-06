@@ -152,6 +152,10 @@ bool DynamicBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+MathSequence *DynamicBox::as_inline_span() { 
+  return dynamic_cast<MathSequence*>(content());
+}
+
 void DynamicBox::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
   must_resize(false);

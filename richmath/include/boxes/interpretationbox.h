@@ -12,7 +12,7 @@ namespace richmath {
       InterpretationBox(MathSequence *content);
       InterpretationBox(MathSequence *content, Expr _interpretation);
       
-      virtual MathSequence *as_inline_span() override { return content(); }
+      virtual MathSequence *as_inline_span() override;
       virtual void reset_style() override;
       
       // Box::try_create<InterpretationBox>(expr, opts);

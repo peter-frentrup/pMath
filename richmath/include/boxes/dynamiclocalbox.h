@@ -16,7 +16,7 @@ namespace richmath {
       // Box::try_create<DynamicLocalBox>(expr, options)
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
-      virtual MathSequence *as_inline_span() override { return content(); }
+      virtual MathSequence *as_inline_span() override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;

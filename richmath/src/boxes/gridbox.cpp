@@ -580,28 +580,18 @@ Box *GridBox::remove_range(int *start, int end) {
     if(cols() == 1) {
       if(rect.y.start == GridYIndex(1) && rect.y.end == GridYIndex(rows())) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
-          MathSequence *content = items[0]->content();
-          seq->insert(
-            _index,
-            content,
-            0,
-            content->length());
-          *start += content->length();
+        if(auto seq = dynamic_cast<AbstractSequence *>(par)) {
+          auto content = items[0]->content();
+          *start = seq->insert(_index, content, 0, content->length());
         }
         
         return par->remove(start);
       }
       else if(rect.y.start == GridYIndex(0) && rect.y.end == GridYIndex(rows() - 1)) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
-          MathSequence *content = items[items.length() - 1]->content();
-          seq->insert(
-            _index,
-            content,
-            0,
-            content->length());
-          *start += content->length();
+        if(auto seq = dynamic_cast<AbstractSequence *>(par)) {
+          auto content = items[items.length() - 1]->content();
+          *start = seq->insert(_index, content, 0, content->length());
         }
         
         return par->remove(start);
@@ -615,28 +605,18 @@ Box *GridBox::remove_range(int *start, int end) {
     if(rows() == 1) {
       if(rect.x.start == GridXIndex(1) && rect.x.end == GridXIndex(cols())) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
-          MathSequence *content = items[0]->content();
-          seq->insert(
-            _index,
-            content,
-            0,
-            content->length());
-          *start += content->length();
+        if(auto seq = dynamic_cast<AbstractSequence *>(par)) {
+          auto content = items[0]->content();
+          *start = seq->insert(_index, content, 0, content->length());
         }
         
         return par->remove(start);
       }
       else if(rect.x.start == GridXIndex(0) && rect.x.end == GridXIndex(cols() - 1)) {
         *start = _index;
-        if(MathSequence *seq = dynamic_cast<MathSequence *>(par)) {
-          MathSequence *content = items[items.length() - 1]->content();
-          seq->insert(
-            _index,
-            content,
-            0,
-            content->length());
-          *start += content->length();
+        if(auto seq = dynamic_cast<AbstractSequence *>(par)) {
+          auto content = items[items.length() - 1]->content();
+          *start = seq->insert(_index, content, 0, content->length());
         }
         
         return par->remove(start);
@@ -651,7 +631,7 @@ Box *GridBox::remove_range(int *start, int end) {
   if(rect.cols() == cols()) {
     remove_rows(rect.y.start, rect.rows());
     if(rect.y.start > GridYIndex(0)) {
-      MathSequence *result = item(rect.y.start - 1, GridXIndex(cols() - 1))->content();
+      auto result = item(rect.y.start - 1, GridXIndex(cols() - 1))->content();
       *start = result->length();
       return result;
     }
@@ -668,7 +648,7 @@ Box *GridBox::remove_range(int *start, int end) {
   if(rect.rows() == rows()) {
     remove_cols(rect.x.start, rect.cols());
     if(rect.x.start > GridXIndex(0)) {
-      MathSequence *result = item(GridYIndex(0), rect.x.start - 1)->content();
+      auto result = item(GridYIndex(0), rect.x.start - 1)->content();
       *start = result->length();
       return result;
     }
@@ -702,7 +682,7 @@ Box *GridBox::remove_range(int *start, int end) {
     if(all_empty) {
       remove_cols(rect.x.start, 1);
       if(rect.x.start > GridXIndex(0)) {
-        MathSequence *result = item(rect.y.start, rect.x.start - 1)->content();
+        auto result = item(rect.y.start, rect.x.start - 1)->content();
         *start = result->length();
         return result;
       }
@@ -731,7 +711,7 @@ Box *GridBox::remove_range(int *start, int end) {
     if(all_empty) {
       remove_rows(rect.y.start, 1);
       if(rect.y.start > GridYIndex(0)) {
-        MathSequence *result = item(rect.y.start - 1, GridXIndex(cols() - 1))->content();
+        auto result = item(rect.y.start - 1, GridXIndex(cols() - 1))->content();
         *start = result->length();
         return result;
       }
@@ -748,7 +728,7 @@ Box *GridBox::remove_range(int *start, int end) {
   
   *start = yx_to_index(rect.y.start, rect.x.start);
   if(*start > 0) {
-    MathSequence *result = items[*start - 1]->content();
+    auto result = items[*start - 1]->content();
     *start = result->length();
     return result;
   }

@@ -149,6 +149,10 @@ bool TemplateBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+MathSequence *TemplateBox::as_inline_span() {
+  return dynamic_cast<MathSequence*>(content());
+}
+
 bool TemplateBox::edit_selection(SelectionReference &selection) {
   return false;
 }
@@ -466,7 +470,6 @@ TemplateBoxSlot::TemplateBoxSlot()
     _argument(0)
 {
 }
-
 TemplateBox *TemplateBoxSlot::find_owner() {
   return Impl::find_owner(this, false);
 }
@@ -500,6 +503,10 @@ Expr TemplateBoxSlot::prepare_dynamic(Expr expr) {
     return owner->prepare_dynamic(std::move(expr));
     
   return base::prepare_dynamic(std::move(expr));
+}
+
+MathSequence *TemplateBoxSlot::as_inline_span() {
+  return dynamic_cast<MathSequence*>(content());
 }
 
 bool TemplateBoxSlot::edit_selection(SelectionReference &selection) {

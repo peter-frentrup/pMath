@@ -1831,15 +1831,16 @@ pmath_string_t MathSequence::Impl::syntaxform_or_null(Box *box) {
       return syntax_form.release();
     
     if(syntax_form == richmath_System_Automatic || obo->get_own_style(StripOnInput, false)) {
-      auto content = obo->content();
-      if(content->length() == 1 && content->text()[0] == PMATH_CHAR_BOX) 
-        return syntaxform_or_null(content->item(0));
-      
-      content->ensure_spans_valid();
-      if(content->span_array().next_token(0) == content->span_array().length())
-        return pmath_ref(content->text().get());
-      else
-        return PMATH_NULL;
+      if(auto content = dynamic_cast<MathSequence*>(obo->content())) {
+        if(content->length() == 1 && content->text()[0] == PMATH_CHAR_BOX) 
+          return syntaxform_or_null(content->item(0));
+        
+        content->ensure_spans_valid();
+        if(content->span_array().next_token(0) == content->span_array().length())
+          return pmath_ref(content->text().get());
+        else
+          return PMATH_NULL;
+      }
     }
     
     return PMATH_NULL;

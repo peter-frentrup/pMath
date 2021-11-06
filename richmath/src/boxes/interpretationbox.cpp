@@ -30,6 +30,10 @@ InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation
   reset_style();
 }
 
+MathSequence *InterpretationBox::as_inline_span() {
+  return dynamic_cast<MathSequence*>(content());
+}
+
 void InterpretationBox::reset_style() {
   if(style)
     style->clear();

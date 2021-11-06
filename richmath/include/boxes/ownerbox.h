@@ -5,7 +5,7 @@
 
 
 namespace richmath {
-  class MathSequence;
+  class AbstractSequence;
   
   class OwnerBox: public Box {
       using base = Box;
@@ -13,9 +13,9 @@ namespace richmath {
     protected:
       virtual ~OwnerBox();
     public:
-      explicit OwnerBox(MathSequence *content = nullptr);
+      explicit OwnerBox(AbstractSequence *content = nullptr);
       
-      MathSequence *content() { return _content; }
+      AbstractSequence *content() { return _content; }
       
       virtual Box *item(int i) override;
       virtual int count() override { return 1; }
@@ -51,14 +51,14 @@ namespace richmath {
       float calculate_scaled_baseline(double scale) const;
     
     protected:
-      MathSequence *_content;
+      AbstractSequence *_content;
       float     cx;
       float     cy;
   };
   
   class ExpandableOwnerBox : public OwnerBox {
     public:
-      explicit ExpandableOwnerBox(MathSequence *content = nullptr)
+      explicit ExpandableOwnerBox(AbstractSequence *content = nullptr)
         : OwnerBox(content)
       {
       }

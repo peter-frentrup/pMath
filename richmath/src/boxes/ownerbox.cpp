@@ -30,7 +30,7 @@ class OwnerBox::Impl {
 
 //{ class OwnerBox ...
 
-OwnerBox::OwnerBox(MathSequence *content)
+OwnerBox::OwnerBox(AbstractSequence *content)
   : base(),
   _content(content)
 {
