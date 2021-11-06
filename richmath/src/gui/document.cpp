@@ -1443,6 +1443,7 @@ void Document::move_start_end(
   }
   
   if(auto seq = dynamic_cast<MathSequence *>(box)) {
+    // TODO: consider inline_sequence()
     int l = seq->line_array().length() - 1;
     while(l > 0 && seq->line_array()[l - 1].end > index)
       --l;
