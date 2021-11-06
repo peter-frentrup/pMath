@@ -22,8 +22,8 @@ namespace richmath {
   /* This is a box containing math.
      For normal text, use class TextSequence.
    */
-  class MathSequence final : public BasicSequence {
-      using base = BasicSequence;
+  class MathSequence final : public AbstractSequence {
+      using base = AbstractSequence;
       class Impl;
     public:
       explicit MathSequence();

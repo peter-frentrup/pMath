@@ -13,8 +13,8 @@ namespace richmath {
   /* This is a box containing text (no math) and other boxes.
      It uses Pango for text layout. For math, use class MathSequence.
    */
-  class TextSequence final : public BasicSequence {
-      using base = BasicSequence;
+  class TextSequence final : public AbstractSequence {
+      using base = AbstractSequence;
       class Impl;
     protected:
       virtual ~TextSequence();

@@ -1029,7 +1029,7 @@ void Document::on_key_press(uint32_t unichar) {
     String selstr;
     
     bool can_surround = true;
-    if(auto seq = dynamic_cast<BasicSequence *>(context.selection.get())) {
+    if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
       selstr = seq->text().part(
                  context.selection.start,
                  context.selection.end - context.selection.start);
@@ -1045,7 +1045,7 @@ void Document::on_key_press(uint32_t unichar) {
     
     if(can_surround) {
       if(unichar == '/' && !selstr.starts_with("/*")) {
-        if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
+        if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
           seq->insert(context.selection.end,   "*/");
           seq->insert(context.selection.start, "/*");
           select(seq, context.selection.start, context.selection.end + 4);
@@ -4544,7 +4544,7 @@ bool Document::Impl::is_tabkey_only_moving() {
   if(!dynamic_cast<Section *>(selbox->parent()))
     return true;
     
-  if(auto seq = dynamic_cast<BasicSequence *>(selbox)) {
+  if(auto seq = dynamic_cast<AbstractSequence *>(selbox)) {
     const uint16_t *buf = seq->text().buffer();
     
     for(int i = self.context.selection.start - 1; i >= 0; --i) {

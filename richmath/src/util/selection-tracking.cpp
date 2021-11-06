@@ -104,9 +104,9 @@ namespace {
             return;
           }
 
-          if(auto mseq = dynamic_cast<BasicSequence*>(selbox)) {
-            in16 = mseq->text().buffer();
-            in_length = mseq->length();
+          if(auto seq = dynamic_cast<AbstractSequence*>(selbox)) {
+            in16 = seq->text().buffer();
+            in_length = seq->length();
           }
           else {
             add_output_pos(token_output_start);
@@ -193,7 +193,7 @@ namespace {
         if(!feo)
           return nullptr;
         
-        if(BasicSequence *seq = dynamic_cast<BasicSequence*>(feo)) {
+        if(AbstractSequence *seq = dynamic_cast<AbstractSequence*>(feo)) {
           if(source.end != source.start + 1)
             return nullptr;
           if(source.start < 0 || source.start >= seq->length())
