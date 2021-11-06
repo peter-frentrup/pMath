@@ -4469,7 +4469,7 @@ void Document::Impl::handle_key_left_right(SpecialKeyEvent &event, LogicalDirect
     else if( dynamic_cast<GridBox *>(selbox) ||
              (selbox &&
               dynamic_cast<GridItem *>(selbox->parent()) &&
-              ((MathSequence *)selbox)->is_placeholder()))
+              ((AbstractSequence *)selbox)->is_placeholder()))
     {
       self.move_horizontal(direction, event.ctrl);
     }
