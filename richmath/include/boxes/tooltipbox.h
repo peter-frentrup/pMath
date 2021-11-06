@@ -6,8 +6,9 @@
 
 namespace richmath {
   class TooltipBox final : public AbstractStyleBox {
+      using base = AbstractStyleBox;
     public:
-      TooltipBox();
+      explicit TooltipBox(AbstractSequence *content);
       
       // Box::try_create<TooltipBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

@@ -3,36 +3,15 @@
 #include <climits>
 #include <cmath>
 
-#include <boxes/buttonbox.h>
-#include <boxes/checkboxbox.h>
-#include <boxes/dynamicbox.h>
-#include <boxes/dynamiclocalbox.h>
-#include <boxes/errorbox.h>
-#include <boxes/fillbox.h>
+#include <boxes/box-factory.h>
 #include <boxes/fractionbox.h>
-#include <boxes/framebox.h>
 #include <boxes/gridbox.h>
-#include <boxes/inputfieldbox.h>
-#include <boxes/interpretationbox.h>
 #include <boxes/numberbox.h>
-#include <boxes/openerbox.h>
-#include <boxes/ownerbox.h>
-#include <boxes/panebox.h>
-#include <boxes/panelbox.h>
-#include <boxes/paneselectorbox.h>
-#include <boxes/progressindicatorbox.h>
-#include <boxes/radicalbox.h>
-#include <boxes/radiobuttonbox.h>
 #include <boxes/section.h>
-#include <boxes/setterbox.h>
-#include <boxes/sliderbox.h>
 #include <boxes/stylebox.h>
 #include <boxes/subsuperscriptbox.h>
 #include <boxes/templatebox.h>
-#include <boxes/tooltipbox.h>
-#include <boxes/transformationbox.h>
 #include <boxes/underoverscriptbox.h>
-#include <boxes/graphics/graphicsbox.h>
 
 #include <eval/binding.h>
 #include <eval/application.h>
@@ -53,42 +32,8 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
-extern pmath_symbol_t richmath_System_ButtonBox;
-extern pmath_symbol_t richmath_System_CheckboxBox;
 extern pmath_symbol_t richmath_System_ComplexStringBox;
-extern pmath_symbol_t richmath_System_DynamicBox;
-extern pmath_symbol_t richmath_System_DynamicLocalBox;
-extern pmath_symbol_t richmath_System_FillBox;
-extern pmath_symbol_t richmath_System_FractionBox;
-extern pmath_symbol_t richmath_System_FrameBox;
-extern pmath_symbol_t richmath_System_GraphicsBox;
-extern pmath_symbol_t richmath_System_GridBox;
-extern pmath_symbol_t richmath_System_InputFieldBox;
-extern pmath_symbol_t richmath_System_InterpretationBox;
 extern pmath_symbol_t richmath_System_List;
-extern pmath_symbol_t richmath_System_OpenerBox;
-extern pmath_symbol_t richmath_System_OverscriptBox;
-extern pmath_symbol_t richmath_System_PaneBox;
-extern pmath_symbol_t richmath_System_PanelBox;
-extern pmath_symbol_t richmath_System_PaneSelectorBox;
-extern pmath_symbol_t richmath_System_ProgressIndicatorBox;
-extern pmath_symbol_t richmath_System_RadicalBox;
-extern pmath_symbol_t richmath_System_RadioButtonBox;
-extern pmath_symbol_t richmath_System_RotationBox;
-extern pmath_symbol_t richmath_System_SetterBox;
-extern pmath_symbol_t richmath_System_SliderBox;
-extern pmath_symbol_t richmath_System_SqrtBox;
-extern pmath_symbol_t richmath_System_StyleBox;
-extern pmath_symbol_t richmath_System_SubscriptBox;
-extern pmath_symbol_t richmath_System_SubsuperscriptBox;
-extern pmath_symbol_t richmath_System_SuperscriptBox;
-extern pmath_symbol_t richmath_System_TagBox;
-extern pmath_symbol_t richmath_System_TemplateBox;
-extern pmath_symbol_t richmath_System_TemplateSlot;
-extern pmath_symbol_t richmath_System_TooltipBox;
-extern pmath_symbol_t richmath_System_TransformationBox;
-extern pmath_symbol_t richmath_System_UnderscriptBox;
-extern pmath_symbol_t richmath_System_UnderoverscriptBox;
 
 static const float RefErrorIndictorHeight = 1 / 3.0f;
 
@@ -759,41 +704,6 @@ Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(start > 0 || end < length())
     boxes = Impl::remove_null_tokens(boxes);
   return Expr(boxes);
-//  if(start == 0 && end >= length())
-//    return to_pmath(flags);
-//
-//  const uint16_t *buf = str.buffer();
-//  int firstbox = 0;
-//
-//  for(int i = 0; i < start; ++i)
-//    if(buf[i] == PMATH_CHAR_BOX)
-//      ++firstbox;
-//
-//  MathSequence *tmp = new MathSequence();
-//  tmp->insert(0, this, start, end);
-//  tmp->ensure_spans_valid();
-//  tmp->ensure_boxes_valid();
-//
-//  Expr result = tmp->to_pmath(flags);
-//
-//  for(int i = 0; i < tmp->boxes.length(); ++i) {
-//    Box *box          = boxes[firstbox + i];
-//    Box *tmp_box      = tmp->boxes[i];
-//    int box_index     = box->index();
-//    int tmp_box_index = tmp_box->index();
-//
-//    abandon(box);
-//    tmp->abandon(tmp_box);
-//
-//    adopt(tmp_box, box_index);
-//    tmp->adopt(box, tmp_box_index);
-//
-//    boxes[firstbox + i] = tmp_box;
-//    tmp->boxes[i] = box;
-//  }
-//
-//  delete tmp;
-//  return result;
 }
 
 Box *MathSequence::move_logical(
@@ -1295,148 +1205,6 @@ int MathSequence::matching_fence(int pos) {
   return -1;
 }
 
-template <class T>
-static Box *create_or_error(Expr expr, BoxInputFlags options) {
-  if(auto box = Box::try_create<T>(expr, options))
-    return box;
-    
-  return new ErrorBox(expr);
-}
-
-static Box *create_box(Expr expr, BoxInputFlags options) {
-  if(String s = expr) {
-    if(s.length() == 1 && s[0] == PMATH_CHAR_BOX)
-      return new ErrorBox(s);
-    
-    InlineSequenceBox *box = new InlineSequenceBox;
-    box->content()->load_from_object(s, options);
-    return box;
-  }
-  
-  if(!expr.is_expr())
-    return new ErrorBox(expr);
-    
-  Expr head = expr[0];
-  
-  if(head == richmath_System_List || head == richmath_System_ComplexStringBox) {
-    if(expr.expr_length() == 1) {
-      expr = expr[1];
-      return create_box(expr, options);
-    }
-    
-    InlineSequenceBox *box = new InlineSequenceBox;
-    box->content()->load_from_object(expr, options);
-    return box;
-  }
-  
-  if(head == richmath_System_ButtonBox)
-    return create_or_error<  ButtonBox>(expr, options);
-    
-  if(head == richmath_System_CheckboxBox)
-    return create_or_error<  CheckboxBox>(expr, options);
-    
-  if(head == richmath_System_DynamicBox)
-    return create_or_error<  DynamicBox>(expr, options);
-    
-  if(head == richmath_System_DynamicLocalBox)
-    return create_or_error<  DynamicLocalBox>(expr, options);
-    
-  if(head == richmath_System_FillBox)
-    return create_or_error<  FillBox>(expr, options);
-    
-  if(head == richmath_System_FractionBox)
-    return create_or_error<  FractionBox>(expr, options);
-    
-  if(head == richmath_System_FrameBox)
-    return create_or_error<  FrameBox>(expr, options);
-    
-  if(head == richmath_System_GraphicsBox)
-    return create_or_error<  GraphicsBox>(expr, options);
-    
-  if(head == richmath_System_GridBox)
-    return create_or_error<  GridBox>(expr, options);
-    
-  if(head == richmath_System_InputFieldBox)
-    return create_or_error<  InputFieldBox>(expr, options);
-    
-  if(head == richmath_System_InterpretationBox)
-    return create_or_error<  InterpretationBox>(expr, options);
-    
-  if(head == richmath_System_PaneBox)
-    return create_or_error<  PaneBox>(expr, options);
-    
-  if(head == richmath_System_PanelBox)
-    return create_or_error<  PanelBox>(expr, options);
-    
-  if(head == richmath_System_PaneSelectorBox)
-    return create_or_error<  PaneSelectorBox>(expr, options);
-    
-  if(head == richmath_System_ProgressIndicatorBox)
-    return create_or_error<  ProgressIndicatorBox>(expr, options);
-    
-  if(head == richmath_System_RadicalBox)
-    return create_or_error<  RadicalBox>(expr, options);
-    
-  if(head == richmath_System_RadioButtonBox)
-    return create_or_error<  RadioButtonBox>(expr, options);
-    
-  if(head == richmath_System_RotationBox)
-    return create_or_error<  RotationBox>(expr, options);
-    
-  if(head == richmath_System_SetterBox)
-    return create_or_error<  SetterBox>(expr, options);
-    
-  if(head == richmath_System_SliderBox)
-    return create_or_error<  SliderBox>(expr, options);
-    
-  if(head == richmath_System_SubscriptBox)
-    return create_or_error<  SubsuperscriptBox>(expr, options);
-    
-  if(head == richmath_System_SubsuperscriptBox)
-    return create_or_error<  SubsuperscriptBox>(expr, options);
-    
-  if(head == richmath_System_SuperscriptBox)
-    return create_or_error<  SubsuperscriptBox>(expr, options);
-    
-  if(head == richmath_System_SqrtBox)
-    return create_or_error<  RadicalBox>(expr, options);
-    
-  if(head == richmath_System_StyleBox)
-    return create_or_error<  StyleBox>(expr, options);
-    
-  if(head == richmath_System_TagBox)
-    return create_or_error<  TagBox>(expr, options);
-    
-  if(head == richmath_System_TemplateBox)
-    return create_or_error<  TemplateBox>(expr, options);
-    
-  if(head == richmath_System_TooltipBox)
-    return create_or_error<  TooltipBox>(expr, options);
-    
-  if(head == richmath_System_TransformationBox)
-    return create_or_error<  TransformationBox>(expr, options);
-    
-  if(head == richmath_System_OpenerBox)
-    return create_or_error<  OpenerBox>(expr, options);
-    
-  if(head == richmath_System_OverscriptBox)
-    return create_or_error<  UnderoverscriptBox>(expr, options);
-    
-  if(head == richmath_System_UnderoverscriptBox)
-    return create_or_error<  UnderoverscriptBox>(expr, options);
-    
-  if(head == richmath_System_UnderscriptBox)
-    return create_or_error<  UnderoverscriptBox>(expr, options);
-    
-  if(head == richmath_FE_NumberBox)
-    return create_or_error<NumberBox>(expr, options);
-    
-  if(head == richmath_System_TemplateSlot)
-    return create_or_error<TemplateBoxSlot>(expr, options);
-    
-  return new ErrorBox(expr);
-}
-
 class PositionedExpr {
   public:
     PositionedExpr()
@@ -1532,7 +1300,7 @@ class SpanSynchronizer: public Base {
         
         assert(new_box.pos < new_spans.length());
         
-        Box *box = create_box(new_box.expr, new_load_options);
+        Box *box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
         old_boxes.insert(old_next_box, 1, &box);
         
         ++old_next_box;
@@ -1597,7 +1365,7 @@ class SpanSynchronizer: public Base {
           
         if(!box->try_load_from_object(new_box.expr, new_load_options)) {
           box->safe_destroy();
-          box = create_box(new_box.expr, new_load_options);
+          box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
           
           old_boxes.set(old_next_box, box);
         }
@@ -1626,7 +1394,7 @@ class SpanSynchronizer: public Base {
         if(new_box.pos >= new_pos)
           break;
           
-        Box *box = create_box(new_box.expr, new_load_options);
+        Box *box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
         old_boxes.insert(old_next_box, 1, &box);
         
         ++old_next_box;

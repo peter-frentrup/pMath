@@ -34,7 +34,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override { return Expr(); }
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
-      virtual void load_from_object(Expr object, BoxInputFlags options) override;
+      virtual void load_from_object(Expr obj, BoxInputFlags options) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,

@@ -25,8 +25,8 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_RotationBox;
 extern pmath_symbol_t richmath_System_TransformationBox;
 
-AbstractTransformationBox::AbstractTransformationBox()
-  : base(nullptr)
+AbstractTransformationBox::AbstractTransformationBox(AbstractSequence *content)
+  : base(content)
 {
   mat.xx = 1;
   mat.xy = 0;
@@ -140,8 +140,8 @@ void AbstractTransformationBox::child_transformation(
 
 //{ class RotationBox ...
 
-RotationBox::RotationBox()
-  : AbstractTransformationBox(),
+RotationBox::RotationBox(AbstractSequence *content)
+  : base(content),
     _angle(0)
 {
   if(!style)
@@ -189,7 +189,7 @@ bool RotationBox::angle(Expr a) {
 void RotationBox::paint(Context &context) {
   bool have_dynamic = update_dynamic_styles(context);
   
-  AbstractTransformationBox::paint(context);
+  base::paint(context);
   
   if(have_dynamic) {
     Expr e = get_style(BoxRotation, Expr());
@@ -215,8 +215,8 @@ Expr RotationBox::to_pmath(BoxOutputFlags flags) {
 
 //{ class TransformationBox ...
 
-TransformationBox::TransformationBox()
-  : AbstractTransformationBox(),
+TransformationBox::TransformationBox(AbstractSequence *content)
+  : base(content),
     _matrix(0)
 {
 }
@@ -281,7 +281,7 @@ bool TransformationBox::matrix(Expr m) {
 void TransformationBox::paint(Context &context) {
   bool have_dynamic = update_dynamic_styles(context);
   
-  AbstractTransformationBox::paint(context);
+  base::paint(context);
   
   if(have_dynamic) {
     Expr e = get_style(BoxTransformation, Expr());

@@ -744,6 +744,7 @@
 			</Target>
 		</Build>
 		<Unit filename="include/boxes/abstractsequence.h" />
+		<Unit filename="include/boxes/box-factory.h" />
 		<Unit filename="include/boxes/box.h" />
 		<Unit filename="include/boxes/buttonbox.h" />
 		<Unit filename="include/boxes/checkboxbox.h" />
@@ -1343,6 +1344,7 @@
 		</Unit>
 		<Unit filename="scripts/frontinit.pmath" />
 		<Unit filename="src/boxes/abstractsequence.cpp" />
+		<Unit filename="src/boxes/box-factory.cpp" />
 		<Unit filename="src/boxes/box.cpp" />
 		<Unit filename="src/boxes/buttonbox.cpp" />
 		<Unit filename="src/boxes/checkboxbox.cpp" />

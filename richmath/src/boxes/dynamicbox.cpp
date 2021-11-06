@@ -24,8 +24,8 @@ extern pmath_symbol_t richmath_Internal_DynamicRemove;
 
 //{ class AbstractDynamicBox ...
 
-AbstractDynamicBox::AbstractDynamicBox()
-  : OwnerBox()
+AbstractDynamicBox::AbstractDynamicBox(AbstractSequence *content)
+  : OwnerBox(content)
 {
   if(!style) style = new Style();
 }
@@ -109,8 +109,8 @@ void AbstractDynamicBox::ensure_init() {
 
 //{ class DynamicBox ...
 
-DynamicBox::DynamicBox()
-  : base()
+DynamicBox::DynamicBox(AbstractSequence *content)
+  : base(content)
 {
   must_update(true);
   dynamic.init(this, Expr());

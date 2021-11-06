@@ -57,8 +57,6 @@ namespace richmath {
     public:
       Section(SharedPtr<Style> _style);
       
-      static Section *create_from_object(const Expr expr);
-      
       float label_width();
       void resize_label(Context &context);
       void paint_label(Context &context);
@@ -143,9 +141,9 @@ namespace richmath {
     protected:
       virtual ~AbstractSequenceSection();
     public:
-      AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
+      explicit AbstractSequenceSection(AbstractSequence *content, SharedPtr<Style> _style);
       
-      AbstractSequence *abstract_content() {return _content; };
+      AbstractSequence *content() {return _content; };
       
       virtual Box *item(int i) override;
       virtual int count() override;
@@ -190,7 +188,7 @@ namespace richmath {
   
   class MathSection : public AbstractSequenceSection {
     public:
-      MathSection();
+      explicit MathSection();
       explicit MathSection(SharedPtr<Style> _style);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
@@ -200,7 +198,7 @@ namespace richmath {
   
   class TextSection final : public AbstractSequenceSection {
     public:
-      TextSection();
+      explicit TextSection();
       explicit TextSection(SharedPtr<Style> _style);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

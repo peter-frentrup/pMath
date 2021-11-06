@@ -17,7 +17,7 @@ namespace richmath {
       virtual void paint(Context &context) override;
       
     protected:
-      explicit AbstractDynamicBox();
+      explicit AbstractDynamicBox(AbstractSequence *content);
       virtual ~AbstractDynamicBox();
       
       void ensure_init();
@@ -28,7 +28,7 @@ namespace richmath {
     protected:
       virtual ~DynamicBox();
     public:
-      explicit DynamicBox();
+      explicit DynamicBox(AbstractSequence *content);
       
       // Box::try_create<DynamicBox>(expr, options)
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

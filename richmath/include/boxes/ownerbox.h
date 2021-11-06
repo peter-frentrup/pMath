@@ -13,7 +13,7 @@ namespace richmath {
     protected:
       virtual ~OwnerBox();
     public:
-      explicit OwnerBox(AbstractSequence *content = nullptr);
+      explicit OwnerBox(AbstractSequence *content);
       
       AbstractSequence *content() { return _content; }
       
@@ -58,25 +58,39 @@ namespace richmath {
   
   class ExpandableOwnerBox : public OwnerBox {
     public:
-      explicit ExpandableOwnerBox(AbstractSequence *content = nullptr)
-        : OwnerBox(content)
-      {
-      }
+      explicit ExpandableOwnerBox(AbstractSequence *content = nullptr) : OwnerBox(content) {}
       
       virtual bool expand(const BoxSize &size) override;
   };
   
   class InlineSequenceBox final : public OwnerBox {
+      using base = OwnerBox;
     public:
+      explicit InlineSequenceBox(AbstractSequence *content) : OwnerBox(content) {}
+      
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual void paint(Context &context) override;
       
       virtual void on_enter() override;
       virtual void on_exit() override;
+      
+      virtual Expr to_pmath_symbol() override;
+      virtual Expr to_pmath(BoxOutputFlags flags) override;
+      
+      bool has_explicit_head() {       return get_flag(ExplicitHeadBit); }
+      void has_explicit_head(bool value) { change_flag(ExplicitHeadBit, value); }
     
     protected:
       virtual void resize_default_baseline(Context &context) override;
+      
+    protected:
+      enum {
+        ExplicitHeadBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
   };
 }
 

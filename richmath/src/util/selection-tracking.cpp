@@ -1,8 +1,8 @@
 #include <util/selection-tracking.h>
 
+#include <boxes/box-factory.h>
 #include <boxes/mathsequence.h>
 #include <boxes/numberbox.h>
-#include <boxes/section.h>
 #include <boxes/sectionlist.h>
 #include <boxes/textsequence.h>
 
@@ -679,7 +679,7 @@ static bool finish_edit_section(
       edit->original = nullptr;
     }
     else
-      sect = Section::create_from_object(parsed);
+      sect = BoxFactory::create_section(parsed);
       
     sect->swap_id(edit);
     parent->swap(index, sect)->safe_destroy();

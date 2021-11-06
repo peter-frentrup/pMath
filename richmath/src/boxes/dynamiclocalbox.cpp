@@ -36,8 +36,8 @@ using namespace richmath;
 
 //{ class DynamicLocalBox ...
 
-DynamicLocalBox::DynamicLocalBox()
-  : base()
+DynamicLocalBox::DynamicLocalBox(AbstractSequence *content)
+  : base(content)
 {
 }
 

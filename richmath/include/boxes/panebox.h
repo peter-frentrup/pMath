@@ -10,7 +10,7 @@ namespace richmath {
     protected:
       virtual ~PaneBox();
     public:
-      explicit PaneBox();
+      explicit PaneBox(AbstractSequence *content);
       
       virtual void reset_style() override;
       

@@ -112,8 +112,8 @@ static T *search_next_box(Box *start, LogicalDirection direction, Box *stop_pare
 
 //{ class TemplateBox ...
 
-TemplateBox::TemplateBox()
-  : base()
+TemplateBox::TemplateBox(AbstractSequence *content)
+  : base(content)
 {
   style = new Style();
 }
@@ -465,8 +465,8 @@ Expr TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr ite
 
 //{ class TemplateBoxSlot ...
 
-TemplateBoxSlot::TemplateBoxSlot()
-  : base(),
+TemplateBoxSlot::TemplateBoxSlot(AbstractSequence *content)
+  : base(content),
     _argument(0)
 {
 }

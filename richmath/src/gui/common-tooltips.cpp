@@ -1,6 +1,6 @@
 #include <gui/common-tooltips.h>
 
-#include <boxes/section.h>
+#include <boxes/box-factory.h>
 #include <gui/document.h>
 #include <util/style.h>
 
@@ -39,11 +39,11 @@ void CommonTooltips::load_content(
     String("TooltipWindowSection"));
   
   if(!section) {
-    section = Section::create_from_object(section_boxes);
+    section = BoxFactory::create_section(section_boxes);
     doc->insert(0, section);
   }
   else if(!section->try_load_from_object(section_boxes, BoxInputFlags::Default)) {
-    section = Section::create_from_object(section_boxes);
+    section = BoxFactory::create_section(section_boxes);
     doc->swap(0, section)->safe_destroy();
   }
 }

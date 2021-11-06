@@ -57,7 +57,7 @@ extern pmath_symbol_t richmath_System_Top;
 //{ class GridItem ...
 
 GridItem::GridItem()
-  : base(),
+  : base(new MathSequence), // TODO: allow other AbstractSequence
     _span_right(0),
     _span_down(0)
 {

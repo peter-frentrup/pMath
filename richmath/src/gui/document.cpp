@@ -1012,7 +1012,7 @@ void Document::on_key_press(uint32_t unichar) {
             new_sect = new MathSection(new_style);
             
           insert(sect->index() + 1, new_sect);
-          move_to(new_sect->abstract_content(), 0);
+          move_to(new_sect->content(), 0);
           return;
         }
         
@@ -2202,7 +2202,7 @@ void Document::set_selection_style(Expr options) {
     Impl(*this).set_prev_sel_line();
     
     if(!style_box) {
-      style_box = new StyleBox();
+      style_box = new StyleBox(seq->create_similar());
       style_box->style->add_pmath(options);
       style_box->content()->insert(0, seq, start, end);
       
@@ -2328,7 +2328,7 @@ bool Document::split_section(bool do_it) {
     ++e;
     
   insert(sect->index() + 1, new_sect);
-  new_sect->abstract_content()->insert(0, seq, e, seq->length());
+  new_sect->content()->insert(0, seq, e, seq->length());
   
   if(start < end) {
     new_style = new Style();
@@ -2340,7 +2340,7 @@ bool Document::split_section(bool do_it) {
       new_sect = new TextSection(new_style);
       
     insert(sect->index() + 1, new_sect);
-    new_sect->abstract_content()->insert(0, seq, start, end);
+    new_sect->content()->insert(0, seq, start, end);
   }
   else if(seq->char_at(start - 1) == '\n')
     --start;
@@ -2381,12 +2381,12 @@ bool Document::merge_sections(bool do_it) {
   if(!do_it)
     return true;
     
-  AbstractSequence *seq = first_sect->abstract_content();
+  AbstractSequence *seq = first_sect->content();
   int pos = seq->length();
   
   for(int i = start + 1; i < end; ++i) {
     AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(item(i));
-    AbstractSequence        *seq2 = sect->abstract_content();
+    AbstractSequence        *seq2 = sect->content();
     
     pos = seq->insert(pos, '\n');
     pos = seq->insert(pos, seq2, 0, seq2->length());
@@ -4325,7 +4325,8 @@ bool Document::Impl::prepare_insert_math(bool include_previous_word) {
       self.select(seq, prev_pos, self.selection_end());
   }
   
-  InlineSequenceBox *box = new InlineSequenceBox;
+  InlineSequenceBox *box = new InlineSequenceBox(new MathSequence);
+  box->has_explicit_head(true);
   
   int s = self.selection_start();
   int e = self.selection_end();

@@ -172,19 +172,6 @@ namespace richmath {
       /// This calls item(i)->after_insertion() for all child boxes item(i) whose index() is >= start and < end.
       void after_insertion(int start, int end);
       
-      template<class T>
-      static T *try_create(Expr expr, BoxInputFlags options) {
-        T *box = new T();
-        
-        if(!box->try_load_from_object(expr, options)) {
-          Box *upcast_box = box;
-          delete upcast_box;
-          return nullptr;
-        }
-        
-        return box;
-      }
-      
       Box *parent() { return _parent_or_limbo_next.as_normal(); }
 
       /// The selection index within parent().

@@ -38,7 +38,9 @@ namespace richmath {
 
 //{ class PaneBox ...
 
-PaneBox::PaneBox() : base() {
+PaneBox::PaneBox(AbstractSequence *content)
+  : base(content)
+{
 }
 
 PaneBox::~PaneBox() {

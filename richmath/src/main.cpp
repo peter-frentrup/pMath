@@ -19,6 +19,7 @@
 #include <boxes/graphics/graphicsdirective.h>
 #include <boxes/graphics/linebox.h>
 #include <boxes/graphics/pointbox.h>
+#include <boxes/box-factory.h>
 #include <boxes/buttonbox.h>
 #include <boxes/checkboxbox.h>
 #include <boxes/dynamicbox.h>
@@ -291,7 +292,7 @@ static void write_section(Document *doc, Expr expr) {
     i = doc->length();
   }
   
-  doc->insert(i, Section::create_from_object(expr));
+  doc->insert(i, BoxFactory::create_section(expr));
   
   doc->move_to(b, i + 1);
 }

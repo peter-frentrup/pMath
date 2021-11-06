@@ -325,13 +325,13 @@ namespace richmath {
 //{ class NumberBox ...
 
 NumberBox::NumberBox()
-  : base()
+  : base(new MathSequence)
 {
   Impl(*this).set_number(strings::EmptyString);
 }
 
 NumberBox::NumberBox(String number)
-  : base()
+  : base(new MathSequence)
 {
   Impl(*this).set_number(number);
 }

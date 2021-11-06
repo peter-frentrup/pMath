@@ -12,8 +12,8 @@ extern pmath_symbol_t richmath_System_TooltipBox;
 
 //{ class TooltipBox ...
 
-TooltipBox::TooltipBox()
-  : AbstractStyleBox(0)
+TooltipBox::TooltipBox(AbstractSequence *content)
+  : base(content)
 {
 }
 

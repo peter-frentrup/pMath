@@ -2,7 +2,7 @@
 
 #include <cmath>
 
-#include <boxes/section.h>
+#include <boxes/box-factory.h>
 #include <graphics/context.h>
 
 
@@ -590,7 +590,7 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
       }
     }
     
-    if(auto section = Section::create_from_object(boxes)) {
+    if(auto section = BoxFactory::create_section(boxes)) {
       //insert(*pos, s);
       _sections.insert(*pos, 1, &section);
       adopt(section, *pos);

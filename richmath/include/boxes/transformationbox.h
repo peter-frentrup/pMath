@@ -8,7 +8,7 @@ namespace richmath {
   class AbstractTransformationBox: public OwnerBox {
       using base = OwnerBox;
     public:
-      AbstractTransformationBox();
+      explicit AbstractTransformationBox(AbstractSequence *content);
       
       virtual void paint_content(Context &context) override;
       
@@ -30,8 +30,9 @@ namespace richmath {
   };
   
   class RotationBox final : public AbstractTransformationBox {
+      using base = AbstractTransformationBox;
     public:
-      RotationBox();
+      explicit RotationBox(AbstractSequence *content);
       
       // Box::try_create<RotationBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
@@ -49,8 +50,9 @@ namespace richmath {
   };
   
   class TransformationBox final : public AbstractTransformationBox {
+      using base = AbstractTransformationBox;
     public:
-      TransformationBox();
+      explicit TransformationBox(AbstractSequence *content);
       
       // Box::try_create<TransformationBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

@@ -11,7 +11,7 @@ namespace richmath {
     protected:
       virtual ~DynamicLocalBox();
     public:
-      DynamicLocalBox();
+      DynamicLocalBox(AbstractSequence *content);
       
       // Box::try_create<DynamicLocalBox>(expr, options)
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;

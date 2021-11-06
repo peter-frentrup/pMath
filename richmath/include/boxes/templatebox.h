@@ -15,7 +15,7 @@ namespace richmath {
       using Impl = TemplateBoxImpl;
       
     public:
-      TemplateBox();
+      explicit TemplateBox(AbstractSequence *content);
       
       virtual void after_insertion() override;
       
@@ -83,7 +83,7 @@ namespace richmath {
       using Impl = TemplateBoxSlotImpl;
       
     public:
-      TemplateBoxSlot();
+      explicit TemplateBoxSlot(AbstractSequence *content);
       
       virtual void after_insertion() override;
       

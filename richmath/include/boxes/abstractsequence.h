@@ -22,7 +22,6 @@ namespace richmath {
     public:
       explicit AbstractSequence();
       
-      static AbstractSequence *create(LayoutKind kind);
       virtual AbstractSequence *create_similar() = 0;
       
       virtual LayoutKind kind() = 0;

@@ -10,8 +10,9 @@
 #include <cstdlib>
 #include <algorithm>
 
-#include <boxes/mathsequence.h>
-#include <boxes/ownerbox.h>
+#include <boxes/box-factory.h>
+#include <boxes/templatebox.h>
+
 #include <graphics/context.h>
 #include <graphics/rectangle.h>
 
@@ -23,6 +24,7 @@ namespace richmath { namespace strings {
 }}
 
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_BoxData;
 
 static const uint16_t ObjectReplacementChar = 0xFFFC;
 static const char *Utf8ObjectReplacementChar = "\xEF\xBF\xBC";
@@ -120,7 +122,7 @@ namespace richmath {
       
       Expr to_pmath(BoxOutputFlags flags, int start, int end);
       
-      void append_object(Expr object, BoxInputFlags options);
+      void append_object(int &next_box, Expr object, BoxInputFlags options);
       
     private:
       Expr add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end);
@@ -444,27 +446,36 @@ Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   return Impl(*this).to_pmath(flags, start, end);
 }
 
-void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
-  for(auto box : boxes)
-    box->safe_destroy();
-    
-  boxes.length(0);
+void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
   str = strings::EmptyString;
   
   boxes_invalid(true);
   text_changed(true);
   
-  if(object.is_string())
-    object = expand_string_boxes(String(object));
+  if(obj[0] == richmath_System_BoxData && obj.expr_length() == 1)
+    obj = obj[1];
     
-  if(object[0] == richmath_System_List) {
-    for(size_t i = 1; i <= object.expr_length(); ++i) 
-      Impl(*this).append_object(object[i], options);
+  if(has(options, BoxInputFlags::AllowTemplateSlots))
+    obj = TemplateBoxSlot::prepare_boxes(obj);
+    
+  if(obj.is_string())
+    obj = expand_string_boxes(String(std::move(obj)));
+    
+  int next_box = 0;
+  
+  if(obj[0] == richmath_System_List) {
+    for(size_t i = 1; i <= obj.expr_length(); ++i) 
+      Impl(*this).append_object(next_box, obj[i], options);
   }
   else 
-    Impl(*this).append_object(object, options);
+    Impl(*this).append_object(next_box, obj, options);
   
-  finish_load_from_object(std::move(object));
+  for(int i = next_box; i < boxes.length();++i)
+    boxes[i]->safe_destroy();
+    
+  boxes.length(next_box);
+  
+  finish_load_from_object(std::move(obj));
 }
 
 Box *TextSequence::move_logical(
@@ -844,7 +855,7 @@ Expr TextSequence::Impl::add_debug_info(Expr expr, BoxOutputFlags flags, int sta
   return Expr{ obj };
 }
 
-void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
+void TextSequence::Impl::append_object(int &next_box, Expr object, BoxInputFlags options) {
   if(object.is_string()) {
     String s(object.release());
     
@@ -867,11 +878,30 @@ void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
     return;
   }
   
-  InlineSequenceBox *box = new InlineSequenceBox();
+  if(next_box < self.boxes.length()) {
+    if(self.boxes[next_box]->try_load_from_object(object, options)) {
+      self.str += PMATH_CHAR_BOX;
+      ++next_box;
+      return;
+    }
+  }
   
-  box->content()->load_from_object(object, options);
+  Box *box;
+  if(object[0] == richmath_System_List) {
+    auto inline_seq = new InlineSequenceBox(BoxFactory::create_sequence(LayoutKind::Math));
+    inline_seq->content()->load_from_object(object, options);
+    box = inline_seq;
+  }
+  else
+    box = BoxFactory::create_box(LayoutKind::Text, std::move(object), options);
   
-  self.insert(self.length(), box);
+  self.str += PMATH_CHAR_BOX;
+  if(next_box < self.boxes.length())
+    self.boxes[next_box] = box;
+  else
+    self.boxes.add(box);
+  
+  ++next_box;
 }
 
 inline PangoLayoutIter *TextSequence::Impl::new_pango_iter() {

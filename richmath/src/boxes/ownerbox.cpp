@@ -11,10 +11,12 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_Axis;
 extern pmath_symbol_t richmath_System_Baseline;
 extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Center;
 extern pmath_symbol_t richmath_System_GridBox;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Scaled;
+extern pmath_symbol_t richmath_System_TextData;
 extern pmath_symbol_t richmath_System_Top;
 
 class OwnerBox::Impl {
@@ -210,15 +212,39 @@ bool ExpandableOwnerBox::expand(const BoxSize &size) {
 
 //{ ... class InlineSequenceBox
 
-bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options){
-  if(expr[0] == richmath_System_List) {
-    _content->load_from_object(expr, options);
+bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
+  if(expr[0] == richmath_System_BoxData) {
+    if(content()->kind() != LayoutKind::Math)
+      return false;
     
-    finish_load_from_object(std::move(expr));
-    return true;
+    if(expr.expr_length() != 1)
+      return false;
+    
+    _content->load_from_object(expr[1], options);
+    has_explicit_head(true);
   }
+  else if(expr[0] == richmath_System_TextData) {
+    if(content()->kind() != LayoutKind::Text)
+      return false;
+    
+    if(expr.expr_length() != 1)
+      return false;
+    
+    _content->load_from_object(expr[1], options);
+    has_explicit_head(true);
+  }
+  else if(expr[0] == richmath_System_List) {
+    if(has_explicit_head())
+      return false;
+    
+    _content->load_from_object(expr, options);
+    has_explicit_head(false);
+  }
+  else
+    return false;
   
-  return false;
+  finish_load_from_object(std::move(expr));
+  return true;
 }
 
 void InlineSequenceBox::resize_default_baseline(Context &context) {
@@ -260,13 +286,31 @@ void InlineSequenceBox::paint(Context &context) {
 void InlineSequenceBox::on_enter() {
   request_repaint_all();
   
-  OwnerBox::on_enter();
+  base::on_enter();
 }
 
 void InlineSequenceBox::on_exit() {
   request_repaint_all();
   
-  OwnerBox::on_exit();
+  base::on_exit();
+}
+
+Expr InlineSequenceBox::to_pmath_symbol() {
+  if(has_explicit_head()) {
+    switch(content()->kind()) {
+      case LayoutKind::Math: return Symbol(richmath_System_BoxData);
+      case LayoutKind::Text: return Symbol(richmath_System_TextData);
+    }
+  }
+  
+  return base::to_pmath_symbol();
+}
+
+Expr InlineSequenceBox::to_pmath(BoxOutputFlags flags) {
+  if(has_explicit_head())
+    return Call(to_pmath_symbol(), base::to_pmath(flags));
+  else
+    return base::to_pmath(flags);
 }
 
 //} ... class InlineSequenceBox

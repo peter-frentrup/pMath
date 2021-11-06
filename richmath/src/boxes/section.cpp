@@ -2,6 +2,7 @@
 
 #include <cmath>
 
+#include <boxes/box-factory.h>
 #include <boxes/sectionlist.h>
 #include <boxes/mathsequence.h>
 #include <boxes/textsequence.h>
@@ -53,28 +54,6 @@ Section::~Section() {
   int defines_eval_ctx = false;
   if(style && style->get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
     EvaluationContexts::context_source_deleted(this);
-}
-
-Section *Section::create_from_object(const Expr expr) {
-  if(expr[0] == richmath_System_Section) {
-    Expr content = expr[1];
-    
-    Section *section = nullptr;
-    
-    if(content[0] == richmath_System_BoxData)
-      section = Box::try_create<MathSection>(expr, BoxInputFlags::Default);
-    else if(content[0] == richmath_System_StyleData)
-      section = Box::try_create<StyleDataSection>(expr, BoxInputFlags::Default);
-    else if(content[0] == richmath_System_TextData || content.is_string() || content[0] == richmath_System_List)
-      section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
-    else
-      section = Box::try_create<TextSection>(expr, BoxInputFlags::Default);
-      
-    if(section)
-      return section;
-  }
-  
-  return new ErrorSection(expr);
 }
 
 float Section::label_width() {
@@ -232,7 +211,7 @@ bool Section::edit_selection(SelectionReference &selection) {
       slist->set_open_close_group(index(), true);
       
       if(get_style(SectionEditDuplicateMakesCopy)) {
-        slist->insert(index(), Section::create_from_object(to_pmath(BoxOutputFlags::Default)));
+        slist->insert(index(), BoxFactory::create_section(to_pmath(BoxOutputFlags::Default)));
       }
     }
     

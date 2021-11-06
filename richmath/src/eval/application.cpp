@@ -8,9 +8,7 @@
 #include <cstdio>
 
 #include <boxes/graphics/graphicsbox.h>
-#include <boxes/section.h>
-#include <boxes/templatebox.h>
-#include <boxes/mathsequence.h>
+#include <boxes/box-factory.h>
 
 #include <graphics/config-shaper.h>
 
@@ -428,11 +426,9 @@ void Application::gui_print_section(Expr expr) {
           break;
           
         if(session && session->current_job && session->current_job->default_graphics_options.is_null()) {
-          if(MathSection *msect = dynamic_cast<MathSection *>(s)) {
-            if( msect->content()->length() == 1 &&
-                msect->content()->count()  == 1)
-            {
-              if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(msect->content()->item(0))) {
+          if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(s)) {
+            if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
+              if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
                 session->current_job->default_graphics_options = gb->get_user_options();
               }
             }
@@ -457,16 +453,14 @@ void Application::gui_print_section(Expr expr) {
     else
       index = doc->length();
       
-    sect = Section::create_from_object(expr);
+    sect = BoxFactory::create_section(expr);
     if(sect) {
       String base_style_name;
       
       if(session && session->current_job) {
-        if(MathSection *msect = dynamic_cast<MathSection *>(sect)) {
-          if( msect->content()->length() == 1 &&
-              msect->content()->count()  == 1)
-          {
-            if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(msect->content()->item(0))) {
+        if(auto seq_sect = dynamic_cast<AbstractSequenceSection *>(sect)) {
+          if(seq_sect->content()->length() == 1 && seq_sect->content()->count() == 1) {
+            if(GraphicsBox *gb = dynamic_cast<GraphicsBox *>(seq_sect->content()->item(0))) {
               gb->set_user_default_options(session->current_job->default_graphics_options);
             }
           }

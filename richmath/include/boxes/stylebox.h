@@ -7,7 +7,7 @@ namespace richmath {
   class AbstractStyleBox: public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
     public:
-      explicit AbstractStyleBox(AbstractSequence *content = nullptr);
+      explicit AbstractStyleBox(AbstractSequence *content);
       
       virtual void paint(Context &context) override;
       
@@ -23,7 +23,7 @@ namespace richmath {
   class StyleBox final : public AbstractStyleBox {
       using base = AbstractStyleBox;
     public:
-      explicit StyleBox(MathSequence *content = nullptr);
+      explicit StyleBox(AbstractSequence *content);
       
       // Box::try_create<StyleBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
@@ -37,8 +37,8 @@ namespace richmath {
   class TagBox final : public AbstractStyleBox {
       using base = AbstractStyleBox;
     public:
-      explicit TagBox(MathSequence *content = nullptr);
-      TagBox(MathSequence *content, Expr _tag);
+      explicit TagBox(AbstractSequence *content);
+      explicit TagBox(AbstractSequence *content, Expr _tag);
       
       // Box::try_create<TagBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

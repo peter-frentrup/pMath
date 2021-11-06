@@ -1,7 +1,7 @@
 #include <boxes/abstractsequence.h>
+
 #include <boxes/errorbox.h>
-#include <boxes/mathsequence.h>
-#include <boxes/textsequence.h>
+#include <boxes/ownerbox.h>
 
 
 using namespace richmath;
@@ -17,16 +17,6 @@ AbstractSequence::AbstractSequence()
 AbstractSequence::~AbstractSequence() {
   for(int i = 0; i < boxes.length(); ++i)
     delete_owned(boxes[i]);
-}
-
-AbstractSequence *AbstractSequence::create(LayoutKind kind) {
-  switch(kind) {
-    case LayoutKind::Math: return new MathSequence;
-    case LayoutKind::Text: return new TextSequence;
-  }
-  
-  assert(0 && "not reached");
-  return new MathSequence;
 }
 
 bool AbstractSequence::try_load_from_object(Expr object, BoxInputFlags options) {
@@ -207,9 +197,13 @@ int AbstractSequence::insert(int pos, Box *box) {
   // TODO: check whether box is actually the same type as this.
   // Or alternatively introduce real inline Sections (Cells)
   if(AbstractSequence *sequence = dynamic_cast<AbstractSequence *>(box)) {
-    pos = insert(pos, sequence, 0, sequence->length());
-    sequence->safe_destroy();
-    return pos;
+    if(kind() == sequence->kind()) {
+      pos = insert(pos, sequence, 0, sequence->length());
+      sequence->safe_destroy();
+      return pos;
+    }
+    else
+      box = new InlineSequenceBox(sequence);
   }
   
   ensure_boxes_valid();

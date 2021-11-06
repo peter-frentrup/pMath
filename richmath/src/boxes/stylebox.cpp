@@ -15,7 +15,7 @@ extern pmath_symbol_t richmath_System_TagBox;
 //{ class AbstractStyleBox ...
 
 AbstractStyleBox::AbstractStyleBox(AbstractSequence *content)
-  : ExpandableOwnerBox(content)
+  : base(content)
 {
 }
 
@@ -109,8 +109,8 @@ VolatileSelection AbstractStyleBox::mouse_selection(Point pos, bool *was_inside_
 
 //{ class StyleBox ...
 
-StyleBox::StyleBox(MathSequence *content)
-  : AbstractStyleBox(content)
+StyleBox::StyleBox(AbstractSequence *content)
+  : base(content)
 {
   style = new Style;
 }
@@ -198,14 +198,14 @@ Expr StyleBox::to_pmath(BoxOutputFlags flags) {
 
 //{ class TagBox ...
 
-TagBox::TagBox(MathSequence *content)
-  : AbstractStyleBox(content)
+TagBox::TagBox(AbstractSequence *content)
+  : base(content)
 {
   style = new Style();
 }
 
-TagBox::TagBox(MathSequence *content, Expr _tag)
-  : AbstractStyleBox(content),
+TagBox::TagBox(AbstractSequence *content, Expr _tag)
+  : base(content),
   tag(_tag)
 {
   style = new Style();
