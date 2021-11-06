@@ -1474,8 +1474,8 @@ void Document::move_start_end(
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
-        if(line->start_index + line->length >= iter.attribute_index()) {
-          iter.rewind_to(line->start_index);
+        if(line->start_index + line->length >= iter.byte_index()) {
+          iter.rewind_to_byte(line->start_index);
           index = iter.text_index();
           box = iter.current_sequence();
           break;
@@ -1488,8 +1488,8 @@ void Document::move_start_end(
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
-        if(line->start_index + line->length >= iter.attribute_index()) {
-          iter.rewind_to(line->start_index + line->length);
+        if(line->start_index + line->length >= iter.byte_index()) {
+          iter.rewind_to_byte(line->start_index + line->length);
           
           index = iter.text_index();
           box = iter.current_sequence();

@@ -593,21 +593,21 @@ void VolatileSelectionImpl::expand_text() {
   
   TextLayoutIterator new_start = iter_start;
   
-  while(new_start.attribute_index() > 0 && !new_start.is_word_start())
-    --new_start;
+  while(new_start.byte_index() > 0 && !new_start.is_word_start())
+    new_start.move_previous_char();
   
   TextLayoutIterator new_end = iter_start; // not iter_end!
-  while(new_end.has_more_attributes() && !new_end.is_word_end())
-    ++new_end;
+  while(new_end.has_more_bytes() && !new_end.is_word_end())
+    new_end.move_next_char();
   
   auto large_enough = [&]() { 
     //int start_order = box_order(new_start.current_sequence(), new_start.text_index(), self.box, self.start);
     //int end_order   = box_order(self.box, self.end, new_end.current_sequence(), new_end.text_index());
     //return (0 <= start_order && 0 <  end_order) || 
     //       (0 <  start_order && 0 <= end_order);
-    return (new_start.attribute_index() <= iter_start.attribute_index() && 
-      iter_end.attribute_index() <= new_end.attribute_index() &&
-      iter_end.attribute_index() - iter_start.attribute_index() < new_end.attribute_index() - new_start.attribute_index());
+    return (new_start.byte_index() <= iter_start.byte_index() && 
+      iter_end.byte_index() <= new_end.byte_index() &&
+      iter_end.byte_index() - iter_start.byte_index() < new_end.byte_index() - new_start.byte_index());
   };
   
   if(!large_enough()) {
@@ -620,23 +620,23 @@ void VolatileSelectionImpl::expand_text() {
     while(lines) {
       PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
       
-      if(line->is_paragraph_start && line->start_index <= iter_start.attribute_index()) {
+      if(line->is_paragraph_start && line->start_index <= iter_start.byte_index()) {
         prev_par_start = paragraph_start;
         paragraph_start = line->start_index;
       }
       
-      if(line->start_index + line->length >= iter_end.attribute_index()) {
-        if(line->start_index <= iter_start.attribute_index() && iter_end.attribute_index() - iter_start.attribute_index() < line->length) {
-          new_start.rewind_to(line->start_index);
-          new_end.rewind_to(line->start_index + line->length);
+      if(line->start_index + line->length >= iter_end.byte_index()) {
+        if(line->start_index <= iter_start.byte_index() && iter_end.byte_index() - iter_start.byte_index() < line->length) {
+          new_start.rewind_to_byte(line->start_index);
+          new_end.rewind_to_byte(line->start_index + line->length);
           break;
         }
         
         lines = lines->next;
         while(lines) {
           PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-          if(line->is_paragraph_start && line->start_index >= iter_end.attribute_index()) {
-            new_end.rewind_to(line->start_index);
+          if(line->is_paragraph_start && line->start_index >= iter_end.byte_index()) {
+            new_end.rewind_to_byte(line->start_index);
             break;
           }
           
@@ -644,12 +644,12 @@ void VolatileSelectionImpl::expand_text() {
         }
         
         if(!lines)
-          new_end.rewind_to(new_end.attr_count());
+          new_end.rewind_to_byte(new_end.byte_count());
         
-        if(iter_end.attribute_index() - iter_start.attribute_index() < new_end.attribute_index() - paragraph_start)
-          new_start.rewind_to(paragraph_start);
+        if(iter_end.byte_index() - iter_start.byte_index() < new_end.byte_index() - paragraph_start)
+          new_start.rewind_to_byte(paragraph_start);
         else
-          new_start.rewind_to(prev_par_start);
+          new_start.rewind_to_byte(prev_par_start);
           
         break;
       }

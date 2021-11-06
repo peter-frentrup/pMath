@@ -153,7 +153,7 @@ namespace richmath {
         private:
           void append_all(Context &context, TextSequence &seq);
           void append_box_glyphs(Context &context, TextSequence &seq, int pos, Box *box);
-          int append_bytes(TextSequence &seq, int pos, int count);
+          int append_single_char_bytes(TextSequence &seq, int pos, int count);
         
         private:
           TextSequence  &owner;
@@ -368,8 +368,8 @@ void TextSequence::selection_path(Canvas &canvas, int start_text_index, int end_
     int line_index = 0;
     PangoLayoutIter *pango_iter = pango_layout_get_iter(outermost._layout);
     
-    int start_byte_index = iter_start.attribute_index();
-    int end_byte_index   = iter_end.attribute_index();
+    int start_byte_index = iter_start.byte_index();
+    int end_byte_index   = iter_end.byte_index();
     // adjust start_byte_index...
     PangoLayoutLine *prev = nullptr;
     do {
@@ -524,17 +524,17 @@ Box *TextSequence::move_logical(
   
   if(direction == LogicalDirection::Forward) {
     if(jumping) {
-      ++iter;
-      while(iter.has_more_attributes() && (!iter.is_word_boundary() || !iter.is_cursor_position())) {
-        ++iter;
+      iter.move_next_char();
+      while(iter.has_more_bytes() && (!iter.is_word_boundary() || !iter.is_cursor_position())) {
+        iter.move_next_char();
       }
       
-      while(iter.has_more_attributes() && (iter.is_whitespace() || !iter.is_cursor_position())) {
-        ++iter;
+      while(iter.has_more_bytes() && (iter.is_whitespace() || !iter.is_cursor_position())) {
+        iter.move_next_char();
       }
     }
     else {
-      while(iter.has_more_attributes()) {
+      while(iter.has_more_bytes()) {
         if(auto box = iter.current_box()) {
           *index = -1;
           return box->move_logical(LogicalDirection::Forward, true, index);
@@ -547,26 +547,29 @@ Box *TextSequence::move_logical(
             return this;
         }
         
-        ++iter;
-        if(!iter.has_more_attributes() || iter.is_cursor_position())
+        iter.move_next_char();
+        if(!iter.has_more_bytes() || iter.is_cursor_position())
           break;
       }
     }
   }
   else {
     if(jumping) {
-      --iter;
-      while(iter.attribute_index() > 0 && (iter.is_whitespace() || !iter.is_cursor_position())) {
-        --iter;
+      iter.move_previous_char();
+
+      while(iter.byte_index() > 0 && (iter.is_whitespace() || !iter.is_cursor_position())) {
+        iter.move_previous_char();
       }
       
-      while(iter.attribute_index() > 0 && (!iter.is_word_boundary() || !iter.is_cursor_position())) {
-        --iter;
+      if(!iter.current_box()) {
+        while(iter.byte_index() > 0 && (!iter.is_word_boundary() || !iter.is_cursor_position())) {
+          iter.move_previous_char();
+        }
       }
     }
     else {
-      while(iter.attribute_index() > 0) {
-        --iter;
+      while(iter.byte_index() > 0) {
+        iter.move_previous_char();
         
         if(auto box = iter.current_box()) {
           *index = box->length() + 1;
@@ -582,7 +585,7 @@ Box *TextSequence::move_logical(
           }
         }
         
-        if(iter.attribute_index() <= 0 || iter.is_cursor_position())
+        if(iter.byte_index() <= 0 || iter.is_cursor_position())
           break;
       }
     }
@@ -635,7 +638,7 @@ Box *TextSequence::move_vertical(
     int byte_index, trailing;
     pango_layout_line_x_to_index(pll, pango_units_from_double(x - lx), &byte_index, &trailing);
     
-    iter.rewind_to(byte_index);
+    iter.rewind_to_byte(byte_index);
     
     if(auto box = iter.current_box()) { // TODO: ensure_boxes_valid()  ?
       int px;
@@ -693,7 +696,7 @@ VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_star
     pango_units_from_double(pos.x - line_x),
     &byte_index, &trailing);
     
-  iter.rewind_to(byte_index);
+  iter.rewind_to_byte(byte_index);
   
   if(auto box = iter.current_box()) { // TODO: ensure_boxes_valid() ?
     int pango_x;
@@ -918,6 +921,7 @@ void TextSequence::Impl::update_layout(Context &context) {
   pango_layout_set_attributes(self._layout, attr_list);
   
   pango_attr_list_unref(attr_list);
+  self._buffer_size = utf8.length();
 }
 
 inline TextSequence &TextSequence::Impl::outermost_span() {
@@ -1029,22 +1033,22 @@ void TextSequence::Impl::Utf8Writer::append_all(Context &context, TextSequence &
       append_box_glyphs(context, seq, pos, box);
     }
     else if(unichar <= 0x7F) {
-      int start = append_bytes(seq, pos, 1);
+      int start = append_single_char_bytes(seq, pos, 1);
       buffer[start] = (char)unichar;
     }
     else if(unichar <= 0x7FF) {
-      int start = append_bytes(seq, pos, 2);
+      int start = append_single_char_bytes(seq, pos, 2);
       buffer[start]   = 0xC0 | (unichar >> 6);
       buffer[start+1] = 0x80 | (unichar & 0x3F);
     }
     else if(unichar <= 0xFFFF) {
-      int start = append_bytes(seq, pos, 3);
+      int start = append_single_char_bytes(seq, pos, 3);
       buffer[start]   = 0xE0 | ( unichar >> 12);
       buffer[start+1] = 0x80 | ((unichar >>  6) & 0x3F);
       buffer[start+2] = 0x80 | ( unichar        & 0x3F);
     }
     else if(unichar <= 0x10FFFF) {
-      int start = append_bytes(seq, pos, 4);
+      int start = append_single_char_bytes(seq, pos, 4);
       buffer[start]   = 0xF0 | ( unichar >> 18);
       buffer[start+1] = 0x80 | ((unichar >> 12) & 0x3F);
       buffer[start+2] = 0x80 | ((unichar >>  6) & 0x3F);
@@ -1067,7 +1071,7 @@ void TextSequence::Impl::Utf8Writer::append_box_glyphs(Context &context, TextSeq
   box->resize(context);
   
   int len = Utf8ObjectReplacementCharLen;
-  int start = append_bytes(seq, pos, len);
+  int start = append_single_char_bytes(seq, pos, len);
   memcpy(buffer.items() + start, Utf8ObjectReplacementChar, len);
   
   PangoRectangle rect;
@@ -1083,7 +1087,7 @@ void TextSequence::Impl::Utf8Writer::append_box_glyphs(Context &context, TextSeq
   pango_attr_list_insert(attr_list, shape);
 }
 
-int TextSequence::Impl::Utf8Writer::append_bytes(TextSequence &seq, int pos, int count) {
+int TextSequence::Impl::Utf8Writer::append_single_char_bytes(TextSequence &seq, int pos, int count) {
   ARRAY_ASSERT(count >= 0);
   
   int old_len = buffer.length();
@@ -1092,7 +1096,11 @@ int TextSequence::Impl::Utf8Writer::append_bytes(TextSequence &seq, int pos, int
   memset(buffer.items() + old_len, 0, sizeof(buffer[0]) * count);
   
   b2t_iter.rewind_to(old_len);
-  b2t_iter.reset_rest(pos);
+  //b2t_iter.reset_rest(pos);
+  while(count--) {
+    b2t_iter.reset_rest(pos);
+    ++b2t_iter;
+  }
   
   b2seq_iter.rewind_to(old_len);
   b2seq_iter.reset_rest(&seq == &owner ? nullptr : &seq);

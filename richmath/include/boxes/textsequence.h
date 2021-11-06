@@ -64,9 +64,10 @@ namespace richmath {
       bool inline_span() { return get_flag(InlineSpanBit); }
       
       PangoLayout *get_layout() { return _layout; } // only valid if !inline_span()
+      int buffer_size() { return _buffer_size; }
       RleArrayIterator<const RleLinearPredictorArray<int>> buffer_to_text_iter() {            return buffer_to_text.cbegin(); }
       RleArrayIterator<const RleArray<TextSequence*>>      buffer_to_inline_sequence_iter() { return buffer_to_inline_sequence.cbegin(); }
-   
+      
     private:
       enum {
         InlineSpanBit = base::NumFlagsBits,
@@ -82,6 +83,7 @@ namespace richmath {
       RleLinearPredictorArray<int> buffer_to_text;
       RleArray<TextSequence*>      buffer_to_inline_sequence;
       PangoLayout                 *_layout;
+      int                          _buffer_size;
   };
 }
 
