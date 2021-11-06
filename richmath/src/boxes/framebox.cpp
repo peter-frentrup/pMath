@@ -18,7 +18,7 @@ namespace richmath { namespace strings {
 
 //{ class FrameBox ...
 
-FrameBox::FrameBox(MathSequence *content)
+FrameBox::FrameBox(AbstractSequence *content)
   : base(content)
 {
 }

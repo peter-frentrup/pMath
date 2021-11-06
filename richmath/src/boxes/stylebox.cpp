@@ -14,7 +14,7 @@ extern pmath_symbol_t richmath_System_TagBox;
 
 //{ class AbstractStyleBox ...
 
-AbstractStyleBox::AbstractStyleBox(MathSequence *content)
+AbstractStyleBox::AbstractStyleBox(AbstractSequence *content)
   : ExpandableOwnerBox(content)
 {
 }

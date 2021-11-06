@@ -38,7 +38,7 @@ extern pmath_symbol_t richmath_System_Try;
 
 //{ class InputFieldBox ...
 
-InputFieldBox::InputFieldBox(MathSequence *content)
+InputFieldBox::InputFieldBox(AbstractSequence *content)
   : base(ContainerType::InputField, content),
     frame_x(0)
 {

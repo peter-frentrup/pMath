@@ -15,7 +15,7 @@ namespace richmath { namespace strings {
 
 //{ class ContainerWidgetBox ...
 
-ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, MathSequence *content)
+ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, AbstractSequence *content)
   : AbstractStyleBox(content),
     type(_type),
     old_state(ControlState::Normal)

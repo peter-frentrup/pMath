@@ -26,7 +26,7 @@ static ContainerType parse_panel_appearance(Expr expr);
 
 //{ class PanelBox ...
 
-PanelBox::PanelBox(MathSequence *content)
+PanelBox::PanelBox(AbstractSequence *content)
   : ContainerWidgetBox(ContainerType::Panel, content)
 {
 }

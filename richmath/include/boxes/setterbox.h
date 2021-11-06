@@ -10,7 +10,7 @@ namespace richmath {
       class Impl;
       using base = AbstractButtonBox;
     public:
-      explicit SetterBox(MathSequence *content = nullptr);
+      explicit SetterBox(AbstractSequence *content = nullptr);
       
       // Box::try_create<SetterBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

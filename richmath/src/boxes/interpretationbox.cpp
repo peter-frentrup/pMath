@@ -16,14 +16,14 @@ InterpretationBox::InterpretationBox()
   style->set(Editable, false);
 }
 
-InterpretationBox::InterpretationBox(MathSequence *content)
+InterpretationBox::InterpretationBox(AbstractSequence *content)
   : AbstractStyleBox(content)
 {
   style = new Style;
   style->set(Editable, false);
 }
 
-InterpretationBox::InterpretationBox(MathSequence *content, Expr _interpretation)
+InterpretationBox::InterpretationBox(AbstractSequence *content, Expr _interpretation)
   : AbstractStyleBox(content),
     interpretation(_interpretation)
 {

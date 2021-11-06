@@ -9,8 +9,8 @@ namespace richmath {
       using base = AbstractStyleBox;
     public:
       InterpretationBox();
-      InterpretationBox(MathSequence *content);
-      InterpretationBox(MathSequence *content, Expr _interpretation);
+      InterpretationBox(AbstractSequence *content);
+      InterpretationBox(AbstractSequence *content, Expr _interpretation);
       
       virtual MathSequence *as_inline_span() override;
       virtual void reset_style() override;

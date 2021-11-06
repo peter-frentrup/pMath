@@ -9,7 +9,7 @@ namespace richmath {
   class InputFieldBox final : public ContainerWidgetBox {
       using base = ContainerWidgetBox;
     public:
-      InputFieldBox(MathSequence *content = nullptr);
+      InputFieldBox(AbstractSequence *content = nullptr);
       
       // Box::try_create<InputFieldBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

@@ -7,7 +7,7 @@ namespace richmath {
   class AbstractStyleBox: public ExpandableOwnerBox {
       using base = ExpandableOwnerBox;
     public:
-      explicit AbstractStyleBox(MathSequence *content = nullptr);
+      explicit AbstractStyleBox(AbstractSequence *content = nullptr);
       
       virtual void paint(Context &context) override;
       

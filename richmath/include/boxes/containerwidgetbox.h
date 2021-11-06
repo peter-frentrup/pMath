@@ -9,7 +9,7 @@ namespace richmath {
   class ContainerWidgetBox: public AbstractStyleBox, public ControlContext {
       using base = AbstractStyleBox;
     public:
-      explicit ContainerWidgetBox(ContainerType _type, MathSequence *content = nullptr);
+      explicit ContainerWidgetBox(ContainerType _type, AbstractSequence *content = nullptr);
       
       virtual ControlState calc_state(Context &context);
       

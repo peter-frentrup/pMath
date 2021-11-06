@@ -11,7 +11,7 @@ extern pmath_symbol_t richmath_System_FillBox;
 
 //{ class FillBox ...
 
-FillBox::FillBox(MathSequence *content)
+FillBox::FillBox(AbstractSequence *content)
   : OwnerBox(content),
   _weight(1.0f)
 {

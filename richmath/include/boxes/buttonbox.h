@@ -8,7 +8,7 @@ namespace richmath {
   class AbstractButtonBox: public ContainerWidgetBox {
       using base = ContainerWidgetBox;
     protected:
-      explicit AbstractButtonBox(MathSequence *content = nullptr, ContainerType _type = ContainerType::PushButton);
+      explicit AbstractButtonBox(AbstractSequence *content = nullptr, ContainerType _type = ContainerType::PushButton);
     
       virtual void resize_default_baseline(Context &context) override;
       
@@ -27,7 +27,7 @@ namespace richmath {
   class ButtonBox final : public AbstractButtonBox {
       using base = AbstractButtonBox;
     public:
-      explicit ButtonBox(MathSequence *content = nullptr);
+      explicit ButtonBox(AbstractSequence *content = nullptr);
       
       // Box::try_create<ButtonBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;

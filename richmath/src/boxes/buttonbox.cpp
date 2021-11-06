@@ -26,7 +26,7 @@ extern pmath_symbol_t richmath_System_Inherited;
 
 //{ class AbstractButtonBox ...
 
-AbstractButtonBox::AbstractButtonBox(MathSequence *content, ContainerType _type)
+AbstractButtonBox::AbstractButtonBox(AbstractSequence *content, ContainerType _type)
   : ContainerWidgetBox(_type, content)
 {
 }
@@ -87,7 +87,7 @@ void AbstractButtonBox::on_mouse_up(MouseEvent &event) {
 
 //{ class ButtonBox ...
 
-ButtonBox::ButtonBox(MathSequence *content)
+ButtonBox::ButtonBox(AbstractSequence *content)
   : AbstractButtonBox(content)
 {
 }

@@ -29,7 +29,7 @@ namespace richmath {
 
 //{ class SetterBox ...
 
-SetterBox::SetterBox(MathSequence *content)
+SetterBox::SetterBox(AbstractSequence *content)
   : base(content, ContainerType::PaletteButton)
 {
   dynamic.init(this, Expr());

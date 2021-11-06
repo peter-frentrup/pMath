@@ -8,7 +8,7 @@ namespace richmath {
   class PanelBox final : public ContainerWidgetBox {
       using base = ContainerWidgetBox;
     public:
-      explicit PanelBox(MathSequence *content = nullptr);
+      explicit PanelBox(AbstractSequence *content = nullptr);
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
