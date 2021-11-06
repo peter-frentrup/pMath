@@ -402,8 +402,8 @@ bool GridBox::expand(const BoxSize &size) {
   }
   
   float em = 0.0f;
-  if(auto seq = dynamic_cast<MathSequence*>(parent()))
-    em = seq->font_size();
+  if(auto seq = dynamic_cast<AbstractSequence*>(parent()))
+    em = seq->get_em();
   
   Impl(*this).simple_spacing(em);
   Impl(*this).expand_colspans(span_count);

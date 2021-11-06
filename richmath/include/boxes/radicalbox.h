@@ -5,19 +5,19 @@
 
 
 namespace richmath {
-  class MathSequence;
+  class AbstractSequence;
   
   class RadicalBox final : public Box {
     protected:
       virtual ~RadicalBox();
     public:
-      RadicalBox(MathSequence *radicand = 0, MathSequence *exponent = 0);
+      explicit RadicalBox(AbstractSequence *radicand, AbstractSequence *exponent = nullptr);
       
       // Box::try_create<RadicalBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      MathSequence *radicand() { return _radicand; }
-      MathSequence *exponent() { return _exponent; }
+      AbstractSequence *radicand() { return _radicand; }
+      AbstractSequence *exponent() { return _exponent; }
       
       virtual Box *item(int i) override;
       virtual int count() override;
@@ -46,8 +46,8 @@ namespace richmath {
         cairo_matrix_t *matrix) override;
         
     private:
-      MathSequence *_radicand;
-      MathSequence *_exponent;
+      AbstractSequence *_radicand;
+      AbstractSequence *_exponent;
       
       RadicalShapeInfo info;
       float small_em;

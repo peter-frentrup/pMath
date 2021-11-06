@@ -284,7 +284,7 @@ void UnderoverscriptBox::paint(Context &context) {
 Box *UnderoverscriptBox::remove(int *index) {
   if(*index == 0) {
     if(_base->length() == 0) {
-      if(auto seq = dynamic_cast<MathSequence*>(parent())) {
+      if(auto seq = dynamic_cast<AbstractSequence*>(parent())) {
         if(_underscript && !_overscript) {
           seq->insert(_index + 1, _underscript, 0, _underscript->length());
           *index = _index;
@@ -324,7 +324,7 @@ Box *UnderoverscriptBox::remove(int *index) {
     return move_logical(LogicalDirection::Backward, false, index);
   }
   
-  auto seq = dynamic_cast<MathSequence*>(parent());
+  auto seq = dynamic_cast<AbstractSequence*>(parent());
   if( seq && 
       ((_underscript && _underscript->length() == 0) || 
        (_overscript  && _overscript->length()  == 0))) 
@@ -389,7 +389,7 @@ Box *UnderoverscriptBox::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  MathSequence *dst = 0;
+  MathSequence *dst = nullptr;
   
   if(*index < 0) {
     if(direction == LogicalDirection::Forward) {

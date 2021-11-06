@@ -354,7 +354,7 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 
 bool NumberBox::edit_selection(SelectionReference &selection) {
   if(Box::edit_selection(selection)) {
-    auto seq = dynamic_cast<MathSequence*>(parent());
+    auto seq = dynamic_cast<AbstractSequence*>(parent());
     if(!seq)
       return false;
       

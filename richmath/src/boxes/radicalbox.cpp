@@ -1,6 +1,6 @@
 #include <boxes/radicalbox.h>
 
-#include <boxes/mathsequence.h>
+#include <boxes/abstractsequence.h>
 #include <graphics/buffer.h>
 #include <graphics/context.h>
 
@@ -10,13 +10,11 @@ extern pmath_symbol_t richmath_System_RadicalBox;
 extern pmath_symbol_t richmath_System_SqrtBox;
 
 //{ class RadicalBox ...
-RadicalBox::RadicalBox(MathSequence *radicand, MathSequence *exponent)
+RadicalBox::RadicalBox(AbstractSequence *radicand, AbstractSequence *exponent)
   : Box(),
   _radicand(radicand),
   _exponent(exponent)
 {
-  if(!_radicand)
-    _radicand = new MathSequence;
   adopt(_radicand, 0);
   if(_exponent)
     adopt(_exponent, 1);
@@ -60,7 +58,7 @@ bool RadicalBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   if(has_exponent) {
     if(!_exponent){
-      _exponent = new MathSequence;
+      _exponent = _radicand->create_similar();
       adopt(_exponent, 1);
     }
     
@@ -194,7 +192,7 @@ Box *RadicalBox::remove(int *index) {
   
   if(auto par = parent()) {
     *index = _index;
-    if(auto seq = dynamic_cast<MathSequence*>(par)) {
+    if(auto seq = dynamic_cast<AbstractSequence*>(par)) {
       if(_exponent) {
         if(_radicand->length() > 0)
           return move_logical(LogicalDirection::Backward, false, index);
@@ -213,7 +211,7 @@ Box *RadicalBox::remove(int *index) {
 
 void RadicalBox::complete() {
   if(!_exponent) {
-    _exponent = new MathSequence;
+    _exponent = _radicand->create_similar();
     adopt(_exponent, 1);
   }
 }

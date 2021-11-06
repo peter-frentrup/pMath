@@ -168,7 +168,7 @@ Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags opt
     return finish_create_or_error(new ProgressIndicatorBox(), std::move(expr), options);
     
   if(head == richmath_System_RadicalBox)
-    return finish_create_or_error(new RadicalBox(), std::move(expr), options);
+    return finish_create_or_error(new RadicalBox(create_sequence(layout_kind)), std::move(expr), options);
     
   if(head == richmath_System_RadioButtonBox)
     return finish_create_or_error(new RadioButtonBox(), std::move(expr), options);
@@ -192,7 +192,7 @@ Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags opt
     return finish_create_or_error(new SubsuperscriptBox(), std::move(expr), options);
     
   if(head == richmath_System_SqrtBox)
-    return finish_create_or_error(new RadicalBox(), std::move(expr), options);
+    return finish_create_or_error(new RadicalBox(create_sequence(layout_kind)), std::move(expr), options);
     
   if(head == richmath_System_StyleBox)
     return finish_create_or_error(new StyleBox(create_sequence(layout_kind)), std::move(expr), options);
@@ -213,13 +213,13 @@ Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags opt
     return finish_create_or_error(new OpenerBox(), std::move(expr), options);
     
   if(head == richmath_System_OverscriptBox)
-    return finish_create_or_error(new UnderoverscriptBox(), std::move(expr), options);
+    return finish_create_or_error(new UnderoverscriptBox(new MathSequence, nullptr, new MathSequence), std::move(expr), options);
     
   if(head == richmath_System_UnderoverscriptBox)
-    return finish_create_or_error(new UnderoverscriptBox(), std::move(expr), options);
+    return finish_create_or_error(new UnderoverscriptBox(new MathSequence, new MathSequence, new MathSequence), std::move(expr), options);
     
   if(head == richmath_System_UnderscriptBox)
-    return finish_create_or_error(new UnderoverscriptBox(), std::move(expr), options);
+    return finish_create_or_error(new UnderoverscriptBox(new MathSequence, new MathSequence, nullptr), std::move(expr), options);
     
   if(head == richmath_FE_NumberBox)
     return finish_create_or_error(new NumberBox(), std::move(expr), options);

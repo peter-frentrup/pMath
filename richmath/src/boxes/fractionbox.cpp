@@ -123,7 +123,7 @@ void FractionBox::paint(Context &context) {
 }
 
 Box *FractionBox::remove(int *index) {
-  if(MathSequence *seq = dynamic_cast<MathSequence*>(parent())) {
+  if(AbstractSequence *seq = dynamic_cast<AbstractSequence*>(parent())) {
     if(*index == 0 && _numerator->length() == 0) {
       *index = _index;
       seq->insert(_index + 1, _denominator, 0, _denominator->length());

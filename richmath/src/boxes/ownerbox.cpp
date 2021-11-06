@@ -165,7 +165,7 @@ bool OwnerBox::edit_selection(SelectionReference &selection) {
     
     Box *selbox = selection.get();
     if(auto_delete && selbox != this) {
-      if(auto seq = dynamic_cast<MathSequence*>(parent())) {
+      if(auto seq = dynamic_cast<AbstractSequence*>(parent())) {
         if(selbox == _content) {
           selection.set(seq,
                         selection.start + _index,

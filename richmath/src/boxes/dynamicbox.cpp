@@ -43,7 +43,7 @@ VolatileSelection AbstractDynamicBox::dynamic_to_literal(int start, int end) {
   
   content()->all_dynamic_to_literal();
   
-  auto seq = dynamic_cast<MathSequence*>(parent());
+  auto seq = dynamic_cast<AbstractSequence*>(parent());
   if(!seq)
     return {this, start, end};
     
