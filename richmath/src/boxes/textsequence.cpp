@@ -899,8 +899,10 @@ void TextSequence::Impl::append_object(int &next_box, Expr object, BoxInputFlags
     box = BoxFactory::create_box(LayoutKind::Text, std::move(object), options);
   
   self.str += PMATH_CHAR_BOX;
-  if(next_box < self.boxes.length())
+  if(next_box < self.boxes.length()) {
+    self.boxes[next_box]->safe_destroy();
     self.boxes[next_box] = box;
+  }
   else
     self.boxes.add(box);
   
