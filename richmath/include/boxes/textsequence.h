@@ -22,7 +22,9 @@ namespace richmath {
     public:
       TextSequence();
       
-      virtual AbstractSequence *create_similar() override { return new TextSequence(); }
+      virtual LayoutKind kind() override { return LayoutKind::Text; }
+      static AbstractSequence *create() { return new TextSequence(); }
+      virtual AbstractSequence *create_similar() override { return create(); }
       
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;

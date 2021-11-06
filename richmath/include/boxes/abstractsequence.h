@@ -5,14 +5,27 @@
 #include <boxes/box.h>
 
 namespace richmath {
+  class MathSequence;
+  class TextSequence;
+  
+  enum class LayoutKind {
+    Math,
+    Text
+  };
+  
   class AbstractSequence: public Box {
       using base = Box;
-    protected:
+    private: // No other subclasses possible:
+      friend class MathSequence;
+      friend class TextSequence;
       virtual ~AbstractSequence();
     public:
       explicit AbstractSequence();
       
+      static AbstractSequence *create(LayoutKind kind);
       virtual AbstractSequence *create_similar() = 0;
+      
+      virtual LayoutKind kind() = 0;
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
       virtual void load_from_object(Expr object, BoxInputFlags options) = 0;

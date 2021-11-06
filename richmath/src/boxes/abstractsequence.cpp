@@ -1,5 +1,7 @@
 #include <boxes/abstractsequence.h>
 #include <boxes/errorbox.h>
+#include <boxes/mathsequence.h>
+#include <boxes/textsequence.h>
 
 
 using namespace richmath;
@@ -15,6 +17,16 @@ AbstractSequence::AbstractSequence()
 AbstractSequence::~AbstractSequence() {
   for(int i = 0; i < boxes.length(); ++i)
     delete_owned(boxes[i]);
+}
+
+AbstractSequence *AbstractSequence::create(LayoutKind kind) {
+  switch(kind) {
+    case LayoutKind::Math: return new MathSequence;
+    case LayoutKind::Text: return new TextSequence;
+  }
+  
+  assert(0 && "not reached");
+  return new MathSequence;
 }
 
 bool AbstractSequence::try_load_from_object(Expr object, BoxInputFlags options) {

@@ -28,7 +28,9 @@ namespace richmath {
     public:
       explicit MathSequence();
       
-      virtual AbstractSequence *create_similar() override { return new MathSequence(); }
+      virtual LayoutKind kind() override { return LayoutKind::Math; }
+      static AbstractSequence *create() { return new MathSequence(); }
+      virtual AbstractSequence *create_similar() override { return create(); }
       
       virtual float fill_weight() override;
       virtual bool expand(const BoxSize &size) override;
