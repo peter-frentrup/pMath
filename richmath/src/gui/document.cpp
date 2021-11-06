@@ -42,12 +42,14 @@ extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_All;
 extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_DocumentObject;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_TextData;
 
 extern pmath_symbol_t richmath_FE_SectionsToBoxes;
 
@@ -4815,7 +4817,7 @@ bool Document::Impl::handle_backslash_aliases(Expr table) {
           return true;
         }
         else {
-          MathSequence *repl_seq = new MathSequence();
+          AbstractSequence *repl_seq = seq->create_similar();
           repl_seq->load_from_object(repl, BoxInputFlags::Default);
           
           seq->remove(i, e);
@@ -4895,7 +4897,7 @@ bool Document::Impl::handle_alias_delimiter() { // handle "CAPSLOCK alias CAPSLO
     }
   }
   else {
-    MathSequence *repl_seq = new MathSequence();
+    AbstractSequence *repl_seq = seq->create_similar();
     repl_seq->load_from_object(repl, BoxInputFlags::Default);
     
     self.insert_box(repl_seq, true);

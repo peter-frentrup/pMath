@@ -24,7 +24,7 @@ namespace richmath { namespace strings {
 }}
 
 extern pmath_symbol_t richmath_System_List;
-extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_TextData;
 
 static const uint16_t ObjectReplacementChar = 0xFFFC;
 static const char *Utf8ObjectReplacementChar = "\xEF\xBF\xBC";
@@ -452,7 +452,7 @@ void TextSequence::load_from_object(Expr obj, BoxInputFlags options) {
   boxes_invalid(true);
   text_changed(true);
   
-  if(obj[0] == richmath_System_BoxData && obj.expr_length() == 1)
+  if(obj[0] == richmath_System_TextData && obj.expr_length() == 1)
     obj = obj[1];
     
   if(has(options, BoxInputFlags::AllowTemplateSlots))

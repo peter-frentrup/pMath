@@ -2,7 +2,8 @@
 
 Document({
   SectionGroup({
-    SectionGroup({Section({"Sqrt (", SqrtBox("\[Ellipsis]"), ")"}, 
+    SectionGroup({
+      Section(TextData({"Sqrt (", BoxData(SqrtBox("\[Ellipsis]")), ")"}), 
        "ObjectName"), 
       Section(BoxData(TemplateBox({"Sqrt"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
@@ -10,19 +11,20 @@ Document({
         Section(
          "Mathematical function suitable for numeric and symbolic \
          computations.", "Notes"), 
-        Section({SqrtBox("z"), " can be entered using ", 
-          TemplateBox({"2"}, "ControlKeyEvent"), " ", 
-          TemplateBox({"z"}, "KeyEvent"), "."}, "Notes"), 
-        Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), "(", 
-          StyleBox("z", "Arg"), ") evaluates to ", {
-           StyleBox("z", "Arg"), "^", {"(", {"1", "/", "2"}, ")"}}, "."}, 
-         "Notes"), Section({"For certain special arguments, ", 
-          TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
-          " automatically evaluates to exact values."}, "Notes"), 
-        Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
-          " can be evaluated to arbitrary numerical precision."}, "Notes"), 
-        Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
-          " automatically threads over lists."}, "Notes")}, All), 
+        Section(TextData({BoxData(SqrtBox("z")), " can be entered using ", 
+           TemplateBox({"2"}, "ControlKeyEvent"), " ", 
+           TemplateBox({"z"}, "KeyEvent"), "."}), "Notes"), 
+        Section(TextData({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), "(", 
+           StyleBox("z", "Arg"), ") evaluates to ", 
+           BoxData({StyleBox("z", "Arg"), "^", {"(", {"1", "/", "2"}, ")"}}), 
+           "."}), "Notes"), 
+        Section(TextData({"For certain special arguments, ", 
+           TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+           " automatically evaluates to exact values."}), "Notes"), 
+        Section(TextData({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+           " can be evaluated to arbitrary numerical precision."}), "Notes"), 
+        Section(TextData({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+           " automatically threads over lists."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -77,10 +79,10 @@ Document({
                      3.1428571428571428`, 1.7728105208558367`}, {
                      3.4285714285714284`, 1.8516401995451028`}, {
                      3.7142857142857144`, 1.927248223318863`}, {
-                     4.0`, 2.0`}})}}}, AspectRatio -> NCache(1/GoldenRatio, 
-                0.61803398874989479`), Axes -> True, 
+                     4.0`, 2.0`}})}}}, AspectRatio -> 
+                NCache(1/GoldenRatio, 0.61803398874989479`), Axes -> True, 
                PlotRange -> NCache({0 .. 4, 0 .. 2.0`}, {
-                 0.0` .. 4.0`, 0.0` .. 2.0`}))), "Output", 
+                  0.0` .. 4.0`, 0.0` .. 2.0`}))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("Evaluate numerically:", "ExampleText"), 
@@ -90,8 +92,8 @@ Document({
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
-            " threads over lists and matrices:"}, "ExampleText"), 
+          Section(TextData({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+             " threads over lists and matrices:"}), "ExampleText"), 
           SectionGroup({
             Section(
              BoxData({"Sqrt", "(", {
@@ -115,8 +117,8 @@ Document({
            All)}, All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
-            " allows complex arguments:"}, "ExampleText"), 
+          Section(TextData({TemplateBox({"Sqrt"}, "ReferenceHyperlink"), 
+             " allows complex arguments:"}), "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Sqrt", "(", {"2.5", "+", "I"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
@@ -162,9 +164,9 @@ Document({
              "}"}), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Neat examples", "ExampleSection"), 
-        Section({"Approximate the ", TemplateBox({"GoldenRatio"}, 
-           "ReferenceHyperlink"), ":"}, "ExampleText"), 
-        SectionGroup({
+        Section(TextData({"Approximate the ", 
+           TemplateBox({"GoldenRatio"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
           Section(
            BoxData({"Nest", "(", {
               {"Function", "(", {"Sqrt", "(", {"1", "+", "#"}, ")"}, ")"}, 
@@ -197,8 +199,8 @@ Document({
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Power"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Surd"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"CubeRoot"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
-   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Surd"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"CubeRoot"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
