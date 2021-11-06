@@ -162,6 +162,21 @@ Box *Box::find_nearest_box(FrontEndObject *obj) {
   return nullptr;
 }
 
+int Box::index_in_ancestor(Box *ancestor, int fallback) {
+  Box *box = this; 
+  
+  int index = fallback;
+  while(box && box != ancestor) {
+    index = box->index();
+    box = box->parent();
+  }
+  
+  if(box)
+    return index;
+  else
+    return fallback;
+}
+
 Box *Box::next_box(LogicalDirection direction, Box *restrict_to_parent) {
   return BoxNavigation::next_box(this, direction, restrict_to_parent);
 }

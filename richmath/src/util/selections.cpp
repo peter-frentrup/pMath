@@ -153,11 +153,7 @@ Box *VolatileSelection::contained_box() const {
     return nullptr;
   
   if(auto seq = dynamic_cast<AbstractSequence*>(box)) {
-    if(auto tseq = dynamic_cast<TextSequence*>(seq)) {
-      if(!tseq->text_buffer().is_box_at(start, end))
-        return nullptr;
-    }
-    else if(start + 1 != end || seq->char_at(start) != PMATH_CHAR_BOX) 
+    if(start + 1 != end || seq->char_at(start) != PMATH_CHAR_BOX) 
       return nullptr;
       
     for(int i = seq->count() - 1; i >= 0; --i) {
@@ -588,72 +584,59 @@ void VolatileSelectionImpl::expand_text() {
     expand_default();
     return;
   }
-    
-  int n_attrs;
-  const PangoLogAttr *attrs = pango_layout_get_log_attrs_readonly(seq->get_layout(), &n_attrs);
   
-  const char *buf = seq->text_buffer().buffer();
-  const char *s              = buf;
-  const char *s_end          = buf + seq->length();
-  const char *word_start     = buf;
+  TextLayoutIterator iter_start = seq->outermost_layout_iter();
+  iter_start.skip_forward_beyond_text_pos(seq, self.start);
   
-  int i = 0;
-  while(s && (size_t)s - (size_t)buf <= (size_t)self.start) {
-    if(attrs[i].is_word_start)
-      word_start = s;
-      
-    ++i;
-    s = g_utf8_find_next_char(s, s_end);
-  }
+  TextLayoutIterator iter_end = iter_start;
+  iter_end.skip_forward_beyond_text_pos(seq, self.end);
   
-  const char *word_end = nullptr;
+  TextLayoutIterator new_start = iter_start;
   
-  while(s && !word_end) {
-    if(attrs[i].is_word_boundary && word_end != word_start)
-      word_end = s;
-      
-    ++i;
-    s = g_utf8_find_next_char(s, s_end);
-  }
+  while(new_start.attribute_index() > 0 && !new_start.is_word_start())
+    --new_start;
   
-  attrs = nullptr;
+  TextLayoutIterator new_end = iter_start; // not iter_end!
+  while(new_end.has_more_attributes() && !new_end.is_word_end())
+    ++new_end;
   
-  if(!word_end)
-    word_end = s_end;
-    
-  if( (size_t)word_end - (size_t)buf       >= (size_t)self.end &&
-      (size_t)word_end - (size_t)word_start > (size_t)self.end - (size_t)self.start)
-  {
-    self.start = (int)((size_t)word_start - (size_t)buf);
-    self.end   = (int)((size_t)word_end   - (size_t)buf);
-  }
-  else {
-    GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
+  auto large_enough = [&]() { 
+    //int start_order = box_order(new_start.current_sequence(), new_start.text_index(), self.box, self.start);
+    //int end_order   = box_order(self.box, self.end, new_end.current_sequence(), new_end.text_index());
+    //return (0 <= start_order && 0 <  end_order) || 
+    //       (0 <  start_order && 0 <= end_order);
+    return (new_start.attribute_index() <= iter_start.attribute_index() && 
+      iter_end.attribute_index() <= new_end.attribute_index() &&
+      iter_end.attribute_index() - iter_start.attribute_index() < new_end.attribute_index() - new_start.attribute_index());
+  };
+  
+  if(!large_enough()) {
+    // TODO: try sentence boundaries next.
+  
+    GSList *lines = pango_layout_get_lines_readonly(iter_start.outermost_sequence()->get_layout());
     
     int prev_par_start = 0;
     int paragraph_start = 0;
     while(lines) {
       PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
       
-      if(line->is_paragraph_start && line->start_index <= self.start) {
+      if(line->is_paragraph_start && line->start_index <= iter_start.attribute_index()) {
         prev_par_start = paragraph_start;
         paragraph_start = line->start_index;
       }
       
-      if(line->start_index + line->length >= self.end) {
-        if(line->start_index <= self.start && self.end - self.start < line->length) {
-          self.start = line->start_index;
-          self.end = line->start_index + line->length;
+      if(line->start_index + line->length >= iter_end.attribute_index()) {
+        if(line->start_index <= iter_start.attribute_index() && iter_end.attribute_index() - iter_start.attribute_index() < line->length) {
+          new_start.rewind_to(line->start_index);
+          new_end.rewind_to(line->start_index + line->length);
           break;
         }
-        
-        int old_end = self.end;
         
         lines = lines->next;
         while(lines) {
           PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
-          if(line->is_paragraph_start && line->start_index >= self.end) {
-            self.end = line->start_index;
+          if(line->is_paragraph_start && line->start_index >= iter_end.attribute_index()) {
+            new_end.rewind_to(line->start_index);
             break;
           }
           
@@ -661,12 +644,12 @@ void VolatileSelectionImpl::expand_text() {
         }
         
         if(!lines)
-          self.end = seq->length();
-          
-        if(old_end - self.start < self.end - paragraph_start)
-          self.start = paragraph_start;
+          new_end.rewind_to(new_end.attr_count());
+        
+        if(iter_end.attribute_index() - iter_start.attribute_index() < new_end.attribute_index() - paragraph_start)
+          new_start.rewind_to(paragraph_start);
         else
-          self.start = prev_par_start;
+          new_start.rewind_to(prev_par_start);
           
         break;
       }
@@ -674,6 +657,20 @@ void VolatileSelectionImpl::expand_text() {
       lines = lines->next;
     }
   }
+  
+  if(large_enough()) {
+    Box *common_parent = Box::common_parent(new_start.current_sequence(), new_end.current_sequence());
+    
+    if(TextSequence *new_seq = dynamic_cast<TextSequence*>(common_parent)) {
+      self.box = new_seq;
+      self.start = new_start.index_in_sequence(new_seq, 0);
+      self.end   = new_end.index_in_sequence(new_seq, new_seq->length());
+      return;
+    }
+  }
+  
+  self.start = 0;
+  self.end = seq->length();
 }
 
 //} ... class VolatileSelectionImpl

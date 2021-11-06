@@ -181,6 +181,21 @@ void BasicSequence::ensure_boxes_valid() {
       adopt(boxes[box++], i);
 }
 
+VolatileSelection BasicSequence::normalize_selection(int start, int end) {
+  if(start <= 0)
+    start = 0;
+  
+  if(end >= str.length())
+    end = str.length();
+  else if(is_utf16_low(str[end])) {
+    ++end;
+    if(start > 0 && is_utf16_high(str[start - 1]))
+      --start;
+  }
+
+  return {this, start, end};
+}
+
 bool BasicSequence::is_placeholder() {
   return str.length() == 1 && is_placeholder(0);
 }

@@ -147,8 +147,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(AbstractSequence)          ==  56, ""); // (48) + 4 + 4 UNUSED PADDING BYTES AT END
     static_assert(sizeof(BasicSequence)             ==  72, ""); // (56) + 8 + 8
     static_assert(sizeof(MathSequence)              == 120, ""); // (72) + 2*8 + 3*8 + 8
-    static_assert(sizeof(TextBuffer)                ==  16, ""); // 4 + 4 + 8
-    static_assert(sizeof(TextSequence)              ==  96, ""); // (56) + 16 + 8 + 8 + 8
+    static_assert(sizeof(TextSequence)              == 104, ""); // (72) + 8 + 8 + 8 + 8
     static_assert(sizeof(EmptyWidgetBox)            ==  72, ""); // (48 + 8) + 8 + 3*1 + 5 UNUSED PADDING BYTES
     static_assert(sizeof(CheckboxBox)               == 112, ""); // (72) + 24 + 8 + 8
     static_assert(sizeof(OpenerBox)                 == 104, ""); // (72) + 24 + 8
@@ -221,8 +220,7 @@ extern pmath_symbol_t richmath_FE_DollarPrivateStartupFontFiles;
     static_assert(sizeof(AbstractSequence)          ==  40, ""); // (36) + 4
     static_assert(sizeof(BasicSequence)             ==  56, ""); // (40) + 8 + 4 + 4 UNUSED PADDING BYTES
     static_assert(sizeof(MathSequence)              ==  80, ""); // (56) + 2*4 + 3*4 + 4
-    static_assert(sizeof(TextBuffer)                ==  12, ""); // 4 + 4 + 4
-    static_assert(sizeof(TextSequence)              ==  64, ""); // (40) + 12 + 4 + 4 + 4
+    static_assert(sizeof(TextSequence)              ==  72, ""); // (56) + 4 + 4 + 4 + 4
     static_assert(sizeof(EmptyWidgetBox)            ==  48, ""); // (32 + 4) + 4 + 3*1 + 1 UNUSED PADDING BTYE + 4
     static_assert(sizeof(CheckboxBox)               ==  80, ""); // (48) + 16 + 8 + 8
     static_assert(sizeof(OpenerBox)                 ==  72, ""); // (48) + 16 + 8

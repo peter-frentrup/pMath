@@ -4,59 +4,25 @@
 #include <pango/pangocairo.h>
 
 #include <boxes/abstractsequence.h>
+#include <graphics/text-layout-iterator.h>
 
 
 namespace richmath {
-
-  /* A character buffer (Utf-8) with pmath_mem_xxx memory handling. */
-  class TextBuffer: public Base {
-    public:
-      TextBuffer(char *buf, int len);
-      ~TextBuffer();
-      
-      int capacity() const {       return _capacity; }
-      int length()   const {       return _length; }
-      const char *buffer() const { return _buffer; }
-      char       *buffer() {       return _buffer; }
-      
-      uint32_t char_at(int pos);
-      
-      // return the new position just after the insertion
-      int insert(int pos, const char *ins, int inslen);
-      int insert(int pos, const String &s);
-      void remove(int pos, int len);
-      
-      bool is_box_at(int i) const;
-      bool is_box_at(int start, int end) const;
-      
-    private:
-      int _capacity;
-      int _length;
-      char *_buffer;
-  };
+  class TextSequence;
   
   /* This is a box containing text (no math) and other boxes.
      It uses Pango for text layout. For math, use class MathSequence.
    */
-  class TextSequence final : public AbstractSequence {
-      using base = AbstractSequence;
+  class TextSequence final : public BasicSequence {
+      using base = BasicSequence;
       class Impl;
     protected:
       virtual ~TextSequence();
+      
     public:
       TextSequence();
       
       virtual AbstractSequence *create_similar() override { return new TextSequence(); }
-      
-      virtual Box *item(int i) override { return boxes[i]; }
-      virtual int count() override {      return boxes.length(); }
-      virtual int length() override {     return text.length(); }
-      
-      virtual String raw_substring(int start, int length) override;
-      virtual uint32_t char_at(int pos) override { return text.char_at(pos); }
-      virtual bool is_placeholder(int i) override;
-      
-      const TextBuffer &text_buffer() { return text; }
       
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
@@ -67,20 +33,6 @@ namespace richmath {
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       virtual void load_from_object(Expr object, BoxInputFlags options) override;
-      
-      virtual void ensure_boxes_valid() override;
-      void ensure_text_valid();
-      
-      int insert(int pos, const char *utf8, int len);
-      int insert(int pos, TextSequence *txt, int start, int end);
-      virtual int insert(int pos, const String &s) override;
-      virtual int insert(int pos, Box *box) override;
-      virtual int insert(int pos, AbstractSequence *seq, int start, int end) override;
-      
-      virtual void remove(int start, int end) override;
-      virtual Box *remove(int *index) override;
-      
-      virtual Box *extract_box(int boxindex) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -95,41 +47,39 @@ namespace richmath {
         
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
-      virtual void child_transformation(
-        int             index,
-        cairo_matrix_t *matrix) override;
-        
-      virtual VolatileSelection normalize_selection(int start, int end) override;
+      virtual void child_transformation(int index, cairo_matrix_t *matrix) override;
       
-      PangoLayoutIter *get_iter();
-      PangoLayout     *get_layout() { return _layout; }
+      virtual bool request_repaint(const RectangleF &rect) override;
+      //virtual bool request_repaint_range(int start, int end) override;
+      virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
+      
       virtual int get_line(int index, int guide = 0) override; // 0, 1, 2, ...
+      virtual void get_line_heights(int line, float *ascent, float *descent) override; // only valid if !inline_span()
       
-      virtual void get_line_heights(int line, float *ascent, float *descent) override;
-      
-      void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
-      void line_extents(int line, float *x, float *y, BoxSize *size);
+      TextSequence &outermost_sequence();
+      TextLayoutIterator outermost_layout_iter();
     
+      bool inline_span() { return get_flag(InlineSpanBit); }
+      
+      PangoLayout *get_layout() { return _layout; } // only valid if !inline_span()
+      RleArrayIterator<const RleLinearPredictorArray<int>> buffer_to_text_iter() {            return buffer_to_text.cbegin(); }
+      RleArrayIterator<const RleArray<TextSequence*>>      buffer_to_inline_sequence_iter() { return buffer_to_inline_sequence.cbegin(); }
+   
     private:
       enum {
-        BoxesInvalidBit = base::NumFlagsBits,
-        TextChangedBit,
+        InlineSpanBit = base::NumFlagsBits,
         
         NumFlagsBits
       };
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
-      void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
-      bool text_changed() {        return get_flag(TextChangedBit); }
-      void text_changed(bool value) {  change_flag(TextChangedBit, value); }
+      void inline_span(bool value) { change_flag(InlineSpanBit, value); }
       
     private:
-      TextBuffer   text;
-      Array<Box*>  boxes;
-      Array<int>   line_y_corrections;
-      
-      PangoLayout *_layout;
+      Array<int>                   line_y_corrections;
+      RleLinearPredictorArray<int> buffer_to_text;
+      RleArray<TextSequence*>      buffer_to_inline_sequence;
+      PangoLayout                 *_layout;
   };
 }
 

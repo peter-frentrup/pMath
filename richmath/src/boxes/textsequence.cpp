@@ -24,231 +24,93 @@ namespace richmath { namespace strings {
 
 extern pmath_symbol_t richmath_System_List;
 
-// using U+FFFC OBJECT REPLACEMENT CHARACTER instead of PMATH_CHAR_BOX (U+FDD0),
-// Because U+FDD0 is an invalid unicode character and Pango treats it as three
-// invalid bytes => 3 glyphs instead of one.
-static const uint16_t BoxChar = 0xFFFC;
-static const char *Utf8BoxChar = "\xEF\xBF\xBC";
-static const int   Utf8BoxCharLen = 3;
-static const char *Utf8ReplacementChar = "\xEF\xBF\xBD";
+static const uint16_t ObjectReplacementChar = 0xFFFC;
+static const char *Utf8ObjectReplacementChar = "\xEF\xBF\xBC";
+static const int   Utf8ObjectReplacementCharLen = 3;
 
-static bool is_utf8_first_byte(char c) {
-  return ((unsigned char)c & 0xC0) != 0x80;
-}
-
-//{ class TextBuffer ...
-
-TextBuffer::TextBuffer(char *buf, int len)
-  : Base(),
-    _capacity(len),
-    _length(len),
-    _buffer(buf)
-{
-  SET_BASE_DEBUG_TAG(typeid(*this).name());
-  if(len < 0) {
-    _capacity = _length = strlen(buf);
-  }
-}
-
-TextBuffer::~TextBuffer() {
-  pmath_mem_free(_buffer);
-}
-
-uint32_t TextBuffer::char_at(int pos) {
-  if(pos < 0 || pos >= _length)
-    return 0;
-    
-  static int8_t chr_lens[16] = {
-    1, // 0000 = 0xxx
-    1, // 0001 = 0xxx
-    1, // 0010 = 0xxx
-    1, // 0011 = 0xxx
-    1, // 0100 = 0xxx
-    1, // 0101 = 0xxx
-    1, // 0110 = 0xxx
-    1, // 0111 = 0xxx
-    0, // 1000 = 10xx
-    0, // 1001 = 10xx
-    0, // 1010 = 10xx
-    0, // 1011 = 10xx
-    2, // 1100 = 110x
-    2, // 1101 = 110x
-    3, // 1110 = 1110...
-    4  // 1111 = 11110xxx
+namespace {
+  class PangoContextUtil {
+    public:
+      static PangoContext *create_context() {
+        PangoCairoFontMap *fontmap = (PangoCairoFontMap *)pango_cairo_font_map_get_default();
+          
+        return pango_cairo_font_map_create_context(fontmap);
+      }
+      
+      static PangoLayout *create_layout() {
+        PangoContext *context = create_context();
+        PangoLayout *layout = pango_layout_new(context);
+        g_object_unref(context);
+        return layout;
+      }
+      
+      static void update(PangoContext *pango, Context &ctx) {
+        pango_cairo_update_context(ctx.canvas().cairo(), pango);
+        
+        pango_cairo_context_set_shape_renderer(
+          pango,
+          box_shape_renderer,
+          &ctx,
+          0);
+          
+        PangoFontDescription *desc = pango_font_description_new();
+        String name     = ctx.text_shaper->font_name(0);
+        FontStyle style = ctx.text_shaper->get_style();
+        
+        int num_fonts = ctx.text_shaper->num_fonts();
+        for(int i = 1; i < num_fonts; ++i) {
+          String fn = ctx.text_shaper->font_name(i);
+          
+          name += ",";
+          name += fn;
+        }
+        
+        char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
+        if(utf8_name)
+          pango_font_description_set_family_static(desc, utf8_name);
+          
+        pango_font_description_set_absolute_size(desc, ctx.canvas().get_font_size() * PANGO_SCALE);
+        pango_font_description_set_style(        desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
+        pango_font_description_set_weight(       desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
+        
+        pango_context_set_font_description(pango, desc);
+        
+        pango_font_description_free(desc);
+        pmath_mem_free(utf8_name);
+      };
+      
+      static void box_shape_renderer(cairo_t *cr, PangoAttrShape *shape, gboolean do_path, void *data) {
+        Context &ctx = *(Context *)data;
+        Box     *box = (Box *)shape->data;
+        
+        assert(box != nullptr);
+        assert(ctx.canvas().cairo() == cr);
+        
+        ctx.canvas().rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
+        box->paint(ctx);
+      }
   };
-  
-  int len = chr_lens[((uint8_t)_buffer[pos]) >> 4];
-  if(len == 0 || pos + len > _length)
-    return 0;
-    
-  switch(len) {
-    case 1:
-      return (unsigned char)_buffer[pos];
+
+  class PangoLayoutIterPtr {
+    public:
+      explicit PangoLayoutIterPtr(PangoLayoutIter *ptr) : _ptr{ptr} {}
+      PangoLayoutIterPtr(const PangoLayoutIterPtr &that) : _ptr{that._ptr ? pango_layout_iter_copy(that._ptr) : nullptr} {}
+      PangoLayoutIterPtr(PangoLayoutIterPtr &&that) : _ptr{that._ptr} { that._ptr = nullptr; }
+      ~PangoLayoutIterPtr() { if(_ptr) pango_layout_iter_free(_ptr); }
+      PangoLayoutIterPtr &operator=(PangoLayoutIterPtr that) { swap(*this, that); return *this; }
       
-    case 2: {
-        uint32_t c1 = (unsigned char)_buffer[pos];
-        uint32_t c2 = (unsigned char)_buffer[pos + 1];
-        
-        c1 = c1 & 0x1Fu;
-        c2 = c2 & 0x3Fu;
-        
-        return (c1 << 6) | c2;
+      friend void swap(PangoLayoutIterPtr &left, PangoLayoutIterPtr &right) {
+        using std::swap;
+        swap(left._ptr, right._ptr);
       }
       
-    case 3: {
-        uint32_t c1 = (unsigned char)_buffer[pos];
-        uint32_t c2 = (unsigned char)_buffer[pos + 1];
-        uint32_t c3 = (unsigned char)_buffer[pos + 2];
-        
-        c1 = c1 & 0x0Fu;
-        c2 = c2 & 0x3Fu;
-        c3 = c3 & 0x3Fu;
-        
-        return (c1 << 12) | (c2 << 6) | c3;
-      }
-      
-    case 4: {
-        uint32_t c1 = (unsigned char)_buffer[pos];
-        uint32_t c2 = (unsigned char)_buffer[pos + 1];
-        uint32_t c3 = (unsigned char)_buffer[pos + 2];
-        uint32_t c4 = (unsigned char)_buffer[pos + 3];
-        
-        c1 = c1 & 0x07u;
-        c2 = c2 & 0x3Fu;
-        c3 = c3 & 0x3Fu;
-        c4 = c4 & 0x3Fu;
-        
-        return (c1 << 18) | (c2 << 12) | (c3 << 6) | c4;
-      }
-  }
+      PangoLayoutIter *get() { return _ptr; }
+      const PangoLayoutIter *get() const { return _ptr; }
   
-  return 0;
+    private:
+      PangoLayoutIter *_ptr;
+  };
 }
-
-int TextBuffer::insert(int pos, const char *ins, int inslen) {
-  if(inslen < 0)
-    inslen = strlen(ins);
-    
-  if(_length + inslen > _capacity) {
-    _capacity = Array<char>::best_capacity(_length + inslen);
-    _buffer = (char *)pmath_mem_realloc(_buffer, _capacity);
-    
-    if(!_buffer) {
-      assert("not enough memory" && 0);
-      _length = 0;
-      _capacity = 0;
-      return 0;
-    }
-  }
-  
-  memmove(_buffer + pos + inslen, _buffer + pos, _length - pos);
-  memcpy(_buffer + pos, ins, inslen);
-  _length += inslen;
-  return pos + inslen;
-}
-
-int TextBuffer::insert(int pos, const String &s) {
-  int tmplen;
-  char *tmp = pmath_string_to_utf8(s.get_as_string(), &tmplen);
-  
-  // remove inner zeros:
-  for(int i = 0; i < tmplen; ++i) {
-    if(!tmp[i])
-      tmp[i] = 1;
-  }
-  
-  pos = insert(pos, tmp, tmplen);
-  
-  pmath_mem_free(tmp);
-  return pos;
-}
-
-void TextBuffer::remove(int pos, int len) {
-  assert(len >= 0);
-  assert(pos + len <= _length);
-  memmove(_buffer + pos, _buffer + pos + len, _length - pos - len);
-  _length -= len;
-}
-
-bool TextBuffer::is_box_at(int i) const {
-  return 0 <= i
-         && i + Utf8BoxCharLen <= _length
-         && memcmp(_buffer + i, Utf8BoxChar, Utf8BoxCharLen) == 0;
-}
-
-bool TextBuffer::is_box_at(int start, int end) const {
-  if(end != start + Utf8BoxCharLen)
-    return false;
-  
-  return is_box_at(start);
-}
-
-//} ... class TextBuffer
-
-static void update_pango_context(Context *ctx) {
-}
-
-class PangoContextUtil {
-  public:
-    static PangoContext *create_context() {
-      PangoCairoFontMap *fontmap = (PangoCairoFontMap *)pango_cairo_font_map_get_default();
-        
-      return pango_cairo_font_map_create_context(fontmap);
-    }
-    
-    static PangoLayout *create_layout() {
-      PangoContext *context = create_context();
-      PangoLayout *layout = pango_layout_new(context);
-      g_object_unref(context);
-      return layout;
-    }
-    
-    static void update(PangoContext *pango, Context &ctx) {
-      pango_cairo_update_context(ctx.canvas().cairo(), pango);
-      
-      pango_cairo_context_set_shape_renderer(
-        pango,
-        box_shape_renderer,
-        &ctx,
-        0);
-        
-      PangoFontDescription *desc = pango_font_description_new();
-      String name     = ctx.text_shaper->font_name(0);
-      FontStyle style = ctx.text_shaper->get_style();
-      
-      int num_fonts = ctx.text_shaper->num_fonts();
-      for(int i = 1; i < num_fonts; ++i) {
-        String fn = ctx.text_shaper->font_name(i);
-        
-        name += ",";
-        name += fn;
-      }
-      
-      char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
-      if(utf8_name)
-        pango_font_description_set_family_static(desc, utf8_name);
-        
-      pango_font_description_set_absolute_size(desc, ctx.canvas().get_font_size() * PANGO_SCALE);
-      pango_font_description_set_style(        desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
-      pango_font_description_set_weight(       desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);
-      
-      pango_context_set_font_description(pango, desc);
-      
-      pango_font_description_free(desc);
-      pmath_mem_free(utf8_name);
-    };
-    
-    static void box_shape_renderer(cairo_t *cr, PangoAttrShape *shape, gboolean do_path, void *data) {
-      Context &ctx = *(Context *)data;
-      Box     *box = (Box *)shape->data;
-      
-      assert(box != nullptr);
-      assert(ctx.canvas().cairo() == cr);
-      
-      ctx.canvas().rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
-      box->paint(ctx);
-    }
-};
 
 namespace richmath {
   class TextSequence::Impl {
@@ -262,6 +124,48 @@ namespace richmath {
       
     private:
       Expr add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end);
+      
+    public:
+      PangoLayoutIter *new_pango_iter();
+      
+      void update_layout(Context &context);
+      
+      TextSequence       &outermost_span();
+      TextLayoutIterator  text_iterator() { return TextLayoutIterator(outermost_span()); }
+      
+    private:
+      TextSequence &parent_outermost_span();
+      
+    private:
+      class Utf8Writer {
+        public:
+          using b2t_t        = RleLinearPredictorArray<int>;
+          using b2seq_t      = RleArray<TextSequence*>;
+          using b2t_iter_t   = b2t_t::iterator_type;
+          using b2seq_iter_t = b2seq_t::iterator_type;
+        public:
+          explicit Utf8Writer(TextSequence &owner, Array<char> &buffer, PangoAttrList *attr_list);
+          
+          void append_all(Context &context);
+        
+        private:
+          void append_all(Context &context, TextSequence &seq);
+          void append_box_glyphs(Context &context, TextSequence &seq, int pos, Box *box);
+          int append_bytes(TextSequence &seq, int pos, int count);
+        
+        private:
+          TextSequence  &owner;
+          Array<char>   &buffer;
+          PangoAttrList *attr_list;
+          b2t_iter_t     b2t_iter;
+          b2seq_iter_t   b2seq_iter;
+      };
+    
+    public:
+      Vector2F total_offest_to_index(int index);
+      
+      void line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size);
+      void line_extents(int line, float *x, float *y, BoxSize *size);
   };
 }
 
@@ -269,7 +173,6 @@ namespace richmath {
 
 TextSequence::TextSequence()
   : base(),
-    text(0, 0),
     _layout(PangoContextUtil::create_layout())
 {
   pango_layout_set_spacing(_layout, pango_units_from_double(1.5));
@@ -278,44 +181,10 @@ TextSequence::TextSequence()
 
 TextSequence::~TextSequence() {
   g_object_unref(_layout);
-  for(auto box : boxes)
-    delete_owned(box);
-}
-
-String TextSequence::raw_substring(int start, int length) {
-  assert(start >= 0);
-  assert(length >= 0);
-  assert(start + length <= text.length());
-  
-  String result;
-  const char *prev = text.buffer() + start;
-  const char *next = prev;
-  while(length > 0) {
-    if(Utf8BoxCharLen <= length) {
-      if(memcmp(next, Utf8BoxChar, Utf8BoxCharLen) == 0) {
-        result+= String::FromUtf8(prev, next - prev);
-        result+= PMATH_CHAR_BOX;
-        next+= Utf8BoxCharLen;
-        length-= Utf8BoxCharLen;
-        prev = next;
-        continue;
-      }
-    }
-    ++next;
-    --length;
-  }
-  
-  result+= String::FromUtf8(prev, next - prev);
-  return result;
-}
-
-bool TextSequence::is_placeholder(int i) {
-  uint32_t ch = char_at(i);
-  
-  return ch == PMATH_CHAR_PLACEHOLDER || ch == PMATH_CHAR_SELECTIONPLACEHOLDER;
 }
 
 void TextSequence::resize(Context &context) {
+  inline_span(false);
   em = context.canvas().get_font_size();
   
   PangoTabArray *tabs = pango_tab_array_new(1, FALSE);
@@ -324,11 +193,9 @@ void TextSequence::resize(Context &context) {
   pango_tab_array_free(tabs);
   
   ensure_boxes_valid();
-  for(auto box : boxes)
-    box->resize(context);
-    
-  text_changed(true);
-  ensure_text_valid();
+  text_changed(false);
+  
+  Impl(*this).update_layout(context);
   
   PangoContext *pango = pango_layout_get_context(_layout);
   PangoContextUtil::update(pango, context);
@@ -355,7 +222,7 @@ void TextSequence::resize(Context &context) {
   int min_ascent  = pango_units_from_double(em * 0.75);
   int min_descent = pango_units_from_double(em * 0.25);
   
-  PangoLayoutIter *iter = get_iter();
+  PangoLayoutIter *iter = pango_layout_get_iter(_layout);
   int i = 0;
   do {
     PangoRectangle ink, logical;
@@ -392,7 +259,6 @@ void TextSequence::resize(Context &context) {
 void TextSequence::paint(Context &context) {
   float x0, y0;
   context.canvas().current_pos(&x0, &y0);
-  ensure_text_valid();
   
   AutoCallPaintHooks auto_hooks(this, context);
   PangoContext *pango = pango_layout_get_context(_layout);
@@ -406,7 +272,7 @@ void TextSequence::paint(Context &context) {
   int cl_y2 = pango_units_from_double(clip_y2 - y0);
   
   int line = 0;
-  PangoLayoutIter *iter = get_iter();
+  PangoLayoutIter *iter = pango_layout_get_iter(_layout);
   do {
     if(line >= line_y_corrections.length()) {
       /* It might happen that pango_layout_iter_next_line() gives more lines than during resize().
@@ -457,20 +323,29 @@ void TextSequence::paint(Context &context) {
   }
 }
 
-void TextSequence::selection_path(Canvas &canvas, int start, int end) {
+void TextSequence::selection_path(Canvas &canvas, int start_text_index, int end_text_index) {
+  if(start_text_index > length())
+    start_text_index = length();
+  if(end_text_index > length())
+    end_text_index = length();
+  
+  TextLayoutIterator iter_start = Impl(*this).text_iterator();
+  TextSequence &outermost = *iter_start.outermost_sequence();
+  iter_start.skip_forward_beyond_text_pos(this, start_text_index);
+  
+  TextLayoutIterator iter_end = iter_start;
+  iter_end.skip_forward_beyond_text_pos(this, end_text_index);
+  
   float x0, y0;
   canvas.current_pos(&x0, &y0);
   
-  ensure_text_valid();
-  
-  if(start == end) {
-    int line;
+  if(start_text_index == end_text_index) {
     int x_pos;
-    pango_layout_index_to_line_x(_layout, start, 0, &line, &x_pos);
+    int line = iter_start.find_current_line_x(false, &x_pos);
     
     BoxSize size;
     float x, y;
-    line_extents(line, &x, &y, &size);
+    Impl(*this).line_extents(line, &x, &y, &size);
     
     float x1 = x0 + x + pango_units_to_double(x_pos);
     float y1 = y0 + y - size.ascent - 0.75;
@@ -486,64 +361,59 @@ void TextSequence::selection_path(Canvas &canvas, int start, int end) {
   }
   else {
     float last_bottom = 0;
-    float spacing = pango_units_to_double(pango_layout_get_spacing(_layout));
+    float spacing = pango_units_to_double(pango_layout_get_spacing(outermost._layout));
     
     int line_index = 0;
-    PangoLayoutIter *iter = get_iter();
+    PangoLayoutIter *pango_iter = pango_layout_get_iter(outermost._layout);
     
-    // adjust start...
+    int start_byte_index = iter_start.attribute_index();
+    int end_byte_index   = iter_end.attribute_index();
+    // adjust start_byte_index...
     PangoLayoutLine *prev = nullptr;
     do {
-      PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
+      PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
       
-      if(start < line->start_index) {
-        if(prev && prev->start_index + prev->length < start)
-          start = prev->start_index + prev->length;
+      if(start_byte_index < pango_line->start_index) {
+        if(prev && prev->start_index + prev->length < start_byte_index)
+          start_byte_index = prev->start_index + prev->length;
           
         break;
       }
       
-      prev = line;
-    } while(pango_layout_iter_next_line(iter));
-    pango_layout_iter_free(iter);
+      prev = pango_line;
+    } while(pango_layout_iter_next_line(pango_iter));
+    pango_layout_iter_free(pango_iter);
     prev = nullptr;
     
-    iter = get_iter();
+    pango_iter = pango_layout_get_iter(_layout);
     do {
-      PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
+      PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
       
-      if(end <= line->start_index)
+      if(end_byte_index <= pango_line->start_index)
         break;
         
-      if(start <= line->start_index + line->length) {
+      if(start_byte_index <= pango_line->start_index + pango_line->length) {
         int *xranges;
         int num_xranges;
         float x, y;
         BoxSize size;
         
-        line_extents(iter, line_index, &x, &y, &size);
-        if(end > line->start_index + line->length)
+        Impl(outermost).line_extents(pango_iter, line_index, &x, &y, &size);
+        if(end_byte_index > pango_line->start_index + pango_line->length)
           size.descent += spacing;
           
-        if(start < line->start_index) {
+        if(start_byte_index < pango_line->start_index) {
           size.ascent +=  spacing;
           
           RectangleF rect(x0 + x, last_bottom, _extents.width - x, y0 + y - size.ascent - last_bottom);
           rect.normalize();
           rect.pixel_align(  canvas, false, 0);
           rect.add_rect_path(canvas, false);
-          
-          //canvas.pixrect(
-          //  x0 + x,
-          //  last_bottom,
-          //  x0 + _extents.width,
-          //  y0 + y - size.ascent,
-          //  false);
         }
         
         last_bottom = y0 + y + size.descent;
         
-        pango_layout_line_get_x_ranges(line, start, end, &xranges, &num_xranges);
+        pango_layout_line_get_x_ranges(pango_line, start_byte_index, end_byte_index, &xranges, &num_xranges);
         
         for(int i = 0; i < num_xranges; ++i) {
           RectangleF rect(
@@ -554,27 +424,20 @@ void TextSequence::selection_path(Canvas &canvas, int start, int end) {
                   
           rect.pixel_align(  canvas, false, 0);
           rect.add_rect_path(canvas, false);
-          
-          //canvas.pixrect(
-          //  x0 + pango_units_to_double(xranges[2 * i]),
-          //  y0 + y - size.ascent,
-          //  x0 + pango_units_to_double(xranges[2 * i + 1]),
-          //  last_bottom,
-          //  false);
         }
         
         g_free(xranges);
       }
       
       ++line_index;
-    } while(pango_layout_iter_next_line(iter));
+    } while(pango_layout_iter_next_line(pango_iter));
     
-    pango_layout_iter_free(iter);
+    pango_layout_iter_free(pango_iter);
   }
 }
 
 Expr TextSequence::to_pmath(BoxOutputFlags flags) {
-  return to_pmath(flags, 0, text.length());
+  return to_pmath(flags, 0, length());
 }
 
 Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
@@ -586,7 +449,7 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
     box->safe_destroy();
     
   boxes.length(0);
-  text.remove(0, text.length());
+  str = strings::EmptyString;
   
   boxes_invalid(true);
   text_changed(true);
@@ -604,238 +467,11 @@ void TextSequence::load_from_object(Expr object, BoxInputFlags options) {
   finish_load_from_object(std::move(object));
 }
 
-void TextSequence::ensure_boxes_valid() {
-  if(!boxes_invalid())
-    return;
-    
-  boxes_invalid(false);
-  if(boxes.length() == 0)
-    return;
-    
-  int box = 0;
-  for(int i = 0; i <= text.length() - Utf8BoxCharLen; ++i) {
-    if(text.is_box_at(i)) {
-      adopt(boxes[box++], i);
-      
-      if(box == boxes.length())
-        return;
-    }
-  }
-}
-
-void TextSequence::ensure_text_valid() {
-  ensure_boxes_valid();
-  
-  if(!text_changed())
-    return;
-    
-  text_changed(false);
-  pango_layout_set_text(_layout, text.buffer(), text.length());
-  
-  PangoRectangle rect = {0, 0, 0, 0};
-  {
-    PangoAttrList *attrs;
-    attrs = pango_attr_list_new();
-    
-    for(auto box : boxes) {
-      rect.y      = pango_units_from_double(-box->extents().ascent);
-      rect.width  = pango_units_from_double(box->extents().width);
-      rect.height = pango_units_from_double(box->extents().height());
-      
-      PangoAttribute *shape = pango_attr_shape_new_with_data(&rect, &rect, box, 0, 0);
-                                
-      shape->start_index = box->index();
-      shape->end_index   = shape->start_index + Utf8BoxCharLen;
-      pango_attr_list_insert(attrs, shape);
-    }
-    
-    pango_layout_set_attributes(_layout, attrs);
-    pango_attr_list_unref(attrs);
-  }
-}
-
-int TextSequence::insert(int pos, const char *utf8, int len) {
-  if(len < 0) {
-    len = (int)strlen(utf8);
-    if(len <= 0)
-      return pos;
-  }
-  
-  char *buf = text.buffer();
-  // ensure that we do not cut a Utf8BoxChar (or any other utf8 character)
-  while(pos < text.length() && !is_utf8_first_byte(buf[pos]))
-    ++pos;
-  
-  int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
-  
-  pos = text.insert(pos, utf8, len);
-  buf = text.buffer();
-  
-  int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
-  
-  // replace all Utf8BoxChar in the newly inserted section by Utf8ReplacementChar 
-  while(start_search <= end_search - Utf8BoxCharLen) {
-    if(0 == memcmp(buf + start_search, Utf8BoxChar, Utf8BoxCharLen)) {
-      memcpy(buf + start_search, Utf8ReplacementChar, Utf8BoxCharLen);
-      start_search+= 3;
-    }
-    else
-      ++start_search;
-  }
-  
-  boxes_invalid(true);
-  text_changed(true);
-  invalidate();
-  return pos;
-}
-
-int TextSequence::insert(int pos, const String &s) {
-  char *buf = text.buffer();
-  // ensure that we do not cut a Utf8BoxChar (or any other utf8 character)
-  while(pos < text.length() && !is_utf8_first_byte(buf[pos]))
-    ++pos;
-  
-  int start_search = std::max(0, pos - Utf8BoxCharLen + 1);
-  
-  pos = text.insert(pos, s);
-  buf = text.buffer();
-  
-  int end_search = std::min(pos + Utf8BoxCharLen - 1, text.length());
-  
-  // replace all Utf8BoxChar in the newly inserted section by Utf8ReplacementChar 
-  while(start_search <= end_search - Utf8BoxCharLen) {
-    if(0 == memcmp(buf + start_search, Utf8BoxChar, Utf8BoxCharLen)) {
-      memcpy(buf + start_search, Utf8ReplacementChar, Utf8BoxCharLen);
-      start_search+= 3;
-    }
-    else
-      ++start_search;
-  }
-  
-  boxes_invalid(true);
-  text_changed(true);
-  invalidate();
-  return pos;
-}
-
-int TextSequence::insert(int pos, Box *box) {
-  if(pos > text.length())
-    pos = text.length();
-    
-  if(TextSequence *txt = dynamic_cast<TextSequence *>(box)) {
-    pos = insert(pos, txt, 0, txt->length());
-    txt->safe_destroy();
-    return pos;
-  }
-  
-  ensure_boxes_valid();
-  
-  boxes_invalid(true);
-  text_changed(true);
-  
-  int newpos = text.insert(pos, Utf8BoxChar, Utf8BoxCharLen);
-  adopt(box, pos);
-  int i = boxes.length();
-  while(i > 0 && boxes[i - 1]->index() >= pos)
-    --i;
-  boxes.insert(i, 1, &box);
-  invalidate();
-  return newpos;
-}
-
-int TextSequence::insert(int pos, TextSequence *txt, int start, int end) {
-  if(pos > text.length())
-    pos = text.length();
-    
-  txt->ensure_boxes_valid();
-  
-  const char *buf = txt->text.buffer();
-  while(start < end && !is_utf8_first_byte(buf[start]))
-    ++start;
-  
-  if(start == end)
-    return pos;
-  
-  int box = -1;
-  while(start < end) {
-    int next = start;
-    while(next < end && !txt->text.is_box_at(next))
-      ++next;
-      
-    pos = text.insert(pos, buf + start, next - start);
-    
-    if(next < end) {
-      if(box < 0) {
-        box = 0;
-        while(box < txt->count() && txt->boxes[box]->index() < next)
-          ++box;
-      }
-      
-      pos = insert(pos, txt->extract_box(box++));
-    }
-    
-    start = next + Utf8BoxCharLen;
-  }
-  
-  boxes_invalid(true);
-  text_changed(true);
-  invalidate();
-  return pos;
-}
-
-int TextSequence::insert(int pos, AbstractSequence *seq, int start, int end) {
-  if(auto ts = dynamic_cast<TextSequence *>(seq))
-    return insert(pos, ts, start, end);
-    
-  return base::insert(pos, seq, start, end);
-}
-
-void TextSequence::remove(int start, int end) {
-  ensure_boxes_valid();
-  
-  VolatileSelection sel = normalize_selection(start, end);
-  assert(sel.box == this);
-  start = sel.start;
-  end   = sel.end;
-  
-  int i = 0;
-  while(i < boxes.length() && boxes[i]->index() < start)
-    ++i;
-    
-  int j = i;
-  while(j < boxes.length() && boxes[j]->index() < end)
-    boxes[j++]->safe_destroy();
-    
-  boxes_invalid(i < boxes.length());
-  text_changed(start < end);
-  boxes.remove(i, j - i);
-  text.remove(start, end - start);
-  invalidate();
-}
-
-Box *TextSequence::remove(int *index) {
-  remove(*index, *index + 1);
-  return this;
-}
-
-Box *TextSequence::extract_box(int boxindex) {
-  Box *box = boxes[boxindex];
-  
-  DummyBox *dummy = new DummyBox();
-  adopt(dummy, box->index());
-  boxes.set(boxindex, dummy);
-  
-  abandon(box);
-  return box;
-}
-
 Box *TextSequence::move_logical(
   LogicalDirection  direction,
   bool              jumping,
   int              *index
 ) {
-  ensure_text_valid();
-  
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(auto par = parent()) {
@@ -852,109 +488,97 @@ Box *TextSequence::move_logical(
       *index = 0;
       return this;
     }
+  }
+  else {
+    if(*index <= 0) {
+      if(auto par = parent()) {
+        if(!par->exitable())
+          return this;
+        
+        *index = _index + 1;
+        return par->move_logical(LogicalDirection::Backward, true, index);
+      }
+      return this;
+    }
     
-    const char *s     = text.buffer() + *index;
-    const char *s_end = text.buffer() + text.length();
-    
-    if(text.is_box_at(*index)) {
-      if(jumping) {
-        s = g_utf8_find_next_char(s, s_end);
-        if(s)
-          *index = (int)((size_t)s - (size_t)text.buffer());
-        else
-          *index = text.length();
-          
-        return this;
+    if(*index > length()) {
+      *index = length();
+      return this;
+    }
+  }
+
+  auto iter = Impl(*this).text_iterator();
+  
+  iter.skip_forward_beyond_text_pos(this, *index);
+  
+  if(direction == LogicalDirection::Forward) {
+    if(jumping) {
+      ++iter;
+      while(iter.has_more_attributes() && (!iter.is_word_boundary() || !iter.is_cursor_position())) {
+        ++iter;
       }
       
-      int b = 0;
-      while(boxes[b]->index() < *index)
-        ++b;
+      while(iter.has_more_attributes() && (iter.is_whitespace() || !iter.is_cursor_position())) {
+        ++iter;
+      }
+    }
+    else {
+      while(iter.has_more_attributes()) {
+        if(auto box = iter.current_box()) {
+          *index = -1;
+          return box->move_logical(LogicalDirection::Forward, true, index);
+        }
         
-      *index = -1;
-      return boxes[b]->move_logical(LogicalDirection::Forward, true, index);
+        auto seq = iter.current_sequence();
+        if(seq != this) {
+          *index = seq->index_in_ancestor(this, -1);
+          if(*index != -1)
+            return this;
+        }
+        
+        ++iter;
+        if(!iter.has_more_attributes() || iter.is_cursor_position())
+          break;
+      }
     }
-    
-    if(jumping) { // next word
-      const PangoLogAttr *log_attrs;
-      int n_attrs;
+  }
+  else {
+    if(jumping) {
+      --iter;
+      while(iter.attribute_index() > 0 && (iter.is_whitespace() || !iter.is_cursor_position())) {
+        --iter;
+      }
       
-      log_attrs = pango_layout_get_log_attrs_readonly(_layout, &n_attrs);
-      
-      int c = g_utf8_pointer_to_offset(text.buffer(), s);
-      ++c;
-      while(c < n_attrs && (!log_attrs[c].is_word_boundary || !log_attrs[c].is_cursor_position))
-        ++c;
-      
-      while(c < n_attrs && (log_attrs[c].is_white || !log_attrs[c].is_cursor_position))
-        ++c;
-      
-      *index = (int)(g_utf8_offset_to_pointer(text.buffer(), c) - text.buffer());
-      return this;
+      while(iter.attribute_index() > 0 && (!iter.is_word_boundary() || !iter.is_cursor_position())) {
+        --iter;
+      }
     }
-    
-    s = g_utf8_find_next_char(s, s_end);
-    if(s)
-      *index = (int)(s - text.buffer());
-    else
-      *index = text.length();
-      
-    return this;
-  }
-  
-  if(*index <= 0) {
-    if(auto par = parent()) {
-      if(!par->exitable())
-        return this;
-      
-      *index = _index + 1;
-      return par->move_logical(LogicalDirection::Backward, true, index);
+    else {
+      while(iter.attribute_index() > 0) {
+        --iter;
+        
+        if(auto box = iter.current_box()) {
+          *index = box->length() + 1;
+          return box->move_logical(LogicalDirection::Backward, true, index);
+        }
+        
+        auto seq = iter.current_sequence();
+        if(seq != this) {
+          *index = seq->index_in_ancestor(this, -1);
+          if(*index != -1) {
+            ++*index;
+            return this;
+          }
+        }
+        
+        if(iter.attribute_index() <= 0 || iter.is_cursor_position())
+          break;
+      }
     }
-    return this;
   }
-  
-  if(*index > text.length()) {
-    *index = text.length();
-    return this;
-  }
-  
-  const char *s       = text.buffer() + *index;
-  s = g_utf8_find_prev_char(text.buffer(), s);
-  
-  if(!s)
-    s = text.buffer();
-    
-  *index = (int)(s - text.buffer());
-  
-  if(text.is_box_at(*index)) {
-    if(jumping)
-      return this;
-      
-    int b = 0;
-    while(boxes[b]->index() < *index)
-      ++b;
-      
-    *index = boxes[b]->length() + 1;
-    return boxes[b]->move_logical(LogicalDirection::Backward, true, index);
-  }
-  
-  if(jumping) { // prev. word
-    const PangoLogAttr *log_attrs;
-    int n_attrs;
-    
-    log_attrs = pango_layout_get_log_attrs_readonly(_layout, &n_attrs);
-    
-    int c = g_utf8_pointer_to_offset(text.buffer(), s);
-    while(c > 0 && (log_attrs[c].is_white || !log_attrs[c].is_cursor_position))
-      --c;
-    while(c > 0 && (!log_attrs[c].is_word_boundary || !log_attrs[c].is_cursor_position))
-      --c;
-    
-    *index = (int)(g_utf8_offset_to_pointer(text.buffer(), c) - text.buffer());
-    return this;
-  }
-  
-  return this;
+
+  *index = iter.text_index();
+  return iter.current_sequence();
 }
 
 Box *TextSequence::move_vertical(
@@ -963,9 +587,10 @@ Box *TextSequence::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  ensure_text_valid();
+  TextLayoutIterator iter = Impl(*this).text_iterator();
+  TextSequence &outermost = *iter.outermost_sequence();
   
-  int numlines = pango_layout_get_line_count(_layout);
+  int numlines = pango_layout_get_line_count(outermost._layout);
   int line;
   float x = *index_rel_x;
   
@@ -976,11 +601,13 @@ Box *TextSequence::move_vertical(
       line = numlines - 1;
   }
   else {
+    iter.skip_forward_beyond_text_pos(this, *index);
+    
     int px;
-    pango_layout_index_to_line_x(_layout, *index, 0, &line, &px);
+    line = iter.find_current_line_x(false, &px);
     
     float lx;
-    line_extents(line, &lx, 0, 0);
+    Impl(outermost).line_extents(line, &lx, nullptr, nullptr);
     
     x += lx + pango_units_to_double(px);
     if(direction == LogicalDirection::Forward)
@@ -991,42 +618,32 @@ Box *TextSequence::move_vertical(
   
   if(line >= 0 && line < numlines) {
     float lx;
-    line_extents(line, &lx, 0, 0);
-    PangoLayoutLine *pll = pango_layout_get_line_readonly(_layout, line);
+    Impl(outermost).line_extents(line, &lx, nullptr, nullptr);
+    PangoLayoutLine *pll = pango_layout_get_line_readonly(outermost._layout, line);
     
-    int i, tr;
-    pango_layout_line_x_to_index(pll, pango_units_from_double(x - lx), &i, &tr);
+    int byte_index, trailing;
+    pango_layout_line_x_to_index(pll, pango_units_from_double(x - lx), &byte_index, &trailing);
     
-    if(text.is_box_at(i)) {
-      ensure_boxes_valid();
-      
+    iter.rewind_to(byte_index);
+    
+    if(auto box = iter.current_box()) { // TODO: ensure_boxes_valid()  ?
       int px;
-      pango_layout_line_index_to_x(pll, i, 0, &px);
+      pango_layout_line_index_to_x(pll, byte_index, false, &px);
       
-      int b = 0;
-      while(boxes[b]->index() < i)
-        ++b;
-        
       *index_rel_x = x - lx - pango_units_to_double(px);
       *index = -1;
-      return boxes[b]->move_vertical(direction, index_rel_x, index, false);
+      return box->move_vertical(direction, index_rel_x, index, false);
     }
     
     int px;
-    pango_layout_line_index_to_x(pll, i, tr > 0, &px);
+    pango_layout_line_index_to_x(pll, byte_index, trailing > 0, &px);
     *index_rel_x = x - pango_units_to_double(px);
     
-    char *s     = text.buffer() + i;
-    char *s_end = text.buffer() + text.length();
-    while(tr-- > 0)
-      s = g_utf8_find_next_char(s, s_end);
-      
-    if(s)
-      *index = (int)((size_t)s - (size_t)text.buffer());
-    else
-      *index = text.length();
-      
-    return this;
+    while(trailing-- > 0)
+      iter.move_next_char();
+    
+    *index = iter.text_index();
+    return iter.current_sequence();
   }
   
   if(auto par = parent()) {
@@ -1042,37 +659,34 @@ VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_star
   BoxSize line_size;
   float line_x, line_y;
   
+  TextLayoutIterator iter = Impl(*this).text_iterator();
+  TextSequence &outermost = *iter.outermost_sequence();
+  
   int line_index = 0;
-  PangoLayoutIter *iter = get_iter();
+  PangoLayoutIter *pango_iter = Impl(*this).new_pango_iter();
   do {
-    line_extents(iter, line_index, &line_x, &line_y, &line_size);
+    Impl(*this).line_extents(pango_iter, line_index, &line_x, &line_y, &line_size);
     
     if(pos.y <= line_y + line_size.descent)
       break;
       
     ++line_index;
-  } while(pango_layout_iter_next_line(iter));
+  } while(pango_layout_iter_next_line(pango_iter));
   
-  PangoLayoutLine *line = pango_layout_iter_get_line_readonly(iter);
-  pango_layout_iter_free(iter);
+  PangoLayoutLine *pango_line = pango_layout_iter_get_line_readonly(pango_iter);
+  pango_layout_iter_free(pango_iter);
   
-  int i, trailing;
+  int byte_index, trailing;
   pango_layout_line_x_to_index(
-    line,
+    pango_line,
     pango_units_from_double(pos.x - line_x),
-    &i, &trailing);
+    &byte_index, &trailing);
     
-  if(text.is_box_at(i)) {
+  iter.rewind_to(byte_index);
+  
+  if(auto box = iter.current_box()) { // TODO: ensure_boxes_valid() ?
     int pango_x;
-    pango_layout_line_index_to_x(line, i, 0, &pango_x);
-    
-    ensure_boxes_valid();
-    
-    int b = 0;
-    while(boxes[b]->index() < i)
-      ++b;
-    
-    Box *box = boxes[b];
+    pango_layout_line_index_to_x(pango_line, byte_index, 0, &pango_x);
     
     auto px = pos.x - (line_x + pango_units_to_double(pango_x));
     if(trailing == 0 || px <= box->extents().width + 0.375f) {
@@ -1084,62 +698,84 @@ VolatileSelection TextSequence::mouse_selection(Point pos, bool *was_inside_star
   }
   
   int x_pos;
-  pango_layout_line_index_to_x(line, i, trailing > 0, &x_pos);
+  pango_layout_line_index_to_x(pango_line, byte_index, trailing > 0, &x_pos);
   *was_inside_start = (0 <= pos.x && (trailing == 0 || pango_units_to_double(x_pos) < pos.x));
-  char *s     = text.buffer() + i;
-  char *s_end = text.buffer() + text.length();
   
   while(trailing-- > 0)
-    s = g_utf8_find_next_char(s, s_end);
-    
-  if(s)
-    return VolatileSelection(this, (int)((size_t)s - (size_t)text.buffer()));
-  else
-    return VolatileSelection(this, text.length());
+    iter.move_next_char();
+  
+  return VolatileSelection(iter.current_sequence(), iter.text_index());
 }
 
-void TextSequence::child_transformation(
-  int             index,
-  cairo_matrix_t *matrix
-) {
-  ensure_text_valid();
+void TextSequence::child_transformation(int index, cairo_matrix_t *matrix) {
+  auto delta = Impl(*this).total_offest_to_index(index);
   
-  int line, px;
-  pango_layout_index_to_line_x(_layout, index, 0, &line, &px);
-  
-  float x, y;
-  BoxSize size;
-  line_extents(line, &x, &y, &size);
-  
-  x += pango_units_to_double(px);
-  cairo_matrix_translate(matrix, x, y);
-}
-
-VolatileSelection TextSequence::normalize_selection(int start, int end) {
-  while(end < text.length() && (text.buffer()[end] & 0xC0) == 0x80)
-    ++end;
-    
-  if(start < text.length()) {
-    while(start > 0 && (text.buffer()[start] & 0xC0) == 0x80)
-      --start;
+  if(inline_span()) {
+    int i = this->index();
+    Box* box = parent();
+    while(box) {
+      if(auto seq = dynamic_cast<TextSequence*>(box)) {
+        delta-= Impl(*seq).total_offest_to_index(i);
+        break;
+      }
+      i = box->index();
+      box = box->parent();
+    }
   }
   
-  return {this, start, end};
+  cairo_matrix_translate(matrix, delta.x, delta.y);
 }
 
-PangoLayoutIter *TextSequence::get_iter() {
-  ensure_text_valid();
-  return pango_layout_get_iter(_layout);
+bool TextSequence::request_repaint(const RectangleF &rect) { // See MathSequence::request_repaint()
+  if(inline_span()) {
+    TextSequence &outer = Impl(*this).outermost_span();
+    if(&outer != this) {
+      Vector2F delta = Impl(*this).total_offest_to_index(0);
+      
+      return outer.request_repaint(rect + delta);
+    }
+    else {
+      // inconsitent inline_span() flag. Probably this box was just edited.
+      inline_span(false);
+    }
+  }
+  
+  return base::request_repaint(rect);
+}
+
+bool TextSequence::visible_rect(RectangleF &rect, Box *top_most) { // See MathSequence::visible_rect()
+  if(inline_span()) {
+    TextSequence &outer = Impl(*this).outermost_span();
+    
+    if(top_most && outer.is_parent_of(top_most)) {
+      cairo_matrix_t matrix;
+      cairo_matrix_init_identity(&matrix);
+      transformation(top_most, &matrix);
+      Canvas::transform_rect_inline(matrix, rect);
+      return top_most->visible_rect(rect, top_most);
+    }
+    
+    Vector2F delta = Impl(*this).total_offest_to_index(0);
+    
+    rect+= delta;
+    return outer.visible_rect(rect, top_most);
+  }
+  
+  return base::visible_rect(rect, top_most);
 }
 
 int TextSequence::get_line(int index, int guide) {
-  int line = guide, x;
-  pango_layout_index_to_line_x(_layout, index, 0, &line, &x);
-  return line;
+  TextLayoutIterator iter = Impl(*this).text_iterator();
+  
+  iter.skip_forward_beyond_text_pos(this, index);
+  
+  return iter.find_current_line(false);
 }
 
 void TextSequence::get_line_heights(int line, float *ascent, float *descent) {
-  if(line < 0 || line >= line_y_corrections.length()) {
+  TextSequence &outermost = Impl(*this).outermost_span();
+  
+  if(line < 0 || line >= outermost.line_y_corrections.length()) {
     *ascent  = 0;
     *descent = 0;
     return;
@@ -1147,48 +783,17 @@ void TextSequence::get_line_heights(int line, float *ascent, float *descent) {
   
   BoxSize size;
   float x, y;
-  line_extents(line, &x, &y, &size);
+  Impl(outermost).line_extents(line, &x, &y, &size);
   *ascent  = size.ascent;
   *descent = size.descent;
 }
 
-void TextSequence::line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size) {
-  PangoRectangle ink, logic;
-  pango_layout_iter_get_line_extents(iter, &ink, &logic);
-  int base = pango_layout_iter_get_baseline(iter);
-  
-  if(size) {
-    size->width   = pango_units_to_double(logic.width);
-    size->ascent  = pango_units_to_double(base - ink.y);
-    size->descent = pango_units_to_double(ink.height) - size->ascent;
-    
-    if(size->ascent < 0.75 * em)
-      size->ascent = 0.75 * em;
-      
-    if(size->descent < 0.25 * em)
-      size->descent = 0.25 * em;
-  }
-  
-  if(x)
-    *x = pango_units_to_double(logic.x);
-    
-  if(line < line_y_corrections.length())
-    base -= line_y_corrections[line];
-    
-  if(y)
-    *y = pango_units_to_double(base) - _extents.ascent;
+TextSequence &TextSequence::outermost_sequence() {
+  return Impl(*this).outermost_span();
 }
 
-void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size) {
-  int i = line;
-  PangoLayoutIter *iter = get_iter();
-  while(i > 0 && pango_layout_iter_next_line(iter)) {
-    --i;
-  }
-  
-  line_extents(iter, line, x, y, size);
-  
-  pango_layout_iter_free(iter);
+TextLayoutIterator TextSequence::outermost_layout_iter() {
+  return Impl(*this).text_iterator();
 }
 
 //} ... class TextSequence
@@ -1196,41 +801,26 @@ void TextSequence::line_extents(int line, float *x, float *y, BoxSize *size) {
 //{ class TextSequence::Impl ...
 
 Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
-  if(end <= start || start < 0 || end > self.text.length())
+  if(end <= start || start < 0 || end > self.length())
     return strings::EmptyString;
     
   int boxi = 0;
   while(boxi < self.boxes.length() && self.boxes[boxi]->index() < start)
     ++boxi;
     
-  if(boxi >= self.boxes.length() || self.boxes[boxi]->index() >= end) {
-    return add_debug_info(
-             String::FromUtf8(self.text.buffer() + start, end - start),
-             flags,
-             start,
-             end);
-  }
+  if(boxi >= self.boxes.length() || self.boxes[boxi]->index() >= end) 
+    return add_debug_info(self.text().part(start, end - start), flags, start, end);
   
   Gather g;
   
   int next = self.boxes[boxi]->index();
   while(next < end) {
     if(start < next)
-      g.emit(
-        add_debug_info(
-          String::FromUtf8(self.text.buffer() + start, next - start),
-          flags,
-          start,
-          next));
+      g.emit(add_debug_info(self.text().part(start, next - start), flags, start, next));
       
-    g.emit(
-      add_debug_info(
-        self.boxes[boxi]->to_pmath(flags),
-        flags,
-        next,
-        next + Utf8BoxCharLen));
+    g.emit(add_debug_info(self.boxes[boxi]->to_pmath(flags), flags, next, next + 1));
     
-    start = next + Utf8BoxCharLen;
+    start = next + 1;
     ++boxi;
     if(boxi >= self.boxes.length())
       break;
@@ -1238,12 +828,7 @@ Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
   }
   
   if(start < end)
-    g.emit(
-      add_debug_info(
-        String::FromUtf8(self.text.buffer() + start, end - start),
-        flags,
-        start,
-        end));
+    g.emit(add_debug_info(self.text().part(start, end - start), flags, start, end));
     
   return add_debug_info(g.end(), flags, start, end);
 }
@@ -1263,17 +848,17 @@ void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
   if(object.is_string()) {
     String s(object.release());
     
-    // skip BoxChar ...
+    // skip PMATH_CHAR_BOX ...
     const uint16_t *buf = s.buffer();
     int             len = s.length();
     
     int start = 0;
     while(start < len) {
       int next = start;
-      while(next < len && buf[next] != BoxChar)
+      while(next < len && buf[next] != PMATH_CHAR_BOX)
         ++next;
         
-      self.text.insert(self.text.length(), s.part(start, next - start));
+      self.insert(self.length(), s.part(start, next - start));
       self.text_changed(true);
       
       start = next + 1;
@@ -1286,7 +871,203 @@ void TextSequence::Impl::append_object(Expr object, BoxInputFlags options) {
   
   box->content()->load_from_object(object, options);
   
-  self.insert(self.text.length(), box);
+  self.insert(self.length(), box);
+}
+
+inline PangoLayoutIter *TextSequence::Impl::new_pango_iter() {
+  return pango_layout_get_iter(outermost_span()._layout);
+}
+
+void TextSequence::Impl::update_layout(Context &context) {
+  Array<char> utf8;
+  PangoAttrList *attr_list = pango_attr_list_new();
+  
+  Utf8Writer(self, utf8, attr_list).append_all(context);
+  
+  pango_layout_set_text(self._layout, utf8.items(), utf8.length());
+  pango_layout_set_attributes(self._layout, attr_list);
+  
+  pango_attr_list_unref(attr_list);
+}
+
+inline TextSequence &TextSequence::Impl::outermost_span() {
+  return self.inline_span() ? parent_outermost_span() : self;
+}
+
+inline TextSequence &TextSequence::Impl::parent_outermost_span() {
+  for(Box *box = self.parent(); box; box = box->parent()) {
+    if(auto seq = dynamic_cast<TextSequence*>(box)) {
+      if(!seq->inline_span())
+        return *seq;
+    }
+  }
+  
+  //pmath_debug_print("[inconstistent inline_span() flag]\n");
+  return self;
+}
+
+Vector2F TextSequence::Impl::total_offest_to_index(int index) {
+  TextLayoutIterator iter = text_iterator();
+  TextSequence &outermost = *iter.outermost_sequence();
+  
+  iter.skip_forward_beyond_text_pos(&self, index);
+  
+  int px;
+  int line = iter.find_current_line_x(false, &px);
+  
+  float x, y;
+  BoxSize size;
+  Impl(outermost).line_extents(line, &x, &y, &size);
+  
+  x += pango_units_to_double(px);
+  return {x, y};
+}
+
+void TextSequence::Impl::line_extents(PangoLayoutIter *iter, int line, float *x, float *y, BoxSize *size) {
+  PangoRectangle ink, logic;
+  pango_layout_iter_get_line_extents(iter, &ink, &logic);
+  int base = pango_layout_iter_get_baseline(iter);
+  
+  if(size) {
+    size->width   = pango_units_to_double(logic.width);
+    size->ascent  = pango_units_to_double(base - ink.y);
+    size->descent = pango_units_to_double(ink.height) - size->ascent;
+    
+    if(size->ascent < 0.75 * self.em)
+      size->ascent = 0.75 * self.em;
+      
+    if(size->descent < 0.25 * self.em)
+      size->descent = 0.25 * self.em;
+  }
+  
+  if(x)
+    *x = pango_units_to_double(logic.x);
+    
+  if(line < self.line_y_corrections.length())
+    base -= self.line_y_corrections[line];
+    
+  if(y)
+    *y = pango_units_to_double(base) - self._extents.ascent;
+}
+
+void TextSequence::Impl::line_extents(int line, float *x, float *y, BoxSize *size) {
+  int i = line;
+  PangoLayoutIter *iter = new_pango_iter();
+  while(i > 0 && pango_layout_iter_next_line(iter)) {
+    --i;
+  }
+  
+  line_extents(iter, line, x, y, size);
+  
+  pango_layout_iter_free(iter);
 }
 
 //} ... class TextSequence::Impl
+
+//{ class TextSequence::Impl::Utf8Writer ...
+
+TextSequence::Impl::Utf8Writer::Utf8Writer(TextSequence &owner, Array<char> &buffer, PangoAttrList *attr_list)
+: owner{owner},
+  buffer{buffer},
+  attr_list{attr_list},
+  b2t_iter{owner.buffer_to_text.begin()},
+  b2seq_iter{owner.buffer_to_inline_sequence.begin()}
+{
+}
+
+void TextSequence::Impl::Utf8Writer::append_all(Context &context) {
+  append_all(context, owner);
+}
+
+void TextSequence::Impl::Utf8Writer::append_all(Context &context, TextSequence &seq) {
+  ArrayView<const uint16_t> buf = buffer_view(seq.text());
+  int box_index = -1;
+  for(int i = 0; i < buf.length(); ++i) {
+    int pos = i;
+    uint32_t unichar = buf[i];
+    if(is_utf16_high(unichar) && i + 1 < buf.length() && is_utf16_low(buf[i+1])) {
+      uint32_t hi = unichar;
+      uint32_t lo = buf[i + 1];
+      ++i;
+      unichar = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
+    }
+    
+    if(unichar == PMATH_CHAR_BOX) {
+      Box *box = seq.boxes[++box_index];
+      assert(box->index() == pos);
+      
+      append_box_glyphs(context, seq, pos, box);
+    }
+    else if(unichar <= 0x7F) {
+      int start = append_bytes(seq, pos, 1);
+      buffer[start] = (char)unichar;
+    }
+    else if(unichar <= 0x7FF) {
+      int start = append_bytes(seq, pos, 2);
+      buffer[start]   = 0xC0 | (unichar >> 6);
+      buffer[start+1] = 0x80 | (unichar & 0x3F);
+    }
+    else if(unichar <= 0xFFFF) {
+      int start = append_bytes(seq, pos, 3);
+      buffer[start]   = 0xE0 | ( unichar >> 12);
+      buffer[start+1] = 0x80 | ((unichar >>  6) & 0x3F);
+      buffer[start+2] = 0x80 | ( unichar        & 0x3F);
+    }
+    else if(unichar <= 0x10FFFF) {
+      int start = append_bytes(seq, pos, 4);
+      buffer[start]   = 0xF0 | ( unichar >> 18);
+      buffer[start+1] = 0x80 | ((unichar >> 12) & 0x3F);
+      buffer[start+2] = 0x80 | ((unichar >>  6) & 0x3F);
+      buffer[start+3] = 0x80 | ( unichar        & 0x3F);
+    }
+  }
+}
+
+void TextSequence::Impl::Utf8Writer::append_box_glyphs(Context &context, TextSequence &seq, int pos, Box *box) {
+  if(auto sub = box->as_inline_text_span()) {
+    box->resize_inline(context);
+    sub->em = owner.get_em();
+    sub->inline_span(true);
+    sub->ensure_boxes_valid();
+    append_all(context, *sub);
+    // TODO: add PangeAttributes for Style box
+    return;
+  }
+  
+  box->resize(context);
+  
+  int len = Utf8ObjectReplacementCharLen;
+  int start = append_bytes(seq, pos, len);
+  memcpy(buffer.items() + start, Utf8ObjectReplacementChar, len);
+  
+  PangoRectangle rect;
+  rect.x      = 0;
+  rect.y      = pango_units_from_double(-box->extents().ascent);
+  rect.width  = pango_units_from_double(box->extents().width);
+  rect.height = pango_units_from_double(box->extents().height());
+  
+  PangoAttribute *shape = pango_attr_shape_new_with_data(&rect, &rect, box, nullptr, nullptr);
+                            
+  shape->start_index = start;
+  shape->end_index   = start + len;
+  pango_attr_list_insert(attr_list, shape);
+}
+
+int TextSequence::Impl::Utf8Writer::append_bytes(TextSequence &seq, int pos, int count) {
+  ARRAY_ASSERT(count >= 0);
+  
+  int old_len = buffer.length();
+  
+  buffer.length(old_len + count);
+  memset(buffer.items() + old_len, 0, sizeof(buffer[0]) * count);
+  
+  b2t_iter.rewind_to(old_len);
+  b2t_iter.reset_rest(pos);
+  
+  b2seq_iter.rewind_to(old_len);
+  b2seq_iter.reset_rest(&seq == &owner ? nullptr : &seq);
+  
+  return old_len;
+}
+
+//} ... class TextSequence::Impl::Utf8Writer

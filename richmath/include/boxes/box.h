@@ -18,6 +18,7 @@ namespace richmath {
   
   class Box;
   class MathSequence;
+  class TextSequence;
   class SyntaxState;
   
   enum class DeviceKind : char {
@@ -217,6 +218,8 @@ namespace richmath {
         return box->find_parent<T>(selfincluding || box != obj);
       }
       
+      int index_in_ancestor(Box *ancestor, int fallback);
+      
       /// Get the next box after/before this one.
       /// \param direction          The search direction.
       /// \param restrict_to_parent (Optional) If set, restrict search to the sub-tree of child-nodes of that box.
@@ -227,6 +230,8 @@ namespace richmath {
       Box *next_child_or_null(int index, LogicalDirection direction);
       
       virtual MathSequence *as_inline_span() { return nullptr; }
+      
+      virtual TextSequence *as_inline_text_span() { return nullptr; }
       
       /// Get the i-th child box for i bewteen 0 to count()-1.
       ///

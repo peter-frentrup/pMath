@@ -1029,12 +1029,7 @@ void Document::on_key_press(uint32_t unichar) {
     String selstr;
     
     bool can_surround = true;
-    if(auto seq = dynamic_cast<TextSequence *>(context.selection.get())) {
-      selstr = String::FromUtf8(
-                 seq->text_buffer().buffer() + context.selection.start,
-                 context.selection.end - context.selection.start);
-    }
-    else if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
+    if(auto seq = dynamic_cast<BasicSequence *>(context.selection.get())) {
       selstr = seq->text().part(
                  context.selection.start,
                  context.selection.end - context.selection.start);
@@ -1468,14 +1463,20 @@ void Document::move_start_end(
     }
   }
   else if(auto seq = dynamic_cast<TextSequence *>(box)) {
-    GSList *lines = pango_layout_get_lines_readonly(seq->get_layout());
+    TextLayoutIterator iter = seq->outermost_layout_iter();
+    
+    iter.skip_forward_beyond_text_pos(seq, index);
+    
+    GSList *lines = pango_layout_get_lines_readonly(iter.outermost_sequence()->get_layout());
     
     if(direction == LogicalDirection::Backward) {
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
-        if(line->start_index + line->length >= index) {
-          index = line->start_index;
+        if(line->start_index + line->length >= iter.attribute_index()) {
+          iter.rewind_to(line->start_index);
+          index = iter.text_index();
+          box = iter.current_sequence();
           break;
         }
         
@@ -1483,13 +1484,16 @@ void Document::move_start_end(
       }
     }
     else {
-      const char *s = seq->text_buffer().buffer();
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
-        if(line->start_index + line->length >= index) {
-          index = line->start_index + line->length;
-          if(index > 0 && s[index - 1] == ' ')
+        if(line->start_index + line->length >= iter.attribute_index()) {
+          iter.rewind_to(line->start_index + line->length);
+          
+          index = iter.text_index();
+          box = iter.current_sequence();
+          
+          if(index > 0 && iter.text_buffer_raw()[index - 1] == ' ')
             --index;
           break;
         }
@@ -4313,15 +4317,11 @@ bool Document::Impl::prepare_insert_math(bool include_previous_word) {
     return false;
     
   if(include_previous_word && self.selection_length() == 0) {
-    if(auto txt = dynamic_cast<TextSequence *>(seq)) {
-      const char *buf = txt->text_buffer().buffer();
-      int i = self.selection_start();
-      
-      while(i > 0 && (unsigned char)buf[i] > ' ')
-        --i;
-        
-      self.select(txt, i, self.selection_end());
-    }
+    int prev_pos = self.selection_start();
+    Box *prev_pos_box = seq->move_logical(LogicalDirection::Backward, true, &prev_pos);
+    
+    if(prev_pos_box == seq) 
+      self.select(seq, prev_pos, self.selection_end());
   }
   
   InlineSequenceBox *box = new InlineSequenceBox;
@@ -4543,22 +4543,8 @@ bool Document::Impl::is_tabkey_only_moving() {
   if(!dynamic_cast<Section *>(selbox->parent()))
     return true;
     
-  if(auto seq = dynamic_cast<MathSequence *>(selbox)) {
+  if(auto seq = dynamic_cast<BasicSequence *>(selbox)) {
     const uint16_t *buf = seq->text().buffer();
-    
-    for(int i = self.context.selection.start - 1; i >= 0; --i) {
-      if(buf[i] == '\n')
-        return false;
-        
-      if(buf[i] != '\t' && buf[i] != ' ')
-        return true;
-    }
-    
-    return false;
-  }
-  
-  if(auto seq = dynamic_cast<TextSequence *>(selbox)) {
-    const char *buf = seq->text_buffer().buffer();
     
     for(int i = self.context.selection.start - 1; i >= 0; --i) {
       if(buf[i] == '\n')

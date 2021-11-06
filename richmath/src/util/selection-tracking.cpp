@@ -89,7 +89,6 @@ namespace {
         int in_tok_len  = token_source_end - token_source_start;
         
         const uint16_t *in16 = nullptr;
-        const char     *in8 = nullptr;
         int in_length = 0;
         int in_start = token_source_start;
         int in_index = location.index;
@@ -105,13 +104,9 @@ namespace {
             return;
           }
 
-          if(auto mseq = dynamic_cast<MathSequence*>(selbox)) {
+          if(auto mseq = dynamic_cast<BasicSequence*>(selbox)) {
             in16 = mseq->text().buffer();
             in_length = mseq->length();
-          }
-          else if(auto tseq = dynamic_cast<TextSequence*>(selbox)) {
-            in8 = tseq->text_buffer().buffer();
-            in_length = tseq->length();
           }
           else {
             add_output_pos(token_output_start);
@@ -147,18 +142,7 @@ namespace {
           int opos = token_output_start + 1;
           int ipos = in_start;
           while(ipos < in_index && opos < token_output_end - 1) {
-            if(in8) {
-              if(in8[ipos]) {
-                const char *next = g_utf8_find_next_char(in8 + ipos, in8 + in_index);
-                if(next)
-                  ipos = (int)(next - in8);
-                else
-                  ipos = in_index;
-              }
-              else
-                ++ipos; // embedded <NUL>
-            }
-            else if(in16) {
+            if(in16) {
               if( is_utf16_high(in16[ipos]) && 
                   ipos + 1 < in_index &&
                   is_utf16_low(in16[ipos + 1])) 
@@ -209,22 +193,16 @@ namespace {
         if(!feo)
           return nullptr;
         
-        if(MathSequence *mseq = dynamic_cast<MathSequence*>(feo)) {
+        if(BasicSequence *seq = dynamic_cast<BasicSequence*>(feo)) {
           if(source.end != source.start + 1)
             return nullptr;
-          if(source.start < 0 || source.start >= mseq->length())
+          if(source.start < 0 || source.start >= seq->length())
             return nullptr;
           
-          if(mseq->char_at(source.start) != PMATH_CHAR_BOX)
+          if(seq->char_at(source.start) != PMATH_CHAR_BOX)
             return nullptr;
           
-          return raw_find_box_at(mseq, source.start);
-        }
-        else if(TextSequence *tseq = dynamic_cast<TextSequence*>(feo)) {
-          if(!tseq->text_buffer().is_box_at(source.start, source.end)) 
-            return nullptr;
-          
-          return raw_find_box_at(tseq, source.start);
+          return raw_find_box_at(seq, source.start);
         }
         else if(Box *box = dynamic_cast<Box*>(feo)) {
           if(source.start == 0 && source.end == box->length())
@@ -502,13 +480,12 @@ namespace {
         }
         
         if(expr[0] == richmath_System_List) {
-          const char *o_buf = seq->text_buffer().buffer();
+          ArrayView<const uint16_t> o_buf = buffer_view(seq->text());
           int o_pos = 0;
-          int o_len = seq->length();
           int boxi = 0;
           
           for(auto item: expr.items()) {
-            if(o_pos >= o_len)
+            if(o_pos >= o_buf.length())
               break;
             
             SelectionReference item_source = SelectionReference::from_debug_info_of(item);
@@ -517,14 +494,12 @@ namespace {
             if(boxi < seq->count()) {
               if(boxi < seq->count() && seq->item(boxi)->index() == o_pos) {
                 ++boxi;
-                while(o_next < o_len && is_utf8_continuation(o_buf[o_next]))
-                  ++o_next;
               }
               else
                 o_next = seq->item(boxi)->index();
             }
             else
-              o_next = o_len;
+              o_next = o_buf.length();
             
             if(source_location.index <= item_source.end && item_source.id == source_location.id) {
               visit_text_span(seq, o_pos, o_next, item_source, std::move(item));
@@ -544,7 +519,7 @@ namespace {
             const uint16_t *buf = source_seq->text().buffer();
             
             if(source.end - source.start >= 2 && buf[source.start] == '"' && buf[source.end-1] == '"') {
-              const char *o_buf = seq->text_buffer().buffer();
+              const uint16_t *o_buf = seq->text().buffer();
               
               int in_pos = source.start + 1;
               int o_pos = start;
@@ -559,8 +534,6 @@ namespace {
               
                 in_pos = in_next;
                 ++o_pos;
-                while(o_pos < o_pos_max && is_utf8_continuation(o_buf[o_pos]))
-                  ++o_pos;
               }
               
               destination.set(seq, o_pos, o_pos);
