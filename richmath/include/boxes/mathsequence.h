@@ -66,8 +66,6 @@ namespace richmath {
       virtual bool request_repaint_range(int start, int end) override;
       virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       
-      virtual VolatileSelection normalize_selection(int start, int end) override;
-      
       int find_string_start(int pos_inside_string, int *next_after_string = 0); // returns -1 on failure
       bool is_inside_string(int pos) { return find_string_start(pos) >= 0; }
       

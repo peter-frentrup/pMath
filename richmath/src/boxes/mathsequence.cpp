@@ -1198,21 +1198,6 @@ bool MathSequence::visible_rect(RectangleF &rect, Box *top_most) {
   return base::visible_rect(rect, top_most);
 }
 
-VolatileSelection MathSequence::normalize_selection(int start, int end) {
-  if(start <= 0)
-    start = 0;
-  
-  if(end >= str.length())
-    end = str.length();
-  else if(is_utf16_low(str[end])) {
-    ++end;
-    if(start > 0 && is_utf16_high(str[start - 1]))
-      --start;
-  }
-
-  return {this, start, end};
-}
-
 int MathSequence::find_string_start(int pos_inside_string, int *next_after_string) {
   ensure_spans_valid();
   

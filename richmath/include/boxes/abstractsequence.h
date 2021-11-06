@@ -20,7 +20,7 @@ namespace richmath {
       virtual void ensure_boxes_valid() = 0;
       
       virtual int insert(int pos, uint32_t chr) { return insert(pos, String::FromChar(chr)); }
-      virtual int insert(int pos, AbstractSequence *seq, int start, int end);
+      int insert(int pos, AbstractSequence *seq, int start, int end);
       
       virtual int insert(int pos, const String &s) = 0;
       virtual int insert(int pos, Box *box) = 0;
@@ -62,6 +62,8 @@ namespace richmath {
       
       virtual void ensure_boxes_valid() final override;
       
+      virtual VolatileSelection normalize_selection(int start, int end) final override;
+      
       bool is_placeholder();
       virtual bool is_placeholder(int i) final override;
       
@@ -70,9 +72,7 @@ namespace richmath {
       int insert(int pos, const char *latin1, int len);
       virtual int insert(int pos, const String &s) final override;
       virtual int insert(int pos, Box *box) final override;
-      virtual int insert(int pos, AbstractSequence *seq, int start, int end) final override {
-        return base::insert(pos, seq, start, end);
-      }
+      int insert(int pos, AbstractSequence *seq, int start, int end) { return base::insert(pos, seq, start, end); }
       
       virtual void remove(int start, int end) final override;
       virtual Box *remove(int *index) final override;
