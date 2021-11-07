@@ -262,8 +262,9 @@ void TextSequence::resize(Context &context) {
   pango_layout_iter_free(iter);
   
   PangoRectangle rect;
-  pango_layout_get_extents(_layout, 0, &rect);
+  pango_layout_get_extents(_layout, nullptr, &rect);
   
+  // FIXME: use rect.x and rect.y
   _extents.width   = pango_units_to_double(rect.width);
   _extents.ascent  = pango_units_to_double(pango_layout_get_baseline(_layout) - line_y_corrections[0]);
   _extents.descent = pango_units_to_double(rect.height - corr) - _extents.ascent;
@@ -994,8 +995,7 @@ Vector2F TextSequence::Impl::total_offest_to_index(int index) {
   int line = iter.find_current_line_x(false, &px);
   
   float x, y;
-  BoxSize size;
-  Impl(outermost).line_extents(line, &x, &y, &size);
+  Impl(outermost).line_extents(line, &x, &y, nullptr);
   
   x += pango_units_to_double(px);
   return {x, y};
@@ -1080,6 +1080,8 @@ void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
     }
     
     if(unichar == 0) { // embedded NUL would be truncated -> buffer overflow
+      unichar = 0xFFFD;
+    } else if(is_utf16_high(unichar) || is_utf16_low(unichar)) { // stand alone UTF-16 surrogate char
       unichar = 0xFFFD;
     }
     
