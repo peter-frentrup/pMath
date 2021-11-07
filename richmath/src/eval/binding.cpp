@@ -136,6 +136,7 @@ static bool set_style_cmd(Expr cmd);
 static bool similar_section_below_cmd(Expr cmd);
 static bool subsession_evaluate_sections_cmd(Expr cmd);
 static bool toggle_character_code(Expr cmd);
+static bool try_toggle_character_code(bool do_it);
 //} ... menu commands
 
 //{ strings.inc ...
@@ -867,17 +868,7 @@ static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd) {
 }
 
 static MenuCommandStatus can_toggle_character_code(Expr cmd) {
-  Document *doc = Documents::current();
-  if(!doc || !doc->get_style(Editable))
-    return MenuCommandStatus(false);
-  
-  if(!dynamic_cast<AbstractSequence*>(doc->selection_box()))
-    return false;
-  
-  if(doc->selection_end() == 0)
-    return false;
-  
-  return true;
+  return try_toggle_character_code(false);
 }
 
 //} ... menu command availability checkers
@@ -1638,6 +1629,10 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 }
 
 static bool toggle_character_code(Expr cmd) {
+  return try_toggle_character_code(true);
+}
+
+static bool try_toggle_character_code(bool do_it) {
   Document *doc = Documents::current();
   if(!doc)
     return false;
@@ -1645,7 +1640,11 @@ static bool toggle_character_code(Expr cmd) {
   AbstractSequence *seq = nullptr;
   auto sel = doc->selection();
   if(auto box = sel.get()) {
-    if(!box->edit_selection(sel))
+    if(do_it) {
+      if(!box->edit_selection(sel))
+        return false;
+    }
+    else if(!box->get_style(Editable))
       return false;
     
     seq = dynamic_cast<AbstractSequence*>(sel.get());
@@ -1695,10 +1694,12 @@ static bool toggle_character_code(Expr cmd) {
         return false;
     }
     
-    doc->native()->on_editing();
-    int pos = seq->insert(sel.end, unichar);
-    seq->remove(sel.start, sel.end);
-    doc->select(seq, sel.start + pos - sel.end, sel.start + pos - sel.end);
+    if(do_it) {
+      doc->native()->on_editing();
+      int pos = seq->insert(sel.end, unichar);
+      seq->remove(sel.start, sel.end);
+      doc->select(seq, sel.start + pos - sel.end, sel.start + pos - sel.end);
+    }
     return true;
   }
   
@@ -1706,32 +1707,34 @@ static bool toggle_character_code(Expr cmd) {
   if(unichar == PMATH_CHAR_BOX)
     return false;
   
-  if(is_utf16_low(unichar) && sel.start <= sel.end - 2 && is_utf16_high(buf[sel.end - 2])) {
-    uint32_t hi = buf[sel.end - 2];
-    uint32_t lo = unichar;
-    unichar = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
+  if(do_it) {
+    if(is_utf16_low(unichar) && sel.start <= sel.end - 2 && is_utf16_high(buf[sel.end - 2])) {
+      uint32_t hi = buf[sel.end - 2];
+      uint32_t lo = unichar;
+      unichar = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
+    }
+    
+    const char hex[] = "0123456789ABCDEF";
+    char digits_buf[6];
+    digits_buf[5] = hex[ unichar        & 0xF];
+    digits_buf[4] = hex[(unichar >>  4) & 0xF];
+    digits_buf[3] = hex[(unichar >>  8) & 0xF];
+    digits_buf[2] = hex[(unichar >> 12) & 0xF];
+    digits_buf[1] = hex[(unichar >> 16) & 0xF];
+    digits_buf[0] = hex[(unichar >> 20) & 0xF];
+    
+    char *digits = digits_buf;
+    int num_digits = sizeof(digits_buf);
+    while(num_digits > 1 && *digits == '0') {
+      ++digits;
+      --num_digits;
+    }
+    
+    doc->native()->on_editing();
+    seq->insert(sel.end, digits, num_digits);
+    seq->remove(sel.start, sel.end);
+    doc->select(seq, sel.start, sel.start + num_digits);
   }
-  
-  const char hex[] = "0123456789ABCDEF";
-  char digits_buf[6];
-  digits_buf[5] = hex[ unichar        & 0xF];
-  digits_buf[4] = hex[(unichar >>  4) & 0xF];
-  digits_buf[3] = hex[(unichar >>  8) & 0xF];
-  digits_buf[2] = hex[(unichar >> 12) & 0xF];
-  digits_buf[1] = hex[(unichar >> 16) & 0xF];
-  digits_buf[0] = hex[(unichar >> 20) & 0xF];
-  
-  char *digits = digits_buf;
-  int num_digits = sizeof(digits_buf);
-  while(num_digits > 1 && *digits == '0') {
-    ++digits;
-    --num_digits;
-  }
-  
-  doc->native()->on_editing();
-  seq->insert(sel.end, digits, num_digits);
-  seq->remove(sel.start, sel.end);
-  doc->select(seq, sel.start, sel.start + num_digits);
   return true;
 }
 
