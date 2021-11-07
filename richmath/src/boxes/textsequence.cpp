@@ -130,7 +130,8 @@ namespace richmath {
     public:
       PangoLayoutIter *new_pango_iter();
       
-      void update_layout(Context &context);
+      void resize_boxes(Context &context);
+      void update_layout();
       
       TextSequence       &outermost_span();
       TextLayoutIterator  text_iterator() { return TextLayoutIterator(outermost_span()); }
@@ -146,21 +147,35 @@ namespace richmath {
           using b2t_iter_t   = b2t_t::iterator_type;
           using b2seq_iter_t = b2seq_t::iterator_type;
         public:
-          explicit Utf8Writer(TextSequence &owner, Array<char> &buffer, PangoAttrList *attr_list);
+          explicit Utf8Writer(TextSequence &owner, Array<char> &buffer);
           
-          void append_all(Context &context);
+          void append_all();
         
         private:
-          void append_all(Context &context, TextSequence &seq);
-          void append_box_glyphs(Context &context, TextSequence &seq, int pos, Box *box);
+          void append_all(TextSequence &seq);
+          void append_box_glyphs(TextSequence &seq, int pos, Box *box);
           int append_single_char_bytes(TextSequence &seq, int pos, int count);
         
         private:
           TextSequence  &owner;
           Array<char>   &buffer;
-          PangoAttrList *attr_list;
           b2t_iter_t     b2t_iter;
           b2seq_iter_t   b2seq_iter;
+      };
+      
+      class AttributeWriter {
+        public:
+          explicit AttributeWriter(TextSequence &owner, PangoAttrList *attr_list);
+          
+          void apply_all();
+        
+        private:
+          void visit_inline_sequence(TextSequence *seq);
+          void visit_box(TextSequence *seq, Box *box);
+          
+        private:
+          TextLayoutIterator  iter;
+          PangoAttrList      *attr_list;
       };
     
     public:
@@ -194,10 +209,8 @@ void TextSequence::resize(Context &context) {
   pango_layout_set_tabs(_layout, tabs);
   pango_tab_array_free(tabs);
   
-  ensure_boxes_valid();
-  text_changed(false);
-  
-  Impl(*this).update_layout(context);
+  Impl(*this).resize_boxes(context);
+  Impl(*this).update_layout();
   
   PangoContext *pango = pango_layout_get_context(_layout);
   PangoContextUtil::update(pango, context);
@@ -483,7 +496,7 @@ Box *TextSequence::move_logical(
   bool              jumping,
   int              *index
 ) {
-  // FIXME: TextLayoutIterator does not work if the layout was not updated since last edit.
+  ensure_layout_valid();
   
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
@@ -812,6 +825,15 @@ TextLayoutIterator TextSequence::outermost_layout_iter() {
   return Impl(*this).text_iterator();
 }
 
+void TextSequence::ensure_layout_valid() {
+  if(!text_changed())
+    return;
+  
+  Impl(outermost_sequence()).update_layout();
+
+  assert(!text_changed());
+}
+
 //} ... class TextSequence
 
 //{ class TextSequence::Impl ...
@@ -915,17 +937,35 @@ inline PangoLayoutIter *TextSequence::Impl::new_pango_iter() {
   return pango_layout_get_iter(outermost_span()._layout);
 }
 
-void TextSequence::Impl::update_layout(Context &context) {
-  Array<char> utf8;
-  PangoAttrList *attr_list = pango_attr_list_new();
+void TextSequence::Impl::resize_boxes(Context &context) {
+  self.ensure_boxes_valid();
   
-  Utf8Writer(self, utf8, attr_list).append_all(context);
+  for(auto box : self.boxes) {
+    if(auto sub = box->as_inline_text_span()) {
+      box->resize_inline(context);
+      sub->inline_span(true);
+      sub->em = self.get_em();
+      Impl(*sub).resize_boxes(context);
+    }
+    else
+      box->resize(context);
+  }
+}
+
+void TextSequence::Impl::update_layout() {
+  {
+    Array<char> utf8;
+    Utf8Writer(self, utf8).append_all();
+    pango_layout_set_text(self._layout, utf8.items(), utf8.length());
+    self._buffer_size = utf8.length();
+  }
   
-  pango_layout_set_text(self._layout, utf8.items(), utf8.length());
-  pango_layout_set_attributes(self._layout, attr_list);
-  
-  pango_attr_list_unref(attr_list);
-  self._buffer_size = utf8.length();
+  {
+    PangoAttrList *attr_list = pango_attr_list_new();
+    AttributeWriter(self, attr_list).apply_all();
+    pango_layout_set_attributes(self._layout, attr_list);
+    pango_attr_list_unref(attr_list);
+  }
 }
 
 inline TextSequence &TextSequence::Impl::outermost_span() {
@@ -1004,20 +1044,21 @@ void TextSequence::Impl::line_extents(int line, float *x, float *y, BoxSize *siz
 
 //{ class TextSequence::Impl::Utf8Writer ...
 
-TextSequence::Impl::Utf8Writer::Utf8Writer(TextSequence &owner, Array<char> &buffer, PangoAttrList *attr_list)
+TextSequence::Impl::Utf8Writer::Utf8Writer(TextSequence &owner, Array<char> &buffer)
 : owner{owner},
   buffer{buffer},
-  attr_list{attr_list},
   b2t_iter{owner.buffer_to_text.begin()},
   b2seq_iter{owner.buffer_to_inline_sequence.begin()}
 {
 }
 
-void TextSequence::Impl::Utf8Writer::append_all(Context &context) {
-  append_all(context, owner);
+void TextSequence::Impl::Utf8Writer::append_all() {
+  append_all(owner);
 }
 
-void TextSequence::Impl::Utf8Writer::append_all(Context &context, TextSequence &seq) {
+void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
+  seq.text_changed(false);
+  
   ArrayView<const uint16_t> buf = buffer_view(seq.text());
   int box_index = -1;
   for(int i = 0; i < buf.length(); ++i) {
@@ -1034,7 +1075,7 @@ void TextSequence::Impl::Utf8Writer::append_all(Context &context, TextSequence &
       Box *box = seq.boxes[++box_index];
       assert(box->index() == pos);
       
-      append_box_glyphs(context, seq, pos, box);
+      append_box_glyphs(seq, pos, box);
     }
     else if(unichar <= 0x7F) {
       int start = append_single_char_bytes(seq, pos, 1);
@@ -1061,34 +1102,15 @@ void TextSequence::Impl::Utf8Writer::append_all(Context &context, TextSequence &
   }
 }
 
-void TextSequence::Impl::Utf8Writer::append_box_glyphs(Context &context, TextSequence &seq, int pos, Box *box) {
+void TextSequence::Impl::Utf8Writer::append_box_glyphs(TextSequence &seq, int pos, Box *box) {
   if(auto sub = box->as_inline_text_span()) {
-    box->resize_inline(context);
-    sub->em = owner.get_em();
-    sub->inline_span(true);
-    sub->ensure_boxes_valid();
-    append_all(context, *sub);
-    // TODO: add PangeAttributes for Style box
+    append_all(*sub);
     return;
   }
-  
-  box->resize(context);
   
   int len = Utf8ObjectReplacementCharLen;
   int start = append_single_char_bytes(seq, pos, len);
   memcpy(buffer.items() + start, Utf8ObjectReplacementChar, len);
-  
-  PangoRectangle rect;
-  rect.x      = 0;
-  rect.y      = pango_units_from_double(-box->extents().ascent);
-  rect.width  = pango_units_from_double(box->extents().width);
-  rect.height = pango_units_from_double(box->extents().height());
-  
-  PangoAttribute *shape = pango_attr_shape_new_with_data(&rect, &rect, box, nullptr, nullptr);
-                            
-  shape->start_index = start;
-  shape->end_index   = start + len;
-  pango_attr_list_insert(attr_list, shape);
 }
 
 int TextSequence::Impl::Utf8Writer::append_single_char_bytes(TextSequence &seq, int pos, int count) {
@@ -1113,3 +1135,47 @@ int TextSequence::Impl::Utf8Writer::append_single_char_bytes(TextSequence &seq, 
 }
 
 //} ... class TextSequence::Impl::Utf8Writer
+
+//{ class TextSequence::Impl::AttributeWriter ...
+
+TextSequence::Impl::AttributeWriter::AttributeWriter(TextSequence &owner, PangoAttrList *attr_list)
+  : iter{owner},
+    attr_list{attr_list}
+{
+}
+
+void TextSequence::Impl::AttributeWriter::apply_all() {
+  visit_inline_sequence(iter.outermost_sequence());
+}
+
+void TextSequence::Impl::AttributeWriter::visit_inline_sequence(TextSequence *seq) {
+  seq->ensure_boxes_valid();
+  
+  for(auto box : seq->boxes)
+    visit_box(seq, box);
+}
+
+void TextSequence::Impl::AttributeWriter::visit_box(TextSequence *seq, Box *box) {
+  iter.skip_forward_beyond_text_pos(seq, box->index());
+  int start_byte = iter.byte_index();
+  
+  if(auto sub = box->as_inline_text_span()) {
+    visit_inline_sequence(sub);
+    // TODO: add PangeAttributes for Style box
+    return;
+  }
+  
+  PangoRectangle rect;
+  rect.x      = 0;
+  rect.y      = pango_units_from_double(-box->extents().ascent);
+  rect.width  = pango_units_from_double(box->extents().width);
+  rect.height = pango_units_from_double(box->extents().height());
+  
+  PangoAttribute *shape = pango_attr_shape_new_with_data(&rect, &rect, box, nullptr, nullptr);
+           
+  shape->start_index = start_byte;
+  shape->end_index   = start_byte + Utf8ObjectReplacementCharLen;
+  pango_attr_list_insert(attr_list, shape);
+}
+
+//} ... class TextSequence::Impl::AttributeWriter

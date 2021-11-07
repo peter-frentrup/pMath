@@ -63,6 +63,8 @@ namespace richmath {
     
       bool inline_span() { return get_flag(InlineSpanBit); }
       
+      void ensure_layout_valid();
+      
       PangoLayout *get_layout() { return _layout; } // only valid if !inline_span()
       int buffer_size() { return _buffer_size; }
       RleArrayIterator<const RleLinearPredictorArray<int>> buffer_to_text_iter() {            return buffer_to_text.cbegin(); }
