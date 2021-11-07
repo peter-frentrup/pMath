@@ -1076,8 +1076,14 @@ void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
       assert(box->index() == pos);
       
       append_box_glyphs(seq, pos, box);
+      continue;
     }
-    else if(unichar <= 0x7F) {
+    
+    if(unichar == 0) { // embedded NUL would be truncated -> buffer overflow
+      unichar = 0xFFFD;
+    }
+    
+    if(unichar <= 0x7F) {
       int start = append_single_char_bytes(seq, pos, 1);
       buffer[start] = (char)unichar;
     }
