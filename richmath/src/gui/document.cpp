@@ -3360,63 +3360,72 @@ void Document::toggle_open_close_current_group() {
     native()->beep();
 }
 
-void Document::complete_box() {
-  Box *b = selection_box();
-  while(b) {
-    {
-      RadicalBox *rad = dynamic_cast<RadicalBox *>(b);
-      
-      if(rad && rad->count() == 1) {
-        rad->complete();
-        rad->exponent()->insert(0, PMATH_CHAR_PLACEHOLDER);
-        select(rad->exponent(), 0, 1);
+bool Document::complete_box(bool do_it) {
+  Box *box = selection_box();
+  while(box) {
+    if(auto rad = dynamic_cast<RadicalBox *>(box)) {
+      if(rad->count() == 1) {
+        if(!rad->get_style(Editable))
+          return false;
         
-        return;
+        if(do_it) {
+          rad->complete();
+          rad->exponent()->insert(0, PMATH_CHAR_PLACEHOLDER);
+          select(rad->exponent(), 0, 1);
+        }
+        
+        return true;
       }
     }
     
-    {
-      SubsuperscriptBox *subsup = dynamic_cast<SubsuperscriptBox *>(b);
-      
-      if(subsup && subsup->count() == 1) {
-        if(subsup->subscript()) {
-          subsup->complete();
-          subsup->superscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
-          select(subsup->superscript(), 0, 1);
-        }
-        else {
-          subsup->complete();
-          subsup->subscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
-          select(subsup->subscript(), 0, 1);
+    if(auto subsup = dynamic_cast<SubsuperscriptBox *>(box)) {
+      if(subsup->count() == 1) {
+        if(!subsup->get_style(Editable))
+          return false;
+        
+        if(do_it) {
+          if(subsup->subscript()) {
+            subsup->complete();
+            subsup->superscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+            select(subsup->superscript(), 0, 1);
+          }
+          else {
+            subsup->complete();
+            subsup->subscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+            select(subsup->subscript(), 0, 1);
+          }
         }
         
-        return;
+        return true;
       }
     }
     
-    {
-      UnderoverscriptBox *underover = dynamic_cast<UnderoverscriptBox *>(b);
-      
-      if(underover && underover->count() == 2) {
-        if(underover->underscript()) {
-          underover->complete();
-          underover->overscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
-          select(underover->overscript(), 0, 1);
-        }
-        else {
-          underover->complete();
-          underover->underscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
-          select(underover->underscript(), 0, 1);
+    if(auto underover = dynamic_cast<UnderoverscriptBox *>(box)) {
+      if(underover->count() == 2) {
+        if(!underover->get_style(Editable))
+          return false;
+        
+        if(do_it) {
+          if(underover->underscript()) {
+            underover->complete();
+            underover->overscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+            select(underover->overscript(), 0, 1);
+          }
+          else {
+            underover->complete();
+            underover->underscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
+            select(underover->underscript(), 0, 1);
+          }
         }
         
-        return;
+        return true;
       }
     }
     
-    b = b->parent();
+    box = box->parent();
   }
   
-  native()->beep();
+  return false;
 }
 
 Expr Document::get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item) {

@@ -79,6 +79,7 @@ static MenuCommandStatus can_find_evaluating_section(Expr cmd);
 static MenuCommandStatus can_find_matching_fence(Expr cmd);
 static MenuCommandStatus can_graphics_original_size(Expr cmd);
 static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd);
+static MenuCommandStatus can_insert_opposite_cmd(Expr cmd);
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd);
 static MenuCommandStatus can_section_merge(Expr cmd);
 static MenuCommandStatus can_section_split(Expr cmd);
@@ -259,7 +260,7 @@ bool richmath::init_bindings() {
   Menus::register_command(String("InsertColumn"),               insert_column_cmd,                   can_document_write);
   Menus::register_command(String("InsertFraction"),             insert_fraction_cmd,                 can_document_write);
   Menus::register_command(String("InsertInlineSection"),        insert_inline_section_cmd,           can_insert_inline_section_cmd);
-  Menus::register_command(String("InsertOpposite"),             insert_opposite_cmd);
+  Menus::register_command(String("InsertOpposite"),             insert_opposite_cmd,                 can_insert_opposite_cmd);
   Menus::register_command(String("InsertOverscript"),           insert_overscript_cmd,               can_document_write);
   Menus::register_command(String("InsertRadical"),              insert_radical_cmd,                  can_document_write);
   Menus::register_command(String("InsertRow"),                  insert_row_cmd,                      can_document_write);
@@ -726,6 +727,14 @@ static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd) {
     return MenuCommandStatus(seq->get_style(Editable));
   
   return MenuCommandStatus(false);
+}
+
+static MenuCommandStatus can_insert_opposite_cmd(Expr cmd) {
+  Document *doc = Documents::current();
+  if(!doc)
+    return false;
+    
+  return MenuCommandStatus(doc->complete_box(false));
 }
 
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
@@ -1295,8 +1304,11 @@ static bool insert_opposite_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  doc->complete_box();
-  return true;
+  if(doc->complete_box(true))
+    return true;
+  
+  doc->native()->beep();
+  return false;
 }
 
 static bool insert_overscript_cmd(Expr cmd) {
