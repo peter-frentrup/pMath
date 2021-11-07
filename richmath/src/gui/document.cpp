@@ -313,6 +313,7 @@ namespace richmath {
       
     private:
       bool is_tabkey_only_moving();
+      void indent_selection(bool unindent);
       
     public:
       void handle_key_backspace(SpecialKeyEvent &event);
@@ -4537,7 +4538,7 @@ void Document::Impl::handle_key_tab(SpecialKeyEvent &event) {
     }
   }
   else
-    self.key_press('\t');
+    indent_selection(event.shift);
     
   event.key = SpecialKey::Unknown;
 }
@@ -4545,8 +4546,16 @@ void Document::Impl::handle_key_tab(SpecialKeyEvent &event) {
 bool Document::Impl::is_tabkey_only_moving() {
   Box *selbox = self.context.selection.get();
   
-  if(self.context.selection.start != self.context.selection.end)
+  if(self.context.selection.start != self.context.selection.end) {
+    if(auto seq = dynamic_cast<AbstractSequence *>(selbox)) {
+      const uint16_t *buf = seq->text().buffer();
+      for(int i = self.context.selection.start; i < self.context.selection.end; ++i) {
+        if(buf[i] == '\n')
+          return false;
+      }
+    }
     return true;
+  }
     
   if(!selbox || selbox == &self)
     return false;
@@ -4569,6 +4578,61 @@ bool Document::Impl::is_tabkey_only_moving() {
   }
   
   return true;
+}
+
+void Document::Impl::indent_selection(bool unindent) {
+  Box *selbox = self.context.selection.get();
+  if(selbox->edit_selection(self.context.selection)) {
+    if(auto seq = dynamic_cast<AbstractSequence *>(selbox)) {
+      self.native()->on_editing();
+      
+      int new_sel_start = self.context.selection.start;
+      int new_sel_end   = self.context.selection.end;
+      
+      int first_line_start = new_sel_start;
+      ArrayView<const uint16_t> buf = buffer_view(seq->text());
+      while(first_line_start > 0 && buf[first_line_start-1] != '\n')
+        --first_line_start;
+      
+      bool was_non_empty = (new_sel_start < new_sel_end);
+      
+      int pos = new_sel_end;
+      while(pos >= first_line_start) {
+        int line_start = pos;
+        while(line_start > first_line_start && buf[line_start-1] != '\n')
+          --line_start;
+        
+        if(unindent) {
+          if(line_start < buf.length() && buf[line_start] == '\t') {
+            seq->remove(line_start, line_start + 1);
+            --new_sel_end;
+            if(line_start <= new_sel_start)
+              --new_sel_start;
+          }
+        }
+        else {
+          seq->insert(line_start, '\t');
+          ++new_sel_end;
+          if(line_start <= new_sel_start)
+            ++new_sel_start;
+        }
+        
+        buf = buffer_view(seq->text());
+        pos = line_start - 1;
+      }
+      
+      if(was_non_empty) {
+        new_sel_start = first_line_start;
+        while(new_sel_end < buf.length() && buf[new_sel_end] != '\n')
+          ++new_sel_end;
+      }
+      
+      self.select(seq, new_sel_start, new_sel_end);
+      return;
+    }
+  }
+  
+  self.key_press('\t');
 }
 
 void Document::Impl::handle_key_backspace(SpecialKeyEvent &event) {
