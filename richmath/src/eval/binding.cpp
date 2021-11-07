@@ -1703,6 +1703,9 @@ static bool toggle_character_code(Expr cmd) {
   }
   
   unichar = buf[sel.end - 1];
+  if(unichar == PMATH_CHAR_BOX)
+    return false;
+  
   if(is_utf16_low(unichar) && sel.start <= sel.end - 2 && is_utf16_high(buf[sel.end - 2])) {
     uint32_t hi = buf[sel.end - 2];
     uint32_t lo = unichar;
