@@ -59,6 +59,9 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("&Underscript",                          "InsertUnderscript"),
 		MenuItem("&Opposite Position",                    "InsertOpposite"),
 		Delimiter,
+		MenuItem("Insert Fra&me",                         DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
+		MenuItem("Insert &Highlighting",                  DocumentApply(Automatic, TemplateBox({"\[SelectionPlaceholder]"}, "Highlighted"))),
+		Delimiter,
 		MenuItem("Table &Column",                         "InsertColumn"),
 		MenuItem("Table &Row",                            "InsertRow")
 		}),

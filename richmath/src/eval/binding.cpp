@@ -78,6 +78,7 @@ static MenuCommandStatus can_evaluate_sections(Expr cmd);
 static MenuCommandStatus can_find_evaluating_section(Expr cmd);
 static MenuCommandStatus can_find_matching_fence(Expr cmd);
 static MenuCommandStatus can_graphics_original_size(Expr cmd);
+static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd);
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd);
 static MenuCommandStatus can_section_merge(Expr cmd);
 static MenuCommandStatus can_section_split(Expr cmd);
@@ -110,6 +111,7 @@ static bool find_matching_fence_cmd(Expr cmd);
 static bool graphics_original_size_cmd(Expr cmd);
 static bool insert_column_cmd(Expr cmd);
 static bool insert_fraction_cmd(Expr cmd);
+static bool insert_inline_section_cmd(Expr cmd);
 static bool insert_opposite_cmd(Expr cmd);
 static bool insert_overscript_cmd(Expr cmd);
 static bool insert_radical_cmd(Expr cmd);
@@ -256,6 +258,7 @@ bool richmath::init_bindings() {
   Menus::register_command(String("SimilarSectionBelow"),        similar_section_below_cmd,           can_similar_section_below);
   Menus::register_command(String("InsertColumn"),               insert_column_cmd,                   can_document_write);
   Menus::register_command(String("InsertFraction"),             insert_fraction_cmd,                 can_document_write);
+  Menus::register_command(String("InsertInlineSection"),        insert_inline_section_cmd,           can_insert_inline_section_cmd);
   Menus::register_command(String("InsertOpposite"),             insert_opposite_cmd);
   Menus::register_command(String("InsertOverscript"),           insert_overscript_cmd,               can_document_write);
   Menus::register_command(String("InsertRadical"),              insert_radical_cmd,                  can_document_write);
@@ -714,6 +717,17 @@ static MenuCommandStatus can_graphics_original_size(Expr cmd) {
   return MenuCommandStatus(doc->selection_length() > 0);
 }
 
+static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd) {
+  Document *doc = Documents::current();
+  if(!doc)
+    return MenuCommandStatus(false);
+    
+  if(auto seq = dynamic_cast<AbstractSequence *>(doc->selection_box())) 
+    return MenuCommandStatus(seq->get_style(Editable));
+  
+  return MenuCommandStatus(false);
+}
+
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
   Document *doc = Documents::current();
   if(!doc)
@@ -920,9 +934,15 @@ static bool do_scoped_cmd(Expr cmd) {
 }
 
 static bool document_apply_cmd(Expr cmd) {
-  auto ref = FrontEndReference::from_pmath(cmd[1]);
-  auto doc = FrontEndObject::find_cast<Document>(ref);
-  if(!doc)
+  Document *doc = nullptr;
+  if(auto ref = FrontEndReference::from_pmath(cmd[1])) {
+    doc = FrontEndObject::find_cast<Document>(ref);
+  }
+  else if(cmd[1] == richmath_System_Automatic) {
+    doc = Documents::current();
+  }
+  
+  if(!doc) 
     return false;
     
   Expr boxes = cmd[2];
@@ -956,8 +976,13 @@ static bool document_apply_cmd(Expr cmd) {
 }
 
 static bool document_write_cmd(Expr cmd) {
-  auto ref = FrontEndReference::from_pmath(cmd[1]);
-  auto doc = FrontEndObject::find_cast<Document>(ref);
+  Document *doc = nullptr;
+  if(auto ref = FrontEndReference::from_pmath(cmd[1])) {
+    doc = FrontEndObject::find_cast<Document>(ref);
+  }
+  else if(cmd[1] == richmath_System_Automatic) {
+    doc = Documents::current();
+  }
   
   if(!doc)
     return false;
@@ -1237,6 +1262,31 @@ static bool insert_fraction_cmd(Expr cmd) {
     return false;
     
   doc->insert_fraction();
+  return true;
+}
+
+static bool insert_inline_section_cmd(Expr cmd) {
+  Document *doc = Documents::current();
+  if(!doc)
+    return false;
+  
+  auto seq = dynamic_cast<AbstractSequence*>(doc->selection_box());
+  if(!seq)
+    return false;
+  
+  InlineSequenceBox *new_box = nullptr;
+  switch(seq->kind()) {
+    case LayoutKind::Math: new_box = new InlineSequenceBox(new TextSequence); break;
+    case LayoutKind::Text: new_box = new InlineSequenceBox(new MathSequence); break;
+  }
+  
+  if(!new_box)
+    return false;
+  
+  new_box->has_explicit_head(true);
+  new_box->content()->insert(0, PMATH_CHAR_SELECTIONPLACEHOLDER);
+  doc->insert_box(new_box, true);
+  
   return true;
 }
 
