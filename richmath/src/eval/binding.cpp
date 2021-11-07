@@ -86,6 +86,7 @@ static MenuCommandStatus can_section_split(Expr cmd);
 static MenuCommandStatus can_set_style(Expr cmd);
 static MenuCommandStatus can_similar_section_below(Expr cmd);
 static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd);
+static MenuCommandStatus can_toggle_character_code(Expr cmd);
 
 static bool has_style(ActiveStyledObject *box, StyleOptionName name, Expr rhs);
 //} ... menu command availability checkers
@@ -134,6 +135,7 @@ static bool select_all_cmd(Expr cmd);
 static bool set_style_cmd(Expr cmd);
 static bool similar_section_below_cmd(Expr cmd);
 static bool subsession_evaluate_sections_cmd(Expr cmd);
+static bool toggle_character_code(Expr cmd);
 //} ... menu commands
 
 //{ strings.inc ...
@@ -279,6 +281,7 @@ bool richmath::init_bindings() {
   Menus::register_command(String("FindEvaluatingSection"),      find_evaluating_section,             can_find_evaluating_section);
   Menus::register_command(String("RemoveFromEvaluationQueue"),  remove_from_evaluation_queue,        can_remove_from_evaluation_queue);
   Menus::register_command(String("SubsessionEvaluateSections"), subsession_evaluate_sections_cmd,    can_subsession_evaluate_sections);
+  Menus::register_command(String("ToggleCharacterCode"),        toggle_character_code);
   
   Menus::register_command(Symbol(richmath_System_DocumentApply),  document_apply_cmd,  can_document_write);
   Menus::register_command(Symbol(richmath_System_DocumentWrite),  document_write_cmd,  can_document_write);
@@ -861,6 +864,20 @@ static MenuCommandStatus can_similar_section_below(Expr cmd) {
 
 static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd) {
   return MenuCommandStatus(!can_abort_or_interrupt(Expr()).enabled && can_evaluate_sections(Expr()).enabled);
+}
+
+static MenuCommandStatus can_toggle_character_code(Expr cmd) {
+  Document *doc = Documents::current();
+  if(!doc || !doc->get_style(Editable))
+    return MenuCommandStatus(false);
+  
+  if(!dynamic_cast<AbstractSequence*>(doc->selection_box()))
+    return false;
+  
+  if(doc->selection_end() == 0)
+    return false;
+  
+  return true;
 }
 
 //} ... menu command availability checkers
@@ -1618,6 +1635,101 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
               strings::EvaluateSectionsAndReturn)));
               
   return false;
+}
+
+static bool toggle_character_code(Expr cmd) {
+  Document *doc = Documents::current();
+  if(!doc)
+    return false;
+  
+  AbstractSequence *seq = nullptr;
+  auto sel = doc->selection();
+  if(auto box = sel.get()) {
+    if(!box->edit_selection(sel))
+      return false;
+    
+    seq = dynamic_cast<AbstractSequence*>(sel.get());
+  }
+  
+  if(!seq)
+    return false;
+  
+  ArrayView<const uint16_t> buf = buffer_view(seq->text());
+  
+  if(sel.length() == 0 && sel.start > 0) {
+    --sel.start;
+    if(pmath_char_is_hexdigit(buf[sel.start])) {
+      while(sel.start > 0 && pmath_char_is_hexdigit(buf[sel.start - 1]))
+        --sel.start;
+    }
+    else if(sel.start > 0 && is_utf16_low(buf[sel.start]) && is_utf16_high(buf[sel.start - 1])) {
+      --sel.start;
+    }
+  }
+  
+  if(sel.length() == 0)
+    return false;
+  
+  uint32_t unichar = 0;
+  if(pmath_char_is_hexdigit(buf[sel.end - 1])) {
+    if(sel.length() > 6)
+      return false;
+    
+    for(int i = sel.start; i < sel.end; ++i) {
+      auto digit = buf[i];
+      if('0' <= digit && digit <= '9')
+        unichar = 16 * unichar + (digit - '0');
+      else if('a' <= digit && digit <= 'f')
+        unichar = 16 * unichar + (digit - 'a' + 10);
+      else if('A' <= digit && digit <= 'F')
+        unichar = 16 * unichar + (digit - 'A' + 10);
+      else
+        return false;
+    }
+    
+    if(unichar < ' ' || unichar == PMATH_CHAR_BOX || unichar > 0x10FFFF)
+      return false;
+    
+    if(unichar <= 0xFFFF) {
+      if(is_utf16_high(unichar) || is_utf16_low(unichar))
+        return false;
+    }
+    
+    doc->native()->on_editing();
+    int pos = seq->insert(sel.end, unichar);
+    seq->remove(sel.start, sel.end);
+    doc->select(seq, sel.start + pos - sel.end, sel.start + pos - sel.end);
+    return true;
+  }
+  
+  unichar = buf[sel.end - 1];
+  if(is_utf16_low(unichar) && sel.start <= sel.end - 2 && is_utf16_high(buf[sel.end - 2])) {
+    uint32_t hi = buf[sel.end - 2];
+    uint32_t lo = unichar;
+    unichar = 0x10000 + (((hi & 0x03FF) << 10) | (lo & 0x03FF));
+  }
+  
+  const char hex[] = "0123456789ABCDEF";
+  char digits_buf[6];
+  digits_buf[5] = hex[ unichar        & 0xF];
+  digits_buf[4] = hex[(unichar >>  4) & 0xF];
+  digits_buf[3] = hex[(unichar >>  8) & 0xF];
+  digits_buf[2] = hex[(unichar >> 12) & 0xF];
+  digits_buf[1] = hex[(unichar >> 16) & 0xF];
+  digits_buf[0] = hex[(unichar >> 20) & 0xF];
+  
+  char *digits = digits_buf;
+  int num_digits = sizeof(digits_buf);
+  while(num_digits > 1 && *digits == '0') {
+    ++digits;
+    --num_digits;
+  }
+  
+  doc->native()->on_editing();
+  seq->insert(sel.end, digits, num_digits);
+  seq->remove(sel.start, sel.end);
+  doc->select(seq, sel.start, sel.start + num_digits);
+  return true;
 }
 
 //} ... menu commands

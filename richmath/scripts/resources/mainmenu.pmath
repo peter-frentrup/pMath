@@ -43,7 +43,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("Find Matching &Bracket",                "FindMatchingFence"),
 		MenuItem("Find &Style Definition",                FrontEnd`FindStyleDefinition()),
 		Delimiter,
-		MenuItem("&Open/Close Group",                     "OpenCloseGroup")
+		MenuItem("&Open/Close Group",                     "OpenCloseGroup"),
+		MenuItem("Toggle C&haracter Code",                "ToggleCharacterCode")
 		}),
 	Menu("&Insert", {
 		MenuItem("&Input from Above",                     "DuplicatePreviousInput"),
