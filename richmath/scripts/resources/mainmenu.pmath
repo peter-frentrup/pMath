@@ -52,6 +52,7 @@ FE`Private`mainmenu:= Menu("pMath", {
 		Delimiter,
 		MenuItem("&Fraction",                             "InsertFraction"),
 		MenuItem("R&adical",                              "InsertRadical"),
+		MenuItem("&Surd",                                 DocumentApply(Automatic, BoxData(SqrtBox("\[SelectionPlaceholder]", SurdForm->True)))),
 		Delimiter,
 		MenuItem("Su&bscript",                            "InsertSubscript"),
 		MenuItem("Su&perscript",                          "InsertSuperscript"),
