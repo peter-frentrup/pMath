@@ -483,6 +483,8 @@ Box *TextSequence::move_logical(
   bool              jumping,
   int              *index
 ) {
+  // FIXME: TextLayoutIterator does not work if the layout was not updated since last edit.
+  
   if(direction == LogicalDirection::Forward) {
     if(*index >= length()) {
       if(auto par = parent()) {
