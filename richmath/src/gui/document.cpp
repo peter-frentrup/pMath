@@ -896,9 +896,12 @@ void Document::on_mouse_up(MouseEvent &event) {
   if(drag_status != DragStatus::Idle) {
     bool was_inside_start;
     VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
-                 
-    if(Impl(*this).is_inside_selection(mouse_sel, was_inside_start) && mouse_sel.selectable()) {
-      select(mouse_sel);
+    
+    if(mouse_sel.selectable()) {
+      bool mouse_in_sel = Impl(*this).is_inside_selection(mouse_sel, was_inside_start);
+      
+      if(event.right) { if(!mouse_in_sel) select(mouse_sel); }
+      else {            if( mouse_in_sel) select(mouse_sel); }
     }
   }
   
