@@ -1081,7 +1081,7 @@ void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
     
     if(unichar == 0) { // embedded NUL would be truncated -> buffer overflow
       unichar = 0xFFFD;
-    } else if(is_utf16_high(unichar) || is_utf16_low(unichar)) { // stand alone UTF-16 surrogate char
+    } else if(unichar <= 0xFFFF && (is_utf16_high(unichar) || is_utf16_low(unichar))) { // stand alone UTF-16 surrogate char
       unichar = 0xFFFD;
     }
     
@@ -1130,7 +1130,14 @@ int TextSequence::Impl::Utf8Writer::append_single_char_bytes(TextSequence &seq, 
   memset(buffer.items() + old_len, 0, sizeof(buffer[0]) * count);
   
   b2t_iter.rewind_to(old_len);
-  //b2t_iter.reset_rest(pos);
+  
+  if(count == 4) {
+    // 4 UTF-8 bytes mean U+10000 .. U+10FFFF, i.e. 2 UTF-16 code points.
+    // Only resetting the first three byte positions will cause the 4'th to point to the second UTF-16 code point.
+    // This may be noticable during selection of the last character of the text (selection problems without this hack).
+    count = 3;
+  }
+  
   while(count--) {
     b2t_iter.reset_rest(pos);
     ++b2t_iter;
