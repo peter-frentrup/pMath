@@ -558,7 +558,7 @@ bool FontInfo::font_exists(String name, bool exact_match) {
       return false;
     }
     
-    char *str = 0;
+    char *str = nullptr;
     
     if( FcResultTypeMismatch == FcPatternGetString(resolved, FC_FAMILY, 0, (FcChar8 **)&str) || !str) {
       FcPatternDestroy(resolved);

@@ -158,7 +158,7 @@ Box *FractionBox::move_vertical(
   int              *index,
   bool              called_from_child
 ) {
-  MathSequence *dst = 0;
+  MathSequence *dst = nullptr;
   
   if(*index < 0) {
     if(direction == LogicalDirection::Forward)

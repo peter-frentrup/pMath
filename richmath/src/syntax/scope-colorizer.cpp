@@ -762,7 +762,7 @@ bool ScopeColorizerImpl::colorize_integral(SpanExpr *se) { // \[Integral] ... \[
 bool ScopeColorizerImpl::colorize_bigop(SpanExpr *se) {
   assert(se->count() >= 2);
   
-  MathSequence *bigop_init = 0;
+  MathSequence *bigop_init = nullptr;
   int next_item = 1;
   if(pmath_char_maybe_bigop(se->item_as_char(0))) {
     if(auto subsup = dynamic_cast<SubsuperscriptBox *>(se->item_as_box(1))) {

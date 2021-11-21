@@ -97,7 +97,7 @@ class GraphicsBox::Impl {
     float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
     
     static float calc_margin_width(float w, float lbl_w, double all_x, double other_x);
-    void calculate_size(const float *optional_expand_width = 0);
+    void calculate_size(const float *optional_expand_width = nullptr);
     
     void try_get_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);
     void calculate_axes_origin(const GraphicsBounds &bounds, double *ox, double *oy);

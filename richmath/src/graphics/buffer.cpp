@@ -300,9 +300,9 @@ bool Buffer::blend(SharedPtr<Buffer> buf1, SharedPtr<Buffer> buf2, double t) {
   return true;
   
 // old algorithm: blending the image bytes directly
-//  cairo_surface_t *s = 0;
-//  cairo_surface_t *s1 = 0;
-//  cairo_surface_t *s2 = 0;
+//  cairo_surface_t *s = nullptr;
+//  cairo_surface_t *s1 = nullptr;
+//  cairo_surface_t *s2 = nullptr;
 //
 //  switch(cairo_surface_get_type(_surface)){
 //    case CAIRO_SURFACE_TYPE_IMAGE:

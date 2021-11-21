@@ -437,7 +437,7 @@ using namespace richmath;
 namespace {
   class CppGdkCursor {
     public:
-      CppGdkCursor(GdkCursor *_cursor = 0)
+      CppGdkCursor(GdkCursor *_cursor = nullptr)
         : cursor(_cursor)
       {
       }

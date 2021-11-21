@@ -8,7 +8,7 @@ namespace richmath {
   class FrameBox final : public OwnerBox {
       using base = OwnerBox;
     public:
-      explicit FrameBox(AbstractSequence *content = 0);
+      explicit FrameBox(AbstractSequence *content = nullptr);
       
       // Box::try_create<FrameBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;

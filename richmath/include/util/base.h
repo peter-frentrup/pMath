@@ -69,7 +69,7 @@ namespace richmath {
     >
   class AutoRefBase {
     public:
-      AutoRefBase(T *ptr = 0)
+      AutoRefBase(T *ptr = nullptr)
         : _ptr(ptr)
       { }
       

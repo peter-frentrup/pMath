@@ -170,7 +170,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
 
   if(initial_style) {
     PangoFontDescription *desc;
-    char                 *utf8_name = 0;
+    char                 *utf8_name = nullptr;
 
     desc = pango_font_description_new();
     

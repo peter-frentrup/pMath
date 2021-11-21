@@ -599,8 +599,8 @@ void OTMathShaper::decode_token(
   while(len > 0) {
     int sub_len = 0;
     int char_len = 1;
-    uint16_t *glyph_ptr = 0;
-    Array<MathGlyphPartRecord> *lig = 0;
+    uint16_t *glyph_ptr = nullptr;
+    Array<MathGlyphPartRecord> *lig = nullptr;
     
     while(sub_len < len) {
       uint16_t ch;

@@ -2622,7 +2622,7 @@ void Document::insert_string(String text, bool autoformat) {
       seq->ensure_spans_valid();
       const SpanArray &spans = seq->span_array();
       
-      MathSequence *seq2 = 0;
+      MathSequence *seq2 = nullptr;
       int last = 0;
       int pos = 0;
       while(pos < len) {
@@ -2728,7 +2728,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     return;
   }
   
-  assert(box->parent() == 0);
+  assert(box->parent() == nullptr);
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
@@ -2867,7 +2867,7 @@ void Document::insert_matrix_column() {
     Impl(*this).handle_backslash_aliases();
   }
   
-  GridBox *grid = 0;
+  GridBox *grid = nullptr;
   
   MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
   

@@ -60,7 +60,7 @@ namespace richmath {
       }
       
       bool get(T *result) {
-        Item *item = 0;
+        Item *item = nullptr;
         pmath_atomic_lock(&head_spin);
         
         if(head != tail) {
