@@ -209,6 +209,7 @@ TagBox::TagBox(AbstractSequence *content, Expr _tag)
   tag(_tag)
 {
   style = new Style();
+  reset_style();
 }
 
 bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
@@ -227,10 +228,9 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   
   tag = expr[2];
   
-  if(style){
-    style->clear();
+  reset_style();
+  if(style)
     style->add_pmath(options_expr);
-  }
   else if(options_expr != PMATH_UNDEFINED)
     style = new Style(options_expr);
   
@@ -248,9 +248,17 @@ bool TagBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-void TagBox::resize_default_baseline(Context &context) {
-  style->set(BaseStyleName, String(tag));
-  base::resize_default_baseline(context);
+void TagBox::reset_style() {
+  if(style) {
+    style->clear();
+  }
+  
+  if(tag.is_string()) {
+    if(!style)
+      style = new Style();
+    
+    style->set(BaseStyleName, String(tag));
+  }
 }
 
 Expr TagBox::to_pmath_symbol() { 

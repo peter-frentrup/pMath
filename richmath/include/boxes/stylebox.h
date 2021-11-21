@@ -25,7 +25,6 @@ namespace richmath {
     public:
       explicit StyleBox(AbstractSequence *content);
       
-      // Box::try_create<StyleBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override;
@@ -40,16 +39,14 @@ namespace richmath {
       explicit TagBox(AbstractSequence *content);
       explicit TagBox(AbstractSequence *content, Expr _tag);
       
-      // Box::try_create<TagBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
     
-    protected:
-      virtual void resize_default_baseline(Context &context) override;
+      virtual void reset_style() override;
       
-    public:
+    private:
       Expr tag;
   };
 }
