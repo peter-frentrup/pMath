@@ -10,10 +10,15 @@ SetOptions($FrontEndSession, ContextMenu -> {
 		MenuItem("&Bitmap",            FE`CopySpecial("Bitmap")),
 		MenuItem("&SVG",               FE`CopySpecial("image/svg+xml"))
 		}),
+	Menu("Su&rround with", {
+		MenuItem("Frame",              DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
+		MenuItem("f(\[Ellipsis])",     DocumentApply(Automatic, BoxData({TagBox(FrameBox("f"), "Placeholder"), "(", "\[SelectionPlaceholder]", ")"}))),
+		MenuItem("\"\[Ellipsis]\"",    DocumentApply(Automatic, "\"\[SelectionPlaceholder]\""))
+	}),
 	Delimiter,
 	MenuItem("Reset &Graphics Size", "GraphicsOriginalSize"),
 	Delimiter,
-	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Commands", items))
+	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Co&mmands", items))
 })
 SetOptions($FrontEndSession, "DragDropContextMenu" -> {
 	MenuItem("&Copy here", "DropCopyHere"),
