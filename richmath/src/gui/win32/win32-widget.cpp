@@ -73,8 +73,11 @@ namespace richmath { namespace strings {
   extern String rows;
 }}
 
+extern pmath_symbol_t richmath_FE_Import_FileNamesDropDescription;
+
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_Menu; 
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_RawBoxes;
 
@@ -109,9 +112,6 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
     default: return SpecialKey::Unknown;
   }
 }
-
-extern pmath_symbol_t richmath_FE_Import_FileNamesDropDescription;
-extern pmath_symbol_t richmath_System_Menu; 
 
 //{ class Win32Widget ...
 
@@ -994,6 +994,66 @@ void Win32Widget::on_mousemove(MouseEvent &event) {
   set_cursor(cursor);
 }
 
+void Win32Widget::on_mousewheel(UINT message, WPARAM wParam, LPARAM lParam) {
+  POINT pt = { (int16_t)LOWORD(lParam), (int16_t)HIWORD(lParam) };
+  ScreenToClient(_hwnd, &pt);
+
+  RECT rect;
+  GetClientRect(_hwnd, &rect);
+  if(!PtInRect(&rect, pt)) {
+    HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
+    SendMessageW(parent, message, wParam, lParam);
+    return;
+  }
+  
+  int rel_wheel = (int16_t)HIWORD(wParam);
+  int key_state = LOWORD(wParam);
+  
+  bool vertical = true;
+  switch(message) {
+    case WM_MOUSEHWHEEL: vertical = false; break;
+    case WM_MOUSEWHEEL:  vertical = true;  break;
+  }
+  
+  if(key_state & MK_SHIFT) vertical = false;
+  
+  if(key_state & MK_CONTROL) {
+    scale_by(pow(2, 0.5 * rel_wheel / (float)WHEEL_DELTA));
+    return;
+  }
+  
+  float delta = 0;
+  if(vertical) {
+    unsigned int num_lines;
+    if(!SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &num_lines, 0))
+      num_lines = 3;
+    
+    delta = (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA;
+  }
+  else {
+    unsigned int num_chars;
+    if(!SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &num_chars, 0))
+      num_chars = 3;
+      
+    delta = (float)num_chars * -10 * rel_wheel / (float)WHEEL_DELTA;
+  }
+  
+  if(delta == 0)
+    return;
+  
+  
+  SCROLLINFO si;
+  si.cbSize = sizeof(si);
+  si.fMask  = SIF_ALL;
+  GetScrollInfo(_hwnd, vertical ? SB_VERT : SB_HORZ, &si);
+  float max_scroll = si.nPage / scale_factor();
+  if(delta >  max_scroll) delta =  max_scroll;
+  if(delta < -max_scroll) delta = -max_scroll;
+  
+  if(vertical) { scroll_by(0, delta); }
+  else         { scroll_by(delta, 0); }
+}
+
 void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   SpecialKeyEvent event;
   event.key = win32_virtual_to_special_key(virtkey);
@@ -1148,82 +1208,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           on_vscroll(LOWORD(wParam), HIWORD(wParam));
         } return 0;
         
+      case WM_MOUSEWHEEL:
       case WM_MOUSEHWHEEL: {
-          POINT pt;
-          if(GetCursorPos(&pt)) {
-            RECT rect;
-            GetClientRect(_hwnd, &rect);
-            ScreenToClient(_hwnd, &pt);
-            
-            if(!PtInRect(&rect, pt)) {
-              HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
-              return SendMessageW(parent, message, wParam, lParam);
-            }
-          }
-          
-          unsigned int num_chars;
-          if(!SystemParametersInfo(SPI_GETWHEELSCROLLCHARS, 0, &num_chars, 0))
-            num_chars = 3;
-            
-          if(num_chars == 0)
-            return 0;
-            
-          int rel_wheel = (int16_t)HIWORD(wParam);
-          float delta = (float)num_chars * -10 * rel_wheel / (float)WHEEL_DELTA;
-          
-          SCROLLINFO si;
-          si.cbSize = sizeof(si);
-          si.fMask  = SIF_ALL;
-          GetScrollInfo(_hwnd, SB_HORZ, &si);
-          float max_scroll = si.nPage / scale_factor();
-          if(delta > max_scroll)
-            delta = max_scroll;
-          if(delta < -max_scroll)
-            delta = -max_scroll;
-            
-          scroll_by(delta, 0);
-        } return 0;
-        
-      case WM_MOUSEWHEEL: {
-          int rel_wheel = (int16_t)HIWORD(wParam);
-          
-          if(GetKeyState(VK_CONTROL) & ~1) {
-            scale_by(pow(2, 0.5 * rel_wheel / (float)WHEEL_DELTA));
-          }
-          else {
-            POINT pt;
-            if(GetCursorPos(&pt)) {
-              RECT rect;
-              GetClientRect(_hwnd, &rect);
-              ScreenToClient(_hwnd, &pt);
-              
-              if(!PtInRect(&rect, pt)) {
-                HWND parent = (HWND)GetWindowLongPtr(_hwnd, GWLP_HWNDPARENT);
-                return SendMessageW(parent, message, wParam, lParam);
-              }
-            }
-            
-            unsigned int num_lines;
-            if(!SystemParametersInfo(SPI_GETWHEELSCROLLLINES, 0, &num_lines, 0))
-              num_lines = 3;
-              
-            if(num_lines == 0)
-              return 0;
-              
-            float delta = (float)num_lines * -20 * rel_wheel / (float)WHEEL_DELTA;
-            
-            SCROLLINFO si;
-            si.cbSize = sizeof(si);
-            si.fMask  = SIF_ALL;
-            GetScrollInfo(_hwnd, SB_VERT, &si);
-            float max_scroll = si.nPage / scale_factor();
-            if(delta > max_scroll)
-              delta = max_scroll;
-            if(delta < -max_scroll)
-              delta = -max_scroll;
-              
-            scroll_by(0, delta);
-          }
+          on_mousewheel(message, wParam, lParam);
         } return 0;
         
       case WM_LBUTTONDOWN:
