@@ -1338,8 +1338,10 @@ bool MathGtkWidget::on_leave_notify(GdkEvent *e) {
 bool MathGtkWidget::on_scroll(GdkEvent *e) {
   GdkEventScroll *event = (GdkEventScroll *)e;
   
+  GdkScrollDirection dir = event->direction;
+  
   if(event->state & GDK_CONTROL_MASK) {
-    switch(event->direction) {
+    switch(dir) {
       case GDK_SCROLL_UP:
         scale_by(pow(2, 0.5));
         break;
@@ -1365,8 +1367,16 @@ bool MathGtkWidget::on_scroll(GdkEvent *e) {
     return true;
   }
   
+  if(event->state & GDK_SHIFT_MASK) {
+    switch(dir) {
+      case GDK_SCROLL_UP:   dir = GDK_SCROLL_LEFT;  break;
+      case GDK_SCROLL_DOWN: dir = GDK_SCROLL_RIGHT; break;
+      default: break;
+    }
+  }
+  
   Vector2F delta(0, 0);
-  switch(event->direction) {
+  switch(dir) {
     case GDK_SCROLL_UP:    delta.y = - 60; break;
     case GDK_SCROLL_DOWN:  delta.y = + 60; break;
     case GDK_SCROLL_LEFT:  delta.x = - 60; break;
