@@ -1,0 +1,98 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("DocumentClose", "ObjectName"), 
+      Section(BoxData(TemplateBox({"DocumentClose"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"DocumentClose"}, "ReferenceHyperlink"), 
+           " has the same effect as pressing the window\[HighNineQuote]s close \
+           button."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"DocumentClose"}, "ReferenceHyperlink"), 
+           " will ask to save pending changes before disposing a window if the \
+           document has option ", 
+           BoxData(TemplateBox({"Saveable"}, "ReferenceHyperlink")), 
+           " set to ", TemplateBox({"True"}, "ReferenceHyperlink"), 
+           " (default)."}), "Notes"), 
+        Section(TextData({"The effect of ", 
+           TemplateBox({"DocumentClose"}, "ReferenceHyperlink"), 
+           " depends on the document\[HighNineQuote]s setting for \
+           \"ClosingAction\":"}), "Notes"), 
+        Section(
+         TextData({
+           BoxData(
+            GridBox({{TextData("\"Delete\""), {
+                TextData("effectively calls"), " ", 
+                TemplateBox({"DocumentDelete"}, "ReferenceHyperlink"), " ", {
+                 "(", "default", ")"}}}, {TextData("\"Hide\""), 
+               /\/({"just", " ", "sets", " ", 
+                 BoxData({TemplateBox({"Visible"}, "ReferenceHyperlink"), " ", 
+                   "to", TemplateBox({/\/(" ", "False")}, 
+                    "ReferenceHyperlink")})}, " ")}}))}), 
+         "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Close the current window:", "ExampleText"), 
+        Section(BoxData({"DocumentClose", "(", ")"}), "Input"), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Show a window for 3 seconds:", "ExampleText"), 
+          Section(
+           BoxData(
+            /\/({{"doc", "\[Assign]", {"CreateDocument", "(", {
+                 "{", {"Section", "(", {ComplexStringBox("\"Quick hello!\""), 
+                   ",", " ", ComplexStringBox("\"Text\"")}, ")"}, "}"}, ")"}}, 
+              ";"}, "\n", {"Pause", "(", "3", ")"}, "\n", {
+              "DocumentClose", "(", "doc", ")"})), "Input", 
+           SectionLabel -> "in [1]:")}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         "Use \"ClosingAction\" \[Rule] \"Hide\" to keep a document invisible \
+         in the background for later use:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Table", "(", {
+              {"With", "(", {
+                {"{", {"doc", "\[Assign]", {"CreateDocument", "(", {
+                    {"{", {
+                      {"Section", "(", {
+                        {ComplexStringBox("\"Close me to \""), "++", "a"}, 
+                        ",", ComplexStringBox("\"Text\"")}, ")"}, ",", {
+                       "Button", "(", {ComplexStringBox("\"Close\""), ",", {
+                         "DocumentClose", "(", ")"}}, ")"}}, "}"}, ",", {
+                     ComplexStringBox("\"ClosingAction\""), "\[Rule]", "a"}, 
+                    ",", {"WindowTitle", "\[Rule]", "a"}}, ")"}}, "}"}, ",", {
+                 "doc", "\[Rule]", {"Checkbox", "(", {
+                   "Dynamic", "(", {"CurrentValue", "(", {
+                     "doc", ",", "Visible"}, ")"}, ")"}, ")"}}}, ")"}, ",", {
+               "a", "\[Rule]", {"{", {ComplexStringBox("\"Hide\""), ",", 
+                 ComplexStringBox("\"Delete\"")}, "}"}}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "{", {
+              {TemplateBox({FrontEndObject(7965850063883117506, 363), "Hide"}, 
+                "DocumentObject"), "\[Rule]", 
+               CheckboxBox(
+                Dynamic(CurrentValue(DocumentObject(
+                   FrontEndObject(7965850063883117506, 363)), Visible)))}, 
+              ",", {TemplateBox({FrontEndObject(7965850063883117506, 379), 
+                 "Delete"}, "DocumentObject"), "\[Rule]", 
+               CheckboxBox(
+                Dynamic(CurrentValue(DocumentObject(
+                   FrontEndObject(7965850063883117506, 379)), Visible)))}}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"CreateDocument"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"DocumentSave"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"DocumentOpen"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"DocumentDelete"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
