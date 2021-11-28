@@ -384,6 +384,18 @@ bool MathGtkAttachedPopupWindow::on_delete(GdkEvent *e) {
   if(Document *owner = _content_area->owner_document()) 
     owner->popup_window_closed(content());
   
+  switch(content()->get_style(ClosingAction)) {
+    case ClosingActionHide: {
+        content()->style->set(Visible, false);
+        invalidate_options();
+      }
+      return true;
+    
+    case ClosingActionDelete:
+    default:
+      break;
+  }
+  
   return false;
 }
 

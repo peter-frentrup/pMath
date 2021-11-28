@@ -30,6 +30,7 @@ Options(CreateDocument):= Options(Document):= {
     ButtonBoxOptions -> Inherited,
     ButtonFrame -> Inherited,
     ButtonFunction -> Inherited,
+    "ClosingAction" -> Inherited,
     "CharacterNameStyle" -> Inherited,
     "CommentStyle" -> Inherited,
     ContextMenu -> Inherited,
@@ -271,6 +272,7 @@ Options(Section):= {
         ContentPadding -> True,
         Enabled -> Automatic,
         Method -> "Preemptive"},
+    "ClosingAction" -> Inherited, % only valid for StyleData-sections
     "CharacterNameStyle" -> { FontColor -> Inherited },
     "CommentStyle" -> { FontColor -> Inherited },
     ContextMenu -> Inherited,

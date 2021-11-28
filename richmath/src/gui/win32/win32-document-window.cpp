@@ -1172,6 +1172,31 @@ void Win32DocumentWindow::on_setting_changed() {
 }
 
 void Win32DocumentWindow::on_close() {
+  switch(document()->get_style(ClosingAction)) {
+    case ClosingActionHide: {
+        bool all_closed = true;
+        for(auto other : CommonDocumentWindow::All) {
+          if(auto other_win = dynamic_cast<BasicWin32Window*>(other)) {
+            if(other_win != this && !other_win->is_closed()) {
+              all_closed = false;
+              break;
+            }
+          }
+        }
+        
+        if(all_closed)
+          break;
+        
+        document()->style->set(Visible, false);
+        invalidate_options();
+      }
+      return;
+    
+    case ClosingActionDelete:
+    default:
+      break;
+  }
+  
   if(_has_unsaved_changes && document()->get_style(Saveable)) {
     YesNoCancel answer = ask_save(document());
     
@@ -1268,6 +1293,10 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(document()->selectable()) {
             Documents::current(document());
           }
+        } break;
+      
+      case WM_SHOWWINDOW: {
+          document()->style->set(Visible, !!wParam);
         } break;
         
       case WM_MOUSEACTIVATE: {

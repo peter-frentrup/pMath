@@ -33,6 +33,11 @@ namespace richmath {
     AutoBoolAutomatic = 2
   };
   
+  enum ClosingActionValues {
+    ClosingActionDelete = 0,
+    ClosingActionHide   = 1,
+  };
+  
   enum ImageSizeActionValues {
     ImageSizeActionClip = 0,
     ImageSizeActionShrinkToFit = 1,
@@ -80,6 +85,7 @@ namespace richmath {
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
+    ClosingAction, // ClosingActionXXX
     ContentPadding,
     ContinuousAction,
     DebugColorizeChanges, // bool

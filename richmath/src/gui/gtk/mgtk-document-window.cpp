@@ -423,13 +423,14 @@ void MathGtkDocumentWindow::after_construction() {
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_in>("focus-in-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_focus_out>("focus-out-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_scroll>("scroll-event");
+  signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_map>("map-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_unmap>("unmap-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_window_state>("window-state-event");
 
   title(String());
   
-  working_area()->document()->style->set(Visible,                         true);
-  working_area()->document()->style->set(InternalHasModifiedWindowOption, true);
+  document()->style->set(Visible,                         true);
+  document()->style->set(InternalHasModifiedWindowOption, true);
   update_dark_mode();
   Impl::register_theme_observer();
   Impl(*this).on_auto_hide_menu(true);
@@ -980,6 +981,31 @@ bool MathGtkDocumentWindow::on_configure(GdkEvent *e) {
 }
 
 bool MathGtkDocumentWindow::on_delete(GdkEvent *e) {
+  switch(document()->get_style(ClosingAction)) {
+    case ClosingActionHide: {
+        bool all_closed = true;
+        for(auto other : CommonDocumentWindow::All) {
+          if(auto other_win = dynamic_cast<MathGtkDocumentWindow*>(other)) {
+            if(other_win != this && gtk_widget_get_visible(other_win->widget())) {
+              all_closed = false;
+              break;
+            }
+          }
+        }
+        
+        if(all_closed)
+          break;
+        
+        document()->style->set(Visible, false);
+        invalidate_options();
+      }
+      return true;
+    
+    case ClosingActionDelete:
+    default:
+      break;
+  }
+  
   if(_has_unsaved_changes && document()->get_style(Saveable)) {
     YesNoCancel answer = ask_save(document());
     
@@ -1081,7 +1107,13 @@ bool MathGtkDocumentWindow::on_scroll(GdkEvent *e) {
   return false;
 }
 
+bool MathGtkDocumentWindow::on_map(GdkEvent *e) {
+  document()->style->set(Visible, true);
+  return false;
+}
+
 bool MathGtkDocumentWindow::on_unmap(GdkEvent *e) {
+  document()->style->set(Visible, false);
   invalidate_popup_window_positions();
   return false;
 }

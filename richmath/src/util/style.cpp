@@ -162,13 +162,16 @@ extern pmath_symbol_t richmath_System_WindowTitle;
 
 namespace richmath { namespace strings {
   extern String CharacterNameStyle;
+  extern String ClosingAction;
   extern String Color;
   extern String CommentStyle;
+  extern String Delete;
   extern String DragDropContextMenu;
   extern String ExcessOrMissingArgumentStyle;
   extern String Frameless;
   extern String FunctionLocalVariableStyle;
   extern String FunctionNameStyle;
+  extern String Hide;
   extern String ImplicitOperatorStyle;
   extern String InlineAutoCompletionStyle;
   extern String KeywordSymbolStyle;
@@ -244,6 +247,10 @@ namespace {
   
   struct ButtonSourceStyleConverter: public EnumStyleConverter {
     ButtonSourceStyleConverter();
+  };
+  
+  struct ClosingActionStyleConverter: public EnumStyleConverter {
+    ClosingActionStyleConverter();
   };
   
   struct FontSlantStyleConverter: public EnumStyleConverter {
@@ -2232,6 +2239,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ButtonFunction);
   impl.emit_definition(ButtonSource);
   impl.emit_definition(CharacterNameStyle);
+  impl.emit_definition(ClosingAction);
   //impl.emit_definition(ColorForGraphics);
   impl.emit_definition(CommentStyle);
   impl.emit_definition(ContentPadding);
@@ -2809,6 +2817,7 @@ void StyleInformation::add_style() {
         converter);
     }
     
+    add_enum(ClosingAction,    strings::ClosingAction,                    new ClosingActionStyleConverter);
     add_enum(FontSlant,        Symbol( richmath_System_FontSlant),        new FontSlantStyleConverter);
     add_enum(FontWeight,       Symbol( richmath_System_FontWeight),       new FontWeightStyleConverter);
     add_enum(MenuCommandKey,   Symbol( richmath_System_MenuCommandKey),   new MenuCommandKeyStyleConverter);
@@ -3038,7 +3047,8 @@ void StyleInformation::remove_style() {
 
 bool StyleInformation::is_window_option(StyleOptionName key) {
   StyleOptionName literal_key = key.to_literal();
-  return literal_key == DockedSectionsTop         ||
+  return literal_key == ClosingAction             ||
+         literal_key == DockedSectionsTop         ||
          literal_key == DockedSectionsTopGlass    ||
          literal_key == DockedSectionsBottom      ||
          literal_key == DockedSectionsBottomGlass ||
@@ -3286,6 +3296,14 @@ ButtonSourceStyleConverter::ButtonSourceStyleConverter() : EnumStyleConverter() 
   add(ButtonSourceButtonContents, Symbol(richmath_System_ButtonContents));
   add(ButtonSourceButtonData,     Symbol(richmath_System_ButtonData));
   add(ButtonSourceFrontEndObject, Symbol(richmath_System_FrontEndObject));
+}
+
+ClosingActionStyleConverter::ClosingActionStyleConverter() : EnumStyleConverter() {
+  _int_to_expr.default_value = Expr();
+  _expr_to_int.default_value = -1;
+  
+  add(ClosingActionDelete,  strings::Delete);
+  add(ClosingActionHide,    strings::Hide);
 }
 
 FontSlantStyleConverter::FontSlantStyleConverter() : EnumStyleConverter() {

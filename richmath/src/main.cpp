@@ -449,6 +449,7 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(AutoDelete,                          false);
   Stylesheet::Default->base->set(AutoNumberFormating,                 true);
   Stylesheet::Default->base->set(AutoSpacing,                         false);
+  Stylesheet::Default->base->set(ClosingAction,                       ClosingActionDelete);
   //Stylesheet::Default->base->set(ContinuousAction,                    false);
   Stylesheet::Default->base->set(Editable,                            true);
   Stylesheet::Default->base->set(Enabled,                             AutoBoolAutomatic);

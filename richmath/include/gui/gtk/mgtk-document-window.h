@@ -95,6 +95,7 @@ namespace richmath {
       bool on_focus_in(GdkEvent *e);
       bool on_focus_out(GdkEvent *e);
       bool on_scroll(GdkEvent *e);
+      bool on_map(GdkEvent *e);
       bool on_unmap(GdkEvent *e);
       bool on_window_state(GdkEvent *e);
       

@@ -253,6 +253,18 @@ void Win32AttachedPopupWindow::on_close() {
   if(Document *owner = owner_document()) 
     owner->popup_window_closed(document());
   
+  switch(document()->get_style(ClosingAction)) {
+    case ClosingActionHide: {
+        document()->style->set(Visible, false);
+        invalidate_options();
+      }
+      return;
+    
+    case ClosingActionDelete:
+    default:
+      break;
+  }
+  
   base::on_close();
 }
 
