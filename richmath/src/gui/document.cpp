@@ -1372,10 +1372,7 @@ void Document::move_horizontal(
   }
 }
 
-void Document::move_vertical(
-  LogicalDirection direction,
-  bool             selecting
-) {
+void Document::move_vertical(LogicalDirection direction, bool selecting) {
   VolatileSelection new_sel = sel_last.get_all();
   if(!new_sel) {
     new_sel = context.selection.get_all();
@@ -1411,6 +1408,15 @@ void Document::move_vertical(
   }
   
   new_sel.box = new_sel.box->move_vertical(direction, &best_index_rel_x, &new_sel.start, false);
+  
+  while(new_sel.box && !new_sel.box->selectable(new_sel.start)) {
+    new_sel.start = new_sel.box->index();
+    if(direction == LogicalDirection::Forward)
+      ++new_sel.start;
+      
+    new_sel.box = new_sel.box->parent();
+  }
+  
   new_sel.end = new_sel.start;
   if(auto seq = dynamic_cast<MathSequence *>(new_sel.box)) {
     seq->select_nearby_placeholder(&new_sel.start, &new_sel.end, &best_index_rel_x);
