@@ -892,19 +892,21 @@ void Document::on_mouse_move(MouseEvent &event) {
 
 void Document::on_mouse_up(MouseEvent &event) {
   event.set_origin(this);
+
+  bool was_inside_start;
+  VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
   
-  if(drag_status != DragStatus::Idle) {
-    bool was_inside_start;
-    VolatileSelection mouse_sel = mouse_selection(event.position, &was_inside_start);
-    
-    if(mouse_sel.selectable()) {
+  if(mouse_sel.selectable()) {
+    if(drag_status == DragStatus::Idle) {
+      if(event.right) select(mouse_sel);
+    }
+    else {
       bool mouse_in_sel = Impl(*this).is_inside_selection(mouse_sel, was_inside_start);
       
       if(event.right) { if(!mouse_in_sel) select(mouse_sel); }
       else {            if( mouse_in_sel) select(mouse_sel); }
     }
   }
-  
   drag_status = DragStatus::Idle;
 }
 
