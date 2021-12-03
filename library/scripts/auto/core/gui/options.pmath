@@ -71,6 +71,7 @@ Options(CreateDocument):= Options(Document):= {
     PaneBoxOptions -> Inherited,
     PanelBoxOptions -> Inherited,
     "PatternVariableStyle" -> Inherited,
+    %RemovalConditions -> None,   % only valid for AttchedBoxes
     ReturnCreatesNewSection -> Inherited,
     Saveable -> True,
     ScriptSizeMultipliers -> Inherited,
@@ -348,6 +349,7 @@ Options(Section):= {
         ImageSizeAction -> "ShrinkToFit"},
     "PatternVariableStyle" -> { FontColor -> Inherited },
     Placeholder -> Automatic,    % only valid for StyleData-sections
+    RemovalConditions -> None,   % only valid for StyleData-sections
     ReturnCreatesNewSection -> Inherited,
     Saveable -> Inherited,       % only valid for StyleData-sections
     ScriptLevel -> Inherited,

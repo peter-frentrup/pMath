@@ -112,6 +112,7 @@ extern pmath_symbol_t richmath_System_Plain;
 extern pmath_symbol_t richmath_System_PlotRange;
 extern pmath_symbol_t richmath_System_PureArgument;
 extern pmath_symbol_t richmath_System_Range;
+extern pmath_symbol_t richmath_System_RemovalConditions;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
 extern pmath_symbol_t richmath_System_RGBColor;
 extern pmath_symbol_t richmath_System_Rule;
@@ -238,6 +239,17 @@ namespace {
       Hashtable<Expr, int> _expr_to_int;
   };
   
+  class FlagsStyleConverter: public EnumStyleConverter {
+    public:
+      FlagsStyleConverter();
+      
+      virtual bool is_valid_key(int val) override;
+      virtual bool is_valid_expr(Expr expr) override;
+      
+      virtual int to_int(Expr expr) override;
+      virtual Expr to_expr(int val) override;
+  };
+  
   struct ButtonFrameStyleConverter: public EnumStyleConverter {
     ButtonFrameStyleConverter();
     
@@ -278,6 +290,10 @@ namespace {
     virtual int to_int(Expr expr) override;
     virtual Expr to_expr(int val) override;
     
+  };
+  
+  struct RemovalConditionsStyleConverter: public FlagsStyleConverter {
+    RemovalConditionsStyleConverter();
   };
   
   struct WindowFrameStyleConverter: public EnumStyleConverter {
@@ -1838,6 +1854,69 @@ void EnumStyleConverter::add(int val, Expr expr) {
 
 //} ... class EnumStyleConverter
 
+//{ class FlagsStyleConverter ...
+
+FlagsStyleConverter::FlagsStyleConverter()
+  : EnumStyleConverter()
+{
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
+  _expr_to_int.default_value = 0;
+}
+
+bool FlagsStyleConverter::is_valid_key(int val) {
+  for(unsigned uval = (unsigned)val, mask = 1; uval; uval >>= 1, mask <<= 1) {
+    if((unsigned)val & mask) {
+      if(_int_to_expr.search(mask) == nullptr)
+        return false;
+    }
+  }
+  
+  return true;
+}
+
+bool FlagsStyleConverter::is_valid_expr(Expr expr) {
+  if(expr[0] == richmath_System_List) {
+    for(auto item : expr.items()) {
+      if(_expr_to_int.search(item) == nullptr)
+        return false;
+    }
+    return true;
+  }
+  
+  return _expr_to_int.search(expr) != nullptr;
+}
+
+int FlagsStyleConverter::to_int(Expr expr) {
+  if(expr[0] == richmath_System_List) {
+    unsigned uval = 0;
+    for(auto item : expr.items()) {
+      uval |= _expr_to_int[item];
+    }
+    return (int)uval;
+  }
+  
+  return _expr_to_int[expr];
+}
+
+Expr FlagsStyleConverter::to_expr(int val) {
+  if(auto eptr = _int_to_expr.search(val))
+    return *eptr;
+  
+  if(val == 0)
+    return Symbol(richmath_System_None);
+  
+  Gather g;
+  for(unsigned uval = (unsigned)val, mask = 1; uval; uval >>= 1, mask <<= 1) {
+    if((unsigned)val & mask) {
+      g.emit(_int_to_expr[mask]);
+    }
+  }
+  return g.end();
+}
+
+//} ... class FlagsStyleConverter
+
 //{ class Style ...
 
 Style::Style()
@@ -2817,12 +2896,13 @@ void StyleInformation::add_style() {
         converter);
     }
     
-    add_enum(ClosingAction,    strings::ClosingAction,                    new ClosingActionStyleConverter);
-    add_enum(FontSlant,        Symbol( richmath_System_FontSlant),        new FontSlantStyleConverter);
-    add_enum(FontWeight,       Symbol( richmath_System_FontWeight),       new FontWeightStyleConverter);
-    add_enum(MenuCommandKey,   Symbol( richmath_System_MenuCommandKey),   new MenuCommandKeyStyleConverter);
-    add_enum(MenuSortingValue, Symbol( richmath_System_MenuSortingValue), new MenuSortingValueStyleConverter);
-    add_enum(WindowFrame,      Symbol( richmath_System_WindowFrame),      new WindowFrameStyleConverter);
+    add_enum(ClosingAction,     strings::ClosingAction,                     new ClosingActionStyleConverter);
+    add_enum(FontSlant,         Symbol( richmath_System_FontSlant),         new FontSlantStyleConverter);
+    add_enum(FontWeight,        Symbol( richmath_System_FontWeight),        new FontWeightStyleConverter);
+    add_enum(MenuCommandKey,    Symbol( richmath_System_MenuCommandKey),    new MenuCommandKeyStyleConverter);
+    add_enum(MenuSortingValue,  Symbol( richmath_System_MenuSortingValue),  new MenuSortingValueStyleConverter);
+    add_enum(RemovalConditions, Symbol( richmath_System_RemovalConditions), new RemovalConditionsStyleConverter);
+    add_enum(WindowFrame,       Symbol( richmath_System_WindowFrame),       new WindowFrameStyleConverter);
     
     add(StyleType::Color,           Background,                          Symbol( richmath_System_Background));
     add(StyleType::Color,           ColorForGraphics,                    strings::Color);
@@ -3380,6 +3460,13 @@ Expr MenuSortingValueStyleConverter::to_expr(int val) {
     return Expr(val);
   
   return EnumStyleConverter::to_expr(val);
+}
+
+RemovalConditionsStyleConverter::RemovalConditionsStyleConverter(): FlagsStyleConverter() {
+  add(RemovalConditionFlagSelectionExit,     String("SelectionExit"));
+  add(RemovalConditionFlagMouseExit,         String("MouseExit"));
+  add(RemovalConditionFlagMouseOutsideClick, String("MouseOutsideClick"));
+  add(RemovalConditionFlagParentChanged,     String("ParentChanged"));
 }
 
 WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {

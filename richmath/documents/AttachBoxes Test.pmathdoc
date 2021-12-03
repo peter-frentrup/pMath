@@ -14,8 +14,8 @@ Document({
             Inherited) &))}, "RowDefault")), "Input"), 
     Section(
      BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
-          "{", {"WindowFrame", "\[Rule]", ComplexStringBox("\"Single\"")}, 
-          "}"}}, ";"}, "\n", {
+          "{", {{"WindowFrame", "\[Rule]", ComplexStringBox("\"Single\"")}, 
+           ",", {"RemovalConditions", "\[Rule]", "None"}}, "}"}}, ";"}, "\n", {
         {"MakeBoxes", "(", {"SimplePopup", "(", {
            {"~", "lbl"}, ",", {"~", "contents"}, ",", {
             "opts", ":", {"OptionsPattern", "(", ")"}}}, ")"}, ")"}, 
@@ -37,16 +37,31 @@ Document({
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           ComplexStringBox("\"Outer ...\""), ",", {
-           "Row", "(", {"{", {ComplexStringBox("\"content: \""), ",", {
-              "SimplePopup", "(", {ComplexStringBox("\"Inner ...\""), ",", 
-               ComplexStringBox("\"Hello\"")}, ")"}}, "}"}, ")"}}, ")"}), 
-       "Input", SectionLabel -> "in [4]:"), 
+           "Row", "(", {
+            "{", {{"RemovalConditions", "\[Rule]", {
+               "Dynamic", "(", {"CurrentValue", "(", "RemovalConditions", 
+                ")"}, ")"}}, ",", ComplexStringBox("\"\\n\""), ",", 
+             ComplexStringBox("\"content: \""), ",", {
+              "SimplePopup", "(", {ComplexStringBox("\"Inner ...\""), ",", {
+                "Row", "(", {
+                 "{", {{"RemovalConditions", "\[Rule]", {
+                    "Dynamic", "(", {"CurrentValue", "(", "RemovalConditions", 
+                     ")"}, ")"}}, ",", ComplexStringBox("\"\\n\""), ",", 
+                  ComplexStringBox("\"Hello\"")}, "}"}, ")"}}, ")"}}, "}"}, 
+           ")"}, ",", {"\n", {"RemovalConditions", "\[Rule]", 
+            ComplexStringBox("\"SelectionExit\"")}}}, ")"}), "Input", 
+       SectionLabel -> "in [5]:"), 
       Section(BoxData(TemplateBox({ComplexStringBox("\"Outer ...\""), 
-          TemplateBox({ComplexStringBox("\"content: \""), 
+          TemplateBox({{"RemovalConditions", "\[Rule]", 
+             DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
+            ComplexStringBox("\"\n\""), ComplexStringBox("\"content: \""), 
             TemplateBox({ComplexStringBox("\"Inner ...\""), 
-              ComplexStringBox("\"Hello\"")}, "SimplePopup")}, "RowDefault")}, 
-         "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [4]:")}, All), 
+              TemplateBox({{"RemovalConditions", "\[Rule]", 
+                 DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
+                ComplexStringBox("\"\n\""), ComplexStringBox("\"Hello\"")}, 
+               "RowDefault")}, "SimplePopup")}, "RowDefault"), 
+          RemovalConditions -> "SelectionExit"}, "SimplePopup")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
     SectionGroup({
       Section(BoxData({"DynamicLocal", "(", {
           {"{", {"x", "\[Assign]", ComplexStringBox("\"\"")}, "}"}, ",", {
@@ -467,7 +482,11 @@ Document({
                          Dynamic(
                           Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
                              FE`Private`x}, CurrentValue({
-                             TemplateSlot, Key(WindowFrame)})))))}) &))) &)}), 
+                             TemplateSlot, Key(WindowFrame)}))), 
+                        RemovalConditions -> 
+                         Dynamic(CurrentValue({
+                            TemplateSlot, 
+                            Key(RemovalConditions)}))))}) &))) &)}), 
           Section(StyleData("SectionsPopup"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (

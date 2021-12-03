@@ -6,6 +6,7 @@ Begin("FE`Private`")
 
 Options(FE`AttachBoxes):= Options(FrontEnd`AttachBoxes):= {
     BaseStyle -> "AttachedPopupWindow",
+    RemovalConditions -> None,
     WindowFrame -> None
 };
 FE`AttachBoxes(src: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation, ~anchor, ~boxes, opts: OptionsPattern())::= FE`CallFrontEnd(FrontEnd`AttachBoxes(src, anchor, boxes, opts))

@@ -51,6 +51,14 @@ namespace richmath {
     ObserverKindBoth  = ObserverKindSelf | ObserverKindOther,
   };
   
+  enum RemovalConditionFlags {
+    RemovalConditionFlagSelectionExit     = 0x01,
+    RemovalConditionFlagMouseExit         = 0x02,
+    RemovalConditionFlagMouseOutsideClick = 0x04,
+    RemovalConditionFlagParentChanged     = 0x08,
+    //RemovalConditionFlagFocusExit         = 0x10,
+  };
+  
   enum ColorStyleOptionName {
     Background = 0x00000,
     ColorForGraphics,
@@ -105,6 +113,7 @@ namespace richmath {
     MenuCommandKey,
     MenuSortingValue,
     Placeholder,
+    RemovalConditions, // 0 or more of RemovalConditionFlagXXX
     ReturnCreatesNewSection,
     Saveable,
     ScriptLevel,
