@@ -542,10 +542,12 @@
 					<Add option="-Winline" />
 					<Add option="-Wextra" />
 					<Add option="-Wall" />
+					<Add option="-fPIC" />
 					<Add option="-fno-stack-protector" />
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_MEMORY" />
 					<Add option="-DPMATH_DEBUG_TESTS" />
@@ -567,8 +569,8 @@
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
-					<Add option="-static-libgcc" />
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add option="-Bsymbolic" />
 					<Add library="arb" />
 					<Add library="flint" />
 					<Add library="mpfr" />
@@ -613,6 +615,7 @@
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-Wno-unused-but-set-variable" />
 					<Add option="-fno-var-tracking-assignments" />
 					<Add option="-DNDEBUG" />
@@ -633,6 +636,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add option="-Bsymbolic" />
 					<Add library="arb" />
 					<Add library="flint" />
 					<Add library="mpfr" />
@@ -677,6 +681,7 @@
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-mcx16" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add option="-DPMATH_DEBUG_MEMORY" />
@@ -699,6 +704,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add option="-Bsymbolic" />
 					<Add library="arb" />
 					<Add library="flint" />
 					<Add library="mpfr" />
@@ -743,6 +749,7 @@
 					<Add option="-Wno-unused-parameter" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-mcx16" />
 					<Add option="-DNDEBUG" />
 					<Add option="-DPMATH_USE_DLMALLOC" />
@@ -762,6 +769,7 @@
 				</Compiler>
 				<Linker>
 					<Add option="-Wl,-soname,libpmath.so.0" />
+					<Add option="-Bsymbolic" />
 					<Add library="arb" />
 					<Add library="flint" />
 					<Add library="mpfr" />

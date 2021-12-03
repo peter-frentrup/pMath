@@ -456,9 +456,13 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
@@ -486,9 +490,13 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
@@ -515,9 +523,13 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DPMATH_DEBUG_LOG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />
@@ -545,9 +557,13 @@
 					<Add option="-g" />
 					<Add option="-fno-exceptions" />
 					<Add option="-Wno-unused-but-set-variable" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 					<Add directory="$(#jdk.include)/linux" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="rm -f ../bin/Linux/$(ARCH_NAME)/$(TARGET_OUTPUT_BASENAME).*" />
 					<Add after="mkdir -p ../bin/Linux/$(ARCH_NAME)/" />

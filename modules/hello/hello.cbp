@@ -188,13 +188,15 @@
 					<Add option="-march=i686" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
+					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fPIC" />
+					<Add option="-fvisibility=hidden" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option="-Bsymbolic" />
 				</Linker>
 			</Target>
 			<Target title="Linux-GCC-Release-x86">
@@ -210,14 +212,16 @@
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
+					<Add option="-fPIC" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fPIC" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
+					<Add option="-Bsymbolic" />
 				</Linker>
 			</Target>
 			<Target title="Linux-GCC-Debug-x64">
@@ -232,13 +236,15 @@
 					<Add option="-march=core2" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
+					<Add option="-fPIC" />
 					<Add option="-g" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fPIC" />
+					<Add option="-fvisibility=hidden" />
 				</Compiler>
 				<Linker>
 					<Add option="-static-libgcc" />
+					<Add option="-Bsymbolic" />
 				</Linker>
 			</Target>
 			<Target title="Linux-GCC-Release-x64">
@@ -254,14 +260,16 @@
 					<Add option="-O3" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
+					<Add option="-fPIC" />
 					<Add option="-Wdeclaration-after-statement" />
 					<Add option="-Wpointer-arith" />
-					<Add option="-fPIC" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
 				<Linker>
 					<Add option="-s" />
 					<Add option="-static-libgcc" />
+					<Add option="-Bsymbolic" />
 				</Linker>
 			</Target>
 		</Build>
@@ -278,10 +286,6 @@
 		<Unit filename="main.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger />
-		</Extensions>
+		<Extensions />
 	</Project>
 </CodeBlocks_project_file>

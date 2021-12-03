@@ -239,7 +239,11 @@
 					<Add option="-g" />
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fvisibility=hidden" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
@@ -266,8 +270,12 @@
 					<Add option="-fPIC" />
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
@@ -289,13 +297,17 @@
 					<Add option="-march=core2" />
 					<Add option="-Wundef" />
 					<Add option="-Wall" />
-					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-std=c++11" />
-					<Add option="-fno-exceptions" />
 					<Add option="-fPIC" />
 					<Add option="-g" />
+					<Add option="-Wno-unused-local-typedefs" />
+					<Add option="-fno-exceptions" />
 					<Add option="-Wpointer-arith" />
+					<Add option="-fvisibility=hidden" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
@@ -322,8 +334,12 @@
 					<Add option="-fPIC" />
 					<Add option="-Wno-unused-local-typedefs" />
 					<Add option="-fno-exceptions" />
+					<Add option="-fvisibility=hidden" />
 					<Add option="-DNDEBUG" />
 				</Compiler>
+				<Linker>
+					<Add option="-Bsymbolic" />
+				</Linker>
 				<ExtraCommands>
 					<Add after="mkdir -p bin/Linux/$(ARCH_NAME)/" />
 					<Add after='cp &quot;$(TARGET_OUTPUT_FILE)&quot; bin/Linux/$(ARCH_NAME)/' />
