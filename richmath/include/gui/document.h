@@ -66,7 +66,7 @@ namespace richmath {
       void finish_editing(Box *except_box);
       
       void focus_set();
-      void focus_killed();
+      void focus_killed(Document *new_focus);
       
       void key_down(SpecialKeyEvent &event);
       void key_up(SpecialKeyEvent &event);

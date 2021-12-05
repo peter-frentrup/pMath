@@ -45,6 +45,7 @@
 const struct {} TimerIdScroll; 
 const struct {} TimerIdAnimate; 
 const struct {} TimerIdBlinkCursor; 
+const struct {} TimerIdKillFocus;
 
 #define ANIMATION_DELAY  (16)
 
@@ -112,6 +113,8 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
     default: return SpecialKey::Unknown;
   }
 }
+
+static FrontEndReference focussed_document_id = FrontEndReference::None;
 
 //{ class Win32Widget ...
 
@@ -1557,6 +1560,13 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           else if(wParam == (UINT_PTR)&hd_trackpad_handler.TimerId) {
             hd_trackpad_handler.on_timer();
           }
+          else if(wParam == (UINT_PTR)&TimerIdKillFocus) {
+            KillTimer(_hwnd, (UINT_PTR)&TimerIdKillFocus);
+            if(focussed_document_id == document()->id())
+              focussed_document_id = FrontEndReference::None;
+            
+            document()->focus_killed(FrontEndObject::find_cast<Document>(focussed_document_id));
+          }
         } return 0;
         
       case WM_KEYDOWN: if(!is_drop_over) {
@@ -1632,6 +1642,8 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           _focused = true;
           document()->focus_set();
           
+          focussed_document_id = document()->id();
+          
           if(document()->selectable())
             do_set_current_document();
           
@@ -1647,8 +1659,11 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } return 0;
       
       case WM_KILLFOCUS: {
+          if((HWND)wParam == _hwnd)
+            break;
+          
           _focused = false;
-          document()->focus_killed();
+          SetTimer(_hwnd, (UINT_PTR)&TimerIdKillFocus, 0, nullptr);
         } break;
       
       case WM_SYSKEYUP: {

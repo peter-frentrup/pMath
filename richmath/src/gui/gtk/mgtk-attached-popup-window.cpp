@@ -208,6 +208,8 @@ void MathGtkAttachedPopupWindow::invalidate_options() {
 void MathGtkAttachedPopupWindow::invalidate_source_location() {
   MathGtkWidget *owner_wid = _content_area->owner_widget();
   if(!owner_wid) {
+    pmath_debug_print("[MathGtkAttachedPopupWindow: lost owner window]\n");
+    document()->style->set(ClosingAction, ClosingActionDelete);
     close();
     return;
   }
@@ -318,6 +320,8 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
     }
   }
   else {
+    pmath_debug_print("[MathGtkAttachedPopupWindow: lost anchor]\n");
+    document()->style->set(ClosingAction, ClosingActionDelete);
     close();
   }
 }

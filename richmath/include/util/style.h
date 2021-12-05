@@ -54,7 +54,7 @@ namespace richmath {
   enum RemovalConditionFlags {
     RemovalConditionFlagSelectionExit     = 0x01,
     RemovalConditionFlagMouseExit         = 0x02,
-    RemovalConditionFlagMouseOutsideClick = 0x04,
+    RemovalConditionFlagOutsideMouseClick = 0x04,
     RemovalConditionFlagParentChanged     = 0x08,
     //RemovalConditionFlagFocusExit         = 0x10,
   };

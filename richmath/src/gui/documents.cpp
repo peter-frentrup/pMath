@@ -225,7 +225,7 @@ void Documents::current(Document *document) {
     return;
   
   if(auto old = Documents::current()) 
-    old->focus_killed();
+    old->focus_killed(document);
     
   if(document)
     document->focus_set();
@@ -1488,7 +1488,7 @@ Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
   if(doc)
     return doc->to_pmath_id();
   
-  return Symbol(richmath_System_DollarFailed);
+  return Symbol(richmath_System_None);
 }
 
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {

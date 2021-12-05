@@ -3465,7 +3465,7 @@ Expr MenuSortingValueStyleConverter::to_expr(int val) {
 RemovalConditionsStyleConverter::RemovalConditionsStyleConverter(): FlagsStyleConverter() {
   add(RemovalConditionFlagSelectionExit,     String("SelectionExit"));
   add(RemovalConditionFlagMouseExit,         String("MouseExit"));
-  add(RemovalConditionFlagMouseOutsideClick, String("MouseOutsideClick"));
+  add(RemovalConditionFlagOutsideMouseClick, String("OutsideMouseClick"));
   add(RemovalConditionFlagParentChanged,     String("ParentChanged"));
 }
 

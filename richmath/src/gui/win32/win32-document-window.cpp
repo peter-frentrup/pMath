@@ -1305,6 +1305,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         } break;
         
       case WM_ACTIVATE: {
+          pmath_debug_print("[Win32DocumentWindow WM_ACTIVATE %p %d %p]\n", _hwnd, wParam, lParam);
           if(HIWORD(wParam)) { // minimizing
             bool have_only_palettes = true;
             
@@ -1341,7 +1342,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           }
           else {
             if(current_doc)
-              current_doc->focus_killed();
+              current_doc->focus_killed(nullptr);
           }
         } break;
         

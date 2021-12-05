@@ -96,6 +96,13 @@ bool VolatileSelection::visually_contains(VolatileSelection other) const {
   if(auto seclist = dynamic_cast<SectionList*>(box) && other.box != box)
     return false;
   
+  return logically_contains(other);
+}
+
+bool VolatileSelection::logically_contains(VolatileSelection other) const {
+  if(is_empty())
+    return *this == other;
+  
   while(other.box != box) {
     if(!other)
       return false;

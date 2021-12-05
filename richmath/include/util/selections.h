@@ -78,6 +78,7 @@ namespace richmath {
     bool is_empty() const { return !box || start == end; }
     
     bool visually_contains(VolatileSelection other) const;
+    bool logically_contains(VolatileSelection other) const;
     bool directly_contains(const VolatileSelection &other) const { return box == other.box && start <= other.start && other.end <= end; }
     bool same_box_but_disjoint(const VolatileSelection &other) const { return box == other.box && (other.end <= start || end <= other.start); }
     

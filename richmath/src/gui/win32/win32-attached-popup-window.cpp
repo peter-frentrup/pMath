@@ -152,6 +152,7 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
   Win32Widget *owner_wid = Impl(*this).owner_widget();
   if(!owner_wid) {
     pmath_debug_print("[Win32AttachedPopupWindow: lost owner window]\n");
+    document()->style->set(ClosingAction, ClosingActionDelete);
     close();
     return;
   }
@@ -207,6 +208,7 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
   }
   else {
     pmath_debug_print("[Win32AttachedPopupWindow: lost anchor]\n");
+    document()->style->set(ClosingAction, ClosingActionDelete);
     close();
   }
 }
@@ -250,9 +252,6 @@ void Win32AttachedPopupWindow::paint_canvas(Canvas &canvas, bool resize_only) {
 }
 
 void Win32AttachedPopupWindow::on_close() {
-  if(Document *owner = owner_document()) 
-    owner->popup_window_closed(document());
-  
   switch(document()->get_style(ClosingAction)) {
     case ClosingActionHide: {
         document()->style->set(Visible, false);
@@ -265,6 +264,8 @@ void Win32AttachedPopupWindow::on_close() {
       break;
   }
   
+  if(Document *owner = owner_document()) 
+    owner->popup_window_closed(document());
   base::on_close();
 }
 
@@ -275,7 +276,12 @@ void Win32AttachedPopupWindow::do_set_current_document() {
 LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   if(!initializing()) {
     switch(message) {
+      case WM_ACTIVATE: {
+          pmath_debug_print("[Win32AttachedPopupWindow WM_ACTIVATE %p %d %p]\n", _hwnd, wParam, lParam);
+        } break;
+      
       case WM_NCACTIVATE: {
+        pmath_debug_print("[Win32AttachedPopupWindow: WM_NCACTIVATE %p %d (active: %p)]\n", _hwnd, wParam, GetActiveWindow());
         _active = wParam;
       } break;
       

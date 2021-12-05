@@ -4,6 +4,7 @@
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
+#include <gui/win32/win32-attached-popup-window.h>
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-tooltip-window.h>
 #include <gui/win32/win32-widget.h>
@@ -413,8 +414,12 @@ void BasicWin32Window::get_snap_alignment(bool *right, bool *bottom) {
     if(hwnd == _hwnd || !is_window_visible_on_screen(hwnd))
       return;
       
-    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
-      return;
+    if(auto widget = BasicWin32Widget::from_hwnd(hwnd)) {
+      if(dynamic_cast<Win32BlurBehindWindow*>(widget))
+        return;
+      if(dynamic_cast<Win32AttachedPopupWindow*>(widget))
+        return;
+    }
     
     RECT rect;
     WindowMagnetics::get_snap_rect(hwnd, &rect);
@@ -1673,6 +1678,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
   switch(message) {
     case WM_NCACTIVATE: {
+        pmath_debug_print("[BasicWin32Window: WM_NCACTIVATE %p %d (active: %p)]\n", _hwnd, wParam, GetActiveWindow());
         _active = wParam;
         
         if(_blur_behind_window) 
@@ -3254,8 +3260,12 @@ void WindowMagnetics::snap_all_windows() {
     if(hwnd == src || !is_window_visible_on_screen(hwnd) || dont_snap.contains(hwnd))
       return;
     
-    if(dynamic_cast<Win32BlurBehindWindow*>(BasicWin32Widget::from_hwnd(hwnd)))
-      return;
+    if(auto widget = BasicWin32Widget::from_hwnd(hwnd)) {
+      if(dynamic_cast<Win32BlurBehindWindow*>(widget))
+        return;
+      if(dynamic_cast<Win32AttachedPopupWindow*>(widget))
+        return;
+    }
     
     RECT rect;
     get_snap_rect(hwnd, &rect);
@@ -3291,13 +3301,16 @@ void WindowMagnetCollector::visit_all_windows() {
     if(hwnd == dst || !is_window_visible_on_screen(hwnd))
       return;
       
-    auto widget = BasicWin32Widget::from_hwnd(hwnd);
-    if(dynamic_cast<Win32BlurBehindWindow*>(widget))
-      return;
-    
-    if(auto win = dynamic_cast<BasicWin32Window*>(widget)) {
-      if(win->zorder_level() <= min_level)
+    if(auto widget = BasicWin32Widget::from_hwnd(hwnd)) {
+      if(dynamic_cast<Win32BlurBehindWindow*>(widget))
         return;
+      if(dynamic_cast<Win32AttachedPopupWindow*>(widget))
+        return;
+      
+      if(auto win = dynamic_cast<BasicWin32Window*>(widget)) {
+        if(win->zorder_level() <= min_level)
+          return;
+      }
     }
     
     RECT rect;

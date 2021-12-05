@@ -1044,9 +1044,13 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
   return result;
 }
 
+static FrontEndReference focussed_document_id = FrontEndReference::None;
+
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   _focused = true;
   document()->focus_set();
+  
+  focussed_document_id = document()->id();
   
   if(document()->selectable())
     do_set_current_document();
@@ -1065,8 +1069,21 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
 }
 
 bool MathGtkWidget::on_focus_out(GdkEvent *e) {
+  g_idle_add_full(G_PRIORITY_DEFAULT, 
+    [](void *_arg) -> gboolean {
+      pmath_debug_print("[idle after focus-out-event %p]\n", _arg);
+      if(auto wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget((GtkWidget*)_arg))) {
+        if(focussed_document_id == wid->document()->id())
+          focussed_document_id = FrontEndReference::None;
+        
+        wid->document()->focus_killed(FrontEndObject::find_cast<Document>(focussed_document_id));
+      }
+      return false; 
+    },
+    g_object_ref(widget()),
+    [](void *_arg) { g_object_unref(_arg); });
+  
   _focused = false;
-  document()->focus_killed();
   
   if(_im_context)
     gtk_im_context_focus_out(_im_context);

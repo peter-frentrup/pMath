@@ -1,8 +1,5 @@
 #include <gui/document.h>
 
-#include <cmath>
-#include <cstdio>
-
 #include <boxes/graphics/graphicsbox.h>
 #include <boxes/buttonbox.h>
 #include <boxes/fractionbox.h>
@@ -25,6 +22,10 @@
 #include <syntax/spanexpr.h>
 
 #include <util/autovaluereset.h>
+
+#include <cmath>
+#include <cstdio>
+#include <functional>
 
 
 using namespace richmath;
@@ -342,6 +343,12 @@ namespace richmath {
       void invalidate_popup_window_positions();
       void close_orphaned_popup_windows();
       void close_all_popup_windows();
+      void close_popup_windows_if(std::function<bool(VolatileSelection, Document*, RemovalConditionFlags)> predicate);
+      void close_popup_windows_if(RemovalConditionFlags conds, std::function<bool(VolatileSelection, Document*)> predicate) { close_popup_windows_if([&](VolatileSelection anchor, Document *doc, RemovalConditionFlags doc_cond) { return (doc_cond & conds) && predicate(anchor, doc); }); }
+      void close_popup_windows_if(RemovalConditionFlags conds, std::function<bool(VolatileSelection)> predicate) {            close_popup_windows_if([&](VolatileSelection anchor, Document *doc, RemovalConditionFlags doc_cond) { return (doc_cond & conds) && predicate(anchor); }); }
+      void close_popup_windows_on_outside_mouse_click(VolatileSelection click_pos);
+      void close_popup_windows_on_parent_changed(     VolatileSelection sel);
+      void close_popup_windows_on_selection_exit(     VolatileSelection sel);
       //}
   };
 }
@@ -506,6 +513,9 @@ void Document::mouse_exit() {
     mouse_history.debug_move_sel.reset();
     invalidate();
   }
+  
+  if(get_style(RemovalConditions, 0) & RemovalConditionFlagMouseExit)
+    native()->close(); // TODO: do not close if the mouse is over an attached popup.
 }
 
 void Document::mouse_down(MouseEvent &event) {
@@ -518,11 +528,14 @@ void Document::mouse_down(MouseEvent &event) {
     event.set_origin(this);
     
     bool was_inside_start;
-    receiver = mouse_selection(event.position, &was_inside_start).box;
+    auto mouse_sel = mouse_selection(event.position, &was_inside_start);
+    receiver = mouse_sel.box;
                  
     receiver = receiver ? receiver->mouse_sensitive() : this;
     assert(receiver != nullptr);
     context.clicked_box_id = receiver->id();
+    
+    Impl(*this).close_popup_windows_on_outside_mouse_click(mouse_sel);
   }
   else {
     receiver = FrontEndObject::find_cast<Box>(context.clicked_box_id);
@@ -649,9 +662,23 @@ void Document::focus_set() {
   }
 }
 
-void Document::focus_killed() {
+void Document::focus_killed(Document *new_focus) {
   context.active = false;
   reset_mouse();
+  
+  Impl(*this).close_popup_windows_if(
+    RemovalConditionFlagSelectionExit,
+    [new_focus](VolatileSelection anchor, Document *popup) {
+      bool focus_in_popup = false;
+      int max_steps = 20;
+      for(auto doc = new_focus; doc && max_steps > 0; doc = doc->native()->owner_document(), --max_steps) {
+        if(doc == popup) {
+          focus_in_popup = true;
+        }
+      }
+      
+      return !focus_in_popup;
+    });
   
   if(Box *box = selection_box()) {
     if(!box->selectable())
@@ -2170,6 +2197,14 @@ void Document::set_selection_style(Expr options) {
       
     native()->on_editing();
     
+    Impl(*this).close_popup_windows_if(RemovalConditionFlagParentChanged, [this,start,end](VolatileSelection anchor) { 
+      if(anchor.box == this && start < anchor.end && anchor.start < end)
+        return true;
+      if(anchor.box && anchor.box->parent() == this && start <= anchor.box->index() && anchor.box->index() < end)
+        return true;
+      return false;
+    });
+    
     for(int i = start; i < end; ++i) {
       Section *sect = section(i);
       
@@ -2191,7 +2226,6 @@ void Document::set_selection_style(Expr options) {
   
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel);
   if(seq && start < end) {
-  
     if(!seq->edit_selection(context.selection))
       return;
       
@@ -2214,6 +2248,7 @@ void Document::set_selection_style(Expr options) {
     
     native()->on_editing();
     Impl(*this).set_prev_sel_line();
+    Impl(*this).close_popup_windows_on_parent_changed({seq, start, end});
     
     if(!style_box) {
       style_box = new StyleBox(seq->create_similar());
@@ -3286,6 +3321,7 @@ bool Document::remove_selection(bool insert_default) {
   
   if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     native()->on_editing();
+    Impl(*this).close_popup_windows_on_parent_changed({seq, context.selection.start, context.selection.end});
     
     if(auto mseq = dynamic_cast<MathSequence *>(seq)) {
       bool was_empty = mseq->length() == 0 ||
@@ -3335,6 +3371,7 @@ bool Document::remove_selection(bool insert_default) {
   
   if(auto grid = dynamic_cast<GridBox *>(context.selection.get())) {
     native()->on_editing();
+    Impl(*this).close_popup_windows_on_parent_changed({grid, context.selection.start, context.selection.end});
     int start = context.selection.start;
     Box *box = grid->remove_range(&start, context.selection.end);
     select(box, start, start);
@@ -3343,6 +3380,7 @@ bool Document::remove_selection(bool insert_default) {
   
   if(context.selection.id == this->id()) {
     native()->on_editing();
+    Impl(*this).close_popup_windows_on_parent_changed({this, context.selection.start, context.selection.end});
     remove(context.selection.start, context.selection.end);
     move_to(this, context.selection.start);
     return true;
@@ -3782,6 +3820,8 @@ void Document::Impl::raw_select(Box *box, int start, int end) {
       b->on_exit();
       b = b->parent();
     }
+    
+    close_popup_windows_on_selection_exit({box, start, end});
     
     b = box;
     while(b != common_parent) {
@@ -4312,6 +4352,7 @@ bool Document::Impl::prepare_insert() {
       sect = new MathSection(section_style);
       
     self.native()->on_editing();
+    close_popup_windows_on_parent_changed({&self, self.context.selection.start});
     self.insert(self.context.selection.start, sect);
     sect->after_insertion();
     self.move_horizontal(LogicalDirection::Forward, false);
@@ -4321,6 +4362,7 @@ bool Document::Impl::prepare_insert() {
   else {
     if(self.selection_box() && self.selection_box()->edit_selection(self.context.selection)) {
       self.native()->on_editing();
+      close_popup_windows_on_parent_changed(self.context.selection.get_all());
       set_prev_sel_line();
       return true;
     }
@@ -4604,6 +4646,8 @@ void Document::Impl::indent_selection(bool unindent) {
       ArrayView<const uint16_t> buf = buffer_view(seq->text());
       while(first_line_start > 0 && buf[first_line_start-1] != '\n')
         --first_line_start;
+      
+      close_popup_windows_on_parent_changed({seq, first_line_start, new_sel_end});
       
       bool was_non_empty = (new_sel_start < new_sel_end);
       
@@ -5009,7 +5053,9 @@ bool Document::Impl::attach_popup_window(const SelectionReference &anchor, Docum
   
   // TODO: ensure that popup_window is not a direct or indirect owner window of this Document
   BoxAttchmentPopup popup{ anchor, popup_window->id() };
-  if(!self.is_parent_of(popup.anchor.get()))
+  
+  Box *anchor_box = popup.anchor.get();
+  if(!self.is_parent_of(anchor_box))
     return false;
   
   self._attached_popup_windows.add(popup);
@@ -5081,6 +5127,41 @@ void Document::Impl::close_all_popup_windows() {
     }
   }
 }
+
+void Document::Impl::close_popup_windows_if(std::function<bool(VolatileSelection, Document*, RemovalConditionFlags)> predicate) {
+  Array<Document*> popups_to_close;
+
+  for(auto &attachment : self._attached_popup_windows) {
+    if(auto doc = attachment.popup_document()) {
+      auto conds = (RemovalConditionFlags)doc->get_own_style(RemovalConditions, 0);
+      if(predicate(attachment.anchor.get_all(), doc, conds)) 
+        popups_to_close.add(doc);
+    }
+  }
+
+  for(auto doc : popups_to_close) {
+    doc->native()->close();
+  }
+}
+
+void Document::Impl::close_popup_windows_on_outside_mouse_click(VolatileSelection click_pos) {
+  close_popup_windows_if(
+    RemovalConditionFlagOutsideMouseClick,
+    [click_pos](VolatileSelection anchor) { return !anchor.logically_contains(click_pos); });
+}
+
+void Document::Impl::close_popup_windows_on_parent_changed(VolatileSelection sel) {
+  close_popup_windows_if(
+    RemovalConditionFlagParentChanged,
+    [sel](VolatileSelection anchor) { return anchor.logically_contains(sel); });
+}
+
+void Document::Impl::close_popup_windows_on_selection_exit(VolatileSelection sel) {
+  close_popup_windows_if(
+    RemovalConditionFlagSelectionExit,
+    [sel](VolatileSelection anchor) { return !anchor.logically_contains(sel); });
+}
+
 //}
 
 //} ... class Document::Impl
