@@ -69,6 +69,9 @@ namespace richmath {
       float get_em() { return em; }
       const String &text() { return str; }
       
+#ifndef NDEBUG
+      bool DEBUG_boxes_invalid() { return boxes_invalid(); }
+#endif
     protected:
       enum {
         BoxesInvalidBit = base::NumFlagsBits,

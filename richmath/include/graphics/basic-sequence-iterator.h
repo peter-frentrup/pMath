@@ -91,8 +91,10 @@ namespace richmath {
     if(!newseq)
       newseq = _owning_seq;
     
-    if(newseq != oldseq || !_current_buf) 
+    if(newseq != oldseq || !_current_buf) {
+      newseq->ensure_boxes_valid();
       _current_buf = newseq->text().buffer();
+    }
     
     int ti = text_index();
     _current_char = (ti < text_buffer_length()) ? _current_buf[ti] : 0;
@@ -100,8 +102,10 @@ namespace richmath {
   
   template <typename Seq>
   void BasicSequenceIterator<Seq>::skip_forward_to_glyph_after_text_pos(Seq *seq, int pos, int glyph_count) {
-    assert(0 <= pos);
-    assert(pos <= seq->length());
+    ARRAY_ASSERT(0 <= pos);
+    ARRAY_ASSERT(pos <= seq->length());
+    ARRAY_ASSERT(!seq->DEBUG_boxes_invalid());
+    ARRAY_ASSERT(!current_sequence()->DEBUG_boxes_invalid());
     
     // In the scematics below we use the following notation:
     //   [ and ]   begin and end of a sequence
@@ -150,8 +154,9 @@ namespace richmath {
   void BasicSequenceIterator<Seq>::skip_forward_to_glyph_after_current_text_pos(int pos, int glyph_count) {
     Seq *seq = current_sequence();
     
-    assert(0 <= pos);
-    assert(pos <= seq->length());
+    ARRAY_ASSERT(0 <= pos);
+    ARRAY_ASSERT(pos <= seq->length());
+    ARRAY_ASSERT(!seq->DEBUG_boxes_invalid());
     
     for(;;) {
       int next_run = glyph_count;

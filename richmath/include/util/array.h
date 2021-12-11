@@ -9,12 +9,15 @@
 #include <new>
 #include <utility>
 
-#define ARRAY_ASSERT(a) \
-  do{if(!(a)){ \
-      assert_failed(); \
-      assert(a); \
-    }}while(0)
-
+#ifdef NDEBUG
+#  define ARRAY_ASSERT(a)   ((void)0)
+#else
+#  define ARRAY_ASSERT(a) \
+    do{if(!(a)){          \
+        assert_failed();  \
+        assert(a);        \
+      }}while(0)
+#endif
 
 namespace richmath {
   void assert_failed();
