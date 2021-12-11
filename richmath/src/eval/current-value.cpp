@@ -14,6 +14,7 @@ using namespace richmath;
 
 namespace richmath {
   namespace strings {
+    extern String AttachmentSourceBox;
     extern String ControlsFontFamily;
     extern String ControlsFontSize;
     extern String ControlsFontSlant;
@@ -36,6 +37,7 @@ namespace richmath {
       
       static FrontEndObject *object(Expr obj);
       
+      static Expr get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
       static Expr get_AvailableMathFonts(FrontEndObject *obj, Expr item);
       static Expr get_CurrentValueProviders(FrontEndObject *obj, Expr item);
       static Expr get_MouseOver(FrontEndObject *obj, Expr item);
@@ -71,6 +73,7 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr);
 //{ class CurrentValue ...
 
 void CurrentValue::init() {
+  register_provider(strings::AttachmentSourceBox,         Impl::get_AttachmentSourceBox);
   register_provider(String("AvailableMathFonts"),         Impl::get_AvailableMathFonts);
   register_provider(strings::MouseOver,                   Impl::get_MouseOver);
   register_provider(strings::MouseOverBox,                Document::get_current_value_of_MouseOverBox);
@@ -154,6 +157,18 @@ FrontEndObject *CurrentValueImpl::object(Expr obj) {
     return Application::get_evaluation_object();
   
   return FrontEndObject::find(FrontEndReference::from_pmath(std::move(obj)));
+}
+
+Expr CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(richmath_System_DollarFailed);
+  
+  if(auto source_box = doc->native()->source_box())
+    return source_box->to_pmath_id();
+  
+  return Symbol(richmath_System_None);
 }
 
 Expr CurrentValueImpl::get_AvailableMathFonts(FrontEndObject *obj, Expr item) {
