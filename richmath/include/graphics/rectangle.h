@@ -2,6 +2,8 @@
 #define RICHMATH__GRAPHICS__RECTANGLE_H__INCLUDED
 
 
+#include <util/interval.h>
+
 namespace pmath {
   class Expr;
 }
@@ -86,11 +88,18 @@ namespace richmath {
         : x(pos.x), y(pos.y), width(size.x), height(size.y)
       {}
       
+      RectangleF(Interval<float> x, Interval<float> y)
+        : x(x.from), y(y.from), width(x.length()), height(y.length())
+      {}
+      
       RectangleF &operator+=(const Vector2F &delta) { x+= delta.x; y+= delta.y; return *this; }
       RectangleF &operator-=(const Vector2F &delta) { x-= delta.x; y-= delta.y; return *this; }
       
       friend RectangleF operator+(RectangleF rect, const Vector2F &vec) { return rect+= vec; }
       friend RectangleF operator-(RectangleF rect, const Vector2F &vec) { return rect-= vec; }
+      
+      Interval<float> x_interval() const { return {x, x + width}; }
+      Interval<float> y_interval() const { return {y, y + height}; }
       
       void normalize();
       void normalize_to_zero();

@@ -26,17 +26,17 @@ Document({
           {"{", {{"MakeBoxes", "(", "lbl", ")"}, ",", {
              "MakeBoxes", "(", "contents", ")"}, ",", "opts"}, "}"}, ",", 
           ComplexStringBox("\"SimplePopup\"")}, ")"}})), "Input", 
-     SectionLabel -> "in [1]:"), 
+     SectionLabel -> "in [3]:"), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           ComplexStringBox("\"Click me!\""), ",", 
           ComplexStringBox("\"Hello\""), ",", {
            "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-       SectionLabel -> "in [4]:"), 
+       SectionLabel -> "in [5]:"), 
       Section(BoxData(TemplateBox({ComplexStringBox("\"Click me!\""), 
           ComplexStringBox("\"Hello\""), WindowFrame -> None}, 
          "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [4]:")}, All), 
+       SectionLabel -> "out [5]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           ComplexStringBox("\"Outer ...\""), ",", {
@@ -54,13 +54,14 @@ Document({
                    "\"I reappear when the outer popup reappears due to my \
                    RemovalConditions\[Rule]None and the outer\[HighNineQuote]s \
                    \\\"ClosingAction\\\"\[Rule]\\\"Hide\\\" setting.\"")}, 
-                 "}"}, ")"}}, ")"}}, "}"}, ")"}, ",", {
-           "\n", {ComplexStringBox("\"ClosingAction\""), "\[Rule]", 
-            ComplexStringBox("\"Hide\"")}}, ",", {
+                 "}"}, ")"}, ",", {
+                "\n", {"ControlPlacement", "\[Rule]", "Right"}}}, ")"}}, "}"}, 
+           ")"}, ",", {"\n", {ComplexStringBox("\"ClosingAction\""), 
+            "\[Rule]", ComplexStringBox("\"Hide\"")}}, ",", {
            "RemovalConditions", "\[Rule]", {
             "{", {ComplexStringBox("\"OutsideMouseClick\""), ",", 
              ComplexStringBox("\"SelectionExit\"")}, "}"}}}, ")"}), "Input", 
-       SectionLabel -> "in [4]:"), 
+       SectionLabel -> "in [6]:"), 
       Section(BoxData(TemplateBox({ComplexStringBox("\"Outer ...\""), 
           TemplateBox({{"RemovalConditions", "\[Rule]", 
              DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
@@ -73,10 +74,11 @@ Document({
                  "\"I reappear when the outer popup reappears due to my \
                  RemovalConditions\[Rule]None and the outer\[HighNineQuote]s \
                  \\\"ClosingAction\\\"\[Rule]\\\"Hide\\\" setting.\"")}, 
-               "RowDefault")}, "SimplePopup")}, "RowDefault"), 
-          "ClosingAction" -> "Hide", RemovalConditions -> {
-            "OutsideMouseClick", "SelectionExit"}}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+               "RowDefault"), ControlPlacement -> Right}, "SimplePopup")}, 
+           "RowDefault"), "ClosingAction" -> "Hide", 
+          RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
+         "SimplePopup")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"DynamicLocal", "(", {
           {"{", {"x", "\[Assign]", ComplexStringBox("\"\"")}, "}"}, ",", {
@@ -494,7 +496,11 @@ Document({
                        False), False :> (
                        CurrentValue(FE`Private`popup, Visible):= True), 
                      $Failed :> (FE`Private`popup:= 
-                       FE`AttachBoxes(EvaluationBox(), Bottom, 
+                       FE`AttachBoxes(EvaluationBox(), 
+                        Dynamic(
+                         Lookup({Inherited -> Bottom, ~FE`Private`x :> 
+                            FE`Private`x}, CurrentValue({
+                            TemplateSlot, Key(ControlPlacement)}))), 
                         BoxData(TemplateSlot(2)), 
                         "ClosingAction" -> 
                          Dynamic(CurrentValue({

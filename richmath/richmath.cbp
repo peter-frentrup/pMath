@@ -1302,6 +1302,7 @@
 		<Unit filename="include/util/filesystem.h" />
 		<Unit filename="include/util/frontendobject.h" />
 		<Unit filename="include/util/hashtable.h" />
+		<Unit filename="include/util/interval.h" />
 		<Unit filename="include/util/matrix.h" />
 		<Unit filename="include/util/pmath-extra.h" />
 		<Unit filename="include/util/rle-array.h" />

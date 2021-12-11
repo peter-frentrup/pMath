@@ -37,6 +37,7 @@ extern pmath_symbol_t richmath_System_BaselinePosition;
 extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_Bold;
 extern pmath_symbol_t richmath_System_BorderRadius;
+extern pmath_symbol_t richmath_System_Bottom;
 extern pmath_symbol_t richmath_System_BoxRotation;
 extern pmath_symbol_t richmath_System_BoxTransformation;
 extern pmath_symbol_t richmath_System_ButtonBox;
@@ -49,6 +50,7 @@ extern pmath_symbol_t richmath_System_ButtonSource;
 extern pmath_symbol_t richmath_System_ContentPadding;
 extern pmath_symbol_t richmath_System_ContextMenu;
 extern pmath_symbol_t richmath_System_ContinuousAction;
+extern pmath_symbol_t richmath_System_ControlPlacement;
 extern pmath_symbol_t richmath_System_DefaultDuplicateSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
 extern pmath_symbol_t richmath_System_DefaultReturnCreatedSectionStyle;
@@ -95,6 +97,7 @@ extern pmath_symbol_t richmath_System_InputFieldBoxOptions;
 extern pmath_symbol_t richmath_System_InterpretationFunction;
 extern pmath_symbol_t richmath_System_Italic;
 extern pmath_symbol_t richmath_System_LanguageCategory;
+extern pmath_symbol_t richmath_System_Left;
 extern pmath_symbol_t richmath_System_LineBreakWithin;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_Magnification;
@@ -115,6 +118,7 @@ extern pmath_symbol_t richmath_System_Range;
 extern pmath_symbol_t richmath_System_RemovalConditions;
 extern pmath_symbol_t richmath_System_ReturnCreatesNewSection;
 extern pmath_symbol_t richmath_System_RGBColor;
+extern pmath_symbol_t richmath_System_Right;
 extern pmath_symbol_t richmath_System_Rule;
 extern pmath_symbol_t richmath_System_RuleDelayed;
 extern pmath_symbol_t richmath_System_Saveable;
@@ -152,6 +156,7 @@ extern pmath_symbol_t richmath_System_TemplateBoxOptions;
 extern pmath_symbol_t richmath_System_TextShadow;
 extern pmath_symbol_t richmath_System_Ticks;
 extern pmath_symbol_t richmath_System_Tooltip;
+extern pmath_symbol_t richmath_System_Top;
 extern pmath_symbol_t richmath_System_TrackedSymbols;
 extern pmath_symbol_t richmath_System_True;
 extern pmath_symbol_t richmath_System_Unassign;
@@ -263,6 +268,10 @@ namespace {
   
   struct ClosingActionStyleConverter: public EnumStyleConverter {
     ClosingActionStyleConverter();
+  };
+  
+  struct ControlPlacementStyleConverter: public EnumStyleConverter {
+    ControlPlacementStyleConverter();
   };
   
   struct FontSlantStyleConverter: public EnumStyleConverter {
@@ -2897,6 +2906,7 @@ void StyleInformation::add_style() {
     }
     
     add_enum(ClosingAction,     strings::ClosingAction,                     new ClosingActionStyleConverter);
+    add_enum(ControlPlacement,  Symbol( richmath_System_ControlPlacement),  new ControlPlacementStyleConverter);
     add_enum(FontSlant,         Symbol( richmath_System_FontSlant),         new FontSlantStyleConverter);
     add_enum(FontWeight,        Symbol( richmath_System_FontWeight),        new FontWeightStyleConverter);
     add_enum(MenuCommandKey,    Symbol( richmath_System_MenuCommandKey),    new MenuCommandKeyStyleConverter);
@@ -3384,6 +3394,13 @@ ClosingActionStyleConverter::ClosingActionStyleConverter() : EnumStyleConverter(
   
   add(ClosingActionDelete,  strings::Delete);
   add(ClosingActionHide,    strings::Hide);
+}
+
+ControlPlacementStyleConverter::ControlPlacementStyleConverter(): EnumStyleConverter() {
+  add(ControlPlacementKindBottom, Symbol(richmath_System_Bottom));
+  add(ControlPlacementKindLeft,   Symbol(richmath_System_Left));
+  add(ControlPlacementKindRight,  Symbol(richmath_System_Right));
+  add(ControlPlacementKindTop,    Symbol(richmath_System_Top));
 }
 
 FontSlantStyleConverter::FontSlantStyleConverter() : EnumStyleConverter() {

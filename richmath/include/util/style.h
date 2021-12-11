@@ -38,6 +38,13 @@ namespace richmath {
     ClosingActionHide   = 1,
   };
   
+  enum ControlPlacementKind {
+    ControlPlacementKindBottom,
+    ControlPlacementKindLeft,
+    ControlPlacementKindRight,
+    ControlPlacementKindTop,
+  };
+  
   enum ImageSizeActionValues {
     ImageSizeActionClip = 0,
     ImageSizeActionShrinkToFit = 1,
@@ -96,6 +103,7 @@ namespace richmath {
     ClosingAction, // ClosingActionXXX
     ContentPadding,
     ContinuousAction,
+    ControlPlacement, // ControlPlacementKindXXX
     DebugColorizeChanges, // bool
     DebugFollowMouse,     // bool
     DebugSelectionBounds, // bool

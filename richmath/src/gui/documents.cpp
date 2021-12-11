@@ -1205,6 +1205,8 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
   if(!popup_doc)
     return Symbol(richmath_System_DollarFailed);
   
+  popup_doc->style->set_pmath(ControlPlacement, expr[2]);
+  
   // FIXME: this is duplicated in Application::try_create_document():
   Expr options(pmath_options_extract_ex(expr.get(), 3, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_expr())

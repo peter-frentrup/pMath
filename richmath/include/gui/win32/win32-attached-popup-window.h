@@ -35,8 +35,7 @@ namespace richmath {
     
     private:
       ObservableValue<bool> _active; // alternatively, we could inherit from BasicWin32Window
-      int _best_width;
-      int _best_height;
+      Vector2F _best_size;
   };
 }
 

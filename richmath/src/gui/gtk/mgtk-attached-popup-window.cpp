@@ -1,5 +1,6 @@
 #include <gui/gtk/mgtk-attached-popup-window.h>
 
+#include <gui/common-tooltips.h>
 #include <gui/documents.h>
 #include <gui/gtk/mgtk-menu-builder.h>
 
@@ -15,7 +16,7 @@ namespace richmath {
     public:
       Impl(MathGtkAttachedPopupWindow &self) : self{self} {}
       
-      bool find_anchor_screen_position(int &x, int &y);
+      bool find_anchor_screen_position(RectangleF &target_rect);
       
     private:
       MathGtkAttachedPopupWindow &self;
@@ -209,7 +210,7 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
   MathGtkWidget *owner_wid = _content_area->owner_widget();
   if(!owner_wid) {
     pmath_debug_print("[MathGtkAttachedPopupWindow: lost owner window]\n");
-    document()->style->set(ClosingAction, ClosingActionDelete);
+    content()->style->set(ClosingAction, ClosingActionDelete);
     close();
     return;
   }
@@ -217,13 +218,11 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
   bool visible = gtk_widget_get_mapped(owner_wid->widget()) && content()->get_style(Visible, true);
   
   if(Box *anchor = _content_area->source_box()) {
-    int x, y;
-    if(visible && Impl(*this).find_anchor_screen_position(x, y)) {
-      int content_width  = _content_area->best_width();
-      int content_height = _content_area->best_height();
+    auto cpk = (ControlPlacementKind)content()->get_own_style(ControlPlacement, ControlPlacementKindBottom);
+    RectangleF target_rect;
+    if(visible && Impl(*this).find_anchor_screen_position(target_rect)) {
+      Vector2F size(_content_area->best_width(), _content_area->best_height());
       
-      int max_width  = content_width + 100;
-      int max_height = content_height + 100;
       int border_extra = 0;
       
       for(GtkWidget *tmp = _widget; tmp; tmp = gtk_widget_get_parent(tmp)) {
@@ -232,24 +231,49 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
         }
       }
       
+      size.x+= border_extra;
+      size.y+= border_extra;
+      
+      RectangleF popup_rect;
+      
       GtkWidget *owner_win = gtk_widget_get_ancestor(owner_wid->widget(), GTK_TYPE_WINDOW);
       {
         GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(owner_win));
-        int monitor = gdk_screen_get_monitor_at_point(screen, x, y);
+        int monitor = gdk_screen_get_monitor_at_point(screen, target_rect.x + target_rect.width/2, target_rect.y + target_rect.height/2);
         
-        GdkRectangle monitor_rect;
+        GdkRectangle monitor_rect_int;
 #if GTK_CHECK_VERSION(3, 4, 0)
         // TODO: use gdk_monitor_get_workarea() on GTK >= 3.22 ?
-        gdk_screen_get_monitor_workarea(screen, monitor, &monitor_rect);
+        gdk_screen_get_monitor_workarea(screen, monitor, &monitor_rect_int);
 #else
-        gdk_screen_get_monitor_geometry(screen, monitor, &monitor_rect);
+        gdk_screen_get_monitor_geometry(screen, monitor, &monitor_rect_int);
 #endif
         
-        max_width  = monitor_rect.x + monitor_rect.width - x;
-        max_height = monitor_rect.y + monitor_rect.height - y;
+        RectangleF monitor_rect(monitor_rect_int.x, monitor_rect_int.y, monitor_rect_int.width, monitor_rect_int.height);
         
-        content_width  = std::max(1, std::min(content_width,  max_width - border_extra));
-        content_height = std::max(1, std::min(content_height, max_height - border_extra));
+        popup_rect = CommonTooltips::popup_placement(target_rect, size, cpk, monitor_rect);
+        
+        if(popup_rect.height < size.y) {
+          gtk_widget_show(_vscrollbar);
+          size.x+= gtk_widget_get_allocated_width(_vscrollbar);
+          
+          popup_rect = CommonTooltips::popup_placement(target_rect, size, cpk, monitor_rect);
+        }
+        else
+          gtk_widget_hide(_vscrollbar);
+        
+        if(popup_rect.width < size.x) {
+          gtk_widget_show(_hscrollbar);
+          
+          size.y+= gtk_widget_get_allocated_height(_hscrollbar);
+          
+          popup_rect = CommonTooltips::popup_placement(target_rect, size, cpk, monitor_rect);
+          if(popup_rect.height < size.y) {
+            gtk_widget_show(_vscrollbar);
+          }
+        }
+        else
+          gtk_widget_hide(_hscrollbar);
       }
       
       bool was_visible = gtk_widget_get_mapped(_widget);
@@ -258,57 +282,29 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
         //gtk_window_set_attached_to(GTK_WINDOW(_widget), owner_wid->widget());
       }
       
-      int width = content_width + border_extra;
-      int height = content_height + border_extra;
-      
-      if(content_height < _content_area->best_height()) {
-        gtk_widget_show(_vscrollbar);
-        
-        width+= gtk_widget_get_allocated_width(_vscrollbar);
-        if(width > max_width) {
-          content_width+= max_width - width;
-          width = max_width;
-        }
-      }
-      else
-        gtk_widget_hide(_vscrollbar);
-      
-      if(content_width < _content_area->best_width()) {
-        gtk_widget_show(_hscrollbar);
-        
-        height+= gtk_widget_get_allocated_height(_hscrollbar);
-        if(height > max_height) {
-          content_height+= max_height - height;
-          height = max_height;
-          
-          if(!gtk_widget_get_visible(_vscrollbar)) {
-            gtk_widget_show(_vscrollbar);
-            
-            content_width-= gtk_widget_get_allocated_width(_vscrollbar);
-          }
-        }
-      }
-      else
-        gtk_widget_hide(_hscrollbar);
-      
       GtkAllocation old_rect;
       gtk_widget_get_allocation(_widget, &old_rect);
       
 //      gtk_window_get_size(GTK_WINDOW(_widget), &old_rect.width, &old_rect.height);
 //      gtk_window_get_position(GTK_WINDOW(_widget), &old_rect.x, &old_rect.y);
       
+      int width  = std::max(1, (int)round(popup_rect.width));
+      int height = std::max(1, (int)round(popup_rect.height));
+      
       if(old_rect.width != width || old_rect.height != height) {
         gtk_widget_set_size_request(_widget, width, height);
         gtk_window_resize(GTK_WINDOW(_widget), 1, 1);
       }
       
+      GdkPoint pos = {(int)round(popup_rect.x), (int)round(popup_rect.y)};
+      
       //gtk_window_set_gravity(GTK_WINDOW(_widget), GDK_GRAVITY_NORTH_WEST);
-      if(old_rect.x != x || old_rect.y != y)
-        gtk_window_move(GTK_WINDOW(_widget), x, y);
+      if(old_rect.x != pos.x || old_rect.y != pos.y)
+        gtk_window_move(GTK_WINDOW(_widget), pos.x, pos.y);
       
       gtk_widget_show(_widget);
       
-      if(old_rect.x != x || old_rect.y != y || old_rect.width != width || old_rect.height != height || !was_visible)
+      if(old_rect.x != pos.x || old_rect.y != pos.y || old_rect.width != width || old_rect.height != height || !was_visible)
         content()->invalidate_popup_window_positions();
     }
     else {
@@ -321,7 +317,7 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
   }
   else {
     pmath_debug_print("[MathGtkAttachedPopupWindow: lost anchor]\n");
-    document()->style->set(ClosingAction, ClosingActionDelete);
+    content()->style->set(ClosingAction, ClosingActionDelete);
     close();
   }
 }
@@ -463,9 +459,7 @@ bool MathGtkAttachedPopupWindow::on_expose(GdkEvent *e) {
 
 //{ class MathGtkAttachedPopupWindow::Impl ...
 
-bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(int &x, int &y) {
-  x = y = 0;
-  
+bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &target_rect) {
   MathGtkWidget *owner_wid = self._content_area->owner_widget();
   if(!owner_wid)
     return false;
@@ -478,27 +472,21 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(int &x, int &
   if(!anchor)
     return false;
   
-  Point anchor_point = {0, anchor->extents().descent};
-  RectangleF rect = anchor->extents().to_rectangle();
-  if(!anchor->visible_rect(rect))
+  target_rect = anchor->extents().to_rectangle();
+  if(!anchor->visible_rect(target_rect))
     return false;
   
-  cairo_matrix_t mat;
-  cairo_matrix_init_identity(&mat);
-  anchor->transformation(nullptr, &mat);
-  
-  anchor_point = Canvas::transform_point(mat, anchor_point);
-  anchor_point.x *= owner_wid->scale_factor();
-  anchor_point.y *= owner_wid->scale_factor();
-  
-  x = (int)round(anchor_point.x);
-  y = (int)round(anchor_point.y);
+  auto scale_factor = owner_wid->scale_factor();
+  target_rect.x      *= scale_factor;
+  target_rect.y      *= scale_factor;
+  target_rect.width  *= scale_factor;
+  target_rect.height *= scale_factor;
   
   if(auto adj = owner_wid->hadjustment())
-    x -= gtk_adjustment_get_value(adj);
+    target_rect.x -= gtk_adjustment_get_value(adj);
     
   if(auto adj = owner_wid->vadjustment())
-    y -= gtk_adjustment_get_value(adj);
+    target_rect.y -= gtk_adjustment_get_value(adj);
   
 //  if(!gtk_widget_translate_coordinates(owner_wid->widget(), owner_win, x, y, &x, &y))
 //    return false;
@@ -507,8 +495,8 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(int &x, int &
   int root_y = 0;
   gdk_window_get_origin(gtk_widget_get_window(owner_wid->widget()), &root_x, &root_y);
   
-  x+= root_x;
-  y+= root_y;
+  target_rect.x += root_x;
+  target_rect.y += root_y;
   
   return true;
 }
