@@ -334,6 +334,13 @@ namespace pmath {
         return Expr(pmath_expr_get_item(_obj, (size_t)i));
       }
 
+      /**\brief Get all but the first items. */
+      Expr rest() const throw() {
+        if(!is_expr())
+          return Expr();
+        return Expr(pmath_expr_get_item_range(_obj, 2, SIZE_MAX));
+      }
+
       bool try_lookup(Expr key, Expr &result) const throw() {
         return pmath_rules_lookup(_obj, key.release(), &result._obj);
       }

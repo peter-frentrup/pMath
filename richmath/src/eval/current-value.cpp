@@ -7,6 +7,7 @@
 #include <eval/dynamic.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
+#include <util/autovaluereset.h>
 
 
 using namespace richmath;
@@ -32,22 +33,28 @@ namespace richmath {
   
   class CurrentValueImpl {
     public:
-      static Hashtable<Expr, Expr (*)(FrontEndObject*, Expr)>       providers;
-      static Hashtable<Expr, bool (*)(FrontEndObject*, Expr, Expr)> setters;
+      static Hashtable<Expr, FrontEndObject *(*)(FrontEndObject*, Expr)>       object_providers;
+      static Hashtable<Expr, Expr            (*)(FrontEndObject*, Expr)>       providers;
+      static Hashtable<Expr, bool            (*)(FrontEndObject*, Expr, Expr)> setters;
       
       static FrontEndObject *object(Expr obj);
       
-      static Expr get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
-      static Expr get_AvailableMathFonts(FrontEndObject *obj, Expr item);
-      static Expr get_CurrentValueProviders(FrontEndObject *obj, Expr item);
-      static Expr get_MouseOver(FrontEndObject *obj, Expr item);
-      static Expr get_DocumentScreenDpi(FrontEndObject *obj, Expr item);
-      static Expr get_ControlFont_data(FrontEndObject *obj, Expr item);
-      static Expr get_SectionGroupOpen(FrontEndObject *obj, Expr item);
-      static bool put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
-      static Expr get_Selectable(FrontEndObject *obj, Expr item);
-      static Expr get_SelectedMenuCommand(FrontEndObject *obj, Expr item);
-      static Expr get_StyleDefinitionsOwner(FrontEndObject *obj, Expr item);
+      static Expr get_object_value(FrontEndObject *obj, Expr items);
+      static bool put_object_value(FrontEndObject *obj, Expr items, Expr rhs);
+      
+      static FrontEndObject *get_AttachmentSourceBox_object(FrontEndObject *obj, Expr item);
+//      static Expr get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
+//      static bool put_AttachmentSourceBox(FrontEndObject *obj, Expr items, Expr rhs);
+      static Expr            get_AvailableMathFonts(FrontEndObject *obj, Expr item);
+      static Expr            get_CurrentValueProviders(FrontEndObject *obj, Expr item);
+      static Expr            get_MouseOver(FrontEndObject *obj, Expr item);
+      static Expr            get_DocumentScreenDpi(FrontEndObject *obj, Expr item);
+      static Expr            get_ControlFont_data(FrontEndObject *obj, Expr item);
+      static Expr            get_SectionGroupOpen(FrontEndObject *obj, Expr item);
+      static bool            put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
+      static Expr            get_Selectable(FrontEndObject *obj, Expr item);
+      static Expr            get_SelectedMenuCommand(FrontEndObject *obj, Expr item);
+      static FrontEndObject *get_StyleDefinitionsOwner_object(FrontEndObject *obj, Expr item);
   };
 }
 
@@ -63,8 +70,9 @@ extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_True;
 
-Hashtable<Expr, Expr (*)(FrontEndObject*, Expr)>       CurrentValueImpl::providers;
-Hashtable<Expr, bool (*)(FrontEndObject*, Expr, Expr)> CurrentValueImpl::setters;
+Hashtable<Expr, FrontEndObject *(*)(FrontEndObject*, Expr)>       CurrentValueImpl::object_providers;
+Hashtable<Expr, Expr            (*)(FrontEndObject*, Expr)>       CurrentValueImpl::providers;
+Hashtable<Expr, bool            (*)(FrontEndObject*, Expr, Expr)> CurrentValueImpl::setters;
 
 Expr richmath_eval_FrontEnd_AssignCurrentValue(Expr expr);
 Expr richmath_eval_FrontEnd_CurrentValue(Expr expr);
@@ -73,7 +81,7 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr);
 //{ class CurrentValue ...
 
 void CurrentValue::init() {
-  register_provider(strings::AttachmentSourceBox,         Impl::get_AttachmentSourceBox);
+  register_provider(strings::AttachmentSourceBox,         Impl::get_AttachmentSourceBox_object);
   register_provider(String("AvailableMathFonts"),         Impl::get_AvailableMathFonts);
   register_provider(strings::MouseOver,                   Impl::get_MouseOver);
   register_provider(strings::MouseOverBox,                Document::get_current_value_of_MouseOverBox);
@@ -88,7 +96,7 @@ void CurrentValue::init() {
   register_provider(Symbol(richmath_System_Selectable),   Impl::get_Selectable,
                                                           Style::put_current_style_value);
   register_provider(strings::SelectedMenuCommand,         Impl::get_SelectedMenuCommand);
-  register_provider(strings::StyleDefinitionsOwner,       Impl::get_StyleDefinitionsOwner);
+  register_provider(strings::StyleDefinitionsOwner,       Impl::get_StyleDefinitionsOwner_object);
   register_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
   register_provider(strings::TemplateSlotCount,           TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
   register_provider(strings::HeldTemplateSlot,            TemplateBoxSlot::get_current_value_of_HeldTemplateSlot);
@@ -97,6 +105,7 @@ void CurrentValue::init() {
 }
 
 void CurrentValue::done() {
+  Impl::object_providers.clear();
   Impl::providers.clear();
   Impl::setters.clear();
 }
@@ -106,10 +115,22 @@ Expr CurrentValue::get(Expr item) {
 }
 
 Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
+  static int reclim = 20;
+  
+  AutoValueReset<int> recurse(reclim);
+  if(--reclim < 0)
+    return Symbol(richmath_System_DollarFailed);
+  
   auto func = Impl::providers[item];
-  if(!func && item[0] == richmath_System_List)
-    func = Impl::providers[item[1]];
-    
+  if(!func && item[0] == richmath_System_List) {
+    if(item.expr_length() == 1) {
+      item = item[1];
+      func = Impl::providers[item];
+    }
+    else
+      func = Impl::providers[item[1]];
+  }
+  
   if(!func)
     return Symbol(richmath_System_DollarFailed);
     
@@ -117,9 +138,21 @@ Expr CurrentValue::get(FrontEndObject *obj, Expr item) {
 }
 
 bool CurrentValue::put(FrontEndObject *obj, Expr item, Expr rhs) {
+  static int reclim = 20;
+  
+  AutoValueReset<int> recurse(reclim);
+  if(--reclim < 0)
+    return false;
+  
   auto func = Impl::setters[item];
-  if(!func && item[0] == richmath_System_List)
-    func = Impl::setters[item[1]];
+  if(!func && item[0] == richmath_System_List) {
+    if(item.expr_length() == 1) {
+      item = item[1];
+      func = Impl::setters[item];
+    }
+    else
+      func = Impl::setters[item[1]];
+  }
     
   if(!func)
     return false;
@@ -148,6 +181,17 @@ bool CurrentValue::register_provider(
   return true;
 }
 
+bool CurrentValue::register_provider(Expr item, FrontEndObject *(*get)(FrontEndObject *obj, Expr item)) {
+  if(Impl::object_providers.search(item))
+    return false;
+  
+  if(!register_provider(item, Impl::get_object_value, Impl::put_object_value))
+    return false;
+  
+  Impl::object_providers.set(item, get);
+  return true;
+}
+
 //} ... class CurrentValue
 
 //{ class CurrentValueImpl ...
@@ -159,17 +203,91 @@ FrontEndObject *CurrentValueImpl::object(Expr obj) {
   return FrontEndObject::find(FrontEndReference::from_pmath(std::move(obj)));
 }
 
+Expr CurrentValueImpl::get_object_value(FrontEndObject *obj, Expr items) {
+  if(items[0] == richmath_System_List) {
+    auto exprlen = items.expr_length();
+    if(exprlen == 0)
+      return Symbol(richmath_System_DollarFailed);
+    
+    Expr first = items[1];
+    if(auto provider = object_providers[first]) {
+      if(auto next_obj = provider(obj, std::move(first))) {
+        if(exprlen == 1)
+          return next_obj->to_pmath_id();
+        
+        return CurrentValue::get(next_obj, items.rest());
+      }
+      
+      if(exprlen == 1)
+        return Symbol(richmath_System_None);
+      
+      return Symbol(richmath_System_DollarFailed);
+    }
+  }
+  else if(auto provider = object_providers[items]) {
+    if(auto res = provider(obj, std::move(items)))
+      return res->to_pmath_id();
+    
+    return Symbol(richmath_System_None);
+  }
+  
+  return Symbol(richmath_System_DollarFailed);
+}
+
+bool CurrentValueImpl::put_object_value(FrontEndObject *obj, Expr items, Expr rhs) {
+  if(items[0] == richmath_System_List && items.expr_length() > 1) {
+    Expr first = items[1];
+    if(auto provider = object_providers[first]) {
+      if(auto next_obj = provider(obj, std::move(first)))
+        return CurrentValue::put(next_obj, items.rest(), std::move(rhs));
+    }
+  }
+  
+  return false;
+}
+
+FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox_object(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return nullptr;
+  
+  return doc->native()->source_box();
+}
+/*
 Expr CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, Expr item) {
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
     return Symbol(richmath_System_DollarFailed);
   
-  if(auto source_box = doc->native()->source_box())
+  if(auto source_box = doc->native()->source_box()) {
+    if(item[0] == richmath_System_List && item.expr_length() > 1) {
+      return CurrentValue::get(source_box, item.rest());
+    }
     return source_box->to_pmath_id();
+  }
+  
+  if(item[0] == richmath_System_List && item.expr_length() > 1)
+    return Symbol(richmath_System_DollarFailed);
   
   return Symbol(richmath_System_None);
 }
+
+bool CurrentValueImpl::put_AttachmentSourceBox(FrontEndObject *obj, Expr items, Expr rhs) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return false;
+  
+  if(items[0] == richmath_System_List && items.expr_length() > 1) {
+    if(auto source_box = doc->native()->source_box()) {
+      return CurrentValue::put(source_box, items.rest, std::move(rhs));
+    }
+  }
+  
+  return false;
+}*/
 
 Expr CurrentValueImpl::get_AvailableMathFonts(FrontEndObject *obj, Expr item) {
   Gather g;
@@ -305,21 +423,22 @@ Expr CurrentValueImpl::get_SelectedMenuCommand(FrontEndObject *obj, Expr item) {
   return Call(Symbol(richmath_System_Hold), std::move(cmd));
 }
 
-Expr CurrentValueImpl::get_StyleDefinitionsOwner(FrontEndObject *obj, Expr item) {
+FrontEndObject *CurrentValueImpl::get_StyleDefinitionsOwner_object(FrontEndObject *obj, Expr item) {
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    return Symbol(richmath_System_DollarFailed);
+    return nullptr;
   
   Document *owner = doc->native()->owner_document();
   while(!owner) {
     doc = doc->native()->working_area_document();
     if(!doc)
-      return Symbol(richmath_System_None);
+      return nullptr;
     
     owner = doc->native()->owner_document();
   }
-  return owner->to_pmath_id();
+  
+  return owner;
 }
 
 //} ... class CurrentValueImpl

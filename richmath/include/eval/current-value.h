@@ -23,6 +23,9 @@ namespace richmath {
         Expr   item,
         Expr (*get)(FrontEndObject *obj, Expr item),
         bool (*put)(FrontEndObject *obj, Expr item, Expr rhs) = nullptr);
+      static bool register_provider(
+        Expr              item,
+        FrontEndObject *(*get)(FrontEndObject *obj, Expr item));
       
     private:
       CurrentValue() = delete;

@@ -46,10 +46,9 @@ Document({
        DefaultNewSectionStyle -> "PopupWindowSection", Editable -> False, 
        FontFeatures -> {"ssty" -> Automatic}, 
        Magnification -> 
-        Dynamic(CurrentValue(CurrentValue("AttachmentSourceBox"), 
-          Magnification)), Selectable -> False, ShowSectionBracket -> False, 
-       Visible -> True)}, All), 
-    SectionGroup({Section("Section styles", "Section"), 
+        Dynamic(CurrentValue({"AttachmentSourceBox", Magnification})), 
+       Selectable -> False, ShowSectionBracket -> False, Visible -> True)}, 
+     All), SectionGroup({Section("Section styles", "Section"), 
       Section(StyleData("SystemResetStyle"), AspectRatio -> 1, 
        AutoDelete -> False, AutoNumberFormating -> True, AutoSpacing -> False, 
        Background -> None, ButtonBoxOptions -> {
