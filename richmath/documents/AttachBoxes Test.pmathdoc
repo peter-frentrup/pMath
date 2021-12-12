@@ -32,11 +32,26 @@ Document({
           ComplexStringBox("\"Click me!\""), ",", 
           ComplexStringBox("\"Hello\""), ",", {
            "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-       SectionLabel -> "in [5]:"), 
+       SectionLabel -> "in [3]:"), 
       Section(BoxData(TemplateBox({ComplexStringBox("\"Click me!\""), 
           ComplexStringBox("\"Hello\""), WindowFrame -> None}, 
          "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [5]:")}, All), 
+       SectionLabel -> "out [3]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"SimplePopup", "(", {
+          {"Magnification", "\[Rule]", {
+            "Dynamic", "(", {"CurrentValue", "(", "Magnification", ")"}, 
+            ")"}}, ",", {"Magnification", "\[Rule]", {
+            "Dynamic", "(", {"CurrentValue", "(", "Magnification", ")"}, 
+            ")"}}}, ")"}), "Input", SectionLabel -> "in [6]:"), 
+      Section(
+       BoxData(TemplateBox({
+          {"Magnification", "\[Rule]", 
+           DynamicBox(ToBoxes(CurrentValue(Magnification)))}, {
+           "Magnification", "\[Rule]", 
+           DynamicBox(ToBoxes(CurrentValue(Magnification)))}}, 
+         "SimplePopup")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           ComplexStringBox("\"Outer ...\""), ",", {

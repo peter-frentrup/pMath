@@ -99,6 +99,7 @@ class MathGtkDocumentChildWidget: public MathGtkWidget {
     }
     
     virtual void invalidate_options() override {
+      base::invalidate_options();
       if(_parent)
         _parent->invalidate_options();
     }
@@ -602,9 +603,6 @@ void MathGtkDocumentWindow::invalidate_options() {
     if(gtk_widget_get_visible(_widget))
       gtk_widget_hide(_widget);
   }
-  
-  float scale = doc->get_style(Magnification, _working_area->custom_scale_factor());
-  _working_area->set_custom_scale(scale);
 }
 
 void MathGtkDocumentWindow::invalidate_popup_window_positions() {

@@ -370,6 +370,8 @@ void Win32Widget::invalidate() {
 }
 
 void Win32Widget::invalidate_options() {
+  float scale = document()->get_style(Magnification, custom_scale_factor());
+  set_custom_scale(scale);
 }
 
 void Win32Widget::invalidate_rect(const RectangleF &rect) {

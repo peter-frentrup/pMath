@@ -442,6 +442,8 @@ void MathGtkWidget::invalidate() {
 }
 
 void MathGtkWidget::invalidate_options() {
+  float scale = document()->get_style(Magnification, custom_scale_factor());
+  set_custom_scale(scale);
 }
 
 void MathGtkWidget::invalidate_rect(const RectangleF &rect) {

@@ -74,6 +74,7 @@ class Win32DocumentChildWidget: public Win32Widget {
     }
     
     virtual void invalidate_options() override {
+      base::invalidate_options();
       if(_parent)
         _parent->invalidate_options();
     }
@@ -1031,9 +1032,6 @@ void Win32DocumentWindow::invalidate_options() {
         0, 0, 1, 1,
         SWP_HIDEWINDOW | SWP_NOSIZE | SWP_NOMOVE | SWP_NOZORDER | SWP_NOACTIVATE);
   }
-  
-  float scale = doc->get_style(Magnification, _working_area->custom_scale_factor());
-  _working_area->set_custom_scale(scale);
 }
 
 void Win32DocumentWindow::reset_title() {
