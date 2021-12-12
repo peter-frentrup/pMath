@@ -8,20 +8,20 @@ Document({
        DefaultReturnCreatedSectionStyle -> Automatic, 
        DockedSections :> {
          "TopGlass" -> {
-           Section({"Private StyleDefinitions for \[HighSixDoubleQuote]", 
-             DynamicBox(
-              ToBoxes(
+           Section(
+            TextData({"Private StyleDefinitions for \[HighSixDoubleQuote]", 
+              DynamicBox(
                With({
                  FE`Private`owner:= CurrentValue("StyleDefinitionsOwner")}, 
-                Button(
-                 Style(
+                ButtonBox(
+                 StyleBox(
                   With({FE`Private`title:= CurrentValue(FE`Private`owner, 
                       WindowTitle)}, If(IsString(FE`Private`title), 
-                    FE`Private`title, FE`Private`owner)), 
+                    FE`Private`title, ToBoxes(FE`Private`owner))), 
                   BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                      "HyperlinkActive", "StylesheetHyperlink"))), 
-                 SetSelectedDocument(FE`Private`owner), 
-                 BaseStyle -> "Hyperlink")))), "\[HighNineDoubleQuote]"}, 
+                 ButtonFunction -> (SetSelectedDocument(FE`Private`owner) &), 
+                 BaseStyle -> "Hyperlink"))), "\[HighNineDoubleQuote]"}), 
             "Docked", SectionFrame -> {Inherited, {Inherited, 0.5`}})}}, 
        FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
        Saveable -> False, Visible -> True, WindowFrame -> "Normal", 
