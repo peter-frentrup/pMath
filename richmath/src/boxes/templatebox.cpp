@@ -445,20 +445,12 @@ void TemplateBox::reset_argument(int index, Expr new_arg) {
   Impl(*this).reset_argument(index, std::move(new_arg));
 }
 
-Expr TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item) {
+FrontEndObject *TemplateBox::get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item) {
   Box *box = dynamic_cast<Box*>(obj);
-  if(item == richmath_System_TemplateBox) {
-    if(!box)
-      return Symbol(richmath_System_None);
+  if(!box)
+    return nullptr;
     
-    auto tb = TemplateBoxSlotImpl::find_owner_or_self(box);
-    if(tb)
-      return tb->to_pmath_id();
-    
-    return Symbol(richmath_System_None);
-  }
-  
-  return Symbol(richmath_System_DollarFailed);
+  return TemplateBoxSlotImpl::find_owner_or_self(box);
 }
 
 //} ... class TemplateBox

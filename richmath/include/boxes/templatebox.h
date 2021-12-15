@@ -50,7 +50,7 @@ namespace richmath {
       
       void reset_argument(int index, Expr new_arg);
       
-      static Expr get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item);
+      static FrontEndObject *get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item);
 
     protected:
       virtual void resize_default_baseline(Context &context) override;

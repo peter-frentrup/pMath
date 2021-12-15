@@ -3478,16 +3478,16 @@ bool Document::complete_box(bool do_it) {
   return false;
 }
 
-Expr Document::get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item) {
+FrontEndObject *Document::get_current_value_of_MouseOverBox(FrontEndObject *obj, Expr item) {
   FrontEndReference ref = mouse_history.observable_mouseover_box_id;
   Box *box = FrontEndObject::find_cast<Box>(ref);
   if(!box)
-    return Symbol(richmath_System_None);
+    return nullptr;
   
   if(dynamic_cast<AbstractSequence*>(box) && box->parent())
     box = box->parent();
   
-  return box->to_pmath_id();
+  return box;
 }
 
 void Document::reset_mouse() {

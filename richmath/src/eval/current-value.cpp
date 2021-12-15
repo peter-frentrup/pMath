@@ -42,9 +42,7 @@ namespace richmath {
       static Expr get_object_value(FrontEndObject *obj, Expr items);
       static bool put_object_value(FrontEndObject *obj, Expr items, Expr rhs);
       
-      static FrontEndObject *get_AttachmentSourceBox_object(FrontEndObject *obj, Expr item);
-//      static Expr get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
-//      static bool put_AttachmentSourceBox(FrontEndObject *obj, Expr items, Expr rhs);
+      static FrontEndObject *get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
       static Expr            get_AvailableMathFonts(FrontEndObject *obj, Expr item);
       static Expr            get_CurrentValueProviders(FrontEndObject *obj, Expr item);
       static Expr            get_MouseOver(FrontEndObject *obj, Expr item);
@@ -81,7 +79,7 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr);
 //{ class CurrentValue ...
 
 void CurrentValue::init() {
-  register_provider(strings::AttachmentSourceBox,         Impl::get_AttachmentSourceBox_object);
+  register_provider(strings::AttachmentSourceBox,         Impl::get_AttachmentSourceBox);
   register_provider(String("AvailableMathFonts"),         Impl::get_AvailableMathFonts);
   register_provider(strings::MouseOver,                   Impl::get_MouseOver);
   register_provider(strings::MouseOverBox,                Document::get_current_value_of_MouseOverBox);
@@ -246,7 +244,7 @@ bool CurrentValueImpl::put_object_value(FrontEndObject *obj, Expr items, Expr rh
   return false;
 }
 
-FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox_object(FrontEndObject *obj, Expr item) {
+FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, Expr item) {
   Box      *box = dynamic_cast<Box*>(obj);
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
@@ -254,40 +252,6 @@ FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox_object(FrontEndObject 
   
   return doc->native()->source_box();
 }
-/*
-Expr CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, Expr item) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return Symbol(richmath_System_DollarFailed);
-  
-  if(auto source_box = doc->native()->source_box()) {
-    if(item[0] == richmath_System_List && item.expr_length() > 1) {
-      return CurrentValue::get(source_box, item.rest());
-    }
-    return source_box->to_pmath_id();
-  }
-  
-  if(item[0] == richmath_System_List && item.expr_length() > 1)
-    return Symbol(richmath_System_DollarFailed);
-  
-  return Symbol(richmath_System_None);
-}
-
-bool CurrentValueImpl::put_AttachmentSourceBox(FrontEndObject *obj, Expr items, Expr rhs) {
-  Box      *box = dynamic_cast<Box*>(obj);
-  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
-  if(!doc)
-    return false;
-  
-  if(items[0] == richmath_System_List && items.expr_length() > 1) {
-    if(auto source_box = doc->native()->source_box()) {
-      return CurrentValue::put(source_box, items.rest, std::move(rhs));
-    }
-  }
-  
-  return false;
-}*/
 
 Expr CurrentValueImpl::get_AvailableMathFonts(FrontEndObject *obj, Expr item) {
   Gather g;
