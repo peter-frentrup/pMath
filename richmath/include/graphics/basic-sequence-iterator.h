@@ -174,6 +174,10 @@ namespace richmath {
         break;
       }
       
+      if(delta == 0)
+        break;
+      
+      _current_buf = nullptr; // to make move_by_glyphs(0) re-calculate buffer
       if(delta < run_length) {
         _text_pos_iter.increment(  delta);
         _inline_seq_iter.increment(delta);
