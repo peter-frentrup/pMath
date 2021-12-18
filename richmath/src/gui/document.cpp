@@ -771,6 +771,12 @@ void Document::on_mouse_down(MouseEvent &event) {
       ++mouse_history.click_repeat_count;
       
       VolatileSelection sel = context.selection.get_all();
+      if(!sel.visually_contains(mouse_sel)) {
+        sel = mouse_sel;
+        while(sel && !sel.selectable())
+          sel.expand_to_parent();
+      }
+      
       if(sel.box == this) {
         if(sel.start < sel.end) {
           toggle_open_close_group(sel.start);
