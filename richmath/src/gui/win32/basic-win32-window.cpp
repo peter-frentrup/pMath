@@ -2618,8 +2618,16 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     }
 
     bool center_caption = false;
-    if(Win32Themes::is_windows_8_or_newer() && !Win32Themes::is_windows_10_or_newer()) {
-      center_caption = true;
+//    if(Win32Themes::is_windows_8_or_newer() && !Win32Themes::is_windows_10_or_newer()) {
+//      center_caption = true;
+//    }
+    int content_alignment = 0;
+    if(SUCCEEDED(Win32Themes::GetThemeInt(theme, 1 /* WP_CAPTION */, 0 /* default state */, 4006, &content_alignment))) {
+      // TMT_CONTENTALIGNMENT = 4006
+      // CA_LEFT = 0, CA_CENTER = 1, CA_RIGHT = 2
+      // TODO: use WP_CAPTION (1), WP_SMALLCAPTION (2), WP_MAXCAPTION (5), or WP_SMALLMAXCAPTION (6)
+      
+      center_caption = content_alignment != 0;
     }
 
     int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;

@@ -46,6 +46,14 @@ namespace richmath {
         DWMNCRP_LAST
       };
       
+      enum DWMSYSTEMBACKDROPTYPE { // Windows 11 Build 22523, see https://tvc-16.science/mica-wpf.html
+        DWMSBT_AUTO            = 0,
+        DWMSBT_DISABLE         = 1, // None
+        DWMSBT_MAINWINDOW      = 2, // Mica
+        DWMSBT_TRANSIENTWINDOW = 3, // Acrylic
+        DWMSBT_TABBEDWINDOW    = 4, // Tabbed
+      };
+      
       enum DWMWINDOWATTRIBUTE {
         DWMWA_NCRENDERING_ENABLED = 1,
         DWMWA_NCRENDERING_POLICY = 2,
@@ -80,6 +88,9 @@ namespace richmath {
         DWMWA_CAPTION_COLOR = 35,                  // COLORREF, The color of the caption
         DWMWA_TEXT_COLOR = 36,                     // COLORREF, The color of the caption text
         DWMWA_VISIBLE_FRAME_BORDER_THICKNESS = 37, // UINT, width of the visible border around a thick frame window
+        
+        DWMWA_SYSTEMBACKDROP_TYPE = 38, // DWMSYSTEMBACKDROPTYPE, since Insider Preview Build 22523
+        //DWMWA_MICA_EFFECT_pre_Win11 = 1029, // BOOL, Win 11 until Insider Preview Build 22494
       };
       
       // like DWMWINDOWATTRIBUTE, except some tweaks, see http://undoc.airesoft.co.uk/user32.dll/GetWindowCompositionAttribute.php
