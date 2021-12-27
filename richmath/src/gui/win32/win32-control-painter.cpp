@@ -1689,8 +1689,8 @@ void Win32ControlPainter::system_font_style(ControlContext &control, Style *styl
   
   if(!logfont) {
     nonclientmetrics.cbSize = sizeof(nonclientmetrics);
-    Win32HighDpi::get_nonclient_metrics_for_dpi(&nonclientmetrics, control.dpi());
-    dpi_scale = 1.0f;
+    Win32HighDpi::get_nonclient_metrics_for_dpi(&nonclientmetrics, 96.0f/*control.dpi()*/);
+    dpi_scale = 1.0f;//96.0f / (float)control.dpi();
     logfont = &nonclientmetrics.lfMessageFont;
   }
   
