@@ -55,7 +55,7 @@ Function asStyleDataExampleBox(~labelTextBox, ~exampleBox) {
 makePropertyGridEntries0(~x)::= makePropertyGridEntries("", x)
 
 $styleOptionAlternatives:= BaseStyle | DefaultDuplicateSectionStyle | DefaultNewSectionStyle | DefaultReturnCreatedSectionStyle
-makePropertyGridEntries(~pre, $styleOptionAlternatives -> ~s:String)::= {{makePropertyGridLabel(pre, BaseStyle), "\[Rule]", RawBoxes@{TemplateBox({s}, "StyleHyperlink"),"\[InvisibleSpace]"}}}
+makePropertyGridEntries(~pre, (l: $styleOptionAlternatives) -> ~s:String)::= {{makePropertyGridLabel(pre, l), "\[Rule]", RawBoxes@{TemplateBox({s}, "StyleHyperlink"),"\[InvisibleSpace]"}}}
 makePropertyGridEntries(~pre, Rule(~l, ~r))::=           {{makePropertyGridLabel(pre, l),         "\[Rule]",        makePropertyGridValue(r)}}
 makePropertyGridEntries(~pre, RuleDelayed(~l, ~r))::=    {{makePropertyGridLabel(pre, l),         "\[RuleDelayed]", makePropertyGridValue(HoldForm(r))}}
 makePropertyGridEntries(~pre, ~x)::=                     {{"",                                    "",               makePropertyGridValue(x)}}
