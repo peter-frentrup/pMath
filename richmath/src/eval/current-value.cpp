@@ -44,15 +44,23 @@ namespace richmath {
       
       static FrontEndObject *get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
       static Expr            get_AvailableMathFonts(FrontEndObject *obj, Expr item);
-      static Expr            get_CurrentValueProviders(FrontEndObject *obj, Expr item);
-      static Expr            get_MouseOver(FrontEndObject *obj, Expr item);
-      static Expr            get_DocumentScreenDpi(FrontEndObject *obj, Expr item);
       static Expr            get_ControlFont_data(FrontEndObject *obj, Expr item);
+      static Expr            get_CurrentValueProviders(FrontEndObject *obj, Expr item);
+      static Expr            get_DocumentScreenDpi(FrontEndObject *obj, Expr item);
+      static Expr            get_MouseOver(FrontEndObject *obj, Expr item);
       static Expr            get_SectionGroupOpen(FrontEndObject *obj, Expr item);
       static bool            put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr            get_Selectable(FrontEndObject *obj, Expr item);
       static Expr            get_SelectedMenuCommand(FrontEndObject *obj, Expr item);
       static FrontEndObject *get_StyleDefinitionsOwner_object(FrontEndObject *obj, Expr item);
+      
+      template <class T>
+      static FrontEndObject *get_parent_box(FrontEndObject *obj, Expr item) {
+        if(Box *box = dynamic_cast<Box*>(obj))
+          return box->find_parent<T>(true);
+        
+        return nullptr;
+      }
   };
 }
 
@@ -64,6 +72,7 @@ extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Selectable;
+extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_TemplateBox;
 extern pmath_symbol_t richmath_System_TemplateSlot;
 extern pmath_symbol_t richmath_System_True;
@@ -89,6 +98,7 @@ void CurrentValue::init() {
   register_provider(strings::ControlsFontWeight,          Impl::get_ControlFont_data);
   register_provider(strings::ControlsFontSize,            Impl::get_ControlFont_data);
   register_provider(strings::CurrentValueProviders,       Impl::get_CurrentValueProviders);
+  register_provider(Symbol(richmath_System_Section),      Impl::get_parent_box<Section>);
   register_provider(strings::SectionGroupOpen,            Impl::get_SectionGroupOpen,
                                                           Impl::put_SectionGroupOpen);
   register_provider(Symbol(richmath_System_Selectable),   Impl::get_Selectable,
