@@ -583,8 +583,25 @@ Document({
                         "HyperlinkActive", "StylesheetHyperlink"))), 
                     BaseStyle -> "Hyperlink", ButtonFunction -> (
                       DocumentOpen(#1) &), ButtonData -> FE`Private`path), 
-                   ToBoxes(FE`Private`path))))) &)})}, All), 
-        SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
+                   ToBoxes(FE`Private`path))))) &)}), 
+          Section(StyleData("StyleHyperlink"), 
+           FontColor -> RGBColor(0, 0, 0.502`), 
+           TemplateBoxOptions -> {
+             DisplayFunction -> (
+               DynamicBox(
+                With({
+                  FE`Private`content:= 
+                   Replace(CurrentValue({TemplateSlot, 1}), (
+                       List | /\/)(~~~FE`Private`str:String) :> 
+                     StringExpression(FE`Private`str))}, 
+                 ButtonBox(StyleBox(ToBoxes(FE`Private`content), 
+                   BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
+                      "HyperlinkActive", "StylesheetHyperlink"))), 
+                  BaseStyle -> "Hyperlink", ButtonFunction -> (
+                    FE`CallFrontEnd(FrontEnd`FindStyleDefinition(#1)) &), 
+                  ButtonData -> FE`Private`content))) &), Tooltip -> None})}, 
+         All), SectionGroup({
+          Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 
            Background -> RGBColor(1, 0.77000000000000002`, 
              0.77000000000000002`), FontColor -> GrayLevel(0.502`)), 

@@ -30,13 +30,56 @@ asStyleDataLabelBox(~labelTextBox)::=
         "SystemResetStyle", FontFamily->"Arial", ShowStringCharacters->False
     )
 
-asStyleDataExampleBox(~labelTextBox, ~exampleBox)::=
-    StyleBox(
-        GridBox( 
-            {{asStyleDataLabelBox(labelTextBox)}, {exampleBox}},
-            GridBoxRowSpacing -> 0), 
-        AutoSpacing->False)
+Function asStyleDataExampleBox(~labelTextBox, ~exampleBox) {
+    With(lbl:= asStyleDataLabelBox(labelTextBox))
 
+    TemplateBox({False}, "", Tooltip -> None, DisplayFunction -> Function(
+        StyleBox(
+            GridBox({{{lbl, OpenerBox(#1)}},
+                {PaneSelectorBox({True -> 
+                    GridBox({{"  ", ""}, {"", DynamicBox(asStyleDataLabelBox(
+                        ToBoxes @ Grid(
+                            DocumentGet(CurrentValue(Section)).Replace({
+                                    Section(~,~~~rest):>{rest}
+                                }, 0).Replace(
+                                    {{}->{"(nothing)"}
+                                }, 0).Map(makePropertyGridEntries0).Flatten(1)
+                        )))}, {"", ""}}, GridBoxRowSpacing -> 0.2)
+                }, #1)},
+                {exampleBox}},
+                BaselinePosition -> -1, GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0),
+            AutoSpacing->False)
+    ))
+}
+
+makePropertyGridEntries0(~x)::= makePropertyGridEntries("", x)
+
+$styleOptionAlternatives:= BaseStyle | DefaultDuplicateSectionStyle | DefaultNewSectionStyle | DefaultReturnCreatedSectionStyle
+makePropertyGridEntries(~pre, $styleOptionAlternatives -> ~s:String)::= {{makePropertyGridLabel(pre, BaseStyle), "\[Rule]", RawBoxes@{TemplateBox({s}, "StyleHyperlink"),"\[InvisibleSpace]"}}}
+makePropertyGridEntries(~pre, Rule(~l, ~r))::=           {{makePropertyGridLabel(pre, l),         "\[Rule]",        makePropertyGridValue(r)}}
+makePropertyGridEntries(~pre, RuleDelayed(~l, ~r))::=    {{makePropertyGridLabel(pre, l),         "\[RuleDelayed]", makePropertyGridValue(HoldForm(r))}}
+makePropertyGridEntries(~pre, ~x)::=                     {{"",                                    "",               makePropertyGridValue(x)}}
+Function makePropertyGridEntries(~pre, Rule(~l, r: {((Rule|RuleDelayed)(~,~))**})) {
+    {{makePropertyGridLabel(pre, l), "\[Rule]", "{\[Ellipsis]}:"}}.Join(
+        r.Map(Function(makePropertyGridEntries(pre ++ "  ", #))).Flatten(1))
+}
+Function makePropertyGridEntries(~pre, RuleDelayed(~l, r: {((Rule|RuleDelayed)(~,~))**})) {
+    {{makePropertyGridLabel(pre, l), "\[RuleDelayed]", "{\[Ellipsis]}:"}}.Join(
+        r.Map(Function(makePropertyGridEntries(pre ++ "  ", #))).Flatten(1))
+}
+
+makePropertyGridLabel(~pre, ~post)::= Row({pre, post})
+
+makePropertyGridSeparator(~f):=          RawBoxes(OverscriptBox("\[Rule]", ToBoxes(Shallow(f))))
+makePropertyGridSeparator(Rule):=        "\[Rule]"
+makePropertyGridSeparator(RuleDelayed):= "\[RuleDelayed]"
+
+makePropertyGridValue(~x)::= Short(x)
+makePropertyGridValue(d:Dynamic(~~~args))::= Grid({
+        {Short(HoldForm(HoldForm(Dynamic)(args)))}, 
+        {Short(d)}}, BaselinePosition -> 1)
+makePropertyGridValue(col: RGBColor(~,~,~))::= Row({Framed("    ", Background -> col), " ", Short(col)})
+makePropertyGridValue(col: GrayLevel(~))::=    Row({Framed("    ", Background -> col), " ", Short(col)})
 
 $DefaultDisplayFunction(~tag:String)::= Function(
     FrameBox(
