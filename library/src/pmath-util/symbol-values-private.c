@@ -756,7 +756,10 @@ static pmath_bool_t _pmath_multirule_change_ex(
         old_body = _pmath_object_atomic_read_start(&_rule->body);
         _pmath_object_atomic_read_end(&_rule->body, pmath_ref(body));
 
-        *did_any_change = !pmath_equals(old_body, body) || !pmath_equals(old_pat, pattern);
+        // Intentionally being sloppy here and using pmath_same instead of pmath_equals. 
+        // This could cause false positives, but no false negatives since !pmath_equals(A,B) implies !pmath_same(A,B).
+        *did_any_change = !pmath_same(old_body, body) || !pmath_same(old_pat, pattern);
+        
         pmath_unref(old_pat);
         pmath_unref(old_body);
       }
@@ -916,7 +919,9 @@ pmath_bool_t _pmath_rulecache_change(
     entry = pmath_ht_search(table, &pattern);
 
     if(entry) {
-      did_any_change = !pmath_equals(entry->value, body);
+      // Intentionally being sloppy here and using pmath_same instead of pmath_equals. 
+      // This could cause false positives, but no false negatives since !pmath_equals(A,B) implies !pmath_same(A,B).
+      did_any_change = !pmath_same(entry->value, body);
 
       pmath_unref(entry->key);
       pmath_unref(entry->value);
@@ -1167,7 +1172,9 @@ pmath_bool_t _pmath_symbol_define_value_pos(
 
   _pmath_object_atomic_write(value_position, pmath_ref(body));
 
-  did_any_change = !pmath_equals(body, value);
+  // Intentionally being sloppy here and using pmath_same instead of pmath_equals. 
+  // This could cause false positives, but no false negatives since !pmath_equals(A,B) implies !pmath_same(A,B).
+  did_any_change = !pmath_same(body, value);
 
   pmath_unref(value);
   pmath_unref(body);
