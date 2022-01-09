@@ -1889,6 +1889,10 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
 
     return expr;
   }
+  else if(pmath_atomic_read_aquire(&_expr->metadata) == (intptr_t)PMATH_AS_PTR(info)) {
+    pmath_unref(info);
+    return expr;
+  }
 
   switch(_expr->inherited.inherited.inherited.type_shift) {
     case PMATH_TYPE_SHIFT_EXPRESSION_GENERAL: {
@@ -1902,7 +1906,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
           return expr;
         }
         
-        //reset_expr_flags(new_expr); // only debug infor changed -> do not reset flags
+        //reset_expr_flags(new_expr); // only debug info changed -> do not reset flags
         pmath_atomic_write_release(&new_expr->metadata, (intptr_t)PMATH_AS_PTR(info));
 
         for(i = 0; i <= _expr->length; ++i)
@@ -1934,7 +1938,7 @@ pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
 
         new_expr_part->inherited.inherited.gc_refcount = 0;
         new_expr_part->inherited.length                = _expr->length;
-        //reset_expr_flags(new_expr); // only debug infor changed -> do not reset flags
+        //reset_expr_flags(new_expr); // only debug info changed -> do not reset flags
         pmath_atomic_write_release(&new_expr_part->inherited.metadata, (intptr_t)PMATH_AS_PTR(info));
         new_expr_part->inherited.items[0]              = pmath_ref(_expr->items[0]);
 
