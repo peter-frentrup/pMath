@@ -219,10 +219,10 @@
 		</Expand>
 	</Type>
 	<Type Name="_pmath_expr_t">
-		<DisplayString Condition="items[0].as_bits == pmath.dll!System_List_symbol.as_bits            &amp;&amp; length == 1">{{ {items[1]} }}</DisplayString>
-		<DisplayString Condition="items[0].as_bits == pmath.dll!System_List_symbol.as_bits            &amp;&amp; length == 2">{{ {items[1]}, {items[2]} }}</DisplayString>
-		<DisplayString Condition="items[0].as_bits == pmath.dll!System_List_symbol.as_bits            &amp;&amp; length == 3">{{ {items[1]}, {items[2]}, {items[3]} }}</DisplayString>
-		<DisplayString Condition="items[0].as_bits == pmath.dll!System_List_symbol.as_bits            &amp;&amp; length == 4">{{ {items[1]}, {items[2]}, {items[3]}, {items[4]} }}</DisplayString>
+		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_List.as_bits             &amp;&amp; length == 1">{{ {items[1]} }}</DisplayString>
+		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_List.as_bits             &amp;&amp; length == 2">{{ {items[1]}, {items[2]} }}</DisplayString>
+		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_List.as_bits             &amp;&amp; length == 3">{{ {items[1]}, {items[2]}, {items[3]} }}</DisplayString>
+		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_List.as_bits             &amp;&amp; length == 4">{{ {items[1]}, {items[2]}, {items[3]}, {items[4]} }}</DisplayString>
 		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_Range.as_bits            &amp;&amp; length == 2">{items[1]} .. {items[2]}</DisplayString>
 		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_Rule.as_bits             &amp;&amp; length == 2">{items[1]} -&gt; {items[2]}</DisplayString>
 		<DisplayString Condition="items[0].as_bits == pmath.dll!pmath_System_RuleDelayed.as_bits      &amp;&amp; length == 2">{items[1]} :&gt; {items[2]}</DisplayString>
@@ -495,9 +495,6 @@
 						</Elseif>
 						<Elseif Condition="klass == &amp;pmath.dll!doorman_table_class">
 							<Item Name="[{(*(pmath.dll!_pmath_doorman_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_doorman_entry_t*)*pBucket</Item>
-						</Elseif>
-						<Elseif Condition="klass == &amp;pmath.dll!function_table_class">
-							<Item Name="[{(*(pmath.dll!func_entry_t*)*pBucket).key}]">(*(pmath.dll!func_entry_t*)*pBucket).function</Item>
 						</Elseif>
 						<Else>
 							<Item Name="&lt;{iFound}&gt;">*pBucket</Item>

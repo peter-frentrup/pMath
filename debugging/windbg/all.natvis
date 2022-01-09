@@ -496,9 +496,6 @@
 						<Elseif Condition="klass == &amp;pmath.dll!doorman_table_class">
 							<Item Name="[{(*(pmath.dll!_pmath_doorman_entry_t*)*pBucket).key}]">*(pmath.dll!_pmath_doorman_entry_t*)*pBucket</Item>
 						</Elseif>
-						<Elseif Condition="klass == &amp;pmath.dll!function_table_class">
-							<Item Name="[{(*(pmath.dll!func_entry_t*)*pBucket).key}]">(*(pmath.dll!func_entry_t*)*pBucket).function</Item>
-						</Elseif>
 						<Else>
 							<Item Name="&lt;{iFound}&gt;">*pBucket</Item>
 						</Else>
