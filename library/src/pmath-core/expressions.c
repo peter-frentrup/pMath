@@ -1866,7 +1866,7 @@ PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
 PMATH_PRIVATE
 pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
   struct _pmath_expr_t *_expr;
-
+  
   if(!pmath_is_pointer(info))
     return expr;
 
@@ -2233,9 +2233,17 @@ static int compare_expr_general(pmath_expr_t a, pmath_expr_t b) {
   
   a_len = pmath_expr_length(a);
   b_len = pmath_expr_length(b);
-  if(a_len < b_len) return -1;
-  if(a_len > b_len) return +1;
-
+  if(a_len < b_len) {
+    pmath_unref(a_head);
+    pmath_unref(b_head);
+    return -1;
+  }
+  if(a_len > b_len) {
+    pmath_unref(a_head);
+    pmath_unref(b_head);
+    return +1;
+  }
+  
   cmp = pmath_compare(a_head, b_head);
   pmath_unref(a_head);
   pmath_unref(b_head);
