@@ -119,6 +119,7 @@ static pmath_t block_impl(pmath_expr_t expr, enum _pmath_clear_flags_t clear_fla
       assign = pmath_evaluate(assign);
       
       _pmath_symbol_lost_dynamic_tracker(sym, 0, sym_tracker_id);
+      pmath_unref(sym);
     }
     pmath_unref(assign);
   }
@@ -168,6 +169,7 @@ static pmath_bool_t check_block_vars(pmath_t vars) {
         continue;
       }
       
+      pmath_unref(lhs);
     }
     
     pmath_message(PMATH_NULL, "vsym", 2, pmath_ref(vars), def);
