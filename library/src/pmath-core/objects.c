@@ -92,21 +92,26 @@ _pmath_timer_t _pmath_timer_get_next(void) {
 /*============================================================================*/
 
 PMATH_API void _pmath_destroy_object(pmath_t obj) {
+  struct _pmath_t *ptr;
+  
   assert(pmath_is_pointer(obj));
   assert(!pmath_is_null(obj));
   
+  ptr = PMATH_AS_PTR(obj);
+  
 #ifdef PMATH_DEBUG_LOG
-  if(! PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift)) {
-    fprintf(stderr, "[invalid type shift: %p, %d]\n",
-            PMATH_AS_PTR(obj), PMATH_AS_PTR(obj)->type_shift);
+  if(! PMATH_VALID_TYPE_SHIFT(ptr->type_shift)) {
+    fprintf(stderr, "[invalid type shift: %p, %d]\n", ptr, ptr->type_shift);
   }
 #endif
   
-  assert(PMATH_VALID_TYPE_SHIFT(PMATH_AS_PTR(obj)->type_shift));
-  assert(pmath_refcount(obj) == 0 || PMATH_AS_PTR(obj)->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
+  //PMATH_OBJECT_MARK_DELETION_TRAP(ptr);
   
-  if(pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].destroy)
-    pmath_type_imps[PMATH_AS_PTR(obj)->type_shift].destroy(obj);
+  assert(PMATH_VALID_TYPE_SHIFT(ptr->type_shift));
+  assert(pmath_refcount(obj) == 0 || ptr->type_shift == PMATH_TYPE_SHIFT_SYMBOL);
+  
+  if(PMATH_LIKELY(pmath_type_imps[ptr->type_shift].destroy))
+    pmath_type_imps[ptr->type_shift].destroy(obj);
 }
 
 PMATH_API unsigned int pmath_hash(pmath_t obj) {

@@ -61,6 +61,8 @@ static unsigned int hash_blob(pmath_t a) {
 static void destroy_blob(pmath_t a) {
   struct _pmath_blob_t *_blob = (struct _pmath_blob_t *)PMATH_AS_PTR(a);
   
+  PMATH_OBJECT_MARK_DELETION_TRAP(&_blob->inherited);
+  
   if(_blob->destructor)
     _blob->destructor(_blob->data);
     
@@ -242,6 +244,8 @@ PMATH_STATIC_ASSERT(sizeof(unsigned) == sizeof(uint32_t));
 
 static void destroy_packed_array(pmath_t a) {
   struct _pmath_packed_array_t *_array = (void *)PMATH_AS_PTR(a);
+  
+  PMATH_OBJECT_MARK_DELETION_TRAP(&_array->inherited);
   
   if(PMATH_LIKELY(_array->blob != NULL))
     _pmath_unref_ptr((void *)_array->blob);

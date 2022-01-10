@@ -75,6 +75,12 @@ struct _pmath_gc_t { // expr and symbol inherit from this
 #  define PMATH_GC_FLAGS32(PTR)  ((PTR)->inherited.inherited.padding_flags32)
 #endif
 
+#ifdef PMATH_DEBUG_LOG
+#  define PMATH_OBJECT_MARK_DELETION_TRAP(_obj_ptr)   ((void)pmath_atomic_or_uint8(&(_obj_ptr)->flags8, PMATH_OBJECT_FLAGS8_TRAP_DELETED))
+#else
+#  define PMATH_OBJECT_MARK_DELETION_TRAP(_obj_ptr)   ((void)0)
+#endif
+
 PMATH_PRIVATE
 _pmath_timer_t _pmath_timer_get(void);
 

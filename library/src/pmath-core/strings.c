@@ -469,7 +469,9 @@ struct _pmath_string_t *enlarge_string_2(
 
 static void destroy_string(pmath_t p) {
   struct _pmath_string_t *str = (void *)PMATH_AS_PTR(p);
-
+  
+  PMATH_OBJECT_MARK_DELETION_TRAP(&str->inherited);
+  
   if(str->debug_info)
     _pmath_unref_ptr(str->debug_info);
   if(str->buffer)

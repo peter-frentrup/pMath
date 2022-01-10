@@ -98,6 +98,8 @@ static unsigned int hash_custom(pmath_t a) {
 static void destroy_custom(pmath_t a) {
   struct _pmath_custom_t *custom = (struct _pmath_custom_t *)PMATH_AS_PTR(a);
 
+  PMATH_OBJECT_MARK_DELETION_TRAP(&custom->inherited);
+  
   custom->destructor(custom->data);
   pmath_unref(custom->attached_object);
   pmath_mem_free(custom);

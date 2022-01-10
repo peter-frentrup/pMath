@@ -115,7 +115,9 @@ PMATH_PRIVATE pmath_mpint_t _pmath_create_mp_int(signed long value) {
 #endif
     
     assert(integer->inherited.refcount._data == 0);
-    pmath_atomic_write_release(&integer->inherited.refcount, 1);
+    pmath_atomic_write_uint8_release( &integer->inherited.flags8,  0);
+    pmath_atomic_write_uint16_release(&integer->inherited.flags16, 0);
+    pmath_atomic_write_release(       &integer->inherited.refcount, 1);
     
     mpz_set_si(integer->value, value);
     
@@ -255,7 +257,9 @@ PMATH_PRIVATE pmath_float_t _pmath_create_mp_float(slong precision) {
 #endif
     
     assert(f->inherited.refcount._data == 0);
-    pmath_atomic_write_release(&f->inherited.refcount, 1);
+    pmath_atomic_write_uint8_release( &f->inherited.flags8,  0);
+    pmath_atomic_write_uint16_release(&f->inherited.flags16, 0);
+    pmath_atomic_write_release(       &f->inherited.refcount, 1);
     
     f->working_precision = precision;
     return PMATH_FROM_PTR(f);
@@ -1387,6 +1391,9 @@ static void destroy_mp_int(pmath_t integer) {
   assert(pmath_refcount(integer) == 0);
   
   int_ptr = (void *)PMATH_AS_PTR(integer);
+  
+  PMATH_OBJECT_MARK_DELETION_TRAP(&int_ptr->inherited);
+  
   int_ptr = int_cache_swap(i, int_ptr);
   if(int_ptr) {
     assert(int_ptr->inherited.refcount._data == 0);
@@ -1511,6 +1518,8 @@ static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer) {
 static void destroy_quotient(pmath_t quotient) {
   assert(pmath_refcount(quotient) == 0);
   
+  PMATH_OBJECT_MARK_DELETION_TRAP(PMATH_AS_PTR(quotient));
+  
   pmath_unref(PMATH_QUOT_NUM(quotient));
   pmath_unref(PMATH_QUOT_DEN(quotient));
   
@@ -1543,6 +1552,9 @@ static void destroy_mp_float(pmath_t f) {
   assert(pmath_refcount(f) == 0);
   
   f_ptr = (void *)PMATH_AS_PTR(f);
+  
+  PMATH_OBJECT_MARK_DELETION_TRAP(&f_ptr->inherited);
+  
   f_ptr = mp_cache_swap(i, f_ptr);
   if(f_ptr) {
     assert(f_ptr->inherited.refcount._data == 0);

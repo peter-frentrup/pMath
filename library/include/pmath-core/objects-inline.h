@@ -15,7 +15,8 @@ struct _pmath_t { // do not access members
   pmath_atomic_t refcount;
 };
 
-#define  PMATH_OBJECT_FLAGS8_VALID   (0x01u)
+#define  PMATH_OBJECT_FLAGS8_VALID         ((uint8_t)0x01u)
+#define  PMATH_OBJECT_FLAGS8_TRAP_DELETED  ((uint8_t)0x02u)
 
 /*============================================================================*/
 
@@ -282,18 +283,27 @@ void _pmath_destroy_object(pmath_t obj);
 PMATH_FORCE_INLINE
 PMATH_ATTRIBUTE_USE_RESULT
 pmath_t pmath_ref(pmath_t obj) {
+  struct _pmath_t *ptr;
+  
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return obj;
     
-  if(PMATH_UNLIKELY(PMATH_AS_PTR(obj) == NULL))
+  ptr = PMATH_AS_PTR(obj);
+  if(PMATH_UNLIKELY(ptr == NULL))
     return obj;
-    
+  
+#ifdef PMATH_DEBUG_LOG
+  if(PMATH_UNLIKELY(pmath_atomic_read_uint8_aquire(&ptr->flags8) & PMATH_OBJECT_FLAGS8_TRAP_DELETED)) {
+    assert("referencing deleted object" && 0);
+  }
+#endif
+  
 #ifndef PMATH_DEBUG_LOG
-  (void)pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1);
+  (void)pmath_atomic_fetch_add(&(ptr->refcount), 1);
 #else
-  if(pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), 1) == 0) {
+  if(pmath_atomic_fetch_add(&(ptr->refcount), 1) == 0) {
 #  ifndef NDEBUG
-    if(PMATH_AS_PTR(obj)->type_shift != PMATH_TYPE_SHIFT_SYMBOL) {
+    if(ptr->type_shift != PMATH_TYPE_SHIFT_SYMBOL) {
       assert("referencing deleted object" && 0);
     }
 #  endif
@@ -310,14 +320,23 @@ pmath_t pmath_ref(pmath_t obj) {
  */
 PMATH_FORCE_INLINE
 void pmath_unref(pmath_t obj) {
+  struct _pmath_t *ptr;
+  
   if(PMATH_UNLIKELY(!pmath_is_pointer(obj)))
     return;
-    
-  if(PMATH_UNLIKELY(PMATH_AS_PTR(obj) == NULL))
+  
+  ptr = PMATH_AS_PTR(obj);
+  if(PMATH_UNLIKELY(ptr == NULL))
     return;
     
+#ifdef PMATH_DEBUG_LOG
+  if(PMATH_UNLIKELY(pmath_atomic_read_uint8_aquire(&ptr->flags8) & PMATH_OBJECT_FLAGS8_TRAP_DELETED)) {
+    assert("unref deleted object" && 0);
+  }
+#endif
+  
   pmath_atomic_barrier();
-  if(1 == pmath_atomic_fetch_add(&(PMATH_AS_PTR(obj)->refcount), -1)) { // was 1 -> is 0
+  if(1 == pmath_atomic_fetch_add(&(ptr->refcount), -1)) { // was 1 -> is 0
     _pmath_destroy_object(obj);
   }
   pmath_atomic_barrier();
