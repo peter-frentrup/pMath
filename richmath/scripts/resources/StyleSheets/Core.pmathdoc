@@ -213,23 +213,50 @@ Document({
           Section(StyleData("MessageMenuButton"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
-               ButtonBox("\[Ellipsis]", ContentPadding -> False, 
-                BaselinePosition -> Center -> Axis, 
-                ButtonFunction -> (
-                  CreateDocument({
-                    Section(
-                     BoxData(ToBoxes(CurrentValue({
-                         TemplateSlot, Key(MessageName)}))), "Section"), 
-                    Section(
-                     BoxData(ToBoxes(CurrentValue({
-                         TemplateSlot, Key(Message)}))), "Message"), 
-                    SectionGroup(
-                     Map(
-                      Reverse(Replace(CurrentValue({
-                          TemplateSlot, Key(Stack)}), $Failed -> {})), 
-                      Section(
-                        BoxData(ToBoxes(Developer`Private`stackEntryForm(
-                           #1))), "Output") &))}) &)) &)}), 
+               DynamicLocalBox({FE`Private`msgStackPopup}, 
+                ButtonBox("\[Ellipsis]", ContentPadding -> False, 
+                 BaselinePosition -> Center -> Axis, 
+                 ButtonFunction -> (
+                   Replace(CurrentValue(FE`Private`msgStackPopup, Visible), {
+                     True :> (CurrentValue(FE`Private`msgStackPopup, 
+                        Visible):= False), 
+                     False :> (CurrentValue(FE`Private`msgStackPopup, 
+                        Visible):= True), 
+                     $Failed :> (FE`Private`msgStackPopup:= 
+                       FE`AttachBoxes(EvaluationBox(), Bottom, 
+                        SectionGroup({Section(BoxData({}), "", FontSize -> 1, 
+                           SectionMargins -> {300, 0, 0, 0}), 
+                          Section(BoxData({
+                             ToBoxes(CurrentValue({
+                                TemplateSlot, Key(MessageName)})), 
+                             FillBox(""), TooltipBox(
+                              ButtonBox("\" \[UpperRightArrow] \"", 
+                               ButtonFunction -> (
+                                 CreateDocument(
+                                  First(DocumentGet(EvaluationDocument())), 
+                                  WindowTitle -> 
+                                   ToString(Colon(CurrentValue({
+                                       TemplateSlot, Key(MessageName)}), 
+                                     CurrentValue({TemplateSlot, 
+                                       Key(Message)})))) &)), 
+                              TextData("Open in separate window"))}), 
+                           "Section", SectionMargins -> {5, 2}, 
+                           SectionFrame -> 0), 
+                          Section(
+                           BoxData(ToBoxes(CurrentValue({
+                               TemplateSlot, Key(Message)}))), "Message", 
+                           SectionMargins -> {5, 2}), 
+                          SectionGroup(
+                           Map(Reverse(
+                             Replace(CurrentValue({TemplateSlot, Key(Stack)}), 
+                              $Failed -> {})), 
+                            Section(
+                              BoxData(ToBoxes(Developer`Private`stackEntryForm(
+                                 #1))), "Output", SectionMargins -> {
+                                5, 2}) &))}), "ClosingAction" -> "Hide", 
+                        RemovalConditions -> {"OutsideMouseClick", 
+                          "SelectionExit"}, WindowFrame -> 
+                         "ThinFrame"))}) &))) &)}), 
           Section(StyleData("OpenerView"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
