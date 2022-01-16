@@ -3490,9 +3490,10 @@ WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {
   _int_to_expr.default_value = Expr();
   _expr_to_int.default_value = -1;
   
-  add(WindowFrameNone,    Symbol(richmath_System_None));
-  add(WindowFrameNormal,  strings::Normal);
-  add(WindowFrameDialog,  String("Dialog"));
-  add(WindowFramePalette, strings::Palette);
-  add(WindowFrameThin,    String("ThinFrame"));
+  add(WindowFrameNone,        Symbol(richmath_System_None));
+  add(WindowFrameNormal,      strings::Normal);
+  add(WindowFrameDialog,      String("Dialog"));
+  add(WindowFramePalette,     strings::Palette);
+  add(WindowFrameThin,        String("ThinFrame"));
+  add(WindowFrameThinCallout, String("ThinFrameCallout"));
 }

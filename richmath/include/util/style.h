@@ -189,11 +189,12 @@ namespace richmath {
   };
   
   enum WindowFrameType {
-    WindowFrameNormal  = 0,
-    WindowFramePalette = 1,
-    WindowFrameDialog  = 2,
-    WindowFrameNone    = 3,
-    WindowFrameThin    = 4
+    WindowFrameNormal      = 0,
+    WindowFramePalette     = 1,
+    WindowFrameDialog      = 2,
+    WindowFrameNone        = 3,
+    WindowFrameThin        = 4,
+    WindowFrameThinCallout = 5,
   };
   
   static const float ImageSizeAutomatic = -1.0f;

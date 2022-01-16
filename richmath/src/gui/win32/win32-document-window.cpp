@@ -1129,6 +1129,7 @@ void Win32DocumentWindow::window_frame(WindowFrameType type) {
       break;
       
     case WindowFrameThin: 
+    case WindowFrameThinCallout: 
       {
         _working_area->auto_size                    = true;
         _working_area->_autohide_vertical_scrollbar = true;

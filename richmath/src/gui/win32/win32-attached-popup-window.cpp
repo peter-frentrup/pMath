@@ -30,18 +30,34 @@ namespace richmath {
       
       Win32Widget *owner_widget();
       bool find_anchor_screen_position(RectangleF &target_rect);
+      void adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, RectangleF &target_rect);
       
       void on_windowposchanged(const WINDOWPOS &wp);
 
       static const wchar_t class_name[];
+    
+    private:
+      bool on_nccalcsize_simple(RECT &rect, LRESULT &res);
+      bool on_nccalcsize_complex(NCCALCSIZE_PARAMS &params, LRESULT &res);
+    public:
+      bool on_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res);
+      int triangle_tip_size();
+      void update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect);
+      
+      bool on_ncpaint(HRGN clipRgn);
       
     private:
       Win32AttachedPopupWindow &self;
+  };
+  
+  enum class Side {
+    Bottom, Left, Right, Top, 
   };
 }
 
 using namespace richmath;
 
+static Side control_placement_side(ControlPlacementKind cpk);
 
 const wchar_t Win32AttachedPopupWindow::Impl::class_name[] = L"RichmathWin32Popup";
 
@@ -103,6 +119,7 @@ void Win32AttachedPopupWindow::invalidate_options() {
       break;
     
     case WindowFrameThin:
+    case WindowFrameThinCallout:
       SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) | WS_BORDER);
       break;
   }
@@ -163,6 +180,10 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
     auto cpk = (ControlPlacementKind)document()->get_own_style(ControlPlacement, ControlPlacementKindBottom);
     RectangleF target_rect;
     if(visible && Impl(*this).find_anchor_screen_position(target_rect)) {
+      auto wft = (WindowFrameType)document()->get_own_style(WindowFrame);
+      
+      Impl(*this).adjust_target_rect(wft, cpk, target_rect);
+      
       RECT rect;
       GetWindowRect(_hwnd, &rect);
             
@@ -202,6 +223,8 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
       
       if(!IsWindowVisible(_hwnd))
         flags |= SWP_SHOWWINDOW;
+      
+      Impl(*this).update_window_shape(wft, cpk, popup_rect, target_rect);
       
       SetWindowPos(
         _hwnd, nullptr,
@@ -299,6 +322,17 @@ LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM l
           //close();
         }
         break;
+      
+      case WM_NCCALCSIZE: {
+        LRESULT res = 0;
+        if(Impl(*this).on_nccalcsize(wParam, lParam, res))
+          return res;
+      } break;
+      
+      case WM_NCPAINT: {
+        if(Impl(*this).on_ncpaint((HRGN)wParam))
+          return 0;
+      } break;
         
       case WM_WINDOWPOSCHANGED: 
         Impl(*this).on_windowposchanged(*(const WINDOWPOS*)lParam);
@@ -395,6 +429,31 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   return true;
 }
 
+void Win32AttachedPopupWindow::Impl::adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, RectangleF &target_rect) {
+  switch(wft) {
+    case WindowFrameThinCallout: {
+      int tri_size = triangle_tip_size();
+      int inset = tri_size / 4;
+//      int min_size = tri_size;
+      switch(control_placement_side(cpk)) {
+        case Side::Left: 
+        case Side::Right: 
+          target_rect.grow(-inset, 0);
+//          if(target_rect.height < min_size)
+//            target_rect.grow(0, min_size - target_rect.height);
+          break;
+        
+        case Side::Top:
+        case Side::Bottom: 
+          target_rect.grow(0, -inset);
+//          if(target_rect.width < min_size)
+//            target_rect.grow(min_size - target_rect.width, 0);
+          break;
+       }
+     } break;
+  }
+}
+
 void Win32AttachedPopupWindow::Impl::on_windowposchanged(const WINDOWPOS &wp) {
   if(wp.flags & SWP_HIDEWINDOW) {
     self.document()->invalidate_popup_window_positions();
@@ -407,4 +466,195 @@ void Win32AttachedPopupWindow::Impl::on_windowposchanged(const WINDOWPOS &wp) {
   }
 }
 
+bool Win32AttachedPopupWindow::Impl::on_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res) {
+  if(wParam)
+    return on_nccalcsize_complex(*(NCCALCSIZE_PARAMS*)lParam, res);
+  else
+    return on_nccalcsize_simple(*(RECT*)lParam, res);
+}
+
+bool Win32AttachedPopupWindow::Impl::on_nccalcsize_simple(RECT &rect, LRESULT &res) {
+  switch(self.document()->get_own_style(WindowFrame)) {
+    case WindowFrameThinCallout: {
+      auto side = control_placement_side((ControlPlacementKind)self.document()->get_own_style(ControlPlacement, ControlPlacementKindBottom));
+      switch(side) {
+        case Side::Left:   rect.right-=  triangle_tip_size(); break;
+        case Side::Right:  rect.left+=   triangle_tip_size(); break;
+        case Side::Top:    rect.bottom-= triangle_tip_size(); break;
+        case Side::Bottom: rect.top+=    triangle_tip_size(); break;
+      }
+      
+      rect.top+=    2;
+      rect.left+=   2;
+      rect.right-=  2;
+      rect.bottom-= 2;
+      res = 0;
+      return true;
+    } break;
+  }
+  return false;
+}
+
+bool Win32AttachedPopupWindow::Impl::on_nccalcsize_complex(NCCALCSIZE_PARAMS &params, LRESULT &res) {
+  if(!on_nccalcsize_simple(params.rgrc[0], res))
+    return false;
+  
+  //return false;
+  res = 0;
+  return true;
+}
+
+int Win32AttachedPopupWindow::Impl::triangle_tip_size() {
+  int dpi = Win32HighDpi::get_dpi_for_window(self.hwnd());
+  
+  int size = MulDiv(20, dpi, 96);
+  
+  RECT rect;
+  if(GetWindowRect(self.hwnd(), &rect)) {
+    int width = rect.right - rect.left;
+    int height = rect.bottom - rect.top;
+    
+    int max_size = std::min(width, height) / 2;
+    if(size > max_size)
+      size = max_size;
+  }
+  
+  return size;
+}
+
+void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect) {
+  switch(wft) {
+    case WindowFrameThinCallout: {
+      auto side = control_placement_side(cpk);
+      Interval<float> main_side(0,0);
+      Interval<float> common(0,0);
+      switch(side) {
+        case Side::Left:
+        case Side::Right:
+          main_side = window_rect.y_interval();
+          common = main_side.intersect(target_rect.y_interval());
+          break;
+        
+        case Side::Top:
+        case Side::Bottom:
+          main_side = window_rect.x_interval();
+          common = main_side.intersect(target_rect.x_interval());
+          break;
+      }
+      
+      auto tip_size = triangle_tip_size();
+      auto main_center   = main_side.from + main_side.length() / 2;
+      int triangle_base_direction = 1; // -1 = /|   0 = /\   1 = |\  .
+      if(common.to < main_side.from + main_side.length() / 3)
+        triangle_base_direction = 1;
+      else if(common.from > main_side.to - main_side.length() / 3)
+        triangle_base_direction = -1;
+      else
+        triangle_base_direction = 0;
+        
+      auto triangle_height = (triangle_base_direction == 0) ? tip_size - tip_size/4 : tip_size;
+      auto common_center = common.from + common.length() / 2;
+      Interval<float> triangle_range {
+        common_center - (triangle_base_direction <= 0 ? triangle_height : 0), 
+        common_center + (triangle_base_direction >= 0 ? triangle_height : 0)};
+      
+      triangle_range = main_side.snap(triangle_range);
+      
+      RECT main_rect;
+      main_rect.left   = 0;
+      main_rect.top    = 0;
+      main_rect.right  = (int)window_rect.width;
+      main_rect.bottom = (int)window_rect.height;
+      
+      POINT triangle_points[3];
+      switch(side) {
+        case Side::Left:
+        case Side::Right:
+          triangle_points[0].y = (int)triangle_range.from - window_rect.y;
+          triangle_points[1].y = (int)common_center       - window_rect.y;
+          triangle_points[2].y = (int)triangle_range.to   - window_rect.y;
+          break;
+        
+        case Side::Top:
+        case Side::Bottom:
+          triangle_points[0].x = (int)triangle_range.from - window_rect.x;
+          triangle_points[1].x = (int)common_center       - window_rect.x;
+          triangle_points[2].x = (int)triangle_range.to   - window_rect.x;
+          break;
+      }
+      
+      switch(side) {
+        case Side::Left:   triangle_points[1].x = main_rect.right  ; break;
+        case Side::Right:  triangle_points[1].x = main_rect.left   ; break;
+        case Side::Top:    triangle_points[1].y = main_rect.bottom ; break;
+        case Side::Bottom: triangle_points[1].y = main_rect.top    ; break;
+      }
+      
+      switch(side) {
+        case Side::Left:   triangle_points[0].x = triangle_points[1].x = triangle_points[2].x = main_rect.right  -= tip_size; break;
+        case Side::Right:  triangle_points[0].x = triangle_points[1].x = triangle_points[2].x = main_rect.left   += tip_size; break;
+        case Side::Top:    triangle_points[0].y = triangle_points[1].y = triangle_points[2].y = main_rect.bottom -= tip_size; break;
+        case Side::Bottom: triangle_points[0].y = triangle_points[1].y = triangle_points[2].y = main_rect.top    += tip_size; break;
+      }
+      
+      switch(side) {
+        case Side::Left:   triangle_points[1].x += triangle_height; break;
+        case Side::Right:  triangle_points[1].x -= triangle_height; break;
+        case Side::Top:    triangle_points[1].y += triangle_height; break;
+        case Side::Bottom: triangle_points[1].y -= triangle_height; break;
+      }
+      
+      HRGN triangle_rgn = CreatePolygonRgn(triangle_points, 3, WINDING);
+      HRGN rgn = CreateRectRgnIndirect(&main_rect);
+      CombineRgn(rgn, rgn, triangle_rgn, RGN_OR);
+      DeleteObject(triangle_rgn);
+      SetWindowRgn(self.hwnd(), rgn, TRUE);
+    } break;
+  }
+}
+
+bool Win32AttachedPopupWindow::Impl::on_ncpaint(HRGN clipRgn) {
+  bool success = false;
+  
+  switch(self.document()->get_own_style(WindowFrame)) {
+    case WindowFrameThinCallout: {
+      HRGN hrgn = CreateRectRgn(0,0,0,0);
+      int region_type = GetWindowRgn(self.hwnd(), hrgn);
+      if(region_type != ERROR) {
+        HDC hdc = GetDCEx(self.hwnd(), clipRgn, DCX_CACHE | DCX_WINDOW | DCX_INTERSECTRGN); //
+        
+        if(Color bg = self.document()->get_style(Background, Color::None)) {
+          HBRUSH hbr = CreateSolidBrush(bg.to_bgr24());
+          FillRgn(hdc, hrgn, hbr);
+          DeleteObject(hbr);
+        }
+        else if(self.is_using_dark_mode()) {
+          HBRUSH hbr = CreateSolidBrush(Win32ControlPainter::win32_painter.win32_button_face_color(true).to_bgr24());
+          FillRgn(hdc, hrgn, hbr);
+          DeleteObject(hbr);
+        }
+        else {
+          FillRgn(hdc, hrgn, GetSysColorBrush(COLOR_BTNFACE));
+        }
+        FrameRgn(hdc, hrgn, GetSysColorBrush(COLOR_WINDOWFRAME), 1, 1);
+        
+        ReleaseDC(self.hwnd(), hdc);
+        success = true;
+      }
+      DeleteObject(hrgn);
+    } break;
+  }
+  return success;
+}
+
 //} ... class Win32AttachedPopupWindow::Impl
+
+static Side control_placement_side(ControlPlacementKind cpk) {
+  switch(cpk) {
+    case ControlPlacementKindLeft:   return Side::Left;
+    case ControlPlacementKindRight:  return Side::Right;
+    case ControlPlacementKindTop:    return Side::Top;
+    default:
+    case ControlPlacementKindBottom: return Side::Bottom;
+  }
+}
