@@ -20,7 +20,6 @@ namespace richmath {
     Interval<float> popup_placement_after( Interval<float> target, float size, Interval<float> outer);
     Interval<float> popup_placement_at(    Interval<float> target, float size, Interval<float> outer);
     
-    Interval<int> popup_placement_horz(Interval<int> target, int size, ControlPlacementKind cpk, Interval<int> outer);
     RectangleF popup_placement(const RectangleF &target_rect, Vector2F size, ControlPlacementKind cpk, const RectangleF &monitor);
     RectangleF popup_placement(const RectangleF &target_rect, Vector2F size, ControlPlacementKind cpk);
   }
