@@ -20,17 +20,17 @@ namespace richmath {
     Interval &operator+=(T val) { from+= val; to+= val; return *this; }
     Interval &operator-=(T val) { from-= val; to-= val; return *this; }
     
-    auto length() -> decltype(to - from) { return to - from; }
-    bool contains(T x) { return from <= x && x <= to; }
-    bool contains(const Interval<T> &other) { return from <= other.from && other.to <= to; }
-    T nearest(T x) { return (from < x) ? ((x < to) ? x : to) : from; }
-    Interval<T> snap(Interval<T> inner);
-    Interval<T> intersect(Interval<T> other);
-    Interval<T> union_hull(Interval<T> other);
+    auto length() const -> decltype(to - from) { return to - from; }
+    bool contains(T x) const { return from <= x && x <= to; }
+    bool contains(const Interval<T> &other) const { return from <= other.from && other.to <= to; }
+    T nearest(T x) const { return (from < x) ? ((x < to) ? x : to) : from; }
+    Interval<T> snap(Interval<T> inner) const;
+    Interval<T> intersect(Interval<T> other) const;
+    Interval<T> union_hull(Interval<T> other) const;
   };
   
   template<typename T>
-  inline Interval<T> Interval<T>::snap(Interval<T> inner) {
+  inline Interval<T> Interval<T>::snap(Interval<T> inner) const {
     if(inner.from < from) {
       inner.to = from + inner.length();
       inner.from = from;
@@ -55,7 +55,7 @@ namespace richmath {
   }
   
   template<typename T>
-  inline Interval<T> Interval<T>::intersect(Interval<T> other) {
+  inline Interval<T> Interval<T>::intersect(Interval<T> other) const {
     if(other.from < from)
       other.from = from;
     if(to < other.to)
@@ -64,7 +64,7 @@ namespace richmath {
   }
   
   template<typename T>
-  inline Interval<T> Interval<T>::union_hull(Interval<T> other) {
+  inline Interval<T> Interval<T>::union_hull(Interval<T> other) const {
     if(from < other.from)
       other.from = from;
     if(other.to < to)
