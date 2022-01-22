@@ -173,6 +173,25 @@ void RectangleF::grow(float dx, float dy) {
   height += 2 * dy;
 }
 
+void RectangleF::grow(Side side, float delta) {
+  switch(side) {
+    case Side::Left:
+      x-= delta;
+      width+= delta;
+      break;
+    case Side::Right:
+      width+= delta;
+      break;
+    case Side::Top:
+      y-= delta;
+      height+= delta;
+      break;
+    case Side::Bottom:
+      height+= delta;
+      break;
+  }
+}
+
 void RectangleF::add_round_rect_path(Canvas &canvas, const BoxRadius &radii, bool negative) const {
   canvas.new_sub_path();
   

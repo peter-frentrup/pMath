@@ -13,6 +13,15 @@ namespace richmath {
   class BoxRadius;
   class Point;
   
+  enum class Side {
+    Left   = 0,
+    Top    = 1,
+    Right  = 2, 
+    Bottom = 3 
+  };
+  
+  static Side opposite_side(Side side) { return (Side)(((int)side + 2) % 4); }
+  
   class Vector2F final {
     public:
       Vector2F() : x(0), y(0) {}
@@ -148,6 +157,7 @@ namespace richmath {
       void grow(float delta) {           grow(delta, delta); }
       void grow(const Vector2F &delta) { grow(delta.x, delta.y); }
       void grow(float dx, float dy);
+      void grow(Side side, float delta);
       RectangleF enlarged_by(float dx, float dy) const { RectangleF rect = *this; rect.grow(dx, dy); return rect; }
       
       // radii: assuming Y axis goes "down", X axis goes "right", all is normalized

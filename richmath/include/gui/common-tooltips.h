@@ -13,6 +13,8 @@ namespace richmath {
   class Document;
   class Stylesheet;
   
+  extern Side control_placement_side(ControlPlacementKind cpk);
+  
   namespace CommonTooltips {
     void load_content(Document *doc, const pmath::Expr &boxes, SharedPtr<Stylesheet> stylesheet);
     

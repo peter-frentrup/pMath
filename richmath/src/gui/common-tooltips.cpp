@@ -100,3 +100,13 @@ RectangleF CommonTooltips::popup_placement(const RectangleF &target_rect, Vector
 RectangleF CommonTooltips::popup_placement(const RectangleF &target_rect, Vector2F size, ControlPlacementKind cpk) {
   return popup_placement(target_rect, size, cpk, InfiniteRectangleF);
 }
+
+Side richmath::control_placement_side(ControlPlacementKind cpk) {
+  switch(cpk) {
+    case ControlPlacementKindLeft:   return Side::Left;
+    case ControlPlacementKindRight:  return Side::Right;
+    case ControlPlacementKindTop:    return Side::Top;
+    default:
+    case ControlPlacementKindBottom: return Side::Bottom;
+  }
+}

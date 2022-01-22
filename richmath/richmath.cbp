@@ -804,6 +804,7 @@
 		<Unit filename="include/graphics/basic-sequence-iterator.h" />
 		<Unit filename="include/graphics/buffer.h" />
 		<Unit filename="include/graphics/cairostream.h" />
+		<Unit filename="include/graphics/callout-triangle.h" />
 		<Unit filename="include/graphics/canvas.h" />
 		<Unit filename="include/graphics/color.h" />
 		<Unit filename="include/graphics/config-shaper.h" />
@@ -1409,6 +1410,7 @@
 		<Unit filename="src/graphics/basic-sequence-iterator.cpp" />
 		<Unit filename="src/graphics/buffer.cpp" />
 		<Unit filename="src/graphics/cairostream.cpp" />
+		<Unit filename="src/graphics/callout-triangle.cpp" />
 		<Unit filename="src/graphics/canvas.cpp" />
 		<Unit filename="src/graphics/color.cpp" />
 		<Unit filename="src/graphics/config-shaper.cpp" />

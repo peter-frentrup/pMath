@@ -1,5 +1,7 @@
 #include <gui/win32/win32-attached-popup-window.h>
 
+#include <graphics/callout-triangle.h>
+
 #include <gui/common-tooltips.h>
 #include <gui/documents.h>
 #include <gui/win32/api/win32-highdpi.h>
@@ -49,15 +51,12 @@ namespace richmath {
     private:
       Win32AttachedPopupWindow &self;
   };
-  
-  enum class Side {
-    Bottom, Left, Right, Top, 
-  };
 }
 
 using namespace richmath;
 
-static Side control_placement_side(ControlPlacementKind cpk);
+static POINT discretize(const Point &p) { return { (int)p.x, (int)p.y }; }
+static RECT  discretize(const RectangleF &rect) { return { (int)rect.left(), (int)rect.top(), (int)rect.right(), (int)rect.bottom() }; }
 
 const wchar_t Win32AttachedPopupWindow::Impl::class_name[] = L"RichmathWin32Popup";
 
@@ -434,20 +433,15 @@ void Win32AttachedPopupWindow::Impl::adjust_target_rect(WindowFrameType wft, Con
     case WindowFrameThinCallout: {
       int tri_size = triangle_tip_size();
       int inset = tri_size / 4;
-//      int min_size = tri_size;
       switch(control_placement_side(cpk)) {
         case Side::Left: 
         case Side::Right: 
           target_rect.grow(-inset, 0);
-//          if(target_rect.height < min_size)
-//            target_rect.grow(0, min_size - target_rect.height);
           break;
         
         case Side::Top:
         case Side::Bottom: 
           target_rect.grow(0, -inset);
-//          if(target_rect.width < min_size)
-//            target_rect.grow(min_size - target_rect.width, 0);
           break;
        }
      } break;
@@ -525,87 +519,21 @@ int Win32AttachedPopupWindow::Impl::triangle_tip_size() {
 void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect) {
   switch(wft) {
     case WindowFrameThinCallout: {
-      auto side = control_placement_side(cpk);
-      Interval<float> main_side(0,0);
-      Interval<float> common(0,0);
-      switch(side) {
-        case Side::Left:
-        case Side::Right:
-          main_side = window_rect.y_interval();
-          common = main_side.intersect(target_rect.y_interval());
-          break;
-        
-        case Side::Top:
-        case Side::Bottom:
-          main_side = window_rect.x_interval();
-          common = main_side.intersect(target_rect.x_interval());
-          break;
-      }
-      
+      auto side = opposite_side(control_placement_side(cpk));
       auto tip_size = triangle_tip_size();
-      auto main_center   = main_side.from + main_side.length() / 2;
-      int triangle_base_direction = 1; // -1 = /|   0 = /\   1 = |\  .
-      if(common.to < main_side.from + main_side.length() / 3)
-        triangle_base_direction = 1;
-      else if(common.from > main_side.to - main_side.length() / 3)
-        triangle_base_direction = -1;
-      else
-        triangle_base_direction = 0;
-        
-      auto triangle_height = (triangle_base_direction == 0) ? tip_size - tip_size/4 : tip_size;
-      auto common_center = common.from + common.length() / 2;
-      Interval<float> triangle_range {
-        common_center - (triangle_base_direction <= 0 ? triangle_height : 0), 
-        common_center + (triangle_base_direction >= 0 ? triangle_height : 0)};
+      auto tri = CalloutTriangle::ForSideOfBasePointingToTarget(window_rect, side, target_rect, tip_size, true);
       
-      triangle_range = main_side.snap(triangle_range);
+      auto main_rect = window_rect - Vector2F{window_rect.top_left()};
+      main_rect.grow(side, -tip_size);
       
-      RECT main_rect;
-      main_rect.left   = 0;
-      main_rect.top    = 0;
-      main_rect.right  = (int)window_rect.width;
-      main_rect.bottom = (int)window_rect.height;
+      Point tri_points[3];
+      tri.get_triangle_points(tri_points, main_rect, side);
       
-      POINT triangle_points[3];
-      switch(side) {
-        case Side::Left:
-        case Side::Right:
-          triangle_points[0].y = (int)triangle_range.from - window_rect.y;
-          triangle_points[1].y = (int)common_center       - window_rect.y;
-          triangle_points[2].y = (int)triangle_range.to   - window_rect.y;
-          break;
-        
-        case Side::Top:
-        case Side::Bottom:
-          triangle_points[0].x = (int)triangle_range.from - window_rect.x;
-          triangle_points[1].x = (int)common_center       - window_rect.x;
-          triangle_points[2].x = (int)triangle_range.to   - window_rect.x;
-          break;
-      }
-      
-      switch(side) {
-        case Side::Left:   triangle_points[1].x = main_rect.right  ; break;
-        case Side::Right:  triangle_points[1].x = main_rect.left   ; break;
-        case Side::Top:    triangle_points[1].y = main_rect.bottom ; break;
-        case Side::Bottom: triangle_points[1].y = main_rect.top    ; break;
-      }
-      
-      switch(side) {
-        case Side::Left:   triangle_points[0].x = triangle_points[1].x = triangle_points[2].x = main_rect.right  -= tip_size; break;
-        case Side::Right:  triangle_points[0].x = triangle_points[1].x = triangle_points[2].x = main_rect.left   += tip_size; break;
-        case Side::Top:    triangle_points[0].y = triangle_points[1].y = triangle_points[2].y = main_rect.bottom -= tip_size; break;
-        case Side::Bottom: triangle_points[0].y = triangle_points[1].y = triangle_points[2].y = main_rect.top    += tip_size; break;
-      }
-      
-      switch(side) {
-        case Side::Left:   triangle_points[1].x += triangle_height; break;
-        case Side::Right:  triangle_points[1].x -= triangle_height; break;
-        case Side::Top:    triangle_points[1].y += triangle_height; break;
-        case Side::Bottom: triangle_points[1].y -= triangle_height; break;
-      }
+      RECT rect = discretize(main_rect);
+      POINT triangle_points[3] = { discretize(tri_points[0]), discretize(tri_points[1]), discretize(tri_points[2]) };
       
       HRGN triangle_rgn = CreatePolygonRgn(triangle_points, 3, WINDING);
-      HRGN rgn = CreateRectRgnIndirect(&main_rect);
+      HRGN rgn = CreateRectRgnIndirect(&rect);
       CombineRgn(rgn, rgn, triangle_rgn, RGN_OR);
       DeleteObject(triangle_rgn);
       SetWindowRgn(self.hwnd(), rgn, TRUE);
@@ -623,19 +551,13 @@ bool Win32AttachedPopupWindow::Impl::on_ncpaint(HRGN clipRgn) {
       if(region_type != ERROR) {
         HDC hdc = GetDCEx(self.hwnd(), clipRgn, DCX_CACHE | DCX_WINDOW | DCX_INTERSECTRGN); //
         
-        if(Color bg = self.document()->get_style(Background, Color::None)) {
-          HBRUSH hbr = CreateSolidBrush(bg.to_bgr24());
-          FillRgn(hdc, hrgn, hbr);
-          DeleteObject(hbr);
-        }
-        else if(self.is_using_dark_mode()) {
-          HBRUSH hbr = CreateSolidBrush(Win32ControlPainter::win32_painter.win32_button_face_color(true).to_bgr24());
-          FillRgn(hdc, hrgn, hbr);
-          DeleteObject(hbr);
-        }
-        else {
-          FillRgn(hdc, hrgn, GetSysColorBrush(COLOR_BTNFACE));
-        }
+        Color bg = self.document()->get_style(Background, Color::None);
+        if(!bg)
+          bg = Win32ControlPainter::win32_painter.win32_button_face_color(self.is_using_dark_mode());
+        
+        SetDCBrushColor(hdc, bg.to_bgr24());
+        FillRgn(hdc, hrgn, (HBRUSH)GetStockObject(DC_BRUSH));
+        
         FrameRgn(hdc, hrgn, GetSysColorBrush(COLOR_WINDOWFRAME), 1, 1);
         
         ReleaseDC(self.hwnd(), hdc);
@@ -648,13 +570,3 @@ bool Win32AttachedPopupWindow::Impl::on_ncpaint(HRGN clipRgn) {
 }
 
 //} ... class Win32AttachedPopupWindow::Impl
-
-static Side control_placement_side(ControlPlacementKind cpk) {
-  switch(cpk) {
-    case ControlPlacementKindLeft:   return Side::Left;
-    case ControlPlacementKindRight:  return Side::Right;
-    case ControlPlacementKindTop:    return Side::Top;
-    default:
-    case ControlPlacementKindBottom: return Side::Bottom;
-  }
-}
