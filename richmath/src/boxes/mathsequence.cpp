@@ -3351,9 +3351,10 @@ void MathSequence::Impl::EnlargeSpace::show_tab_character(const GlyphIterator &p
 }
 
 ArrayView<const uint16_t> MathSequence::Impl::EnlargeSpace::get_effective_token(const GlyphIterator &start, const GlyphIterator &tok_end) {
-  assert(start.text_buffer_raw() == tok_end.text_buffer_raw());
-  assert(start.text_index() <= tok_end.text_index());
-  assert(tok_end.text_index() < start.text_buffer_length());
+////Fixme: This assumption can be wrong:
+//  assert(start.text_buffer_raw() == tok_end.text_buffer_raw());
+//  assert(start.text_index() <= tok_end.text_index());
+//  assert(tok_end.text_index() < start.text_buffer_length());
   
   Box *box = start.current_box();
   while(box) {
@@ -3387,7 +3388,9 @@ ArrayView<const uint16_t> MathSequence::Impl::EnlargeSpace::get_effective_token(
     break;
   }
   
-  return ArrayView<const uint16_t>(tok_end.text_index() + 1 - start.text_index(), start.text_at_glyph());
+  // See above FIXME
+  //return ArrayView<const uint16_t>(tok_end.text_index() + 1 - start.text_index(), start.text_at_glyph());
+  return start.find_token();
 }          
 
 pmath_token_t MathSequence::Impl::EnlargeSpace::get_box_start_token(Box *box) {
