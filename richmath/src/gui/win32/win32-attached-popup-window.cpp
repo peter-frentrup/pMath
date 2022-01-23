@@ -32,7 +32,7 @@ namespace richmath {
       
       Win32Widget *owner_widget();
       bool find_anchor_screen_position(RectangleF &target_rect);
-      void adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, RectangleF &target_rect);
+      void adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, const RECT &window_rect, RectangleF &target_rect);
       
       void on_windowposchanged(const WINDOWPOS &wp);
 
@@ -43,7 +43,9 @@ namespace richmath {
       bool on_nccalcsize_complex(NCCALCSIZE_PARAMS &params, LRESULT &res);
     public:
       bool on_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res);
-      int triangle_tip_size();
+      int triangle_tip_size(int window_width, int window_height);
+      int triangle_tip_size(const RECT       &rect) { return triangle_tip_size(rect.right - rect.left, rect.bottom - rect.top); }
+      int triangle_tip_size(const RectangleF &rect) { return triangle_tip_size((int)rect.width, (int)rect.height); }
       void update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect);
       
       bool on_ncpaint(HRGN clipRgn);
@@ -181,11 +183,11 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
     if(visible && Impl(*this).find_anchor_screen_position(target_rect)) {
       auto wft = (WindowFrameType)document()->get_own_style(WindowFrame);
       
-      Impl(*this).adjust_target_rect(wft, cpk, target_rect);
-      
       RECT rect;
       GetWindowRect(_hwnd, &rect);
-            
+      
+      Impl(*this).adjust_target_rect(wft, cpk, rect, target_rect);
+      
       RectangleF popup_rect {};
       
       RECT target_rect_int;
@@ -413,11 +415,7 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   target_rect.x -= GetScrollPos(owner_wid->hwnd(), SB_HORZ);
   target_rect.y -= GetScrollPos(owner_wid->hwnd(), SB_VERT);
   
-  RECT rc;
-  rc.left   = (int)round(target_rect.left());
-  rc.top    = (int)round(target_rect.top());
-  rc.right  = (int)round(target_rect.right());
-  rc.bottom = (int)round(target_rect.bottom());
+  RECT rc = discretize(target_rect);
   
   MapWindowPoints(owner_wid->hwnd(), nullptr, (POINT*)&rc, 2);
   
@@ -428,23 +426,11 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   return true;
 }
 
-void Win32AttachedPopupWindow::Impl::adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, RectangleF &target_rect) {
+void Win32AttachedPopupWindow::Impl::adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, const RECT &window_rect, RectangleF &target_rect) {
   switch(wft) {
-    case WindowFrameThinCallout: {
-      int tri_size = triangle_tip_size();
-      int inset = tri_size / 4;
-      switch(control_placement_side(cpk)) {
-        case Side::Left: 
-        case Side::Right: 
-          target_rect.grow(-inset, 0);
-          break;
-        
-        case Side::Top:
-        case Side::Bottom: 
-          target_rect.grow(0, -inset);
-          break;
-       }
-     } break;
+    case WindowFrameThinCallout: 
+      target_rect.grow(control_placement_side(cpk), -triangle_tip_size(window_rect) / 4);
+      break;
   }
 }
 
@@ -472,10 +458,10 @@ bool Win32AttachedPopupWindow::Impl::on_nccalcsize_simple(RECT &rect, LRESULT &r
     case WindowFrameThinCallout: {
       auto side = control_placement_side((ControlPlacementKind)self.document()->get_own_style(ControlPlacement, ControlPlacementKindBottom));
       switch(side) {
-        case Side::Left:   rect.right-=  triangle_tip_size(); break;
-        case Side::Right:  rect.left+=   triangle_tip_size(); break;
-        case Side::Top:    rect.bottom-= triangle_tip_size(); break;
-        case Side::Bottom: rect.top+=    triangle_tip_size(); break;
+        case Side::Left:   rect.right-=  triangle_tip_size(rect); break;
+        case Side::Right:  rect.left+=   triangle_tip_size(rect); break;
+        case Side::Top:    rect.bottom-= triangle_tip_size(rect); break;
+        case Side::Bottom: rect.top+=    triangle_tip_size(rect); break;
       }
       
       rect.top+=    2;
@@ -498,20 +484,14 @@ bool Win32AttachedPopupWindow::Impl::on_nccalcsize_complex(NCCALCSIZE_PARAMS &pa
   return true;
 }
 
-int Win32AttachedPopupWindow::Impl::triangle_tip_size() {
+int Win32AttachedPopupWindow::Impl::triangle_tip_size(int window_width, int window_height) {
   int dpi = Win32HighDpi::get_dpi_for_window(self.hwnd());
   
   int size = MulDiv(20, dpi, 96);
   
-  RECT rect;
-  if(GetWindowRect(self.hwnd(), &rect)) {
-    int width = rect.right - rect.left;
-    int height = rect.bottom - rect.top;
-    
-    int max_size = std::min(width, height) / 2;
-    if(size > max_size)
-      size = max_size;
-  }
+  int max_size = std::min(window_width, window_height) / 2;
+  if(size > max_size)
+    size = max_size;
   
   return size;
 }
@@ -520,7 +500,7 @@ void Win32AttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, Co
   switch(wft) {
     case WindowFrameThinCallout: {
       auto side = opposite_side(control_placement_side(cpk));
-      auto tip_size = triangle_tip_size();
+      auto tip_size = triangle_tip_size(window_rect);
       auto tri = CalloutTriangle::ForSideOfBasePointingToTarget(window_rect, side, target_rect, tip_size, true);
       
       auto main_rect = window_rect - Vector2F{window_rect.top_left()};
