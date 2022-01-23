@@ -256,7 +256,7 @@ Document({
                                 5, 2}) &))}), "ClosingAction" -> "Hide", 
                         RemovalConditions -> {"OutsideMouseClick", 
                           "SelectionExit"}, WindowFrame -> 
-                         "ThinFrame"))}) &))) &)}), 
+                         "ThinFrameCallout"))}) &))) &)}), 
           Section(StyleData("OpenerView"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
