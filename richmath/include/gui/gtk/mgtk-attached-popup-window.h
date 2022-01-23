@@ -5,6 +5,7 @@
 #  error this header is gtk specific
 #endif
 
+#include <graphics/callout-triangle.h>
 #include <gui/gtk/mgtk-widget.h>
 
 namespace richmath {
@@ -36,6 +37,7 @@ namespace richmath {
       bool on_configure(GdkEvent *e);
       bool on_delete(GdkEvent *e);
       bool on_draw(cairo_t *cr);
+      bool on_map(GdkEvent *e);
       bool on_unmap(GdkEvent *e);
       bool on_window_state(GdkEvent *e);
     
@@ -47,9 +49,11 @@ namespace richmath {
       GtkAdjustment           *_vadjustment;
       GtkWidget               *_hscrollbar;
       GtkWidget               *_vscrollbar;
+      GtkWidget               *_content_alignment;
       MathGtkPopupContentArea *_content_area;
       ContainerType            _appearance;
       ObservableValue<bool>    _active;
+      CalloutTriangle          _callout_triangle;
   };
 }
 

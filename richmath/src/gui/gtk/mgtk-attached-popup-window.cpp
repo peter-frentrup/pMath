@@ -17,6 +17,12 @@ namespace richmath {
       Impl(MathGtkAttachedPopupWindow &self) : self{self} {}
       
       bool find_anchor_screen_position(RectangleF &target_rect);
+      void adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, const Vector2F &window_size, RectangleF &target_rect);
+      
+      int triangle_tip_size(int window_width, int window_height);
+      int triangle_tip_size(const RectangleF    &rect) { return triangle_tip_size((int)rect.width, (int)rect.height); }
+      int triangle_tip_size(const GtkAllocation &rect) { return triangle_tip_size(rect.width, rect.height); }
+      void update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect);
       
     private:
       MathGtkAttachedPopupWindow &self;
@@ -58,6 +64,9 @@ namespace richmath {
 
 using namespace richmath;
 
+static GdkPoint     discretize(const Point &p) {         return { (int)p.x, (int)p.y }; }
+static GdkRectangle discretize(const RectangleF &rect) { return { (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height }; }
+
 #if GTK_MAJOR_VERSION < 3
 static int gtk_widget_get_allocated_width(GtkWidget *widget);
 static int gtk_widget_get_allocated_height(GtkWidget *widget);
@@ -71,13 +80,16 @@ MathGtkAttachedPopupWindow::MathGtkAttachedPopupWindow(Document *owner, Box *anc
   _vadjustment{GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))},
   _hscrollbar{nullptr},
   _vscrollbar{nullptr},
+  _content_alignment{nullptr},
   _content_area{new MathGtkPopupContentArea(this, owner, anchor)},
   _appearance{ContainerType::None},
-  _active{false}
+  _active{false},
+  _callout_triangle{0.0f, 0.0f, 0.0f, 0.0f}
 {
 }
 
 MathGtkAttachedPopupWindow::~MathGtkAttachedPopupWindow() {
+  pmath_debug_print("[MathGtkAttachedPopupWindow::~MathGtkAttachedPopupWindow]\n");
   g_object_unref(_hadjustment);
   g_object_unref(_vadjustment);
 }
@@ -126,8 +138,11 @@ void MathGtkAttachedPopupWindow::after_construction() {
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
   g_object_unref(accel_group);
   
+  _content_alignment = gtk_alignment_new(0, 0, 1, 1);
+  gtk_container_add(GTK_CONTAINER(_widget), _content_alignment);
+  
   GtkWidget *table = gtk_table_new(2, 2, FALSE);
-  gtk_container_add(GTK_CONTAINER(_widget), table);
+  gtk_container_add(GTK_CONTAINER(_content_alignment), table);
   
   gtk_table_attach(
     GTK_TABLE(table), 
@@ -171,10 +186,11 @@ void MathGtkAttachedPopupWindow::after_construction() {
 
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_configure>("configure-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_delete>("delete-event");
+  signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_map>("map-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_unmap>("unmap-event");
   signal_connect<MathGtkAttachedPopupWindow, GdkEvent *, &MathGtkAttachedPopupWindow::on_window_state>("window-state-event");
 
-  gtk_widget_show_all(table);
+  gtk_widget_show_all(_content_alignment);
   
   GList *focus_chain = nullptr;
   focus_chain = g_list_prepend(focus_chain, _content_area->widget());
@@ -189,15 +205,32 @@ void MathGtkAttachedPopupWindow::invalidate_options() {
     case WindowFrameNone: 
       _appearance = ContainerType::None;
       gtk_widget_set_app_paintable(_widget, false);
+      gtk_alignment_set_padding(GTK_ALIGNMENT(_content_alignment), 0, 0, 0, 0);
       gtk_container_set_border_width(GTK_CONTAINER(_widget), 0);
       break;
       
     case WindowFrameThin:
       _appearance = ContainerType::PopupPanel;
       gtk_widget_set_app_paintable(_widget, true);
+      gtk_alignment_set_padding(GTK_ALIGNMENT(_content_alignment), 0, 0, 0, 0);
       gtk_container_set_border_width(GTK_CONTAINER(_widget), 1);
       break;
     
+    case WindowFrameThinCallout: {
+      _appearance = ContainerType::None;
+      gtk_widget_set_app_paintable(_widget, true);
+      
+      GtkAllocation alloc;
+      gtk_widget_get_allocation(_widget, &alloc);
+      unsigned pad[4] = {0, 0, 0, 0}; //{2, 2, 2, 2};
+      
+      auto cpk = (ControlPlacementKind)content()->get_own_style(ControlPlacement, ControlPlacementKindBottom);
+      Side side = opposite_side(control_placement_side(cpk));
+      pad[(int)side] += Impl(*this).triangle_tip_size(alloc);
+      
+      gtk_alignment_set_padding(GTK_ALIGNMENT(_content_alignment), pad[(int)Side::Top], pad[(int)Side::Bottom], pad[(int)Side::Left], pad[(int)Side::Right]);
+      gtk_container_set_border_width(GTK_CONTAINER(_widget), 2);
+    } break;
   }
 //  if(_appearance != old_appearance) {
 //    gtk_widget_queue_draw(_widget);
@@ -221,18 +254,36 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
     auto cpk = (ControlPlacementKind)content()->get_own_style(ControlPlacement, ControlPlacementKindBottom);
     RectangleF target_rect;
     if(visible && Impl(*this).find_anchor_screen_position(target_rect)) {
+      auto wft = (WindowFrameType)content()->get_own_style(WindowFrame);
+      
       Vector2F size(_content_area->best_width(), _content_area->best_height());
       
-      int border_extra = 0;
+      int border_extra_x = 0;
+      int border_extra_y = 0;
       
-      for(GtkWidget *tmp = _widget; tmp; tmp = gtk_widget_get_parent(tmp)) {
+      for(GtkWidget *tmp = _content_area->widget(); tmp; tmp = gtk_widget_get_parent(tmp)) {
         if(GTK_IS_CONTAINER(tmp)) {
-          border_extra += 2 * gtk_container_get_border_width(GTK_CONTAINER(tmp));
+          int delta = 2 * gtk_container_get_border_width(GTK_CONTAINER(tmp));
+          border_extra_x += 2 * delta;
+          border_extra_y += 2 * delta;
+          
+          if(GTK_IS_ALIGNMENT(tmp)) {
+            unsigned padding_left   = 0;
+            unsigned padding_right  = 0;
+            unsigned padding_top    = 0;
+            unsigned padding_bottom = 0;
+            gtk_alignment_get_padding(GTK_ALIGNMENT(_content_alignment), &padding_top, &padding_bottom, &padding_left, &padding_right);
+            
+            border_extra_x += padding_left + padding_right;
+            border_extra_y += padding_top  + padding_bottom;
+          }
         }
       }
       
-      size.x+= border_extra;
-      size.y+= border_extra;
+      size.x+= border_extra_x;
+      size.y+= border_extra_y;
+      
+      Impl(*this).adjust_target_rect(wft, cpk, size, target_rect);
       
       RectangleF popup_rect;
       
@@ -275,6 +326,8 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
         else
           gtk_widget_hide(_hscrollbar);
       }
+      
+      Impl(*this).update_window_shape(wft, cpk, popup_rect, target_rect);
       
       bool was_visible = gtk_widget_get_mapped(_widget);
       if(!was_visible) {
@@ -411,9 +464,71 @@ bool MathGtkAttachedPopupWindow::on_draw(cairo_t *cr) {
     rect.add_rect_path(canvas);
     canvas.clip();
     
-    ControlPainter::std->draw_container(*this, canvas, _appearance, ControlState::Normal, rect);
+    auto wft = (WindowFrameType)content()->get_own_style(WindowFrame);
+    switch(wft) {
+      case WindowFrameThinCallout: {
+        auto cpk = (ControlPlacementKind)content()->get_own_style(ControlPlacement, ControlPlacementKindBottom);
+        Side side = opposite_side(control_placement_side(cpk));
+        auto tip_size = Impl(*this).triangle_tip_size(alloc_rect);
+        
+        auto main_rect = rect;
+        main_rect.grow(side, -tip_size);
+        Point tri_points[3];
+        _callout_triangle.get_triangle_points(tri_points, main_rect, side);
+        
+        Color bg = content()->get_style(Background, Color::None);
+        if(!bg) {
+          ControlPainter::std->draw_container(*this, canvas, ContainerType::PopupPanel, ControlState::Normal, rect);
+        }
+        
+        canvas.move_to(main_rect.top_left());
+        if(side == Side::Top) {
+          canvas.line_to(tri_points[0]);
+          canvas.line_to(tri_points[1]);
+          canvas.line_to(tri_points[2]);
+        }
+        canvas.line_to(main_rect.top_right());
+        if(side == Side::Right) {
+          canvas.line_to(tri_points[0]);
+          canvas.line_to(tri_points[1]);
+          canvas.line_to(tri_points[2]);
+        }
+        canvas.line_to(main_rect.bottom_right());
+        if(side == Side::Bottom) {
+          canvas.line_to(tri_points[2]);
+          canvas.line_to(tri_points[1]);
+          canvas.line_to(tri_points[0]);
+        }
+        canvas.line_to(main_rect.bottom_left());
+        if(side == Side::Left) {
+          canvas.line_to(tri_points[2]);
+          canvas.line_to(tri_points[1]);
+          canvas.line_to(tri_points[0]);
+        }
+        canvas.line_to(main_rect.top_left());
+        canvas.close_path();
+        
+        if(bg) {
+          canvas.set_color(bg);
+          canvas.fill_preserve();
+        }
+        
+        canvas.set_color(Color::from_rgb24(0x808080));
+        cairo_set_line_width(canvas.cairo(), 2.0);
+        canvas.stroke();
+      } break;
+      
+      default:
+        ControlPainter::std->draw_container(*this, canvas, _appearance, ControlState::Normal, rect);
+        break;
+    }
   }
   
+  return false;
+}
+
+bool MathGtkAttachedPopupWindow::on_map(GdkEvent *e) {
+  content()->invalidate_popup_window_positions();
   return false;
 }
 
@@ -499,6 +614,101 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &t
   target_rect.y += root_y;
   
   return true;
+}
+
+void MathGtkAttachedPopupWindow::Impl::adjust_target_rect(WindowFrameType wft, ControlPlacementKind cpk, const Vector2F &window_size, RectangleF &target_rect) {
+  switch(wft) {
+    case WindowFrameThinCallout: 
+      target_rect.grow(control_placement_side(cpk), -triangle_tip_size((int)window_size.x, (int)window_size.y) / 4);
+      break;
+  }
+}
+
+int MathGtkAttachedPopupWindow::Impl::triangle_tip_size(int window_width, int window_height) {
+  int size = 20;
+  
+  int max_size = std::min(window_width, window_height) / 2;
+  if(size > max_size)
+    size = max_size;
+  
+  return size;
+}
+
+void MathGtkAttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, ControlPlacementKind cpk, const RectangleF &window_rect, const RectangleF &target_rect) {
+  if(!gtk_widget_get_realized(self.widget()))
+    return;
+  
+  GdkWindow *gdk_win = gtk_widget_get_window(self.widget());
+  if(!gdk_win)
+    return;
+  
+  switch(wft) {
+    case WindowFrameThinCallout: {
+      auto side = opposite_side(control_placement_side(cpk));
+      auto tip_size = triangle_tip_size(window_rect);
+      self._callout_triangle = CalloutTriangle::ForSideOfBasePointingToTarget(window_rect, side, target_rect, tip_size, true);
+      
+      auto main_rect = window_rect - Vector2F{window_rect.top_left()};
+      main_rect.grow(side, -tip_size);
+      
+      Point tri_points[3];
+      self._callout_triangle.get_triangle_points(tri_points, main_rect, side);
+      
+      unsigned pad[4] = {0,0,0,0};
+      pad[(int)side] += tip_size;
+      gtk_alignment_set_padding(GTK_ALIGNMENT(self._content_alignment), pad[(int)Side::Top], pad[(int)Side::Bottom], pad[(int)Side::Left], pad[(int)Side::Right]);
+      
+#    if GTK_MAJOR_VERSION >= 3
+      { // Sadly, gdk_region_polygon() was removed in GTK 3.
+        cairo_surface_t *surface = gdk_window_create_similar_surface(gdk_win, CAIRO_CONTENT_COLOR_ALPHA, (int)window_rect.width, (int)window_rect.height);
+        
+        cairo_t *cr = cairo_create(surface);
+        {
+          Canvas canvas(cr);
+          
+          canvas.set_color(Color::White);
+          canvas.move_to(tri_points[0]);
+          canvas.line_to(tri_points[1]);
+          canvas.line_to(tri_points[2]);
+          canvas.fill();
+          
+          canvas.move_to(main_rect.top_left());
+          canvas.line_to(main_rect.top_right());
+          canvas.line_to(main_rect.bottom_right());
+          canvas.line_to(main_rect.bottom_left());
+          canvas.fill();
+        }
+        cairo_destroy(cr);
+        
+        cairo_region_t *reg = gdk_cairo_region_create_from_surface(surface);
+        cairo_surface_destroy(surface);
+        gtk_widget_shape_combine_region(self.widget(), reg);
+        //gdk_window_shape_combine_region(gdk_win, reg, 0, 0);
+        cairo_region_destroy(reg);
+        //gdk_window_set_child_shapes(gtk_widget_get_parent_window(self.widget()));
+      }
+#    else
+      {
+        GdkPoint triangle_points[3] = { discretize(tri_points[0]), discretize(tri_points[1]), discretize(tri_points[2]) };
+        GdkRegion *reg = gdk_region_polygon(triangle_points, 3, GDK_WINDING_RULE);
+        
+        GdkRectangle rect = discretize(main_rect);
+        gdk_region_union_with_rect(reg, &rect);
+        gdk_window_shape_combine_region(gdk_win, reg, 0, 0);
+        gdk_region_destroy(reg);
+      }
+#    endif
+    } break;
+    
+    default:
+#    if GTK_MAJOR_VERSION >= 3
+      gtk_widget_shape_combine_region(self.widget(), nullptr);
+      //gdk_window_set_child_shapes(gtk_widget_get_parent_window(self.widget()));
+#    else
+      gdk_window_shape_combine_region(gdk_win, nullptr, 0, 0);
+#    endif
+      break;
+  }
 }
 
 //} ... class MathGtkAttachedPopupWindow::Impl

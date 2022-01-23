@@ -719,6 +719,7 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       break;
     
     case WindowFrameThin:
+    case WindowFrameThinCallout:
       // TODO: draw a border ...
       gtk_window_set_type_hint(        GTK_WINDOW(_widget), GDK_WINDOW_TYPE_HINT_POPUP_MENU);
       gtk_window_set_skip_taskbar_hint(GTK_WINDOW(_widget), true);
