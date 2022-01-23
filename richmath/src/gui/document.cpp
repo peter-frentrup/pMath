@@ -341,8 +341,8 @@ namespace richmath {
       bool attach_popup_window(const SelectionReference &anchor, Document *popup_window);
       void popup_window_closed(FrontEndReference popup_window_id);
       void invalidate_popup_window_positions();
-      void close_orphaned_popup_windows();
-      void close_all_popup_windows();
+      void delete_orphaned_popup_windows();
+      void delete_all_popup_windows();
       void close_popup_windows_if(std::function<bool(VolatileSelection, Document*, RemovalConditionFlags)> predicate);
       void close_popup_windows_if(RemovalConditionFlags conds, std::function<bool(VolatileSelection, Document*)> predicate) { close_popup_windows_if([&](VolatileSelection anchor, Document *doc, RemovalConditionFlags doc_cond) { return (doc_cond & conds) && predicate(anchor, doc); }); }
       void close_popup_windows_if(RemovalConditionFlags conds, std::function<bool(VolatileSelection)> predicate) {            close_popup_windows_if([&](VolatileSelection anchor, Document *doc, RemovalConditionFlags doc_cond) { return (doc_cond & conds) && predicate(anchor); }); }
@@ -378,7 +378,7 @@ Document::Document()
 }
 
 Document::~Document() {
-  Impl(*this).close_all_popup_windows();
+  Impl(*this).delete_all_popup_windows();
   
   int defines_eval_ctx = false;
   if(style && style->get(InternalDefinesEvaluationContext, &defines_eval_ctx) && defines_eval_ctx)
@@ -5097,7 +5097,7 @@ void Document::Impl::invalidate_popup_window_positions() {
   }
 }
 
-void Document::Impl::close_orphaned_popup_windows() {
+void Document::Impl::delete_orphaned_popup_windows() {
   Array<FrontEndReference> orphaned;
   
   int len = self._attached_popup_windows.length();
@@ -5116,12 +5116,13 @@ void Document::Impl::close_orphaned_popup_windows() {
   self._attached_popup_windows.length(len);
   for(auto doc_id : orphaned) {
     if(auto doc = FrontEndObject::find_cast<Document>(doc_id)) {
+      doc->style->set(ClosingAction, ClosingActionDelete);
       doc->native()->close();
     }
   }
 }
 
-void Document::Impl::close_all_popup_windows() {
+void Document::Impl::delete_all_popup_windows() {
   Array<BoxAttchmentPopup> popups;
   
   using std::swap;
@@ -5129,6 +5130,7 @@ void Document::Impl::close_all_popup_windows() {
   
   for(auto &popup : popups) {
     if(auto doc = popup.popup_document()) {
+      doc->style->set(ClosingAction, ClosingActionDelete);
       doc->native()->close();
     }
   }
