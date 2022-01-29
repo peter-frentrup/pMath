@@ -620,7 +620,7 @@ void Win32Widget::paint_canvas(Canvas &canvas, bool resize_only) {
   
   if(is_scrollable()) {
     RECT outer;
-    GetWindowRect(_hwnd, &outer);
+    GetClientRect(_hwnd, &outer);
     
     int w_page = round(scale_factor() * win_size.x);
     int h_page = round(scale_factor() * win_size.y);

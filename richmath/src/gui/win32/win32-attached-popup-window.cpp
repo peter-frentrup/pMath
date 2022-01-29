@@ -38,11 +38,8 @@ namespace richmath {
 
       static const wchar_t class_name[];
     
-    private:
-      bool on_nccalcsize_simple(RECT &rect, LRESULT &res);
-      bool on_nccalcsize_complex(NCCALCSIZE_PARAMS &params, LRESULT &res);
     public:
-      bool on_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res);
+      void on_after_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res);
       int triangle_tip_size(int window_width, int window_height);
       int triangle_tip_size(const RECT       &rect) { return triangle_tip_size(rect.right - rect.left, rect.bottom - rect.top); }
       int triangle_tip_size(const RectangleF &rect) { return triangle_tip_size((int)rect.width, (int)rect.height); }
@@ -116,11 +113,11 @@ void Win32AttachedPopupWindow::invalidate_options() {
   switch(document()->get_own_style(WindowFrame)) {
     default:
     case WindowFrameNone:
+    case WindowFrameThinCallout:
       SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) & ~WS_BORDER);
       break;
     
     case WindowFrameThin:
-    case WindowFrameThinCallout:
       SetWindowLongW(_hwnd, GWL_STYLE, GetWindowLongW(_hwnd, GWL_STYLE) | WS_BORDER);
       break;
   }
@@ -325,14 +322,15 @@ LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM l
         break;
       
       case WM_NCCALCSIZE: {
-        LRESULT res = 0;
-        if(Impl(*this).on_nccalcsize(wParam, lParam, res))
-          return res;
+        LRESULT res = base::callback(message, wParam, lParam);
+        Impl(*this).on_after_nccalcsize(wParam, lParam, res);
+        return res;
       } break;
       
       case WM_NCPAINT: {
-        if(Impl(*this).on_ncpaint((HRGN)wParam))
-          return 0;
+        base::callback(message, wParam, lParam); // TODO: is this necessary at all?
+        Impl(*this).on_ncpaint((HRGN)wParam);
+        return 0;
       } break;
         
       case WM_WINDOWPOSCHANGED: 
@@ -446,14 +444,9 @@ void Win32AttachedPopupWindow::Impl::on_windowposchanged(const WINDOWPOS &wp) {
   }
 }
 
-bool Win32AttachedPopupWindow::Impl::on_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res) {
-  if(wParam)
-    return on_nccalcsize_complex(*(NCCALCSIZE_PARAMS*)lParam, res);
-  else
-    return on_nccalcsize_simple(*(RECT*)lParam, res);
-}
-
-bool Win32AttachedPopupWindow::Impl::on_nccalcsize_simple(RECT &rect, LRESULT &res) {
+void Win32AttachedPopupWindow::Impl::on_after_nccalcsize(WPARAM wParam, LPARAM lParam, LRESULT &res) {
+  RECT &rect = *(RECT*)lParam; // also correct if wParam == TRUE, where lParam is (NCCALCSIZE_PARAMS*)
+  
   switch(self.document()->get_own_style(WindowFrame)) {
     case WindowFrameThinCallout: {
       auto side = control_placement_side((ControlPlacementKind)self.document()->get_own_style(ControlPlacement, ControlPlacementKindBottom));
@@ -468,20 +461,10 @@ bool Win32AttachedPopupWindow::Impl::on_nccalcsize_simple(RECT &rect, LRESULT &r
       rect.left+=   2;
       rect.right-=  2;
       rect.bottom-= 2;
+      
       res = 0;
-      return true;
     } break;
   }
-  return false;
-}
-
-bool Win32AttachedPopupWindow::Impl::on_nccalcsize_complex(NCCALCSIZE_PARAMS &params, LRESULT &res) {
-  if(!on_nccalcsize_simple(params.rgrc[0], res))
-    return false;
-  
-  //return false;
-  res = 0;
-  return true;
 }
 
 int Win32AttachedPopupWindow::Impl::triangle_tip_size(int window_width, int window_height) {
@@ -530,6 +513,37 @@ bool Win32AttachedPopupWindow::Impl::on_ncpaint(HRGN clipRgn) {
       int region_type = GetWindowRgn(self.hwnd(), hrgn);
       if(region_type != ERROR) {
         HDC hdc = GetDCEx(self.hwnd(), clipRgn, DCX_CACHE | DCX_WINDOW | DCX_INTERSECTRGN); //
+        
+        RECT client_rect {};
+        GetClientRect(self.hwnd(), &client_rect);
+        MapWindowPoints(self.hwnd(), nullptr, (POINT*)&client_rect, 2);
+        
+        RECT win_rect {};
+        GetWindowRect(self.hwnd(), &win_rect);
+        OffsetRect(&client_rect, -win_rect.left, -win_rect.top);
+        
+        int dpi = Win32HighDpi::get_dpi_for_window(self.hwnd());
+        
+        SCROLLBARINFO sbi {};
+        sbi.cbSize = sizeof(sbi);
+        if(GetScrollBarInfo(self.hwnd(), OBJID_VSCROLL, &sbi)) {
+          if(!(sbi.rgstate[0] & STATE_SYSTEM_INVISIBLE)) {
+            ExcludeClipRect(hdc, 
+              sbi.rcScrollBar.left   - win_rect.left,
+              sbi.rcScrollBar.top    - win_rect.top,
+              sbi.rcScrollBar.right  - win_rect.left,
+              sbi.rcScrollBar.bottom - win_rect.top);
+          }
+        }
+        if(GetScrollBarInfo(self.hwnd(), OBJID_HSCROLL, &sbi)) {
+          if(!(sbi.rgstate[0] & STATE_SYSTEM_INVISIBLE)) {
+            ExcludeClipRect(hdc, 
+              sbi.rcScrollBar.left   - win_rect.left,
+              sbi.rcScrollBar.top    - win_rect.top,
+              sbi.rcScrollBar.right  - win_rect.left,
+              sbi.rcScrollBar.bottom - win_rect.top);
+          }
+        }
         
         Color bg = self.document()->get_style(Background, Color::None);
         if(!bg)
