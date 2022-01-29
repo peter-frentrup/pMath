@@ -335,6 +335,9 @@ void Win32Menu::on_menuselect(WPARAM wParam, LPARAM lParam) {
 //      Win32Themes::DwmSetWindowAttribute(_window->hwnd(), Win32Themes::DWMWA_EXCLUDED_FROM_PEEK, &excluded_from_peak, sizeof(excluded_from_peak));
 //    }
 //  }
+
+  if(Win32Menu::menu_selector)
+    Win32Menu::menu_selector->on_menuselect(menu, item_or_index, flags);
 }
 
 LRESULT Win32Menu::on_menudrag(WPARAM wParam, LPARAM lParam) {

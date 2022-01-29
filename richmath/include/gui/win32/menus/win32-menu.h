@@ -19,6 +19,7 @@ namespace richmath {
   
   struct Win32MenuSelector {
     virtual void init_popupmenu(HWND menu_wnd, HMENU menu) = 0;
+    virtual void on_menuselect(HMENU menu, unsigned item_or_index, unsigned flags) {}
   };
   
   class Win32Menu: public Shareable {

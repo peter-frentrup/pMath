@@ -342,6 +342,9 @@ bool Win32MenuSearchOverlay::Impl::open_menu_hierarchy(Expr item_cmd) {
   struct OpenSubmenu final : public Win32MenuSelector {
     Array<IndexAndMenu> path;
     int current_level;
+    bool found_final_item;
+    
+    OpenSubmenu() : current_level{0}, found_final_item{false} {}
     
     virtual void init_popupmenu(HWND menu_wnd, HMENU menu) override {
       if(current_level + 1 >= path.length())
@@ -357,6 +360,30 @@ bool Win32MenuSearchOverlay::Impl::open_menu_hierarchy(Expr item_cmd) {
       
       if(path[current_level].menu && path[current_level].menu == GetSubMenu(menu, index)) {
         PostMessageW(menu_wnd, MN_OPENHIERARCHY, 0, 0);
+      }
+    }
+    
+    virtual void on_menuselect(HMENU menu, unsigned item_or_index, unsigned flags) override {
+      if(found_final_item)
+        return;
+      
+      if(current_level + 1 == path.length()) {
+        if(menu != path[current_level - 1].menu)
+          return;
+        
+        int index = path[current_level].index;
+        
+        found_final_item = true;
+        
+        BOOL snap_mouse = FALSE;
+        if(SystemParametersInfoW(SPI_GETSNAPTODEFBUTTON, 0, &snap_mouse, FALSE) && snap_mouse) {
+          RECT rect;
+          if(GetMenuItemRect(nullptr, menu, index, &rect)) {
+            SetCursorPos(
+              rect.left + (rect.right - rect.left) / 2,
+              rect.top  + (rect.bottom - rect.top) / 2);
+          }
+        }
       }
     }
     
