@@ -890,9 +890,11 @@ Box *MathSequence::move_vertical(
     }
     
     if(auto box = iter.current_box()) {
-      if(*index_rel_x > 0 && x < iter.current_glyph().right + l) {
-        *index = -1;
-        return box->move_vertical(direction, index_rel_x, index, false);
+      if(*index_rel_x > 0) {
+        if(!iter.has_more_glyphs() || x < iter.current_glyph().right + l) {
+          *index = -1;
+          return box->move_vertical(direction, index_rel_x, index, false);
+        }
       }
     }
     
