@@ -2420,8 +2420,10 @@ void MathSequence::Impl::GlyphGenerator::append_span(Context &context, MathSeque
           ++next;
         ++next;
         
-        if(!context.show_string_characters && buf[*pos] == '\\')
-          ++*pos;
+        if(!context.show_string_characters && buf[*pos] == '\\') {
+          if(*pos + 1 < next && (buf[*pos+1] == '\"' || buf[*pos+1] == '\\'))
+            ++*pos;
+        }
         
         append_text_glyph_run(context, span_seq, *pos, next - *pos);
         
