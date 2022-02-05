@@ -3,6 +3,8 @@
 #include <pmath-core/objects-private.h>
 #include <pmath-core/numbers-private.h>
 
+#include <pmath-language/charnames.h>
+
 #include <pmath-util/evaluation.h>
 #include <pmath-util/line-writer.h>
 #include <pmath-util/memory.h>
@@ -433,21 +435,79 @@ static void shorten_span(struct write_short_t *ws, struct write_short_span_t *sp
 //=================================================================================================
 
 PMATH_PRIVATE
-void _pmath_write_to_string(
-  void           *pointer_to_pmath_string, // pmath_string_t *result
-  const uint16_t *data,
-  int             len
-) {
+void _pmath_write_to_string(void *pointer_to_pmath_string, const uint16_t *data, int len) {
   pmath_string_t *result = pointer_to_pmath_string;
-  *(pmath_string_t*)result = pmath_string_insert_ucs2(
-                               *result,
-                               pmath_string_length(*result),
-                               data,
-                               len);
+  *result = pmath_string_insert_ucs2(*result, pmath_string_length(*result), data, len);
+}
+
+static void write_ascii_to_string(void *pointer_to_pmath_string, const uint16_t *data, int len) {
+  pmath_string_t *result = pointer_to_pmath_string;
+  while(len) {
+    int i = 0;
+    
+    while(i < len && data[i] < 0x7F && (data[i] >= ' ' || data[i] == '\n' || data[i] == '\t' || data[i] == '\r'))
+      ++i;
+    
+    if(i) {
+      _pmath_write_to_string(result, data, i);
+      data+= i;
+      len-= i;
+    }
+    
+    if(len) {
+      uint32_t unichar = data[0];
+      const char *name;
+      
+      if(len >= 2 &&
+        (data[0] & 0xFC00) == 0xD800 &&
+        (data[1] & 0xFC00) == 0xDC00)
+      {
+        unichar = 0x10000 + (((data[0] & 0x03FF) << 10) | (data[1] & 0x03FF));
+        data += 2;
+        len -= 2;
+      }
+      else {
+        ++data;
+        --len;
+      }
+      
+      name = pmath_char_to_name(unichar);
+      if(name) {
+        //_pmath_write_cstr("\\[", _pmath_write_to_string, result)
+        *result = pmath_string_insert_latin1(*result, INT_MAX, "\\[", 2);
+        *result = pmath_string_insert_latin1(*result, INT_MAX, name, -1);
+        *result = pmath_string_insert_latin1(*result, INT_MAX, "]", 1);
+      }
+      else {
+        static const char hex_digits[] = "0123456789ABCDEF";
+        char special[8];
+        
+        *result = pmath_string_insert_latin1(*result, INT_MAX, "\\[U+", 4);
+        
+        special[0] = hex_digits[(unichar & 0xF0000000U) >> 28];
+        special[1] = hex_digits[(unichar & 0x0F000000U) >> 24];
+        special[2] = hex_digits[(unichar & 0x00F00000U) >> 20];
+        special[3] = hex_digits[(unichar & 0x000F0000U) >> 16];
+        special[4] = hex_digits[(unichar & 0x0000F000U) >> 12];
+        special[5] = hex_digits[(unichar & 0x00000F00U) >> 8];
+        special[6] = hex_digits[(unichar & 0x000000F0U) >> 4];
+        special[7] = hex_digits[ unichar & 0x0000000FU];
+
+        for(i = 0; i <= 3; ++i)
+          if(special[i] != '0')
+            break;
+        
+        *result = pmath_string_insert_latin1(*result, INT_MAX, special+i, 8-i);
+        *result = pmath_string_insert_latin1(*result, INT_MAX, "]", 1);
+      }
+      
+    }
+  }
+  
 }
 
 static pmath_bool_t apply_format_type_and_free(       pmath_write_options_t *flags, pmath_t format_type);
-static pmath_bool_t apply_characterencoding_option(   pmath_write_options_t *flags, pmath_t options);
+static pmath_bool_t apply_characterencoding_option(   pmath_write_options_t *flags, void(**write_func)(void*,const uint16_t*,int), pmath_t options);
 static pmath_bool_t apply_whitespace_option(          pmath_write_options_t *flags, pmath_t options);
 static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *flags, pmath_t options);
 static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_t options);
@@ -462,15 +522,16 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
         Whitespace -> Automatic | True | False
         ShowStringCharacters -> False | True | Automatic
    */
-  pmath_string_t        result;
-  pmath_t               options;
-  pmath_t               obj;
-  pmath_write_options_t flags;
-  size_t len;
-  int pagewidth = 0;
+  pmath_string_t          result;
+  pmath_t                 options;
+  pmath_t                 obj;
+  pmath_write_options_t   flags;
+  void                  (*writer_func)(void*,const uint16_t*,int);
+  size_t                  exprlen;
+  int                     pagewidth = 0;
   
-  len = pmath_expr_length(expr);
-  if(len == 0) {
+  exprlen = pmath_expr_length(expr);
+  if(exprlen == 0) {
     pmath_unref(expr);
     return pmath_string_new(0);
   }
@@ -495,7 +556,9 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
   
-  if( !apply_characterencoding_option(   &flags, options) ||
+  writer_func = _pmath_write_to_string;
+  
+  if( !apply_characterencoding_option(   &flags, &writer_func, options) ||
       !apply_whitespace_option(          &flags, options) ||
       !apply_showstringcharacters_option(&flags, options) ||
       !extract_pagewidth_option(         &pagewidth, options))
@@ -510,9 +573,9 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   obj = pmath_expr_get_item(expr, 1);
   
   if(pagewidth > 0)
-    pmath_write_with_pagewidth(obj, flags, _pmath_write_to_string, &result, pagewidth, 0);
+    pmath_write_with_pagewidth(obj, flags, writer_func, &result, pagewidth, 0);
   else  
-    pmath_write(obj, flags, _pmath_write_to_string, &result);
+    pmath_write(obj, flags, writer_func, &result);
   
   pmath_unref(obj);
   pmath_unref(expr);
@@ -542,7 +605,7 @@ static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pma
   return FALSE;
 }
 
-static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags, pmath_t options) {
+static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags, void(**write_func)(void*,const uint16_t*,int), pmath_t options) {
   pmath_t enc = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_CharacterEncoding, options));
  
   if(pmath_is_string(enc)) {
@@ -553,6 +616,7 @@ static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags,
     }
     
     if(pmath_string_equals_latin1(enc, "ASCII")) {
+      *write_func = write_ascii_to_string;
       *flags &= ~PMATH_WRITE_OPTIONS_PREFERUNICODE;
       pmath_unref(enc);
       return TRUE;
