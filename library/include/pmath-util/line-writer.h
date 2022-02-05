@@ -14,8 +14,7 @@
  */
 struct pmath_line_writer_options_t {
   /**\brief The structure's size in bytes.
-     This must be initialized with sizeof(struct pmath_write_ex_t), for version 
-     control.
+     This must be initialized with sizeof(struct pmath_line_writer_options_t), for version control.
    */
   size_t size;
   

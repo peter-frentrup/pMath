@@ -250,7 +250,7 @@ typedef struct {
   size_t struct_size;
   
   /**\brief A function to get the current file status
-     This can be PMATH_NULL if read_function is also PMATH_NULL.
+     This can be NULL if read_function is also NULL.
    */
   pmath_files_status_t (*status_function)(void *extra);
   
@@ -294,9 +294,9 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(2)
 pmath_symbol_t pmath_file_create_binary(
-  void                     *extra,
-  void                    (*extra_destructor)(void*),
-  pmath_binary_file_api_t  *api);
+  void                           *extra,
+  void                          (*extra_destructor)(void*),
+  const pmath_binary_file_api_t  *api);
 
 /**\class pmath_text_file_api_t
    \brief Access functions for text files.
@@ -344,9 +344,9 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(2)
 pmath_symbol_t pmath_file_create_text(
-  void                   *extra,
-  void                  (*extra_destructor)(void*),
-  pmath_text_file_api_t  *api);
+  void                         *extra,
+  void                        (*extra_destructor)(void*),
+  const pmath_text_file_api_t  *api);
   
 /** @} */
 

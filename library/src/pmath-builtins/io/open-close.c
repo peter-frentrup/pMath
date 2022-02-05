@@ -709,8 +709,8 @@ PMATH_PRIVATE pmath_t builtin_open(pmath_expr_t expr) {
     file = filename;
     filename = pmath_evaluate(
                  pmath_parse_string_args(
-                   "File.Replace(Join(Options(`1`), File->/\\/))",
-                   "(0)",
+                   "File.Replace(Append(Options(`1`), File->/\\/))",
+                   "(o)",
                    pmath_ref(file)));
   }
   

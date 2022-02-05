@@ -895,9 +895,9 @@ void pmath_file_close_if_unused(pmath_t file) {
 
 PMATH_API
 pmath_symbol_t pmath_file_create_binary(
-  void                     *extra,
-  void                    (*extra_destructor)(void *),
-  pmath_binary_file_api_t  *api
+  void                           *extra,
+  void                          (*extra_destructor)(void *),
+  const pmath_binary_file_api_t  *api
 ) {
   struct _pmath_binary_file_t *data;
   pmath_custom_t custom;
@@ -975,9 +975,9 @@ PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
 PMATH_ATTRIBUTE_NONNULL(2)
 pmath_symbol_t pmath_file_create_text(
-  void                   *extra,
-  void                  (*extra_destructor)(void *),
-  pmath_text_file_api_t  *api
+  void                         *extra,
+  void                        (*extra_destructor)(void *),
+  const pmath_text_file_api_t  *api
 ) {
   struct _pmath_text_file_t *data;
   pmath_custom_t custom;

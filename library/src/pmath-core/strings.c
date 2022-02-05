@@ -981,7 +981,7 @@ void _pmath_string_write_escaped(
     void           (*write)(void *user, const uint16_t *data, int len),
     void            *user
 ) {
-  static char hex_digits[16] = "0123456789ABCDEF";
+  static const char hex_digits[16] = "0123456789ABCDEF";
 
   const uint16_t *buffer = pmath_string_buffer(&str);
   const uint16_t *end    = buffer + pmath_string_length(str);
