@@ -1,0 +1,108 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("SectionFrameMargins", "ObjectName"), 
+      Section(BoxData(TemplateBox({"SectionFrameMargins"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink"), 
+           " \[Rule] ", StyleBox("n", "Arg"), " places the frame ", 
+           StyleBox("n", "Arg"), 
+           " printer\[HighNineQuote]s points apart from the contents of the \
+           section."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink"), 
+           " \[Rule] {", StyleBox("l", "Arg"), ", ", StyleBox("r", "Arg"), 
+           ", ", StyleBox("t", "Arg"), ", ", StyleBox("b", "Arg"), 
+           "} use particular margin widths for the left, right, top and bottom \
+           sides, respectively. "}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink"), 
+           " \[Rule] {", StyleBox("h", "Arg"), ", ", StyleBox("v", "Arg"), 
+           "} uses ", StyleBox("h", "Arg"), 
+           " for the left and right sides and ", StyleBox("v", "Arg"), 
+           " for top and bottom sides. Each of ", StyleBox("h", "Arg"), 
+           " and ", StyleBox("v", "Arg"), 
+           " may be itself a list of two values {", StyleBox("l", "Arg"), 
+           ", ", StyleBox("r", "Arg"), "} or {", StyleBox("t", "Arg"), ", ", 
+           StyleBox("b", "Arg"), "}."}), "Notes"), 
+        Section(
+         TextData({TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink"), 
+           " is often set on the level of stylesheets for styles of sections \
+           rather than for indicidual sections."}), "Notes"), 
+        Section(TextData({"Each of the values ", StyleBox("l", "Arg"), ", ", 
+           StyleBox("r", "Arg"), ", ", StyleBox("t", "Arg"), ", ", 
+           StyleBox("b", "Arg"), ", ", StyleBox("h", "Arg"), ", ", 
+           StyleBox("v", "Arg"), " can be ", 
+           TemplateBox({"Inherited"}, "ReferenceHyperlink"), 
+           " to inherit settings from the base style."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(
+         "Specify the space left between frame and contents of a section:", 
+         "ExampleText"), 
+        Section(BoxData({"SectionPrint", "(", {
+            "Table", "(", {
+             {"Section", "(", {
+               ComplexStringBox(
+                "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
+                xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
+                xxxx.\""), ",", ComplexStringBox("\"Text\""), ",", {
+                "SectionFrame", "\[Rule]", "True"}, ",", {
+                "SectionFrameMargins", "\[Rule]", "n"}, ",", {
+                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ",", {
+              "n", "\[Rule]", {"{", {"0", ",", "5", ",", "10", ",", "20"}, 
+               "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+        Section(
+         "Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx \
+         xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
+         SectionFrame -> {1, 1, 1, 1}, SectionFrameMargins -> {0, 0, 0, 0}, 
+         SectionGenerated -> True), 
+        Section(
+         "Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx \
+         xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
+         SectionFrame -> {1, 1, 1, 1}, SectionFrameMargins -> {5, 5, 5, 5}, 
+         SectionGenerated -> True), 
+        Section(
+         "Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx \
+         xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
+         SectionFrame -> {1, 1, 1, 1}, SectionFrameMargins -> {
+           10, 10, 10, 10}, SectionGenerated -> True), 
+        Section(
+         "Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx \
+         xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
+         SectionFrame -> {1, 1, 1, 1}, SectionFrameMargins -> {
+           20, 20, 20, 20}, SectionGenerated -> True), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use different frame margins at each side:", "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {
+               ComplexStringBox(
+                "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
+                xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
+                xxxx.\""), ",", ComplexStringBox("\"Text\""), ",", {
+                "SectionFrame", "\[Rule]", "True"}, ",", {
+                "SectionFrameMargins", "\[Rule]", {
+                 "{", {"100", ",", "50", ",", "30", ",", "15"}, "}"}}, ",", {
+                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           "Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. \
+           Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", 
+           "Text", SectionFrame -> {1, 1, 1, 1}, 
+           SectionFrameMargins -> {100, 50, 30, 15}, 
+           SectionGenerated -> True)}, All)}, All), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Section"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"SectionFrame"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"SectionMargins"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
