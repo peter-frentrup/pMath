@@ -27,9 +27,11 @@ namespace richmath {
     protected:
       virtual bool on_create(CREATESTRUCTW *args) override;
       virtual void on_paint(HDC hdc) override;
+      virtual bool on_timer(UINT_PTR id, TIMERPROC proc) override;
     
     private:
       HMENU menu;
+      bool hide_caret: 1;
   };
 }
 

@@ -60,10 +60,13 @@ extern pmath_symbol_t richmath_System_MenuItem;
 
 extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
 
+static const struct {} TimerIdBlinkSearchboxCursor; 
+
 //{ class Win32MenuSearchOverlay ...
 
 Win32MenuSearchOverlay::Win32MenuSearchOverlay(HMENU menu)
-: menu{menu}
+: menu{menu}, 
+  hide_caret{false}
 {
 }
 
@@ -122,6 +125,7 @@ bool Win32MenuSearchOverlay::handle_char_message(WPARAM wParam, LPARAM lParam, H
     SendMessageW(GetAncestor(control, GA_PARENT), MN_SELECTITEM, end_index + 1, 0);
   }
   text(std::move(str));
+  hide_caret = false;
   InvalidateRect(control, nullptr, false);
   return true;
 }
@@ -134,6 +138,7 @@ bool Win32MenuSearchOverlay::handle_keydown_message(WPARAM wParam, LPARAM lParam
       
       Impl::update_query(String(), menu);
       text(String());
+      hide_caret = false;
       InvalidateRect(control, nullptr, false);
       return true;
   }
@@ -263,14 +268,31 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     }
   }
   
-  rect.right = rect.left + 1;
-  InflateRect(&rect, 0, -1);
-  SetDCBrushColor(hdc, text_color);
-  FillRect(hdc, &rect, (HBRUSH)GetStockObject(DC_BRUSH));
-  //FillRect(hdc, &rect, (HBRUSH)(1 + COLOR_WINDOWTEXT));
+  if(!hide_caret) {
+    rect.right = rect.left + 1;
+    InflateRect(&rect, 0, -1);
+    SetDCBrushColor(hdc, text_color);
+    FillRect(hdc, &rect, (HBRUSH)GetStockObject(DC_BRUSH));
+  }
+  UINT blink_time = GetCaretBlinkTime();
+  if(blink_time != INFINITE)
+    SetTimer(control, (UINT_PTR)&TimerIdBlinkSearchboxCursor, blink_time, nullptr);
   
   if(oldfont)
     DeleteObject(SelectObject(hdc, oldfont));
+}
+
+bool Win32MenuSearchOverlay::on_timer(UINT_PTR id, TIMERPROC proc) {
+  if(id == (UINT_PTR)&TimerIdBlinkSearchboxCursor) {
+    KillTimer(control, id);
+    
+    hide_caret = !hide_caret;
+    InvalidateRect(control, nullptr, false);
+    
+    return true;
+  }
+  
+  return false;
 }
 
 //} ... class Win32MenuSearchOverlay

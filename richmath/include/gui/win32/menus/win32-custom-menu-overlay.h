@@ -23,6 +23,7 @@ namespace richmath {
     protected:
       virtual bool on_create(CREATESTRUCTW *args);
       virtual void on_paint(HDC hdc) {}
+      virtual bool on_timer(UINT_PTR id, TIMERPROC proc) { return false; }
       virtual LPARAM on_wndproc(UINT message, WPARAM wParam, LPARAM lParam);
   };
 }

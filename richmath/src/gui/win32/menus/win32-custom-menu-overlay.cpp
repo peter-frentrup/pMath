@@ -127,6 +127,10 @@ LRESULT Win32CustomMenuOverlay::on_wndproc(UINT message, WPARAM wParam, LPARAM l
         
         EndPaint(control, &paintStruct);
       } return 0;
+    case WM_TIMER: {
+        if(on_timer((UINT_PTR)wParam, (TIMERPROC)lParam))
+          return 0;
+      } break;
   }
   return DefWindowProcW(control, message, wParam, lParam);
 }
