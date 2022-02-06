@@ -891,7 +891,11 @@ Box *MathSequence::move_vertical(
     
     if(auto box = iter.current_box()) {
       if(*index_rel_x > 0) {
-        if(!iter.has_more_glyphs() || x < iter.current_glyph().right + l) {
+        if(!iter.has_more_glyphs()) { // 'glyphs' is not up-to date. Get out of here quickly before things get worse.
+          *index = iter.text_index();
+          return iter.current_sequence();
+        }
+        if(x < iter.current_glyph().right + l) {
           *index = -1;
           return box->move_vertical(direction, index_rel_x, index, false);
         }
