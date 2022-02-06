@@ -1,6 +1,6 @@
 # pMath #
 
-Copyright © Peter Frentrup, 2005-2021
+Copyright © Peter Frentrup, 2005-2022
 
 *pMath* is an experimental computer algebra system/programming language.
 Some concepts are similar to [Mathematica][] (usage of pattern matching, everything is an expression, automatic data-binding with Dynamic), but with improved syntax.
