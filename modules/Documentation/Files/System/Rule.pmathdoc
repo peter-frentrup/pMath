@@ -1,0 +1,141 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({
+      Section(TextData({"Rule (", BoxData("->"), ", ", BoxData("\[Rule]"), 
+         ")"}), "ObjectName"), 
+      Section(BoxData(TemplateBox({"Rule"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"The character \[Rule] can be entered as ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), "->", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), " or ", 
+           TemplateBox({"Rule"}, "NamedCharacterHyperlink"), "."}), "Notes"), 
+        Section(TextData({StyleBox("lhs", "Arg"), " \[Rule] ", 
+           StyleBox("rhs", "Arg"), " evaluates both ", StyleBox("lhs", "TI"), 
+           " and ", StyleBox("rhs", "Arg"), " immediately."}), "Notes"), 
+        Section(TextData({"The assignment ", StyleBox("lhs", "Arg"), 
+           " \[Assign] ", StyleBox("rhs", "Arg"), " specifies that the rule ", 
+           StyleBox("lhs", "Arg"), " \[Rule] ", StyleBox("rhs", "Arg"), 
+           " is to be used whenever it applies during an evaluation."}), 
+         "Notes"), 
+        Section(TextData({"Rules are applied using ", 
+           TemplateBox({"Replace"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+           ", and similar functions."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Use a rule that replaces ", BoxData("x"), 
+           " by 2:"}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({
+             {"{", {"x", ",", {"x", "^", "3"}, ",", {"f", "(", "x", ")"}, ",", 
+               "y"}, "}"}, ".", "Replace", "(", {"x", "\[Rule]", "2"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"2", ",", "8", ",", {"f", "(", "2", ")"}, 
+              ",", "y"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Any expression or pattern can appear in a rule:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({{"{", {"x", ",", {"x", "^", "2"}, ",", {"x", "^", "3"}, 
+               ",", "a", ",", "b"}, "}"}, ".", "Replace", "(", {
+              {"x", "^", "2"}, "\[Rule]", "y"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {"x", ",", "y", ",", {"x", SuperscriptBox("3")}, ",", 
+              "a", ",", "b"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(
+           BoxData({{"{", {"x", ",", {"x", "^", "2"}, ",", {"x", "^", "3"}, 
+               ",", "a", ",", "b"}, "}"}, ".", "Replace", "(", {
+              {"x", "^", {"~", "n"}}, "\[Rule]", {"f", "(", "n", ")"}}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"{", {"x", ",", {"f", "(", "2", ")"}, ",", {
+               "f", "(", "3", ")"}, ",", "a", ",", "b"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({BoxData("->"), 
+           " evaluates when it is first entered, ", BoxData(":>"), 
+           " when it is used:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"{", {"x", ",", "x", ",", "x", ",", "x"}, "}"}, 
+             ".", "Replace", "(", {"x", "\[Rule]", {"RandomReal", "(", ")"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {"0.96736856793252024`", ",", "0.96736856793252024`", 
+              ",", "0.96736856793252024`", ",", "0.96736856793252024`"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({{"{", {"x", ",", "x", ",", "x", ",", "x"}, "}"}, 
+             ".", "Replace", "(", {"x", "\[RuleDelayed]", {
+               "RandomReal", "(", ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({"{", {"0.89637712622161181`", ",", "0.86929050113268891`", 
+              ",", "0.88651163712446712`", ",", "0.082766191696791003`"}, 
+             "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({BoxData("->"), " groups to the right:"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"FullForm", "(", {
+                "a", "\[Rule]", {"b", "\[Rule]", "c"}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(StyleBox({"Rule", "(", {
+                 "a", ",", {"Rule", "(", {"b", ",", "c"}, ")"}}, ")"}, 
+               AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"a", ".", "Replace", "(", {
+                "a", "\[Rule]", {"b", "\[Rule]", "c"}}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"b", "\[Rule]", "c"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({StyleBox("lhs", "Arg"), " \[Rule] ", 
+           StyleBox("rhs", "Arg"), " evaluates both ", StyleBox("lhs", "TI"), 
+           " and ", StyleBox("rhs", "Arg"), " immediately."}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({{"n", "\[Assign]", "9"}, ";"}, "\n", {
+              {"{", {"x", ",", {"x", "^", "2"}, ",", {"x", "^", "3"}, ",", 
+                "a", ",", "b"}, "}"}, ".", "Replace", "(", {
+               {"x", "^", {"~", "n"}}, "\[Rule]", {"f", "(", "n", ")"}}, 
+              ")"})), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"x", ",", {"f", "(", "9", ")"}, ",", {
+               "f", "(", "9", ")"}, ",", "a", ",", "b"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        Section(
+         TextData({"Use ", TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
+           " (", BoxData(":>"), ", ", BoxData("\[RuleDelayed]"), 
+           ") to suppress premature evaluation of the ", 
+           StyleBox("rhs", "Arg"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({{"n", "\[Assign]", "9"}, ";"}, "\n", {
+              {"{", {"x", ",", {"x", "^", "2"}, ",", {"x", "^", "3"}, ",", 
+                "a", ",", "b"}, "}"}, ".", "Replace", "(", {
+               {"x", "^", {"~", "n"}}, "\[RuleDelayed]", {
+                "f", "(", "n", ")"}}, ")"})), "Input", 
+           SectionLabel -> "in [3]:"), 
+          Section(BoxData({"{", {"x", ",", {"f", "(", "2", ")"}, ",", {
+               "f", "(", "3", ")"}, ",", "a", ",", "b"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [4]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Replace"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Assign"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

@@ -1,0 +1,104 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({
+      Section(TextData({"RuleDelayed (", BoxData(":>"), ", ", 
+         BoxData("\[RuleDelayed]"), ")"}), "ObjectName"), 
+      Section(BoxData(TemplateBox({"RuleDelayed"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"The character \[RuleDelayed] can be entered as ", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), ":>", 
+           BoxData(TemplateBox({}, "AliasDelimiterKeyEvent")), " or ", 
+           TemplateBox({"RuleDelayed"}, "NamedCharacterHyperlink"), "."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
+           " has attribute ", TemplateBox({"HoldRest"}, "ReferenceHyperlink"), 
+           "."}), "Notes"), 
+        Section(TextData({"The assignment ", StyleBox("lhs", "Arg"), 
+           " \[AssignDelayed] ", StyleBox("rhs", "Arg"), 
+           " specifies that the rule ", StyleBox("lhs", "Arg"), 
+           " \[RuleDelayed] ", StyleBox("rhs", "Arg"), 
+           " is to be used whenever it applies during an evaluation."}), 
+         "Notes"), 
+        Section(TextData({"Rules are applied using ", 
+           TemplateBox({"Replace"}, "ReferenceHyperlink"), ", ", 
+           TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+           ", and similar functions."}), "Notes"), 
+        Section(
+         TextData({"Use ", TemplateBox({"Condition"}, "ReferenceHyperlink"), 
+           " to restrict when a particular rule applies."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({BoxData(":>"), 
+           " holds its right-hand side unevaluated:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"x", "\[RuleDelayed]", {"RandomReal", "(", ")"}}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"x", "\[RuleDelayed]", {"RandomReal", "(", ")"}}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), 
+        Section(
+         "The right-hand side gets evaluated separately each time it is \
+         used:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"{", {"x", ",", "x", ",", "x"}, "}"}, ".", 
+             "Replace", "(", {"x", "\[RuleDelayed]", {
+               "RandomReal", "(", ")"}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(
+           BoxData({"{", {"0.36027649483848678`", ",", "0.27241961600662246`", 
+              ",", "0.62887458074824976`"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+       All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Any expression or pattern can appear in a rule:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({{"{", {"x", ",", {"x", "^", "2"}, ",", {"x", "^", "3"}, 
+               ",", "a", ",", "b"}, "}"}, ".", "Replace", "(", {
+              {"x", "^", {"~", "n"}}, "\[RuleDelayed]", {"f", "(", "n", ")"}}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"x", ",", {"f", "(", "2", ")"}, ",", {
+               "f", "(", "3", ")"}, ",", "a", ",", "b"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Applications", "ExampleSection"), 
+        Section(TextData({"Increment ", BoxData("n"), " each time ", 
+           BoxData("x"), " gets replaced:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"n", "\[Assign]", "0"}, ";", {
+              {"{", {"x", ",", "x", ",", "a", ",", "b", ",", "x", ",", "x", 
+                ",", "c", ",", "d"}, "}"}, ".", "Replace", "(", {
+               "x", "\[RuleDelayed]", {"++", "n"}}, ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "2", ",", "a", ",", "b", ",", "3", 
+              ",", "4", ",", "c", ",", "d"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({BoxData(":>"), " groups to the right:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"FullForm", "(", {
+              "a", "\[RuleDelayed]", {"b", "\[RuleDelayed]", "c"}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(StyleBox({"RuleDelayed", "(", {
+               "a", ",", {"RuleDelayed", "(", {"b", ",", "c"}, ")"}}, ")"}, 
+             AutoDelete -> True, ShowStringCharacters -> True)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({"a", ".", "Replace", "(", {
+              "a", "\[RuleDelayed]", {"b", "\[RuleDelayed]", "c"}}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"b", "\[RuleDelayed]", "c"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Rule"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Condition"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Replace"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Lookup"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"AssignDelayed"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
