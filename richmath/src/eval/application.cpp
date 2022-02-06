@@ -500,6 +500,13 @@ void Application::gui_print_section(Expr expr) {
             }
           }
         }
+        
+        if(!sect->style)
+          sect->style = new Style();
+        
+        int dummy;
+        if(!sect->style->get(SectionGenerated, &dummy))
+          sect->style->set(SectionGenerated, true);
       }
       
       doc->insert(index, sect);

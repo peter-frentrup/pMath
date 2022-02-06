@@ -444,15 +444,11 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                 boxes));
     
     sections = pmath_expr_new_extended(
-                 pmath_ref(richmath_System_Section), 3,
+                 pmath_ref(richmath_System_Section), 2,
                  pmath_expr_new_extended(
                    pmath_ref(richmath_System_BoxData), 1,
                    boxes),
-                 style,
-                 pmath_expr_new_extended(
-                   pmath_ref(richmath_System_Rule), 2,
-                   pmath_ref(richmath_System_SectionGenerated),
-                   pmath_ref(richmath_System_True)));
+                 style);
   }
   else
     sections = pmath_expr_get_item(expr, 1);
@@ -481,12 +477,8 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
       }
       
       sect = pmath_expr_new_extended(
-               pmath_ref(richmath_System_Section), 2,
-               content,
-               pmath_expr_new_extended(
-                 pmath_ref(richmath_System_Rule), 2,
-                 pmath_ref(richmath_System_SectionGenerated),
-                 pmath_ref(richmath_System_True)));
+               pmath_ref(richmath_System_Section), 1,
+               content);
     }
     
     Application::notify_wait(ClientNotification::PrintSection, Expr(sect));
