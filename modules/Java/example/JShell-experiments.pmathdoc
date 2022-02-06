@@ -3,65 +3,64 @@
 Document({
   SectionGroup({Section("JShell", "Title"), 
     SectionGroup({Section("Initialization", "Section"), 
-      Section(BoxData({"<<", "Java`"}), "Input", SectionLabel -> "in [32]:"), 
+      Section(BoxData({"<<", "Java`"}), "Input", SectionLabel -> "in [1]:"), 
       SectionGroup({
         Section(BoxData({"engine", "\[Assign]", {
             "JavaNew", "(", ComplexStringBox(
              "\"jdk.jshell.execution.LocalExecutionControlProvider\""), 
-            ")"}}), "Input", SectionLabel -> "in [33]:"), 
+            ")"}}), "Input", SectionLabel -> "in [2]:"), 
         Section(BoxData(InterpretationBox({
             "\[LeftGuillemet]", "\[NonBreakingSpace]", 
             ComplexStringBox(
              "\"jdk.jshell.execution.LocalExecutionControlProvider\""), 
             "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-           Java`JavaObject(Java`Objects`javaObject$1518, 
+           Java`JavaObject(Java`Objects`javaObject$307, 
             "jdk.jshell.execution.LocalExecutionControlProvider"), 
            Editable -> False)), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [33]:")}, All), 
+         SectionLabel -> "out [2]:")}, All), 
       SectionGroup({
         Section(BoxData({"jshell", "\[Assign]", {
             {"JavaClass", "(", ComplexStringBox("\"jdk.jshell.JShell\""), 
              ")"}, "@", {{"builder", "(", ")"}, "@", {
               {"executionEngine", "(", {"engine", ",", "/\\/"}, ")"}, "@", {
-               "build", "(", ")"}}}}}), "Input", SectionLabel -> "in [34]:"), 
+               "build", "(", ")"}}}}}), "Input", SectionLabel -> "in [3]:"), 
         Section(BoxData(InterpretationBox({
             "\[LeftGuillemet]", "\[NonBreakingSpace]", 
             ComplexStringBox("\"jdk.jshell.JShell\""), "\[NonBreakingSpace]", 
-            "\[RightGuillemet]"}, Java`JavaObject(
-            Java`Objects`javaObject$1520, "jdk.jshell.JShell"), 
-           Editable -> False)), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [34]:")}, All)}, All), 
+            "\[RightGuillemet]"}, Java`JavaObject(Java`Objects`javaObject$314, 
+            "jdk.jshell.JShell"), Editable -> False)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, All), 
     SectionGroup({Section("API examples \[Dash] Evaluation", "Section"), 
       SectionGroup({
         Section(BoxData({"snips", "\[Assign]", {
             "jshell", "@", {{"eval", "(", ComplexStringBox("\"2+3\""), ")"}, 
              "@", {"toArray", "(", ")"}}}}), "Input", 
-         SectionLabel -> "in [35]:"), 
+         SectionLabel -> "in [4]:"), 
         Section(
          BoxData({
            "{", InterpretationBox({"\[LeftGuillemet]", "\[NonBreakingSpace]", 
              ComplexStringBox("\"jdk.jshell.SnippetEvent\""), 
              "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-            Java`JavaObject(Java`Objects`javaObject$1535, 
+            Java`JavaObject(Java`Objects`javaObject$322, 
              "jdk.jshell.SnippetEvent"), Editable -> False), "}"}), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [35]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
       SectionGroup({
         Section(BoxData({"snips", ".", "Map", "(", {
             "Function", "(", {"#", "@", {"value", "(", ")"}}, ")"}, ")"}), 
-         "Input", SectionLabel -> "in [36]:"), 
+         "Input", SectionLabel -> "in [5]:"), 
         Section(BoxData({"{", ComplexStringBox("\"5\""), "}"}), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [36]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
       SectionGroup({
         Section(BoxData({"snips", ".", "Map", "(", {
             "Function", "(", {"#", "@", {"toString", "(", ")"}}, ")"}, ")"}), 
-         "Input", SectionLabel -> "in [37]:"), 
+         "Input", SectionLabel -> "in [6]:"), 
         Section(
          BoxData({
            "{", ComplexStringBox(
             "\"SnippetEvent(snippet=Snippet:VariableKey($1)#1-2+3,previousStat\
             us=NONEXISTENT,status=VALID,isSignatureChange=true,causeSnippetnul\
             lvalue=5)\""), "}"}), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [37]:")}, All), 
+         SectionLabel -> "out [6]:")}, All), 
       SectionGroup({
         Section(
          BoxData({"Map", "(", {
@@ -70,91 +69,91 @@ Document({
                 "\"System.out.println(\\\"TestTEST\\\")\""), ")"}, "@", {
                "toArray", "(", ")"}}}, ",", {
              "Function", "(", {"#", "@", {"value", "(", ")"}}, ")"}}, ")"}), 
-         "Input", SectionLabel -> "in [38]:"), 
+         "Input", SectionLabel -> "in [7]:"), 
         Section(BoxData({"{", ComplexStringBox("\"\""), "}"}), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [38]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
       SectionGroup({
         Section(BoxData({{"First", "(", "snips", ")"}, "@", {
             {"snippet", "(", ")"}, "@", {"toString", "(", ")"}}}), "Input", 
-         SectionLabel -> "in [39]:"), 
+         SectionLabel -> "in [8]:"), 
         Section(BoxData(ComplexStringBox(
            "\"Snippet:VariableKey($1)#1-2+3\"")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [39]:")}, All), 
-      SectionGroup({Section(BoxData("x"), "Input", 
-         SectionLabel -> "in [40]:"), Section(BoxData("x"), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [40]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
+      SectionGroup({Section(BoxData("x"), "Input", SectionLabel -> "in [9]:"), 
+        Section(BoxData("x"), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [9]:")}, All), 
       SectionGroup({
         Section(BoxData({"tmpSnips", "\[Assign]", {
             "jshell", "@", {
              {"eval", "(", ComplexStringBox(
                "\"new pmath.Context().run(\\\"Global`x:=`1`\\\",$6)\""), ")"}, 
              "@", {"toArray", "(", ")"}}}}), "Input", 
-         SectionLabel -> "in [41]:"), 
+         SectionLabel -> "in [10]:"), 
         Section(
          BoxData({
            "{", InterpretationBox({"\[LeftGuillemet]", "\[NonBreakingSpace]", 
              ComplexStringBox("\"jdk.jshell.SnippetEvent\""), 
              "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-            Java`JavaObject(Java`Objects`javaObject$1566, 
+            Java`JavaObject(Java`Objects`javaObject$340, 
              "jdk.jshell.SnippetEvent"), Editable -> False), "}"}), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [41]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
       SectionGroup({
         Section(BoxData({{"tmpSnips", "[", "1", "]"}, "@", {
-            "toString", "(", ")"}}), "Input", SectionLabel -> "in [42]:"), 
+            "toString", "(", ")"}}), "Input", SectionLabel -> "in [11]:"), 
         Section(BoxData(ComplexStringBox(
            "\"SnippetEvent(snippet=Snippet:ErroneousKey#3-new \
            pmath.Context().run(\\\"Global`x:=`1`\\\",$6),previousStatus=NONEXI\
            STENT,status=REJECTED,isSignatureChange=false,causeSnippetnull)\"")), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [42]:")}, All), 
+         SectionLabel -> "out [11]:")}, All), 
       SectionGroup({Section(BoxData("x"), "Input", 
-         SectionLabel -> "in [43]:"), Section(BoxData("x"), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [43]:")}, All), 
+         SectionLabel -> "in [12]:"), Section(BoxData("x"), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [12]:")}, All), 
       SectionGroup({
         Section(BoxData({"jshell", "@", {{"snippets", "(", ")"}, "@", {
-             "toArray", "(", ")"}}}), "Input", SectionLabel -> "in [44]:"), 
+             "toArray", "(", ")"}}}), "Input", SectionLabel -> "in [13]:"), 
         Section(
          BoxData({
            "{", {InterpretationBox({"\[LeftGuillemet]", "\[NonBreakingSpace]", 
               ComplexStringBox("\"jdk.jshell.VarSnippet\""), 
               "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-             Java`JavaObject(Java`Objects`javaObject$1584, 
+             Java`JavaObject(Java`Objects`javaObject$354, 
               "jdk.jshell.VarSnippet"), Editable -> False), ",", 
             InterpretationBox({"\[LeftGuillemet]", "\[NonBreakingSpace]", 
               ComplexStringBox("\"jdk.jshell.StatementSnippet\""), 
               "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-             Java`JavaObject(Java`Objects`javaObject$1583, 
+             Java`JavaObject(Java`Objects`javaObject$353, 
               "jdk.jshell.StatementSnippet"), Editable -> False), ",", 
             InterpretationBox({"\[LeftGuillemet]", "\[NonBreakingSpace]", 
               ComplexStringBox("\"jdk.jshell.ErroneousSnippet\""), 
               "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-             Java`JavaObject(Java`Objects`javaObject$1582, 
+             Java`JavaObject(Java`Objects`javaObject$352, 
               "jdk.jshell.ErroneousSnippet"), Editable -> False)}, "}"}), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [44]:")}, 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [13]:")}, 
        All), SectionGroup({
         Section(BoxData({"tmpSnips", ":=", {
             "jshell", "@", {{"eval", "(", ComplexStringBox("\"1+\""), ")"}, 
              "@", {"toArray", "(", ")"}}}}), "Input", 
-         SectionLabel -> "in [45]:"), 
+         SectionLabel -> "in [14]:"), 
         Section(
          BoxData({
            "{", InterpretationBox({"\[LeftGuillemet]", "\[NonBreakingSpace]", 
              ComplexStringBox("\"jdk.jshell.SnippetEvent\""), 
              "\[NonBreakingSpace]", "\[RightGuillemet]"}, 
-            Java`JavaObject(Java`Objects`javaObject$1601, 
+            Java`JavaObject(Java`Objects`javaObject$360, 
              "jdk.jshell.SnippetEvent"), Editable -> False), "}"}), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [45]:")}, All), 
+         SectionGenerated -> True, SectionLabel -> "out [14]:")}, All), 
       SectionGroup({
         Section(
          BoxData({"Map", "(", {"tmpSnips", ",", {
              "Function", "(", {"#", "@", {"toString", "(", ")"}}, ")"}}, 
-           ")"}), "Input", SectionLabel -> "in [46]:"), 
+           ")"}), "Input", SectionLabel -> "in [15]:"), 
         Section(
          BoxData({
            "{", ComplexStringBox(
             "\"SnippetEvent(snippet=Snippet:ErroneousKey#4-1+,previousStatus=N\
             ONEXISTENT,status=REJECTED,isSignatureChange=false,causeSnippetnul\
             l)\""), "}"}), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [46]:")}, All), 
+         SectionLabel -> "out [15]:")}, All), 
       SectionGroup({
         Section(
          BoxData({"Map", "(", {"tmpSnips", ",", {
@@ -165,17 +164,17 @@ Document({
                  "@", {"toArray", "(", ")"}}}, ",", {
                 "Function", "(", {"#", "@", {"getMessage", "(", "/\\/", ")"}}, 
                 ")"}}, ")"}, ")"}}, ")"}), "Input", 
-         SectionLabel -> "in [47]:"), 
+         SectionLabel -> "in [16]:"), 
         Section(
          BoxData({
            "{", {
             "{", ComplexStringBox("\"reached end of file while parsing\""), 
             "}"}, "}"}), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [47]:")}, All)}, All), 
+         SectionLabel -> "out [16]:")}, All)}, All), 
     SectionGroup({Section("Front-End integration", "Section"), 
       Section(BoxData({{"javaCodeFromBoxes", "(", {"~", "s", ":", "String"}, 
           ")"}, "\[AssignDelayed]", "s"}), "Input", 
-       SectionLabel -> "in [49]:"), 
+       SectionLabel -> "in [17]:"), 
       Section(
        "Caution: the front-end will strip white-space and pMath comments \
        before sending the box expressions. Hence, we insert spaces between any \
@@ -184,11 +183,11 @@ Document({
           ")"}, "\[AssignDelayed]", {"StringExpression", "@@", {
            {"boxes", ".", "Map", "(", "javaCodeFromBoxes", ")"}, ".", 
            "Riffle", "(", ComplexStringBox("\" \""), ")"}}}), "Input", 
-       SectionLabel -> "in [50]:"), 
+       SectionLabel -> "in [18]:"), 
       Section(
        BoxData({{"javaStringCodeFromBoxes", "(", {"~", "s", ":", "String"}, 
           ")"}, "\[AssignDelayed]", "s"}), "Input", 
-       SectionLabel -> "in [51]:"), 
+       SectionLabel -> "in [19]:"), 
       Section(BoxData({{"javaStringCodeFromBoxes", "(", {"~", "box"}, ")"}, 
          "\[AssignDelayed]", {ComplexStringBox("\"\\\\uFFF9\""), "++", {
            {"ToString", "(", {"InputForm", "(", "box", ")"}, ")"}, ".", 
@@ -198,13 +197,13 @@ Document({
               ComplexStringBox("\"\\\"\""), "\[RuleDelayed]", 
               ComplexStringBox("\"\\\\\\\"\"")}}, "}"}, ")"}, "++", 
           ComplexStringBox("\"\\\\uFFFB\"")}}), "Input", 
-       SectionLabel -> "in [52]:"), 
+       SectionLabel -> "in [20]:"), 
       Section(
        BoxData({{"javaCodeFromBoxes", "(", {
            "ComplexStringBox", "(", {"~~~", "s"}, ")"}, ")"}, 
          "\[AssignDelayed]", {"StringExpression", "@@", {
            "Map", "(", {{"{", "s", "}"}, ",", "javaStringCodeFromBoxes"}, 
-           ")"}}}), "Input", SectionLabel -> "in [53]:"), 
+           ")"}}}), "Input", SectionLabel -> "in [21]:"), 
       Section(
        "A better solution would be to tell the front-end that is should send \
        everything, e.g. with a Section option StripWhitespace \[Rule] False ", 
@@ -217,7 +216,7 @@ Document({
           "\[AssignDelayed]", {ComplexStringBox("\"(java.lang.Math.sqrt(\""), 
            "++", {"javaCodeFromBoxes", "(", "box", ")"}, "++", 
            ComplexStringBox("\"))\"")}}}), "Input", 
-       SectionLabel -> "in [54]:"), 
+       SectionLabel -> "in [22]:"), 
       Section(BoxData({{"javaCodeFromBoxes", "(", {"~", "errbox"}, ")"}, 
          "\[AssignDelayed]", {
           "(", {{"Message", "(", {{"Java", "::", "box"}, ",", {
@@ -228,7 +227,7 @@ Document({
                    "Developer`GetDebugInfo", "(", "errbox", ")"}, ")"}}, ",", {
                  "ButtonFrame", "\[Rule]", 
                  ComplexStringBox("\"Frameless\"")}}, ")"}}}, ")"}, ";", 
-           "$Failed"}, ")"}}), "Input", SectionLabel -> "in [54]:"), 
+           "$Failed"}, ")"}}), "Input", SectionLabel -> "in [22]:"), 
       Section(
        BoxData(
         /\/({{{"Java", "::", "box"}, "\[Assign]", 
@@ -236,7 +235,7 @@ Document({
          "\n", {{{"Java", "::", "ex"}, "\[Assign]", 
            ComplexStringBox("\"`1`\"")}, ";"}, "\n", {
           {{"Java", "::", "diag"}, "\[Assign]", ComplexStringBox("\"`1`\"")}, 
-          ";"})), "Input", SectionLabel -> "in [55]:"), 
+          ";"})), "Input", SectionLabel -> "in [23]:"), 
       Section("The SectionEvaluationFunction for Java input:", "Text"), 
       Section(BoxData({"Function", " ", {
           "runJavaSection", "(", {"~", "boxes"}, ")"}, {
@@ -263,8 +262,7 @@ Document({
                     "{", {
                      "\n", {{"SectionPrint", "(", {
                         "Section", "(", {"val", ",", 
-                         ComplexStringBox("\"JavaOutput\""), ",", {
-                          "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}, 
+                         ComplexStringBox("\"JavaOutput\"")}, ")"}, ")"}, 
                       "\n"}}, "}"}, "Else", " ", {
                     "{", {
                      "\n", {
@@ -316,145 +314,244 @@ Document({
                                         ")"}, "\n"}}, "}"}}, "\n"}}, "}"}}}, 
                                "\n"}}, "}"}}}, "\n"}}, "}"}}, "\n"}}, "}"}}}, 
                  "\n"}}, "}"}}, "\n", ComplexStringBox("\"/\\\\/\"")}, "\n"}}, 
-          "}"}}), "Input", SectionLabel -> "in [58]:"), 
+          "}"}}), "Input", SectionLabel -> "in [26]:"), 
       Section(BoxData({{"runJavaSection", "(", ComplexStringBox("\"\\n\""), 
           ")"}, "\[AssignDelayed]", ComplexStringBox("\"/\\\\/\"")}), "Input", 
-       SectionLabel -> "in [59]:"), 
+       SectionLabel -> "in [27]:"), 
       Section(BoxData({{"runJavaSection", "(", {"~", "lines", ":", "/\\/"}, 
           ")"}, "\[AssignDelayed]", {
           "(", {{"lines", ".", "Scan", "(", "runJavaSection", ")"}, ";", 
            ComplexStringBox("\"/\\\\/\"")}, ")"}}), "Input", 
-       SectionLabel -> "in [60]:"), Section("A Java input section:", "Text"), 
+       SectionLabel -> "in [28]:"), Section("A Java input section:", "Text"), 
       Section(BoxData({"SectionPrint", "(", {
           "Section", "(", {{"BoxData", "(", ComplexStringBox("\"XXX\""), ")"}, 
            ",", ComplexStringBox("\"JavaInput\"")}, ")"}, ")"}), "Input", 
-       SectionLabel -> "in [61]:"), Section(BoxData("XXX"), "JavaInput"), 
-      SectionGroup({
+       SectionLabel -> "in [29]:"), Section(BoxData("XXX"), "JavaInput", 
+       SectionGenerated -> True), 
+      SectionGroup({Section(BoxData("XXX"), "JavaInput"), 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({MessageName -> HoldForm(Java`Java::"diag"), 
+               Message -> StringForm("`1`", 
+                 "cannot find symbol\n  symbol:   variable XXX\n  location: \
+                 class "), Stack -> {{"Head" -> ToExpression}, {
+                  "Head" -> $Context`runJavaSection}, {
+                  "Head" -> EvaluationSequence, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                      107, 14} .. {107, 20})}, {"Head" -> Do}, {"Head" -> Do}, 
+                 {"Head" -> Message}, {"Head" -> SectionPrint}}}, 
+              "MessageMenuButton"), {
+              "Java", "::", ComplexStringBox("\"diag\"")}}, "RowDefault"), 
+           ":", " ", InterpretationBox(ComplexStringBox("\"", 
+             ComplexStringBox(
+              "\"cannot find symbol\n  symbol:   variable XXX\n  location: \
+              class \"")), StringForm("`1`", 
+             "cannot find symbol\n  symbol:   variable XXX\n  location: class \
+             "), Editable -> False)}), "Message", SectionGenerated -> True)}, 
+       All), SectionGroup({
         Section(BoxData({"System", ".", "getProperty", "(", 
            ComplexStringBox("\"java.version\""), ")"}), "JavaInput"), 
         Section("\"14.0.1\"", "JavaOutput", SectionGenerated -> True)}, All), 
       SectionGroup({Section(BoxData({"1", "+"}), "JavaInput"), 
-        Section(BoxData({{"Java", "::", ComplexStringBox("\"diag\"")}, 
-           "\[Colon]", TemplateBox({
-             InterpretationBox(ComplexStringBox("\"", 
-               ComplexStringBox("\"reached end of file while parsing\"")), 
-              StringForm("`1`", "reached end of file while parsing"))}, 
-            "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({MessageName -> HoldForm(Java`Java::"diag"), 
+               Message -> StringForm("`1`", 
+                 "reached end of file while parsing"), 
+               Stack -> {{"Head" -> ToExpression}, {
+                  "Head" -> $Context`runJavaSection}, {
+                  "Head" -> EvaluationSequence, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                      107, 14} .. {107, 20})}, {"Head" -> Do}, {"Head" -> Do}, 
+                 {"Head" -> Message}, {"Head" -> SectionPrint}}}, 
+              "MessageMenuButton"), {
+              "Java", "::", ComplexStringBox("\"diag\"")}}, "RowDefault"), 
+           ":", " ", InterpretationBox(ComplexStringBox("\"", 
+             ComplexStringBox("\"reached end of file while parsing\"")), 
+            StringForm("`1`", "reached end of file while parsing"), 
+            Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
       SectionGroup({
         Section(BoxData(/\/({"1", " ", "+", " ", "1"}, "\n", {
             "2", " ", "+", " ", "2"})), "JavaInput"), 
         Section("2", "JavaOutput", SectionGenerated -> True), 
         Section("4", "JavaOutput", SectionGenerated -> True)}, All), 
       SectionGroup({Section(BoxData({"1", "+", SqrtBox("3")}), "JavaInput"), 
-        Section(BoxData({{"Java", "::", ComplexStringBox("\"box\"")}, 
-           "\[Colon]", TemplateBox({
-             InterpretationBox(ComplexStringBox("\"Cannot convert ", {
-                ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, ")"}, 
-                 ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(FrontEndObject(212), 2 .. 3)) &), 
-                 ButtonFrame -> "Frameless")}, " to Java code.\""), 
-              StringForm("Cannot convert `1` to Java code.", 
-               RawBoxes(ButtonBox({"SqrtBox", "(", {
-                   ComplexStringBox("\"3\"")}, ")"}, 
-                 ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(FrontEndObject(212), 2 .. 3)) &), 
-                 ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
-         SectionGenerated -> True)}, All), 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({MessageName -> HoldForm(Java`Java::"box"), 
+               Message -> StringForm("Cannot convert `1` to Java code.", 
+                 RawBoxes(ButtonBox({"SqrtBox", "(", {
+                     ComplexStringBox("\"3\"")}, ")"}, ButtonFunction -> None, 
+                   ButtonFrame -> "Frameless"))), 
+               Stack -> {{"Head" -> ToExpression}, {
+                  "Head" -> $Context`runJavaSection}, {"Head" -> With}, {
+                  "Head" -> Apply}, {"Head" -> Riffle}, {"Head" -> Map}, {
+                  "Head" -> EvaluationSequence}, {"Head" -> Message}, {
+                  "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+              "Java", "::", ComplexStringBox("\"box\"")}}, "RowDefault"), ":", 
+           " ", InterpretationBox(ComplexStringBox("\"Cannot convert ", 
+             ButtonBox({"SqrtBox", "(", ComplexStringBox("\"3\""), ")"}, 
+              ButtonFrame -> "Frameless", ButtonFunction -> None), 
+             " to Java code.\""), 
+            StringForm("Cannot convert `1` to Java code.", 
+             RawBoxes(ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, 
+                ")"}, ButtonFunction -> None, ButtonFrame -> "Frameless"))), 
+            Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
       SectionGroup({
         Section(
          BoxData({{"throw", " ", "new", " ", {
              {"java", ".", "lang"}, ".", "Exception", "(", 
-             ComplexStringBox("\"bla bla\""), ")"}}, ";"}), "JavaInput"), 
-        Section(BoxData({{"Java", "::", ComplexStringBox("\"ex\"")}, 
-           "\[Colon]", TemplateBox({
-             InterpretationBox(ComplexStringBox("\"", 
-               ComplexStringBox("\"java.lang.Exception: bla bla\"")), 
-              StringForm("`1`", "java.lang.Exception: bla bla"))}, 
-            "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
+             ComplexStringBox("\"bla bla\""), ")"}}, ";"}), "JavaInput", 
+         SectionLabel -> "in [1]:"), 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({MessageName -> HoldForm(Java`Java::"ex"), 
+               Message -> StringForm("`1`", "java.lang.Exception: bla bla"), 
+               Stack -> {{"Head" -> ToExpression}, {
+                  "Head" -> $Context`runJavaSection}, {
+                  "Head" -> EvaluationSequence, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                      107, 14} .. {107, 20})}, {"Head" -> Do}, {
+                  "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+              "MessageMenuButton"), {
+              "Java", "::", ComplexStringBox("\"ex\"")}}, "RowDefault"), ":", 
+           " ", InterpretationBox(ComplexStringBox("\"", 
+             ComplexStringBox("\"java.lang.Exception: bla bla\"")), 
+            StringForm("`1`", "java.lang.Exception: bla bla"), 
+            Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
       SectionGroup({Section(BoxData({"1", "/", "0"}), "JavaInput"), 
-        Section(BoxData({{"Java", "::", ComplexStringBox("\"ex\"")}, 
-           "\[Colon]", TemplateBox({
-             InterpretationBox(ComplexStringBox("\"", 
-               ComplexStringBox(
-                "\"java.lang.ArithmeticException: / by zero\"")), 
-              StringForm("`1`", "java.lang.ArithmeticException: / by zero"))}, 
-            "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
-      SectionGroup({Section(BoxData({"x", SuperscriptBox("2")}), "JavaInput"), 
-        Section(BoxData({{"Java", "::", ComplexStringBox("\"box\"")}, 
-           "\[Colon]", TemplateBox({
-             InterpretationBox(ComplexStringBox("\"Cannot convert ", {
-                ButtonBox({"SuperscriptBox", "(", {ComplexStringBox("\"2\"")}, 
-                  ")"}, ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(FrontEndObject(250), 1 .. 2)) &), 
-                 ButtonFrame -> "Frameless")}, " to Java code.\""), 
-              StringForm("Cannot convert `1` to Java code.", 
-               RawBoxes(ButtonBox({"SuperscriptBox", "(", {
-                   ComplexStringBox("\"2\"")}, ")"}, 
-                 ButtonFunction -> (SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(FrontEndObject(250), 1 .. 2)) &), 
-                 ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({MessageName -> HoldForm(Java`Java::"ex"), 
+               Message -> StringForm("`1`", 
+                 "java.lang.ArithmeticException: / by zero"), 
+               Stack -> {{"Head" -> ToExpression}, {
+                  "Head" -> $Context`runJavaSection}, {
+                  "Head" -> EvaluationSequence, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                      107, 14} .. {107, 20})}, {"Head" -> Do}, {
+                  "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+              "MessageMenuButton"), {
+              "Java", "::", ComplexStringBox("\"ex\"")}}, "RowDefault"), ":", 
+           " ", InterpretationBox(ComplexStringBox("\"", 
+             ComplexStringBox(
+              "\"java.lang.ArithmeticException: / by zero\"")), 
+            StringForm("`1`", "java.lang.ArithmeticException: / by zero"), 
+            Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
+      SectionGroup({Section(BoxData({"x", SuperscriptBox("2")}), "JavaInput", 
+         SectionLabel -> "in [1]:"), 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({MessageName -> HoldForm(Java`Java::"box"), 
+               Message -> StringForm("Cannot convert `1` to Java code.", 
+                 RawBoxes(ButtonBox({"SuperscriptBox", "(", {
+                     ComplexStringBox("\"2\"")}, ")"}, ButtonFunction -> None, 
+                   ButtonFrame -> "Frameless"))), 
+               Stack -> {{"Head" -> ToExpression}, {
+                  "Head" -> $Context`runJavaSection}, {"Head" -> With}, {
+                  "Head" -> Apply}, {"Head" -> Riffle}, {"Head" -> Map}, {
+                  "Head" -> EvaluationSequence}, {"Head" -> Message}, {
+                  "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+              "Java", "::", ComplexStringBox("\"box\"")}}, "RowDefault"), ":", 
+           " ", InterpretationBox(ComplexStringBox("\"Cannot convert ", 
+             ButtonBox({"SuperscriptBox", "(", ComplexStringBox("\"2\""), 
+               ")"}, ButtonFrame -> "Frameless", ButtonFunction -> None), 
+             " to Java code.\""), 
+            StringForm("Cannot convert `1` to Java code.", 
+             RawBoxes(ButtonBox({"SuperscriptBox", "(", {
+                 ComplexStringBox("\"2\"")}, ")"}, ButtonFunction -> None, 
+               ButtonFrame -> "Frameless"))), Editable -> False)}), "Message", 
          SectionGenerated -> True)}, All), 
       SectionGroup({
         Section(BoxData(ComplexStringBox("\"x", SuperscriptBox("2"), "+", 
            SqrtBox("3"), "\"")), "JavaInput"), 
-        SectionGroup({Section({"\"x", $Failed, "+", $Failed, "\""}, 
+        SectionGroup({Section(TextData({"\"x", $Failed, "+", $Failed, "\""}), 
            "JavaOutput", SectionGenerated -> True), 
           Section(
-           BoxData(TemplateBox({
-              {{"MakeExpression", "::", ComplexStringBox("\"inv\"")}, 
-               "\[Colon]", TemplateBox({
-                 InterpretationBox(ComplexStringBox("\"", {
-                    ComplexStringBox("\"\\\"\"")}, 
-                   " is neither a string nor a valid box.\""), 
-                  StringForm("`1` is neither a string nor a valid box.", 
-                   "\""))}, "RowDefault")}, ComplexStringBox("\" \""), 
-              TemplateBox({ComplexStringBox("\"[\""), "5", 
-                ComplexStringBox("\"]\"")}, "RowDefault")}, "RowDefault")), 
-           "Message", SectionGenerated -> True), 
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(MakeExpression::"inv"), 
+                 Message -> StringForm(
+                   "`1` is neither a string nor a valid box.", "\""), 
+                 Stack -> {{"Head" -> MakeExpression}, {
+                    "Head" -> MakeExpression}, {"Head" -> MakeExpression}, {
+                    "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+                "MessageMenuButton"), {"MakeExpression", "::", 
+                ComplexStringBox("\"inv\"")}}, "RowDefault"), ":", " ", 
+             InterpretationBox(ComplexStringBox("\"", 
+               ComplexStringBox("\"\\\"\""), 
+               " is neither a string nor a valid box.\""), 
+              StringForm("`1` is neither a string nor a valid box.", "\""), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
           Section(
-           BoxData(TemplateBox({
-              {{"MakeExpression", "::", ComplexStringBox("\"bgn\"")}, 
-               "\[Colon]", TemplateBox({
-                 InterpretationBox(ComplexStringBox(
-                   "\"An expression cannot begin with \\\"", {
-                    {"\\\"", "2", "\\\""}}, "\\\".\""), 
-                  StringForm("An expression cannot begin with \"`1`\".", 
-                   HoldForm(RawBoxes({"\\\"", "2", "\\\""}))))}, 
-                "RowDefault")}, ComplexStringBox("\" \""), 
-              TemplateBox({ComplexStringBox("\"[\""), "6", 
-                ComplexStringBox("\"]\"")}, "RowDefault")}, "RowDefault")), 
-           "Message", SectionGenerated -> True), 
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(MakeExpression::"bgn"), 
+                 Message -> StringForm(
+                   "An expression cannot begin with \"`1`\".", 
+                   HoldForm(RawBoxes({"\\\"", "2", "\\\""}))), 
+                 Stack -> {{"Head" -> MakeExpression}, {
+                    "Head" -> MakeExpression}, {"Head" -> Message}, {
+                    "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+                "MakeExpression", "::", ComplexStringBox("\"bgn\"")}}, 
+              "RowDefault"), ":", " ", InterpretationBox(
+              ComplexStringBox("\"An expression cannot begin with \\\"", {
+                "\\\"", "2", "\\\""}, "\\\".\""), 
+              StringForm("An expression cannot begin with \"`1`\".", 
+               HoldForm(RawBoxes({"\\\"", "2", "\\\""}))), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
           Section(
-           BoxData(TemplateBox({
-              {{"MakeExpression", "::", ComplexStringBox("\"inv\"")}, 
-               "\[Colon]", TemplateBox({
-                 InterpretationBox(ComplexStringBox("\"", {
-                    ComplexStringBox("\"\\\"\"")}, 
-                   " is neither a string nor a valid box.\""), 
-                  StringForm("`1` is neither a string nor a valid box.", 
-                   "\""))}, "RowDefault")}, ComplexStringBox("\" \""), 
-              TemplateBox({ComplexStringBox("\"[\""), "7", 
-                ComplexStringBox("\"]\"")}, "RowDefault")}, "RowDefault")), 
-           "Message", SectionGenerated -> True), 
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(MakeExpression::"inv"), 
+                 Message -> StringForm(
+                   "`1` is neither a string nor a valid box.", "\""), 
+                 Stack -> {{"Head" -> MakeExpression}, {
+                    "Head" -> MakeExpression}, {"Head" -> MakeExpression}, {
+                    "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+                "MessageMenuButton"), {"MakeExpression", "::", 
+                ComplexStringBox("\"inv\"")}}, "RowDefault"), ":", " ", 
+             InterpretationBox(ComplexStringBox("\"", 
+               ComplexStringBox("\"\\\"\""), 
+               " is neither a string nor a valid box.\""), 
+              StringForm("`1` is neither a string nor a valid box.", "\""), 
+              Editable -> False)}), "Message", SectionGenerated -> True), 
           Section(
-           BoxData(TemplateBox({
-              {{"MakeExpression", "::", ComplexStringBox("\"bgn\"")}, 
-               "\[Colon]", TemplateBox({
-                 InterpretationBox(ComplexStringBox(
-                   "\"An expression cannot begin with \\\"", {
-                    {"\\\"", "3", "\\\""}}, "\\\".\""), 
-                  StringForm("An expression cannot begin with \"`1`\".", 
-                   HoldForm(RawBoxes({"\\\"", "3", "\\\""}))))}, 
-                "RowDefault")}, ComplexStringBox("\" \""), 
-              TemplateBox({ComplexStringBox("\"[\""), "8", 
-                ComplexStringBox("\"]\"")}, "RowDefault")}, "RowDefault")), 
-           "Message", SectionGenerated -> True)}, All)}, All), 
-      SectionGroup({
+           BoxData({
+             TemplateBox({
+               TemplateBox({MessageName -> HoldForm(MakeExpression::"bgn"), 
+                 Message -> StringForm(
+                   "An expression cannot begin with \"`1`\".", 
+                   HoldForm(RawBoxes({"\\\"", "3", "\\\""}))), 
+                 Stack -> {{"Head" -> MakeExpression}, {
+                    "Head" -> MakeExpression}, {"Head" -> Message}, {
+                    "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+                "MakeExpression", "::", ComplexStringBox("\"bgn\"")}}, 
+              "RowDefault"), ":", " ", InterpretationBox(
+              ComplexStringBox("\"An expression cannot begin with \\\"", {
+                "\\\"", "3", "\\\""}, "\\\".\""), 
+              StringForm("An expression cannot begin with \"`1`\".", 
+               HoldForm(RawBoxes({"\\\"", "3", "\\\""}))), 
+              Editable -> False)}), "Message", SectionGenerated -> True)}, 
+         All)}, All), SectionGroup({
         Section(
          BoxData({{{"var", " ", "ctx"}, " ", "=", " ", {
              "new", " ", {"pmath", ".", "Context", "(", ")"}}}, ";"}), 
-         "JavaInput", SectionLabel -> "in [70]:"), 
-        Section("pmath.Context@f4d5e29", "JavaOutput", 
+         "JavaInput"), Section("pmath.Context@bdaed6d", "JavaOutput", 
          SectionGenerated -> True)}, All), 
       SectionGroup({
         Section(BoxData({"ctx", ".", "evaluate", "(", {
@@ -465,17 +562,18 @@ Document({
         Section("null", "JavaOutput", SectionGenerated -> True)}, All), 
       SectionGroup({Section(BoxData({"1", "+", "1"}), "JavaInput"), 
         Section("2", "JavaOutput", SectionGenerated -> True)}, All)}, All)}, 
-   All)}, StyleDefinitions :> Document({
-   SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
-     SectionGroup({Section(StyleData("JavaInput"), AutoSpacing -> False, 
-        Background -> GrayLevel(0.90200000000000002`), BaseStyle -> "Input", 
-        DefaultNewSectionStyle -> "JavaInput", FontFamily -> "Consolas", 
-        LanguageCategory -> "Java", LineBreakWithin -> False, 
-        SectionEvaluationFunction :> Global`runJavaSection, 
-        SectionLabel -> "in (Java):", ShowAutoStyles -> False), 
-       Section(StyleData("JavaOutput"), AutoNumberFormating -> False, 
-        BaseStyle -> "Output", DefaultDuplicateSectionStyle -> "JavaInput", 
-        DefaultNewSectionStyle -> "JavaInput", FontFamily -> "Consolas", 
-        SectionLabel -> "out (Java):", ShowStringCharacters -> True)}, All)}, 
-    All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
-  Visible -> True), Visible -> True)
+   All)}, StyleDefinitions :> 
+  Document({
+    SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
+      SectionGroup({Section(StyleData("JavaInput"), AutoSpacing -> False, 
+         Background -> GrayLevel(0.90200000000000002`), BaseStyle -> "Input", 
+         DefaultNewSectionStyle -> "JavaInput", FontFamily -> "Consolas", 
+         LanguageCategory -> "Java", LineBreakWithin -> False, 
+         SectionEvaluationFunction :> Global`runJavaSection, 
+         SectionLabel -> "in (Java):", ShowAutoStyles -> False), 
+        Section(StyleData("JavaOutput"), AutoNumberFormating -> False, 
+         BaseStyle -> "Output", DefaultDuplicateSectionStyle -> "JavaInput", 
+         DefaultNewSectionStyle -> "JavaInput", FontFamily -> "Consolas", 
+         SectionLabel -> "out (Java):", ShowStringCharacters -> True)}, All)}, 
+     All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+   Visible -> True), Visible -> True)

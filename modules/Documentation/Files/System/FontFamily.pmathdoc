@@ -84,9 +84,8 @@ Document({
                  "{", {ComplexStringBox("\"A section of text. Fonts are: \""), 
                   ",", {"ToBoxes", "(", {"Dynamic", "(", {
                      "CurrentValue", "(", "FontFamily", ")"}, ")"}, ")"}}, 
-                 "}"}, ")"}, ",", ComplexStringBox("\"Text\""), ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+                 "}"}, ")"}, ",", ComplexStringBox("\"Text\"")}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
           Section(TextData({"A section of text. Fonts are: ", 
              DynamicBox(ToBoxes(CurrentValue(FontFamily)))}), "Text", 
            SectionGenerated -> True)}, All)}, 1), 

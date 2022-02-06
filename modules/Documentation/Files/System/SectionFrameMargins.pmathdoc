@@ -52,8 +52,7 @@ Document({
                 xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
                 xxxx.\""), ",", ComplexStringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "True"}, ",", {
-                "SectionFrameMargins", "\[Rule]", "n"}, ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ",", {
+                "SectionFrameMargins", "\[Rule]", "n"}}, ")"}, ",", {
               "n", "\[Rule]", {"{", {"0", ",", "5", ",", "10", ",", "20"}, 
                "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
         Section(
@@ -88,9 +87,8 @@ Document({
                 xxxx.\""), ",", ComplexStringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "True"}, ",", {
                 "SectionFrameMargins", "\[Rule]", {
-                 "{", {"100", ",", "50", ",", "30", ",", "15"}, "}"}}, ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+                 "{", {"100", ",", "50", ",", "30", ",", "15"}, "}"}}}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            "Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. \
            Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", 

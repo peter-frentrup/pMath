@@ -6,15 +6,16 @@ Document({
       Section(BoxData(TemplateBox({"SectionDingbat"}, "UsageReference")), 
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({"The default setting is ", 
-          TemplateBox({"SectionDingbat"}, "ReferenceHyperlink"), " \[Rule] ", 
-          TemplateBox({"None"}, "ReferenceHyperlink"), "."}, "Notes"), 
-        Section({"A typical setting is \"", 
-          TemplateBox({"Bullet"}, "NamedCharacterHyperlink"), "\", "}, 
+        Section(TextData({"The default setting is ", 
+           TemplateBox({"SectionDingbat"}, "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"None"}, "ReferenceHyperlink"), "."}), "Notes"), 
+        Section(TextData({"A typical setting is \"", 
+           TemplateBox({"Bullet"}, "NamedCharacterHyperlink"), "\", "}), 
          "Notes"), 
-        Section({TemplateBox({"SectionDingbat"}, "ReferenceHyperlink"), 
-          " is often set on the level of stylesheets for styles of sections \
-          rather than for indicidual sections."}, "Notes")}, All), 
+        Section(
+         TextData({TemplateBox({"SectionDingbat"}, "ReferenceHyperlink"), 
+           " is often set on the level of stylesheets for styles of sections \
+           rather than for indicidual sections."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -26,9 +27,9 @@ Document({
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", ComplexStringBox("\"\[Bullet]\"")}, 
-             ",", {"SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), 
-         "Input", SectionLabel -> "in [1]:"), 
+              "SectionDingbat", "\[Rule]", 
+              ComplexStringBox("\"\[Bullet]\"")}}, ")"}, ")"}), "Input", 
+         SectionLabel -> "in [1]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
          xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -45,8 +46,7 @@ Document({
                 xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
                 xxxx xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), 
                ",", {"SectionDingbat", "\[Rule]", 
-                ComplexStringBox("\"++++++++++\"")}, ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+                ComplexStringBox("\"++++++++++\"")}}, ")"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(
            "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -54,10 +54,11 @@ Document({
            xxxx xxxx", "Text", SectionDingbat -> "++++++++++", 
            SectionGenerated -> True)}, All)}, All), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
-        Section({
-          "The distance between dingbat and section contents is specified by \
-          ", TemplateBox({"SectionFrameLabelMargins"}, "ReferenceHyperlink"), 
-          ":"}, "ExampleText"), 
+        Section(
+         TextData({
+           "The distance between dingbat and section contents is specified by \
+           ", TemplateBox({"SectionFrameLabelMargins"}, "ReferenceHyperlink"), 
+           ":"}), "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
              ComplexStringBox(
@@ -66,9 +67,8 @@ Document({
               xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
               "SectionDingbat", "\[Rule]", 
               ComplexStringBox("\"\[Section]\"")}, ",", {
-              "SectionFrameLabelMargins", "\[Rule]", "10"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
-         SectionLabel -> "in [1]:"), 
+              "SectionFrameLabelMargins", "\[Rule]", "10"}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [1]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
          xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -76,8 +76,8 @@ Document({
          SectionFrameLabelMargins -> {10, 10, 10, 10}, 
          SectionGenerated -> True)}, 1), 
       SectionGroup({Section("Possible Issues", "ExampleSection"), 
-        Section({"The dingbat position does not account for ", 
-          TemplateBox({"SectionFrame"}, "ReferenceHyperlink"), ":"}, 
+        Section(TextData({"The dingbat position does not account for ", 
+           TemplateBox({"SectionFrame"}, "ReferenceHyperlink"), ":"}), 
          "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
@@ -88,8 +88,7 @@ Document({
               "SectionDingbat", "\[Rule]", 
               ComplexStringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
-              "SectionFrameMargins", "\[Rule]", "5"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+              "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [1]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -97,10 +96,10 @@ Document({
          xxxx", "Text", SectionDingbat -> "\[Section]", 
          SectionFrame -> {1, 1, 1, 1}, SectionFrameMargins -> {5, 5, 5, 5}, 
          SectionGenerated -> True), 
-        Section({"Adjust ", TemplateBox({"SectionFrameLabelMargins"}, 
-           "ReferenceHyperlink"), " and ", 
-          TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink"), 
-          " accordingly:"}, "ExampleText"), 
+        Section(TextData({"Adjust ", TemplateBox({"SectionFrameLabelMargins"}, 
+            "ReferenceHyperlink"), " and ", 
+           TemplateBox({"SectionFrameMargins"}, "ReferenceHyperlink"), 
+           " accordingly:"}), "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
              ComplexStringBox(
@@ -111,8 +110,7 @@ Document({
               ComplexStringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "10"}, ",", {
-              "SectionFrameMargins", "\[Rule]", "5"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+              "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [2]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -132,9 +130,8 @@ Document({
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "5"}, ",", {
               "SectionFrameMargins", "\[Rule]", {
-               "{", {"15", ",", "5", ",", "5", ",", "5"}, "}"}}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
-         SectionLabel -> "in [3]:"), 
+               "{", {"15", ",", "5", ",", "5", ",", "5"}, "}"}}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [3]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
          xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -143,9 +140,9 @@ Document({
          SectionFrameLabelMargins -> {5, 5, 5, 5}, SectionGenerated -> True)}, 
        1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Section"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"SectionFrameLabelMargins"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"SectionFrame"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"Section"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"SectionFrameLabelMargins"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"SectionFrame"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

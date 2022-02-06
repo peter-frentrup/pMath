@@ -56,8 +56,7 @@ Document({
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {ComplexStringBox("\"Hello\""), ",", 
              ComplexStringBox("\"Text\""), ",", {
-              "SectionFrame", "\[Rule]", "5"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+              "SectionFrame", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [1]:"), Section("Hello", "Text", 
          SectionFrame -> {5, 5, 5, 5}, SectionGenerated -> True), 
         SectionGroup({
@@ -68,12 +67,11 @@ Document({
               "Section", "(", {ComplexStringBox("\"Funky\""), ",", 
                ComplexStringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", {
-                 "{", {"20", ",", "10", ",", "5", ",", "0"}, "}"}}, ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), Section("Funky", "Text", 
-           SectionFrame -> {20, 10, 5, 0}, SectionGenerated -> True)}, All)}, 
-       All), SectionGroup({
-        Section("Properties & Relations", "ExampleSection"), 
+                 "{", {"20", ",", "10", ",", "5", ",", "0"}, "}"}}}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section("Funky", "Text", SectionFrame -> {20, 10, 5, 0}, 
+           SectionGenerated -> True)}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section(
          TextData({
            "The distance between frame and section contents is specified by ", 
@@ -85,8 +83,7 @@ Document({
               "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
              ComplexStringBox("\"Text\""), ",", {
               "SectionFrame", "\[Rule]", "5"}, ",", {
-              "SectionFrameMargins", "\[Rule]", "10"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+              "SectionFrameMargins", "\[Rule]", "10"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [1]:"), 
         Section("Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
          SectionFrame -> {5, 5, 5, 5}, SectionFrameMargins -> {
@@ -103,8 +100,7 @@ Document({
                 "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
                ComplexStringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "5"}, ",", {
-                "SectionMargins", "\[Rule]", "30"}, ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+                "SectionMargins", "\[Rule]", "30"}}, ")"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section("Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
            SectionFrame -> {5, 5, 5, 5}, SectionGenerated -> True, 
@@ -121,8 +117,7 @@ Document({
                 "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
                ComplexStringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "5"}, ",", {
-                "SectionFrameColor", "\[Rule]", "Red"}, ",", {
-                "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+                "SectionFrameColor", "\[Rule]", "Red"}}, ")"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section("Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
            SectionFrame -> {5, 5, 5, 5}, 
@@ -141,8 +136,7 @@ Document({
               "SectionDingbat", "\[Rule]", 
               ComplexStringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
-              "SectionFrameMargins", "\[Rule]", "5"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+              "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [1]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -164,8 +158,7 @@ Document({
               ComplexStringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "10"}, ",", {
-              "SectionFrameMargins", "\[Rule]", "5"}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
+              "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [2]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -185,9 +178,8 @@ Document({
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "5"}, ",", {
               "SectionFrameMargins", "\[Rule]", {
-               "{", {"15", ",", "5", ",", "5", ",", "5"}, "}"}}, ",", {
-              "SectionGenerated", "\[Rule]", "True"}}, ")"}, ")"}), "Input", 
-         SectionLabel -> "in [3]:"), 
+               "{", {"15", ",", "5", ",", "5", ",", "5"}, "}"}}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [3]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
          xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
