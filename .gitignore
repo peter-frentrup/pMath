@@ -36,3 +36,4 @@
 /richmath/*.cscope_file_list
 *.bmarks
 .directory
+/.VSCodeCounter/
