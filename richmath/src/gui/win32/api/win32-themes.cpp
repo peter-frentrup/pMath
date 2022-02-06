@@ -1,4 +1,5 @@
 #include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 
 #include <cstdio>
 #include <cwchar>
@@ -109,11 +110,11 @@ Win32Themes::Win32Themes()
       DwmEnableBlurBehindWindow = (HRESULT(WINAPI *)(HWND, const DWM_BLURBEHIND*))
                                   GetProcAddress(dwmapi, "DwmEnableBlurBehindWindow");
       
-      if(is_windows_8_1_or_newer()) {
+      if(Win32Version::is_windows_8_1_or_newer()) {
         DwmpActivateLivePreview_win81 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger, RECT*))
                                         GetProcAddress(dwmapi, MAKEINTRESOURCEA(113));
       }
-      else if(is_windows_7_or_newer()) {
+      else if(Win32Version::is_windows_7_or_newer()) {
         DwmpActivateLivePreview_win7 = (HRESULT(WINAPI *)(BOOL, HWND, HWND, LivePreviewTrigger))
                                        GetProcAddress(dwmapi, MAKEINTRESOURCEA(113));
       }
@@ -313,27 +314,6 @@ bool Win32Themes::current_theme_is_aero() {
   return len == namelen || filebuf[len - namelen - 1] == '\\';
 }
 
-bool Win32Themes::check_osversion(int min_major, int min_minor, int min_build) {
-  OSVERSIONINFO osvi;
-  memset(&osvi, 0, sizeof(osvi));
-  osvi.dwOSVersionInfoSize = sizeof(osvi);
-  GetVersionEx(&osvi);
-  
-  if((int)osvi.dwMajorVersion > min_major)
-    return true;
-    
-  if((int)osvi.dwMajorVersion < min_major)
-    return false;
-    
-  if((int)osvi.dwMinorVersion > min_minor)
-    return true;
-    
-  if((int)osvi.dwMinorVersion < min_minor)
-    return false;
-    
-  return (int)osvi.dwBuildNumber >= min_build;
-}
-
 DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active) {
   assert(params);
   
@@ -364,7 +344,7 @@ DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *pa
 }
 
 bool Win32Themes::try_read_win10_colorization(ColorizationInfo *info) {
-  if(!info || !is_windows_10_or_newer())
+  if(!info || !Win32Version::is_windows_10_or_newer())
     return false;
   
   // TODO: use WinRT API (Windows.UI.ViewManagement.IUISettings3), cf. https://github.com/res2k/Windows10Colors
@@ -416,7 +396,7 @@ bool Win32Themes::use_win10_transparency() {
     return false;
   
   // https://superuser.com/questions/1245923/registry-keys-to-change-personalization-settings
-  if(!is_windows_10_or_newer())
+  if(!Win32Version::is_windows_10_or_newer())
     return false;
   
   bool result = false;
@@ -439,7 +419,7 @@ bool Win32Themes::use_win10_transparency() {
 
 void Win32Themes::try_set_dark_mode_frame(HWND hwnd, bool dark_mode) {
 //  // Before 1903, we should SetPropW(hwnd, L"UseImmersiveDarkModeColors", dark_mode), see https://github.com/ysc3839/win32-darkmode
-//  if(is_windows_10_1903_or_newer()) {
+//  if(Win32Version::is_windows_10_1903_or_newer()) {
 //    if(SetWindowCompositionAttribute) {
 //      WINCOMPATTRDATA data {};
 //      data.attr = UndocumentedWindowCompositionAttribute::UseDarkModeColors;
@@ -451,10 +431,10 @@ void Win32Themes::try_set_dark_mode_frame(HWND hwnd, bool dark_mode) {
 //  }
   if(DwmSetWindowAttribute) { // See https://github.com/microsoft/Terminal/issues/299
     BOOL value = dark_mode;
-    if(is_windows_10_1909_or_newer()) {
+    if(Win32Version::is_windows_10_1909_or_newer()) {
       HRreport(DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_new, &value, sizeof(value)));
     }
-    else if(is_windows_10_1809_or_newer()) {
+    else if(Win32Version::is_windows_10_1809_or_newer()) {
       HRreport(DwmSetWindowAttribute(hwnd, DWMWA_USE_IMMERSIVE_DARK_MODE_old, &value, sizeof(value)));
     }
   }

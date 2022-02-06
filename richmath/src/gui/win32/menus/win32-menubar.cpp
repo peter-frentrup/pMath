@@ -11,6 +11,7 @@
 #include <eval/application.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/win32-control-painter.h>
@@ -98,7 +99,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
   if(Win32Themes::BufferedPaintInit)
     Win32Themes::BufferedPaintInit();
   
-  bool layered = Win32Themes::is_windows_8_or_newer();
+  bool layered = Win32Version::is_windows_8_or_newer();
   _hwnd = CreateWindowExW(
             layered ? WS_EX_LAYERED : 0, // only supported for child windows on Windows 8 or later
             TOOLBARCLASSNAMEW,
@@ -1048,7 +1049,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
 //{ class Win32Menubar::Impl ...
 
 bool Win32Menubar::Impl::try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF color, ControlState state) {
-  if(!Win32Themes::is_windows_10_or_newer()) 
+  if(!Win32Version::is_windows_10_or_newer()) 
     return false; // Need Segoe MDL2 Assets font
   
   if( Win32Themes::OpenThemeData && 

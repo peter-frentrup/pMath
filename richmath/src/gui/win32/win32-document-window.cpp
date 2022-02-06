@@ -12,7 +12,7 @@
 #include <gui/documents.h>
 #include <gui/messagebox.h>
 #include <gui/win32/api/win32-highdpi.h>
-#include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/menus/win32-menubar.h>
@@ -651,7 +651,7 @@ Win32DocumentWindow::Win32DocumentWindow(
   _bottom_area       = new Win32Dock(this);
   _bottom_glass_area = new Win32GlassDock(this);
   
-  if(Win32Themes::is_windows_10_or_newer()) {
+  if(Win32Version::is_windows_10_or_newer()) {
     // Alpha channel only necessary for win10 custom blur behind ...
     // We still use CAIRO_FORMAT_RGB24 instead of CAIRO_FORMAT_ARGB32, since 
     // otherwise Cleartype subpixel rendering will be disabled.

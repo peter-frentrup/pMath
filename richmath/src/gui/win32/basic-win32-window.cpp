@@ -2,6 +2,7 @@
 
 #include <graphics/canvas.h>
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/win32-attached-popup-window.h>
@@ -215,7 +216,6 @@ void enum_display_monitors(HDC hdc, LPCRECT lprcClip, TLambda callback) {
 }
 
 static bool use_custom_system_buttons() {
-  //return Win32Themes::is_windows_10_or_newer();
   return Win32Themes::use_win10_transparency();
 }
 
@@ -848,7 +848,7 @@ void BasicWin32Window::on_theme_changed() {
       else
         _blur_behind_window->hide();
     }
-    else if(Win32Themes::is_windows_10_or_newer()) {
+    else if(Win32Version::is_windows_10_or_newer()) {
       if(Win32Themes::DwmEnableBlurBehindWindow) {
         Win32Themes::DWM_BLURBEHIND bb = {};
         bb.dwFlags = Win32Themes::DWM_BB_ENABLE | Win32Themes::DWM_BB_BLURREGION;
@@ -861,7 +861,7 @@ void BasicWin32Window::on_theme_changed() {
     }
   }
   else {
-    if(Win32Themes::is_windows_10_or_newer()) {
+    if(Win32Version::is_windows_10_or_newer()) {
       // FIXME: WS_BORDER (WindorFrame->"ThinFrame") is still drawn white instead of gray by Windows
       
       if(Win32Themes::DwmEnableBlurBehindWindow) {
@@ -1041,7 +1041,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   
   if(ex_style & WS_EX_LAYOUTRTL) {
     rect->right-= -neg_margins.left + 1;
-    if(Win32Themes::is_windows_10_or_newer() && (style & WS_MAXIMIZE) == 0) {
+    if(Win32Version::is_windows_10_or_newer() && (style & WS_MAXIMIZE) == 0) {
       /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more when not maximized. */
       rect->right-= -neg_margins.left;
     }
@@ -1049,7 +1049,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   }
   else {
     rect->left += -neg_margins.left + 1;
-    if(Win32Themes::is_windows_10_or_newer() && (style & WS_MAXIMIZE) == 0) {
+    if(Win32Version::is_windows_10_or_newer() && (style & WS_MAXIMIZE) == 0) {
       /* In Windows 10, the left/right/bottom frame is invisible, so the icon indents more when not maximized. */
       rect->left+= -neg_margins.left;
     }
@@ -1066,14 +1066,14 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
   }
   
   if(HANDLE theme = composition_window_theme(dpi)) {
-//    if(Win32Themes::is_windows_10_or_newer() && Win32Themes::DwmGetColorizationParameters) {
+//    if(Win32Version::is_windows_10_or_newer() && Win32Themes::DwmGetColorizationParameters) {
 //      Win32Themes::DWM_COLORIZATION_PARAMS params = {0};
 //      Win32Themes::DwmGetColorizationParameters(&params);
 //      
 //      // TODO: only use text-on-accent-backgound color if HKCU\SOFTWARE\Microsoft\Windows\DWM\ColorPrevalence = 1
 //      dtt_opts.crText = Win32Themes::get_window_title_text_color(&params, _active);
 //    }
-    if(Win32Themes::is_windows_10_or_newer()) {
+    if(Win32Version::is_windows_10_or_newer()) {
       if(active) {
         if(Win32Themes::use_win10_transparency()) {
           if(Color custom_color = dark_mode ? CustomTitlebarColorizationDark : CustomTitlebarColorizationLight) {
@@ -1303,7 +1303,7 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
     int frameradius;
     float buttons_alpha = 1.0f;
 
-    bool is_win8_or_newer = Win32Themes::is_windows_8_or_newer();
+    bool is_win8_or_newer = Win32Version::is_windows_8_or_newer();
     if(hit_test_is_system_button(_hit_test_mouse_over)) {
       if(is_win8_or_newer)
         buttons_alpha = 0.8f;
@@ -2031,7 +2031,7 @@ bool BasicWin32Window::Impl::is_left_right_bottom_frame_themed() {
      nice, but ok :(
    */
   return false;
-//  if(Win32Themes::is_windows_10_or_newer())
+//  if(Win32Version::is_windows_10_or_newer())
 //    return false;
 //  
 ////  DWORD style = GetWindowLongW(self._hwnd, GWL_STYLE);
@@ -2495,7 +2495,7 @@ void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
   
   int dpi = Win32HighDpi::get_dpi_for_window(self._hwnd);
   if(HANDLE theme = composition_window_theme(dpi)) {
-    if(Win32Themes::is_windows_10_or_newer()) {
+    if(Win32Version::is_windows_10_or_newer()) {
       DWORD style = GetWindowLong(self._hwnd, GWL_STYLE);
   
       HFONT font = CreateFontW(
@@ -2618,7 +2618,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     }
 
     bool center_caption = false;
-//    if(Win32Themes::is_windows_8_or_newer() && !Win32Themes::is_windows_10_or_newer()) {
+//    if(Win32Version::is_windows_8_or_newer() && !Win32Version::is_windows_10_or_newer()) {
 //      center_caption = true;
 //    }
     int content_alignment = 0;
@@ -3120,7 +3120,7 @@ WindowMagnetics::WindowMagnetics(HWND _src, Hashset<HWND> &_dont_snap)
 void WindowMagnetics::get_snap_margins(HWND hwnd, Win32Themes::MARGINS *margins) {
   memset(margins, 0, sizeof(Win32Themes::MARGINS));
   
-  if(Win32Themes::is_windows_10_or_newer()) {
+  if(Win32Version::is_windows_10_or_newer()) {
     ::get_nc_margins(hwnd, margins, Win32HighDpi::get_dpi_for_window(hwnd));
     margins->cyTopHeight    = 0;
     margins->cxLeftWidth    = 1 - margins->cxLeftWidth;

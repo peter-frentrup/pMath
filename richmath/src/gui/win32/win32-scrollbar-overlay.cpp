@@ -1,6 +1,6 @@
 #include <gui/win32/win32-scrollbar-overlay.h>
 
-#include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 
 using namespace richmath;
 
@@ -38,7 +38,7 @@ namespace richmath {
 
 Win32ScrollBarOverlay::Win32ScrollBarOverlay(HWND *parent_ptr, HWND *scrollbar_owner_ptr)
   : base(
-      Win32Themes::is_windows_8_or_newer() ? WS_EX_LAYERED : 0,
+      Win32Version::is_windows_8_or_newer() ? WS_EX_LAYERED : 0,
       WS_CHILD | WS_VISIBLE, 
       0, 
       0, 

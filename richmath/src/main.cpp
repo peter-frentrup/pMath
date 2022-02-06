@@ -65,6 +65,7 @@
 #  include <gui/win32/win32-document-window.h>
 #  include <gui/win32/api/win32-highdpi.h>
 #  include <gui/win32/api/win32-touch.h>
+#  include <gui/win32/api/win32-version.h>
 #  include <gui/win32/menus/win32-menu.h>
 #endif
 
@@ -631,6 +632,7 @@ int main(int argc, char **argv) {
 #define MAIN_MENU_CMD  "Get(ToFileName({FE`$FrontEndDirectory,\"resources\"},\"mainmenu.pmath\"))"
     
 #ifdef RICHMATH_USE_WIN32_GUI
+    Win32Version::init();
     Win32Themes::init();
     Win32HighDpi::init();
     Win32Touch::init();

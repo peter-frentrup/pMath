@@ -7,6 +7,7 @@
 #include <graphics/context.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-themes.h>
+#include <gui/win32/api/win32-version.h>
 #include <gui/win32/basic-win32-widget.h>
 #include <util/array.h>
 #include <util/style.h>
@@ -516,7 +517,7 @@ void Win32ControlPainter::calc_container_radii(
   
   switch(type) {
     case ContainerType::TooltipWindow: {
-        if(!theme || Win32Themes::is_windows_8_or_newer()) {
+        if(!theme || Win32Version::is_windows_8_or_newer()) {
           *radii = BoxRadius(0);
           return;
         }
@@ -2564,7 +2565,7 @@ void Win32ControlPainterImpl::draw_toggle_switch_channel(Canvas &canvas, Rectang
   
   if(active) {
     Color accent = Color::None;
-    if(Win32Themes::is_windows_10_or_newer()) {
+    if(Win32Version::is_windows_10_or_newer()) {
       Win32Themes::ColorizationInfo info {};
       if(Win32Themes::try_read_win10_colorization(&info))
         accent = Color::from_bgr24(info.accent_color & 0xFFFFFF);
