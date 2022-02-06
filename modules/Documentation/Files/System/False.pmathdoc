@@ -7,7 +7,7 @@ Document({
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
-        Section("Many relations automatically simplity:", "ExampleText"), 
+        Section("Many relations automatically simplify:", "ExampleText"), 
         SectionGroup({
           Section(BoxData({{"1", "+", SqrtBox("2")}, "<", {
               "Sin", "(", {"5", "-", SqrtBox("2")}, ")"}}), "Input", 
