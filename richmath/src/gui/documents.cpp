@@ -23,6 +23,7 @@ namespace richmath {
     extern String DocumentDirectory;
     extern String DocumentFileName;
     extern String DocumentFullFileName;
+    extern String EditStyleDefinitions;
     extern String Input;
     extern String MenuListPalettesMenu;
     extern String Output;
@@ -193,7 +194,7 @@ namespace richmath {
 //{ class Documents ...
 
 bool Documents::init() {
-  Menus::register_command(String("EditStyleDefinitions"),                Impl::edit_style_definitions_cmd, Impl::can_edit_style_definitions);
+  Menus::register_command(strings::EditStyleDefinitions,                 Impl::edit_style_definitions_cmd, Impl::can_edit_style_definitions);
   Menus::register_command(Symbol(richmath_FrontEnd_FindStyleDefinition), Impl::find_style_definition_cmd);
   Menus::register_command(String("OpenSelectionHelp"),                   Impl::open_selection_help_cmd);
   Menus::register_command(strings::ShowHideMenu,                         Impl::show_hide_menu_cmd, Impl::can_show_hide_menu);
@@ -394,7 +395,10 @@ MenuCommandStatus DocumentsImpl::can_edit_style_definitions(Expr cmd) {
   if(doc->native()->owner_document())
     return MenuCommandStatus(false);
   
-  return MenuCommandStatus(true);
+  Expr stylesheet = doc->get_style(StyleDefinitions);
+  MenuCommandStatus status{ true };
+  status.checked = stylesheet[0] == richmath_System_Document;
+  return status;
 }
 
 Document *DocumentsImpl::open_private_style_definitions(Document *doc, bool create) {

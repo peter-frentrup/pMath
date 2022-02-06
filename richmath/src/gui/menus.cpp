@@ -20,9 +20,10 @@
 using namespace richmath;
 
 namespace richmath { namespace strings {
-  extern String SearchMenuNoMatch_label;
+  extern String EditStyleDefinitions;
   extern String MenuListSearchCommands;
   extern String SearchMenuItems;
+  extern String SearchMenuNoMatch_label;
   extern String ShowHideMenu;
 }}
 
@@ -260,6 +261,9 @@ MenuItemType Menus::command_type(Expr cmd) {
   
   if(String str = cmd) {
     if(str.starts_with("SelectStyle")) // SelectStyle1 ... SelectStyle9
+      return MenuItemType::RadioButton;
+    
+    if(cmd == strings::EditStyleDefinitions)
       return MenuItemType::RadioButton;
     
     if(cmd == strings::ShowHideMenu)
