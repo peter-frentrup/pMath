@@ -1108,6 +1108,11 @@ void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
       buffer[start+3] = 0x80 | ( unichar        & 0x3F);
     }
   }
+
+  b2t_iter.rewind_to(buffer.length());
+  b2t_iter.reset_rest(buf.length());
+  b2seq_iter.rewind_to(buffer.length());
+  b2seq_iter.reset_rest(&seq);
 }
 
 void TextSequence::Impl::Utf8Writer::append_box_glyphs(TextSequence &seq, int pos, Box *box) {
