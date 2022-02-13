@@ -242,7 +242,7 @@ void InputFieldBox::reset_style() {
   Style::reset(style, strings::InputField);
 }
 
-void InputFieldBox::scroll_to(const RectangleF &rect) {
+bool InputFieldBox::scroll_to(const RectangleF &rect) {
   float old_cx = cx;
   
   if(rect.left() < -cx + frame_x) {
@@ -268,12 +268,15 @@ void InputFieldBox::scroll_to(const RectangleF &rect) {
   else if(rect.right() < _extents.width - 2 * frame_x)
     cx = frame_x;
     
-  if(cx != old_cx)
+  if(cx != old_cx) {
     request_repaint_all();
+    return true;
+  }
+  return false;
 }
 
-void InputFieldBox::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
-  default_scroll_to(canvas, _content, child_sel);
+bool InputFieldBox::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
+  return default_scroll_to(canvas, _content, child_sel);
 }
 
 Box *InputFieldBox::remove(int *index) {

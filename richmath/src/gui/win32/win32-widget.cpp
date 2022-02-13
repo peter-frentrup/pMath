@@ -226,7 +226,7 @@ Point Win32Widget::scroll_pos() {
   return Point(Vector2F(GetScrollPos(_hwnd, SB_HORZ), GetScrollPos(_hwnd, SB_VERT)) / scale_factor());
 }
 
-void Win32Widget::scroll_to(Point pos) {
+bool Win32Widget::scroll_to(Point pos) {
   SCROLLINFO si;
   
   si.cbSize = sizeof(si);
@@ -253,7 +253,10 @@ void Win32Widget::scroll_to(Point pos) {
     
     ScrollWindow(_hwnd, oldx - newx, oldy - newy, &norect, &norect);
     invalidate();
+    return true;
   }
+  else
+    return false;
 }
 
 void Win32Widget::show_tooltip(Box *source, Expr boxes) {

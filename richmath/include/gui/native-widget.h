@@ -59,9 +59,9 @@ namespace richmath {
       virtual bool is_scrollable() = 0;
       virtual bool autohide_vertical_scrollbar() = 0;
       virtual Point scroll_pos() = 0;
-      virtual void scroll_to(Point pos) = 0;
-      void scroll_by(Vector2F delta) { scroll_to(scroll_pos() + delta); }
-      void scroll_by(float dx, float dy) { scroll_by({dx, dy}); }
+      virtual bool scroll_to(Point pos) = 0;
+      bool scroll_by(Vector2F delta) { return scroll_to(scroll_pos() + delta); }
+      bool scroll_by(float dx, float dy) { return scroll_by({dx, dy}); }
       
       virtual void show_tooltip(Box *source, Expr boxes) = 0;
       virtual void hide_tooltip() = 0;

@@ -431,6 +431,7 @@ bool Document::visible_rect(RectangleF &rect, Box *top_most) {
 }
 
 void Document::invalidate() {
+  has_pending_repaint(true);
   native()->invalidate();
   
   Box::invalidate();
@@ -459,39 +460,48 @@ void Document::invalidate_all() {
     section(i)->invalidate();
 }
 
-void Document::scroll_to(const RectangleF &rect) {
+bool Document::scroll_to(const RectangleF &rect) {
   if(!native()->is_scrollable())
-    return;
+    return false;
     
   RectangleF window_rect{ native()->scroll_pos(), native()->window_size() };
   
-  if(rect.top() < window_rect.top() && rect.top() < window_rect.top()) {
+  bool any_scroll = false;
+  if(rect.top() < window_rect.top() && rect.bottom() < window_rect.bottom()) {
+    any_scroll = true;
     window_rect.y = rect.y - window_rect.height / 6.f;
     if(rect.bottom() > window_rect.bottom())
       window_rect.y = rect.bottom() - window_rect.height;
   }
-  else if(rect.bottom() >= window_rect.bottom() && rect.top() > window_rect.top()) {
+  else if(rect.bottom() > window_rect.bottom() && rect.top() > window_rect.top()) {
+    any_scroll = true;
     window_rect.y = rect.bottom() - window_rect.height * 5 / 6.f;
     if(rect.top() < window_rect.top())
       window_rect.y = rect.y;
   }
   
   if(rect.left() < window_rect.left() && rect.right() < window_rect.right()) {
+    any_scroll = true;
     window_rect.x = rect.x - window_rect.width / 6.f;
     if(rect.right() > window_rect.right())
       window_rect.x = rect.right() - window_rect.width;
   }
-  else if(rect.right() >= window_rect.right() && rect.left() > window_rect.left()) {
+  else if(rect.right() > window_rect.right() && rect.left() > window_rect.left()) {
+    any_scroll = true;
     window_rect.x = rect.right() - window_rect.width * 5 / 6.f;
     if(rect.left() < window_rect.left())
       window_rect.x = rect.x;
   }
   
-  native()->scroll_to(window_rect.top_left());
+  if(any_scroll) {
+    any_scroll = native()->scroll_to(window_rect.top_left());
+  }
+  
+  return any_scroll;
 }
 
-void Document::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
-  default_scroll_to(canvas, this, child_sel);
+bool Document::scroll_to(Canvas &canvas, const VolatileSelection &child_sel) {
+  return default_scroll_to(canvas, this, child_sel);
 }
 
 //{ event invokers ...
@@ -3540,6 +3550,9 @@ void Document::reset_style() {
 }
 
 void Document::paint_resize(Canvas &canvas, bool resize_only) {
+  if(!resize_only)
+    has_pending_repaint(false);
+  
   context.with_canvas(canvas, [&]() {
     update_dynamic_styles(context);
     
@@ -3584,12 +3597,9 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     
     init_section_bracket_sizes(context);
     
-    int sel_sect = -1;
-    Box *b = context.selection.get();
-    while(b && b != this) {
-      sel_sect = b->index();
-      b = b->parent();
-    }
+    VolatileSelection sel_sects = context.selection.get_all();
+    while(sel_sects.box && sel_sects.box != this)
+      sel_sects.expand_to_parent();
     
     int i = 0;
     while(i < length() && _extents.descent <= page_rect.top()) {
@@ -3616,18 +3626,16 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
     
     while(i < length()) {
       if(section(i)->must_resize()) {
-        bool resi = (i == sel_sect || i < must_resize_min);
+        bool resi = i < must_resize_min;
         
-        if(!resi && auto_scroll) {
-          resi = (i <= sel_sect);
-          
-          if(!resi && context.selection.id == this->id())
-            resi = (i < context.selection.end);
-        }
+        if(!resi && sel_sects.box == this) 
+          resi = (sel_sects.start <= i && i < sel_sects.end);
         
-        if(resi) {
+        if(!resi && auto_scroll) 
+          resi = (i < sel_sects.end);
+        
+        if(resi) 
           resize_section(context, i);
-        }
       }
       
       Impl(*this).after_resize_section(i);
@@ -3732,9 +3740,11 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
       }
       
       if(auto_scroll) {
-        auto_scroll = false;
-        if(VolatileSelection box_range = sel_last.get_all())
-          box_range.box->scroll_to(canvas, box_range);
+        if(VolatileSelection box_range = sel_last.get_all()) {
+          auto_scroll = box_range.box->scroll_to(canvas, box_range) || has_pending_repaint();
+        }
+        else
+          auto_scroll = false;
       }
       
       canvas.translate(page_rect.x, page_rect.y);

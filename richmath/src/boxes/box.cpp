@@ -276,16 +276,18 @@ void Box::selection_path(Canvas &canvas, int start, int end) {
     canvas.pixrect(item(i)->extents().to_rectangle(p0), false);
 }
 
-void Box::scroll_to(const RectangleF &rect) {
+bool Box::scroll_to(const RectangleF &rect) {
+  return false;
 }
 
-void Box::scroll_to(Canvas &canvas, const VolatileSelection &child) {
+bool Box::scroll_to(Canvas &canvas, const VolatileSelection &child) {
   if(auto par = parent())
-    par->scroll_to(canvas, child);
+    return par->scroll_to(canvas, child);
+  return false;
 }
 
-void Box::default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel) {
-  double x1, y1, x2, y2;
+bool Box::default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel) {
+  RectangleF rect;
   cairo_matrix_t mat;
   cairo_matrix_init_identity(&mat);
   child_sel.box->transformation(scroll_view, &mat);
@@ -302,21 +304,19 @@ void Box::default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSele
       
     // cairo 1.10.0 bug:
     // cairo_path_extents gives (0,0,0,0) for pixel aligned lines
-    canvas.stroke_extents(&x1, &y1, &x2, &y2);
+    rect = canvas.stroke_extents();
     
     canvas.new_path();
   }
   canvas.restore();
   
-  float x = x1;
-  float y = y1;
-  float w = x2 - x1;
-  float h = y2 - y1;
-  Canvas::transform_rect(mat, &x, &y, &w, &h);
-  scroll_to(RectangleF{x, y, w, h});
+  Canvas::transform_rect_inline(mat, rect);
+  bool any_scroll = scroll_to(rect);
   
   if(auto par = parent())
-    par->scroll_to(canvas, child_sel);
+    return any_scroll | par->scroll_to(canvas, child_sel);
+
+  return  any_scroll;
 }
 
 Box *Box::move_logical(

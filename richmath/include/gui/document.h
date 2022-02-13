@@ -36,6 +36,7 @@ namespace richmath {
   };
   
   class Document final : public SectionList {
+      using base = SectionList;
       friend class NativeWidget;
       class Impl;
     public:
@@ -56,8 +57,8 @@ namespace richmath {
       
       NativeWidget *native() { return _native; } // never nullptr
       
-      virtual void scroll_to(const RectangleF &rect) override;
-      virtual void scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
+      virtual bool scroll_to(const RectangleF &rect) override;
+      virtual bool scroll_to(Canvas &canvas, const VolatileSelection &child_sel) override;
       
       void mouse_exit();
       void mouse_down(MouseEvent &event);
@@ -209,6 +210,17 @@ namespace richmath {
       SelectionReference sel_last;
       
       SelectionReference drag_source;
+    
+    protected:
+      enum {
+        HasPendingRepaintBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool has_pending_repaint() {       return get_flag(HasPendingRepaintBit); }
+      void has_pending_repaint(bool value) { change_flag(HasPendingRepaintBit, value); }
       
     private:
       NativeWidget *_native;

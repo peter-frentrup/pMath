@@ -37,7 +37,7 @@ namespace richmath {
       virtual bool is_scrollable() override { return true; }
       virtual bool autohide_vertical_scrollbar() override { return _autohide_vertical_scrollbar; }
       virtual Point scroll_pos() override;
-      virtual void scroll_to(Point pos) override;
+      virtual bool scroll_to(Point pos) override;
       
       virtual void show_tooltip(Box *source, Expr boxes) override;
       virtual void hide_tooltip() override;

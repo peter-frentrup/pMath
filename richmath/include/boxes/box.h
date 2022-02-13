@@ -244,9 +244,9 @@ namespace richmath {
       virtual void paint(Context &context) = 0;
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src);
       virtual void selection_path(Canvas &canvas, int start, int end);
-      virtual void scroll_to(const RectangleF &rect);
-      virtual void scroll_to(Canvas &canvas, const VolatileSelection &child);
-      void default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel);
+      virtual bool scroll_to(const RectangleF &rect);
+      virtual bool scroll_to(Canvas &canvas, const VolatileSelection &child);
+      bool default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSelection &child_sel);
       
       /// Remove a child box and get the new selection. May also delete this box itself.
       ///

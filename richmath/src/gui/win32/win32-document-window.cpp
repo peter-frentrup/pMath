@@ -300,7 +300,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     
     virtual bool is_scrollable() override { return false; }
     virtual Point scroll_pos() override { return Point(0, 0); }
-    virtual void scroll_to(Point pos) override {}
+    virtual bool scroll_to(Point pos) override { return false; }
     
     int height() {
       return (int)(document()->extents().height() * scale_factor() + 0.5f);

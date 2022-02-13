@@ -266,10 +266,11 @@ Point MathGtkWidget::scroll_pos() {
   return sp;
 }
 
-void MathGtkWidget::scroll_to(Point pos) {
+bool MathGtkWidget::scroll_to(Point pos) {
   if(!is_scrollable())
-    return;
-    
+    return false;
+  
+  bool did_scroll = false;
   if(_hadjustment) {
     double oldx = gtk_adjustment_get_value(_hadjustment);
     double newx = pos.x * scale_factor();
@@ -279,8 +280,10 @@ void MathGtkWidget::scroll_to(Point pos) {
     hi -=       gtk_adjustment_get_page_size(_hadjustment);
     
     newx = CLAMP(newx, lo, hi);
-    if(oldx != newx)
+    if(oldx != newx) {
       gtk_adjustment_set_value(_hadjustment, newx);
+      did_scroll = true;
+    }
   }
   
   if(_vadjustment) {
@@ -292,9 +295,13 @@ void MathGtkWidget::scroll_to(Point pos) {
     hi -=       gtk_adjustment_get_page_size(_vadjustment);
     
     newy = CLAMP(newy, lo, hi);
-    if(oldy != newy)
+    if(oldy != newy) {
       gtk_adjustment_set_value(_vadjustment, newy);
+      did_scroll = true;
+    }
   }
+  
+  return did_scroll;
 }
 
 void MathGtkWidget::show_tooltip(Box *source, Expr boxes) {

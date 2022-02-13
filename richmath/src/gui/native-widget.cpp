@@ -59,7 +59,7 @@ namespace {
       virtual bool is_scrollable() override { return false; }
       virtual bool autohide_vertical_scrollbar() override { return false; }
       virtual Point scroll_pos() override { return Point(0,0); }
-      virtual void scroll_to(Point pos) override {}
+      virtual bool scroll_to(Point pos) override { return false; }
       
       virtual void show_tooltip(Box *source, Expr boxes) override {}
       virtual void hide_tooltip() override {}
