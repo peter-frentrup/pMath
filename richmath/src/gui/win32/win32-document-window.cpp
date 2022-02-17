@@ -735,12 +735,12 @@ void Win32DocumentWindow::after_construction() {
 }
 
 Win32DocumentWindow::~Win32DocumentWindow() {
-  _menubar->destroy();           _menubar = nullptr;
-  _top_glass_area->destroy();    _top_glass_area = nullptr;
-  _top_area->destroy();          _top_area = nullptr;
-  _bottom_area->destroy();       _bottom_area = nullptr;
-  _bottom_glass_area->destroy(); _bottom_glass_area = nullptr;
-  _working_area->destroy();      _working_area = nullptr;
+  _menubar->destroy();                _menubar = nullptr;
+  _top_glass_area->safe_destroy();    _top_glass_area = nullptr;
+  _top_area->safe_destroy();          _top_area = nullptr;
+  _bottom_area->safe_destroy();       _bottom_area = nullptr;
+  _bottom_glass_area->safe_destroy(); _bottom_glass_area = nullptr;
+  _working_area->safe_destroy();      _working_area = nullptr;
   
   // remove all menu items so that the submenus are not destroyed automatically
   HMENU sysmenu = GetSystemMenu(_hwnd, FALSE);
@@ -769,7 +769,12 @@ Win32DocumentWindow::~Win32DocumentWindow() {
       while(other && other != this) {
         CommonDocumentWindow *next = other->next_window();
         
-        delete other;
+        if(auto win = dynamic_cast<Win32DocumentWindow*>(other)) {
+          win->safe_destroy();
+        }
+        else {
+          pmath_debug_print("[unexpected CommonDocumentWindow]\n");
+        }
         
         other = next;
       }

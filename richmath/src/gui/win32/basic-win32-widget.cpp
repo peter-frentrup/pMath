@@ -52,8 +52,9 @@ BasicWin32Widget::BasicWin32Widget(
   int width,
   int height,
   HWND *parent)
-  : Base(),
+  : ObjectWithLimbo(),
     _hwnd(nullptr),
+    _limbo_next(nullptr),
     init_data(new InitData),
     _initializing(true)
 {
@@ -120,13 +121,13 @@ BasicWin32Widget::~BasicWin32Widget() {
   add_remove_window(-1);
 }
 
-void BasicWin32Widget::destroy() {
+void BasicWin32Widget::safe_destroy() {
   if(_hwnd) {
     // detach this from window handle:
     SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
   }
   
-  delete this;
+  ObjectWithLimbo::safe_destroy();
 }
 
 //
@@ -213,7 +214,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 }
 
 void BasicWin32Widget::on_close() {
-  destroy();
+  safe_destroy();
 }
 
 void BasicWin32Widget::init_window_class() {
@@ -253,6 +254,8 @@ void BasicWin32Widget::init_window_class() {
 }
 
 LRESULT CALLBACK BasicWin32Widget::window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam) {
+  AutoMemorySuspension ams;
+  
   BasicWin32Widget *widget = (BasicWin32Widget *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   
   if(!widget && message == WM_NCCREATE) {

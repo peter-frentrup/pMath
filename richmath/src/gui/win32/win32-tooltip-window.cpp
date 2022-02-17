@@ -97,7 +97,7 @@ void Win32TooltipWindow::hide_global_tooltip() {
 
 void Win32TooltipWindow::delete_global_tooltip() {
   if(tooltip_window)
-    tooltip_window->destroy();
+    tooltip_window->safe_destroy();
 }
 
 Vector2F Win32TooltipWindow::page_size() {

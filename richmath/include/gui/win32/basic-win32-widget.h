@@ -24,7 +24,7 @@ namespace richmath {
   };
   
   // Must call init() immediately init after the construction of a derived object!
-  class BasicWin32Widget: public virtual DropTarget, public IStylusAsyncPlugin, public virtual Base {
+  class BasicWin32Widget: public virtual DropTarget, public IStylusAsyncPlugin, public ObjectWithLimbo {
       struct InitData {
         DWORD style_ex;
         DWORD style;
@@ -56,7 +56,7 @@ namespace richmath {
         _initializing = false;
       }
       
-      void destroy();
+      virtual void safe_destroy() override;
     
       bool initializing() { return _initializing; }
     
@@ -123,7 +123,11 @@ namespace richmath {
       
       static LRESULT CALLBACK window_proc(HWND hwnd, UINT message, WPARAM wParam, LPARAM lParam);
       
+      virtual ObjectWithLimbo *next_in_limbo() final override { return _limbo_next; }
+      virtual void next_in_limbo(ObjectWithLimbo *next) final override { RICHMATH_ASSERT(!_limbo_next); _limbo_next = next; }
+    
     private:
+      ObjectWithLimbo *_limbo_next;
       InitData *init_data;
       bool _initializing;
       

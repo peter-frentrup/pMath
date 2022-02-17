@@ -1136,7 +1136,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
 
   switch(message) {
     case WM_SIZE: {
-        AutoMemorySuspension ams;
         RECT rect;
         GetClientRect(_hwnd, &rect);
         _width  = rect.right;
@@ -1152,7 +1151,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   }
   
   if(!initializing()) {
-    AutoMemorySuspension ams;
     switch(message) {
       case WM_ERASEBKGND:
         return 1;

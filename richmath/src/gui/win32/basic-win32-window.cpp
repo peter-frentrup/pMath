@@ -333,7 +333,7 @@ BasicWin32Window::~BasicWin32Window() {
   static_resources.remove_basic_window();
   
   if(_blur_behind_window) {
-    _blur_behind_window->destroy(); 
+    _blur_behind_window->safe_destroy(); 
     _blur_behind_window = nullptr;
   }
   
