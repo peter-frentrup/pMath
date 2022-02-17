@@ -46,12 +46,10 @@ namespace richmath {
     }
   };
   
-  class NativeWidget: public virtual FrontEndObject, public virtual ControlContext {
+  class NativeWidget: public virtual ControlContext {
       friend class NativeWidgetImpl;
     public:
       explicit NativeWidget(Document *doc);
-      
-      virtual void dynamic_updated() override {}
       
       virtual Vector2F window_size() = 0;
       virtual Vector2F page_size() = 0;
@@ -152,19 +150,16 @@ namespace richmath {
       
       SelectionReference &drag_source_reference();
     
-      virtual FrontEndObject *next_in_limbo() final override { return _idle_after_edit_or_limbo_next.as_tinted(); }
-      virtual void next_in_limbo(FrontEndObject *next) final override;
-    
     protected:
       float _custom_scale_factor;
       ObservableValue<int> _dpi;
       
     private:
-      Document                             *_document;
-      ObservableValue<FrontEndReference>    _source_box;
-      FrontEndReference                     _owner_document;
-      FrontEndReference                     _stylesheet_document;
-      TintedPtr<TimedEvent, FrontEndObject> _idle_after_edit_or_limbo_next;
+      Document                              *_document;
+      ObservableValue<FrontEndReference>     _source_box;
+      FrontEndReference                      _owner_document;
+      FrontEndReference                      _stylesheet_document;
+      SharedPtr<TimedEvent>                  _idle_after_edit;
   };
   
   static const float ScaleDefault = 1.f;

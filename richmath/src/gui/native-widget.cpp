@@ -14,7 +14,6 @@ namespace richmath {
       NativeWidgetImpl(NativeWidget &_self) : self(_self) {}
       
       void finish_idle_after_edit();
-      void abort_idle_after_edit();
       
     private:
       NativeWidget &self;
@@ -26,26 +25,19 @@ namespace {
     public:
       explicit IdleAfterEditEvent(FrontEndReference _id) 
         : TimedEvent(0.25), 
-          widget_id(_id) 
+          doc_id(_id) 
       {
       }
       
-      virtual ~IdleAfterEditEvent() {
-        NativeWidget *wid = FrontEndObject::find_cast<NativeWidget>(widget_id);
-        if(wid) 
-          NativeWidgetImpl(*wid).abort_idle_after_edit();
-      }
-      
       virtual void execute_event() override {
-        NativeWidget *wid = FrontEndObject::find_cast<NativeWidget>(widget_id);
-        if(wid) {
-          NativeWidgetImpl(*wid).finish_idle_after_edit();
-          widget_id = FrontEndReference::None;
+        if(Document *doc = FrontEndObject::find_cast<Document>(doc_id)) {
+          NativeWidgetImpl(*doc->native()).finish_idle_after_edit();
+          doc_id = FrontEndReference::None;
         }
       }
       
     private:
-      FrontEndReference widget_id;
+      FrontEndReference doc_id;
   };
   
   class DummyNativeWidget final : public NativeWidget {
@@ -116,23 +108,19 @@ static DummyNativeWidget staticdummy;
 NativeWidget *NativeWidget::dummy = &staticdummy;
 
 NativeWidget::NativeWidget(Document *doc)
-  : FrontEndObject(),
-    _custom_scale_factor(ScaleDefault),
+  : _custom_scale_factor(ScaleDefault),
     _dpi(96),
     _document(nullptr),
     _source_box(FrontEndReference::None),
     _owner_document(FrontEndReference::None),
     _stylesheet_document(FrontEndReference::None)
 {
-  SET_BASE_DEBUG_TAG(typeid(*this).name());
-  
   adopt(doc);
 }
 
 NativeWidget::~NativeWidget() {
   if(_document)
     _document->_native = dummy;
-  NativeWidgetImpl(*this).abort_idle_after_edit();
   delete _document;
 }
 
@@ -232,14 +220,12 @@ CursorType NativeWidget::size_cursor(Box *box, CursorType base) {
 }
 
 void NativeWidget::on_editing() {
-  if(TimedEvent *ev = _idle_after_edit_or_limbo_next.as_normal()) {
-    ev->reset_timer();
+  if(_idle_after_edit) {
+    _idle_after_edit->reset_timer();
   }
-  else if(_idle_after_edit_or_limbo_next.is_normal()) {
-    SharedPtr<TimedEvent> ev = new IdleAfterEditEvent(id());
-    ev->ref();
-    _idle_after_edit_or_limbo_next.set_to_normal(ev.ptr());
-    register_timed_event(ev);
+  else if(_document) {
+    _idle_after_edit = new IdleAfterEditEvent(_document->id());
+    register_timed_event(_idle_after_edit);
   }
 }
 
@@ -357,25 +343,12 @@ Context *NativeWidget::document_context() {
 SelectionReference &NativeWidget::drag_source_reference() {
   return _document->drag_source;
 }
-
-void NativeWidget::next_in_limbo(FrontEndObject *next) {
-  RICHMATH_ASSERT( _idle_after_edit_or_limbo_next.is_normal() );
-  NativeWidgetImpl(*this).abort_idle_after_edit();
-  _idle_after_edit_or_limbo_next.set_to_tinted(next);
-}
       
 //{ class NativeWidgetImpl ...
 
 void NativeWidgetImpl::finish_idle_after_edit() {
-  abort_idle_after_edit();
+  self._idle_after_edit = nullptr;
   self.on_idle_after_edit();
 }
 
-void NativeWidgetImpl::abort_idle_after_edit() {
-  if(TimedEvent *ev = self._idle_after_edit_or_limbo_next.as_normal()) {
-    self._idle_after_edit_or_limbo_next.set_to_normal(nullptr);
-    ev->unref();
-  }
-}
-      
 //} ... class NativeWidgetImpl
