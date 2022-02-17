@@ -80,11 +80,11 @@ namespace richmath {
       virtual void on_style_changed(bool layout_affected) override;
       
     protected:
-      virtual FrontEndObject *next_in_limbo() final override { return _owner_or_limbo_next.as_tinted(); }
-      virtual void next_in_limbo(FrontEndObject *next) final override;
+      virtual ObjectWithLimbo *next_in_limbo() final override { return _owner_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(ObjectWithLimbo *next) final override;
       
     private:
-      TintedPtr<StyledObject, FrontEndObject> _owner_or_limbo_next;
+      TintedPtr<StyledObject, ObjectWithLimbo> _owner_or_limbo_next;
   };
 }
 

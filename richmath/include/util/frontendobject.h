@@ -68,9 +68,24 @@ namespace richmath {
       static void suspend_deletions();
       static void resume_deletions();
   };
-
-  class FrontEndObject: public Base {
+  
+  class ObjectWithLimbo: public Base {
       friend class AutoMemorySuspension;
+    public:
+      virtual ~ObjectWithLimbo();
+    
+      /// Mark the object for deletion.
+      ///
+      /// You should normally use this function instead of delete.
+      /// \see AutoMemorySuspension
+      virtual void safe_destroy();
+      
+    protected:
+      virtual ObjectWithLimbo *next_in_limbo() = 0;
+      virtual void next_in_limbo(ObjectWithLimbo *next) = 0;
+  };
+
+  class FrontEndObject: public ObjectWithLimbo {
     public:
       FrontEndObject();
       virtual ~FrontEndObject();
@@ -87,12 +102,6 @@ namespace richmath {
       
       void swap_id(FrontEndObject *other);
       
-      /// Mark the object for deletion.
-      ///
-      /// You should normally use this function instead of delete.
-      /// \see AutoMemorySuspension
-      void safe_destroy();
-      
       /// Notifies that a Dynamic value changed which this object is tracking.
       virtual void dynamic_updated() = 0;
     
@@ -106,9 +115,6 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) {}
     
     protected:
-      virtual FrontEndObject *next_in_limbo() = 0;
-      virtual void next_in_limbo(FrontEndObject *next) = 0;
-    
       bool get_flag(unsigned i) { return (_flags & (1u << i)) != 0; }
       void change_flag(unsigned i, bool value) { if(value) { set_flag(i); } else { clear_flag(i); } }
       void set_flag(unsigned i) {    _flags |=  (1u << i); }

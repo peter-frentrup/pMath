@@ -84,8 +84,8 @@ namespace {
       static bool find_style_definition(Expr submenu_cmd, Expr item_cmd);
     
     protected:
-      virtual FrontEndObject *next_in_limbo() final override { return nullptr; }
-      virtual void next_in_limbo(FrontEndObject *next) override { RICHMATH_ASSERT(0 && "not supported"); }
+      virtual ObjectWithLimbo *next_in_limbo() final override { return nullptr; }
+      virtual void next_in_limbo(ObjectWithLimbo *next) final override { RICHMATH_ASSERT(0 && "not supported"); }
     
     private:
       StylesMenuImpl();

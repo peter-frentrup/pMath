@@ -238,7 +238,7 @@ void FrontEndSession::on_style_changed(bool layout_affected) {
     win->content()->on_style_changed(layout_affected);
 }
 
-void FrontEndSession::next_in_limbo(FrontEndObject *next) {
+void FrontEndSession::next_in_limbo(ObjectWithLimbo *next) {
   RICHMATH_ASSERT( _owner_or_limbo_next.is_normal() );
   _owner_or_limbo_next.set_to_tinted(next);
 }

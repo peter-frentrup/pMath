@@ -59,11 +59,11 @@ namespace richmath {
       void finish_load_from_object(Expr expr) {}
       
       void style_parent(StyledObject *sp) { if(_style_parent_or_limbo_next.is_normal()) _style_parent_or_limbo_next.set_to_normal(sp); }
-      virtual FrontEndObject *next_in_limbo() final override { return _style_parent_or_limbo_next.as_tinted(); }
-      virtual void next_in_limbo(FrontEndObject *next) final override;
+      virtual ObjectWithLimbo *next_in_limbo() final override { return _style_parent_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(ObjectWithLimbo *next) final override;
       
     private:
-      TintedPtr<StyledObject, FrontEndObject> _style_parent_or_limbo_next;
+      TintedPtr<StyledObject, ObjectWithLimbo> _style_parent_or_limbo_next;
   };
   
   class GraphicsDirectiveBase: public GraphicsElement {};

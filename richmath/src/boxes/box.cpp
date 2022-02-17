@@ -628,7 +628,7 @@ void Box::finish_load_from_object(Expr expr) {
   }
 }
 
-void Box::next_in_limbo(FrontEndObject *next) {
+void Box::next_in_limbo(ObjectWithLimbo *next) {
   RICHMATH_ASSERT( _parent_or_limbo_next.is_normal() );
   _parent_or_limbo_next.set_to_tinted(next);
 }

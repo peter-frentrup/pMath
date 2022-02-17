@@ -112,7 +112,7 @@ Expr FrontEndReference::to_pmath() const {
 //{ class AutoMemorySuspension ...
 
 static int deletion_suspensions = 0;
-static FrontEndObject *object_limbo = nullptr;
+static ObjectWithLimbo *object_limbo = nullptr;
 
 bool AutoMemorySuspension::are_deletions_suspended() {
   return deletion_suspensions > 0;
@@ -128,7 +128,7 @@ void AutoMemorySuspension::resume_deletions() {
     
   int count = 0;
   while(object_limbo) {
-    FrontEndObject *tmp = object_limbo;
+    ObjectWithLimbo *tmp = object_limbo;
     object_limbo = tmp->next_in_limbo();
     
     delete tmp;
@@ -141,10 +141,33 @@ void AutoMemorySuspension::resume_deletions() {
 
 //} ... class AutoMemorySuspension
 
+//{ class ObjectWithLimbo ...
+
+ObjectWithLimbo::~ObjectWithLimbo() {
+#ifdef RICHMATH_DEBUG_MEMORY
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    fprintf(stderr, "[warning: delete %s during memory suspension]\n", get_debug_tag());
+  }
+#endif
+}
+
+void ObjectWithLimbo::safe_destroy() {
+  if(AutoMemorySuspension::are_deletions_suspended()) {
+    RICHMATH_ASSERT( next_in_limbo() == nullptr );
+    next_in_limbo(object_limbo);
+    RICHMATH_ASSERT( next_in_limbo() == object_limbo );
+    object_limbo = this;
+    return;
+  }
+  delete this;
+}
+
+//} ... class ObjectWithLimbo
+
 //{ class FrontEndObject ...
 
 FrontEndObject::FrontEndObject()
-  : Base(),
+  : ObjectWithLimbo(),
     _id{ TheCache.generate_next_id() },
     _flags{ 0 }
 {
@@ -154,11 +177,6 @@ FrontEndObject::FrontEndObject()
 }
 
 FrontEndObject::~FrontEndObject() {
-#ifdef RICHMATH_DEBUG_MEMORY
-  if(AutoMemorySuspension::are_deletions_suspended()) {
-    fprintf(stderr, "[warning: delete %s during memory suspension]\n", get_debug_tag());
-  }
-#endif
   TheCache.table.remove(_id);
 }
 
@@ -177,17 +195,6 @@ void FrontEndObject::swap_id(FrontEndObject *other) {
     TheCache.table.set(other->_id, other);
     TheCache.table.set(this->_id,  this);
   }
-}
-
-void FrontEndObject::safe_destroy() {
-  if(AutoMemorySuspension::are_deletions_suspended()) {
-    RICHMATH_ASSERT( next_in_limbo() == nullptr );
-    next_in_limbo(object_limbo);
-    RICHMATH_ASSERT( next_in_limbo() == object_limbo );
-    object_limbo = this;
-    return;
-  }
-  delete this;
 }
 
 //} ... class FrontEndObject

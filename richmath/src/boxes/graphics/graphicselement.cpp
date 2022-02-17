@@ -142,7 +142,7 @@ Expr GraphicsElement::prepare_dynamic(Expr expr) {
   return expr;
 }
 
-void GraphicsElement::next_in_limbo(FrontEndObject *next) { 
+void GraphicsElement::next_in_limbo(ObjectWithLimbo *next) { 
   RICHMATH_ASSERT( _style_parent_or_limbo_next.is_normal() );
   _style_parent_or_limbo_next.set_to_tinted(next);
 }

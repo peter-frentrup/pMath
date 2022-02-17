@@ -421,13 +421,13 @@ namespace richmath {
       
       void finish_load_from_object(Expr expr);
       
-      virtual FrontEndObject *next_in_limbo() final override { return _parent_or_limbo_next.as_tinted(); }
-      virtual void next_in_limbo(FrontEndObject *next) final override;
+      virtual ObjectWithLimbo *next_in_limbo() final override { return _parent_or_limbo_next.as_tinted(); }
+      virtual void next_in_limbo(ObjectWithLimbo *next) final override;
       
     protected:
-      TintedPtr<Box, FrontEndObject> _parent_or_limbo_next;
-      int                            _index;
-      BoxSize                        _extents;
+      TintedPtr<Box, ObjectWithLimbo> _parent_or_limbo_next;
+      int                             _index;
+      BoxSize                         _extents;
   };
   
   class DummyBox: public Box {
