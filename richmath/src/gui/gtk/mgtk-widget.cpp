@@ -1078,19 +1078,23 @@ bool MathGtkWidget::on_focus_in(GdkEvent *e) {
 }
 
 bool MathGtkWidget::on_focus_out(GdkEvent *e) {
+  pmath_debug_print("[MathGtkWidget::on_focus_out ...]\n");
   g_idle_add_full(G_PRIORITY_DEFAULT, 
     [](void *_arg) -> gboolean {
+      auto arg = FrontEndReference::unsafe_cast_from_pointer(_arg);
       pmath_debug_print("[idle after focus-out-event %p]\n", _arg);
-      if(auto wid = dynamic_cast<MathGtkWidget*>(BasicGtkWidget::from_widget((GtkWidget*)_arg))) {
-        if(focussed_document_id == wid->document()->id())
-          focussed_document_id = FrontEndReference::None;
-        
-        wid->document()->focus_killed(FrontEndObject::find_cast<Document>(focussed_document_id));
+      if(auto doc = FrontEndObject::find_cast<Document>(arg)) {
+        if(auto wid = dynamic_cast<MathGtkWidget*>(doc->native())) {
+          if(focussed_document_id == arg)
+            focussed_document_id = FrontEndReference::None;
+          
+          wid->document()->focus_killed(FrontEndObject::find_cast<Document>(focussed_document_id));
+        }
       }
       return false; 
     },
-    g_object_ref(widget()),
-    [](void *_arg) { g_object_unref(_arg); });
+    FrontEndReference::unsafe_cast_to_pointer(document()->id()),
+    nullptr);
   
   _focused = false;
   
