@@ -557,6 +557,8 @@ static bool have_visible_documents() {
 }
 
 int main(int argc, char **argv) {
+  auto leak_detection_start = Base::debug_alloc_clock();
+  
   debug_test_rle_array();
   
   os_init();
@@ -750,6 +752,7 @@ QUIT:
   Server::local_server = nullptr;
   
   done_bindings();
+  Base::debug_check_leaks_after(leak_detection_start);
   
   pmath_done();
   

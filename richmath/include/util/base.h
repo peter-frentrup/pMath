@@ -35,10 +35,17 @@ namespace richmath {
     protected:
       const char *get_debug_tag() const { return debug_tag; }
       void SET_BASE_DEBUG_TAG(const char *tag) { debug_tag = tag; }
-    #define SET_EXPLICIT_BASE_DEBUG_TAG(CLASS, TAG_NAME)  CLASS::SET_BASE_DEBUG_TAG(TAG_NAME)
+#   define SET_EXPLICIT_BASE_DEBUG_TAG(CLASS, TAG_NAME)  CLASS::SET_BASE_DEBUG_TAG(TAG_NAME)
+    public:
+      static intptr_t debug_alloc_clock();
+      static void debug_check_leaks_after(intptr_t alloc_clock);
 #else
-    #define SET_BASE_DEBUG_TAG(TAG_NAME) ((void)0)
-    #define SET_EXPLICIT_BASE_DEBUG_TAG(CLASS, TAG_NAME)   ((void)0)
+#   define SET_BASE_DEBUG_TAG(TAG_NAME) ((void)0)
+#   define SET_BASE_DEBUG_TAG(TAG_NAME) ((void)0)
+#   define SET_EXPLICIT_BASE_DEBUG_TAG(CLASS, TAG_NAME)   ((void)0)
+    public:
+      static intptr_t debug_alloc_clock() { return 0; }
+      static void debug_check_leaks_after(intptr_t alloc_clock) {}
 #endif
     public:
       Base();

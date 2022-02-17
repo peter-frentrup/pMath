@@ -28,15 +28,41 @@ namespace richmath {
         non_freed_objects_list = nullptr;
       }
       ~BaseDebugImpl() {
-        if(pmath_atomic_read_aquire(&count) != 0) {
-          printf("%d OBJECTS NOT FREED\n", (int)pmath_atomic_read_aquire(&count));
-          
-          Base *obj = non_freed_objects_list;
-          for(int max_count = 10; obj && max_count > 0; --max_count, obj = obj->debug_next) {
-            printf("  AT %p (time %d): %s\n", obj, (int)obj->debug_alloc_time, obj->debug_tag);
+        debug_check_leaks_after(0);
+      }
+      
+      void debug_check_leaks_after(intptr_t min_timer) {
+        if(auto num_alive = pmath_atomic_read_aquire(&count)) {
+          intptr_t num_alive_after_min_timer = num_alive;
+          if(min_timer > 0) {
+            num_alive_after_min_timer = 0;
+            for(Base *obj = non_freed_objects_list; obj; obj = obj->debug_next) {
+              if(obj->debug_alloc_time >= min_timer)
+                ++num_alive_after_min_timer;
+            }
           }
-          if(obj)
-            printf("  ...and more\n");
+          
+          if(num_alive_after_min_timer > 0) {
+            if(min_timer > 0) {
+              printf("\n%d objects alive. %d POSSIBLE LEAKS (created after time %d but still alive):",
+                (int)num_alive, (int)num_alive_after_min_timer, (int)min_timer);
+            }
+            else
+              printf("\n%d OBJECTS LEAKED:", (int)num_alive);
+            
+            Base *obj = non_freed_objects_list;
+            for(int max_count = 2000; obj && max_count > 0; obj = obj->debug_next) {
+              if(obj->debug_alloc_time >= min_timer) {
+                --max_count;
+                
+                printf("\n  AT %p (time %d): %s", obj, (int)obj->debug_alloc_time, obj->debug_tag);
+              }
+            }
+            if(obj)
+              printf("\n  ...and more");
+            
+            printf("\n");
+          }
         }
       }
       
@@ -134,6 +160,16 @@ Base::~Base() {
   (void)pmath_atomic_fetch_add(&TheCounter.count, -1);
 #endif
 }
+
+#ifdef RICHMATH_DEBUG_MEMORY
+intptr_t Base::debug_alloc_clock() {
+  return pmath_atomic_read_aquire(&TheCounter.timer);
+}
+
+void Base::debug_check_leaks_after(intptr_t alloc_clock) {
+  TheCounter.debug_check_leaks_after(alloc_clock);
+}
+#endif
 
 //} ... class Base
 
