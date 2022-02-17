@@ -173,6 +173,8 @@ MathGtkWidget::MathGtkWidget(Document *doc)
     _vadjustment(nullptr),
     _im_context(gtk_im_multicontext_new())
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   add_remove_widget(+1);
   g_signal_connect(_im_context, "commit",          G_CALLBACK(&MathGtkWidget::im_commit_callback),          this);
   g_signal_connect(_im_context, "preedit_changed", G_CALLBACK(&MathGtkWidget::im_preedit_changed_callback), this);

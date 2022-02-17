@@ -12,6 +12,7 @@ MathGtkDragDropHandler::MathGtkDragDropHandler(GdkDragContext *context)
 : DragDropHandler(),
  _context(context)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
   g_object_ref(context);
 }
 

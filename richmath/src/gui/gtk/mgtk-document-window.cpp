@@ -85,6 +85,7 @@ class MathGtkDocumentChildWidget: public MathGtkWidget {
       : base(new Document()),
         _parent(parent)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
     }
   
     MathGtkDocumentWindow *parent() { return _parent; }
@@ -148,6 +149,7 @@ class richmath::MathGtkWorkingArea: public MathGtkDocumentChildWidget {
     MathGtkWorkingArea(MathGtkDocumentWindow *parent)
       : base(parent)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
     }
     
     virtual Vector2F page_size() override {
@@ -225,6 +227,8 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     MathGtkDock(MathGtkDocumentWindow *parent)
       : base(parent)
     {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+     
       Style::reset(document()->style, strings::Docked);
     }
     
@@ -324,6 +328,9 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _active(true),
     _use_dark_mode(false)
 {
+  SET_EXPLICIT_BASE_DEBUG_TAG(CommonDocumentWindow, typeid(*this).name());
+  SET_EXPLICIT_BASE_DEBUG_TAG(BasicGtkWidget,       typeid(*this).name());
+  
   Impl::add_remove_window(+1);
   
   _previous_rect.x = 0;
@@ -438,6 +445,8 @@ void MathGtkDocumentWindow::after_construction() {
 }
 
 MathGtkDocumentWindow::~MathGtkDocumentWindow() {
+  pmath_debug_print("[MathGtkDocumentWindow::~MathGtkDocumentWindow]\n");
+  
   static bool deleting_all = false;
   if(!deleting_all) {
     bool have_only_palettes = true;
@@ -460,11 +469,12 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
       while(other && other != this) {
         CommonDocumentWindow *next = other->next_window();
         
-        if(auto win = dynamic_cast<MathGtkDocumentWindow*>(other))
+        if(auto win = dynamic_cast<MathGtkDocumentWindow*>(other)) {
           win->destroy();
-//        else {
-//          //delete win ?
-//        }
+        }
+        else {
+          pmath_debug_print("[unexpected CommonDocumentWindow]\n");
+        }
         
         other = next;
       }
@@ -748,7 +758,8 @@ void MathGtkDocumentWindow::bring_to_front() {
 }
 
 void MathGtkDocumentWindow::close() {
-  if(!_widget || destroying())
+  pmath_debug_print("[MathGtkDocumentWindow::close: %d %p]\n", destroying(), _widget);
+  if(!_widget || destroying()) 
     return;
   
   GdkEvent *ev = gdk_event_new(GDK_DELETE);

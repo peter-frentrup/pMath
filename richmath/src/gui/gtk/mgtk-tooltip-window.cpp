@@ -39,6 +39,7 @@ static MathGtkTooltipWindow *tooltip_window = nullptr;
 MathGtkTooltipWindow::MathGtkTooltipWindow()
   : base(new Document())
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
 }
 
 void MathGtkTooltipWindow::after_construction() {

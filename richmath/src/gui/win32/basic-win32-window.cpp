@@ -2862,6 +2862,8 @@ Win32BlurBehindWindow::Win32BlurBehindWindow(BasicWin32Window *owner)
       nullptr),
     _owner(owner)
 {
+  SET_BASE_DEBUG_TAG(typeid(*this).name());
+  
   assert(_owner != nullptr);
 }
 
