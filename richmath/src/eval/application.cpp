@@ -236,15 +236,12 @@ static int on_dynamic_update_delay_timeout(void *data) {
 #ifdef RICHMATH_USE_WIN32_GUI
 static HWND hwnd_message = HWND_MESSAGE;
 
-class ClientInfoWindow: public BasicWin32Widget {
+class ClientInfoWindow final: public BasicWin32Widget {
   public:
     ClientInfoWindow()
       : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
     {
-      // total exception!!! normally not callable in constructor, but we do not
-      // subclass this class, so this will still happen after the object is
-      // fully initialized
-      init();
+      init(); // total exception!!! Calling init in consructor is only allowd since this class is final
     }
     
   protected:

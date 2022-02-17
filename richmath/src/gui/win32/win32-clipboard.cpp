@@ -13,12 +13,12 @@ using namespace pmath;
 
 static HWND hwnd_message = HWND_MESSAGE;
 
-class Win32ClipboardInfo: public BasicWin32Widget {
+class Win32ClipboardInfo final: public BasicWin32Widget {
   public:
     Win32ClipboardInfo()
       : BasicWin32Widget(0, 0, 0, 0, 0, 0, &hwnd_message)
     {
-      init(); // total exception!!! normally not callable in constructor
+      init(); // total exception!!! Calling init in consructor is only allowd since this class is final
     }
 };
 

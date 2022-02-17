@@ -35,12 +35,12 @@
 using namespace richmath;
 using namespace std;
 
-class Win32ControlPainterInfo: public BasicWin32Widget {
+class Win32ControlPainterInfo final: public BasicWin32Widget {
   public:
     Win32ControlPainterInfo()
       : BasicWin32Widget(0, 0, 0, 0, 0, 0, nullptr)
     {
-      init(); // total exception!!! normally not callable in constructor
+      init(); // total exception!!! Calling init in consructor is only allowd since this class is final
     }
     
   protected:
