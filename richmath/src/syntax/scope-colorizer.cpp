@@ -214,7 +214,9 @@ void ScopeColorizerImpl::colorize_spanexpr(SpanExpr *se) {
       }
     }
     
-    if(se->item_as_char(1) == 0x21A6) { // mapsto
+    if( se->item_as_char(1) == 0x21A6 || // mapsto
+        se->item_equals(1, "|->"))
+    {
       colorize_mapsto_function(se);
       return;
     }
