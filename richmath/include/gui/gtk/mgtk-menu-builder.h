@@ -34,6 +34,9 @@ namespace richmath {
       static void done();
       static Expr selected_item_command();
       
+      Expr get() const  { return expr; }
+      explicit operator bool() const { return expr.is_valid(); }
+      
     public:
       static MathGtkMenuBuilder main_menu;
       

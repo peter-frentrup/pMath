@@ -222,6 +222,8 @@ MathGtkMenuBuilder::MathGtkMenuBuilder(Expr _expr)
 }
 
 void MathGtkMenuBuilder::done() {
+  main_menu = MathGtkMenuBuilder();
+  
   accel_path_to_cmd.clear();
   cmd_to_accel_path.clear();
 }
@@ -1111,9 +1113,13 @@ GtkWidget *MathGtkMenuSearch::create(FrontEndReference doc_id) {
   if(GtkWidget *label = gtk_bin_get_child(GTK_BIN(menu_item))) {
     gtk_container_remove(GTK_CONTAINER(menu_item), label);
   }
-    
+  
   auto entry = gtk_entry_new();
   g_signal_connect(GTK_EDITABLE(entry), "changed", G_CALLBACK(on_text_changed), FrontEndReference::unsafe_cast_to_pointer(doc_id));
+  // TODO: on Gtk >= 3.6.0, we could also use a GtkSearchEntry, but have to detect the click on the "clear" icon 
+  // ourselved with gtk_entry_get_icon_area() because this entry does not receive focus or mouse events
+  gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry), GTK_ENTRY_ICON_PRIMARY, "edit-find-symbolic");
+  
 //#if GTK_MAJOR_VERSION >= 3
 //  {
 //    auto overlay = gtk_overlay_new();

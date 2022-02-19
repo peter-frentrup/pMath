@@ -742,7 +742,6 @@ QUIT:
 #endif
   
 #ifdef RICHMATH_USE_GTK_GUI
-  MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder();
   MathGtkMenuBuilder::done();
   MathGtkAccelerators::done();
   MathGtkControlPainter::done();
