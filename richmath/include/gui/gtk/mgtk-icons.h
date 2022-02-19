@@ -15,6 +15,7 @@ namespace richmath {
     public:
       enum Index {
         AppIcon16Index,
+        AppIcon24Index,
         AppIcon32Index,
         AppIcon48Index,
         
