@@ -28,10 +28,19 @@
 using namespace richmath;
 
 namespace richmath { namespace strings {
+  extern String EmptyString;
+  extern String Close;
+  extern String CloseMenu_label;
+  extern String Docked;
+  extern String ShowHideMenu_label;
+  extern String ShowHideMenu;
   extern String Docked;
 }}
 
+extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Menu;
+extern pmath_symbol_t richmath_System_MenuItem;
 
 static const int SnapDistance = 4;
 
@@ -415,23 +424,73 @@ void MathGtkDocumentWindow::after_construction() {
           :                             MathGtkIcons::AppIcon16Index;
         GtkWidget *icon = gtk_image_new_from_pixbuf(icons.get_icon(idx));
         
-        GtkWidget *icon_box = gtk_event_box_new();
+        GtkWidget *icon_box = gtk_menu_button_new();
         gtk_container_add(GTK_CONTAINER(icon_box), icon);
-        g_signal_connect(icon_box, "button-press-event", 
-          G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))[](GtkWidget *sender, GdkEvent *e, void *_self) -> gboolean {
-            if(e->button.button == 1) { // left-click
-              pmath_debug_print("[press window icon => show window menu]\n");
-              e->button.button = 3; // continue as if right-click to let GtkWindow show the window menu.
-//              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
-//              if(gdk_window_show_window_menu(gtk_widget_get_window(self.widget()), e))
-//                return true;
-//              
-//              // TODO: fall-back menu as in GtkWindow-private 'gtk_window_do_popup_fallback' ?
-            }
-            return false;
-          }), 
-          this);
-  
+        gtk_button_set_relief(GTK_BUTTON(icon_box), GTK_RELIEF_NONE);
+        
+        GtkWidget *icon_menu = gtk_menu_new();
+        
+        GtkAccelGroup *dummy_accel_group = gtk_accel_group_new();
+        
+        if(auto item = gtk_image_menu_item_new_with_mnemonic("_Close")) {
+          gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), gtk_image_new_from_icon_name("window-close-symbolic", GTK_ICON_SIZE_MENU));
+          gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), true);
+          
+//          static const bool CloseIsDefault = true;
+//          if(CloseIsDefault) {
+//            if(auto label = gtk_bin_get_child(GTK_BIN(item))) {
+//              if(GTK_IS_LABEL(label)) {
+//                gtk_label_set_markup_with_mnemonic(GTK_LABEL(label), "<b>_Close</b>");
+//              }
+//            }
+//            
+//            // FIXME: intercepting double clicks does not work, becuse the menu is opened on first click and grabs focus
+//            g_signal_connect(
+//              icon_box, "button-press-event",
+//              G_CALLBACK((gboolean(*)(GtkWidget*,GdkEventButton*,void*))[](GtkWidget *sender, GdkEventButton *e, void *_self) -> gboolean {
+//                pmath_debug_print("[icon press %d %d]", e->type, e->button);
+//                MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+//                if(e->type == GDK_2BUTTON_PRESS && e->button == 1) {
+//                  self.close();
+//                  return true;
+//                }
+//                return false;
+//              }),
+//              this);
+//          }
+          
+          gtk_widget_show_all(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+          g_signal_connect(
+            G_OBJECT(item), "activate",
+            G_CALLBACK((void(*)(GtkMenuItem*, void*))[](GtkMenuItem *sender, void *_self) {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              self.close();
+            }), 
+            this);
+        }
+        MathGtkMenuBuilder(
+            Call(Symbol(richmath_System_Menu), strings::EmptyString, 
+              List(
+                // "Close" command applies to selected document even in palette windows.
+                //Call(Symbol(richmath_System_MenuItem), strings::CloseMenu_label, strings::Close),
+                Symbol(richmath_System_Delimiter),
+                Call(Symbol(richmath_System_MenuItem), strings::ShowHideMenu_label, strings::ShowHideMenu),
+                Symbol(richmath_System_Delimiter)
+              ))
+          ).append_to(GTK_MENU_SHELL(icon_menu), dummy_accel_group, document()->id());
+        MathGtkMenuBuilder::main_menu.append_to(       GTK_MENU_SHELL(icon_menu), dummy_accel_group, document()->id());
+        MathGtkMenuBuilder::connect_events(GTK_MENU(icon_menu), document()->id());
+        g_object_unref(dummy_accel_group);
+        
+        //gtk_widget_show_all(icon_menu);
+        gtk_menu_button_set_popup(GTK_MENU_BUTTON(icon_box), icon_menu);
+        
+        // Only hide icon for palette windows
+        g_object_bind_property(
+          _menu_bar, "visible", icon_box, "visible", 
+          GBindingFlags(G_BINDING_SYNC_CREATE));
+        
         gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), icon_box);
       }
       
@@ -452,6 +511,10 @@ void MathGtkDocumentWindow::after_construction() {
             self.try_set_menubar(!self.has_menubar());
           }), 
           this);
+        
+        g_object_bind_property(
+          _menu_bar, "visible", menu_button, "visible", 
+          GBindingFlags(G_BINDING_SYNC_CREATE));
         
         gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), menu_button);
       }
