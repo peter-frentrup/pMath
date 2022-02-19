@@ -154,6 +154,7 @@ static Hashtable<DWORD, Expr>   id_to_cmd;
 static Hashtable<DWORD, String> id_to_shortcut_text;
 
 namespace richmath { namespace strings {
+  extern String Close;
   extern String SearchMenuItems;
 }}
 
@@ -420,7 +421,7 @@ void MenuItemBuilder::add_remove_menu(int delta) {
     
     cmd_to_id.default_value = 0;
     
-    add_command(SC_CLOSE, String("Close"));
+    add_command(SC_CLOSE, strings::Close);
     add_command((UINT)SpecialCommandID::None, {});
     add_command((UINT)SpecialCommandID::Select, {});
     add_command((UINT)SpecialCommandID::Remove, {});

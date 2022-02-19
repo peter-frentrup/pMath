@@ -42,6 +42,7 @@ namespace richmath {
 }
 
 namespace richmath { namespace strings {
+  extern String CloseMenu_label;
   extern String MenuListSearchCommands;
 }}
 
@@ -416,7 +417,7 @@ HMENU Win32MenuItemPopupMenu::create_popup_for(Expr list_cmd, Expr cmd) {
   if(Menus::has_submenu_item_deleter(list_cmd)) {
     String remove_label;
     if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
-      remove_label = String("Close");
+      remove_label = strings::CloseMenu_label;
     else
       remove_label = String("Remove");
     

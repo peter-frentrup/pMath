@@ -242,7 +242,7 @@ bool richmath::init_bindings() {
   Menus::register_command(String("Open"),                       open_cmd);
   Menus::register_command(String("Save"),                       save_cmd,                            can_save);
   Menus::register_command(String("SaveAs"),                     saveas_cmd);
-  Menus::register_command(String("Close"),                      close_cmd);
+  Menus::register_command(strings::Close,                       close_cmd);
   
   Menus::register_command(strings::Copy,                        copy_cmd,                            can_copy_cut);
   Menus::register_command(strings::Cut,                         cut_cmd,                             can_copy_cut);
