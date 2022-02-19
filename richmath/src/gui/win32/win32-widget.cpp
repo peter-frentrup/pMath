@@ -1672,6 +1672,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
           
           _focused = false;
+          scrolling = false;
           SetTimer(_hwnd, (UINT_PTR)&TimerIdKillFocus, 0, nullptr);
         } break;
       
