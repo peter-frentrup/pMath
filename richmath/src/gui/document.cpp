@@ -415,6 +415,12 @@ bool Document::try_load_from_object(Expr expr, BoxInputFlags options) {
 }
 
 bool Document::request_repaint(const RectangleF &rect) {
+  if(rect.contains(_extents.to_rectangle())) {
+    // Whole document => also invalidate any overscroll area to accomodate for Background changes
+    native()->invalidate();
+    return true;
+  }
+  
   if(rect.overlaps({native()->scroll_pos(), native()->window_size()})) {
     native()->invalidate_rect(rect);
     return true;
