@@ -669,6 +669,12 @@ void Win32Widget::on_changed_dark_mode() {
     Win32Themes::SetWindowTheme(_hwnd, L"DarkMode_Explorer", nullptr);
   else
     Win32Themes::SetWindowTheme(_hwnd, L"Explorer", nullptr);
+
+  // Fix bug in Windows 10, 21H2 (build 19044.1526):
+  // When switching from light to dark (but not vice-versa), the size-gripper in the lower 
+  // right corner (visible only when both scrollbars are shown) does not get redrawn and stays light.
+  SetWindowPos(_hwnd, nullptr, 0, 0, 0, 0, 
+    SWP_DRAWFRAME | SWP_NOMOVE | SWP_NOSIZE | SWP_NOACTIVATE | SWP_NOZORDER);
 }
 
 static int best_image_size(int width) {
