@@ -43,7 +43,7 @@ Function asStyleDataExampleBox(~labelTextBox, ~exampleBox) {
                                     Section(~,~~~rest):>{rest}
                                 }, 0).Replace(
                                     {{}->{"(nothing)"}
-                                }, 0).Map(makePropertyGridEntries0).Flatten(1)
+                                }, 0).Map(Function(makePropertyGridEntries("", {Section}, #))).Flatten(1)
                         )))}, {"", ""}}, GridBoxRowSpacing -> 0.2)
                 }, #1)},
                 {exampleBox}},
@@ -52,20 +52,18 @@ Function asStyleDataExampleBox(~labelTextBox, ~exampleBox) {
     ))
 }
 
-makePropertyGridEntries0(~x)::= makePropertyGridEntries("", x)
-
 $styleOptionAlternatives:= BaseStyle | DefaultDuplicateSectionStyle | DefaultNewSectionStyle | DefaultReturnCreatedSectionStyle
-makePropertyGridEntries(~pre, (l: $styleOptionAlternatives) -> ~s:String)::= {{makePropertyGridLabel(pre, l), "\[Rule]", RawBoxes@{TemplateBox({s}, "StyleHyperlink"),"\[InvisibleSpace]"}}}
-makePropertyGridEntries(~pre, Rule(~l, ~r))::=           {{makePropertyGridLabel(pre, l),         "\[Rule]",        makePropertyGridValue(r)}}
-makePropertyGridEntries(~pre, RuleDelayed(~l, ~r))::=    {{makePropertyGridLabel(pre, l),         "\[RuleDelayed]", makePropertyGridValue(HoldForm(r))}}
-makePropertyGridEntries(~pre, ~x)::=                     {{"",                                    "",               makePropertyGridValue(x)}}
-Function makePropertyGridEntries(~pre, Rule(~l, r: {((Rule|RuleDelayed)(~,~))**})) {
-    {{makePropertyGridLabel(pre, l), "\[Rule]", "{\[Ellipsis]}:"}}.Join(
-        r.Map(Function(makePropertyGridEntries(pre ++ "  ", #))).Flatten(1))
+makePropertyGridEntries(~pre, ~parts, (l: $styleOptionAlternatives) -> ~s:String)::= {{makePropertyGridLabel(pre, l), "\[Rule]", makePropertyGridStyleValue(parts.Append(l), s)}}
+makePropertyGridEntries(~pre, ~parts, Rule(~l, ~r))::=           {{makePropertyGridLabel(pre, l),         "\[Rule]",        makePropertyGridValue(parts.Append(l), r)}}
+makePropertyGridEntries(~pre, ~parts, RuleDelayed(~l, ~r))::=    {{makePropertyGridLabel(pre, l),         "\[RuleDelayed]", makePropertyGridValue(parts.Append(l), HoldForm(r))}}
+makePropertyGridEntries(~pre, ~parts, ~x)::=                     {{"",                                    "",               makePropertyGridValue(parts, x)}}
+Function makePropertyGridEntries(~pre, ~parts, Rule(~l, r: {((Rule|RuleDelayed)(~,~))**})) {
+    {{makePropertyGridLabel(pre, l), "\[Rule]", ColonForm({Subscript("\[Ellipsis]", Length(r))}, "")}}.Join(
+        r.Map(Function(makePropertyGridEntries(pre ++ "  ", parts.Append(l), #))).Flatten(1))
 }
-Function makePropertyGridEntries(~pre, RuleDelayed(~l, r: {((Rule|RuleDelayed)(~,~))**})) {
-    {{makePropertyGridLabel(pre, l), "\[RuleDelayed]", "{\[Ellipsis]}:"}}.Join(
-        r.Map(Function(makePropertyGridEntries(pre ++ "  ", #))).Flatten(1))
+Function makePropertyGridEntries(~pre, ~parts, RuleDelayed(~l, r: {((Rule|RuleDelayed)(~,~))**})) {
+    {{makePropertyGridLabel(pre, l), "\[RuleDelayed]", ColonForm({Subscript("\[Ellipsis]", Length(Unevaluated(r)))}, "")}}.Join(
+        r.Map(Function(makePropertyGridEntries(pre ++ "  ", parts.Append(l), #))).Flatten(1))
 }
 
 makePropertyGridLabel(~pre, ~post)::= Row({pre, post})
@@ -74,12 +72,39 @@ makePropertyGridSeparator(~f):=          RawBoxes(OverscriptBox("\[Rule]", ToBox
 makePropertyGridSeparator(Rule):=        "\[Rule]"
 makePropertyGridSeparator(RuleDelayed):= "\[RuleDelayed]"
 
-makePropertyGridValue(~x)::= Short(x)
-makePropertyGridValue(d:Dynamic(~~~args))::= Grid({
+makePropertyGridValue(~parts, ~x)::= Short(x)
+makePropertyGridValue(~parts, d:Dynamic(~~~args))::= Grid({
         {Short(HoldForm(HoldForm(Dynamic)(args)))}, 
         {Short(d)}}, BaselinePosition -> 1)
-makePropertyGridValue(col: RGBColor(~,~,~))::= Row({Framed("    ", Background -> col), " ", Short(col)})
-makePropertyGridValue(col: GrayLevel(~))::=    Row({Framed("    ", Background -> col), " ", Short(col)})
+makePropertyGridValue(~parts, True)::=  makePropertyGridBooleanValue(parts, True)
+makePropertyGridValue(~parts, False)::= makePropertyGridBooleanValue(parts, False)
+makePropertyGridValue(~parts, col: RGBColor(~,~,~))::= makePropertyGridColorValue(parts, col)
+makePropertyGridValue(~parts, col: GrayLevel(~))::=    makePropertyGridColorValue(parts, col)
+
+Function makePropertyGridBooleanValue(~parts, ~val) {
+    Row({
+        Checkbox(Dynamic(;val, Function(CurrentValue(parts):= #))),
+        " ", 
+        Short(val)})
+}
+
+Function makePropertyGridColorValue(~parts, ~col) {
+    Row({
+        Button(
+            Framed("    ", Background -> col),
+            With(newcol:= FE`ColorDialog(col)) {
+                If(newcol =!= $Canceled && newcol =!= $Failed) {
+                    CurrentValue(parts):= newcol
+                }
+            },
+            ButtonFrame->"Palette"), 
+        " ", 
+        Short(col)})
+}
+
+Function makePropertyGridStyleValue(~parts, ~name) {
+    RawBoxes@{TemplateBox({name}, "StyleHyperlink"), "\[InvisibleSpace]"}
+}
 
 $DefaultDisplayFunction(~tag:String)::= Function(
     FrameBox(
