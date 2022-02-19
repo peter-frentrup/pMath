@@ -1246,7 +1246,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
       return false;
     }
     if(unichar == '\t')
-      return false;
+      return true;
       
     document()->key_press(unichar);
   }
