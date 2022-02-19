@@ -382,6 +382,85 @@ void MathGtkDocumentWindow::after_construction() {
     gtk_scrolled_window_set_policy(GTK_SCROLLED_WINDOW(menu_area), GTK_POLICY_EXTERNAL, GTK_POLICY_NEVER);
   }
 #endif
+
+#if GTK_CHECK_VERSION(3,10,0)
+  {
+    const char *gtk_csd_env = g_getenv("GTK_CSD");
+    if(!gtk_csd_env || !*gtk_csd_env) gtk_csd_env = "1";
+    if(strcmp(gtk_csd_env, "1") == 0) {
+      GtkWidget *header_bar = gtk_header_bar_new();
+      
+      gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(header_bar), true);
+      gtk_header_bar_set_has_subtitle(GTK_HEADER_BAR(header_bar), false);
+      
+      //gtk_header_bar_set_decoration_layout(GTK_HEADER_BAR(header_bar), "menu:minimize,maximize,close");
+      
+      // header-height dependent icon. TODO: dynamically adapt to theme changes
+      int min_header_height = 0;
+      {
+        GtkStyleContext *ctx = gtk_widget_get_style_context(header_bar);
+        gtk_style_context_get(
+          ctx, GTK_STATE_FLAG_NORMAL, 
+          "min-height", &min_header_height, 
+          nullptr);
+        g_object_unref(ctx);
+        
+        pmath_debug_print("[min_header_height = %d]\n", min_header_height);
+      }
+      
+      {
+        MathGtkIcons::Index idx 
+          = (min_header_height >= 32) ? MathGtkIcons::AppIcon32Index
+          : (min_header_height >= 24) ? MathGtkIcons::AppIcon24Index
+          :                             MathGtkIcons::AppIcon16Index;
+        GtkWidget *icon = gtk_image_new_from_pixbuf(icons.get_icon(idx));
+        
+        GtkWidget *icon_box = gtk_event_box_new();
+        gtk_container_add(GTK_CONTAINER(icon_box), icon);
+        g_signal_connect(icon_box, "button-press-event", 
+          G_CALLBACK((gboolean(*)(GtkWidget*,GdkEvent*,void*))[](GtkWidget *sender, GdkEvent *e, void *_self) -> gboolean {
+            if(e->button.button == 1) { // left-click
+              pmath_debug_print("[press window icon => show window menu]\n");
+              e->button.button = 3; // continue as if right-click to let GtkWindow show the window menu.
+//              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+//              if(gdk_window_show_window_menu(gtk_widget_get_window(self.widget()), e))
+//                return true;
+//              
+//              // TODO: fall-back menu as in GtkWindow-private 'gtk_window_do_popup_fallback' ?
+            }
+            return false;
+          }), 
+          this);
+  
+        gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), icon_box);
+      }
+      
+      if(_menu_bar_pin) {
+        GtkWidget *menu_button = gtk_button_new();
+      
+        GIcon *menu_icon = g_themed_icon_new("open-menu-symbolic"); // "view-more-symbolic"
+        GtkWidget *image = gtk_image_new_from_gicon(menu_icon, GTK_ICON_SIZE_BUTTON);
+        g_object_unref(menu_icon);
+        gtk_container_add(GTK_CONTAINER(menu_button), image);
+        gtk_button_set_relief(GTK_BUTTON(menu_button), GTK_RELIEF_NONE);
+        
+        g_signal_connect(
+          menu_button, 
+          "clicked", 
+          G_CALLBACK((void(*)(GtkButton*,void*))[](GtkButton *sender, void *_self) {
+            MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+            self.try_set_menubar(!self.has_menubar());
+          }), 
+          this);
+        
+        gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), menu_button);
+      }
+      
+      gtk_window_set_titlebar(GTK_WINDOW(_widget), header_bar);
+      gtk_widget_show_all(header_bar);
+    }
+  }
+#endif
   
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
   g_object_unref(accel_group);
