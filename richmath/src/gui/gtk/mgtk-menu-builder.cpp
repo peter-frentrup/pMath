@@ -658,7 +658,6 @@ bool MenuItemBuilder::has_type(GtkWidget *widget, MenuItemType type) {
     case MenuItemType::Normal:
     case MenuItemType::InlineMenu:
     case MenuItemType::SubMenu:
-    case MenuItemType::SearchBox:
       if( GTK_IS_MENU_ITEM(widget) && 
           !GTK_IS_CHECK_MENU_ITEM(widget) && 
           !GTK_IS_SEPARATOR_MENU_ITEM(widget)) 
@@ -671,6 +670,9 @@ bool MenuItemBuilder::has_type(GtkWidget *widget, MenuItemType type) {
       else
         return false;
     
+    case MenuItemType::SearchBox:
+      return GTK_IS_IMAGE_MENU_ITEM(widget);
+      
     case MenuItemType::CheckButton:
     case MenuItemType::RadioButton:
       return GTK_IS_CHECK_MENU_ITEM(widget);
@@ -1108,7 +1110,10 @@ void MathGtkMenuSearch::ensure_init() {
 }
 
 GtkWidget *MathGtkMenuSearch::create(FrontEndReference doc_id) {
-  GtkWidget *menu_item = gtk_menu_item_new();
+  GtkWidget *menu_item = gtk_image_menu_item_new();
+  
+  gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(menu_item), gtk_image_new_from_icon_name("edit-find-symbolic", GTK_ICON_SIZE_MENU));
+  gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(menu_item), true);
   
   if(GtkWidget *label = gtk_bin_get_child(GTK_BIN(menu_item))) {
     gtk_container_remove(GTK_CONTAINER(menu_item), label);
@@ -1118,22 +1123,22 @@ GtkWidget *MathGtkMenuSearch::create(FrontEndReference doc_id) {
   g_signal_connect(GTK_EDITABLE(entry), "changed", G_CALLBACK(on_text_changed), FrontEndReference::unsafe_cast_to_pointer(doc_id));
   // TODO: on Gtk >= 3.6.0, we could also use a GtkSearchEntry, but have to detect the click on the "clear" icon 
   // ourselved with gtk_entry_get_icon_area() because this entry does not receive focus or mouse events
-  gtk_entry_set_icon_from_icon_name(GTK_ENTRY(entry), GTK_ENTRY_ICON_PRIMARY, "edit-find-symbolic");
   
-//#if GTK_MAJOR_VERSION >= 3
+//#if GTK_CHECK_VERSION(3, 2, 0)
 //  {
 //    auto overlay = gtk_overlay_new();
 //    gtk_container_add(GTK_CONTAINER(overlay), entry);
 //    auto label = gtk_accel_label_new("xyz");
 //    g_object_set(
 //      G_OBJECT(label), 
-//      "halign", GTK_ALIGN_FILL,
+//      "halign", GTK_ALIGN_END,
 //      "valign", GTK_ALIGN_CENTER, 
 //      nullptr);
 //    gtk_overlay_add_overlay(GTK_OVERLAY(overlay), label);
 //    entry = overlay;
 //  }
 //#endif
+
   gtk_container_add(GTK_CONTAINER(menu_item), entry);
   gtk_widget_show_all(entry);
   
