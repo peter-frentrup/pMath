@@ -8,6 +8,7 @@
 #include <util/base.h>
 
 #include <gdk/gdk.h>
+#include <gtk/gtk.h>
 
 
 namespace richmath {
@@ -27,6 +28,8 @@ namespace richmath {
       ~MathGtkIcons();
       
       GdkPixbuf *get_icon(Index idx); // you must free the result withn g_object_unref()
+      
+      GdkPixbuf *get_app_icon(GtkIconSize size); // you must free the result withn g_object_unref()
       
       static GdkPixbuf *new_pixbuf_from_image(cairo_surface_t *image);
       

@@ -404,25 +404,8 @@ void MathGtkDocumentWindow::after_construction() {
       
       //gtk_header_bar_set_decoration_layout(GTK_HEADER_BAR(header_bar), "menu:minimize,maximize,close");
       
-      // header-height dependent icon. TODO: dynamically adapt to theme changes
-      int min_header_height = 0;
       {
-        GtkStyleContext *ctx = gtk_widget_get_style_context(header_bar);
-        gtk_style_context_get(
-          ctx, GTK_STATE_FLAG_NORMAL, 
-          "min-height", &min_header_height, 
-          nullptr);
-        g_object_unref(ctx);
-        
-        pmath_debug_print("[min_header_height = %d]\n", min_header_height);
-      }
-      
-      {
-        MathGtkIcons::Index idx 
-          = (min_header_height >= 32) ? MathGtkIcons::AppIcon32Index
-          : (min_header_height >= 24) ? MathGtkIcons::AppIcon24Index
-          :                             MathGtkIcons::AppIcon16Index;
-        GtkWidget *icon = gtk_image_new_from_pixbuf(icons.get_icon(idx));
+        GtkWidget *icon = gtk_image_new_from_pixbuf(icons.get_app_icon(GTK_ICON_SIZE_SMALL_TOOLBAR));
         
         GtkWidget *icon_box = gtk_menu_button_new();
         gtk_container_add(GTK_CONTAINER(icon_box), icon);
@@ -431,6 +414,109 @@ void MathGtkDocumentWindow::after_construction() {
         GtkWidget *icon_menu = gtk_menu_new();
         
         GtkAccelGroup *dummy_accel_group = gtk_accel_group_new();
+        
+        static const char menu_tag[] = "Richmath Window Menu Tag";
+        enum class SpecialItemTag {
+          Restore = 1,
+          Move,
+          Resize,
+          Minimize,
+          Maximize,
+        };
+        
+        if(auto item = gtk_image_menu_item_new_with_mnemonic("Restore")) {
+          gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), gtk_image_new_from_icon_name("window-restore-symbolic", GTK_ICON_SIZE_SMALL_TOOLBAR));
+          gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), true);
+          gtk_widget_show_all(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+          g_object_set_data(G_OBJECT(item), menu_tag, (void*)SpecialItemTag::Restore);
+          
+          g_signal_connect(G_OBJECT(item), "activate", 
+            G_CALLBACK((void(*)(GtkMenuItem*,void*))[](GtkMenuItem *sender, void *_self) {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              
+              GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(self.widget()));
+              
+              if(state & GDK_WINDOW_STATE_MAXIMIZED) {
+                gtk_window_unmaximize(GTK_WINDOW(self.widget()));
+                return;
+              }
+              
+              if(state & GDK_WINDOW_STATE_ICONIFIED) 
+                gtk_window_deiconify(GTK_WINDOW(self.widget()));
+            }), 
+            this);
+        }
+        
+        if(auto item = gtk_image_menu_item_new_with_mnemonic("Move")) {
+          gtk_widget_show_all(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+          g_object_set_data(G_OBJECT(item), menu_tag, (void*)SpecialItemTag::Move);
+          
+          g_signal_connect(G_OBJECT(item), "activate", 
+            G_CALLBACK((void(*)(GtkMenuItem*,void*))[](GtkMenuItem *sender, void *_self) {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              
+              gtk_window_begin_move_drag(GTK_WINDOW(self.widget()), 0, 0, 0, GDK_CURRENT_TIME);
+            }), 
+            this);
+        }
+        
+        if(auto item = gtk_image_menu_item_new_with_mnemonic("Resize")) {
+          gtk_widget_show_all(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+          g_object_set_data(G_OBJECT(item), menu_tag, (void*)SpecialItemTag::Resize);
+          
+          g_signal_connect(G_OBJECT(item), "activate", 
+            G_CALLBACK((void(*)(GtkMenuItem*,void*))[](GtkMenuItem *sender, void *_self) {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              
+              gtk_window_begin_resize_drag(GTK_WINDOW(self.widget()), GDK_WINDOW_EDGE_NORTH_WEST, 0, 0, 0, GDK_CURRENT_TIME);
+            }), 
+            this);
+        }
+        
+        if(auto item = gtk_image_menu_item_new_with_mnemonic("Minimize")) {
+          gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), gtk_image_new_from_icon_name("window-minimize-symbolic", GTK_ICON_SIZE_MENU));
+          gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), true);
+          gtk_widget_show_all(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+          g_object_set_data(G_OBJECT(item), menu_tag, (void*)SpecialItemTag::Minimize);
+          
+          g_signal_connect(G_OBJECT(item), "activate", 
+            G_CALLBACK((void(*)(GtkMenuItem*,void*))[](GtkMenuItem *sender, void *_self) {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              
+              gtk_window_iconify(GTK_WINDOW(self.widget()));
+            }), 
+            this);
+        }
+        
+        if(auto item = gtk_image_menu_item_new_with_mnemonic("Maximize")) {
+          gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), gtk_image_new_from_icon_name("window-maximize-symbolic", GTK_ICON_SIZE_MENU));
+          gtk_image_menu_item_set_always_show_image(GTK_IMAGE_MENU_ITEM(item), true);
+          gtk_widget_show_all(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+          g_object_set_data(G_OBJECT(item), menu_tag, (void*)SpecialItemTag::Maximize);
+          
+          g_signal_connect(G_OBJECT(item), "activate", 
+            G_CALLBACK((void(*)(GtkMenuItem*,void*))[](GtkMenuItem *sender, void *_self) {
+              MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+              
+              gtk_window_maximize(GTK_WINDOW(self.widget()));
+            }), 
+            this);
+        }
+        
+        if(auto item = gtk_separator_menu_item_new()) {
+          gtk_widget_show(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+        }
+        
+        if(auto item = gtk_separator_menu_item_new()) {
+          gtk_widget_show(item);
+          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
+        }
         
         if(auto item = gtk_image_menu_item_new_with_mnemonic("_Close")) {
           gtk_image_menu_item_set_image(GTK_IMAGE_MENU_ITEM(item), gtk_image_new_from_icon_name("window-close-symbolic", GTK_ICON_SIZE_MENU));
@@ -469,6 +555,60 @@ void MathGtkDocumentWindow::after_construction() {
             }), 
             this);
         }
+        
+        struct MapEvent {
+          static gboolean callback(GtkWidget *menu, GdkEventAny *e, void *_self) {
+            MathGtkDocumentWindow &self = *(MathGtkDocumentWindow*)_self;
+            
+            GdkWindowState state = gdk_window_get_state(gtk_widget_get_window(self.widget()));
+            
+            bool resizable = gtk_window_get_resizable(GTK_WINDOW(self.widget()));
+            bool iconified = (state & GDK_WINDOW_STATE_ICONIFIED) != 0;
+            bool maximized = (state & GDK_WINDOW_STATE_MAXIMIZED) != 0;
+            bool is_normal_window = gtk_window_get_type_hint(GTK_WINDOW(self.widget())) == GDK_WINDOW_TYPE_HINT_NORMAL;
+            
+            container_foreach(GTK_CONTAINER(menu), 
+              [&](GtkWidget *menuitem) {
+                if(!GTK_IS_MENU_ITEM(menuitem))
+                  return;
+                
+                auto tag = (SpecialItemTag)(intptr_t)g_object_get_data(G_OBJECT(menuitem), menu_tag);
+                switch(tag) {
+                  case SpecialItemTag::Restore: {
+                    bool enabled = true;
+                    if(gtk_widget_is_visible(self.widget()) && !(maximized || iconified))
+                      enabled = false;
+                    else if(!iconified && !resizable)
+                      enabled = false;
+                    else if(!is_normal_window)
+                      enabled = false;
+                    
+                    gtk_widget_set_sensitive(menuitem, enabled);
+                  } break;
+                  
+                  case SpecialItemTag::Move: 
+                    gtk_widget_set_sensitive(menuitem, !maximized && !iconified);
+                    break;
+                  
+                  case SpecialItemTag::Resize: 
+                    gtk_widget_set_sensitive(menuitem, resizable && !maximized && !iconified);
+                    break;
+                  
+                  case SpecialItemTag::Minimize: 
+                    gtk_widget_set_sensitive(menuitem, !iconified && is_normal_window);
+                    break;
+                  
+                  case SpecialItemTag::Maximize: 
+                    gtk_widget_set_sensitive(menuitem, !maximized && resizable && is_normal_window);
+                    break;
+                }
+              });
+            return false;
+          }
+        };
+        
+        g_signal_connect(icon_menu, "map-event", G_CALLBACK(MapEvent::callback), this);
+        
         MathGtkMenuBuilder(
             Call(Symbol(richmath_System_Menu), strings::EmptyString, 
               List(

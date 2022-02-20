@@ -451,6 +451,19 @@ GdkPixbuf *MathGtkIcons::get_icon(Index idx) {
   return GDK_PIXBUF(g_object_ref(icons[idx]));
 }
 
+GdkPixbuf *MathGtkIcons::get_app_icon(GtkIconSize size) {
+  int w = 0;
+  int h = 0;
+  
+  gtk_icon_size_lookup(size, &w, &h);
+  
+  if(h >= 48) return get_icon(AppIcon48Index);
+  if(h >= 32) return get_icon(AppIcon32Index);
+  if(h >= 24) return get_icon(AppIcon24Index);
+  
+  return get_icon(AppIcon16Index);
+}
+
 GdkPixbuf *MathGtkIcons::new_pixbuf_from_image(cairo_surface_t *image) {
   if(cairo_surface_get_type(image) != CAIRO_SURFACE_TYPE_IMAGE)
     return nullptr;
