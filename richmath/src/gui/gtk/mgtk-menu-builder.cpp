@@ -1128,7 +1128,10 @@ GtkWidget *MathGtkMenuSearch::create(FrontEndReference doc_id) {
 //  {
 //    auto overlay = gtk_overlay_new();
 //    gtk_container_add(GTK_CONTAINER(overlay), entry);
-//    auto label = gtk_accel_label_new("xyz");
+//    auto label = gtk_accel_label_new("???");
+//    gtk_accel_label_set_accel_widget(GTK_ACCEL_LABEL(label), menu_item);
+//    gtk_accel_label_refetch(GTK_ACCEL_LABEL(label));
+//    //gtk_accel_label_set_accel(GTK_ACCEL_LABEL(label), GDK_F1, GDK_CONTROL_MASK);
 //    g_object_set(
 //      G_OBJECT(label), 
 //      "halign", GTK_ALIGN_END,
