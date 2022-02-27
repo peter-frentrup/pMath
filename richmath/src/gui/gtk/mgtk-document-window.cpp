@@ -8,6 +8,7 @@
 #include <gui/documents.h>
 #include <gui/messagebox.h>
 #include <gui/gtk/mgtk-control-painter.h>
+#include <gui/gtk/mgtk-css.h>
 #include <gui/gtk/mgtk-menu-builder.h>
 
 #include <cmath>
@@ -263,7 +264,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     
     virtual void invalidate() override {
       if(document()->length() > 0) {
-        gtk_widget_set_size_request(_widget, 1, 1);
+        //gtk_widget_set_size_request(_widget, 1, 1);
         gtk_widget_show(_widget);
       }
       else {
@@ -295,7 +296,7 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
       document()->style->set(Selectable,         AutoBoolFalse);
       document()->style->set(ShowSectionBracket, AutoBoolFalse);
       
-      document()->select(0, 0, 0);
+      document()->select(nullptr, 0, 0);
     }
     
     void rearrange() {
@@ -318,6 +319,52 @@ class richmath::MathGtkDock: public MathGtkDocumentChildWidget {
     Expr  _content;
 };
 
+class MathGtkTitlebarDock: public MathGtkDock {
+    using base = MathGtkDock;
+  public:
+    MathGtkTitlebarDock(MathGtkDocumentWindow *parent)
+      : base(parent)
+    {
+      SET_BASE_DEBUG_TAG(typeid(*this).name());
+    }
+    
+  protected:
+    virtual void paint_canvas(Canvas &canvas, bool resize_only) override {
+      if(!document()->style)
+        document()->style = new Style();
+      
+#    if GTK_CHECK_VERSION(3, 0, 0)
+      if(!resize_only) {
+        if(GtkStyleContext *ctx = gtk_widget_get_style_context(_widget)) {
+          GdkRGBA fg = {0, 0, 0, 0};
+          gtk_style_context_get_color(ctx, GTK_STATE_FLAG_NORMAL, &fg);
+          
+          if(fg.alpha > 0)
+            document()->style->set(FontColor, Color::from_rgb(fg.red, fg.green, fg.blue));
+        }
+        
+        bool has_text_shadow = false;
+        if(GtkWidget *titlebar = gtk_window_get_titlebar(GTK_WINDOW(parent()->widget()))) {
+          if(GTK_IS_HEADER_BAR(titlebar)) {
+            Expr text_shadow = MathGtkCss::parse_text_shadow(gtk_widget_get_style_context(titlebar));
+            if(text_shadow.expr_length() > 0) {
+              pmath_debug_print_object("[found text-shadow: ", text_shadow.get(), "]\n");
+              document()->style->set(TextShadow, std::move(text_shadow));
+              has_text_shadow = true;
+            }
+          }
+        }
+        
+        if(!has_text_shadow)
+          document()->style->remove(TextShadow);
+      }
+#    endif
+      
+      canvas.glass_background = true;
+      base::paint_canvas(canvas, resize_only);
+    }
+};
+
 //{ class MathGtkDocumentWindow ...
 
 MathGtkDocumentWindow::MathGtkDocumentWindow()
@@ -328,10 +375,10 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
     _vadjustment(GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))),
     _hscrollbar(nullptr),
     _vscrollbar(nullptr),
-    _table(nullptr),
 #if GTK_MAJOR_VERSION >= 3
     _style_provider(nullptr),
     _menu_bar_pin(nullptr),
+    _icon_box(nullptr),
 #endif
     _window_frame(WindowFrameNormal),
     _active(true),
@@ -347,9 +394,10 @@ MathGtkDocumentWindow::MathGtkDocumentWindow()
   _previous_rect.width = 1;
   _previous_rect.height = 1;
   
-  _working_area = new MathGtkWorkingArea(this);
-  _top_area     = new MathGtkDock(this);
-  _bottom_area  = new MathGtkDock(this);
+  _working_area   = new MathGtkWorkingArea(this);
+  _top_glass_area = new MathGtkTitlebarDock(this);
+  _top_area       = new MathGtkDock(this);
+  _bottom_area    = new MathGtkDock(this);
   
   _content = _working_area->document();
 }
@@ -363,6 +411,7 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_window_set_icon_list(GTK_WINDOW(_widget), icons.get_app_icon_list());
   
   _working_area->init();
+  _top_glass_area->init();
   _top_area->init();
   _bottom_area->init();
   
@@ -407,9 +456,9 @@ void MathGtkDocumentWindow::after_construction() {
       {
         GtkWidget *icon = gtk_image_new_from_pixbuf(icons.get_app_icon(GTK_ICON_SIZE_SMALL_TOOLBAR));
         
-        GtkWidget *icon_box = gtk_menu_button_new();
-        gtk_container_add(GTK_CONTAINER(icon_box), icon);
-        gtk_button_set_relief(GTK_BUTTON(icon_box), GTK_RELIEF_NONE);
+        _icon_box = gtk_menu_button_new();
+        gtk_container_add(GTK_CONTAINER(_icon_box), icon);
+        gtk_button_set_relief(GTK_BUTTON(_icon_box), GTK_RELIEF_NONE);
         
         GtkWidget *icon_menu = gtk_menu_new();
         
@@ -506,11 +555,6 @@ void MathGtkDocumentWindow::after_construction() {
               gtk_window_maximize(GTK_WINDOW(self.widget()));
             }), 
             this);
-        }
-        
-        if(auto item = gtk_separator_menu_item_new()) {
-          gtk_widget_show(item);
-          gtk_menu_shell_append(GTK_MENU_SHELL(icon_menu), item);
         }
         
         if(auto item = gtk_separator_menu_item_new()) {
@@ -619,19 +663,13 @@ void MathGtkDocumentWindow::after_construction() {
                 Symbol(richmath_System_Delimiter)
               ))
           ).append_to(GTK_MENU_SHELL(icon_menu), dummy_accel_group, document()->id());
-        MathGtkMenuBuilder::main_menu.append_to(       GTK_MENU_SHELL(icon_menu), dummy_accel_group, document()->id());
+        MathGtkMenuBuilder::main_menu.append_to(GTK_MENU_SHELL(icon_menu), dummy_accel_group, document()->id());
         MathGtkMenuBuilder::connect_events(GTK_MENU(icon_menu), document()->id());
         g_object_unref(dummy_accel_group);
         
-        //gtk_widget_show_all(icon_menu);
-        gtk_menu_button_set_popup(GTK_MENU_BUTTON(icon_box), icon_menu);
+        gtk_menu_button_set_popup(GTK_MENU_BUTTON(_icon_box), icon_menu);
         
-        // Only hide icon for palette windows
-        g_object_bind_property(
-          _menu_bar, "visible", icon_box, "visible", 
-          GBindingFlags(G_BINDING_SYNC_CREATE));
-        
-        gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), icon_box);
+        gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), _icon_box);
       }
       
       if(_menu_bar_pin) {
@@ -659,6 +697,28 @@ void MathGtkDocumentWindow::after_construction() {
         gtk_header_bar_pack_start(GTK_HEADER_BAR(header_bar), menu_button);
       }
       
+      {
+        GtkWidget *background_header_bar = gtk_header_bar_new();
+        gtk_header_bar_set_show_close_button(GTK_HEADER_BAR(background_header_bar), false);
+        //gtk_header_bar_set_title(            GTK_HEADER_BAR(background_header_bar), "");
+        gtk_header_bar_set_has_subtitle(     GTK_HEADER_BAR(background_header_bar), false);
+        
+        GtkWidget *vbox = gtk_vbox_new(false, 0);
+        gtk_widget_set_halign( vbox,  GTK_ALIGN_FILL);
+        gtk_widget_set_hexpand(vbox, true);
+        gtk_header_bar_set_custom_title(GTK_HEADER_BAR(background_header_bar), vbox);
+        gtk_box_pack_start(GTK_BOX(vbox), header_bar, false, false, 0);
+        
+        gtk_style_context_add_class(gtk_widget_get_style_context(background_header_bar), "pmath-outer-headerbar");
+        gtk_style_context_add_class(gtk_widget_get_style_context(header_bar),            "pmath-inner-headerbar");
+        
+        gtk_box_pack_start(GTK_BOX(vbox), _top_glass_area->widget(), false, false, 0);
+        
+        g_object_bind_property(background_header_bar, "title", header_bar, "title", G_BINDING_DEFAULT);
+        
+        header_bar = background_header_bar;
+      }
+      
       gtk_window_set_titlebar(GTK_WINDOW(_widget), header_bar);
       gtk_widget_show_all(header_bar);
     }
@@ -668,20 +728,32 @@ void MathGtkDocumentWindow::after_construction() {
   gtk_window_add_accel_group(GTK_WINDOW(_widget), accel_group);
   g_object_unref(accel_group);
   
-  _table = gtk_table_new(2, 5, FALSE);
-  gtk_container_add(GTK_CONTAINER(_widget), _table);
+  GtkWidget *client_area = gtk_vbox_new(false, 0);
+  gtk_container_add(GTK_CONTAINER(_widget), client_area);
   
-  gtk_table_attach(GTK_TABLE(_table), menu_area,               0, 2, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
-  gtk_table_attach(GTK_TABLE(_table), _top_area->widget(),     0, 2, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
-  gtk_table_attach(GTK_TABLE(_table), _working_area->widget(), 0, 1, 2, 3, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
-  gtk_table_attach(GTK_TABLE(_table), _bottom_area->widget(),  0, 2, 4, 5, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                                    0, 0);
+  gtk_box_pack_start(GTK_BOX(client_area), menu_area, false, false, 0);
+  
+  if(gtk_widget_get_parent(_top_glass_area->widget()) == nullptr) {
+    gtk_box_pack_start(GTK_BOX(client_area), _top_glass_area->widget(), false, false, 0);
+  }
+  
+  gtk_box_pack_start(GTK_BOX(client_area), _top_area->widget(), false, false, 0);
+  
+  gtk_box_pack_end(GTK_BOX(client_area), _bottom_area->widget(), false, false, 0);
+  
+  
+  
+  GtkWidget *scroll_grid = gtk_table_new(2, 2, FALSE);
+  gtk_box_pack_start(GTK_BOX(client_area), scroll_grid, true, true, 0);
+  
+  gtk_table_attach(GTK_TABLE(scroll_grid), _working_area->widget(), 0, 1, 0, 1, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
   
   g_object_ref(_hadjustment);
   g_object_ref(_vadjustment);
   _hscrollbar = gtk_hscrollbar_new(_hadjustment);
   _vscrollbar = gtk_vscrollbar_new(_vadjustment);
-  gtk_table_attach(GTK_TABLE(_table), _vscrollbar, 1, 2, 2, 3, (GtkAttachOptions)0, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
-  gtk_table_attach(GTK_TABLE(_table), _hscrollbar, 0, 1, 3, 4, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
+  gtk_table_attach(GTK_TABLE(scroll_grid), _vscrollbar, 1, 2, 0, 1, (GtkAttachOptions)0, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), 0, 0);
+  gtk_table_attach(GTK_TABLE(scroll_grid), _hscrollbar, 0, 1, 1, 2, (GtkAttachOptions)(GTK_EXPAND | GTK_FILL | GTK_SHRINK), (GtkAttachOptions)0,                            0, 0);
   
   Impl(*this).connect_scrollbar_overlay_signals();
   Impl(*this).connect_adjustment_changed_signals();
@@ -692,12 +764,12 @@ void MathGtkDocumentWindow::after_construction() {
   _working_area->hadjustment(_hadjustment);
   _working_area->vadjustment(_vadjustment);
   
-  gtk_widget_show_all(_table);
+  gtk_widget_show_all(client_area);
   gtk_widget_set_can_focus(_widget, FALSE);
   
   GList *focus_chain = nullptr;
   focus_chain = g_list_prepend(focus_chain, _working_area->widget());
-  gtk_container_set_focus_chain(GTK_CONTAINER(_table), focus_chain);
+  gtk_container_set_focus_chain(GTK_CONTAINER(client_area), focus_chain);
   g_list_free(focus_chain);
   
   gtk_window_set_default_size(GTK_WINDOW(_widget), 500, 550);
@@ -817,7 +889,6 @@ void MathGtkDocumentWindow::update_dark_mode() {
       [=](GtkWidget *w) { 
         gtk_style_context_remove_provider(gtk_widget_get_style_context(w), _style_provider);
       });
-      
     if(gtk_widget_has_screen(_widget)) {
       GdkScreen *screen = gtk_widget_get_screen(_widget);
       pmath_debug_print("[remove_provider_for_screen(%p, %p)]\n", screen, _style_provider);
@@ -862,8 +933,9 @@ void MathGtkDocumentWindow::invalidate_options() {
   Document *doc = document();
   
   if(doc->load_stylesheet()) {
-    _top_area->document()->invalidate_all();
-    _bottom_area->document()->invalidate_all();
+    _top_glass_area->document()->invalidate_all();
+    _top_area->document(      )->invalidate_all();
+    _bottom_area->document(   )->invalidate_all();
   }
   
   String s = doc->get_style(WindowTitle, _default_title);
@@ -873,17 +945,17 @@ void MathGtkDocumentWindow::invalidate_options() {
   WindowFrameType f = (WindowFrameType)doc->get_style(WindowFrame, _window_frame);
   if(_window_frame != f)
     window_frame(f);
-    
-  Expr top          = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsTop));
-  Expr top_glass    = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsTopGlass));
+  
   Expr bottom       = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsBottom));
   Expr bottom_glass = SectionList::group(doc->get_finished_flatlist_style(DockedSectionsBottomGlass));
   
-  _top_area->document()->stylesheet(doc->stylesheet());
-  _bottom_area->document()->stylesheet(doc->stylesheet());
+  _top_glass_area->document()->stylesheet(doc->stylesheet());
+  _top_area->document(      )->stylesheet(doc->stylesheet());
+  _bottom_area->document(   )->stylesheet(doc->stylesheet());
     
-  _top_area->reload(   SectionList::group(List(top_glass, top)));
-  _bottom_area->reload(SectionList::group(List(bottom, bottom_glass)));
+  _top_glass_area->reload(SectionList::group(SectionList::group(doc->get_finished_flatlist_style(DockedSectionsTopGlass))));
+  _top_area->reload(      SectionList::group(SectionList::group(doc->get_finished_flatlist_style(DockedSectionsTop))));
+  _bottom_area->reload(   SectionList::group(List(bottom, bottom_glass)));
   
   if(doc->get_style(Visible, true)) {
     //gtk_window_present(GTK_WINDOW(_widget));
@@ -978,6 +1050,9 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
       _working_area->_autohide_vertical_scrollbar = false;
       gtk_widget_set_visible(_menu_bar, true);
+#if GTK_MAJOR_VERSION >= 3
+      if(_icon_box) gtk_widget_set_visible(_icon_box, true);
+#endif
       break;
       
     case WindowFramePalette:
@@ -988,6 +1063,9 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
       _working_area->_autohide_vertical_scrollbar = true;
       gtk_widget_set_visible(_menu_bar, false);
+#if GTK_MAJOR_VERSION >= 3
+      if(_icon_box) gtk_widget_set_visible(_icon_box, false);
+#endif
       break;
       
     case WindowFrameDialog:
@@ -998,6 +1076,9 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
       _working_area->_autohide_vertical_scrollbar = true;
       gtk_widget_set_visible(_menu_bar, false);
+#if GTK_MAJOR_VERSION >= 3
+      if(_icon_box) gtk_widget_set_visible(_icon_box, true);
+#endif
       break;
     
     case WindowFrameNone:
@@ -1008,6 +1089,9 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       gtk_container_set_border_width(  GTK_CONTAINER(_widget), 0);
       _working_area->_autohide_vertical_scrollbar = true;
       gtk_widget_set_visible(_menu_bar, false);
+#if GTK_MAJOR_VERSION >= 3
+      if(_icon_box) gtk_widget_set_visible(_icon_box, false);
+#endif
       break;
     
     case WindowFrameThin:
@@ -1020,6 +1104,9 @@ void MathGtkDocumentWindow::window_frame(WindowFrameType type) {
       gtk_container_set_border_width(  GTK_CONTAINER(_widget), 1);
       _working_area->_autohide_vertical_scrollbar = true;
       gtk_widget_set_visible(_menu_bar, false);
+#if GTK_MAJOR_VERSION >= 3
+      if(_icon_box) gtk_widget_set_visible(_icon_box, false);
+#endif
       break;
   }
   
@@ -1437,28 +1524,37 @@ void MathGtkDocumentWindowImpl::add_remove_window(int delta) {
   static int global_window_count = 0;
   if(global_window_count == 0) {
 #if GTK_MAJOR_VERSION >= 3
+#  define LN  "\n"
     if(!global_style_provider) {
       global_style_provider = GTK_STYLE_PROVIDER(gtk_css_provider_new());
       gtk_css_provider_load_from_data(
         GTK_CSS_PROVIDER(global_style_provider), 
-        ( "menubar.hidden-menu {"
-          "  opacity: 0;"
-          "  margin-bottom:-100px;"
-          "}"
-          "menuitem.menubar-pin > label {"
-          "  background-image: -gtk-icontheme('view-pin-symbolic');"
-          "  background-repeat: no-repeat;"
-          "  background-position: center;"
-          "  min-width: 20pt;"
-          "}"
-          "menuitem.menubar-pin:checked > label {"
-          "  background-image: -gtk-icontheme('go-up-symbolic');"
-          "}"
+        ( "menubar.hidden-menu {"                                         LN
+          "  opacity: 0;"                                                 LN
+          "  margin-bottom:-100px;"                                       LN
+          "}"                                                             LN
+          "menuitem.menubar-pin > label {"                                LN
+          "  background-image: -gtk-icontheme('view-pin-symbolic');"      LN
+          "  background-repeat: no-repeat;"                               LN
+          "  background-position: center;"                                LN
+          "  min-width: 20pt;"                                            LN
+          "}"                                                             LN
+          "menuitem.menubar-pin:checked > label {"                        LN
+          "  background-image: -gtk-icontheme('go-up-symbolic');"         LN
+          "}"                                                             LN
+          "headerbar headerbar {" /* .pmath-inner-headerbar */            LN
+          "  background: none;"                                           LN
+          "  border: none;"                                               LN
+          "  padding: 0;"                                                 LN
+          "  box-shadow: none;"                                           LN
+          "}"                                                             LN
         ), -1,
         nullptr);
       
-      gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), global_style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+      // GTK_STYLE_PROVIDER_PRIORITY_APPLICATION does not suffcie for "headerbar"
+      gtk_style_context_add_provider_for_screen(gdk_screen_get_default(), global_style_provider, GTK_STYLE_PROVIDER_PRIORITY_USER);
     }
+#  undef LN
 #endif // GTK_MAJOR_VERSION
   }
   

@@ -1,21 +1,26 @@
-/* pMath Document */
+﻿/* pMath Document */
 
 Document({
   SectionGroup({
     SectionGroup({Section("Stylesheet for stylesheets", "Title"), 
       Section(StyleData(StyleDefinitions -> "Core.pmathdoc")), 
       SectionGroup({Section(BoxData({"Document", " ", "styles"}), "Section"), 
-        Section(StyleData("Document"), Background -> GrayLevel(
-          0.94999999999999996`), DefaultNewSectionStyle -> "Input", 
+        Section(StyleData("Document"), 
+         Background -> GrayLevel(0.94999999999999996`), 
+         DefaultNewSectionStyle -> "Input", 
          DefaultReturnCreatedSectionStyle -> Automatic, 
-         DockedSections :> {"TopGlass" -> {
-           Section({DynamicBox(ToBoxes(CurrentValue("DocumentFileName"))), 
-             " Stylesheet"}, "Docked", SectionFrame -> {Inherited, {
-              Inherited, 0.5`}})}}, FontFeatures -> {"ssty" -> Automatic}, 
-         Magnification -> 1, Visible -> True, WindowFrame -> "Normal")}, All), 
+         DockedSections :> {
+           "TopGlass" -> {
+             Section({DynamicBox(ToBoxes(CurrentValue("DocumentFileName"))), 
+               " Stylesheet"}, "Docked", 
+              SectionFrame -> {
+                Inherited, {Inherited, 9.9999999999999995`*^-7}})}}, 
+         FontFeatures -> {"ssty" -> Automatic}, Magnification -> 1, 
+         Visible -> True, WindowFrame -> "Normal")}, All), 
       SectionGroup({Section(BoxData({"Section", " ", "styles"}), "Section"), 
-        Section(StyleData("Text"), FontFamily -> {"Georgia", "Constantia", 
-          "Times New Roman"}, SectionMargins -> {3, Inherited, 7, 7}, 
+        Section(StyleData("Text"), 
+         FontFamily -> {"Georgia", "Constantia", "Times New Roman"}, 
+         SectionMargins -> {3, Inherited, 7, 7}, 
          ShowStringCharacters -> False), Section(StyleData("Code"), 
          MenuCommandKey -> None, MenuSortingValue -> None), 
         Section(StyleData("Input"), MenuCommandKey -> None, 
@@ -30,23 +35,24 @@ Document({
       SectionGroup({Section(StyleData("Subtitle"), BaseStyle -> "Text", 
          FontColor -> RGBColor(0, 0.502`, 0.502`), 
          FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 18, 
-         SectionGroupPrecedence -> -90, SectionMargins -> {3, Inherited, 2, 
-          10}), SectionGroup({
-          Section(StyleData("Subsubtitle"), BaseStyle -> "Text", 
+         SectionGroupPrecedence -> -90, 
+         SectionMargins -> {3, Inherited, 2, 10}), 
+        SectionGroup({Section(StyleData("Subsubtitle"), BaseStyle -> "Text", 
            FontColor -> RGBColor(0, 0.502`, 0.502`), 
            FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 14, 
-           SectionGroupPrecedence -> -80, SectionMargins -> {3, Inherited, 2, 
-            8}), SectionGroup({
-            Section(StyleData("Section"), BaseStyle -> "Text", 
+           SectionGroupPrecedence -> -80, 
+           SectionMargins -> {3, Inherited, 2, 8}), 
+          SectionGroup({Section(StyleData("Section"), BaseStyle -> "Text", 
              FontColor -> RGBColor(0, 0.502`, 0.502`), 
              FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 16, 
-             FontWeight -> Bold, SectionFrame -> {Inherited, Inherited, 0.75`, 
-              Inherited}, SectionFrameColor -> RGBColor(0, 0.502`, 0.502`), 
+             FontWeight -> Bold, SectionFrame -> {
+               Inherited, Inherited, 0.75`, Inherited}, 
+             SectionFrameColor -> RGBColor(0, 0.502`, 0.502`), 
              SectionFrameMargins -> {Inherited, Inherited, 4, Inherited}, 
-             SectionGroupPrecedence -> -50, SectionMargins -> {3, Inherited, 
-              14, 8}), SectionGroup({
-              Section(StyleData("Subsection"), BaseStyle -> "Text", 
-               FontColor -> RGBColor(0, 0.502`, 0.502`), 
+             SectionGroupPrecedence -> -50, 
+             SectionMargins -> {3, Inherited, 14, 8}), 
+            SectionGroup({Section(StyleData("Subsection"), 
+               BaseStyle -> "Text", FontColor -> RGBColor(0, 0.502`, 0.502`), 
                FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 12, 
                FontWeight -> Bold, SectionGroupPrecedence -> -40, 
                SectionMargins -> {3, Inherited, Inherited, Inherited}), 

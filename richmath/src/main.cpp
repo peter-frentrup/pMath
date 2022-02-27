@@ -72,6 +72,7 @@
 #ifdef RICHMATH_USE_GTK_GUI
 #  include <gui/gtk/mgtk-clipboard.h>
 #  include <gui/gtk/mgtk-control-painter.h>
+#  include <gui/gtk/mgtk-css.h>
 #  include <gui/gtk/mgtk-document-window.h>
 #  include <gui/gtk/mgtk-menu-builder.h>
 #  include <gui/gtk/mgtk-tooltip-window.h>
@@ -644,6 +645,7 @@ int main(int argc, char **argv) {
 #endif
     
 #ifdef RICHMATH_USE_GTK_GUI
+    MathGtkCss::init();
     Clipboard::std = &MathGtkClipboard::obj;
     MathGtkAccelerators::load(Evaluate(Parse(SHORTCUTS_CMD)));
     MathGtkMenuBuilder::main_menu  = MathGtkMenuBuilder(Evaluate(Parse(MAIN_MENU_CMD)));
@@ -745,6 +747,7 @@ QUIT:
   MathGtkMenuBuilder::done();
   MathGtkAccelerators::done();
   MathGtkControlPainter::done();
+  MathGtkCss::done();
 #endif
   
   // needed to clear the message_queue member:

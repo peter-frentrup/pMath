@@ -104,6 +104,7 @@ namespace richmath {
       
       GdkRectangle _previous_rect;
       
+      MathGtkDock        *_top_glass_area;
       MathGtkDock        *_top_area;
       MathGtkWorkingArea *_working_area;
       MathGtkDock        *_bottom_area;
@@ -116,11 +117,11 @@ namespace richmath {
       GtkAdjustment *_vadjustment;
       GtkWidget *_hscrollbar;
       GtkWidget *_vscrollbar;
-      GtkWidget *_table;
       
 #if GTK_MAJOR_VERSION >= 3
       GtkStyleProvider *_style_provider;
       GtkWidget *_menu_bar_pin;
+      GtkWidget *_icon_box;
 #endif
 
       WindowFrameType _window_frame;
