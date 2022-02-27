@@ -175,7 +175,7 @@ SpanExpr *SpanExpr::find(MathSequence *sequence, int pos, bool before) {
     }
     
     if(tokend < span.end() && pos <= tokend + 1)
-      span = Span(0);
+      span = Span(nullptr);
   }
     
   return new SpanExpr(start, span, sequence);

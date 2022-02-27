@@ -1165,7 +1165,7 @@ void MathSequence::ensure_spans_valid() {
   pmath_string_t code = str.get_as_string();
   spans = pmath_spans_from_string(
             &code,
-            0,
+            nullptr,
             Impl::subsuperscriptbox_at_index,
             Impl::underoverscriptbox_at_index,
             Impl::syntax_error,
@@ -1553,7 +1553,7 @@ pmath_bool_t MathSequence::Impl::subsuperscriptbox_at_index(int i, void *_data) 
   while(data->current_box < data->sequence->boxes.length()) {
     if(data->sequence->boxes[data->current_box]->index() == i) {
       auto b = dynamic_cast<SubsuperscriptBox*>(data->sequence->boxes[data->current_box]);
-      return 0 != b;
+      return nullptr != b;
     }
     ++data->current_box;
   }
@@ -1561,8 +1561,7 @@ pmath_bool_t MathSequence::Impl::subsuperscriptbox_at_index(int i, void *_data) 
   data->current_box = 0;
   while(data->current_box < start) {
     if(data->sequence->boxes[data->current_box]->index() == i)
-      return 0 != dynamic_cast<SubsuperscriptBox *>(
-               data->sequence->boxes[data->current_box]);
+      return nullptr != dynamic_cast<SubsuperscriptBox *>(data->sequence->boxes[data->current_box]);
     ++data->current_box;
   }
   

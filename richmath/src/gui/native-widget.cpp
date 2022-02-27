@@ -337,7 +337,7 @@ Context *NativeWidget::document_context() {
   if(_document)
     return &_document->context;
     
-  return 0;
+  return nullptr;
 }
 
 SelectionReference &NativeWidget::drag_source_reference() {

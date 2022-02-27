@@ -291,8 +291,8 @@ bool Win32Themes::current_theme_is_aero() {
   GetCurrentThemeName(
     filebuf.items(),
     filebuf.length(),
-    0, 0,
-    0, 0);
+    nullptr, 0,
+    nullptr, 0);
     
   filebuf[ filebuf.length()  - 1] = L'\0';
   

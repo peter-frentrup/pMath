@@ -114,7 +114,7 @@ void BasicWin32Widget::after_construction() {
 
 BasicWin32Widget::~BasicWin32Widget() {
   if(_hwnd) {
-    SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
+    SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
     DestroyWindow(_hwnd); 
     _hwnd = nullptr;
   }
@@ -124,7 +124,7 @@ BasicWin32Widget::~BasicWin32Widget() {
 void BasicWin32Widget::safe_destroy() {
   if(_hwnd) {
     // detach this from window handle:
-    SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
+    SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
   }
   
   ObjectWithLimbo::safe_destroy();
@@ -168,7 +168,7 @@ BasicWin32Widget *BasicWin32Widget::parent() {
   if(HWND p = GetParent(_hwnd))
     return (BasicWin32Widget *)GetWindowLongPtrW(p, GWLP_USERDATA);
     
-  return 0;
+  return nullptr;
 }
 
 BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
@@ -178,7 +178,7 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
       GetCurrentThreadId()  != GetWindowThreadProcessId(hwnd, &pid) ||
       GetCurrentProcessId() != pid)
   {
-    return 0;
+    return nullptr;
   }
   
   WINDOWINFO info;
@@ -189,13 +189,13 @@ BasicWin32Widget *BasicWin32Widget::from_hwnd(HWND hwnd) {
     return (BasicWin32Widget *)GetWindowLongPtrW(hwnd, GWLP_USERDATA);
   }
   
-  return 0;
+  return nullptr;
 }
 
 LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   switch(message) {
     case WM_CREATE: {
-        SetMenu(_hwnd, 0);
+        SetMenu(_hwnd, nullptr);
         RegisterDragDrop(_hwnd, static_cast<IDropTarget *>(this));
       } break;
       
@@ -205,7 +205,7 @@ LRESULT BasicWin32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
       
     case WM_DESTROY: {
         RevokeDragDrop(_hwnd);
-        SetWindowLongPtr(_hwnd, GWLP_USERDATA, 0);
+        SetWindowLongPtrW(_hwnd, GWLP_USERDATA, 0);
         _hwnd = nullptr;
       } return 0;
   }

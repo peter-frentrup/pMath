@@ -880,7 +880,7 @@ void BasicWin32Window::on_theme_changed() {
     
   extend_glass(_extra_glass);
 
-  SetWindowPos(_hwnd, 0, 0, 0, 0, 0,
+  SetWindowPos(_hwnd, nullptr, 0, 0, 0, 0,
                SWP_NOMOVE | SWP_NOSIZE | SWP_NOZORDER | SWP_NOACTIVATE | SWP_FRAMECHANGED);
 }
 
@@ -2161,7 +2161,7 @@ struct FindPopup {
   }
   
   bool callback(HWND hwnd) {
-    if(GetWindowThreadProcessId(hwnd, 0) != thread_id)
+    if(GetWindowThreadProcessId(hwnd, nullptr) != thread_id)
       return true;
 
     if(!IsWindowVisible(hwnd))

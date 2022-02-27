@@ -184,7 +184,7 @@ AutoGuiWait::~AutoGuiWait() {
   }
 }
 
-// also a GSourceFunc, must return 0
+// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
 static int on_client_notify(void *data) {
   ClientNotificationData cn;
   
@@ -194,7 +194,7 @@ static int on_client_notify(void *data) {
   return 0;
 }
 
-// also a GSourceFunc, must return 0
+// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
 static int on_add_job(void *data) {
   if(session && !session->current_job) {
     while(session->jobs.get(&session->current_job)) {
@@ -223,7 +223,7 @@ static int on_add_job(void *data) {
   return 0;
 }
 
-// also a GSourceFunc, must return 0
+// also a GSourceFunc, must return G_SOURCE_REMOVE (=0)
 static int on_dynamic_update_delay_timeout(void *data) {
   dynamic_update_delay_timer_active = false;
   

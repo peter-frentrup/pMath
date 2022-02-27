@@ -262,7 +262,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       document()->style->set(Selectable,         AutoBoolFalse);
       document()->style->set(ShowSectionBracket, AutoBoolFalse);
       
-      document()->select(0, 0, 0);
+      document()->select(nullptr, 0, 0);
     }
     
   public:
@@ -416,7 +416,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
                 if( x / scale_factor() >= win_size.x - sb &&
                     y / scale_factor() >= win_size.y - sb)
                 {
-                  SetCursor(LoadCursor(0, IDC_SIZENWSE));
+                  SetCursor(LoadCursor(nullptr, IDC_SIZENWSE));
                 }
               }
             } return 0;

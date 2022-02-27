@@ -925,7 +925,7 @@ void Win32ControlPainter::draw_container(
               tmp_rect.top = 0;
               tmp_rect.bottom = h;
               Win32Themes::DrawThemeBackground(
-                theme, tmp_dc, _part, _state, &tmp_rect, 0);
+                theme, tmp_dc, _part, _state, &tmp_rect, nullptr);
               
               cairo_surface_flush(tmp);
               
@@ -1896,7 +1896,7 @@ void Win32ControlPainter::paint_scrollbar_part(
       _part,
       _state,
       &irect,
-      0);
+      nullptr);
       
     if(part == ScrollbarPart::Thumb) {
       if(dir == ScrollbarDirection::Horizontal) {
@@ -1907,7 +1907,7 @@ void Win32ControlPainter::paint_scrollbar_part(
             8,
             _state,
             &irect,
-            0);
+            nullptr);
         }
       }
       else if(rect.height >= rect.width) {
@@ -1917,7 +1917,7 @@ void Win32ControlPainter::paint_scrollbar_part(
           9,
           _state,
           &irect,
-          0);
+          nullptr);
       }
     }
     
@@ -2013,7 +2013,7 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect, bool dark_mode) {
     HANDLE theme;
     if(dark_mode) {
       // Windows 10, 1903 (Build 18362): DarkMode::MENU exists but only gives dark colors for popup menu parts
-      theme = Win32Themes::OpenThemeData(0, L"DarkMode::MENU");
+      theme = Win32Themes::OpenThemeData(nullptr, L"DarkMode::MENU");
       if(theme) {  
         Win32Themes::DrawThemeBackground(
           theme,
@@ -2021,14 +2021,14 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect, bool dark_mode) {
           9, // MENU_POPUPBACKGROUND
           0,
           rect,
-          0);
+          nullptr);
         
         Win32Themes::CloseThemeData(theme);
         return;
       }
     }
     
-    theme = Win32Themes::OpenThemeData(0, L"MENU");
+    theme = Win32Themes::OpenThemeData(nullptr, L"MENU");
     if(!theme)
       goto FALLBACK;
       
@@ -2038,7 +2038,7 @@ void Win32ControlPainter::draw_menubar(HDC dc, RECT *rect, bool dark_mode) {
       7,  // MENU_BARBACKGROUND
       0,  // MB_ACTIVE
       rect,
-      0);
+      nullptr);
       
     Win32Themes::CloseThemeData(theme);
   }
@@ -2058,7 +2058,7 @@ void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       Win32Themes::DrawThemeBackground) 
   {
     // Windows 10, 1903 (Build 18362): DarkMode::MENU exists but only gives dark colors for popup menu parts
-    HANDLE theme = Win32Themes::OpenThemeData(0, L"MENU");
+    HANDLE theme = Win32Themes::OpenThemeData(nullptr, L"MENU");
     
     if(!theme)
       goto FALLBACK;
@@ -2077,7 +2077,7 @@ void Win32ControlPainter::draw_menubar_itembg(HDC dc, RECT *rect, ControlState s
       8,
       _state,
       rect,
-      0);
+      nullptr);
       
     Win32Themes::CloseThemeData(theme);
     return;
@@ -2126,7 +2126,7 @@ HANDLE Win32ControlPainter::get_control_theme(
   *theme_part = 0;
   *theme_state = 0;
   if(!Win32Themes::OpenThemeData)
-    return 0;
+    return nullptr;
     
   HANDLE theme = nullptr;
   

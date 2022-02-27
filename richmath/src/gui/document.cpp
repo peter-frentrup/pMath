@@ -225,7 +225,7 @@ RESTART:
   }
   else if(box == stop_box) {
     if(*index >= stop_index || *index >= box->count())
-      return 0;
+      return nullptr;
       
     int i = *index;
     *index = 0;
@@ -246,7 +246,7 @@ RESTART:
   }
   
   *index = 0;
-  return 0;
+  return nullptr;
 }
 
 namespace richmath {
@@ -357,7 +357,7 @@ namespace richmath {
 
 Document::Document()
   : SectionList(),
-    main_document(0),
+    main_document(nullptr),
     best_index_rel_x(0),
     prev_sel_line(-1),
     prev_sel_box_id(FrontEndReference::None),
@@ -3244,8 +3244,8 @@ void Document::insert_underoverscript(bool under) {
       context.selection.end,
       new UnderoverscriptBox(
         base,
-        under  ? uo : 0,
-        !under ? uo : 0));
+        under  ? uo : nullptr,
+        !under ? uo : nullptr));
         
     if(context.selection.start < context.selection.end) {
       base->insert(

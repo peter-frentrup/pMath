@@ -23,7 +23,7 @@ class DummyClipboard: public Clipboard {
     }
     
     virtual SharedPtr<OpenedClipboard> open_write() override {
-      return 0;
+      return nullptr;
     }
 };
 
@@ -106,9 +106,9 @@ cairo_surface_t *Clipboard::create_image(String mimetype, double width, double h
     
     if(cairo_surface_status(image) == CAIRO_STATUS_SUCCESS)
       return image;
-    return 0;
+    return nullptr;
   }
 #endif
   
-  return 0;
+  return nullptr;
 }

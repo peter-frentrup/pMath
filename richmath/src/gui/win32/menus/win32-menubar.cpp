@@ -108,7 +108,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
             0, 0, 0, 0,
             parent,
             0/* id */,
-            GetModuleHandle(0),
+            GetModuleHandleW(nullptr),
             nullptr);
   
   if(layered)
@@ -176,7 +176,7 @@ Win32Menubar::Win32Menubar(Win32DocumentWindow *window, HWND parent, SharedPtr<W
 
 Win32Menubar::~Win32Menubar() {
   if(current_menubar == this)
-    current_menubar = 0;
+    current_menubar = nullptr;
     
   DestroyWindow(_hwnd);
   if(_font)

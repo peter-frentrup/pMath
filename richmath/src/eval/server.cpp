@@ -157,7 +157,7 @@ LocalServer::LocalServer() {
   if(message_queue.is_null()) {
     printf("Cannot start server\n");
     delete data;
-    data = 0;
+    data = nullptr;
   }
 }
 
