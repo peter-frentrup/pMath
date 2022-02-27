@@ -928,6 +928,8 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
     if(Win32Themes::DwmGetWindowAttribute) {
       RECT rect = {};
       if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, &rect, sizeof(RECT)))) {
+        DWORD style = GetWindowLongW(hwnd, GWL_STYLE);
+        
         // DWMWA_CAPTION_BUTTON_BOUNDS are in window coordinates, not client coordinates.
         // TODO: correctly adjust the rectangle to tightly fit the button bounds. 
         // The value 6 does not seem exactly correct with 150 DPI
@@ -936,9 +938,14 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
         minimize->top    = maximize->top    = close->top    = rect.top;
         minimize->bottom = maximize->bottom = close->bottom = rect.bottom;
         
-        minimize->left = rect.left;
-        minimize->right = maximize->left = rect.left + (rect.right - rect.left) / 3;
-        maximize->right = close->left = maximize->left + (rect.right - rect.left) / 3;
+        if(0 == (style & (WS_MINIMIZEBOX | WS_MAXIMIZEBOX))) {
+          minimize->left = minimize->right = maximize->left = maximize->right = close->left = rect.left;
+        }
+        else {
+          minimize->left = rect.left;
+          minimize->right = maximize->left = rect.left + (rect.right - rect.left) / 3;
+          maximize->right = close->left = maximize->left + (rect.right - rect.left) / 3;
+        }
         close->right = rect.right;
         
         return;
