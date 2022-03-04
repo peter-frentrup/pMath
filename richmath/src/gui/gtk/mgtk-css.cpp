@@ -1,5 +1,6 @@
 #include <gui/gtk/mgtk-css.h>
 
+#include <eval/cubic-bezier-easing-function.h>
 #include <graphics/color.h>
 
 
@@ -11,7 +12,9 @@ namespace {
     public:
       MathGtkCssParser(const char *buffer);
       
+      double parse_duration();
       Expr parse_text_shadow_value();
+      bool parse_timing_function(CubicBezierEasingFunction &fun);
       
     private:
       Expr parse_next_text_shadow();
@@ -21,6 +24,7 @@ namespace {
       double parse_next_number();
       
       int skip_hex();
+      int skip_hyphen_identifier();
       int skip_word();
       int skip_whitespace();
       int skip_whitespace_or_comma();
@@ -49,10 +53,35 @@ void MathGtkCss::init() {
 void MathGtkCss::done() {
 }
 
+double MathGtkCss::parse_transition_delay(const char *css, double fallback) {
+  static const char name[] = "transition-delay:";
+  if(const char *sub = strstr(css, name)) {
+    return MathGtkCssParser(sub + sizeof(name) - 1).parse_duration();
+  }
+  return fallback;
+}
+
+double MathGtkCss::parse_transition_duration(const char *css, double fallback) {
+  static const char name[] = "transition-duration:";
+  if(const char *sub = strstr(css, name)) {
+    return MathGtkCssParser(sub + sizeof(name) - 1).parse_duration();
+  }
+  return fallback;
+}
+
+bool MathGtkCss::parse_transition_timing_function(CubicBezierEasingFunction &fun, const char *css) {
+  static const char name[] = "transition-timing-function:";
+  if(const char *sub = strstr(css, name)) {
+    return MathGtkCssParser(sub + sizeof(name) - 1).parse_timing_function(fun);
+  }
+  
+  return false;
+}
+
 Expr MathGtkCss::parse_text_shadow(const char *css) {
-  static const char text_shadow_css_name[] = "text-shadow:";
-  if(const char *sub = strstr(css, text_shadow_css_name)) {
-    return MathGtkCssParser(sub + sizeof(text_shadow_css_name) - 1).parse_text_shadow_value();
+  static const char name[] = "text-shadow:";
+  if(const char *sub = strstr(css, name)) {
+    return MathGtkCssParser(sub + sizeof(name) - 1).parse_text_shadow_value();
   }
   return Expr();
 }
@@ -81,6 +110,83 @@ Expr MathGtkCss::parse_text_shadow(GtkStyleContext *ctx) {
 MathGtkCssParser::MathGtkCssParser(const char *buffer)
 : buffer{buffer} 
 {
+}
+
+double MathGtkCssParser::parse_duration() {
+  skip_whitespace();
+  
+  double value = parse_next_number();
+  
+  const char *unit = buffer;
+  int unit_len = skip_word();
+  
+  if(unit_len == 2 && 0 == memcmp(unit, "ms", 2))
+    value /= 1000;
+    
+  // else: assume seconds
+
+  skip_whitespace();
+  return value;
+}
+
+bool MathGtkCssParser::parse_timing_function(CubicBezierEasingFunction &fun) {
+  skip_whitespace();
+  
+  const char *word = buffer;
+  
+  int word_len = skip_hyphen_identifier();
+  if(word_len == 4 && 0 == memcmp(word, "ease", 4)) {
+    fun = CubicBezierEasingFunction::Ease;
+    return true;
+  }
+  if(word_len == 7 && 0 == memcmp(word, "ease-in", 7)) {
+    fun = CubicBezierEasingFunction::EaseIn;
+    return true;
+  }
+  if(word_len == 11 && 0 == memcmp(word, "ease-in-out", 11)) {
+    fun = CubicBezierEasingFunction::EaseInOut;
+    return true;
+  }
+  if(word_len == 8 && 0 == memcmp(word, "ease-out", 8)) {
+    fun = CubicBezierEasingFunction::EaseOut;
+    return true;
+  }
+  if(word_len == 6 && 0 == memcmp(word, "linear", 6)) {
+    fun = CubicBezierEasingFunction::Linear;
+    return true;
+  }
+  if(word_len == 12 && 0 == memcmp(word, "cubic-bezier", 12)) {
+    if(*buffer == '(') {
+      ++buffer;
+      double x1 = parse_next_number();
+      skip_whitespace_or_comma();
+      double y1 = parse_next_number();
+      skip_whitespace_or_comma();
+      double x2 = parse_next_number();
+      skip_whitespace_or_comma();
+      double y2 = parse_next_number();
+      skip_whitespace();
+      if(*buffer == ')') {
+        ++buffer;
+        
+        fun = CubicBezierEasingFunction(x1, y1, x2, y2);
+        return true;
+      }
+    }
+    return false;
+  }
+  if(word_len == 10 && 0 == memcmp(word, "step-start", 10)) {
+    //fun = CubicBezierEasingFunction::Linear;
+    //return true;
+    return false;
+  }
+  if(word_len == 8 && 0 == memcmp(word, "step-end", 8)) {
+    //fun = CubicBezierEasingFunction::Linear;
+    //return true;
+    return false;
+  }
+  
+  return false;
 }
 
 Expr MathGtkCssParser::parse_text_shadow_value() {
@@ -293,6 +399,15 @@ int MathGtkCssParser::skip_hex() {
   const char *start = buffer;
   
   while(hex_digit(*buffer, -1) >= 0)
+    ++buffer;
+    
+  return buffer - start;
+}
+
+int MathGtkCssParser::skip_hyphen_identifier() {
+  const char *start = buffer;
+  
+  while((*buffer >= 'a' && *buffer <= 'z') || (*buffer >= 'A' && *buffer <= 'Z') || *buffer == '-')
     ++buffer;
     
   return buffer - start;

@@ -39,6 +39,7 @@ void Buffer::init(Canvas &dst, cairo_format_t format, RectangleF rect) {
   
   switch(type) {
     case CAIRO_SURFACE_TYPE_IMAGE:
+    case CAIRO_SURFACE_TYPE_XLIB:
     case CAIRO_SURFACE_TYPE_WIN32: {
         Point p0 = dst.current_pos();
         
@@ -68,24 +69,7 @@ void Buffer::init(Canvas &dst, cairo_format_t format, RectangleF rect) {
         _width  = (int)(ceil(rect.width) + 1);
         _height = (int)(ceil(rect.height) + 1);
         
-        switch(type) {
-          case CAIRO_SURFACE_TYPE_IMAGE:
-            _surface = cairo_image_surface_create(
-                         format, //CAIRO_FORMAT_ARGB32,
-                         _width, _height);
-            break;
-            
-#ifdef _WIN32
-          case CAIRO_SURFACE_TYPE_WIN32:
-            _surface = cairo_win32_surface_create_with_dib(
-                         format, //CAIRO_FORMAT_ARGB32,
-                         _width, _height);
-            break;
-#endif
-            
-          default:
-            assert(0 && "Unknown Surface Type");
-        }
+        _surface = cairo_surface_create_similar_image(target, format, _width, _height);
         
         _cr = cairo_create(_surface);
         _canvas = new Canvas(_cr);
@@ -132,6 +116,7 @@ bool Buffer::is_compatible(Canvas &dst) {
   
   switch(cairo_surface_get_type(target)) {
     case CAIRO_SURFACE_TYPE_IMAGE:
+    case CAIRO_SURFACE_TYPE_XLIB:
     case CAIRO_SURFACE_TYPE_WIN32: {
         cairo_matrix_t mat = dst.get_matrix();
         

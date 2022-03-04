@@ -11,12 +11,18 @@
 
 
 namespace richmath {
+  class CubicBezierEasingFunction;
+  
   class MathGtkCss {
     public:
       static void init();
       static void done();
       
 #   if GTK_MAJOR_VERSION >= 3
+      static double parse_transition_delay(const char *css, double fallback = 0.0f);
+      static double parse_transition_duration(const char *css, double fallback = 0.0f);
+      static bool parse_transition_timing_function(CubicBezierEasingFunction &fun, const char *css);
+      
       static Expr parse_text_shadow(const char *css);
       static Expr parse_text_shadow(GtkStyleContext *ctx);
 #   endif

@@ -1,8 +1,11 @@
 #include <gui/gtk/mgtk-control-painter.h>
 
+#include <boxes/box.h>
 #include <eval/observable.h>
 #include <util/style.h>
 #include <graphics/shapers.h>
+
+#include <gui/gtk/mgtk-css.h>
 
 #include <algorithm>
 #include <cmath>
@@ -582,6 +585,89 @@ bool MathGtkControlPainter::enable_animations() {
   g_object_get(settings, "gtk-enable-animations", &animations, NULL);
   return !!animations;
 }
+
+SharedPtr<BoxAnimation> MathGtkControlPainter::control_transition(
+  FrontEndReference  widget_id,
+  Canvas            &canvas,
+  ContainerType      type1,
+  ContainerType      type2,
+  ControlState       state1,
+  ControlState       state2,
+  RectangleF         rect
+) {
+  ControlContext &control = ControlContext::find(FrontEndObject::find_cast<Box>(widget_id));
+  
+  if(type1 == type2 && state1 == state2)
+    return nullptr;
+  
+  SharedPtr<BoxAnimation> result = nullptr;
+  
+  if(GtkStyleContext *gsc = get_control_theme(control, type2)) {
+    GtkStateFlags flags = get_state_flags(control, type2, state2);
+    gtk_style_context_set_state(gsc, flags);
+    
+    char *css = gtk_style_context_to_string(gsc, GTK_STYLE_CONTEXT_PRINT_SHOW_STYLE);
+    
+    if(const char *transition_css = strstr(css, "transition")) {
+      double duration = MathGtkCss::parse_transition_duration(transition_css, 0.0);
+      
+      if(duration > 0) {
+        //pmath_debug_print("[duration: %f; %s]\n", duration, transition_css);
+        
+        Point p0 = canvas.current_pos();
+        
+        SharedPtr<FadeAnimation> anim = new FadeAnimation(
+          widget_id,
+          canvas,
+          rect,
+          duration);
+        
+        rect.x-= p0.x;
+        rect.y-= p0.y;
+        
+        if(anim->box_id.is_valid() && anim->buf1 && anim->buf2) {
+          if(!MathGtkCss::parse_transition_timing_function(anim->transition_function, transition_css))
+            anim->transition_function = CubicBezierEasingFunction::Linear;
+          
+//          pmath_debug_print("[%d,%d -> %d,%d duration: %f sec; cubic-bezier(%f,%f,%f,%f)]\n", 
+//            type1, state1, type2, state2, duration,
+//            anim->transition_function.x1(),
+//            anim->transition_function.y1(),
+//            anim->transition_function.x2(),
+//            anim->transition_function.y2());
+          
+          draw_container(
+            control,
+            *anim->buf1->canvas(),
+            type1,
+            state1,
+            rect);
+            
+          draw_container(
+            control,
+            *anim->buf2->canvas(),
+            type2,
+            state2,
+            rect);
+          
+          result = std::move(anim);
+        }
+//        else
+//          pmath_debug_print("[%d,%d -> %d,%d no buffer]\n", type1, state1, type2, state2);
+      }
+//      else
+//        pmath_debug_print("[%d,%d -> %d,%d no duration: %s]\n", type1, state1, type2, state2, transition_css);
+    }
+//    else
+//      pmath_debug_print("[%d,%d -> %d,%d no transition]\n", type1, state1, type2, state2);
+    
+    g_free(css);
+  }
+    else
+      pmath_debug_print("[%d,%d -> %d,%d no theme]\n", type1, state1, type2, state2);
+
+  return result;
+} 
 
 Vector2F MathGtkControlPainter::container_content_offset(
   ControlContext &control, 
