@@ -1,6 +1,7 @@
 #ifndef RICHMATH__GRAPHICS__ANIMATION_H__INCLUDED
 #define RICHMATH__GRAPHICS__ANIMATION_H__INCLUDED
 
+#include <eval/cubic-bezier-easing-function.h>
 #include <util/frontendobject.h>
 #include <graphics/buffer.h>
 
@@ -54,15 +55,15 @@ namespace richmath {
       SharedPtr<Buffer> current_buffer;
   };
   
-  class LinearTransition final : public BoxAnimation {
+  class FadeAnimation final : public BoxAnimation {
     public:
-      LinearTransition(
+      FadeAnimation(
         FrontEndReference  box_id,
         Canvas            &dst,
         const BoxSize     &size,
         double             seconds);
         
-      LinearTransition(
+      FadeAnimation(
         FrontEndReference  box_id,
         Canvas            &dst,
         const RectangleF  &rect,
@@ -72,6 +73,7 @@ namespace richmath {
       virtual bool paint(Canvas &canvas) override;
       
     public:
+      CubicBezierEasingFunction transition_function;
       double seconds;
       SharedPtr<Buffer> buf1;
       SharedPtr<Buffer> buf2;

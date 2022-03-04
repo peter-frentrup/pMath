@@ -76,14 +76,15 @@ bool BoxAnimation::is_compatible(Canvas &canvas, const BoxSize &size) {
 
 //} ... class BoxAnimation
 
-//{ class LinearTransition ...
+//{ class FadeAnimation ...
 
-LinearTransition::LinearTransition(
+FadeAnimation::FadeAnimation(
   FrontEndReference  box_id,
   Canvas            &dst,
   const BoxSize     &size,
   double             seconds)
-  : BoxAnimation(box_id),
+: BoxAnimation(box_id),
+  transition_function(CubicBezierEasingFunction::Linear),
   seconds(seconds),
   repeat(false)
 {
@@ -97,12 +98,13 @@ LinearTransition::LinearTransition(
   }
 }
 
-LinearTransition::LinearTransition(
+FadeAnimation::FadeAnimation(
   FrontEndReference  box_id,
   Canvas            &dst,
   const RectangleF  &rect,
   double             seconds)
-  : BoxAnimation(box_id),
+: BoxAnimation(box_id),
+  transition_function(CubicBezierEasingFunction::Linear),
   seconds(seconds),
   repeat(false)
 {
@@ -116,12 +118,12 @@ LinearTransition::LinearTransition(
   }
 }
 
-void LinearTransition::update(ControlContext *cc) {
+void FadeAnimation::update(ControlContext *cc) {
   if(repeat && !cc->is_foreground_window())
     repeat = false;
 }
 
-bool LinearTransition::paint(Canvas &canvas) {
+bool FadeAnimation::paint(Canvas &canvas) {
   if(!buf1 || !buf2 || seconds <= 0)
     return false;
     
@@ -149,10 +151,12 @@ bool LinearTransition::paint(Canvas &canvas) {
   
   t /= seconds;
   
+  t = transition_function(t);
+  
   if(!current_buffer->blend(buf1, buf2, t))
     return false;
     
   return current_buffer->paint(canvas);
 }
 
-//} ... class LinearTransition
+//} ... class FadeAnimation

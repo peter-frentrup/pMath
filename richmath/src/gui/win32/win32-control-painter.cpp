@@ -1597,7 +1597,7 @@ SharedPtr<BoxAnimation> Win32ControlPainter::control_transition(
     if(type2 == ContainerType::InputField) // bigger buffer for glow rectangle
       rect1.grow(4.5, 4.5);
     
-    SharedPtr<LinearTransition> anim = new LinearTransition(
+    SharedPtr<FadeAnimation> anim = new FadeAnimation(
       widget_id,
       canvas,
       rect1,
