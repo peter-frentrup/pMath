@@ -46,6 +46,22 @@ namespace {
         return layout;
       }
       
+      static void append_fonts(String &name, TextShaper *ts) {
+        if(!ts)
+          return;
+        
+        int num_fonts = ts->num_fonts();
+        for(int i = 0; i < num_fonts; ++i) {
+          String fn = ts->font_name(i);
+          
+          if(fn.length() > 0) {
+            if(name.length() > 0)
+              name += ",";
+            name += fn;
+          }
+        }
+      }
+      
       static void update(PangoContext *pango, Context &ctx) {
         pango_cairo_update_context(ctx.canvas().cairo(), pango);
         
@@ -56,21 +72,29 @@ namespace {
           0);
           
         PangoFontDescription *desc = pango_font_description_new();
-        String name     = ctx.text_shaper->font_name(0);
         FontStyle style = ctx.text_shaper->get_style();
         
-        int num_fonts = ctx.text_shaper->num_fonts();
-        for(int i = 1; i < num_fonts; ++i) {
-          String fn = ctx.text_shaper->font_name(i);
+        String name;
+        if(auto fts = dynamic_cast<FallbackTextShaper*>(ctx.text_shaper.ptr())) {
+          auto all = fts->all_shapers();
           
-          name += ",";
-          name += fn;
+#ifdef RICHMATH_USE_FT_FONT
+          // FontConfig will do font fallback. Do not add our own (ctx.math_shaper at end).
+          if(all.length() > 0 && all[all.length() - 1].ptr() == ctx.math_shaper.ptr()) {
+            for(int i = 0; i < all.length() - 1; ++i) {
+              append_fonts(name, all[i].ptr());
+            }
+          }
+#endif
         }
+        
+        if(name.length() == 0)
+          append_fonts(name, ctx.text_shaper.ptr());
         
         char *utf8_name = pmath_string_to_utf8(name.get_as_string(), nullptr);
         if(utf8_name)
           pango_font_description_set_family_static(desc, utf8_name);
-          
+        
         pango_font_description_set_absolute_size(desc, ctx.canvas().get_font_size() * PANGO_SCALE);
         pango_font_description_set_style(        desc, style.italic ? PANGO_STYLE_ITALIC : PANGO_STYLE_NORMAL);
         pango_font_description_set_weight(       desc, style.bold   ? PANGO_WEIGHT_BOLD  : PANGO_WEIGHT_NORMAL);

@@ -115,6 +115,8 @@ namespace richmath {
       
       static void add_or_create(SharedPtr<FallbackTextShaper> &all, SharedPtr<TextShaper> fallback);
       
+      ArrayView<const SharedPtr<TextShaper>> all_shapers() const { return _shapers; }
+      
       virtual uint8_t num_fonts() override;
       virtual FontFace font(uint8_t fontinfo) override;
       virtual String font_name(uint8_t fontinfo) override;
