@@ -1330,9 +1330,32 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
         buttons_alpha = 0.4f;
     }
 
-    if(is_win8_or_newer) { // Windows 8 or newer
+    if(is_win8_or_newer) {
       buttonradius = 1;
       frameradius  = 1;
+      
+      if(Win32Version::is_windows_11_or_newer() && Win32Themes::DwmGetWindowAttribute) {
+        DWORD corner_pref = Win32Themes::DWMWCP_DEFAULT;
+        
+        if(!HRbool(Win32Themes::DwmGetWindowAttribute(_hwnd, Win32Themes::DWMWA_WINDOW_CORNER_PREFERENCE, &corner_pref, sizeof(corner_pref))))
+          corner_pref = Win32Themes::DWMWCP_DEFAULT;
+        
+        if(corner_pref == Win32Themes::DWMWCP_DEFAULT) {
+          if(style_ex & WS_EX_TOOLWINDOW) {
+            corner_pref = Win32Themes::DWMWCP_ROUNDSMALL;
+          }
+          else {
+            corner_pref = Win32Themes::DWMWCP_ROUND;
+          }
+        }
+        
+        switch(corner_pref) {
+          case Win32Themes::DWMWCP_ROUND:      frameradius = 8; break;
+          case Win32Themes::DWMWCP_ROUNDSMALL: frameradius = 4; break;
+          default:
+          case Win32Themes::DWMWCP_DONOTROUND: frameradius = 1; break;
+        }
+      }
     }
     else if(style_ex & WS_EX_TOOLWINDOW) {
       buttonradius = 1;
