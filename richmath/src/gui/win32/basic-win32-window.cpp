@@ -13,6 +13,7 @@
 #include <eval/application.h>
 #include <resources.h>
 
+#include <algorithm>
 #include <cmath>
 #include <cstdio>
 #include <cairo-win32.h>
@@ -35,9 +36,12 @@ using SnapPosition = BasicWin32Window::SnapPosition;
 #  define WS_EX_NOREDIRECTIONBITMAP   0x00200000L
 #endif
 
-
-#define MIN(a, b)  ((a) < (b) ? (a) : (b))
-#define MAX(a, b)  ((a) > (b) ? (a) : (b))
+#ifdef min
+#  undef min
+#endif
+#ifdef max
+#  undef max
+#endif
 
 
 class BasicWin32Window::Impl {
@@ -2708,7 +2712,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
                  Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
     }
     else {
-      rect.top = MAX(0, buttons.top - 1); 
+      rect.top = std::max(0L, buttons.top - 1); 
     }
     rect.bottom = nc.cyTopHeight;
 
@@ -3395,10 +3399,10 @@ static POINT point_from_lparam(LPARAM lParam) {
 }
 
 static bool touching_rectangles(RECT *touchRegion, const RECT &rect1, const RECT &rect2) {
-  touchRegion->left   = MAX(rect1.left,   rect2.left);
-  touchRegion->right  = MIN(rect1.right,  rect2.right);
-  touchRegion->top    = MAX(rect1.top,    rect2.top);
-  touchRegion->bottom = MIN(rect1.bottom, rect2.bottom);
+  touchRegion->left   = std::max(rect1.left,   rect2.left);
+  touchRegion->right  = std::min(rect1.right,  rect2.right);
+  touchRegion->top    = std::max(rect1.top,    rect2.top);
+  touchRegion->bottom = std::min(rect1.bottom, rect2.bottom);
   return (touchRegion->left == touchRegion->right) != (touchRegion->top == touchRegion->bottom);
 }
 
