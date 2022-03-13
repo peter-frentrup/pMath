@@ -36,13 +36,13 @@ using SnapPosition = BasicWin32Window::SnapPosition;
 #  define WS_EX_NOREDIRECTIONBITMAP   0x00200000L
 #endif
 
+
 #ifdef min
 #  undef min
 #endif
 #ifdef max
 #  undef max
 #endif
-
 
 class BasicWin32Window::Impl {
   public:
@@ -52,6 +52,7 @@ class BasicWin32Window::Impl {
     
     int nc_hit_test_no_system_buttons(POINT mouse_screen);
     int nc_hit_test_system_buttons(POINT mouse_screen, int fallback = HTNOWHERE);
+    int nc_extra_button_at_point(POINT mouse_screen);
     
     void on_windowposchanging(WINDOWPOS *pos);
     void on_windowposchanged(WINDOWPOS *pos);
@@ -307,6 +308,7 @@ BasicWin32Window::BasicWin32Window(
   _active(false),
   _hit_test_mouse_over(HTNOWHERE),
   _hit_test_mouse_down(HTNOWHERE),
+  _hit_test_extra_button(-1),
   _glass_enabled(false),
   _themed_frame(false),
   _use_dark_mode(false),
@@ -927,7 +929,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
-//    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
     if(Win32Themes::DwmGetWindowAttribute) {
       RECT rect = {};
@@ -956,7 +958,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
       }
     }
   }
-  else if(use_custom_system_buttons()) {
+  else if(Win32Version::is_windows_10_or_newer() /*use_custom_system_buttons()*/) {
     int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
     Win32Themes::MARGINS margins;
     get_nc_margins(hwnd, &margins, dpi);
@@ -967,7 +969,23 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
       close->right-= 1;
     }
     else {
+      DWORD style = GetWindowLongW(hwnd, GWL_STYLE);
+      int pad = Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      if(WS_MAXIMIZE & style) {
+        int top_frame = Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + pad;
+        
+        minimize->top-= top_frame;
+        maximize->top-= top_frame;
+        close->top   -= top_frame;
+      }
+      
       minimize->bottom = maximize->bottom = close->bottom = close->top + margins.cyTopHeight - 2;
+      
+      if(WS_MAXIMIZE & style) {
+        minimize->bottom -= pad;
+        maximize->bottom -= pad;
+        close->bottom    -= pad;
+      }
     }
   }
   
@@ -992,7 +1010,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
-//    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
     if(Win32Themes::DwmGetWindowAttribute) {
       if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT)))) {
@@ -1004,18 +1022,31 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
       }
     }
   }
-  else if(use_custom_system_buttons()) {
+  else if(Win32Version::is_windows_10_or_newer() /*use_custom_system_buttons()*/) {
     int dpi = Win32HighDpi::get_dpi_for_window(hwnd);
     Win32Themes::MARGINS margins;
     get_nc_margins(hwnd, &margins, dpi);
+    
     if(WS_EX_TOOLWINDOW & GetWindowLongW(hwnd, GWL_EXSTYLE)) {
       rect->bottom = rect->top + margins.cyTopHeight - Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
       rect->top += Win32HighDpi::get_system_metrics_for_dpi(SM_CYFIXEDFRAME, dpi) +
-                    Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+                   Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
       rect->right-= 1;
     }
     else {
+      DWORD style = GetWindowLongW(hwnd, GWL_STYLE);
+      int pad = Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+      if(WS_MAXIMIZE & style) {
+        int top_frame = Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + pad;
+        
+        rect->top-= top_frame;
+      }
+      
       rect->bottom = rect->top + margins.cyTopHeight - 2;
+      
+      if(WS_MAXIMIZE & style) {
+        rect->bottom -= pad;
+      }
     }
   }
   
@@ -1043,9 +1074,13 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
   
   int visible_top = -neg_margins.top - invisible_top;
   if(style & WS_MAXIMIZE) {
-    visible_top+= Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + 
-                  Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+    if(!Win32Version::is_windows_10_or_newer() || Win32Themes::use_win10_transparency()) {
+      visible_top+= Win32HighDpi::get_system_metrics_for_dpi(SM_CYFRAME, dpi) + 
+                    Win32HighDpi::get_system_metrics_for_dpi(SM_CXPADDEDBORDER, dpi);
+    }
   }
+  
+  pmath_debug_print("[invisible_top = %d, visible_top = %d]\n", invisible_top, visible_top);
   
   rect->top+= invisible_top + (visible_top - icon_h) / 2;
   rect->bottom = rect->top + icon_h;
@@ -1524,6 +1559,41 @@ void BasicWin32Window::paint_background_at(Canvas &canvas, POINT pos, bool wallp
       canvas.fill();
     }
     
+    if(_hit_test_extra_button >= 0) {
+      int dpi = Win32HighDpi::get_dpi_for_window(_hwnd);
+      RECT extra_buttons;
+      get_system_menu_bounds(_hwnd, &extra_buttons, dpi);
+      
+      extra_buttons.left = extra_buttons.right;
+      extra_buttons.top    -= MulDiv(2, dpi, 96);
+      extra_buttons.bottom += MulDiv(4, dpi, 96);
+      
+      bool have_shade = false;
+      int x = extra_buttons.left;
+      for(auto &button : extra_caption_buttons()) {
+        int w = MulDiv(button.dx_96dpi, dpi, 96);
+        
+        if(button.flags & Win32CaptionButton::Button) {
+          if(!have_shade) {
+            extra_buttons.left = x;
+            have_shade = true;
+          }
+          
+          extra_buttons.right = x + w;
+        }
+        
+        x+= w;
+      }
+      
+      if(have_shade) {
+        add_rect(canvas, extra_buttons);
+        
+        canvas.set_color(Color::White, buttons_alpha);
+        cairo_set_operator(canvas.cairo(), CAIRO_OPERATOR_DEST_OUT);
+        canvas.fill();
+      }
+    }
+    
     if( client_rect.left - window_rect.left < frameradius || 
         window_rect.right - client_rect.right < frameradius)
     { // make the edges round again
@@ -1900,20 +1970,27 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
 
       case WM_NCMOUSEMOVE: {
-          int8_t new_hit = Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam), wParam);
+          POINT pt = point_from_lparam(lParam);
+          int8_t new_hit = Impl(*this).nc_hit_test_system_buttons(pt, wParam);
           
-          if(_hit_test_mouse_over != new_hit) {
-            if(_hit_test_mouse_over != new_hit)
-              invalidate_caption();
-            _hit_test_mouse_over = new_hit;
+          int8_t new_hit_extra_btn = -1;
+          if(new_hit == HTOBJECT) {
+            new_hit_extra_btn = Impl(*this).nc_extra_button_at_point(pt);
+          }
+          
+          if(_hit_test_mouse_over != new_hit || _hit_test_extra_button != new_hit_extra_btn) {
+            invalidate_caption();
+            _hit_test_mouse_over   = new_hit;
+            _hit_test_extra_button = new_hit_extra_btn;
           }
         } break;
 
       case WM_NCMOUSELEAVE: {
-          if(hit_test_is_system_button(_hit_test_mouse_over))
+          if(_hit_test_extra_button >= 0 || hit_test_is_system_button(_hit_test_mouse_over))
             invalidate_caption();
             
-          _hit_test_mouse_over = HTNOWHERE;
+          _hit_test_mouse_over   = HTNOWHERE;
+          _hit_test_extra_button = -1;
         } break;
 
       case WM_NCRBUTTONUP: {
@@ -1962,9 +2039,11 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
       
       case WM_NCLBUTTONDOWN: {
-          _hit_test_mouse_down = Impl(*this).nc_hit_test_system_buttons(point_from_lparam(lParam), wParam);
-          if(use_custom_system_buttons()) {
-            if(hit_test_is_system_button(_hit_test_mouse_down))
+          POINT pt = point_from_lparam(lParam);
+          _hit_test_mouse_down = Impl(*this).nc_hit_test_system_buttons(pt, wParam);
+          
+          if(_hit_test_extra_button >= 0 || use_custom_system_buttons()) {
+            if(_hit_test_extra_button >= 0 || hit_test_is_system_button(_hit_test_mouse_down))
               invalidate_caption();
           }
         } break;
@@ -2152,6 +2231,22 @@ int BasicWin32Window::Impl::nc_hit_test_no_system_buttons(POINT mouse_screen) {
     if( mouse_client.x < menu.right && mouse_client.y < menu.bottom) {
       return HTSYSMENU;
     }
+    
+    int w = 0;
+    for(auto &button : self.extra_caption_buttons()) {
+      w += MulDiv(button.dx_96dpi, dpi, 96);
+    }
+    
+    if(w) {
+      menu.left = menu.right;
+      menu.right+= w;
+      menu.top = 0;
+      menu.bottom = margins.cyTopHeight;
+      
+      if(PtInRect(&menu, mouse_client)) {
+        return HTOBJECT;
+      }
+    }
   }
   
   return result;
@@ -2177,6 +2272,35 @@ int BasicWin32Window::Impl::nc_hit_test_system_buttons(POINT mouse_screen, int f
     return HTMINBUTTON;
   
   return fallback;
+}
+
+int BasicWin32Window::Impl::nc_extra_button_at_point(POINT mouse_screen) {
+  int dpi = Win32HighDpi::get_dpi_for_window(self._hwnd);
+  
+  POINT mouse_client = mouse_screen;
+  ScreenToClient(self._hwnd, &mouse_client);
+  
+  RECT rect;
+  get_system_menu_bounds(self._hwnd, &rect, dpi);
+  
+  Win32Themes::MARGINS nc;
+  ::get_nc_margins(self._hwnd, &nc, dpi);
+  
+  rect.top = 0;
+  rect.bottom = std::max(rect.bottom, (LONG)nc.cyTopHeight);
+  rect.left = rect.right;
+  int i = 0;
+  for(auto &button : self.extra_caption_buttons()) {
+    rect.right+= MulDiv(button.dx_96dpi, dpi, 96);
+    
+    if(PtInRect(&rect, mouse_client))
+      return i;
+    
+    rect.left = rect.right;
+    ++i;
+  }
+  
+  return -1;
 }
 
 struct FindPopup {
@@ -2318,13 +2442,16 @@ void BasicWin32Window::Impl::on_windowposchanged(WINDOWPOS *pos) {
 }
 
 bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POINT pos) {
-  if(use_custom_system_buttons()) {
-    if(hit_test_is_system_button(self._hit_test_mouse_down))
+  if(self._hit_test_extra_button >= 0 || use_custom_system_buttons()) {
+    if(self._hit_test_extra_button >= 0 || hit_test_is_system_button(self._hit_test_mouse_down))
       self.invalidate_caption();
     
     int8_t new_hit = Impl(*this).nc_hit_test_system_buttons(pos, wParam);
-    if(new_hit == self._hit_test_mouse_down) {
-      switch(self._hit_test_mouse_down) {
+    auto   old_hit = self._hit_test_mouse_down;
+    self._hit_test_mouse_down = HTNOWHERE;
+    
+    if(new_hit == old_hit) {
+      switch(old_hit) {
         case HTMINBUTTON:
           if(GetWindowLong(self._hwnd, GWL_STYLE) & WS_MINIMIZE)
             SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_RESTORE, 0);
@@ -2345,11 +2472,21 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
           SendMessageW(self._hwnd, WM_SYSCOMMAND, SC_CLOSE, 0);
           *result = 0;
           return true;
+        
+        case HTOBJECT:
+          if(self._hit_test_extra_button >= 0) {
+            auto buttons = self.extra_caption_buttons();
+            if(self._hit_test_extra_button < buttons.length()) {
+              if(DWORD cmdId = buttons[self._hit_test_extra_button].cmdId) {
+                SendMessageW(self._hwnd, WM_SYSCOMMAND, cmdId, 0);
+                return true;
+              }
+            }
+          }
+          break;
       }
     }
   }
-  
-  self._hit_test_mouse_down = HTNOWHERE;
   
   if(self._themed_frame && wParam == HTSYSMENU) {
     Win32Menu::use_dark_mode = self.is_using_dark_mode();
@@ -2664,8 +2801,6 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
       center_caption = content_alignment != 0;
     }
 
-    int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
-    
     // TODO: temporarily scale GDI context to 96 dpi coordinates to write propper font size.
     //int map_mode = GetMapMode(hdc_bitmap);
     //SetMapMode(hdc_bitmap, MM_LOENGLISH);
@@ -2675,6 +2810,118 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     RECT menu, rect, buttons;
     get_system_button_bounds(self._hwnd, &buttons);
     get_system_menu_bounds(self._hwnd, &menu, dpi);
+    
+    RECT btn_rect = menu;
+    btn_rect.left = menu.right;
+    
+    int btn_extra_top    = MulDiv(2, dpi, 96);
+    int btn_extra_bottom = MulDiv(4, dpi, 96);
+    btn_rect.top    -= btn_extra_top;
+    btn_rect.bottom += btn_extra_bottom;
+    
+    HFONT mdl2_assets_font = CreateFontW(
+                               log_font.lfHeight,
+                               0,
+                               0,
+                               0,
+                               FW_NORMAL,
+                               FALSE,
+                               FALSE,
+                               FALSE,
+                               DEFAULT_CHARSET,
+                               OUT_DEFAULT_PRECIS,
+                               CLIP_DEFAULT_PRECIS,
+                               DEFAULT_QUALITY,
+                               DEFAULT_PITCH | FF_DONTCARE,
+                               Win32Version::is_windows_10_or_newer() ? L"Segoe MDL2 Assets" : L"Segoe UI Symbol");
+    
+    HANDLE toolbar_theme = Win32ControlPainter::win32_painter.get_control_theme(
+                             self, ContainerType::PaletteButton, ControlState::Normal, nullptr, nullptr);
+    int i = -1;
+    for(auto &button : self.extra_caption_buttons()) {
+      int w = MulDiv(button.dx_96dpi, dpi, 96);
+      ++i;
+      
+      btn_rect.right += w;
+      
+      if(button.flags & Win32CaptionButton::Separator) {
+        int part = 5; // TP_SEPARATOR
+        int state = 1; // TS_NORMAL
+        
+        SIZE size = {0, 0};
+        Win32Themes::GetThemePartSize(toolbar_theme, hdc_bitmap, part, state, nullptr, Win32Themes::TS_TRUE, &size);
+        
+        if(size.cx == 0)
+          size.cx = w;
+        
+        RECT separator_rect;
+        separator_rect.left = btn_rect.left + (w - size.cx) / 2;
+        separator_rect.right = separator_rect.left + size.cx;
+        separator_rect.top    = btn_rect.top    + btn_extra_top;
+        separator_rect.bottom = btn_rect.bottom - btn_extra_bottom;
+        
+        Win32Themes::DrawThemeBackground(
+          toolbar_theme,
+          hdc_bitmap,
+          part,
+          state,
+          &separator_rect,
+          nullptr);
+      }
+      
+      if(button.flags & Win32CaptionButton::Button) {
+        int state = 1; // TP_NORMAL
+        if(i == self._hit_test_extra_button) {
+          if(self._hit_test_mouse_down == self._hit_test_mouse_over)
+            state = 3; // TP_PRESSED
+          else
+            state = 2; // TP_HOT
+        }
+        
+        Win32Themes::DrawThemeBackground(
+          toolbar_theme,
+          hdc_bitmap,
+          1, // TP_BUTTON
+          state, // TP_HOT
+          &btn_rect,
+          nullptr);
+      }
+      
+      if(button.label) {
+        HFONT tmp = nullptr;
+        if(button.flags & Win32CaptionButton::UseMdl2AssetsFont) {
+          tmp = (HFONT)SelectObject(hdc_bitmap, mdl2_assets_font);
+        }
+        
+        int dx = 0;
+        if(i == self._hit_test_extra_button && self._hit_test_mouse_down == self._hit_test_mouse_over) {
+          dx = MulDiv(1, dpi, 96);
+          OffsetRect(&btn_rect, dx, 0);
+        }
+        
+        
+        Win32Themes::DrawThemeTextEx(
+          theme,
+          hdc_bitmap,
+          0, 0,
+          button.label, -1,
+          DT_CENTER | DT_VCENTER | DT_SINGLELINE,
+          &btn_rect,
+          &dtt_opts);
+        
+        OffsetRect(&btn_rect, -dx, 0);
+        
+        if(tmp) 
+          (void)SelectObject(hdc_bitmap, tmp);
+      }
+      
+      btn_rect.left = btn_rect.right;
+    }
+    
+    DeleteObject(mdl2_assets_font);
+    
+    int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
+    
     if(center_caption) {
       flags |= DT_CENTER;
 
@@ -2693,17 +2940,20 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
         &dtt_opts);
 
       dtt_opts.dwFlags &= ~DTT_CALCRECT;
-
-      rect.left   = buttons.right - buttons.left;
-      rect.right  = buttons.left;
+      
+      int lr = std::max(btn_rect.right - menu.left, buttons.right - buttons.left);
+      
+      rect.left   = lr;
+      rect.right  = buttons.right - lr;
 
       if(calc_rect.right + MulDiv(8, dpi, 96) > rect.right - rect.left) {
-        rect.left = menu.right + MulDiv(4, dpi, 96);
+        rect.left = btn_rect.right + MulDiv(4, dpi, 96);
+        rect.right = buttons.left;
       }
     }
     else {
       rect.right  = buttons.left;
-      rect.left   = menu.right + MulDiv(4, dpi, 96);
+      rect.left   = btn_rect.right + MulDiv(4, dpi, 96);
     }
     
     DWORD style = GetWindowLongW(self._hwnd, GWL_STYLE);

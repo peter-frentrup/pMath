@@ -81,6 +81,7 @@ namespace richmath {
       virtual void use_dark_mode(bool dark_mode) override;
       virtual void on_close() override;
       virtual void on_theme_changed() override;
+      virtual ArrayView<const Win32CaptionButton> extra_caption_buttons() override;
       void on_setting_changed();
       
       void window_frame(WindowFrameType type);

@@ -17,6 +17,20 @@
 namespace richmath {
   class Win32BlurBehindWindow;
   
+  struct Win32CaptionButton {
+    enum Flags {
+      None              = 0x00,
+      Separator         = 0x01,
+      Button            = 0x02,
+      UseMdl2AssetsFont = 0x04,
+    };
+    friend Flags operator|(Flags l, Flags r) { return Flags((unsigned)l | (unsigned)r); }
+    int   dx_96dpi;
+    Flags flags;
+    const wchar_t *label;
+    DWORD cmdId;
+  };
+  
   // Must call init() immediately after the construction of a derived object!
   class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext, public IVirtualDesktopNotification {
       class Impl;
@@ -101,6 +115,7 @@ namespace richmath {
       virtual void on_theme_changed();
       void invalidate_non_child();
       void invalidate_caption();
+      virtual ArrayView<const Win32CaptionButton> extra_caption_buttons() { return ArrayView<const Win32CaptionButton>(0, nullptr); }
       
       virtual void finish_apply_title(String displayed_title) override;
       
@@ -115,6 +130,7 @@ namespace richmath {
       ObservableValue<bool> _active;
       int8_t _hit_test_mouse_over;
       int8_t _hit_test_mouse_down;
+      int8_t _hit_test_extra_button;
       bool _glass_enabled : 1;
       bool _themed_frame : 1;
       bool _use_dark_mode : 1;

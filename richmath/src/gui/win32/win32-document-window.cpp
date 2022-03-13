@@ -30,6 +30,7 @@ using namespace richmath;
 namespace richmath { namespace strings {
   extern String EmptyString;
   extern String Docked;
+  extern String SearchMenuItems;
   extern String ShowHideMenu;
   extern String ShowHideMenu_label;
 }}
@@ -1247,6 +1248,27 @@ void Win32DocumentWindow::on_theme_changed() {
   SetWindowLongW(_working_area->hwnd(), GWL_EXSTYLE, style_ex);
   
   rearrange();
+}
+
+ArrayView<const Win32CaptionButton> Win32DocumentWindow::extra_caption_buttons() {
+  //                                         Segoe Mdl2 Assets (Win 10)    Segoe UI Symbol (older)
+  //	U+E0C2 (bold horizontal dots)                    no                           yes
+  //	U+E10C (horizontal dots)                        yes                           yes
+  //	U+E712 ("More" horizontal dots)                 yes                            no
+  //
+  //  U+1F50D LEFT-POINTING MAGNIFYING GLASS           no                           yes
+  //	U+E1A3 (left-point. magn. glass)                yes                           yes
+  //	U+E712 ("Search" magnifying glass)              yes                            no
+  //
+  //  U+E700 "GlobalNavigationButton"                 yes                            no
+  static const Win32CaptionButton btns[] = {
+    {4, Win32CaptionButton::None},
+//    {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE1A3", Win32Menu::command_to_id(strings::SearchMenuItems) }, 	// Search
+    {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE10C", Win32Menu::command_to_id(strings::ShowHideMenu) }, 
+    {8, Win32CaptionButton::Separator},
+    //{-4, Win32CaptionButton::None},
+  };
+  return array_view(btns);
 }
 
 LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {

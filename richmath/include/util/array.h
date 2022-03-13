@@ -86,6 +86,9 @@ namespace richmath {
       int _length;
   };
   
+  template<typename T, int N>
+  ArrayView<T> array_view(T (&items)[N]) { return ArrayView<T>(N, items); } 
+  
   template<typename T> class Array {
     private:
       struct DataHeader {
