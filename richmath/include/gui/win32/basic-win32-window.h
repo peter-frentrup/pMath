@@ -23,8 +23,11 @@ namespace richmath {
       Separator         = 0x01,
       Button            = 0x02,
       UseMdl2AssetsFont = 0x04,
+      ProxyIcon         = 0x08,
     };
     friend Flags operator|(Flags l, Flags r) { return Flags((unsigned)l | (unsigned)r); }
+    bool is_mouse_sensitive() const { return (flags & (Button | ProxyIcon)) != 0; }
+    
     int   dx_96dpi;
     Flags flags;
     const wchar_t *label;

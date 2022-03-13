@@ -929,7 +929,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *minimize, RECT *maximize, 
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
-    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+    //pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
     if(Win32Themes::DwmGetWindowAttribute) {
       RECT rect = {};
@@ -1010,7 +1010,7 @@ static void get_system_button_bounds(HWND hwnd, RECT *rect) {
         Sending WM_GETTITLEBARINFOEX returns nothing when two monitors are used, 
         but works fine for only one monitor.
      */
-    pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
+    //pmath_debug_print("[get_system_button_bounds: win 10 bug]\n");
     
     if(Win32Themes::DwmGetWindowAttribute) {
       if(HRbool(Win32Themes::DwmGetWindowAttribute(hwnd, Win32Themes::DWMWA_CAPTION_BUTTON_BOUNDS, rect, sizeof(RECT)))) {
@@ -2232,20 +2232,18 @@ int BasicWin32Window::Impl::nc_hit_test_no_system_buttons(POINT mouse_screen) {
       return HTSYSMENU;
     }
     
-    int w = 0;
-    for(auto &button : self.extra_caption_buttons()) {
-      w += MulDiv(button.dx_96dpi, dpi, 96);
-    }
+    menu.left = menu.right;
+    menu.top = 0;
+    menu.bottom = margins.cyTopHeight;
     
-    if(w) {
-      menu.left = menu.right;
+    for(auto &button : self.extra_caption_buttons()) {
+      int w = MulDiv(button.dx_96dpi, dpi, 96);
       menu.right+= w;
-      menu.top = 0;
-      menu.bottom = margins.cyTopHeight;
       
-      if(PtInRect(&menu, mouse_client)) {
+      if(button.is_mouse_sensitive() && PtInRect(&menu, mouse_client))
         return HTOBJECT;
-      }
+      
+      menu.left = menu.right;
     }
   }
   
@@ -2820,7 +2818,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     btn_rect.bottom += btn_extra_bottom;
     
     HFONT mdl2_assets_font = CreateFontW(
-                               log_font.lfHeight,
+                               menu.bottom - menu.top,//log_font.lfHeight,
                                0,
                                0,
                                0,
@@ -2831,7 +2829,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
                                DEFAULT_CHARSET,
                                OUT_DEFAULT_PRECIS,
                                CLIP_DEFAULT_PRECIS,
-                               DEFAULT_QUALITY,
+                               ANTIALIASED_QUALITY,//DEFAULT_QUALITY,//
                                DEFAULT_PITCH | FF_DONTCARE,
                                Win32Version::is_windows_10_or_newer() ? L"Segoe MDL2 Assets" : L"Segoe UI Symbol");
     
@@ -2882,9 +2880,33 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
           toolbar_theme,
           hdc_bitmap,
           1, // TP_BUTTON
-          state, // TP_HOT
+          state,
           &btn_rect,
           nullptr);
+      }
+      
+      if(button.flags & Win32CaptionButton::ProxyIcon) {
+        int icon_w = Win32HighDpi::get_system_metrics_for_dpi(SM_CXSMICON, dpi);
+        int icon_h = Win32HighDpi::get_system_metrics_for_dpi(SM_CYSMICON, dpi);
+        
+        HICON icon = (HICON)LoadImageW(GetModuleHandleW(nullptr), MAKEINTRESOURCEW(ICO_FILE),
+                                       IMAGE_ICON,
+                                       icon_w, icon_h,
+                                       LR_DEFAULTCOLOR);
+        if(icon) {
+          DrawIconEx(
+            hdc_bitmap,
+            btn_rect.left + (btn_rect.right - btn_rect.left - icon_w) / 2,
+            btn_rect.top  + (btn_rect.bottom - btn_rect.top - icon_h) / 2,
+            icon,
+            icon_w,
+            icon_h,
+            0,
+            nullptr,
+            DI_NORMAL);
+          
+          DestroyIcon(icon);
+        }
       }
       
       if(button.label) {
@@ -2981,7 +3003,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
       WNDCLASSEXW wndcl;
       memset(&wndcl, 0, sizeof(wndcl));
 
-      GetClassInfoExW(GetModuleHandle(0), str, &wndcl);
+      GetClassInfoExW(GetModuleHandleW(nullptr), str, &wndcl);
       HICON icon = (HICON)LoadImageW(wndcl.hInstance, MAKEINTRESOURCEW(ICO_APP_MAIN),
                                      IMAGE_ICON,
                                      menu.right - menu.left,
