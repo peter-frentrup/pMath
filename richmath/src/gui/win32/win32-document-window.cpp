@@ -1263,16 +1263,27 @@ ArrayView<const Win32CaptionButton> Win32DocumentWindow::extra_caption_buttons()
   //  U+E700 "GlobalNavigationButton"                 yes                            no
   //
   //  U+E105 (save, floppy disk)                      yes                           yes
-  static const Win32CaptionButton btns[] = {
-    {4, Win32CaptionButton::None},
-//    {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE1A3", Win32Menu::command_to_id(strings::SearchMenuItems) }, 	// Search
-    {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE10C", Win32Menu::command_to_id(strings::ShowHideMenu) }, 
-    {8, Win32CaptionButton::Separator},
-    //{-4, Win32CaptionButton::None},
-    //{100, Win32CaptionButton::None},
-    //{16, Win32CaptionButton::ProxyIcon},
-  };
-  return array_view(btns);
+  if(can_toggle_menubar()) {
+    static const Win32CaptionButton btns[] = {
+      {4, Win32CaptionButton::None},
+      {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE10C", Win32Menu::command_to_id(strings::ShowHideMenu) }, 
+      {8, Win32CaptionButton::Separator},
+    };
+    return array_view(btns);
+  }
+  else {
+    return ArrayView<const Win32CaptionButton>(0, nullptr);
+  }
+//  static const Win32CaptionButton btns[] = {
+//    {4, Win32CaptionButton::None},
+////    {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE1A3", Win32Menu::command_to_id(strings::SearchMenuItems) }, 	// Search
+//    {22, Win32CaptionButton::Button | Win32CaptionButton::UseMdl2AssetsFont, L"\xE10C", Win32Menu::command_to_id(strings::ShowHideMenu) }, 
+//    {8, Win32CaptionButton::Separator},
+//    //{-4, Win32CaptionButton::None},
+//    //{100, Win32CaptionButton::None},
+//    //{16, Win32CaptionButton::ProxyIcon},
+//  };
+//  return array_view(btns);
 }
 
 LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
