@@ -51,8 +51,13 @@ static pmath_t missing_key_result(
     return key;
   }
   
-  // The possible Key(...) kead was already peeled of by lookup(),
-  // so don't call peel_off_key_head() again.
+  // The possible Key(...) head was already peeled of by lookup(), so don't 
+  // call peel_off_key_head() again. However, for multi-argument Key, we need to add the
+  // Key head again instead of the internal `PMATH_MAGIC_PATTERN_SEQUENCE`.
+  
+  if(pmath_is_expr_of(key, PMATH_MAGIC_PATTERN_SEQUENCE)) {
+    key = pmath_expr_set_item(key, 0, pmath_ref(pmath_System_Key));
+  }
   
   return pmath_expr_new_extended(
            pmath_ref(pmath_System_Missing), 2, pmath_ref(_pmath_string_keyabsent), key);
