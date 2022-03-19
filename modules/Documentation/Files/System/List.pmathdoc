@@ -9,9 +9,9 @@ Document({
         Section(
          "Depending on context, lists represent mathematical vectors, matrices \
          (as lists of lists), or sets.", "Notes"), 
-        Section({"Lists of rules are optimized for ", 
-          TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
-          " and related functions."}, "Notes")}, All), 
+        Section(TextData({"Lists of rules are optimized for ", 
+           TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+           " and related functions."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -50,11 +50,11 @@ Document({
              "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData("True"), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
-          Section({"Functions such as ", 
-            TemplateBox({"Norm"}, "ReferenceHyperlink"), ", ", 
-            TemplateBox({"Cross"}, "ReferenceHyperlink"), " and ", 
-            TemplateBox({"Dot"}, "ReferenceHyperlink"), 
-            " take vectors as input:"}, "ExampleText"), 
+          Section(TextData({"Functions such as ", 
+             TemplateBox({"Norm"}, "ReferenceHyperlink"), ", ", 
+             TemplateBox({"Cross"}, "ReferenceHyperlink"), " and ", 
+             TemplateBox({"Dot"}, "ReferenceHyperlink"), 
+             " take vectors as input:"}), "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Norm", "(", {"{", {"a", ",", "b", ",", "c"}, 
                 "}"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
@@ -74,9 +74,9 @@ Document({
                "Input", SectionLabel -> "in [1]:"), 
               Section(BoxData("True"), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All), 
-            Section({"Operations acting on matrices include ", 
-              TemplateBox({"Dot"}, "ReferenceHyperlink"), " and ", 
-              TemplateBox({"Transpose"}, "ReferenceHyperlink"), ":"}, 
+            Section(TextData({"Operations acting on matrices include ", 
+               TemplateBox({"Dot"}, "ReferenceHyperlink"), " and ", 
+               TemplateBox({"Transpose"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
               Section(
                BoxData({"Dot", "(", {
@@ -89,18 +89,20 @@ Document({
               Section(BoxData({"{", {{"{", {"14", ",", "32"}, "}"}, ",", {
                    "{", {"32", ",", "77"}, "}"}}, "}"}), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
-            Section({"Matrices may be input in two-dimensional form using ", 
-              TemplateBox({","}, "ControlKeyEvent"), " and ", 
-              TemplateBox({"Enter"}, "ControlKeyEvent"), ":"}, "ExampleText"), 
-            SectionGroup({
+            Section(
+             TextData({"Matrices may be input in two-dimensional form using ", 
+               TemplateBox({","}, "ControlKeyEvent"), " and ", 
+               TemplateBox({"Enter"}, "ControlKeyEvent"), ":"}), 
+             "ExampleText"), SectionGroup({
               Section(BoxData(GridBox({{"1", "2", "3"}, {"4", "5", "6"}})), 
                "Input", SectionLabel -> "in [3]:"), 
               Section(BoxData({"{", {{"{", {"1", ",", "2", ",", "3"}, "}"}, 
                   ",", {"{", {"4", ",", "5", ",", "6"}, "}"}}, "}"}), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [3]:")}, All), 
-            Section({"Display a matrix in two-dimensional form with ", 
-              TemplateBox({"MatrixForm"}, "ReferenceHyperlink"), ":"}, 
+            Section(
+             TextData({"Display a matrix in two-dimensional form with ", 
+               TemplateBox({"MatrixForm"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"MatrixForm", "(", {
                   "{", {{"{", {"1", ",", "2", ",", "3"}, "}"}, ",", {
@@ -113,12 +115,12 @@ Document({
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Some functions such as ", 
-              TemplateBox({"Union"}, "ReferenceHyperlink"), ", ", 
-              TemplateBox({"Complement"}, "ReferenceHyperlink"), ", and ", 
-              TemplateBox({"Intersection"}, "ReferenceHyperlink"), 
-              " treat lists as orderless sets of elements:"}, "ExampleText"), 
-            SectionGroup({
+            Section(TextData({"Some functions such as ", 
+               TemplateBox({"Union"}, "ReferenceHyperlink"), ", ", 
+               TemplateBox({"Complement"}, "ReferenceHyperlink"), ", and ", 
+               TemplateBox({"Intersection"}, "ReferenceHyperlink"), 
+               " treat lists as orderless sets of elements:"}), 
+             "ExampleText"), SectionGroup({
               Section(BoxData({"Union", "(", {
                   {"{", {"1", ",", "2", ",", "3", ",", "2", ",", "4"}, "}"}, 
                   ",", {"{", {"3", ",", "5"}, "}"}}, ")"}), "Input", 
@@ -127,21 +129,39 @@ Document({
                   "5"}, "}"}), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
         SectionGroup({Section("Lists of Rules", "ExampleSubsection"), 
-          Section({"Lists of ", TemplateBox({"Rule"}, "ReferenceHyperlink"), 
-            " or ", TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
-            " are optimized for ", TemplateBox({"Lookup"}, 
-             "ReferenceHyperlink"), ", ", TemplateBox({"Replace"}, 
-             "ReferenceHyperlink"), " and related functions:"}, 
+          Section(
+           TextData({"Lists of ", TemplateBox({"Rule"}, "ReferenceHyperlink"), 
+             " or ", TemplateBox({"RuleDelayed"}, "ReferenceHyperlink"), 
+             " are optimized for ", TemplateBox({"Lookup"}, 
+              "ReferenceHyperlink"), ", ", TemplateBox({"Replace"}, 
+              "ReferenceHyperlink"), " and related functions:"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Lookup", "(", {
                 {"{", {{"1", "\[Rule]", "11"}, ",", {"2", "\[Rule]", "22"}}, 
                  "}"}, ",", "2"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData("22"), "Output", SectionGenerated -> True, 
-             SectionLabel -> "out [1]:")}, All)}, 1), 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"Lists of rules can be used as a ", 
+               TemplateBox({"Function"}, "ReferenceHyperlink"), 
+               " with multiple cases:"}), "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({
+                 {"{", {{{"(", {"0", ",", "0"}, ")"}, "\[Rule]", 
+                    ComplexStringBox("\"well...\"")}, ",", {
+                    {"(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, 
+                    "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, "}"}, "(", 
+                 {"2", ",", "3"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData("8"), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
         SectionGroup({Section("Constructing Lists", "ExampleSubsection"), 
-          Section({"Construct a list consisting of a range of values with ", 
-            TemplateBox({"Range"}, "ReferenceHyperlink"), " and ", 
-            TemplateBox({"Array"}, "ReferenceHyperlink"), ":"}, 
+          Section(
+           TextData({"Construct a list consisting of a range of values with ", 
+             TemplateBox({"Range"}, "ReferenceHyperlink"), " and ", 
+             TemplateBox({"Array"}, "ReferenceHyperlink"), ":"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Array", "(", {"1", "..", "4"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
@@ -155,8 +175,8 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({"Construct a list using a function with ", 
-              TemplateBox({"Array"}, "ReferenceHyperlink"), ":"}, 
+            Section(TextData({"Construct a list using a function with ", 
+               TemplateBox({"Array"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Array", "(", {"f", ",", "4"}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
@@ -187,8 +207,8 @@ Document({
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
-            Section({TemplateBox({"Table"}, "ReferenceHyperlink"), 
-              " constructs lists using an expression and itorator:"}, 
+            Section(TextData({TemplateBox({"Table"}, "ReferenceHyperlink"), 
+               " constructs lists using an expression and itorator:"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Table", "(", {
                   {"2", "^", "n"}, ",", {"n", "\[Rule]", {
@@ -220,9 +240,9 @@ Document({
                SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
            All)}, 1), SectionGroup({
           Section("Listable Functions", "ExampleSubsection"), 
-          Section({"Functions with attribute ", 
-            TemplateBox({"Listable"}, "ReferenceHyperlink"), 
-            " thread over lists:"}, "ExampleText"), 
+          Section(TextData({"Functions with attribute ", 
+             TemplateBox({"Listable"}, "ReferenceHyperlink"), 
+             " thread over lists:"}), "ExampleText"), 
           SectionGroup({
             Section(
              BoxData({"Exp", "(", {
@@ -259,11 +279,13 @@ Document({
              SectionLabel -> "out [2]:")}, All)}, 1)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Array"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Table"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Range"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ListLinePlot"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Listable"}, "ReferenceHyperlink")}, "SeeAlso")}, All)}, 
-   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Array"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Table"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Range"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ListLinePlot"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Listable"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Function"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
