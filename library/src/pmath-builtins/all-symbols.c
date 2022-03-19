@@ -321,6 +321,7 @@ PMATH_PRIVATE pmath_t builtin_assign_part(  pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_replacepart(  pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_call_linearsolvefunction(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_call_list(               pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_apply(                        pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_append(                       pmath_expr_t expr);
@@ -587,7 +588,9 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_internal_tryevaluatesecured, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_function,                    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_call_function,               PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
- 
+  CHECK( pmath_security_register_doorman(builtin_call_linearsolvefunction, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_call_list,                PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  
   // builtin_block?
   CHECK( pmath_security_register_doorman(builtin_local, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_with,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -643,8 +646,6 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   // builtin_assign_part ...?
   CHECK( pmath_security_register_doorman(builtin_part,        PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_replacepart, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  
-  CHECK( pmath_security_register_doorman(builtin_call_linearsolvefunction, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
   CHECK( pmath_security_register_doorman(builtin_apply,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_append,         PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -800,6 +801,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_SUB(    pmath_System_Function,                     builtin_call_function)
   BIND_SUB(    pmath_System_IsHeld,                       builtin_call_isheld)
   BIND_SUB(    pmath_System_LinearSolveFunction,          builtin_call_linearsolvefunction)
+  BIND_SUB(    pmath_System_List,                         builtin_call_list)
   
   BIND_UP(     pmath_System_NRules,                       builtin_assign_symbol_rules)
   BIND_UP(     pmath_System_Attributes,                   builtin_assign_attributes)

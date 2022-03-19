@@ -169,3 +169,22 @@ PMATH_PRIVATE pmath_t builtin_lookup(pmath_expr_t expr) {
   pmath_unref(expr);
   return value;
 }
+
+PMATH_PRIVATE pmath_t builtin_call_list(pmath_expr_t expr) {
+  /* {lhs->rhs, ...}(...)
+   */
+  
+  pmath_bool_t failure_flag = FALSE;
+  pmath_t head = pmath_expr_get_item(expr, 0);
+  pmath_t args = pmath_expr_set_item(pmath_ref(expr), 0, pmath_ref(pmath_System_Key));
+  pmath_t result = lookup(head, args, expr, &failure_flag);
+  
+  if(failure_flag) {
+    pmath_unref(result);
+    pmath_message(PMATH_NULL, "reps", 1, pmath_expr_get_item(expr, 0));
+    return expr;
+  }
+  
+  pmath_unref(expr);
+  return result;
+}
