@@ -4,6 +4,8 @@
 #include <pmath-util/helpers.h>
 #include <pmath-util/messages.h>
 
+#include <pmath-language/patterns-private.h> // for PMATH_MAGIC_PATTERN_SEQUENCE
+
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/lists-private.h>
 
@@ -15,10 +17,14 @@ extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Missing;
 
 static pmath_t peel_off_key_head(pmath_t key) {
-  if(pmath_is_expr_of_len(key, pmath_System_Key, 1)) {
-    pmath_t arg = pmath_expr_get_item(key, 1);
-    pmath_unref(key);
-    return arg;
+  if(pmath_is_expr_of(key, pmath_System_Key)) {
+    if(pmath_expr_length(key) == 1) {
+      pmath_t arg = pmath_expr_get_item(key, 1);
+      pmath_unref(key);
+      return arg;
+    }
+    
+    return pmath_expr_set_item(key, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
   }
   
   return key;

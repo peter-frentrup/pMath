@@ -9,6 +9,8 @@
 #include <pmath-util/messages.h>
 #include <pmath-util/symbol-values-private.h>
 
+#include <pmath-language/patterns-private.h> // for PMATH_MAGIC_PATTERN_SEQUENCE
+
 #include <pmath-builtins/all-symbols-private.h>
 #include <pmath-builtins/control/definitions-private.h>
 #include <pmath-builtins/lists-private.h>
@@ -20,6 +22,7 @@ extern pmath_symbol_t pmath_System_Key;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Missing;
 extern pmath_symbol_t pmath_System_Part;
+extern pmath_symbol_t pmath_System_PatternSequence;
 extern pmath_symbol_t pmath_System_Range;
 extern pmath_symbol_t pmath_System_Sequence;
 
@@ -258,7 +261,7 @@ static pmath_t assign_part(
   }
   
   index = pmath_expr_get_item(position, position_start);
-  if(pmath_is_string(index) || pmath_is_expr_of_len(index, pmath_System_Key, 1)) {
+  if(pmath_is_string(index) || pmath_is_expr_of(index, pmath_System_Key)) {
     struct assign_part_context_t context;
     
     if(!check_list_of_rules(list)) {
@@ -266,10 +269,14 @@ static pmath_t assign_part(
       return list;
     }
     
-    if(pmath_is_expr(index)) { // Key(k)
-      pmath_t key = pmath_expr_get_item(index, 1);
-      pmath_unref(index);
-      index = key;
+    if(pmath_is_expr(index)) { // Key(k), Key(), Key(k1, k2, ...)
+      if(pmath_expr_length(index) == 1) {
+        pmath_t key = pmath_expr_get_item(index, 1);
+        pmath_unref(index);
+        index = key;
+      }
+      else
+        index = pmath_expr_set_item(index, 0, pmath_ref(pmath_System_PatternSequence));
     }
     
     context.position = position;
@@ -477,7 +484,7 @@ static pmath_bool_t part(
     listlen = pmath_expr_length(*list);
     
     pos = pmath_expr_get_item(position, position_start);
-    if(pmath_is_string(pos) || pmath_is_expr_of_len(pos, pmath_System_Key, 1)) {
+    if(pmath_is_string(pos) || pmath_is_expr_of(pos, pmath_System_Key)) {
       pmath_t result;
       
       if(!check_list_of_rules(*list)) {
@@ -485,16 +492,24 @@ static pmath_bool_t part(
         return FALSE;
       }
       
-      if(pmath_is_expr(pos)) { // Key(k)
-        pmath_t key = pmath_expr_get_item(pos, 1);
-        pmath_unref(pos);
-        pos = key;
+      if(pmath_is_expr(pos)) { // Key(k), Key(), Key(k1, k2, ...)
+        if(pmath_expr_length(pos) == 1) {
+          pmath_t key = pmath_expr_get_item(pos, 1);
+          pmath_unref(pos);
+          pos = key;
+        }
+        else
+          pos = pmath_expr_set_item(pos, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
       }
       
       result = PMATH_UNDEFINED;
       if(!pmath_rules_lookup(*list, pmath_ref(pos), &result)) {
         pmath_unref(result);
         pmath_unref(*list);
+        
+        if(pmath_is_expr_of(pos, PMATH_MAGIC_PATTERN_SEQUENCE))
+          pos = pmath_expr_set_item(pos, 0, pmath_ref(pmath_System_Key));
+        
         *list = pmath_expr_new_extended(
                   pmath_ref(pmath_System_Missing), 2,
                   pmath_ref(_pmath_string_keyabsent),
