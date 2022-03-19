@@ -30,6 +30,7 @@ static int cmp_dispatch_tables(pmath_t a, pmath_t b);
 static pmath_bool_t equal_dispatch_tables(pmath_t a, pmath_t b);
 
 extern pmath_symbol_t pmath_System_List;
+extern pmath_symbol_t pmath_System_PatternSequence;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_RuleDelayed;
 
@@ -176,6 +177,25 @@ static struct _pmath_dispatch_table_t *get_dispatch_table_for_keys(pmath_expr_t 
 
 //} ... dispatch table cache
 
+static pmath_bool_t prepare_const_pattern(pmath_t *key) {
+  if(pmath_is_expr_of(*key, pmath_System_PatternSequence)) {
+    size_t i = pmath_expr_length(*key);
+    for(; i > 0; --i) {
+      pmath_t sub = pmath_expr_get_item(*key, i);
+      if(!_pmath_pattern_is_const(sub)) {
+        pmath_unref(sub);
+        return FALSE;
+      }
+      pmath_unref(sub);
+    }
+    
+    *key = pmath_expr_set_item(*key, 0, PMATH_MAGIC_PATTERN_SEQUENCE);
+    return TRUE;
+  }
+  
+  return _pmath_pattern_is_const(*key);
+}
+
 struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys) {
   struct _pmath_dispatch_table_t *tab;
   size_t num_keys = pmath_expr_length(keys);
@@ -228,7 +248,7 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
     struct _pmath_dispatch_entry_t *entry = &tab->entries[i-1];
     entry->key = pmath_expr_get_item(tab->all_keys, i);
     
-    if(_pmath_pattern_is_const(entry->key)) {
+    if(prepare_const_pattern(&entry->key)) {
       struct _pmath_dispatch_entry_t *latest_turn;
       
       entry->next_slice_or_slice_start = current_slice_start;
@@ -521,10 +541,13 @@ PMATH_API pmath_t pmath_rules_modify(
     return rules;
   }
   
-  if(_pmath_pattern_is_const(key)) {
+  if(prepare_const_pattern(&key)) {
     i = _pmath_dispatch_table_lookup(tab_ptr, key, NULL, FALSE);
     if(i == 0) {
       pmath_unref(tab);
+      if(pmath_is_expr_of(key, PMATH_MAGIC_PATTERN_SEQUENCE))
+        key = pmath_expr_set_item(key, 0, pmath_ref(pmath_System_PatternSequence));
+      
       return append_rule(rules, key, callback, callback_context);
     }
     else {
