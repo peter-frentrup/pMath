@@ -1135,6 +1135,9 @@ COLORREF BasicWin32Window::title_font_color(bool glass_enabled, int dpi, bool ac
           if(colorization.has_accent_color_in_active_titlebar)
             return colorization.text_on_accent_color;
         }
+
+        if(dark_mode)
+          return 0xFFFFFF; // else COLOR_CAPTIONTEXT below
       }
       else {
         /* On Windows 10, Inactive titlebar text color seems to be 0x999999u (light mode) or 0xAAAAAA (dark mode).
@@ -2603,6 +2606,29 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
     
     HDC bmp_dc = cairo_win32_surface_get_dc(surface);
     SetLayout(bmp_dc, GetLayout(hdc));
+    
+    bool opaque = false;
+    if(Win32Version::is_windows_10_or_newer()) {
+      if(!Win32Themes::use_win10_transparency()) {
+        Win32Themes::ColorizationInfo colorization;
+        if(Win32Themes::try_read_win10_colorization(&colorization)) {
+          DWORD bgr;
+          
+          if(self._active && colorization.has_accent_color_in_active_titlebar) 
+            bgr = colorization.accent_color;
+          else if(self._use_dark_mode)
+            bgr = 0x000000u;
+          else
+            bgr = 0xFFFFFFu;
+          
+          if(HBRUSH brush = create_solid_brush_with_alpha(Color::from_bgr24(bgr), 255)) {
+            opaque = true;
+            FillRect(bmp_dc, &rect, brush);
+            DeleteObject(brush);
+          }
+        }
+      }
+    }
 
     cairo_t *cr = cairo_create(surface);
     {
@@ -2633,13 +2659,16 @@ void BasicWin32Window::Impl::paint_themed(HDC hdc) {
 
     cairo_surface_destroy(surface);
     
-//    if(HBRUSH brush = create_solid_brush_with_alpha(Color::from_rgb24(0x808080), 255)) {
-//      RECT tmp_rect = {rect.left, 0, rect.right, 1};
-//      
-//      FillRect(hdc, &tmp_rect, brush);
-//      
-//      DeleteObject(brush);
-//    }
+    if(opaque && !self._active) {
+      if(HBRUSH brush = create_solid_brush_with_alpha(Color::from_rgb24(0x808080), 255)) {
+        RECT tmp_rect = {rect.left, 0, rect.right, 1};
+        
+        FillRect(hdc, &tmp_rect, brush);
+        //FrameRect(hdc, &rect, brush);
+        
+        DeleteObject(brush);
+      }
+    }
   }
   else {
   }
