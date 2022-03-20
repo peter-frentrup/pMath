@@ -58,6 +58,9 @@ class BasicWin32Window::Impl {
     void on_windowposchanged(WINDOWPOS *pos);
     bool on_nclbuttonup(LRESULT *result, WPARAM wParam, POINT pos);
     
+    void on_entersizemove();
+    void on_exitsizemove();
+    
     void clear_property_store() { clear_property_store(self._hwnd); }
     static void clear_property_store(HWND hwnd);
     
@@ -164,10 +167,13 @@ class richmath::Win32BlurBehindWindow: public BasicWin32Widget {
     void show(const RECT &owner_rect);
     void show_if_owner_visible_on_screen();
     
-    void colorize(bool active, bool dark_mode = false);
+    void colorize(bool active, bool dark_mode);
     
     static RECT blur_bounds(RECT window_rect, const Win32Themes::MARGINS &margins);
-    
+  
+  public:
+    static bool suppress_slow_acrylic_blur;
+  
   protected:
     virtual void after_construction() override;
     bool enable_blur(COLORREF abgr);
@@ -1846,17 +1852,12 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         on_move(lParam);
         break;
 
-      case WM_ENTERSIZEMOVE: {
-          GetWindowRect(_hwnd, &sizing_initial_rect);
-          last_moving_cx = sizing_initial_rect.left + (sizing_initial_rect.right - sizing_initial_rect.left)/2;
-          last_moving_cy = sizing_initial_rect.top  + (sizing_initial_rect.bottom - sizing_initial_rect.top)/2;
-
-          Impl(*this).find_all_snappers();
-        } break;
+      case WM_ENTERSIZEMOVE: 
+        Impl(*this).on_entersizemove();
+        break;
 
       case WM_EXITSIZEMOVE:
-        all_snappers.clear();
-        all_snapper_positions.length(0);
+        Impl(*this).on_exitsizemove();
         break;
 //} ... sizing & moving
       
@@ -2547,6 +2548,40 @@ bool BasicWin32Window::Impl::on_nclbuttonup(LRESULT *result, WPARAM wParam, POIN
   return false;
 }
 
+void BasicWin32Window::Impl::on_entersizemove() {
+  GetWindowRect(self._hwnd, &sizing_initial_rect);
+  self.last_moving_cx = sizing_initial_rect.left + (sizing_initial_rect.right  - sizing_initial_rect.left) / 2;
+  self.last_moving_cy = sizing_initial_rect.top  + (sizing_initial_rect.bottom - sizing_initial_rect.top ) / 2;
+
+  find_all_snappers();
+  Win32BlurBehindWindow::suppress_slow_acrylic_blur = true;
+  if(self._blur_behind_window)
+    self._blur_behind_window->colorize(self._active, self._use_dark_mode);
+  
+  for(auto hwnd : self.all_snappers) {
+    if(auto win = dynamic_cast<BasicWin32Window*>(BasicWin32Widget::from_hwnd(hwnd))) {
+      if(win->_blur_behind_window)
+        win->_blur_behind_window->colorize(win->_active, win->_use_dark_mode);
+    }
+  }
+}
+
+void BasicWin32Window::Impl::on_exitsizemove() {
+  self.all_snappers.clear();
+  self.all_snapper_positions.length(0);
+  
+  Win32BlurBehindWindow::suppress_slow_acrylic_blur = false;
+  if(self._blur_behind_window)
+    self._blur_behind_window->colorize(self._active, self._use_dark_mode);
+  
+  for(auto hwnd : self.all_snappers) {
+    if(auto win = dynamic_cast<BasicWin32Window*>(BasicWin32Widget::from_hwnd(hwnd))) {
+      if(win->_blur_behind_window)
+        win->_blur_behind_window->colorize(win->_active, win->_use_dark_mode);
+    }
+  }
+}
+
 void BasicWin32Window::Impl::clear_property_store(HWND hwnd) {
   if(!hwnd)
     return;
@@ -3186,6 +3221,8 @@ void BasicWin32Window::Impl::snap_rect_or_pt(RECT *snapping_rect, POINT *pt) {
 
 //{ class Win32BlurBehindWindow ...
 
+bool Win32BlurBehindWindow::suppress_slow_acrylic_blur = false;
+
 Win32BlurBehindWindow::Win32BlurBehindWindow(BasicWin32Window *owner) 
   : base(
       WS_EX_NOACTIVATE | WS_EX_NOREDIRECTIONBITMAP,
@@ -3217,13 +3254,21 @@ bool Win32BlurBehindWindow::enable_blur(COLORREF abgr) {
   if(!Win32Themes::SetWindowCompositionAttribute)
     return false;
   
-  // TODO: check for right Windows 10 version
-  // Note that Acrylic Blur Behind is very slow (window lags when moving) because it uses a much larger blur radius.
   Win32Themes::AccentPolicy accent_policy = {};
-  accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;//Win32Themes::AccentState::EnableAcrylicBlurBehind;//
   accent_policy.flags = Win32Themes::AccentFlagMixWithGradientColor;
   accent_policy.gradient_color = abgr;
   accent_policy.animation_id = 0;
+  
+  accent_policy.accent_state = Win32Themes::AccentState::EnableBlurBehind;
+  if(!suppress_slow_acrylic_blur) {
+    // Note that Acrylic Blur Behind is very slow (window would lag when moving) 
+    // because it uses a much larger blur radius.
+    if(Win32Version::is_windows_10_1803_or_newer()) {
+      accent_policy.accent_state = Win32Themes::AccentState::EnableAcrylicBlurBehind;
+    }
+    
+    // TODO: enable "Mica" on Windows 11
+  }
   
   Win32Themes::WINCOMPATTRDATA data = {};
   data.attr = Win32Themes::UndocumentedWindowCompositionAttribute::AccentPolicy;
