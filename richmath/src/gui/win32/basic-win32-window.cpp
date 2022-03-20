@@ -2745,7 +2745,7 @@ void BasicWin32Window::Impl::paint_themed_system_buttons(HDC hdc_bitmap) {
                      CLIP_DEFAULT_PRECIS,
                      DEFAULT_QUALITY,
                      DEFAULT_PITCH | FF_DONTCARE,
-                     L"Segoe MDL2 Assets");
+                     Win32Themes::symbol_font_name());
       HFONT old_font = (HFONT)SelectObject(hdc_bitmap, font);
       
       if(style & WS_MAXIMIZE) {
@@ -2881,21 +2881,21 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
     btn_rect.top    -= btn_extra_top;
     btn_rect.bottom += btn_extra_bottom;
     
-    HFONT mdl2_assets_font = CreateFontW(
-                               menu.bottom - menu.top,//log_font.lfHeight,
-                               0,
-                               0,
-                               0,
-                               FW_NORMAL,
-                               FALSE,
-                               FALSE,
-                               FALSE,
-                               DEFAULT_CHARSET,
-                               OUT_DEFAULT_PRECIS,
-                               CLIP_DEFAULT_PRECIS,
-                               ANTIALIASED_QUALITY,//DEFAULT_QUALITY,//
-                               DEFAULT_PITCH | FF_DONTCARE,
-                               Win32Version::is_windows_10_or_newer() ? L"Segoe MDL2 Assets" : L"Segoe UI Symbol");
+    HFONT symbols_font = CreateFontW(
+                           menu.bottom - menu.top,//log_font.lfHeight,
+                           0,
+                           0,
+                           0,
+                           FW_NORMAL,
+                           FALSE,
+                           FALSE,
+                           FALSE,
+                           DEFAULT_CHARSET,
+                           OUT_DEFAULT_PRECIS,
+                           CLIP_DEFAULT_PRECIS,
+                           ANTIALIASED_QUALITY,//DEFAULT_QUALITY,//
+                           DEFAULT_PITCH | FF_DONTCARE,
+                           Win32Themes::symbol_font_name());
     
     HANDLE toolbar_theme = Win32ControlPainter::win32_painter.get_control_theme(
                              self, ContainerType::PaletteButton, ControlState::Normal, nullptr, nullptr);
@@ -2975,8 +2975,8 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
       
       if(button.label) {
         HFONT tmp = nullptr;
-        if(button.flags & Win32CaptionButton::UseMdl2AssetsFont) {
-          tmp = (HFONT)SelectObject(hdc_bitmap, mdl2_assets_font);
+        if(button.flags & Win32CaptionButton::UseIconFont) {
+          tmp = (HFONT)SelectObject(hdc_bitmap, symbols_font);
         }
         
         int dx = 0;
@@ -3004,7 +3004,7 @@ void BasicWin32Window::Impl::paint_themed_caption(HDC hdc_bitmap) {
       btn_rect.left = btn_rect.right;
     }
     
-    DeleteObject(mdl2_assets_font);
+    DeleteObject(symbols_font);
     
     int flags = DT_VCENTER | DT_SINGLELINE | DT_END_ELLIPSIS;
     

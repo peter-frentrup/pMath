@@ -19,11 +19,11 @@ namespace richmath {
   
   struct Win32CaptionButton {
     enum Flags {
-      None              = 0x00,
-      Separator         = 0x01,
-      Button            = 0x02,
-      UseMdl2AssetsFont = 0x04,
-      ProxyIcon         = 0x08,
+      None        = 0x00,
+      Separator   = 0x01,
+      Button      = 0x02,
+      UseIconFont = 0x04,
+      ProxyIcon   = 0x08,
     };
     friend Flags operator|(Flags l, Flags r) { return Flags((unsigned)l | (unsigned)r); }
     bool is_mouse_sensitive() const { return (flags & (Button | ProxyIcon)) != 0; }

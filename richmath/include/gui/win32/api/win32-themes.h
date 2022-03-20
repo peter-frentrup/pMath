@@ -400,6 +400,8 @@ namespace richmath {
       static bool use_win10_transparency();
       static void try_set_dark_mode_frame(HWND hwnd, bool dark_mode);
       
+      static const wchar_t *symbol_font_name();
+      
       static bool has_areo_peak() { return DwmpActivateLivePreview_win7 || DwmpActivateLivePreview_win81; }
       static bool activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger);
       

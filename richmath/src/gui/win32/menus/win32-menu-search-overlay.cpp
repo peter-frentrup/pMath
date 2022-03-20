@@ -171,6 +171,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
   RECT icon_rect = rect;
   icon_rect.right = icon_rect.left + rect.bottom - rect.top;
   {
+    //wcscpy_s(lf.lfFaceName, sizeof(lf.lfFaceName)/sizeof(wchar_t), Win32Themes::symbol_font_name());
     LOGFONTW lf = {};
     const wchar_t name[] = L"Segoe UI Symbol";
     memcpy(lf.lfFaceName, name, sizeof(name));
@@ -179,7 +180,7 @@ void Win32MenuSearchOverlay::on_paint(HDC hdc) {
     if(HFONT font = CreateFontIndirectW(&lf)) {
       oldfont = (HFONT)SelectObject(hdc, font);
       
-      // U+1F50D LEFT-POINTING MAGNIFYING GLASS
+      // U+1F50D LEFT-POINTING MAGNIFYING GLASS (included in Segoe UI symbol, but not in Segoe Mdl2 Assets or Segoe Fluent Icons) 
       DrawTextW(hdc, L"\xD83D\xDD0D", -1, &icon_rect, DT_CENTER | DT_VCENTER | DT_HIDEPREFIX | DT_SINGLELINE);
     }
   }

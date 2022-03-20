@@ -1050,7 +1050,7 @@ bool Win32Menubar::callback(LRESULT *result, UINT message, WPARAM wParam, LPARAM
 
 bool Win32Menubar::Impl::try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF color, ControlState state) {
   if(!Win32Version::is_windows_10_or_newer()) 
-    return false; // Need Segoe MDL2 Assets font
+    return false; // Need at least Segoe MDL2 Assets font
   
   if( Win32Themes::OpenThemeData && 
       Win32Themes::CloseThemeData && 
@@ -1079,7 +1079,7 @@ bool Win32Menubar::Impl::try_draw_pin_icon(HDC hdc, const RECT &rect, COLORREF c
         CLIP_DEFAULT_PRECIS,
         DEFAULT_QUALITY,
         DEFAULT_PITCH | FF_DONTCARE,
-        L"Segoe MDL2 Assets");
+        Win32Themes::symbol_font_name());
       HFONT old_font = (HFONT)SelectObject(hdc, font);
       
       static const wchar_t PinSymbol[] = L"\xE718";

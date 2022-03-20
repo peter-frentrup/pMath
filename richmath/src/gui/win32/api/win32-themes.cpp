@@ -440,6 +440,14 @@ void Win32Themes::try_set_dark_mode_frame(HWND hwnd, bool dark_mode) {
   }
 }
 
+const wchar_t *Win32Themes::symbol_font_name() {
+  static const wchar_t *name = Win32Version::is_windows_11_or_newer()
+    ? L"Segoe Fluent Icons" : Win32Version::is_windows_10_or_newer() 
+    ? L"Segoe MDL2 Assets" : L"Segoe UI Symbol";
+  
+  return name;
+}
+
 bool Win32Themes::activate_aero_peak(bool activate, HWND exclude, HWND insert_before, LivePreviewTrigger trigger) {
   if(DwmpActivateLivePreview_win81) 
     return HRbool(DwmpActivateLivePreview_win81(activate, exclude, insert_before, trigger, nullptr));
