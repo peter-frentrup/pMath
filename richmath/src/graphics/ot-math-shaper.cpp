@@ -405,6 +405,8 @@ namespace richmath {
       FontInfo fi;
       FontStyle style;
       
+      uint16_t minus_glyph;
+      
     private:
       OTMathShaperImpl(String _name, FontStyle _style);
       
@@ -599,7 +601,7 @@ void OTMathShaper::decode_token(
   while(len > 0) {
     int sub_len = 0;
     int char_len = 1;
-    uint16_t *glyph_ptr = nullptr;
+    const uint16_t *glyph_ptr = nullptr;
     Array<MathGlyphPartRecord> *lig = nullptr;
     
     while(sub_len < len) {
@@ -622,6 +624,11 @@ void OTMathShaper::decode_token(
       glyph_ptr = impl->private_characters.search(ch);
       if(glyph_ptr)
         break;
+      
+      if(context.math_spacing && ch == '-') {
+        glyph_ptr = &impl->minus_glyph;
+        break;
+      }
         
       lig = impl->private_ligatures.search(ch);
       if(lig)
@@ -1493,6 +1500,8 @@ OTMathShaperImpl::OTMathShaperImpl(String _name, FontStyle _style)
   alt_glyphs.default_value = 0;
   italics_correction.default_value = 0;
   top_accents.default_value = 0;
+  
+  minus_glyph = fi.char_to_glyph(0x2212);
 }
 
 SharedPtr<OTMathShaperImpl> OTMathShaperImpl::try_load(String name, FontStyle style) {
@@ -1525,7 +1534,7 @@ SharedPtr<OTMathShaperImpl> OTMathShaperImpl::try_load(String name, FontStyle st
   if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x29E0))
     if(!impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x25A1))
       impl->set_private_char(PMATH_CHAR_PLACEHOLDER, 0x2B1A);
-  impl->set_private_char('-', 0x2212);
+
   impl->set_private_char(0x2145, 0x1D403); // DD
   impl->set_private_char(0x2146, 0x1D41D); // dd
   impl->set_private_char(0x2147, 0x1D41E); // ee
