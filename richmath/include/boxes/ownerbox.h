@@ -68,6 +68,8 @@ namespace richmath {
     public:
       explicit InlineSequenceBox(AbstractSequence *content) : OwnerBox(content) {}
       
+      virtual MathSequence *as_inline_span() override;
+      
       virtual bool try_load_from_object(Expr expr, BoxInputFlags options) override;
       
       virtual void paint(Context &context) override;

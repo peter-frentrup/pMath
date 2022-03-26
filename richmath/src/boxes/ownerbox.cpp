@@ -212,6 +212,10 @@ bool ExpandableOwnerBox::expand(const BoxSize &size) {
 
 //{ ... class InlineSequenceBox
 
+MathSequence *InlineSequenceBox::as_inline_span() {
+  return dynamic_cast<MathSequence*>(content());
+}
+
 bool InlineSequenceBox::try_load_from_object(Expr expr, BoxInputFlags options) {
   if(expr[0] == richmath_System_BoxData) {
     if(content()->kind() != LayoutKind::Math)
