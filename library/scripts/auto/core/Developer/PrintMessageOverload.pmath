@@ -4,6 +4,7 @@ BeginPackage("Developer`")
 Developer`ConsoleMessageFormatter
 Developer`DescribeLocation
 Developer`PrintErrorDetails
+Developer`StackEntryForm
 
 Begin("Developer`Private`")
 
@@ -19,7 +20,10 @@ Function ConsoleMessageFormatter(~heldname, ~msg) {
 	With(stack:= Stack())
 	With(eid:= nextErrorID())
 	PrintErrorDetails(eid)::=
-		SectionPrint("Message", Row @ {errorButton(eid), "\n", ColonForm(heldname, msg), "\n at ", stack[..-2].Reverse.Map(stackEntryForm).Row("\n at ")})
+		SectionPrint("Message", Row @ {
+			errorButton(eid), "\n", 
+			ColonForm(heldname, msg), "\n at ", 
+			stack[..-2].Reverse.Map(StackEntryForm).Row("\n at ")})
 	
 	ColonForm(heldname, Row({msg, errorButton(eid)}, " "))
 }
@@ -34,8 +38,8 @@ Function errorButton(~eid) {
 	}
 }
 
-Options(stackEntryForm)::= {"Head" -> "?", "Location" -> None}
-Function stackEntryForm(OptionsPattern()) {
+Options(StackEntryForm)::= {"Head" -> "?", "Location" -> None}
+Function StackEntryForm(OptionsPattern()) {
 	With(head:= OptionValue("Head"))
 	With(location:= OptionValue("Location"))
 	
@@ -56,13 +60,13 @@ Function DescribeLocation(
 		~filename:String, 
 		{~fromLine:Integer, ~fromColumn: Integer} .. {~toLine:Integer, ~toColumn: Integer})
 ) {
+	With(makeButton:= sourceLocationButtonBuilder(src))
+	
 	With(pathElements:= FileNameSplit(filename))
 	With(shortname:= If(Length(pathElements) >= 2, pathElements[-1], filename))
-	With(makeLongDesc:= If(Length(pathElements) >= 2, Function(StringForm("`1` (`2`)", #, ToFileName(pathElements[..-2]))), Identity))
-	With(func:= If($HyperlinksSupported, Developer`SourceLocationOpenerFunction(src), None))
+	With(makeTooltip:= If($HyperlinksSupported, Function(Tooltip(#1, #2)), Function(StringForm("`1` (`2`)", #1, #2))))
+	With(makeLongDesc:= If(Length(pathElements) >= 2, Function(makeTooltip(#, ToFileName(pathElements[..-2]))), Identity))
 	
-	With(makeButton:= If(func =!= None, Function(Button(#, func(), BaseStyle->"Hyperlink")).Replace(HoldPattern(Function(~body)()) :> body), Identity))
-
 	If(fromLine === toLine) {
 		If(fromColumn === toColumn) {
 			Return( makeLongDesc @ makeButton @ StringForm("line `1`:`2` of `3`", fromLine, fromColumn, shortname) )
@@ -72,6 +76,32 @@ Function DescribeLocation(
 	Return( makeLongDesc @ makeButton @ StringForm("lines `1`:`2` .. `3`:`4` of `5`", fromLine, fromColumn, toLine, toColumn, shortname) )
 }
 
+Function DescribeLocation(
+	src: Language`SourceLocation(
+		feo: FrontEndObject(~sess, ~id:Integer),
+		~from:Integer .. ~to:Integer)
+) {
+	With(makeButton:= sourceLocationButtonBuilder(src))
+	
+	With(makeTooltip:= Function(Tooltip(#, Dynamic(CurrentValue(feo, WindowTitle)))))
+
+	Return(makeTooltip @ makeButton @ ColonForm(HoldForm(FrontEndObject)(Skeleton(id)), from .. to))
+}
+
+Function sourceLocationButtonBuilder(~src) {
+	If(Not($HyperlinksSupported)) {
+		Return(Identity)
+	}
+
+	With(func:=  Developer`SourceLocationOpenerFunction(src))
+	If(func === None) {
+		Return(Identity)
+	}
+
+	Function(
+		Button(#, func(), BaseStyle->"Hyperlink")
+	).Replace(HoldPattern(Function(~body)()) :> body)
+}
 
 End()
 

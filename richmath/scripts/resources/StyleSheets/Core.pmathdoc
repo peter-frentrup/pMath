@@ -1,4 +1,4 @@
-﻿/* pMath Document */
+/* pMath Document */
 
 Document({
   SectionGroup({
@@ -254,9 +254,9 @@ Document({
                              Replace(CurrentValue({TemplateSlot, Key(Stack)}), 
                               $Failed -> {})), 
                             Section(
-                              BoxData(ToBoxes(Developer`Private`stackEntryForm(
-                                 #1))), "Output", SectionMargins -> {
-                                5, 2}) &))}), "ClosingAction" -> "Hide", 
+                              BoxData(ToBoxes(Developer`StackEntryForm(#1))), 
+                              "Output", SectionMargins -> {5, 2}) &))}), 
+                        "ClosingAction" -> "Hide", 
                         RemovalConditions -> {"OutsideMouseClick", 
                           "SelectionExit"}, WindowFrame -> 
                          "ThinFrameCallout"))}) &))) &)}), 
