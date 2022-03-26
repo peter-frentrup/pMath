@@ -279,6 +279,7 @@ pmath_t SymbolNamespaceReplacer::run(pmath_t expr) {
     if(pmath_is_packed_array(expr))
       return expr;
     
+    pmath_t debug_info = pmath_get_debug_info(expr);
     size_t len = pmath_expr_length(expr);
     for(size_t i = 0; i <= len; ++i) {
       pmath_t item = pmath_expr_extract_item(expr, i);
@@ -286,6 +287,7 @@ pmath_t SymbolNamespaceReplacer::run(pmath_t expr) {
       expr = pmath_expr_set_item(expr, i, item);
     }
     
+    expr = pmath_try_set_debug_info(expr, debug_info);
     return expr;
   }
   
