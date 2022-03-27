@@ -275,8 +275,8 @@ struct pmath_boxes_from_spans_ex_t{
 
 /**\internal */
 enum {
-  PMATH_BFS_PARSEABLE           = 1 << 0,
-  PMATH_BFS_USECOMPLEXSTRINGBOX = 1 << 1
+  PMATH_BFS_PARSEABLE    = 1 << 0,
+  PMATH_BFS_USESTRINGBOX = 1 << 1
 };
 
 /**\brief Convert a span-array with the according code to boxed form.
@@ -321,7 +321,7 @@ pmath_span_array_t *pmath_spans_from_boxes(
    \relates pmath_string_t
    \param s  The string to be expanded. It will be freed.
    \return A string if there is nothing to expand or an expression with head
-           ComplexStringBox representing s as boxes.
+           StringBox representing \arg s as boxes.
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT

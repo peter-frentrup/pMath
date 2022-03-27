@@ -19,7 +19,6 @@ namespace richmath{ namespace strings {
 
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Automatic;
-extern pmath_symbol_t richmath_System_ComplexStringBox;
 extern pmath_symbol_t richmath_System_Function;
 extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_Inherited;

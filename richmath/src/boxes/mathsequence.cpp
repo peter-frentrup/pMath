@@ -32,7 +32,6 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
-extern pmath_symbol_t richmath_System_ComplexStringBox;
 extern pmath_symbol_t richmath_System_List;
 
 static const float RefErrorIndictorHeight = 1 / 3.0f;
@@ -696,7 +695,7 @@ Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   if(has(flags, BoxOutputFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
     
-  settings.flags |= PMATH_BFS_USECOMPLEXSTRINGBOX;
+  settings.flags |= PMATH_BFS_USESTRINGBOX;
   
   ensure_spans_valid();
   

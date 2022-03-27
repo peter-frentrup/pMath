@@ -33,6 +33,7 @@ extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_OverscriptBox;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
+extern pmath_symbol_t pmath_System_StringBox;
 extern pmath_symbol_t pmath_System_SubscriptBox;
 extern pmath_symbol_t pmath_System_SubsuperscriptBox;
 extern pmath_symbol_t pmath_System_SuperscriptBox;
@@ -737,6 +738,7 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
   }
 
   if( pmath_is_expr_of(box, pmath_System_ComplexStringBox) ||
+      pmath_is_expr_of(box, pmath_System_StringBox) ||
       pmath_is_expr_of(box, PMATH_NULL))
   {
     size_t i;

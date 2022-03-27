@@ -16,7 +16,7 @@ MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::=
     
 Function MakeStyleDataBoxes(HoldComplete(StyleData(StyleDefinitions -> ~name:String))) {
     asStyleDataExampleBox(
-        ComplexStringBox(
+        StringBox(
             "\"Include definitions from stylesheet \[HighSixDoubleQuote]", 
             TemplateBox({name}, "StylesheetHyperlink"),
             "\[HighNineDoubleQuote]\""),
@@ -117,7 +117,7 @@ $DefaultDisplayFunction(~tag:String)::= Function(
 )
 
 $DefaultDisplayFunctionTooltip(~tag:String)::= 
-    ComplexStringBox(
+    StringBox(
         "\"The TemplateBox was unable to use the specified display function, \
         or could not locate the display function for \[HighSixDoubleQuote]",
         tag,

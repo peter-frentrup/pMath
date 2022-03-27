@@ -210,6 +210,7 @@ extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_Skeleton;
 extern pmath_symbol_t pmath_System_SqrtBox;
 extern pmath_symbol_t pmath_System_StandardForm;
+extern pmath_symbol_t pmath_System_StringBox;
 extern pmath_symbol_t pmath_System_StringExpression;
 extern pmath_symbol_t pmath_System_StringForm;
 extern pmath_symbol_t pmath_System_StripOnInput;
@@ -341,7 +342,7 @@ static pmath_t underoverscript_to_boxes(          pmath_thread_t thread, pmath_e
 static pmath_t expr_to_boxes(             pmath_thread_t thread, pmath_expr_t expr);
 static pmath_t packed_array_to_boxes(     pmath_thread_t thread, pmath_packed_array_t packed_array);
 static pmath_bool_t user_make_boxes(pmath_t *obj);
-static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj);
+static pmath_t string_to_stringbox(       pmath_thread_t thread, pmath_t obj);
 static pmath_t object_to_boxes_or_empty(  pmath_thread_t thread, pmath_t obj);
 static pmath_t object_to_boxes(           pmath_thread_t thread, pmath_t obj);
 
@@ -2546,6 +2547,7 @@ static pmath_t strip_interpretation_boxes(pmath_t expr) {
     
     if(      pmath_same(head, pmath_System_ComplexStringBox)  || 
              pmath_same(head, pmath_System_List)              || 
+             pmath_same(head, pmath_System_StringBox)         || 
              pmath_same(head, PMATH_NULL))
     {
       first_box = 1;
@@ -3631,7 +3633,7 @@ static pmath_bool_t user_make_boxes(pmath_t *obj) {
   return FALSE;
 }
 
-static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
+static pmath_t string_to_stringbox(pmath_thread_t thread, pmath_t obj) {
   size_t i, len;
   pmath_t part;
   
@@ -3645,7 +3647,7 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
             thread->boxform >= BOXFORM_INPUT);
             
     return pmath_expr_new_extended(
-             pmath_ref(pmath_System_ComplexStringBox), 1,
+             pmath_ref(pmath_System_StringBox), 1,
              obj);
   }
   
@@ -3688,7 +3690,7 @@ static pmath_t string_to_complexstringbox(pmath_thread_t thread, pmath_t obj) {
     pmath_unref(tmp);
   }
   
-  obj = pmath_expr_set_item(obj, 0, pmath_ref(pmath_System_ComplexStringBox));
+  obj = pmath_expr_set_item(obj, 0, pmath_ref(pmath_System_StringBox));
   
   return obj;
 }
@@ -3721,7 +3723,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
   }
   
   if(pmath_is_ministr(obj)) {
-    return string_to_complexstringbox(thread, obj);
+    return string_to_stringbox(thread, obj);
 //    pmath_string_t quote = PMATH_C_STRING("\"");
 //
 //    obj = _pmath_string_escape(
@@ -3874,7 +3876,7 @@ static pmath_t object_to_boxes(pmath_thread_t thread, pmath_t obj) {
         }
         
       case PMATH_TYPE_SHIFT_BIGSTRING: {
-          return string_to_complexstringbox(thread, obj);
+          return string_to_stringbox(thread, obj);
 //        pmath_string_t quote = PMATH_C_STRING("\"");
 //
 //        obj = _pmath_string_escape(

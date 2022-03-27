@@ -184,6 +184,7 @@ extern pmath_symbol_t pmath_System_Sequence;
 extern pmath_symbol_t pmath_System_ShowDefinition;
 extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_SqrtBox;
+extern pmath_symbol_t pmath_System_StringBox;
 extern pmath_symbol_t pmath_System_StringExpression;
 extern pmath_symbol_t pmath_System_Style;
 extern pmath_symbol_t pmath_System_StyleBox;
@@ -265,7 +266,7 @@ static pmath_t make_expression_from_name_token(pmath_string_t string);
 static pmath_t make_expression_from_string_token(pmath_string_t string);
 static pmath_string_t unescape_chars(pmath_string_t str);
 static pmath_string_t box_as_string(pmath_t box);
-static pmath_t make_expression_from_complexstringbox(pmath_expr_t box);
+static pmath_t make_expression_from_stringbox(pmath_expr_t box);
 static pmath_t make_expression_from_compresseddata(pmath_expr_t box);
 static pmath_t make_expression_from_fractionbox(pmath_expr_t box);
 static pmath_t make_expression_from_framebox(pmath_expr_t box);
@@ -406,8 +407,8 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(pmath_is_null(head))
         return make_implicit_evaluation_sequence(expr);
         
-      if(pmath_same(head, pmath_System_ComplexStringBox))
-        return make_expression_from_complexstringbox(expr);
+      if(pmath_same(head, pmath_System_StringBox) || pmath_same(head, pmath_System_ComplexStringBox) )
+        return make_expression_from_stringbox(expr);
         
       if(pmath_same(head, pmath_System_CompressedData))
         return make_expression_from_compresseddata(expr);
@@ -1753,7 +1754,7 @@ static pmath_string_t box_as_string(pmath_t box) {
   return PMATH_NULL;
 }
 
-static pmath_t make_expression_from_complexstringbox(pmath_expr_t box) {
+static pmath_t make_expression_from_stringbox(pmath_expr_t box) {
   size_t i, len;
   pmath_string_t string = PMATH_C_STRING("");
   static const uint16_t left_box_char  = PMATH_CHAR_LEFT_BOX;

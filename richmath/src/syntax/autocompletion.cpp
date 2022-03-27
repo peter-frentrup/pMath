@@ -21,6 +21,7 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeBoxes;
 extern pmath_symbol_t richmath_System_MakeExpression;
 extern pmath_symbol_t richmath_System_String;
+extern pmath_symbol_t richmath_System_StringBox;
 extern pmath_symbol_t richmath_System_Try;
 
 using namespace richmath;
@@ -380,7 +381,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
            Symbol(richmath_System_Try),
            Call(
              Symbol(richmath_System_MakeExpression),
-             Call(Symbol(richmath_System_ComplexStringBox), str)));
+             Call(Symbol(richmath_System_StringBox), str)));
   expr = Evaluate(expr);
   if(expr.expr_length() != 1 || expr[0] != richmath_System_HoldComplete)
     return false;
@@ -405,7 +406,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       return false;
       
     Expr boxes = Evaluate(Call(Symbol(richmath_System_MakeBoxes), s));
-    if(boxes.expr_length() != 1 || boxes[0] != richmath_System_ComplexStringBox)
+    if(boxes.expr_length() != 1 || (boxes[0] != richmath_System_StringBox && boxes[0] != richmath_System_ComplexStringBox))
       return false;
       
     s = String(boxes[1]);

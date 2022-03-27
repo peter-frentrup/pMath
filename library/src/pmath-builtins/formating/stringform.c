@@ -16,10 +16,10 @@
 #include <limits.h>
 #include <string.h>
 
-extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_MakeBoxes;
+extern pmath_symbol_t pmath_System_StringBox;
 
 static pmath_bool_t has_param_placeholders(
   pmath_t box // wont be freed
@@ -322,7 +322,7 @@ pmath_t _pmath_stringform_to_boxes(
       pmath_unref(tmp);
     }
     
-    result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_ComplexStringBox));
+    result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_StringBox));
   }
   else if(pmath_is_string(result)) {
     result = _pmath_escape_string(
@@ -332,7 +332,7 @@ pmath_t _pmath_stringform_to_boxes(
       thread->boxform >= BOXFORM_INPUT);
       
     result = pmath_expr_new_extended(
-             pmath_ref(pmath_System_ComplexStringBox), 1,
+             pmath_ref(pmath_System_StringBox), 1,
              result);
   }
   

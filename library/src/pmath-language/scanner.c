@@ -25,6 +25,7 @@ extern pmath_symbol_t pmath_System_MakeExpression;
 extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_Off;
 extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_StringBox;
 
 struct _pmath_span_t {
   int next_offset;
@@ -2581,7 +2582,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     pmath_string_t result = PMATH_NULL;
     struct pmath_text_position_t start = group->tp;
     
-    if(group->settings.flags & PMATH_BFS_USECOMPLEXSTRINGBOX) {
+    if(group->settings.flags & PMATH_BFS_USESTRINGBOX) {
       pmath_t all;
       pmath_gather_begin(PMATH_NULL);
       
@@ -2638,7 +2639,7 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       }
       
       all = pmath_gather_end();
-      all = pmath_expr_set_item(all, 0, pmath_ref(pmath_System_ComplexStringBox));
+      all = pmath_expr_set_item(all, 0, pmath_ref(pmath_System_StringBox));
       
       check_tp_before_whitespace(group, span->end + 1);
       
@@ -2872,10 +2873,9 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
       return result;
     }
     
-    if(pmath_same(head, pmath_System_ComplexStringBox)) {
+    if(pmath_same(head, pmath_System_StringBox) || pmath_same(head, pmath_System_ComplexStringBox)) {
       for(i = pmath_expr_length(box); i > 0; --i) {
         pmath_t boxi = pmath_expr_get_item(box, i);
-        
         
         if(pmath_is_string(boxi))
           result += ungrouped_string_length(boxi);
@@ -3083,7 +3083,7 @@ static void ungroup(struct ungroup_t *g, pmath_t box) { // box will be freed
       return;
     }
     
-    if(pmath_same(head, pmath_System_ComplexStringBox)) {
+    if(pmath_same(head, pmath_System_StringBox) || pmath_same(head, pmath_System_ComplexStringBox)) {
       size_t i, len;
       int start = g->pos;
       pmath_span_t *s;
@@ -3231,7 +3231,7 @@ HAVE_STH_TO_EXPAND:
         pmath_unref(s);
       }
       
-      result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_ComplexStringBox));
+      result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_StringBox));
       return result;
     }
   }

@@ -63,6 +63,7 @@ extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SetterBox;
 extern pmath_symbol_t richmath_System_SliderBox;
 extern pmath_symbol_t richmath_System_SqrtBox;
+extern pmath_symbol_t richmath_System_StringBox;
 extern pmath_symbol_t richmath_System_StyleBox;
 extern pmath_symbol_t richmath_System_StyleData;
 extern pmath_symbol_t richmath_System_SubscriptBox;
@@ -105,7 +106,7 @@ Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags opt
     
   Expr head = expr[0];
   
-  if(head == richmath_System_List || head == richmath_System_ComplexStringBox) {
+  if(head == richmath_System_List || head == richmath_System_StringBox || head == richmath_System_ComplexStringBox) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
       return create_box(layout_kind, expr, options);
