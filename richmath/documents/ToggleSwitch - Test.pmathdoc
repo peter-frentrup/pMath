@@ -3,25 +3,23 @@
 Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"), 
     SectionGroup({
       Section(BoxData({"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
-           "Appearance", "\[Rule]", ComplexStringBox(
-            "\"ToggleSwitchUnchecked\"")}}, ")"}), "Input", 
-       SectionLabel -> "in [1]:"), 
+           "Appearance", "\[Rule]", StringBox("\"ToggleSwitchUnchecked\"")}}, 
+         ")"}), "Input", SectionLabel -> "in [1]:"), 
       Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1, 
          Appearance -> "ToggleSwitchUnchecked")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
     SectionGroup({
       Section(BoxData({"Slider", "(", {{"Dynamic", "(", "x", ")"}, ",", {
-           "Appearance", "\[Rule]", ComplexStringBox(
-            "\"ToggleSwitchChecked\"")}}, ")"}), "Input", 
-       SectionLabel -> "in [2]:"), 
+           "Appearance", "\[Rule]", StringBox("\"ToggleSwitchChecked\"")}}, 
+         ")"}), "Input", SectionLabel -> "in [2]:"), 
       Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1, 
          Appearance -> "ToggleSwitchChecked")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
     SectionGroup({
       Section(
        BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "c", ")"}, "}"}, 
-           ",", ComplexStringBox("\"ToggleSwitch\"")}, ")"}, ".", 
-         "RawBoxes"}), "Input", SectionLabel -> "in [3]:"), 
+           ",", StringBox("\"ToggleSwitch\"")}, ")"}, ".", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [3]:"), 
       Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch")), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
     SectionGroup({
@@ -32,7 +30,7 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
     SectionGroup({
       Section(
        BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "c", ")"}, "}"}, 
-           ",", ComplexStringBox("\"ToggleSwitch\""), ",", {
+           ",", StringBox("\"ToggleSwitch\""), ",", {
             "DisplayFunction", "\[Rule]", {
              "Function", "(", {"SliderBox", "(", {
                {"Dynamic", "(", {
@@ -85,11 +83,10 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                   {"CurrentValue", "(", {"{", {"TemplateSlot", ",", "1"}, 
                     "}"}, ")"}, ".", "Replace", "(", {
                    "{", {
-                    {"True", "\[Rule]", ComplexStringBox(
-                      "\"ToggleSwitchChecked\"")}, ",", {
-                     "~", "\[Rule]", ComplexStringBox(
-                      "\"ToggleSwitchUnchecked\"")}}, "}"}, ")"}, ")"}}}, 
-              ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
+                    {"True", "\[Rule]", StringBox("\"ToggleSwitchChecked\"")}, 
+                    ",", {"~", "\[Rule]", 
+                     StringBox("\"ToggleSwitchUnchecked\"")}}, "}"}, ")"}, 
+                 ")"}}}, ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
        SectionLabel -> "in [5]:"), 
       Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch", 
          DisplayFunction -> (
@@ -127,7 +124,7 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
            {"TemplateBox", "(", {
              {"{", {{"Dynamic", "(", "ccc", ")"}, ",", {
                 "{", {"111", ",", "222"}, "}"}}, "}"}, ",", 
-             ComplexStringBox("\"ToggleSwitch2\"")}, ")"}, ".", "RawBoxes"}), 
+             StringBox("\"ToggleSwitch2\"")}, ")"}, ".", "RawBoxes"}), 
          "Input", SectionLabel -> "in [10]:"), 
         Section(BoxData(TemplateBox({Dynamic($Context`ccc), {111, 222}}, 
            "ToggleSwitch2")), "Output", SectionGenerated -> True, 
@@ -138,7 +135,7 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
            {"TemplateBox", "(", {
              {"{", {{"Dynamic", "(", "ccc", ")"}, ",", {
                 "{", {"111", ",", "222"}, "}"}}, "}"}, ",", 
-             ComplexStringBox("\"ToggleSwitch2\""), ",", {
+             StringBox("\"ToggleSwitch2\""), ",", {
               "DisplayFunction", "\[Rule]", {
                "Function", "(", {"SliderBox", "(", {
                  {"Dynamic", "(", {
@@ -242,12 +239,9 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                          ")"}, "\n", {
                          {"If", "(", {"FE`Private`state", "===", {
                             "FE`Private`values", "[", "2", "]"}}, ")"}, {
-                          "{", {
-                           "\n", {ComplexStringBox("\"ToggleSwitchChecked\""), 
+                          "{", {"\n", {StringBox("\"ToggleSwitchChecked\""), 
                             "\n"}}, "}"}, "Else", {
-                          "{", {
-                           "\n", {
-                            ComplexStringBox("\"ToggleSwitchUnchecked\""), 
+                          "{", {"\n", {StringBox("\"ToggleSwitchUnchecked\""), 
                             "\n"}}, "}"}}}, "\n"}}, "}"}}, ")"}}}, ")"}, 
                ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
          SectionLabel -> "in [11]:"), 

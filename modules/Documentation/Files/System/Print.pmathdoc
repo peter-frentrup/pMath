@@ -22,10 +22,10 @@ Document({
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Print separate lines:", "ExampleText"), 
         SectionGroup({
-          Section(BoxData({{"Print", "(", ComplexStringBox("\"Answer:\""), 
-              ")"}, ";", {"Print", "(", {"6", " ", "7"}, ")"}}), "Input", 
+          Section(BoxData({{"Print", "(", StringBox("\"Answer:\""), ")"}, ";", 
+             {"Print", "(", {"6", " ", "7"}, ")"}}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(TemplateBox({ComplexStringBox("\"Answer:\"")}, 
+          Section(BoxData(TemplateBox({StringBox("\"Answer:\"")}, 
              "RowDefault")), "Print", SectionGenerated -> True), 
           Section(BoxData(TemplateBox({"42"}, "RowDefault")), "Print", 
            SectionGenerated -> True)}, All), 
@@ -34,38 +34,41 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Print all expressions together:", "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"Print", "(", {ComplexStringBox("\"Answer: \""), 
-                ",", {"6", " ", "7"}}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(BoxData(TemplateBox({ComplexStringBox("\"Answer: \""), 
-                "42"}, "RowDefault")), "Print", SectionGenerated -> True)}, 
-           All)}, All), SectionGroup({
+            Section(BoxData({"Print", "(", {StringBox("\"Answer: \""), ",", {
+                 "6", " ", "7"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({StringBox("\"Answer: \""), "42"}, 
+               "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 
+         All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Test the firts five integers for prime numbers:", 
            "ExampleText"), SectionGroup({
             Section(
              BoxData({"Do", "(", {
-                {"Print", "(", {ComplexStringBox("\"Is \""), ",", "n", ",", 
-                  ComplexStringBox("\" prime? \""), ",", {
-                   "IsPrime", "(", "n", ")"}}, ")"}, ",", {
-                 "n", "\[Rule]", "5"}}, ")"}), "Input", 
+                {"Print", "(", {StringBox("\"Is \""), ",", "n", ",", 
+                  StringBox("\" prime? \""), ",", {"IsPrime", "(", "n", ")"}}, 
+                 ")"}, ",", {"n", "\[Rule]", "5"}}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(BoxData(TemplateBox({ComplexStringBox("\"Is \""), "1", 
-                ComplexStringBox("\" prime? \""), "False"}, "RowDefault")), 
-             "Print", SectionGenerated -> True), 
-            Section(BoxData(TemplateBox({ComplexStringBox("\"Is \""), "2", 
-                ComplexStringBox("\" prime? \""), "True"}, "RowDefault")), 
-             "Print", SectionGenerated -> True), 
-            Section(BoxData(TemplateBox({ComplexStringBox("\"Is \""), "3", 
-                ComplexStringBox("\" prime? \""), "True"}, "RowDefault")), 
-             "Print", SectionGenerated -> True), 
-            Section(BoxData(TemplateBox({ComplexStringBox("\"Is \""), "4", 
-                ComplexStringBox("\" prime? \""), "False"}, "RowDefault")), 
-             "Print", SectionGenerated -> True), 
-            Section(BoxData(TemplateBox({ComplexStringBox("\"Is \""), "5", 
-                ComplexStringBox("\" prime? \""), "True"}, "RowDefault")), 
-             "Print", SectionGenerated -> True)}, All)}, All)}, All), 
+            Section(
+             BoxData(TemplateBox({StringBox("\"Is \""), "1", 
+                StringBox("\" prime? \""), "False"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(
+             BoxData(TemplateBox({StringBox("\"Is \""), "2", 
+                StringBox("\" prime? \""), "True"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(
+             BoxData(TemplateBox({StringBox("\"Is \""), "3", 
+                StringBox("\" prime? \""), "True"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(
+             BoxData(TemplateBox({StringBox("\"Is \""), "4", 
+                StringBox("\" prime? \""), "False"}, "RowDefault")), "Print", 
+             SectionGenerated -> True), 
+            Section(
+             BoxData(TemplateBox({StringBox("\"Is \""), "5", 
+                StringBox("\" prime? \""), "True"}, "RowDefault")), "Print", 
+             SectionGenerated -> True)}, All)}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
         Section(TextData({TemplateBox({"Print"}, "ReferenceHyperlink"), 
            " can output complex expressions:"}), "ExampleText"), 
@@ -96,18 +99,17 @@ Document({
             Section(
              BoxData(TemplateBox({
                 GraphicsBox(LineBox({{-1, 0}, {1, 0}, {0, 2}, {-1, 0}}))}, 
-               "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 
-         All)}, 1), SectionGroup({
-        Section("Properties & Relations", "ExampleSection"), 
-        Section(TextData({TemplateBox({"SectionPrint"}, "ReferenceHyperlink"), 
-           " can specify a named style other then \"Print\":"}), 
-         "ExampleText"), SectionGroup({
-          Section(BoxData({"SectionPrint", "(", {
-              ComplexStringBox("\"Message\""), ",", 
-              ComplexStringBox("\"Important!\"")}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
-          Section(BoxData(ComplexStringBox("\"Important!\"")), "Message", 
-           SectionGenerated -> True)}, All), 
+               "RowDefault")), "Print", SectionGenerated -> True)}, All), 
+          Section("Properties & Relations", "ExampleSection"), 
+          Section(
+           TextData({TemplateBox({"SectionPrint"}, "ReferenceHyperlink"), 
+             " can specify a named style other then \"Print\":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"SectionPrint", "(", {
+                StringBox("\"Message\""), ",", StringBox("\"Important!\"")}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(StringBox("\"Important!\"")), "Message", 
+             SectionGenerated -> True)}, All)}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 

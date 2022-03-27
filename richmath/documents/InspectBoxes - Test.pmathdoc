@@ -2,611 +2,904 @@
 
 Document({
   SectionGroup({Section("Developer`InspectBoxes", "Title"), 
-    Section(
-     BoxData({"Block", "(", {
-        {"{", {"$NamespacePath", "\[Assign]", {
-           "{", {ComplexStringBox("\"System`\""), ",", 
-            ComplexStringBox("\"System`Private`\"")}, "}"}}, "}"}, ",", {
-         {{"$NewMessage", ".", "ToBoxes"}, ".", "Developer`InspectBoxes"}, 
-         ".", "RawBoxes"}}, ")"}), "Input", SectionLabel -> "in [48]:"), 
-    Section(
-     BoxData({
-       TooltipBox(StyleBox("Function", FontColor -> RGBColor(1, 0.502`, 0)), {
-         {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
-         InterpretationBox({
-           ComplexStringBox(
-            "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\\\
-            maininit.pmath\""), ",", {{"(", {"21", "\[Colon]", "14"}, ")"}, 
-            "..", {"(", {"36", "\[Colon]", "9"}, ")"}}}, Row({
-           "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmath"\
-           , Colon(21, 14) .. Colon(36, 9)}, ","))}), 
-       TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-         {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
-         InterpretationBox({
-           ComplexStringBox(
-            "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\\\
-            maininit.pmath\""), ",", {{"(", {"21", "\[Colon]", "14"}, ")"}, 
-            "..", {"(", {"36", "\[Colon]", "9"}, ")"}}}, Row({
-           "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmath"\
-           , Colon(21, 14) .. Colon(36, 9)}, ","))}), {
-        {TooltipBox(StyleBox("{", FontColor -> RGBColor(1, 0.502`, 0)), {
-           {"{", "\[Ellipsis]", "}"}, "\n", 
-           InterpretationBox({
-             ComplexStringBox(
-              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
-              \\maininit.pmath\""), ",", {
-              {"(", {"21", "\[Colon]", "23"}, ")"}, "..", {
-               "(", {"21", "\[Colon]", "13"}, ")"}}}, Row({
-             "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmat\
-             h", Colon(21, 23) .. Colon(21, 13)}, ","))}), {
-          "symbol", ",", "tag"}, 
-         TooltipBox(StyleBox("}", FontColor -> RGBColor(1, 0.502`, 0)), {
-           {"{", "\[Ellipsis]", "}"}, "\n", 
-           InterpretationBox({
-             ComplexStringBox(
-              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
-              \\maininit.pmath\""), ",", {
-              {"(", {"21", "\[Colon]", "23"}, ")"}, "..", {
-               "(", {"21", "\[Colon]", "13"}, ")"}}}, Row({
-             "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmat\
-             h", Colon(21, 23) .. Colon(21, 13)}, ","))})}, ",", {
-         TooltipBox(StyleBox("Local", FontColor -> RGBColor(1, 0.502`, 0)), {
-           {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
-           InterpretationBox({
-             ComplexStringBox(
-              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
-              \\maininit.pmath\""), ",", {{"(", {"22", "\[Colon]", "1"}, ")"}, 
-              "..", {"(", {"35", "\[Colon]", "3"}, ")"}}}, Row({
-             "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmat\
-             h", Colon(22, 1) .. Colon(35, 3)}, ","))}), 
-         TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-           {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
-           InterpretationBox({
-             ComplexStringBox(
-              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
-              \\maininit.pmath\""), ",", {{"(", {"22", "\[Colon]", "1"}, ")"}, 
-              "..", {"(", {"35", "\[Colon]", "3"}, ")"}}}, Row({
-             "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmat\
-             h", Colon(22, 1) .. Colon(35, 3)}, ","))}), {
-          {TooltipBox(StyleBox("{", FontColor -> RGBColor(1, 0.502`, 0)), {
+    SectionGroup({
+      Section(
+       BoxData({"Block", "(", {
+          {"{", {"$NamespacePath", "\[Assign]", {
+             "{", {StringBox("\"System`\""), ",", 
+              StringBox("\"System`Private`\"")}, "}"}}, "}"}, ",", {
+           {{"$NewMessage", ".", "ToBoxes"}, ".", "Developer`InspectBoxes"}, 
+           ".", "RawBoxes"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData({
+         TooltipBox(ButtonBox(StyleBox("Function", 
+            FontColor -> RGBColor(1, 0.502`, 0)), ButtonFrame -> "Frameless", 
+           ButtonFunction -> (
+             Developer`OpenTextFile(
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\scr\
+              ipts\\maininit.pmath", Line -> 27, Column -> 14) &)), {
+           {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
+           TemplateBox({
+             ",", ",", 
+             StringBox(
+              "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\\\
+              \\library\\\\scripts\\\\maininit.pmath\""), {
+              {"(", {"27", "\[Colon]", "14"}, ")"}, "..", {
+               "(", {"42", "\[Colon]", "9"}, ")"}}}, "RowWithSeparators")}), 
+         TooltipBox(
+          ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+           ButtonFrame -> "Frameless", ButtonFunction -> (
+             Developer`OpenTextFile(
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\scr\
+              ipts\\maininit.pmath", Line -> 27, Column -> 14) &)), {
+           {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
+           TemplateBox({
+             ",", ",", 
+             StringBox(
+              "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\\\
+              \\library\\\\scripts\\\\maininit.pmath\""), {
+              {"(", {"27", "\[Colon]", "14"}, ")"}, "..", {
+               "(", {"42", "\[Colon]", "9"}, ")"}}}, "RowWithSeparators")}), {
+          {TooltipBox(
+            ButtonBox(StyleBox("{", FontColor -> RGBColor(1, 0.502`, 0)), 
+             ButtonFrame -> "Frameless", 
+             ButtonFunction -> (
+               Developer`OpenTextFile(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\s\
+                cripts\\maininit.pmath", Line -> 27, Column -> 23) &)), {
              {"{", "\[Ellipsis]", "}"}, "\n", 
-             InterpretationBox({
-               ComplexStringBox(
-                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
-                \\\\maininit.pmath\""), ",", {
-                {"(", {"22", "\[Colon]", "7"}, ")"}, "..", {
-                 "(", {"22", "\[Colon]", "73"}, ")"}}}, Row({
-               "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pm\
-               ath", Colon(22, 7) .. Colon(22, 73)}, ","))}), {
-            "namespace", ",", "name", ",", "pattern", ",", "matches"}, 
-           TooltipBox(StyleBox("}", FontColor -> RGBColor(1, 0.502`, 0)), {
+             TemplateBox({
+               ",", ",", 
+               StringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\library\\\\scripts\\\\maininit.pmath\""), {
+                {"(", {"27", "\[Colon]", "23"}, ")"}, "..", {
+                 "(", {"27", "\[Colon]", "36"}, ")"}}}, 
+              "RowWithSeparators")}), {"symbol", ",", "tag"}, 
+           TooltipBox(
+            ButtonBox(StyleBox("}", FontColor -> RGBColor(1, 0.502`, 0)), 
+             ButtonFrame -> "Frameless", 
+             ButtonFunction -> (
+               Developer`OpenTextFile(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\s\
+                cripts\\maininit.pmath", Line -> 27, Column -> 23) &)), {
              {"{", "\[Ellipsis]", "}"}, "\n", 
-             InterpretationBox({
-               ComplexStringBox(
-                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
-                \\\\maininit.pmath\""), ",", {
-                {"(", {"22", "\[Colon]", "7"}, ")"}, "..", {
-                 "(", {"22", "\[Colon]", "73"}, ")"}}}, Row({
-               "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pm\
-               ath", Colon(22, 7) .. Colon(22, 73)}, ","))})}, ",", {
-           TooltipBox(StyleBox("Try", FontColor -> RGBColor(1, 0.502`, 0)), {
-             {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
-             InterpretationBox({
-               ComplexStringBox(
-                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
-                \\\\maininit.pmath\""), ",", {
-                {"(", {"23", "\[Colon]", "2"}, ")"}, "..", {
-                 "(", {"34", "\[Colon]", "4"}, ")"}}}, Row({
-               "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pm\
-               ath", Colon(23, 2) .. Colon(34, 4)}, ","))}), 
-           TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-             {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
-             InterpretationBox({
-               ComplexStringBox(
-                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
-                \\\\maininit.pmath\""), ",", {
-                {"(", {"23", "\[Colon]", "2"}, ")"}, "..", {
-                 "(", {"34", "\[Colon]", "4"}, ")"}}}, Row({
-               "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pm\
-               ath", Colon(23, 2) .. Colon(34, 4)}, ","))}), {
-            {"namespace", TooltipBox(StyleBox("\[Assign]", 
-               FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"24", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"24", "\[Colon]", "118"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(24, 3) .. Colon(24, 118)}, ","))}), {
-              TooltipBox(StyleBox("Namespace", 
-                FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"24", "\[Colon]", "15"}, ")"}, "..", {
-                    "(", {"24", "\[Colon]", "106"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(24, 15) .. Colon(24, 106)}, ","))}), 
-              TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"24", "\[Colon]", "15"}, ")"}, "..", {
-                    "(", {"24", "\[Colon]", "106"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(24, 15) .. Colon(24, 106)}, ","))}), 
-              "symbol", TooltipBox(
-               StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"24", "\[Colon]", "15"}, ")"}, "..", {
-                    "(", {"24", "\[Colon]", "106"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(24, 15) .. Colon(24, 106)}, ","))})}}, {
-             ";", "\n"}, {
-             "name", TooltipBox(StyleBox("\[Assign]", 
-               FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"25", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"25", "\[Colon]", "148"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(25, 3) .. Colon(25, 148)}, ","))}), {
-              TooltipBox(StyleBox("SymbolName", 
-                FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"25", "\[Colon]", "10"}, ")"}, "..", {
-                    "(", {"25", "\[Colon]", "141"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(25, 10) .. Colon(25, 141)}, ","))}), 
-              TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"25", "\[Colon]", "10"}, ")"}, "..", {
-                    "(", {"25", "\[Colon]", "141"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(25, 10) .. Colon(25, 141)}, ","))}), 
-              "symbol", TooltipBox(
-               StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"25", "\[Colon]", "10"}, ")"}, "..", {
-                    "(", {"25", "\[Colon]", "141"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(25, 10) .. Colon(25, 141)}, ","))})}}, {
-             ";", "\n"}, {
-             TooltipBox(StyleBox("If", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"If", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"26", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"26", "\[Colon]", "206"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(26, 3) .. Colon(26, 206)}, ","))}), 
-             TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"If", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"26", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"26", "\[Colon]", "206"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(26, 3) .. Colon(26, 206)}, ","))}), {
+             TemplateBox({
+               ",", ",", 
+               StringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\library\\\\scripts\\\\maininit.pmath\""), {
+                {"(", {"27", "\[Colon]", "23"}, ")"}, "..", {
+                 "(", {"27", "\[Colon]", "36"}, ")"}}}, 
+              "RowWithSeparators")})}, ",", {
+           TooltipBox(ButtonBox(StyleBox("Local", 
+              FontColor -> RGBColor(1, 0.502`, 0)), 
+             ButtonFrame -> "Frameless", 
+             ButtonFunction -> (
+               Developer`OpenTextFile(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\s\
+                cripts\\maininit.pmath", Line -> 27, Column -> 37) &)), {
+             {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
+             TemplateBox({
+               ",", ",", 
+               StringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\library\\\\scripts\\\\maininit.pmath\""), {
+                {"(", {"27", "\[Colon]", "37"}, ")"}, "..", {
+                 "(", {"41", "\[Colon]", "3"}, ")"}}}, "RowWithSeparators")}), 
+           TooltipBox(
+            ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+             ButtonFrame -> "Frameless", 
+             ButtonFunction -> (
+               Developer`OpenTextFile(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\s\
+                cripts\\maininit.pmath", Line -> 27, Column -> 37) &)), {
+             {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
+             TemplateBox({
+               ",", ",", 
+               StringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\library\\\\scripts\\\\maininit.pmath\""), {
+                {"(", {"27", "\[Colon]", "37"}, ")"}, "..", {
+                 "(", {"41", "\[Colon]", "3"}, ")"}}}, "RowWithSeparators")}), 
+           {{TooltipBox(
+              ButtonBox(StyleBox("{", FontColor -> RGBColor(1, 0.502`, 0)), 
+               ButtonFrame -> "Frameless", 
+               ButtonFunction -> (
+                 Developer`OpenTextFile(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\maininit.pmath", Line -> 28, Column -> 7) &)), {
+               {"{", "\[Ellipsis]", "}"}, "\n", 
+               TemplateBox({
+                 ",", ",", 
+                 StringBox(
+                  "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pma\
+                  th\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                  {"(", {"28", "\[Colon]", "7"}, ")"}, "..", {
+                   "(", {"28", "\[Colon]", "42"}, ")"}}}, 
+                "RowWithSeparators")}), {"namespace", ",", "name", ",", 
+              "pattern", ",", "matches"}, 
+             TooltipBox(
+              ButtonBox(StyleBox("}", FontColor -> RGBColor(1, 0.502`, 0)), 
+               ButtonFrame -> "Frameless", 
+               ButtonFunction -> (
+                 Developer`OpenTextFile(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\maininit.pmath", Line -> 28, Column -> 7) &)), {
+               {"{", "\[Ellipsis]", "}"}, "\n", 
+               TemplateBox({
+                 ",", ",", 
+                 StringBox(
+                  "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pma\
+                  th\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                  {"(", {"28", "\[Colon]", "7"}, ")"}, "..", {
+                   "(", {"28", "\[Colon]", "42"}, ")"}}}, 
+                "RowWithSeparators")})}, ",", {
+             TooltipBox(ButtonBox(StyleBox("Try", 
+                FontColor -> RGBColor(1, 0.502`, 0)), 
+               ButtonFrame -> "Frameless", 
+               ButtonFunction -> (
+                 Developer`OpenTextFile(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\maininit.pmath", Line -> 28, Column -> 43) &)), {
+               {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
+               TemplateBox({
+                 ",", ",", 
+                 StringBox(
+                  "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pma\
+                  th\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                  {"(", {"28", "\[Colon]", "43"}, ")"}, "..", {
+                   "(", {"41", "\[Colon]", "0"}, ")"}}}, 
+                "RowWithSeparators")}), 
+             TooltipBox(
+              ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+               ButtonFrame -> "Frameless", 
+               ButtonFunction -> (
+                 Developer`OpenTextFile(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\maininit.pmath", Line -> 28, Column -> 43) &)), {
+               {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
+               TemplateBox({
+                 ",", ",", 
+                 StringBox(
+                  "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pma\
+                  th\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                  {"(", {"28", "\[Colon]", "43"}, ")"}, "..", {
+                   "(", {"41", "\[Colon]", "0"}, ")"}}}, 
+                "RowWithSeparators")}), {
               {"namespace", 
-               TooltipBox(StyleBox("=!=", FontColor -> RGBColor(1, 0.502`, 
-                  0)), {{"\[Ellipsis]", "=!=", "\[Ellipsis]"}, "\n", 
-                 InterpretationBox({
-                   ComplexStringBox(
-                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
-                    ipts\\\\maininit.pmath\""), ",", {
-                    {"(", {"26", "\[Colon]", "6"}, ")"}, "..", {
-                     "(", {"26", "\[Colon]", "176"}, ")"}}}, Row({
-                   "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainini\
-                   t.pmath", Colon(26, 6) .. Colon(26, 176)}, ","))}), 
-               StyleBox(ComplexStringBox("\"System`\""), 
-                FontColor -> GrayLevel(0.502`))}, ",", {
-               "name", TooltipBox(StyleBox("\[Assign]", 
-                 FontColor -> RGBColor(1, 0.502`, 0)), {
+               TooltipBox(ButtonBox(StyleBox("\[Assign]", 
+                  FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 30, Column -> 3) &)), 
+                {{"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"30", "\[Colon]", "3"}, ")"}, "..", {
+                     "(", {"30", "\[Colon]", "32"}, ")"}}}, 
+                  "RowWithSeparators")}), {
+                TooltipBox(ButtonBox(StyleBox("Namespace", 
+                   FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 30, 
+                     Column -> 15) &)), {
+                  {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"30", "\[Colon]", "15"}, ")"}, "..", {
+                      "(", {"30", "\[Colon]", "32"}, ")"}}}, 
+                   "RowWithSeparators")}), 
+                TooltipBox(
+                 ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 30, 
+                     Column -> 15) &)), {
+                  {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"30", "\[Colon]", "15"}, ")"}, "..", {
+                      "(", {"30", "\[Colon]", "32"}, ")"}}}, 
+                   "RowWithSeparators")}), "symbol", 
+                TooltipBox(
+                 ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 30, 
+                     Column -> 15) &)), {
+                  {"Namespace", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"30", "\[Colon]", "15"}, ")"}, "..", {
+                      "(", {"30", "\[Colon]", "32"}, ")"}}}, 
+                   "RowWithSeparators")})}}, {";", "\n"}, {
+               "name", TooltipBox(
+                ButtonBox(StyleBox("\[Assign]", 
+                  FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 30, 
+                    Column -> 33) &)), {
                  {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
-                 InterpretationBox({
-                   ComplexStringBox(
-                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
-                    ipts\\\\maininit.pmath\""), ",", {
-                    {"(", {"26", "\[Colon]", "31"}, ")"}, "..", {
-                     "(", {"26", "\[Colon]", "177"}, ")"}}}, Row({
-                   "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainini\
-                   t.pmath", Colon(26, 31) .. Colon(26, 177)}, ","))}), {
-                "namespace", 
-                TooltipBox(StyleBox("++", FontColor -> RGBColor(1, 0.502`, 
-                   0)), {{"\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"26", "\[Colon]", "38"}, ")"}, "..", {
-                      "(", {"26", "\[Colon]", "170"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(26, 38) .. Colon(26, 170)}, ","))}), 
-                "name"}}}, TooltipBox(
-              StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"If", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"26", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"26", "\[Colon]", "206"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(26, 3) .. Colon(26, 206)}, ","))})}, {
-             ";", "\n"}, {
-             TooltipBox(StyleBox("If", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"If", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"27", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"31", "\[Colon]", "5"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(27, 3) .. Colon(31, 5)}, ","))}), 
-             TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"If", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"27", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"31", "\[Colon]", "5"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(27, 3) .. Colon(31, 5)}, ","))}), {
-              {"name", TooltipBox(StyleBox("===", 
-                 FontColor -> RGBColor(1, 0.502`, 0)), {
-                 {"\[Ellipsis]", "===", "\[Ellipsis]"}, "\n", 
-                 InterpretationBox({
-                   ComplexStringBox(
-                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
-                    ipts\\\\maininit.pmath\""), ",", {
-                    {"(", {"27", "\[Colon]", "6"}, ")"}, "..", {
-                     "(", {"27", "\[Colon]", "229"}, ")"}}}, Row({
-                   "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainini\
-                   t.pmath", Colon(27, 6) .. Colon(27, 229)}, ","))}), 
-               StyleBox(ComplexStringBox("\"General\""), 
-                FontColor -> GrayLevel(0.502`))}, ",", {
-               "pattern", TooltipBox(StyleBox("\[Assign]", 
-                 FontColor -> RGBColor(1, 0.502`, 0)), {
-                 {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
-                 InterpretationBox({
-                   ComplexStringBox(
-                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
-                    ipts\\\\maininit.pmath\""), ",", {
-                    {"(", {"28", "\[Colon]", "4"}, ")"}, "..", {
-                     "(", {"28", "\[Colon]", "283"}, ")"}}}, Row({
-                   "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainini\
-                   t.pmath", Colon(28, 4) .. Colon(28, 283)}, ","))}), {
-                "name", TooltipBox(StyleBox("++", 
-                  FontColor -> RGBColor(1, 0.502`, 0)), {
-                  {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
-                   "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"28", "\[Colon]", "14"}, ")"}, "..", {
-                      "(", {"28", "\[Colon]", "273"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(28, 14) .. Colon(28, 273)}, ","))}), 
-                StyleBox(ComplexStringBox("\"::\""), 
-                 FontColor -> GrayLevel(0.502`)), 
-                TooltipBox(StyleBox("++", FontColor -> RGBColor(1, 0.502`, 
-                   0)), {{"\[Ellipsis]", "++", "\[Ellipsis]", "++", 
-                   "\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"28", "\[Colon]", "14"}, ")"}, "..", {
-                      "(", {"28", "\[Colon]", "273"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(28, 14) .. Colon(28, 273)}, ","))}), 
-                "tag", TooltipBox(StyleBox("++", 
-                  FontColor -> RGBColor(1, 0.502`, 0)), {
-                  {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
-                   "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"28", "\[Colon]", "14"}, ")"}, "..", {
-                      "(", {"28", "\[Colon]", "273"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(28, 14) .. Colon(28, 273)}, ","))}), 
-                "WordBoundary"}}, ",", {
-               "pattern", TooltipBox(StyleBox("\[Assign]", 
-                 FontColor -> RGBColor(1, 0.502`, 0)), {
-                 {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
-                 InterpretationBox({
-                   ComplexStringBox(
-                    "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scr\
-                    ipts\\\\maininit.pmath\""), ",", {
-                    {"(", {"30", "\[Colon]", "4"}, ")"}, "..", {
-                     "(", {"30", "\[Colon]", "352"}, ")"}}}, Row({
-                   "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainini\
-                   t.pmath", Colon(30, 4) .. Colon(30, 352)}, ","))}), {
-                {TooltipBox(StyleBox("{", FontColor -> RGBColor(1, 0.502`, 
-                    0)), {{"{", "\[Ellipsis]", "}"}, "\n", 
-                   InterpretationBox({
-                     ComplexStringBox(
-                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
-                      cripts\\\\maininit.pmath\""), ",", {
-                      {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
-                       "(", {"30", "\[Colon]", "311"}, ")"}}}, Row({
-                     "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
-                     nit.pmath", Colon(30, 14) .. Colon(30, 311)}, ","))}), {
-                  StyleBox(ComplexStringBox("\"General\""), 
-                   FontColor -> GrayLevel(0.502`)), ",", "name"}, 
-                 TooltipBox(StyleBox("}", FontColor -> RGBColor(1, 0.502`, 
-                    0)), {{"{", "\[Ellipsis]", "}"}, "\n", 
-                   InterpretationBox({
-                     ComplexStringBox(
-                      "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\s\
-                      cripts\\\\maininit.pmath\""), ",", {
-                      {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
-                       "(", {"30", "\[Colon]", "311"}, ")"}}}, Row({
-                     "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maini\
-                     nit.pmath", Colon(30, 14) .. Colon(30, 311)}, ","))})}, 
-                TooltipBox(StyleBox("++", FontColor -> RGBColor(1, 0.502`, 
-                   0)), {{"\[Ellipsis]", "++", "\[Ellipsis]", "++", 
-                   "\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
-                      "(", {"30", "\[Colon]", "342"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(30, 14) .. Colon(30, 342)}, ","))}), 
-                StyleBox(ComplexStringBox("\"::\""), 
-                 FontColor -> GrayLevel(0.502`)), 
-                TooltipBox(StyleBox("++", FontColor -> RGBColor(1, 0.502`, 
-                   0)), {{"\[Ellipsis]", "++", "\[Ellipsis]", "++", 
-                   "\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
-                      "(", {"30", "\[Colon]", "342"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(30, 14) .. Colon(30, 342)}, ","))}), 
-                "tag", TooltipBox(StyleBox("++", 
-                  FontColor -> RGBColor(1, 0.502`, 0)), {
-                  {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
-                   "++", "\[Ellipsis]"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"30", "\[Colon]", "14"}, ")"}, "..", {
-                      "(", {"30", "\[Colon]", "342"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(30, 14) .. Colon(30, 342)}, ","))}), 
-                "WordBoundary"}}}, 
-             TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"If", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"27", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"31", "\[Colon]", "5"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(27, 3) .. Colon(31, 5)}, ","))})}, {";", "\n"}, 
-            {"matches", TooltipBox(StyleBox("\[Assign]", 
-               FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"32", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"32", "\[Colon]", "473"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(32, 3) .. Colon(32, 473)}, ","))}), {
-              TooltipBox(StyleBox("FindList", FontColor -> RGBColor(1, 0.502`, 
-                 0)), {{"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"32", "\[Colon]", "13"}, ")"}, "..", {
-                    "(", {"32", "\[Colon]", "463"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(32, 13) .. Colon(32, 463)}, ","))}), 
-              TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"32", "\[Colon]", "13"}, ")"}, "..", {
-                    "(", {"32", "\[Colon]", "463"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(32, 13) .. Colon(32, 463)}, ","))}), {
-               {TooltipBox(StyleBox("ToFileName", 
-                  FontColor -> RGBColor(1, 0.502`, 0)), {
-                  {"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"32", "\[Colon]", "22"}, ")"}, "..", {
-                      "(", {"32", "\[Colon]", "444"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(32, 22) .. Colon(32, 444)}, ","))}), 
-                TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
-                 {{"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"32", "\[Colon]", "22"}, ")"}, "..", {
-                      "(", {"32", "\[Colon]", "444"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(32, 22) .. Colon(32, 444)}, ","))}), {
-                 "$BaseDirectory", ",", {
-                  TooltipBox(StyleBox("If", FontColor -> RGBColor(1, 0.502`, 
-                     0)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
-                    InterpretationBox({
-                      ComplexStringBox(
-                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
-                       scripts\\\\maininit.pmath\""), ",", {
-                       {"(", {"32", "\[Colon]", "49"}, ")"}, "..", {
-                        "(", {"32", "\[Colon]", "416"}, ")"}}}, Row({
-                      "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
-                      init.pmath", Colon(32, 49) .. Colon(32, 416)}, ","))}), 
-                  TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 
-                     0)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
-                    InterpretationBox({
-                      ComplexStringBox(
-                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
-                       scripts\\\\maininit.pmath\""), ",", {
-                       {"(", {"32", "\[Colon]", "49"}, ")"}, "..", {
-                        "(", {"32", "\[Colon]", "416"}, ")"}}}, Row({
-                      "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
-                      init.pmath", Colon(32, 49) .. Colon(32, 416)}, ","))}), {
-                   {"tag", TooltipBox(StyleBox("===", 
-                      FontColor -> RGBColor(1, 0.502`, 0)), {
-                      {"\[Ellipsis]", "===", "\[Ellipsis]"}, "\n", 
-                      InterpretationBox({
-                        ComplexStringBox(
-                         "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\
-                         \\scripts\\\\maininit.pmath\""), ",", {
-                         {"(", {"32", "\[Colon]", "52"}, ")"}, "..", {
-                          "(", {"32", "\[Colon]", "379"}, ")"}}}, Row({
-                        "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\ma\
-                        ininit.pmath", Colon(32, 52) .. Colon(32, 379)}, 
-                       ","))}), StyleBox(ComplexStringBox("\"usage\""), 
-                     FontColor -> GrayLevel(0.502`))}, ",", 
-                   StyleBox(ComplexStringBox("\"usage.pmath\""), 
-                    FontColor -> GrayLevel(0.502`)), ",", 
-                   StyleBox(ComplexStringBox("\"messages.pmath\""), 
-                    FontColor -> GrayLevel(0.502`))}, 
-                  TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 
-                     0)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
-                    InterpretationBox({
-                      ComplexStringBox(
-                       "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\\
-                       scripts\\\\maininit.pmath\""), ",", {
-                       {"(", {"32", "\[Colon]", "49"}, ")"}, "..", {
-                        "(", {"32", "\[Colon]", "416"}, ")"}}}, Row({
-                      "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\main\
-                      init.pmath", Colon(32, 49) .. Colon(32, 416)}, 
-                     ","))})}}, TooltipBox(
-                 StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-                  {"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
-                  InterpretationBox({
-                    ComplexStringBox(
-                     "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\sc\
-                     ripts\\\\maininit.pmath\""), ",", {
-                     {"(", {"32", "\[Colon]", "22"}, ")"}, "..", {
-                      "(", {"32", "\[Colon]", "444"}, ")"}}}, Row({
-                    "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\mainin\
-                    it.pmath", Colon(32, 22) .. Colon(32, 444)}, ","))})}, 
-               ",", "pattern"}, 
-              TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-                {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
-                InterpretationBox({
-                  ComplexStringBox(
-                   "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scri\
-                   pts\\\\maininit.pmath\""), ",", {
-                   {"(", {"32", "\[Colon]", "13"}, ")"}, "..", {
-                    "(", {"32", "\[Colon]", "463"}, ")"}}}, Row({
-                  "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit\
-                  .pmath", Colon(32, 13) .. Colon(32, 463)}, ","))})}}, {
-             ";", "\n"}, {
-             TooltipBox(StyleBox("Scan", FontColor -> RGBColor(1, 0.502`, 0)), 
-              {{"Scan", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"33", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"33", "\[Colon]", "504"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(33, 3) .. Colon(33, 504)}, ","))}), 
-             TooltipBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"Scan", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"33", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"33", "\[Colon]", "504"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(33, 3) .. Colon(33, 504)}, ","))}), {
-              "matches", ",", "ToExpression"}, 
-             TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-               {"Scan", "(", "\[Ellipsis]", ")"}, "\n", 
-               InterpretationBox({
-                 ComplexStringBox(
-                  "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scrip\
-                  ts\\\\maininit.pmath\""), ",", {
-                  {"(", {"33", "\[Colon]", "3"}, ")"}, "..", {
-                   "(", {"33", "\[Colon]", "504"}, ")"}}}, Row({
-                 "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.\
-                 pmath", Colon(33, 3) .. Colon(33, 504)}, ","))})}}, 
-           TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-             {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
-             InterpretationBox({
-               ComplexStringBox(
-                "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\
-                \\\\maininit.pmath\""), ",", {
-                {"(", {"23", "\[Colon]", "2"}, ")"}, "..", {
-                 "(", {"34", "\[Colon]", "4"}, ")"}}}, Row({
-               "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pm\
-               ath", Colon(23, 2) .. Colon(34, 4)}, ","))})}}, 
-         TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-           {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
-           InterpretationBox({
-             ComplexStringBox(
-              "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\
-              \\maininit.pmath\""), ",", {{"(", {"22", "\[Colon]", "1"}, ")"}, 
-              "..", {"(", {"35", "\[Colon]", "3"}, ")"}}}, Row({
-             "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmat\
-             h", Colon(22, 1) .. Colon(35, 3)}, ","))})}, ",", "HoldAll"}, 
-       TooltipBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), {
-         {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
-         InterpretationBox({
-           ComplexStringBox(
-            "\"D:\\\\Peter\\\\Programmieren\\\\pmath\\\\library\\\\scripts\\\\\
-            maininit.pmath\""), ",", {{"(", {"21", "\[Colon]", "14"}, ")"}, 
-            "..", {"(", {"36", "\[Colon]", "9"}, ")"}}}, Row({
-           "D:\\Peter\\Programmieren\\pmath\\library\\scripts\\maininit.pmath"\
-           , Colon(21, 14) .. Colon(36, 9)}, ","))})}), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [48]:")}, All)}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"30", "\[Colon]", "33"}, ")"}, "..", {
+                     "(", {"31", "\[Colon]", "28"}, ")"}}}, 
+                  "RowWithSeparators")}), {
+                TooltipBox(ButtonBox(StyleBox("SymbolName", 
+                   FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 31, 
+                     Column -> 10) &)), {
+                  {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"31", "\[Colon]", "10"}, ")"}, "..", {
+                      "(", {"31", "\[Colon]", "28"}, ")"}}}, 
+                   "RowWithSeparators")}), 
+                TooltipBox(
+                 ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 31, 
+                     Column -> 10) &)), {
+                  {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"31", "\[Colon]", "10"}, ")"}, "..", {
+                      "(", {"31", "\[Colon]", "28"}, ")"}}}, 
+                   "RowWithSeparators")}), "symbol", 
+                TooltipBox(
+                 ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 31, 
+                     Column -> 10) &)), {
+                  {"SymbolName", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"31", "\[Colon]", "10"}, ")"}, "..", {
+                      "(", {"31", "\[Colon]", "28"}, ")"}}}, 
+                   "RowWithSeparators")})}}, {";", "\n"}, {
+               TooltipBox(
+                ButtonBox(StyleBox("If", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 31, 
+                    Column -> 29) &)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"31", "\[Colon]", "29"}, ")"}, "..", {
+                     "(", {"32", "\[Colon]", "56"}, ")"}}}, 
+                  "RowWithSeparators")}), 
+               TooltipBox(
+                ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 31, 
+                    Column -> 29) &)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"31", "\[Colon]", "29"}, ")"}, "..", {
+                     "(", {"32", "\[Colon]", "56"}, ")"}}}, 
+                  "RowWithSeparators")}), {
+                {"namespace", 
+                 TooltipBox(ButtonBox(StyleBox("=!=", 
+                    FontColor -> RGBColor(1, 0.502`, 0)), 
+                   ButtonFrame -> "Frameless", 
+                   ButtonFunction -> (
+                     Developer`OpenTextFile(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\maininit.pmath", Line -> 32, 
+                      Column -> 6) &)), {
+                   {"\[Ellipsis]", "=!=", "\[Ellipsis]"}, "\n", 
+                   TemplateBox({
+                     ",", ",", StringBox(
+                      "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                      \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                      {"(", {"32", "\[Colon]", "6"}, ")"}, "..", {
+                       "(", {"32", "\[Colon]", "29"}, ")"}}}, 
+                    "RowWithSeparators")}), StyleBox(StringBox("\"System`\""), 
+                  FontColor -> GrayLevel(0.502`))}, ",", {
+                 "name", TooltipBox(
+                  ButtonBox(StyleBox("\[Assign]", 
+                    FontColor -> RGBColor(1, 0.502`, 0)), 
+                   ButtonFrame -> "Frameless", 
+                   ButtonFunction -> (
+                     Developer`OpenTextFile(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\maininit.pmath", Line -> 32, 
+                      Column -> 31) &)), {
+                   {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                   TemplateBox({
+                     ",", ",", StringBox(
+                      "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                      \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                      {"(", {"32", "\[Colon]", "31"}, ")"}, "..", {
+                       "(", {"32", "\[Colon]", "55"}, ")"}}}, 
+                    "RowWithSeparators")}), {
+                  "namespace", TooltipBox(
+                   ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 32, 
+                       Column -> 38) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"32", "\[Colon]", "38"}, ")"}, "..", {
+                        "(", {"32", "\[Colon]", "55"}, ")"}}}, 
+                     "RowWithSeparators")}), "name"}}}, 
+               TooltipBox(
+                ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 31, 
+                    Column -> 29) &)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"31", "\[Colon]", "29"}, ")"}, "..", {
+                     "(", {"32", "\[Colon]", "56"}, ")"}}}, 
+                  "RowWithSeparators")})}, {";", "\n"}, {
+               TooltipBox(
+                ButtonBox(StyleBox("If", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 32, 
+                    Column -> 57) &)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"32", "\[Colon]", "57"}, ")"}, "..", {
+                     "(", {"37", "\[Colon]", "5"}, ")"}}}, 
+                  "RowWithSeparators")}), 
+               TooltipBox(
+                ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 32, 
+                    Column -> 57) &)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"32", "\[Colon]", "57"}, ")"}, "..", {
+                     "(", {"37", "\[Colon]", "5"}, ")"}}}, 
+                  "RowWithSeparators")}), {
+                {"name", TooltipBox(
+                  ButtonBox(StyleBox("===", 
+                    FontColor -> RGBColor(1, 0.502`, 0)), 
+                   ButtonFrame -> "Frameless", 
+                   ButtonFunction -> (
+                     Developer`OpenTextFile(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\maininit.pmath", Line -> 33, 
+                      Column -> 6) &)), {
+                   {"\[Ellipsis]", "===", "\[Ellipsis]"}, "\n", 
+                   TemplateBox({
+                     ",", ",", StringBox(
+                      "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                      \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                      {"(", {"33", "\[Colon]", "6"}, ")"}, "..", {
+                       "(", {"33", "\[Colon]", "24"}, ")"}}}, 
+                    "RowWithSeparators")}), StyleBox(StringBox("\"General\""), 
+                  FontColor -> GrayLevel(0.502`))}, ",", {
+                 "pattern", TooltipBox(
+                  ButtonBox(StyleBox("\[Assign]", 
+                    FontColor -> RGBColor(1, 0.502`, 0)), 
+                   ButtonFrame -> "Frameless", 
+                   ButtonFunction -> (
+                     Developer`OpenTextFile(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\maininit.pmath", Line -> 33, 
+                      Column -> 26) &)), {
+                   {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                   TemplateBox({
+                     ",", ",", StringBox(
+                      "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                      \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                      {"(", {"33", "\[Colon]", "26"}, ")"}, "..", {
+                       "(", {"35", "\[Colon]", "0"}, ")"}}}, 
+                    "RowWithSeparators")}), {
+                  "name", TooltipBox(
+                   ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 34, 
+                       Column -> 14) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"34", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"34", "\[Colon]", "49"}, ")"}}}, 
+                     "RowWithSeparators")}), StyleBox(StringBox("\"::\""), 
+                   FontColor -> GrayLevel(0.502`)), 
+                  TooltipBox(ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 34, 
+                       Column -> 14) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"34", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"34", "\[Colon]", "49"}, ")"}}}, 
+                     "RowWithSeparators")}), "tag", 
+                  TooltipBox(ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 34, 
+                       Column -> 14) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"34", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"34", "\[Colon]", "49"}, ")"}}}, 
+                     "RowWithSeparators")}), "WordBoundary"}}, ",", {
+                 "pattern", TooltipBox(
+                  ButtonBox(StyleBox("\[Assign]", 
+                    FontColor -> RGBColor(1, 0.502`, 0)), 
+                   ButtonFrame -> "Frameless", 
+                   ButtonFunction -> (
+                     Developer`OpenTextFile(
+                      "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libr\
+                      ary\\scripts\\maininit.pmath", Line -> 35, 
+                      Column -> 5) &)), {
+                   {"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                   TemplateBox({
+                     ",", ",", StringBox(
+                      "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                      \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                      {"(", {"35", "\[Colon]", "5"}, ")"}, "..", {
+                       "(", {"37", "\[Colon]", "0"}, ")"}}}, 
+                    "RowWithSeparators")}), {
+                  {TooltipBox(
+                    ButtonBox(StyleBox("{", 
+                      FontColor -> RGBColor(1, 0.502`, 0)), 
+                     ButtonFrame -> "Frameless", 
+                     ButtonFunction -> (
+                       Developer`OpenTextFile(
+                        "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\li\
+                        brary\\scripts\\maininit.pmath", Line -> 36, 
+                        Column -> 14) &)), {{"{", "\[Ellipsis]", "}"}, "\n", 
+                     TemplateBox({
+                       ",", ",", StringBox(
+                        "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\
+                        \\\\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), 
+                       {{"(", {"36", "\[Colon]", "14"}, ")"}, "..", {
+                         "(", {"36", "\[Colon]", "31"}, ")"}}}, 
+                      "RowWithSeparators")}), {
+                    StyleBox(StringBox("\"General\""), 
+                     FontColor -> GrayLevel(0.502`)), ",", "name"}, 
+                   TooltipBox(
+                    ButtonBox(StyleBox("}", 
+                      FontColor -> RGBColor(1, 0.502`, 0)), 
+                     ButtonFrame -> "Frameless", 
+                     ButtonFunction -> (
+                       Developer`OpenTextFile(
+                        "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\li\
+                        brary\\scripts\\maininit.pmath", Line -> 36, 
+                        Column -> 14) &)), {{"{", "\[Ellipsis]", "}"}, "\n", 
+                     TemplateBox({
+                       ",", ",", StringBox(
+                        "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\
+                        \\\\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), 
+                       {{"(", {"36", "\[Colon]", "14"}, ")"}, "..", {
+                         "(", {"36", "\[Colon]", "31"}, ")"}}}, 
+                      "RowWithSeparators")})}, 
+                  TooltipBox(ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 36, 
+                       Column -> 14) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"36", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"36", "\[Colon]", "62"}, ")"}}}, 
+                     "RowWithSeparators")}), StyleBox(StringBox("\"::\""), 
+                   FontColor -> GrayLevel(0.502`)), 
+                  TooltipBox(ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 36, 
+                       Column -> 14) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"36", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"36", "\[Colon]", "62"}, ")"}}}, 
+                     "RowWithSeparators")}), "tag", 
+                  TooltipBox(ButtonBox(StyleBox("++", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 36, 
+                       Column -> 14) &)), {
+                    {"\[Ellipsis]", "++", "\[Ellipsis]", "++", "\[Ellipsis]", 
+                     "++", "\[Ellipsis]"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"36", "\[Colon]", "14"}, ")"}, "..", {
+                        "(", {"36", "\[Colon]", "62"}, ")"}}}, 
+                     "RowWithSeparators")}), "WordBoundary"}}}, 
+               TooltipBox(
+                ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 32, 
+                    Column -> 57) &)), {{"If", "(", "\[Ellipsis]", ")"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"32", "\[Colon]", "57"}, ")"}, "..", {
+                     "(", {"37", "\[Colon]", "5"}, ")"}}}, 
+                  "RowWithSeparators")})}, {";", "\n"}, {
+               "matches", TooltipBox(
+                ButtonBox(StyleBox("\[Assign]", 
+                  FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 37, Column -> 6) &)), 
+                {{"\[Ellipsis]", "\[Assign]", "\[Ellipsis]"}, "\n", 
+                 TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"37", "\[Colon]", "6"}, ")"}, "..", {
+                     "(", {"38", "\[Colon]", "112"}, ")"}}}, 
+                  "RowWithSeparators")}), {
+                TooltipBox(ButtonBox(StyleBox("FindList", 
+                   FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 38, 
+                     Column -> 13) &)), {
+                  {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"38", "\[Colon]", "13"}, ")"}, "..", {
+                      "(", {"38", "\[Colon]", "112"}, ")"}}}, 
+                   "RowWithSeparators")}), 
+                TooltipBox(
+                 ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 38, 
+                     Column -> 13) &)), {
+                  {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"38", "\[Colon]", "13"}, ")"}, "..", {
+                      "(", {"38", "\[Colon]", "112"}, ")"}}}, 
+                   "RowWithSeparators")}), {
+                 {TooltipBox(ButtonBox(StyleBox("ToFileName", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 38, 
+                       Column -> 22) &)), {
+                    {"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"38", "\[Colon]", "22"}, ")"}, "..", {
+                        "(", {"38", "\[Colon]", "102"}, ")"}}}, 
+                     "RowWithSeparators")}), 
+                  TooltipBox(
+                   ButtonBox(StyleBox("(", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 38, 
+                       Column -> 22) &)), {
+                    {"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"38", "\[Colon]", "22"}, ")"}, "..", {
+                        "(", {"38", "\[Colon]", "102"}, ")"}}}, 
+                     "RowWithSeparators")}), {"$BaseDirectory", ",", {
+                    TooltipBox(ButtonBox(StyleBox("If", 
+                       FontColor -> RGBColor(1, 0.502`, 0)), 
+                      ButtonFrame -> "Frameless", 
+                      ButtonFunction -> (
+                        Developer`OpenTextFile(
+                         "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\l\
+                         ibrary\\scripts\\maininit.pmath", Line -> 38, 
+                         Column -> 49) &)), {{"If", "(", "\[Ellipsis]", ")"}, 
+                      "\n", TemplateBox({
+                        ",", ",", StringBox(
+                         "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\
+                         \\\\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {{"(", {"38", "\[Colon]", "49"}, ")"}, "..", {
+                          "(", {"38", "\[Colon]", "101"}, ")"}}}, 
+                       "RowWithSeparators")}), 
+                    TooltipBox(
+                     ButtonBox(StyleBox("(", 
+                       FontColor -> RGBColor(1, 0.502`, 0)), 
+                      ButtonFrame -> "Frameless", 
+                      ButtonFunction -> (
+                        Developer`OpenTextFile(
+                         "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\l\
+                         ibrary\\scripts\\maininit.pmath", Line -> 38, 
+                         Column -> 49) &)), {{"If", "(", "\[Ellipsis]", ")"}, 
+                      "\n", TemplateBox({
+                        ",", ",", StringBox(
+                         "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\
+                         \\\\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {{"(", {"38", "\[Colon]", "49"}, ")"}, "..", {
+                          "(", {"38", "\[Colon]", "101"}, ")"}}}, 
+                       "RowWithSeparators")}), {
+                     {"tag", TooltipBox(
+                       ButtonBox(StyleBox("===", 
+                         FontColor -> RGBColor(1, 0.502`, 0)), 
+                        ButtonFrame -> "Frameless", 
+                        ButtonFunction -> (
+                          Developer`OpenTextFile(
+                           "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\
+                           \\library\\scripts\\maininit.pmath", Line -> 38, 
+                           Column -> 52) &)), {
+                        {"\[Ellipsis]", "===", "\[Ellipsis]"}, "\n", 
+                        TemplateBox({
+                          ",", ",", StringBox(
+                           "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmier\
+                           en\\\\pmath\\\\library\\\\scripts\\\\maininit.pmath\
+                           \""), {{"(", {"38", "\[Colon]", "52"}, ")"}, "..", {
+                            "(", {"38", "\[Colon]", "67"}, ")"}}}, 
+                         "RowWithSeparators")}), 
+                      StyleBox(StringBox("\"usage\""), 
+                       FontColor -> GrayLevel(0.502`))}, ",", 
+                     StyleBox(StringBox("\"usage.pmath\""), 
+                      FontColor -> GrayLevel(0.502`)), ",", 
+                     StyleBox(StringBox("\"messages.pmath\""), 
+                      FontColor -> GrayLevel(0.502`))}, 
+                    TooltipBox(
+                     ButtonBox(StyleBox(")", 
+                       FontColor -> RGBColor(1, 0.502`, 0)), 
+                      ButtonFrame -> "Frameless", 
+                      ButtonFunction -> (
+                        Developer`OpenTextFile(
+                         "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\l\
+                         ibrary\\scripts\\maininit.pmath", Line -> 38, 
+                         Column -> 49) &)), {{"If", "(", "\[Ellipsis]", ")"}, 
+                      "\n", TemplateBox({
+                        ",", ",", StringBox(
+                         "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\
+                         \\\\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {{"(", {"38", "\[Colon]", "49"}, ")"}, "..", {
+                          "(", {"38", "\[Colon]", "101"}, ")"}}}, 
+                       "RowWithSeparators")})}}, 
+                  TooltipBox(
+                   ButtonBox(StyleBox(")", 
+                     FontColor -> RGBColor(1, 0.502`, 0)), 
+                    ButtonFrame -> "Frameless", 
+                    ButtonFunction -> (
+                      Developer`OpenTextFile(
+                       "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\lib\
+                       rary\\scripts\\maininit.pmath", Line -> 38, 
+                       Column -> 22) &)), {
+                    {"ToFileName", "(", "\[Ellipsis]", ")"}, "\n", 
+                    TemplateBox({
+                      ",", ",", StringBox(
+                       "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\
+                       \\pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                       {"(", {"38", "\[Colon]", "22"}, ")"}, "..", {
+                        "(", {"38", "\[Colon]", "102"}, ")"}}}, 
+                     "RowWithSeparators")})}, ",", "pattern"}, 
+                TooltipBox(
+                 ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+                  ButtonFrame -> "Frameless", 
+                  ButtonFunction -> (
+                    Developer`OpenTextFile(
+                     "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\libra\
+                     ry\\scripts\\maininit.pmath", Line -> 38, 
+                     Column -> 13) &)), {
+                  {"FindList", "(", "\[Ellipsis]", ")"}, "\n", 
+                  TemplateBox({
+                    ",", ",", StringBox(
+                     "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\\
+                     pmath\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                     {"(", {"38", "\[Colon]", "13"}, ")"}, "..", {
+                      "(", {"38", "\[Colon]", "112"}, ")"}}}, 
+                   "RowWithSeparators")})}}, {";", "\n"}, {
+               TooltipBox(ButtonBox(StyleBox("Scan", 
+                  FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 38, 
+                    Column -> 113) &)), {{"Scan", "(", "\[Ellipsis]", ")"}, 
+                 "\n", TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"38", "\[Colon]", "113"}, ")"}, "..", {
+                     "(", {"39", "\[Colon]", "29"}, ")"}}}, 
+                  "RowWithSeparators")}), 
+               TooltipBox(
+                ButtonBox(StyleBox("(", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 38, 
+                    Column -> 113) &)), {{"Scan", "(", "\[Ellipsis]", ")"}, 
+                 "\n", TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"38", "\[Colon]", "113"}, ")"}, "..", {
+                     "(", {"39", "\[Colon]", "29"}, ")"}}}, 
+                  "RowWithSeparators")}), {"matches", ",", "ToExpression"}, 
+               TooltipBox(
+                ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+                 ButtonFrame -> "Frameless", 
+                 ButtonFunction -> (
+                   Developer`OpenTextFile(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\maininit.pmath", Line -> 38, 
+                    Column -> 113) &)), {{"Scan", "(", "\[Ellipsis]", ")"}, 
+                 "\n", TemplateBox({
+                   ",", ",", StringBox(
+                    "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\p\
+                    math\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                    {"(", {"38", "\[Colon]", "113"}, ")"}, "..", {
+                     "(", {"39", "\[Colon]", "29"}, ")"}}}, 
+                  "RowWithSeparators")})}}, 
+             TooltipBox(
+              ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+               ButtonFrame -> "Frameless", 
+               ButtonFunction -> (
+                 Developer`OpenTextFile(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\maininit.pmath", Line -> 28, Column -> 43) &)), {
+               {"Try", "(", "\[Ellipsis]", ")"}, "\n", 
+               TemplateBox({
+                 ",", ",", 
+                 StringBox(
+                  "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pma\
+                  th\\\\library\\\\scripts\\\\maininit.pmath\""), {
+                  {"(", {"28", "\[Colon]", "43"}, ")"}, "..", {
+                   "(", {"41", "\[Colon]", "0"}, ")"}}}, 
+                "RowWithSeparators")})}}, 
+           TooltipBox(
+            ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+             ButtonFrame -> "Frameless", 
+             ButtonFunction -> (
+               Developer`OpenTextFile(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\s\
+                cripts\\maininit.pmath", Line -> 27, Column -> 37) &)), {
+             {"Local", "(", "\[Ellipsis]", ")"}, "\n", 
+             TemplateBox({
+               ",", ",", 
+               StringBox(
+                "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
+                \\\\library\\\\scripts\\\\maininit.pmath\""), {
+                {"(", {"27", "\[Colon]", "37"}, ")"}, "..", {
+                 "(", {"41", "\[Colon]", "3"}, ")"}}}, 
+              "RowWithSeparators")})}, ",", "HoldAll"}, 
+         TooltipBox(
+          ButtonBox(StyleBox(")", FontColor -> RGBColor(1, 0.502`, 0)), 
+           ButtonFrame -> "Frameless", ButtonFunction -> (
+             Developer`OpenTextFile(
+              "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\\scr\
+              ipts\\maininit.pmath", Line -> 27, Column -> 14) &)), {
+           {"Function", "(", "\[Ellipsis]", ")"}, "\n", 
+           TemplateBox({
+             ",", ",", 
+             StringBox(
+              "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\\\
+              \\library\\\\scripts\\\\maininit.pmath\""), {
+              {"(", {"27", "\[Colon]", "14"}, ")"}, "..", {
+               "(", {"42", "\[Colon]", "9"}, ")"}}}, "RowWithSeparators")})}), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+     All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

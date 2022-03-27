@@ -1,7 +1,7 @@
 /* pMath Document */
 
 Document({
-  SectionGroup({Section("Opener", "Title"), 
+  SectionGroup({Section("OpenerView Test", "Title"), 
     Section(
      BoxData({
        {"openerView", "(", {{"{", {{"~", "e1"}, ",", {"~", "e2"}}, "}"}, ",", {
@@ -11,7 +11,7 @@ Document({
         "Grid", "(", {
          {"{", {
            {"{", {
-             {"Row", "@", {"{", {ComplexStringBox("\"\""), ",", {
+             {"Row", "@", {"{", {StringBox("\"\""), ",", {
                  "Opener", "(", "o", ")"}}, "}"}}, ",", {
               "Row", "@", {
                "{", {
@@ -21,10 +21,9 @@ Document({
                      "fend", "(", "True", ")"}, ",", {
                      "fend", "(", "True", ")"}}, ")"}, ",", {
                    "ButtonFrame", "\[Rule]", {
-                    "None", {"/*", ComplexStringBox("\"ListViewItem\""), 
-                     "*/"}}}, ",", {"BaseStyle", "\[Rule]", 
-                   ComplexStringBox("\"\"")}}, ")"}, ",", 
-                ComplexStringBox("\"\"")}, "}"}}}, "}"}, ",", {
+                    "None", {"/*", StringBox("\"ListViewItem\""), "*/"}}}, 
+                  ",", {"BaseStyle", "\[Rule]", StringBox("\"\"")}}, ")"}, 
+                ",", StringBox("\"\"")}, "}"}}}, "}"}, ",", {
             "{", {"/\\/", ",", {"PaneSelector", "(", {
                {"{", {"True", "\[Rule]", {
                   "Grid", "(", {"{", {{"{", "/\\/", "}"}, ",", {
@@ -63,55 +62,56 @@ Document({
      SectionLabel -> "in [4]:"), 
     SectionGroup({
       Section(BoxData({"openerView", "(", {
-          "{", {ComplexStringBox("\"short\""), ",", 
-           ComplexStringBox("\"long\\nlong\"")}, "}"}, ")"}), "Input", 
-       SectionLabel -> "in [6]:"), 
+          "{", {StringBox("\"short\""), ",", StringBox("\"long\\nlong\"")}, 
+          "}"}, ")"}), "Input", SectionLabel -> "in [6]:"), 
       Section(BoxData(DynamicLocalBox({$Context`state}, 
          TagBox(
           GridBox({
-            {TemplateBox({ComplexStringBox("\"\""), 
+            {TemplateBox({StringBox("\"\""), 
                OpenerBox(Dynamic($Context`state, {($Context`state:= #1) &}))}, 
               "RowDefault"), TemplateBox({
-               ButtonBox(ComplexStringBox("\"short\""), 
+               ButtonBox(StringBox("\"short\""), 
                 ButtonFunction -> (
                   If($Context`state, (($Context`state:= #1) &)(False), (
                      ($Context`state:= #1) &)(True), (
                      ($Context`state:= #1) &)(True)) &), ButtonFrame -> None, 
-                BaseStyle -> ""), ComplexStringBox("\"\"")}, "RowDefault")}, {
+                BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 
-                TagBox(GridBox({{""}, {ComplexStringBox("\"long\nlong\"")}}), 
+                TagBox(GridBox({{""}, {StringBox("\"long\nlong\"")}}), 
                  "Grid")}, Dynamic($Context`state))}}, BaselinePosition -> 1, 
            GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
-         Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {})), "Output", 
+         DynamicLocalValues :> {
+           {OwnRules($Context`state):= {
+              HoldPattern($Context`state) :> False}}}, 
+         Initialization :> {$Context`state:= False})), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"openerView", "(", {
-          "{", {ComplexStringBox("\"folder\""), ",", {
+          "{", {StringBox("\"folder\""), ",", {
             "Column", "(", {
              "{", {
               {"openerView", "(", {
-                "{", {ComplexStringBox("\"sub 1\""), ",", {
-                  "Column", "(", {"{", {ComplexStringBox("\"file1\""), ",", 
-                    ComplexStringBox("\"file2\"")}, "}"}, ")"}}, "}"}, ")"}, 
-              ",", {"openerView", "(", {
-                "{", {ComplexStringBox("\"sub 2\""), ",", {
-                  "Column", "(", {"{", {ComplexStringBox("\"file1\""), ",", 
-                    ComplexStringBox("\"file2\"")}, "}"}, ")"}}, "}"}, ")"}}, 
-             "}"}, ")"}}, "}"}, ")"}), "Input", SectionLabel -> "in [7]:"), 
+                "{", {StringBox("\"sub 1\""), ",", {
+                  "Column", "(", {"{", {StringBox("\"file1\""), ",", 
+                    StringBox("\"file2\"")}, "}"}, ")"}}, "}"}, ")"}, ",", {
+               "openerView", "(", {
+                "{", {StringBox("\"sub 2\""), ",", {
+                  "Column", "(", {"{", {StringBox("\"file1\""), ",", 
+                    StringBox("\"file2\"")}, "}"}, ")"}}, "}"}, ")"}}, "}"}, 
+            ")"}}, "}"}, ")"}), "Input", SectionLabel -> "in [7]:"), 
       Section(BoxData(DynamicLocalBox({$Context`state}, 
          TagBox(
           GridBox({
-            {TemplateBox({ComplexStringBox("\"\""), 
+            {TemplateBox({StringBox("\"\""), 
                OpenerBox(Dynamic($Context`state, {($Context`state:= #1) &}))}, 
               "RowDefault"), TemplateBox({
-               ButtonBox(ComplexStringBox("\"folder\""), 
+               ButtonBox(StringBox("\"folder\""), 
                 ButtonFunction -> (
                   If($Context`state, (($Context`state:= #1) &)(False), (
                      ($Context`state:= #1) &)(True), (
                      ($Context`state:= #1) &)(True)) &), ButtonFrame -> None, 
-                BaseStyle -> ""), ComplexStringBox("\"\"")}, "RowDefault")}, {
+                BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 
                 TagBox(
@@ -121,79 +121,81 @@ Document({
                      GridBox({
                        {DynamicLocalBox({$Context`state}, 
                          TagBox(GridBox({
-                            {TemplateBox({ComplexStringBox("\"\""), 
+                            {TemplateBox({StringBox("\"\""), 
                                OpenerBox(Dynamic($Context`state, {
                                   ($Context`state:= #1) &}))}, "RowDefault"), 
-                             TemplateBox({
-                               ButtonBox(ComplexStringBox("\"sub 1\""), 
+                             TemplateBox({ButtonBox(StringBox("\"sub 1\""), 
                                 ButtonFunction -> (
                                   If($Context`state, (($Context`state:= #1) &)(
                                     False), (($Context`state:= #1) &)(True), (
                                      ($Context`state:= #1) &)(True)) &), 
                                 ButtonFrame -> None, BaseStyle -> ""), 
-                               ComplexStringBox("\"\"")}, "RowDefault")}, {
+                               StringBox("\"\"")}, "RowDefault")}, {
                              "", PaneSelectorBox({
                                HoldPattern(True) -> 
                                 TagBox(GridBox({
                                    {""}, {
-                                    TagBox(GridBox({
-                                       {ComplexStringBox("\"file1\"")}, {
-                                        ComplexStringBox("\"file2\"")}}), 
+                                    TagBox(GridBox({{StringBox("\"file1\"")}, {
+                                        StringBox("\"file2\"")}}), 
                                      "Column")}}), "Grid")}, 
                               Dynamic($Context`state))}}, 
                            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
                            GridBoxRowSpacing -> 0), "Grid"), 
-                         Initialization :> None, Deinitialization :> None, 
-                         UnsavedVariables :> {}, DynamicLocalValues :> {})}, {
+                         DynamicLocalValues :> {
+                           {OwnRules($Context`state):= {
+                              HoldPattern($Context`state) :> False}}}, 
+                         Initialization :> {$Context`state:= False})}, {
                         DynamicLocalBox({$Context`state}, 
                          TagBox(GridBox({
-                            {TemplateBox({ComplexStringBox("\"\""), 
+                            {TemplateBox({StringBox("\"\""), 
                                OpenerBox(Dynamic($Context`state, {
                                   ($Context`state:= #1) &}))}, "RowDefault"), 
-                             TemplateBox({
-                               ButtonBox(ComplexStringBox("\"sub 2\""), 
+                             TemplateBox({ButtonBox(StringBox("\"sub 2\""), 
                                 ButtonFunction -> (
                                   If($Context`state, (($Context`state:= #1) &)(
                                     False), (($Context`state:= #1) &)(True), (
                                      ($Context`state:= #1) &)(True)) &), 
                                 ButtonFrame -> None, BaseStyle -> ""), 
-                               ComplexStringBox("\"\"")}, "RowDefault")}, {
+                               StringBox("\"\"")}, "RowDefault")}, {
                              "", PaneSelectorBox({
                                HoldPattern(True) -> 
                                 TagBox(GridBox({
                                    {""}, {
-                                    TagBox(GridBox({
-                                       {ComplexStringBox("\"file1\"")}, {
-                                        ComplexStringBox("\"file2\"")}}), 
+                                    TagBox(GridBox({{StringBox("\"file1\"")}, {
+                                        StringBox("\"file2\"")}}), 
                                      "Column")}}), "Grid")}, 
                               Dynamic($Context`state))}}, 
                            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
                            GridBoxRowSpacing -> 0), "Grid"), 
-                         Initialization :> None, Deinitialization :> None, 
-                         UnsavedVariables :> {}, DynamicLocalValues :> {})}}), 
+                         DynamicLocalValues :> {
+                           {OwnRules($Context`state):= {
+                              HoldPattern($Context`state) :> False}}}, 
+                         Initialization :> {$Context`state:= False})}}), 
                      "Column")}}), "Grid")}, Dynamic($Context`state))}}, 
            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-           GridBoxRowSpacing -> 0), "Grid"), Initialization :> None, 
-         Deinitialization :> None, UnsavedVariables :> {}, 
-         DynamicLocalValues :> {})), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [7]:")}, All), 
+           GridBoxRowSpacing -> 0), "Grid"), 
+         DynamicLocalValues :> {
+           {OwnRules($Context`state):= {
+              HoldPattern($Context`state) :> False}}}, 
+         Initialization :> {$Context`state:= False})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
     SectionGroup({
       Section(BoxData({"openerView", "(", {
-          "{", {ComplexStringBox("\"matrix\""), ",", {
+          "{", {StringBox("\"matrix\""), ",", {
             {"(", GridBox({{"1", "2"}, {"3", "4"}, {"5", "6"}}), ")"}, "//", 
             "MatrixForm"}}, "}"}, ")"}), "Input", SectionLabel -> "in [8]:"), 
       Section(BoxData(DynamicLocalBox({$Context`state}, 
          TagBox(
           GridBox({
-            {TemplateBox({ComplexStringBox("\"\""), 
+            {TemplateBox({StringBox("\"\""), 
                OpenerBox(Dynamic($Context`state, {($Context`state:= #1) &}))}, 
               "RowDefault"), TemplateBox({
-               ButtonBox(ComplexStringBox("\"matrix\""), 
+               ButtonBox(StringBox("\"matrix\""), 
                 ButtonFunction -> (
                   If($Context`state, (($Context`state:= #1) &)(False), (
                      ($Context`state:= #1) &)(True), (
                      ($Context`state:= #1) &)(True)) &), ButtonFrame -> None, 
-                BaseStyle -> ""), ComplexStringBox("\"\"")}, "RowDefault")}, {
+                BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 
                 TagBox(
@@ -201,8 +203,10 @@ Document({
                    {""}, {{"(", GridBox({{"1", "2"}, {"3", "4"}, {"5", "6"}}), 
                      ")"}}}), "Grid")}, Dynamic($Context`state))}}, 
            BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-           GridBoxRowSpacing -> 0), "Grid"), Initialization :> None, 
-         Deinitialization :> None, UnsavedVariables :> {}, 
-         DynamicLocalValues :> {})), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [8]:")}, All)}, All)}, 
+           GridBoxRowSpacing -> 0), "Grid"), 
+         DynamicLocalValues :> {
+           {OwnRules($Context`state):= {
+              HoldPattern($Context`state) :> False}}}, 
+         Initialization :> {$Context`state:= False})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

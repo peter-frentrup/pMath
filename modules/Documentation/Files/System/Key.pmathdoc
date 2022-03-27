@@ -6,11 +6,11 @@ Document({
       Section(BoxData(TemplateBox({"Key"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Key"}, "ReferenceHyperlink"), "(\"", 
-          StyleBox("string", "TI"), "\") is equivalent to just \"", 
-          StyleBox("string", "TI"), "\" in ", 
-          TemplateBox({"Part"}, "ReferenceHyperlink"), "."}, "Notes")}, All), 
-      Section("", "SectionFooterSpacer")}, 1), 
+        Section(TextData({TemplateBox({"Key"}, "ReferenceHyperlink"), "(\"", 
+           StyleBox("string", "TI"), "\") is equivalent to just \"", 
+           StyleBox("string", "TI"), "\" in ", 
+           TemplateBox({"Part"}, "ReferenceHyperlink"), "."}), "Notes")}, 
+       All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Find a known key:", "ExampleText"), 
@@ -24,8 +24,9 @@ Document({
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
-          Section({"A ", TemplateBox({"Missing"}, "ReferenceHyperlink"), 
-            " value is returned when the key does not exist:"}, 
+          Section(
+           TextData({"A ", TemplateBox({"Missing"}, "ReferenceHyperlink"), 
+             " value is returned when the key does not exist:"}), 
            "ExampleText"), SectionGroup({
             Section(
              BoxData({
@@ -33,7 +34,7 @@ Document({
                 "}"}, "[", {"Key", "(", "c", ")"}, "]"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(BoxData({"Missing", "(", {
-                ComplexStringBox("\"KeyAbsent\""), ",", "c"}, ")"}), "Output", 
+                StringBox("\"KeyAbsent\""), ",", "c"}, ")"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -53,8 +54,8 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData({"{", {"11", ",", "55", ",", {
-                 "Missing", "(", {ComplexStringBox("\"KeyAbsent\""), ",", 
-                  "1"}, ")"}}, "}"}), "Output", SectionGenerated -> True, 
+                 "Missing", "(", {StringBox("\"KeyAbsent\""), ",", "1"}, 
+                 ")"}}, "}"}), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(
@@ -104,21 +105,20 @@ Document({
                  "c", "\[Rule]", "444"}}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [7]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
-        Section({"For string keys, specifying ", 
-          TemplateBox({"Key"}, "ReferenceHyperlink"), " is not necessary:"}, 
+        Section(TextData({"For string keys, specifying ", 
+           TemplateBox({"Key"}, "ReferenceHyperlink"), " is not necessary:"}), 
          "ExampleText"), SectionGroup({
           Section(
-           BoxData({{"{", {{ComplexStringBox("\"hello\""), "\[Rule]", "111"}, 
-               ",", {ComplexStringBox("\"world\""), "\[Rule]", "222"}}, "}"}, 
-             "[", {"Key", "(", ComplexStringBox("\"hello\""), ")"}, "]"}), 
-           "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData("111"), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [1]:")}, All), 
+           BoxData({{"{", {{StringBox("\"hello\""), "\[Rule]", "111"}, ",", {
+                StringBox("\"world\""), "\[Rule]", "222"}}, "}"}, "[", {
+              "Key", "(", StringBox("\"hello\""), ")"}, "]"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("111"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(
-           BoxData({{"{", {{ComplexStringBox("\"hello\""), "\[Rule]", "111"}, 
-               ",", {ComplexStringBox("\"world\""), "\[Rule]", "222"}}, "}"}, 
-             "[", ComplexStringBox("\"hello\""), "]"}), "Input", 
+           BoxData({{"{", {{StringBox("\"hello\""), "\[Rule]", "111"}, ",", {
+                StringBox("\"world\""), "\[Rule]", "222"}}, "}"}, "[", 
+             StringBox("\"hello\""), "]"}), "Input", 
            SectionLabel -> "in [2]:"), Section(BoxData("111"), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
         Section("The first match is returned:", "ExampleText"), 
@@ -131,10 +131,10 @@ Document({
           Section(BoxData("11"), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All)}, 1), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
-        Section({TemplateBox({"Part"}, "ReferenceHyperlink"), " uses ", 
-          TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
-          " for part specifications that are strings of have head ", 
-          TemplateBox({"Key"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
+        Section(TextData({TemplateBox({"Part"}, "ReferenceHyperlink"), 
+           " uses ", TemplateBox({"Lookup"}, "ReferenceHyperlink"), 
+           " for part specifications that are strings of have head ", 
+           TemplateBox({"Key"}, "ReferenceHyperlink"), ":"}), "ExampleText"), 
         SectionGroup({
           Section(
            BoxData({
@@ -144,11 +144,12 @@ Document({
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Part"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Missing"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"Keys"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Lookup"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"KeyValuePattern"}, "ReferenceHyperlink")}, "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Part"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Missing"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Keys"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Lookup"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"KeyValuePattern"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)

@@ -28,34 +28,33 @@ Document({
            "\n", {"With", "(", {"head", "\[Assign]", {
               "{", {{"#", "1"}, ",", {"SubsuperscriptBox", "(", {
                  {"{", {"TemplateSlotSequence", "(", {
-                    "drange", ",", ComplexStringBox("\",\"")}, ")"}, "}"}, 
-                 ",", {"{", {"TemplateSlotSequence", "(", {
-                    "urange", ",", ComplexStringBox("\",\"")}, ")"}, "}"}}, 
-                ")"}}, "}"}}, ")"}, "\n", {
-            "With", "(", {"body", "\[Assign]", {
+                    "drange", ",", StringBox("\",\"")}, ")"}, "}"}, ",", {
+                  "{", {"TemplateSlotSequence", "(", {
+                    "urange", ",", StringBox("\",\"")}, ")"}, "}"}}, ")"}}, 
+              "}"}}, ")"}, "\n", {"With", "(", {
+             "body", "\[Assign]", {
               "If", "(", {{"others", "===", {"{", "}"}}, ",", "head", ",", {
-                "{", {"head", ",", ComplexStringBox("\"(\""), ",", {
+                "{", {"head", ",", StringBox("\"(\""), ",", {
                   {"others", ".", "Map", "(", "PureArgument", ")"}, ".", 
-                  "Riffle", "(", ComplexStringBox("\",\""), ")"}, ",", 
-                 ComplexStringBox("\")\"")}, "}"}}, ")"}}, ")"}, "\n", {
+                  "Riffle", "(", StringBox("\",\""), ")"}, ",", 
+                 StringBox("\")\"")}, "}"}}, ")"}}, ")"}, "\n", {
             "TemplateBox", "(", {
              {"\n", {"List", "@@", {
                 {"HoldComplete", "(", {"f", ",", "args"}, ")"}, ".", "Map", 
                 "(", "MakeBoxes", ")"}}}, ",", {
-              "\n", ComplexStringBox("\"Subscripted\"")}, ",", {
+              "\n", StringBox("\"Subscripted\"")}, ",", {
               "\n", {"DisplayFunction", "\[Rule]", {
                 "Function", "(", "body", ")"}}}, ",", {
               "\n", {"InterpretationFunction", "\[Rule]", {
-                "Function", "(", {"{", {ComplexStringBox("\"Subscripted\""), 
-                  ",", ComplexStringBox("\"(\""), ",", {
-                   "{", {{"{", {{"#", "1"}, ",", ComplexStringBox("\"(\""), 
-                      ",", {"{", {"TemplateSlotSequence", "(", {
-                         "2", ",", ComplexStringBox("\",\"")}, ")"}, "}"}, 
-                      ",", ComplexStringBox("\")\"")}, "}"}, ",", 
-                    ComplexStringBox("\",\""), ",", "diboxes", ",", 
-                    ComplexStringBox("\",\""), ",", "uiboxes"}, "}"}, ",", 
-                  ComplexStringBox("\")\"")}, "}"}, ")"}}}}, ")"}}, "\n"}}, 
-        "}"}}), "Input"), 
+                "Function", "(", {"{", {StringBox("\"Subscripted\""), ",", 
+                  StringBox("\"(\""), ",", {
+                   "{", {{"{", {{"#", "1"}, ",", StringBox("\"(\""), ",", {
+                       "{", {"TemplateSlotSequence", "(", {
+                         "2", ",", StringBox("\",\"")}, ")"}, "}"}, ",", 
+                      StringBox("\")\"")}, "}"}, ",", StringBox("\",\""), ",", 
+                    "diboxes", ",", StringBox("\",\""), ",", "uiboxes"}, "}"}, 
+                  ",", StringBox("\")\"")}, "}"}, ")"}}}}, ")"}}, "\n"}}, 
+        "}"}}), "Input", SectionLabel -> "in [1]:"), 
     Section(
      "Special arguments should probably be handled in MakeBoxes instead?", 
      "Text"), 
@@ -68,7 +67,7 @@ Document({
         {"Subscripted", "(", {{"~", "expr"}, ",", {"~", "di"}, ",", "None"}, 
          ")"}, "\[AssignDelayed]", {"Subscripted", "(", {
           "expr", ",", "di", ",", {"1", "..", "0"}}, ")"}})), "Input", 
-     SectionLabel -> "in [78]:"), 
+     SectionLabel -> "in [2]:"), 
     Section(
      BoxData(
       /\/({{"Subscripted", "(", {{"~", "expr"}, ",", {"..", {"~", "d1"}}, ",", 
@@ -78,7 +77,7 @@ Document({
         {"Subscripted", "(", {{"~", "expr"}, ",", {"~", "di"}, ",", {
            "..", {"~", "u1"}}}, ")"}, "\[AssignDelayed]", {
          "Subscripted", "(", {"expr", ",", "di", ",", {"1", "..", "u1"}}, 
-         ")"}})), "Input", SectionLabel -> "in [72]:"), 
+         ")"}})), "Input", SectionLabel -> "in [4]:"), 
     Section(
      BoxData(
       /\/({{"Subscripted", "(", {{"~", "expr"}, ",", {{"~", "d0"}, ".."}, ",", 
@@ -91,12 +90,12 @@ Document({
            {"~", "u0"}, ".."}}, ")"}, "\[AssignDelayed]", {
          "Subscripted", "(", {"expr", ",", "di", ",", {
            "u0", "..", {"Length", "(", {"Unevaluated", "(", "expr", ")"}, 
-            ")"}}}, ")"}})), "Input", SectionLabel -> "in [74]:"), 
+            ")"}}}, ")"}})), "Input", SectionLabel -> "in [6]:"), 
     SectionGroup({
       Section(BoxData({"Subscripted", "(", {
           {"f", "(", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, ")"}, ",", 
           {"1", "..", "2"}, ",", {"4", "..", "5"}}, ")"}), "Input", 
-       SectionLabel -> "in [76]:"), 
+       SectionLabel -> "in [8]:"), 
       Section(
        BoxData({
          TemplateBox({
@@ -105,25 +104,31 @@ Document({
              Message -> StringForm(
                "Unpacking array with dimensions `2` in call to `1`.", 
                Complement, {5}), 
-             Stack -> {{"Head" -> MakeBoxes}, {"Head" -> With}, {
-                "Head" -> Plus}, {"Head" -> Complement}, {"Head" -> Message}, {
-                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
-            "Developer`FromPackedArray", "::", 
-            ComplexStringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
-         InterpretationBox(ComplexStringBox(
-           "\"Unpacking array with dimensions ", {"{", "5", "}"}, 
-           " in call to ", "Complement", ".\""), 
+             Stack -> {{"Head" -> MakeBoxes}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 102 .. 690)}, {
+                "Head" -> Plus, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 194 .. 269)}, {
+                "Head" -> Complement, 
+                "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 196 .. 269)}, {
+                "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+            "MessageMenuButton"), {"Developer`FromPackedArray", "::", 
+            StringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"Unpacking array with dimensions ", {
+            "{", "5", "}"}, " in call to ", "Complement", ".\""), 
           StringForm("Unpacking array with dimensions `2` in call to `1`.", 
            Complement, {5}), Editable -> False)}), "Message", 
-       SectionGenerated -> True)}, All), 
-    Section(BoxData(TemplateBox({"f", "a", "b", "c", "d", "e"}, "Subscripted", 
-       DisplayFunction -> (
-         {{#1, SubsuperscriptBox({TemplateSlotSequence(2 .. 3, ",")}, {
-             TemplateSlotSequence(5 .. 6, ",")})}, "(", {#4}, ")"} &), 
-       InterpretationFunction -> (
-         {"Subscripted", "(", {{#1, "(", {TemplateSlotSequence(2, ",")}, ")"}, 
-           ",", {"1", "..", "2"}, ",", {"4", "..", "5"}}, ")"} &))), "Output", 
-     SectionGenerated -> True, SectionLabel -> "out [76]:"), 
+       SectionGenerated -> True), 
+      Section(BoxData(TemplateBox({"f", "a", "b", "c", "d", "e"}, 
+         "Subscripted", DisplayFunction -> (
+           {{#1, SubsuperscriptBox({TemplateSlotSequence(2 .. 3, ",")}, {
+               TemplateSlotSequence(5 .. 6, ",")})}, "(", {#4}, ")"} &), 
+         InterpretationFunction -> (
+           {"Subscripted", "(", {
+             {#1, "(", {TemplateSlotSequence(2, ",")}, ")"}, ",", {
+              "1", "..", "2"}, ",", {"4", "..", "5"}}, ")"} &))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
     SectionGroup({
       Section(BoxData({TemplateBox({"f", "a", "b", "c", "d", "e"}, 
           "Subscripted", DisplayFunction -> (
@@ -133,19 +138,19 @@ Document({
             {"Subscripted", "(", {
               {#1, "(", {TemplateSlotSequence(2, ",")}, ")"}, ",", {
                "1", "..", "2"}, ",", {"4", "..", "5"}}, ")"} &)), "//", 
-         "InputForm"}), "Input", SectionLabel -> "in [51]:"), 
+         "InputForm"}), "Input", SectionLabel -> "in [9]:"), 
       Section(
        BoxData(StyleBox({"Subscripted", "(", {
            {"f", "(", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, ")"}, 
            ",", {"1", "..", "2"}, ",", {"4", "..", "5"}}, ")"}, 
          AutoDelete -> True, AutoNumberFormating -> False, 
          ShowStringCharacters -> True)), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [51]:")}, All), 
+       SectionLabel -> "out [9]:")}, All), 
     SectionGroup({
       Section(BoxData({"Subscripted", "(", {
           {"f", "(", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, ")"}, ",", 
           {"1", "..", "0"}, ",", {"4", "..", "5"}}, ")"}), "Input", 
-       SectionLabel -> "in [53]:"), 
+       SectionLabel -> "in [10]:"), 
       Section(
        BoxData({
          TemplateBox({
@@ -154,14 +159,19 @@ Document({
              Message -> StringForm(
                "Unpacking array with dimensions `2` in call to `1`.", 
                Complement, {5}), 
-             Stack -> {{"Head" -> MakeBoxes}, {"Head" -> With}, {
-                "Head" -> Plus}, {"Head" -> Complement}, {"Head" -> Message}, {
-                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
-            "Developer`FromPackedArray", "::", 
-            ComplexStringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
-         InterpretationBox(ComplexStringBox(
-           "\"Unpacking array with dimensions ", {"{", "5", "}"}, 
-           " in call to ", "Complement", ".\""), 
+             Stack -> {{"Head" -> MakeBoxes}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 102 .. 690)}, {
+                "Head" -> Plus, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 194 .. 269)}, {
+                "Head" -> Complement, 
+                "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 196 .. 269)}, {
+                "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+            "MessageMenuButton"), {"Developer`FromPackedArray", "::", 
+            StringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"Unpacking array with dimensions ", {
+            "{", "5", "}"}, " in call to ", "Complement", ".\""), 
           StringForm("Unpacking array with dimensions `2` in call to `1`.", 
            Complement, {5}), Editable -> False)}), "Message", 
        SectionGenerated -> True), 
@@ -173,12 +183,12 @@ Document({
            {"Subscripted", "(", {
              {#1, "(", {TemplateSlotSequence(2, ",")}, ")"}, ",", {
               "1", "..", "0"}, ",", {"4", "..", "5"}}, ")"} &))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [53]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
     SectionGroup({
       Section(BoxData({"Subscripted", "(", {
           {"f", "(", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, ")"}, ",", 
           "None", ",", {"3", ".."}}, ")"}), "Input", 
-       SectionLabel -> "in [80]:"), 
+       SectionLabel -> "in [11]:"), 
       Section(
        BoxData({
          TemplateBox({
@@ -187,14 +197,19 @@ Document({
              Message -> StringForm(
                "Unpacking array with dimensions `2` in call to `1`.", 
                Complement, {5}), 
-             Stack -> {{"Head" -> MakeBoxes}, {"Head" -> With}, {
-                "Head" -> Plus}, {"Head" -> Complement}, {"Head" -> Message}, {
-                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
-            "Developer`FromPackedArray", "::", 
-            ComplexStringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
-         InterpretationBox(ComplexStringBox(
-           "\"Unpacking array with dimensions ", {"{", "5", "}"}, 
-           " in call to ", "Complement", ".\""), 
+             Stack -> {{"Head" -> MakeBoxes}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 102 .. 690)}, {
+                "Head" -> Plus, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 194 .. 269)}, {
+                "Head" -> Complement, 
+                "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 196 .. 269)}, {
+                "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+            "MessageMenuButton"), {"Developer`FromPackedArray", "::", 
+            StringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"Unpacking array with dimensions ", {
+            "{", "5", "}"}, " in call to ", "Complement", ".\""), 
           StringForm("Unpacking array with dimensions `2` in call to `1`.", 
            Complement, {5}), Editable -> False)}), "Message", 
        SectionGenerated -> True), 
@@ -206,12 +221,12 @@ Document({
            {"Subscripted", "(", {
              {#1, "(", {TemplateSlotSequence(2, ",")}, ")"}, ",", {
               "1", "..", "0"}, ",", {"3", "..", "5"}}, ")"} &))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [80]:")}, All), 
+       SectionGenerated -> True, SectionLabel -> "out [11]:")}, All), 
     SectionGroup({
       Section(BoxData({"Subscripted", "(", {
           {"f", "(", {"a", ",", "b", ",", "c", ",", "d", ",", "e"}, ")"}, ",", 
           {"..", "3"}, ",", {"4", ".."}}, ")"}), "Input", 
-       SectionLabel -> "in [82]:"), 
+       SectionLabel -> "in [12]:"), 
       Section(
        BoxData({
          TemplateBox({
@@ -220,14 +235,19 @@ Document({
              Message -> StringForm(
                "Unpacking array with dimensions `2` in call to `1`.", 
                Complement, {5}), 
-             Stack -> {{"Head" -> MakeBoxes}, {"Head" -> With}, {
-                "Head" -> Plus}, {"Head" -> Complement}, {"Head" -> Message}, {
-                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
-            "Developer`FromPackedArray", "::", 
-            ComplexStringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
-         InterpretationBox(ComplexStringBox(
-           "\"Unpacking array with dimensions ", {"{", "5", "}"}, 
-           " in call to ", "Complement", ".\""), 
+             Stack -> {{"Head" -> MakeBoxes}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 102 .. 690)}, {
+                "Head" -> Plus, "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 194 .. 269)}, {
+                "Head" -> Complement, 
+                "Location" -> Language`SourceLocation(
+                  FrontEndObject(10801762494786359001, 9982), 196 .. 269)}, {
+                "Head" -> Message}, {"Head" -> SectionPrint}}}, 
+            "MessageMenuButton"), {"Developer`FromPackedArray", "::", 
+            StringBox("\"punpack\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"Unpacking array with dimensions ", {
+            "{", "5", "}"}, " in call to ", "Complement", ".\""), 
           StringForm("Unpacking array with dimensions `2` in call to `1`.", 
            Complement, {5}), Editable -> False)}), "Message", 
        SectionGenerated -> True), 
@@ -239,5 +259,5 @@ Document({
            {"Subscripted", "(", {
              {#1, "(", {TemplateSlotSequence(2, ",")}, ")"}, ",", {
               "1", "..", "3"}, ",", {"4", "..", "5"}}, ")"} &))), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [82]:")}, All)}, All)}, 
+       SectionGenerated -> True, SectionLabel -> "out [12]:")}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

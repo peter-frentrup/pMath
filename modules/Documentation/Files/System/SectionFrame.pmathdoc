@@ -54,19 +54,18 @@ Document({
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("Print a section with a thick frame:", "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
-            "Section", "(", {ComplexStringBox("\"Hello\""), ",", 
-             ComplexStringBox("\"Text\""), ",", {
-              "SectionFrame", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
-         SectionLabel -> "in [1]:"), Section("Hello", "Text", 
-         SectionFrame -> {5, 5, 5, 5}, SectionGenerated -> True), 
+            "Section", "(", {StringBox("\"Hello\""), ",", 
+             StringBox("\"Text\""), ",", {"SectionFrame", "\[Rule]", "5"}}, 
+            ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+        Section("Hello", "Text", SectionFrame -> {5, 5, 5, 5}, 
+         SectionGenerated -> True), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Use different thickness at each side:", "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
-              "Section", "(", {ComplexStringBox("\"Funky\""), ",", 
-               ComplexStringBox("\"Text\""), ",", {
-                "SectionFrame", "\[Rule]", {
+              "Section", "(", {StringBox("\"Funky\""), ",", 
+               StringBox("\"Text\""), ",", {"SectionFrame", "\[Rule]", {
                  "{", {"20", ",", "10", ",", "5", ",", "0"}, "}"}}}, ")"}, 
              ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section("Funky", "Text", SectionFrame -> {20, 10, 5, 0}, 
@@ -79,12 +78,10 @@ Document({
          "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
-              "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
-             ComplexStringBox("\"Text\""), ",", {
-              "SectionFrame", "\[Rule]", "5"}, ",", {
-              "SectionFrameMargins", "\[Rule]", "10"}}, ")"}, ")"}), "Input", 
-         SectionLabel -> "in [1]:"), 
+             StringBox("\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
+             StringBox("\"Text\""), ",", {"SectionFrame", "\[Rule]", "5"}, 
+             ",", {"SectionFrameMargins", "\[Rule]", "10"}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [1]:"), 
         Section("Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.", "Text", 
          SectionFrame -> {5, 5, 5, 5}, SectionFrameMargins -> {
            10, 10, 10, 10}, SectionGenerated -> True), 
@@ -96,9 +93,8 @@ Document({
              " specifies the margins outside the frame:"}), "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
               "Section", "(", {
-               ComplexStringBox(
-                "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
-               ComplexStringBox("\"Text\""), ",", {
+               StringBox("\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), 
+               ",", StringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "5"}, ",", {
                 "SectionMargins", "\[Rule]", "30"}}, ")"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
@@ -113,9 +109,8 @@ Document({
            "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
               "Section", "(", {
-               ComplexStringBox(
-                "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), ",", 
-               ComplexStringBox("\"Text\""), ",", {
+               StringBox("\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx.\""), 
+               ",", StringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "5"}, ",", {
                 "SectionFrameColor", "\[Rule]", "Red"}}, ")"}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
@@ -129,12 +124,11 @@ Document({
          "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [1]:"), 
@@ -150,12 +144,11 @@ Document({
            " accordingly:"}), "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "10"}, ",", {
               "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
@@ -169,12 +162,11 @@ Document({
          SectionGenerated -> True), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "5"}, ",", {
               "SectionFrameMargins", "\[Rule]", {

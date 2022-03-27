@@ -31,18 +31,17 @@ Document({
        BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
            "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, All), 
     SectionGroup({Section("Other", "Subsubsection"), 
-      Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Math in Text\""), 
+      Section(BoxData(FillBox(ButtonBox(StringBox("\"Math in Text\""), 
           ButtonFunction -> (
             DocumentApply(SelectedDocument(), 
              "\({\"\[SelectionPlaceholder]\"}\)") &)))), "Text"), 
       Section(
-       BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Italic\""), 
-           "TI"), ButtonFunction -> (
+       BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Italic\""), "TI"), 
+          ButtonFunction -> (
             DocumentApply(SelectedDocument(), 
              StyleBox("\[SelectionPlaceholder]", "TI")) &)))), "Text"), 
       Section(
-       BoxData(
-        FillBox(ButtonBox(ComplexStringBox("\"", StyleBox("Arg", "Arg"), 
+       BoxData(FillBox(ButtonBox(StringBox("\"", StyleBox("Arg", "Arg"), 
            " Style\""), ButtonFunction -> (
             DocumentApply(SelectedDocument(), 
              StyleBox("\[SelectionPlaceholder]", "Arg")) &)))), "Text"), 
@@ -53,23 +52,22 @@ Document({
              StyleBox("\[SelectionPlaceholder]", 
               FontFeatures -> {"smcp"})) &)))), "Text")}, All), 
     SectionGroup({Section("Sections", "Subsubsection"), 
-      Section(
-       BoxData(FillBox(ButtonBox(ComplexStringBox("\"Example Delimiter\""), 
+      Section(BoxData(FillBox(ButtonBox(StringBox("\"Example Delimiter\""), 
           BaseStyle -> "Paste", 
           ButtonData :> 
            Section(BoxData(InterpretationBox("", $Line:= 0;, 
               Editable -> False)), "ExampleDelimiter")))), "Text"), 
       Section(
-       BoxData(FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Scope\""), 
+       BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Scope\""), 
            "ExampleSection"), BaseStyle -> "Paste", 
           ButtonData :> SectionGroup({Section("Scope", "ExampleSection"), 
              Section("XXX", "ExampleText")}, All)))), "Text"), 
       Section(
-       BoxData(
-        FillBox(ButtonBox(StyleBox(ComplexStringBox("\"Example Subsection\""), 
+       BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Example Subsection\""), 
            "ExampleSubsection"), BaseStyle -> "Paste", 
           ButtonData :> SectionGroup({Section("XXX", "ExampleSubsection"), 
              Section("XXX", "ExampleText")}, All)))), "Text")}, All)}, All)}, 
+ Saveable -> False, Selectable -> False, 
  StyleDefinitions :> 
   Document({
     SectionGroup({
@@ -97,13 +95,13 @@ Document({
           Section(StyleData("ReferenceHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
-               StyleBox(ComplexStringBox({"\"", #1, "\""}), "Text", 
+               StyleBox(StringBox({"\"", #1, "\""}), "Text", 
                 FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
                 ShowAutoStyles -> False) &)}), 
           Section(StyleData("NamedCharacterHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (
-               StyleBox(ComplexStringBox({"\"\\\\[", #1, "]\""}), 
+               StyleBox(StringBox({"\"\\\\[", #1, "]\""}), 
                 FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
                 ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
          All)}, All)}, All)}, StyleDefinitions -> 

@@ -278,14 +278,13 @@ Document({
                      "{", {"label", ",", {"Dynamic", "(", {
                         {"With", "(", {"entries", ":=", {
                            "FileNames", "(", {"path", ",", 
-                            ComplexStringBox("\"*\"")}, ")"}}, ")"}, {
+                            StringBox("\"*\"")}, ")"}}, ")"}, {
                          "{", {
                           "\n", {{{"If", "(", {"entries", "===", {"{", "}"}}, 
                              ")"}, {
                              "{", {
-                              "\n", {
-                               {"Skeleton", "(", ComplexStringBox(
-                                 "\"empty\""), ")"}, "\n"}}, "}"}, "Else", {
+                              "\n", {{"Skeleton", "(", StringBox("\"empty\""), 
+                                ")"}, "\n"}}, "}"}, "Else", {
                              "{", {
                               "\n", {
                                {"Column", "(", {"entries", ".", "Map", "(", 
@@ -295,14 +294,15 @@ Document({
                  "{", {
                   "\n", {
                    {"Style", "(", {
-                     {"Row", "(", {"{", {ComplexStringBox("\"   \""), ",", 
-                        "label"}, "}"}, ")"}, ",", 
-                     ComplexStringBox("\"ControlStyle\"")}, ")"}, "\n"}}, 
-                 "}"}}}, "\n"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
+                     {"Row", "(", {"{", {StringBox("\"   \""), ",", "label"}, 
+                       "}"}, ")"}, ",", StringBox("\"ControlStyle\"")}, ")"}, 
+                   "\n"}}, "}"}}}, "\n"}}, "}"}}), "Input", 
+         SectionLabel -> "in [1]:"), 
         SectionGroup({
           Section(BoxData({"fileTreeItem", "(", "$BaseDirectory", ")"}), 
            "Input", SectionLabel -> "in [2]:"), 
-          Section(BoxData(TemplateBox({ComplexStringBox("\"scripts\""), 
+          Section(
+           BoxData(TemplateBox({StringBox("\"scripts\""), 
               DynamicBox(
                ToBoxes(
                 With({

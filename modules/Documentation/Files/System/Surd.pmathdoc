@@ -204,13 +204,12 @@ Document({
         SectionGroup({
           Section(BoxData({"Surd", "(", {{"2.5", "+", "I"}, ",", "5"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData({{"Surd", "::", ComplexStringBox("\"preal\"")}, 
-             "\[Colon]", TemplateBox({
-               InterpretationBox(ComplexStringBox("\"The parameter ", {
-                  {"2.5`", "+", "\[ImaginaryI]"}}, 
-                 " should be real-valued.\""), 
+          Section(BoxData({{"Surd", "::", StringBox("\"preal\"")}, "\[Colon]", 
+             TemplateBox({
+               InterpretationBox(StringBox("\"The parameter ", {
+                  "2.5`", "+", "\[ImaginaryI]"}, " should be real-valued.\""), 
                 StringForm("The parameter `1` should be real-valued.", 
-                 2.5` + I))}, "RowDefault")}), "Message", 
+                 2.5` + I), Editable -> False)}, "RowDefault")}), "Message", 
            SectionGenerated -> True), 
           Section(BoxData(RadicalBox({"2.5`", "+", "\[ImaginaryI]"}, "5", 
              SurdForm -> True)), "Output", SectionGenerated -> True, 
@@ -226,16 +225,18 @@ Document({
           SectionGroup({
             Section(BoxData({"Surd", "(", {{"-", "1"}, ",", "2"}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData({{"Surd", "::", ComplexStringBox("\"noneg\"")}, 
+            Section(BoxData({{"Surd", "::", StringBox("\"noneg\"")}, 
                "\[Colon]", TemplateBox({
-                 InterpretationBox(ComplexStringBox(
+                 InterpretationBox(
+                  StringBox(
                    "\"Surd is undefined for even roots of negative \
                    values.\""), StringForm(
                    "Surd is undefined for even roots of negative values.", 
-                   HoldForm(Surd(-1, 2))))}, "RowDefault")}), "Message", 
-             SectionGenerated -> True), Section(BoxData("Undefined"), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+                   HoldForm(Surd(-1, 2))), Editable -> False)}, 
+                "RowDefault")}), "Message", SectionGenerated -> True), 
+            Section(BoxData("Undefined"), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"CubeRoot"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Power"}, 

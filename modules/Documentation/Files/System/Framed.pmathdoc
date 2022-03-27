@@ -70,13 +70,12 @@ Document({
            "ExampleText"), SectionGroup({
             Section(
              BoxData({"Row", "(", {
-                "{", {"1", ",", {"Framed", "(", 
-                  ComplexStringBox("\"aaa\\nbbb\""), ")"}, ",", "2"}, "}"}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
+                "{", {"1", ",", {"Framed", "(", StringBox("\"aaa\\nbbb\""), 
+                  ")"}, ",", "2"}, "}"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
             Section(
-             BoxData(TemplateBox({
-                "1", FrameBox(ComplexStringBox("\"aaa\nbbb\"")), "2"}, 
-               "RowDefault")), "Output", SectionGenerated -> True, 
+             BoxData(TemplateBox({"1", FrameBox(StringBox("\"aaa\nbbb\"")), 
+                "2"}, "RowDefault")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -90,7 +89,7 @@ Document({
                        "p"}}, ")"}, ",", {"p", "\[Rule]", {
                       "{", {"Automatic", ",", "Top", ",", "Center", ",", 
                        "Baseline", ",", "Bottom"}, "}"}}}, ")"}, ",", 
-                  ComplexStringBox("\"x\"")}, ")"}), "Input", 
+                  StringBox("\"x\"")}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(
                BoxData(TemplateBox({
@@ -106,9 +105,8 @@ Document({
           Section("Highlight an expression:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Framed", "(", {{{"1", "/", "x"}, "+", "y"}, ",", 
-                {"BaseStyle", "\[Rule]", ComplexStringBox(
-                  "\"Highlighted\"")}}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
+                {"BaseStyle", "\[Rule]", StringBox("\"Highlighted\"")}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(FrameBox({"y", "+", FractionBox("1", "x")}, 
                BaseStyle -> "Highlighted")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
@@ -154,10 +152,11 @@ Document({
                     "{", {{"{", {"10", ",", "20"}, "}"}, ",", "0", ",", "0", 
                      ",", "0"}, "}"}}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(FrameBox("123", BorderRadius -> {{10, 20}, 0, 0, 
-                  0})), "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("ContentPadding", "ExampleSubsection"), 
+              Section(BoxData(FrameBox("123", 
+                 BorderRadius -> {{10, 20}, 0, 0, 0})), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({
+          Section("ContentPadding", "ExampleSubsection"), 
           Section(TextData({"The default setting ", 
              TemplateBox({"ContentPadding"}, "ReferenceHyperlink"), 
              " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
@@ -215,7 +214,7 @@ Document({
              TemplateBox({"True"}, "ReferenceHyperlink"), 
              " to strip the frame on input: "}), "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
-              ComplexStringBox("\"Input\""), ",", {
+              StringBox("\"Input\""), ",", {
                "Framed", "(", {"123", ",", {"StripOnInput", "\[Rule]", 
                  "True"}}, ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(FrameBox("123", StripOnInput -> True)), "Input", 

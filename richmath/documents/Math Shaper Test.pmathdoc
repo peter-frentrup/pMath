@@ -8,8 +8,8 @@ Document({
            {"Dynamic", "(", {"CurrentValue", "(", {
               {"EvaluationDocument", "(", ")"}, ",", "MathFontFamily"}, ")"}, 
             ")"}, ",", {
-            {"CurrentValue", "(", ComplexStringBox("\"AvailableMathFonts\""), 
-             ")"}, ".", "Map", "(", {"s", "\[Function]", {
+            {"CurrentValue", "(", StringBox("\"AvailableMathFonts\""), ")"}, 
+            ".", "Map", "(", {"s", "\[Function]", {
               "(", {"s", "\[Rule]", {
                 "Style", "(", {"s", ",", {"FontFamily", "\[Rule]", "s"}}, 
                 ")"}}, ")"}}, ")"}}, ")"}, ")"}), "Input", 

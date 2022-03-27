@@ -24,22 +24,21 @@ Document({
         Section(BoxData(/\/({{"Unprotect", "(", "MakeExpression", ")"}, ";"}, 
            "\n", {{"MakeExpression", "(", {
               "{", {{"~", "x"}, ",", {
-                "TagBox", "(", {"~", ",", ComplexStringBox("\"myplus\""), ",", 
+                "TagBox", "(", {"~", ",", StringBox("\"myplus\""), ",", 
                  "~~~"}, ")"}, ",", {"~", "y"}}, "}"}, ")"}, 
             "\[AssignDelayed]", {"MakeExpression", "(", {
-              "{", {"x", ",", ComplexStringBox("\"+\""), ",", "y"}, "}"}, 
-             ")"}}, "\n", {{"Protect", "(", "MakeExpression", ")"}, ";"})), 
-         "Input", SectionLabel -> "in [1]:"), 
+              "{", {"x", ",", StringBox("\"+\""), ",", "y"}, "}"}, ")"}}, 
+           "\n", {{"Protect", "(", "MakeExpression", ")"}, ";"})), "Input", 
+         SectionLabel -> "in [1]:"), 
         Section("Display an expression using the tag:", "ExampleText"), 
         SectionGroup({
           Section(BoxData({"RawBoxes", "(", {
-              "{", {ComplexStringBox("\"a\""), ",", {
+              "{", {StringBox("\"a\""), ",", {
                 "TagBox", "(", {
-                 {"StyleBox", "(", {ComplexStringBox("\"plus\""), ",", {
+                 {"StyleBox", "(", {StringBox("\"plus\""), ",", {
                     "FontSize", "\[Rule]", "8"}}, ")"}, ",", 
-                 ComplexStringBox("\"myplus\"")}, ")"}, ",", 
-               ComplexStringBox("\"b\"")}, "}"}, ")"}), "Input", 
-           SectionLabel -> "in [4]:"), 
+                 StringBox("\"myplus\"")}, ")"}, ",", StringBox("\"b\"")}, 
+              "}"}, ")"}), "Input", SectionLabel -> "in [4]:"), 
           Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
               "myplus"), "b"}), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [4]:")}, All), 
@@ -58,20 +57,20 @@ Document({
           Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
               "myplus"), "b", " ", "c"}), "Input", SectionLabel -> "in [6]:"), 
           Section(BoxData({"a", " ", "b", " ", "c", " ", {
-              ComplexStringBox("\"myplus\""), "(", "plus", ")"}}), "Output", 
+              StringBox("\"myplus\""), "(", "plus", ")"}}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
         Section(
          TextData({"Use ", TemplateBox({"SyntaxForm"}, "ReferenceHyperlink"), 
            " to enforce the intended precedence rules:"}), "ExampleText"), 
         SectionGroup({
           Section(BoxData({"RawBoxes", "(", {
-              "{", {ComplexStringBox("\"a\""), ",", {
+              "{", {StringBox("\"a\""), ",", {
                 "TagBox", "(", {
-                 {"StyleBox", "(", {ComplexStringBox("\"plus\""), ",", {
+                 {"StyleBox", "(", {StringBox("\"plus\""), ",", {
                     "FontSize", "\[Rule]", "8"}}, ")"}, ",", 
-                 ComplexStringBox("\"myplus\""), ",", {
-                  "SyntaxForm", "\[Rule]", ComplexStringBox("\"+\"")}}, ")"}, 
-               ",", ComplexStringBox("\"b\"")}, "}"}, ")"}), "Input", 
+                 StringBox("\"myplus\""), ",", {
+                  "SyntaxForm", "\[Rule]", StringBox("\"+\"")}}, ")"}, ",", 
+               StringBox("\"b\"")}, "}"}, ")"}), "Input", 
            SectionLabel -> "in [7]:"), 
           Section(BoxData({"a", TagBox(StyleBox("plus", FontSize -> 8), 
               "myplus", SyntaxForm -> "+"), "b"}), "Output", 

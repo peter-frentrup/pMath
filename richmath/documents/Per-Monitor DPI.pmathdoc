@@ -5,23 +5,22 @@ Document({
     SectionGroup({
       Section(BoxData({"Dynamic", "(", {
           "Tooltip", "(", {
-           {"CurrentValue", "(", ComplexStringBox("\"DocumentScreenDpi\""), 
-            ")"}, ",", {"Column", "@", {
+           {"CurrentValue", "(", StringBox("\"DocumentScreenDpi\""), ")"}, 
+           ",", {"Column", "@", {
              "{", {
               {"Row", "@", {
                 "{", {
                  {"Round", "(", {
-                   {"CurrentValue", "(", ComplexStringBox(
-                     "\"DocumentScreenDpi\""), ")"}, "*", {"100", "/", "96"}}, 
-                  ")"}, ",", ComplexStringBox("\"% in document\"")}, "}"}}, 
-              ",", {"Row", "@", {
+                   {"CurrentValue", "(", StringBox("\"DocumentScreenDpi\""), 
+                    ")"}, "*", {"100", "/", "96"}}, ")"}, ",", 
+                 StringBox("\"% in document\"")}, "}"}}, ",", {
+               "Row", "@", {
                 "{", {
                  {"Dynamic", "(", {"Round", "(", {
-                    {"CurrentValue", "(", ComplexStringBox(
-                      "\"DocumentScreenDpi\""), ")"}, "*", {
-                     "100", "/", "96"}}, ")"}, ")"}, ",", 
-                 ComplexStringBox("\"% in tooltip\"")}, "}"}}}, "}"}}}, ")"}, 
-         ")"}), "Input", SectionLabel -> "in [5]:"), 
+                    {"CurrentValue", "(", StringBox("\"DocumentScreenDpi\""), 
+                     ")"}, "*", {"100", "/", "96"}}, ")"}, ")"}, ",", 
+                 StringBox("\"% in tooltip\"")}, "}"}}}, "}"}}}, ")"}, ")"}), 
+       "Input", SectionLabel -> "in [5]:"), 
       Section(
        BoxData(DynamicBox(ToBoxes(Tooltip(CurrentValue("DocumentScreenDpi"), 
            Column({Row({Round(CurrentValue("DocumentScreenDpi")*25/24), 

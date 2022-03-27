@@ -61,28 +61,22 @@ Document({
                    "x", ",", {
                     "{", {
                      {"Function", "(", {
-                       {"Print", "(", ComplexStringBox("\"pre\""), ")"}, ";", {
+                       {"Print", "(", StringBox("\"pre\""), ")"}, ";", {
                         "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", ",", {
                       "Function", "(", {
-                       {"Print", "(", ComplexStringBox("\"post\""), ")"}, ";", 
-                       {"x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ")"}, 
+                       {"Print", "(", StringBox("\"post\""), ")"}, ";", {
+                        "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ")"}, 
                 ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            SectionGroup({
-              Section(
-               BoxData({
-                 "{", {
-                  SliderBox(Dynamic($Context`x, {
-                     (Print("pre"); $Context`x:= #1) &, Automatic, (
-                       Print("post"); $Context`x:= #1) &}), 0 .. 1), ",", 
-                  DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
-               SectionGenerated -> True, SectionLabel -> "out [1]:"), 
-              Section(BoxData(TemplateBox({ComplexStringBox("\"pre\"")}, 
-                 "RowDefault")), "Print", SectionGenerated -> True), 
-              Section(BoxData(TemplateBox({ComplexStringBox("\"post\"")}, 
-                 "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 
-           All)}, All)}, 1), SectionGroup({
-        Section("Options", "ExampleSection"), 
+            Section(
+             BoxData({
+               "{", {
+                SliderBox(Dynamic($Context`x, {
+                   (Print("pre"); $Context`x:= #1) &, Automatic, (
+                     Print("post"); $Context`x:= #1) &}), 0 .. 1), ",", 
+                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("Deinitialization", "ExampleSubsection"), 
           Section(TextData({"Perform some cleanup operation when the ", 
              TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
@@ -91,10 +85,10 @@ Document({
             Section(BoxData({"Dynamic", "(", {
                 {"RandomReal", "(", ")"}, ",", {
                  "Initialization", "\[RuleDelayed]", {
-                  "(", {"state", "\[Assign]", ComplexStringBox("\"init\"")}, 
-                  ")"}}, ",", {"Deinitialization", "\[RuleDelayed]", {
-                  "(", {"state", "\[Assign]", ComplexStringBox("\"done\"")}, 
-                  ")"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+                  "(", {"state", "\[Assign]", StringBox("\"init\"")}, ")"}}, 
+                ",", {"Deinitialization", "\[RuleDelayed]", {
+                  "(", {"state", "\[Assign]", StringBox("\"done\"")}, ")"}}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(DynamicBox(ToBoxes(RandomReal()), 
                Deinitialization :> ($Context`state:= "done"), 
                Initialization :> ($Context`state:= "init"))), "Output", 
@@ -265,7 +259,7 @@ Document({
                    {"Dynamic", "(", {
                      {"If", "(", {{"y", "\[GreaterEqual]", "0.5"}, ",", {
                         "y", "\[Assign]", "0.5"}}, ")"}, ";", 
-                     ComplexStringBox("\"\"")}, ")"}, ",", {
+                     StringBox("\"\"")}, ")"}, ",", {
                     "Slider", "(", {"Dynamic", "(", "y", ")"}, ")"}}, "}"}}), 
                "Input", SectionLabel -> "in [1]:"), 
               Section(

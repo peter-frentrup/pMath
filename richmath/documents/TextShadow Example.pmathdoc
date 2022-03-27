@@ -4,8 +4,8 @@ Document({
   SectionGroup({Section("TextShadow Example", "Title"), 
     SectionGroup({
       Section(BoxData(/\/({{"px", "\[Assign]", "0.75"}, ";"}, "\n", {
-          {{"Style", "(", {ComplexStringBox("\"Shadow Text\""), ",", "56", 
-             ",", {"RGBColor", "(", {FractionBox("228", "255"), ",", 
+          {{"Style", "(", {StringBox("\"Shadow Text\""), ",", "56", ",", {
+              "RGBColor", "(", {FractionBox("228", "255"), ",", 
                FractionBox("243", "255"), ",", FractionBox("249", "255")}, 
               ")"}, ",", {"\n", {"TextShadow", "\[Rule]", {
                 "Join", "(", {
@@ -44,61 +44,61 @@ Document({
                        ",", "White", ",", {"1", "px"}}, "}"}}, ",", {
                      "\n", {"{", {{{"-", "2"}, "px"}, ",", {{"-", "2"}, "px"}, 
                        ",", "White", ",", {"1", "px"}}, "}"}}}, "}"}}}, 
-                ")"}}}}, ")"}, ".", "List", "(", ComplexStringBox("\"\\n\""), 
-           ")"}, ".", "Row"})), "Input"), 
+                ")"}}}}, ")"}, ".", "List", "(", StringBox("\"\\n\""), ")"}, 
+          ".", "Row"})), "Input"), 
       Section(BoxData(InterpretationBox({
-          StyleBox(ComplexStringBox("\"Shadow Text\""), 
+          StyleBox(StringBox("\"Shadow Text\""), 
            FontColor -> RGBColor(0.89400000000000002`, 0.95299999999999996`, 
-            0.97599999999999998`), FontSize -> 56, StripOnInput -> False, 
+             0.97599999999999998`), FontSize -> 56, StripOnInput -> False, 
            TextShadow -> {{10.5`, 10.5`, RGBColor(1/51, 13/255, 4/51), 9.0`}, {
-             9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
-             8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
-             7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
-             6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
-             6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
-             5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
-             4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
-             3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
-             3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
-             2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
-             1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
-             0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
-             0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
-             -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
-             -1.5`, -1.5`, GrayLevel(1), 0.75`}}), 
-          ComplexStringBox("\"\n\"")}, Row({
+              9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
+              8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
+              7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
+              6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
+              6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
+              5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
+              4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
+              3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
+              3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
+              2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
+              1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
+              0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
+              0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
+              -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
+              -1.5`, -1.5`, GrayLevel(1), 0.75`}}), StringBox("\"\n\"")}, Row({
           Style("Shadow Text", 56, RGBColor(76/85, 81/85, 83/85), 
            TextShadow -> {{10.5`, 10.5`, RGBColor(1/51, 13/255, 4/51), 9.0`}, {
-             9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
-             8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
-             7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
-             6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
-             6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
-             5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
-             4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
-             3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
-             3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
-             2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
-             1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
-             0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
-             0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
-             -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
-             -1.5`, -1.5`, GrayLevel(1), 0.75`}}), "\n"}), 
+              9.0`, 9.0`, RGBColor(28/255, 67/255, 103/255), 0.75`}, {
+              8.25`, 8.25`, RGBColor(14/85, 101/255, 139/255)}, {
+              7.5`, 7.5`, RGBColor(4/25, 327/850, 453/850)}, {
+              6.75`, 6.75`, RGBColor(66/425, 28/75, 664/1275)}, {
+              6.0`, 6.0`, RGBColor(64/425, 923/2550, 1297/2550)}, {
+              5.25`, 5.25`, RGBColor(62/425, 149/425, 211/425)}, {
+              4.5`, 4.5`, RGBColor(12/85, 173/510, 247/510)}, {
+              3.75`, 3.75`, RGBColor(58/425, 418/1275, 602/1275)}, {
+              3.0`, 3.0`, RGBColor(56/425, 269/850, 23/50)}, {
+              2.25`, 2.25`, RGBColor(54/425, 389/1275, 571/1275)}, {
+              1.5`, 1.5`, RGBColor(52/425, 749/2550, 1111/2550)}, {
+              0.75`, 0.75`, RGBColor(2/17, 24/85, 36/85)}, {
+              0.75`, 0.75`, RGBColor(232/255, 247/255, 1), 0.75`}, {
+              -0.75`, -0.75`, GrayLevel(1), 0.75`}, {
+              -1.5`, -1.5`, GrayLevel(1), 0.75`}}), "\n"}), 
          Editable -> False)), "Output", SectionGenerated -> True, 
        SectionLabel -> "out [14]:")}, All), 
     SectionGroup({Section("Original CSS", "Section"), 
       Section(
        "http://webforfreaks.com/cssandtype/index.php?chemin=content/2011-01-02\
        /", "Text"), 
-      Section({
-        "Note that the values for TextShadow option above are reversed order \
-        in CSS and pMath does not currently support the alpha channel.\nThe \
-        value of ", {"px", "\[Assign]", "0.75"}, 
-        " comes from a default resulution of 96 pixels per inch, and 1 inch is \
-        72 printers points ", {"\[DoubleRightArrow]", {
-          {"96", "px"}, "=", {"72", "pt"}}, "\[DoubleRightArrow]", {
-          {"1", "px"}, "=", {{"72", "/", "96"}, "pt"}, "=", {"0.75", "pt"}}}, 
-        "."}, "Text"), 
+      Section(
+       TextData({
+         "Note that the values for TextShadow option above are reversed order \
+         in CSS and pMath does not currently support the alpha channel.\nThe \
+         value of ", {"px", "\[Assign]", "0.75"}, 
+         " comes from a default resulution of 96 pixels per inch, and 1 inch \
+         is 72 printers points ", {"\[DoubleRightArrow]", {
+           {"96", "px"}, "=", {"72", "pt"}}, "\[DoubleRightArrow]", {
+           {"1", "px"}, "=", {{"72", "/", "96"}, "pt"}, "=", {"0.75", "pt"}}}, 
+         "."}), "Text"), 
       Section(
        ".blue3d textarea {\r\n    resize:none;\r\n    width:800px;\r\n    \
        height:540px;\r\n    padding:80px 20px 40px 20px;\r\n    overflow: \

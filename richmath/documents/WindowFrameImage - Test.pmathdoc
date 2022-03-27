@@ -7,14 +7,14 @@ Document({
      Glass\[HighNineDoubleQuote] to see the frame image.", "Text"), 
     SectionGroup({
       Section(
-       BoxData({"Button", "(", {
-          ComplexStringBox("\"Open Window with Frame Image\""), ",", {
+       BoxData({"Button", "(", {StringBox("\"Open Window with Frame Image\""), 
+          ",", {
            "\n", {"With", "(", {
              {"{", {"imgFile", "\[Assign]", {"FE`FileOpenDialog", "(", {
                  {"If", "(", {{"IsString", "(", "lastChosenImage", ")"}, ",", 
-                   "lastChosenImage", ",", ComplexStringBox("\"\"")}, ")"}, 
-                 ",", {"{", {ComplexStringBox("\"PNG Images\""), "->", 
-                   ComplexStringBox("\"*.png\"")}, "}"}}, ")"}}, "}"}, ",", {
+                   "lastChosenImage", ",", StringBox("\"\"")}, ")"}, ",", {
+                  "{", {StringBox("\"PNG Images\""), "->", 
+                   StringBox("\"*.png\"")}, "}"}}, ")"}}, "}"}, ",", {
               "\n", {{"If", "(", {{"IsString", "(", "imgFile", ")"}, ",", {
                   "\n", {{"lastChosenImage", "\[Assign]", "imgFile"}, ";", {
                     "\n", {"Block", "(", {{"{", "FE`$WindowFrameImage", "}"}, 
@@ -23,22 +23,25 @@ Document({
                          "DocumentGet", "(", {"EvaluationDocument", "(", ")"}, 
                          ")"}}}}, ")"}}}}}, ")"}, ";"}}}, ")"}}}, ")"}), 
        "Input"), 
-      Section(
-       BoxData(ButtonBox(ComplexStringBox("\"Open Window with Frame Image\""), 
-         ButtonFunction -> (With({
-           imgFile:= FE`FileOpenDialog(If(IsString(lastChosenImage), 
-             lastChosenImage, ""), {"PNG Images" -> "*.png"})}, 
-          If(IsString(imgFile), lastChosenImage:= imgFile; Block({
-             FE`$WindowFrameImage}, FE`$WindowFrameImage:= imgFile; Apply(
-             DocumentGet(EvaluationDocument()), CreateDocument)));) &))), 
-       "Output", SectionGenerated -> True)}, 2), 
+      Section(BoxData(ButtonBox(StringBox("\"Open Window with Frame Image\""), 
+         ButtonFunction -> (
+           With({
+             Global`imgFile:= FE`FileOpenDialog(
+               If(IsString(Global`lastChosenImage), Global`lastChosenImage, 
+                ""), {"PNG Images" -> "*.png"})}, 
+            If(IsString(Global`imgFile), 
+              Global`lastChosenImage:= Global`imgFile; 
+               Block({FE`$WindowFrameImage}, 
+                FE`$WindowFrameImage:= Global`imgFile; 
+                 Apply(DocumentGet(EvaluationDocument()), 
+                  CreateDocument)));) &))), "Output", 
+       SectionGenerated -> True)}, 2), 
     SectionGroup({
       Section(
        BoxData({"Grid", "(", {
-          "{", {{"{", {ComplexStringBox("\"last chosen image:\""), "++", {
+          "{", {{"{", {StringBox("\"last chosen image:\""), "++", {
               "StringExpression", "@@", {"ConstantArray", "(", {
-                ComplexStringBox("\"\\[U+2003]\""), ",", "20"}, ")"}}}, "}"}, 
-           ",", {
+                StringBox("\"\\[U+2003]\""), ",", "20"}, ")"}}}, "}"}, ",", {
             "\n", {"{", {"InputField", "(", {
                {"Dynamic", "(", "lastChosenImage", ")"}, ",", "String"}, ")"}, 
              "}"}}}, "}"}, ")"}), "Input"), 
@@ -46,61 +49,66 @@ Document({
        BoxData(
         TagBox(
          GridBox({
-           {ComplexStringBox(
+           {StringBox(
              "\"last chosen \
              image:\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\
              \[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\
              \[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\[U+2003]\"\
-             ")}, {InputFieldBox(Dynamic(lastChosenImage), String)}}), 
+             ")}, {InputFieldBox(Dynamic(Global`lastChosenImage), String)}}), 
          "Grid")), "Output", SectionGenerated -> True)}, 2), 
     SectionGroup({
-      Section(BoxData({"Button", "(", {ComplexStringBox("\"+\""), ",", {
+      Section(BoxData({"Button", "(", {StringBox("\"+\""), ",", {
            "\n", {
             {"With", "(", {
-              {"{", {"old", "\[Assign]", {ComplexStringBox("\"TopGlass\""), 
-                 ".", "Replace", "(", {"DockedSections", ".", "Replace", "(", {
+              {"{", {"old", "\[Assign]", {StringBox("\"TopGlass\""), ".", 
+                 "Replace", "(", {"DockedSections", ".", "Replace", "(", {
                    "Options", "(", {{"EvaluationDocument", "(", ")"}, ",", 
                     "DockedSections"}, ")"}, ")"}, ")"}}, "}"}, ",", {
                "\n", {"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, 
                  ",", {"DockedSections", "\[Rule]", {
-                   "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
+                   "{", {StringBox("\"TopGlass\""), "\[Rule]", {
                      "Flatten", "@", {
                       "{", {"old", ",", {"Section", "(", {
-                         ComplexStringBox("\"\""), ",", 
-                         ComplexStringBox("\"Docked\"")}, ")"}}, "}"}}}, 
-                   "}"}}}, ")"}}}, ")"}, "\n"}}}, ")"}), "Input"), 
-      Section(BoxData(ButtonBox(ComplexStringBox("\"+\""), 
-         ButtonFunction -> (With({
-           old:= Replace("TopGlass", Replace(DockedSections, 
-             Options(EvaluationDocument(), DockedSections)))}, 
-          SetOptions(EvaluationDocument(), 
-           DockedSections -> {"TopGlass" -> Flatten({
-              old, Section("", "Docked")})})) &))), "Output", 
-       SectionGenerated -> True)}, 2), 
+                         StringBox("\"\""), ",", StringBox("\"Docked\"")}, 
+                        ")"}}, "}"}}}, "}"}}}, ")"}}}, ")"}, "\n"}}}, ")"}), 
+       "Input"), 
+      Section(BoxData(ButtonBox(StringBox("\"+\""), 
+         ButtonFunction -> (
+           With({
+             Global`old:= Replace("TopGlass", 
+               Replace(DockedSections, Options(EvaluationDocument(), 
+                 DockedSections)))}, SetOptions(EvaluationDocument(), 
+             DockedSections -> {
+               "TopGlass" -> 
+                Flatten({Global`old, Section("", "Docked")})})) &))), 
+       "Output", SectionGenerated -> True)}, 2), 
     SectionGroup({
-      Section(BoxData({"Button", "(", {ComplexStringBox("\"-\""), ",", {
+      Section(BoxData({"Button", "(", {StringBox("\"-\""), ",", {
            "\n", {
             {"With", "(", {
               {"{", {"old", "\[Assign]", {
-                 "Flatten", "@", {"{", {ComplexStringBox("\"TopGlass\""), ".", 
+                 "Flatten", "@", {"{", {StringBox("\"TopGlass\""), ".", 
                    "Replace", "(", {"DockedSections", ".", "Replace", "(", {
                      "Options", "(", {{"EvaluationDocument", "(", ")"}, ",", 
                       "DockedSections"}, ")"}, ")"}, ")"}, "}"}}}, "}"}, ",", {
                "\n", {{"If", "(", {{{"Length", "(", "old", ")"}, ">", "0"}, 
                   ",", {"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, 
                     ",", {"DockedSections", "\[Rule]", {
-                      "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
+                      "{", {StringBox("\"TopGlass\""), "\[Rule]", {
                         "Most", "@", "old"}}, "}"}}}, ")"}}, ")"}, "\n"}}}, 
              ")"}, "\n"}}}, ")"}), "Input"), 
-      Section(BoxData(ButtonBox(ComplexStringBox("\"-\""), 
-         ButtonFunction -> (With({
-           old:= Flatten({
-             Replace("TopGlass", Replace(DockedSections, 
-               Options(EvaluationDocument(), DockedSections)))})}, 
-          If(Length(old) > 0, SetOptions(EvaluationDocument(), 
-            DockedSections -> {"TopGlass" -> Most(old)}))) &))), "Output", 
-       SectionGenerated -> True)}, 2)}, All)}, Background -> GrayLevel(1), 
- DockedSections :> {"TopGlass" -> {Section("", "Docked")}}, Editable -> True, 
+      Section(BoxData(ButtonBox(StringBox("\"-\""), 
+         ButtonFunction -> (
+           With({
+             Global`old:= 
+              Flatten({
+                Replace("TopGlass", Replace(DockedSections, 
+                  Options(EvaluationDocument(), DockedSections)))})}, 
+            If(Length(Global`old) > 0, SetOptions(EvaluationDocument(), 
+              DockedSections -> {"TopGlass" -> Most(Global`old)}))) &))), 
+       "Output", SectionGenerated -> True)}, 2)}, All)}, 
+ Background -> GrayLevel(1), DockedSections :> {
+   "TopGlass" -> {Section("", "Docked")}}, Editable -> True, 
  Selectable -> True, ShowSectionBracket -> False, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True, 
  WindowFrame -> "Dialog", WindowTitle -> "Using $WindowFrameImage")

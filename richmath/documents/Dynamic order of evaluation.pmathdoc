@@ -15,16 +15,17 @@ Document({
         Section(BoxData({"Dynamic", "(", {
             "x", ";", {"Refresh", "(", {{"RandomReal", "(", ")"}, ",", 
               "None"}, ")"}}, ")"}), "Input", SectionLabel -> "in [7]:"), 
-        Section(BoxData(DynamicBox(ToBoxes(x; Refresh(RandomReal(), None)))), 
+        Section(
+         BoxData(DynamicBox(ToBoxes(Global`x; Refresh(RandomReal(), None)))), 
          "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, 
        All), SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), 
          "Input", SectionLabel -> "in [6]:"), 
-        Section(BoxData(DynamicBox(ToBoxes(x))), "Output", 
+        Section(BoxData(DynamicBox(ToBoxes(Global`x))), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
       SectionGroup({
         Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
          "Input", SectionLabel -> "in [7]:"), 
-        Section(BoxData(SliderBox(Dynamic(x), 0 .. 1)), "Output", 
+        Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1)), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
       SectionGroup({
         Section(BoxData({"Dynamic", "(", {
@@ -33,32 +34,32 @@ Document({
              "Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}}, ")"}), "Input", 
          SectionLabel -> "in [8]:"), 
         Section(
-         BoxData(DynamicBox(ToBoxes(If(x >= 0.5`, x:= 0.5`); Slider(
-             Dynamic(x))))), "Output", SectionGenerated -> True, 
+         BoxData(DynamicBox(ToBoxes(If(Global`x >= 0.5`, Global`x:= 0.5`); 
+             Slider(Dynamic(Global`x))))), "Output", SectionGenerated -> True, 
          SectionLabel -> "out [8]:")}, All), 
       SectionGroup({
         Section(BoxData({"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}), 
          "Input", SectionLabel -> "in [9]:"), 
-        Section(BoxData(SliderBox(Dynamic(x), 0 .. 1)), "Output", 
+        Section(BoxData(SliderBox(Dynamic(Global`x), 0 .. 1)), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
       SectionGroup({Section(BoxData({"Dynamic", "(", "x", ")"}), "Input", 
-         SectionLabel -> "in [10]:"), Section(BoxData(DynamicBox(ToBoxes(x))), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [10]:")}, 
-       All)}, All), SectionGroup({Section("In one line", "Title"), 
+         SectionLabel -> "in [10]:"), 
+        Section(BoxData(DynamicBox(ToBoxes(Global`x))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [10]:")}, All)}, All), 
+    SectionGroup({Section("In one line", "Title"), 
       SectionGroup({
         Section(
          BoxData({"Row", "@", {
             "{", {
              {"Dynamic", "(", {
                {"If", "(", {{"y", "\[GreaterEqual]", "0.5"}, ",", {
-                  "y", "\[Assign]", "0.5"}}, ")"}, ";", 
-               ComplexStringBox("\"\"")}, ")"}, ",", {
-              "Slider", "(", {"Dynamic", "(", "y", ")"}, ")"}}, "}"}}), 
-         "Input", SectionLabel -> "in [11]:"), 
+                  "y", "\[Assign]", "0.5"}}, ")"}, ";", StringBox("\"\"")}, 
+              ")"}, ",", {"Slider", "(", {"Dynamic", "(", "y", ")"}, ")"}}, 
+            "}"}}), "Input", SectionLabel -> "in [11]:"), 
         Section(BoxData(InterpretationBox({
-            DynamicBox(ToBoxes(If(y >= 0.5`, y:= 0.5`); "")), 
-            SliderBox(Dynamic(y), 0 .. 1)}, Row({
-            Dynamic(If(y >= 0.5`, y:= 0.5`); ""), Slider(Dynamic(y))}), 
-           Editable -> False)), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [11]:")}, All)}, All)}, All)}, 
- StyleDefinitions -> "Default.pmathdoc", Visible -> True)
+            DynamicBox(ToBoxes(If(Global`y >= 0.5`, Global`y:= 0.5`); "")), 
+            SliderBox(Dynamic(Global`y), 0 .. 1)}, Row({
+            Dynamic(If(Global`y >= 0.5`, Global`y:= 0.5`); ""), 
+            Slider(Dynamic(Global`y))}), Editable -> False)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [11]:")}, All)}, 
+     All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

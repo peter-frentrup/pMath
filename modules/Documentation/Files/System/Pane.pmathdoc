@@ -53,7 +53,7 @@ Document({
                      "BaselinePosition", "\[Rule]", "p"}}, ")"}, ",", {
                    "p", "\[Rule]", {"{", {"Automatic", ",", "Top", ",", 
                      "Center", ",", "Baseline", ",", "Bottom"}, "}"}}}, ")"}, 
-                ",", ComplexStringBox("\"x\"")}, ")"}), "Input", 
+                ",", StringBox("\"x\"")}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(TemplateBox({
@@ -82,14 +82,14 @@ Document({
                       "123", ",", {"{", {"50", ",", "50"}, "}"}, ",", {
                        "ImageSizeAction", "\[Rule]", "a"}}, ")"}, ")"}}, "}"}, 
                  ",", {"a", "\[Rule]", {
-                   "{", {ComplexStringBox("\"Clip\""), ",", 
-                    ComplexStringBox("\"ShrinkToFit\""), ",", 
-                    ComplexStringBox("\"ResizeToFit\"")}, "}"}}}, ")"}}), 
-             "Input", SectionLabel -> "in [1]:"), 
+                   "{", {StringBox("\"Clip\""), ",", 
+                    StringBox("\"ShrinkToFit\""), ",", 
+                    StringBox("\"ResizeToFit\"")}, "}"}}}, ")"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
               TagBox(
-               GridBox({{ComplexStringBox("\"Clip\""), 
+               GridBox({{StringBox("\"Clip\""), 
                   FrameBox(
                    PaneBox(
                     "304140932017133780436126081660647688443776415689605120000\
@@ -97,7 +97,7 @@ Document({
                     ImageSizeAction -> "Clip")), 
                   FrameBox(PaneBox("123", ImageSize -> {50, 50}, 
                     ImageSizeAction -> "Clip"))}, {
-                  ComplexStringBox("\"ShrinkToFit\""), 
+                  StringBox("\"ShrinkToFit\""), 
                   FrameBox(
                    PaneBox(
                     "304140932017133780436126081660647688443776415689605120000\
@@ -105,7 +105,7 @@ Document({
                     ImageSizeAction -> "ShrinkToFit")), 
                   FrameBox(PaneBox("123", ImageSize -> {50, 50}, 
                     ImageSizeAction -> "ShrinkToFit"))}, {
-                  ComplexStringBox("\"ResizeToFit\""), 
+                  StringBox("\"ResizeToFit\""), 
                   FrameBox(
                    PaneBox(
                     "304140932017133780436126081660647688443776415689605120000\
@@ -148,10 +148,9 @@ Document({
            TemplateBox({"Grid"}, "ReferenceHyperlink"), ":"}), "ExampleText"), 
         SectionGroup({
           Section(BoxData({"Filler", "(", {
-              "Pane", "(", {"Button", "(", ComplexStringBox("\"Click\""), 
-               ")"}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
-          Section(
-           BoxData(FillBox(PaneBox(ButtonBox(ComplexStringBox("\"Click\""))), 
+              "Pane", "(", {"Button", "(", StringBox("\"Click\""), ")"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(FillBox(PaneBox(ButtonBox(StringBox("\"Click\""))), 
              StripOnInput -> False)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
         Section(
@@ -163,23 +162,24 @@ Document({
            TemplateBox({"Grid"}, "ReferenceHyperlink"), " tables:"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData({"Filler", "(", {
-              "Button", "(", ComplexStringBox("\"Click\""), ")"}, ")"}), 
-           "Input", SectionLabel -> "in [2]:"), 
-          Section(BoxData(FillBox(ButtonBox(ComplexStringBox("\"Click\"")), 
+              "Button", "(", StringBox("\"Click\""), ")"}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
+          Section(BoxData(FillBox(ButtonBox(StringBox("\"Click\"")), 
              StripOnInput -> False)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [2]:")}, All), 
         SectionGroup({
           Section(
            BoxData({"Grid", "(", {
-              "{", {{"{", {{"Button", "(", ComplexStringBox("\"long\""), ")"}, 
-                 ",", {"Pane", "(", {"Button", "(", 
-                   ComplexStringBox("\"short\""), ")"}, ")"}}, "}"}, ",", {
+              "{", {{"{", {{"Button", "(", StringBox("\"long\""), ")"}, ",", {
+                  "Pane", "(", {"Button", "(", StringBox("\"short\""), ")"}, 
+                  ")"}}, "}"}, ",", {
                 "{", {{"10", "^", "9"}, ",", {"10", "^", "9"}}, "}"}}, "}"}, 
              ")"}), "Input", SectionLabel -> "in [3]:"), 
           Section(
            BoxData(
-            TagBox(GridBox({{ButtonBox(ComplexStringBox("\"long\"")), 
-                PaneBox(ButtonBox(ComplexStringBox("\"short\"")))}, {
+            TagBox(
+             GridBox({{ButtonBox(StringBox("\"long\"")), 
+                PaneBox(ButtonBox(StringBox("\"short\"")))}, {
                 "1000000000", "1000000000"}}), "Grid")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 

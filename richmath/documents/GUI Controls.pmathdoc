@@ -19,36 +19,29 @@ Document({
        BoxData({"Table", "(", {
           {"Button", "(", {"bf", ",", {"ButtonFrame", "\[Rule]", "bf"}}, ")"}, 
           ",", {"bf", "\[Rule]", {
-            "{", {"None", ",", "Automatic", ",", 
-             ComplexStringBox("\"Frameless\""), ",", 
-             ComplexStringBox("\"DialogBox\""), ",", 
-             ComplexStringBox("\"Defaulted\""), ",", 
-             ComplexStringBox("\"Palette\""), ",", 
-             ComplexStringBox("\"Generic\""), ",", 
-             ComplexStringBox("\"ListViewItem\""), ",", 
-             ComplexStringBox("\"ListViewItemSelected\""), ",", 
-             ComplexStringBox("\"NavigationBack\""), ",", 
-             ComplexStringBox("\"NavigationForward\"")}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [4]:"), 
+            "{", {"None", ",", "Automatic", ",", StringBox("\"Frameless\""), 
+             ",", StringBox("\"DialogBox\""), ",", StringBox("\"Defaulted\""), 
+             ",", StringBox("\"Palette\""), ",", StringBox("\"Generic\""), 
+             ",", StringBox("\"ListViewItem\""), ",", 
+             StringBox("\"ListViewItemSelected\""), ",", 
+             StringBox("\"NavigationBack\""), ",", 
+             StringBox("\"NavigationForward\"")}, "}"}}}, ")"}), "Input", 
+       SectionLabel -> "in [4]:"), 
       Section(BoxData({"{", {ButtonBox("None", ButtonFrame -> None), ",", 
-          ButtonBox("Automatic"), ",", 
-          ButtonBox(ComplexStringBox("\"Frameless\""), 
+          ButtonBox("Automatic"), ",", ButtonBox(StringBox("\"Frameless\""), 
            ButtonFrame -> "Frameless"), ",", 
-          ButtonBox(ComplexStringBox("\"DialogBox\""), 
-           ButtonFrame -> "DialogBox"), ",", 
-          ButtonBox(ComplexStringBox("\"Defaulted\""), 
+          ButtonBox(StringBox("\"DialogBox\""), ButtonFrame -> "DialogBox"), 
+          ",", ButtonBox(StringBox("\"Defaulted\""), 
            ButtonFrame -> "Defaulted"), ",", 
-          ButtonBox(ComplexStringBox("\"Palette\""), 
-           ButtonFrame -> "Palette"), ",", 
-          ButtonBox(ComplexStringBox("\"Generic\""), 
-           ButtonFrame -> "Generic"), ",", 
-          ButtonBox(ComplexStringBox("\"ListViewItem\""), 
+          ButtonBox(StringBox("\"Palette\""), ButtonFrame -> "Palette"), ",", 
+          ButtonBox(StringBox("\"Generic\""), ButtonFrame -> "Generic"), ",", 
+          ButtonBox(StringBox("\"ListViewItem\""), 
            ButtonFrame -> "ListViewItem"), ",", 
-          ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
+          ButtonBox(StringBox("\"ListViewItemSelected\""), 
            ButtonFrame -> "ListViewItemSelected"), ",", 
-          ButtonBox(ComplexStringBox("\"NavigationBack\""), 
+          ButtonBox(StringBox("\"NavigationBack\""), 
            ButtonFrame -> "NavigationBack"), ",", 
-          ButtonBox(ComplexStringBox("\"NavigationForward\""), 
+          ButtonBox(StringBox("\"NavigationForward\""), 
            ButtonFrame -> "NavigationForward")}, "}"}), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
     SectionGroup({
@@ -57,36 +50,31 @@ Document({
           {"Button", "(", {"bf", ",", {"ButtonFrame", "\[Rule]", "bf"}, ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}, ",", {
            "bf", "\[Rule]", {"{", {"None", ",", "Automatic", ",", 
-             ComplexStringBox("\"Frameless\""), ",", 
-             ComplexStringBox("\"DialogBox\""), ",", 
-             ComplexStringBox("\"Defaulted\""), ",", 
-             ComplexStringBox("\"Palette\""), ",", 
-             ComplexStringBox("\"Generic\""), ",", 
-             ComplexStringBox("\"ListViewItem\""), ",", 
-             ComplexStringBox("\"ListViewItemSelected\""), ",", 
-             ComplexStringBox("\"NavigationBack\""), ",", 
-             ComplexStringBox("\"NavigationForward\"")}, "}"}}}, ")"}), 
-       "Input", SectionLabel -> "in [5]:"), 
+             StringBox("\"Frameless\""), ",", StringBox("\"DialogBox\""), ",", 
+             StringBox("\"Defaulted\""), ",", StringBox("\"Palette\""), ",", 
+             StringBox("\"Generic\""), ",", StringBox("\"ListViewItem\""), 
+             ",", StringBox("\"ListViewItemSelected\""), ",", 
+             StringBox("\"NavigationBack\""), ",", 
+             StringBox("\"NavigationForward\"")}, "}"}}}, ")"}), "Input", 
+       SectionLabel -> "in [5]:"), 
       Section(
        BoxData({
          "{", {ButtonBox("None", ButtonFrame -> None, Enabled -> False), ",", 
           ButtonBox("Automatic", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"Frameless\""), 
-           ButtonFrame -> "Frameless", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"DialogBox\""), 
+          ButtonBox(StringBox("\"Frameless\""), ButtonFrame -> "Frameless", 
+           Enabled -> False), ",", ButtonBox(StringBox("\"DialogBox\""), 
            ButtonFrame -> "DialogBox", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"Defaulted\""), 
-           ButtonFrame -> "Defaulted", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"Palette\""), ButtonFrame -> "Palette", 
-           Enabled -> False), ",", ButtonBox(ComplexStringBox("\"Generic\""), 
-           ButtonFrame -> "Generic", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"ListViewItem\""), 
+          ButtonBox(StringBox("\"Defaulted\""), ButtonFrame -> "Defaulted", 
+           Enabled -> False), ",", ButtonBox(StringBox("\"Palette\""), 
+           ButtonFrame -> "Palette", Enabled -> False), ",", 
+          ButtonBox(StringBox("\"Generic\""), ButtonFrame -> "Generic", 
+           Enabled -> False), ",", ButtonBox(StringBox("\"ListViewItem\""), 
            ButtonFrame -> "ListViewItem", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
+          ButtonBox(StringBox("\"ListViewItemSelected\""), 
            ButtonFrame -> "ListViewItemSelected", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"NavigationBack\""), 
+          ButtonBox(StringBox("\"NavigationBack\""), 
            ButtonFrame -> "NavigationBack", Enabled -> False), ",", 
-          ButtonBox(ComplexStringBox("\"NavigationForward\""), 
+          ButtonBox(StringBox("\"NavigationForward\""), 
            ButtonFrame -> "NavigationForward", Enabled -> False)}, "}"}), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
     SectionGroup({
@@ -102,10 +90,10 @@ Document({
              "\[InvisibleSpace]", SetterBox(Dynamic($Context`x), 3, "3")}, 
             SetterBar(Dynamic($Context`x), {1, 2, 3}), Editable -> False), 
            ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
-         Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {
-           {OwnRules($Context`x):= {HoldPattern($Context`x) :> 1}}})), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+         Deinitialization -> None, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> 1}}}, 
+         Initialization -> None, UnsavedVariables -> {})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"DynamicLocal", "(", {
           {"{", {"x", "\[Assign]", "1"}, "}"}, ",", {
@@ -123,10 +111,10 @@ Document({
              SetterBox(Dynamic($Context`x), 3, "3", Enabled -> False)}, 
             SetterBar(Dynamic($Context`x), {1, 2, 3}, Enabled -> False), 
             Editable -> False), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
-         Initialization :> None, Deinitialization :> None, 
-         UnsavedVariables :> {}, DynamicLocalValues :> {
-           {OwnRules($Context`x):= {HoldPattern($Context`x) :> 1}}})), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+         Deinitialization -> None, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> 1}}}, 
+         Initialization -> None, UnsavedVariables -> {})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
     SectionGroup({
       Section(BoxData({"Table", "(", {{"Checkbox", "(", "c", ")"}, ",", {
            "c", "\[Rule]", {"{", {"True", ",", "False", ",", "Undefined"}, 
@@ -201,45 +189,42 @@ Document({
        SectionGenerated -> True, SectionLabel -> "out [15]:")}, All), 
     SectionGroup({
       Section(BoxData({"Tooltip", "(", {
-          {"Panel", "(", ComplexStringBox("\"abc\""), ")"}, ",", 
-          ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
-       SectionLabel -> "in [16]:"), 
-      Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"abc\"")), 
-         ComplexStringBox("\"Tip\""))), "Output", SectionGenerated -> True, 
+          {"Panel", "(", StringBox("\"abc\""), ")"}, ",", 
+          StringBox("\"Tip\"")}, ")"}), "Input", SectionLabel -> "in [16]:"), 
+      Section(BoxData(TooltipBox(PanelBox(StringBox("\"abc\"")), 
+         StringBox("\"Tip\""))), "Output", SectionGenerated -> True, 
        SectionLabel -> "out [16]:")}, All), 
     SectionGroup({
       Section(BoxData({"Tooltip", "(", {
-          {"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
+          {"Panel", "(", {StringBox("\"abc\""), ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}, ",", 
-          ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
-       SectionLabel -> "in [17]:"), 
-      Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"abc\""), 
-          Enabled -> False), ComplexStringBox("\"Tip\""))), "Output", 
+          StringBox("\"Tip\"")}, ")"}), "Input", SectionLabel -> "in [17]:"), 
+      Section(BoxData(TooltipBox(PanelBox(StringBox("\"abc\""), 
+          Enabled -> False), StringBox("\"Tip\""))), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [17]:")}, All), 
     SectionGroup({
-      Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
-           "Appearance", "\[Rule]", ComplexStringBox("\"Popup\"")}}, ")"}), 
-       "Input", SectionLabel -> "in [18]:"), 
-      Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 
-         Appearance -> "Popup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [18]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"Panel", "(", {ComplexStringBox("\"abc\""), ",", {
-           "Appearance", "\[Rule]", ComplexStringBox("\"Tooltip\"")}}, ")"}), 
+      Section(BoxData({"Panel", "(", {StringBox("\"abc\""), ",", {
+           "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}), "Input", 
+       SectionLabel -> "in [18]:"), 
+      Section(BoxData(PanelBox(StringBox("\"abc\""), Appearance -> "Popup")), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [18]:")}, 
+     All), SectionGroup({
+      Section(BoxData({"Panel", "(", {StringBox("\"abc\""), ",", {
+           "Appearance", "\[Rule]", StringBox("\"Tooltip\"")}}, ")"}), 
        "Input", SectionLabel -> "in [19]:"), 
-      Section(BoxData(PanelBox(ComplexStringBox("\"abc\""), 
+      Section(BoxData(PanelBox(StringBox("\"abc\""), 
          Appearance -> "Tooltip")), "Output", SectionGenerated -> True, 
        SectionLabel -> "out [19]:")}, All), 
     SectionGroup({Section("Input Field", "Subsection"), 
       SectionGroup({
         Section(BoxData({"InputField", "(", {
-            ComplexStringBox("\"Hallo\""), ",", "String"}, ")"}), "Input", 
+            StringBox("\"Hallo\""), ",", "String"}, ")"}), "Input", 
          SectionLabel -> "in [20]:"), 
         Section(BoxData(InputFieldBox("Hallo", String)), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [20]:")}, All), 
       SectionGroup({
         Section(BoxData({"InputField", "(", {
-            ComplexStringBox("\"Hallo\""), ",", "String", ",", {
+            StringBox("\"Hallo\""), ",", "String", ",", {
              "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
          SectionLabel -> "in [21]:"), 
         Section(BoxData(InputFieldBox("Hallo", String, Enabled -> False)), 
@@ -249,22 +234,22 @@ Document({
          BoxData({"Panel", "(", {
             {"Grid", "(", {
               {"{", {
-                "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), ",", 
+                "{", {{"InputField", "(", {StringBox("\"abc\""), ",", 
                    "String", ",", {"Appearance", "\[Rule]", 
-                    ComplexStringBox("\"AddressBand\"")}}, ")"}, ",", {
-                  "Button", "(", {ComplexStringBox("\"Go\""), ",", "None", 
-                   ",", {"ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, 
-               "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
-             "Appearance", "\[Rule]", ComplexStringBox("\"AddressBand\"")}}, 
-           ")"}), "Input", SectionLabel -> "in [22]:"), 
+                    StringBox("\"AddressBand\"")}}, ")"}, ",", {
+                  "Button", "(", {StringBox("\"Go\""), ",", "None", ",", {
+                    "ButtonFrame", "\[Rule]", 
+                    StringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, "}"}, ",", {
+               "ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+             "Appearance", "\[Rule]", StringBox("\"AddressBand\"")}}, ")"}), 
+         "Input", SectionLabel -> "in [22]:"), 
         Section(
          BoxData(
           PanelBox(
            TagBox(
             GridBox({
               {InputFieldBox("abc", String, Appearance -> "AddressBand"), 
-               ButtonBox(ComplexStringBox("\"Go\""), 
+               ButtonBox(StringBox("\"Go\""), 
                 ButtonFrame -> "AddressBandGo")}}, GridBoxColumnSpacing -> 0), 
             "Grid"), Appearance -> "AddressBand")), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [22]:")}, All)}, All), 
@@ -294,58 +279,57 @@ Document({
                               {"Dynamic", "(", {"idx", ",", {
                                  "{", {"Automatic", ",", "None", ",", 
                                   "Automatic"}, "}"}}, ")"}, ",", "1", ",", 
-                              ComplexStringBox("\"Tab 1\""), ",", {
+                              StringBox("\"Tab 1\""), ",", {
                                "\n", {"ButtonFrame", "\[Rule]", 
-                                ComplexStringBox(
-                                 "\"TabHeadAbuttingRight\"")}}}, ")"}, ",", {
+                                StringBox("\"TabHeadAbuttingRight\"")}}}, 
+                             ")"}, ",", {
                              "\n", {"Setter", "(", {
                                {"Dynamic", "(", {"idx", ",", {
                                   "{", {"Automatic", ",", "None", ",", 
                                    "Automatic"}, "}"}}, ")"}, ",", "2", ",", 
-                               ComplexStringBox("\"Tab 2\""), ",", {
+                               StringBox("\"Tab 2\""), ",", {
                                 "\n", {"ButtonFrame", "\[Rule]", 
-                                 ComplexStringBox(
-                                  "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
-                            ",", {"\n", {"Setter", "(", {
+                                 StringBox("\"TabHeadAbuttingLeftRight\"")}}}, 
+                              ")"}}, ",", {
+                             "\n", {"Setter", "(", {
                                {"Dynamic", "(", {"idx", ",", {
                                   "{", {"Automatic", ",", "None", ",", 
                                    "Automatic"}, "}"}}, ")"}, ",", "3", ",", 
-                               ComplexStringBox("\"Tab 3\""), ",", {
+                               StringBox("\"Tab 3\""), ",", {
                                 "\n", {"ButtonFrame", "\[Rule]", 
-                                 ComplexStringBox(
-                                  "\"TabHeadAbuttingLeftRight\"")}}}, ")"}}, 
-                            ",", {"\n", {"Setter", "(", {
+                                 StringBox("\"TabHeadAbuttingLeftRight\"")}}}, 
+                              ")"}}, ",", {
+                             "\n", {"Setter", "(", {
                                {"Dynamic", "(", {"idx", ",", {
                                   "{", {"Automatic", ",", "None", ",", 
                                    "Automatic"}, "}"}}, ")"}, ",", "4", ",", 
-                               ComplexStringBox("\"Tab 4\""), ",", {
+                               StringBox("\"Tab 4\""), ",", {
                                 "\n", {"ButtonFrame", "\[Rule]", 
-                                 ComplexStringBox(
-                                  "\"TabHeadAbuttingLeft\"")}}}, ")"}}, ",", {
-                             "\n", ComplexStringBox("\"  \"")}, ",", {
-                             "\n", {"Button", "(", {ComplexStringBox("\"+\""), 
-                               ",", ",", {"ButtonFrame", "\[Rule]", 
-                                ComplexStringBox("\"TabHead\"")}}, ")"}}, ",", 
-                            {"\n", ComplexStringBox("\" \"")}}, "}"}}, "}"}, 
-                        ",", {"\n", {"ColumnSpacing", "\[Rule]", "0"}}}, 
-                       ")"}}, ",", {"\n", {"Appearance", "\[Rule]", 
-                       ComplexStringBox("\"TabHead\"")}}}, ")"}, "}"}}, ",", {
+                                 StringBox("\"TabHeadAbuttingLeft\"")}}}, 
+                              ")"}}, ",", {"\n", StringBox("\"  \"")}, ",", {
+                             "\n", {"Button", "(", {StringBox("\"+\""), ",", 
+                               ",", {"ButtonFrame", "\[Rule]", 
+                                StringBox("\"TabHead\"")}}, ")"}}, ",", {
+                             "\n", StringBox("\" \"")}}, "}"}}, "}"}, ",", {
+                         "\n", {"ColumnSpacing", "\[Rule]", "0"}}}, ")"}}, 
+                     ",", {"\n", {"Appearance", "\[Rule]", 
+                       StringBox("\"TabHead\"")}}}, ")"}, "}"}}, ",", {
                   "\n", {
                    "{", {"Panel", "(", {
                      {"\n", {"PaneSelector", "(", {
                         {"{", {
                           {"\n", {"1", "\[Rule]", 
-                            ComplexStringBox("\"content 1\"")}}, ",", {
-                           "\n", {"2", "\[Rule]", ComplexStringBox(
-                             "\"content 2\"")}}, ",", {
-                           "\n", {"3", "\[Rule]", ComplexStringBox(
-                             "\"content 3\"")}}, ",", {
-                           "\n", {"4", "\[Rule]", ComplexStringBox(
-                             "\"content 4\"")}}}, "}"}, ",", {
+                            StringBox("\"content 1\"")}}, ",", {
+                           "\n", {"2", "\[Rule]", 
+                            StringBox("\"content 2\"")}}, ",", {
+                           "\n", {"3", "\[Rule]", 
+                            StringBox("\"content 3\"")}}, ",", {
+                           "\n", {"4", "\[Rule]", 
+                            StringBox("\"content 4\"")}}}, "}"}, ",", {
                          "\n", {"Dynamic", "(", "idx", ")"}}}, ")"}}, ",", {
                       "\n", {"Appearance", "\[Rule]", 
-                       ComplexStringBox("\"TabBody\"")}}}, ")"}, "}"}}}, "}"}, 
-               ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input", 
+                       StringBox("\"TabBody\"")}}}, ")"}, "}"}}}, "}"}, ",", {
+                "RowSpacing", "\[Rule]", "0"}}, ")"}}}, ")"}), "Input", 
          SectionLabel -> "in [24]:"), 
         Section(BoxData(DynamicLocalBox({$Context`idx}, 
            TagBox(
@@ -355,35 +339,31 @@ Document({
                  GridBox({
                    {SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 1, 
-                     ComplexStringBox("\"Tab 1\""), 
+                     StringBox("\"Tab 1\""), 
                      ButtonFrame -> "TabHeadAbuttingRight"), 
                     SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 2, 
-                     ComplexStringBox("\"Tab 2\""), 
+                     StringBox("\"Tab 2\""), 
                      ButtonFrame -> "TabHeadAbuttingLeftRight"), 
                     SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 3, 
-                     ComplexStringBox("\"Tab 3\""), 
+                     StringBox("\"Tab 3\""), 
                      ButtonFrame -> "TabHeadAbuttingLeftRight"), 
                     SetterBox(Dynamic($Context`idx, {
                        Automatic, None, Automatic}), 4, 
-                     ComplexStringBox("\"Tab 4\""), 
+                     StringBox("\"Tab 4\""), 
                      ButtonFrame -> "TabHeadAbuttingLeft"), 
-                    ComplexStringBox("\"  \""), 
-                    ButtonBox(ComplexStringBox("\"+\""), 
+                    StringBox("\"  \""), ButtonBox(StringBox("\"+\""), 
                      ButtonFrame -> "TabHead", ButtonFunction -> (/\/ &)), 
-                    ComplexStringBox("\" \"")}}, GridBoxColumnSpacing -> 0), 
-                 "Grid"), Appearance -> "TabHead")}, {
-               PanelBox(PaneSelectorBox({
-                  1 -> ComplexStringBox("\"content 1\""), 
-                  2 -> ComplexStringBox("\"content 2\""), 
-                  3 -> ComplexStringBox("\"content 3\""), 
-                  4 -> ComplexStringBox("\"content 4\"")}, 
-                 Dynamic($Context`idx)), Appearance -> "TabBody")}}, 
-             GridBoxRowSpacing -> 0), "Grid"), Initialization :> None, 
-           Deinitialization :> None, UnsavedVariables :> {}, 
-           DynamicLocalValues :> {
-             {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}})), 
-         "Output", SectionGenerated -> True, SectionLabel -> "out [24]:")}, 
-       All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
- Visible -> True)
+                    StringBox("\" \"")}}, GridBoxColumnSpacing -> 0), "Grid"), 
+                Appearance -> "TabHead")}, {
+               PanelBox(PaneSelectorBox({1 -> StringBox("\"content 1\""), 
+                  2 -> StringBox("\"content 2\""), 
+                  3 -> StringBox("\"content 3\""), 
+                  4 -> StringBox("\"content 4\"")}, Dynamic($Context`idx)), 
+                Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), "Grid"), 
+           Deinitialization -> None, DynamicLocalValues :> {
+             {OwnRules($Context`idx):= {HoldPattern($Context`idx) :> 1}}}, 
+           Initialization -> None, UnsavedVariables -> {})), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [24]:")}, All)}, 
+     All)}, All)}, StyleDefinitions -> "Default.pmathdoc", Visible -> True)

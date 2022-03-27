@@ -27,18 +27,18 @@ Document({
         Section("Get the current document file name", "ExampleText"), 
         SectionGroup({
           Section(BoxData({"CurrentValue", "(", 
-             ComplexStringBox("\"DocumentFileName\""), ")"}), "Input", 
+             StringBox("\"DocumentFileName\""), ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All), SectionGroup({
+          Section(BoxData(StringBox("\"CurrentValue.pmathdoc\"")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Dynamically update the current value:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Dynamic", "(", {
-                "CurrentValue", "(", ComplexStringBox("\"MouseOver\""), ")"}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
+                "CurrentValue", "(", StringBox("\"MouseOver\""), ")"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(DynamicBox(ToBoxes(CurrentValue("MouseOver")))), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All)}, All), 
@@ -78,9 +78,8 @@ Document({
             Section("Access nested option values:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"CurrentValue", "(", {
-                  "{", {ComplexStringBox("\"SyntaxErrorStyle\""), ",", 
-                   "FontColor"}, "}"}, ")"}), "Input", 
-               SectionLabel -> "in [1]:"), 
+                  "{", {StringBox("\"SyntaxErrorStyle\""), ",", "FontColor"}, 
+                  "}"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
               Section(BoxData({"RGBColor", "(", {"1", ",", "0", ",", "0"}, 
                  ")"}), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
@@ -88,9 +87,9 @@ Document({
           Section("Get the system\[HighNineQuote]s user interface font name:", 
            "ExampleText"), SectionGroup({
             Section(BoxData({"CurrentValue", "(", 
-               ComplexStringBox("\"ControlsFontFamily\""), ")"}), "Input", 
+               StringBox("\"ControlsFontFamily\""), ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(BoxData(ComplexStringBox("\"Segoe UI\"")), "Output", 
+            Section(BoxData(StringBox("\"Segoe UI\"")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -98,7 +97,7 @@ Document({
             Section("The system\[HighNineQuote]s user interface font size:", 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"ControlsFontSize\""), ")"}), "Input", 
+                 StringBox("\"ControlsFontSize\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), Section(BoxData("9"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All), SectionGroup({
@@ -107,7 +106,7 @@ Document({
             Section("The system\[HighNineQuote]s user interface font slant:", 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"ControlsFontSlant\""), ")"}), "Input", 
+                 StringBox("\"ControlsFontSlant\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), Section(BoxData("Plain"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All), SectionGroup({
@@ -116,16 +115,15 @@ Document({
             Section("The system\[HighNineQuote]s user interface font weight:", 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"ControlsFontWeight\""), ")"}), "Input", 
+                 StringBox("\"ControlsFontWeight\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), Section(BoxData("Plain"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({Section("Document", "ExampleSubsection"), 
           Section("Explore menu commands under the mouse cursor:", 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Dynamic", "(", {
-                "CurrentValue", "(", ComplexStringBox(
-                 "\"SelectedMenuCommand\""), ")"}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
+                "CurrentValue", "(", StringBox("\"SelectedMenuCommand\""), 
+                ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(DynamicBox(
                ToBoxes(CurrentValue("SelectedMenuCommand")))), "Output", 
@@ -138,11 +136,10 @@ Document({
              document:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"StyleDefinitionsOwner\""), ")"}), 
-               "Input", SectionLabel -> "in [1]:"), 
-              Section(BoxData("None"), "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All), 
-          SectionGroup({
+                 StringBox("\"StyleDefinitionsOwner\""), ")"}), "Input", 
+               SectionLabel -> "in [1]:"), Section(BoxData("None"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(
@@ -150,9 +147,11 @@ Document({
                TemplateBox({"None"}, "ReferenceHyperlink"), "):"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"DocumentDirectory\""), ")"}), "Input", 
+                 StringBox("\"DocumentDirectory\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox(
+              Section(
+               BoxData(
+                StringBox(
                  "\"D:\\\\User\\\\frentrup\\\\Programmieren\\\\pmath\\\\module\
                  s\\\\Documentation\\\\Files\\\\System\"")), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
@@ -166,9 +165,9 @@ Document({
                "):"}), "ExampleText"), 
             SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"DocumentFileName\""), ")"}), "Input", 
+                 StringBox("\"DocumentFileName\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
+              Section(BoxData(StringBox("\"CurrentValue.pmathdoc\"")), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All), 
             Section(
@@ -177,13 +176,11 @@ Document({
             SectionGroup({
               Section(
                BoxData({
-                 {"CurrentValue", "(", ComplexStringBox(
-                   "\"DocumentFileName\""), ")"}, "\[Assign]", 
-                 ComplexStringBox("\"test.pmathdoc\"")}), "Input", 
-               SectionLabel -> "in [2]:"), 
-              Section(BoxData(ComplexStringBox("\"test.pmathdoc\"")), 
-               "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [2]:")}, All), 
+                 {"CurrentValue", "(", StringBox("\"DocumentFileName\""), 
+                  ")"}, "\[Assign]", StringBox("\"test.pmathdoc\"")}), 
+               "Input", SectionLabel -> "in [2]:"), 
+              Section(BoxData(StringBox("\"test.pmathdoc\"")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
             Section(
              TextData({
                "Reset the file name (but not the directory) so that File \
@@ -192,12 +189,11 @@ Document({
             SectionGroup({
               Section(
                BoxData({
-                 {"CurrentValue", "(", ComplexStringBox(
-                   "\"DocumentFileName\""), ")"}, "\[Assign]", "None"}), 
-               "Input", SectionLabel -> "in [3]:"), 
-              Section(BoxData("None"), "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [3]:")}, All)}, All), 
-          SectionGroup({
+                 {"CurrentValue", "(", StringBox("\"DocumentFileName\""), 
+                  ")"}, "\[Assign]", "None"}), "Input", 
+               SectionLabel -> "in [3]:"), Section(BoxData("None"), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(
@@ -206,9 +202,11 @@ Document({
                TemplateBox({"None"}, "ReferenceHyperlink"), "):"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"DocumentFullFileName\""), ")"}), "Input", 
+                 StringBox("\"DocumentFullFileName\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox(
+              Section(
+               BoxData(
+                StringBox(
                  "\"D:\\\\User\\\\frentrup\\\\Programmieren\\\\pmath\\\\module\
                  s\\\\Documentation\\\\Files\\\\System\\\\CurrentValue.pmathdo\
                  c\"")), "Output", SectionGenerated -> True, 
@@ -220,7 +218,7 @@ Document({
             SectionGroup({
               Section(BoxData({"CurrentValue", "(", "WindowTitle", ")"}), 
                "Input", SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox("\"CurrentValue.pmathdoc\"")), 
+              Section(BoxData(StringBox("\"CurrentValue.pmathdoc\"")), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All), 
             Section(
@@ -242,12 +240,11 @@ Document({
                BoxData({
                  {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
                    "WindowTitle"}, ")"}, "\[Assign]", 
-                 ComplexStringBox("\"PhD is a title\"")}), "Input", 
+                 StringBox("\"PhD is a title\"")}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox("\"PhD is a title\"")), 
-               "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All), 
-          SectionGroup({
+              Section(BoxData(StringBox("\"PhD is a title\"")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(
@@ -255,7 +252,7 @@ Document({
              document:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"CurrentValue", "(", 
-                 ComplexStringBox("\"DocumentScreenDpi\""), ")"}), "Input", 
+                 StringBox("\"DocumentScreenDpi\""), ")"}), "Input", 
                SectionLabel -> "in [1]:"), Section(BoxData("96"), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All)}, 1), SectionGroup({
@@ -264,62 +261,62 @@ Document({
            "ExampleText"), SectionGroup({
             Section(
              BoxData({
-               {"CurrentValue", "(", ComplexStringBox(
-                 "\"CurrentValueProviders\""), ")"}, ".", "Select", "(", 
-               "IsString", ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData({"{", {ComplexStringBox("\"SyntaxErrorStyle\""), 
-                ",", ComplexStringBox("\"InlineAutoCompletionStyle\""), ",", 
-                ComplexStringBox("\"DocumentFileName\""), ",", 
-                ComplexStringBox("\"PatternVariableStyle\""), ",", 
-                ComplexStringBox("\"SectionGroupOpen\""), ",", 
-                ComplexStringBox("\"HeldTemplateSlot\""), ",", 
-                ComplexStringBox("\"CommentStyle\""), ",", 
-                ComplexStringBox("\"OccurenceHighlightStyle\""), ",", 
-                ComplexStringBox("\"SectionInsertionPointColor\""), ",", 
-                ComplexStringBox("\"SymbolShadowingStyle\""), ",", 
-                ComplexStringBox("\"DocumentScreenDpi\""), ",", 
-                ComplexStringBox("\"SelectedMenuCommand\""), ",", 
-                ComplexStringBox("\"StyleDefinitionsOwner\""), ",", 
-                ComplexStringBox("\"ControlsFontSlant\""), ",", 
-                ComplexStringBox("\"MouseOver\""), ",", 
-                ComplexStringBox("\"TemplateSlotCount\""), ",", 
-                ComplexStringBox("\"ResolvedEvaluationContext\""), ",", 
-                ComplexStringBox("\"DebugFollowMouse\""), ",", 
-                ComplexStringBox("\"ControlsFontSize\""), ",", 
-                ComplexStringBox("\"MatchingBracketHighlightStyle\""), ",", 
-                ComplexStringBox("\"CharacterNameStyle\""), ",", 
-                ComplexStringBox("\"LocalVariableStyle\""), ",", 
-                ComplexStringBox("\"LocalScopeConflictStyle\""), ",", 
-                ComplexStringBox("\"DebugSelectionBounds\""), ",", 
-                ComplexStringBox("\"MouseOverBox\""), ",", 
-                ComplexStringBox("\"CurrentValueProviders\""), ",", 
-                ComplexStringBox("\"ControlsFontWeight\""), ",", 
-                ComplexStringBox("\"KeywordSymbolStyle\""), ",", 
-                ComplexStringBox("\"ExcessOrMissingArgumentStyle\""), ",", 
-                ComplexStringBox("\"Color\""), ",", 
-                ComplexStringBox("\"FunctionLocalVariableStyle\""), ",", 
-                ComplexStringBox("\"FunctionNameStyle\""), ",", 
-                ComplexStringBox("\"ImplicitOperatorStyle\""), ",", 
-                ComplexStringBox("\"DocumentDirectory\""), ",", 
-                ComplexStringBox("\"DocumentFullFileName\""), ",", 
-                ComplexStringBox("\"PageWidthCharacters\""), ",", 
-                ComplexStringBox("\"ControlsFontFamily\""), ",", 
-                ComplexStringBox("\"DebugColorizeChanges\""), ",", 
-                ComplexStringBox("\"StringStyle\""), ",", 
-                ComplexStringBox("\"UnknownOptionStyle\""), ",", 
-                ComplexStringBox("\"UndefinedSymbolStyle\"")}, "}"}), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All), SectionGroup({
+               {"CurrentValue", "(", StringBox("\"CurrentValueProviders\""), 
+                ")"}, ".", "Select", "(", "IsString", ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {StringBox("\"SyntaxErrorStyle\""), ",", 
+                StringBox("\"InlineAutoCompletionStyle\""), ",", 
+                StringBox("\"DocumentFileName\""), ",", 
+                StringBox("\"PatternVariableStyle\""), ",", 
+                StringBox("\"SectionGroupOpen\""), ",", 
+                StringBox("\"HeldTemplateSlot\""), ",", 
+                StringBox("\"CommentStyle\""), ",", 
+                StringBox("\"OccurenceHighlightStyle\""), ",", 
+                StringBox("\"SectionInsertionPointColor\""), ",", 
+                StringBox("\"SymbolShadowingStyle\""), ",", 
+                StringBox("\"DocumentScreenDpi\""), ",", 
+                StringBox("\"SelectedMenuCommand\""), ",", 
+                StringBox("\"StyleDefinitionsOwner\""), ",", 
+                StringBox("\"ControlsFontSlant\""), ",", 
+                StringBox("\"MouseOver\""), ",", 
+                StringBox("\"TemplateSlotCount\""), ",", 
+                StringBox("\"ResolvedEvaluationContext\""), ",", 
+                StringBox("\"DebugFollowMouse\""), ",", 
+                StringBox("\"ControlsFontSize\""), ",", 
+                StringBox("\"MatchingBracketHighlightStyle\""), ",", 
+                StringBox("\"CharacterNameStyle\""), ",", 
+                StringBox("\"LocalVariableStyle\""), ",", 
+                StringBox("\"LocalScopeConflictStyle\""), ",", 
+                StringBox("\"DebugSelectionBounds\""), ",", 
+                StringBox("\"MouseOverBox\""), ",", 
+                StringBox("\"CurrentValueProviders\""), ",", 
+                StringBox("\"ControlsFontWeight\""), ",", 
+                StringBox("\"KeywordSymbolStyle\""), ",", 
+                StringBox("\"ExcessOrMissingArgumentStyle\""), ",", 
+                StringBox("\"Color\""), ",", 
+                StringBox("\"FunctionLocalVariableStyle\""), ",", 
+                StringBox("\"FunctionNameStyle\""), ",", 
+                StringBox("\"ImplicitOperatorStyle\""), ",", 
+                StringBox("\"DocumentDirectory\""), ",", 
+                StringBox("\"DocumentFullFileName\""), ",", 
+                StringBox("\"PageWidthCharacters\""), ",", 
+                StringBox("\"ControlsFontFamily\""), ",", 
+                StringBox("\"DebugColorizeChanges\""), ",", 
+                StringBox("\"StringStyle\""), ",", 
+                StringBox("\"UnknownOptionStyle\""), ",", 
+                StringBox("\"UndefinedSymbolStyle\"")}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section("Investigate front-end graphics issues interactively:", 
              "ExampleText"), SectionGroup({
               Section(
                BoxData({
-                 {{"{", {ComplexStringBox("\"DebugColorizeChanges\""), ",", 
-                    ComplexStringBox("\"DebugFollowMouse\""), ",", 
-                    ComplexStringBox("\"DebugSelectionBounds\"")}, "}"}, ".", 
-                  "Map", "(", {
+                 {{"{", {StringBox("\"DebugColorizeChanges\""), ",", 
+                    StringBox("\"DebugFollowMouse\""), ",", 
+                    StringBox("\"DebugSelectionBounds\"")}, "}"}, ".", "Map", 
+                  "(", {
                    {"{", {{"ToggleSwitch", "(", {
                        "Dynamic", "(", {"CurrentValue", "(", {
                          "$FrontEndSession", ",", "#"}, ")"}, ")"}, ")"}, ",", 
@@ -332,15 +329,15 @@ Document({
                    {TemplateBox({
                       Dynamic(CurrentValue($FrontEndSession, 
                         "DebugColorizeChanges"))}, "ToggleSwitch"), 
-                    ComplexStringBox("\"DebugColorizeChanges\"")}, {
+                    StringBox("\"DebugColorizeChanges\"")}, {
                     TemplateBox({
                       Dynamic(CurrentValue($FrontEndSession, 
                         "DebugFollowMouse"))}, "ToggleSwitch"), 
-                    ComplexStringBox("\"DebugFollowMouse\"")}, {
+                    StringBox("\"DebugFollowMouse\"")}, {
                     TemplateBox({
                       Dynamic(CurrentValue($FrontEndSession, 
                         "DebugSelectionBounds"))}, "ToggleSwitch"), 
-                    ComplexStringBox("\"DebugSelectionBounds\"")}}), "Grid")), 
+                    StringBox("\"DebugSelectionBounds\"")}}), "Grid")), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
@@ -352,9 +349,9 @@ Document({
             SectionGroup({
               Section(BoxData({"Dynamic", "(", {
                   "{", {{"CurrentValue", "(", "EvaluationContext", ")"}, ",", {
-                    "CurrentValue", "(", ComplexStringBox(
-                     "\"ResolvedEvaluationContext\""), ")"}}, "}"}, ")"}), 
-               "Input", SectionLabel -> "in [1]:"), 
+                    "CurrentValue", "(", 
+                    StringBox("\"ResolvedEvaluationContext\""), ")"}}, "}"}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData(DynamicBox(
                  ToBoxes({CurrentValue(EvaluationContext), 
@@ -368,25 +365,23 @@ Document({
             SectionGroup({
               Section(BoxData({"RawBoxes", "@", {
                   "TemplateBox", "(", {
-                   {"{", {"SqrtBox", "(", ComplexStringBox("\"5\""), ")"}, 
-                    "}"}, ",", ComplexStringBox("\"MyTag\""), ",", {
-                    "DisplayFunction", "\[Rule]", {
-                     "Function", "(", {"PanelBox", "(", {
+                   {"{", {"SqrtBox", "(", StringBox("\"5\""), ")"}, "}"}, ",", 
+                   StringBox("\"MyTag\""), ",", {"DisplayFunction", "\[Rule]", 
+                    {"Function", "(", {"PanelBox", "(", {
                        "{", {{"\n", {"FrameBox", "(", {"#", "1"}, ")"}}, ",", 
-                        ComplexStringBox("\"\\n\""), ",", {
+                        StringBox("\"\\n\""), ",", {
                          "\n", {"DynamicBox", "(", {
                            "ToBoxes", "(", {"CurrentValue", "(", {
                              "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, 
-                           ")"}, ")"}}, ",", ComplexStringBox("\"\\n\""), ",", 
-                        {"\n", {"ButtonBox", "(", {
-                           ComplexStringBox("\"Reset\""), ",", {
-                            "ButtonFunction", "\[Rule]", {
+                           ")"}, ")"}}, ",", StringBox("\"\\n\""), ",", {
+                         "\n", {"ButtonBox", "(", {StringBox("\"Reset\""), 
+                           ",", {"ButtonFunction", "\[Rule]", {
                              "Function", "(", {
                               {"CurrentValue", "(", {
                                 "{", {"TemplateSlot", ",", "1"}, "}"}, ")"}, 
                               "\[Assign]", {"SqrtBox", "(", 
-                               ComplexStringBox("\"2\""), ")"}}, ")"}}}, 
-                          ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
+                               StringBox("\"2\""), ")"}}, ")"}}}, ")"}}}, 
+                       "}"}, ")"}, ")"}}}, ")"}}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({SqrtBox("5")}, "MyTag", 
                  DisplayFunction -> (
@@ -405,19 +400,17 @@ Document({
             SectionGroup({
               Section(BoxData({"RawBoxes", "@", {
                   "TemplateBox", "(", {
-                   {"{", {ComplexStringBox("\"a\""), ",", 
-                     ComplexStringBox("\"b\"")}, "}"}, ",", 
-                   ComplexStringBox("\"MyTag\""), ",", {
+                   {"{", {StringBox("\"a\""), ",", StringBox("\"b\"")}, "}"}, 
+                   ",", StringBox("\"MyTag\""), ",", {
                     "DisplayFunction", "\[Rule]", {
                      "Function", "(", {"PanelBox", "(", {
                        "{", {{"FrameBox", "(", {"#", "1"}, ")"}, ",", 
-                        ComplexStringBox("\" \""), ",", {
-                         "FrameBox", "(", {"#", "2"}, ")"}, ",", " ", 
-                        ComplexStringBox("\" \""), ",", {
+                        StringBox("\" \""), ",", {"FrameBox", "(", {"#", "2"}, 
+                         ")"}, ",", " ", StringBox("\" \""), ",", {
                          "\n", {"DynamicBox", "(", {
                            "ToBoxes", "(", {"CurrentValue", "(", 
-                            ComplexStringBox("\"TemplateSlotCount\""), ")"}, 
-                           ")"}, ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
+                            StringBox("\"TemplateSlotCount\""), ")"}, ")"}, 
+                          ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({"a", "b"}, "MyTag", 
                  DisplayFunction -> (
@@ -453,29 +446,28 @@ Document({
            context:"}), "ExampleText"), 
         SectionGroup({
           Section(BoxData(/\/({{"CurrentValue", "(", "WindowTitle", ")"}, 
-              "\[Assign]", ComplexStringBox("\"Where am I?\"")}, "\n", {
+              "\[Assign]", StringBox("\"Where am I?\"")}, "\n", {
               {"DocumentGet", "(", {"EvaluationBox", "(", ")"}, ")"}, ".", 
               "Replace", "(", {{"BoxData", "(", "~", ")"}, "\[RuleDelayed]", 
-               ComplexStringBox("\"\[Ellipsis]\"")}, ")"})), "Input", 
+               StringBox("\"\[Ellipsis]\"")}, ")"})), "Input", 
            SectionLabel -> "in [1]:", WindowTitle -> "Where am I?"), 
-          Section(BoxData(ComplexStringBox("\"Where am I?\"")), "Output", 
+          Section(BoxData(StringBox("\"Where am I?\"")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:"), 
-          Section(BoxData({"Section", "(", {
-              ComplexStringBox("\"\[Ellipsis]\""), ",", 
-              ComplexStringBox("\"Input\""), ",", {
-               "SectionLabel", "\[Rule]", ComplexStringBox("\"in [1]:\"")}, 
-              ",", {"WindowTitle", "\[Rule]", 
-               ComplexStringBox("\"Where am I?\"")}}, ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+          Section(BoxData({"Section", "(", {StringBox("\"\[Ellipsis]\""), ",", 
+              StringBox("\"Input\""), ",", {"SectionLabel", "\[Rule]", 
+               StringBox("\"in [1]:\"")}, ",", {
+               "WindowTitle", "\[Rule]", StringBox("\"Where am I?\"")}}, 
+             ")"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [2]:")}, All), 
         Section("Explicitly specify the relevant object instead:", 
          "ExampleText"), 
         Section(
          BoxData({
            {{"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, ",", 
-              "WindowTitle"}, ")"}, "\[Assign]", 
-            ComplexStringBox("\"Here I am!\"")}, ";"}), "Input", 
-         SectionLabel -> "in [3]:")}, 1), Section("", "SectionFooterSpacer")}, 
-     All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+              "WindowTitle"}, ")"}, "\[Assign]", StringBox("\"Here I am!\"")}, 
+           ";"}), "Input", SectionLabel -> "in [3]:")}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Options"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Dynamic"}, 
           "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 

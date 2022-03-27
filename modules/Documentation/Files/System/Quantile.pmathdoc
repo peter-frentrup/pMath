@@ -6,61 +6,63 @@ Document({
       Section(BoxData(TemplateBox({"Quantile"}, "UsageReference")), "Usage")}, 
      All), SectionGroup({Section("Details and Options", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({TemplateBox({"Quantile"}, "ReferenceHyperlink"), "(", 
-          StyleBox("list", "Arg"), ", ", StyleBox("q", "Arg"), ") gives ", 
-          TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", 
-          StyleBox("list", "Arg"), ", ", 
-          TemplateBox({"Less"}, "ReferenceHyperlink"), ")[", 
-          TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", 
-          StyleBox("q", "Arg"), " ", TemplateBox({"Length"}, 
-           "ReferenceHyperlink"), "(", StyleBox("list", "Arg"), "))]."}, 
-         "Notes"), Section({"For a ", StyleBox("list", "Arg"), " of length ", 
-          StyleBox("n", "Arg"), ", ", TemplateBox({"Quantile"}, 
-           "ReferenceHyperlink"), "(", StyleBox("list", "Arg"), ", ", 
-          StyleBox("q", "Arg"), ", {{", StyleBox("a", "Arg"), ", ", 
-          StyleBox("b", "Arg"), "}, {", StyleBox("c", "Arg"), ", ", 
-          StyleBox("d", "Arg"), "}}) gives ", {
-           StyleBox("left", "Arg"), "+", {
-            {"(", {StyleBox("c", "Arg"), "+", {
-               StyleBox("d", "Arg"), " ", {
-                TemplateBox({"FractionalPart"}, "ReferenceHyperlink"), "(", 
-                StyleBox("q", "Arg"), ")"}}}, ")"}, " ", {
-             "(", {StyleBox("right", "Arg"), "-", StyleBox("left", "Arg")}, 
-             ")"}}}, " where ", StyleBox("left", "Arg"), " equals ", {
-           {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
-             StyleBox("list", "Arg"), ",", TemplateBox({"Less"}, 
-              "ReferenceHyperlink")}, ")"}, "[", {
-            TemplateBox({"Floor"}, "ReferenceHyperlink"), "(", {
-             StyleBox("a", "Arg"), "+", {
-              {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
-              StyleBox("q", "Arg")}}, ")"}, "]"}, " and ", 
-          StyleBox("right", "Arg"), " is  ", {
-           {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
-             StyleBox("list", "Arg"), ",", TemplateBox({"Less"}, 
-              "ReferenceHyperlink")}, ")"}, "[", {
-            TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", {
-             StyleBox("a", "Arg"), "+", {
-              {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
-              StyleBox("q", "Arg")}}, ")"}, "]"}, 
-          ", with indices clamped to the range 1 .. ", StyleBox("n", "Arg"), 
-          "."}, "Notes"), Section({"Typical values for {{", 
-          StyleBox("a", "Arg"), ", ", StyleBox("b", "Arg"), "}, {", 
-          StyleBox("c", "Arg"), ", ", StyleBox("d", "Arg"), "}} are:"}, 
+        Section(TextData({TemplateBox({"Quantile"}, "ReferenceHyperlink"), 
+           "(", StyleBox("list", "Arg"), ", ", StyleBox("q", "Arg"), 
+           ") gives ", TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", 
+           StyleBox("list", "Arg"), ", ", 
+           TemplateBox({"Less"}, "ReferenceHyperlink"), ")[", 
+           TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", 
+           StyleBox("q", "Arg"), " ", TemplateBox({"Length"}, 
+            "ReferenceHyperlink"), "(", StyleBox("list", "Arg"), "))]."}), 
          "Notes"), 
-        Section({
-          ComplexStringBox("\"", 
-           GridBox({
-             {{"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
-                 "{", {"1", ",", " ", "0"}, "}"}}, "}"}, {
-               "inverse", " ", "empirical", " ", "CDF", " ", {
-                "(", "default", ")"}}}, {
-              {"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
-                 "{", {"0", ",", " ", "1"}, "}"}}, "}"}, {
-               "linear", " ", "interpolation"}}, {
-              {"{", {{"{", {{"1", "/", "2"}, ",", " ", "0"}, "}"}, ",", " ", {
-                 "{", {"0", ",", " ", "0"}, "}"}}, "}"}, {
-               "element", " ", "ranked", " ", "nearest", " ", "to", " ", 
-               StyleBox("q", "Arg"), " ", "n"}}}))}, "2ColumnTableNotes")}, 
+        Section(TextData({"For a ", StyleBox("list", "Arg"), " of length ", 
+           StyleBox("n", "Arg"), ", ", TemplateBox({"Quantile"}, 
+            "ReferenceHyperlink"), "(", StyleBox("list", "Arg"), ", ", 
+           StyleBox("q", "Arg"), ", {{", StyleBox("a", "Arg"), ", ", 
+           StyleBox("b", "Arg"), "}, {", StyleBox("c", "Arg"), ", ", 
+           StyleBox("d", "Arg"), "}}) gives ", {
+            StyleBox("left", "Arg"), "+", {
+             {"(", {StyleBox("c", "Arg"), "+", {
+                StyleBox("d", "Arg"), " ", {
+                 TemplateBox({"FractionalPart"}, "ReferenceHyperlink"), "(", 
+                 StyleBox("q", "Arg"), ")"}}}, ")"}, " ", {
+              "(", {StyleBox("right", "Arg"), "-", StyleBox("left", "Arg")}, 
+              ")"}}}, " where ", StyleBox("left", "Arg"), " equals ", {
+            {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
+              StyleBox("list", "Arg"), ",", 
+              TemplateBox({"Less"}, "ReferenceHyperlink")}, ")"}, "[", {
+             TemplateBox({"Floor"}, "ReferenceHyperlink"), "(", {
+              StyleBox("a", "Arg"), "+", {
+               {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
+               StyleBox("q", "Arg")}}, ")"}, "]"}, " and ", 
+           StyleBox("right", "Arg"), " is  ", {
+            {TemplateBox({"Sort"}, "ReferenceHyperlink"), "(", {
+              StyleBox("list", "Arg"), ",", 
+              TemplateBox({"Less"}, "ReferenceHyperlink")}, ")"}, "[", {
+             TemplateBox({"Ceiling"}, "ReferenceHyperlink"), "(", {
+              StyleBox("a", "Arg"), "+", {
+               {"(", {StyleBox("n", "Arg"), "+", StyleBox("b", "Arg")}, ")"}, 
+               StyleBox("q", "Arg")}}, ")"}, "]"}, 
+           ", with indices clamped to the range 1 .. ", StyleBox("n", "Arg"), 
+           "."}), "Notes"), 
+        Section(TextData({"Typical values for {{", StyleBox("a", "Arg"), ", ", 
+           StyleBox("b", "Arg"), "}, {", StyleBox("c", "Arg"), ", ", 
+           StyleBox("d", "Arg"), "}} are:"}), "Notes"), 
+        Section(
+         TextData({
+           StringBox("\"", 
+            GridBox({
+              {{"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
+                  "{", {"1", ",", " ", "0"}, "}"}}, "}"}, {
+                "inverse", " ", "empirical", " ", "CDF", " ", {
+                 "(", "default", ")"}}}, {
+               {"{", {{"{", {"0", ",", " ", "0"}, "}"}, ",", " ", {
+                  "{", {"0", ",", " ", "1"}, "}"}}, "}"}, {
+                "linear", " ", "interpolation"}}, {
+               {"{", {{"{", {{"1", "/", "2"}, ",", " ", "0"}, "}"}, ",", " ", {
+                  "{", {"0", ",", " ", "0"}, "}"}}, "}"}, {
+                "element", " ", "ranked", " ", "nearest", " ", "to", " ", 
+                StyleBox("q", "Arg"), " ", "n"}}}))}), "2ColumnTableNotes")}, 
        All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -93,9 +95,9 @@ Document({
             Section(BoxData({"{", {"2", ",", "4"}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
-        Section({"With default interpolation parameters, ", 
-          TemplateBox({"Quantile"}, "ReferenceHyperlink"), 
-          " gives the empirical cumulative distribution function:"}, 
+        Section(TextData({"With default interpolation parameters, ", 
+           TemplateBox({"Quantile"}, "ReferenceHyperlink"), 
+           " gives the empirical cumulative distribution function:"}), 
          "ExampleText"), SectionGroup({
           Section(
            BoxData({"Plot", "(", {
@@ -135,7 +137,7 @@ Document({
                   U?S0vYz,{ep]8mJb=_scn%lY8d@j#OJ9Uk#TOgo00zjZAA5y"))}}}, 
              AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
              Axes -> True, PlotRange -> NCache({0 .. 1, 1 .. 5}, {
-               0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
+                0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -210,11 +212,11 @@ Document({
                     V#f@uV2LC{+Ua2^B$D+2xx#p-W^"))}}}, 
                AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
                Axes -> True, PlotRange -> NCache({0 .. 1, 1.0` .. 5.0`}, {
-                 0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
+                  0.0` .. 1.0`, 1.0` .. 5.0`}))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Sort"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Ordering"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"Sort"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Ordering"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

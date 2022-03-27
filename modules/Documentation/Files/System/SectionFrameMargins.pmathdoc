@@ -47,10 +47,10 @@ Document({
         Section(BoxData({"SectionPrint", "(", {
             "Table", "(", {
              {"Section", "(", {
-               ComplexStringBox(
+               StringBox(
                 "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
                 xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
-                xxxx.\""), ",", ComplexStringBox("\"Text\""), ",", {
+                xxxx.\""), ",", StringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "True"}, ",", {
                 "SectionFrameMargins", "\[Rule]", "n"}}, ")"}, ",", {
               "n", "\[Rule]", {"{", {"0", ",", "5", ",", "10", ",", "20"}, 
@@ -81,10 +81,10 @@ Document({
           Section("Use different frame margins at each side:", "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
               "Section", "(", {
-               ComplexStringBox(
+               StringBox(
                 "\"Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
                 xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx xxxx. Xxxx xxxx xxxx \
-                xxxx.\""), ",", ComplexStringBox("\"Text\""), ",", {
+                xxxx.\""), ",", StringBox("\"Text\""), ",", {
                 "SectionFrame", "\[Rule]", "True"}, ",", {
                 "SectionFrameMargins", "\[Rule]", {
                  "{", {"100", ",", "50", ",", "30", ",", "15"}, "}"}}}, ")"}, 

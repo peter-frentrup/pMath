@@ -25,17 +25,16 @@ Document({
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple menu:", "ExampleText"), 
         SectionGroup({
-          Section(BoxData({"Style", "(", {ComplexStringBox("\"Input\""), ",", {
+          Section(BoxData({"Style", "(", {StringBox("\"Input\""), ",", {
                "ContextMenu", "\[Rule]", {
                 "{", {
-                 {"MenuItem", "(", {
-                   ComplexStringBox("\"Find Style definition\""), ",", {
-                    "FrontEnd`FindStyleDefinition", "(", ")"}}, ")"}, ",", 
-                 "Delimiter", ",", "Inherited"}, "}"}}}, ")"}), "Input", 
+                 {"MenuItem", "(", {StringBox("\"Find Style definition\""), 
+                   ",", {"FrontEnd`FindStyleDefinition", "(", ")"}}, ")"}, 
+                 ",", "Delimiter", ",", "Inherited"}, "}"}}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(StyleBox(ComplexStringBox("\"Input\""), 
+          Section(BoxData(StyleBox(StringBox("\"Input\""), 
              ContextMenu :> {MenuItem("Find Style definition", 
-               FrontEnd`FindStyleDefinition()), Delimiter, Inherited}, 
+                FrontEnd`FindStyleDefinition()), Delimiter, Inherited}, 
              StripOnInput -> False)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All)}, All), 
       SectionGroup({Section("Scope", "ExampleSection"), 
@@ -47,15 +46,12 @@ Document({
            document, not necessarily to the clicked location:"}), 
          "ExampleText"), SectionGroup({
           Section(
-           BoxData({"Style", "(", {
-              ComplexStringBox("\"Right\[Dash]click me\""), ",", {
-               "ContextMenu", "\[Rule]", {
-                "{", {"MenuItem", "(", {
-                  ComplexStringBox("\"Copy selection\""), ",", 
-                  ComplexStringBox("\"Copy\"")}, ")"}, "}"}}}, ")"}), "Input", 
+           BoxData({"Style", "(", {StringBox("\"Right\[Dash]click me\""), ",", 
+              {"ContextMenu", "\[Rule]", {
+                "{", {"MenuItem", "(", {StringBox("\"Copy selection\""), ",", 
+                  StringBox("\"Copy\"")}, ")"}, "}"}}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(
-           BoxData(StyleBox(ComplexStringBox("\"Right\[Dash]click me\""), 
+          Section(BoxData(StyleBox(StringBox("\"Right\[Dash]click me\""), 
              ContextMenu :> {MenuItem("Copy selection", "Copy")}, 
              StripOnInput -> False)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
@@ -66,18 +62,17 @@ Document({
               "ReferenceHyperlink"), " to run arbitrary code:"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Style", "(", {
-                ComplexStringBox("\"Right\[Dash]click me\""), ",", {
+                StringBox("\"Right\[Dash]click me\""), ",", {
                  "ContextMenu", "\[Rule]", {
-                  "{", {"MenuItem", "(", {ComplexStringBox("\"Print\""), ",", {
+                  "{", {"MenuItem", "(", {StringBox("\"Print\""), ",", {
                      "FrontEnd`KernelExecute", "(", {
                       "Print", "(", {"{", {{"RandomReal", "(", ")"}, ",", {
                          "EvaluationBox", "(", ")"}}, "}"}, ")"}, ")"}}, ")"}, 
                   "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(
-             BoxData(StyleBox(ComplexStringBox("\"Right\[Dash]click me\""), 
-               ContextMenu :> {MenuItem("Print", 
-                 FrontEnd`KernelExecute(
-                  Print({RandomReal(), EvaluationBox()})))}, 
+            Section(BoxData(StyleBox(StringBox("\"Right\[Dash]click me\""), 
+               ContextMenu :> {
+                 MenuItem("Print", FrontEnd`KernelExecute(
+                   Print({RandomReal(), EvaluationBox()})))}, 
                StripOnInput -> False)), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 

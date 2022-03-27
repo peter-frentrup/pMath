@@ -6,131 +6,317 @@ Document({
     SectionGroup({
       Section(BoxData({"ver", "\[Assign]", 
          TemplateBox({{"System", ".", "getProperty", "(", 
-            ComplexStringBox("\"java.version\""), ")"}}, "InlineJavaInput")}), 
-       "Input", SectionLabel -> "in [6]:"), 
-      Section(BoxData(ComplexStringBox("\"14.0.1\"")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+            StringBox("\"java.version\""), ")"}}, "InlineJavaInput")}), 
+       "Input", SectionLabel -> "in [1]:"), 
+      Section(BoxData(StringBox("\"14.0.1\"")), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
     Section("Top-level Java code:", "Text"), 
     SectionGroup({
       Section(BoxData({"System", ".", "getProperty", "(", 
-         ComplexStringBox("\"java.version\""), ")"}), "JavaInput"), 
-      Section(BoxData(ComplexStringBox("\"\\\"14.0.1\\\"\"")), "JavaOutput", 
+         StringBox("\"java.version\""), ")"}), "JavaInput"), 
+      Section(BoxData(StringBox("\"\\\"14.0.1\\\"\"")), "JavaOutput", 
        SectionGenerated -> True)}, All), 
     SectionGroup({Section(BoxData({"1", "+"}), "JavaInput"), 
-      Section(BoxData({{"Java", "::", ComplexStringBox("\"diag\"")}, 
-         "\[Colon]", TemplateBox({
-           InterpretationBox(ComplexStringBox("\"", 
-             ComplexStringBox("\"reached end of file while parsing\"")), 
-            StringForm("`1`", "reached end of file while parsing"))}, 
-          "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
+      Section(
+       BoxData({
+         TemplateBox({
+           TemplateBox({MessageName -> HoldForm(Java`Java::"diag"), 
+             Message -> StringForm("`1`", 
+               "reached end of file while parsing"), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                    107, 14} .. {107, 20})}, {
+                "Head" -> Do, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {104, 8} .. {130, 9})}, {
+                "Head" -> Do, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {114, 24} .. {116, 25})}, {
+                "Head" -> Message, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {115, 28} .. {115, 71})}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "Java", "::", StringBox("\"diag\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"", 
+           StringBox("\"reached end of file while parsing\"")), 
+          StringForm("`1`", "reached end of file while parsing"), 
+          Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(BoxData(/\/({"1", " ", "+", " ", "1"}, "\n", {
           "2", " ", "+", " ", "2"})), "JavaInput"), 
-      Section(BoxData(ComplexStringBox("\"2\"")), "JavaOutput", 
-       SectionGenerated -> True), Section(BoxData(ComplexStringBox("\"4\"")), 
+      Section(BoxData(StringBox("\"2\"")), "JavaOutput", 
+       SectionGenerated -> True), Section(BoxData(StringBox("\"4\"")), 
        "JavaOutput", SectionGenerated -> True)}, All), 
     SectionGroup({Section(BoxData({"1", "+", SqrtBox("3")}), "JavaInput"), 
-      Section(BoxData({{"Java", "::", ComplexStringBox("\"box\"")}, 
-         "\[Colon]", TemplateBox({
-           InterpretationBox(ComplexStringBox("\"Cannot convert ", {
-              ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, ")"}, 
-               ButtonFunction -> (
-                 SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(
-                   FrontEndObject(2618097393662643470, 60), 2 .. 3)) &), 
-               ButtonFrame -> "Frameless")}, " to Java code.\""), 
-            StringForm("Cannot convert `1` to Java code.", 
-             RawBoxes(ButtonBox({"SqrtBox", "(", {ComplexStringBox("\"3\"")}, 
-                ")"}, ButtonFunction -> (
-                 SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(
-                   FrontEndObject(2618097393662643470, 60), 2 .. 3)) &), 
-               ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
-       SectionGenerated -> True)}, All), 
+      Section(
+       BoxData({
+         TemplateBox({
+           TemplateBox({MessageName -> HoldForm(Java`Java::"box"), 
+             Message -> StringForm("Cannot convert `1` to Java code.", 
+               RawBoxes(ButtonBox({"SqrtBox", "(", {StringBox("\"3\"")}, ")"}, 
+                 ButtonFunction -> (
+                   SetSelectedDocument(Automatic, 
+                    Language`SourceLocation(
+                     FrontEndObject(10801762494786359001, 75), 2 .. 3)) &), 
+                 ButtonFrame -> "Frameless"))), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {101, 4} .. {133, 0})}, {
+                "Head" -> Apply, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 4} .. {39, 15})}, {
+                "Head" -> Flatten, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 24} .. {39, 15})}, {
+                "Head" -> Map, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 24} .. {39, 7})}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 43} .. {39, 5})}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {68, 37} .. {75, 0})}, {
+                "Head" -> Message, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {69, 4} .. {73, 38})}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "Java", "::", StringBox("\"box\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"Cannot convert ", 
+           ButtonBox({"SqrtBox", "(", StringBox("\"3\""), ")"}, 
+            ButtonFrame -> "Frameless", 
+            ButtonFunction -> (
+              SetSelectedDocument(Automatic, 
+               Language`SourceLocation(FrontEndObject(10801762494786359001, 
+                 75), 2 .. 3)) &)), " to Java code.\""), 
+          StringForm("Cannot convert `1` to Java code.", 
+           RawBoxes(ButtonBox({"SqrtBox", "(", {StringBox("\"3\"")}, ")"}, 
+             ButtonFunction -> (
+               SetSelectedDocument(Automatic, 
+                Language`SourceLocation(FrontEndObject(10801762494786359001, 
+                  75), 2 .. 3)) &), ButtonFrame -> "Frameless"))), 
+          Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(
        BoxData({{"throw", " ", "new", " ", {
            {"java", ".", "lang"}, ".", "Exception", "(", 
-           ComplexStringBox("\"bla bla\""), ")"}}, ";"}), "JavaInput"), 
-      Section(BoxData({{"Java", "::", ComplexStringBox("\"ex\"")}, "\[Colon]", 
+           StringBox("\"bla bla\""), ")"}}, ";"}), "JavaInput"), 
+      Section(
+       BoxData({
          TemplateBox({
-           InterpretationBox(ComplexStringBox("\"", 
-             ComplexStringBox("\"java.lang.Exception: bla bla\"")), 
-            StringForm("`1`", "java.lang.Exception: bla bla"))}, 
-          "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
+           TemplateBox({MessageName -> HoldForm(Java`Java::"ex"), 
+             Message -> StringForm("`1`", "java.lang.Exception: bla bla"), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                    107, 14} .. {107, 20})}, {
+                "Head" -> Do, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {104, 8} .. {130, 9})}, {
+                "Head" -> Message, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {122, 32} .. {122, 108})}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "Java", "::", StringBox("\"ex\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"", 
+           StringBox("\"java.lang.Exception: bla bla\"")), 
+          StringForm("`1`", "java.lang.Exception: bla bla"), 
+          Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({Section(BoxData({"1", "/", "0"}), "JavaInput"), 
-      Section(BoxData({{"Java", "::", ComplexStringBox("\"ex\"")}, "\[Colon]", 
+      Section(
+       BoxData({
          TemplateBox({
-           InterpretationBox(ComplexStringBox("\"", 
-             ComplexStringBox(
-              "\"java.lang.ArithmeticException: / by zero\"")), 
-            StringForm("`1`", "java.lang.ArithmeticException: / by zero"))}, 
-          "RowDefault")}), "Message", SectionGenerated -> True)}, All), 
+           TemplateBox({MessageName -> HoldForm(Java`Java::"ex"), 
+             Message -> StringForm("`1`", 
+               "java.lang.ArithmeticException: / by zero"), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                    107, 14} .. {107, 20})}, {
+                "Head" -> Do, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {104, 8} .. {130, 9})}, {
+                "Head" -> Message, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {122, 32} .. {122, 108})}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "Java", "::", StringBox("\"ex\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"", 
+           StringBox("\"java.lang.ArithmeticException: / by zero\"")), 
+          StringForm("`1`", "java.lang.ArithmeticException: / by zero"), 
+          Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({Section(BoxData({"x", SuperscriptBox("2")}), "JavaInput"), 
-      Section(BoxData({{"Java", "::", ComplexStringBox("\"box\"")}, 
-         "\[Colon]", TemplateBox({
-           InterpretationBox(ComplexStringBox("\"Cannot convert ", {
-              ButtonBox({"SuperscriptBox", "(", {ComplexStringBox("\"2\"")}, 
-                ")"}, ButtonFunction -> (
-                 SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(
-                   FrontEndObject(2618097393662643470, 110), 1 .. 2)) &), 
-               ButtonFrame -> "Frameless")}, " to Java code.\""), 
-            StringForm("Cannot convert `1` to Java code.", 
-             RawBoxes(ButtonBox({"SuperscriptBox", "(", {
-                 ComplexStringBox("\"2\"")}, ")"}, 
-               ButtonFunction -> (
-                 SetSelectedDocument(Automatic, 
-                  Language`SourceLocation(
-                   FrontEndObject(2618097393662643470, 110), 1 .. 2)) &), 
-               ButtonFrame -> "Frameless"))))}, "RowDefault")}), "Message", 
-       SectionGenerated -> True)}, All), 
+      Section(
+       BoxData({
+         TemplateBox({
+           TemplateBox({MessageName -> HoldForm(Java`Java::"box"), 
+             Message -> StringForm("Cannot convert `1` to Java code.", 
+               RawBoxes(ButtonBox({"SuperscriptBox", "(", {
+                   StringBox("\"2\"")}, ")"}, 
+                 ButtonFunction -> (
+                   SetSelectedDocument(Automatic, 
+                    Language`SourceLocation(
+                     FrontEndObject(10801762494786359001, 113), 1 .. 2)) &), 
+                 ButtonFrame -> "Frameless"))), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {101, 4} .. {133, 0})}, {
+                "Head" -> Apply, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 4} .. {39, 15})}, {
+                "Head" -> Flatten, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 24} .. {39, 15})}, {
+                "Head" -> Map, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 24} .. {39, 7})}, {
+                "Head" -> With, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {31, 43} .. {39, 5})}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {68, 37} .. {75, 0})}, {
+                "Head" -> Message, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {69, 4} .. {73, 38})}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "Java", "::", StringBox("\"box\"")}}, "RowDefault"), ":", " ", 
+         InterpretationBox(StringBox("\"Cannot convert ", 
+           ButtonBox({"SuperscriptBox", "(", StringBox("\"2\""), ")"}, 
+            ButtonFrame -> "Frameless", 
+            ButtonFunction -> (
+              SetSelectedDocument(Automatic, 
+               Language`SourceLocation(FrontEndObject(10801762494786359001, 
+                 113), 1 .. 2)) &)), " to Java code.\""), 
+          StringForm("Cannot convert `1` to Java code.", 
+           RawBoxes(ButtonBox({"SuperscriptBox", "(", {StringBox("\"2\"")}, 
+              ")"}, ButtonFunction -> (
+               SetSelectedDocument(Automatic, 
+                Language`SourceLocation(FrontEndObject(10801762494786359001, 
+                  113), 1 .. 2)) &), ButtonFrame -> "Frameless"))), 
+          Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
-      Section(BoxData(ComplexStringBox("\"x", SuperscriptBox("2"), "+", 
-         SqrtBox("3"), "\"")), "JavaInput"), 
-      Section(BoxData({{"MakeExpression", "::", ComplexStringBox("\"bgn\"")}, 
-         "\[Colon]", TemplateBox({
-           InterpretationBox(ComplexStringBox(
-             "\"An expression cannot begin with \\\"", {
-              {"\\\"", "2", "\\\""}}, "\\\".\""), 
-            StringForm("An expression cannot begin with \"`1`\".", 
-             HoldForm(RawBoxes({"\\\"", "2", "\\\""}))))}, "RowDefault")}), 
-       "Message", SectionGenerated -> True), 
-      Section(BoxData({{"MakeExpression", "::", ComplexStringBox("\"bgn\"")}, 
-         "\[Colon]", TemplateBox({
-           InterpretationBox(ComplexStringBox(
-             "\"An expression cannot begin with \\\"", {
-              {"\\\"", "3", "\\\""}}, "\\\".\""), 
-            StringForm("An expression cannot begin with \"`1`\".", 
-             HoldForm(RawBoxes({"\\\"", "3", "\\\""}))))}, "RowDefault")}), 
+      Section(BoxData(StringBox("\"x", SuperscriptBox("2"), "+", SqrtBox("3"), 
+         "\"")), "JavaInput"), 
+      Section(
+       BoxData({
+         TemplateBox({
+           TemplateBox({MessageName -> HoldForm(MakeExpression::"bgn"), 
+             Message -> StringForm("An expression cannot begin with \"`1`\".", 
+               HoldForm(RawBoxes({"\\\"", "2", "\\\""}))), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                    107, 14} .. {107, 20})}, {
+                "Head" -> Do, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {104, 8} .. {130, 9})}, {
+                "Head" -> SectionPrint, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {109, 16} .. {109, 98})}, {
+                "Head" -> Section, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {109, 29} .. {109, 97})}, {
+                "Head" -> BoxData, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {109, 37} .. {109, 58})}, {
+                "Head" -> MakeBoxes}, {"Head" -> MakeExpression}, {
+                "Head" -> MakeExpression}, {"Head" -> Message}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "MakeExpression", "::", StringBox("\"bgn\"")}}, "RowDefault"), 
+         ":", " ", InterpretationBox(
+          StringBox("\"An expression cannot begin with \\\"", {
+            "\\\"", "2", "\\\""}, "\\\".\""), 
+          StringForm("An expression cannot begin with \"`1`\".", 
+           HoldForm(RawBoxes({"\\\"", "2", "\\\""}))), Editable -> False)}), 
        "Message", SectionGenerated -> True), 
       Section(
-       BoxData(ComplexStringBox("\"SqrtBox(\\\\\\\"3\\\\\\\")\)\\\"\"")), 
+       BoxData({
+         TemplateBox({
+           TemplateBox({MessageName -> HoldForm(MakeExpression::"bgn"), 
+             Message -> StringForm("An expression cannot begin with \"`1`\".", 
+               HoldForm(RawBoxes({"\\\"", "3", "\\\""}))), 
+             Stack -> {{"Head" -> ToExpression}, {
+                "Head" -> EvaluationSequence, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\library\
+                  \\scripts\\auto\\core\\format\\extended-syntax.pmath", {
+                    107, 14} .. {107, 20})}, {
+                "Head" -> Do, "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {104, 8} .. {130, 9})}, {
+                "Head" -> SectionPrint, 
+                "Location" -> Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {109, 16} .. {109, 98})}, {
+                "Head" -> Section, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {109, 29} .. {109, 97})}, {
+                "Head" -> BoxData, "Location" -> 
+                 Language`SourceLocation(
+                  "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\modules\
+                  \\Java\\scripts\\shell.pmath", {109, 37} .. {109, 58})}, {
+                "Head" -> MakeBoxes}, {"Head" -> MakeExpression}, {
+                "Head" -> MakeExpression}, {"Head" -> Message}, {
+                "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+            "MakeExpression", "::", StringBox("\"bgn\"")}}, "RowDefault"), 
+         ":", " ", InterpretationBox(
+          StringBox("\"An expression cannot begin with \\\"", {
+            "\\\"", "3", "\\\""}, "\\\".\""), 
+          StringForm("An expression cannot begin with \"`1`\".", 
+           HoldForm(RawBoxes({"\\\"", "3", "\\\""}))), Editable -> False)}), 
+       "Message", SectionGenerated -> True), 
+      Section(BoxData(StringBox("\"SqrtBox(\\\\\\\"3\\\\\\\")\)\\\"\"")), 
        "JavaOutput", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(
        BoxData({{{"var", " ", "ctx"}, " ", "=", " ", {
            "new", " ", {"pmath", ".", "Context", "(", ")"}}}, ";"}), 
-       "JavaInput"), 
-      Section(BoxData(ComplexStringBox("\"pmath.Context@689eae3a\"")), 
+       "JavaInput"), Section(BoxData(StringBox("\"pmath.Context@689eae3a\"")), 
        "JavaOutput", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(BoxData({"ctx", ".", "evaluate", "(", {
-          ComplexStringBox("\"Print(`1`)\""), ",", " ", 
-          ComplexStringBox("\"Hello\"")}, ")"}), "JavaInput"), 
-      Section(BoxData(TemplateBox({ComplexStringBox("\"Hello\"")}, 
-         "RowDefault")), "Print", SectionGenerated -> True), 
-      Section(BoxData(ComplexStringBox("\"null\"")), "JavaOutput", 
+          StringBox("\"Print(`1`)\""), ",", " ", StringBox("\"Hello\"")}, 
+         ")"}), "JavaInput"), 
+      Section(BoxData(TemplateBox({StringBox("\"Hello\"")}, "RowDefault")), 
+       "Print", SectionGenerated -> True), 
+      Section(BoxData(StringBox("\"null\"")), "JavaOutput", 
        SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(
        BoxData({"new", " ", {
           {"pmath", ".", "Context", "(", {"null", ",", "null"}, ")"}, ".", 
-          "evaluate", "(", ComplexStringBox("\"Print($Namespace)\""), ")"}}), 
+          "evaluate", "(", StringBox("\"Print($Namespace)\""), ")"}}), 
        "JavaInput"), 
-      Section(BoxData(TemplateBox({ComplexStringBox("\"Global`\"")}, 
-         "RowDefault")), "Print", SectionGenerated -> True), 
-      Section(BoxData(ComplexStringBox("\"null\"")), "JavaOutput", 
+      Section(BoxData(TemplateBox({StringBox("\"Global`\"")}, "RowDefault")), 
+       "Print", SectionGenerated -> True), 
+      Section(BoxData(StringBox("\"null\"")), "JavaOutput", 
        SectionGenerated -> True)}, All), 
     Section("Inline pMath code inside Java:", "Text"), 
     SectionGroup({
@@ -139,8 +325,7 @@ Document({
           TemplateBox({
             {"N", "(", RadicalBox("Pi", TemplateBox({{"2", "+", "3"}}, 
                "InlineJavaInput")), ")"}}, "MathInJava")}, ";"}), 
-       "JavaInput"), 
-      Section(BoxData(ComplexStringBox("\"1.2572741156691851\"")), 
+       "JavaInput"), Section(BoxData(StringBox("\"1.2572741156691851\"")), 
        "JavaOutput", SectionGenerated -> True)}, All), 
     SectionGroup({Section("Redirect Java output to the front-end", "Section"), 
       Section(
@@ -344,8 +529,7 @@ Document({
                    "throws", " ", "IOException", " ", {
                     "{", {"\n", "\[RawTab]", "\[RawTab]", "\[RawTab]", {
                       TemplateBox({
-                        {"SectionPrint", "(", {
-                          ComplexStringBox("\"Message\""), ",", 
+                        {"SectionPrint", "(", {StringBox("\"Message\""), ",", 
                           TemplateBox({"line"}, "InlineJavaInput")}, ")"}}, 
                        "MathInJava"), ";", "\n"}}, "\[RawTab]", "\[RawTab]", 
                     "}"}}, "\n"}}, "\[RawTab]", "}"}}}, ",", " ", "false", 
@@ -353,15 +537,15 @@ Document({
          ";"}), "JavaInput"), 
       SectionGroup({
         Section(BoxData({{{"System", ".", "out"}, ".", "print", "(", 
-            ComplexStringBox("\"Hello\""), ")"}, ";", " ", {
+            StringBox("\"Hello\""), ")"}, ";", " ", {
             {"System", ".", "out"}, ".", "print", "(", 
-            ComplexStringBox("\", world\""), ")"}}), "JavaInput"), 
-        Section(BoxData(TemplateBox({ComplexStringBox("\"Hello, world\"")}, 
+            StringBox("\", world\""), ")"}}), "JavaInput"), 
+        Section(BoxData(TemplateBox({StringBox("\"Hello, world\"")}, 
            "RowDefault")), "Print", SectionGenerated -> True)}, All), 
       SectionGroup({
         Section(BoxData({{"System", ".", "err"}, ".", "println", "(", 
-           ComplexStringBox("\"oops\""), ")"}), "JavaInput"), 
-        Section(BoxData(ComplexStringBox("\"oops\"")), "Message", 
+           StringBox("\"oops\""), ")"}), "JavaInput"), 
+        Section(BoxData(StringBox("\"oops\"")), "Message", 
          SectionGenerated -> True)}, All)}, All), 
     SectionGroup({Section("Known issues", "Section"), 
       Section("Not yet working correctly:", "Text"), 
@@ -369,11 +553,10 @@ Document({
         Section(BoxData({"With", "(", {{"{", {"i", "\[Assign]", "123"}, "}"}, 
             ",", TemplateBox({{{"System", ".", "out"}, ".", "println", "(", 
                TemplateBox({"i"}, "MathInJava"), ")"}}, "InlineJavaInput")}, 
-           ")"}), "Input", SectionLabel -> "in [21]:"), 
-        Section(BoxData(TemplateBox({ComplexStringBox("\"Global`i\"")}, 
-           "RowDefault")), "Print", SectionGenerated -> True)}, All)}, All), 
-    Section("Known issues", "Section")}, All)}, 
- StyleDefinitions :> 
+           ")"}), "Input", SectionLabel -> "in [20]:"), 
+        Section(BoxData(TemplateBox({StringBox("\"Global`i\"")}, 
+           "RowDefault")), "Print", SectionGenerated -> True)}, All)}, All)}, 
+   All)}, StyleDefinitions :> 
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
       Section(StyleData("Document"), 
@@ -417,7 +600,7 @@ Document({
              FrameStyle -> GrayLevel(0.84999999999999998`), 
              Background -> GrayLevel(0.90200000000000002`)), 
             BaseStyle -> "JavaInput") &), InterpretationFunction -> (
-           {{"Get", "(", ComplexStringBox("\"Java`\""), ")"}, ";", 
+           {{"Get", "(", StringBox("\"Java`\""), ")"}, ";", 
             TagBox(InterpretationBox(, #1), Java`EvaluateJavaBox)} &)}), 
       Section(StyleData("MathInJava"), 
        TemplateBoxOptions -> {

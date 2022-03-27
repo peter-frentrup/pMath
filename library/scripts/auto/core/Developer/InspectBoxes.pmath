@@ -68,8 +68,8 @@ Function internalInspectBoxes(~span:List) {
 	}
 	Return(newSpan)
 }
-		
-internalInspectBoxes(~str:ComplexStringBox)::= 
+
+internalInspectBoxes(~str:StringBox)::= 
 	StyleBox(str.Map(internalInspectBoxes), styleString)
 
 internalInspectBoxes(";")::= {";", "\n"}

@@ -6,9 +6,11 @@ Document({
       Section(BoxData(TemplateBox({"DocumentObject"}, "UsageReference")), 
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({"A ", TemplateBox({"DocumentObject"}, "ReferenceHyperlink"), 
-          " construct is a volatile handle that only remains valid until the \
-          document is closed."}, "Notes")}, All), 
+        Section(
+         TextData({"A ", TemplateBox({"DocumentObject"}, 
+            "ReferenceHyperlink"), 
+           " construct is a volatile handle that only remains valid until the \
+           document is closed."}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -26,21 +28,20 @@ Document({
           SectionGroup({
             Section(BoxData({"doc", "\[Assign]", {
                 "CreateDocument", "(", {
-                 "{", {{"Section", "(", {ComplexStringBox("\"Hello\""), ",", 
-                    ComplexStringBox("\"Title\"")}, ")"}, ",", {
-                   "Section", "(", {
-                    ComplexStringBox("\"To be or not to be ...\""), ",", 
-                    ComplexStringBox("\"Text\"")}, ")"}}, "}"}, ")"}}), 
-             "Input", SectionLabel -> "in [1]:"), 
+                 "{", {{"Section", "(", {StringBox("\"Hello\""), ",", 
+                    StringBox("\"Title\"")}, ")"}, ",", {
+                   "Section", "(", {StringBox("\"To be or not to be ...\""), 
+                    ",", StringBox("\"Text\"")}, ")"}}, "}"}, ")"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
             Section(BoxData(TemplateBox({FrontEndObject(3068), "Untitled 1"}, 
                "DocumentObject")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, All)}, All), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"CreateDocument"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"EvaluationDocument"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"SelectedDocument"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Documents"}, 
-         "ReferenceHyperlink")}, "SeeAlso")}, All)}, All)}, 
+      Section(TextData({TemplateBox({"CreateDocument"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"EvaluationDocument"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"SelectedDocument"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Documents"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
  StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

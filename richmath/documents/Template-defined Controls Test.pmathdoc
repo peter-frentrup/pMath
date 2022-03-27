@@ -2,10 +2,11 @@
 
 Document({SectionGroup({Section("Template-defined Controls Test", "Section"), 
     Section(TextData({"This document has custom ", 
-       ButtonBox(StyleBox(ComplexStringBox("\"style definitions\""), 
-         FontColor -> RGBColor(0, 0, 0.70199999999999996`), 
-         StripOnInput -> False), BaseStyle -> "", ButtonFrame -> "Frameless", 
-        ButtonFunction -> (FrontEndTokenExecute("EditStyleDefinitions") &)), 
+       ButtonBox({StyleBox({"style definitions"}, 
+          FontColor -> RGBColor(0, 0, 0.70199999999999996`), 
+          StripOnInput -> False)}, BaseStyle -> "", 
+        ButtonFrame -> "Frameless", ButtonFunction -> (
+          FrontEndTokenExecute("EditStyleDefinitions") &)), 
        ", which define a template box style \
        \[HighSixDoubleQuote]MyTemplatedControl\[HighNineDoubleQuote] that \
        dynamically modifies its argument. The argument may be another Dynamic \
@@ -18,8 +19,8 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
     SectionGroup({
       Section(
        BoxData({{"TemplateBox", "(", {{"{", {"Dynamic", "(", "x", ")"}, "}"}, 
-           ",", ComplexStringBox("\"MyTemplatedControl\"")}, ")"}, ".", 
-         "RawBoxes"}), "Input", SectionLabel -> "in [1]:"), 
+           ",", StringBox("\"MyTemplatedControl\"")}, ")"}, ".", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [1]:"), 
       Section(BoxData(TemplateBox({Dynamic($Context`x)}, 
          "MyTemplatedControl")), "Output", SectionGenerated -> True, 
        SectionLabel -> "out [1]:")}, All), 
@@ -35,17 +36,16 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
       Section(
        BoxData({
          {"TemplateBox", "(", {{"{", "0.5", "}"}, ",", 
-           ComplexStringBox("\"MyTemplatedControl\"")}, ")"}, ".", 
-         "RawBoxes"}), "Input", SectionLabel -> "in [3]:"), 
+           StringBox("\"MyTemplatedControl\"")}, ")"}, ".", "RawBoxes"}), 
+       "Input", SectionLabel -> "in [3]:"), 
       Section(BoxData(TemplateBox({0.5`}, "MyTemplatedControl")), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
     SectionGroup({
-      Section(
-       BoxData({"Style", "(", {{"Framed", "@", ComplexStringBox("\"a\"")}, 
+      Section(BoxData({"Style", "(", {{"Framed", "@", StringBox("\"a\"")}, 
           ",", {"Background", "\[Rule]", {
             "Dynamic", "(", {"Hue", "(", "x", ")"}, ")"}}}, ")"}), "Input", 
        SectionLabel -> "in [4]:"), 
-      Section(BoxData(StyleBox(FrameBox(ComplexStringBox("\"a\"")), 
+      Section(BoxData(StyleBox(FrameBox(StringBox("\"a\"")), 
          Background -> Dynamic(Hue($Context`x)), StripOnInput -> False)), 
        "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
     SectionGroup({Section("A templated OwnerView implementation", 
@@ -63,7 +63,7 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
           "\n", {"TemplateBox", "(", {
             {"{", {{"MakeBoxes", "(", "a", ")"}, ",", {
                "MakeBoxes", "(", "b", ")"}, ",", "open"}, "}"}, ",", 
-            ComplexStringBox("\"MyOpenerView\"")}, ")"}}}), "Code", 
+            StringBox("\"MyOpenerView\"")}, ")"}}}), "Code", 
        SectionLabel -> "in [5]:"), 
       Section(BoxData({{"myOpenerView", "(", {{"~", "a"}, ",", {"~", "b"}}, 
           ")"}, "\[AssignDelayed]", {"myOpenerView", "(", {
@@ -71,56 +71,56 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
        SectionLabel -> "in [6]:"), 
       SectionGroup({
         Section(BoxData({"myOpenerView", "(", {
-            ComplexStringBox("\"aaa\""), ",", ComplexStringBox("\"bbb\"")}, 
-           ")"}), "Input", SectionLabel -> "in [7]:"), 
-        Section(BoxData(TemplateBox({ComplexStringBox("\"aaa\""), 
-            ComplexStringBox("\"bbb\""), False}, "MyOpenerView")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+            StringBox("\"aaa\""), ",", StringBox("\"bbb\"")}, ")"}), "Input", 
+         SectionLabel -> "in [7]:"), 
+        Section(
+         BoxData(TemplateBox({StringBox("\"aaa\""), StringBox("\"bbb\""), 
+            False}, "MyOpenerView")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [7]:")}, All), 
       SectionGroup({
         Section(BoxData({"myOpenerView", "(", {
-            ComplexStringBox("\"aaa\""), ",", {
-             "myOpenerView", "(", {ComplexStringBox("\"aaa\""), ",", 
-              ComplexStringBox("\"bbb\"")}, ")"}}, ")"}), "Input", 
-         SectionLabel -> "in [8]:"), 
-        Section(BoxData(TemplateBox({ComplexStringBox("\"aaa\""), 
-            TemplateBox({ComplexStringBox("\"aaa\""), 
-              ComplexStringBox("\"bbb\""), False}, "MyOpenerView"), False}, 
-           "MyOpenerView")), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [8]:")}, All), 
+            StringBox("\"aaa\""), ",", {"myOpenerView", "(", {
+              StringBox("\"aaa\""), ",", StringBox("\"bbb\"")}, ")"}}, ")"}), 
+         "Input", SectionLabel -> "in [8]:"), 
+        Section(
+         BoxData(TemplateBox({StringBox("\"aaa\""), 
+            TemplateBox({StringBox("\"aaa\""), StringBox("\"bbb\""), False}, 
+             "MyOpenerView"), False}, "MyOpenerView")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
       SectionGroup({
         Section(BoxData({"myOpenerView", "(", {
-            ComplexStringBox("\"aaa\""), ",", {
+            StringBox("\"aaa\""), ",", {
              "Column", "@", {
-              "{", {{"myOpenerView", "(", {ComplexStringBox("\"bbb\""), ",", 
-                 ComplexStringBox("\"ccc\"")}, ")"}, ",", {
-                "myOpenerView", "(", {ComplexStringBox("\"ddd\""), ",", 
-                 ComplexStringBox("\"eee\"")}, ")"}}, "}"}}}, ")"}), "Input", 
+              "{", {{"myOpenerView", "(", {StringBox("\"bbb\""), ",", 
+                 StringBox("\"ccc\"")}, ")"}, ",", {
+                "myOpenerView", "(", {StringBox("\"ddd\""), ",", 
+                 StringBox("\"eee\"")}, ")"}}, "}"}}}, ")"}), "Input", 
          SectionLabel -> "in [9]:"), 
-        Section(BoxData(TemplateBox({ComplexStringBox("\"aaa\""), 
+        Section(
+         BoxData(TemplateBox({StringBox("\"aaa\""), 
             TagBox(
              GridBox({
-               {TemplateBox({ComplexStringBox("\"bbb\""), 
-                  ComplexStringBox("\"ccc\""), False}, "MyOpenerView")}, {
-                TemplateBox({ComplexStringBox("\"ddd\""), 
-                  ComplexStringBox("\"eee\""), False}, "MyOpenerView")}}), 
-             "Column"), False}, "MyOpenerView")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
+               {TemplateBox({StringBox("\"bbb\""), StringBox("\"ccc\""), 
+                  False}, "MyOpenerView")}, {
+                TemplateBox({StringBox("\"ddd\""), StringBox("\"eee\""), 
+                  False}, "MyOpenerView")}}), "Column"), False}, 
+           "MyOpenerView")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [9]:")}, All), 
       SectionGroup({
         Section(
          BoxData({"Row", "@", {
             "Table", "(", {
-             {"myOpenerView", "(", {ComplexStringBox("\"aaa\""), ",", 
-               ComplexStringBox("\"bbb\""), ",", {"Dynamic", "(", "o", ")"}}, 
-              ")"}, ",", "2"}, ")"}}), "Input", SectionLabel -> "in [10]:"), 
+             {"myOpenerView", "(", {StringBox("\"aaa\""), ",", 
+               StringBox("\"bbb\""), ",", {"Dynamic", "(", "o", ")"}}, ")"}, 
+             ",", "2"}, ")"}}), "Input", SectionLabel -> "in [10]:"), 
         Section(
          BoxData(TemplateBox({
-            TemplateBox({ComplexStringBox("\"aaa\""), 
-              ComplexStringBox("\"bbb\""), Dynamic($Context`o)}, 
-             "MyOpenerView"), TemplateBox({ComplexStringBox("\"aaa\""), 
-              ComplexStringBox("\"bbb\""), Dynamic($Context`o)}, 
-             "MyOpenerView")}, "RowDefault")), "Output", 
-         SectionGenerated -> True, SectionLabel -> "out [10]:")}, All)}, 
-     All)}, All)}, StyleDefinitions :> 
+            TemplateBox({StringBox("\"aaa\""), StringBox("\"bbb\""), 
+              Dynamic($Context`o)}, "MyOpenerView"), 
+            TemplateBox({StringBox("\"aaa\""), StringBox("\"bbb\""), 
+              Dynamic($Context`o)}, "MyOpenerView")}, "RowDefault")), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [10]:")}, 
+       All)}, All)}, All)}, StyleDefinitions :> 
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
       SectionGroup({Section("TemplateBox styles", "Subsection"), 

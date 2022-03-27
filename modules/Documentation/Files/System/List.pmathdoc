@@ -33,10 +33,10 @@ Document({
           Section("Lists may contain elements of different type:", 
            "ExampleText"), SectionGroup({
             Section(BoxData({"{", {"1", ",", "2", ",", "a", ",", {"{", "}"}, 
-                ",", ComplexStringBox("\"text\"")}, "}"}), "Input", 
+                ",", StringBox("\"text\"")}, "}"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(BoxData({"{", {"1", ",", "2", ",", "a", ",", {"{", "}"}, 
-                ",", ComplexStringBox("\"text\"")}, "}"}), "Output", 
+                ",", StringBox("\"text\"")}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         SectionGroup({
@@ -151,7 +151,7 @@ Document({
               Section(
                BoxData({
                  {"{", {{{"(", {"0", ",", "0"}, ")"}, "\[Rule]", 
-                    ComplexStringBox("\"well...\"")}, ",", {
+                    StringBox("\"well...\"")}, ",", {
                     {"(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, 
                     "\[RuleDelayed]", {"x", SuperscriptBox("y")}}}, "}"}, "(", 
                  {"2", ",", "3"}, ")"}), "Input", SectionLabel -> "in [1]:"), 

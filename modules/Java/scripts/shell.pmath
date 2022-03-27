@@ -17,7 +17,7 @@ Java::diag:= "`1`";
 
 
 javaCodeFromBoxes(~s:String)::= s
-javaCodeFromBoxes(ComplexStringBox(~~~s))::= StringExpression @@ Map({s}, javaStringCodeFromBoxes)
+javaCodeFromBoxes(StringBox(~~~s))::= StringExpression @@ Map({s}, javaStringCodeFromBoxes)
 
 %
 % Caution: the front-end will strip white-space and pMath comments before 

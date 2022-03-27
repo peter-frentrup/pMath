@@ -8,9 +8,8 @@ Document({
     Section(
      TextData({
        TemplateBox({
-         ComplexStringBox(
-          "\"https://mathematica.stackexchange.com/questions/166011/dynamic-tr\
-          iggered-but-renders-the-same-content\""), 
+         "https://mathematica.stackexchange.com/questions/166011/dynamic-trigg\
+         ered-but-renders-the-same-content", 
          "https://mathematica.stackexchange.com/questions/166011/dynamic-trigg\
          ered-but-renders-the-same-content"}, "HyperlinkURL")}), "Text"), 
     SectionGroup({Section(BoxData({"trigger", "\[Assign]", "True"}), "Input", 
@@ -26,10 +25,10 @@ Document({
       Section(
        BoxData({"Column", "@", {
           "{", {
-           {"\n", {"Button", "(", {ComplexStringBox("\"redo\""), ",", {
+           {"\n", {"Button", "(", {StringBox("\"redo\""), ",", {
                "trigger", "\[Assign]", {"!", "trigger"}}, ",", {
-               "Method", "\[Rule]", ComplexStringBox("\"Queued\"")}}, ")"}}, 
-           ",", {"\n", {"Dynamic", "(", "trigger", ")"}}, ",", {
+               "Method", "\[Rule]", StringBox("\"Queued\"")}}, ")"}}, ",", {
+            "\n", {"Dynamic", "(", "trigger", ")"}}, ",", {
             "\n", {"Dynamic", "(", {{"trigger", ";", {"panel", "(", ")"}}, 
               ",", {"TrackedSymbols", "\[RuleDelayed]", {
                 "{", "trigger", "}"}}}, ")"}}, ",", {
@@ -43,7 +42,7 @@ Document({
        BoxData(
         TagBox(
          GridBox({
-           {ButtonBox(ComplexStringBox("\"redo\""), 
+           {ButtonBox(StringBox("\"redo\""), 
              ButtonFunction -> (($Context`trigger:= !$Context`trigger) &), 
              Method -> "Queued")}, {DynamicBox(ToBoxes($Context`trigger))}, {
             DynamicBox(ToBoxes($Context`trigger; $Context`panel()), 

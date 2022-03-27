@@ -23,13 +23,12 @@ Document({
          "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Bullet]\"")}}, ")"}, ")"}), "Input", 
-         SectionLabel -> "in [1]:"), 
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Bullet]\"")}}, ")"}, 
+           ")"}), "Input", SectionLabel -> "in [1]:"), 
         Section(
          "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
          xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -41,13 +40,12 @@ Document({
           Section("The dingbat may contain many characters:", "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
               "Section", "(", {
-               ComplexStringBox(
+               StringBox(
                 "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
                 xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-                xxxx xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), 
-               ",", {"SectionDingbat", "\[Rule]", 
-                ComplexStringBox("\"++++++++++\"")}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+                xxxx xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+                "SectionDingbat", "\[Rule]", StringBox("\"++++++++++\"")}}, 
+              ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            "Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
            xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
@@ -61,12 +59,11 @@ Document({
            ":"}), "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "10"}}, ")"}, ")"}), 
          "Input", SectionLabel -> "in [1]:"), 
         Section(
@@ -81,12 +78,11 @@ Document({
          "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
          SectionLabel -> "in [1]:"), 
@@ -102,12 +98,11 @@ Document({
            " accordingly:"}), "ExampleText"), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "10"}, ",", {
               "SectionFrameMargins", "\[Rule]", "5"}}, ")"}, ")"}), "Input", 
@@ -121,12 +116,11 @@ Document({
          SectionGenerated -> True), 
         Section(BoxData({"SectionPrint", "(", {
             "Section", "(", {
-             ComplexStringBox(
+             StringBox(
               "\"Xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
               xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx xxxx \
-              xxxx xxxx xxxx\""), ",", ComplexStringBox("\"Text\""), ",", {
-              "SectionDingbat", "\[Rule]", 
-              ComplexStringBox("\"\[Section]\"")}, ",", {
+              xxxx xxxx xxxx\""), ",", StringBox("\"Text\""), ",", {
+              "SectionDingbat", "\[Rule]", StringBox("\"\[Section]\"")}, ",", {
               "SectionFrame", "\[Rule]", "1"}, ",", {
               "SectionFrameLabelMargins", "\[Rule]", "5"}, ",", {
               "SectionFrameMargins", "\[Rule]", {

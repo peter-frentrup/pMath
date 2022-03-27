@@ -11,17 +11,7 @@ Document({
              "{", {"xs", ",", {"FE`CallFrontEnd", "(", {
                 "FrontEnd`EvaluateCubicBezierFunction", "(", {
                  "0.25", ",", "0", ",", "0.25", ",", "1", ",", "xs"}, ")"}, 
-               ")"}}, "}"}}}, ")"}}), "Input", SectionLabel -> "in [1]:"), 
-      Section(
-       BoxData({{"Developer`FromPackedArray", "::", 
-          ComplexStringBox("\"punpack\"")}, "\[Colon]", 
-         TemplateBox({
-           InterpretationBox(ComplexStringBox(
-             "\"Unpacking array with dimensions ", {{"{", {"2"}, "}"}}, 
-             " in call to ", {"Part"}, ".\""), 
-            StringForm("Unpacking array with dimensions `2` in call to `1`.", 
-             Part, {2}))}, "RowDefault")}), "Message", 
-       SectionGenerated -> True), 
+               ")"}}, "}"}}}, ")"}}), "Input", SectionLabel -> "in [7]:"), 
       Section(
        BoxData(GraphicsBox({
           {RGBColor(0.75`, 0, 0), {
@@ -60,5 +50,5 @@ Document({
               jiz2YQ*ccZ&[<_q9uZBq<0_w0[IW3lm~~~"))}}}, 
          AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
          Axes -> True)), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [1]:")}, All)}, All)}, 
+       SectionLabel -> "out [7]:")}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

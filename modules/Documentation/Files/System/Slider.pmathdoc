@@ -1,4 +1,4 @@
-﻿/* pMath Document */
+/* pMath Document */
 
 Document({
   SectionGroup({
@@ -46,7 +46,7 @@ Document({
           SectionGroup({
             Section(BoxData({"Slider", "(", {
                 "0.5", ",", {"Appearance", "\[Rule]", 
-                 ComplexStringBox("\"Slider\"")}}, ")"}), "Input", 
+                 StringBox("\"Slider\"")}}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(BoxData(SliderBox(0.5`, 0 .. 1, Appearance -> "Slider")), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
@@ -58,9 +58,9 @@ Document({
               Section(BoxData({"Table", "(", {
                   {"Slider", "(", {"0.5", ",", {
                      "Appearance", "\[Rule]", "a"}}, ")"}, ",", {
-                   "a", "\[Rule]", {"{", {ComplexStringBox("\"UpArrow\""), 
-                     ",", ComplexStringBox("\"DownArrow\"")}, "}"}}}, ")"}), 
-               "Input", SectionLabel -> "in [1]:"), 
+                   "a", "\[Rule]", {"{", {StringBox("\"UpArrow\""), ",", 
+                     StringBox("\"DownArrow\"")}, "}"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
                  "{", {SliderBox(0.5`, 0 .. 1, Appearance -> "UpArrow"), ",", 
@@ -77,9 +77,9 @@ Document({
                    "Appearance", "\[Rule]", {
                     "Dynamic", "(", {
                      "If", "(", {{"x", "<", "0.5"}, ",", 
-                      ComplexStringBox("\"DownArrow\""), ",", 
-                      ComplexStringBox("\"UpArrow\"")}, ")"}, ")"}}}, ")"}), 
-               "Input", SectionLabel -> "in [1]:"), 
+                      StringBox("\"DownArrow\""), ",", 
+                      StringBox("\"UpArrow\"")}, ")"}, ")"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
               Section(BoxData(SliderBox(Dynamic($Context`x), 0 .. 1, 
                  Appearance -> Dynamic(If($Context`x < 0.5`, "DownArrow", 
                     "UpArrow")))), "Output", SectionGenerated -> True, 
@@ -92,10 +92,10 @@ Document({
               Section(BoxData({"Table", "(", {
                   {"Slider", "(", {"0.5", ",", {
                      "Appearance", "\[Rule]", "a"}}, ")"}, ",", {
-                   "a", "\[Rule]", {"{", {ComplexStringBox("\"Vertical\""), 
-                     ",", ComplexStringBox("\"RightArrow\""), ",", 
-                     ComplexStringBox("\"LeftArrow\"")}, "}"}}}, ")"}), 
-               "Input", SectionLabel -> "in [1]:"), 
+                   "a", "\[Rule]", {"{", {StringBox("\"Vertical\""), ",", 
+                     StringBox("\"RightArrow\""), ",", 
+                     StringBox("\"LeftArrow\"")}, "}"}}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
                  "{", {SliderBox(0.82776421440972225`, 0 .. 1, 
@@ -113,9 +113,9 @@ Document({
                   {"Slider", "(", {"0.5", ",", {
                      "Appearance", "\[Rule]", "a"}}, ")"}, ",", {
                    "a", "\[Rule]", {
-                    "{", {ComplexStringBox("\"ToggleSwitchChecked\""), ",", 
-                     ComplexStringBox("\"ToggleSwitchUnchecked\"")}, "}"}}}, 
-                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+                    "{", {StringBox("\"ToggleSwitchChecked\""), ",", 
+                     StringBox("\"ToggleSwitchUnchecked\"")}, "}"}}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
                  "{", {SliderBox(0.50740750630696618`, 0 .. 1, 
@@ -221,7 +221,7 @@ Document({
                     {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, 
                       ",", "Background"}, ")"}, "\[Assign]", {
                      "GrayLevel", "(", "#", ")"}}, ")"}}, ")"}, ")"}, ",", {
-                "Button", "(", {ComplexStringBox("\"Reset\""), ",", {
+                "Button", "(", {StringBox("\"Reset\""), ",", {
                   {"CurrentValue", "(", {{"EvaluationDocument", "(", ")"}, 
                     ",", "Background"}, ")"}, "\[Assign]", "Inherited"}}, 
                 ")"}}, "}"}}), "Input", SectionLabel -> "in [1]:"), 
@@ -232,7 +232,7 @@ Document({
                  GrayLevel(~$Context`g) :> $Context`g), (
                   CurrentValue(EvaluationDocument(), Background):= 
                   GrayLevel(#1)) &), 0 .. 1), 
-              ButtonBox(ComplexStringBox("\"Reset\""), 
+              ButtonBox(StringBox("\"Reset\""), 
                ButtonFunction -> (
                  (CurrentValue(EvaluationDocument(), Background):= 
                   Inherited) &))}, "RowDefault")), "Output", 

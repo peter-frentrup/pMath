@@ -20,7 +20,7 @@ Document({
         SectionGroup({
           Section(BoxData({"ToString", "(", {"x", SuperscriptBox("2")}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData(ComplexStringBox("\"x^2\"")), "Output", 
+          Section(BoxData(StringBox("\"x^2\"")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData({"Head", "(", {"$History", "(", {"-", "1"}, ")"}, 
@@ -35,42 +35,38 @@ Document({
            BoxData({"Grid", "(", {
               "Table", "(", {
                {"{", {"form", ",", {"ToString", "(", {
-                   {{"(", {"x", "+", ComplexStringBox("\"Text\"")}, ")"}, 
+                   {{"(", {"x", "+", StringBox("\"Text\"")}, ")"}, 
                     SuperscriptBox("2")}, ",", "form"}, ")"}}, "}"}, ",", {
                 "form", "\[Rule]", {
                  "{", {"OutputForm", ",", "InputForm", ",", "FullForm"}, 
                  "}"}}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(
-            TagBox(
-             GridBox({{"OutputForm", ComplexStringBox("\"(Text + x)^2\"")}, {
-                "InputForm", ComplexStringBox("\"(\\\"Text\\\" + x)^2\"")}, {
-                "FullForm", ComplexStringBox(
-                 "\"Power(Plus(\\\"Text\\\", x), 2)\"")}}), "Grid")), 
+            TagBox(GridBox({{"OutputForm", StringBox("\"(Text + x)^2\"")}, {
+                "InputForm", StringBox("\"(\\\"Text\\\" + x)^2\"")}, {
+                "FullForm", 
+                StringBox("\"Power(Plus(\\\"Text\\\", x), 2)\"")}}), "Grid")), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("CharacterEncoding", "ExampleSubsection"), 
           Section("Use only printable ASCII characters:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"ToString", "(", {
-                {"\[Alpha]", "\[Rule]", ComplexStringBox("\"\[Beta]\"")}, ",", 
-                {"CharacterEncoding", "\[Rule]", 
-                 ComplexStringBox("\"ASCII\"")}}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(BoxData(ComplexStringBox(
-               "\"\\\\[Alpha] -> \\\\[Beta]\"")), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-          SectionGroup({
+                {"\[Alpha]", "\[Rule]", StringBox("\"\[Beta]\"")}, ",", {
+                 "CharacterEncoding", "\[Rule]", StringBox("\"ASCII\"")}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(StringBox("\"\\\\[Alpha] -> \\\\[Beta]\"")), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section("Use Unicode characters for operators:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"ToString", "(", {
-                  {"\[Alpha]", "\[Rule]", ComplexStringBox("\"\[Beta]\"")}, 
-                  ",", {"CharacterEncoding", "\[Rule]", 
-                   ComplexStringBox("\"Unicode\"")}}, ")"}), "Input", 
-               SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox("\"\[Alpha]\[Rule]\[Beta]\"")), 
+                  {"\[Alpha]", "\[Rule]", StringBox("\"\[Beta]\"")}, ",", {
+                   "CharacterEncoding", "\[Rule]", StringBox("\"Unicode\"")}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(StringBox("\"\[Alpha]\[Rule]\[Beta]\"")), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
@@ -81,20 +77,21 @@ Document({
              of strings):", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"ToString", "(", {
-                  {"\[Alpha]", "\[Rule]", ComplexStringBox("\"\[Beta]\"")}, 
-                  ",", {"CharacterEncoding", "\[Rule]", "Automatic"}}, ")"}), 
+                  {"\[Alpha]", "\[Rule]", StringBox("\"\[Beta]\"")}, ",", {
+                   "CharacterEncoding", "\[Rule]", "Automatic"}}, ")"}), 
                "Input", SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox("\"\[Alpha] -> \[Beta]\"")), 
-               "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("PageWidth", "ExampleSubsection"), 
+              Section(BoxData(StringBox("\"\[Alpha] -> \[Beta]\"")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("PageWidth", "ExampleSubsection"), 
           Section(
            "By default, long lines are not broken in the returned string, but \
            only by the front-end as necessary:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"ToString", "(", {"Array", "(", "30", ")"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(ComplexStringBox(
+            Section(
+             BoxData(
+              StringBox(
                "\"{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, \
                18, 19, 20, 21, 22, 23, 24, 25, 26, 27, 28, 29, 30}\"")), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
@@ -107,7 +104,9 @@ Document({
                   {"Array", "(", "30", ")"}, ",", {
                    "PageWidth", "\[Rule]", "40"}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox(
+              Section(
+               BoxData(
+                StringBox(
                  "\"{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, \n 12, 13, 14, 15, 16, \
                  17, 18, 19, 20, \n 21, 22, 23, 24, 25, 26, 27, 28, 29, \
                  30}\"")), "Output", SectionGenerated -> True, 
@@ -125,20 +124,19 @@ Document({
                        "\n", {"Dynamic", "(", {
                          "Style", "(", {
                           {{"StringExpression", "@@", {
-                             "Table", "(", {
-                              ComplexStringBox("\"----'----|\""), ",", {
+                             "Table", "(", {StringBox("\"----'----|\""), ",", {
                                "Ceiling", "(", {"w", "/", "10"}, ")"}}, ")"}}, 
-                           "++", ComplexStringBox("\"\\n\""), "++", {
+                           "++", StringBox("\"\\n\""), "++", {
                             "StringExpression", "@@", {
-                             "Table", "(", {ComplexStringBox("\" \""), ",", {
+                             "Table", "(", {StringBox("\" \""), ",", {
                                "w", "-", "1"}}, ")"}}, "++", 
-                           ComplexStringBox("\"^\\n\""), "++", {
+                           StringBox("\"^\\n\""), "++", {
                             "ToString", "(", {{"Array", "(", "30", ")"}, ",", {
                               "PageWidth", "\[Rule]", "w"}}, ")"}}, ",", {
                            "FontFamily", "\[Rule]", 
-                           ComplexStringBox("\"Courier New\"")}}, ")"}, 
-                        ")"}}}, "}"}, ",", ComplexStringBox("\"\\n\"")}, 
-                   ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+                           StringBox("\"Courier New\"")}}, ")"}, ")"}}}, "}"}, 
+                    ",", StringBox("\"\\n\"")}, ")"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
               Section(BoxData(DynamicLocalBox({Global`w}, 
                  TemplateBox({"\n", "\n", SliderBox(Dynamic(Global`w), 
                     1 .. 40 .. 1), 
@@ -163,7 +161,9 @@ Document({
                   {"Array", "(", "30", ")"}, ",", {
                    "PageWidth", "\[Rule]", "$PageWidth"}}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(ComplexStringBox(
+              Section(
+               BoxData(
+                StringBox(
                  "\"{1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, \n 15, 16, \
                  17, 18, 19, 20, 21, 22, 23, 24, 25, 26, \n 27, 28, 29, \
                  30}\"")), "Output", SectionGenerated -> True, 
@@ -174,11 +174,13 @@ Document({
            necessary:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"ToString", "(", {
-                ComplexStringBox(
+                StringBox(
                  "\"Text with \\\" quotes and backslashes \\\\: \\\\\\\"\""), 
                 ",", {"ShowStringCharacters", "\[Rule]", "True"}}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(ComplexStringBox(
+            Section(
+             BoxData(
+              StringBox(
                "\"\\\"Text with \\\\\\\" quotes and backslashes \\\\\\\\: \
                \\\\\\\\\\\\\\\"\\\"\"")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
@@ -188,11 +190,13 @@ Document({
             Section("Suppress output of special characters:", "ExampleText"), 
             SectionGroup({
               Section(BoxData({"ToString", "(", {
-                  ComplexStringBox(
+                  StringBox(
                    "\"Text with \\\" quotes and backslashes \\\\: \
                    \\\\\\\"\""), ",", {"ShowStringCharacters", "\[Rule]", 
                    "False"}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
-              Section(BoxData(ComplexStringBox(
+              Section(
+               BoxData(
+                StringBox(
                  "\"Text with \\\" quotes and backslashes \\\\: \\\\\\\"\"")), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [2]:")}, All)}, All)}, 1), 
@@ -204,7 +208,7 @@ Document({
             Section(BoxData({"ToString", "(", {
                 {"a", "+", "b"}, ",", {"Whitespace", "\[Rule]", "False"}}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(ComplexStringBox("\"a+b\"")), "Output", 
+            Section(BoxData(StringBox("\"a+b\"")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          1)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 

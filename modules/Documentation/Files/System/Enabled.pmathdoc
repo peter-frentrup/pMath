@@ -12,7 +12,7 @@ Document({
         Section("Possible settings are:", "Notes"), 
         Section(
          TextData({
-           ComplexStringBox("\"", 
+           StringBox("\"", 
             GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), {
                 "use", " ", "the", " ", "setting", " ", "from", " ", 
                 "containg", " ", "boxes"}}, {
@@ -36,12 +36,11 @@ Document({
         Section(TextData({"A ", TemplateBox({"Button"}, "ReferenceHyperlink"), 
            " that cannot be clicked:"}), "ExampleText"), 
         SectionGroup({
-          Section(BoxData({"Button", "(", {
-              ComplexStringBox("\"Try to click me\""), ",", {
-               "Print", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
+          Section(BoxData({"Button", "(", {StringBox("\"Try to click me\""), 
+              ",", {"Print", "(", {"RandomReal", "(", ")"}, ")"}, ",", {
                "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(ButtonBox(ComplexStringBox("\"Try to click me\""), 
+          Section(BoxData(ButtonBox(StringBox("\"Try to click me\""), 
              ButtonFunction -> (Print(RandomReal()) &), Enabled -> False)), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All), SectionGroup({
@@ -64,7 +63,7 @@ Document({
              " that disallows selecting and editing its content:"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"InputField", "(", {
-                ComplexStringBox("\"Text\""), ",", "String", ",", {
+                StringBox("\"Text\""), ",", "String", ",", {
                  "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(BoxData(InputFieldBox("Text", String, Enabled -> False)), 
@@ -104,9 +103,7 @@ Document({
                      "\[InvisibleSpace]", 
                      SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, "3")}, 
                     SetterBar(System`Private`GuiBoxes`var, {1, 2, 3}), 
-                    Editable -> False), Initialization :> None, 
-                   Deinitialization :> None, UnsavedVariables :> {}, 
-                   DynamicLocalValues :> {
+                    Editable -> False), DynamicLocalValues :> {
                      {OwnRules(System`Private`GuiBoxes`var):= {
                         HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
                   Setting(#1, 0) &)}}), "Column"), Enabled -> False)), 
@@ -126,14 +123,13 @@ Document({
                         {"{", {
                           {"Checkbox", "(", {{"Dynamic", "(", "enabled", ")"}, 
                             ",", {"Enabled", "\[Rule]", "True"}}, ")"}, ",", {
-                           "Button", "(", {
-                            ComplexStringBox("\"Enable the panel\""), ",", {
-                             "enabled", "\[Assign]", {
+                           "Button", "(", {StringBox("\"Enable the panel\""), 
+                            ",", {"enabled", "\[Assign]", {
                               "Not", "(", "enabled", ")"}}, ",", {
                              "ButtonFrame", "\[Rule]", 
-                             ComplexStringBox("\"Frameless\"")}, ",", {
+                             StringBox("\"Frameless\"")}, ",", {
                              "Enabled", "\[Rule]", "True"}}, ")"}}, "}"}, ",", 
-                        ComplexStringBox("\" \"")}, ")"}}, ",", {
+                        StringBox("\" \"")}, ")"}}, ",", {
                       "\n", {"Row", "@", {
                         "{", {{"Checkbox", "(", "True", ")"}, ",", {
                           "Checkbox", "(", "False", ")"}, ",", {
@@ -154,7 +150,7 @@ Document({
                  {TemplateBox({
                     " ", " ", CheckboxBox(Dynamic($Context`enabled), 
                      Enabled -> True), 
-                    ButtonBox(ComplexStringBox("\"Enable the panel\""), 
+                    ButtonBox(StringBox("\"Enable the panel\""), 
                      ButtonFunction -> (
                        ($Context`enabled:= !$Context`enabled) &), 
                      ButtonFrame -> "Frameless", Enabled -> True)}, 
@@ -170,14 +166,12 @@ Document({
                       "\[InvisibleSpace]", 
                       SetterBox(Dynamic(System`Private`GuiBoxes`var), 3, 
                        "3")}, SetterBar(System`Private`GuiBoxes`var, {
-                       1, 2, 3}), Editable -> False), Initialization :> None, 
-                    Deinitialization :> None, UnsavedVariables :> {}, 
+                       1, 2, 3}), Editable -> False), 
                     DynamicLocalValues :> {
                       {OwnRules(System`Private`GuiBoxes`var):= {
                          HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
                    Setting(#1, 0) &)}}), "Column"), 
-              Enabled -> Dynamic($Context`enabled)), Initialization :> None, 
-             Deinitialization :> None, UnsavedVariables :> {}, 
+              Enabled -> Dynamic($Context`enabled)), 
              DynamicLocalValues :> {
                {OwnRules($Context`enabled):= {
                   HoldPattern($Context`enabled) :> False}}})), "Output", 

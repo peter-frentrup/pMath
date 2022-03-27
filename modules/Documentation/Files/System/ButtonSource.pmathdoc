@@ -6,55 +6,52 @@ Document({
       Section(BoxData(TemplateBox({"ButtonSource"}, "UsageReference")), 
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({"The default setting is ", 
-          TemplateBox({"ButtonSource"}, "ReferenceHyperlink"), " \[Rule] ", 
-          TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}, "Notes"), 
+        Section(TextData({"The default setting is ", 
+           TemplateBox({"ButtonSource"}, "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), "."}), "Notes"), 
         Section("Possible settings are:", "Notes"), 
-        Section({
-          ComplexStringBox("\"", 
-           GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
-              /\/({{TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
-                 "\[NonBreakingSpace]", "if", " ", "set"}, ",", " ", {
-                 "otherwise", " ", TemplateBox({"ButtonContents"}, 
-                  "ReferenceHyperlink")}}, " ")}, {
-              TemplateBox({"ButtonData"}, "ReferenceHyperlink"), {
-               "the", " ", "setting", " ", "for", " ", "the", " ", 
-               TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
-               "\[NonBreakingSpace]", "option"}}, {
-              TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), {
-               {"the", " ", "first", " ", "argument", " ", "of", " ", 
-                TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}, ",", " ", {
-                "wrapped", " ", "in", " ", TemplateBox({"BoxData"}, 
-                 "ReferenceHyperlink")}}}, {
-              TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), {
-               "the", " ", "whole", " ", TemplateBox({"ButtonBox"}, 
-                "ReferenceHyperlink")}}, {
-              TemplateBox({"FrontEndObject"}, "ReferenceHyperlink"), {
-               {"the", " ", "front"}, "-", {"end", " ", "object", " ", 
-                "reference", " ", "of", " ", "the", " ", 
-                TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}}}}))}, 
+        Section(
+         TextData({
+           StringBox("\"", 
+            GridBox({{TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+               /\/({{TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
+                  "\[NonBreakingSpace]", "if", " ", "set"}, ",", " ", {
+                  "otherwise", " ", TemplateBox({"ButtonContents"}, 
+                   "ReferenceHyperlink")}}, " ")}, {
+               TemplateBox({"ButtonData"}, "ReferenceHyperlink"), {
+                "the", " ", "setting", " ", "for", " ", "the", " ", 
+                TemplateBox({"ButtonData"}, "ReferenceHyperlink"), 
+                "\[NonBreakingSpace]", "option"}}, {
+               TemplateBox({"ButtonContents"}, "ReferenceHyperlink"), {
+                {"the", " ", "first", " ", "argument", " ", "of", " ", 
+                 TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}, ",", " ", {
+                 "wrapped", " ", "in", " ", TemplateBox({"BoxData"}, 
+                  "ReferenceHyperlink")}}}, {
+               TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), {
+                "the", " ", "whole", " ", TemplateBox({"ButtonBox"}, 
+                 "ReferenceHyperlink")}}, {
+               TemplateBox({"FrontEndObject"}, "ReferenceHyperlink"), {
+                {"the", " ", "front"}, "-", {"end", " ", "object", " ", 
+                 "reference", " ", "of", " ", "the", " ", 
+                 TemplateBox({"ButtonBox"}, "ReferenceHyperlink")}}}}))}), 
          "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
-        Section({"Create a button that displays its ", 
-          TemplateBox({"ButtonData"}, "ReferenceHyperlink"), ":"}, 
+        Section(TextData({"Create a button that displays its ", 
+           TemplateBox({"ButtonData"}, "ReferenceHyperlink"), ":"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData({"RawBoxes", "(", {
               "ButtonBox", "(", {
-               ComplexStringBox("\"Click for button data\""), ",", {
+               StringBox("\"\\\"Click for button data\\\"\""), ",", {
                 "ButtonFunction", "\[Rule]", " ", {
                  "(", {{"Print", "(", "#", ")"}, "&"}, ")"}}, ",", {
                 "ButtonSource", "\[Rule]", "ButtonData"}, ",", {
-                "ButtonData", "\[Rule]", ComplexStringBox("\"data\"")}}, ")"}, 
-             ")"}), "Input", SectionLabel -> "in [1]:"), 
-          SectionGroup({
-            Section(BoxData(ButtonBox(/\/("Click", " ", "for", " ", "button", 
-                " ", "data"), ButtonData -> "data", 
-               ButtonFunction -> (Print(#1) &), ButtonSource -> ButtonData)), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:"), 
-            Section(BoxData(InterpretationBox(ComplexStringBox("\"data\""), 
-               Row({"data"}), Editable -> False)), "Print", 
-             SectionGenerated -> True)}, All)}, All), 
+                "ButtonData", "\[Rule]", StringBox("\"data\"")}}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(ButtonBox(StringBox("\"Click for button data\""), 
+             ButtonData -> "data", ButtonFunction -> (Print(#1) &), 
+             ButtonSource -> ButtonData)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
@@ -62,28 +59,21 @@ Document({
            "ExampleText"), SectionGroup({
             Section(BoxData({"RawBoxes", "(", {
                 "ButtonBox", "(", {
-                 ComplexStringBox("\"\\\"Click for button data\\\"\""), ",", {
+                 StringBox("\"\\\"Click for button data\\\"\""), ",", {
                   "ButtonFunction", "\[Rule]", " ", {
                    "(", {{"Print", "(", {"RawBoxes", "@@", "#"}, ")"}, "&"}, 
                    ")"}}, ",", {"ButtonSource", "\[Rule]", "ButtonContents"}, 
-                 ",", {"ButtonData", "\[Rule]", 
-                  ComplexStringBox("\"data\"")}}, ")"}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            SectionGroup({
-              Section(
-               BoxData(ButtonBox(ComplexStringBox(
-                  "\"Click for button data\""), ButtonData -> "data", 
-                 ButtonFunction -> (Print(Apply(#1, RawBoxes)) &), 
-                 ButtonSource -> ButtonContents)), "Output", 
-               SectionGenerated -> True, SectionLabel -> "out [1]:"), 
-              Section(BoxData(InterpretationBox(
-                 ComplexStringBox("\"Click for button data\""), Row({
-                  RawBoxes(ComplexStringBox("\"Click for button data\""))}), 
-                 Editable -> False)), "Print", SectionGenerated -> True)}, 
-             All)}, All)}, All)}, All), 
-      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
-        Section({"Relation to ", TemplateBox({"ButtonData"}, 
-           "ReferenceHyperlink"), ":"}, "ExampleText"), 
+                 ",", {"ButtonData", "\[Rule]", StringBox("\"data\"")}}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(StringBox("\"Click for button data\""), 
+               ButtonData -> "data", ButtonFunction -> (
+                 Print(Apply(#1, RawBoxes)) &), 
+               ButtonSource -> ButtonContents)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, All), SectionGroup({
+        Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({"Relation to ", TemplateBox({"ButtonData"}, 
+            "ReferenceHyperlink"), ":"}), "ExampleText"), 
         SectionGroup({
           Section(
            BoxData({"Grid", "@", {
@@ -111,79 +101,83 @@ Document({
               TagBox(
                GridBox({
                  {ButtonBox({"{", {"Automatic", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (Print({Automatic, Inherited} -> {
-                     ##1}) &), ButtonSource -> Automatic), 
+                   ButtonFunction -> (
+                     Print({Automatic, Inherited} -> {##1}) &), 
+                   ButtonSource -> Automatic), 
                   ButtonBox({"{", {"Automatic", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (Print({
-                     Automatic, Automatic} -> {##1}) &), 
+                   ButtonData -> Automatic, ButtonFunction -> (
+                     Print({Automatic, Automatic} -> {##1}) &), 
                    ButtonSource -> Automatic), 
                   ButtonBox({"{", {"Automatic", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (Print({
-                     Automatic, 123} -> {##1}) &), 
+                   ButtonData -> 123, ButtonFunction -> (
+                     Print({Automatic, 123} -> {##1}) &), 
                    ButtonSource -> Automatic)}, {
                   ButtonBox({"{", {"ButtonData", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (Print({ButtonData, Inherited} -> {
-                     ##1}) &), ButtonSource -> ButtonData), 
+                   ButtonFunction -> (
+                     Print({ButtonData, Inherited} -> {##1}) &), 
+                   ButtonSource -> ButtonData), 
                   ButtonBox({"{", {"ButtonData", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (Print({
-                     ButtonData, Automatic} -> {##1}) &), 
+                   ButtonData -> Automatic, ButtonFunction -> (
+                     Print({ButtonData, Automatic} -> {##1}) &), 
                    ButtonSource -> ButtonData), 
                   ButtonBox({"{", {"ButtonData", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (Print({
-                     ButtonData, 123} -> {##1}) &), 
+                   ButtonData -> 123, ButtonFunction -> (
+                     Print({ButtonData, 123} -> {##1}) &), 
                    ButtonSource -> ButtonData)}, {
                   ButtonBox({"{", {"ButtonContents", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (Print({ButtonContents, Inherited} -> {
-                     ##1}) &), ButtonSource -> ButtonContents), 
+                   ButtonFunction -> (
+                     Print({ButtonContents, Inherited} -> {##1}) &), 
+                   ButtonSource -> ButtonContents), 
                   ButtonBox({"{", {"ButtonContents", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (Print({
-                     ButtonContents, Automatic} -> {##1}) &), 
+                   ButtonData -> Automatic, ButtonFunction -> (
+                     Print({ButtonContents, Automatic} -> {##1}) &), 
                    ButtonSource -> ButtonContents), 
                   ButtonBox({"{", {"ButtonContents", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (Print({
-                     ButtonContents, 123} -> {##1}) &), 
+                   ButtonData -> 123, ButtonFunction -> (
+                     Print({ButtonContents, 123} -> {##1}) &), 
                    ButtonSource -> ButtonContents)}, {
                   ButtonBox({"{", {"ButtonBox", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (Print({ButtonBox, Inherited} -> {
-                     ##1}) &), ButtonSource -> ButtonBox), 
+                   ButtonFunction -> (
+                     Print({ButtonBox, Inherited} -> {##1}) &), 
+                   ButtonSource -> ButtonBox), 
                   ButtonBox({"{", {"ButtonBox", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (Print({
-                     ButtonBox, Automatic} -> {##1}) &), 
+                   ButtonData -> Automatic, ButtonFunction -> (
+                     Print({ButtonBox, Automatic} -> {##1}) &), 
                    ButtonSource -> ButtonBox), 
                   ButtonBox({"{", {"ButtonBox", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (Print({
-                     ButtonBox, 123} -> {##1}) &), 
+                   ButtonData -> 123, ButtonFunction -> (
+                     Print({ButtonBox, 123} -> {##1}) &), 
                    ButtonSource -> ButtonBox)}, {
                   ButtonBox({"{", {"FrontEndObject", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (Print({FrontEndObject, Inherited} -> {
-                     ##1}) &), ButtonSource -> FrontEndObject), 
+                   ButtonFunction -> (
+                     Print({FrontEndObject, Inherited} -> {##1}) &), 
+                   ButtonSource -> FrontEndObject), 
                   ButtonBox({"{", {"FrontEndObject", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (Print({
-                     FrontEndObject, Automatic} -> {##1}) &), 
+                   ButtonData -> Automatic, ButtonFunction -> (
+                     Print({FrontEndObject, Automatic} -> {##1}) &), 
                    ButtonSource -> FrontEndObject), 
                   ButtonBox({"{", {"FrontEndObject", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (Print({
-                     FrontEndObject, 123} -> {##1}) &), 
+                   ButtonData -> 123, ButtonFunction -> (
+                     Print({FrontEndObject, 123} -> {##1}) &), 
                    ButtonSource -> FrontEndObject)}}), "Grid")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:"), 
             Section(BoxData(InterpretationBox({
                 {"{", {"ButtonContents", ",", "Inherited"}, "}"}, "\[Rule]", {
                  "{", {
                   {"BoxData", "(", {
-                    "{", {ComplexStringBox("\"{\""), ",", {
-                      "{", {ComplexStringBox("\"ButtonContents\""), ",", 
-                       ComplexStringBox("\",\""), ",", 
-                       ComplexStringBox("\"Inherited\"")}, "}"}, ",", 
-                     ComplexStringBox("\"}\"")}, "}"}, ")"}, ",", 
+                    "{", {StringBox("\"{\""), ",", {
+                      "{", {StringBox("\"ButtonContents\""), ",", 
+                       StringBox("\",\""), ",", StringBox("\"Inherited\"")}, 
+                      "}"}, ",", StringBox("\"}\"")}, "}"}, ")"}, ",", 
                   "Automatic"}, "}"}}, Row({
                 {ButtonContents, Inherited} -> {
-                 BoxData({"{", {"ButtonContents", ",", "Inherited"}, "}"}), 
-                 Automatic}}), Editable -> False)), "Print", 
+                  BoxData({"{", {"ButtonContents", ",", "Inherited"}, "}"}), 
+                  Automatic}}), Editable -> False)), "Print", 
              SectionGenerated -> True)}, All)}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFunction"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"ButtonData"}, "ReferenceHyperlink")}, "SeeAlso")}, 
+      Section(TextData({TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ButtonFunction"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"ButtonData"}, "ReferenceHyperlink")}), "SeeAlso")}, 
      All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)

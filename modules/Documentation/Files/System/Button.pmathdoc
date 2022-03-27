@@ -36,10 +36,10 @@ Document({
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple button:", "ExampleText"), 
         SectionGroup({
-          Section(BoxData({"Button", "(", {ComplexStringBox("\"Click me!\""), 
-              ",", {"Print", "(", ComplexStringBox("\"Thank you.\""), ")"}}, 
-             ")"}), "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData(ButtonBox(ComplexStringBox("\"Click me!\""), 
+          Section(BoxData({"Button", "(", {StringBox("\"Click me!\""), ",", {
+               "Print", "(", StringBox("\"Thank you.\""), ")"}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(ButtonBox(StringBox("\"Click me!\""), 
              ButtonFunction -> (Print("Thank you.") &))), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
@@ -51,14 +51,14 @@ Document({
              BoxData(
               /\/({
                 {"Print", "(", {"Button", "(", {
-                   ComplexStringBox("\"Stop\""), ",", {"Abort", "(", ")"}}, 
-                  ")"}, ")"}, ";"}, "\n", {
+                   StringBox("\"Stop\""), ",", {"Abort", "(", ")"}}, ")"}, 
+                 ")"}, ";"}, "\n", {
                 "Do", "(", {{{"Pause", "(", "1", ")"}, ";", {
                    "Print", "(", "i", ")"}}, ",", {"i", "\[Rule]", "10"}}, 
                 ")"})), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(TemplateBox({
-                ButtonBox(ComplexStringBox("\"Stop\""), 
+                ButtonBox(StringBox("\"Stop\""), 
                  ButtonFunction -> (Abort() &))}, "RowDefault")), "Print", 
              SectionGenerated -> True), 
             Section(BoxData(TemplateBox({"1"}, "RowDefault")), "Print", 
@@ -77,7 +77,7 @@ Document({
                      "BaselinePosition", "\[Rule]", "p"}}, ")"}, ",", {
                    "p", "\[Rule]", {"{", {"Automatic", ",", "Top", ",", 
                      "Center", ",", "Baseline", ",", "Bottom"}, "}"}}}, ")"}, 
-                ",", ComplexStringBox("\"x\"")}, ")"}), "Input", 
+                ",", StringBox("\"x\"")}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(TemplateBox({
@@ -92,28 +92,26 @@ Document({
         SectionGroup({Section("BaseStyle", "ExampleSubsection"), 
           Section("Specify appearance and behavior via a stylesheet:", 
            "ExampleText"), SectionGroup({
-            Section(BoxData({"Button", "(", {
-                ComplexStringBox("\"Paste me!\""), ",", "None", ",", {
-                 "BaseStyle", "\[Rule]", ComplexStringBox("\"Paste\"")}}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(ButtonBox(ComplexStringBox("\"Paste me!\""), 
+            Section(BoxData({"Button", "(", {StringBox("\"Paste me!\""), ",", 
+                "None", ",", {"BaseStyle", "\[Rule]", 
+                 StringBox("\"Paste\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(StringBox("\"Paste me!\""), 
                BaseStyle -> "Paste")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All)}, 1), 
         SectionGroup({Section("ButtonFrame", "ExampleSubsection"), 
           Section("Hyperlinks are buttons without a frame:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Button", "(", {
-                {"Style", "(", {ComplexStringBox("\"More ...\""), ",", {
+                {"Style", "(", {StringBox("\"More ...\""), ",", {
                    "FontColor", "\[Rule]", {"Dynamic", "(", {
                      "If", "(", {
-                      {"CurrentValue", "(", ComplexStringBox("\"MouseOver\""), 
-                       ")"}, ",", "Red", ",", "Blue"}, ")"}, ")"}}}, ")"}, 
-                ",", {"Print", "(", ComplexStringBox("\"... possiblities\""), 
-                 ")"}, ",", {"ButtonFrame", "\[Rule]", 
-                 ComplexStringBox("\"Frameless\"")}}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(
-             BoxData(ButtonBox(StyleBox(ComplexStringBox("\"More ...\""), 
+                      {"CurrentValue", "(", StringBox("\"MouseOver\""), ")"}, 
+                      ",", "Red", ",", "Blue"}, ")"}, ")"}}}, ")"}, ",", {
+                 "Print", "(", StringBox("\"... possiblities\""), ")"}, ",", {
+                 "ButtonFrame", "\[Rule]", StringBox("\"Frameless\"")}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(StyleBox(StringBox("\"More ...\""), 
                 FontColor -> Dynamic(If(CurrentValue("MouseOver"), Red, 
                    Blue)), StripOnInput -> False), ButtonFrame -> "Frameless", 
                ButtonFunction -> (Print("... possiblities") &))), "Output", 
@@ -128,32 +126,31 @@ Document({
                      "ButtonFrame", "\[Rule]", "bf"}}, ")"}, ",", {
                    "bf", "\[Rule]", {
                     "{", {"None", ",", "Automatic", ",", 
-                     ComplexStringBox("\"Frameless\""), ",", 
-                     ComplexStringBox("\"DialogBox\""), ",", 
-                     ComplexStringBox("\"Defaulted\""), ",", 
-                     ComplexStringBox("\"Palette\""), ",", 
-                     ComplexStringBox("\"Generic\""), ",", 
-                     ComplexStringBox("\"ListViewItem\""), ",", 
-                     ComplexStringBox("\"ListViewItemSelected\"")}, "}"}}}, 
-                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+                     StringBox("\"Frameless\""), ",", 
+                     StringBox("\"DialogBox\""), ",", 
+                     StringBox("\"Defaulted\""), ",", 
+                     StringBox("\"Palette\""), ",", StringBox("\"Generic\""), 
+                     ",", StringBox("\"ListViewItem\""), ",", 
+                     StringBox("\"ListViewItemSelected\"")}, "}"}}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
                  "{", {ButtonBox("None", ButtonFrame -> None, 
                    ButtonFunction -> (/\/ &)), ",", 
                   ButtonBox("Automatic", ButtonFunction -> (/\/ &)), ",", 
-                  ButtonBox(ComplexStringBox("\"Frameless\""), 
+                  ButtonBox(StringBox("\"Frameless\""), 
                    ButtonFrame -> "Frameless", ButtonFunction -> (/\/ &)), 
-                  ",", ButtonBox(ComplexStringBox("\"DialogBox\""), 
+                  ",", ButtonBox(StringBox("\"DialogBox\""), 
                    ButtonFrame -> "DialogBox", ButtonFunction -> (/\/ &)), 
-                  ",", ButtonBox(ComplexStringBox("\"Defaulted\""), 
+                  ",", ButtonBox(StringBox("\"Defaulted\""), 
                    ButtonFrame -> "Defaulted", ButtonFunction -> (/\/ &)), 
-                  ",", ButtonBox(ComplexStringBox("\"Palette\""), 
+                  ",", ButtonBox(StringBox("\"Palette\""), 
                    ButtonFrame -> "Palette", ButtonFunction -> (/\/ &)), ",", 
-                  ButtonBox(ComplexStringBox("\"Generic\""), 
+                  ButtonBox(StringBox("\"Generic\""), 
                    ButtonFrame -> "Generic", ButtonFunction -> (/\/ &)), ",", 
-                  ButtonBox(ComplexStringBox("\"ListViewItem\""), 
+                  ButtonBox(StringBox("\"ListViewItem\""), 
                    ButtonFrame -> "ListViewItem", ButtonFunction -> (/\/ &)), 
-                  ",", ButtonBox(ComplexStringBox("\"ListViewItemSelected\""), 
+                  ",", ButtonBox(StringBox("\"ListViewItemSelected\""), 
                    ButtonFrame -> "ListViewItemSelected", 
                    ButtonFunction -> (/\/ &))}, "}"}), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
@@ -237,12 +234,12 @@ Document({
              " \[Rule] \"Preemptive\" only allows short actions and blocks \
              updating the front-end:"}), "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"Button", "(", {ComplexStringBox("\"Too long\""), 
-                ",", {{"Print", "(", ComplexStringBox("\"Start\""), ")"}, ";", 
-                 {"Pause", "(", "10", ")"}, ";", {
-                  "Print", "(", ComplexStringBox("\"Stop\""), ")"}}}, ")"}), 
-             "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(ButtonBox(ComplexStringBox("\"Too long\""), 
+            Section(BoxData({"Button", "(", {StringBox("\"Too long\""), ",", {
+                 {"Print", "(", StringBox("\"Start\""), ")"}, ";", {
+                  "Pause", "(", "10", ")"}, ";", {
+                  "Print", "(", StringBox("\"Stop\""), ")"}}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(StringBox("\"Too long\""), 
                ButtonFunction -> (
                  (Print("Start"); Pause(10); Print("Stop")) &))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
@@ -255,23 +252,21 @@ Document({
              "ExampleText"), SectionGroup({
               Section(
                BoxData({
-                 "{", {{"Button", "(", {ComplexStringBox("\"Start\""), ",", {
+                 "{", {{"Button", "(", {StringBox("\"Start\""), ",", {
                      "Do", "(", {{{"Print", "(", "i", ")"}, ";", {
                         "Pause", "(", "1", ")"}}, ",", {
                        "i", "\[Rule]", "10"}}, ")"}, ",", {
-                     "Method", "\[Rule]", ComplexStringBox("\"Queued\"")}}, 
-                   ")"}, ",", {"Button", "(", {ComplexStringBox("\"Stop\""), 
-                    ",", {"Abort", "(", ")"}, ",", {
-                     "Method", "\[Rule]", ComplexStringBox(
-                      "\"Preemptive\"")}}, ")"}}, "}"}), "Input", 
+                     "Method", "\[Rule]", StringBox("\"Queued\"")}}, ")"}, 
+                  ",", {"Button", "(", {StringBox("\"Stop\""), ",", {
+                     "Abort", "(", ")"}, ",", {"Method", "\[Rule]", 
+                     StringBox("\"Preemptive\"")}}, ")"}}, "}"}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(
                BoxData({
-                 "{", {ButtonBox(ComplexStringBox("\"Start\""), 
+                 "{", {ButtonBox(StringBox("\"Start\""), 
                    ButtonFunction -> (
                      Do(Print($Context`i); Pause(1), $Context`i -> 10) &), 
-                   Method -> "Queued"), ",", 
-                  ButtonBox(ComplexStringBox("\"Stop\""), 
+                   Method -> "Queued"), ",", ButtonBox(StringBox("\"Stop\""), 
                    ButtonFunction -> (Abort() &), Method -> "Preemptive")}, 
                  "}"}), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 

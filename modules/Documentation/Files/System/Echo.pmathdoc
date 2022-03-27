@@ -27,11 +27,10 @@ Document({
           SectionGroup({
             Section(
              BoxData({
-               {"Echo", "(", {{"1", "+", "2"}, ",", 
-                 ComplexStringBox("\"sum: \"")}, ")"}, SuperscriptBox("3")}), 
-             "Input", SectionLabel -> "in [1]:"), 
-            Section(
-             BoxData(TemplateBox({" ", " ", ComplexStringBox("\"sum: \""), 
+               {"Echo", "(", {{"1", "+", "2"}, ",", StringBox("\"sum: \"")}, 
+                ")"}, SuperscriptBox("3")}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({" ", " ", StringBox("\"sum: \""), 
                 "3"}, "RowWithSeparators")), "Echo", 
              SectionGenerated -> True), Section(BoxData("27"), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
@@ -43,11 +42,10 @@ Document({
            "ExampleText"), SectionGroup({
             Section(
              BoxData({
-               {"Echo", "(", {{"1", "+", "2"}, ",", 
-                 ComplexStringBox("\"sum: \""), ",", "Framed"}, ")"}, 
-               SuperscriptBox("3")}), "Input", SectionLabel -> "in [1]:"), 
-            Section(
-             BoxData(TemplateBox({" ", " ", ComplexStringBox("\"sum: \""), 
+               {"Echo", "(", {{"1", "+", "2"}, ",", StringBox("\"sum: \""), 
+                 ",", "Framed"}, ")"}, SuperscriptBox("3")}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({" ", " ", StringBox("\"sum: \""), 
                 FrameBox("3")}, "RowWithSeparators")), "Echo", 
              SectionGenerated -> True), Section(BoxData("27"), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 

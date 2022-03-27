@@ -177,7 +177,7 @@ Document({
          FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
          TemplateBoxOptions -> {
            DisplayFunction -> (
-             StyleBox(ComplexStringBox({"\"", #1, "\""}), 
+             StyleBox(StringBox("\"", #1, "\""), 
               ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
         Section(StyleData("Paste"), BaseStyle -> "Button", 
          ButtonBoxOptions -> {
@@ -556,7 +556,7 @@ Document({
           Section(StyleData("DirectoryHyperlink"), 
            TemplateBoxOptions :> {
              DisplayFunction -> (
-               StyleBox(ButtonBox(ComplexStringBox({"\"", #1, "\""}), 
+               StyleBox(ButtonBox(StringBox("\"", #1, "\""), 
                  ButtonFunction -> (Apply(#2, FE`SystemOpenDirectory) &), 
                  ButtonData -> Dynamic({CurrentValue({TemplateSlot, 2}), 
                     Replace(CurrentValue({TemplateSlot, 3}), 
@@ -564,10 +564,9 @@ Document({
                 BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                    "HyperlinkActive", "Hyperlink")), 
                 ShowStringCharacters -> False, ShowAutoStyles -> False) &), 
-             Tooltip -> ComplexStringBox({
-                "\"Browse to ", 
-                DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 2}))), 
-                "\""})}), Section(StyleData("HyperlinkURL"), 
+             Tooltip -> StringBox("\"Browse to ", 
+               DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 2}))), "\"")}), 
+          Section(StyleData("HyperlinkURL"), 
            TemplateBoxOptions :> {
              DisplayFunction -> (
                ButtonBox(StyleBox(#1, 
@@ -610,9 +609,10 @@ Document({
                      FE`Private`content)}, 
                   TooltipBox(ButtonBox(StyleBox(ToBoxes(FE`Private`content), 
                      BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
-                        "HyperlinkActive", "StylesheetHyperlink"))), 
-                    BaseStyle -> "Hyperlink", ButtonFunction -> (
-                      DocumentOpen(#1) &), ButtonData -> FE`Private`path), 
+                        "HyperlinkActive", "StylesheetHyperlink")), 
+                     ShowStringCharacters -> False), BaseStyle -> "Hyperlink", 
+                    ButtonFunction -> (DocumentOpen(#1) &), 
+                    ButtonData -> FE`Private`path), 
                    ToBoxes(FE`Private`path))))) &)}), 
           Section(StyleData("StyleHyperlink"), 
            FontColor -> RGBColor(0, 0, 0.502`), 

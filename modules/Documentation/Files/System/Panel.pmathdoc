@@ -14,25 +14,23 @@ Document({
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
         Section("A simple panel:", "ExampleText"), 
         SectionGroup({
-          Section(BoxData({"Panel", "(", ComplexStringBox("\"Content\""), 
-             ")"}), "Input", SectionLabel -> "in [1]:"), 
-          Section(BoxData(PanelBox(ComplexStringBox("\"Content\""))), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All), SectionGroup({
+          Section(BoxData({"Panel", "(", StringBox("\"Content\""), ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(PanelBox(StringBox("\"Content\""))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section("Nested panels:", "ExampleText"), 
           SectionGroup({
             Section(
-             BoxData({"Nest", "(", {
-                "Panel", ",", ComplexStringBox("\"Inside\""), ",", "5"}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
+             BoxData({"Nest", "(", {"Panel", ",", StringBox("\"Inside\""), 
+                ",", "5"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
               PanelBox(
                PanelBox(
-                PanelBox(
-                 PanelBox(PanelBox(ComplexStringBox("\"Inside\""))))))), 
+                PanelBox(PanelBox(PanelBox(StringBox("\"Inside\""))))))), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All)}, All), 
       SectionGroup({Section("Options", "ExampleSection"), 
@@ -41,11 +39,10 @@ Document({
              TemplateBox({"Appearance"}, "ReferenceHyperlink"), 
              " \[Rule] \"Framed\":"}), "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
-                ",", {"Appearance", "\[Rule]", 
-                 ComplexStringBox("\"Framed\"")}}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(BoxData(PanelBox(ComplexStringBox("\"Content\""), 
+            Section(BoxData({"Panel", "(", {StringBox("\"Content\""), ",", {
+                 "Appearance", "\[Rule]", StringBox("\"Framed\"")}}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(PanelBox(StringBox("\"Content\""), 
                Appearance -> "Framed")), "Output", SectionGenerated -> True, 
              SectionLabel -> "out [1]:")}, All), 
           SectionGroup({
@@ -56,11 +53,10 @@ Document({
                 "ReferenceHyperlink"), 
                " \[Rule] \"Frameless\" to use no background image:"}), 
              "ExampleText"), SectionGroup({
-              Section(BoxData({"Panel", "(", {ComplexStringBox("\"Content\""), 
-                  ",", {"Appearance", "\[Rule]", 
-                   ComplexStringBox("\"Frameless\"")}}, ")"}), "Input", 
-               SectionLabel -> "in [1]:"), 
-              Section(BoxData(PanelBox(ComplexStringBox("\"Content\""), 
+              Section(BoxData({"Panel", "(", {StringBox("\"Content\""), ",", {
+                   "Appearance", "\[Rule]", StringBox("\"Frameless\"")}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(PanelBox(StringBox("\"Content\""), 
                  Appearance -> "Frameless")), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All), SectionGroup({
@@ -69,11 +65,10 @@ Document({
             Section(TextData({"A popup window is a floating ", 
                TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
-              Section(BoxData({"Panel", "(", {ComplexStringBox("\"Popup\""), 
-                  ",", {"Appearance", "\[Rule]", 
-                   ComplexStringBox("\"Popup\"")}}, ")"}), "Input", 
-               SectionLabel -> "in [1]:"), 
-              Section(BoxData(PanelBox(ComplexStringBox("\"Popup\""), 
+              Section(BoxData({"Panel", "(", {StringBox("\"Popup\""), ",", {
+                   "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(BoxData(PanelBox(StringBox("\"Popup\""), 
                  Appearance -> "Popup")), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All), 
           SectionGroup({
@@ -83,16 +78,14 @@ Document({
                TemplateBox({"Panel"}, "ReferenceHyperlink"), ":"}), 
              "ExampleText"), SectionGroup({
               Section(BoxData({"Tooltip", "(", {
-                  {"Panel", "(", {ComplexStringBox("\"Tip\""), ",", {
-                     "Appearance", "\[Rule]", 
-                     ComplexStringBox("\"Tooltip\"")}}, ")"}, ",", 
-                  ComplexStringBox("\"Tip\"")}, ")"}), "Input", 
+                  {"Panel", "(", {StringBox("\"Tip\""), ",", {
+                     "Appearance", "\[Rule]", StringBox("\"Tooltip\"")}}, 
+                   ")"}, ",", StringBox("\"Tip\"")}, ")"}), "Input", 
                SectionLabel -> "in [1]:"), 
-              Section(BoxData(TooltipBox(PanelBox(ComplexStringBox("\"Tip\""), 
-                  Appearance -> "Tooltip"), ComplexStringBox("\"Tip\""))), 
-               "Output", SectionGenerated -> True, 
-               SectionLabel -> "out [1]:")}, All)}, All), 
-          SectionGroup({
+              Section(BoxData(TooltipBox(PanelBox(StringBox("\"Tip\""), 
+                  Appearance -> "Tooltip"), StringBox("\"Tip\""))), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
                Editable -> False)), "ExampleDelimiter"), 
             Section(
@@ -103,16 +96,15 @@ Document({
               Section(BoxData({"Panel", "(", {
                   {"Grid", "(", {
                     {"{", {
-                      "{", {{"InputField", "(", {ComplexStringBox("\"abc\""), 
-                         ",", "String", ",", {"Appearance", "\[Rule]", 
-                          ComplexStringBox("\"AddressBand\"")}}, ")"}, ",", {
-                        "Button", "(", {ComplexStringBox("\"Go\""), ",", 
-                         "None", ",", {"ButtonFrame", "\[Rule]", 
-                          ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, 
-                      "}"}, "}"}, ",", {"ColumnSpacing", "\[Rule]", "0"}}, 
-                   ")"}, ",", {"Appearance", "\[Rule]", 
-                   ComplexStringBox("\"AddressBand\"")}}, ")"}), "Input", 
-               SectionLabel -> "in [1]:"), 
+                      "{", {{"InputField", "(", {StringBox("\"abc\""), ",", 
+                         "String", ",", {"Appearance", "\[Rule]", 
+                          StringBox("\"AddressBand\"")}}, ")"}, ",", {
+                        "Button", "(", {StringBox("\"Go\""), ",", "None", ",", 
+                         {"ButtonFrame", "\[Rule]", 
+                          StringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, "}"}, 
+                    ",", {"ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
+                   "Appearance", "\[Rule]", StringBox("\"AddressBand\"")}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData(
                 PanelBox(
@@ -120,7 +112,7 @@ Document({
                   GridBox({
                     {InputFieldBox("abc", String, 
                       Appearance -> "AddressBand"), 
-                     ButtonBox(ComplexStringBox("\"Go\""), 
+                     ButtonBox(StringBox("\"Go\""), 
                       ButtonFrame -> "AddressBandGo")}}, 
                    GridBoxColumnSpacing -> 0), "Grid"), 
                  Appearance -> "AddressBand")), "Output", 
@@ -138,33 +130,31 @@ Document({
                   {"{", {
                     {"{", {"Panel", "(", {
                        {"Grid", "(", {
-                         {"{", {"{", {ComplexStringBox("\"Left \""), ",", {
+                         {"{", {"{", {StringBox("\"Left \""), ",", {
                              "Setter", "(", {"1", ",", "1", ",", 
-                              ComplexStringBox("\"Center\""), ",", {
+                              StringBox("\"Center\""), ",", {
                                "ButtonFrame", "\[Rule]", 
-                               ComplexStringBox("\"TabHead\"")}}, ")"}, ",", 
-                            ComplexStringBox("\"Right\"")}, "}"}, "}"}, ",", {
+                               StringBox("\"TabHead\"")}}, ")"}, ",", 
+                            StringBox("\"Right\"")}, "}"}, "}"}, ",", {
                           "ColumnSpacing", "\[Rule]", "0"}}, ")"}, ",", {
-                        "Appearance", "\[Rule]", 
-                        ComplexStringBox("\"TabHead\"")}}, ")"}, "}"}, ",", {
-                     "{", {"Panel", "(", {ComplexStringBox("\"Content\""), 
-                       ",", {"Appearance", "\[Rule]", 
-                        ComplexStringBox("\"TabBody\"")}}, ")"}, "}"}}, "}"}, 
-                  ",", {"RowSpacing", "\[Rule]", "0"}}, ")"}), "Input", 
-               SectionLabel -> "in [1]:"), 
+                        "Appearance", "\[Rule]", StringBox("\"TabHead\"")}}, 
+                      ")"}, "}"}, ",", {
+                     "{", {"Panel", "(", {StringBox("\"Content\""), ",", {
+                        "Appearance", "\[Rule]", StringBox("\"TabBody\"")}}, 
+                      ")"}, "}"}}, "}"}, ",", {"RowSpacing", "\[Rule]", "0"}}, 
+                 ")"}), "Input", SectionLabel -> "in [1]:"), 
               Section(
                BoxData(
                 TagBox(
                  GridBox({
                    {PanelBox(
                      TagBox(
-                      GridBox({{ComplexStringBox("\"Left \""), 
-                         SetterBox(1, 1, ComplexStringBox("\"Center\""), 
-                          ButtonFrame -> "TabHead"), 
-                         ComplexStringBox("\"Right\"")}}, 
+                      GridBox({{StringBox("\"Left \""), 
+                         SetterBox(1, 1, StringBox("\"Center\""), 
+                          ButtonFrame -> "TabHead"), StringBox("\"Right\"")}}, 
                        GridBoxColumnSpacing -> 0), "Grid"), 
                      Appearance -> "TabHead")}, {
-                    PanelBox(ComplexStringBox("\"Content\""), 
+                    PanelBox(StringBox("\"Content\""), 
                      Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
                  "Grid")), "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
@@ -178,7 +168,7 @@ Document({
                      "p"}}, ")"}, ",", {"p", "\[Rule]", {
                     "{", {"Automatic", ",", "Top", ",", "Center", ",", 
                      "Baseline", ",", "Bottom"}, "}"}}}, ")"}, ",", 
-                ComplexStringBox("\"x\"")}, ")"}), "Input", 
+                StringBox("\"x\"")}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(TemplateBox({
@@ -229,27 +219,28 @@ Document({
           SectionGroup({
             Section(BoxData({"Panel", "(", {
                 {"Grid", "(", {
-                  "{", {{"{", {ComplexStringBox("\"Button:\""), ",", {
-                      "Button", "(", {ComplexStringBox("\"Ok\""), ",", 
-                       "None"}, ")"}}, "}"}, ",", {
-                    "{", {ComplexStringBox("\"Slider:\""), ",", {
+                  "{", {
+                   {"{", {StringBox("\"Button:\""), ",", {
+                      "Button", "(", {StringBox("\"Ok\""), ",", "None"}, 
+                      ")"}}, "}"}, ",", {
+                    "{", {StringBox("\"Slider:\""), ",", {
                       "Slider", "(", ")"}}, "}"}, ",", {
-                    "{", {ComplexStringBox("\"InputField:\""), ",", {
-                      "InputField", "(", {ComplexStringBox("\"\""), ",", 
-                       "String"}, ")"}}, "}"}}, "}"}, ")"}, ",", {
+                    "{", {StringBox("\"InputField:\""), ",", {
+                      "InputField", "(", {StringBox("\"\""), ",", "String"}, 
+                      ")"}}, "}"}}, "}"}, ")"}, ",", {
                  "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
               PanelBox(
                TagBox(
-                GridBox({{ComplexStringBox("\"Button:\""), 
-                   ButtonBox(ComplexStringBox("\"Ok\""))}, {
-                   ComplexStringBox("\"Slider:\""), SliderBox(0.5`, 0 .. 1)}, {
-                   ComplexStringBox("\"InputField:\""), 
-                   InputFieldBox("", String)}}), "Grid"), Enabled -> False)), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All)}, 1)}, 1), Section("", "SectionFooterSpacer")}, All), 
+                GridBox({{StringBox("\"Button:\""), 
+                   ButtonBox(StringBox("\"Ok\""))}, {
+                   StringBox("\"Slider:\""), SliderBox(0.5`, 0 .. 1)}, {
+                   StringBox("\"InputField:\""), InputFieldBox("", String)}}), 
+                "Grid"), Enabled -> False)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1)}, 1), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
          "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Framed"}, 

@@ -44,9 +44,9 @@ Document({
           Section(
            BoxData(
             /\/({{"doc", "\[Assign]", {"CreateDocument", "(", {
-                 "{", {"Section", "(", {ComplexStringBox("\"Quick hello!\""), 
-                   ",", " ", ComplexStringBox("\"Text\"")}, ")"}, "}"}, ")"}}, 
-              ";"}, "\n", {"Pause", "(", "3", ")"}, "\n", {
+                 "{", {"Section", "(", {StringBox("\"Quick hello!\""), ",", 
+                   " ", StringBox("\"Text\"")}, ")"}, "}"}, ")"}}, ";"}, "\n", 
+             {"Pause", "(", "3", ")"}, "\n", {
               "DocumentClose", "(", "doc", ")"})), "Input", 
            SectionLabel -> "in [1]:")}, All)}, All), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 
@@ -60,18 +60,18 @@ Document({
                 {"{", {"doc", "\[Assign]", {"CreateDocument", "(", {
                     {"{", {
                       {"Section", "(", {
-                        {ComplexStringBox("\"Close me to \""), "++", "a"}, 
-                        ",", ComplexStringBox("\"Text\"")}, ")"}, ",", {
-                       "Button", "(", {ComplexStringBox("\"Close\""), ",", {
+                        {StringBox("\"Close me to \""), "++", "a"}, ",", 
+                        StringBox("\"Text\"")}, ")"}, ",", {
+                       "Button", "(", {StringBox("\"Close\""), ",", {
                          "DocumentClose", "(", ")"}}, ")"}}, "}"}, ",", {
-                     ComplexStringBox("\"ClosingAction\""), "\[Rule]", "a"}, 
-                    ",", {"WindowTitle", "\[Rule]", "a"}}, ")"}}, "}"}, ",", {
+                     StringBox("\"ClosingAction\""), "\[Rule]", "a"}, ",", {
+                     "WindowTitle", "\[Rule]", "a"}}, ")"}}, "}"}, ",", {
                  "doc", "\[Rule]", {"Checkbox", "(", {
                    "Dynamic", "(", {"CurrentValue", "(", {
                      "doc", ",", "Visible"}, ")"}, ")"}, ")"}}}, ")"}, ",", {
-               "a", "\[Rule]", {"{", {ComplexStringBox("\"Hide\""), ",", 
-                 ComplexStringBox("\"Delete\"")}, "}"}}}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+               "a", "\[Rule]", {
+                "{", {StringBox("\"Hide\""), ",", StringBox("\"Delete\"")}, 
+                "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData({
              "{", {

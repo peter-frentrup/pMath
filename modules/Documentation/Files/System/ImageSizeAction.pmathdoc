@@ -6,20 +6,20 @@ Document({
       Section(BoxData(TemplateBox({"ImageSizeAction"}, "UsageReference")), 
        "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
       SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
-        Section({"The default setting is ", 
-          TemplateBox({"ImageSizeAction"}, "ReferenceHyperlink"), 
-          " \[Rule] \"ShrinkToFit\"."}, "Notes"), 
+        Section(TextData({"The default setting is ", 
+           TemplateBox({"ImageSizeAction"}, "ReferenceHyperlink"), 
+           " \[Rule] \"ShrinkToFit\"."}), "Notes"), 
         Section("Possible settings are:", "Notes"), 
-        Section({
-          ComplexStringBox("\"", 
-           GridBox({{ComplexStringBox("\"\\\"Clip\\\"\""), {
-               "clip", " ", "the", " ", "contents"}}, {
-              ComplexStringBox("\"\\\"ShrinkToFit\\\"\""), {
-               "scale", " ", "the", " ", "content", " ", "down", " ", "if", 
-               " ", "necessary"}}, {
-              ComplexStringBox("\"\\\"ResizeToFit\\\"\""), {
-               "scale", " ", "the", " ", "content", " ", "down", " ", "or", 
-               " ", "up", " ", "if", " ", "necessary"}}}))}, 
+        Section(
+         TextData({
+           StringBox("\"", 
+            GridBox({{StringBox("\"\\\"Clip\\\"\""), {
+                "clip", " ", "the", " ", "contents"}}, {
+               StringBox("\"\\\"ShrinkToFit\\\"\""), {
+                "scale", " ", "the", " ", "content", " ", "down", " ", "if", 
+                " ", "necessary"}}, {StringBox("\"\\\"ResizeToFit\\\"\""), {
+                "scale", " ", "the", " ", "content", " ", "down", " ", "or", 
+                " ", "up", " ", "if", " ", "necessary"}}}))}), 
          "2ColumnTableNotes")}, All), Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -43,9 +43,8 @@ Document({
           Section(BoxData({"Framed", "(", {
               "Pane", "(", {{"150", "!"}, ",", {
                 "{", {"100", ",", "100"}, "}"}, ",", {
-                "ImageSizeAction", "\[Rule]", 
-                ComplexStringBox("\"ShrinkToFit\"")}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [2]:"), 
+                "ImageSizeAction", "\[Rule]", StringBox("\"ShrinkToFit\"")}}, 
+              ")"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
           Section(
            BoxData(
             FrameBox(
@@ -65,19 +64,19 @@ Document({
             Section(BoxData({"Framed", "(", {
                 "Pane", "(", {"5", ",", {"{", {"100", ",", "100"}, "}"}, ",", {
                   "ImageSizeAction", "\[Rule]", 
-                  ComplexStringBox("\"ShrinkToFit\"")}}, ")"}, ")"}), "Input", 
+                  StringBox("\"ShrinkToFit\"")}}, ")"}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
             Section(BoxData(FrameBox(PaneBox("5", ImageSize -> {100, 100}, 
                 ImageSizeAction -> "ShrinkToFit"))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-          Section({"Use ", TemplateBox({"ImageSizeAction"}, 
-             "ReferenceHyperlink"), 
-            " \[Rule] \"ResizeToFit\" to also allow growing contents:"}, 
+          Section(TextData({"Use ", TemplateBox({"ImageSizeAction"}, 
+              "ReferenceHyperlink"), 
+             " \[Rule] \"ResizeToFit\" to also allow growing contents:"}), 
            "ExampleText"), SectionGroup({
             Section(BoxData({"Framed", "(", {
                 "Pane", "(", {"5", ",", {"{", {"100", ",", "100"}, "}"}, ",", {
                   "ImageSizeAction", "\[Rule]", 
-                  ComplexStringBox("\"ResizeToFit\"")}}, ")"}, ")"}), "Input", 
+                  StringBox("\"ResizeToFit\"")}}, ")"}, ")"}), "Input", 
              SectionLabel -> "in [2]:"), 
             Section(BoxData(FrameBox(PaneBox("5", ImageSize -> {100, 100}, 
                 ImageSizeAction -> "ResizeToFit"))), "Output", 
@@ -90,9 +89,8 @@ Document({
             Section(BoxData({"Framed", "(", {
                 "Pane", "(", {{"150", "!"}, ",", {
                   "{", {"100", ",", "100"}, "}"}, ",", {
-                  "ImageSizeAction", "\[Rule]", 
-                  ComplexStringBox("\"Clip\"")}}, ")"}, ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
+                  "ImageSizeAction", "\[Rule]", StringBox("\"Clip\"")}}, ")"}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(
               FrameBox(
@@ -112,24 +110,22 @@ Document({
         SectionGroup({
           Section(BoxData({"Framed", "(", {
               "Pane", "(", {{"20", "!"}, ",", "100", ",", {
-                "ImageSizeAction", "\[Rule]", 
-                ComplexStringBox("\"ShrinkToFit\"")}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), 
+                "ImageSizeAction", "\[Rule]", StringBox("\"ShrinkToFit\"")}}, 
+              ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData(FrameBox(PaneBox("2432902008176640000", 
               ImageSize -> {100, Automatic}, 
               ImageSizeAction -> "ShrinkToFit"))), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
-        Section({"Use ", TemplateBox({"LineBreakWithin"}, 
-           "ReferenceHyperlink"), " \[Rule] ", 
-          TemplateBox({"False"}, "ReferenceHyperlink"), ":"}, "ExampleText"), 
-        SectionGroup({
+        Section(TextData({"Use ", TemplateBox({"LineBreakWithin"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"False"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
           Section(BoxData({"Framed", "(", {
               "Pane", "(", {{"20", "!"}, ",", "100", ",", {
-                "ImageSizeAction", "\[Rule]", 
-                ComplexStringBox("\"ShrinkToFit\"")}, ",", {
-                "LineBreakWithin", "\[Rule]", "False"}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [2]:"), 
+                "ImageSizeAction", "\[Rule]", StringBox("\"ShrinkToFit\"")}, 
+               ",", {"LineBreakWithin", "\[Rule]", "False"}}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
           Section(
            BoxData(FrameBox(PaneBox("2432902008176640000", 
               ImageSize -> {100, Automatic}, ImageSizeAction -> "ShrinkToFit", 
@@ -137,8 +133,9 @@ Document({
            SectionLabel -> "out [2]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
-      Section({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
-        "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSize"}, 
-         "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
-        TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink")}, "SeeAlso")}, 
-     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
+      Section(TextData({TemplateBox({"Pane"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"ImageSize"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"LineBreakWithin"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)

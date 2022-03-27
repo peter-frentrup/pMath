@@ -19,9 +19,8 @@ Document({
           Section(BoxData({"DocumentOpen", "(", {
               "ToFileName", "(", {
                {"{", {"FE`$FrontEndDirectory", ",", 
-                 ComplexStringBox("\"resources\""), ",", 
-                 ComplexStringBox("\"Palettes\"")}, "}"}, ",", 
-               ComplexStringBox("\"Math Input.pmathdoc\"")}, ")"}, ")"}), 
+                 StringBox("\"resources\""), ",", StringBox("\"Palettes\"")}, 
+                "}"}, ",", StringBox("\"Math Input.pmathdoc\"")}, ")"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(TemplateBox({FrontEndObject(2253), "Math Input"}, 
              "DocumentObject")), "Output", SectionGenerated -> True, 

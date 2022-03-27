@@ -19,11 +19,10 @@ Document({
         Section(TextData({"A ", TemplateBox({"Button"}, "ReferenceHyperlink"), 
            " that tightly wraps its content:"}), "ExampleText"), 
         SectionGroup({
-          Section(BoxData({"Button", "(", {
-              ComplexStringBox("\"\[Ellipsis]\""), ",", {
+          Section(BoxData({"Button", "(", {StringBox("\"\[Ellipsis]\""), ",", {
                "ContentPadding", "\[Rule]", "False"}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
-          Section(BoxData(ButtonBox(ComplexStringBox("\"\[Ellipsis]\""), 
+          Section(BoxData(ButtonBox(StringBox("\"\[Ellipsis]\""), 
              ContentPadding -> False)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
@@ -34,10 +33,9 @@ Document({
              " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), 
              " increases vertical size appropriately:"}), "ExampleText"), 
           SectionGroup({
-            Section(BoxData({"Button", "(", 
-               ComplexStringBox("\"\[Ellipsis]\""), ")"}), "Input", 
-             SectionLabel -> "in [1]:"), 
-            Section(BoxData(ButtonBox(ComplexStringBox("\"\[Ellipsis]\""))), 
+            Section(BoxData({"Button", "(", StringBox("\"\[Ellipsis]\""), 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(ButtonBox(StringBox("\"\[Ellipsis]\""))), 
              "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
            All)}, All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -48,18 +46,17 @@ Document({
              BoxData({"Row", "@", {"Table", "(", {
                  {"Framed", "(", {"s", ",", {"ContentPadding", "\[Rule]", 
                     "False"}}, ")"}, ",", {"s", "\[Rule]", {
-                   "{", {ComplexStringBox("\"g\""), ",", 
-                    ComplexStringBox("\"A\""), ",", 
-                    ComplexStringBox("\"\[CapitalAAcute]\""), ",", 
-                    ComplexStringBox("\"\[CapitalAAcute]y\"")}, "}"}}}, 
-                ")"}}), "Input", SectionLabel -> "in [1]:"), 
+                   "{", {StringBox("\"g\""), ",", StringBox("\"A\""), ",", 
+                    StringBox("\"\[CapitalAAcute]\""), ",", 
+                    StringBox("\"\[CapitalAAcute]y\"")}, "}"}}}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
             Section(
              BoxData(TemplateBox({
-                FrameBox(ComplexStringBox("\"g\""), ContentPadding -> False), 
-                FrameBox(ComplexStringBox("\"A\""), ContentPadding -> False), 
-                FrameBox(ComplexStringBox("\"\[CapitalAAcute]\""), 
+                FrameBox(StringBox("\"g\""), ContentPadding -> False), 
+                FrameBox(StringBox("\"A\""), ContentPadding -> False), 
+                FrameBox(StringBox("\"\[CapitalAAcute]\""), 
                  ContentPadding -> False), 
-                FrameBox(ComplexStringBox("\"\[CapitalAAcute]y\""), 
+                FrameBox(StringBox("\"\[CapitalAAcute]y\""), 
                  ContentPadding -> False)}, "RowDefault")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), Section("", "SectionFooterSpacer")}, All), 

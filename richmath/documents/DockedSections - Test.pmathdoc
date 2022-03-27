@@ -5,32 +5,31 @@ Document({
     Section(
      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
           "DockedSections", "\[Rule]", {
-           "{", {ComplexStringBox("\"TopGlass\""), "\[Rule]", {
+           "{", {StringBox("\"TopGlass\""), "\[Rule]", {
              "{", {"Section", "(", {
                {"BoxData", "@", {
-                 "{", {"ComplexStringBox", "(", {
-                   ComplexStringBox("\"\\\"\""), ",", {
-                    "ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                 "{", {"StringBox", "(", {StringBox("\"\\\"\""), ",", {
+                    "ButtonBox", "(", {StringBox("\"\""), ",", {
                       "ButtonFrame", "\[Rule]", 
-                      ComplexStringBox("\"NavigationBack\"")}, ",", {
+                      StringBox("\"NavigationBack\"")}, ",", {
                       "BaselinePosition", "\[Rule]", {
                        "Center", "\[Rule]", "Axis"}}}, ")"}, ",", {
-                    "\n", {"ButtonBox", "(", {ComplexStringBox("\"\""), ",", {
+                    "\n", {"ButtonBox", "(", {StringBox("\"\""), ",", {
                        "ButtonFrame", "\[Rule]", 
-                       ComplexStringBox("\"NavigationForward\"")}, ",", {
+                       StringBox("\"NavigationForward\"")}, ",", {
                        "BaselinePosition", "\[Rule]", {
                         "Center", "\[Rule]", "Axis"}}, ",", {
                        "Enabled", "\[Rule]", "False"}}, ")"}}, ",", {
-                    "\n", ComplexStringBox("\" \"")}, ",", {
+                    "\n", StringBox("\" \"")}, ",", {
                     "\n", {"FillBox", "(", {"PanelBox", "(", {
                        {"GridBox", "(", {
                          {"{", {
                            "{", {{"FillBox", "(", {"InputFieldBox", "(", {
                                {"Dynamic", "(", "$Context`searchString", ")"}, 
                                ",", "String", ",", {"Appearance", "\[Rule]", 
-                                ComplexStringBox("\"AddressBand\"")}}, ")"}, 
-                             ")"}, ",", {"ButtonBox", "(", {
-                              ComplexStringBox("\"\\\" Go \\\"\""), ",", {
+                                StringBox("\"AddressBand\"")}}, ")"}, ")"}, 
+                            ",", {"ButtonBox", "(", {
+                              StringBox("\"\\\" Go \\\"\""), ",", {
                                "ButtonFunction", "\[Rule]", " ", {
                                 "(", {
                                  {"(", {"$Context`searchString", "\[Assign]", {
@@ -39,19 +38,18 @@ Document({
                                       ",", {"SelectedDocument", "(", ")"}}, 
                                      "}"}}}, ")"}, "&"}, ")"}}, ",", {
                                "ButtonFrame", "\[Rule]", 
-                               ComplexStringBox("\"AddressBandGo\"")}}, ")"}, 
-                            ",", {"ButtonBox", "(", {
-                              ComplexStringBox("\"\\\" \[Ellipsis] \\\"\""), 
-                              ",", {"ButtonFrame", "\[Rule]", 
-                               ComplexStringBox("\"AddressBandGo\"")}}, ")"}}, 
-                           "}"}, "}"}, ",", {"GridBoxColumnSpacing", 
-                          "\[Rule]", "0"}}, ")"}, ",", {
-                        "Appearance", "\[Rule]", 
-                        ComplexStringBox("\"AddressBand\"")}}, ")"}, ")"}}, 
-                   ",", ComplexStringBox("\"\\\"\"")}, ")"}, "}"}}, ",", 
-               ComplexStringBox("\"Docked\""), ",", {
-                "LineBreakWithin", "\[Rule]", "False"}}, ")"}, "}"}}, "}"}}}, 
-        ")"}, ";"}), "Input", SectionLabel -> "in [1]:"), 
+                               StringBox("\"AddressBandGo\"")}}, ")"}, ",", {
+                             "ButtonBox", "(", {
+                              StringBox("\"\\\" \[Ellipsis] \\\"\""), ",", {
+                               "ButtonFrame", "\[Rule]", 
+                               StringBox("\"AddressBandGo\"")}}, ")"}}, "}"}, 
+                          "}"}, ",", {"GridBoxColumnSpacing", "\[Rule]", 
+                          "0"}}, ")"}, ",", {"Appearance", "\[Rule]", 
+                        StringBox("\"AddressBand\"")}}, ")"}, ")"}}, ",", 
+                   StringBox("\"\\\"\"")}, ")"}, "}"}}, ",", 
+               StringBox("\"Docked\""), ",", {"LineBreakWithin", "\[Rule]", 
+                "False"}}, ")"}, "}"}}, "}"}}}, ")"}, ";"}), "Input", 
+     SectionLabel -> "in [1]:"), 
     SectionGroup({
       Section(BoxData({"Dynamic", "(", {"Framed", "(", "searchString", ")"}, 
          ")"}), "Input", SectionLabel -> "in [2]:"), 
@@ -60,14 +58,12 @@ Document({
     Section(
      BoxData({{"SetOptions", "(", {{"EvaluationDocument", "(", ")"}, ",", {
           "DockedSections", "\[Rule]", {
-           "{", {ComplexStringBox("\"BottomGlass\""), "\[Rule]", {
+           "{", {StringBox("\"BottomGlass\""), "\[Rule]", {
              "Section", "(", {
               {"BoxData", "(", {
-                "{", {
-                 {"ButtonBox", "(", {ComplexStringBox("\"\\\"A Button\\\"\""), 
-                   ",", {"ButtonFrame", "\[Rule]", 
-                    ComplexStringBox("\"Palette\"")}}, ")"}, ",", {
-                  "FillBox", "(", ComplexStringBox("\" \""), ")"}, ",", {
+                "{", {{"ButtonBox", "(", {StringBox("\"\\\"A Button\\\"\""), 
+                   ",", {"ButtonFrame", "\[Rule]", StringBox("\"Palette\"")}}, 
+                  ")"}, ",", {"FillBox", "(", StringBox("\" \""), ")"}, ",", {
                   "SliderBox", "(", {
                    {"Dynamic", "(", {
                      {"\n", {"Log", "(", {
@@ -85,8 +81,8 @@ Document({
                                  {"0", {{"-", "0.2"}, "<", "#", "<", "0.2"}}, {
                                   "#", "True"}})}}}, "\n"}}}, ")"}, "&"}, 
                        "\n"}}}, ")"}, ",", {{"-", "1"}, "..", "1"}}, ")"}}, 
-                "}"}, ")"}, ",", ComplexStringBox("\"Docked\"")}, ")"}}, 
-           "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [3]:")}, All)}, 
+                "}"}, ")"}, ",", StringBox("\"Docked\"")}, ")"}}, "}"}}}, 
+        ")"}, ";"}), "Input", SectionLabel -> "in [3]:")}, All)}, 
  DockedSections :> {"Bottom" -> {}, 
    "BottomGlass" -> 
     Section(BoxData({ButtonBox("\"A Button\"", ButtonFrame -> "Palette"), 
@@ -99,8 +95,7 @@ Document({
                 #1, True}})) &), -1 .. 1)}), "Docked"), "Top" -> {}, 
    "TopGlass" -> {
      Section(
-      BoxData({
-        ComplexStringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack", 
+      BoxData({StringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack", 
           BaselinePosition -> Center -> Axis), 
          ButtonBox("", ButtonFrame -> "NavigationForward", 
           BaselinePosition -> Center -> Axis, Enabled -> False), " ", 

@@ -31,10 +31,10 @@ Document({
              TemplateBox({"Section"}, "ReferenceHyperlink"), ":"}), 
            "ExampleText"), 
           Section(BoxData({"SectionPrint", "(", {
-              "Section", "(", {ComplexStringBox("\"Some text section.\""), 
-               ",", ComplexStringBox("\"Text\""), ",", {
-                "FontColor", "\[Rule]", "Orange"}}, ")"}, ")"}), "Input", 
-           SectionLabel -> "in [1]:"), Section("Some text section.", "Text", 
+              "Section", "(", {StringBox("\"Some text section.\""), ",", 
+               StringBox("\"Text\""), ",", {"FontColor", "\[Rule]", 
+                "Orange"}}, ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section("Some text section.", "Text", 
            FontColor -> RGBColor(1, 0.502`, 0), SectionGenerated -> True)}, 
          All)}, All), Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 

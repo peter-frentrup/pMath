@@ -63,7 +63,7 @@ Document({
                 {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}}, 
                  "}"}, ",", "c"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({"Missing", "(", {
-                ComplexStringBox("\"KeyAbsent\""), ",", "c"}, ")"}), "Output", 
+                StringBox("\"KeyAbsent\""), ",", "c"}, ")"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -72,9 +72,9 @@ Document({
           SectionGroup({
             Section(BoxData({"Lookup", "(", {
                 {"{", {{"a", "\[Rule]", "11"}, ",", {"b", "\[Rule]", "22"}}, 
-                 "}"}, ",", "c", ",", ComplexStringBox("\"Ooops\"")}, ")"}), 
-             "Input", SectionLabel -> "in [1]:"), 
-            Section(BoxData(ComplexStringBox("\"Ooops\"")), "Output", 
+                 "}"}, ",", "c", ",", StringBox("\"Ooops\"")}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(StringBox("\"Ooops\"")), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
         Section("The first argument can also be a list of lists of rules:", 
@@ -152,7 +152,7 @@ Document({
             Section(
              BoxData({
                {"{", {{{"(", {"0", ",", "0"}, ")"}, "\[Rule]", 
-                  ComplexStringBox("\"well...\"")}, ",", {
+                  StringBox("\"well...\"")}, ",", {
                   {"(", {{"~", "x"}, ",", {"~", "y"}}, ")"}, "\[RuleDelayed]", 
                   {"x", SuperscriptBox("y")}}}, "}"}, "(", {"2", ",", "3"}, 
                ")"}), "Input", SectionLabel -> "in [1]:"), 
@@ -199,11 +199,10 @@ Document({
              SectionLabel -> "in [1]:"), 
             Section(
              BoxData({
-               "{", {{"Missing", "(", {ComplexStringBox("\"KeyAbsent\""), ",", 
-                  "1"}, ")"}, ",", {"Missing", "(", {
-                  ComplexStringBox("\"KeyAbsent\""), ",", "2"}, ")"}}, "}"}), 
-             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-           All), 
+               "{", {{"Missing", "(", {StringBox("\"KeyAbsent\""), ",", "1"}, 
+                 ")"}, ",", {"Missing", "(", {StringBox("\"KeyAbsent\""), ",", 
+                  "2"}, ")"}}, "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
           Section(TextData({"To treat a whole list as one key, wrap it in ", 
              TemplateBox({"Key"}, "ReferenceHyperlink"), ":"}), 
            "ExampleText"), SectionGroup({

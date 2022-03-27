@@ -7,32 +7,25 @@ Document({SectionGroup({Section("Geometric Transformations", "Title"),
        BoxData(
         StyleBox(
          TagBox(
-          GridBox({
-            {/\/(ButtonBox(ComplexStringBox("\"System`AffineTransform\"")), 
-              " "), 
-             /\/(ButtonBox(ComplexStringBox("\"System`ShearingTransform\"")), 
+          GridBox({{/\/(ButtonBox(StringBox("\"System`AffineTransform\"")), 
+              " "), /\/(ButtonBox(StringBox("\"System`ShearingTransform\"")), 
               " ")}, {
-             /\/(ButtonBox(ComplexStringBox("\"System`BoxTransformation\"")), 
+             /\/(ButtonBox(StringBox("\"System`BoxTransformation\"")), " "), 
+             /\/(ButtonBox(StringBox("\"System`TransformationBox\"")), " ")}, {
+             /\/(ButtonBox(StringBox("\"System`LinearFractionalTransform\"")), 
               " "), 
-             /\/(ButtonBox(ComplexStringBox("\"System`TransformationBox\"")), 
+             /\/(ButtonBox(StringBox("\"System`TransformationFunction\"")), 
               " ")}, {
-             /\/(ButtonBox(ComplexStringBox(
-                "\"System`LinearFractionalTransform\"")), " "), 
-             /\/(ButtonBox(ComplexStringBox(
-                "\"System`TransformationFunction\"")), " ")}, {
-             /\/(ButtonBox(ComplexStringBox(
-                "\"System`ReflectionTransform\"")), " "), 
-             /\/(ButtonBox(ComplexStringBox(
-                "\"System`TransformationMatrix\"")), " ")}, {
-             /\/(ButtonBox(ComplexStringBox("\"System`RotationTransform\"")), 
-              " "), 
-             /\/(ButtonBox(ComplexStringBox(
-                "\"System`TranslationTransform\"")), " ")}, {
-             /\/(ButtonBox(ComplexStringBox("\"System`ScalingTransform\"")), 
-              " "), ComplexStringBox("\"\"")}}), "Grid"), 
+             /\/(ButtonBox(StringBox("\"System`ReflectionTransform\"")), " "), 
+             /\/(ButtonBox(StringBox("\"System`TransformationMatrix\"")), 
+              " ")}, {
+             /\/(ButtonBox(StringBox("\"System`RotationTransform\"")), " "), 
+             /\/(ButtonBox(StringBox("\"System`TranslationTransform\"")), 
+              " ")}, {/\/(ButtonBox(StringBox("\"System`ScalingTransform\"")), 
+              " "), StringBox("\"\"")}}), "Grid"), 
          ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
-          ButtonFunction -> (With({FE`Private`s$:= ToExpression(First(#1))}, 
-           ShowDefinition(FE`Private`s$)) &)}, GridBoxColumnSpacing -> 2, 
+           ButtonFunction -> (With({FE`Private`s$:= ToExpression(First(#1))}, 
+              ShowDefinition(FE`Private`s$)) &)}, GridBoxColumnSpacing -> 2, 
          GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
        "PrintUsage", SectionGenerated -> True)}, All), 
     SectionGroup({Section(BoxData({"??", "*Matrix"}), "Input", 
@@ -41,25 +34,18 @@ Document({SectionGroup({Section("Geometric Transformations", "Title"),
        BoxData(
         StyleBox(
          TagBox(
-          GridBox({
-            {/\/(ButtonBox(ComplexStringBox("\"System`DiagonalMatrix\"")), 
-              " "), 
-             /\/(ButtonBox(ComplexStringBox("\"System`RotationMatrix\"")), 
-              " ")}, {
-             /\/(ButtonBox(ComplexStringBox("\"System`IdentityMatrix\"")), 
-              " "), 
-             /\/(ButtonBox(ComplexStringBox("\"System`ScalingMatrix\"")), 
-              " ")}, {/\/(ButtonBox(ComplexStringBox("\"System`IsMatrix\"")), 
-              " "), 
-             /\/(ButtonBox(ComplexStringBox("\"System`ShearingMatrix\"")), 
-              " ")}, {
-             /\/(ButtonBox(ComplexStringBox("\"System`ReflectionMatrix\"")), 
-              " "), 
-             /\/(ButtonBox(ComplexStringBox(
-                "\"System`TransformationMatrix\"")), " ")}}), "Grid"), 
-         ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
-          ButtonFunction -> (With({FE`Private`s$:= ToExpression(First(#1))}, 
-           ShowDefinition(FE`Private`s$)) &)}, GridBoxColumnSpacing -> 2, 
+          GridBox({{/\/(ButtonBox(StringBox("\"System`DiagonalMatrix\"")), 
+              " "), /\/(ButtonBox(StringBox("\"System`RotationMatrix\"")), 
+              " ")}, {/\/(ButtonBox(StringBox("\"System`IdentityMatrix\"")), 
+              " "), /\/(ButtonBox(StringBox("\"System`ScalingMatrix\"")), 
+              " ")}, {/\/(ButtonBox(StringBox("\"System`IsMatrix\"")), " "), 
+             /\/(ButtonBox(StringBox("\"System`ShearingMatrix\"")), " ")}, {
+             /\/(ButtonBox(StringBox("\"System`ReflectionMatrix\"")), " "), 
+             /\/(ButtonBox(StringBox("\"System`TransformationMatrix\"")), 
+              " ")}}), "Grid"), ButtonBoxOptions -> {
+           ButtonFrame -> "Frameless", ButtonFunction -> (
+             With({FE`Private`s$:= ToExpression(First(#1))}, 
+              ShowDefinition(FE`Private`s$)) &)}, GridBoxColumnSpacing -> 2, 
          GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
        "PrintUsage", SectionGenerated -> True)}, All), 
     SectionGroup({Section("Test", "Section"), 

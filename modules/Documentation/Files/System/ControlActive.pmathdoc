@@ -98,9 +98,9 @@ Document({
               {"{", {"x", "\[Assign]", "0"}, "}"}, ",", {
                "{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
                  "Dynamic", "(", {"ControlActive", "(", {
-                   ComplexStringBox("\"active\""), ",", 
-                   ComplexStringBox("\"inactive\"")}, ")"}, ")"}}, "}"}}, 
-             ")"}), "Input", SectionLabel -> "in [1]:"), 
+                   StringBox("\"active\""), ",", StringBox("\"inactive\"")}, 
+                  ")"}, ")"}}, "}"}}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
           Section(BoxData(DynamicLocalBox({$Context`x}, {
               "{", {SliderBox(Dynamic($Context`x), 0 .. 1), ",", 
                DynamicBox(ToBoxes(ControlActive("active", "inactive")))}, 
@@ -116,9 +116,9 @@ Document({
                "{", {{"Slider", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
                  "Dynamic", "(", {
                   "{", {"x", ",", {"ControlActive", "(", {
-                     ComplexStringBox("\"active\""), ",", 
-                     ComplexStringBox("\"inactive\"")}, ")"}}, "}"}, ")"}}, 
-               "}"}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+                     StringBox("\"active\""), ",", StringBox("\"inactive\"")}, 
+                    ")"}}, "}"}, ")"}}, "}"}}, ")"}), "Input", 
+           SectionLabel -> "in [2]:"), 
           Section(BoxData(DynamicLocalBox({$Context`x}, {
               "{", {SliderBox(Dynamic($Context`x), 0 .. 1), ",", 
                DynamicBox(
@@ -141,10 +141,10 @@ Document({
                      "0", "..", "10", "..", "1"}}, ")"}, ",", {
                    "Dynamic", "(", {"{", {{"RandomReal", "(", ")"}, ",", "x", 
                      ",", {"If", "(", {{"x", ">", "5"}, ",", {
-                        "ControlActive", "(", {ComplexStringBox("\"active\""), 
-                         ",", ComplexStringBox("\"inactive\"")}, ")"}, ",", 
-                       ComplexStringBox("\"no final eval\"")}, ")"}}, "}"}, 
-                   ")"}}, "}"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+                        "ControlActive", "(", {StringBox("\"active\""), ",", 
+                         StringBox("\"inactive\"")}, ")"}, ",", 
+                       StringBox("\"no final eval\"")}, ")"}}, "}"}, ")"}}, 
+                 "}"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(DynamicLocalBox({$Context`x}, {
                 "{", {SliderBox(Dynamic($Context`x), 0 .. 10 .. 1), ",", 
                  DynamicBox(ToBoxes({RandomReal(), $Context`x, 

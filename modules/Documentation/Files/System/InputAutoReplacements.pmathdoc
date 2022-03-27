@@ -10,8 +10,7 @@ Document({
         Section(TextData({"The default setting of ", 
            TemplateBox({"InputAutoReplacements"}, "ReferenceHyperlink"), 
            " for math section styles typically includes rules like ", 
-           StyleBox({ComplexStringBox("\"->\""), " ", "\[Rule]", " ", 
-             ComplexStringBox("\"\[Rule]\"")}, "Input", 
+           StyleBox({"\"->\"", " \[Rule] ", "\"\[Rule]\""}, "Input", 
             ShowStringCharacters -> True), "."}), "Notes"), 
         Section(
          "In math sections, automatica replacements are only preformed on \
@@ -43,9 +42,9 @@ Document({
          BoxData({
            {"CreateDocument", "(", {{"{", "}"}, ",", {
               "InputAutoReplacements", "\[Rule]", {
-               "{", {ComplexStringBox("\"exinei\""), "\[Rule]", 
-                ComplexStringBox("\"ExpIntegralEi\"")}, "}"}}}, ")"}, ";"}), 
-         "Input", SectionLabel -> "in [1]:"), 
+               "{", {StringBox("\"exinei\""), "\[Rule]", 
+                StringBox("\"ExpIntegralEi\"")}, "}"}}}, ")"}, ";"}), "Input", 
+         SectionLabel -> "in [1]:"), 
         Section(TextData({"To use the shorthand, start by typing ", 
            StyleBox("exinei", "Input"), 
            ".\nAs soon as you type an opening prenthesis, the shorthand is \
@@ -60,39 +59,35 @@ Document({
           Section(
            BoxData({{"CreateDocument", "(", {
                {"{", "}"}, ",", {"InputAutoReplacements", "\[Rule]", {
-                 "{", {{ComplexStringBox("\"exinei\""), "\[Rule]", 
-                   ComplexStringBox("\"ExpIntegralEi\"")}, ",", "Inherited"}, 
-                 "}"}}}, ")"}, ";"}), "Input", SectionLabel -> "in [1]:")}, 
-         All)}, All), SectionGroup({
-        Section("Properties & Relations", "ExampleSection"), 
+                 "{", {{StringBox("\"exinei\""), "\[Rule]", 
+                   StringBox("\"ExpIntegralEi\"")}, ",", "Inherited"}, "}"}}}, 
+              ")"}, ";"}), "Input", SectionLabel -> "in [1]:")}, All)}, All), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
         Section("Find out about predefined shorthand forms:", "ExampleText"), 
         SectionGroup({
           Section(BoxData({"CurrentValue", "(", "InputAutoReplacements", 
              ")"}), "Input", SectionLabel -> "in [1]:"), 
           Section(
            BoxData({
-             "{", {{ComplexStringBox("\"->\""), "\[Rule]", 
-               ComplexStringBox("\"\[Rule]\"")}, ",", {
-               ComplexStringBox("\":=\""), "\[Rule]", 
-               ComplexStringBox("\"\[Assign]\"")}, ",", {
-               ComplexStringBox("\":>\""), "\[Rule]", 
-               ComplexStringBox("\"\[RuleDelayed]\"")}, ",", {
-               ComplexStringBox("\"::=\""), "\[Rule]", 
-               ComplexStringBox("\"\[AssignDelayed]\"")}, ",", {
-               ComplexStringBox("\"!=\""), "\[Rule]", 
-               ComplexStringBox("\"\[NotEqual]\"")}, ",", {
-               ComplexStringBox("\"<=\""), "\[Rule]", 
-               ComplexStringBox("\"\[LessEqual]\"")}, ",", {
-               ComplexStringBox("\">=\""), "\[Rule]", 
-               ComplexStringBox("\"\[GreaterEqual]\"")}, ",", {
-               ComplexStringBox("\"...\""), "\[Rule]", 
-               ComplexStringBox("\"\[Ellipsis]\"")}, ",", {
-               ComplexStringBox("\"[[\""), "\[Rule]", 
-               ComplexStringBox("\"\[LeftDoubleBracket]\"")}, ",", {
-               ComplexStringBox("\"]]\""), "\[Rule]", 
-               ComplexStringBox("\"\[RightDoubleBracket]\"")}}, "}"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All)}, 1), Section("", "SectionFooterSpacer")}, All), 
+             "{", {{StringBox("\"->\""), "\[Rule]", StringBox("\"\[Rule]\"")}, 
+              ",", {StringBox("\":=\""), "\[Rule]", 
+               StringBox("\"\[Assign]\"")}, ",", {
+               StringBox("\":>\""), "\[Rule]", 
+               StringBox("\"\[RuleDelayed]\"")}, ",", {
+               StringBox("\"::=\""), "\[Rule]", 
+               StringBox("\"\[AssignDelayed]\"")}, ",", {
+               StringBox("\"!=\""), "\[Rule]", StringBox("\"\[NotEqual]\"")}, 
+              ",", {StringBox("\"<=\""), "\[Rule]", 
+               StringBox("\"\[LessEqual]\"")}, ",", {
+               StringBox("\">=\""), "\[Rule]", 
+               StringBox("\"\[GreaterEqual]\"")}, ",", {
+               StringBox("\"...\""), "\[Rule]", StringBox("\"\[Ellipsis]\"")}, 
+              ",", {StringBox("\"[[\""), "\[Rule]", 
+               StringBox("\"\[LeftDoubleBracket]\"")}, ",", {
+               StringBox("\"]]\""), "\[Rule]", 
+               StringBox("\"\[RightDoubleBracket]\"")}}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"InputAliases"}, "ReferenceHyperlink")}), 
        "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 

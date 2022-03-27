@@ -121,16 +121,16 @@ Document({
             Section(StyleData("ReferenceHyperlink"), 
              TemplateBoxOptions :> {
                DisplayFunction -> (
-                 StyleBox(ComplexStringBox({
-                    "\"", ButtonBox(#1, ButtonFunction -> (
-                       With({
-                         FE`Private`file:= 
-                          Documentation`FindSymbolDocumentationByFullName(
-                           CurrentValue({TemplateSlot, 1}))}, 
-                        If(IsString(FE`Private`file), 
-                         FE`CallFrontEnd(FrontEnd`DocumentOpen(
-                           FE`Private`file, False)))) &), BaseStyle -> "Text", 
-                     ButtonFrame -> "Frameless"), "\""}), 
+                 StyleBox(StringBox("\"", 
+                   ButtonBox(#1, ButtonFunction -> (
+                      With({
+                        FE`Private`file:= 
+                         Documentation`FindSymbolDocumentationByFullName(
+                          CurrentValue({TemplateSlot, 1}))}, 
+                       If(IsString(FE`Private`file), 
+                        FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
+                          False)))) &), BaseStyle -> "Text", 
+                    ButtonFrame -> "Frameless"), "\""), 
                   FontColor -> 
                    Dynamic(
                     With({
@@ -149,14 +149,14 @@ Document({
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox(ComplexStringBox({"\"\\\\[", #1, "]\""}), 
+                 StyleBox(StringBox("\"\\\\[", #1, "]\""), 
                   FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
                   ShowStringCharacters -> False, 
                   ShowAutoStyles -> False) &)})}, All), 
           SectionGroup({Section("Keyboard shortcuts", "Subsubsection"), 
             Section(StyleData("KeyEvent"), TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox(FrameBox(ComplexStringBox({"\"", #1, "\""}), 
+                 StyleBox(FrameBox(StringBox({"\"", #1, "\""}), 
                    BorderRadius -> 2.5`, 
                    Background -> GrayLevel(0.96499999999999997`)), 
                   "ControlStyle", FontSize -> 
@@ -165,7 +165,7 @@ Document({
             Section(StyleData("KeyEventDelimiter"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox(ComplexStringBox({"\"", #1, "\""}), "ControlStyle", 
+                 StyleBox(StringBox("\"", #1, "\""), "ControlStyle", 
                   FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("AliasDelimiterKeyEvent"), 
              TemplateBoxOptions -> {
@@ -174,34 +174,30 @@ Document({
             Section(StyleData("ControlKeyEvent"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox({
-                   ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
-                     "+", TemplateBox({#1}, "KeyEvent"), "\""})}, 
+                 StyleBox({StringBox("\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
+                    "+", TemplateBox({#1}, "KeyEvent"), "\"")}, 
                   "ControlStyle", FontColor -> 
                    GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("AltKeyEvent"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox({
-                   ComplexStringBox({"\"", TemplateBox({"Alt"}, "KeyEvent"), 
-                     "+", TemplateBox({#1}, "KeyEvent"), "\""})}, 
+                 StyleBox({StringBox("\"", TemplateBox({"Alt"}, "KeyEvent"), 
+                    "+", TemplateBox({#1}, "KeyEvent"), "\"")}, 
                   "ControlStyle", FontColor -> 
                    GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("ShiftKeyEvent"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox({
-                   ComplexStringBox({"\"", TemplateBox({"Shift"}, "KeyEvent"), 
-                     "+", TemplateBox({#1}, "KeyEvent"), "\""})}, 
+                 StyleBox({StringBox("\"", TemplateBox({"Shift"}, "KeyEvent"), 
+                    "+", TemplateBox({#1}, "KeyEvent"), "\"")}, 
                   "ControlStyle", FontColor -> 
                    GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("ControlShiftKeyEvent"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox({
-                   ComplexStringBox({"\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
-                     "+", TemplateBox({"Shift"}, "KeyEvent"), "+", 
-                     TemplateBox({#1}, "KeyEvent"), "\""})}, "ControlStyle", 
+                 StyleBox({StringBox("\"", TemplateBox({"Ctrl"}, "KeyEvent"), 
+                    "+", TemplateBox({"Shift"}, "KeyEvent"), "+", 
+                    TemplateBox({#1}, "KeyEvent"), "\"")}, "ControlStyle", 
                   FontColor -> GrayLevel(0.35999999999999999`)) &)}), 
             Section(StyleData("Title"), MenuSortingValue -> None), 
             Section(StyleData("Subtitle"), MenuSortingValue -> None), 
