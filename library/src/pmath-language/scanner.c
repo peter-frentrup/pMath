@@ -18,7 +18,6 @@
 #include <limits.h>
 #include <string.h>
 
-extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_HoldComplete;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_MakeExpression;
@@ -2873,7 +2872,7 @@ static int ungrouped_string_length(pmath_t box) { // box wont be freed
       return result;
     }
     
-    if(pmath_same(head, pmath_System_StringBox) || pmath_same(head, pmath_System_ComplexStringBox)) {
+    if(pmath_same(head, pmath_System_StringBox)) {
       for(i = pmath_expr_length(box); i > 0; --i) {
         pmath_t boxi = pmath_expr_get_item(box, i);
         
@@ -3083,7 +3082,7 @@ static void ungroup(struct ungroup_t *g, pmath_t box) { // box will be freed
       return;
     }
     
-    if(pmath_same(head, pmath_System_StringBox) || pmath_same(head, pmath_System_ComplexStringBox)) {
+    if(pmath_same(head, pmath_System_StringBox)) {
       size_t i, len;
       int start = g->pos;
       pmath_span_t *s;

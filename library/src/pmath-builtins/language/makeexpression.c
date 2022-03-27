@@ -48,7 +48,6 @@ extern pmath_symbol_t pmath_System_CirclePlus;
 extern pmath_symbol_t pmath_System_Colon;
 extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
-extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_CompressedData;
 extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Congruent;
@@ -407,7 +406,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       if(pmath_is_null(head))
         return make_implicit_evaluation_sequence(expr);
         
-      if(pmath_same(head, pmath_System_StringBox) || pmath_same(head, pmath_System_ComplexStringBox) )
+      if(pmath_same(head, pmath_System_StringBox))
         return make_expression_from_stringbox(expr);
         
       if(pmath_same(head, pmath_System_CompressedData))

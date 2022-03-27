@@ -14,7 +14,6 @@ extern pmath_symbol_t richmath_FE_AutoCompleteName;
 extern pmath_symbol_t richmath_FE_AutoCompleteFile;
 extern pmath_symbol_t richmath_FE_AutoCompleteOther;
 
-extern pmath_symbol_t richmath_System_ComplexStringBox;
 extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_Keys;
 extern pmath_symbol_t richmath_System_List;
@@ -406,7 +405,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
       return false;
       
     Expr boxes = Evaluate(Call(Symbol(richmath_System_MakeBoxes), s));
-    if(boxes.expr_length() != 1 || (boxes[0] != richmath_System_StringBox && boxes[0] != richmath_System_ComplexStringBox))
+    if(boxes.expr_length() != 1 || boxes[0] != richmath_System_StringBox)
       return false;
       
     s = String(boxes[1]);

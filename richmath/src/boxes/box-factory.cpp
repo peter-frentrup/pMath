@@ -39,7 +39,6 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_ButtonBox;
 extern pmath_symbol_t richmath_System_CheckboxBox;
-extern pmath_symbol_t richmath_System_ComplexStringBox;
 extern pmath_symbol_t richmath_System_DynamicBox;
 extern pmath_symbol_t richmath_System_DynamicLocalBox;
 extern pmath_symbol_t richmath_System_FillBox;
@@ -106,7 +105,7 @@ Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags opt
     
   Expr head = expr[0];
   
-  if(head == richmath_System_List || head == richmath_System_StringBox || head == richmath_System_ComplexStringBox) {
+  if(head == richmath_System_List || head == richmath_System_StringBox) {
     if(expr.expr_length() == 1) {
       expr = expr[1];
       return create_box(layout_kind, expr, options);

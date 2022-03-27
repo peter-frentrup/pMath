@@ -55,7 +55,6 @@ extern pmath_symbol_t pmath_System_Column;
 extern pmath_symbol_t pmath_System_ColumnSpacing;
 extern pmath_symbol_t pmath_System_Complex;
 extern pmath_symbol_t pmath_System_ComplexInfinity;
-extern pmath_symbol_t pmath_System_ComplexStringBox;
 extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Congruent;
 extern pmath_symbol_t pmath_System_Cross;
@@ -2545,8 +2544,7 @@ static pmath_t strip_interpretation_boxes(pmath_t expr) {
     
     // TODO: PaneSelectorBox, TemplateBox
     
-    if(      pmath_same(head, pmath_System_ComplexStringBox)  || 
-             pmath_same(head, pmath_System_List)              || 
+    if(      pmath_same(head, pmath_System_List)              || 
              pmath_same(head, pmath_System_StringBox)         || 
              pmath_same(head, PMATH_NULL))
     {
