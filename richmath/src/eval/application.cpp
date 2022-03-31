@@ -1440,7 +1440,7 @@ static Expr cnt_callfrontend(Expr data) {
   return Evaluate(std::move(expr));
 }
 
-static void cnt_dynamicupate(Expr data) {
+static void cnt_dynamicupdate(Expr data) {
 
   double now = pmath_tickcount();
   double next_eval = last_dynamic_evaluation + Application::min_dynamic_update_interval - now;
@@ -1724,7 +1724,7 @@ static void execute(ClientNotificationData &cn) {
       break;
       
     case ClientNotification::DynamicUpdate:
-      cnt_dynamicupate(std::move(cn.data));
+      cnt_dynamicupdate(std::move(cn.data));
       break;
       
     case ClientNotification::DocumentRead:
