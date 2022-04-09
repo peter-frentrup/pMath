@@ -12,9 +12,24 @@ using namespace richmath;
 
 extern pmath_symbol_t richmath_System_FrameBox;
 
-namespace richmath { namespace strings {
-  extern String Framed;
-}}
+namespace richmath {
+  namespace strings {
+    extern String Framed;
+  }
+
+  class FrameBox::Impl {
+    public:
+      Impl(FrameBox &self) : self{self} {}
+      
+      float get_margin_value(FloatStyleOptionName name, float em);
+      
+    private:
+      FrameBox &self;
+  };
+}
+
+static const float BorderThicknessFactor = 1.0f / 16;
+static const float HalfBorderThicknessFactor = BorderThicknessFactor / 2;
 
 //{ class FrameBox ...
 
@@ -51,10 +66,15 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
 void FrameBox::resize_default_baseline(Context &context) {
   em = context.canvas().get_font_size();
   
-  float border_and_padding = 0.25f * em;
+  float border_thickness = BorderThicknessFactor * em;
+  
+  float extra_left   = border_thickness + Impl(*this).get_margin_value(FrameMarginLeft,   em);
+  float extra_right  = border_thickness + Impl(*this).get_margin_value(FrameMarginRight,  em);
+  float extra_top    = border_thickness + Impl(*this).get_margin_value(FrameMarginTop,    em);
+  float extra_bottom = border_thickness + Impl(*this).get_margin_value(FrameMarginBottom, em);
   
   float old_width = context.width;
-  context.width -= 2 * border_and_padding;
+  context.width -= extra_left + extra_right;
   
   base::resize_default_baseline(context);
   if(get_own_style(ContentPadding, false)) {
@@ -64,18 +84,12 @@ void FrameBox::resize_default_baseline(Context &context) {
       _extents.descent = 0.25f * em;
   }
   
-  cx = border_and_padding;
+  cx = extra_left;
   
-  _extents.width +=   2 * border_and_padding;
-  _extents.ascent +=  cx;
-  _extents.descent += cx;
+  _extents.width +=   extra_left + extra_right;
+  _extents.ascent +=  extra_top;
+  _extents.descent += extra_bottom;
   
-//  if(_extents.ascent < em)
-//    _extents.ascent = em;
-//    
-//  if(_extents.descent < em * 0.4f)
-//    _extents.descent = em * 0.4f;
-    
   context.width = old_width;
 }
 
@@ -101,7 +115,7 @@ void FrameBox::paint(Context &context) {
       if(Expr expr = get_own_style(FrameStyle)) {
         GraphicsDirective::apply(expr, context);
       }
-      float half_border_thickness = context.canvas().get_font_size() / 32;
+      float half_border_thickness = context.canvas().get_font_size() * HalfBorderThicknessFactor;
     
       rect.normalize();
       rect.grow(-half_border_thickness);
@@ -175,3 +189,16 @@ Expr FrameBox::to_pmath(BoxOutputFlags flags) {
 }
 
 //} ... class FrameBox
+
+//{ class FarmeBox::Impl ...
+
+float FrameBox::Impl::get_margin_value(FloatStyleOptionName name, float em) {
+  float f = self.get_own_style(name, ImageSizeAutomatic);
+  
+  if(f >= 0.0f && f < 10000.0f)
+    return f;
+  
+  return (0.25f - BorderThicknessFactor) * em;
+}
+
+//} ... class FarmeBox::Impl

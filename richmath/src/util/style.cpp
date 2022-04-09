@@ -77,6 +77,7 @@ extern pmath_symbol_t richmath_System_FontSlant;
 extern pmath_symbol_t richmath_System_FontWeight;
 extern pmath_symbol_t richmath_System_Frame;
 extern pmath_symbol_t richmath_System_FrameBoxOptions;
+extern pmath_symbol_t richmath_System_FrameMargins;
 extern pmath_symbol_t richmath_System_FrameStyle;
 extern pmath_symbol_t richmath_System_FrameTicks;
 extern pmath_symbol_t richmath_System_FrontEndObject;
@@ -427,6 +428,7 @@ namespace richmath {
       bool set_pmath_float(     StyleOptionName n, Expr obj);
       bool set_pmath_margin(    StyleOptionName n, Expr obj); // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
       bool set_pmath_size(      StyleOptionName n, Expr obj); // n + {0,1,2} ~= {Common, Horizontal, Vertical}
+      bool set_pmath_size_part( StyleOptionName n, Expr obj);
       bool set_pmath_string(    StyleOptionName n, Expr obj);
       bool set_pmath_object(    StyleOptionName n, Expr obj);
       bool set_pmath_flatlist(  StyleOptionName n, Expr obj);
@@ -460,6 +462,8 @@ namespace richmath {
       static Expr inherited_margin_top(Expr inherited);
       static Expr inherited_margin_bottom(Expr inherited);
 
+      static Expr get_pmath_size_part(float f);
+      
       Expr prepare_inherited(StyleOptionName n) const;
       Expr prepare_inherited_size(StyleOptionName n) const;
       Expr prepare_inherited_ruleset(StyleOptionName n) const;
@@ -902,6 +906,14 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
     return any_change;
   }
   
+  if(obj == richmath_System_Automatic) {
+    any_change = raw_set_float(Left,   ImageSizeAutomatic) || any_change;
+    any_change = raw_set_float(Right,  ImageSizeAutomatic) || any_change;
+    any_change = raw_set_float(Top,    ImageSizeAutomatic) || any_change;
+    any_change = raw_set_float(Bottom, ImageSizeAutomatic) || any_change;
+    return any_change;
+  }
+  
   if(obj.is_number()) {
     float f = obj.to_double();
     any_change = raw_set_float(Left,   f) || any_change;
@@ -913,38 +925,42 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
   
   if( obj.is_expr() && obj[0] == richmath_System_List) {
     if(obj.expr_length() == 4) {
-      any_change = set_pmath_float(Left,   obj[1]) || any_change;
-      any_change = set_pmath_float(Right,  obj[2]) || any_change;
-      any_change = set_pmath_float(Top,    obj[3]) || any_change;
-      any_change = set_pmath_float(Bottom, obj[4]) || any_change;
+      any_change = set_pmath_size_part(Left,   obj[1]) || any_change;
+      any_change = set_pmath_size_part(Right,  obj[2]) || any_change;
+      any_change = set_pmath_size_part(Top,    obj[3]) || any_change;
+      any_change = set_pmath_size_part(Bottom, obj[4]) || any_change;
       return any_change;
     }
     
     if(obj.expr_length() == 2) {
-      if(obj[1].is_number()) {
-        float f = obj[1].to_double();
-        any_change = raw_set_float(Left,  f) || any_change;
-        any_change = raw_set_float(Right, f) || any_change;
-      }
-      else if(obj[1].is_expr() &&
-              obj[1][0] == richmath_System_List &&
-              obj[1].expr_length() == 2)
       {
-        any_change = set_pmath_float(Left,  obj[1][1]) || any_change;
-        any_change = set_pmath_float(Right, obj[1][2]) || any_change;
+        Expr horz = obj[1];
+        if( horz.is_expr() &&
+            horz[0] == richmath_System_List &&
+            horz.expr_length() == 2)
+        {
+          any_change = set_pmath_size_part(Left,  horz[1]) || any_change;
+          any_change = set_pmath_size_part(Right, horz[2]) || any_change;
+        }
+        else {
+          any_change = set_pmath_size_part(Left,  horz) || any_change;
+          any_change = set_pmath_size_part(Right, horz) || any_change;
+        }
       }
       
-      if(obj[2].is_number()) {
-        float f = obj[2].to_double();
-        any_change = raw_set_float(Top,    f) || any_change;
-        any_change = raw_set_float(Bottom, f) || any_change;
-      }
-      else if(obj[2].is_expr() &&
-              obj[2][0] == richmath_System_List &&
-              obj[2].expr_length() == 2)
       {
-        any_change = set_pmath_float(Top,    obj[2][1]) || any_change;
-        any_change = set_pmath_float(Bottom, obj[2][2]) || any_change;
+        Expr vert = obj[2];
+        if( vert.is_expr() &&
+            vert[0] == richmath_System_List &&
+            vert.expr_length() == 2)
+        {
+          any_change = set_pmath_size_part(Top,    vert[1]) || any_change;
+          any_change = set_pmath_size_part(Bottom, vert[2]) || any_change;
+        }
+        else {
+          any_change = set_pmath_size_part(Top,    vert) || any_change;
+          any_change = set_pmath_size_part(Bottom, vert) || any_change;
+        }
       }
       
       return any_change;
@@ -999,15 +1015,8 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
   if(obj[0] == richmath_System_List && obj.expr_length() == 2) {
     any_change = raw_remove_float(n) || any_change;
     
-    if(obj[1] == richmath_System_Automatic)
-      any_change = raw_set_float(Horizontal, ImageSizeAutomatic) || any_change;
-    else
-      any_change = set_pmath_float(Horizontal, obj[1]) || any_change;
-      
-    if(obj[2] == richmath_System_Automatic)
-      any_change = raw_set_float(Vertical, ImageSizeAutomatic) || any_change;
-    else
-      any_change = set_pmath_float(Vertical, obj[2]) || any_change;
+    any_change = set_pmath_size_part(Horizontal, obj[1]) || any_change;
+    any_change = set_pmath_size_part(Vertical,   obj[2]) || any_change;
       
     return any_change;
   }
@@ -1042,6 +1051,19 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
       
     return any_change;
   }
+  
+  return any_change;
+}
+
+bool StyleImpl::set_pmath_size_part(StyleOptionName n, Expr obj) {
+  STYLE_ASSERT(is_for_float(n));
+  
+  bool any_change = false;
+  
+  if(obj == richmath_System_Automatic)
+    any_change = raw_set_float(n, ImageSizeAutomatic) || any_change;
+  else
+    any_change = set_pmath_float(n, obj) || any_change;
   
   return any_change;
 }
@@ -1493,6 +1515,13 @@ Expr StyleImpl::inherited_margin_bottom(Expr inherited) {
   return inherited_tuple_member(std::move(inherited), 4);
 }
 
+Expr StyleImpl::get_pmath_size_part(float f) {
+  if(f >= 0)
+    return Number(f);
+  
+  return Symbol(richmath_System_Automatic);
+}
+
 Expr StyleImpl::prepare_inherited(StyleOptionName n) const {
   switch (StyleInformation::get_type(n)) {
     case StyleType::Size:    return prepare_inherited_size(n);
@@ -1700,25 +1729,32 @@ Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { 
   if(have_left || have_right || have_top || have_bottom) {
     Expr l, r, t, b;
     
-    if(have_left)
-      l = Number(left);
+    if(have_left) 
+      l = get_pmath_size_part(left);
     else
       l = inherited_margin_left(inherited);
       
     if(have_right)
-      r = Number(right);
+      r = get_pmath_size_part(right);
     else
       r = inherited_margin_right(inherited);
       
     if(have_top)
-      t = Number(top);
+      t = get_pmath_size_part(top);
     else
       t = inherited_margin_top(inherited);
       
     if(have_bottom)
-      b = Number(bottom);
+      b = get_pmath_size_part(bottom);
     else
       b = inherited_margin_bottom(std::move(inherited));
+    
+    if(l == r && t == b) {
+      if(l == t)
+        return l;
+      
+      return List(l, t);
+    }
       
     return List(l, r, t, b);
   }
@@ -1740,12 +1776,8 @@ Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { //
   float h;
   have_horz = raw_get_float(Horizontal, &h);
   
-  if(have_horz) {
-    if(h > 0)
-      horz = Number(h);
-    else
-      horz = Symbol(richmath_System_Automatic);
-  }
+  if(have_horz)
+    horz = get_pmath_size_part(h);
   else
     horz = inherited_tuple_member(inherited, 1);
 //  }
@@ -1755,12 +1787,8 @@ Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { //
   float v;
   have_vert = raw_get_float(Vertical, &v);
   
-  if(have_vert) {
-    if(v > 0)
-      vert = Number(v);
-    else
-      vert = Symbol(richmath_System_Automatic);
-  }
+  if(have_vert) 
+    vert = get_pmath_size_part(v);
   else
     vert = inherited_tuple_member(inherited, 2);
 //  }
@@ -2358,6 +2386,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(FontWeight);
   impl.emit_definition(Frame);
   impl.emit_definition(FrameBoxOptions);
+  impl.emit_definition(FrameMarginLeft);
   impl.emit_definition(FrameStyle);
   impl.emit_definition(FrameTicks);
   impl.emit_definition(FunctionLocalVariableStyle);
@@ -3013,6 +3042,14 @@ void StyleInformation::add_style() {
     // PaneBoxDefaultImageSizeHorizontal
     // PaneBoxDefaultImageSizeVertical
     
+    add(StyleType::Margin,          FrameMarginLeft,                  Symbol( richmath_System_FrameMargins));
+    // SectionFrameMarginRight
+    // SectionFrameMarginTop
+    // SectionFrameMarginBottom
+    add(StyleType::Margin,          FrameBoxDefaultFrameMarginLeft,   List(Symbol(richmath_System_FrameBoxOptions), Symbol( richmath_System_FrameMargins)));
+    // FrameBoxDefaultSectionFrameMarginRight
+    // FrameBoxDefaultSectionFrameMarginTop
+    // FrameBoxDefaultSectionFrameMarginBottom
     add(StyleType::Margin,          SectionMarginLeft,                Symbol( richmath_System_SectionMargins));
     // SectionMarginRight
     // SectionMarginTop

@@ -322,6 +322,7 @@ Frame::usage:= "Frame is an option for Graphics that specifies whether to add a 
 FrameBox::usage:= "FrameBox(\(StyleBox(\"boxes\", \"Arg\")\)) is a low-level construct which represents \(StyleBox(\"boxes\", \"Arg\")\) with a frame drawn around it in document expressions."
 FrameBoxOptions::usage:= "FrameBoxOptions \[Rule] {\(StyleBox(\"opt\", \"Arg\")\)\(SubscriptBox(\"1\")\) \[Rule] \(StyleBox(\"val\", \"Arg\")\)\(SubscriptBox(\"1\")\), \(StyleBox(\"opt\", \"Arg\")\)\(SubscriptBox(\"2\")\) \[Rule] \(StyleBox(\"val\", \"Arg\")\)\(SubscriptBox(\"2\")\), …} is an option that specifies settings for FrameBox."
 Framed::usage:= "Framed(\(StyleBox(\"expr\", \"Arg\")\)) displays as \(StyleBox(\"expr\", \"Arg\")\) inside a frame."
+FrameMargins::usage:= "FrameMargins is an option for objects with frames which specifies the margins in points to leave inside the frame."
 FrameTicks::usage:= "FrameTicks is an option for Graphics that specifies tick marks for the edges of a frame."
 FresnelC::usage:= "FresnelC(\(\"z\".StyleBox(\"Arg\")\)) gives the Fresnel integral \({\"C\", \"(\", StyleBox(\"z\", \"Arg\"), \")\"}\)."
 FresnelS::usage:= "FresnelS(\(\"z\".StyleBox(\"Arg\")\)) gives the Fresnel integral \({\"S\", \"(\", StyleBox(\"z\", \"Arg\"), \")\"}\)."

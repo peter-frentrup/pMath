@@ -126,6 +126,7 @@ Options(Framed):= Options(FrameBox):= {
     BaseStyle -> "Framed", 
     BorderRadius -> 0,
     ContentPadding -> True,
+    FrameMargins -> Automatic,
     FrameStyle -> Automatic,
     StripOnInput -> False}
 

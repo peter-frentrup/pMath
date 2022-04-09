@@ -218,6 +218,11 @@ namespace richmath {
     MatchingBracketHighlightOpacity,      // 0 .. 1
     OccurenceHighlightOpacity,            // 0 .. 1
     
+    FrameMarginLeft,
+    FrameMarginRight,
+    FrameMarginTop,
+    FrameMarginBottom,
+    
     SectionMarginLeft,
     SectionMarginRight,
     SectionMarginTop,
@@ -241,6 +246,11 @@ namespace richmath {
     SectionGroupPrecedence,
     
     FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,
+    
+    FrameBoxDefaultFrameMarginLeft   = FrameMarginLeft   + (int)DefaultStyleOptionOffsets::FrameBox,
+    FrameBoxDefaultFrameMarginRight  = FrameMarginRight  + (int)DefaultStyleOptionOffsets::FrameBox,
+    FrameBoxDefaultFrameMarginTop    = FrameMarginTop    + (int)DefaultStyleOptionOffsets::FrameBox,
+    FrameBoxDefaultFrameMarginBottom = FrameMarginBottom + (int)DefaultStyleOptionOffsets::FrameBox,
     
     PaneBoxDefaultImageSizeCommon     = ImageSizeCommon     + (int)DefaultStyleOptionOffsets::PaneBox,
     PaneBoxDefaultImageSizeHorizontal = ImageSizeHorizontal + (int)DefaultStyleOptionOffsets::PaneBox,
