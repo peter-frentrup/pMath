@@ -14,6 +14,14 @@ namespace richmath {
     
     Invalid = -100,
   };
+  
+  struct LengthConversionFactors {
+    static const LengthConversionFactors Zero;
+    static const LengthConversionFactors FontSizeInPt;
+    static const LengthConversionFactors SectionMargins;
+    
+    float Automatic;
+  };
 
   class Length {
     public:
@@ -25,7 +33,7 @@ namespace richmath {
       float raw_value() const { return _raw_value; }
       SymbolicSize symblic_value() const { return (SymbolicSize)(int)_raw_value; }
       
-      float resolve(float em, float auto_factor) const;
+      float resolve(float em, const LengthConversionFactors &factors) const;
       
       bool is_positive() const { return _raw_value > 0.0f; }
       bool is_explicit() const { return _raw_value >= 0.0f; }
@@ -39,6 +47,8 @@ namespace richmath {
       
       static Length from_pmath(Expr obj);
       Expr to_pmath() const;
+      
+      explicit operator Expr() const { return to_pmath(); }
       
     private:
       float _raw_value;

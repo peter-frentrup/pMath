@@ -1696,7 +1696,7 @@ void Win32ControlPainter::system_font_style(ControlContext &control, Style *styl
   }
   
   style->set(FontFamilies, String::FromUcs2((const uint16_t *)logfont->lfFaceName));
-  style->set(FontSize, abs(logfont->lfHeight) * dpi_scale * 3 / 4.f);
+  style->set(FontSize, Length(abs(logfont->lfHeight) * dpi_scale * 3 / 4.f));
   
   if(logfont->lfWeight > FW_NORMAL)
     style->set(FontWeight, FontWeightBold);

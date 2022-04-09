@@ -736,9 +736,13 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
     
     int section_bracket_nesting = 0;
     
+    Length font_size = SymbolicSize::Invalid;
+    
     SharedPtr<Style> output_style = nullptr;
     if(auto section = box->find_parent<Section>(true)) {
       output_style = section->style;
+      
+      font_size = Length(section->get_em());
       
       if(section->parent() == doc) {
         section_bracket_nesting = section->group_info().nesting;
@@ -750,23 +754,26 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
     if(!output_style)
       output_style = doc->stylesheet()->base;
     
-    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft).resolve(0, 0);
-    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight).resolve(0, 0);
+    if(!font_size.is_valid())
+      font_size = doc->stylesheet()->get_or_default(output_style, FontSize, SymbolicSize::Automatic);
+    
+    float em    = font_size.resolve(1.0f, LengthConversionFactors::FontSizeInPt);
+    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins);
+    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
     
     // TODO: frame margin is only applied if a frame is visible (or Background is given)
-    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft).resolve(0, 0);
-    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight).resolve(0, 0);
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft ).resolve(em, LengthConversionFactors::SectionMargins);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight).resolve(em, LengthConversionFactors::SectionMargins);
     
-    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft).resolve(0, 0);
-    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight).resolve(0, 0);
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
     
     page_width_points-= left + right;
     if(doc->get_own_style(ShowSectionBracket, true)) {
       page_width_points-= doc->section_bracket_right_margin + doc->section_bracket_width * section_bracket_nesting;
     }
     
-    float font_size = doc->stylesheet()->get_or_default(output_style, FontSize, 10.0f);
-    float average_char_width = 0.5f * font_size;
+    float average_char_width = 0.5f * em;
     float chars_per_line = roundf(page_width_points / average_char_width);
     if(chars_per_line <= 0)
       return Expr(1);

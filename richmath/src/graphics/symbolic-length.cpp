@@ -6,15 +6,20 @@ using namespace richmath;
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_None;
 
+const LengthConversionFactors LengthConversionFactors::Zero {0};
+const LengthConversionFactors LengthConversionFactors::FontSizeInPt {10.0f};
+const LengthConversionFactors LengthConversionFactors::SectionMargins { 0.0f };
+
+
 //{ class Length ...
 
-float Length::resolve(float em, float auto_factor) const {
+float Length::resolve(float em, const LengthConversionFactors &factors) const {
   if(is_explicit())
     return raw_value();
   
   if(is_symbolic()) {
     switch(symblic_value()) {
-      case SymbolicSize::Automatic: return em * auto_factor;
+      case SymbolicSize::Automatic: return em * factors.Automatic;
       
       case SymbolicSize::Invalid: break;
     }

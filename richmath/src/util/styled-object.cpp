@@ -28,7 +28,8 @@ template<typename T>
 static bool StyledObject_get_FontSize(StyledObject &self, T *result);
 
 template<> bool StyledObject_get_FontSize(StyledObject &self, Color *result) { return false; }
-template<> bool StyledObject_get_FontSize(StyledObject &self, Length *result) { return false; } // TODO: change FontSize to a LengthStyleOptionName
+template<> bool StyledObject_get_FontSize(StyledObject &self, int   *result) { return false; }
+template<> bool StyledObject_get_FontSize(StyledObject &self, float *result) { return false; }
 template<> bool StyledObject_get_FontSize(StyledObject &self, String *result) { return false; }
 
 template<typename T>
@@ -375,7 +376,7 @@ bool Stylesheet_get_pmath::impl(SharedPtr<Stylesheet> all, SharedPtr<Style> styl
 }
 
 static bool StyleName_is_FontSize(StyleOptionName name) {
-  return name == FloatStyleOptionName::FontSize;
+  return name == LengthStyleOptionName::FontSize;
 }
 
 static bool StyleName_is_ScriptLevel(StyleOptionName name) {
@@ -385,7 +386,7 @@ static bool StyleName_is_ScriptLevel(StyleOptionName name) {
 template<typename T>
 static bool StyledObject_get_FontSize(StyledObject &self, T *result) {
   if(auto seq = StyledObject_find_style_parent<AbstractSequence>(self, true)) {
-    *result = seq->get_em();
+    *result = static_cast<T>(Length(seq->get_em()));
     return true;
   }
   return false;

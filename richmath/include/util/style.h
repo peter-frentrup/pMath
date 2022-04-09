@@ -199,9 +199,8 @@ namespace richmath {
   };
   
   enum FloatStyleOptionName {
-    FontSize = 0x20000, // greater than any IntStyleOptionName value
+    AspectRatio = 0x20000, // greater than any IntStyleOptionName value
     
-    AspectRatio,
     Magnification,
     
     FillBoxWeight, // > 0
@@ -219,8 +218,9 @@ namespace richmath {
   };
   
   enum LengthStyleOptionName {
-    // greater than any FloatStyleOptionName value:
-    ImageSizeCommon = 0x30000,
+    FontSize = 0x30000, // greater than any FloatStyleOptionName value
+  
+    ImageSizeCommon,
     ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
     ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
@@ -482,6 +482,7 @@ namespace richmath {
     Color,
     Integer,
     Number,
+    Length,
     Margin,
     Size,
     String,

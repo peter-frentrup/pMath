@@ -409,8 +409,9 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
     ctx.fontfeatures.add(expr);
   }
   
-  if(ctx.stylesheet->get(style, FontSize, &f)) {
-    ctx.canvas().set_font_size(f);
+  Length em;
+  if(ctx.stylesheet->get(style, FontSize, &em)) {
+    ctx.canvas().set_font_size(em.resolve(1, LengthConversionFactors::FontSizeInPt));
   }
   
   if(ctx.stylesheet->get(style, LineBreakWithin, &i) && !i) {

@@ -4200,10 +4200,12 @@ void Document::Impl::paint_document_cursor() {
     }
     
     if(self.context.selection.start < self.count()) {
-      x1 = self.section(self.context.selection.start)->get_style(SectionMarginLeft).resolve(0, 0);
+      Section *sect = self.section(self.context.selection.start);
+      x1 = sect->get_style(SectionMarginLeft).resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt);
     }
     else if(self.count() > 0) {
-      x1 = self.section(self.context.selection.start - 1)->get_style(SectionMarginLeft).resolve(0, 0);
+      Section *sect = self.section(self.context.selection.start - 1);
+      x1 = sect->get_style(SectionMarginLeft).resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt);
     }
     else
       x1 = 20 * 0.75;

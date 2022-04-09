@@ -705,6 +705,10 @@ bool StyleImpl::set_pmath(StyleOptionName n, Expr obj) {
       any_change = set_pmath_float(n, obj);
       break;
       
+    case StyleType::Length:
+      any_change = set_pmath_length(n, obj);
+      break;
+      
     case StyleType::Margin:
       any_change = set_pmath_margin(n, obj);
       break;
@@ -1631,6 +1635,9 @@ Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
       
     case StyleType::Number:
       return raw_get_pmath_float(key, std::move(inherited));
+      
+    case StyleType::Length:
+      return raw_get_pmath_length(key, std::move(inherited));
       
     case StyleType::Margin:
       return raw_get_pmath_margin(key, std::move(inherited));
@@ -3084,7 +3091,7 @@ void StyleInformation::add_style() {
     
     add(StyleType::Number,          AspectRatio,                      Symbol( richmath_System_AspectRatio));
     add(StyleType::Number,          FillBoxWeight,                    Symbol( richmath_System_FillBoxWeight));
-    add(StyleType::Number,          FontSize,                         Symbol( richmath_System_FontSize));
+    add(StyleType::Length,          FontSize,                         Symbol( richmath_System_FontSize));
     add(StyleType::Number,          GridBoxColumnSpacing,             Symbol( richmath_System_GridBoxColumnSpacing));
     add(StyleType::Number,          GridBoxRowSpacing,                Symbol( richmath_System_GridBoxRowSpacing));
     add(StyleType::Number,          Magnification,                    Symbol( richmath_System_Magnification));

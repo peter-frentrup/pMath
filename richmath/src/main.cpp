@@ -471,11 +471,12 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(ShowStringCharacters,                true);
   Stylesheet::Default->base->set(Visible,                             true);
   
-  Stylesheet::Default->base->set(FontSize,                     10.0);
   Stylesheet::Default->base->set(AspectRatio,                   1.0);
   Stylesheet::Default->base->set(GridBoxColumnSpacing,          0.4);
   Stylesheet::Default->base->set(GridBoxRowSpacing,             0.5);
   Stylesheet::Default->base->set(Magnification,                 1.0);
+  
+  Stylesheet::Default->base->set(FontSize,                      Length(10.0));
   
 //  Stylesheet::Default->base->set(FrameMarginLeft,               SymbolicSize::Automatic);
 //  Stylesheet::Default->base->set(FrameMarginRight,              SymbolicSize::Automatic);

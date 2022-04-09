@@ -81,6 +81,8 @@ namespace richmath {
       virtual bool changes_children_style() override { return true; }
       
       const SectionGroupInfo &group_info() { return _group_info; }
+      
+      virtual float get_em();
     
     protected:
       enum {
@@ -175,6 +177,8 @@ namespace richmath {
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix) override;
+      
+      virtual float get_em() override;
     
     protected:
       virtual bool can_enter_content() { return true; }

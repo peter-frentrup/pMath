@@ -246,6 +246,10 @@ bool Section::edit_selection(SelectionReference &selection) {
   return true;
 }
 
+float Section::get_em() {
+  return get_style(FontSize).resolve(1.0f, LengthConversionFactors::FontSizeInPt);
+}
+
 //} ... class Section
 
 //{ class ErrorSection ...
@@ -263,14 +267,16 @@ bool ErrorSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
 void ErrorSection::resize(Context &context) {
   must_resize(false);
   
-  top_margin    = get_style(SectionMarginTop).resolve(0, 0);
-  bottom_margin = get_style(SectionMarginBottom).resolve(0, 0);
+  float em = get_em();
+  
+  top_margin    = get_style(SectionMarginTop   ).resolve(em, LengthConversionFactors::SectionMargins);
+  bottom_margin = get_style(SectionMarginBottom).resolve(em, LengthConversionFactors::SectionMargins);
   
   
-  float em = get_style(FontSize);
   _extents.ascent  = 0;
   _extents.descent =     em + top_margin + bottom_margin;
-  _extents.width   = 2 * em + get_style(SectionMarginLeft).resolve(0, 0) + get_style(SectionMarginRight).resolve(0, 0);
+  _extents.width   = 2 * em + get_style(SectionMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins) 
+                            + get_style(SectionMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
   
   unfilled_width = _extents.width;
 }
@@ -281,11 +287,13 @@ void ErrorSection::paint(Context &context) {
   float x, y;
   context.canvas().current_pos(&x, &y);
   
+  float em = get_style(FontSize).resolve(1, LengthConversionFactors::FontSizeInPt);
+  
   context.draw_error_rect(
-    x +                    get_style(SectionMarginLeft).resolve(0, 0),
-    y +                    get_style(SectionMarginTop).resolve(0, 0),
-    x + _extents.width   - get_style(SectionMarginRight).resolve(0, 0),
-    y + _extents.descent - get_style(SectionMarginBottom).resolve(0, 0));
+    x +                    get_style(SectionMarginLeft  ).resolve(em, LengthConversionFactors::SectionMargins),
+    y +                    get_style(SectionMarginTop   ).resolve(em, LengthConversionFactors::SectionMargins),
+    x + _extents.width   - get_style(SectionMarginRight ).resolve(em, LengthConversionFactors::SectionMargins),
+    y + _extents.descent - get_style(SectionMarginBottom).resolve(em, LengthConversionFactors::SectionMargins));
 }
 
 VolatileSelection ErrorSection::mouse_selection(Point pos, bool *was_inside_start) {
@@ -347,32 +355,34 @@ void AbstractSequenceSection::resize(Context &context) {
   
   context.script_level = 0; // TODO: use ScriptLevel style
   
-  top_margin    = get_style(SectionMarginTop).resolve(0, 0);
-  bottom_margin = get_style(SectionMarginBottom).resolve(0, 0);
+  float em = _content->get_em();
+  
+  top_margin    = get_style(SectionMarginTop   ).resolve(em, LengthConversionFactors::SectionMargins);
+  bottom_margin = get_style(SectionMarginBottom).resolve(em, LengthConversionFactors::SectionMargins);
   
   resize_label(context);
   
-  float left_margin = get_style(SectionMarginLeft).resolve(0, 0);
+  float left_margin = get_style(SectionMarginLeft).resolve(em, LengthConversionFactors::SectionMargins);
   cx = left_margin;
   cy = top_margin;
   
-  float horz_border = get_style(SectionMarginRight).resolve(0, 0);
+  float horz_border = get_style(SectionMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
   
-  float l = get_style(SectionFrameLeft).resolve(0, 0);
-  float r = get_style(SectionFrameRight).resolve(0, 0);
-  float t = get_style(SectionFrameTop).resolve(0, 0);
-  float b = get_style(SectionFrameBottom).resolve(0, 0);
+  float l = get_style(SectionFrameLeft  ).resolve(em, LengthConversionFactors::SectionMargins);
+  float r = get_style(SectionFrameRight ).resolve(em, LengthConversionFactors::SectionMargins);
+  float t = get_style(SectionFrameTop   ).resolve(em, LengthConversionFactors::SectionMargins);
+  float b = get_style(SectionFrameBottom).resolve(em, LengthConversionFactors::SectionMargins);
   
   bool have_frame = get_style(Background).is_valid() || l != 0 || r != 0 || t != 0 || b != 0;
   if(have_frame) {
     cx += l;
-    cx += get_style(SectionFrameMarginLeft).resolve(0, 0);
+    cx += get_style(SectionFrameMarginLeft).resolve(em, LengthConversionFactors::SectionMargins);
     
     cy += t;
-    cy += get_style(SectionFrameMarginTop).resolve(0, 0);
+    cy += get_style(SectionFrameMarginTop).resolve(em, LengthConversionFactors::SectionMargins);
     
     horz_border += r;
-    horz_border += get_style(SectionFrameMarginRight).resolve(0, 0);
+    horz_border += get_style(SectionFrameMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
   }
   
   horz_border += cx;
@@ -381,7 +391,7 @@ void AbstractSequenceSection::resize(Context &context) {
   
   if(Box *dingbat = _dingbat.box_or_null()) {
     dingbat->resize(context);
-    float dist = get_style(SectionFrameLabelMarginLeft).resolve(0, 0);
+    float dist = get_style(SectionFrameLabelMarginLeft).resolve(em, LengthConversionFactors::SectionMargins);
     auto extra_indent = dingbat->extents().width + dist - cx;
     if(extra_indent > 0) {
       horz_border                           += extra_indent;
@@ -401,10 +411,10 @@ void AbstractSequenceSection::resize(Context &context) {
     _content->colorize_scope(syntax);
   }
   
-  if(_content->var_extents().ascent < 0.75 * _content->get_em())
-    _content->var_extents().ascent = 0.75 * _content->get_em();
-  if(_content->var_extents().descent < 0.25 * _content->get_em())
-    _content->var_extents().descent = 0.25 * _content->get_em();
+  if(_content->var_extents().ascent < 0.75 * em)
+    _content->var_extents().ascent = 0.75 * em;
+  if(_content->var_extents().descent < 0.25 * em)
+    _content->var_extents().descent = 0.25 * em;
     
   cy += _content->extents().ascent;
   
@@ -423,9 +433,9 @@ void AbstractSequenceSection::resize(Context &context) {
   
   if(have_frame) {
     _extents.descent += b;
-    _extents.descent += get_style(SectionFrameMarginBottom).resolve(0, 0);
+    _extents.descent += get_style(SectionFrameMarginBottom).resolve(em, LengthConversionFactors::SectionMargins);
     
-    _extents.width += r + get_style(SectionFrameMarginRight).resolve(0, 0);
+    _extents.width += r + get_style(SectionFrameMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
   }
 }
 
@@ -439,13 +449,15 @@ void AbstractSequenceSection::paint(Context &context) {
   
   cc.apply_layout_styles(style);
   
-  float left_margin = get_style(SectionMarginLeft).resolve(0, 0);
+  float em = _content->get_em();
+  
+  float left_margin = get_style(SectionMarginLeft).resolve(em, LengthConversionFactors::SectionMargins);
   Color background  = get_style(Background);
   
-  float l = get_style(SectionFrameLeft).resolve(0, 0);
-  float r = get_style(SectionFrameRight).resolve(0, 0);
-  float t = get_style(SectionFrameTop).resolve(0, 0);
-  float b = get_style(SectionFrameBottom).resolve(0, 0);
+  float l = get_style(SectionFrameLeft  ).resolve(em, LengthConversionFactors::SectionMargins);
+  float r = get_style(SectionFrameRight ).resolve(em, LengthConversionFactors::SectionMargins);
+  float t = get_style(SectionFrameTop   ).resolve(em, LengthConversionFactors::SectionMargins);
+  float b = get_style(SectionFrameBottom).resolve(em, LengthConversionFactors::SectionMargins);
   
   // TODO: suppress request_repaint_all if only non-layout styles changed during update_dynamic_styles()
   update_dynamic_styles(context);
@@ -525,7 +537,7 @@ void AbstractSequenceSection::paint(Context &context) {
   float xx, yy;
   
   if(Box *dingbat = _dingbat.box_or_null()) {
-    float dist = get_style(SectionFrameLabelMarginLeft).resolve(0, 0);
+    float dist = get_style(SectionFrameLabelMarginLeft).resolve(em, LengthConversionFactors::SectionMargins);
     xx = x + cx - dist - dingbat->extents().width;
     yy = y + cy;
     context.canvas().align_point(&xx, &yy, false);
@@ -674,7 +686,8 @@ void AbstractSequenceSection::child_transformation(
   cairo_matrix_t *matrix
 ) {
   if(_dingbat.has_index(index)) {
-    float dist = get_style(SectionFrameLabelMarginLeft).resolve(0, 0);
+    float em = _content->get_em();
+    float dist = get_style(SectionFrameLabelMarginLeft).resolve(em, LengthConversionFactors::SectionMargins);
     float dingbat_width = _dingbat.box_or_null()->extents().width;
     
     cairo_matrix_translate(matrix, cx - dist - dingbat_width, cy);
@@ -682,6 +695,10 @@ void AbstractSequenceSection::child_transformation(
   }
   
   cairo_matrix_translate(matrix, cx, cy);
+}
+
+float AbstractSequenceSection::get_em() {
+  return _content->get_em();
 }
 
 //} ... class AbstractSequenceSection
