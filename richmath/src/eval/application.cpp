@@ -501,8 +501,7 @@ void Application::gui_print_section(Expr expr) {
         if(!sect->style)
           sect->style = new Style();
         
-        int dummy;
-        if(!sect->style->get(SectionGenerated, &dummy))
+        if(!sect->style->contains(SectionGenerated))
           sect->style->set(SectionGenerated, true);
       }
       
@@ -1441,6 +1440,11 @@ static Expr cnt_callfrontend(Expr data) {
 }
 
 static void cnt_dynamicupdate(Expr data) {
+  Expr cause {};
+  if(data.is_rule()) {
+    cause = data[1];
+    data = data[2];
+  }
 
   double now = pmath_tickcount();
   double next_eval = last_dynamic_evaluation + Application::min_dynamic_update_interval - now;
@@ -1450,8 +1454,13 @@ static void cnt_dynamicupdate(Expr data) {
     for(size_t i = data.expr_length(); i > 0; --i) {
       auto ref = FrontEndReference::from_pmath_raw(data[i]);
       auto obj = FrontEndObject::find(ref);
-      if(obj)
+      if(obj) {
+        if(cause) {
+          obj->update_cause(cause);
+        }
+        
         pending_dynamic_updates.add(obj->id());
+      }
     }
     
     if(need_timer && !dynamic_update_delay_timer_active) {
@@ -1474,8 +1483,13 @@ static void cnt_dynamicupdate(Expr data) {
   for(size_t i = data.expr_length(); i > 0; --i) {
     auto ref = FrontEndReference::from_pmath_raw(data[i]);
     auto obj = FrontEndObject::find(ref);
-    if(obj)
+    if(obj) {
+      if(cause) {
+        obj->update_cause(cause);
+      }
+      
       obj->dynamic_updated();
+    }
   }
 }
 

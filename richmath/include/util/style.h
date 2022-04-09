@@ -496,6 +496,12 @@ namespace richmath {
       static Expr merge_style_values(StyleOptionName n, Expr newer, Expr older);
       static Expr finish_style_merge(StyleOptionName n, Expr value);
       
+      bool contains(ColorStyleOptionName  n) const { Color  _; return get(n, &_); }
+      bool contains(IntStyleOptionName    n) const { int    _; return get(n, &_); }
+      bool contains(FloatStyleOptionName  n) const { float  _; return get(n, &_); }
+      bool contains(StringStyleOptionName n) const { String _; return get(n, &_); }
+      bool contains(ObjectStyleOptionName n) const { Expr   _; return get(n, &_); }
+      
       virtual bool get(ColorStyleOptionName  n, Color  *value) const;
       virtual bool get(IntStyleOptionName    n, int    *value) const;
       virtual bool get(FloatStyleOptionName  n, float  *value) const;
