@@ -606,12 +606,12 @@ void GraphicsBox::on_mouse_move(MouseEvent &event) {
       }
       
       if(mouse_over_part == GraphicsPartSizeBottom) {
-        style->set(ImageSizeHorizontal, ImageSizeAutomatic);
-        style->set(ImageSizeVertical,   h);
+        style->set(ImageSizeHorizontal, SymbolicSize::Automatic);
+        style->set(ImageSizeVertical,   Length(h));
       }
       else {
-        style->set(ImageSizeHorizontal, w);
-        style->set(ImageSizeVertical,   ImageSizeAutomatic);
+        style->set(ImageSizeHorizontal, Length(w));
+        style->set(ImageSizeVertical,   SymbolicSize::Automatic);
       }
       
       user_has_changed_size(true);
@@ -847,125 +847,141 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
     self.margin_bottom = self.margin_top   = label_sizes[AxisIndexY].height() / 2;
   }
   
-  float w     = self.get_own_style(ImageSizeHorizontal, ImageSizeAutomatic);
-  float h     = self.get_own_style(ImageSizeVertical,   ImageSizeAutomatic);
+  Length w     = self.get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length h     = self.get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
   float ratio = self.get_own_style(AspectRatio, 1.0f); //0.61803f
   
   if(ratio <= 0)
     ratio = 1.0f; // 0.61803f;
-    
-  if(w <= 0 && h <= 0) {
+  
+  if(w == SymbolicSize::Automatic && h == SymbolicSize::Automatic) {
     if(optional_expand_width) {
-      w = *optional_expand_width;
+      w = Length(*optional_expand_width);
     }
     else {
       enum SyntaxPosition pos = find_syntax_position(self.parent(), self.index());
       
       switch(pos) {
-        case Alone:
-          w = 24 * self.em;
-          break;
-          
-        case InsideList:
-          w = 18 * self.em;
-          break;
-          
-        case InsideOther:
-          w = 12 * self.em;
-          break;
+        case Alone:       w = Length(24 * self.em); break; // Medium
+        case InsideList:  w = Length(18 * self.em); break; // Small
+        case InsideOther: w = Length(12 * self.em); break; // Tiny
       }
     }
   }
   
-  if(w > 0 && !any_frame) {
+  if(!w.is_positive()) {
+    switch(w.symblic_value()) {
+      case SymbolicSize::Automatic: break;
+      
+      // TODO: Small, Medium, Large, ...
+      
+      default:
+        w = SymbolicSize::Automatic;
+        break;
+    }
+  }
+  
+  if(!h.is_positive()) {
+    switch(h.symblic_value()) {
+      case SymbolicSize::Automatic: break;
+      
+      // TODO: Small, Medium, Large, ...
+      
+      default:
+        h = SymbolicSize::Automatic;
+        break;
+    }
+  }
+  
+  if(w.is_positive() && !any_frame) {
     self.margin_left = max(
                          label_sizes[AxisIndexX].width / 2,
                          calc_margin_width(
-                           w - self.margin_right,
+                           w.raw_value() - self.margin_right,
                            label_sizes[AxisIndexY].width + self.ticks[AxisIndexY]->extra_offset,
                            bounds.xmax - bounds.xmin,
                            bounds.xmax - ox));
   }
   
-  if(h > 0 && !any_frame) {
+  if(h.is_positive() && !any_frame) {
     self.margin_bottom = max(
                            label_sizes[AxisIndexY].height() / 2,
                            calc_margin_width(
-                             h - self.margin_top,
+                             h.raw_value() - self.margin_top,
                              label_sizes[AxisIndexX].height() + self.ticks[AxisIndexX]->extra_offset,
                              bounds.ymax - bounds.ymin,
                              bounds.ymax - oy));
   }
   
-  if(w <= 0) {
-    float content_h = h - self.margin_top - self.margin_bottom;
+  if(w == SymbolicSize::Automatic) {
+    float content_h = h.raw_value() - self.margin_top - self.margin_bottom;
     
-    w = content_h / ratio + /*self.margin_left +*/ self.margin_right;
+    w = Length(content_h / ratio + /*self.margin_left +*/ self.margin_right);
     
     if(!any_frame) {
       self.margin_left = max(
                            label_sizes[AxisIndexX].width / 2,
                            calc_margin_width(
-                             w - self.margin_right,
+                             w.raw_value() - self.margin_right,
                              label_sizes[AxisIndexY].width + self.ticks[AxisIndexY]->extra_offset,
                              bounds.xmax - bounds.xmin,
                              bounds.xmax - ox));
     }
   }
   
-  if(h <= 0) {
-    float content_w = w - self.margin_left - self.margin_right;
+  if(h == SymbolicSize::Automatic) {
+    float content_w = w.raw_value() - self.margin_left - self.margin_right;
     
-    h = content_w * ratio + self.margin_top/* + self.margin_bottom*/;
+    h = Length(content_w * ratio + self.margin_top/* + self.margin_bottom*/);
     
     if(!any_frame) {
       self.margin_bottom = max(
                              label_sizes[AxisIndexY].height() / 2,
                              calc_margin_width(
-                               h - self.margin_top,
+                               h.raw_value() - self.margin_top,
                                label_sizes[AxisIndexX].height() + self.ticks[AxisIndexX]->extra_offset,
                                bounds.ymax - bounds.ymin,
                                bounds.ymax - oy));
     }
   }
   
-  self._extents.width = w;
-  self._extents.ascent  = h / 2 + 0.25 * self.em;
-  self._extents.descent = h - self._extents.ascent;
+  self._extents.width = w.raw_value();
+  self._extents.ascent  = h.raw_value() / 2 + 0.25 * self.em;
+  self._extents.descent = h.raw_value() - self._extents.ascent;
   
   float ascent = calculate_ascent_for_baseline_position(self.em, self.get_style(BaselinePosition));
   self._extents.ascent = ascent;
-  self._extents.descent = h - ascent;
+  self._extents.descent = h.raw_value() - ascent;
   
-  self.ticks[AxisIndexLeft ]->start_y            = h - self.margin_bottom;
-  self.ticks[AxisIndexRight]->start_y            = h - self.margin_bottom;
-  self.ticks[AxisIndexY    ]->start_y            = h - self.margin_bottom;
+  self.ticks[AxisIndexLeft ]->start_y            = h.raw_value() - self.margin_bottom;
+  self.ticks[AxisIndexRight]->start_y            = h.raw_value() - self.margin_bottom;
+  self.ticks[AxisIndexY    ]->start_y            = h.raw_value() - self.margin_bottom;
   self.ticks[AxisIndexLeft ]->end_y              = self.margin_top;
   self.ticks[AxisIndexRight]->end_y              = self.margin_top;
   self.ticks[AxisIndexY    ]->end_y              = self.margin_top;
-  self.ticks[AxisIndexLeft ]->tick_length_factor = w - self.margin_left - self.margin_right;
-  self.ticks[AxisIndexRight]->tick_length_factor = w - self.margin_left - self.margin_right;
-  self.ticks[AxisIndexY    ]->tick_length_factor = w - self.margin_left - self.margin_right;
+  self.ticks[AxisIndexLeft ]->tick_length_factor = w.raw_value() - self.margin_left - self.margin_right;
+  self.ticks[AxisIndexRight]->tick_length_factor = w.raw_value() - self.margin_left - self.margin_right;
+  self.ticks[AxisIndexY    ]->tick_length_factor = w.raw_value() - self.margin_left - self.margin_right;
   
   self.ticks[AxisIndexLeft]->start_x = self.margin_left;
   self.ticks[AxisIndexLeft]->end_x   = self.margin_left;
   
-  self.ticks[AxisIndexRight]->start_x = w - self.margin_right;
-  self.ticks[AxisIndexRight]->end_x   = w - self.margin_right;
+  self.ticks[AxisIndexRight]->start_x = w.raw_value() - self.margin_right;
+  self.ticks[AxisIndexRight]->end_x   = w.raw_value() - self.margin_right;
   
   
   self.ticks[AxisIndexBottom]->start_x            = self.margin_left;
   self.ticks[AxisIndexTop   ]->start_x            = self.margin_left;
   self.ticks[AxisIndexX     ]->start_x            = self.margin_left;
-  self.ticks[AxisIndexBottom]->end_x              = w - self.margin_right;
-  self.ticks[AxisIndexTop   ]->end_x              = w - self.margin_right;
-  self.ticks[AxisIndexX     ]->end_x              = w - self.margin_right;
-  self.ticks[AxisIndexBottom]->tick_length_factor = h - self.margin_bottom - self.margin_top;
-  self.ticks[AxisIndexTop   ]->tick_length_factor = h - self.margin_bottom - self.margin_top;
-  self.ticks[AxisIndexX     ]->tick_length_factor = h - self.margin_bottom - self.margin_top;
+  self.ticks[AxisIndexBottom]->end_x              = w.raw_value() - self.margin_right;
+  self.ticks[AxisIndexTop   ]->end_x              = w.raw_value() - self.margin_right;
+  self.ticks[AxisIndexX     ]->end_x              = w.raw_value() - self.margin_right;
+  self.ticks[AxisIndexBottom]->tick_length_factor = h.raw_value() - self.margin_bottom - self.margin_top;
+  self.ticks[AxisIndexTop   ]->tick_length_factor = h.raw_value() - self.margin_bottom - self.margin_top;
+  self.ticks[AxisIndexX     ]->tick_length_factor = h.raw_value() - self.margin_bottom - self.margin_top;
   
-  self.ticks[AxisIndexBottom]->start_y = h - self.margin_bottom;
-  self.ticks[AxisIndexBottom]->end_y   = h - self.margin_bottom;
+  self.ticks[AxisIndexBottom]->start_y = h.raw_value() - self.margin_bottom;
+  self.ticks[AxisIndexBottom]->end_y   = h.raw_value() - self.margin_bottom;
   
   self.ticks[AxisIndexTop]->start_y = self.margin_top;
   self.ticks[AxisIndexTop]->end_y   = self.margin_top;
@@ -1000,7 +1016,7 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
     self.ticks[AxisIndexX]->axis_hidden(true);
   }
   
-  if(valid_ox && ty >= h - self.margin_bottom - self.ticks[AxisIndexX]->extra_offset / 2)
+  if(valid_ox && ty >= h.raw_value() - self.margin_bottom - self.ticks[AxisIndexX]->extra_offset / 2)
     self.ticks[AxisIndexX]->ignore_label_position = NAN;
     
   if(valid_oy && tx <= self.margin_left + self.ticks[AxisIndexY]->extra_offset / 2)

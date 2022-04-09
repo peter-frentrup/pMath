@@ -788,8 +788,9 @@
 		<DisplayString IncludeView="StyleOptionNameIsVolatile"></DisplayString>
 		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x10000">{(richmath::IntStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
 		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x20000">{(richmath::FloatStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x30000">{(richmath::StringStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x40000">{(richmath::ObjectStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x30000">{(richmath::LengthStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x40000">{(richmath::StringStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x50000">{(richmath::ObjectStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
 		<DisplayString IncludeView="StyleOptionNameBase">{(_value &amp; 0xFFFFFFF)}</DisplayString>
 		<DisplayString>{*this,view(StyleOptionNameBase)}{*this,view(StyleOptionNameIsDynamic)}{*this,view(StyleOptionNameIsVolatile)}</DisplayString>
 	</Type>

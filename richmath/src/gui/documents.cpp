@@ -750,15 +750,15 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
     if(!output_style)
       output_style = doc->stylesheet()->base;
     
-    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft);
-    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight);
+    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft).resolve(0, 0);
+    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight).resolve(0, 0);
     
     // TODO: frame margin is only applied if a frame is visible (or Background is given)
-    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft);
-    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight);
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft).resolve(0, 0);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight).resolve(0, 0);
     
-    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft);
-    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight);
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft).resolve(0, 0);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight).resolve(0, 0);
     
     page_width_points-= left + right;
     if(doc->get_own_style(ShowSectionBracket, true)) {

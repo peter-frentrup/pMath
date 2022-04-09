@@ -23,6 +23,7 @@ namespace richmath {
       Color  get_style(ColorStyleOptionName  n, Color  result = Color::None);
       int    get_style(IntStyleOptionName    n, int    result = 0);
       float  get_style(FloatStyleOptionName  n, float  result = 0.0);
+      Length get_style(LengthStyleOptionName n, Length result = Length(0.0));
       String get_style(StringStyleOptionName n, String result);
       Expr   get_style(ObjectStyleOptionName n, Expr   result);
       String get_style(StringStyleOptionName n);
@@ -35,6 +36,7 @@ namespace richmath {
       Color  get_own_style(ColorStyleOptionName  n, Color  fallback_result = Color::None);
       int    get_own_style(IntStyleOptionName    n, int    fallback_result = 0);
       float  get_own_style(FloatStyleOptionName  n, float  fallback_result = 0.0);
+      Length get_own_style(LengthStyleOptionName n, Length fallback_result = Length(0.0));
       String get_own_style(StringStyleOptionName n, String fallback_result);
       Expr   get_own_style(ObjectStyleOptionName n, Expr   fallback_result);
       String get_own_style(StringStyleOptionName n);
@@ -44,6 +46,7 @@ namespace richmath {
       ColorStyleOptionName  get_default_key(ColorStyleOptionName n) {  return (ColorStyleOptionName) get_default_key(StyleOptionName{n}); }
       IntStyleOptionName    get_default_key(IntStyleOptionName n) {    return (IntStyleOptionName)   get_default_key(StyleOptionName{n}); }
       FloatStyleOptionName  get_default_key(FloatStyleOptionName n) {  return (FloatStyleOptionName) get_default_key(StyleOptionName{n}); }
+      LengthStyleOptionName get_default_key(LengthStyleOptionName n) { return (LengthStyleOptionName)get_default_key(StyleOptionName{n}); }
       StringStyleOptionName get_default_key(StringStyleOptionName n) { return (StringStyleOptionName)get_default_key(StyleOptionName{n}); }
       ObjectStyleOptionName get_default_key(ObjectStyleOptionName n) { return (ObjectStyleOptionName)get_default_key(StyleOptionName{n}); }
       

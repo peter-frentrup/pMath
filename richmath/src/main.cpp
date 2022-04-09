@@ -477,25 +477,30 @@ static void init_stylesheet() {
   Stylesheet::Default->base->set(GridBoxRowSpacing,             0.5);
   Stylesheet::Default->base->set(Magnification,                 1.0);
   
-  Stylesheet::Default->base->set(SectionMarginLeft,             7.0);
-  Stylesheet::Default->base->set(SectionMarginRight,            7.0);
-  Stylesheet::Default->base->set(SectionMarginTop,              4.0);
-  Stylesheet::Default->base->set(SectionMarginBottom,           4.0);
+//  Stylesheet::Default->base->set(FrameMarginLeft,               SymbolicSize::Automatic);
+//  Stylesheet::Default->base->set(FrameMarginRight,              SymbolicSize::Automatic);
+//  Stylesheet::Default->base->set(FrameMarginTop,                SymbolicSize::Automatic);
+//  Stylesheet::Default->base->set(FrameMarginBottom,             SymbolicSize::Automatic);
 
-  Stylesheet::Default->base->set(SectionFrameLeft,              0.0);
-  Stylesheet::Default->base->set(SectionFrameRight,             0.0);
-  Stylesheet::Default->base->set(SectionFrameTop,               0.0);
-  Stylesheet::Default->base->set(SectionFrameBottom,            0.0);
+  Stylesheet::Default->base->set(SectionMarginLeft,             Length(7.0));
+  Stylesheet::Default->base->set(SectionMarginRight,            Length(7.0));
+  Stylesheet::Default->base->set(SectionMarginTop,              Length(4.0));
+  Stylesheet::Default->base->set(SectionMarginBottom,           Length(4.0));
+
+  Stylesheet::Default->base->set(SectionFrameLeft,              Length(0.0));
+  Stylesheet::Default->base->set(SectionFrameRight,             Length(0.0));
+  Stylesheet::Default->base->set(SectionFrameTop,               Length(0.0));
+  Stylesheet::Default->base->set(SectionFrameBottom,            Length(0.0));
   
-  Stylesheet::Default->base->set(SectionFrameLabelMarginLeft,   3.0);
-  Stylesheet::Default->base->set(SectionFrameLabelMarginRight,  3.0);
-  Stylesheet::Default->base->set(SectionFrameLabelMarginTop,    3.0);
-  Stylesheet::Default->base->set(SectionFrameLabelMarginBottom, 3.0);
+  Stylesheet::Default->base->set(SectionFrameLabelMarginLeft,   Length(3.0));
+  Stylesheet::Default->base->set(SectionFrameLabelMarginRight,  Length(3.0));
+  Stylesheet::Default->base->set(SectionFrameLabelMarginTop,    Length(3.0));
+  Stylesheet::Default->base->set(SectionFrameLabelMarginBottom, Length(3.0));
   
-  Stylesheet::Default->base->set(SectionFrameMarginLeft,        0.0);
-  Stylesheet::Default->base->set(SectionFrameMarginRight,       0.0);
-  Stylesheet::Default->base->set(SectionFrameMarginTop,         0.0);
-  Stylesheet::Default->base->set(SectionFrameMarginBottom,      0.0);
+  Stylesheet::Default->base->set(SectionFrameMarginLeft,        Length(0.0));
+  Stylesheet::Default->base->set(SectionFrameMarginRight,       Length(0.0));
+  Stylesheet::Default->base->set(SectionFrameMarginTop,         Length(0.0));
+  Stylesheet::Default->base->set(SectionFrameMarginBottom,      Length(0.0));
   
   Stylesheet::Default->base->set(SectionGroupPrecedence,        0);
   

@@ -169,8 +169,10 @@ void SectionList::selection_path(Canvas &canvas, int start, int end) {
       float r = sect->unfilled_width;
       if(right < r)
         right = r;
-        
-      float l = sect->get_style(SectionMarginLeft);
+      
+      Length ldim = sect->get_style(SectionMarginLeft);
+      if(!ldim.is_explicit()) { ldim = Length(0.0f); }
+      float l = ldim.raw_value();
       l -= sect->label_width();
       l -= 3; // label distance
       if(left > l)

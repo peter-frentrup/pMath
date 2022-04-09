@@ -21,7 +21,7 @@ namespace richmath {
     public:
       Impl(FrameBox &self) : self{self} {}
       
-      float get_margin_value(FloatStyleOptionName name, float em);
+      float get_margin_value(LengthStyleOptionName name, float em);
       
     private:
       FrameBox &self;
@@ -192,11 +192,16 @@ Expr FrameBox::to_pmath(BoxOutputFlags flags) {
 
 //{ class FarmeBox::Impl ...
 
-float FrameBox::Impl::get_margin_value(FloatStyleOptionName name, float em) {
-  float f = self.get_own_style(name, ImageSizeAutomatic);
+float FrameBox::Impl::get_margin_value(LengthStyleOptionName name, float em) {
+  Length dim = self.get_own_style(name, SymbolicSize::Automatic);
   
-  if(f >= 0.0f && f < 10000.0f)
-    return f;
+  if(dim.is_explicit())
+    return dim.raw_value();
+    
+  switch(dim.symblic_value()) {
+    case SymbolicSize::Automatic: break;
+    //case SymbolicSize::None:      return 0.0f;
+  }
   
   return (0.25f - BorderThicknessFactor) * em;
 }

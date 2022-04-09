@@ -341,7 +341,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
       if(last < 0)
         return true;
         
-      if(document()->section(last)->get_style(SectionMarginRight) < 12.0)
+      if(document()->section(last)->get_style(SectionMarginRight).resolve(0, 0) < 12.0)
         return false;
         
       return true;

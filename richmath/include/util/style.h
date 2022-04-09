@@ -3,6 +3,7 @@
 
 #include <eval/observable.h>
 #include <graphics/color.h>
+#include <graphics/symbolic-length.h>
 #include <util/hashtable.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
@@ -197,8 +198,6 @@ namespace richmath {
     WindowFrameThinCallout = 5,
   };
   
-  static const float ImageSizeAutomatic = -1.0f;
-  
   enum FloatStyleOptionName {
     FontSize = 0x20000, // greater than any IntStyleOptionName value
     
@@ -210,13 +209,20 @@ namespace richmath {
     GridBoxColumnSpacing,
     GridBoxRowSpacing,
     
-    ImageSizeCommon,
-    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
-    ImageSizeVertical,   // > 0 or ImageSizeAutomatic
-    
     InlineAutoCompletionHighlightOpacity, // 0 .. 1
     MatchingBracketHighlightOpacity,      // 0 .. 1
     OccurenceHighlightOpacity,            // 0 .. 1
+    
+    SectionGroupPrecedence,
+    
+    FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,
+  };
+  
+  enum LengthStyleOptionName {
+    // greater than any FloatStyleOptionName value:
+    ImageSizeCommon = 0x30000,
+    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
+    ImageSizeVertical,   // > 0 or ImageSizeAutomatic
     
     FrameMarginLeft,
     FrameMarginRight,
@@ -243,10 +249,6 @@ namespace richmath {
     SectionFrameLabelMarginTop,    // not yet used
     SectionFrameLabelMarginBottom, // not yet used
     
-    SectionGroupPrecedence,
-    
-    FillBoxDefaultFillBoxWeight = FillBoxWeight + (int)DefaultStyleOptionOffsets::FillBox,
-    
     FrameBoxDefaultFrameMarginLeft   = FrameMarginLeft   + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginRight  = FrameMarginRight  + (int)DefaultStyleOptionOffsets::FrameBox,
     FrameBoxDefaultFrameMarginTop    = FrameMarginTop    + (int)DefaultStyleOptionOffsets::FrameBox,
@@ -258,7 +260,7 @@ namespace richmath {
   };
   
   enum StringStyleOptionName {
-    BaseStyleName = 0x30000, // greater than any FloatStyleOptionName value
+    BaseStyleName = 0x40000, // greater than any LengthStyleOptionName value
     Method,
     
     LanguageCategory,
@@ -270,7 +272,7 @@ namespace richmath {
   };
   
   enum ObjectStyleOptionName {
-    Axes = 0x40000, // greater than any StringStyleOptionName value
+    Axes = 0x50000, // greater than any StringStyleOptionName value
     Ticks,
     Frame,
     FrameTicks,
@@ -408,6 +410,7 @@ namespace richmath {
       StyleOptionName(ColorStyleOptionName value) : _value((int)value) {}
       StyleOptionName(IntStyleOptionName value) : _value((int)value) {}
       StyleOptionName(FloatStyleOptionName value) : _value((int)value) {}
+      StyleOptionName(LengthStyleOptionName value) : _value((int)value) {}
       StyleOptionName(StringStyleOptionName value) : _value((int)value) {}
       StyleOptionName(ObjectStyleOptionName value) : _value((int)value) {}
       
@@ -419,6 +422,9 @@ namespace richmath {
       }
       explicit operator FloatStyleOptionName() const {
         return (FloatStyleOptionName)_value;
+      }
+      explicit operator LengthStyleOptionName() const {
+        return (LengthStyleOptionName)_value;
       }
       explicit operator StringStyleOptionName() const {
         return (StringStyleOptionName)_value;
@@ -510,24 +516,28 @@ namespace richmath {
       bool contains(ColorStyleOptionName  n) const { Color  _; return get(n, &_); }
       bool contains(IntStyleOptionName    n) const { int    _; return get(n, &_); }
       bool contains(FloatStyleOptionName  n) const { float  _; return get(n, &_); }
+      bool contains(LengthStyleOptionName n) const { Length _; return get(n, &_); }
       bool contains(StringStyleOptionName n) const { String _; return get(n, &_); }
       bool contains(ObjectStyleOptionName n) const { Expr   _; return get(n, &_); }
       
       virtual bool get(ColorStyleOptionName  n, Color  *value) const;
       virtual bool get(IntStyleOptionName    n, int    *value) const;
       virtual bool get(FloatStyleOptionName  n, float  *value) const;
+      virtual bool get(LengthStyleOptionName n, Length *value) const;
       virtual bool get(StringStyleOptionName n, String *value) const;
       virtual bool get(ObjectStyleOptionName n, Expr   *value) const;
       
       virtual void set(ColorStyleOptionName  n, Color  value);
       virtual void set(IntStyleOptionName    n, int    value);
       virtual void set(FloatStyleOptionName  n, float  value);
+      virtual void set(LengthStyleOptionName n, Length value);
       virtual void set(StringStyleOptionName n, String value);
       virtual void set(ObjectStyleOptionName n, Expr   value);
       
       virtual void remove(ColorStyleOptionName  n);
       virtual void remove(IntStyleOptionName    n);
       virtual void remove(FloatStyleOptionName  n);
+      virtual void remove(LengthStyleOptionName n);
       virtual void remove(StringStyleOptionName n);
       virtual void remove(ObjectStyleOptionName n);
       
@@ -576,6 +586,7 @@ namespace richmath {
       bool get(SharedPtr<Style> s, ColorStyleOptionName  n, Color  *value);
       bool get(SharedPtr<Style> s, IntStyleOptionName    n, int    *value);
       bool get(SharedPtr<Style> s, FloatStyleOptionName  n, float  *value);
+      bool get(SharedPtr<Style> s, LengthStyleOptionName n, Length *value);
       bool get(SharedPtr<Style> s, StringStyleOptionName n, String *value);
       bool get(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   *value);
       
@@ -586,6 +597,7 @@ namespace richmath {
       Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(std::move(s), n, &fallback_result); return fallback_result; }
       int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(std::move(s), n, &fallback_result); return fallback_result; }
       float  get_or_default(SharedPtr<Style> s, FloatStyleOptionName n,  float  fallback_result = 0.0f) {        get(std::move(s), n, &fallback_result); return fallback_result; }
+      Length get_or_default(SharedPtr<Style> s, LengthStyleOptionName n, Length fallback_result = Length(0.0)) { get(std::move(s), n, &fallback_result); return fallback_result; }
       String get_or_default(SharedPtr<Style> s, StringStyleOptionName n, String fallback_result) {               get(std::move(s), n, &fallback_result); return fallback_result; }
       Expr   get_or_default(SharedPtr<Style> s, ObjectStyleOptionName n, Expr   fallback_result) {               get(std::move(s), n, &fallback_result); return fallback_result; }
       String get_or_default(SharedPtr<Style> s, StringStyleOptionName n) { return get_or_default(std::move(s), n, String{}); }

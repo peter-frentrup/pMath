@@ -28,6 +28,7 @@ template<typename T>
 static bool StyledObject_get_FontSize(StyledObject &self, T *result);
 
 template<> bool StyledObject_get_FontSize(StyledObject &self, Color *result) { return false; }
+template<> bool StyledObject_get_FontSize(StyledObject &self, Length *result) { return false; } // TODO: change FontSize to a LengthStyleOptionName
 template<> bool StyledObject_get_FontSize(StyledObject &self, String *result) { return false; }
 
 template<typename T>
@@ -35,6 +36,7 @@ static bool StyledObject_get_ScriptLevel(StyledObject &self, T *result);
 
 template<> bool StyledObject_get_ScriptLevel(StyledObject &self, Color *result) { return false; }
 template<> bool StyledObject_get_ScriptLevel(StyledObject &self, float *result) { return false; }
+template<> bool StyledObject_get_ScriptLevel(StyledObject &self, Length *result) { return false; }
 template<> bool StyledObject_get_ScriptLevel(StyledObject &self, String *result) { return false; }
 
 template<class T>
@@ -108,6 +110,10 @@ float StyledObject::get_style(FloatStyleOptionName n, float result) {
   return Impl(*this).get_style(n, result);
 }
 
+Length StyledObject::get_style(LengthStyleOptionName n, Length result) {
+  return Impl(*this).get_style(n, result);
+}
+
 String StyledObject::get_style(StringStyleOptionName n, String result) {
   return Impl(*this).get_style(n, result);
 }
@@ -165,6 +171,19 @@ float StyledObject::get_own_style(FloatStyleOptionName n, float fallback_result)
   auto all = stylesheet();
   
   float result;
+  if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
+    return result;
+    
+  if(all && all->base && all->get(all->base, n, &result))
+    return result;
+    
+  return fallback_result;
+}
+
+Length StyledObject::get_own_style(LengthStyleOptionName n, Length fallback_result) {
+  auto all = stylesheet();
+  
+  Length result;
   if(Impl(*this).try_get_own_style_with_stylesheet(n, &result, all))
     return result;
     
