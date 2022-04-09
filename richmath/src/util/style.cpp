@@ -3076,6 +3076,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             Ticks,                            Symbol( richmath_System_Ticks));
     add(StyleType::Any,             Tooltip,                          Symbol( richmath_System_Tooltip));
     add(StyleType::Any,             TrackedSymbols,                   Symbol( richmath_System_TrackedSymbols));
+    add(StyleType::Any,             UnsavedVariables,                 Symbol( richmath_System_UnsavedVariables));
     
     add(StyleType::AnyFlatList, ContextMenu,               Symbol( richmath_System_ContextMenu));
     add(StyleType::AnyFlatList, DragDropContextMenu,       strings::DragDropContextMenu);
