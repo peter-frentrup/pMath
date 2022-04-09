@@ -54,27 +54,67 @@ Document({
              Editable -> False)), "ExampleDelimiter"), 
           Section("Assignments can be split into three stages:", 
            "ExampleText"), SectionGroup({
-            Section(
-             BoxData({
-               "{", {
-                {"Slider", "(", {"Dynamic", "(", {
-                   "x", ",", {
-                    "{", {
-                     {"Function", "(", {
-                       {"Print", "(", StringBox("\"pre\""), ")"}, ";", {
-                        "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", ",", {
-                      "Function", "(", {
-                       {"Print", "(", StringBox("\"post\""), ")"}, ";", {
-                        "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ")"}, 
-                ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+            Section(BoxData({"DynamicLocal", "(", {
+                {"{", {{"pre", "\[Assign]", "0"}, ",", {
+                   "post", "\[Assign]", "0"}}, "}"}, ",", {
+                 "{", {
+                  {"Slider", "(", {
+                    "\n", {"Dynamic", "(", {
+                      "x", ",", {
+                       "{", {{"Function", "(", {{"++", "pre"}, ";", {
+                           "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", 
+                        ",", {"\n", {"Function", "(", {
+                           {"++", "post"}, ";", {"x", "\[Assign]", "#"}}, 
+                          ")"}}}, "}"}}, ")"}}, ")"}, ",", {
+                   "Dynamic", "(", {"{", {"pre", ",", "post", ",", "x"}, "}"}, 
+                   ")"}}, "}"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(DynamicLocalBox({$Context`pre, $Context`post}, {
+                "{", {
+                 SliderBox(Dynamic($Context`x, {
+                    (++$Context`pre; $Context`x:= #1) &, Automatic, (
+                      ++$Context`post; $Context`x:= #1) &}), 0 .. 1), ",", 
+                 DynamicBox(ToBoxes({$Context`pre, $Context`post, 
+                    $Context`x}))}, "}"}, DynamicLocalValues :> {
+                 {OwnRules($Context`pre):= {HoldPattern($Context`pre) :> 0}}, {
+                  OwnRules($Context`post):= {
+                    HoldPattern($Context`post) :> 0}}})), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Split assignments in ", 
+             TemplateBox({"InputField"}, "ReferenceHyperlink"), " with ", 
+             TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"True"}, "ReferenceHyperlink"), ":"}), 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"DynamicLocal", "(", {
+                {"{", {{"pre", "\[Assign]", "0"}, ",", {
+                   "post", "\[Assign]", "0"}}, "}"}, ",", {
+                 "{", {
+                  {"InputField", "(", {
+                    {"\n", {"Dynamic", "(", {
+                       "s", ",", {
+                        "{", {{"Function", "(", {{"++", "pre"}, ";", {
+                            "s", "\[Assign]", "#"}}, ")"}, ",", "Automatic", 
+                         ",", {"\n", {"Function", "(", {
+                            {"++", "post"}, ";", {"s", "\[Assign]", "#"}}, 
+                           ")"}}}, "}"}}, ")"}}, ",", "String", ",", {
+                     "\n", {"ContinuousAction", "\[Rule]", "True"}}}, ")"}, 
+                  ",", {"Dynamic", "(", {"{", {"pre", ",", "post", ",", "s"}, 
+                    "}"}, ")"}}, "}"}}, ")"}), "Input", 
              SectionLabel -> "in [1]:"), 
-            Section(
-             BoxData({
-               "{", {
-                SliderBox(Dynamic($Context`x, {
-                   (Print("pre"); $Context`x:= #1) &, Automatic, (
-                     Print("post"); $Context`x:= #1) &}), 0 .. 1), ",", 
-                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+            Section(BoxData(DynamicLocalBox({$Context`pre, $Context`post}, {
+                "{", {
+                 InputFieldBox(Dynamic($Context`s, {
+                    (++$Context`pre; $Context`s:= #1) &, Automatic, (
+                      ++$Context`post; $Context`s:= #1) &}), String, {
+                    SliderBoxOptions, ContinuousAction} -> True, 
+                  SliderBoxOptions -> {ContinuousAction -> True}), ",", 
+                 DynamicBox(ToBoxes({$Context`pre, $Context`post, 
+                    $Context`s}))}, "}"}, DynamicLocalValues :> {
+                 {OwnRules($Context`pre):= {HoldPattern($Context`pre) :> 0}}, {
+                  OwnRules($Context`post):= {
+                    HoldPattern($Context`post) :> 0}}})), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, 1), SectionGroup({Section("Options", "ExampleSection"), 
         SectionGroup({Section("Deinitialization", "ExampleSubsection"), 

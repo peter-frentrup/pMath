@@ -34,6 +34,12 @@ extern pmath_symbol_t richmath_System_String;
 extern pmath_symbol_t richmath_System_ToString;
 extern pmath_symbol_t richmath_System_Try;
 
+enum class DynamicFunctions {
+  Continue,
+  Finish,
+  OnlyPost,
+};
+
 namespace richmath {
   class InputFieldBox::Impl {
     public:
@@ -41,7 +47,10 @@ namespace richmath {
       
       static ContainerType parse_appearance(Expr expr);
 
-      bool assign_dynamic();
+      bool assign_dynamic(DynamicFunctions funcs);
+    
+    private:
+      void finish_assign_dynamic(Expr value, DynamicFunctions funcs);
       
     private:
       InputFieldBox &self;
@@ -303,7 +312,7 @@ Expr InputFieldBox::to_pmath_symbol() {
 
 Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
   if(invalidated())
-    Impl(*this).assign_dynamic();
+    Impl(*this).assign_dynamic(DynamicFunctions::Continue); // TODO: DynamicFunctions::Finish ?
     
   Gather g;
   Gather::emit(dynamic.expr());
@@ -345,7 +354,7 @@ void InputFieldBox::dynamic_finished(Expr info, Expr result) {
 VolatileSelection InputFieldBox::dynamic_to_literal(int start, int end) {
   if(dynamic.is_dynamic()) {
     dynamic = Expr();
-    Impl(*this).assign_dynamic();
+    Impl(*this).assign_dynamic(DynamicFunctions::Finish);
   }
   
   return {this, start, end};
@@ -358,8 +367,8 @@ void InputFieldBox::invalidate() {
     return;
     
   invalidated(true);
-  if(get_own_style(ContinuousAction, false)) {
-    Impl(*this).assign_dynamic();
+  if(!must_update() && get_own_style(ContinuousAction, false)) {
+    Impl(*this).assign_dynamic(DynamicFunctions::Continue);
   }
 }
 
@@ -407,13 +416,21 @@ void InputFieldBox::on_enter() {
 void InputFieldBox::on_exit() {
   base::on_exit();
   
-  if(invalidated() && enabled())
-    Impl(*this).assign_dynamic();
+  if(invalidated() && enabled()) {
+    Impl(*this).assign_dynamic(DynamicFunctions::Finish);
+  }
+  else if(did_continuous_updates() && dynamic.has_pre_or_post_assignment()) {
+    Impl(*this).assign_dynamic(DynamicFunctions::OnlyPost);
+  }
 }
 
 void InputFieldBox::on_finish_editing() {
-  if(invalidated() && enabled())
-    Impl(*this).assign_dynamic();
+  if(invalidated() && enabled()) {
+    Impl(*this).assign_dynamic(DynamicFunctions::Finish);
+  }
+  else if(did_continuous_updates() && dynamic.has_pre_or_post_assignment()) {
+    Impl(*this).assign_dynamic(DynamicFunctions::OnlyPost);
+  }
     
   base::on_finish_editing();
 }
@@ -428,7 +445,7 @@ void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
       if(!invalidated())
         dynamic_updated();
         
-      if(!Impl(*this).assign_dynamic()) {
+      if(!Impl(*this).assign_dynamic(DynamicFunctions::Finish)) {
         if(auto doc = find_parent<Document>(false))
           doc->native()->beep();
           
@@ -500,11 +517,11 @@ ContainerType InputFieldBox::Impl::parse_appearance(Expr expr) {
   return ContainerType::InputField;
 }
 
-bool InputFieldBox::Impl::assign_dynamic() {
+bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
   self.invalidated(false);
   
   if(self.input_type == richmath_System_Expression || self.input_type[0] == richmath_System_Hold) { // Expression or Hold(Expression)
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable);
+    Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo);
     
     Expr value = Call(Symbol(richmath_System_Try),
                       Call(Symbol(richmath_System_MakeExpression), boxes),
@@ -524,7 +541,7 @@ bool InputFieldBox::Impl::assign_dynamic() {
       }
     }
     
-    self.dynamic.assign(value);
+    finish_assign_dynamic(std::move(value), funcs);
     return true;
   }
   
@@ -540,7 +557,7 @@ bool InputFieldBox::Impl::assign_dynamic() {
         value.expr_length() == 1                 &&
         value[1].is_number())
     {
-      self.dynamic.assign(value[1]);
+      finish_assign_dynamic(value[1], funcs);
       return true;
     }
     
@@ -548,9 +565,9 @@ bool InputFieldBox::Impl::assign_dynamic() {
   }
   
   if(self.input_type == richmath_System_RawBoxes) {
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::Default);
+    Expr boxes = self._content->to_pmath(BoxOutputFlags::WithDebugInfo);
     
-    self.dynamic.assign(boxes);
+    finish_assign_dynamic(std::move(boxes), funcs);
     return true;
   }
   
@@ -561,20 +578,41 @@ bool InputFieldBox::Impl::assign_dynamic() {
       Expr value = Call(Symbol(richmath_System_ToString),
                         Call(Symbol(richmath_System_RawBoxes), boxes));
                         
-      value = Evaluate(value); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly ?
+      value = Evaluate(std::move(value)); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly ?
       
-      self.dynamic.assign(value);
+      finish_assign_dynamic(std::move(value), funcs);
       if(!self.dynamic.is_dynamic())
         self.must_update(true);
     }
     else {
-      self.dynamic.assign(self._content->text());
+      finish_assign_dynamic(self._content->text(), funcs);
     }
     
     return true;
   }
   
   return false;
+}
+
+void InputFieldBox::Impl::finish_assign_dynamic(Expr value, DynamicFunctions funcs) {
+  bool need_start = !self.did_continuous_updates();
+  
+  switch(funcs) {
+    case DynamicFunctions::Continue:
+      self.did_continuous_updates(true);
+      self.dynamic.assign(std::move(value), need_start, true, false);
+      break;
+    
+    case DynamicFunctions::Finish:
+      self.did_continuous_updates(false);
+      self.dynamic.assign(std::move(value), need_start, true, true);
+      break;
+    
+    case DynamicFunctions::OnlyPost:
+      self.did_continuous_updates(false);
+      self.dynamic.assign(std::move(value), false, false, true);
+      break;
+  }
 }
 
 //} ... class InputFieldBox::Impl

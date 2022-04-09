@@ -64,15 +64,18 @@ namespace richmath {
       enum {
         InvalidatedBit = base::NumFlagsBits,
         MustUpdateBit,
+        DidContinuousUpdatesBit,
         
         NumFlagsBits
       };
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool invalidated() {       return get_flag(InvalidatedBit); }
-      void invalidated(bool value) { change_flag(InvalidatedBit, value); }
-      bool must_update() {       return get_flag(MustUpdateBit); }
-      void must_update(bool value) { change_flag(MustUpdateBit, value); }
+      bool invalidated() {                  return get_flag(InvalidatedBit); }
+      void invalidated(bool value) {            change_flag(InvalidatedBit, value); }
+      bool must_update() {                  return get_flag(MustUpdateBit); }
+      void must_update(bool value) {            change_flag(MustUpdateBit, value); }
+      bool did_continuous_updates() {       return get_flag(DidContinuousUpdatesBit); }
+      void did_continuous_updates(bool value) { change_flag(DidContinuousUpdatesBit, value); }
       
     protected:
       float frame_x;
