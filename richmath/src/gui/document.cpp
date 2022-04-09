@@ -44,6 +44,7 @@ extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_All;
 extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
+extern pmath_symbol_t richmath_System_DefaultNewSectionStyle;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_DocumentObject;
 extern pmath_symbol_t richmath_System_List;
@@ -1049,14 +1050,17 @@ void Document::on_key_press(uint32_t unichar) {
           AbstractSequenceSection *new_sect;
           SharedPtr<Style>         new_style = new Style();
           
-          Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(richmath_System_Automatic));
-          if(new_style_expr == richmath_System_Automatic) 
+          Expr new_style_expr = sect->get_style(DefaultReturnCreatedSectionStyle, Symbol(richmath_System_DefaultNewSectionStyle));
+          if(new_style_expr == richmath_System_DefaultNewSectionStyle) 
             new_style_expr = get_group_style(sect->index(), DefaultNewSectionStyle, Symbol(richmath_System_Automatic));
           if(new_style_expr == richmath_System_Automatic)
             new_style_expr = sect->get_own_style(BaseStyleName);
 
           new_style->add_pmath(std::move(new_style_expr));
-            
+          if(!new_style->contains(BaseStyleName)) {
+            new_style->set(BaseStyleName, sect->get_own_style(BaseStyleName));
+          }
+          
           String lang;
           if(context.stylesheet)
             lang = context.stylesheet->get_or_default(new_style, LanguageCategory);
@@ -4354,13 +4358,18 @@ bool Document::Impl::prepare_insert() {
       return false;
     }
     
-    Expr style_expr = self.get_group_style(
-                        self.context.selection.start - 1,
-                        DefaultNewSectionStyle,
-                        Symbol(richmath_System_DollarFailed));
-                        
-    SharedPtr<Style> section_style = new Style(style_expr);
+    int new_index = self.context.selection.start;
+    Expr style_expr = self.get_group_style(new_index - 1, DefaultNewSectionStyle, Symbol(richmath_System_Automatic));
+    if(style_expr == richmath_System_Automatic) {
+      if(new_index > 0)
+        style_expr = self.section(new_index - 1)->get_own_style(BaseStyleName);
+    }
     
+    SharedPtr<Style> section_style = new Style(style_expr);
+    if(new_index > 0 && !section_style->contains(BaseStyleName)) {
+      section_style->set(BaseStyleName, self.section(new_index - 1)->get_own_style(BaseStyleName));
+    }
+
     String lang;
     if(!section_style->get(LanguageCategory, &lang)) {
       if(auto all = self.stylesheet())
@@ -4374,8 +4383,8 @@ bool Document::Impl::prepare_insert() {
       sect = new MathSection(section_style);
       
     self.native()->on_editing();
-    close_popup_windows_on_parent_changed({&self, self.context.selection.start});
-    self.insert(self.context.selection.start, sect);
+    close_popup_windows_on_parent_changed({&self, new_index});
+    self.insert(new_index, sect);
     sect->after_insertion();
     self.move_horizontal(LogicalDirection::Forward, false);
     

@@ -1,0 +1,115 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("DefaultReturnCreatedSectionStyle", "ObjectName"), 
+      Section(BoxData(TemplateBox({"DefaultReturnCreatedSectionStyle"}, 
+         "UsageReference")), "Usage")}, All), 
+    SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"With the setting ", 
+           TemplateBox({"DefaultReturnCreatedSectionStyle"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"Automatic"}, "ReferenceHyperlink"), ", the ", 
+           TemplateBox({"BaseStyle"}, "ReferenceHyperlink"), 
+           " of the current section is used."}), "Notes"), 
+        Section(TextData({TemplateBox({"DefaultReturnCreatedSectionStyle"}, 
+            "ReferenceHyperlink"), " \[Rule] \"", StyleBox("style", "Arg"), 
+           "\" will use the named ", StyleBox("style", "Arg"), " instead."}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"DefaultReturnCreatedSectionStyle"}, 
+            "ReferenceHyperlink"), " \[Rule] ", 
+           TemplateBox({"DefaultNewSectionStyle"}, "ReferenceHyperlink"), 
+           " defers the style selection to the setting of ", 
+           TemplateBox({"DefaultNewSectionStyle"}, "ReferenceHyperlink"), 
+           "."}), "Notes"), 
+        Section(TextData({TemplateBox({"DefaultReturnCreatedSectionStyle"}, 
+            "ReferenceHyperlink"), 
+           " is often set on the level of stylesheets for styles of sections \
+           rather than for indicidual sections."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Pressing ", TemplateBox({"Enter"}, "KeyEvent"), 
+           " in the printed section will create a new section:"}), 
+         "ExampleText"), 
+        Section(BoxData({"SectionPrint", "(", {
+            "Section", "(", {StringBox("\"Press ", StyleBox("enter", "TI"), 
+              " here:\""), ",", StringBox("\"Text\""), ",", {
+              "DefaultReturnCreatedSectionStyle", "\[Rule]", "Automatic"}, 
+             ",", {"ReturnCreatesNewSection", "\[Rule]", "True"}}, ")"}, 
+           ")"}), "Input", SectionLabel -> "in [1]:"), 
+        Section(TextData({"Press ", StyleBox("enter", "TI"), " here:"}), 
+         "Text", DefaultReturnCreatedSectionStyle -> Automatic, 
+         ReturnCreatesNewSection -> True, SectionGenerated -> True), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Use a named ", StyleBox("style", "Arg"), ":"}), 
+           "ExampleText"), 
+          Section(BoxData({"SectionPrint", "(", {
+              "Section", "(", {StringBox("\"Press ", StyleBox("enter", "TI"), 
+                " here for a heading:\""), ",", StringBox("\"Text\""), ",", {
+                "DefaultReturnCreatedSectionStyle", "\[Rule]", 
+                StringBox("\"Section\"")}, ",", {
+                "ReturnCreatesNewSection", "\[Rule]", "True"}}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(TextData({"Press ", StyleBox("enter", "TI"), 
+             " here for a heading:"}), "Text", 
+           DefaultReturnCreatedSectionStyle -> "Section", 
+           ReturnCreatesNewSection -> True, SectionGenerated -> True)}, All)}, 
+       All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Set various styles of the newly created section:", 
+         "ExampleText"), 
+        Section(BoxData({"SectionPrint", "(", {
+            "Section", "(", {StringBox("\"Press ", StyleBox("enter", "TI"), 
+              " here for ", StyleBox({"red", " ", "text"}, 
+               FontColor -> RGBColor(1, 0, 0)), ":\""), ",", 
+             StringBox("\"Text\""), ",", {"DefaultReturnCreatedSectionStyle", 
+              "\[Rule]", {"{", {{"FontSize", "\[Rule]", "24"}, ",", {
+                 "FontSlant", "\[Rule]", "Italic"}, ",", {
+                 "FontColor", "\[Rule]", "Red"}}, "}"}}, ",", {
+              "ReturnCreatesNewSection", "\[Rule]", "True"}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [1]:"), 
+        Section(TextData({"Press ", StyleBox("enter", "TI"), " here for ", 
+           StyleBox("red text", FontColor -> RGBColor(1, 0, 0)), ":"}), 
+         "Text", DefaultReturnCreatedSectionStyle -> {
+           FontSize -> 24, FontSlant -> Italic, 
+           FontColor -> RGBColor(1, 0, 0)}, ReturnCreatesNewSection -> True)}, 
+       1), SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(TextData({"Defer to the current ", 
+           TemplateBox({"DefaultNewSectionStyle"}, "ReferenceHyperlink"), 
+           " setting:", StyleBox("", "ControlKeyEvent")}), "ExampleText"), 
+        Section(BoxData({"SectionPrint", "(", {
+            "Section", "(", {StringBox("\"Press ", StyleBox("enter", "TI"), 
+              " here:\""), ",", StringBox("\"Text\""), ",", {
+              "DefaultReturnCreatedSectionStyle", "\[Rule]", 
+              "DefaultNewSectionStyle"}, ",", {
+              "ReturnCreatesNewSection", "\[Rule]", "True"}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [1]:"), 
+        Section(TextData({"Press ", StyleBox("enter", "TI"), " here:"}), 
+         "Text", DefaultReturnCreatedSectionStyle -> DefaultNewSectionStyle, 
+         ReturnCreatesNewSection -> True, SectionGenerated -> True)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({TemplateBox({"DefaultReturnCreatedSectionStyle"}, 
+            "ReferenceHyperlink"), " is only considered if ", 
+           TemplateBox({"ReturnCreatesNewSection"}, "ReferenceHyperlink"), 
+           " is ", TemplateBox({"True"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), 
+        Section(BoxData({"SectionPrint", "(", {
+            "Section", "(", {StringBox("\"Pressing ", StyleBox("enter", "TI"), 
+              " will not help:\""), ",", StringBox("\"Text\""), ",", {
+              "DefaultReturnCreatedSectionStyle", "\[Rule]", {
+               "{", {"FontColor", "\[Rule]", "Red"}, "}"}}, ",", {
+              "ReturnCreatesNewSection", "\[Rule]", "False"}}, ")"}, ")"}), 
+         "Input", SectionLabel -> "in [1]:"), 
+        Section(TextData({"Pressing ", StyleBox("enter", "TI"), 
+           " will not help:"}), "Text", DefaultReturnCreatedSectionStyle -> {
+           FontColor -> RGBColor(1, 0, 0)}, ReturnCreatesNewSection -> False, 
+         SectionGenerated -> True)}, 1), Section("", "SectionFooterSpacer")}, 
+     All), SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"ReturnCreatesNewSection"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"DefaultNewSectionStyle"}, "ReferenceHyperlink")}), 
+       "SeeAlso")}, All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", 
+ Visible -> True)
