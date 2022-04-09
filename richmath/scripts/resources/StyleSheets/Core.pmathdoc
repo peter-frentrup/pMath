@@ -8,7 +8,7 @@ Document({
            0.33300000000000002`)}, "CommentStyle" -> {
          FontColor -> RGBColor(0, 0.502`, 0)}, 
        DefaultNewSectionStyle -> "Input", DefaultReturnCreatedSectionStyle -> 
-        Automatic, "ExcessOrMissingArgumentStyle" -> {
+        DefaultNewSectionStyle, "ExcessOrMissingArgumentStyle" -> {
          FontColor -> RGBColor(1, 0.20000000000000001`, 
            0.20000000000000001`)}, FontFeatures -> {"ssty" -> Automatic}, 
        "FunctionLocalVariableStyle" -> {
@@ -73,7 +73,8 @@ Document({
        AutoSpacing -> True, Evaluatable -> True, FontSize -> 12, 
        LanguageCategory -> "pMath", MenuCommandKey -> "9", 
        MenuSortingValue -> 1500, SectionMargins -> {56, Inherited, 10, 5}, 
-       SectionLabel -> "in:", ShowAutoStyles -> True), 
+       SectionLabel -> "in:", ShowAutoStyles -> True, 
+       ShowStringCharacters -> True), 
       SectionGroup({
         Section(StyleData("Code"), 
          Background -> GrayLevel(0.80400000000000005`), BaseStyle -> "Input", 
@@ -113,11 +114,11 @@ Document({
        FontFamily -> {"Georgia", "Constantia", "Times New Roman", "serif"}, 
        LanguageCategory -> "NaturalLanguage", MenuCommandKey -> "7", 
        MenuSortingValue -> 1400, ScriptLevel -> 1, 
-       SectionMargins -> {50, Inherited, 7, 7}, 
-       ShowStringCharacters -> False), Section(StyleData("HeadingText"), 
-       BaseStyle -> "Text", FontFamily -> {
-         "Calibri", "Verdana", "Arial", "sans-serif"}), 
+       SectionMargins -> {50, Inherited, 7, 7}), 
+      Section(StyleData("HeadingText"), BaseStyle -> "Text", 
+       FontFamily -> {"Calibri", "Verdana", "Arial", "sans-serif"}), 
       Section(StyleData("Item"), BaseStyle -> "Text", 
+       DefaultReturnCreatedSectionStyle -> Automatic, 
        MenuSortingValue -> 1600, ReturnCreatesNewSection -> True, 
        SectionDingbat -> "\[Bullet]", 
        SectionMargins -> {60, Inherited, 4, 4}), 

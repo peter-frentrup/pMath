@@ -5,7 +5,7 @@ Document({
     Section(StyleData(StyleDefinitions -> "Stylesheets.pmathdoc")), 
     SectionGroup({Section(BoxData({"Document", " ", "styles"}), "Section"), 
       Section(StyleData("Document"), DefaultNewSectionStyle -> "Input", 
-       DefaultReturnCreatedSectionStyle -> Automatic, 
+       DefaultReturnCreatedSectionStyle -> DefaultNewSectionStyle, 
        DockedSections :> {
          "TopGlass" -> {
            Section(

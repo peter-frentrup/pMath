@@ -8,7 +8,7 @@ Document({
         Section(StyleData("Document"), 
          Background -> GrayLevel(0.94999999999999996`), 
          DefaultNewSectionStyle -> "Input", 
-         DefaultReturnCreatedSectionStyle -> Automatic, 
+         DefaultReturnCreatedSectionStyle -> DefaultNewSectionStyle, 
          DockedSections :> {
            "TopGlass" -> {
              Section({DynamicBox(ToBoxes(CurrentValue("DocumentFileName"))), 

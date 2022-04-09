@@ -55,7 +55,7 @@ Document({
           Section(StyleData("Notes"), BaseStyle -> "Text", 
            DefaultNewSectionStyle -> "Notes", MenuSortingValue -> 1600, 
            ReturnCreatesNewSection -> True, 
-           SectionDingbat :> StyleBox("\"\[U+25AA]\"", 
+           SectionDingbat :> StyleBox("\[U+25AA]", 
              FontColor -> GrayLevel(0.5`)), 
            SectionMargins -> {35, Inherited, 5, 5}, 
            ShowSectionBracket -> Automatic), 
@@ -131,6 +131,7 @@ Document({
                         FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
                           False)))) &), BaseStyle -> "Text", 
                     ButtonFrame -> "Frameless"), "\""), 
+                  ShowStringCharacters -> False, 
                   FontColor -> 
                    Dynamic(
                     With({
@@ -149,7 +150,7 @@ Document({
             Section(StyleData("NamedCharacterHyperlink"), 
              TemplateBoxOptions -> {
                DisplayFunction -> (
-                 StyleBox(StringBox("\"\\\\[", #1, "]\""), 
+                 StyleBox(StringBox({"\"\\\\[", #1, "]\""}), 
                   FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
                   ShowStringCharacters -> False, 
                   ShowAutoStyles -> False) &)})}, All), 
