@@ -5,10 +5,12 @@ Document({
     SectionGroup({Section("Hyperlinks", "Subsubsection"), 
       Section(
        BoxData(
-        FillBox(ButtonBox(TemplateBox({"Reference"}, "ReferenceHyperlink"), 
-          BaseStyle -> "Paste", 
-          ButtonData :> TemplateBox({"\[SelectionPlaceholder]"}, 
-            "ReferenceHyperlink")))), "Text"), 
+        FillBox(TooltipBox(
+          ButtonBox(TemplateBox({"Reference"}, "ReferenceHyperlink"), 
+           BaseStyle -> "Paste", 
+           ButtonData :> TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ReferenceHyperlink")), 
+          "\[AliasIndicator]ref\[AliasIndicator]"))), "Text"), 
       Section(
        BoxData(FillBox(ButtonBox(TemplateBox({"NamedCharacter"}, 
            "NamedCharacterHyperlink"), BaseStyle -> "Paste", 
@@ -17,34 +19,39 @@ Document({
     SectionGroup({Section("Keyboard", "Subsubsection"), 
       Section(
        BoxData({
-         FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-            "KeyEvent"), BaseStyle -> "Paste")), 
+         FillBox(TooltipBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+             "KeyEvent"), BaseStyle -> "Paste"), 
+           "\[AliasIndicator]key\[AliasIndicator]")), 
          FillBox(ButtonBox(TemplateBox({}, "AliasDelimiterKeyEvent"), 
            BaseStyle -> "Paste"))}), "Text"), 
       Section(
-       BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-           "ControlKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
+       BoxData(
+        FillBox(TooltipBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+            "ControlKeyEvent"), BaseStyle -> "Paste"), 
+          "\[AliasIndicator]keyctrl\[AliasIndicator]"))), "Text"), 
       Section(
-       BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-           "ShiftKeyEvent"), BaseStyle -> "Paste"))), "Text"), 
+       BoxData(
+        FillBox(TooltipBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+            "ShiftKeyEvent"), BaseStyle -> "Paste"), 
+          "\[AliasIndicator]keyshift\[AliasIndicator]"))), "Text"), 
       Section(
-       BoxData(FillBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
-           "ControlShiftKeyEvent"), BaseStyle -> "Paste"))), "Text")}, All), 
+       BoxData(
+        FillBox(TooltipBox(ButtonBox(TemplateBox({"\[SelectionPlaceholder]"}, 
+            "ControlShiftKeyEvent"), BaseStyle -> "Paste"), 
+          "\[AliasIndicator]keyctrlshift\[AliasIndicator]"))), "Text")}, All), 
     SectionGroup({Section("Other", "Subsubsection"), 
-      Section(BoxData(FillBox(ButtonBox(StringBox("\"Math in Text\""), 
-          ButtonFunction -> (
-            DocumentApply(SelectedDocument(), 
-             "\({\"\[SelectionPlaceholder]\"}\)") &)))), "Text"), 
       Section(
        BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Italic\""), "TI"), 
           ButtonFunction -> (
             DocumentApply(SelectedDocument(), 
              StyleBox("\[SelectionPlaceholder]", "TI")) &)))), "Text"), 
       Section(
-       BoxData(FillBox(ButtonBox(StringBox("\"", StyleBox("Arg", "Arg"), 
-           " Style\""), ButtonFunction -> (
-            DocumentApply(SelectedDocument(), 
-             StyleBox("\[SelectionPlaceholder]", "Arg")) &)))), "Text"), 
+       BoxData(
+        FillBox(TooltipBox(ButtonBox(StringBox("\"", StyleBox("Arg", "Arg"), 
+            " Style\""), ButtonFunction -> (
+             DocumentApply(SelectedDocument(), 
+              StyleBox("\[SelectionPlaceholder]", "Arg")) &)), 
+          "\[AliasIndicator]arg\[AliasIndicator]"))), "Text"), 
       Section(
        BoxData(FillBox(ButtonBox(StyleBox({"Small", " ", "Caps"}, 
            FontFeatures -> {"smcp"}), ButtonFunction -> (
@@ -66,8 +73,15 @@ Document({
        BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Example Subsection\""), 
            "ExampleSubsection"), BaseStyle -> "Paste", 
           ButtonData :> SectionGroup({Section("XXX", "ExampleSubsection"), 
-             Section("XXX", "ExampleText")}, All)))), "Text")}, All)}, All)}, 
- Saveable -> False, Selectable -> False, 
+             Section("XXX", "ExampleText")}, All)))), "Text"), 
+      Section(
+       BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"See Also\""), 
+           "SeeAlsoSection"), BaseStyle -> "Paste", 
+          ButtonData :> SectionGroup({Section("See Also", "SeeAlsoSection"), 
+             Section(TextData({TemplateBox({"XXX"}, "ReferenceHyperlink"), 
+                "\[NonBreakingSpace]\[Dot] ", 
+                TemplateBox({"XXX"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+            All)))), "Text")}, All)}, All)}, Saveable -> False, 
  StyleDefinitions :> 
   Document({
     SectionGroup({
@@ -97,7 +111,7 @@ Document({
              DisplayFunction -> (
                StyleBox(StringBox({"\"", #1, "\""}), "Text", 
                 FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-                ShowAutoStyles -> False) &)}), 
+                ShowAutoStyles -> False, ShowStringCharacters -> False) &)}), 
           Section(StyleData("NamedCharacterHyperlink"), 
            TemplateBoxOptions -> {
              DisplayFunction -> (

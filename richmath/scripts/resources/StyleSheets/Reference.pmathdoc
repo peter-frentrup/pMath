@@ -7,7 +7,17 @@ Document({
        "This file contains default style definitions to apply to documentation \
        pages.", "Text"), SectionGroup({Section("Document styles", "Section"), 
         Section(StyleData("Document"), Background -> GrayLevel(1), 
-         FontColor -> GrayLevel(0), Saveable -> False)}, All), 
+         FontColor -> GrayLevel(0), 
+         InputAliases :> {
+           "ref" -> TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ReferenceHyperlink"), 
+           "arg" -> StyleBox("\[SelectionPlaceholder]", "Arg"), 
+           "key" -> TemplateBox({"\[SelectionPlaceholder]"}, "KeyEvent"), 
+           "keyctrl" -> TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ControlKeyEvent"), "keyshift" -> 
+            TemplateBox({"\[SelectionPlaceholder]"}, "ShiftKeyEvent"), 
+           "keyctrlshift" -> TemplateBox({"\[SelectionPlaceholder]"}, 
+             "ControlShiftKeyEvent"), Inherited}, Saveable -> False)}, All), 
       SectionGroup({Section("Section styles", "Section"), 
         Section(StyleData("Input"), EvaluationContext -> SectionGroup), 
         Section(StyleData("Output"), SectionLabel -> "out:"), 
