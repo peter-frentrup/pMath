@@ -63,6 +63,9 @@ namespace richmath {
     public:
       virtual SharedPtr<Style> own_style() final override { return style; };
       
+      virtual Expr update_cause() final override;
+      virtual void update_cause(Expr cause) final override;
+      
       virtual Expr allowed_options() = 0;
   };
   

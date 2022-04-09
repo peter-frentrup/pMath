@@ -215,6 +215,28 @@ void StyledObject::reset_style() {
 
 //} ... class StyledObject
 
+//{ class ActiveStyledObject ...
+
+Expr ActiveStyledObject::update_cause() {
+  if(!style)
+    return Expr();
+  
+  return get_own_style(InternalUpdateCause);
+}
+
+void ActiveStyledObject::update_cause(Expr cause) {
+  if(!style) {
+    if(!cause)
+      return;
+    
+    style = new Style;
+  }
+  
+  style->set(InternalUpdateCause, std::move(cause));
+}
+
+//} ... class ActiveStyledObject
+
 //{ class FrontEndSession ...
 
 FrontEndSession::FrontEndSession(StyledObject *owner)

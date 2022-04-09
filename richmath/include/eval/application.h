@@ -105,6 +105,7 @@ namespace richmath {
       static String stylesheet_path_base; // includes trailing (back)slash
       static Expr   palette_search_path;
       static Expr   session_id;
+      static pmath_atomic_uint8_t track_dynamic_update_causes;
       
       static Hashtable<Expr, Expr> eval_cache;
       

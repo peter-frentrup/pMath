@@ -289,6 +289,7 @@ String Application::application_directory;
 String Application::stylesheet_path_base;
 Expr Application::palette_search_path;
 Expr Application::session_id;
+pmath_atomic_uint8_t Application::track_dynamic_update_causes = PMATH_ATOMIC_STATIC_INIT;
 
 Hashtable<Expr, Expr> Application::eval_cache;
 

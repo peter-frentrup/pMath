@@ -46,7 +46,10 @@ namespace richmath {
       static Expr            get_AvailableMathFonts(FrontEndObject *obj, Expr item);
       static Expr            get_ControlFont_data(FrontEndObject *obj, Expr item);
       static Expr            get_CurrentValueProviders(FrontEndObject *obj, Expr item);
+      static Expr            get_DebugTrackDynamicUpdateCauses(FrontEndObject *obj, Expr item);
+      static bool            put_DebugTrackDynamicUpdateCauses(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr            get_DocumentScreenDpi(FrontEndObject *obj, Expr item);
+      static Expr            get_DynamicUpdateCauseLocation(FrontEndObject *obj, Expr item);
       static Expr            get_MouseOver(FrontEndObject *obj, Expr item);
       static Expr            get_SectionGroupOpen(FrontEndObject *obj, Expr item);
       static bool            put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
@@ -88,28 +91,31 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr);
 //{ class CurrentValue ...
 
 void CurrentValue::init() {
-  register_provider(strings::AttachmentSourceBox,         Impl::get_AttachmentSourceBox);
-  register_provider(String("AvailableMathFonts"),         Impl::get_AvailableMathFonts);
-  register_provider(strings::MouseOver,                   Impl::get_MouseOver);
-  register_provider(strings::MouseOverBox,                Document::get_current_value_of_MouseOverBox);
-  register_provider(strings::DocumentScreenDpi,           Impl::get_DocumentScreenDpi);
-  register_provider(strings::ControlsFontFamily,          Impl::get_ControlFont_data);
-  register_provider(strings::ControlsFontSlant,           Impl::get_ControlFont_data);
-  register_provider(strings::ControlsFontWeight,          Impl::get_ControlFont_data);
-  register_provider(strings::ControlsFontSize,            Impl::get_ControlFont_data);
-  register_provider(strings::CurrentValueProviders,       Impl::get_CurrentValueProviders);
-  register_provider(Symbol(richmath_System_Section),      Impl::get_parent_box<Section>);
-  register_provider(strings::SectionGroupOpen,            Impl::get_SectionGroupOpen,
-                                                          Impl::put_SectionGroupOpen);
-  register_provider(Symbol(richmath_System_Selectable),   Impl::get_Selectable,
-                                                          Style::put_current_style_value);
-  register_provider(strings::SelectedMenuCommand,         Impl::get_SelectedMenuCommand);
-  register_provider(strings::StyleDefinitionsOwner,       Impl::get_StyleDefinitionsOwner_object);
-  register_provider(Symbol(richmath_System_TemplateBox),  TemplateBox::get_current_value_of_TemplateBox);
-  register_provider(strings::TemplateSlotCount,           TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
-  register_provider(strings::HeldTemplateSlot,            TemplateBoxSlot::get_current_value_of_HeldTemplateSlot);
-  register_provider(Symbol(richmath_System_TemplateSlot), TemplateBoxSlot::get_current_value_of_TemplateSlot,
-                                                          TemplateBoxSlot::put_current_value_of_TemplateSlot);
+  register_provider(strings::AttachmentSourceBox,            Impl::get_AttachmentSourceBox);
+  register_provider(String("AvailableMathFonts"),            Impl::get_AvailableMathFonts);
+  register_provider(strings::ControlsFontFamily,             Impl::get_ControlFont_data);
+  register_provider(strings::ControlsFontSlant,              Impl::get_ControlFont_data);
+  register_provider(strings::ControlsFontWeight,             Impl::get_ControlFont_data);
+  register_provider(strings::ControlsFontSize,               Impl::get_ControlFont_data);
+  register_provider(strings::CurrentValueProviders,          Impl::get_CurrentValueProviders);
+  register_provider(String("DebugTrackDynamicUpdateCauses"), Impl::get_DebugTrackDynamicUpdateCauses,
+                                                             Impl::put_DebugTrackDynamicUpdateCauses);
+  register_provider(strings::DocumentScreenDpi,              Impl::get_DocumentScreenDpi);
+  register_provider(String("DynamicUpdateCauseLocation"),    Impl::get_DynamicUpdateCauseLocation);
+  register_provider(strings::MouseOver,                      Impl::get_MouseOver);
+  register_provider(strings::MouseOverBox,                   Document::get_current_value_of_MouseOverBox);
+  register_provider(Symbol(richmath_System_Section),         Impl::get_parent_box<Section>);
+  register_provider(strings::SectionGroupOpen,               Impl::get_SectionGroupOpen,
+                                                             Impl::put_SectionGroupOpen);
+  register_provider(Symbol(richmath_System_Selectable),      Impl::get_Selectable,
+                                                             Style::put_current_style_value);
+  register_provider(strings::SelectedMenuCommand,            Impl::get_SelectedMenuCommand);
+  register_provider(strings::StyleDefinitionsOwner,          Impl::get_StyleDefinitionsOwner_object);
+  register_provider(Symbol(richmath_System_TemplateBox),     TemplateBox::get_current_value_of_TemplateBox);
+  register_provider(strings::TemplateSlotCount,              TemplateBoxSlot::get_current_value_of_TemplateSlotCount);
+  register_provider(strings::HeldTemplateSlot,               TemplateBoxSlot::get_current_value_of_HeldTemplateSlot);
+  register_provider(Symbol(richmath_System_TemplateSlot),    TemplateBoxSlot::get_current_value_of_TemplateSlot,
+                                                             TemplateBoxSlot::put_current_value_of_TemplateSlot);
 }
 
 void CurrentValue::done() {
@@ -279,6 +285,54 @@ Expr CurrentValueImpl::get_CurrentValueProviders(FrontEndObject *obj, Expr item)
     Gather::emit(std::move(key));
   
   return g.end();
+}
+
+static Observable DebugTrackDynamicUpdateCauses_current_value_observer;
+
+Expr CurrentValueImpl::get_DebugTrackDynamicUpdateCauses(FrontEndObject *obj, Expr item) {
+  DebugTrackDynamicUpdateCauses_current_value_observer.register_observer();
+  return Symbol(
+           pmath_atomic_read_uint8_aquire(&Application::track_dynamic_update_causes) 
+           ? richmath_System_True 
+           : richmath_System_False);
+}
+
+bool CurrentValueImpl::put_DebugTrackDynamicUpdateCauses(FrontEndObject *obj, Expr item, Expr rhs) {
+  if(obj != Application::front_end_session)
+    return false;
+  
+  auto old_value = pmath_atomic_read_uint8_aquire(&Application::track_dynamic_update_causes);
+  if(rhs == richmath_System_True) {
+    pmath_atomic_write_uint8_release(&Application::track_dynamic_update_causes, true);
+    
+    if(!old_value)
+      DebugTrackDynamicUpdateCauses_current_value_observer.notify_all();
+    
+    return true;
+  }
+  if(rhs == richmath_System_False) {
+    pmath_atomic_write_uint8_release(&Application::track_dynamic_update_causes, false);
+    
+    if(old_value)
+      DebugTrackDynamicUpdateCauses_current_value_observer.notify_all();
+    
+    return true;
+  }
+  return false;
+}
+
+Expr CurrentValueImpl::get_DynamicUpdateCauseLocation(FrontEndObject *obj, Expr item) {
+  if(!obj)
+    return Symbol(richmath_System_DollarFailed);
+  
+  if(!pmath_atomic_read_uint8_aquire(&Application::track_dynamic_update_causes))
+    return Symbol(richmath_System_DollarFailed);
+  
+  if(Expr cause = obj->update_cause()) {
+    return cause;
+  }
+  
+  return Symbol(richmath_System_DollarFailed);
 }
 
 Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {

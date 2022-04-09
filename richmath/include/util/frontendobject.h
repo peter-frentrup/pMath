@@ -102,6 +102,9 @@ namespace richmath {
       
       void swap_id(FrontEndObject *other);
       
+      virtual Expr update_cause() { return Expr(); }
+      virtual void update_cause(Expr cause) {}
+      
       /// Notifies that a Dynamic value changed which this object is tracking.
       virtual void dynamic_updated() = 0;
     

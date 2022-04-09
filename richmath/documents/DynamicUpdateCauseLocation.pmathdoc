@@ -1,0 +1,77 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("DynamicUpdateCauseLocation", "Title"), 
+    Section(
+     "Inside a Dynamic, CurrentValue(\"DynamicUpdateCauseLocation\") gives the \
+     stack trace of the evaluation that caused the Dynamic box to need update, \
+     if available.\nThis is only recorded if \
+     CurrentValue(\"DebugTrackDynamicUpdateCauses\") is True.", "Text"), 
+    Section("Other things that would help debugging Dynamic:", "Text"), 
+    Section("Get the list of symbols that a given front-end object tracks.", 
+     "Item"), 
+    Section("Get a list of front-end objects that track a given symbol.", 
+     "Item"), 
+    Section("Get the symbol (if any) that caused the current dynamic update.", 
+     "Item"), SectionGroup({
+      Section(
+       BoxData({
+         {"Function", "(", {
+           "Row", "(", {
+            {"{", {
+              {"ToggleSwitch", "(", {"Dynamic", "(", {
+                 "CurrentValue", "(", {"$FrontEndSession", ",", "#"}, ")"}, 
+                ")"}, ")"}, ",", "#"}, "}"}, ",", StringBox("\" \"")}, ")"}, 
+          ")"}, "@", StringBox("\"DebugTrackDynamicUpdateCauses\"")}), 
+       "Input"), 
+      Section(
+       BoxData(TemplateBox({
+          " ", " ", TemplateBox({
+            Dynamic(CurrentValue($FrontEndSession, 
+              "DebugTrackDynamicUpdateCauses"))}, "ToggleSwitch"), 
+          StringBox("\"DebugTrackDynamicUpdateCauses\"")}, 
+         "RowWithSeparators")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [15]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"CurrentValue", "(", 
+         StringBox("\"DynamicUpdateCauseLocation\""), ")"}), "Input", 
+       SectionLabel -> "in [3]:"), Section(BoxData("$Failed"), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {
+          "Column", "@", {
+           "{", {{"ColonForm", "(", {{"EvaluationBox", "(", ")"}, ",", {
+               "RandomReal", "(", ")"}}, ")"}, ",", {
+             {"{", {{"$Failed", "\[RuleDelayed]", StringBox("\"???\"")}, ",", {
+                {"~", "s", ":", "List"}, "\[RuleDelayed]", {
+                 "Framed", "@", {"Column", "@", {
+                   {"s", ".", "Reverse"}, ".", "Map", "(", 
+                   "Developer`StackEntryForm", ")"}}}}}, "}"}, "@", {
+              "CurrentValue", "(", 
+              StringBox("\"DynamicUpdateCauseLocation\""), ")"}}, ",", "x"}, 
+           "}"}}, ")"}), "Input", SectionLabel -> "in [4]:"), 
+      Section(
+       BoxData(
+        DynamicBox(
+         ToBoxes(Column({ColonForm(EvaluationBox(), RandomReal()), {
+              $Failed :> "???", ~$Context`s:List :> 
+               Framed(Column(Map(Reverse($Context`s), 
+                  Developer`StackEntryForm)))}(
+             CurrentValue("DynamicUpdateCauseLocation")), $Context`x})))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
+    SectionGroup({Section(BoxData({"x", "\[Assign]", "2"}), "Input", 
+       SectionLabel -> "in [12]:"), Section(BoxData("2"), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [12]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Button", "(", {StringBox("\"set to 1\""), ",", {
+           "x", "\[Assign]", "1"}}, ")"}), "Input", 
+       SectionLabel -> "in [13]:"), 
+      Section(BoxData(ButtonBox(StringBox("\"set to 1\""), 
+         ButtonFunction -> (($Context`x:= 1) &))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [13]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"Button", "(", {StringBox("\"increment\""), ",", {
+           "x", "+=", "1"}}, ")"}), "Input", SectionLabel -> "in [14]:"), 
+      Section(BoxData(ButtonBox(StringBox("\"increment\""), 
+         ButtonFunction -> (($Context`x+= 1) &))), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [14]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)

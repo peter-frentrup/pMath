@@ -317,6 +317,7 @@ namespace richmath {
     TrackedSymbols,
     DynamicLocalValues,
     UnsavedVariables,
+    InternalUpdateCause,
     
     DisplayFunction,
     InterpretationFunction,

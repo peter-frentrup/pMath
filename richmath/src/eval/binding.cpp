@@ -400,6 +400,14 @@ static pmath_t builtin_documentsave(pmath_expr_t _expr) {
 }
 
 static pmath_t builtin_internal_dynamicupdated(pmath_expr_t expr) {
+  if(pmath_atomic_read_uint8_aquire(&Application::track_dynamic_update_causes)) {
+    pmath_t stack = pmath_expr_new(pmath_ref(richmath_System_Stack), 0);
+    stack = pmath_evaluate(stack);
+    expr = pmath_expr_new_extended(
+             pmath_ref(richmath_System_Rule), 2,
+             stack,
+             expr);
+  }
   Application::notify(ClientNotification::DynamicUpdate, Expr(expr));
   return PMATH_NULL;
 }
