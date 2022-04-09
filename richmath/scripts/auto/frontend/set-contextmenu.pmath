@@ -10,13 +10,22 @@ SetOptions($FrontEndSession, ContextMenu -> {
 		MenuItem("&Bitmap",            FE`CopySpecial("Bitmap")),
 		MenuItem("&SVG",               FE`CopySpecial("image/svg+xml"))
 		}),
+	Delimiter,
 	Menu("Su&rround with", {
 		MenuItem("Frame",              DocumentApply(Automatic, FrameBox("\[SelectionPlaceholder]"))),
 		MenuItem("f(\[Ellipsis])",     DocumentApply(Automatic, BoxData({TagBox(FrameBox("f"), "Placeholder"), "(", "\[SelectionPlaceholder]", ")"}))),
 		MenuItem("\"\[Ellipsis]\"",    DocumentApply(Automatic, "\"\[SelectionPlaceholder]\""))
 	}),
-	Delimiter,
 	MenuItem("Reset &Graphics Size", "GraphicsOriginalSize"),
+	Delimiter,
+	Menu("&Style", {
+		MenuItem("&Find Style Definition", FrontEnd`FindStyleDefinition()),
+		Delimiter,
+		Menu("Styles", "MenuListStyles")
+		}),
+	Delimiter,
+	MenuItem("&Evaluate Sections",     "EvaluateSections"),
+	MenuItem("Evaluate in &Place",     "EvaluateInPlace"),
 	Delimiter,
 	FE`Private`mainmenu.Replace(Menu(~, ~items) :> Menu("All Co&mmands", items))
 })
