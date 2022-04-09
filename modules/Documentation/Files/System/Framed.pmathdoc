@@ -185,7 +185,22 @@ Document({
                   ",", FrameBox("b", ContentPadding -> False)}, "}"}), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1), 
-        SectionGroup({Section("FrameStyle", "ExampleSubsection"), 
+        SectionGroup({Section("FrameMargins", "ExampleSubsection"), 
+          Section("Specify margins within the frame:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Table", "(", {
+                {"Framed", "(", {{"x", "+", "y"}, ",", {
+                   "FrameMargins", "\[Rule]", "s"}}, ")"}, ",", {
+                 "s", "\[Rule]", {"{", {"0", ",", "5", ",", "10", ",", "20"}, 
+                  "}"}}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({"{", {FrameBox({"x", "+", "y"}, FrameMargins -> 0), ",", 
+                FrameBox({"x", "+", "y"}, FrameMargins -> 5), ",", 
+                FrameBox({"x", "+", "y"}, FrameMargins -> 10), ",", 
+                FrameBox({"x", "+", "y"}, FrameMargins -> 20)}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All)}, 1), SectionGroup({
+          Section("FrameStyle", "ExampleSubsection"), 
           Section("Customize the frame styling:", "ExampleText"), 
           SectionGroup({
             Section(BoxData({"Framed", "(", {
