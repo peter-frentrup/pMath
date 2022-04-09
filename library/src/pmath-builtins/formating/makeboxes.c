@@ -118,6 +118,7 @@ extern pmath_symbol_t pmath_System_InputForm;
 extern pmath_symbol_t pmath_System_Interpretation;
 extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_Italic;
+extern pmath_symbol_t pmath_System_Large;
 extern pmath_symbol_t pmath_System_LeftArrow;
 extern pmath_symbol_t pmath_System_LeftRightArrow;
 extern pmath_symbol_t pmath_System_LeftTriangle;
@@ -136,6 +137,7 @@ extern pmath_symbol_t pmath_System_LowerLeftArrow;
 extern pmath_symbol_t pmath_System_LowerRightArrow;
 extern pmath_symbol_t pmath_System_MakeBoxes;
 extern pmath_symbol_t pmath_System_MatrixForm;
+extern pmath_symbol_t pmath_System_Medium;
 extern pmath_symbol_t pmath_System_MessageName;
 extern pmath_symbol_t pmath_System_MinusPlus;
 extern pmath_symbol_t pmath_System_Not;
@@ -207,6 +209,7 @@ extern pmath_symbol_t pmath_System_Short;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
 extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_Skeleton;
+extern pmath_symbol_t pmath_System_Small;
 extern pmath_symbol_t pmath_System_SqrtBox;
 extern pmath_symbol_t pmath_System_StandardForm;
 extern pmath_symbol_t pmath_System_StringBox;
@@ -239,6 +242,7 @@ extern pmath_symbol_t pmath_System_TildeFullEqual;
 extern pmath_symbol_t pmath_System_TildeTilde;
 extern pmath_symbol_t pmath_System_Times;
 extern pmath_symbol_t pmath_System_TimesBy;
+extern pmath_symbol_t pmath_System_Tiny;
 extern pmath_symbol_t pmath_System_TooltipBox;
 extern pmath_symbol_t pmath_System_TransformationBox;
 extern pmath_symbol_t pmath_System_True;
@@ -2977,6 +2981,20 @@ static pmath_bool_t emit_stylebox_options(pmath_expr_t expr, size_t start, struc
         pmath_expr_new_extended(
           pmath_ref(pmath_System_Rule), 2,
           pmath_ref(pmath_System_FontSlant),
+          item),
+        PMATH_NULL);
+      continue;
+    }
+    
+    if( pmath_same(item, pmath_System_Large) || 
+        pmath_same(item, pmath_System_Medium) ||
+        pmath_same(item, pmath_System_Small) ||
+        pmath_same(item, pmath_System_Tiny)
+    ) {
+      pmath_emit(
+        pmath_expr_new_extended(
+          pmath_ref(pmath_System_Rule), 2,
+          pmath_ref(pmath_System_FontSize),
           item),
         PMATH_NULL);
       continue;

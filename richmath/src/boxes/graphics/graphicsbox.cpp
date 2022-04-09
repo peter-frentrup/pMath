@@ -814,9 +814,16 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
   
   BoxSize label_sizes[6];
   for(int part = 0; part < 6; ++part) {
-    label_sizes[part] = self.ticks[part]->all_labels_extents();
-    
-    self.ticks[part]->extra_offset = 0.75 * 6;
+    if(self.ticks[part]->axis_hidden()) {
+      label_sizes[part] = BoxSize(0, 0, 0);
+      
+      self.ticks[part]->extra_offset = 0;
+    }
+    else {
+      label_sizes[part] = self.ticks[part]->all_labels_extents();
+      
+      self.ticks[part]->extra_offset = 0.75 * 6;
+    }
   }
   
   bool left, right, bottom, top;
@@ -847,8 +854,8 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
     self.margin_bottom = self.margin_top   = label_sizes[AxisIndexY].height() / 2;
   }
   
-  Length w     = self.get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
-  Length h     = self.get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  Length w    = self.get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
+  Length h    = self.get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
   float ratio = self.get_own_style(AspectRatio, 1.0f); //0.61803f
   
   if(ratio <= 0)
@@ -862,34 +869,26 @@ void GraphicsBox::Impl::calculate_size(const float *optional_expand_width) {
       enum SyntaxPosition pos = find_syntax_position(self.parent(), self.index());
       
       switch(pos) {
-        case Alone:       w = Length(24 * self.em); break; // Medium
-        case InsideList:  w = Length(18 * self.em); break; // Small
-        case InsideOther: w = Length(12 * self.em); break; // Tiny
+        case Alone:       w = SymbolicSize::Medium; break;
+        case InsideList:  w = SymbolicSize::Small; break; 
+        case InsideOther: w = SymbolicSize::Tiny; break;
       }
     }
   }
   
   if(!w.is_positive()) {
-    switch(w.symblic_value()) {
-      case SymbolicSize::Automatic: break;
-      
-      // TODO: Small, Medium, Large, ...
-      
-      default:
+    if(w != SymbolicSize::Automatic) {
+      w = Length(w.resolve(self.em, LengthConversionFactors::GraphicsSize));
+      if(!w.is_positive())
         w = SymbolicSize::Automatic;
-        break;
     }
   }
   
   if(!h.is_positive()) {
-    switch(h.symblic_value()) {
-      case SymbolicSize::Automatic: break;
-      
-      // TODO: Small, Medium, Large, ...
-      
-      default:
+    if(h != SymbolicSize::Automatic) {
+      h = Length(h.resolve(self.em, LengthConversionFactors::GraphicsSize));
+      if(!h.is_positive())
         h = SymbolicSize::Automatic;
-        break;
     }
   }
   

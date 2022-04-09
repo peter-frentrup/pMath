@@ -30,6 +30,13 @@ namespace richmath {
 
 static const float BorderThicknessFactor = 1.0f / 16;
 static const float HalfBorderThicknessFactor = BorderThicknessFactor / 2;
+static const LengthConversionFactors FrameBoxMarginFactors = {
+  0.25f - BorderThicknessFactor, // Automatic
+  1 / 16.0f, // Tiny     For FontSize->12, 96 dpi: 12 * 1/16 = 0.75pt = 1 pixel
+  2 / 16.0f, // Small
+  4 / 16.0f, // Medium
+  8 / 16.0f, // Large
+};
 
 //{ class FrameBox ...
 
@@ -193,17 +200,7 @@ Expr FrameBox::to_pmath(BoxOutputFlags flags) {
 //{ class FarmeBox::Impl ...
 
 float FrameBox::Impl::get_margin_value(LengthStyleOptionName name, float em) {
-  Length dim = self.get_own_style(name, SymbolicSize::Automatic);
-  
-  if(dim.is_explicit())
-    return dim.raw_value();
-    
-  switch(dim.symblic_value()) {
-    case SymbolicSize::Automatic: break;
-    //case SymbolicSize::None:      return 0.0f;
-  }
-  
-  return (0.25f - BorderThicknessFactor) * em;
+  return self.get_own_style(name, SymbolicSize::Automatic).resolve(em, FrameBoxMarginFactors);
 }
 
 //} ... class FarmeBox::Impl

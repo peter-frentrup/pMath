@@ -7,10 +7,10 @@
 namespace richmath {
   enum class SymbolicSize {
     Automatic = -1,
-    //Tiny = -4,
-    //Small = -5,
-    //Medium = -6,
-    //Large = -7,
+    Tiny = -2,
+    Small = -3,
+    Medium = -4,
+    Large = -5,
     
     Invalid = -100,
   };
@@ -19,8 +19,13 @@ namespace richmath {
     static const LengthConversionFactors Zero;
     static const LengthConversionFactors FontSizeInPt;
     static const LengthConversionFactors SectionMargins;
+    static const LengthConversionFactors GraphicsSize;
     
     float Automatic;
+    float Tiny;
+    float Small;
+    float Medium;
+    float Large;
   };
 
   class Length {
