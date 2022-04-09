@@ -8,6 +8,7 @@
 namespace richmath {
   class InputFieldBox final : public ContainerWidgetBox {
       using base = ContainerWidgetBox;
+      class Impl;
     public:
       InputFieldBox(AbstractSequence *content = nullptr);
       
@@ -53,8 +54,6 @@ namespace richmath {
       
       virtual void on_key_down(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
-      
-      bool assign_dynamic();
       
     protected:
       virtual void resize_default_baseline(Context &context) override;
