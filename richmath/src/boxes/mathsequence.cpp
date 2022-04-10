@@ -2480,6 +2480,14 @@ void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context,
     switch(count) {
       case 2:
         switch(buf[0]) {
+          case '|':
+            if(buf[1] == '>') { // |>
+              static const uint16_t liga[2] = { '|', 0x203A }; // U+203A right single guillemet
+              context.math_shaper->decode_token(context, 2, liga, glyph_items);
+              return;
+            }
+            break;
+            
           case '[':
             if(buf[1] == '[') {
               static const uint16_t liga[2] = {' ', 0x27E6 }; // U+27E6 [[

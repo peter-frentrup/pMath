@@ -399,8 +399,12 @@ PMATH_API pmath_token_t pmath_token_analyse(
       *prec = PMATH_PREC_RANGE;
       return PMATH_TOK_NARY_AUTOARG;
       
-    case '|': //  ||  |->
+    case '|': //  ||  |->  |>
       if(len == 3 && str[1] == '-' && str[2] == '>') { //  |->
+        *prec = PMATH_PREC_ARROW;
+        return PMATH_TOK_NARY;
+      }
+      if(len == 2 && str[1] == '>') { //  |>
         *prec = PMATH_PREC_ARROW;
         return PMATH_TOK_NARY;
       }
