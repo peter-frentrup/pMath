@@ -2469,23 +2469,52 @@ void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, Mat
 }
 
 void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context, MathSequence &seq, int pos, int count) {
-  const uint16_t *buf = seq.str.buffer();
+  const uint16_t *buf = seq.str.buffer() + pos;
   
   int glyph_start = owner.glyphs.length();
   if(context.math_spacing) {
     append_empty_glyphs(seq, pos, count);
+    
+    GlyphInfo *glyph_items = owner.glyphs.items() + glyph_start;
+    
+    switch(count) {
+      case 2:
+        switch(buf[0]) {
+          case '[':
+            if(buf[1] == '[') {
+              static const uint16_t liga[2] = {' ', 0x27E6 }; // U+27E6 [[
+              context.math_shaper->decode_token(context, 2, liga, glyph_items);
+              glyph_items[0].right = glyph_items[1].right /= 2;
+              glyph_items[1].x_offset = -glyph_items[0].right;
+              return;
+            }
+            break;
+            
+          case ']':
+            if(buf[1] == ']') {
+              static const uint16_t liga[2] = {' ', 0x27E7 }; // U+27E7 ]]
+              context.math_shaper->decode_token(context, 2, liga, glyph_items);
+              glyph_items[0].right = glyph_items[1].right /= 2;
+              glyph_items[1].x_offset = -glyph_items[0].right;
+              return;
+            }
+            break;
+        }
+        break;
+    }
+    
     context.math_shaper->decode_token(
       context,
       count,
-      buf + pos,
-      owner.glyphs.items() + glyph_start);
+      buf,
+      glyph_items);
   }
   else {
     append_empty_glyphs(seq, pos, count);
     context.text_shaper->decode_token(
       context,
       count,
-      buf + pos,
+      buf,
       owner.glyphs.items() + glyph_start);
       
     for(int i = glyph_start; i < owner.glyphs.length(); ++i) {
@@ -2496,7 +2525,7 @@ void MathSequence::Impl::GlyphGenerator::append_text_glyph_run(Context &context,
         context.math_shaper->decode_token(
           context,
           1,
-          buf + pos + (i - glyph_start),
+          buf + (i - glyph_start),
           owner.glyphs.items() + i);
       }
     }

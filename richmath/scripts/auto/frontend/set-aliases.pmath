@@ -8,10 +8,11 @@
 		"!=" -> "\[NotEqual]",
 		"<=" -> "\[LessEqual]",
 		">=" -> "\[GreaterEqual]",
-		"..." -> "\[Ellipsis]",
-		"[[" -> "\[LeftDoubleBracket]",
-		"]]" -> "\[RightDoubleBracket]"},
+		"..." -> "\[Ellipsis]"},
 	InputAliases -> {
+		"[[" -> "\[LeftDoubleBracket]",
+		"]]" -> "\[RightDoubleBracket]",
+
 		"button" -> ButtonBox("\[SelectionPlaceholder]"),
 		"italic" -> StyleBox("\[SelectionPlaceholder]", FontSlant->Italic),
 		"repeat" -> FillBox("\[SelectionPlaceholder]"),
