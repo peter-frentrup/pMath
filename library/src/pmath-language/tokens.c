@@ -371,6 +371,12 @@ PMATH_API pmath_token_t pmath_token_analyse(
             *prec = PMATH_PREC_MAP;
             return PMATH_TOK_BINARY_RIGHT;
           }
+          
+          if(str[2] == '=') { // //=
+            *prec = PMATH_PREC_MODY;
+            return PMATH_TOK_BINARY_RIGHT;
+          }
+          
           return PMATH_TOK_NONE;
         }
         

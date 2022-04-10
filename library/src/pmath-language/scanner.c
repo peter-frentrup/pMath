@@ -1238,7 +1238,8 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
             break;
             
           if( tokens->str[tokens->pos] == '@' || //  //@
-              tokens->str[tokens->pos] == '.')   //  //.
+              tokens->str[tokens->pos] == '.' || //  //.
+              tokens->str[tokens->pos] == '=')   //  //=
           {
             ++tokens->pos;
             break;
