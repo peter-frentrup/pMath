@@ -438,7 +438,7 @@ void GridBox::resize(Context &context) {
 }
 
 void GridBox::paint(Context &context) {
-  using std::swap;
+  need_pos_vectors();
   
   update_dynamic_styles(context);
   
