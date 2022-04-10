@@ -25,7 +25,7 @@ Document({
                  "Print", "(", {"EvaluationBox", "(", ")"}, ")"}}, ")"}), 
              "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData(ButtonBox(StringBox("\"Click me\""), 
-               ButtonFunction -> (Print(EvaluationBox()) &))), "Output", 
+               ButtonFunction -> Function(Print(EvaluationBox())))), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All), SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 

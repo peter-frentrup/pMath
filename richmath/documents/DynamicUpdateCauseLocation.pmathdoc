@@ -66,12 +66,12 @@ Document({SectionGroup({Section("DynamicUpdateCauseLocation", "Title"),
            "x", "\[Assign]", "1"}}, ")"}), "Input", 
        SectionLabel -> "in [13]:"), 
       Section(BoxData(ButtonBox(StringBox("\"set to 1\""), 
-         ButtonFunction -> (($Context`x:= 1) &))), "Output", 
+         ButtonFunction -> Function($Context`x:= 1))), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [13]:")}, All), 
     SectionGroup({
       Section(BoxData({"Button", "(", {StringBox("\"increment\""), ",", {
            "x", "+=", "1"}}, ")"}), "Input", SectionLabel -> "in [14]:"), 
       Section(BoxData(ButtonBox(StringBox("\"increment\""), 
-         ButtonFunction -> (($Context`x+= 1) &))), "Output", 
+         ButtonFunction -> Function($Context`x+= 1))), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [14]:")}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

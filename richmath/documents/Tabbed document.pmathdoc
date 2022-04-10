@@ -81,7 +81,7 @@ Document({
               SetterBox(Dynamic($Context`idx, {Automatic, None, Automatic}), 
                4, StringBox("\"Tab 4\""), 
                ButtonFrame -> "TabHeadAbuttingLeft"), StringBox("\"  \""), 
-              ButtonBox(StringBox("\"+\""), ButtonFunction -> (/\/ &), 
+              ButtonBox(StringBox("\"+\""), ButtonFunction -> Function(/\/), 
                ButtonFrame -> "TabHead"), StringBox("\" \"")}}, 
             GridBoxColumnSpacing -> 0), "Grid"), FillBox("")}, "RowDefault"), 
         Appearance -> "TabHead"), StripOnInput -> False)), "Docked", 

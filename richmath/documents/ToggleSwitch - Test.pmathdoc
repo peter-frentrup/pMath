@@ -89,20 +89,19 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                  ")"}}}, ")"}, ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
        SectionLabel -> "in [5]:"), 
       Section(BoxData(TemplateBox({Dynamic($Context`c)}, "ToggleSwitch", 
-         DisplayFunction -> (
-           SliderBox(Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
+         DisplayFunction -> 
+          Function(SliderBox(Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
                True -> 1, False -> 0, ~ -> 0.5`}), {
-              None, Temporary, 
-              If((0 < #1 < 1) === True, 
+              None, Temporary, Function(If((0 < #1 < 1) === True, 
                 With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                  If(FE`Private`state === True || FE`Private`state === False, 
                   CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
                   CurrentValue({TemplateSlot, 1}):= (#1 >= 0.5`) === True)), 
-                CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True) &}), 
+                CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True))}), 
             0 .. 1, ContinuousAction -> False, 
             Appearance -> Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
                 True -> "ToggleSwitchChecked", ~ -> 
-                 "ToggleSwitchUnchecked"}))) &))), "Output", 
+                 "ToggleSwitchUnchecked"})))))), "Output", 
        SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
     SectionGroup({Section(BoxData({"Dynamic", "(", "c", ")"}), "Input", 
        SectionLabel -> "in [6]:"), 
@@ -246,15 +245,15 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                ")"}}}, ")"}, ".", "RawBoxes"}), "Input", 
          SectionLabel -> "in [11]:"), 
         Section(BoxData(TemplateBox({Dynamic($Context`ccc), {111, 222}}, 
-           "ToggleSwitch2", DisplayFunction -> (
+           "ToggleSwitch2", DisplayFunction -> 
+            Function(
              SliderBox(
               Dynamic(
                With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                 With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
                  Replace(FE`Private`state, {FE`Private`values[2] -> 1, 
                    FE`Private`values[1] -> 0, ~ -> 0.5`}))), {
-                None, Temporary, 
-                If((0 < #1 < 1) === True, 
+                None, Temporary, Function(If((0 < #1 < 1) === True, 
                   With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                    With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
                     If(FE`Private`state === FE`Private`values[1], 
@@ -268,14 +267,14 @@ Document({SectionGroup({Section("ToggleSwitch \[LongDash] Test", "Title"),
                   With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
                    If((#1 = 1) === True, CurrentValue({TemplateSlot, 1}):= 
                      FE`Private`values[2], CurrentValue({TemplateSlot, 1}):= 
-                     FE`Private`values[1]))) &}), 0 .. 1, 
+                     FE`Private`values[1]))))}), 0 .. 1, 
               ContinuousAction -> False, 
               Appearance -> 
                Dynamic(
                 With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                  With({FE`Private`values:= CurrentValue({TemplateSlot, 2})}, 
                   If(FE`Private`state === FE`Private`values[2], 
-                   "ToggleSwitchChecked", "ToggleSwitchUnchecked"))))) &))), 
+                   "ToggleSwitchChecked", "ToggleSwitchUnchecked")))))))), 
          "Output", SectionGenerated -> True, SectionLabel -> "out [11]:")}, 
        All), SectionGroup({
         Section(BoxData({"Checkbox", "(", {{"Dynamic", "(", "ccc", ")"}, ",", {

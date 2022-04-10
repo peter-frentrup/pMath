@@ -24,7 +24,8 @@ Document({
                          ")"}}}}, ")"}}}}}, ")"}, ";"}}}, ")"}}}, ")"}), 
        "Input"), 
       Section(BoxData(ButtonBox(StringBox("\"Open Window with Frame Image\""), 
-         ButtonFunction -> (
+         ButtonFunction -> 
+          Function(
            With({
              Global`imgFile:= FE`FileOpenDialog(
                If(IsString(Global`lastChosenImage), Global`lastChosenImage, 
@@ -34,7 +35,7 @@ Document({
                Block({FE`$WindowFrameImage}, 
                 FE`$WindowFrameImage:= Global`imgFile; 
                  Apply(DocumentGet(EvaluationDocument()), 
-                  CreateDocument)));) &))), "Output", 
+                  CreateDocument)));)))), "Output", 
        SectionGenerated -> True)}, 2), 
     SectionGroup({
       Section(
@@ -73,15 +74,16 @@ Document({
                         ")"}}, "}"}}}, "}"}}}, ")"}}}, ")"}, "\n"}}}, ")"}), 
        "Input"), 
       Section(BoxData(ButtonBox(StringBox("\"+\""), 
-         ButtonFunction -> (
+         ButtonFunction -> 
+          Function(
            With({
              Global`old:= Replace("TopGlass", 
                Replace(DockedSections, Options(EvaluationDocument(), 
                  DockedSections)))}, SetOptions(EvaluationDocument(), 
              DockedSections -> {
                "TopGlass" -> 
-                Flatten({Global`old, Section("", "Docked")})})) &))), 
-       "Output", SectionGenerated -> True)}, 2), 
+                Flatten({Global`old, Section("", "Docked")})}))))), "Output", 
+       SectionGenerated -> True)}, 2), 
     SectionGroup({
       Section(BoxData({"Button", "(", {StringBox("\"-\""), ",", {
            "\n", {
@@ -98,14 +100,15 @@ Document({
                         "Most", "@", "old"}}, "}"}}}, ")"}}, ")"}, "\n"}}}, 
              ")"}, "\n"}}}, ")"}), "Input"), 
       Section(BoxData(ButtonBox(StringBox("\"-\""), 
-         ButtonFunction -> (
+         ButtonFunction -> 
+          Function(
            With({
              Global`old:= 
               Flatten({
                 Replace("TopGlass", Replace(DockedSections, 
                   Options(EvaluationDocument(), DockedSections)))})}, 
             If(Length(Global`old) > 0, SetOptions(EvaluationDocument(), 
-              DockedSections -> {"TopGlass" -> Most(Global`old)}))) &))), 
+              DockedSections -> {"TopGlass" -> Most(Global`old)})))))), 
        "Output", SectionGenerated -> True)}, 2)}, All)}, 
  Background -> GrayLevel(1), DockedSections :> {
    "TopGlass" -> {Section("", "Docked")}}, Editable -> True, 

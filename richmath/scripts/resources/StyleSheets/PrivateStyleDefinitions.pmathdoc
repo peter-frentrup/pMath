@@ -1,4 +1,4 @@
-﻿/* pMath Document */
+/* pMath Document */
 
 Document({
   SectionGroup({Section("Stylesheet for private StyleDefinitions", "Title"), 
@@ -20,7 +20,8 @@ Document({
                     FE`Private`title, ToBoxes(FE`Private`owner))), 
                   BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                      "HyperlinkActive", "StylesheetHyperlink"))), 
-                 ButtonFunction -> (SetSelectedDocument(FE`Private`owner) &), 
+                 ButtonFunction -> 
+                  Function(SetSelectedDocument(FE`Private`owner)), 
                  BaseStyle -> "Hyperlink"))), "\[HighNineDoubleQuote]"}), 
             "Docked", SectionFrame -> {
               Inherited, {Inherited, 9.9999999999999995`*^-7}})}}, 

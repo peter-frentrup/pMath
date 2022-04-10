@@ -154,7 +154,7 @@ Document({
               "Developer`FromPackedArray", "::", StringBox("\"punpack\"")}}, 
             "RowDefault"), ":", " ", InterpretationBox(
             StringBox("\"Unpacking array with dimensions ", {"{", "2", "}"}, 
-             " in call to ", "Part", ".\""), 
+             " in call to Part.\""), 
             StringForm("Unpacking array with dimensions `2` in call to `1`.", 
              Part, {2}), Editable -> False)}), "Message", 
          SectionGenerated -> True), 
@@ -530,8 +530,9 @@ Document({
                /\/(ButtonBox(StringBox("\"ParallelMapIndexed\"")), " "), 
                /\/(ButtonBox(StringBox("\"Xor\"")), " ")}}), "Grid"), 
            ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
-             ButtonFunction -> (With({FE`Private`s:= ToExpression(First(#1))}, 
-                ShowDefinition(FE`Private`s)) &)}, GridBoxColumnSpacing -> 2, 
+             ButtonFunction -> 
+              Function(With({FE`Private`s:= ToExpression(First(#1))}, 
+                ShowDefinition(FE`Private`s)))}, GridBoxColumnSpacing -> 2, 
            GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
          "PrintUsage", SectionGenerated -> True)}, All)}, All), 
     SectionGroup({Section("Unknown \[Dash] not yet loaded", "Subsection"), 
@@ -596,7 +597,7 @@ Document({
               "Developer`FromPackedArray", "::", StringBox("\"punpack\"")}}, 
             "RowDefault"), ":", " ", InterpretationBox(
             StringBox("\"Unpacking array with dimensions ", {"{", "2", "}"}, 
-             " in call to ", "Part", ".\""), 
+             " in call to Part.\""), 
             StringForm("Unpacking array with dimensions `2` in call to `1`.", 
              Part, {2}), Editable -> False)}), "Message", 
          SectionGenerated -> True), 
@@ -703,8 +704,9 @@ Document({
                /\/(ButtonBox(StringBox("\"OpenerView\"")), " "), 
                StringBox("\"\"")}}), "Grid"), 
            ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
-             ButtonFunction -> (With({FE`Private`s:= ToExpression(First(#1))}, 
-                ShowDefinition(FE`Private`s)) &)}, GridBoxColumnSpacing -> 2, 
+             ButtonFunction -> 
+              Function(With({FE`Private`s:= ToExpression(First(#1))}, 
+                ShowDefinition(FE`Private`s)))}, GridBoxColumnSpacing -> 2, 
            GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
          "PrintUsage", SectionGenerated -> True)}, All)}, All), 
     SectionGroup({Section("Variables", "Subsection"), 
@@ -769,7 +771,7 @@ Document({
               "Developer`FromPackedArray", "::", StringBox("\"punpack\"")}}, 
             "RowDefault"), ":", " ", InterpretationBox(
             StringBox("\"Unpacking array with dimensions ", {"{", "2", "}"}, 
-             " in call to ", "Part", ".\""), 
+             " in call to Part.\""), 
             StringForm("Unpacking array with dimensions `2` in call to `1`.", 
              Part, {2}), Editable -> False)}), "Message", 
          SectionGenerated -> True), 
@@ -848,8 +850,9 @@ Document({
                /\/(ButtonBox(StringBox("\"Gray\"")), " "), 
                StringBox("\"\"")}}), "Grid"), 
            ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
-             ButtonFunction -> (With({FE`Private`s:= ToExpression(First(#1))}, 
-                ShowDefinition(FE`Private`s)) &)}, GridBoxColumnSpacing -> 2, 
+             ButtonFunction -> 
+              Function(With({FE`Private`s:= ToExpression(First(#1))}, 
+                ShowDefinition(FE`Private`s)))}, GridBoxColumnSpacing -> 2, 
            GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
          "PrintUsage", SectionGenerated -> True)}, All)}, All), 
     SectionGroup({Section("Symbolic constants", "Subsection"), 
@@ -914,7 +917,7 @@ Document({
               "Developer`FromPackedArray", "::", StringBox("\"punpack\"")}}, 
             "RowDefault"), ":", " ", InterpretationBox(
             StringBox("\"Unpacking array with dimensions ", {"{", "2", "}"}, 
-             " in call to ", "Part", ".\""), 
+             " in call to Part.\""), 
             StringForm("Unpacking array with dimensions `2` in call to `1`.", 
              Part, {2}), Editable -> False)}), "Message", 
          SectionGenerated -> True), 
@@ -1424,8 +1427,9 @@ Document({
                /\/(ButtonBox(StringBox("\"ProgressIndicatorBox\"")), " "), 
                StringBox("\"\"")}}), "Grid"), 
            ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
-             ButtonFunction -> (With({FE`Private`s:= ToExpression(First(#1))}, 
-                ShowDefinition(FE`Private`s)) &)}, GridBoxColumnSpacing -> 2, 
+             ButtonFunction -> 
+              Function(With({FE`Private`s:= ToExpression(First(#1))}, 
+                ShowDefinition(FE`Private`s)))}, GridBoxColumnSpacing -> 2, 
            GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
          "PrintUsage", SectionGenerated -> True)}, All)}, All)}, All)}, 
  StyleDefinitions -> "Default.pmathdoc", Visible -> True)

@@ -6,8 +6,9 @@ Document({
        ButtonBox({StyleBox("style definitions", 
           BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
              "HyperlinkActive", Inherited)))}, BaseStyle -> "Hyperlink", 
-        ButtonFunction -> (FrontEndTokenExecute("EditStyleDefinitions") &)), 
-       "."}), "Text"), 
+        ButtonFunction -> 
+         Function(FrontEndTokenExecute("EditStyleDefinitions"))), "."}), 
+     "Text"), 
     Section(BoxData(StringBox("\"\[U+2500]", 
        GridBox({{"\[U+256D]", FillBox("\[U+2500]", StripOnInput -> False), 
           "\[U+256E]"}, {"\[U+2524]", "aaaa", "\[U+251C]"}, {
@@ -57,7 +58,8 @@ Document({
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
       Section(StyleData("FlowBox"), TemplateBoxOptions -> {
-         DisplayFunction -> (
+         DisplayFunction -> 
+          Function(
            StyleBox(StringBox({
               "\"", GridBox({{"\[U+256D]", FillBox("\[U+2500]"), "\[U+256E]"}, 
                 {"\[U+2524]", #1, "\[U+251C]"}, {
@@ -65,12 +67,12 @@ Document({
                BaselinePosition -> 2, GridBoxColumnSpacing -> 0, 
                GridBoxRowSpacing -> 0), "\""}), 
             FontFamily -> {"Segoe UI Symbol", Inherited}, 
-            ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
+            ShowStringCharacters -> False, ShowAutoStyles -> False))}), 
       Section(StyleData("HorizontalExtender"), 
        TemplateBoxOptions -> {
-         DisplayFunction -> (
-           FillBox(StyleBox("\"\[U+2500]\"", 
+         DisplayFunction -> 
+          Function(FillBox(StyleBox("\"\[U+2500]\"", 
              FontFamily -> {"Segoe UI Symbol", Inherited}, 
-             ShowStringCharacters -> False, ShowAutoStyles -> False)) &)})}, 
+             ShowStringCharacters -> False, ShowAutoStyles -> False)))})}, 
      All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
    Visible -> True), Visible -> True)

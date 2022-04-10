@@ -89,10 +89,11 @@ Document({
        FillBox(" "), 
        SliderBox(
         Dynamic(Log(2, CurrentValue(EvaluationDocument(), Magnification)), 
-         If(IsNumber(#1), CurrentValue(EvaluationDocument(), Magnification):= 
+         Function(If(IsNumber(#1), 
+           CurrentValue(EvaluationDocument(), Magnification):= 
             2^Piecewise({
                {0, -0.20000000000000001` < #1 < 0.20000000000000001`}, {
-                #1, True}})) &), -1 .. 1)}), "Docked"), "Top" -> {}, 
+                #1, True}})))), -1 .. 1)}), "Docked"), "Top" -> {}, 
    "TopGlass" -> {
      Section(
       BoxData({StringBox("\"", ButtonBox("", ButtonFrame -> "NavigationBack", 
@@ -104,9 +105,9 @@ Document({
            GridBox({
              {FillBox(InputFieldBox(Dynamic($Context`searchString), String, 
                 Appearance -> "AddressBand")), 
-              ButtonBox("\" Go \"", ButtonFunction -> (
-                 ($Context`searchString:= 
-                  ToString({EvaluationDocument(), SelectedDocument()})) &), 
+              ButtonBox("\" Go \"", ButtonFunction -> 
+                Function($Context`searchString:= 
+                  ToString({EvaluationDocument(), SelectedDocument()})), 
                ButtonFrame -> "AddressBandGo"), 
               ButtonBox("\" \[Ellipsis] \"", 
                ButtonFrame -> "AddressBandGo")}}, GridBoxColumnSpacing -> 0), 

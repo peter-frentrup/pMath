@@ -185,8 +185,8 @@ Document({
            BoxData({
              "{", {
               StyleBox(SliderBox(Dynamic($Context`x, {
-                  ($Context`col:= Green) &, Automatic, (
-                    $Context`col:= None) &}), 0 .. 1), 
+                  Function($Context`col:= Green), Automatic, 
+                  Function($Context`col:= None)}), 0 .. 1), 
                Background -> Dynamic($Context`col), StripOnInput -> False), 
               ",", DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
@@ -229,13 +229,12 @@ Document({
            BoxData(TemplateBox({
               SliderBox(
                Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), 
-                 GrayLevel(~$Context`g) :> $Context`g), (
-                  CurrentValue(EvaluationDocument(), Background):= 
-                  GrayLevel(#1)) &), 0 .. 1), 
-              ButtonBox(StringBox("\"Reset\""), 
-               ButtonFunction -> (
-                 (CurrentValue(EvaluationDocument(), Background):= 
-                  Inherited) &))}, "RowDefault")), "Output", 
+                 GrayLevel(~$Context`g) :> $Context`g), 
+                Function(CurrentValue(EvaluationDocument(), Background):= 
+                  GrayLevel(#1))), 0 .. 1), ButtonBox(StringBox("\"Reset\""), 
+               ButtonFunction -> 
+                Function(CurrentValue(EvaluationDocument(), Background):= 
+                  Inherited))}, "RowDefault")), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 

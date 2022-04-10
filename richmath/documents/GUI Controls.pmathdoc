@@ -354,8 +354,9 @@ Document({
                      StringBox("\"Tab 4\""), 
                      ButtonFrame -> "TabHeadAbuttingLeft"), 
                     StringBox("\"  \""), ButtonBox(StringBox("\"+\""), 
-                     ButtonFrame -> "TabHead", ButtonFunction -> (/\/ &)), 
-                    StringBox("\" \"")}}, GridBoxColumnSpacing -> 0), "Grid"), 
+                     ButtonFrame -> "TabHead", 
+                     ButtonFunction -> Function(/\/)), StringBox("\" \"")}}, 
+                  GridBoxColumnSpacing -> 0), "Grid"), 
                 Appearance -> "TabHead")}, {
                PanelBox(PaneSelectorBox({1 -> StringBox("\"content 1\""), 
                   2 -> StringBox("\"content 2\""), 

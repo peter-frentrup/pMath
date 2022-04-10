@@ -33,34 +33,35 @@ Document({
        BoxData(
         StyleBox(TemplateBox({
            "\\", "\\", TooltipBox(ButtonBox(StringBox("\"C:\""), 
-             ButtonFunction -> (FE`SystemOpenDirectory("C:\\") &), 
+             ButtonFunction -> Function(FE`SystemOpenDirectory("C:\\")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox("\"C:\\\\\"")}, "\""), 
              StringForm("Browse to `1`", "C:\\"))), 
            TooltipBox(ButtonBox(StringBox("\"Users\""), 
-             ButtonFunction -> (FE`SystemOpenDirectory("C:\\Users") &), 
+             ButtonFunction -> Function(FE`SystemOpenDirectory("C:\\Users")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox("\"C:\\\\Users\"")}, "\""), 
              StringForm("Browse to `1`", "C:\\Users"))), 
            TooltipBox(ButtonBox(StringBox("\"Peter\""), 
-             ButtonFunction -> (FE`SystemOpenDirectory("C:\\Users\\Peter") &), 
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory("C:\\Users\\Peter")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox("\"C:\\\\Users\\\\Peter\"")}, "\""), 
              StringForm("Browse to `1`", "C:\\Users\\Peter"))), 
            TooltipBox(ButtonBox(StringBox("\"Documents\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory("C:\\Users\\Peter\\Documents") &), 
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory("C:\\Users\\Peter\\Documents")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox("\"C:\\\\Users\\\\Peter\\\\Documents\"")}, "\""), 
              StringForm("Browse to `1`", "C:\\Users\\Peter\\Documents"))), 
            TooltipBox(ButtonBox(StringBox("\"Programmieren\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
-                "C:\\Users\\Peter\\Documents\\Programmieren") &), 
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(
@@ -68,9 +69,9 @@ Document({
               "\""), StringForm("Browse to `1`", 
               "C:\\Users\\Peter\\Documents\\Programmieren"))), 
            TooltipBox(ButtonBox(StringBox("\"pmath\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
-                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath") &), 
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(
@@ -78,18 +79,18 @@ Document({
                 \"")}, "\""), StringForm("Browse to `1`", 
               "C:\\Users\\Peter\\Documents\\Programmieren\\pmath"))), 
            TooltipBox(ButtonBox(StringBox("\"richmath\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
-                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath") &), ButtonFrame -> "Frameless"), 
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
+                "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath")), ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(
                 "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
                 \\\\richmath\"")}, "\""), StringForm("Browse to `1`", 
               "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath"))), TooltipBox(ButtonBox(StringBox("\"bin\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
                 "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
-                bin") &), ButtonFrame -> "Frameless"), 
+                bin")), ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(
                 "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
@@ -97,10 +98,10 @@ Document({
              StringForm("Browse to `1`", 
               "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
               n"))), TooltipBox(ButtonBox(StringBox("\"windows\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
                 "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
-                bin\\windows") &), ButtonFrame -> "Frameless"), 
+                bin\\windows")), ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(
                 "\"C:\\\\Users\\\\Peter\\\\Documents\\\\Programmieren\\\\pmath\
@@ -109,10 +110,10 @@ Document({
               "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
               n\\windows"))), 
            TooltipBox(ButtonBox(StringBox("\"msvc-release-x64\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
                 "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
-                bin\\windows\\msvc-release-x64") &), 
+                bin\\windows\\msvc-release-x64")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(
@@ -122,10 +123,10 @@ Document({
               "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\bi\
               n\\windows\\msvc-release-x64"))), 
            TooltipBox(ButtonBox(StringBox("\"richmath.exe\""), 
-             ButtonFunction -> (
-               FE`SystemOpenDirectory(
+             ButtonFunction -> 
+              Function(FE`SystemOpenDirectory(
                 "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richmath\\\
-                bin\\windows\\msvc-release-x64\\richmath.exe") &), 
+                bin\\windows\\msvc-release-x64\\richmath.exe")), 
              ButtonFrame -> "Frameless"), 
             InterpretationBox(StringBox("\"Browse to ", {
                StringBox(

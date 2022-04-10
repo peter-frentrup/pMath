@@ -42,22 +42,21 @@ Document({
     SectionGroup({Section("Other", "Subsubsection"), 
       Section(
        BoxData(FillBox(ButtonBox(StyleBox(StringBox("\"Italic\""), "TI"), 
-          ButtonFunction -> (
-            DocumentApply(SelectedDocument(), 
-             StyleBox("\[SelectionPlaceholder]", "TI")) &)))), "Text"), 
+          ButtonFunction -> Function(DocumentApply(SelectedDocument(), 
+             StyleBox("\[SelectionPlaceholder]", "TI")))))), "Text"), 
       Section(
        BoxData(
         FillBox(TooltipBox(ButtonBox(StringBox("\"", StyleBox("Arg", "Arg"), 
-            " Style\""), ButtonFunction -> (
-             DocumentApply(SelectedDocument(), 
-              StyleBox("\[SelectionPlaceholder]", "Arg")) &)), 
+            " Style\""), ButtonFunction -> 
+            Function(DocumentApply(SelectedDocument(), 
+              StyleBox("\[SelectionPlaceholder]", "Arg")))), 
           "\[AliasIndicator]arg\[AliasIndicator]"))), "Text"), 
       Section(
        BoxData(FillBox(ButtonBox(StyleBox({"Small", " ", "Caps"}, 
-           FontFeatures -> {"smcp"}), ButtonFunction -> (
-            DocumentApply(SelectedDocument(), 
+           FontFeatures -> {"smcp"}), 
+          ButtonFunction -> Function(DocumentApply(SelectedDocument(), 
              StyleBox("\[SelectionPlaceholder]", 
-              FontFeatures -> {"smcp"})) &)))), "Text")}, All), 
+              FontFeatures -> {"smcp"})))))), "Text")}, All), 
     SectionGroup({Section("Sections", "Subsubsection"), 
       Section(BoxData(FillBox(ButtonBox(StringBox("\"Example Delimiter\""), 
           BaseStyle -> "Paste", 
@@ -108,16 +107,15 @@ Document({
         SectionGroup({Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("ReferenceHyperlink"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox(StringBox({"\"", #1, "\""}), "Text", 
-                FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-                ShowAutoStyles -> False, ShowStringCharacters -> False) &)}), 
+             DisplayFunction -> Function(StyleBox(StringBox({"\"", #1, "\""}), 
+                "Text", FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
+                ShowAutoStyles -> False, ShowStringCharacters -> False))}), 
           Section(StyleData("NamedCharacterHyperlink"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox(StringBox({"\"\\\\[", #1, "]\""}), 
+             DisplayFunction -> 
+              Function(StyleBox(StringBox({"\"\\\\[", #1, "]\""}), 
                 FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
-                ShowStringCharacters -> False, ShowAutoStyles -> False) &)})}, 
+                ShowStringCharacters -> False, ShowAutoStyles -> False))})}, 
          All)}, All)}, All)}, StyleDefinitions -> 
     "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True, 
  WindowTitle -> "Documentation Tools")

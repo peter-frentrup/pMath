@@ -6,11 +6,12 @@ Document({
      BoxData(TemplateBox({
         SliderBox(
          Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), 
-           GrayLevel(~$Context`g) :> $Context`g), (
-            CurrentValue(EvaluationDocument(), Background):= 
-            GrayLevel(#1)) &), 0 .. 1), ButtonBox(StringBox("\"Reset\""), 
-         ButtonFunction -> ((CurrentValue(EvaluationDocument(), Background):= 
-            Inherited) &))}, "RowDefault")), "Input"), 
+           GrayLevel(~$Context`g) :> $Context`g), 
+          Function(CurrentValue(EvaluationDocument(), Background):= 
+            GrayLevel(#1))), 0 .. 1), ButtonBox(StringBox("\"Reset\""), 
+         ButtonFunction -> 
+          Function(CurrentValue(EvaluationDocument(), Background):= 
+            Inherited))}, "RowDefault")), "Input"), 
     Section(
      BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
           "{", {{StringBox("\"ClosingAction\""), "\[Rule]", 
@@ -24,16 +25,16 @@ Document({
           {"{", {{"MakeBoxes", "(", "lbl", ")"}, ",", {
              "MakeBoxes", "(", "contents", ")"}, ",", "opts"}, "}"}, ",", 
           StringBox("\"SimplePopup\"")}, ")"}})), "Input", 
-     SectionLabel -> "in [1]:"), 
+     SectionLabel -> "in [3]:"), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           StringBox("\"Click me!\""), ",", StringBox("\"Hello\""), ",", {
            "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-       SectionLabel -> "in [3]:"), 
+       SectionLabel -> "in [5]:"), 
       Section(
        BoxData(TemplateBox({StringBox("\"Click me!\""), 
           StringBox("\"Hello\""), WindowFrame -> None}, "SimplePopup")), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           {"Magnification", "\[Rule]", {
@@ -99,7 +100,7 @@ Document({
                   "InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
                    "String"}, ")"}}, "}"}, ")"}}, ")"}, ",", {
              "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
-       SectionLabel -> "in [6]:"), 
+       SectionLabel -> "in [7]:"), 
       Section(BoxData(DynamicLocalBox({$Context`x}, {
           "{", {TemplateBox({StringBox("\"Enter text ...\""), 
              TemplateBox({StringBox("\"content: \""), 
@@ -107,7 +108,44 @@ Document({
             "SimplePopup"), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
          DynamicLocalValues :> {
            {OwnRules($Context`x):= {HoldPattern($Context`x) :> ""}}})), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
+    SectionGroup({
+      Section(BoxData({"DynamicLocal", "(", {
+          {"{", {{"x", "\[Assign]", StringBox("\"\"")}, ",", {
+             "pre", "\[Assign]", "0"}, ",", {"post", "\[Assign]", "0"}}, "}"}, 
+          ",", {
+           "{", {{"SimplePopup", "(", {StringBox("\"Enter text ...\""), ",", {
+               "Row", "(", {"{", {StringBox("\"content: \""), ",", {
+                  "InputField", "(", {
+                   {"Dynamic", "(", {
+                     "x", ",", {
+                      "{", {{"Function", "(", {{"++", "pre"}, ";", {
+                          "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", 
+                       ",", {"Function", "(", {{"++", "post"}, ";", {
+                          "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ",", 
+                   "String", ",", {"ContinuousAction", "\[Rule]", "True"}}, 
+                  ")"}}, "}"}, ")"}, ",", {"RemovalConditions", "\[Rule]", {
+                "{", {StringBox("\"OutsideMouseClick\""), ",", 
+                 StringBox("\"SelectionExit\"")}, "}"}}}, ")"}, ",", {
+             "Dynamic", "(", {"{", {"pre", ",", "post", ",", "x"}, "}"}, 
+             ")"}}, "}"}, ",", {"UnsavedVariables", "\[RuleDelayed]", {
+            "{", {"pre", ",", "post"}, "}"}}}, ")"}), "Input", 
+       SectionLabel -> "in [6]:"), 
+      Section(BoxData(DynamicLocalBox({$Context`x, $Context`pre, 
+          $Context`post}, {
+          "{", {TemplateBox({StringBox("\"Enter text ...\""), 
+             TemplateBox({StringBox("\"content: \""), 
+               InputFieldBox(Dynamic($Context`x, {
+                  Function(++$Context`pre; $Context`x:= #1), Automatic, 
+                  Function(++$Context`post; $Context`x:= #1)}), String, 
+                ContinuousAction -> True)}, "RowDefault"), 
+             RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
+            "SimplePopup"), ",", 
+           DynamicBox(ToBoxes({$Context`pre, $Context`post, $Context`x}))}, 
+          "}"}, DynamicLocalValues :> {
+           {OwnRules($Context`x):= {HoldPattern($Context`x) :> ""}}}, 
+         UnsavedVariables :> {$Context`pre, $Context`post})), "Output", 
+       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
     SectionGroup({
       Section(BoxData({"SimplePopup", "(", {
           StringBox("\"BesselJ plot\""), ",", {
@@ -694,10 +732,9 @@ Document({
               "TemplateSlot", "(", "2", ")"}, ")\""}), "Text"), 
           Section(StyleData("SimplePopup"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicLocalBox({FE`Private`popup}, 
-                ButtonBox(#1, ButtonFunction -> (
-                   Replace(CurrentValue(FE`Private`popup, Visible), {
+             DisplayFunction -> Function(DynamicLocalBox({FE`Private`popup}, 
+                ButtonBox(#1, ButtonFunction -> 
+                  Function(Replace(CurrentValue(FE`Private`popup, Visible), {
                      True :> (CurrentValue(FE`Private`popup, Visible):= 
                        False), False :> (
                        CurrentValue(FE`Private`popup, Visible):= True), 
@@ -718,13 +755,12 @@ Document({
                          Dynamic(
                           Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
                              FE`Private`x}, CurrentValue({
-                             TemplateSlot, Key(WindowFrame)})))))}) &))) &)}), 
+                             TemplateSlot, Key(WindowFrame)})))))})))))}), 
           Section(StyleData("SectionsPopup"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicLocalBox({FE`Private`popup}, 
-                ButtonBox(#1, ButtonFunction -> (
-                   Replace(CurrentValue(FE`Private`popup, Visible), {
+             DisplayFunction -> Function(DynamicLocalBox({FE`Private`popup}, 
+                ButtonBox(#1, ButtonFunction -> 
+                  Function(Replace(CurrentValue(FE`Private`popup, Visible), {
                      True :> (CurrentValue(FE`Private`popup, Visible):= 
                        False), False :> (
                        CurrentValue(FE`Private`popup, Visible):= True), 
@@ -741,7 +777,6 @@ Document({
                          Dynamic(
                           Lookup({Inherited -> "ThinFrame", ~FE`Private`x :> 
                              FE`Private`x}, CurrentValue({
-                             TemplateSlot, 
-                             Key(WindowFrame)})))))}) &))) &)})}, All)}, 
-       All)}, All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
-   Visible -> True), Visible -> True)
+                             TemplateSlot, Key(WindowFrame)})))))})))))})}, 
+         All)}, All)}, All)}, StyleDefinitions -> 
+    "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True)

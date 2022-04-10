@@ -71,9 +71,9 @@ Document({
             Section(BoxData(DynamicLocalBox({$Context`pre, $Context`post}, {
                 "{", {
                  SliderBox(Dynamic($Context`x, {
-                    (++$Context`pre; $Context`x:= #1) &, Automatic, (
-                      ++$Context`post; $Context`x:= #1) &}), 0 .. 1), ",", 
-                 DynamicBox(ToBoxes({$Context`pre, $Context`post, 
+                    Function(++$Context`pre; $Context`x:= #1), Automatic, 
+                    Function(++$Context`post; $Context`x:= #1)}), 0 .. 1), 
+                 ",", DynamicBox(ToBoxes({$Context`pre, $Context`post, 
                     $Context`x}))}, "}"}, DynamicLocalValues :> {
                  {OwnRules($Context`pre):= {HoldPattern($Context`pre) :> 0}}, {
                   OwnRules($Context`post):= {
@@ -106,8 +106,8 @@ Document({
             Section(BoxData(DynamicLocalBox({$Context`pre, $Context`post}, {
                 "{", {
                  InputFieldBox(Dynamic($Context`s, {
-                    (++$Context`pre; $Context`s:= #1) &, Automatic, (
-                      ++$Context`post; $Context`s:= #1) &}), String, {
+                    Function(++$Context`pre; $Context`s:= #1), Automatic, 
+                    Function(++$Context`post; $Context`s:= #1)}), String, {
                     SliderBoxOptions, ContinuousAction} -> True, 
                   SliderBoxOptions -> {ContinuousAction -> True}), ",", 
                  DynamicBox(ToBoxes({$Context`pre, $Context`post, 

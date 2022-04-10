@@ -43,7 +43,7 @@ Document({
         TagBox(
          GridBox({
            {ButtonBox(StringBox("\"redo\""), 
-             ButtonFunction -> (($Context`trigger:= !$Context`trigger) &), 
+             ButtonFunction -> Function($Context`trigger:= !$Context`trigger), 
              Method -> "Queued")}, {DynamicBox(ToBoxes($Context`trigger))}, {
             DynamicBox(ToBoxes($Context`trigger; $Context`panel()), 
              TrackedSymbols :> {$Context`trigger})}, {

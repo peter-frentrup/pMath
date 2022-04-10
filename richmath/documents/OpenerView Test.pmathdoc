@@ -68,17 +68,19 @@ Document({
          TagBox(
           GridBox({
             {TemplateBox({StringBox("\"\""), 
-               OpenerBox(Dynamic($Context`state, {($Context`state:= #1) &}))}, 
-              "RowDefault"), TemplateBox({
-               ButtonBox(StringBox("\"short\""), 
-                ButtonFunction -> (
-                  If($Context`state, (($Context`state:= #1) &)(False), (
-                     ($Context`state:= #1) &)(True), (
-                     ($Context`state:= #1) &)(True)) &), ButtonFrame -> None, 
+               OpenerBox(Dynamic($Context`state, {
+                  Function($Context`state:= #1)}))}, "RowDefault"), 
+             TemplateBox({ButtonBox(StringBox("\"short\""), 
+                ButtonFunction -> 
+                 Function(If($Context`state, Function($Context`state:= #1)(
+                    False), Function($Context`state:= #1)(True), 
+                   Function($Context`state:= #1)(True))), ButtonFrame -> None, 
                 BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 
-                TagBox(GridBox({{""}, {StringBox("\"long\nlong\"")}}), 
+                TagBox(
+                 GridBox({
+                   {""}, {/\/(StringBox("\"long"), "\n", {"long", "\""})}}), 
                  "Grid")}, Dynamic($Context`state))}}, BaselinePosition -> 1, 
            GridBoxColumnSpacing -> 0, GridBoxRowSpacing -> 0), "Grid"), 
          DynamicLocalValues :> {
@@ -104,13 +106,13 @@ Document({
          TagBox(
           GridBox({
             {TemplateBox({StringBox("\"\""), 
-               OpenerBox(Dynamic($Context`state, {($Context`state:= #1) &}))}, 
-              "RowDefault"), TemplateBox({
-               ButtonBox(StringBox("\"folder\""), 
-                ButtonFunction -> (
-                  If($Context`state, (($Context`state:= #1) &)(False), (
-                     ($Context`state:= #1) &)(True), (
-                     ($Context`state:= #1) &)(True)) &), ButtonFrame -> None, 
+               OpenerBox(Dynamic($Context`state, {
+                  Function($Context`state:= #1)}))}, "RowDefault"), 
+             TemplateBox({ButtonBox(StringBox("\"folder\""), 
+                ButtonFunction -> 
+                 Function(If($Context`state, Function($Context`state:= #1)(
+                    False), Function($Context`state:= #1)(True), 
+                   Function($Context`state:= #1)(True))), ButtonFrame -> None, 
                 BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 
@@ -123,12 +125,14 @@ Document({
                          TagBox(GridBox({
                             {TemplateBox({StringBox("\"\""), 
                                OpenerBox(Dynamic($Context`state, {
-                                  ($Context`state:= #1) &}))}, "RowDefault"), 
-                             TemplateBox({ButtonBox(StringBox("\"sub 1\""), 
-                                ButtonFunction -> (
-                                  If($Context`state, (($Context`state:= #1) &)(
-                                    False), (($Context`state:= #1) &)(True), (
-                                     ($Context`state:= #1) &)(True)) &), 
+                                  Function($Context`state:= #1)}))}, 
+                              "RowDefault"), TemplateBox({
+                               ButtonBox(StringBox("\"sub 1\""), 
+                                ButtonFunction -> 
+                                 Function(If($Context`state, 
+                                   Function($Context`state:= #1)(False), 
+                                   Function($Context`state:= #1)(True), 
+                                   Function($Context`state:= #1)(True))), 
                                 ButtonFrame -> None, BaseStyle -> ""), 
                                StringBox("\"\"")}, "RowDefault")}, {
                              "", PaneSelectorBox({
@@ -149,12 +153,14 @@ Document({
                          TagBox(GridBox({
                             {TemplateBox({StringBox("\"\""), 
                                OpenerBox(Dynamic($Context`state, {
-                                  ($Context`state:= #1) &}))}, "RowDefault"), 
-                             TemplateBox({ButtonBox(StringBox("\"sub 2\""), 
-                                ButtonFunction -> (
-                                  If($Context`state, (($Context`state:= #1) &)(
-                                    False), (($Context`state:= #1) &)(True), (
-                                     ($Context`state:= #1) &)(True)) &), 
+                                  Function($Context`state:= #1)}))}, 
+                              "RowDefault"), TemplateBox({
+                               ButtonBox(StringBox("\"sub 2\""), 
+                                ButtonFunction -> 
+                                 Function(If($Context`state, 
+                                   Function($Context`state:= #1)(False), 
+                                   Function($Context`state:= #1)(True), 
+                                   Function($Context`state:= #1)(True))), 
                                 ButtonFrame -> None, BaseStyle -> ""), 
                                StringBox("\"\"")}, "RowDefault")}, {
                              "", PaneSelectorBox({
@@ -188,13 +194,13 @@ Document({
          TagBox(
           GridBox({
             {TemplateBox({StringBox("\"\""), 
-               OpenerBox(Dynamic($Context`state, {($Context`state:= #1) &}))}, 
-              "RowDefault"), TemplateBox({
-               ButtonBox(StringBox("\"matrix\""), 
-                ButtonFunction -> (
-                  If($Context`state, (($Context`state:= #1) &)(False), (
-                     ($Context`state:= #1) &)(True), (
-                     ($Context`state:= #1) &)(True)) &), ButtonFrame -> None, 
+               OpenerBox(Dynamic($Context`state, {
+                  Function($Context`state:= #1)}))}, "RowDefault"), 
+             TemplateBox({ButtonBox(StringBox("\"matrix\""), 
+                ButtonFunction -> 
+                 Function(If($Context`state, Function($Context`state:= #1)(
+                    False), Function($Context`state:= #1)(True), 
+                   Function($Context`state:= #1)(True))), ButtonFrame -> None, 
                 BaseStyle -> ""), StringBox("\"\"")}, "RowDefault")}, {
              "", PaneSelectorBox({
                HoldPattern(True) -> 

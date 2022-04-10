@@ -41,9 +41,10 @@ Document({
                "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
            SectionLabel -> "in [1]:"), 
           Section(BoxData(ButtonBox(StringBox("\"Try to click me\""), 
-             ButtonFunction -> (Print(RandomReal()) &), Enabled -> False)), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
-         All), SectionGroup({
+             ButtonFunction -> Function(Print(RandomReal())), 
+             Enabled -> False)), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
           Section(BoxData(InterpretationBox("", $Line:= 0;, 
              Editable -> False)), "ExampleDelimiter"), 
           Section(
@@ -106,7 +107,7 @@ Document({
                     Editable -> False), DynamicLocalValues :> {
                      {OwnRules(System`Private`GuiBoxes`var):= {
                         HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
-                  Setting(#1, 0) &)}}), "Column"), Enabled -> False)), 
+                  Function(Setting(#1, 0)))}}), "Column"), Enabled -> False)), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
          All), Section(TextData({"By explicitly specifying ", 
            TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
@@ -151,8 +152,8 @@ Document({
                     " ", " ", CheckboxBox(Dynamic($Context`enabled), 
                      Enabled -> True), 
                     ButtonBox(StringBox("\"Enable the panel\""), 
-                     ButtonFunction -> (
-                       ($Context`enabled:= !$Context`enabled) &), 
+                     ButtonFunction -> 
+                      Function($Context`enabled:= !$Context`enabled), 
                      ButtonFrame -> "Frameless", Enabled -> True)}, 
                    "RowWithSeparators")}, {
                   TemplateBox({CheckboxBox(True), CheckboxBox(False), 
@@ -170,7 +171,7 @@ Document({
                     DynamicLocalValues :> {
                       {OwnRules(System`Private`GuiBoxes`var):= {
                          HoldPattern(System`Private`GuiBoxes`var) :> 1}}}), 
-                   Setting(#1, 0) &)}}), "Column"), 
+                   Function(Setting(#1, 0)))}}), "Column"), 
               Enabled -> Dynamic($Context`enabled)), 
              DynamicLocalValues :> {
                {OwnRules($Context`enabled):= {

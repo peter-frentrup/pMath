@@ -384,12 +384,12 @@ Document({
                        "}"}, ")"}, ")"}}}, ")"}}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({SqrtBox("5")}, "MyTag", 
-                 DisplayFunction -> (
-                   PanelBox({FrameBox(#1), "\n", 
+                 DisplayFunction -> 
+                  Function(PanelBox({FrameBox(#1), "\n", 
                      DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 1}))), 
-                     "\n", ButtonBox("Reset", ButtonFunction -> (
-                        (CurrentValue({TemplateSlot, 1}):= 
-                         SqrtBox("2")) &))}) &))), "Output", 
+                     "\n", ButtonBox("Reset", ButtonFunction -> 
+                       Function(CurrentValue({TemplateSlot, 1}):= 
+                         SqrtBox("2")))})))), "Output", 
                SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
            All), SectionGroup({
             Section(BoxData(InterpretationBox("", $Line:= 0;, 
@@ -413,10 +413,10 @@ Document({
                           ")"}}}, "}"}, ")"}, ")"}}}, ")"}}), "Input", 
                SectionLabel -> "in [1]:"), 
               Section(BoxData(TemplateBox({"a", "b"}, "MyTag", 
-                 DisplayFunction -> (
-                   PanelBox({FrameBox(#1), " ", FrameBox(#2), " ", 
+                 DisplayFunction -> 
+                  Function(PanelBox({FrameBox(#1), " ", FrameBox(#2), " ", 
                      DynamicBox(
-                      ToBoxes(CurrentValue("TemplateSlotCount")))}) &))), 
+                      ToBoxes(CurrentValue("TemplateSlotCount")))})))), 
                "Output", SectionGenerated -> True, 
                SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
       SectionGroup({Section("Properties & Relations", "ExampleSection"), 

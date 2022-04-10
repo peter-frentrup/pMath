@@ -2,11 +2,12 @@
 
 Document({SectionGroup({Section("Partly-Inherited DockedSection", "Section"), 
     Section(TextData({"This document has custom ", 
-       ButtonBox({StyleBox({"\"style definitions\""}, 
+       ButtonBox({StyleBox("\"style definitions\"", 
           FontColor -> RGBColor(0, 0, 0.70199999999999996`), 
           StripOnInput -> False)}, BaseStyle -> "", 
-        ButtonFrame -> "Frameless", ButtonFunction -> (
-          FrontEndTokenExecute("EditStyleDefinitions") &)), 
+        ButtonFrame -> "Frameless", 
+        ButtonFunction -> 
+         Function(FrontEndTokenExecute("EditStyleDefinitions"))), 
        ", which defines a DockedSection."}), "Text"), 
     Section(
      BoxData({

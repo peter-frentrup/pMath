@@ -44,12 +44,12 @@ Document({
               "ButtonBox", "(", {
                StringBox("\"\\\"Click for button data\\\"\""), ",", {
                 "ButtonFunction", "\[Rule]", " ", {
-                 "(", {{"Print", "(", "#", ")"}, "&"}, ")"}}, ",", {
+                 "Function", "(", {"Print", "(", "#", ")"}, ")"}}, ",", {
                 "ButtonSource", "\[Rule]", "ButtonData"}, ",", {
                 "ButtonData", "\[Rule]", StringBox("\"data\"")}}, ")"}, ")"}), 
            "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData(ButtonBox(StringBox("\"Click for button data\""), 
-             ButtonData -> "data", ButtonFunction -> (Print(#1) &), 
+             ButtonData -> "data", ButtonFunction -> Function(Print(#1)), 
              ButtonSource -> ButtonData)), "Output", SectionGenerated -> True, 
            SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
@@ -61,13 +61,14 @@ Document({
                 "ButtonBox", "(", {
                  StringBox("\"\\\"Click for button data\\\"\""), ",", {
                   "ButtonFunction", "\[Rule]", " ", {
-                   "(", {{"Print", "(", {"RawBoxes", "@@", "#"}, ")"}, "&"}, 
-                   ")"}}, ",", {"ButtonSource", "\[Rule]", "ButtonContents"}, 
-                 ",", {"ButtonData", "\[Rule]", StringBox("\"data\"")}}, ")"}, 
-               ")"}), "Input", SectionLabel -> "in [1]:"), 
+                   "Function", "(", {"Print", "(", {"RawBoxes", "@@", "#"}, 
+                    ")"}, ")"}}, ",", {"ButtonSource", "\[Rule]", 
+                  "ButtonContents"}, ",", {"ButtonData", "\[Rule]", 
+                  StringBox("\"data\"")}}, ")"}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
             Section(BoxData(ButtonBox(StringBox("\"Click for button data\""), 
-               ButtonData -> "data", ButtonFunction -> (
-                 Print(Apply(#1, RawBoxes)) &), 
+               ButtonData -> "data", ButtonFunction -> 
+                Function(Print(Apply(#1, RawBoxes))), 
                ButtonSource -> ButtonContents)), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
          All)}, All), SectionGroup({
@@ -95,85 +96,71 @@ Document({
                 "data", "\[Rule]", {
                  "{", {"Inherited", ",", "Automatic", ",", "123"}, "}"}}}, 
               ")"}}), "Input", SectionLabel -> "in [1]:"), 
-          SectionGroup({
-            Section(
-             BoxData(
-              TagBox(
-               GridBox({
-                 {ButtonBox({"{", {"Automatic", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (
-                     Print({Automatic, Inherited} -> {##1}) &), 
-                   ButtonSource -> Automatic), 
-                  ButtonBox({"{", {"Automatic", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (
-                     Print({Automatic, Automatic} -> {##1}) &), 
-                   ButtonSource -> Automatic), 
-                  ButtonBox({"{", {"Automatic", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (
-                     Print({Automatic, 123} -> {##1}) &), 
-                   ButtonSource -> Automatic)}, {
-                  ButtonBox({"{", {"ButtonData", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (
-                     Print({ButtonData, Inherited} -> {##1}) &), 
-                   ButtonSource -> ButtonData), 
-                  ButtonBox({"{", {"ButtonData", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (
-                     Print({ButtonData, Automatic} -> {##1}) &), 
-                   ButtonSource -> ButtonData), 
-                  ButtonBox({"{", {"ButtonData", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (
-                     Print({ButtonData, 123} -> {##1}) &), 
-                   ButtonSource -> ButtonData)}, {
-                  ButtonBox({"{", {"ButtonContents", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (
-                     Print({ButtonContents, Inherited} -> {##1}) &), 
-                   ButtonSource -> ButtonContents), 
-                  ButtonBox({"{", {"ButtonContents", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (
-                     Print({ButtonContents, Automatic} -> {##1}) &), 
-                   ButtonSource -> ButtonContents), 
-                  ButtonBox({"{", {"ButtonContents", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (
-                     Print({ButtonContents, 123} -> {##1}) &), 
-                   ButtonSource -> ButtonContents)}, {
-                  ButtonBox({"{", {"ButtonBox", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (
-                     Print({ButtonBox, Inherited} -> {##1}) &), 
-                   ButtonSource -> ButtonBox), 
-                  ButtonBox({"{", {"ButtonBox", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (
-                     Print({ButtonBox, Automatic} -> {##1}) &), 
-                   ButtonSource -> ButtonBox), 
-                  ButtonBox({"{", {"ButtonBox", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (
-                     Print({ButtonBox, 123} -> {##1}) &), 
-                   ButtonSource -> ButtonBox)}, {
-                  ButtonBox({"{", {"FrontEndObject", ",", "Inherited"}, "}"}, 
-                   ButtonFunction -> (
-                     Print({FrontEndObject, Inherited} -> {##1}) &), 
-                   ButtonSource -> FrontEndObject), 
-                  ButtonBox({"{", {"FrontEndObject", ",", "Automatic"}, "}"}, 
-                   ButtonData -> Automatic, ButtonFunction -> (
-                     Print({FrontEndObject, Automatic} -> {##1}) &), 
-                   ButtonSource -> FrontEndObject), 
-                  ButtonBox({"{", {"FrontEndObject", ",", "123"}, "}"}, 
-                   ButtonData -> 123, ButtonFunction -> (
-                     Print({FrontEndObject, 123} -> {##1}) &), 
-                   ButtonSource -> FrontEndObject)}}), "Grid")), "Output", 
-             SectionGenerated -> True, SectionLabel -> "out [1]:"), 
-            Section(BoxData(InterpretationBox({
-                {"{", {"ButtonContents", ",", "Inherited"}, "}"}, "\[Rule]", {
-                 "{", {
-                  {"BoxData", "(", {
-                    "{", {StringBox("\"{\""), ",", {
-                      "{", {StringBox("\"ButtonContents\""), ",", 
-                       StringBox("\",\""), ",", StringBox("\"Inherited\"")}, 
-                      "}"}, ",", StringBox("\"}\"")}, "}"}, ")"}, ",", 
-                  "Automatic"}, "}"}}, Row({
-                {ButtonContents, Inherited} -> {
-                  BoxData({"{", {"ButtonContents", ",", "Inherited"}, "}"}), 
-                  Automatic}}), Editable -> False)), "Print", 
-             SectionGenerated -> True)}, All)}, All)}, 1), 
+          Section(
+           BoxData(
+            TagBox(
+             GridBox({
+               {ButtonBox({"{", {"Automatic", ",", "Inherited"}, "}"}, 
+                 ButtonFunction -> 
+                  Function(Print({Automatic, Inherited} -> {##1})), 
+                 ButtonSource -> Automatic), 
+                ButtonBox({"{", {"Automatic", ",", "Automatic"}, "}"}, 
+                 ButtonData -> Automatic, ButtonFunction -> 
+                  Function(Print({Automatic, Automatic} -> {##1})), 
+                 ButtonSource -> Automatic), 
+                ButtonBox({"{", {"Automatic", ",", "123"}, "}"}, 
+                 ButtonData -> 123, ButtonFunction -> 
+                  Function(Print({Automatic, 123} -> {##1})), 
+                 ButtonSource -> Automatic)}, {
+                ButtonBox({"{", {"ButtonData", ",", "Inherited"}, "}"}, 
+                 ButtonFunction -> 
+                  Function(Print({ButtonData, Inherited} -> {##1})), 
+                 ButtonSource -> ButtonData), 
+                ButtonBox({"{", {"ButtonData", ",", "Automatic"}, "}"}, 
+                 ButtonData -> Automatic, ButtonFunction -> 
+                  Function(Print({ButtonData, Automatic} -> {##1})), 
+                 ButtonSource -> ButtonData), 
+                ButtonBox({"{", {"ButtonData", ",", "123"}, "}"}, 
+                 ButtonData -> 123, ButtonFunction -> 
+                  Function(Print({ButtonData, 123} -> {##1})), 
+                 ButtonSource -> ButtonData)}, {
+                ButtonBox({"{", {"ButtonContents", ",", "Inherited"}, "}"}, 
+                 ButtonFunction -> 
+                  Function(Print({ButtonContents, Inherited} -> {##1})), 
+                 ButtonSource -> ButtonContents), 
+                ButtonBox({"{", {"ButtonContents", ",", "Automatic"}, "}"}, 
+                 ButtonData -> Automatic, ButtonFunction -> 
+                  Function(Print({ButtonContents, Automatic} -> {##1})), 
+                 ButtonSource -> ButtonContents), 
+                ButtonBox({"{", {"ButtonContents", ",", "123"}, "}"}, 
+                 ButtonData -> 123, ButtonFunction -> 
+                  Function(Print({ButtonContents, 123} -> {##1})), 
+                 ButtonSource -> ButtonContents)}, {
+                ButtonBox({"{", {"ButtonBox", ",", "Inherited"}, "}"}, 
+                 ButtonFunction -> 
+                  Function(Print({ButtonBox, Inherited} -> {##1})), 
+                 ButtonSource -> ButtonBox), 
+                ButtonBox({"{", {"ButtonBox", ",", "Automatic"}, "}"}, 
+                 ButtonData -> Automatic, ButtonFunction -> 
+                  Function(Print({ButtonBox, Automatic} -> {##1})), 
+                 ButtonSource -> ButtonBox), 
+                ButtonBox({"{", {"ButtonBox", ",", "123"}, "}"}, 
+                 ButtonData -> 123, ButtonFunction -> 
+                  Function(Print({ButtonBox, 123} -> {##1})), 
+                 ButtonSource -> ButtonBox)}, {
+                ButtonBox({"{", {"FrontEndObject", ",", "Inherited"}, "}"}, 
+                 ButtonFunction -> 
+                  Function(Print({FrontEndObject, Inherited} -> {##1})), 
+                 ButtonSource -> FrontEndObject), 
+                ButtonBox({"{", {"FrontEndObject", ",", "Automatic"}, "}"}, 
+                 ButtonData -> Automatic, ButtonFunction -> 
+                  Function(Print({FrontEndObject, Automatic} -> {##1})), 
+                 ButtonSource -> FrontEndObject), 
+                ButtonBox({"{", {"FrontEndObject", ",", "123"}, "}"}, 
+                 ButtonData -> 123, ButtonFunction -> 
+                  Function(Print({FrontEndObject, 123} -> {##1})), 
+                 ButtonSource -> FrontEndObject)}}), "Grid")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
       Section("", "SectionFooterSpacer")}, All), 
     SectionGroup({Section("See Also", "SeeAlsoSection"), 
       Section(TextData({TemplateBox({"ButtonBox"}, "ReferenceHyperlink"), 

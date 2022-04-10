@@ -25,8 +25,8 @@ Document({
            BoxData({
              "{", {
               StyleBox(SliderBox(Dynamic($Context`x, {
-                  ($Context`col:= Green) &, Automatic, (
-                    $Context`col:= Blue) &}), 0 .. 1), 
+                  Function($Context`col:= Green), Automatic, 
+                  Function($Context`col:= Blue)}), 0 .. 1), 
                Background -> Dynamic($Context`col), StripOnInput -> False), 
               ",", DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
            SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 

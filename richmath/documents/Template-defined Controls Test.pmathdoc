@@ -2,11 +2,12 @@
 
 Document({SectionGroup({Section("Template-defined Controls Test", "Section"), 
     Section(TextData({"This document has custom ", 
-       ButtonBox({StyleBox({"style definitions"}, 
+       ButtonBox({StyleBox("style definitions", 
           FontColor -> RGBColor(0, 0, 0.70199999999999996`), 
           StripOnInput -> False)}, BaseStyle -> "", 
-        ButtonFrame -> "Frameless", ButtonFunction -> (
-          FrontEndTokenExecute("EditStyleDefinitions") &)), 
+        ButtonFrame -> "Frameless", 
+        ButtonFunction -> 
+         Function(FrontEndTokenExecute("EditStyleDefinitions"))), 
        ", which define a template box style \
        \[HighSixDoubleQuote]MyTemplatedControl\[HighNineDoubleQuote] that \
        dynamically modifies its argument. The argument may be another Dynamic \
@@ -130,9 +131,9 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
             the corresponding template box argument."}, "Text"), 
           Section(StyleData("MyTemplatedControl"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> ({"(", SliderBox(#1, 0 .. 1), ")"} &)})}, 
-         All), SectionGroup({
-          Section("An opener box control", "Subsubsection"), 
+             DisplayFunction -> 
+              Function({"(", SliderBox(#1, 0 .. 1), ")"})})}, All), 
+        SectionGroup({Section("An opener box control", "Subsubsection"), 
           Section(
            "An alternative implementation would use DynamicLocalBox to \
            localize the \[HighSixDoubleQuote]open\[HighNineDoubleQuote] state. \
@@ -141,14 +142,15 @@ Document({SectionGroup({Section("Template-defined Controls Test", "Section"),
            instantiating the TemplateBox.", "Text"), 
           Section(StyleData("MyOpenerView"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               {GridBox({{OpenerBox(#3), {#1}}, {
+             DisplayFunction -> 
+              Function({
+                GridBox({{OpenerBox(#3), {#1}}, {
                    "", PaneSelectorBox({
                      True -> GridBox({{""}, {#2}}, 
                        GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
                  BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-                 GridBoxRowSpacing -> 0)} &), InterpretationFunction -> (
-               {"myOpenerView", "(", {#1, ",", #2, ",", 
-                 InterpretationBox("", #3)}, ")"} &)})}, All)}, All)}, All)}, 
-   StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
- Visible -> True)
+                 GridBoxRowSpacing -> 0)}), InterpretationFunction -> 
+              Function({"myOpenerView", "(", {
+                 #1, ",", #2, ",", InterpretationBox("", #3)}, ")"})})}, 
+         All)}, All)}, All)}, StyleDefinitions -> 
+    "PrivateStyleDefinitions.pmathdoc", Visible -> True), Visible -> True)

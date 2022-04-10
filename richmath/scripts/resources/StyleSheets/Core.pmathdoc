@@ -52,10 +52,10 @@ Document({
       Section(StyleData("SystemResetStyle"), AspectRatio -> 1, 
        AutoDelete -> False, AutoNumberFormating -> True, AutoSpacing -> False, 
        Background -> None, ButtonBoxOptions -> {
-         ButtonFunction -> (/\/ &), Method -> "Preemptive"}, Editable -> True, 
-       Evaluatable -> False, FontColor -> None, FontFamily -> {}, 
-       FontSize -> 10, FontSlant -> Plain, FontWeight -> Plain, 
-       GridBoxColumnSpacing -> 0.40000000596046448`, 
+         ButtonFunction -> Function(/\/), Method -> "Preemptive"}, 
+       Editable -> True, Evaluatable -> False, FontColor -> None, 
+       FontFamily -> {}, FontSize -> 10, FontSlant -> Plain, 
+       FontWeight -> Plain, GridBoxColumnSpacing -> 0.40000000596046448`, 
        GridBoxRowSpacing -> 0.5`, LanguageCategory -> "NaturalLanguage", 
        LineBreakWithin -> True, Magnification -> 1, 
        ReturnCreatesNewSection -> False, SectionEditDuplicate -> False, 
@@ -175,51 +175,51 @@ Document({
          ButtonBoxOptions -> {ButtonFrame -> "Frameless"}, 
          FontColor -> RGBColor(0, 0, 0.80000000000000004`), 
          TemplateBoxOptions -> {
-           DisplayFunction -> (
-             StyleBox(StringBox("\"", #1, "\""), 
-              ShowStringCharacters -> False, ShowAutoStyles -> False) &)}), 
+           DisplayFunction -> Function(StyleBox(StringBox("\"", #1, "\""), 
+              ShowStringCharacters -> False, ShowAutoStyles -> False))}), 
         Section(StyleData("Paste"), BaseStyle -> "Button", 
          ButtonBoxOptions -> {
-           ButtonFunction -> (DocumentApply(SelectedDocument(), #1) &)})}, 
-       All), SectionGroup({Section("SummaryBox styles", "Subsection"), 
+           ButtonFunction -> Function(DocumentApply(SelectedDocument(), 
+              #1))})}, All), SectionGroup({
+        Section("SummaryBox styles", "Subsection"), 
         Section(StyleData("SummaryItem"), Selectable -> True), 
         Section(StyleData("SummaryItemAnnotation"), 
          FontColor -> GrayLevel(0.502`), ShowStringCharacters -> False)}, 
        All), SectionGroup({Section("TemplateBox styles", "Subsection"), 
         SectionGroup({Section("Mathematical Functions", "Subsubsection"), 
           Section(StyleData("Binomial"), TemplateBoxOptions -> {
-             DisplayFunction -> ({"(", GridBox({{#1}, {#2}}), ")"} &), 
+             DisplayFunction -> Function({"(", GridBox({{#1}, {#2}}), ")"}), 
              Tooltip -> Automatic}), Section(StyleData("Hypergeometric0F1"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               {StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
-                 ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"} &), 
+             DisplayFunction -> 
+              Function({StyleBox({SubscriptBox("0"), "F", SubscriptBox("1")}, 
+                 ShowAutoStyles -> False), "(", {";", #1, ";", #2}, ")"}), 
              Tooltip -> Automatic}), Section(StyleData("Hypergeometric1F1"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               {StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
-                 ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, 
-                ")"} &), Tooltip -> Automatic}), 
-          Section(StyleData("Hypergeometric2F1"), 
+             DisplayFunction -> 
+              Function({StyleBox({SubscriptBox("1"), "F", SubscriptBox("1")}, 
+                 ShowAutoStyles -> False), "(", {#1, ";", #2, ";", #3}, ")"}), 
+             Tooltip -> Automatic}), Section(StyleData("Hypergeometric2F1"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               {StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
+             DisplayFunction -> 
+              Function({StyleBox({SubscriptBox("2"), "F", SubscriptBox("1")}, 
                  ShowAutoStyles -> False), "(", {
-                 {#1, ",", #2}, ";", #3, ";", #4}, ")"} &), 
+                 {#1, ",", #2}, ";", #3, ";", #4}, ")"}), 
              Tooltip -> Automatic}), Section(StyleData("Det"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               {"\[LeftBracketingBar]", #1, "\[RightBracketingBar]"} &), 
+             DisplayFunction -> 
+              Function({"\[LeftBracketingBar]", #1, "\[RightBracketingBar]"}), 
              Tooltip -> Automatic})}, All), 
         SectionGroup({Section("Controls", "Subsubsection"), 
           Section(StyleData("MessageMenuButton"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicLocalBox({FE`Private`msgStackPopup}, 
+             DisplayFunction -> 
+              Function(DynamicLocalBox({FE`Private`msgStackPopup}, 
                 ButtonBox("\[Ellipsis]", ContentPadding -> False, 
                  BaselinePosition -> Center -> Axis, 
-                 ButtonFunction -> (
-                   Replace(CurrentValue(FE`Private`msgStackPopup, Visible), {
+                 ButtonFunction -> 
+                  Function(Replace(CurrentValue(FE`Private`msgStackPopup, 
+                     Visible), {
                      True :> (CurrentValue(FE`Private`msgStackPopup, 
                         Visible):= False), 
                      False :> (CurrentValue(FE`Private`msgStackPopup, 
@@ -233,14 +233,14 @@ Document({
                                 TemplateSlot, Key(MessageName)})), 
                              FillBox(""), TooltipBox(
                               ButtonBox("\" \[UpperRightArrow] \"", 
-                               ButtonFunction -> (
-                                 CreateDocument(
+                               ButtonFunction -> 
+                                Function(CreateDocument(
                                   First(DocumentGet(EvaluationDocument())), 
                                   WindowTitle -> 
                                    ToString(Colon(CurrentValue({
                                        TemplateSlot, Key(MessageName)}), 
                                      CurrentValue({TemplateSlot, 
-                                       Key(Message)})))) &)), 
+                                       Key(Message)})))))), 
                               TextData("Open in separate window"))}), 
                            "Section", SectionMargins -> {5, 2}, 
                            SectionFrame -> 0), 
@@ -252,38 +252,39 @@ Document({
                            Map(Reverse(
                              Replace(CurrentValue({TemplateSlot, Key(Stack)}), 
                               $Failed -> {})), 
-                            Section(
+                            Function(
+                             Section(
                               BoxData(ToBoxes(Developer`StackEntryForm(#1))), 
-                              "Output", SectionMargins -> {5, 2}) &))}), 
+                              "Output", SectionMargins -> {5, 2}))))}), 
                         "ClosingAction" -> "Hide", 
                         RemovalConditions -> {"OutsideMouseClick", 
                           "SelectionExit"}, WindowFrame -> 
-                         "ThinFrameCallout"))}) &))) &)}), 
+                         "ThinFrameCallout"))})))))}), 
           Section(StyleData("OpenerView"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               {GridBox({
+             DisplayFunction -> 
+              Function({
+                GridBox({
                   {OpenerBox(#3), {
-                    ButtonBox(#1, ButtonFunction -> (
-                       (CurrentValue({TemplateSlot, 3}):= 
+                    ButtonBox(#1, ButtonFunction -> 
+                      Function(CurrentValue({TemplateSlot, 3}):= 
                         If(CurrentValue({TemplateSlot, 3}) === True, False, 
-                         True)) &), ButtonFrame -> None), 
-                    "\[InvisibleSpace]"}}, {
+                         True)), ButtonFrame -> None), "\[InvisibleSpace]"}}, {
                    "", PaneSelectorBox({
                      True -> GridBox({{""}, {#2}}, 
                        GridBoxRowSpacing -> 0.20000000000000001`)}, #3)}}, 
                  BaselinePosition -> 1, GridBoxColumnSpacing -> 0, 
-                 GridBoxRowSpacing -> 0)} &), InterpretationFunction -> (
-               {"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
-                 InterpretationBox("", #3)}, ")"} &)}), 
+                 GridBoxRowSpacing -> 0)}), InterpretationFunction -> 
+              Function({"OpenerView", "(", {{"{", {#1, ",", #2}, "}"}, ",", 
+                 InterpretationBox("", #3)}, ")"})}), 
           Section(StyleData("TabView"), TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicLocalBox({FE`Private`rules}, 
+             DisplayFunction -> Function(DynamicLocalBox({FE`Private`rules}, 
                 GridBox({
                   {PanelBox({
                      " ", DynamicBox(
                       GridBox({MapIndexed(FE`Private`rules, 
-                         SetterBox(Dynamic(CurrentValue({TemplateSlot, 2}), {
+                         Function(SetterBox(
+                           Dynamic(CurrentValue({TemplateSlot, 2}), {
                              Automatic, None, Automatic}), First(#2), 
                            First(#1), ButtonFrame -> 
                             If(Length(FE`Private`rules) === 1, "TabHead", 
@@ -291,32 +292,33 @@ Document({
                                Length(FE`Private`rules) -> 
                                 "TabHeadAbuttingLeft", ~ -> 
                                 "TabHeadAbuttingLeftRight"})), 
-                           BaseStyle -> "TabViewLabel") &)}, 
+                           BaseStyle -> "TabViewLabel")))}, 
                        GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
                     Appearance -> "TabHead")}, {
                    PanelBox({
                      DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
-                        First(#2) -> StyleBox(Last(#1), 
+                        Function(First(#2) -> StyleBox(Last(#1), 
                            Selectable -> 
                             Dynamic(CurrentValue(CurrentValue(TemplateBox), 
-                              Selectable))) &), 
+                              Selectable))))), 
                        Dynamic(CurrentValue({TemplateSlot, 2})), 
                        BaseStyle -> "TabView")), FillBox("")}, 
                     Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
                 Initialization :> (FE`Private`rules:= 
-                  CurrentValue({TemplateSlot, 1}))) &), 
-             InterpretationFunction -> (FE`TabViewBox(##1) &)}), 
+                  CurrentValue({TemplateSlot, 1})))), 
+             InterpretationFunction -> Function(FE`TabViewBox(##1))}), 
           Section(StyleData("TooltipContent"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (PanelBox(#1, Appearance -> "Tooltip") &)}), 
+             DisplayFunction -> 
+              Function(PanelBox(#1, Appearance -> "Tooltip"))}), 
           Section(StyleData("ToggleSwitch"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox(DynamicLocalBox({}, 
+             DisplayFunction -> 
+              Function(StyleBox(DynamicLocalBox({}, 
                  SliderBox(Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
                      True -> 1, False -> 0, ~ -> 0.5`}), {
                     None, Temporary, 
-                    If((0 < #1 < 1) === True, 
+                    Function(If((0 < #1 < 1) === True, 
                       With({
                         FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                        If(FE`Private`state === True || 
@@ -324,9 +326,8 @@ Document({
                         CurrentValue({TemplateSlot, 1}):= !FE`Private`state, 
                         CurrentValue({TemplateSlot, 1}):= (
                            #1 >= 0.5`) === True)), 
-                      CurrentValue({TemplateSlot, 1}):= (
-                         #1 = 1) === True) &}), 0 .. 1, 
-                  ContinuousAction -> False, 
+                      CurrentValue({TemplateSlot, 1}):= (#1 = 1) === True))}), 
+                  0 .. 1, ContinuousAction -> False, 
                   Appearance -> 
                    Dynamic(Replace(CurrentValue({TemplateSlot, 1}), {
                       True -> "ToggleSwitchChecked", ~ -> 
@@ -339,15 +340,14 @@ Document({
                      Match(CurrentValue({"HeldTemplateSlot", 1}), 
                       HoldComplete(Dynamic(FE`Private`sym, ~~~))), 
                     CurrentValue({TemplateSlot, 1}):= False))), 
-                SliderBoxOptions -> {
-                  Appearance -> "ToggleSwitchUnchecked"}) &), 
-             InterpretationFunction -> (
-               {"ToggleSwitch", "(", {
-                 TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
-                ")"} &)}), Section(StyleData("ToggleSwitch2"), 
+                SliderBoxOptions -> {Appearance -> "ToggleSwitchUnchecked"})), 
+             InterpretationFunction -> 
+              Function({"ToggleSwitch", "(", {
+                 TemplateSlotSequence(##1, Function(InterpretationBox(, #1)), 
+                  ",")}, ")"})}), Section(StyleData("ToggleSwitch2"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox(DynamicLocalBox({}, 
+             DisplayFunction -> 
+              Function(StyleBox(DynamicLocalBox({}, 
                  SliderBox(
                   Dynamic(
                    With({FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
@@ -356,7 +356,7 @@ Document({
                      Replace(FE`Private`state, {FE`Private`values[2] -> 1, 
                        FE`Private`values[1] -> 0, ~ -> 0.5`}))), {
                     None, Temporary, 
-                    If((0 < #1 < 1) === True, 
+                    Function(If((0 < #1 < 1) === True, 
                       With({
                         FE`Private`state:= CurrentValue({TemplateSlot, 1})}, 
                        With({FE`Private`values:= 
@@ -376,7 +376,7 @@ Document({
                        If((#1 = 1) === True, CurrentValue({TemplateSlot, 1}):= 
                          FE`Private`values[2], 
                         CurrentValue({TemplateSlot, 1}):= 
-                         FE`Private`values[1]))) &}), 0 .. 1, 
+                         FE`Private`values[1]))))}), 0 .. 1, 
                   ContinuousAction -> False, 
                   Appearance -> 
                    Dynamic(
@@ -394,14 +394,14 @@ Document({
                       HoldComplete(Dynamic(FE`Private`sym, ~~~))), 
                     CurrentValue({TemplateSlot, 1}):= 
                      CurrentValue({TemplateSlot, 2})[1]))), 
-                SliderBoxOptions -> {
-                  Appearance -> "ToggleSwitchUnchecked"}) &), 
-             InterpretationFunction -> (
-               {"ToggleSwitch", "(", {
-                 TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
-                ")"} &)}), Section(StyleData("RadioButtonBar"), 
+                SliderBoxOptions -> {Appearance -> "ToggleSwitchUnchecked"})), 
+             InterpretationFunction -> 
+              Function({"ToggleSwitch", "(", {
+                 TemplateSlotSequence(##1, Function(InterpretationBox(, #1)), 
+                  ",")}, ")"})}), Section(StyleData("RadioButtonBar"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
+             DisplayFunction -> 
+              Function(
                StyleBox(DynamicBox(
                  ToBoxes(Row(Map(FE`EvaluateDynamic(Automatic, #2), 
                     Function({FE`Private`rule}, Setter(#1, FE`Private`rule[1], 
@@ -409,13 +409,14 @@ Document({
                          FE`Private`rule[2]}}, ColumnSpacing -> 0), 
                       ButtonFrame -> None))), "\[InvisibleSpace]"))), 
                 Enabled -> 
-                 Dynamic(CurrentValue({TemplateSlot, Key(Enabled)}))) &), 
-             InterpretationFunction -> (
-               {"RadioButtonBar", "(", {
-                 TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
-                ")"} &)}), Section(StyleData("RadioButtonBarSimple"), 
+                 Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})))), 
+             InterpretationFunction -> 
+              Function({"RadioButtonBar", "(", {
+                 TemplateSlotSequence(##1, Function(InterpretationBox(, #1)), 
+                  ",")}, ")"})}), Section(StyleData("RadioButtonBarSimple"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
+             DisplayFunction -> 
+              Function(
                StyleBox(DynamicBox(
                  ToBoxes(Row(Map(FE`EvaluateDynamic(Automatic, #2), 
                     Function({FE`Private`val}, Setter(#1, FE`Private`val, 
@@ -423,16 +424,16 @@ Document({
                          FE`Private`val}}, ColumnSpacing -> 0), 
                       ButtonFrame -> None))), "\[InvisibleSpace]"))), 
                 Enabled -> 
-                 Dynamic(CurrentValue({TemplateSlot, Key(Enabled)}))) &), 
-             InterpretationFunction -> (
-               {"RadioButtonBar", "(", {
-                 TemplateSlotSequence(##1, InterpretationBox(, #1) &, ",")}, 
-                ")"} &)})}, All), SectionGroup({
-          Section("Objects", "Subsubsection"), 
+                 Dynamic(CurrentValue({TemplateSlot, Key(Enabled)})))), 
+             InterpretationFunction -> 
+              Function({"RadioButtonBar", "(", {
+                 TemplateSlotSequence(##1, Function(InterpretationBox(, #1)), 
+                  ",")}, ")"})})}, All), 
+        SectionGroup({Section("Objects", "Subsubsection"), 
           Section(StyleData("DocumentObject"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox({"DocumentObject", "(", 
+             DisplayFunction -> 
+              Function(StyleBox({"DocumentObject", "(", 
                  DynamicBox(
                   ToBoxes(
                    With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
@@ -454,13 +455,13 @@ Document({
                 ShowAutoStyles -> False, 
                 FontColor -> 
                  Dynamic(If(Match(CurrentValue({TemplateSlot, 1}), 
-                    FrontEndObject($SessionID, ~)), Inherited, Gray))) &), 
-             InterpretationFunction -> (
-               {"DocumentObject", "(", InterpretationBox("", #1), ")"} &)}), 
-          Section(StyleData("FrontEndObject"), 
+                    FrontEndObject($SessionID, ~)), Inherited, Gray)))), 
+             InterpretationFunction -> 
+              Function({"DocumentObject", "(", InterpretationBox("", #1), 
+                ")"})}), Section(StyleData("FrontEndObject"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox({"FrontEndObject", "(", 
+             DisplayFunction -> 
+              Function(StyleBox({"FrontEndObject", "(", 
                  DynamicBox(
                   ToBoxes(
                    With({FE`Private`dyn:= Internal`GetCurrentDynamicID()}, 
@@ -481,13 +482,13 @@ Document({
                 ShowAutoStyles -> False, 
                 FontColor -> 
                  Dynamic(If(CurrentValue({TemplateSlot, 1}) === $SessionID, 
-                   Inherited, Gray))) &), InterpretationFunction -> (
-               {"FrontEndObject", "(", {InterpretationBox("", #1), ",", 
-                 InterpretationBox("", #2)}, ")"} &)}), 
-          Section(StyleData("InputStream"), 
+                   Inherited, Gray)))), InterpretationFunction -> 
+              Function({"FrontEndObject", "(", {
+                 InterpretationBox("", #1), ",", InterpretationBox("", #2)}, 
+                ")"})}), Section(StyleData("InputStream"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicBox(
+             DisplayFunction -> 
+              Function(DynamicBox(
                 With({
                   FE`Private`opts:= 
                    Replace(Try(MakeExpression(CurrentValue({TemplateSlot, 1}), 
@@ -504,11 +505,11 @@ Document({
                     Except(File | BinaryFormat)), 
                    Replace(DirectoryName(Lookup(FE`Private`opts, File, "")), {
                      "" -> Nothing, ~FE`Private`dir :> 
-                      Directory -> FE`Private`dir}))))) &)}), 
+                      Directory -> FE`Private`dir}))))))}), 
           Section(StyleData("OutputStream"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicBox(
+             DisplayFunction -> 
+              Function(DynamicBox(
                 With({
                   FE`Private`opts:= 
                    Replace(Try(MakeExpression(CurrentValue({TemplateSlot, 1}), 
@@ -525,80 +526,86 @@ Document({
                     Except(File | BinaryFormat)), 
                    Replace(DirectoryName(Lookup(FE`Private`opts, File, "")), {
                      "" -> Nothing, ~FE`Private`dir :> 
-                      Directory -> FE`Private`dir}))))) &)})}, All), 
+                      Directory -> FE`Private`dir}))))))})}, All), 
         SectionGroup({Section("Formatting", "Subsubsection"), 
           Section(StyleData("ConditionalExpression"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
+             DisplayFunction -> 
+              Function(
                FrameBox({#1, StyleBox("\" if \"", 
                   "ConditionalExpressionLabel"), #2}, 
-                FrameStyle -> GrayLevel(0.5`), BorderRadius -> 4) &)}), 
+                FrameStyle -> GrayLevel(0.5`), BorderRadius -> 4))}), 
           Section(StyleData("Highlighted"), 
            TemplateBoxOptions :> {
-             DisplayFunction -> (FrameBox(#1, BaseStyle -> "Highlighted") &), 
-             InterpretationFunction -> (#1; 1 &)}), Section(StyleData("Row")), 
-          Section(StyleData("RowDefault"), BaseStyle -> "Row", 
-           TemplateBoxOptions -> {
-             DisplayFunction -> ({TemplateSlotSequence(##1)} &), 
-             InterpretationFunction -> (
-               {"Row", "(", {"{", {TemplateSlotSequence(##1, ",")}, "}"}, 
-                ")"} &)}), Section(StyleData("RowWithSeparators"), 
+             DisplayFunction -> 
+              Function(FrameBox(#1, BaseStyle -> "Highlighted")), 
+             InterpretationFunction -> (#1; Function(1))}), 
+          Section(StyleData("Row")), Section(StyleData("RowDefault"), 
            BaseStyle -> "Row", TemplateBoxOptions -> {
-             DisplayFunction -> ({TemplateSlotSequence(##3, #1)} &), 
-             InterpretationFunction -> (
-               {"Row", "(", {{"{", {TemplateSlotSequence(##3, ",")}, "}"}, 
-                 ",", #2}, ")"} &)})}, All), 
-        SectionGroup({Section("Hyperlinks", "Subsubsection"), 
+             DisplayFunction -> Function({TemplateSlotSequence(##1)}), 
+             InterpretationFunction -> 
+              Function({"Row", "(", {"{", {TemplateSlotSequence(##1, ",")}, 
+                 "}"}, ")"})}), Section(StyleData("RowWithSeparators"), 
+           BaseStyle -> "Row", TemplateBoxOptions -> {
+             DisplayFunction -> Function({TemplateSlotSequence(##3, #1)}), 
+             InterpretationFunction -> 
+              Function({"Row", "(", {
+                 {"{", {TemplateSlotSequence(##3, ",")}, "}"}, ",", #2}, 
+                ")"})})}, All), SectionGroup({
+          Section("Hyperlinks", "Subsubsection"), 
           Section(StyleData("HyperlinkActive"), BaseStyle -> "Hyperlink", 
            FontColor -> RGBColor(0.80000000000000004`, 0.502`, 
              0.10199999999999999`), ShowAutoStyles -> False), 
           Section(StyleData("DirectoryHyperlink"), 
            TemplateBoxOptions :> {
-             DisplayFunction -> (
-               StyleBox(ButtonBox(StringBox("\"", #1, "\""), 
-                 ButtonFunction -> (Apply(#2, FE`SystemOpenDirectory) &), 
+             DisplayFunction -> 
+              Function(StyleBox(ButtonBox(StringBox("\"", #1, "\""), 
+                 ButtonFunction -> 
+                  Function(Apply(#2, FE`SystemOpenDirectory)), 
                  ButtonData -> Dynamic({CurrentValue({TemplateSlot, 2}), 
                     Replace(CurrentValue({TemplateSlot, 3}), 
                      $Failed -> Nothing)})), 
                 BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                    "HyperlinkActive", "Hyperlink")), 
-                ShowStringCharacters -> False, ShowAutoStyles -> False) &), 
+                ShowStringCharacters -> False, ShowAutoStyles -> False)), 
              Tooltip -> StringBox("\"Browse to ", 
                DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 2}))), "\"")}), 
           Section(StyleData("HyperlinkURL"), 
            TemplateBoxOptions :> {
-             DisplayFunction -> (
+             DisplayFunction -> 
+              Function(
                ButtonBox(StyleBox(#1, 
                  BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                     "HyperlinkActive", Inherited)), 
                  ShowStringCharacters -> False, ShowAutoStyles -> False), 
-                ButtonFunction -> (SystemOpen(#1) &), ButtonData -> #2, 
-                BaseStyle -> "Hyperlink") &), InterpretationFunction -> (
-               {"Hyperlink", "(", {#1, ",", InterpretationBox(, #2)}, ")"} &), 
-             Tooltip -> DynamicBox(
-               ToBoxes(CurrentValue({TemplateSlot, 2})))}), 
+                ButtonFunction -> Function(SystemOpen(#1)), ButtonData -> #2, 
+                BaseStyle -> "Hyperlink")), InterpretationFunction -> 
+              Function({"Hyperlink", "(", {#1, ",", InterpretationBox(, #2)}, 
+                ")"}), Tooltip -> 
+              DynamicBox(ToBoxes(CurrentValue({TemplateSlot, 2})))}), 
           Section(StyleData("ShowMoreDocumentationHyperlink"), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               StyleBox(ButtonBox("\" \[RightGuillemet] \"", 
-                 ButtonFunction -> (
+             DisplayFunction -> 
+              Function(StyleBox(ButtonBox("\" \[RightGuillemet] \"", 
+                 ButtonFunction -> 
+                  Function(
                    With({
                      FE`Private`file:= 
                       Documentation`FindSymbolDocumentationByFullName(
                        CurrentValue({TemplateSlot, 1}))}, 
                     If(IsString(FE`Private`file), 
                      FE`CallFrontEnd(FrontEnd`DocumentOpen(FE`Private`file, 
-                       False)))) &), BaseStyle -> "Text", 
+                       False))))), BaseStyle -> "Text", 
                  ButtonFrame -> "Frameless"), 
                 FontColor -> Dynamic(If(CurrentValue("MouseOver"), 
                    RGBColor(1, 0.5`, 0), RGBColor(0, 0, 1))), 
-                ShowAutoStyles -> False) &), 
+                ShowAutoStyles -> False)), 
              Tooltip -> "\"Open reference page\""}), 
           Section(StyleData("StylesheetHyperlink"), 
            FontColor -> RGBColor(0, 0, 0.502`), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicBox(
+             DisplayFunction -> 
+              Function(DynamicBox(
                 With({
                   FE`Private`content:= 
                    Replace(CurrentValue({TemplateSlot, 1}), (
@@ -610,14 +617,14 @@ Document({
                      BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                         "HyperlinkActive", "StylesheetHyperlink")), 
                      ShowStringCharacters -> False), BaseStyle -> "Hyperlink", 
-                    ButtonFunction -> (DocumentOpen(#1) &), 
+                    ButtonFunction -> Function(DocumentOpen(#1)), 
                     ButtonData -> FE`Private`path), 
-                   ToBoxes(FE`Private`path))))) &)}), 
+                   ToBoxes(FE`Private`path))))))}), 
           Section(StyleData("StyleHyperlink"), 
            FontColor -> RGBColor(0, 0, 0.502`), 
            TemplateBoxOptions -> {
-             DisplayFunction -> (
-               DynamicBox(
+             DisplayFunction -> 
+              Function(DynamicBox(
                 With({
                   FE`Private`content:= 
                    Replace(CurrentValue({TemplateSlot, 1}), (
@@ -626,11 +633,11 @@ Document({
                  ButtonBox(StyleBox(ToBoxes(FE`Private`content), 
                    BaseStyle -> Dynamic(If(CurrentValue("MouseOver"), 
                       "HyperlinkActive", "StylesheetHyperlink"))), 
-                  BaseStyle -> "Hyperlink", ButtonFunction -> (
-                    FE`CallFrontEnd(FrontEnd`FindStyleDefinition(#1)) &), 
-                  ButtonData -> FE`Private`content))) &), Tooltip -> None})}, 
-         All), SectionGroup({
-          Section("Missing TemplateBox styles", "Subsubsection"), 
+                  BaseStyle -> "Hyperlink", ButtonFunction -> 
+                   Function(FE`CallFrontEnd(FrontEnd`FindStyleDefinition(
+                      #1))), ButtonData -> FE`Private`content)))), 
+             Tooltip -> None})}, All), 
+        SectionGroup({Section("Missing TemplateBox styles", "Subsubsection"), 
           Section(StyleData("TemplateBoxErrorDisplayStyle"), 
            Background -> RGBColor(1, 0.77000000000000002`, 
              0.77000000000000002`), FontColor -> GrayLevel(0.502`)), 

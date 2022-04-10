@@ -1,4 +1,4 @@
-﻿/* pMath Document */
+/* pMath Document */
 
 Document({
   SectionGroup({
@@ -20,7 +20,7 @@ Document({
       SectionGroup({Section(BoxData({"Section", " ", "styles"}), "Section"), 
         Section(StyleData("Text"), 
          FontFamily -> {"Georgia", "Constantia", "Times New Roman"}, 
-         SectionMargins -> {3, Inherited, 7, 7}, 
+         SectionMargins -> {{3, Inherited}, {7, 7}}, 
          ShowStringCharacters -> False), Section(StyleData("Code"), 
          MenuCommandKey -> None, MenuSortingValue -> None), 
         Section(StyleData("Input"), MenuCommandKey -> None, 
@@ -31,35 +31,35 @@ Document({
        FontColor -> RGBColor(0, 0.502`, 0.502`), 
        FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 22, 
        FontWeight -> Bold, SectionGroupPrecedence -> -100, 
-       SectionMargins -> {3, Inherited, 15, 5}), 
+       SectionMargins -> {{3, Inherited}, {15, 5}}), 
       SectionGroup({Section(StyleData("Subtitle"), BaseStyle -> "Text", 
          FontColor -> RGBColor(0, 0.502`, 0.502`), 
          FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 18, 
          SectionGroupPrecedence -> -90, 
-         SectionMargins -> {3, Inherited, 2, 10}), 
+         SectionMargins -> {{3, Inherited}, {2, 10}}), 
         SectionGroup({Section(StyleData("Subsubtitle"), BaseStyle -> "Text", 
            FontColor -> RGBColor(0, 0.502`, 0.502`), 
            FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 14, 
            SectionGroupPrecedence -> -80, 
-           SectionMargins -> {3, Inherited, 2, 8}), 
+           SectionMargins -> {{3, Inherited}, {2, 8}}), 
           SectionGroup({Section(StyleData("Section"), BaseStyle -> "Text", 
              FontColor -> RGBColor(0, 0.502`, 0.502`), 
              FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 16, 
              FontWeight -> Bold, SectionFrame -> {
-               Inherited, Inherited, 0.75`, Inherited}, 
+               Inherited, {0.75`, Inherited}}, 
              SectionFrameColor -> RGBColor(0, 0.502`, 0.502`), 
-             SectionFrameMargins -> {Inherited, Inherited, 4, Inherited}, 
+             SectionFrameMargins -> {Inherited, {4, Inherited}}, 
              SectionGroupPrecedence -> -50, 
-             SectionMargins -> {3, Inherited, 14, 8}), 
+             SectionMargins -> {{3, Inherited}, {14, 8}}), 
             SectionGroup({Section(StyleData("Subsection"), 
                BaseStyle -> "Text", FontColor -> RGBColor(0, 0.502`, 0.502`), 
                FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 12, 
                FontWeight -> Bold, SectionGroupPrecedence -> -40, 
-               SectionMargins -> {3, Inherited, Inherited, Inherited}), 
+               SectionMargins -> {{3, Inherited}, Inherited}), 
               Section(StyleData("Subsubsection"), BaseStyle -> "Text", 
                FontColor -> RGBColor(0, 0.502`, 0.502`), 
                FontFamily -> {"Calibri", "Verdana", "Arial"}, FontSize -> 10, 
                FontWeight -> Bold, SectionGroupPrecedence -> -30, 
-               SectionMargins -> {3, Inherited, Inherited, Inherited})}, 
-             All)}, All)}, All)}, All)}, All)}, All)}, 
- StyleDefinitions -> "Stylesheets.pmathdoc", Visible -> True)
+               SectionMargins -> {{3, Inherited}, Inherited})}, All)}, All)}, 
+         All)}, All)}, All)}, All)}, StyleDefinitions -> 
+  "Stylesheets.pmathdoc", Visible -> True)

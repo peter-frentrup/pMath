@@ -58,10 +58,10 @@ Document({
            TemplateBox({MessageName -> HoldForm(Java`Java::"box"), 
              Message -> StringForm("Cannot convert `1` to Java code.", 
                RawBoxes(ButtonBox({"SqrtBox", "(", {StringBox("\"3\"")}, ")"}, 
-                 ButtonFunction -> (
-                   SetSelectedDocument(Automatic, 
+                 ButtonFunction -> 
+                  Function(SetSelectedDocument(Automatic, 
                     Language`SourceLocation(
-                     FrontEndObject(10801762494786359001, 75), 2 .. 3)) &), 
+                     FrontEndObject(10801762494786359001, 75), 2 .. 3))), 
                  ButtonFrame -> "Frameless"))), 
              Stack -> {{"Head" -> ToExpression}, {
                 "Head" -> With, "Location" -> Language`SourceLocation(
@@ -94,16 +94,14 @@ Document({
          InterpretationBox(StringBox("\"Cannot convert ", 
            ButtonBox({"SqrtBox", "(", StringBox("\"3\""), ")"}, 
             ButtonFrame -> "Frameless", 
-            ButtonFunction -> (
-              SetSelectedDocument(Automatic, 
+            ButtonFunction -> Function(SetSelectedDocument(Automatic, 
                Language`SourceLocation(FrontEndObject(10801762494786359001, 
-                 75), 2 .. 3)) &)), " to Java code.\""), 
+                 75), 2 .. 3)))), " to Java code.\""), 
           StringForm("Cannot convert `1` to Java code.", 
            RawBoxes(ButtonBox({"SqrtBox", "(", {StringBox("\"3\"")}, ")"}, 
-             ButtonFunction -> (
-               SetSelectedDocument(Automatic, 
+             ButtonFunction -> Function(SetSelectedDocument(Automatic, 
                 Language`SourceLocation(FrontEndObject(10801762494786359001, 
-                  75), 2 .. 3)) &), ButtonFrame -> "Frameless"))), 
+                  75), 2 .. 3))), ButtonFrame -> "Frameless"))), 
           Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(
@@ -168,10 +166,10 @@ Document({
              Message -> StringForm("Cannot convert `1` to Java code.", 
                RawBoxes(ButtonBox({"SuperscriptBox", "(", {
                    StringBox("\"2\"")}, ")"}, 
-                 ButtonFunction -> (
-                   SetSelectedDocument(Automatic, 
+                 ButtonFunction -> 
+                  Function(SetSelectedDocument(Automatic, 
                     Language`SourceLocation(
-                     FrontEndObject(10801762494786359001, 113), 1 .. 2)) &), 
+                     FrontEndObject(10801762494786359001, 113), 1 .. 2))), 
                  ButtonFrame -> "Frameless"))), 
              Stack -> {{"Head" -> ToExpression}, {
                 "Head" -> With, "Location" -> Language`SourceLocation(
@@ -204,16 +202,15 @@ Document({
          InterpretationBox(StringBox("\"Cannot convert ", 
            ButtonBox({"SuperscriptBox", "(", StringBox("\"2\""), ")"}, 
             ButtonFrame -> "Frameless", 
-            ButtonFunction -> (
-              SetSelectedDocument(Automatic, 
+            ButtonFunction -> Function(SetSelectedDocument(Automatic, 
                Language`SourceLocation(FrontEndObject(10801762494786359001, 
-                 113), 1 .. 2)) &)), " to Java code.\""), 
+                 113), 1 .. 2)))), " to Java code.\""), 
           StringForm("Cannot convert `1` to Java code.", 
            RawBoxes(ButtonBox({"SuperscriptBox", "(", {StringBox("\"2\"")}, 
-              ")"}, ButtonFunction -> (
-               SetSelectedDocument(Automatic, 
+              ")"}, ButtonFunction -> 
+              Function(SetSelectedDocument(Automatic, 
                 Language`SourceLocation(FrontEndObject(10801762494786359001, 
-                  113), 1 .. 2)) &), ButtonFrame -> "Frameless"))), 
+                  113), 1 .. 2))), ButtonFrame -> "Frameless"))), 
           Editable -> False)}), "Message", SectionGenerated -> True)}, All), 
     SectionGroup({
       Section(BoxData(StringBox("\"x", SuperscriptBox("2"), "+", SqrtBox("3"), 
@@ -595,18 +592,19 @@ Document({
          ShowStringCharacters -> False)}, All), 
       Section(StyleData("InlineJavaInput"), 
        TemplateBoxOptions -> {
-         DisplayFunction -> (
+         DisplayFunction -> 
+          Function(
            StyleBox(FrameBox(#1, 
              FrameStyle -> GrayLevel(0.84999999999999998`), 
              Background -> GrayLevel(0.90200000000000002`)), 
-            BaseStyle -> "JavaInput") &), InterpretationFunction -> (
-           {{"Get", "(", StringBox("\"Java`\""), ")"}, ";", 
-            TagBox(InterpretationBox(, #1), Java`EvaluateJavaBox)} &)}), 
+            BaseStyle -> "JavaInput")), InterpretationFunction -> 
+          Function({{"Get", "(", StringBox("\"Java`\""), ")"}, ";", 
+            TagBox(InterpretationBox(, #1), Java`EvaluateJavaBox)})}), 
       Section(StyleData("MathInJava"), 
        TemplateBoxOptions -> {
-         DisplayFunction -> (
-           StyleBox(FrameBox(#1, FrameStyle -> GrayLevel(0.75`), 
-             Background -> GrayLevel(1)), BaseStyle -> "Input") &), 
-         InterpretationFunction -> (TagBox(#1, "MathInJava") &)})}, All)}, 
-   StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
- Visible -> True)
+         DisplayFunction -> 
+          Function(StyleBox(FrameBox(#1, FrameStyle -> GrayLevel(0.75`), 
+             Background -> GrayLevel(1)), BaseStyle -> "Input")), 
+         InterpretationFunction -> Function(TagBox(#1, "MathInJava"))})}, 
+     All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+   Visible -> True), Visible -> True)

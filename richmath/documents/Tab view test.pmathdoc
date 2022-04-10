@@ -3,11 +3,12 @@
 Document({
   SectionGroup({Section("Tab view test", "Title"), 
     Section(TextData({"This tab view is defined by a ", 
-       ButtonBox({StyleBox({"\"private style sheet\""}, 
+       ButtonBox({StyleBox("\"private style sheet\"", 
           FontColor -> RGBColor(0, 0, 1), StripOnInput -> False)}, 
-        ButtonFrame -> "Frameless", ButtonFunction -> (
-          FrontEndTokenExecute("EditStyleDefinitions") &)), "."}), "Text"), 
-    SectionGroup({
+        ButtonFrame -> "Frameless", 
+        ButtonFunction -> 
+         Function(FrontEndTokenExecute("EditStyleDefinitions"))), "."}), 
+     "Text"), SectionGroup({
       Section(BoxData({"RawBoxes", "@", {
           "TemplateBox", "(", {
            {"{", {
@@ -990,32 +991,32 @@ Document({
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
       Section(StyleData("MyTabView"), TemplateBoxOptions -> {
-         DisplayFunction -> (
-           DynamicLocalBox({FE`Private`rules}, 
+         DisplayFunction -> Function(DynamicLocalBox({FE`Private`rules}, 
             GridBox({
               {PanelBox({
                  " ", DynamicBox(
                   GridBox({MapIndexed(FE`Private`rules, 
-                     SetterBox(Dynamic(CurrentValue({TemplateSlot, 2}), {
+                     Function(SetterBox(
+                       Dynamic(CurrentValue({TemplateSlot, 2}), {
                          Automatic, None, Automatic}), First(#2), First(#1), 
                        ButtonFrame -> If(Length(FE`Private`rules) === 1, 
                          "TabHead", Replace(First(#2), {
                            1 -> "TabHeadAbuttingRight", 
                            Length(FE`Private`rules) -> 
                             "TabHeadAbuttingLeft", ~ -> 
-                            "TabHeadAbuttingLeftRight"}))) &)}, 
+                            "TabHeadAbuttingLeftRight"})))))}, 
                    GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
                 Appearance -> "TabHead")}, {
                PanelBox({
                  DynamicBox(PaneSelectorBox(MapIndexed(FE`Private`rules, 
-                    First(#2) -> StyleBox(Last(#1), 
+                    Function(First(#2) -> StyleBox(Last(#1), 
                        Selectable -> 
                         Dynamic(CurrentValue(CurrentValue(TemplateBox), 
-                          Selectable))) &), 
+                          Selectable))))), 
                    Dynamic(CurrentValue({TemplateSlot, 2})))), FillBox("")}, 
                 Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
             Initialization :> (FE`Private`rules:= 
-              CurrentValue({TemplateSlot, 1}))) &), 
-         InterpretationFunction -> ($Context`tabViewBox(#1, #2) &)})}, All)}, 
-   StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", Visible -> True), 
- Visible -> True)
+              CurrentValue({TemplateSlot, 1})))), 
+         InterpretationFunction -> Function($Context`tabViewBox(#1, #2))})}, 
+     All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
+   Visible -> True), Visible -> True)

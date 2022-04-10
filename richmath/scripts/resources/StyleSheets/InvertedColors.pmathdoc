@@ -25,8 +25,8 @@ Document({
           SliderBox(
            Dynamic(Replace(CurrentValue(EvaluationDocument(), Background), {
               GrayLevel(~$Context`x) :> $Context`x}), 
-            If(0 <= #1 <= 1, SetOptions(EvaluationDocument(), 
-               Background -> GrayLevel(#1))) &), 0 .. 1)), "Output", 
+            Function(If(0 <= #1 <= 1, SetOptions(EvaluationDocument(), 
+               Background -> GrayLevel(#1))))), 0 .. 1)), "Output", 
          SectionGenerated -> True, SectionLabel -> "out [1]:")}, 2), 
       SectionGroup({Section("Document styles", "Section"), 
         Section(StyleData("Document"), Background -> GrayLevel(0), 
