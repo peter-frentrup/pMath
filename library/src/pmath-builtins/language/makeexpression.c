@@ -39,6 +39,7 @@ extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_Apply;
 extern pmath_symbol_t pmath_System_Assign;
 extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_AssignWith;
 extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BoxRotation;
 extern pmath_symbol_t pmath_System_BracketingBar;
@@ -724,6 +725,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // lhs/=rhs
       if(is_string_at(expr, 2, "/="))
         return make_binary(expr, pmath_System_DivideBy);
+        
+      // lhs//=rhs
+      if(is_string_at(expr, 2, "//="))
+        return make_binary(expr, pmath_System_AssignWith);
         
       // p/?cond
       if(is_string_at(expr, 2, "/?"))

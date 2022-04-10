@@ -57,6 +57,7 @@ extern pmath_symbol_t pmath_System_Alternatives;
 extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_Assign;
 extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_AssignWith;
 extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_BaseForm;
 extern pmath_symbol_t pmath_System_Colon;
@@ -3096,6 +3097,7 @@ else INPUTFORM:
     if(exprlen == 2 && /*=========================================*/
         (pmath_same(head, pmath_System_Assign)        ||
          pmath_same(head, pmath_System_AssignDelayed) ||
+         pmath_same(head, pmath_System_AssignWith)    ||
          pmath_same(head, pmath_System_Decrement)     ||
          pmath_same(head, pmath_System_DivideBy)      ||
          pmath_same(head, pmath_System_Increment)     ||
@@ -3113,6 +3115,7 @@ else INPUTFORM:
 
       if(     pmath_same(head, pmath_System_Assign))         write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGN,        ":=");
       else if(pmath_same(head, pmath_System_AssignDelayed))  write_spaced_operator2(info, FALSE, TRUE, PMATH_CHAR_ASSIGNDELAYED, "::=");
+      else if(pmath_same(head, pmath_System_AssignWith))     write_spaced_operator2(info, FALSE, TRUE, 0, "//=");
       else if(pmath_same(head, pmath_System_Decrement))      write_spaced_operator2(info, FALSE, TRUE, 0, "-=");
       else if(pmath_same(head, pmath_System_DivideBy))       write_spaced_operator2(info, FALSE, TRUE, 0, "/=");
       else if(pmath_same(head, pmath_System_Increment))      write_spaced_operator2(info, FALSE, TRUE, 0, "+=");

@@ -40,6 +40,7 @@ extern pmath_symbol_t pmath_System_Alternatives;
 extern pmath_symbol_t pmath_System_And;
 extern pmath_symbol_t pmath_System_Assign;
 extern pmath_symbol_t pmath_System_AssignDelayed;
+extern pmath_symbol_t pmath_System_AssignWith;
 extern pmath_symbol_t pmath_System_AutoDelete;
 extern pmath_symbol_t pmath_System_Automatic;
 extern pmath_symbol_t pmath_System_AutoNumberFormating;
@@ -828,13 +829,14 @@ static pmath_t simple_binary(pmath_symbol_t head, int *leftprec, int *rightprec,
 #define  RET_ST_L(S, L)  RET_ST(S, L, (L)+1)
 #define  RET_ST_R(S, R)  RET_ST(S, (R)+1, R)
 
-  if(pmath_same(head, pmath_System_Increment))   RET_ST_R("+=", PMATH_PREC_MODY);
-  if(pmath_same(head, pmath_System_Decrement))   RET_ST_R("-=", PMATH_PREC_MODY);
-  if(pmath_same(head, pmath_System_TimesBy))     RET_ST_R("*=", PMATH_PREC_MODY);
-  if(pmath_same(head, pmath_System_DivideBy))    RET_ST_R("/=", PMATH_PREC_MODY);
-  if(pmath_same(head, pmath_System_Condition))   RET_ST_L("/?", PMATH_PREC_COND);
-  if(pmath_same(head, pmath_System_TestPattern)) RET_CH_L('?',  PMATH_PREC_TEST);
-  if(pmath_same(head, pmath_System_MessageName)) RET_ST_L("::", PMATH_PREC_CALL);
+  if(pmath_same(head, pmath_System_Increment))   RET_ST_R("+=",  PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_Decrement))   RET_ST_R("-=",  PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_TimesBy))     RET_ST_R("*=",  PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_DivideBy))    RET_ST_R("/=",  PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_AssignWith))  RET_ST_R("//=", PMATH_PREC_MODY);
+  if(pmath_same(head, pmath_System_Condition))   RET_ST_L("/?",  PMATH_PREC_COND);
+  if(pmath_same(head, pmath_System_TestPattern)) RET_CH_L('?',   PMATH_PREC_TEST);
+  if(pmath_same(head, pmath_System_MessageName)) RET_ST_L("::",  PMATH_PREC_CALL);
   
   if(boxform < BOXFORM_OUTPUT) {
     if(pmath_same(head, pmath_System_Assign))         RET_CH_R(PMATH_CHAR_ASSIGN,        PMATH_PREC_ASS);
