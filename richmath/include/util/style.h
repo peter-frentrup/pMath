@@ -221,8 +221,8 @@ namespace richmath {
     FontSize = 0x30000, // greater than any FloatStyleOptionName value
   
     ImageSizeCommon,
-    ImageSizeHorizontal, // > 0 or ImageSizeAutomatic
-    ImageSizeVertical,   // > 0 or ImageSizeAutomatic
+    ImageSizeHorizontal,
+    ImageSizeVertical,
     
     FrameMarginLeft,
     FrameMarginRight,
