@@ -5,6 +5,8 @@ FindDocumentationPages
 FindSymbolDocumentation
 FindSymbolDocumentationByFullName
 FindSymbolDocumentationByNamespaceAndName
+CreateHelpDocument
+InteractiveCreateHelpDocument
 
 PrepareUsageSection
 
@@ -108,6 +110,165 @@ Function System`Private`PrepareUsageLine(~sym:Symbol) Where($overloadPrepareUsag
     })
 }
 Protect(System`Private`PrepareUsageLine)
+
+
+Function InteractiveCreateHelpDocument() {
+    Local(popup, name:= "")
+    popup:= FE`AttachBoxes(
+        EvaluationBox(),
+        Bottom,
+        {
+            Section(TextData({
+                "Symbol name:   ",
+                BoxData(InputFieldBox(
+                    Dynamic(name),
+                    String,
+                    ContinuousAction->True))
+                }),
+                "PopupWindowSection",
+                LineBreakWithin -> False,
+                SectionMargins -> {{8, 8}, {8, 4}}),
+            Section(
+                BoxData({
+                    DynamicBox(Block {
+                        If(name === "") {
+                            ""
+                        } Else {
+                            With(paths:= FileNames(
+                                    ToFileName(Documentation`$DocumentationPath.Join({"System"})),
+                                    name ++ ".pmathdoc"))
+                            If(paths === {}) {
+                                ButtonBox(
+                                    ToBoxes @ StringForm("Create `1`.pmathdoc", name),
+                                    ButtonFunction -> Function(Block {
+                                        DocumentClose(popup)
+                                        CreateHelpDocument(name)
+                                    })
+                                )
+                            } Else {
+                                StringBox({
+                                    "\"",
+                                    TooltipBox(
+                                        ButtonBox(
+                                            name ++ ".pmathdoc",
+                                            ButtonFunction :> Function(Block {
+                                                DocumentClose(popup)
+                                                DocumentOpen(paths[1])
+                                            }),
+                                            BaseStyle -> "Hyperlink"
+                                        ),
+                                        ToBoxes(paths[1])
+                                    ),
+                                    " already exists.\""
+                                })
+                            }
+                        }
+                    }),
+                    FillBox(""),
+                    ButtonBox("\"Cancel\"", ButtonFunction -> Function(DocumentClose(popup)))
+                }),
+                "PopupWindowSection",
+                LineBreakWithin -> True,
+                SectionMargins -> {{8, 8}, {0, 8}})
+        },
+        WindowFrame -> "ThinFrameCallout",
+        RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}
+    );
+}
+
+CreateHelpDocument()::= CreateHelpDocument()
+CreateHelpDocument("")::= CreateHelpDocument("XXX")
+CreateHelpDocument(~sym:Symbol)::= CreateHelpDocument(SymbolName(sym))
+
+Function CreateHelpDocument(~name:String) {
+    Local(doc)
+    With(attr:= Attributes(name))
+    With(optionNames:= Options(name).Map({~(~opt:Symbol, ~) :> SymbolName(opt), ~ -> Nothing}).Sort)
+
+    doc:= CreateDocument({
+            Section(name, "ObjectName"),
+            Section(BoxData(TemplateBox({name},"UsageReference")),"Usage"),
+            SectionGroup({Section("Details", "NotesSection"),
+                SectionGroup({
+                    Section("", "NotesSectionHeaderSpacer"),
+                    If(Position(attr, NumericFunction) === {},
+                        Nothing,
+                        Section("Mathematical function suitable for numeric and symbolic computations.", "Notes")
+                    ),
+                    genericAttributesNoteSection(name, Complement(attr, {Protected, ReadProtected, DefiniteFunction, NumericFunction, Listable})),
+                    Section("XXX", "Notes"), 
+                    If(Position(attr, Listable) === {},
+                        Nothing,
+                        Section(TextData({
+                            TemplateBox({name}, "ReferenceHyperlink"), 
+                            " automatically threads over lists."}), "Notes")
+                    ),
+                    Section("", "SectionFooterSpacer")
+                }, All)
+            }, All),
+            SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+                simpleExampleHeadingWithText("Basic Examples", 2),
+                simpleExampleHeadingWithText("Scope", 2),
+                If(optionNames =!= {}) {
+                    SectionGroup(Join({Section("Options", "ExampleSection")}, 
+                        optionNames.Map(Function(simpleExampleHeadingWithText(#, 1, "ExampleSubsection")))
+                    ), All)
+                } Else {
+                    Nothing
+                },
+                simpleExampleHeadingWithText("Applications"),
+                simpleExampleHeadingWithText("Properties & Relations"),
+                simpleExampleHeadingWithText("Possible Issues"),
+                simpleExampleHeadingWithText("Neat Examples")
+            }, All),
+            SectionGroup({Section("See Also", "SeeAlsoSection"),
+                Section({
+                    TemplateBox({"XXX"}, "ReferenceHyperlink"),
+                    "\[NonBreakingSpace]\[Dot] ",
+                    TemplateBox({"XXX"}, "ReferenceHyperlink"),
+                    "\[NonBreakingSpace]\[Dot] ",
+                    TemplateBox({"XXX"}, "ReferenceHyperlink")
+                }, "SeeAlso")
+            }, All)
+        },
+        StyleDefinitions -> "Reference.pmathdoc")
+    
+    CurrentValue(doc, "DocumentFullFileName"):= ToFileName($DocumentationPath.Append("System"), name ++ ".pmathdoc")
+
+    doc
+}
+
+genericAttributesNoteSection(~, ~)::= Nothing
+Function genericAttributesNoteSection(~name, {~attr}) {
+    Section(TextData({
+        TemplateBox({name},"ReferenceHyperlink"), 
+        " has attribute ",
+        TemplateBox({ToString(attr)},"ReferenceHyperlink"),
+        "."
+    }), "Notes")
+}
+Function genericAttributesNoteSection(~name, {~~mostAttrs, ~lastAttr}) {
+    Section(TextData({
+        TemplateBox({name}, "ReferenceHyperlink"), 
+        " has attributes ",
+        Sequence @@ {mostAttrs}.Map(Function(TemplateBox({ToString(#)}, "ReferenceHyperlink"))).Riffle(", "),
+        " and ",
+        TemplateBox({ToString(lastAttr)}, "ReferenceHyperlink"),
+        "."
+    }), "Notes")
+}
+
+Function simpleExampleHeadingWithText(~heading, ?count:1, ?headingStyle:"ExampleSection") {
+    SectionGroup(Join({
+            Section(heading, headingStyle), 
+            Section("XXX", "ExampleText")
+        },
+            SectionGroup({
+                Section(BoxData(InterpretationBox("", $Line:= 0;)), "ExampleDelimiter"),
+                Section("XXX", "ExampleText")
+            }, All).ConstantArray(count - 1) 
+        ), All)
+}
 
 End()
 

@@ -98,8 +98,8 @@ Document({
                MenuSortingValue -> 1400, SectionMargins -> {
                  Inherited, {6, 4}}, ShowSectionBracket -> Automatic), 
               SectionGroup({Section(StyleData("ExampleDelimiter"), 
-                 DefaultNewSectionStyle -> "ExampleText", Evaluatable -> True, 
-                 FontSize -> 2, MenuCommandKey -> "6", 
+                 DefaultNewSectionStyle -> "ExampleText", Editable -> False, 
+                 Evaluatable -> True, FontSize -> 2, MenuCommandKey -> "6", 
                  MenuSortingValue -> 1300, 
                  SectionFrame -> {Inherited, {0.25`, Inherited}}, 
                  SectionFrameColor -> GrayLevel(0.70199999999999996`), 
