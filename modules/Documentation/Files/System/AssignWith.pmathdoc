@@ -1,0 +1,122 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section(TextData({"AssignWith (", BoxData("//="), ")"}), 
+       "ObjectName"), 
+      Section(BoxData(TemplateBox({"AssignWith"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({BoxData({"x", "//=", "f"}), 
+           " is effectively equivalent to ", 
+           BoxData({"x", "\[Assign]", {"f", "(", "x", ")"}}), 
+           " for normal functions ", StyleBox("f", "Arg"), ". "}), "Notes"), 
+        Section(TextData({BoxData({"x", "//=", "f"}), " first evaluates ", 
+           StyleBox("x", "Arg"), " before wrapping it in ", 
+           BoxData({"f", "(", "x", ")"}), "."}), "Notes"), 
+        Section(TextData({"For functions ", StyleBox("f", "Arg"), 
+           " with attributes like ", TemplateBox({"HoldFirst"}, 
+            "ReferenceHyperlink"), ", ", BoxData({"x", "//=", "f"}), 
+           " is effectively equivalent to ", 
+           BoxData({"x", "\[Assign]", {
+              "With", "(", {{"{", {"y", "\[Assign]", "x"}, "}"}, ",", {
+                "f", "(", "y", ")"}}, ")"}}), "."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Initialize a variable:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"x", "\[Assign]", "3"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData("3"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        Section(
+         TextData({"Use ", TemplateBox({"AssignWith"}, "ReferenceHyperlink"), 
+           " to compute ", BoxData({"f", "(", "x", ")"}), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"x", "//=", "f"}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData({"f", "(", "3", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [2]:")}, 
+         All), Section(TextData({"The result is stored in ", 
+           StyleBox("x", "Arg"), ":"}), "ExampleText"), 
+        SectionGroup({Section(BoxData("x"), "Input", 
+           SectionLabel -> "in [3]:"), Section(BoxData({"f", "(", "3", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         TextData({"Use ", TemplateBox({"AssignWith"}, "ReferenceHyperlink"), 
+           " with ", TemplateBox({"Function"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData(
+            /\/({{"x", "\[Assign]", {"{", {"1", ",", "2", ",", "3"}, "}"}}, 
+              ";"}, "\n", {
+              {"x", "//=", {"Function", "(", {"#", "^", "2"}, ")"}}, ";"}, 
+             "\n", "x")), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"1", ",", "4", ",", "9"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"The first argument to ", 
+             TemplateBox({"AssignWith"}, "ReferenceHyperlink"), 
+             " need not be a symbol:"}), "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData(
+              /\/({{"x", "\[Assign]", {"{", {"1", ",", "2", ",", "3"}, "}"}}, 
+                ";"}, "\n", {{{"x", "[", "2", "]"}, "//=", "Framed"}, ";"}, 
+               "\n", "x")), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"1", ",", FrameBox("2"), ",", "3"}, "}"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+           All)}, All)}, 1), SectionGroup({
+        Section("Applications", "ExampleSection"), 
+        Section(TextData({TemplateBox({"Transpose"}, "ReferenceHyperlink"), 
+           " a sub-matrix of a larger matrix: "}), "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData(
+            /\/({
+              {"m", "\[Assign]", {
+                "(", GridBox({{"1", "2", "33"}, {"4", "555", "6"}, {
+                   "7", "8", "9"}}), ")"}}, ";"}, "\n", {
+              {{"m", "[", {{"1", "..", "2"}, ",", {"2", "..", "3"}}, "]"}, 
+               "//=", "Transpose"}, ";"}, "\n", {"m", "//", "MatrixForm"})), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({
+             "(", GridBox({{"1", "2", "555"}, {"4", "33", "6"}, {
+                "7", "8", "9"}}), ")"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [3]:")}, All)}, 1), 
+      SectionGroup({Section("Possible Issues", "ExampleSection"), 
+        Section(TextData({TemplateBox({"AssignWith"}, "ReferenceHyperlink"), 
+           " evaluates its firt argument before wrapping it:"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData(/\/({{"x", "\[AssignDelayed]", {"1", "+", "1"}}, 
+              ";"}, "\n", {{"x", "//=", "Hold"}, ";"}, "\n", "x")), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"Hold", "(", "2", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        Section("This is different from usual assignment:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({{"x", "\[AssignDelayed]", {"1", "+", "1"}}, 
+              ";"}, "\n", {{"x", "\[Assign]", {"Hold", "(", "x", ")"}}, ";"}, 
+             "\n", "x")), "Input", SectionLabel -> "in [4]:"), 
+          Section(BoxData({"Hold", "(", "x", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+        Section(
+         TextData({"Instead, ", TemplateBox({"With"}, "ReferenceHyperlink"), 
+           " is used effectively:"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData(/\/({{"x", "\[AssignDelayed]", {"1", "+", "1"}}, 
+              ";"}, "\n", {
+              {"x", "\[Assign]", {"With", "(", {
+                 {"{", {"y", "\[Assign]", "x"}, "}"}, ",", {
+                  "Hold", "(", "y", ")"}}, ")"}}, ";"}, "\n", "x")), "Input", 
+           SectionLabel -> "in [7]:"), 
+          Section(BoxData({"Hold", "(", "2", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [9]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Assign"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"With"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
