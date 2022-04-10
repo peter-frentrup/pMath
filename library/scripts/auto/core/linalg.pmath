@@ -22,8 +22,8 @@ transposeHelper(~tensor, ~perm:List)::= Local({tdim, rdim, invperm, indices, res
 		i -> perm);
 		
 	invperm:=Table(
-		Select(Array(Length(perm)), perm[#] = ri &),
-		ri -> 1..Max(perm));
+		Select(Array(Length(perm)), perm[#] = i &),
+		i -> 1..Max(perm));
 	tdim:= Dimensions(tensor);
 	rdim:= Table(
 		If(Length(invperm[i]) < 1, 
