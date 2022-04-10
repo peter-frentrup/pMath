@@ -3999,50 +3999,6 @@ else INPUTFORM:
       pmath_unref(pattern);
       pmath_unref(range);
     }
-    else if(pmath_same(head, pmath_System_Function)) {
-      pmath_t body;
-
-      if(exprlen != 1)
-        goto FULLFORM;
-
-      if(priority > PMATH_PREC_FUNC)
-        WRITE_CSTR("(");
-
-      body = pmath_expr_get_item(expr, 1);
-      write_ex(info, PMATH_PREC_FUNC, body);
-      pmath_unref(body);
-
-      if(priority > PMATH_PREC_FUNC) {
-        if(info->options & PMATH_WRITE_OPTIONS_NOSPACES)
-          WRITE_CSTR("&)");
-        else
-          WRITE_CSTR(" &)");
-      }
-      else {
-        if(info->options & PMATH_WRITE_OPTIONS_NOSPACES)
-          WRITE_CSTR("&");
-        else
-          WRITE_CSTR(" &");
-      }
-    }
-//  else if(pmath_same(head, pmath_System_Sequence)) {
-//    pmath_t item;
-//    size_t i;
-//
-//    WRITE_CSTR("(");
-//
-//    for(i = 1;i <= exprlen;i++){
-//      if(i > 1)
-//        write_spaced_operator2(info, FALSE, TRUE, ',', ",");
-//
-//      item = pmath_expr_get_item(expr, i);
-//      if(item || exprlen < 2)
-//        _pmath_write_impl(info, item);
-//      pmath_unref(item);
-//    }
-//
-//    WRITE_CSTR(")");
-//  }
     else if(pmath_same(head, pmath_System_PureArgument)) {
       pmath_t item;
 

@@ -810,7 +810,6 @@ static pmath_t simple_prefix(pmath_symbol_t head, int *prec, int boxform) { // h
 
 static pmath_t simple_postfix(pmath_symbol_t head, int *prec, int boxform) { // head wont be freed
 
-  if(pmath_same(head, pmath_System_Function))       RET_CH('&',  PMATH_PREC_FUNC);
   if(pmath_same(head, pmath_System_Factorial))      RET_CH('!',  PMATH_PREC_FAC);
   if(pmath_same(head, pmath_System_Factorial2))     RET_ST("!!", PMATH_PREC_FAC);
   if(pmath_same(head, pmath_System_PostIncrement))  RET_ST("++", PMATH_PREC_INC_OUT);
