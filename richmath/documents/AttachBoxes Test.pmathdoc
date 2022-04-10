@@ -12,714 +12,778 @@ Document({
          ButtonFunction -> 
           Function(CurrentValue(EvaluationDocument(), Background):= 
             Inherited))}, "RowDefault")), "Input"), 
-    Section(
-     BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
-          "{", {{StringBox("\"ClosingAction\""), "\[Rule]", 
-            StringBox("\"Delete\"")}, ",", {"RemovalConditions", "\[Rule]", 
-            "None"}, ",", {"WindowFrame", "\[Rule]", 
-            StringBox("\"Single\"")}}, "}"}}, ";"}, "\n", {
-        {"MakeBoxes", "(", {"SimplePopup", "(", {
-           {"~", "lbl"}, ",", {"~", "contents"}, ",", {
-            "opts", ":", {"OptionsPattern", "(", ")"}}}, ")"}, ")"}, 
-        "\[AssignDelayed]", {"TemplateBox", "(", {
-          {"{", {{"MakeBoxes", "(", "lbl", ")"}, ",", {
-             "MakeBoxes", "(", "contents", ")"}, ",", "opts"}, "}"}, ",", 
-          StringBox("\"SimplePopup\"")}, ")"}})), "Input", 
-     SectionLabel -> "in [3]:"), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          StringBox("\"Click me!\""), ",", StringBox("\"Hello\""), ",", {
-           "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-       SectionLabel -> "in [5]:"), 
+    SectionGroup({Section("Simple dialog", "Section"), 
+      SectionGroup({
+        Section(BoxData({"Button", "(", {StringBox("\"Greetings ...\""), ",", {
+             {"Local", "(", {"popup", ",", {
+                "name", "\[Assign]", StringBox("\"\"")}}, ")"}, {
+              "{", {
+               "\n", {{"popup", "\[Assign]", {
+                  "FE`AttachBoxes", "(", {{"EvaluationBox", "(", ")"}, ",", 
+                   "Bottom", ",", {
+                    "\n", {"Section", "(", {
+                      {"TextData", "(", {
+                        "{", {StringBox("\"Name:   \""), ",", {
+                          "InputFieldBox", "(", {
+                           {"Dynamic", "(", {"name", ",", {
+                              "{", {"Automatic", ",", "Automatic", ",", {
+                                "Function", "(", {
+                                 {"DocumentClose", "(", "popup", ")"}, ";", {
+                                  "name", "\[Assign]", "#"}, ";", {
+                                  "CreateDocument", "(", {
+                                   {"{", {"Section", "(", {
+                                      {"TextData", "(", {
+                                        "{", {StringBox("\"Hello \""), ",", 
+                                        "name", ",", StringBox("\"!\"")}, 
+                                        "}"}, ")"}, ",", 
+                                      StringBox("\"Title\"")}, ")"}, "}"}, 
+                                   ",", {"WindowFrame", "\[Rule]", 
+                                    StringBox("\"Dialog\"")}}, ")"}}, ")"}}, 
+                              "}"}}, ")"}, ",", "String", ",", {
+                            "ContinuousAction", "\[Rule]", "True"}}, ")"}}, 
+                        "}"}, ")"}, ",", StringBox("\"PopupWindowSection\""), 
+                      ",", {"SectionMargins", "\[Rule]", "4"}, ",", {
+                       "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, ",", {
+                    "WindowFrame", "\[Rule]", 
+                    StringBox("\"ThinFrameCallout\"")}, ",", {
+                    "RemovalConditions", "\[Rule]", {
+                     "{", {StringBox("\"OutsideMouseClick\""), ",", 
+                      StringBox("\"SelectionExit\"")}, "}"}}}, ")"}}, "\n"}}, 
+              "}"}}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+        Section(BoxData(ButtonBox(StringBox("\"Greetings ...\""), 
+           ButtonFunction -> 
+            Function(Local({$Context`popup, $Context`name:= ""}, 
+              $Context`popup:= FE`AttachBoxes(EvaluationBox(), Bottom, 
+                Section(TextData({
+                   "Name:   ", InputFieldBox(Dynamic($Context`name, {
+                      Automatic, Automatic, 
+                      Function(DocumentClose($Context`popup); 
+                        $Context`name:= #1; CreateDocument({
+                          Section(TextData({"Hello ", $Context`name, "!"}), 
+                           "Title")}, WindowFrame -> "Dialog"))}), String, 
+                    ContinuousAction -> True)}), "PopupWindowSection", 
+                 SectionMargins -> 4, LineBreakWithin -> False), 
+                WindowFrame -> "ThinFrameCallout", 
+                RemovalConditions -> {"OutsideMouseClick", 
+                  "SelectionExit"}))))), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [2]:")}, All)}, All), 
+    SectionGroup({Section("Declarative interface", "Section"), 
       Section(
-       BoxData(TemplateBox({StringBox("\"Click me!\""), 
-          StringBox("\"Hello\""), WindowFrame -> None}, "SimplePopup")), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          {"Magnification", "\[Rule]", {
-            "Dynamic", "(", {"CurrentValue", "(", "Magnification", ")"}, 
-            ")"}}, ",", {"Magnification", "\[Rule]", {
-            "Dynamic", "(", {"CurrentValue", "(", "Magnification", ")"}, 
-            ")"}}}, ")"}), "Input", SectionLabel -> "in [4]:"), 
-      Section(
-       BoxData(TemplateBox({
-          {"Magnification", "\[Rule]", 
-           DynamicBox(ToBoxes(CurrentValue(Magnification)))}, {
-           "Magnification", "\[Rule]", 
-           DynamicBox(ToBoxes(CurrentValue(Magnification)))}}, 
-         "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [4]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          StringBox("\"Outer ...\""), ",", {
-           "Row", "(", {
-            "{", {{"RemovalConditions", "\[Rule]", {
-               "Dynamic", "(", {"CurrentValue", "(", "RemovalConditions", 
-                ")"}, ")"}}, ",", StringBox("\"\\n\""), ",", 
-             StringBox("\"content: \""), ",", {
-              "SimplePopup", "(", {StringBox("\"Inner ...\""), ",", {
-                "Row", "(", {
-                 "{", {{"RemovalConditions", "\[Rule]", {
-                    "Dynamic", "(", {"CurrentValue", "(", "RemovalConditions", 
-                     ")"}, ")"}}, ",", StringBox("\"\\n\""), ",", 
+       BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
+            "{", {{StringBox("\"ClosingAction\""), "\[Rule]", 
+              StringBox("\"Delete\"")}, ",", {"RemovalConditions", "\[Rule]", 
+              "None"}, ",", {"WindowFrame", "\[Rule]", 
+              StringBox("\"Single\"")}}, "}"}}, ";"}, "\n", {
+          {"MakeBoxes", "(", {"SimplePopup", "(", {
+             {"~", "lbl"}, ",", {"~", "contents"}, ",", {
+              "opts", ":", {"OptionsPattern", "(", ")"}}}, ")"}, ")"}, 
+          "\[AssignDelayed]", {"TemplateBox", "(", {
+            {"{", {{"MakeBoxes", "(", "lbl", ")"}, ",", {
+               "MakeBoxes", "(", "contents", ")"}, ",", "opts"}, "}"}, ",", 
+            StringBox("\"SimplePopup\"")}, ")"}})), "Input", 
+       SectionLabel -> "in [3]:"), 
+      SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"Click me!\""), ",", StringBox("\"Hello\""), ",", {
+             "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
+         SectionLabel -> "in [5]:"), 
+        Section(
+         BoxData(TemplateBox({StringBox("\"Click me!\""), 
+            StringBox("\"Hello\""), WindowFrame -> None}, "SimplePopup")), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, 
+       All), SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            {"Magnification", "\[Rule]", {
+              "Dynamic", "(", {"CurrentValue", "(", "Magnification", ")"}, 
+              ")"}}, ",", {"Magnification", "\[Rule]", {
+              "Dynamic", "(", {"CurrentValue", "(", "Magnification", ")"}, 
+              ")"}}}, ")"}), "Input", SectionLabel -> "in [4]:"), 
+        Section(
+         BoxData(TemplateBox({
+            {"Magnification", "\[Rule]", 
+             DynamicBox(ToBoxes(CurrentValue(Magnification)))}, {
+             "Magnification", "\[Rule]", 
+             DynamicBox(ToBoxes(CurrentValue(Magnification)))}}, 
+           "SimplePopup")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [4]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"Outer ...\""), ",", {
+             "Row", "(", {
+              "{", {{"RemovalConditions", "\[Rule]", {
+                 "Dynamic", "(", {"CurrentValue", "(", "RemovalConditions", 
+                  ")"}, ")"}}, ",", StringBox("\"\\n\""), ",", 
+               StringBox("\"content: \""), ",", {
+                "SimplePopup", "(", {StringBox("\"Inner ...\""), ",", {
+                  "Row", "(", {
+                   "{", {{"RemovalConditions", "\[Rule]", {
+                      "Dynamic", "(", {"CurrentValue", "(", 
+                       "RemovalConditions", ")"}, ")"}}, ",", 
+                    StringBox("\"\\n\""), ",", 
+                    StringBox(
+                     "\"I reappear when the outer popup reappears due to my \
+                     RemovalConditions\[Rule]None and the \
+                     outer\[HighNineQuote]s \
+                     \\\"ClosingAction\\\"\[Rule]\\\"Hide\\\" setting.\"")}, 
+                   "}"}, ")"}, ",", {
+                  "\n", {"ControlPlacement", "\[Rule]", "Right"}}}, ")"}}, 
+              "}"}, ")"}, ",", {"\n", {StringBox("\"ClosingAction\""), 
+              "\[Rule]", StringBox("\"Hide\"")}}, ",", {
+             "RemovalConditions", "\[Rule]", {
+              "{", {StringBox("\"OutsideMouseClick\""), ",", 
+               StringBox("\"SelectionExit\"")}, "}"}}}, ")"}), "Input", 
+         SectionLabel -> "in [5]:"), 
+        Section(
+         BoxData(TemplateBox({StringBox("\"Outer ...\""), 
+            TemplateBox({{"RemovalConditions", "\[Rule]", 
+               DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
+              StringBox("\"\n\""), StringBox("\"content: \""), 
+              TemplateBox({StringBox("\"Inner ...\""), 
+                TemplateBox({{"RemovalConditions", "\[Rule]", 
+                   DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
+                  StringBox("\"\n\""), 
                   StringBox(
                    "\"I reappear when the outer popup reappears due to my \
                    RemovalConditions\[Rule]None and the outer\[HighNineQuote]s \
                    \\\"ClosingAction\\\"\[Rule]\\\"Hide\\\" setting.\"")}, 
-                 "}"}, ")"}, ",", {
-                "\n", {"ControlPlacement", "\[Rule]", "Right"}}}, ")"}}, "}"}, 
-           ")"}, ",", {"\n", {StringBox("\"ClosingAction\""), "\[Rule]", 
-            StringBox("\"Hide\"")}}, ",", {"RemovalConditions", "\[Rule]", {
-            "{", {StringBox("\"OutsideMouseClick\""), ",", 
-             StringBox("\"SelectionExit\"")}, "}"}}}, ")"}), "Input", 
-       SectionLabel -> "in [5]:"), 
-      Section(
-       BoxData(TemplateBox({StringBox("\"Outer ...\""), 
-          TemplateBox({{"RemovalConditions", "\[Rule]", 
-             DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
-            StringBox("\"\n\""), StringBox("\"content: \""), 
-            TemplateBox({StringBox("\"Inner ...\""), 
-              TemplateBox({{"RemovalConditions", "\[Rule]", 
-                 DynamicBox(ToBoxes(CurrentValue(RemovalConditions)))}, 
-                StringBox("\"\n\""), 
-                StringBox(
-                 "\"I reappear when the outer popup reappears due to my \
-                 RemovalConditions\[Rule]None and the outer\[HighNineQuote]s \
-                 \\\"ClosingAction\\\"\[Rule]\\\"Hide\\\" setting.\"")}, 
-               "RowDefault"), ControlPlacement -> Right}, "SimplePopup")}, 
-           "RowDefault"), "ClosingAction" -> "Hide", 
-          RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
-         "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [5]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"DynamicLocal", "(", {
-          {"{", {"x", "\[Assign]", StringBox("\"\"")}, "}"}, ",", {
-           "{", {{"SimplePopup", "(", {StringBox("\"Enter text ...\""), ",", {
-               "Row", "(", {"{", {StringBox("\"content: \""), ",", {
-                  "InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
-                   "String"}, ")"}}, "}"}, ")"}}, ")"}, ",", {
-             "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
-       SectionLabel -> "in [7]:"), 
-      Section(BoxData(DynamicLocalBox({$Context`x}, {
-          "{", {TemplateBox({StringBox("\"Enter text ...\""), 
-             TemplateBox({StringBox("\"content: \""), 
-               InputFieldBox(Dynamic($Context`x), String)}, "RowDefault")}, 
-            "SimplePopup"), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
-         DynamicLocalValues :> {
-           {OwnRules($Context`x):= {HoldPattern($Context`x) :> ""}}})), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"DynamicLocal", "(", {
-          {"{", {{"x", "\[Assign]", StringBox("\"\"")}, ",", {
-             "pre", "\[Assign]", "0"}, ",", {"post", "\[Assign]", "0"}}, "}"}, 
-          ",", {
-           "{", {{"SimplePopup", "(", {StringBox("\"Enter text ...\""), ",", {
-               "Row", "(", {"{", {StringBox("\"content: \""), ",", {
-                  "InputField", "(", {
-                   {"Dynamic", "(", {
-                     "x", ",", {
-                      "{", {{"Function", "(", {{"++", "pre"}, ";", {
-                          "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", 
-                       ",", {"Function", "(", {{"++", "post"}, ";", {
-                          "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ",", 
-                   "String", ",", {"ContinuousAction", "\[Rule]", "True"}}, 
-                  ")"}}, "}"}, ")"}, ",", {"RemovalConditions", "\[Rule]", {
-                "{", {StringBox("\"OutsideMouseClick\""), ",", 
-                 StringBox("\"SelectionExit\"")}, "}"}}}, ")"}, ",", {
-             "Dynamic", "(", {"{", {"pre", ",", "post", ",", "x"}, "}"}, 
-             ")"}}, "}"}, ",", {"UnsavedVariables", "\[RuleDelayed]", {
-            "{", {"pre", ",", "post"}, "}"}}}, ")"}), "Input", 
-       SectionLabel -> "in [6]:"), 
-      Section(BoxData(DynamicLocalBox({$Context`x, $Context`pre, 
-          $Context`post}, {
-          "{", {TemplateBox({StringBox("\"Enter text ...\""), 
-             TemplateBox({StringBox("\"content: \""), 
-               InputFieldBox(Dynamic($Context`x, {
-                  Function(++$Context`pre; $Context`x:= #1), Automatic, 
-                  Function(++$Context`post; $Context`x:= #1)}), String, 
-                ContinuousAction -> True)}, "RowDefault"), 
-             RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
-            "SimplePopup"), ",", 
-           DynamicBox(ToBoxes({$Context`pre, $Context`post, $Context`x}))}, 
-          "}"}, DynamicLocalValues :> {
-           {OwnRules($Context`x):= {HoldPattern($Context`x) :> ""}}}, 
-         UnsavedVariables :> {$Context`pre, $Context`post})), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          StringBox("\"BesselJ plot\""), ",", {
-           "Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
-             "x", "\[Rule]", {"0", "..", "10"}}}, ")"}, ",", {
-           "RemovalConditions", "\[Rule]", StringBox("\"MouseExit\"")}}, 
-         ")"}), "Input", SectionLabel -> "in [7]:"), 
-      Section(BoxData(TemplateBox({StringBox("\"BesselJ plot\""), 
-          GraphicsBox({
-            {RGBColor(0.75`, 0, 0), {
-              LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
-                 0.17573939881821521`}, {0.7142857142857143`, 
-                 0.33484497941858382`}, {0.89285714285714279`, 
-                 0.40339568146544103`}, {1.0714285714285714`, 
-                 0.46243225814545758`}, {1.1607142857142856`, 
-                 0.48795588820937486`}, {1.25`, 0.51062326031988037`}, {
-                 1.3392857142857144`, 0.53031274649169002`}, {
-                 1.3839285714285716`, 0.53900809576751219`}, {
-                 1.4285714285714286`, 0.54692224883496088`}, {
-                 1.4732142857142856`, 0.55404559797417252`}, {
-                 1.5178571428571428`, 0.56036982692486637`}, {
-                 1.5625`, 0.56588792281805833`}, {
-                 1.5848214285714286`, 0.5683428381720067`}, {
-                 1.6071428571428572`, 0.57059418585960142`}, {
-                 1.6294642857142858`, 0.57264145979197112`}, {
-                 1.6517857142857144`, 0.5744842367506896`}, {
-                 1.6741071428571428`, 0.57612217649518382`}, {
-                 1.6964285714285714`, 0.57755502183446883`}, {
-                 1.71875`, 0.57878259866318615`}, {
-                 1.7410714285714284`, 0.57980481596195788`}, {
-                 1.7522321428571428`, 0.5802389090549217`}, {
-                 1.763392857142857`, 0.58062166576207119`}, {
-                 1.7745535714285712`, 0.58095309805234241`}, {
-                 1.7857142857142856`, 0.5812332230745223`}, {
-                 1.796875`, 0.58146206315308546`}, {
-                 1.8080357142857142`, 0.58163964578347782`}, {
-                 1.8191964285714284`, 0.58176600362684627`}, {
-                 1.8303571428571428`, 0.58184117450421391`}, {
-                 1.8415178571428572`, 0.58186520139010445`}, {
-                 1.8526785714285714`, 0.58183813240561477`}, {
-                 1.8638392857142856`, 0.58176002081093703`}, {
-                 1.875`, 0.58163092499733049`}, {
-                 1.8861607142857144`, 0.58145090847854608`}, {
-                 1.8973214285714286`, 0.58122003988170279`}, {
-                 1.9084821428571428`, 0.58093839293761784`}, {
-                 1.9196428571428572`, 0.58060604647059144`}, {
-                 1.9308035714285714`, 0.58022308438764891`}, {
-                 1.9419642857142856`, 0.57978959566723998`}, {
-                 1.9642857142857142`, 0.57877141951334576`}, {
-                 1.9866071428571428`, 0.5775523308015037`}, {
-                 2.0089285714285712`, 0.57613322265321776`}, {
-                 2.03125`, 0.57451506806268304`}, {
-                 2.0535714285714284`, 0.57269891940655815`}, {
-                 2.0758928571428568`, 0.57068590791996698`}, {
-                 2.0982142857142856`, 0.56847724313897641`}, {
-                 2.1428571428571428`, 0.56347817976511072`}, {
-                 2.1875`, 0.55771294832059026`}, {
-                 2.2321428571428568`, 0.5511939794429026`}, {
-                 2.276785714285714`, 0.54393489180156285`}, {
-                 2.3214285714285712`, 0.5359504665215763`}, {
-                 2.4107142857142856`, 0.51787037270058423`}, {
-                 2.5`, 0.49709410246427371`}, {
-                 2.6785714285714288`, 0.44809672768944192`}, {
-                 2.8571428571428572`, 0.39039321301953961`}, {
-                 3.2142857142857144`, 0.255591338292735`}, {
-                 3.5714285714285716`, 0.10742674527641556`}, {
-                 3.9285714285714288`, -0.038472274719149463`}, {
-                 4.2857142857142856`, -0.1672862481578806`}, {
-                 4.4642857142857135`, -0.2212694907061778`}, {
-                 4.6428571428571423`, -0.2665797108861529`}, {
-                 4.7321428571428568`, -0.28566776508015623`}, {
-                 4.8214285714285712`, -0.30224499379859565`}, {
-                 4.8660714285714288`, -0.30956735819059028`}, {
-                 4.9107142857142856`, -0.3162347300136904`}, {
-                 4.9553571428571423`, -0.32224047124785643`}, {
-                 5.0`, -0.32757913759146512`}, {
-                 5.0446428571428577`, -0.33224648311157379`}, {
-                 5.0669642857142865`, -0.33432741204790262`}, {
-                 5.0892857142857144`, -0.33623946274777627`}, {
-                 5.1116071428571423`, -0.33798244227378776`}, {
-                 5.1339285714285712`, -0.33955623267076729`}, {
-                 5.15625`, -0.34096079086005943`}, {
-                 5.1785714285714288`, -0.34219614850057345`}, {
-                 5.2008928571428577`, -0.34326241181671169`}, {
-                 5.2232142857142865`, -0.34415976139330701`}, {
-                 5.2455357142857153`, -0.34488845193770112`}, {
-                 5.2678571428571432`, -0.3454488120091041`}, {
-                 5.2901785714285712`, -0.34584124371542896`}, {
-                 5.3125`, -0.34606622237774354`}, {
-                 5.3348214285714288`, -0.34612429616257212`}, {
-                 5.3571428571428577`, -0.34601608568221992`}, {
-                 5.3794642857142865`, -0.34574228356338066`}, {
-                 5.4017857142857153`, -0.34530365398423751`}, {
-                 5.4241071428571441`, -0.34470103218030784`}, {
-                 5.4464285714285721`, -0.34393532391933362`}, {
-                 5.46875`, -0.34300750494543403`}, {
-                 5.4910714285714288`, -0.34191862039288945`}, {
-                 5.5133928571428577`, -0.34066978416978438`}, {
-                 5.5357142857142865`, -0.33926217831190086`}, {
-                 5.5580357142857153`, -0.33769705230713826`}, {
-                 5.5803571428571432`, -0.33597572239084378`}, {
-                 5.625`, -0.33207004507337334`}, {
-                 5.6696428571428577`, -0.32755698261494959`}, {
-                 5.7142857142857144`, -0.32244938937469375`}, {
-                 5.7589285714285712`, -0.31676111036793092`}, {
-                 5.8035714285714288`, -0.3105069521339463`}, {
-                 5.8928571428571423`, -0.29636484563650495`}, {
-                 5.9821428571428568`, -0.28015954513980529`}, {
-                 6.0714285714285712`, -0.26204078433961253`}, {
-                 6.25`, -0.22072087753923708`}, {
-                 6.4285714285714288`, -0.17382097866564641`}, {
-                 6.7857142857142865`, -0.069540646591688737`}, {
-                 7.1428571428571432`, 0.037753477649233015`}, {
-                 7.5`, 0.13524842757970271`}, {
-                 7.6785714285714288`, 0.17674410507149993`}, {
-                 7.7678571428571432`, 0.19514882563014399`}, {
-                 7.8571428571428577`, 0.21182298185335291`}, {
-                 7.9464285714285721`, 0.22665787991845876`}, {
-                 8.0357142857142865`, 0.23955980024845189`}, {
-                 8.0803571428571423`, 0.24526084210785928`}, {
-                 8.125`, 0.25045056135481775`}, {
-                 8.1696428571428577`, 0.25512168606747265`}, {
-                 8.2142857142857153`, 0.25926796437202737`}, {
-                 8.258928571428573`, 0.26288417164145728`}, {
-                 8.28125`, 0.26449214816406402`}, {
-                 8.3035714285714288`, 0.26596611575531282`}, {
-                 8.3258928571428577`, 0.2673057122735461`}, {
-                 8.3482142857142847`, 0.2685106404172754`}, {
-                 8.3705357142857135`, 0.26958066772254613`}, {
-                 8.3928571428571423`, 0.2705156265303249`}, {
-                 8.4151785714285712`, 0.27131541392343811`}, {
-                 8.4375`, 0.27197999163357328`}, {
-                 8.4598214285714288`, 0.27250938591819535`}, {
-                 8.4821428571428577`, 0.27290368740752263`}, {
-                 8.5044642857142865`, 0.2731630509218082`}, {
-                 8.5267857142857153`, 0.27328769525890056`}, {
-                 8.5491071428571423`, 0.27327790295228543`}, {
-                 8.5714285714285712`, 0.27313401999971121`}, {
-                 8.59375`, 0.27285645556281474`}, {
-                 8.616071428571427`, 0.27244568163772459`}, {
-                 8.6383928571428559`, 0.27190223269643932`}, {
-                 8.6607142857142847`, 0.27122670530042547`}, {
-                 8.6830357142857135`, 0.27041975768517262`}, {
-                 8.7053571428571423`, 0.2694821093169858`}, {
-                 8.7276785714285712`, 0.26841454042177099`}, {
-                 8.75`, 0.2672178914862865`}, {
-                 8.7723214285714288`, 0.26589306273215352`}, {
-                 8.7946428571428577`, 0.26444101356263144`}, {
-                 8.8392857142857135`, 0.26115938399378175`}, {
-                 8.8839285714285694`, 0.25738183894928957`}, {
-                 8.928571428571427`, 0.25311812168003334`}, {
-                 8.9732142857142847`, 0.24837886025251571`}, {
-                 9.0178571428571423`, 0.24317554370583139`}, {
-                 9.1071428571428559`, 0.23142685256709239`}, {
-                 9.1964285714285694`, 0.21798017944631806`}, {
-                 9.2857142857142847`, 0.20295565874971219`}, {
-                 9.4642857142857135`, 0.1687075005340451`}, {
-                 9.6428571428571423`, 0.12984337316946581`}, {
-                 9.9999999999999982`, 0.043472746168858309`}})}}}, {
-            AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-            Axes -> True, PlotRange -> 
-             NCache({0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, {
-               0.0` .. 10.0`, -0.34612429616257212` .. 
-                0.58186520139010445`})}), RemovalConditions -> "MouseExit"}, 
-         "SimplePopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [7]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SetterBar", "(", {{"Dynamic", "(", "cpl", ")"}, ",", {
-           "{", {"Bottom", ",", "Top", ",", "Left", ",", "Right"}, "}"}}, 
-         ")"}), "Input", SectionLabel -> "in [8]:"), 
-      Section(BoxData(InterpretationBox({
-          SetterBox(Dynamic($Context`cpl), Bottom, "Bottom"), 
-          "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Top, "Top"), 
-          "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Left, "Left"), 
-          "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Right, 
-           "Right")}, SetterBar(Dynamic($Context`cpl), {
-           Bottom, Top, Left, Right}), Editable -> False)), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          StringBox("\"BesselJ plot\""), ",", {
-           "Column", "@", {
-            "{", {{"SetterBar", "(", {{"Dynamic", "(", "cpl", ")"}, ",", {
-                "{", {"Bottom", ",", "Top", ",", "Left", ",", "Right"}, "}"}}, 
-              ")"}, ",", {"Plot", "(", {
-               {"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
-                "x", "\[Rule]", {"0", "..", "10"}}}, ")"}}, "}"}}, ",", {
-           "WindowFrame", "\[Rule]", StringBox("\"ThinFrameCallout\"")}, ",", {
-           "ControlPlacement", "\[Rule]", {"Dynamic", "(", "cpl", ")"}}, ",", {
-           "\n", {"RemovalConditions", "\[Rule]", 
-            StringBox("\"OutsideMouseClick\"")}}}, ")"}), "Input", 
-       SectionLabel -> "in [9]:"), 
-      Section(BoxData(TemplateBox({StringBox("\"BesselJ plot\""), 
-          TagBox(
-           GridBox({
-             {InterpretationBox({
-                SetterBox(Dynamic($Context`cpl), Bottom, "Bottom"), 
-                "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Top, 
-                 "Top"), "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), 
-                 Left, "Left"), "\[InvisibleSpace]", 
-                SetterBox(Dynamic($Context`cpl), Right, "Right")}, 
-               SetterBar(Dynamic($Context`cpl), {Bottom, Top, Left, Right}))}, 
-             {GraphicsBox({
-                {RGBColor(0.75`, 0, 0), {
-                  LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
-                     0.17573939881821521`}, {0.7142857142857143`, 
-                     0.33484497941858382`}, {0.89285714285714279`, 
-                     0.40339568146544103`}, {1.0714285714285714`, 
-                     0.46243225814545758`}, {1.1607142857142856`, 
-                     0.48795588820937486`}, {1.25`, 0.51062326031988037`}, {
-                     1.3392857142857144`, 0.53031274649169002`}, {
-                     1.3839285714285716`, 0.53900809576751219`}, {
-                     1.4285714285714286`, 0.54692224883496088`}, {
-                     1.4732142857142856`, 0.55404559797417252`}, {
-                     1.5178571428571428`, 0.56036982692486637`}, {
-                     1.5625`, 0.56588792281805833`}, {
-                     1.5848214285714286`, 0.5683428381720067`}, {
-                     1.6071428571428572`, 0.57059418585960142`}, {
-                     1.6294642857142858`, 0.57264145979197112`}, {
-                     1.6517857142857144`, 0.5744842367506896`}, {
-                     1.6741071428571428`, 0.57612217649518382`}, {
-                     1.6964285714285714`, 0.57755502183446883`}, {
-                     1.71875`, 0.57878259866318615`}, {
-                     1.7410714285714284`, 0.57980481596195788`}, {
-                     1.7522321428571428`, 0.5802389090549217`}, {
-                     1.763392857142857`, 0.58062166576207119`}, {
-                     1.7745535714285712`, 0.58095309805234241`}, {
-                     1.7857142857142856`, 0.5812332230745223`}, {
-                     1.796875`, 0.58146206315308546`}, {
-                     1.8080357142857142`, 0.58163964578347782`}, {
-                     1.8191964285714284`, 0.58176600362684627`}, {
-                     1.8303571428571428`, 0.58184117450421391`}, {
-                     1.8415178571428572`, 0.58186520139010445`}, {
-                     1.8526785714285714`, 0.58183813240561477`}, {
-                     1.8638392857142856`, 0.58176002081093703`}, {
-                     1.875`, 0.58163092499733049`}, {
-                     1.8861607142857144`, 0.58145090847854608`}, {
-                     1.8973214285714286`, 0.58122003988170279`}, {
-                     1.9084821428571428`, 0.58093839293761784`}, {
-                     1.9196428571428572`, 0.58060604647059144`}, {
-                     1.9308035714285714`, 0.58022308438764891`}, {
-                     1.9419642857142856`, 0.57978959566723998`}, {
-                     1.9642857142857142`, 0.57877141951334576`}, {
-                     1.9866071428571428`, 0.5775523308015037`}, {
-                     2.0089285714285712`, 0.57613322265321776`}, {
-                     2.03125`, 0.57451506806268304`}, {
-                     2.0535714285714284`, 0.57269891940655815`}, {
-                     2.0758928571428568`, 0.57068590791996698`}, {
-                     2.0982142857142856`, 0.56847724313897641`}, {
-                     2.1428571428571428`, 0.56347817976511072`}, {
-                     2.1875`, 0.55771294832059026`}, {
-                     2.2321428571428568`, 0.5511939794429026`}, {
-                     2.276785714285714`, 0.54393489180156285`}, {
-                     2.3214285714285712`, 0.5359504665215763`}, {
-                     2.4107142857142856`, 0.51787037270058423`}, {
-                     2.5`, 0.49709410246427371`}, {
-                     2.6785714285714288`, 0.44809672768944192`}, {
-                     2.8571428571428572`, 0.39039321301953961`}, {
-                     3.2142857142857144`, 0.255591338292735`}, {
-                     3.5714285714285716`, 0.10742674527641556`}, {
-                     3.9285714285714288`, -0.038472274719149463`}, {
-                     4.2857142857142856`, -0.1672862481578806`}, {
-                     4.4642857142857135`, -0.2212694907061778`}, {
-                     4.6428571428571423`, -0.2665797108861529`}, {
-                     4.7321428571428568`, -0.28566776508015623`}, {
-                     4.8214285714285712`, -0.30224499379859565`}, {
-                     4.8660714285714288`, -0.30956735819059028`}, {
-                     4.9107142857142856`, -0.3162347300136904`}, {
-                     4.9553571428571423`, -0.32224047124785643`}, {
-                     5.0`, -0.32757913759146512`}, {
-                     5.0446428571428577`, -0.33224648311157379`}, {
-                     5.0669642857142865`, -0.33432741204790262`}, {
-                     5.0892857142857144`, -0.33623946274777627`}, {
-                     5.1116071428571423`, -0.33798244227378776`}, {
-                     5.1339285714285712`, -0.33955623267076729`}, {
-                     5.15625`, -0.34096079086005943`}, {
-                     5.1785714285714288`, -0.34219614850057345`}, {
-                     5.2008928571428577`, -0.34326241181671169`}, {
-                     5.2232142857142865`, -0.34415976139330701`}, {
-                     5.2455357142857153`, -0.34488845193770112`}, {
-                     5.2678571428571432`, -0.3454488120091041`}, {
-                     5.2901785714285712`, -0.34584124371542896`}, {
-                     5.3125`, -0.34606622237774354`}, {
-                     5.3348214285714288`, -0.34612429616257212`}, {
-                     5.3571428571428577`, -0.34601608568221992`}, {
-                     5.3794642857142865`, -0.34574228356338066`}, {
-                     5.4017857142857153`, -0.34530365398423751`}, {
-                     5.4241071428571441`, -0.34470103218030784`}, {
-                     5.4464285714285721`, -0.34393532391933362`}, {
-                     5.46875`, -0.34300750494543403`}, {
-                     5.4910714285714288`, -0.34191862039288945`}, {
-                     5.5133928571428577`, -0.34066978416978438`}, {
-                     5.5357142857142865`, -0.33926217831190086`}, {
-                     5.5580357142857153`, -0.33769705230713826`}, {
-                     5.5803571428571432`, -0.33597572239084378`}, {
-                     5.625`, -0.33207004507337334`}, {
-                     5.6696428571428577`, -0.32755698261494959`}, {
-                     5.7142857142857144`, -0.32244938937469375`}, {
-                     5.7589285714285712`, -0.31676111036793092`}, {
-                     5.8035714285714288`, -0.3105069521339463`}, {
-                     5.8928571428571423`, -0.29636484563650495`}, {
-                     5.9821428571428568`, -0.28015954513980529`}, {
-                     6.0714285714285712`, -0.26204078433961253`}, {
-                     6.25`, -0.22072087753923708`}, {
-                     6.4285714285714288`, -0.17382097866564641`}, {
-                     6.7857142857142865`, -0.069540646591688737`}, {
-                     7.1428571428571432`, 0.037753477649233015`}, {
-                     7.5`, 0.13524842757970271`}, {
-                     7.6785714285714288`, 0.17674410507149993`}, {
-                     7.7678571428571432`, 0.19514882563014399`}, {
-                     7.8571428571428577`, 0.21182298185335291`}, {
-                     7.9464285714285721`, 0.22665787991845876`}, {
-                     8.0357142857142865`, 0.23955980024845189`}, {
-                     8.0803571428571423`, 0.24526084210785928`}, {
-                     8.125`, 0.25045056135481775`}, {
-                     8.1696428571428577`, 0.25512168606747265`}, {
-                     8.2142857142857153`, 0.25926796437202737`}, {
-                     8.258928571428573`, 0.26288417164145728`}, {
-                     8.28125`, 0.26449214816406402`}, {
-                     8.3035714285714288`, 0.26596611575531282`}, {
-                     8.3258928571428577`, 0.2673057122735461`}, {
-                     8.3482142857142847`, 0.2685106404172754`}, {
-                     8.3705357142857135`, 0.26958066772254613`}, {
-                     8.3928571428571423`, 0.2705156265303249`}, {
-                     8.4151785714285712`, 0.27131541392343811`}, {
-                     8.4375`, 0.27197999163357328`}, {
-                     8.4598214285714288`, 0.27250938591819535`}, {
-                     8.4821428571428577`, 0.27290368740752263`}, {
-                     8.5044642857142865`, 0.2731630509218082`}, {
-                     8.5267857142857153`, 0.27328769525890056`}, {
-                     8.5491071428571423`, 0.27327790295228543`}, {
-                     8.5714285714285712`, 0.27313401999971121`}, {
-                     8.59375`, 0.27285645556281474`}, {
-                     8.616071428571427`, 0.27244568163772459`}, {
-                     8.6383928571428559`, 0.27190223269643932`}, {
-                     8.6607142857142847`, 0.27122670530042547`}, {
-                     8.6830357142857135`, 0.27041975768517262`}, {
-                     8.7053571428571423`, 0.2694821093169858`}, {
-                     8.7276785714285712`, 0.26841454042177099`}, {
-                     8.75`, 0.2672178914862865`}, {
-                     8.7723214285714288`, 0.26589306273215352`}, {
-                     8.7946428571428577`, 0.26444101356263144`}, {
-                     8.8392857142857135`, 0.26115938399378175`}, {
-                     8.8839285714285694`, 0.25738183894928957`}, {
-                     8.928571428571427`, 0.25311812168003334`}, {
-                     8.9732142857142847`, 0.24837886025251571`}, {
-                     9.0178571428571423`, 0.24317554370583139`}, {
-                     9.1071428571428559`, 0.23142685256709239`}, {
-                     9.1964285714285694`, 0.21798017944631806`}, {
-                     9.2857142857142847`, 0.20295565874971219`}, {
-                     9.4642857142857135`, 0.1687075005340451`}, {
-                     9.6428571428571423`, 0.12984337316946581`}, {
-                     9.9999999999999982`, 0.043472746168858309`}})}}}, {
-                AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-                Axes -> True, PlotRange -> 
-                 NCache({0 .. 10, -0.34612429616257212` .. 
-                    0.58186520139010445`}, {
-                   0.0` .. 10.0`, -0.34612429616257212` .. 
-                    0.58186520139010445`})})}}), "Column"), 
-          WindowFrame -> "ThinFrameCallout", 
-          ControlPlacement -> Dynamic($Context`cpl), 
-          RemovalConditions -> "OutsideMouseClick"}, "SimplePopup")), 
-       "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          StringBox("\"Panelled BesselJ plot\""), ",", {
-           "Panel", "(", {
-            {"Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
+                 "RowDefault"), ControlPlacement -> Right}, "SimplePopup")}, 
+             "RowDefault"), "ClosingAction" -> "Hide", 
+            RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
+           "SimplePopup")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [5]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"DynamicLocal", "(", {
+            {"{", {"x", "\[Assign]", StringBox("\"\"")}, "}"}, ",", {
+             "{", {{"SimplePopup", "(", {StringBox("\"Enter text ...\""), ",", 
+                {"Row", "(", {"{", {StringBox("\"content: \""), ",", {
+                    "InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
+                     "String"}, ")"}}, "}"}, ")"}}, ")"}, ",", {
+               "Dynamic", "(", "x", ")"}}, "}"}}, ")"}), "Input", 
+         SectionLabel -> "in [7]:"), 
+        Section(BoxData(DynamicLocalBox({$Context`x}, {
+            "{", {TemplateBox({StringBox("\"Enter text ...\""), 
+               TemplateBox({StringBox("\"content: \""), 
+                 InputFieldBox(Dynamic($Context`x), String)}, "RowDefault")}, 
+              "SimplePopup"), ",", DynamicBox(ToBoxes($Context`x))}, "}"}, 
+           DynamicLocalValues :> {
+             {OwnRules($Context`x):= {HoldPattern($Context`x) :> ""}}})), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [7]:")}, 
+       All), SectionGroup({
+        Section(BoxData({"DynamicLocal", "(", {
+            {"{", {{"x", "\[Assign]", StringBox("\"\"")}, ",", {
+               "pre", "\[Assign]", "0"}, ",", {"post", "\[Assign]", "0"}}, 
+             "}"}, ",", {
+             "{", {{"SimplePopup", "(", {StringBox("\"Enter text ...\""), ",", 
+                {"Row", "(", {"{", {StringBox("\"content: \""), ",", {
+                    "InputField", "(", {
+                     {"Dynamic", "(", {
+                       "x", ",", {
+                        "{", {{"Function", "(", {{"++", "pre"}, ";", {
+                            "x", "\[Assign]", "#"}}, ")"}, ",", "Automatic", 
+                         ",", {"Function", "(", {{"++", "post"}, ";", {
+                            "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ",", 
+                     "String", ",", {"ContinuousAction", "\[Rule]", "True"}}, 
+                    ")"}}, "}"}, ")"}, ",", {"RemovalConditions", "\[Rule]", {
+                  "{", {StringBox("\"OutsideMouseClick\""), ",", 
+                   StringBox("\"SelectionExit\"")}, "}"}}}, ")"}, ",", {
+               "Dynamic", "(", {"{", {"pre", ",", "post", ",", "x"}, "}"}, 
+               ")"}}, "}"}, ",", {"UnsavedVariables", "\[RuleDelayed]", {
+              "{", {"pre", ",", "post"}, "}"}}}, ")"}), "Input", 
+         SectionLabel -> "in [6]:"), 
+        Section(BoxData(DynamicLocalBox({$Context`x, $Context`pre, 
+            $Context`post}, {
+            "{", {TemplateBox({StringBox("\"Enter text ...\""), 
+               TemplateBox({StringBox("\"content: \""), 
+                 InputFieldBox(Dynamic($Context`x, {
+                    Function(++$Context`pre; $Context`x:= #1), Automatic, 
+                    Function(++$Context`post; $Context`x:= #1)}), String, 
+                  ContinuousAction -> True)}, "RowDefault"), 
+               RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
+              "SimplePopup"), ",", 
+             DynamicBox(ToBoxes({$Context`pre, $Context`post, $Context`x}))}, 
+            "}"}, DynamicLocalValues :> {
+             {OwnRules($Context`x):= {HoldPattern($Context`x) :> ""}}}, 
+           UnsavedVariables :> {$Context`pre, $Context`post})), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"BesselJ plot\""), ",", {
+             "Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
                "x", "\[Rule]", {"0", "..", "10"}}}, ")"}, ",", {
-             "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}, ",", {
-           "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-       SectionLabel -> "in [10]:"), 
-      Section(BoxData(TemplateBox({StringBox("\"Panelled BesselJ plot\""), 
-          PanelBox(GraphicsBox({
-             {RGBColor(0.75`, 0, 0), {
-               LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
-                  0.17573939881821521`}, {0.7142857142857143`, 
-                  0.33484497941858382`}, {0.89285714285714279`, 
-                  0.40339568146544103`}, {1.0714285714285714`, 
-                  0.46243225814545758`}, {1.1607142857142856`, 
-                  0.48795588820937486`}, {1.25`, 0.51062326031988037`}, {
-                  1.3392857142857144`, 0.53031274649169002`}, {
-                  1.3839285714285716`, 0.53900809576751219`}, {
-                  1.4285714285714286`, 0.54692224883496088`}, {
-                  1.4732142857142856`, 0.55404559797417252`}, {
-                  1.5178571428571428`, 0.56036982692486637`}, {
-                  1.5625`, 0.56588792281805833`}, {
-                  1.5848214285714286`, 0.5683428381720067`}, {
-                  1.6071428571428572`, 0.57059418585960142`}, {
-                  1.6294642857142858`, 0.57264145979197112`}, {
-                  1.6517857142857144`, 0.5744842367506896`}, {
-                  1.6741071428571428`, 0.57612217649518382`}, {
-                  1.6964285714285714`, 0.57755502183446883`}, {
-                  1.71875`, 0.57878259866318615`}, {
-                  1.7410714285714284`, 0.57980481596195788`}, {
-                  1.7522321428571428`, 0.5802389090549217`}, {
-                  1.763392857142857`, 0.58062166576207119`}, {
-                  1.7745535714285712`, 0.58095309805234241`}, {
-                  1.7857142857142856`, 0.5812332230745223`}, {
-                  1.796875`, 0.58146206315308546`}, {
-                  1.8080357142857142`, 0.58163964578347782`}, {
-                  1.8191964285714284`, 0.58176600362684627`}, {
-                  1.8303571428571428`, 0.58184117450421391`}, {
-                  1.8415178571428572`, 0.58186520139010445`}, {
-                  1.8526785714285714`, 0.58183813240561477`}, {
-                  1.8638392857142856`, 0.58176002081093703`}, {
-                  1.875`, 0.58163092499733049`}, {
-                  1.8861607142857144`, 0.58145090847854608`}, {
-                  1.8973214285714286`, 0.58122003988170279`}, {
-                  1.9084821428571428`, 0.58093839293761784`}, {
-                  1.9196428571428572`, 0.58060604647059144`}, {
-                  1.9308035714285714`, 0.58022308438764891`}, {
-                  1.9419642857142856`, 0.57978959566723998`}, {
-                  1.9642857142857142`, 0.57877141951334576`}, {
-                  1.9866071428571428`, 0.5775523308015037`}, {
-                  2.0089285714285712`, 0.57613322265321776`}, {
-                  2.03125`, 0.57451506806268304`}, {
-                  2.0535714285714284`, 0.57269891940655815`}, {
-                  2.0758928571428568`, 0.57068590791996698`}, {
-                  2.0982142857142856`, 0.56847724313897641`}, {
-                  2.1428571428571428`, 0.56347817976511072`}, {
-                  2.1875`, 0.55771294832059026`}, {
-                  2.2321428571428568`, 0.5511939794429026`}, {
-                  2.276785714285714`, 0.54393489180156285`}, {
-                  2.3214285714285712`, 0.5359504665215763`}, {
-                  2.4107142857142856`, 0.51787037270058423`}, {
-                  2.5`, 0.49709410246427371`}, {
-                  2.6785714285714288`, 0.44809672768944192`}, {
-                  2.8571428571428572`, 0.39039321301953961`}, {
-                  3.2142857142857144`, 0.255591338292735`}, {
-                  3.5714285714285716`, 0.10742674527641556`}, {
-                  3.9285714285714288`, -0.038472274719149463`}, {
-                  4.2857142857142856`, -0.1672862481578806`}, {
-                  4.4642857142857135`, -0.2212694907061778`}, {
-                  4.6428571428571423`, -0.2665797108861529`}, {
-                  4.7321428571428568`, -0.28566776508015623`}, {
-                  4.8214285714285712`, -0.30224499379859565`}, {
-                  4.8660714285714288`, -0.30956735819059028`}, {
-                  4.9107142857142856`, -0.3162347300136904`}, {
-                  4.9553571428571423`, -0.32224047124785643`}, {
-                  5.0`, -0.32757913759146512`}, {
-                  5.0446428571428577`, -0.33224648311157379`}, {
-                  5.0669642857142865`, -0.33432741204790262`}, {
-                  5.0892857142857144`, -0.33623946274777627`}, {
-                  5.1116071428571423`, -0.33798244227378776`}, {
-                  5.1339285714285712`, -0.33955623267076729`}, {
-                  5.15625`, -0.34096079086005943`}, {
-                  5.1785714285714288`, -0.34219614850057345`}, {
-                  5.2008928571428577`, -0.34326241181671169`}, {
-                  5.2232142857142865`, -0.34415976139330701`}, {
-                  5.2455357142857153`, -0.34488845193770112`}, {
-                  5.2678571428571432`, -0.3454488120091041`}, {
-                  5.2901785714285712`, -0.34584124371542896`}, {
-                  5.3125`, -0.34606622237774354`}, {
-                  5.3348214285714288`, -0.34612429616257212`}, {
-                  5.3571428571428577`, -0.34601608568221992`}, {
-                  5.3794642857142865`, -0.34574228356338066`}, {
-                  5.4017857142857153`, -0.34530365398423751`}, {
-                  5.4241071428571441`, -0.34470103218030784`}, {
-                  5.4464285714285721`, -0.34393532391933362`}, {
-                  5.46875`, -0.34300750494543403`}, {
-                  5.4910714285714288`, -0.34191862039288945`}, {
-                  5.5133928571428577`, -0.34066978416978438`}, {
-                  5.5357142857142865`, -0.33926217831190086`}, {
-                  5.5580357142857153`, -0.33769705230713826`}, {
-                  5.5803571428571432`, -0.33597572239084378`}, {
-                  5.625`, -0.33207004507337334`}, {
-                  5.6696428571428577`, -0.32755698261494959`}, {
-                  5.7142857142857144`, -0.32244938937469375`}, {
-                  5.7589285714285712`, -0.31676111036793092`}, {
-                  5.8035714285714288`, -0.3105069521339463`}, {
-                  5.8928571428571423`, -0.29636484563650495`}, {
-                  5.9821428571428568`, -0.28015954513980529`}, {
-                  6.0714285714285712`, -0.26204078433961253`}, {
-                  6.25`, -0.22072087753923708`}, {
-                  6.4285714285714288`, -0.17382097866564641`}, {
-                  6.7857142857142865`, -0.069540646591688737`}, {
-                  7.1428571428571432`, 0.037753477649233015`}, {
-                  7.5`, 0.13524842757970271`}, {
-                  7.6785714285714288`, 0.17674410507149993`}, {
-                  7.7678571428571432`, 0.19514882563014399`}, {
-                  7.8571428571428577`, 0.21182298185335291`}, {
-                  7.9464285714285721`, 0.22665787991845876`}, {
-                  8.0357142857142865`, 0.23955980024845189`}, {
-                  8.0803571428571423`, 0.24526084210785928`}, {
-                  8.125`, 0.25045056135481775`}, {
-                  8.1696428571428577`, 0.25512168606747265`}, {
-                  8.2142857142857153`, 0.25926796437202737`}, {
-                  8.258928571428573`, 0.26288417164145728`}, {
-                  8.28125`, 0.26449214816406402`}, {
-                  8.3035714285714288`, 0.26596611575531282`}, {
-                  8.3258928571428577`, 0.2673057122735461`}, {
-                  8.3482142857142847`, 0.2685106404172754`}, {
-                  8.3705357142857135`, 0.26958066772254613`}, {
-                  8.3928571428571423`, 0.2705156265303249`}, {
-                  8.4151785714285712`, 0.27131541392343811`}, {
-                  8.4375`, 0.27197999163357328`}, {
-                  8.4598214285714288`, 0.27250938591819535`}, {
-                  8.4821428571428577`, 0.27290368740752263`}, {
-                  8.5044642857142865`, 0.2731630509218082`}, {
-                  8.5267857142857153`, 0.27328769525890056`}, {
-                  8.5491071428571423`, 0.27327790295228543`}, {
-                  8.5714285714285712`, 0.27313401999971121`}, {
-                  8.59375`, 0.27285645556281474`}, {
-                  8.616071428571427`, 0.27244568163772459`}, {
-                  8.6383928571428559`, 0.27190223269643932`}, {
-                  8.6607142857142847`, 0.27122670530042547`}, {
-                  8.6830357142857135`, 0.27041975768517262`}, {
-                  8.7053571428571423`, 0.2694821093169858`}, {
-                  8.7276785714285712`, 0.26841454042177099`}, {
-                  8.75`, 0.2672178914862865`}, {
-                  8.7723214285714288`, 0.26589306273215352`}, {
-                  8.7946428571428577`, 0.26444101356263144`}, {
-                  8.8392857142857135`, 0.26115938399378175`}, {
-                  8.8839285714285694`, 0.25738183894928957`}, {
-                  8.928571428571427`, 0.25311812168003334`}, {
-                  8.9732142857142847`, 0.24837886025251571`}, {
-                  9.0178571428571423`, 0.24317554370583139`}, {
-                  9.1071428571428559`, 0.23142685256709239`}, {
-                  9.1964285714285694`, 0.21798017944631806`}, {
-                  9.2857142857142847`, 0.20295565874971219`}, {
-                  9.4642857142857135`, 0.1687075005340451`}, {
-                  9.6428571428571423`, 0.12984337316946581`}, {
-                  9.9999999999999982`, 0.043472746168858309`}})}}}, {
-             AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
-             Axes -> True, PlotRange -> 
-              NCache({0 .. 10, -0.34612429616257212` .. 0.58186520139010445`}, 
-               {0.0` .. 10.0`, -0.34612429616257212` .. 
-                 0.58186520139010445`})}), Appearance -> "Popup"), 
-          WindowFrame -> None}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"SimplePopup", "(", {
-          StringBox("\"Panelled popup\""), ",", {
-           "Panel", "(", {StringBox("\"Tada\""), ",", {
-             "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}, ",", {
-           "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
-       SectionLabel -> "in [11]:"), 
-      Section(BoxData(TemplateBox({StringBox("\"Panelled popup\""), 
-          PanelBox(StringBox("\"Tada\""), Appearance -> "Popup"), 
-          WindowFrame -> None}, "SimplePopup")), "Output", 
-       SectionGenerated -> True, SectionLabel -> "out [11]:")}, All), 
-    SectionGroup({
-      Section(BoxData({"RawBoxes", "@", {
-          "TemplateBox", "(", {
-           {"{", {StringBox("\"\\\"label\\\"\""), ",", {
-              "{", {{"Section", "(", {StringBox("\"The caption\""), ",", 
-                 StringBox("\"Subsection\""), ",", {
-                  "LineBreakWithin", "\[Rule]", "False"}}, ")"}, ",", {
-                "SectionGroup", "(", {
-                 {"Table", "(", {
-                   {"Section", "(", {
-                     {"ToString", "@", {"StringForm", "(", {
-                        StringBox("\"Text `1`, that will wrap\""), ",", "i"}, 
-                       ")"}}, ",", StringBox("\"Text\"")}, ")"}, ",", {
-                    "i", "\[Rule]", "10"}}, ")"}, ",", "All"}, ")"}}, "}"}}, 
-            "}"}, ",", StringBox("\"SectionsPopup\"")}, ")"}}), "Input", 
-       SectionLabel -> "in [12]:"), 
-      Section(
-       BoxData(TemplateBox({
-          "\"label\"", {Section("The caption", "Subsection", 
-            LineBreakWithin -> False), 
-           SectionGroup({Section("Text 1, that will wrap", "Text"), 
-             Section("Text 2, that will wrap", "Text"), 
-             Section("Text 3, that will wrap", "Text"), 
-             Section("Text 4, that will wrap", "Text"), 
-             Section("Text 5, that will wrap", "Text"), 
-             Section("Text 6, that will wrap", "Text"), 
-             Section("Text 7, that will wrap", "Text"), 
-             Section("Text 8, that will wrap", "Text"), 
-             Section("Text 9, that will wrap", "Text"), 
-             Section("Text 10, that will wrap", "Text")}, All)}}, 
-         "SectionsPopup")), "Output", SectionGenerated -> True, 
-       SectionLabel -> "out [12]:")}, All)}, All)}, 
+             "RemovalConditions", "\[Rule]", StringBox("\"MouseExit\"")}}, 
+           ")"}), "Input", SectionLabel -> "in [7]:"), 
+        Section(BoxData(TemplateBox({StringBox("\"BesselJ plot\""), 
+            GraphicsBox({
+              {RGBColor(0.75`, 0, 0), {
+                LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
+                   0.17573939881821521`}, {0.7142857142857143`, 
+                   0.33484497941858382`}, {0.89285714285714279`, 
+                   0.40339568146544103`}, {1.0714285714285714`, 
+                   0.46243225814545758`}, {1.1607142857142856`, 
+                   0.48795588820937486`}, {1.25`, 0.51062326031988037`}, {
+                   1.3392857142857144`, 0.53031274649169002`}, {
+                   1.3839285714285716`, 0.53900809576751219`}, {
+                   1.4285714285714286`, 0.54692224883496088`}, {
+                   1.4732142857142856`, 0.55404559797417252`}, {
+                   1.5178571428571428`, 0.56036982692486637`}, {
+                   1.5625`, 0.56588792281805833`}, {
+                   1.5848214285714286`, 0.5683428381720067`}, {
+                   1.6071428571428572`, 0.57059418585960142`}, {
+                   1.6294642857142858`, 0.57264145979197112`}, {
+                   1.6517857142857144`, 0.5744842367506896`}, {
+                   1.6741071428571428`, 0.57612217649518382`}, {
+                   1.6964285714285714`, 0.57755502183446883`}, {
+                   1.71875`, 0.57878259866318615`}, {
+                   1.7410714285714284`, 0.57980481596195788`}, {
+                   1.7522321428571428`, 0.5802389090549217`}, {
+                   1.763392857142857`, 0.58062166576207119`}, {
+                   1.7745535714285712`, 0.58095309805234241`}, {
+                   1.7857142857142856`, 0.5812332230745223`}, {
+                   1.796875`, 0.58146206315308546`}, {
+                   1.8080357142857142`, 0.58163964578347782`}, {
+                   1.8191964285714284`, 0.58176600362684627`}, {
+                   1.8303571428571428`, 0.58184117450421391`}, {
+                   1.8415178571428572`, 0.58186520139010445`}, {
+                   1.8526785714285714`, 0.58183813240561477`}, {
+                   1.8638392857142856`, 0.58176002081093703`}, {
+                   1.875`, 0.58163092499733049`}, {
+                   1.8861607142857144`, 0.58145090847854608`}, {
+                   1.8973214285714286`, 0.58122003988170279`}, {
+                   1.9084821428571428`, 0.58093839293761784`}, {
+                   1.9196428571428572`, 0.58060604647059144`}, {
+                   1.9308035714285714`, 0.58022308438764891`}, {
+                   1.9419642857142856`, 0.57978959566723998`}, {
+                   1.9642857142857142`, 0.57877141951334576`}, {
+                   1.9866071428571428`, 0.5775523308015037`}, {
+                   2.0089285714285712`, 0.57613322265321776`}, {
+                   2.03125`, 0.57451506806268304`}, {
+                   2.0535714285714284`, 0.57269891940655815`}, {
+                   2.0758928571428568`, 0.57068590791996698`}, {
+                   2.0982142857142856`, 0.56847724313897641`}, {
+                   2.1428571428571428`, 0.56347817976511072`}, {
+                   2.1875`, 0.55771294832059026`}, {
+                   2.2321428571428568`, 0.5511939794429026`}, {
+                   2.276785714285714`, 0.54393489180156285`}, {
+                   2.3214285714285712`, 0.5359504665215763`}, {
+                   2.4107142857142856`, 0.51787037270058423`}, {
+                   2.5`, 0.49709410246427371`}, {
+                   2.6785714285714288`, 0.44809672768944192`}, {
+                   2.8571428571428572`, 0.39039321301953961`}, {
+                   3.2142857142857144`, 0.255591338292735`}, {
+                   3.5714285714285716`, 0.10742674527641556`}, {
+                   3.9285714285714288`, -0.038472274719149463`}, {
+                   4.2857142857142856`, -0.1672862481578806`}, {
+                   4.4642857142857135`, -0.2212694907061778`}, {
+                   4.6428571428571423`, -0.2665797108861529`}, {
+                   4.7321428571428568`, -0.28566776508015623`}, {
+                   4.8214285714285712`, -0.30224499379859565`}, {
+                   4.8660714285714288`, -0.30956735819059028`}, {
+                   4.9107142857142856`, -0.3162347300136904`}, {
+                   4.9553571428571423`, -0.32224047124785643`}, {
+                   5.0`, -0.32757913759146512`}, {
+                   5.0446428571428577`, -0.33224648311157379`}, {
+                   5.0669642857142865`, -0.33432741204790262`}, {
+                   5.0892857142857144`, -0.33623946274777627`}, {
+                   5.1116071428571423`, -0.33798244227378776`}, {
+                   5.1339285714285712`, -0.33955623267076729`}, {
+                   5.15625`, -0.34096079086005943`}, {
+                   5.1785714285714288`, -0.34219614850057345`}, {
+                   5.2008928571428577`, -0.34326241181671169`}, {
+                   5.2232142857142865`, -0.34415976139330701`}, {
+                   5.2455357142857153`, -0.34488845193770112`}, {
+                   5.2678571428571432`, -0.3454488120091041`}, {
+                   5.2901785714285712`, -0.34584124371542896`}, {
+                   5.3125`, -0.34606622237774354`}, {
+                   5.3348214285714288`, -0.34612429616257212`}, {
+                   5.3571428571428577`, -0.34601608568221992`}, {
+                   5.3794642857142865`, -0.34574228356338066`}, {
+                   5.4017857142857153`, -0.34530365398423751`}, {
+                   5.4241071428571441`, -0.34470103218030784`}, {
+                   5.4464285714285721`, -0.34393532391933362`}, {
+                   5.46875`, -0.34300750494543403`}, {
+                   5.4910714285714288`, -0.34191862039288945`}, {
+                   5.5133928571428577`, -0.34066978416978438`}, {
+                   5.5357142857142865`, -0.33926217831190086`}, {
+                   5.5580357142857153`, -0.33769705230713826`}, {
+                   5.5803571428571432`, -0.33597572239084378`}, {
+                   5.625`, -0.33207004507337334`}, {
+                   5.6696428571428577`, -0.32755698261494959`}, {
+                   5.7142857142857144`, -0.32244938937469375`}, {
+                   5.7589285714285712`, -0.31676111036793092`}, {
+                   5.8035714285714288`, -0.3105069521339463`}, {
+                   5.8928571428571423`, -0.29636484563650495`}, {
+                   5.9821428571428568`, -0.28015954513980529`}, {
+                   6.0714285714285712`, -0.26204078433961253`}, {
+                   6.25`, -0.22072087753923708`}, {
+                   6.4285714285714288`, -0.17382097866564641`}, {
+                   6.7857142857142865`, -0.069540646591688737`}, {
+                   7.1428571428571432`, 0.037753477649233015`}, {
+                   7.5`, 0.13524842757970271`}, {
+                   7.6785714285714288`, 0.17674410507149993`}, {
+                   7.7678571428571432`, 0.19514882563014399`}, {
+                   7.8571428571428577`, 0.21182298185335291`}, {
+                   7.9464285714285721`, 0.22665787991845876`}, {
+                   8.0357142857142865`, 0.23955980024845189`}, {
+                   8.0803571428571423`, 0.24526084210785928`}, {
+                   8.125`, 0.25045056135481775`}, {
+                   8.1696428571428577`, 0.25512168606747265`}, {
+                   8.2142857142857153`, 0.25926796437202737`}, {
+                   8.258928571428573`, 0.26288417164145728`}, {
+                   8.28125`, 0.26449214816406402`}, {
+                   8.3035714285714288`, 0.26596611575531282`}, {
+                   8.3258928571428577`, 0.2673057122735461`}, {
+                   8.3482142857142847`, 0.2685106404172754`}, {
+                   8.3705357142857135`, 0.26958066772254613`}, {
+                   8.3928571428571423`, 0.2705156265303249`}, {
+                   8.4151785714285712`, 0.27131541392343811`}, {
+                   8.4375`, 0.27197999163357328`}, {
+                   8.4598214285714288`, 0.27250938591819535`}, {
+                   8.4821428571428577`, 0.27290368740752263`}, {
+                   8.5044642857142865`, 0.2731630509218082`}, {
+                   8.5267857142857153`, 0.27328769525890056`}, {
+                   8.5491071428571423`, 0.27327790295228543`}, {
+                   8.5714285714285712`, 0.27313401999971121`}, {
+                   8.59375`, 0.27285645556281474`}, {
+                   8.616071428571427`, 0.27244568163772459`}, {
+                   8.6383928571428559`, 0.27190223269643932`}, {
+                   8.6607142857142847`, 0.27122670530042547`}, {
+                   8.6830357142857135`, 0.27041975768517262`}, {
+                   8.7053571428571423`, 0.2694821093169858`}, {
+                   8.7276785714285712`, 0.26841454042177099`}, {
+                   8.75`, 0.2672178914862865`}, {
+                   8.7723214285714288`, 0.26589306273215352`}, {
+                   8.7946428571428577`, 0.26444101356263144`}, {
+                   8.8392857142857135`, 0.26115938399378175`}, {
+                   8.8839285714285694`, 0.25738183894928957`}, {
+                   8.928571428571427`, 0.25311812168003334`}, {
+                   8.9732142857142847`, 0.24837886025251571`}, {
+                   9.0178571428571423`, 0.24317554370583139`}, {
+                   9.1071428571428559`, 0.23142685256709239`}, {
+                   9.1964285714285694`, 0.21798017944631806`}, {
+                   9.2857142857142847`, 0.20295565874971219`}, {
+                   9.4642857142857135`, 0.1687075005340451`}, {
+                   9.6428571428571423`, 0.12984337316946581`}, {
+                   9.9999999999999982`, 0.043472746168858309`}})}}}, {
+              AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+              Axes -> True, PlotRange -> 
+               NCache({0 .. 10, -0.34612429616257212` .. 
+                  0.58186520139010445`}, {
+                 0.0` .. 10.0`, -0.34612429616257212` .. 
+                  0.58186520139010445`})}), RemovalConditions -> "MouseExit"}, 
+           "SimplePopup")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [7]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"SetterBar", "(", {
+            {"Dynamic", "(", "cpl", ")"}, ",", {
+             "{", {"Bottom", ",", "Top", ",", "Left", ",", "Right"}, "}"}}, 
+           ")"}), "Input", SectionLabel -> "in [8]:"), 
+        Section(BoxData(InterpretationBox({
+            SetterBox(Dynamic($Context`cpl), Bottom, "Bottom"), 
+            "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Top, "Top"), 
+            "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Left, 
+             "Left"), "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), 
+             Right, "Right")}, SetterBar(Dynamic($Context`cpl), {
+             Bottom, Top, Left, Right}), Editable -> False)), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [8]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"BesselJ plot\""), ",", {
+             "Column", "@", {
+              "{", {{"SetterBar", "(", {{"Dynamic", "(", "cpl", ")"}, ",", {
+                  "{", {"Bottom", ",", "Top", ",", "Left", ",", "Right"}, 
+                  "}"}}, ")"}, ",", {"Plot", "(", {
+                 {"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
+                  "x", "\[Rule]", {"0", "..", "10"}}}, ")"}}, "}"}}, ",", {
+             "WindowFrame", "\[Rule]", StringBox("\"ThinFrameCallout\"")}, 
+            ",", {"ControlPlacement", "\[Rule]", {
+              "Dynamic", "(", "cpl", ")"}}, ",", {
+             "\n", {"RemovalConditions", "\[Rule]", 
+              StringBox("\"OutsideMouseClick\"")}}}, ")"}), "Input", 
+         SectionLabel -> "in [9]:"), 
+        Section(BoxData(TemplateBox({StringBox("\"BesselJ plot\""), 
+            TagBox(
+             GridBox({
+               {InterpretationBox({
+                  SetterBox(Dynamic($Context`cpl), Bottom, "Bottom"), 
+                  "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Top, 
+                   "Top"), "\[InvisibleSpace]", 
+                  SetterBox(Dynamic($Context`cpl), Left, "Left"), 
+                  "\[InvisibleSpace]", SetterBox(Dynamic($Context`cpl), Right, 
+                   "Right")}, SetterBar(Dynamic($Context`cpl), {
+                   Bottom, Top, Left, Right}))}, {
+                GraphicsBox({
+                  {RGBColor(0.75`, 0, 0), {
+                    LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
+                       0.17573939881821521`}, {0.7142857142857143`, 
+                       0.33484497941858382`}, {0.89285714285714279`, 
+                       0.40339568146544103`}, {1.0714285714285714`, 
+                       0.46243225814545758`}, {1.1607142857142856`, 
+                       0.48795588820937486`}, {1.25`, 0.51062326031988037`}, {
+                       1.3392857142857144`, 0.53031274649169002`}, {
+                       1.3839285714285716`, 0.53900809576751219`}, {
+                       1.4285714285714286`, 0.54692224883496088`}, {
+                       1.4732142857142856`, 0.55404559797417252`}, {
+                       1.5178571428571428`, 0.56036982692486637`}, {
+                       1.5625`, 0.56588792281805833`}, {
+                       1.5848214285714286`, 0.5683428381720067`}, {
+                       1.6071428571428572`, 0.57059418585960142`}, {
+                       1.6294642857142858`, 0.57264145979197112`}, {
+                       1.6517857142857144`, 0.5744842367506896`}, {
+                       1.6741071428571428`, 0.57612217649518382`}, {
+                       1.6964285714285714`, 0.57755502183446883`}, {
+                       1.71875`, 0.57878259866318615`}, {
+                       1.7410714285714284`, 0.57980481596195788`}, {
+                       1.7522321428571428`, 0.5802389090549217`}, {
+                       1.763392857142857`, 0.58062166576207119`}, {
+                       1.7745535714285712`, 0.58095309805234241`}, {
+                       1.7857142857142856`, 0.5812332230745223`}, {
+                       1.796875`, 0.58146206315308546`}, {
+                       1.8080357142857142`, 0.58163964578347782`}, {
+                       1.8191964285714284`, 0.58176600362684627`}, {
+                       1.8303571428571428`, 0.58184117450421391`}, {
+                       1.8415178571428572`, 0.58186520139010445`}, {
+                       1.8526785714285714`, 0.58183813240561477`}, {
+                       1.8638392857142856`, 0.58176002081093703`}, {
+                       1.875`, 0.58163092499733049`}, {
+                       1.8861607142857144`, 0.58145090847854608`}, {
+                       1.8973214285714286`, 0.58122003988170279`}, {
+                       1.9084821428571428`, 0.58093839293761784`}, {
+                       1.9196428571428572`, 0.58060604647059144`}, {
+                       1.9308035714285714`, 0.58022308438764891`}, {
+                       1.9419642857142856`, 0.57978959566723998`}, {
+                       1.9642857142857142`, 0.57877141951334576`}, {
+                       1.9866071428571428`, 0.5775523308015037`}, {
+                       2.0089285714285712`, 0.57613322265321776`}, {
+                       2.03125`, 0.57451506806268304`}, {
+                       2.0535714285714284`, 0.57269891940655815`}, {
+                       2.0758928571428568`, 0.57068590791996698`}, {
+                       2.0982142857142856`, 0.56847724313897641`}, {
+                       2.1428571428571428`, 0.56347817976511072`}, {
+                       2.1875`, 0.55771294832059026`}, {
+                       2.2321428571428568`, 0.5511939794429026`}, {
+                       2.276785714285714`, 0.54393489180156285`}, {
+                       2.3214285714285712`, 0.5359504665215763`}, {
+                       2.4107142857142856`, 0.51787037270058423`}, {
+                       2.5`, 0.49709410246427371`}, {
+                       2.6785714285714288`, 0.44809672768944192`}, {
+                       2.8571428571428572`, 0.39039321301953961`}, {
+                       3.2142857142857144`, 0.255591338292735`}, {
+                       3.5714285714285716`, 0.10742674527641556`}, {
+                       3.9285714285714288`, -0.038472274719149463`}, {
+                       4.2857142857142856`, -0.1672862481578806`}, {
+                       4.4642857142857135`, -0.2212694907061778`}, {
+                       4.6428571428571423`, -0.2665797108861529`}, {
+                       4.7321428571428568`, -0.28566776508015623`}, {
+                       4.8214285714285712`, -0.30224499379859565`}, {
+                       4.8660714285714288`, -0.30956735819059028`}, {
+                       4.9107142857142856`, -0.3162347300136904`}, {
+                       4.9553571428571423`, -0.32224047124785643`}, {
+                       5.0`, -0.32757913759146512`}, {
+                       5.0446428571428577`, -0.33224648311157379`}, {
+                       5.0669642857142865`, -0.33432741204790262`}, {
+                       5.0892857142857144`, -0.33623946274777627`}, {
+                       5.1116071428571423`, -0.33798244227378776`}, {
+                       5.1339285714285712`, -0.33955623267076729`}, {
+                       5.15625`, -0.34096079086005943`}, {
+                       5.1785714285714288`, -0.34219614850057345`}, {
+                       5.2008928571428577`, -0.34326241181671169`}, {
+                       5.2232142857142865`, -0.34415976139330701`}, {
+                       5.2455357142857153`, -0.34488845193770112`}, {
+                       5.2678571428571432`, -0.3454488120091041`}, {
+                       5.2901785714285712`, -0.34584124371542896`}, {
+                       5.3125`, -0.34606622237774354`}, {
+                       5.3348214285714288`, -0.34612429616257212`}, {
+                       5.3571428571428577`, -0.34601608568221992`}, {
+                       5.3794642857142865`, -0.34574228356338066`}, {
+                       5.4017857142857153`, -0.34530365398423751`}, {
+                       5.4241071428571441`, -0.34470103218030784`}, {
+                       5.4464285714285721`, -0.34393532391933362`}, {
+                       5.46875`, -0.34300750494543403`}, {
+                       5.4910714285714288`, -0.34191862039288945`}, {
+                       5.5133928571428577`, -0.34066978416978438`}, {
+                       5.5357142857142865`, -0.33926217831190086`}, {
+                       5.5580357142857153`, -0.33769705230713826`}, {
+                       5.5803571428571432`, -0.33597572239084378`}, {
+                       5.625`, -0.33207004507337334`}, {
+                       5.6696428571428577`, -0.32755698261494959`}, {
+                       5.7142857142857144`, -0.32244938937469375`}, {
+                       5.7589285714285712`, -0.31676111036793092`}, {
+                       5.8035714285714288`, -0.3105069521339463`}, {
+                       5.8928571428571423`, -0.29636484563650495`}, {
+                       5.9821428571428568`, -0.28015954513980529`}, {
+                       6.0714285714285712`, -0.26204078433961253`}, {
+                       6.25`, -0.22072087753923708`}, {
+                       6.4285714285714288`, -0.17382097866564641`}, {
+                       6.7857142857142865`, -0.069540646591688737`}, {
+                       7.1428571428571432`, 0.037753477649233015`}, {
+                       7.5`, 0.13524842757970271`}, {
+                       7.6785714285714288`, 0.17674410507149993`}, {
+                       7.7678571428571432`, 0.19514882563014399`}, {
+                       7.8571428571428577`, 0.21182298185335291`}, {
+                       7.9464285714285721`, 0.22665787991845876`}, {
+                       8.0357142857142865`, 0.23955980024845189`}, {
+                       8.0803571428571423`, 0.24526084210785928`}, {
+                       8.125`, 0.25045056135481775`}, {
+                       8.1696428571428577`, 0.25512168606747265`}, {
+                       8.2142857142857153`, 0.25926796437202737`}, {
+                       8.258928571428573`, 0.26288417164145728`}, {
+                       8.28125`, 0.26449214816406402`}, {
+                       8.3035714285714288`, 0.26596611575531282`}, {
+                       8.3258928571428577`, 0.2673057122735461`}, {
+                       8.3482142857142847`, 0.2685106404172754`}, {
+                       8.3705357142857135`, 0.26958066772254613`}, {
+                       8.3928571428571423`, 0.2705156265303249`}, {
+                       8.4151785714285712`, 0.27131541392343811`}, {
+                       8.4375`, 0.27197999163357328`}, {
+                       8.4598214285714288`, 0.27250938591819535`}, {
+                       8.4821428571428577`, 0.27290368740752263`}, {
+                       8.5044642857142865`, 0.2731630509218082`}, {
+                       8.5267857142857153`, 0.27328769525890056`}, {
+                       8.5491071428571423`, 0.27327790295228543`}, {
+                       8.5714285714285712`, 0.27313401999971121`}, {
+                       8.59375`, 0.27285645556281474`}, {
+                       8.616071428571427`, 0.27244568163772459`}, {
+                       8.6383928571428559`, 0.27190223269643932`}, {
+                       8.6607142857142847`, 0.27122670530042547`}, {
+                       8.6830357142857135`, 0.27041975768517262`}, {
+                       8.7053571428571423`, 0.2694821093169858`}, {
+                       8.7276785714285712`, 0.26841454042177099`}, {
+                       8.75`, 0.2672178914862865`}, {
+                       8.7723214285714288`, 0.26589306273215352`}, {
+                       8.7946428571428577`, 0.26444101356263144`}, {
+                       8.8392857142857135`, 0.26115938399378175`}, {
+                       8.8839285714285694`, 0.25738183894928957`}, {
+                       8.928571428571427`, 0.25311812168003334`}, {
+                       8.9732142857142847`, 0.24837886025251571`}, {
+                       9.0178571428571423`, 0.24317554370583139`}, {
+                       9.1071428571428559`, 0.23142685256709239`}, {
+                       9.1964285714285694`, 0.21798017944631806`}, {
+                       9.2857142857142847`, 0.20295565874971219`}, {
+                       9.4642857142857135`, 0.1687075005340451`}, {
+                       9.6428571428571423`, 0.12984337316946581`}, {
+                       9.9999999999999982`, 0.043472746168858309`}})}}}, {
+                  AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+                  Axes -> True, PlotRange -> 
+                   NCache({0 .. 10, -0.34612429616257212` .. 
+                      0.58186520139010445`}, {
+                     0.0` .. 10.0`, -0.34612429616257212` .. 
+                      0.58186520139010445`})})}}), "Column"), 
+            WindowFrame -> "ThinFrameCallout", 
+            ControlPlacement -> Dynamic($Context`cpl), 
+            RemovalConditions -> "OutsideMouseClick"}, "SimplePopup")), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, 
+       All), SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"Panelled BesselJ plot\""), ",", {
+             "Panel", "(", {
+              {"Plot", "(", {{"BesselJ", "(", {"1", ",", "x"}, ")"}, ",", {
+                 "x", "\[Rule]", {"0", "..", "10"}}}, ")"}, ",", {
+               "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}, ",", {
+             "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
+         SectionLabel -> "in [10]:"), 
+        Section(BoxData(TemplateBox({StringBox("\"Panelled BesselJ plot\""), 
+            PanelBox(GraphicsBox({
+               {RGBColor(0.75`, 0, 0), {
+                 LineBox({{0.0`, 0.0`}, {0.35714285714285715`, 
+                    0.17573939881821521`}, {0.7142857142857143`, 
+                    0.33484497941858382`}, {0.89285714285714279`, 
+                    0.40339568146544103`}, {1.0714285714285714`, 
+                    0.46243225814545758`}, {1.1607142857142856`, 
+                    0.48795588820937486`}, {1.25`, 0.51062326031988037`}, {
+                    1.3392857142857144`, 0.53031274649169002`}, {
+                    1.3839285714285716`, 0.53900809576751219`}, {
+                    1.4285714285714286`, 0.54692224883496088`}, {
+                    1.4732142857142856`, 0.55404559797417252`}, {
+                    1.5178571428571428`, 0.56036982692486637`}, {
+                    1.5625`, 0.56588792281805833`}, {
+                    1.5848214285714286`, 0.5683428381720067`}, {
+                    1.6071428571428572`, 0.57059418585960142`}, {
+                    1.6294642857142858`, 0.57264145979197112`}, {
+                    1.6517857142857144`, 0.5744842367506896`}, {
+                    1.6741071428571428`, 0.57612217649518382`}, {
+                    1.6964285714285714`, 0.57755502183446883`}, {
+                    1.71875`, 0.57878259866318615`}, {
+                    1.7410714285714284`, 0.57980481596195788`}, {
+                    1.7522321428571428`, 0.5802389090549217`}, {
+                    1.763392857142857`, 0.58062166576207119`}, {
+                    1.7745535714285712`, 0.58095309805234241`}, {
+                    1.7857142857142856`, 0.5812332230745223`}, {
+                    1.796875`, 0.58146206315308546`}, {
+                    1.8080357142857142`, 0.58163964578347782`}, {
+                    1.8191964285714284`, 0.58176600362684627`}, {
+                    1.8303571428571428`, 0.58184117450421391`}, {
+                    1.8415178571428572`, 0.58186520139010445`}, {
+                    1.8526785714285714`, 0.58183813240561477`}, {
+                    1.8638392857142856`, 0.58176002081093703`}, {
+                    1.875`, 0.58163092499733049`}, {
+                    1.8861607142857144`, 0.58145090847854608`}, {
+                    1.8973214285714286`, 0.58122003988170279`}, {
+                    1.9084821428571428`, 0.58093839293761784`}, {
+                    1.9196428571428572`, 0.58060604647059144`}, {
+                    1.9308035714285714`, 0.58022308438764891`}, {
+                    1.9419642857142856`, 0.57978959566723998`}, {
+                    1.9642857142857142`, 0.57877141951334576`}, {
+                    1.9866071428571428`, 0.5775523308015037`}, {
+                    2.0089285714285712`, 0.57613322265321776`}, {
+                    2.03125`, 0.57451506806268304`}, {
+                    2.0535714285714284`, 0.57269891940655815`}, {
+                    2.0758928571428568`, 0.57068590791996698`}, {
+                    2.0982142857142856`, 0.56847724313897641`}, {
+                    2.1428571428571428`, 0.56347817976511072`}, {
+                    2.1875`, 0.55771294832059026`}, {
+                    2.2321428571428568`, 0.5511939794429026`}, {
+                    2.276785714285714`, 0.54393489180156285`}, {
+                    2.3214285714285712`, 0.5359504665215763`}, {
+                    2.4107142857142856`, 0.51787037270058423`}, {
+                    2.5`, 0.49709410246427371`}, {
+                    2.6785714285714288`, 0.44809672768944192`}, {
+                    2.8571428571428572`, 0.39039321301953961`}, {
+                    3.2142857142857144`, 0.255591338292735`}, {
+                    3.5714285714285716`, 0.10742674527641556`}, {
+                    3.9285714285714288`, -0.038472274719149463`}, {
+                    4.2857142857142856`, -0.1672862481578806`}, {
+                    4.4642857142857135`, -0.2212694907061778`}, {
+                    4.6428571428571423`, -0.2665797108861529`}, {
+                    4.7321428571428568`, -0.28566776508015623`}, {
+                    4.8214285714285712`, -0.30224499379859565`}, {
+                    4.8660714285714288`, -0.30956735819059028`}, {
+                    4.9107142857142856`, -0.3162347300136904`}, {
+                    4.9553571428571423`, -0.32224047124785643`}, {
+                    5.0`, -0.32757913759146512`}, {
+                    5.0446428571428577`, -0.33224648311157379`}, {
+                    5.0669642857142865`, -0.33432741204790262`}, {
+                    5.0892857142857144`, -0.33623946274777627`}, {
+                    5.1116071428571423`, -0.33798244227378776`}, {
+                    5.1339285714285712`, -0.33955623267076729`}, {
+                    5.15625`, -0.34096079086005943`}, {
+                    5.1785714285714288`, -0.34219614850057345`}, {
+                    5.2008928571428577`, -0.34326241181671169`}, {
+                    5.2232142857142865`, -0.34415976139330701`}, {
+                    5.2455357142857153`, -0.34488845193770112`}, {
+                    5.2678571428571432`, -0.3454488120091041`}, {
+                    5.2901785714285712`, -0.34584124371542896`}, {
+                    5.3125`, -0.34606622237774354`}, {
+                    5.3348214285714288`, -0.34612429616257212`}, {
+                    5.3571428571428577`, -0.34601608568221992`}, {
+                    5.3794642857142865`, -0.34574228356338066`}, {
+                    5.4017857142857153`, -0.34530365398423751`}, {
+                    5.4241071428571441`, -0.34470103218030784`}, {
+                    5.4464285714285721`, -0.34393532391933362`}, {
+                    5.46875`, -0.34300750494543403`}, {
+                    5.4910714285714288`, -0.34191862039288945`}, {
+                    5.5133928571428577`, -0.34066978416978438`}, {
+                    5.5357142857142865`, -0.33926217831190086`}, {
+                    5.5580357142857153`, -0.33769705230713826`}, {
+                    5.5803571428571432`, -0.33597572239084378`}, {
+                    5.625`, -0.33207004507337334`}, {
+                    5.6696428571428577`, -0.32755698261494959`}, {
+                    5.7142857142857144`, -0.32244938937469375`}, {
+                    5.7589285714285712`, -0.31676111036793092`}, {
+                    5.8035714285714288`, -0.3105069521339463`}, {
+                    5.8928571428571423`, -0.29636484563650495`}, {
+                    5.9821428571428568`, -0.28015954513980529`}, {
+                    6.0714285714285712`, -0.26204078433961253`}, {
+                    6.25`, -0.22072087753923708`}, {
+                    6.4285714285714288`, -0.17382097866564641`}, {
+                    6.7857142857142865`, -0.069540646591688737`}, {
+                    7.1428571428571432`, 0.037753477649233015`}, {
+                    7.5`, 0.13524842757970271`}, {
+                    7.6785714285714288`, 0.17674410507149993`}, {
+                    7.7678571428571432`, 0.19514882563014399`}, {
+                    7.8571428571428577`, 0.21182298185335291`}, {
+                    7.9464285714285721`, 0.22665787991845876`}, {
+                    8.0357142857142865`, 0.23955980024845189`}, {
+                    8.0803571428571423`, 0.24526084210785928`}, {
+                    8.125`, 0.25045056135481775`}, {
+                    8.1696428571428577`, 0.25512168606747265`}, {
+                    8.2142857142857153`, 0.25926796437202737`}, {
+                    8.258928571428573`, 0.26288417164145728`}, {
+                    8.28125`, 0.26449214816406402`}, {
+                    8.3035714285714288`, 0.26596611575531282`}, {
+                    8.3258928571428577`, 0.2673057122735461`}, {
+                    8.3482142857142847`, 0.2685106404172754`}, {
+                    8.3705357142857135`, 0.26958066772254613`}, {
+                    8.3928571428571423`, 0.2705156265303249`}, {
+                    8.4151785714285712`, 0.27131541392343811`}, {
+                    8.4375`, 0.27197999163357328`}, {
+                    8.4598214285714288`, 0.27250938591819535`}, {
+                    8.4821428571428577`, 0.27290368740752263`}, {
+                    8.5044642857142865`, 0.2731630509218082`}, {
+                    8.5267857142857153`, 0.27328769525890056`}, {
+                    8.5491071428571423`, 0.27327790295228543`}, {
+                    8.5714285714285712`, 0.27313401999971121`}, {
+                    8.59375`, 0.27285645556281474`}, {
+                    8.616071428571427`, 0.27244568163772459`}, {
+                    8.6383928571428559`, 0.27190223269643932`}, {
+                    8.6607142857142847`, 0.27122670530042547`}, {
+                    8.6830357142857135`, 0.27041975768517262`}, {
+                    8.7053571428571423`, 0.2694821093169858`}, {
+                    8.7276785714285712`, 0.26841454042177099`}, {
+                    8.75`, 0.2672178914862865`}, {
+                    8.7723214285714288`, 0.26589306273215352`}, {
+                    8.7946428571428577`, 0.26444101356263144`}, {
+                    8.8392857142857135`, 0.26115938399378175`}, {
+                    8.8839285714285694`, 0.25738183894928957`}, {
+                    8.928571428571427`, 0.25311812168003334`}, {
+                    8.9732142857142847`, 0.24837886025251571`}, {
+                    9.0178571428571423`, 0.24317554370583139`}, {
+                    9.1071428571428559`, 0.23142685256709239`}, {
+                    9.1964285714285694`, 0.21798017944631806`}, {
+                    9.2857142857142847`, 0.20295565874971219`}, {
+                    9.4642857142857135`, 0.1687075005340451`}, {
+                    9.6428571428571423`, 0.12984337316946581`}, {
+                    9.9999999999999982`, 0.043472746168858309`}})}}}, {
+               AspectRatio -> NCache(1/GoldenRatio, 0.61803398874989479`), 
+               Axes -> True, PlotRange -> 
+                NCache({0 .. 10, -0.34612429616257212` .. 
+                   0.58186520139010445`}, {
+                  0.0` .. 10.0`, -0.34612429616257212` .. 
+                   0.58186520139010445`})}), Appearance -> "Popup"), 
+            WindowFrame -> None}, "SimplePopup")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"SimplePopup", "(", {
+            StringBox("\"Panelled popup\""), ",", {
+             "Panel", "(", {StringBox("\"Tada\""), ",", {
+               "Appearance", "\[Rule]", StringBox("\"Popup\"")}}, ")"}, ",", {
+             "WindowFrame", "\[Rule]", "None"}}, ")"}), "Input", 
+         SectionLabel -> "in [11]:"), 
+        Section(BoxData(TemplateBox({StringBox("\"Panelled popup\""), 
+            PanelBox(StringBox("\"Tada\""), Appearance -> "Popup"), 
+            WindowFrame -> None}, "SimplePopup")), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [11]:")}, All), 
+      SectionGroup({
+        Section(BoxData({"RawBoxes", "@", {
+            "TemplateBox", "(", {
+             {"{", {StringBox("\"\\\"label\\\"\""), ",", {
+                "{", {{"Section", "(", {StringBox("\"The caption\""), ",", 
+                   StringBox("\"Subsection\""), ",", {
+                    "LineBreakWithin", "\[Rule]", "False"}}, ")"}, ",", {
+                  "SectionGroup", "(", {
+                   {"Table", "(", {
+                     {"Section", "(", {
+                       {"ToString", "@", {"StringForm", "(", {
+                          StringBox("\"Text `1`, that will wrap\""), ",", 
+                          "i"}, ")"}}, ",", StringBox("\"Text\"")}, ")"}, ",", 
+                     {"i", "\[Rule]", "10"}}, ")"}, ",", "All"}, ")"}}, "}"}}, 
+              "}"}, ",", StringBox("\"SectionsPopup\"")}, ")"}}), "Input", 
+         SectionLabel -> "in [12]:"), 
+        Section(
+         BoxData(TemplateBox({
+            "\"label\"", {Section("The caption", "Subsection", 
+              LineBreakWithin -> False), 
+             SectionGroup({Section("Text 1, that will wrap", "Text"), 
+               Section("Text 2, that will wrap", "Text"), 
+               Section("Text 3, that will wrap", "Text"), 
+               Section("Text 4, that will wrap", "Text"), 
+               Section("Text 5, that will wrap", "Text"), 
+               Section("Text 6, that will wrap", "Text"), 
+               Section("Text 7, that will wrap", "Text"), 
+               Section("Text 8, that will wrap", "Text"), 
+               Section("Text 9, that will wrap", "Text"), 
+               Section("Text 10, that will wrap", "Text")}, All)}}, 
+           "SectionsPopup")), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [12]:")}, All)}, All)}, All)}, 
  StyleDefinitions :> 
   Document({
     SectionGroup({Section(StyleData(StyleDefinitions -> "Default.pmathdoc")), 
