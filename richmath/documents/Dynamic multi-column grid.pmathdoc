@@ -1,0 +1,219 @@
+/* pMath Document */
+
+Document({SectionGroup({Section("Dynamic multi-column grid", "Title"), 
+    SectionGroup({
+      Section(BoxData({"Dynamic", "(", {
+          "{", {"$PageWidth", ",", {"RandomReal", "(", ")"}}, "}"}, ")"}), 
+       "Input", SectionLabel -> "in [5]:"), 
+      Section(BoxData(DynamicBox(ToBoxes({$PageWidth, RandomReal()}))), 
+       "Output", SectionGenerated -> True, SectionLabel -> "out [5]:")}, All), 
+    SectionGroup({
+      Section(
+       BoxData({
+         {"Function", "(", {
+           "Row", "(", {
+            {"{", {
+              {"ToggleSwitch", "(", {"Dynamic", "(", {
+                 "CurrentValue", "(", {"$FrontEndSession", ",", "#"}, ")"}, 
+                ")"}, ")"}, ",", "#"}, "}"}, ",", StringBox("\" \"")}, ")"}, 
+          ")"}, "@", StringBox("\"DebugTrackDynamicUpdateCauses\"")}), 
+       "Input", SectionLabel -> "in [1]:"), 
+      Section(
+       BoxData(TemplateBox({
+          " ", " ", TemplateBox({
+            Dynamic(CurrentValue($FrontEndSession, 
+              "DebugTrackDynamicUpdateCauses"))}, "ToggleSwitch"), 
+          StringBox("\"DebugTrackDynamicUpdateCauses\"")}, 
+         "RowWithSeparators")), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [1]:")}, All), 
+    Section(
+     BoxData({
+       {"all", "\[Assign]", {
+         "Sort", "(", {"Names", "(", StringBox("\"System`*\""), ")"}, ")"}}, 
+       ";"}), "Input", SectionLabel -> "in [13]:"), 
+    SectionGroup({
+      Section(BoxData({{{"all", ".", "ToCharacterCode"}, ".", "Map", "(", 
+          "Length", ")"}, ".", "Max"}), "Input", SectionLabel -> "in [2]:"), 
+      Section(BoxData("22"), "Output", SectionGenerated -> True, 
+       SectionLabel -> "out [2]:")}, All), 
+    Section(BoxData({{"makeGrid", "(", {{"~", "data"}, ",", {"~", "columns"}}, 
+        ")"}, "\[AssignDelayed]", {
+        "Grid", "(", {
+         {"PadRight", "(", {
+           {"Partition", "(", {
+             "data", ",", {"\[LeftCeiling]", 
+              FractionBox({"Length", "(", "data", ")"}, "columns"), 
+              "\[RightCeiling]"}, ",", {"\[LeftCeiling]", 
+              FractionBox({"Length", "(", "data", ")"}, "columns"), 
+              "\[RightCeiling]"}, ",", {"{", {"1", ",", "1"}, "}"}, ",", {
+              "{", "}"}}, ")"}, ",", {
+            "{", {"columns", ",", {"\[LeftCeiling]", 
+              FractionBox({"Length", "(", "data", ")"}, "columns"), 
+              "\[RightCeiling]"}}, "}"}, ",", StringBox("\"\"")}, ")"}, 
+         SuperscriptBox("\[DownTee]")}, ")"}}), "Input", 
+     SectionLabel -> "in [3]:"), 
+    SectionGroup({
+      Section("TODO: implement CurrentValue(\"DynamicUpdateCauseLocation\")", 
+       "Subsection"), SectionGroup({
+        Section(BoxData({"Dynamic", "(", {
+            {"With", "(", {"cols", "\[Assign]", " ", {
+               "Max", "(", {"1", ",", " ", {
+                 "Round", "(", {"$PageWidth", "/", {
+                   {{"all", ".", "ToCharacterCode"}, ".", "Map", "(", 
+                    "Length", ")"}, ".", "Max", "(", "1", ")"}}, ")"}}, ")"}}, 
+             ")"}, " ", {
+             "{", {
+              "\n", {
+               {"Column", "(", {"{", {{"RandomReal", "(", ")"}, ",", {
+                   "\n", "$PageWidth"}, ",", {
+                   "\n", {
+                    {"{", {{"$Failed", "\[RuleDelayed]", 
+                       StringBox("\"???\"")}, ",", {
+                       {"~", "s", ":", "List"}, "\[RuleDelayed]", {
+                        "Framed", "@", {"Column", "@", {
+                          {"s", ".", "Reverse"}, ".", "Map", "(", 
+                          "Developer`StackEntryForm", ")"}}}}}, "}"}, "@", {
+                     "CurrentValue", "(", 
+                     StringBox("\"DynamicUpdateCauseLocation\""), ")"}}}, ",", 
+                  {"\n", {"makeGrid", "(", {"all", ",", "cols"}, ")"}}}, "}"}, 
+                ")"}, "\n"}}, "}"}}, ")"}), "Input", 
+         SectionLabel -> "in [10]:"), 
+        Section(
+         BoxData(DynamicBox(
+           ToBoxes(
+            With({
+              $Context`cols:= 
+               Max(1, 
+                Round($PageWidth*
+                  1/Max(Map(ToCharacterCode($Context`all), Length), 1)))}, 
+             Column({RandomReal(), $PageWidth, {
+                 $Failed :> "???", ~$Context`s:List :> 
+                  Framed(Column(Map(Reverse($Context`s), 
+                     Developer`StackEntryForm)))}(
+                CurrentValue("DynamicUpdateCauseLocation")), 
+               $Context`makeGrid($Context`all, $Context`cols)}))))), "Output", 
+         SectionGenerated -> True, SectionLabel -> "out [10]:")}, All), 
+      Section(BoxData("a"), "Input"), 
+      SectionGroup({
+        Section(BoxData({"Transpose", "(", {
+            "{", {"{", {StringBox("\"a\""), ",", "1"}, "}"}, "}"}, ")"}), 
+         "Input", SectionLabel -> "in [33]:"), 
+        Section(BoxData({"{", {{"{", StringBox("\"a\""), "}"}, ",", {
+             "{", "1", "}"}}, "}"}), "Output", SectionGenerated -> True, 
+         SectionLabel -> "out [33]:")}, All), 
+      Section(BoxData({"Dynamic", "(", {
+          "{", {{"RandomReal", "(", ")"}, ",", {
+            "Transpose", "(", {"{", {"{", {StringBox("\"a\""), ",", "1"}, 
+              "}"}, "}"}, ")"}}, "}"}, ")"}), "Input", 
+       SectionLabel -> "in [34]:"), 
+      SectionGroup({
+        Section(BoxData({"Dynamic", "(", {
+            "{", {{"RandomReal", "(", ")"}, ",", {
+              "Local", "(", {{"{", "i", "}"}, ",", {
+                {"i", "\[Assign]", "1"}, ";", {"i", "\[Assign]", "2"}, ";", {
+                 "Do", "(", {",", {"i", "\[Rule]", "3"}}, ")"}}}, ")"}}, "}"}, 
+           ")"}), "Input", SectionLabel -> "in [36]:"), 
+        Section(
+         BoxData(DynamicBox(
+           ToBoxes({RandomReal(), Local({$Context`i}, 
+              $Context`i:= 1; $Context`i:= 2; Do(, $Context`i -> 3))}))), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [36]:")}, 
+       All), SectionGroup({Section(BoxData({"??", "*Messag*"}), "Input", 
+         SectionLabel -> "in [31]:"), 
+        Section(
+         BoxData({
+           TemplateBox({
+             TemplateBox({
+               MessageName -> HoldForm(Developer`FromPackedArray::"punpack"), 
+               Message -> StringForm(
+                 "Unpacking array with dimensions `2` in call to `1`.", Part, {
+                  2}), Stack -> {
+                 {"Head" -> SectionPrint, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richma\
+                    th\\scripts\\auto\\frontend\\showdefinition.pmath", {
+                      7, 1} .. {16, 5})}, {"Head" -> Style, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richma\
+                    th\\scripts\\auto\\frontend\\showdefinition.pmath", {
+                      7, 28} .. {16, 4})}, {"Head" -> Grid, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richma\
+                    th\\scripts\\auto\\frontend\\showdefinition.pmath", {
+                      8, 8} .. {10, 109})}, {"Head" -> Transpose, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\richma\
+                    th\\scripts\\auto\\frontend\\showdefinition.pmath", {
+                      9, 8} .. {10, 108})}, {"Head" -> With}, {
+                  "Head" -> Catch, "Location" -> 
+                   Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      11, 55} .. {11, 100})}, {
+                  "Head" -> System`linalg`transposeHelper, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      11, 61} .. {11, 90})}, {"Head" -> EvaluationSequence, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      14, 97} .. {46, 15})}, {
+                  "Head" -> Do, "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      39, 38} .. {45, 16})}, {"Head" -> EvaluationSequence, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      40, 4} .. {44, 50})}, {
+                  "Head" -> Do, "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      41, 2} .. {43, 22})}, {"Head" -> Part, 
+                  "Location" -> Language`SourceLocation(
+                    "C:\\Users\\Peter\\Documents\\Programmieren\\pmath\\librar\
+                    y\\scripts\\auto\\core\\linalg.pmath", {
+                      41, 5} .. {42, 26})}, {"Head" -> Message}, {
+                  "Head" -> SectionPrint}}}, "MessageMenuButton"), {
+              "Developer`FromPackedArray", "::", StringBox("\"punpack\"")}}, 
+            "RowDefault"), ":", " ", InterpretationBox(
+            StringBox("\"Unpacking array with dimensions ", {"{", "2", "}"}, 
+             " in call to Part.\""), 
+            StringForm("Unpacking array with dimensions `2` in call to `1`.", 
+             Part, {2}), Editable -> False)}), "Message", 
+         SectionGenerated -> True), 
+        Section(
+         BoxData(
+          StyleBox(
+           TagBox(
+            GridBox({
+              {/\/(ButtonBox(StringBox("\"System`$MessageCount\"")), " "), 
+               /\/(ButtonBox(StringBox("\"System`Message\"")), " ")}, {
+               /\/(ButtonBox(StringBox("\"System`$MessageGroups\"")), " "), 
+               /\/(ButtonBox(StringBox("\"System`MessageName\"")), " ")}, {
+               /\/(ButtonBox(StringBox("\"System`$MessagePrePrint\"")), " "), 
+               /\/(ButtonBox(StringBox("\"System`Messages\"")), " ")}, {
+               /\/(ButtonBox(StringBox("\"System`$NewMessage\"")), " "), 
+               StringBox("\"\"")}}), "Grid"), 
+           ButtonBoxOptions -> {ButtonFrame -> "Frameless", 
+             ButtonFunction -> 
+              Function(With({FE`Private`s$:= ToExpression(First(#1))}, 
+                ShowDefinition(FE`Private`s$)))}, GridBoxColumnSpacing -> 2, 
+           GridBoxRowSpacing -> 0.20000000298023224`, StripOnInput -> False)), 
+         "PrintUsage", SectionGenerated -> True), 
+        Section(
+         BoxData(
+          StringBox(
+           "\"$MessageGroups is the list of rules which gives named message \
+           groups used in functions like On or Try.\"")), "PrintUsage"), 
+        Section(BoxData({{"Attributes", "(", "$MessageGroups", ")"}, 
+           "\[Assign]", {"{", "Protected", "}"}}), "Print"), 
+        Section(BoxData({"$MessageGroups", "\[Assign]", {
+            "{", {StringBox("\"Packing\""), "\[RuleDelayed]", {
+              "{", {{"General", "::", StringBox("\"punpack\"")}, ",", {
+                "General", "::", StringBox("\"punpack1\"")}}, "}"}}, "}"}}), 
+         "Print")}, All), 
+      Section(BoxData({"Off", "(", StringBox("\"Packing\""), ")"}), "Input", 
+       SectionLabel -> "in [32]:")}, All)}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
