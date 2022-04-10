@@ -358,6 +358,36 @@ PMATH_PRIVATE pmath_t builtin_assign(pmath_expr_t expr) {
   return PMATH_NULL;
 }
 
+PMATH_PRIVATE pmath_t builtin_assignwith(pmath_expr_t expr) {
+  /*  AssithWith(x, f)    x //= f
+   */
+  size_t exprlen = pmath_expr_length(expr);
+  pmath_t rhs, lhs, lhs_eval;
+  
+  if(exprlen != 2) {
+    pmath_message_argxxx(exprlen, 2, 2);
+    return expr;
+  }
+  
+  lhs = pmath_expr_get_item(expr, 1);
+  lhs_eval = pmath_evaluate(pmath_ref(lhs));
+  if(pmath_equals(lhs, lhs_eval)) {
+    pmath_message(PMATH_NULL, "rval", 1, lhs);
+    pmath_unref(lhs_eval);
+    return expr;
+  }
+  
+  rhs = pmath_expr_get_item(expr, 2);
+  pmath_unref(expr);
+  
+  expr = pmath_expr_new_extended(
+           pmath_ref(pmath_System_Assign), 2,
+           lhs,
+           pmath_expr_new_extended(rhs, 1, lhs_eval));
+             
+  return expr;
+}
+
 PMATH_PRIVATE pmath_t builtin_unassign(pmath_expr_t expr) {
   pmath_t  head, lhs;
   

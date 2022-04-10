@@ -119,6 +119,7 @@ PMATH_PRIVATE pmath_t builtin_tagassign(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_unassign(   pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_tagunassign(pmath_expr_t expr);
 
+PMATH_PRIVATE pmath_t builtin_assignwith(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_dec_or_inc_or_postdec_or_postinc(pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_divideby_or_timesby(pmath_expr_t expr);
 
@@ -892,6 +893,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_System_Array,                        builtin_array)
   BIND_DOWN(   pmath_System_Assign,                       builtin_assign)
   BIND_DOWN(   pmath_System_AssignDelayed,                builtin_assign)
+  BIND_DOWN(   pmath_System_AssignWith,                   builtin_assignwith)
   BIND_DOWN(   pmath_System_Attributes,                   builtin_attributes)
   BIND_DOWN(   pmath_System_BaseForm,                     builtin_baseform)
   BIND_DOWN(   pmath_System_Begin,                        builtin_begin)
