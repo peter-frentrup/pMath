@@ -150,13 +150,12 @@ Document({
          FontSize -> Dynamic(CurrentValue("ControlsFontSize")), 
          ShowAutoStyles -> False, ShowStringCharacters -> False), 
         Section(StyleData("Framed"), FrameBoxOptions -> {
-           ContentPadding -> True, FrameMargins -> Automatic}), 
-        Section(StyleData("Button"), BaseStyle -> "ControlStyle", 
-         ButtonBoxOptions -> {ContentPadding -> True}), 
-        Section(StyleData("Checkbox")), Section(StyleData("InputField"), 
-         BaseStyle -> "ControlStyle", ShowStringCharacters -> True), 
-        Section(StyleData("Pane"), PaneBoxOptions -> {
-           BaselinePosition -> Center -> Axis, 
+           ContentPadding -> True}), Section(StyleData("Button"), 
+         BaseStyle -> "ControlStyle", ButtonBoxOptions -> {
+           ContentPadding -> True}), Section(StyleData("Checkbox")), 
+        Section(StyleData("InputField"), BaseStyle -> "ControlStyle", 
+         ShowStringCharacters -> True), Section(StyleData("Pane"), 
+         PaneBoxOptions -> {BaselinePosition -> Center -> Axis, 
            ImageSizeAction -> "ShrinkToFit"}), 
         Section(StyleData("Panel"), BaseStyle -> "ControlStyle", 
          PanelBoxOptions -> {ContentPadding -> True}), 
