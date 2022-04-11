@@ -26,6 +26,9 @@ namespace richmath {
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
       
+      virtual void on_mouse_enter() override;
+      virtual void on_mouse_exit() override;
+      
     private:
       Expr _object;
   };
