@@ -892,17 +892,28 @@ void Document::on_mouse_move(MouseEvent &event) {
   }
   else if(mouse_sel.selectable()) {
     if(mouse_sel.box == this) {
-      if(length() == 0)
+      if(length() == 0) {
         native()->set_cursor(CursorType::TextN);
-      else if(mouse_sel.is_empty())
-        native()->set_cursor(CursorType::Document);
+      }
+      else if(mouse_sel.is_empty()) {
+        //if(mouse_sel.start < length())
+          native()->set_cursor(CursorType::Document);
+        //else
+        //  native()->set_cursor(CursorType::TextN);
+      }
       else
         native()->set_cursor(CursorType::Section);
     }
-    else
+    else if(dynamic_cast<AbstractSequence*>(mouse_sel.box)) {
       native()->set_cursor(NativeWidget::text_cursor(mouse_sel.box, mouse_sel.start));
+    }
+    else if(dynamic_cast<Section *>(mouse_sel.box)) {
+      native()->set_cursor(CursorType::NoSelect);
+    }
+    else
+      native()->set_cursor(CursorType::Default);
   }
-  else if(dynamic_cast<Section *>(mouse_sel.box) && selectable()) {
+  else if(dynamic_cast<Section *>(mouse_sel.box)) {
     native()->set_cursor(CursorType::NoSelect);
   }
   else

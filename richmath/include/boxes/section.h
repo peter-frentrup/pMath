@@ -237,7 +237,7 @@ namespace richmath {
       virtual int count() override { return 0; }
       
       virtual bool edit_selection(SelectionReference &selection) override { return false; }
-      virtual bool selectable(int i) override { return i < 0; }
+      virtual bool selectable(int i = -1) override { return i < 0; }
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
     

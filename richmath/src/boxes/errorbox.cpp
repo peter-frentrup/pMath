@@ -41,4 +41,9 @@ void ErrorBox::paint(Context &context) {
     y + _extents.descent);
 }
 
+VolatileSelection ErrorBox::mouse_selection(Point pos, bool *was_inside_start) {
+  *was_inside_start = true;
+  return {this, 0, 0};
+}
+
 //} ... class ErrorBox
