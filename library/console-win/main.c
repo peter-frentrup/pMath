@@ -700,11 +700,12 @@ static pmath_string_t readline_pmath(const wchar_t *continuation_prompt) {
 }
 
 struct styled_writer_info_t {
-  pmath_t current_hyperlink_obj;
-  
+  pmath_t  current_hyperlink_obj;
+  HFONT    cached_console_font;
   unsigned raw_boxes_write_depth;
   unsigned formatting_allow_raw_boxes : 1;
   unsigned formatting_is_inside_string : 1;
+  unsigned no_font_available : 1;
 };
 
 static int bytes_since_last_abortcheck = 0;
@@ -1054,6 +1055,90 @@ static pmath_bool_t styled_formatter(void *user, pmath_t obj, struct pmath_write
   return FALSE;
 }
 
+static pmath_bool_t styled_can_write_unicode(void *user, const uint16_t *str, int len) {
+  struct styled_writer_info_t *sw = user;
+  UINT cp;
+  
+  if(!sw->cached_console_font && !sw->no_font_available) {
+    CONSOLE_FONT_INFOEX cfi = {sizeof(CONSOLE_FONT_INFOEX)};
+    if(GetCurrentConsoleFontEx(GetStdHandle(STD_OUTPUT_HANDLE), FALSE, &cfi)) {
+      cfi.FaceName[LF_FACESIZE - 1] = L'\0';
+      sw->cached_console_font = CreateFontW(
+          0, 0, 0, 0, cfi.FontWeight, FALSE, FALSE, FALSE, 
+          DEFAULT_CHARSET, OUT_DEFAULT_PRECIS, CLIP_DEFAULT_PRECIS, DEFAULT_QUALITY, 
+          cfi.FontFamily, cfi.FaceName);
+    }
+    else
+      sw->no_font_available = TRUE;
+  }
+  
+  if(sw->cached_console_font) {
+    HDC dc;
+    if(dc = GetDC(NULL)) {
+      HGDIOBJ oldfont = SelectObject(dc, sw->cached_console_font);
+      pmath_bool_t success = TRUE;
+#define GLYPH_BUF_SIZE  8
+      WORD glyphs[GLYPH_BUF_SIZE];
+      
+      while(len) {
+        int next_len = len <= GLYPH_BUF_SIZE ? len : GLYPH_BUF_SIZE;
+        int i;
+        
+        DWORD ret = GetGlyphIndicesW(dc, (const wchar_t*)str, next_len, glyphs, GGI_MARK_NONEXISTING_GLYPHS);
+        if(ret == GDI_ERROR) {
+          success = FALSE;
+          break;
+        }
+        if(ret != (DWORD)next_len) {
+          success = FALSE;
+          break;
+        }
+        
+        for(i = 0; i < next_len; ++i) {
+          if(glyphs[i] == 0xFFFF) {
+            success = FALSE;
+            break;
+          }
+        }
+        
+        len-= next_len;
+        str+= next_len;
+      }
+         
+      SelectObject(dc, oldfont);
+      return success;
+ #undef GLYPH_BUF_SIZE  
+    }
+  }
+  
+  // TODO: check current code page instead
+  if(cp = GetConsoleOutputCP()) {
+    int conv;
+    BOOL used_def;
+    
+    switch(cp) {
+      case CP_UTF7:
+      case CP_UTF8:
+      case CP_WINUNICODE:
+        return TRUE;
+      
+      default: break;
+    }
+    
+    used_def = FALSE;
+    conv = WideCharToMultiByte(cp, WC_NO_BEST_FIT_CHARS, (const wchar_t*)str, len, NULL, 0, NULL, &used_def);
+    if(!conv)
+      return FALSE;
+    
+    // TODO: is this ever set if we provide no output buffer?
+    if(used_def)
+      return FALSE;
+    
+    return TRUE;
+  }
+  return FALSE;
+}
+
 static pmath_threadlock_t print_lock = NULL;
 
 struct write_output_t {
@@ -1091,12 +1176,16 @@ static void write_output_locked_callback(void *_context) {
   options.pre_write = styled_pre_write;
   options.post_write = styled_post_write;
   options.custom_formatter = styled_formatter;
+  options.can_write_unicode = styled_can_write_unicode;
   
   pmath_write_with_pagewidth_ex(&options, context->object);
   
   if(!pmath_same(info.current_hyperlink_obj, PMATH_UNDEFINED))
     hyper_console_end_link();
   pmath_unref(info.current_hyperlink_obj);
+  
+  if(info.cached_console_font)
+    DeleteObject(info.cached_console_font);
   
   printf("\n");
   fflush(stdout);

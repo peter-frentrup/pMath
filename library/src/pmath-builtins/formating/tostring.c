@@ -52,6 +52,7 @@ struct write_short_t {
   struct write_short_span_t *current_span;
   void                      *user;
   pmath_bool_t             (*custom_writer)(void *user, pmath_t obj, struct pmath_write_ex_t *info);
+  pmath_bool_t             (*can_write_unicode)(void *user, const uint16_t *str, int len);
   pmath_bool_t               have_error;
 };
 
@@ -59,6 +60,7 @@ static void write_short(void *_ws, const uint16_t *data, int len);
 static void pre_write_short(void *_ws, pmath_t item, pmath_write_options_t options);
 static void post_write_short(void *_ws, pmath_t item, pmath_write_options_t options);
 static pmath_bool_t short_custom_writer(void *_ws, pmath_t obj, struct pmath_write_ex_t *info);
+static pmath_bool_t short_can_write_unicode(void *_ws, const uint16_t *str, int len);
 static void visit_spans(
   struct write_short_t      *ws,
   struct pmath_write_ex_t   *info,
@@ -82,16 +84,21 @@ void _pmath_write_short(struct pmath_write_ex_t *info, pmath_t obj, int length) 
   ws.have_error    = FALSE;
   
   memset(&new_info, 0, sizeof(new_info));
-  new_info.size       = sizeof(new_info);
-  new_info.options    = info->options;
-  new_info.user       = &ws;
-  new_info.write      = write_short;
-  new_info.pre_write  = pre_write_short;
-  new_info.post_write = post_write_short;
+  new_info.size              = sizeof(new_info);
+  new_info.options           = info->options;
+  new_info.user              = &ws;
+  new_info.write             = write_short;
+  new_info.pre_write         = pre_write_short;
+  new_info.post_write        = post_write_short;
   
   if(PMATH_HAS_MEMBER(info, custom_writer) && info->custom_writer) {
     ws.custom_writer       = info->custom_writer;
     new_info.custom_writer = short_custom_writer;
+  }
+  
+  if(PMATH_HAS_MEMBER(info, can_write_unicode) && info->can_write_unicode) {
+    ws.can_write_unicode       = info->can_write_unicode;
+    new_info.can_write_unicode = short_can_write_unicode;
   }
   
   _pmath_write_impl(&new_info, obj);
@@ -212,6 +219,15 @@ static pmath_bool_t short_custom_writer(void *_ws, pmath_t obj, struct pmath_wri
     return TRUE;
   
   return ws->custom_writer(ws->user, obj, info);
+}
+
+static pmath_bool_t short_can_write_unicode(void *_ws, const uint16_t *str, int len) {
+  struct write_short_t *ws = _ws;
+  
+  if(ws->have_error)
+    return FALSE;
+  
+  return ws->can_write_unicode(ws->user, str, len);
 }
 
 static void visit_spans(
@@ -506,10 +522,10 @@ static void write_ascii_to_string(void *pointer_to_pmath_string, const uint16_t 
   
 }
 
-static pmath_bool_t apply_format_type_and_free(       pmath_write_options_t *flags, pmath_t format_type);
-static pmath_bool_t apply_characterencoding_option(   pmath_write_options_t *flags, void(**write_func)(void*,const uint16_t*,int), pmath_t options);
-static pmath_bool_t apply_whitespace_option(          pmath_write_options_t *flags, pmath_t options);
-static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t *flags, pmath_t options);
+static pmath_bool_t apply_format_type_and_free(       pmath_write_options_t              *flags, pmath_t format_type);
+static pmath_bool_t apply_characterencoding_option(   struct pmath_line_writer_options_t *lwo,   pmath_t options);
+static pmath_bool_t apply_whitespace_option(          pmath_write_options_t              *flags, pmath_t options);
+static pmath_bool_t apply_showstringcharacters_option(pmath_write_options_t              *flags, pmath_t options);
 static pmath_bool_t extract_pagewidth_option(int *page_width_or_negative, pmath_t options);
 
 PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
@@ -522,13 +538,11 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
         Whitespace -> Automatic | True | False
         ShowStringCharacters -> False | True | Automatic
    */
-  pmath_string_t          result;
-  pmath_t                 options;
-  pmath_t                 obj;
-  pmath_write_options_t   flags;
-  void                  (*writer_func)(void*,const uint16_t*,int);
-  size_t                  exprlen;
-  int                     pagewidth = 0;
+  struct pmath_line_writer_options_t lwo;
+  pmath_string_t result;
+  pmath_t        options;
+  pmath_t        obj;
+  size_t         exprlen;
   
   exprlen = pmath_expr_length(expr);
   if(exprlen == 0) {
@@ -536,7 +550,11 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
     return pmath_string_new(0);
   }
     
-  flags = 0;
+  memset(&lwo, 0, sizeof(lwo));
+  lwo.size = sizeof(lwo);
+  lwo.user = &result;
+  lwo.write = _pmath_write_to_string;
+  lwo.page_width = INT_MAX;
   
   options = PMATH_NULL;
   obj = pmath_expr_get_item(expr, 2);
@@ -546,7 +564,7 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
     options = pmath_options_extract(expr, 1);
   }
   else {
-    if(!apply_format_type_and_free(&flags, obj))
+    if(!apply_format_type_and_free(&lwo.flags, obj))
       return expr;
     
     obj = PMATH_NULL;
@@ -556,26 +574,24 @@ PMATH_PRIVATE pmath_t builtin_tostring(pmath_expr_t expr) {
   if(pmath_is_null(options))
     return expr;
   
-  writer_func = _pmath_write_to_string;
-  
-  if( !apply_characterencoding_option(   &flags, &writer_func, options) ||
-      !apply_whitespace_option(          &flags, options) ||
-      !apply_showstringcharacters_option(&flags, options) ||
-      !extract_pagewidth_option(         &pagewidth, options))
+  if( !apply_characterencoding_option(   &lwo, options) ||
+      !apply_whitespace_option(          &lwo.flags, options) ||
+      !apply_showstringcharacters_option(&lwo.flags, options) ||
+      !extract_pagewidth_option(         &lwo.page_width, options))
   {
     pmath_unref(options);
     return expr;
   }
+  
+  if(lwo.page_width < 0)
+    lwo.page_width = INT_MAX;
   
   pmath_unref(options); options = PMATH_NULL;
   result = PMATH_NULL;
   
   obj = pmath_expr_get_item(expr, 1);
   
-  if(pagewidth > 0)
-    pmath_write_with_pagewidth(obj, flags, writer_func, &result, pagewidth, 0);
-  else  
-    pmath_write(obj, flags, writer_func, &result);
+  pmath_write_with_pagewidth_ex(&lwo, obj);
   
   pmath_unref(obj);
   pmath_unref(expr);
@@ -605,19 +621,24 @@ static pmath_bool_t apply_format_type_and_free(pmath_write_options_t *flags, pma
   return FALSE;
 }
 
-static pmath_bool_t apply_characterencoding_option(pmath_write_options_t *flags, void(**write_func)(void*,const uint16_t*,int), pmath_t options) {
+static pmath_bool_t can_write_unicode_true(void *user, const uint16_t *str, int len) {
+  return TRUE;
+}
+
+static pmath_bool_t apply_characterencoding_option(struct pmath_line_writer_options_t *lwo, pmath_t options) {
   pmath_t enc = pmath_evaluate(pmath_option_value(PMATH_NULL, pmath_System_CharacterEncoding, options));
  
   if(pmath_is_string(enc)) {
     if(pmath_string_equals_latin1(enc, "Unicode")) {
-      *flags |= PMATH_WRITE_OPTIONS_PREFERUNICODE;
+      lwo->flags |= PMATH_WRITE_OPTIONS_PREFERUNICODE;
+      lwo->can_write_unicode = can_write_unicode_true;
       pmath_unref(enc);
       return TRUE;
     }
     
     if(pmath_string_equals_latin1(enc, "ASCII")) {
-      *write_func = write_ascii_to_string;
-      *flags &= ~PMATH_WRITE_OPTIONS_PREFERUNICODE;
+      lwo->write = write_ascii_to_string;
+      lwo->flags &= ~PMATH_WRITE_OPTIONS_PREFERUNICODE;
       pmath_unref(enc);
       return TRUE;
     }

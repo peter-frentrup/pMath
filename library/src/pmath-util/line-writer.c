@@ -49,10 +49,11 @@ struct linewriter_t {
   int  rawboxes_depth;
   
   void          *user;
-  void         (*write)(        void *, const uint16_t *, int);
-  void         (*pre_write)(    void *, pmath_t, pmath_write_options_t);
-  void         (*post_write)(   void *, pmath_t, pmath_write_options_t);
-  pmath_bool_t (*custom_writer)(void *, pmath_t, struct pmath_write_ex_t *);
+  void         (*write)(            void *, const uint16_t *, int);
+  void         (*pre_write)(        void *, pmath_t, pmath_write_options_t);
+  void         (*post_write)(       void *, pmath_t, pmath_write_options_t);
+  pmath_bool_t (*custom_writer)(    void *, pmath_t, struct pmath_write_ex_t *);
+  pmath_bool_t (*can_write_unicode)(void *, const uint16_t *, int);
 };
 
 extern pmath_symbol_t pmath_System_DollarPageWidth;
@@ -641,10 +642,16 @@ static void linewriter_post_write(void *user, pmath_t item, pmath_write_options_
   }
 }
 
-static pmath_bool_t linewriter_custom_formatter(void *user, pmath_t obj, struct pmath_write_ex_t *info) {
+static pmath_bool_t linewriter_custom_writer(void *user, pmath_t obj, struct pmath_write_ex_t *info) {
   struct linewriter_t *lw = user;
   
   return lw->custom_writer(lw->user, obj, info);
+}
+
+static pmath_bool_t linewriter_can_write_unicode(void *user, const uint16_t *str, int len){
+  struct linewriter_t *lw = user;
+  
+  return lw->can_write_unicode(lw->user, str, len);
 }
 
 
@@ -667,6 +674,9 @@ static void fallback_write_ex(
     
   if(PMATH_HAS_MEMBER(options, custom_formatter))
     info.custom_writer = options->custom_formatter;
+    
+  if(PMATH_HAS_MEMBER(options, can_write_unicode))
+    info.can_write_unicode = options->can_write_unicode;
     
   _pmath_write_impl(&info, obj);
 }
@@ -739,15 +749,18 @@ void pmath_write_with_pagewidth_ex(
     lw.post_write         = options->post_write;
   if(PMATH_HAS_MEMBER(options, custom_formatter))
     lw.custom_writer      = options->custom_formatter;
+  if(PMATH_HAS_MEMBER(options, can_write_unicode))
+    lw.can_write_unicode  = options->can_write_unicode;
     
   memset(&info, 0, sizeof(info));
-  info.size          = sizeof(info);
-  info.options       = options->flags;
-  info.user          = &lw;
-  info.write         = line_write;
-  info.pre_write     = linewriter_pre_write;
-  info.post_write    = linewriter_post_write;
-  info.custom_writer = lw.custom_writer ? linewriter_custom_formatter : NULL;
+  info.size              = sizeof(info);
+  info.options           = options->flags;
+  info.user              = &lw;
+  info.write             = line_write;
+  info.pre_write         = linewriter_pre_write;
+  info.post_write        = linewriter_post_write;
+  info.custom_writer     = lw.custom_writer ? linewriter_custom_writer : NULL;
+  info.can_write_unicode = lw.can_write_unicode ? linewriter_can_write_unicode : NULL;
   
   _pmath_write_impl(&info, obj);
   

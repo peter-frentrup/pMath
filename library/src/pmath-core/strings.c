@@ -51,6 +51,11 @@ static iconv_t create_from_native(void);
 static pmath_string_t string_from_iconv(iconv_t cd, const char *str, int len);
 static char *string_to_iconv(iconv_t cd, pmath_string_t str, int *result_len);
 
+static uint16_t unicode_subscript(uint16_t ch);
+static uint16_t unicode_superscript(uint16_t ch);
+
+static pmath_bool_t write_boxes_try_unicode_subsuperscript(struct pmath_write_ex_t *info, pmath_t box, uint16_t (*char_sel)(uint16_t));
+
 #define _pmath_ref_string_ptr(P)    _pmath_ref_ptr(&(P)->inherited)
 #define _pmath_unref_string_ptr(P)  _pmath_unref_ptr(&(P)->inherited)
 
@@ -606,39 +611,45 @@ void _pmath_write_cstr(
 #undef BUFLEN
 }
 
-static pmath_bool_t is_single_token(pmath_t box) {
-  if(pmath_is_string(box))
+static pmath_bool_t find_single_token(pmath_t box, pmath_string_t *result) {
+  if(pmath_is_string(box)) {
+    if(result) *result = pmath_ref(box);
     return TRUE;
-
+  }
+  
   if( pmath_is_expr_of(box, PMATH_NULL) ||
       pmath_is_expr_of(box, pmath_System_List))
   {
     pmath_t part;
-    pmath_bool_t result;
+    pmath_bool_t found;
 
     if(pmath_expr_length(box) != 1)
       return FALSE;
 
     part = pmath_expr_get_item(box, 1);
-    result = is_single_token(part);
+    found = find_single_token(part, result);
     pmath_unref(part);
-    return result;
+    return found;
   }
-
+  
   if( pmath_is_expr_of(box, pmath_System_StyleBox) ||
       pmath_is_expr_of(box, pmath_System_TagBox) ||
       pmath_is_expr_of(box, pmath_System_InterpretationBox))
   {
     pmath_t part;
-    pmath_bool_t result;
+    pmath_bool_t found;
 
     part = pmath_expr_get_item(box, 1);
-    result = is_single_token(part);
+    found = find_single_token(part, result);
     pmath_unref(part);
-    return result;
+    return found;
   }
 
   return FALSE;
+}
+
+static pmath_bool_t is_single_token(pmath_t box) {
+  return find_single_token(box, NULL);
 }
 
 static void write_single_token_box(struct pmath_write_ex_t *info, pmath_t box) {
@@ -854,8 +865,11 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
 
   if(pmath_is_expr_of(box, pmath_System_SubscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
-    _pmath_write_cstr("_", info->write, info->user);
-    write_single_token_box(info, part);
+
+    if(!write_boxes_try_unicode_subsuperscript(info, part, unicode_subscript)) {
+      _pmath_write_cstr("_", info->write, info->user);
+      write_single_token_box(info, part);
+    }
     pmath_unref(part);
 
     return;
@@ -863,8 +877,11 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
 
   if(pmath_is_expr_of(box, pmath_System_SuperscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
-    _pmath_write_cstr("^", info->write, info->user);
-    write_single_token_box(info, part);
+    
+    if(!write_boxes_try_unicode_subsuperscript(info, part, unicode_superscript)) {
+      _pmath_write_cstr("^", info->write, info->user);
+      write_single_token_box(info, part);
+    }
     pmath_unref(part);
 
     return;
@@ -872,13 +889,18 @@ static void write_boxes_impl(struct pmath_write_ex_t *info, pmath_t box) {
 
   if(pmath_is_expr_of(box, pmath_System_SubsuperscriptBox)) {
     pmath_t part = pmath_expr_get_item(box, 1);
-    _pmath_write_cstr("_", info->write, info->user);
-    write_single_token_box(info, part);
+    
+    if(!write_boxes_try_unicode_subsuperscript(info, part, unicode_subscript)) {
+      _pmath_write_cstr("_", info->write, info->user);
+      write_single_token_box(info, part);
+    }
     pmath_unref(part);
 
     part = pmath_expr_get_item(box, 2);
-    _pmath_write_cstr("^", info->write, info->user);
-    write_single_token_box(info, part);
+    if(!write_boxes_try_unicode_subsuperscript(info, part, unicode_superscript)) {
+      _pmath_write_cstr("^", info->write, info->user);
+      write_single_token_box(info, part);
+    }
     pmath_unref(part);
 
     return;
@@ -1970,4 +1992,196 @@ static iconv_t create_to_native(void) {
 
 static iconv_t create_from_native(void) {
   return iconv_open(PMATH_BYTE_ORDER < 0 ? "UTF-16LE" : "UTF-16BE", _pmath_native_encoding);
+}
+
+static uint16_t unicode_subscript(uint16_t ch) {
+  switch(ch) {
+    case '0': return 0x2080; // U+2080 SUBSCRIPT ZERO
+    case '1': return 0x2081; // U+2081 SUBSCRIPT ONE
+    case '2': return 0x2082; // U+2082 SUBSCRIPT TWO
+    case '3': return 0x2083; // U+2083 SUBSCRIPT THREE
+    case '4': return 0x2084; // U+2084 SUBSCRIPT FOUR
+    case '5': return 0x2085; // U+2085 SUBSCRIPT FIVE
+    case '6': return 0x2086; // U+2086 SUBSCRIPT SIX
+    case '7': return 0x2087; // U+2087 SUBSCRIPT SEVEN
+    case '8': return 0x2088; // U+2088 SUBSCRIPT EIGHT
+    case '9': return 0x2089; // U+2089 SUBSCRIPT NINE
+    case '+': return 0x208A; // U+208A SUBSCRIPT PLUS SIGN
+    case '-': return 0x208B; // U+208B SUBSCRIPT MINUS
+    case '=': return 0x208C; // U+208C SUBSCRIPT EQUALS SIGN
+    case '(': return 0x208D; // U+208D SUBSCRIPT LEFT PARENTHESIS
+    case ')': return 0x208E; // U+208E SUBSCRIPT RIGHT PARENTHESIS
+    
+    case 'a': return 0x2090; // U+2090 LATIN SUBSCRIPT SMALL LETTER A
+    case 'e': return 0x2091; // U+2091 LATIN SUBSCRIPT SMALL LETTER E
+    case 'h': return 0x2095; // U+2095 LATIN SUBSCRIPT SMALL LETTER H
+    case 'i': return 0x1D62; // U+1D62 LATIN SUBSCRIPT SMALL LETTER I
+    case 'j': return 0x2C7C; // U+2C7C LATIN SUBSCRIPT SMALL LETTER J
+    case 'k': return 0x2096; // U+2096 LATIN SUBSCRIPT SMALL LETTER K
+    case 'l': return 0x2097; // U+2097 LATIN SUBSCRIPT SMALL LETTER L
+    case 'm': return 0x2098; // U+2098 LATIN SUBSCRIPT SMALL LETTER M
+    case 'n': return 0x2099; // U+2099 LATIN SUBSCRIPT SMALL LETTER N
+    case 'o': return 0x2092; // U+2092 LATIN SUBSCRIPT SMALL LETTER O
+    case 'p': return 0x209A; // U+209A LATIN SUBSCRIPT SMALL LETTER P
+    case 's': return 0x209B; // U+209B LATIN SUBSCRIPT SMALL LETTER S
+    case 't': return 0x209C; // U+209C LATIN SUBSCRIPT SMALL LETTER T
+    case 'r': return 0x1D63; // U+1D63 LATIN SUBSCRIPT SMALL LETTER R
+    case 'u': return 0x1D64; // U+1D64 LATIN SUBSCRIPT SMALL LETTER U
+    case 'v': return 0x1D65; // U+1D65 LATIN SUBSCRIPT SMALL LETTER V
+    case 'x': return 0x2093; // U+2093 LATIN SUBSCRIPT SMALL LETTER X
+    
+    case 0x03B2: return 0x1D66; // U+1D66 GREEK SUBSCRIPT SMALL LETTER BETA
+    case 0x03B3: return 0x1D67; // U+1D67 GREEK SUBSCRIPT SMALL LETTER GAMMA
+    case 0x03C1: return 0x1D68; // U+1D68 GREEK SUBSCRIPT SMALL LETTER RHO
+    case 0x03C6: return 0x1D69; // U+1D69 GREEK SUBSCRIPT SMALL LETTER PHI
+    case 0x03C7: return 0x1D6A; // U+1D6A GREEK SUBSCRIPT SMALL LETTER CHI
+  }
+  return 0;
+}
+
+static uint16_t unicode_superscript(uint16_t ch) {
+  switch(ch) {
+    case '0': return 0x2070; // U+2070 SUPERSCRIPT ZERO
+    case '1': return 0x00B9; // U+00B9 SUPERSCRIPT ONE
+    case '2': return 0x00B2; // U+00B2 SUPERSCRIPT TWO
+    case '3': return 0x00B3; // U+00B3 SUPERSCRIPT THREE
+    case '4': return 0x2074; // U+2074 SUPERSCRIPT FOUR
+    case '5': return 0x2075; // U+2075 SUPERSCRIPT FIVE
+    case '6': return 0x2076; // U+2076 SUPERSCRIPT SIX
+    case '7': return 0x2077; // U+2077 SUPERSCRIPT SEVEN
+    case '8': return 0x2078; // U+2078 SUPERSCRIPT EIGHT
+    case '9': return 0x2079; // U+2079 SUPERSCRIPT NINE
+    case '+': return 0x207A; // U+207A SUPERSCRIPT PLUS SIGN
+    case '-': return 0x207B; // U+207B SUPERSCRIPT MINUS
+    case '=': return 0x207C; // U+207C SUPERSCRIPT EQUALS SIGN
+    case '(': return 0x207D; // U+207D SUPERSCRIPT LEFT PARENTHESIS
+    case ')': return 0x207E; // U+207E SUPERSCRIPT RIGHT PARENTHESIS
+    
+    case 'A': return 0x1D2C; // U+1D2C MODIFIER LETTER CAPITAL A
+    case 'B': return 0x1D2E; // U+1D2E MODIFIER LETTER CAPITAL B
+    case 'D': return 0x1D30; // U+1D30 MODIFIER LETTER CAPITAL D
+    case 'E': return 0x1D31; // U+1D31 MODIFIER LETTER CAPITAL E
+    case 'G': return 0x1D33; // U+1D33 MODIFIER LETTER CAPITAL G
+    case 'H': return 0x1D34; // U+1D34 MODIFIER LETTER CAPITAL H
+    case 'I': return 0x1D35; // U+1D35 MODIFIER LETTER CAPITAL I
+    case 'J': return 0x1D36; // U+1D36 MODIFIER LETTER CAPITAL J
+    case 'K': return 0x1D37; // U+1D37 MODIFIER LETTER CAPITAL K
+    case 'L': return 0x1D38; // U+1D38 MODIFIER LETTER CAPITAL L
+    case 'M': return 0x1D39; // U+1D39 MODIFIER LETTER CAPITAL M
+    case 'N': return 0x1D3A; // U+1D3A MODIFIER LETTER CAPITAL N
+    case 'O': return 0x1D3C; // U+1D3C MODIFIER LETTER CAPITAL O
+    case 'P': return 0x1D3E; // U+1D3E MODIFIER LETTER CAPITAL P
+    case 'R': return 0x1D3F; // U+1D3F MODIFIER LETTER CAPITAL R
+    case 'T': return 0x1D40; // U+1D40 MODIFIER LETTER CAPITAL T
+    case 'U': return 0x1D41; // U+1D41 MODIFIER LETTER CAPITAL U
+    case 'V': return 0x2C7D; // U+2C7D MODIFIER LETTER CAPITAL V
+    case 'W': return 0x1D42; // U+1D42 MODIFIER LETTER CAPITAL W
+    
+    case 'a': return 0x1D43; // U+1D43 MODIFIER LETTER SMALL A
+    case 'b': return 0x1D47; // U+1D47 MODIFIER LETTER SMALL B
+    case 'c': return 0x1D9C; // U+1D9C MODIFIER LETTER SMALL C
+    case 'd': return 0x1D48; // U+1D48 MODIFIER LETTER SMALL D
+    case 'e': return 0x1D49; // U+1D49 MODIFIER LETTER SMALL E
+    case 'f': return 0x1DA0; // U+1DA0 MODIFIER LETTER SMALL F
+    case 'g': return 0x1D4D; // U+1D4D MODIFIER LETTER SMALL G
+    case 'h': return 0x02B0; // U+02B0 MODIFIER LETTER SMALL H
+    case 'i': return 0x2071; // U+2071 SUPERSCRIPT LATIN SMALL LETTER I
+    case 'j': return 0x02B2; // U+02B2 MODIFIER LETTER SMALL J
+    case 'k': return 0x1D4F; // U+1D4F MODIFIER LETTER SMALL K
+    case 'l': return 0x02E1; // U+02E1 MODIFIER LETTER SMALL L
+    case 'm': return 0x1D50; // U+1D50 MODIFIER LETTER SMALL M
+    case 'n': return 0x207F; // U+207F SUPERSCRIPT LATIN SMALL LETTER N
+    case 'o': return 0x1D52; // U+1D52 MODIFIER LETTER SMALL O
+    case 'p': return 0x1D56; // U+1D56 MODIFIER LETTER SMALL P
+    //case 'q': return 0x107A5; // 0x107A5 MODIFIER LETTER SMALL Q  (not in BMP)
+    case 'r': return 0x02B3; // U+02B3 MODIFIER LETTER SMALL R
+    case 's': return 0x02E2; // U+02E2 MODIFIER LETTER SMALL S
+    case 't': return 0x1D57; // U+1D57 MODIFIER LETTER SMALL T
+    case 'u': return 0x1D58; // U+1D58 MODIFIER LETTER SMALL U
+    case 'v': return 0x1D5B; // U+1D5B MODIFIER LETTER SMALL V
+    case 'w': return 0x02B7; // U+02B7 MODIFIER LETTER SMALL W
+    case 'x': return 0x02E3; // U+02E3 MODIFIER LETTER SMALL X
+    case 'y': return 0x02B8; // U+02B8 MODIFIER LETTER SMALL Y
+    case 'z': return 0x1DBB; // U+1DBB MODIFIER LETTER SMALL Z
+    
+    case 0x03B1: return 0x1D45; // U+1D45 MODIFIER LETTER SMALL ALPHA
+    case 0x03B2: return 0x1D5D; // U+1D5D MODIFIER LETTER SMALL BETA
+    case 0x03B3: return 0x1D5E; // U+1D5E MODIFIER LETTER SMALL GREEK GAMMA
+    case 0x03B4: return 0x1D5F; // U+1D5F MODIFIER LETTER SMALL DELTA
+    case 0x03B5: return 0x1D4B; // U+1D4B MODIFIER LETTER SMALL OPEN E     (epsilon)
+    case 0x03B8: return 0x1DBF; // U+1DBF MODIFIER LETTER SMALL THETA
+    case 0x03C6: return 0x1D60; // U+1D60 MODIFIER LETTER SMALL GREEK PHI
+    case 0x03C7: return 0x1D61; // U+1D61 MODIFIER LETTER SMALL CHI
+  }
+  return 0;
+}
+
+static pmath_bool_t write_boxes_try_unicode_subsuperscript(struct pmath_write_ex_t *info, pmath_t box, uint16_t (*char_sel)(uint16_t)) {
+  pmath_string_t tok = PMATH_NULL;
+  
+  if(!info->can_write_unicode)
+    return FALSE;
+  
+//  if(!(info->options & PMATH_WRITE_OPTIONS_PREFERUNICODE))
+//    return FALSE;
+  
+  if(find_single_token(box, &tok)) {
+#define TMP_BUF_LEN  8
+    uint16_t tmp_buf[TMP_BUF_LEN];
+    const uint16_t *buf = pmath_string_buffer(&tok);
+    int len = pmath_string_length(tok);
+    int i;
+    
+    for(i = 0; i < len; ++i) {
+      if(!char_sel(buf[i])) {
+        pmath_unref(tok);
+        return FALSE;
+      }
+    }
+    
+    for(i = 0; i < len;) {
+      int block_len = len - i;
+      int j;
+      
+      if(block_len > TMP_BUF_LEN)
+        block_len = TMP_BUF_LEN;
+      
+      for(j = 0; j < block_len; ++j) {
+        tmp_buf[j] = char_sel(buf[i + j]);
+      }
+      
+      if(!info->can_write_unicode(info->user, tmp_buf, block_len)) {
+        pmath_unref(tok);
+        return FALSE;
+      }
+      
+      i+= block_len;
+    }
+    
+    for(i = 0; i < len;) {
+      int block_len = len - i;
+      int j;
+      
+      if(block_len > TMP_BUF_LEN)
+        block_len = TMP_BUF_LEN;
+      
+      for(j = 0; j < block_len; ++j) {
+        tmp_buf[j] = char_sel(buf[i + j]);
+      }
+      
+      info->write(info->user, tmp_buf, block_len);
+      
+      i+= block_len;
+    }
+    
+//    for(i = 0; i < len; ++i) {
+//      uint16_t ch = char_sel(buf[i]);
+//      info->write(info->user, &ch, 1);
+//    }
+    
+    pmath_unref(tok);
+    return TRUE;
+  }
+  
+  return FALSE;
 }

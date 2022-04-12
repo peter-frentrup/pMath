@@ -53,6 +53,13 @@ struct pmath_line_writer_options_t {
      Return TRUE to suppress the default display and FALSE to continue with the default display for \a obj.
    */
   pmath_bool_t (*custom_formatter)(void *user, pmath_t obj, struct pmath_write_ex_t *info);
+  
+  /**\brief Optional. May be called to decide whether to use Unicode or a fallback output.
+     
+     Return TRUE if all characters in the buffer could be written.
+     This is currently used for Subscript and similar boxes that are embedded inside strings.
+   */
+  pmath_bool_t (*can_write_unicode)(void *user, const uint16_t *str, int len);
 };
   
 /**\brief Write an object to a stream with a maximum line width.

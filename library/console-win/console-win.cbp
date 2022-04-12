@@ -27,6 +27,7 @@
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#hypercon_32.bin)/hyper-console.dll&quot;' />
 					<Add library="pmath" />
+					<Add library="gdi32" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /c COPY /Y &quot;$(#hypercon_32.bin)\hyper-console.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -57,6 +58,7 @@
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#hypercon_32.bin)/hyper-console.dll&quot;' />
 					<Add library="pmath" />
+					<Add library="gdi32" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /c COPY /Y &quot;$(#hypercon_32.bin)\hyper-console.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -84,6 +86,7 @@
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#hypercon_64.bin)/hyper-console.dll&quot;' />
 					<Add library="pmath" />
+					<Add library="gdi32" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /c COPY /Y &quot;$(#hypercon_64.bin)\hyper-console.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -114,6 +117,7 @@
 					<Add option="-static-libgcc" />
 					<Add option='&quot;$(#hypercon_64.bin)/hyper-console.dll&quot;' />
 					<Add library="pmath" />
+					<Add library="gdi32" />
 				</Linker>
 				<ExtraCommands>
 					<Add after='cmd /c COPY /Y &quot;$(#hypercon_64.bin)\hyper-console.dll&quot; &quot;$(PROJECT_DIR)$(TARGET_OUTPUT_DIR)&quot;' />
@@ -140,6 +144,7 @@
 					<Add option="/debug" />
 					<Add library="pmath.lib" />
 					<Add library="hyper-console" />
+					<Add library="gdi32" />
 					<Add directory="$(#hypercon_32.lib)" />
 				</Linker>
 				<ExtraCommands>
@@ -169,6 +174,7 @@
 					<Add option="/debug" />
 					<Add library="pmath.lib" />
 					<Add library="hyper-console" />
+					<Add library="gdi32" />
 					<Add directory="$(#hypercon_32.lib)" />
 				</Linker>
 				<ExtraCommands>
@@ -196,6 +202,7 @@
 					<Add option="/debug" />
 					<Add library="pmath.lib" />
 					<Add library="hyper-console" />
+					<Add library="gdi32" />
 					<Add directory="$(#hypercon_64.lib)" />
 				</Linker>
 				<ExtraCommands>
@@ -223,6 +230,7 @@
 				<Linker>
 					<Add library="pmath.lib" />
 					<Add library="hyper-console" />
+					<Add library="gdi32" />
 					<Add directory="$(#hypercon_64.lib)" />
 				</Linker>
 				<ExtraCommands>
@@ -244,13 +252,6 @@
 			<Option compilerVar="CC" />
 		</Unit>
 		<Extensions>
-			<code_completion />
-			<envvars />
-			<debugger>
-				<remote_debugging>
-					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
-				</remote_debugging>
-			</debugger>
 			<DoxyBlocks>
 				<comment_style block="0" line="0" />
 				<doxyfile_project />
@@ -260,6 +261,11 @@
 				<doxyfile_dot />
 				<general />
 			</DoxyBlocks>
+			<debugger>
+				<remote_debugging>
+					<options conn_type="-1" serial_baud="115200" additional_cmds="python import sys&#x0A;python import os&#x0A;python sys.path.insert(0, os.path.abspath(os.path.join(r&apos;$(PROJECT_DIR)..&apos;, &apos;..&apos;, &apos;debugging&apos;, &apos;gdb&apos;)) )&#x0A;python import pmath_gdb&#x0A;python pmath_gdb.printers.register_pmath_printers(None)" />
+				</remote_debugging>
+			</debugger>
 		</Extensions>
 	</Project>
 </CodeBlocks_project_file>
