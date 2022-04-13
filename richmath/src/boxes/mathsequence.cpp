@@ -1059,7 +1059,9 @@ bool MathSequence::request_repaint(const RectangleF &rect) {
 }
 
 bool MathSequence::request_repaint_range(int start, int end) {
-//  return base::request_repaint_range(start, end);
+  if(text_changed())
+    return request_repaint_all();
+  
   int l1, l2;
   
   l1 = l2 = get_line(start);
@@ -1479,6 +1481,11 @@ bool MathSequence::stretch_horizontal(Context &context, float width) {
 }
 
 int MathSequence::get_line(int index, int guide) {
+  if(text_changed()) {
+    pmath_debug_print("[get_line ill-defined: text_changed()]\n");
+    return 0;
+  }
+
   GlyphIterator iter = Impl(*this).glyph_iterator();
   iter.skip_forward_to_glyph_after_text_pos(this, index);
   

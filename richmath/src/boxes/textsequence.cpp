@@ -819,6 +819,11 @@ bool TextSequence::visible_rect(RectangleF &rect, Box *top_most) { // See MathSe
 }
 
 int TextSequence::get_line(int index, int guide) {
+  if(text_changed()) {
+    pmath_debug_print("[get_line ill-defined: text_changed()]\n");
+    return 0;
+  }
+
   TextLayoutIterator iter = Impl(*this).text_iterator();
   
   iter.skip_forward_beyond_text_pos(this, index);
