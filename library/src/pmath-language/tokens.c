@@ -412,7 +412,7 @@ PMATH_API pmath_token_t pmath_token_analyse(
       }
       if(len == 2 && str[1] == '>') { //  |>
         *prec = PMATH_PREC_ARROW;
-        return PMATH_TOK_NARY;
+        return PMATH_TOK_CALL;//PMATH_TOK_NARY;
       }
       *prec = PMATH_PREC_OR;
       return PMATH_TOK_NARY;

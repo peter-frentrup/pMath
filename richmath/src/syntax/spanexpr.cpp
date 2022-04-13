@@ -887,12 +887,12 @@ bool FunctionCallSpan::is_simple_call(SpanExpr *span) {
 }
 
 bool FunctionCallSpan::is_complex_call(SpanExpr *span) {
-  // 012345
-  // a.f
-  // a.f(
-  // a.f()
-  // a.f(b
-  // a.f(b)
+  // 012345   0 1  2345
+  // a.f      a |> f
+  // a.f(     a |> f(
+  // a.f()    a |> f()
+  // a.f(b    a |> f(b
+  // a.f(b)   a |> f(b)
   
   if(!span)
     return false;
@@ -903,7 +903,7 @@ bool FunctionCallSpan::is_complex_call(SpanExpr *span) {
   if(span->count() > 6)
     return false;
     
-  if(!span->item_equals(1, "."))
+  if(!span->item_equals(1, ".") && !span->item_equals(1, "|>"))
     return false;
     
   if(!span->item_is_operand(0))

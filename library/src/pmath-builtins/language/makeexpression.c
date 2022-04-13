@@ -741,6 +741,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // args |-> body
       if(is_string_at(expr, 2, "|->"))
         return make_arrow_function(expr);
+        
+      // arg |> f
+      if(is_string_at(expr, 2, "|>"))
+        return make_simple_dot_call(expr);
     }
     
     // ~x:t  ~~x:t  ~~~x:t
@@ -806,20 +810,20 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return make_part(expr);
     }
     
-    // a.f()
+    // a.f()   a |> f()
     if( exprlen == 5               &&
-        secondchar == '.'          &&
         unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 5) == ')')
+        unichar_at(expr, 5) == ')' &&
+        (secondchar == '.' || is_string_at(expr, 2, "|>")))
     {
       return make_simple_dot_call(expr);
     }
     
-    // a.f(x)
+    // a.f(x)   a |> f(x)
     if( exprlen == 6               &&
-        secondchar == '.'          &&
         unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 6) == ')')
+        unichar_at(expr, 6) == ')' &&
+        (secondchar == '.' || is_string_at(expr, 2, "|>")))
     {
       return make_dot_call(expr);
     }
@@ -2607,9 +2611,7 @@ static pmath_t make_binary(
   if(!is_parse_error(lhs)) {
     pmath_t rhs;
     
-    if( pmath_same(sym, pmath_System_Assign) &&
-        unichar_at(boxes, 3) == '.')
-    {
+    if( pmath_same(sym, pmath_System_Assign) && unichar_at(boxes, 3) == '.') {
       return wrap_hold_with_debuginfo_from(
                boxes,
                pmath_expr_new_extended(
@@ -3409,9 +3411,7 @@ static pmath_t make_tag_assignment(pmath_expr_t boxes) {
     if(!is_parse_error(lhs)) {
       pmath_t rhs;
       
-      if( pmath_same(head, pmath_System_TagAssign) &&
-          unichar_at(boxes, 5) == '.')
-      {
+      if(pmath_same(head, pmath_System_TagAssign) && unichar_at(boxes, 5) == '.') {
         return wrap_hold_with_debuginfo_from(
                  boxes,
                  pmath_expr_new_extended(
