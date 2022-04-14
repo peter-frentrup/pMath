@@ -99,7 +99,8 @@ Box *OwnerBox::remove(int *index) {
     *index = _index;
     VolatileSelection sel = par->normalize_selection(_index, _index + 1);
     if(auto seq = dynamic_cast<AbstractSequence*>(sel.box)) {
-      seq->insert(sel.end, _content, 0, _content->length());
+      if(!is_parent_of(seq))
+        seq->insert(sel.end, _content, 0, _content->length());
     }
     return par->remove(index);
   }

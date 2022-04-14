@@ -147,7 +147,7 @@ Box *BoxFactory::create_box(LayoutKind layout_kind, Expr expr, BoxInputFlags opt
     return finish_create_or_error(new GraphicsBox(), std::move(expr), options);
     
   if(head == richmath_System_GridBox)
-    return finish_create_or_error(new GridBox(), std::move(expr), options);
+    return finish_create_or_error(new GridBox(layout_kind), std::move(expr), options);
     
   if(head == richmath_System_InputFieldBox)
     return finish_create_or_error(new InputFieldBox(create_sequence(layout_kind)), std::move(expr), options);

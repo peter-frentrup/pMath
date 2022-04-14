@@ -292,7 +292,7 @@ namespace richmath {
       
       void set_prev_sel_line();
       
-      bool prepare_insert();
+      bool prepare_insert(bool include_previous_word);
       bool prepare_insert_math(bool include_previous_word);
       
       Section *auto_make_text_or_math(Section *sect);
@@ -1035,7 +1035,7 @@ void Document::on_key_up(SpecialKeyEvent &event) {
 void Document::on_key_press(uint32_t unichar) {
   AbstractSequence *initial_seq = dynamic_cast<AbstractSequence *>(selection_box());
   
-  if(!Impl(*this).prepare_insert()) {
+  if(!Impl(*this).prepare_insert(false)) {
     Document *cur = Documents::current();
     
     if(cur && cur != this)
@@ -2080,7 +2080,7 @@ void Document::paste_from_boxes(Expr boxes) {
   
   remove_selection(false);
   
-  if(Impl(*this).prepare_insert()) {
+  if(Impl(*this).prepare_insert(false)) {
     if(auto seq = dynamic_cast<AbstractSequence *>(context.selection.get())) {
     
       BoxInputFlags options = BoxInputFlags::Default;
@@ -2115,7 +2115,7 @@ void Document::paste_from_text(String mimetype, String data) {
   if(mimetype.equals(Clipboard::PlainText)) {
     bool doc_was_selected = selection_box() == this;
     
-    if(Impl(*this).prepare_insert()) {
+    if(Impl(*this).prepare_insert(false)) {
       remove_selection(false);
       
       data = String(Evaluate(Parse("`1`.StringReplace(\"\\r\\n\"->\"\\n\")", data)));
@@ -2522,7 +2522,7 @@ void Document::insert_string(String text, bool autoformat) {
   const uint16_t *buf = text.buffer();
   int             len = text.length();
   
-  if(!Impl(*this).prepare_insert()) {
+  if(!Impl(*this).prepare_insert(false)) {
     native()->beep();
     return;
   }
@@ -2794,7 +2794,7 @@ static AbstractSequence *find_selection_placeholder(
 }
 
 void Document::insert_box(Box *box, bool handle_placeholder) {
-  if(!box || !Impl(*this).prepare_insert()) {
+  if(!box || !Impl(*this).prepare_insert(false)) {
     Document *cur = Documents::current();
     
     if(cur && cur != this) {
@@ -2927,7 +2927,7 @@ void Document::insert_fraction() {
 }
 
 void Document::insert_matrix_column() {
-  if(!Impl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert(true)) {
     Document *cur = Documents::current();
     
     if(cur && cur != this) {
@@ -2948,13 +2948,11 @@ void Document::insert_matrix_column() {
   }
   
   GridBox *grid = nullptr;
+  VolatileSelection sel = context.selection.get_all();
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel.box);
   
-  MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
-  
-  if( context.selection.start == context.selection.end ||
-      (seq && seq->is_placeholder()))
-  {
-    Box *b = context.selection.get();
+  if(sel.length() == 0 || (seq && seq->is_placeholder())) {
+    Box *b = sel.box;
     int i = 0;
     while(b) {
       i = b->index();
@@ -2971,9 +2969,7 @@ void Document::insert_matrix_column() {
       
       int col_val = col.primary_value();
       
-      if( context.selection.end > 0 ||
-          selection_box() != grid->item(0, col_val)->content())
-      {
+      if(sel.end > 0 || sel.box != grid->item(0, col_val)->content()) {
         ++col_val;
       }
       
@@ -2983,25 +2979,10 @@ void Document::insert_matrix_column() {
     }
   }
   
-  if( seq &&
-      context.selection.start > 0 &&
-      context.selection.start == context.selection.end &&
-      !seq->span_array().is_token_end(context.selection.start - 1))
-  {
-    while(context.selection.end < seq->length() &&
-          !seq->span_array().is_token_end(context.selection.end))
-      ++context.selection.end;
-      
-    if(context.selection.end < seq->length())
-      ++context.selection.end;
-      
-    context.selection.start = context.selection.end;
-  }
-  
   select_prev(true);
   
   if(seq) {
-    grid = new GridBox(1, 2);
+    grid = new GridBox(seq->kind(), 1, 2);
     seq->insert(context.selection.end, grid);
     
     if(context.selection.start < context.selection.end) {
@@ -3023,7 +3004,7 @@ void Document::insert_matrix_column() {
 }
 
 void Document::insert_matrix_row() {
-  if(!Impl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert(true)) {
     Document *cur = Documents::current();
     
     if(cur && cur != this) {
@@ -3044,13 +3025,11 @@ void Document::insert_matrix_row() {
   }
   
   GridBox *grid = nullptr;
+  VolatileSelection sel = context.selection.get_all();
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel.box);
   
-  MathSequence *seq = dynamic_cast<MathSequence *>(context.selection.get());
-  
-  if(context.selection.start == context.selection.end ||
-      (seq && seq->is_placeholder()))
-  {
-    Box *b = context.selection.get();
+  if(sel.length() == 0 || (seq && seq->is_placeholder())) {
+    Box *b = sel.box;
     int i = 0;
     
     while(b) {
@@ -3068,9 +3047,7 @@ void Document::insert_matrix_row() {
       
       int row_val = row.primary_value();
       
-      if( context.selection.end > 0 ||
-          context.selection.get() != grid->item(row_val, 0)->content())
-      {
+      if( sel.end > 0 || sel.box != grid->item(row_val, 0)->content()) {
         ++row_val;
       }
       
@@ -3080,35 +3057,15 @@ void Document::insert_matrix_row() {
     }
   }
   
-  if( seq &&
-      context.selection.start > 0 &&
-      context.selection.start == context.selection.end &&
-      !seq->span_array().is_token_end(context.selection.start - 1))
-  {
-    while( context.selection.end < seq->length() &&
-           !seq->span_array().is_token_end(context.selection.end))
-    {
-      ++context.selection.end;
-    }
-    
-    if(selection_end() < seq->length())
-      ++context.selection.end;
-      
-    context.selection.start = context.selection.end;
-  }
-  
   select_prev(true);
   
   if(seq) {
-    grid = new GridBox(2, 1);
+    grid = new GridBox(seq->kind(), 2, 1);
     seq->insert(context.selection.end, grid);
     
     if(context.selection.start < context.selection.end) {
       grid->item(0, 0)->content()->remove(0, grid->item(0, 0)->content()->length());
-      grid->item(0, 0)->content()->insert(
-        0, seq,
-        context.selection.start,
-        context.selection.end);
+      grid->item(0, 0)->content()->insert(0, seq, context.selection.start, context.selection.end);
       seq->remove(context.selection.start, context.selection.end);
       if(grid->item(0, 0)->content()->is_placeholder())
         select(grid->item(0, 0)->content(), 0, 1);
@@ -4362,7 +4319,7 @@ void Document::Impl::set_prev_sel_line() {
   }
 }
 
-bool Document::Impl::prepare_insert() {
+bool Document::Impl::prepare_insert(bool include_previous_word) {
   if(self.context.selection.id == self.id()) {
     self.prev_sel_line = -1;
     if( self.context.selection.start != self.context.selection.end ||
@@ -4408,6 +4365,17 @@ bool Document::Impl::prepare_insert() {
       self.native()->on_editing();
       close_popup_windows_on_parent_changed(self.context.selection.get_all());
       set_prev_sel_line();
+      
+      if(include_previous_word && self.selection_length() == 0) {
+        if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
+          int prev_pos = self.selection_start();
+          Box *prev_pos_box = seq->move_logical(LogicalDirection::Backward, true, &prev_pos);
+          
+          if(prev_pos_box == seq) 
+            self.select(seq, prev_pos, self.selection_end());
+        }
+      }
+      
       return true;
     }
   }
@@ -4416,24 +4384,16 @@ bool Document::Impl::prepare_insert() {
 }
 
 bool Document::Impl::prepare_insert_math(bool include_previous_word) {
-  if(!prepare_insert())
+  if(!prepare_insert(include_previous_word))
     return false;
-    
-  if(dynamic_cast<MathSequence *>(self.selection_box()))
-    return true;
     
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box());
   if(!seq)
     return false;
     
-  if(include_previous_word && self.selection_length() == 0) {
-    int prev_pos = self.selection_start();
-    Box *prev_pos_box = seq->move_logical(LogicalDirection::Backward, true, &prev_pos);
+  if(dynamic_cast<MathSequence *>(seq))
+    return true;
     
-    if(prev_pos_box == seq) 
-      self.select(seq, prev_pos, self.selection_end());
-  }
-  
   InlineSequenceBox *box = new InlineSequenceBox(new MathSequence);
   box->has_explicit_head(true);
   

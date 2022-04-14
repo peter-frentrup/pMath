@@ -1,6 +1,6 @@
 #include <boxes/gridbox.h>
 
-#include <boxes/mathsequence.h>
+#include <boxes/box-factory.h>
 #include <graphics/context.h>
 
 #include <algorithm>
@@ -39,6 +39,8 @@ namespace richmath {
       float calculate_ascent_for_baseline_position(float em, Expr baseline_pos) const;
       void adjust_baseline(float em);
       
+      GridItem *create_item();
+      
     private:
       GridBox &self;
   };
@@ -56,8 +58,8 @@ extern pmath_symbol_t richmath_System_Top;
 
 //{ class GridItem ...
 
-GridItem::GridItem()
-  : base(new MathSequence), // TODO: allow other AbstractSequence
+GridItem::GridItem(AbstractSequence *content)
+  : base(content),
     _span_right(0),
     _span_down(0)
 {
@@ -136,7 +138,7 @@ bool GridItem::span_from_any() {
 
 //} ... class GridItem
 
-//} class GridSelectionStrategy ...
+//{ class GridSelectionStrategy ...
 
 GridSelectionStrategy GridSelectionStrategy::ContentsOnly = GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOnly);
 
@@ -161,26 +163,28 @@ GridSelectionStrategy::GridSelectionStrategy(Kind kind, int expected_rows, int e
 {
 }
 
-//{ ... class GridSelectionStrategy
+//} ... class GridSelectionStrategy
 
 //{ class GridBox ...
 
 GridSelectionStrategy GridBox::selection_strategy = GridSelectionStrategy(GridSelectionStrategy::Kind::ContentsOnly);
 
-GridBox::GridBox()
+GridBox::GridBox(LayoutKind kind)
   : base(),
     items(1, 1)
 {
-  items[0] = new GridItem;
+  use_text_layout(kind == LayoutKind::Text);
+  items[0] = Impl(*this).create_item();
   ensure_valid_boxes();
 }
 
-GridBox::GridBox(int rows, int cols)
+GridBox::GridBox(LayoutKind kind, int rows, int cols)
   : base(),
     items(rows > 0 ? rows : 1, cols > 0 ? cols : 1)
 {
+  use_text_layout(kind == LayoutKind::Text);
   for(int i = 0; i < items.length(); ++i) 
-    items[i] = new GridItem();
+    items[i] = Impl(*this).create_item();
   
   ensure_valid_boxes();
 }
@@ -276,7 +280,7 @@ void GridBox::insert_rows(int yindex, int count) {
   items.insert_rows(yindex, count);
   for(int x = 0; x < items.cols(); ++x)
     for(int y = 0; y < count; ++y)
-      items.set(yindex + y, x, new GridItem);
+      items.set(yindex + y, x, Impl(*this).create_item());
       
   ensure_valid_boxes();
   
@@ -295,7 +299,7 @@ void GridBox::insert_cols(int xindex, int count) {
   items.insert_cols(xindex, count);
   for(int x = 0; x < count; ++x)
     for(int y = 0; y < rows(); ++y)
-      items.set(y, xindex + x, new GridItem);
+      items.set(y, xindex + x, Impl(*this).create_item());
       
   ensure_valid_boxes();
     
@@ -1536,6 +1540,10 @@ void GridBox::Impl::adjust_baseline(float em) {
   float ascent = calculate_ascent_for_baseline_position(em, self.get_style(BaselinePosition));
   self._extents.ascent = ascent;
   self._extents.descent = height - ascent;
+}
+
+GridItem *GridBox::Impl::create_item() {
+  return new GridItem(BoxFactory::create_sequence(self.layout_kind()));
 }
 
 //} ... class GridBox::Impl

@@ -2,6 +2,7 @@
 #define RICHMATH__BOXES__GRIDBOX_H__INCLUDED
 
 #include <boxes/ownerbox.h>
+#include <boxes/abstractsequence.h>
 #include <util/matrix.h>
 
 
@@ -155,7 +156,7 @@ namespace richmath {
       int span_down()  const { return _span_down; }
       
     protected:
-      GridItem();
+      explicit GridItem(AbstractSequence *content);
       virtual void resize_default_baseline(Context &context) override;
       
     protected:
@@ -204,8 +205,10 @@ namespace richmath {
     protected:
       virtual ~GridBox();
     public:
-      GridBox();
-      GridBox(int rows, int cols);
+      explicit GridBox(LayoutKind kind);
+      explicit GridBox(LayoutKind kind, int rows, int cols);
+      
+      LayoutKind layout_kind() { return use_text_layout() ? LayoutKind::Text : LayoutKind::Math; }
       
       // Box::try_create<GridBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
@@ -307,6 +310,17 @@ namespace richmath {
     public:
       static GridSelectionStrategy selection_strategy;
       static GridSelectionStrategy best_selection_strategy_for_drag_source(const VolatileSelection &sel);
+      
+    protected:
+      enum {
+        UseTextLayoutBit = base::NumFlagsBits,
+        
+        NumFlagsBits
+      };
+      static_assert(NumFlagsBits <= MaximumFlagsBits, "");
+      
+      bool use_text_layout() {       return get_flag(UseTextLayoutBit); }
+      void use_text_layout(bool value) { change_flag(UseTextLayoutBit, value); }
       
     private:
       void need_pos_vectors();
