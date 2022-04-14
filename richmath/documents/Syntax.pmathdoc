@@ -5,40 +5,37 @@ Document({
     SectionGroup({Section("Function call", "Section"), 
       Section("There are five forms of function call syntax:", "Text"), 
       Section(
-       BoxData(
-        GridBox({{TextData("Form"), TextData("Syntax"), TextData("Use for:")}, 
-          {TextData("Normal"), 
-           StyleBox({"f", "(", {{"x", SubscriptBox("1")}, ",", {
-               "x", SubscriptBox("2")}, ",", "\[Ellipsis]"}, ")"}, 
-            ScriptLevel -> 0, StripOnInput -> False), 
-           TextData(
+       TextData({
+         GridBox({
+           {{BoxData(
+              StyleBox({"f", "(", {{"x", SubscriptBox("1")}, ",", {
+                  "x", SubscriptBox("2")}, ",", "\[Ellipsis]"}, ")"}, 
+               ScriptLevel -> 0, StripOnInput -> False))}, 
             "\[HighSixDoubleQuote]stand alone\[HighNineDoubleQuote] \
-            functions")}, {TextData("Prefix"), 
-           StyleBox({"f", "@", "x"}, ScriptLevel -> 0, StripOnInput -> False), 
-           /\/(TextData({"adornments: ", BoxData("f"), 
-              " ist a small detail to ", BoxData("x")}), " ", " ")}, {
-           TextData("Postfix"), StyleBox({{"x", "//", "f"}, "//", "g"}, 
-            ScriptLevel -> 0, StripOnInput -> False), 
-           TextData("data flow, or an afterthought")}, {
-           TextData("Pipe"), 
-           /\/(StyleBox({{{"x", SubscriptBox("1")}, "|>", "f", "(", {
-                {"x", SubscriptBox("2")}, ",", " ", "\[Ellipsis]"}, ")"}, 
-              "|>", "g", "(", {"y", ",", "\[Ellipsis]"}, ")"}, 
-             ScriptLevel -> 0, StripOnInput -> False), " "), 
-           TextData("data flow, piping several calls")}, {
-           TextData("Dot"), 
-           StyleBox({
-             {"x", ".", "f", "(", {{"x", SubscriptBox("2")}, ",", 
-               "\[Ellipsis]"}, ")"}, ".", "g", "(", {"y", ",", "..."}, ")"}, 
-            ScriptLevel -> 0, StripOnInput -> False), 
-           TextData({BoxData("f"), " gives properties of ", 
-             BoxData("x")})}})), "DisplayFormula"), 
-      SectionGroup({
+            functions"}, {
+            {BoxData(StyleBox({"f", "@", "x"}, ScriptLevel -> 0, 
+               StripOnInput -> False))}, {"adornments: ", BoxData("f"), 
+             " is a small detail to ", BoxData("x")}}, {
+            {BoxData(StyleBox({{"x", "//", "f"}, "//", "g"}, ScriptLevel -> 0, 
+               StripOnInput -> False))}, "data flow, or an afterthought"}, {
+            {BoxData(
+              StyleBox({{{"x", SubscriptBox("1")}, "|>", "f", "(", {
+                  {"x", SubscriptBox("2")}, ",", " ", "\[Ellipsis]"}, ")"}, 
+                "|>", "g", "(", {"y", ",", "\[Ellipsis]"}, ")"}, 
+               ScriptLevel -> 0, StripOnInput -> False))}, 
+            "data flow, piping several calls"}, {
+            {BoxData(
+              StyleBox({
+                {"x", ".", "f", "(", {{"x", SubscriptBox("2")}, ",", 
+                  "\[Ellipsis]"}, ")"}, ".", "g", "(", {"y", ",", "..."}, 
+                ")"}, ScriptLevel -> 0, StripOnInput -> False))}, {
+             BoxData("f"), " gives properties of ", BoxData("x")}}})}), 
+       "Text"), SectionGroup({
         Section(
          TextData({"Infix dot ", 
            BoxData({"x", ".", "h", "(", {{"x", SubscriptBox("2")}, ",", 
               "\[Ellipsis]"}, ")"})}), "Subsection"), 
-        Section("The dot binds stongly:", "Text"), 
+        Section("The dot binds strongly:", "Text"), 
         SectionGroup({
           Section(BoxData({"a", "+", {"b", ".", "c", "(", "d", ")"}, "+", 
              "e"}), "Input", SectionLabel -> "in [28]:"), 
@@ -153,7 +150,7 @@ Document({
         SectionGroup({Section(BoxData({"f", "@", "x"}), "Input", 
            SectionLabel -> "in [36]:"), Section(BoxData({"f", "(", "x", ")"}), 
            "Output", SectionGenerated -> True, SectionLabel -> "out [36]:")}, 
-         All), Section("It binds stronger rather strongly:", "Text"), 
+         All), Section("It binds rather strongly:", "Text"), 
         SectionGroup({Section(BoxData({"f", "+", {"g", "@", "x"}, "+", "h"}), 
            "Input", SectionLabel -> "in [40]:"), 
           Section(BoxData({"f", "+", "h", "+", {"g", "(", "x", ")"}}), 
