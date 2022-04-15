@@ -19,6 +19,7 @@
 #include <gui/win32/win32-control-painter.h>
 #include <gui/win32/win32-recent-documents.h>
 #include <gui/win32/win32-scrollbar-overlay.h>
+#include <util/autovaluereset.h>
 #include <resources.h>
 
 #ifndef WM_MOUSEHWHEEL
@@ -39,6 +40,8 @@ extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Menu;
 extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_System_Delimiter;
+
+static bool use_base_ncactivate = false;
 
 class Win32DocumentChildWidget: public Win32Widget {
     using base = Win32Widget;
@@ -1378,16 +1381,57 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           }
         } break;
         
+      case WM_NCACTIVATE: {
+        if(use_base_ncactivate)
+          break;
+        
+        AutoValueReset<bool> auto_ubn{use_base_ncactivate};
+        use_base_ncactivate = true;
+        
+        if(wParam && document()->selectable()) {
+          if(Document *last_doc = Documents::current()) {
+            if(auto wid = dynamic_cast<Win32DocumentChildWidget*>(last_doc->native())) {
+              if(wid->parent() != this) {
+                wid->parent()->callback(WM_NCACTIVATE, FALSE, 0);
+              }
+            }
+          }
+        }
+        
+        if(!wParam && document() == Documents::current()) {
+          base::callback(WM_NCACTIVATE, TRUE, 0);
+          return TRUE;
+        }
+      } break;
+      
       case WM_ACTIVATEAPP: {
           Document *current_doc = Documents::current();
           
           if(wParam) { // activate
-            if(current_doc)
+            if(current_doc) {
               current_doc->focus_set();
+              
+              if(!document()->selectable()) {
+                if(auto wid = dynamic_cast<Win32DocumentChildWidget*>(current_doc->native())) {
+                  AutoValueReset<bool> auto_ubn{use_base_ncactivate};
+                  use_base_ncactivate = true;
+                  
+                  wid->parent()->callback(WM_NCACTIVATE, TRUE, 0);
+                }
+              }
+            }
           }
           else {
-            if(current_doc)
+            if(current_doc) {
               current_doc->focus_killed(nullptr);
+              
+              if(auto wid = dynamic_cast<Win32DocumentChildWidget*>(current_doc->native())) {
+                AutoValueReset<bool> auto_ubn{use_base_ncactivate};
+                use_base_ncactivate = true;
+                
+                wid->parent()->callback(WM_NCACTIVATE, FALSE, 0);
+              }
+            }
           }
         } break;
         
