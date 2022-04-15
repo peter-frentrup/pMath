@@ -3584,10 +3584,11 @@ Expr MenuSortingValueStyleConverter::to_expr(int val) {
 }
 
 RemovalConditionsStyleConverter::RemovalConditionsStyleConverter(): FlagsStyleConverter() {
-  add(RemovalConditionFlagSelectionExit,     String("SelectionExit"));
-  add(RemovalConditionFlagMouseExit,         String("MouseExit"));
-  add(RemovalConditionFlagOutsideMouseClick, String("OutsideMouseClick"));
-  add(RemovalConditionFlagParentChanged,     String("ParentChanged"));
+  add(RemovalConditionFlagSelectionExit,          String("SelectionExit"));
+  add(RemovalConditionFlagMouseExit,              String("MouseExit"));
+  add(RemovalConditionFlagMouseClickOutside,      String("MouseClickOutside"));
+  add(RemovalConditionFlagMouseClickOutsidePopup, String("MouseClickOutsidePopup"));
+  add(RemovalConditionFlagParentChanged,          String("ParentChanged"));
 }
 
 WindowFrameStyleConverter::WindowFrameStyleConverter() : EnumStyleConverter() {

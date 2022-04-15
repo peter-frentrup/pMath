@@ -60,11 +60,11 @@ namespace richmath {
   };
   
   enum RemovalConditionFlags {
-    RemovalConditionFlagSelectionExit     = 0x01,
-    RemovalConditionFlagMouseExit         = 0x02,
-    RemovalConditionFlagOutsideMouseClick = 0x04,
-    RemovalConditionFlagParentChanged     = 0x08,
-    //RemovalConditionFlagFocusExit         = 0x10,
+    RemovalConditionFlagSelectionExit          = 0x01,
+    RemovalConditionFlagMouseExit              = 0x02,
+    RemovalConditionFlagMouseClickOutside      = 0x04,
+    RemovalConditionFlagMouseClickOutsidePopup = 0x08,
+    RemovalConditionFlagParentChanged          = 0x10,
   };
   
   enum ColorStyleOptionName {

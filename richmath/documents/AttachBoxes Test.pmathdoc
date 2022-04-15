@@ -47,7 +47,7 @@ Document({
                     "WindowFrame", "\[Rule]", 
                     StringBox("\"ThinFrameCallout\"")}, ",", {
                     "RemovalConditions", "\[Rule]", {
-                     "{", {StringBox("\"OutsideMouseClick\""), ",", 
+                     "{", {StringBox("\"MouseClickOutside\""), ",", 
                       StringBox("\"SelectionExit\"")}, "}"}}}, ")"}}, "\n"}}, 
               "}"}}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
         Section(BoxData(ButtonBox(StringBox("\"Greetings ...\""), 
@@ -64,7 +64,7 @@ Document({
                     ContinuousAction -> True)}), "PopupWindowSection", 
                  SectionMargins -> 4, LineBreakWithin -> False), 
                 WindowFrame -> "ThinFrameCallout", 
-                RemovalConditions -> {"OutsideMouseClick", 
+                RemovalConditions -> {"MouseClickOutside", 
                   "SelectionExit"}))))), "Output", SectionGenerated -> True, 
          SectionLabel -> "out [2]:")}, All)}, All), 
     SectionGroup({Section("Declarative interface", "Section"), 
@@ -130,7 +130,7 @@ Document({
               "}"}, ")"}, ",", {"\n", {StringBox("\"ClosingAction\""), 
               "\[Rule]", StringBox("\"Hide\"")}}, ",", {
              "RemovalConditions", "\[Rule]", {
-              "{", {StringBox("\"OutsideMouseClick\""), ",", 
+              "{", {StringBox("\"MouseClickOutside\""), ",", 
                StringBox("\"SelectionExit\"")}, "}"}}}, ")"}), "Input", 
          SectionLabel -> "in [5]:"), 
         Section(
@@ -148,7 +148,7 @@ Document({
                    \\\"ClosingAction\\\"\[Rule]\\\"Hide\\\" setting.\"")}, 
                  "RowDefault"), ControlPlacement -> Right}, "SimplePopup")}, 
              "RowDefault"), "ClosingAction" -> "Hide", 
-            RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
+            RemovalConditions -> {"MouseClickOutside", "SelectionExit"}}, 
            "SimplePopup")), "Output", SectionGenerated -> True, 
          SectionLabel -> "out [5]:")}, All), 
       SectionGroup({
@@ -184,7 +184,7 @@ Document({
                             "x", "\[Assign]", "#"}}, ")"}}, "}"}}, ")"}, ",", 
                      "String", ",", {"ContinuousAction", "\[Rule]", "True"}}, 
                     ")"}}, "}"}, ")"}, ",", {"RemovalConditions", "\[Rule]", {
-                  "{", {StringBox("\"OutsideMouseClick\""), ",", 
+                  "{", {StringBox("\"MouseClickOutside\""), ",", 
                    StringBox("\"SelectionExit\"")}, "}"}}}, ")"}, ",", {
                "Dynamic", "(", {"{", {"pre", ",", "post", ",", "x"}, "}"}, 
                ")"}}, "}"}, ",", {"UnsavedVariables", "\[RuleDelayed]", {
@@ -198,7 +198,7 @@ Document({
                     Function(++$Context`pre; $Context`x:= #1), Automatic, 
                     Function(++$Context`post; $Context`x:= #1)}), String, 
                   ContinuousAction -> True)}, "RowDefault"), 
-               RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}}, 
+               RemovalConditions -> {"MouseClickOutside", "SelectionExit"}}, 
               "SimplePopup"), ",", 
              DynamicBox(ToBoxes({$Context`pre, $Context`post, $Context`x}))}, 
             "}"}, DynamicLocalValues :> {
@@ -398,7 +398,7 @@ Document({
             ",", {"ControlPlacement", "\[Rule]", {
               "Dynamic", "(", "cpl", ")"}}, ",", {
              "\n", {"RemovalConditions", "\[Rule]", 
-              StringBox("\"OutsideMouseClick\"")}}}, ")"}), "Input", 
+              StringBox("\"MouseClickOutside\"")}}}, ")"}), "Input", 
          SectionLabel -> "in [9]:"), 
         Section(BoxData(TemplateBox({StringBox("\"BesselJ plot\""), 
             TagBox(
@@ -570,7 +570,7 @@ Document({
                       0.58186520139010445`})})}}), "Column"), 
             WindowFrame -> "ThinFrameCallout", 
             ControlPlacement -> Dynamic($Context`cpl), 
-            RemovalConditions -> "OutsideMouseClick"}, "SimplePopup")), 
+            RemovalConditions -> "MouseClickOutside"}, "SimplePopup")), 
          "Output", SectionGenerated -> True, SectionLabel -> "out [9]:")}, 
        All), SectionGroup({
         Section(BoxData({"SimplePopup", "(", {

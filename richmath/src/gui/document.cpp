@@ -5152,8 +5152,17 @@ void Document::Impl::close_popup_windows_if(std::function<bool(VolatileSelection
 
 void Document::Impl::close_popup_windows_on_outside_mouse_click(VolatileSelection click_pos) {
   close_popup_windows_if(
-    RemovalConditionFlagOutsideMouseClick,
-    [click_pos](VolatileSelection anchor) { return !anchor.logically_contains(click_pos); });
+    [click_pos](VolatileSelection anchor, Document *doc, RemovalConditionFlags doc_cond) {
+      if(doc_cond & RemovalConditionFlagMouseClickOutsidePopup)
+        return true;
+      
+      if(doc_cond & RemovalConditionFlagMouseClickOutside) {
+        if(!anchor.logically_contains(click_pos))
+          return true;
+      }
+      
+      return false;
+    });
 }
 
 void Document::Impl::close_popup_windows_on_parent_changed(VolatileSelection sel) {

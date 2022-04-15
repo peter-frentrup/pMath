@@ -172,7 +172,7 @@ Function InteractiveCreateHelpDocument() {
                 SectionMargins -> {{8, 8}, {0, 8}})
         },
         WindowFrame -> "ThinFrameCallout",
-        RemovalConditions -> {"OutsideMouseClick", "SelectionExit"}
+        RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"}
     );
 }
 

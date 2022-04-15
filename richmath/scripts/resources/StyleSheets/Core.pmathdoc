@@ -257,7 +257,7 @@ Document({
                               BoxData(ToBoxes(Developer`StackEntryForm(#1))), 
                               "Output", SectionMargins -> {5, 2}))))}), 
                         "ClosingAction" -> "Hide", 
-                        RemovalConditions -> {"OutsideMouseClick", 
+                        RemovalConditions -> {"MouseClickOutside", 
                           "SelectionExit"}, WindowFrame -> 
                          "ThinFrameCallout"))})))))}), 
           Section(StyleData("OpenerView"), 
