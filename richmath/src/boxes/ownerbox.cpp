@@ -260,32 +260,35 @@ void InlineSequenceBox::resize_default_baseline(Context &context) {
 }
 
 void InlineSequenceBox::paint(Context &context) {
-  bool old_math_spacing = context.math_spacing;
-  context.math_spacing = true;
-  
-  Box *b = context.selection.get();
-  while(b && b != this)
-    b = b->parent();
-    
-  if(b == this) {
-    float x, y;
-    Color c = context.canvas().get_color();
-    context.canvas().current_pos(&x, &y);
-    context.canvas().pixrect(
-      x,
-      y - _extents.ascent - 1,
-      x + _extents.width,
-      y + _extents.descent + 1,
-      false);
-      
-    context.canvas().set_color(Color::from_rgb24(0xF6EDD6));
-    context.canvas().fill();
-    context.canvas().set_color(c);
-    context.canvas().move_to(x, y);
+  if(selectable()) {
+    if(Color bg = get_style(InlineSectionEditingBackgroundColor, Color::None)) {
+      float bg_alpha = get_style(InlineSectionEditingHighlightOpacity, 1.0f);
+      if(0 < bg_alpha && bg_alpha <= 1.0) {
+        Box *b = context.selection.get();
+        while(b && b != this)
+          b = b->parent();
+          
+        if(b == this) {
+          float x, y;
+          Color c = context.canvas().get_color();
+          context.canvas().current_pos(&x, &y);
+          context.canvas().pixrect(
+            x,
+            y - _extents.ascent - 1,
+            x + _extents.width,
+            y + _extents.descent + 1,
+            false);
+          
+          context.canvas().set_color(bg, bg_alpha);
+          context.canvas().fill();
+          context.canvas().set_color(c);
+          context.canvas().move_to(x, y);
+        }
+      }
+    }
   }
   
   OwnerBox::paint(context);
-  context.math_spacing = old_math_spacing;
 }
 
 void InlineSequenceBox::on_enter() {

@@ -91,6 +91,7 @@ namespace richmath {
     UnknownOptionSyntaxColor,
     
     InlineAutoCompletionBackgroundColor,
+    InlineSectionEditingBackgroundColor,
     MatchingBracketBackgroundColor,
     OccurenceBackgroundColor,
     FrameBoxDefaultBackground = Background + (int)DefaultStyleOptionOffsets::FrameBox,
@@ -209,6 +210,7 @@ namespace richmath {
     GridBoxRowSpacing,
     
     InlineAutoCompletionHighlightOpacity, // 0 .. 1
+    InlineSectionEditingHighlightOpacity, // 0 .. 1
     MatchingBracketHighlightOpacity,      // 0 .. 1
     OccurenceHighlightOpacity,            // 0 .. 1
     
@@ -351,6 +353,7 @@ namespace richmath {
     FunctionNameStyle,
     ImplicitOperatorStyle,
     InlineAutoCompletionStyle,
+    InlineSectionEditingStyle,
     KeywordSymbolStyle,
     LocalScopeConflictStyle,
     LocalVariableStyle,

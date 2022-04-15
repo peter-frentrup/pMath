@@ -181,6 +181,7 @@ namespace richmath { namespace strings {
   extern String Hide;
   extern String ImplicitOperatorStyle;
   extern String InlineAutoCompletionStyle;
+  extern String InlineSectionEditingStyle;
   extern String KeywordSymbolStyle;
   extern String LocalScopeConflictStyle;
   extern String LocalVariableStyle;
@@ -2461,6 +2462,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(ImplicitOperatorStyle);
   impl.emit_definition(Initialization);
   impl.emit_definition(InlineAutoCompletionStyle);
+  impl.emit_definition(InlineSectionEditingStyle);
   impl.emit_definition(InputAliases);
   impl.emit_definition(InputAutoReplacements);
   impl.emit_definition(InputFieldBoxOptions);
@@ -2942,6 +2944,7 @@ void StyleInformation::add_style() {
     add_ruleset_head(FunctionNameStyle,             strings::FunctionNameStyle);
     add_ruleset_head(ImplicitOperatorStyle,         strings::ImplicitOperatorStyle);
     add_ruleset_head(InlineAutoCompletionStyle,     strings::InlineAutoCompletionStyle);
+    add_ruleset_head(InlineSectionEditingStyle,     strings::InlineSectionEditingStyle);
     add_ruleset_head(InputFieldBoxOptions,          Symbol( richmath_System_InputFieldBoxOptions));
     add_ruleset_head(KeywordSymbolStyle,            strings::KeywordSymbolStyle);
     add_ruleset_head(LocalScopeConflictStyle,       strings::LocalScopeConflictStyle);
@@ -3032,6 +3035,7 @@ void StyleInformation::add_style() {
     add(StyleType::Color,           UnknownOptionSyntaxColor,            List(strings::UnknownOptionStyle,            Symbol(richmath_System_FontColor)));
     
     add(StyleType::Color,           InlineAutoCompletionBackgroundColor, List(strings::InlineAutoCompletionStyle,      Symbol(richmath_System_Background)));
+    add(StyleType::Color,           InlineSectionEditingBackgroundColor, List(strings::InlineSectionEditingStyle,      Symbol(richmath_System_Background)));
     add(StyleType::Color,           MatchingBracketBackgroundColor,      List(strings::MatchingBracketHighlightStyle,  Symbol(richmath_System_Background)));
     add(StyleType::Color,           OccurenceBackgroundColor,            List(strings::OccurenceHighlightStyle,        Symbol(richmath_System_Background)));
     add(StyleType::Color,           FrameBoxDefaultBackground,           List(Symbol(richmath_System_FrameBoxOptions), Symbol(richmath_System_Background)));
@@ -3097,6 +3101,7 @@ void StyleInformation::add_style() {
     add(StyleType::Number,          Magnification,                    Symbol( richmath_System_Magnification));
     
     add(StyleType::Number,          InlineAutoCompletionHighlightOpacity, List(strings::InlineAutoCompletionStyle,     Symbol(richmath_System_Opacity)));
+    add(StyleType::Number,          InlineSectionEditingHighlightOpacity, List(strings::InlineSectionEditingStyle,     Symbol(richmath_System_Opacity)));
     add(StyleType::Number,          MatchingBracketHighlightOpacity,      List(strings::MatchingBracketHighlightStyle, Symbol(richmath_System_Opacity)));
     add(StyleType::Number,          OccurenceHighlightOpacity,            List(strings::OccurenceHighlightStyle,       Symbol(richmath_System_Opacity)));
     
