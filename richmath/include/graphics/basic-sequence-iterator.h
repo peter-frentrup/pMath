@@ -143,9 +143,16 @@ namespace richmath {
             break;
         }
         
+        int old_glyph_index = glyph_index();
+        
         // [ooo[cc^c]ooo[ss|s]ooo]   or   [sss[c^cc]s|ss]
         skip_forward_to_glyph_after_current_text_pos(text_buffer_length(), glyph_count);
         // [ooo[ccc]^ooo[ss|s]ooo]   or   [sss[ccc]^s|ss]
+
+        if(glyph_index() == old_glyph_index) {
+          // should not happen, probably text_changed()
+          break;
+        }
       }
     }
   }
