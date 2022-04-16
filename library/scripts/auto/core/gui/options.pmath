@@ -49,11 +49,13 @@ Options(CreateDocument):= Options(Document):= {
     FontSize -> Inherited,
     FontSlant -> Inherited,
     FontWeight -> Inherited,
+    FractionBoxOptions -> Inherited,
     FrameBoxOptions -> Inherited,
     "FunctionLocalVariableStyle" -> Inherited,
     "FunctionNameStyle" -> Inherited,
     GeneratedSectionStyles -> Inherited,
     GridBoxColumnSpacing -> Inherited,
+    GridBoxOptions -> Inherited,
     GridBoxRowSpacing -> Inherited,
     "ImplicitOperatorStyle" -> Inherited,
     "InlineAutoCompletionStyle" -> Inherited,
@@ -120,6 +122,10 @@ Options(FillBox):= Options(Filler):= {
     FillBoxWeight -> 1,
     StripOnInput -> True}
 
+Options(FractionBox):= {
+    BaseStyle -> None,
+    AllowScriptLevelChange -> True}
+
 Options(Framed):= Options(FrameBox):= { 
     Background -> None,
     BaselinePosition -> Automatic,
@@ -143,11 +149,13 @@ Options(Graphics):= Options(GraphicsBox):= {
     Ticks -> Automatic}
 
 Options(Grid):= {
+    AllowScriptLevelChange -> True,
     BaselinePosition -> Automatic,
     ColumnSpacing -> Inherited,
     RowSpacing -> Inherited}
 
 Options(GridBox):= {
+    AllowScriptLevelChange -> True,
     BaselinePosition -> Automatic,
     GridBoxColumnSpacing -> Inherited,
     GridBoxRowSpacing -> Inherited}
@@ -212,6 +220,7 @@ Options(Style):= Options(StyleBox):= {
     Enabled -> Automatic,
     "ExcessOrMissingArgumentStyle" -> Inherited,
     FillBoxOptions -> Inherited,
+    FractionBoxOptions -> Inherited,
     FrameBoxOptions -> Inherited,
     FontColor -> Inherited,
     FontFamily -> Inherited,
@@ -222,6 +231,7 @@ Options(Style):= Options(StyleBox):= {
     "FunctionLocalVariableStyle" -> Inherited,
     "FunctionNameStyle" -> Inherited,
     GridBoxColumnSpacing -> Inherited, % TODO: remove
+    GridBoxOptions -> Inherited,
     GridBoxRowSpacing -> Inherited,    % TODO: remove
     "ImplicitOperatorStyle" -> Inherited,
     "InlineAutoCompletionStyle" -> Inherited,
@@ -300,6 +310,8 @@ Options(Section):= {
     FillBoxOptions -> {
         FillBoxWeight -> 1,
         StripOnInput -> True},
+    FractionBoxOptions -> {
+        AllowScriptLevelChange -> True},
     FrameBoxOptions -> {
         Background -> None,
         BaselinePosition -> Automatic,
@@ -317,6 +329,8 @@ Options(Section):= {
     "FunctionNameStyle" -> { FontColor -> Inherited },
     GeneratedSectionStyles -> Inherited,
     GridBoxColumnSpacing -> 0.5,
+    GridBoxBoxOptions -> {
+        AllowScriptLevelChange -> True},
     GridBoxRowSpacing -> 0.5,
     "ImplicitOperatorStyle" -> { FontColor -> Inherited },
     "InlineAutoCompletionStyle" -> { Background -> Inherited, Opacity -> Inherited },

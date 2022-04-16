@@ -322,6 +322,8 @@ namespace richmath {
       bool use_text_layout() {       return get_flag(UseTextLayoutBit); }
       void use_text_layout(bool value) { change_flag(UseTextLayoutBit, value); }
       
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::GridBox; }
+
     private:
       void need_pos_vectors();
       void ensure_valid_boxes();

@@ -43,7 +43,10 @@ namespace richmath {
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix) override;
-        
+    
+    protected:
+        virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FractionBox; }
+
     private:
       MathSequence *_numerator;
       MathSequence *_denominator;

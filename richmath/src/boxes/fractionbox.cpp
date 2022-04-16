@@ -43,11 +43,21 @@ bool FractionBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   if(expr[0] != richmath_System_FractionBox)
     return false;
     
-  if(expr.expr_length() != 2)
+  if(expr.expr_length() < 2)
     return false;
-    
+  
+  Expr options_expr(pmath_options_extract_ex(expr.get(), 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(options_expr.is_null())
+    return false;
+  
   /* now success is guaranteed */
   
+  reset_style();
+  if(!style)
+    style = new Style(options_expr);
+  else
+    style->add_pmath(options_expr);
+    
   _numerator->load_from_object(  expr[1], opts);
   _denominator->load_from_object(expr[2], opts);
   
@@ -63,7 +73,12 @@ Box *FractionBox::item(int i) {
 
 int FractionBox::child_script_level(int index, const int *opt_ambient_script_level) {
   int ambient_level = Box::child_script_level(0, opt_ambient_script_level);
-  return 1 + ambient_level;
+  
+  if(get_own_style(AllowScriptLevelChange, true)) {
+    return 1 + ambient_level;
+  }
+  
+  return ambient_level;
 }
 
 void FractionBox::resize(Context &context) {
@@ -146,10 +161,25 @@ Expr FractionBox::to_pmath_symbol() {
 }
 
 Expr FractionBox::to_pmath(BoxOutputFlags flags) {
-  return Call(
-           Symbol(richmath_System_FractionBox),
-           _numerator->to_pmath(flags),
-           _denominator->to_pmath(flags));
+  if(style) {
+    Gather g;
+    
+    Gather::emit(_numerator->to_pmath(flags));
+    Gather::emit(_denominator->to_pmath(flags));
+  
+    bool with_inherited = true;
+    style->emit_to_pmath(with_inherited);
+    
+    Expr e = g.end();
+    e.set(0, Symbol(richmath_System_FractionBox));
+    return e;
+  }
+  else {
+    return Call(
+             Symbol(richmath_System_FractionBox),
+             _numerator->to_pmath(flags),
+             _denominator->to_pmath(flags));
+  }
 }
 
 Box *FractionBox::move_vertical(

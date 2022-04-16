@@ -19,13 +19,15 @@ namespace richmath {
     DynamicBox      = 0x00200000,
     DynamicLocalBox = 0x00300000,
     FillBox         = 0x00400000,
-    FrameBox        = 0x00500000,
-    InputFieldBox   = 0x00600000,
-    PaneBox         = 0x00700000,
-    PanelBox        = 0x00800000,
-    SetterBox       = 0x00900000,
-    SliderBox       = 0x00A00000,
-    TemplateBox     = 0x00B00000,
+    FractionBox     = 0x00500000,
+    FrameBox        = 0x00600000,
+    GridBox         = 0x00700000,
+    InputFieldBox   = 0x00800000,
+    PaneBox         = 0x00900000,
+    PanelBox        = 0x00A00000,
+    SetterBox       = 0x00B00000,
+    SliderBox       = 0x00C00000,
+    TemplateBox     = 0x00D00000,
   };
   
   enum AutoBoolValues {
@@ -98,7 +100,8 @@ namespace richmath {
   };
   
   enum IntStyleOptionName {
-    Antialiasing = 0x10000, // AutoBoolXXX
+    AllowScriptLevelChange = 0x10000, // bool
+    Antialiasing, // AutoBoolXXX
     AutoDelete,
     AutoNumberFormating,
     AutoSpacing,
@@ -158,7 +161,11 @@ namespace richmath {
     
     FillBoxDefaultStripOnInput = StripOnInput + (int)DefaultStyleOptionOffsets::FillBox,
     
+    FractionBoxDefaultAllowScriptLevelChange = AllowScriptLevelChange + (int)DefaultStyleOptionOffsets::FractionBox,
+    
     FrameBoxDefaultContentPadding = ContentPadding + (int)DefaultStyleOptionOffsets::FrameBox,
+    
+    GridBoxDefaultAllowScriptLevelChange = AllowScriptLevelChange + (int)DefaultStyleOptionOffsets::GridBox,
     
     InputFieldBoxDefaultContinuousAction = ContinuousAction + (int)DefaultStyleOptionOffsets::InputFieldBox,
     InputFieldBoxDefaultEnabled          = Enabled          + (int)DefaultStyleOptionOffsets::InputFieldBox,
@@ -317,7 +324,9 @@ namespace richmath {
     DynamicBoxOptions,
     DynamicLocalBoxOptions,
     FillBoxOptions,
+    FractionBoxOptions,
     FrameBoxOptions,
+    GridBoxOptions,
     InputFieldBoxOptions,
     PaneBoxOptions,
     PanelBoxOptions,

@@ -341,11 +341,12 @@ void GridBox::remove_cols(int xindex, int count) {
 }
 
 int GridBox::child_script_level(int index, const int *opt_ambient_script_level) {
-  int ambient_level = Box::child_script_level(0, opt_ambient_script_level);
+  int ambient_level = base::child_script_level(0, opt_ambient_script_level);
   
-  // TODO: implement AllowScriptLevelChange style
-  if(ambient_level < 1)
-    ambient_level = 1;
+  if(get_own_style(AllowScriptLevelChange, true)) {
+    if(ambient_level < 1)
+      ambient_level = 1;
+  }
   
   return ambient_level;
 }

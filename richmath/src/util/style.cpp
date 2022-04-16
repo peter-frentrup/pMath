@@ -22,6 +22,7 @@
 
 extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_AllowScriptLevelChange;
 extern pmath_symbol_t richmath_System_Antialiasing;
 extern pmath_symbol_t richmath_System_Appearance;
 extern pmath_symbol_t richmath_System_AspectRatio;
@@ -75,6 +76,7 @@ extern pmath_symbol_t richmath_System_FontFeatures;
 extern pmath_symbol_t richmath_System_FontSize;
 extern pmath_symbol_t richmath_System_FontSlant;
 extern pmath_symbol_t richmath_System_FontWeight;
+extern pmath_symbol_t richmath_System_FractionBoxOptions;
 extern pmath_symbol_t richmath_System_Frame;
 extern pmath_symbol_t richmath_System_FrameBoxOptions;
 extern pmath_symbol_t richmath_System_FrameMargins;
@@ -84,6 +86,7 @@ extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_Function;
 extern pmath_symbol_t richmath_System_GeneratedSectionStyles;
 extern pmath_symbol_t richmath_System_GridBoxColumnSpacing;
+extern pmath_symbol_t richmath_System_GridBoxOptions;
 extern pmath_symbol_t richmath_System_GridBoxRowSpacing;
 extern pmath_symbol_t richmath_System_GrayLevel;
 extern pmath_symbol_t richmath_System_HoldComplete;
@@ -2395,6 +2398,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   auto impl = StyleImpl::of(*this);
   
   register_observer();
+  impl.emit_definition(AllowScriptLevelChange);
   impl.emit_definition(Antialiasing);
   impl.emit_definition(Appearance);
   impl.emit_definition(AspectRatio);
@@ -2448,6 +2452,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(FontSlant);
   impl.emit_definition(FontWeight);
   impl.emit_definition(Frame);
+  impl.emit_definition(FractionBoxOptions);
   impl.emit_definition(FrameBoxOptions);
   impl.emit_definition(FrameMarginLeft);
   impl.emit_definition(FrameStyle);
@@ -2456,6 +2461,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(FunctionNameStyle);
   impl.emit_definition(GeneratedSectionStyles);
   impl.emit_definition(GridBoxColumnSpacing);
+  impl.emit_definition(GridBoxOptions);
   impl.emit_definition(GridBoxRowSpacing);
   impl.emit_definition(ImageSizeCommon);
   impl.emit_definition(ImageSizeAction);
@@ -2939,9 +2945,11 @@ void StyleInformation::add_style() {
     add_ruleset_head(DynamicLocalBoxOptions,        Symbol( richmath_System_DynamicLocalBoxOptions));
     add_ruleset_head(ExcessOrMissingArgumentStyle,  strings::ExcessOrMissingArgumentStyle);
     add_ruleset_head(FillBoxOptions,                Symbol( richmath_System_FillBoxOptions));
+    add_ruleset_head(FractionBoxOptions,            Symbol( richmath_System_FractionBoxOptions));
     add_ruleset_head(FrameBoxOptions,               Symbol( richmath_System_FrameBoxOptions));
     add_ruleset_head(FunctionLocalVariableStyle,    strings::FunctionLocalVariableStyle);
     add_ruleset_head(FunctionNameStyle,             strings::FunctionNameStyle);
+    add_ruleset_head(GridBoxOptions,                Symbol( richmath_System_GridBoxOptions));
     add_ruleset_head(ImplicitOperatorStyle,         strings::ImplicitOperatorStyle);
     add_ruleset_head(InlineAutoCompletionStyle,     strings::InlineAutoCompletionStyle);
     add_ruleset_head(InlineSectionEditingStyle,     strings::InlineSectionEditingStyle);
@@ -3040,6 +3048,7 @@ void StyleInformation::add_style() {
     add(StyleType::Color,           OccurenceBackgroundColor,            List(strings::OccurenceHighlightStyle,        Symbol(richmath_System_Background)));
     add(StyleType::Color,           FrameBoxDefaultBackground,           List(Symbol(richmath_System_FrameBoxOptions), Symbol(richmath_System_Background)));
     
+    add(StyleType::Bool,            AllowScriptLevelChange,           Symbol( richmath_System_AllowScriptLevelChange));
     add(StyleType::AutoBool,        Antialiasing,                     Symbol( richmath_System_Antialiasing));
     add(StyleType::Bool,            AutoDelete,                       Symbol( richmath_System_AutoDelete));
     add(StyleType::Bool,            AutoNumberFormating,              Symbol( richmath_System_AutoNumberFormating));
@@ -3077,8 +3086,12 @@ void StyleInformation::add_style() {
     add(StyleType::AutoBool,        DynamicBoxDefaultSelectable,          List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_Selectable)));
     add(StyleType::AutoBool,        DynamicBoxDefaultSynchronousUpdating, List(Symbol(richmath_System_DynamicBoxOptions), Symbol(richmath_System_SynchronousUpdating)));
     
+    add(StyleType::Bool,            FractionBoxDefaultAllowScriptLevelChange, List(Symbol(richmath_System_FractionBoxOptions), Symbol( richmath_System_AllowScriptLevelChange)));
+    
     add(StyleType::AutoBool,        FrameBoxDefaultContentPadding,    List(Symbol(richmath_System_FrameBoxOptions), Symbol(richmath_System_ContentPadding)));
     
+    add(StyleType::Bool,            GridBoxDefaultAllowScriptLevelChange, List(Symbol(richmath_System_GridBoxOptions), Symbol( richmath_System_AllowScriptLevelChange)));
+
     add(StyleType::Bool,            InputFieldBoxDefaultContinuousAction, List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_ContinuousAction)));
     add(StyleType::Bool,            InputFieldBoxDefaultEnabled,          List(Symbol(richmath_System_InputFieldBoxOptions), Symbol( richmath_System_Enabled)));
     
