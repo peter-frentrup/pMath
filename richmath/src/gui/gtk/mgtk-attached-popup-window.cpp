@@ -64,8 +64,14 @@ namespace richmath {
 
 using namespace richmath;
 
-static GdkPoint     discretize(const Point &p) {         return { (int)p.x, (int)p.y }; }
-static GdkRectangle discretize(const RectangleF &rect) { return { (int)rect.x, (int)rect.y, (int)rect.width, (int)rect.height }; }
+static GdkPoint     discretize(const Point &p) {         return { (int)(p.x + 0.5f), (int)(p.y + 0.5f) }; }
+static GdkRectangle discretize(const RectangleF &rect) {
+  int x1 = (int)round_directed(rect.left(),  +1, false);
+  int y1 = (int)round_directed(rect.top(),   +1, false);
+  int x2 = (int)round_directed(rect.right(), -1, false);
+  int y2 = (int)round_directed(rect.bottom(),-1, false);
+  return { x1, y1, x2 - x1, y2 - y1 }; 
+}
 
 #if GTK_MAJOR_VERSION < 3
 static int gtk_widget_get_allocated_width(GtkWidget *widget);

@@ -17,7 +17,7 @@ static float min(float a, float b) {
   return (a < b) ? a : b;
 }
 
-static float round(float x, int direction, bool to_half) {
+float richmath::round_directed(float x, int direction, bool to_half) {
   if(to_half)
     x += 0.5f;
     
@@ -144,10 +144,10 @@ void RectangleF::pixel_align(Canvas &canvas, bool tostroke, int direction) {
       canvas.user_to_device(&x1, &y1);
       canvas.user_to_device(&x2, &y2);
       
-      float new_x1 = round(x1, x1 < x2 ? -direction :  direction, tostroke);
-      float new_y1 = round(y1, y1 < y2 ? -direction :  direction, tostroke);
-      float new_x2 = round(x2, x1 < x2 ?  direction : -direction, tostroke);
-      float new_y2 = round(y2, y1 < y2 ?  direction : -direction, tostroke);
+      float new_x1 = round_directed(x1, x1 < x2 ? -direction :  direction, tostroke);
+      float new_y1 = round_directed(y1, y1 < y2 ? -direction :  direction, tostroke);
+      float new_x2 = round_directed(x2, x1 < x2 ?  direction : -direction, tostroke);
+      float new_y2 = round_directed(y2, y1 < y2 ?  direction : -direction, tostroke);
       
 //      if(x1 == x2)
 //        x2+= 1;

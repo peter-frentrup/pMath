@@ -54,8 +54,14 @@ namespace richmath {
 
 using namespace richmath;
 
-static POINT discretize(const Point &p) { return { (int)p.x, (int)p.y }; }
-static RECT  discretize(const RectangleF &rect) { return { (int)rect.left(), (int)rect.top(), (int)rect.right(), (int)rect.bottom() }; }
+static POINT discretize(const Point &p) { return { (int)(p.x + 0.5f), (int)(p.y + 0.5f) }; }
+static RECT  discretize(const RectangleF &rect) {
+  return { 
+    (int)round_directed(rect.left(),  +1, false), 
+    (int)round_directed(rect.top(),   +1, false), 
+    (int)round_directed(rect.right(), -1, false), 
+    (int)round_directed(rect.bottom(),-1, false) }; 
+}
 
 const wchar_t Win32AttachedPopupWindow::Impl::class_name[] = L"RichmathWin32Popup";
 
@@ -412,6 +418,11 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   
   target_rect.x -= GetScrollPos(owner_wid->hwnd(), SB_HORZ);
   target_rect.y -= GetScrollPos(owner_wid->hwnd(), SB_VERT);
+  
+  pmath_debug_print("[anchor @ (%f, %f) - (%f, %f): %f x %f]\n",
+    target_rect.left(), target_rect.top(),
+    target_rect.right(), target_rect.bottom(),
+    target_rect.width, target_rect.height);
   
   RECT rc = discretize(target_rect);
   

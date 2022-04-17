@@ -22,6 +22,8 @@ namespace richmath {
   
   static Side opposite_side(Side side) { return (Side)(((int)side + 2) % 4); }
   
+  float round_directed(float x, int direction, bool to_half);
+  
   class Vector2F final {
     public:
       Vector2F() : x(0), y(0) {}
