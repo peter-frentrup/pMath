@@ -279,6 +279,7 @@ namespace richmath {
       virtual void resize(Context &context) override;
       virtual void paint(Context &context) override;
       virtual void selection_path(Canvas &canvas, int start, int end) override;
+      virtual RectangleF range_rect(int start, int end) override;
       
       Box *remove_range(int *start, int end);
       virtual Box *remove(int *index) override;

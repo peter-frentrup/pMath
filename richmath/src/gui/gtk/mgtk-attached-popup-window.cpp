@@ -31,7 +31,7 @@ namespace richmath {
   class MathGtkPopupContentArea final : public MathGtkWidget {
       using base = MathGtkWidget;
     public:
-      MathGtkPopupContentArea(MathGtkAttachedPopupWindow *parent, Document *owner, Box *anchor);
+      MathGtkPopupContentArea(MathGtkAttachedPopupWindow *parent, Document *owner, const SelectionReference &anchor);
       
       int best_width() { return _best_width; }
       int best_height() { return _best_height; }
@@ -74,7 +74,7 @@ static int gtk_widget_get_allocated_height(GtkWidget *widget);
 
 //{ class MathGtkAttachedPopupWindow ...
 
-MathGtkAttachedPopupWindow::MathGtkAttachedPopupWindow(Document *owner, Box *anchor) 
+MathGtkAttachedPopupWindow::MathGtkAttachedPopupWindow(Document *owner, const SelectionReference &anchor) 
   : base(),
   _hadjustment{GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))},
   _vadjustment{GTK_ADJUSTMENT(gtk_adjustment_new(0, 0, 0, 0, 0, 0))},
@@ -583,12 +583,12 @@ bool MathGtkAttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &t
   if(!gtk_widget_get_visible(owner_win)) 
     return false;
   
-  Box *anchor = self._content_area->source_box();
+  VolatileSelection anchor = self._content_area->source_range().get_all();
   if(!anchor)
     return false;
   
-  target_rect = anchor->extents().to_rectangle();
-  if(!anchor->visible_rect(target_rect))
+  target_rect = anchor.box->range_rect(anchor.start, anchor.end);
+  if(!anchor.box->visible_rect(target_rect))
     return false;
   
   auto scale_factor = owner_wid->scale_factor();
@@ -715,14 +715,14 @@ void MathGtkAttachedPopupWindow::Impl::update_window_shape(WindowFrameType wft, 
 
 //{ class MathGtkPopupContentArea ...
 
-MathGtkPopupContentArea::MathGtkPopupContentArea(MathGtkAttachedPopupWindow *parent, Document *owner, Box *anchor)
+MathGtkPopupContentArea::MathGtkPopupContentArea(MathGtkAttachedPopupWindow *parent, Document *owner, const SelectionReference &anchor)
   : base(new Document()),
     _parent(parent),
     _best_width{1},
     _best_height{1}
 {
   owner_document(owner);
-  source_box(anchor);
+  source_range(anchor);
   _autohide_vertical_scrollbar = true;
 }
 

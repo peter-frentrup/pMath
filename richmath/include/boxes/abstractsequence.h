@@ -65,6 +65,7 @@ namespace richmath {
       virtual void get_line_heights(int line, float *ascent, float *descent) = 0;
       
       virtual bool request_repaint_range(int start, int end) override;
+      virtual RectangleF range_rect(int start, int end) override;
       
       float get_em() { return em; }
       const String &text() { return str; }

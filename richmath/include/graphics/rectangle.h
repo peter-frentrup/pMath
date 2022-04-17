@@ -129,6 +129,11 @@ namespace richmath {
       Point center() const { return top_left() + 0.5f * size(); }
       Vector2F size() const { return Vector2F(width, height); }
       
+      RectangleF union_hull(const RectangleF &other) const {
+        return {x_interval().union_hull(other.x_interval()), 
+                y_interval().union_hull(other.y_interval())};
+      }
+      
       bool overlaps(const RectangleF &other) const {
         return right() >= other.left() && left() <= other.right() &&
                bottom() >= other.top() && top() <= other.bottom();

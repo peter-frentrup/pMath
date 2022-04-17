@@ -272,7 +272,7 @@ Document *Win32Widget::try_create_popup_window(const SelectionReference &anchor)
   if(!document()->is_parent_of(anchor_box))
     return nullptr;
   
-  auto *popup = new Win32AttachedPopupWindow(document(), anchor_box);
+  auto *popup = new Win32AttachedPopupWindow(document(), anchor);
   popup->init();
   return popup->document();
 }

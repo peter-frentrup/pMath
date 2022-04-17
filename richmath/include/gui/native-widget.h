@@ -121,6 +121,8 @@ namespace richmath {
       
       virtual void on_saved() = 0;
       
+      SelectionReference source_range() { return _source_range; }
+      bool source_range(SelectionReference ref);
       Box *source_box();
       bool source_box(Box *box);
       
@@ -156,7 +158,7 @@ namespace richmath {
       
     private:
       Document                              *_document;
-      ObservableValue<FrontEndReference>     _source_box;
+      ObservableValue<SelectionReference>    _source_range;
       FrontEndReference                      _owner_document;
       FrontEndReference                      _stylesheet_document;
       SharedPtr<TimedEvent>                  _idle_after_edit;

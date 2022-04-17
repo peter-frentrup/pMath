@@ -319,7 +319,7 @@ Document *MathGtkWidget::try_create_popup_window(const SelectionReference &ancho
   if(!document()->is_parent_of(anchor_box))
     return nullptr;
   
-  auto *popup = new MathGtkAttachedPopupWindow(document(), anchor_box);
+  auto *popup = new MathGtkAttachedPopupWindow(document(), anchor);
   popup->init();
   return popup->content();
 }

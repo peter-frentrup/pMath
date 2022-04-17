@@ -15,7 +15,7 @@ namespace richmath {
       using base = BasicGtkWidget;
       class Impl;
     public:
-      MathGtkAttachedPopupWindow(Document *owner, Box *anchor);
+      MathGtkAttachedPopupWindow(Document *owner, const SelectionReference &anchor);
       
       void invalidate_options();
       void invalidate_source_location();

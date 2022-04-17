@@ -111,7 +111,7 @@ NativeWidget::NativeWidget(Document *doc)
   : _custom_scale_factor(ScaleDefault),
     _dpi(96),
     _document(nullptr),
-    _source_box(FrontEndReference::None),
+    _source_range(SelectionReference{nullptr, 0, 0}),
     _owner_document(FrontEndReference::None),
     _stylesheet_document(FrontEndReference::None)
 {
@@ -238,13 +238,9 @@ void NativeWidget::on_idle_after_edit() {
   }
 }
 
-Box *NativeWidget::source_box() {
-  return FrontEndObject::find_cast<Box>(_source_box);
-}
-
-bool NativeWidget::source_box(Box *box) {
-  if(box) {
-    if(_source_box.unobserved_equals(box->id()))
+bool NativeWidget::source_range(SelectionReference ref) {
+  if(auto box = ref.get()) {
+    if(_source_range.unobserved_equals(ref))
       return true;
     
     Document *doc = box->find_parent<Document>(true);
@@ -261,12 +257,24 @@ bool NativeWidget::source_box(Box *box) {
       doc = tmp->find_parent<Document>(true);
     }
     
-    _source_box = box->id();
+    _source_range = ref;
   }
-  else
-    _source_box = FrontEndReference::None;
-    
+  else {
+    _source_range = SelectionReference();
+  }
+  
   return true;
+}
+
+Box *NativeWidget::source_box() {
+  return FrontEndObject::find_cast<Box>(_source_range.get().id);
+}
+
+bool NativeWidget::source_box(Box *box) {
+  if(box)
+    return source_range(SelectionReference{box, 0, box->length()});
+  else
+    return source_range(SelectionReference{});
 }
       
 

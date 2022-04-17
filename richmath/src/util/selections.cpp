@@ -372,7 +372,7 @@ int SelectionReference::cmp_lexicographic(const SelectionReference &other) const
   return 0;
 }
 
-Expr SelectionReference::to_debug_info() const {
+Expr SelectionReference::to_pmath() const {
   if(id == FrontEndReference::None)
     return Expr();
   
@@ -382,7 +382,7 @@ Expr SelectionReference::to_debug_info() const {
            Call(Symbol(richmath_System_Range), start, end));
 }
 
-SelectionReference SelectionReference::from_debug_info(Expr expr) {
+SelectionReference SelectionReference::from_pmath(Expr expr) {
   SelectionReference result;
   
   if(expr[0] != richmath_Language_SourceLocation)
@@ -409,11 +409,11 @@ SelectionReference SelectionReference::from_debug_info(Expr expr) {
 }
 
 SelectionReference SelectionReference::from_debug_info_of(Expr expr) {
-  return from_debug_info(Expr{pmath_get_debug_info(expr.get())});
+  return from_pmath(Expr{pmath_get_debug_info(expr.get())});
 }
 
 SelectionReference SelectionReference::from_debug_info_of(pmath_t expr) {
-  return from_debug_info(Expr{pmath_get_debug_info(expr)});
+  return from_pmath(Expr{pmath_get_debug_info(expr)});
 }
 
 //} ... class SelectionReference

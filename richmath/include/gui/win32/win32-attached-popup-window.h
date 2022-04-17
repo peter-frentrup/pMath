@@ -12,7 +12,7 @@ namespace richmath {
       using base = Win32Widget;
       class Impl;
     public:
-      Win32AttachedPopupWindow(Document *owner, Box *anchor);
+      Win32AttachedPopupWindow(Document *owner, const SelectionReference &anchor);
       
       virtual void close() override;
       virtual void invalidate_options() override;

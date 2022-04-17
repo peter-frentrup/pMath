@@ -1094,6 +1094,40 @@ bool MathSequence::request_repaint_range(int start, int end) {
   return result;
 }
 
+RectangleF MathSequence::range_rect(int start, int end) {
+  if(text_changed())
+    return _extents.to_rectangle();
+  
+  int l1, l2;
+  
+  l1 = l2 = get_line(start);
+  if(start != end)
+    l2 = get_line(end, l1);
+  
+  Point p1(Impl(*this).total_offest_to_index(start));
+  
+  Point p2;
+  if(start == end) 
+    p2 = p1;
+  else 
+    p2 = Point(Impl(*this).total_offest_to_index(end));
+  
+  float a1, d1;
+  get_line_heights(l1, &a1, &d1);
+  
+  MathSequence &outer = Impl(*this).outermost_span();
+  
+  if(l1 == l2)
+    return {p1.x, p1.y - a1, p2.x - p1.x, a1 + d1};
+             
+  float a2, d2;
+  get_line_heights(l2, &a2, &d2);
+  
+  return RectangleF{p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}
+    .union_hull({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1})
+    .union_hull({0.0f, p2.y - a2, p2.x, a2 + d2});
+}
+
 bool MathSequence::visible_rect(RectangleF &rect, Box *top_most) {
   if(inline_span()) {
     MathSequence &outer = Impl(*this).outermost_span();
@@ -1728,7 +1762,7 @@ pmath_t MathSequence::Impl::add_debug_info(
   if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
     return token_or_span;
   
-  Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_debug_info();
+  Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_pmath();
                       
   token_or_span = pmath_try_set_debug_info(
                     token_or_span,

@@ -183,8 +183,8 @@ namespace richmath {
         return left.cmp_lexicographic(right) >= 0;
       }
       
-      pmath::Expr to_debug_info() const;
-      static SelectionReference from_debug_info(pmath::Expr expr);
+      pmath::Expr to_pmath() const;
+      static SelectionReference from_pmath(pmath::Expr expr);
       static SelectionReference from_debug_info_of(pmath::Expr expr);
       static SelectionReference from_debug_info_of(pmath_t expr); // does not free expr
       

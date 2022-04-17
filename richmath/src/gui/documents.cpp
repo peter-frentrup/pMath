@@ -580,7 +580,7 @@ void DocumentsImpl::collect_selections(Array<SelectionReference> &sels, Expr exp
     return;
   }
   
-  if(auto sel = SelectionReference::from_debug_info(expr)) {
+  if(auto sel = SelectionReference::from_pmath(expr)) {
     sels.add(sel);
     return;
   }
@@ -1193,15 +1193,9 @@ Expr richmath_eval_FrontEnd_AttachBoxes(Expr expr) {
         sel.end = box->length();
       }
     }
-    
-    // TODO: allow selections ...
-    
-//    Array<SelectionReference> sels;
-//    collect_selections(sels, expr[1]);
-//    if(sels.length() != 1)
-//      return Symbol(richmath_System_DollarFailed);
-//    
-//    sel = std::move(sels[0]);
+    else {
+      sel = SelectionReference::from_pmath(expr[1]);
+    }
   }
   
   Box *anchor_box = sel.get();
@@ -1353,7 +1347,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
     docid = FrontEndReference::from_pmath(expr[1]);
     
     if(docid == FrontEndReference::None) {
-      if(VolatileSelection sel = SelectionReference::from_debug_info(expr[1]).get_all()) {
+      if(VolatileSelection sel = SelectionReference::from_pmath(expr[1]).get_all()) {
         return sel.to_pmath(BoxOutputFlags::WithDebugInfo);
       }
     }
@@ -1519,7 +1513,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   
   if(exprlen == 2) {
     Expr sel_expr = expr[2];
-    SelectionReference sel = SelectionReference::from_debug_info(expr[2]);
+    SelectionReference sel = SelectionReference::from_pmath(expr[2]);
     Box *selbox = sel.get();
     if(!selbox) {
       sel.id = FrontEndReference::from_pmath(expr[2]);

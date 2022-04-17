@@ -353,6 +353,8 @@ namespace richmath {
       virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(const RectangleF &rect);
       
+      virtual RectangleF range_rect(int start, int end) { return extents().to_rectangle(); }
+      
       bool visible_rect(RectangleF &rect) { return visible_rect(rect, nullptr); }
       virtual bool visible_rect(RectangleF &rect, Box *top_most);
 

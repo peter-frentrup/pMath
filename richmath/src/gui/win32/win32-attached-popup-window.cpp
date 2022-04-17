@@ -61,7 +61,7 @@ const wchar_t Win32AttachedPopupWindow::Impl::class_name[] = L"RichmathWin32Popu
 
 //{ class Win32AttachedPopupWindow ...
 
-Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, Box *anchor) 
+Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, const SelectionReference &anchor) 
   : base(
     new Document(),
     WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
@@ -78,7 +78,7 @@ Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, Box *anchor)
   set_window_class_name(Impl::class_name);
   
   owner_document(owner);
-  source_box(anchor);
+  source_range(anchor);
   
   _autohide_vertical_scrollbar = true;
 }
@@ -396,12 +396,12 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   if(!IsWindowVisible(owner_wid->hwnd())) 
     return false;
   
-  Box *anchor = self.source_box();
+  VolatileSelection anchor = self.source_range().get_all();
   if(!anchor)
     return false;
   
-  target_rect = anchor->extents().to_rectangle();
-  if(!anchor->visible_rect(target_rect))
+  target_rect = anchor.box->range_rect(anchor.start, anchor.end);
+  if(!anchor.box->visible_rect(target_rect))
     return false;
   
   auto scale_factor = owner_wid->scale_factor();

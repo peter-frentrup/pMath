@@ -15,6 +15,7 @@ using namespace richmath;
 
 namespace richmath {
   namespace strings {
+    extern String AttachmentSource;
     extern String AttachmentSourceBox;
     extern String ControlsFontFamily;
     extern String ControlsFontSize;
@@ -42,6 +43,8 @@ namespace richmath {
       static Expr get_object_value(FrontEndObject *obj, Expr items);
       static bool put_object_value(FrontEndObject *obj, Expr items, Expr rhs);
       
+      static Expr            get_AttachmentSource(FrontEndObject *obj, Expr item);
+      static bool            put_AttachmentSource(FrontEndObject *obj, Expr item, Expr rhs);
       static FrontEndObject *get_AttachmentSourceBox(FrontEndObject *obj, Expr item);
       static Expr            get_AvailableMathFonts(FrontEndObject *obj, Expr item);
       static Expr            get_ControlFont_data(FrontEndObject *obj, Expr item);
@@ -91,6 +94,8 @@ Expr richmath_eval_FrontEnd_CurrentValue(Expr expr);
 //{ class CurrentValue ...
 
 void CurrentValue::init() {
+  register_provider(strings::AttachmentSource,               Impl::get_AttachmentSource,
+                                                             Impl::put_AttachmentSource);
   register_provider(strings::AttachmentSourceBox,            Impl::get_AttachmentSourceBox);
   register_provider(String("AvailableMathFonts"),            Impl::get_AvailableMathFonts);
   register_provider(strings::ControlsFontFamily,             Impl::get_ControlFont_data);
@@ -258,6 +263,38 @@ bool CurrentValueImpl::put_object_value(FrontEndObject *obj, Expr items, Expr rh
   }
   
   return false;
+}
+
+Expr CurrentValueImpl::get_AttachmentSource(FrontEndObject *obj, Expr item) {
+  Box      *box = dynamic_cast<Box*>(obj);
+  Document *doc = box ? box->find_parent<Document>(true) : nullptr;
+  if(!doc)
+    return Symbol(richmath_System_DollarFailed);
+  
+  Expr res = doc->native()->source_range().to_pmath();
+  if(res)
+    return res;
+  
+  return Symbol(richmath_System_None);
+}
+
+bool CurrentValueImpl::put_AttachmentSource(FrontEndObject *obj, Expr items, Expr rhs) {
+  if(items[0] == richmath_System_List && items.expr_length() > 1) {
+    if(items[1] != strings::AttachmentSource)
+      return false;
+    
+    auto next_obj = get_AttachmentSourceBox(obj, {});
+    if(!next_obj)
+      return false;
+    
+    return CurrentValue::put(next_obj, items.rest(), std::move(rhs));
+  }
+  
+  Document *doc = dynamic_cast<Document*>(obj);
+  if(!doc)
+    return false;
+  
+  return doc->native()->source_range(SelectionReference::from_pmath(rhs));
 }
 
 FrontEndObject *CurrentValueImpl::get_AttachmentSourceBox(FrontEndObject *obj, Expr item) {

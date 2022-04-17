@@ -33,6 +33,11 @@ namespace richmath {
         return _value == other;
       }
       
+      T get() const {
+        register_observer(); 
+        return _value; 
+      }
+      
       operator T() const {
         register_observer(); 
         return _value; 

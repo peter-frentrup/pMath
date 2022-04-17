@@ -524,33 +524,33 @@ float GridBox::get_gap_y(GridYIndex row, int gap_side) {
 }
 
 void GridBox::selection_path(Canvas &canvas, int start, int end) {
-  auto rect = get_enclosing_range(start, end);
+  auto rect = range_rect(start, end);
   
-  float x1 = get_gap_x(rect.x.start, +1);
-  float x2 = get_gap_x(rect.x.end,   -1);
+  Point p0 = canvas.current_pos();
+  
+  canvas.pixrect(rect + Vector2F(p0), false);
+}
+
+RectangleF GridBox::range_rect(int start, int end) {
+  auto index_rect = get_enclosing_range(start, end);
+  
+  float x1 = get_gap_x(index_rect.x.start, +1);
+  float x2 = get_gap_x(index_rect.x.end,   -1);
   
   if(abs(x2 - x1) < 1e-4) {
     x1-= 0.75f;
     x2+= 0.75f;
   }
   
-  float y1 = get_gap_y(rect.y.start, +1);
-  float y2 = get_gap_y(rect.y.end,   -1);
+  float y1 = get_gap_y(index_rect.y.start, +1);
+  float y2 = get_gap_y(index_rect.y.end,   -1);
   
   if(abs(y2 - y1) < 1e-4) {
     y1-= 0.75f;
     y2+= 0.75f;
   }
   
-  float x0, y0;
-  canvas.current_pos(&x0, &y0);
-  
-  x1 += x0;
-  y1 += y0;
-  x2 += x0;
-  y2 += y0;
-  
-  canvas.pixrect(x1, y1, x2, y2, false);
+  return {x1, y1, x2 - x1, y2 - y1};
 }
 
 Box *GridBox::remove_range(int *start, int end) {

@@ -908,7 +908,7 @@ Expr TextSequence::Impl::add_debug_info(Expr expr, BoxOutputFlags flags, int sta
   pmath_t obj = expr.release();
   obj = pmath_try_set_debug_info(
           obj, 
-          SelectionReference(self.id(), start, end).to_debug_info().release());
+          SelectionReference(self.id(), start, end).to_pmath().release());
   return Expr{ obj };
 }
 

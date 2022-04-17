@@ -391,4 +391,47 @@ bool AbstractSequence::request_repaint_range(int start, int end) {
   return result;
 }
 
+RectangleF AbstractSequence::range_rect(int start, int end) {
+  // TODO: Move this to TextSequence, because MathSequence now has its own implementation.
+  
+  if(text_changed())
+    return _extents.to_rectangle();
+  
+  int l1, l2;
+  
+  l1 = l2 = get_line(start);
+  if(start != end)
+    l2 = get_line(end, l1);
+    
+  cairo_matrix_t mat;
+  cairo_matrix_init_identity(&mat);
+  child_transformation(start, &mat);
+  
+  Point p1 = Canvas::transform_point(mat, Point(0, 0));
+  
+  Point p2;
+  if(start == end) {
+    p2 = p1;
+  }
+  else {
+    cairo_matrix_init_identity(&mat);
+    child_transformation(end, &mat);
+    p2 = Canvas::transform_point(mat, Point(0, 0));
+  }
+  
+  float a1, d1;
+  get_line_heights(l1, &a1, &d1);
+  
+  if(l1 == l2)
+    return {p1.x, p1.y - a1, p2.x - p1.x, a1 + d1};
+  
+  float a2, d2;
+  get_line_heights(l2, &a2, &d2);
+  
+  return RectangleF{p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}
+    .union_hull({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1})
+    .union_hull({0.0f, p2.y - a2, p2.x, a2 + d2});
+  
+}
+
 //} ... class AbstractSequence
