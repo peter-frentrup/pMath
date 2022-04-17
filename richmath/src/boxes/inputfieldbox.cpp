@@ -153,6 +153,12 @@ void InputFieldBox::resize_default_baseline(Context &context) {
 }
 
 void InputFieldBox::paint_content(Context &context) {
+  if(!context.selection.get() && enabled()) {
+    if(auto doc = find_parent<Document>(false)) {
+      doc->select(content(), content()->length(), content()->length());
+    }
+  }
+  
   if(must_update()) {
     must_update(false);
     
