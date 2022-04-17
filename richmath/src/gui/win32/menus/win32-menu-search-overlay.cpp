@@ -62,6 +62,8 @@ extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
 
 static const struct {} TimerIdBlinkSearchboxCursor; 
 
+const uint16_t MenuLevelSeparatorChar = 0x25B8; // PMATH_CHAR_RULE
+
 //{ class Win32MenuSearchOverlay ...
 
 Win32MenuSearchOverlay::Win32MenuSearchOverlay(HMENU menu)
@@ -501,7 +503,7 @@ void MenuSearch::collect_menu_matches(Array<MenuSearchResult> &results, HMENU me
     str = PMATH_NULL;
     
     if(mii.hSubMenu) {
-      collect_menu_matches(results, mii.hSubMenu, label + String::FromChar(PMATH_CHAR_RULE));
+      collect_menu_matches(results, mii.hSubMenu, label + String::FromChar(MenuLevelSeparatorChar));
       continue;
     }
     

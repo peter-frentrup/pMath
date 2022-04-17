@@ -59,6 +59,8 @@ static Hashtable<Expr, String>  cmd_to_accel_path;
 
 static bool ignore_activate_signal = false;
 
+const uint16_t MenuLevelSeparatorChar = 0x25B8; // PMATH_CHAR_RULE
+
 
 static String add_command(Expr cmd) {
   if(auto ap_ptr = cmd_to_accel_path.search(cmd))
@@ -434,7 +436,7 @@ void MathGtkMenuBuilder::collect_menu_matches(Array<MenuSearchResult> &results, 
         }
         
         if(GtkWidget *sub = gtk_menu_item_get_submenu(GTK_MENU_ITEM(menu_item)))
-          collect_menu_matches(results, query, GTK_MENU_SHELL(sub), label + String::FromChar(PMATH_CHAR_RULE), doc_id);
+          collect_menu_matches(results, query, GTK_MENU_SHELL(sub), label + String::FromChar(MenuLevelSeparatorChar), doc_id);
         
         if(Expr cmd = MenuItemBuilder::get_command(GTK_MENU_ITEM(menu_item))) {
           Expr matches = Evaluate(Call(Symbol(richmath_FE_Private_SubStringMatch), label, query));
