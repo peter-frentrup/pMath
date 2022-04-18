@@ -14,7 +14,7 @@ extern pmath_symbol_t richmath_System_Tiny;
 const LengthConversionFactors LengthConversionFactors::Zero {             0,       0,     0,      0,     0 };
 const LengthConversionFactors LengthConversionFactors::FontSizeInPt {   12.0f,     6,     9,     12,    24 };
 const LengthConversionFactors LengthConversionFactors::SectionMargins {  0.0f,   0.125,   0.25,   0.5,   1 };
-const LengthConversionFactors LengthConversionFactors::GraphicsSize {    0,        5,    10,     20,    40 };
+const LengthConversionFactors LengthConversionFactors::GraphicsSize {    0,        8,    14,     22,    40 };
 
 
 //{ class Length ...

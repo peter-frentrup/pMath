@@ -5,6 +5,7 @@
 #include <boxes/fillbox.h>
 #include <boxes/gridbox.h>
 #include <boxes/inputfieldbox.h>
+#include <boxes/paneselectorbox.h>
 #include <boxes/section.h>
 #include <boxes/stylebox.h>
 
@@ -706,14 +707,25 @@ enum SyntaxPosition GraphicsBox::Impl::find_syntax_position(Box *box, int index)
   
   if( dynamic_cast<AbstractDynamicBox *>(box) ||
       dynamic_cast<AbstractStyleBox *>(box) ||
-      dynamic_cast<GridItem *>(box) )
+      dynamic_cast<GridItem *>(box) ||
+      dynamic_cast<PaneSelectorBox *>(box) )
   {
     return find_syntax_position(box->parent(), box->index());
   }
   
-  if( dynamic_cast<GridBox *>(box) ||
-      dynamic_cast<OwnerBox *>(box))
-  {
+  if(dynamic_cast<GridBox*>(box)) {
+    if(!box->get_own_style(AllowScriptLevelChange, true))
+      return find_syntax_position(box->parent(), box->index());
+    
+    enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
+    
+    if(pos < InsideList)
+      return InsideList;
+      
+    return pos;
+  }
+  
+  if(dynamic_cast<OwnerBox *>(box)) {
     enum SyntaxPosition pos = find_syntax_position(box->parent(), box->index());
     
     if(pos < InsideList)

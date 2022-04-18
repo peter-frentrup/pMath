@@ -1005,6 +1005,7 @@ Document({
                            Length(FE`Private`rules) -> 
                             "TabHeadAbuttingLeft", ~ -> 
                             "TabHeadAbuttingLeftRight"})))))}, 
+                   AllowScriptLevelChange -> False, 
                    GridBoxColumnSpacing -> 0)), " ", FillBox("")}, 
                 Appearance -> "TabHead")}, {
                PanelBox({
@@ -1014,9 +1015,9 @@ Document({
                         Dynamic(CurrentValue(CurrentValue(TemplateBox), 
                           Selectable))))), 
                    Dynamic(CurrentValue({TemplateSlot, 2})))), FillBox("")}, 
-                Appearance -> "TabBody")}}, GridBoxRowSpacing -> 0), 
-            Initialization :> (FE`Private`rules:= 
-              CurrentValue({TemplateSlot, 1})))), 
+                Appearance -> "TabBody")}}, AllowScriptLevelChange -> False, 
+             GridBoxRowSpacing -> 0), Initialization :> (
+              FE`Private`rules:= CurrentValue({TemplateSlot, 1})))), 
          InterpretationFunction -> Function($Context`tabViewBox(#1, #2))})}, 
      All)}, StyleDefinitions -> "PrivateStyleDefinitions.pmathdoc", 
    Visible -> True), Visible -> True)
