@@ -130,8 +130,8 @@ void InputFieldBox::resize_default_baseline(Context &context) {
   context.math_spacing = old_math_spacing;
   context.width = old_width;
   
-  if(_content->var_extents().ascent < 0.95 * _content->get_em())
-    _content->var_extents().ascent = 0.95 * _content->get_em();
+  if(_content->var_extents().ascent < 0.75 * _content->get_em())
+    _content->var_extents().ascent = 0.75 * _content->get_em();
     
   if(_content->var_extents().descent < 0.25 * _content->get_em())
     _content->var_extents().descent = 0.25 * _content->get_em();

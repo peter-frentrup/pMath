@@ -288,14 +288,6 @@ void Win32ControlPainter::calc_container_size(
   
   switch(type) {
     case ContainerType::InputField: {
-        if(theme) {
-          extents->width +=   3;
-          extents->ascent +=  1.5;
-          extents->descent += 1.5;
-          round_extents(canvas, extents);
-          return;
-        }
-        
         extents->width +=   4.5;
         extents->ascent +=  3;
         extents->descent += 2.25;
