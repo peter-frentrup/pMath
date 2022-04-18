@@ -1293,6 +1293,140 @@ ArrayView<const Win32CaptionButton> Win32DocumentWindow::extra_caption_buttons()
 //  return array_view(btns);
 }
 
+bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wParam, LPARAM lParam, bool selectable) {
+  if(use_base_ncactivate)
+    return false;
+  
+  AutoValueReset<bool> auto_ubn{use_base_ncactivate};
+  use_base_ncactivate = true;
+  
+  if(wParam) {
+    struct DeactivateOthersVisitor {
+      HWND hwnd_sel;
+      DWORD thread_id;
+      
+      static BOOL CALLBACK callback(HWND hwnd, LPARAM lParam) {
+        return ((DeactivateOthersVisitor*)lParam)->callback(hwnd);
+      }
+      
+      bool callback(HWND hwnd) {
+        if(GetWindowThreadProcessId(hwnd, nullptr) != thread_id)
+          return true;
+
+        if(!IsWindowVisible(hwnd))
+          return true;
+        
+        for(auto wnd = hwnd; wnd; wnd = GetParent(wnd)) {
+          if(wnd == hwnd_sel) 
+            return true;
+        }
+        
+        SendMessageW(hwnd, WM_NCACTIVATE, FALSE, 0);
+
+        return true;
+      }
+    } visitor;
+    visitor.thread_id = GetWindowThreadProcessId(hwnd, nullptr);
+    
+    if(selectable) {
+      visitor.hwnd_sel = hwnd;
+      EnumWindows(DeactivateOthersVisitor::callback, (LPARAM)&visitor);
+      
+      for(auto wnd = GetParent(hwnd); wnd; wnd = GetParent(wnd)) {
+        SendMessageW(wnd, WM_NCACTIVATE, TRUE, 0);
+      }
+    }
+    else {
+      visitor.hwnd_sel = hwnd;
+      
+      if(Document *last_doc = Documents::current()) {
+        if(auto wid = dynamic_cast<Win32Widget*>(last_doc->native())) {
+          visitor.hwnd_sel = GetAncestor(wid->hwnd(), GA_ROOT);
+          if(!visitor.hwnd_sel)
+            visitor.hwnd_sel = wid->hwnd();
+        }
+      }
+      
+      EnumWindows(DeactivateOthersVisitor::callback, (LPARAM)&visitor);
+    }
+  }
+  else {
+    if(Document *cur_doc = Documents::current()) {
+      if(auto wid = dynamic_cast<Win32Widget*>(cur_doc->native())) {
+        if(hwnd == wid->hwnd() || hwnd == GetAncestor(wid->hwnd(), GA_ROOT)) {
+          SendMessageW(hwnd, WM_NCACTIVATE, TRUE, 0);
+          res = TRUE;
+          return true;
+        }
+      }
+    }
+  
+    for(auto wnd = GetActiveWindow(); wnd; wnd = GetParent(wnd)) {
+      if(wnd == hwnd) {
+        SendMessageW(hwnd, WM_NCACTIVATE, TRUE, 0);
+        res = TRUE;
+        return true;
+      }
+    }
+  }
+
+  return false;
+}
+
+bool Win32DocumentWindow::handle_activateapp(LRESULT &res, HWND hwnd, WPARAM wParam, LPARAM lParam, bool selectable) {
+  Document *current_doc = Documents::current();
+  
+  if(wParam) { // activate
+    if(current_doc) {
+      current_doc->focus_set();
+      
+      if(!selectable) {
+        if(auto wid = dynamic_cast<Win32Widget*>(current_doc->native())) {
+          AutoValueReset<bool> auto_ubn{use_base_ncactivate};
+          use_base_ncactivate = true;
+          
+          HWND ancestor = GetAncestor(wid->hwnd(), GA_ROOT);
+          if(!ancestor)
+            ancestor = wid->hwnd();
+          SendMessageW(ancestor, WM_NCACTIVATE, TRUE, 0);
+        }
+      }
+    }
+  }
+  else {
+    if(current_doc) {
+      current_doc->focus_killed(nullptr);
+      
+      AutoValueReset<bool> auto_ubn{use_base_ncactivate};
+      use_base_ncactivate = true;
+      
+      struct DeactivateAllVisitor {
+        DWORD thread_id;
+        
+        static BOOL CALLBACK callback(HWND hwnd, LPARAM lParam) {
+          return ((DeactivateAllVisitor*)lParam)->callback(hwnd);
+        }
+        
+        bool callback(HWND hwnd) {
+          if(GetWindowThreadProcessId(hwnd, nullptr) != thread_id)
+            return true;
+
+          if(!IsWindowVisible(hwnd))
+            return true;
+          
+          SendMessageW(hwnd, WM_NCACTIVATE, FALSE, 0);
+          
+          return true;
+        }
+      } visitor;
+      visitor.thread_id = GetWindowThreadProcessId(hwnd, nullptr);
+      
+      EnumWindows(DeactivateAllVisitor::callback, (LPARAM)&visitor);
+    }
+  }
+  return false;
+}
+
 LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
   LRESULT result = 0;
   
@@ -1382,69 +1516,24 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         } break;
         
       case WM_NCACTIVATE: {
-        if(use_base_ncactivate)
-          break;
-        
-        AutoValueReset<bool> auto_ubn{use_base_ncactivate};
-        use_base_ncactivate = true;
-        
-        if(wParam && document()->selectable()) {
-          if(Document *last_doc = Documents::current()) {
-            if(auto wid = dynamic_cast<Win32DocumentChildWidget*>(last_doc->native())) {
-              if(wid->parent() != this) {
-                wid->parent()->callback(WM_NCACTIVATE, FALSE, 0);
-              }
-            }
-          }
-        }
-        
-        if(!wParam && document() == Documents::current()) {
-          base::callback(WM_NCACTIVATE, TRUE, 0);
-          return TRUE;
-        }
+        if(handle_ncactivate(result, hwnd(), wParam, lParam, document()->selectable()))
+          return result;
       } break;
       
       case WM_ACTIVATEAPP: {
-          Document *current_doc = Documents::current();
-          
-          if(wParam) { // activate
-            if(current_doc) {
-              current_doc->focus_set();
-              
-              if(!document()->selectable()) {
-                if(auto wid = dynamic_cast<Win32DocumentChildWidget*>(current_doc->native())) {
-                  AutoValueReset<bool> auto_ubn{use_base_ncactivate};
-                  use_base_ncactivate = true;
-                  
-                  wid->parent()->callback(WM_NCACTIVATE, TRUE, 0);
-                }
-              }
-            }
-          }
-          else {
-            if(current_doc) {
-              current_doc->focus_killed(nullptr);
-              
-              if(auto wid = dynamic_cast<Win32DocumentChildWidget*>(current_doc->native())) {
-                AutoValueReset<bool> auto_ubn{use_base_ncactivate};
-                use_base_ncactivate = true;
-                
-                wid->parent()->callback(WM_NCACTIVATE, FALSE, 0);
-              }
-            }
-          }
+        if(handle_activateapp(result, hwnd(), wParam, lParam, document()->selectable()))
+          return result;
         } break;
         
       case WM_SYSCOMMAND:
         if((wParam & 0xFFF0) == SC_MOUSEMENU || (wParam & 0xFFF0) == SC_KEYMENU) {
-          LRESULT res;
           MenuExitInfo exit_info;
           DWORD explicit_cmd = 0;
           {
             Win32AutoMenuHook menu_hook(GetSystemMenu(hwnd(), FALSE), hwnd(), nullptr, false, false);
             Win32Menu::use_dark_mode = is_using_dark_mode();
             
-            res = base::callback(message, wParam, lParam);
+            result = base::callback(message, wParam, lParam);
             
             exit_info = menu_hook.exit_info;
           }
@@ -1457,7 +1546,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
           if(explicit_cmd)
             return SendMessageW(hwnd(), WM_COMMAND, explicit_cmd, 0);
           
-          return res;
+          return result;
         }
         
         if(wParam >= 0xF000)

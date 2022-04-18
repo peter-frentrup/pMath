@@ -6,6 +6,7 @@
 #include <gui/documents.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/win32-control-painter.h>
+#include <gui/win32/win32-document-window.h>
 
 #ifdef max
 #  undef max
@@ -309,28 +310,32 @@ void Win32AttachedPopupWindow::do_set_current_document() {
 }
 
 LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {
+  LRESULT result = 0;
+  
   if(!initializing()) {
     switch(message) {
-      case WM_ACTIVATE: {
-          pmath_debug_print("[Win32AttachedPopupWindow WM_ACTIVATE %p %d %p]\n", _hwnd, wParam, lParam);
-        } break;
-      
       case WM_NCACTIVATE: {
-        pmath_debug_print("[Win32AttachedPopupWindow: WM_NCACTIVATE %p %d (active: %p)]\n", _hwnd, wParam, GetActiveWindow());
+        if(Win32DocumentWindow::handle_ncactivate(result, hwnd(), wParam, lParam, document()->selectable()))
+          return result;
+        
         _active = wParam;
       } break;
       
       case WM_ACTIVATEAPP:
+        if(Win32DocumentWindow::handle_activateapp(result, hwnd(), wParam, lParam, document()->selectable()))
+          return result;
+        
         if(!wParam) {
-          pmath_debug_print("[Win32AttachedPopupWindow: deactivated app]\n");
-          //close();
+          auto conds = (RemovalConditionFlags)document()->get_own_style(RemovalConditions, 0);
+          if(conds & RemovalConditionFlags::RemovalConditionFlagSelectionExit)
+            close();
         }
         break;
       
       case WM_NCCALCSIZE: {
-        LRESULT res = base::callback(message, wParam, lParam);
-        Impl(*this).on_after_nccalcsize(wParam, lParam, res);
-        return res;
+        result = base::callback(message, wParam, lParam);
+        Impl(*this).on_after_nccalcsize(wParam, lParam, result);
+        return result;
       } break;
       
       case WM_NCPAINT: {

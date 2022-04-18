@@ -65,6 +65,9 @@ namespace richmath {
       Win32Widget *bottom_area() {       return (Win32Widget*)_bottom_area;       }
       Win32Widget *bottom_glass_area() { return (Win32Widget*)_bottom_glass_area; }
       
+      static bool handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wParam, LPARAM lParam, bool selectable);
+      static bool handle_activateapp(LRESULT &res, HWND hwnd, WPARAM wParam, LPARAM lParam, bool selectable);
+      
     private:
       Win32GlassDock   *_top_glass_area;
       Win32Dock        *_top_area;
