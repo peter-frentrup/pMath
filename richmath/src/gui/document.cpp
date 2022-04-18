@@ -147,7 +147,7 @@ static int index_of_replacement(const String &s) {
   return -1;
 }
 
-static MathSequence *search_string(
+static AbstractSequence *search_string(
   Box *box,
   int *index,
   Box *stop_box,
@@ -156,7 +156,7 @@ static MathSequence *search_string(
   bool complete_token
 ) {
 RESTART:
-  if(auto seq = dynamic_cast<MathSequence *>(box)) {
+  if(auto seq = dynamic_cast<AbstractSequence *>(box)) {
     const uint16_t *buf = string.buffer();
     int             len = string.length();
     
@@ -169,17 +169,12 @@ RESTART:
     int i = *index;
     for(; i <= seqlen - len; ++i) {
       if(complete_token) {
-        if( (i == 0 || seq->span_array().is_token_end(i - 1)) &&
-            seq->span_array().is_token_end(i + len - 1))
-        {
+        if(seq->is_word_boundary(i) && seq->is_word_boundary(i + len)) {
           int j = 0;
           
           for(; j < len; ++j) {
-            if( seqbuf[i + j] != buf[j] ||
-                (seq->span_array().is_token_end(i + j) && j < len - 1))
-            {
+            if(seqbuf[i + j] != buf[j] || (j > 0 && seq->is_word_boundary(i + j)))
               break;
-            }
           }
           
           if(j == len) {
@@ -3898,15 +3893,15 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
   if(self.selection_length() == 0)
     return;
     
-  MathSequence *seq = dynamic_cast<MathSequence *>(self.selection_box());
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box());
   int start = self.selection_start();
   int end   = self.selection_end();
   int len   = self.selection_length();
   
   if( seq &&
       !seq->is_placeholder(start) &&
-      (start == 0 || seq->span_array().is_token_end(start - 1)) &&
-      seq->span_array().is_token_end(end - 1))
+      seq->is_word_boundary(start) &&
+      seq->is_word_boundary(end))
   {
     if(!self.selection_now().is_name())
       return;

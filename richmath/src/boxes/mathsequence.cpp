@@ -1207,6 +1207,15 @@ void MathSequence::ensure_spans_valid() {
             &data);
 }
 
+bool MathSequence::is_word_boundary(int i) {
+  if(i <= 0 || i >= length())
+    return true;
+  
+  ensure_spans_valid();
+  
+  return spans.is_token_end(i - 1);
+}
+
 int MathSequence::matching_fence(int pos) {
   int len = str.length();
   if(pos < 0 || pos >= len)

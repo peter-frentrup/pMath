@@ -135,7 +135,7 @@ bool VolatileSelection::selectable() const {
 }
 
 bool VolatileSelection::is_name() const {
-  MathSequence *seq = dynamic_cast<MathSequence *>(box);
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(box);
   if(!seq)
     return false;
     
@@ -144,7 +144,7 @@ bool VolatileSelection::is_name() const {
     if(!pmath_char_is_digit(buf[i]) && !pmath_char_is_name(buf[i]))
       return false;
     
-    if(seq->span_array().is_token_end(i) && i < end - 1)
+    if(start < i && i < end && seq->is_word_boundary(i))
       return false;
   }
   

@@ -73,6 +73,7 @@ namespace richmath {
       bool is_inside_string(int pos) { return find_string_start(pos) >= 0; }
       
       void ensure_spans_valid();
+      virtual bool is_word_boundary(int i) override;
       
       int matching_fence(int pos); // -1 on error
       

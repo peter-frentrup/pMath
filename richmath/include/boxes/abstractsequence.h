@@ -42,6 +42,7 @@ namespace richmath {
       
       bool is_placeholder();
       bool is_placeholder(int i);
+      virtual bool is_word_boundary(int i) = 0;
       
       int insert(int pos, uint32_t chr);
       int insert(int pos, const uint16_t *ucs2, int len);

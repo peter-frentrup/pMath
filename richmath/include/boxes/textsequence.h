@@ -65,6 +65,8 @@ namespace richmath {
       
       void ensure_layout_valid();
       
+      virtual bool is_word_boundary(int i) override;
+      
       PangoLayout *get_layout() { return _layout; } // only valid if !inline_span()
       int buffer_size() { return _buffer_size; }
       RleArrayIterator<const RleLinearPredictorArray<int>> buffer_to_text_iter() {            return buffer_to_text.cbegin(); }

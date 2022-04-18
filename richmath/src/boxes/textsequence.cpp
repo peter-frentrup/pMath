@@ -864,6 +864,17 @@ void TextSequence::ensure_layout_valid() {
   assert(!text_changed());
 }
 
+bool TextSequence::is_word_boundary(int i) {
+  if(i <= 0 || i >= length())
+    return true;
+
+  ensure_layout_valid();
+  
+  auto iter = Impl(*this).text_iterator();
+  iter.skip_forward_beyond_text_pos(this, i);
+  return iter.is_word_boundary();
+}
+
 //} ... class TextSequence
 
 //{ class TextSequence::Impl ...
