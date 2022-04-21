@@ -151,6 +151,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr);
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr);
 Expr richmath_eval_FrontEnd_Documents(Expr expr);
 Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr);
+Expr richmath_eval_FrontEnd_KeyboardInputBox(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
@@ -215,6 +216,7 @@ void Documents::done() {
 }
 
 ObservableValue<FrontEndReference> Documents::selected_document_id { FrontEndReference::None };
+ObservableValue<FrontEndReference> Documents::focused_document_id { FrontEndReference::None };
 
 Document *Documents::selected_document() {
   return FrontEndObject::find_cast<Document>(selected_document_id);
@@ -222,16 +224,52 @@ Document *Documents::selected_document() {
 
 void Documents::selected_document(Document *document) {
   FrontEndReference id = document ? document->id() : FrontEndReference::None;
-  if(Documents::selected_document_id.unobserved_equals(id))
+  if(selected_document_id.unobserved_equals(id))
     return;
   
-  if(auto old = Documents::selected_document()) 
+  if(auto old = selected_document()) 
     old->focus_killed(document);
     
   if(document)
     document->focus_set();
     
   selected_document_id = id;
+}
+
+Box *Documents::keyboard_input_box() {
+  if(auto doc = focused_document()) {
+    if(auto box = doc->selection_box())
+      return box;
+  }
+  
+  if(auto doc = selected_document()) {
+    if(auto box = doc->selection_box())
+      return box;
+  }
+  
+  return nullptr;
+}
+
+Document *Documents::focused_document() {
+  return FrontEndObject::find_cast<Document>(focused_document_id);
+}
+
+void Documents::focus_gained(Document *document) {
+  FrontEndReference id = document ? document->id() : FrontEndReference::None;
+  
+  focused_document_id = id;
+}
+
+bool Documents::focus_lost(Document *old_focus_doc) {
+  if(!old_focus_doc)
+    return false;
+  
+  FrontEndReference id = old_focus_doc->id();
+  if(!focused_document_id.unobserved_equals(id))
+    return false;
+  
+  focused_document_id = FrontEndReference::None;
+  return true;
 }
 
 Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
@@ -1488,6 +1526,13 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
     return result->to_pmath_id();
   
   return Symbol(richmath_System_DollarFailed);
+}
+
+Expr richmath_eval_FrontEnd_KeyboardInputBox(Expr expr) {
+  if(auto box = Documents::keyboard_input_box())
+    return box->to_pmath_id();
+  
+  return Symbol(richmath_System_None);
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {

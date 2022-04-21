@@ -1,6 +1,5 @@
 #define WINVER  0x603
 
-#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/win32-widget.h>
 
 #include <climits>
@@ -17,9 +16,11 @@
 #include <eval/application.h>
 #include <eval/job.h>
 #include <gui/control-painter.h>
+#include <gui/documents.h>
 #include <gui/win32/ole/dataobject.h>
 #include <gui/win32/ole/dropsource.h>
 #include <gui/win32/api/win32-highdpi.h>
+#include <gui/win32/api/win32-themes.h>
 #include <gui/win32/api/win32-touch.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
@@ -113,8 +114,6 @@ SpecialKey richmath::win32_virtual_to_special_key(DWORD vkey) {
     default: return SpecialKey::Unknown;
   }
 }
-
-static FrontEndReference focussed_document_id = FrontEndReference::None;
 
 //{ class Win32Widget ...
 
@@ -1571,10 +1570,10 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           }
           else if(wParam == (UINT_PTR)&TimerIdKillFocus) {
             KillTimer(_hwnd, (UINT_PTR)&TimerIdKillFocus);
-            if(focussed_document_id == document()->id())
-              focussed_document_id = FrontEndReference::None;
             
-            document()->focus_killed(FrontEndObject::find_cast<Document>(focussed_document_id));
+            Documents::focus_lost(document());
+            
+            document()->focus_killed(Documents::focused_document());
           }
         } return 0;
         
@@ -1651,7 +1650,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           _focused = true;
           document()->focus_set();
           
-          focussed_document_id = document()->id();
+          Documents::focus_gained(document());
           
           if(document()->selectable())
             do_set_selected_document();

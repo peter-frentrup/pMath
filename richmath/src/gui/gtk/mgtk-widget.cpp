@@ -2,6 +2,7 @@
 
 #include <boxes/gridbox.h>
 #include <eval/binding.h>
+#include <gui/documents.h>
 #include <gui/gtk/mgtk-attached-popup-window.h>
 #include <gui/gtk/mgtk-clipboard.h>
 #include <gui/gtk/mgtk-dragdrophandler.h>
@@ -1055,13 +1056,11 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
   return result;
 }
 
-static FrontEndReference focussed_document_id = FrontEndReference::None;
-
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
   _focused = true;
   document()->focus_set();
-  
-  focussed_document_id = document()->id();
+
+  Documents::focus_gained(document());
   
   if(document()->selectable())
     do_set_selected_document();
@@ -1087,10 +1086,9 @@ bool MathGtkWidget::on_focus_out(GdkEvent *e) {
       pmath_debug_print("[idle after focus-out-event %p]\n", _arg);
       if(auto doc = FrontEndObject::find_cast<Document>(arg)) {
         if(auto wid = dynamic_cast<MathGtkWidget*>(doc->native())) {
-          if(focussed_document_id == arg)
-            focussed_document_id = FrontEndReference::None;
+          Documents::focus_lost(doc);
           
-          wid->document()->focus_killed(FrontEndObject::find_cast<Document>(focussed_document_id));
+          wid->document()->focus_killed(Documents::focused_document());
         }
       }
       return false; 
