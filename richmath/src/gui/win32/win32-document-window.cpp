@@ -1302,7 +1302,7 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
   
   if(wParam) {
     struct DeactivateOthersVisitor {
-      HWND hwnd_sel;
+      Array<HWND> ignore;
       DWORD thread_id;
       
       static BOOL CALLBACK callback(HWND hwnd, LPARAM lParam) {
@@ -1316,8 +1316,8 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
         if(!IsWindowVisible(hwnd))
           return true;
         
-        for(auto wnd = hwnd; wnd; wnd = GetParent(wnd)) {
-          if(wnd == hwnd_sel) 
+        for(auto w : ignore) {
+          if(w == hwnd)
             return true;
         }
         
@@ -1329,22 +1329,33 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
     visitor.thread_id = GetWindowThreadProcessId(hwnd, nullptr);
     
     if(selectable) {
-      visitor.hwnd_sel = hwnd;
-      EnumWindows(DeactivateOthersVisitor::callback, (LPARAM)&visitor);
+      visitor.ignore.add(hwnd);
       
-      for(auto wnd = GetParent(hwnd); wnd; wnd = GetParent(wnd)) {
+      for(auto wnd = GetWindow(hwnd, GW_OWNER); wnd; wnd = GetWindow(wnd, GW_OWNER)) {
+        visitor.ignore.add(wnd);
         SendMessageW(wnd, WM_NCACTIVATE, TRUE, 0);
       }
+      
+      EnumWindows(DeactivateOthersVisitor::callback, (LPARAM)&visitor);
     }
     else {
-      visitor.hwnd_sel = hwnd;
-      
       if(Document *last_doc = Documents::current()) {
         if(auto wid = dynamic_cast<Win32Widget*>(last_doc->native())) {
-          visitor.hwnd_sel = GetAncestor(wid->hwnd(), GA_ROOT);
-          if(!visitor.hwnd_sel)
-            visitor.hwnd_sel = wid->hwnd();
+          HWND root = GetAncestor(wid->hwnd(), GA_ROOT);
+          if(!root)
+            root = wid->hwnd();
+          
+          for(auto wnd = root; wnd; wnd = GetWindow(wnd, GW_OWNER)) {
+            visitor.ignore.add(wnd);
+          }
         }
+      }
+      
+      visitor.ignore.add(hwnd);
+        
+      for(auto wnd = GetWindow(hwnd, GW_OWNER); wnd; wnd = GetWindow(wnd, GW_OWNER)) {
+        visitor.ignore.add(wnd);
+        SendMessageW(wnd, WM_NCACTIVATE, TRUE, 0);
       }
       
       EnumWindows(DeactivateOthersVisitor::callback, (LPARAM)&visitor);
@@ -1361,7 +1372,7 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
       }
     }
   
-    for(auto wnd = GetActiveWindow(); wnd; wnd = GetParent(wnd)) {
+    for(auto wnd = GetActiveWindow(); wnd; wnd = GetWindow(wnd, GW_OWNER)) {
       if(wnd == hwnd) {
         SendMessageW(hwnd, WM_NCACTIVATE, TRUE, 0);
         res = TRUE;

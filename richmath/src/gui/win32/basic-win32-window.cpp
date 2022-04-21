@@ -1086,7 +1086,7 @@ static void get_system_menu_bounds(HWND hwnd, RECT *rect, int dpi) {
     }
   }
   
-  pmath_debug_print("[invisible_top = %d, visible_top = %d]\n", invisible_top, visible_top);
+//  pmath_debug_print("[invisible_top = %d, visible_top = %d]\n", invisible_top, visible_top);
   
   rect->top+= invisible_top + (visible_top - icon_h) / 2;
   rect->bottom = rect->top + icon_h;

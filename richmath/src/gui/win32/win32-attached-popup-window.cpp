@@ -71,7 +71,7 @@ const wchar_t Win32AttachedPopupWindow::Impl::class_name[] = L"RichmathWin32Popu
 Win32AttachedPopupWindow::Win32AttachedPopupWindow(Document *owner, const SelectionReference &anchor) 
   : base(
     new Document(),
-    WS_EX_TOOLWINDOW | WS_EX_NOACTIVATE,
+    WS_EX_TOOLWINDOW,
     WS_POPUP | WS_CLIPCHILDREN,// | WS_BORDER,
     0,
     0,
@@ -226,7 +226,7 @@ void Win32AttachedPopupWindow::invalidate_source_location() {
         flags |= SWP_NOSIZE;
       }
       
-      if(!IsWindowVisible(_hwnd))
+      if(!IsWindowVisible(_hwnd)) 
         flags |= SWP_SHOWWINDOW;
       
       Impl(*this).update_window_shape(wft, cpk, popup_rect, target_rect);
@@ -424,10 +424,10 @@ bool Win32AttachedPopupWindow::Impl::find_anchor_screen_position(RectangleF &tar
   target_rect.x -= GetScrollPos(owner_wid->hwnd(), SB_HORZ);
   target_rect.y -= GetScrollPos(owner_wid->hwnd(), SB_VERT);
   
-  pmath_debug_print("[anchor @ (%f, %f) - (%f, %f): %f x %f]\n",
-    target_rect.left(), target_rect.top(),
-    target_rect.right(), target_rect.bottom(),
-    target_rect.width, target_rect.height);
+//  pmath_debug_print("[anchor @ (%f, %f) - (%f, %f): %f x %f]\n",
+//    target_rect.left(), target_rect.top(),
+//    target_rect.right(), target_rect.bottom(),
+//    target_rect.width, target_rect.height);
   
   RECT rc = discretize(target_rect);
   

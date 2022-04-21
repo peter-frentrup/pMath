@@ -18,56 +18,57 @@ Document({
              {"Local", "(", {"popup", ",", {
                 "name", "\[Assign]", StringBox("\"\"")}}, ")"}, {
               "{", {
-               "\n", {{"popup", "\[Assign]", {
-                  "FE`AttachBoxes", "(", {{"EvaluationBox", "(", ")"}, ",", 
-                   "Bottom", ",", {
-                    "\n", {"Section", "(", {
-                      {"TextData", "(", {
-                        "{", {StringBox("\"Name:   \""), ",", {
-                          "InputFieldBox", "(", {
-                           {"Dynamic", "(", {"name", ",", {
-                              "{", {"Automatic", ",", "Automatic", ",", {
-                                "Function", "(", {
-                                 {"DocumentClose", "(", "popup", ")"}, ";", {
-                                  "name", "\[Assign]", "#"}, ";", {
-                                  "CreateDocument", "(", {
-                                   {"{", {"Section", "(", {
-                                      {"TextData", "(", {
+               "\n", {
+                {{"popup", "\[Assign]", {"FE`AttachBoxes", "(", {
+                    {"EvaluationBox", "(", ")"}, ",", "Bottom", ",", {
+                     "\n", {"Section", "(", {
+                       {"TextData", "(", {
+                         "{", {StringBox("\"Name:   \""), ",", {
+                           "InputFieldBox", "(", {
+                            {"Dynamic", "(", {"name", ",", {
+                               "{", {"Automatic", ",", "Automatic", ",", {
+                                 "Function", "(", {
+                                  {"DocumentClose", "(", "popup", ")"}, ";", {
+                                   "name", "\[Assign]", "#"}, ";", {
+                                   "CreateDocument", "(", {
+                                    {"{", {"Section", "(", {
+                                       {"TextData", "(", {
                                         "{", {StringBox("\"Hello \""), ",", 
                                         "name", ",", StringBox("\"!\"")}, 
                                         "}"}, ")"}, ",", 
-                                      StringBox("\"Title\"")}, ")"}, "}"}, 
-                                   ",", {"WindowFrame", "\[Rule]", 
-                                    StringBox("\"Dialog\"")}}, ")"}}, ")"}}, 
-                              "}"}}, ")"}, ",", "String", ",", {
-                            "ContinuousAction", "\[Rule]", "True"}}, ")"}}, 
-                        "}"}, ")"}, ",", StringBox("\"PopupWindowSection\""), 
-                      ",", {"SectionMargins", "\[Rule]", "4"}, ",", {
-                       "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, ",", {
-                    "WindowFrame", "\[Rule]", 
-                    StringBox("\"ThinFrameCallout\"")}, ",", {
-                    "RemovalConditions", "\[Rule]", {
-                     "{", {StringBox("\"MouseClickOutside\""), ",", 
-                      StringBox("\"SelectionExit\"")}, "}"}}}, ")"}}, "\n"}}, 
-              "}"}}}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+                                       StringBox("\"Title\"")}, ")"}, "}"}, 
+                                    ",", {"WindowFrame", "\[Rule]", 
+                                     StringBox("\"Dialog\"")}}, ")"}}, ")"}}, 
+                               "}"}}, ")"}, ",", "String", ",", {
+                             "ContinuousAction", "\[Rule]", "True"}}, ")"}}, 
+                         "}"}, ")"}, ",", StringBox("\"PopupWindowSection\""), 
+                       ",", {"SectionMargins", "\[Rule]", "4"}, ",", {
+                        "LineBreakWithin", "\[Rule]", "False"}}, ")"}}, ",", {
+                     "WindowFrame", "\[Rule]", 
+                     StringBox("\"ThinFrameCallout\"")}, ",", {
+                     "RemovalConditions", "\[Rule]", {
+                      "{", {StringBox("\"MouseClickOutsidePopup\""), ",", 
+                       StringBox("\"SelectionExit\"")}, "}"}}}, ")"}}, "\n", {
+                  "SetSelectedDocument", "(", "popup", ")"}}, "\n"}}, "}"}}}, 
+           ")"}), "Input", SectionLabel -> "in [1]:"), 
         Section(BoxData(ButtonBox(StringBox("\"Greetings ...\""), 
            ButtonFunction -> 
             Function(Local({$Context`popup, $Context`name:= ""}, 
               $Context`popup:= FE`AttachBoxes(EvaluationBox(), Bottom, 
-                Section(TextData({
-                   "Name:   ", InputFieldBox(Dynamic($Context`name, {
-                      Automatic, Automatic, 
-                      Function(DocumentClose($Context`popup); 
-                        $Context`name:= #1; CreateDocument({
-                          Section(TextData({"Hello ", $Context`name, "!"}), 
-                           "Title")}, WindowFrame -> "Dialog"))}), String, 
-                    ContinuousAction -> True)}), "PopupWindowSection", 
-                 SectionMargins -> 4, LineBreakWithin -> False), 
-                WindowFrame -> "ThinFrameCallout", 
-                RemovalConditions -> {"MouseClickOutside", 
-                  "SelectionExit"}))))), "Output", SectionGenerated -> True, 
-         SectionLabel -> "out [2]:")}, All)}, All), 
-    SectionGroup({Section("Declarative interface", "Section"), 
+                 Section(TextData({
+                    "Name:   ", InputFieldBox(Dynamic($Context`name, {
+                       Automatic, Automatic, 
+                       Function(DocumentClose($Context`popup); 
+                         $Context`name:= #1; CreateDocument({
+                           Section(TextData({"Hello ", $Context`name, "!"}), 
+                            "Title")}, WindowFrame -> "Dialog"))}), String, 
+                     ContinuousAction -> True)}), "PopupWindowSection", 
+                  SectionMargins -> 4, LineBreakWithin -> False), 
+                 WindowFrame -> "ThinFrameCallout", 
+                 RemovalConditions -> {"MouseClickOutsidePopup", 
+                   "SelectionExit"}); SetSelectedDocument($Context`popup))))), 
+         "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+       All)}, All), SectionGroup({Section("Declarative interface", "Section"), 
       Section(
        BoxData(/\/({{{"Options", "(", "SimplePopup", ")"}, "\[Assign]", {
             "{", {{StringBox("\"ClosingAction\""), "\[Rule]", 
