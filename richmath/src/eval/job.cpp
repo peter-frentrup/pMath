@@ -265,7 +265,7 @@ bool ReplacementJob::start() {
       !sequence                          ||
       section->parent() != doc           ||
       selection_end > sequence->length() ||
-      !sequence->get_style(Editable))
+      !sequence->editable())
   {
     if(section) {
       section->evaluating--;

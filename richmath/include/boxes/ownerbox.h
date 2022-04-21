@@ -43,7 +43,7 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
-      virtual bool edit_selection(SelectionReference &selection) override;
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
     
     protected:
       virtual void resize_default_baseline(Context &context);

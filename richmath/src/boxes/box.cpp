@@ -521,14 +521,19 @@ void Box::on_style_changed(bool layout_affected) {
     request_repaint_all();
 }
 
-bool Box::edit_selection(SelectionReference &selection) {
+bool Box::edit_selection(SelectionReference &selection, EditAction action) {
   if(!get_own_style(Editable, true))
     return false;
     
   if(auto par = parent())
-    return par->edit_selection(selection);
+    return par->edit_selection(selection, action);
   
   return true;
+}
+
+bool Box::editable() {
+  SelectionReference sel {this, 0, length()};
+  return edit_selection(sel, EditAction::DryRun);
 }
 
 //{ event handlers ...

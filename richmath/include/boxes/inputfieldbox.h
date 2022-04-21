@@ -42,7 +42,7 @@ namespace richmath {
       virtual bool selection_exitable(bool vertical) override { return false; }
       virtual bool selectable(int i = -1) override;
       
-      virtual bool edit_selection(SelectionReference &selection) override { return true; }
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override { return true; }
       
       virtual void on_mouse_down(MouseEvent &event) override;
       virtual void on_mouse_move(MouseEvent &event) override;

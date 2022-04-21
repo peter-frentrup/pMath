@@ -421,7 +421,7 @@ void MathGtkWidget::do_drag_drop(const VolatileSelection &src, MouseEvent &event
   
   GdkDragContext *context;
   unsigned actions = GDK_ACTION_COPY;
-  if(src.box->get_style(Editable))
+  if(src.box->editable())
     actions |= GDK_ACTION_MOVE;
     
   GridBox::selection_strategy = GridBox::best_selection_strategy_for_drag_source(src);

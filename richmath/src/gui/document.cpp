@@ -2028,7 +2028,9 @@ void Document::cut_to_clipboard(Clipboard *clipboard) {
 }
 
 void Document::paste_from_boxes(Expr boxes) {
-  if(context.selection.get() == this && get_style(Editable, true)) {
+  // TODO: just call edit_selection() once here. On success, the selection is editable.
+  
+  if(context.selection.get() == this && editable()) {
     if(boxes[0] == richmath_System_Section || boxes[0] == richmath_System_SectionGroup) {
       int i = context.selection.start;
       insert_pmath(&i, boxes, context.selection.end);
@@ -2044,7 +2046,7 @@ void Document::paste_from_boxes(Expr boxes) {
             Application::edit_interrupt_timeout);
   
   if(auto grid = dynamic_cast<GridBox *>(context.selection.get())) {
-    if(grid->get_style(Editable)) {
+    if(grid->editable()) {
       auto rect = grid->get_enclosing_range(context.selection.start, context.selection.end);
       
       BoxInputFlags options = BoxInputFlags::Default;
@@ -2060,7 +2062,7 @@ void Document::paste_from_boxes(Expr boxes) {
   }
   
   if(auto graphics = dynamic_cast<GraphicsBox *>(context.selection.get())) {
-    if(graphics->get_style(Editable)) {
+    if(graphics->editable()) {
       BoxInputFlags options = BoxInputFlags::Default;
       if(graphics->get_style(AutoNumberFormating))
         options |= BoxInputFlags::FormatNumbers;
@@ -2210,6 +2212,8 @@ void Document::paste_from_clipboard(Clipboard *clipboard) {
 }
 
 void Document::set_selection_style(Expr options) {
+  // TODO: just call edit_selection() once here. On success, the selection is editable.
+  
   Box *sel = selection_box();
   if(!sel)
     return;
@@ -2224,7 +2228,7 @@ void Document::set_selection_style(Expr options) {
   }
   
   if(sel == this && start < end) {
-    if(!get_style(Editable, true))
+    if(!editable())
       return;
       
     native()->on_editing();
@@ -2258,7 +2262,7 @@ void Document::set_selection_style(Expr options) {
   
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel);
   if(seq && start < end) {
-    if(!seq->edit_selection(context.selection))
+    if(!seq->edit_selection(context.selection, EditAction::DoIt))
       return;
       
     StyleBox *style_box = nullptr;
@@ -2378,7 +2382,7 @@ bool Document::do_scoped(Expr cmd, Expr scope) {
 }
 
 bool Document::split_section(bool do_it) {
-  if(!get_own_style(Editable, false))
+  if(!editable())
     return false;
     
   AbstractSequence *seq = dynamic_cast<AbstractSequence *>(selection_box());
@@ -2389,7 +2393,7 @@ bool Document::split_section(bool do_it) {
   int end   = selection_end();
   
   AbstractSequenceSection *sect = dynamic_cast<AbstractSequenceSection *>(seq->parent());
-  if(!sect || !sect->get_own_style(Editable, false))
+  if(!sect || !sect->editable())
     return false;
     
   if(!do_it)
@@ -2437,7 +2441,7 @@ bool Document::merge_sections(bool do_it) {
   if(selection_box() != this)
     return false;
     
-  if(!get_own_style(Editable, false))
+  if(!editable())
     return false;
     
   int start = selection_start();
@@ -3303,7 +3307,7 @@ bool Document::remove_selection(bool insert_default) {
   if(selection_length() == 0)
     return false;
     
-  if(selection_box() && !selection_box()->edit_selection(context.selection))
+  if(selection_box() && !selection_box()->edit_selection(context.selection, EditAction::DoIt))
     return false;
     
   auto_completion.stop();
@@ -3399,15 +3403,15 @@ void Document::toggle_open_close_current_group() {
     native()->beep();
 }
 
-bool Document::complete_box(bool do_it) {
+bool Document::complete_box(EditAction action) {
   Box *box = selection_box();
   while(box) {
     if(auto rad = dynamic_cast<RadicalBox *>(box)) {
       if(rad->count() == 1) {
-        if(!rad->get_style(Editable))
+        if(!rad->editable())
           return false;
         
-        if(do_it) {
+        if(action == EditAction::DoIt) {
           rad->complete();
           rad->exponent()->insert(0, PMATH_CHAR_PLACEHOLDER);
           select(rad->exponent(), 0, 1);
@@ -3419,10 +3423,10 @@ bool Document::complete_box(bool do_it) {
     
     if(auto subsup = dynamic_cast<SubsuperscriptBox *>(box)) {
       if(subsup->count() == 1) {
-        if(!subsup->get_style(Editable))
+        if(!subsup->editable())
           return false;
         
-        if(do_it) {
+        if(action == EditAction::DoIt) {
           if(subsup->subscript()) {
             subsup->complete();
             subsup->superscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
@@ -3441,10 +3445,10 @@ bool Document::complete_box(bool do_it) {
     
     if(auto underover = dynamic_cast<UnderoverscriptBox *>(box)) {
       if(underover->count() == 2) {
-        if(!underover->get_style(Editable))
+        if(!underover->editable())
           return false;
         
-        if(do_it) {
+        if(action == EditAction::DoIt) {
           if(underover->underscript()) {
             underover->complete();
             underover->overscript()->insert(0, PMATH_CHAR_PLACEHOLDER);
@@ -4318,7 +4322,7 @@ bool Document::Impl::prepare_insert(bool include_previous_word) {
   if(self.context.selection.id == self.id()) {
     self.prev_sel_line = -1;
     if( self.context.selection.start != self.context.selection.end ||
-        !self.get_style(Editable, true))
+        !self.editable())
     {
       return false;
     }
@@ -4356,7 +4360,7 @@ bool Document::Impl::prepare_insert(bool include_previous_word) {
     return true;
   }
   else {
-    if(self.selection_box() && self.selection_box()->edit_selection(self.context.selection)) {
+    if(self.selection_box() && self.selection_box()->edit_selection(self.context.selection, EditAction::DoIt)) {
       self.native()->on_editing();
       close_popup_windows_on_parent_changed(self.context.selection.get_all());
       set_prev_sel_line();
@@ -4634,7 +4638,7 @@ bool Document::Impl::is_tabkey_only_moving() {
 
 void Document::Impl::indent_selection(bool unindent) {
   Box *selbox = self.context.selection.get();
-  if(selbox->edit_selection(self.context.selection)) {
+  if(selbox->edit_selection(self.context.selection, EditAction::DoIt)) {
     if(auto seq = dynamic_cast<AbstractSequence *>(selbox)) {
       self.native()->on_editing();
       
@@ -4700,7 +4704,7 @@ void Document::Impl::handle_key_backspace(SpecialKeyEvent &event) {
   Box *selbox = self.context.selection.get();
   if( self.context.selection.start == 0 &&
       selbox &&
-      selbox->get_style(Editable) &&
+      selbox->editable() &&
       selbox->parent() &&
       selbox->parent()->exitable())
   {

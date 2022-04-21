@@ -160,28 +160,30 @@ void OwnerBox::child_transformation(
                          cy/* + _extents.ascent*/);
 }
 
-bool OwnerBox::edit_selection(SelectionReference &selection) {
-  if(base::edit_selection(selection)) {
-    bool auto_delete = 0 != get_own_style(AutoDelete, false);
-    
-    Box *selbox = selection.get();
-    if(auto_delete && selbox != this) {
-      if(auto seq = dynamic_cast<AbstractSequence*>(parent())) {
-        if(selbox == _content) {
-          selection.set(seq,
-                        selection.start + _index,
-                        selection.end   + _index);
-        }
-        
-        seq->insert(_index + 1, _content, 0, _content->length());
-        seq->remove(_index, _index + 1);
-      }
-    }
-    
+bool OwnerBox::edit_selection(SelectionReference &selection, EditAction action) {
+  if(!base::edit_selection(selection, action))
+    return false;
+  
+  if(action == EditAction::DryRun)
     return true;
+  
+  bool auto_delete = 0 != get_own_style(AutoDelete, false);
+  
+  Box *selbox = selection.get();
+  if(auto_delete && selbox != this) {
+    if(auto seq = dynamic_cast<AbstractSequence*>(parent())) {
+      if(selbox == _content) {
+        selection.set(seq,
+                      selection.start + _index,
+                      selection.end   + _index);
+      }
+      
+      seq->insert(_index + 1, _content, 0, _content->length());
+      seq->remove(_index, _index + 1);
+    }
   }
   
-  return false;
+  return true;
 }
 
 //} ... class OwnerBox

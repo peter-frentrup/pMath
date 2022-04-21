@@ -53,6 +53,7 @@ namespace richmath {
       static bool            put_DebugTrackDynamicUpdateCauses(FrontEndObject *obj, Expr item, Expr rhs);
       static Expr            get_DocumentScreenDpi(FrontEndObject *obj, Expr item);
       static Expr            get_DynamicUpdateCauseLocation(FrontEndObject *obj, Expr item);
+      static Expr            get_Editable(FrontEndObject *obj, Expr item);
       static Expr            get_MouseOver(FrontEndObject *obj, Expr item);
       static Expr            get_SectionGroupOpen(FrontEndObject *obj, Expr item);
       static bool            put_SectionGroupOpen(FrontEndObject *obj, Expr item, Expr rhs);
@@ -72,6 +73,7 @@ namespace richmath {
 
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_Automatic;
+extern pmath_symbol_t richmath_System_Editable;
 extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_Hold;
 extern pmath_symbol_t richmath_System_HoldComplete;
@@ -107,6 +109,8 @@ void CurrentValue::init() {
                                                              Impl::put_DebugTrackDynamicUpdateCauses);
   register_provider(strings::DocumentScreenDpi,              Impl::get_DocumentScreenDpi);
   register_provider(String("DynamicUpdateCauseLocation"),    Impl::get_DynamicUpdateCauseLocation);
+  register_provider(Symbol(richmath_System_Editable),        Impl::get_Editable,
+                                                             Style::put_current_style_value);
   register_provider(strings::MouseOver,                      Impl::get_MouseOver);
   register_provider(strings::MouseOverBox,                   Document::get_current_value_of_MouseOverBox);
   register_provider(Symbol(richmath_System_Section),         Impl::get_parent_box<Section>);
@@ -370,6 +374,14 @@ Expr CurrentValueImpl::get_DynamicUpdateCauseLocation(FrontEndObject *obj, Expr 
   }
   
   return Symbol(richmath_System_DollarFailed);
+}
+
+Expr CurrentValueImpl::get_Editable(FrontEndObject *obj, Expr item) {
+  if(Box *box = dynamic_cast<Box*>(obj)) {
+    return box->editable();
+  } 
+  
+  return Style::get_current_style_value(obj, std::move(item));
 }
 
 Expr CurrentValueImpl::get_MouseOver(FrontEndObject *obj, Expr item) {

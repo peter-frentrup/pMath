@@ -256,10 +256,10 @@ void DynamicBox::dynamic_finished(Expr info, Expr result) {
   invalidate();
 }
 
-bool DynamicBox::edit_selection(SelectionReference &selection) {
+bool DynamicBox::edit_selection(SelectionReference &selection, EditAction action) {
   if(get_own_style(Editable, false)) {
     if(auto p = parent())
-      return p->edit_selection(selection);
+      return p->edit_selection(selection, action);
   }
   
   return false;

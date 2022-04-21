@@ -318,7 +318,7 @@ VolatileSelection PaneSelectorBox::mouse_selection(Point pos, bool *was_inside_s
   return base::mouse_selection(pos, was_inside_start);
 }
 
-bool PaneSelectorBox::edit_selection(SelectionReference &selection) {
+bool PaneSelectorBox::edit_selection(SelectionReference &selection, EditAction action) {
   if(_current_selection < 0 || _current_selection >= _cases.length())
     return false;
   
@@ -335,7 +335,7 @@ bool PaneSelectorBox::edit_selection(SelectionReference &selection) {
         return false;
   }
   
-  return base::edit_selection(selection);
+  return base::edit_selection(selection, action);
 }
 
 Expr PaneSelectorBox::to_literal() {

@@ -961,7 +961,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
     if(_sections[i]->dialog_start())
       style = style + BorderSession;
       
-    if(!_sections[i]->get_style(Editable))
+    if(!_sections[i]->editable())
       style = style + BorderNoEditable;
       
     if(dynamic_cast<TextSection *>(_sections[i]))

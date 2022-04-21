@@ -413,7 +413,7 @@ void Application::gui_print_section(Expr expr) {
            ctx,
            strings::DollarContext_namespace);
   
-  if(doc && doc->get_own_style(Editable)) {
+  if(doc && doc->editable()) {
     int index;
     if(sect && sect->parent() == doc) {
       index = sect->index() + 1;

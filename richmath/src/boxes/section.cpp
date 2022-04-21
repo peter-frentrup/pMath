@@ -180,10 +180,13 @@ void Section::invalidate() {
   base::invalidate();
 }
 
-bool Section::edit_selection(SelectionReference &selection) {
-  if(!base::edit_selection(selection))
+bool Section::edit_selection(SelectionReference &selection, EditAction action) {
+  if(!base::edit_selection(selection, action))
     return false;
-    
+  
+  if(action == EditAction::DryRun)
+    return true;
+  
   if( get_style(SectionLabel).length() > 0 &&
       get_style(SectionLabelAutoDelete))
   {

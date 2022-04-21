@@ -164,7 +164,7 @@ void NativeWidget::set_custom_scale(float s) {
 }
 
 bool NativeWidget::may_drop_into(const VolatileSelection &dst, bool self_is_source) {
-  if(!dst || !dst.box->get_style(Editable) || !dst.box->selectable(dst.start))
+  if(!dst || !dst.box->editable() || !dst.box->selectable(dst.start))
     return false;
     
   if(self_is_source) {

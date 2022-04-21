@@ -352,29 +352,31 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-bool NumberBox::edit_selection(SelectionReference &selection) {
-  if(Box::edit_selection(selection)) {
-    auto seq = dynamic_cast<AbstractSequence*>(parent());
-    if(!seq)
-      return false;
-      
-    Box *selbox = selection.get();
-    PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, selection.start);
-    PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, selection.end);
+bool NumberBox::edit_selection(SelectionReference &selection, EditAction action) {
+  if(!Box::edit_selection(selection, action)) 
+    return false;
     
-    if(!pos_start.is_valid() || !pos_end.is_valid())
-      return false;
+  auto seq = dynamic_cast<AbstractSequence*>(parent());
+  if(!seq)
+    return false;
     
-    int i = _index;
-    
-    seq->insert(_index + 1, _number);
-    seq->remove(_index, _index + 1); // deletes this
-    
-    selection.set(seq, i + pos_start.pos, i + pos_end.pos);
-    return true;
-  }
+  Box *selbox = selection.get();
+  PositionInRange pos_start = Impl(*this).selection_to_string_index(selbox, selection.start);
+  PositionInRange pos_end = Impl(*this).selection_to_string_index(selbox, selection.end);
   
-  return false;
+  if(!pos_start.is_valid() || !pos_end.is_valid())
+    return false;
+  
+  if(action == EditAction::DryRun)
+    return true;
+  
+  int i = _index;
+  
+  seq->insert(_index + 1, _number);
+  seq->remove(_index, _index + 1); // deletes this
+  
+  selection.set(seq, i + pos_start.pos, i + pos_end.pos);
+  return true;
 }
 
 void NumberBox::resize_default_baseline(Context &context) {

@@ -152,7 +152,7 @@ MathSequence *TemplateBox::as_inline_span() {
   return dynamic_cast<MathSequence*>(content());
 }
 
-bool TemplateBox::edit_selection(SelectionReference &selection) {
+bool TemplateBox::edit_selection(SelectionReference &selection, EditAction action) {
   return false;
 }
 
@@ -500,13 +500,13 @@ MathSequence *TemplateBoxSlot::as_inline_span() {
   return dynamic_cast<MathSequence*>(content());
 }
 
-bool TemplateBoxSlot::edit_selection(SelectionReference &selection) {
+bool TemplateBoxSlot::edit_selection(SelectionReference &selection, EditAction action) {
   if(TemplateBox *owner = find_owner_in_same_document()) {
     if(owner->parent())
-      return owner->parent()->edit_selection(selection);
+      return owner->parent()->edit_selection(selection, action);
   }
   
-  return base::edit_selection(selection);
+  return base::edit_selection(selection, action);
 }
 
 bool TemplateBoxSlot::selectable(int i) {

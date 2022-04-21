@@ -410,7 +410,7 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
 bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
   Document *doc = Documents::selected_document();
   
-  if(!doc || !doc->get_style(Editable))
+  if(!doc || !doc->editable())
     return false;
   
   if(doc->native()->owner_document())
@@ -427,7 +427,7 @@ bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
 MenuCommandStatus DocumentsImpl::can_edit_style_definitions(Expr cmd) {
   Document *doc = Documents::selected_document();
   
-  if(!doc || !doc->get_style(Editable))
+  if(!doc || !doc->editable())
     return MenuCommandStatus(false);
   
   if(doc->native()->owner_document())

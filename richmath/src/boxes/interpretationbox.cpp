@@ -81,10 +81,13 @@ Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
   return e;
 }
 
-bool InterpretationBox::edit_selection(SelectionReference &selection) {
-  if(!base::edit_selection(selection))
+bool InterpretationBox::edit_selection(SelectionReference &selection, EditAction action) {
+  if(!base::edit_selection(selection, action))
     return false;
-    
+  
+  if(action == EditAction::DryRun)
+    return true;
+  
   if(get_own_style(AutoDelete)) {
     if(MathSequence *seq = dynamic_cast<MathSequence *>(parent())) {
       int len = _content->length();

@@ -311,7 +311,7 @@ void Win32Widget::do_drag_drop(const VolatileSelection &src, MouseEvent &event) 
   drop_source->description_data.copy(data_object);
   
   DWORD effect = DROPEFFECT_COPY;
-  if(src.box->get_style(Editable))
+  if(src.box->editable())
     effect |= DROPEFFECT_MOVE;
   
   if(Win32Themes::is_app_themed()) {

@@ -23,7 +23,7 @@ namespace richmath {
       
       virtual MathSequence *as_inline_span() override;
       
-      virtual bool edit_selection(SelectionReference &selection) override;
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
       virtual bool selectable(int i = -1) override;
       virtual VolatileSelection normalize_selection(int start, int end) override;
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
@@ -99,7 +99,7 @@ namespace richmath {
       
       virtual MathSequence *as_inline_span() override;
       
-      virtual bool edit_selection(SelectionReference &selection) override;
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
       virtual bool selectable(int i = -1) override;
       
       virtual Box *move_logical(

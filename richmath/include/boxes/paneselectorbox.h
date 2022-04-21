@@ -47,7 +47,7 @@ namespace richmath {
         
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
       
-      virtual bool edit_selection(SelectionReference &selection) override;
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
     
     private:
       Expr to_literal();

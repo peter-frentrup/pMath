@@ -155,7 +155,7 @@ namespace richmath {
       
       void toggle_open_close_current_group();
       
-      bool complete_box(bool do_it);
+      bool complete_box(EditAction action);
       
       Box *selection_box() {   return context.selection.get();   }
       int selection_start() {  return context.selection.start; }

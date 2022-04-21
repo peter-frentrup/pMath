@@ -136,7 +136,7 @@ static bool set_style_cmd(Expr cmd);
 static bool similar_section_below_cmd(Expr cmd);
 static bool subsession_evaluate_sections_cmd(Expr cmd);
 static bool toggle_character_code(Expr cmd);
-static bool try_toggle_character_code(bool do_it);
+static bool try_toggle_character_code(EditAction action);
 //} ... menu commands
 
 //{ strings.inc ...
@@ -547,7 +547,7 @@ static MenuCommandStatus can_convert_dynamic_to_literal(Expr cmd) {
     return MenuCommandStatus(false);
     
   Box *sel = doc->selection_box();
-  if(!sel || !sel->get_style(Editable))
+  if(!sel || !sel->editable())
     return MenuCommandStatus(false);
     
   return MenuCommandStatus(true);
@@ -560,7 +560,7 @@ static MenuCommandStatus can_copy_cut(Expr cmd) {
     
   if(cmd == strings::Cut) {
     Box *sel = doc->selection_box();
-    return MenuCommandStatus(sel && sel->get_style(Editable));
+    return MenuCommandStatus(sel && sel->editable());
   }
   
   return MenuCommandStatus(true);
@@ -592,7 +592,14 @@ static MenuCommandStatus can_document_write(Expr cmd) {
     return MenuCommandStatus(false);
     
   Box *sel = doc->selection_box();
-  return MenuCommandStatus(sel && sel->get_style(Editable));
+  
+  pmath_debug_print_object("[can ", cmd.get(), " ");
+  Expr tmp = doc->to_pmath_id();
+  pmath_debug_print_object("on ", tmp.get(), ", ");
+  tmp = sel ? sel->to_pmath_id() : Expr();
+  pmath_debug_print_object("sel ", tmp.get(), " ?]\n");
+  
+  return MenuCommandStatus(sel && sel->editable());
 }
 
 static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
@@ -628,7 +635,7 @@ static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
 
 static MenuCommandStatus can_edit_boxes(Expr cmd) {
   Document *doc = Documents::selected_document();
-  return MenuCommandStatus(doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable));
+  return MenuCommandStatus(doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->editable());
 }
 
 static MenuCommandStatus can_expand_selection(Expr cmd) {
@@ -728,7 +735,7 @@ static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd) {
     return MenuCommandStatus(false);
     
   if(auto seq = dynamic_cast<AbstractSequence *>(doc->selection_box())) 
-    return MenuCommandStatus(seq->get_style(Editable));
+    return MenuCommandStatus(seq->editable());
   
   return MenuCommandStatus(false);
 }
@@ -738,7 +745,7 @@ static MenuCommandStatus can_insert_opposite_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  return MenuCommandStatus(doc->complete_box(false));
+  return MenuCommandStatus(doc->complete_box(EditAction::DryRun));
 }
 
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
@@ -818,8 +825,12 @@ static MenuCommandStatus can_set_style(Expr cmd) {
   if(!obj)
     return MenuCommandStatus(false);
   
-  if(status.enabled)
-    status.enabled = obj->get_style(Editable);
+  if(status.enabled) {
+    if(auto box = dynamic_cast<Box*>(obj))
+      status.enabled = box->editable();
+    else
+      status.enabled = obj->get_style(Editable);
+  }
   
   if(Menus::current_scope == MenuCommandScope::Document) {
     status.checked = has_style(doc, lhs_key, rhs);
@@ -852,7 +863,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
 
 static MenuCommandStatus can_similar_section_below(Expr cmd) {
   Document *doc = Documents::selected_document();
-  if(!doc || !doc->get_style(Editable))
+  if(!doc || !doc->editable())
     return MenuCommandStatus(false);
     
   Box *box = doc->selection_box();
@@ -868,7 +879,7 @@ static MenuCommandStatus can_subsession_evaluate_sections(Expr cmd) {
 }
 
 static MenuCommandStatus can_toggle_character_code(Expr cmd) {
-  return try_toggle_character_code(false);
+  return try_toggle_character_code(EditAction::DryRun);
 }
 
 //} ... menu command availability checkers
@@ -895,7 +906,7 @@ static bool convert_dynamic_to_literal(Expr cmd) {
     return false;
     
   VolatileSelection sel = doc->selection_now();
-  if(!sel || !sel.box->get_style(Editable))
+  if(!sel || !sel.box->editable())
     return false;
     
   sel.dynamic_to_literal();
@@ -1312,7 +1323,7 @@ static bool insert_opposite_cmd(Expr cmd) {
   if(!doc)
     return false;
     
-  if(doc->complete_box(true))
+  if(doc->complete_box(EditAction::DoIt))
     return true;
   
   doc->native()->beep();
@@ -1629,10 +1640,10 @@ static bool subsession_evaluate_sections_cmd(Expr cmd) {
 }
 
 static bool toggle_character_code(Expr cmd) {
-  return try_toggle_character_code(true);
+  return try_toggle_character_code(EditAction::DoIt);
 }
 
-static bool try_toggle_character_code(bool do_it) {
+static bool try_toggle_character_code(EditAction action) {
   Document *doc = Documents::selected_document();
   if(!doc)
     return false;
@@ -1640,13 +1651,9 @@ static bool try_toggle_character_code(bool do_it) {
   AbstractSequence *seq = nullptr;
   auto sel = doc->selection();
   if(auto box = sel.get()) {
-    if(do_it) {
-      if(!box->edit_selection(sel))
-        return false;
-    }
-    else if(!box->get_style(Editable))
+    if(!box->edit_selection(sel, action))
       return false;
-    
+      
     seq = dynamic_cast<AbstractSequence*>(sel.get());
   }
   
@@ -1694,7 +1701,7 @@ static bool try_toggle_character_code(bool do_it) {
         return false;
     }
     
-    if(do_it) {
+    if(action == EditAction::DoIt) {
       doc->native()->on_editing();
       int pos = seq->insert(sel.end, unichar);
       seq->remove(sel.start, sel.end);
@@ -1707,7 +1714,7 @@ static bool try_toggle_character_code(bool do_it) {
   if(unichar == PMATH_CHAR_BOX)
     return false;
   
-  if(do_it) {
+  if(action == EditAction::DoIt) {
     if(is_utf16_low(unichar) && sel.start <= sel.end - 2 && is_utf16_high(buf[sel.end - 2])) {
       uint32_t hi = buf[sel.end - 2];
       uint32_t lo = unichar;

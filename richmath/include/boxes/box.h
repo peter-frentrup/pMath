@@ -27,6 +27,11 @@ namespace richmath {
     Touch
   };
   
+  enum class EditAction {
+    DryRun,
+    DoIt
+  };
+  
   class MouseEvent {
     public:
       MouseEvent();
@@ -368,7 +373,10 @@ namespace richmath {
       /// 
       /// This function usually first calls parent()->edit_selection(). It is only called before
       /// user initiated operations.
-      virtual bool edit_selection(SelectionReference &selection); // *not* automatically called
+      virtual bool edit_selection(SelectionReference &selection, EditAction action); // *not* automatically called
+      
+      /// Test whether this box' content is editable.
+      bool editable();
       
       /// Get the box that captures mouse input when the a mouse button is pressed at this box.
       /// Capturing takes place until the last mouse button is released or until explicitly canceled.

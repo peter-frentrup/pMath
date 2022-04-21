@@ -73,7 +73,7 @@ bool AutoCompletion::Private::continue_completion(LogicalDirection direction) {
   Expr boxes = current_boxes_list[(size_t)current_index];
   
   if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(pub->range.get())) {
-    if(!seq->get_style(Editable))
+    if(!seq->editable())
       return false;
       
     BoxInputFlags options = BoxInputFlags::Default;
@@ -505,7 +505,7 @@ AutoCompletion::~AutoCompletion() {
 bool AutoCompletion::next(LogicalDirection direction) {
   if(!range.id) {
     Box *selbox = priv->document->selection_box();
-    if(!selbox || !selbox->get_style(Editable))
+    if(!selbox || !selbox->editable())
       return false;
       
     if(priv->start_alias(direction))

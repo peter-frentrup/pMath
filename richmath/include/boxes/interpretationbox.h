@@ -20,7 +20,7 @@ namespace richmath {
       virtual Expr to_pmath_symbol() override;
       virtual Expr to_pmath(BoxOutputFlags flags) override;
       
-      virtual bool edit_selection(SelectionReference &selection) override;
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
       
     public:
       Expr interpretation;

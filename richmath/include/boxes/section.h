@@ -76,7 +76,7 @@ namespace richmath {
       virtual bool request_repaint(const RectangleF &rect) override;
       virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       virtual void invalidate() override;
-      virtual bool edit_selection(SelectionReference &selection) override;
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
       
       virtual bool changes_children_style() override { return true; }
       
@@ -236,7 +236,7 @@ namespace richmath {
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
       
-      virtual bool edit_selection(SelectionReference &selection) override { return false; }
+      virtual bool edit_selection(SelectionReference &selection, EditAction action) override { return false; }
       virtual bool selectable(int i = -1) override { return i < 0; }
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
