@@ -315,7 +315,7 @@ void Win32MenuSearchOverlay::Impl::update_query(String str, HMENU menu) {
 }
 
 bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
-  Document *doc = Documents::selected_document();
+  Document *doc = Menus::current_document();
   if(!doc)
     return false;
   
@@ -346,7 +346,7 @@ bool Win32MenuSearchOverlay::Impl::do_open_help_menu(Expr cmd) {
 }
 
 bool Win32MenuSearchOverlay::Impl::open_menu_hierarchy(Expr item_cmd) {
-  Document *doc = Documents::selected_document();
+  Document *doc = Menus::current_document();
   if(!doc)
     return false;
   

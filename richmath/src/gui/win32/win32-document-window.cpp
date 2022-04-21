@@ -1565,6 +1565,10 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         /* no break */
       case WM_COMMAND: {
           Expr cmd = Win32Menu::id_to_command(LOWORD(wParam));
+          
+          AutoValueReset<Document*> auto_reset(Menus::current_document_redirect);
+          Menus::current_document_redirect = document();
+  
           Menus::run_command_now(std::move(cmd));
         } return 0;
         

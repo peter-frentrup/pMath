@@ -5,6 +5,9 @@
 #include <util/pmath-extra.h>
 
 namespace richmath {
+  class Document;
+  class FrontEndObject;
+  
   enum class MenuItemType {
     Invalid,
     Normal,
@@ -63,7 +66,13 @@ namespace richmath {
       static void init();
       static void done();
       
-      static MenuCommandScope current_scope;
+      static MenuCommandScope  current_scope;
+      static Document         *current_document_redirect;
+      
+      static FrontEndObject *current_object();
+      static FrontEndObject *current_selection();
+      static Document       *current_document();
+      
       static void run_command_async(Expr cmd); // callable from non-GUI thread
       
       static bool run_command_now(Expr cmd);

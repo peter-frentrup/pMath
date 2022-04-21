@@ -1114,6 +1114,9 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
   MenuExitInfo exit_info;
   DWORD cmd;
   {
+    AutoValueReset<Document*> auto_menu_redirect{ Menus::current_document_redirect };
+    Menus::current_document_redirect = document();
+    
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
     Win32Menu::use_dark_mode = is_using_dark_mode();
     cmd = TrackPopupMenuEx(
@@ -1697,6 +1700,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if(cmd.is_null())
             break;
             
+          AutoValueReset<Document*> auto_reset(Menus::current_document_redirect);
+          Menus::current_document_redirect = document();
+  
           Menus::run_command_now(cmd);
         } return 0;
       
@@ -1913,6 +1919,9 @@ void Win32Widget::ask_drop_data(IDataObject *data_object, POINTL pt, DWORD *effe
   MenuExitInfo exit_info;
   DWORD cmd;
   {
+    AutoValueReset<Document*> auto_menu_redirect{ Menus::current_document_redirect };
+    Menus::current_document_redirect = document();
+    
     Win32AutoMenuHook menu_hook(menu, _hwnd, nullptr, false, false);
     Win32Menu::use_dark_mode = is_using_dark_mode();
     cmd = TrackPopupMenuEx(

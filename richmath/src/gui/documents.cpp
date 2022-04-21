@@ -306,7 +306,7 @@ bool Documents::locate_document_from_command(Expr item_cmd) {
 //{ class DocumentsImpl ...
 
 bool DocumentsImpl::show_hide_menu_cmd(Expr cmd) {
-  Document * const doc = Documents::selected_document();
+  Document * const doc = Menus::current_document();
   if(!doc)
     return false;
   
@@ -316,7 +316,7 @@ bool DocumentsImpl::show_hide_menu_cmd(Expr cmd) {
 }
 
 MenuCommandStatus DocumentsImpl::can_show_hide_menu(Expr cmd) {
-  Document * const doc = Documents::selected_document();
+  Document * const doc = Menus::current_document();
   if(!doc)
     return false;
   
@@ -326,7 +326,7 @@ MenuCommandStatus DocumentsImpl::can_show_hide_menu(Expr cmd) {
 }
 
 bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
-  Document * const doc = Documents::selected_document();
+  Document * const doc = Menus::current_document();
   if(!doc)
     return false;
   
@@ -408,7 +408,7 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
 }
 
 bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
-  Document *doc = Documents::selected_document();
+  Document *doc = Menus::current_document();
   
   if(!doc || !doc->editable())
     return false;
@@ -425,7 +425,7 @@ bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
 }
 
 MenuCommandStatus DocumentsImpl::can_edit_style_definitions(Expr cmd) {
-  Document *doc = Documents::selected_document();
+  Document *doc = Menus::current_document();
   
   if(!doc || !doc->editable())
     return MenuCommandStatus(false);
@@ -872,7 +872,7 @@ void StylesMenuImpl::done() {
 }
 
 MenuCommandStatus StylesMenuImpl::can_set_style(Expr cmd) {
-  Document * const doc = Documents::selected_document();
+  Document * const doc = Menus::current_document();
   if(!doc)
     return false;
   
@@ -886,7 +886,7 @@ MenuCommandStatus StylesMenuImpl::can_set_style(Expr cmd) {
 }
 
 bool StylesMenuImpl::set_style(Expr cmd) {
-  Document * const doc = Documents::selected_document();
+  Document * const doc = Menus::current_document();
   if(!doc)
     return false;
     
@@ -983,7 +983,7 @@ String StylesMenuImpl::style_name_from_command_key(int command_key) {
       
 const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
   SharedPtr<Stylesheet> stylesheet;
-  if(Document *doc = Documents::selected_document())
+  if(Document *doc = Menus::current_document())
     stylesheet = doc->stylesheet();
   
   if(!stylesheet) {

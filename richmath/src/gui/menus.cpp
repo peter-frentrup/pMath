@@ -12,6 +12,7 @@
 #  include <gui/gtk/mgtk-document-window.h>
 #endif
 
+#include <gui/document.h>
 #include <gui/documents.h>
 
 #include <algorithm>
@@ -51,7 +52,8 @@ static Expr get_search_commands(Expr name);
 
 //{ class Menus ...
 
-MenuCommandScope Menus::current_scope = MenuCommandScope::Selection;
+MenuCommandScope  Menus::current_scope = MenuCommandScope::Selection;
+Document         *Menus::current_document_redirect = nullptr;
 
 void Menus::init() {
   register_dynamic_submenu(strings::MenuListSearchCommands, get_search_commands);
@@ -65,6 +67,59 @@ void Menus::done() {
   dynamic_menu_list_item_locators.clear();
   dynamic_menu_list_item_locator_testers.clear();
   current_query = String();
+}
+
+FrontEndObject *Menus::current_object() {
+  switch(current_scope) {
+    case MenuCommandScope::FrontEndSession:
+      return Application::front_end_session;
+    
+    case MenuCommandScope::Document:
+      if(current_document_redirect)
+        return current_document_redirect;
+      return Documents::selected_document();
+    
+    case MenuCommandScope::Selection:
+      if(auto doc = current_document_redirect)
+        return doc->selection_box();
+      if(auto doc = Documents::selected_document())
+        return doc->selection_box();
+      return nullptr;
+  }
+  
+  return nullptr;
+}
+
+FrontEndObject *Menus::current_selection() {
+  switch(current_scope) {
+    case MenuCommandScope::FrontEndSession:
+      return Application::front_end_session;
+    
+    case MenuCommandScope::Document:
+    case MenuCommandScope::Selection:
+      if(auto doc = current_document_redirect)
+        return doc->selection_box();
+      if(auto doc = Documents::selected_document())
+        return doc->selection_box();
+      return nullptr;
+  }
+  
+  return nullptr;
+}
+
+Document *Menus::current_document() {
+  switch(current_scope) {
+    case MenuCommandScope::FrontEndSession: 
+      return nullptr;
+    
+    case MenuCommandScope::Document:
+    case MenuCommandScope::Selection:
+      if(current_document_redirect)
+        return current_document_redirect;
+      return Documents::selected_document();
+  }
+  
+  return nullptr;
 }
 
 void Menus::run_command_async(Expr cmd) {
@@ -307,7 +362,7 @@ static Expr get_search_commands(Expr name) {
     }
 #endif
 #ifdef RICHMATH_USE_GTK_GUI
-    if(auto doc = Documents::selected_document()) {
+    if(auto doc = Menus::current_document()) {
       if(auto wid = dynamic_cast<MathGtkWidget*>(doc->native())) {
         GtkWidget *toplevel = gtk_widget_get_toplevel(wid->widget());
         if(auto win = dynamic_cast<MathGtkDocumentWindow*>(BasicGtkWidget::from_widget(toplevel))) {

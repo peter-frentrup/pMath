@@ -12,6 +12,7 @@
 #include <gui/documents.h>
 #include <gui/menus.h>
 
+#include <util/autovaluereset.h>
 #include <util/hashtable.h>
 
 #if GTK_MAJOR_VERSION >= 3
@@ -245,6 +246,11 @@ void MathGtkMenuBuilder::connect_events(GtkMenu *menu, FrontEndReference doc_id)
 }
 
 void MathGtkMenuBuilder::expand_inline_lists(GtkMenu *menu, FrontEndReference id) {
+  AutoValueReset<Document*> auto_menu_redirect{ Menus::current_document_redirect };
+  
+  if(auto box = FrontEndObject::find_cast<Box>(id))
+    Menus::current_document_redirect = box->find_parent<Document>(true);
+  
   GtkAccelGroup *accel_group = gtk_menu_get_accel_group(menu);
   
   Array<GtkWidget*> old_menu_items;
@@ -1371,7 +1377,7 @@ GtkWidget *MathGtkMenuSearch::get_entry(GtkWidget *menu_item) {
 }
 
 bool MathGtkMenuSearch::do_open_help_menu(Expr cmd) {
-  auto doc = Documents::selected_document();
+  auto doc = Menus::current_document();
   if(!doc)
     return false;
     

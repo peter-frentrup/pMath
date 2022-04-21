@@ -1223,8 +1223,15 @@ Expr Application::interrupt_wait_cached(Expr expr) {
 }
 
 void Application::with_evaluation_box(FrontEndObject *obj, void(*callback)(void*), void *arg) {
+  AutoValueReset<Document*>         auto_menu_redirect{ Menus::current_document_redirect };
   AutoValueReset<FrontEndReference> auto_reset(current_evaluation_object_id);
+  
   current_evaluation_object_id = obj ? obj->id() : FrontEndReference::None;
+  
+  if(auto box = dynamic_cast<Box*>(obj))
+    Menus::current_document_redirect = box->find_parent<Document>(true);
+  else
+    Menus::current_document_redirect = nullptr;
   
   callback(arg);
 }

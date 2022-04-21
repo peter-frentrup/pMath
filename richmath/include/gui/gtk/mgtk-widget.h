@@ -214,7 +214,7 @@ namespace richmath {
       virtual bool on_leave_notify(GdkEvent *e);
       virtual bool on_scroll(GdkEvent *e);
       
-      GtkMenu *create_popup_menu(VolatileSelection src, ObjectStyleOptionName style_name = ContextMenu);
+      GtkMenu *create_popup_menu(VolatileSelection src, ObjectStyleOptionName style_name);
       
       virtual void do_set_selected_document() {}
       static gboolean blink_caret(gpointer id_as_ptr);

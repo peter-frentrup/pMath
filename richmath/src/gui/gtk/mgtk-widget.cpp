@@ -1224,7 +1224,7 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
     if(!src.box)
       src = VolatileSelection(document(), 0);
     
-    if(auto menu = create_popup_menu(src)) {
+    if(auto menu = create_popup_menu(src, ContextMenu)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
       g_object_unref(menu);
     }
@@ -1302,7 +1302,7 @@ bool MathGtkWidget::on_button_press(GdkEvent *e) {
     if(!src.box)
       src = VolatileSelection(document(), 0);
     
-    if(auto menu = create_popup_menu(src)) {
+    if(auto menu = create_popup_menu(src, ContextMenu)) {
       gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, event->button, event->time);
       g_object_unref(menu);
     }
