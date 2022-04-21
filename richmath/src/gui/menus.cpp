@@ -307,7 +307,7 @@ static Expr get_search_commands(Expr name) {
     }
 #endif
 #ifdef RICHMATH_USE_GTK_GUI
-    if(auto doc = Documents::current()) {
+    if(auto doc = Documents::selected_document()) {
       if(auto wid = dynamic_cast<MathGtkWidget*>(doc->native())) {
         GtkWidget *toplevel = gtk_widget_get_toplevel(wid->widget());
         if(auto win = dynamic_cast<MathGtkDocumentWindow*>(BasicGtkWidget::from_widget(toplevel))) {

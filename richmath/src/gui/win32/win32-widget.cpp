@@ -970,7 +970,7 @@ void Win32Widget::on_mousedown(MouseEvent &event) {
     SetWindowPos(GetAncestor(_hwnd, GA_ROOT), HWND_TOP, 0, 0, 1, 1, SWP_NOSIZE | SWP_NOMOVE | SWP_NOACTIVATE);
   }
 //  else {
-//    Document *cur = Documents::current();
+//    Document *cur = Documents::selected_document();
 //    if(cur && cur != document()) {
 //      Win32Widget *wig = dynamic_cast<Win32Widget *>(cur->native());
 //
@@ -1654,7 +1654,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           focussed_document_id = document()->id();
           
           if(document()->selectable())
-            do_set_current_document();
+            do_set_selected_document();
           
           Box *sel_box = document()->selection_box();
           if(sel_box && document()->selection_length() == 0) {

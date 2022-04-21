@@ -29,7 +29,7 @@ namespace richmath {
       virtual void paint_background(Canvas &canvas) override;
       virtual void paint_canvas(Canvas &canvas, bool resize_only) override;
       virtual void on_close() override;
-      virtual void do_set_current_document() override;
+      virtual void do_set_selected_document() override;
       
       virtual LRESULT callback(UINT message, WPARAM wParam, LPARAM lParam) override;
     

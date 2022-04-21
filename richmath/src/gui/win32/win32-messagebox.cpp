@@ -196,7 +196,7 @@ bool richmath::win32_ask_open_suspicious_system_file(String path) {
   
   Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
-    doc = Documents::current();
+    doc = Documents::selected_document();
   
   if(doc) {
     if(Win32Widget *wid = dynamic_cast<Win32Widget*>(doc->native())) {
@@ -225,7 +225,7 @@ Expr richmath::win32_ask_interrupt(Expr stack) {
   Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    doc = Documents::current();
+    doc = Documents::selected_document();
   
   if(Win32Widget *wid = doc ? dynamic_cast<Win32Widget*>(doc->native()) : nullptr) {
     config.dark_mode = wid->has_dark_background();

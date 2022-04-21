@@ -80,7 +80,7 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
   
   Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   if(!box)
-    box = Documents::current();
+    box = Documents::selected_document();
     
   if(box) {
     if(auto doc = box->find_parent<Document>(true)) {

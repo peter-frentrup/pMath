@@ -685,7 +685,7 @@ int main(int argc, char **argv) {
   
   PMATH_RUN("Get(ToFileName({FE`$FrontEndDirectory},\"frontinit-stage2.pmath\"))");
   
-  if(!Documents::current()) {
+  if(!Documents::selected_document()) {
     Document *main_doc = Application::try_create_document();
     if(main_doc) {
       write_text_section(main_doc, "Title", "Welcome");

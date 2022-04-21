@@ -865,7 +865,7 @@ Document *Application::try_create_document() {
     int w = 500;
     int h = 550;
     
-    doc = Documents::current();
+    doc = Documents::selected_document();
     if(doc) {
       auto wid = dynamic_cast<Win32Widget*>(doc->native());
       if(wid) {
@@ -1498,7 +1498,7 @@ static Expr cnt_documentread(Expr data) {
   Document *doc = nullptr;
   
   if(data.expr_length() == 0) {
-    doc = Documents::current();
+    doc = Documents::selected_document();
   }
   else {
     Box *box = FrontEndObject::find_cast<Box>(
@@ -1574,7 +1574,7 @@ namespace {
             doc = box->find_parent<Document>(true);
         }
         else
-          doc = Documents::current();
+          doc = Documents::selected_document();
           
         if(!doc)
           return Symbol(richmath_System_DollarFailed);

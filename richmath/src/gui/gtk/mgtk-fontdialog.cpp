@@ -24,7 +24,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
   GtkWindow *parent_window = nullptr;
   Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
-    doc = Documents::current();
+    doc = Documents::selected_document();
     
   if(doc) {
     if(auto widget = dynamic_cast<MathGtkWidget *>(doc->native())) {

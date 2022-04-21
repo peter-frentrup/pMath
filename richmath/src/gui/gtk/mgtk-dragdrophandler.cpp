@@ -28,7 +28,7 @@ MenuCommandStatus MathGtkDragDropHandler::can_drop(DropAction action) {
   if(!_context)
     return false;
   
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -44,7 +44,7 @@ bool MathGtkDragDropHandler::do_drop(DropAction action) {
   if(!_context)
     return false;
 
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   

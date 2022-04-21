@@ -216,7 +216,7 @@ namespace richmath {
       
       GtkMenu *create_popup_menu(VolatileSelection src, ObjectStyleOptionName style_name = ContextMenu);
       
-      virtual void do_set_current_document() {}
+      virtual void do_set_selected_document() {}
       static gboolean blink_caret(gpointer id_as_ptr);
       
     private:

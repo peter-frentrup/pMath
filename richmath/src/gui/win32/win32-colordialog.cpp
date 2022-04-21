@@ -35,7 +35,7 @@ Expr Win32ColorDialog::show(Color initialcolor) {
   
   Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   if(!box)
-    box = Documents::current();
+    box = Documents::selected_document();
   
   if(box) {
     if(auto doc = box->find_parent<Document>(true)) {

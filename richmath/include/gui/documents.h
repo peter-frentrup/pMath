@@ -18,9 +18,9 @@ namespace richmath {
       static bool init();
       static void done();
       
-      static ObservableValue<FrontEndReference> current_document_id;
-      static Document *current();
-      static void current(Document *document);
+      static ObservableValue<FrontEndReference> selected_document_id;
+      static Document *selected_document();
+      static void selected_document(Document *document);
       
       static Expr make_section_boxes(Expr boxes, Document *doc);
       static bool locate_document_from_command(Expr item_cmd);

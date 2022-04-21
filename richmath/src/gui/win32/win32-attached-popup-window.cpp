@@ -305,8 +305,8 @@ void Win32AttachedPopupWindow::on_close() {
   base::on_close();
 }
 
-void Win32AttachedPopupWindow::do_set_current_document() {
-  Documents::current(document());
+void Win32AttachedPopupWindow::do_set_selected_document() {
+  Documents::selected_document(document());
 }
 
 LRESULT Win32AttachedPopupWindow::callback(UINT message, WPARAM wParam, LPARAM lParam) {

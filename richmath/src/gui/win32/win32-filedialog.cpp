@@ -229,7 +229,7 @@ Expr Win32FileDialog::Impl::show_dialog() {
 HWND Win32FileDialog::Impl::get_dialog_owner() {
   Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   if(!box)
-    box = Documents::current();
+    box = Documents::selected_document();
     
   if(!box)
     return nullptr;

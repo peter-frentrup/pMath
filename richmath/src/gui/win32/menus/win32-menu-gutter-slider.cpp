@@ -89,7 +89,7 @@ void Win32MenuGutterSlider::initialize(HWND hwnd, HMENU menu) {
   if(!control)
     return;
   
-  if(Document *doc = Documents::current()) {
+  if(Document *doc = Documents::selected_document()) {
     DWORD style = GetWindowLongW(control, GWL_STYLE);
     if(StyledObject *obj = Impl(*this).resolve_scope(doc)) {
       StyleOptionName key = Style::get_key(lhs);

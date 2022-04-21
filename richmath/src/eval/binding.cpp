@@ -526,7 +526,7 @@ static pmath_t builtin_interrupt(pmath_expr_t expr) {
 //{ menu command availability checkers ...
 
 static MenuCommandStatus can_save(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
   
@@ -542,7 +542,7 @@ static MenuCommandStatus can_abort_or_interrupt(Expr cmd) {
 }
 
 static MenuCommandStatus can_convert_dynamic_to_literal(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || doc->selection_length() == 0)
     return MenuCommandStatus(false);
     
@@ -554,7 +554,7 @@ static MenuCommandStatus can_convert_dynamic_to_literal(Expr cmd) {
 }
 
 static MenuCommandStatus can_copy_cut(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || !doc->can_copy())
     return MenuCommandStatus(false);
     
@@ -568,7 +568,7 @@ static MenuCommandStatus can_copy_cut(Expr cmd) {
 
 
 static MenuCommandStatus can_open_close_group(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || doc->selection_length() == 0)
     return MenuCommandStatus(false);
     
@@ -576,7 +576,7 @@ static MenuCommandStatus can_open_close_group(Expr cmd) {
 }
 
 static MenuCommandStatus can_do_scoped(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -587,7 +587,7 @@ static MenuCommandStatus can_do_scoped(Expr cmd) {
 }
 
 static MenuCommandStatus can_document_write(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -596,7 +596,7 @@ static MenuCommandStatus can_document_write(Expr cmd) {
 }
 
 static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -627,18 +627,18 @@ static MenuCommandStatus can_duplicate_previous_input_output(Expr cmd) {
 }
 
 static MenuCommandStatus can_edit_boxes(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   return MenuCommandStatus(doc && (doc->selection_length() > 0 || doc->selection_box() != doc) && doc->get_style(Editable));
 }
 
 static MenuCommandStatus can_expand_selection(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   return MenuCommandStatus(doc && doc->selection_box() && doc->selection_box() != doc);
 }
 
 static MenuCommandStatus can_evaluate_in_place(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -649,7 +649,7 @@ static MenuCommandStatus can_evaluate_in_place(Expr cmd) {
 }
 
 static MenuCommandStatus can_evaluate_sections(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc)
     return MenuCommandStatus(false);
@@ -692,7 +692,7 @@ static MenuCommandStatus can_find_evaluating_section(Expr cmd) {
 }
 
 static MenuCommandStatus can_find_matching_fence(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -712,7 +712,7 @@ static MenuCommandStatus can_find_matching_fence(Expr cmd) {
 }
 
 static MenuCommandStatus can_graphics_original_size(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -723,7 +723,7 @@ static MenuCommandStatus can_graphics_original_size(Expr cmd) {
 }
 
 static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -734,7 +734,7 @@ static MenuCommandStatus can_insert_inline_section_cmd(Expr cmd) {
 }
 
 static MenuCommandStatus can_insert_opposite_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -742,7 +742,7 @@ static MenuCommandStatus can_insert_opposite_cmd(Expr cmd) {
 }
 
 static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -767,7 +767,7 @@ static MenuCommandStatus can_remove_from_evaluation_queue(Expr cmd) {
 }
 
 static MenuCommandStatus can_section_merge(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -775,7 +775,7 @@ static MenuCommandStatus can_section_merge(Expr cmd) {
 }
 
 static MenuCommandStatus can_section_split(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return MenuCommandStatus(false);
     
@@ -806,7 +806,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
        status.enabled = MathShaper::available_shapers.search(String(rhs));
   }
   
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   ActiveStyledObject *obj;
   if(Menus::current_scope == MenuCommandScope::FrontEndSession)
     obj = Application::front_end_session;
@@ -851,7 +851,7 @@ static MenuCommandStatus can_set_style(Expr cmd) {
 }
 
 static MenuCommandStatus can_similar_section_below(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || !doc->get_style(Editable))
     return MenuCommandStatus(false);
     
@@ -881,7 +881,7 @@ static bool abort_cmd(Expr cmd) {
 }
 
 static bool close_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -890,7 +890,7 @@ static bool close_cmd(Expr cmd) {
 }
 
 static bool convert_dynamic_to_literal(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || doc->selection_length() == 0)
     return false;
     
@@ -904,7 +904,7 @@ static bool convert_dynamic_to_literal(Expr cmd) {
 }
 
 static bool copy_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || !doc->can_copy())
     return false;
     
@@ -913,7 +913,7 @@ static bool copy_cmd(Expr cmd) {
 }
 
 static bool copy_special_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || !doc->can_copy())
     return false;
     
@@ -926,7 +926,7 @@ static bool copy_special_cmd(Expr cmd) {
 }
 
 static bool cut_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc || !doc->can_copy())
     return false;
     
@@ -940,7 +940,7 @@ static bool do_kernelexecute_cmd(Expr cmd) {
 }
 
 static bool do_scoped_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -956,7 +956,7 @@ static bool document_apply_cmd(Expr cmd) {
     doc = FrontEndObject::find_cast<Document>(ref);
   }
   else if(cmd[1] == richmath_System_Automatic) {
-    doc = Documents::current();
+    doc = Documents::selected_document();
   }
   
   if(!doc) 
@@ -998,7 +998,7 @@ static bool document_write_cmd(Expr cmd) {
     doc = FrontEndObject::find_cast<Document>(ref);
   }
   else if(cmd[1] == richmath_System_Automatic) {
-    doc = Documents::current();
+    doc = Documents::selected_document();
   }
   
   if(!doc)
@@ -1018,7 +1018,7 @@ static bool document_write_cmd(Expr cmd) {
 }
 
 static bool duplicate_previous_input_output_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc)
     return false;
@@ -1055,7 +1055,7 @@ static bool duplicate_previous_input_output_cmd(Expr cmd) {
 }
 
 static bool edit_boxes_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc || !doc->selectable(-1))
     return false;
@@ -1123,7 +1123,7 @@ static bool edit_boxes_cmd(Expr cmd) {
 }
 
 static bool evaluate_in_place_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc)
     return false;
@@ -1141,7 +1141,7 @@ static bool evaluate_in_place_cmd(Expr cmd) {
 }
 
 static bool evaluate_sections_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc)
     return false;
@@ -1192,7 +1192,7 @@ static bool evaluator_subsession_cmd(Expr cmd) {
 }
 
 static bool expand_selection_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc)
     return false;
@@ -1205,7 +1205,7 @@ static bool expand_selection_cmd(Expr cmd) {
 }
 
 static bool find_evaluating_section(Expr cmd) {
-  Document *current_doc = Documents::current();
+  Document *current_doc = Documents::selected_document();
 
   Box *box = Box::find_nearest_box(Application::find_current_job());
   if(!box) {
@@ -1234,7 +1234,7 @@ static bool find_evaluating_section(Expr cmd) {
 }
 
 static bool find_matching_fence_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1256,7 +1256,7 @@ static bool find_matching_fence_cmd(Expr cmd) {
 }
 
 static bool graphics_original_size_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1265,7 +1265,7 @@ static bool graphics_original_size_cmd(Expr cmd) {
 }
 
 static bool insert_column_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1274,7 +1274,7 @@ static bool insert_column_cmd(Expr cmd) {
 }
 
 static bool insert_fraction_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1283,7 +1283,7 @@ static bool insert_fraction_cmd(Expr cmd) {
 }
 
 static bool insert_inline_section_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -1308,7 +1308,7 @@ static bool insert_inline_section_cmd(Expr cmd) {
 }
 
 static bool insert_opposite_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1320,7 +1320,7 @@ static bool insert_opposite_cmd(Expr cmd) {
 }
 
 static bool insert_overscript_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1329,7 +1329,7 @@ static bool insert_overscript_cmd(Expr cmd) {
 }
 
 static bool insert_radical_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1338,7 +1338,7 @@ static bool insert_radical_cmd(Expr cmd) {
 }
 
 static bool insert_row_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1347,7 +1347,7 @@ static bool insert_row_cmd(Expr cmd) {
 }
 
 static bool insert_subscript_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1356,7 +1356,7 @@ static bool insert_subscript_cmd(Expr cmd) {
 }
 
 static bool insert_superscript_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1365,7 +1365,7 @@ static bool insert_superscript_cmd(Expr cmd) {
 }
 
 static bool insert_underscript_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1383,7 +1383,7 @@ static bool new_cmd(Expr cmd) {
   if(!doc)
     return false;
       
-  if(Document *cur = Documents::current()) {
+  if(Document *cur = Documents::selected_document()) {
     doc->native()->try_set_menubar(cur->native()->has_menubar());
   }
   doc->on_style_changed(true);
@@ -1427,7 +1427,7 @@ static bool open_cmd(Expr cmd) {
 }
 
 static bool open_close_group_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1436,7 +1436,7 @@ static bool open_close_group_cmd(Expr cmd) {
 }
 
 static bool paste_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1445,7 +1445,7 @@ static bool paste_cmd(Expr cmd) {
 }
 
 static bool remove_from_evaluation_queue(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1478,7 +1478,7 @@ static bool remove_from_evaluation_queue(Expr cmd) {
 }
 
 static bool save_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -1498,7 +1498,7 @@ static bool saveas_cmd(Expr cmd) {
 }
 
 static bool section_merge_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1510,7 +1510,7 @@ static bool section_merge_cmd(Expr cmd) {
 }
 
 static bool section_split_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1522,7 +1522,7 @@ static bool section_split_cmd(Expr cmd) {
 }
 
 static bool select_all_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1560,7 +1560,7 @@ static bool set_style_cmd(Expr cmd) {
     return true;
   }
   
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1587,7 +1587,7 @@ static bool set_style_cmd(Expr cmd) {
 }
 
 static bool similar_section_below_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -1633,7 +1633,7 @@ static bool toggle_character_code(Expr cmd) {
 }
 
 static bool try_toggle_character_code(bool do_it) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   

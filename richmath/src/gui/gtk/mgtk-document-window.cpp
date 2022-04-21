@@ -147,8 +147,8 @@ class MathGtkDocumentChildWidget: public MathGtkWidget {
     MathGtkDocumentWindow *_parent;
     
   protected:
-    virtual void do_set_current_document() override {
-      Documents::current(_parent->document());
+    virtual void do_set_selected_document() override {
+      Documents::selected_document(_parent->document());
     }
 };
 
@@ -777,8 +777,8 @@ void MathGtkDocumentWindow::after_construction() {
   top()->invalidate();
   bottom()->invalidate();
   
-  if(!Documents::current()) 
-    Documents::current(document());
+  if(!Documents::selected_document()) 
+    Documents::selected_document(document());
   
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_configure>("configure-event");
   signal_connect<MathGtkDocumentWindow, GdkEvent *, &MathGtkDocumentWindow::on_delete>("delete-event");

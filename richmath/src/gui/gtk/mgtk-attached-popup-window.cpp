@@ -53,7 +53,7 @@ namespace richmath {
     
       virtual void paint_background(Canvas &canvas) override;
       virtual void paint_canvas(Canvas &canvas, bool resize_only) override;
-      virtual void do_set_current_document() override;
+      virtual void do_set_selected_document() override;
       
     private:
       MathGtkAttachedPopupWindow *_parent;
@@ -794,8 +794,8 @@ void MathGtkPopupContentArea::paint_canvas(Canvas &canvas, bool resize_only) {
   }
 }
 
-void MathGtkPopupContentArea::do_set_current_document() {
-  Documents::current(document());
+void MathGtkPopupContentArea::do_set_selected_document() {
+  Documents::selected_document(document());
 }
 
 //} ... class MathGtkPopupContentArea

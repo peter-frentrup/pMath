@@ -35,7 +35,7 @@ Expr richmath_eval_FrontEnd_KernelExecute(Expr expr) {
   
   FrontEndObject *src = Application::get_evaluation_object();
   if(!src) {
-    if(auto doc = Documents::current()) {
+    if(auto doc = Documents::selected_document()) {
       src = doc->selection_box();
       if(!src)
         src = doc;

@@ -112,8 +112,8 @@ class Win32DocumentChildWidget: public Win32Widget {
     Win32DocumentWindow *_parent;
   
   protected:
-    virtual void do_set_current_document() override {
-      Documents::current(_parent->document());
+    virtual void do_set_selected_document() override {
+      Documents::selected_document(_parent->document());
     }
     
     virtual void paint_background(Canvas &canvas) override {
@@ -730,8 +730,8 @@ void Win32DocumentWindow::after_construction() {
     }
   }
   
-  if(!Documents::current()) 
-    Documents::current(document());
+  if(!Documents::selected_document()) 
+    Documents::selected_document(document());
   
   creation = false;
   
@@ -1339,7 +1339,7 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
       EnumWindows(DeactivateOthersVisitor::callback, (LPARAM)&visitor);
     }
     else {
-      if(Document *last_doc = Documents::current()) {
+      if(Document *last_doc = Documents::selected_document()) {
         if(auto wid = dynamic_cast<Win32Widget*>(last_doc->native())) {
           HWND root = GetAncestor(wid->hwnd(), GA_ROOT);
           if(!root)
@@ -1362,7 +1362,7 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
     }
   }
   else {
-    if(Document *cur_doc = Documents::current()) {
+    if(Document *cur_doc = Documents::selected_document()) {
       if(auto wid = dynamic_cast<Win32Widget*>(cur_doc->native())) {
         if(hwnd == wid->hwnd() || hwnd == GetAncestor(wid->hwnd(), GA_ROOT)) {
           SendMessageW(hwnd, WM_NCACTIVATE, TRUE, 0);
@@ -1385,7 +1385,7 @@ bool Win32DocumentWindow::handle_ncactivate(LRESULT &res, HWND hwnd, WPARAM wPar
 }
 
 bool Win32DocumentWindow::handle_activateapp(LRESULT &res, HWND hwnd, WPARAM wParam, LPARAM lParam, bool selectable) {
-  Document *current_doc = Documents::current();
+  Document *current_doc = Documents::selected_document();
   
   if(wParam) { // activate
     if(current_doc) {
@@ -1484,7 +1484,7 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
       case WM_SETFOCUS: {
           SetFocus(_working_area->hwnd());
           if(document()->selectable()) {
-            Documents::current(document());
+            Documents::selected_document(document());
           }
         } break;
       

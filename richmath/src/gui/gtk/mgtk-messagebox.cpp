@@ -139,7 +139,7 @@ bool richmath::mgtk_ask_open_suspicious_system_file(String path) {
   
   Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
-    doc = Documents::current();
+    doc = Documents::selected_document();
   
   if(MathGtkWidget *mwid = doc ? dynamic_cast<MathGtkWidget*>(doc->native()) : nullptr) {
     GtkWidget *toplevel = gtk_widget_get_toplevel(mwid->widget());
@@ -213,7 +213,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   Box *box = Box::find_nearest_box(Application::get_evaluation_object());
   Document *doc = box ? box->find_parent<Document>(true) : nullptr;
   if(!doc)
-    doc = Documents::current();
+    doc = Documents::selected_document();
   
   if(MathGtkWidget *mwid = doc ? dynamic_cast<MathGtkWidget*>(doc->native()) : nullptr) {
     GtkWidget *toplevel = gtk_widget_get_toplevel(mwid->widget());

@@ -1371,7 +1371,7 @@ GtkWidget *MathGtkMenuSearch::get_entry(GtkWidget *menu_item) {
 }
 
 bool MathGtkMenuSearch::do_open_help_menu(Expr cmd) {
-  auto doc = Documents::current();
+  auto doc = Documents::selected_document();
   if(!doc)
     return false;
     

@@ -200,7 +200,7 @@ static bool win32_shell_execute_ex(String uri) {
   
   Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
-    doc = Documents::current();
+    doc = Documents::selected_document();
   
   if(doc) {
     if(auto widget = dynamic_cast<Win32Widget *>(doc->native())) {

@@ -214,24 +214,24 @@ void Documents::done() {
   OpenDocumentMenuImpl::done();
 }
 
-ObservableValue<FrontEndReference> Documents::current_document_id { FrontEndReference::None };
+ObservableValue<FrontEndReference> Documents::selected_document_id { FrontEndReference::None };
 
-Document *Documents::current() {
-  return FrontEndObject::find_cast<Document>(current_document_id);
+Document *Documents::selected_document() {
+  return FrontEndObject::find_cast<Document>(selected_document_id);
 }
 
-void Documents::current(Document *document) {
+void Documents::selected_document(Document *document) {
   FrontEndReference id = document ? document->id() : FrontEndReference::None;
-  if(Documents::current_document_id.unobserved_equals(id))
+  if(Documents::selected_document_id.unobserved_equals(id))
     return;
   
-  if(auto old = Documents::current()) 
+  if(auto old = Documents::selected_document()) 
     old->focus_killed(document);
     
   if(document)
     document->focus_set();
     
-  current_document_id = id;
+  selected_document_id = id;
 }
 
 Expr Documents::make_section_boxes(Expr boxes, Document *doc) {
@@ -268,7 +268,7 @@ bool Documents::locate_document_from_command(Expr item_cmd) {
 //{ class DocumentsImpl ...
 
 bool DocumentsImpl::show_hide_menu_cmd(Expr cmd) {
-  Document * const doc = Documents::current();
+  Document * const doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -278,7 +278,7 @@ bool DocumentsImpl::show_hide_menu_cmd(Expr cmd) {
 }
 
 MenuCommandStatus DocumentsImpl::can_show_hide_menu(Expr cmd) {
-  Document * const doc = Documents::current();
+  Document * const doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -288,7 +288,7 @@ MenuCommandStatus DocumentsImpl::can_show_hide_menu(Expr cmd) {
 }
 
 bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
-  Document * const doc = Documents::current();
+  Document * const doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -370,7 +370,7 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
 }
 
 bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc || !doc->get_style(Editable))
     return false;
@@ -387,7 +387,7 @@ bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
 }
 
 MenuCommandStatus DocumentsImpl::can_edit_style_definitions(Expr cmd) {
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   
   if(!doc || !doc->get_style(Editable))
     return MenuCommandStatus(false);
@@ -834,7 +834,7 @@ void StylesMenuImpl::done() {
 }
 
 MenuCommandStatus StylesMenuImpl::can_set_style(Expr cmd) {
-  Document * const doc = Documents::current();
+  Document * const doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -848,7 +848,7 @@ MenuCommandStatus StylesMenuImpl::can_set_style(Expr cmd) {
 }
 
 bool StylesMenuImpl::set_style(Expr cmd) {
-  Document * const doc = Documents::current();
+  Document * const doc = Documents::selected_document();
   if(!doc)
     return false;
     
@@ -945,7 +945,7 @@ String StylesMenuImpl::style_name_from_command_key(int command_key) {
       
 const Array<StylesMenuImpl::StyleItem> &StylesMenuImpl::enum_styles() {
   SharedPtr<Stylesheet> stylesheet;
-  if(Document *doc = Documents::current())
+  if(Document *doc = Documents::selected_document())
     stylesheet = doc->stylesheet();
   
   if(!stylesheet) {
@@ -1014,7 +1014,7 @@ MenuCommandStatus SelectDocumentMenuImpl::can_set_selected_document(Expr cmd) {
   if(cmd.expr_length() != 1) 
     return MenuCommandStatus{ false };
   
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   MenuCommandStatus status { true };
   
   FrontEndReference id = FrontEndReference::from_pmath(cmd[1]);
@@ -1266,7 +1266,7 @@ Expr richmath_eval_FrontEnd_DocumentClose(Expr expr) {
   if(exprlen == 1) 
     docid = FrontEndReference::from_pmath(expr[1]);
   else
-    docid = Documents::current_document_id;
+    docid = Documents::selected_document_id;
   
   Document *doc = FrontEndObject::find_cast<Document>(docid);
   if(!doc)
@@ -1291,7 +1291,7 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
   Array<SelectionReference> sels;
   
   if(exprlen == 0) {
-    if(auto doc = Documents::current())
+    if(auto doc = Documents::selected_document())
       sels.add(doc->selection());
   }
   else {
@@ -1353,7 +1353,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
     }
   }
   else
-    docid = Documents::current_document_id;
+    docid = Documents::selected_document_id;
   
   Box *box = FrontEndObject::find_cast<Box>(docid);
   if(!box)
@@ -1430,7 +1430,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
   String style_name;
   
   if(exprlen == 0) {
-    doc = Documents::current();
+    doc = Documents::selected_document();
     if(!doc)
       return Symbol(richmath_System_DollarFailed);
     
@@ -1451,7 +1451,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
         doc = sel.box ? sel.box->find_parent<Document>(true) : nullptr;
     }
     else {
-      doc = Documents::current();
+      doc = Documents::selected_document();
       if(!doc)
         return Symbol(richmath_System_DollarFailed);
       
@@ -1491,7 +1491,7 @@ Expr richmath_eval_FrontEnd_FindStyleDefinition(Expr expr) {
 }
 
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr) {
-  auto doc = Documents::current();
+  auto doc = Documents::selected_document();
   if(doc)
     return doc->to_pmath_id();
   
@@ -1537,7 +1537,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr) {
   if(!doc)
     return Symbol(richmath_System_DollarFailed);
     
-  //Documents::current(doc);
+  //Documents::selected_document(doc);
   doc->native()->bring_to_front();
   
   return doc->to_pmath_id();

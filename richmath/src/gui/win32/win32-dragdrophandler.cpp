@@ -22,7 +22,7 @@ MenuCommandStatus Win32DragDropHandler::can_drop(DropAction action) {
   if(!_data)
     return false;
   
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   
@@ -37,7 +37,7 @@ bool Win32DragDropHandler::do_drop(DropAction action) {
   if(!_data)
     return false;
   
-  Document *doc = Documents::current();
+  Document *doc = Documents::selected_document();
   if(!doc)
     return false;
   
