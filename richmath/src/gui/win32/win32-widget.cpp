@@ -1701,8 +1701,9 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             break;
             
           AutoValueReset<Document*> auto_reset(Menus::current_document_redirect);
-          Menus::current_document_redirect = document();
-  
+          if(document()->selection_box())
+            Menus::current_document_redirect = document();
+            
           Menus::run_command_now(cmd);
         } return 0;
       

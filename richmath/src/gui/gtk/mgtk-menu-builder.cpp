@@ -1064,23 +1064,31 @@ static void accel_data_destroy(void *data, GClosure *closure) {
   delete accel_data;
 }
 
-static gboolean closure_callback(
-  GtkAccelGroup   *group,
-  GObject         *acceleratable,
-  guint            keyval,
-  GdkModifierType  modifier,
-  void            *user_data
-) {
-  AccelData *accel_data = (AccelData *)user_data;
-  
-  Application::with_evaluation_box(FrontEndObject::find_cast<Box>(accel_data->evaluation_box_id), [&](){
-    Menus::run_command_now(accel_data->cmd);
-  });
-  
-  return TRUE;
-}
-
 void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, FrontEndReference evaluation_box_id) {
+  struct AccelDataClosure {
+    static gboolean callback(
+      GtkAccelGroup   *group,
+      GObject         *acceleratable,
+      guint            keyval,
+      GdkModifierType  modifier,
+      void            *user_data
+    ) {
+      AccelData *accel_data = (AccelData *)user_data;
+      
+      Box *box = FrontEndObject::find_cast<Box>(accel_data->evaluation_box_id);
+      if(box) {
+        if(auto doc = box->find_parent<Document>(true)) {
+          if(!doc->selection_box())
+            box = nullptr;
+        }
+      }
+      
+      Application::with_evaluation_box(box, [&](){ Menus::run_command_now(accel_data->cmd); });
+      
+      return TRUE;
+    }
+  };
+  
   for(auto accel : all_accelerators) {
     char *path = pmath_string_to_utf8(accel.get_as_string(), 0);
     AccelData *accel_data = new AccelData;
@@ -1093,7 +1101,7 @@ void MathGtkAccelerators::connect_all(GtkAccelGroup *accel_group, FrontEndRefere
         accel_group,
         path,
         g_cclosure_new(
-          G_CALLBACK(closure_callback),
+          G_CALLBACK(AccelDataClosure::callback),
           accel_data,
           accel_data_destroy));
     }
