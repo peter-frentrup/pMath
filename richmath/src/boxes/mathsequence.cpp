@@ -208,7 +208,6 @@ namespace richmath {
           void group_number_digits(const GlyphIterator &start, const GlyphIterator &end_inclusive);
           bool slant_is_italic(int glyph_slant);
           void italic_correction(const GlyphIterator &token_end);
-          void skip_subsuperscript(GlyphIterator &iter);
           void show_tab_character(const GlyphIterator &pos, bool in_string);
           ArrayView<const uint16_t> get_effective_token(const GlyphIterator &start, const GlyphIterator &tok_end);
           void find_box_token(const uint16_t *&op, int &ii, int &ee, Box *box);
@@ -3006,11 +3005,14 @@ void MathSequence::Impl::EnlargeSpace::run() {
     GlyphIterator iter_start = iter_next;
     iter_next.move_token_end();
     
+    GlyphIterator iter_tok_end = iter_next;
+    
     italic_correction(iter_next);
-    skip_subsuperscript(iter_next);
-
-    GlyphIterator iter_end = iter_next;
+    
     iter_next.move_next_glyph();
+    while(iter_next.has_more_glyphs() && dynamic_cast<SubsuperscriptBox*>(iter_next.current_box())) {
+      iter_next.move_next_glyph();
+    }
     
     if(iter_start.current_char() == '\t') {
       show_tab_character(iter_start, iter_start.current_glyph().is_normal_text);
@@ -3028,7 +3030,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
       continue;
     }
     
-    if(iter_start.current_glyph().is_normal_text || in_alias || !iter_end.has_more_glyphs())
+    if(iter_start.current_glyph().is_normal_text || in_alias)
       continue;
       
     if( iter_start.current_char() == PMATH_CHAR_INVISIBLECALL || 
@@ -3039,7 +3041,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
       continue;
     }
     
-    ArrayView<const uint16_t> tok_text = get_effective_token(iter_start, iter_end);
+    ArrayView<const uint16_t> tok_text = get_effective_token(iter_start, iter_tok_end);
     
     int prec;
     pmath_token_t tok = pmath_token_analyse(tok_text.items(), tok_text.length(), &prec);
@@ -3221,7 +3223,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
         } break;
         
       case PMATH_TOK_DIGIT:
-        group_number_digits(iter_start, iter_end);
+        group_number_digits(iter_start, iter_tok_end);
       /* fall through */
       case PMATH_TOK_STRING:
       case PMATH_TOK_NAME:
@@ -3249,9 +3251,9 @@ void MathSequence::Impl::EnlargeSpace::run() {
         break;
         
       case PMATH_TOK_PRETEXT:
-        if(iter_start.glyph_index() + 1 == iter_end.glyph_index() && iter_start.current_char() == '<') {
-          iter_end.current_glyph().x_offset -= self.em * 4 / 18;
-          iter_end.current_glyph().right -=    self.em * 2 / 18;
+        if(iter_start.glyph_index() + 1 == iter_tok_end.glyph_index() && iter_start.current_char() == '<') {
+          iter_tok_end.current_glyph().x_offset -= self.em * 4 / 18;
+          iter_tok_end.current_glyph().right -=    self.em * 2 / 18;
         }
         break;
         
@@ -3288,7 +3290,8 @@ void MathSequence::Impl::EnlargeSpace::run() {
         space_right-= space_right / 2;
       }
       
-      iter_end.current_glyph().right += space_right;
+      if(iter_next.glyph_index() > 0)
+        iter_next.all_glyphs()[iter_next.glyph_index() - 1].right += space_right;
     }
   }
 }
@@ -3404,21 +3407,6 @@ void MathSequence::Impl::EnlargeSpace::italic_correction(const GlyphIterator &to
     }
     else
       token_end.current_glyph().right += ital_corr;
-  }
-}
-
-void MathSequence::Impl::EnlargeSpace::skip_subsuperscript(GlyphIterator &iter) {
-  while(true) {
-    GlyphIterator next = iter;
-    next.move_next_glyph();
-    
-    if(!next.has_more_glyphs())
-      break;
-    
-    if(!dynamic_cast<SubsuperscriptBox*>(next.current_box()))
-      break;
-    
-    iter = next;
   }
 }
 
