@@ -661,8 +661,6 @@ void Document::mouse_move(MouseEvent &event) {
 }
 
 void Document::focus_set() {
-  context.active = true;
-  
   if(Box *box = selection_box()) {
     if(selection_length() > 0)
       box->request_repaint_range(selection_start(), selection_end());
@@ -675,7 +673,6 @@ void Document::focus_set() {
 }
 
 void Document::focus_killed(Document *new_focus) {
-  context.active = false;
   reset_mouse();
   
   Impl(*this).close_popup_windows_if(
@@ -3530,6 +3527,8 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
   if(!resize_only)
     has_pending_repaint(false);
     
+  context.active = native()->is_focused_widget();
+  
   context.with_canvas(canvas, [&]() {
     update_dynamic_styles(context);
     

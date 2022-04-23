@@ -105,7 +105,7 @@ class Win32DocumentChildWidget: public Win32Widget {
     virtual void on_saved() override { _parent->on_saved(); }
     
     virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
-    virtual bool is_focused_widget() override { return _parent->is_focused_widget() && base::is_focused_widget(); }
+    virtual bool is_focused_widget() override { return _parent->is_foreground_window() && base::is_focused_widget(); }
     virtual bool is_using_dark_mode() override { return _parent->is_using_dark_mode(); }
   
   private:

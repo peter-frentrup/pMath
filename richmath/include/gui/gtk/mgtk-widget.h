@@ -68,7 +68,6 @@ namespace richmath {
       
       virtual void on_saved() override {}
       
-      virtual bool is_focused_widget() override { return _focused; }
       virtual bool is_using_dark_mode() override { return has_dark_background(); }
       
       bool has_dark_background() { return _has_dark_background; }
@@ -94,7 +93,6 @@ namespace richmath {
       bool is_blinking : 1;
       bool ignore_key_release : 1;
       bool _has_dark_background : 1;
-      ObservableValue<bool> _focused;
       
       ObservableValue<int> old_width;
       

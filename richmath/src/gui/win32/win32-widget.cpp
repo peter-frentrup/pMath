@@ -136,7 +136,6 @@ Win32Widget::Win32Widget(
     scrolling(false),
     already_scrolled(false),
     _has_dark_background(false),
-    _focused(false),
     _width(0),
     _height(0),
     gesture_zoom_factor(1.0f),
@@ -1650,7 +1649,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } break;
         
       case WM_SETFOCUS: {
-          _focused = true;
           document()->focus_set();
           
           Documents::focus_gained(document());
@@ -1673,7 +1671,6 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           if((HWND)wParam == _hwnd)
             break;
           
-          _focused = false;
           scrolling = false;
           SetTimer(_hwnd, (UINT_PTR)&TimerIdKillFocus, 0, nullptr);
         } break;

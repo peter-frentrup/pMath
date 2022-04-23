@@ -166,6 +166,10 @@ bool Win32AttachedPopupWindow::is_using_dark_mode() {
   return base::is_using_dark_mode();
 }
 
+bool Win32AttachedPopupWindow::is_focused_widget() {
+  return is_foreground_window() && base::is_focused_widget();
+}      
+
 int Win32AttachedPopupWindow::dpi() {
   return Win32HighDpi::get_dpi_for_window(_hwnd);
 }

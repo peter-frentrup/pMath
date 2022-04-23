@@ -137,6 +137,7 @@ namespace richmath {
       
       // ControlContext functions:
       virtual int dpi() override { return _dpi; }
+      virtual bool is_focused_widget() override;
       
     public:
       static NativeWidget *dummy;

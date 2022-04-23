@@ -141,6 +141,7 @@ class MathGtkDocumentChildWidget: public MathGtkWidget {
     virtual void on_saved() override { _parent->on_saved(); }
     
     virtual bool is_foreground_window() override { return _parent->is_foreground_window(); }
+    virtual bool is_focused_widget() override { return _parent->is_foreground_window() && base::is_focused_widget(); }
     virtual bool is_using_dark_mode() override { return _parent->is_using_dark_mode(); }
     
   private:
@@ -1138,6 +1139,9 @@ void MathGtkDocumentWindow::close() {
   gdk_event_free(ev);
 }
 
+bool MathGtkDocumentWindow::is_foreground_window() {
+  return _active && Documents::focused_document_id != FrontEndReference::None; 
+}
 int MathGtkDocumentWindow::dpi() {
   GdkScreen *screen = gtk_window_get_screen(GTK_WINDOW(_widget));
   double dpi = gdk_screen_get_resolution(screen);
@@ -1427,6 +1431,10 @@ bool MathGtkDocumentWindow::on_focus_in(GdkEvent *e) {
   }
 #endif
 
+#if GTK_MAJOR_VERSION < 3
+  _active = true; // handled by on_window_state() in Gtk >= 3 
+#endif
+
   return false;
 }
 
@@ -1440,6 +1448,10 @@ bool MathGtkDocumentWindow::on_focus_out(GdkEvent *e) {
       gtk_style_context_remove_provider_for_screen(screen, _style_provider);
     }
   }
+#endif
+
+#if GTK_MAJOR_VERSION < 3
+  _active = false; // handled by on_window_state() in Gtk >= 3 
 #endif
 
   for(auto _win : CommonDocumentWindow::All) {

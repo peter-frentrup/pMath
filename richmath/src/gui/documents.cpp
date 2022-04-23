@@ -243,11 +243,19 @@ Box *Documents::keyboard_input_box() {
   }
   
   if(auto doc = selected_document()) {
-    if(auto box = doc->selection_box())
-      return box;
+    return doc->selection_box();
   }
   
   return nullptr;
+}
+
+Document *Documents::keyboard_input_document() {
+  if(auto doc = focused_document()) {
+    if(doc->selection_box())
+      return doc;
+  }
+  
+  return selected_document();
 }
 
 Document *Documents::focused_document() {

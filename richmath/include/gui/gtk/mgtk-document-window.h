@@ -60,8 +60,8 @@ namespace richmath {
       virtual void bring_to_front();
       virtual void close();
       
-      virtual bool is_foreground_window() override { return _active; };
-      virtual bool is_focused_widget() override { return _active; };
+      virtual bool is_foreground_window() override;
+      virtual bool is_focused_widget() override { return _active; }
       virtual bool is_using_dark_mode() override { return _use_dark_mode; }
       virtual int dpi() override;
       

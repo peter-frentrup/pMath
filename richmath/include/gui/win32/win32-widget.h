@@ -78,7 +78,6 @@ namespace richmath {
       
       virtual void on_saved() override {}
       
-      virtual bool is_focused_widget() override { return _focused; }
       virtual bool is_using_dark_mode() override { return has_dark_background(); }
       
     public:
@@ -104,7 +103,6 @@ namespace richmath {
       bool scrolling : 1;
       bool already_scrolled : 1;
       bool _has_dark_background : 1;
-      ObservableValue<bool> _focused;
       MouseEvent mouse_down_event; // coordinates in pixels, relative to widget top/left (no scrolling adjustment)
       
       ObservableValue<int> _width;

@@ -168,7 +168,6 @@ MathGtkWidget::MathGtkWidget(Document *doc)
     _mouse_down_button(0),
     is_blinking(false),
     ignore_key_release(true),
-    _focused(false),
     old_width(0),
     _hadjustment(nullptr),
     _vadjustment(nullptr),
@@ -1057,7 +1056,6 @@ bool MathGtkWidget::on_expose(GdkEvent *e) {
 }
 
 bool MathGtkWidget::on_focus_in(GdkEvent *e) {
-  _focused = true;
   document()->focus_set();
 
   Documents::focus_gained(document());
@@ -1095,8 +1093,6 @@ bool MathGtkWidget::on_focus_out(GdkEvent *e) {
     },
     FrontEndReference::unsafe_cast_to_pointer(document()->id()),
     nullptr);
-  
-  _focused = false;
   
   if(_im_context)
     gtk_im_context_focus_out(_im_context);

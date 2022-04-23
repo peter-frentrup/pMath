@@ -25,7 +25,8 @@ namespace richmath {
       static Document *selected_document();
       static void selected_document(Document *document);
       
-      static Box *keyboard_input_box();
+      static Box      *keyboard_input_box();
+      static Document *keyboard_input_document();
       static Document *focused_document();
       static void focus_gained(Document *document);
       static bool focus_lost(Document *old_focus_doc);

@@ -4,6 +4,7 @@
 #include <cmath>
 
 #include <gui/document.h>
+#include <gui/documents.h>
 
 
 using namespace richmath;
@@ -327,6 +328,10 @@ bool NativeWidget::stylesheet_document(Document *doc) {
     old_sd->native()->close();
   
   return true;
+}
+
+bool NativeWidget::is_focused_widget() {
+  return Documents::keyboard_input_document() == document();
 }
 
 void NativeWidget::adopt(Document *doc) {
