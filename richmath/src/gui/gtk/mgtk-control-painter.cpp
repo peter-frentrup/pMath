@@ -748,7 +748,7 @@ void MathGtkControlPainter::system_font_style(ControlContext &control, Style *st
     size *= 0.75;
     
   if(size > 0)
-    style->set(FontSize, size);
+    style->set(FontSize, Length(size));
 }
  
 GtkStyleContext *MathGtkControlPainter::get_control_theme(ControlContext &control, ContainerType type, bool foreground) {
