@@ -5,7 +5,7 @@ The Code::Blocks projects in pmath.workspace already contain required GDB startu
 When starting GDB, the following GDB macro lines are run in principle:
 
 	python import sys
-	python sys.path.insert(0, '/full/path/to/pmath/debugging/gdb')) )
+	python sys.path.insert(0, '/full/path/to/pmath/debugging/gdb')
 	python import pmath_gdb
 	python pmath_gdb.printers.register_pmath_printers(None)
 
