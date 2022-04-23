@@ -220,7 +220,8 @@ Function CreateHelpDocument(~name:String) {
                 simpleExampleHeadingWithText("Applications"),
                 simpleExampleHeadingWithText("Properties & Relations"),
                 simpleExampleHeadingWithText("Possible Issues"),
-                simpleExampleHeadingWithText("Neat Examples")
+                simpleExampleHeadingWithText("Neat Examples"),
+                Section("", "SectionFooterSpacer")
             }, All),
             SectionGroup({Section("See Also", "SeeAlsoSection"),
                 Section({
