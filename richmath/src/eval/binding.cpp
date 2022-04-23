@@ -838,11 +838,11 @@ static MenuCommandStatus can_set_style(Expr cmd) {
   }
   
   if(obj && cmd.is_rule()) {
-    int start = doc->selection_start();
-    int end   = doc->selection_end();
-    
-    if(start < end) {
-      if(obj == doc) {
+    if(obj == doc) {
+      int start = doc->selection_start();
+      int end   = doc->selection_end();
+      
+      if(start < end) {
         status.checked = true;
         
         for(int i = start; i < end; ++i) {
