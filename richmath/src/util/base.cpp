@@ -183,7 +183,7 @@ Shareable::Shareable()
 }
 
 Shareable::~Shareable() {
-  assert(pmath_atomic_read_aquire(&_refcount) == 0);
+  RICHMATH_ASSERT(pmath_atomic_read_aquire(&_refcount) == 0);
 }
 
 void Shareable::ref() const {

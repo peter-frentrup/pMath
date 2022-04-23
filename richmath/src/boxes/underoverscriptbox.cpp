@@ -39,7 +39,7 @@ UnderoverscriptBox::UnderoverscriptBox(
   _underscript(under),
   _overscript( over)
 {
-  assert(_base && (_underscript || _overscript));
+  RICHMATH_ASSERT(_base && (_underscript || _overscript));
   adopt(_base, 0);
   
   int i = 1;

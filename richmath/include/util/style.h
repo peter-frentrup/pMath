@@ -631,7 +631,7 @@ namespace richmath {
       virtual void dynamic_updated() override {}
       
       void add_user(FrontEndObject *obj) const {
-        assert(obj);
+        RICHMATH_ASSERT(obj);
         if(users.add(obj->id())) {
           for(auto &other : used_stylesheets)
             other->add_user(obj);

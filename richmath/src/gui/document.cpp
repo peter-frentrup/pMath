@@ -544,7 +544,7 @@ void Document::mouse_down(MouseEvent &event) {
     receiver = mouse_sel.box;
                  
     receiver = receiver ? receiver->mouse_sensitive() : this;
-    assert(receiver != nullptr);
+    RICHMATH_ASSERT(receiver != nullptr);
     context.clicked_box_id = receiver->id();
     
     Impl(*this).close_popup_windows_on_outside_mouse_click(mouse_sel);
@@ -2760,7 +2760,7 @@ static AbstractSequence *find_selection_placeholder(
   int root_end,
   bool stop_early = false
 ) {
-  assert(index != nullptr);
+  RICHMATH_ASSERT(index != nullptr);
   
   AbstractSequence *placeholder_seq = nullptr;
   int placeholder_pos = -1;
@@ -2807,7 +2807,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     return;
   }
   
-  assert(box->parent() == nullptr);
+  RICHMATH_ASSERT(box->parent() == nullptr);
   
   if( !Impl(*this).is_inside_string() &&
       !Impl(*this).is_inside_alias() &&
@@ -3498,7 +3498,7 @@ bool Document::is_mouse_down() {
 }
 
 void Document::stylesheet(SharedPtr<Stylesheet> new_stylesheet) {
-  assert(new_stylesheet);
+  RICHMATH_ASSERT(new_stylesheet);
   if(new_stylesheet != context.stylesheet) {
     new_stylesheet->add_user(this);
     context.stylesheet = new_stylesheet;
@@ -3529,7 +3529,7 @@ void Document::reset_style() {
 void Document::paint_resize(Canvas &canvas, bool resize_only) {
   if(!resize_only)
     has_pending_repaint(false);
-  
+    
   context.with_canvas(canvas, [&]() {
     update_dynamic_styles(context);
     
@@ -4407,8 +4407,8 @@ bool Document::Impl::prepare_insert_math(bool include_previous_word) {
 }
 
 Section *Document::Impl::auto_make_text_or_math(Section *sect) {
-  assert(sect != nullptr);
-  assert(sect->parent() == &self);
+  RICHMATH_ASSERT(sect != nullptr);
+  RICHMATH_ASSERT(sect->parent() == &self);
   
   if(!dynamic_cast<AbstractSequenceSection*>(sect))
     return sect;
@@ -4422,8 +4422,8 @@ Section *Document::Impl::auto_make_text_or_math(Section *sect) {
 
 template<class FromSectionType, class ToSectionType>
 Section *Document::Impl::convert_content(Section *sect) {
-  assert(sect != nullptr);
-  assert(sect->parent() == &self);
+  RICHMATH_ASSERT(sect != nullptr);
+  RICHMATH_ASSERT(sect->parent() == &self);
   
   auto old_sect = dynamic_cast<FromSectionType*>(sect);
   if(!old_sect)

@@ -14,12 +14,6 @@
 #include <limits>
 
 
-#define STYLE_ASSERT(a) \
-  do{if(!(a)){ \
-      assert_failed(); \
-      assert(a); \
-    }}while(0)
-
 extern pmath_symbol_t richmath_System_DollarAborted;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_AllowScriptLevelChange;
@@ -205,7 +199,7 @@ namespace richmath { namespace strings {
 using namespace richmath;
 
 bool richmath::get_factor_of_scaled(Expr expr, double *value) {
-  assert(value != nullptr);
+  RICHMATH_ASSERT(value != nullptr);
   
   if(expr[0] != richmath_System_Scaled)
     return false;
@@ -601,48 +595,48 @@ bool StyleImpl::raw_remove(StyleOptionName n) {
 }
 
 bool StyleImpl::raw_remove_color(StyleOptionName n) {
-  STYLE_ASSERT(!n.is_dynamic());
-  STYLE_ASSERT(is_for_color(n));
+  RICHMATH_ASSERT(!n.is_dynamic());
+  RICHMATH_ASSERT(is_for_color(n));
   
   return self.int_float_values.remove(n);
 }
 
 bool StyleImpl::raw_remove_int(StyleOptionName n) {
-  STYLE_ASSERT(!n.is_dynamic());
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(!n.is_dynamic());
+  RICHMATH_ASSERT(is_for_int(n));
   
   return self.int_float_values.remove(n);
 }
 
 bool StyleImpl::raw_remove_float(StyleOptionName n) {
-  STYLE_ASSERT(!n.is_dynamic());
-  STYLE_ASSERT(is_for_float(n));
+  RICHMATH_ASSERT(!n.is_dynamic());
+  RICHMATH_ASSERT(is_for_float(n));
   
   return self.int_float_values.remove(n);
 }
 
 bool StyleImpl::raw_remove_length(StyleOptionName n) {
-  STYLE_ASSERT(!n.is_dynamic());
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(!n.is_dynamic());
+  RICHMATH_ASSERT(is_for_length(n));
   
   return self.int_float_values.remove(n);
 }
 
 bool StyleImpl::raw_remove_string(StyleOptionName n) {
-  STYLE_ASSERT(!n.is_dynamic());
-  STYLE_ASSERT(is_for_string(n));
+  RICHMATH_ASSERT(!n.is_dynamic());
+  RICHMATH_ASSERT(is_for_string(n));
   
   return self.object_values.remove(n);
 }
 
 bool StyleImpl::raw_remove_expr(StyleOptionName n) {
-  STYLE_ASSERT(is_for_expr(n) || n.is_dynamic());
+  RICHMATH_ASSERT(is_for_expr(n) || n.is_dynamic());
   
   return self.object_values.remove(n);
 }
 
 bool StyleImpl::remove_dynamic(StyleOptionName n) {
-  STYLE_ASSERT(n.is_literal());
+  RICHMATH_ASSERT(n.is_literal());
   
   return raw_remove_expr(n.to_dynamic());
 }
@@ -783,7 +777,7 @@ bool StyleImpl::add_pmath(Expr options, bool amend) {
 }
 
 bool StyleImpl::set_dynamic(StyleOptionName n, Expr value) {
-  STYLE_ASSERT(n.is_literal());
+  RICHMATH_ASSERT(n.is_literal());
   
   bool any_change = false;
   any_change = raw_remove(n) || any_change;
@@ -794,7 +788,7 @@ bool StyleImpl::set_dynamic(StyleOptionName n, Expr value) {
 }
 
 bool StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -819,7 +813,7 @@ bool StyleImpl::set_pmath_bool_auto(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -841,7 +835,7 @@ bool StyleImpl::set_pmath_bool(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_color(n));
+  RICHMATH_ASSERT(is_for_color(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -862,7 +856,7 @@ bool StyleImpl::set_pmath_color(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_int(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -881,7 +875,7 @@ bool StyleImpl::set_pmath_int(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_float(n));
+  RICHMATH_ASSERT(is_for_float(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -909,7 +903,7 @@ bool StyleImpl::set_pmath_float(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_length(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(is_for_length(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -939,7 +933,7 @@ bool StyleImpl::set_pmath_length(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(is_for_length(n));
   
   StyleOptionName Left   = n;
   StyleOptionName Right  = StyleOptionName((int)n + 1);
@@ -1032,7 +1026,7 @@ bool StyleImpl::set_pmath_margin(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(is_for_length(n));
   
   StyleOptionName Horizontal = StyleOptionName((int)n + 1);
   StyleOptionName Vertical   = StyleOptionName((int)n + 2);
@@ -1097,7 +1091,7 @@ bool StyleImpl::set_pmath_size(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_string(n));
+  RICHMATH_ASSERT(is_for_string(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -1126,7 +1120,7 @@ bool StyleImpl::set_pmath_string(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_expr(n));
+  RICHMATH_ASSERT(is_for_expr(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -1150,7 +1144,7 @@ bool StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_flatlist(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_expr(n));
+  RICHMATH_ASSERT(is_for_expr(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -1175,7 +1169,7 @@ bool StyleImpl::set_pmath_flatlist(StyleOptionName n, Expr obj) {
 }
 
 bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   bool any_change = false;
   if(n.is_literal())
@@ -1188,7 +1182,7 @@ bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
     return set_dynamic(n, obj) || any_change;
   
   SharedPtr<EnumStyleConverter> enum_converter = StyleInformation::get_enum_converter(n);
-  assert(enum_converter.is_valid());
+  RICHMATH_ASSERT(enum_converter.is_valid());
   
   if(enum_converter->is_valid_expr(obj))
     return raw_set_int(n, enum_converter->to_int(obj)) || any_change;
@@ -1198,7 +1192,7 @@ bool StyleImpl::set_pmath_enum(StyleOptionName n, Expr obj) {
 
 bool StyleImpl::set_pmath_ruleset(StyleOptionName n, Expr obj) {
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(n);
-  assert(key_converter.is_valid());
+  RICHMATH_ASSERT(key_converter.is_valid());
   
   bool any_change = false;
   if(obj[0] == richmath_System_List) {
@@ -1301,7 +1295,7 @@ Expr StyleImpl::merge_ruleset_members(StyleOptionName key, Expr newer, Expr olde
     return newer;
     
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
-  STYLE_ASSERT(key_converter.is_valid());
+  RICHMATH_ASSERT(key_converter.is_valid());
   
   if(newer[0] == richmath_System_List) {
     for(size_t i = newer.expr_length(); i > 0; --i) {
@@ -1422,7 +1416,7 @@ Expr StyleImpl::finish_ruleset_merge(StyleOptionName key, Expr value) {
     return List();
   
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(key);
-  STYLE_ASSERT(key_converter.is_valid());
+  RICHMATH_ASSERT(key_converter.is_valid());
   
   if(value[0] == richmath_System_List) {
     for(size_t i = value.expr_length(); i > 0; --i) {
@@ -1458,7 +1452,7 @@ Expr StyleImpl::finish_flatlist_merge(StyleOptionName key, Expr value) {
 }
 
 Expr StyleImpl::inherited_tuple_member(Expr inherited, int index) {
-  assert(index >= 1);
+  RICHMATH_ASSERT(index >= 1);
   
   if(inherited[0] == richmath_System_List) {
     if((size_t)index <= inherited.expr_length())
@@ -1576,7 +1570,7 @@ Expr StyleImpl::prepare_inherited_size(StyleOptionName n) const {
 Expr StyleImpl::prepare_inherited_ruleset(StyleOptionName n) const {
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(n);
   
-  STYLE_ASSERT(key_converter.is_valid());
+  RICHMATH_ASSERT(key_converter.is_valid());
   
   const Hashtable<Expr, int> &table = key_converter->expr_to_int();
   
@@ -1600,7 +1594,7 @@ Expr StyleImpl::prepare_inherited_ruleset(StyleOptionName n) const {
 }
 
 void StyleImpl::emit_definition(StyleOptionName n) const {
-  STYLE_ASSERT(n.is_literal());
+  RICHMATH_ASSERT(n.is_literal());
   
   Expr e;
   if(raw_get_expr(n.to_dynamic(), &e)) {
@@ -1669,7 +1663,7 @@ Expr StyleImpl::raw_get_pmath(StyleOptionName key, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_bool_auto(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   int i;
   if(raw_get_int(n, &i)) {
@@ -1690,7 +1684,7 @@ Expr StyleImpl::raw_get_pmath_bool_auto(StyleOptionName n, Expr inherited) const
 }
 
 Expr StyleImpl::raw_get_pmath_bool(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   int i;
   if(raw_get_int(n, &i)) {
@@ -1704,7 +1698,7 @@ Expr StyleImpl::raw_get_pmath_bool(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_color(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_color(n));
+  RICHMATH_ASSERT(is_for_color(n));
   
   Color c;
   if(raw_get_color(n, &c))
@@ -1714,7 +1708,7 @@ Expr StyleImpl::raw_get_pmath_color(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_int(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   int i;
   if(raw_get_int(n, &i))
@@ -1724,7 +1718,7 @@ Expr StyleImpl::raw_get_pmath_int(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_float(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_float(n));
+  RICHMATH_ASSERT(is_for_float(n));
   
   float f;
   if(raw_get_float(n, &f))
@@ -1734,7 +1728,7 @@ Expr StyleImpl::raw_get_pmath_float(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_length(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(is_for_length(n));
   
   Length dim;
   if(raw_get_length(n, &dim))
@@ -1744,7 +1738,7 @@ Expr StyleImpl::raw_get_pmath_length(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { // n + {0,1,2,3} ~= {Left, Right, Top, Bottom}
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(is_for_length(n));
   
   StyleOptionName Left   = n;
   StyleOptionName Right  = StyleOptionName((int)n + 1);
@@ -1803,7 +1797,7 @@ Expr StyleImpl::raw_get_pmath_margin(StyleOptionName n, Expr inherited) const { 
 }
 
 Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { // n + {0,1,2} ~= {Common, Horizontal, Vertical}
-  STYLE_ASSERT(is_for_length(n));
+  RICHMATH_ASSERT(is_for_length(n));
   
   Expr horz, vert;
   
@@ -1833,7 +1827,7 @@ Expr StyleImpl::raw_get_pmath_size(StyleOptionName n, Expr inherited) const { //
 }
 
 Expr StyleImpl::raw_get_pmath_string(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_string(n));
+  RICHMATH_ASSERT(is_for_string(n));
   
   String s;
   if(raw_get_string(n, &s))
@@ -1843,7 +1837,7 @@ Expr StyleImpl::raw_get_pmath_string(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_object(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_expr(n));
+  RICHMATH_ASSERT(is_for_expr(n));
   
   Expr e;
   if(raw_get_expr(n, &e))
@@ -1853,7 +1847,7 @@ Expr StyleImpl::raw_get_pmath_object(StyleOptionName n, Expr inherited) const {
 }
 
 Expr StyleImpl::raw_get_pmath_flatlist(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_expr(n));
+  RICHMATH_ASSERT(is_for_expr(n));
   
   Expr e;
   if(raw_get_expr(n, &e))
@@ -1863,13 +1857,13 @@ Expr StyleImpl::raw_get_pmath_flatlist(StyleOptionName n, Expr inherited) const 
 }
 
 Expr StyleImpl::raw_get_pmath_enum(StyleOptionName n, Expr inherited) const {
-  STYLE_ASSERT(is_for_int(n));
+  RICHMATH_ASSERT(is_for_int(n));
   
   int i;
   if(raw_get_int(n, &i)) {
     SharedPtr<EnumStyleConverter> enum_converter = StyleInformation::get_enum_converter(n);
     
-    assert(enum_converter.is_valid());
+    RICHMATH_ASSERT(enum_converter.is_valid());
     
     return enum_converter->to_expr(i);
   }
@@ -1880,7 +1874,7 @@ Expr StyleImpl::raw_get_pmath_enum(StyleOptionName n, Expr inherited) const {
 Expr StyleImpl::raw_get_pmath_ruleset(StyleOptionName n, Expr inherited) const {
   SharedPtr<EnumStyleConverter> key_converter = StyleInformation::get_enum_converter(n);
   
-  assert(key_converter.is_valid());
+  RICHMATH_ASSERT(key_converter.is_valid());
   
   const Hashtable<Expr, int> &table = key_converter->expr_to_int();
   
@@ -2153,7 +2147,7 @@ bool Style::get(ObjectStyleOptionName n, Expr *value) const {
 
 void Style::set(ColorStyleOptionName n, Color value) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_color(key, value) || any_change;
@@ -2165,7 +2159,7 @@ void Style::set(ColorStyleOptionName n, Color value) {
 
 void Style::set(IntStyleOptionName n, int value) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_int(key, value) || any_change;
@@ -2177,7 +2171,7 @@ void Style::set(IntStyleOptionName n, int value) {
 
 void Style::set(FloatStyleOptionName n, float value) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_float(key, value) || any_change;
@@ -2189,7 +2183,7 @@ void Style::set(FloatStyleOptionName n, float value) {
 
 void Style::set(LengthStyleOptionName n, Length value) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_length(key, value) || any_change;
@@ -2201,7 +2195,7 @@ void Style::set(LengthStyleOptionName n, Length value) {
 
 void Style::set(StringStyleOptionName n, String value) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_string(key, value) || any_change;
@@ -2216,7 +2210,7 @@ void Style::set(StringStyleOptionName n, String value) {
 
 void Style::set(ObjectStyleOptionName n, Expr value) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_set_expr(n, value) || any_change;
@@ -2228,7 +2222,7 @@ void Style::set(ObjectStyleOptionName n, Expr value) {
 
 void Style::remove(ColorStyleOptionName n) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_remove_color(key)               || any_change;
@@ -2240,7 +2234,7 @@ void Style::remove(ColorStyleOptionName n) {
 
 void Style::remove(IntStyleOptionName n) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_remove_int(key)               || any_change;
@@ -2252,7 +2246,7 @@ void Style::remove(IntStyleOptionName n) {
 
 void Style::remove(FloatStyleOptionName n) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_remove_float(key)               || any_change;
@@ -2264,7 +2258,7 @@ void Style::remove(FloatStyleOptionName n) {
 
 void Style::remove(LengthStyleOptionName n) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_remove_length(key)               || any_change;
@@ -2276,7 +2270,7 @@ void Style::remove(LengthStyleOptionName n) {
 
 void Style::remove(StringStyleOptionName n) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_remove_string(key)               || any_change;
@@ -2288,7 +2282,7 @@ void Style::remove(StringStyleOptionName n) {
 
 void Style::remove(ObjectStyleOptionName n) {
   StyleOptionName key{n};
-  STYLE_ASSERT(key.is_literal());
+  RICHMATH_ASSERT(key.is_literal());
   
   bool any_change = false;
   any_change = StyleImpl::of(*this).raw_remove_expr(key)               || any_change;
@@ -2380,7 +2374,7 @@ bool Style::set_pmath(StyleOptionName n, Expr obj) {
 }
 
 Expr Style::get_pmath(StyleOptionName key) const {
-  // STYLE_ASSERT(key.is_literal())
+  // RICHMATH_ASSERT(key.is_literal())
   
   register_observer();
   Expr result = Symbol(richmath_System_Inherited);
@@ -3291,7 +3285,7 @@ bool StyleInformation::requires_child_resize(StyleOptionName key) {
 }
 
 void StyleInformation::add(StyleType type, StyleOptionName key, const Expr &name) {
-  assert(type != StyleType::Enum);
+  RICHMATH_ASSERT(type != StyleType::Enum);
   
   _key_to_type.set(key, type);
   if(type == StyleType::Size) { // {horz, vert} = {key+1, key+2}

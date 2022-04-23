@@ -965,7 +965,7 @@ namespace richmath {
           printf("ConfigShaperTables::try_load_from_object failed for style %x\n", (unsigned)style);
           
           if(!shapers[(int)NoStyle].is_valid()) {
-            assert(0 && "invalid ConfigShaperDB");
+            RICHMATH_ASSERT(0 && "invalid ConfigShaperDB");
           }
           
           tables = shapers[(int)NoStyle]->tables;
@@ -1284,7 +1284,7 @@ void ConfigShaper::decode_token(
       len    -= char_len;
     }
     else {
-      assert(len == 0);
+      RICHMATH_ASSERT(len == 0);
     }
   }
 }

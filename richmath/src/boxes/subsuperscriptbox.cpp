@@ -28,7 +28,7 @@ SubsuperscriptBox::SubsuperscriptBox(MathSequence *sub, MathSequence *super)
     _subscript(sub),
     _superscript(super)
 {
-  assert(_subscript || _superscript);
+  RICHMATH_ASSERT(_subscript || _superscript);
   int i = 0;
   if(_subscript)
     adopt(_subscript, i++);

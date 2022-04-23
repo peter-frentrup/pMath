@@ -161,8 +161,8 @@ bool Win32AutoMenuHook::handle(MSG &msg) {
 //{ class Win32AutoMenuHook::Impl ...
 
 void Win32AutoMenuHook::Impl::push(Win32AutoMenuHook *handler) {
-  assert(handler != nullptr);
-  assert(handler->_next == nullptr);
+  RICHMATH_ASSERT(handler != nullptr);
+  RICHMATH_ASSERT(handler->_next == nullptr);
   
   if(!current) {
     if(!the_hook)
@@ -174,7 +174,7 @@ void Win32AutoMenuHook::Impl::push(Win32AutoMenuHook *handler) {
 }
 
 void Win32AutoMenuHook::Impl::pop(Win32AutoMenuHook *handler) {
-  assert(handler == current);
+  RICHMATH_ASSERT(handler == current);
   
   current = current->_next;
   if(!current) {

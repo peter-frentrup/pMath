@@ -44,9 +44,9 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
   _span     = span;
   _sequence = sequence;
   
-  assert(_sequence);
-  assert(_start >= 0 && _start < sequence->length());
-  assert(!_parent || _parent->_start <= _start);
+  RICHMATH_ASSERT(_sequence);
+  RICHMATH_ASSERT(_start >= 0 && _start < sequence->length());
+  RICHMATH_ASSERT(!_parent || _parent->_start <= _start);
   
   sequence->ensure_spans_valid();
   
@@ -59,9 +59,9 @@ void SpanExpr::init(SpanExpr *parent, int start, Span span, MathSequence *sequen
       ++_end;
   }
   
-  assert(_start <= _end);
-  assert(_end < sequence->length());
-  assert(!_parent || _parent->_end >= _end);
+  RICHMATH_ASSERT(_start <= _end);
+  RICHMATH_ASSERT(_end < sequence->length());
+  RICHMATH_ASSERT(!_parent || _parent->_end >= _end);
   
   int last_non_newline_length = 0;
   _items_pos.length(0);
@@ -145,7 +145,7 @@ SpanExpr::~SpanExpr() {
 }
 
 SpanExpr *SpanExpr::find(MathSequence *sequence, int pos, bool before) {
-  assert(sequence != nullptr);
+  RICHMATH_ASSERT(sequence != nullptr);
   
   sequence->ensure_spans_valid();
   
@@ -367,7 +367,7 @@ pmath_token_t SpanExpr::as_token(int *prec) {
         dynamic_cast<InterpretationBox *>(b))
     {
       auto seq = dynamic_cast<MathSequence*>(b->item(0));
-      assert(seq);
+      RICHMATH_ASSERT(seq);
       
       seq->ensure_spans_valid();
       if(seq->length() > 0) {
@@ -406,7 +406,7 @@ int SpanExpr::as_prefix_prec(int defprec) {
         dynamic_cast<InterpretationBox *>(b))
     {
       auto seq = dynamic_cast<MathSequence*>(b->item(0));
-      assert(seq);
+      RICHMATH_ASSERT(seq);
       
       seq->ensure_spans_valid();
       if(seq->length() > 0) {
@@ -807,7 +807,7 @@ void FunctionCallSpan::init_args() {
     }
     
     _args.set(_span->item(1), false);
-    assert(_args.all()->parent() == _span);
+    RICHMATH_ASSERT(_args.all()->parent() == _span);
     return;
   }
   

@@ -260,7 +260,7 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
     virtual void after_construction() override {
       base::after_construction();
       
-      assert(document()->style.is_valid());
+      RICHMATH_ASSERT(document()->style.is_valid());
       
       document()->style->set(Editable,           false); // redirect Print() to console
       document()->style->set(Selectable,         AutoBoolFalse);

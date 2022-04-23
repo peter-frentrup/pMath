@@ -104,7 +104,7 @@ void GridItem::load_from_object(const Expr object, BoxInputFlags opts) {
 
 void GridItem::swap_content(GridItem *other) {
   using std::swap;
-  assert(other != nullptr);
+  RICHMATH_ASSERT(other != nullptr);
   abandon(_content);
   other->abandon(other->_content);
   swap(_content, other->_content);

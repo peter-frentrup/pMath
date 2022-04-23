@@ -11,8 +11,8 @@ namespace richmath {
         : _items(rows *cols),
         _cols(cols)
       {
-        assert(rows >= 0);
-        assert(cols >= 0);
+        ARRAY_ASSERT(rows >= 0);
+        ARRAY_ASSERT(cols >= 0);
       }
       
       ~Matrix() {
@@ -32,15 +32,15 @@ namespace richmath {
       }
       
       const T &get(int y, int x) const {
-        assert(x >= 0 && x < _cols);
-        assert(y >= 0 && y < _items.length() / _cols);
+        ARRAY_ASSERT(x >= 0 && x < _cols);
+        ARRAY_ASSERT(y >= 0 && y < _items.length() / _cols);
         
         return _items[x + y * _cols];
       }
       
       T &get(int y, int x) {
-        assert(x >= 0 && x < _cols);
-        assert(y >= 0 && y < _items.length() / _cols);
+        ARRAY_ASSERT(x >= 0 && x < _cols);
+        ARRAY_ASSERT(y >= 0 && y < _items.length() / _cols);
         
         return _items[x + y * _cols];
       }
@@ -50,14 +50,14 @@ namespace richmath {
       }
       
       void set(int y, int x, const T &t) {
-        assert(x >= 0 && x < _cols);
-        assert(y >= 0 && y < _items.length() / _cols);
+        ARRAY_ASSERT(x >= 0 && x < _cols);
+        ARRAY_ASSERT(y >= 0 && y < _items.length() / _cols);
         
         _items.set(x + y * _cols, t);
       }
       
       void insert_rows(int yindex, int extra_rows) {
-        assert(extra_rows >= 0);
+        ARRAY_ASSERT(extra_rows >= 0);
         
         _items.length(_items.length() + extra_rows * _cols);
         for(int x = _cols - 1; x >= 0; --x)
@@ -73,7 +73,7 @@ namespace richmath {
       }
       
       void insert_cols(int xindex, int extra_cols) {
-        assert(extra_cols >= 0);
+        ARRAY_ASSERT(extra_cols >= 0);
         
         _items.length(_items.length() + extra_cols * rows());
         int old_cols = _cols;
@@ -95,9 +95,9 @@ namespace richmath {
       }
       
       void remove_rows(int yindex, int rem_rows) {
-        assert(yindex >= 0);
-        assert(rem_rows >= 0);
-        assert(yindex + rem_rows <= rows());
+        ARRAY_ASSERT(yindex >= 0);
+        ARRAY_ASSERT(rem_rows >= 0);
+        ARRAY_ASSERT(yindex + rem_rows <= rows());
         
         int new_rows = rows() - rem_rows;
         for(int y = yindex; y < new_rows; ++y)
@@ -108,9 +108,9 @@ namespace richmath {
       }
       
       void remove_cols(int xindex, int rem_cols) {
-        assert(xindex >= 0);
-        assert(rem_cols >= 0);
-        assert(xindex + rem_cols <= _cols);
+        ARRAY_ASSERT(xindex >= 0);
+        ARRAY_ASSERT(rem_cols >= 0);
+        ARRAY_ASSERT(xindex + rem_cols <= _cols);
         
         for(int y = 0; y < rows(); ++y) {
           for(int x = 0; x < xindex; ++x)

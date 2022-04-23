@@ -236,7 +236,7 @@ AbstractSequence *BoxFactory::create_sequence(LayoutKind kind) {
     case LayoutKind::Text: return new TextSequence;
   }
   
-  assert(0 && "not reached");
+  RICHMATH_ASSERT(0 && "not reached");
   return new MathSequence;
 }
 

@@ -188,7 +188,7 @@ bool CurrentValue::register_provider(
   Expr (*get)(FrontEndObject *obj, Expr item),
   bool (*put)(FrontEndObject *obj, Expr item, Expr rhs))
 {
-  assert(get != nullptr);
+  RICHMATH_ASSERT(get != nullptr);
   
   if(Impl::providers.search(item))
     return false;

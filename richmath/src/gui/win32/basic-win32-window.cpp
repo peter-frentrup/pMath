@@ -3236,7 +3236,7 @@ Win32BlurBehindWindow::Win32BlurBehindWindow(BasicWin32Window *owner)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  assert(_owner != nullptr);
+  RICHMATH_ASSERT(_owner != nullptr);
 }
 
 Win32BlurBehindWindow::~Win32BlurBehindWindow() {
@@ -3526,7 +3526,7 @@ void WindowMagnetics::get_snap_rect(HWND hwnd, RECT *rect) {
 }
 
 bool WindowMagnetics::snap_inside(const RECT &outer) {
-  assert(orig_rect != nullptr);
+  RICHMATH_ASSERT(orig_rect != nullptr);
   
   bool have_snapped_x = false;
   bool have_snapped_y = false;

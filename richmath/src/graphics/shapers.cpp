@@ -247,7 +247,7 @@ FallbackTextShaper::FallbackTextShaper(SharedPtr<TextShaper> default_shaper)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  assert(default_shaper.is_valid());
+  RICHMATH_ASSERT(default_shaper.is_valid());
   
   if(auto fts = dynamic_cast<FallbackTextShaper *>(default_shaper.ptr())) {
     _shapers = fts->_shapers;
@@ -290,7 +290,7 @@ int FallbackTextShaper::first_missing_glyph(int len, const GlyphInfo *glyphs) {
 }
 
 void FallbackTextShaper::add(SharedPtr<TextShaper> fallback) {
-  assert(fallback.is_valid());
+  RICHMATH_ASSERT(fallback.is_valid());
   
   int own_num = num_fonts();
   if(own_num + fallback->num_fonts() > NumFontsPerGlyph) {

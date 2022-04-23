@@ -72,8 +72,8 @@ void Observatory::shutdown() {
 //{ class Observable ...
 
 static void swap_observers(Observable *left, Observable *right) {
-  assert(left != nullptr);
-  assert(right != nullptr);
+  RICHMATH_ASSERT(left != nullptr);
+  RICHMATH_ASSERT(right != nullptr);
   
   Expr left_observers = TheObservatory.all_observers[left];
   Expr right_observers = TheObservatory.all_observers[right];
@@ -122,7 +122,7 @@ Observable::Observable()
 
 Observable::~Observable() {
   notify_all();
-  assert(!TheObservatory.all_observers.search(this));
+  RICHMATH_ASSERT(!TheObservatory.all_observers.search(this));
 }
 
 Observable::Observable(Observable &&src)

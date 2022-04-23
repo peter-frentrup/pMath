@@ -164,7 +164,7 @@ inline ScopeColorizerImpl::ScopeColorizerImpl(MathSequence &sequence, SyntaxStat
 }
 
 void ScopeColorizerImpl::colorize_spanexpr(SpanExpr *se) {
-  assert(se != 0);
+  RICHMATH_ASSERT(se != 0);
   
   if(se->count() == 0) { // identifiers   #   ~
     colorize_identifier(se);
@@ -485,7 +485,7 @@ void ScopeColorizerImpl::colorize_keyword(SpanExpr *se) {
 }
 
 void ScopeColorizerImpl::colorize_identifier(SpanExpr *se) { // identifiers   #   ~
-  assert(se->count() == 0);
+  RICHMATH_ASSERT(se->count() == 0);
   
   painter.move_to(se->start());
   switch(painter.get_style()) {
@@ -523,7 +523,7 @@ void ScopeColorizerImpl::colorize_identifier(SpanExpr *se) { // identifiers   # 
 }
 
 void ScopeColorizerImpl::colorize_pure_argument(SpanExpr *se) { // #x
-  assert(se->count() == 2);
+  RICHMATH_ASSERT(se->count() == 2);
   
   painter.move_to(se->start());
   if(state.in_function)
@@ -533,7 +533,7 @@ void ScopeColorizerImpl::colorize_pure_argument(SpanExpr *se) { // #x
 }
 
 void ScopeColorizerImpl::colorize_pure_function(SpanExpr *se) { // body &
-  assert(se->count() == 2);
+  RICHMATH_ASSERT(se->count() == 2);
   
   bool old_in_function = state.in_function;
   state.in_function = true;
@@ -546,7 +546,7 @@ void ScopeColorizerImpl::colorize_pure_function(SpanExpr *se) { // body &
 void ScopeColorizerImpl::colorize_mapsto_function(SpanExpr *se) {
   // args \[Function]
   // args \[Function] body
-  assert(se->count() == 2 || se->count() == 3);
+  RICHMATH_ASSERT(se->count() == 2 || se->count() == 3);
   
   SharedPtr<ScopePos> next_scope = state.new_scope();
   state.new_scope();
@@ -588,7 +588,7 @@ void ScopeColorizerImpl::colorize_mapsto_function(SpanExpr *se) {
 }
 
 void ScopeColorizerImpl::colorize_simple_pattern_name(SpanExpr *se) { // ~x   ?x
-  assert(se->count() == 2);
+  RICHMATH_ASSERT(se->count() == 2);
   
   if(!state.in_pattern)
     return;
@@ -602,7 +602,7 @@ void ScopeColorizerImpl::colorize_simple_pattern_name(SpanExpr *se) { // ~x   ?x
 }
 
 void ScopeColorizerImpl::colorize_pattern_name(SpanExpr *se) { // name:pat
-  assert(se->count() >= 2);
+  RICHMATH_ASSERT(se->count() >= 2);
   
   if(!state.in_pattern)
     return;
@@ -617,7 +617,7 @@ void ScopeColorizerImpl::colorize_pattern_name(SpanExpr *se) { // name:pat
 }
 
 void ScopeColorizerImpl::colorize_typed_pattern(SpanExpr *se) { // ~name:type
-  assert(se->count() >= 3);
+  RICHMATH_ASSERT(se->count() >= 3);
   
   if(!state.in_pattern)
     return;
@@ -631,7 +631,7 @@ void ScopeColorizerImpl::colorize_typed_pattern(SpanExpr *se) { // ~name:type
 }
 
 void ScopeColorizerImpl::colorize_optional_value_pattern(SpanExpr *se) { // ?name:value
-  assert(se->count() >= 3);
+  RICHMATH_ASSERT(se->count() >= 3);
   
   if(!state.in_pattern)
     return;
@@ -655,7 +655,7 @@ void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed)
   // lhs:=rhs
   // lhs->
   // lhs->rhs
-  assert(se->count() == 2 || se->count() == 3);
+  RICHMATH_ASSERT(se->count() == 2 || se->count() == 3);
   
   SharedPtr<ScopePos> next_scope = state.new_scope();
   state.new_scope();
@@ -683,7 +683,7 @@ void ScopeColorizerImpl::colorize_assignment_or_rule(SpanExpr *se, bool delayed)
 }
 
 void ScopeColorizerImpl::colorize_tag_assignment(SpanExpr * se, bool delayed) { // x/:y:=z   x/:y::=z
-  assert(se->count() >= 4 && se->count() <= 5);
+  RICHMATH_ASSERT(se->count() >= 4 && se->count() <= 5);
   
   colorize_spanexpr(se->item(0));
   
@@ -713,7 +713,7 @@ void ScopeColorizerImpl::colorize_tag_assignment(SpanExpr * se, bool delayed) { 
 }
 
 bool ScopeColorizerImpl::colorize_integral(SpanExpr *se) { // \[Integral] ... \[DifferentialD]...
-  assert(se->count() >= 2);
+  RICHMATH_ASSERT(se->count() >= 2);
   
   bool have_integral = false;
   if(pmath_char_is_integral(se->item_as_char(0))) {
@@ -762,7 +762,7 @@ bool ScopeColorizerImpl::colorize_integral(SpanExpr *se) { // \[Integral] ... \[
 }
 
 bool ScopeColorizerImpl::colorize_bigop(SpanExpr *se) {
-  assert(se->count() >= 2);
+  RICHMATH_ASSERT(se->count() >= 2);
   
   MathSequence *bigop_init = nullptr;
   int next_item = 1;
@@ -907,7 +907,7 @@ void ScopeColorizerImpl::colorize_tablespec_call(SpanExpr *se, const SyntaxInfor
 }
 
 void ScopeColorizerImpl::colorize_simple_call(SpanExpr *head_name, SpanExpr *se) {
-  assert(se->count() >= 3 && se->item_as_char(1) == '(');
+  RICHMATH_ASSERT(se->count() >= 3 && se->item_as_char(1) == '(');
   
   String name = head_name->as_text();
   SyntaxInformation info(name);
@@ -1007,11 +1007,11 @@ void ScopeColorizerImpl::colorize_scoping_block_head(FunctionCallSpan &head, Sha
 }
 
 void ScopeColorizerImpl::colorize_scoping_block(FunctionCallSpan &head, SpanExpr *se, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
-  assert(se->count() == 2);
+  RICHMATH_ASSERT(se->count() == 2);
   
   SharedPtr<ScopePos> next_scope;
   colorize_scoping_block_head(head, next_scope, colorize_def);
-  assert(next_scope);
+  RICHMATH_ASSERT(next_scope);
   
   colorize_block_body(se->item(1));
   
@@ -1046,7 +1046,7 @@ void ScopeColorizerImpl::colorize_if_blocks(FunctionCallSpan &head, SpanExpr *se
 }
 
 void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
-  assert(se->count() >= 2);
+  RICHMATH_ASSERT(se->count() >= 2);
   
   if(FunctionCallSpan::is_simple_call(se->item(0))) {
     FunctionCallSpan head_call(se->item(0));
@@ -1408,7 +1408,7 @@ void ErrorColorizerImpl::colorize_block_body_errors(SpanExpr *se) {
 }
 
 void ErrorColorizerImpl::colorize_block_errors(SpanExpr *se) {
-  assert(se->count() >= 2);
+  RICHMATH_ASSERT(se->count() >= 2);
   
   for(int i = 0; i < se->count(); ++i)
     colorize_block_body_errors(se->item(i));

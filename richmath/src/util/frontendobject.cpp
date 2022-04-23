@@ -35,7 +35,7 @@ namespace richmath {
             _next_id._id++;
         } while(table.search(_next_id));
         
-        assert(result.is_valid());
+        RICHMATH_ASSERT(result.is_valid());
         return result;
       }
     

@@ -2,8 +2,8 @@
 #include <gui/gtk/mgtk-icons.h>
 
 #include <util/array.h>
+#include <util/base.h>
 
-#include <assert.h>
 #include <cairo.h>
 #include <cmath>
 
@@ -42,15 +42,15 @@ namespace {
       ) {
         ClipboardData *self = (ClipboardData *)user_data;
         
-        assert(self != nullptr);
+        RICHMATH_ASSERT(self != nullptr);
         
         if(info == PixbufInfoIndex) {
           gtk_selection_data_set_pixbuf(selection_data, self->pixbuf);
           return;
         }
         
-        assert(info >= 0);
-        assert(info < (unsigned)self->end_pointers.length());
+        RICHMATH_ASSERT(info >= 0);
+        RICHMATH_ASSERT(info < (unsigned)self->end_pointers.length());
         
         int end = self->end_pointers[info];
         int start = info > 0 ? self->end_pointers[info - 1] : 0;

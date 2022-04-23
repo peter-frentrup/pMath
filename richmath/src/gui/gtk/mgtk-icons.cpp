@@ -1,5 +1,7 @@
 #include <gui/gtk/mgtk-icons.h>
 
+#include <util/base.h>
+
 #include <gtk/gtk.h>
 #include <gdk-pixbuf/gdk-pixdata.h>
 
@@ -442,7 +444,7 @@ MathGtkIcons::~MathGtkIcons() {
 }
 
 GdkPixbuf *MathGtkIcons::get_icon(Index idx) {
-  assert(0 <= (int)idx && (int)idx < (int)IconsCount);
+  RICHMATH_ASSERT(0 <= (int)idx && (int)idx < (int)IconsCount);
   
   if(!icons[idx]) {
     icons[idx] = gdk_pixbuf_from_pixdata(data[idx], FALSE, nullptr);

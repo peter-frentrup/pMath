@@ -35,14 +35,14 @@ extern pmath_symbol_t richmath_System_DollarCanceled;
 extern pmath_symbol_t richmath_System_List;
 
 static void assert_double_zero_terminated(String s) {
-  assert(s.length() >= 2);
-  assert(s.buffer()[s.length() - 1] == 0);
-  assert(s.buffer()[s.length() - 2] == 0);
+  RICHMATH_ASSERT(s.length() >= 2);
+  RICHMATH_ASSERT(s.buffer()[s.length() - 1] == 0);
+  RICHMATH_ASSERT(s.buffer()[s.length() - 2] == 0);
 }
 
 static void assert_zero_terminated(String s) {
-  assert(s.length() >= 1);
-  assert(s.buffer()[s.length() - 1] == 0);
+  RICHMATH_ASSERT(s.length() >= 1);
+  RICHMATH_ASSERT(s.buffer()[s.length() - 1] == 0);
 }
 
 //{ class Win32FileDialog ...

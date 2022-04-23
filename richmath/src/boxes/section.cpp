@@ -334,7 +334,7 @@ Box *AbstractSequenceSection::item(int i) {
   if(_dingbat.has_index(i))
     return _dingbat.box_or_null();
   
-  assert(0 && "invalid index");
+  RICHMATH_ASSERT(0 && "invalid index");
   return nullptr;
 }
 

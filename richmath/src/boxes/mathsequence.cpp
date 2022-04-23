@@ -1324,11 +1324,11 @@ class SpanSynchronizer: public Base {
     
     void finish() {
       if(old_pos == old_spans.length()) {
-        assert(old_next_box == old_boxes.length());
+        RICHMATH_ASSERT(old_next_box == old_boxes.length());
       }
       
       if(new_pos == new_spans.length()) {
-        assert(new_next_box == new_boxes.length());
+        RICHMATH_ASSERT(new_next_box == new_boxes.length());
       }
       
       int rem = 0;
@@ -1348,7 +1348,7 @@ class SpanSynchronizer: public Base {
       while(new_next_box < new_boxes.length()) {
         PositionedExpr &new_box = new_boxes[new_next_box];
         
-        assert(new_box.pos < new_spans.length());
+        RICHMATH_ASSERT(new_box.pos < new_spans.length());
         
         Box *box = BoxFactory::create_box(LayoutKind::Math, new_box.expr, new_load_options);
         old_boxes.insert(old_next_box, 1, &box);
@@ -1372,8 +1372,8 @@ class SpanSynchronizer: public Base {
         
         next(old_span.next(), new_span.next());
         
-        assert(old_start < old_pos);
-        assert(new_start < new_pos);
+        RICHMATH_ASSERT(old_start < old_pos);
+        RICHMATH_ASSERT(new_start < new_pos);
         
         while(old_pos <= old_span.end() &&
               new_pos <= new_span.end())
@@ -1981,7 +1981,7 @@ void MathSequence::Impl::substitute_glyphs(
         
         reshaper.apply_lookups(gsub, lookups);
         
-        assert(reshaper.glyphs.length() == reshaper.glyph_info.length());
+        RICHMATH_ASSERT(reshaper.glyphs.length() == reshaper.glyph_info.length());
         
         int len = reshaper.glyphs.length();
         int i = 0;
@@ -2007,7 +2007,7 @@ void MathSequence::Impl::substitute_glyphs(
           else
             next = next_run.glyph_index();
             
-          assert(pos < next);
+          RICHMATH_ASSERT(pos < next);
           
           if(self.glyphs[pos].index != reshaper.glyphs[i]) {
             cg.index = self.glyphs[pos].index = reshaper.glyphs[i];
@@ -3305,9 +3305,9 @@ void MathSequence::Impl::EnlargeSpace::group_number_digits(const GlyphIterator &
   
   int end = end_inclusive.text_index();
   
-  assert(buf == end_inclusive.text_buffer_raw());
-  assert(start.text_index() <= end);
-  assert(end < start.text_buffer_length());
+  RICHMATH_ASSERT(buf == end_inclusive.text_buffer_raw());
+  RICHMATH_ASSERT(start.text_index() <= end);
+  RICHMATH_ASSERT(end < start.text_buffer_length());
   
   if(end_inclusive.glyph_index() - start.glyph_index() != end - start.text_index()) {
     // unsupported: number without 1-to-1 mapping between chars and glyphs
@@ -3445,9 +3445,9 @@ void MathSequence::Impl::EnlargeSpace::show_tab_character(const GlyphIterator &p
 
 ArrayView<const uint16_t> MathSequence::Impl::EnlargeSpace::get_effective_token(const GlyphIterator &start, const GlyphIterator &tok_end) {
 ////Fixme: This assumption can be wrong:
-//  assert(start.text_buffer_raw() == tok_end.text_buffer_raw());
-//  assert(start.text_index() <= tok_end.text_index());
-//  assert(tok_end.text_index() < start.text_buffer_length());
+//  RICHMATH_ASSERT(start.text_buffer_raw() == tok_end.text_buffer_raw());
+//  RICHMATH_ASSERT(start.text_index() <= tok_end.text_index());
+//  RICHMATH_ASSERT(tok_end.text_index() < start.text_buffer_length());
   
   Box *box = start.current_box();
   while(box) {

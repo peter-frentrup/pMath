@@ -152,8 +152,8 @@ Expr PartialDynamic::Impl::prepare_dyn_eval_template(Expr expr) {
         idx[j++] = all_flat[i++];
       }
     }
-    assert(i == all_flat.length());
-    assert(j == all_flat.length() - (int)num_dyn);
+    RICHMATH_ASSERT(i == all_flat.length());
+    RICHMATH_ASSERT(j == all_flat.length() - (int)num_dyn);
   }
   
   Expr templ = MakeCall(Symbol(richmath_System_List), num_dyn);
@@ -276,10 +276,10 @@ void PartialDynamic::Impl::append_pos(Array<int32_t> &all_flat, LinkedList<int32
   all_flat.length(oldlen + cur_depth + 1);
   all_flat.set(oldlen, cur_depth);
   for(int i = cur_depth; i > 0; --i, cur = cur->next) {
-    assert(cur);
+    RICHMATH_ASSERT(cur);
     all_flat.set(oldlen + i, cur->value);
   }
-  assert(!cur);
+  RICHMATH_ASSERT(!cur);
 }
 
 Expr PartialDynamic::Impl::get(Expr expr, Expr indices) {

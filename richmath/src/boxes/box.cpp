@@ -658,8 +658,8 @@ Box *BoxNavigation::next_box(Box *box, LogicalDirection direction, Box *restrict
 }
 
 int BoxNavigation::get_box_item_number(Box *parent, Box *box) { // -1 on error
-  assert(parent);
-  assert(box);
+  RICHMATH_ASSERT(parent);
+  RICHMATH_ASSERT(box);
   
   int count = parent->count();
   if(count == parent->length()) {

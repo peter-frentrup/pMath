@@ -169,14 +169,14 @@ static double gui_start_time = 0.0;
 static int gui_wait_depth = 0;
 
 AutoGuiWait::AutoGuiWait() {
-  assert(gui_wait_depth >= 0);
+  RICHMATH_ASSERT(gui_wait_depth >= 0);
   if(gui_wait_depth++ == 0) {
     gui_start_time = pmath_tickcount();
   }
 }
 
 AutoGuiWait::~AutoGuiWait() {
-  assert(gui_wait_depth > 0);
+  RICHMATH_ASSERT(gui_wait_depth > 0);
   if(--gui_wait_depth == 0) {
     double end_time = pmath_tickcount();
     if(gui_start_time < end_time)
@@ -740,7 +740,7 @@ void Application::add_job(SharedPtr<Job> job) {
 }
 
 FrontEndObject *Application::find_current_job() {
-  assert(main_message_queue == Expr(pmath_thread_get_queue()));
+  RICHMATH_ASSERT(main_message_queue == Expr(pmath_thread_get_queue()));
   
   Session *s = session.ptr();
   
@@ -767,7 +767,7 @@ FrontEndObject *Application::find_current_job() {
 }
 
 bool Application::remove_job(Box *input_box, bool only_check_possibility) {
-  assert(main_message_queue == Expr(pmath_thread_get_queue()));
+  RICHMATH_ASSERT(main_message_queue == Expr(pmath_thread_get_queue()));
   
   if(!input_box)
     return false;
@@ -1274,7 +1274,7 @@ Expr Application::interrupt_wait_for_interactive(Expr expr, FrontEndObject *obj,
 }
 
 void Application::delay_dynamic_updates(bool delay) {
-  assert(main_message_queue == Expr(pmath_thread_get_queue()));
+  RICHMATH_ASSERT(main_message_queue == Expr(pmath_thread_get_queue()));
   
   dynamic_update_delay = delay;
   
@@ -1544,7 +1544,7 @@ namespace {
       }
       
       static String guess_best_title(Document *doc) {
-        assert(doc != nullptr);
+        RICHMATH_ASSERT(doc != nullptr);
         
         Section *best_section = nullptr;
         float lowest_precedence = Infinity;
@@ -1660,7 +1660,7 @@ namespace {
       
     private:
       static void reload_stylesheet(Stylesheet *stylesheet, Expr boxes) {
-        assert(stylesheet != nullptr);
+        RICHMATH_ASSERT(stylesheet != nullptr);
         
         Hashset<FrontEndReference> done;
         done.add(stylesheet->id());

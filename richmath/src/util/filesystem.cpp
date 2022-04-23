@@ -1,5 +1,7 @@
 #include <util/filesystem.h>
 
+#include <util/base.h>
+
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/ole/combase.h>
 #  include <shellapi.h>
@@ -114,7 +116,7 @@ bool FileSystem::is_filename_without_directory(String filename) {
 }
 
 String FileSystem::extract_directory_path(String *filename) {
-  assert(filename != nullptr);
+  RICHMATH_ASSERT(filename != nullptr);
   
   if(filename->is_null())
     return String();

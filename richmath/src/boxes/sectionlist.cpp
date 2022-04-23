@@ -333,7 +333,7 @@ Box *SectionList::move_vertical(
       int group_start = next_group;
       next_group = _sections[group_start]->_group_info.first;
       
-      assert(next_group < group_start);
+      RICHMATH_ASSERT(next_group < group_start);
       
       if(_sections[group_start]->_group_info.close_rel >= 0) { // group is closed
         if(called_from_child) // step out of group
@@ -354,7 +354,7 @@ Box *SectionList::move_vertical(
       int group_start = next_group;
       next_group =  _sections[group_start]->_group_info.first;
       
-      assert(next_group < group_start);
+      RICHMATH_ASSERT(next_group < group_start);
       
       if(_sections[group_start]->_group_info.close_rel >= 0) { // group is closed
         if(called_from_child) // step out of group
@@ -373,8 +373,8 @@ Box *SectionList::move_vertical(
     return this;
   }
   
-  assert(s >= 0);
-  assert(s < _sections.length());
+  RICHMATH_ASSERT(s >= 0);
+  RICHMATH_ASSERT(s < _sections.length());
   
   *index = -1;
   return _sections[s]->move_vertical(direction, index_rel_x, index, false);
@@ -611,8 +611,8 @@ void SectionList::internal_insert_pmath(int *pos, Expr boxes, int overwrite_unti
 }
 
 void SectionList::insert_pmath(int *pos, Expr boxes, int overwrite_until_index) {
-  assert(pos != nullptr);
-  assert(*pos >= 0);
+  RICHMATH_ASSERT(pos != nullptr);
+  RICHMATH_ASSERT(*pos >= 0);
   
   int start = *pos;
   
@@ -652,7 +652,7 @@ void SectionList::insert(int pos, Section *section) {
 Section *SectionList::swap(int pos, Section *section) {
   Section *old = _sections[pos];
   
-  assert(section != old);
+  RICHMATH_ASSERT(section != old);
   
   _sections[pos] = section;
   adopt(section, pos);

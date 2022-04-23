@@ -109,8 +109,8 @@ namespace {
         Context &ctx = *(Context *)data;
         Box     *box = (Box *)shape->data;
         
-        assert(box != nullptr);
-        assert(ctx.canvas().cairo() == cr);
+        RICHMATH_ASSERT(box != nullptr);
+        RICHMATH_ASSERT(ctx.canvas().cairo() == cr);
         
         ctx.canvas().rel_move_to(pango_units_to_double(shape->ink_rect.x), 0);
         box->paint(ctx);
@@ -861,7 +861,7 @@ void TextSequence::ensure_layout_valid() {
   
   Impl(outermost_sequence()).update_layout();
 
-  assert(!text_changed());
+  RICHMATH_ASSERT(!text_changed());
 }
 
 bool TextSequence::is_word_boundary(int i) {
@@ -1113,7 +1113,7 @@ void TextSequence::Impl::Utf8Writer::append_all(TextSequence &seq) {
     
     if(unichar == PMATH_CHAR_BOX) {
       Box *box = seq.boxes[++box_index];
-      assert(box->index() == pos);
+      RICHMATH_ASSERT(box->index() == pos);
       
       append_box_glyphs(seq, pos, box);
       continue;

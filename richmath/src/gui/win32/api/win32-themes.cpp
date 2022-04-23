@@ -315,7 +315,7 @@ bool Win32Themes::current_theme_is_aero() {
 }
 
 DWORD Win32Themes::get_window_title_text_color(const DWM_COLORIZATION_PARAMS *params, bool active) {
-  assert(params);
+  RICHMATH_ASSERT(params);
   
   /* See PaintDotNet.SystemLayer.UIUtil.TryGetWindowColorizationInfo() which uses registry key */
   

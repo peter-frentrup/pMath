@@ -50,7 +50,7 @@ void BasicGtkWidget::destroy_widget_key_callback(BasicGtkWidget *_this) {
 
 BasicGtkWidget::~BasicGtkWidget() {
   if(!_destroying) {
-    assert(_destroying);
+    RICHMATH_ASSERT(_destroying);
   }
   
   if(_widget) {

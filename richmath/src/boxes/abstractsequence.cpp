@@ -30,9 +30,9 @@ Box *AbstractSequence::item(int i) {
 }
 
 String AbstractSequence::raw_substring(int start, int length) {
-  assert(start >= 0);
-  assert(length >= 0);
-  assert(start + length <= str.length());
+  RICHMATH_ASSERT(start >= 0);
+  RICHMATH_ASSERT(length >= 0);
+  RICHMATH_ASSERT(start + length <= str.length());
   
   return str.part(start, length);
 }
@@ -290,7 +290,7 @@ Box *AbstractSequence::extract_box(int boxindex) {
 //} ... insert/remove
 
 int AbstractSequence::get_box(int index, int guide) {
-  assert(str[index] == PMATH_CHAR_BOX);
+  RICHMATH_ASSERT(str[index] == PMATH_CHAR_BOX);
   
   ensure_boxes_valid();
   if(guide < 0)
@@ -310,7 +310,7 @@ int AbstractSequence::get_box(int index, int guide) {
       return box;
   }
   
-  assert(0 && "no box found at index.");
+  RICHMATH_ASSERT(0 && "no box found at index.");
   return -1;
 }
 

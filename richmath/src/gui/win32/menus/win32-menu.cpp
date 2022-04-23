@@ -417,7 +417,7 @@ void MenuItemBuilder::add_remove_menu(int delta) {
   static int num_menus = 0;
   
   if(num_menus == 0) {
-    assert(delta == 1);
+    RICHMATH_ASSERT(delta == 1);
     
     cmd_to_id.default_value = 0;
     
@@ -620,9 +620,9 @@ void MenuItemBuilder::update_items(HMENU sub) {
 }
 
 bool MenuItemBuilder::init_info(MENUITEMINFOW *info, Expr item, String *buffer) {
-  assert(info);
-  assert(info->cbSize >= sizeof(MENUITEMINFOW));
-  assert(buffer);
+  RICHMATH_ASSERT(info);
+  RICHMATH_ASSERT(info->cbSize >= sizeof(MENUITEMINFOW));
+  RICHMATH_ASSERT(buffer);
   
   if(item == richmath_System_Delimiter)
     return init_delimiter_info(info);

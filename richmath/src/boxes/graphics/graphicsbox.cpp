@@ -220,7 +220,7 @@ Expr GraphicsBox::get_user_options() {
 }
 
 Box *GraphicsBox::item(int i) {
-  assert(0 <= i && i < 6);
+  RICHMATH_ASSERT(0 <= i && i < 6);
   
   return ticks[i];
 }
@@ -1378,7 +1378,7 @@ Expr GraphicsBox::Impl::get_ticks(const GraphicsBounds &bounds, enum AxisIndex p
           
         case AxisIndexX:
         case AxisIndexY:
-          assert(!"not reached");
+          RICHMATH_ASSERT(0 && "not reached");
       }
     }
     

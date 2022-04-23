@@ -106,7 +106,7 @@ Dynamic::Dynamic(StyledObject *owner, Expr expr)
 }
 
 void Dynamic::init(StyledObject *owner, Expr expr) {
-  assert(_owner == nullptr && owner != nullptr);
+  RICHMATH_ASSERT(_owner == nullptr && owner != nullptr);
   
   _owner = owner;
   *this = expr;

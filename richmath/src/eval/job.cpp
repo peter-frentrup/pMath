@@ -249,8 +249,8 @@ ReplacementJob::ReplacementJob(MathSequence *seq, int start, int end)
 {
   SET_BASE_DEBUG_TAG(typeid(*this).name());
   
-  assert(0 <= start);
-  assert(start <= end);
+  RICHMATH_ASSERT(0 <= start);
+  RICHMATH_ASSERT(start <= end);
   
   _position = EvaluationPosition(seq);
 }

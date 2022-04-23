@@ -335,7 +335,7 @@ void NativeWidget::adopt(Document *doc) {
     _document->safe_destroy();
   }
   
-  assert(!doc || doc->_native == dummy || doc->_native == this);
+  RICHMATH_ASSERT(!doc || doc->_native == dummy || doc->_native == this);
   if(doc)
     doc->_native = this;
   _document = doc;
