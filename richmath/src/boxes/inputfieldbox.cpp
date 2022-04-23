@@ -211,7 +211,7 @@ void InputFieldBox::paint_content(Context &context) {
       }
       context.canvas().restore();
       
-      if(was_parent) {
+      if(was_parent && !context.selection.get()) { // old selection got lost
         context.selection = SelectionReference();
         if(auto doc = find_parent<Document>(false))
           doc->select(content(), content()->length(), content()->length());
