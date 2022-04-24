@@ -3767,6 +3767,12 @@ void MathSequence::Impl::IndentLines::visit_span(MathSequence *span_seq, Span sp
     uint16_t ch = iter.current_char();
     if((ch == ';' || ch == '\n') && !sub && !prev_simple)
       inner_newline = true;
+    
+    auto tok_buf = iter.find_token();
+    if(tok_buf.length() == 2 && tok_buf[0] == '|' && tok_buf[1] == '>') {
+      for(int i = start; i < iter.glyph_index(); ++i)
+        indention_array[i]--;
+    }
       
     ends_with_newline = ch == '\n' && !sub;
     prev_simple = !sub;
