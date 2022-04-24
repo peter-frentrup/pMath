@@ -78,6 +78,7 @@ namespace {
       void colorize_block_body_line(SpanExpr *se, SharedPtr<ScopePos> &scope_after_block);
       void colorize_block_body(SpanExpr *se);
       void symdef_local_colorize_spanexpr(SpanExpr *se);
+      void symdef_parameter_colorize_spanexpr(SpanExpr *se);
       void replacement_special_colorize_spanexpr(SpanExpr *se);
       void colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*));
       void colorize_scoping_block(FunctionCallSpan &head, SpanExpr *se, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*));
@@ -988,12 +989,18 @@ void ScopeColorizerImpl::symdef_local_colorize_spanexpr(SpanExpr *se) {
   symdef_colorize_spanexpr(se, SymbolKind::LocalSymbol);
 }
 
+void ScopeColorizerImpl::symdef_parameter_colorize_spanexpr(SpanExpr *se) {
+  symdef_colorize_spanexpr(se, SymbolKind::Parameter);
+}
+
 void ScopeColorizerImpl::replacement_special_colorize_spanexpr(SpanExpr *se) {
   replacement_colorize_spanexpr(se, SymbolKind::Special);
 }
 
 void ScopeColorizerImpl::colorize_scoping_block_head(FunctionCallSpan &head, SharedPtr<ScopePos> &scope_after_block, void (ScopeColorizerImpl::*colorize_def)(SpanExpr*)) {
-  colorize_spanexpr(head.span());
+  for(int i = 0; i < head.span()->count(); ++i) {
+    colorize_spanexpr(head.span()->item(i));
+  }
   colorize_keyword(head.function_head());
   
   if(!scope_after_block)
@@ -1060,6 +1067,11 @@ void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
           colorize_scoping_block(head_call, se, &ScopeColorizerImpl::replacement_special_colorize_spanexpr);
           return;
         }
+        if(name->equals("Function")) {
+          // Function(args) { ... }
+          colorize_scoping_block(head_call, se, &ScopeColorizerImpl::symdef_parameter_colorize_spanexpr);
+          return;
+        }
         if(name->equals("While") || name->equals("Switch") || name->equals("Case") || name->equals("If")) {
           colorize_spanexpr(head_call.span());
           colorize_keyword(head_call.function_head());
@@ -1077,10 +1089,22 @@ void ScopeColorizerImpl::colorize_block(SpanExpr *se) {
   
   SpanExpr *name = span_as_name(se->item(0));
   if(name && name->equals("Function")) {
+    if(se->count() == 2) {
+      // Function { ... }
+      colorize_keyword(name);
+      
+      bool old_in_function = state.in_function;
+      state.in_function = true;
+      
+      colorize_block_body(se->item(1)); // {...}
+      
+      state.in_function = old_in_function;
+      return;
+    }
+    
     if(se->count() >= 3) {
-      /* Function name(...) {...}  is syntactic suggar for  name(...)::=...
-         Function name(...) Where(...) {...} is abbrev. of  name(...) /? ... ::= ...
-       */
+      // Function name(...) {...}  is syntactic suggar for  name(...)::=...
+      // Function name(...) Where(...) {...} is abbrev. of  name(...) /? ... ::= ...
       colorize_keyword(name);
       
       SharedPtr<ScopePos> next_scope = state.new_scope();
@@ -1321,9 +1345,7 @@ void ErrorColorizerImpl::get_block_head_argument_counts(SpanExpr *name, int &arg
     return;
   }
   
-  
-  if( name->equals("Function") ||
-      name->equals("Block") ||
+  if( name->equals("Block") ||
       name->equals("Try") ||
       name->equals("Finally"))
   {
