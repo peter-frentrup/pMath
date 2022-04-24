@@ -140,10 +140,10 @@ Function InteractiveCreateHelpDocument() {
                             If(paths === {}) {
                                 ButtonBox(
                                     ToBoxes @ StringForm("Create `1`.pmathdoc", name),
-                                    ButtonFunction -> Function(Block {
+                                    ButtonFunction -> Function {
                                         DocumentClose(popup)
                                         CreateHelpDocument(name)
-                                    })
+                                    }
                                 )
                             } Else {
                                 StringBox({
@@ -151,10 +151,10 @@ Function InteractiveCreateHelpDocument() {
                                     TooltipBox(
                                         ButtonBox(
                                             name ++ ".pmathdoc",
-                                            ButtonFunction :> Function(Block {
+                                            ButtonFunction :> Function {
                                                 DocumentClose(popup)
                                                 DocumentOpen(paths[1])
-                                            }),
+                                            },
                                             BaseStyle -> "Hyperlink"
                                         ),
                                         ToBoxes(paths[1])

@@ -56,7 +56,7 @@ Function internalInspectBoxes(~span:List) {
 		With(debugInfoBoxes:= {span.Map(If(isOperatorToken(#), #, "\[Ellipsis]")&), "\n", ToBoxes(toNiceInfo(debugInfo))})
 		Return(
 			newSpan.Map(
-				Function(Block {
+				Function {
 					If(isOperatorToken(#)) {
 						TooltipBox(
 							StyleBox(#, styleDebugInfoAvailable).wrapHyperlinkBox(debugInfo), 
@@ -64,7 +64,7 @@ Function internalInspectBoxes(~span:List) {
 					} Else {
 						#
 					}
-				})))
+				}))
 	}
 	Return(newSpan)
 }

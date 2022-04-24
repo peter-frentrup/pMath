@@ -140,14 +140,14 @@ trigOfTrigInverse(Sin, ArcTan(~x))::= x / Sqrt(1 + x^2)
 
 Scan(
     {ArcCos, ArcCot, ArcCsc, ArcSec, ArcSin, ArcTan},
-    Function(Block{
+    Function {
         With(sin:= trigOfTrigInverse(Sin, #(x)))
         With(cos:= trigOfTrigInverse(Cos, #(x)))
         trigOfTrigInverse(Cot, #(~x)):= cos/sin
         trigOfTrigInverse(Csc, #(~x)):= 1/sin
         trigOfTrigInverse(Sec, #(~x)):= 1/cos
         trigOfTrigInverse(Tan, #(~x)):= sin/cos
-    })
+    }
 )
 
 
@@ -175,14 +175,14 @@ hypOfHypInverse(Sinh, ArcTanh(~x))::= x/Sqrt(1-x^2)
 
 Scan(
     {ArcCosh, ArcCoth, ArcCsch, ArcSech, ArcSinh, ArcTanh},
-    Function(Block{
+    Function {
         With(sinh:= hypOfHypInverse(Sinh, #(x)))
         With(cosh:= hypOfHypInverse(Cosh, #(x)))
         hypOfHypInverse(Coth, #(~x)):= cosh/sinh
         hypOfHypInverse(Csch, #(~x)):= 1/sinh
         hypOfHypInverse(Sech, #(~x)):= 1/cosh
         hypOfHypInverse(Tanh, #(~x)):= sinh/cosh
-    })
+    }
 )
 
 
