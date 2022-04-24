@@ -265,6 +265,7 @@
                     <string>(?x)
                     \b(
                     (?:     Block
+                        |   Function
                         |   Try
                     ) (?= \s* \{ )
                     |   (?:
@@ -284,6 +285,7 @@
                         |   Catch
                         |   Continue
                         |   Do
+                        |   Function
                         |   If
                         |   Local
                         |   Return
