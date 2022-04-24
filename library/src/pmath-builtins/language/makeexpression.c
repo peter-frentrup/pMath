@@ -255,6 +255,8 @@ static void handle_row_error_at(pmath_expr_t expr, size_t i);
 static pmath_symbol_t inset_operator(uint16_t ch); // do not free result!
 static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i); // do not free result!
 
+static pmath_t unrwap_box_newlines(pmath_t box);
+
 static void emit_grid_options(pmath_expr_t options);
 static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling); // expr wont be freed, return PMATH_NULL on error
 
@@ -1279,6 +1281,31 @@ static pmath_symbol_t relation_at(pmath_expr_t expr, size_t i) { // do not free 
   }
   
   return PMATH_NULL;
+}
+
+static pmath_t unrwap_box_newlines(pmath_t box) {
+  for(;;) {
+    if(pmath_is_expr_of(box, pmath_System_List)) {
+      size_t len = pmath_expr_length(box);
+      size_t i;
+      
+      i = 1;
+      while(i < len && unichar_at(box, i) == '\n')
+        ++i;
+      
+      while(len > i && unichar_at(box, len) == '\n')
+        --len;
+      
+      if(i == len) {
+        pmath_t tmp = pmath_expr_get_item(box, i);
+        pmath_unref(box);
+        box = tmp;
+        continue;
+      }
+    }
+    
+    return box;
+  }
 }
 
 static void emit_grid_options(pmath_expr_t options) { // options wont be freed
@@ -3127,6 +3154,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
   }
   
   box = pmath_expr_get_item(boxes, 3);
+  box = unrwap_box_newlines(box);
   if(pmath_is_expr_of(box, pmath_System_List)) {
     boxlen = pmath_expr_length(box);
     

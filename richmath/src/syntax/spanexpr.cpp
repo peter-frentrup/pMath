@@ -1055,6 +1055,9 @@ SpanExpr *FunctionCallSpan::function_head() {
   
   if(is_pipe_call()) {
     auto rhs = _span->item(2);
+    while(rhs->count() == 1) 
+      rhs = rhs->item(0);
+    
     if(is_simple_call(rhs))
       return rhs->item(0);
     
@@ -1093,6 +1096,9 @@ SpanExpr *FunctionCallSpan::function_argument(int i) {
       return _span->item(0);
     
     auto rhs = _span->item(2);
+    while(rhs->count() == 1) 
+      rhs = rhs->item(0);
+    
     if(is_simple_call(rhs)) {
       if(rhs->count() <= 2) // a |> f(  or shorter
         return nullptr;
