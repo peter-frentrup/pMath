@@ -411,17 +411,16 @@ void MathSequence::resize(Context &context) {
           &size.ascent,
           &size.descent);
       }
-      else 
+      else
         Impl(*this).stretch_all_vertical(context);
     }
-    else 
+    else
       Impl(*this).stretch_all_vertical(context);
   }
   Impl(*this).enlarge_space(context);
   
   {
     _extents.width = 0;
-    GlyphIterator iter{*this};
     for(GlyphIterator iter{*this}; iter.has_more_glyphs(); iter.move_next_glyph()) {
       GlyphInfo &gi = iter.current_glyph();
       if(iter.current_char() == '\n')
