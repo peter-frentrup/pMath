@@ -6,22 +6,34 @@
 namespace richmath {
   template<typename T>
   struct DefaultValue {
-    static T initial() { return T{}; }
+    static T initial() { return value; }
+    static const T value;
   };
+  
+  template<typename T>
+  const T DefaultValue<T>::value = T{};
   
   template<typename T>
   struct ConstPredictor {
     static T predict(T initial, int steps) { return initial; }
+    
+    enum { _debug_predictor_kind = 0 };
   };
   
   template<typename T>
   struct LinearPredictor {
     static T predict(T initial, int steps) { return initial + steps; }
+    
+    enum { _debug_predictor_kind = 1 };
   };
   
   template<typename T, typename Def=DefaultValue<T>>
   struct EventPredictor {
+    using value_default_type = Def;
+    
     static T predict(T initial, int steps) { return steps == 0 ? initial : Def::initial(); }
+    
+    enum { _debug_predictor_kind = 2 };
   };
   
   template<typename T>
@@ -42,9 +54,10 @@ namespace richmath {
   class RleArrayIterator {
       friend A;
       using rle_array_type = A;
-      using value_type     = typename rle_array_type::value_type;
-      using entry_type     = typename rle_array_type::entry_type;
-      using predictor_type = typename rle_array_type::predictor_type;
+      using value_default_type = typename rle_array_type::value_default_type;
+      using value_type         = typename rle_array_type::value_type;
+      using entry_type         = typename rle_array_type::entry_type;
+      using predictor_type     = typename rle_array_type::predictor_type;
     public:
       int index() const { return _index; }
       value_type get() const { return predictor_type::predict(_array->group_start_value(_group), _index - _array->group_start_index(_group)); }
@@ -87,6 +100,7 @@ namespace richmath {
   class RleArray {
     public:
       using self_type = RleArray<T, P, Def>;
+      using value_default_type = Def;
       using value_type = T;
       using predictor_type = P;
       using entry_type = RleArrayEntry<T>;

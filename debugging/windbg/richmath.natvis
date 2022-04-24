@@ -30,7 +30,101 @@
 			</CustomListItems>
 		</Expand>
 	</Type>
-	
+
+	<Type Name="richmath::Length">
+		<DisplayString Condition="_raw_value &lt; 0">{(SymbolicSize)(int)_raw_value}</DisplayString>
+		<DisplayString Condition="_raw_value &gt;= 0">{_raw_value}</DisplayString>
+	</Type>
+
+	<Type Name="richmath::RleArrayIterator&lt;*&gt;">
+		<DisplayString IncludeView="valueonly" Condition="predictor_type::_debug_predictor_kind == 0">{
+				(_group &gt;= 0) ? (
+					((*_array).groups._items[_group].next_value)
+				) : (
+					value_default_type::value
+				)
+		}</DisplayString>
+		<DisplayString IncludeView="valueonly" Condition="predictor_type::_debug_predictor_kind == 1">{
+				(_group &gt;= 0) ? (
+					((*_array).groups._items[_group].next_value)
+					+ (_index - (*_array).groups._items[_group].first_index)
+				) : (
+					value_default_type::value
+					+ (_index - 0)
+				)
+		}</DisplayString>
+		<DisplayString ExcludeView="valueonly">{{ index={_index} value={*this,view(valueonly)} }}</DisplayString>
+		<Expand>
+			<Item Name="index" ExcludeView="valueonly">_index</Item>
+			
+			<Item Name="value" Condition="predictor_type::_debug_predictor_kind == 0">
+				(_group &gt;= 0) ? (
+					((*_array).groups._items[_group].next_value)
+				) : (
+					value_default_type::value
+				)
+			</Item>
+			<Item Name="value" Condition="predictor_type::_debug_predictor_kind == 1">
+				(_group &gt;= 0) ? (
+					((*_array).groups._items[_group].next_value)
+					+ (_index - (*_array).groups._items[_group].first_index)
+				) : (
+					value_default_type::value
+					+ (_index - 0)
+				)
+			</Item>
+			<!--<Item Name="value" Condition="predictor_type::_debug_predictor_kind == 2">
+				(_group &gt;= 0) ? (
+					(_index == (*_array).groups._items[_group].first_index) ? (
+						(*_array).groups._items[_group].next_value
+					) : (
+						predictor_type::value_default_type::value
+					)
+				) : (
+					(_index == 0) ? (
+						value_default_type::value
+					) : (
+						predictor_type::value_default_type::value
+					)
+				)
+			</Item>-->
+			
+			<Item ExcludeView="valueonly" Name="index in group" Condition="_group &gt;= 0">_index - (*_array).groups._items[_group].first_index</Item>
+			<Item ExcludeView="valueonly" Name="index in group" Condition="_group &lt;  0">_index - 0</Item>
+			<Item ExcludeView="valueonly" Name="group" Condition="_group &gt;= 0">*(predictor_type*)&amp;(*_array).groups._items[_group].next_value</Item>
+			<Item ExcludeView="valueonly" Name="group" Condition="_group &lt;  0">*(predictor_type*)&amp;value_default_type::value</Item>
+			<Synthetic ExcludeView="valueonly" Name="(predictor)" Condition="predictor_type::_debug_predictor_kind == 0">
+				<DisplayString>const</DisplayString>
+			</Synthetic>
+			<Synthetic ExcludeView="valueonly" Name="(predictor)" Condition="predictor_type::_debug_predictor_kind == 1">
+				<DisplayString>linear</DisplayString>
+			</Synthetic>
+			<Synthetic ExcludeView="valueonly" Name="(predictor)" Condition="predictor_type::_debug_predictor_kind == 2">
+				<DisplayString>event</DisplayString>
+			</Synthetic>
+			<!--<Item ExcludeView="valueonly" Name="(predictor)">*(predictor_type*)1,view(nameonly)</Item>-->
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::BasicSequenceIterator&lt;*&gt;">
+		<DisplayString>{{ glyph:{_text_pos_iter._index} text:{_text_pos_iter,view(valueonly)} seq:{_inline_seq_iter,view(valueonly)} }}</DisplayString>
+		<Expand>
+			<Item Name="glyph_index">_text_pos_iter._index</Item>
+			<Item Name="text_index">_text_pos_iter,view(valueonly)</Item>
+			<Item Name="current_char">(wchar_t)_current_char</Item>
+			<Item Name="sequence">_inline_seq_iter,view(valueonly)</Item>
+			<Item Name="outermost_sequence">_owning_seq</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::GlyphIterator">
+		<DisplayString>{_basic_iter}</DisplayString>
+		<Expand>
+			<ExpandedItem>_basic_iter</ExpandedItem>
+			<Item Name="semantic_style">_semantic_style_iter</Item>
+		</Expand>
+	</Type>
+
 	<Type Name="richmath::SharedPtr&lt;*&gt;">
 		<SmartPointer Usage="Minimal">_ptr</SmartPointer>
 		<DisplayString>{_ptr}</DisplayString>
