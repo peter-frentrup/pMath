@@ -41,7 +41,6 @@ FE`Private`mainmenu:= Menu("pMath", {
 		MenuItem("E&xpand Selection",                     "ExpandSelection"),
 		MenuItem("Select &All",                           "SelectAll"),
 		MenuItem("Find Matching &Bracket",                "FindMatchingFence"),
-		MenuItem("Find &Style Definition",                FrontEnd`FindStyleDefinition()),
 		Delimiter,
 		MenuItem("&Open/Close Group",                     "OpenCloseGroup"),
 		MenuItem("Toggle C&haracter Code",                "ToggleCharacterCode")
@@ -70,6 +69,8 @@ FE`Private`mainmenu:= Menu("pMath", {
 		}),
 	Menu("Fo&rmat", {
 		Menu("&Style", {
+			MenuItem("&Find Style Definition", FrontEnd`FindStyleDefinition()),
+			Delimiter,
 			Menu("Styles", "MenuListStyles")
 			}),
 		Menu("St&ylesheet", {
