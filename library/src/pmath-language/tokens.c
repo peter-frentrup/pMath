@@ -38,6 +38,7 @@ struct char_info_t {
 #define AD2  {PMATH_PREC_PLUMI,    PMATH_TOK_BINARY_LEFT}
 #define MID  {PMATH_PREC_MIDDOT,   PMATH_TOK_NARY}
 #define ARR  {PMATH_PREC_ARROW,    PMATH_TOK_NARY}
+#define RAR  {PMATH_PREC_ARROW,    PMATH_TOK_BINARY_RIGHT}
 #define ALL  {PMATH_PREC_REL,      PMATH_TOK_PREFIX}
 #define PAR  {PMATH_PREC_POW,      PMATH_TOK_PREFIX}
 #define BIG  {PMATH_PREC_CIRCADD,  PMATH_TOK_PREFIX}
@@ -99,7 +100,7 @@ static const struct char_info_t u2100_u230f[528] = {
   /* 217 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 218 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 219 */ ARR, ARR, RUL, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR,
-  /* 21A */ ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR,
+  /* 21A */ ARR, ARR, ARR, ARR, ARR, ARR, RAR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR,
   /* 21B */ ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR,
   /* 21C */ ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR,
   /* 21D */ ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR, ARR,
@@ -408,7 +409,7 @@ PMATH_API pmath_token_t pmath_token_analyse(
     case '|': //  ||  |->  |>
       if(len == 3 && str[1] == '-' && str[2] == '>') { //  |->
         *prec = PMATH_PREC_ARROW;
-        return PMATH_TOK_NARY;
+        return PMATH_TOK_BINARY_RIGHT;
       }
       if(len == 2 && str[1] == '>') { //  |>
         *prec = PMATH_PREC_ARROW;
