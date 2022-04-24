@@ -1,0 +1,220 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Function (\[Function])", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Function"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(
+         TextData({"When ", TemplateBox({"Function"}, "ReferenceHyperlink"), 
+           "(", StyleBox("body", "Arg"), ") or ", StyleBox("body", "Arg"), 
+           " & is applied to a sequence of arguments, the ", 
+           TemplateBox({"PureArgument"}, "ReferenceHyperlink"), 
+           " # (or #1) gets replaced by the first argument, #2 by the second, \
+           etc. #0 is replaced by the function itself."}), "Notes"), 
+        Section(TextData({"Remaining arguments without corresponding #", 
+           StyleBox("i", "Arg"), " are ignored."}), "Notes"), 
+        Section(TextData({"## stands for the sequence of all arguments. ##", 
+           StyleBox("n", "Arg"), 
+           " stands for the sequens of arguments starting at ", 
+           StyleBox("n", "Arg"), "."}), "Notes"), 
+        Section("The character \[Function] can be entered as |-> .", "Notes"), 
+        Section(TextData({TemplateBox({"Function"}, "ReferenceHyperlink"), 
+           " has attribute ", TemplateBox({"HoldAll"}, "ReferenceHyperlink"), 
+           ". The function body is evaluated only after the formal parameters \
+           have been replaced by arguments"}), "Notes"), 
+        Section(
+         TextData({"The form ", TemplateBox({"Function"}, 
+            "ReferenceHyperlink"), "(", StyleBox("params", "Arg"), ", ", 
+           StyleBox("body", "Arg"), ", {", 
+           BoxData({BoxData(StyleBox("attr", "Arg")), SubscriptBox("1")}), 
+           ", ", BoxData({BoxData(StyleBox("attr", "Arg")), 
+             SubscriptBox("2")}), 
+           ", \[Ellipsis]}) allows to specify arbitrary ", 
+           TemplateBox({"Attributes"}, "ReferenceHyperlink"), " ", 
+           BoxData({StyleBox("attr", "Arg"), SubscriptBox("i")}), 
+           " for the evaluation."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("A pure function with one parameter:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"Function", "(", {"3", "+", "#"}, ")"}, "(", "x", 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"3", "+", "x"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData({{"Function", "(", {"t", ",", {"3", "+", "t"}}, 
+              ")"}, "(", "x", ")"}), "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData({"3", "+", "x"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData({{"(", {"t", "\[Function]", {"3", "+", "t"}}, ")"}, 
+             "(", "x", ")"}), "Input", SectionLabel -> "in [3]:"), 
+          Section(BoxData({"3", "+", "x"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("A pure function with two parameters:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"Function", "(", {{{"#", "1"}, "^", "2"}, "+", {
+                  {"#", "2"}, "^", "2"}}, ")"}, "(", {"a", ",", "b"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({{"a", SuperscriptBox("2")}, "+", {
+                "b", SuperscriptBox("2")}}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"Function", "(", {{"{", {"x", ",", "y"}, "}"}, ",", {
+                  {"x", "^", "2"}, "+", {"y", "^", "2"}}}, ")"}, "(", {
+                "a", ",", "b"}, ")"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({{"a", SuperscriptBox("2")}, "+", {
+                "b", SuperscriptBox("2")}}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {"(", {{"(", {"x", ",", "y"}, ")"}, "\[Function]", {
+                  {"x", "^", "2"}, "+", {"y", "^", "2"}}}, ")"}, "(", {
+                "a", ",", "b"}, ")"}), "Input", SectionLabel -> "in [3]:"), 
+            Section(BoxData({{"a", SuperscriptBox("2")}, "+", {
+                "b", SuperscriptBox("2")}}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [3]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({"Set ", StyleBox("f", "Arg"), 
+             " to a pure function:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"f", "\[Assign]", {
+                "Function", "(", {"3", "+", "#"}, ")"}}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"Function", "(", {"3", "+", {"#", "1"}}, ")"}), 
+             "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+           All), Section("Use the function:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({"{", {{"f", "(", "a", ")"}, ",", {"f", "(", "b", ")"}}, 
+               "}"}), "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData({"{", {{"3", "+", "a"}, ",", {"3", "+", "b"}}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [2]:")}, All)}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section("Use a pure function as an argument:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"Map", "(", {{"{", {"x", ",", "y", ",", "z"}, "}"}, 
+              ",", {"Function", "(", {"g", "(", {"#", ",", {"#", "^", "2"}}, 
+                ")"}, ")"}}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {{"g", "(", {"x", ",", {"x", SuperscriptBox("2")}}, 
+               ")"}, ",", {"g", "(", {"y", ",", {"y", SuperscriptBox("2")}}, 
+               ")"}, ",", {"g", "(", {"z", ",", {"z", SuperscriptBox("2")}}, 
+               ")"}}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Use a pure function as a predicate:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"Select", "(", {
+                {"{", {"1", ",", {"-", "1"}, ",", "2", ",", {"-", "2"}, ",", 
+                  "3"}, "}"}, ",", {"Function", "(", {"#", ">", "0"}, ")"}}, 
+               ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {"1", ",", "2", ",", "3"}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All)}, 1), SectionGroup({Section("Applications", "ExampleSection"), 
+        Section("Preserve arguments in unevaluated form:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({{"Hold", "(", {"x", ",", "$MaxMachineNumber"}, 
+              ")"}, "|>", "Select", "(", {
+              "Function", "(", {"sym", ",", {{"Namespace", "(", "sym", ")"}, 
+                "===", StringBox("\"System`\"")}, ",", "HoldAll"}, ")"}, 
+             ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"Hold", "(", "$MaxMachineNumber", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Properties & Relations", "ExampleSection"), 
+        Section(
+         "#1 only uses the first argument given; the rest gets ignored:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({{"Function", "(", {"f", "(", {"#", "1"}, ")"}, 
+              ")"}, "(", {"x", ",", "y", ",", "z"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData({"f", "(", "x", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section("Still, all arguments are evaluated by default:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({{"Function", "(", {"f", "(", {"#", "1"}, ")"}, 
+              ")"}, "(", {{"Echo", "(", "x", ")"}, ",", {
+               "Echo", "(", "y", ")"}, ",", {"Echo", "(", "z", ")"}}, ")"}), 
+           "Input", SectionLabel -> "in [2]:"), 
+          Section(BoxData("x"), "Echo", SectionGenerated -> True), 
+          Section(BoxData("y"), "Echo", SectionGenerated -> True), 
+          Section(BoxData("z"), "Echo", SectionGenerated -> True), 
+          Section(BoxData({"f", "(", "x", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Functions can be nestest:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {{"(", {"x", "\[Function]", {
+                   "(", {"y", "\[Function]", {"x", "^", "y"}}, ")"}}, ")"}, 
+                "(", "x", ")"}, "(", "y", ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData({"x", SuperscriptBox("y")}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          Section("The names of arguments do not matter:", "ExampleText"), 
+          SectionGroup({
+            Section(
+             BoxData({
+               {{"(", {"y", "\[Function]", {
+                   "(", {"x", "\[Function]", {"y", "^", "x"}}, ")"}}, ")"}, 
+                "(", "x", ")"}, "(", "y", ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData({"x", SuperscriptBox("y")}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, 1), SectionGroup({
+        Section("Possible Issues", "ExampleSection"), 
+        Section("Supplying fewer arguments than expected generates an error:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({{"Function", "(", {"f", "(", {"#", "2"}, ")"}, 
+              ")"}, "(", "x", ")"}), "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"f", "(", "/\\/", ")"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Neat Examples", "ExampleSection"), 
+        Section("Sort by comparing the second part of each element:", 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             {{"{", {{"{", {"n", ",", "9"}, "}"}, ",", {
+                 "{", {"e", ",", "4"}, "}"}, ",", {
+                 "{", {"r", ",", "11"}, "}"}, ",", {
+                 "{", {"t", ",", "10"}, "}"}, ",", {
+                 "{", {"F", ",", "6"}, "}"}, ",", {
+                 "{", {"u", ",", "12"}, "}"}, ",", {
+                 "{", {"P", ",", "1"}, "}"}, ",", {"{", {"r", ",", "7"}, "}"}, 
+                ",", {"{", {"e", ",", "2"}, "}"}, ",", {
+                 "{", {"r", ",", "5"}, "}"}, ",", {"{", {"e", ",", "8"}, "}"}, 
+                ",", {"{", {"t", ",", "3"}, "}"}, ",", {
+                 "{", {"p", ",", "13"}, "}"}}, "}"}, "|>", {"\n", "Sort"}, 
+              "(", {"Function", "(", {{{"#", "1"}, "[", "2", "]"}, "<", {
+                 {"#", "2"}, "[", "2", "]"}}, ")"}, ")"}, "|>", {"\n", "Map"}, 
+             "(", {"Function", "(", {"#", "[", "1", "]"}, ")"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"P", ",", "e", ",", "t", ",", "e", ",", "r", 
+              ",", "F", ",", "r", ",", "e", ",", "n", ",", "t", ",", "r", ",", 
+              "u", ",", "p"}, "}"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"PureArgument"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Map"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Apply"}, "ReferenceHyperlink")}), "SeeAlso")}, All)}, 
+   All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
