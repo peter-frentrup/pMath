@@ -826,7 +826,7 @@ void FunctionCallSpan::init_args() {
     return;
   }
   
-  if(is_complex_call()) {
+  if(is_dot_call()) {
     if(_span->count() <= 4) {   // a.f(   or shorter
       _args.set(new SpanExpr(_span->end() + 1, _span->sequence()), true);
       return;
@@ -838,6 +838,28 @@ void FunctionCallSpan::init_args() {
     }
     
     _args.set(_span->item(4), false);
+    return;
+  }
+  
+  if(is_pipe_call()) {
+    auto rhs = _span->item(2);
+    
+    if(is_simple_call(rhs)) { //  a |> f(...)
+      if(rhs->count() <= 2) {   // a |> f(
+        _args.set(new SpanExpr(rhs->end() + 1, rhs->sequence()), true);
+        return;
+      }
+      
+      if(!rhs->item_is_operand(2)) {   // a |> f()
+        _args.set(new SpanExpr(rhs->item_pos(2), rhs->sequence()), true);
+        return;
+      }
+      
+      _args.set(rhs->item(2), false);
+      return;
+    }
+    
+    _args.set(new SpanExpr(_span->end() + 1, _span->sequence()), true);
     return;
   }
 }
@@ -886,13 +908,13 @@ bool FunctionCallSpan::is_simple_call(SpanExpr *span) {
   return true;
 }
 
-bool FunctionCallSpan::is_complex_call(SpanExpr *span) {
-  // 012345   0 1  2345
-  // a.f      a |> f
-  // a.f(     a |> f(
-  // a.f()    a |> f()
-  // a.f(b    a |> f(b
-  // a.f(b)   a |> f(b)
+bool FunctionCallSpan::is_dot_call(SpanExpr *span) {
+  // 012345
+  // a.f
+  // a.f(
+  // a.f()
+  // a.f(b
+  // a.f(b)
   
   if(!span)
     return false;
@@ -903,7 +925,7 @@ bool FunctionCallSpan::is_complex_call(SpanExpr *span) {
   if(span->count() > 6)
     return false;
     
-  if(!span->item_equals(1, ".") && !span->item_equals(1, "|>"))
+  if(!span->item_equals(1, "."))
     return false;
     
   if(!span->item_is_operand(0))
@@ -937,6 +959,29 @@ bool FunctionCallSpan::is_complex_call(SpanExpr *span) {
   if(!span->item_is_operand(4))
     return false;
     
+  return true;
+}
+
+bool FunctionCallSpan::is_pipe_call(SpanExpr *span) {
+  // 0 1  2
+  // a |> f
+  // a |> f(b)
+  
+  if(!span)
+    return false;
+    
+  if(span->count() != 3)
+    return false;
+    
+  if(!span->item_equals(1, "|>"))
+    return false;
+  
+  if(!span->item_is_operand(0))
+    return false;
+    
+  if(!span->item_is_operand(2))
+    return false;
+  
   return true;
 }
 
@@ -1005,9 +1050,17 @@ SpanExpr *FunctionCallSpan::function_head() {
   if(is_simple_call())
     return _span->item(0);
     
-  if(is_complex_call())
+  if(is_dot_call())
     return _span->item(2);
+  
+  if(is_pipe_call()) {
+    auto rhs = _span->item(2);
+    if(is_simple_call(rhs))
+      return rhs->item(0);
     
+    return rhs;
+  }
+  
   return nullptr;
 }
 
@@ -1022,7 +1075,7 @@ SpanExpr *FunctionCallSpan::function_argument(int i) {
     return _args.item(i);
   }
   
-  if(is_complex_call()) {
+  if(is_dot_call()) {
     if(i == 1)
       return _span->item(0);
       
@@ -1033,6 +1086,24 @@ SpanExpr *FunctionCallSpan::function_argument(int i) {
       return nullptr;
       
     return _args.item(i - 1);
+  }
+  
+  if(is_pipe_call()) {
+    if(i == 1)
+      return _span->item(0);
+    
+    auto rhs = _span->item(2);
+    if(is_simple_call(rhs)) {
+      if(rhs->count() <= 2) // a |> f(  or shorter
+        return nullptr;
+      
+      if(!rhs->item_is_operand(2)) // a |> f()
+        return nullptr;
+      
+      return _args.item(i - 1);
+    }
+    
+    return nullptr;
   }
   
   return nullptr;

@@ -1857,7 +1857,7 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           
           span(&parser->tokens, lhs);
         } break;
-        
+      
       case PMATH_TOK_CALL: {
           if(cur_prec < min_prec)
             break;
@@ -1871,8 +1871,11 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           skip_to(parser, lhs, next, FALSE);
           parse_prim(parser, FALSE); // do not skip newline
           
-          //last_prec = cur_prec;
           last_prec = PMATH_PREC_CALL;
+//          if(parser->tokens.str[last_tok_start] == '.')
+//            last_prec = PMATH_PREC_CALL;
+//          else
+//            last_prec = PMATH_PREC_MUL;
           
           next = next_token_pos(parser);
           tok  = token_analyse(parser, next, &cur_prec);
@@ -1895,8 +1898,6 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
                 cur_prec != PMATH_PREC_MUL                              &&
                 !same_token(parser, last_tok_start, last_tok_end, next) &&
                 last_tok != PMATH_TOK_CALL
-                //(last_tok_start + 1 != last_tok_end ||
-                // parser->tokens.str[last_tok_start] != '.')
             ) {
               span(&parser->tokens, lhs);
             }
@@ -2047,6 +2048,15 @@ static void parse_rest(struct parser_t *parser, int lhs, int min_prec) {
           parser->tokens.pos       = oldpos;
           parser->last_space_start = oldss;
         } goto NARY;
+      
+      case PMATH_TOK_CALLPIPE: {
+          if(cur_prec < min_prec)
+            break;
+            
+          span(&parser->tokens, lhs);
+          
+          cur_prec = PMATH_PREC_CALLPIPE_RIGHT;
+        } goto BINARY;
         
       case PMATH_TOK_QUESTION:
       case PMATH_TOK_BINARY_LEFT: {

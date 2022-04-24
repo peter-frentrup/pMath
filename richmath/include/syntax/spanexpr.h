@@ -291,13 +291,15 @@ namespace richmath {
       FunctionCallSpan(SpanExpr *span);
       
       static bool is_simple_call( SpanExpr *span); // f(a,b,c)
-      static bool is_complex_call(SpanExpr *span); // a.f(b,c)
-      static bool is_call(        SpanExpr *span) { return is_simple_call(span) || is_complex_call(span); }
+      static bool is_dot_call(SpanExpr *span);     // a.f(b,c)
+      static bool is_pipe_call(SpanExpr *span);    // a |> f(b,c)
+      static bool is_call(        SpanExpr *span) { return is_simple_call(span) || is_dot_call(span) || is_pipe_call(span); }
       static bool is_list(        SpanExpr *span);
       static bool is_sequence(    SpanExpr *span);
       
       bool is_simple_call(){  return is_simple_call(_span); }
-      bool is_complex_call(){ return is_complex_call(_span); }
+      bool is_dot_call(){     return is_dot_call(_span); }
+      bool is_pipe_call(){    return is_pipe_call(_span); }
       bool is_call(){         return is_call(_span); }
       bool is_list() {        return is_list(_span); }
       

@@ -308,6 +308,7 @@ static pmath_t make_subscript(     pmath_expr_t boxes, pmath_expr_t subscript_bo
 static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscript_box);
 static pmath_t make_simple_dot_call(  pmath_expr_t boxes); // a.f  a.f()
 static pmath_t make_dot_call(         pmath_expr_t boxes); // a.f(args)
+static pmath_t make_pipe_call(        pmath_expr_t boxes); // a |> f(args)   a |> f
 static pmath_t make_prefix_call(      pmath_expr_t boxes); // f @ a
 static pmath_t make_postfix_call(     pmath_expr_t boxes); // a // f
 static pmath_t make_argumentless_call(pmath_expr_t boxes); // f()
@@ -744,7 +745,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         
       // arg |> f
       if(is_string_at(expr, 2, "|>"))
-        return make_simple_dot_call(expr);
+        return make_pipe_call(expr);
     }
     
     // ~x:t  ~~x:t  ~~~x:t
@@ -810,20 +811,20 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
         return make_part(expr);
     }
     
-    // a.f()   a |> f()
+    // a.f()
     if( exprlen == 5               &&
+        secondchar == '.'          &&
         unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 5) == ')' &&
-        (secondchar == '.' || is_string_at(expr, 2, "|>")))
+        unichar_at(expr, 5) == ')')
     {
       return make_simple_dot_call(expr);
     }
     
     // a.f(x)   a |> f(x)
     if( exprlen == 6               &&
+        secondchar == '.'          &&
         unichar_at(expr, 4) == '(' &&
-        unichar_at(expr, 6) == ')' &&
-        (secondchar == '.' || is_string_at(expr, 2, "|>")))
+        unichar_at(expr, 6) == ')')
     {
       return make_dot_call(expr);
     }
@@ -3112,6 +3113,74 @@ static pmath_t make_dot_call(pmath_expr_t boxes) {
   pmath_unref(args);
   pmath_message(PMATH_NULL, "inv", 1, boxes);
   return pmath_ref(pmath_System_DollarFailed);
+}
+
+// a |> f(args)   a |> f
+static pmath_t make_pipe_call(pmath_expr_t boxes) {
+  pmath_t arg1, box;
+  size_t argslen, boxlen, i;
+  
+  arg1 = parse_at(boxes, 1);
+  if(is_parse_error(arg1)) {
+    pmath_unref(boxes);
+    return pmath_ref(pmath_System_DollarFailed);
+  }
+  
+  box = pmath_expr_get_item(boxes, 3);
+  if(pmath_is_expr_of(box, pmath_System_List)) {
+    boxlen = pmath_expr_length(box);
+    
+    if(boxlen == 3 && unichar_at(box, 2) == '(' && unichar_at(box, 3) == ')') {
+      pmath_t f = parse_at(box, 1);
+      if(is_parse_error(f)) {
+        pmath_unref(arg1);
+        pmath_unref(box);
+        return pmath_ref(pmath_System_DollarFailed);
+      }
+      
+      return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(f, 1, arg1));
+    }
+    
+    if(boxlen == 4 && unichar_at(box, 2) == '(' && unichar_at(box, 4) == ')') {
+      pmath_t call, f;
+      
+      f = parse_at(box, 1);
+      if(is_parse_error(f)) {
+        pmath_unref(arg1);
+        pmath_unref(box);
+        return pmath_ref(pmath_System_DollarFailed);
+      }
+      
+      call = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(box, 3));
+      if(pmath_is_expr(call)) {
+        argslen = pmath_expr_length(call);
+    
+        call = pmath_expr_resize(call, argslen + 1);
+        
+        for(i = argslen; i > 0; --i) {
+          call = pmath_expr_set_item(call, i + 1, pmath_expr_get_item(call, i));
+        }
+        
+        call = pmath_expr_set_item(call, 1, arg1);
+        call = pmath_expr_set_item(call, 0, f);
+        
+        return wrap_hold_with_debuginfo_from(boxes, call);
+      }
+      
+      pmath_unref(call);
+      pmath_unref(f);
+      pmath_unref(box);
+      pmath_unref(arg1);
+      return pmath_ref(pmath_System_DollarFailed);
+    }
+  }
+  
+  if(!parse(&box)) {
+    pmath_unref(arg1);
+    return pmath_ref(pmath_System_DollarFailed);
+  }
+  
+  return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(box, 1, arg1));
 }
 
 // f @ a

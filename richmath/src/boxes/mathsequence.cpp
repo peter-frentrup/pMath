@@ -3072,6 +3072,7 @@ void MathSequence::Impl::EnlargeSpace::run() {
         goto INFIX;
         
       case PMATH_TOK_CALL:
+      case PMATH_TOK_CALLPIPE:
       case PMATH_TOK_NARY_AUTOARG:
       case PMATH_TOK_BINARY_LEFT:
       case PMATH_TOK_BINARY_RIGHT:

@@ -19,11 +19,11 @@ Document({
             {BoxData(StyleBox({{"x", "//", "f"}, "//", "g"}, ScriptLevel -> 0, 
                StripOnInput -> False))}, "data flow, or an afterthought"}, {
             {BoxData(
-              StyleBox({{{"x", SubscriptBox("1")}, "|>", "f", "(", {
-                  {"x", SubscriptBox("2")}, ",", " ", "\[Ellipsis]"}, ")"}, 
-                "|>", "g", "(", {"y", ",", "\[Ellipsis]"}, ")"}, 
-               ScriptLevel -> 0, StripOnInput -> False))}, 
-            "data flow, piping several calls"}, {
+              StyleBox({{{"x", SubscriptBox("1")}, "|>", {
+                  "f", "(", {{"x", SubscriptBox("2")}, ",", " ", 
+                   "\[Ellipsis]"}, ")"}}, "|>", {
+                 "g", "(", {"y", ",", "\[Ellipsis]"}, ")"}}, ScriptLevel -> 0, 
+               StripOnInput -> False))}, "data flow, piping several calls"}, {
             {BoxData(
               StyleBox({
                 {"x", ".", "f", "(", {{"x", SubscriptBox("2")}, ",", 
@@ -87,61 +87,62 @@ Document({
            SectionGenerated -> True, SectionLabel -> "out [63]:")}, All)}, 
        All), SectionGroup({
         Section(TextData({"Infix pipe ", 
-           BoxData({{"x", SubscriptBox("1")}, "|>", "h", "(", {
-              {"x", SubscriptBox("2")}, ",", "\[Ellipsis]"}, ")"})}), 
-         "Subsection"), 
+           BoxData({{"x", SubscriptBox("1")}, "|>", {
+              "h", "(", {{"x", SubscriptBox("2")}, ",", "\[Ellipsis]"}, 
+              ")"}})}), "Subsection"), 
         Section(TextData({"The pipe \[HighSixDoubleQuote]", BoxData("|>"), 
            "\[HighNineDoubleQuote] binds weakly on the left and strongly on \
            the right:"}), "Text"), 
         SectionGroup({
-          Section(BoxData({{{"a", "+", "b"}, "|>", "c", "(", "d", ")"}, "+", 
-             "e"}), "Input", SectionLabel -> "in [29]:"), 
+          Section(BoxData({{{"a", "+", "b"}, "|>", {"c", "(", "d", ")"}}, "+", 
+             "e"}), "Input", SectionLabel -> "in [1]:"), 
           Section(BoxData({"e", "+", {"c", "(", {{"a", "+", "b"}, ",", "d"}, 
               ")"}}), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [29]:")}, All), 
+           SectionLabel -> "out [1]:")}, All), 
         SectionGroup({
           Section(
-           BoxData({"{", {{{{"a", "+", "b"}, "|>", "c", "(", "d", ")"}, "+", 
+           BoxData({"{", {{{{"a", "+", "b"}, "|>", {"c", "(", "d", ")"}}, "+", 
                "e"}, ",", {
                {"(", {{"(", {"a", "+", "b"}, ")"}, ".", "c", "(", "d", ")"}, 
-                ")"}, "+", "e"}}, "}"}), "Input", SectionLabel -> "in [31]:"), 
+                ")"}, "+", "e"}}, "}"}), "Input", SectionLabel -> "in [2]:"), 
           Section(
            BoxData({
              "{", {{"e", "+", {"c", "(", {{"a", "+", "b"}, ",", "d"}, ")"}}, 
               ",", {"e", "+", {"c", "(", {{"a", "+", "b"}, ",", "d"}, ")"}}}, 
              "}"}), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [31]:")}, All), 
+           SectionLabel -> "out [2]:")}, All), 
         Section(
          "Like the dot-form it\[HighNineQuote]s one-argument form can be \
          written with or without empty parenthesis:", "Text"), 
         SectionGroup({Section(BoxData({"x", "|>", "f"}), "Input", 
-           SectionLabel -> "in [49]:"), Section(BoxData({"f", "(", "x", ")"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [49]:")}, 
-         All), SectionGroup({Section(BoxData({"x", "|>", "f", "(", ")"}), 
-           "Input", SectionLabel -> "in [50]:"), 
+           SectionLabel -> "in [3]:"), Section(BoxData({"f", "(", "x", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [3]:")}, 
+         All), SectionGroup({Section(BoxData({"x", "|>", {"f", "(", ")"}}), 
+           "Input", SectionLabel -> "in [4]:"), 
           Section(BoxData({"f", "(", "x", ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [50]:")}, All), 
+           SectionGenerated -> True, SectionLabel -> "out [4]:")}, All), 
         Section("Chain multiple calls together:", "Text"), 
         SectionGroup({
-          Section(BoxData({{{"x", "|>", "f", "(", "y", ")"}, "|>", "g", "(", 
-              "z", ")"}, "|>", "h"}), "Input", SectionLabel -> "in [55]:"), 
+          Section(BoxData({{{"x", "|>", {"f", "(", "y", ")"}}, "|>", {
+               "g", "(", "z", ")"}}, "|>", "h"}), "Input", 
+           SectionLabel -> "in [5]:"), 
           Section(
            BoxData({"h", "(", {
               "g", "(", {{"f", "(", {"x", ",", "y"}, ")"}, ",", "z"}, ")"}, 
              ")"}), "Output", SectionGenerated -> True, 
-           SectionLabel -> "out [55]:")}, All), 
+           SectionLabel -> "out [5]:")}, All), 
         Section(
          "Use the postfix form // if the head should itself be the result of a \
          function call:", "Text"), 
         SectionGroup({
           Section(BoxData({"x", "|>", {"(", {"f", "(", ")"}, ")"}}), "Input", 
-           SectionLabel -> "in [51]:"), 
+           SectionLabel -> "in [6]:"), 
           Section(BoxData({{"f", "(", ")"}, "(", "x", ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [51]:")}, All), 
+           SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
         SectionGroup({Section(BoxData({"x", "//", {"f", "(", ")"}}), "Input", 
-           SectionLabel -> "in [53]:"), 
+           SectionLabel -> "in [7]:"), 
           Section(BoxData({{"f", "(", ")"}, "(", "x", ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [53]:")}, All)}, 
+           SectionGenerated -> True, SectionLabel -> "out [7]:")}, All)}, 
        All), SectionGroup({
         Section(TextData({"Prefix function application ", 
            BoxData({"h", "@", "x"})}), "Subsection"), 
@@ -211,16 +212,16 @@ Document({
               {"(", ")"}, "|>", "HoldComplete"}, "\n", {
               {"(", ")"}, "//", "HoldComplete"}, "\n", {
               "HoldComplete", "@", {"(", ")"}})), "Input", 
-           SectionLabel -> "in [44]:"), 
+           SectionLabel -> "in [8]:"), 
           Section(BoxData({"HoldComplete", "(", ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [44]:"), 
+           SectionGenerated -> True, SectionLabel -> "out [8]:"), 
           Section(BoxData({"HoldComplete", "(", {"Sequence", "(", ")"}, ")"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [45]:"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [9]:"), 
           Section(BoxData({"HoldComplete", "(", {"Sequence", "(", ")"}, ")"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [46]:"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [10]:"), 
           Section(BoxData({"HoldComplete", "(", {"Sequence", "(", ")"}, ")"}), 
-           "Output", SectionGenerated -> True, SectionLabel -> "out [47]:"), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [11]:"), 
           Section(BoxData({"HoldComplete", "(", ")"}), "Output", 
-           SectionGenerated -> True, SectionLabel -> "out [48]:")}, All)}, 
+           SectionGenerated -> True, SectionLabel -> "out [12]:")}, All)}, 
        All)}, All)}, All)}, StyleDefinitions -> "Default.pmathdoc", 
  Visible -> True)

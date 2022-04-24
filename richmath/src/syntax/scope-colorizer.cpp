@@ -1223,14 +1223,17 @@ void ErrorColorizerImpl::add_missing_indicator(SpanExpr *span_before) {
 
 void ErrorColorizerImpl::mark_excess_args(FunctionCallSpan &call, int max_args) {
   if(max_args == 0) {
-    if(call.is_complex_call()) {
+    if(call.is_dot_call() || call.is_pipe_call()) {
       painter.move_to(call.function_argument(1)->start());
       painter.paint_until(GlyphStyleExcessOrMissingArg, call.function_argument(1)->end() + 1);
     }
     
     painter.move_to(call.arguments_span()->start());
   }
-  else if(max_args == 1 && call.is_complex_call()) {
+  else if(max_args == 1 && call.is_dot_call()) {
+    painter.move_to(call.arguments_span()->start());
+  }
+  else if(max_args == 1 && call.is_pipe_call()) {
     painter.move_to(call.arguments_span()->start());
   }
   else {
