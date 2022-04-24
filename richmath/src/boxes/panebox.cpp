@@ -147,7 +147,7 @@ void PaneBox::resize_default_baseline(Context &context) {
   if(!w.is_explicit())
     w = Length(_extents.width);
     
-  if(h.is_explicit())
+  if(!h.is_explicit())
     h = Length(_extents.height());
   
   cx = 0;
