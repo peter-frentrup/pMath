@@ -79,6 +79,16 @@
 %		body
 %	}
 %
+% Pure functions look similar. Instead of Function({arg1, arg2, ...}, Block{body}), write:
+%	Function(arg1, arg2, ...) {
+%		body
+%	}
+%
+% With unnamed parameters, instead of Function(Block{body}), you may write:
+%	Function {
+%		body
+%	}
+%
 % Moreover, within such a `block`, automatic scope nesting is applied
 %	Do(1) {
 %		Print(x)
@@ -192,6 +202,7 @@ System`Private`MakeJuxtapositionExpression(boxes: {~~, {"{", ~~~}, ~~~})::=
 
 tryMakeBlockExpression(~)::= $Failed
 tryMakeBlockExpression(boxes: {"Function", ~~~})::= tryMakeFunctionBlock(boxes)
+tryMakeBlockExpression(boxes: {{"Function", ~~~}, ~~~})::= tryMakeFunctionBlock(boxes)
 tryMakeBlockExpression(boxes: {{"If", ~~~}, ~~~})::= tryMakeIfBlock(boxes)
 tryMakeBlockExpression(boxes: {{"Switch", ~~~}, ~~~})::= tryMakeSwitchBlock(boxes)
 tryMakeBlockExpression(boxes: {{"While", ~~~}, ~~~})::= tryMakeWhileBlock(boxes)
@@ -230,6 +241,24 @@ tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"Where", "(
 			MakeExpression(cond)
 		),
 		makeBlockExpression(body)).withDebugInfoOf(boxes)
+
+%
+% Function(arg) { body }
+%
+tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ~body, "}"}}) ::=
+	composeHeldExpr(
+		Function,
+		MakeExpression({"{", args, "}"}.withDebugInfoOf(args)),
+		makeBlockExpression(body)).withDebugInfoOf(boxes)
+
+%
+% Function { body }
+%
+tryMakeFunctionBlock(boxes: {"Function", {"{", ~body, "}"}}) ::=
+	composeHeldExpr(
+		Function,
+		makeBlockExpression(body)).withDebugInfoOf(boxes)
+
 
 tryMakeIfBlock(~)::= $Failed
 %
