@@ -8,6 +8,9 @@
 #include <gui/win32/win32-widget.h>
 
 namespace richmath {
+  POINT discretize(const Point &p);
+  RECT  discretize(const RectangleF &rect);
+  
   class Win32AttachedPopupWindow: public Win32Widget {
       using base = Win32Widget;
       class Impl;

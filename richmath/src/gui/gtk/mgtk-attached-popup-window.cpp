@@ -64,8 +64,11 @@ namespace richmath {
 
 using namespace richmath;
 
-static GdkPoint     discretize(const Point &p) {         return { (int)(p.x + 0.5f), (int)(p.y + 0.5f) }; }
-static GdkRectangle discretize(const RectangleF &rect) {
+GdkPoint richmath::discretize(const Point &p) {
+  return { (int)(p.x + 0.5f), (int)(p.y + 0.5f) }; 
+}
+
+GdkRectangle richmath::discretize(const RectangleF &rect) {
   int x1 = (int)round_directed(rect.left(),  +1, false);
   int y1 = (int)round_directed(rect.top(),   +1, false);
   int x2 = (int)round_directed(rect.right(), -1, false);

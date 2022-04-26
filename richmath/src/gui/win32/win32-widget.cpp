@@ -1089,8 +1089,14 @@ void Win32Widget::on_keydown(DWORD virtkey, bool ctrl, bool alt, bool shift) {
   }
 }
 
-void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
-  UINT flags = TPM_RETURNCMD;
+void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt, const RECT *opt_exclude) {
+  UINT flags = TPM_RETURNCMD | TPM_VERTICAL;
+  TPMPARAMS params = {};
+  
+  if(opt_exclude) {
+    params.cbSize = sizeof(params);
+    params.rcExclude = *opt_exclude;
+  }
   
   if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0)
     flags |= TPM_LEFTALIGN;
@@ -1124,7 +1130,7 @@ void Win32Widget::on_popupmenu(VolatileSelection src, POINT screen_pt) {
             screen_pt.x,
             screen_pt.y,
             _hwnd,
-            nullptr);
+            opt_exclude ? &params : nullptr);
     
     exit_info = menu_hook.exit_info;
   }
@@ -1183,28 +1189,59 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
         } return 0;
         
       case WM_CONTEXTMENU:  {
+          bool has_rect = false;
+          RECT exclude_rect;
           POINT pt;
           if(lParam == -1) {
-          
-            if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
-              pt.x = 0;
-              pt.y = 0;
-            }
-            else {
-              RECT rect;
+            if(auto sel = document()->selection_now()) {
+              RectangleF bounds = sel.box->range_rect(sel.start, sel.end);
               
-              GetClientRect(_hwnd, &rect);
-              pt.x = rect.right;
-              pt.y = 0;
+              if(sel.box->visible_rect(bounds)) {
+                auto factor = scale_factor();
+                bounds.x      *= factor;
+                bounds.y      *= factor;
+                bounds.width  *= factor;
+                bounds.height *= factor;
+                
+                bounds.x -= GetScrollPos(hwnd(), SB_HORZ);
+                bounds.y -= GetScrollPos(hwnd(), SB_VERT);
+
+                exclude_rect = discretize(bounds);
+                MapWindowPoints(hwnd(), nullptr, (POINT*)&exclude_rect, 2);
+                if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+                  pt.x = exclude_rect.left;
+                  pt.y = exclude_rect.bottom;
+                }
+                else {
+                  pt.x = exclude_rect.right;
+                  pt.y = exclude_rect.bottom;
+                }
+                InflateRect(&exclude_rect, 2, 2);
+                has_rect = true;
+              }
             }
-            
-            ClientToScreen(_hwnd, &pt);
+          
+            if(!has_rect) {
+              if(GetSystemMetrics(SM_MENUDROPALIGNMENT) == 0) {
+                pt.x = 0;
+                pt.y = 0;
+              }
+              else {
+                RECT rect;
+                
+                GetClientRect(_hwnd, &rect);
+                pt.x = rect.right;
+                pt.y = 0;
+              }
+              
+              ClientToScreen(_hwnd, &pt);
+            }
           }
           else {
             pt.x = (int16_t)( lParam & 0xFFFF);
             pt.y = (int16_t)((lParam & 0xFFFF0000) >> 16);
           }
-          on_popupmenu(document()->selection_now(), pt);
+          on_popupmenu(document()->selection_now(), pt, has_rect ? &exclude_rect : nullptr);
         } return 0;
         
       case WM_INITMENUPOPUP: {
@@ -1287,7 +1324,7 @@ LRESULT Win32Widget::callback(UINT message, WPARAM wParam, LPARAM lParam) {
             bool dummy;
             if(auto src = document()->mouse_selection(event.position, &dummy)) {
               ClientToScreen(_hwnd, &pt);
-              on_popupmenu(src, pt);
+              on_popupmenu(src, pt, nullptr);
             }
           }
         } return 0;

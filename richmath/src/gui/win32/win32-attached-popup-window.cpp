@@ -55,8 +55,11 @@ namespace richmath {
 
 using namespace richmath;
 
-static POINT discretize(const Point &p) { return { (int)(p.x + 0.5f), (int)(p.y + 0.5f) }; }
-static RECT  discretize(const RectangleF &rect) {
+POINT richmath::discretize(const Point &p) {
+  return { (int)(p.x + 0.5f), (int)(p.y + 0.5f) };
+}
+
+RECT richmath::discretize(const RectangleF &rect) {
   return { 
     (int)round_directed(rect.left(),  +1, false), 
     (int)round_directed(rect.top(),   +1, false), 

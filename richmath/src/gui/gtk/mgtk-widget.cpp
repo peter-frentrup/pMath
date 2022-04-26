@@ -1221,7 +1221,42 @@ bool MathGtkWidget::on_key_press(GdkEvent *e) {
       src = VolatileSelection(document(), 0);
     
     if(auto menu = create_popup_menu(src, ContextMenu)) {
-      gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
+      bool show_at_pointer = true;
+#if GTK_CHECK_VERSION(3, 22, 0)
+      if(auto sel = document()->selection_now()) {
+        RectangleF bounds = sel.box->range_rect(sel.start, sel.end);
+        if(sel.box->visible_rect(bounds)) {
+          auto factor = scale_factor();
+          bounds.x      *= factor;
+          bounds.y      *= factor;
+          bounds.width  *= factor;
+          bounds.height *= factor;
+          
+          if(auto adj = hadjustment())
+            bounds.x -= gtk_adjustment_get_value(adj);
+            
+          if(auto adj = vadjustment())
+            bounds.y -= gtk_adjustment_get_value(adj);
+          
+          bounds.grow(2);
+          GdkRectangle rect_exclude = discretize(bounds);
+          gtk_menu_popup_at_rect(
+            menu, 
+            gtk_widget_get_window(_widget), 
+            &rect_exclude, 
+            GDK_GRAVITY_SOUTH_WEST,
+            GDK_GRAVITY_NORTH_WEST,
+            e);
+            
+          show_at_pointer = false;
+        }
+      }
+#endif
+      
+      if(show_at_pointer) {
+        gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, 0, event->time);
+      }
+
       g_object_unref(menu);
     }
   }

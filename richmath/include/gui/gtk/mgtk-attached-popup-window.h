@@ -11,6 +11,9 @@
 namespace richmath {
   class MathGtkPopupContentArea;
   
+  GdkPoint     discretize(const Point &p);
+  GdkRectangle discretize(const RectangleF &rect);
+  
   class MathGtkAttachedPopupWindow final : public BasicGtkWidget, public ControlContext {
       using base = BasicGtkWidget;
       class Impl;
