@@ -34,7 +34,18 @@ Document({
            ", \[Ellipsis]}) allows to specify arbitrary ", 
            TemplateBox({"Attributes"}, "ReferenceHyperlink"), " ", 
            BoxData({StyleBox("attr", "Arg"), SubscriptBox("i")}), 
-           " for the evaluation."}), "Notes")}, All), 
+           " for the evaluation."}), "Notes"), 
+        Section(TextData({TemplateBox({"Function"}, "ReferenceHyperlink"), 
+           " with unnamed parameters has an ", 
+           StyleBox("extended syntax", FontSlant -> Italic), " variant: ", 
+           StyleBox({"Function { ", StyleBox("body", "Arg"), " }"}, "TT")}), 
+         "Notes"), 
+        Section(TextData({TemplateBox({"Function"}, "ReferenceHyperlink"), 
+           " with unnamed parameters has an ", 
+           StyleBox("extended syntax", FontSlant -> Italic), " variant: ", 
+           StyleBox({"Function(x", BoxData(SubscriptBox("1")), ", x", 
+             BoxData(SubscriptBox("2")), ", \[Ellipsis]) { ", 
+             StyleBox("body", "Arg"), " }"}, "TT")}), "Notes")}, All), 
       Section("", "SectionFooterSpacer")}, 1), 
     SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
       SectionGroup({Section("Basic Examples", "ExampleSection"), 
@@ -127,6 +138,53 @@ Document({
                ")"}), "Input", SectionLabel -> "in [1]:"), 
             Section(BoxData({"{", {"1", ",", "2", ",", "3"}, "}"}), "Output", 
              SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         All), SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section(TextData({StyleBox("Extended syntax", FontSlant -> Italic), 
+             " can improve readability of procedural code:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({{"{", {"1", ",", "2", ",", "3"}, "}"}, "|>", {
+                "Scan", "(", {{"Function", "(", "n", ")"}, {
+                  "{", {"\n", {{{"Local", "(", "i", ")"}, "\n", {
+                      {"Do", "(", {"i", "\[Rule]", "n"}, ")"}, {
+                       "{", {"\n", {{"Print", "(", {"n", "\[Rule]", "i"}, 
+                          ")"}, "\n"}}, "}"}}}, "\n"}}, "}"}}, ")"}}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(TemplateBox({{"1", "\[Rule]", "1"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"2", "\[Rule]", "1"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"2", "\[Rule]", "2"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"3", "\[Rule]", "1"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"3", "\[Rule]", "2"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"3", "\[Rule]", "3"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True)}, All), 
+          Section("Contrast with the same code in conventional syntax:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({{"{", {"1", ",", "2", ",", "3"}, "}"}, "|>", {
+                "Scan", "(", {"Function", "(", {
+                  {"{", "n", "}"}, ",", {
+                   "Local", "(", {{"{", "i", "}"}, ",", {
+                     "Do", "(", {{"Print", "(", {"n", "\[Rule]", "i"}, ")"}, 
+                      ",", {"i", "\[Rule]", "n"}}, ")"}}, ")"}}, ")"}, ")"}}), 
+             "Input", SectionLabel -> "in [2]:"), 
+            Section(BoxData(TemplateBox({{"1", "\[Rule]", "1"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"2", "\[Rule]", "1"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"2", "\[Rule]", "2"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True)}, All), 
+          SectionGroup({
+            Section(BoxData(TemplateBox({{"3", "\[Rule]", "1"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"3", "\[Rule]", "2"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True), 
+            Section(BoxData(TemplateBox({{"3", "\[Rule]", "3"}}, 
+               "RowDefault")), "Print", SectionGenerated -> True)}, All)}, 
          All)}, 1), SectionGroup({Section("Applications", "ExampleSection"), 
         Section("Preserve arguments in unevaluated form:", "ExampleText"), 
         SectionGroup({
