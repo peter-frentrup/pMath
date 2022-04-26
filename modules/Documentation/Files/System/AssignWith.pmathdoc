@@ -88,7 +88,7 @@ Document({
            SectionLabel -> "out [3]:")}, All)}, 1), 
       SectionGroup({Section("Possible Issues", "ExampleSection"), 
         Section(TextData({TemplateBox({"AssignWith"}, "ReferenceHyperlink"), 
-           " evaluates its firt argument before wrapping it:"}), 
+           " evaluates its first argument before wrapping it:"}), 
          "ExampleText"), SectionGroup({
           Section(BoxData(/\/({{"x", "\[AssignDelayed]", {"1", "+", "1"}}, 
               ";"}, "\n", {{"x", "//=", "Hold"}, ";"}, "\n", "x")), "Input", 
@@ -104,7 +104,7 @@ Document({
            SectionGenerated -> True, SectionLabel -> "out [6]:")}, All), 
         Section(
          TextData({"Instead, ", TemplateBox({"With"}, "ReferenceHyperlink"), 
-           " is used effectively:"}), "ExampleText"), 
+           " is effectively used:"}), "ExampleText"), 
         SectionGroup({
           Section(BoxData(/\/({{"x", "\[AssignDelayed]", {"1", "+", "1"}}, 
               ";"}, "\n", {
