@@ -138,6 +138,8 @@ Document({
     SectionGroup({Section("Box styles", "Section"), 
       Section(StyleData("Arg"), AutoSpacing -> True, FontSlant -> Italic, 
        ShowAutoStyles -> True), Section(StyleData("TI"), FontSlant -> Italic), 
+      Section(StyleData("TT"), 
+       FontFamily -> {"Consolas", "Courier New", "mono"}), 
       Section(StyleData("Highlighted"), 
        Background -> RGBColor(1, 0.92500000000000004`, 0.33000000000000002`), 
        FrameBoxOptions -> {BorderRadius -> 6, 
