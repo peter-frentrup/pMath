@@ -1,0 +1,79 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("Removed", "ObjectName"), 
+      Section(BoxData(TemplateBox({"Removed"}, "UsageReference")), "Usage")}, 
+     All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"Removed"}, "ReferenceHyperlink"), 
+           " is only used for display but not for input."}), "Notes"), 
+        Section(
+         TextData({
+           "When a symbol with outstanding references is removed with ", 
+           TemplateBox({"Remove"}, "ReferenceHyperlink"), 
+           ", it gets an internal attribute \[HighSixDoubleQuote]", 
+           TemplateBox({"Removed"}, "ReferenceHyperlink"), 
+           "\[HighNineDoubleQuote] that causes it to be hidden in the global \
+           symbol table."}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Introduce two symbols ", StyleBox("x", "Arg"), 
+           " and ", StyleBox("y", "Arg"), " and let ", StyleBox("y", "Arg"), 
+           " refer to ", StyleBox("x", "Arg"), ":"}), "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"y", "\[Assign]", {"f", "(", "x", ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData({"f", "(", "x", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), Section(TextData({"Remove ", StyleBox("x", "Arg"), 
+           " from the global symbol table:"}), "ExampleText"), 
+        Section(BoxData({"Remove", "(", "x", ")"}), "Input", 
+         SectionLabel -> "in [2]:"), 
+        SectionGroup({
+          Section(BoxData({"Names", "(", StringBox("\"x\""), ")"}), "Input", 
+           SectionLabel -> "in [3]:"), Section(BoxData({"{", "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [3]:")}, All), 
+        Section(
+         TextData({
+           "There is still an internal reference to the former symbol ", 
+           StyleBox("x", "Arg"), " held by ", StyleBox("y", "Arg"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(BoxData("y"), "Input", SectionLabel -> "in [4]:"), 
+          Section(BoxData({"f", "(", {"Removed", "(", "Section$$355`x", ")"}, 
+             ")"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [4]:")}, All)}, All), 
+      SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         "Normally, a symbol is identified by its name. Using the same name \
+         twice gives the same symbol:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"y", "\[Assign]", {"f", "(", "x", ")"}}), "Input", 
+           SectionLabel -> "in [1]:"), Section(BoxData({"f", "(", "x", ")"}), 
+           "Output", SectionGenerated -> True, SectionLabel -> "out [1]:")}, 
+         All), SectionGroup({
+          Section(BoxData({"y", "===", {"f", "(", "x", ")"}}), "Input", 
+           SectionLabel -> "in [2]:"), Section(BoxData("True"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [2]:")}, All), 
+        Section(TextData({"Removing ", StyleBox("x", "Arg"), 
+           " does not change the internal representation of ", 
+           StyleBox("y", "Arg"), ", only its display:"}), "ExampleText"), 
+        Section(BoxData({"Remove", "(", "x", ")"}), "Input", 
+         SectionLabel -> "in [3]:"), 
+        SectionGroup({Section(BoxData("y"), "Input", 
+           SectionLabel -> "in [4]:"), 
+          Section(BoxData({"f", "(", {"Removed", "(", "Section$$365`x", ")"}, 
+             ")"}), "Output", SectionGenerated -> True, 
+           SectionLabel -> "out [4]:")}, All), 
+        Section("Reintroducing the same name now gives a different symbol:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"y", "===", {"f", "(", "x", ")"}}), "Input", 
+           SectionLabel -> "in [5]:"), Section(BoxData("False"), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [5]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Remove"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Attributes"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Temporary"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
