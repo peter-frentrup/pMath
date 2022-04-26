@@ -1209,7 +1209,18 @@ static bool expand_selection_cmd(Expr cmd) {
     return false;
     
   VolatileSelection sel = doc->selection_now();
+  if(!sel.box)
+    return false;
+  
+  Box *prev = sel.box;
   sel.expand();
+  
+  while(prev && prev != sel.box) {
+    if(!prev->exitable())
+      return false;
+    prev = prev->parent();
+  }
+  
   doc->select_range(sel.start_only(), sel.end_only());
   doc->native()->invalidate();
   return true;
