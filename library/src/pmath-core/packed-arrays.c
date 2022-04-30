@@ -4,6 +4,7 @@
 #include <pmath-core/strings-private.h>
 
 #include <pmath-builtins/all-symbols-private.h>
+#include <pmath-builtins/language-private.h>
 #include <pmath-builtins/lists-private.h>
 
 #include <pmath-util/debug.h>
@@ -32,6 +33,7 @@ static const uint64_t nan_as_uint64 = 0x7fffffffffffffff;
 #define PMATH_PACKED_ARRAY_FLAG_NO_PUNPACK_MESSAGE   0x01
 
 
+extern pmath_symbol_t pmath_System_HoldForm;
 extern pmath_symbol_t pmath_System_Integer;
 extern pmath_symbol_t pmath_System_List;
 extern pmath_symbol_t pmath_System_Real;
@@ -1498,7 +1500,25 @@ pmath_expr_t _pmath_packed_array_set_item(
 
 /* -------------------------------------------------------------------------- */
 
+static pmath_bool_t find_current_source_location_callback(pmath_t head, pmath_t location, void *closure) {
+  pmath_t *res = closure;
+  
+  if(!pmath_is_null(location)) {
+    pmath_unref(*res);
+    *res = pmath_ref(location);
+    return FALSE; // stop searching
+  }
+  
+  return FALSE; // stop searching
+}
 
+static pmath_t current_source_location() {
+  pmath_t location = PMATH_NULL;
+  
+  pmath_walk_stack_2(find_current_source_location_callback, &location);
+  
+  return location;
+}
 
 // array won't be freed.
 static void unpack_array_message(pmath_packed_array_t array){
@@ -1506,7 +1526,12 @@ static void unpack_array_message(pmath_packed_array_t array){
   pmath_t dimensions = _pmath_dimensions(array, SIZE_MAX);  
   
   if(pmath_is_symbol(caller)) {
-    pmath_message(pmath_Developer_FromPackedArray, "punpack", 2, caller, dimensions);
+    pmath_message(
+      pmath_Developer_FromPackedArray, "punpack", 2, 
+      _pmath_expr_set_debug_metadata(
+        pmath_expr_new_extended(pmath_ref(pmath_System_HoldForm), 1, caller),
+        current_source_location()),
+      dimensions);
   }
   else {
     pmath_unref(caller);

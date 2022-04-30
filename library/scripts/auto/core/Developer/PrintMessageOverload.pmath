@@ -14,6 +14,7 @@ Function nextErrorID() {
 }
 
 Internal`$MessageFormatter := ConsoleMessageFormatter
+$MessagePrePrint:= SourceHyperlinkMessageArgumentFormatter
 
 Function ConsoleMessageFormatter(~heldname, ~msg) {
  	% stack ends with {..., With} where With comes from here
@@ -26,6 +27,17 @@ Function ConsoleMessageFormatter(~heldname, ~msg) {
 			stack[..-2].Reverse.Map(StackEntryForm).Row("\n at ")})
 	
 	ColonForm(heldname, Row({msg, errorButton(eid)}, " "))
+}
+
+Function SourceHyperlinkMessageArgumentFormatter(~arg) {
+	If(Not($HyperlinksSupported)) {
+		Return(arg)
+	}
+	
+	With(src:= Developer`GetDebugMetadata(arg))
+	With(makeButton:=  sourceLocationButtonBuilder(src))
+
+	Return(makeButton @ arg)
 }
 
 Function errorButton(~eid) {

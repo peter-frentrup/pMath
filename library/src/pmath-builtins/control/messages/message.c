@@ -213,7 +213,7 @@ PMATH_PRIVATE pmath_t builtin_message(pmath_expr_t expr) {
   pmath_unref(head);
   
   head = pmath_evaluate(pmath_ref(pmath_Internal_DollarMessageFormatter));
-  if(pmath_same(head, pmath_System_Automatic) || pmath_same(head, pmath_System_DollarMessagePrePrint)) {
+  if(pmath_same(head, pmath_System_Automatic) || pmath_same(head, pmath_Internal_DollarMessageFormatter)) {
     pmath_unref(head);
     head = pmath_ref(pmath_System_ColonForm);
   }

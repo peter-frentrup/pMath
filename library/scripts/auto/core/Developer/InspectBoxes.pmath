@@ -2,7 +2,7 @@
 BeginPackage("Developer`")
 
 Developer`InspectBoxes
-Hold(Developer`OpenTextFile)
+Hold(Developer`SourceLocationOpenerFunction)
 
 Begin("Developer`Private`")
 
@@ -12,9 +12,9 @@ styleDebugMetadataAvailable:= {FontColor -> RGBColor(1, 0.5, 0)}
 styleString:= {FontColor -> GrayLevel(0.5)}
 
 toNiceInfo(Language`SourceLocation(~file, {~l1, ~c1} .. {~l2, ~c2}))::=
-	Row({file, Colon(l1,c1)..Colon(l2,c2)}, ",")
+	Row({file, ColonForm(l1,c1) .. ColonForm(l2,c2)}, ",")
 toNiceInfo(Language`SourceLocation(~file, ~s .. ~e))::=
-	Row({file, s..e}, ",")
+	Row({file, s .. e}, ",")
 toNiceInfo(~x)::= x
 
 Function wrapHyperlinkBox(~content, ~source) {
@@ -43,10 +43,17 @@ Function isOperatorToken(~s:String) {
 internalInspectBoxes(call: {~head:String, "(", ~args, ")"})::=
 	With({debugMetadata:= Developer`GetDebugMetadata(call)},
 		With({debugMetadataBoxes:= {{head, "(", "\[Ellipsis]", ")"}, "\n", ToBoxes(toNiceInfo(debugMetadata))}},
-			{TooltipBox(head.StyleBox(styleDebugMetadataAvailable).wrapHyperlinkBox(debugMetadata), debugMetadataBoxes), 
-				TooltipBox(StyleBox("(", styleDebugMetadataAvailable).wrapHyperlinkBox(debugMetadata), debugMetadataBoxes), 
+			{head |> StyleBox(styleDebugMetadataAvailable) |>
+					wrapHyperlinkBox(debugMetadata) |>
+					TooltipBox(debugMetadataBoxes), 
+				"(" |> StyleBox("(", styleDebugMetadataAvailable) |>
+					wrapHyperlinkBox(debugMetadata) |>
+					TooltipBox(debugMetadataBoxes), 
 				internalInspectBoxes(args), 
-				TooltipBox(StyleBox(")", styleDebugMetadataAvailable).wrapHyperlinkBox(debugMetadata), debugMetadataBoxes)}
+				")" |> StyleBox("(", styleDebugMetadataAvailable) |>
+					wrapHyperlinkBox(debugMetadata) |>
+					TooltipBox(debugMetadataBoxes)
+			}
 		) /? debugMetadata =!= /\/
 	)
 
@@ -58,9 +65,9 @@ Function internalInspectBoxes(~span:List) {
 			newSpan.Map(
 				Function {
 					If(isOperatorToken(#)) {
-						TooltipBox(
-							StyleBox(#, styleDebugMetadataAvailable).wrapHyperlinkBox(debugMetadata), 
-							debugMetadataBoxes)
+						# |> StyleBox(styleDebugMetadataAvailable) |>
+							wrapHyperlinkBox(debugMetadata) |>
+							TooltipBox(debugMetadataBoxes)
 					} Else {
 						#
 					}
@@ -76,7 +83,9 @@ internalInspectBoxes(";")::= {";", "\n"}
 Function internalInspectBoxes(~other) {
 	With(debugMetadata:= Developer`GetDebugMetadata(other))
 	If(debugMetadata =!= /\/) {
-		Return(TooltipBox(other.wrapHyperlinkBox(debugMetadata), ToBoxes(toNiceInfo(debugMetadata))))
+		Return(other |>
+			wrapHyperlinkBox(debugMetadata) |>
+			TooltipBox(debugMetadata |> toNiceInfo |> ToBoxes))
 	}
 	Return(other)
 }
@@ -85,7 +94,9 @@ Function internalInspectBoxes(box: (head: ButtonBox|FrameBox|SqrtBox|StyleBox|Ta
 	With(debugMetadata:= Developer`GetDebugMetadata(box))
 	With(newBox:= head(internalInspectBoxes(content), opts))
 	If(debugMetadata =!= /\/) {
-		Return(TooltipBox(newBox.wrapHyperlinkBox(debugMetadata), ToBoxes(toNiceInfo(debugMetadata))))
+		Return(newBox |>
+			wrapHyperlinkBox(debugMetadata) |>
+			TooltipBox(debugMetadata |> toNiceInfo |> ToBoxes))
 	}
 	Return(newBox)
 }
@@ -94,7 +105,9 @@ Function internalInspectBoxes(box: (head: UnderscriptBox|OverscriptBox|Subsupers
 	With(debugMetadata:= Developer`GetDebugMetadata(box))
 	With(newBox:= head(internalInspectBoxes(content1), internalInspectBoxes(content2), opts))
 	If(debugMetadata =!= /\/) {
-		Return(TooltipBox(newBox.wrapHyperlinkBox(debugMetadata), ToBoxes(toNiceInfo(debugMetadata))))
+		Return(newBox |> 
+			wrapHyperlinkBox(debugMetadata) |>
+			TooltipBox(debugMetadata |> toNiceInfo |> ToBoxes))
 	}
 	Return(newBox)
 }
@@ -103,7 +116,9 @@ Function internalInspectBoxes(box: (head: UnderoverscriptBox)(~content1, ~conten
 	With(debugMetadata:= Developer`GetDebugMetadata(box))
 	With(newBox:= head(internalInspectBoxes(content1), internalInspectBoxes(content2), internalInspectBoxes(content3), opts))
 	If(debugMetadata =!= /\/) {
-		Return(TooltipBox(newBox.wrapHyperlinkBox(debugMetadata), ToBoxes(toNiceInfo(debugMetadata))))
+		Return(newBox |> 
+			wrapHyperlinkBox(debugMetadata) |>
+			TooltipBox(debugMetadata |> toNiceInfo |> ToBoxes))
 	}
 	Return(newBox)
 }
@@ -112,7 +127,9 @@ Function internalInspectBoxes(box: GridBox(~matrix, ~~~opts)) {
 	With(debugMetadata:= Developer`GetDebugMetadata(box))
 	With(newBox:= GridBox(matrix.Map(internalInspectBoxes, 2), opts))
 	If(debugMetadata =!= /\/) {
-		Return(TooltipBox(newBox.wrapHyperlinkBox(debugMetadata), ToBoxes(toNiceInfo(debugMetadata))))
+		Return(newBox |> 
+			wrapHyperlinkBox(debugMetadata) |>
+			TooltipBox(debugMetadata |> toNiceInfo |> ToBoxes))
 	}
 	Return(newBox)
 }
@@ -121,7 +138,9 @@ Function internalInspectBoxes(box: TemplateBox(~args, ~~~opts)) {
 	With(debugMetadata:= Developer`GetDebugMetadata(box))
 	With(newBox:= TemplateBox(args.Map(internalInspectBoxes), opts))
 	If(debugMetadata =!= /\/) {
-		Return(TooltipBox(newBox.wrapHyperlinkBox(debugMetadata), ToBoxes(toNiceInfo(debugMetadata))))
+		Return(newBox |> 
+			wrapHyperlinkBox(debugMetadata) |>
+			TooltipBox(debugMetadata |> toNiceInfo |> ToBoxes))
 	}
 	Return(newBox)
 }

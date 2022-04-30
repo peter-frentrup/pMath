@@ -4,6 +4,7 @@
 #include <pmath-core/symbols.h>
 #include <pmath-util/evaluation.h>
 
+#include <pmath-core/expressions-private.h>
 #include <pmath-core/symbols-private.h>
 
 #include <pmath-util/concurrency/atomic-private.h>
@@ -65,10 +66,13 @@ PMATH_API void pmath_message(
              
   for(i = 0; i < argcount; i++) {
     pmath_t item = va_arg(items, pmath_t);
-    if(!pmath_is_evaluated(item))
+    if(!pmath_is_evaluated(item) && !pmath_is_expr_of_len(item, pmath_System_HoldForm, 1)) {
+      pmath_t debug_metadata = pmath_get_debug_metadata(item);
       item = pmath_expr_new_extended(
                pmath_ref(pmath_System_HoldForm), 1,
                item);
+      item = _pmath_expr_set_debug_metadata(item, debug_metadata);
+    }
                
     expr = pmath_expr_set_item(expr, 2 + i, item);
   }
