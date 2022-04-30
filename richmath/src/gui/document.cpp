@@ -294,6 +294,8 @@ namespace richmath {
       
       void paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequence *seq); // will destroy seq
       
+      static bool needs_sub_suberscript_parentheses(MathSequence *seq, int start, int end);
+      
     private:
       template<class FromSectionType, class ToSectionType>
       Section *convert_content(Section *sect);
@@ -3120,7 +3122,7 @@ void Document::insert_sqrt() {
 }
 
 void Document::insert_subsuperscript(bool sub) {
-  if(!Impl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(false)) {
     Document *cur = Documents::selected_document();
     
     if(cur && cur != this) {
@@ -3140,39 +3142,36 @@ void Document::insert_subsuperscript(bool sub) {
     Impl(*this).handle_backslash_aliases();
   }
   
-  if(auto seq = dynamic_cast<MathSequence *>(context.selection.get())) {
-    int pos = context.selection.end;
-    
-    if(context.selection.end == 0) {
+  VolatileSelection sel = context.selection.get_all();
+  if(auto seq = dynamic_cast<MathSequence *>(sel.box)) {
+    if(sel.end == 0) {
       seq->insert(0, PMATH_CHAR_PLACEHOLDER);
-      pos += 1;
+      sel.end += 1;
     }
     else {
-      bool op = false;
+      if(sel.length() == 0) {
+        sel.start-= 1;
+        while(sel.start > 0 && !seq->span_array().is_token_end(sel.start - 1))
+          --sel.start;
+        
+        if(!seq->span_array().is_operand_start(sel.start)) {
+        auto next = sel.expanded();
+        if(next.box == sel.box && next.end == sel.end)
+          sel.start = next.start;
+        }
+      }
       
-      for(int i = context.selection.start; i < context.selection.end; ++i) {
-        if(seq->text()[i] == PMATH_CHAR_BOX) {
-          seq->insert(context.selection.start, "(");
-          seq->insert(context.selection.end + 1, ")");
-          pos += 2;
-          break;
-        }
-        if(seq->span_array().is_operand_start(i)) {
-          if(op) {
-            seq->insert(context.selection.start, "(");
-            seq->insert(context.selection.end + 1, ")");
-            pos += 2;
-            break;
-          }
-          op = true;
-        }
+      if(Impl::needs_sub_suberscript_parentheses(seq, sel.start, sel.end)) {
+        seq->insert(sel.start, "(");
+        seq->insert(sel.end + 1, ")");
+        sel.end += 2;
       }
     }
     
     MathSequence *content = new MathSequence;
     content->insert(0, PMATH_CHAR_PLACEHOLDER);
     
-    seq->insert(pos, new SubsuperscriptBox(
+    seq->insert(sel.end, new SubsuperscriptBox(
                   sub  ? content : 0,
                   !sub ? content : 0));
                   
@@ -4571,6 +4570,30 @@ void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequ
   grid->invalidate();
   grid->after_insertion(); // TODO: only call on new grid items.
 }
+
+bool Document::Impl::needs_sub_suberscript_parentheses(MathSequence *seq, int start, int end) {
+  for(int i = start; i < end; ++i) {
+    if(seq->text()[i] == PMATH_CHAR_BOX) {
+      bool need_paren = true;
+      
+      if(end - start == 1) {
+        Box *box = seq->item(seq->get_box(i));
+        if(auto owner_box = dynamic_cast<OwnerBox*>(box)) {
+          if(auto inner_seq = dynamic_cast<MathSequence*>(owner_box->content())) {
+            return needs_sub_suberscript_parentheses(inner_seq, 0, inner_seq->length());
+          }
+        }
+      }
+      
+      return true;
+    }
+    
+    if(seq->span_array().is_token_end(i) && i + 1 < end)
+      return true;
+  }
+  
+  return false;
+}      
 
 //}
 
