@@ -364,7 +364,7 @@ void AbstractSequenceSection::resize(Context &context) {
   
   context.script_level = get_own_style(ScriptLevel, 0);
   
-  float em = _content->get_em();
+  float em = context.canvas().get_font_size();
   
   top_margin    = get_style(SectionMarginTop   ).resolve(em, LengthConversionFactors::SectionMargins, context.width);
   bottom_margin = get_style(SectionMarginBottom).resolve(em, LengthConversionFactors::SectionMargins, context.width);
@@ -458,7 +458,7 @@ void AbstractSequenceSection::paint(Context &context) {
   
   cc.apply_layout_styles(style);
   
-  float em = _content->get_em();
+  float em = context.canvas().get_font_size();
   
   float left_margin = get_style(SectionMarginLeft).resolve(em, LengthConversionFactors::SectionMargins, context.width);
   Color background  = get_style(Background);
