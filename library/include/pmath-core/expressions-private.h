@@ -83,11 +83,11 @@ pmath_t _pmath_expr_shrink_associative(
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr);
+pmath_t _pmath_expr_get_debug_metadata(pmath_expr_t expr);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info);
+pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT

@@ -149,7 +149,7 @@ namespace richmath {
       void append_object(int &next_box, Expr object, BoxInputFlags options);
       
     private:
-      Expr add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end);
+      Expr add_debug_metadata(Expr expr, BoxOutputFlags flags, int start, int end);
       
     public:
       PangoLayoutIter *new_pango_iter();
@@ -888,16 +888,16 @@ Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
     ++boxi;
     
   if(boxi >= self.boxes.length() || self.boxes[boxi]->index() >= end) 
-    return add_debug_info(self.text().part(start, end - start), flags, start, end);
+    return add_debug_metadata(self.text().part(start, end - start), flags, start, end);
   
   Gather g;
   
   int next = self.boxes[boxi]->index();
   while(next < end) {
     if(start < next)
-      g.emit(add_debug_info(self.text().part(start, next - start), flags, start, next));
+      g.emit(add_debug_metadata(self.text().part(start, next - start), flags, start, next));
       
-    g.emit(add_debug_info(self.boxes[boxi]->to_pmath(flags), flags, next, next + 1));
+    g.emit(add_debug_metadata(self.boxes[boxi]->to_pmath(flags), flags, next, next + 1));
     
     start = next + 1;
     ++boxi;
@@ -907,17 +907,17 @@ Expr TextSequence::Impl::to_pmath(BoxOutputFlags flags, int start, int end) {
   }
   
   if(start < end)
-    g.emit(add_debug_info(self.text().part(start, end - start), flags, start, end));
+    g.emit(add_debug_metadata(self.text().part(start, end - start), flags, start, end));
     
-  return add_debug_info(g.end(), flags, start, end);
+  return add_debug_metadata(g.end(), flags, start, end);
 }
 
-Expr TextSequence::Impl::add_debug_info(Expr expr, BoxOutputFlags flags, int start, int end) {
-  if(!has(flags, BoxOutputFlags::WithDebugInfo))
+Expr TextSequence::Impl::add_debug_metadata(Expr expr, BoxOutputFlags flags, int start, int end) {
+  if(!has(flags, BoxOutputFlags::WithDebugMetadata))
     return expr;
   
   pmath_t obj = expr.release();
-  obj = pmath_try_set_debug_info(
+  obj = pmath_try_set_debug_metadata(
           obj, 
           SelectionReference(self.id(), start, end).to_pmath().release());
   return Expr{ obj };

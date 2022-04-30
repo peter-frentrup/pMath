@@ -25,7 +25,7 @@ pmath_t _pmath_get_user_format(pmath_t obj) {
       rules = _pmath_symbol_get_rules(head, RULES_READ);
       
       if(rules) {
-        pmath_t debug_info = pmath_get_debug_info(obj);
+        pmath_t debug_metadata = pmath_get_debug_metadata(obj);
         pmath_t result     = pmath_expr_new_extended(
                                pmath_ref(pmath_System_Format), 1,
                                pmath_ref(obj));
@@ -33,11 +33,11 @@ pmath_t _pmath_get_user_format(pmath_t obj) {
         if(_pmath_rulecache_find(&rules->format_rules, &result)) {
           pmath_unref(head);
           result = pmath_evaluate(result);
-          return pmath_try_set_debug_info(result, debug_info);
+          return pmath_try_set_debug_metadata(result, debug_metadata);
         }
         
         pmath_unref(result);
-        pmath_unref(debug_info);
+        pmath_unref(debug_metadata);
       }
       
       pmath_unref(head);

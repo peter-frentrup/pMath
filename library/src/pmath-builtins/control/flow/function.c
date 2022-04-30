@@ -19,20 +19,20 @@ static pmath_t replace_purearg(
   pmath_expr_t arguments  // wont be freed
 ) {
   pmath_bool_t do_flatten = FALSE;
-  pmath_t head, debug_info;
+  pmath_t head, debug_metadata;
   size_t i, len;
   
   if(!pmath_is_expr(function))
     return function;
     
-  debug_info = _pmath_expr_get_debug_info(function);
+  debug_metadata = _pmath_expr_get_debug_metadata(function);
   head       = pmath_expr_get_item(function, 0);
   len        = pmath_expr_length(function);
   
   if(pmath_same(head, pmath_System_Function)) {
     pmath_unref(head);
     if(len == 1) {
-      pmath_unref(debug_info);
+      pmath_unref(debug_metadata);
       return function;
     }
     
@@ -40,7 +40,7 @@ static pmath_t replace_purearg(
     pmath_unref(head);
     
     if(pmath_same(head, PMATH_NULL)) {
-      pmath_unref(debug_info);
+      pmath_unref(debug_metadata);
       return function;
     }
   }
@@ -56,7 +56,7 @@ static pmath_t replace_purearg(
       pmath_unref(pos);
       pmath_unref(function);
       if(min == max) {
-        pmath_unref(debug_info);
+        pmath_unref(debug_metadata);
         return pmath_expr_get_item(arguments, min);
       }
       
@@ -81,7 +81,7 @@ static pmath_t replace_purearg(
         }
       }
       
-      function = _pmath_expr_set_debug_info(function, debug_info);
+      function = _pmath_expr_set_debug_metadata(function, debug_metadata);
       return function;
     }
     
@@ -111,7 +111,7 @@ static pmath_t replace_purearg(
                  1);
   }
   
-  function = _pmath_expr_set_debug_info(function, debug_info);
+  function = _pmath_expr_set_debug_metadata(function, debug_metadata);
   return function;
 }
 

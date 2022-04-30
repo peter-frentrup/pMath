@@ -431,25 +431,25 @@ pmath_bool_t pmath_is_evaluated(pmath_t obj) {
 }
 
 PMATH_API
-pmath_t pmath_get_debug_info(pmath_t obj) {
+pmath_t pmath_get_debug_metadata(pmath_t obj) {
   if(pmath_is_expr(obj))
-    return _pmath_expr_get_debug_info(obj);
+    return _pmath_expr_get_debug_metadata(obj);
     
   if(pmath_is_string(obj))
-    return _pmath_string_get_debug_info(obj);
+    return _pmath_string_get_debug_metadata(obj);
   
   return PMATH_NULL;
 }
 
 PMATH_API
-pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info) {
+pmath_t pmath_try_set_debug_metadata(pmath_t obj, pmath_t debug_metadata) {
   if(pmath_is_expr(obj))
-    return _pmath_expr_set_debug_info(obj, debug_info);
+    return _pmath_expr_set_debug_metadata(obj, debug_metadata);
     
   if(pmath_is_string(obj))
-    return _pmath_string_set_debug_info(obj, debug_info);
+    return _pmath_string_set_debug_metadata(obj, debug_metadata);
   
-  pmath_unref(debug_info);
+  pmath_unref(debug_metadata);
   return obj;
 }
 

@@ -491,21 +491,21 @@ size_t pmath_object_bytecount(pmath_t obj); // implemented in bytecount.c
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_get_debug_info(pmath_t obj);
+pmath_t pmath_get_debug_metadata(pmath_t obj);
 
 /**\brief Set debug information for an object.
    \memberof pmath_t
    \param obj        A pMath object. It will be freed.
-   \param debug_info A pMath object. It will be freed.
+   \param debug_metadata A pMath object. It will be freed.
    \return A copy of \a obj with changed debug information.
 
    \note Not all object types can store debug all kind of information. When
-   storing is not possible, this function is a no-op. \a debug_info hould
+   storing is not possible, this function is a no-op. \a debug_metadata hould
    satisfy pmath_is_pointer()
  */
 PMATH_API
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t pmath_try_set_debug_info(pmath_t obj, pmath_t debug_info);
+pmath_t pmath_try_set_debug_metadata(pmath_t obj, pmath_t debug_metadata);
 
 
 /** @} */

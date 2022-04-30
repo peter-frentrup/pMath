@@ -80,7 +80,7 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size) {
   if(!result)
     return result;
 
-  result->debug_info        = NULL;
+  result->debug_metadata    = NULL;
   result->buffer            = NULL;
   result->length            = len;
   result->capacity_or_start = size;
@@ -90,7 +90,7 @@ struct _pmath_string_t *_pmath_new_string_buffer(int size) {
 
 PMATH_PRIVATE
 pmath_t _pmath_from_buffer(struct _pmath_string_t *b) {
-  if(b && b->length <= 2 && b->debug_info == NULL) {
+  if(b && b->length <= 2 && b->debug_metadata == NULL) {
     pmath_t result;
     const uint16_t *buf = (b->buffer ? AFTER_STRING(b->buffer) + b->capacity_or_start : AFTER_STRING(b));
 
@@ -158,9 +158,9 @@ pmath_bool_t pmath_string_begin_write(pmath_string_t *str, uint16_t **buffer, in
 
   assert(_str->buffer == NULL);
 
-  if(_str->debug_info) {
-    _pmath_unref_ptr(_str->debug_info);
-    _str->debug_info = NULL;
+  if(_str->debug_metadata) {
+    _pmath_unref_ptr(_str->debug_metadata);
+    _str->debug_metadata = NULL;
   }
 
   *buffer = AFTER_STRING(_str);
@@ -199,7 +199,7 @@ void pmath_string_end_write(pmath_string_t *str, uint16_t **buffer) {
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_string_get_debug_info(pmath_t str) {
+pmath_t _pmath_string_get_debug_metadata(pmath_t str) {
   struct _pmath_string_t *_str;
 
   if(pmath_is_null(str))
@@ -210,12 +210,12 @@ pmath_t _pmath_string_get_debug_info(pmath_t str) {
     return PMATH_NULL;
 
   _str = (struct _pmath_string_t *)PMATH_AS_PTR(str);
-  return pmath_ref(PMATH_FROM_PTR(_str->debug_info));
+  return pmath_ref(PMATH_FROM_PTR(_str->debug_metadata));
 }
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
+pmath_t _pmath_string_set_debug_metadata(pmath_t str, pmath_t info) {
   struct _pmath_string_t *str_ptr = NULL;
   struct _pmath_string_t *result = NULL;
   struct _pmath_t *info_ptr;
@@ -255,7 +255,7 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
       return str;
     }
 
-    result->debug_info = info_ptr;
+    result->debug_metadata = info_ptr;
 
     // no need to free str: it is a ministr
     return PMATH_FROM_PTR(result);
@@ -264,7 +264,7 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
   assert(pmath_is_bigstr(str));
 
   str_ptr = (void*)PMATH_AS_PTR(str);
-  if(str_ptr->debug_info == info_ptr) {
+  if(str_ptr->debug_metadata == info_ptr) {
     if(info_ptr)
       _pmath_unref_ptr(info_ptr);
 
@@ -272,15 +272,15 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
   }
 
   if(pmath_refcount(str) == 1) {
-    if(str_ptr->debug_info)
-      _pmath_unref_ptr(str_ptr->debug_info);
+    if(str_ptr->debug_metadata)
+      _pmath_unref_ptr(str_ptr->debug_metadata);
 
-    str_ptr->debug_info = info_ptr;
+    str_ptr->debug_metadata = info_ptr;
     return str;
   }
   else {
     if( str_ptr->buffer &&
-        str_ptr->buffer->debug_info == info_ptr &&
+        str_ptr->buffer->debug_metadata == info_ptr &&
         str_ptr->capacity_or_start == 0 &&
         str_ptr->length == str_ptr->buffer->length)
     {
@@ -297,7 +297,7 @@ pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info) {
       return str;
     }
 
-    result->debug_info = info_ptr;
+    result->debug_metadata = info_ptr;
     result->length     = str_ptr->length;
     if(str_ptr->buffer) {
       _pmath_ref_string_ptr(str_ptr->buffer);
@@ -477,8 +477,8 @@ static void destroy_string(pmath_t p) {
   
   PMATH_OBJECT_MARK_DELETION_TRAP(&str->inherited);
   
-  if(str->debug_info)
-    _pmath_unref_ptr(str->debug_info);
+  if(str->debug_metadata)
+    _pmath_unref_ptr(str->debug_metadata);
   if(str->buffer)
     _pmath_unref_ptr((void*)str->buffer);
 
@@ -1772,7 +1772,7 @@ pmath_string_t pmath_string_part(
       return PMATH_NULL;
     }
 
-    result->debug_info        = NULL;
+    result->debug_metadata        = NULL;
     result->buffer            = _str;
     result->length            = length;
     result->capacity_or_start = start;

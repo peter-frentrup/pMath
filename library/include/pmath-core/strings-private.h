@@ -22,7 +22,7 @@
 
 struct _pmath_string_t {
   struct _pmath_t          inherited;
-  struct _pmath_t         *debug_info;
+  struct _pmath_t         *debug_metadata;
   struct _pmath_string_t  *buffer;
   int                      length; // >= 0 !!!
   int                      capacity_or_start; // start index iff buffer != PMATH_NULL
@@ -59,11 +59,11 @@ pmath_t _pmath_from_buffer(struct _pmath_string_t *b);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_string_get_debug_info(pmath_t str);
+pmath_t _pmath_string_get_debug_metadata(pmath_t str);
 
 PMATH_PRIVATE
 PMATH_ATTRIBUTE_USE_RESULT
-pmath_t _pmath_string_set_debug_info(pmath_t str, pmath_t info);
+pmath_t _pmath_string_set_debug_metadata(pmath_t str, pmath_t info);
 
 PMATH_PRIVATE
 pmath_bool_t _pmath_strings_equal(

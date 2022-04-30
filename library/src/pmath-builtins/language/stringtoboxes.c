@@ -36,13 +36,13 @@ struct _pmath_string_to_boxes_data_t {
   struct pmath_boxes_from_spans_ex_t  settings;
 };
 
-static pmath_t add_string_debug_info(
+static pmath_t add_string_debug_metadata(
   pmath_t                             token_or_span,
   const struct pmath_text_position_t *start,
   const struct pmath_text_position_t *end,
   void                               *_data
 ) {
-  pmath_t debug_info;
+  pmath_t debug_metadata;
   struct _pmath_string_to_boxes_data_t *data = _data;
   
   assert(0 <= start->index);
@@ -60,7 +60,7 @@ static pmath_t add_string_debug_info(
     }
   }
   
-  debug_info = pmath_expr_new_extended(
+  debug_metadata = pmath_expr_new_extended(
                  pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->debug_source),
                  pmath_expr_new_extended(
@@ -68,7 +68,7 @@ static pmath_t add_string_debug_info(
                    pmath_integer_new_si32(start->index + 1),
                    pmath_integer_new_si32(end->index)));
                    
-  return pmath_try_set_debug_info(token_or_span, debug_info);
+  return pmath_try_set_debug_metadata(token_or_span, debug_metadata);
 }
 
 static pmath_bool_t handle_whitespace_option(
@@ -177,7 +177,7 @@ PMATH_PRIVATE pmath_t builtin_stringtoboxes(pmath_expr_t expr) {
   memset(&data, 0, sizeof(data));
   data.settings.size = sizeof(data.settings);
   data.settings.data = &data;
-  data.settings.add_debug_info = add_string_debug_info;
+  data.settings.add_debug_metadata = add_string_debug_metadata;
   
   if(!handle_ignoresyntaxerrors_option(&ignore_errors, options)) {
     pmath_unref(options);

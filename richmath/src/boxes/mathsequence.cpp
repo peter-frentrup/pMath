@@ -102,7 +102,7 @@ namespace richmath {
       static pmath_string_t syntaxform_or_null(Box *box);
       static void syntax_error(pmath_string_t code, int pos, void *_data, pmath_bool_t err);
       static pmath_t box_at_index(int i, void *_data);
-      static pmath_t add_debug_info(
+      static pmath_t add_debug_metadata(
         pmath_t                             token_or_span,
         const struct pmath_text_position_t *start,
         const struct pmath_text_position_t *end,
@@ -688,7 +688,7 @@ Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   settings.size           = sizeof(settings);
   settings.data           = &data;
   settings.box_at_index   = Impl::box_at_index;
-  settings.add_debug_info = Impl::add_debug_info;
+  settings.add_debug_metadata = Impl::add_debug_metadata;
   
   if(has(flags, BoxOutputFlags::Parseable))
     settings.flags |= PMATH_BFS_PARSEABLE;
@@ -1725,7 +1725,7 @@ pmath_t MathSequence::Impl::box_at_index(int i, void *_data) {
   return PMATH_NULL;
 }
 
-pmath_t MathSequence::Impl::add_debug_info(
+pmath_t MathSequence::Impl::add_debug_metadata(
   pmath_t                             token_or_span,
   const struct pmath_text_position_t *start,
   const struct pmath_text_position_t *end,
@@ -1763,17 +1763,17 @@ pmath_t MathSequence::Impl::add_debug_info(
     }
   }
   
-  if(!has(data->flags, BoxOutputFlags::WithDebugInfo))
+  if(!has(data->flags, BoxOutputFlags::WithDebugMetadata))
     return token_or_span;
   
   if(!pmath_is_expr(token_or_span) && !pmath_is_string(token_or_span))
     return token_or_span;
   
-  Expr debug_info = SelectionReference(data->sequence->id(), start->index, end->index).to_pmath();
+  Expr debug_metadata = SelectionReference(data->sequence->id(), start->index, end->index).to_pmath();
                       
-  token_or_span = pmath_try_set_debug_info(
+  token_or_span = pmath_try_set_debug_metadata(
                     token_or_span,
-                    debug_info.release());
+                    debug_metadata.release());
                     
   return token_or_span;
 }

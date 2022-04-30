@@ -131,7 +131,7 @@ bool InputJob::start() {
     section->invalidate();
   }
   
-  Expr boxes = section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo);
+  Expr boxes = section->content()->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);
   if(eval_fun != richmath_System_Identity)
     boxes = Call(std::move(eval_fun), std::move(boxes));
@@ -278,7 +278,7 @@ bool ReplacementJob::start() {
   
   set_context();
   
-  Expr boxes = sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo, selection_start, selection_end);
+  Expr boxes = sequence->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata, selection_start, selection_end);
   Expr eval_fun = section->get_style(SectionEvaluationFunction);
   if(eval_fun != richmath_System_Identity)
     boxes = Call(std::move(eval_fun), std::move(boxes));

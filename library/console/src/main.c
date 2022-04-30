@@ -366,13 +366,13 @@ static void scanner_error(pmath_string_t code, int pos, void *flag, pmath_bool_t
     *have_critical = TRUE;
 }
 
-static pmath_t add_debug_info(
+static pmath_t add_debug_metadata(
   pmath_t                             token_or_span, 
   const struct pmath_text_position_t *start, 
   const struct pmath_text_position_t *end, 
   void                               *_data
 ) {
-  pmath_t debug_info;
+  pmath_t debug_metadata;
   struct parse_data_t *data = _data;
   int start_line, end_line, start_column, end_column;
   
@@ -389,7 +389,7 @@ static pmath_t add_debug_info(
   end_line   = end->line;
   end_column = end->index - end->line_start_index;
   
-  debug_info = pmath_expr_new_extended(
+  debug_metadata = pmath_expr_new_extended(
                  pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->filename),
                  pmath_expr_new_extended(
@@ -397,7 +397,7 @@ static pmath_t add_debug_info(
                    pmath_build_value("(ii)", start_line, start_column),
                    pmath_build_value("(ii)", end_line,   end_column)));
                    
-  return pmath_try_set_debug_info(token_or_span, debug_info);
+  return pmath_try_set_debug_metadata(token_or_span, debug_metadata);
 }
 
 static pmath_t dialog(pmath_t first_eval) {
@@ -420,7 +420,7 @@ static pmath_t dialog(pmath_t first_eval) {
     parse_settings.size           = sizeof(parse_settings);
     parse_settings.flags          = PMATH_BFS_PARSEABLE;
     parse_settings.data           = &parse_data;
-    parse_settings.add_debug_info = add_debug_info;
+    parse_settings.add_debug_metadata = add_debug_metadata;
     
     parse_data.filename = PMATH_C_STRING("<input>");
     
@@ -449,13 +449,13 @@ static pmath_t dialog(pmath_t first_eval) {
                 &err);
                 
       if(!err) {
-        pmath_t debug_info;
+        pmath_t debug_metadata;
         pmath_t obj = pmath_boxes_from_spans_ex(
                         spans,
                         parse_data.code,
                         &parse_settings);
                         
-        debug_info = pmath_get_debug_info(obj);
+        debug_metadata = pmath_get_debug_metadata(obj);
         
         obj = pmath_evaluate(
                 pmath_expr_new_extended(
@@ -473,11 +473,11 @@ static pmath_t dialog(pmath_t first_eval) {
                     obj, 0, pmath_ref(pmath_System_Sequence));
           }
           
-          obj = pmath_try_set_debug_info(obj, debug_info);
+          obj = pmath_try_set_debug_metadata(obj, debug_metadata);
           obj = pmath_session_execute(obj, NULL);
         }
         else
-          pmath_unref(debug_info);
+          pmath_unref(debug_metadata);
           
         if(!quitting && !pmath_is_null(obj)) {
           if(dialog_depth > 0) {

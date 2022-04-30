@@ -249,7 +249,7 @@ static pmath_t parse_at(    pmath_expr_t expr, size_t i);
 static pmath_t parse_seq_at(pmath_expr_t expr, size_t i, pmath_symbol_t seq);
 static pmath_bool_t try_parse_helper(pmath_symbol_t helper, pmath_expr_t *expr);
 
-static pmath_t wrap_hold_with_debuginfo_from(pmath_t boxes_with_debuginfo, pmath_t result); // both arguments be freed
+static pmath_t wrap_hold_with_debug_metadata_from(pmath_t boxes_with_debug_metadata, pmath_t result); // both arguments be freed
 static void handle_row_error_at(pmath_expr_t expr, size_t i);
 
 static pmath_symbol_t inset_operator(uint16_t ch); // do not free result!
@@ -333,18 +333,18 @@ static pmath_t make_multiplication(pmath_expr_t boxes);
     pmath_ref(pmath_System_HoldComplete), 1, result)
 
 // evaluates MakeExpression(box) but also retains debug information
-PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
-  pmath_t debug_info = pmath_get_debug_info(box);
+PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debugmetadata(pmath_t box) {
+  pmath_t debug_metadata = pmath_get_debug_metadata(box);
   
   box = pmath_evaluate(
           pmath_expr_new_extended(
             pmath_ref(pmath_System_MakeExpression), 1, box));
             
-  if(pmath_is_null(debug_info))
+  if(pmath_is_null(debug_metadata))
     return box;
     
   if(!pmath_is_expr_of(box, pmath_System_HoldComplete)) {
-    pmath_unref(debug_info);
+    pmath_unref(debug_metadata);
     return box;
   }
   
@@ -356,7 +356,7 @@ PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
       
       pmath_unref(pmath_expr_extract_item(box, 1));
       
-      content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
+      content = pmath_try_set_debug_metadata(content, pmath_ref(debug_metadata));
       
       box = pmath_expr_set_item(box, 1, content);
     }
@@ -364,7 +364,7 @@ PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box) {
       pmath_unref(content);
   }
   
-  return pmath_try_set_debug_info(box, debug_info);
+  return pmath_try_set_debug_metadata(box, debug_metadata);
 }
 
 PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
@@ -1007,7 +1007,7 @@ static pmath_bool_t parse(pmath_t *box) {
 static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq) {
 // *box = PMATH_NULL if result is FALSE
   pmath_t obj;
-  pmath_t debug_info = pmath_get_debug_info(*box);
+  pmath_t debug_metadata = pmath_get_debug_metadata(*box);
   
   *box = pmath_evaluate(
            pmath_expr_new_extended(
@@ -1015,7 +1015,7 @@ static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq) {
              
   if(!pmath_is_expr(*box)) {
     pmath_unref(*box);
-    pmath_unref(debug_info);
+    pmath_unref(debug_metadata);
     *box = PMATH_NULL;
     return FALSE;
   }
@@ -1025,14 +1025,14 @@ static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq) {
   
   if(!pmath_same(obj, pmath_System_HoldComplete)) {
     pmath_message(PMATH_NULL, "inv", 1, *box);
-    pmath_unref(debug_info);
+    pmath_unref(debug_metadata);
     *box = PMATH_NULL;
     return FALSE;
   }
   
   if(pmath_expr_length(*box) != 1) {
     *box = pmath_expr_set_item(*box, 0, pmath_ref(seq));
-    *box = pmath_try_set_debug_info(*box, debug_info);
+    *box = pmath_try_set_debug_metadata(*box, debug_metadata);
     return TRUE;
   }
   
@@ -1041,24 +1041,24 @@ static pmath_bool_t parse_seq(pmath_t *box, pmath_symbol_t seq) {
   pmath_unref(obj);
   
   if(pmath_is_ministr(*box) || pmath_refcount(*box) == 1)
-    *box = pmath_try_set_debug_info(*box, debug_info);
+    *box = pmath_try_set_debug_metadata(*box, debug_metadata);
   else
-    pmath_unref(debug_info);
+    pmath_unref(debug_metadata);
     
   return TRUE;
 }
 
-static pmath_t wrap_hold_with_debuginfo_from(
-  pmath_t boxes_with_debuginfo, // will be freed
-  pmath_t result                // will be freed
+static pmath_t wrap_hold_with_debug_metadata_from(
+  pmath_t boxes_with_debug_metadata, // will be freed
+  pmath_t result                     // will be freed
 ) {
   if(pmath_is_ministr(result) || pmath_refcount(result) == 1) {
-    pmath_t debug_info = pmath_get_debug_info(boxes_with_debuginfo);
+    pmath_t debug_metadata = pmath_get_debug_metadata(boxes_with_debug_metadata);
     
-    result = pmath_try_set_debug_info(result, debug_info);
+    result = pmath_try_set_debug_metadata(result, debug_metadata);
   }
   
-  pmath_unref(boxes_with_debuginfo);
+  pmath_unref(boxes_with_debug_metadata);
   
   return HOLDCOMPLETE(result);
 }
@@ -1388,7 +1388,7 @@ static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling) { /
   
   if(remove_styling) {
     pmath_unref(options);
-    return wrap_hold_with_debuginfo_from(pmath_ref(expr), matrix);
+    return wrap_hold_with_debug_metadata_from(pmath_ref(expr), matrix);
   }
   
   pmath_gather_begin(PMATH_NULL);
@@ -1398,7 +1398,7 @@ static pmath_t parse_gridbox(pmath_expr_t expr, pmath_bool_t remove_styling) { /
   
   row = pmath_gather_end();
   row = pmath_expr_set_item(row, 0, pmath_ref(pmath_System_Grid));
-  return wrap_hold_with_debuginfo_from(pmath_ref(expr), row);
+  return wrap_hold_with_debug_metadata_from(pmath_ref(expr), row);
 }
 
 static pmath_t make_expression_with_options(pmath_expr_t expr) {
@@ -1419,7 +1419,7 @@ static pmath_t make_expression_with_options(pmath_expr_t expr) {
     
     box = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
-    expr = _pmath_makeexpression_with_debuginfo(box);
+    expr = _pmath_makeexpression_with_debugmetadata(box);
     
     pmath_unref(options);
     if(!pmath_same(args, pmath_System_Automatic)) {
@@ -1827,7 +1827,7 @@ static pmath_t make_expression_from_compresseddata(pmath_expr_t box) {
     if(pmath_is_string(data)) {
       data = pmath_decompress_from_string(data);
       if(!pmath_same(data, PMATH_UNDEFINED))
-        return wrap_hold_with_debuginfo_from(box, data);
+        return wrap_hold_with_debug_metadata_from(box, data);
     }
     pmath_unref(data);
   }
@@ -1845,15 +1845,15 @@ static pmath_t make_expression_from_fractionbox(pmath_expr_t box) {
     
     if(parse(&num) && parse(&den)) {
       if(pmath_is_integer(num) && pmath_is_integer(den))
-        return wrap_hold_with_debuginfo_from(box, pmath_rational_new(num, den));
+        return wrap_hold_with_debug_metadata_from(box, pmath_rational_new(num, den));
         
       if(pmath_same(num, INT(1))) {
         pmath_unref(num);
         
-        return wrap_hold_with_debuginfo_from(box, INV(den));
+        return wrap_hold_with_debug_metadata_from(box, INV(den));
       }
       
-      return wrap_hold_with_debuginfo_from(box, DIV(num, den));
+      return wrap_hold_with_debug_metadata_from(box, DIV(num, den));
     }
     
     pmath_unref(num);
@@ -1875,7 +1875,7 @@ static pmath_t make_expression_from_framebox(pmath_expr_t box) {
                   pmath_ref(pmath_System_Framed), 1,
                   content);
                   
-      return wrap_hold_with_debuginfo_from(box, content);
+      return wrap_hold_with_debug_metadata_from(box, content);
     }
   }
   
@@ -1922,7 +1922,7 @@ static pmath_t make_expression_from_gridbox_column(pmath_t box, pmath_expr_t gri
       pmath_unref(row);
     }
     
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              box,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Column), 1,
@@ -1952,7 +1952,7 @@ static pmath_t make_expression_from_interpretationbox(pmath_expr_t box) {
     if(!pmath_is_null(options)) {
       pmath_t value = pmath_expr_get_item(box, 2);
       
-      return wrap_hold_with_debuginfo_from(box, value);
+      return wrap_hold_with_debug_metadata_from(box, value);
     }
   }
   
@@ -1976,7 +1976,7 @@ static pmath_t make_expression_from_overscriptbox(pmath_expr_t box) {
       else 
         result = pmath_expr_new_extended(pmath_ref(pmath_System_Overscript), 2, base, over);
       
-      return wrap_hold_with_debuginfo_from(box, result);
+      return wrap_hold_with_debug_metadata_from(box, result);
     }
     
     pmath_unref(base);
@@ -2013,7 +2013,7 @@ static pmath_t make_expression_from_radicalbox(pmath_expr_t box) {
       else
         base = POW(base, INV(exponent));
         
-      return wrap_hold_with_debuginfo_from(box, base);
+      return wrap_hold_with_debug_metadata_from(box, base);
     }
     
     pmath_unref(base);
@@ -2041,7 +2041,7 @@ static pmath_t make_expression_from_rotationbox(pmath_expr_t box) {
       pmath_unref(options);
       
       if(parse(&content)) {
-        return wrap_hold_with_debuginfo_from(
+        return wrap_hold_with_debug_metadata_from(
                  box,
                  pmath_expr_new_extended(
                    pmath_ref(pmath_System_Rotate), 2,
@@ -2080,7 +2080,7 @@ static pmath_t make_expression_from_sqrtbox(pmath_expr_t box) {
       else
         base = SQRT(base);
         
-      return wrap_hold_with_debuginfo_from(box, base);
+      return wrap_hold_with_debug_metadata_from(box, base);
     }
   }
   
@@ -2099,7 +2099,7 @@ static pmath_t make_expression_from_stylebox(pmath_expr_t box) {
                   pmath_ref(pmath_System_Style), 1,
                   content);
                   
-      return wrap_hold_with_debuginfo_from(box, content);
+      return wrap_hold_with_debug_metadata_from(box, content);
     }
   }
   
@@ -2132,7 +2132,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
         
         if(parse(&view)) {
           pmath_unref(tag);
-          return wrap_hold_with_debuginfo_from(
+          return wrap_hold_with_debug_metadata_from(
                    box,
                    pmath_expr_new_extended(
                      pmath_ref(pmath_System_Placeholder), 1,
@@ -2165,7 +2165,7 @@ static pmath_t make_expression_from_tagbox(pmath_expr_t box) {
     }
     
     if(parse(&view)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                box,
                pmath_expr_new_extended(
                  tag, 1,
@@ -2272,7 +2272,7 @@ static pmath_t make_expression_from_underscriptbox(pmath_expr_t box) {
       else 
         result = pmath_expr_new_extended(pmath_ref(pmath_System_Underscript), 2, base, under);
       
-      return wrap_hold_with_debuginfo_from(box, result);
+      return wrap_hold_with_debug_metadata_from(box, result);
     }
     
     pmath_unref(base);
@@ -2312,7 +2312,7 @@ static pmath_t make_expression_from_underoverscriptbox(pmath_expr_t box) {
                    base, under, over);
       }
       
-      return wrap_hold_with_debuginfo_from(box, result);
+      return wrap_hold_with_debug_metadata_from(box, result);
     }
     
     pmath_unref(base);
@@ -2465,7 +2465,7 @@ static pmath_t make_evaluation_sequence(pmath_expr_t boxes) {
   }
   pmath_emit(prev, PMATH_NULL);
   
-  return wrap_hold_with_debuginfo_from(
+  return wrap_hold_with_debug_metadata_from(
            boxes,
            pmath_expr_set_item(
              pmath_gather_end(), 0,
@@ -2497,7 +2497,7 @@ static pmath_t make_implicit_evaluation_sequence(pmath_expr_t boxes) {
     result = pmath_expr_set_item(result, i, box);
   }
   
-  return wrap_hold_with_debuginfo_from(boxes, result);
+  return wrap_hold_with_debug_metadata_from(boxes, result);
 }
 
 // ?x  ?x:v
@@ -2513,7 +2513,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
             pmath_ref(_pmath_object_singlematch));
             
     if(exprlen == 2) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(
                  pmath_ref(pmath_System_Optional), 1,
@@ -2524,7 +2524,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes) {
       pmath_t value = parse_at(boxes, 4);
       
       if(!is_parse_error(value)) {
-        return wrap_hold_with_debuginfo_from(
+        return wrap_hold_with_debug_metadata_from(
                  boxes,
                  pmath_expr_new_extended(
                    pmath_ref(pmath_System_Optional), 2,
@@ -2545,14 +2545,14 @@ static pmath_t make_derivative(pmath_expr_t boxes, int order) {
   
   if(!is_parse_error(box)) {
     pmath_t snd = pmath_expr_get_item(boxes, 2);
-    pmath_t snd_debug_info = pmath_get_debug_info(snd);
+    pmath_t snd_debug_metadata = pmath_get_debug_metadata(snd);
     pmath_unref(snd);
     snd = pmath_expr_new_extended(
             pmath_ref(pmath_System_Derivative), 1,
             PMATH_FROM_INT32(order));
-    snd = pmath_try_set_debug_info(snd, snd_debug_info);
+    snd = pmath_try_set_debug_metadata(snd, snd_debug_metadata);
     
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                snd, 1,
@@ -2570,7 +2570,7 @@ static pmath_t make_from_first_box(
   pmath_t box = parse_at(boxes, 1);
   
   if(!is_parse_error(box)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(sym), 1,
@@ -2588,7 +2588,7 @@ static pmath_t make_from_second_box(
   pmath_t box = parse_at(boxes, 2);
   
   if(!is_parse_error(box)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(sym), 1,
@@ -2617,10 +2617,10 @@ static pmath_t make_matchfix(pmath_expr_t boxes, pmath_symbol_t sym) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 2));
+  args = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(boxes, 2));
   
   if(pmath_is_expr(args)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_set_item(args, 0, pmath_ref(sym)));
   }
@@ -2640,7 +2640,7 @@ static pmath_t make_binary(
     pmath_t rhs;
     
     if( pmath_same(sym, pmath_System_Assign) && unichar_at(boxes, 3) == '.') {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(
                  pmath_ref(pmath_System_Unassign), 1,
@@ -2649,7 +2649,7 @@ static pmath_t make_binary(
     
     rhs = parse_at(boxes, 3);
     if(!is_parse_error(rhs)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(
                  pmath_ref(sym), 2,
@@ -2670,7 +2670,7 @@ static pmath_t make_pattern_op_other(pmath_expr_t boxes, pmath_symbol_t sym) { /
   if(!is_parse_error(pat)) {
     pmath_t other = parse_at(boxes, 3);
     if(!is_parse_error(other)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(
                  pmath_ref(sym), 2,
@@ -2707,7 +2707,7 @@ static pmath_t make_infix_unchecked(
     result = pmath_expr_set_item(result, i + 1, arg);
   }
   
-  return wrap_hold_with_debuginfo_from(boxes, result);
+  return wrap_hold_with_debug_metadata_from(boxes, result);
 }
 
 static pmath_t make_infix(
@@ -2771,7 +2771,7 @@ static pmath_t make_relation(
         result = pmath_expr_set_item(result, i, arg);
       }
       
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_set_item(
                  result, 0,
@@ -2793,7 +2793,7 @@ static pmath_t make_relation(
     result = pmath_expr_set_item(result, i + 1, arg);
   }
   
-  return wrap_hold_with_debuginfo_from(boxes, result);
+  return wrap_hold_with_debug_metadata_from(boxes, result);
 }
 
 // x**  x***
@@ -2804,7 +2804,7 @@ static pmath_t make_repeated_pattern(
   pmath_t box = parse_at(boxes, 1);
   
   if(!is_parse_error(box)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Repeated), 2,
@@ -2831,12 +2831,12 @@ static pmath_t make_unary_minus(pmath_expr_t boxes) {
   
   if(!is_parse_error(box)) {
     if(pmath_is_number(box)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_number_neg(box));
     }
     
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Times), 2,
@@ -2858,7 +2858,7 @@ static pmath_t make_pure_argument_range(pmath_expr_t boxes) {
   }
   
   if(pmath_is_integer(box)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_PureArgument), 1,
@@ -2890,7 +2890,7 @@ static pmath_t make_text_line(
     }
   }
   
-  return wrap_hold_with_debuginfo_from(
+  return wrap_hold_with_debug_metadata_from(
            boxes,
            pmath_expr_new_extended(
              pmath_ref(sym), 1,
@@ -2905,7 +2905,7 @@ static pmath_t make_named_match(
   pmath_t box = parse_at(boxes, 2);
   
   if(!is_parse_error(box)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Pattern), 2,
@@ -2932,7 +2932,7 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
   
   if(parse(&base)) {
     if(pmath_is_string(exp)) {
-      pmath_string_t exp_debug_info;
+      pmath_string_t exp_debug_metadata;
       int order = 0;
       int len = pmath_string_length(exp);
       const uint16_t *exp_buf = pmath_string_buffer(&exp);
@@ -2950,13 +2950,13 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
             goto NO_DERIVATIVE;
         }
       }
-      exp_debug_info = pmath_get_debug_info(exp);
+      exp_debug_metadata = pmath_get_debug_metadata(exp);
       pmath_unref(exp);
       exp = pmath_expr_new_extended(
               pmath_ref(pmath_System_Derivative), 1,
               PMATH_FROM_INT32(order));
-      exp = pmath_try_set_debug_info(exp, exp_debug_info);
-      return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(exp, 1, base));
+      exp = pmath_try_set_debug_metadata(exp, exp_debug_metadata);
+      return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(exp, 1, base));
     NO_DERIVATIVE: ;
     }
     
@@ -2966,7 +2966,7 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
       
       if(pmath_same(tag, pmath_System_Derivative)) {
         if(parse(&exp)) 
-          return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(exp, 1, base));
+          return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(exp, 1, base));
       
         pmath_unref(boxes);
         pmath_unref(base);
@@ -2981,7 +2981,7 @@ static pmath_t make_superscript(pmath_expr_t boxes, pmath_expr_t superscript_box
     }
     
     if(parse(&exp)) {
-      return wrap_hold_with_debuginfo_from(boxes, POW(base, exp));
+      return wrap_hold_with_debug_metadata_from(boxes, POW(base, exp));
     }
   }
   
@@ -3004,7 +3004,7 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
     pmath_t idx = pmath_expr_get_item(subscript_box, 1);
     pmath_unref(subscript_box);
     
-    idx = _pmath_makeexpression_with_debuginfo(idx);
+    idx = _pmath_makeexpression_with_debugmetadata(idx);
     
     if(pmath_is_expr(idx)) {
       pmath_t head = pmath_expr_get_item(idx, 0);
@@ -3026,7 +3026,7 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
         }
         
         pmath_unref(idx);
-        return wrap_hold_with_debuginfo_from(boxes, result);
+        return wrap_hold_with_debug_metadata_from(boxes, result);
       }
     }
     
@@ -3043,7 +3043,7 @@ static pmath_t make_subscript(pmath_expr_t boxes, pmath_expr_t subscript_box) {
 static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscript_box) {
   pmath_t idx;
   pmath_t exp;
-  pmath_t debug_info;
+  pmath_t debug_metadata;
   
   if(try_parse_helper(pmath_System_Private_MakeScriptsExpression, &boxes)) {
     pmath_unref(subsuperscript_box);
@@ -3052,16 +3052,16 @@ static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscri
   
   idx        = pmath_expr_get_item(subsuperscript_box,  1);
   exp        = pmath_expr_get_item(subsuperscript_box,  2);
-  debug_info = pmath_get_debug_info(subsuperscript_box);
+  debug_metadata = pmath_get_debug_metadata(subsuperscript_box);
   pmath_unref(subsuperscript_box);
   subsuperscript_box = pmath_expr_new_extended(
                          pmath_ref(pmath_System_SubscriptBox), 1,
                          idx);
-  subsuperscript_box = pmath_try_set_debug_info(subsuperscript_box, debug_info);
+  subsuperscript_box = pmath_try_set_debug_metadata(subsuperscript_box, debug_metadata);
   
-  debug_info = pmath_get_debug_info(boxes);
+  debug_metadata = pmath_get_debug_metadata(boxes);
   boxes = pmath_expr_set_item(boxes, 2, subsuperscript_box);
-  boxes = pmath_try_set_debug_info(boxes, pmath_ref(debug_info));
+  boxes = pmath_try_set_debug_metadata(boxes, pmath_ref(debug_metadata));
   
   boxes = pmath_expr_new_extended(
             pmath_ref(pmath_System_List), 2,
@@ -3069,7 +3069,7 @@ static pmath_t make_subsuperscript(pmath_expr_t boxes, pmath_expr_t subsuperscri
             pmath_expr_new_extended(
               pmath_ref(pmath_System_SuperscriptBox), 1,
               exp));
-  boxes = pmath_try_set_debug_info(boxes, debug_info);
+  boxes = pmath_try_set_debug_metadata(boxes, debug_metadata);
   
   return pmath_expr_new_extended(
            pmath_ref(pmath_System_MakeExpression), 1,
@@ -3084,7 +3084,7 @@ static pmath_t make_simple_dot_call(pmath_expr_t boxes) {
     pmath_t f = parse_at(boxes, 3);
     
     if(!is_parse_error(f)) {
-      return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(f, 1, arg));
+      return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(f, 1, arg));
     }
     
     pmath_unref(arg);
@@ -3111,7 +3111,7 @@ static pmath_t make_dot_call(pmath_expr_t boxes) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 5));
+  args = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(boxes, 5));
   
   if(pmath_is_expr(args)) {
     size_t i, argslen;
@@ -3126,7 +3126,7 @@ static pmath_t make_dot_call(pmath_expr_t boxes) {
                pmath_expr_get_item(args, i));
     }
     
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_set_item(
                pmath_expr_set_item(
@@ -3166,7 +3166,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
         return pmath_ref(pmath_System_DollarFailed);
       }
       
-      return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(f, 1, arg1));
+      return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(f, 1, arg1));
     }
     
     if(boxlen == 4 && unichar_at(box, 2) == '(' && unichar_at(box, 4) == ')') {
@@ -3179,7 +3179,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
         return pmath_ref(pmath_System_DollarFailed);
       }
       
-      call = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(box, 3));
+      call = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(box, 3));
       if(pmath_is_expr(call)) {
         argslen = pmath_expr_length(call);
     
@@ -3192,7 +3192,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
         call = pmath_expr_set_item(call, 1, arg1);
         call = pmath_expr_set_item(call, 0, f);
         
-        return wrap_hold_with_debuginfo_from(boxes, call);
+        return wrap_hold_with_debug_metadata_from(boxes, call);
       }
       
       pmath_unref(call);
@@ -3208,7 +3208,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new_extended(box, 1, arg1));
+  return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new_extended(box, 1, arg1));
 }
 
 // f @ a
@@ -3224,7 +3224,7 @@ static pmath_t make_prefix_call(pmath_expr_t boxes) {
       else
         arg = pmath_expr_new_extended(f, 1, arg);
         
-      return wrap_hold_with_debuginfo_from(boxes, arg);
+      return wrap_hold_with_debug_metadata_from(boxes, arg);
     }
     
     pmath_unref(f);
@@ -3242,7 +3242,7 @@ static pmath_t make_postfix_call(pmath_expr_t boxes) {
     pmath_t f = parse_at(boxes, 3);
     
     if(!is_parse_error(f)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(f, 1, arg));
     }
@@ -3259,7 +3259,7 @@ static pmath_t make_argumentless_call(pmath_expr_t boxes) {
   pmath_t box = parse_at(boxes, 1);
   
   if(!is_parse_error(box)) {
-    return wrap_hold_with_debuginfo_from(boxes, pmath_expr_new(box, 0));
+    return wrap_hold_with_debug_metadata_from(boxes, pmath_expr_new(box, 0));
   }
   
   pmath_unref(boxes);
@@ -3268,14 +3268,14 @@ static pmath_t make_argumentless_call(pmath_expr_t boxes) {
 
 // f(args)
 static pmath_t make_simple_call(pmath_expr_t boxes) {
-  pmath_t args = _pmath_makeexpression_with_debuginfo(
+  pmath_t args = _pmath_makeexpression_with_debugmetadata(
                    pmath_expr_get_item(boxes, 3));
                    
   if(pmath_is_expr(args)) {
     pmath_t f = parse_at(boxes, 1);
     
     if(!is_parse_error(f)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_set_item(args, 0, f));
     }
@@ -3298,7 +3298,7 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
   }
   
   if(firstchar == '~') {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_SingleMatch), 1,
@@ -3306,7 +3306,7 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
   }
   
   if(is_string_at(boxes, 1, "~~")) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Repeated), 2,
@@ -3317,7 +3317,7 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
   }
   
   if(is_string_at(boxes, 1, "~~~")) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Repeated), 2,
@@ -3330,7 +3330,7 @@ static pmath_t make_pattern_or_typed_match(pmath_expr_t boxes) {
   x = parse_at(boxes, 1);
   
   if(!is_parse_error(x)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Pattern), 2,
@@ -3362,7 +3362,7 @@ static pmath_t make_arrow_function(pmath_expr_t boxes) {
                  args);
       }
       
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(
                  pmath_ref(pmath_System_Function), 2,
@@ -3385,7 +3385,7 @@ static pmath_t make_apply(pmath_expr_t boxes) {
     pmath_t list = parse_at(boxes, 3);
     
     if(!is_parse_error(list)) {
-      return wrap_hold_with_debuginfo_from(
+      return wrap_hold_with_debug_metadata_from(
                boxes,
                pmath_expr_new_extended(
                  pmath_ref(pmath_System_Apply), 2,
@@ -3412,7 +3412,7 @@ static pmath_t make_message_name(pmath_expr_t boxes) {
   
   sym = parse_at(boxes, 1);
   if(!is_parse_error(sym)) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_MessageName), 2,
@@ -3443,7 +3443,7 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
   }
   
   if(unichar_at(boxes, 1) == '~') {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Pattern), 2,
@@ -3454,7 +3454,7 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
   }
   
   if(is_string_at(boxes, 1, "~~")) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Pattern), 2,
@@ -3468,7 +3468,7 @@ static pmath_t make_typed_named_match(pmath_expr_t boxes) {
   }
   
   if(is_string_at(boxes, 1, "~~~")) {
-    return wrap_hold_with_debuginfo_from(
+    return wrap_hold_with_debug_metadata_from(
              boxes,
              pmath_expr_new_extended(
                pmath_ref(pmath_System_Pattern), 2,
@@ -3509,7 +3509,7 @@ static pmath_t make_tag_assignment(pmath_expr_t boxes) {
       pmath_t rhs;
       
       if(pmath_same(head, pmath_System_TagAssign) && unichar_at(boxes, 5) == '.') {
-        return wrap_hold_with_debuginfo_from(
+        return wrap_hold_with_debug_metadata_from(
                  boxes,
                  pmath_expr_new_extended(
                    pmath_ref(pmath_System_TagUnassign), 2,
@@ -3519,7 +3519,7 @@ static pmath_t make_tag_assignment(pmath_expr_t boxes) {
       
       rhs = parse_at(boxes, 5);
       if(!is_parse_error(rhs)) {
-        return wrap_hold_with_debuginfo_from(
+        return wrap_hold_with_debug_metadata_from(
                  boxes,
                  pmath_expr_new_extended(
                    pmath_ref(head), 3,
@@ -3591,7 +3591,7 @@ static pmath_t make_plus(pmath_expr_t boxes) {
     result = pmath_expr_set_item(result, i + 1, arg);
   }
   
-  return wrap_hold_with_debuginfo_from(boxes, result);
+  return wrap_hold_with_debug_metadata_from(boxes, result);
 }
 
 //  a/b/c...
@@ -3661,7 +3661,7 @@ static pmath_t make_division(pmath_expr_t boxes) {
     result = _pmath_expr_shrink_associative(result, PMATH_UNDEFINED);
   }
   
-  return wrap_hold_with_debuginfo_from(boxes, result);
+  return wrap_hold_with_debug_metadata_from(boxes, result);
 }
 
 // a && b & c ...
@@ -3725,7 +3725,7 @@ static pmath_t make_part(pmath_expr_t boxes) {
     return pmath_ref(pmath_System_DollarFailed);
   }
   
-  args = _pmath_makeexpression_with_debuginfo(pmath_expr_get_item(boxes, 3));
+  args = _pmath_makeexpression_with_debugmetadata(pmath_expr_get_item(boxes, 3));
   
   if(pmath_is_expr(args)) {
     size_t argslen = pmath_expr_length(args);
@@ -3742,7 +3742,7 @@ static pmath_t make_part(pmath_expr_t boxes) {
                  pmath_expr_get_item(args, i - 1));
                  
     pmath_unref(args);
-    return wrap_hold_with_debuginfo_from(boxes, result);
+    return wrap_hold_with_debug_metadata_from(boxes, result);
   }
   
   pmath_unref(boxes);
@@ -3799,7 +3799,7 @@ static pmath_t make_range(pmath_expr_t boxes) {
     
   result = pmath_gather_end();
   result = pmath_expr_set_item(result, 0, pmath_ref(pmath_System_Range));
-  return wrap_hold_with_debuginfo_from(boxes, result);
+  return wrap_hold_with_debug_metadata_from(boxes, result);
 }
 
 static pmath_t make_multiplication(pmath_expr_t boxes) {
@@ -3827,7 +3827,7 @@ static pmath_t make_multiplication(pmath_expr_t boxes) {
       ++i;
   }
   
-  return wrap_hold_with_debuginfo_from(
+  return wrap_hold_with_debug_metadata_from(
            boxes,
            pmath_expr_set_item(
              pmath_gather_end(), 0,

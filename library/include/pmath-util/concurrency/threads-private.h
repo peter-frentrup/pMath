@@ -14,7 +14,7 @@
 struct _pmath_stack_info_t {
   struct _pmath_stack_info_t  *next;
   pmath_t                      head;
-  pmath_t                      debug_info;
+  pmath_t                      debug_metadata;
 };
 
 struct _pmath_gather_emit_info_t {

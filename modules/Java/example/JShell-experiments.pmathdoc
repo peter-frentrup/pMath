@@ -224,7 +224,7 @@ Document({
                 {"MakeBoxes", "(", {"Short", "(", "errbox", ")"}, ")"}, ",", {
                  "ButtonFunction", "\[Rule]", {
                   "Developer`SourceLocationOpenerFunction", "(", {
-                   "Developer`GetDebugInfo", "(", "errbox", ")"}, ")"}}, ",", {
+                   "Developer`GetDebugMetadata", "(", "errbox", ")"}, ")"}}, ",", {
                  "ButtonFrame", "\[Rule]", StringBox("\"Frameless\"")}}, 
                ")"}}}, ")"}, ";", "$Failed"}, ")"}}), "Input", 
        SectionLabel -> "in [22]:"), 

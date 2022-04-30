@@ -22,7 +22,7 @@ static pmath_bool_t walk_stack_count(pmath_t head, void *p) {
   return TRUE;
 }
 
-static pmath_bool_t walk_stack_store(pmath_t head, pmath_t debug_info, void *p) {
+static pmath_bool_t walk_stack_store(pmath_t head, pmath_t debug_metadata, void *p) {
   struct stack_to_list_t *data = (struct stack_to_list_t*)p;
   
   if(!data->first) {
@@ -33,13 +33,13 @@ static pmath_bool_t walk_stack_store(pmath_t head, pmath_t debug_info, void *p) 
                         pmath_ref(data->head_key),
                         pmath_ref(head)));
                         
-    if(!pmath_is_null(debug_info)) {
+    if(!pmath_is_null(debug_metadata)) {
       entry = pmath_expr_append(
                 entry, 1,
                 pmath_expr_new_extended(
                   pmath_ref(pmath_System_Rule), 2,
                   pmath_ref(data->location_key),
-                  pmath_ref(debug_info)));
+                  pmath_ref(debug_metadata)));
     }
     
     data->list = pmath_expr_set_item(

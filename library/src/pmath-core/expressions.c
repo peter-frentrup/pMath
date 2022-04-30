@@ -144,7 +144,7 @@ static pmath_atomic_t expr_cache_pos[CACHES_MAX];
 
 
 enum {
-  METADATA_KIND_DEBUG_INFO,
+  METADATA_KIND_debug_metadata,
   METADATA_KIND_DISPATCH_TABLE
 };
 
@@ -1716,7 +1716,7 @@ static pmath_bool_t metadata_find(pmath_t *metadata, int kind) {
   else if(pmath_is_dispatch_table(*metadata)) 
     return kind == METADATA_KIND_DISPATCH_TABLE;
   
-  return kind == METADATA_KIND_DEBUG_INFO;
+  return kind == METADATA_KIND_debug_metadata;
 }
 
 static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_of_kind) {
@@ -1753,7 +1753,7 @@ static pmath_bool_t try_merge_metadata(pmath_t *metadata, int kind, pmath_t new_
     return FALSE;
   }
   
-  if(kind == METADATA_KIND_DEBUG_INFO) {
+  if(kind == METADATA_KIND_debug_metadata) {
     pmath_unref(*metadata);
     *metadata = pmath_ref(new_of_kind);
     return TRUE;
@@ -1827,7 +1827,7 @@ static void attach_metadata(struct _pmath_expr_t *_expr, int kind, pmath_t new_o
     return;
   }
   
-  metadata = merge_metadata(metadata, METADATA_KIND_DEBUG_INFO, new_of_kind);
+  metadata = merge_metadata(metadata, METADATA_KIND_debug_metadata, new_of_kind);
   if(pmath_is_null(metadata))
     return;
   
@@ -1864,12 +1864,12 @@ void _pmath_expr_attach_dispatch_table(pmath_expr_t expr, pmath_dispatch_table_t
   attach_metadata(_expr, METADATA_KIND_DISPATCH_TABLE, dispatch_table);
 }
 
-PMATH_PRIVATE pmath_t _pmath_expr_get_debug_info(pmath_expr_t expr) {
-  return get_metadata(expr, METADATA_KIND_DEBUG_INFO);
+PMATH_PRIVATE pmath_t _pmath_expr_get_debug_metadata(pmath_expr_t expr) {
+  return get_metadata(expr, METADATA_KIND_debug_metadata);
 }
 
 PMATH_PRIVATE
-pmath_expr_t _pmath_expr_set_debug_info(pmath_expr_t expr, pmath_t info) {
+pmath_expr_t _pmath_expr_set_debug_metadata(pmath_expr_t expr, pmath_t info) {
   struct _pmath_expr_t *_expr;
   
   if(!pmath_is_pointer(info))

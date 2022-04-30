@@ -356,7 +356,7 @@ Expr TemplateBox::to_pmath_symbol() {
 
 Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
   Expr args = arguments;
-  if(has(flags, BoxOutputFlags::WithDebugInfo)) {
+  if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
     TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(this, LogicalDirection::Forward, this);
     while(slot) {
       if(slot->find_owner() == this && slot->argument() > 0) 

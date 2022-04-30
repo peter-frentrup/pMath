@@ -2831,7 +2831,7 @@ static pmath_t replace_option_value(
   pmath_t      default_head,
   pmath_expr_t optionvaluerules // form: <T> = <Function>(<OptionValueRules>,<T>)
 ) {
-  pmath_t head, debug_info;
+  pmath_t head, debug_metadata;
   size_t i, len;
 
   if(!pmath_is_expr(body) || pmath_is_null(optionvaluerules))
@@ -2839,7 +2839,7 @@ static pmath_t replace_option_value(
 
   len        = pmath_expr_length(body);
   head       = pmath_expr_get_item(body, 0);
-  debug_info = _pmath_expr_get_debug_info(body);
+  debug_metadata = _pmath_expr_get_debug_metadata(body);
 
   if(pmath_same(head, pmath_System_OptionValue) && (len == 1 || len == 2 || len == 4)) {
     pmath_t current_fn;
@@ -2897,7 +2897,7 @@ static pmath_t replace_option_value(
             pmath_unref(tmp);
           }
 
-          body = _pmath_expr_set_debug_info(body, debug_info);
+          body = _pmath_expr_set_debug_metadata(body, debug_metadata);
 
           pmath_unref(fn);
           pmath_unref(iter_optionvaluerules);
@@ -2929,7 +2929,7 @@ static pmath_t replace_option_value(
                optionvaluerules));
   }
 
-  body = _pmath_expr_set_debug_info(body, debug_info);
+  body = _pmath_expr_set_debug_metadata(body, debug_metadata);
 
   return body;
 }
@@ -3028,7 +3028,7 @@ static void preprocess_local_assignment(
     *def = newsym;
   }
   else if(pmath_is_expr_of(*def, pmath_System_List)) {
-    pmath_t debug_info = _pmath_expr_get_debug_info(*def);
+    pmath_t debug_metadata = _pmath_expr_get_debug_metadata(*def);
     size_t i;
     
     for(i = pmath_expr_length(*def); i > 0; --i) {
@@ -3039,7 +3039,7 @@ static void preprocess_local_assignment(
       *def = pmath_expr_set_item(*def, i, item);
     }
     
-    *def = _pmath_expr_set_debug_info(*def, debug_info);
+    *def = _pmath_expr_set_debug_metadata(*def, debug_metadata);
   }
 }
 
@@ -3055,13 +3055,13 @@ static void preprocess_local_one(
     if( pmath_same(obj, pmath_System_Assign) ||
         pmath_same(obj, pmath_System_AssignDelayed))
     {
-      pmath_t debug_info = _pmath_expr_get_debug_info(*def);
+      pmath_t debug_metadata = _pmath_expr_get_debug_metadata(*def);
       obj = pmath_expr_extract_item(*def, 1);
       
       preprocess_local_assignment(local_expr, &obj);
       
       *def = pmath_expr_set_item(*def, 1, obj);
-      *def = _pmath_expr_set_debug_info(*def, debug_info);
+      *def = _pmath_expr_set_debug_metadata(*def, debug_metadata);
       return;
     }
   }
@@ -3073,12 +3073,12 @@ static void preprocess_local_one(
 PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
   pmath_expr_t local_expr // will be freed.
 ) {
-  pmath_t debug_info = _pmath_expr_get_debug_info(local_expr);
+  pmath_t debug_metadata = _pmath_expr_get_debug_metadata(local_expr);
   pmath_expr_t defs = pmath_expr_get_item(local_expr, 1);
   local_expr = pmath_expr_set_item(local_expr, 1, PMATH_NULL);
 
   if(pmath_is_expr_of(defs, pmath_System_List)) {
-    pmath_t defs_debug_info = _pmath_expr_get_debug_info(defs);
+    pmath_t defs_debug_metadata = _pmath_expr_get_debug_metadata(defs);
     size_t i;
 
     for(i = pmath_expr_length(defs); i > 0; --i) {
@@ -3089,13 +3089,13 @@ PMATH_PRIVATE pmath_expr_t _pmath_preprocess_local(
       defs = pmath_expr_set_item(defs, i, def);
     }
 
-    defs = _pmath_expr_set_debug_info(defs, defs_debug_info);
+    defs = _pmath_expr_set_debug_metadata(defs, defs_debug_metadata);
   }
   else if(!pmath_is_null(defs))
     preprocess_local_one(&local_expr, &defs);
 
   local_expr = pmath_expr_set_item(local_expr, 1, defs);
-  local_expr = _pmath_expr_set_debug_info(local_expr, debug_info);
+  local_expr = _pmath_expr_set_debug_metadata(local_expr, debug_metadata);
 
   return local_expr;
 }
@@ -3107,7 +3107,7 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   pmath_t  value
 ) {
   pmath_bool_t do_flatten;
-  pmath_t item, debug_info;
+  pmath_t item, debug_metadata;
   size_t i, len;
 
   if(pmath_equals(object, name)) {
@@ -3118,7 +3118,7 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   if(!pmath_is_expr(object))
     return object;
 
-  debug_info = _pmath_expr_get_debug_info(object);
+  debug_metadata = _pmath_expr_get_debug_metadata(object);
 
   item = pmath_expr_get_item(object, 0);
 
@@ -3155,7 +3155,7 @@ PMATH_PRIVATE pmath_t _pmath_replace_local(
   if(do_flatten)
     object = pmath_expr_flatten(object, PMATH_MAGIC_PATTERN_SEQUENCE, 1);
 
-  object = _pmath_expr_set_debug_info(object, debug_info);
+  object = _pmath_expr_set_debug_metadata(object, debug_metadata);
 
   return object;
 }
@@ -3166,7 +3166,7 @@ static pmath_t replace_multiple_symbols(
   pmath_hashtable_t replacements   // entries are pattern_variable_entry_t*
 ) {
   pmath_bool_t do_flatten;
-  pmath_t item, debug_info;
+  pmath_t item, debug_metadata;
   size_t i, len;
 
   if(pmath_is_symbol(object)) {
@@ -3184,7 +3184,7 @@ static pmath_t replace_multiple_symbols(
   if(pmath_is_packed_array(object) && !pmath_ht_search(replacements, PMATH_AS_PTR(pmath_System_List)))
     return object;
 
-  debug_info = _pmath_expr_get_debug_info(object);
+  debug_metadata = _pmath_expr_get_debug_metadata(object);
   item       = pmath_expr_get_item(object, 0);
 
   if( (pmath_same(item, pmath_System_Function) ||
@@ -3223,7 +3223,7 @@ static pmath_t replace_multiple_symbols(
   if(do_flatten)
     object = pmath_expr_flatten(object, PMATH_MAGIC_PATTERN_SEQUENCE, 1);
 
-  object = _pmath_expr_set_debug_info(object, debug_info);
+  object = _pmath_expr_set_debug_metadata(object, debug_metadata);
   return object;
 }
 

@@ -122,9 +122,9 @@ composeHeldExpr(~~~args)::= (
 	$Failed)
 
 
-withDebugInfoOf(~result, ~boxes)::=
-	With({debugInfo:= GetDebugInfo(boxes)},
-		result.SetDebugInfoAt(debugInfo, 1))
+withDebugMetadataOf(~result, ~boxes)::=
+	With({debugMetadata:= GetDebugMetadata(boxes)},
+		result.SetDebugMetadataAt(debugMetadata, 1))
 
 
 extendSourceLocationEnd(Language`SourceLocation(~name, ~from..~), Language`SourceLocation(~name, ~..~to))::= Language`SourceLocation(name, from..to)
@@ -143,13 +143,13 @@ composeHeldEvaluationSequence(h: HoldComplete(~))::= h
 composeHeldEvaluationSequence(h: HoldComplete(~~))::= composeHeldExpr(EvaluationSequence, h)
 
 finishBlock(~heldStatements: List)::= heldStatements.Replace(
-	BLOCK(~debugInfo, ~head, ~~~heldargs) :> composeHeldExpr(head, heldargs).SetDebugInfoAt(debugInfo, 1),
+	BLOCK(~debugMetadata, ~head, ~~~heldargs) :> composeHeldExpr(head, heldargs).SetDebugMetadataAt(debugMetadata, 1),
 	1).Apply(HoldComplete).Flatten(1)
 
 makeBlockExpression()::= HoldComplete(/\/)
 makeBlockExpression({})::= HoldComplete(/\/)
 makeBlockExpression(~boxes)::=
-	With({debugInfo:= GetDebugInfo(boxes), 
+	With({debugMetadata:= GetDebugMetadata(boxes), 
 			flatStmts:= Gather(emitMakeStatements(boxes)).Last.Replace(HoldComplete() -> Sequence(), 1)
 		},
 		With({lastIsNull:= flatStmts.Length > 0 && flatStmts.Last === HoldComplete(/\/),
@@ -157,18 +157,18 @@ makeBlockExpression(~boxes)::=
 			},
 			If(Length(nonNullStmts) = 0, Return(HoldComplete(/\/)));
 			With({groupedStmts:= nonNullStmts.ReplaceRepeated(
-					{Longest(~~~pre), STARTBLOCK(~startDebugInfo, ~head, ~~~init), ~~~post} :> 
+					{Longest(~~~pre), STARTBLOCK(~startDebugMetadata, ~head, ~~~init), ~~~post} :> 
 						{pre, 
-							BLOCK(extendSourceLocationEnd(startDebugInfo, debugInfo), 
+							BLOCK(extendSourceLocationEnd(startDebugMetadata, debugMetadata), 
 								head, init, composeHeldEvaluationSequence({post}.finishBlock))},
 					0).finishBlock
 				},
 				
 				If(lastIsNull, 
-					Return(composeHeldExpr(EvaluationSequence, groupedStmts, HoldComplete(/\/)).SetDebugInfoAt(debugInfo, 1)));
+					Return(composeHeldExpr(EvaluationSequence, groupedStmts, HoldComplete(/\/)).SetDebugMetadataAt(debugMetadata, 1)));
 				If(Length(groupedStmts) = 1, 
 					Return(groupedStmts));
-				Return(composeHeldExpr(EvaluationSequence, groupedStmts).SetDebugInfoAt(debugInfo, 1));
+				Return(composeHeldExpr(EvaluationSequence, groupedStmts).SetDebugMetadataAt(debugMetadata, 1));
 				)
 			)
 		)
@@ -176,9 +176,9 @@ makeBlockExpression(~boxes)::=
 emitMakeStatements({}):= /\/
 emitMakeStatements({~boxes})::= emitMakeStatements(boxes)
 emitMakeStatements(box: {"With", "(", ~vars, ")"})::= 
-	Emit @ STARTBLOCK(GetDebugInfo(box), With, MakeExpression({"{", vars, "}"}).withDebugInfoOf(vars))
+	Emit @ STARTBLOCK(GetDebugMetadata(box), With, MakeExpression({"{", vars, "}"}).withDebugMetadataOf(vars))
 emitMakeStatements(box: {"Local", "(", ~vars, ")"})::= 
-	Emit @ STARTBLOCK(GetDebugInfo(box), Local, MakeExpression({"{", vars, "}"}).withDebugInfoOf(vars))
+	Emit @ STARTBLOCK(GetDebugMetadata(box), Local, MakeExpression({"{", vars, "}"}).withDebugMetadataOf(vars))
 emitMakeStatements(stmts: {~~~, ";" | "\[RawNewline]", ~~~})::= stmts.Map(emitMakeStatements)
 emitMakeStatements(";")::= Emit @ HoldComplete(/\/)
 emitMakeStatements("\[RawNewline]")::= /\/
@@ -226,7 +226,7 @@ tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"{", ~body,
 	composeHeldExpr(
 		AssignDelayed,
 		MakeExpression(lhs),
-		makeBlockExpression(body)).withDebugInfoOf(boxes)
+		makeBlockExpression(body)).withDebugMetadataOf(boxes)
 
 
 %
@@ -240,7 +240,7 @@ tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"Where", "(
 			MakeExpression(lhs),
 			MakeExpression(cond)
 		),
-		makeBlockExpression(body)).withDebugInfoOf(boxes)
+		makeBlockExpression(body)).withDebugMetadataOf(boxes)
 
 %
 % Function(arg) { body }
@@ -248,8 +248,8 @@ tryMakeFunctionBlock(boxes: {"Function", lhs: {~:String, "(", ~~~}, {"Where", "(
 tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ~body, "}"}}) ::=
 	composeHeldExpr(
 		Function,
-		MakeExpression({"{", args, "}"}.withDebugInfoOf(args)),
-		makeBlockExpression(body)).withDebugInfoOf(boxes)
+		MakeExpression({"{", args, "}"}.withDebugMetadataOf(args)),
+		makeBlockExpression(body)).withDebugMetadataOf(boxes)
 
 %
 % Function { body }
@@ -257,7 +257,7 @@ tryMakeFunctionBlock(boxes: {{"Function", "(", ~args, ")"}, {"{", ~body, "}"}}) 
 tryMakeFunctionBlock(boxes: {"Function", {"{", ~body, "}"}}) ::=
 	composeHeldExpr(
 		Function,
-		makeBlockExpression(body)).withDebugInfoOf(boxes)
+		makeBlockExpression(body)).withDebugMetadataOf(boxes)
 
 
 tryMakeIfBlock(~)::= $Failed
@@ -268,7 +268,7 @@ tryMakeIfBlock(boxes : {{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}})::=
 	composeHeldExpr(
 		If,
 		asHeldCondition @ MakeExpression(cond),
-		makeBlockExpression(trueBlock)).withDebugInfoOf(boxes)
+		makeBlockExpression(trueBlock)).withDebugMetadataOf(boxes)
 
 %
 % If(cond) {trueBlock} Else {falseBlock}
@@ -278,7 +278,7 @@ tryMakeIfBlock(boxes: {{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else
 		If,
 		asHeldCondition @ MakeExpression(cond),
 		makeBlockExpression(trueBlock),
-		makeBlockExpression(falseBlock)).withDebugInfoOf(boxes)
+		makeBlockExpression(falseBlock)).withDebugMetadataOf(boxes)
 
 %
 % If(cond) {trueBlock} Else If(cond2) ...
@@ -288,7 +288,7 @@ tryMakeIfBlock(boxes: {{"If", "(", ~cond, ")"}, {"{", ?trueBlock:{}, "}"}, "Else
 		If,
 		asHeldCondition @ MakeExpression(cond),
 		makeBlockExpression(trueBlock),
-		MakeExpression({rest})).withDebugInfoOf(boxes) % TODO: set debug info of rest ...
+		MakeExpression({rest})).withDebugMetadataOf(boxes) % TODO: set debug info of rest ...
 
 %
 % Switch(expr) {Case(pat1) {block1} \[RawNewline] Case(pat2) {block2}  Case(pat3) {block3}}
@@ -313,7 +313,7 @@ tryMakeSwitchBlock(boxes: {{"Switch", "(", ~expr, ")"}, {"{", ?cases:{}, "}"}}):
 	composeHeldExpr(
 		Switch,
 		asHeldSwitchExpression @ MakeExpression(expr),
-		getSwitchCases({cases})).withDebugInfoOf(boxes)
+		getSwitchCases({cases})).withDebugMetadataOf(boxes)
 
 
 tryMakeWhileBlock(~)::= $Failed
@@ -324,7 +324,7 @@ tryMakeWhileBlock(boxes: {{"While", "(", ~cond, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		While,
 		asHeldCondition @ MakeExpression(cond),
-		makeBlockExpression(block)).withDebugInfoOf(boxes)
+		makeBlockExpression(block)).withDebugMetadataOf(boxes)
 
 tryMakeDoBlock(~)::= $Failed
 %
@@ -334,7 +334,7 @@ tryMakeDoBlock(boxes: {{"Do", "(", ~iter, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		Do,
 		makeBlockExpression(block),
-		MakeExpression(iter)).withDebugInfoOf(boxes)
+		MakeExpression(iter)).withDebugMetadataOf(boxes)
 
 tryMakeBlockBlock(~)::= $Failed
 %
@@ -351,7 +351,7 @@ tryMakeTryBlock(boxes: {"Try", {"{", ?block:{}, "}"}, "Finally", {"{", ?endblock
 	composeHeldExpr(
 		Finally,
 		makeBlockExpression(block),
-		makeBlockExpression(endblock)).withDebugInfoOf(boxes)
+		makeBlockExpression(endblock)).withDebugMetadataOf(boxes)
 
 tryMakeLocalBlock(~)::= $Failed
 %
@@ -361,7 +361,7 @@ tryMakeLocalBlock(boxes: {{"Local", "(", ~vars, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		Local,
 		MakeExpression({"{", vars, "}"}),
-		makeBlockExpression(block)).withDebugInfoOf(boxes)
+		makeBlockExpression(block)).withDebugMetadataOf(boxes)
 
 tryMakeWithBlock(~)::= $Failed
 %
@@ -371,7 +371,7 @@ tryMakeWithBlock(boxes: {{"With", "(", ~vars, ")"}, {"{", ?block:{}, "}"}})::=
 	composeHeldExpr(
 		With,
 		MakeExpression({"{", vars, "}"}),
-		makeBlockExpression(block)).withDebugInfoOf(boxes)
+		makeBlockExpression(block)).withDebugMetadataOf(boxes)
 
 
 

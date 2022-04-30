@@ -51,9 +51,9 @@ class ExprPrinter:
     def children(self):
         ch = {}
         try:
-            debug_info = self.expr.get_debug_info()
-            if debug_info.is_pmath() and not debug_info.is_null():
-                ch['debug info'] = ExprFormatting.debug_source_info_to_string(debug_info)
+            debug_metadata = self.expr.get_debug_metadata()
+            if debug_metadata.is_pmath() and not debug_metadata.is_null():
+                ch['debug info'] = ExprFormatting.debug_source_info_to_string(debug_metadata)
         except:
             pass
         if self.expr.is_pointer():

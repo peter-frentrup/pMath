@@ -16,7 +16,7 @@
 #  undef pmath_debug_print
 #  undef pmath_debug_print_object
 #  undef pmath_debug_print_stack
-#  undef pmath_debug_print_debug_info
+#  undef pmath_debug_print_debug_metadata
 #endif
 
 #ifdef PMATH_OS_WIN32
@@ -540,13 +540,13 @@ PMATH_API void pmath_debug_print_object(
   }
 }
 
-static pmath_bool_t stack_walker(pmath_t head, pmath_t debug_info, void *p) {
+static pmath_bool_t stack_walker(pmath_t head, pmath_t debug_metadata, void *p) {
   pmath_debug_print_object("\n  in ", head, "");
   
-  if(!pmath_is_null(debug_info)) {
-    if(pmath_is_expr_of_len(debug_info, pmath_Language_SourceLocation, 2)) {
-      pmath_t file = pmath_expr_get_item(debug_info, 1);
-      pmath_t pos = pmath_expr_get_item(debug_info, 2);
+  if(!pmath_is_null(debug_metadata)) {
+    if(pmath_is_expr_of_len(debug_metadata, pmath_Language_SourceLocation, 2)) {
+      pmath_t file = pmath_expr_get_item(debug_metadata, 1);
+      pmath_t pos = pmath_expr_get_item(debug_metadata, 2);
       
       pmath_debug_print_object(" from ", file, ", ");
       pmath_debug_print_object("", pos, "");
@@ -555,7 +555,7 @@ static pmath_bool_t stack_walker(pmath_t head, pmath_t debug_info, void *p) {
       pmath_unref(pos);
     }
     else
-      pmath_debug_print_object(" from ", debug_info, "");
+      pmath_debug_print_object(" from ", debug_metadata, "");
   }
   
   return TRUE;
@@ -568,12 +568,12 @@ PMATH_API void pmath_debug_print_stack(void) {
 }
 
 PMATH_API
-void pmath_debug_print_debug_info(
+void pmath_debug_print_debug_metadata(
   const char *pre,
   pmath_t     obj,
   const char *post
 ) {
-  pmath_t info = pmath_get_debug_info(obj);
+  pmath_t info = pmath_get_debug_metadata(obj);
   
   pmath_debug_print_object(pre, obj, post);
   

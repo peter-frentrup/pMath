@@ -11,8 +11,8 @@
    src/pmath-builtins/language/
  */
   
-// evaluates MakeExpression(box) but also retains debug information
-PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debuginfo(pmath_t box);
+// evaluates MakeExpression(box) but also retains debug metadata
+PMATH_PRIVATE pmath_t _pmath_makeexpression_with_debugmetadata(pmath_t box);
 
 PMATH_PRIVATE pmath_bool_t _pmath_is_machinenumber(pmath_t x);
 

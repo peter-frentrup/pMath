@@ -629,11 +629,11 @@
 }},
 {"Developer`",{
 {"FromPackedArray", {"ArgumentCount" -> 1}},
-{"GetDebugInfo", {"ArgumentCount" -> 1..}},
+{"GetDebugMetadata", {"ArgumentCount" -> 1..}},
 {"HasBuiltinCode", {"ArgumentCount" -> 1..2}},
 {"IsPackedArray", {"ArgumentCount" -> 1..2}},
 {"PackedArrayForm", {"ArgumentCount" -> 1}},
-{"SetDebugInfoAt", {"ArgumentCount" -> 2..}},
+{"SetDebugMetaDataAt", {"ArgumentCount" -> 2..}},
 {"ToPackedArray", {"ArgumentCount" -> 1..2}}
 }},
 {"Internal`",{

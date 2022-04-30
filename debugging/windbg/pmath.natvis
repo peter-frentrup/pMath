@@ -146,7 +146,7 @@
 			<Item Name="[header size]">((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)</Item>
 			-->
 			<Item Name="[&lt;Raw&gt;]" ExcludeView="simple">*(pmath.dll!_pmath_string_t*)this,!</Item>
-			<Item Name="debug_info" Condition="debug_info != 0" ExcludeView="simple">*debug_info</Item>
+			<Item Name="debug_metadata" Condition="debug_metadata != 0" ExcludeView="simple">*debug_metadata</Item>
 			<Item Name="length" ExcludeView="simple">length</Item>
 			<ExpandedItem Condition="buffer == 0">
 				(wchar_t*)((char*)this + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)),[length]na

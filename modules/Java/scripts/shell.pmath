@@ -69,7 +69,7 @@ Function javaCodeFromBoxes(~errbox) {
     Message(Java::box, 
         RawBoxes @ ButtonBox(
             MakeBoxes(Short(errbox)), 
-            ButtonFunction -> Developer`SourceLocationOpenerFunction(Developer`GetDebugInfo(errbox)),
+            ButtonFunction -> Developer`SourceLocationOpenerFunction(Developer`GetDebugMetadata(errbox)),
             ButtonFrame->"Frameless"))
     $Failed
 }

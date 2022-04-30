@@ -174,11 +174,11 @@ static pmath_expr_t evaluate_arguments(
   pmath_bool_t   hold_rest
 ) {
   pmath_t item;
-  pmath_t debug_info;
+  pmath_t debug_metadata;
   size_t i;
   size_t exprlen = pmath_expr_length(expr);
   
-  debug_info = pmath_get_debug_info(expr);
+  debug_metadata = pmath_get_debug_metadata(expr);
   item = pmath_expr_get_item(expr, 1);
   
   if(!hold_first || pmath_is_expr_of_len(item, pmath_System_Evaluate, 1)) {
@@ -211,7 +211,7 @@ static pmath_expr_t evaluate_arguments(
     }
   }
   
-  expr = pmath_try_set_debug_info(expr, debug_info);
+  expr = pmath_try_set_debug_metadata(expr, debug_metadata);
   
   return expr;
 }
@@ -392,7 +392,7 @@ static pmath_t evaluate_expression(
   
   current_thread->evaldepth++;
   stack_frame.head          = PMATH_NULL;
-  stack_frame.debug_info    = pmath_get_debug_info(expr);
+  stack_frame.debug_metadata    = pmath_get_debug_metadata(expr);
   stack_frame.next          = current_thread->stack_info;
   current_thread->stack_info = &stack_frame;
   
@@ -577,7 +577,7 @@ static pmath_t evaluate_expression(
 FINISH:
   current_thread->stack_info = stack_frame.next;
   pmath_unref(stack_frame.head);
-  pmath_unref(stack_frame.debug_info);
+  pmath_unref(stack_frame.debug_metadata);
   pmath_unref(head_sym);
   pmath_unref(head);
   current_thread->evaldepth--;

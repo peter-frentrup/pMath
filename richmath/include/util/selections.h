@@ -185,8 +185,8 @@ namespace richmath {
       
       pmath::Expr to_pmath() const;
       static SelectionReference from_pmath(pmath::Expr expr);
-      static SelectionReference from_debug_info_of(pmath::Expr expr);
-      static SelectionReference from_debug_info_of(pmath_t expr); // does not free expr
+      static SelectionReference from_debug_metadata_of(pmath::Expr expr);
+      static SelectionReference from_debug_metadata_of(pmath_t expr); // does not free expr
       
       LocationReference start_reference() const {
         return LocationReference{id, start};

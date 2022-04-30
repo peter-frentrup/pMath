@@ -432,9 +432,9 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
     if(len > 0 && buf[0] >= '0' && buf[0] <= '9') {
       for(int i = 0; i < len; ++i) {
         if(buf[i] == '`' || buf[i] == '^') {
-          pmath_t debug_info = pmath_get_debug_info(s.get());
+          pmath_t debug_metadata = pmath_get_debug_metadata(s.get());
           Expr result = Call(Symbol(richmath_FE_NumberBox), s);
-          return Expr{ pmath_try_set_debug_info(result.release(), debug_info) };
+          return Expr{ pmath_try_set_debug_metadata(result.release(), debug_metadata) };
         }
       }
     }
@@ -443,11 +443,11 @@ Expr NumberBox::prepare_boxes(Expr boxes) {
   }
   
   if(boxes[0] == richmath_System_List) {
-    pmath_t old_debug_info = pmath_get_debug_info(boxes.get());
+    pmath_t old_debug_metadata = pmath_get_debug_metadata(boxes.get());
     for(size_t i = 0; i <= boxes.expr_length(); ++i) {
       boxes.set(i, prepare_boxes(boxes[i]));
     }
-    return Expr{ pmath_try_set_debug_info(boxes.release(), old_debug_info) };
+    return Expr{ pmath_try_set_debug_metadata(boxes.release(), old_debug_metadata) };
   }
   
   return boxes;

@@ -19,14 +19,14 @@ AssertTrue::fail:= "`1` should give True, but found `2`."
 AssertFalse::fail:= "`1` should give False, but found `2`."
 AssertHead::fail:= "`1` should give expression with head `2`, but found `3`."
 
-Attributes(suppressDebugInfo):= {HoldFirst}
-suppressDebugInfo(~expr)::= ReleaseHold(Developer`SetDebugInfoAt(HoldComplete(expr), /\/, 1))
+Attributes(suppressDebugMetadata):= {HoldFirst}
+suppressDebugMetadata(~expr)::= ReleaseHold(Developer`SetDebugMetadataAt(HoldComplete(expr), /\/, 1))
 
 Attributes(Assert)::= HoldFirst;
 Function Assert(~cond) {
 	With(evalCond := cond)
 	If(evalCond =!= True) {
-		suppressDebugInfo @ Message(Assert::fail, HoldForm(cond), HoldForm(evalCond))
+		suppressDebugMetadata @ Message(Assert::fail, HoldForm(cond), HoldForm(evalCond))
 	}
 	
 	% Prevent tail recursion, so the location of this Assert() call is shown in the message's stack trace above.
@@ -47,7 +47,7 @@ Function AssertEqual(~lhs, ~rhs) {
 				formatRhs:= HoldForm @ FullForm(evalRhs)
 			}
 		}
-		suppressDebugInfo @ Message(AssertEqual::fail,
+		suppressDebugMetadata @ Message(AssertEqual::fail,
 			HoldForm(lhs),
 			HoldForm(rhs),
 			formatLhs,
@@ -63,7 +63,7 @@ Attributes(AssertUnequal)::= HoldAll;
 Function AssertUnequal(~lhs, ~rhs) {
 	With(evalLhs := lhs, evalRhs:= rhs)
 	If(evalLhs === evalRhs) {
-		suppressDebugInfo @ Message(AssertUnequal::fail,
+		suppressDebugMetadata @ Message(AssertUnequal::fail,
 			HoldForm(lhs),
 			HoldForm(rhs),
 			HoldForm(evalLhs),
@@ -79,7 +79,7 @@ Attributes(AssertTrue)::= HoldFirst;
 Function AssertTrue(~value) {
 	With(eval := value)
 	If(eval =!= True) {
-		suppressDebugInfo @ Message(AssertTrue::fail,
+		suppressDebugMetadata @ Message(AssertTrue::fail,
 			HoldForm(value),
 			HoldForm(eval))
 	}
@@ -93,7 +93,7 @@ Attributes(AssertFalse)::= HoldFirst;
 Function AssertFalse(~value) {
 	With(eval := value)
 	If(eval =!= False) {
-		suppressDebugInfo @ Message(AssertFalse::fail,
+		suppressDebugMetadata @ Message(AssertFalse::fail,
 			HoldForm(value),
 			HoldForm(eval))
 	}
@@ -107,7 +107,7 @@ Attributes(AssertHead)::= HoldFirst;
 Function AssertHead(~value, ~head) {
 	With(eval := value)
 	If(Head(eval) =!= head) {
-		suppressDebugInfo @ Message(AssertHead::fail,
+		suppressDebugMetadata @ Message(AssertHead::fail,
 			HoldForm(value),
 			HoldForm(head),
 			HoldForm(eval))

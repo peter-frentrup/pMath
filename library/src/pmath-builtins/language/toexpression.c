@@ -40,14 +40,14 @@ extern pmath_symbol_t pmath_System_UnderscriptBox;
 static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes);
 
 static pmath_t remove_whitespace_from_boxes(pmath_t boxes) {
-  pmath_t debug_info = pmath_get_debug_info(boxes);
+  pmath_t debug_metadata = pmath_get_debug_metadata(boxes);
   
-  if(pmath_is_null(debug_info))
+  if(pmath_is_null(debug_metadata))
     return remove_whitespace_from_boxes_raw(boxes);
     
   boxes = remove_whitespace_from_boxes_raw(boxes);
   
-  return pmath_try_set_debug_info(boxes, debug_info);
+  return pmath_try_set_debug_metadata(boxes, debug_metadata);
 }
 
 
@@ -221,7 +221,7 @@ static pmath_t remove_whitespace_from_boxes_raw(pmath_t boxes) {
 
 
 pmath_t builtin_toexpression(pmath_expr_t expr) {
-  pmath_t code, head, debug_info;
+  pmath_t code, head, debug_metadata;
   size_t exprlen = pmath_expr_length(expr);
   
   if(exprlen < 1) {
@@ -248,7 +248,7 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   }
   
   code = pmath_expr_get_item(expr, 1);
-  debug_info = pmath_get_debug_info(code);
+  debug_metadata = pmath_get_debug_metadata(code);
   if(pmath_is_string(code)) {
     code = pmath_expr_new_extended(
              pmath_ref(pmath_System_StringToBoxes), 1,
@@ -281,15 +281,15 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
       pmath_t content = pmath_expr_get_item(expr, 1);
       pmath_unref(expr);
       
-      content = pmath_try_set_debug_info(content, pmath_ref(debug_info));
+      content = pmath_try_set_debug_metadata(content, pmath_ref(debug_metadata));
       
       if(pmath_same(head, PMATH_UNDEFINED)) {
-        pmath_unref(debug_info);
+        pmath_unref(debug_metadata);
         return content;
       }
       
       expr = pmath_expr_new_extended(head, 1, content);
-      expr = pmath_try_set_debug_info(expr, debug_info);
+      expr = pmath_try_set_debug_metadata(expr, debug_metadata);
       return expr;
     }
     
@@ -301,6 +301,6 @@ pmath_t builtin_toexpression(pmath_expr_t expr) {
   else
     pmath_unref(head);
   
-  expr = pmath_try_set_debug_info(expr, debug_info);
+  expr = pmath_try_set_debug_metadata(expr, debug_metadata);
   return expr;
 }

@@ -108,13 +108,13 @@ static void scanner_error(
     info->err = TRUE;
 }
 
-static pmath_t add_debug_info(
+static pmath_t add_debug_metadata(
   pmath_t                             token_or_span, 
   const struct pmath_text_position_t *start, 
   const struct pmath_text_position_t *end, 
   void                               *_data
 ) {
-  pmath_t debug_info;
+  pmath_t debug_metadata;
   struct _get_file_info *data = _data;
   int start_line, end_line, start_column, end_column;
   
@@ -131,7 +131,7 @@ static pmath_t add_debug_info(
   end_line   = end->line + data->startline;
   end_column = end->index - end->line_start_index;
   
-  debug_info = pmath_expr_new_extended(
+  debug_metadata = pmath_expr_new_extended(
                  pmath_ref(pmath_Language_SourceLocation), 2,
                  pmath_ref(data->filename),
                  pmath_expr_new_extended(
@@ -139,7 +139,7 @@ static pmath_t add_debug_info(
                    pmath_build_value("(ii)", start_line, start_column),
                    pmath_build_value("(ii)", end_line,   end_column)));
                    
-  return pmath_try_set_debug_info(token_or_span, debug_info);
+  return pmath_try_set_debug_metadata(token_or_span, debug_metadata);
 }
 
 static pmath_t get_file(
@@ -174,7 +174,7 @@ static pmath_t get_file(
   parse_settings.size           = sizeof(parse_settings);
   parse_settings.flags          = PMATH_BFS_PARSEABLE;
   parse_settings.data           = &info;
-  parse_settings.add_debug_info = add_debug_info;
+  parse_settings.add_debug_metadata = add_debug_metadata;
   
   do {
     pmath_unref(result);
@@ -195,7 +195,7 @@ static pmath_t get_file(
                  info.current_code,
                  &parse_settings);
                  
-      result = _pmath_makeexpression_with_debuginfo(result);
+      result = _pmath_makeexpression_with_debugmetadata(result);
       
       if(pmath_is_expr_of(result, pmath_System_HoldComplete)) {
         if(pmath_expr_length(result) == 1) {
@@ -204,20 +204,20 @@ static pmath_t get_file(
           pmath_unref(tmp);
         }
         else {
-          pmath_t debug_info = pmath_get_debug_info(result);
+          pmath_t debug_metadata = pmath_get_debug_metadata(result);
           result = pmath_expr_set_item(
                      result, 0,
                      pmath_ref(pmath_System_Sequence));
-          result = pmath_try_set_debug_info(result, debug_info);
+          result = pmath_try_set_debug_metadata(result, debug_metadata);
         }
       }
       
       if(!pmath_same(head, pmath_System_Identity)) {
-        pmath_t debug_info = pmath_get_debug_info(result);
+        pmath_t debug_metadata = pmath_get_debug_metadata(result);
         result = pmath_expr_new_extended(
                    pmath_ref(head), 1,
                    result);
-        result = pmath_try_set_debug_info(result, debug_info);
+        result = pmath_try_set_debug_metadata(result, debug_metadata);
       }
       
       result = pmath_evaluate(result);

@@ -1006,11 +1006,11 @@ PMATH_DECLARE_SYSTEM_DOLLAR_VAR( VersionNumber,                  PMATH_SYMBOL_AT
 
 PMATH_DECLARE_DEVELOPER_DOLLAR_VAR( SystemInformation,     0 )
 PMATH_DECLARE_DEVELOPER_SYMBOL( FromPackedArray,                 0 )
-PMATH_DECLARE_DEVELOPER_SYMBOL( GetDebugInfo,                    HOLDFIRST )
+PMATH_DECLARE_DEVELOPER_SYMBOL( GetDebugMetadata,                HOLDFIRST )
 PMATH_DECLARE_DEVELOPER_SYMBOL( HasBuiltinCode,                  HOLDFIRST )
 PMATH_DECLARE_DEVELOPER_SYMBOL( IsPackedArray,                   0 )
 PMATH_DECLARE_DEVELOPER_SYMBOL( PackedArrayForm,                 0 )
-PMATH_DECLARE_DEVELOPER_SYMBOL( SetDebugInfoAt,                  0 )
+PMATH_DECLARE_DEVELOPER_SYMBOL( SetDebugMetadataAt,              0 )
 PMATH_DECLARE_DEVELOPER_SYMBOL( ToPackedArray,                   0 )
 
 PMATH_DECLARE_INTERNAL_SYMBOL( AbortMessage,                     HOLDALLCOMPLETE )

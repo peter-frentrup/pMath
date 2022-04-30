@@ -153,24 +153,24 @@ JavaObject/: (~o:JavaObject @ (~f:String):= ~rhs)::= JavaField(o, f):= rhs
 JavaObject/: (~o:JavaObject @ (~f:Symbol):= ~rhs)::= With({fs:= SymbolName(f)}, JavaField(o, fs):= rhs)
 
 expr:(~o:JavaObject @ (~m:String)(~~~args)) ::= Block {
-	With(di:= Developer`GetDebugInfo(expr))
+	With(di:= Developer`GetDebugMetadata(expr))
 	
-	HoldComplete(JavaCall(o, m, args)).Developer`SetDebugInfoAt(di, 1).ReleaseHold
+	HoldComplete(JavaCall(o, m, args)).Developer`SetDebugMetadataAt(di, 1).ReleaseHold
 }
 
 expr:(~o:JavaObject @ (~m:Symbol)(~~~args)) ::= Block {
-	With(di:= Developer`GetDebugInfo(expr))
+	With(di:= Developer`GetDebugMetadata(expr))
 	With(str:= SymbolName(m))
 	
-	HoldComplete(JavaCall(o, str, args)).Developer`SetDebugInfoAt(di, 1).ReleaseHold
+	HoldComplete(JavaCall(o, str, args)).Developer`SetDebugMetadataAt(di, 1).ReleaseHold
 }
 
 expr:(~o:JavaObject @ (e1: ~(~~~))(~e2)) ::= Block {
-	With(di1:= Developer`GetDebugInfo(e1))
-	With(call1:= HoldComplete(o @ e1).Developer`SetDebugInfoAt(di, 1).ReleaseHold)
-	With(di:= Developer`GetDebugInfo(expr))
+	With(di1:= Developer`GetDebugMetadata(e1))
+	With(call1:= HoldComplete(o @ e1).Developer`SetDebugMetadataAt(di, 1).ReleaseHold)
+	With(di:= Developer`GetDebugMetadata(expr))
 	
-	HoldComplete(call1 @ e2).Developer`SetDebugInfoAt(di, 1).ReleaseHold
+	HoldComplete(call1 @ e2).Developer`SetDebugMetadataAt(di, 1).ReleaseHold
 }
 
 Attributes(JavaObject):= {DeepHoldAll, Protected, ReadProtected}

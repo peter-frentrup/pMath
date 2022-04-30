@@ -152,7 +152,7 @@ void pmath_walk_stack(
  */
 PMATH_API 
 void pmath_walk_stack_2(
-  pmath_bool_t (*walker)(pmath_t head, pmath_t debug_info, void *closure), 
+  pmath_bool_t (*walker)(pmath_t head, pmath_t debug_metadata, void *closure), 
   void *closure);
 
 

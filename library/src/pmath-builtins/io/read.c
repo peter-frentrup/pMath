@@ -118,7 +118,7 @@ static pmath_t read_expression(pmath_t file) {
   pmath_unref(code);
   pmath_span_array_free(spans);
   
-  result = _pmath_makeexpression_with_debuginfo(result);
+  result = _pmath_makeexpression_with_debugmetadata(result);
   
   if(!pmath_is_expr_of(result, pmath_System_HoldComplete))
     return result;
@@ -129,11 +129,11 @@ static pmath_t read_expression(pmath_t file) {
     return item;
   }
   else {
-    pmath_t debug_info = pmath_get_debug_info(result);
+    pmath_t debug_metadata = pmath_get_debug_metadata(result);
     result = pmath_expr_set_item(
                result, 0,
                pmath_ref(pmath_System_Sequence));
-    result = pmath_try_set_debug_info(result, debug_info);
+    result = pmath_try_set_debug_metadata(result, debug_metadata);
     return result;
   }
 }

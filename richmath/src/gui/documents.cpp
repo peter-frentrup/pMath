@@ -1327,7 +1327,7 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
   /*  FrontEnd`DocumentDelete()
       FrontEnd`DocumentDelete(doc)
       FrontEnd`DocumentDelete(box)
-      FrontEnd`DocumentDelete(debuginfo)
+      FrontEnd`DocumentDelete(sourcelocation)
    */
   size_t exprlen = expr.expr_length();
   if(exprlen > 1)
@@ -1395,7 +1395,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
     
     if(docid == FrontEndReference::None) {
       if(VolatileSelection sel = SelectionReference::from_pmath(expr[1]).get_all()) {
-        return sel.to_pmath(BoxOutputFlags::WithDebugInfo);
+        return sel.to_pmath(BoxOutputFlags::WithDebugMetadata);
       }
     }
   }
@@ -1406,7 +1406,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
   if(!box)
     return Symbol(richmath_System_DollarFailed);
   
-  return box->to_pmath(BoxOutputFlags::WithDebugInfo);
+  return box->to_pmath(BoxOutputFlags::WithDebugMetadata);
 }
 
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {

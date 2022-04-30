@@ -277,11 +277,11 @@ PMATH_PRIVATE pmath_t builtin_write(                         pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_writestring(                   pmath_expr_t expr);
 //} ============================================================================
 //{ builtins from src/pmath-builtins/language/ ...
-PMATH_PRIVATE pmath_t builtin_developer_frompackedarray(pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_developer_getdebuginfo(   pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(  pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_developer_setdebuginfoat( pmath_expr_t expr);
-PMATH_PRIVATE pmath_t builtin_developer_topackedarray(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_frompackedarray(   pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_getdebugmetadata(  pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_ispackedarray(     pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_setdebugmetadataat(pmath_expr_t expr);
+PMATH_PRIVATE pmath_t builtin_developer_topackedarray(     pmath_expr_t expr);
 
 PMATH_PRIVATE pmath_t builtin_assign_namespace(    pmath_expr_t expr);
 PMATH_PRIVATE pmath_t builtin_assign_namespacepath(pmath_expr_t expr);
@@ -616,11 +616,11 @@ static pmath_bool_t init_builtin_security_doormen(void) {
   CHECK( pmath_security_register_doorman(builtin_toboxes,           PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_tostring,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   
-  CHECK( pmath_security_register_doorman(builtin_developer_frompackedarray, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_developer_getdebuginfo,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_developer_ispackedarray,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_developer_setdebuginfoat,  PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
-  CHECK( pmath_security_register_doorman(builtin_developer_topackedarray,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_developer_frompackedarray,    PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_developer_getdebugmetadata,   PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_developer_ispackedarray,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_developer_setdebugmetadataat, PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
+  CHECK( pmath_security_register_doorman(builtin_developer_topackedarray,      PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
  
   CHECK( pmath_security_register_doorman(builtin_isatom,          PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
   CHECK( pmath_security_register_doorman(builtin_iscomplex,       PMATH_SECURITY_LEVEL_PURE_DETERMINISTIC_ALLOWED, NULL) );
@@ -878,10 +878,10 @@ PMATH_PRIVATE pmath_bool_t _pmath_symbol_builtins_init(void) {
   BIND_DOWN(   pmath_Internal_WriteRealBall,                builtin_internal_writerealball)
   
   BIND_DOWN(   pmath_Developer_FromPackedArray,           builtin_developer_frompackedarray)
-  BIND_DOWN(   pmath_Developer_GetDebugInfo,              builtin_developer_getdebuginfo)
+  BIND_DOWN(   pmath_Developer_GetDebugMetadata,          builtin_developer_getdebugmetadata)
   BIND_DOWN(   pmath_Developer_HasBuiltinCode,            builtin_developer_hasbuiltincode)
   BIND_DOWN(   pmath_Developer_IsPackedArray,             builtin_developer_ispackedarray)
-  BIND_DOWN(   pmath_Developer_SetDebugInfoAt,            builtin_developer_setdebuginfoat)
+  BIND_DOWN(   pmath_Developer_SetDebugMetadataAt,        builtin_developer_setdebugmetadataat)
   BIND_DOWN(   pmath_Developer_ToPackedArray,             builtin_developer_topackedarray)
   
   BIND_DOWN(   pmath_System_Abort,                        builtin_abort)

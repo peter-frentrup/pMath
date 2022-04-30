@@ -302,7 +302,7 @@ class ExprVal:
         
         return ExprVal(None)
     
-    def get_debug_info(self):
+    def get_debug_metadata(self):
         if self.get_refcount() <= 0:
             return ExprVal(None)
         
@@ -499,8 +499,8 @@ class ExprVal:
             length = self.get_expr_length()
             head.write_to_file(f, max_recursion - 1, max_arg_count)
             
-            debug_info = self.get_debug_info()
-            if debug_info.is_pmath() and not debug_info.is_null():
+            debug_metadata = self.get_debug_metadata()
+            if debug_metadata.is_pmath() and not debug_metadata.is_null():
                 #f.write('\xA8') # DIAERESIS
                 f.write('/*D*/')
             

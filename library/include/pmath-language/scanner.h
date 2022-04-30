@@ -264,9 +264,9 @@ struct pmath_boxes_from_spans_ex_t{
      \param data  The \a data member
      \return The modified token_or_span.
 
-     \see pmath_expr_get_debug_info
+     \see pmath_expr_get_debug_metadata
    */
-  pmath_t (*add_debug_info)(
+  pmath_t (*add_debug_metadata)(
     pmath_t                             token_or_span,
     const struct pmath_text_position_t *start,
     const struct pmath_text_position_t *end,

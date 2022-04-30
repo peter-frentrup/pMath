@@ -527,7 +527,7 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
   self.invalidated(false);
   
   if(self.input_type == richmath_System_Expression || self.input_type[0] == richmath_System_Hold) { // Expression or Hold(Expression)
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugInfo);
+    Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
     
     Expr value = Call(Symbol(richmath_System_Try),
                       Call(Symbol(richmath_System_MakeExpression), boxes),
@@ -571,7 +571,7 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
   }
   
   if(self.input_type == richmath_System_RawBoxes) {
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::WithDebugInfo);
+    Expr boxes = self._content->to_pmath(BoxOutputFlags::WithDebugMetadata);
     
     finish_assign_dynamic(std::move(boxes), funcs);
     return true;

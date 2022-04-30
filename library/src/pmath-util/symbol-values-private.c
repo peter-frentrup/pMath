@@ -301,8 +301,8 @@ enum pmath_visit_result_t _pmath_symbol_value_visit(
 
     if(pmath_is_bigstr(value)) {
       struct _pmath_string_t *string_ptr = (void*)PMATH_AS_PTR(value);
-      if(string_ptr->debug_info) {
-        if(_pmath_symbol_value_visit(pmath_ref(PMATH_FROM_PTR(string_ptr->debug_info)), callback, closure) == PMATH_VISIT_ABORT) {
+      if(string_ptr->debug_metadata) {
+        if(_pmath_symbol_value_visit(pmath_ref(PMATH_FROM_PTR(string_ptr->debug_metadata)), callback, closure) == PMATH_VISIT_ABORT) {
           pmath_unref(value);
           return PMATH_VISIT_ABORT;
         }

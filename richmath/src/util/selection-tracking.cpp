@@ -282,7 +282,7 @@ namespace {
       void pre_write(pmath_t obj, pmath_write_options_t opts) {
         ++call_depth;
         
-        SelectionReference source = SelectionReference::from_debug_info_of(obj);
+        SelectionReference source = SelectionReference::from_debug_metadata_of(obj);
         if(source) {
           for(auto &sel : selections)
             sel.pre_write(obj, source, output, call_depth);
@@ -290,7 +290,7 @@ namespace {
       }
       
       void post_write(pmath_t obj, pmath_write_options_t opts) {
-        SelectionReference source = SelectionReference::from_debug_info_of(obj);
+        SelectionReference source = SelectionReference::from_debug_metadata_of(obj);
         if(source) {
           for(auto &sel : selections)
             sel.post_write(obj, source, output, call_depth);
@@ -367,7 +367,7 @@ namespace {
           if(expr.is_expr() && expr[0] == PMATH_NULL) {
             for(size_t i = 1; ;++i) {
               Expr item = expr[i];
-              SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+              SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
               if(source_location.index <= item_source.end && item_source.id == source_location.id) {
                 visit_span(se, item_source, item);
                 delete se;
@@ -404,7 +404,7 @@ namespace {
         if(expr_len > 0 && (size_t)count == expr_len && (expr[0] == PMATH_NULL || expr[0] == richmath_System_List)) {
           for(int i = 0; i < count; ++i) {
             Expr item = expr[(size_t)i + 1];
-            SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+            SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
             
             if(source_location.index <= item_source.end && item_source.id == source_location.id) {
               visit_span(se->item(i), item_source, item);
@@ -488,7 +488,7 @@ namespace {
             if(o_pos >= o_buf.length())
               break;
             
-            SelectionReference item_source = SelectionReference::from_debug_info_of(item);
+            SelectionReference item_source = SelectionReference::from_debug_metadata_of(item);
 
             int o_next = o_pos + 1;
             if(boxi < seq->count()) {
@@ -572,7 +572,7 @@ namespace {
     
     private:
       void after_creation(Box *box, Expr expr) {
-        auto source = SelectionReference::from_debug_info_of(expr);
+        auto source = SelectionReference::from_debug_metadata_of(expr);
         if(source)
           for(auto &sel : selections)
             sel.after_creation(box, source, expr);
@@ -628,7 +628,7 @@ static bool begin_edit_section(
   edit->style->set(SectionGroupPrecedence, section->get_style(SectionGroupPrecedence));
   edit->swap_id(section);
   
-  Expr obj(section->to_pmath(BoxOutputFlags::WithDebugInfo));
+  Expr obj(section->to_pmath(BoxOutputFlags::WithDebugMetadata));
   
   PrintTracking pt;
   pt.selections.add_all(old_locations);
@@ -664,7 +664,7 @@ static bool finish_edit_section(
   
   int index = edit->index();
     
-  Expr parsed(edit->to_pmath(BoxOutputFlags::WithDebugInfo));
+  Expr parsed(edit->to_pmath(BoxOutputFlags::WithDebugMetadata));
   
   if(parsed.is_null()) 
     return false;

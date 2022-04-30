@@ -353,7 +353,7 @@ PMATH_API void pmath_walk_stack(
 
 PMATH_API 
 void pmath_walk_stack_2(
-  pmath_bool_t (*walker)(pmath_t head, pmath_t debug_info, void *closure), 
+  pmath_bool_t (*walker)(pmath_t head, pmath_t debug_metadata, void *closure), 
   void *closure
 ) {
   pmath_thread_t thread = pmath_thread_get_current();
@@ -361,7 +361,7 @@ void pmath_walk_stack_2(
   while(thread) {
     struct _pmath_stack_info_t *stack_info = thread->stack_info;
     while(stack_info) {
-      if(!walker(stack_info->head, stack_info->debug_info, closure))
+      if(!walker(stack_info->head, stack_info->debug_metadata, closure))
         return;
       stack_info = stack_info->next;
     }

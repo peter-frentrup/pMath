@@ -49,10 +49,10 @@ void pmath_debug_print_stack(void);
    \param obj A pMath object. It wont be freed.
    \param post A string that should be printed after the object.
 
-   \see pmath_get_debug_info
+   \see pmath_get_debug_metadata
  */
 PMATH_API
-void pmath_debug_print_debug_info(
+void pmath_debug_print_debug_metadata(
     _In_  const char *pre,
     _In_  pmath_t     obj,
     _In_  const char *post);
@@ -62,7 +62,7 @@ void pmath_debug_print_debug_info(
 #    define pmath_debug_print(...)                        ((void)0)
 #    define pmath_debug_print_object(PRE, OBJ, POST)      ((void)0)
 #    define pmath_debug_print_stack()                     ((void)0)
-#    define pmath_debug_print_debug_info(PRE, OBJ, POST)  ((void)0)
+#    define pmath_debug_print_debug_metadata(PRE, OBJ, POST)  ((void)0)
 #  endif /* PMATH_DEBUG_LOG */
 #endif /* PMATH_DOXYGEN */
 

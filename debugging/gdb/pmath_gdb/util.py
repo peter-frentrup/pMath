@@ -6,14 +6,14 @@ class ManagedStackFrame:
     def __init__(self, stack_info, thread):
         self.stack_info = stack_info
         self.head       = ExprVal(stack_info['head'])
-        self.debug_info = ExprVal(stack_info['debug_info'])
+        self.debug_metadata = ExprVal(stack_info['debug_metadata'])
         self.thread     = thread
         self.native_frame = None
         
     def __str__(self):
         s = 'thread {0:<10} in {1}'.format(self.thread.address, self.head.to_string(max_recursion=1))
         
-        file_pos = ExprFormatting.debug_source_info_to_pair(self.debug_info)
+        file_pos = ExprFormatting.debug_source_info_to_pair(self.debug_metadata)
         
         if file_pos[0] != None:
             s+= ' from ' + file_pos[0]

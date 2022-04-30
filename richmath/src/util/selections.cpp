@@ -408,12 +408,12 @@ SelectionReference SelectionReference::from_pmath(Expr expr) {
   return result; 
 }
 
-SelectionReference SelectionReference::from_debug_info_of(Expr expr) {
-  return from_pmath(Expr{pmath_get_debug_info(expr.get())});
+SelectionReference SelectionReference::from_debug_metadata_of(Expr expr) {
+  return from_pmath(Expr{pmath_get_debug_metadata(expr.get())});
 }
 
-SelectionReference SelectionReference::from_debug_info_of(pmath_t expr) {
-  return from_pmath(Expr{pmath_get_debug_info(expr)});
+SelectionReference SelectionReference::from_debug_metadata_of(pmath_t expr) {
+  return from_pmath(Expr{pmath_get_debug_metadata(expr)});
 }
 
 //} ... class SelectionReference

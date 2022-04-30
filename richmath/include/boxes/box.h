@@ -88,12 +88,12 @@ namespace richmath {
   };
   
   enum class BoxOutputFlags {
-    Default       = 0,
-    Parseable     = 1, ///< no StyleBox with StripOnInput->True, ...
-    Literal       = 2, ///< no DynamicBox or TemplateBox
-    ShortNumbers  = 4, ///< not the internal representation of NumberBox, but the content()
-    WithDebugInfo = 8, ///< attach Language`SourceLocation() metadata to strings and expressions
-    NoNewSymbols  = 16 ///< do not generate new symbols by effectively using MakeExpression(..., ParseSymbols->False)
+    Default           = 0,
+    Parseable         = 1, ///< no StyleBox with StripOnInput->True, ...
+    Literal           = 2, ///< no DynamicBox or TemplateBox
+    ShortNumbers      = 4, ///< not the internal representation of NumberBox, but the content()
+    WithDebugMetadata = 8, ///< attach Language`SourceLocation() metadata to strings and expressions
+    NoNewSymbols      = 16 ///< do not generate new symbols by effectively using MakeExpression(..., ParseSymbols->False)
   };
   
   inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {

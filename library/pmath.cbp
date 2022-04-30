@@ -1256,7 +1256,7 @@
 		<Unit filename="src/pmath-builtins/language/begin-and-end.c">
 			<Option compilerVar="CC" />
 		</Unit>
-		<Unit filename="src/pmath-builtins/language/debuginfo.c">
+		<Unit filename="src/pmath-builtins/language/debugmetadata.c">
 			<Option compilerVar="CC" />
 		</Unit>
 		<Unit filename="src/pmath-builtins/language/frompackedarray.c">

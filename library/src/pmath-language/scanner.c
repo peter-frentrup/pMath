@@ -2554,8 +2554,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
         box = PMATH_NULL;
         
       increment_text_position(group);
-      if(group->settings.add_debug_info)  {
-        box = group->settings.add_debug_info(
+      if(group->settings.add_debug_metadata)  {
+        box = group->settings.add_debug_metadata(
                 box,
                 &span_start,
                 &group->tp,
@@ -2579,8 +2579,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                  span_start.index,
                  group->tp.index - span_start.index);
                  
-      if(group->settings.add_debug_info) {
-        result = group->settings.add_debug_info(
+      if(group->settings.add_debug_metadata) {
+        result = group->settings.add_debug_metadata(
                    result,
                    &span_start,
                    &group->tp,
@@ -2617,8 +2617,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                             start.index,
                             group->tp.index - start.index);
                             
-            if(group->settings.add_debug_info) {
-              pre = group->settings.add_debug_info(
+            if(group->settings.add_debug_metadata) {
+              pre = group->settings.add_debug_metadata(
                       pre,
                       &start,
                       &group->tp,
@@ -2648,8 +2648,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
                          start.index,
                          group->tp.index - start.index);
                          
-        if(group->settings.add_debug_info) {
-          rest = group->settings.add_debug_info(
+        if(group->settings.add_debug_metadata) {
+          rest = group->settings.add_debug_metadata(
                    rest,
                    &start,
                    &group->tp,
@@ -2664,8 +2664,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       
       check_tp_before_whitespace(group, span->end + 1);
       
-      if(group->settings.add_debug_info) {
-        all = group->settings.add_debug_info(
+      if(group->settings.add_debug_metadata) {
+        all = group->settings.add_debug_metadata(
                 all,
                 &span_start,
                 &group->tp_before_whitespace, //span->end + 1,
@@ -2747,8 +2747,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
       
       check_tp_before_whitespace(group, span->end + 1);
       
-      if(group->settings.add_debug_info) {
-        result = group->settings.add_debug_info(
+      if(group->settings.add_debug_metadata) {
+        result = group->settings.add_debug_metadata(
                    result,
                    &span_start,
                    &group->tp, //span->end + 1,
@@ -2784,8 +2784,8 @@ static void emit_span(pmath_span_t *span, struct group_t *group) {
     if(pmath_expr_length(expr) > 0) {
       check_tp_before_whitespace(group, span->end + 1);
       
-      if(group->settings.add_debug_info) {
-        expr = group->settings.add_debug_info(
+      if(group->settings.add_debug_metadata) {
+        expr = group->settings.add_debug_metadata(
                  expr,
                  &span_start,
                  &group->tp_before_whitespace,//span->end + 1,
