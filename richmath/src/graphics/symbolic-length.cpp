@@ -7,6 +7,7 @@ extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_Large;
 extern pmath_symbol_t richmath_System_Medium;
 extern pmath_symbol_t richmath_System_None;
+extern pmath_symbol_t richmath_System_Scaled;
 extern pmath_symbol_t richmath_System_Small;
 extern pmath_symbol_t richmath_System_Tiny;
 
@@ -19,9 +20,28 @@ const LengthConversionFactors LengthConversionFactors::GraphicsSize {    0,     
 
 //{ class Length ...
 
-float Length::resolve(float em, const LengthConversionFactors &factors) const {
-  if(is_explicit())
-    return raw_value();
+Length Length::resolve_scaled(float rel_scale) const {
+  if(is_explicit_abs())
+    return *this;
+  
+  if(is_explicit_rel() && rel_scale >= 0)
+    return Length::Absolute(rel_scale * explicit_rel_value());
+  
+  return SymbolicSize::Automatic;
+}
+
+float Length::resolve(float em, const LengthConversionFactors &factors, float rel_scale) const {
+  if(is_explicit_abs())
+    return explicit_abs_value();
+  
+  if(is_explicit_rel()) {
+    if(rel_scale >= 0) {
+      auto abs = Length::Absolute(explicit_rel_value() * rel_scale);
+      if(abs.is_explicit_abs())
+        return abs.explicit_abs_value();
+    }
+    return em * factors.Automatic;
+  }
   
   if(is_symbolic()) {
     switch(symblic_value()) {
@@ -46,14 +66,24 @@ Length Length::from_pmath(Expr obj) {
   if(obj == richmath_System_Tiny)      return SymbolicSize::Tiny;
   
   if(obj.is_number())
-    return Length(obj.to_double());
+    return Length::Absolute(obj.to_double());
+  
+  if(obj[0] == richmath_System_Scaled && obj.expr_length() == 1) {
+    Expr scale = obj[1];
+    
+    if(scale.is_number())
+      return Length::Relative(scale.to_double());
+  }
   
   return SymbolicSize::Invalid;
 }
 
 Expr Length::to_pmath() const {
-  if(is_explicit())
-    return Number(raw_value());
+  if(is_explicit_abs())
+    return Number(explicit_abs_value());
+  
+  if(is_explicit_rel())
+    return Call(Symbol(richmath_System_Scaled), Number(explicit_rel_value()));
   
   switch(symblic_value()) {
     case SymbolicSize::Automatic: return Symbol(richmath_System_Automatic);

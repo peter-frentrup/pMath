@@ -99,8 +99,8 @@ Expr PaneBox::to_pmath(BoxOutputFlags flags) {
 }
 
 void PaneBox::resize_default_baseline(Context &context) {
-  Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
-  Length h = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic);
+  Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic).resolve_scaled(context.width);
+  Length h = get_own_style(ImageSizeVertical,   SymbolicSize::Automatic).resolve_scaled(-1);
   bool line_break_within = get_own_style(LineBreakWithin, true);
   
   mat.xx = 1;
@@ -144,29 +144,33 @@ void PaneBox::resize_default_baseline(Context &context) {
     } break;
   }
   
-  if(!w.is_explicit())
-    w = Length(_extents.width);
+  if(!w.is_explicit_abs())
+    w = Length::Absolute(_extents.width);
     
-  if(!h.is_explicit())
-    h = Length(_extents.height());
+  if(!h.is_explicit_abs())
+    h = Length::Absolute(_extents.height());
   
   cx = 0;
   cy = 0;
-  mat.y0 += _extents.ascent - h.raw_value();
+  mat.y0 += _extents.ascent - h.explicit_abs_value();
   
-  _extents.width = w.raw_value();
-  _extents.ascent = h.raw_value();
+  _extents.width = w.explicit_abs_value();
+  _extents.ascent = h.explicit_abs_value();
   _extents.descent = 0;
 }
 
 float PaneBox::allowed_content_width(const Context &context) {
   if(get_own_style(LineBreakWithin, true)) {
     Length w = get_own_style(ImageSizeHorizontal, SymbolicSize::Automatic);
-    if(w.is_positive()) {
+    
+    if(w.is_explicit_rel())
+      w = Length::Absolute(w.explicit_rel_value() * context.width);
+      
+    if(w.is_explicit_abs_positive()) {
       if(mat.xx > 0)
-        return w.raw_value() / mat.xx;
+        return w.explicit_abs_value() / mat.xx;
         
-      return w.raw_value();
+      return w.explicit_abs_value();
     }
   }
   
@@ -194,19 +198,19 @@ void PaneBox::paint_content(Context &context) {
 double PaneBox::Impl::shrink_scale(Length w, Length h, bool line_break_within) {
   double result = 1.0f;
   
-  if(line_break_within && w.is_positive() && h.is_positive()) {
-    double scale_square = w.raw_value() * (double)h.raw_value() / ((double)self._content->extents().width * self._content->extents().height());
+  if(line_break_within && w.is_explicit_abs_positive() && h.is_explicit_abs_positive()) {
+    double scale_square = w.explicit_abs_value() * (double)h.explicit_abs_value() / ((double)self._content->extents().width * self._content->extents().height());
     if(0 < scale_square && scale_square < 1.0f)
       result = sqrt(scale_square);
   }
   else {
-    if(w.is_positive() && self._content->extents().width > w.raw_value()) {
-      double scale = w.raw_value() / (double)self._content->extents().width;
+    if(w.is_explicit_abs_positive() && self._content->extents().width > w.explicit_abs_value()) {
+      double scale = w.explicit_abs_value() / (double)self._content->extents().width;
       if(0 < scale && scale < result)
         result = scale;
     }
-    if(h.is_positive() && self._content->extents().height() > h.raw_value()) {
-      double scale = h.raw_value() / (double)self._content->extents().height();
+    if(h.is_explicit_abs_positive() && self._content->extents().height() > h.explicit_abs_value()) {
+      double scale = h.explicit_abs_value() / (double)self._content->extents().height();
       if(0 < scale && scale < result)
         result = scale;
     }
@@ -217,20 +221,26 @@ double PaneBox::Impl::shrink_scale(Length w, Length h, bool line_break_within) {
 
 double PaneBox::Impl::grow_scale(Length w, Length h, bool line_break_within) {
   double result = 1;
-  if(w.raw_value() > self._content->extents().width && h.raw_value() > self._content->extents().height()) {
+  if( w.is_explicit_abs() && w.explicit_abs_value() > self._content->extents().width && 
+      h.is_explicit_abs() && h.explicit_abs_value() > self._content->extents().height()
+  ) {
     double scale = std::min(
-                     w.raw_value() / (double)self._content->extents().width, 
-                     h.raw_value() / (double)self._content->extents().height());
+                     w.explicit_abs_value() / (double)self._content->extents().width, 
+                     h.explicit_abs_value() / (double)self._content->extents().height());
     if(0 < scale && scale < Infinity) 
       result = scale;
   }
-  else if(h == SymbolicSize::Automatic && w.raw_value() > self._content->extents().width) {
-    double scale = w.raw_value() / (double)self._content->extents().width;
+  else if(h == SymbolicSize::Automatic && 
+      w.is_explicit_abs() && w.explicit_abs_value() > self._content->extents().width
+  ) {
+    double scale = w.explicit_abs_value() / (double)self._content->extents().width;
     if(0 < scale && scale < Infinity)
       result = scale;
   }
-  else if(w == SymbolicSize::Automatic && h.raw_value() > self._content->extents().height()) {
-    double scale = h.raw_value() / (double)self._content->extents().height();
+  else if(w == SymbolicSize::Automatic && 
+      h.is_explicit_abs() && h.explicit_abs_value() > self._content->extents().height()
+  ) {
+    double scale = h.explicit_abs_value() / (double)self._content->extents().height();
     if(0 < scale && scale < Infinity)
       result = scale;
   }

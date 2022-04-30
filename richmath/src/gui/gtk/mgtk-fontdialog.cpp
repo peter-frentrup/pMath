@@ -60,8 +60,8 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
     }
     
     Length size = SymbolicSize::Invalid;
-    if(initial_style->get(FontSize, &size) && size.raw_value() >= 1) {
-      pango_font_description_set_absolute_size(desc, size.raw_value() * PANGO_SCALE);
+    if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
+      pango_font_description_set_absolute_size(desc, size.explicit_abs_value() * PANGO_SCALE);
     }
 
     int weight = FontWeightPlain;
@@ -197,8 +197,8 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
     }
 
     Length size = SymbolicSize::Invalid;
-    if(initial_style->get(FontSize, &size) && size.raw_value() >= 1) {
-      pango_font_description_set_absolute_size(desc, size.raw_value() * PANGO_SCALE);
+    if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
+      pango_font_description_set_absolute_size(desc, size.explicit_abs_value() * PANGO_SCALE);
     }
 
     int weight = FontWeightPlain;

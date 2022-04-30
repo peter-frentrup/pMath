@@ -411,7 +411,7 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
   
   Length em;
   if(ctx.stylesheet->get(style, FontSize, &em)) {
-    ctx.canvas().set_font_size(em.resolve(1, LengthConversionFactors::FontSizeInPt));
+    ctx.canvas().set_font_size(em.resolve(1, LengthConversionFactors::FontSizeInPt, ctx.width));
   }
   
   if(ctx.stylesheet->get(style, LineBreakWithin, &i) && !i) {

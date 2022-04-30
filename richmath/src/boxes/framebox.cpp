@@ -21,7 +21,7 @@ namespace richmath {
     public:
       Impl(FrameBox &self) : self{self} {}
       
-      float get_margin_value(LengthStyleOptionName name, float em);
+      float get_margin_value(LengthStyleOptionName name, Context &context);
       
     private:
       FrameBox &self;
@@ -71,14 +71,12 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
 }
 
 void FrameBox::resize_default_baseline(Context &context) {
-  em = context.canvas().get_font_size();
-  
   float border_thickness = BorderThicknessFactor * em;
   
-  float extra_left   = border_thickness + Impl(*this).get_margin_value(FrameMarginLeft,   em);
-  float extra_right  = border_thickness + Impl(*this).get_margin_value(FrameMarginRight,  em);
-  float extra_top    = border_thickness + Impl(*this).get_margin_value(FrameMarginTop,    em);
-  float extra_bottom = border_thickness + Impl(*this).get_margin_value(FrameMarginBottom, em);
+  float extra_left   = border_thickness + Impl(*this).get_margin_value(FrameMarginLeft,   context);
+  float extra_right  = border_thickness + Impl(*this).get_margin_value(FrameMarginRight,  context);
+  float extra_top    = border_thickness + Impl(*this).get_margin_value(FrameMarginTop,    context);
+  float extra_bottom = border_thickness + Impl(*this).get_margin_value(FrameMarginBottom, context);
   
   float old_width = context.width;
   context.width -= extra_left + extra_right;
@@ -199,8 +197,9 @@ Expr FrameBox::to_pmath(BoxOutputFlags flags) {
 
 //{ class FarmeBox::Impl ...
 
-float FrameBox::Impl::get_margin_value(LengthStyleOptionName name, float em) {
-  return self.get_own_style(name, SymbolicSize::Automatic).resolve(em, FrameBoxMarginFactors);
+float FrameBox::Impl::get_margin_value(LengthStyleOptionName name, Context &context) {
+  return self.get_own_style(name, SymbolicSize::Automatic)
+             .resolve(context.canvas().get_font_size(), FrameBoxMarginFactors, context.width);
 }
 
 //} ... class FarmeBox::Impl

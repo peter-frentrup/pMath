@@ -803,16 +803,17 @@ Expr DocumentCurrentValueProvider::get_PageWidthCharacters(FrontEndObject *obj, 
     if(!font_size.is_valid())
       font_size = doc->stylesheet()->get_or_default(output_style, FontSize, SymbolicSize::Automatic);
     
-    float em    = font_size.resolve(1.0f, LengthConversionFactors::FontSizeInPt);
-    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins);
-    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
+    float page_width = doc->native()->page_size().x;
+    float em    = font_size.resolve(1.0f, LengthConversionFactors::FontSizeInPt, page_width);
+    float left  = doc->stylesheet()->get_or_default(output_style, SectionMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins, page_width);
+    float right = doc->stylesheet()->get_or_default(output_style, SectionMarginRight).resolve(em, LengthConversionFactors::SectionMargins, page_width);
     
     // TODO: frame margin is only applied if a frame is visible (or Background is given)
-    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft ).resolve(em, LengthConversionFactors::SectionMargins);
-    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight).resolve(em, LengthConversionFactors::SectionMargins);
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameLeft ).resolve(em, LengthConversionFactors::SectionMargins, page_width);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameRight).resolve(em, LengthConversionFactors::SectionMargins, page_width);
     
-    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins);
-    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight).resolve(em, LengthConversionFactors::SectionMargins);
+    left+=  doc->stylesheet()->get_or_default(output_style, SectionFrameMarginLeft ).resolve(em, LengthConversionFactors::SectionMargins, page_width);
+    right+= doc->stylesheet()->get_or_default(output_style, SectionFrameMarginRight).resolve(em, LengthConversionFactors::SectionMargins, page_width);
     
     page_width_points-= left + right;
     if(doc->get_own_style(ShowSectionBracket, true)) {

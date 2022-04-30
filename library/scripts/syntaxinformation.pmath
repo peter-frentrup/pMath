@@ -487,6 +487,7 @@
 {"Row", {"ArgumentCount" -> 1..2}},
 {"Rule", {"ArgumentCount" -> 2}},
 {"RuleDelayed", {"ArgumentCount" -> 2}},
+{"Scaled", {"ArgumentCount" -> 1}},
 {"ScalingMatrix", {"ArgumentCount" -> 1..2}},
 {"ScalingTransform", {"ArgumentCount" -> 1..3}},
 {"Scan", {"ArgumentCount" -> 2..3}},

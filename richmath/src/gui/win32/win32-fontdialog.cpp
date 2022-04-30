@@ -53,8 +53,8 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
       data.Flags |= CF_NOFACESEL;
       
     Length size = SymbolicSize::Invalid;
-    if(initial_style->get(FontSize, &size) && size.raw_value() >= 1) {
-      data.iPointSize = (int)(10 * size.raw_value() + 0.5);
+    if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
+      data.iPointSize = (int)(10 * size.explicit_abs_value() + 0.5);
     }
     else
       data.Flags |= CF_NOSIZESEL;

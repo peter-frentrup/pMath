@@ -171,8 +171,8 @@ void SectionList::selection_path(Canvas &canvas, int start, int end) {
         right = r;
       
       Length ldim = sect->get_style(SectionMarginLeft);
-      if(!ldim.is_explicit()) { ldim = Length(0.0f); }
-      float l = ldim.raw_value();
+      if(!ldim.is_explicit_abs()) { ldim = Length::Absolute(0.0f); } // TODO: non-explicit margin
+      float l = ldim.explicit_abs_value();
       l -= sect->label_width();
       l -= 3; // label distance
       if(left > l)

@@ -345,9 +345,11 @@ class richmath::Win32Dock: public Win32DocumentChildWidget {
         return true;
       
       Section *last_section = document()->section(last);
-      float right_margin = last_section->get_style(
-                             SectionMarginRight
-                           ).resolve(last_section->get_em(), LengthConversionFactors::SectionMargins);
+      float right_margin = last_section->get_style(SectionMarginRight)
+                              .resolve(
+                                last_section->get_em(), 
+                                LengthConversionFactors::SectionMargins,
+                                document()->native()->page_size().x);
       if(right_margin < 12.0)
         return false;
         

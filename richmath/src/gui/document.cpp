@@ -4230,11 +4230,13 @@ void Document::Impl::paint_document_cursor() {
     
     if(self.context.selection.start < self.count()) {
       Section *sect = self.section(self.context.selection.start);
-      x1 = sect->get_style(SectionMarginLeft).resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt);
+      x1 = sect->get_style(SectionMarginLeft)
+                .resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt, self._page_width);
     }
     else if(self.count() > 0) {
       Section *sect = self.section(self.context.selection.start - 1);
-      x1 = sect->get_style(SectionMarginLeft).resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt);
+      x1 = sect->get_style(SectionMarginLeft)
+                .resolve(sect->get_em(), LengthConversionFactors::FontSizeInPt, self._page_width);
     }
     else
       x1 = 20 * 0.75;
