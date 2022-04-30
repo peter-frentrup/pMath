@@ -115,10 +115,10 @@ General::shdw:= "Symbol `1` appears in multiple contexts `2`; definitions in con
 
 General::nopar1:= "`1` cannot be parallelized; proceeding with sequential evaluation."
 
-Syntax::bgn:= MakeExpression::bgn:= "An expression cannot begin with \"`1`\"."
-Syntax::bgnf:= "An expression cannot begin with \"`1`\". (Line `2` in `3`)"
-Syntax::nxt:= MakeExpression::nxt:= "\"`1`\" cannot be followed by \"`2`\"."
-Syntax::nxtf:= "\"`1`\" cannot be followed by \"`2`\". (Line `3` in `4`)"
+Syntax::bgn:= MakeExpression::bgn:= "An expression cannot begin with \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote]."
+Syntax::bgnf:= "An expression cannot begin with \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote]. (Line `2` in `3`)"
+Syntax::nxt:= MakeExpression::nxt:= "\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] cannot be followed by \[HighSixDoubleQuote]`2`\[HighNineDoubleQuote]."
+Syntax::nxtf:= "\[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] cannot be followed by \[HighSixDoubleQuote]`2`\[HighNineDoubleQuote]. (Line `3` in `4`)"
 Syntax::more:= "Incomplete expression; more input needed."
 Syntax::moref:= "Unexpected end of file (probably unfinished expression). (Line `1` in `2`)"
 Syntax::stresc:= "Invalid string escape \\`1`."
@@ -212,7 +212,7 @@ With::nodef:= "Local variable definition `1` contains `2`, which is not an assig
 
 MakeExpression::base:= "Requested base `1` in `2` should be between 2 and 36."
 MakeExpression::digit:= "Digit at position `1` in `2` is to large to be used in base `3`."
-MakeExpression::inv:= "`1` is neither a string nor a valid box."
+MakeExpression::inv:= "Could not parse \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote] as pMath input."
 
 MapThread::mptd:= "Object `1` at position `2` in `3` has only `4` of the required `5` dimensions."
 
