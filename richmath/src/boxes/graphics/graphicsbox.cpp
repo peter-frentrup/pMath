@@ -373,8 +373,14 @@ void GraphicsBox::paint(Context &context) {
   
   if(cached_bitmap.is_valid())
     cached_bitmap->paint(context.canvas());
+  
+  bool has_sel = false;
+  context.for_each_selection_at(this, [&](const VolatileSelection &sel) {
+    if(has_sel) 
+      return;
     
-  if(context.selection.equals(this, 0, 0)) {
+    has_sel = true;
+
     float x, y;
     context.canvas().current_pos(&x, &y);
     y -= _extents.ascent;
@@ -410,7 +416,7 @@ void GraphicsBox::paint(Context &context) {
     context.canvas().fill();
     
     context.canvas().restore();
-  }
+  });
 }
 
 void GraphicsBox::reset_style() {

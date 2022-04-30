@@ -278,6 +278,24 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
   box->paint(*this);
 }
 
+void Context::for_each_selection_at(Box *box, std::function<void(const VolatileSelection&)> func) {
+  if(auto sel = selection.get_all()) {
+    if(box == sel.box)
+      func(sel);
+  }
+}
+
+void Context::for_each_selection_inside(Box *box, std::function<void(const VolatileSelection&)> func) {
+  if(auto sel = selection.get_all()) {
+    if(!box || box->is_parent_of(sel.box))
+      func(sel);
+  }
+}
+
+void Context::for_each_selection(std::function<void(const VolatileSelection&)> func) {
+  for_each_selection_inside(nullptr, func);
+}
+
 //} ... class Context
 
 //{ class ContextState ...

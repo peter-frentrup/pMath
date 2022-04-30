@@ -707,10 +707,15 @@ void Document::focus_killed(Document *new_focus) {
 void Document::key_down(SpecialKeyEvent &event) {
   native()->hide_tooltip();
   
-  if(Box *selbox = context.selection.get()) {
-    selbox->on_key_down(event);
-  }
-  else {
+  bool found = false;
+  context.for_each_selection([&](const VolatileSelection &sel) {
+    if(!found) {
+      sel.box->on_key_down(event);
+      found = true;
+    }
+  });
+  
+  if(!found) {
     Document *cur = Documents::selected_document();
     if(cur && cur != this)
       cur->key_down(event);
@@ -718,10 +723,15 @@ void Document::key_down(SpecialKeyEvent &event) {
 }
 
 void Document::key_up(SpecialKeyEvent &event) {
-  if(Box *selbox = context.selection.get()) {
-    selbox->on_key_up(event);
-  }
-  else {
+  bool found = false;
+  context.for_each_selection([&](const VolatileSelection &sel) {
+    if(!found) {
+      sel.box->on_key_up(event);
+      found = true;
+    }
+  });
+  
+  if(!found) {
     Document *cur = Documents::selected_document();
     if(cur && cur != this)
       cur->key_up(event);
@@ -741,10 +751,15 @@ void Document::key_press(uint32_t unicode) {
     return;
   }
   
-  if(Box *selbox = context.selection.get()) {
-    selbox->on_key_press(unicode);
-  }
-  else {
+  bool found = false;
+  context.for_each_selection([&](const VolatileSelection &sel) {
+    if(!found) {
+      sel.box->on_key_press(unicode);
+      found = true;
+    }
+  });
+  
+  if(!found) {
     Document *cur = Documents::selected_document();
     if(cur && cur != this)
       cur->key_press(unicode);

@@ -113,21 +113,21 @@ void SectionList::paint(Context &context) {
     paint_section(context, i);
   }
   
-  if( context.selection.get() == this &&
-      context.selection.start == _sections.length())
-  {
-    float x1 = 0;
-    float y1 = _extents.descent;
-    float x2 = _extents.width;
-    float y2 = _extents.descent;
-    
-    context.canvas().align_point(&x1, &y1, true);
-    context.canvas().align_point(&x2, &y2, true);
-    context.canvas().move_to(x1, y1);
-    context.canvas().line_to(x2, y2);
-    
-    context.draw_selection_path();
-  }
+  context.for_each_selection_at(this, [&](const VolatileSelection &sel) {
+    if(sel.start == _sections.length()) {
+      float x1 = 0;
+      float y1 = _extents.descent;
+      float x2 = _extents.width;
+      float y2 = _extents.descent;
+      
+      context.canvas().align_point(&x1, &y1, true);
+      context.canvas().align_point(&x2, &y2, true);
+      context.canvas().move_to(x1, y1);
+      context.canvas().line_to(x2, y2);
+      
+      context.draw_selection_path();
+    }
+  });
   
   context.canvas().restore();
 }
@@ -985,23 +985,25 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
     float sel_y2 = y2 + 1.5;
     
     int sel_depth = -1;
-    if( context.selection.get() == this && 
-        context.selection.start <= i && 
-        context.selection.end > i) 
-    {
-      int start = i;
-      if(_sections[i]->_group_info.end > i)
-        ++sel_depth;
+    VolatileSelection current_selection {nullptr, 0, 0};
+    context.for_each_selection_at(this, [&](const VolatileSelection &sel) {
+      if(sel.start <= i && sel.end > i) {
+        current_selection = sel;
         
-      while(start >= context.selection.start && _sections[start]->_group_info.end < context.selection.end) {
-        ++sel_depth;
-        start = _sections[start]->_group_info.first;
+        int start = i;
+        if(_sections[i]->_group_info.end > i)
+          ++sel_depth;
+          
+        while(start >= sel.start && _sections[start]->_group_info.end < sel.end) {
+          ++sel_depth;
+          start = _sections[start]->_group_info.first;
+        }
       }
-    }
+    });
     
     switch(_sections[i]->get_style(ShowSectionBracket)) {
       case AutoBoolAutomatic:
-        if(context.selection.id == id() && context.selection.start <= i && context.selection.end > i)
+        if(sel_depth >= 0)
           paint_single_section_bracket(context, x1, y1, x2, y2, style);
         break;
         
@@ -1056,7 +1058,7 @@ void SectionList::paint_section_brackets(Context &context, int i, float right, f
         
         switch(_sections[start]->get_style(ShowSectionBracket)) {
           case AutoBoolAutomatic:
-            if(context.selection.id == id() && context.selection.start <= start && context.selection.end > _sections[start]->_group_info.end)
+            if(current_selection.box == this && current_selection.start <= start && current_selection.end > _sections[start]->_group_info.end)
               paint_single_section_bracket(context, x1, y1, x2, y2, style);
             break;
             

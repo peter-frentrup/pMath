@@ -266,11 +266,9 @@ void InlineSequenceBox::paint(Context &context) {
     if(Color bg = get_style(InlineSectionEditingBackgroundColor, Color::None)) {
       float bg_alpha = get_style(InlineSectionEditingHighlightOpacity, 1.0f);
       if(0 < bg_alpha && bg_alpha <= 1.0) {
-        Box *b = context.selection.get();
-        while(b && b != this)
-          b = b->parent();
-          
-        if(b == this) {
+        bool contains_selection = false;
+        context.for_each_selection_inside(this, [&](const VolatileSelection &sel) { contains_selection = true; });
+        if(contains_selection) {
           float x, y;
           Color c = context.canvas().get_color();
           context.canvas().current_pos(&x, &y);

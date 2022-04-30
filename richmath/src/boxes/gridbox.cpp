@@ -463,11 +463,11 @@ void GridBox::paint(Context &context) {
     }
   }
   
-  if(context.selection.get() == this) {
+  context.for_each_selection_at(this, [&](const VolatileSelection &sel) {
     Color c = context.canvas().get_color();
     context.canvas().move_to(x, y);
-    selection_path(context.canvas(), context.selection.start, context.selection.end);
-    if(context.selection.start >= items.length() && context.selection.end >= items.length()) {
+    selection_path(context.canvas(), sel.start, sel.end);
+    if(sel.start >= items.length() && sel.end >= items.length()) {
       context.canvas().save();
       context.canvas().set_color(context.cursor_color);
       context.canvas().reset_matrix();
@@ -484,7 +484,7 @@ void GridBox::paint(Context &context) {
       context.draw_selection_path();
     }
     context.canvas().set_color(c);
-  }
+  });
 }
 
 float GridBox::get_gap_x(GridXIndex col, int gap_side) {

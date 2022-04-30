@@ -351,15 +351,21 @@ void TextSequence::paint(Context &context) {
   } while(pango_layout_iter_next_line(iter));
   pango_layout_iter_free(iter);
   
-  if(context.selection.get() == this && !context.canvas().show_only_text) {
-    context.canvas().move_to(x0, y0 + _extents.ascent);
-    
-    selection_path(
-      context.canvas(),
-      context.selection.start,
-      context.selection.end);
-      
-    context.draw_selection_path();
+  if(!context.canvas().show_only_text) {
+    context.for_each_selection_inside(this, [&](const VolatileSelection &sel) {
+      if(TextSequence *seq = dynamic_cast<TextSequence*>(sel.box)) {
+        if(&Impl(*seq).outermost_span() == this) {
+          context.canvas().move_to(x0, y0 + _extents.ascent);
+          
+          seq->selection_path(
+            context.canvas(),
+            sel.start,
+            sel.end);
+            
+          context.draw_selection_path();
+        }
+      }
+    });
   }
 }
 

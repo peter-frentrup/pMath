@@ -13,6 +13,8 @@
 #include <graphics/ot-font-reshaper.h>
 #include <graphics/syntax-styles.h>
 
+#include <functional>
+
 
 namespace richmath {
   class Style;
@@ -43,6 +45,10 @@ namespace richmath {
         float  dy);
         
       void draw_with_text_shadows(Box *box, Expr shadows);
+      
+      void for_each_selection_at(    Box *box, std::function<void(const VolatileSelection&)> func);
+      void for_each_selection_inside(Box *box, std::function<void(const VolatileSelection&)> func);
+      void for_each_selection(                 std::function<void(const VolatileSelection&)> func);
       
     public:
       bool has_canvas() { return canvas_ptr != nullptr; }

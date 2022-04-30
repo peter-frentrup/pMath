@@ -633,26 +633,21 @@ void MathSequence::paint(Context &context) {
     }
     
     if(!context.canvas().show_only_text) {
-      MathSequence *inline_sel = nullptr;
-      if(context.selection.get() == this) {
-        inline_sel = this;
-      }
-      else if(MathSequence *seq = dynamic_cast<MathSequence*>(context.selection.get())) {
-        if(&Impl(*seq).outermost_span() == this)
-          inline_sel = seq;
-      }
-      
-      if(inline_sel) {
-        context.canvas().move_to(p0);
-        
-        Impl(*inline_sel).selection_path(
-          &context,
-          context.canvas(),
-          context.selection.start,
-          context.selection.end);
-          
-        context.draw_selection_path();
-      }
+      context.for_each_selection_inside(this, [&](const VolatileSelection &sel) {
+        if(MathSequence *seq = dynamic_cast<MathSequence*>(sel.box)) {
+          if(&Impl(*seq).outermost_span() == this) {
+            context.canvas().move_to(p0);
+            
+            Impl(*seq).selection_path(
+              &context,
+              context.canvas(),
+              sel.start,
+              sel.end);
+              
+            context.draw_selection_path();
+          }
+        }
+      });
     }
   }
   
