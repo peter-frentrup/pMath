@@ -157,6 +157,30 @@ RESTART:
   return false;
 }
 
+bool VolatileLocation::find_selection_placeholder(const VolatileLocation &stop, bool stop_early) {
+  VolatileLocation match { nullptr, 0 };
+  
+  while(box && (box != stop.box || index < stop.index)) {
+    AbstractSequence *current_seq = dynamic_cast<AbstractSequence *>(box);
+    
+    if(current_seq && current_seq->is_placeholder(index)) {
+      if(stop_early || current_seq->char_at(index) == PMATH_CHAR_SELECTIONPLACEHOLDER)
+        return true;
+      
+      if(!match) 
+        match = *this;
+    }
+    
+    auto old = *this;
+    move_logical_inplace(LogicalDirection::Forward, false);
+    if(box == old.box && index <= old.index)
+      break;
+  }
+  
+  *this = match;
+  return match.box != nullptr;
+}
+
 //} ... class VolatileLocation
 
 //{ class VolatileSelection ...

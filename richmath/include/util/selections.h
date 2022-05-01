@@ -53,6 +53,7 @@ namespace richmath {
     void             move_vertical_inplace(LogicalDirection direction, float *index_rel_x);
     
     bool find_next(String string, bool complete_token, const VolatileLocation &stop);
+    bool find_selection_placeholder(const VolatileLocation &stop, bool stop_early = false);
   };
   
   /** Represents a (volatile) reference to a position range inside a Box.

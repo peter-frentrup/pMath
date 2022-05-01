@@ -2646,45 +2646,6 @@ void Document::insert_string(String text, bool autoformat) {
   }
 }
 
-static AbstractSequence *find_selection_placeholder(
-  Box *current, 
-  int *index, 
-  Box *root, 
-  int root_end,
-  bool stop_early = false
-) {
-  RICHMATH_ASSERT(index != nullptr);
-  
-  AbstractSequence *placeholder_seq = nullptr;
-  int placeholder_pos = -1;
-  
-  while(current && (current != root || *index < root_end)) {
-    AbstractSequence *current_seq = dynamic_cast<AbstractSequence *>(current);
-    
-    if(current_seq && current_seq->is_placeholder(*index)) {
-      if(stop_early || current_seq->char_at(*index) == PMATH_CHAR_SELECTIONPLACEHOLDER) {
-        placeholder_seq = current_seq;
-        placeholder_pos = *index;
-        break;
-      }
-      
-      if(!placeholder_seq) {
-        placeholder_seq = current_seq;
-        placeholder_pos = *index;
-      }
-    }
-    
-    int old_index = *index;
-    auto old = current;
-    current = current->move_logical(LogicalDirection::Forward, false, index);
-    if(current == old && *index <= old_index)
-      break;
-  }
-  
-  *index = placeholder_pos;
-  return placeholder_seq;
-}
-
 void Document::insert_box(Box *box, bool handle_placeholder) {
   if(!box || !Impl(*this).prepare_insert(false)) {
     Document *cur = Documents::selected_document();
@@ -2725,37 +2686,37 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
     seq->after_insertion(ins_start, ins_end);
     
     if(handle_placeholder) {
-      int _pl_start = ins_start;
-      
-      if(AbstractSequence *pl_seq = find_selection_placeholder(seq, &_pl_start, seq, ins_end)) {
-        if(VolatileSelection pl_sel = pl_seq->normalize_selection(_pl_start, _pl_start + 1)) {
-          if(pl_sel.box == pl_seq) {
-            int old_pl_len = pl_sel.length();
-            
-            pl_seq->remove(pl_sel.start, pl_sel.end);
-            pl_sel.end = pl_sel.start;
-            
-            if(pl_seq == seq)
-              ins_end-= old_pl_len;
-            
-            if(rem_length == 0) 
-              pl_sel.end = pl_seq->insert(pl_sel.start, PMATH_CHAR_PLACEHOLDER);
-            else 
-              pl_sel.end = pl_seq->insert(pl_sel.start, seq, ins_end, ins_end + rem_length);
-            
-            // ensure that e.g. TemplateBoxSlot recognizes the \[SelectionPlaceholder] replacement
-            for(Box *tmp = pl_seq; tmp && tmp != seq; tmp = tmp->parent())
-              tmp->on_finish_editing();
-            
-            if(pl_seq == seq)
-              ins_end+= pl_sel.length();
-            
-            _pl_start = ins_start;
-            pl_seq = find_selection_placeholder(seq, &_pl_start, seq, ins_end, true);
-            if(pl_seq)
-              select(pl_seq, _pl_start, _pl_start + 1);
-            else
-              move_to(seq, ins_end);
+      VolatileLocation pl = {seq, ins_start};
+      if(pl.find_selection_placeholder({seq, ins_end}, false)) {
+        if(AbstractSequence *pl_seq = dynamic_cast<AbstractSequence*>(pl.box)) {
+          if(VolatileSelection pl_sel = pl_seq->normalize_selection(pl.index, pl.index + 1)) {
+            if(pl_sel.box == pl_seq) {
+              int old_pl_len = pl_sel.length();
+              
+              pl_seq->remove(pl_sel.start, pl_sel.end);
+              pl_sel.end = pl_sel.start;
+              
+              if(pl_seq == seq)
+                ins_end-= old_pl_len;
+              
+              if(rem_length == 0) 
+                pl_sel.end = pl_seq->insert(pl_sel.start, PMATH_CHAR_PLACEHOLDER);
+              else 
+                pl_sel.end = pl_seq->insert(pl_sel.start, seq, ins_end, ins_end + rem_length);
+              
+              // ensure that e.g. TemplateBoxSlot recognizes the \[SelectionPlaceholder] replacement
+              for(Box *tmp = pl_seq; tmp && tmp != seq; tmp = tmp->parent())
+                tmp->on_finish_editing();
+              
+              if(pl_seq == seq)
+                ins_end+= pl_sel.length();
+              
+              pl.index = ins_start;
+              if(pl.find_selection_placeholder({seq, ins_end}, true))
+                select(pl.box, pl.index, pl.index + 1);
+              else
+                move_to(seq, ins_end);
+            }
           }
         }
       }
