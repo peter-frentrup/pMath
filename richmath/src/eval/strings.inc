@@ -16,6 +16,8 @@ RICHMATH_DECLARE_STRING( Move_placeholder,        "Move %1" )
 RICHMATH_DECLARE_STRING( Reorder_placeholder,     "Reorder %1" )
 RICHMATH_DECLARE_STRING( ShowHideMenu_label,      "&Menu bar" )
 RICHMATH_DECLARE_STRING( SearchMenuNoMatch_label, "(no match)" )
+RICHMATH_DECLARE_STRING( linebreak_cr_nl,         "\r\n" )
+RICHMATH_DECLARE_STRING( linebreak_nl,            "\n" )
 
 RICHMATH_DECLARE_NAME_STRING( AddressBand )
 RICHMATH_DECLARE_NAME_STRING( AttachedPopupWindow )

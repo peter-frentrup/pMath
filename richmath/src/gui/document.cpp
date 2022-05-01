@@ -31,6 +31,9 @@
 using namespace richmath;
 
 namespace richmath { namespace strings {
+  extern String linebreak_cr_nl;
+  extern String linebreak_nl;
+  
   extern String Document;
   extern String DollarFailed;
   extern String DollarAborted;
@@ -51,8 +54,10 @@ extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_SectionGroup;
+extern pmath_symbol_t richmath_System_StringReplace;
 extern pmath_symbol_t richmath_System_TextData;
 
+extern pmath_symbol_t richmath_FE_BoxesToText;
 extern pmath_symbol_t richmath_FE_SectionsToBoxes;
 
 static const double MaxFlashingCursorRadius = 9;  /* points */
@@ -1773,7 +1778,7 @@ String Document::copy_to_text(String mimetype) {
     
   if( is_plain_text || mimetype.equals("InputText")) {
     Expr text = Application::interrupt_wait(
-                  Parse("FE`BoxesToText(`1`, `2`)", boxes, mimetype),
+                  Call(Symbol(richmath_FE_BoxesToText), std::move(boxes), std::move(mimetype)),
                   Application::edit_interrupt_timeout);
                   
     return text.to_string();
@@ -2129,7 +2134,13 @@ void Document::paste_from_text(String mimetype, String data) {
     if(Impl(*this).prepare_insert(false)) {
       remove_selection(false);
       
-      data = String(Evaluate(Parse("`1`.StringReplace(\"\\r\\n\"->\"\\n\")", data)));
+      data = String(Evaluate(
+               Call(
+                 Symbol(richmath_System_StringReplace), 
+                 std::move(data), 
+                 Rule(
+                  strings::linebreak_cr_nl,
+                  strings::linebreak_nl))));
       
       if(doc_was_selected && data.length() > 0 && data[data.length() - 1] == '\n')
         data = data.part(0, data.length() - 1);

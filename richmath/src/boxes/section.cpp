@@ -17,6 +17,7 @@
 using namespace richmath;
 using namespace std;
 
+extern pmath_symbol_t richmath_FE_Styles_MakeStyleDataBoxes;
 extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_False;
@@ -920,7 +921,11 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
     opts |= BoxInputFlags::FormatNumbers;
     
   Expr boxes = Application::interrupt_wait(
-                 Parse("FE`Styles`MakeStyleDataBoxes(HoldComplete(`1`))", style_data),
+                 Call(
+                   Symbol(richmath_FE_Styles_MakeStyleDataBoxes),
+                   Call(
+                     Symbol(richmath_System_HoldComplete),
+                     std::move(style_data))),
                  Application::button_timeout);
   _content->load_from_object(boxes, opts);
   

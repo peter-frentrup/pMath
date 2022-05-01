@@ -90,10 +90,12 @@ extern pmath_symbol_t richmath_System_WindowTitle;
 extern pmath_symbol_t richmath_FE_DollarControlActive;
 extern pmath_symbol_t richmath_FE_DollarPaletteSearchPath;
 extern pmath_symbol_t richmath_FE_DollarStylesheetDirectory;
+extern pmath_symbol_t richmath_FE_BoxesToText;
 
 namespace richmath { namespace strings {
   extern String EmptyString;
   extern String DollarContext_namespace;
+  extern String PlainText;
   extern String Text;
 }}
 
@@ -486,12 +488,7 @@ void Application::gui_print_section(Expr expr) {
             }
             
             rules = g.end();
-            Expr base_style = Evaluate(
-                                Parse(
-                                  "Try(Replace(`1`, Flatten(`2`)))",
-                                  base_style_name,
-                                  rules));
-                                  
+            Expr base_style = Evaluate(Parse("Try(Replace(`1`, Flatten(`2`)))", base_style_name, rules));
             if(base_style != richmath_System_DollarFailed) {
               sect->style->remove(BaseStyleName);
               sect->style->add_pmath(base_style);
@@ -1530,7 +1527,7 @@ namespace {
         // TODO: convert only the first line to boxes
         Expr boxes = sec->to_pmath(BoxOutputFlags::Default);
         Expr text = Application::interrupt_wait(
-                      Parse("FE`BoxesToText(`1`, \"PlainText\")", boxes),
+                      Call(Symbol(richmath_FE_BoxesToText), std::move(boxes), strings::PlainText),
                       Application::edit_interrupt_timeout);
                       
         String str = text.to_string();

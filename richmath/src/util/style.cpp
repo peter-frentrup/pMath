@@ -2794,9 +2794,7 @@ SharedPtr<Stylesheet> Stylesheet::try_load(Expr expr) {
       return stylesheet;
       
     Expr held_boxes = Application::interrupt_wait(
-                        Parse(
-                          "Get(`1`, Head->HoldComplete)", 
-                          Application::stylesheet_path_base + expr),
+                        Parse("Get(`1`, Head->HoldComplete)", Application::stylesheet_path_base + expr),
                         Application::button_timeout);
                         
     if(held_boxes.expr_length() == 1 && held_boxes[0] == richmath_System_HoldComplete) {
