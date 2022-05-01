@@ -12,28 +12,70 @@
 		</Expand>
 	</Type>
 
+	<Type Name="richmath::Matrix&lt;*&gt;">
+		<DisplayString>{{ {((int*)_items._items)[-1] / _cols} x {_cols} }}</DisplayString>
+		<Expand>
+			<!--<Item Name="rows" ExcludeView="simple">((int*)_items._items)[-1] / _cols</Item>
+			<Item Name="cols" ExcludeView="simple">_cols</Item>-->
+			<ArrayItems>
+				<Direction>Forward</Direction>
+				<Rank>2</Rank>
+				<Size>($i == 0) ? (((int*)_items._items)[-1] / _cols) : _cols</Size>
+				<ValuePointer>_items._items</ValuePointer>
+			</ArrayItems>
+		</Expand>
+	</Type>
+
 	<Type Name="richmath::Hashtable&lt;*&gt;">
 		<DisplayString>{{ size={used_count} }}</DisplayString>
 		<Expand>
 			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
 			<Item Name="size" ExcludeView="EntriesOnly">used_count</Item>
 			<CustomListItems MaxItemsPerView="1000">
-				<Variable Name="pBucket" InitialValue="table" />
+				<Variable Name="_Bucket" InitialValue="table" />
 				
 				<Size>used_count</Size>
 				<Loop>
-					<If Condition="((uintptr_t)*pBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*pBucket) + (uintptr_t)1 != (uintptr_t)0)">
-						<Item Name="[{pBucket[0][0].key}]">pBucket[0][0]</Item>
+					<If Condition="((uintptr_t)*_Bucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*_Bucket) + (uintptr_t)1 != (uintptr_t)0)">
+						<Item Name="[{_Bucket[0][0].key}]">_Bucket[0][0]</Item>
 					</If>
-					<Exec>pBucket = pBucket + 1</Exec>  
+					<Exec>_Bucket = _Bucket + 1</Exec>  
+				</Loop>  
+			</CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Hashset&lt;*&gt;">
+		<DisplayString>{{ size={used_count} }}</DisplayString>
+		<Expand>
+			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
+			<Item Name="size" ExcludeView="EntriesOnly">used_count</Item>
+			<CustomListItems MaxItemsPerView="1000">
+				<Variable Name="_Bucket" InitialValue="table" />
+				<Variable Name="_Index" InitialValue="0" />
+				
+				<Size>used_count</Size>
+				<Loop>
+					<If Condition="((uintptr_t)*_Bucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*_Bucket) + (uintptr_t)1 != (uintptr_t)0)">
+						<Item Name="({_Index})">_Bucket[0][0].key</Item>
+						<Exec>_Index = _Index + 1</Exec>  
+					</If>
+					<Exec>_Bucket = _Bucket + 1</Exec>  
 				</Loop>  
 			</CustomListItems>
 		</Expand>
 	</Type>
 
 	<Type Name="richmath::Length">
-		<DisplayString Condition="_raw_value &lt; 0">{(SymbolicSize)(int)_raw_value}</DisplayString>
-		<DisplayString Condition="_raw_value &gt;= 0">{_raw_value}</DisplayString>
+		<DisplayString Condition="(_raw_value.as_uint32 &amp; ExponentMask) == ExponentMask">{(SymbolicSize)(_raw_value.as_uint32 &amp; FractionMask)}</DisplayString>
+		<DisplayString Condition="(_raw_value.as_uint32 &amp; SignMask) == 0">{_raw_value.as_float}</DisplayString>
+		<DisplayString >Scaled({-_raw_value.as_float})</DisplayString>
+	</Type>
+
+	<Type Name="richmath::Color">
+		<DisplayString Condition="_value == -1">None</DisplayString>
+		<DisplayString Condition="_value &lt; 0">invalid color {_value,x}</DisplayString>
+		<DisplayString                         >color {_value,x}</DisplayString>
 	</Type>
 
 	<Type Name="richmath::RleArrayIterator&lt;*&gt;">
@@ -220,11 +262,12 @@
 		<DisplayString IncludeView="StyleOptionNameIsDynamic"></DisplayString>
 		<DisplayString IncludeView="StyleOptionNameIsVolatile" Condition="(_value &amp; 0x20000000) == 0x20000000">,volatile</DisplayString>
 		<DisplayString IncludeView="StyleOptionNameIsVolatile"></DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x10000">{(richmath::IntStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x20000">{(richmath::FloatStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x30000">{(richmath::LengthStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x40000">{(richmath::StringStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
-		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0xFFF0000) == 0x50000">{(richmath::ObjectStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0x70000) == 0x00000">{(richmath::ColorStyleOptionName )(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0x70000) == 0x10000">{(richmath::IntStyleOptionName   )(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0x70000) == 0x20000">{(richmath::FloatStyleOptionName )(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0x70000) == 0x30000">{(richmath::LengthStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0x70000) == 0x40000">{(richmath::StringStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
+		<DisplayString IncludeView="StyleOptionNameBase" Condition="(_value &amp; 0x70000) == 0x50000">{(richmath::ObjectStyleOptionName)(_value &amp; 0xFFFFFFF),en}</DisplayString>
 		<DisplayString IncludeView="StyleOptionNameBase">{(_value &amp; 0xFFFFFFF)}</DisplayString>
 		<DisplayString>{*this,view(StyleOptionNameBase)}{*this,view(StyleOptionNameIsDynamic)}{*this,view(StyleOptionNameIsVolatile)}</DisplayString>
 	</Type>
@@ -251,6 +294,249 @@
 					<Exec>pBucket = pBucket + 1</Exec>  
 				</Loop>  
 			</CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Style">
+		<DisplayString>{{ { int_float_values.used_count + object_values.used_count } style settings }}</DisplayString>
+		<Expand>
+			<CustomListItems>
+				<Variable Name="_IntFloatCount"  InitialValue="int_float_values.used_count" />
+				<Variable Name="_IntFloatBucket" InitialValue="int_float_values.table" />
+				<Variable Name="_ObjectCount"    InitialValue="object_values.used_count" />
+				<Variable Name="_ObjectBucket"   InitialValue="object_values.table" />
+				<Variable Name="_Index"          InitialValue="0" />
+
+				<Size>_IntFloatCount + _ObjectCount</Size>
+				<Loop>
+					<If Condition="_Index &lt; _IntFloatCount">
+						<If Condition="((uintptr_t)*_IntFloatBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*_IntFloatBucket) + (uintptr_t)1 != (uintptr_t)0)">
+							<If Condition="(_IntFloatBucket[0][0].key._value &amp; 0x70000) == 0x00000">
+								<Item Name="[{_IntFloatBucket[0][0].key}]">*(Color*)&amp;_IntFloatBucket[0][0].value.int_value</Item>
+							</If>
+							<Elseif Condition="(_IntFloatBucket[0][0].key._value &amp; 0x70000) == 0x10000">
+								<Item Name="[{_IntFloatBucket[0][0].key}]">_IntFloatBucket[0][0].value.int_value</Item>
+							</Elseif>
+							<Elseif Condition="(_IntFloatBucket[0][0].key._value &amp; 0x70000) == 0x20000">
+								<Item Name="[{_IntFloatBucket[0][0].key}]">_IntFloatBucket[0][0].value.float_value</Item>
+							</Elseif>
+							<Elseif Condition="(_IntFloatBucket[0][0].key._value &amp; 0x70000) == 0x30000">
+								<Item Name="[{_IntFloatBucket[0][0].key}]">*(Length*)&amp;_IntFloatBucket[0][0].value.float_value</Item>
+							</Elseif>
+							<Else>
+								<Item Name="[{_IntFloatBucket[0][0].key}]">_IntFloatBucket[0][0].value</Item>
+							</Else>
+							<Exec>_Index = _Index + 1</Exec>
+						</If>
+						<Exec>_IntFloatBucket = _IntFloatBucket + 1</Exec>
+					</If>
+					<Else>
+						<If Condition="((uintptr_t)*_ObjectBucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*_ObjectBucket) + (uintptr_t)1 != (uintptr_t)0)">
+							<Item Name="[{_ObjectBucket[0][0].key}]">_ObjectBucket[0][0].value</Item>
+							<Exec>_Index = _Index + 1</Exec>
+						</If>
+						<Exec>_ObjectBucket = _ObjectBucket + 1</Exec>
+					</Else>
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Stylesheet">
+		<DisplayString>{{ {_name} stylesheet }}</DisplayString>
+		<Expand>
+			<Synthetic Name="styles">
+				<DisplayString>{{ size={styles.used_count} }}</DisplayString>
+				<Expand>
+					<CustomListItems>
+						<Variable Name="_Bucket" InitialValue="styles.table" />
+						
+						<Size>styles.used_count</Size>
+						<Loop>
+							<If Condition="((uintptr_t)*_Bucket != (uintptr_t)0) &amp;&amp; (((uintptr_t)*_Bucket) + (uintptr_t)1 != (uintptr_t)0)">
+								<Item Name="[{_Bucket[0][0].key}]">*_Bucket[0][0].value._ptr</Item>
+							</If>
+							<Exec>_Bucket = _Bucket + 1</Exec>  
+						</Loop>
+					</CustomListItems>
+				</Expand>
+			</Synthetic>
+			<Item Name="used_stylesheets">used_stylesheets</Item>
+			<Item Name="users">users</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::FrontEndObject">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString                     >{_id} $(Type)</DisplayString>
+	</Type>
+
+	<Type Name="richmath::ActiveStyledObject">
+		<Expand>
+			<Item Name="style" Condition="style._ptr != 0">*style._ptr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Box">
+		<Expand>
+			<ExpandedItem>*(ActiveStyledObject*)this,nd</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::AbstractSequence">
+		<DisplayString IncludeView="simple" Condition="boxes._items != 0 &amp;&amp; str._obj.s.tag == 0x7FF40000">{*boxes._items[0]}</DisplayString>
+		<DisplayString IncludeView="simple">{str}</DisplayString>
+		<DisplayString>{_id}: {*this,view(simple)}</DisplayString>
+		<Expand>
+			<CustomListItems>
+				<Variable Name="_RawStrPtr" InitialValue="(pmath.dll!_pmath_string_t*)0" />
+				<Variable Name="_Buffer"    InitialValue="(wchar_t*)0"/>
+				<Variable Name="_Length"    InitialValue="0" />
+				<Variable Name="_Prev"      InitialValue="0" />
+				<Variable Name="_Cur"       InitialValue="0" />
+				<Variable Name="_BOX_CHAR"  InitialValue="0xFDD0" />
+				<Variable Name="_Boxes"     InitialValue="boxes._items" />
+				<Variable Name="_BoxIndex"  InitialValue="0" />
+				
+				<If Condition="((str._obj.s.tag &amp; 0xFFF00000) == 0xFFF00000)">
+					<Exec>_RawStrPtr = (pmath.dll!_pmath_string_t*)((str._obj.as_bits * 0x1000) / 0x1000)</Exec>
+					<Exec>_Length = (*_RawStrPtr).length</Exec>
+					<If Condition="(*_RawStrPtr).buffer == 0">
+						<Exec>_Buffer = (wchar_t*)((char*)_RawStrPtr + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t))</Exec>
+					</If>
+					<Else>
+						<Exec>_Buffer = (wchar_t*)((char*)(*_RawStrPtr).buffer + ((sizeof(pmath.dll!_pmath_string_t) + sizeof(size_t) - 1)/sizeof(size_t))*sizeof(size_t)) + (*_RawStrPtr).capacity_or_start</Exec>
+					</Else>
+				</If>
+				<Elseif Condition="str._obj.s.tag == 0x7FF40000">
+					<Exec>_Buffer = (wchar_t*)&amp;str._obj.s.u.as_chars[0]</Exec>
+					<Exec>_Length = 1</Exec>
+				</Elseif>
+				<Elseif Condition="str._obj.s.tag == 0x7FF50000">
+					<Exec>_Buffer = (wchar_t*)&amp;str._obj.s.u.as_chars[0]</Exec>
+					<Exec>_Length = 2</Exec>
+				</Elseif>
+
+				<Loop>
+					<If Condition="(_Cur == _Length || _Buffer[_Cur] == _BOX_CHAR) &amp;&amp; _Prev &lt; _Cur">
+						<Item Name="[{_Prev}]">_Buffer + _Prev,[_Cur - _Prev]na</Item>
+					</If>
+					<If Condition="_Cur == _Length">
+						<Break/>
+					</If>
+					<If Condition="_Buffer[_Cur] == _BOX_CHAR">
+						<Item Name="[{_Cur}:{_BoxIndex}]">*_Boxes[_BoxIndex]</Item>
+						<Exec>_BoxIndex = _BoxIndex + 1</Exec>
+						<Exec>_Prev = _Cur + 1</Exec>
+					</If>
+					<Exec>_Cur = _Cur + 1</Exec>
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::OwnerBox">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString                     >{_id} $(Type)({*_content,view(simple)})</DisplayString>
+		<Expand>
+			<Item Name="content">*_content</Item>
+			<ExpandedItem>*(base*)this,nd</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::RadicalBox">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString Condition="_exponent == 0">{_id} SqrtBox({   *_radicand,view(simple)})</DisplayString>
+		<DisplayString                           >{_id} RadicalBox({*_radicand,view(simple)}, {*_exponent,view(simple)})</DisplayString>
+		<Expand>
+			<Item Name="radicand">*_radicand</Item>
+			<Item Name="exponent" Condition="_exponent != 0">*_exponent</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::SubsuperscriptBox">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString Condition="_subscript == 0"  >{_id} SuperscriptBox({   *_superscript,view(simple)})</DisplayString>
+		<DisplayString Condition="_superscript == 0">{_id} SubcriptBox({      *_subscript,view(simple)})</DisplayString>
+		<DisplayString                              >{_id} SubsuperscriptBox({*_subscript,view(simple)}, {*_subscript,view(simple)})</DisplayString>
+		<Expand>
+			<Item Name="subscript"   Condition="_subscript   != 0">*_subscript</Item>
+			<Item Name="superscript" Condition="_superscript != 0">*_superscript</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::UnderoverscriptBox">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString Condition="_underscript == 0">{_id} OverscriptBox({     *_base,view(simple)}, {*_overscript,view(simple)})</DisplayString>
+		<DisplayString Condition="_overscript == 0" >{_id} UnderscriptBox({    *_base,view(simple)}, {*_underscript,view(simple)})</DisplayString>
+		<DisplayString                              >{_id} UnderoverscriptBox({*_base,view(simple)}, {*_underscript,view(simple)}, {*_overscript,view(simple)})</DisplayString>
+		<Expand>
+			<Item Name="base">*_base</Item>
+			<Item Name="underscript" Condition="_underscript != 0">*_underscript</Item>
+			<Item Name="overscript"  Condition="_overscript  != 0">*_overscript</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::GridBox">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString >{_id} $(Type)({((int*)items._items._items)[-1] / items._cols} x {items._cols})</DisplayString>
+		<Expand>
+			<!--<ExpandedItem>items</ExpandedItem>-->
+			<CustomListItems>
+				<Variable Name="_Items" InitialValue="items._items._items" />
+				<Variable Name="_Length" InitialValue="_Items ? ((int*)_Items)[-1] : 0" />
+				<Variable Name="_Cols" InitialValue="items._cols" />
+				<Variable Name="_Index" InitialValue="0" />
+
+				<Size>_Length</Size>
+				<Loop>
+					<Item Name="[{_Index / _Cols},{_Index % _Cols}]">*_Items[_Index]</Item>
+					<Exec>_Index = _Index + 1</Exec>
+				</Loop>
+			</CustomListItems>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::SectionList">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString                     >{_id} $(Type)</DisplayString>
+		<Expand>
+			<CustomListItems>
+				<Variable Name="_Items" InitialValue="_sections._items" />
+				<Variable Name="_Length" InitialValue="_Items ? ((int*)_Items)[-1] : 0" />
+				<Variable Name="_Index" InitialValue="0" />
+
+				<Size>_Length</Size>
+				<Loop>
+					<Item Name="[{_Index}]">*_Items[_Index]</Item>
+					<Exec>_Index = _Index + 1</Exec>
+				</Loop>
+			</CustomListItems>
+			<ExpandedItem>*(Box*)this,nd</ExpandedItem>
+		</Expand>
+	</Type>
+	
+	<Type Name="richmath::Document">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString                     >{_id} $(Type)</DisplayString>
+		<Expand>
+			<ExpandedItem>*(SectionList*)this,nd</ExpandedItem>
+			<Item Name="stylesheet" Condition="context.stylesheet._ptr != 0">*context.stylesheet._ptr</Item>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::Section">
+		<Expand>
+			<ExpandedItem>*(Box*)this,nd</ExpandedItem>
+		</Expand>
+	</Type>
+
+	<Type Name="richmath::AbstractSequenceSection">
+		<DisplayString IncludeView="simple">$(Type)</DisplayString>
+		<DisplayString                     >{_id} $(Type)({*_content,view(simple)})</DisplayString>
+		<Expand>
+			<Item Name="content">*_content</Item>
+			<ExpandedItem>*(Section*)this,nd</ExpandedItem>
 		</Expand>
 	</Type>
 </AutoVisualizer>
