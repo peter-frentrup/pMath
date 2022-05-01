@@ -10,7 +10,8 @@ using namespace richmath;
 
 AbstractSequence::AbstractSequence()
   : base(),
-    str("")
+    str(""),
+    em(0.0f)
 {
 }
 

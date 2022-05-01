@@ -41,7 +41,8 @@ static const LengthConversionFactors FrameBoxMarginFactors = {
 //{ class FrameBox ...
 
 FrameBox::FrameBox(AbstractSequence *content)
-  : base(content)
+  : base(content),
+    em(0.0f)
 {
 }
 
@@ -71,6 +72,8 @@ bool FrameBox::try_load_from_object(Expr expr, BoxInputFlags options) {
 }
 
 void FrameBox::resize_default_baseline(Context &context) {
+  em = context.canvas().get_font_size();
+  
   float border_thickness = BorderThicknessFactor * em;
   
   float extra_left   = border_thickness + Impl(*this).get_margin_value(FrameMarginLeft,   context);
