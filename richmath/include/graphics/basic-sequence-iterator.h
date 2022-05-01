@@ -2,6 +2,7 @@
 #define RICHMATH__BASIC_SEQUENCE_ITERATOR_H__INCLUDED
 
 #include <boxes/box.h>
+#include <util/selections.h>
 #include <util/rle-array.h>
 
 namespace richmath {
@@ -20,6 +21,7 @@ namespace richmath {
       
       Seq *outermost_sequence() const { return _owning_seq; }
       
+      VolatileLocation current_location() const { return VolatileLocation(current_sequence(), text_index()); }
       Seq *current_sequence() const { auto seq = _inline_seq_iter.get(); return seq ? seq : _owning_seq; }
       
       const uint16_t            *text_buffer_raw() const {    return _current_buf; }

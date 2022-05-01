@@ -11,11 +11,6 @@
 
 
 namespace richmath {
-  enum class LogicalDirection {
-    Forward,
-    Backward
-  };
-  
   class Box;
   class MathSequence;
   class TextSequence;

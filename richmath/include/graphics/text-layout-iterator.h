@@ -23,6 +23,7 @@ namespace richmath {
       
       int byte_count() const { return _buffer_size; }
       
+      VolatileLocation    current_location() const { return _basic_iter.current_location(); }
       TextSequence       *current_sequence() const { return _basic_iter.current_sequence(); }
       uint16_t            current_char() const {     return _basic_iter.current_char(); }
       Box                *current_box() const {      return _basic_iter.current_box(); }
@@ -47,6 +48,7 @@ namespace richmath {
       void move_next_char();
       void move_previous_char();
       
+      void skip_forward_beyond_text_pos(const VolatileLocation &loc);
       void skip_forward_beyond_text_pos(TextSequence *seq, int pos);
       
     private:

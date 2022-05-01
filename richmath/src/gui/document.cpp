@@ -1395,58 +1395,50 @@ void Document::move_horizontal(
   bool             selecting
 ) {
   Box *selbox = context.selection.get();
-  Box *box = sel_last.get();
-  if(!box) {
+  
+  VolatileLocation new_loc = sel_last.start_end_reference(direction).get_all();
+  if(!new_loc) {
     sel_last = context.selection;
     
-    box = selbox;
-    if(!box)
+    new_loc = sel_last.start_end_reference(direction).get_all();
+    if(!new_loc)
       return;
   }
   
-  int i = sel_last.start;
-  if(direction == LogicalDirection::Forward)
-    i = sel_last.end;
-    
-  if(sel_last.start != sel_last.end) {
-    if(box == selbox) {
+  if(sel_last.length() != 0) {
+    if(new_loc.box == selbox) {
       if(direction == LogicalDirection::Forward) {
-        if(sel_last.end == context.selection.end)
-          box = box->move_logical(direction, jumping, &i);
+        if(new_loc.index == context.selection.end)
+          new_loc.move_logical_inplace(direction, jumping);
       }
       else {
-        if(sel_last.start == context.selection.start)
-          box = box->move_logical(direction, jumping, &i);
+        if(new_loc.index == context.selection.start)
+          new_loc.move_logical_inplace(direction, jumping);
       }
     }
   }
   else
-    box = box->move_logical(direction, jumping, &i);
-    
-  while(box && !box->selectable(i)) {
-    i = box->index();
-    if(direction == LogicalDirection::Forward)
-      ++i;
-      
-    box = box->parent();
-  }
+    new_loc.move_logical_inplace(direction, jumping);
+  
+  while(new_loc && !new_loc.selectable()) 
+    new_loc = new_loc.parent(direction);
   
   if(selecting) {
-    select_to(VolatileSelection(box, i));
+    select_to(new_loc);
   }
   else {
-    int j = i;
-    if(auto seq = dynamic_cast<MathSequence *>(box)) {
+    VolatileSelection sel = new_loc;
+    if(auto seq = dynamic_cast<AbstractSequence *>(sel.box)) {
       if(direction == LogicalDirection::Forward) {
-        if(seq->is_placeholder(i))
-          ++j;
+        if(seq->is_placeholder(sel.start))
+          ++sel.end;
       }
       else {
-        if(seq->is_placeholder(i - 1))
-          --i;
+        if(sel.start > 0 && seq->is_placeholder(sel.start - 1))
+          --sel.start;
       }
     }
-    select(box, i, j);
+    select(sel);
   }
 }
 
@@ -1485,20 +1477,14 @@ void Document::move_vertical(LogicalDirection direction, bool selecting) {
       --new_sel.start;
   }
   
-  new_sel.box = new_sel.box->move_vertical(direction, &best_index_rel_x, &new_sel.start, false);
+  VolatileLocation new_loc = new_sel.start_only();
+  new_loc.move_vertical_inplace(direction, &best_index_rel_x);
   
-  while(new_sel.box && !new_sel.box->selectable(new_sel.start)) {
-    new_sel.start = new_sel.box->index();
-    if(direction == LogicalDirection::Forward)
-      ++new_sel.start;
-      
-    new_sel.box = new_sel.box->parent();
-  }
+  while(new_loc && !new_loc.selectable()) 
+    new_loc = new_loc.parent(LogicalDirection::Forward);
   
-  new_sel.end = new_sel.start;
-  if(auto seq = dynamic_cast<MathSequence *>(new_sel.box)) {
-    seq->select_nearby_placeholder(&new_sel.start, &new_sel.end, &best_index_rel_x);
-  }
+  new_sel = new_loc;
+  new_sel.expand_nearby_placeholder(&best_index_rel_x);
   
   float tmp = best_index_rel_x;
   if(selecting)
@@ -1510,55 +1496,48 @@ void Document::move_vertical(LogicalDirection direction, bool selecting) {
     best_index_rel_x = tmp;
 }
 
-void Document::move_start_end(
-  LogicalDirection direction,
-  bool             selecting
-) {
-  Box *box = selection_box();
-  if(!box)
+void Document::move_start_end(LogicalDirection direction, bool selecting) {
+  VolatileLocation new_loc { selection_box(), selection_start() };
+  if(!new_loc)
     return;
-    
-  int index = context.selection.start;
-  if( context.selection.start < context.selection.end &&
-      direction == LogicalDirection::Forward)
-  {
-    index = context.selection.end;
+  
+  if(context.selection.length() > 0 && direction == LogicalDirection::Forward) {
+    new_loc.index = selection_end();
   }
   
-  while(box) {
-    auto parent = box->parent();
-    if(!parent || !parent->exitable() || !parent->selectable())
+  while(new_loc) {
+    auto parent = new_loc.parent(direction);
+    if(!parent.exitable() || !parent.selectable() || !parent.selection_exitable(false))
       break;
-      
-    index = box->index();
-    box = parent;
+    
+    new_loc = parent;
   }
   
-  if(auto seq = dynamic_cast<MathSequence *>(box)) {
+  if(auto seq = dynamic_cast<MathSequence *>(new_loc.box)) {
     // TODO: consider inline_sequence()
     int l = seq->line_array().length() - 1;
-    while(l > 0 && seq->line_array()[l - 1].end > index)
+    while(l > 0 && seq->line_array()[l - 1].end > new_loc.index)
       --l;
       
     if(l >= 0) {
       if(direction == LogicalDirection::Forward) {
-        index = seq->line_array()[l].end;
+        new_loc.index = seq->line_array()[l].end;
         
-        if( index > 0 && seq->text()[index - 1] == '\n')
-          --index;
+        if( new_loc.index > 0 && seq->text()[new_loc.index - 1] == '\n')
+          --new_loc.index;
       }
       else {
         if(l == 0)
-          index = 0;
+          new_loc.index = 0;
         else
-          index = seq->line_array()[l - 1].end;
+          new_loc.index = seq->line_array()[l - 1].end;
       }
     }
   }
-  else if(auto seq = dynamic_cast<TextSequence *>(box)) {
+  else if(auto seq = dynamic_cast<TextSequence *>(new_loc.box)) {
     TextLayoutIterator iter = seq->outermost_layout_iter();
     
-    iter.skip_forward_beyond_text_pos(seq, index);
+    iter.skip_forward_beyond_text_pos(seq, new_loc.index);
     
     GSList *lines = pango_layout_get_lines_readonly(iter.outermost_sequence()->get_layout());
     
@@ -1566,10 +1545,9 @@ void Document::move_start_end(
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
-        if(line->start_index + line->length >= iter.byte_index()) {
+        if(line->start_index + line->length > iter.byte_index()) {
           iter.rewind_to_byte(line->start_index);
-          index = iter.text_index();
-          box = iter.current_sequence();
+          new_loc = iter.current_location();
           break;
         }
         
@@ -1580,14 +1558,13 @@ void Document::move_start_end(
       while(lines) {
         PangoLayoutLine *line = (PangoLayoutLine *)lines->data;
         
-        if(line->start_index + line->length >= iter.byte_index()) {
+        if(line->start_index + line->length > iter.byte_index()) {
           iter.rewind_to_byte(line->start_index + line->length);
           
-          index = iter.text_index();
-          box = iter.current_sequence();
+          new_loc = iter.current_location();
           
-          if(index > 0 && iter.text_buffer_raw()[index - 1] == ' ')
-            --index;
+          if(new_loc.index > 0 && iter.text_buffer_raw()[new_loc.index - 1] == ' ')
+            --new_loc.index;
           break;
         }
         
@@ -1595,77 +1572,66 @@ void Document::move_start_end(
       }
     }
   }
-  else if(context.selection.start < context.selection.end && length() > 0) {
-    index = context.selection.start;
-    if(context.selection.start < context.selection.end && direction == LogicalDirection::Forward)
-      index = context.selection.end - 1;
+  else if(new_loc.box == this && context.selection.length() > 0 && length() > 0) {
+    new_loc.index = context.selection.start;
+    if(direction == LogicalDirection::Forward)
+      new_loc.index = context.selection.end - 1;
       
-    if(section(index)->length() > 0) {
+    if(section(new_loc.index)->length() > 0) {
       if(direction == LogicalDirection::Forward) {
         direction = LogicalDirection::Backward;
-        ++index;
+        ++new_loc.index;
       }
       else {
         direction = LogicalDirection::Forward;
       }
-      box = move_logical(direction, false, &index);
+      new_loc.move_logical_inplace(direction, false);
     }
-    else
-      box = this;
   }
   
   if(selecting)
-    select_to(VolatileSelection(box, index));
+    select_to(new_loc);
   else
-    select(VolatileSelection(box, index));
+    select(new_loc);
 }
 
 void Document::move_tab(LogicalDirection direction) {
-  Box *box = sel_last.get();
-  if(!box) {
-    box = context.selection.get();
-    
+  VolatileLocation new_loc = sel_last.start_end_reference(direction).get_all();
+  if(!new_loc) {
     sel_last = context.selection;
-    if(!box)
+    
+    new_loc = sel_last.start_end_reference(direction).get_all();
+    if(!new_loc)
       return;
   }
   
-  int i;
-  if(direction == LogicalDirection::Forward) {
-    i = sel_last.end;
-  }
-  else {
-    i = sel_last.start;
-    box = box->move_logical(direction, false, &i);
-  }
+  if(direction == LogicalDirection::Backward) 
+    new_loc.move_logical_inplace(direction, false);
   
   bool repeated = false;
-  while(box) {
-    if(box == this) {
+  while(new_loc) {
+    if(new_loc.box == this) {
       if(repeated)
         return;
         
       repeated = true;
       
       if(direction == LogicalDirection::Forward)
-        --i;
+        --new_loc.index;
       else
-        ++i;
+        ++new_loc.index;
     }
     
-    AbstractSequence *seq = dynamic_cast<AbstractSequence *>(box);
-    if(seq && seq->is_placeholder(i)) {
-      select(box, i, i + 1);
+    AbstractSequence *seq = dynamic_cast<AbstractSequence *>(new_loc.box);
+    if(seq && seq->is_placeholder(new_loc.index)) {
+      select(new_loc.box, new_loc.index, new_loc.index + 1);
       return;
     }
     
-    int old_i = i;
-    Box *old_box = box;
-    box = box->move_logical(direction, false, &i);
-    
-    if(old_i == i && old_box == box)
+    auto old = new_loc;
+    new_loc.move_logical_inplace(direction, false);
+    if(new_loc == old)
       return;
-      
   }
 }
 

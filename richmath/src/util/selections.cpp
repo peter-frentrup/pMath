@@ -31,59 +31,59 @@ namespace {
   };
 }
 
-//{ class LocationReference ...
+//{ class VolatileLocation ...
 
-LocationReference::LocationReference()
-  : id(FrontEndReference::None),
-    index(0)
-{
-}
-
-LocationReference::LocationReference(Box *_box, int _index)
-  : id(_box ? _box->id() : FrontEndReference::None),
-    index(_box ? _index : 0)
-{
-}
-
-LocationReference::LocationReference(FrontEndReference _id, int _index)
-  : id(_id),
-    index(_index)
-{
-}
-
-Box *LocationReference::get() {
-  if(!id)
-    return nullptr;
-    
-  Box *result = FrontEndObject::find_cast<Box>(id);
-  if(!result)
-    return nullptr;
-    
-  if(index > result->length())
-    index = result->length();
-  
-  return result;
-}
-
-void LocationReference::set_raw(Box *box, int _index) {
-  if(box) {
-    id = box->id();
-    index = _index;
-  }
-  else {
-    id = FrontEndReference::None;
-    index = 0;
-  }
-}
-
-bool LocationReference::equals(Box *box, int _index) const {
+bool VolatileLocation::selectable() const {
   if(!box)
-    return !id.is_valid();
-    
-  return id == box->id() && index == _index;
+    return false;
+  
+  return box->selectable(index);
 }
 
-//} ... class LocationReference
+bool VolatileLocation::exitable() const {
+  if(!box)
+    return false;
+  
+  return box->exitable();
+}
+
+bool VolatileLocation::selection_exitable(bool vertical) const {
+  if(!box)
+    return false;
+  
+  return box->selection_exitable(vertical);
+}
+
+VolatileLocation VolatileLocation::move_logical(LogicalDirection direction, bool jumping) const {
+  VolatileLocation copy = *this;
+  copy.move_logical_inplace(direction, jumping);
+  return copy;
+}
+
+void VolatileLocation::move_logical_inplace(LogicalDirection direction, bool jumping) {
+  if(box)
+    box = box->move_logical(direction, jumping, &index);
+}
+
+VolatileLocation VolatileLocation::move_vertical(LogicalDirection direction, float *index_rel_x) const {
+  VolatileLocation copy = *this;
+  copy.move_vertical_inplace(direction, index_rel_x);
+  return copy;
+}
+
+void VolatileLocation::move_vertical_inplace(LogicalDirection direction, float *index_rel_x) {
+  if(box)
+    box = box->move_vertical(direction, index_rel_x, &index, false);
+}
+
+VolatileLocation VolatileLocation::parent(LogicalDirection direction) const {
+  if(!box)
+    return {nullptr, 0};
+  
+  return {box->parent(), box->index() + ((direction == LogicalDirection::Forward) ? 1 : 0)};
+}
+
+//} ... class VolatileLocation
 
 //{ class VolatileSelection ...
 
@@ -234,6 +234,12 @@ void VolatileSelection::expand_up_to_sibling(const VolatileSelection &sibling, i
   }
 }
 
+void VolatileSelection::expand_nearby_placeholder(float *index_rel_x) {
+  if(auto seq = dynamic_cast<MathSequence*>(box)) {
+    seq->select_nearby_placeholder(&start, &end, index_rel_x);
+  }
+}
+
 void VolatileSelection::normalize() {
   if(box) 
     *this = box->normalize_selection(start, end); 
@@ -245,6 +251,74 @@ void VolatileSelection::dynamic_to_literal() {
 }
 
 //} ... class VolatileSelection
+
+//{ class LocationReference ...
+
+LocationReference::LocationReference()
+  : id(FrontEndReference::None),
+    index(0)
+{
+}
+
+LocationReference::LocationReference(Box *_box, int _index)
+  : id(_box ? _box->id() : FrontEndReference::None),
+    index(_box ? _index : 0)
+{
+}
+
+LocationReference::LocationReference(FrontEndReference _id, int _index)
+  : id(_id),
+    index(_index)
+{
+}
+
+Box *LocationReference::get() {
+  if(!id)
+    return nullptr;
+    
+  Box *result = FrontEndObject::find_cast<Box>(id);
+  if(!result)
+    return nullptr;
+    
+  if(index > result->length())
+    index = result->length();
+  
+  return result;
+}
+
+VolatileLocation LocationReference::get_all() {
+  if(!id)
+    return {nullptr, 0};
+    
+  Box *result = FrontEndObject::find_cast<Box>(id);
+  if(!result)
+    return {nullptr, 0};
+    
+  if(index > result->length())
+    index = result->length();
+  
+  return {result, index};
+}
+
+void LocationReference::set_raw(Box *box, int _index) {
+  if(box) {
+    id = box->id();
+    index = _index;
+  }
+  else {
+    id = FrontEndReference::None;
+    index = 0;
+  }
+}
+
+bool LocationReference::equals(Box *box, int _index) const {
+  if(!box)
+    return !id.is_valid();
+    
+  return id == box->id() && index == _index;
+}
+
+//} ... class LocationReference
 
 //{ class SelectionReference ...
 

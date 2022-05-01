@@ -9,49 +9,51 @@ namespace richmath {
   class Canvas;
   enum class BoxOutputFlags;
   
-  /** Represents a weak reference to a position inside a Box.
-      
-      Weak means that when the Box gets destroyed, this object will notice and give 
-      nullptr instead of a dangling reference.
-   */
-  class LocationReference {
-    public:
-      explicit LocationReference();
-      explicit LocationReference(Box *_box, int _index);
-      explicit LocationReference(FrontEndReference _id, int _index);
-      
-      explicit operator bool() const { return id.is_valid(); }
-      
-      Box *get();
-      void set_raw(Box *box, int _index);
-      void reset() { set_raw(nullptr, 0); }
-      
-      bool equals(Box *box, int _index) const;
-      bool equals(const LocationReference &other) const {
-        return *this == other;
-      }
-      
-      bool operator==(const LocationReference &other) const {
-        return other.id == id && other.index == index;
-      }
-      
-      bool operator!=(const LocationReference &other) const {
-        return !(*this == other);
-      }
-      
-      unsigned int hash() const {
-        unsigned int h = 5381;
-        h = ((h << 5) + h) + id.hash();
-        h = ((h << 5) + h) + (unsigned)index;
-        return h;
-      }
-      
-    public:
-      FrontEndReference id;
-      int index;
+  enum class LogicalDirection {
+    Forward,
+    Backward
   };
   
-  /** Represents a (volatile) reference to a position inside a Box.
+  /** Represents a (volatile) reference to a single position inside a Box.
+  
+      Volatile means that this object is only valid as long as the Box is valid.
+      When the Box gets destroyed, this object holds a dangling reference without the possibility
+      to detect the destruction of the Box. 
+      
+      \see AutoMemorySuspension
+      \see Box::safe_destroy()
+   */
+  struct VolatileLocation {
+    Box *box;
+    int  index;
+    
+    VolatileLocation(): box(nullptr), index(0) {}
+    VolatileLocation(Box *box, int index) : box(box), index(index) {}
+    
+    explicit operator bool() const { return box != nullptr; }
+    
+    bool operator==(const VolatileLocation &other) const { 
+      return other.box == box && other.index == index;
+    }
+    
+    bool operator!=(const VolatileLocation &other) const {
+      return !(*this == other);
+    }
+    
+    bool selectable() const;
+    bool exitable() const;
+    bool selection_exitable(bool vertical) const;
+    
+    VolatileLocation parent(LogicalDirection direction) const;
+    
+    VolatileLocation move_logical(        LogicalDirection direction, bool jumping) const; 
+    void             move_logical_inplace(LogicalDirection direction, bool jumping); 
+    
+    VolatileLocation move_vertical(        LogicalDirection direction, float *index_rel_x) const;
+    void             move_vertical_inplace(LogicalDirection direction, float *index_rel_x);
+  };
+  
+  /** Represents a (volatile) reference to a position range inside a Box.
   
       Volatile means that this object is only valid as long as the Box is valid.
       When the Box gets destroyed, this object holds a dangling reference without the possibility
@@ -66,11 +68,15 @@ namespace richmath {
     int  end;
     
     VolatileSelection() : box(nullptr), start(0), end(0) {}
+    VolatileSelection(const VolatileLocation &loc) : box(loc.box), start(loc.index), end(loc.index) {}
     VolatileSelection(Box *box, int index) : box(box), start(index), end(index) {}
     VolatileSelection(Box *box, int start, int end) : box(box), start(start), end(end) {}
     
-    VolatileSelection start_only() const { return VolatileSelection(box, start, start); }
-    VolatileSelection end_only() const { return VolatileSelection(box, end, end); }
+    VolatileLocation start_only() const { return VolatileLocation(box, start); }
+    VolatileLocation end_only() const {   return VolatileLocation(box, end); }
+    VolatileLocation start_end_only(LogicalDirection dir) const {
+      return VolatileLocation(box, (dir == LogicalDirection::Forward) ? end : start ); 
+    }
     
     int length() { return end - start; }
     
@@ -88,8 +94,8 @@ namespace richmath {
     bool is_inside_string() const;
     
     Box *contained_box() const;
-        
-    bool operator==(const VolatileSelection &other) const {
+    
+    bool operator==(const VolatileSelection &other) const { 
       return other.box == box && other.start == start && other.end == end;
     }
     
@@ -104,6 +110,8 @@ namespace richmath {
     void expand();
     void expand_to_parent();
     void expand_up_to_sibling(const VolatileSelection &sibling, int max_steps = INT_MAX);
+    void expand_nearby_placeholder(float *index_rel_x);
+    
     void normalize();
     void dynamic_to_literal();
     
@@ -129,6 +137,52 @@ namespace richmath {
     }
   };
   
+  /** Represents a weak reference to a position inside a Box.
+      
+      Weak means that when the Box gets destroyed, this object will notice and give 
+      nullptr instead of a dangling reference.
+   */
+  class LocationReference {
+    public:
+      explicit LocationReference();
+      explicit LocationReference(const VolatileLocation &box_width_index) : LocationReference(box_width_index.box, box_width_index.index) {}
+      explicit LocationReference(Box *_box, int _index);
+      explicit LocationReference(FrontEndReference _id, int _index);
+      
+      explicit operator bool() const { return id.is_valid(); }
+      
+      Box *get();
+      VolatileLocation get_all(); // may change the stored start and end fields
+      void set_raw(const VolatileLocation &box_with_index) { set_raw(box_with_index.box, box_with_index.index); }
+      void set_raw(Box *box, int _index);
+      void reset() { set_raw(nullptr, 0); }
+      
+      bool equals(const VolatileLocation &box_with_index) const { return equals(box_with_index.box, box_with_index.index); }
+      bool equals(Box *box, int _index) const;
+      bool equals(const LocationReference &other) const {
+        return *this == other;
+      }
+      
+      bool operator==(const LocationReference &other) const {
+        return other.id == id && other.index == index;
+      }
+      
+      bool operator!=(const LocationReference &other) const {
+        return !(*this == other);
+      }
+      
+      unsigned int hash() const {
+        unsigned int h = 5381;
+        h = ((h << 5) + h) + id.hash();
+        h = ((h << 5) + h) + (unsigned)index;
+        return h;
+      }
+      
+    public:
+      FrontEndReference id;
+      int index;
+  };
+  
   /** Represents a weak reference to a range of positions inside a Box.
       
       Weak means that when the Box gets destroyed, this object will notice and give 
@@ -146,8 +200,10 @@ namespace richmath {
       Box *get(); // may change the stored start and end fields
       VolatileSelection get_all(); // may change the stored start and end fields
       
+      void set(const VolatileLocation  &box_with_index) { set(box_with_index.box, box_with_index.index, box_with_index.index); }
       void set(const VolatileSelection &box_with_range) { set(box_with_range.box, box_with_range.start, box_with_range.end); }
       void set(Box *new_box, int new_start, int new_end);
+      void set_raw(const VolatileLocation  &box_with_index) { set_raw(box_with_index.box, box_with_index.index, box_with_index.index); }
       void set_raw(const VolatileSelection &box_with_range) { set_raw(box_with_range.box, box_with_range.start, box_with_range.end); }
       void set_raw(Box *new_box, int new_start, int new_end);
       void reset() { set(nullptr, 0, 0); }
@@ -188,11 +244,10 @@ namespace richmath {
       static SelectionReference from_debug_metadata_of(pmath::Expr expr);
       static SelectionReference from_debug_metadata_of(pmath_t expr); // does not free expr
       
-      LocationReference start_reference() const {
-        return LocationReference{id, start};
-      }
-      LocationReference end_reference() const {
-        return LocationReference{id, end};
+      LocationReference start_reference() const { return LocationReference{id, start}; }
+      LocationReference end_reference() const {   return LocationReference{id, end};   }
+      LocationReference start_end_reference(LogicalDirection dir) const {
+        return LocationReference{id, (dir == LogicalDirection::Forward) ? end : start };
       }
       
       unsigned int hash() const {

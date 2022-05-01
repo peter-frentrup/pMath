@@ -90,6 +90,11 @@ void TextLayoutIterator::move_previous_char() {
   --_attr_index;
 }
 
+void TextLayoutIterator::skip_forward_beyond_text_pos(const VolatileLocation &loc) {
+  if(auto seq = dynamic_cast<TextSequence*>(loc.box))
+    skip_forward_beyond_text_pos(seq, loc.index);
+}
+
 void TextLayoutIterator::skip_forward_beyond_text_pos(TextSequence *seq, int pos) {
   int i = byte_index();
   
