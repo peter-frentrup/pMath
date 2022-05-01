@@ -51,6 +51,8 @@ namespace richmath {
     
     VolatileLocation move_vertical(        LogicalDirection direction, float *index_rel_x) const;
     void             move_vertical_inplace(LogicalDirection direction, float *index_rel_x);
+    
+    bool find_next(String string, bool complete_token, const VolatileLocation &stop);
   };
   
   /** Represents a (volatile) reference to a position range inside a Box.

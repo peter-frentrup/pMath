@@ -83,6 +83,80 @@ VolatileLocation VolatileLocation::parent(LogicalDirection direction) const {
   return {box->parent(), box->index() + ((direction == LogicalDirection::Forward) ? 1 : 0)};
 }
 
+bool VolatileLocation::find_next(String string, bool complete_token, const VolatileLocation &stop) {
+RESTART:
+  if(!box)
+    return false;
+  
+  if(auto seq = dynamic_cast<AbstractSequence *>(box)) {
+    const uint16_t *buf = string.buffer();
+    int             len = string.length();
+    
+    const uint16_t *seqbuf = seq->text().buffer();
+    int             seqlen = seq->text().length();
+    
+    if(stop.box == seq)
+      seqlen = stop.index;
+    
+    for(; index <= seqlen - len; index++) {
+      if(0 == memcmp(seqbuf + index, buf, len * sizeof(buf[0]))) {
+        if(!complete_token) {
+          index+= len;
+          return true;
+        }
+        
+        if(seq->is_word_boundary(index) && seq->is_word_boundary(index + len)) {
+          int j = 0;
+          
+          for(; j < len; ++j) {
+            if(j > 0 && seq->is_word_boundary(index + j))
+              break;
+          }
+          
+          if(j == len) {
+            index+= len;
+            return true;
+          }
+        }
+      }
+      
+      if(seqbuf[index] == PMATH_CHAR_BOX) {
+        box = box->item(seq->get_box(index));
+        index = 0;
+        goto RESTART;
+      }
+    }
+    
+    for(; index < seqlen; index++) {
+      if(seqbuf[index] == PMATH_CHAR_BOX) {
+        box = box->item(seq->get_box(index));
+        index = 0;
+        goto RESTART;
+      }
+    }
+  }
+  else if(box == stop.box) {
+    if(index >= stop.index || index >= box->count())
+      return false;
+    
+    box = box->item(index);
+    index = 0;
+    goto RESTART;
+  }
+  else if(index < box->count()) {
+    box = box->item(index);
+    index = 0;
+    goto RESTART;
+  }
+  
+  if(box) {
+    *this = parent(LogicalDirection::Forward);
+    goto RESTART;
+  }
+  
+  return false;
+}
+
 //} ... class VolatileLocation
 
 //{ class VolatileSelection ...

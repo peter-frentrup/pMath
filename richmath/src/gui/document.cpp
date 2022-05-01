@@ -152,104 +152,6 @@ static int index_of_replacement(const String &s) {
   return -1;
 }
 
-static AbstractSequence *search_string(
-  Box *box,
-  int *index,
-  Box *stop_box,
-  int  stop_index,
-  const String string,
-  bool complete_token
-) {
-RESTART:
-  if(auto seq = dynamic_cast<AbstractSequence *>(box)) {
-    const uint16_t *buf = string.buffer();
-    int             len = string.length();
-    
-    const uint16_t *seqbuf = seq->text().buffer();
-    int             seqlen = seq->text().length();
-    
-    if(stop_box == seq)
-      seqlen = stop_index;
-      
-    int i = *index;
-    for(; i <= seqlen - len; ++i) {
-      if(complete_token) {
-        if(seq->is_word_boundary(i) && seq->is_word_boundary(i + len)) {
-          int j = 0;
-          
-          for(; j < len; ++j) {
-            if(seqbuf[i + j] != buf[j] || (j > 0 && seq->is_word_boundary(i + j)))
-              break;
-          }
-          
-          if(j == len) {
-            *index = i + j;
-            return seq;
-          }
-        }
-      }
-      else {
-        int j = 0;
-        
-        for(; j < len; ++j)
-          if(seqbuf[i + j] != buf[j])
-            break;
-            
-        if(j == len) {
-          *index = i + j;
-          return seq;
-        }
-      }
-      
-      if(seqbuf[i] == PMATH_CHAR_BOX) {
-        int b = 0;
-        while(box->item(b)->index() < i)
-          ++b;
-          
-        *index = 0;
-        box = box->item(b);
-        goto RESTART;
-      }
-    }
-    
-    for(; i < seqlen; ++i) {
-      if(seqbuf[i] == PMATH_CHAR_BOX) {
-        int b = 0;
-        while(box->item(b)->index() < i)
-          ++b;
-          
-        *index = 0;
-        box = box->item(b);
-        goto RESTART;
-      }
-    }
-  }
-  else if(box == stop_box) {
-    if(*index >= stop_index || *index >= box->count())
-      return nullptr;
-      
-    int i = *index;
-    *index = 0;
-    box = box->item(i);
-    goto RESTART;
-  }
-  else if(*index < box->count()) {
-    int i = *index;
-    *index = 0;
-    box = box->item(i);
-    goto RESTART;
-  }
-  
-  if(box->parent()) {
-    *index = box->index() + 1;
-    box = box->parent();
-    goto RESTART;
-  }
-  
-  *index = 0;
-  return nullptr;
-}
-
 namespace richmath {
   class Document::Impl {
     private:
@@ -3903,24 +3805,16 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
     String str = seq->text().part(start, len);
     if(str.length() == 0)
       return;
-      
-    Box *find = &self;
-    int index = first_visible_section;
+    
+    VolatileLocation find = {&self, first_visible_section};
     
     PaintHookManager temp_hooks;
     int num_occurencies = 0;
     int old_additional_selection_length = self.additional_selection.length();
     
-    while(0 != (find = search_string(
-                         find,
-                         &index,
-                         &self,
-                         last_visible_section + 1,
-                         str,
-                         true)))
-    {
-      VolatileSelection hc = find->get_highlight_child(VolatileSelection{find, index - len, index});
-      if(hc.box == find) {
+    while(find.find_next(str, true, { &self, last_visible_section + 1})) {
+      VolatileSelection hc = find.box->get_highlight_child(VolatileSelection{find.box, find.index - len, find.index});
+      if(hc.box == find.box) {
         if(Color bg = hc.box->get_style(OccurenceBackgroundColor, Color::None)) {
           float bg_alpha = hc.box->get_style(OccurenceHighlightOpacity, 1.0f);
           if(0 < bg_alpha && bg_alpha <= 1) {
@@ -3962,32 +3856,13 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
 }
 
 bool Document::Impl::word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section) {
-  Box *find = &self;
-  int index = 0;
-  
-  while(nullptr != (find = search_string(
-                             find,
-                             &index,
-                             &self,
-                             first_visible_section,
-                             str,
-                             true)))
-  {
+  VolatileLocation find = { &self, 0 };
+  if(find.find_next(str, true, { &self, first_visible_section }))
     return true;
-  }
   
-  find = &self;
-  index = last_visible_section + 1;
-  while(nullptr != (find = search_string(
-                             find,
-                             &index,
-                             &self,
-                             self.length(),
-                             str,
-                             true)))
-  {
+  find = { &self, last_visible_section + 1 };
+  if(find.find_next(str, true, { &self, self.length() }))
     return true;
-  }
   
   return false;
 }
