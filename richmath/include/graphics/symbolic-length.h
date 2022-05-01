@@ -39,7 +39,7 @@ namespace richmath {
       static Length Absolute(float f) { Length len( f); return len.is_explicit_abs() ? len : Length(); }
       static Length Relative(float f) { Length len(-f); return len.is_explicit_rel() ? len : Length(); }
       
-      float raw_value___() const { return _raw_value.as_float; }
+      float raw_value() const { return _raw_value.as_float; }
       float explicit_abs_value() const { return  _raw_value.as_float; }
       float explicit_rel_value() const { return -_raw_value.as_float; }
       SymbolicSize symblic_value() const { return (SymbolicSize)(_raw_value.as_uint32 & FractionMask); }

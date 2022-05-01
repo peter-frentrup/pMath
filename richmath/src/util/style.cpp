@@ -575,7 +575,7 @@ bool StyleImpl::raw_set_float(StyleOptionName n, float value) {
 
 bool StyleImpl::raw_set_length(StyleOptionName n, Length value) {
   IntFloatUnion v;
-  v.float_value = value.raw_value___();
+  v.float_value = value.raw_value();
   return self.int_float_values.modify(n, v, [](IntFloatUnion v1, IntFloatUnion v2) { return v1.int_value == v2.int_value; });
 }
 
