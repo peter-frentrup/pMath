@@ -157,10 +157,21 @@ RESTART:
   return false;
 }
 
-bool VolatileLocation::find_selection_placeholder(const VolatileLocation &stop, bool stop_early) {
+bool VolatileLocation::find_selection_placeholder(LogicalDirection direction, const VolatileLocation &stop, bool stop_early) {
   VolatileLocation match { nullptr, 0 };
   
-  while(box && (box != stop.box || index < stop.index)) {
+  while(box) {
+    if(box == stop.box) {
+      if(direction == LogicalDirection::Forward) {
+        if(index >= stop.index)
+          break;
+      }
+      else {
+        if(index <= stop.index)
+          break;
+      }
+    }
+    
     AbstractSequence *current_seq = dynamic_cast<AbstractSequence *>(box);
     
     if(current_seq && current_seq->is_placeholder(index)) {
@@ -172,8 +183,8 @@ bool VolatileLocation::find_selection_placeholder(const VolatileLocation &stop, 
     }
     
     auto old = *this;
-    move_logical_inplace(LogicalDirection::Forward, false);
-    if(box == old.box && index <= old.index)
+    move_logical_inplace(direction, false);
+    if(*this == old)
       break;
   }
   
@@ -346,6 +357,13 @@ void VolatileSelection::normalize() {
 void VolatileSelection::dynamic_to_literal() {
   if(box)
     *this = box->dynamic_to_literal(start, end);
+}
+
+VolatileLocation VolatileSelection::find_selection_placeholder(LogicalDirection direction, bool stop_early) {
+  VolatileLocation loc = start_end_only(opposite_direction(direction));
+  if(loc.find_selection_placeholder(direction, start_end_only(direction), stop_early))
+    return loc;
+  return {nullptr, 0};
 }
 
 //} ... class VolatileSelection

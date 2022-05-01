@@ -14,6 +14,8 @@ namespace richmath {
     Backward
   };
   
+  static LogicalDirection opposite_direction(LogicalDirection dir) { return (dir == LogicalDirection::Forward) ? LogicalDirection::Backward : LogicalDirection::Forward; }
+  
   /** Represents a (volatile) reference to a single position inside a Box.
   
       Volatile means that this object is only valid as long as the Box is valid.
@@ -53,7 +55,7 @@ namespace richmath {
     void             move_vertical_inplace(LogicalDirection direction, float *index_rel_x);
     
     bool find_next(String string, bool complete_token, const VolatileLocation &stop);
-    bool find_selection_placeholder(const VolatileLocation &stop, bool stop_early = false);
+    bool find_selection_placeholder(LogicalDirection direction, const VolatileLocation &stop, bool stop_early = false);
   };
   
   /** Represents a (volatile) reference to a position range inside a Box.
@@ -117,6 +119,8 @@ namespace richmath {
     
     void normalize();
     void dynamic_to_literal();
+    
+    VolatileLocation find_selection_placeholder(LogicalDirection direction, bool stop_early = false);
     
     PMATH_ATTRIBUTE_USE_RESULT VolatileSelection expanded() const {
       VolatileSelection ret = *this;
