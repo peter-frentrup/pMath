@@ -172,8 +172,10 @@ namespace richmath {
       /// This calls item(i)->after_insertion() for all child boxes item(i) whose index() is >= start and < end.
       void after_insertion(int start, int end);
       
-      Box *parent() { return _parent_or_limbo_next.as_normal(); }
+      static int depth(Box *box);
 
+      Box *parent() { return _parent_or_limbo_next.as_normal(); }
+      
       /// The selection index within parent().
       int index() {  return _index; }
       

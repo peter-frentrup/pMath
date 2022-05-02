@@ -608,19 +608,10 @@ SelectionReference SelectionReference::from_debug_metadata_of(pmath_t expr) {
 
 //} ... class SelectionReference
 
-int richmath::box_depth(Box *box) {
-  int result = 0;
-  while(box) {
-    ++result;
-    box = box->parent();
-  }
-  return result;
-}
-
 int richmath::box_order(Box *b1, int i1, Box *b2, int i2) {
   int od1, od2, d1, d2;
-  od1 = d1 = box_depth(b1);
-  od2 = d2 = box_depth(b2);
+  od1 = d1 = Box::depth(b1);
+  od2 = d2 = Box::depth(b2);
   
   while(d1 > d2) {
     i1 = b1->index();

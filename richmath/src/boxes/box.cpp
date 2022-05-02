@@ -96,6 +96,15 @@ void Box::after_insertion(int start, int end) {
   }
 }
 
+int Box::depth(Box *box) {
+  int result = 0;
+  while(box) {
+    ++result;
+    box = box->parent();
+  }
+  return result;
+}
+
 Expr Box::allowed_options() {
   Expr head = to_pmath_symbol();
   if(!head.is_symbol())

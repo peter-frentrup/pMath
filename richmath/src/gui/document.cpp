@@ -491,8 +491,8 @@ void Document::mouse_up(MouseEvent &event) {
 void Document::finish_editing(Box *except_box) {
   Box *b1 = selection_box();
   Box *b2 = except_box;
-  int d1 = box_depth(b1);
-  int d2 = box_depth(b2);
+  int d1 = Box::depth(b1);
+  int d2 = Box::depth(b2);
   
   while(d1 > d2) {
     b1 = b1->parent();
@@ -1212,8 +1212,8 @@ void Document::select_range(const VolatileSelection &sel1, const VolatileSelecti
   int s2  = start2;
   int e1  = end1;
   int e2  = end2;
-  int d1 = box_depth(b1);
-  int d2 = box_depth(b2);
+  int d1 = Box::depth(b1);
+  int d2 = Box::depth(b2);
   
   while(d1 > d2) {
     if(b1->parent() && !b1->parent()->selection_exitable(false)) {

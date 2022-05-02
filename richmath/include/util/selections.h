@@ -271,7 +271,6 @@ namespace richmath {
       int end;
   };
   
-  extern int box_depth(Box *box);
   extern int box_order(Box *b1, int i1, Box *b2, int i2);
 }
 
