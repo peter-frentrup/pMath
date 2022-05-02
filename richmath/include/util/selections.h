@@ -42,10 +42,13 @@ namespace richmath {
       return !(*this == other);
     }
     
+    friend int document_order(VolatileLocation left, VolatileLocation right);
+    
     bool selectable() const;
     bool exitable() const;
     bool selection_exitable(bool vertical) const;
     
+    VolatileLocation parent() const { return parent(LogicalDirection::Backward); }
     VolatileLocation parent(LogicalDirection direction) const;
     
     VolatileLocation move_logical(        LogicalDirection direction, bool jumping) const; 
@@ -92,6 +95,7 @@ namespace richmath {
     bool logically_contains(VolatileSelection other) const;
     bool directly_contains(const VolatileSelection &other) const { return box == other.box && start <= other.start && other.end <= end; }
     bool same_box_but_disjoint(const VolatileSelection &other) const { return box == other.box && (other.end <= start || end <= other.start); }
+    bool request_repaint() const;
     
     bool null_or_selectable() const;
     bool selectable() const;
@@ -270,8 +274,6 @@ namespace richmath {
       int start;
       int end;
   };
-  
-  extern int box_order(Box *b1, int i1, Box *b2, int i2);
 }
 
 #endif // RICHMATH__UTIL__SELECTIONS_H__INCLUDED

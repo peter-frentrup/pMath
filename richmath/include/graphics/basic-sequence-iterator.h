@@ -140,7 +140,7 @@ namespace richmath {
         }
         else {
           // handle [ooo[sss|][^ccc]ooo]  and  [ooo[ss|s]ooo[cc^c]ooo]  case
-          int order = box_order(seq, pos, current_sequence(), text_index());
+          int order = document_order(VolatileLocation{seq, pos}, current_location());
           if(order <= 0)
             break;
         }

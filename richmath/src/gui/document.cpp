@@ -161,13 +161,14 @@ namespace richmath {
       Impl(Document &self) : self(self) {}
       
     public:
-      void raw_select(Box *box, int start, int end);
+      void raw_select(VolatileSelection sel);
+      void raw_select(Box *box, int start, int end) { raw_select(VolatileSelection {box, start, end}); }
       void after_resize_section(int i);
       
       //{ selection highlights
     private:
-      void add_fill(PaintHookManager &hooks, Box *box, int start, int end, Color color, float alpha = 1.0f);
-      void add_pre_fill(Box *box, int start, int end, Color color, float alpha = 1.0f);
+      void add_fill(PaintHookManager &hooks, const VolatileSelection &sel, Color color, float alpha = 1.0f);
+      void add_pre_fill(const VolatileSelection &sel, Color color, float alpha = 1.0f);
       void add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section);
       bool word_occurs_outside_visible_range(String str, int first_visible_section, int last_visible_section);
       void add_matching_bracket_hook();
@@ -1163,15 +1164,15 @@ void Document::on_key_press(uint32_t unichar) {
 
 //} ... event handlers
 
-void Document::select(Box *box, int start, int end) {
-  if(box && !box->selectable())
+void Document::select(const VolatileSelection &sel) {
+  if(sel.box && !sel.box->selectable())
     return;
     
-  sel_last.set(box, start, end);
+  sel_last.set(sel);
   sel_first = sel_last;
   auto_scroll = !mouse_history.is_mouse_down(this);
   
-  Impl(*this).raw_select(box, start, end);
+  Impl(*this).raw_select(sel);
 }
 
 void Document::select_to(const VolatileSelection &sel) {
@@ -1181,107 +1182,84 @@ void Document::select_to(const VolatileSelection &sel) {
   select_range(sel_first.get_all(), sel);
 }
 
-void Document::select_range(const VolatileSelection &sel1, const VolatileSelection &sel2) {
-  if(!sel1.null_or_selectable() || !sel2.null_or_selectable())
+void Document::select_range(VolatileSelection from, VolatileSelection to) {
+  if(!from.null_or_selectable() || !to.null_or_selectable())
     return;
     
-  sel_first.set(sel1);
-  sel_last.set(sel2);
+  sel_first.set(from);
+  sel_last.set(to);
   auto_scroll = !is_mouse_down();
   
-  int start1 = sel1.start;
-  int end1   = sel1.end;
-  int start2 = sel2.start;
-  int end2   = sel2.end;
-  
-  if(end1 < start1) {
-    int i = start1;
-    start1 = end1;
-    end1 = i;
+  if(from.end < from.start) {
+    using std::swap;
+    swap(from.start, from.end);
   }
   
-  if(end2 < start2) {
-    int i = start2;
-    start2 = end2;
-    end2 = i;
+  if(to.end < to.start) {
+    using std::swap;
+    swap(to.start, to.end);
   }
   
-  Box *b1 = sel1.box;
-  Box *b2 = sel2.box;
-  int s1  = start1;
-  int s2  = start2;
-  int e1  = end1;
-  int e2  = end2;
-  int d1 = Box::depth(b1);
-  int d2 = Box::depth(b2);
+  int depth_from = Box::depth(from.box);
+  int depth_to   = Box::depth(to.box);
   
-  while(d1 > d2) {
-    if(b1->parent() && !b1->parent()->selection_exitable(false)) {
-      if(b1->selectable()) {
-        int o1 = box_order(b1, s1, b2, e2);
-        int o2 = box_order(b1, e1, b2, s2);
+  while(depth_from > depth_to) {
+    if(from.box->parent() && !from.box->parent()->selection_exitable(false)) {
+      if(from.box->selectable()) {
+        int o1 = document_order(from.start_only(), to.end_only());
+        int o2 = document_order(from.end_only(), to.start_only());
         
         if(o1 > 0)
-          Impl(*this).raw_select(b1, 0, e1);
+          Impl(*this).raw_select(from.box, 0, from.end);
         else if(o2 < 0)
-          Impl(*this).raw_select(b1, s1, b1->length());
+          Impl(*this).raw_select(from.box, from.start, from.box->length());
         else
-          Impl(*this).raw_select(b1, 0, b1->length());
+          Impl(*this).raw_select(from.box, 0, from.box->length());
       }
       return;
     }
-    s1 = b1->index();
-    e1 = s1 + 1;
-    b1 = b1->parent();
-    --d1;
+    from.expand_to_parent();
+    --depth_from;
   }
   
-  while(d2 > d1) {
-    s2 = b2->index();
-    e2 = s2 + 1;
-    b2 = b2->parent();
-    --d2;
+  while(depth_to > depth_from) {
+    to.expand_to_parent();
+    --depth_to;
   }
   
-  sel_last.set(b2, s2, e2);
+  sel_last.set(to);
   
-  while(b1 != b2 && b1 && b2) {
-    if(b1->parent() && !b1->parent()->selection_exitable(false)) {
-      if(b1->selectable()) {
-        int o = box_order(b1, s1, b2, s2);
+  while(from.box != to.box && from.box && to.box) {
+    if(from.box->parent() && !from.box->parent()->selection_exitable(false)) {
+      if(from.box->selectable()) {
+        int o = document_order(from.start_only(), to.start_only());
         
         if(o < 0)
-          Impl(*this).raw_select(b1, s1, b1->length());
+          Impl(*this).raw_select(from.box, from.start, from.box->length());
         else
-          Impl(*this).raw_select(b1, 0, e1);
+          Impl(*this).raw_select(from.box, 0, from.end);
       }
       return;
     }
     
-    s1 = b1->index();
-    e1 = s1 + 1;
-    b1 = b1->parent();
-    
-    s2 = b2->index();
-    e2 = s2 + 1;
-    b2 = b2->parent();
+    from.expand_to_parent();
+    to.expand_to_parent();
   }
   
-  if(s2 < s1)
-    s1 = s2;
-  if(e1 < e2)
-    e1 = e2;
+  if(to.start < from.start)
+    from.start = to.start;
+  if(from.end < to.end)
+    from.end = to.end;
     
-  while(b1 && !b1->selectable()) {
-    if(!b1->selection_exitable(false))
+  while(from.box && !from.box->selectable()) {
+    if(!from.box->selection_exitable(false))
       return;
-      
-    s1 = b1->index();
-    e1 = s1 + 1;
-    b1 = b1->parent();
+    
+    from.expand_to_parent();
   }
-  if(b1)
-    Impl(*this).raw_select(b1, s1, e1);
+  
+  if(from.box)
+    Impl(*this).raw_select(from);
 }
 
 void Document::move_to(Box *box, int index, bool selecting) {
@@ -3629,69 +3607,53 @@ void Document::invalidate_popup_window_positions() {
 
 //{ class Document::Impl ...
 
-void Document::Impl::raw_select(Box *box, int start, int end) {
-  if(end < start) {
-    int i = start;
-    start = end;
-    end = i;
+void Document::Impl::raw_select(VolatileSelection sel) {
+  if(sel.end < sel.start) {
+    using std::swap;
+    swap(sel.start, sel.end);
   }
   
-  if(box) {
-    VolatileSelection sel = box->normalize_selection(start, end);
-    box   = sel.box;
-    start = sel.start;
-    end   = sel.end;
-  }
+  sel.normalize();
   
-  Box *selbox = self.context.selection.get();
-  if( selbox != box ||
-      self.context.selection.start != start ||
-      self.context.selection.end   != end)
-  {
-    Box *common_parent = Box::common_parent(selbox, box);
+  VolatileSelection old_sel = self.context.selection.get_all();
+  if(old_sel != sel) {
+    Box *common_parent = Box::common_parent(old_sel.box, sel.box);
     
-    Box *b = selbox;
+    Box *b = old_sel.box;
     while(b != common_parent) {
       b->on_exit();
       b = b->parent();
     }
     
-    close_popup_windows_on_selection_exit({box, start, end});
+    close_popup_windows_on_selection_exit(sel);
     
-    b = box;
+    b = sel.box;
     while(b != common_parent) {
       b->on_enter();
       b = b->parent();
     }
     
-    if(self.selection_box())
-      self.selection_box()->request_repaint_range(
-        self.selection_start(),
-        self.selection_end());
-        
-    for(auto sel : self.additional_selection) {
-      if(Box *b = sel.get())
-        b->request_repaint_range(sel.start, sel.end);
-    }
+    old_sel.request_repaint();
+    for(auto other_sel : self.additional_selection) 
+      other_sel.get_all().request_repaint();
+    
     self.additional_selection.length(0);
     
-    if(self.auto_completion.range.id) {
-      Box *ac_box = self.auto_completion.range.get();
-      
-      if( !box ||
-          !ac_box ||
-          box_order(box, start, ac_box, self.auto_completion.range.start) < 0 ||
-          box_order(box, end,   ac_box, self.auto_completion.range.end) > 0)
+    if(VolatileSelection ac = self.auto_completion.range.get_all()) {
+      if( !sel.box ||
+          document_order(sel.start_only(), ac.start_only()) < 0 ||
+          document_order(sel.end_only(),   ac.end_only()) > 0)
       {
         self.auto_completion.stop();
       }
     }
-    
-    self.context.selection.set_raw(box, start, end);
-    
-    if(box) {
-      box->request_repaint_range(start, end);
+    else if(self.auto_completion.range.id) {
+      self.auto_completion.stop();
     }
+    
+    self.context.selection.set_raw(sel);
+    
+    sel.request_repaint();
   }
   
   self.best_index_rel_x = 0;
@@ -3721,16 +3683,16 @@ void Document::Impl::after_resize_section(int i) {
 }
 
 //{ selection highlights
-void Document::Impl::add_fill(PaintHookManager &hooks, Box *box, int start, int end, Color color, float alpha) {
+void Document::Impl::add_fill(PaintHookManager &hooks, const VolatileSelection &sel, Color color, float alpha) {
   SelectionReference ref;
-  ref.set(box, start, end);
+  ref.set(sel);
   
   hooks.add(ref.get(), new SelectionFillHook(ref.start, ref.end, color, alpha));
   self.additional_selection.add(ref);
 }
 
-void Document::Impl::add_pre_fill(Box *box, int start, int end, Color color, float alpha) {
-  add_fill(self.context.pre_paint_hooks, box, start, end, color, alpha);
+void Document::Impl::add_pre_fill(const VolatileSelection &sel, Color color, float alpha) {
+  add_fill(self.context.pre_paint_hooks, sel, color, alpha);
 }
 
 void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section, int last_visible_section) {
@@ -3769,7 +3731,7 @@ void Document::Impl::add_selected_word_highlight_hooks(int first_visible_section
           float bg_alpha = hc.box->get_style(OccurenceHighlightOpacity, 1.0f);
           if(0 < bg_alpha && bg_alpha <= 1) {
             self._current_word_references.add(SelectionReference{hc});
-            add_fill(temp_hooks, hc.box, hc.start, hc.end, bg, bg_alpha);
+            add_fill(temp_hooks, hc, bg, bg_alpha);
             ++num_occurencies;
           }
         }
@@ -3818,161 +3780,161 @@ bool Document::Impl::word_occurs_outside_visible_range(String str, int first_vis
 }
 
 void Document::Impl::add_matching_bracket_hook() {
-  int start = self.selection_start();
-  int end   = self.selection_end();
-  auto seq = dynamic_cast<MathSequence *>(self.selection_box());
-  if(seq) {
-    SpanExpr *span = SpanExpr::find(seq, start, true);
-    while(span && span->end() + 1 < end)
-      span = span->expand(true);
-      
-    for(; span; span = span->expand(true)) {
-      if(FunctionCallSpan::is_simple_call(span)) {
-        {
-          FunctionCallSpan call(span);
-          
-          SpanExpr *head = call.function_head();
-          if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-              box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
-          {
-            continue;
-          }
-          seq = span->sequence();
-          
-          // head without white space
-          while(head->count() == 1)
-            head = head->item(0);
-          
-          if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-            float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
-            if(0 < bg_alpha && bg_alpha <= 1) {
-              add_pre_fill(seq, head->start(), head->end() + 1, bg, bg_alpha);
-              
-              // opening parenthesis, always exists
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, bg, bg_alpha);
-              
-              // closing parenthesis, last item, might not exist
-              int clos = span->count() - 1;
-              if(clos >= 2 && span->item_equals(clos, ")")) {
-                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, bg, bg_alpha);
-              }
-            }
-          }
-        } // destroy call before deleting span
+  VolatileSelection sel = self.selection_now();
+  auto seq = dynamic_cast<MathSequence*>(sel.box);
+  if(!seq)
+    return;
+  
+  SpanExpr *span = SpanExpr::find(seq, sel.start, true);
+  while(span && span->end() + 1 < sel.end)
+    span = span->expand(true);
+    
+  for(; span; span = span->expand(true)) {
+    if(FunctionCallSpan::is_simple_call(span)) {
+      {
+        FunctionCallSpan call(span);
         
-        span = span->expand(true);
-        while(span && span->count() == 1)
-          span = span->expand(true);
-          
-        if(FunctionCallSpan::is_pipe_call(span)) {
-          if(span->count() == 3 && box_order(span->sequence(), span->item_pos(2), seq, start) <= 0) {
+        SpanExpr *head = call.function_head();
+        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+            document_order(head->range().end_only(),   sel.start_only()) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        // head without white space
+        while(head->count() == 1)
+          head = head->item(0);
+        
+        if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            add_pre_fill(head->range(), bg, bg_alpha);
             
-            if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-              float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
-              if(0 < bg_alpha && bg_alpha <= 1) {
-                //  |>  pipe operator
-                add_pre_fill(seq, span->item_pos(1), span->item_pos(2), bg, bg_alpha);
-              }
+            // opening parenthesis, always exists
+            add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 1}, bg, bg_alpha);
+            
+            // closing parenthesis, last item, might not exist
+            int clos = span->count() - 1;
+            if(clos >= 2 && span->item_equals(clos, ")")) {
+              add_pre_fill({seq, span->item_pos(clos), span->item_pos(clos) + 1}, bg, bg_alpha);
             }
           }
         }
-        
-        delete span;
-        return;
-      }
+      } // destroy call before deleting span
       
+      span = span->expand(true);
+      while(span && span->count() == 1)
+        span = span->expand(true);
+        
       if(FunctionCallSpan::is_pipe_call(span)) {
-        {
-          FunctionCallSpan call(span);
-          
-          SpanExpr *head = call.function_head();
-          if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-              box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
-          {
-            continue;
-          }
-          
-          // head without white space
-          while(head->count() == 1)
-            head = head->item(0);
+        if(span->count() == 3 && document_order({span->sequence(), span->item_pos(2)}, sel.start_only()) <= 0) {
           
           if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
             float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
             if(0 < bg_alpha && bg_alpha <= 1) {
               //  |>  pipe operator
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 2, bg, bg_alpha);
-              
-              // head, always exists
-              add_pre_fill(seq, head->start(), head->end() + 1, bg, bg_alpha);
-              
-              SpanExpr *rhs = span->item(2);
-              while(rhs->count() == 1)
-                rhs = rhs->item(0);
-                
-              if(FunctionCallSpan::is_simple_call(rhs)) {
-                // opening parenthesis, always exists
-                add_pre_fill(seq, rhs->item_pos(1), rhs->item_pos(1) + 1, bg, bg_alpha);
-                
-                // closing parenthesis, last item, might not exist
-                int clos = rhs->count() - 1;
-                if(clos >= 2 && rhs->item_equals(clos, ")")) {
-                  add_pre_fill(seq, rhs->item_pos(clos), rhs->item_pos(clos) + 1, bg, bg_alpha);
-                }
-              }
+              add_pre_fill({seq, span->item_pos(1), span->item_pos(2)}, bg, bg_alpha);
             }
           }
-        } // destroy call before deleting span
-        delete span;
-        return;
+        }
       }
       
-      if(FunctionCallSpan::is_dot_call(span)) {
+      delete span;
+      return;
+    }
+    
+    if(FunctionCallSpan::is_pipe_call(span)) {
+      {
+        FunctionCallSpan call(span);
+        
+        SpanExpr *head = call.function_head();
+        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+            document_order(head->range().end_only(),   sel.start_only()) >= 0)
         {
-          FunctionCallSpan call(span);
-          
-          SpanExpr *head = span->item(2);
-          if( box_order(head->sequence(), head->start(),   seq, end)   <= 0 &&
-              box_order(head->sequence(), head->end() + 1, seq, start) >= 0)
-          {
-            continue;
-          }
-          seq = span->sequence();
-          
-          if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
-            float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
-            if(0 < bg_alpha && bg_alpha <= 1) {
-              // head, always exists
-              add_pre_fill(seq, head->start(), head->end() + 1, bg, bg_alpha);
+          continue;
+        }
+        
+        // head without white space
+        while(head->count() == 1)
+          head = head->item(0);
+        
+        if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            //  |>  pipe operator
+            add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 2}, bg, bg_alpha);
+            
+            // head, always exists
+            add_pre_fill(head->range(), bg, bg_alpha);
+            
+            SpanExpr *rhs = span->item(2);
+            while(rhs->count() == 1)
+              rhs = rhs->item(0);
               
-              // dot, always exists
-              add_pre_fill(seq, span->item_pos(1), span->item_pos(1) + 1, bg, bg_alpha);
-              
-              // opening parenthesis, might not exist
-              if(span->count() > 3) {
-                add_pre_fill(seq, span->item_pos(3), span->item_pos(3) + 1, bg, bg_alpha);
-              }
+            if(FunctionCallSpan::is_simple_call(rhs)) {
+              // opening parenthesis, always exists
+              add_pre_fill({seq, rhs->item_pos(1), rhs->item_pos(1) + 1}, bg, bg_alpha);
               
               // closing parenthesis, last item, might not exist
-              int clos = span->count() - 1;
-              if(clos >= 2 && span->item_equals(clos, ")")) {
-                add_pre_fill(seq, span->item_pos(clos), span->item_pos(clos) + 1, bg, bg_alpha);
+              int clos = rhs->count() - 1;
+              if(clos >= 2 && rhs->item_equals(clos, ")")) {
+                add_pre_fill({seq, rhs->item_pos(clos), rhs->item_pos(clos) + 1}, bg, bg_alpha);
               }
             }
           }
-        } // destroy call before deleting span
-        delete span;
-        return;
-      }
+        }
+      } // destroy call before deleting span
+      delete span;
+      return;
     }
     
-    delete span;
+    if(FunctionCallSpan::is_dot_call(span)) {
+      {
+        FunctionCallSpan call(span);
+        
+        SpanExpr *head = span->item(2);
+        if( document_order(head->range().start_only(), sel.end_only())   <= 0 &&
+            document_order(head->range().end_only(),   sel.start_only()) >= 0)
+        {
+          continue;
+        }
+        seq = span->sequence();
+        
+        if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
+          float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
+          if(0 < bg_alpha && bg_alpha <= 1) {
+            // head, always exists
+            add_pre_fill(head->range(), bg, bg_alpha);
+            
+            // dot, always exists
+            add_pre_fill({seq, span->item_pos(1), span->item_pos(1) + 1}, bg, bg_alpha);
+            
+            // opening parenthesis, might not exist
+            if(span->count() > 3) {
+              add_pre_fill({seq, span->item_pos(3), span->item_pos(3) + 1}, bg, bg_alpha);
+            }
+            
+            // closing parenthesis, last item, might not exist
+            int clos = span->count() - 1;
+            if(clos >= 2 && span->item_equals(clos, ")")) {
+              add_pre_fill({seq, span->item_pos(clos), span->item_pos(clos) + 1}, bg, bg_alpha);
+            }
+          }
+        }
+      } // destroy call before deleting span
+      delete span;
+      return;
+    }
   }
   
-  if(seq && end - start <= 1) {
-    int pos = start;
+  delete span;
+  
+  if(sel.length() <= 1) {
+    int pos = sel.start;
     int other_bracket = seq->matching_fence(pos);
     
-    if(other_bracket < 0 && start == end && pos > 0) {
+    if(other_bracket < 0 && sel.length() == 0 && pos > 0) {
       pos -= 1;
       other_bracket = seq->matching_fence(pos);
     }
@@ -3981,31 +3943,24 @@ void Document::Impl::add_matching_bracket_hook() {
       if(Color bg = seq->get_style(MatchingBracketBackgroundColor, Color::None)) {
         float bg_alpha = seq->get_style(MatchingBracketHighlightOpacity, 1.0f);
         if(0 < bg_alpha && bg_alpha <= 1) {
-          add_pre_fill(seq, pos,           pos + 1,           bg, bg_alpha);
-          add_pre_fill(seq, other_bracket, other_bracket + 1, bg, bg_alpha);
+          add_pre_fill({seq, pos,           pos + 1},           bg, bg_alpha);
+          add_pre_fill({seq, other_bracket, other_bracket + 1}, bg, bg_alpha);
         }
       }
     }
   }
-  
-  return;
 }
 
 void Document::Impl::add_autocompletion_hook() {
-  Box *box = self.auto_completion.range.get();
+  VolatileSelection ac = self.auto_completion.range.get_all();
   
-  if(!box)
+  if(!ac)
     return;
     
-  if(Color bg = box->get_style(InlineAutoCompletionBackgroundColor, Color::None)) {
-    float bg_alpha = box->get_style(InlineAutoCompletionHighlightOpacity, 1.0f);
+  if(Color bg = ac.box->get_style(InlineAutoCompletionBackgroundColor, Color::None)) {
+    float bg_alpha = ac.box->get_style(InlineAutoCompletionHighlightOpacity, 1.0f);
     if(0 < bg_alpha && bg_alpha <= 1) {
-      add_pre_fill(
-        box,
-        self.auto_completion.range.start,
-        self.auto_completion.range.end,
-        bg,
-        bg_alpha);
+      add_pre_fill(ac, bg, bg_alpha);
     }
   }
 }

@@ -83,10 +83,10 @@ namespace richmath {
       virtual void on_key_up(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
       
-      void select(const VolatileSelection &sel) { select(sel.box, sel.start, sel.end); }
-      void select(Box *box, int start, int end);
+      void select(const VolatileSelection &sel);
+      void select(Box *box, int start, int end) { select(VolatileSelection{box, start, end}); }
       void select_to(const VolatileSelection &sel);
-      void select_range(const VolatileSelection &sel1, const VolatileSelection &sel2);
+      void select_range(VolatileSelection from, VolatileSelection to);
         
       void move_to(Box *box, int index, bool selecting = false);
       

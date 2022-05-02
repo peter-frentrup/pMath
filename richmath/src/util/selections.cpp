@@ -33,6 +33,36 @@ namespace {
 
 //{ class VolatileLocation ...
 
+int richmath::document_order(VolatileLocation left, VolatileLocation right) {
+  int orig_depth_left;
+  int orig_depth_right;
+  int depth_left;
+  int depth_right;
+  
+  orig_depth_left  = depth_left  = Box::depth(left.box);
+  orig_depth_right = depth_right = Box::depth(right.box);
+  
+  while(depth_left > depth_right) {
+    left = left.parent();
+    --depth_left;
+  }
+  
+  while(depth_right > depth_left) {
+    right = right.parent();
+    --depth_right;
+  }
+  
+  while(left.box != right.box && left.box && right.box) {
+    left = left.parent();
+    right = right.parent();
+  }
+  
+  if(left.index == right.index)
+    return orig_depth_left - orig_depth_right;
+    
+  return left.index - right.index;
+}
+
 bool VolatileLocation::selectable() const {
   if(!box)
     return false;
@@ -229,6 +259,13 @@ bool VolatileSelection::logically_contains(VolatileSelection other) const {
   return start <= other.start && other.end <= end;
 }
 
+bool VolatileSelection::request_repaint() const {
+  if(!box)
+    return false;
+  
+  return box->request_repaint_range(start, end);
+}
+
 bool VolatileSelection::null_or_selectable() const {
   if(!box)
     return true;
@@ -333,8 +370,8 @@ void VolatileSelection::expand_up_to_sibling(const VolatileSelection &sibling, i
     if(!next || (box == stop && next.box != stop) || next == *this)
       return;
     
-    if( box_order(next.box, next.start, sibling.box, sibling.start) <= 0 &&
-        box_order(sibling.box, sibling.end, next.box, next.end) <= 0
+    if( document_order(next.start_only(),  sibling.start_only()) <= 0 &&
+        document_order(sibling.end_only(), next.end_only())      <= 0
     ) {
       return;
     }
@@ -608,37 +645,6 @@ SelectionReference SelectionReference::from_debug_metadata_of(pmath_t expr) {
 
 //} ... class SelectionReference
 
-int richmath::box_order(Box *b1, int i1, Box *b2, int i2) {
-  int od1, od2, d1, d2;
-  od1 = d1 = Box::depth(b1);
-  od2 = d2 = Box::depth(b2);
-  
-  while(d1 > d2) {
-    i1 = b1->index();
-    b1 = b1->parent();
-    --d1;
-  }
-  
-  while(d2 > d1) {
-    i2 = b2->index();
-    b2 = b2->parent();
-    --d2;
-  }
-  
-  while(b1 != b2 && b1 && b2) {
-    i1 = b1->index();
-    b1 = b1->parent();
-    
-    i2 = b2->index();
-    b2 = b2->parent();
-  }
-  
-  if(i1 == i2)
-    return od1 - od2;
-    
-  return i1 - i2;
-}
-
 //{ class VolatileSelectionImpl ...
 
 bool VolatileSelectionImpl::is_inside_string(VolatileSelection sel) {
@@ -789,10 +795,6 @@ void VolatileSelectionImpl::expand_text() {
     new_end.move_next_char();
   
   auto large_enough = [&]() { 
-    //int start_order = box_order(new_start.current_sequence(), new_start.text_index(), self.box, self.start);
-    //int end_order   = box_order(self.box, self.end, new_end.current_sequence(), new_end.text_index());
-    //return (0 <= start_order && 0 <  end_order) || 
-    //       (0 <  start_order && 0 <= end_order);
     return (new_start.byte_index() <= iter_start.byte_index() && 
       iter_end.byte_index() <= new_end.byte_index() &&
       iter_end.byte_index() - iter_start.byte_index() < new_end.byte_index() - new_start.byte_index());
