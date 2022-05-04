@@ -695,6 +695,13 @@ Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
   pmath_t boxes = pmath_boxes_from_spans_ex(spans.array(), str.get(), &settings);
   if(start > 0 || end < length())
     boxes = Impl::remove_null_tokens(boxes);
+  
+  if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
+    boxes = pmath_try_set_debug_metadata(
+              boxes, 
+              SelectionReference(id(), start, end).to_pmath().release());
+  }
+  
   return Expr(boxes);
 }
 

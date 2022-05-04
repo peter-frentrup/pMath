@@ -1512,10 +1512,14 @@ static Expr cnt_documentread(Expr data) {
       doc = box->find_parent<Document>(true);
   }
   
-  if(!doc || !doc->selection_box() || doc->selection_length() == 0)
+  if(!doc || !doc->selection_box())
     return strings::EmptyString;
-    
-  return doc->selection_box()->to_pmath(BoxOutputFlags::Default,
+  
+  if(doc->selection_length() == 0) {
+    return Expr(pmath_try_set_debug_metadata(PMATH_C_STRING(""), doc->selection().to_pmath().release()));
+  }
+
+  return doc->selection_box()->to_pmath(BoxOutputFlags::WithDebugMetadata,
                                         doc->selection_start(),
                                         doc->selection_end());
 }
