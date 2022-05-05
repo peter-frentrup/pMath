@@ -382,7 +382,7 @@ static pmath_t builtin_documentapply_or_documentwrite(pmath_expr_t _expr) {
 static pmath_t builtin_documentread(pmath_expr_t _expr) {
   Expr expr(_expr);
   
-  if(expr.expr_length() > 1) {
+  if(expr.expr_length() > 2) {
     pmath_message_argxxx(expr.expr_length(), 0, 1);
     return expr.release();
   }

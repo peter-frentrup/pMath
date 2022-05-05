@@ -109,7 +109,7 @@ Expr DynamicLocalBox::to_pmath_symbol() {
   return Symbol(richmath_System_DynamicLocalBox); 
 }
       
-Expr DynamicLocalBox::to_pmath(BoxOutputFlags flags) {
+Expr DynamicLocalBox::to_pmath_impl(BoxOutputFlags flags) {
   ensure_init();
   
   if(has(flags, BoxOutputFlags::Literal))

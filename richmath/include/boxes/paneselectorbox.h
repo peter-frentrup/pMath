@@ -32,7 +32,6 @@ namespace richmath {
       virtual void dynamic_finished(Expr info, Expr result) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -63,6 +62,8 @@ namespace richmath {
       bool must_update() {       return get_flag(MustUpdateBit); }
       void must_update(bool value) { change_flag(MustUpdateBit, value); }
     
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
     private:
       Array<Expr>          _cases;
       Array<MathSequence*> _panes;

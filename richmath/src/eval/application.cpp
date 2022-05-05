@@ -1500,8 +1500,10 @@ static void cnt_dynamicupdate(Expr data) {
 
 static Expr cnt_documentread(Expr data) {
   Document *doc = nullptr;
+  BoxOutputFlags flags = BoxOutputFlags::WithDebugMetadata;
+  int depth = INT_MAX;
   
-  if(data.expr_length() == 0) {
+  if(data.expr_length() == 0 || data[1] == richmath_System_Automatic) {
     doc = Documents::selected_document();
   }
   else {
@@ -1512,16 +1514,31 @@ static Expr cnt_documentread(Expr data) {
       doc = box->find_parent<Document>(true);
   }
   
+  if(data.expr_length() == 2) {
+    depth = -1;
+    Expr d_obj = data[2];
+    if(d_obj.is_int32()) {
+      depth = PMATH_AS_INT32(d_obj.get());
+      flags |= BoxOutputFlags::LimitedDepth;
+    }
+    
+    if(depth < 0)
+      return Symbol(richmath_System_DollarFailed);
+  }
+  
   if(!doc || !doc->selection_box())
     return strings::EmptyString;
   
   if(doc->selection_length() == 0) {
+    if(depth == 0)
+      return doc->selection().to_pmath();
+      
     return Expr(pmath_try_set_debug_metadata(PMATH_C_STRING(""), doc->selection().to_pmath().release()));
   }
 
-  return doc->selection_box()->to_pmath(BoxOutputFlags::WithDebugMetadata,
-                                        doc->selection_start(),
-                                        doc->selection_end());
+  AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
+  Box::max_box_output_depth = depth;
+  return doc->selection_box()->to_pmath(flags, doc->selection_start(), doc->selection_end());
 }
 
 namespace {

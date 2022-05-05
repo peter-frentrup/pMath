@@ -160,7 +160,7 @@ Expr FractionBox::to_pmath_symbol() {
   return Symbol(richmath_System_FractionBox);
 }
 
-Expr FractionBox::to_pmath(BoxOutputFlags flags) {
+Expr FractionBox::to_pmath_impl(BoxOutputFlags flags) {
   if(style) {
     Gather g;
     

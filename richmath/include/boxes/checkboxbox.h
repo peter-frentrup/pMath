@@ -18,7 +18,6 @@ namespace richmath {
       virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void reset_style() override;
       
@@ -29,6 +28,9 @@ namespace richmath {
       virtual void on_mouse_up(MouseEvent &event) override;
       virtual void on_mouse_cancel() override;
       virtual void click() override;
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
     protected:
       Dynamic dynamic;

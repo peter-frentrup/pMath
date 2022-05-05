@@ -88,7 +88,7 @@ void GridItem::resize_default_baseline(Context &context) {
   base::resize_default_baseline(context);
 }
 
-Expr GridItem::to_pmath(BoxOutputFlags flags) {
+Expr GridItem::to_pmath_impl(BoxOutputFlags flags) {
   return _content->to_pmath(flags);
 }
 
@@ -761,11 +761,11 @@ Expr GridBox::to_pmath_symbol() {
   return Symbol(richmath_System_GridBox);
 }
 
-Expr GridBox::to_pmath(BoxOutputFlags flags) {
+Expr GridBox::to_pmath_impl(BoxOutputFlags flags) {
   return to_pmath(flags, 0, count());
 }
 
-Expr GridBox::to_pmath(BoxOutputFlags flags, int start, int end) {
+Expr GridBox::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   auto rect = get_enclosing_range(start, end);
   
   Expr mat = MakeCall(Symbol(richmath_System_List), rect.rows());

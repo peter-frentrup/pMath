@@ -27,7 +27,6 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
@@ -60,6 +59,8 @@ namespace richmath {
       bool have_drawn() {        return get_flag(HaveDrawnBit); }
       void have_drawn(bool value) {  change_flag(HaveDrawnBit, value); }
     
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
     private:
       double range_min;
       double range_max;

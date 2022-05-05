@@ -18,14 +18,14 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsBox *owner, Context &context) override;
       
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      
     protected:
       Expr                _uncompressed_expr;
       Array<DoubleMatrix> _lines;
       
     protected:
       LineBox();
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };
 }
 

@@ -281,7 +281,7 @@ Expr SubsuperscriptBox::to_pmath_symbol() {
   return Symbol(richmath_System_SuperscriptBox);
 }
 
-Expr SubsuperscriptBox::to_pmath(BoxOutputFlags flags) {
+Expr SubsuperscriptBox::to_pmath_impl(BoxOutputFlags flags) {
   if(_subscript) {
     if(_superscript)
       return Call(

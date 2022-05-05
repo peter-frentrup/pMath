@@ -96,7 +96,7 @@ Expr CheckboxBox::to_pmath_symbol() {
   return Symbol(richmath_System_CheckboxBox); 
 }
 
-Expr CheckboxBox::to_pmath(BoxOutputFlags flags) {
+Expr CheckboxBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather gather;
   
   Expr val;

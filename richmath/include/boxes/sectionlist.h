@@ -7,6 +7,7 @@
 
 namespace richmath {
   class SectionList: public Box {
+      class Impl;
     protected:
       virtual ~SectionList();
     public:
@@ -24,8 +25,6 @@ namespace richmath {
       virtual void selection_path(Canvas &canvas, int start, int end) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -58,10 +57,13 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
+      
       void internal_insert_pmath(int *pos, Expr boxes, int overwrite_until_index);
       void internal_remove(int start, int end); // not including end
       
-      void emit_pmath(BoxOutputFlags flags, int start, int end); // exclusive
+      void emit_pmath_impl(BoxOutputFlags flags, int start, int end); // exclusive
       
       void recalc_group_info();
       void recalc_group_info_part(int *pos);

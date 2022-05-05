@@ -31,7 +31,6 @@ namespace richmath {
       void complete();
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -44,7 +43,10 @@ namespace richmath {
       virtual void child_transformation(
         int             index,
         cairo_matrix_t *matrix) override;
-        
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+    
     private:
       AbstractSequence *_radicand;
       AbstractSequence *_exponent;

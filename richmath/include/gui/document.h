@@ -179,12 +179,7 @@ namespace richmath {
       
       void paint_resize(Canvas &canvas, bool resize_only);
       
-      Expr section_list_to_pmath(BoxOutputFlags flags, int start, int end) {
-        return SectionList::to_pmath(flags, start, end);
-      }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       virtual Expr to_pmath_symbol() override;
-      
       virtual Expr to_pmath_id() override;
       
       bool attach_popup_window(const SelectionReference &anchor, Document *popup_window);
@@ -221,6 +216,8 @@ namespace richmath {
       
       bool has_pending_repaint() {       return get_flag(HasPendingRepaintBit); }
       void has_pending_repaint(bool value) { change_flag(HasPendingRepaintBit, value); }
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
     private:
       NativeWidget *_native;

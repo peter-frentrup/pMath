@@ -362,7 +362,7 @@ Expr UnderoverscriptBox::to_pmath_symbol() {
   return Symbol(richmath_System_OverscriptBox);
 }
 
-Expr UnderoverscriptBox::to_pmath(BoxOutputFlags flags) {
+Expr UnderoverscriptBox::to_pmath_impl(BoxOutputFlags flags) {
   if(_underscript) {
     if(_overscript)
       return Call(

@@ -19,11 +19,11 @@ namespace richmath {
       virtual MathSequence *as_inline_span() override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Expr prepare_dynamic(Expr expr) override;
       
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::DynamicLocalBox; }
 
     private:

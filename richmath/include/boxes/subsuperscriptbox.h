@@ -37,7 +37,6 @@ namespace richmath {
       void complete();
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -51,6 +50,9 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+    
     private:
       MathSequence *_subscript;
       MathSequence *_superscript;

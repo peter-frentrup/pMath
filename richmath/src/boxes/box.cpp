@@ -4,7 +4,10 @@
 #include <eval/application.h>
 
 #include <graphics/context.h>
+
 #include <gui/native-widget.h>
+
+#include <util/autovaluereset.h>
 
 #include <stdio.h>
 
@@ -64,6 +67,8 @@ void MouseEvent::set_origin(Box *new_origin) {
 //} ... class MouseEvent
 
 //{ class Box ...
+
+int Box::max_box_output_depth = INT_MAX;
 
 Box::Box()
   : ActiveStyledObject(),
@@ -326,6 +331,32 @@ bool Box::default_scroll_to(Canvas &canvas, Box *scroll_view, const VolatileSele
     return any_scroll | par->scroll_to(canvas, child_sel);
 
   return  any_scroll;
+}
+
+Expr Box::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::LimitedDepth)) {
+    if(max_box_output_depth <= 0)
+      return id().to_pmath();
+    
+    AutoValueReset<int> auto_mbod(max_box_output_depth);
+    --max_box_output_depth;
+    
+    return to_pmath_impl(flags);
+  }
+  return to_pmath_impl(flags);
+}
+
+Expr Box::to_pmath(BoxOutputFlags flags, int start, int end) {
+  if(has(flags, BoxOutputFlags::LimitedDepth)) {
+    if(max_box_output_depth <= 0)
+      return id().to_pmath();
+    
+    AutoValueReset<int> auto_mbod(max_box_output_depth);
+    --max_box_output_depth;
+    
+    return to_pmath_impl(flags, start, end);
+  }
+  return to_pmath_impl(flags, start, end);
 }
 
 Box *Box::move_logical(

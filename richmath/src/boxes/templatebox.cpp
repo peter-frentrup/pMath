@@ -354,7 +354,7 @@ Expr TemplateBox::to_pmath_symbol() {
   return Symbol(richmath_System_TemplateBox);
 }
 
-Expr TemplateBox::to_pmath(BoxOutputFlags flags) {
+Expr TemplateBox::to_pmath_impl(BoxOutputFlags flags) {
   Expr args = arguments;
   if(has(flags, BoxOutputFlags::WithDebugMetadata)) {
     TemplateBoxSlot *slot = search_next_box<TemplateBoxSlot>(this, LogicalDirection::Forward, this);

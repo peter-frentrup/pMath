@@ -30,7 +30,6 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -45,7 +44,8 @@ namespace richmath {
         cairo_matrix_t *matrix) override;
     
     protected:
-        virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FractionBox; }
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FractionBox; }
 
     private:
       MathSequence *_numerator;

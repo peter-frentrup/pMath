@@ -69,7 +69,7 @@ Expr InterpretationBox::to_pmath_symbol() {
   return Symbol(richmath_System_InterpretationBox);
 }
 
-Expr InterpretationBox::to_pmath(BoxOutputFlags flags) {
+Expr InterpretationBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));

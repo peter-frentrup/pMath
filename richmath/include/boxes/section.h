@@ -130,12 +130,13 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override { return _object; }
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
     private:
       Expr _object;
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return _object; }
   };
   
   class AbstractSequenceSection: public Section {
@@ -156,7 +157,6 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -181,6 +181,7 @@ namespace richmath {
       virtual float get_em() override;
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual bool can_enter_content() { return true; }
       void adopt_all();
     
@@ -219,8 +220,10 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+    
     public:
       Section *original;
   };
@@ -231,8 +234,6 @@ namespace richmath {
       
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      
       virtual Box *item(int i) override { return nullptr; }
       virtual int count() override { return 0; }
       
@@ -242,6 +243,8 @@ namespace richmath {
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
       virtual bool can_enter_content() override { return false; }
       
     public:

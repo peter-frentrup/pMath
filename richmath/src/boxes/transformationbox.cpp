@@ -202,7 +202,7 @@ Expr RotationBox::to_pmath_symbol() {
   return Symbol(richmath_System_RotationBox);
 }
 
-Expr RotationBox::to_pmath(BoxOutputFlags flags) {
+Expr RotationBox::to_pmath_impl(BoxOutputFlags flags) {
   return Call(
            Symbol(richmath_System_RotationBox),
            _content->to_pmath(flags),
@@ -294,7 +294,7 @@ Expr TransformationBox::to_pmath_symbol() {
   return Symbol(richmath_System_TransformationBox);
 }
 
-Expr TransformationBox::to_pmath(BoxOutputFlags flags) {
+Expr TransformationBox::to_pmath_impl(BoxOutputFlags flags) {
   return Call(
            Symbol(richmath_System_TransformationBox),
            _content->to_pmath(flags),

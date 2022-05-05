@@ -43,8 +43,6 @@ namespace richmath {
       void         selection_path(Context &context, int start, int end);
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -110,6 +108,9 @@ namespace richmath {
       bool auto_indent() {         return get_flag(AutoIndentBit); }
       void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
       void inline_span(bool value) {   change_flag(InlineSpanBit, value); }
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
       
     private:
       Array<GlyphInfo> glyphs;

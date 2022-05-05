@@ -172,7 +172,7 @@ Expr FrameBox::to_pmath_symbol() {
   return Symbol(richmath_System_FrameBox);
 }
 
-Expr FrameBox::to_pmath(BoxOutputFlags flags) {
+Expr FrameBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, false)) {
     return _content->to_pmath(flags);
   }

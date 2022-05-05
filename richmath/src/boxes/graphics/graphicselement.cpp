@@ -7,6 +7,8 @@
 
 #include <graphics/context.h>
 
+#include <util/autovaluereset.h>
+
 #include <cmath>
 
 
@@ -41,9 +43,8 @@ namespace {
       virtual void paint(GraphicsBox *owner, Context &context) override {
       }
       
-      virtual Expr to_pmath(BoxOutputFlags flags) override {
-        return _expr;
-      }
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return _expr; }
       
     private:
       Expr _expr;
@@ -122,6 +123,19 @@ GraphicsElement *GraphicsElement::create(Expr expr, BoxInputFlags opts) {
     return dir;
   
   return new DummyGraphicsElement(expr);
+}
+
+Expr GraphicsElement::to_pmath(BoxOutputFlags flags) {
+  if(has(flags, BoxOutputFlags::LimitedDepth)) {
+    if(Box::max_box_output_depth <= 0)
+      return id().to_pmath();
+    
+    AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
+    --Box::max_box_output_depth;
+    
+    return to_pmath_impl(flags);
+  }
+  return to_pmath_impl(flags);
 }
 
 void GraphicsElement::request_repaint_all() {
@@ -283,7 +297,7 @@ void GraphicsElementCollection::paint(GraphicsBox *owner, Context &context) {
   context.canvas().restore();
 }
 
-Expr GraphicsElementCollection::to_pmath(BoxOutputFlags flags) {
+Expr GraphicsElementCollection::to_pmath_impl(BoxOutputFlags flags) {
   Expr result = MakeCall(Symbol(richmath_System_List), (size_t)count());
   
   for(int i = 0; i < count(); ++i)

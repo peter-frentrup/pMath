@@ -91,7 +91,7 @@ Expr SetterBox::to_pmath_symbol() {
   return Symbol(richmath_System_SetterBox);
 }
 
-Expr SetterBox::to_pmath(BoxOutputFlags flags) {
+Expr SetterBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   if(has(flags, BoxOutputFlags::Literal))

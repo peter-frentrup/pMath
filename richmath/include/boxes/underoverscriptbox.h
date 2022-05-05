@@ -36,7 +36,6 @@ namespace richmath {
       void complete();
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -64,6 +63,8 @@ namespace richmath {
       bool underscript_is_stretched() {       return get_flag(UnderscriptIsStretchedBit); }
       void underscript_is_stretched(bool value) { change_flag(UnderscriptIsStretchedBit, value); }
     
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
     private:
       MathSequence *_base;
       MathSequence *_underscript;

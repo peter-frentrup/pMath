@@ -37,7 +37,6 @@ namespace richmath {
       virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       static Expr prepare_boxes(Expr boxes);
       
@@ -46,6 +45,8 @@ namespace richmath {
       Box *string_index_to_selection(String number, int char_index, int *selection_index);
       
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
       virtual void resize_default_baseline(Context &context) override;
       
     private:

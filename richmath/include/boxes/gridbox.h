@@ -141,7 +141,6 @@ namespace richmath {
       virtual bool expand(const BoxSize &size) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual bool try_load_from_object(Expr object, BoxInputFlags options) override;
       void             load_from_object(Expr object, BoxInputFlags options);
@@ -157,6 +156,8 @@ namespace richmath {
       
     protected:
       explicit GridItem(AbstractSequence *content);
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual void resize_default_baseline(Context &context) override;
       
     protected:
@@ -285,8 +286,6 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       
       virtual Box *move_logical(
         LogicalDirection  direction,
@@ -311,6 +310,9 @@ namespace richmath {
     public:
       static GridSelectionStrategy selection_strategy;
       static GridSelectionStrategy best_selection_strategy_for_drag_source(const VolatileSelection &sel);
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
       
     protected:
       enum {

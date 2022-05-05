@@ -38,6 +38,7 @@ DocumentDelete(~~~args) /? (IsValidArgumentCount(DocumentDelete, Length@{args}, 
 
 DocumentGet()::= FE`CallFrontEnd(FrontEnd`DocumentGet())
 DocumentGet(doc: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation)::= FE`CallFrontEnd(FrontEnd`DocumentGet(doc))
+DocumentGet(doc: ~:FrontEndObject|~:DocumentObject|~:Language`SourceLocation, ~depth)::= FE`CallFrontEnd(FrontEnd`DocumentGet(doc, depth))
 DocumentGet(~~~args) /? (IsValidArgumentCount(DocumentGet, Length@{args}, 0, 1);False)::= $Failed
 
 DocumentOpen(~filename)::= FE`CallFrontEnd(FrontEnd`DocumentOpen(filename))

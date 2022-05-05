@@ -12,6 +12,18 @@ extern pmath_symbol_t richmath_System_All;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_SectionGroup;
 
+namespace richmath {
+  class SectionList::Impl {
+    public:
+      Impl(SectionList &self) : self{self} {}
+      
+      void emit_pmath(BoxOutputFlags flags, int start, int end);
+      
+    private:
+      SectionList &self;
+  };
+}
+
 //{ class SectionList ...
 
 Expr SectionList::group(Expr sections) {
@@ -207,14 +219,14 @@ void SectionList::selection_path(Canvas &canvas, int start, int end) {
   }
 }
 
-Expr SectionList::to_pmath(BoxOutputFlags flags) {
-  return to_pmath(flags, 0, length());
+Expr SectionList::to_pmath_impl(BoxOutputFlags flags) {
+  return to_pmath_impl(flags, 0, length());
 }
 
-Expr SectionList::to_pmath(BoxOutputFlags flags, int start, int end) {
+Expr SectionList::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   Gather g;
   
-  emit_pmath(flags, start, end);
+  emit_pmath_impl(flags, start, end);
   
   Expr e = g.end();
   if(e.expr_length() == 1)
@@ -223,42 +235,8 @@ Expr SectionList::to_pmath(BoxOutputFlags flags, int start, int end) {
   return Call(Symbol(richmath_System_SectionGroup), e, Symbol(richmath_System_All));
 }
 
-void SectionList::emit_pmath(BoxOutputFlags flags, int start, int end) {
-  while(start < end) {
-    if(_sections[start]->_group_info.end == start) {
-      Gather::emit(_sections[start]->to_pmath(flags));
-      ++start;
-    }
-    else {
-      int e = _sections[start]->_group_info.end + 1;
-      if(e > end)
-        e = end;
-        
-      Gather g;
-      
-      g.emit(_sections[start]->to_pmath(flags));
-      
-      emit_pmath(flags, start + 1, e);
-      
-      Expr group = g.end();
-      Expr open;
-      if( _sections[start]->_group_info.close_rel >= 0 &&
-          _sections[start]->_group_info.close_rel <= e)
-      {
-        open = Expr(_sections[start]->_group_info.close_rel + 1);
-      }
-      else
-        open = Symbol(richmath_System_All);
-        
-      group = Call(
-                Symbol(richmath_System_SectionGroup),
-                group,
-                open);
-      Gather::emit(group);
-      
-      start = e;
-    }
-  }
+void SectionList::emit_pmath_impl(BoxOutputFlags flags, int start, int end) {
+  Impl(*this).emit_pmath(flags, start, end);
 }
 
 Box *SectionList::move_logical(
@@ -1273,3 +1251,43 @@ void SectionList::paint_single_section_bracket(
 }
 
 //} ... class SectionList
+
+//{ class SectionList::Impl ...
+
+void SectionList::Impl::emit_pmath(BoxOutputFlags flags, int start, int end) {
+  while(start < end) {
+    Section *start_sect = self._sections[start];
+    if(start_sect->_group_info.end == start) {
+      Gather::emit(start_sect->to_pmath(flags));
+      ++start;
+    }
+    else {
+      int e = start_sect->_group_info.end + 1;
+      if(e > end)
+        e = end;
+        
+      Gather g;
+      
+      Gather::emit(start_sect->to_pmath(flags));
+      
+      emit_pmath(flags, start + 1, e);
+      
+      Expr group = g.end();
+      Expr open;
+      if( start_sect->_group_info.close_rel >= 0 &&
+          start_sect->_group_info.close_rel <= e)
+      {
+        open = Expr(start_sect->_group_info.close_rel + 1);
+      }
+      else
+        open = Symbol(richmath_System_All);
+        
+      group = Call(Symbol(richmath_System_SectionGroup), group, open);
+      Gather::emit(group);
+      
+      start = e;
+    }
+  }
+}
+
+//} ... class SectionList::Impl

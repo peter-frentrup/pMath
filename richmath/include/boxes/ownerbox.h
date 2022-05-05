@@ -29,7 +29,6 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual Box *move_vertical(
         LogicalDirection  direction,
@@ -46,6 +45,7 @@ namespace richmath {
       virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual void resize_default_baseline(Context &context);
       virtual void adjust_baseline_after_resize(Context &context);
       float calculate_scaled_baseline(double scale) const;
@@ -78,12 +78,12 @@ namespace richmath {
       virtual void on_exit() override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       bool has_explicit_head() {       return get_flag(ExplicitHeadBit); }
       void has_explicit_head(bool value) { change_flag(ExplicitHeadBit, value); }
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual void resize_default_baseline(Context &context) override;
       
     protected:

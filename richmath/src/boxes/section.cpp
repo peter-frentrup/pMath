@@ -575,7 +575,7 @@ Expr AbstractSequenceSection::to_pmath_symbol() {
   return Symbol(richmath_System_Section);
 }
 
-Expr AbstractSequenceSection::to_pmath(BoxOutputFlags flags) {
+Expr AbstractSequenceSection::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Expr cont = _content->to_pmath(flags/* & ~BoxOutputFlags::Parseable*/);
@@ -834,7 +834,7 @@ bool EditSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return false;
 }
 
-Expr EditSection::to_pmath(BoxOutputFlags flags) {
+Expr EditSection::to_pmath_impl(BoxOutputFlags flags) {
   Expr result = content()->to_pmath(BoxOutputFlags::Parseable | flags);
   
   if(false && has(flags, BoxOutputFlags::NoNewSymbols)) {
@@ -934,7 +934,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
-Expr StyleDataSection::to_pmath(BoxOutputFlags flags) {
+Expr StyleDataSection::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(style_data);

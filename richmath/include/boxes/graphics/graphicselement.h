@@ -42,7 +42,7 @@ namespace richmath {
       
       virtual void find_extends(GraphicsBounds &bounds) = 0;
       virtual void paint(GraphicsBox *owner, Context &context) = 0;
-      virtual Expr to_pmath(BoxOutputFlags flags) = 0;
+      Expr to_pmath(BoxOutputFlags flags);
       
       void request_repaint_all();
       virtual void dynamic_updated() override { request_repaint_all(); }
@@ -57,6 +57,8 @@ namespace richmath {
       }
 
       void finish_load_from_object(Expr expr) {}
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) = 0;
       
       void style_parent(StyledObject *sp) { if(_style_parent_or_limbo_next.is_normal()) _style_parent_or_limbo_next.set_to_normal(sp); }
       virtual ObjectWithLimbo *next_in_limbo() final override { return _style_parent_or_limbo_next.as_tinted(); }
@@ -88,7 +90,9 @@ namespace richmath {
       
       virtual void find_extends(GraphicsBounds &bounds) override;
       virtual void paint(GraphicsBox *owner, Context &context) override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
     private:
       Array<GraphicsElement *> _items;

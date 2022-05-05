@@ -75,7 +75,7 @@ Expr FillBox::to_pmath_symbol() {
   return Symbol(richmath_System_FillBox); 
 }
 
-Expr FillBox::to_pmath(BoxOutputFlags flags) {
+Expr FillBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true))
     return _content->to_pmath(flags);
   

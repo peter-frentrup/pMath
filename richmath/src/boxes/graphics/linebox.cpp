@@ -97,7 +97,7 @@ void LineBox::paint(GraphicsBox *owner, Context &context) {
   cairo_set_line_cap(context.canvas().cairo(), cap);
 }
 
-Expr LineBox::to_pmath(BoxOutputFlags flags) { 
+Expr LineBox::to_pmath_impl(BoxOutputFlags flags) { 
   if(_uncompressed_expr.expr_length() != 1)
     return _uncompressed_expr;
     

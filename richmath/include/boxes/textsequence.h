@@ -32,8 +32,6 @@ namespace richmath {
       virtual void selection_path(Canvas &canvas, int start, int end) override;
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
-      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) override;
       virtual void load_from_object(Expr obj, BoxInputFlags options) override;
       
       virtual Box *move_logical(
@@ -81,6 +79,9 @@ namespace richmath {
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
       void inline_span(bool value) { change_flag(InlineSpanBit, value); }
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
       
     private:
       Array<int>                   line_y_corrections;

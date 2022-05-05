@@ -14,13 +14,14 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;
       
     protected:
       Expr tooltip_boxes;
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };
 }
 

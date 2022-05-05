@@ -100,7 +100,7 @@ Expr PanelBox::to_pmath_symbol() {
   return Symbol(richmath_System_PanelBox); 
 }
 
-Expr PanelBox::to_pmath(BoxOutputFlags flags) {
+Expr PanelBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));

@@ -83,12 +83,13 @@ namespace richmath {
   };
   
   enum class BoxOutputFlags {
-    Default           = 0,
-    Parseable         = 1, ///< no StyleBox with StripOnInput->True, ...
-    Literal           = 2, ///< no DynamicBox or TemplateBox
-    ShortNumbers      = 4, ///< not the internal representation of NumberBox, but the content()
-    WithDebugMetadata = 8, ///< attach Language`SourceLocation() metadata to strings and expressions
-    NoNewSymbols      = 16 ///< do not generate new symbols by effectively using MakeExpression(..., ParseSymbols->False)
+    Default           =  0,
+    Parseable         =  1, ///< no StyleBox with StripOnInput->True, ...
+    Literal           =  2, ///< no DynamicBox or TemplateBox
+    ShortNumbers      =  4, ///< not the internal representation of NumberBox, but the content()
+    WithDebugMetadata =  8, ///< attach Language`SourceLocation() metadata to strings and expressions
+    NoNewSymbols      = 16, ///< do not generate new symbols by effectively using MakeExpression(..., ParseSymbols->False)
+    LimitedDepth      = 32, ///< output the id() for boxas at relative depth > Box::max_box_output_depth 
   };
   
   inline bool has(BoxOutputFlags lhs, BoxOutputFlags rhs) {
@@ -258,10 +259,8 @@ namespace richmath {
       
       /// Get the head symbol of to_pmath()
       virtual Expr to_pmath_symbol() = 0;
-      virtual Expr to_pmath(BoxOutputFlags flags) = 0;
-      virtual Expr to_pmath(BoxOutputFlags flags, int start, int end) {
-        return to_pmath(flags);
-      }
+      Expr to_pmath(BoxOutputFlags flags);
+      Expr to_pmath(BoxOutputFlags flags, int start, int end);
       
       /// Move the text cursor forward/backward in reading direction.
       ///
@@ -421,6 +420,7 @@ namespace richmath {
       
     public:
       static FunctionChain<Box*, Expr> *on_finish_load_from_object;
+      static int max_box_output_depth;
       
     protected:
       void adopt(Box *child, int i);
@@ -430,6 +430,11 @@ namespace richmath {
       
       virtual ObjectWithLimbo *next_in_limbo() final override { return _parent_or_limbo_next.as_tinted(); }
       virtual void next_in_limbo(ObjectWithLimbo *next) final override;
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) = 0;
+      virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) {
+        return to_pmath_impl(flags);
+      }
       
     protected:
       TintedPtr<Box, ObjectWithLimbo> _parent_or_limbo_next;
@@ -453,9 +458,11 @@ namespace richmath {
       virtual void paint(Context &context) override {}
       
       virtual Box *remove(int *index) override { return this; }
-      
+    
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override { return Expr(); }
+      
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return Expr(); }
   };
 }
 

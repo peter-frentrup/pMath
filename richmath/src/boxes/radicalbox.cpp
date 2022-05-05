@@ -223,7 +223,7 @@ Expr RadicalBox::to_pmath_symbol(){
   return Symbol(richmath_System_SqrtBox);
 }
 
-Expr RadicalBox::to_pmath(BoxOutputFlags flags) {
+Expr RadicalBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(_radicand->to_pmath(flags));

@@ -33,13 +33,14 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void reset_style() override;
       
       virtual void click() override;
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::ButtonBox; }
   };
 }

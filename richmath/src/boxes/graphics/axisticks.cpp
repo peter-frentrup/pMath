@@ -274,7 +274,7 @@ Expr AxisTicks::to_pmath_symbol() {
   return Symbol(richmath_System_List);
 }
 
-Expr AxisTicks::to_pmath(BoxOutputFlags flags) {
+Expr AxisTicks::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   for(int i = 0; i < count(); ++i) {

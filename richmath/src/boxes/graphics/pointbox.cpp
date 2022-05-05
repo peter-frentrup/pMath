@@ -193,7 +193,7 @@ void PointBox::paint(GraphicsBox *owner, Context &context) {
   context.canvas().fill();
 }
 
-Expr PointBox::to_pmath(BoxOutputFlags flags) { 
+Expr PointBox::to_pmath_impl(BoxOutputFlags flags) { 
   if(_uncompressed_expr.expr_length() != 1)
     return _uncompressed_expr;
     

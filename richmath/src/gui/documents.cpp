@@ -1383,30 +1383,44 @@ Expr richmath_eval_FrontEnd_DocumentDelete(Expr expr) {
 Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
   /*  FrontEnd`DocumentGet()
       FrontEnd`DocumentGet(selectionOrBox)
+      FrontEnd`DocumentGet(selectionOrBox, depth)
    */
-  
+  VolatileSelection sel(nullptr, 0, 0);
+  BoxOutputFlags flags = BoxOutputFlags::WithDebugMetadata;
+  int depth = INT_MAX;
   size_t exprlen = expr.expr_length();
-  if(exprlen > 1)
+  if(exprlen > 2)
     return Symbol(richmath_System_DollarFailed);
   
-  FrontEndReference docid;
-  if(exprlen == 1) {
-    docid = FrontEndReference::from_pmath(expr[1]);
-    
-    if(docid == FrontEndReference::None) {
-      if(VolatileSelection sel = SelectionReference::from_pmath(expr[1]).get_all()) {
-        return sel.to_pmath(BoxOutputFlags::WithDebugMetadata);
-      }
-    }
+  if(exprlen == 0 || expr[1] == richmath_System_Automatic) {
+    if(Box *box = Documents::selected_document())
+      sel = {box, 0, box->length()};
   }
-  else
-    docid = Documents::selected_document_id;
+  else {
+    if(Box *box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1])))
+      sel = {box, 0, box->length()};
+    else
+      sel = SelectionReference::from_pmath(expr[1]).get_all();
+  }
   
-  Box *box = FrontEndObject::find_cast<Box>(docid);
-  if(!box)
+  if(exprlen == 2) {
+    depth = -1;
+    Expr d_obj = expr[2];
+    if(d_obj.is_int32()) {
+      depth = PMATH_AS_INT32(d_obj.get());
+      flags |= BoxOutputFlags::LimitedDepth;
+    }
+    
+    if(depth < 0)
+      return Symbol(richmath_System_DollarFailed);
+  }
+  
+  if(!sel)
     return Symbol(richmath_System_DollarFailed);
-  
-  return box->to_pmath(BoxOutputFlags::WithDebugMetadata);
+    
+  AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
+  Box::max_box_output_depth = depth;
+  return sel.to_pmath(flags);
 }
 
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {

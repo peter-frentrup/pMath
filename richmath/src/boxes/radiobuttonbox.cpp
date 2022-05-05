@@ -93,7 +93,7 @@ Expr RadioButtonBox::to_pmath_symbol() {
   return Symbol(richmath_System_RadioButtonBox);
 }
 
-Expr RadioButtonBox::to_pmath(BoxOutputFlags flags) {
+Expr RadioButtonBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather gather;
   
   Expr val;

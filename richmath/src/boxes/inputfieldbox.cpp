@@ -316,7 +316,7 @@ Expr InputFieldBox::to_pmath_symbol() {
   return Symbol(richmath_System_InputFieldBox);
 }
 
-Expr InputFieldBox::to_pmath(BoxOutputFlags flags) {
+Expr InputFieldBox::to_pmath_impl(BoxOutputFlags flags) {
   if(invalidated())
     Impl(*this).assign_dynamic(DynamicFunctions::Continue); // TODO: DynamicFunctions::Finish ?
     

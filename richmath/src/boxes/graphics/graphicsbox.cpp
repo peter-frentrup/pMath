@@ -427,7 +427,7 @@ Expr GraphicsBox::to_pmath_symbol() {
   return Symbol(richmath_System_GraphicsBox);
 }
 
-Expr GraphicsBox::to_pmath(BoxOutputFlags flags) {
+Expr GraphicsBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   Gather::emit(elements.to_pmath(flags));

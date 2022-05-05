@@ -18,7 +18,6 @@ namespace richmath {
       virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void reset_style() override;
 
@@ -41,6 +40,8 @@ namespace richmath {
       
       bool first_paint() {       return get_flag(FirstPaintBit); }
       void first_paint(bool value) { change_flag(FirstPaintBit, value); }
+      
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };
 }
 

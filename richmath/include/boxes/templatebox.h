@@ -43,7 +43,6 @@ namespace richmath {
       virtual void paint_content(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;
@@ -53,6 +52,7 @@ namespace richmath {
       static FrontEndObject *get_current_value_of_TemplateBox(FrontEndObject *obj, Expr item);
 
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual void resize_default_baseline(Context &context) override;
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::TemplateBox; }
       

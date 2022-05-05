@@ -20,7 +20,6 @@ namespace richmath {
       virtual void paint(Context &context) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual void reset_style() override;
       
@@ -32,6 +31,8 @@ namespace richmath {
       virtual VolatileSelection dynamic_to_literal(int start, int end) override;
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
       virtual ContainerType default_container_type() override { return ContainerType::PaletteButton; }
     
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::SetterBox; }

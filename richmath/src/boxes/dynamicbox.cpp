@@ -222,7 +222,7 @@ Expr DynamicBox::to_pmath_symbol() {
   return Symbol(richmath_System_DynamicBox); 
 }
 
-Expr DynamicBox::to_pmath(BoxOutputFlags flags) {
+Expr DynamicBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Literal))
     return content()->to_pmath(flags);
   

@@ -225,7 +225,7 @@ Expr PaneSelectorBox::to_pmath_symbol() {
   return Symbol(richmath_System_PaneSelectorBox);
 }
 
-Expr PaneSelectorBox::to_pmath(BoxOutputFlags flags) {
+Expr PaneSelectorBox::to_pmath_impl(BoxOutputFlags flags) {
   Expr rules = MakeCall(Symbol(richmath_System_List), (size_t)_cases.length());
   for(int i = 0;i < _cases.length();++i) {
     Expr val = _cases[i];

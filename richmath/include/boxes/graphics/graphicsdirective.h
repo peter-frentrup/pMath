@@ -21,12 +21,13 @@ namespace richmath {
       virtual void find_extends(GraphicsBounds &bounds) override {}
       virtual void paint(GraphicsBox *owner, Context &context) override;
       
-      virtual Expr to_pmath(BoxOutputFlags flags) override { return _dynamic.expr(); }
-      
       virtual SharedPtr<Style> own_style() final override { return _style; };
       virtual void dynamic_updated() override;
       virtual void dynamic_finished(Expr info, Expr result) override;
     
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return _dynamic.expr(); }
+      
     private:
       GraphicsDirective();
       GraphicsDirective(Expr expr);

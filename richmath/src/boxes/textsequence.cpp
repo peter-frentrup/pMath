@@ -482,11 +482,11 @@ void TextSequence::selection_path(Canvas &canvas, int start_text_index, int end_
   }
 }
 
-Expr TextSequence::to_pmath(BoxOutputFlags flags) {
-  return to_pmath(flags, 0, length());
+Expr TextSequence::to_pmath_impl(BoxOutputFlags flags) {
+  return to_pmath_impl(flags, 0, length());
 }
 
-Expr TextSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
+Expr TextSequence::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   return Impl(*this).to_pmath(flags, start, end);
 }
 

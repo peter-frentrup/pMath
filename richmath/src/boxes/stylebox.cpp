@@ -169,7 +169,7 @@ Expr StyleBox::to_pmath_symbol() {
   return Symbol(richmath_System_StyleBox); 
 }
 
-Expr StyleBox::to_pmath(BoxOutputFlags flags) {
+Expr StyleBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has(flags, BoxOutputFlags::Parseable) && get_own_style(StripOnInput, true)) {
     return _content->to_pmath(flags);
   }
@@ -265,7 +265,7 @@ Expr TagBox::to_pmath_symbol() {
   return Symbol(richmath_System_TagBox); 
 }
 
-Expr TagBox::to_pmath(BoxOutputFlags flags) {
+Expr TagBox::to_pmath_impl(BoxOutputFlags flags) {
   Gather g;
   
   g.emit(_content->to_pmath(flags));

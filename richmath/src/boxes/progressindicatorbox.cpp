@@ -166,7 +166,7 @@ Expr ProgressIndicatorBox::to_pmath_symbol() {
   return Symbol(richmath_System_ProgressIndicatorBox);
 }
 
-Expr ProgressIndicatorBox::to_pmath(BoxOutputFlags flags) {
+Expr ProgressIndicatorBox::to_pmath_impl(BoxOutputFlags flags) {
   Expr val;
   if(has(flags, BoxOutputFlags::Literal))
     val = to_literal();

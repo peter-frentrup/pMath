@@ -108,7 +108,7 @@ Box *OwnerBox::remove(int *index) {
   return _content;
 }
 
-Expr OwnerBox::to_pmath(BoxOutputFlags flags) {
+Expr OwnerBox::to_pmath_impl(BoxOutputFlags flags) {
   return _content->to_pmath(flags);
 }
 
@@ -314,11 +314,11 @@ Expr InlineSequenceBox::to_pmath_symbol() {
   return base::to_pmath_symbol();
 }
 
-Expr InlineSequenceBox::to_pmath(BoxOutputFlags flags) {
+Expr InlineSequenceBox::to_pmath_impl(BoxOutputFlags flags) {
   if(has_explicit_head())
-    return Call(to_pmath_symbol(), base::to_pmath(flags));
+    return Call(to_pmath_symbol(), base::to_pmath_impl(flags));
   else
-    return base::to_pmath(flags);
+    return base::to_pmath_impl(flags);
 }
 
 //} ... class InlineSequenceBox

@@ -34,7 +34,6 @@ namespace richmath {
       virtual Box *remove(int *index) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
@@ -53,6 +52,8 @@ namespace richmath {
       void axis_hidden(bool value) {   change_flag(AxisHiddenBit, value); }
     
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
       void set_count(int new_count);
       
       void draw_tick(Canvas &canvas, float x, float y, float length);

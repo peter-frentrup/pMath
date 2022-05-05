@@ -666,11 +666,11 @@ void MathSequence::selection_path(Context &context, int start, int end) {
   Impl(*this).selection_path(&context, context.canvas(), start, end); 
 }
 
-Expr MathSequence::to_pmath(BoxOutputFlags flags) {
-  return to_pmath(flags, 0, length());
+Expr MathSequence::to_pmath_impl(BoxOutputFlags flags) {
+  return to_pmath_impl(flags, 0, length());
 }
 
-Expr MathSequence::to_pmath(BoxOutputFlags flags, int start, int end) {
+Expr MathSequence::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   ScanData data;
   data.sequence    = this;
   data.current_box = 0;
@@ -1710,21 +1710,32 @@ pmath_t MathSequence::Impl::box_at_index(int i, void *_data) {
   if(i < data->start || data->end <= i)
     return PMATH_FROM_TAG(PMATH_TAG_STR0, 0); // PMATH_C_STRING("")
     
+  Box *box = nullptr;
+  
   int start = data->current_box;
   while(data->current_box < data->sequence->boxes.length()) {
-    if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
+    if(data->sequence->boxes[data->current_box]->index() == i) {
+      box = data->sequence->boxes[data->current_box];
+      break;
+    }
     ++data->current_box;
   }
   
-  data->current_box = 0;
-  while(data->current_box < start) {
-    if(data->sequence->boxes[data->current_box]->index() == i)
-      return data->sequence->boxes[data->current_box]->to_pmath(flags).release();
-    ++data->current_box;
+  if(!box) {
+    data->current_box = 0;
+    while(data->current_box < start) {
+      if(data->sequence->boxes[data->current_box]->index() == i) {
+        box = data->sequence->boxes[data->current_box];
+        break;
+      }
+      ++data->current_box;
+    }
   }
   
-  return PMATH_NULL;
+  if(!box)
+    return PMATH_NULL;
+  
+  return box->to_pmath(flags).release();
 }
 
 pmath_t MathSequence::Impl::add_debug_metadata(

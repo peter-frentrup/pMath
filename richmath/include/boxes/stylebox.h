@@ -28,9 +28,11 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual bool changes_children_style() override { return true; }
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
   };
   
   class TagBox final : public AbstractStyleBox {
@@ -42,10 +44,12 @@ namespace richmath {
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
     
       virtual void reset_style() override;
-      
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+    
     private:
       Expr tag;
   };

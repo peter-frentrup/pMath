@@ -53,7 +53,6 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
         
@@ -71,6 +70,9 @@ namespace richmath {
       virtual void on_mouse_move(MouseEvent &event) override;
       virtual void on_mouse_up(MouseEvent &event) override;
     
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
+      
     protected:
       enum {
         UserHasChangedSizeBit = base::NumFlagsBits,

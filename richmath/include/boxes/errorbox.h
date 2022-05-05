@@ -22,12 +22,14 @@ namespace richmath {
       virtual Box *remove(int *index) override { return this; }
       
       virtual Expr to_pmath_symbol() override { return Expr(); }
-      virtual Expr to_pmath(BoxOutputFlags flags) override { return _object; }
       
       virtual VolatileSelection mouse_selection(Point pos, bool *was_inside_start) override;
       
       virtual void on_mouse_enter() override;
       virtual void on_mouse_exit() override;
+    
+    protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override { return _object; }
       
     private:
       Expr _object;

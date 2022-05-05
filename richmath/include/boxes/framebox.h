@@ -19,9 +19,9 @@ namespace richmath {
       virtual void reset_style() override;
       
       virtual Expr to_pmath_symbol() override;
-      virtual Expr to_pmath(BoxOutputFlags flags) override;
       
     protected:
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual void resize_default_baseline(Context &context) override;
       
       virtual DefaultStyleOptionOffsets get_default_styles_offset() override { return DefaultStyleOptionOffsets::FrameBox; }
