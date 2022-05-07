@@ -76,6 +76,7 @@ extern pmath_symbol_t pmath_System_Equal;
 extern pmath_symbol_t pmath_System_EvaluationSequence;
 extern pmath_symbol_t pmath_System_Factorial;
 extern pmath_symbol_t pmath_System_Factorial2;
+extern pmath_symbol_t pmath_System_False;
 extern pmath_symbol_t pmath_System_Floor;
 extern pmath_symbol_t pmath_System_FractionBox;
 extern pmath_symbol_t pmath_System_FrameBox;
@@ -103,6 +104,7 @@ extern pmath_symbol_t pmath_System_Inequation;
 extern pmath_symbol_t pmath_System_InterpretationBox;
 extern pmath_symbol_t pmath_System_InterpretationFunction;
 extern pmath_symbol_t pmath_System_Intersection;
+extern pmath_symbol_t pmath_System_Invisible;
 extern pmath_symbol_t pmath_System_LeftArrow;
 extern pmath_symbol_t pmath_System_LeftRightArrow;
 extern pmath_symbol_t pmath_System_LeftTriangle;
@@ -181,11 +183,13 @@ extern pmath_symbol_t pmath_System_RowSpacing;
 extern pmath_symbol_t pmath_System_Rule;
 extern pmath_symbol_t pmath_System_RuleDelayed;
 extern pmath_symbol_t pmath_System_Sequence;
+extern pmath_symbol_t pmath_System_ShowContents;
 extern pmath_symbol_t pmath_System_ShowDefinition;
 extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_SqrtBox;
 extern pmath_symbol_t pmath_System_StringBox;
 extern pmath_symbol_t pmath_System_StringExpression;
+extern pmath_symbol_t pmath_System_StripOnInput;
 extern pmath_symbol_t pmath_System_Style;
 extern pmath_symbol_t pmath_System_StyleBox;
 extern pmath_symbol_t pmath_System_Subscript;
@@ -2095,11 +2099,71 @@ static pmath_t make_expression_from_stylebox(pmath_expr_t box) {
     pmath_t content = pmath_expr_get_item(box, 1);
     
     if(parse(&content)) {
-      content = pmath_expr_new_extended(
-                  pmath_ref(pmath_System_Style), 1,
-                  content);
-                  
-      return wrap_hold_with_debug_metadata_from(box, content);
+      pmath_t debug_metadata = pmath_get_debug_metadata(box);
+      size_t i;
+      pmath_bool_t need_rem = FALSE;
+      pmath_bool_t has_other = FALSE;
+      pmath_bool_t has_StripOnInput = FALSE;
+      pmath_bool_t is_Invisible = FALSE;
+      
+      for(i = len; i >= 2; --i) {
+        pmath_t rule = pmath_expr_get_item(box, i);
+        
+        if(pmath_is_rule(rule)) {
+          pmath_t lhs = pmath_expr_get_item(rule, 1);
+          pmath_unref(lhs);
+          
+          if(pmath_same(lhs, pmath_System_StripOnInput)) {
+            pmath_t rhs = pmath_expr_get_item(rule, 2);
+            pmath_unref(rhs);
+            
+            if(pmath_same(rhs, pmath_System_True)) {
+              pmath_unref(rule);
+              pmath_unref(box);
+              pmath_unref(debug_metadata);
+              return HOLDCOMPLETE(content);
+            }
+            
+            has_StripOnInput = TRUE;
+            if(pmath_same(rhs, pmath_System_False)) {
+              need_rem = TRUE;
+              box = pmath_expr_set_item(box, i, PMATH_UNDEFINED);
+            }
+          }
+          else if(pmath_same(lhs, pmath_System_ShowContents)) {
+            pmath_t rhs = pmath_expr_get_item(rule, 2);
+            pmath_unref(rhs);
+            
+            is_Invisible = pmath_same(rhs, pmath_System_False);
+          }
+          else
+            has_other = TRUE;
+        }
+        else
+          has_other = TRUE;
+        
+        pmath_unref(rule);
+      }
+      
+      if(!has_StripOnInput) {
+        pmath_unref(box);
+        pmath_unref(debug_metadata);
+        return HOLDCOMPLETE(content);
+      }
+      
+      if(is_Invisible && !has_other) {
+        content = pmath_expr_new_extended(pmath_ref(pmath_System_Invisible), 1, content);
+        pmath_unref(box);
+        return HOLDCOMPLETE(pmath_try_set_debug_metadata(content, debug_metadata));
+      }
+      
+      box = pmath_expr_set_item(box, 1, content);
+      box = pmath_expr_set_item(box, 0, pmath_ref(pmath_System_Style));
+      
+      if(need_rem)
+        box = pmath_expr_remove_all(box, PMATH_UNDEFINED);
+      
+      return HOLDCOMPLETE(pmath_try_set_debug_metadata(box, debug_metadata));
     }
   }
   

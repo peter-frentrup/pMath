@@ -118,6 +118,7 @@ extern pmath_symbol_t pmath_System_Infinity;
 extern pmath_symbol_t pmath_System_InputForm;
 extern pmath_symbol_t pmath_System_Interpretation;
 extern pmath_symbol_t pmath_System_InterpretationBox;
+extern pmath_symbol_t pmath_System_Invisible;
 extern pmath_symbol_t pmath_System_Italic;
 extern pmath_symbol_t pmath_System_Large;
 extern pmath_symbol_t pmath_System_LeftArrow;
@@ -207,6 +208,7 @@ extern pmath_symbol_t pmath_System_Sequence;
 extern pmath_symbol_t pmath_System_SetterBox;
 extern pmath_symbol_t pmath_System_Shallow;
 extern pmath_symbol_t pmath_System_Short;
+extern pmath_symbol_t pmath_System_ShowContents;
 extern pmath_symbol_t pmath_System_ShowStringCharacters;
 extern pmath_symbol_t pmath_System_SingleMatch;
 extern pmath_symbol_t pmath_System_Skeleton;
@@ -344,7 +346,10 @@ static pmath_t underoverscript_to_boxes(          pmath_thread_t thread, pmath_e
 
 // For StandardForm:
 static pmath_t expr_to_boxes(             pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t framed_to_boxes(           pmath_thread_t thread, pmath_expr_t expr);
+static pmath_t invisible_to_boxes(        pmath_thread_t thread, pmath_expr_t expr);
 static pmath_t packed_array_to_boxes(     pmath_thread_t thread, pmath_packed_array_t packed_array);
+static pmath_t piecewise_to_boxes(        pmath_thread_t thread, pmath_expr_t expr);
 static pmath_bool_t user_make_boxes(pmath_t *obj);
 static pmath_t string_to_stringbox(       pmath_thread_t thread, pmath_t obj);
 static pmath_t object_to_boxes_or_empty(  pmath_thread_t thread, pmath_t obj);
@@ -3176,6 +3181,33 @@ static pmath_t framed_to_boxes(
   return call_to_boxes(thread, expr);
 }
 
+static pmath_t invisible_to_boxes(
+  pmath_thread_t thread,
+  pmath_expr_t   expr    // will be freed
+) {
+  if(pmath_expr_length(expr) == 1) {
+    pmath_t item = pmath_expr_extract_item(expr, 1);
+    pmath_unref(expr);
+    
+    item = object_to_boxes(thread, item);
+    
+    expr = pmath_expr_new_extended(
+             pmath_ref(pmath_System_StyleBox), 3,
+             item,
+             pmath_expr_new_extended(
+               pmath_ref(pmath_System_Rule), 2, 
+               pmath_ref(pmath_System_ShowContents), 
+               pmath_ref(pmath_System_False)),
+             pmath_expr_new_extended(
+               pmath_ref(pmath_System_Rule), 2, 
+               pmath_ref(pmath_System_StripOnInput), 
+               pmath_ref(pmath_System_False)));
+    return expr;
+  }
+  
+  return call_to_boxes(thread, expr);
+}
+
 static pmath_t piecewise_to_boxes(
   pmath_thread_t thread,
   pmath_expr_t   expr    // will be freed
@@ -3571,6 +3603,9 @@ static pmath_t expr_to_boxes(pmath_thread_t thread, pmath_expr_t expr) {
       if(thread->boxform < BOXFORM_OUTPUT) {
         if(pmath_same(head, pmath_System_Framed))
           return framed_to_boxes(thread, expr);
+          
+        if(pmath_same(head, pmath_System_Invisible))
+          return invisible_to_boxes(thread, expr);
           
         if(pmath_same(head, pmath_System_Piecewise))
           return piecewise_to_boxes(thread, expr);
