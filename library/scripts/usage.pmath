@@ -765,6 +765,7 @@ ShearingTransform::usage:= "ShearingTransform(\(StyleBox(\"\\[Theta]\", \"Arg\")
 Short::usage:= "Short(\(StyleBox(\"expr\", \"Arg\")\)) prints as a short form of \(StyleBox(\"expr\", \"Arg\")\), less than about one line long.\nShort(\(StyleBox(\"expr\", \"Arg\")\), \(StyleBox(\"n\", \"Arg\")\)) prints as a form of \(StyleBox(\"expr\", \"Arg\")\) about \(StyleBox(\"n\", \"Arg\")\) lines long."
 Shortest::usage:= "Shortest(\(StyleBox(\"p\", \"Arg\")\)) is a pattern object that matches the shortest sequence consistent with the pattern \(StyleBox(\"p\", \"Arg\")\)."
 ShowAutoStyles::usage:= "ShowAutoStyles is an option for Section and Style which determines whether styles specific to various syntactic constructs are to be shown."
+ShowContents::usage:= "ShowContents is an option for StyleBox that specifies whether contents should be displayed or replace by blank space."
 ShowDefinition::usage:= "??\(StyleBox(\"symbol\", \"Arg\")\)\(\" or \"\)ShowDefinition(\(StyleBox(\"symbol\", \"Arg\")\)) prints the definitions assigned to a symbol."
 ShowSectionBracket::usage:= "ShowSectionBracket is an option for Section which specifies whether its section bracket should be shown."
 ShowStringCharacters::usage:= "ShowStringCharacters is an option for Section and Style which specifies whether unescaped quotes and backslashes inside strings should be visible or not."

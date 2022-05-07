@@ -254,6 +254,7 @@ Options(Style):= Options(StyleBox):= {
     Selectable -> Inherited,
     SetterBoxOptions -> Inherited,
     ShowAutoStyles -> Inherited,
+    ShowContents -> Inherited,
     ShowStringCharacters -> Inherited,
     SliderBoxOptions -> Inherited,
     "StringStyle" -> Inherited,
@@ -390,6 +391,7 @@ Options(Section):= {
         ContentPadding -> True,
         Enabled -> Automatic},
     ShowAutoStyles -> True,
+    ShowContents -> True,
     ShowSectionBracket -> True,
     ShowStringCharacters -> True,
     SliderBoxOptions -> {

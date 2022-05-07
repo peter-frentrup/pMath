@@ -167,11 +167,12 @@ namespace richmath {
       void paint_with_alpha(float alpha);
       
     public:
-      bool pixel_device;
-      bool glass_background;
+      bool pixel_device : 1;
+      bool glass_background : 1;
       
-      bool  native_show_glyphs;
-      bool  show_only_text;
+      bool native_show_glyphs : 1;
+      bool show_only_text : 1;
+      bool suppress_output : 1;
       
     private:
       cairo_t           *_cr;

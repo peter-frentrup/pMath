@@ -685,6 +685,9 @@ void Win32ControlPainter::draw_container(
   ControlState    state,
   RectangleF      rect
 ) {
+  if(canvas.suppress_output)
+    return;
+  
   switch(type) {
     case ContainerType::None:
     case ContainerType::FramelessButton:

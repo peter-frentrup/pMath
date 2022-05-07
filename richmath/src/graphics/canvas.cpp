@@ -20,6 +20,7 @@ Canvas::Canvas(cairo_t *cr)
     glass_background(false),
     native_show_glyphs(true),
     show_only_text(false),
+    suppress_output(false),
     _cr(cr),
     _font_size(10),
     _color(Color::Black)
@@ -204,7 +205,7 @@ void Canvas::scale(double sx, double sy) {
 }
 
 void Canvas::set_color(Color color, float alpha) { 
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   _color = color;
@@ -368,7 +369,7 @@ void Canvas::show_blur_rect(
   float x2, float y2,
   float radius
 ) {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_pattern_t *pat;
@@ -469,7 +470,7 @@ void Canvas::show_blur_rect(
 }
 
 void Canvas::show_blur_line(float x1, float y1, float x2, float y2, float radius) {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   float dx = x2 - x1;
@@ -509,7 +510,7 @@ void Canvas::show_blur_arc(
   float angle2,
   bool negative
 ) {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_pattern_t *pat;
@@ -545,7 +546,7 @@ static float angle(float x, float y) {
 }
 
 void Canvas::show_blur_stroke(float radius, bool preserve) {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_path_t *path = cairo_copy_path_flat(_cr);
@@ -687,6 +688,9 @@ void Canvas::glyph_extents(const cairo_glyph_t *glyphs, int num_glyphs, cairo_te
 }
 
 void Canvas::show_glyphs(const cairo_glyph_t *glyphs, int num_glyphs) {
+  if(suppress_output)
+    return;
+  
   bool sot = show_only_text;
   show_only_text = false;
   
@@ -718,7 +722,7 @@ void Canvas::clip_preserve() {
 }
 
 void Canvas::fill() {
-  if(show_only_text) {
+  if(show_only_text || suppress_output) {
     new_path();
     return;
   }
@@ -727,14 +731,14 @@ void Canvas::fill() {
 }
 
 void Canvas::fill_preserve() {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_fill_preserve(_cr);
 }
 
 void Canvas::hair_stroke() {
-  if(show_only_text) {
+  if(show_only_text || suppress_output) {
     new_path();
     return;
   }
@@ -752,7 +756,7 @@ void Canvas::hair_stroke() {
 }
 
 void Canvas::stroke() {
-  if(show_only_text) {
+  if(show_only_text || suppress_output) {
     new_path();
     return;
   }
@@ -761,7 +765,7 @@ void Canvas::stroke() {
 }
 
 void Canvas::stroke_preserve() {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_stroke_preserve(_cr);
@@ -831,14 +835,14 @@ void Canvas::stroke_extents(double *x1, double *y1, double *x2, double *y2) {
 }
 
 void Canvas::paint() {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_paint(_cr);
 }
 
 void Canvas::paint_with_alpha(float alpha) {
-  if(show_only_text)
+  if(show_only_text || suppress_output)
     return;
     
   cairo_paint_with_alpha(_cr, alpha);

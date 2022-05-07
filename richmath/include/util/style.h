@@ -136,6 +136,7 @@ namespace richmath {
     SectionLabelAutoDelete,
     Selectable, // AutoBoolXXX
     ShowAutoStyles,
+    ShowContents,
     ShowSectionBracket, // AutoBoolXXX
     ShowStringCharacters,
     StripOnInput,

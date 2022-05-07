@@ -304,6 +304,7 @@ void ContextState::begin(SharedPtr<Style> style) {
   old_cursor_color           = ctx.cursor_color;
   old_color                  = ctx.canvas().get_color();
   old_fontsize               = ctx.canvas().get_font_size();
+  old_suppress_output        = ctx.canvas().suppress_output;
   old_width                  = ctx.width;
   old_math_shaper            = ctx.math_shaper;
   old_text_shaper            = ctx.text_shaper;
@@ -483,21 +484,26 @@ void ContextState::apply_non_layout_styles(SharedPtr<Style> style) {
     }
   }
   
+  if(ctx.stylesheet->get(style, ShowContents, &i)) {
+    ctx.canvas().suppress_output = !i;
+  }
+  
   Impl(*this).apply_syntax(style);
 }
 
 void ContextState::end() {
   ctx.cursor_color = old_cursor_color;
-  ctx.canvas().set_color(      old_color);
-  ctx.canvas().set_font_size(  old_fontsize);
-  ctx.width                  = old_width;
-  ctx.script_level           = old_script_level;
-  ctx.show_string_characters = old_show_string_characters;
-  ctx.show_auto_styles       = old_show_auto_styles;
-  ctx.math_spacing           = old_math_spacing;
-  ctx.math_shaper            = old_math_shaper;
-  ctx.text_shaper            = old_text_shaper;
-  ctx.syntax                 = old_syntax;
+  ctx.canvas().set_color(        old_color);
+  ctx.canvas().set_font_size(    old_fontsize);
+  ctx.canvas().suppress_output = old_suppress_output;
+  ctx.width                    = old_width;
+  ctx.script_level             = old_script_level;
+  ctx.show_string_characters   = old_show_string_characters;
+  ctx.show_auto_styles         = old_show_auto_styles;
+  ctx.math_spacing             = old_math_spacing;
+  ctx.math_shaper              = old_math_shaper;
+  ctx.text_shaper              = old_text_shaper;
+  ctx.syntax                   = old_syntax;
   
   if(old_antialiasing >= 0)
     cairo_set_antialias(ctx.canvas().cairo(), old_antialiasing);

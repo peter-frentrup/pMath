@@ -141,6 +141,7 @@ extern pmath_symbol_t richmath_System_SectionMargins;
 extern pmath_symbol_t richmath_System_Selectable;
 extern pmath_symbol_t richmath_System_SetterBoxOptions;
 extern pmath_symbol_t richmath_System_ShowAutoStyles;
+extern pmath_symbol_t richmath_System_ShowContents;
 extern pmath_symbol_t richmath_System_ShowSectionBracket;
 extern pmath_symbol_t richmath_System_ShowStringCharacters;
 extern pmath_symbol_t richmath_System_SliderBoxOptions;
@@ -2314,6 +2315,7 @@ bool Style::modifies_size(StyleOptionName style_name) {
     case SectionLabelAutoDelete:
     case Selectable:
     case ShowAutoStyles: // only modifies color
+    case ShowContents:
     case StripOnInput:
     
     case LanguageCategory:
@@ -2505,6 +2507,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
   impl.emit_definition(Selectable);
   impl.emit_definition(SetterBoxOptions);
   impl.emit_definition(ShowAutoStyles);
+  impl.emit_definition(ShowContents);
   impl.emit_definition(ShowSectionBracket);
   impl.emit_definition(ShowStringCharacters);
   impl.emit_definition(SliderBoxOptions);
@@ -3064,6 +3067,7 @@ void StyleInformation::add_style() {
     add(StyleType::Bool,            SectionLabelAutoDelete,           Symbol( richmath_System_SectionLabelAutoDelete));
     add(StyleType::AutoBool,        Selectable,                       Symbol( richmath_System_Selectable));
     add(StyleType::Bool,            ShowAutoStyles,                   Symbol( richmath_System_ShowAutoStyles));
+    add(StyleType::Bool,            ShowContents,                     Symbol( richmath_System_ShowContents));
     add(StyleType::AutoBool,        ShowSectionBracket,               Symbol( richmath_System_ShowSectionBracket));
     add(StyleType::Bool,            ShowStringCharacters,             Symbol( richmath_System_ShowStringCharacters));
     add(StyleType::Bool,            StripOnInput,                     Symbol( richmath_System_StripOnInput));

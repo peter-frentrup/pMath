@@ -295,6 +295,9 @@ void ControlPainter::draw_container(
   ControlState    state,
   RectangleF      rect
 ) {
+  if(canvas.suppress_output)
+    return;
+  
   rect.pixel_align(canvas, false);
   
   if(rect.width <= 0 || rect.height <= 0)

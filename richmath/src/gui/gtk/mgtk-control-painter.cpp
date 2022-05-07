@@ -541,6 +541,9 @@ void MathGtkControlPainter::draw_container(
   ControlState    state,
   RectangleF      rect
 ) {
+  if(canvas.suppress_output)
+    return;
+  
   switch(type) {
     case ContainerType::PaletteButton:
       if(state == ControlState::Normal)
