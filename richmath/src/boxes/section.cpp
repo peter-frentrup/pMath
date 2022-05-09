@@ -925,7 +925,7 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
                    Symbol(richmath_FE_Styles_MakeStyleDataBoxes),
                    Call(
                      Symbol(richmath_System_HoldComplete),
-                     std::move(style_data))),
+                     style_data)),
                  Application::button_timeout);
   _content->load_from_object(boxes, opts);
   
