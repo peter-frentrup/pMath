@@ -4,6 +4,7 @@
 
 #include <eval/application.h>
 #include <gui/documents.h>
+#include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/win32-widget.h>
 
 
@@ -55,6 +56,9 @@ Expr Win32FontDialog::show(SharedPtr<Style> initial_style) {
     Length size = SymbolicSize::Invalid;
     if(initial_style->get(FontSize, &size) && size.is_explicit_abs() && size.explicit_abs_value() >= 1) {
       data.iPointSize = (int)(10 * size.explicit_abs_value() + 0.5);
+      
+      // ChooseFontW() is not per-monitor-DPI-aware:
+      logfontw.lfHeight = -(int)(size.explicit_abs_value() * Win32HighDpi::get_dpi_for_system() / 72.0 + 0.5);
     }
     else
       data.Flags |= CF_NOSIZESEL;
