@@ -186,6 +186,7 @@ extern pmath_symbol_t pmath_System_Sequence;
 extern pmath_symbol_t pmath_System_ShowContents;
 extern pmath_symbol_t pmath_System_ShowDefinition;
 extern pmath_symbol_t pmath_System_SingleMatch;
+extern pmath_symbol_t pmath_System_Sqrt;
 extern pmath_symbol_t pmath_System_SqrtBox;
 extern pmath_symbol_t pmath_System_StringBox;
 extern pmath_symbol_t pmath_System_StringExpression;
@@ -597,6 +598,10 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // !x
       if(firstchar == '!' || firstchar == 0x00AC)
         return make_from_second_box(expr, pmath_System_Not);
+        
+      // \[Sqrt] x
+      if(firstchar == 0x221A)
+        return make_from_second_box(expr, pmath_System_Sqrt);
         
       // #x
       if(firstchar == '#')
