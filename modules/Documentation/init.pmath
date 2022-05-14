@@ -66,6 +66,21 @@ Function FindSymbolDocumentationByNamespaceAndName(~namespace:String, ~name:Stri
     }
 }
 
+FindSymbolDocumentationByFullName("//=")::=                 FindSymbolDocumentationByFullName("AssignWith")
+FindSymbolDocumentationByFullName("\[Degree]")::=           FindSymbolDocumentationByFullName("Degree")
+FindSymbolDocumentationByFullName("&")::=                   FindSymbolDocumentationByFullName("Function")
+FindSymbolDocumentationByFullName("|->")::=                 FindSymbolDocumentationByFullName("Function")
+FindSymbolDocumentationByFullName("\[Function]")::=         FindSymbolDocumentationByFullName("Function")
+FindSymbolDocumentationByFullName("\[AliasDelimiter]")::=   FindSymbolDocumentationByFullName("InputAliases")
+FindSymbolDocumentationByFullName("{")::=                   FindSymbolDocumentationByFullName("List")
+FindSymbolDocumentationByFullName("}")::=                   FindSymbolDocumentationByFullName("List")
+FindSymbolDocumentationByFullName("^")::=                   FindSymbolDocumentationByFullName("Power")
+FindSymbolDocumentationByFullName("->")::=                  FindSymbolDocumentationByFullName("Rule")
+FindSymbolDocumentationByFullName("\[Rule]")::=             FindSymbolDocumentationByFullName("Rule")
+FindSymbolDocumentationByFullName(":>")::=                  FindSymbolDocumentationByFullName("RuleDelayed")
+FindSymbolDocumentationByFullName("\[RuleDelayed]")::=      FindSymbolDocumentationByFullName("RuleDelayed")
+FindSymbolDocumentationByFullName("\[Sqrt]")::=             FindSymbolDocumentationByFullName("Sqrt")
+
 
 PrepareUsageSection(~text)::= ToString(text)
 Function PrepareUsageSection(~text:String) {

@@ -339,10 +339,15 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
     return false;
   
   VolatileSelection sel = doc->selection_now();
-  VolatileSelection word_src = sel.start_only();
-  do {
-    word_src.expand();
-  } while(word_src.box && !word_src.directly_contains(sel));
+  VolatileSelection word_src;
+  if(sel.is_empty()) {
+    word_src = sel.start_only();
+    do {
+      word_src.expand();      
+    } while(word_src.box && !word_src.directly_contains(sel));
+  }
+  else
+    word_src = sel;
   
   if(!word_src.box) {
     doc->native()->beep();
