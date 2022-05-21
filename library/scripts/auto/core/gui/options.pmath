@@ -59,6 +59,7 @@ Options(CreateDocument):= Options(Document):= {
     GridBoxRowSpacing -> Inherited,
     "ImplicitOperatorStyle" -> Inherited,
     "InlineAutoCompletionStyle" -> Inherited,
+    "InlineSectionEditingStyle" -> Inherited,
     InputAliases -> Inherited,
     InputAutoReplacements -> Inherited,
     InputFieldBoxOptions -> Inherited,
@@ -335,6 +336,7 @@ Options(Section):= {
     GridBoxRowSpacing -> 0.5,
     "ImplicitOperatorStyle" -> { FontColor -> Inherited },
     "InlineAutoCompletionStyle" -> { Background -> Inherited, Opacity -> Inherited },
+    "InlineSectionEditingStyle" -> { Background -> Inherited, Opacity -> Inherited },
     InputAliases -> Inherited,
     InputAutoReplacements -> Inherited,
     InputFieldBoxOptions -> {
