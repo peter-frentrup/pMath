@@ -53,6 +53,7 @@ extern pmath_symbol_t pmath_System_CompressedData;
 extern pmath_symbol_t pmath_System_Condition;
 extern pmath_symbol_t pmath_System_Congruent;
 extern pmath_symbol_t pmath_System_Cross;
+extern pmath_symbol_t pmath_System_CubeRoot;
 extern pmath_symbol_t pmath_System_CupCap;
 extern pmath_symbol_t pmath_System_Decrement;
 extern pmath_symbol_t pmath_System_Derivative;
@@ -298,6 +299,7 @@ static pmath_t make_optional_pattern(pmath_expr_t boxes); // ?x  ?x:v
 static pmath_t make_derivative(      pmath_expr_t boxes, int order);
 static pmath_t make_from_first_box(  pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
 static pmath_t make_from_second_box( pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
+static pmath_t make_power_from_second_box(pmath_expr_t boxes, pmath_t exponent); // boxes and eponent will be freed
 static pmath_t make_matchfix(        pmath_expr_t boxes, pmath_symbol_t sym); // {}  {args}  \[LeftCeiling]arg\[RightCeiling]  ...
 static pmath_t make_binary(          pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
 static pmath_t make_pattern_op_other(pmath_expr_t boxes, pmath_symbol_t sym); // boxes will be freed, sym won't
@@ -602,6 +604,14 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       // \[Sqrt] x
       if(firstchar == 0x221A)
         return make_from_second_box(expr, pmath_System_Sqrt);
+        
+      // \[CubeRoot] x
+      if(firstchar == 0x221B)
+        return make_from_second_box(expr, pmath_System_CubeRoot);
+        
+      // \[U+221C] x  fourth root
+      if(firstchar == 0x221C)
+        return make_power_from_second_box(expr, QUOT(1, 4));
         
       // #x
       if(firstchar == '#')
@@ -2665,6 +2675,23 @@ static pmath_t make_from_second_box(
   }
   
   pmath_unref(boxes);
+  return pmath_ref(pmath_System_DollarFailed);
+}
+
+static pmath_t make_power_from_second_box(pmath_expr_t boxes, pmath_t exponent) {
+  pmath_t box = parse_at(boxes, 2);
+  
+  if(!is_parse_error(box)) {
+    return wrap_hold_with_debug_metadata_from(
+             boxes,
+             pmath_expr_new_extended(
+               pmath_ref(pmath_System_Power), 2,
+               box,
+               exponent));
+  }
+  
+  pmath_unref(boxes);
+  pmath_unref(exponent);
   return pmath_ref(pmath_System_DollarFailed);
 }
 

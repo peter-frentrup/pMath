@@ -583,6 +583,7 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x2216, "Backslash"},
   { 0x2218, "SmallCircle"},
   { 0x221A, "Sqrt"},
+  { 0x221B, "CubeRoot"},
   { 0x221D, "Proportional"},
   { 0x221E, "Infinity"},
   
