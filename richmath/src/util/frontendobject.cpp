@@ -13,11 +13,21 @@ using namespace pmath;
 extern pmath_symbol_t richmath_System_FrontEndObject;
 extern pmath_symbol_t richmath_System_DocumentObject;
 
+namespace {
+  class ObjectWithLimboEnd final : public ObjectWithLimbo {
+    virtual void safe_destroy() override {}
+    virtual ObjectWithLimbo *next_in_limbo() override { return this; };
+    virtual void next_in_limbo(ObjectWithLimbo *next) override { RICHMATH_ASSERT(next == this); }
+  };
+}
+
 namespace richmath {
   class FrontEndReferenceImpl {
     public:
       FrontEndReferenceImpl() {
         _next_id._id = 1;
+        object_limbo = &object_limbo_end;
+        deletion_suspensions = 0;
       }
       
       static FrontEndReference init_none() {
@@ -41,7 +51,13 @@ namespace richmath {
     
     public:
       Hashtable<FrontEndReference, FrontEndObject*> table;
-    
+      
+      // Actually for AutoMemorySuspension, not for FrontEndReference
+      ObjectWithLimboEnd object_limbo_end;
+
+      int deletion_suspensions;
+      ObjectWithLimbo *object_limbo;
+
     private:
       FrontEndReference  _next_id;
   };
@@ -111,25 +127,22 @@ Expr FrontEndReference::to_pmath() const {
 
 //{ class AutoMemorySuspension ...
 
-static int deletion_suspensions = 0;
-static ObjectWithLimbo *object_limbo = nullptr;
-
 bool AutoMemorySuspension::are_deletions_suspended() {
-  return deletion_suspensions > 0;
+  return TheCache.deletion_suspensions > 0;
 }
 
 void AutoMemorySuspension::suspend_deletions() {
-  ++deletion_suspensions;
+  ++TheCache.deletion_suspensions;
 }
 
 void AutoMemorySuspension::resume_deletions() {
-  if(--deletion_suspensions > 0)
+  if(--TheCache.deletion_suspensions > 0)
     return;
     
   int count = 0;
-  while(object_limbo) {
-    ObjectWithLimbo *tmp = object_limbo;
-    object_limbo = tmp->next_in_limbo();
+  while(TheCache.object_limbo != &TheCache.object_limbo_end) {
+    ObjectWithLimbo *tmp = TheCache.object_limbo;
+    TheCache.object_limbo = tmp->next_in_limbo();
     
     delete tmp;
     ++count;
@@ -152,11 +165,23 @@ ObjectWithLimbo::~ObjectWithLimbo() {
 }
 
 void ObjectWithLimbo::safe_destroy() {
+  fprintf(stderr, "[safe_destroy %p %d next=%p, limbo=%p]\n", 
+    this, 
+    AutoMemorySuspension::are_deletions_suspended(),
+    next_in_limbo(),
+    TheCache.object_limbo);
   if(AutoMemorySuspension::are_deletions_suspended()) {
-    RICHMATH_ASSERT( next_in_limbo() == nullptr );
-    next_in_limbo(object_limbo);
-    RICHMATH_ASSERT( next_in_limbo() == object_limbo );
-    object_limbo = this;
+    if(next_in_limbo() != nullptr) {
+      fprintf(stderr, "[warning: duplicate safe_destroy() for %p]\n", this);
+      return;
+    }
+    next_in_limbo(TheCache.object_limbo);
+    RICHMATH_ASSERT( next_in_limbo() == TheCache.object_limbo );
+    TheCache.object_limbo = this;
+    return;
+  }
+  if(next_in_limbo() != nullptr) {
+    fprintf(stderr, "[error: duplicate safe_destroy() for %p, without memory suspensions now]\n", this);
     return;
   }
   delete this;
