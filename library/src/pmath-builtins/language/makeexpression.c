@@ -831,7 +831,7 @@ PMATH_PRIVATE pmath_t builtin_makeexpression(pmath_expr_t expr) {
       return make_simple_dot_call(expr);
     }
     
-    // a.f(x)   a |> f(x)
+    // a.f(x)
     if( exprlen == 6               &&
         secondchar == '.'          &&
         unichar_at(expr, 4) == '(' &&
@@ -3232,6 +3232,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
       if(is_parse_error(f)) {
         pmath_unref(arg1);
         pmath_unref(box);
+        pmath_unref(boxes);
         return pmath_ref(pmath_System_DollarFailed);
       }
       
@@ -3245,6 +3246,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
       if(is_parse_error(f)) {
         pmath_unref(arg1);
         pmath_unref(box);
+        pmath_unref(boxes);
         return pmath_ref(pmath_System_DollarFailed);
       }
       
@@ -3261,6 +3263,7 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
         call = pmath_expr_set_item(call, 1, arg1);
         call = pmath_expr_set_item(call, 0, f);
         
+        pmath_unref(box);
         return wrap_hold_with_debug_metadata_from(boxes, call);
       }
       
@@ -3268,12 +3271,14 @@ static pmath_t make_pipe_call(pmath_expr_t boxes) {
       pmath_unref(f);
       pmath_unref(box);
       pmath_unref(arg1);
+      pmath_unref(boxes);
       return pmath_ref(pmath_System_DollarFailed);
     }
   }
   
   if(!parse(&box)) {
     pmath_unref(arg1);
+    pmath_unref(boxes);
     return pmath_ref(pmath_System_DollarFailed);
   }
   
