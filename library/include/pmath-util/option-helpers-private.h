@@ -30,6 +30,7 @@ PMATH_PRIVATE
 pmath_bool_t _pmath_options_check_subset_of(
   pmath_t     set, 
   pmath_t     default_options, 
+  pmath_t     msg_head, // won't be freed
   const char *msg_tag, // "optx" or "optnf" or NULL
   pmath_t     msg_arg);
 

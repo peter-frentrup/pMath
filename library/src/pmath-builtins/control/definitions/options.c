@@ -195,7 +195,7 @@ PMATH_PRIVATE pmath_t builtin_optionvalue(pmath_expr_t expr) {
   
   if(!pmath_same(extra, PMATH_UNDEFINED)) {
     if(check_set_of_options(extra))
-      _pmath_options_check_subset_of(extra, default_opts, "optnf", func);
+      _pmath_options_check_subset_of(extra, default_opts, pmath_System_Options, "optnf", func);
   }
   
   if(pmath_is_expr_of(name, pmath_System_List)) {
