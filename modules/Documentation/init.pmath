@@ -1,11 +1,12 @@
 BeginPackage("Documentation`")
 
 $DocumentationPath
+CreateHelpDocument
 FindDocumentationPages
 FindSymbolDocumentation
 FindSymbolDocumentationByFullName
 FindSymbolDocumentationByNamespaceAndName
-CreateHelpDocument
+OpenDocumentationForSelection
 InteractiveCreateHelpDocument
 
 PrepareUsageSection
@@ -66,20 +67,223 @@ Function FindSymbolDocumentationByNamespaceAndName(~namespace:String, ~name:Stri
     }
 }
 
-FindSymbolDocumentationByFullName("//=")::=                 FindSymbolDocumentationByFullName("AssignWith")
-FindSymbolDocumentationByFullName("\[Degree]")::=           FindSymbolDocumentationByFullName("Degree")
-FindSymbolDocumentationByFullName("&")::=                   FindSymbolDocumentationByFullName("Function")
-FindSymbolDocumentationByFullName("|->")::=                 FindSymbolDocumentationByFullName("Function")
-FindSymbolDocumentationByFullName("\[Function]")::=         FindSymbolDocumentationByFullName("Function")
-FindSymbolDocumentationByFullName("\[AliasDelimiter]")::=   FindSymbolDocumentationByFullName("InputAliases")
-FindSymbolDocumentationByFullName("{")::=                   FindSymbolDocumentationByFullName("List")
-FindSymbolDocumentationByFullName("}")::=                   FindSymbolDocumentationByFullName("List")
-FindSymbolDocumentationByFullName("^")::=                   FindSymbolDocumentationByFullName("Power")
-FindSymbolDocumentationByFullName("->")::=                  FindSymbolDocumentationByFullName("Rule")
-FindSymbolDocumentationByFullName("\[Rule]")::=             FindSymbolDocumentationByFullName("Rule")
-FindSymbolDocumentationByFullName(":>")::=                  FindSymbolDocumentationByFullName("RuleDelayed")
-FindSymbolDocumentationByFullName("\[RuleDelayed]")::=      FindSymbolDocumentationByFullName("RuleDelayed")
-FindSymbolDocumentationByFullName("\[Sqrt]")::=             FindSymbolDocumentationByFullName("Sqrt")
+%OpenDocumentationForSelection(~boxes)::= OpenDocumentationForSelection(boxes, Developer`GetDebugMetadata(boxes))
+
+tokenHelp(~s)::= s
+tokenHelp("|")::=                           "System`Alternatives"
+tokenHelp("&&")::=                          "System`And"
+tokenHelp("@@")::=                          "System`Apply"
+tokenHelp("//=")::=                         "System`AssignWith"
+tokenHelp(":=")::=                          "System`Assign"
+tokenHelp("\[Assign]")::=                   "System`Assign"
+tokenHelp("::=")::=                         "System`AssignDelayed"
+tokenHelp("\[AssignDelayed]")::=            "System`AssignDelayed"
+tokenHelp("\[CirclePlus]")::=               "System`CirclePlus"
+tokenHelp("\[CircleTimes]")::=              "System`CircleTimes"
+tokenHelp("\[Colon]")::=                    "System`Colon"
+tokenHelp("/?")::=                          "System`Condition"
+tokenHelp("\[Congruent]")::=                "System`Congruent"
+tokenHelp("\[Cross]")::=                    "System`Cross"
+tokenHelp("\[CubeRoot]")::=                 "System`CubeRoot"
+tokenHelp("\[CupCap]")::=                   "System`CupCap"
+tokenHelp("-=")::=                          "System`Decrement"
+tokenHelp("\[Degree]")::=                   "System`Degree"
+tokenHelp("'")::=                           "System`Derivative"
+tokenHelp("''")::=                          "System`Derivative"
+tokenHelp("'''")::=                         "System`Derivative"
+tokenHelp("''''")::=                        "System`Derivative"
+tokenHelp("\[Prime]")::=                    "System`Derivative"
+tokenHelp("\[DoublePrime]")::=              "System`Derivative"
+tokenHelp("\[TriplePrime]")::=              "System`Derivative"
+tokenHelp("/=")::=                          "System`DivideBy"
+tokenHelp("\[Dot]")::=                      "System`Dot"
+tokenHelp("\[DotEqual]")::=                 "System`DotEqual"
+tokenHelp("\[DoubleDownArrow]")::=          "System`DoubleDownArrow"
+tokenHelp("\[DoubleLeftArrow]")::=          "System`DoubleLeftArrow"
+tokenHelp("\[DoubleLowerLeftArrow]")::=     "System`DoubleLowerLeftArrow"
+tokenHelp("\[DoubleLowerRightArrow]")::=    "System`DoubleLowerRightArrow"
+tokenHelp("\[DoubleRightArrow]")::=         "System`DoubleRightArrow"
+tokenHelp("\[DoubleUpArrow]")::=            "System`DoubleUpArrow"
+tokenHelp("\[DoubleUpDownArrow]")::=        "System`DoubleUpDownArrow"
+tokenHelp("\[DoubleUpperLeftArrow]")::=     "System`DoubleUpperLeftArrow"
+tokenHelp("\[DoubleUpperRightArrow]")::=    "System`DoubleUpperRightArrow"
+tokenHelp("\[DownArrow]")::=                "System`DownArrow"
+tokenHelp("\[Element]")::=                  "System`Element"
+tokenHelp("=")::=                           "System`Equal"
+tokenHelp(";")::=                           "System`EvaluationSequence"
+%tokenHelp("!")::=                           "System`Factorial" % or "System`Not"
+tokenHelp("!!")::=                          "System`Factorial2"
+tokenHelp("&")::=                           "System`Function"
+tokenHelp("|->")::=                         "System`Function"
+tokenHelp("\[Function]")::=                 "System`Function"
+tokenHelp("<<")::=                          "System`Get"
+tokenHelp(">")::=                           "System`Greater"
+tokenHelp(">=")::=                          "System`GreaterEqual"
+tokenHelp("\[GreaterEqual]")::=             "System`GreaterEqual"
+tokenHelp("\[GreaterEqualLess]")::=         "System`GreaterEqualLess"
+tokenHelp("\[GreaterFullEqual]")::=         "System`GreaterFullEqual"
+tokenHelp("\[GreaterGreater]")::=           "System`GreaterGreater"
+tokenHelp("\[GreaterLess]")::=              "System`GreaterLess"
+tokenHelp("\[GreaterTilde]")::=             "System`GreaterTilde"
+tokenHelp("\[HumpDownHump]")::=             "System`HumpDownHump"
+tokenHelp("\[HumpEqual]")::=                "System`HumpEqual"
+tokenHelp("+=")::=                          "System`Increment"
+tokenHelp("\[Infinity]")::=                 "System`Infinity"
+tokenHelp("===")::=                         "System`Identical"
+tokenHelp("\[AliasDelimiter]")::=           "System`InputAliases"
+tokenHelp("\[Intersection]")::=             "System`Intersection"
+tokenHelp("<")::=                           "System`Less"
+tokenHelp("<=")::=                          "System`LessEqual"
+tokenHelp("\[LeftArrow]")::=                "System`LeftArrow"
+tokenHelp("\[LeftRightArrow]")::=           "System`LeftRightArrow"
+tokenHelp("\[LeftTriangle]")::=             "System`LeftTriangle"
+tokenHelp("\[LeftTriangleEqual]")::=        "System`LeftTriangleEqual"
+tokenHelp("\[LowerLeftArrow]")::=           "System`LowerLeftArrow"
+tokenHelp("\[LowerRightArrow]")::=          "System`LowerRightArrow"
+tokenHelp("\[LessEqual]")::=                "System`LessEqual"
+tokenHelp("\[LessEqualGreater]")::=         "System`LessEqualGreater"
+tokenHelp("\[LessFullEqual]")::=            "System`LessFullEqual"
+tokenHelp("\[LessGreater]")::=              "System`LessGreater"
+tokenHelp("\[LessLess]")::=                 "System`LessLess"
+tokenHelp("\[LessTilde]")::=                "System`LessTilde"
+tokenHelp("{")::=                           "System`List"
+tokenHelp("}")::=                           "System`List"
+tokenHelp("::")::=                          "System`MessageName"
+tokenHelp("\[MinusPlus]")::=                "System`MinusPlus"
+tokenHelp("\[Not]")::=                      "System`Not"
+tokenHelp("\[NotCongruent]")::=             "System`NotCongruent"
+tokenHelp("\[NotCupCap]")::=                "System`NotCupCap"
+tokenHelp("\[NotElement]")::=               "System`NotElement"
+tokenHelp("\[NotGreater]")::=               "System`NotGreater"
+tokenHelp("\[NotGreaterEqual]")::=          "System`NotGreaterEqual"
+tokenHelp("\[NotGreaterLess]")::=           "System`NotGreaterLess"
+tokenHelp("\[NotGreaterTilde]")::=          "System`NotGreaterTilde"
+tokenHelp("\[NotLeftTriangle]")::=          "System`NotLeftTriangle"
+tokenHelp("\[NotLeftTriangleEqual]")::=     "System`NotLeftTriangleEqual"
+tokenHelp("\[NotLess]")::=                  "System`NotLess"
+tokenHelp("\[NotLessEqual]")::=             "System`NotLessEqual"
+tokenHelp("\[NotLessGreater]")::=           "System`NotLessGreater"
+tokenHelp("\[NotLessTilde]")::=             "System`NotLessTilde"
+tokenHelp("\[NotPrecedes]")::=              "System`NotPrecedes"
+tokenHelp("\[NotPrecedesEqual]")::=         "System`NotPrecedesEqual"
+tokenHelp("\[NotReverseElement]")::=        "System`NotReverseElement"
+tokenHelp("\[NotRightTriangle]")::=         "System`NotRightTriangle"
+tokenHelp("\[NotRightTriangleEqual]")::=    "System`NotRightTriangleEqual"
+tokenHelp("\[NotSubset]")::=                "System`NotSubset"
+tokenHelp("\[NotSubsetEqual]")::=           "System`NotSubsetEqual"
+tokenHelp("\[NotSucceeds]")::=              "System`NotSucceeds"
+tokenHelp("\[NotSucceedsEqual]")::=         "System`NotSucceedsEqual"
+tokenHelp("\[NotSuperset]")::=              "System`NotSuperset"
+tokenHelp("\[NotSupersetEqual]")::=         "System`NotSupersetEqual"
+tokenHelp("\[NotTildeEqual]")::=            "System`NotTildeEqual"
+tokenHelp("\[NotTildeFullEqual]")::=        "System`NotTildeFullEqual"
+tokenHelp("\[NotTildeTilde]")::=            "System`NotTildeTilde"
+tokenHelp("||")::=                          "System`Or"
+tokenHelp("[")::=                           "System`Part"
+tokenHelp("]")::=                           "System`Part"
+tokenHelp(":")::=                           "System`Pattern"
+tokenHelp("\[Placeholder]")::=              "System`Placeholder"
+tokenHelp("+")::=                           "System`Plus"
+tokenHelp("-")::=                           "System`Plus"
+tokenHelp("\[PlusMinus]")::=                "System`PlusMinus"
+tokenHelp("^")::=                           "System`Power"
+tokenHelp("\[U+221C]")::=                   "System`Power" % fourth root
+tokenHelp("\[Precedes]")::=                 "System`Precedes"
+tokenHelp("\[PrecedesEqual]")::=            "System`PrecedesEqual"
+tokenHelp("\[Product]")::=                  "System`Product"
+tokenHelp("#")::=                           "System`PureArgument"
+tokenHelp("##")::=                          "System`PureArgument"
+tokenHelp("..")::=                          "System`Range"
+tokenHelp("**")::=                          "System`Repeated"
+tokenHelp("***")::=                         "System`Repeated"
+tokenHelp("~~")::=                          "System`Repeated"
+tokenHelp("~~~")::=                         "System`Repeated"
+tokenHelp("\[ReverseElement]")::=           "System`ReverseElement"
+tokenHelp("\[RightTriangle]")::=            "System`RightTriangle"
+tokenHelp("\[RightTriangleEqual]")::=       "System`RightTriangleEqual"
+tokenHelp("->")::=                          "System`Rule"
+tokenHelp("\[Rule]")::=                     "System`Rule"
+tokenHelp(":>")::=                          "System`RuleDelayed"
+tokenHelp("\[RuleDelayed]")::=              "System`RuleDelayed"
+tokenHelp("??")::=                          "System`ShowDefinition"
+tokenHelp("~")::=                           "System`SingleMatch"
+tokenHelp("\[SpanFromAbove]")::=            "System`SpanFromAbove"
+tokenHelp("\[SpanFromBoth]")::=             "System`SpanFromBoth"
+tokenHelp("\[SpanFromLeft]")::=             "System`SpanFromLeft"
+tokenHelp("\[Sqrt]")::=                     "System`Sqrt"
+tokenHelp("\[Subset]")::=                   "System`Subset"
+tokenHelp("\[SubsetEqual]")::=              "System`SubsetEqual"
+tokenHelp("\[Succeeds]")::=                 "System`Succeeds"
+tokenHelp("\[SucceedsEqual]")::=            "System`SucceedsEqual"
+tokenHelp("\[Sum]")::=                      "System`Sum"
+tokenHelp("\[Superset]")::=                 "System`Superset"
+tokenHelp("\[SupersetEqual]")::=            "System`SupersetEqual"
+tokenHelp("/:")::=                          "System`TagAssign"
+%tokenHelp("?")::=                           "System`TestPattern" % or Optional
+tokenHelp("\[TildeEqual]")::=               "System`TildeEqual"
+tokenHelp("\[TildeFullEqual]")::=           "System`TildeFullEqual"
+tokenHelp("\[TildeTilde]")::=               "System`TildeTilde"
+tokenHelp("*")::=                           "System`Times"
+tokenHelp("\[Times]")::=                    "System`Times"
+tokenHelp("/")::=                           "System`Times"
+tokenHelp("\[Divide]")::=                   "System`Times"
+tokenHelp("*=")::=                          "System`TimesBy"
+tokenHelp("\[DownTee]")::=                  "System`Transpose"
+tokenHelp("!=")::=                          "System`Unequal"
+tokenHelp("\[NotEqual]")::=                 "System`Unequal"
+tokenHelp("=!=")::=                         "System`Unidentical"
+tokenHelp("\[Union]")::=                    "System`Union"
+tokenHelp("\[UpArrow]")::=                  "System`UpArrow"
+tokenHelp("\[UpDownArrow]")::=              "System`UpDownArrow"
+tokenHelp("\[UpperLeftArrow]")::=           "System`UpperLeftArrow"
+tokenHelp("\[UpperRightArrow]")::=          "System`UpperRightArrow"
+
+
+Function OpenDocumentationForSelection(~tok:String, ~src) {
+    %Print({name, src})
+    With(name:= tokenHelp(tok))
+    With(helpfile:= FindSymbolDocumentationByFullName(name))
+    If(helpfile =!= None) {
+        Return(FE`CallFrontEnd(FrontEnd`DocumentOpen(helpfile, False)))
+    }
+
+    With(exactNames:= Names(name))
+    With(names:= If(Length(exactNames) > 0, exactNames, Names(name, IgnoreCase -> True)))
+    
+    If(Length(names) > 0) {
+        With(usage:= First(names) |> 
+                MakeExpression(ParseSymbols -> False) |>
+                {HoldComplete(~sym:Symbol) :> sym::usage})
+        If(IsString(usage)) {
+            Return(FE`AttachBoxes(src, Top, {
+                    Section(BoxData @ ToBoxes @ usage,
+                        "PopupWindowSection", 
+                        SectionMargins -> 4)
+                },
+                WindowFrame -> "ThinFrameCallout",
+                RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"}))
+        }
+    }
+
+    Return($Failed)
+}
+
+OpenDocumentationForSelection(~, ~)::= $Failed
+% Function OpenDocumentationForSelection(~tok, ~src) {
+%     Return(FE`AttachBoxes(src, Top, 
+%         Section(BoxData @ ToBoxes @ {tok, src}, 
+%             "PopupWindowSection",
+%             SectionMargins -> 4),
+%         WindowFrame -> "ThinFrameCallout",
+%         RemovalConditions -> {"MouseClickOutsidePopup", "SelectionExit"}))
+% }
+
+OpenDocumentationForSelection(SqrtBox(~,       SurdForm -> True), ~src)::= OpenDocumentationForSelection("System`Surd", src)
+OpenDocumentationForSelection(RadicalBox(~, ~, SurdForm -> True), ~src)::= OpenDocumentationForSelection("System`Surd", src)
+OpenDocumentationForSelection(SqrtBox(~~),    ~src)::= OpenDocumentationForSelection("System`Sqrt", src)
+OpenDocumentationForSelection(RadicalBox(~~), ~src)::= OpenDocumentationForSelection("System`Power", src)
+OpenDocumentationForSelection(FrameBox(~~), ~src)::= OpenDocumentationForSelection("System`Framed", src)
+OpenDocumentationForSelection(FillBox(~~),  ~src)::= OpenDocumentationForSelection("System`Filler", src)
 
 
 PrepareUsageSection(~text)::= ToString(text)

@@ -156,7 +156,7 @@ Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SelectedDocument(Expr expr);
 Expr richmath_eval_FrontEnd_SetSelectedDocument(Expr expr);
 
-extern pmath_symbol_t richmath_Documentation_FindSymbolDocumentationByFullName;
+extern pmath_symbol_t richmath_Documentation_OpenDocumentationForSelection;
 extern pmath_symbol_t richmath_System_MenuItem;
 extern pmath_symbol_t richmath_FE_ScopedCommand;
 extern pmath_symbol_t richmath_FrontEnd_FindStyleDefinition;
@@ -356,68 +356,26 @@ bool DocumentsImpl::open_selection_help_cmd(Expr cmd) {
   
   doc->select(word_src);
   
-  // TODO: give context-dependent help
+  Expr expr;
+  {
+    AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
+    Box::max_box_output_depth = 2; // 1 for the sequence + 1 for a contained box
+    
+    expr = word_src.to_pmath(BoxOutputFlags::WithDebugMetadata | BoxOutputFlags::LimitedDepth);
+  }
+  expr = Call(
+           Symbol(richmath_Documentation_OpenDocumentationForSelection), 
+           std::move(expr),
+           SelectionReference(word_src).to_pmath());
+  expr = Call(Symbol(richmath_System_TimeConstrained), std::move(expr), Application::button_timeout);
+  expr = Application::interrupt_wait_for_interactive(std::move(expr), word_src.box, Application::button_timeout);
   
-  if(auto seq = dynamic_cast<AbstractSequence *>(word_src.box)) {
-    String word = seq->raw_substring(word_src.start, word_src.length());
-    
-    Expr helpfile = Call(
-                      Symbol(richmath_Documentation_FindSymbolDocumentationByFullName), 
-                      std::move(word));
-    helpfile = Call(Symbol(richmath_System_TimeConstrained), std::move(helpfile), Application::button_timeout);
-    helpfile = Evaluate(std::move(helpfile));
-    
-    if(helpfile.is_string()) {
-      Document *helpdoc = Application::find_open_document(helpfile);
-      if(!helpdoc) 
-        helpdoc = Application::open_new_document(helpfile);
-      
-      if(helpdoc) {
-        if(helpdoc->selectable())
-          helpdoc->native()->bring_to_front();
-        return true;
-      }
-    }
+  if(expr == richmath_System_DollarFailed) {
+    doc->native()->beep();
+    return false;
   }
   
-//  if(auto seq = dynamic_cast<MathSequence *>(doc->selection_box())) {
-//    int pos = doc->selection_start();
-//    int end = doc->selection_end();
-//    SpanExpr *span = new SpanExpr(pos, seq);
-//    
-//    while(span) {
-//      if(span->start() <= pos && span->end() >= end && span->length() > 1)
-//        break;
-//        
-//      span = span->expand(true);
-//    }
-//    
-//    if(!span) 
-//      return false;
-//    
-//    if(span->count() == 0) {
-//      // TODO: get symbol namespace from context
-//      
-//      String name = span->as_text();
-//      
-//      doc->select(seq, span->start(), span->end() + 1);
-//      delete span;
-//      span = nullptr;
-//      
-//      Expr call = Call(
-//                    Symbol(richmath_Documentation_FindSymbolDocumentationByFullName), 
-//                    std::move(name));
-//      call = Call(Symbol(richmath_System_TimeConstrained), std::move(call), Application::button_timeout);
-//      call = Evaluate(std::move(call));
-//      
-//      return FrontEndReference::from_pmath(std::move(call)).is_valid();
-//    }
-//    
-//    delete span;
-//  }
-  
-  doc->native()->beep();
-  return false;
+  return true;
 }
 
 bool DocumentsImpl::edit_style_definitions_cmd(Expr cmd) {
