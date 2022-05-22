@@ -481,7 +481,7 @@ static GdkCursor *new_cursor_from_name_or_fallback(const char *name, GdkCursorTy
   GdkDisplay *display = gdk_display_get_default();
   GdkCursor *cursor = nullptr;
   
-  char *theme_name;
+  char *theme_name = nullptr;
   g_object_get(gtk_settings_get_default(), "gtk-cursor-theme-name", &theme_name, nullptr);
   if(theme_name) {
     cursor = gdk_cursor_new_from_name(display, name);
@@ -509,8 +509,8 @@ MathGtkCursors::MathGtkCursors()
 //  g_free(theme_name);
   
   if(num_refs++ == 0) {
-    all_cursors.set(CursorType::Finger,  new_cursor_from_name_or_fallback("help", GDK_HAND2));
-    all_cursors.set(CursorType::Default, new_cursor_from_name_or_fallback("default", GDK_LEFT_PTR));
+    all_cursors.set(CursorType::Finger,      new_cursor_from_name_or_fallback("help", GDK_HAND2));
+    all_cursors.set(CursorType::Default,     new_cursor_from_name_or_fallback("default", GDK_LEFT_PTR));
     
     all_cursors.set(CursorType::Document, gdk_pixbuf_new_from_xpm_data(xpm_document));
     all_cursors.set(CursorType::NoSelect, gdk_pixbuf_new_from_xpm_data(xpm_no_select));
