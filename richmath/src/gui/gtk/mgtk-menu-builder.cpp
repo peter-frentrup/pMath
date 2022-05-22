@@ -44,6 +44,8 @@ namespace richmath { namespace strings {
   extern String SearchMenuItems;
 }}
 
+extern pmath_symbol_t richmath_FrontEnd_DocumentOpen;
+extern pmath_symbol_t richmath_FrontEnd_SetSelectedDocument;
 extern pmath_symbol_t richmath_System_Delimiter;
 extern pmath_symbol_t richmath_System_Document;
 extern pmath_symbol_t richmath_System_Inherited;
@@ -54,7 +56,9 @@ extern pmath_symbol_t richmath_System_Section;
 
 extern pmath_symbol_t richmath_FE_Private_SubStringMatch;
 
-static const char accel_path_prefix[] = "<Richmath>/";
+static const char accel_path_prefix[]              = "<Richmath>/FrontEndToken/";
+static const char accel_path_item_GoToDefinition[] = "<Richmath>/MenuItem/GoToDefinition";
+static const char accel_path_item_Delete[]         = "<Richmath>/MenuItem/Delete";
 static Hashtable<String,  Expr> accel_path_to_cmd;
 static Hashtable<Expr, String>  cmd_to_accel_path;
 
@@ -98,15 +102,22 @@ namespace {
       static void inline_menu_list_data(GtkMenuItem *menu_item, Expr data);
       static Expr inline_menu_list_data(GtkWidget *menu_item);
       
+      static FrontEndReference destination(GtkMenuItem *menu_item);
+      static void              destination(GtkMenuItem *menu_item, FrontEndReference doc_id);
+      
       static GtkMenuItem *selected_item() { return _selected_item; }
       
       static Expr get_command(GtkMenuItem *menu_item);
+      
+      static GtkMenu *create_popup_for(GtkMenuItem *menu_item);
       
     private:
       static void on_activate(GtkMenuItem *menu_item, void *doc_id_as_ptr);
       static void on_select(GtkMenuItem *menu_item, void *doc_id_as_ptr);
       static void on_deselect(GtkMenuItem *menu_item, void *doc_id_as_ptr);
       static void on_destroy(GtkMenuItem *menu_item, void *doc_id_as_ptr);
+      static gboolean on_button_press(GtkMenuItem *menu_item, GdkEventButton *event, void *doc_id_as_ptr);
+      static gboolean on_button_release(GtkMenuItem *menu_item, GdkEventButton *event, void *doc_id_as_ptr);
       
     private:
       static void set_label(GtkMenuItem *menu_item, String label);
@@ -119,6 +130,7 @@ namespace {
     
     private:
       static const char *inline_menu_list_data_key;
+      static const char *destination_data_key;
       static ObservableValue<GtkMenuItem*> _selected_item;
   };
   
@@ -657,6 +669,7 @@ gboolean MathGtkMenuBuilder::Impl::on_menu_motion_notify(GtkWidget *menu, GdkEve
 //{ class MenuItemBuilder ...
 
 const char *MenuItemBuilder::inline_menu_list_data_key = "richmath:inline_menu_list_data_key";
+const char *MenuItemBuilder::destination_data_key      = "richmath:destination_data_key";
 
 ObservableValue<GtkMenuItem*> MenuItemBuilder::_selected_item { nullptr };
 
@@ -733,10 +746,24 @@ GtkWidget *MenuItemBuilder::create(MenuItemType type, FrontEndReference for_docu
       return nullptr;
   }
   
+  destination(GTK_MENU_ITEM(menu_item), for_document_window_id);
+  
   g_signal_connect(
     menu_item, 
     "destroy", 
     G_CALLBACK(MenuItemBuilder::on_destroy), 
+    FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  
+  g_signal_connect(
+    menu_item, 
+    "button-press-event", 
+    G_CALLBACK(MenuItemBuilder::on_button_press), 
+    FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
+  
+  g_signal_connect(
+    menu_item, 
+    "button-release-event", 
+    G_CALLBACK(MenuItemBuilder::on_button_release), 
     FrontEndReference::unsafe_cast_to_pointer(for_document_window_id));
   
   g_signal_connect(
@@ -789,6 +816,10 @@ void MenuItemBuilder::init(GtkMenuItem *menu_item, MenuItemType type, Expr item,
   }
 }
 
+Expr MenuItemBuilder::inline_menu_list_data(GtkWidget *menu_item) {
+  return Expr(pmath_ref(PMATH_FROM_PTR(g_object_get_data(G_OBJECT(menu_item), inline_menu_list_data_key))));
+}
+
 void MenuItemBuilder::inline_menu_list_data(GtkMenuItem *menu_item, Expr data) {
   if(data.is_pointer() && !data.is_null()) {
     g_object_set_data_full(
@@ -803,6 +834,20 @@ void MenuItemBuilder::inline_menu_list_data(GtkMenuItem *menu_item, Expr data) {
   pmath_debug_print_object("[cannot attach to menu item: ", data.get(), "]\n");
 }
 
+void MenuItemBuilder::destroy_inline_menu_list_data(void *data) {
+  pmath_t expr = PMATH_FROM_PTR(data);
+  pmath_unref(expr);
+}
+
+FrontEndReference MenuItemBuilder::destination(GtkMenuItem *menu_item) {
+  return FrontEndReference::unsafe_cast_from_pointer(
+           g_object_get_data(G_OBJECT(menu_item), destination_data_key));
+}
+
+void MenuItemBuilder::destination(GtkMenuItem *menu_item, FrontEndReference doc_id) {
+  g_object_set_data(G_OBJECT(menu_item), destination_data_key, FrontEndReference::unsafe_cast_to_pointer(doc_id));
+}
+
 Expr MenuItemBuilder::get_command(GtkMenuItem *menu_item) {
   const char *accel_path_str = (const char *)gtk_menu_item_get_accel_path(menu_item);
   if(!accel_path_str)
@@ -811,13 +856,85 @@ Expr MenuItemBuilder::get_command(GtkMenuItem *menu_item) {
   return accel_path_to_cmd[String(accel_path_str)];
 }
 
-Expr MenuItemBuilder::inline_menu_list_data(GtkWidget *menu_item) {
-  return Expr(pmath_ref(PMATH_FROM_PTR(g_object_get_data(G_OBJECT(menu_item), inline_menu_list_data_key))));
-}
-
-void MenuItemBuilder::destroy_inline_menu_list_data(void *data) {
-  pmath_t expr = PMATH_FROM_PTR(data);
-  pmath_unref(expr);
+GtkMenu *MenuItemBuilder::create_popup_for(GtkMenuItem *menu_item) {
+  GtkMenu *popup_menu = GTK_MENU(gtk_menu_new());
+  g_object_ref_sink(popup_menu);
+  
+  {
+    GtkAccelGroup *accel_group = gtk_accel_group_new();
+    gtk_menu_set_accel_group(popup_menu, accel_group);
+    g_object_unref(accel_group);
+  }
+  
+  Expr cmd      = get_command(menu_item);
+  Expr list_cmd = inline_menu_list_data(GTK_WIDGET(menu_item));
+  
+  GtkWidget *sub_item = gtk_menu_item_new_with_label(
+                          (cmd[0] == richmath_FrontEnd_DocumentOpen) ? "Open" : "Select");
+  g_signal_connect(sub_item, "activate", G_CALLBACK((void (*)(GtkMenuItem*, GtkMenuItem*))
+    [](GtkMenuItem *sub_menu_item, GtkMenuItem *super_menu_item) {
+      gtk_menu_item_activate(super_menu_item);
+      
+      if(GtkWidget *super_menu = gtk_widget_get_ancestor(GTK_WIDGET(super_menu_item), GTK_TYPE_MENU_SHELL)) {
+        gtk_menu_shell_cancel(GTK_MENU_SHELL(super_menu));
+      }
+    }), menu_item);
+  gtk_menu_shell_append(GTK_MENU_SHELL(popup_menu), sub_item);
+  
+  if(Menus::has_submenu_item_locator(list_cmd)) {
+    const char *label;
+    
+    if(list_cmd == strings::MenuListSearchCommands)
+      label = "Go to Definition";
+    else if(cmd[0] == richmath_FrontEnd_DocumentOpen || cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+      label = "Open containing folder";
+    else
+      label = "Go to Definition";
+    
+    GtkWidget *sub_item = gtk_menu_item_new_with_label(label);
+    g_signal_connect(sub_item, "activate", G_CALLBACK((void (*)(GtkMenuItem*, GtkMenuItem*))
+      [](GtkMenuItem *sub_menu_item, GtkMenuItem *super_menu_item) {
+        Expr cmd      = get_command(super_menu_item);
+        Expr list_cmd = inline_menu_list_data(GTK_WIDGET(super_menu_item));
+        
+        if(Menus::locate_dynamic_submenu_item_source(std::move(list_cmd), std::move(cmd))) {
+          if(GtkWidget *super_menu = gtk_widget_get_ancestor(GTK_WIDGET(super_menu_item), GTK_TYPE_MENU_SHELL)) {
+            gtk_menu_shell_cancel(GTK_MENU_SHELL(super_menu));
+          }
+        }
+      }), menu_item);
+    gtk_menu_item_set_accel_path(GTK_MENU_ITEM(sub_item), accel_path_item_GoToDefinition);
+    gtk_menu_shell_append(GTK_MENU_SHELL(popup_menu), sub_item);
+  }
+  
+  if(Menus::has_submenu_item_deleter(list_cmd)) {
+    const char *label;
+    if(cmd[0] == richmath_FrontEnd_SetSelectedDocument)
+      label = "Close";
+    else
+      label = "Remove";
+      
+    GtkWidget *sub_item = gtk_menu_item_new_with_label(label);
+    g_signal_connect(sub_item, "activate", G_CALLBACK((void (*)(GtkMenuItem*, GtkMenuItem*))
+      [](GtkMenuItem *sub_menu_item, GtkMenuItem *super_menu_item) {
+        Expr cmd      = get_command(super_menu_item);
+        Expr list_cmd = inline_menu_list_data(GTK_WIDGET(super_menu_item));
+        
+        if(Menus::remove_dynamic_submenu_item(std::move(list_cmd), std::move(cmd))) {
+          if(GtkWidget *super_menu = gtk_widget_get_ancestor(GTK_WIDGET(super_menu_item), GTK_TYPE_MENU)) {
+            FrontEndReference doc_id = destination(super_menu_item);
+            // MathGtkMenuBuilder::Impl::on_map_menu(super_menu, nullptr, FrontEndReference::unsafe_cast_to_pointer(doc_id));
+            MathGtkMenuBuilder::expand_inline_lists(GTK_MENU(super_menu), doc_id);
+          }
+        }
+      }), menu_item);
+    gtk_menu_item_set_accel_path(GTK_MENU_ITEM(sub_item), accel_path_item_Delete);
+    gtk_menu_shell_append(GTK_MENU_SHELL(popup_menu), sub_item);
+  }
+  
+  gtk_widget_show_all(GTK_WIDGET(popup_menu));
+  
+  return popup_menu;
 }
 
 void MenuItemBuilder::set_label(GtkMenuItem *menu_item, String label) {
@@ -903,6 +1020,34 @@ void MenuItemBuilder::on_deselect(GtkMenuItem *menu_item, void *eval_box_id_as_p
 void MenuItemBuilder::on_destroy(GtkMenuItem *menu_item, void *eval_box_id_as_ptr) {
   if(_selected_item.unobserved_equals(menu_item))
     _selected_item = nullptr;
+}
+
+static GtkMenuItem *ignore_right_button_release_event = nullptr;
+
+gboolean MenuItemBuilder::on_button_press(GtkMenuItem *menu_item, GdkEventButton *event, void *doc_id_as_ptr) {
+  if(event->button == 3) {
+    ignore_right_button_release_event = menu_item;
+    
+    if(GtkMenu *menu = create_popup_for(menu_item)) {
+      gtk_menu_popup(menu, nullptr, nullptr, nullptr, nullptr, event->button, event->time);
+      g_object_unref(menu);
+    }
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
+gboolean MenuItemBuilder::on_button_release(GtkMenuItem *menu_item, GdkEventButton *event, void *doc_id_as_ptr) {
+  bool handled = false;
+  
+  if(event->button == 3) {
+    if(ignore_right_button_release_event == menu_item)
+      handled = true;
+  }
+  
+  ignore_right_button_release_event = nullptr;
+  return handled;
 }
 
 //} ... class MenuItemBuilder
@@ -1011,6 +1156,9 @@ static bool set_accel_key(Expr expr, guint *accel_key, GdkModifierType *accel_mo
 }
 
 void MathGtkAccelerators::load(Expr expr) {
+  gtk_accel_map_add_entry(accel_path_item_GoToDefinition, GDK_F12,    (GdkModifierType)0);
+  gtk_accel_map_add_entry(accel_path_item_Delete,         GDK_Delete, (GdkModifierType)0);
+
   if(expr[0] != richmath_System_List)
     return;
     
