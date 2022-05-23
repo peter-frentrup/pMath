@@ -21,6 +21,13 @@
 #  include <gdk/gdkkeysyms.h>
 #endif
 
+#ifdef GDK_WINDOWING_X11
+#  include <gdk/gdkx.h>
+#  ifdef None
+#    undef None
+#  endif
+#endif
+
 #include <cmath>
 #include <limits>
 
@@ -220,6 +227,9 @@ namespace richmath {
       static gboolean on_menu_button_press(  GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_button_release(GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
       static gboolean on_menu_motion_notify( GtkWidget *menu, GdkEvent *e, void *eval_box_id_as_ptr);
+  
+    private:
+      static const char *style_provider_data_key;
   };
 }
 
@@ -518,12 +528,50 @@ Expr MathGtkMenuBuilder::selected_item_command() {
 
 //{ class MathGtkMenuBuilder::Impl ...
 
+const char *MathGtkMenuBuilder::Impl::style_provider_data_key = "richmath:style_provider_data_key";
+
 gboolean MathGtkMenuBuilder::Impl::on_map_menu(GtkWidget *menu, GdkEventAny *event, void *doc_id_as_ptr) {
   // todo: handle tearoff menus
   
   FrontEndReference id = FrontEndReference::unsafe_cast_from_pointer(doc_id_as_ptr);
   expand_inline_lists(GTK_MENU(menu), id);
   
+#if 0 && GTK_MAJOR_VERSION >= 3
+  if(auto doc = FrontEndObject::find_cast<Document>(id)) {
+    bool dark = doc->native()->is_using_dark_mode();
+    GtkStyleProvider *style_provider = dark ? MathGtkControlPainter::gtk_painter.current_theme_dark() : MathGtkControlPainter::gtk_painter.current_theme_light();
+    
+    GtkStyleProvider *old_provider = (GtkStyleProvider*)g_object_get_data(G_OBJECT(menu), style_provider_data_key);
+    if(style_provider != old_provider) {
+      if(old_provider) {
+        BasicGtkWidget::internal_forall_recursive(
+          GTK_WIDGET(menu),
+          [=](GtkWidget *w) { 
+            gtk_style_context_remove_provider(
+              gtk_widget_get_style_context(w), old_provider);
+           });
+      }
+      
+      g_object_set_data(G_OBJECT(menu), style_provider_data_key, style_provider);
+      BasicGtkWidget::internal_forall_recursive(
+        GTK_WIDGET(menu),
+        [=](GtkWidget *w) { 
+          gtk_style_context_add_provider(
+            gtk_widget_get_style_context(w), style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+         });
+    }
+      
+#ifdef GDK_WINDOWING_X11
+    {
+      GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(menu));
+      if(GDK_IS_X11_WINDOW(gdk_window)) {
+        gdk_x11_window_set_theme_variant(gdk_window, (char*)(dark ? "dark" : "light"));
+      }
+    }
+#endif // GDK_WINDOWING_X11
+  }
+#endif
+    
   return FALSE;
 }
 
