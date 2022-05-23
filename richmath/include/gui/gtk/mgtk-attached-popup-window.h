@@ -26,6 +26,7 @@ namespace richmath {
       MathGtkWidget *content_area() { return (MathGtkWidget*)_content_area; }
       Document      *content() { return content_area()->document(); }
       
+      void bring_to_front();
       void close();
       
       virtual bool is_foreground_window() override { return _active; };

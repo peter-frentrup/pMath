@@ -38,6 +38,10 @@ namespace richmath {
       
       MathGtkWidget *owner_widget();
       
+      virtual void bring_to_front() override {
+        _parent->bring_to_front();
+        base::bring_to_front();
+      }
       virtual void close() override { _parent->close(); }
       virtual void invalidate_options() override;
       virtual void invalidate_source_location() override;
@@ -382,6 +386,10 @@ void MathGtkAttachedPopupWindow::invalidate_source_location() {
     content()->style->set(ClosingAction, ClosingActionDelete);
     close();
   }
+}
+
+void MathGtkAttachedPopupWindow::bring_to_front() {
+  gtk_window_present(GTK_WINDOW(_widget));
 }
 
 void MathGtkAttachedPopupWindow::close() {
