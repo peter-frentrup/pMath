@@ -48,6 +48,19 @@ namespace richmath {
         gtk_container_foreach(container, [](GtkWidget *child, void *_func) { (*(Func*)_func)(child); }, &func);
       }
       
+      template<typename Func>
+      static void internal_forall_recursive(GtkWidget *widget, Func func) {
+        func(widget);
+        if(GTK_IS_CONTAINER(widget)) {
+          gtk_container_forall(
+            GTK_CONTAINER(widget),
+            [](GtkWidget *child, void *func_ptr) {
+              internal_forall_recursive(child, *(Func*)func_ptr);
+            },
+            &func);
+        }
+      }
+      
     protected:
       GtkWidget *_widget;
       

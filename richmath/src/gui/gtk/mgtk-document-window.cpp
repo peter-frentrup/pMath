@@ -851,41 +851,10 @@ MathGtkDocumentWindow::~MathGtkDocumentWindow() {
   Impl::add_remove_window(-1);
 }
 
-template<typename Func>
-static void forall_widgets_recursive(GtkWidget *widget, Func func) {
-//  static int debug_depth = 0;
-//  
-//  for(int i = debug_depth;i > 0;--i)
-//    pmath_debug_print("  ");
-//  
-//  pmath_debug_print("%s\n", G_OBJECT_TYPE_NAME(widget));
-  
-  func(widget);
-  if(GTK_IS_CONTAINER(widget)) {
-//    ++debug_depth;
-    gtk_container_forall(
-      GTK_CONTAINER(widget),
-      [](GtkWidget *child, void *func_ptr) {
-        forall_widgets_recursive(child, *(Func*)func_ptr);
-      },
-      &func);
-//    --debug_depth;
-  }
-  
-//  // TODO: menus should probably be handled when they map/unmap only, menu item labels are not correctly styled
-//  if(GTK_IS_MENU_ITEM(widget)) {
-//    if(GtkWidget *menu = gtk_menu_item_get_submenu(GTK_MENU_ITEM(widget))) {
-//      ++debug_depth;
-//      forall_widgets_recursive(menu, func);
-//      --debug_depth;
-//    }
-//  }
-}
-
 void MathGtkDocumentWindow::update_dark_mode() {
 #if GTK_MAJOR_VERSION >= 3
   if(_style_provider) {
-    forall_widgets_recursive(
+    BasicGtkWidget::internal_forall_recursive(
       _widget, 
       [=](GtkWidget *w) { 
         gtk_style_context_remove_provider(gtk_widget_get_style_context(w), _style_provider);
@@ -907,7 +876,7 @@ void MathGtkDocumentWindow::update_dark_mode() {
   _style_provider = _use_dark_mode ? MathGtkControlPainter::gtk_painter.current_theme_dark() : MathGtkControlPainter::gtk_painter.current_theme_light();
   (void)g_object_ref(_style_provider);
   
-  forall_widgets_recursive(
+  BasicGtkWidget::internal_forall_recursive(
     _widget, 
     [=](GtkWidget *w) { 
       gtk_style_context_add_provider(gtk_widget_get_style_context(w), _style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);

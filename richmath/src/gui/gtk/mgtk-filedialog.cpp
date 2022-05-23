@@ -4,6 +4,7 @@
 
 #include <gui/documents.h>
 #include <gui/gtk/mgtk-widget.h>
+#include <gui/gtk/mgtk-messagebox.h>
 
 
 using namespace richmath;
@@ -92,7 +93,8 @@ Expr MathGtkFileDialog::show_dialog() {
     gtk_window_set_transient_for(GTK_WINDOW(_dialog), parent);
   
   // TODO: goto working directory when no initialfile was given
-  int result = gtk_dialog_run(GTK_DIALOG(_dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(_dialog));
+  
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
     case GTK_RESPONSE_OK: {

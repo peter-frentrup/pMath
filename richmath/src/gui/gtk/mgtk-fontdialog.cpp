@@ -2,8 +2,9 @@
 
 #include <eval/application.h>
 #include <eval/binding.h>
-#include <gui/gtk/mgtk-widget.h>
 #include <gui/documents.h>
+#include <gui/gtk/mgtk-widget.h>
+#include <gui/gtk/mgtk-messagebox.h>
 
 
 using namespace richmath;
@@ -80,7 +81,7 @@ static Expr font_chooser_dialog_show(SharedPtr<Style> initial_style) {
     pmath_mem_free(utf8_name);
   }
 
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
 
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -221,7 +222,7 @@ static Expr font_selection_dialog_show(SharedPtr<Style> initial_style) {
     pmath_mem_free(utf8_name);
   }
 
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
 
   switch(result) {
     case GTK_RESPONSE_ACCEPT:

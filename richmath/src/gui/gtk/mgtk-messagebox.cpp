@@ -1,10 +1,19 @@
 #include <gui/gtk/mgtk-messagebox.h>
 
-#include <gui/gtk/mgtk-widget.h>
 
 #include <boxes/section.h>
 
 #include <gui/documents.h>
+
+#include <gui/gtk/mgtk-widget.h>
+#include <gui/gtk/mgtk-control-painter.h>
+
+#ifdef GDK_WINDOWING_X11
+#  include <gdk/gdkx.h>
+#  ifdef None
+#    undef None
+#  endif
+#endif
 
 
 using namespace richmath;
@@ -84,7 +93,7 @@ YesNoCancel richmath::mgtk_ask_save(Document *doc, String question) {
   gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(label));
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(doc ? *doc->native() : ControlContext::dummy, GTK_DIALOG(dialog));
   pmath_mem_free(utf8_question);
   
   gtk_widget_destroy(dialog);
@@ -123,7 +132,7 @@ YesNoCancel richmath::mgtk_ask_remove_private_style_definitions(Document *doc) {
   gtk_container_add(GTK_CONTAINER(content_box), make_left_aligned(label));
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
   
   gtk_widget_destroy(dialog);
   switch(result) {
@@ -199,8 +208,7 @@ bool richmath::mgtk_ask_open_suspicious_system_file(String path) {
   }
   
   gtk_widget_show_all(GTK_WIDGET(content_box));
-  
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
   
   gtk_widget_destroy(dialog);
   return result == GTK_RESPONSE_YES;
@@ -327,7 +335,7 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   
   gtk_widget_show_all(GTK_WIDGET(content_box));
   
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
   
   hyperlinks.disconnect(details_label);
   hyperlinks.disconnect(desctiption_label);
@@ -339,6 +347,58 @@ Expr richmath::mgtk_ask_interrupt(Expr stack) {
   }
   
   return Expr();
+}
+
+int richmath::mgtk_themed_dialog_run(ControlContext &ctx, GtkDialog *dialog) {
+#if GTK_MAJOR_VERSION >= 3
+  bool dark = ctx.is_using_dark_mode();
+  GtkStyleProvider *style_provider = dark ? MathGtkControlPainter::gtk_painter.current_theme_dark() : MathGtkControlPainter::gtk_painter.current_theme_light();
+  
+  BasicGtkWidget::internal_forall_recursive(
+    GTK_WIDGET(dialog),
+    [=](GtkWidget *w) { 
+      gtk_style_context_add_provider(
+        gtk_widget_get_style_context(w), style_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
+     });
+#ifdef GDK_WINDOWING_X11
+  {
+    GdkWindow *gdk_window = gtk_widget_get_window(GTK_WIDGET(dialog));
+    if(GDK_IS_X11_WINDOW(gdk_window)) {
+      gdk_x11_window_set_theme_variant(gdk_window, (char*)(dark ? "dark" : "light"));
+    }
+  }
+#endif // GDK_WINDOWING_X11
+#endif // GTK_MAJOR_VERSION
+
+  int result = gtk_dialog_run(dialog);
+  
+#if GTK_MAJOR_VERSION >= 3
+  BasicGtkWidget::internal_forall_recursive(
+    GTK_WIDGET(dialog),
+    [=](GtkWidget *w) { 
+      gtk_style_context_remove_provider(
+        gtk_widget_get_style_context(w), style_provider);
+     });
+#endif // GTK_MAJOR_VERSION
+  
+  return result;
+}
+
+int richmath::mgtk_themed_dialog_run(GtkDialog *dialog) {
+#if GTK_MAJOR_VERSION >= 3
+  ControlContext *cc = Box::find_nearest_parent<ControlContext>(Application::get_evaluation_object());
+  if(!cc) {
+    if(auto doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object()))
+      cc = doc->native();
+  }
+  
+  if(!cc)
+    cc = &ControlContext::dummy;
+  
+  return mgtk_themed_dialog_run(*cc, dialog);
+#else
+  return gtk_dialog_run(dialog);
+#endif
 }
 
 //{ class MathGtkHyperlinks ...

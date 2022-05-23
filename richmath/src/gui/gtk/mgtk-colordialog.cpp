@@ -2,8 +2,10 @@
 
 #include <eval/application.h>
 #include <eval/binding.h>
-#include <gui/gtk/mgtk-widget.h>
 #include <gui/documents.h>
+
+#include <gui/gtk/mgtk-widget.h>
+#include <gui/gtk/mgtk-messagebox.h>
 
 
 using namespace richmath;
@@ -23,7 +25,7 @@ static Expr color_chooser_dialog_show(Color initialcolor) {
   Document *doc = Box::find_nearest_parent<Document>(Application::get_evaluation_object());
   if(!doc)
     doc = Documents::selected_document();
-    
+  
   if(doc) {
     if(auto widget = dynamic_cast<MathGtkWidget *>(doc->native())) {
       if(GtkWidget *wid = widget->widget())
@@ -47,7 +49,7 @@ static Expr color_chooser_dialog_show(Color initialcolor) {
     gtk_color_chooser_set_rgba(chooser, &color);
   }
   
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
   
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
@@ -105,7 +107,7 @@ static Expr color_selection_dialog_show(Color initialcolor) {
 #endif
   }
 
-  int result = gtk_dialog_run(GTK_DIALOG(dialog));
+  int result = mgtk_themed_dialog_run(GTK_DIALOG(dialog));
 
   switch(result) {
     case GTK_RESPONSE_ACCEPT:
