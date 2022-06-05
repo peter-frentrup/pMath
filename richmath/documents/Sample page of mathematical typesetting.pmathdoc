@@ -1,0 +1,65 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({Section("Sample page of mathematical typesetting", "Title"), 
+    Section(TextData({"First some large operators both in text: ", 
+       BoxData({UnderscriptBox("\[U+222D]", "\[ScriptCapitalQ]"), {
+          {"f", "(", {"x", ",", "y", ",", "z"}, ")"}, {
+           "\[DifferentialD]", "x"}, {"\[DifferentialD]", "y"}, {
+           "\[DifferentialD]", "z"}}}), " and ", 
+       BoxData({UnderscriptBox("\[Product]", {
+           "\[Gamma]", "\[Element]", {"\[CapitalGamma]", SubscriptBox("C")}}), 
+         {"\[PartialD]", {
+           "(", {OverscriptBox("X", "~"), SubscriptBox("\[Gamma]")}, ")"}}}), 
+       "; and also on display:"}), "Text"), 
+    Section(
+     BoxData(
+      /\/({
+        {UnderscriptBox({"\[Integral]", {
+            "\[Integral]", {"\[Integral]", "\[Integral]"}}}, "Q"), {
+          {"f", "(", {"w", ",", "x", ",", "y", ",", "z"}, ")"}, {
+           "\[DifferentialD]", "w"}, {"\[DifferentialD]", "x"}, {
+           "\[DifferentialD]", "y"}, {"\[DifferentialD]", "z"}}}, 
+        "\[LessEqual]", {"\[ContourIntegral]", 
+         SubscriptBox({"\[PartialD]", "Q"}), {
+          {"f", SuperscriptBox("\[Prime]")}, "\[InvisibleApply]", {
+           "(", {
+            "max", {
+             "{", {FractionBox({"\[LeftDoubleBracketingBar]", "w", 
+                "\[RightDoubleBracketingBar]"}, {
+                "\[LeftBracketingBar]", {{"w", SuperscriptBox("2")}, "+", {
+                  "x", SuperscriptBox("2")}}, "\[RightBracketingBar]"}), ";", 
+              FractionBox({"\[LeftDoubleBracketingBar]", "z", 
+                "\[RightDoubleBracketingBar]"}, {
+                "\[LeftBracketingBar]", {{"y", SuperscriptBox("2")}, "+", {
+                  "z", SuperscriptBox("2")}}, "\[RightBracketingBar]"}), ";", 
+              FractionBox({"\[LeftDoubleBracketingBar]", {
+                 "w", "\[CirclePlus]", "z"}, "\[RightDoubleBracketingBar]"}, {
+                "\[LeftDoubleBracketingBar]", {"x", "\[CirclePlus]", "y"}, 
+                "\[RightDoubleBracketingBar]"})}, "}"}}, ")"}}}}, "\n", {
+        "\[U+2AB7]", {
+         UnderscriptBox("\[U+228E]", {"\[DoubleStruckCapitalQ]", "\[U+22D0]", 
+           "Q"}), {{"[", {{"f", SuperscriptBox("+")}, "\[InvisibleApply]", {
+             "(", FractionBox({{"\[U+23B0]\[DoubleStruckCapitalQ]", "(", "t", 
+                ")"}, "\[U+23B1]"}, 
+              SqrtBox({"1", "-", {"t", SuperscriptBox("2")}})), ")"}}, "]"}, 
+          SubsuperscriptBox({"t", "=", "\[Alpha]"}, {
+            "t", "=", "\[CurlyTheta]"})}}}, FillBox(" "), {"(", "1", ")"})), 
+     "DisplayFormula"), 
+    Section(TextData({"For ", BoxData("x"), " in the open interval ", 
+       BoxData(/\/({{{"\[LeftInvisibleBracket]", "]"}, "-", "1"}, ",", "1"}, 
+         "\[RightInvisibleBracket]", "[")), 
+       " the infinite sum in Equation\[NonBreakingSpace](2) is convergent; \
+       however, this does not hold throughout the closed interval ", 
+       BoxData({"[", {{"-", "1"}, ",", "1"}, "]"}), "."}), "Text"), 
+    Section(
+     BoxData(/\/({{{"(", {"1", "-", "x"}, ")"}, SuperscriptBox({"-", "k"})}, 
+        "=", {"1", "+", {UnderoverscriptBox("\[Sum]", {"j", "=", "1"}, 
+           "\[Infinity]"), {{{"(", {"-", "1"}, ")"}, SuperscriptBox("j")}, {
+            "{", GridBox({{"k"}, {"j"}}), "}"}, {"x", SuperscriptBox("j")}, 
+           "\[U+2003]", 
+           TextData({
+             "for ", BoxData({"k", "\[Element]", "\[DoubleStruckCapitalN]"}), 
+             "; ", BoxData({"k", "\[NotEqual]", "0"}), "."})}}}}, 
+       FillBox(" "), {"(", "2", ")"})), "DisplayFormula")}, All)}, 
+ StyleDefinitions -> "Default.pmathdoc", Visible -> True)
