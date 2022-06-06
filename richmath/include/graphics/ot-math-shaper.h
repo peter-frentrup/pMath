@@ -64,7 +64,9 @@ namespace richmath {
         MathSequence      *over,
         float             *base_x,
         Vector2F          *underscript_offset,
-        Vector2F          *overscript_offset) override;
+        Vector2F          *overscript_offset,
+        bool               under_is_stretched,
+        bool               over_is_stretched) override;
         
       virtual void script_positions(
         Context           &context,

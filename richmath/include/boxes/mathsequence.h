@@ -85,6 +85,8 @@ namespace richmath {
       RleArrayIterator<const RleArray<MathSequence*>>      glyph_to_inline_sequence_iter() { return glyph_to_inline_sequence.cbegin(); }
    
       bool stretch_horizontal(Context &context, float width);
+      virtual float first_glyph_width() override;
+      virtual float last_glyph_width() override;
       
       virtual int get_line(int index, int guide = 0) override; // 0, 1, ...
       

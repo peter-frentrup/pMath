@@ -1282,7 +1282,9 @@ void SimpleMathShaper::accent_positions(
   MathSequence      *over,
   float             *base_x,
   Vector2F          *underscript_offset,
-  Vector2F          *overscript_offset
+  Vector2F          *overscript_offset,
+  bool               under_is_stretched,
+  bool               over_is_stretched
 ) {
   uint16_t base_char = 0;
   if(base->length() == 1)
@@ -1290,7 +1292,7 @@ void SimpleMathShaper::accent_positions(
     
   bool is_integral = pmath_char_is_integral(base_char);
   
-  if(context.script_level > 0 && is_integral) {
+  if(!under_is_stretched && !over_is_stretched && context.script_level > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,

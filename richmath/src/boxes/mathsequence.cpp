@@ -1523,6 +1523,38 @@ bool MathSequence::stretch_horizontal(Context &context, float width) {
   return false;
 }
 
+float MathSequence::first_glyph_width() {
+  GlyphIterator iter = Impl(*this).glyph_iterator();
+  iter.skip_forward_to_glyph_after_text_pos(this, 0);
+  
+  if(auto box = iter.current_box())
+    return box->first_glyph_width();
+  
+  if(!iter.has_more_glyphs())
+    return 0.0f;
+  
+  return iter.current_glyph().right;
+}
+
+float MathSequence::last_glyph_width() {
+  if(length() == 0)
+    return 0.0f;
+    
+  GlyphIterator iter = Impl(*this).glyph_iterator();
+  iter.skip_forward_to_glyph_after_text_pos(this, length() - 1);
+  
+  if(auto box = iter.current_box())
+    return box->last_glyph_width();
+  
+  if(!iter.has_more_glyphs())
+    return 0.0f;
+  
+  if(iter.glyph_index() >= 1)
+    return _extents.width - iter.all_glyphs()[iter.glyph_index() - 1].right;
+    
+  return _extents.width;
+}
+
 int MathSequence::get_line(int index, int guide) {
   if(text_changed()) {
     pmath_debug_print("[get_line ill-defined: text_changed()]\n");

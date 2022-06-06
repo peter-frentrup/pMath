@@ -236,6 +236,8 @@ namespace richmath {
       
       virtual float fill_weight() { return 0.0f; }
       const BoxSize &extents() { return _extents; }
+      virtual float first_glyph_width() { return 0.0f; }
+      virtual float last_glyph_width() { return 0.0f; }
       
       virtual int child_script_level(int index, const int *opt_ambient_script_level);
       virtual bool expand(const BoxSize &size) { return false; }

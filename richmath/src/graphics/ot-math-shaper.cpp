@@ -952,7 +952,9 @@ void OTMathShaper::accent_positions(
   MathSequence      *over,
   float             *base_x,
   Vector2F          *underscript_offset,
-  Vector2F          *overscript_offset
+  Vector2F          *overscript_offset,
+  bool               under_is_stretched,
+  bool               over_is_stretched
 ) {
   float pt = context.canvas().get_font_size() / impl->units_per_em;
   uint16_t base_char = 0;
@@ -962,7 +964,7 @@ void OTMathShaper::accent_positions(
   bool is_integral = pmath_char_is_integral(base_char);
   
   // actually do subscript/superscript
-  if(context.script_level > 0 && is_integral) {
+  if(!under_is_stretched && !over_is_stretched && context.script_level > 0 && is_integral) {
     script_positions(
       context, base->extents().ascent, base->extents().descent,
       under, over,
@@ -984,9 +986,11 @@ void OTMathShaper::accent_positions(
   if(under) {
     float gap = impl->consts.lower_limit_gap_min.value * pt;
     
-    if(underscript_offset->y < impl->consts.lower_limit_baseline_drop_min.value * pt)
-      underscript_offset->y  = impl->consts.lower_limit_baseline_drop_min.value * pt;
-      
+    if(!under_is_stretched) {
+      if(underscript_offset->y < impl->consts.lower_limit_baseline_drop_min.value * pt)
+        underscript_offset->y  = impl->consts.lower_limit_baseline_drop_min.value * pt;
+    }
+    
     if(underscript_offset->y < base->extents().descent + gap + under->extents().ascent)
       underscript_offset->y = base->extents().descent + gap + under->extents().ascent;
   }
@@ -997,10 +1001,12 @@ void OTMathShaper::accent_positions(
     
     if(over->extents().descent < 0)
       overscript_offset->y -= over->extents().descent;
-      
-    if(overscript_offset->y > -impl->consts.upper_limit_baseline_rise_min.value * pt)
-      overscript_offset->y  = -impl->consts.upper_limit_baseline_rise_min.value * pt;
-      
+    
+    if(!over_is_stretched) {
+      if(overscript_offset->y > -impl->consts.upper_limit_baseline_rise_min.value * pt)
+        overscript_offset->y  = -impl->consts.upper_limit_baseline_rise_min.value * pt;
+    }
+    
     if(overscript_offset->y > -base->extents().ascent - gap - over->extents().descent)
       overscript_offset->y  = -base->extents().ascent - gap - over->extents().descent;
   }
