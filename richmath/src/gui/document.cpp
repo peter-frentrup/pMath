@@ -1527,51 +1527,46 @@ Section *Document::swap(int pos, Section *sect) {
 }
 
 void Document::select_prev(bool operands_only) {
-  Box *selbox = context.selection.get();
+  auto sel = selection_now();
   
-  if(context.selection.start != context.selection.end)
+  if(sel.length() > 0 || sel.start == 0)
     return;
     
-  MathSequence *seq = dynamic_cast<MathSequence *>(selbox);
-  
-  int start = context.selection.start;
-  
-  if(seq && start > 0) {
+  if(auto mseq = dynamic_cast<MathSequence *>(sel.box)) {
+    auto text_buffer = buffer_view(mseq->text());
     do {
-      --start;
-    } while(start > 0 && !seq->span_array().is_token_end(start - 1));
+      --sel.start;
+    } while(sel.start > 0 && !mseq->span_array().is_token_end(sel.start - 1));
     
-    if(start > 0 && seq->text()[start] == PMATH_CHAR_BOX) {
+    if(sel.start > 0 && text_buffer[sel.start] == PMATH_CHAR_BOX) {
       int b = 0;
-      while(seq->item(b)->index() < start)
+      while(mseq->item(b)->index() < sel.start)
         ++b;
         
-      if(dynamic_cast<SubsuperscriptBox *>(seq->item(b))) {
+      if(dynamic_cast<SubsuperscriptBox *>(mseq->item(b))) {
         do {
-          --start;
-        } while(start > 0 && !seq->span_array().is_token_end(start - 1));
+          --sel.start;
+        } while(sel.start > 0 && !mseq->span_array().is_token_end(sel.start - 1));
       }
     }
     
-    if(pmath_char_is_right(seq->text()[start])) {
-      int end = context.selection.start - 1;
-      
-      while(start >= 0) {
-        Span s = seq->span_array()[start];
-        while(s) {
-          if(s.end() == end && seq->span_array().is_operand_start(start)) {
-            move_to(seq, start, true);
-            return;
-          }
-          
-          s = s.next();
-        }
-        --start;
+    if(pmath_char_is_right(text_buffer[sel.start])) {
+      auto next = sel.expanded();
+      if(next.end == sel.end && next.box == sel.box) {
+        select(next);
+        return;
       }
     }
-    else if(!pmath_char_is_left(seq->text()[start])) {
-      if(!operands_only || seq->span_array().is_operand_start(start))
-        move_to(seq, start, true);
+    else if(!pmath_char_is_left(text_buffer[sel.start])) {
+      if(!operands_only || mseq->span_array().is_operand_start(sel.start))
+        move_to(mseq, sel.start, true);
+      return;
+    }
+  }
+  else if(auto seq = dynamic_cast<AbstractSequence *>(sel.box)) {
+    auto prev_loc = sel.start_only().move_logical(LogicalDirection::Backward, true);
+    if(prev_loc.box == sel.box) {
+      move_to(prev_loc.box, prev_loc.index, true);
       return;
     }
   }
@@ -2697,7 +2692,7 @@ void Document::insert_box(Box *box, bool handle_placeholder) {
 }
 
 void Document::insert_fraction() {
-  if(!Impl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(false)) {
     Document *cur = Documents::selected_document();
     
     if(cur && cur != this) {
@@ -2747,7 +2742,7 @@ void Document::insert_fraction() {
 }
 
 void Document::insert_matrix_column() {
-  if(!Impl(*this).prepare_insert(true)) {
+  if(!Impl(*this).prepare_insert(false)) {
     Document *cur = Documents::selected_document();
     
     if(cur && cur != this) {
@@ -2824,7 +2819,7 @@ void Document::insert_matrix_column() {
 }
 
 void Document::insert_matrix_row() {
-  if(!Impl(*this).prepare_insert(true)) {
+  if(!Impl(*this).prepare_insert(false)) {
     Document *cur = Documents::selected_document();
     
     if(cur && cur != this) {
@@ -2964,6 +2959,8 @@ void Document::insert_subsuperscript(bool sub) {
     Impl(*this).handle_backslash_aliases();
   }
   
+  select_prev(true);
+  
   VolatileSelection sel = context.selection.get_all();
   if(auto seq = dynamic_cast<MathSequence *>(sel.box)) {
     if(sel.end == 0) {
@@ -2971,17 +2968,6 @@ void Document::insert_subsuperscript(bool sub) {
       sel.end += 1;
     }
     else {
-      if(sel.length() == 0) {
-        sel.start-= 1;
-        while(sel.start > 0 && !seq->span_array().is_token_end(sel.start - 1))
-          --sel.start;
-        
-        if(!seq->span_array().is_operand_start(sel.start)) {
-        auto next = sel.expanded();
-        if(next.box == sel.box && next.end == sel.end)
-          sel.start = next.start;
-        }
-      }
       
       if(Impl::needs_sub_suberscript_parentheses(seq, sel.start, sel.end)) {
         seq->insert(sel.start, "(");
@@ -3002,7 +2988,7 @@ void Document::insert_subsuperscript(bool sub) {
 }
 
 void Document::insert_underoverscript(bool under) {
-  if(!Impl(*this).prepare_insert_math(true)) {
+  if(!Impl(*this).prepare_insert_math(false)) {
     Document *cur = Documents::selected_document();
     
     if(cur && cur != this) {
@@ -4201,13 +4187,7 @@ bool Document::Impl::prepare_insert(bool include_previous_word) {
       set_prev_sel_line();
       
       if(include_previous_word && self.selection_length() == 0) {
-        if(AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box())) {
-          int prev_pos = self.selection_start();
-          Box *prev_pos_box = seq->move_logical(LogicalDirection::Backward, true, &prev_pos);
-          
-          if(prev_pos_box == seq) 
-            self.select(seq, prev_pos, self.selection_end());
-        }
+        self.select_prev(true);
       }
       
       return true;
@@ -4221,21 +4201,21 @@ bool Document::Impl::prepare_insert_math(bool include_previous_word) {
   if(!prepare_insert(include_previous_word))
     return false;
     
-  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(self.selection_box());
+  VolatileSelection sel = self.selection_now();
+  AbstractSequence *seq = dynamic_cast<AbstractSequence *>(sel.box);
   if(!seq)
     return false;
     
-  if(dynamic_cast<MathSequence *>(seq))
+  if(auto mseq = dynamic_cast<MathSequence *>(seq)) {
     return true;
+  }
     
   InlineSequenceBox *box = new InlineSequenceBox(new MathSequence);
   box->has_explicit_head(true);
   
-  int s = self.selection_start();
-  int e = self.selection_end();
-  box->content()->insert(0, seq, s, e);
-  seq->remove(s, e);
-  seq->insert(s, box);
+  box->content()->insert(0, seq, sel.start, sel.end);
+  seq->remove(sel.start, sel.end);
+  seq->insert(sel.start, box);
   
   self.select(box->content(), 0, box->content()->length());
   return true;
@@ -4344,8 +4324,10 @@ void Document::Impl::paste_into_grid(GridBox *grid, GridIndexRect rect, MathSequ
 }
 
 bool Document::Impl::needs_sub_suberscript_parentheses(MathSequence *seq, int start, int end) {
-  for(int i = start; i < end; ++i) {
-    if(seq->text()[i] == PMATH_CHAR_BOX) {
+  auto text_buffer = buffer_view(seq->text());
+  
+  for(int i = end - 1; i >= start; --i) {
+    if(text_buffer[i] == PMATH_CHAR_BOX) {
       bool need_paren = true;
       
       if(end - start == 1) {
@@ -4360,8 +4342,16 @@ bool Document::Impl::needs_sub_suberscript_parentheses(MathSequence *seq, int st
       return true;
     }
     
-    if(seq->span_array().is_token_end(i) && i + 1 < end)
-      return true;
+    if(seq->span_array().is_token_end(i)) {
+      if(pmath_char_is_right(text_buffer[i])) {
+        VolatileSelection sel(seq, i, i+1);
+        sel.expand();
+        if(sel == VolatileSelection(seq, start, end))
+          return false;
+      }
+      if(i + 1 < end)
+        return true;
+    }
   }
   
   return false;
