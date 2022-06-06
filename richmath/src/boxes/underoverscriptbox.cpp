@@ -163,6 +163,13 @@ void UnderoverscriptBox::resize(Context &context) {
   context.canvas().set_font_size(em);
   
   float w = 0;
+  float min_stretch_width = _base->extents().width;
+  if(int num_base_glyphs = _base->glyph_array().length()) {
+    float first_glyph_width = _base->glyph_array()[0].right;
+    float last_glyph_width = _base->extents().width - ((num_base_glyphs > 1) ? _base->glyph_array()[num_base_glyphs - 2].right : 0);
+    
+    min_stretch_width -= first_glyph_width / 2 + last_glyph_width / 2;
+  }
   
   underscript_is_stretched(false);
   overscript_is_stretched(false);
@@ -171,7 +178,7 @@ void UnderoverscriptBox::resize(Context &context) {
     _underscript->resize(context);
     
     underscript_is_stretched(
-      _underscript->stretch_horizontal(context, _base->extents().width));
+      _underscript->stretch_horizontal(context, min_stretch_width));
                                   
     w = _underscript->extents().width;
   }
@@ -180,7 +187,7 @@ void UnderoverscriptBox::resize(Context &context) {
     _overscript->resize(context);
     
     overscript_is_stretched(
-      _overscript->stretch_horizontal(context, _base->extents().width));
+      _overscript->stretch_horizontal(context, min_stretch_width));
                                  
     if(w < _overscript->extents().width)
       w = _overscript->extents().width;
