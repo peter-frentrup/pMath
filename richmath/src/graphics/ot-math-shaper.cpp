@@ -495,6 +495,10 @@ String OTMathShaper::font_name(uint8_t fontinfo) {
   return impl->text_shaper->font_name(fontinfo);
 }
 
+float OTMathShaper::flattened_accent_base_height(Context &context) {
+  return impl->consts.flattened_accent_base_height.value * context.canvas().get_font_size() / impl->units_per_em;
+}
+
 void OTMathShaper::decode_token(
   Context        &context,
   int             len,

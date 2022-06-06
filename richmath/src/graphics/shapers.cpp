@@ -679,6 +679,10 @@ SimpleMathShaper::SimpleMathShaper(int radical_font)
 SimpleMathShaper::~SimpleMathShaper() {
 }
 
+float SimpleMathShaper::flattened_accent_base_height(Context &context) {
+  return context.canvas().get_font_size();
+}
+
 void SimpleMathShaper::vertical_glyph_size(
   Context         &context,
   const uint16_t   ch,

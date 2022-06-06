@@ -158,6 +158,8 @@ void UnderoverscriptBox::resize(Context &context) {
   int old_script_level = context.script_level;
   context.script_level = child_script_level(1, &context.script_level);
   
+//  float flac_min = context.math_shaper->flattened_accent_base_height(context);
+  
   float old_fs = context.canvas().get_font_size();
   float em = context.get_script_size(old_fs);
   context.canvas().set_font_size(em);
@@ -180,7 +182,17 @@ void UnderoverscriptBox::resize(Context &context) {
   }
   
   if(_overscript) {
-    _overscript->resize(context);
+//    if(_base->extents().ascent > flac_min) {
+//      int old_flac_feature_value = context.fontfeatures.feature_value(FontFeatureSet::TAG_flac);
+//      context.fontfeatures.set_feature(FontFeatureSet::TAG_flac, 1);
+//      
+//      _overscript->resize(context);
+//      
+//      context.fontfeatures.set_feature(FontFeatureSet::TAG_flac, old_flac_feature_value);
+//    }
+//    else {
+      _overscript->resize(context);
+//    }
     
     overscript_is_stretched(
       _overscript->stretch_horizontal(context, min_stretch_width));

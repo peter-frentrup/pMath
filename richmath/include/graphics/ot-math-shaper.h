@@ -24,6 +24,8 @@ namespace richmath {
       virtual FontFace font(uint8_t fontinfo) override;
       virtual String font_name(uint8_t fontinfo) override;
       
+      virtual float flattened_accent_base_height(Context &context) override;
+      
       virtual void decode_token(
         Context        &context,
         int             len,

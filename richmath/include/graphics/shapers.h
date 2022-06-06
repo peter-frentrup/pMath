@@ -199,6 +199,8 @@ namespace richmath {
   
   class MathShaper: public TextShaper {
     public:
+      virtual float flattened_accent_base_height(Context &context) = 0;
+      
       virtual bool horizontal_stretch_char(
         Context        &context,
         float           width,
@@ -307,6 +309,8 @@ namespace richmath {
     public:
       SimpleMathShaper(int _radicalfont);
       ~SimpleMathShaper();
+      
+      virtual float flattened_accent_base_height(Context &context) override;
       
       virtual void vertical_glyph_size(
         Context         &context,

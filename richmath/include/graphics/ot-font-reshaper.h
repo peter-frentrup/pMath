@@ -82,6 +82,7 @@ namespace richmath {
       
     public:
       static const uint32_t TAG_ssty = FONT_TAG_NAME('s', 's', 't', 'y');
+      static const uint32_t TAG_flac = FONT_TAG_NAME('f', 'l', 'a', 'c');
       
     private:
       Hashtable<uint32_t, int> _tag_to_value;
