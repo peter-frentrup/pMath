@@ -19,6 +19,8 @@ struct char_info_t {
 #define LEF  {PMATH_PREC_ANY,      PMATH_TOK_LEFT}
 #define RI1  {-1,                  PMATH_TOK_RIGHT}
 #define RI2  {-2,                  PMATH_TOK_RIGHT}
+#define RI3  {-3,                  PMATH_TOK_RIGHT}
+#define RI4  {-4,                  PMATH_TOK_RIGHT}
 #define MUL  {PMATH_PREC_MUL,      PMATH_TOK_NARY}
 #define ADD  {PMATH_PREC_ADD,      PMATH_TOK_NARY_OR_PREFIX}
 #define SEQ  {PMATH_PREC_SEQ,      PMATH_TOK_NARY_AUTOARG}
@@ -88,7 +90,7 @@ static const struct char_info_t u2000_u206f[112] = {
   /* 206 */ ID,  APL, MUL, SEQ, AD_, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  ID
 };
 
-static const struct char_info_t u2100_u230f[528] = {
+static const struct char_info_t u2100_u23bf[704] = {
   /*         0    1    2    3    4    5    6    7    8    9    A    B    C    D    E    F  */
   /* 210 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
   /* 211 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
@@ -122,7 +124,18 @@ static const struct char_info_t u2100_u230f[528] = {
   /* 22D */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
   /* 22E */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
   /* 22F */ REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL, REL,
-  /* 230 */ ID,  REL, ID,  REL, REL, REL, REL, REL, LEF, RI1, LEF, RI1, ID,  ID,  ID,  ID
+  /* 230 */ ID,  REL, ID,  REL, REL, REL, REL, REL, LEF, RI1, LEF, RI1, ID,  ID,  ID,  ID,
+  /* 231 */ NOT, ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  LEF, RI1, LEF, RI1,
+  /* 232 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  LEF, RI1, ID,  ID,  ID,  ID,  ID,
+  /* 233 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
+  /* 234 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
+  /* 235 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
+  /* 236 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  REL, REL, ID,  ID,  ID,  REL, ID,  ID,
+  /* 237 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
+  /* 238 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,
+  /* 239 */ ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  ID,  LEF, LEF, LEF, RI3, RI3,
+  /* 23A */ RI3, LEF, LEF, LEF, RI3, RI3, RI3, LEF, LEF, LEF, REL, RI4, RI4, RI4, BIG, REL,
+  /* 23B */ LEF, RI1, BIG, BIG, ID,  ID,  ID,  PAR, LEF, RI1, ID,  ID,  ID,  ID,  ID,  ID,
 };
 
 static const struct char_info_t u27c0_u27ff[64] = {
@@ -189,8 +202,8 @@ static const struct char_info_t *find_char_info(uint16_t ch) {
   if(ch >= 0x2000 && ch <= 0x206F)
     return &u2000_u206f[ch - 0x2000];
     
-  if(ch >= 0x2100 && ch <= 0x230F)
-    return &u2100_u230f[ch - 0x2100];
+  if(ch >= 0x2100 && ch <= 0x23BF)
+    return &u2100_u23bf[ch - 0x2100];
     
   if(ch >= 0x27C0 && ch <= 0x27FF)
     return &u27c0_u27ff[ch - 0x27C0];

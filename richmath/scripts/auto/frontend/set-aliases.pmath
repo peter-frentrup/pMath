@@ -695,6 +695,9 @@
 		"r|" -> "\[RightBracketingBar]",
 		"l||" -> "\[LeftDoubleBracketingBar]",
 		"r||" -> "\[RightDoubleBracketingBar]",
+
+		"lmoustache" -> "\[U+23B0]",
+		"rmoustache" -> "\[U+23B1]",
 		
 		"t[" -> "\[OverBracket]",
 		"b[" -> "\[UnderBracket]",

@@ -219,6 +219,18 @@ static PMATH_INLINE uint16_t pmath_right_fence(uint16_t left) {
   if(tok == PMATH_TOK_RIGHT && prec == -2)
     return left;
 
+  ++left;
+  tok = pmath_token_analyse(&left, 1, &prec);
+
+  if(tok == PMATH_TOK_RIGHT && prec == -3)
+    return left;
+
+  ++left;
+  tok = pmath_token_analyse(&left, 1, &prec);
+
+  if(tok == PMATH_TOK_RIGHT && prec == -4)
+    return left;
+
   return 0;
 }
 
