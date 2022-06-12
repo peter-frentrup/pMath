@@ -1471,15 +1471,14 @@ LRESULT Win32DocumentWindow::callback(UINT message, WPARAM wParam, LPARAM lParam
         
       case WM_MOUSEHWHEEL:
       case WM_MOUSEWHEEL: {
-          POINT pt;
-          if(GetCursorPos(&pt)) {
-            RECT rect;
-            GetClientRect(_working_area->hwnd(), &rect);
-            ScreenToClient(_working_area->hwnd(), &pt);
-            
-            if(PtInRect(&rect, pt)) {
-              return SendMessageW(_working_area->hwnd(), message, wParam, lParam);
-            }
+          POINT pt = { (int16_t)LOWORD(lParam), (int16_t)HIWORD(lParam) };
+          ScreenToClient(_working_area->hwnd(), &pt);
+          
+          RECT rect;
+          GetClientRect(_working_area->hwnd(), &rect);
+          
+          if(PtInRect(&rect, pt)) {
+            return SendMessageW(_working_area->hwnd(), message, wParam, lParam);
           }
         } break;
         
