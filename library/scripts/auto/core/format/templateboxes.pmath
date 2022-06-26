@@ -97,7 +97,7 @@ Function loadTemplateInterpretations(~filename:String) {
     With(document:= Get(filename, Head->HoldComplete))
     document.Cases(
         Section(
-            StyleData(~s:String), 
+            StyleData(~s:String, ~~~), 
             ~~~, 
             TemplateBoxOptions -> {
                 ~~~, 

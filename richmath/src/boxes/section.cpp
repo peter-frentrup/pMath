@@ -19,15 +19,18 @@ using namespace std;
 
 extern pmath_symbol_t richmath_FE_Styles_MakeStyleDataBoxes;
 extern pmath_symbol_t richmath_System_DollarFailed;
+extern pmath_symbol_t richmath_System_Automatic;
 extern pmath_symbol_t richmath_System_BoxData;
 extern pmath_symbol_t richmath_System_False;
 extern pmath_symbol_t richmath_System_HoldComplete;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeExpression;
 extern pmath_symbol_t richmath_System_MessageName;
+extern pmath_symbol_t richmath_System_None;
 extern pmath_symbol_t richmath_System_ParseSymbols;
 extern pmath_symbol_t richmath_System_Section;
 extern pmath_symbol_t richmath_System_StyleData;
+extern pmath_symbol_t richmath_System_StyleDefinitions;
 extern pmath_symbol_t richmath_System_TextData;
 extern pmath_symbol_t richmath_System_Try;
 
@@ -906,12 +909,31 @@ bool StyleDataSection::try_load_from_object(Expr expr, BoxInputFlags opts) {
   Expr new_style_data = expr[1];
   if(new_style_data[0] != richmath_System_StyleData)
     return false;
+  
+  if(new_style_data.expr_length() < 1)
+    return false;
     
   Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
   if(options.is_null())
     return false;
-    
+  
+  Expr sd_opts(pmath_options_extract_ex(new_style_data.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+  if(sd_opts.is_null())
+    return false;
+  
+  /* now success is guaranteed */
+  
   style_data = std::move(new_style_data);
+  
+//  Expr sd_style_definitions(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, sd_opts.get()));
+//  if(sd_style_definitions.is_string())
+//    _style_definitions_base_name = String(sd_style_definitions);
+//  else if(sd_style_definitions == richmath_System_None)
+//    _style_definitions_base_name = String();
+//  else if(sd_style_definitions == richmath_System_Automatic)
+//    _style_definitions_base_name = String(style_data[1]);
+//  else // complain
+//    _style_definitions_base_name = String();
   
   reset_style();
   style->add_pmath(options);

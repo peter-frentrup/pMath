@@ -8,9 +8,22 @@ $DefaultDisplayFunctionTooltip
 Begin("FE`Styles`Private`")
 
 MakeStyleDataBoxes(~)::= asStyleDataLabelBox("\"Unknown StyleData syntax\"")
-MakeStyleDataBoxes(HoldComplete(StyleData(~name:String)))::= 
+MakeStyleDataBoxes(HoldComplete(StyleData(~name:String, ~~~)))::= 
     asStyleDataExampleBox(
         MakeBoxes(StringForm("Local definition for style \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote]:", name)),
+        name
+    )
+MakeStyleDataBoxes(HoldComplete(StyleData(~name:String, ~~~, StyleDefinitions -> None, ~~~)))::= 
+    asStyleDataExampleBox(
+        MakeBoxes(StringForm("Local re-definition for style \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote]:", name)),
+        name
+    )
+MakeStyleDataBoxes(HoldComplete(StyleData(~name:String, ~~~, StyleDefinitions -> StyleData(~basename:String, ~~~), ~~~)))::= 
+    asStyleDataExampleBox(
+        MakeBoxes(StringForm(
+            "Local definition for style \[HighSixDoubleQuote]`1`\[HighNineDoubleQuote], based on \[HighSixDoubleQuote]`2`\[HighNineDoubleQuote]:", 
+            name,
+            RawBoxes@TemplateBox({basename}, "StyleHyperlink"))),
         name
     )
     

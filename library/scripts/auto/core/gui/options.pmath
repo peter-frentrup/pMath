@@ -432,6 +432,9 @@ Options(Slider):= Options(SliderBox):= {
     ContinuousAction -> True,
     Enabled -> Automatic }
 
+Options(StyleData):= {
+    StyleDefinitions -> Automatic }
+
 Options(TagBox):= {
     AutoDelete -> False,
     Editable -> Automatic,

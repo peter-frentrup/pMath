@@ -2633,16 +2633,34 @@ namespace richmath {
             Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
             if(options.is_null())
               return;
-              
-            String stylename{data};
-            SharedPtr<Style> *style_ptr = self.styles.search(stylename);
-            if(style_ptr) {
-              (*style_ptr)->add_pmath(options);
+            
+            Expr data_opts(pmath_options_extract_ex(name.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+            if(data_opts.is_null())
+              return;
+            
+            Expr base_sd(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, data_opts.get()));
+            
+            if(base_sd == richmath_System_Automatic) {
+              if(SharedPtr<Style> *style_ptr = self.styles.search(String(data))) {
+                (*style_ptr)->add_pmath(options);
+                return;
+              }
             }
-            else {
-              SharedPtr<Style> style = new Style(options);
-              self.styles.set(stylename, style);
+            else if(base_sd[0] == richmath_System_StyleData) {
+              if(SharedPtr<Style> *base_style_ptr = self.styles.search(String(base_sd[1]))) {
+                SharedPtr<Style> style = new Style();
+                style->merge(*base_style_ptr);
+                style->add_pmath(options);
+                self.styles.set(String(data), style);
+                return;
+              }
             }
+//            else if(base_sd != richmath_System_None)
+//              return;
+            
+            SharedPtr<Style> style = new Style(options);
+            self.styles.set(String(data), style);
+            
             return;
           }
           

@@ -79,14 +79,14 @@ Document({
        SectionLabel -> "in:", ShowAutoStyles -> True, 
        ShowStringCharacters -> True), 
       SectionGroup({
-        Section(StyleData("Code"), 
-         Background -> GrayLevel(0.80400000000000005`), BaseStyle -> "Input", 
+        Section(StyleData("Code", StyleDefinitions -> StyleData("Input")), 
+         Background -> GrayLevel(0.80400000000000005`), 
          LineBreakWithin -> False, MenuCommandKey -> "8", 
          MenuSortingValue -> 1450, SectionFrameMargins -> 3), 
         SectionGroup({
-          Section(StyleData("Output"), AutoNumberFormating -> True, 
-           BaseStyle -> "Input", DefaultDuplicateSectionStyle -> "Input", 
-           Evaluatable -> False, MenuSortingValue -> 1550, 
+          Section(StyleData("Output", StyleDefinitions -> StyleData("Input")), 
+           AutoNumberFormating -> True, DefaultDuplicateSectionStyle -> 
+            "Input", Evaluatable -> False, MenuSortingValue -> 1550, 
            SectionEditDuplicate -> True, SectionGroupPrecedence -> 10, 
            SectionMargins -> {Inherited, {5, Inherited}}, SectionLabel -> "", 
            ShowAutoStyles -> False, ShowStringCharacters -> False), 
