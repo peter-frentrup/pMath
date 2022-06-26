@@ -1,0 +1,43 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("StyleData", "ObjectName"), 
+      Section(BoxData(TemplateBox({"StyleData"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"StyleData"}, "ReferenceHyperlink"), 
+           "(\"", StyleBox("style", "Arg"), 
+           "\") inherits all definitions of \"", StyleBox("style", "Arg"), 
+           "\" from parent stylesheets."}), "Notes"), 
+        Section(TextData({TemplateBox({"StyleData"}, "ReferenceHyperlink"), 
+           "(", TemplateBox({"StyleDefinitions"}, "ReferenceHyperlink"), 
+           " \[Rule] ", StyleBox("stylesheet", "Arg"), 
+           ") references a parent ", StyleBox("stylesheet", "Arg"), 
+           " file."}), "Notes")}, All), Section("", "SectionFooterSpacer")}, 
+     1), SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Define a style for the ", 
+           TemplateBox({"Section"}, "ReferenceHyperlink"), 
+           " style \"MyTitle\" and reformat it e.g. via ", 
+           StyleBox("Edit", FontSlant -> Italic), "\[U+25B8]", 
+           StyleBox("Edit Boxes", FontSlant -> Italic), ": "}), 
+         "ExampleText"), Section(StyleData("MyTitle"), 
+         FontFamily -> {"Calibri", "Verdana", "Arial", "sans-serif"}, 
+         FontSize -> 36, FontWeight -> Bold), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Defer to a parent stylesheet:", "ExampleText"), 
+          Section(StyleData(StyleDefinitions -> "Core.pmathdoc"))}, All)}, 
+       All), Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(
+       TextData({TemplateBox({"StyleDefinitions"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"Section"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"Style"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"BoxData"}, 
+          "ReferenceHyperlink"), "\[NonBreakingSpace]\[Dot] ", 
+         TemplateBox({"TextData"}, "ReferenceHyperlink")}), "SeeAlso")}, 
+     All)}, All)}, StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
