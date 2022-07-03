@@ -1,0 +1,51 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("MemoryUsage", "ObjectName"), 
+      Section(BoxData(TemplateBox({"MemoryUsage"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({TemplateBox({"MemoryUsage"}, "ReferenceHyperlink"), 
+           "() gives the memory clamed by the pMath memory allocator from the \
+           operating system. Due to caching"}), "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section("Get current and meximum memory usage:", "ExampleText"), 
+        SectionGroup({Section(BoxData({"MemoryUsage", "(", ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(BoxData({"{", {"8503989", ",", "10427981"}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+       All), SectionGroup({Section("Applications", "ExampleSection"), 
+        Section("Display memory usage in a dynamically updating window:", 
+         "ExampleText"), SectionGroup({
+          Section(BoxData({"CreateDocument", "(", {
+              {"DynamicLocal", "(", {
+                {"{", {"mem", "\[Assign]", {"{", "}"}}, "}"}, ",", {
+                 "Dynamic", "(", {"Refresh", "(", {
+                   {{"mem", "\[Assign]", {
+                      "Take", "(", {
+                       {"Append", "(", {"mem", ",", {
+                          "First", "@", {"MemoryUsage", "(", ")"}}}, ")"}, 
+                       ",", {"UpTo", "(", {"-", "100"}, ")"}}, ")"}}, ";", {
+                     "ListLinePlot", "(", {
+                      "mem", ",", {"FrameTicks", "\[Rule]", {
+                        "{", {{"{", {"Automatic", ",", "None"}, "}"}, ",", 
+                         "None"}, "}"}}, ",", {"Frame", "\[Rule]", "True"}, 
+                      ",", {"Axes", "\[Rule]", "False"}}, ")"}}, ",", "None", 
+                   ",", {"UpdateInterval", "\[Rule]", "1.5"}}, ")"}, ")"}, 
+                ",", {"UnsavedVariables", "\[RuleDelayed]", {
+                  "{", "mem", "}"}}}, ")"}, ",", {
+               "WindowFrame", "\[Rule]", StringBox("\"Dialog\"")}}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(TemplateBox({FrontEndObject(5289244974751894953, 13680), 
+              "Untitled 2"}, "DocumentObject")), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"ByteCount"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"$HistoryLength"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
