@@ -107,7 +107,10 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     dynamic = expr[1];
     input_type = expr[2];
     must_update(true);
+    _assigned_result = Expr(PMATH_UNDEFINED);
   }
+  
+  _continue_assign_dynamic_event = nullptr;
   
   reset_style();
   style->add_pmath(options);
@@ -183,7 +186,12 @@ void InputFieldBox::paint_content(Context &context) {
     must_update(false);
     
     Expr result;
-    if(dynamic.get_value(&result) && !_continue_assign_dynamic_event) {
+    if( dynamic.get_value(&result) &&
+        !_continue_assign_dynamic_event &&
+        (!selection_inside() || _assigned_result != result)
+    ) {
+      _assigned_result = Expr(PMATH_UNDEFINED);
+      
       BoxInputFlags opt = BoxInputFlags::Default;
       if(get_style(AutoNumberFormating))
         opt |= BoxInputFlags::FormatNumbers;
@@ -651,16 +659,19 @@ void InputFieldBox::Impl::finish_assign_dynamic(Expr value, DynamicFunctions fun
   switch(funcs) {
     case DynamicFunctions::Continue:
       self.did_continuous_updates(true);
+      self._assigned_result = value;
       self.dynamic.assign(std::move(value), need_start, true, false);
       break;
     
     case DynamicFunctions::Finish:
       self.did_continuous_updates(false);
+      self._assigned_result = value;
       self.dynamic.assign(std::move(value), need_start, true, true);
       break;
     
     case DynamicFunctions::OnlyPost:
       self.did_continuous_updates(false);
+      self._assigned_result = value;
       self.dynamic.assign(std::move(value), false, false, true);
       break;
   }

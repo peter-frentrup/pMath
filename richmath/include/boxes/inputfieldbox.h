@@ -81,6 +81,7 @@ namespace richmath {
     protected:
       float frame_x;
       SharedPtr<TimedEvent> _continue_assign_dynamic_event;
+      Expr _assigned_result;
       
     public:
       Dynamic dynamic;
