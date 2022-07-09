@@ -4,6 +4,7 @@
 
 #include <boxes/mathsequence.h>
 #include <eval/application.h>
+#include <eval/eval-contexts.h>
 #include <gui/document.h>
 #include <gui/native-widget.h>
 
@@ -204,18 +205,22 @@ void InputFieldBox::paint_content(Context &context) {
       invalidated(true);
       
       switch(input_type()) {
+        case InputFieldType::HeldExpression:
+            if(result.expr_length() == 1 && result[0] == richmath_System_Hold) {
+              result = result[1];
+            }
+            // Fall through
         case InputFieldType::Expression: {
-            result = Call(Symbol(richmath_System_MakeBoxes), result);
-            result = Application::interrupt_wait(result, Application::dynamic_timeout);
-          } break;
-        
-        case InputFieldType::HeldExpression: {
-            if(result.expr_length() == 1 && result[0] == richmath_System_Hold)
-              result.set(0, Symbol(richmath_System_MakeBoxes));
-            else
-              result = Call(Symbol(richmath_System_MakeBoxes), result);
-              
-            result = Application::interrupt_wait(result, Application::dynamic_timeout);
+            if(result.is_null()) {
+              result = strings::EmptyString;
+            }
+            else {
+              result = Call(Symbol(richmath_System_MakeBoxes), std::move(result));
+              result = prepare_dynamic(std::move(result));
+              result = EvaluationContexts::prepare_namespace_for(std::move(result), this);
+              result = EvaluationContexts::make_context_block(std::move(result), EvaluationContexts::resolve_context(this));
+              result = Application::interrupt_wait_for(std::move(result), this, Application::dynamic_timeout);
+            }
           } break;
         
         case InputFieldType::RawBoxes: break;
@@ -228,7 +233,7 @@ void InputFieldBox::paint_content(Context &context) {
         case InputFieldType::Number: {
             if(result.is_number()) {
               result = Call(Symbol(richmath_System_MakeBoxes), result);
-              result = Application::interrupt_wait(result, Application::dynamic_timeout);
+              result = Application::interrupt_wait_for(result, this, Application::dynamic_timeout);
             }
             else
               result = strings::EmptyString;
@@ -620,11 +625,13 @@ bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
     case InputFieldType::HeldExpression: {
         Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
         
+        boxes = EvaluationContexts::prepare_namespace_for(std::move(boxes), &self);
+        
         Expr value = Call(Symbol(richmath_System_Try),
                           Call(Symbol(richmath_System_MakeExpression), boxes),
                           Call(Symbol(richmath_System_RawBoxes), boxes));
-                          
-        value = Evaluate(value);
+        value = EvaluationContexts::make_context_block(std::move(value), EvaluationContexts::resolve_context(&self));
+        value = Evaluate(std::move(value));
         
         if(value[0] == richmath_System_HoldComplete) {
           if(self.input_type() == InputFieldType::HeldExpression) {
