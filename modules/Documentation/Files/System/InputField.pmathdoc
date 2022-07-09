@@ -1,0 +1,274 @@
+/* pMath Document */
+
+Document({
+  SectionGroup({
+    SectionGroup({Section("InputField", "ObjectName"), 
+      Section(BoxData(TemplateBox({"InputField"}, "UsageReference")), 
+       "Usage")}, All), SectionGroup({Section("Details", "NotesSection"), 
+      SectionGroup({Section("", "NotesSectionHeaderSpacer"), 
+        Section(TextData({"Possible settings for ", StyleBox("type", "Arg"), 
+           " are:"}), "Notes"), 
+        Section(
+         TextData({
+           GridBox({{{TemplateBox({"Expression"}, "ReferenceHyperlink")}, 
+              "An arbitrary expression (default)."}, {
+              {TemplateBox({"Hold"}, "ReferenceHyperlink"), "(", 
+               TemplateBox({"Expression"}, "ReferenceHyperlink"), ")"}, {
+               "An arbitrary expression wrapped in ", 
+               TemplateBox({"Hold"}, "ReferenceHyperlink"), "."}}, {
+              {TemplateBox({"RawBoxes"}, "ReferenceHyperlink")}, 
+              "A boxes expression."}, {
+              {TemplateBox({"String"}, "ReferenceHyperlink")}, 
+              "A textual string."}, {
+              {TemplateBox({"Number"}, "ReferenceHyperlink")}, 
+              "An integer or real number."}})}), "2ColumnTableNotes"), 
+        Section(TextData({"With the default setting ", 
+           TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), 
+           " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
+           ", the setting for the input field is not updated until its \
+           contents is explictly accepted by pressing ", 
+           BoxData(TemplateBox({"Enter"}, "KeyEvent")), 
+           " or moving focus away from the input field."}), "Notes"), 
+        Section(
+         "The setting for the input field is only updated if it can be \
+         converted to the specified type.", "Notes")}, All), 
+      Section("", "SectionFooterSpacer")}, 1), 
+    SectionGroup({Section("Examples", "PrimaryExamplesSection"), 
+      SectionGroup({Section("Basic Examples", "ExampleSection"), 
+        Section(TextData({"Update a variable via ", 
+           TemplateBox({"InputField"}, "ReferenceHyperlink"), ":"}), 
+         "ExampleText"), SectionGroup({
+          Section(
+           BoxData({
+             "{", {{"InputField", "(", {"Dynamic", "(", "x", ")"}, ")"}, ",", {
+               "Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData({"{", {InputFieldBox(Dynamic($Context`x), Expression), ",", 
+              DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+        SectionGroup({
+          Section(BoxData(InterpretationBox("", $Line:= 0;, 
+             Editable -> False)), "ExampleDelimiter"), 
+          Section("Restrict the input to a specific type:", "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"InputField", "(", {"1", ",", "Number"}, ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(InputFieldBox(1, Number)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData({"InputField", "(", {
+                StringBox("\"a\""), ",", "String"}, ")"}), "Input", 
+             SectionLabel -> "in [2]:"), 
+            Section(BoxData(InputFieldBox("a", String)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [2]:")}, All)}, 
+         All)}, All), SectionGroup({Section("Scope", "ExampleSection"), 
+        Section(
+         "The input field will not be updated if the input is not of the \
+         specified type:", "ExampleText"), 
+        SectionGroup({
+          Section(BoxData({"InputField", "(", {"1", ",", "Number"}, ")"}), 
+           "Input", SectionLabel -> "in [1]:"), 
+          Section(BoxData(InputFieldBox(1, Number)), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      SectionGroup({Section("Options", "ExampleSection"), 
+        SectionGroup({Section("Appearance", "ExampleSubsection"), 
+          Section(TextData({"With the default setting ", 
+             TemplateBox({"Appearance"}, "ReferenceHyperlink"), " \[Rule] ", 
+             TemplateBox({"Automatic"}, "ReferenceHyperlink"), 
+             ", a system-specific frame is used:"}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"{", {{"InputField", "(", "123", ")"}, ",", {
+                 "InputField", "(", {
+                  "123", ",", {"Appearance", "\[Rule]", "Automatic"}}, ")"}}, 
+               "}"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData({"{", {InputFieldBox(123, Expression), ",", 
+                InputFieldBox(123, Expression, Appearance -> Automatic)}, 
+               "}"}), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Compare the possible appearances:", "ExampleText"), 
+            SectionGroup({
+              Section(
+               BoxData({"Grid", "(", {
+                  "Table", "(", {
+                   {"{", {"s", ",", {"InputField", "(", {
+                       "123", ",", {"Appearance", "\[Rule]", "s"}}, ")"}}, 
+                    "}"}, ",", {"s", "\[Rule]", {
+                     "{", {"Automatic", ",", "None", ",", 
+                      StringBox("\"Framed\""), ",", 
+                      StringBox("\"Frameless\""), ",", 
+                      StringBox("\"AddressBand\"")}, "}"}}}, ")"}, ")"}), 
+               "Input", SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                TagBox(
+                 GridBox({
+                   {"Automatic", InputFieldBox(123, Expression, 
+                     Appearance -> Automatic)}, {
+                    "None", InputFieldBox(123, Expression, 
+                     Appearance -> None)}, {StringBox("\"Framed\""), 
+                    InputFieldBox(123, Expression, Appearance -> "Framed")}, {
+                    StringBox("\"Frameless\""), InputFieldBox(123, Expression, 
+                     Appearance -> "Frameless")}, {
+                    StringBox("\"AddressBand\""), 
+                    InputFieldBox(123, Expression, 
+                     Appearance -> "AddressBand")}}), "Grid")), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("BaseStyle", "ExampleSubsection"), 
+          Section(
+           TextData({
+             "Default settings can be adapted in stylesheets with the ", 
+             TemplateBox({"InputField"}, "StyleHyperlink"), 
+             " style or by specifying a custom style name."}), "ExampleText"), 
+          SectionGroup({
+            Section(BoxData({"InputField", "(", {
+                "123", ",", {"BaseStyle", "\[Rule]", 
+                 StringBox("\"InputField\"")}}, ")"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(BoxData(InputFieldBox(123, Expression)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+         1), SectionGroup({Section("BaselinePosition", "ExampleSubsection"), 
+          Section(
+           "Shift the input field vertically relative to the base line:", 
+           "ExampleText"), SectionGroup({
+            Section(BoxData({"Column", "(", {
+                "Table", "(", {
+                 {"{", {
+                   {"InputField", "(", {
+                     "123", ",", {"BaselinePosition", "\[Rule]", "b"}}, ")"}, 
+                   ",", "b"}, "}"}, ",", {"b", "\[Rule]", {
+                   "{", {"Top", ",", "Center", ",", "Baseline", ",", {
+                     "Center", "\[Rule]", "Axis"}, ",", "Bottom"}, "}"}}}, 
+                ")"}, ")"}), "Input", SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData(
+              TagBox(
+               GridBox({
+                 {{"{", {InputFieldBox(123, Expression, 
+                     BaselinePosition -> Top), ",", "Top"}, "}"}}, {
+                  {"{", {InputFieldBox(123, Expression, 
+                     BaselinePosition -> Center), ",", "Center"}, "}"}}, {
+                  {"{", {InputFieldBox(123, Expression, 
+                     BaselinePosition -> Baseline), ",", "Baseline"}, "}"}}, {
+                  {"{", {InputFieldBox(123, Expression, 
+                     BaselinePosition -> Center -> Axis), ",", {
+                     "Center", "\[Rule]", "Axis"}}, "}"}}, {
+                  {"{", {InputFieldBox(123, Expression, 
+                     BaselinePosition -> Bottom), ",", "Bottom"}, "}"}}}), 
+               "Column")), "Output", SectionGenerated -> True, 
+             SectionLabel -> "out [1]:")}, All)}, 1), 
+        SectionGroup({Section("ContinuousAction", "ExampleSubsection"), 
+          Section(TextData({"With the default setting ", 
+             TemplateBox({"ContinuousAction"}, "ReferenceHyperlink"), 
+             " \[Rule] ", TemplateBox({"False"}, "ReferenceHyperlink"), 
+             ", the input field setting is only updated when pressing ", 
+             TemplateBox({"Enter"}, "KeyEvent"), 
+             " or moving keyboard focus away from the input field:"}), 
+           "ExampleText"), SectionGroup({
+            Section(
+             BoxData({
+               "{", {{"InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
+                  "String", ",", {"ContinuousAction", "\[Rule]", "False"}}, 
+                 ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+             SectionLabel -> "in [1]:"), 
+            Section(
+             BoxData({
+               "{", {InputFieldBox(Dynamic($Context`x), String, {
+                   SliderBoxOptions, ContinuousAction} -> False, 
+                 SliderBoxOptions -> {ContinuousAction -> False}), ",", 
+                DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section("Update the input field setting at every key stroke:", 
+             "ExampleText"), SectionGroup({
+              Section(
+               BoxData({
+                 "{", {{"InputField", "(", {{"Dynamic", "(", "x", ")"}, ",", 
+                    "String", ",", {"ContinuousAction", "\[Rule]", "True"}}, 
+                   ")"}, ",", {"Dynamic", "(", "x", ")"}}, "}"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData({
+                 "{", {InputFieldBox(Dynamic($Context`x), String, {
+                     SliderBoxOptions, ContinuousAction} -> True, 
+                   SliderBoxOptions -> {ContinuousAction -> True}), ",", 
+                  DynamicBox(ToBoxes($Context`x))}, "}"}), "Output", 
+               SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 
+           All)}, 1), SectionGroup({Section("Enabled", "ExampleSubsection"), 
+          Section(TextData({"By default, ", 
+             TemplateBox({"InputField"}, "ReferenceHyperlink"), 
+             " is enabled when its surounding is so:"}), "ExampleText"), 
+          SectionGroup({Section(BoxData({"InputField", "(", "5", ")"}), 
+             "Input", SectionLabel -> "in [1]:"), 
+            Section(BoxData(InputFieldBox(5, Expression)), "Output", 
+             SectionGenerated -> True, SectionLabel -> "out [1]:")}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"By setting ", 
+               TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
+               TemplateBox({"False"}, "ReferenceHyperlink"), 
+               ", the field is read-only:"}), "ExampleText"), 
+            SectionGroup({
+              Section(BoxData({"InputField", "(", {
+                  "3", ",", {"Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(BoxData(InputFieldBox(3, Expression, Enabled -> False)), 
+               "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All), 
+          SectionGroup({
+            Section(BoxData(InterpretationBox("", $Line:= 0;, 
+               Editable -> False)), "ExampleDelimiter"), 
+            Section(TextData({"Explicitly enable editing with ", 
+               TemplateBox({"Enabled"}, "ReferenceHyperlink"), " \[Rule] ", 
+               TemplateBox({"True"}, "ReferenceHyperlink"), ":"}), 
+             "ExampleText"), SectionGroup({
+              Section(BoxData({"Panel", "(", {
+                  {"Column", "(", {
+                    "{", {{"InputField", "(", {
+                       "123", ",", {"Enabled", "\[Rule]", "True"}}, ")"}, ",", 
+                     {"InputField", "(", "456", ")"}}, "}"}, ")"}, ",", {
+                   "Enabled", "\[Rule]", "False"}}, ")"}), "Input", 
+               SectionLabel -> "in [1]:"), 
+              Section(
+               BoxData(
+                PanelBox(
+                 TagBox(
+                  GridBox({{InputFieldBox(123, Expression, Enabled -> True)}, {
+                     InputFieldBox(456, Expression)}}), "Column"), 
+                 Enabled -> False)), "Output", SectionGenerated -> True, 
+               SectionLabel -> "out [1]:")}, All)}, All)}, 1)}, 1), 
+      SectionGroup({Section("Applications", "ExampleSection"), 
+        Section("Plot any function:", "ExampleText"), 
+        SectionGroup({
+          Section(
+           BoxData({"Panel", "(", {"DynamicLocal", "(", {
+               {"{", {"f", "\[Assign]", {"Sin", "(", "x", ")"}}, "}"}, ",", {
+                "Column", "(", {
+                 "{", {{"InputField", "(", {"Dynamic", "(", "f", ")"}, ")"}, 
+                  ",", {"Dynamic", "(", {
+                    "Plot", "(", {{"Evaluate", "(", "f", ")"}, ",", {
+                      "x", "\[Rule]", {{"-", "5"}, "..", "5"}}}, ")"}, ")"}}, 
+                 "}"}, ")"}}, ")"}, ")"}), "Input", 
+           SectionLabel -> "in [1]:"), 
+          Section(
+           BoxData(PanelBox(DynamicLocalBox({$Context`f}, 
+              TagBox(
+               GridBox({{InputFieldBox(Dynamic($Context`f), Expression)}, {
+                  DynamicBox(ToBoxes(Plot(Evaluate($Context`f), 
+                     $Context`x -> -5 .. 5)))}}), "Column"), 
+              DynamicLocalValues :> {
+                {OwnRules($Context`f):= {
+                   HoldPattern($Context`f) :> Sin($Context`x)}}}))), "Output", 
+           SectionGenerated -> True, SectionLabel -> "out [1]:")}, All)}, 1), 
+      Section("", "SectionFooterSpacer")}, All), 
+    SectionGroup({Section("See Also", "SeeAlsoSection"), 
+      Section(TextData({TemplateBox({"Dynamic"}, "ReferenceHyperlink"), 
+         "\[NonBreakingSpace]\[Dot] ", TemplateBox({"MakeExpression"}, 
+          "ReferenceHyperlink")}), "SeeAlso")}, All)}, All)}, 
+ StyleDefinitions -> "Reference.pmathdoc", Visible -> True)
