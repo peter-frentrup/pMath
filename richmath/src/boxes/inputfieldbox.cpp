@@ -280,7 +280,13 @@ void InputFieldBox::paint_content(Context &context) {
     false);
   context.canvas().clip();
   context.canvas().move_to(x, y);
+  
+  bool  old_math_spacing = context.math_spacing;
+  context.math_spacing = false; // same as during resize()
+  
   base::paint_content(context);
+  
+  context.math_spacing = old_math_spacing;
   
   context.canvas().restore();
 }
