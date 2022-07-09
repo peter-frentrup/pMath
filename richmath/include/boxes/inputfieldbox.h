@@ -50,6 +50,7 @@ namespace richmath {
       virtual void on_enter() override;
       virtual void on_exit() override;
       virtual void on_finish_editing() override;
+      void continue_assign_dynamic();
       
       virtual void on_key_down(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
@@ -79,6 +80,7 @@ namespace richmath {
       
     protected:
       float frame_x;
+      SharedPtr<TimedEvent> _continue_assign_dynamic_event;
       
     public:
       Dynamic dynamic;

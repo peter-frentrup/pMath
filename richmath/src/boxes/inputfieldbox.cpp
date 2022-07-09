@@ -57,6 +57,26 @@ namespace richmath {
   };
 }
 
+namespace {
+  class ContinueAssignDynamicAfterEditEvent: public TimedEvent {
+    public:
+      explicit ContinueAssignDynamicAfterEditEvent(FrontEndReference id) 
+        : TimedEvent(0.1), 
+          _id(id) 
+      {
+      }
+      
+      virtual void execute_event() override {
+        if(InputFieldBox *box = FrontEndObject::find_cast<InputFieldBox>(_id)) {
+          box->continue_assign_dynamic();
+        }
+      }
+      
+    private:
+      FrontEndReference _id;
+  };
+}
+
 //{ class InputFieldBox ...
 
 InputFieldBox::InputFieldBox(AbstractSequence *content)
@@ -163,7 +183,7 @@ void InputFieldBox::paint_content(Context &context) {
     must_update(false);
     
     Expr result;
-    if(dynamic.get_value(&result)) {
+    if(dynamic.get_value(&result) && !_continue_assign_dynamic_event) {
       BoxInputFlags opt = BoxInputFlags::Default;
       if(get_style(AutoNumberFormating))
         opt |= BoxInputFlags::FormatNumbers;
@@ -225,7 +245,7 @@ void InputFieldBox::paint_content(Context &context) {
   float x, y;
   context.canvas().current_pos(&x, &y);
   
-  if(invalidated()) {
+  if(invalidated() && !_continue_assign_dynamic_event) {
     context.canvas().save();
     
     float cx = x + _extents.width;
@@ -373,8 +393,22 @@ void InputFieldBox::invalidate() {
     return;
     
   invalidated(true);
-  if(!must_update() && get_own_style(ContinuousAction, false)) {
-    Impl(*this).assign_dynamic(DynamicFunctions::Continue);
+  if(must_update()) {
+    if(!_continue_assign_dynamic_event)
+      return; // Dynamic changed due to someone else
+  }
+  
+  if(get_own_style(ContinuousAction, false)) {
+    if(_continue_assign_dynamic_event) {
+      _continue_assign_dynamic_event->reset_timer();
+    }
+    else {
+      _continue_assign_dynamic_event = new ContinueAssignDynamicAfterEditEvent(id());
+      if(!_continue_assign_dynamic_event->register_for(id())) {
+        continue_assign_dynamic();
+      }
+    }
+    //Impl(*this).assign_dynamic(DynamicFunctions::Continue);
   }
 }
 
@@ -439,6 +473,11 @@ void InputFieldBox::on_finish_editing() {
   }
     
   base::on_finish_editing();
+}
+
+void InputFieldBox::continue_assign_dynamic() {
+  _continue_assign_dynamic_event = nullptr;
+  Impl(*this).assign_dynamic(DynamicFunctions::Continue);
 }
 
 void InputFieldBox::on_key_down(SpecialKeyEvent &event) {
