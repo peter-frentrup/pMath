@@ -6,6 +6,14 @@
 
 
 namespace richmath {
+  enum class InputFieldType : uint16_t {
+    Expression,
+    HeldExpression,
+    RawBoxes,
+    String,
+    Number,
+  };
+  
   class InputFieldBox final : public ContainerWidgetBox {
       using base = ContainerWidgetBox;
       class Impl;
@@ -55,6 +63,8 @@ namespace richmath {
       virtual void on_key_down(SpecialKeyEvent &event) override;
       virtual void on_key_press(uint32_t unichar) override;
       
+      InputFieldType input_type() { return (InputFieldType)_unused_u16; }
+      
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual void resize_default_baseline(Context &context) override;
@@ -78,6 +88,8 @@ namespace richmath {
       bool did_continuous_updates() {       return get_flag(DidContinuousUpdatesBit); }
       void did_continuous_updates(bool value) { change_flag(DidContinuousUpdatesBit, value); }
       
+      void input_type(InputFieldType value) { _unused_u16 = (uint16_t)value; }
+      
     protected:
       float frame_x;
       SharedPtr<TimedEvent> _continue_assign_dynamic_event;
@@ -85,7 +97,6 @@ namespace richmath {
       
     public:
       Dynamic dynamic;
-      Expr input_type;
   };
 }
 

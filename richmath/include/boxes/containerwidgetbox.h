@@ -64,6 +64,7 @@ namespace richmath {
       SharedPtr<BoxAnimation> animation;
       ContainerType type;
       ControlState  old_state;
+      uint16_t      _unused_u16;
   };
 }
 

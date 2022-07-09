@@ -47,8 +47,11 @@ namespace richmath {
       
       static ContainerType parse_appearance(Expr expr);
 
-      bool assign_dynamic(DynamicFunctions funcs);
+      static InputFieldType type_from_expr(Expr expr);
+      static Expr expr_from_type(InputFieldType ty);
     
+      bool assign_dynamic(DynamicFunctions funcs);
+      
     private:
       void finish_assign_dynamic(Expr value, DynamicFunctions funcs);
       
@@ -85,7 +88,7 @@ InputFieldBox::InputFieldBox(AbstractSequence *content)
 {
   must_update(true);
   dynamic.init(this, Expr());
-  input_type = Symbol(richmath_System_Expression);
+  input_type(InputFieldType::Expression);
   reset_style();
   cx = 0;
 }
@@ -103,9 +106,11 @@ bool InputFieldBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
     
   /* now success is guaranteed */
   
-  if(dynamic.expr() != expr[1] || input_type != expr[2] || has(opts, BoxInputFlags::ForceResetDynamic)) {
+  InputFieldType new_type = Impl::type_from_expr(expr[2]);
+  
+  if(dynamic.expr() != expr[1] || input_type() != new_type || has(opts, BoxInputFlags::ForceResetDynamic)) {
     dynamic = expr[1];
-    input_type = expr[2];
+    input_type(new_type);
     must_update(true);
     _assigned_result = Expr(PMATH_UNDEFINED);
   }
@@ -198,29 +203,36 @@ void InputFieldBox::paint_content(Context &context) {
         
       invalidated(true);
       
-      if(input_type == richmath_System_Number) {
-        if(result.is_number()) {
-          result = Call(Symbol(richmath_System_MakeBoxes), result);
-          result = Application::interrupt_wait(result, Application::dynamic_timeout);
-        }
-        else
-          result = strings::EmptyString;
-      }
-      else if(input_type == richmath_System_String) {
-        if(!result.is_string())
-          result = strings::EmptyString;
-      }
-      else if(input_type[0] == richmath_System_Hold) { // Hold(Expression)
-        if(result.expr_length() == 1 && result[0] == richmath_System_Hold)
-          result.set(0, Symbol(richmath_System_MakeBoxes));
-        else
-          result = Call(Symbol(richmath_System_MakeBoxes), result);
+      switch(input_type()) {
+        case InputFieldType::Expression: {
+            result = Call(Symbol(richmath_System_MakeBoxes), result);
+            result = Application::interrupt_wait(result, Application::dynamic_timeout);
+          } break;
+        
+        case InputFieldType::HeldExpression: {
+            if(result.expr_length() == 1 && result[0] == richmath_System_Hold)
+              result.set(0, Symbol(richmath_System_MakeBoxes));
+            else
+              result = Call(Symbol(richmath_System_MakeBoxes), result);
+              
+            result = Application::interrupt_wait(result, Application::dynamic_timeout);
+          } break;
+        
+        case InputFieldType::RawBoxes: break;
+        
+        case InputFieldType::String: {
+            if(!result.is_string())
+              result = strings::EmptyString;
+          } break;
           
-        result = Application::interrupt_wait(result, Application::dynamic_timeout);
-      }
-      else if(input_type != richmath_System_RawBoxes) {
-        result = Call(Symbol(richmath_System_MakeBoxes), result);
-        result = Application::interrupt_wait(result, Application::dynamic_timeout);
+        case InputFieldType::Number: {
+            if(result.is_number()) {
+              result = Call(Symbol(richmath_System_MakeBoxes), result);
+              result = Application::interrupt_wait(result, Application::dynamic_timeout);
+            }
+            else
+              result = strings::EmptyString;
+          } break;
       }
       
       if(result.is_null())
@@ -356,7 +368,7 @@ Expr InputFieldBox::to_pmath_impl(BoxOutputFlags flags) {
     
   Gather g;
   Gather::emit(dynamic.expr());
-  Gather::emit(input_type);
+  Gather::emit(Impl::expr_from_type(input_type()));
   
   if(style) {
     bool with_inherited = true;
@@ -576,78 +588,105 @@ ContainerType InputFieldBox::Impl::parse_appearance(Expr expr) {
   return ContainerType::InputField;
 }
 
+InputFieldType InputFieldBox::Impl::type_from_expr(Expr expr) {
+  if(expr == richmath_System_Expression) return InputFieldType::Expression;
+  if(expr == richmath_System_RawBoxes)   return InputFieldType::RawBoxes;
+  if(expr == richmath_System_String)     return InputFieldType::String;
+  if(expr == richmath_System_Number)     return InputFieldType::Number;
+  
+  // Hold(Expression)
+  if(expr[0] == richmath_System_Hold)    return InputFieldType::HeldExpression;
+  
+  return InputFieldType::Expression;
+}
+
+Expr InputFieldBox::Impl::expr_from_type(InputFieldType ty) {
+  switch(ty) {
+    case InputFieldType::Expression:     return Symbol(richmath_System_Expression);
+    case InputFieldType::HeldExpression: return Call(Symbol(richmath_System_Hold), Symbol(richmath_System_Expression));
+    case InputFieldType::RawBoxes:       return Symbol(richmath_System_RawBoxes);
+    case InputFieldType::String:         return Symbol(richmath_System_String);
+    case InputFieldType::Number:         return Symbol(richmath_System_Number);
+  }
+  
+  return Expr();
+}
+
 bool InputFieldBox::Impl::assign_dynamic(DynamicFunctions funcs) {
   self.invalidated(false);
   
-  if(self.input_type == richmath_System_Expression || self.input_type[0] == richmath_System_Hold) { // Expression or Hold(Expression)
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
-    
-    Expr value = Call(Symbol(richmath_System_Try),
-                      Call(Symbol(richmath_System_MakeExpression), boxes),
-                      Call(Symbol(richmath_System_RawBoxes), boxes));
-                      
-    value = Evaluate(value);
-    
-    if(value[0] == richmath_System_HoldComplete) {
-      if(self.input_type[0] == richmath_System_Hold) {
-        value.set(0, Symbol(richmath_System_Hold));
+  switch(self.input_type()) {
+    case InputFieldType::Expression:
+    case InputFieldType::HeldExpression: {
+        Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable | BoxOutputFlags::WithDebugMetadata);
+        
+        Expr value = Call(Symbol(richmath_System_Try),
+                          Call(Symbol(richmath_System_MakeExpression), boxes),
+                          Call(Symbol(richmath_System_RawBoxes), boxes));
+                          
+        value = Evaluate(value);
+        
+        if(value[0] == richmath_System_HoldComplete) {
+          if(self.input_type() == InputFieldType::HeldExpression) {
+            value.set(0, Symbol(richmath_System_Hold));
+          }
+          else {
+            if(value.expr_length() == 1)
+              value = value[1];
+            else
+              value.set(0, Symbol(richmath_System_Sequence));
+          }
+        }
+        
+        finish_assign_dynamic(std::move(value), funcs);
+        return true;
       }
-      else {
-        if(value.expr_length() == 1)
-          value = value[1];
-        else
-          value.set(0, Symbol(richmath_System_Sequence));
+      
+    case InputFieldType::RawBoxes: {
+        Expr boxes = self._content->to_pmath(BoxOutputFlags::WithDebugMetadata);
+        
+        finish_assign_dynamic(std::move(boxes), funcs);
+        return true;
       }
-    }
-    
-    finish_assign_dynamic(std::move(value), funcs);
-    return true;
-  }
-  
-  if(self.input_type == richmath_System_Number) {
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable);
-    
-    Expr value = Call(Symbol(richmath_System_Try),
-                      Call(Symbol(richmath_System_MakeExpression), boxes));
-                      
-    value = Evaluate(value);
-    
-    if( value[0] == richmath_System_HoldComplete &&
-        value.expr_length() == 1                 &&
-        value[1].is_number())
-    {
-      finish_assign_dynamic(value[1], funcs);
-      return true;
-    }
-    
-    return false;
-  }
-  
-  if(self.input_type == richmath_System_RawBoxes) {
-    Expr boxes = self._content->to_pmath(BoxOutputFlags::WithDebugMetadata);
-    
-    finish_assign_dynamic(std::move(boxes), funcs);
-    return true;
-  }
-  
-  if(self.input_type == richmath_System_String) {
-    if(self._content->count() > 0) {
-      Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable);
       
-      Expr value = Call(Symbol(richmath_System_ToString),
-                        Call(Symbol(richmath_System_RawBoxes), boxes));
-                        
-      value = Evaluate(std::move(value)); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly ?
-      
-      finish_assign_dynamic(std::move(value), funcs);
-      if(!self.dynamic.is_dynamic())
-        self.must_update(true);
-    }
-    else {
-      finish_assign_dynamic(self._content->text(), funcs);
-    }
+    case InputFieldType::String: {
+        if(self._content->count() > 0) {
+          Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable);
+          
+          Expr value = Call(Symbol(richmath_System_ToString),
+                            Call(Symbol(richmath_System_RawBoxes), boxes));
+                            
+          value = Evaluate(std::move(value)); // TODO: evaluate this in the kernel thread or use Expr::to_string() directly ?
+          
+          finish_assign_dynamic(std::move(value), funcs);
+          if(!self.dynamic.is_dynamic())
+            self.must_update(true);
+        }
+        else {
+          finish_assign_dynamic(self._content->text(), funcs);
+        }
+        
+        return true;
+      }
     
-    return true;
+    case InputFieldType::Number:  {
+        Expr boxes = self._content->to_pmath(BoxOutputFlags::Parseable);
+        
+        Expr value = Call(Symbol(richmath_System_Try),
+                          Call(Symbol(richmath_System_MakeExpression), boxes));
+                          
+        value = Evaluate(value);
+        
+        if( value[0] == richmath_System_HoldComplete &&
+            value.expr_length() == 1                 &&
+            value[1].is_number())
+        {
+          finish_assign_dynamic(value[1], funcs);
+          return true;
+        }
+        
+        return false;
+      }
   }
   
   return false;

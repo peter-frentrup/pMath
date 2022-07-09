@@ -19,7 +19,6 @@ extern pmath_symbol_t richmath_System_Keys;
 extern pmath_symbol_t richmath_System_List;
 extern pmath_symbol_t richmath_System_MakeBoxes;
 extern pmath_symbol_t richmath_System_MakeExpression;
-extern pmath_symbol_t richmath_System_String;
 extern pmath_symbol_t richmath_System_StringBox;
 extern pmath_symbol_t richmath_System_Try;
 
@@ -219,7 +218,7 @@ bool AutoCompletion::Private::start_filename(LogicalDirection direction) {
   bool have_filename_sep = false;
   
   if(InputFieldBox *inp = dynamic_cast<InputFieldBox *>(seq->parent())) {
-    if(inp->input_type == richmath_System_String) {
+    if(inp->input_type() == InputFieldType::String) {
       if(seq->count() > 0)
         return false;
         

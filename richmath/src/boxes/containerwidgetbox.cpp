@@ -18,7 +18,8 @@ namespace richmath { namespace strings {
 ContainerWidgetBox::ContainerWidgetBox(ContainerType _type, AbstractSequence *content)
   : AbstractStyleBox(content),
     type(_type),
-    old_state(ControlState::Normal)
+    old_state(ControlState::Normal),
+    _unused_u16(0)
 {
   reset_style(); // caution: this does not call the derived reset_style(), but our implementation below
 }
