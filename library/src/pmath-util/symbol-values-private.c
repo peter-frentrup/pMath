@@ -905,7 +905,7 @@ pmath_bool_t _pmath_rulecache_change(
 
       rulecache_table_unlock(rc, table);
 
-      pmath_ht_obj_class.entry_destructor(entry);
+      pmath_ht_obj_class.entry_destructor(NULL, entry);
       did_any_change = TRUE;
     }
     else
@@ -934,7 +934,7 @@ pmath_bool_t _pmath_rulecache_change(
 
     if(_pmath_pattern_is_const(pattern)) {
       if(!table)
-        table = pmath_ht_create(&pmath_ht_obj_class, 1);
+        table = pmath_ht_create_ex(&pmath_ht_obj_class, 1);
 
       entry = pmath_mem_alloc(sizeof(struct _pmath_object_entry_t));
 

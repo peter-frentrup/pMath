@@ -804,7 +804,7 @@ pmath_bool_t _pmath_symbol_assign_value(
     }
     
     if(!me->local_values) {
-      me->local_values = pmath_ht_create(&pmath_ht_obj_class, 1);
+      me->local_values = pmath_ht_create_ex(&pmath_ht_obj_class, 1);
       
       if(!me->local_values) {
         pmath_unref(lhs);
@@ -840,7 +840,7 @@ pmath_bool_t _pmath_symbol_assign_value(
       
       parent_entry = pmath_ht_insert(me->local_values, entry);
       if(parent_entry)
-        pmath_ht_obj_class.entry_destructor(parent_entry);
+        pmath_ht_obj_class.entry_destructor(me->local_values, parent_entry);
     }
     
     if(!_pmath_symbol_define_value_pos((pmath_locked_t *)&entry->value, lhs, rhs))

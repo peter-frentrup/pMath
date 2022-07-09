@@ -369,7 +369,7 @@ static void write_new_cache_entry(struct serializer_t *info, pmath_t object) {
   
   entry = pmath_ht_insert(info->object_to_int, entry);
   if(entry) {
-    pmath_ht_obj_int_class.entry_destructor(entry);
+    pmath_ht_obj_int_class.entry_destructor(info->object_to_int, entry);
     if(!info->error)
       info->error = PMATH_SERIALIZE_NO_MEMORY;
     return;
@@ -1101,7 +1101,7 @@ pmath_serialize_error_t pmath_serialize(
 ) {
   struct serializer_t info;
   
-  info.object_to_int = pmath_ht_create(&pmath_ht_obj_int_class, 0);
+  info.object_to_int = pmath_ht_create_ex(&pmath_ht_obj_int_class, 0);
   info.file          = file;
   info.error         = PMATH_SERIALIZE_OK;
   info.next_id       = 0;

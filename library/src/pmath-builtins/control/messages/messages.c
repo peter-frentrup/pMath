@@ -99,7 +99,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
     size_t i;
     
     pmath_unref(lhs);
-    messages = pmath_ht_create(
+    messages = pmath_ht_create_ex(
       &pmath_ht_obj_class, 
       (unsigned int)pmath_expr_length(rhs));
     
@@ -156,7 +156,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messages(pmath_expr_t expr){
       
       entry = pmath_ht_insert(messages, entry);
       if(entry)
-        pmath_ht_obj_class.entry_destructor(entry);
+        pmath_ht_obj_class.entry_destructor(messages, entry);
     }
     
     rules = _pmath_symbol_get_rules(sym, RULES_WRITEOPTIONS);

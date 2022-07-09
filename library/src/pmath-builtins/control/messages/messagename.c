@@ -110,7 +110,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   messages = (pmath_hashtable_t)_pmath_atomic_lock_ptr(&rules->_messages);
   
   if(!messages && !pmath_same(rhs, PMATH_UNDEFINED))
-    messages = pmath_ht_create(&pmath_ht_obj_class, 1);
+    messages = pmath_ht_create_ex(&pmath_ht_obj_class, 1);
 
   if(pmath_same(rhs, PMATH_UNDEFINED)){
     entry = pmath_ht_remove(messages, &lhs);
@@ -135,7 +135,7 @@ PMATH_PRIVATE pmath_t builtin_assign_messagename(pmath_expr_t expr){
   _pmath_atomic_unlock_ptr(&rules->_messages, messages);
   
   if(entry)
-    pmath_ht_obj_class.entry_destructor(entry);
+    pmath_ht_obj_class.entry_destructor(NULL, entry);
     
   pmath_unref(lhs);
   if(pmath_same(rhs, PMATH_UNDEFINED))

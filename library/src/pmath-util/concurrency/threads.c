@@ -96,14 +96,14 @@ pmath_t _pmath_thread_local_save_with(
     if(pmath_same(value, PMATH_UNDEFINED))
       return PMATH_UNDEFINED;
       
-    thread->local_values = pmath_ht_create(&pmath_ht_obj_class, 1);
+    thread->local_values = pmath_ht_create_ex(&pmath_ht_obj_class, 1);
   }
   
   if(pmath_same(value, PMATH_UNDEFINED)) {
     entry = pmath_ht_remove(thread->local_values, &key);
     if(entry) {
       pmath_t result = pmath_ref(entry->value);
-      pmath_ht_obj_class.entry_destructor(entry);
+      pmath_ht_obj_class.entry_destructor(thread->local_values, entry);
       return result;
     }
     return PMATH_UNDEFINED;
@@ -130,7 +130,7 @@ pmath_t _pmath_thread_local_save_with(
   entry = pmath_ht_insert(thread->local_values, entry);
   
   if(entry) { // Out Of Memory
-    pmath_ht_obj_class.entry_destructor(entry);
+    pmath_ht_obj_class.entry_destructor(thread->local_values, entry);
   }
   
   return PMATH_UNDEFINED;

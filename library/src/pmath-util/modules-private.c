@@ -108,7 +108,7 @@ static void load_callback(void *data) {
   entry->value = pmath_ref(mod_obj);
   entry        = pmath_ht_insert(all_modules, entry);
   if(entry != NULL) {
-    pmath_ht_obj_class.entry_destructor(entry);
+    pmath_ht_obj_class.entry_destructor(all_modules, entry);
     pmath_unref(mod_obj);
     return;
   }
@@ -183,7 +183,7 @@ static void load_callback(void *data) {
   if(!info->success) {
     entry = pmath_ht_remove(all_modules, &info->filename);
     assert(entry != NULL);
-    pmath_ht_obj_class.entry_destructor(entry);
+    pmath_ht_obj_class.entry_destructor(all_modules, entry);
   }
   pmath_unref(mod_obj);
 }
@@ -204,7 +204,7 @@ PMATH_PRIVATE pmath_bool_t _pmath_module_load(pmath_string_t filename) {
 
 PMATH_PRIVATE pmath_bool_t _pmath_modules_init(void) {
   all_modules_lock = 0;
-  all_modules = pmath_ht_create(&pmath_ht_obj_class, 0);
+  all_modules = pmath_ht_create_ex(&pmath_ht_obj_class, 0);
 
   return all_modules != NULL;
 }

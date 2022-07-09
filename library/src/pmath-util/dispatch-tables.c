@@ -36,27 +36,27 @@ extern pmath_symbol_t pmath_System_RuleDelayed;
 
 //{ dispatch table slice ...
 
-static void noop(void *e) {
+static void noop(pmath_hashtable_t ht, void *e) {
 }
 
-static unsigned int dispatch_entry_hash(void *e) {
+static unsigned int dispatch_entry_hash(pmath_hashtable_t ht, void *e) {
   struct _pmath_dispatch_entry_t *entry = (struct _pmath_dispatch_entry_t *)e;
   return pmath_hash(entry->key);
 }
 
-static pmath_bool_t dispatch_entry_keys_equal(void *e1, void *e2) {
+static pmath_bool_t dispatch_entry_keys_equal(pmath_hashtable_t ht, void *e1, void *e2) {
   struct _pmath_dispatch_entry_t *entry1 = e1;
   struct _pmath_dispatch_entry_t *entry2 = e2;
   
   return entry1->literal_turn_or_zero == entry2->literal_turn_or_zero && pmath_equals(entry1->key, entry2->key);
 }
 
-static unsigned int dispatch_lookup_info_hash(void *k) {
+static unsigned int dispatch_lookup_info_hash(pmath_hashtable_t ht, void *k) {
   struct dispatch_lookup_info_t *info = k;
   return pmath_hash(info->key);
 }
 
-static pmath_bool_t dispatch_entry_equals_lookup_key(void *e, void *k) {
+static pmath_bool_t dispatch_entry_equals_lookup_key(pmath_hashtable_t ht, void *e, void *k) {
   struct _pmath_dispatch_entry_t *entry = e;
   struct dispatch_lookup_info_t *info = k;
   
@@ -68,7 +68,8 @@ static pmath_bool_t dispatch_entry_equals_lookup_key(void *e, void *k) {
   return pmath_equals(entry->key, info->key);
 }
 
-static const pmath_ht_class_t dispatch_entries_ht_class = {
+static const pmath_ht_class_ex_t dispatch_entries_ht_class = {
+  0,
   noop,
   dispatch_entry_hash,
   dispatch_entry_keys_equal,
@@ -213,13 +214,13 @@ struct _pmath_dispatch_table_t *create_dispatch_table_for_keys(pmath_expr_t keys
   }
   
   //pmath_debug_print_object("[creating dispatch table for ", keys, "]\n");
-  literal_entries = pmath_ht_create(&dispatch_entries_ht_class, (unsigned)num_keys);
+  literal_entries = pmath_ht_create_ex(&dispatch_entries_ht_class, (unsigned)num_keys);
   if(!literal_entries) {
     pmath_unref(keys);
     return NULL;
   }
   
-  key_to_turn = pmath_ht_create(&dispatch_entries_ht_class, (unsigned)num_keys);
+  key_to_turn = pmath_ht_create_ex(&dispatch_entries_ht_class, (unsigned)num_keys);
   if(!key_to_turn) {
     pmath_ht_destroy(literal_entries);
     pmath_unref(keys);

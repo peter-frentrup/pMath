@@ -442,7 +442,7 @@ static int new_subpattern(
     entry = pmath_ht_insert(info->subpatterns, entry);
     
     if(entry)
-      pmath_ht_obj_int_class.entry_destructor(entry);
+      pmath_ht_obj_int_class.entry_destructor(info->subpatterns, entry);
       
     return result;
   }
@@ -988,7 +988,7 @@ static struct _regex_t *compile_regex(pmath_t obj, int pcre_options) {
   
   info.all = pmath_ref(obj);
   
-  info.subpatterns = pmath_ht_create(&pmath_ht_obj_int_class, 0);
+  info.subpatterns = pmath_ht_create_ex(&pmath_ht_obj_int_class, 0);
   if(!info.subpatterns) {
     _pmath_regex_unref(regex);
     return NULL;
