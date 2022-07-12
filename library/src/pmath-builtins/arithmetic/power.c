@@ -595,13 +595,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
   pmath_t base = pmath_expr_get_item(*expr, 1);
   
   if(number_contains_zero(base)) {
-    if(exponent == 0) {
-      pmath_unref(base);
-      pmath_message(PMATH_NULL, "indet", 1, *expr);
-      *expr = pmath_ref(pmath_System_Undefined);
-      return TRUE;
-    }
-    else if(exponent < 0) { // TODO: return interval?
+    if(exponent < 0) { // TODO: return interval?
       pmath_unref(base);
       pmath_message(PMATH_NULL, "infy", 1, *expr);
       *expr = pmath_ref(_pmath_object_complex_infinity);
@@ -682,15 +676,7 @@ static pmath_bool_t try_integer_power(pmath_t *expr, int32_t exponent) {
     pmath_t im = pmath_expr_get_item(base, 2);
     if(pmath_is_number(re) && pmath_is_number(im)) {
       if(number_contains_zero(re) && number_contains_zero(im)) {
-        if(exponent == 0) {
-          pmath_unref(re);
-          pmath_unref(im);
-          pmath_unref(base);
-          pmath_message(PMATH_NULL, "indet", 1, *expr);
-          *expr = pmath_ref(pmath_System_Undefined);
-          return TRUE;
-        }
-        else if(exponent < 0) { // TODO: return interval?
+        if(exponent < 0) { // TODO: return interval?
           pmath_unref(re);
           pmath_unref(im);
           pmath_unref(base);
@@ -1384,7 +1370,7 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
   }
   
   if(exp_class & PMATH_CLASS_ZERO) {
-    if(base_class & (PMATH_CLASS_ZERO | PMATH_CLASS_INF)) {
+    if(base_class & PMATH_CLASS_INF) {
       pmath_unref(base);
       pmath_unref(exponent);
       pmath_message(PMATH_NULL, "indet", 1, expr);
@@ -1416,11 +1402,6 @@ PMATH_PRIVATE pmath_t builtin_power(pmath_expr_t expr) {
       pmath_unref(exponent);
       return expr;
     }
-    
-    pmath_unref(base);
-    pmath_unref(exponent);
-    pmath_message(PMATH_NULL, "indet", 1, expr);
-    return pmath_ref(pmath_System_Undefined);
   }
   
   if(base_class & (PMATH_CLASS_NEGINF | PMATH_CLASS_CINF)) {
