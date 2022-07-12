@@ -13,11 +13,13 @@ Document({
            TemplateBox({"Power"}, "ReferenceHyperlink"), 
            " automatically evaluates to exact values."}), "Notes"), 
         Section(TextData({"For complex numbers ", StyleBox("x", "Arg"), 
-           " and ", StyleBox("y", "Arg"), ", ", 
+           " \[NotEqual] 0 and ", StyleBox("y", "Arg"), ", ", 
            TemplateBox({"Power"}, "ReferenceHyperlink"), 
-           " gives the pricipal value of ", {
+           " gives the principal value of ", {
             "\[ExponentialE]", SuperscriptBox({
               "y", " ", {"log", "(", "x", ")"}})}, "."}), "Notes"), 
+        Section(TextData({BoxData({"0", SuperscriptBox("0")}), 
+           " is defined to be 1 by convention."}), "Notes"), 
         Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
            " can be evaluated to arbitrary numerical precision."}), "Notes"), 
         Section(TextData({TemplateBox({"Power"}, "ReferenceHyperlink"), 
