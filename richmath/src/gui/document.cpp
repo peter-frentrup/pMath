@@ -3550,10 +3550,10 @@ void Document::paint_resize(Canvas &canvas, bool resize_only) {
   });
 }
 
-Expr Document::to_pmath_impl(BoxOutputFlags flags) {
+Expr Document::to_pmath_impl(BoxOutputFlags flags, int start, int end) {
   Gather g;
   
-  Expr content = base::to_pmath_impl(flags);
+  Expr content = base::to_pmath_impl(flags, start, end);
   if(content[0] == richmath_System_SectionGroup) {
     Expr inner = content[1];
     if(inner.expr_length() == 1 && inner[0] == richmath_System_List)
