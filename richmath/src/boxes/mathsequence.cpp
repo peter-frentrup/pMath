@@ -300,7 +300,7 @@ namespace richmath {
       void calculate_total_extents_from_lines();
       
       Vector2F total_offest_to_index(int index);
-      void selection_path(Context *opt_context, Canvas &canvas, int start, int end);
+      void selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end);
       
       void run_paint_hooks(Context &context, PaintHookManager &hooks);
   };
@@ -638,7 +638,7 @@ void MathSequence::paint(Context &context) {
           if(&Impl(*seq).outermost_span() == this) {
             context.canvas().move_to(p0);
             
-            Impl(*seq).selection_path(
+            Impl(*seq).selection_path_wrt_outermost_origin(
               &context,
               context.canvas(),
               sel.start,
@@ -659,11 +659,17 @@ void MathSequence::paint(Context &context) {
 }
 
 void MathSequence::selection_path(Canvas &canvas, int start, int end) {
-  Impl(*this).selection_path(nullptr, canvas, start, end);
+  auto delta = Impl(*this).total_offest_to_index(0);
+  
+  canvas.rel_move_to(-delta);
+  Impl(*this).selection_path_wrt_outermost_origin(nullptr, canvas, start, end);
 }
 
 void MathSequence::selection_path(Context &context, int start, int end) {
-  Impl(*this).selection_path(&context, context.canvas(), start, end); 
+  auto delta = Impl(*this).total_offest_to_index(0);
+  
+  context.canvas().rel_move_to(-delta);
+  Impl(*this).selection_path_wrt_outermost_origin(&context, context.canvas(), start, end); 
 }
 
 Expr MathSequence::to_pmath_impl(BoxOutputFlags flags) {
@@ -1088,8 +1094,8 @@ bool MathSequence::request_repaint_range(int start, int end) {
   get_line_heights(l2, &a2, &d2);
   
   bool result = true;
-  result = outer.request_repaint({p1.x, p1.y - a1, extents().width - p1.x, a1 + d1}) || result;
-  result = outer.request_repaint({0.0f, p1.y + d1, extents().width, p2.y - a2 - p1.y - d1}) || result;
+  result = outer.request_repaint({p1.x, p1.y - a1, outer.extents().width - p1.x, a1 + d1}) || result;
+  result = outer.request_repaint({0.0f, p1.y + d1, outer.extents().width, p2.y - a2 - p1.y - d1}) || result;
   result = outer.request_repaint({0.0f, p2.y - a2, p2.x, a2 + d2}) || result;
   return result;
 }
@@ -3600,7 +3606,7 @@ Vector2F MathSequence::Impl::total_offest_to_index(int index) {
   return {x, y};
 }
 
-void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, int start, int end) {
+void MathSequence::Impl::selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end) {
   float x0, y0, x1, y1, x2, y2;
   MathSequence &owner = outermost_span();
   
