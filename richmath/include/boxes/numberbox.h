@@ -31,6 +31,8 @@ namespace richmath {
       // Box::try_create<NumberBox>(expr, opts);
       virtual bool try_load_from_object(Expr expr, BoxInputFlags opts) override;
       
+      virtual MathSequence *as_inline_span() override;
+      
       virtual bool edit_selection(SelectionReference &selection, EditAction action) override;
       
       virtual void colorize_scope(SyntaxState &state) override {}

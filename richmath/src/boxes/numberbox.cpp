@@ -40,8 +40,10 @@ namespace {
   static const uint16_t RadiusOpening[2] = { '[', PMATH_CHAR_PLUSMINUS };
   static const int RadiusOpeningLength = 2;
 
-  static const uint16_t Multiplication[3] = { MULTIPLICATION_SPACE_CHAR, TIMES_CHAR, MULTIPLICATION_SPACE_CHAR };
-  static const int MultiplicationLength = 3;
+  //static const uint16_t Multiplication[3] = { MULTIPLICATION_SPACE_CHAR, TIMES_CHAR, MULTIPLICATION_SPACE_CHAR };
+  //static const int MultiplicationLength = 3;
+  static const uint16_t Multiplication[1] = { TIMES_CHAR };
+  static const int MultiplicationLength = 1;
 
   
   struct NumberPartPositions {
@@ -352,6 +354,11 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
   return true;
 }
 
+MathSequence *NumberBox::as_inline_span() {
+  // Fixme: how to set math_spacing=false ?
+  return dynamic_cast<MathSequence*>(content());
+}
+
 bool NumberBox::edit_selection(SelectionReference &selection, EditAction action) {
   if(!Box::edit_selection(selection, action)) 
     return false;
@@ -380,6 +387,7 @@ bool NumberBox::edit_selection(SelectionReference &selection, EditAction action)
 }
 
 void NumberBox::resize_default_baseline(Context &context) {
+  // Note: this will not normally be called, because of as_inline_span() 
   bool                  old_math_spacing     = context.math_spacing;
   bool                  old_show_auto_styles = context.show_auto_styles;
   SharedPtr<TextShaper> old_text_shaper      = context.text_shaper;
