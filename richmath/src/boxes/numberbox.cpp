@@ -585,12 +585,15 @@ PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selp
       ++j;
     }
       
-    if(j == len)
-      return PositionInRange(self._number.length(), parts.prec_end, parts.exp_start);
+    if(j == len) {
+      return PositionInRange(parts.exp_start - 1, parts.prec_end, parts.exp_start);
+    }
       
     if(buf[j] == ']')
       return PositionInRange(parts.radius_mant_end, parts.radius_mant_end, parts.radius_exp_start);
   }
+  else if(buf[i - 1] == ']' || buf[i] == ']')
+      return PositionInRange(parts.exp_start - 1, parts.radius_exp_end, parts.exp_start);
   
   return PositionInRange(-1, 0, 0); // error
 }
@@ -628,13 +631,23 @@ Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_i
         return self._content;
       }
       
-      if(char_index < parts.radius_exp_end) {
+      if(char_index <= parts.radius_exp_end) {
         if(self._radius_exponent) {
           int in_rad_exp = char_index - parts.radius_exp_start;
           *selection_index = std::max(0, std::min(in_rad_exp, self._radius_exponent->length()));
           return self._radius_exponent;
         }
       }
+    }
+  }
+
+  if(char_index < parts.exp_start) {
+    int rad_exp_index = self._radius_exponent ? self._radius_exponent->index_in_ancestor(self._content, -1) : -1;
+    int exp_index     = self._exponent        ? self._exponent->index_in_ancestor(       self._content, -1) : -1;
+      
+    if(rad_exp_index >= 0 && exp_index >= 0 && rad_exp_index + 1 < exp_index) {
+      *selection_index = exp_index - 1;
+      return self._content;
     }
   }
   
@@ -644,7 +657,8 @@ Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_i
     return self._exponent;
   }
   
-  return nullptr;
+  *selection_index = self._content->length();
+  return self._content;
 }
 
 MathSequence *NumberBox::Impl::append_radix(NumberPartPositions &parts) {
