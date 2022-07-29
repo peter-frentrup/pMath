@@ -1349,6 +1349,7 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
       FrontEnd`DocumentGet(selectionOrBox, depth)
    */
   VolatileSelection sel(nullptr, 0, 0);
+  bool use_range = false;
   BoxOutputFlags flags = BoxOutputFlags::WithDebugMetadata;
   int depth = INT_MAX;
   size_t exprlen = expr.expr_length();
@@ -1356,14 +1357,20 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
     return Symbol(richmath_System_DollarFailed);
   
   if(exprlen == 0 || expr[1] == richmath_System_Automatic) {
-    if(Box *box = Documents::selected_document())
+    if(Box *box = Documents::selected_document()) {
       sel = {box, 0, box->length()};
+      use_range = false;
+    }
   }
   else {
-    if(Box *box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1])))
+    if(Box *box = FrontEndObject::find_cast<Box>(FrontEndReference::from_pmath(expr[1]))) {
       sel = {box, 0, box->length()};
-    else
+      use_range = false;
+    }
+    else {
       sel = SelectionReference::from_pmath(expr[1]).get_all();
+      use_range = true;
+    }
   }
   
   if(exprlen == 2) {
@@ -1383,7 +1390,11 @@ Expr richmath_eval_FrontEnd_DocumentGet(Expr expr) {
     
   AutoValueReset<int> auto_mbod(Box::max_box_output_depth);
   Box::max_box_output_depth = depth;
-  return sel.to_pmath(flags);
+  
+  if(use_range)
+    return sel.to_pmath(flags);
+  else
+    return sel.box->to_pmath(flags);
 }
 
 Expr richmath_eval_FrontEnd_DocumentOpen(Expr expr) {

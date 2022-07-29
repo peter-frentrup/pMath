@@ -217,7 +217,7 @@ namespace richmath {
       bool has_pending_repaint() {       return get_flag(HasPendingRepaintBit); }
       void has_pending_repaint(bool value) { change_flag(HasPendingRepaintBit, value); }
       
-      virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
+      virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
     private:
       NativeWidget *_native;
