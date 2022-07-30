@@ -99,6 +99,7 @@ enum {
 #define PMATH_CHAR_INVISIBLETIMES            ((uint16_t) 0x2062 ) ///< The invisible "*" character
 #define PMATH_CHAR_INVISIBLECOMMA            ((uint16_t) 0x2063 ) ///< The invisible "," character
 #define PMATH_CHAR_INVISIBLEPLUS             ((uint16_t) 0x2064 ) ///< The invisible "+" character
+#define PMATH_CHAR_NOMINALDIGITS             ((uint16_t) 0x206F ) ///< Character that indicates that the following sequence of digits *and* letters and dot is to be treated as one token (as if prefixed by "36^^"). But undefined parsing (unspecified base).
 #define PMATH_CHAR_VECTOR                    ((uint16_t) 0x21C0 ) ///< The arrow above names to indicate a vector
 #define PMATH_CHAR_RULE                      ((uint16_t) 0x2192 ) ///< The "->" operator
 #define PMATH_CHAR_RULEDELAYED               ((uint16_t) 0x29F4 ) ///< The ":>" operator

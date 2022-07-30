@@ -1387,6 +1387,10 @@ static void scan_next(struct scanner_t *tokens, struct parser_t *parser) {
         goto END_SCAN;
       break;
       
+    case PMATH_CHAR_NOMINALDIGITS:
+      scan_float_base36_digits_rest(tokens, parser);
+      break;
+      
     case '0':
     case '1':
     case '2':

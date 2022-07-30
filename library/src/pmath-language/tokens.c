@@ -87,7 +87,7 @@ static const struct char_info_t u2000_u206f[112] = {
   /* 203 */ ID2, ID2, ID,  ID,  ID,  ID,  ID,  ID,  ID2, LEF, RI1, ID2, ID2, ID2, ID2, ID2,
   /* 204 */ ID2, ID2, ID2, ID2, DIV, LEF, RI1, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
   /* 205 */ ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID,  ID2, ID2, ID2, ID2, ID2, ID2, ID2, ID2,
-  /* 206 */ ID,  APL, MUL, SEQ, AD_, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  ID
+  /* 206 */ ID,  APL, MUL, SEQ, AD_, ERR, ERR, ERR, ERR, ERR, ID,  ID,  ID,  ID,  ID,  NUM,
 };
 
 static const struct char_info_t u2100_u23bf[704] = {

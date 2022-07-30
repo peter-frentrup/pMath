@@ -260,6 +260,7 @@ static const struct pmath_named_char_t named_char_array[] = {
   { 0x2062, "InvisibleTimes"},
   { 0x2063, "InvisibleComma"},
   { 0x2064, "InvisiblePlus"},
+  { 0x206F, "NominalDigits"},
   
   { 0x0009, "RawTab"},
   { 0x000A, "RawNewline"},
