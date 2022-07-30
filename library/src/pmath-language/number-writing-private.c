@@ -2,6 +2,16 @@
 #include <pmath-language/number-parsing-private.h> // for _pmath_log2_of
 
 
+struct _pmath_mid_rad_digits_raw_t {
+  char   *mid_digits;
+  char   *rad_digits;
+  fmpz_t  mid_exp;
+  fmpz_t  rad_exp;
+};
+
+static void init_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts);
+static void free_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts);
+
 PMATH_PRIVATE void _pmath_number_string_parts_clear(struct _pmath_number_string_parts_t *parts) {
   assert(parts != NULL);
   pmath_unref(parts->midpoint_fractional_mantissa_digits);
@@ -257,27 +267,23 @@ static void round_digits_inplace(char *s, mp_bitcnt_t *shift, fmpz_t error, int 
 /** \brief Like arb_get_str_parts(), but in a given base.
  */
 static void get_str_parts(
-  pmath_bool_t  *out_negative,
-  char         **out_mid_digits, // to be freed with flint_free()
-  fmpz_t         out_mid_exp,
-  char         **out_rad_digits, // to be freed with flint_free()
-  fmpz_t         out_rad_exp,
-  const arb_t    in_value,
-  slong          in_max_digits,
-  pmath_bool_t   in_allow_inaccurate_digits,
-  int            in_base
+  pmath_bool_t                       *out_negative,
+  struct _pmath_mid_rad_digits_raw_t *out_parts,
+  const arb_t                         in_value,
+  slong                               in_max_digits,
+  pmath_bool_t                        in_allow_inaccurate_digits,
+  int                                 in_base
 ) {
   fmpz_t mid, rad, exp, err;
   
   assert(out_negative != NULL);
-  assert(out_mid_digits != NULL);
-  assert(out_rad_digits != NULL);
+  assert(out_parts != NULL);
   
   *out_negative = FALSE;
-  *out_mid_digits = NULL;
-  fmpz_zero(out_mid_exp);
-  *out_rad_digits = NULL;
-  fmpz_zero(out_rad_exp);
+  if(out_parts->mid_digits) { flint_free(out_parts->mid_digits); out_parts->mid_digits = NULL; }
+  if(out_parts->rad_digits) { flint_free(out_parts->rad_digits); out_parts->rad_digits = NULL; }
+  fmpz_zero(out_parts->mid_exp);
+  fmpz_zero(out_parts->rad_exp);
   
   if(!arb_is_finite(in_value))
     return;
@@ -296,16 +302,16 @@ static void get_str_parts(
   *out_negative = arf_sgn(arb_midref(in_value)) < 0;
   fmpz_abs(mid, mid);
   
-  *out_mid_digits = fmpz_get_str(NULL, in_base, mid);
+  out_parts->mid_digits = fmpz_get_str(NULL, in_base, mid);
   
   /* Truncate further so that 1 ulp error can be guaranteed (rigorous part)
-     Note: mid cannot be zero here if n >= 1 and rad != 0. */
+     Note: mid cannot be zero here if  in_max_digits >= 1 and rad != 0. */
   if(in_max_digits > 0 && !(in_allow_inaccurate_digits || fmpz_is_zero(rad))) {
     slong mid_len, rad_len;
     
-    *out_rad_digits = fmpz_get_str(NULL, in_base, rad);
-    mid_len = strlen(*out_mid_digits);
-    rad_len = strlen(*out_rad_digits);
+    out_parts->rad_digits = fmpz_get_str(NULL, in_base, rad);
+    mid_len = strlen(out_parts->mid_digits);
+    rad_len = strlen(out_parts->rad_digits);
     
     if(mid_len > rad_len) {
       /* we will truncate at in_max_digits or in_max_digits-1 */
@@ -314,14 +320,14 @@ static void get_str_parts(
       
       /* rounding to nearest can add at most 0.5 ulp */
       /* look at first omitted digit */
-      rem = get_digit_value((*out_mid_digits)[valid_digits]);
+      rem = get_digit_value((out_parts->mid_digits)[valid_digits]);
       if (2 * rem < in_base)
         rem = rem + 1;
       else
         rem = in_base - rem;
         
       /* and include the leading digit of the radius */
-      rem = rem + get_digit_value((*out_rad_digits)[0]) + 1;
+      rem = rem + get_digit_value((out_parts->rad_digits)[0]) + 1;
       
       /* if error is <= 1.0 ulp, we get to keep the extra digit */
       if (rem > in_base)
@@ -332,38 +338,38 @@ static void get_str_parts(
     else
       in_max_digits = 0;
       
-    flint_free(*out_rad_digits);
-    *out_rad_digits = NULL;
+    flint_free(out_parts->rad_digits);
+    out_parts->rad_digits = NULL;
   }
   
   /* no accurate digits -- output 0 +/- rad */
   if(in_max_digits < 1) {
     fmpz_add(rad, rad, mid);
     fmpz_zero(mid);
-    strcpy(*out_mid_digits, "0");  /* note that *out_mid_digits already contains a string of length >= 1 */
+    strcpy(out_parts->mid_digits, "0");  /* note that out_parts->mid_digits already contains a string of length >= 1 */
   }
   else {
     mp_bitcnt_t shift;
-    round_digits_inplace(*out_mid_digits, &shift, err, in_base, in_max_digits, ARF_RND_NEAR);
-    fmpz_add_ui(out_mid_exp, exp, shift);
+    round_digits_inplace(out_parts->mid_digits, &shift, err, in_base, in_max_digits, ARF_RND_NEAR);
+    fmpz_add_ui(out_parts->mid_exp, exp, shift);
     fmpz_abs(err, err);
     fmpz_add(rad, rad, err);
   }
   
   /* write radius */
   if(fmpz_is_zero(rad)) {
-    *out_rad_digits = fmpz_get_str(NULL, in_base, rad);
-    fmpz_zero(out_rad_exp);
+    out_parts->rad_digits = fmpz_get_str(NULL, in_base, rad);
+    fmpz_zero(out_parts->rad_exp);
   }
   else {
-    *out_rad_digits = fmpz_get_str(NULL, in_base, rad);
+    out_parts->rad_digits = fmpz_get_str(NULL, in_base, rad);
     if((in_base & (in_base - 1)) != 0) { // not a power of 2: at most RADIUS_DIGITS many radius digits, since we round anyway.
       mp_bitcnt_t shift;
-      round_digits_inplace(*out_rad_digits, &shift, err, in_base, RADIUS_DIGITS, ARF_RND_UP);
-      fmpz_add_ui(out_rad_exp, exp, shift);
+      round_digits_inplace(out_parts->rad_digits, &shift, err, in_base, RADIUS_DIGITS, ARF_RND_UP);
+      fmpz_add_ui(out_parts->rad_exp, exp, shift);
     }
     else
-      fmpz_set(out_rad_exp, exp);
+      fmpz_set(out_parts->rad_exp, exp);
   }
   
   fmpz_clear(mid);
@@ -375,26 +381,22 @@ static void get_str_parts(
 /** \brief Losslessly convert an Arb number to hexadecimal string representation parts.
  */
 static void get_str_hex_parts(
-  pmath_bool_t  *out_negative,
-  char         **out_mid_digits, // to be freed with flint_free()
-  fmpz_t         out_mid_exp,
-  char         **out_rad_digits, // to be freed with flint_free()
-  fmpz_t         out_rad_exp,
-  const arb_t    in_value
+  pmath_bool_t                       *out_negative,
+  struct _pmath_mid_rad_digits_raw_t *out_parts,
+  const arb_t                         in_value
 ) {
   fmpz_t mant;
   ulong remainder;
   arf_t tmp;
   
   assert(out_negative != NULL);
-  assert(out_mid_digits != NULL);
-  assert(out_rad_digits != NULL);
+  assert(out_parts != NULL);
   
   *out_negative = FALSE;
-  *out_mid_digits = NULL;
-  fmpz_zero(out_mid_exp);
-  *out_rad_digits = NULL;
-  fmpz_zero(out_rad_exp);
+  if(out_parts->mid_digits) { flint_free(out_parts->mid_digits); out_parts->mid_digits = NULL; }
+  if(out_parts->rad_digits) { flint_free(out_parts->rad_digits); out_parts->rad_digits = NULL; }
+  fmpz_zero(out_parts->mid_exp);
+  fmpz_zero(out_parts->rad_exp);
   
   if(!arb_is_finite(in_value))
     return;
@@ -403,23 +405,23 @@ static void get_str_hex_parts(
   
   fmpz_init(mant);
   
-  arf_get_fmpz_2exp(mant, out_mid_exp, arb_midref(in_value));
+  arf_get_fmpz_2exp(mant, out_parts->mid_exp, arb_midref(in_value));
   fmpz_abs(mant, mant);
   // out_mid_exp is in power of 2 instead of 16 (1 << (1 << 2)). Convert to power of 16:
-  remainder = fmpz_fdiv_ui(out_mid_exp, 1 << 2);
-  fmpz_fdiv_q_2exp(out_mid_exp, out_mid_exp, 2);
+  remainder = fmpz_fdiv_ui(out_parts->mid_exp, 1 << 2);
+  fmpz_fdiv_q_2exp(out_parts->mid_exp, out_parts->mid_exp, 2);
   fmpz_mul_2exp(mant, mant, remainder);
   
-  *out_mid_digits = fmpz_get_str(NULL, 16, mant);
+  out_parts->mid_digits = fmpz_get_str(NULL, 16, mant);
   
   arf_init_set_mag_shallow(tmp, arb_radref(in_value));
-  arf_get_fmpz_2exp(mant, out_rad_exp, tmp);
+  arf_get_fmpz_2exp(mant, out_parts->rad_exp, tmp);
   // out_rad_exp is in power of 2 instead of 16 (2^4). Convert to power of 16:
-  remainder = fmpz_fdiv_ui(out_rad_exp, 1 << 2);
-  fmpz_fdiv_q_2exp(out_rad_exp, out_rad_exp, 2);
+  remainder = fmpz_fdiv_ui(out_parts->rad_exp, 1 << 2);
+  fmpz_fdiv_q_2exp(out_parts->rad_exp, out_parts->rad_exp, 2);
   fmpz_mul_2exp(mant, mant, remainder);
   
-  *out_rad_digits = fmpz_get_str(NULL, 16, mant);
+  out_parts->rad_digits = fmpz_get_str(NULL, 16, mant);
   
   fmpz_clear(mant);
 }
@@ -509,10 +511,7 @@ void _pmath_mpfloat_get_string_parts(
   int                                  max_digits,
   int                                  base_flags
 ) {
-  char *mid_digits;
-  char *rad_digits;
-  fmpz_t mid_exp;
-  fmpz_t rad_exp;
+  struct _pmath_mid_rad_digits_raw_t raw_parts;
   double precision_digits;
   
   int base = base_flags & PMATH_BASE_FLAGS_BASE_MASK;
@@ -523,8 +522,7 @@ void _pmath_mpfloat_get_string_parts(
   assert(pmath_is_mpfloat(value));
   assert(max_digits >= 0);
   
-  fmpz_init(mid_exp);
-  fmpz_init(rad_exp);
+  init_mid_rad_digits_raw(&raw_parts);
   
   precision_digits = PMATH_AS_ARB_WORKING_PREC(value) / _pmath_log2_of(base);
   //max_digits = (int)FLINT_MIN((slong)max_digits, (slong)ceil(precision_digits));
@@ -533,19 +531,13 @@ void _pmath_mpfloat_get_string_parts(
   if(base == 16 && (base_flags & PMATH_BASE_FLAG_ALL_DIGITS)) {
     get_str_hex_parts(
       &result->is_negative,
-      &mid_digits,
-      mid_exp,
-      &rad_digits,
-      rad_exp,
+      &raw_parts,
       PMATH_AS_ARB(value));
   }
   else {
     get_str_parts(
       &result->is_negative,
-      &mid_digits,
-      mid_exp,
-      &rad_digits,
-      rad_exp,
+      &raw_parts,
       PMATH_AS_ARB(value),
       max_digits,
       allow_inaccurate_digits,
@@ -559,43 +551,52 @@ void _pmath_mpfloat_get_string_parts(
   result->radius_fractional_mantissa_digits = PMATH_NULL;
   result->radius_exponent_part_decimal_digits = PMATH_NULL;
   
-  if(!mid_digits || !rad_digits) {
-    fmpz_clear(mid_exp);
-    fmpz_clear(rad_exp);
-    flint_free(mid_digits);
-    flint_free(rad_digits);
+  if(!raw_parts.mid_digits || !raw_parts.rad_digits) {
+    free_mid_rad_digits_raw(&raw_parts);
     return;
   }
   
-  result->midpoint_fractional_mantissa_digits = place_decimal_dot(mid_digits, mid_exp);
-  flint_free(mid_digits);
+  result->midpoint_fractional_mantissa_digits = place_decimal_dot(raw_parts.mid_digits, raw_parts.mid_exp);
   
-  if(rad_digits[0] == '0' && rad_digits[1] == '\0') {
-    fmpz_zero(rad_exp);
+  if(raw_parts.rad_digits[0] == '0' && raw_parts.rad_digits[1] == '\0') {
+    fmpz_zero(raw_parts.rad_exp);
   }
   else
-    fmpz_sub(rad_exp, rad_exp, mid_exp);
+    fmpz_sub(raw_parts.rad_exp, raw_parts.rad_exp, raw_parts.mid_exp);
   
-  result->radius_fractional_mantissa_digits = place_decimal_dot(rad_digits, rad_exp);
-  flint_free(rad_digits);
+  result->radius_fractional_mantissa_digits = place_decimal_dot(raw_parts.rad_digits, raw_parts.rad_exp);
   
-  if(fmpz_is_zero(mid_exp)) {
+  if(fmpz_is_zero(raw_parts.mid_exp)) {
     result->exponent_decimal_digits = PMATH_C_STRING("");
   }
   else {
-    mid_digits = fmpz_get_str(NULL, 10, mid_exp);
-    result->exponent_decimal_digits = PMATH_C_STRING(mid_digits);
-    flint_free(mid_digits);
+    char *tmp = fmpz_get_str(NULL, 10, raw_parts.mid_exp);
+    result->exponent_decimal_digits = PMATH_C_STRING(tmp);
+    flint_free(tmp);
   }
-  fmpz_clear(mid_exp);
   
-  if(fmpz_is_zero(rad_exp)) {
+  if(fmpz_is_zero(raw_parts.rad_exp)) {
     result->radius_exponent_part_decimal_digits = PMATH_C_STRING("");
   }
   else {
-    rad_digits = fmpz_get_str(NULL, 10, rad_exp);
-    result->radius_exponent_part_decimal_digits = PMATH_C_STRING(rad_digits);
-    flint_free(rad_digits);
+    char *tmp = fmpz_get_str(NULL, 10, raw_parts.rad_exp);
+    result->radius_exponent_part_decimal_digits = PMATH_C_STRING(tmp);
+    flint_free(tmp);
   }
-  fmpz_clear(rad_exp);
+  
+  free_mid_rad_digits_raw(&raw_parts);
+}
+
+static void init_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts) {
+  fmpz_init(parts->mid_exp);
+  fmpz_init(parts->rad_exp);
+  parts->mid_digits = NULL;
+  parts->rad_digits = NULL;
+}
+
+static void free_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts) {
+  fmpz_clear(parts->mid_exp);
+  fmpz_clear(parts->rad_exp);
+  flint_free(parts->mid_digits);
+  flint_free(parts->rad_digits);
 }
