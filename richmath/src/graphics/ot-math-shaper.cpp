@@ -1530,6 +1530,8 @@ SharedPtr<OTMathShaperImpl> OTMathShaperImpl::try_load(String name, FontStyle st
   impl->set_private_char(0x2063, 0x200B);
   impl->set_private_char(0x2064, 0x200B);
   
+  impl->set_private_char(PMATH_CHAR_NOMINALDIGITS, 0x200B);
+  
   impl->set_private_char(PMATH_CHAR_LEFTINVISIBLEBRACKET,     0x200B);
   impl->set_private_char(PMATH_CHAR_RIGHTINVISIBLEBRACKET,    0x200B);
   impl->set_private_char(PMATH_CHAR_LEFTBRACKETINGBAR,        0x2223);
