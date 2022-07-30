@@ -44,8 +44,10 @@ namespace {
   //static const int MultiplicationLength = 3;
   static const uint16_t Multiplication[1] = { TIMES_CHAR };
   static const int MultiplicationLength = 1;
-
   
+  static const uint16_t DigitsPrefix[1] = { PMATH_CHAR_NOMINALDIGITS };
+  static const int DigitsPrefixLength = 1;
+
   struct NumberPartPositions {
     String _number;
     
@@ -163,9 +165,11 @@ namespace {
         base = 10 * base + (*buf - '0');
         ++buf;
         --base_end;
-        if(base > 36 || base < 2)
-          return 10;
+        if(base > 36)
+          return 36;
       }
+      if(base < 2)
+        return 2;
       return base;
     }
     
@@ -355,7 +359,6 @@ bool NumberBox::try_load_from_object(Expr expr, BoxInputFlags opts) {
 }
 
 MathSequence *NumberBox::as_inline_span() {
-  // Fixme: how to set math_spacing=false ?
   return dynamic_cast<MathSequence*>(content());
 }
 
@@ -384,25 +387,6 @@ bool NumberBox::edit_selection(SelectionReference &selection, EditAction action)
   
   selection.set(seq, i + pos_start.pos, i + pos_end.pos);
   return true;
-}
-
-void NumberBox::resize_default_baseline(Context &context) {
-  // Note: this will not normally be called, because of as_inline_span() 
-  bool                  old_math_spacing     = context.math_spacing;
-  bool                  old_show_auto_styles = context.show_auto_styles;
-  SharedPtr<TextShaper> old_text_shaper      = context.text_shaper;
-  
-  context.math_spacing     = false;
-  context.show_auto_styles = false;
-  
-  if(old_math_spacing)
-    context.text_shaper = context.math_shaper;
-    
-  base::resize_default_baseline(context);
-  
-  context.math_spacing     = old_math_spacing;
-  context.show_auto_styles = old_show_auto_styles;
-  context.text_shaper      = old_text_shaper;
 }
 
 void NumberBox::paint(Context &context) {
@@ -518,6 +502,10 @@ void NumberBox::Impl::set_number(String n) {
   
   bool allow_less_digits = (prec < 0);
   int base = parts.parse_base();
+  
+  if(base != 10)
+    append(DigitsPrefix, DigitsPrefixLength);
+  
   append(parts.short_midpoint_mantissa(base, preferred_digits, allow_less_digits));
   //append(parts.midpoint_mantissa());
   
@@ -526,6 +514,9 @@ void NumberBox::Impl::set_number(String n) {
   // TODO: only show radius when requested or when it is particularly big
   if(parts.has_radius()) {
     append(RadiusOpening, RadiusOpeningLength);
+    
+    if(base != 10)
+      append(DigitsPrefix, DigitsPrefixLength);
     
     append(parts.radius_mantissa());
     self._radius_base = append_radix(parts);
@@ -573,7 +564,15 @@ PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selp
     
   if(i == 0)
     return PositionInRange(parts.mid_mant_start + selpos, parts.mid_mant_start, parts.mid_mant_end);
-    
+  
+  if(buf[i - 1] == PMATH_CHAR_NOMINALDIGITS) {
+    // Only the two mantissas are prefixed with \[NominalDigits]
+    if(i == 1)
+      return PositionInRange(parts.mid_mant_start + selpos - 1, parts.mid_mant_start, parts.mid_mant_end);
+    else
+      return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
+  }
+  
   if(buf[i - 1] == PMATH_CHAR_PLUSMINUS)
     return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
     
@@ -619,15 +618,22 @@ Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_i
   
   if(char_index <= parts.mid_mant_end) {
     int in_mid_mant = char_index - parts.mid_mant_start;
+    
+    if(DigitsPrefixLength < buflen && 0 == memcmp(buf, DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
+      in_mid_mant+= DigitsPrefixLength;
+    
     *selection_index = std::max(0, std::min(in_mid_mant, buflen));
     return self._content;
   }
   
-  int buf_rad_start = parts.mid_mant_end - parts.mid_mant_start;
-  if(self._base && buf_rad_start < buflen && buf[buf_rad_start] == PMATH_CHAR_BOX)
-    buf_rad_start += 1;
-  
-  if(parts.has_radius()) { 
+  if(parts.has_radius()) {
+    int buf_rad_start = parts.mid_mant_end - parts.mid_mant_start;
+    if(DigitsPrefixLength < buflen && 0 == memcmp(buf, DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
+      buf_rad_start+= DigitsPrefixLength;
+    
+    if(self._base && buf_rad_start < buflen && buf[buf_rad_start] == PMATH_CHAR_BOX)
+      buf_rad_start += 1;
+    
     if( buf_rad_start + RadiusOpeningLength < buflen && 
         0 == memcmp(buf + buf_rad_start, RadiusOpening, sizeof(uint16_t) * RadiusOpeningLength))
     {
@@ -635,6 +641,10 @@ Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_i
       
       if(char_index <= parts.radius_mant_end) {
         int in_rad_mant = char_index - parts.radius_mant_start;
+        
+        if(buf_rad_start + DigitsPrefixLength < buflen && 0 == memcmp(&buf[buf_rad_start], DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
+          in_rad_mant+= DigitsPrefixLength;
+    
         *selection_index = std::max(0, std::min(buf_rad_start + in_rad_mant, buflen));
         return self._content;
       }

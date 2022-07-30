@@ -49,8 +49,6 @@ namespace richmath {
     protected:
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       
-      virtual void resize_default_baseline(Context &context) override;
-      
     private:
       String        _number;
       MathSequence *_base;
