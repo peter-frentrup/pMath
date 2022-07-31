@@ -1,16 +1,7 @@
 #include <pmath-language/number-writing-private.h>
 #include <pmath-language/number-parsing-private.h> // for _pmath_log2_of
 
-
-struct _pmath_mid_rad_digits_raw_t {
-  char   *mid_digits;
-  char   *rad_digits;
-  fmpz_t  mid_exp;
-  fmpz_t  rad_exp;
-};
-
-static void init_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts);
-static void free_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts);
+static void init_number_string_raw_parts(struct _pmath_number_string_raw_parts_t *parts);
 
 PMATH_PRIVATE void _pmath_number_string_parts_clear(struct _pmath_number_string_parts_t *parts) {
   assert(parts != NULL);
@@ -267,19 +258,18 @@ static void round_digits_inplace(char *s, mp_bitcnt_t *shift, fmpz_t error, int 
 /** \brief Like arb_get_str_parts(), but in a given base.
  */
 static void get_str_parts(
-  pmath_bool_t                       *out_negative,
-  struct _pmath_mid_rad_digits_raw_t *out_parts,
-  const arb_t                         in_value,
-  slong                               in_max_digits,
-  pmath_bool_t                        in_allow_inaccurate_digits,
-  int                                 in_base
+  struct _pmath_number_string_raw_parts_t *out_parts,
+  const arb_t                              in_value,
+  slong                                    in_max_digits,
+  pmath_bool_t                             in_allow_inaccurate_digits,
+  int                                      in_base
 ) {
   fmpz_t mid, rad, exp, err;
   
-  assert(out_negative != NULL);
   assert(out_parts != NULL);
   
-  *out_negative = FALSE;
+  out_parts->is_negative = FALSE;
+  out_parts->base = in_base;
   if(out_parts->mid_digits) { flint_free(out_parts->mid_digits); out_parts->mid_digits = NULL; }
   if(out_parts->rad_digits) { flint_free(out_parts->rad_digits); out_parts->rad_digits = NULL; }
   fmpz_zero(out_parts->mid_exp);
@@ -299,7 +289,7 @@ static void get_str_parts(
   fmpz_init(err);
   
   get_fmpz_mid_rad_basis_exp(mid, rad, exp, in_value, in_base, FLINT_MAX(in_max_digits, 1));
-  *out_negative = arf_sgn(arb_midref(in_value)) < 0;
+  out_parts->is_negative = arf_sgn(arb_midref(in_value)) < 0;
   fmpz_abs(mid, mid);
   
   out_parts->mid_digits = fmpz_get_str(NULL, in_base, mid);
@@ -381,18 +371,17 @@ static void get_str_parts(
 /** \brief Losslessly convert an Arb number to hexadecimal string representation parts.
  */
 static void get_str_hex_parts(
-  pmath_bool_t                       *out_negative,
-  struct _pmath_mid_rad_digits_raw_t *out_parts,
-  const arb_t                         in_value
+  struct _pmath_number_string_raw_parts_t *out_parts,
+  const arb_t                              in_value
 ) {
   fmpz_t mant;
   ulong remainder;
   arf_t tmp;
   
-  assert(out_negative != NULL);
   assert(out_parts != NULL);
   
-  *out_negative = FALSE;
+  out_parts->is_negative = FALSE;
+  out_parts->base = 16;
   if(out_parts->mid_digits) { flint_free(out_parts->mid_digits); out_parts->mid_digits = NULL; }
   if(out_parts->rad_digits) { flint_free(out_parts->rad_digits); out_parts->rad_digits = NULL; }
   fmpz_zero(out_parts->mid_exp);
@@ -401,7 +390,7 @@ static void get_str_hex_parts(
   if(!arb_is_finite(in_value))
     return;
     
-  *out_negative = arf_sgn(arb_midref(in_value)) < 0;
+  out_parts->is_negative = arf_sgn(arb_midref(in_value)) < 0;
   
   fmpz_init(mant);
   
@@ -426,8 +415,40 @@ static void get_str_hex_parts(
   fmpz_clear(mant);
 }
 
-PMATH_ATTRIBUTE_USE_RESULT
-pmath_string_t precision_to_string(double precision_digits, slong precision_bits) {
+
+static void write_cstr_to_string(void *_res, const char *str, int len) {
+  pmath_string_t *res = _res;
+  
+  *res = pmath_string_insert_latin1(*res, INT_MAX, str, len);
+}
+
+static pmath_string_t place_decimal_dot(const char *integer_digits, fmpz_t inout_exp) {
+  pmath_string_t result = PMATH_NULL;
+  int num_digits = (int)strlen(integer_digits);
+  
+  result = pmath_string_new(num_digits + 1); // sometimes +2
+  
+  _pmath_write_place_decimal_dot(integer_digits, num_digits, inout_exp, write_cstr_to_string, &result);
+  
+  return result;
+}
+
+static pmath_string_t precision_to_string(double precision_digits, slong precision_bits) {
+  pmath_string_t result = PMATH_NULL;
+  
+  _pmath_write_precision(precision_digits, precision_bits, write_cstr_to_string, &result);
+  
+  return result;
+}
+
+
+PMATH_PRIVATE
+void _pmath_write_precision(
+  double   precision_digits, 
+  slong    precision_bits, 
+  void   (*writer)(void*, const char*, int), 
+  void    *ctx
+) {
   double factor = precision_digits / precision_bits;
   double min = precision_digits - 0.99 * factor;
   double max = precision_digits;
@@ -451,57 +472,62 @@ pmath_string_t precision_to_string(double precision_digits, slong precision_bits
     }
   }
   
-  return PMATH_C_STRING(s);
+  writer(ctx, s, (int)strlen(s));
 }
+
 
 #define MAX_INTEGER_DIGITS  6
 #define MAX_LEADING_ZEROS   5
 
-static pmath_string_t place_decimal_dot(const char *integer_digits, fmpz_t inout_exp) {
-  pmath_string_t result;
-  int length = (int)strlen(integer_digits);
+PMATH_PRIVATE
+void _pmath_write_place_decimal_dot(
+  const char *integer_digits, 
+  int         num_digits,
+  fmpz_t      inout_exp, 
+  void      (*writer)(void*, const char*, int), 
+  void       *ctx
+) {
   int int_digits = 1;
   int frac_digits;
   
-  if(length >= 2 && fmpz_sgn(inout_exp) < 0) {
-    if(fmpz_cmp_si(inout_exp, -length) <= 0 && fmpz_cmp_si(inout_exp, -(length + MAX_LEADING_ZEROS)) >= 0) { 
-      // -(length + MAX_LEADING_ZEROS) <= inout_exp <= -length
-      int leading_zeros = -(int)fmpz_get_si(inout_exp) - length;
+  if(num_digits < 0)
+    num_digits = (int)strlen(integer_digits);
+  
+  if(num_digits >= 2 && fmpz_sgn(inout_exp) < 0) {
+    if(fmpz_cmp_si(inout_exp, -num_digits) <= 0 && fmpz_cmp_si(inout_exp, -(num_digits + MAX_LEADING_ZEROS)) >= 0) { 
+      // -(num_digits + MAX_LEADING_ZEROS) <= inout_exp <= -num_digits
+      int leading_zeros = -(int)fmpz_get_si(inout_exp) - num_digits;
       
       int trailing_zeros = 0;
-      while(trailing_zeros < FLINT_MIN(length, MAX_LEADING_ZEROS) && integer_digits[length - trailing_zeros - 1] == '0')
+      while(trailing_zeros < FLINT_MIN(num_digits, MAX_LEADING_ZEROS) && integer_digits[num_digits - trailing_zeros - 1] == '0')
         ++trailing_zeros;
       
       if(leading_zeros < trailing_zeros) {
-        pmath_string_t result = pmath_string_new(length + 1);
-        result = pmath_string_insert_latin1(result, INT_MAX, "0.", 2);
-        result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + length - leading_zeros, leading_zeros);
-        result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, length - leading_zeros - 1);
+        writer(ctx, "0.", 2);
+        writer(ctx, integer_digits + num_digits - leading_zeros, leading_zeros);
+        writer(ctx, integer_digits, num_digits - leading_zeros - 1);
         fmpz_zero(inout_exp);
-        return result;
+        return;
       }
     }
-    else if(fmpz_cmp_si(inout_exp, - length) > 0) { // -length < inout_exp < 0
+    else if(fmpz_cmp_si(inout_exp, - num_digits) > 0) { // -num_digits < inout_exp < 0
       frac_digits = (int)-fmpz_get_si(inout_exp);
-      int_digits = length - frac_digits;
+      int_digits = num_digits - frac_digits;
       if(int_digits > MAX_INTEGER_DIGITS)
         int_digits = 1;
     }
   }
   
-  frac_digits = length - int_digits;
-  fmpz_add_si(inout_exp, inout_exp, length - int_digits);
+  frac_digits = num_digits - int_digits;
+  fmpz_add_si(inout_exp, inout_exp, num_digits - int_digits);
   
-  result = pmath_string_new(length + 2);
-  result = pmath_string_insert_latin1(result, INT_MAX, integer_digits, int_digits);
-  if(int_digits < length) {
-    result = pmath_string_insert_latin1(result, INT_MAX, ".", 1);
-    result = pmath_string_insert_latin1(result, INT_MAX, integer_digits + int_digits, length - int_digits);
+  writer(ctx, integer_digits, int_digits);
+  if(int_digits < num_digits) {
+    writer(ctx, ".", 1);
+    writer(ctx, integer_digits + int_digits, num_digits - int_digits);
   }
   else
-    result = pmath_string_insert_latin1(result, INT_MAX, ".0", 2);
-    
-  return result;
+    writer(ctx, ".0", 2);
 }
 
 PMATH_PRIVATE
@@ -511,48 +537,28 @@ void _pmath_mpfloat_get_string_parts(
   int                                  max_digits,
   int                                  base_flags
 ) {
-  struct _pmath_mid_rad_digits_raw_t raw_parts;
+  struct _pmath_number_string_raw_parts_t raw_parts;
   double precision_digits;
   
-  int base = base_flags & PMATH_BASE_FLAGS_BASE_MASK;
-  pmath_bool_t allow_inaccurate_digits = (base_flags & PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS) != 0;
-  
   assert(result != NULL);
-  assert(base >= 2 && base <= 36);
   assert(pmath_is_mpfloat(value));
-  assert(max_digits >= 0);
   
-  init_mid_rad_digits_raw(&raw_parts);
+  _pmath_mpfloat_get_string_raw_parts(&raw_parts, value, max_digits, base_flags);
   
-  precision_digits = PMATH_AS_ARB_WORKING_PREC(value) / _pmath_log2_of(base);
-  //max_digits = (int)FLINT_MIN((slong)max_digits, (slong)ceil(precision_digits));
+  precision_digits = PMATH_AS_ARB_WORKING_PREC(value) / _pmath_log2_of(raw_parts.base);
   
-  result->base = base;
-  if(base == 16 && (base_flags & PMATH_BASE_FLAG_ALL_DIGITS)) {
-    get_str_hex_parts(
-      &result->is_negative,
-      &raw_parts,
-      PMATH_AS_ARB(value));
-  }
-  else {
-    get_str_parts(
-      &result->is_negative,
-      &raw_parts,
-      PMATH_AS_ARB(value),
-      max_digits,
-      allow_inaccurate_digits,
-      base);
-  }
+  result->is_negative = raw_parts.is_negative;
+  result->base        = raw_parts.base;
   
   result->precision_decimal_digits = precision_to_string(precision_digits, PMATH_AS_ARB_WORKING_PREC(value));
   
   result->midpoint_fractional_mantissa_digits = PMATH_NULL;
-  result->exponent_decimal_digits = PMATH_NULL;
-  result->radius_fractional_mantissa_digits = PMATH_NULL;
+  result->exponent_decimal_digits             = PMATH_NULL;
+  result->radius_fractional_mantissa_digits   = PMATH_NULL;
   result->radius_exponent_part_decimal_digits = PMATH_NULL;
   
   if(!raw_parts.mid_digits || !raw_parts.rad_digits) {
-    free_mid_rad_digits_raw(&raw_parts);
+    _pmath_number_string_raw_parts_clear(&raw_parts);
     return;
   }
   
@@ -584,17 +590,51 @@ void _pmath_mpfloat_get_string_parts(
     flint_free(tmp);
   }
   
-  free_mid_rad_digits_raw(&raw_parts);
+  _pmath_number_string_raw_parts_clear(&raw_parts);
 }
 
-static void init_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts) {
+PMATH_PRIVATE
+void _pmath_mpfloat_get_string_raw_parts(
+  struct _pmath_number_string_raw_parts_t *result,
+  pmath_mpfloat_t                          value,
+  int                                      max_digits,
+  int                                      base_flags
+) {
+  int base = base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+  pmath_bool_t allow_inaccurate_digits = (base_flags & PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS) != 0;
+  
+  assert(result != NULL);
+  assert(base >= 2 && base <= 36);
+  assert(pmath_is_mpfloat(value));
+  assert(max_digits >= 0);
+  
+  init_number_string_raw_parts(result);
+  
+  result->base = base;
+  if(base == 16 && (base_flags & PMATH_BASE_FLAG_ALL_DIGITS)) {
+    get_str_hex_parts(
+      result,
+      PMATH_AS_ARB(value));
+  }
+  else {
+    get_str_parts(
+      result,
+      PMATH_AS_ARB(value),
+      max_digits,
+      allow_inaccurate_digits,
+      base);
+  }
+}
+
+
+static void init_number_string_raw_parts(struct _pmath_number_string_raw_parts_t *parts) {
   fmpz_init(parts->mid_exp);
   fmpz_init(parts->rad_exp);
   parts->mid_digits = NULL;
   parts->rad_digits = NULL;
 }
 
-static void free_mid_rad_digits_raw(struct _pmath_mid_rad_digits_raw_t *parts) {
+PMATH_PRIVATE void _pmath_number_string_raw_parts_clear(struct _pmath_number_string_raw_parts_t *parts) {
   fmpz_clear(parts->mid_exp);
   fmpz_clear(parts->rad_exp);
   flint_free(parts->mid_digits);

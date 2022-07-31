@@ -82,6 +82,11 @@ PMATH_PRIVATE void _pmath_write_cstr(
   const char  *str,
   void (*write_ucs2)(void*, const uint16_t*, int),
   void        *user);
+PMATH_PRIVATE void _pmath_write_latin1(
+  const char  *str,
+  int          len,
+  void (*write_ucs2)(void*, const uint16_t*, int),
+  void        *user);
 
 PMATH_PRIVATE pmath_bool_t _pmath_strings_init(void);
 PMATH_PRIVATE void         _pmath_strings_done(void);

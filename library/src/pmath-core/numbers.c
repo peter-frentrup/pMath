@@ -1633,10 +1633,10 @@ static void delete_trailing_zeros(char *s) {
   s2[1] = '\0';
 }
 
-static void write_raw_string(struct pmath_write_ex_t *info, pmath_string_t str) {
-  const uint16_t *buf = pmath_string_buffer(&str);
-  int len = pmath_string_length(str);
-  info->write(info->user, buf, len);
+static void write_raw_latin1(void *_info, const char *str, int len) {
+  struct pmath_write_ex_t *info = _info;
+  
+  _pmath_write_latin1(str, len, info->write, info->user);
 }
 
 static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
@@ -1864,7 +1864,7 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
   int base = 10;
   slong max_digit_count;
   int base_flags;
-  struct _pmath_number_string_parts_t parts;
+  struct _pmath_number_string_raw_parts_t raw_parts;
   pmath_bool_t show_radius_and_precision = FALSE;
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
@@ -1884,40 +1884,51 @@ static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
     show_radius_and_precision = TRUE;
   }
   
-  _pmath_mpfloat_get_string_parts(&parts, f, max_digit_count, base_flags);
+  _pmath_mpfloat_get_string_raw_parts(&raw_parts, f, max_digit_count, base_flags);
   
-  if(!show_radius_and_precision) {
-    show_radius_and_precision =
-      pmath_string_equals_latin1(parts.midpoint_fractional_mantissa_digits, "0.0") &&
-      !pmath_string_equals_latin1(parts.radius_fractional_mantissa_digits, "0.0");
-  }
-  
-  if(parts.is_negative)
-    _pmath_write_cstr("-", info->write, info->user);
-    
-  if(parts.base != 10) {
-    char buf[5];
-    snprintf(buf, sizeof(buf), "%d^^", parts.base);
-    _pmath_write_cstr(buf, info->write, info->user);
-  }
-  
-  write_raw_string(info, parts.midpoint_fractional_mantissa_digits);
-  if(show_radius_and_precision) {
-    _pmath_write_cstr("[+/-", info->write, info->user);
-    write_raw_string(info, parts.radius_fractional_mantissa_digits);
-    if(pmath_string_length(parts.radius_exponent_part_decimal_digits) > 0) {
-      _pmath_write_cstr("*^", info->write, info->user);
-      write_raw_string(info, parts.radius_exponent_part_decimal_digits);
+  if(raw_parts.mid_digits && raw_parts.rad_digits) {
+    if(!show_radius_and_precision) {
+      if(0 == arf_cmp_si(arb_midref(PMATH_AS_ARB(f)), 0)) {
+        if(!mag_is_zero(arb_radref(PMATH_AS_ARB(f))))
+          show_radius_and_precision = TRUE;
+      } 
     }
-    _pmath_write_cstr("]`", info->write, info->user);
-    write_raw_string(info, parts.precision_decimal_digits);
+    
+    if(raw_parts.is_negative)
+      _pmath_write_cstr("-", info->write, info->user);
+      
+    if(raw_parts.base != 10) {
+      char buf[5];
+      snprintf(buf, sizeof(buf), "%d^^", raw_parts.base);
+      _pmath_write_cstr(buf, info->write, info->user);
+    }
+    
+    _pmath_write_place_decimal_dot(raw_parts.mid_digits, -1, raw_parts.mid_exp, write_raw_latin1, info);
+    if(show_radius_and_precision) {
+      _pmath_write_cstr("[+/-", info->write, info->user);
+      _pmath_write_place_decimal_dot(raw_parts.rad_digits, -1, raw_parts.rad_exp, write_raw_latin1, info);
+      if(!fmpz_is_zero(raw_parts.rad_exp)) {
+        char *tmp = fmpz_get_str(NULL, 10, raw_parts.rad_exp);
+        _pmath_write_cstr("*^", info->write, info->user);
+        _pmath_write_cstr(tmp, info->write, info->user);
+        flint_free(tmp);
+      }
+      _pmath_write_cstr("]`", info->write, info->user);
+      _pmath_write_precision(
+        PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(raw_parts.base),
+        PMATH_AS_ARB_WORKING_PREC(f),
+        write_raw_latin1, 
+        info);
+    }
+    
+    if(!fmpz_is_zero(raw_parts.mid_exp)) {
+        char *tmp = fmpz_get_str(NULL, 10, raw_parts.mid_exp);
+        _pmath_write_cstr("*^", info->write, info->user);
+        _pmath_write_cstr(tmp, info->write, info->user);
+        flint_free(tmp);
+    }
   }
-  
-  if(pmath_string_length(parts.exponent_decimal_digits) > 0) {
-    _pmath_write_cstr("*^", info->write, info->user);
-    write_raw_string(info, parts.exponent_decimal_digits);
-  }
-  _pmath_number_string_parts_clear(&parts);
+  _pmath_number_string_raw_parts_clear(&raw_parts);
 }
 
 //} ============================================================================

@@ -104,6 +104,62 @@ void _pmath_mpfloat_get_string_parts(
   int                                  max_digits,
   int                                  base_flags);
 
+
+/** \brief Write a precision as a decimal string.
+ */
+PMATH_PRIVATE
+void _pmath_write_precision(
+  double   precision_digits, 
+  slong    precision_bits, 
+  void   (*writer)(void*, const char*, int), 
+  void    *ctx);
+
+/** \brief Write out a sequence of digits, automatically adding a decimal dot and adjusting the exponent.
+ */
+PMATH_PRIVATE
+void _pmath_write_place_decimal_dot(
+  const char *integer_digits, 
+  int         num_digits,
+  fmpz_t      inout_exp, 
+  void      (*writer)(void*, const char*, int), 
+  void       *ctx);
+
+/** Represents mmmmmmm * B^MMMM +/- rrrrr * B^RRRR  in some base B 
+    with digit strings mmmm and rrrr and integer exponents MMM and RRR
+ */
+struct _pmath_number_string_raw_parts_t {
+  /** \brief Wether to prepend the number with a minus sign.
+   */
+  pmath_bool_t is_negative;
+  
+  /** \brief The number's radix. Between 2 and 36.
+   */
+  int base;
+  
+  /** \brief The digits of the midpoint (with implied decimal dot at the end).
+   */
+  char   *mid_digits;
+  
+  /** \brief The digits of the radius (with implied decimal dot at the end).
+   */
+  char   *rad_digits;
+  
+  /** The midpoint exponent such that midpoint ~= int(mid_digits) * base ^ mid_exp */
+  fmpz_t  mid_exp;
+  
+  /** The radius exponent such that radius ~= int(rad_digits) * base ^ rad_exp */
+  fmpz_t  rad_exp;
+};
+
+PMATH_PRIVATE
+void _pmath_mpfloat_get_string_raw_parts(
+  struct _pmath_number_string_raw_parts_t *result,
+  pmath_mpfloat_t                          value,
+  int                                      max_digits,
+  int                                      base_flags);
+
+PMATH_PRIVATE void _pmath_number_string_raw_parts_clear(struct _pmath_number_string_raw_parts_t *parts);
+
 /** @} */
 
 #endif // __PMATH_LANGUAGE__NUMBER_WRITING_PRIVATE_H__

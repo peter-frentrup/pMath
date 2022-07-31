@@ -591,7 +591,20 @@ void _pmath_write_cstr(
     void (*write_ucs2)(void *, const uint16_t *, int),
     void                *user
 ) {
-  int len = strlen(str);
+  _pmath_write_latin1(str, -1, write_ucs2, user);
+}
+
+
+PMATH_PRIVATE
+void _pmath_write_latin1(
+  const char  *str,
+  int          len,
+  void (*write_ucs2)(void*, const uint16_t*, int),
+  void        *user
+) {
+  if(len < 0)
+    len = strlen(str);
+  
 #define BUFLEN 256
   uint16_t buf[BUFLEN];
   while(len > BUFLEN) {
@@ -610,6 +623,7 @@ void _pmath_write_cstr(
   }
 #undef BUFLEN
 }
+
 
 static pmath_bool_t find_single_token(pmath_t box, pmath_string_t *result) {
   if(pmath_is_string(box)) {
