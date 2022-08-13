@@ -22,16 +22,16 @@ static void pow_ui_fmpz(arb_t res, int base, const fmpz_t e, slong prec) {
   arb_pow_fmpz(res, res, e, prec + bits);
 }
 
-/** \brief Compute integers \a out_mid, \a out_rad, \a out_exp such that x is in [m-r, m+r]*base^e.
-    \param out_mid An initialized fmpz integer to be set to the mid-point.
-    \param out_rad An initialized fmpz integer to be set to the radius.
-    \param out_exp An initialized fmpz integer to be set to the exponent.
-    \param in_value A finite Arb real ball.
+/** \brief Compute integers `m`, `r`, `e` such that `x` is in the interval [m-r, m+r]*base^e.
+    \param out_mid An initialized fmpz integer to be set to the mid-point `m`.
+    \param out_rad An initialized fmpz integer to be set to the radius `r`.
+    \param out_exp An initialized fmpz integer to be set to the exponent `e`.
+    \param in_value A finite Arb real ball `x`.
     \param in_base The base, between 2 and 36.
     \param in_num_digits The minimum number of digits for the larger of \a out_mid and \a out_rad.
                          This must be non-negative.
 
-    If \a in_value is not finite or is exactly zero, \a out_mid, \a out_rad and \aout_exp will be set to zero.
+    If \a in_value is not finite or is exactly zero, \a out_mid, \a out_rad and \a out_exp will be set to zero.
     Otherwise, the larger of \a out_mid and \a out_rad will have \a in_num_digits plus a few guard digits.
 
     This function correpsonds to arb_get_fmpz_mid_rad_10exp() if in_base=10.
@@ -46,17 +46,13 @@ static void get_fmpz_mid_rad_basis_exp(
   int         in_base,
   slong       in_num_digits
 ) {
-  fmpz_t e, m;
-  arb_t t, u;
-  arf_t r;
-  slong prec;
+  fmpz_t binexp, mmm;
+  arb_t tmp;
+  arf_t rad_approx;
   int roundmid, roundrad;
   
   assert(in_base >= 2 && in_base <= 36);
   assert(in_num_digits >= 0);
-  
-  /** TODO: Fast-pass power-of-2 base, expecially base=16. No need to calculate logarithms then.
-   */
   
   if(PMATH_UNLIKELY(!arb_is_finite(in_value) || arb_is_zero(in_value))) {
     fmpz_zero(out_mid);
@@ -65,76 +61,74 @@ static void get_fmpz_mid_rad_basis_exp(
     return;
   }
   
-  /* We compute m such that value * base^m ~= base^(num_digits + 5).
-     If value = 2^e then m = (num_digits + 5) - e*log(2)/log(base).
+  /* We compute mmm such that  value * base^mmm ~= base^(num_digits + 5).
+     If  value = 2^binexp  then  mmm = (num_digits + 5) - binexp*log(2)/log(base).
   */
-  fmpz_init(e);
-  fmpz_init(m);
-  arb_init(t);
-  arb_init(u);
-  arf_init(r);
+  fmpz_init(binexp);
+  fmpz_init(mmm);
+  arb_init(tmp);
+  arf_init(rad_approx);
   
+  // binexp:= ceil(log2(max(abs(mid), abs(rad)))
   if(arf_cmpabs_mag(arb_midref(in_value), arb_radref(in_value)) > 0)
-    fmpz_set(e, ARF_EXPREF(arb_midref(in_value)));
+    fmpz_set(binexp, ARF_EXPREF(arb_midref(in_value)));
   else
-    fmpz_set(e, ARF_EXPREF(arb_radref(in_value)));
+    fmpz_set(binexp, MAG_EXPREF(arb_radref(in_value)));
     
-  prec = fmpz_bits(e) + 15;
-  arb_set_si(t, 2);
-  arb_log_base_ui(t, t, in_base, prec);
-  arb_mul_fmpz(t, t, e, prec);
-  arb_neg(t, t);
-  arb_add_ui(t, t, in_num_digits + 5, prec);
-  
-  arf_get_fmpz(m, arb_midref(t), ARF_RND_FLOOR);
-  fmpz_neg(out_exp, m);
-  
-  prec = (slong)(in_num_digits * _pmath_log2_of(in_base) + 30);
-  
-  if(in_base == 1 << 1) {
-    arb_mul_2exp_fmpz(t, in_value, m);
-  }
-  else if(in_base == 1 << 2) {
-    fmpz_mul_ui(m, m,     2);
-    arb_mul_2exp_fmpz(t, in_value, m);
-  }
-  else if(in_base == 1 << 3) {
-    fmpz_mul_ui(m, m,     3);
-    arb_mul_2exp_fmpz(t, in_value, m);
-  }
-  else if(in_base == 1 << 4) {
-    fmpz_mul_ui(m, m,     4);
-    arb_mul_2exp_fmpz(t, in_value, m);
-  }
-  else if(in_base == 1 << 5) {
-    fmpz_mul_ui(m, m,     5);
-    arb_mul_2exp_fmpz(t, in_value, m);
-  }
+  // mmm:= floor( (num_digits + 5) - binexp*log(2)/log(base) )
+  // out_exp:= -floor( (num_digits + 5) - binexp*log(2)/log(base) )
+  /// Then
+  // tmp:= value * base^mmm  =  value * base^(-out_exp)    invalidates mmm
+  if(     in_base == 1 << 1) { fmpz_neg(      mmm, binexp);     fmpz_add_ui(mmm, mmm, in_num_digits + 5); fmpz_neg(out_exp, mmm); /* Then */                           arb_mul_2exp_fmpz(tmp, in_value, mmm); }
+  else if(in_base == 1 << 2) { fmpz_fdiv_q_si(mmm, binexp, -2); fmpz_add_ui(mmm, mmm, in_num_digits + 5); fmpz_neg(out_exp, mmm); /* Then */ fmpz_mul_ui(mmm, mmm, 2); arb_mul_2exp_fmpz(tmp, in_value, mmm); }
+  else if(in_base == 1 << 3) { fmpz_fdiv_q_si(mmm, binexp, -3); fmpz_add_ui(mmm, mmm, in_num_digits + 5); fmpz_neg(out_exp, mmm); /* Then */ fmpz_mul_ui(mmm, mmm, 3); arb_mul_2exp_fmpz(tmp, in_value, mmm); }
+  else if(in_base == 1 << 4) { fmpz_fdiv_q_si(mmm, binexp, -4); fmpz_add_ui(mmm, mmm, in_num_digits + 5); fmpz_neg(out_exp, mmm); /* Then */ fmpz_mul_ui(mmm, mmm, 4); arb_mul_2exp_fmpz(tmp, in_value, mmm); }
+  else if(in_base == 1 << 5) { fmpz_fdiv_q_si(mmm, binexp, -5); fmpz_add_ui(mmm, mmm, in_num_digits + 5); fmpz_neg(out_exp, mmm); /* Then */ fmpz_mul_ui(mmm, mmm, 5); arb_mul_2exp_fmpz(tmp, in_value, mmm); }
   else {
+    slong prec = fmpz_bits(binexp) + 15;
+    
+    // tmp:= (in_num_digits + 5) - binexp*log(2)/log(base)
+    arb_set_si(tmp, 2);
+    arb_log_base_ui(tmp, tmp, in_base, prec);
+    arb_mul_fmpz(tmp, tmp, binexp, prec);
+    arb_neg(tmp, tmp);
+    arb_add_ui(tmp, tmp, in_num_digits + 5, prec);
+    
+    // mmm:= floor(tmp) = floor( (num_digits + 5) - binexp*log(2)/log(base) )
+    arf_get_fmpz(mmm, arb_midref(tmp), ARF_RND_FLOOR);
+  
+    // out_exp:= -mmm
+    fmpz_neg(out_exp, mmm);
+    
+    /// Then
+    // tmp:= value * base^mmm  =  value * base^(-out_exp)    invalidates mmm
+    prec = (slong)(in_num_digits * _pmath_log2_of(in_base) + 30);
+  
     // arb_mul() can round even if factor t is an exact power of 2
-    if(fmpz_sgn(m) >= 0) {
-      pow_ui_fmpz(t, in_base, m, prec);
-      arb_mul(t, in_value, t, prec);
+    if(fmpz_sgn(mmm) >= 0) {
+      pow_ui_fmpz(tmp, in_base, mmm, prec);
+      arb_mul(tmp, in_value, tmp, prec);
     }
     else {
-      fmpz_neg(m, m);
-      pow_ui_fmpz(t, in_base, m, prec);
-      arb_div(t, in_value, t, prec);
+      fmpz_neg(mmm, mmm);
+      pow_ui_fmpz(tmp, in_base, mmm, prec);
+      arb_div(tmp, in_value, tmp, prec);
     }
   }
   
-  roundmid = arf_get_fmpz_fixed_si(out_mid, arb_midref(t), 0);
+  // out_mid:= tmp  midpoint,  roundmid:= 1 if truncated, 0 if exact
+  roundmid = arf_get_fmpz_fixed_si(out_mid, arb_midref(tmp), 0);
   
-  arf_set_mag(r, arb_radref(t));
-  roundrad = arf_get_fmpz_fixed_si(out_rad, r, 0);
+  // out_rad:= tmp  radius,    roundrad:= 1 if truncated, 0 if exact
+  arf_set_mag(rad_approx, arb_radref(tmp));
+  roundrad = arf_get_fmpz_fixed_si(out_rad, rad_approx, 0);
   
   fmpz_add_ui(out_rad, out_rad, roundmid + roundrad);
   
-  fmpz_clear(e);
-  fmpz_clear(m);
-  arb_clear(t);
-  arb_clear(u);
-  arf_clear(r);
+  fmpz_clear(binexp);
+  fmpz_clear(mmm);
+  arb_clear(tmp);
+  arf_clear(rad_approx);
 }
 
 static int get_digit_value(char ch) {
