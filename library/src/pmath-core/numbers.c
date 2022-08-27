@@ -1425,34 +1425,36 @@ PMATH_PRIVATE
 void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer) {
   pmath_thread_t thread = pmath_thread_get_current();
   char s[40];
+  int base = 16;
+  if(thread) {
+    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+    if(base < 2 || base > 36)
+      base = 16;
+  }
   
-  if( thread                   &&
-      thread->numberbase != 10 &&
-      thread->numberbase >= 2  &&
-      thread->numberbase <= 36)
-  {
+  if(base != 10) {
     unsigned val;
     int a, b;
     
     if(PMATH_AS_INT32(integer) == 0) {
-      snprintf(s, sizeof(s), "%d^^0", (int)thread->numberbase);
+      snprintf(s, sizeof(s), "%d^^0", base);
       _pmath_write_cstr(s, info->write, info->user);
       return;
     }
     
     if(PMATH_AS_INT32(integer) < 0) {
-      a = snprintf(s, sizeof(s), "-%d^^", (int)thread->numberbase);
+      a = snprintf(s, sizeof(s), "-%d^^", base);
       val = (unsigned)(-PMATH_AS_INT32(integer));
     }
     else {
-      a = snprintf(s, sizeof(s),  "%d^^", (int)thread->numberbase);
+      a = snprintf(s, sizeof(s),  "%d^^", base);
       val = (unsigned)PMATH_AS_INT32(integer);
     }
     
     b = a - 1;
     while(val > 0) {
-      unsigned mod = val % (unsigned)thread->numberbase;
-      val /= (unsigned)thread->numberbase;
+      unsigned mod = val % (unsigned)base;
+      val /= (unsigned)base;
       
       s[++b] = alphabet[mod];
     }
@@ -1475,12 +1477,15 @@ void _pmath_write_machine_int(struct pmath_write_ex_t *info, pmath_t integer) {
 static void write_mp_int(struct pmath_write_ex_t *info, pmath_t integer) {
   pmath_thread_t thread = pmath_thread_get_current();
   char *str;
-  int base = 10;
+  int base = 16;
   size_t size;
   
-  if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
-    base = (int)thread->numberbase;
-    
+  if(thread) {
+    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+    if(base < 2 || base > 36)
+      base = 16;
+  }
+  
   size = mpz_sizeinbase(PMATH_AS_MPZ(integer), base) + 6;
   
   str = (char *)pmath_mem_alloc(size);
@@ -1671,9 +1676,19 @@ static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
   pmath_bool_t allow_round_trip = 0 != (info->options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_FULLEXPR));
   int exact_log2_base; // =0 if base is no power of 2, otherwise = log2(base)
   
-  if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
-    base = thread->numberbase;
+  if(thread) {
+    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+    if(base < 2 || base > 36)
+      base = 16;
     
+    if((thread->base_flags & PMATH_BASE_FLAGS_AUTOMATIC) || (info->options & PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
+      if(base & (base - 1)) // not a power of 2
+        base = 16;
+      
+      allow_round_trip = TRUE;
+    }
+  }
+  
   if(base == 10) {
     exact_log2_base = 0;
     base_prec = LOG10_2 * prec2;
@@ -1882,23 +1897,28 @@ static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
 static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
   static const uint16_t u16_plusminus = 0x00B1;
   pmath_thread_t thread = pmath_thread_get_current();
-  int base = 10;
+  int base = 16;
   int max_rad_digits;
   struct _pmath_raw_number_parts_t parts;
   pmath_bool_t show_radius = FALSE;
   pmath_bool_t show_precision = FALSE;
   
-  if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
-    base = thread->numberbase;
-  
-  if(info->options & PMATH_WRITE_OPTIONS_FULLEXPR) {
-    // changing base
-    base = 16;
-    max_rad_digits = INT_MAX;
-    show_radius = TRUE;
-    show_precision = TRUE;
+  if(thread) {
+    base = thread->base_flags & PMATH_BASE_FLAGS_BASE_MASK;
+    if(base < 2 || base > 36)
+      base = 16;
+    
+    if((thread->base_flags & PMATH_BASE_FLAGS_AUTOMATIC) || (info->options & PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
+      if(base & (base - 1)) // not a power of two => change base
+        base = 16;
+      
+      max_rad_digits = INT_MAX;
+      show_radius = TRUE;
+      show_precision = TRUE;
+    }
   }
-  else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
+  
+  if(info->options & (PMATH_WRITE_OPTIONS_INPUTEXPR | PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS)) {
     max_rad_digits = (base & (base-1)) ? 3 : INT_MAX;
     show_radius = TRUE;
     show_precision = TRUE;

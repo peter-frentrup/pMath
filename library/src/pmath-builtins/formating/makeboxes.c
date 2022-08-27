@@ -2185,24 +2185,25 @@ static pmath_t baseform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // 
   if(pmath_expr_length(expr) == 2) {
     pmath_t base = pmath_expr_get_item(expr, 2);
     pmath_t item;
-    uint8_t oldbase;
+    uint8_t old_base_flags = thread->base_flags;
     
-    if( !pmath_is_int32(base)    ||
-        PMATH_AS_INT32(base) < 2 ||
-        PMATH_AS_INT32(base) > 36)
-    {
+    if(pmath_same(base, pmath_System_Automatic)) {
       pmath_unref(base);
-      return call_to_boxes(thread, expr);;
+      thread->base_flags = (PMATH_BASE_FLAGS_BASE_MASK & old_base_flags) | PMATH_BASE_FLAGS_AUTOMATIC;
     }
-    
-    oldbase = thread->numberbase;
-    thread->numberbase = (uint8_t)PMATH_AS_INT32(base);
+    else if(pmath_is_int32(base) && 2 <= PMATH_AS_INT32(base) && PMATH_AS_INT32(base) <= 36) {
+      thread->base_flags = (uint8_t)PMATH_AS_INT32(base);
+    }
+    else {
+      pmath_unref(base);
+      return call_to_boxes(thread, expr);
+    }
     
     item = pmath_expr_get_item(expr, 1);
     pmath_unref(expr);
     item = object_to_boxes(thread, item);
     
-    thread->numberbase = oldbase;
+    thread->base_flags = old_base_flags;
     return item;
   }
   
@@ -2470,14 +2471,17 @@ static pmath_t fullform(pmath_thread_t thread, pmath_t obj) { // obj will be fre
 static pmath_t fullform_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
   if(pmath_expr_length(expr) == 1) {
     pmath_t result;
-    uint8_t old_boxform = thread->boxform;
+    uint8_t old_boxform    = thread->boxform;
+    uint8_t old_base_flags = thread->base_flags;
     thread->boxform = BOXFORM_INPUT;
+    thread->base_flags |= PMATH_BASE_FLAGS_AUTOMATIC;
     
     result = fullform(
                thread,
                pmath_expr_get_item(expr, 1));
                
-    thread->boxform = old_boxform;
+    thread->base_flags = old_base_flags;
+    thread->boxform    = old_boxform;
     
     pmath_unref(expr);
     return pmath_expr_new_extended(

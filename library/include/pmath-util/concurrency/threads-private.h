@@ -54,6 +54,9 @@ enum {
   BOXFORM_INPUT
 };
 
+#define PMATH_BASE_FLAGS_BASE_MASK  0x3F
+#define PMATH_BASE_FLAGS_AUTOMATIC  0x80
+
 struct _pmath_thread_t {
   pmath_thread_t      parent;
   pmath_threadlock_t  waiting_lock;
@@ -88,7 +91,7 @@ struct _pmath_thread_t {
   uint8_t is_daemon;                 // TRUE / FALSE
   uint8_t boxform;                   // BOXFORM_XXX
   uint8_t longform;                  // TRUE / FALSE
-  uint8_t numberbase;                // 2..36
+  uint8_t base_flags;                // 2..36
   uint8_t use_packedarrayform_boxes; // TRUE/FALSE
 };
 

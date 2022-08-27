@@ -529,7 +529,7 @@ PMATH_PRIVATE pmath_thread_t _pmath_thread_new(pmath_thread_t parent) {
   thread->is_daemon                 = FALSE;
   thread->boxform                   = parent ? parent->boxform                       : BOXFORM_STANDARD;
   thread->longform                  = parent ? parent->longform                      : FALSE;
-  thread->numberbase                = parent ? parent->numberbase                    : 10;
+  thread->base_flags                = parent ? parent->base_flags                    : 10;
   thread->use_packedarrayform_boxes = parent ? parent->use_packedarrayform_boxes     : FALSE;
   
   if(pmath_is_null(thread->message_queue)) {

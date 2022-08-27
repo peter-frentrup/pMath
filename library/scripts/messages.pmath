@@ -131,7 +131,7 @@ Attributes::noattr:= "`1` is neither a valid attribute nor a list of valid attri
 
 Array::plen:= "`1` and `2` should have the same length."
 
-BaseForm::basf:= Internal`WriteRealBall::basf:= "Requested base `1` should be an integer between 2 and `2`."
+BaseForm::basf:= Internal`WriteRealBall::basf:= "Requested base `1` should be an integer between 2 and `2`, or Automatic."
 
 BinaryRead::format:= BinaryReadList::format:= BinaryWrite::format:= "`1` is not a recognized binary format."
 BinaryWrite::nocoerce:= "`1` cannot be coerced to the specified format `2`."

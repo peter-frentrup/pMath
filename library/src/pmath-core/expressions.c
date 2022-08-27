@@ -2677,29 +2677,33 @@ static void write_expr_ex(
 
   if(pmath_same(head, pmath_System_BaseForm)) {
     pmath_t item;
-    uint8_t oldbase;
+    uint8_t old_base_flags;
     pmath_thread_t thread = pmath_thread_get_current();
 
     if(exprlen != 2 || !thread)
       goto FULLFORM;
 
+    old_base_flags = thread->base_flags;
+    
     item = pmath_expr_get_item(expr, 2);
-    if(!pmath_is_int32(item) ||
-        PMATH_AS_INT32(item) < 2 ||
-        PMATH_AS_INT32(item) > 36)
-    {
+    
+    if(pmath_same(item, pmath_System_Automatic)) {
+      pmath_unref(item);
+      thread->base_flags = (PMATH_BASE_FLAGS_BASE_MASK & old_base_flags) | PMATH_BASE_FLAGS_AUTOMATIC;
+    }
+    else if(pmath_is_int32(item) && 2 <= PMATH_AS_INT32(item) && PMATH_AS_INT32(item) <= 36) {
+      thread->base_flags = (uint8_t)PMATH_AS_INT32(item);
+    }
+    else {
       pmath_unref(item);
       goto FULLFORM;
     }
-
-    oldbase = thread->numberbase;
-    thread->numberbase = (uint8_t)PMATH_AS_INT32(item);
 
     item = pmath_expr_get_item(expr, 1);
     write_ex(info, priority, item);
     pmath_unref(item);
 
-    thread->numberbase = oldbase;
+    thread->base_flags = old_base_flags;
   }
   else if(pmath_same(head, pmath_System_DirectedInfinity)) {
     if(exprlen == 0) {
@@ -2740,7 +2744,7 @@ static void write_expr_ex(
       goto FULLFORM;
 
     item = pmath_expr_get_item(expr, 1);
-    info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR;
+    info->options |= PMATH_WRITE_OPTIONS_FULLSTR | PMATH_WRITE_OPTIONS_FULLEXPR | PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS;
     _pmath_write_impl(info, item);
     info->options = old_options;
     pmath_unref(item);

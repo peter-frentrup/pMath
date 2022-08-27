@@ -40,6 +40,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   int base = 10;
   int max_rad_digits;
   pmath_bool_t auto_exponent = TRUE;
+  pmath_bool_t auto_base = FALSE;
   int initeger_digits_goal = 0;
   struct _pmath_raw_number_parts_t parts;
   
@@ -59,7 +60,10 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   if(pmath_is_expr_of_len(value, pmath_System_BaseForm, 2)) {
     pmath_t tmp;
     tmp = pmath_expr_get_item(value, 2);
-    if(pmath_is_int32(tmp)) {
+    if(pmath_same(tmp, pmath_System_Automatic)) {
+      auto_base = TRUE;
+    }
+    else if(pmath_is_int32(tmp)) {
       base = PMATH_AS_INT32(tmp);
     }
     else
@@ -69,7 +73,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
     tmp = pmath_expr_get_item(value, 1);
     pmath_unref(value);
     value = tmp; 
-    max_rad_digits = 5;
+    max_rad_digits = 3;
   }
   
   if(pmath_is_expr_of_len(value, pmath_System_InputForm, 1)) {
@@ -77,7 +81,7 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
     tmp = pmath_expr_get_item(value, 1);
     pmath_unref(value);
     value = tmp; 
-    max_rad_digits = 5;
+    max_rad_digits = 3;
   }
   if(!pmath_is_mpfloat(value)) {
     pmath_message(PMATH_NULL, "mpf", 2, PMATH_FROM_INT32(1), pmath_ref(expr));
@@ -94,7 +98,10 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
   if(pmath_is_int32(obj)) {
     base = PMATH_AS_INT32(obj);
   }
-  else if(!pmath_same(obj, pmath_System_Automatic)) {
+  else if(pmath_same(obj, pmath_System_Automatic)) {
+    auto_base = TRUE;
+  }
+  else {
     base = 99;
   }
   
@@ -103,6 +110,13 @@ pmath_t builtin_internal_writerealball(pmath_expr_t expr) {
     pmath_unref(value);
     pmath_unref(options);
     return expr;
+  }
+  
+  if(auto_base) {
+    if(base & (base - 1)) // not a power of two => change base
+      base = 16;
+    
+    max_rad_digits = INT_MAX;
   }
   
   str = PMATH_C_STRING("IntegerDigits");

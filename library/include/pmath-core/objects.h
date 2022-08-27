@@ -303,7 +303,12 @@ enum {
      Non-System`-symbols are written with their full namespace path.
    */
   PMATH_WRITE_OPTIONS_FULLNAME_NONSYSTEM = 1 << 7,
-
+  
+  /**\hideinitializer
+     Automatically display number in hexadecimal if necessary to ensure that 
+     parsing the output back gives the exact same representation.
+   */
+  PMATH_WRITE_OPTIONS_ROUNDTRIP_NUMBERS = 1 << 8,
 };
 
 /**\brief A simple procedure operating on an object.
