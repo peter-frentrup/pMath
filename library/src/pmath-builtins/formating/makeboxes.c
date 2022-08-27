@@ -2611,17 +2611,20 @@ static pmath_t strip_interpretation_boxes(pmath_t expr) {
 }
 
 static pmath_t interpretation_to_boxes(pmath_thread_t thread, pmath_expr_t expr) { // expr will be freed
-  if(pmath_expr_length(expr) == 2) {
-    pmath_t form  = pmath_expr_get_item(expr, 1);
-    pmath_t value = pmath_expr_get_item(expr, 2);
+  pmath_t options = pmath_options_extract_ex(expr, 2, PMATH_OPTIONS_EXTRACT_UNKNOWN_IGNORE);
+  
+  if(!pmath_is_null(options)) {
+    pmath_t form  = pmath_expr_extract_item(expr, 1);
     
-    pmath_unref(expr);
+    pmath_unref(options);
+    
     form = object_to_boxes(thread, form);
+    form = strip_interpretation_boxes(form);
     
-    return pmath_expr_new_extended(
-             pmath_ref(pmath_System_InterpretationBox), 2,
-             strip_interpretation_boxes(form),
-             value);
+    expr = pmath_expr_set_item(expr, 1, form);
+    expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_InterpretationBox));
+    
+    return expr;
   }
   
   return call_to_boxes(thread, expr);

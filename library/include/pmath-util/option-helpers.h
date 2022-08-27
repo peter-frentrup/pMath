@@ -65,9 +65,14 @@ enum {
   PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY = 0x1,
   
   /**\hideinitializer
-     Do net check for unknown option names.
+     Do not print any message.
    */
-  PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET    = 0x2
+  PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET    = 0x2,
+  
+  /**\hideinitializer
+     Ignore unknown options. Neither fail nor print a message.
+   */
+  PMATH_OPTIONS_EXTRACT_UNKNOWN_IGNORE = PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET | PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY,
 };
 
 /**\brief Extract option values from an expression.

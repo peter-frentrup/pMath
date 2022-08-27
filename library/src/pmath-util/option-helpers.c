@@ -242,10 +242,13 @@ PMATH_API pmath_expr_t pmath_options_extract_ex(
   size_t i, exprlen;
   const pmath_t *items;
   pmath_t head;
+  const char *msgtag;
   
   exprlen = pmath_expr_length(expr);
   if(last_nonoption > exprlen) {
-    pmath_message_argxxx(exprlen, last_nonoption, last_nonoption);
+    if(!(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET))
+      pmath_message_argxxx(exprlen, last_nonoption, last_nonoption);
+    
     return PMATH_NULL;
   }
   
@@ -262,33 +265,37 @@ PMATH_API pmath_expr_t pmath_options_extract_ex(
   
   for(i = last_nonoption; i < exprlen; ++i) {
     if(!pmath_is_set_of_options(items[i])) {
-      pmath_message(
-        head, "nonopt", 3,
-        pmath_ref(items[i]),
-        pmath_integer_new_uiptr(last_nonoption),
-        pmath_ref(expr));
+      if(!(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET)) {
+        pmath_message(
+          head, "nonopt", 3,
+          pmath_ref(items[i]),
+          pmath_integer_new_uiptr(last_nonoption),
+          pmath_ref(expr));
+      }
       
       pmath_unref(head);
       return PMATH_NULL;
     }
   }
   
-  if(!(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET)) {
-    option_set = get_default_options(head);
-    
-    for(i = last_nonoption; i < exprlen; ++i) {
-      if(!_pmath_options_check_subset_of(items[i], option_set, head, "optx", expr)) {
-        if(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY)
-          break;
-        
-        pmath_unref(option_set);
-        pmath_unref(head);
-        return PMATH_NULL;
-      }
+  if(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_QUIET)
+    msgtag = NULL;
+  else
+    msgtag = "optx";
+  
+  option_set = get_default_options(head);
+  for(i = last_nonoption; i < exprlen; ++i) {
+    if(!_pmath_options_check_subset_of(items[i], option_set, head, msgtag, expr)) {
+      if(flags & PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY)
+        break;
+      
+      pmath_unref(option_set);
+      pmath_unref(head);
+      return PMATH_NULL;
     }
-    
-    pmath_unref(option_set);
   }
+  pmath_unref(option_set);
+  
   option_set = pmath_expr_get_item_range(expr, last_nonoption + 1, SIZE_MAX);
   option_set = pmath_expr_set_item(option_set, 0, pmath_ref(pmath_System_List));
   pmath_unref(head);
