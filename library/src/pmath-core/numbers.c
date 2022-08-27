@@ -1639,6 +1639,26 @@ static void write_raw_latin1(void *_info, const char *str, int len) {
   _pmath_write_latin1(str, len, info->write, info->user);
 }
 
+struct info_and_prefix_t {
+  struct pmath_write_ex_t *info;
+  const char              *prefix;
+  int                      prefix_len;
+};
+
+static void write_raw_latin1_with_prefix(void *_info_prefix, const char *str, int len) {
+  struct info_and_prefix_t *info_prefix = _info_prefix;
+  
+  if(len == 0)
+    return;
+  
+  if(info_prefix->prefix_len) {
+    _pmath_write_latin1(info_prefix->prefix, info_prefix->prefix_len, info_prefix->info->write, info_prefix->info->user);
+    info_prefix->prefix_len = 0;
+  }
+  
+  _pmath_write_latin1(str, len, info_prefix->info->write, info_prefix->info->user);
+}
+
 static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
   pmath_thread_t thread = pmath_thread_get_current();
   int base = 10;
@@ -1860,75 +1880,116 @@ static void write_as_machine_float(struct pmath_write_ex_t *info, mpfr_t f) {
 }
 
 static void write_mp_float(struct pmath_write_ex_t *info, pmath_t f) {
+  static const uint16_t u16_plusminus = 0x00B1;
   pmath_thread_t thread = pmath_thread_get_current();
   int base = 10;
-  slong max_digit_count;
-  int base_flags;
-  struct _pmath_number_string_raw_parts_t raw_parts;
-  pmath_bool_t show_radius_and_precision = FALSE;
+  int max_rad_digits;
+  struct _pmath_raw_number_parts_t parts;
+  pmath_bool_t show_radius = FALSE;
+  pmath_bool_t show_precision = FALSE;
   
   if(thread && thread->numberbase >= 2 && thread->numberbase <= 36)
     base = thread->numberbase;
-    
-  max_digit_count = (int)(PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(base) + 2);
-  base_flags = base;
   
   if(info->options & PMATH_WRITE_OPTIONS_FULLEXPR) {
     // changing base
-    base_flags = 16 | PMATH_BASE_FLAG_ALL_DIGITS;
-    show_radius_and_precision = TRUE;
+    base = 16;
+    max_rad_digits = INT_MAX;
+    show_radius = TRUE;
+    show_precision = TRUE;
   }
   else if(info->options & PMATH_WRITE_OPTIONS_INPUTEXPR) {
-    // not changing base: PMATH_BASE_FLAG_ALL_DIGITS only used if base was 16.
-    base_flags = base | PMATH_BASE_FLAG_ALL_DIGITS;
-    show_radius_and_precision = TRUE;
+    max_rad_digits = (base & (base-1)) ? 3 : INT_MAX;
+    show_radius = TRUE;
+    show_precision = TRUE;
+  }
+  else {
+    max_rad_digits = 3;
+    show_radius = TRUE;
   }
   
-  _pmath_mpfloat_get_string_raw_parts(&raw_parts, f, max_digit_count, base_flags);
+  if(show_radius) {
+    if(mag_is_zero(arb_radref(PMATH_AS_ARB(f))))
+      show_radius = FALSE;
+  }
+  else {
+    if(0 == arf_cmp_si(arb_midref(PMATH_AS_ARB(f)), 0)) {
+      if(!mag_is_zero(arb_radref(PMATH_AS_ARB(f))))
+        show_radius = TRUE;
+    } 
+  }
   
-  if(raw_parts.mid_digits && raw_parts.rad_digits) {
-    if(!show_radius_and_precision) {
-      if(0 == arf_cmp_si(arb_midref(PMATH_AS_ARB(f)), 0)) {
-        if(!mag_is_zero(arb_radref(PMATH_AS_ARB(f))))
-          show_radius_and_precision = TRUE;
-      } 
-    }
-    
-    if(raw_parts.is_negative)
+  _pmath_mpfloat_get_raw_number_parts(&parts, f, base, max_rad_digits);
+  _pmath_raw_number_parts_set_decimal_point_automatic(&parts);
+  
+  if(parts.mid_digits && parts.rad_digits) {
+    if(parts.is_negative)
       _pmath_write_cstr("-", info->write, info->user);
-      
-    if(raw_parts.base != 10) {
-      char buf[5];
-      snprintf(buf, sizeof(buf), "%d^^", raw_parts.base);
-      _pmath_write_cstr(buf, info->write, info->user);
+    
+    if(parts.base != 10) {
+      _pmath_write_number_part(&parts, PMATH_NUMBER_PART_BASE, write_raw_latin1, info);
+      _pmath_write_cstr("^^", info->write, info->user);
     }
     
-    _pmath_write_place_decimal_dot(raw_parts.mid_digits, -1, raw_parts.mid_exp, write_raw_latin1, info);
-    if(show_radius_and_precision) {
-      _pmath_write_cstr("[+/-", info->write, info->user);
-      _pmath_write_place_decimal_dot(raw_parts.rad_digits, -1, raw_parts.rad_exp, write_raw_latin1, info);
-      if(!fmpz_is_zero(raw_parts.rad_exp)) {
-        char *tmp = fmpz_get_str(NULL, 10, raw_parts.rad_exp);
-        _pmath_write_cstr("*^", info->write, info->user);
-        _pmath_write_cstr(tmp, info->write, info->user);
-        flint_free(tmp);
+    _pmath_write_number_part(&parts, PMATH_NUMBER_PART_SIGNIFICANT, write_raw_latin1, info);
+    
+    if(show_radius && parts.total_insignificant > 0) {
+      if(parts.needs_radius_exponent) {
+        _pmath_write_number_part(&parts, PMATH_NUMBER_PART_MID_INSIGNIFICANT_DIGITS, write_raw_latin1, info);
+        _pmath_write_cstr("[", info->write, info->user);
       }
-      _pmath_write_cstr("]`", info->write, info->user);
+      else {
+        _pmath_write_cstr("[", info->write, info->user);
+        _pmath_write_number_part(&parts, PMATH_NUMBER_PART_MID_INSIGNIFICANT_DIGITS, write_raw_latin1, info);
+      }
+      
+      if((info->options & PMATH_WRITE_OPTIONS_PREFERUNICODE) && 
+          info->can_write_unicode && 
+          info->can_write_unicode(info->user, &u16_plusminus, 1)
+      ) {
+        info->write(info->user, &u16_plusminus, 1);
+      }
+      else
+        _pmath_write_cstr("+/-", info->write, info->user);
+      
+      if(parts.needs_radius_exponent) {
+        struct info_and_prefix_t iap;
+        
+        _pmath_write_number_part(&parts, PMATH_NUMBER_PART_RADIUS_DIGITS_1, write_raw_latin1, info);
+        
+        iap.info = info;
+        iap.prefix = "*^";
+        iap.prefix_len = 2;
+        
+        _pmath_write_number_part(&parts, PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT_1, write_raw_latin1_with_prefix, &iap);
+      }
+      else {
+        _pmath_write_number_part(&parts, PMATH_NUMBER_PART_RADIUS_DIGITS, write_raw_latin1, info);
+      }
+      
+      _pmath_write_cstr("]", info->write, info->user);
+    }
+      
+    if(show_precision) {
+      _pmath_write_cstr("`", info->write, info->user);
       _pmath_write_precision(
-        PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(raw_parts.base),
+        PMATH_AS_ARB_WORKING_PREC(f) / _pmath_log2_of(parts.base),
         PMATH_AS_ARB_WORKING_PREC(f),
         write_raw_latin1, 
         info);
     }
     
-    if(!fmpz_is_zero(raw_parts.mid_exp)) {
-        char *tmp = fmpz_get_str(NULL, 10, raw_parts.mid_exp);
-        _pmath_write_cstr("*^", info->write, info->user);
-        _pmath_write_cstr(tmp, info->write, info->user);
-        flint_free(tmp);
+    {
+      struct info_and_prefix_t iap;
+      iap.info = info;
+      iap.prefix = "*^";
+      iap.prefix_len = 2;
+      
+      _pmath_write_number_part(&parts, PMATH_NUMBER_PART_EXPONENT, write_raw_latin1_with_prefix, &iap);
     }
   }
-  _pmath_number_string_raw_parts_clear(&raw_parts);
+  
+  _pmath_raw_number_parts_clear(&parts);
 }
 
 //} ============================================================================

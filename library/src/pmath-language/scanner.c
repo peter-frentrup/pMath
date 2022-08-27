@@ -133,6 +133,7 @@ static void          scan_float_decimal_digits_rest(struct scanner_t *tokens, st
 static void          scan_float_base36_digits_rest( struct scanner_t *tokens, struct parser_t *parser);
 static void          scan_precision_specifier(      struct scanner_t *tokens, struct parser_t *parser);
 static void          scan_number_exponent(          struct scanner_t *tokens, struct parser_t *parser);
+static pmath_bool_t  scan_plus_minus(               struct scanner_t *tokens, struct parser_t *parser);
 static void          scan_number_radius(            struct scanner_t *tokens, struct parser_t *parser, pmath_bool_t is_base36);
 static void          scan_next_number(              struct scanner_t *tokens, struct parser_t *parser);
 static void          scan_next_as_name(             struct scanner_t *tokens, struct parser_t *parser);
@@ -906,9 +907,9 @@ do {                                                                          \
                                                                               \
   if( tokens->pos + 1 < tokens->len   &&                                      \
       tokens->str[tokens->pos] == '.' &&                                      \
-      DIGIT_TEST(tokens->str[tokens->pos + 1]))                               \
+      (tokens->str[tokens->pos + 1] == '[' || DIGIT_TEST(tokens->str[tokens->pos + 1]))) \
   {                                                                           \
-    tokens->pos += 2;                                                         \
+    tokens->pos += 1;                                                         \
     while( tokens->pos < tokens->len && DIGIT_TEST(tokens->str[tokens->pos])) \
       ++tokens->pos;                                                          \
   }                                                                           \
@@ -988,7 +989,32 @@ static void scan_number_exponent(struct scanner_t *tokens, struct parser_t *pars
     ++tokens->pos;
 }
 
-// Skip a "[+/-xxx.xxx*^-ddd]" real ball radius specification, if present.
+static pmath_bool_t scan_plus_minus(struct scanner_t *tokens, struct parser_t *parser) {
+  if( tokens->pos + 2 < tokens->len &&
+      tokens->str[tokens->pos]   == '+' &&
+      tokens->str[tokens->pos + 1] == '/' &&
+      tokens->str[tokens->pos + 2] == '-')
+  {
+    tokens->pos += 3;
+    return TRUE;
+  }
+  
+  if(tokens->pos < tokens->len && tokens->str[tokens->pos] == PMATH_CHAR_PLUSMINUS) {
+    ++tokens->pos;
+    return TRUE;
+  }
+  
+  if(tokens->pos < tokens->len && tokens->str[tokens->pos] == '\\') {  // \[PlusMinus] escape sequence
+    uint32_t chr;
+    scan_next_escaped_char(tokens, parser, &chr);
+    if(chr == PMATH_CHAR_PLUSMINUS)
+      return TRUE;
+  }
+  
+  return FALSE;
+}
+
+// Skip a "[+/-xxx.xxx*^-ddd]" or "[mmm+/-rrr]" real ball radius specification, if present.
 static void scan_number_radius(struct scanner_t *tokens, struct parser_t *parser, pmath_bool_t is_base36) {
   int start = tokens->pos;
   
@@ -997,43 +1023,56 @@ static void scan_number_radius(struct scanner_t *tokens, struct parser_t *parser
     
   ++tokens->pos;
   
-  if( tokens->pos + 2 < tokens->len &&
-      tokens->str[tokens->pos]   == '+' &&
-      tokens->str[tokens->pos + 1] == '/' &&
-      tokens->str[tokens->pos + 2] == '-')
-  {
-    tokens->pos += 3;
-  }
-  else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == PMATH_CHAR_PLUSMINUS) {
-    ++tokens->pos;
-  }
-  else if(tokens->pos < tokens->len && tokens->str[tokens->pos] == '\\') {  // \[PlusMinus] escape sequence
-    uint32_t chr;
-    scan_next_escaped_char(tokens, parser, &chr);
-    if(chr != PMATH_CHAR_PLUSMINUS)
-      goto FAIL;
-  }
-  else
-    goto FAIL;
+  if(tokens->pos < tokens->len && pmath_char_is_36digit(tokens->str[tokens->pos])) { // [mmm+/-rrr]
+    if(is_base36) {
+      while(tokens->pos < tokens->len && pmath_char_is_36digit(tokens->str[tokens->pos]))
+        ++tokens->pos;
+    }
+    else {
+      while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
+        ++tokens->pos;
+    }
     
-  if(tokens->pos >= tokens->len)
-    goto FAIL;
-    
-  if(is_base36) {
-    if(!pmath_char_is_36digit(tokens->str[tokens->pos]))
+    if(!scan_plus_minus(tokens, parser))
       goto FAIL;
-      
-    scan_float_base36_digits_rest(tokens, parser);
+    
+    if(tokens->pos >= tokens->len || !pmath_char_is_36digit(tokens->str[tokens->pos]))
+      goto FAIL;
+    
+    if(is_base36) {
+      while(tokens->pos < tokens->len && pmath_char_is_36digit(tokens->str[tokens->pos]))
+        ++tokens->pos;
+    }
+    else {
+      while(tokens->pos < tokens->len && pmath_char_is_digit(tokens->str[tokens->pos]))
+        ++tokens->pos;
+    }
+    
+    
   }
   else {
-    if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+    if(!scan_plus_minus(tokens, parser))
+      goto FAIL;
+  
+    if(tokens->pos >= tokens->len)
       goto FAIL;
       
-    scan_float_decimal_digits_rest(tokens, parser);
+    if(is_base36) {
+      if(!pmath_char_is_36digit(tokens->str[tokens->pos]))
+        goto FAIL;
+        
+      scan_float_base36_digits_rest(tokens, parser);
+    }
+    else {
+      if(!pmath_char_is_digit(tokens->str[tokens->pos]))
+        goto FAIL;
+        
+      scan_float_decimal_digits_rest(tokens, parser);
+    }
+    
+    scan_number_exponent(tokens, parser);
   }
-  
-  scan_number_exponent(tokens, parser);
-  
+    
   if(tokens->pos >= tokens->len || tokens->str[tokens->pos] != ']')
     goto FAIL;
     

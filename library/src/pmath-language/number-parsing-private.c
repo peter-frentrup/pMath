@@ -79,7 +79,7 @@ static const uint16_t *parse_integer_remainder(
       return str;
       
     fmpz_mul_si(inout_value, inout_value, base);
-    fmpz_add_si(inout_value, inout_value, val);
+    fmpz_add_si_inline(inout_value, inout_value, val);
     ++str;
   }
   return str;
@@ -196,12 +196,26 @@ static const uint16_t *parse_exponent(
   return end;
 }
 
+static pmath_bool_t skip_plusminus(const uint16_t **str_ptr, const uint16_t *str_end) {
+  if(*str_ptr < str_end && **str_ptr == PMATH_CHAR_PLUSMINUS) {
+    ++*str_ptr;
+    return TRUE;
+  }
+  
+  if(*str_ptr + 2 < str_end && (*str_ptr)[0] == '+' && (*str_ptr)[1] == '/' && (*str_ptr)[2] == '-') {
+    *str_ptr += 3;
+    return TRUE;
+  }
+  
+  return FALSE;
+}
+
 /** \brief Parse a radius specification.
 
-    A radius specification is a string of the form <tt>[+/-xxx.xxx*^ddd]</tt> with optional decimal
+    A radius specification is a string of the form <tt>xxx.xxx*^ddd</tt> with optional decimal
     exponent <tt>*^ddd</tt> or <tt>*^-ddd</tt> and mantissa <tt>xxx.xxx</tt> given as \a base digits.
  */
-static const uint16_t *parse_radius(
+static const uint16_t *parse_fractional_radius(
   fmpz_t          out_radius_mantissa,
   fmpz_t          out_radius_exponent,
   pmath_bool_t   *inout_is_floating_point,
@@ -219,16 +233,12 @@ static const uint16_t *parse_radius(
   assert(str_end != NULL);
   assert(base >= 2 && base <= 36);
   
-  if(str >= str_end || *str != '[')
-    goto FAIL;
-    
-  ++str;
-  if(str < str_end && *str == PMATH_CHAR_PLUSMINUS)
-    ++str;
-  else if(str + 2 < str_end && str[0] == '+' && str[1] == '/' && str[2] == '-')
-    str += 3;
-  else
-    goto FAIL;
+//  if(str >= str_end || *str != '[')
+//    goto FAIL;
+//  ++str;
+//    
+//  if(!skip_plusminus(&str, str_end))
+//    goto FAIL;
     
   str = parse_simple_float(
           out_radius_mantissa,
@@ -244,10 +254,12 @@ static const uint16_t *parse_radius(
     
   str = parse_exponent(out_radius_exponent, &mantissa_factor, str, str_end, base);
   fmpz_mul_ui(out_radius_mantissa, out_radius_mantissa, mantissa_factor);
-  if(str < str_end && *str == ']') {
-    fmpz_sub_ui(out_radius_exponent, out_radius_exponent, frac_digits);
-    return str + 1;
-  }
+//  if(str < str_end && *str == ']') {
+//    fmpz_sub_ui(out_radius_exponent, out_radius_exponent, frac_digits);
+//    return str + 1;
+//  }
+  fmpz_sub_ui(out_radius_exponent, out_radius_exponent, frac_digits);
+  return str;
   
 FAIL:
   fmpz_zero(out_radius_mantissa);
@@ -295,6 +307,7 @@ const uint16_t *_pmath_parse_real_ball(
   double                           default_min_precision
 ) {
   const uint16_t *mid_mant_start;
+  const uint16_t *indignificant_start;
   const uint16_t *radius_start;
   const uint16_t *radius_end;
   ulong mid_frac_digits;
@@ -330,15 +343,96 @@ const uint16_t *_pmath_parse_real_ball(
     return str;
   }
   
-  radius_start = str;
-  str = parse_radius(
-          result->radius_mantissa,
-          result->radius_exponent,
-          &is_floating_point,
-          str,
-          str_end,
-          result->base);
-  radius_end = str;
+  indignificant_start = str;
+  if(str + 2 <= str_end && *str == '[') {
+    pmath_bool_t error = FALSE;
+    
+    ++str;
+    if(digit_value(*str) >= 0) { // [mmm+/-rrr]
+      const uint16_t *mid_insignificant_start;
+      const uint16_t *mid_insignificant_end;
+      int num_mid_insignificant;
+      
+      mid_insignificant_start = str;
+      str = parse_integer_remainder(result->midpoint_mantissa, str, str_end, result->base);
+      mid_insignificant_end = str;
+      
+      num_mid_insignificant = mid_insignificant_end - mid_insignificant_start;
+      mid_frac_digits+= num_mid_insignificant;
+      
+      fmpz_zero(result->radius_mantissa);
+      fmpz_zero(result->radius_exponent);
+      
+      if(skip_plusminus(&str, str_end)) {
+        int num_radius_digits;
+        
+        radius_start = str;
+        str = parse_integer_remainder(result->radius_mantissa, str, str_end, result->base);
+        radius_end = str;
+        
+        num_radius_digits = radius_end - radius_start;
+        if(num_radius_digits > 0) {
+          while(num_radius_digits < num_mid_insignificant) {
+            fmpz_mul_ui(result->radius_mantissa, result->radius_mantissa, 10);
+            ++num_radius_digits;
+          }
+          while(num_mid_insignificant < num_radius_digits) {
+            fmpz_mul_ui(result->midpoint_mantissa, result->midpoint_mantissa, 10);
+            ++num_mid_insignificant;
+            ++mid_frac_digits;
+          }
+          
+          fmpz_set_si(result->radius_exponent, -mid_frac_digits);
+        }
+        else {
+          error = TRUE;
+        }
+      }
+      else {
+        error = TRUE;
+      }
+    }
+    else if(skip_plusminus(&str, str_end)) { // [+/-r.rr*^XX]
+      radius_start = str;
+      str = parse_fractional_radius(
+              result->radius_mantissa,
+              result->radius_exponent,
+              &is_floating_point,
+              str,
+              str_end,
+              result->base);
+      radius_end = str;
+      
+      if(radius_start == radius_end)
+        error = TRUE;
+    }
+    else {
+      fmpz_zero(result->radius_mantissa);
+      fmpz_zero(result->radius_exponent);
+      error = TRUE;
+    }
+    
+    if(!error) {
+      if(str < str_end && *str == ']') {
+        ++str;
+      }
+      else {
+        error = TRUE;
+      }
+    }
+    
+    if(error) {
+      fmpz_zero(result->midpoint_exponent);
+      result->precision_in_base = 0.0;
+      return str;
+    }
+  }
+  else {
+    fmpz_zero(result->radius_mantissa);
+    fmpz_zero(result->radius_exponent);
+    radius_start = str;
+    radius_end = str;
+  }
   
   if(str < str_end && *str == '`') {
     const uint16_t *prec_start = str + 1;

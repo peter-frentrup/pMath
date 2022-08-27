@@ -19,7 +19,7 @@ namespace richmath {
     
     Interval &operator+=(T val) { from+= val; to+= val; return *this; }
     Interval &operator-=(T val) { from-= val; to-= val; return *this; }
-    
+
     auto length() const -> decltype(to - from) { return to - from; }
     bool contains(T x) const { return from <= x && x <= to; }
     bool contains(const Interval<T> &other) const { return from <= other.from && other.to <= to; }
@@ -27,6 +27,8 @@ namespace richmath {
     Interval<T> snap(Interval<T> inner) const;
     Interval<T> intersect(Interval<T> other) const;
     Interval<T> union_hull(Interval<T> other) const;
+    Interval<T> singleton_start() const { return {from, from}; }
+    Interval<T> singleton_end() const { return {to, to}; }
   };
   
   template<typename T>

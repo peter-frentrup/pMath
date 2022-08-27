@@ -1074,7 +1074,7 @@ PMATH_API pmath_bool_t pmath_init(void) {
       
       PMATH_RUN("Options(Internal`ParseRealBall):={\"MinPrecision\"->MachinePrecision}");
       PMATH_RUN("Options(Internal`RealBallFromMidpointRadius):={WorkingPrecision->Automatic}");
-      PMATH_RUN("Options(Internal`WriteRealBall):={\"Base\"->10,\"MaxDigits\"->Automatic,\"AllowInexactDigits\"->False}");
+      PMATH_RUN("Options(Internal`WriteRealBall):={\"Base\"->10,\"IntegerDigits\"->Automatic,\"RadiusDigits\"->Automatic}");
       
       PMATH_RUN("Default(Ceiling,2):=1");
       PMATH_RUN("Default(Floor,2):=1");

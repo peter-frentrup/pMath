@@ -8,17 +8,25 @@ extern pmath_symbol_t richmath_FE_NumberBox;
 namespace richmath {
   struct PositionInRange {
     int pos;
-    int start;
-    int end;
+    Interval<int> range;
     
-    PositionInRange(int _pos, int _start, int _end)
+    PositionInRange(int _pos, Interval<int> _range)
       : pos(_pos),
-        start(_start),
-        end(_end)
+        range(_range)
     {
     }
     
-    bool is_valid() { return start <= pos && pos <= end; }
+    PositionInRange(int _pos, int _start, int _end)
+      : pos(_pos),
+        range(_start, _end)
+    {
+    }
+    
+    static PositionInRange relative(Interval<int> range, int rel_pos) {
+      return { range.from + rel_pos, range };
+    }
+    
+    bool is_valid() { return range.contains(pos); }
   };
   
   class NumberBox final : public OwnerBox {

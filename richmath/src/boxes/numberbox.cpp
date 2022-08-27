@@ -37,8 +37,8 @@ namespace {
   static const uint16_t MULTIPLICATION_SPACE_CHAR = 0x2006;
   static const uint16_t TIMES_CHAR = 0x00D7;
   
-  static const uint16_t RadiusOpening[2] = { '[', PMATH_CHAR_PLUSMINUS };
-  static const int RadiusOpeningLength = 2;
+//  static const uint16_t RadiusOpening[2] = { '[', PMATH_CHAR_PLUSMINUS };
+//  static const int RadiusOpeningLength = 2;
 
   //static const uint16_t Multiplication[3] = { MULTIPLICATION_SPACE_CHAR, TIMES_CHAR, MULTIPLICATION_SPACE_CHAR };
   //static const int MultiplicationLength = 3;
@@ -51,149 +51,35 @@ namespace {
   struct NumberPartPositions {
     String _number;
     
-    int mid_mant_start;
+    Interval<int> mid_significant_range;
     int mid_decimal_dot;
-    int mid_mant_end;
-    int radius_mant_start;
-    int radius_mant_end;
-    int radius_exp_start;
-    int radius_exp_end;
-    int prec_start;
-    int prec_end;
-    int exp_start;
-    int exp_end;
+    Interval<int> mid_insignificant_range;
+    Interval<int> radius_mant_range;
+    Interval<int> radius_exp_range;
+    Interval<int> precision_range;
+    Interval<int> exponent_range;
     
-    explicit NumberPartPositions(String number) {
-      _number = number;
-      
-      const uint16_t *buf = _number.buffer();
-      const int       len = _number.length();
-      
-      mid_mant_start = 0;
-      while(mid_mant_start < len && pmath_char_is_digit(buf[mid_mant_start])) 
-        ++mid_mant_start;
-      
-      if( mid_mant_start + 1 < len        &&
-          buf[mid_mant_start]     == '^' &&
-          buf[mid_mant_start + 1] == '^')
-      {
-        mid_mant_start += 2;
-      }
-      else {
-        mid_mant_start = 0;
-      }
-      
-      mid_decimal_dot = -1;
-      mid_mant_end = mid_mant_start;
-      while(mid_mant_end < len && buf[mid_mant_end] != '`' && buf[mid_mant_end] != '[') {
-        if(buf[mid_mant_end] == '.')
-          mid_decimal_dot = mid_mant_end;
-        ++mid_mant_end;
-      }
-      
-      if(mid_decimal_dot < 0)
-        mid_decimal_dot = mid_mant_end;
-        
-      if(mid_mant_end < len && buf[mid_mant_end] == '[') {
-        radius_mant_start = mid_mant_end;
-        while(radius_mant_start < len && !pmath_char_is_36digit(buf[radius_mant_start]))
-          ++radius_mant_start;
-          
-        // TODO: support "p" or "e" exponent specifiers
-        radius_mant_end = radius_mant_start;
-        while(radius_mant_end < len && buf[radius_mant_end] != '*' && buf[radius_mant_end] != ']')
-          ++radius_mant_end;
-          
-        radius_exp_start = radius_mant_end;
-        if(radius_exp_start + 1 < len && buf[radius_mant_end] == '*' && buf[radius_mant_end + 1] == '^')
-          radius_exp_start += 2;
-          
-        radius_exp_end = radius_exp_start;
-        while(radius_exp_end < len && buf[radius_exp_end] != ']')
-          ++radius_exp_end;
-      }
-      else {
-        radius_mant_start = mid_mant_end;
-        radius_mant_end = mid_mant_end;
-        radius_exp_start = mid_mant_end;
-        radius_exp_end = mid_mant_end;
-      }
-      
-      prec_start = radius_exp_end;
-      if(prec_start < len && buf[prec_start] == ']')
-        ++prec_start;
-      
-      while(prec_start < len && buf[prec_start] == '`')
-        ++prec_start;
-        
-      // TODO: support "p" or "e" exponent specifiers
-      prec_end = prec_start;
-      while(prec_end < len && buf[prec_end] != '*')
-        ++prec_end;
-        
-      exp_start = prec_end;
-      if(exp_start + 1 < len && buf[exp_start] == '*' && buf[exp_start + 1] == '^')
-        exp_start += 2;
-        
-      exp_end = len;
-    }
+    explicit NumberPartPositions(String number);
     
-    bool has_radix() { return mid_mant_start > 2; }
-    int radix_end() { return (mid_mant_start > 2) ? mid_mant_start - 2 : 0; }
-    String radix() { return (mid_mant_start > 2) ? _number.part(0, radix_end()) : String(); } // TODO: support "0x" base as "16^^"
+    bool has_radix() { return mid_significant_range.from > 2; }
+    int radix_end() { return (mid_significant_range.from > 2) ? mid_significant_range.from - 2 : 0; }
+    String radix() { return (mid_significant_range.from > 2) ? _number.part(0, radix_end()) : String(); } // TODO: support "0x" base as "16^^"
     
-    String midpoint_mantissa() { return _number.part(mid_mant_start, mid_mant_end - mid_mant_start); }
+    String midpoint_significant() {   return _number.part(mid_significant_range.from,   mid_significant_range.length()); }
+    String midpoint_insignificant() { return _number.part(mid_insignificant_range.from, mid_insignificant_range.length()); }
     
-    bool has_radius() { return radius_mant_start < radius_mant_end; }
-    String radius_mantissa() { return _number.part(radius_mant_start, radius_mant_end - radius_mant_start); }
+    bool has_midpoint_insignificant() { return mid_insignificant_range.length() > 0; }
     
-    bool has_radius_exponent() { return radius_exp_start < radius_exp_end; }
-    String radius_exponent() { return _number.part(radius_exp_start, radius_exp_end - radius_exp_start); }
+    bool has_radius() { return radius_mant_range.length() > 0; }
+    String radius_mantissa() { return _number.part(radius_mant_range.from, radius_mant_range.length()); }
     
-    bool has_exponent() { return exp_start < exp_end; }
-    String exponent() { return _number.part(exp_start, exp_end - exp_start); }
+    bool has_radius_exponent() { return radius_exp_range.length() > 0; }
+    String radius_exponent() { return _number.part(radius_exp_range.from, radius_exp_range.length()); }
     
-    int parse_base() {
-      int base_end = mid_mant_start - 2; // base^^mantissa...
-      if(base_end < 0)
-        return 10;
-      
-      int base = 0;
-      
-      const uint16_t *buf = _number.buffer();
-      while(base_end > 0) {
-        base = 10 * base + (*buf - '0');
-        ++buf;
-        --base_end;
-        if(base > 36)
-          return 36;
-      }
-      if(base < 2)
-        return 2;
-      return base;
-    }
+    bool has_exponent() { return exponent_range.length() > 0; }
+    String exponent() { return _number.part(exponent_range.from, exponent_range.length()); }
     
-    double parse_precision_digits() {
-      const uint16_t *buf = _number.buffer();
-      
-      bool add_int_digits = false;
-      if(prec_start > 2 && buf[prec_start - 2] == '`' && buf[prec_start - 1] == '`')
-        add_int_digits = true;
-      
-      if(prec_start < prec_end && prec_end - prec_start < 100) {
-        char s[100];
-        for(int i = 0; i < prec_end - prec_start; ++i)
-          s[i] = (char)buf[prec_start + i];
-        s[prec_end - prec_start] = '\0';
-        pmath_number_t val = pmath_float_new_str(s, 10, PMATH_PREC_CTRL_MACHINE_PREC, -HUGE_VAL);
-        if(pmath_is_double(val)) {
-          return (add_int_digits ? mid_decimal_dot - mid_mant_start : 0) + PMATH_AS_DOUBLE(val);
-        }
-        
-        pmath_unref(val);
-      }
-      return -HUGE_VAL;
-    }
+    int parse_base();
     
     static uint16_t digit_value_or_zero(uint16_t ch) {
       if(ch >= '0' && ch <= '9')
@@ -203,89 +89,6 @@ namespace {
       if(ch >= 'A' && ch <= 'Z')
         return ch - 'A' + 10;
       return 0;
-    }
-    
-    String short_midpoint_mantissa(int base, int preferred_digits, bool allow_less_digits) {
-      if(preferred_digits < 1)
-        preferred_digits = 1;
-      
-      pmath_string_t s = midpoint_mantissa().release();
-      int len = pmath_string_length(s);
-      if(len <= preferred_digits + 1) // +1 for the decimal point
-        return String{ s };
-      
-      uint16_t *buf;
-      if(pmath_string_begin_write(&s, &buf, &len /*nullptr*/)) {
-        int int_digits = mid_decimal_dot - mid_mant_start;
-        
-        if(int_digits >= preferred_digits)
-          preferred_digits = int_digits + 1;
-        
-        int last_digit_pos = preferred_digits; // starting from 0, including the decimal dot
-        if(last_digit_pos + 1 < len) {
-          int next_digit = digit_value_or_zero(buf[last_digit_pos + 1]);
-          
-          bool round_up = false;
-          if(next_digit * 2 == base) { // round to even
-            uint16_t last_ch = buf[last_digit_pos];
-            if(last_ch == '.' && last_digit_pos > 0)
-              last_ch = buf[last_digit_pos - 1];
-            
-            int last_digit = digit_value_or_zero(last_ch);
-            if(last_digit & 1)
-              round_up = true;
-          }
-          else if(next_digit * 2 > base)
-            round_up = true;
-          
-          if(round_up) {
-            int i = last_digit_pos;
-            
-            uint16_t too_large_ch = (base < 10) ? '0' + base : 'a' + (base - 10);
-            uint16_t too_large_ch2 = (base < 10) ? '0' + base : 'A' + (base - 10);
-            
-            while(i >= 0) {
-              if(buf[i] == '.') {
-                --i;
-                continue;
-              }
-              
-              uint16_t larger_ch = buf[i] + 1;
-              if(buf[i] == '9')
-                larger_ch = 'a';
-              
-              if(larger_ch == too_large_ch || larger_ch == too_large_ch2) {
-                buf[i] = '0';
-                --i;
-              }
-              else {
-                buf[i] = larger_ch;
-                break;
-              }
-            }
-            
-            if(i < 0) {
-              if(last_digit_pos + 1 < len)
-                memmove(buf + 1, buf, sizeof(uint16_t) * (last_digit_pos + 1));
-              else
-                memmove(buf + 1, buf, sizeof(uint16_t) * (len - 1));
-              ++last_digit_pos;
-              buf[0] = '1';
-            }
-          }
-          
-          len = last_digit_pos + 1;
-          if(allow_less_digits) {
-          while(len > 0 && buf[len-1] == '0')
-            --len;
-          if(len > 0 && buf[len-1] == '.')
-            ++len;
-          }
-        }
-        
-        pmath_string_end_write(&s, &buf);
-      }
-      return String{ pmath_string_part(s, 0, len) };
     }
   };
 }
@@ -493,28 +296,31 @@ void NumberBox::Impl::set_number(String n) {
   
   self._content->remove(0, self._content->length());
   
-  int preferred_digits = DefaultMachinePrecisionDigits;
-  double prec = parts.parse_precision_digits();
-  if(0 < prec && prec < INT_MAX/2)
-    preferred_digits = (int)ceil(prec);
-  else if(prec > 0)
-    preferred_digits = n.length();
-  
-  bool allow_less_digits = (prec < 0);
   int base = parts.parse_base();
   
   if(base != 10)
     append(DigitsPrefix, DigitsPrefixLength);
   
-  append(parts.short_midpoint_mantissa(base, preferred_digits, allow_less_digits));
-  //append(parts.midpoint_mantissa());
+  append(parts.midpoint_significant());
   
-  self._base = append_radix(parts);
+  if(!parts.has_radius() || !parts.has_midpoint_insignificant())
+    self._base = append_radix(parts);
   
   // TODO: only show radius when requested or when it is particularly big
   if(parts.has_radius()) {
-    append(RadiusOpening, RadiusOpeningLength);
+    append('[');
     
+    if(parts.has_midpoint_insignificant()) {
+      if(base != 10)
+        append(DigitsPrefix, DigitsPrefixLength);
+        
+      append(parts.midpoint_insignificant());
+      
+      assert(self._base == nullptr);
+      self._base = append_radix(parts);
+    }
+    
+    append(PMATH_CHAR_PLUSMINUS);
     if(base != 10)
       append(DigitsPrefix, DigitsPrefixLength);
     
@@ -538,24 +344,25 @@ PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selp
     return PositionInRange(-1, 0, 0); // error
     
   if(selbox == self._exponent)
-    return PositionInRange(parts.exp_start + selpos, parts.exp_start, parts.exp_end);
+    return PositionInRange::relative(parts.exponent_range, selpos);
     
   if(selbox == self._radius_exponent)
-    return PositionInRange(parts.radius_exp_start + selpos, parts.radius_exp_start, parts.radius_exp_end);
+    return PositionInRange::relative(parts.radius_exp_range, selpos);
     
   if(selbox == self._base || selbox == self._radius_base)
     return PositionInRange(selpos, 0, parts.radix_end());
     
-  // we should be in the midpoint mantissa, radius mantissa or one of the "[+/-", "]" or "*10" parts
+  // We should be in the midpoint significant mantissa, mitpoint insignificant mantissa, radius mantissa 
+  // or one of the "["", "+/-", "]" or "*10" parts.
   if(selbox != self._content)
     return PositionInRange(-1, 0, 0); // error
     
   int len = self._content->length();
   if(selpos <= 0)
-    return PositionInRange(0, 0, parts.mid_mant_end);
+    return PositionInRange(0, 0, parts.mid_significant_range.to);
     
   if(selpos >= len)
-    return PositionInRange(self._number.length(), parts.exp_start, parts.exp_end);
+    return PositionInRange(self._number.length(), parts.exponent_range);
     
   const uint16_t *buf = self._content->text().buffer();
   int i = selpos;
@@ -563,24 +370,31 @@ PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selp
     --i;
     
   if(i == 0)
-    return PositionInRange(parts.mid_mant_start + selpos, parts.mid_mant_start, parts.mid_mant_end);
+    return PositionInRange::relative(parts.mid_significant_range, selpos);
   
   if(buf[i - 1] == PMATH_CHAR_NOMINALDIGITS) {
-    // Only the two mantissas are prefixed with \[NominalDigits]
+    // Only the three mantissa digits sequences are prefixed with \[NominalDigits]
     if(i == 1)
-      return PositionInRange(parts.mid_mant_start + selpos - 1, parts.mid_mant_start, parts.mid_mant_end);
+      return PositionInRange::relative(parts.mid_significant_range, selpos - i);
+    else if(buf[i - 2] == '[')
+      return PositionInRange::relative(parts.mid_insignificant_range, selpos - i);
     else
-      return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
+      return PositionInRange::relative(parts.radius_mant_range, selpos - i);
   }
   
-  if(buf[i - 1] == PMATH_CHAR_PLUSMINUS)
-    return PositionInRange(parts.radius_mant_start + selpos - i, parts.radius_mant_start, parts.radius_mant_end);
+  if(buf[i - 1] == PMATH_CHAR_PLUSMINUS) {
+    if(i >= 2 && buf[i - 2] == '[')
+      return PositionInRange::relative(parts.mid_insignificant_range, selpos - i);
+    else
+      return PositionInRange::relative(parts.radius_mant_range, selpos - i);
+  }
     
-  if(buf[i - 1] == '[')
-    return PositionInRange(parts.mid_mant_end + selpos - i, parts.mid_mant_end + 1, parts.radius_mant_start);
+  if(buf[i - 1] == '[') {
+    return PositionInRange::relative(parts.mid_insignificant_range, selpos - i);
+  }
     
   if(buf[i - 1] == MULTIPLICATION_SPACE_CHAR || buf[i - 1] == TIMES_CHAR) {
-    // in onw of the two "*^" exponent specifiers
+    // in one of the two "*^" exponent specifiers
     int j = selpos;
     while(j < len && 
         (buf[j] == MULTIPLICATION_SPACE_CHAR || 
@@ -593,14 +407,14 @@ PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selp
     }
       
     if(j == len) {
-      return PositionInRange(parts.exp_start - 1, parts.prec_end, parts.exp_start);
+      return PositionInRange(parts.exponent_range.from - 1, parts.precision_range.to, parts.exponent_range.from);
     }
       
     if(buf[j] == ']')
-      return PositionInRange(parts.radius_mant_end, parts.radius_mant_end, parts.radius_exp_start);
+      return PositionInRange(parts.radius_mant_range.to, parts.radius_mant_range.to, parts.radius_exp_range.from);
   }
   else if(buf[i - 1] == ']' || buf[i] == ']')
-      return PositionInRange(parts.exp_start - 1, parts.radius_exp_end, parts.exp_start);
+      return PositionInRange(parts.exponent_range.from - 1, parts.radius_exp_range.to, parts.exponent_range.from);
   
   return PositionInRange(-1, 0, 0); // error
 }
@@ -608,74 +422,132 @@ PositionInRange NumberBox::Impl::selection_to_string_index(Box *selbox, int selp
 Box *NumberBox::Impl::string_index_to_selection(int char_index, int *selection_index) {
   NumberPartPositions parts{ self._number };
   
-  const uint16_t *buf = self._content->text().buffer();
-  const int buflen = self._content->length();
-  
-  if(char_index < parts.mid_mant_start) {
-    *selection_index = std::max(0, std::min(char_index, self._base->length()));
-    return self._base;
+  // base^^...
+  if(char_index < parts.mid_significant_range.from) {
+    if(self._base) {
+      *selection_index = std::max(0, std::min(char_index, self._base->length()));
+      return self._base;
+    }
   }
   
-  if(char_index <= parts.mid_mant_end) {
-    int in_mid_mant = char_index - parts.mid_mant_start;
+  const uint16_t *buf = self._content->text().buffer();
+  Interval<int> buf_range {0, self._content->length()};
+  
+  if(char_index < parts.mid_significant_range.from) {
+    if(self._base) {
+      *selection_index = std::max(0, std::min(char_index, self._base->length()));
+      return self._base;
+    }
     
-    if(DigitsPrefixLength < buflen && 0 == memcmp(buf, DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
-      in_mid_mant+= DigitsPrefixLength;
-    
-    *selection_index = std::max(0, std::min(in_mid_mant, buflen));
+    *selection_index = 0;
     return self._content;
   }
   
-  if(parts.has_radius()) {
-    int buf_rad_start = parts.mid_mant_end - parts.mid_mant_start;
-    if(DigitsPrefixLength < buflen && 0 == memcmp(buf, DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
-      buf_rad_start+= DigitsPrefixLength;
-    
-    if(self._base && buf_rad_start < buflen && buf[buf_rad_start] == PMATH_CHAR_BOX)
-      buf_rad_start += 1;
-    
-    if( buf_rad_start + RadiusOpeningLength < buflen && 
-        0 == memcmp(buf + buf_rad_start, RadiusOpening, sizeof(uint16_t) * RadiusOpeningLength))
-    {
-      buf_rad_start += RadiusOpeningLength;
-      
-      if(char_index <= parts.radius_mant_end) {
-        int in_rad_mant = char_index - parts.radius_mant_start;
-        
-        if(buf_rad_start + DigitsPrefixLength < buflen && 0 == memcmp(&buf[buf_rad_start], DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
-          in_rad_mant+= DigitsPrefixLength;
-    
-        *selection_index = std::max(0, std::min(buf_rad_start + in_rad_mant, buflen));
-        return self._content;
-      }
-      
-      if(char_index <= parts.radius_exp_end) {
-        if(self._radius_exponent) {
-          int in_rad_exp = char_index - parts.radius_exp_start;
-          *selection_index = std::max(0, std::min(in_rad_exp, self._radius_exponent->length()));
-          return self._radius_exponent;
-        }
-      }
-    }
-  }
-
-  if(char_index < parts.exp_start) {
-    int rad_exp_index = self._radius_exponent ? self._radius_exponent->index_in_ancestor(self._content, -1) : -1;
-    int exp_index     = self._exponent        ? self._exponent->index_in_ancestor(       self._content, -1) : -1;
-      
-    if(rad_exp_index >= 0 && exp_index >= 0 && rad_exp_index + 1 < exp_index) {
-      *selection_index = exp_index - 1;
-      return self._content;
-    }
+  if(self._radius_exponent && parts.radius_exp_range.contains(char_index)) {
+    *selection_index = std::max(0, std::min(char_index - parts.radius_exp_range.from, self._radius_exponent->length()));
+    return self._radius_exponent;
   }
   
-  if(self._exponent && char_index <= parts.exp_end) {
-    int in_mid_exp = char_index - parts.exp_start;
-    *selection_index = std::max(0, std::min(in_mid_exp, self._exponent->length()));
+  if(self._exponent && parts.exponent_range.contains(char_index)) {
+    *selection_index = std::max(0, std::min(char_index - parts.exponent_range.from, self._exponent->length()));
     return self._exponent;
   }
   
-  *selection_index = self._content->length();
+  Interval<int> content_mid_sig {0,0};
+  content_mid_sig.from = 0;
+  if(DigitsPrefixLength <= buf_range.length()) {
+    if(0 == memcmp(buf, DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
+      content_mid_sig.from += DigitsPrefixLength;
+  }
+  content_mid_sig.to = content_mid_sig.from + parts.mid_significant_range.length();
+  
+  if(parts.mid_significant_range.contains(char_index)) {
+    *selection_index = buf_range.nearest(content_mid_sig.from + (char_index - parts.mid_significant_range.from));
+    return self._content;
+  }
+  
+  if(char_index < parts.mid_insignificant_range.from) {
+    *selection_index = buf_range.nearest(content_mid_sig.to);
+    return self._content;
+  }
+  
+  Interval<int> content_mid_insig = content_mid_sig.singleton_end();
+  if(content_mid_insig.from < buf_range.length() && buf[content_mid_insig.from] == '[') {
+    content_mid_insig.from++;
+    
+    if(content_mid_insig.from + DigitsPrefixLength <= buf_range.length()) {
+      if(0 == memcmp(&buf[content_mid_insig.from], DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
+        content_mid_insig.from += DigitsPrefixLength;
+    }
+  }
+  content_mid_insig.to = content_mid_insig.from + parts.mid_insignificant_range.length();
+  
+  if(parts.mid_insignificant_range.contains(char_index)) {
+    *selection_index = buf_range.nearest(content_mid_insig.from + (char_index - parts.mid_insignificant_range.from));
+    return self._content;
+  }
+  
+  if(char_index < parts.radius_mant_range.from) {
+    *selection_index = buf_range.nearest(content_mid_insig.to);
+    return self._content;
+  }
+  
+  Interval<int> content_rad_mant = content_mid_insig.singleton_end();
+  if(content_rad_mant.from < buf_range.length() && buf[content_rad_mant.from] == PMATH_CHAR_PLUSMINUS) {
+    content_rad_mant.from++;
+    
+    if(content_rad_mant.from + DigitsPrefixLength <= buf_range.length()) {
+      if(0 == memcmp(&buf[content_rad_mant.from], DigitsPrefix, sizeof(uint16_t) * DigitsPrefixLength))
+        content_rad_mant.from += DigitsPrefixLength;
+    }
+  }
+  content_rad_mant.to = content_rad_mant.from + parts.radius_mant_range.length();
+  
+  if(parts.radius_mant_range.contains(char_index)) {
+    *selection_index = buf_range.nearest(content_rad_mant.from + (char_index - parts.radius_mant_range.from));
+    return self._content;
+  }
+  
+  if(char_index < parts.radius_exp_range.from) { // inside the  *^ = *BASE^  of the radius exponent
+    *selection_index = buf_range.nearest(content_rad_mant.to + 2);
+    return self._content;
+  }
+  
+  //assert(!parts.radius_exp_range.contains(char_index)); // checked above (if self._radius_exponent != nullptr)
+  
+  Interval<int> content_prec = content_rad_mant.singleton_end();
+  if(self._radius_exponent) {
+    content_prec.from = 1 + self._radius_exponent->index_in_ancestor(self._content, content_rad_mant.to - 1);
+    content_prec.to = content_prec.from;
+  }
+  if(content_prec.from < buf_range.length() && buf[content_prec.from] == ']') {
+    content_prec+= 1;
+    if(content_prec.from < buf_range.length() && buf[content_prec.from] == '`') {
+      while(content_prec.from < buf_range.length() && buf[content_prec.from] == '`') {
+        content_prec.from++;
+      }
+      content_prec.to = content_prec.from + parts.precision_range.length();
+    }
+  }
+    
+  if(char_index < parts.precision_range.from) { // inside the ]`  or  ]``
+    *selection_index = buf_range.nearest(content_prec.from - 1);
+    return self._content;
+  }
+  
+  if(parts.precision_range.contains(char_index)) {
+    *selection_index = buf_range.nearest(content_prec.from + (char_index - parts.precision_range.from));
+    return self._content;
+  }
+  
+  if(char_index < parts.exponent_range.from) { // inside the  *^ = *BASE^  of the overal exponent
+    *selection_index = buf_range.nearest(content_prec.to + 2);
+    return self._content;
+  }
+  
+  //assert(!parts.exponent_range.contains(char_index)); // checked above (if self._exponent != nullptr)
+  
+  *selection_index = buf_range.to;
   return self._content;
 }
 
@@ -707,3 +579,123 @@ MathSequence *NumberBox::Impl::append_superscript(NumberPartPositions &parts, St
 }
 
 //} ... class NumberBox::Impl
+
+//{ class NumberPartPositions ...
+
+NumberPartPositions::NumberPartPositions(String number)
+  : mid_significant_range{0,0}
+  , mid_insignificant_range{0,0}
+  , radius_mant_range{0,0}
+  , radius_exp_range{0,0}
+  , precision_range{0,0}
+  , exponent_range{0,0}
+{
+  _number = number;
+  
+  const uint16_t *buf = _number.buffer();
+  const int       len = _number.length();
+  
+  mid_significant_range.from = 0;
+  while(mid_significant_range.from < len && pmath_char_is_digit(buf[mid_significant_range.from])) 
+    ++mid_significant_range.from;
+  
+  if( mid_significant_range.from + 1 < len        &&
+      buf[mid_significant_range.from]     == '^' &&
+      buf[mid_significant_range.from + 1] == '^')
+  {
+    mid_significant_range.from += 2;
+  }
+  else {
+    mid_significant_range.from = 0;
+  }
+  
+  mid_decimal_dot = -1;
+  mid_significant_range.to = mid_significant_range.from;
+  while(mid_significant_range.to < len) {
+    if(buf[mid_significant_range.to] == '`')
+      break;
+    if(buf[mid_significant_range.to] == '[')
+      break;
+    if(buf[mid_significant_range.to] == '.')
+      mid_decimal_dot = mid_significant_range.to;
+    ++mid_significant_range.to;
+  }
+  
+  if(mid_decimal_dot < 0)
+    mid_decimal_dot = mid_significant_range.to;
+  
+  mid_insignificant_range = mid_significant_range.singleton_end();
+  if(mid_insignificant_range.from < len && buf[mid_insignificant_range.from] == '[') {
+    mid_insignificant_range += 1;
+    
+    if(mid_insignificant_range.to < len) {
+      if(buf[mid_insignificant_range.to] == PMATH_CHAR_NOMINALDIGITS || pmath_char_is_36digit(buf[mid_insignificant_range.to])) {
+        do {
+          ++mid_insignificant_range.to;
+        } while(mid_insignificant_range.to < len && pmath_char_is_36digit(buf[mid_insignificant_range.to]));
+      }
+    }
+    
+    // skip over "+/-":
+    radius_mant_range.from = mid_insignificant_range.to;
+    while(radius_mant_range.from < len && !pmath_char_is_36digit(buf[radius_mant_range.from]))
+      ++radius_mant_range.from;
+      
+    // TODO: support "p" or "e" exponent specifiers
+    radius_mant_range.to = radius_mant_range.from;
+    while(radius_mant_range.to < len && buf[radius_mant_range.to] != '*' && buf[radius_mant_range.to] != ']')
+      ++radius_mant_range.to;
+      
+    radius_exp_range.from = radius_mant_range.to;
+    if(radius_exp_range.from + 1 < len && buf[radius_exp_range.from] == '*' && buf[radius_exp_range.from + 1] == '^')
+      radius_exp_range.from += 2;
+      
+    radius_exp_range.to = radius_exp_range.from;
+    while(radius_exp_range.to < len && buf[radius_exp_range.to] != ']')
+      ++radius_exp_range.to;
+  }
+  else {
+    radius_mant_range       = mid_significant_range.singleton_end();
+    radius_exp_range        = mid_significant_range.singleton_end();
+  }
+  
+  precision_range.from = radius_exp_range.to;
+  if(precision_range.from < len && buf[precision_range.from] == ']')
+    ++precision_range.from;
+  
+  while(precision_range.from < len && buf[precision_range.from] == '`')
+    ++precision_range.from;
+    
+  // TODO: support "p" or "e" exponent specifiers
+  precision_range.to = precision_range.from;
+  while(precision_range.to < len && buf[precision_range.to] != '*')
+    ++precision_range.to;
+    
+  exponent_range.from = precision_range.to;
+  if(exponent_range.from + 1 < len && buf[exponent_range.from] == '*' && buf[exponent_range.from + 1] == '^')
+    exponent_range.from += 2;
+    
+  exponent_range.to = len;
+}
+
+int NumberPartPositions::parse_base() {
+  int base_end = mid_significant_range.from - 2; // base^^mantissa...
+  if(base_end < 0)
+    return 10;
+  
+  int base = 0;
+  
+  const uint16_t *buf = _number.buffer();
+  while(base_end > 0) {
+    base = 10 * base + (*buf - '0');
+    ++buf;
+    --base_end;
+    if(base > 36)
+      return 36;
+  }
+  if(base < 2)
+    return 2;
+  return base;
+}
+
+//} ... class NumberPartPositions

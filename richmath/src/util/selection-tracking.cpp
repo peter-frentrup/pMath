@@ -117,7 +117,7 @@ namespace {
           if(NumberBox *num = dynamic_cast<NumberBox*>(box_at_source)) {
             PositionInRange pos = num->selection_to_string_index(String{pmath_ref(obj)}, selbox, location.index);
             if(pos.pos >= 0) {
-              pos.pos = std::max(pos.start, std::min(pos.pos, pos.end));
+              pos.pos = pos.range.nearest(pos.pos);
             }
             if(pos.pos <= out_tok_len) {
               //output_pos = token_output_start + pos.pos;

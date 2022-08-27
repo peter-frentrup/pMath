@@ -12,98 +12,25 @@
   @{
  */
 
-/** \brief Represents the variable parts that constitute an arbitrary precision real ball.
+/**\brief Rounds a null-terminated string of digits in a given base to length at most n.
+   \param s The string of digits to round. It is overwritten in-place, truncating it as necessary.
+            The input should not have a leading sign or leading zero digits, but can have trailing zero digits.
+   \param shift      Set on output, see notes.
+   \param error      Set on output, see notes.
+   \param base       The number base, between 2 and 36.
+   \param max_digits The mximum number of digits. Must be positive.
+   \param rnd        The rounding mode. Can be ARF_RND_DOWN, ARF_RND_UP or ARF_RND_NEAR.
 
-  For example, the number "16^^1a.b23[+/-3b.7*^-2]`10.2*^-15" consists of the parts
-  - \see is_negative = FALSE
-  - \see base = 16
-  - \see midpoint_fractional_mantissa_digits = "1a.b23"
-  - \see radius_fractional_mantissa_digits = "3b.7"
-  - \see radius_exponent_part_decimal_digits = "-2"
-  - \see precision_decimal_digits = "10.2"
-  - \see exponent_decimal_digits = "-15"
+   Computes \a shift and \a error are set such that `int(input) = int(output) * base^shift + error`.
  */
-struct _pmath_number_string_parts_t {
-  /** \brief Wether to prepend the number with a minus sign.
-   */
-  pmath_bool_t is_negative;
-  
-  /** \brief The number's radix. Between 2 and 36. 
-    
-    If it is not 10, then the base has to prepend the number string as "base^^" written in decimal.
-   */
-  int base;
-  
-  /** \brief The midpoint's digits in the given base, including he decimal point.
-   */
-  pmath_string_t midpoint_fractional_mantissa_digits;
-  
-  /** \brief The radius' digits in the given base, including he decimal point.
-   */
-  pmath_string_t radius_fractional_mantissa_digits;
-  
-  /** \brief The additional exponent for the radius as a decimal integer string.
-      
-      This may start with a minus sign. The exponent is an integer in decimal notation, 
-      e.g. "256" instead of "ff" for base 16.
-      
-      If the exponent is zero, this is empty instead of "0".
-      The exponent for the radius is the sum of this additional radius and the overall radius.
-   */
-  pmath_string_t radius_exponent_part_decimal_digits;
-  
-  /** \brief The precision specifier as a decimal floating point number.
-   */
-  pmath_string_t precision_decimal_digits;
-  
-  /** \brief The overall exponent w.r.t. the given base as a decimal integer string.
-      
-      This may start with a minus sign. The exponent is an integer in decimal notation, 
-      e.g. "256" instead of "ff" for base 16.
-      
-      If the exponent is zero, this is empty instead of "0".
-   */
-  pmath_string_t exponent_decimal_digits;
-};
-
-PMATH_PRIVATE void _pmath_number_string_parts_clear(struct _pmath_number_string_parts_t *parts);
-
-enum {
-  PMATH_BASE_FLAGS_BASE_MASK           =  0xFF,
-  PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS = 0x100,
-  PMATH_BASE_FLAG_ALL_DIGITS           = 0x200,
-};
-
-/** \brief Convert an arbitrary precision float to string.
-    \param result     Where to store the resulting string's parts. Should be uninitialized.
-                      Must be freed with _pmath_number_string_parts_clear().
-    \param value      The number to convert. Must not be PMATH_NULL. Won't be freed.
-    \param max_digits The maximum number of digits for the midpoint's mantissa. See notes.
-    \param base_flags Radix and formatting flags. 
-                      The lower 8 bits specify the radix (must be between 2 and 36).
-                      Can be combined with PMATH_BASE_FLAG_XXX values.
-    
-    If the \a value contains 0, i.e. the radius is larger than abs(midpoint), then \a max_digits 
-    refers to the number digits for the radius' mantissa.
-    
-    The flag bits of \a base_flags have the following meaning:
-    - If \a base_flags contains \see PMATH_BASE_FLAG_ALL_DIGITS, and the base is 16 (i.e. if
-      `base_flags == 16 | PMATH_BASE_FLAG_ALL_DIGITS`), then all digits of both midpoint and radius
-      are returned. Thse can be more than \a max_digits.
-      This can be used to parse back the exact same number. [TODO: support other power-of-two bases]
-    
-    - If \a base_flags contains \see PMATH_BASE_FLAG_ALLOW_INEXACT_DIGITS, insignificant trailing 
-      digits will be returned when the radius is larger base^(max_digits-1). 
-      If this flag is not present, only significant digits (plus possibly a few guard digits) will be
-      returned, which may be less than \a max_digits.
- */
-PMATH_PRIVATE
-void _pmath_mpfloat_get_string_parts(
-  struct _pmath_number_string_parts_t *result,
-  pmath_mpfloat_t                      value,
-  int                                  max_digits,
-  int                                  base_flags);
-
+PMATH_PRIVATE 
+void _pmath_number_round_digits_inplace(
+  char        *s, 
+  mp_bitcnt_t *shift, 
+  fmpz_t       error, 
+  int          base, 
+  slong        max_digits, 
+  arf_rnd_t    rnd);
 
 /** \brief Write a precision as a decimal string.
  */
@@ -114,51 +41,82 @@ void _pmath_write_precision(
   void   (*writer)(void*, const char*, int), 
   void    *ctx);
 
-/** \brief Write out a sequence of digits, automatically adding a decimal dot and adjusting the exponent.
- */
-PMATH_PRIVATE
-void _pmath_write_place_decimal_dot(
-  const char *integer_digits, 
-  int         num_digits,
-  fmpz_t      inout_exp, 
-  void      (*writer)(void*, const char*, int), 
-  void       *ctx);
 
-/** Represents mmmmmmm * B^MMMM +/- rrrrr * B^RRRR  in some base B 
-    with digit strings mmmm and rrrr and integer exponents MMM and RRR
+/** Represents a number 0.mmmm[mmm+/-rrr]*B^EEE
+    The "new" representation.
  */
-struct _pmath_number_string_raw_parts_t {
-  /** \brief Wether to prepend the number with a minus sign.
+struct _pmath_raw_number_parts_t {
+  char         *mid_digits;
+  char         *rad_digits;
+  fmpz_t        exponent;
+  fmpz_t        rad_exponent_extra; //< Only valid if `needs_radius_exponent`
+  int           total_significant;
+  int           total_insignificant;
+  int           mid_leading_zeros;
+  int           num_integer_digits; //< Initialized to 0, needs to be in sync with the exponent
+  int           base;
+  pmath_bool_t  is_negative;
+  
+  /** Whether the number can only be displayed with explicit radius exponent XX
+      as in  0.mmmmm[+/-0.rrr*B^XX]*B^EE  or  0.mmmmm*B^EE+/-0.rrr*B^(XX+EE)
+      Note that XX = -(number of significant digits) if the radius is > 0.
+      This flag may be set if XX is too large to show so many digits.
    */
-  pmath_bool_t is_negative;
-  
-  /** \brief The number's radix. Between 2 and 36.
-   */
-  int base;
-  
-  /** \brief The digits of the midpoint (with implied decimal dot at the end).
-   */
-  char   *mid_digits;
-  
-  /** \brief The digits of the radius (with implied decimal dot at the end).
-   */
-  char   *rad_digits;
-  
-  /** The midpoint exponent such that midpoint ~= int(mid_digits) * base ^ mid_exp */
-  fmpz_t  mid_exp;
-  
-  /** The radius exponent such that radius ~= int(rad_digits) * base ^ rad_exp */
-  fmpz_t  rad_exp;
+  pmath_bool_t  needs_radius_exponent;
+};
+
+/** Convert an arbitrary precision float to string.
+    \param result     Where to store the resulting string's parts. Should be uninitialized.
+                      Must be freed with _pmath_raw_number_parts_clear().
+    \param value      The number to convert. Must not be PMATH_NULL. Won't be freed.
+    \param base       Radix between 2 and 36.
+    \param rad_digits Maximum number of insignificant digits.
+ */
+PMATH_PRIVATE void _pmath_mpfloat_get_raw_number_parts(
+  struct _pmath_raw_number_parts_t *result,
+  pmath_mpfloat_t                   value,
+  int                               base,
+  int                               rad_digits);
+
+/** Move the implied decimal point 
+    \param parts              The number's parts as returned by _pmath_mpfloat_get_raw_number_parts().
+    \param num_integer_digits The new position of the decimal point. 
+                              Must be <= parts->total_significant.
+                              Negative values cause the decimal point to move to the left, inserting
+                              leading fractional zero digits after the decimal point.
+ */
+PMATH_PRIVATE 
+void _pmath_raw_number_parts_set_decimal_point(struct _pmath_raw_number_parts_t *parts, int num_integer_digits);
+
+/** Move the implied decimal point to an automatically chosen position
+    \param parts  The number's parts as returned by _pmath_mpfloat_get_raw_number_parts().
+ */
+PMATH_PRIVATE 
+void _pmath_raw_number_parts_set_decimal_point_automatic(struct _pmath_raw_number_parts_t *parts);
+
+PMATH_PRIVATE void _pmath_raw_number_parts_clear(struct _pmath_raw_number_parts_t *parts);
+
+enum _pmath_number_part_t{
+  PMATH_NUMBER_PART_BASE,
+  PMATH_NUMBER_PART_SIGNIFICANT,               // MM.MMMM     of  MM.MMMM(mmm+/-rrr) * base^EE  including the dot
+  PMATH_NUMBER_PART_SIGNIFICANT_INT_DIGITS,    // MM          of  MM.mmmm(mmm+/-rrr) * base^EE
+  PMATH_NUMBER_PART_SIGNIFICANT_FRAC_DIGITS,   //    MMMM     of  mm.MMMM(mmm+/-rrr) * base^EE
+  PMATH_NUMBER_PART_MID_INSIGNIFICANT_DIGITS,  //        MMM  of  mm.mmmm(MMM+/-rrr) * base^EE
+  PMATH_NUMBER_PART_EXPONENT,                  // exponent EE of  mm.mmmm(mmm+/-rrr) * base^EE  or empty if 0
+  PMATH_NUMBER_PART_RADIUS_DIGITS,             // rrr
+  PMATH_NUMBER_PART_RADIUS_DIGITS_1,           // r.rr
+  PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT,     // exponent XX s.t. number = mm.mmmmm * base^EE +/- 0.rrr * base^(EE + XX) = mm.mm[mmm+/-rrr]*base^EE   I.e. XX = -(number of fractional significant digits). Or empty if 0.
+  PMATH_NUMBER_PART_RADIUS_EXTRA_EXPONENT_1,   // exponent YY s.t. number = mm.mmmmm * base^EE +/- r.rr * base^(EE + YY)   I.e. YY = -(1 + number of fractional significant digits). Or empty if 0.
+  PMATH_NUMBER_PART_RADIUS_EXPONENT,           // exponent XX s.t. number = midpoint +/- 0.rrr * base^XX  or empty if 0
+  PMATH_NUMBER_PART_RADIUS_EXPONENT_1,         // exponent YY s.t. number = midpoint +/- r.rr * base^YY   or empty if 0
 };
 
 PMATH_PRIVATE
-void _pmath_mpfloat_get_string_raw_parts(
-  struct _pmath_number_string_raw_parts_t *result,
-  pmath_mpfloat_t                          value,
-  int                                      max_digits,
-  int                                      base_flags);
-
-PMATH_PRIVATE void _pmath_number_string_raw_parts_clear(struct _pmath_number_string_raw_parts_t *parts);
+void _pmath_write_number_part(
+  const struct _pmath_raw_number_parts_t  *parts,
+  enum _pmath_number_part_t                which,
+  void                                   (*writer)(void*, const char*, int), 
+  void                                    *ctx);
 
 /** @} */
 

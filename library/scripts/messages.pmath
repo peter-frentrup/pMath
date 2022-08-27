@@ -11,6 +11,7 @@ General::argm:=  "`1` called with `2` arguments; `3` or more arguments are expec
 
 /* invalid options */
 General::ioppf = "Value of option `1` -> `2` should be a positive integer or Infinity."
+General::ioppfa = "Value of option `1` -> `2` should be a positive integer, Automatic, or Infinity."
 General::nonopt:= "Options expected but `1` found beyond position `2` in `3`."
 General::optx:= "Unknown option `1` in `2`."
 General::opttf:= "Value of option `1` -> `2` should be True or False."
@@ -372,6 +373,6 @@ Internal`RealBallFromMidpointRadius::prec:= "Cannot determine working precision 
 
 Internal`TryEvaluateSecured::seclvl:= "Security level `1` not recognized. It should be one of {\"NothingAllowed\", \"PureDeterministicAllowed\", \"NonDestructiveAllowed\", \"EverythingAllowed\"}." 
 
-Internal`WriteRealBall::maxdig:= "Option \"MaxDigits\"->`1` should be a positive integer or Automatic."
-Internal`WriteRealBall::mpf:= "Multi-precision floating point number or InputForm(...) thereof expected at position `1` in `2`."
+Internal`WriteRealBall::mpf:= "Multi-precision floating point number (possibly wrapped in InputForm or BaseForm) expected at position `1` in `2`."
 Internal`WriteRealBall::loss:= "Ignoring InputForm(...) adornment for base `1`."
+Internal`WriteRealBall::intdig:= "\"IntegerDigits\" -> `1` ignored because it exceeds number of significant digits (`2`)."
