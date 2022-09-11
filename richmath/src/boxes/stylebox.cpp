@@ -34,16 +34,11 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint)
         }
         
         RectangleF rect = _extents.to_rectangle(p0);
-        BoxRadius radii;
-        
-        if(Expr radii_expr = context.stylesheet->get_or_default(style, BorderRadius)) 
-          radii = BoxRadius(std::move(radii_expr));
         
         rect.normalize();
         rect.pixel_align(context.canvas(), false, +1);
         
-        radii.normalize(rect.width, rect.height);
-        rect.add_round_rect_path(context.canvas(), radii, false);
+        rect.add_round_rect_path(context.canvas(), false);
         
         Color old_color = context.canvas().get_color();
         context.canvas().set_color(c);
