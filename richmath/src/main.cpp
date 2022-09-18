@@ -58,6 +58,7 @@
 #include <gui/control-painter.h>
 #include <gui/documents.h>
 #include <gui/recent-documents.h>
+#include <util/heterogeneous-stack.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/win32-clipboard.h>
@@ -567,6 +568,7 @@ int main(int argc, char **argv) {
   auto leak_detection_start = Base::debug_alloc_clock();
   
   debug_test_rle_array();
+  debug_test_heterogeneous_stack();
   
   os_init();
   

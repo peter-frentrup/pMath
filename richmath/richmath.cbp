@@ -1314,6 +1314,7 @@
 		<Unit filename="include/util/filesystem.h" />
 		<Unit filename="include/util/frontendobject.h" />
 		<Unit filename="include/util/hashtable.h" />
+		<Unit filename="include/util/heterogeneous-stack.h" />
 		<Unit filename="include/util/interval.h" />
 		<Unit filename="include/util/matrix.h" />
 		<Unit filename="include/util/pmath-extra.h" />
@@ -1933,6 +1934,7 @@
 		<Unit filename="src/util/base.cpp" />
 		<Unit filename="src/util/filesystem.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
+		<Unit filename="src/util/heterogeneous-stack.cpp" />
 		<Unit filename="src/util/pmath-extra.cpp" />
 		<Unit filename="src/util/rle-array.cpp" />
 		<Unit filename="src/util/selection-tracking.cpp" />
