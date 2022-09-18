@@ -327,7 +327,6 @@ void ContextState::apply_layout_styles(SharedPtr<Style> style) {
     return;
   
   int i;
-  float f;
   String s;
   Expr expr;
   
