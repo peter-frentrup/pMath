@@ -116,13 +116,12 @@ void PaintHookManager::run(Box *box, Context &context) {
     return;
     
   PaintHookList &hook_list = entry->value;
-  float x0, y0;
-  context.canvas().current_pos(&x0, &y0);
+  Point p0 = context.canvas().current_pos();
   
   context.canvas().save();
   for(auto hook = hook_list.pop(); hook.is_valid(); hook = hook_list.pop()) {
     hook->run(box, context);
-    context.canvas().move_to(x0, y0);
+    context.canvas().move_to(p0);
   }
   context.canvas().restore();
   
