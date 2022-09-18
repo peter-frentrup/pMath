@@ -119,6 +119,11 @@ namespace richmath {
   
   template<typename K> Void Entry<K, Void>::value;
   
+  /** An associative dictionary.
+      
+      This type is trivially relocatable: Its storagy may be moved without needing 
+      to call the move constructor.
+   */
   template <typename K, typename V>
   class Hashtable: public Base {
     private:
@@ -140,11 +145,14 @@ namespace richmath {
       unsigned int   nonnull_count; // used_count <= nonnull_count < capacity
       unsigned int   used_count;
       unsigned int   capacity;      // power of 2, >= MINSIZE
-      Entry<K, V>   **table;
+      Entry<K, V>   **large_table;
       Entry<K, V>    *small_table[MINSIZE];
 #ifdef RICHMATH_DEBUG_HASHTABLES
       unsigned _debug_num_freezers;
 #endif
+      
+      Entry<K, V> *       * table()       { return large_table ? large_table : small_table; }
+      Entry<K, V> * const * table() const { return large_table ? large_table : small_table; }
 
       class TableFreezer {
         public:
@@ -342,19 +350,20 @@ namespace richmath {
         unsigned int freeslot = -(unsigned int)1;
         unsigned int h        = default_hash(key);
         unsigned int index    = h & (capacity - 1);
+        auto tab = table();
         
         for(;;) {
-          if(!table[index]) {
+          if(!tab[index]) {
             if(freeslot == -(unsigned int)1)
               return index;
             return freeslot;
           }
           
-          if(is_deleted(table[index])) {
+          if(is_deleted(tab[index])) {
             if(freeslot == -(unsigned int)1)
               freeslot = index;
           }
-          else if(table[index]->key == key)
+          else if(tab[index]->key == key)
             return index;
             
           index = (5 * index + 1 + h) & (capacity - 1);
@@ -379,15 +388,17 @@ namespace richmath {
         //throw std::bad_alloc();
         
         capacity = newsize;
-        Entry<K, V> **oldtable = table;
+        Entry<K, V> **oldtable = table();
         if(capacity == MINSIZE)
-          table = small_table;
+          large_table = nullptr;
         else
-          table = new Entry<K, V> *[capacity];
+          large_table = new Entry<K, V> *[capacity];
           
-        HASHTABLE_ASSERT(table != oldtable);
+        Entry<K, V> **newtable = table();
+          
+        HASHTABLE_ASSERT(newtable != oldtable);
         
-        memset(table, 0, newsize * sizeof(Entry<K, V> *));
+        memset(newtable, 0, newsize * sizeof(Entry<K, V> *));
         
         unsigned int i = used_count;
         for(Entry<K, V> **entry_ptr = oldtable; i > 0; ++entry_ptr) {
@@ -395,9 +406,9 @@ namespace richmath {
             --i;
             
             unsigned int i2 = lookup((*entry_ptr)->key);
-            HASHTABLE_ASSERT(!is_used(table[i2]));
+            HASHTABLE_ASSERT(!is_used(newtable[i2]));
             
-            table[i2] = *entry_ptr;
+            newtable[i2] = *entry_ptr;
           }
         }
         
@@ -416,8 +427,8 @@ namespace richmath {
         nonnull_count = 0;
         used_count    = 0;
         capacity      = MINSIZE;
-        table         = small_table;
-        memset(table, 0, capacity * sizeof(Entry<K, V> *));
+        large_table   = nullptr;
+        memset(small_table, 0, capacity * sizeof(Entry<K, V> *));
         
         HASHTABLE_ASSERT(is_deleted(Deleted()));
         HASHTABLE_ASSERT(!is_used(Deleted()));
@@ -427,12 +438,13 @@ namespace richmath {
       }
       
       ~Hashtable() {
+        auto tab = table();
         for(unsigned int i = 0; i < capacity; ++i)
-          if(is_used(table[i]))
-            delete table[i];
+          if(is_used(tab[i]))
+            delete tab[i];
             
-        if(table != small_table)
-          delete[] table;
+        if(large_table)
+          delete[] large_table;
       }
       
       Hashtable(self_type &&other)
@@ -452,99 +464,109 @@ namespace richmath {
       
       unsigned int size() const { return used_count; }
       
-      const Entry<K, V> *entry(unsigned int i) const { return is_used(table[i]) ? table[i] : nullptr; }
-      Entry<K, V>       *entry(unsigned int i)       { return is_used(table[i]) ? table[i] : nullptr; }
+      const Entry<K, V> *entry(unsigned int i) const { auto tab = table(); return is_used(tab[i]) ? tab[i] : nullptr; }
+      Entry<K, V>       *entry(unsigned int i)       { auto tab = table(); return is_used(tab[i]) ? tab[i] : nullptr; }
       
       const V *search(const K &key) const {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return &table[i]->value;
+        if(is_used(tab[i]))
+          return &tab[i]->value;
         return nullptr;
       }
       
       V *search(const K &key) {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return &table[i]->value;
+        if(is_used(tab[i]))
+          return &tab[i]->value;
         return nullptr;
       }
       
       const Entry<K, V> *search_entry(const K &key) const {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i];
+        if(is_used(tab[i]))
+          return tab[i];
         return nullptr;
       }
       
       Entry<K, V> *search_entry(const K &key) {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i];
+        if(is_used(tab[i]))
+          return tab[i];
         return nullptr;
       }
       
       V &get(const K &key, V &def) const {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i]->value;
+        if(is_used(tab[i]))
+          return tab[i]->value;
         return def;
       }
       
       const V &get(const K &key, const V &def) const {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i]->value;
+        if(is_used(tab[i]))
+          return tab[i]->value;
         return def;
       }
       
       V &operator[](const K &key) {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i]->value;
+        if(is_used(tab[i]))
+          return tab[i]->value;
         return default_value;
       }
       
       const V &operator[](const K &key) const {
+        auto tab = table();
         unsigned int i = lookup(key);
-        if(is_used(table[i]))
-          return table[i]->value;
+        if(is_used(tab[i]))
+          return tab[i]->value;
         return default_value;
       }
       
       void clear() {
+        auto tab = table();
         do_change();
         for(unsigned int i = 0; used_count > 0; ++i) {
           HASHTABLE_ASSERT(i < capacity);
           
-          if(is_used(table[i])) {
+          if(is_used(tab[i])) {
             --used_count;
-            delete table[i];
+            delete tab[i];
           }
         }
         
         HASHTABLE_ASSERT(used_count == 0);
         
-        if(table != small_table)
-          delete[] table;
+        if(large_table)
+          delete[] large_table;
           
         nonnull_count = 0;
         used_count    = 0;
         capacity      = MINSIZE;
-        table         = small_table;
-        memset(table, 0, capacity * sizeof(Entry<K, V> *));
+        large_table   = nullptr;
+        memset(small_table, 0, capacity * sizeof(Entry<K, V> *));
       }
       
       // return whether the key existed
       bool remove(const K &key) {
+        auto tab = table();
         unsigned int index = lookup(key);
         do_change();
-        if(!is_used(table[index])) 
+        if(!is_used(tab[index])) 
           return false;
         
-        delete table[index];
+        delete tab[index];
         
         --used_count;
-        table[index] = Deleted();
+        tab[index] = Deleted();
         return true;
       }
       
@@ -558,13 +580,14 @@ namespace richmath {
       // return whether the value was modified
       template<typename F>
       bool modify(const K &key, V &&value, F values_are_equal) {
+        auto tab = table();
         unsigned int i = lookup(key);
         do_change();
-        if(is_used(table[i])) {
-          if(values_are_equal(table[i]->value, value))
+        if(is_used(tab[i])) {
+          if(values_are_equal(tab[i]->value, value))
             return false;
           
-          table[i]->value = std::move(value);
+          tab[i]->value = std::move(value);
           return true;
         }
         
@@ -574,10 +597,10 @@ namespace richmath {
           return modify(key, std::move(value), values_are_equal);
         }
         
-        if(table[i] == 0)
+        if(tab[i] == 0)
           ++nonnull_count;
         ++used_count;
-        table[i] = new Entry<K, V>(key, std::move(value));
+        tab[i] = new Entry<K, V>(key, std::move(value));
         return true;
       }
       
@@ -605,17 +628,19 @@ namespace richmath {
       
       template <typename K2, typename V2>
       void merge(const Hashtable<K2, V2> &other) {
+        auto other_tab = other.table();
         for(unsigned int i = 0; i < other.capacity; ++i) {
-          if(is_used(other.table[i]))
-            set(other.table[i]->key, other.table[i]->value);
+          if(is_used(other_tab[i]))
+            set(other_tab[i]->key, other_tab[i]->value);
         }
       }
       
       template <typename K2, typename V2>
       void merge_defaults(const Hashtable<K2, V2> &defaults) {
+        auto def_tab = defaults.table();
         for(unsigned int i = 0; i < defaults.capacity; ++i) {
-          if(is_used(defaults.table[i]))
-            set_default(defaults.table[i]->key, defaults.table[i]->value);
+          if(is_used(def_tab[i]))
+            set_default(def_tab[i]->key, def_tab[i]->value);
         }
       }
       
@@ -624,15 +649,8 @@ namespace richmath {
         swap(nonnull_count, other.nonnull_count);
         swap(used_count, other.used_count);
         swap(capacity, other.capacity);
-        //bool uses_small_table = table == small_table;
-        //bool other_uses_small_table = other.table == other.small_table;
-        //if(uses_small_table || other_uses_small_table)
         swap(small_table, other.small_table);
-        swap(table, other.table);
-        if(other.table == small_table)
-          other.table = other.small_table;
-        if(table == other.small_table)
-          table = small_table;
+        swap(large_table, other.large_table);
         swap(default_value, other.default_value);
       }
       
@@ -645,7 +663,7 @@ namespace richmath {
           }
           
           It begin() const {
-            entry_type **entries = const_cast<entry_type **>(_table.table);
+            entry_type **entries = const_cast<entry_type **>(_table.table());
             if(_table.used_count > 0) {
               while(!is_used(*entries))
                 ++entries;
@@ -656,7 +674,7 @@ namespace richmath {
           }
           
           It end() const {
-            entry_type **entries = const_cast<entry_type **>(_table.table);
+            entry_type **entries = const_cast<entry_type **>(_table.table());
             return It {entries, 0, const_cast<mutable_table_type&>(_table)};
           }
           
