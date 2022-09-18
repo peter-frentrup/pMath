@@ -9,7 +9,11 @@ namespace richmath {
     public:
       explicit AbstractStyleBox(AbstractSequence *content);
       
+      virtual MathSequence *as_inline_span() override;
+      
       virtual void paint(Context &context) override;
+      virtual void begin_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) override;
+      virtual void end_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) override;
       
       virtual void colorize_scope(SyntaxState &state) override;
       

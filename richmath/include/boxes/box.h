@@ -3,6 +3,7 @@
 
 #include <graphics/shapers.h>
 #include <eval/observable.h>
+#include <util/heterogeneous-stack.h>
 #include <util/selections.h>
 #include <util/sharedptr.h>
 #include <util/styled-object.h>
@@ -22,9 +23,14 @@ namespace richmath {
     Touch
   };
   
-  enum class EditAction {
+  enum class EditAction : char {
     DryRun,
     DoIt
+  };
+  
+  enum  class DisplayStage: char {
+    Layout,
+    Paint
   };
   
   class MouseEvent {
@@ -247,6 +253,8 @@ namespace richmath {
       virtual void colorize_scope(SyntaxState &state);
       virtual void before_paint_inline(Context &context);
       virtual void paint(Context &context) = 0;
+      virtual void begin_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {}
+      virtual void end_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {}
       virtual VolatileSelection get_highlight_child(const VolatileSelection &src);
       virtual void selection_path(Canvas &canvas, int start, int end);
       virtual bool scroll_to(const RectangleF &rect);
@@ -352,7 +360,7 @@ namespace richmath {
       /// Convert Dynamic content in the specified range of this box to literal boxes.
       virtual VolatileSelection dynamic_to_literal(int start, int end);
       
-      bool         request_repaint_all();
+      virtual bool request_repaint_all();
       virtual bool request_repaint_range(int start, int end);
       virtual bool request_repaint(const RectangleF &rect);
       

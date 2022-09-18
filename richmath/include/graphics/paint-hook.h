@@ -46,6 +46,7 @@ namespace richmath {
       void clear();
       void add(Box *box, SharedPtr<PaintHook> hook);
       void run(Box *box, Context &context); // also removes all hooks for the box
+      bool contains(Box *box) const { return _hooks.search_entry(box) != nullptr; }
       
       void move_into(PaintHookManager &other);
       

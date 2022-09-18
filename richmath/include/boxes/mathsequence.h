@@ -63,8 +63,9 @@ namespace richmath {
         int             index,
         cairo_matrix_t *matrix) override;
         
-      virtual bool request_repaint(const RectangleF &rect) override;
+      virtual bool request_repaint_all() override;
       virtual bool request_repaint_range(int start, int end) override;
+      virtual bool request_repaint(const RectangleF &rect) override;
       virtual RectangleF range_rect(int start, int end) override;
       virtual bool visible_rect(RectangleF &rect, Box *top_most) override;
       

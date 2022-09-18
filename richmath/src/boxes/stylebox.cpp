@@ -19,6 +19,10 @@ AbstractStyleBox::AbstractStyleBox(AbstractSequence *content)
 {
 }
 
+MathSequence *AbstractStyleBox::as_inline_span() {
+  return dynamic_cast<MathSequence*>(content());
+}
+
 void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint) {
   if(style) {
     Point p0 = context.canvas().current_pos();
@@ -61,6 +65,28 @@ void AbstractStyleBox::paint_or_resize_no_baseline(Context &context, bool paint)
     base::paint(context);
   else 
     base::resize_default_baseline(context);
+}
+
+void AbstractStyleBox::begin_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {
+  ContextState &cc = context_stack.push_new<ContextState>(context);
+  
+  if(style) {
+    cc.begin(style);
+    
+    if(stage == DisplayStage::Paint) {
+      if(Color c = context.stylesheet->get_or_default(style, FontColor))
+        context.canvas().set_color(c);
+    }
+  }
+}
+
+void AbstractStyleBox::end_paint_inline_span(Context &context, BasicHeterogeneousStack &context_stack, DisplayStage stage) {
+  ContextState &cc = context_stack.get_top<ContextState>();
+  
+  if(style)
+    cc.end();
+  
+  context_stack.pop<ContextState>();
 }
 
 void AbstractStyleBox::resize_default_baseline(Context &context) {

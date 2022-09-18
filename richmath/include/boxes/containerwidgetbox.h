@@ -11,6 +11,8 @@ namespace richmath {
     public:
       explicit ContainerWidgetBox(ContainerType _type, AbstractSequence *content = nullptr);
       
+      virtual MathSequence *as_inline_span() override { return nullptr; }
+      
       virtual ControlState calc_state(Context &context);
       
       virtual void paint(Context &context) override;
