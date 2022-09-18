@@ -31,10 +31,9 @@ namespace {
       void move_to(int next_index);
       
     private:
-      using iterator_type = RleArray<SyntaxGlyphStyle>::iterator_type;
+      using iterator_type = SyntaxGlyphStylesArray::iterator_type;
       
       MathSequence               &_seq_debug;
-      const Array<GlyphInfo>     &_glyphs; // obsolete
       iterator_type               _iter;
   };
   
@@ -326,7 +325,7 @@ bool ScopeColorizerImpl::prepare_symbol_colorization(int start, SymbolKind kind,
     return false;
     
   painter.move_to(start);
-  switch(painter.get_style()) {
+  switch(painter.get_style().kind()) {
     case GlyphStyleNone:
     case GlyphStyleParameter:
     case GlyphStyleLocal:
@@ -489,7 +488,7 @@ void ScopeColorizerImpl::colorize_identifier(SpanExpr *se) { // identifiers   # 
   RICHMATH_ASSERT(se->count() == 0);
   
   painter.move_to(se->start());
-  switch(painter.get_style()) {
+  switch(painter.get_style().kind()) {
     case GlyphStyleNone:
     case GlyphStyleFunctionCall:
       break;
@@ -1232,17 +1231,10 @@ void ErrorColorizerImpl::unknown_option_colorize_spanexpr(SpanExpr *se, Expr opt
 }
 
 void ErrorColorizerImpl::add_missing_indicator(SpanExpr *span_before) {
-  const Array<GlyphInfo> &glyphs = span_before->sequence()->glyph_array();
-  int end = span_before->end();
-  
-  glyphs[end].missing_after = 1;
-  
-  if(end + 1 < glyphs.length()) {
-    glyphs[end + 1].x_offset += 2 * error_indicator_height;
-    glyphs[end + 1].right    += 2 * error_indicator_height;
-  }
-  else
-    glyphs[end].right += error_indicator_height;
+  int idx = span_before->end();
+  painter.move_to(idx);
+  auto style = painter.get_style();
+  painter.paint_until(painter.get_style().with_missing_after(true), idx + 1);
 }
 
 void ErrorColorizerImpl::mark_excess_args(FunctionCallSpan &call, int max_args) {
@@ -1287,7 +1279,7 @@ void ErrorColorizerImpl::arglist_errors_colorize_spanexpr_norecurse(SpanExpr *se
     return;
   
   painter.move_to(head_name->start());
-  if(painter.get_style() != GlyphStyleNone)
+  if(painter.get_style().kind() != GlyphStyleNone)
     return;
     
   String name = head_name->as_text();
@@ -1580,7 +1572,6 @@ void SyntaxColorizerImpl::comments_colorize_until(int end) {
 
 inline Painter::Painter(MathSequence &seq)
   : _seq_debug(seq), 
-    _glyphs(seq.glyph_array()), 
     _iter(seq.semantic_styles_array().find(0)) 
 {
 }

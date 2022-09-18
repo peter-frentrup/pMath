@@ -388,6 +388,8 @@ void MathSequence::resize(Context &context) {
       pos = se->end() + 1;
       delete se;
     }
+
+    // TODO: enlarge glyphs where semantic_styles gives SyntaxGlyphStyle with is_missing_after() == true
   }
   
   if(context.math_spacing) {
@@ -537,7 +539,7 @@ void MathSequence::paint(Context &context) {
           }
           
           if(have_style || iter.semantic_style()) {
-            Color color = context.syntax->glyph_style_colors[iter.semantic_style() & 0x0F];
+            Color color = context.syntax->glyph_style_colors[iter.semantic_style().kind() & 0x0F];
             
             context.canvas().set_color(color);
             have_style = color != default_color;
@@ -584,7 +586,7 @@ void MathSequence::paint(Context &context) {
             }
           }
           
-          if(iter.current_glyph().missing_after) {
+          if(iter.semantic_style().is_missing_after()) {
             float d = em * RefErrorIndictorHeight * 2 / 3.0f;
             float dd = d / 4;
             
@@ -1719,20 +1721,6 @@ void MathSequence::Impl::syntax_error(pmath_string_t code, int pos, void *_data,
   if(err) {
     if(pos < data->sequence->length()) {
       data->sequence->semantic_styles.find(pos).reset_range(GlyphStyleSyntaxError, 1);
-    }
-  }
-  else if(pos < buf.length() && buf[pos] == '\n') { // new line character interpreted as multiplication
-    while(pos > 0 && buf[pos] == '\n')
-      --pos;
-      
-    if( pos >= 0 && 
-        pos < data->sequence->glyphs.length() && 
-        data->sequence->glyphs.length() > pos
-    ) {
-      GlyphIterator iter = Impl(*data->sequence).glyph_iterator();
-      iter.skip_forward_to_glyph_after_text_pos(data->sequence, pos);
-      if(iter.has_more_glyphs())
-        iter.current_glyph().missing_after = true;
     }
   }
 }

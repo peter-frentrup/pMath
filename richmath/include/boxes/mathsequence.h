@@ -3,6 +3,7 @@
 
 #include <boxes/abstractsequence.h>
 #include <util/rle-array.h>
+#include <graphics/syntax-styles.h>
 #include <syntax/syntax-state.h>
 
 
@@ -80,7 +81,7 @@ namespace richmath {
       const SpanArray                     &span_array() {  return spans;  }
       const Array<Line>                   &line_array() {  return lines;  }
       const Array<GlyphInfo>              &glyph_array() { return glyphs; }
-      RleArray<SyntaxGlyphStyle>          &semantic_styles_array() { return semantic_styles; }
+      SyntaxGlyphStylesArray              &semantic_styles_array() { return semantic_styles; }
       RleArrayIterator<const RleLinearPredictorArray<int>> glyph_to_text_iter() {            return glyph_to_text.cbegin(); }
       RleArrayIterator<const RleArray<MathSequence*>>      glyph_to_inline_sequence_iter() { return glyph_to_inline_sequence.cbegin(); }
    
@@ -117,13 +118,11 @@ namespace richmath {
     private:
       Array<GlyphInfo> glyphs;
       Array<Line>      lines;
-      RleArray<SyntaxGlyphStyle>   semantic_styles; // uses text index, not glyph index
+      SyntaxGlyphStylesArray       semantic_styles; // uses text index, not glyph index
       RleLinearPredictorArray<int> glyph_to_text;
       RleArray<MathSequence*>      glyph_to_inline_sequence;
       SpanArray        spans;
   };
-  
-  
 }
 
 #endif // RICHMATH__BOXES__SEQUENCE_H__INCLUDED

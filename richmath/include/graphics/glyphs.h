@@ -7,25 +7,6 @@
 
 
 namespace richmath {
-  enum SyntaxGlyphStyle {
-    GlyphStyleNone,
-    GlyphStyleImplicit,
-    GlyphStyleString,
-    GlyphStyleComment,
-    GlyphStyleParameter,
-    GlyphStyleLocal,
-    GlyphStyleScopeError,
-    GlyphStyleNewSymbol,
-    GlyphStyleShadowError,
-    GlyphStyleSyntaxError,
-    GlyphStyleSpecialUse,
-    GlyphStyleExcessOrMissingArg,
-    GlyphStyleInvalidOption,
-    GlyphStyleSpecialStringPart,
-    GlyphStyleKeyword,
-    GlyphStyleFunctionCall
-  };
-  
   enum {
     FontSlantPlain = 1,
     FontSlantItalic = 2
@@ -50,7 +31,7 @@ namespace richmath {
       uint16_t            index;
       ExtendersAndOverlap ext;
     };
-    unsigned _unused:            4;
+    unsigned _unused:            5;
     
     unsigned fontinfo:           5;
     
@@ -59,7 +40,6 @@ namespace richmath {
     unsigned composed:           1;
     unsigned horizontal_stretch: 1;
     unsigned is_normal_text:     1;
-    unsigned missing_after:      1;
     unsigned vertical_centered:  1; // glyph ink center = math_axis above baseline; does not work when composed=1
   };
   

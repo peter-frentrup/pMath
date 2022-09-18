@@ -7,7 +7,7 @@
 namespace richmath {
   class GlyphIterator {
     public:
-      using style_iter_t = RleArray<SyntaxGlyphStyle>::iterator_type;
+      using style_iter_t = SyntaxGlyphStylesArray::iterator_type;
       
     public:
       int glyph_index() const { return _basic_iter.glyph_index(); }
