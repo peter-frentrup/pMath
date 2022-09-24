@@ -541,10 +541,10 @@ Document({
                   "ConditionalExpressionLabel"), #2}, 
                 FrameStyle -> GrayLevel(0.5`), BorderRadius -> 4))}), 
           Section(StyleData("Highlighted"), 
-           TemplateBoxOptions :> {
+           TemplateBoxOptions -> {
              DisplayFunction -> 
               Function(FrameBox(#1, BaseStyle -> "Highlighted")), 
-             InterpretationFunction -> (#1; Function(1))}), 
+             InterpretationFunction -> Function(#1)}), 
           Section(StyleData("Row")), Section(StyleData("RowDefault"), 
            BaseStyle -> "Row", TemplateBoxOptions -> {
              DisplayFunction -> Function({TemplateSlotSequence(##1)}), 
