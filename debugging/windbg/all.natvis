@@ -692,7 +692,7 @@
 			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
 			<Item Name="size" ExcludeView="EntriesOnly">used_count</Item>
 			<CustomListItems MaxItemsPerView="1000">
-				<Variable Name="_Bucket" InitialValue="table" />
+				<Variable Name="_Bucket" InitialValue="large_table ? large_table : small_table" />
 				
 				<Size>used_count</Size>
 				<Loop>
@@ -711,7 +711,7 @@
 			<Item Name="capacity" ExcludeView="EntriesOnly">capacity</Item>
 			<Item Name="size" ExcludeView="EntriesOnly">used_count</Item>
 			<CustomListItems MaxItemsPerView="1000">
-				<Variable Name="_Bucket" InitialValue="table" />
+				<Variable Name="_Bucket" InitialValue="large_table ? large_table : small_table" />
 				<Variable Name="_Index" InitialValue="0" />
 				
 				<Size>used_count</Size>
