@@ -77,7 +77,7 @@ namespace richmath {
     protected:
       enum {
         BoxesInvalidBit = base::NumFlagsBits,
-        TextChangedBit,
+        TextChangedBit, // TODO: text_changed must be propagated to outer sequence
         
         NumFlagsBits
       };
@@ -86,13 +86,27 @@ namespace richmath {
       bool boxes_invalid() {       return get_flag(BoxesInvalidBit); }
       void boxes_invalid(bool value) { change_flag(BoxesInvalidBit, value); }
       bool text_changed() {        return get_flag(TextChangedBit); }
-      void text_changed(bool value) {  change_flag(TextChangedBit, value); }
+      void text_changed(bool value);
+      
+      virtual void on_text_changed() {}
       
     protected:
       String                 str;
       Array<Box *>           boxes;
       ObservableValue<float> em;
   };
+  
+  inline void AbstractSequence::text_changed(bool value) { 
+    if(value) {
+      if(!get_flag(TextChangedBit)) {
+        set_flag(TextChangedBit); 
+        on_text_changed(); 
+      }
+    }
+    else {
+      clear_flag(TextChangedBit);
+    } 
+  }
 }
 
 #endif // RICHMATH__BOXES__ABSTRACTSEQUENCE_H__INCLUDED

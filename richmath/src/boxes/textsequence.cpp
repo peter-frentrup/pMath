@@ -482,6 +482,17 @@ void TextSequence::selection_path(Canvas &canvas, int start_text_index, int end_
   }
 }
 
+void TextSequence::on_text_changed() {
+  // buffer_to_inline_sequence might now contain invalid references
+  buffer_to_inline_sequence.clear();
+  buffer_to_text.clear();
+  _buffer_size = 0;
+  // TODO: clear _layout
+  
+  TextSequence &outer = Impl(*this).outermost_span();
+  outer.text_changed(true);
+}
+
 Expr TextSequence::to_pmath_impl(BoxOutputFlags flags) {
   return to_pmath_impl(flags, 0, length());
 }

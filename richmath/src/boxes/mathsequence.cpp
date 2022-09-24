@@ -717,6 +717,17 @@ void MathSequence::selection_path(Context &context, int start, int end) {
   Impl(*this).selection_path_wrt_outermost_origin(&context, context.canvas(), start, end); 
 }
 
+void MathSequence::on_text_changed() {
+  // glyph_to_inline_sequence might now contain invalid references
+  glyph_to_inline_sequence.clear();
+  glyph_to_text.clear();
+  glyphs.length(0);
+  lines.length(0);
+  
+  MathSequence &outer = Impl(*this).outermost_span();
+  outer.text_changed(true);
+}
+
 Expr MathSequence::to_pmath_impl(BoxOutputFlags flags) {
   return to_pmath_impl(flags, 0, length());
 }
@@ -1099,10 +1110,8 @@ bool MathSequence::request_repaint_all() {
 bool MathSequence::request_repaint_range(int start, int end) {
   MathSequence &outer = Impl(*this).outermost_span();
   
-  if(text_changed()) {
-    Vector2F delta = Impl(*this).total_offest_to_index(0);
-    return outer.request_repaint(outer.extents().to_rectangle(Point{delta}));
-  }
+  if(text_changed()) 
+    return outer.request_repaint(outer.extents().to_rectangle());
   
   int l1, l2;
   

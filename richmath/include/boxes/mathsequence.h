@@ -113,6 +113,8 @@ namespace richmath {
       void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
       void inline_span(bool value) {   change_flag(InlineSpanBit, value); }
       
+      virtual void on_text_changed() override;
+      
       virtual Expr to_pmath_impl(BoxOutputFlags flags) override;
       virtual Expr to_pmath_impl(BoxOutputFlags flags, int start, int end) override;
       
