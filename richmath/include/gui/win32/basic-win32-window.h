@@ -7,7 +7,6 @@
 
 #include <graphics/canvas.h>
 #include <gui/common-document-windows.h>
-#include <gui/win32/ole/virtual-desktops.h>
 #include <gui/win32/basic-win32-widget.h>
 #include <gui/win32/api/win32-themes.h>
 #include <gui/control-painter.h>
@@ -35,7 +34,7 @@ namespace richmath {
   };
   
   // Must call init() immediately after the construction of a derived object!
-  class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext, public IVirtualDesktopNotification {
+  class BasicWin32Window: public CommonDocumentWindow, public BasicWin32Widget, public ControlContext {
       class Impl;
     public:
       struct SnapPosition {
@@ -98,6 +97,8 @@ namespace richmath {
       
       virtual bool is_using_dark_mode() override { return _use_dark_mode; }
       
+      void virtual_desktop_changed();
+      
     protected:
       int min_client_height;
       int max_client_height;
@@ -138,7 +139,6 @@ namespace richmath {
       bool _themed_frame : 1;
       bool _use_dark_mode : 1;
       Win32Themes::MARGINS _extra_glass;
-      DWORD _virtual_desktop_notification_cookie;
       
       int snap_correction_x;
       int snap_correction_y;
@@ -150,21 +150,6 @@ namespace richmath {
       static COLORREF title_font_color(bool glass_enabled, int dpi, bool active, bool dark_mode);
       
       void lost_blur_behind_window(Win32BlurBehindWindow *bb);
-      
-    public:
-      STDMETHODIMP QueryInterface(REFIID iid, void **ppvObject) override;
-      STDMETHODIMP_(ULONG) AddRef(void) override {  return BasicWin32Widget::AddRef(); }
-      STDMETHODIMP_(ULONG) Release(void) override { return BasicWin32Widget::Release(); }
-       
-      //
-      // IVirtualDesktopNotification members
-      //
-      STDMETHODIMP VirtualDesktopCreated(IVirtualDesktop *pDesktop) override;
-      STDMETHODIMP VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
-      STDMETHODIMP VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
-      STDMETHODIMP VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
-      STDMETHODIMP ViewVirtualDesktopChanged(IApplicationView *pView) override;
-      STDMETHODIMP CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) override;
   };
 }
 

@@ -3,6 +3,7 @@
 #include <graphics/canvas.h>
 #include <gui/win32/api/win32-highdpi.h>
 #include <gui/win32/api/win32-version.h>
+#include <gui/win32/ole/virtual-desktops.h>
 #include <gui/win32/menus/win32-automenuhook.h>
 #include <gui/win32/menus/win32-menu.h>
 #include <gui/win32/win32-attached-popup-window.h>
@@ -79,7 +80,7 @@ class BasicWin32Window::Impl {
 };
 
 namespace {
-  static class StaticResources {
+  static class StaticResources: public IVirtualDesktopNotification {
     public:
       StaticResources();
       
@@ -101,9 +102,25 @@ namespace {
       Hashtable<String, AutoCairoSurface> background_image_cache;
       Hashtable<int, HANDLE>              composition_window_theme_for_dpi;
       int                                 window_count;
+      DWORD                               _virtual_desktop_notification_cookie;
       
       ComBase<IVirtualDesktopNotificationService> virtual_desktop_service;
       
+    public:
+      STDMETHODIMP QueryInterface(REFIID iid, void **ppvObject) override;
+      STDMETHODIMP_(ULONG) AddRef(void) override {  return 1; }
+      STDMETHODIMP_(ULONG) Release(void) override { return 1; }
+       
+      //
+      // IVirtualDesktopNotification members
+      //
+      STDMETHODIMP VirtualDesktopCreated(IVirtualDesktop *pDesktop) override;
+      STDMETHODIMP VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP ViewVirtualDesktopChanged(IApplicationView *pView) override;
+      STDMETHODIMP CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) override;
+  
   } static_resources;
   
   class WindowMagnetics {
@@ -318,7 +335,6 @@ BasicWin32Window::BasicWin32Window(
   _glass_enabled(false),
   _themed_frame(false),
   _use_dark_mode(false),
-  _virtual_desktop_notification_cookie(0),
   snap_correction_x(0),
   snap_correction_y(0),
   last_moving_cx(0),
@@ -336,12 +352,9 @@ void BasicWin32Window::after_construction() {
   BasicWin32Widget::after_construction();
   
   if(_blur_behind_window)  _blur_behind_window->init();
-  
-  _virtual_desktop_notification_cookie = static_resources.register_notifications(this);
 }
 
 BasicWin32Window::~BasicWin32Window() {
-  static_resources.unregister_notifications(_virtual_desktop_notification_cookie);
   static_resources.remove_basic_window();
   
   if(_blur_behind_window) {
@@ -2077,53 +2090,12 @@ HANDLE BasicWin32Window::composition_window_theme(int dpi) {
   return static_resources.composition_window_theme(dpi);
 }
 
-STDMETHODIMP BasicWin32Window::QueryInterface(REFIID iid, void **ppvObject) {
-  HRESULT hr = BasicWin32Widget::QueryInterface(iid, ppvObject);
-  if(SUCCEEDED(hr))
-    return hr;
+void BasicWin32Window::virtual_desktop_changed() {
+  pmath_debug_print("[virtual_desktop_changed, cloaked=%s]\n", is_window_cloaked(_hwnd) ? "yes" : "no");
   
-  if(iid == IID_IVirtualDesktopNotification) {
-    auto res = static_cast<IVirtualDesktopNotification*>(this);
-    res->AddRef();
-    *ppvObject = res;
-    return S_OK;
+  if(_blur_behind_window) {
+    _blur_behind_window->show_if_owner_visible_on_screen();
   }
-  
-  return hr;
-}
-
-STDMETHODIMP BasicWin32Window::VirtualDesktopCreated(IVirtualDesktop *pDesktop) {
-  pmath_debug_print("[VirtualDesktopCreated]\n");
-  return S_OK;
-}
-
-STDMETHODIMP BasicWin32Window::VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
-  pmath_debug_print("[VirtualDesktopDestroyBegin]\n");
-  return S_OK;
-}
-
-STDMETHODIMP BasicWin32Window::VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) { 
-  pmath_debug_print("[VirtualDesktopDestroyFailed]\n");
-  return S_OK;
-}
-
-STDMETHODIMP BasicWin32Window::VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
-  pmath_debug_print("[VirtualDesktopDestroyed]\n");
-  return S_OK;
-}
-
-STDMETHODIMP BasicWin32Window::ViewVirtualDesktopChanged(IApplicationView *pView) {
-  pmath_debug_print("[ViewVirtualDesktopChanged %p, cloaked=%s]\n", pView, is_window_cloaked(_hwnd) ? "yes" : "no");
-  
-  if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
-  return S_OK;
-}
-
-STDMETHODIMP BasicWin32Window::CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) {
-  pmath_debug_print("[CurrentVirtualDesktopChanged, cloaked=%s]\n", is_window_cloaked(_hwnd) ? "yes" : "no");
-  
-  if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
-  return S_OK;
 }
 
 //} ... class BasicWin32Window
@@ -3378,18 +3350,24 @@ void Win32BlurBehindWindow::colorize(bool active, bool dark_mode) {
 //{ class StaticResources ...
 
 StaticResources::StaticResources()
-  : window_count(0)
+  : window_count(0),
+    _virtual_desktop_notification_cookie(0)
 {
 }
 
 void StaticResources::add_basic_window() {
   if(++window_count != 1)
     return;
+  
+  _virtual_desktop_notification_cookie = register_notifications(this);
 }
 
 void StaticResources::remove_basic_window() {
   if(--window_count != 0)
     return;
+  
+  unregister_notifications(_virtual_desktop_notification_cookie);
+  _virtual_desktop_notification_cookie = 0;
   
   virtual_desktop_service.reset();
   Win32TooltipWindow::delete_global_tooltip();
@@ -3484,6 +3462,64 @@ void StaticResources::unregister_notifications(DWORD cookie) {
   if(cookie) {
     HRreport(E_UNEXPECTED);
   }
+}
+
+STDMETHODIMP StaticResources::QueryInterface(REFIID iid, void **ppvObject) {
+  if(iid == IID_IVirtualDesktopNotification || iid == IID_IUnknown) {
+    auto res = static_cast<IVirtualDesktopNotification*>(this);
+    res->AddRef();
+    *ppvObject = res;
+    return S_OK;
+  }
+  
+  *ppvObject = nullptr;
+  return E_NOINTERFACE;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopCreated(IVirtualDesktop *pDesktop) {
+  pmath_debug_print("[VirtualDesktopCreated]\n");
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyBegin]\n");
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) { 
+  pmath_debug_print("[VirtualDesktopDestroyFailed]\n");
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyed]\n");
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::ViewVirtualDesktopChanged(IApplicationView *pView) {
+  pmath_debug_print("[ViewVirtualDesktopChanged %p]\n", pView);
+  //pmath_debug_print("[ViewVirtualDesktopChanged %p, cloaked=%s]\n", pView, is_window_cloaked(_hwnd) ? "yes" : "no");
+  //
+  //if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
+  for(CommonDocumentWindow *win : CommonDocumentWindow::All) {
+    if(auto platform_win = dynamic_cast<BasicWin32Window*>(win)) {
+      platform_win->virtual_desktop_changed();
+    }
+  }
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) {
+  pmath_debug_print("[CurrentVirtualDesktopChanged]\n");
+  //pmath_debug_print("[CurrentVirtualDesktopChanged, cloaked=%s]\n", is_window_cloaked(_hwnd) ? "yes" : "no");
+  //
+  //if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
+  for(CommonDocumentWindow *win : CommonDocumentWindow::All) {
+    if(auto platform_win = dynamic_cast<BasicWin32Window*>(win)) {
+      platform_win->virtual_desktop_changed();
+    }
+  }
+  return S_OK;
 }
 
 //} ... class StaticResources
