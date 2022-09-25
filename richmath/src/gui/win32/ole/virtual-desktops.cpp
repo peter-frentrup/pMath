@@ -13,27 +13,33 @@ const CLSID CLSID_VirtualDesktopNotificationService { 0xa501fdec, 0x4a09, 0x464c
 const CLSID CLSID_VirtualDesktopPinnedApps {          0xb5a399e7, 0x1c87, 0x46b8, 0x88,0xe9, 0xfc,0x57,0x47,0xb1,0x71,0xbd };
 
 
-const IID IID_IVirtualDesktop { 0xFF72FFDD, 0xBE7E, 0x43FC, 0x9C,0x03, 0xAD,0x81,0x68,0x1E,0x88,0xE4 };
+const IID IID_IVirtualDesktop_10240 { 0xFF72FFDD, 0xBE7E, 0x43FC, 0x9C,0x03, 0xAD,0x81,0x68,0x1E,0x88,0xE4 };
+const IID IID_IVirtualDesktop_22000 { 0x536D3495, 0xB208, 0x4CC9, 0xAE,0x26, 0xDE,0x81,0x11,0x27,0x5B,0xF8 };
 
 const IID IID_IVirtualDesktopManagerInternal_10130 { 0xEF9F1A6C, 0xD3CC, 0x4358, 0xB7,0x12, 0xF8,0x4B,0x63,0x5B,0xEB,0xE7 };
 const IID IID_IVirtualDesktopManagerInternal_10240 { 0xAF8DA486, 0x95BB, 0x4460, 0xB3,0xB7, 0x6E,0x7A,0x6B,0x29,0x62,0xB5 };
 const IID IID_IVirtualDesktopManagerInternal_14328 { 0xf31574d6, 0xb682, 0x4cdc, 0xbd,0x56, 0x18,0x27,0x86,0x0a,0xbe,0xc6 };
+const IID IID_IVirtualDesktopManagerInternal_22000 { 0xB2F925B9, 0x5A0F, 0x4D2E, 0x9F,0x4D, 0x2B,0x15,0x07,0x59,0x3C,0x10 };
 
 const IID IID_IVirtualDesktopManager { 0xa5cd92ff, 0x29be, 0x454c, 0x8d,0x04, 0xd8,0x28,0x79,0xfb,0x3f,0x1b };
 
-const IID IID_IVirtualDesktopNotification { 0xC179334C, 0x4295, 0x40D3, 0xBE,0xA1, 0xC6,0x54,0xD9,0x65,0x60,0x5A };
+const IID IID_IVirtualDesktopNotification_10240 { 0xC179334C, 0x4295, 0x40D3, 0xBE,0xA1, 0xC6,0x54,0xD9,0x65,0x60,0x5A };
+const IID IID_IVirtualDesktopNotification_22000 { 0xCD403E52, 0xDEED, 0x4C13, 0xB4,0x37, 0xB9,0x83,0x80,0xF2,0xB1,0xE8 };
 
 const IID IID_IVirtualDesktopNotificationService { 0x0CD45E71, 0xD927, 0x4F15, 0x8B,0x0A, 0x8F,0xEF,0x52,0x53,0x37,0xBF };
 
 #ifndef NDEBUG
 static struct DebugAsserts {
   DebugAsserts() {
-    COM_ASSERT( __uuidof(IVirtualDesktop)                      == IID_IVirtualDesktop );
+    COM_ASSERT( __uuidof(IVirtualDesktop_10240)                == IID_IVirtualDesktop_10240 );
+    COM_ASSERT( __uuidof(IVirtualDesktop_22000)                == IID_IVirtualDesktop_22000 );
     COM_ASSERT( __uuidof(IVirtualDesktopManagerInternal_10130) == IID_IVirtualDesktopManagerInternal_10130 );
     COM_ASSERT( __uuidof(IVirtualDesktopManagerInternal_10240) == IID_IVirtualDesktopManagerInternal_10240 );
     COM_ASSERT( __uuidof(IVirtualDesktopManagerInternal_14328) == IID_IVirtualDesktopManagerInternal_14328 );
+    COM_ASSERT( __uuidof(IVirtualDesktopManagerInternal_22000) == IID_IVirtualDesktopManagerInternal_22000 );
     COM_ASSERT( __uuidof(IVirtualDesktopManager)               == IID_IVirtualDesktopManager );
-    COM_ASSERT( __uuidof(IVirtualDesktopNotification)          == IID_IVirtualDesktopNotification );
+    COM_ASSERT( __uuidof(IVirtualDesktopNotification_10240)    == IID_IVirtualDesktopNotification_10240 );
+    COM_ASSERT( __uuidof(IVirtualDesktopNotification_22000)    == IID_IVirtualDesktopNotification_22000 );
     COM_ASSERT( __uuidof(IVirtualDesktopNotificationService)   == IID_IVirtualDesktopNotificationService );
   }
 } debug_asserts;

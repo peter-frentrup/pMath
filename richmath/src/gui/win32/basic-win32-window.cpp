@@ -80,7 +80,7 @@ class BasicWin32Window::Impl {
 };
 
 namespace {
-  static class StaticResources: public IVirtualDesktopNotification {
+  static class StaticResources: public IVirtualDesktopNotification_10240, public IVirtualDesktopNotification_22000 {
     public:
       StaticResources();
       
@@ -112,15 +112,28 @@ namespace {
       STDMETHODIMP_(ULONG) Release(void) override { return 1; }
        
       //
-      // IVirtualDesktopNotification members
+      // IVirtualDesktopNotification_10240 members
       //
-      STDMETHODIMP VirtualDesktopCreated(IVirtualDesktop *pDesktop) override;
-      STDMETHODIMP VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP VirtualDesktopCreated(      IVirtualDesktop *pDesktop) override;
+      STDMETHODIMP VirtualDesktopDestroyBegin( IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
       STDMETHODIMP VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
-      STDMETHODIMP VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
-      STDMETHODIMP ViewVirtualDesktopChanged(IApplicationView *pView) override;
+      STDMETHODIMP VirtualDesktopDestroyed(    IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP ViewVirtualDesktopChanged(   IApplicationView *pView) override;
       STDMETHODIMP CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) override;
   
+      //
+      // IVirtualDesktopNotification_22000 members
+      //
+      STDMETHODIMP VirtualDesktopCreated(         IObjectArray *p0, IVirtualDesktop *pDesktop) override;
+      STDMETHODIMP VirtualDesktopDestroyBegin(    IObjectArray *p0, IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP VirtualDesktopDestroyFailed(   IObjectArray *p0, IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP VirtualDesktopDestroyed(       IObjectArray *p0, IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) override;
+      STDMETHODIMP UnknownProc7(                  int p0) override;
+      STDMETHODIMP VirtualDesktopMoved(           IObjectArray *p0, IVirtualDesktop *pDesktop, int nIndexFrom, int nIndexTo) override;
+      STDMETHODIMP VirtualDesktopRenamed(         IVirtualDesktop *pDesktop, HSTRING chName) override;
+      //STDMETHODIMP ViewVirtualDesktopChanged(     IApplicationView *pView) override; // same as in 10240
+      STDMETHODIMP CurrentVirtualDesktopChanged(  IObjectArray *p0, IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) override;
+      STDMETHODIMP VirtualDesktopWallpaperChanged(IVirtualDesktop *pDesktop, HSTRING *chPath) override;
   } static_resources;
   
   class WindowMagnetics {
@@ -3359,7 +3372,7 @@ void StaticResources::add_basic_window() {
   if(++window_count != 1)
     return;
   
-  _virtual_desktop_notification_cookie = register_notifications(this);
+  _virtual_desktop_notification_cookie = register_notifications(static_cast<IVirtualDesktopNotification_22000*>(this));
 }
 
 void StaticResources::remove_basic_window() {
@@ -3465,8 +3478,15 @@ void StaticResources::unregister_notifications(DWORD cookie) {
 }
 
 STDMETHODIMP StaticResources::QueryInterface(REFIID iid, void **ppvObject) {
-  if(iid == IID_IVirtualDesktopNotification || iid == IID_IUnknown) {
-    auto res = static_cast<IVirtualDesktopNotification*>(this);
+  if(iid == IID_IVirtualDesktopNotification_10240 || iid == IID_IUnknown) {
+    auto res = static_cast<IVirtualDesktopNotification_10240*>(this);
+    res->AddRef();
+    *ppvObject = res;
+    return S_OK;
+  }
+  
+  if(iid == IID_IVirtualDesktopNotification_22000) {
+    auto res = static_cast<IVirtualDesktopNotification_22000*>(this);
     res->AddRef();
     *ppvObject = res;
     return S_OK;
@@ -3477,22 +3497,57 @@ STDMETHODIMP StaticResources::QueryInterface(REFIID iid, void **ppvObject) {
 }
 
 STDMETHODIMP StaticResources::VirtualDesktopCreated(IVirtualDesktop *pDesktop) {
-  pmath_debug_print("[VirtualDesktopCreated]\n");
+  pmath_debug_print("[VirtualDesktopCreated %p]\n", pDesktop);
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopCreated(IObjectArray *p0, IVirtualDesktop *pDesktop) {
+  pmath_debug_print("[VirtualDesktopCreated %p %p]\n", p0, pDesktop);
   return S_OK;
 }
 
 STDMETHODIMP StaticResources::VirtualDesktopDestroyBegin(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
-  pmath_debug_print("[VirtualDesktopDestroyBegin]\n");
+  pmath_debug_print("[VirtualDesktopDestroyBegin %p %p]\n", pDesktopDestroyed, pDesktopFallback);
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopDestroyBegin(IObjectArray *p0, IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyBegin %p %p %p]\n", p0, pDesktopDestroyed, pDesktopFallback);
   return S_OK;
 }
 
 STDMETHODIMP StaticResources::VirtualDesktopDestroyFailed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) { 
-  pmath_debug_print("[VirtualDesktopDestroyFailed]\n");
+  pmath_debug_print("[VirtualDesktopDestroyFailed %p %p]\n", pDesktopDestroyed, pDesktopFallback);
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopDestroyFailed(IObjectArray *p0, IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyFailed %p %p %p]\n", p0, pDesktopDestroyed, pDesktopFallback);
   return S_OK;
 }
 
 STDMETHODIMP StaticResources::VirtualDesktopDestroyed(IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
-  pmath_debug_print("[VirtualDesktopDestroyed]\n");
+  pmath_debug_print("[VirtualDesktopDestroyed %p %p]\n", pDesktopDestroyed, pDesktopFallback);
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopDestroyed(IObjectArray *p0, IVirtualDesktop *pDesktopDestroyed, IVirtualDesktop *pDesktopFallback) {
+  pmath_debug_print("[VirtualDesktopDestroyed %p %p %p]\n", p0, pDesktopDestroyed, pDesktopFallback);
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::UnknownProc7(int p0) {
+  pmath_debug_print("[UnknownProc7 %d=0x%x]\n", p0, p0);
+  return S_OK; // just a notification.
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopMoved(IObjectArray *p0, IVirtualDesktop *pDesktop, int nIndexFrom, int nIndexTo) {
+  pmath_debug_print("[VirtualDesktopMoved %p %p %d %d]\n", p0, pDesktop, nIndexFrom, nIndexTo);
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopRenamed(IVirtualDesktop *pDesktop, HSTRING chName) {
+  pmath_debug_print("[VirtualDesktopRenamed %p %p]\n", pDesktop, chName);
   return S_OK;
 }
 
@@ -3510,15 +3565,27 @@ STDMETHODIMP StaticResources::ViewVirtualDesktopChanged(IApplicationView *pView)
 }
 
 STDMETHODIMP StaticResources::CurrentVirtualDesktopChanged(IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) {
-  pmath_debug_print("[CurrentVirtualDesktopChanged]\n");
-  //pmath_debug_print("[CurrentVirtualDesktopChanged, cloaked=%s]\n", is_window_cloaked(_hwnd) ? "yes" : "no");
-  //
-  //if(_blur_behind_window) _blur_behind_window->show_if_owner_visible_on_screen();
+  pmath_debug_print("[CurrentVirtualDesktopChanged %p %p]\n", pDesktopOld, pDesktopNew);
   for(CommonDocumentWindow *win : CommonDocumentWindow::All) {
     if(auto platform_win = dynamic_cast<BasicWin32Window*>(win)) {
       platform_win->virtual_desktop_changed();
     }
   }
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::CurrentVirtualDesktopChanged(IObjectArray *p0, IVirtualDesktop *pDesktopOld, IVirtualDesktop *pDesktopNew) {
+  pmath_debug_print("[CurrentVirtualDesktopChanged %p %p %p]\n", p0, pDesktopOld, pDesktopNew);
+  for(CommonDocumentWindow *win : CommonDocumentWindow::All) {
+    if(auto platform_win = dynamic_cast<BasicWin32Window*>(win)) {
+      platform_win->virtual_desktop_changed();
+    }
+  }
+  return S_OK;
+}
+
+STDMETHODIMP StaticResources::VirtualDesktopWallpaperChanged(IVirtualDesktop *pDesktop, HSTRING *chPath) {
+  pmath_debug_print("[VirtualDesktopWallpaperChanged %p %p]\n", pDesktop, chPath);
   return S_OK;
 }
 
