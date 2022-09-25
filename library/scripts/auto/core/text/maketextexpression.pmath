@@ -1,0 +1,31 @@
+
+BeginPackage("System`Text`")
+
+MakeTextExpression
+
+Begin("System`Text`Private`")
+
+Attributes(makeSimpleTextExpression):= {HoldAllComplete}
+makeSimpleTextExpression(box: ~h(~innerbox, ~~~boxopts), ~expectedHead) ::=
+    MakeExpression(h(0, boxopts)) |> {
+        HoldComplete(expectedHead(~, ~~~opts)) :> MakeTextExpression(innerbox) |> {
+            HoldComplete(~inner) :> HoldComplete(expectedHead(inner, opts)),
+            ~ :> MakeExpression(box)
+        },
+        ~ :> MakeExpression(box)
+    }
+MakeTextExpression(~other)::= MakeExpression(other)
+MakeTextExpression(~s:String)::= HoldComplete(s)
+MakeTextExpression(BoxData(~boxes))::= MakeExpression(boxes)
+MakeTextExpression({~~~items})::= HoldComplete(items) |> 
+    Map(MakeTextExpression) |> 
+    Flatten(1) |> 
+    Replace(HoldComplete(~~~objs):>HoldComplete({objs}))
+
+MakeTextExpression(~box:ButtonBox)::= makeSimpleTextExpression(box, Button)
+MakeTextExpression(~box:PanelBox)::=  makeSimpleTextExpression(box, Panel)
+MakeTextExpression(~box:StyleBox)::=  makeSimpleTextExpression(box, Style)
+
+End()
+
+EndPackage()

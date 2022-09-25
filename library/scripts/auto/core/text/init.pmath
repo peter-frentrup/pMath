@@ -1,0 +1,33 @@
+BeginPackage("System`Text`")
+
+System`Text`MakeTextBoxes
+System`Text`MakeTextExpression
+
+Begin("System`Text`Private`")
+
+Attributes(MakeTextBoxes):= {HoldAllComplete, Protected}
+Attributes(MakeTextExpression):= {HoldAllComplete, Protected}
+
+Unprotect(Text)
+Attributes(Text):= {ReadProtected}
+MakeBoxes(Text({~~~elems}))::= TextData @ List @@ HoldComplete(elems).Map(MakeTextBoxes)
+MakeBoxes(Text(~other))::= TextData(MakeTextBoxes(other))
+Protect(Text)
+
+Unprotect(TextData)
+SetAttributes(TextData, {ReadProtected})
+TextData/: MakeExpression(TextData(~elements))::= 
+    MakeTextExpression(elements) |> { 
+        HoldComplete(~~~data) :> HoldComplete(Text(data)),
+        ~ :> $Failed
+    }
+Protect(TextData)
+
+AutoLoad(Hold(MakeTextBoxes), 
+	ToFileName(DirectoryName($Input), "maketextboxes.pmath"))
+AutoLoad(Hold(MakeTextExpression), 
+	ToFileName(DirectoryName($Input), "maketextexpression.pmath"))
+
+End()
+
+EndPackage()

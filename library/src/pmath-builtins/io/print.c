@@ -48,12 +48,18 @@ PMATH_PRIVATE pmath_t builtin_sectionprint(pmath_expr_t expr) {
 }
 
 PMATH_PRIVATE pmath_t builtin_print(pmath_expr_t expr) {
-  expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_List));
-  
-  expr = pmath_expr_new_extended(
-           pmath_ref(pmath_System_Row), 1,
-           expr);
-           
+  if(pmath_expr_length(expr) == 1) {
+    pmath_t item = pmath_expr_get_item(expr, 1);
+    pmath_unref(expr);
+    expr = item;
+  }
+  else {
+    expr = pmath_expr_set_item(expr, 0, pmath_ref(pmath_System_List));
+    
+    expr = pmath_expr_new_extended(
+            pmath_ref(pmath_System_Row), 1,
+            expr);
+  }       
   return pmath_expr_new_extended(
            pmath_ref(pmath_System_SectionPrint), 2,
            PMATH_C_STRING("Print"),

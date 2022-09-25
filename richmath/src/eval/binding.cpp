@@ -44,6 +44,7 @@ extern pmath_symbol_t richmath_System_SectionGenerated;
 extern pmath_symbol_t richmath_System_SectionPrint;
 extern pmath_symbol_t richmath_System_Stack;
 extern pmath_symbol_t richmath_System_StyleDefinitions;
+extern pmath_symbol_t richmath_System_TextData;
 extern pmath_symbol_t richmath_System_True;
 
 extern pmath_symbol_t richmath_FE_FileOpenDialog;
@@ -451,12 +452,11 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                 pmath_ref(richmath_System_MakeBoxes), 1, // ToBoxes instead?
                 boxes));
     
-    sections = pmath_expr_new_extended(
-                 pmath_ref(richmath_System_Section), 2,
-                 pmath_expr_new_extended(
-                   pmath_ref(richmath_System_BoxData), 1,
-                   boxes),
-                 style);
+    if(!pmath_is_expr_of(boxes, richmath_System_TextData)) {
+      boxes = pmath_expr_new_extended(pmath_ref(richmath_System_BoxData), 1, boxes);
+    }
+    
+    sections = pmath_expr_new_extended(pmath_ref(richmath_System_Section), 2, boxes, style);
   }
   else
     sections = pmath_expr_get_item(expr, 1);
@@ -479,9 +479,12 @@ static pmath_t builtin_sectionprint(pmath_expr_t expr) {
                     pmath_expr_new_extended(
                       pmath_ref(richmath_System_MakeBoxes), 1, // ToBoxes instead?
                       content));
-        content = pmath_expr_new_extended(
-                    pmath_ref(richmath_System_BoxData), 1,
-                    content);
+                      
+        if(!pmath_is_expr_of(content, richmath_System_TextData)) {
+          content = pmath_expr_new_extended(
+                      pmath_ref(richmath_System_BoxData), 1,
+                      content);
+        }
       }
       
       sect = pmath_expr_new_extended(

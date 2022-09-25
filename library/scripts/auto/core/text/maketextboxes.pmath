@@ -1,0 +1,28 @@
+
+BeginPackage("System`Text`")
+
+MakeTextBoxes
+
+Begin("System`Text`Private`")
+
+MakeTextBoxes(~other)::= BoxData(MakeBoxes(other))
+MakeTextBoxes(~s:String)::= s
+MakeTextBoxes(RawBoxes(~box))::= box
+
+Attributes(makeSimpleTextBox):= {HoldAllComplete}
+makeSimpleTextBox(orig: ~h(~inner, ~~~opts), ~expectedHead) ::= 
+    MakeBoxes(h(0, opts)) |> {
+        expectedHead(~, ~~~boxopts) :> expectedHead(MakeTextBoxes(inner), boxopts),
+        ~ :> BoxData(MakeBoxes(orig))
+    }
+makeSimpleTextBox(~other)::= BoxData(MakeBoxes(other))
+
+MakeTextBoxes(~expr:Button)::=         makeSimpleTextBox(expr, ButtonBox)
+MakeTextBoxes(~expr:Graphics)::=       MakeBoxes(expr)
+MakeTextBoxes(~expr:Interpretation)::= makeSimpleTextBox(expr, InterpretationBox)
+MakeTextBoxes(~expr:Panel)::=          makeSimpleTextBox(expr, PanelBox)
+MakeTextBoxes(~expr:Style)::=          makeSimpleTextBox(expr, StyleBox)
+
+End()
+
+EndPackage()

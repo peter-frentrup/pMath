@@ -882,6 +882,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( TemplateSlot,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( TemplateSlotSequence,               0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Temporary,                          0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( TestPattern,                        0 ) /* TODO: rename to PatternTest? */
+PMATH_DECLARE_SYSTEM_SYMBOL( Text,                               0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( TextData,                           0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( TextShadow,                         0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Thread,                             0 )
