@@ -26,6 +26,7 @@ namespace richmath {
       class Impl;
     public:
       Win32ScrollBarOverlay(HWND *parent_ptr, HWND *scrollbar_owner_ptr);
+      ~Win32ScrollBarOverlay();
       
       void set_scale(float _scale);
       void update();

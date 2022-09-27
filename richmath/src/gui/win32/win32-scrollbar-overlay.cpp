@@ -50,6 +50,9 @@ Win32ScrollBarOverlay::Win32ScrollBarOverlay(HWND *parent_ptr, HWND *scrollbar_o
 {
 }
 
+Win32ScrollBarOverlay::~Win32ScrollBarOverlay() {
+}
+
 void Win32ScrollBarOverlay::after_construction() {
   base::after_construction();
   
