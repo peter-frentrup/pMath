@@ -2068,6 +2068,7 @@ LRESULT BasicWin32Window::callback(UINT message, WPARAM wParam, LPARAM lParam) {
           }
         } break;
       
+      case WM_NCLBUTTONDBLCLK:
       case WM_NCLBUTTONDOWN: {
           POINT pt = point_from_lparam(lParam);
           _hit_test_mouse_down = Impl(*this).nc_hit_test_system_buttons(pt, wParam);
