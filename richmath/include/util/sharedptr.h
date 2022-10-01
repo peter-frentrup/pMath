@@ -31,14 +31,17 @@ namespace richmath {
       }
 
       ~SharedPtr() {
-        if(_ptr)
-          _ptr->unref();
+        T *old_ptr = _ptr;
+        _ptr = nullptr;
+        if(old_ptr)
+          old_ptr->unref();
       }
 
       SharedPtr &operator=(T *ptr) {
-        if(_ptr)
-          _ptr->unref();
+        T *old_ptr = _ptr;
         _ptr = ptr;
+        if(old_ptr)
+          old_ptr->unref();
         return *this;
       }
 
@@ -51,9 +54,11 @@ namespace richmath {
 
         if(p)
           p->ref();
-        if(_ptr)
-          _ptr->unref();
+          
+        T *old_ptr = _ptr;
         _ptr = p;
+        if(old_ptr)
+          old_ptr->unref();
         return *this;
       }
 
