@@ -1317,6 +1317,7 @@
 		<Unit filename="include/util/heterogeneous-stack.h" />
 		<Unit filename="include/util/interval.h" />
 		<Unit filename="include/util/matrix.h" />
+		<Unit filename="include/util/multimap.h" />
 		<Unit filename="include/util/pmath-extra.h" />
 		<Unit filename="include/util/rle-array.h" />
 		<Unit filename="include/util/selection-tracking.h" />
@@ -1935,6 +1936,7 @@
 		<Unit filename="src/util/filesystem.cpp" />
 		<Unit filename="src/util/frontendobject.cpp" />
 		<Unit filename="src/util/heterogeneous-stack.cpp" />
+		<Unit filename="src/util/multimap.cpp" />
 		<Unit filename="src/util/pmath-extra.cpp" />
 		<Unit filename="src/util/rle-array.cpp" />
 		<Unit filename="src/util/selection-tracking.cpp" />

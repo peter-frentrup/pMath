@@ -59,6 +59,7 @@
 #include <gui/documents.h>
 #include <gui/recent-documents.h>
 #include <util/heterogeneous-stack.h>
+#include <util/multimap.h>
 
 #ifdef RICHMATH_USE_WIN32_GUI
 #  include <gui/win32/win32-clipboard.h>
@@ -569,6 +570,7 @@ int main(int argc, char **argv) {
   
   debug_test_rle_array();
   debug_test_heterogeneous_stack();
+  debug_test_multimap();
   
   os_init();
   
