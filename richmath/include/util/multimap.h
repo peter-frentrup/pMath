@@ -4,29 +4,24 @@
 #include <util/hashtable.h>
 
 namespace richmath {
-  struct MultiMapEntryGen {
-    unsigned generation : 31; // part of the key
-    unsigned is_deleted : 1;  // part of the value
-  };
-  
   template<typename K, typename V>
   struct MultiMapEntry {
-    MultiMapEntry(const K &k, MultiMapEntryGen extra, const V &v): key(k), _extra(extra), value(v) {}
-    MultiMapEntry(const K &k, MultiMapEntryGen extra, V &&v): key(k), _extra(extra), value(std::move(v)) {}
-    MultiMapEntry(const K &k, unsigned generation) : key(k), _extra{generation, 0} {
+    MultiMapEntry(const K &k, int generation, const V &v): key(k), _generation(generation), value(v) {}
+    MultiMapEntry(const K &k, int generation, V &&v): key(k), _generation(generation), value(std::move(v)) {}
+    MultiMapEntry(const K &k, int generation) : key(k), _generation{generation} {
     }
     
     const MultiMapEntry &operator=(const MultiMapEntry<K, V> &src) = delete;
     
     // only compares key and generation
     friend bool operator==(const MultiMapEntry &left, const MultiMapEntry &right) {
-      return left._extra.generation == right._extra.generation && left.key == right.key;
+      return left._generation == right._generation && left.key == right.key;
     }
     
-    unsigned hash() const { return default_hash(key) + 17 * _extra.generation; }
+    unsigned hash() const { return default_hash(key) + 17 * _generation; }
     
     const K key;
-    const MultiMapEntryGen _extra;
+    const int _generation;
     V value;
   };
   
@@ -50,23 +45,10 @@ namespace richmath {
           V       &operator*() {       HASHTABLE_ASSERT(is_valid()); return const_cast<V&>(entry->key.value); }
           const V &operator*() const { HASHTABLE_ASSERT(is_valid()); return entry->key.value; }
           
-          void remove_and_continue() {
-            if(entry) {
-              MultiMapEntryGen &extra = const_cast<MultiMapEntryGen&>(entry->key._extra);
-              extra.is_deleted = 1;
-              operator++();
-            }
-          }
-          
           const ValuesIterator &operator++() {
             if(is_valid()) {
-              entry_type k { entry->key.key, entry->key._extra.generation };
-              
-              do {
-                MultiMapEntryGen &k_extra = const_cast<MultiMapEntryGen&>(k._extra);
-                k_extra.generation++;
-                entry = table->search_entry(k);
-              } while(entry && entry->key._extra.is_deleted);
+              entry_type k { entry->key.key, entry->key._generation + 1 };
+              entry = table->search_entry(k);
               
               if(!entry)
                 table = nullptr;
@@ -101,12 +83,6 @@ namespace richmath {
         entry_type k { key, 0 };
         Entry<entry_type, Void> *e = table.search_entry(k);
         
-        while(e && e->key._extra.is_deleted) {
-          MultiMapEntryGen &extra = const_cast<MultiMapEntryGen&>(k._extra);
-          extra.generation++;
-          e = table.search_entry(k);
-        }
-        
         ValuesIterable res;
         if(e) {
           res.first.table = &table;
@@ -121,54 +97,55 @@ namespace richmath {
       
       /** Insert a (key,value). Running time should be of order O(#keys + #values_per_key)
        */
-      bool insert(const K &key, const V &value) { return append(key, std::move(value)); }
-      bool insert(const K &key, V &&value) {
+      bool insert(const K &key, const V &value) {
         entry_type k { key, 0 };
-        Entry<entry_type, Void> *empty = nullptr;
         Entry<entry_type, Void> *e = table.search_entry(k);
         while(e) {
-          if(e->key._extra.is_deleted) {
-            empty = e;
-          }
-          else if(e->key.value == value)
+          if(e->key.value == value)
             return false;
           
-          MultiMapEntryGen &k_extra = const_cast<MultiMapEntryGen&>(k._extra);
-          k_extra.generation++;
+          int &k_gen = const_cast<int&>(k._generation);
+          k_gen++;
           e = table.search_entry(k);
         }
-        if(empty) {
-          entry_type       &new_entry   = const_cast<entry_type&>(      empty->key);
-          MultiMapEntryGen &empty_extra = const_cast<MultiMapEntryGen&>(empty->key._extra);
-          empty_extra.is_deleted = 0;
-          new_entry.value = value;
-        }
-        else {
-          MultiMapEntryGen &k_extra = const_cast<MultiMapEntryGen&>(k._extra);
-          k_extra.is_deleted = 0;
-          k.value = value;
-          table.add(k);
-        }
+        k.value = value;
+        table.add(k);
         return true;
       }
       
       void remove_all(const K &key) {
         entry_type k { key, 0 };
         while(table.remove(k)) {
-          MultiMapEntryGen &k_extra = const_cast<MultiMapEntryGen&>(k._extra);
-          k_extra.generation++;
+          int &k_gen = const_cast<int&>(k._generation);
+          k_gen++;
         }
       }
       
       bool remove(const K &key, const V &value) {
-        auto all_for_key = get_all(key);
-        auto stop = end(all_for_key);
-        for(auto it = begin(all_for_key); it != stop; ++it) {
-          if(*it == value) {
-            it.remove_and_continue();
-            return true;
+        entry_type k { key, 0 };
+        int &k_gen = const_cast<int&>(k._generation);
+        
+        Entry<entry_type, Void> *e = table.search_entry(k);
+        
+        while(e) {
+          k_gen++;
+          if(e->key.value == value) {
+            auto next = table.search_entry(k);
+            while(next) {
+              using std::swap;
+              V &e_value    = const_cast<V &>(e->key.value);
+              V &next_value = const_cast<V &>(next->key.value);
+              swap(e_value, next_value);
+              
+              e = next;
+              k_gen++;
+              next = table.search_entry(k);
+            }
+            return table.remove(e->key);
           }
+          e = table.search_entry(k);
         }
+        
         return false;
       }
       
