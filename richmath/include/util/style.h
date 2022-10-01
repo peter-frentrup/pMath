@@ -4,7 +4,7 @@
 #include <eval/observable.h>
 #include <graphics/color.h>
 #include <graphics/symbolic-length.h>
-#include <util/hashtable.h>
+#include <util/multimap.h>
 #include <util/pmath-extra.h>
 #include <util/sharedptr.h>
 
@@ -120,6 +120,7 @@ namespace richmath {
     InternalHasModifiedWindowOption,
     InternalHasPendingDynamic,
     InternalHasNewBaseStyle,
+    InternalRegisteredBoxReference, // FrontEndReference
     InternalRequiresChildResize,
     InternalUsesCurrentValueOfMouseOver, // ObserverKindXXX
     LineBreakWithin,
@@ -298,6 +299,8 @@ namespace richmath {
     ButtonData,
     ButtonFunction,
     
+    InternalRegisteredBoxID,
+    BoxID,
     BoxRotation,
     BoxTransformation,
     PlotRange,
@@ -607,6 +610,11 @@ namespace richmath {
       Expr get_pmath(SharedPtr<Style> s, StyleOptionName n);
       
       bool update_dynamic(SharedPtr<Style> s, StyledObject *parent);
+      
+      using IterBoxReferences = MultiMap<Expr, FrontEndReference>::ValuesIterable;
+      static IterBoxReferences find_registered_box(Expr box_id);
+      static void update_box_registry(StyledObject *obj);
+      //static void unregister_box(StyledObject *obj);
       
       Color  get_or_default(SharedPtr<Style> s, ColorStyleOptionName n,  Color  fallback_result = Color::None) { get(std::move(s), n, &fallback_result); return fallback_result; }
       int    get_or_default(SharedPtr<Style> s, IntStyleOptionName n,    int    fallback_result = 0) {           get(std::move(s), n, &fallback_result); return fallback_result; }

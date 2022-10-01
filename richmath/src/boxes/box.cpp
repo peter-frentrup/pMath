@@ -665,6 +665,8 @@ void Box::abandon(Box *child) {
 FunctionChain<Box*, Expr> *Box::on_finish_load_from_object = nullptr;
 
 void Box::finish_load_from_object(Expr expr) {
+  Stylesheet::update_box_registry(this);
+  
   FunctionChain<Box*, Expr> *event = on_finish_load_from_object;
   while(event) {
     if(event->func)

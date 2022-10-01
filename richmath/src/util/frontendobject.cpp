@@ -2,6 +2,7 @@
 #include <util/hashtable.h>
 
 #include <eval/application.h>
+#include <util/styled-object.h>
 
 #include <new>         // placement new
 #include <type_traits> // aligned_storage
@@ -10,8 +11,13 @@
 using namespace richmath;
 using namespace pmath;
 
-extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_DollarFailed;
 extern pmath_symbol_t richmath_System_DocumentObject;
+extern pmath_symbol_t richmath_System_FrontEndObject;
+extern pmath_symbol_t richmath_System_List;
+extern pmath_symbol_t richmath_System_None;
+
+extern pmath_symbol_t richmath_FE_BoxReference;
 
 namespace {
   class ObjectWithLimboEnd final : public ObjectWithLimbo {
@@ -212,6 +218,45 @@ FrontEndObject *FrontEndObject::find(FrontEndReference id) {
   return *obj;
 }
 
+FrontEndObject *FrontEndObject::find_box_reference(Expr boxref) {
+  if(boxref[0] != richmath_FE_BoxReference)
+    return nullptr;
+  
+  auto basis_id = FrontEndReference::from_pmath(boxref[1]);
+  if(!basis_id)
+    return nullptr;
+  
+  auto basis = find(basis_id);
+  if(!basis)
+    return nullptr;
+  
+  Expr boxid = boxref[2];
+  if(boxid[0] == richmath_System_List)
+    boxid = boxid[1];
+  
+  if(!boxid || boxid == richmath_System_None)
+    return nullptr;
+  
+  auto iterable = Stylesheet::find_registered_box(boxid);
+  for(FrontEndReference ref : iterable) {
+    if(auto obj = find_cast<StyledObject>(ref)) {
+      if(obj->get_own_style(BoxID) != boxid) {
+        pmath_debug_print("[box #%d = %p does not have ", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+        pmath_debug_print_object(" BoxID -> ", boxid.get(), ", but has ");
+        pmath_debug_print_object(" BoxID -> ", obj->get_own_style(BoxID).get(), "]\n");
+        continue;
+      }
+      
+      for(auto tmp = obj; tmp; tmp = tmp->style_parent()) {
+        if(tmp == basis)
+          return obj;
+      }
+    }
+  }
+  
+  return nullptr;
+}
+
 void FrontEndObject::swap_id(FrontEndObject *other) {
   if(other) {
     auto id = other->_id;
@@ -223,3 +268,14 @@ void FrontEndObject::swap_id(FrontEndObject *other) {
 }
 
 //} ... class FrontEndObject
+
+Expr richmath_eval_FrontEnd_BoxReferenceBoxObject(Expr expr) {
+  if(expr.expr_length() != 1)
+    return Symbol(richmath_System_DollarFailed);
+  
+  FrontEndObject *res = FrontEndObject::find_box_reference(expr[1]);
+  if(!res)
+    return Symbol(richmath_System_DollarFailed);
+  
+  return res->to_pmath_id();
+}

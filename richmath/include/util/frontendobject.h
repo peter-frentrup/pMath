@@ -94,6 +94,7 @@ namespace richmath {
       virtual Expr to_pmath_id() { return _id.to_pmath(); }
       
       static FrontEndObject *find(FrontEndReference id);
+      static FrontEndObject *find_box_reference(Expr boxref);
       
       template<class T>
       static T *find_cast(FrontEndReference id) {
@@ -116,6 +117,9 @@ namespace richmath {
       /// \param info   The info argument given to the corresponding DynamicEvaluationJob. Usually null.
       /// \param result The evaluation result.
       virtual void dynamic_finished(Expr info, Expr result) {}
+      
+      bool has_box_id() { return get_flag(HasBoxID); }
+      void has_box_id(bool value) { change_flag(HasBoxID, value); } // to be used by Stylesheet only
     
     protected:
       bool get_flag(unsigned i) { return (_flags & (1u << i)) != 0; }
@@ -128,7 +132,9 @@ namespace richmath {
     
     protected:
       enum {
-        NumFlagsBits = 0
+        HasBoxID = 0,
+        
+        NumFlagsBits,
       };
       
       enum {

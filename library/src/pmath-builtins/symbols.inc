@@ -144,6 +144,7 @@ PMATH_DECLARE_SYSTEM_SYMBOL( Boole,                              DEFINITEFUNCTIO
 PMATH_DECLARE_SYSTEM_SYMBOL( BorderRadius,                       0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( Bottom,                             0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BoxData,                            0 )
+PMATH_DECLARE_SYSTEM_SYMBOL( BoxID,                              0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BoxRotation,                        0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BoxTransformation,                  0 )
 PMATH_DECLARE_SYSTEM_SYMBOL( BracketingBar,                      0 )

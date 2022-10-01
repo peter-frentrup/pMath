@@ -3,6 +3,7 @@ Begin("System`Private`")
 Options(Button):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
+    BoxID -> None,
     %ButtonData :> Automatic,
     ButtonFrame -> Automatic,
     %ButtonSource -> Automatic,
@@ -13,6 +14,7 @@ Options(Button):= {
 Options(ButtonBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Button", 
+    BoxID -> None,
     ButtonData :> Automatic,
     ButtonFrame -> Automatic,
     ButtonFunction -> (/\/ &),
@@ -27,6 +29,7 @@ Options(CreateDocument):= Options(Document):= {
     AutoSpacing -> Inherited,
     Background -> Inherited,
     BaseStyle -> None,
+    BoxID -> None,
     ButtonBoxOptions -> Inherited,
     ButtonFrame -> Inherited,
     ButtonFunction -> Inherited,
@@ -102,10 +105,12 @@ Options(CreateDocument):= Options(Document):= {
 
 Options(Checkbox):= Options(CheckboxBox):= {
     BaseStyle -> "Checkbox", 
+    BoxID -> None,
     Enabled -> Automatic }
 
 Options(Dynamic):= Options(DynamicBox):= {
     %BaselinePosition -> Automatic,
+    BoxID -> None,
     Deinitialization -> None,
     Initialization -> None,
     SynchronousUpdating -> True,
@@ -114,17 +119,20 @@ Options(Dynamic):= Options(DynamicBox):= {
 
 Options(DynamicLocal):= Options(DynamicLocalBox):= {
     %BaselinePosition -> Automatic,
+    BoxID -> None,
     Deinitialization -> None,
     Initialization -> None,
     DynamicLocalValues -> Automatic,
     UnsavedVariables -> {}}
 
 Options(FillBox):= Options(Filler):= {
+    BoxID -> None,
     FillBoxWeight -> 1,
     StripOnInput -> True}
 
 Options(FractionBox):= {
     BaseStyle -> None,
+    BoxID -> None,
     AllowScriptLevelChange -> True}
 
 Options(Framed):= Options(FrameBox):= { 
@@ -132,6 +140,7 @@ Options(Framed):= Options(FrameBox):= {
     BaselinePosition -> Automatic,
     BaseStyle -> "Framed", 
     BorderRadius -> 0,
+    BoxID -> None,
     ContentPadding -> True,
     FrameMargins -> Automatic,
     FrameStyle -> Automatic,
@@ -143,6 +152,7 @@ Options(Graphics):= Options(GraphicsBox):= {
     AxesOrigin -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "Graphics", 
+    BoxID -> None,
     Frame -> False,
     FrameTicks -> Automatic,
     ImageSize -> Automatic,
@@ -152,12 +162,14 @@ Options(Graphics):= Options(GraphicsBox):= {
 Options(Grid):= {
     AllowScriptLevelChange -> True,
     BaselinePosition -> Automatic,
+    BoxID -> None,
     ColumnSpacing -> Inherited,
     RowSpacing -> Inherited}
 
 Options(GridBox):= {
     AllowScriptLevelChange -> True,
     BaselinePosition -> Automatic,
+    BoxID -> None,
     GridBoxColumnSpacing -> Inherited,
     GridBoxRowSpacing -> Inherited}
 
@@ -165,21 +177,25 @@ Options(InputField):= Options(InputFieldBox):= {
     Appearance -> Automatic,
     BaselinePosition -> Automatic,
     BaseStyle -> "InputField",
+    BoxID -> None,
     ContinuousAction -> False,
     Enabled -> Automatic}
           
 Options(InterpretationBox):= Options(Interpretation):= {
     %BaselinePosition -> Automatic,
+    BoxID -> None,
     AutoDelete -> False,
     Editable -> False,
     SyntaxForm -> Automatic }
 
 Options(Opener):= Options(OpenerBox):= {
+    BoxID -> None,
     Enabled -> Automatic }
 
 Options(Pane):= Options(PaneBox):= {
     BaselinePosition -> Automatic, 
     BaseStyle -> "Pane",
+    BoxID -> None,
     ImageSize -> Automatic,
     ImageSizeAction -> "ShrinkToFit",
     LineBreakWithin -> True}
@@ -188,18 +204,22 @@ Options(Panel):= Options(PanelBox):= {
     Appearance -> Automatic,
     BaselinePosition -> Automatic, 
     BaseStyle -> "Panel",
+    BoxID -> None,
     ContentPadding -> True,
     Enabled -> Inherited}
 
 Options(PaneSelector):= Options(PaneSelectorBox):= { 
     %BaselinePosition -> Automatic, 
     BaseStyle -> "PaneSelector",
+    BoxID -> None,
     Enabled -> Automatic }
 
 Options(RadioButton):= Options(RadioButtonBox):= { 
     BaseStyle -> "RadioButton",
+    BoxID -> None,
     Enabled -> Automatic }
 Options(RadioButtonBar):= {
+    BoxID -> None,
     Enabled -> Automatic }
 
 Options(Style):= Options(StyleBox):= {
@@ -208,9 +228,10 @@ Options(Style):= Options(StyleBox):= {
     AutoNumberFormating -> Inherited,
     AutoSpacing -> Inherited,
     Background -> None,
-    BaselinePosition -> Automatic,
+    %BaselinePosition -> Automatic, % TODO: handle for in-line spans or remove from StyleBox
     BaseStyle -> None,
-    BorderRadius -> 0,
+    %BorderRadius -> 0,
+    BoxID -> None,
     ButtonBoxOptions -> Inherited,
     "CharacterNameStyle" -> Inherited,
     "CommentStyle" -> Inherited,
@@ -263,7 +284,7 @@ Options(Style):= Options(StyleBox):= {
     "SymbolShadowingStyle" -> Inherited,
     "SyntaxErrorStyle" -> Inherited,
     TemplateBoxOptions -> Inherited,
-    TextShadow -> Inherited,
+    TextShadow -> Inherited, % TODO: does not work any more
     "UndefinedSymbolStyle" -> Inherited,
     "UnknownOptionStyle" -> Inherited}
 
@@ -277,6 +298,7 @@ Options(Section):= {
     BaselinePosition -> Automatic, % TODO: hide behind FrameBoxOptions, etc ?
     BaseStyle -> None,
     BorderRadius -> 0,
+    BoxID -> None,
     ButtonBoxOptions -> {
         BaselinePosition -> Automatic,
         ButtonData :> Automatic,
@@ -422,12 +444,14 @@ Options(Section):= {
 Options(Setter):= Options(SetterBox):= Options(SetterBar):= { 
     BaselinePosition -> Automatic,
     BaseStyle -> "Setter", 
+    BoxID -> None,
     ButtonFrame -> Automatic,
     ContentPadding -> True,
     Enabled -> Automatic }
 
 Options(Slider):= Options(SliderBox):= {
     BaseStyle -> "Slider", 
+    BoxID -> None,
     Appearance -> Automatic,
     ContinuousAction -> True,
     Enabled -> Automatic }
@@ -437,12 +461,14 @@ Options(StyleData):= {
 
 Options(TagBox):= {
     AutoDelete -> False,
+    BoxID -> None,
     Editable -> Automatic,
     Selectable -> Automatic,
     SyntaxForm -> Automatic }
 
 Options(TemplateBox):= {
     %BaselinePosition -> Automatic,
+    BoxID -> None,
     DisplayFunction ->None,
     Editable -> Automatic,
     InterpretationFunction -> Automatic,
@@ -452,14 +478,17 @@ Options(TemplateBox):= {
 }
 
 Options(ToggleSwitch):= { 
+    BoxID -> None,
     Enabled -> Automatic}
 
 Options(Tooltip):= Options(TooltipBox):= { 
     %BaselinePosition -> Automatic,
+    BoxID -> None,
     StripOnInput -> True}
 
 Options(TransformationBox):= { 
     %BaselinePosition -> Automatic,
+    BoxID -> None,
     BoxTransformation -> {{1,0},{0,1}} }
 
 End()

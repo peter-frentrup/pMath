@@ -33,6 +33,7 @@ extern pmath_symbol_t richmath_System_BaseStyle;
 extern pmath_symbol_t richmath_System_Bold;
 extern pmath_symbol_t richmath_System_BorderRadius;
 extern pmath_symbol_t richmath_System_Bottom;
+extern pmath_symbol_t richmath_System_BoxID;
 extern pmath_symbol_t richmath_System_BoxRotation;
 extern pmath_symbol_t richmath_System_BoxTransformation;
 extern pmath_symbol_t richmath_System_ButtonBox;
@@ -198,6 +199,8 @@ namespace richmath { namespace strings {
 }}
 
 using namespace richmath;
+
+static MultiMap<Expr, FrontEndReference> box_registry;
 
 bool richmath::get_factor_of_scaled(Expr expr, double *value) {
   RICHMATH_ASSERT(value != nullptr);
@@ -1133,7 +1136,7 @@ bool StyleImpl::set_pmath_object(StyleOptionName n, Expr obj) {
   if(n.is_literal() && Dynamic::is_dynamic(obj))
     return set_dynamic(n, obj) || any_change;
     
-  if(n == StyleDefinitions) {
+  if(n == StyleDefinitions /*|| n == BoxID*/) {
     if(raw_set_expr(n, obj)) {
       any_change = true;
       raw_set_int(InternalHasPendingDynamic, true);
@@ -2004,10 +2007,52 @@ Style::Style(Expr options)
 }
 
 Style::~Style() {
+  clear();
   StyleInformation::remove_style();
 }
 
 void Style::clear() {
+  auto impl = StyleImpl::of(*this);
+  Expr old_boxid;
+  if(impl.raw_get_expr(InternalRegisteredBoxID, &old_boxid)) {
+    int old_ref_id = 0;
+    impl.raw_get_int(InternalRegisteredBoxReference, &old_ref_id);
+    auto owner_ref = FrontEndReference::unsafe_cast_from_pointer((void*)(intptr_t)old_ref_id);
+    auto owner = FrontEndObject::find_cast<StyledObject>(owner_ref);
+    
+    if(!owner) {
+      pmath_debug_print_object("[Style::clear: cannot find owning object for BoxID -> ", old_boxid.get(), "]\n");
+    }
+    else if(owner->own_style() && owner->own_style().ptr() != this) {
+      pmath_debug_print("[?!? Style::clear: box #%d = %p has style %p != %p which claims so with ",
+        (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()),
+        owner,
+        owner->own_style().ptr(),
+        this);
+      pmath_debug_print_object("BoxID -> ", old_boxid.get(), "]\n");
+      
+      owner = nullptr;
+    }
+    
+    if(owner) {
+      bool did_remove = box_registry.remove(old_boxid, owner->id());
+      if(did_remove) {
+        pmath_debug_print("[Style::clear: unregistered box #%d = %p with old ", 
+          (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()), 
+          owner);
+        pmath_debug_print_object(" BoxID -> ", old_boxid.get(), "]\n");
+      } 
+      else {
+        pmath_debug_print("[Style::clear: did not find box #%d = %p by its old ", 
+          (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(owner->id()), 
+          owner);
+        pmath_debug_print_object(" BoxID -> ", old_boxid.get(), "]\n");
+      }
+      
+      owner->has_box_id(false);
+    }
+  }
+  
   int_float_values.clear();
   object_values.clear();
 }
@@ -2323,6 +2368,7 @@ bool Style::modifies_size(StyleOptionName style_name) {
     case SectionLabel:
     case WindowTitle:
     
+    case BoxID:
     case ButtonFunction:
     case ScriptSizeMultipliers:
     case TextShadow:
@@ -2410,6 +2456,7 @@ void Style::emit_to_pmath(bool with_inherited) const {
     impl.emit_definition(BaseStyleName);
     
   impl.emit_definition(BorderRadius);
+  impl.emit_definition(BoxID);
   impl.emit_definition(BoxRotation);
   impl.emit_definition(BoxTransformation);
   impl.emit_definition(ButtonBoxOptions);
@@ -2565,126 +2612,17 @@ namespace richmath {
       StylesheetImpl(Stylesheet &_self) : self(_self) {}
       
     public:
-      void reload(Expr expr) {
-        self.styles.clear();
-        self.used_stylesheets.clear();
-        self.users.clear();
-        self._loaded_definition = expr;
-        add(expr);
-      }
-      
-      void add(Expr expr) {
-        if(self._name.is_valid()) {
-          if(currently_loading.search(self._name)) {
-            // TODO: warn about recursive dependency
-            return;
-          }
-          currently_loading.add(self._name);
-        }
-        
-        internal_add(expr);
-        
-        if(self._name.is_valid())
-          currently_loading.remove(self._name);
-      }
-      
+      void reload(Expr expr);
+      void add(Expr expr);
       bool update_dynamic(SharedPtr<Style> s, StyledObject *parent);
+      
+      static void add_remove_stylesheet(int delta);
       
     private:
       static Hashset<Expr> currently_loading;
       
-      void internal_add(Expr expr) {
-        // TODO: detect stack overflow/infinite recursion
-        
-        while(expr.is_expr()) {
-          if(expr[0] == richmath_System_Document) {
-            expr = expr[1];
-            continue;
-          }
-          
-          if(expr[0] == richmath_System_SectionGroup) {
-            expr = expr[1];
-            continue;
-          }
-          
-          if(expr[0] == richmath_System_List) {
-            size_t len = expr.expr_length();
-            for(size_t i = 1; i < len; ++i) {
-              internal_add(expr[i]);
-            }
-            expr = expr[len];
-            continue;
-          }
-          
-          if(expr[0] == richmath_System_Section) {
-            add_section(expr);
-            return;
-          }
-          
-          break;
-        }
-      }
-      
-      void add_section(Expr expr) {
-        Expr name = expr[1];
-        if(name[0] == richmath_System_StyleData) {
-          Expr data = name[1];
-          if(data.is_string()) {
-            Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
-            if(options.is_null())
-              return;
-            
-            Expr data_opts(pmath_options_extract_ex(name.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
-            if(data_opts.is_null())
-              return;
-            
-            Expr base_sd(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, data_opts.get()));
-            
-            if(base_sd == richmath_System_Automatic) {
-              if(SharedPtr<Style> *style_ptr = self.styles.search(String(data))) {
-                (*style_ptr)->add_pmath(options);
-                return;
-              }
-            }
-            else if(base_sd[0] == richmath_System_StyleData) {
-              if(SharedPtr<Style> *base_style_ptr = self.styles.search(String(base_sd[1]))) {
-                SharedPtr<Style> style = new Style();
-                style->merge(*base_style_ptr);
-                style->add_pmath(options);
-                self.styles.set(String(data), style);
-                return;
-              }
-            }
-//            else if(base_sd != richmath_System_None)
-//              return;
-            
-            SharedPtr<Style> style = new Style(options);
-            self.styles.set(String(data), style);
-            
-            return;
-          }
-          
-          if(expr.expr_length() == 1 && data.is_rule() && data[1] == richmath_System_StyleDefinitions) {
-            SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
-            if(stylesheet) {
-              self.used_stylesheets.add(stylesheet);
-              stylesheet->users.add(self.id());
-              
-              for(auto &other : stylesheet->styles.entries()) {
-                SharedPtr<Style> *mine = self.styles.search(other.key);
-                if(mine) {
-                  (*mine)->merge(other.value);
-                }
-                else {
-                  SharedPtr<Style> copy = new Style();
-                  copy->merge(other.value);
-                  self.styles.set(other.key, copy);
-                }
-              }
-            }
-          }
-        }
-      }
+      void internal_add(Expr expr);
+      void add_section(Expr expr);
       
     private:
       Stylesheet &self;
@@ -2693,78 +2631,11 @@ namespace richmath {
   Hashset<Expr> StylesheetImpl::currently_loading;
 }
 
-bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
-  if(!s || !parent)
-    return false;
-    
-  StyleImpl s_impl = StyleImpl::of(*s.ptr());
-  
-  int i;
-  if(!s_impl.raw_get_int(InternalHasPendingDynamic, &i) || !i) {
-    bool has_parent_pending_dynamic = false;
-    
-    if(s_impl.raw_get_int(InternalHasNewBaseStyle, &i) && i) {
-      s_impl.raw_set_int(InternalHasNewBaseStyle, false);
-      
-      SharedPtr<Style> tmp = self.find_parent_style(s);
-      for(int count = 20; count && tmp; --count) {
-        if(StyleImpl::of(*tmp.ptr()).raw_get_int(InternalHasPendingDynamic, &i) && i) {
-          has_parent_pending_dynamic = true;
-          break;
-        }
-        
-        tmp = self.find_parent_style(tmp);
-      }
-    }
-    
-    if(!has_parent_pending_dynamic)
-      return false;
-  }
-  s_impl.raw_set_int(InternalHasNewBaseStyle, false);
-  s_impl.raw_set_int(InternalHasPendingDynamic, false);
-  
-  s_impl.remove_all_volatile();
-  
-  Hashtable<StyleOptionName, Expr> dynamic_styles;
-  
-  SharedPtr<Style> tmp = s;
-  for(int count = 20; count && tmp; --count) {
-    StyleImpl::of(*tmp.ptr()).collect_unused_dynamic(dynamic_styles);
-    
-    tmp = self.find_parent_style(tmp);
-  }
-  
-  if(dynamic_styles.size() == 0)
-    return false;
-    
-  bool resize = false;
-  for(const auto &e : dynamic_styles.entries()) {
-    if(Style::modifies_size(e.key.to_literal())) {
-      resize = true;
-      break;
-    }
-  }
-  
-  for(auto &e : dynamic_styles.entries()) {
-    Dynamic dyn(parent, e.value);
-    e.value = dyn.get_value_now();
-  }
-  
-  for(const auto &e : dynamic_styles.entries()) {
-    if(e.value != richmath_System_DollarAborted && !Dynamic::is_dynamic(e.value)) {
-      StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
-      s_impl.set_pmath(key, e.value);
-    }
-  }
-  
-  parent->on_style_changed(resize);
-  return true;
-}
-
 Stylesheet::Stylesheet() 
 : Shareable(),
   _limbo_next(nullptr)
 {
+  StylesheetImpl::add_remove_stylesheet(+1);
 }
 
 Stylesheet::~Stylesheet() {
@@ -2774,7 +2645,83 @@ Stylesheet::~Stylesheet() {
   
   used_stylesheets.clear();
   unregister();
+  StylesheetImpl::add_remove_stylesheet(-1);
 }
+
+Stylesheet::IterBoxReferences Stylesheet::find_registered_box(Expr box_id) {
+  return box_registry[box_id];
+}
+
+void Stylesheet::update_box_registry(StyledObject *obj) {
+  auto s = obj->own_style();
+  
+  Expr old_box_id = obj->get_own_style(InternalRegisteredBoxID);
+  Expr new_box_id = obj->get_own_style(BoxID);
+  
+  if(old_box_id != new_box_id) {
+    if(old_box_id) {
+      bool did_remove = box_registry.remove(old_box_id, obj->id());
+      if(!did_remove) {
+        pmath_debug_print("[update_box_registry: did not find box #%d = %p by its old BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+        pmath_debug_print_object(" -> ", old_box_id.get(), "]\n");
+      }
+    }
+    
+    if(new_box_id) {
+      bool did_insert = box_registry.insert(new_box_id, obj->id());
+      if(!did_insert) {
+        pmath_debug_print("[update_box_registry: box #%d = %p already known by its new BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+        pmath_debug_print_object(" -> ", new_box_id.get(), "]\n");
+      }
+      obj->has_box_id(true);
+    }
+    else
+      obj->has_box_id(false);
+    
+    if(new_box_id) {
+      StyleImpl::of(*s.ptr()).raw_set_expr(InternalRegisteredBoxID, new_box_id);
+      StyleImpl::of(*s.ptr()).raw_set_int(InternalRegisteredBoxReference, (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()));
+    }
+    else {
+      StyleImpl::of(*s.ptr()).raw_remove(InternalRegisteredBoxID);
+      StyleImpl::of(*s.ptr()).raw_remove(InternalRegisteredBoxReference);
+    }
+    
+    if(old_box_id) {
+      pmath_debug_print("[update_box_registry: unregistered box #%d = %p for old BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+      pmath_debug_print_object(" -> ", old_box_id.get(), "]\n");
+    }
+    
+    if(new_box_id) {
+      pmath_debug_print("[update_box_registry: box #%d = %p registered for BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+      pmath_debug_print_object(" -> ", new_box_id.get(), "]\n");
+    }
+  }
+}
+
+/*void Stylesheet::unregister_box(StyledObject *obj) {
+  if(!obj)
+    return;
+  
+  auto style = obj->own_style();
+  if(!style) {
+    if(obj->has_box_id()) {
+      pmath_debug_print("[no BoxID found for box #%d = %p]\n", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+    }
+    return;
+  }
+  
+  if(Expr box_id = obj->get_own_style(InternalRegisteredBoxID)) {
+    bool did_remove = box_registry.remove(box_id, obj->id());
+    if(!did_remove) {
+      pmath_debug_print("[did not find box #%d = %p by its old BoxID", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+      pmath_debug_print_object(" -> ", box_id.get(), "]\n");
+    }
+  }
+  else {
+    pmath_debug_print("[no BoxID found for box #%d = %p]\n", (int)(intptr_t)FrontEndReference::unsafe_cast_to_pointer(obj->id()), obj);
+  }
+}*/
 
 void Stylesheet::unregister() {
   if(_name.is_valid()) {
@@ -2942,6 +2889,218 @@ bool Stylesheet::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
 }
 
 //} ... class Stylesheet
+
+
+//{ class StylesheetImpl ...
+
+void StylesheetImpl::reload(Expr expr) {
+  self.styles.clear();
+  self.used_stylesheets.clear();
+  self.users.clear();
+  self._loaded_definition = expr;
+  add(expr);
+}
+
+void StylesheetImpl::add(Expr expr) {
+  if(self._name.is_valid()) {
+    if(currently_loading.search(self._name)) {
+      // TODO: warn about recursive dependency
+      return;
+    }
+    currently_loading.add(self._name);
+  }
+  
+  internal_add(expr);
+  
+  if(self._name.is_valid())
+    currently_loading.remove(self._name);
+}
+
+bool StylesheetImpl::update_dynamic(SharedPtr<Style> s, StyledObject *parent) {
+  if(!s || !parent)
+    return false;
+    
+  StyleImpl s_impl = StyleImpl::of(*s.ptr());
+  
+  int i;
+  if(!s_impl.raw_get_int(InternalHasPendingDynamic, &i) || !i) {
+    bool has_parent_pending_dynamic = false;
+    
+    if(s_impl.raw_get_int(InternalHasNewBaseStyle, &i) && i) {
+      s_impl.raw_set_int(InternalHasNewBaseStyle, false);
+      
+      SharedPtr<Style> tmp = self.find_parent_style(s);
+      for(int count = 20; count && tmp; --count) {
+        if(StyleImpl::of(*tmp.ptr()).raw_get_int(InternalHasPendingDynamic, &i) && i) {
+          has_parent_pending_dynamic = true;
+          break;
+        }
+        
+        tmp = self.find_parent_style(tmp);
+      }
+    }
+    
+    if(!has_parent_pending_dynamic) {
+      Stylesheet::update_box_registry(parent);
+      return false;
+    }
+  }
+  s_impl.raw_set_int(InternalHasNewBaseStyle, false);
+  s_impl.raw_set_int(InternalHasPendingDynamic, false);
+  
+  s_impl.remove_all_volatile();
+  
+  Hashtable<StyleOptionName, Expr> dynamic_styles;
+  
+  SharedPtr<Style> tmp = s;
+  for(int count = 20; count && tmp; --count) {
+    StyleImpl::of(*tmp.ptr()).collect_unused_dynamic(dynamic_styles);
+    
+    tmp = self.find_parent_style(tmp);
+  }
+  
+  if(dynamic_styles.size() == 0) {
+    Stylesheet::update_box_registry(parent);
+    return false;
+  }
+    
+  bool resize = false;
+  for(const auto &e : dynamic_styles.entries()) {
+    if(Style::modifies_size(e.key.to_literal())) {
+      resize = true;
+      break;
+    }
+  }
+  
+  for(auto &e : dynamic_styles.entries()) {
+    Dynamic dyn(parent, e.value);
+    e.value = dyn.get_value_now();
+  }
+  
+  for(const auto &e : dynamic_styles.entries()) {
+    if(e.value != richmath_System_DollarAborted && !Dynamic::is_dynamic(e.value)) {
+      StyleOptionName key = e.key.to_volatile(); // = e.key.to_literal().to_volatile()
+      s_impl.set_pmath(key, e.value);
+    }
+  }
+  
+  Stylesheet::update_box_registry(parent);
+  
+  parent->on_style_changed(resize);
+  return true;
+}
+
+void StylesheetImpl::internal_add(Expr expr) {
+  // TODO: detect stack overflow/infinite recursion
+  
+  while(expr.is_expr()) {
+    if(expr[0] == richmath_System_Document) {
+      expr = expr[1];
+      continue;
+    }
+    
+    if(expr[0] == richmath_System_SectionGroup) {
+      expr = expr[1];
+      continue;
+    }
+    
+    if(expr[0] == richmath_System_List) {
+      size_t len = expr.expr_length();
+      for(size_t i = 1; i < len; ++i) {
+        internal_add(expr[i]);
+      }
+      expr = expr[len];
+      continue;
+    }
+    
+    if(expr[0] == richmath_System_Section) {
+      add_section(expr);
+      return;
+    }
+    
+    break;
+  }
+}
+
+void StylesheetImpl::add_section(Expr expr) {
+  Expr name = expr[1];
+  if(name[0] == richmath_System_StyleData) {
+    Expr data = name[1];
+    if(data.is_string()) {
+      Expr options(pmath_options_extract_ex(expr.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+      if(options.is_null())
+        return;
+      
+      Expr data_opts(pmath_options_extract_ex(name.get(), 1, PMATH_OPTIONS_EXTRACT_UNKNOWN_WARNONLY));
+      if(data_opts.is_null())
+        return;
+      
+      Expr base_sd(pmath_option_value(richmath_System_StyleData, richmath_System_StyleDefinitions, data_opts.get()));
+      
+      if(base_sd == richmath_System_Automatic) {
+        if(SharedPtr<Style> *style_ptr = self.styles.search(String(data))) {
+          (*style_ptr)->add_pmath(options);
+          return;
+        }
+      }
+      else if(base_sd[0] == richmath_System_StyleData) {
+        if(SharedPtr<Style> *base_style_ptr = self.styles.search(String(base_sd[1]))) {
+          SharedPtr<Style> style = new Style();
+          style->merge(*base_style_ptr);
+          style->add_pmath(options);
+          self.styles.set(String(data), style);
+          return;
+        }
+      }
+//            else if(base_sd != richmath_System_None)
+//              return;
+      
+      SharedPtr<Style> style = new Style(options);
+      self.styles.set(String(data), style);
+      
+      return;
+    }
+    
+    if(expr.expr_length() == 1 && data.is_rule() && data[1] == richmath_System_StyleDefinitions) {
+      SharedPtr<Stylesheet> stylesheet = Stylesheet::try_load(data[2]);
+      if(stylesheet) {
+        self.used_stylesheets.add(stylesheet);
+        stylesheet->users.add(self.id());
+        
+        for(auto &other : stylesheet->styles.entries()) {
+          SharedPtr<Style> *mine = self.styles.search(other.key);
+          if(mine) {
+            (*mine)->merge(other.value);
+          }
+          else {
+            SharedPtr<Style> copy = new Style();
+            copy->merge(other.value);
+            self.styles.set(other.key, copy);
+          }
+        }
+      }
+    }
+  }
+}
+
+void StylesheetImpl::add_remove_stylesheet(int delta) {
+  static int total = 0;
+  
+  if(total == 0) {
+    RICHMATH_ASSERT(delta > 0);
+    
+    // init ...
+  }
+  
+  total += delta;
+  RICHMATH_ASSERT(total >= 0);
+  
+  if(total == 0) {
+    box_registry.clear();
+  }
+}
+
+//} ... class StylesheetImpl
 
 //{ class StyleInformation ...
 
@@ -3182,6 +3341,7 @@ void StyleInformation::add_style() {
     add(StyleType::Any,             AxesOrigin,                       Symbol( richmath_System_AxesOrigin));
     add(StyleType::Any,             BaselinePosition,                 Symbol( richmath_System_BaselinePosition));
     add(StyleType::Any,             BorderRadius,                     Symbol( richmath_System_BorderRadius));
+    add(StyleType::Any,             BoxID,                            Symbol( richmath_System_BoxID));
     add(StyleType::Any,             BoxRotation,                      Symbol( richmath_System_BoxRotation));
     add(StyleType::Any,             BoxTransformation,                Symbol( richmath_System_BoxTransformation));
     add(StyleType::Any,             ButtonData,                       Symbol( richmath_System_ButtonData));

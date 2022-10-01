@@ -681,7 +681,20 @@ static bool finish_edit_section(
     else
       sect = BoxFactory::create_section(parsed);
       
-    sect->swap_id(edit);
+    if(sect->has_box_id() && sect->style) {
+      Expr box_id;
+      sect->style->get(BoxID, &box_id);
+      sect->style->remove(BoxID);
+      Stylesheet::update_box_registry(sect);
+      
+      sect->swap_id(edit);
+      
+      sect->style->set(BoxID, box_id);
+      Stylesheet::update_box_registry(sect);
+    }
+    else
+      sect->swap_id(edit);
+    
     parent->swap(index, sect)->safe_destroy();
   });
   
