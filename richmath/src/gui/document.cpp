@@ -3654,10 +3654,11 @@ void Document::Impl::after_resize_section(int i) {
     float w  = sect->extents().width;
     float uw = sect->unfilled_width;
     if(self.get_own_style(ShowSectionBracket, true)) {
-      w += self.section_bracket_right_margin +
-           self.section_bracket_width * self.group_info(i).nesting;
-      uw += self.section_bracket_right_margin +
-            self.section_bracket_width * self.group_info(i).nesting;
+      int nesting = self.group_info(i).nesting;
+      if(nesting > 0) {
+        w  += self.section_bracket_right_margin + self.section_bracket_width * nesting;
+        uw += self.section_bracket_right_margin + self.section_bracket_width * nesting;
+      }
     }
     
     if(self._extents.width < w)
