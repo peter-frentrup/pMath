@@ -81,6 +81,7 @@ void Buffer::init(Canvas &dst, cairo_format_t format, RectangleF rect) {
         _canvas->glass_background   = dst.glass_background;
         _canvas->native_show_glyphs = dst.native_show_glyphs;
         
+        _canvas->set_font_size(dst.get_font_size());
         cairo_set_font_face(_cr, cairo_get_font_face(dst.cairo()));
         
         cairo_matrix_t fmat;
