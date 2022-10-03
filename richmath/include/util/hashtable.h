@@ -440,8 +440,11 @@ namespace richmath {
       ~Hashtable() {
         auto tab = table();
         for(unsigned int i = 0; i < capacity; ++i)
-          if(is_used(tab[i]))
-            delete tab[i];
+          if(is_used(tab[i])) {
+            auto old_entry = tab[i];
+            tab[i] = Deleted();
+            delete old_entry;
+          }
             
         if(large_table)
           delete[] large_table;
@@ -538,8 +541,10 @@ namespace richmath {
           HASHTABLE_ASSERT(i < capacity);
           
           if(is_used(tab[i])) {
+            auto old_entry = tab[i];
+            tab[i] = Deleted();
             --used_count;
-            delete tab[i];
+            delete old_entry;
           }
         }
         
@@ -563,10 +568,10 @@ namespace richmath {
         if(!is_used(tab[index])) 
           return false;
         
-        delete tab[index];
-        
-        --used_count;
+        auto old_entry = tab[index];
         tab[index] = Deleted();
+        --used_count;
+        delete old_entry;
         return true;
       }
       

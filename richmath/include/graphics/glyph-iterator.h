@@ -27,6 +27,7 @@ namespace richmath {
       uint16_t      current_char() const {     return _basic_iter.current_char(); }
       Box          *current_box() const {      return _basic_iter.current_box(); }
       GlyphInfo    &current_glyph() const {    return all_glyphs()[glyph_index()]; }
+      VolatileLocation current_location() const { return {current_sequence(), text_index()}; }
       
       const Array<GlyphInfo> &all_glyphs() const { return _basic_iter.outermost_sequence()->glyph_array(); };
       MathSequence *outermost_sequence() const { return _basic_iter.outermost_sequence(); }

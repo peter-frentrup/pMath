@@ -37,7 +37,7 @@ namespace richmath {
       
       void set_script_size_multis(Expr expr);
       
-      using PaintCallback = std::function<void(Context&, const RectangleF &rect)>;
+      using PaintCallback = std::function<void(Context&)>;
       void draw_text_shadow(
              PaintCallback     painter,
              const RectangleF &region, 

@@ -322,12 +322,15 @@ namespace richmath {
       void calculate_line_heights(Context &context, InlineSpanPainting &isp);
       void calculate_total_extents_from_lines();
       
+      void paint(Context &context);
+      
       Vector2F total_offest_to_index(int index);
       float glyph_offset_x(int glpyh_index, int line_index);
       
       void selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end);
       void selection_path(Context *opt_context, Canvas &canvas, VolatileSelection sel);
       void selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, VolatileSelection sel);
+      void selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, const GlyphIterator &start, const GlyphIterator &end);
       
       class PaintHookHandler {
         public:
@@ -395,6 +398,7 @@ bool MathSequence::expand(const BoxSize &size) {
 
 void MathSequence::resize(Context &context) {
   inline_span(false);
+  has_text_shadow_span(false);
   ensure_boxes_valid();
   ensure_spans_valid();
   
@@ -524,183 +528,57 @@ void MathSequence::paint(Context &context) {
   Point p0 = context.canvas().current_pos();
   
   Color default_color = context.canvas().get_color();
-  SharedPtr<MathShaper> default_math_shaper = context.math_shaper;
   
   before_paint_inline(context);
   
-  context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
-  
   Impl::PaintHookHandler(context, p0, context.pre_paint_hooks, true).run(*this);
   
-  {
-    float y = p0.y;
-    if(lines.length() > 0)
-      y -= lines[0].ascent;
+  if(has_text_shadow_span()) {
+    RleArray<Expr> text_shadows;
+    auto text_shadows_iter = text_shadows.begin();
     
-    double clip_x1, clip_y1, clip_x2, clip_y2;
-    context.canvas().clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
-    
-    int line = 0;
-    // skip invisible lines:
-    while(line < lines.length()) {
-      float h = lines[line].ascent + lines[line].descent;
-      if(y + h >= clip_y1)
-        break;
-        
-      y += h + line_spacing();
-      ++line;
-    }
-    
-    if(line < lines.length()) {
-      float glyph_left = 0;
-      InlineSpanPainting inline_span_painting{this};
-      GlyphIterator iter{*this};
-      
-      if(line > 0)
-        iter.move_to_glyph(lines[line - 1].end);
-        
-      if(iter.glyph_index() > 0)
-        glyph_left = glyphs[iter.glyph_index() - 1].right;
-        
-      bool have_style = false;
-      bool have_slant = false;
-      for(; line < lines.length() && y < clip_y2; ++line) {
-        float x_extra = p0.x + indention_width(lines[line].indent);
-        
-        if(iter.glyph_index() > 0)
-          x_extra -= glyphs[iter.glyph_index() - 1].right;
-        
-        y += lines[line].ascent;
-        
-        for(; iter.glyph_index() < lines[line].end; iter.move_next_glyph()) {
-          inline_span_painting.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Paint);
-          
-          if(iter.current_char() == '\n') {
-            glyph_left = iter.current_glyph().right;
-            continue;
-          }
-          
-          if(have_style || iter.semantic_style()) {
-            Color color = context.syntax->glyph_style_colors[iter.semantic_style().kind() & 0x0F];
-            
-            context.canvas().set_color(color);
-            have_style = color != default_color;
-          }
-          
-          if(have_slant || iter.current_glyph().slant) {
-            if(iter.current_glyph().slant == FontSlantItalic) {
-              context.math_shaper = default_math_shaper->set_style(
-                                      default_math_shaper->get_style() + Italic);
-              have_slant = true;
-            }
-            else if(iter.current_glyph().slant == FontSlantPlain) {
-              context.math_shaper = default_math_shaper->set_style(
-                                      default_math_shaper->get_style() - Italic);
-              have_slant = true;
-            }
-            else {
-              context.math_shaper = default_math_shaper;
-              have_slant = false;
-            }
-          }
-          
-          if(auto box = iter.current_box()) {
-            context.canvas().move_to(glyph_left + x_extra + iter.current_glyph().x_offset, y);
-            
-            box->paint(context);
-            
-            context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
-          }
-          else if(iter.current_glyph().index || iter.current_glyph().composed || iter.current_glyph().horizontal_stretch) {
-            if(iter.current_glyph().is_normal_text) {
-              context.text_shaper->show_glyph(
-                context,
-                Point{glyph_left + x_extra, y},
-                iter.current_char(),
-                iter.current_glyph());
-            }
-            else {
-              context.math_shaper->show_glyph(
-                context,
-                Point{glyph_left + x_extra, y},
-                iter.current_char(),
-                iter.current_glyph());
-            }
-          }
-          
-          if(iter.semantic_style().is_missing_after()) {
-            float d = em * RefErrorIndictorHeight * 2 / 3.0f;
-            float dd = d / 4;
-            
-            context.canvas().move_to(iter.current_glyph().right + x_extra, y + em / 8);
-            if(iter.glyph_index() + 1 < glyphs.length())
-              context.canvas().rel_move_to(glyphs[iter.glyph_index() + 1].x_offset / 2, 0);
-              
-            context.canvas().rel_line_to(-d, d);
-            context.canvas().rel_line_to(dd, dd);
-            context.canvas().rel_line_to(d - dd, dd - d);
-            context.canvas().rel_line_to(d - dd, d - dd);
-            context.canvas().rel_line_to(dd, -dd);
-            context.canvas().rel_line_to(-d, -d);
-            
-            context.canvas().close_path();
-            context.canvas().set_color(
-              context.syntax->glyph_style_colors[GlyphStyleExcessOrMissingArg]);
-            context.canvas().fill();
-            
-            have_style = true;
-          }
-          
-          glyph_left = iter.current_glyph().right;
+    for(auto &run : glyph_to_inline_sequence.groups) {
+      text_shadows_iter.rewind_to(run.first_index);
+      Expr val;
+      for(Box *box = run.next_value; box && box != this; box = box->parent()) {
+        Expr expr;
+        if(box->style && context.stylesheet->get(box->style, TextShadow, &expr)) {
+          val = std::move(expr);
+          break;
         }
-        
-        if(lines[line].continuation) {
-          GlyphInfo gi;
-          memset(&gi, 0, sizeof(GlyphInfo));
-          uint16_t cont = CHAR_LINE_CONTINUATION;
-          context.math_shaper->decode_token(
-            context,
-            1,
-            &cont,
-            &gi);
-            
-          context.math_shaper->show_glyph(
-            context,
-            Point{glyph_left + x_extra, y},
-            cont,
-            gi);
-        }
-        
-        y += lines[line].descent + line_spacing();
       }
-      
-      inline_span_painting.switch_to_sequence(context, this, DisplayStage::Paint);
+      text_shadows_iter.reset_rest(val);
     }
     
-    if(!context.canvas().show_only_text) {
-      InlineSpanPainting inline_span_painting{this};
-      
-      context.for_each_selection_inside(this, [&](const VolatileSelection &sel) {
-        if(MathSequence *seq = dynamic_cast<MathSequence*>(sel.box)) {
-          if(&Impl(*seq).outermost_span() == this) {
-            inline_span_painting.switch_to_sequence(context, seq, DisplayStage::Paint);
-            context.canvas().move_to(p0);
-            
-            Impl(*this).selection_path(&context, context.canvas(), sel);
-              
-            context.draw_selection_path();
-          }
+    Array<RectangleF> rects;
+    for(int i = 0; i < text_shadows.groups.length(); ++i) {
+      if(Expr text_shadow = text_shadows.groups[i].next_value) {
+        GlyphIterator run_start(*this);
+        run_start.move_to_glyph(text_shadows.groups[i].first_index);
+        
+        GlyphIterator run_end = run_start;
+        if(i + 1 <  text_shadows.groups.length())
+          run_end.move_to_glyph(text_shadows.groups[i+1].first_index);
+        else
+          run_end.move_to_glyph(glyphs.length());
+        
+        rects.length(0);
+        Impl(*this).selection_rectangles(rects, &context, context.canvas(), run_start, run_end);
+        
+        for(auto &rect : rects) {
+          context.draw_text_shadows(
+            [&](Context &ctx) { Impl(*this).paint(ctx); }, 
+            rect,
+            text_shadow);
         }
-      });
-      
-      inline_span_painting.switch_to_sequence(context, this, DisplayStage::Paint);
+      }
     }
   }
+  Impl(*this).paint(context);
   
   Impl::PaintHookHandler(context, p0, context.post_paint_hooks, false).run(*this);
   
   context.canvas().set_color(default_color);
-  context.math_shaper = default_math_shaper;
 }
 
 void MathSequence::selection_path(Canvas &canvas, int start, int end) {
@@ -2613,6 +2491,12 @@ void MathSequence::Impl::GlyphGenerator::append_span(Context &context, MathSeque
 void MathSequence::Impl::GlyphGenerator::append_box_glyphs(Context &context, MathSequence &seq, int pos, Box *box) {
   if(auto sub = box->as_inline_span()) {
     box->resize_inline(context); // TODO: get rid of this call
+    if(!owner.has_text_shadow_span()) {
+      Expr expr;
+      if(box->style && context.stylesheet->get(box->style, TextShadow, &expr)) {
+        owner.has_text_shadow_span(true);
+      }
+    }
     isp.switch_to_sequence(context, sub, DisplayStage::Layout);
     sub->em = owner.get_em();
     sub->inline_span(true);
@@ -3652,6 +3536,180 @@ pmath_token_t MathSequence::Impl::EnlargeSpace::get_box_start_token(Box *box) {
 
 //} ... class MathSequence::Impl::EnlargeSpace
 
+void MathSequence::Impl::paint(Context &context) {
+  Point p0 = context.canvas().current_pos();
+  
+  Color default_color = context.canvas().get_color();
+  SharedPtr<MathShaper> default_math_shaper = context.math_shaper;
+  
+  context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+  
+  float y = p0.y;
+  if(self.lines.length() > 0)
+    y -= self.lines[0].ascent;
+  
+  double clip_x1, clip_y1, clip_x2, clip_y2;
+  context.canvas().clip_extents(&clip_x1, &clip_y1, &clip_x2,  &clip_y2);
+  
+  int line = 0;
+  // skip invisible lines:
+  while(line < self.lines.length()) {
+    float h = self.lines[line].ascent + self.lines[line].descent;
+    if(y + h >= clip_y1)
+      break;
+      
+    y += h + self.line_spacing();
+    ++line;
+  }
+  
+  if(line < self.lines.length()) {
+    float glyph_left = 0;
+    InlineSpanPainting inline_span_painting{&self};
+    GlyphIterator iter{self};
+    
+    if(line > 0)
+      iter.move_to_glyph(self.lines[line - 1].end);
+      
+    if(iter.glyph_index() > 0)
+      glyph_left = self.glyphs[iter.glyph_index() - 1].right;
+      
+    bool have_style = false;
+    bool have_slant = false;
+    for(; line < self.lines.length() && y < clip_y2; ++line) {
+      float x_extra = p0.x + self.indention_width(self.lines[line].indent);
+      
+      if(iter.glyph_index() > 0)
+        x_extra -= self.glyphs[iter.glyph_index() - 1].right;
+      
+      y += self.lines[line].ascent;
+      
+      for(; iter.glyph_index() < self.lines[line].end; iter.move_next_glyph()) {
+        inline_span_painting.switch_to_sequence(context, iter.current_sequence(), DisplayStage::Paint);
+        
+        if(iter.current_char() == '\n') {
+          glyph_left = iter.current_glyph().right;
+          continue;
+        }
+        
+        if(have_style || iter.semantic_style()) {
+          Color color = context.syntax->glyph_style_colors[iter.semantic_style().kind() & 0x0F];
+          
+          context.canvas().set_color(color);
+          have_style = color != default_color;
+        }
+        
+        if(have_slant || iter.current_glyph().slant) {
+          if(iter.current_glyph().slant == FontSlantItalic) {
+            context.math_shaper = default_math_shaper->set_style(
+                                    default_math_shaper->get_style() + Italic);
+            have_slant = true;
+          }
+          else if(iter.current_glyph().slant == FontSlantPlain) {
+            context.math_shaper = default_math_shaper->set_style(
+                                    default_math_shaper->get_style() - Italic);
+            have_slant = true;
+          }
+          else {
+            context.math_shaper = default_math_shaper;
+            have_slant = false;
+          }
+        }
+        
+        if(auto box = iter.current_box()) {
+          context.canvas().move_to(glyph_left + x_extra + iter.current_glyph().x_offset, y);
+          
+          box->paint(context);
+          
+          context.syntax->glyph_style_colors[GlyphStyleNone] = default_color;
+        }
+        else if(iter.current_glyph().index || iter.current_glyph().composed || iter.current_glyph().horizontal_stretch) {
+          if(iter.current_glyph().is_normal_text) {
+            context.text_shaper->show_glyph(
+              context,
+              Point{glyph_left + x_extra, y},
+              iter.current_char(),
+              iter.current_glyph());
+          }
+          else {
+            context.math_shaper->show_glyph(
+              context,
+              Point{glyph_left + x_extra, y},
+              iter.current_char(),
+              iter.current_glyph());
+          }
+        }
+        
+        if(iter.semantic_style().is_missing_after()) {
+          float d = self.em * RefErrorIndictorHeight * 2 / 3.0f;
+          float dd = d / 4;
+          
+          context.canvas().move_to(iter.current_glyph().right + x_extra, y + self.em / 8);
+          if(iter.glyph_index() + 1 < self.glyphs.length())
+            context.canvas().rel_move_to(self.glyphs[iter.glyph_index() + 1].x_offset / 2, 0);
+            
+          context.canvas().rel_line_to(-d, d);
+          context.canvas().rel_line_to(dd, dd);
+          context.canvas().rel_line_to(d - dd, dd - d);
+          context.canvas().rel_line_to(d - dd, d - dd);
+          context.canvas().rel_line_to(dd, -dd);
+          context.canvas().rel_line_to(-d, -d);
+          
+          context.canvas().close_path();
+          context.canvas().set_color(
+            context.syntax->glyph_style_colors[GlyphStyleExcessOrMissingArg]);
+          context.canvas().fill();
+          
+          have_style = true;
+        }
+        
+        glyph_left = iter.current_glyph().right;
+      }
+      
+      if(self.lines[line].continuation) {
+        GlyphInfo gi;
+        memset(&gi, 0, sizeof(GlyphInfo));
+        uint16_t cont = CHAR_LINE_CONTINUATION;
+        context.math_shaper->decode_token(
+          context,
+          1,
+          &cont,
+          &gi);
+          
+        context.math_shaper->show_glyph(
+          context,
+          Point{glyph_left + x_extra, y},
+          cont,
+          gi);
+      }
+      
+      y += self.lines[line].descent + self.line_spacing();
+    }
+    
+    inline_span_painting.switch_to_sequence(context, &self, DisplayStage::Paint);
+  }
+  
+  if(!context.canvas().show_only_text) {
+    InlineSpanPainting inline_span_painting{&self};
+    
+    context.for_each_selection_inside(&self, [&](const VolatileSelection &sel) {
+      if(MathSequence *seq = dynamic_cast<MathSequence*>(sel.box)) {
+        if(&Impl(*seq).outermost_span() == &self) {
+          inline_span_painting.switch_to_sequence(context, seq, DisplayStage::Paint);
+          context.canvas().move_to(p0);
+          
+          selection_path(&context, context.canvas(), sel);
+            
+          context.draw_selection_path();
+        }
+      }
+    });
+    
+    inline_span_painting.switch_to_sequence(context, &self, DisplayStage::Paint);
+  }
+  
+  context.math_shaper = default_math_shaper;
+}
+
 Vector2F MathSequence::Impl::total_offest_to_index(int index) {
   GlyphIterator iter = glyph_iterator();
   iter.skip_forward_to_glyph_after_text_pos(&self, index);
@@ -3724,11 +3782,6 @@ void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, Vo
 }
 
 void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, VolatileSelection sel) {
-//  bool tight_widths    = true;
-//  bool big_middle_blob = false;
-  bool tight_widths    = false;
-  bool big_middle_blob = true;
-  
   MathSequence *sel_seq = dynamic_cast<MathSequence*>(sel.box);
   if(!sel_seq)
     return;
@@ -3739,17 +3792,23 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
   if(self.lines.length() == 0) // resize() not yet called
     return;
   
-  GlyphIterator iter_before_start(self);
-  if(sel.start > 0)
-    iter_before_start.skip_forward_to_glyph_after_text_pos(sel_seq, sel.start - 1);
-  else
-    iter_before_start.skip_forward_to_glyph_after_text_pos(sel_seq, sel.start);
-  
-  GlyphIterator iter_start = iter_before_start;
+  GlyphIterator iter_start(self);
   iter_start.skip_forward_to_glyph_after_text_pos(sel_seq, sel.start);
   
   GlyphIterator iter_end = iter_start;
   iter_end.skip_forward_to_glyph_after_text_pos(sel_seq, sel.end);
+  
+  selection_rectangles(rects, opt_context, canvas, iter_start, iter_end);
+}
+
+void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, const GlyphIterator &start, const GlyphIterator &end) {
+//  bool tight_widths    = true;
+//  bool big_middle_blob = false;
+  bool tight_widths    = false;
+  bool big_middle_blob = true;
+  
+  RICHMATH_ASSERT(start.outermost_sequence() == &self);
+  RICHMATH_ASSERT(end.outermost_sequence()   == &self);
   
   Point p0 = canvas.current_pos();
   p0.y -= self.lines[0].ascent;
@@ -3758,7 +3817,7 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
   float line_spacing = self.line_spacing();
   
   int startline = 0;
-  while(startline < self.lines.length() && iter_start.glyph_index() >= self.lines[startline].end) {
+  while(startline < self.lines.length() && start.glyph_index() >= self.lines[startline].end) {
     p1.y += self.lines[startline].ascent + self.lines[startline].descent + line_spacing;
     ++startline;
   }
@@ -3768,21 +3827,25 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
     p1.y -= self.lines[startline].ascent + self.lines[startline].descent + line_spacing;
   }
   
-  p1.x = p0.x + glyph_offset_x(iter_start.glyph_index(), startline);
+  p1.x = p0.x + glyph_offset_x(start.glyph_index(), startline);
   Point p2 = p1;
-  if(iter_end.glyph_index() <= self.lines[startline].end) { // single line: return on tight rectangle
-    p2.x = p0.x + glyph_offset_x(iter_end.glyph_index(), startline);
+  if(end.glyph_index() <= self.lines[startline].end) { // single line: return on tight rectangle
+    p2.x = p0.x + glyph_offset_x(end.glyph_index(), startline);
     
     float a = 0.5 * self.em;
     float d = 0;
     
     if(opt_context) {
-      if(sel.start == sel.end) {
-        box_size(*opt_context, iter_before_start, &a, &d);
-        box_size(*opt_context, iter_start,        &a, &d);
+      if(start.current_location() == end.current_location()) {
+        if(start.glyph_index() > 0) {
+          GlyphIterator iter_before_start(self);
+          iter_before_start.move_to_glyph(start.glyph_index() - 1);
+          box_size(*opt_context, iter_before_start, &a, &d);
+        }
+        box_size(  *opt_context, start,        &a, &d);
       }
       else {
-        boxes_size(*opt_context, iter_start, iter_end, &a, &d);
+        boxes_size(*opt_context, start, end, &a, &d);
       }
     }
     else {
@@ -3813,7 +3876,7 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
   
   int endline = startline + 1;
   if(big_middle_blob) {
-    while(endline < self.lines.length() && iter_end.glyph_index() > self.lines[endline].end) {
+    while(endline < self.lines.length() && end.glyph_index() > self.lines[endline].end) {
       p2.y += self.lines[endline].ascent + self.lines[endline].descent + line_spacing;
       ++endline;
     }
@@ -3824,7 +3887,7 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
     p1.y = p2.y;
   }
   else {
-    while(endline < self.lines.length() && iter_end.glyph_index() > self.lines[endline].end) {
+    while(endline < self.lines.length() && end.glyph_index() > self.lines[endline].end) {
       p2.y += self.lines[endline].ascent + self.lines[endline].descent + line_spacing;
       
       if(tight_widths) {
@@ -3845,12 +3908,12 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
     if(tight_widths) {
       p1.x = p0.x + self.indention_width(self.lines[endline].indent);
     }
-    p2.x = p0.x + glyph_offset_x(iter_end.glyph_index(), endline);
+    p2.x = p0.x + glyph_offset_x(end.glyph_index(), endline);
     
     rects.add({p1, p2});
   }
 }
-
+      
 //{ class MathSequence::Impl::PaintHookHandler ...
 
 MathSequence::Impl::PaintHookHandler::PaintHookHandler(Context &context, Point outermost_origin, PaintHookManager &hooks, bool background)

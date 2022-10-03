@@ -104,14 +104,17 @@ namespace richmath {
       enum {
         AutoIndentBit = base::NumFlagsBits,
         InlineSpanBit,
+        HasTextShadowSpan,
         
         NumFlagsBits
       };
       static_assert(NumFlagsBits <= MaximumFlagsBits, "");
       
-      bool auto_indent() {         return get_flag(AutoIndentBit); }
-      void auto_indent(bool value) {   change_flag(AutoIndentBit, value); }
-      void inline_span(bool value) {   change_flag(InlineSpanBit, value); }
+      bool auto_indent() {                return get_flag(AutoIndentBit); }
+      void auto_indent(bool value) {          change_flag(AutoIndentBit, value); }
+      void inline_span(bool value) {          change_flag(InlineSpanBit, value); }
+      bool has_text_shadow_span() {       return get_flag(HasTextShadowSpan);}
+      void has_text_shadow_span(bool value) { change_flag(HasTextShadowSpan, value); }
       
       virtual void on_text_changed() override;
       

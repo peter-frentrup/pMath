@@ -216,7 +216,7 @@ void Context::draw_text_shadow(
         canvas().set_color(Color::Black);
         
         canvas().show_only_text = true;
-        painter(*this, rect);
+        painter(*this);
         canvas().show_only_text = false;
       });
       buf->blur(radius);
@@ -232,12 +232,19 @@ void Context::draw_text_shadow(
   }
   
   if(radius <= 0) {
-    canvas().rel_move_to(offset);
-    canvas().set_color(color);
+    canvas().save();
+    {
+      canvas().pixrect(region + offset, false);
+      canvas().clip();
     
-    canvas().show_only_text = true;
-    painter(*this, region);
-    canvas().show_only_text = false;
+      canvas().move_to(p0 + offset);
+      canvas().set_color(color);
+      
+      canvas().show_only_text = true;
+      painter(*this);
+      canvas().show_only_text = false;
+    }
+    canvas().restore();
   }
   
   canvas().move_to(p0);
@@ -283,7 +290,7 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
   // shadows = {{dx,dy,color,r},...}   r is optional
   
   bool show = draw_text_shadows(
-    [&](Context &ctx, const RectangleF &region) { box->paint(ctx); },
+    [&](Context &ctx) { box->paint(ctx); },
     box->extents().to_rectangle(canvas().current_pos()),
     shadows);
   
