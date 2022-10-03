@@ -323,7 +323,11 @@ namespace richmath {
       void calculate_total_extents_from_lines();
       
       Vector2F total_offest_to_index(int index);
+      float glyph_offset_x(int glpyh_index, int line_index);
+      
       void selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end);
+      void selection_path(Context *opt_context, Canvas &canvas, VolatileSelection sel);
+      void selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, VolatileSelection sel);
       
       class PaintHookHandler {
         public:
@@ -682,11 +686,7 @@ void MathSequence::paint(Context &context) {
             inline_span_painting.switch_to_sequence(context, seq, DisplayStage::Paint);
             context.canvas().move_to(p0);
             
-            Impl(*seq).selection_path_wrt_outermost_origin(
-              &context,
-              context.canvas(),
-              sel.start,
-              sel.end);
+            Impl(*this).selection_path(&context, context.canvas(), sel);
               
             context.draw_selection_path();
           }
@@ -3690,82 +3690,94 @@ Vector2F MathSequence::Impl::total_offest_to_index(int index) {
   return {x, y};
 }
 
-void MathSequence::Impl::selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end) {
-  float x0, y0, x1, y1, x2, y2;
-  MathSequence &owner = outermost_span();
-  
-  if(owner.lines.length() == 0) // resize() not yet called
-    return;
+float MathSequence::Impl::glyph_offset_x(int glpyh_index, int line_index) {
+  float dx = 0;
+  if(glpyh_index > 0)
+    dx += self.glyphs[glpyh_index - 1].right;
+    
+  if(line_index > 0)
+    dx -= self.glyphs[self.lines[line_index - 1].end - 1].right;
+    
+  dx += self.indention_width(self.lines[line_index].indent);
+  return dx;
+}
 
-  if(start > self.length())
-    start = self.length();
-  if(end > self.length())
-    end = self.length();
+void MathSequence::Impl::selection_path_wrt_outermost_origin(Context *opt_context, Canvas &canvas, int start, int end) {
+  Impl(outermost_span()).selection_path(opt_context, canvas, {&self, start, end});
+}
+
+void MathSequence::Impl::selection_path(Context *opt_context, Canvas &canvas, VolatileSelection sel) {
+  Array<RectangleF> rects;
+  selection_rectangles(rects, opt_context, canvas, sel);
   
-  GlyphIterator iter_before_start(owner);
-  if(start > 0)
-    iter_before_start.skip_forward_to_glyph_after_text_pos(&self, start - 1);
+  if(sel.length() == 0 && rects.length() == 1) {
+    canvas.move_to(canvas.align_point(rects[0].top_left(),    true));
+    canvas.line_to(canvas.align_point(rects[0].bottom_left(), true));
+    return;
+  }
+  
+  for(auto &rect : rects) {
+    rect.pixel_align(canvas, false, 0);
+  }
+  
+  canvas.add_stacked_rectangles(rects);
+}
+
+void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context *opt_context, Canvas &canvas, VolatileSelection sel) {
+//  bool tight_widths    = true;
+//  bool big_middle_blob = false;
+  bool tight_widths    = false;
+  bool big_middle_blob = true;
+  
+  MathSequence *sel_seq = dynamic_cast<MathSequence*>(sel.box);
+  if(!sel_seq)
+    return;
+  
+  if(&Impl(*sel_seq).outermost_span() != &self)
+    return;
+  
+  if(self.lines.length() == 0) // resize() not yet called
+    return;
+  
+  GlyphIterator iter_before_start(self);
+  if(sel.start > 0)
+    iter_before_start.skip_forward_to_glyph_after_text_pos(sel_seq, sel.start - 1);
   else
-    iter_before_start.skip_forward_to_glyph_after_text_pos(&self, start);
+    iter_before_start.skip_forward_to_glyph_after_text_pos(sel_seq, sel.start);
   
   GlyphIterator iter_start = iter_before_start;
-  iter_start.skip_forward_to_glyph_after_text_pos(&self, start);
+  iter_start.skip_forward_to_glyph_after_text_pos(sel_seq, sel.start);
   
   GlyphIterator iter_end = iter_start;
-  iter_end.skip_forward_to_glyph_after_text_pos(&self, end);
+  iter_end.skip_forward_to_glyph_after_text_pos(sel_seq, sel.end);
   
-  canvas.current_pos(&x0, &y0);
+  Point p0 = canvas.current_pos();
+  p0.y -= self.lines[0].ascent;
   
-  y0 -= owner.lines[0].ascent;
-  y1 = y0;
+  Point p1 = p0;
+  float line_spacing = self.line_spacing();
   
   int startline = 0;
-  while(startline < owner.lines.length() && iter_start.glyph_index() >= owner.lines[startline].end) {
-    y1 += owner.lines[startline].ascent + owner.lines[startline].descent + owner.line_spacing();
+  while(startline < self.lines.length() && iter_start.glyph_index() >= self.lines[startline].end) {
+    p1.y += self.lines[startline].ascent + self.lines[startline].descent + line_spacing;
     ++startline;
   }
   
-  if(startline == owner.lines.length()) {
+  if(startline == self.lines.length()) {
     --startline;
-    y1 -= owner.lines[startline].ascent + owner.lines[startline].descent + owner.line_spacing();
+    p1.y -= self.lines[startline].ascent + self.lines[startline].descent + line_spacing;
   }
   
-  y2 = y1;
-  int endline = startline;
-  while(endline < owner.lines.length() && iter_end.glyph_index() > owner.lines[endline].end) {
-    y2 += owner.lines[endline].ascent + owner.lines[endline].descent + owner.line_spacing();
-    ++endline;
-  }
-  
-  if(endline == owner.lines.length()) {
-    --endline;
-    y2 -= owner.lines[endline].ascent + owner.lines[endline].descent + owner.line_spacing();
-  }
-  
-  x1 = x0;
-  if(iter_start.glyph_index() > 0)
-    x1 += owner.glyphs[iter_start.glyph_index() - 1].right;
+  p1.x = p0.x + glyph_offset_x(iter_start.glyph_index(), startline);
+  Point p2 = p1;
+  if(iter_end.glyph_index() <= self.lines[startline].end) { // single line: return on tight rectangle
+    p2.x = p0.x + glyph_offset_x(iter_end.glyph_index(), startline);
     
-  if(startline > 0)
-    x1 -= owner.glyphs[owner.lines[startline - 1].end - 1].right;
-    
-  x1 += owner.indention_width(owner.lines[startline].indent);
-  
-  x2 = x0;
-  if(iter_end.glyph_index() > 0)
-    x2 += owner.glyphs[iter_end.glyph_index() - 1].right;
-    
-  if(endline > 0)
-    x2 -= owner.glyphs[owner.lines[endline - 1].end - 1].right;
-    
-  x2 += owner.indention_width(owner.lines[endline].indent);
-  
-  if(endline == startline) {
-    float a = 0.5 * owner.em;
+    float a = 0.5 * self.em;
     float d = 0;
     
     if(opt_context) {
-      if(start == end) {
+      if(sel.start == sel.end) {
         box_size(*opt_context, iter_before_start, &a, &d);
         box_size(*opt_context, iter_start,        &a, &d);
       }
@@ -3774,68 +3786,68 @@ void MathSequence::Impl::selection_path_wrt_outermost_origin(Context *opt_contex
       }
     }
     else {
-      a = owner.lines[startline].ascent;
-      d = owner.lines[startline].descent;
+      a = self.lines[startline].ascent;
+      d = self.lines[startline].descent;
     }
     
-    y1 += owner.lines[startline].ascent;
-    y2 = y1 + d + 1;
-    y1 -= a + 1;
+    p1.y += self.lines[startline].ascent;
+    p2.y = p1.y + d + 1;
+    p1.y -= a + 1;
     
-    if(start == end) {
-      canvas.align_point(&x1, &y1, true);
-      canvas.align_point(&x2, &y2, true);
-      
-      canvas.move_to(x1, y1);
-      canvas.line_to(x2, y2);
+    rects.add({p1, p2});
+    return;
+  }
+  
+  p1.y -= line_spacing/2;
+  p2.y -= line_spacing/2;
+  p2.y += self.lines[startline].ascent + self.lines[startline].descent + line_spacing;
+  
+  p2.x = p0.x + (tight_widths ? glyph_offset_x(self.lines[startline].end, startline) : self._extents.width);
+  rects.add({p1, p2});
+  
+  p1.y = p2.y;
+  if(big_middle_blob || !tight_widths) {
+    p1.x = p0.x;
+    p2.x = p0.x + self._extents.width;
+  }
+  
+  int endline = startline + 1;
+  if(big_middle_blob) {
+    while(endline < self.lines.length() && iter_end.glyph_index() > self.lines[endline].end) {
+      p2.y += self.lines[endline].ascent + self.lines[endline].descent + line_spacing;
+      ++endline;
     }
-    else
-      canvas.pixrect(x1, y1, x2, y2, false);
+    
+    if(startline + 1 < endline) {
+      rects.add({p1, p2});
+    }
+    p1.y = p2.y;
   }
   else {
-    y2 = y1;
-    for(int line = startline; line <= endline; ++line)
-      y2 += owner.lines[line].ascent + owner.lines[line].descent + owner.line_spacing();
-    y2 -= owner.line_spacing();
+    while(endline < self.lines.length() && iter_end.glyph_index() > self.lines[endline].end) {
+      p2.y += self.lines[endline].ascent + self.lines[endline].descent + line_spacing;
+      
+      if(tight_widths) {
+        p1.x = p0.x + self.indention_width(self.lines[endline].indent);
+        p2.x = p0.x + glyph_offset_x(self.lines[endline].end, endline);
+      }
+      rects.add({p1, p2});
+      
+      p1.y = p2.y;
+      ++endline;
+    }
+  }
+  
+  if(endline < self.lines.length()) {
+    p2.y += line_spacing/2;
+    p2.y += self.lines[endline].ascent + self.lines[endline].descent;
     
-    /*    1----3
-          |    |
-      7---8    |
-      |      5-4
-      |      |
-      6------2
-     */
+    if(tight_widths) {
+      p1.x = p0.x + self.indention_width(self.lines[endline].indent);
+    }
+    p2.x = p0.x + glyph_offset_x(iter_end.glyph_index(), endline);
     
-    float x3, y3, x4, y4, x5, y5, x6, y6, x7, y7, x8, y8;
-    
-    x3 = x4 = x0 + owner._extents.width;
-    x5 = x2;
-    x6 = x7 = x0;
-    x8 = x1;
-    
-    y3 = y1;
-    y4 = y5 = y2 - owner.lines[endline].ascent - owner.lines[endline].descent - owner.line_spacing() / 2;
-    y6 = y2;
-    y7 = y8 = y1 + owner.lines[startline].ascent + owner.lines[startline].descent + owner.line_spacing() / 2;
-    
-    canvas.align_point(&x1, &y1, false);
-    canvas.align_point(&x2, &y2, false);
-    canvas.align_point(&x3, &y3, false);
-    canvas.align_point(&x4, &y4, false);
-    canvas.align_point(&x5, &y5, false);
-    canvas.align_point(&x6, &y6, false);
-    canvas.align_point(&x7, &y7, false);
-    canvas.align_point(&x8, &y8, false);
-    
-    canvas.move_to(x1, y1);
-    canvas.line_to(x3, y3);
-    canvas.line_to(x4, y4);
-    canvas.line_to(x5, y5);
-    canvas.line_to(x2, y2);
-    canvas.line_to(x6, y6);
-    canvas.line_to(x7, y7);
-    canvas.line_to(x8, y8);
-    canvas.close_path();
+    rects.add({p1, p2});
   }
 }
 

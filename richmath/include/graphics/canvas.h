@@ -103,6 +103,8 @@ namespace richmath {
         
       void close_path();
       
+      void add_stacked_rectangles(const Array<RectangleF> &rects);
+      
       Point align_point(Point pt, bool tostroke) { align_point(&pt.x, &pt.y, tostroke); return pt; }
       void align_point(float *x, float *y, bool tostroke);
       

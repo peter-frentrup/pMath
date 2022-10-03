@@ -294,6 +294,35 @@ void Canvas::close_path() {
   cairo_close_path(_cr);
 }
 
+void Canvas::add_stacked_rectangles(const Array<RectangleF> &rects) {
+  // Example:
+  //      12-----1
+  //       |     |
+  // 10---11  3--2
+  //  |       |
+  //  9--8    4-----5
+  //     |          |
+  //     7----------6
+  
+  if(rects.length() == 0)
+    return;
+  
+  move_to(rects[0].top_left());
+  for(int i = 0; i < rects.length(); ++i) {
+    auto &rect = rects[i];
+    line_to(rect.top_right());
+    line_to(rect.bottom_right());
+  }
+  
+  for(int i = rects.length() - 1; i >= 0; --i) {
+    auto &rect = rects[i];
+    line_to(rect.bottom_left());
+    line_to(rect.top_left());
+  }
+  
+  close_path();
+}
+
 void Canvas::align_point(float *x, float *y, bool tostroke) {
   if(pixel_device) {
     cairo_matrix_t ctm;
