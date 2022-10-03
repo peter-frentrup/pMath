@@ -1,7 +1,8 @@
 /* pMath Document */
 
 Document({
-  SectionGroup({Section("TextShadow Example", "Title"), 
+  SectionGroup({Section("TextShadow Example", "Title", 
+     TextShadow -> {{1, 1, RGBColor(1, 0, 0), 1}}), 
     SectionGroup({
       Section(BoxData(/\/({{"px", "\[Assign]", "0.75"}, ";"}, "\n", {
           {{"Style", "(", {StringBox("\"Shadow Text\""), ",", "56", ",", {
