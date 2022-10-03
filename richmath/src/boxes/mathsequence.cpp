@@ -131,8 +131,8 @@ namespace richmath {
       
       //{ get vertical size
     public:
-      void box_size(Context &context, const GlyphIterator &pos, float *a, float *d);
-      void boxes_size(Context &context, GlyphIterator start, const GlyphIterator &end, float *a, float *d);
+      void box_size(  InlineSpanPainting &isp, Context &context, const GlyphIterator &pos, float *a, float *d);
+      void boxes_size(InlineSpanPainting &isp, Context &context, GlyphIterator start, const GlyphIterator &end, float *a, float *d);
       //}
       
       //{ generate glyphs
@@ -1801,7 +1801,7 @@ pmath_t MathSequence::Impl::remove_null_tokens(pmath_t boxes) {
 }
 
 
-void MathSequence::Impl::box_size(Context &context, const GlyphIterator &pos, float *a, float *d) {
+void MathSequence::Impl::box_size(InlineSpanPainting &isp, Context &context, const GlyphIterator &pos, float *a, float *d) {
   if(!pos.has_more_glyphs())
     return;
   
@@ -1810,6 +1810,7 @@ void MathSequence::Impl::box_size(Context &context, const GlyphIterator &pos, fl
     return;
   }
   
+  isp.switch_to_sequence(context, pos.current_sequence(), DisplayStage::Layout);
   if(pos.current_glyph().is_normal_text) {
     context.text_shaper->vertical_glyph_size(
       context,
@@ -1828,9 +1829,9 @@ void MathSequence::Impl::box_size(Context &context, const GlyphIterator &pos, fl
   }
 }
 
-void MathSequence::Impl::boxes_size(Context &context, GlyphIterator start, const GlyphIterator &end, float *a, float *d) {
+void MathSequence::Impl::boxes_size(InlineSpanPainting &isp, Context &context, GlyphIterator start, const GlyphIterator &end, float *a, float *d) {
   for(;start.glyph_index() < end.glyph_index(); start.move_next_glyph()) {
-    box_size(context, start, a, d);
+    box_size(isp, context, start, a, d);
   }
 }
 
@@ -3836,17 +3837,20 @@ void MathSequence::Impl::selection_rectangles(Array<RectangleF> &rects, Context 
     float d = 0;
     
     if(opt_context) {
+      InlineSpanPainting isp{&self};
       if(start.current_location() == end.current_location()) {
         if(start.glyph_index() > 0) {
           GlyphIterator iter_before_start(self);
           iter_before_start.move_to_glyph(start.glyph_index() - 1);
-          box_size(*opt_context, iter_before_start, &a, &d);
+          box_size(isp, *opt_context, iter_before_start, &a, &d);
         }
-        box_size(  *opt_context, start,        &a, &d);
+        box_size(isp, *opt_context, start,        &a, &d);
       }
       else {
-        boxes_size(*opt_context, start, end, &a, &d);
+        boxes_size(isp, *opt_context, start, end, &a, &d);
       }
+      
+      isp.switch_to_sequence(*opt_context, &self, DisplayStage::Layout);
     }
     else {
       a = self.lines[startline].ascent;
