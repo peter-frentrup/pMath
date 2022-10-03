@@ -37,13 +37,15 @@ namespace richmath {
       
       void set_script_size_multis(Expr expr);
       
+      using PaintCallback = std::function<void(Context&, const RectangleF &rect)>;
       void draw_text_shadow(
-        Box   *box,
-        Color  color,
-        float  radius,
-        float  dx,
-        float  dy);
-        
+             PaintCallback     painter,
+             const RectangleF &region, 
+             Color             color, 
+             float             radius, 
+             Vector2F          offset);
+      
+      bool draw_text_shadows(PaintCallback painter, const RectangleF &region, Expr shadows);
       void draw_with_text_shadows(Box *box, Expr shadows);
       
       void for_each_selection_at(    Box *box, std::function<void(const VolatileSelection&)> func);

@@ -185,11 +185,11 @@ void Context::set_script_size_multis(Expr expr) {
 }
 
 void Context::draw_text_shadow(
-  Box   *box,
-  Color  color,
-  float  radius,
-  float  dx,
-  float  dy
+  Context::PaintCallback  painter,
+  const RectangleF       &region, 
+  Color                   color, 
+  float                   radius, 
+  Vector2F                offset
 ) {
   if(!color.is_valid())
     return;
@@ -200,26 +200,23 @@ void Context::draw_text_shadow(
   Point p0 = canvas().current_pos();
   
   if(radius > 0) {
-    RectangleF rect {
-      p0.x + dx - radius,
-      p0.y + dy - radius - box->extents().ascent,
-      box->extents().width    + 2 * radius,
-      box->extents().height() + 2 * radius};
+    RectangleF rect = region + offset;
+    rect.grow(radius, radius);
     
     SharedPtr<Buffer> buf = new Buffer(
       canvas(),
       CAIRO_FORMAT_A8,
-      rect);
+      region);
       
     if(buf->canvas()) {
       with_canvas(*buf->canvas(), [&]() {
         buf->clear();
         
-        canvas().rel_move_to(dx, dy);
+        canvas().rel_move_to(offset);
         canvas().set_color(Color::Black);
         
         canvas().show_only_text = true;
-        box->paint(*this);
+        painter(*this, rect);
         canvas().show_only_text = false;
       });
       buf->blur(radius);
@@ -235,22 +232,26 @@ void Context::draw_text_shadow(
   }
   
   if(radius <= 0) {
-    canvas().rel_move_to(dx, dy);
+    canvas().rel_move_to(offset);
     canvas().set_color(color);
     
     canvas().show_only_text = true;
-    box->paint(*this);
+    painter(*this, region);
     canvas().show_only_text = false;
   }
   
   canvas().move_to(p0);
 }
 
-void Context::draw_with_text_shadows(Box *box, Expr shadows) {
+bool Context::draw_text_shadows(
+  Context::PaintCallback  painter, 
+  const RectangleF       &region, 
+  Expr                    shadows
+) {
   // shadows = {{dx,dy,color,r},...}   r is optional
   
   if(canvas().show_only_text && shadows == richmath_System_None)
-    return;
+    return false;
     
   Color c = canvas().get_color();
   if(shadows[0] == richmath_System_List) {
@@ -263,11 +264,11 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
       {
         if(Color col = Color::from_pmath(shadow[3])) {
           draw_text_shadow(
-            box,
+            painter,
+            region,
             col,
             shadow[4].to_double(),
-            shadow[1].to_double(),
-            shadow[2].to_double());
+            Vector2F(shadow[1].to_double(), shadow[2].to_double()));
         }
       }
     }
@@ -275,7 +276,19 @@ void Context::draw_with_text_shadows(Box *box, Expr shadows) {
   
   canvas().set_color(c);
   
-  box->paint(*this);
+  return true;
+}
+
+void Context::draw_with_text_shadows(Box *box, Expr shadows) {
+  // shadows = {{dx,dy,color,r},...}   r is optional
+  
+  bool show = draw_text_shadows(
+    [&](Context &ctx, const RectangleF &region) { box->paint(ctx); },
+    box->extents().to_rectangle(canvas().current_pos()),
+    shadows);
+  
+  if(show)
+    box->paint(*this);
 }
 
 void Context::for_each_selection_at(Box *box, std::function<void(const VolatileSelection&)> func) {
